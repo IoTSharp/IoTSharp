@@ -30,7 +30,8 @@ namespace IoTSharp.Hub.Data
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-                modelBuilder.Entity<Customer>()
+            base.OnModelCreating(modelBuilder);
+            modelBuilder.Entity<Customer>()
                 .HasOne(p => p.Tenant)
                 .WithMany(b => b.Customers);
 

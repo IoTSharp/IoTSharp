@@ -25,30 +25,42 @@ namespace IoTSharp.Hub
                 case "mssql":
                     services.AddEntityFrameworkSqlServer();
                     services.AddDbContext<ApplicationDbContext>(options => options.UseSqlServer(_ConnectionString), ServiceLifetime.Transient);
+#if WithHealthChecks
                     services.AddHealthChecks().AddSqlServer(_ConnectionString, name: "database").AddMQTTChatHealthChecks();
+#endif
                     break;
 
                 case "npgsql":
                     services.AddEntityFrameworkNpgsql();
                     services.AddDbContext<ApplicationDbContext>(options => options.UseNpgsql(_ConnectionString), ServiceLifetime.Transient);
+#if WithHealthChecks
                     services.AddHealthChecks().AddNpgSql(_ConnectionString, name: "database").AddMQTTChatHealthChecks();
+#endif
                     break;
 
                 case "memory":
                     services.AddEntityFrameworkInMemoryDatabase();
                     services.AddDbContext<ApplicationDbContext>(options => options.UseInMemoryDatabase(nameof(ApplicationDbContext)), ServiceLifetime.Transient);
+#if WithHealthChecks
                     services.AddHealthChecks().AddMQTTChatHealthChecks();
+#endif
                     break;
 
                 case "sqlite":
                 default:
                     services.AddEntityFrameworkSqlite();
                     services.AddDbContext<ApplicationDbContext>(options => options.UseSqlite(_ConnectionString), ServiceLifetime.Transient);
+#if WithHealthChecks
                     services.AddHealthChecks().AddSqlite(_ConnectionString, name: "database").AddMQTTChatHealthChecks();
+#endif
                     break;
             }
-            services.AddHealthChecksUI();
+#if WithHealthChecks
+           services.AddHealthChecksUI();
+#endif
         }
+
+#if WithHealthChecks
         internal static void UseIotSharpHealthChecks(this IApplicationBuilder app)
         {
             app.UseHealthChecksUI();
@@ -69,7 +81,7 @@ namespace IoTSharp.Hub
                  });
              });
         }
-
+#endif
         private static string GetFullPathName(string filename)
         {
             FileInfo fi = new FileInfo(System.IO.Path.Combine(
