@@ -106,8 +106,9 @@ namespace IoTSharp.Hub
                 var externalPath = request.Headers.ContainsKey("X-External-Path") ? request.Headers["X-External-Path"].First() : "";
                 return externalPath + internalUiRoute;
             });
-
+#if WithHealthChecks
             app.UseIotSharpHealthChecks();
+#endif
         }
     }
 }
