@@ -22,7 +22,7 @@ roadmap](https://github.com/IoTSharp/IotSharp.Gateway/blob/master/roadmap.md).
 |Collect and visualize data |Q1 2019|
 |Process and React|Q2 2019|
 
-If you'd like to contribute to WinForms, please take a look at our [Contributing
+If you'd like to contribute to IotSharp, please take a look at our [Contributing
 Guide](contributing.md).
 
 ## Shorter-Term Feature Backlog
