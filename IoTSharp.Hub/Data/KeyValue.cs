@@ -1,12 +1,15 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System;
+using System.ComponentModel.DataAnnotations;
 
 namespace IoTSharp.Hub.Data
 {
     public class KeyValue
     {
         [Key]
+        public Guid Id { get; set; }
+        [Required]
         public string KeyName { get; set; }
-        [Key]
+        [Required]
         [EnumDataType(typeof(DataType))]
         public DataType Type { get; set; }
  

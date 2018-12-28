@@ -8,7 +8,7 @@ namespace IoTSharp.Hub.Data
 {
     public class KeyValueSharedSide : KeyValue
     {
-        [Key]
+    [Required]
         public Device Device { get; set; }
     }
 }

@@ -16,11 +16,12 @@ namespace IoTSharp.Hub.Data
         public Tenant  Tenant { get; set; }
 
         public Customer Customer   { get; set; }
-        
-        public List<KeyValueServerSide> ServerSideKeyValue { get; set; }
-        public List<KeyValueSharedSide> SharedSideKeyValue { get; set; }
-        public List<KeyValueClientSide> ClientSideKeyValue { get; set; }
+       
+        public virtual List<KeyValueServerSide> ServerSide{ get; set; }
+        public virtual List<KeyValueSharedSide> SharedSide { get; set; }
+        public  virtual List<KeyValueClientSide> ClientSide { get; set; }
 
-
+        public virtual List<KeyValueDeviceLatest> DeviceLatest { get; set; }
+        public virtual List<KevValueTelemetry> Telemetry { get;  set; }
     }
 }

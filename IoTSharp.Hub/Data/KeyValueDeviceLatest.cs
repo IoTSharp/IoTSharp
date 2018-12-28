@@ -8,7 +8,7 @@ namespace IoTSharp.Hub.Data
 {
     public class KeyValueDeviceLatest : KeyValueSharedSide
     {
-        [Key]
+        [Required]
         [EnumDataType(typeof(KeyValueScope))]
         public KeyValueScope Scope { get; set; }
     }
