@@ -5,7 +5,15 @@ using System.Threading.Tasks;
 
 namespace IoTSharp.Hub.Data
 {
-    public enum AttributeType
+
+    public enum KeyValueScope
+    {
+        ShareSide,
+        ServerSide,
+        ClientSide
+    }
+
+    public enum DataType
     {
         Boolean,
         String,
