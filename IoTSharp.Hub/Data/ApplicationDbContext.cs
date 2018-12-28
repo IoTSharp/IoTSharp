@@ -30,53 +30,7 @@ namespace IoTSharp.Hub.Data
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
-            modelBuilder.Entity<Customer>()
-                .HasOne(p => p.Tenant)
-                .WithMany(b => b.Customers);
-
-            modelBuilder.Entity<Device>()
-                .HasOne(p => p.Customer)
-                .WithMany(b => b.Devices);
-
-            //modelBuilder.Entity<KeyValueSharedSide>()
-            //    .HasOne(p => p.Device )
-            //    .WithMany(b => b.SharedSide);
-
-
-
-            //modelBuilder.Entity<KeyValueServerSide>()
-            //    .HasOne(p => p.Device)
-            //    .WithMany(b => b.ServerSide);
-
-
-            //   modelBuilder.Entity<KeyValueClientSide>()
-            //       .HasOne(p => p.Device)
-            //       .WithMany(b=>b.ClientSide);
-
-            //   modelBuilder.Entity<KevValueTelemetry>()
-            //.HasOne(p => p.Device)
-            //.WithMany(b => b.Telemetry);
-
-            //   modelBuilder.Entity<KeyValueDeviceLatest>()
-            //    .HasOne(p => p.Device)
-            //   .WithMany(b => b.DeviceLatest);
-
-
-
-            //   modelBuilder.Entity<Device>()
-            //.HasOne(p => p.Tenant)
-            //.WithMany(b => b.Devices);
-            //   modelBuilder.Entity<Device>()
-            //.HasOne(p => p.Tenant)
-            //.WithMany(b => b.Devices);
-
-            modelBuilder.Entity<Relationship>()
-             .HasOne(p => p.Tenant);
-            modelBuilder.Entity<Relationship>()
-          .HasOne(p => p.Customer);
-
-            modelBuilder.Entity<Relationship>()
-            .HasOne(p => p.Identity);
+        
             switch (DatabaseType)
             {
                 case DatabaseType.mssql:
@@ -94,52 +48,65 @@ namespace IoTSharp.Hub.Data
 
         private void ForNpgsql(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<KeyValueClientSide>()
+            modelBuilder.Entity<TelemetryData>()
             .Property(b => b.Value_Json)
             .HasColumnType("jsonb");
 
-            modelBuilder.Entity<KeyValueClientSide>()
+            modelBuilder.Entity<TelemetryData>()
             .Property(b => b.Value_XML)
             .HasColumnType("xml");
 
-            modelBuilder.Entity<KeyValueServerSide>()
+            modelBuilder.Entity<AttributeLatest>()
             .Property(b => b.Value_Json)
             .HasColumnType("jsonb");
 
-            modelBuilder.Entity<KeyValueServerSide>()
+            modelBuilder.Entity<AttributeLatest>()
             .Property(b => b.Value_XML)
             .HasColumnType("xml");
 
-            modelBuilder.Entity<KeyValueSharedSide>()
+            modelBuilder.Entity<AttributeData>()
             .Property(b => b.Value_Json)
             .HasColumnType("jsonb");
 
-            modelBuilder.Entity<KeyValueSharedSide>()
+            modelBuilder.Entity<AttributeData>()
+            .Property(b => b.Value_XML)
+            .HasColumnType("xml");
+
+            modelBuilder.Entity<TelemetryLatest>()
+      .Property(b => b.Value_Json)
+      .HasColumnType("jsonb");
+
+            modelBuilder.Entity<TelemetryLatest>()
             .Property(b => b.Value_XML)
             .HasColumnType("xml");
         }
         private void ForSqlServer(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<KeyValueClientSide>()
+            modelBuilder.Entity<TelemetryData>()
             .Property(b => b.Value_XML)
             .HasColumnType("xml");
-            modelBuilder.Entity<KeyValueServerSide>()
+            modelBuilder.Entity<AttributeLatest>()
             .Property(b => b.Value_XML)
             .HasColumnType("xml");
-            modelBuilder.Entity<KeyValueSharedSide>()
+            modelBuilder.Entity<AttributeData>()
             .Property(b => b.Value_XML)
             .HasColumnType("xml");
+
+            modelBuilder.Entity<TelemetryLatest>()
+    .Property(b => b.Value_XML)
+    .HasColumnType("xml");
         }
         public DbSet<Tenant> Tenant { get; set; }
         public DbSet<Customer> Customer { get; set; }
 
         public DbSet<Relationship> Relationship { get; set; }
         public DbSet<Device> Device { get; set; }
-        public DbSet<KeyValueClientSide> ClientSide { get; set; }
-        public DbSet<KeyValueServerSide> ServerSide { get; set; }
-        public DbSet<KeyValueSharedSide> SharedSide { get; set; }
-        public DbSet<KevValueTelemetry> TelemetryData { get; set; }
-        public DbSet<KeyValueDeviceLatest> DeviceLatest{ get; set; }
+
+        public DbSet<TelemetryData> TelemetryData { get; set; }
+        public DbSet<AttributeLatest> AttributeLatest { get; set; }
+        public DbSet<AttributeData> AttributeData { get; set; }
+
+        public DbSet<TelemetryLatest> TelemetryLatest { get; set; }
 
 
     }

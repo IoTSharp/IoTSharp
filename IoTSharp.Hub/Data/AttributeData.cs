@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace IoTSharp.Hub.Data
 {
-    public class KeyValue
+    public class AttributeData
     {
         [Key]
         public Guid Id { get; set; }
@@ -12,7 +12,8 @@ namespace IoTSharp.Hub.Data
         [Required]
         [EnumDataType(typeof(DataType))]
         public DataType Type { get; set; }
- 
+        public DateTime DateTime { get; set; }
+
         public bool Value_Boolean { get; set; }
         public string Value_String { get; set; }
         public long Value_Long { get; set; }
