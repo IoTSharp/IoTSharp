@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace IoTSharp.Hub.Data
 {
-    public class KeyValueDeviceLatest : KeyValueSharedSide
+    public class AttributeLatest : AttributeData
     {
         [Required]
         [EnumDataType(typeof(KeyValueScope))]

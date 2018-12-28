@@ -8,10 +8,10 @@ using System.Threading.Tasks;
 namespace IoTSharp.Hub.Data
 {
 
-    public class KevValueTelemetry : KeyValue
+    public class TelemetryLatest : AttributeData
     {
         [Required]
-     
         public Device Device { get; set; }
+ 
     }
 }

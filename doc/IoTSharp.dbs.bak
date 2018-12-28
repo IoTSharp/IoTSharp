@@ -152,6 +152,9 @@
 			<fk name="FK_Customer_Tenant_TenantId" to_schema="public" to_table="Tenant" delete_action="restrict" >
 				<fk_column name="TenantId" pk="Id" />
 			</fk>
+			<fk name="fk_customer_relationship" to_schema="public" to_table="Relationship" >
+				<fk_column name="Id" pk="CustomerId" />
+			</fk>
 		</table>
 		<table name="Device" >
 			<column name="Id" type="uuid" decimal="0" jt="1111" mandatory="y" />
@@ -181,6 +184,12 @@
 			<column name="TenantId" type="uuid" decimal="0" jt="1111" mandatory="y" />
 			<index name="PK_Relationship" unique="PRIMARY_KEY" >
 				<column name="UseId" />
+			</index>
+			<index name="unq_relationship_tenantid" unique="UNIQUE" >
+				<column name="TenantId" />
+			</index>
+			<index name="unq_relationship_customerid" unique="UNIQUE" >
+				<column name="CustomerId" />
 			</index>
 		</table>
 		<table name="ServerSideAttribute" >
@@ -227,6 +236,9 @@
 			<index name="PK_Tenant" unique="PRIMARY_KEY" >
 				<column name="Id" />
 			</index>
+			<fk name="fk_tenant_relationship" to_schema="public" to_table="Relationship" >
+				<fk_column name="Id" pk="TenantId" />
+			</fk>
 		</table>
 		<table name="__EFMigrationsHistory" >
 			<column name="MigrationId" type="varchar" length="150" decimal="0" jt="12" mandatory="y" />
@@ -240,21 +252,21 @@
 	</schema>
 	<connector name="PostgreSQL" database="PostgreSQL" driver_class="org.postgresql.Driver" driver_jar="postgresql-42.2.2.jar" driver_desc="Standard" host="localhost" port="5432" instance="IoTSharp" user="postgres" passwd="ZnV0dXJl" />
 	<layout name="Default Layout" id="Layout_159a766" show_relation="columns" >
-		<entity schema="public" name="AspNetRoleClaims" color="BED3F4" x="672" y="48" />
 		<entity schema="public" name="AspNetRoles" color="BED3F4" x="464" y="48" />
-		<entity schema="public" name="AspNetUserClaims" color="BED3F4" x="288" y="224" />
 		<entity schema="public" name="AspNetUserLogins" color="BED3F4" x="288" y="400" />
+		<entity schema="public" name="Device" color="C7F4BE" x="1024" y="48" />
+		<entity schema="public" name="AspNetRoleClaims" color="BED3F4" x="672" y="48" />
+		<entity schema="public" name="Tenant" color="C7F4BE" x="1024" y="336" />
+		<entity schema="public" name="Customer" color="C7F4BE" x="880" y="48" />
+		<entity schema="public" name="__EFMigrationsHistory" color="F4DDBE" x="448" y="544" />
+		<entity schema="public" name="ClientSideAttribute" color="F4DDBE" x="672" y="544" />
+		<entity schema="public" name="ServerSideAttribute" color="F4DDBE" x="864" y="560" />
+		<entity schema="public" name="SharedSideAttribute" color="F4DDBE" x="1008" y="560" />
+		<entity schema="public" name="Relationship" color="F4DDBE" x="752" y="400" />
+		<entity schema="public" name="AspNetUsers" color="BED3F4" x="48" y="48" />
 		<entity schema="public" name="AspNetUserRoles" color="BED3F4" x="288" y="48" />
 		<entity schema="public" name="AspNetUserTokens" color="BED3F4" x="48" y="400" />
-		<entity schema="public" name="AspNetUsers" color="BED3F4" x="48" y="48" />
-		<entity schema="public" name="ClientSideAttribute" color="F4DDBE" x="432" y="752" />
-		<entity schema="public" name="Customer" color="C7F4BE" x="880" y="48" />
-		<entity schema="public" name="Device" color="C7F4BE" x="1024" y="48" />
-		<entity schema="public" name="Relationship" color="F4DDBE" x="240" y="896" />
-		<entity schema="public" name="ServerSideAttribute" color="F4DDBE" x="64" y="896" />
-		<entity schema="public" name="SharedSideAttribute" color="F4DDBE" x="48" y="624" />
-		<entity schema="public" name="Tenant" color="C7F4BE" x="1024" y="336" />
-		<entity schema="public" name="__EFMigrationsHistory" color="F4DDBE" x="240" y="752" />
+		<entity schema="public" name="AspNetUserClaims" color="BED3F4" x="288" y="224" />
 	</layout>
 	<layout name="Sample Layout with Tools" id="Layout_54786c0" show_column_type="y" show_relation="columns" >
 		<entity schema="public" name="AspNetRoleClaims" color="BED3F4" x="768" y="176" />
