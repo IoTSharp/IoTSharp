@@ -3,7 +3,6 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using System;
 using System.Linq;
-
 namespace IoTSharp.Hub.Data
 {
     public class ApplicationDbContext : IdentityDbContext
@@ -35,14 +34,33 @@ namespace IoTSharp.Hub.Data
                 .HasOne(p => p.Tenant)
                 .WithMany(b => b.Customers);
 
-                modelBuilder.Entity<Device>()
+            modelBuilder.Entity<Device>()
                 .HasOne(p => p.Customer)
                 .WithMany(b => b.Devices);
 
-                modelBuilder.Entity<Device>()
+            modelBuilder.Entity<KeyValueSharedSide>()
+                .HasOne(p => p.Device)
+                .WithMany(b => b.SharedSideKeyValue);
+
+            modelBuilder.Entity<KeyValueServerSide>()
+                .HasOne(p => p.Device)
+                .WithMany(b => b.ServerSideKeyValue);
+
+            modelBuilder.Entity<KeyValueClientSide>()
+                .HasOne(p => p.Device)
+                .WithMany(b => b.ClientSideKeyValue);
+
+            modelBuilder.Entity<Device>()
                 .HasOne(p => p.Tenant)
                 .WithMany(b => b.Devices);
 
+            modelBuilder.Entity<Relationship>()
+             .HasOne(p => p.Tenant);
+            modelBuilder.Entity<Relationship>()
+          .HasOne(p => p.Customer);
+
+            modelBuilder.Entity<Relationship>()
+            .HasOne(p => p.Identity);
             switch (DatabaseType)
             {
                 case DatabaseType.mssql:
@@ -60,39 +78,39 @@ namespace IoTSharp.Hub.Data
 
         private void ForNpgsql(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<ClientSideAttribute>()
+            modelBuilder.Entity<KeyValueClientSide>()
             .Property(b => b.Value_Json)
             .HasColumnType("jsonb");
 
-            modelBuilder.Entity<ClientSideAttribute>()
+            modelBuilder.Entity<KeyValueClientSide>()
             .Property(b => b.Value_XML)
             .HasColumnType("xml");
 
-            modelBuilder.Entity<ServerSideAttribute>()
+            modelBuilder.Entity<KeyValueServerSide>()
             .Property(b => b.Value_Json)
             .HasColumnType("jsonb");
 
-            modelBuilder.Entity<ServerSideAttribute>()
+            modelBuilder.Entity<KeyValueServerSide>()
             .Property(b => b.Value_XML)
             .HasColumnType("xml");
 
-            modelBuilder.Entity<SharedSideAttribute>()
+            modelBuilder.Entity<KeyValueSharedSide>()
             .Property(b => b.Value_Json)
             .HasColumnType("jsonb");
 
-            modelBuilder.Entity<SharedSideAttribute>()
+            modelBuilder.Entity<KeyValueSharedSide>()
             .Property(b => b.Value_XML)
             .HasColumnType("xml");
         }
         private void ForSqlServer(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<ClientSideAttribute>()
+            modelBuilder.Entity<KeyValueClientSide>()
             .Property(b => b.Value_XML)
             .HasColumnType("xml");
-            modelBuilder.Entity<ServerSideAttribute>()
+            modelBuilder.Entity<KeyValueServerSide>()
             .Property(b => b.Value_XML)
             .HasColumnType("xml");
-            modelBuilder.Entity<SharedSideAttribute>()
+            modelBuilder.Entity<KeyValueSharedSide>()
             .Property(b => b.Value_XML)
             .HasColumnType("xml");
         }
@@ -101,9 +119,11 @@ namespace IoTSharp.Hub.Data
 
         public DbSet<Relationship> Relationship { get; set; }
         public DbSet<Device> Device { get; set; }
-        public DbSet<ClientSideAttribute> ClientSideAttribute { get; set; }
-        public DbSet<ServerSideAttribute> ServerSideAttribute { get; set; }
-        public DbSet<SharedSideAttribute> SharedSideAttribute { get; set; }
+        public DbSet<KeyValueClientSide> ClientSide { get; set; }
+        public DbSet<KeyValueServerSide> ServerSide { get; set; }
+        public DbSet<KeyValueSharedSide> SharedSide { get; set; }
+        public DbSet<KevValueTelemetry> TelemetryData { get; set; }
+        public DbSet<KeyValueDeviceLatest> DeviceLatest{ get; set; }
 
 
     }

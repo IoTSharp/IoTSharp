@@ -21,5 +21,7 @@ namespace IoTSharp.Hub.Data
         public int ZipCode { get; set; }
         public List<Customer> Customers { get; set; }
         public List<Device> Devices { get; set; }
+
+
     }
 }
