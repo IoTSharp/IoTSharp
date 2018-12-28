@@ -10,7 +10,8 @@ namespace IoTSharp.Hub.Data
 
     public class KevValueTelemetry : KeyValue
     {
-        [Key]
+        [Required]
+     
         public Device Device { get; set; }
     }
 }

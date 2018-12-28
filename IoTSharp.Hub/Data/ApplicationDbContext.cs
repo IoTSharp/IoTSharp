@@ -21,7 +21,7 @@ namespace IoTSharp.Hub.Data
             {
                 if (Database.GetPendingMigrations().Count() > 0)
                 {
-                    Database.Migrate();
+                //    Database.Migrate();
                 }
             }
         }
@@ -38,21 +38,37 @@ namespace IoTSharp.Hub.Data
                 .HasOne(p => p.Customer)
                 .WithMany(b => b.Devices);
 
-            modelBuilder.Entity<KeyValueSharedSide>()
-                .HasOne(p => p.Device)
-                .WithMany(b => b.SharedSideKeyValue);
+            //modelBuilder.Entity<KeyValueSharedSide>()
+            //    .HasOne(p => p.Device )
+            //    .WithMany(b => b.SharedSide);
 
-            modelBuilder.Entity<KeyValueServerSide>()
-                .HasOne(p => p.Device)
-                .WithMany(b => b.ServerSideKeyValue);
 
-            modelBuilder.Entity<KeyValueClientSide>()
-                .HasOne(p => p.Device)
-                .WithMany(b => b.ClientSideKeyValue);
 
-            modelBuilder.Entity<Device>()
-                .HasOne(p => p.Tenant)
-                .WithMany(b => b.Devices);
+            //modelBuilder.Entity<KeyValueServerSide>()
+            //    .HasOne(p => p.Device)
+            //    .WithMany(b => b.ServerSide);
+
+
+            //   modelBuilder.Entity<KeyValueClientSide>()
+            //       .HasOne(p => p.Device)
+            //       .WithMany(b=>b.ClientSide);
+
+            //   modelBuilder.Entity<KevValueTelemetry>()
+            //.HasOne(p => p.Device)
+            //.WithMany(b => b.Telemetry);
+
+            //   modelBuilder.Entity<KeyValueDeviceLatest>()
+            //    .HasOne(p => p.Device)
+            //   .WithMany(b => b.DeviceLatest);
+
+
+
+            //   modelBuilder.Entity<Device>()
+            //.HasOne(p => p.Tenant)
+            //.WithMany(b => b.Devices);
+            //   modelBuilder.Entity<Device>()
+            //.HasOne(p => p.Tenant)
+            //.WithMany(b => b.Devices);
 
             modelBuilder.Entity<Relationship>()
              .HasOne(p => p.Tenant);
