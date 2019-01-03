@@ -87,14 +87,14 @@ namespace IoTSharp.Hub.Controllers
                 {
                     await _signInManager.SignInAsync(user, false);
                     await _signInManager.UserManager.AddClaimAsync(user, new Claim(ClaimTypes.Email, model.Email));
-                    var cust = _context.Customer.FirstOrDefault(c => c.Name == model.CustomerName);
+                    //var cust = _context.Customer.FirstOrDefault(c => c.Name == model.CustomerName);
               
-                    if (cust != null)
-                    {
-                        await _signInManager.UserManager.AddClaimAsync(user, new Claim(ClaimTypes.GroupSid,cust.Id.ToString()));
+                    //if (cust != null)
+                    //{
+                    //    await _signInManager.UserManager.AddClaimAsync(user, new Claim(ClaimTypes.GroupSid,cust.Id.ToString()));
                   
-                        actionResult = Ok(new { code = 0, msg = "OK", data = GenerateJwtToken(model.Email, user) });
-                    }
+                    //    actionResult = Ok(new { code = 0, msg = "OK", data = GenerateJwtToken(model.Email, user) });
+                    //}
                 }
                 else
                 {
