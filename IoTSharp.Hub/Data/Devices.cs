@@ -17,7 +17,7 @@ namespace IoTSharp.Hub.Data
 
         public Customer Customer   { get; set; }
 
-        public virtual List<AttributeData> AttributeData { get; set; }
+        public virtual List<DataStorage> AttributeData { get; set; }
         public virtual List<AttributeLatest> AttributeLatest { get; set; }
         public virtual List<TelemetryData> TelemetryData { get;  set; }
 

@@ -8,10 +8,8 @@ using System.Threading.Tasks;
 namespace IoTSharp.Hub.Data
 {
 
-    public class TelemetryData : AttributeData
+    public class TelemetryData : DataStorage
     {
-        [Required]
      
-        public Device Device { get; set; }
     }
 }

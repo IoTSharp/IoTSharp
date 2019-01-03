@@ -6,10 +6,8 @@ using System.Threading.Tasks;
 
 namespace IoTSharp.Hub.Data
 {
-    public class AttributeLatest : AttributeData
+    public class AttributeLatest : DataStorage
     {
-        [Required]
-        [EnumDataType(typeof(KeyValueScope))]
-        public KeyValueScope Scope { get; set; }
+      
     }
 }

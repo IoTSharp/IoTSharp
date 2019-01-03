@@ -6,11 +6,14 @@ using System.Threading.Tasks;
 namespace IoTSharp.Hub.Data
 {
 
-    public enum KeyValueScope
+    public enum DataCatalog
     {
-        ShareSide,
-        ServerSide,
-        ClientSide
+        None,
+        AttributeData,
+        AttributeLatest,
+        TelemetryData,
+        TelemetryLatest,
+
     }
 
     public enum DataType
