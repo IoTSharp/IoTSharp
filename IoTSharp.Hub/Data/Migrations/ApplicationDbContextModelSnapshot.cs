@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
-namespace IoTSharp.Hub.Data.Migrations
+namespace IoTSharp.Hub.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
     partial class ApplicationDbContextModelSnapshot : ModelSnapshot
@@ -18,152 +18,6 @@ namespace IoTSharp.Hub.Data.Migrations
                 .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.SerialColumn)
                 .HasAnnotation("ProductVersion", "2.2.0-rtm-35687")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
-
-            modelBuilder.Entity("IoTSharp.Hub.Data.AttributeData", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd();
-
-                    b.Property<DateTime>("DateTime");
-
-                    b.Property<Guid?>("DeviceId");
-
-                    b.Property<string>("Discriminator")
-                        .IsRequired();
-
-                    b.Property<string>("KeyName")
-                        .IsRequired();
-
-                    b.Property<int>("Type");
-
-                    b.Property<byte[]>("Value_Binary");
-
-                    b.Property<bool>("Value_Boolean");
-
-                    b.Property<double>("Value_Double");
-
-                    b.Property<string>("Value_Json")
-                        .HasColumnType("jsonb");
-
-                    b.Property<long>("Value_Long");
-
-                    b.Property<string>("Value_String");
-
-                    b.Property<string>("Value_XML")
-                        .HasColumnType("xml");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("DeviceId");
-
-                    b.ToTable("AttributeData");
-
-                    b.HasDiscriminator<string>("Discriminator").HasValue("AttributeData");
-                });
-
-            modelBuilder.Entity("IoTSharp.Hub.Data.Customer", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd();
-
-                    b.Property<string>("Address");
-
-                    b.Property<string>("City");
-
-                    b.Property<string>("Country");
-
-                    b.Property<string>("Email");
-
-                    b.Property<string>("Name");
-
-                    b.Property<string>("Phone");
-
-                    b.Property<string>("Province");
-
-                    b.Property<string>("Street");
-
-                    b.Property<Guid?>("TenantId");
-
-                    b.Property<int>("ZipCode");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("TenantId");
-
-                    b.ToTable("Customer");
-                });
-
-            modelBuilder.Entity("IoTSharp.Hub.Data.Device", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd();
-
-                    b.Property<Guid?>("CustomerId");
-
-                    b.Property<string>("Name");
-
-                    b.Property<Guid?>("TenantId");
-
-                    b.Property<string>("Type");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("CustomerId");
-
-                    b.HasIndex("TenantId");
-
-                    b.ToTable("Device");
-                });
-
-            modelBuilder.Entity("IoTSharp.Hub.Data.Relationship", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd();
-
-                    b.Property<Guid?>("CustomerId");
-
-                    b.Property<string>("IdentityId");
-
-                    b.Property<Guid?>("TenantId");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("CustomerId");
-
-                    b.HasIndex("IdentityId");
-
-                    b.HasIndex("TenantId");
-
-                    b.ToTable("Relationship");
-                });
-
-            modelBuilder.Entity("IoTSharp.Hub.Data.Tenant", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd();
-
-                    b.Property<string>("Address");
-
-                    b.Property<string>("City");
-
-                    b.Property<string>("Country");
-
-                    b.Property<string>("EMail");
-
-                    b.Property<string>("Name");
-
-                    b.Property<string>("Phone");
-
-                    b.Property<string>("Province");
-
-                    b.Property<string>("Street");
-
-                    b.Property<int>("ZipCode");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Tenant");
-                });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
                 {
@@ -326,83 +180,6 @@ namespace IoTSharp.Hub.Data.Migrations
                     b.ToTable("AspNetUserTokens");
                 });
 
-            modelBuilder.Entity("IoTSharp.Hub.Data.AttributeLatest", b =>
-                {
-                    b.HasBaseType("IoTSharp.Hub.Data.AttributeData");
-
-                    b.Property<Guid?>("DeviceId1");
-
-                    b.Property<int>("Scope");
-
-                    b.HasIndex("DeviceId1");
-
-                    b.HasDiscriminator().HasValue("AttributeLatest");
-                });
-
-            modelBuilder.Entity("IoTSharp.Hub.Data.TelemetryData", b =>
-                {
-                    b.HasBaseType("IoTSharp.Hub.Data.AttributeData");
-
-                    b.Property<Guid>("DeviceId1")
-                        .HasColumnName("TelemetryData_DeviceId1");
-
-                    b.HasIndex("DeviceId1");
-
-                    b.HasDiscriminator().HasValue("TelemetryData");
-                });
-
-            modelBuilder.Entity("IoTSharp.Hub.Data.TelemetryLatest", b =>
-                {
-                    b.HasBaseType("IoTSharp.Hub.Data.AttributeData");
-
-                    b.Property<Guid>("DeviceId1")
-                        .HasColumnName("TelemetryLatest_DeviceId1");
-
-                    b.HasIndex("DeviceId1");
-
-                    b.HasDiscriminator().HasValue("TelemetryLatest");
-                });
-
-            modelBuilder.Entity("IoTSharp.Hub.Data.AttributeData", b =>
-                {
-                    b.HasOne("IoTSharp.Hub.Data.Device")
-                        .WithMany("AttributeData")
-                        .HasForeignKey("DeviceId");
-                });
-
-            modelBuilder.Entity("IoTSharp.Hub.Data.Customer", b =>
-                {
-                    b.HasOne("IoTSharp.Hub.Data.Tenant", "Tenant")
-                        .WithMany("Customers")
-                        .HasForeignKey("TenantId");
-                });
-
-            modelBuilder.Entity("IoTSharp.Hub.Data.Device", b =>
-                {
-                    b.HasOne("IoTSharp.Hub.Data.Customer", "Customer")
-                        .WithMany("Devices")
-                        .HasForeignKey("CustomerId");
-
-                    b.HasOne("IoTSharp.Hub.Data.Tenant", "Tenant")
-                        .WithMany("Devices")
-                        .HasForeignKey("TenantId");
-                });
-
-            modelBuilder.Entity("IoTSharp.Hub.Data.Relationship", b =>
-                {
-                    b.HasOne("IoTSharp.Hub.Data.Customer", "Customer")
-                        .WithMany()
-                        .HasForeignKey("CustomerId");
-
-                    b.HasOne("Microsoft.AspNetCore.Identity.IdentityUser", "Identity")
-                        .WithMany()
-                        .HasForeignKey("IdentityId");
-
-                    b.HasOne("IoTSharp.Hub.Data.Tenant", "Tenant")
-                        .WithMany()
-                        .HasForeignKey("TenantId");
-                });
-
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
                 {
                     b.HasOne("Microsoft.AspNetCore.Identity.IdentityRole")
@@ -445,29 +222,6 @@ namespace IoTSharp.Hub.Data.Migrations
                     b.HasOne("Microsoft.AspNetCore.Identity.IdentityUser")
                         .WithMany()
                         .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade);
-                });
-
-            modelBuilder.Entity("IoTSharp.Hub.Data.AttributeLatest", b =>
-                {
-                    b.HasOne("IoTSharp.Hub.Data.Device")
-                        .WithMany("AttributeLatest")
-                        .HasForeignKey("DeviceId1");
-                });
-
-            modelBuilder.Entity("IoTSharp.Hub.Data.TelemetryData", b =>
-                {
-                    b.HasOne("IoTSharp.Hub.Data.Device", "Device")
-                        .WithMany("TelemetryData")
-                        .HasForeignKey("DeviceId1")
-                        .OnDelete(DeleteBehavior.Cascade);
-                });
-
-            modelBuilder.Entity("IoTSharp.Hub.Data.TelemetryLatest", b =>
-                {
-                    b.HasOne("IoTSharp.Hub.Data.Device", "Device")
-                        .WithMany("TelemetryLatest")
-                        .HasForeignKey("DeviceId1")
                         .OnDelete(DeleteBehavior.Cascade);
                 });
 #pragma warning restore 612, 618

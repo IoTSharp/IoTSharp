@@ -11,9 +11,9 @@ namespace IoTSharp.Hub.Data
     {
         [Key]
         public Guid Id { get; set; }
-        public IdentityUser Identity { get; set; }
-        public Tenant Tenant { get; set; }
+        public virtual IdentityUser Identity { get; set; }
+        public virtual Tenant Tenant { get; set; }
 
-        public Customer Customer { get; set; }
+        public virtual Customer Customer { get; set; }
     }
 }
