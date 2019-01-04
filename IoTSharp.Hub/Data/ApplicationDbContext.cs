@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using System;
@@ -44,6 +45,7 @@ namespace IoTSharp.Hub.Data
             modelBuilder.Entity<TelemetryData>().HasDiscriminator<DataCatalog>(nameof(Data.DataStorage.Catalog));
             modelBuilder.Entity<TelemetryLatest>().HasDiscriminator<DataCatalog>(nameof(Data.DataStorage.Catalog));
 
+ 
 
             switch (DatabaseType)
             {
@@ -81,11 +83,11 @@ namespace IoTSharp.Hub.Data
             .Property(b => b.Value_XML)
             .HasColumnType("xml");
 
-            modelBuilder.Entity<DataStorage>()
+            modelBuilder.Entity<AttributeData>()
             .Property(b => b.Value_Json)
             .HasColumnType("jsonb");
 
-            modelBuilder.Entity<DataStorage>()
+            modelBuilder.Entity<AttributeData>()
             .Property(b => b.Value_XML)
             .HasColumnType("xml");
 
@@ -119,11 +121,8 @@ namespace IoTSharp.Hub.Data
 
         public DbSet<Tenant> Tenant { get; set; }
         public DbSet<Customer> Customer { get; set; }
-
-  
         public DbSet<Relationship> Relationship { get; set; }
         public DbSet<Device> Device { get; set; }
-
         public DbSet<TelemetryData> TelemetryData { get; set; }
         public DbSet<AttributeLatest> AttributeLatest { get; set; }
         public DbSet<DataStorage> DataStorage { get; set; }

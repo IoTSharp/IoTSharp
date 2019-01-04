@@ -64,12 +64,63 @@ namespace IoTSharp.Hub.Controllers
             return actionResult;
         }
 
+
+        [AllowAnonymous]
+        [HttpPost]
+        public async Task<IActionResult> Install([FromBody] InstallDto model)
+        {
+            IActionResult actionResult = NoContent();
+            try
+            {
+                var tenant = new Tenant() { Id = Guid.NewGuid(), Name = model.TenantName, EMail = model.TenantEMail };
+                var customer = new Customer() { Id = Guid.NewGuid(), Name = model.CustomerName, Email = model.CustomerEMail };
+                customer.Tenant = tenant;
+                tenant.Customers = new List<Customer>();
+                tenant.Customers.Add(customer);
+                tenant.Customers.Add(customer);
+                var user = new IdentityUser
+                {
+                    Email = model.AdminEmail,
+                    UserName = model.UserName,
+                    PhoneNumber = model.PhoneNumber
+                };
+
+                var result = await _userManager.CreateAsync(user, model.Password);
+                
+                if (result.Succeeded)
+                {
+                    _context.Tenant.Add(tenant);
+                    _context.Customer.Add(customer);
+                   
+                    await _signInManager.SignInAsync(user, false);
+                    await _signInManager.UserManager.AddClaimAsync(user, new Claim(ClaimTypes.Email, model.AdminEmail));
+                    var cust = _context.Customer.FirstOrDefault(c => c.Name == model.CustomerName);
+                    if (cust != null)
+                    {
+                        await _signInManager.UserManager.AddClaimAsync(user, new Claim(ClaimTypes.GroupSid, cust.Id.ToString()));
+                        actionResult = Ok(new { code = 0, msg = "OK", data = GenerateJwtToken(model.AdminEmail, user) });
+                    }
+                }
+                else
+                {
+                    var msg = from e in result.Errors select $"{e.Code}:{e.Description}\r\n";
+                    actionResult = BadRequest(new { code = -3, msg = string.Join(';', msg.ToArray()) });
+                }
+            }
+            catch (Exception ex)
+            {
+                actionResult = BadRequest(new { code = -2, msg = ex.Message, data = ex });
+                _logger.LogError(ex, ex.Message);
+            }
+
+            return actionResult;
+        }
+
         /// <summary>
         /// Register a user
         /// </summary>
         /// <param name="model"></param>
         /// <returns ></returns>
-        /// <seealso cref="BrokerController.InstallCertificate(CertificateDot)"/>
         [AllowAnonymous]
         [HttpPost]
         public async Task<IActionResult> Register([FromBody] RegisterDto model)
@@ -87,14 +138,14 @@ namespace IoTSharp.Hub.Controllers
                 {
                     await _signInManager.SignInAsync(user, false);
                     await _signInManager.UserManager.AddClaimAsync(user, new Claim(ClaimTypes.Email, model.Email));
-                    //var cust = _context.Customer.FirstOrDefault(c => c.Name == model.CustomerName);
-              
-                    //if (cust != null)
-                    //{
-                    //    await _signInManager.UserManager.AddClaimAsync(user, new Claim(ClaimTypes.GroupSid,cust.Id.ToString()));
-                  
-                    //    actionResult = Ok(new { code = 0, msg = "OK", data = GenerateJwtToken(model.Email, user) });
-                    //}
+                    var cust = _context.Customer.FirstOrDefault(c => c.Name == model.CustomerName);
+
+                    if (cust != null)
+                    {
+                        await _signInManager.UserManager.AddClaimAsync(user, new Claim(ClaimTypes.GroupSid, cust.Id.ToString()));
+
+                        actionResult = Ok(new { code = 0, msg = "OK", data = GenerateJwtToken(model.Email, user) });
+                    }
                 }
                 else
                 {
@@ -156,6 +207,21 @@ namespace IoTSharp.Hub.Controllers
             [StringLength(100, ErrorMessage = "PASSWORD_MIN_LENGTH", MinimumLength = 6)]
             public string Password { get; set; }
        
+        }
+        public class InstallDto
+        {
+            [Required]
+            public string AdminEmail { get; set; }
+            [Required]
+            public string CustomerName { get; set; }
+            [Required]
+            [StringLength(100, ErrorMessage = "PASSWORD_MIN_LENGTH", MinimumLength = 6)]
+            public string Password { get; set; }
+            public string TenantName { get;  set; }
+            public string TenantEMail { get;  set; }
+            public string CustomerEMail { get;  set; }
+            public string UserName { get; internal set; }
+            public string PhoneNumber { get; internal set; }
         }
     }
 }
