@@ -79,7 +79,7 @@ namespace IoTSharp.Hub.Controllers
                     var user = new IdentityUser
                     {
                         Email = model.Email,
-                        UserName = model.UserName,
+                        UserName = model.Email,
                         PhoneNumber = model.PhoneNumber
                     };
 
@@ -143,8 +143,6 @@ namespace IoTSharp.Hub.Controllers
 
             [EmailAddress]
             public string CustomerEMail { get; set; }
-
-            public string UserName { get; set; }
 
             [Phone]
             public string PhoneNumber { get; set; }
