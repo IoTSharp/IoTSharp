@@ -11,7 +11,10 @@ namespace IoT.Sharp.Sdk.CSharp
         }
 
         public static T ToData<T>(this ApiResult _apiResult) => _apiResult.data.ToObject<T>();
-
+        public static async Task<T> ToResultAsync<T>(this Task<FileResponse> fr)
+        {
+            return await ToResultAsync<T>(fr.Result);
+        }
         public static async Task<T> ToResultAsync<T>(this FileResponse fr)
         {
             T result = default(T);
