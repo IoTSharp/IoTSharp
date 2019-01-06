@@ -92,6 +92,8 @@ namespace IoTSharp.Hub.Controllers
                         await _signInManager.SignInAsync(user, false);
                         await _signInManager.UserManager.AddClaimAsync(user, new Claim(ClaimTypes.Email, model.Email));
                         await _signInManager.UserManager.AddClaimAsync(user, new Claim(ClaimTypes.GroupSid, customer.Id.ToString()));
+
+
                         var rship = new Relationship();
                         rship.IdentityUser = _context.Users.Find(user.Id);
                         rship.Customer = customer;

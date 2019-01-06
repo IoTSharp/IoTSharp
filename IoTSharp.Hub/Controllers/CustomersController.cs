@@ -20,11 +20,11 @@ namespace IoTSharp.Hub.Controllers
             _context = context;
         }
 
-        // GET: api/Customers
-        [HttpGet]
-        public async Task<ActionResult<IEnumerable<Customer>>> GetCustomer()
+        // GET: api/Tenants
+        [HttpGet("Tenant/{tenantId}")]
+        public async Task<ActionResult<IEnumerable<Customer>>> GetCustomers(Guid tenantId)
         {
-            return await _context.Customer.ToListAsync();
+            return (await _context.Tenant.FindAsync(tenantId)).Customers?.ToList();
         }
 
         // GET: api/Customers/5
@@ -49,9 +49,13 @@ namespace IoTSharp.Hub.Controllers
             {
                 return BadRequest();
             }
-
+            var  tent=await _context.Tenant.FindAsync(customer.Id);
+            if (tent == null)
+            {
+                return NotFound();
+            }
+            customer.Tenant = tent;
             _context.Entry(customer).State = EntityState.Modified;
-
             try
             {
                 await _context.SaveChangesAsync();
@@ -75,10 +79,10 @@ namespace IoTSharp.Hub.Controllers
         [HttpPost]
         public async Task<ActionResult<Customer>> PostCustomer(Customer customer)
         {
+            customer.Tenant= _context.Tenant.Find(customer.Tenant.Id);
             _context.Customer.Add(customer);
             await _context.SaveChangesAsync();
-
-            return CreatedAtAction("GetCustomer", new { id = customer.Id }, customer);
+            return await GetCustomer(customer.Id);
         }
 
         // DELETE: api/Customers/5
@@ -100,6 +104,11 @@ namespace IoTSharp.Hub.Controllers
         private bool CustomerExists(Guid id)
         {
             return _context.Customer.Any(e => e.Id == id);
+        }
+
+        public class TenantDto
+        {
+            public Guid  Id { get; set; }
         }
     }
 }
