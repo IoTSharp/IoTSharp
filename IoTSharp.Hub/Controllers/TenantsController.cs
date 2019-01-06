@@ -27,6 +27,7 @@ namespace IoTSharp.Hub.Controllers
             return await   _context.Tenant.ToListAsync();
         }
 
+
         // GET: api/Tenants/5
         [HttpGet("{id}")]
         public async Task<ActionResult<Tenant>> GetTenant(Guid id)

@@ -19,7 +19,9 @@ namespace IoTSharp.Hub.Data
         public string Street { get; set; }
         public string Address { get; set; }
         public int ZipCode { get; set; }
+        [Newtonsoft.Json.JsonIgnore]
         public List<Customer> Customers { get; set; }
+        [Newtonsoft.Json.JsonIgnore]
         public List<Device> Devices { get; set; }
 
 
