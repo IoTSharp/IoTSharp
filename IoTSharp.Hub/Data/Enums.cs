@@ -1,11 +1,25 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Security.Claims;
 using System.Threading.Tasks;
 
 namespace IoTSharp.Hub.Data
 {
-
+    public static class IoTSharpClaimTypes
+    {
+ 
+        public const string Customer = "http://schemas.iotsharp.net/ws/2019/01/identity/claims/customer";
+        public const string Tenant = "http://schemas.iotsharp.net/ws/2019/01/identity/claims/tenant";
+    }
+    public enum ApiCode:int
+    {
+      Success= 10000,
+        LoginError=10001,
+        Exception = 10002,
+        AlreadyExists = 10003,
+    }
     public enum DataCatalog
     {
         None,
@@ -13,6 +27,15 @@ namespace IoTSharp.Hub.Data
         AttributeLatest,
         TelemetryData,
         TelemetryLatest,
+
+    }
+    public enum UserRole
+    {
+        Anonymous,
+        NormalUser,
+        CustomerAdmin,
+        TenantAdmin,
+        SystemAdmin,
 
     }
 

@@ -1,4 +1,7 @@
 ﻿using IoTSharp.Hub.Data;
+using IoTSharp.Hub.Extensions;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -41,27 +44,35 @@ namespace IoTSharp.Hub.Controllers
 
         [AllowAnonymous]
         [HttpPost]
-        public async Task<IActionResult> Login([FromBody] LoginDto model)
+        public async Task<ActionResult<LoginResult>> Login([FromBody] LoginDto model)
         {
-            IActionResult actionResult = NoContent();
             try
             {
+
                 var result = await _signInManager.PasswordSignInAsync(model.Email, model.Password, false, false);
                 if (result.Succeeded)
                 {
                     var appUser = _userManager.Users.SingleOrDefault(r => r.Email == model.Email);
-                    actionResult = Ok(new { code = 0, msg = "OK", data = GenerateJwtToken(model.Email, appUser) });
+                    var token = await _userManager.GenerateJwtTokenAsync(appUser);
+                    return Ok(new LoginResult()
+                    {
+                        Succeeded= result.Succeeded,
+                        Token = token,
+                        UserName = appUser.UserName,
+                        SignIn = result
+                    });
                 }
                 else
                 {
-                    actionResult = BadRequest(new { code = -3, msg = "Login Error", data = result });
+                    
+                     return Unauthorized(new { code = ApiCode.LoginError, msg = "Unauthorized", data = result });
                 }
             }
             catch (Exception ex)
             {
-                actionResult = BadRequest(new { code = -1, msg = ex.Message, data = ex });
+               return  this.ExceptionRequest(ex);
             }
-            return actionResult;
+           
         }
 
         /// <summary>
@@ -71,9 +82,9 @@ namespace IoTSharp.Hub.Controllers
         /// <returns ></returns>
         [AllowAnonymous]
         [HttpPost]
-        public async Task<IActionResult> Register([FromBody] RegisterDto model)
+        public async Task<ActionResult<LoginResult>> Register([FromBody] RegisterDto model)
         {
-            IActionResult actionResult = NoContent();
+            ActionResult<LoginResult> actionResult = NoContent();
             try
             {
                 var user = new IdentityUser
@@ -86,13 +97,14 @@ namespace IoTSharp.Hub.Controllers
                 {
                     await _signInManager.SignInAsync(user, false);
                     await _signInManager.UserManager.AddClaimAsync(user, new Claim(ClaimTypes.Email, model.Email));
-                    var cust = _context.Customer.FirstOrDefault(c => c.Name == model.CustomerName);
-
-                    if (cust != null)
+                    var customer = _context.Customer.FirstOrDefault(c => c.Name == model.CustomerName);
+                    if (customer != null)
                     {
-                        await _signInManager.UserManager.AddClaimAsync(user, new Claim(ClaimTypes.GroupSid, cust.Id.ToString()));
-
-                        actionResult = Ok(new { code = 0, msg = "OK", data = GenerateJwtToken(model.Email, user) });
+                        await _signInManager.UserManager.AddClaimAsync(user, new Claim(ClaimTypes.Email, model.Email));
+                        await _signInManager.UserManager.AddClaimAsync(user, new Claim(IoTSharpClaimTypes.Customer, customer.Id.ToString()));
+                        await _signInManager.UserManager.AddClaimAsync(user, new Claim(IoTSharpClaimTypes.Tenant, customer.Tenant.Id.ToString()));
+                        await _signInManager.UserManager.AddToRolesAsync(user, new[] { nameof(UserRole.NormalUser) });
+                        actionResult = CreatedAtAction(nameof(this.Login), new LoginDto() { Email = model.Email, Password = model.Password });
                     }
                 }
                 else
@@ -109,31 +121,14 @@ namespace IoTSharp.Hub.Controllers
 
             return actionResult;
         }
-
-        private object GenerateJwtToken(string email, IdentityUser user)
+        public class LoginResult 
         {
-            var claims = new List<Claim>
-            {
-                new Claim(JwtRegisteredClaimNames.Sub, email),
-                new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
-                new Claim(ClaimTypes.NameIdentifier, user.Id)
-            };
-
-            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["JwtKey"]));
-            var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
-            var expires = DateTime.Now.AddDays(Convert.ToDouble(_configuration["JwtExpireDays"]));
-
-            var token = new JwtSecurityToken(
-                _configuration["JwtIssuer"],
-                _configuration["JwtIssuer"],
-                claims,
-                expires: expires,
-                signingCredentials: creds
-            );
-
-            return new JwtSecurityTokenHandler().WriteToken(token);
+           
+            public string Token { get; set; }
+            public string UserName  { get; set; }
+            public Microsoft.AspNetCore.Identity.SignInResult SignIn { get;  set; }
+            public bool Succeeded { get;  set; }
         }
-
         public class LoginDto
         {
             [Required]

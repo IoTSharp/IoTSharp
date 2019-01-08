@@ -1,4 +1,5 @@
 ﻿using IoTSharp.Hub.Data;
+using IoTSharp.Hub.Extensions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -22,109 +23,71 @@ namespace IoTSharp.Hub.Controllers
         private readonly UserManager<IdentityUser> _userManager;
         private readonly IConfiguration _configuration;
         private readonly SignInManager<IdentityUser> _signInManager;
-
+        private readonly ApplicationDBInitializer _dBInitializer;
         public InstallerController(
             UserManager<IdentityUser> userManager,
             SignInManager<IdentityUser> signInManager,
             IConfiguration configuration, ILogger<AccountController> logger, ApplicationDbContext context
-            )
+           , ApplicationDBInitializer dBInitializer)
         {
             _userManager = userManager;
             _signInManager = signInManager;
             _configuration = configuration;
             _logger = logger;
             _context = context;
+            _dBInitializer = dBInitializer;
         }
 
         [AllowAnonymous]
-        [HttpPost]
-        public IActionResult CheckInstallation()
+        [HttpGet]
+        public ActionResult<InstanceDto> Instance()
         {
-            int code = -1;
-            string msg;
-            bool installed = false;
             try
             {
-                installed = !(_context.Tenant.Count() == 0 && _context.Customer.Count() == 0);
-                msg = installed ? "Already installed" : "Not Install";
-                code = 0;
+                return base.Ok(GetInstanceDto());
             }
             catch (Exception ex)
             {
-                msg = ex.Message;
+                return this.ExceptionRequest(ex);
             }
-            return Ok(new
-            {
-                code,
-                msg,
-                data = new { installed }
-            });
+
+        }
+
+        private InstanceDto GetInstanceDto()
+        {
+            return new InstanceDto() { Installed = _context.Relationship.Any(), Version = System.Reflection.Assembly.GetExecutingAssembly().GetName().Version.ToString() };
         }
 
         [AllowAnonymous]
         [HttpPost]
-        public async Task<IActionResult> Install([FromBody] InstallDto model)
+        public    ActionResult<InstanceDto>  Install([FromBody] InstallDto model)
         {
-            IActionResult actionResult = NoContent();
-            var tran = _context.Database.BeginTransaction();
+            ActionResult<InstanceDto> actionResult = NoContent();
             try
             {
-                if (_context.Tenant.Count() == 0 && _context.Customer.Count() == 0)
+                if (!_context.Relationship.Any())
                 {
-                    var tenant = new Tenant() { Id = Guid.NewGuid(), Name = model.TenantName, EMail = model.TenantEMail };
-                    var customer = new Customer() { Id = Guid.NewGuid(), Name = model.CustomerName, Email = model.CustomerEMail };
-                    customer.Tenant = tenant;
-                    tenant.Customers = new List<Customer>();
-                    tenant.Customers.Add(customer);
-                    var user = new IdentityUser
-                    {
-                        Email = model.Email,
-                        UserName = model.Email,
-                        PhoneNumber = model.PhoneNumber
-                    };
-
-                    var result = await _userManager.CreateAsync(user, model.Password);
-
-                    if (result.Succeeded)
-                    {
-                        _context.Tenant.Add(tenant);
-                        _context.Customer.Add(customer);
-                        await _signInManager.SignInAsync(user, false);
-                        await _signInManager.UserManager.AddClaimAsync(user, new Claim(ClaimTypes.Email, model.Email));
-                        await _signInManager.UserManager.AddClaimAsync(user, new Claim(ClaimTypes.GroupSid, customer.Id.ToString()));
-
-
-                        var rship = new Relationship();
-                        rship.IdentityUser = _context.Users.Find(user.Id);
-                        rship.Customer = customer;
-                        rship.Tenant = tenant;
-                        _context.Add(rship);
-                        int savechangesresult = _context.SaveChanges();
-                        tran.Commit();
-                        actionResult = Ok(new { code = 0, msg = "OK", data = new { result = savechangesresult >= 0, count = savechangesresult } });
-                    }
-                    else
-                    {
-                        tran.Rollback();
-                        var msg = from e in result.Errors select $"{e.Code}:{e.Description}\r\n";
-                        actionResult = BadRequest(new { code = -3, msg = string.Join(';', msg.ToArray()) });
-                    }
+                    _dBInitializer.SeedRole();
+                      _dBInitializer.SeedUser(model);
+                    actionResult = Ok(GetInstanceDto());
                 }
                 else
                 {
-                    tran.Rollback();
-                    actionResult = Ok(new { code = 1, msg = "Already installed" });
+                    actionResult= BadRequest(new { code = ApiCode.AlreadyExists, msg = "Already installed", data = GetInstanceDto() });
                 }
             }
             catch (Exception ex)
             {
-                tran.Rollback();
-                actionResult = BadRequest(new { code = -2, msg = ex.Message, data = ex });
-                _logger.LogError(ex, ex.Message);
+                actionResult= this.ExceptionRequest(ex);
             }
             return actionResult;
         }
 
+        public class InstanceDto
+        {
+            public string Version { get; internal set; }
+            public bool Installed { get; internal set; }
+        }
         public class InstallDto
         {
             [Required]

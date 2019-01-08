@@ -24,12 +24,9 @@
     <None Remove="Migrations\**" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="AspNetCore.HealthChecks.Network" Version="2.2.0" />
     <PackageReference Include="AspNetCore.HealthChecks.NpgSql" Version="2.2.0" />
-    <PackageReference Include="AspNetCore.HealthChecks.Sqlite" Version="2.2.0" />
-    <PackageReference Include="AspNetCore.HealthChecks.SqlServer" Version="2.2.0" />
     <PackageReference Include="AspNetCore.HealthChecks.System" Version="2.2.1" />
-    <PackageReference Include="AspNetCore.HealthChecks.UI" Version="2.2.4" />
+    <PackageReference Include="AspNetCore.HealthChecks.UI" Version="2.2.10" />
     <PackageReference Include="AspNetCore.HealthChecks.UI.Client" Version="2.2.2" />
     <PackageReference Include="IoTSharp.X509Extensions" Version="1.3.3" />
     <PackageReference Include="LiteDB" Version="4.1.4" />
@@ -46,7 +43,7 @@
     <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="2.2.0" />
     <PackageReference Include="MQTTnet" Version="2.8.5" />
     <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="2.2.0" />
-    <PackageReference Include="NSwag.AspNetCore" Version="12.0.7" />
+    <PackageReference Include="NSwag.AspNetCore" Version="12.0.10" />
     <PackageReference Include="QuartzHostedService" Version="0.0.3" />
     <PackageReference Include="System.Text.Encoding.CodePages" Version="4.5.0" />
   </ItemGroup>
