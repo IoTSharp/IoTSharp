@@ -82,7 +82,7 @@ namespace IoTSharp.Hub.Controllers
             customer.Tenant= _context.Tenant.Find(customer.Tenant.Id);
             _context.Customer.Add(customer);
             await _context.SaveChangesAsync();
-            return await GetCustomer(customer.Id);
+            return CreatedAtAction("GetCustomer",customer.Id);
         }
 
         // DELETE: api/Customers/5

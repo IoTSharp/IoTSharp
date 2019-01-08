@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using IoTSharp.Hub.Data;
+using Microsoft.AspNetCore.Authorization;
 
 namespace IoTSharp.Hub.Controllers
 {
@@ -19,7 +20,8 @@ namespace IoTSharp.Hub.Controllers
         {
             _context = context;
         }
-
+        [Authorize(Roles =nameof(UserRole.TenantAdmin))]
+    //[AllowAnonymous]
         // GET: api/Tenants
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Tenant>>> GetTenant()
@@ -27,7 +29,7 @@ namespace IoTSharp.Hub.Controllers
             return await   _context.Tenant.ToListAsync();
         }
 
-
+        [Authorize(Roles = nameof(UserRole.NormalUser))]
         // GET: api/Tenants/5
         [HttpGet("{id}")]
         public async Task<ActionResult<Tenant>> GetTenant(Guid id)
@@ -41,7 +43,7 @@ namespace IoTSharp.Hub.Controllers
 
             return tenant;
         }
-
+        [Authorize(Roles = nameof(UserRole.TenantAdmin))]
         // PUT: api/Tenants/5
         [HttpPut("{id}")]
         public async Task<IActionResult> PutTenant(Guid id, Tenant tenant)
@@ -71,7 +73,7 @@ namespace IoTSharp.Hub.Controllers
 
             return NoContent();
         }
-
+        [Authorize(Roles = nameof(UserRole.SystemAdmin))]
         // POST: api/Tenants
         [HttpPost]
         public async Task<ActionResult<Tenant>> PostTenant(Tenant tenant)
@@ -81,7 +83,7 @@ namespace IoTSharp.Hub.Controllers
 
             return CreatedAtAction("GetTenant", new { id = tenant.Id }, tenant);
         }
-
+        [Authorize(Roles = nameof(UserRole.SystemAdmin))]
         // DELETE: api/Tenants/5
         [HttpDelete("{id}")]
         public async Task<ActionResult<Tenant>> DeleteTenant(Guid id)
