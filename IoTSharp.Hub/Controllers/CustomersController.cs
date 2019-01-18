@@ -6,10 +6,12 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using IoTSharp.Hub.Data;
+using Microsoft.AspNetCore.Authorization;
 
 namespace IoTSharp.Hub.Controllers
 {
     [Route("api/[controller]")]
+    [Authorize]
     [ApiController]
     public class CustomersController : ControllerBase
     {
@@ -22,12 +24,22 @@ namespace IoTSharp.Hub.Controllers
 
         // GET: api/Tenants
         [HttpGet("Tenant/{tenantId}")]
+        [Authorize(Roles = nameof(UserRole.NormalUser))]
         public async Task<ActionResult<IEnumerable<Customer>>> GetCustomers(Guid tenantId)
         {
-            return (await _context.Tenant.FindAsync(tenantId)).Customers?.ToList();
+            var f = from c in _context.Customer where c.Tenant.Id == tenantId select c;
+            if (!f.Any())
+            {
+                return NotFound();
+            }
+            else
+            {
+                return await f.ToArrayAsync();
+            }
         }
 
         // GET: api/Customers/5
+        [Authorize(Roles = nameof(UserRole.NormalUser))]
         [HttpGet("{id}")]
         public async Task<ActionResult<Customer>> GetCustomer(Guid id)
         {
@@ -42,6 +54,7 @@ namespace IoTSharp.Hub.Controllers
         }
 
         // PUT: api/Customers/5
+        [Authorize(Roles = nameof(UserRole.CustomerAdmin))]
         [HttpPut("{id}")]
         public async Task<IActionResult> PutCustomer(Guid id, Customer customer)
         {
@@ -49,12 +62,7 @@ namespace IoTSharp.Hub.Controllers
             {
                 return BadRequest();
             }
-            var  tent=await _context.Tenant.FindAsync(customer.Id);
-            if (tent == null)
-            {
-                return NotFound();
-            }
-            customer.Tenant = tent;
+            customer.Tenant = _context.Tenant.Find(customer.Tenant.Id);
             _context.Entry(customer).State = EntityState.Modified;
             try
             {
@@ -76,16 +84,18 @@ namespace IoTSharp.Hub.Controllers
         }
 
         // POST: api/Customers
+        [Authorize(Roles = nameof(UserRole.CustomerAdmin))]
         [HttpPost]
         public async Task<ActionResult<Customer>> PostCustomer(Customer customer)
         {
-            customer.Tenant= _context.Tenant.Find(customer.Tenant.Id);
+            customer.Tenant = _context.Tenant.Find(customer.Tenant.Id);
             _context.Customer.Add(customer);
             await _context.SaveChangesAsync();
-            return CreatedAtAction("GetCustomer",customer.Id);
+            return await GetCustomer(customer.Id);
         }
 
         // DELETE: api/Customers/5
+        [Authorize(Roles = nameof(UserRole.TenantAdmin))]
         [HttpDelete("{id}")]
         public async Task<ActionResult<Customer>> DeleteCustomer(Guid id)
         {
@@ -108,7 +118,7 @@ namespace IoTSharp.Hub.Controllers
 
         public class TenantDto
         {
-            public Guid  Id { get; set; }
+            public Guid Id { get; set; }
         }
     }
 }
