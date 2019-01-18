@@ -9,7 +9,7 @@ namespace IoT.Sharp.Sdk.CSharp
 {
     public static class SdkClient
     {
-        public static LoginResult LoginStatus  { get; set; }
+        public static LoginResult Session  { get; set; }
         public static string BaseURL { get; set; } = "http://localhost:51498";
         public static HttpClient HttpClient { get; set; } = new HttpClient();
         public static T Create<T>() where T : class
@@ -18,8 +18,10 @@ namespace IoT.Sharp.Sdk.CSharp
         }
         public static async Task<LoginResult> LoginAsync(this AccountClient client, string username,string password)
         {
-            LoginStatus = await client.LoginAsync(new LoginDto() { Email = username, Password = password });
-            return LoginStatus;
+            Session = await client.LoginAsync(new LoginDto() { Email = username, Password = password });
+            var token = Session.Token;
+            HttpClient.DefaultRequestHeaders.Add("Authorization", $"Bearer {token.Access_token}");
+            return Session;
         }
     }
 }
