@@ -1,7 +1,5 @@
-﻿using HealthChecks.UI.Client;
-using IoTSharp.Hub.Data;
+﻿using IoTSharp.Hub.Data;
 using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;

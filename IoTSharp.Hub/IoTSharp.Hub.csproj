@@ -47,4 +47,5 @@
     <PackageReference Include="QuartzHostedService" Version="0.0.3" />
     <PackageReference Include="System.Text.Encoding.CodePages" Version="4.5.0" />
   </ItemGroup>
+  <ProjectExtensions><VisualStudio><UserProperties appsettings_1Development_1json__JSONSchema="http://json.schemastore.org/bungee-plugin" /></VisualStudio></ProjectExtensions>
 </Project>

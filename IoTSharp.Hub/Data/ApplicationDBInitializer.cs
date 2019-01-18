@@ -13,7 +13,6 @@ namespace IoTSharp.Hub.Data
 {
     public class ApplicationDBInitializer
     {
-
         private readonly RoleManager<IdentityRole> _role;
 
         private ApplicationDbContext _context;
@@ -21,6 +20,7 @@ namespace IoTSharp.Hub.Data
         private readonly UserManager<IdentityUser> _userManager;
         private readonly IConfiguration _configuration;
         private readonly SignInManager<IdentityUser> _signInManager;
+
         public ApplicationDBInitializer(
             UserManager<IdentityUser> userManager,
             SignInManager<IdentityUser> signInManager,
@@ -35,6 +35,7 @@ namespace IoTSharp.Hub.Data
             _context = context;
             _role = role;
         }
+
         public void SeedRole()
         {
             var roles = new IdentityRole[]{new IdentityRole(nameof(UserRole.Anonymous))
@@ -49,7 +50,8 @@ namespace IoTSharp.Hub.Data
             });
             _context.SaveChanges();
         }
-        public void SeedUser(InstallDto model)
+
+        public async Task SeedUserAsync(InstallDto model)
         {
             var tenant = _context.Tenant.FirstOrDefault(t => t.EMail == model.TenantEMail);
             var customer = _context.Customer.FirstOrDefault(t => t.Email == model.CustomerEMail);
@@ -62,9 +64,9 @@ namespace IoTSharp.Hub.Data
                 tenant.Customers.Add(customer);
                 _context.Tenant.Add(tenant);
                 _context.Customer.Add(customer);
-                _context.SaveChanges();
+                await _context.SaveChangesAsync();
             }
-            IdentityUser user = _userManager.FindByEmailAsync(model.Email).GetAwaiter().GetResult();
+            IdentityUser user = await _userManager.FindByEmailAsync(model.Email);
             if (user == null)
             {
                 user = new IdentityUser
@@ -73,19 +75,18 @@ namespace IoTSharp.Hub.Data
                     UserName = model.Email,
                     PhoneNumber = model.PhoneNumber
                 };
-                var result = _userManager.CreateAsync(user, model.Password).GetAwaiter().GetResult();
+                var result = await _userManager.CreateAsync(user, model.Password);
                 if (result.Succeeded)
                 {
-                    _signInManager.SignInAsync(user, false);
-                    _signInManager.UserManager.AddClaimAsync(user, new Claim(ClaimTypes.Email, model.Email));
-                    _signInManager.UserManager.AddClaimAsync(user, new Claim(IoTSharpClaimTypes.Customer, customer.Id.ToString()));
-                    _signInManager.UserManager.AddClaimAsync(user, new Claim(IoTSharpClaimTypes.Tenant, tenant.Id.ToString()));
-                    _signInManager.UserManager.AddToRolesAsync(user, new[] {
-                                        nameof(UserRole.Anonymous),
-                                        nameof(UserRole.NormalUser),
-                                        nameof(UserRole.CustomerAdmin),
-                                        nameof(UserRole.TenantAdmin),
-                                        nameof(UserRole.SystemAdmin)});
+                    await _signInManager.SignInAsync(user, false);
+                    await _signInManager.UserManager.AddClaimAsync(user, new Claim(ClaimTypes.Email, model.Email));
+                    await _signInManager.UserManager.AddClaimAsync(user, new Claim(IoTSharpClaimTypes.Customer, customer.Id.ToString()));
+                    await _signInManager.UserManager.AddClaimAsync(user, new Claim(IoTSharpClaimTypes.Tenant, tenant.Id.ToString()));
+                    await _signInManager.UserManager.AddToRoleAsync(user, nameof(UserRole.Anonymous));
+                    await _signInManager.UserManager.AddToRoleAsync(user, nameof(UserRole.CustomerAdmin));
+                    await _signInManager.UserManager.AddToRoleAsync(user, nameof(UserRole.TenantAdmin));
+                    await _signInManager.UserManager.AddToRoleAsync(user, nameof(UserRole.SystemAdmin));
+                    await _signInManager.UserManager.AddToRoleAsync(user, nameof(UserRole.Anonymous));
                 }
             }
             var rship = new Relationship
@@ -95,7 +96,7 @@ namespace IoTSharp.Hub.Data
                 Tenant = _context.Tenant.Find(tenant.Id)
             };
             _context.Add(rship);
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
         }
     }
 }
