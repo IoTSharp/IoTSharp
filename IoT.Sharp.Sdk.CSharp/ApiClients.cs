@@ -1800,6 +1800,9 @@ namespace IoT.Sharp.Sdk.CSharp
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "9.13.15.0 (Newtonsoft.Json v11.0.0.0)")]
     public partial class LoginResult 
     {
+        [Newtonsoft.Json.JsonProperty("token", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string Token { get; set; }
+    
         [Newtonsoft.Json.JsonProperty("userName", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string UserName { get; set; }
     
@@ -1808,9 +1811,6 @@ namespace IoT.Sharp.Sdk.CSharp
     
         [Newtonsoft.Json.JsonProperty("succeeded", Required = Newtonsoft.Json.Required.Always)]
         public bool Succeeded { get; set; }
-    
-        [Newtonsoft.Json.JsonProperty("token", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public TokenEntity Token { get; set; }
     
         public string ToJson() 
         {
@@ -1847,27 +1847,6 @@ namespace IoT.Sharp.Sdk.CSharp
         public static SignInResult FromJson(string data)
         {
             return Newtonsoft.Json.JsonConvert.DeserializeObject<SignInResult>(data);
-        }
-    
-    }
-    
-    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "9.13.15.0 (Newtonsoft.Json v11.0.0.0)")]
-    public partial class TokenEntity 
-    {
-        [Newtonsoft.Json.JsonProperty("access_token", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string Access_token { get; set; }
-    
-        [Newtonsoft.Json.JsonProperty("expires_in", Required = Newtonsoft.Json.Required.Always)]
-        public int Expires_in { get; set; }
-    
-        public string ToJson() 
-        {
-            return Newtonsoft.Json.JsonConvert.SerializeObject(this);
-        }
-    
-        public static TokenEntity FromJson(string data)
-        {
-            return Newtonsoft.Json.JsonConvert.DeserializeObject<TokenEntity>(data);
         }
     
     }
