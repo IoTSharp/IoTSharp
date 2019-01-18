@@ -22,7 +22,6 @@ namespace IoTSharp.Hub.Controllers
         private ApplicationDbContext _context;
         private ILogger _logger;
         private readonly UserManager<IdentityUser> _userManager;
-        private readonly IConfiguration _configuration;
         private readonly SignInManager<IdentityUser> _signInManager;
 
         public TenantsController(

@@ -7,19 +7,18 @@ namespace IoTSharp.Hub.Data
 {
     public class Device
     {
-
         public Guid Id { get; set; } = Guid.NewGuid();
         public string Name { get; set; }
-       
+
         public string Type { get; set; }
 
-        public Tenant  Tenant { get; set; }
+        public Tenant Tenant { get; set; }
 
-        public Customer Customer   { get; set; }
+        public Customer Customer { get; set; }
 
         public virtual List<AttributeData> AttributeData { get; set; }
         public virtual List<AttributeLatest> AttributeLatest { get; set; }
-        public virtual List<TelemetryData> TelemetryData { get;  set; }
+        public virtual List<TelemetryData> TelemetryData { get; set; }
 
         public virtual List<TelemetryLatest> TelemetryLatest { get; set; }
     }

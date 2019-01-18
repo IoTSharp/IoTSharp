@@ -6,10 +6,13 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using IoTSharp.Hub.Data;
+using Microsoft.AspNetCore.Authorization;
+using IoTSharp.Hub.Dtos;
 
 namespace IoTSharp.Hub.Controllers
 {
     [Route("api/[controller]")]
+    [Authorize]
     [ApiController]
     public class DevicesController : ControllerBase
     {
@@ -21,13 +24,24 @@ namespace IoTSharp.Hub.Controllers
         }
 
         // GET: api/Devices
+        [HttpGet("Customers/{customerId}")]
+        [Authorize(Roles = nameof(UserRole.NormalUser))]
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Device>>> GetDevice()
+        public async Task<ActionResult<IEnumerable<Device>>> GetDevices(Guid customerId)
         {
-            return await _context.Device.ToListAsync();
+            var f = from c in _context.Device where c.Customer.Id == customerId select c;
+            if (!f.Any())
+            {
+                return NotFound(new ApiResult<Guid>(ApiCode.NotFoundCustomer, $"Customer {customerId} not found ", customerId));
+            }
+            else
+            {
+                return await f.ToArrayAsync();
+            }
         }
 
         // GET: api/Devices/5
+        [Authorize(Roles = nameof(UserRole.NormalUser))]
         [HttpGet("{id}")]
         public async Task<ActionResult<Device>> GetDevice(Guid id)
         {
@@ -35,13 +49,14 @@ namespace IoTSharp.Hub.Controllers
 
             if (device == null)
             {
-                return NotFound();
+                return NotFound(new ApiResult<Guid>(ApiCode.NotFoundDevice, $"Device {id} not found ", id));
             }
 
             return device;
         }
 
         // PUT: api/Devices/5
+        [Authorize(Roles = nameof(UserRole.CustomerAdmin))]
         [HttpPut("{id}")]
         public async Task<IActionResult> PutDevice(Guid id, Device device)
         {
@@ -60,7 +75,7 @@ namespace IoTSharp.Hub.Controllers
             {
                 if (!DeviceExists(id))
                 {
-                    return NotFound();
+                    return NotFound(new ApiResult<Guid>(ApiCode.NotFoundDevice, $"Device {id} not found ", id));
                 }
                 else
                 {
@@ -72,23 +87,30 @@ namespace IoTSharp.Hub.Controllers
         }
 
         // POST: api/Devices
+        [Authorize(Roles = nameof(UserRole.CustomerAdmin))]
         [HttpPost]
         public async Task<ActionResult<Device>> PostDevice(Device device)
         {
+            device.Tenant = _context.Tenant.Find(device.Tenant.Id);
+            device.Customer = _context.Customer.Find(device.Customer.Id);
+            if (device.Tenant == null || device.Customer == null)
+            {
+                return NotFound(new ApiResult<Device>(ApiCode.NotFoundTenantOrCustomer, $"Not found Tenant or Customer ", device));
+            }
             _context.Device.Add(device);
             await _context.SaveChangesAsync();
-
-            return CreatedAtAction("GetDevice", new { id = device.Id }, device);
+            return await GetDevice(device.Id);
         }
 
         // DELETE: api/Devices/5
+        [Authorize(Roles = nameof(UserRole.CustomerAdmin))]
         [HttpDelete("{id}")]
         public async Task<ActionResult<Device>> DeleteDevice(Guid id)
         {
             var device = await _context.Device.FindAsync(id);
             if (device == null)
             {
-                return NotFound();
+                return NotFound(new ApiResult<Guid>(ApiCode.NotFoundDevice, $"Device {id} not found ", id));
             }
 
             _context.Device.Remove(device);

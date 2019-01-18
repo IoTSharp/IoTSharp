@@ -24,7 +24,6 @@ namespace IoTSharp.Hub.Data
             {
                 Database.Migrate();
             }
-          
         }
 
         public DatabaseType DatabaseType { get; private set; }
@@ -32,7 +31,7 @@ namespace IoTSharp.Hub.Data
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
-    
+
             modelBuilder.Entity<DataStorage>()
            .HasDiscriminator<DataCatalog>(nameof(Data.DataStorage.Catalog))
            .HasValue<DataStorage>(DataCatalog.None)
@@ -45,9 +44,6 @@ namespace IoTSharp.Hub.Data
             modelBuilder.Entity<AttributeLatest>().HasDiscriminator<DataCatalog>(nameof(Data.DataStorage.Catalog));
             modelBuilder.Entity<TelemetryData>().HasDiscriminator<DataCatalog>(nameof(Data.DataStorage.Catalog));
             modelBuilder.Entity<TelemetryLatest>().HasDiscriminator<DataCatalog>(nameof(Data.DataStorage.Catalog));
-            
-
-
 
             switch (DatabaseType)
             {
@@ -67,7 +63,6 @@ namespace IoTSharp.Hub.Data
             }
         }
 
-     
         private void ForNpgsql(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<TelemetryData>()
@@ -131,5 +126,6 @@ namespace IoTSharp.Hub.Data
         public DbSet<DataStorage> DataStorage { get; set; }
         public DbSet<AttributeData> AttributeData { get; set; }
         public DbSet<TelemetryLatest> TelemetryLatest { get; set; }
+        public DbSet<DeviceIdentity> DeviceIdentities { get; set; }
     }
 }
