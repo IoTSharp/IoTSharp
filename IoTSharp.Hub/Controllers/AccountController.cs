@@ -1,4 +1,5 @@
 ﻿using IoTSharp.Hub.Data;
+using IoTSharp.Hub.Dtos;
 using IoTSharp.Hub.Extensions;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -48,7 +49,6 @@ namespace IoTSharp.Hub.Controllers
         {
             try
             {
-
                 var result = await _signInManager.PasswordSignInAsync(model.Email, model.Password, false, false);
                 if (result.Succeeded)
                 {
@@ -56,7 +56,7 @@ namespace IoTSharp.Hub.Controllers
                     var token = await _userManager.GenerateJwtTokenAsync(appUser);
                     return Ok(new LoginResult()
                     {
-                        Succeeded= result.Succeeded,
+                        Succeeded = result.Succeeded,
                         Token = token,
                         UserName = appUser.UserName,
                         SignIn = result
@@ -64,15 +64,13 @@ namespace IoTSharp.Hub.Controllers
                 }
                 else
                 {
-                    
-                     return Unauthorized(new { code = ApiCode.LoginError, msg = "Unauthorized", data = result });
+                    return Unauthorized(new { code = ApiCode.LoginError, msg = "Unauthorized", data = result });
                 }
             }
             catch (Exception ex)
             {
-               return  this.ExceptionRequest(ex);
+                return this.ExceptionRequest(ex);
             }
-           
         }
 
         /// <summary>
@@ -120,35 +118,6 @@ namespace IoTSharp.Hub.Controllers
             }
 
             return actionResult;
-        }
-        public class LoginResult 
-        {
-           
-            public string Token { get; set; }
-            public string UserName  { get; set; }
-            public Microsoft.AspNetCore.Identity.SignInResult SignIn { get;  set; }
-            public bool Succeeded { get;  set; }
-        }
-        public class LoginDto
-        {
-            [Required]
-            public string Password { get; set; }
-
-            [Required]
-            public string Email { get; set; }
-        }
-
-        public class RegisterDto
-        {
-            [Required]
-            public string Email { get; set; }
-
-            [Required]
-            public string CustomerName { get; set; }
-
-            [Required]
-            [StringLength(100, ErrorMessage = "PASSWORD_MIN_LENGTH", MinimumLength = 6)]
-            public string Password { get; set; }
         }
     }
 }

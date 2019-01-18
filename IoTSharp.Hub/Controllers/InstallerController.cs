@@ -24,6 +24,7 @@ namespace IoTSharp.Hub.Controllers
         private readonly IConfiguration _configuration;
         private readonly SignInManager<IdentityUser> _signInManager;
         private readonly ApplicationDBInitializer _dBInitializer;
+
         public InstallerController(
             UserManager<IdentityUser> userManager,
             SignInManager<IdentityUser> signInManager,
@@ -50,7 +51,6 @@ namespace IoTSharp.Hub.Controllers
             {
                 return this.ExceptionRequest(ex);
             }
-
         }
 
         private InstanceDto GetInstanceDto()
@@ -60,7 +60,7 @@ namespace IoTSharp.Hub.Controllers
 
         [AllowAnonymous]
         [HttpPost]
-        public    ActionResult<InstanceDto>  Install([FromBody] InstallDto model)
+        public async Task<ActionResult<InstanceDto>> Install([FromBody] InstallDto model)
         {
             ActionResult<InstanceDto> actionResult = NoContent();
             try
@@ -68,17 +68,17 @@ namespace IoTSharp.Hub.Controllers
                 if (!_context.Relationship.Any())
                 {
                     _dBInitializer.SeedRole();
-                      _dBInitializer.SeedUser(model);
+                    await _dBInitializer.SeedUserAsync(model);
                     actionResult = Ok(GetInstanceDto());
                 }
                 else
                 {
-                    actionResult= BadRequest(new { code = ApiCode.AlreadyExists, msg = "Already installed", data = GetInstanceDto() });
+                    actionResult = BadRequest(new { code = ApiCode.AlreadyExists, msg = "Already installed", data = GetInstanceDto() });
                 }
             }
             catch (Exception ex)
             {
-                actionResult= this.ExceptionRequest(ex);
+                actionResult = this.ExceptionRequest(ex);
             }
             return actionResult;
         }
@@ -88,6 +88,7 @@ namespace IoTSharp.Hub.Controllers
             public string Version { get; internal set; }
             public bool Installed { get; internal set; }
         }
+
         public class InstallDto
         {
             [Required]

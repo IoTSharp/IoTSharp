@@ -10,7 +10,6 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using Microsoft.IdentityModel.Tokens;
 using NSwag.AspNetCore;
 using System;
 using System.IdentityModel.Tokens.Jwt;
@@ -25,9 +24,11 @@ namespace IoTSharp.Hub
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
+            AppSettings = Configuration.Get<AppSettings>();
         }
 
-        public IConfiguration Configuration { get; }
+        public AppSettings AppSettings { get; }
+        public IConfiguration Configuration { get; private set; }
 
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
@@ -39,6 +40,8 @@ namespace IoTSharp.Hub
                 options.MinimumSameSitePolicy = SameSiteMode.None;
             });
 
+            services.Configure<AppSettings>(Configuration);
+
             services.AddLogging(loggingBuilder => loggingBuilder.AddConsole());
 
             services.AddIoTSharpHub(Configuration);
@@ -46,16 +49,10 @@ namespace IoTSharp.Hub
             services.AddIdentity<IdentityUser, IdentityRole>()
                     .AddRoles<IdentityRole>()
                     .AddRoleManager<RoleManager<IdentityRole>>()
-                    .AddDefaultTokenProviders()
+                   .AddDefaultTokenProviders()
                     .AddEntityFrameworkStores<ApplicationDbContext>();
 
-            JwtSecurityTokenHandler.DefaultInboundClaimTypeMap.Clear(); // => remove default claims
-            services.ConfigureJwtAuthentication(Configuration["JwtIssuer"], Configuration["JwtAudience"], Configuration["JwtKey"],TimeSpan.FromDays( Convert.ToInt32(Configuration["JwtExpireDays"])));
-        
-            services.AddAuthorization(options =>
-            {
-                options.DefaultPolicy = new AuthorizationPolicyBuilder(JwtBearerDefaults.AuthenticationScheme).RequireAuthenticatedUser().Build();
-            });
+            services.ConfigureJwtAuthentication(Configuration["JwtIssuer"], Configuration["JwtAudience"], Configuration["JwtKey"], TimeSpan.FromDays(Convert.ToInt32(Configuration["JwtExpireDays"])));
             services.Configure<ForwardedHeadersOptions>(options =>
             {
                 options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
@@ -85,19 +82,16 @@ namespace IoTSharp.Hub
             {
                 app.UseExceptionHandler("/Home/Error");
                 // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
-                app.UseHsts();
+                //  app.UseHsts();
             }
-
             app.UseAuthentication();
             app.UseMvc();
+
             app.UseDefaultFiles();
             app.UseStaticFiles();
             app.UseHttpsRedirection();
             app.UseStaticFiles();
-            app.UseCookiePolicy();
 
-            app.UseAuthentication();
-            
             app.UseForwardedHeaders(new ForwardedHeadersOptions
             {
                 ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto
