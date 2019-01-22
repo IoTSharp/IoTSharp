@@ -9,10 +9,9 @@ IoTSharp is an open-source IoT platform for data collection, processing, visuali
 ## Documentation
 
 ## Contributing
-If you'd like to contribute to IotSharp, please take a look at our [Contributing
-Guide](contributing.md).
-
-[IoTShap roadmap](roadmap.md).
+If you'd like to contribute to IoTSharp, please take a look at our [Contributing Guide](contributing.md).
+If you have a question or have found a bug,[ file an issue.](https://github.com/IoTSharp/IoTSharp/issues)
+To learn about project priorities as well as status and ship dates see the [IoTShap roadmap](roadmap.md).
 
 ## Support
 
