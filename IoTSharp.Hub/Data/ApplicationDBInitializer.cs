@@ -83,10 +83,10 @@ namespace IoTSharp.Hub.Data
                     await _signInManager.UserManager.AddClaimAsync(user, new Claim(IoTSharpClaimTypes.Customer, customer.Id.ToString()));
                     await _signInManager.UserManager.AddClaimAsync(user, new Claim(IoTSharpClaimTypes.Tenant, tenant.Id.ToString()));
                     await _signInManager.UserManager.AddToRoleAsync(user, nameof(UserRole.Anonymous));
+                    await _signInManager.UserManager.AddToRoleAsync(user, nameof(UserRole.NormalUser));
                     await _signInManager.UserManager.AddToRoleAsync(user, nameof(UserRole.CustomerAdmin));
                     await _signInManager.UserManager.AddToRoleAsync(user, nameof(UserRole.TenantAdmin));
                     await _signInManager.UserManager.AddToRoleAsync(user, nameof(UserRole.SystemAdmin));
-                    await _signInManager.UserManager.AddToRoleAsync(user, nameof(UserRole.Anonymous));
                 }
             }
             var rship = new Relationship
