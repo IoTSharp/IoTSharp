@@ -8,18 +8,16 @@ namespace IoT.Sharp.Sdk.CSharp
         public int count { get; set; }
     }
 
-    public class ApiResult
+    public partial class ApiResult
     {
-        public int code { get; set; }
-        public string msg { get; set; }
         public JObject data { get; set; }
 
         public override string ToString()
         {
             string msg = "";
-            if (code != 0)
+            if (Code != 0)
             {
-                msg = $"{code} {msg}";
+                msg = $"{Code} {Msg}";
             }
             return msg;
         }

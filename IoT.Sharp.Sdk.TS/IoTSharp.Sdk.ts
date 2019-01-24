@@ -309,8 +309,11 @@ export class DevicesClient {
         this.baseUrl = baseUrl ? baseUrl : "http://localhost:51498";
     }
 
-    getDeviceAll(): Promise<Device[] | null> {
-        let url_ = this.baseUrl + "/api/Devices";
+    getDevicesAll(customerId: string): Promise<Device[] | null> {
+        let url_ = this.baseUrl + "/api/Devices/Customers/{customerId}";
+        if (customerId === undefined || customerId === null)
+            throw new Error("The parameter 'customerId' must be defined.");
+        url_ = url_.replace("{customerId}", encodeURIComponent("" + customerId)); 
         url_ = url_.replace(/[?&]$/, "");
 
         let options_ = <RequestInit>{
@@ -321,11 +324,52 @@ export class DevicesClient {
         };
 
         return this.http.fetch(url_, options_).then((_response: Response) => {
-            return this.processGetDeviceAll(_response);
+            return this.processGetDevicesAll(_response);
         });
     }
 
-    protected processGetDeviceAll(response: Response): Promise<Device[] | null> {
+    protected processGetDevicesAll(response: Response): Promise<Device[] | null> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            if (resultData200 && resultData200.constructor === Array) {
+                result200 = [] as any;
+                for (let item of resultData200)
+                    result200!.push(Device.fromJS(item));
+            }
+            return result200;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<Device[] | null>(<any>null);
+    }
+
+    getDevices(customerId: string): Promise<Device[] | null> {
+        let url_ = this.baseUrl + "/api/Devices";
+        if (customerId === undefined || customerId === null)
+            throw new Error("The parameter 'customerId' must be defined.");
+        url_ = url_.replace("{customerId}", encodeURIComponent("" + customerId)); 
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ = <RequestInit>{
+            method: "GET",
+            headers: {
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processGetDevices(_response);
+        });
+    }
+
+    protected processGetDevices(response: Response): Promise<Device[] | null> {
         const status = response.status;
         let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
         if (status === 200) {
@@ -783,10 +827,10 @@ export class TenantsClient {
 }
 
 export class LoginResult implements ILoginResult {
-    token?: string | undefined;
     userName?: string | undefined;
     signIn?: SignInResult | undefined;
     succeeded!: boolean;
+    token?: TokenEntity | undefined;
 
     constructor(data?: ILoginResult) {
         if (data) {
@@ -799,10 +843,10 @@ export class LoginResult implements ILoginResult {
 
     init(data?: any) {
         if (data) {
-            this.token = data["token"];
             this.userName = data["userName"];
             this.signIn = data["signIn"] ? SignInResult.fromJS(data["signIn"]) : <any>undefined;
             this.succeeded = data["succeeded"];
+            this.token = data["token"] ? TokenEntity.fromJS(data["token"]) : <any>undefined;
         }
     }
 
@@ -815,19 +859,19 @@ export class LoginResult implements ILoginResult {
 
     toJSON(data?: any) {
         data = typeof data === 'object' ? data : {};
-        data["token"] = this.token;
         data["userName"] = this.userName;
         data["signIn"] = this.signIn ? this.signIn.toJSON() : <any>undefined;
         data["succeeded"] = this.succeeded;
+        data["token"] = this.token ? this.token.toJSON() : <any>undefined;
         return data; 
     }
 }
 
 export interface ILoginResult {
-    token?: string | undefined;
     userName?: string | undefined;
     signIn?: SignInResult | undefined;
     succeeded: boolean;
+    token?: TokenEntity | undefined;
 }
 
 export class SignInResult implements ISignInResult {
@@ -876,6 +920,46 @@ export interface ISignInResult {
     isLockedOut: boolean;
     isNotAllowed: boolean;
     requiresTwoFactor: boolean;
+}
+
+export class TokenEntity implements ITokenEntity {
+    access_token?: string | undefined;
+    expires_in!: number;
+
+    constructor(data?: ITokenEntity) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(data?: any) {
+        if (data) {
+            this.access_token = data["access_token"];
+            this.expires_in = data["expires_in"];
+        }
+    }
+
+    static fromJS(data: any): TokenEntity {
+        data = typeof data === 'object' ? data : {};
+        let result = new TokenEntity();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["access_token"] = this.access_token;
+        data["expires_in"] = this.expires_in;
+        return data; 
+    }
+}
+
+export interface ITokenEntity {
+    access_token?: string | undefined;
+    expires_in: number;
 }
 
 export class LoginDto implements ILoginDto {
