@@ -22,6 +22,7 @@ namespace IoTSharp.Hub.Data
         NotFoundTenantOrCustomer = 10004,
         NotFoundDevice = 10005,
         NotFoundCustomer = 10006,
+        NothingToDo = 10007,
     }
 
     public enum DataCatalog
