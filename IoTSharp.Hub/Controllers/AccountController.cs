@@ -21,6 +21,7 @@ using System.Threading.Tasks;
 namespace IoTSharp.Hub.Controllers
 {
     [ApiController]
+    [Authorize]
     [Route("api/[controller]/[action]")]
     public class AccountController : ControllerBase
     {
@@ -41,6 +42,19 @@ namespace IoTSharp.Hub.Controllers
             _configuration = configuration;
             _logger = logger;
             _context = context;
+        }
+
+        [HttpGet]
+        public ActionResult<ApiResult<UserInfoDto>> MyInfo()
+        {
+            string custid = _signInManager.Context.User.FindFirstValue(IoTSharpClaimTypes.Customer);
+            var Customer = _context.Customer.FirstOrDefault(c => c.Id.ToString() == custid);
+            var uidto = new UserInfoDto()
+            {
+                Customer = Customer,
+                Tenant = Customer.Tenant
+            };
+            return new ApiResult<UserInfoDto>(ApiCode.Success, "OK", uidto);
         }
 
         [AllowAnonymous]

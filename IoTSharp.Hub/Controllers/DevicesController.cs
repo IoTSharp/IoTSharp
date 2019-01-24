@@ -8,6 +8,8 @@ using Microsoft.EntityFrameworkCore;
 using IoTSharp.Hub.Data;
 using Microsoft.AspNetCore.Authorization;
 using IoTSharp.Hub.Dtos;
+using Dic = System.Collections.Generic.Dictionary<string, string>;
+using DicKV = System.Collections.Generic.KeyValuePair<string, string>;
 
 namespace IoTSharp.Hub.Controllers
 {
@@ -122,6 +124,99 @@ namespace IoTSharp.Hub.Controllers
         private bool DeviceExists(Guid id)
         {
             return _context.Device.Any(e => e.Id == id);
+        }
+
+        [AllowAnonymous]
+        [HttpPost("{access_token}/telemetry")]
+        public async Task<ActionResult<ApiResult<Dic>>> Telemetry(string access_token, Dictionary<string, object> telemetrys)
+        {
+            Dic exceptions = new Dic();
+            var deviceIdentity = await _context.DeviceIdentities.FirstOrDefaultAsync(id => id.IdentityId == access_token);
+            if (deviceIdentity == null)
+            {
+                return NotFound(new ApiResult<Dic>(ApiCode.NotFoundDevice, $"{access_token} not a device's access token", new Dic(new DicKV[] { new DicKV("access_token", access_token) })));
+            }
+            else
+            {
+                telemetrys.ToList().ForEach(kp =>
+                {
+                    try
+                    {
+                        var tdata = new TelemetryData() { DateTime = DateTime.Now, Device = deviceIdentity.Device, Id = Guid.NewGuid(), KeyName = kp.Key };
+                        if (kp.Key != null)
+                        {
+                            FillKVToModel(kp, tdata);
+                        }
+                        _context.TelemetryData.Add(tdata);
+                        var tl = _context.TelemetryLatest.FirstOrDefault(tx => tx.KeyName == kp.Key);
+                        if (tl != null)
+                        {
+                            FillKVToModel(kp, tl);
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        exceptions.Add(kp.Key, ex.Message);
+                    }
+                });
+                int ret = await _context.SaveChangesAsync();
+                return Ok(new ApiResult<Dic>(ret > 0 ? ApiCode.Success : ApiCode.NothingToDo, ret > 0 ? "OK" : "No data save", exceptions));
+            }
+        }
+
+        private static void FillKVToModel<T>(KeyValuePair<string, object> kp, T tdata) where T : DataStorage
+        {
+            switch (Type.GetTypeCode(kp.Value.GetType()))
+            {
+                case TypeCode.Boolean:
+                    tdata.Type = DataType.Boolean;
+                    tdata.Value_Boolean = (bool)kp.Value;
+                    break;
+
+                case TypeCode.Double:
+                case TypeCode.Single:
+                case TypeCode.Decimal:
+                    tdata.Type = DataType.Double;
+                    tdata.Value_Double = (double)kp.Value;
+                    break;
+
+                case TypeCode.Int16:
+                case TypeCode.Int32:
+                case TypeCode.Int64:
+                case TypeCode.UInt16:
+                case TypeCode.UInt32:
+                case TypeCode.UInt64:
+                case TypeCode.Byte:
+                case TypeCode.SByte:
+
+                    tdata.Type = DataType.Long;
+                    tdata.Value_Long = (long)kp.Value;
+                    break;
+
+                case TypeCode.String:
+                case TypeCode.Char:
+                    tdata.Type = DataType.String;
+                    tdata.Value_String = (string)kp.Value;
+                    break;
+
+                default:
+                    if (kp.Value.GetType() == typeof(byte[]))
+                    {
+                        tdata.Type = DataType.Binary;
+                        tdata.Value_Boolean = (bool)kp.Value;
+                    }
+                    else if (kp.Value.GetType() == typeof(System.Xml.XmlDocument))
+                    {
+                        tdata.Type = DataType.XML;
+                        tdata.Value_XML = ((System.Xml.XmlDocument)kp.Value).ToString();
+                    }
+                    else
+                    {
+                        tdata.Type = DataType.Json;
+                        tdata.Value_Json = Newtonsoft.Json.JsonConvert.SerializeObject(kp.Value);
+                    }
+                    break;
+            }
         }
     }
 }
