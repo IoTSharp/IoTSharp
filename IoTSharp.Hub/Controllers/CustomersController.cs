@@ -62,7 +62,8 @@ namespace IoTSharp.Hub.Controllers
             {
                 return BadRequest();
             }
-            customer.Tenant = _context.Tenant.Find(customer.Tenant.Id);
+            var customer1 = _context.Customer.Find(customer.Id);
+            customer.Tenant = customer1.Tenant;
             _context.Entry(customer).State = EntityState.Modified;
             try
             {
@@ -88,7 +89,8 @@ namespace IoTSharp.Hub.Controllers
         [HttpPost]
         public async Task<ActionResult<Customer>> PostCustomer(Customer customer)
         {
-            customer.Tenant = _context.Tenant.Find(customer.Tenant.Id);
+            var customer1 = _context.Customer.Find(customer.Id);
+            customer.Tenant = customer1.Tenant;
             _context.Customer.Add(customer);
             await _context.SaveChangesAsync();
             return await GetCustomer(customer.Id);
