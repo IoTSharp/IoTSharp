@@ -1,22 +1,26 @@
-using IoT.Sharp.Sdk.CSharp;
+using IoTSharp.Hub;
+using IoTSharp.Hub.Controllers;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using static IoTSharp.Hub.Controllers.InstallerController;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace IoTSharp.Test
 {
     [TestClass]
     public class UnitTestInstaller
     {
+        private InstallerController _installerController;
+
         [TestInitialize]
         public void TestInit()
         {
-            SdkClient.BaseURL = "http://localhost:51498";
+            _installerController = Program.CreateWebHostBuilder(new string[] { }).Build().Services.GetService<InstallerController>();
         }
 
-        [TestMethod, Priority(1)]
-        public void TestInstance()
+        [TestMethod]
+        public void TestInstall()
         {
-            var Client = SdkClient.Create<InstallerClient>();
-            var fr = Client.InstallAsync(new InstallDto()
+            var fr = _installerController.Install(new InstallDto()
             {
                 CustomerEMail = "iotmaster@iotsharp.net",
                 CustomerName = "iotsharp",
@@ -25,7 +29,7 @@ namespace IoTSharp.Test
                 PhoneNumber = "400000000",
                 Email = "iotmaster@iotsharp.net",
                 Password = "P@ssw0rd"
-            }).GetAwaiter().GetResult();
+            }).GetAwaiter().GetResult().Value;
             Assert.IsTrue(fr.Installed);
         }
     }
