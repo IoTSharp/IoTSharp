@@ -67,7 +67,7 @@ namespace IoTSharp.Hub.Controllers
             {
                 if (!_context.Relationship.Any())
                 {
-                    _dBInitializer.SeedRole();
+                    _dBInitializer.SeedRoleAsync();
                     await _dBInitializer.SeedUserAsync(model);
                     actionResult = Ok(GetInstanceDto());
                 }
