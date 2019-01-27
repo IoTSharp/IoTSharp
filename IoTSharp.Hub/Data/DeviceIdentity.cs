@@ -30,6 +30,7 @@ namespace IoTSharp.Hub.Data
         /// </summary>
         public string IdentityValue { get; set; }
 
+        [Newtonsoft.Json.JsonIgnore]
         [Required]
         public Device Device { get; set; }
     }

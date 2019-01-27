@@ -91,7 +91,6 @@ namespace IoTSharp.Hub
             app.UseStaticFiles();
             app.UseHttpsRedirection();
             app.UseStaticFiles();
-
             app.UseForwardedHeaders(new ForwardedHeadersOptions
             {
                 ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto
