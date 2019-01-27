@@ -17,7 +17,9 @@ namespace IoT.Sharp.Sdk.CSharp
 
         public static T Create<T>() where T : class
         {
-            return Activator.CreateInstance(typeof(T), HttpClient) as T;
+            T t = Activator.CreateInstance(typeof(T), HttpClient) as T;
+            typeof(T).GetProperty("BaseUrl").SetValue(t, BaseURL);
+            return t;
         }
 
         public static async Task<LoginResult> LoginAsync(this AccountClient client, string username, string password)
