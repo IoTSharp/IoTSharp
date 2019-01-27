@@ -11,6 +11,8 @@ using System.IdentityModel.Tokens.Jwt;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using IoTSharp.Hub.Dtos;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 
 namespace IoTSharp.Hub.Controllers
 {
@@ -44,9 +46,14 @@ namespace IoTSharp.Hub.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Tenant>>> GetTenant()
         {
-            var clamis = await _userManager.GetClaimsAsync(await _userManager.GetUserAsync(this.User));
-            var rows = await _userManager.GetRolesAsync(await _userManager.GetUserAsync(this.User));
-            return await _context.Tenant.ToListAsync();
+            try
+            {
+                return await _context.Tenant.ToListAsync();
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new ApiResult(ApiCode.Exception, ex.Message));
+            }
         }
 
         /// <summary>
@@ -58,14 +65,11 @@ namespace IoTSharp.Hub.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult<Tenant>> GetTenant(Guid id)
         {
-            var _jwt = this.GetJwtSecurityToken();
             var tenant = await _context.Tenant.FindAsync(id);
-
             if (tenant == null)
             {
-                return NotFound();
+                return NotFound(new ApiResult(ApiCode.NotFoundTenant, "Not found tenant"));
             }
-
             return tenant;
         }
 
@@ -85,16 +89,20 @@ namespace IoTSharp.Hub.Controllers
             {
                 await _context.SaveChangesAsync();
             }
-            catch (DbUpdateConcurrencyException)
+            catch (DbUpdateConcurrencyException ex)
             {
                 if (!TenantExists(id))
                 {
-                    return NotFound();
+                    return NotFound(new ApiResult<Tenant>(ApiCode.NotFoundTenant, "Not found tenant", tenant));
                 }
                 else
                 {
-                    throw;
+                    return BadRequest(new ApiResult<EntityEntry[]>(ApiCode.Exception, ex.Message, ex.Entries.ToArray()));
                 }
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new ApiResult<Tenant>(ApiCode.Exception, ex.Message, tenant));
             }
 
             return NoContent();
@@ -105,10 +113,17 @@ namespace IoTSharp.Hub.Controllers
         [HttpPost]
         public async Task<ActionResult<Tenant>> PostTenant(Tenant tenant)
         {
-            _context.Tenant.Add(tenant);
-            await _context.SaveChangesAsync();
+            try
+            {
+                _context.Tenant.Add(tenant);
+                await _context.SaveChangesAsync();
 
-            return CreatedAtAction("GetTenant", new { id = tenant.Id }, tenant);
+                return CreatedAtAction("GetTenant", new { id = tenant.Id }, tenant);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new ApiResult<Tenant>(ApiCode.Exception, ex.Message, tenant));
+            }
         }
 
         [Authorize(Roles = nameof(UserRole.SystemAdmin))]
@@ -119,13 +134,18 @@ namespace IoTSharp.Hub.Controllers
             var tenant = await _context.Tenant.FindAsync(id);
             if (tenant == null)
             {
-                return NotFound();
+                return NotFound(new ApiResult<Tenant>(ApiCode.NotFoundTenant, "Not found tenant", tenant));
             }
-
-            _context.Tenant.Remove(tenant);
-            await _context.SaveChangesAsync();
-
-            return tenant;
+            try
+            {
+                _context.Tenant.Remove(tenant);
+                await _context.SaveChangesAsync();
+                return tenant;
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new ApiResult<Tenant>(ApiCode.Exception, ex.Message, tenant));
+            }
         }
 
         private bool TenantExists(Guid id)

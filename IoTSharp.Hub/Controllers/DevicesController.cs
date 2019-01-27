@@ -42,6 +42,43 @@ namespace IoTSharp.Hub.Controllers
             }
         }
 
+        [Authorize(Roles = nameof(UserRole.NormalUser))]
+        [HttpGet("{deviceId}/Identity")]
+        public async Task<ActionResult<DeviceIdentity>> GetIdentity(Guid deviceId)
+        {
+            var devid = from did in _context.DeviceIdentities where did.Device.Id == deviceId select did;
+            var deviceid = await devid.FirstOrDefaultAsync();
+            if (deviceid == null)
+            {
+                return NotFound(new ApiResult(ApiCode.NotFoundDeviceIdentity, $"Device's Identity not found "));
+            }
+            return deviceid;
+        }
+
+        [Authorize(Roles = nameof(UserRole.NormalUser))]
+        [HttpGet("{deviceId}/AttributeLatest")]
+        public async Task<ActionResult<List<AttributeLatest>>> GetAttributeLatest(Guid deviceId)
+        {
+            var devid = from dev in _context.Device where dev.Id == deviceId select dev.AttributeLatest;
+            if (!devid.Any())
+            {
+                return NotFound(new ApiResult(ApiCode.NotFoundDeviceIdentity, $"Device's Identity not found "));
+            }
+            return await devid.FirstOrDefaultAsync();
+        }
+
+        [Authorize(Roles = nameof(UserRole.NormalUser))]
+        [HttpGet("{deviceId}/TelemetryLatest")]
+        public async Task<ActionResult<List<TelemetryLatest>>> GetTelemetryLatest(Guid deviceId)
+        {
+            var devid = from dev in _context.Device where dev.Id == deviceId select dev.TelemetryLatest;
+            if (!devid.Any())
+            {
+                return NotFound(new ApiResult(ApiCode.NotFoundDeviceIdentity, $"Device's Identity not found "));
+            }
+            return await devid.FirstOrDefaultAsync();
+        }
+
         // GET: api/Devices/5
         [Authorize(Roles = nameof(UserRole.NormalUser))]
         [HttpGet("{id}")]
@@ -65,6 +102,21 @@ namespace IoTSharp.Hub.Controllers
             if (id != device.Id)
             {
                 return BadRequest();
+            }
+
+            var cid = User.Claims.First(c => c.Type == IoTSharpClaimTypes.Customer);
+            var tid = User.Claims.First(c => c.Type == IoTSharpClaimTypes.Tenant);
+            var dev = _context.Device.First(d => d.Id == device.Id);
+            var tenid = dev.Tenant.Id;
+            var cusid = dev.Customer.Id;
+
+            if (dev == null)
+            {
+                return BadRequest(new ApiResult(ApiCode.NotFoundDevice, $"{dev.Id} not found in database"));
+            }
+            else if (dev.Tenant?.Id.ToString() != tid.Value || dev.Customer?.Id.ToString() != cid.Value)
+            {
+                return BadRequest(new ApiResult(ApiCode.DoNotAllow, $"Do not allow access to devices from other customers or tenants"));
             }
 
             _context.Entry(device).State = EntityState.Modified;
@@ -93,13 +145,22 @@ namespace IoTSharp.Hub.Controllers
         [HttpPost]
         public async Task<ActionResult<Device>> PostDevice(Device device)
         {
-            device.Tenant = _context.Tenant.Find(device.Tenant.Id);
-            device.Customer = _context.Customer.Find(device.Customer.Id);
+            var cid = User.Claims.First(c => c.Type == IoTSharpClaimTypes.Customer);
+            var tid = User.Claims.First(c => c.Type == IoTSharpClaimTypes.Tenant);
+
+            device.Tenant = _context.Tenant.Find(new Guid(tid.Value));
+            device.Customer = _context.Customer.Find(new Guid(cid.Value));
             if (device.Tenant == null || device.Customer == null)
             {
                 return NotFound(new ApiResult<Device>(ApiCode.NotFoundTenantOrCustomer, $"Not found Tenant or Customer ", device));
             }
             _context.Device.Add(device);
+            _context.DeviceIdentities.Add(new DeviceIdentity()
+            {
+                Device = device,
+                IdentityType = IdentityType.AccessToken,
+                IdentityId = Guid.NewGuid().ToString().Replace("-", "")
+            });
             await _context.SaveChangesAsync();
             return await GetDevice(device.Id);
         }
@@ -127,41 +188,83 @@ namespace IoTSharp.Hub.Controllers
         }
 
         [AllowAnonymous]
-        [HttpPost("{access_token}/telemetry")]
+        [HttpPost("{access_token}/Telemetry")]
         public async Task<ActionResult<ApiResult<Dic>>> Telemetry(string access_token, Dictionary<string, object> telemetrys)
         {
             Dic exceptions = new Dic();
-            var deviceIdentity = await _context.DeviceIdentities.FirstOrDefaultAsync(id => id.IdentityId == access_token);
-            if (deviceIdentity == null)
+            var deviceIdentity = from id in _context.DeviceIdentities where id.IdentityId == access_token && id.IdentityType == IdentityType.AccessToken select id;
+            var device = from dev in _context.Device where deviceIdentity.Any() && dev.Id == deviceIdentity.FirstOrDefault().Device.Id select dev;
+            if (deviceIdentity == null || !device.Any())
             {
                 return NotFound(new ApiResult<Dic>(ApiCode.NotFoundDevice, $"{access_token} not a device's access token", new Dic(new DicKV[] { new DicKV("access_token", access_token) })));
             }
             else
             {
-                telemetrys.ToList().ForEach(kp =>
-                {
-                    try
-                    {
-                        var tdata = new TelemetryData() { DateTime = DateTime.Now, Device = deviceIdentity.Device, Id = Guid.NewGuid(), KeyName = kp.Key };
-                        if (kp.Key != null)
-                        {
-                            FillKVToModel(kp, tdata);
-                        }
-                        _context.TelemetryData.Add(tdata);
-                        var tl = _context.TelemetryLatest.FirstOrDefault(tx => tx.KeyName == kp.Key);
-                        if (tl != null)
-                        {
-                            FillKVToModel(kp, tl);
-                        }
-                    }
-                    catch (Exception ex)
-                    {
-                        exceptions.Add(kp.Key, ex.Message);
-                    }
-                });
-                int ret = await _context.SaveChangesAsync();
-                return Ok(new ApiResult<Dic>(ret > 0 ? ApiCode.Success : ApiCode.NothingToDo, ret > 0 ? "OK" : "No data save", exceptions));
+                var result = await SaveAsync<TelemetryLatest, TelemetryData>(telemetrys, device.FirstOrDefault());
+                return Ok(new ApiResult<Dic>(result.ret > 0 ? ApiCode.Success : ApiCode.NothingToDo, result.ret > 0 ? "OK" : "No Telemetry save", result.exceptions));
             }
+        }
+
+        [AllowAnonymous]
+        [HttpPost("{access_token}/Attribute")]
+        public async Task<ActionResult<ApiResult<Dic>>> Attribute(string access_token, Dictionary<string, object> attributes)
+        {
+            Dic exceptions = new Dic();
+            var deviceIdentity = from id in _context.DeviceIdentities where id.IdentityId == access_token && id.IdentityType == IdentityType.AccessToken select id;
+            var device = from dev in _context.Device where deviceIdentity.Any() && dev.Id == deviceIdentity.FirstOrDefault().Device.Id select dev;
+            if (deviceIdentity == null || !device.Any())
+            {
+                return NotFound(new ApiResult<Dic>(ApiCode.NotFoundDevice, $"{access_token} not a device's access token", new Dic(new DicKV[] { new DicKV("access_token", access_token) })));
+            }
+            else
+            {
+                var result = await SaveAsync<AttributeLatest, AttributeData>(attributes, device.FirstOrDefault());
+                return Ok(new ApiResult<Dic>(result.ret > 0 ? ApiCode.Success : ApiCode.NothingToDo, result.ret > 0 ? "OK" : "No Attribute save", result.exceptions));
+            }
+        }
+
+        /// <summary>
+        ///
+        /// </summary>
+        /// <typeparam name="L">Latest</typeparam>
+        /// <typeparam name="D">Data</typeparam>
+        /// <param name="data"></param>
+        /// <param name="device"></param>
+        /// <returns></returns>
+        private async Task<(int ret, Dic exceptions)> SaveAsync<L, D>(Dictionary<string, object> data, Device device) where L : DataStorage, new() where D : DataStorage, new()
+        {
+            Dic exceptions = new Dic();
+            data.ToList().ForEach(kp =>
+             {
+                 try
+                 {
+                     var tdata = new D() { DateTime = DateTime.Now, Device = device, Id = Guid.NewGuid(), KeyName = kp.Key };
+                     if (kp.Key != null)
+                     {
+                         FillKVToModel(kp, tdata);
+                         tdata.Id = Guid.NewGuid();
+                         _context.Set<D>().Add(tdata);
+                     }
+                     var tl = _context.Set<L>().FirstOrDefault(tx => tx.KeyName == kp.Key);
+                     if (tl != null)
+                     {
+                         FillKVToModel(kp, tl);
+                         tl.DateTime = DateTime.Now;
+                     }
+                     else
+                     {
+                         var t2 = new L() { DateTime = DateTime.Now, Device = device, Id = Guid.NewGuid(), KeyName = kp.Key };
+                         FillKVToModel(kp, t2);
+                         _context.Set<L>().Add(t2);
+                     }
+                 }
+                 catch (Exception ex)
+                 {
+                     exceptions.Add(kp.Key, ex.Message);
+                 }
+             });
+            int ret = await _context.SaveChangesAsync();
+            return (ret, exceptions);
         }
 
         private static void FillKVToModel<T>(KeyValuePair<string, object> kp, T tdata) where T : DataStorage

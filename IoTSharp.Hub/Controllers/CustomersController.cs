@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using IoTSharp.Hub.Data;
 using Microsoft.AspNetCore.Authorization;
+using IoTSharp.Hub.Dtos;
 
 namespace IoTSharp.Hub.Controllers
 {
@@ -30,7 +31,7 @@ namespace IoTSharp.Hub.Controllers
             var f = from c in _context.Customer where c.Tenant.Id == tenantId select c;
             if (!f.Any())
             {
-                return NotFound();
+                return NotFound(new ApiResult(ApiCode.NotFoundCustomer, "This tenant does not have any customers"));
             }
             else
             {
@@ -47,7 +48,7 @@ namespace IoTSharp.Hub.Controllers
 
             if (customer == null)
             {
-                return NotFound();
+                return NotFound(new ApiResult(ApiCode.NotFoundCustomer, "This customer was not found"));
             }
 
             return customer;
@@ -56,14 +57,13 @@ namespace IoTSharp.Hub.Controllers
         // PUT: api/Customers/5
         [Authorize(Roles = nameof(UserRole.CustomerAdmin))]
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutCustomer(Guid id, Customer customer)
+        public async Task<IActionResult> PutCustomer(Guid id, CustomerDto customer)
         {
             if (id != customer.Id)
             {
                 return BadRequest();
             }
-            var customer1 = _context.Customer.Find(customer.Id);
-            customer.Tenant = customer1.Tenant;
+            customer.Tenant = _context.Tenant.Find(customer.TenantID);
             _context.Entry(customer).State = EntityState.Modified;
             try
             {
@@ -73,7 +73,7 @@ namespace IoTSharp.Hub.Controllers
             {
                 if (!CustomerExists(id))
                 {
-                    return NotFound();
+                    return NotFound(new ApiResult(ApiCode.NotFoundCustomer, "This customer was not found"));
                 }
                 else
                 {
@@ -87,10 +87,20 @@ namespace IoTSharp.Hub.Controllers
         // POST: api/Customers
         [Authorize(Roles = nameof(UserRole.CustomerAdmin))]
         [HttpPost]
-        public async Task<ActionResult<Customer>> PostCustomer(Customer customer)
+        public async Task<ActionResult<Customer>> PostCustomer(CustomerDto customer)
         {
-            var customer1 = _context.Customer.Find(customer.Id);
-            customer.Tenant = customer1.Tenant;
+            if (customer.TenantID != Guid.Empty && (User.IsInRole(nameof(UserRole.SystemAdmin)) || User.IsInRole(nameof(UserRole.TenantAdmin))))
+            {
+                var tent = _context.Tenant.Find(customer.TenantID);
+                customer.Tenant = tent;
+            }
+            else
+            {
+                var tid = User.Claims.First(c => c.Type == IoTSharpClaimTypes.Tenant);
+                var tidguid = new Guid(tid.Value);
+                var tent = _context.Tenant.Find(tidguid);
+                customer.Tenant = tent;
+            }
             _context.Customer.Add(customer);
             await _context.SaveChangesAsync();
             return await GetCustomer(customer.Id);
@@ -104,7 +114,7 @@ namespace IoTSharp.Hub.Controllers
             var customer = await _context.Customer.FindAsync(id);
             if (customer == null)
             {
-                return NotFound();
+                return NotFound(new ApiResult(ApiCode.NotFoundCustomer, "This customer was not found"));
             }
 
             _context.Customer.Remove(customer);
