@@ -10,7 +10,7 @@ namespace IoT.Sharp.Sdk.CSharp
             return Newtonsoft.Json.JsonConvert.DeserializeObject<ApiResult>(swaggerException.Response);
         }
 
-        public static T ToData<T>(this ApiResult _apiResult) => _apiResult.data.ToObject<T>();
+        public static T ToData<T>(this ApiResult _apiResult) => (T)_apiResult.Data;
 
         public static async Task<T> ToResultAsync<T>(this Task<FileResponse> fr)
         {

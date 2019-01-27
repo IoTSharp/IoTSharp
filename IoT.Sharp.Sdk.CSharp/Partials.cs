@@ -10,7 +10,7 @@ namespace IoT.Sharp.Sdk.CSharp
 
     public partial class ApiResult
     {
-        public JObject data { get; set; }
+        public object Data { get; set; }
 
         public override string ToString()
         {
