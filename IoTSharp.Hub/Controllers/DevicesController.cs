@@ -245,7 +245,7 @@ namespace IoTSharp.Hub.Controllers
                          tdata.Id = Guid.NewGuid();
                          _context.Set<D>().Add(tdata);
                      }
-                     var tl = _context.Set<L>().FirstOrDefault(tx => tx.KeyName == kp.Key);
+                     var tl = _context.Set<L>().FirstOrDefault(tx => tx.Device.Id == device.Id && tx.KeyName == kp.Key);
                      if (tl != null)
                      {
                          FillKVToModel(kp, tl);

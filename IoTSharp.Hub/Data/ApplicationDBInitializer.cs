@@ -36,17 +36,22 @@ namespace IoTSharp.Hub.Data
             _role = role;
         }
 
-        public void SeedRole()
+        public void SeedRoleAsync()
         {
             var roles = new IdentityRole[]{new IdentityRole(nameof(UserRole.Anonymous))
                     , new IdentityRole(nameof(UserRole.NormalUser))
                     , new IdentityRole(nameof(UserRole.CustomerAdmin))
                     , new IdentityRole(nameof(UserRole.TenantAdmin))
                     , new IdentityRole(nameof(UserRole.SystemAdmin)) };
-            roles.ToList().ForEach(role =>
+            roles.ToList().ForEach(async role =>
             {
-                _role.CreateAsync(role);
-                _role.UpdateNormalizedRoleNameAsync(role);
+                await _role.CreateAsync(role).ContinueWith(async ir =>
+                {
+                    if (ir.Result.Succeeded)
+                    {
+                        await _role.UpdateNormalizedRoleNameAsync(role);
+                    }
+                });
             });
             _context.SaveChanges();
         }
