@@ -36,7 +36,12 @@ namespace IoTSharp.Hub.Data
         TelemetryData,
         TelemetryLatest,
     }
-
+    public enum DataSide
+    {
+        AnySide,
+        ServerSide,
+        ClientSide,
+    }
     public enum UserRole
     {
         Anonymous,
@@ -69,5 +74,16 @@ namespace IoTSharp.Hub.Data
         AccessToken,
         DevicePassword,
         X509Certificate
+    }
+    public  enum ObjectType
+    {
+        Unknow,
+        Device,
+        Tenant,
+        Customer,
+        User,
+        MQTTBroker,
+        MQTTClient
+          
     }
 }
