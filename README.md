@@ -30,4 +30,4 @@ IoTSharp is an open-source IoT platform for data collection, processing, visuali
  -	http://127.0.0.1:5000/ 
 
 ### Windows  
- - sc create iotsharp binPath= "D:\mqttchat\IoTSharp.Hub.exe" displayname= "IoTSharp"  start= auto
+ - sc create iotsharp binPath= "D:\iotsharp\IoTSharp.Hub.exe" displayname= "IoTSharp"  start= auto
