@@ -16,6 +16,10 @@ namespace IoTSharp.Hub.Data
         public Device Device { get; set; }
 
         [Required]
+        [EnumDataType(typeof(DataSide))]
+        public DataSide DataSide { get; set; } = DataSide.AnySide;
+
+        [Required]
         [EnumDataType(typeof(DataCatalog))]
         public DataCatalog Catalog { get; set; }
 

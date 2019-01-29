@@ -200,14 +200,14 @@ namespace IoTSharp.Hub.Controllers
             }
             else
             {
-                var result = await SaveAsync<TelemetryLatest, TelemetryData>(telemetrys, device.FirstOrDefault());
+                var result = await SaveAsync<TelemetryLatest, TelemetryData>(telemetrys, device.FirstOrDefault(), DataSide.ClientSide);
                 return Ok(new ApiResult<Dic>(result.ret > 0 ? ApiCode.Success : ApiCode.NothingToDo, result.ret > 0 ? "OK" : "No Telemetry save", result.exceptions));
             }
         }
 
         [AllowAnonymous]
-        [HttpPost("{access_token}/Attribute")]
-        public async Task<ActionResult<ApiResult<Dic>>> Attribute(string access_token, Dictionary<string, object> attributes)
+        [HttpPost("{access_token}/Attributes")]
+        public async Task<ActionResult<ApiResult<Dic>>> Attributes(string access_token, Dictionary<string, object> attributes)
         {
             Dic exceptions = new Dic();
             var deviceIdentity = from id in _context.DeviceIdentities where id.IdentityId == access_token && id.IdentityType == IdentityType.AccessToken select id;
@@ -218,7 +218,7 @@ namespace IoTSharp.Hub.Controllers
             }
             else
             {
-                var result = await SaveAsync<AttributeLatest, AttributeData>(attributes, device.FirstOrDefault());
+                var result = await SaveAsync<AttributeLatest, AttributeData>(attributes, device.FirstOrDefault(), DataSide.ClientSide);
                 return Ok(new ApiResult<Dic>(result.ret > 0 ? ApiCode.Success : ApiCode.NothingToDo, result.ret > 0 ? "OK" : "No Attribute save", result.exceptions));
             }
         }
@@ -231,7 +231,7 @@ namespace IoTSharp.Hub.Controllers
         /// <param name="data"></param>
         /// <param name="device"></param>
         /// <returns></returns>
-        private async Task<(int ret, Dic exceptions)> SaveAsync<L, D>(Dictionary<string, object> data, Device device) where L : DataStorage, new() where D : DataStorage, new()
+        private async Task<(int ret, Dic exceptions)> SaveAsync<L, D>(Dictionary<string, object> data, Device device, DataSide dataSide) where L : DataStorage, new() where D : DataStorage, new()
         {
             Dic exceptions = new Dic();
             data.ToList().ForEach(kp =>
@@ -253,7 +253,7 @@ namespace IoTSharp.Hub.Controllers
                      }
                      else
                      {
-                         var t2 = new L() { DateTime = DateTime.Now, Device = device, Id = Guid.NewGuid(), KeyName = kp.Key };
+                         var t2 = new L() { DateTime = DateTime.Now, Device = device, Id = Guid.NewGuid(), KeyName = kp.Key, DataSide=  dataSide };
                          FillKVToModel(kp, t2);
                          _context.Set<L>().Add(t2);
                      }

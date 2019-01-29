@@ -96,6 +96,16 @@ namespace IoTSharp.Hub.Data
             modelBuilder.Entity<TelemetryLatest>()
             .Property(b => b.Value_XML)
             .HasColumnType("xml");
+
+            modelBuilder.Entity<AuditLog>()
+            .Property(b => b.ActionData)
+            .HasColumnType("jsonb");
+
+            modelBuilder.Entity<AuditLog>()
+            .Property(b => b.ActionResult)
+            .HasColumnType("jsonb");
+
+ 
         }
 
         private void ForSqlServer(ModelBuilder modelBuilder)
@@ -127,5 +137,6 @@ namespace IoTSharp.Hub.Data
         public DbSet<AttributeData> AttributeData { get; set; }
         public DbSet<TelemetryLatest> TelemetryLatest { get; set; }
         public DbSet<DeviceIdentity> DeviceIdentities { get; set; }
+        public DbSet<AuditLog> AuditLog { get; set; }
     }
 }

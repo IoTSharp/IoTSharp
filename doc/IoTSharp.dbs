@@ -44,8 +44,8 @@
 			</fk>
 		</table>
 		<table name="AspNetUserLogins" >
-			<column name="LoginProvider" type="varchar" length="128" decimal="0" jt="12" mandatory="y" />
-			<column name="ProviderKey" type="varchar" length="128" decimal="0" jt="12" mandatory="y" />
+			<column name="LoginProvider" type="text" decimal="0" jt="12" mandatory="y" />
+			<column name="ProviderKey" type="text" decimal="0" jt="12" mandatory="y" />
 			<column name="ProviderDisplayName" type="text" decimal="0" jt="12" />
 			<column name="UserId" type="text" decimal="0" jt="12" mandatory="y" />
 			<index name="PK_AspNetUserLogins" unique="PRIMARY_KEY" >
@@ -78,8 +78,8 @@
 		</table>
 		<table name="AspNetUserTokens" >
 			<column name="UserId" type="text" decimal="0" jt="12" mandatory="y" />
-			<column name="LoginProvider" type="varchar" length="128" decimal="0" jt="12" mandatory="y" />
-			<column name="Name" type="varchar" length="128" decimal="0" jt="12" mandatory="y" />
+			<column name="LoginProvider" type="text" decimal="0" jt="12" mandatory="y" />
+			<column name="Name" type="text" decimal="0" jt="12" mandatory="y" />
 			<column name="Value" type="text" decimal="0" jt="12" />
 			<index name="PK_AspNetUserTokens" unique="PRIMARY_KEY" >
 				<column name="UserId" />
@@ -116,52 +116,6 @@
 				<column name="NormalizedEmail" />
 			</index>
 		</table>
-		<table name="AttributeData" >
-			<column name="Id" type="uuid" decimal="0" jt="1111" mandatory="y" />
-			<column name="KeyName" type="text" decimal="0" jt="12" mandatory="y" />
-			<column name="Type" type="integer" length="10" decimal="0" jt="4" mandatory="y" />
-			<column name="Value_Boolean" type="bool" length="1" decimal="0" jt="-7" mandatory="y" />
-			<column name="Value_String" type="text" decimal="0" jt="12" />
-			<column name="Value_Long" type="bigint" length="19" decimal="0" jt="-5" mandatory="y" />
-			<column name="Value_Double" type="float8" length="17" decimal="17" jt="6" mandatory="y" />
-			<column name="Value_Json" type="jsonb" decimal="0" jt="1111" />
-			<column name="Value_XML" type="xml" decimal="0" jt="2009" />
-			<column name="Value_Binary" type="bytea" decimal="0" jt="-2" />
-			<column name="DeviceId" type="uuid" decimal="0" jt="1111" />
-			<column name="DateTime" type="timestamp" length="29" decimal="6" jt="93" mandatory="y" />
-			<column name="Discriminator" type="text" decimal="0" jt="12" mandatory="y" />
-			<column name="Scope" type="integer" length="10" decimal="0" jt="4" />
-			<column name="DeviceId1" type="uuid" decimal="0" jt="1111" />
-			<column name="TelemetryData_DeviceId1" type="uuid" decimal="0" jt="1111" />
-			<column name="TelemetryLatest_DeviceId1" type="uuid" decimal="0" jt="1111" />
-			<index name="PK_AttributeData" unique="PRIMARY_KEY" >
-				<column name="Id" />
-			</index>
-			<index name="IX_AttributeData_DeviceId" unique="NORMAL" >
-				<column name="DeviceId" />
-			</index>
-			<index name="IX_AttributeData_DeviceId1" unique="NORMAL" >
-				<column name="DeviceId1" />
-			</index>
-			<index name="IX_AttributeData_TelemetryData_DeviceId1" unique="NORMAL" >
-				<column name="TelemetryData_DeviceId1" />
-			</index>
-			<index name="IX_AttributeData_TelemetryLatest_DeviceId1" unique="NORMAL" >
-				<column name="TelemetryLatest_DeviceId1" />
-			</index>
-			<fk name="FK_AttributeData_Device_DeviceId" to_schema="public" to_table="Device" delete_action="restrict" >
-				<fk_column name="DeviceId" pk="Id" />
-			</fk>
-			<fk name="FK_AttributeData_Device_DeviceId1" to_schema="public" to_table="Device" delete_action="restrict" >
-				<fk_column name="DeviceId1" pk="Id" />
-			</fk>
-			<fk name="FK_AttributeData_Device_TelemetryData_DeviceId1" to_schema="public" to_table="Device" delete_action="cascade" >
-				<fk_column name="TelemetryData_DeviceId1" pk="Id" />
-			</fk>
-			<fk name="FK_AttributeData_Device_TelemetryLatest_DeviceId1" to_schema="public" to_table="Device" delete_action="cascade" >
-				<fk_column name="TelemetryLatest_DeviceId1" pk="Id" />
-			</fk>
-		</table>
 		<table name="Customer" >
 			<column name="Id" type="uuid" decimal="0" jt="1111" mandatory="y" />
 			<column name="Name" type="text" decimal="0" jt="12" />
@@ -182,6 +136,53 @@
 			</index>
 			<fk name="FK_Customer_Tenant_TenantId" to_schema="public" to_table="Tenant" delete_action="restrict" >
 				<fk_column name="TenantId" pk="Id" />
+			</fk>
+		</table>
+		<table name="DataStorage" >
+			<column name="Id" type="uuid" decimal="0" jt="1111" mandatory="y" />
+			<column name="KeyName" type="text" decimal="0" jt="12" mandatory="y" />
+			<column name="Type" type="integer" length="10" decimal="0" jt="4" mandatory="y" />
+			<column name="DateTime" type="timestamp" length="29" decimal="6" jt="93" mandatory="y" />
+			<column name="Value_Boolean" type="bool" length="1" decimal="0" jt="-7" mandatory="y" />
+			<column name="Value_String" type="text" decimal="0" jt="12" />
+			<column name="Value_Long" type="bigint" length="19" decimal="0" jt="-5" mandatory="y" />
+			<column name="Value_Double" type="float8" length="17" decimal="17" jt="6" mandatory="y" />
+			<column name="Value_Json" type="jsonb" decimal="0" jt="1111" />
+			<column name="Value_XML" type="xml" decimal="0" jt="2009" />
+			<column name="Value_Binary" type="bytea" decimal="0" jt="-2" />
+			<column name="DeviceId" type="uuid" decimal="0" jt="1111" />
+			<column name="TelemetryData_DeviceId" type="uuid" decimal="0" jt="1111" />
+			<column name="TelemetryLatest_DeviceId" type="uuid" decimal="0" jt="1111" />
+			<column name="Catalog" type="integer" length="10" decimal="0" jt="4" mandatory="y" >
+				<defo>0</defo>
+			</column>
+			<column name="AttributeLatest_DeviceId" type="uuid" decimal="0" jt="1111" />
+			<index name="PK_DataStorage" unique="PRIMARY_KEY" >
+				<column name="Id" />
+			</index>
+			<index name="IX_DataStorage_AttributeLatest_DeviceId" unique="NORMAL" >
+				<column name="AttributeLatest_DeviceId" />
+			</index>
+			<index name="IX_DataStorage_DeviceId" unique="NORMAL" >
+				<column name="DeviceId" />
+			</index>
+			<index name="IX_DataStorage_TelemetryData_DeviceId" unique="NORMAL" >
+				<column name="TelemetryData_DeviceId" />
+			</index>
+			<index name="IX_DataStorage_TelemetryLatest_DeviceId" unique="NORMAL" >
+				<column name="TelemetryLatest_DeviceId" />
+			</index>
+			<fk name="FK_DataStorage_Device_AttributeLatest_DeviceId" to_schema="public" to_table="Device" delete_action="cascade" >
+				<fk_column name="AttributeLatest_DeviceId" pk="Id" />
+			</fk>
+			<fk name="FK_DataStorage_Device_DeviceId" to_schema="public" to_table="Device" delete_action="cascade" >
+				<fk_column name="DeviceId" pk="Id" />
+			</fk>
+			<fk name="FK_DataStorage_Device_TelemetryData_DeviceId" to_schema="public" to_table="Device" delete_action="cascade" >
+				<fk_column name="TelemetryData_DeviceId" pk="Id" />
+			</fk>
+			<fk name="FK_DataStorage_Device_TelemetryLatest_DeviceId" to_schema="public" to_table="Device" delete_action="cascade" >
+				<fk_column name="TelemetryLatest_DeviceId" pk="Id" />
 			</fk>
 		</table>
 		<table name="Device" >
@@ -206,11 +207,27 @@
 				<fk_column name="TenantId" pk="Id" />
 			</fk>
 		</table>
+		<table name="DeviceIdentities" >
+			<column name="Id" type="uuid" decimal="0" jt="1111" mandatory="y" />
+			<column name="IdentityType" type="integer" length="10" decimal="0" jt="4" mandatory="y" />
+			<column name="IdentityId" type="text" decimal="0" jt="12" mandatory="y" />
+			<column name="IdentityValue" type="text" decimal="0" jt="12" />
+			<column name="DeviceId" type="uuid" decimal="0" jt="1111" mandatory="y" />
+			<index name="PK_DeviceIdentities" unique="PRIMARY_KEY" >
+				<column name="Id" />
+			</index>
+			<index name="IX_DeviceIdentities_DeviceId" unique="NORMAL" >
+				<column name="DeviceId" />
+			</index>
+			<fk name="FK_DeviceIdentities_Device_DeviceId" to_schema="public" to_table="Device" delete_action="cascade" >
+				<fk_column name="DeviceId" pk="Id" />
+			</fk>
+		</table>
 		<table name="Relationship" >
 			<column name="CustomerId" type="uuid" decimal="0" jt="1111" />
 			<column name="TenantId" type="uuid" decimal="0" jt="1111" />
 			<column name="Id" type="uuid" decimal="0" jt="1111" mandatory="y" />
-			<column name="IdentityId" type="text" decimal="0" jt="12" />
+			<column name="IdentityUserId" type="text" decimal="0" jt="12" />
 			<index name="IX_Relationship_TenantId" unique="NORMAL" >
 				<column name="TenantId" />
 			</index>
@@ -220,17 +237,17 @@
 			<index name="PK_Relationship" unique="PRIMARY_KEY" >
 				<column name="Id" />
 			</index>
-			<index name="IX_Relationship_IdentityId" unique="NORMAL" >
-				<column name="IdentityId" />
+			<index name="IX_Relationship_IdentityUserId" unique="NORMAL" >
+				<column name="IdentityUserId" />
 			</index>
-			<fk name="FK_Relationship_AspNetUsers_IdentityId" to_schema="public" to_table="AspNetUsers" delete_action="restrict" >
-				<fk_column name="IdentityId" pk="Id" />
-			</fk>
 			<fk name="FK_Relationship_Customer_CustomerId" to_schema="public" to_table="Customer" delete_action="restrict" >
 				<fk_column name="CustomerId" pk="Id" />
 			</fk>
 			<fk name="FK_Relationship_Tenant_TenantId" to_schema="public" to_table="Tenant" delete_action="restrict" >
 				<fk_column name="TenantId" pk="Id" />
+			</fk>
+			<fk name="FK_Relationship_AspNetUsers_IdentityUserId" to_schema="public" to_table="AspNetUsers" delete_action="restrict" >
+				<fk_column name="IdentityUserId" pk="Id" />
 			</fk>
 		</table>
 		<table name="Tenant" >
@@ -258,27 +275,27 @@
 		<sequence name="AspNetRoleClaims_Id_seq" start="1" />
 		<sequence name="AspNetUserClaims_Id_seq" start="1" />
 	</schema>
-	<connector name="PostgreSQL" database="PostgreSQL" driver_class="org.postgresql.Driver" driver_jar="postgresql-42.2.2.jar" driver_desc="Standard" host="localhost" port="5432" instance="IoTSharp" user="postgres" passwd="ZnV0dXJl" />
+	<connector name="PostgreSQL" database="PostgreSQL" driver_class="org.postgresql.Driver" driver_jar="postgresql-42.2.5.jar" driver_desc="Standard" host="localhost" port="5432" instance="IoTSharp" user="postgres" passwd="cG9zdGdyZXM=" sshEnable="true" sshHost="39.98.211.23" sshPort="22" sshUser="root" sshUseKey="false" sshPassword="1-q2-w3-e4-r5-t" />
 	<layout name="Default Layout" id="Layout_159a766" show_relation="columns" >
-		<entity schema="public" name="AspNetRoles" color="C7F4BE" x="1040" y="80" />
-		<entity schema="public" name="AspNetUserLogins" color="C7F4BE" x="864" y="432" />
-		<entity schema="public" name="AspNetRoleClaims" color="C7F4BE" x="1248" y="80" />
-		<entity schema="public" name="__EFMigrationsHistory" color="F4DDBE" x="624" y="768" />
-		<entity schema="public" name="AspNetUsers" color="C7F4BE" x="624" y="80" />
-		<entity schema="public" name="AspNetUserRoles" color="C7F4BE" x="864" y="80" />
-		<entity schema="public" name="AspNetUserTokens" color="C7F4BE" x="624" y="432" />
-		<entity schema="public" name="AspNetUserClaims" color="C7F4BE" x="864" y="256" />
-		<entity schema="public" name="Relationship" color="BED3F4" x="336" y="544" />
-		<entity schema="public" name="Customer" color="BED3F4" x="48" y="272" />
-		<entity schema="public" name="Tenant" color="BED3F4" x="192" y="272" />
-		<entity schema="public" name="Device" color="BED3F4" x="192" y="80" />
-		<entity schema="public" name="AttributeData" color="BED3F4" x="352" y="80" />
+		<entity schema="public" name="AspNetRoles" color="C7F4BE" x="992" y="80" />
+		<entity schema="public" name="AspNetUserLogins" color="C7F4BE" x="816" y="432" />
+		<entity schema="public" name="AspNetRoleClaims" color="C7F4BE" x="1200" y="80" />
+		<entity schema="public" name="__EFMigrationsHistory" color="F4DDBE" x="352" y="1040" />
+		<entity schema="public" name="AspNetUsers" color="C7F4BE" x="576" y="80" />
+		<entity schema="public" name="AspNetUserRoles" color="C7F4BE" x="816" y="80" />
+		<entity schema="public" name="AspNetUserTokens" color="C7F4BE" x="576" y="432" />
+		<entity schema="public" name="AspNetUserClaims" color="C7F4BE" x="816" y="256" />
+		<entity schema="public" name="Relationship" color="BED3F4" x="368" y="80" />
+		<entity schema="public" name="Customer" color="BED3F4" x="64" y="272" />
+		<entity schema="public" name="Tenant" color="BED3F4" x="224" y="80" />
+		<entity schema="public" name="Device" color="BED3F4" x="64" y="80" />
+		<entity schema="public" name="DataStorage" color="3986C1" x="48" y="608" />
+		<entity schema="public" name="DeviceIdentities" color="3986C1" x="352" y="608" />
 		<group name="Device" color="ECF0F7" >
 			<entity schema="public" name="Device" />
 			<entity schema="public" name="Tenant" />
 			<entity schema="public" name="Customer" />
 			<entity schema="public" name="Relationship" />
-			<entity schema="public" name="AttributeData" />
 		</group>
 		<group name="AspNetUsers" color="EEF7EC" >
 			<entity schema="public" name="AspNetUsers" />
