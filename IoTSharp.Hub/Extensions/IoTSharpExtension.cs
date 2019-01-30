@@ -23,63 +23,23 @@ namespace IoTSharp.Hub
                 case "mssql":
                     services.AddEntityFrameworkSqlServer();
                     services.AddDbContext<ApplicationDbContext>(options => options.UseSqlServer(_ConnectionString), ServiceLifetime.Transient);
-#if WithHealthChecks
-                    services.AddHealthChecks().AddSqlServer(_ConnectionString, name: "database").AddMQTTChatHealthChecks();
-#endif
                     break;
-
                 case "npgsql":
                     services.AddEntityFrameworkNpgsql();
                     services.AddDbContext<ApplicationDbContext>(options => options.UseNpgsql(_ConnectionString), ServiceLifetime.Transient);
-#if WithHealthChecks
-                    services.AddHealthChecks().AddNpgSql(_ConnectionString, name: "database").AddMQTTChatHealthChecks();
-#endif
                     break;
-
                 case "memory":
                     services.AddEntityFrameworkInMemoryDatabase();
                     services.AddDbContext<ApplicationDbContext>(options => options.UseInMemoryDatabase(nameof(ApplicationDbContext)), ServiceLifetime.Transient);
-#if WithHealthChecks
-                    services.AddHealthChecks().AddMQTTChatHealthChecks();
-#endif
                     break;
-
                 case "sqlite":
                 default:
                     services.AddEntityFrameworkSqlite();
                     services.AddDbContext<ApplicationDbContext>(options => options.UseSqlite(_ConnectionString), ServiceLifetime.Transient);
-#if WithHealthChecks
-                    services.AddHealthChecks().AddSqlite(_ConnectionString, name: "database").AddMQTTChatHealthChecks();
-#endif
                     break;
             }
-#if WithHealthChecks
-           services.AddHealthChecksUI();
-#endif
         }
 
-#if WithHealthChecks
-        internal static void UseIotSharpHealthChecks(this IApplicationBuilder app)
-        {
-            app.UseHealthChecksUI();
-            app.UseHealthChecks("/health", new HealthCheckOptions()
-            {
-                Predicate = _ => true,
-                ResponseWriter = UIResponseWriter.WriteHealthCheckUIResponse
-            });
-        }
-        private static void AddMQTTChatHealthChecks(this IHealthChecksBuilder builder)
-        {
-            builder.AddPrivateMemoryHealthCheck(1024 * 1024 * 1024, "privatememory")
-             .AddDiskStorageHealthCheck(setup =>
-             {
-                 DriveInfo.GetDrives().ToList().ForEach(di =>
-                 {
-                     setup.AddDrive(di.Name, 1024);
-                 });
-             });
-        }
-#endif
         private static string GetFullPathName(string filename)
         {
             FileInfo fi = new FileInfo(System.IO.Path.Combine(
@@ -89,36 +49,24 @@ namespace IoTSharp.Hub
             return fi.FullName;
         }
 
-        public static void UseMqttLogger(this IApplicationBuilder app)
+        internal static void UseSwagger(this IApplicationBuilder app)
         {
-            var mqttNetLogger = app.ApplicationServices.GetService<IMqttNetLogger>();
-            var _loggerFactory = app.ApplicationServices.GetService<ILoggerFactory>();
-            var logger = _loggerFactory.CreateLogger<IMqttNetLogger>();
-            mqttNetLogger.LogMessagePublished += (object sender, MqttNetLogMessagePublishedEventArgs e) =>
+            app.UseSwaggerUi3();
+            app.UseSwagger(config => config.PostProcess = (document, request) =>
             {
-                var message = $"ID:{e.TraceMessage.LogId},ThreadId:{e.TraceMessage.ThreadId},Source:{e.TraceMessage.Source},Timestamp:{e.TraceMessage.Timestamp},Message:{e.TraceMessage.Message}";
-                switch (e.TraceMessage.Level)
+                if (request.Headers.ContainsKey("X-External-Host"))
                 {
-                    case MqttNetLogLevel.Verbose:
-                        logger.LogTrace(e.TraceMessage.Exception, message);
-                        break;
-
-                    case MqttNetLogLevel.Info:
-                        logger.LogInformation(e.TraceMessage.Exception, message);
-                        break;
-
-                    case MqttNetLogLevel.Warning:
-                        logger.LogWarning(e.TraceMessage.Exception, message);
-                        break;
-
-                    case MqttNetLogLevel.Error:
-                        logger.LogError(e.TraceMessage.Exception, message);
-                        break;
-
-                    default:
-                        break;
+                    // Change document server settings to public
+                    document.Host = request.Headers["X-External-Host"].First();
+                    document.BasePath = request.Headers["X-External-Path"].First();
                 }
-            };
+            });
+            app.UseSwaggerUi3(config => config.TransformToExternalPath = (internalUiRoute, request) =>
+            {
+                // The header X-External-Path is set in the nginx.conf file
+                var externalPath = request.Headers.ContainsKey("X-External-Path") ? request.Headers["X-External-Path"].First() : "";
+                return externalPath + internalUiRoute;
+            });
         }
     }
 }
