@@ -10,12 +10,15 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using MQTTnet.AspNetCore;
+using MQTTnet.Client;
 using NSwag.AspNetCore;
 using System;
 using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace IoTSharp.Hub
 {
@@ -68,7 +71,13 @@ namespace IoTSharp.Hub
             });
             services.AddTransient<ApplicationDBInitializer>();
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
+            services.AddIoTSharpMqttServer(AppSettings.MqttBroker);
+            services.AddMqttClient(AppSettings.MqttClient);
+
         }
+
+
+
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IHostingEnvironment env)
@@ -91,30 +100,17 @@ namespace IoTSharp.Hub
             app.UseStaticFiles();
             app.UseHttpsRedirection();
             app.UseStaticFiles();
+            app.UseSwagger();
+            app.UseIoTSharpMqttClient();
+
+            app.UseIotSharpMqttServer();
             app.UseForwardedHeaders(new ForwardedHeadersOptions
             {
                 ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto
             });
 
-            app.UseSwaggerUi3();
-            app.UseSwagger(config => config.PostProcess = (document, request) =>
-            {
-                if (request.Headers.ContainsKey("X-External-Host"))
-                {
-                    // Change document server settings to public
-                    document.Host = request.Headers["X-External-Host"].First();
-                    document.BasePath = request.Headers["X-External-Path"].First();
-                }
-            });
-            app.UseSwaggerUi3(config => config.TransformToExternalPath = (internalUiRoute, request) =>
-            {
-                // The header X-External-Path is set in the nginx.conf file
-                var externalPath = request.Headers.ContainsKey("X-External-Path") ? request.Headers["X-External-Path"].First() : "";
-                return externalPath + internalUiRoute;
-            });
-#if WithHealthChecks
-            app.UseIotSharpHealthChecks();
-#endif
         }
+
+     
     }
 }
