@@ -41,6 +41,7 @@
     <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="2.2.1" />
     <PackageReference Include="MQTTnet" Version="2.8.5" />
     <PackageReference Include="MQTTnet.AspNetCore" Version="2.8.5" />
+    <PackageReference Include="MQTTnet.Extensions.Rpc" Version="2.8.5" />
     <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="2.2.0" />
     <PackageReference Include="NSwag.AspNetCore" Version="12.0.13" />
     <PackageReference Include="QuartzHostedService" Version="0.0.4" />

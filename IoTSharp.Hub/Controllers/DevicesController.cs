@@ -10,6 +10,11 @@ using Microsoft.AspNetCore.Authorization;
 using IoTSharp.Hub.Dtos;
 using Dic = System.Collections.Generic.Dictionary<string, string>;
 using DicKV = System.Collections.Generic.KeyValuePair<string, string>;
+using MQTTnet.Client;
+using MQTTnet.Extensions.Rpc;
+using MQTTnet.Protocol;
+using IoTSharp.Hub.Extensions;
+using MQTTnet.Exceptions;
 
 namespace IoTSharp.Hub.Controllers
 {
@@ -19,12 +24,19 @@ namespace IoTSharp.Hub.Controllers
     public class DevicesController : ControllerBase
     {
         private readonly ApplicationDbContext _context;
+        private readonly IMqttClientOptions _mqtt;
 
-        public DevicesController(ApplicationDbContext context)
+        public DevicesController(ApplicationDbContext context, IMqttClientOptions mqtt)
         {
             _context = context;
+            _mqtt = mqtt;
         }
 
+        /// <summary>
+        /// Get all of the customer's devices.
+        /// </summary>
+        /// <param name="customerId"></param>
+        /// <returns></returns>
         // GET: api/Devices
         [HttpGet("Customers/{customerId}")]
         [Authorize(Roles = nameof(UserRole.NormalUser))]
@@ -42,6 +54,11 @@ namespace IoTSharp.Hub.Controllers
             }
         }
 
+        /// <summary>
+        /// Get a device's credentials
+        /// </summary>
+        /// <param name="deviceId"></param>
+        /// <returns></returns>
         [Authorize(Roles = nameof(UserRole.NormalUser))]
         [HttpGet("{deviceId}/Identity")]
         public async Task<ActionResult<DeviceIdentity>> GetIdentity(Guid deviceId)
@@ -55,6 +72,11 @@ namespace IoTSharp.Hub.Controllers
             return deviceid;
         }
 
+        /// <summary>
+        /// Request attribute values from the server
+        /// </summary>
+        /// <param name="deviceId"></param>
+        /// <returns></returns>
         [Authorize(Roles = nameof(UserRole.NormalUser))]
         [HttpGet("{deviceId}/AttributeLatest")]
         public async Task<ActionResult<List<AttributeLatest>>> GetAttributeLatest(Guid deviceId)
@@ -67,6 +89,11 @@ namespace IoTSharp.Hub.Controllers
             return await devid.FirstOrDefaultAsync();
         }
 
+        /// <summary>
+        /// Request telemetry values from the server
+        /// </summary>
+        /// <param name="deviceId"></param>
+        /// <returns></returns>
         [Authorize(Roles = nameof(UserRole.NormalUser))]
         [HttpGet("{deviceId}/TelemetryLatest")]
         public async Task<ActionResult<List<TelemetryLatest>>> GetTelemetryLatest(Guid deviceId)
@@ -79,6 +106,11 @@ namespace IoTSharp.Hub.Controllers
             return await devid.FirstOrDefaultAsync();
         }
 
+        /// <summary>
+        /// Get a device's detail
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
         // GET: api/Devices/5
         [Authorize(Roles = nameof(UserRole.NormalUser))]
         [HttpGet("{id}")]
@@ -94,6 +126,12 @@ namespace IoTSharp.Hub.Controllers
             return device;
         }
 
+        /// <summary>
+        /// Modify a device
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="device"></param>
+        /// <returns></returns>
         // PUT: api/Devices/5
         [Authorize(Roles = nameof(UserRole.CustomerAdmin))]
         [HttpPut("{id}")]
@@ -140,6 +178,11 @@ namespace IoTSharp.Hub.Controllers
             return NoContent();
         }
 
+        /// <summary>
+        /// Create a new device
+        /// </summary>
+        /// <param name="device"></param>
+        /// <returns></returns>
         // POST: api/Devices
         [Authorize(Roles = nameof(UserRole.CustomerAdmin))]
         [HttpPost]
@@ -187,138 +230,126 @@ namespace IoTSharp.Hub.Controllers
             return _context.Device.Any(e => e.Id == id);
         }
 
+        /// <summary>
+        /// Device rpc
+        /// </summary>
+        /// <param name="access_token"></param>
+        /// <param name="method"></param>
+        /// <param name="timeout"></param>
+        /// <param name="args"></param>
+        /// <returns></returns>
+        [AllowAnonymous]
+        [HttpPost("{access_token}/Rpc/{method}")]
+        public async Task<ActionResult<string>> Rpc(string access_token, string method, int timeout, object args)
+        {
+            ActionResult<string> result = null;
+            var (ok, dev) = _context.GetDeviceByToken(access_token);
+            if (ok)
+            {
+                return NotFound(new ApiResult<Dic>(ApiCode.NotFoundDevice, $"{access_token} not a device's access token", new Dic(new DicKV[] { new DicKV("access_token", access_token) })));
+            }
+            else
+            {
+                try
+                {
+                    var rpcClient = new RpcClient(_mqtt);
+                    var _timeout = TimeSpan.FromSeconds(timeout);
+                    var qos = MqttQualityOfServiceLevel.AtMostOnce;
+                    var payload = Newtonsoft.Json.JsonConvert.SerializeObject(args);
+                    await rpcClient.ConnectAsync();
+                    var response = await rpcClient.ExecuteAsync(_timeout, dev.Id.ToString(), method, payload, qos);
+                    await rpcClient.DisconnectAsync();
+                    result = Ok(System.Text.Encoding.UTF8.GetString(response));
+                }
+                catch (MqttCommunicationTimedOutException ex1)
+                {
+                    result = BadRequest(new ApiResult(ApiCode.RPCTimeout, $"{dev.Id} RPC Timeout {ex1.Message}"));
+                }
+                catch (Exception ex)
+                {
+                    result = BadRequest(new ApiResult(ApiCode.RPCFailed, $"{dev.Id} RPCFailed {ex.Message}"));
+                }
+            }
+            return result;
+        }
+
+        /// <summary>
+        /// Upload  device telemetry to the server.
+        /// </summary>
+        /// <param name="access_token">Device 's access token</param>
+        /// <param name="telemetrys"></param>
+        /// <returns></returns>
         [AllowAnonymous]
         [HttpPost("{access_token}/Telemetry")]
         public async Task<ActionResult<ApiResult<Dic>>> Telemetry(string access_token, Dictionary<string, object> telemetrys)
         {
             Dic exceptions = new Dic();
-            var deviceIdentity = from id in _context.DeviceIdentities where id.IdentityId == access_token && id.IdentityType == IdentityType.AccessToken select id;
-            var device = from dev in _context.Device where deviceIdentity.Any() && dev.Id == deviceIdentity.FirstOrDefault().Device.Id select dev;
-            if (deviceIdentity == null || !device.Any())
+            var (ok, device) = _context.GetDeviceByToken(access_token);
+            if (ok)
             {
                 return NotFound(new ApiResult<Dic>(ApiCode.NotFoundDevice, $"{access_token} not a device's access token", new Dic(new DicKV[] { new DicKV("access_token", access_token) })));
             }
             else
             {
-                var result = await SaveAsync<TelemetryLatest, TelemetryData>(telemetrys, device.FirstOrDefault(), DataSide.ClientSide);
+                var result = await _context.SaveAsync<TelemetryLatest, TelemetryData>(telemetrys, device, DataSide.ClientSide);
                 return Ok(new ApiResult<Dic>(result.ret > 0 ? ApiCode.Success : ApiCode.NothingToDo, result.ret > 0 ? "OK" : "No Telemetry save", result.exceptions));
             }
         }
 
+        /// <summary>
+        /// Get service-side device attributes from  the server.
+        /// </summary>
+        /// <param name="access_token">Device 's access token </param>
+        ///<param name="dataSide">Specifying data side.</param>
+        ///<param name="keys">Specifying Attribute's keys</param>
+        /// <returns></returns>
+        [AllowAnonymous]
+        [HttpGet("{access_token}/Attributes/{dataSide}")]
+        public async Task<ActionResult<AttributeLatest>> Attributes(string access_token, DataSide dataSide, string keys)
+        {
+            Dic exceptions = new Dic();
+            var (ok, device) = _context.GetDeviceByToken(access_token);
+            if (ok)
+            {
+                return NotFound(new ApiResult<Dic>(ApiCode.NotFoundDevice, $"{access_token} not a device's access token", new Dic(new DicKV[] { new DicKV("access_token", access_token) })));
+            }
+            else
+            {
+                var deviceId = device.Id;
+                try
+                {
+                    var attributes = from dev in _context.Device where dev.Id == deviceId select dev.AttributeLatest;
+                    var arrys = await attributes.FirstOrDefaultAsync();
+                    var fs = from at in arrys.ToArray() where at.DataSide == dataSide && keys.Split(',', options: StringSplitOptions.RemoveEmptyEntries).Contains(at.KeyName) select at;
+                    return Ok(fs.ToArray());
+                }
+                catch (Exception ex)
+                {
+                    return BadRequest(new ApiResult(ApiCode.Exception, $"{deviceId}  {ex.Message}"));
+                }
+            }
+        }
+
+        /// <summary>
+        /// Upload client-side device attributes to the server.
+        /// </summary>
+        /// <param name="access_token">Device 's access token </param>
+        /// <param name="attributes">attributes</param>
+        /// <returns></returns>
         [AllowAnonymous]
         [HttpPost("{access_token}/Attributes")]
         public async Task<ActionResult<ApiResult<Dic>>> Attributes(string access_token, Dictionary<string, object> attributes)
         {
             Dic exceptions = new Dic();
-            var deviceIdentity = from id in _context.DeviceIdentities where id.IdentityId == access_token && id.IdentityType == IdentityType.AccessToken select id;
-            var device = from dev in _context.Device where deviceIdentity.Any() && dev.Id == deviceIdentity.FirstOrDefault().Device.Id select dev;
-            if (deviceIdentity == null || !device.Any())
+            var (ok, dev) = _context.GetDeviceByToken(access_token);
+            if (ok)
             {
                 return NotFound(new ApiResult<Dic>(ApiCode.NotFoundDevice, $"{access_token} not a device's access token", new Dic(new DicKV[] { new DicKV("access_token", access_token) })));
             }
             else
             {
-                var result = await SaveAsync<AttributeLatest, AttributeData>(attributes, device.FirstOrDefault(), DataSide.ClientSide);
+                var result = await _context.SaveAsync<AttributeLatest, AttributeData>(attributes, dev, DataSide.ClientSide);
                 return Ok(new ApiResult<Dic>(result.ret > 0 ? ApiCode.Success : ApiCode.NothingToDo, result.ret > 0 ? "OK" : "No Attribute save", result.exceptions));
-            }
-        }
-
-        /// <summary>
-        ///
-        /// </summary>
-        /// <typeparam name="L">Latest</typeparam>
-        /// <typeparam name="D">Data</typeparam>
-        /// <param name="data"></param>
-        /// <param name="device"></param>
-        /// <returns></returns>
-        private async Task<(int ret, Dic exceptions)> SaveAsync<L, D>(Dictionary<string, object> data, Device device, DataSide dataSide) where L : DataStorage, new() where D : DataStorage, new()
-        {
-            Dic exceptions = new Dic();
-            data.ToList().ForEach(kp =>
-             {
-                 try
-                 {
-                     var tdata = new D() { DateTime = DateTime.Now, Device = device, Id = Guid.NewGuid(), KeyName = kp.Key };
-                     if (kp.Key != null)
-                     {
-                         FillKVToModel(kp, tdata);
-                         tdata.Id = Guid.NewGuid();
-                         _context.Set<D>().Add(tdata);
-                     }
-                     var tl = _context.Set<L>().FirstOrDefault(tx => tx.Device.Id == device.Id && tx.KeyName == kp.Key);
-                     if (tl != null)
-                     {
-                         FillKVToModel(kp, tl);
-                         tl.DateTime = DateTime.Now;
-                     }
-                     else
-                     {
-                         var t2 = new L() { DateTime = DateTime.Now, Device = device, Id = Guid.NewGuid(), KeyName = kp.Key, DataSide=  dataSide };
-                         FillKVToModel(kp, t2);
-                         _context.Set<L>().Add(t2);
-                     }
-                 }
-                 catch (Exception ex)
-                 {
-                     exceptions.Add(kp.Key, ex.Message);
-                 }
-             });
-            int ret = await _context.SaveChangesAsync();
-            return (ret, exceptions);
-        }
-
-        private static void FillKVToModel<T>(KeyValuePair<string, object> kp, T tdata) where T : DataStorage
-        {
-            switch (Type.GetTypeCode(kp.Value.GetType()))
-            {
-                case TypeCode.Boolean:
-                    tdata.Type = DataType.Boolean;
-                    tdata.Value_Boolean = (bool)kp.Value;
-                    break;
-
-                case TypeCode.Double:
-                case TypeCode.Single:
-                case TypeCode.Decimal:
-                    tdata.Type = DataType.Double;
-                    tdata.Value_Double = (double)kp.Value;
-                    break;
-
-                case TypeCode.Int16:
-                case TypeCode.Int32:
-                case TypeCode.Int64:
-                case TypeCode.UInt16:
-                case TypeCode.UInt32:
-                case TypeCode.UInt64:
-                case TypeCode.Byte:
-                case TypeCode.SByte:
-
-                    tdata.Type = DataType.Long;
-                    tdata.Value_Long = (long)kp.Value;
-                    break;
-
-                case TypeCode.String:
-                case TypeCode.Char:
-                    tdata.Type = DataType.String;
-                    tdata.Value_String = (string)kp.Value;
-                    break;
-
-                default:
-                    if (kp.Value.GetType() == typeof(byte[]))
-                    {
-                        tdata.Type = DataType.Binary;
-                        tdata.Value_Boolean = (bool)kp.Value;
-                    }
-                    else if (kp.Value.GetType() == typeof(System.Xml.XmlDocument))
-                    {
-                        tdata.Type = DataType.XML;
-                        tdata.Value_XML = ((System.Xml.XmlDocument)kp.Value).ToString();
-                    }
-                    else
-                    {
-                        tdata.Type = DataType.Json;
-                        tdata.Value_Json = Newtonsoft.Json.JsonConvert.SerializeObject(kp.Value);
-                    }
-                    break;
             }
         }
     }
