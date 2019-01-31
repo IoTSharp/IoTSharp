@@ -1,4 +1,6 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -26,6 +28,8 @@ namespace IoTSharp.Hub.Data
         DoNotAllow = 10008,
         NotFoundTenant = 10009,
         NotFoundDeviceIdentity = 10010,
+        RPCFailed = 10011,
+        RPCTimeout = 10012,
     }
 
     public enum DataCatalog
@@ -36,6 +40,7 @@ namespace IoTSharp.Hub.Data
         TelemetryData,
         TelemetryLatest,
     }
+    [JsonConverter(typeof(StringEnumConverter))]
     public enum DataSide
     {
         AnySide,
@@ -59,7 +64,8 @@ namespace IoTSharp.Hub.Data
         Double,
         Json,
         XML,
-        Binary
+        Binary,
+        DateTime
     }
 
     public enum DatabaseType
