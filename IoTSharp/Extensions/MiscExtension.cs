@@ -1,11 +1,11 @@
-﻿using IoTSharp.Hub.Data;
+﻿using IoTSharp.Data;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Diagnostics;
 using System.Reflection;
 using System.Threading.Tasks;
 
-namespace IoTSharp.Hub.Extensions
+namespace IoTSharp.Extensions
 {
     public static class MiscExtension
     {

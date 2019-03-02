@@ -1,4 +1,4 @@
-﻿using IoTSharp.Hub.Data;
+﻿using IoTSharp.Data;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using Dic = System.Collections.Generic.Dictionary<string, string>;
 using DicKV = System.Collections.Generic.KeyValuePair<string, string>;
 
-namespace IoTSharp.Hub.Extensions
+namespace IoTSharp.Extensions
 {
     public static class DataExtension
     {

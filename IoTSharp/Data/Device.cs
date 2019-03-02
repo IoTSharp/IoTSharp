@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace IoTSharp.Hub.Data
+namespace IoTSharp.Data
 {
     public class Device
     {

@@ -4,7 +4,7 @@ using System.Linq;
 using System.Security.Authentication;
 using System.Threading.Tasks;
 
-namespace IoTSharp.Hub
+namespace IoTSharp
 {
     public class AppSettings
     {

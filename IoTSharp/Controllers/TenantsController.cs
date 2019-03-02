@@ -5,16 +5,16 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using IoTSharp.Hub.Data;
+using IoTSharp.Data;
 using Microsoft.AspNetCore.Authorization;
 using System.IdentityModel.Tokens.Jwt;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
-using IoTSharp.Hub.Dtos;
+using IoTSharp.Dtos;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 
-namespace IoTSharp.Hub.Controllers
+namespace IoTSharp.Controllers
 {
     [Route("api/[controller]")]
     [Authorize]

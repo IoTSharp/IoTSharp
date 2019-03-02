@@ -5,18 +5,18 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using IoTSharp.Hub.Data;
+using IoTSharp.Data;
 using Microsoft.AspNetCore.Authorization;
-using IoTSharp.Hub.Dtos;
+using IoTSharp.Dtos;
 using Dic = System.Collections.Generic.Dictionary<string, string>;
 using DicKV = System.Collections.Generic.KeyValuePair<string, string>;
 using MQTTnet.Client;
 using MQTTnet.Extensions.Rpc;
 using MQTTnet.Protocol;
-using IoTSharp.Hub.Extensions;
+using IoTSharp.Extensions;
 using MQTTnet.Exceptions;
 
-namespace IoTSharp.Hub.Controllers
+namespace IoTSharp.Controllers
 {
     [Route("api/[controller]")]
     [Authorize]

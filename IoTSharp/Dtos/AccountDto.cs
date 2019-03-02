@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace IoTSharp.Hub.Dtos
+namespace IoTSharp.Dtos
 {
     public class TokenEntity
     {

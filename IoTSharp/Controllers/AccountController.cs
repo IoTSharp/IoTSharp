@@ -1,6 +1,6 @@
-﻿using IoTSharp.Hub.Data;
-using IoTSharp.Hub.Dtos;
-using IoTSharp.Hub.Extensions;
+﻿using IoTSharp.Data;
+using IoTSharp.Dtos;
+using IoTSharp.Extensions;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
@@ -18,7 +18,7 @@ using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace IoTSharp.Hub.Controllers
+namespace IoTSharp.Controllers
 {
     [ApiController]
     [Authorize]

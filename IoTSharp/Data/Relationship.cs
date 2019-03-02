@@ -6,7 +6,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace IoTSharp.Hub.Data
+namespace IoTSharp.Data
 {
     public class Relationship
     {
