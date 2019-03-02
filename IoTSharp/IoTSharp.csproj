@@ -25,9 +25,13 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="ClientApp1\**" />
     <Compile Remove="Migrations\**" />
+    <Content Remove="ClientApp1\**" />
     <Content Remove="Migrations\**" />
+    <EmbeddedResource Remove="ClientApp1\**" />
     <EmbeddedResource Remove="Migrations\**" />
+    <None Remove="ClientApp1\**" />
     <None Remove="Migrations\**" />
   </ItemGroup>
   <ItemGroup>

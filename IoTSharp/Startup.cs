@@ -43,7 +43,12 @@ namespace IoTSharp
                 options.CheckConsentNeeded = context => true;
                 options.MinimumSameSitePolicy = SameSiteMode.None;
             });
-
+            services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
+            // In production, the Angular files will be served from this directory
+            services.AddSpaStaticFiles(configuration =>
+            {
+                configuration.RootPath = "ClientApp/dist";
+            });
             services.Configure<AppSettings>(Configuration);
 
             services.AddLogging(loggingBuilder => loggingBuilder.AddConsole());
@@ -71,17 +76,11 @@ namespace IoTSharp
                 configure.Description = description?.Description;
             });
             services.AddTransient<ApplicationDBInitializer>();
-            services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
+    
             services.AddIoTSharpMqttServer(AppSettings.MqttBroker);
             services.AddMqttClient(AppSettings.MqttClient);
 
-            services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
-
-            // In production, the Angular files will be served from this directory
-            services.AddSpaStaticFiles(configuration =>
-            {
-                configuration.RootPath = "ClientApp/dist";
-            });
+     
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
