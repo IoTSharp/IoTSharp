@@ -13,7 +13,9 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		roadmap.md = roadmap.md
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IoTSharp.Test", "IoTSharp.Test\IoTSharp.Test.csproj", "{70DFF66F-6791-4713-81F3-DD7A64B59185}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IoTSharp.Test", "IoTSharp.Test\IoTSharp.Test.csproj", "{70DFF66F-6791-4713-81F3-DD7A64B59185}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IoTSharp", "IoTSharp\IoTSharp.csproj", "{CCD2C255-72D2-4A25-B0E9-E30FBEF774C7}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -29,6 +31,10 @@ Global
 		{70DFF66F-6791-4713-81F3-DD7A64B59185}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{70DFF66F-6791-4713-81F3-DD7A64B59185}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{70DFF66F-6791-4713-81F3-DD7A64B59185}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CCD2C255-72D2-4A25-B0E9-E30FBEF774C7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CCD2C255-72D2-4A25-B0E9-E30FBEF774C7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CCD2C255-72D2-4A25-B0E9-E30FBEF774C7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CCD2C255-72D2-4A25-B0E9-E30FBEF774C7}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
