@@ -99,12 +99,7 @@ namespace IoTSharp
                 app.UseHsts();
             }
             app.UseAuthentication();
-            app.UseMvc();
 
-            app.UseDefaultFiles();
-            app.UseStaticFiles();
-            app.UseHttpsRedirection();
-            app.UseStaticFiles();
             app.UseSwagger();
             app.UseIoTSharpMqttClient();
 
@@ -113,7 +108,6 @@ namespace IoTSharp
             {
                 ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto
             });
-
 
             app.UseHttpsRedirection();
             app.UseStaticFiles();
