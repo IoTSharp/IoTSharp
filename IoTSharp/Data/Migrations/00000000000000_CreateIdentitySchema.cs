@@ -2,7 +2,7 @@
 using Microsoft.EntityFrameworkCore.Migrations;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
-namespace IoTSharp.Hub.Migrations
+namespace IoTSharp.Migrations
 {
     public partial class CreateIdentitySchema : Migration
     {

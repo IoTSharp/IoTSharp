@@ -1,7 +1,7 @@
 ﻿using System;
 using Microsoft.EntityFrameworkCore.Migrations;
 
-namespace IoTSharp.Hub.Migrations
+namespace IoTSharp.Migrations
 {
     public partial class Value_DateTime : Migration
     {

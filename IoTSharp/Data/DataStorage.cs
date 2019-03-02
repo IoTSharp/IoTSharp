@@ -1,7 +1,7 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
 
-namespace IoTSharp.Hub.Data
+namespace IoTSharp.Data
 {
     public class DataStorage
     {

@@ -1,6 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore.Migrations;
 
-namespace IoTSharp.Hub.Migrations
+namespace IoTSharp.Migrations
 {
     public partial class AddDiscriminator : Migration
     {

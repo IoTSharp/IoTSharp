@@ -1,4 +1,4 @@
-﻿using IoTSharp.Hub.Data;
+﻿using IoTSharp.Data;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -10,14 +10,14 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 
-namespace IoTSharp.Hub
+namespace IoTSharp
 {
     public static class IoTSharpExtension
     {
         public static void AddIoTSharpHub(this IServiceCollection services, IConfiguration configuration)
         {
             var _DataBase = configuration["DataBase"] ?? "sqlite";
-            var _ConnectionString = Environment.ExpandEnvironmentVariables(configuration.GetConnectionString(_DataBase) ?? "Data Source=%APPDATA%\\IoTSharp.Hub\\MQTTChat.db;Pooling=true;");
+            var _ConnectionString = Environment.ExpandEnvironmentVariables(configuration.GetConnectionString(_DataBase) ?? "Data Source=%APPDATA%\\IoTSharp\\MQTTChat.db;Pooling=true;");
             switch (_DataBase)
             {
                 case "mssql":

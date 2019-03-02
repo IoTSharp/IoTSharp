@@ -7,9 +7,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
-using static IoTSharp.Hub.Controllers.InstallerController;
+using static IoTSharp.Controllers.InstallerController;
 
-namespace IoTSharp.Hub.Data
+namespace IoTSharp.Data
 {
     public class ApplicationDBInitializer
     {

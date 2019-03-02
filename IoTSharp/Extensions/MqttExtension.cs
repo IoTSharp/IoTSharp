@@ -9,7 +9,7 @@ using Microsoft.AspNetCore.Builder;
 using MQTTnet.AspNetCore;
 using MQTTnet.Diagnostics;
 
-namespace IoTSharp.Hub
+namespace IoTSharp
 {
 
     public static class MqttExtension

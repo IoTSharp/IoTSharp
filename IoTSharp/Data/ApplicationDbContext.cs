@@ -5,7 +5,7 @@ using Microsoft.Extensions.Configuration;
 using System;
 using System.Linq;
 
-namespace IoTSharp.Hub.Data
+namespace IoTSharp.Data
 {
     public class ApplicationDbContext : IdentityDbContext
     {

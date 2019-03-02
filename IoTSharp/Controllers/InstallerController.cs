@@ -1,5 +1,5 @@
-﻿using IoTSharp.Hub.Data;
-using IoTSharp.Hub.Extensions;
+﻿using IoTSharp.Data;
+using IoTSharp.Extensions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -12,7 +12,7 @@ using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
 
-namespace IoTSharp.Hub.Controllers
+namespace IoTSharp.Controllers
 {
     [ApiController]
     [Route("api/[controller]/[action]")]

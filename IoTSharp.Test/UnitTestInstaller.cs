@@ -1,7 +1,7 @@
-using IoTSharp.Hub;
-using IoTSharp.Hub.Controllers;
+using IoTSharp;
+using IoTSharp.Controllers;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using static IoTSharp.Hub.Controllers.InstallerController;
+using static IoTSharp.Controllers.InstallerController;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace IoTSharp.Test

@@ -1,5 +1,5 @@
-﻿using IoTSharp.Hub.Data;
-using IoTSharp.Hub.Dtos;
+﻿using IoTSharp.Data;
+using IoTSharp.Dtos;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
@@ -15,7 +15,7 @@ using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace IoTSharp.Hub
+namespace IoTSharp
 {
     public static class TokenExtension
     {

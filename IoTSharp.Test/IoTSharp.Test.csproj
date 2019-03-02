@@ -15,6 +15,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\IoTSharp.Hub\IoTSharp.Hub.csproj" />
+    <ProjectReference Include="..\IoTSharp\IoTSharp.csproj" />
   </ItemGroup>
 </Project>

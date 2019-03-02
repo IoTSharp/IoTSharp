@@ -1,10 +1,10 @@
-﻿using IoTSharp.Hub.Data;
+﻿using IoTSharp.Data;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace IoTSharp.Hub.Dtos
+namespace IoTSharp.Dtos
 {
     public class CustomerDto : Customer
     {
