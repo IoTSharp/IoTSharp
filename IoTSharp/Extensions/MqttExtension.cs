@@ -8,6 +8,8 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.AspNetCore.Builder;
 using MQTTnet.AspNetCore;
 using MQTTnet.Diagnostics;
+using MQTTnet.AspNetCoreEx;
+using IoTSharp.Handlers;
 
 namespace IoTSharp
 {
@@ -32,6 +34,7 @@ namespace IoTSharp
             var clientOptions = app.ApplicationServices.GetService<IMqttClientOptions>();
             mqtt.ApplicationMessageReceived += (sender, e) =>
                 {
+                  
                     _logger.LogInformation($"Received  : {e.ApplicationMessage.Topic}");
                 };
             mqtt.Connected += (sender, e) =>
@@ -70,7 +73,7 @@ namespace IoTSharp
         {
 
             services.AddMqttTcpServerAdapter();
-            services.AddHostedMqttServer(options =>
+            services.AddHostedMqttServerEx(options =>
             {
                 var broker = setting;
                 if (broker == null) broker = new MqttBrokerSetting();
@@ -88,26 +91,25 @@ namespace IoTSharp
                 {
                     options.WithoutEncryptedEndpoint();
                 }
-                options.WithConnectionValidator(action =>
-                {
-                    action.ReturnCode = MQTTnet.Protocol.MqttConnectReturnCode.ConnectionAccepted;
-                });
-                  options.Build();
+                options.Build();
             });
             services.AddMqttConnectionHandler();
             services.AddMqttWebSocketServerAdapter();
+            services.AddSingleton<MqttEventsHandler>();
         }
         public static void UseIotSharpMqttServer(this IApplicationBuilder app)
         {
             app.UseMqttEndpoint();
-            app.UseMqttServer(server =>
+            var mqttEvents  =   app.ApplicationServices.GetService<MqttEventsHandler>();
+            app.UseMqttServerEx(server =>
                 {
-                    server.ClientConnected += (sender, e) => { };
-                    server.Started += (sender, e) => { };
-                    server.Stopped += (sender, e) => { };
-                    server.ApplicationMessageReceived += (sender, e) => { };
-                    server.ClientSubscribedTopic += (sender, e) => { };
-                    server.ClientUnsubscribedTopic += (sender, e) => { };
+                    server.ClientConnected += mqttEvents.Server_ClientConnected;
+                    server.Started += mqttEvents.Server_Started;
+                    server.Stopped +=  mqttEvents.Server_Stopped;
+                    server.ApplicationMessageReceived += mqttEvents.Server_ApplicationMessageReceived;
+                    server.ClientSubscribedTopic += mqttEvents.Server_ClientSubscribedTopic;
+                    server.ClientUnsubscribedTopic += mqttEvents.Server_ClientUnsubscribedTopic;
+                    server.ClientConnectionValidator += mqttEvents.Server_ClientConnectionValidator;
                 });
       
             var mqttNetLogger = app.ApplicationServices.GetService<IMqttNetLogger>();

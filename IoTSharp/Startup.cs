@@ -12,6 +12,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using MQTTnet.AspNetCore;
+using MQTTnet.AspNetCoreEx;
 using MQTTnet.Client;
 using NSwag.AspNetCore;
 using System;
@@ -79,8 +80,8 @@ namespace IoTSharp
     
             services.AddIoTSharpMqttServer(AppSettings.MqttBroker);
             services.AddMqttClient(AppSettings.MqttClient);
+   
 
-     
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -125,7 +126,7 @@ namespace IoTSharp
                 // see https://go.microsoft.com/fwlink/?linkid=864501
 
                 spa.Options.SourcePath = "ClientApp";
-
+                spa.Options.StartupTimeout = new TimeSpan(0, 0, 120);
                 if (env.IsDevelopment())
                 {
                     spa.UseAngularCliServer(npmScript: "start");
