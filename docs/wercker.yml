@@ -13,4 +13,4 @@ build:
     - script:
         name: build site
         code: |
-          cd iotsharp && hugo
+          cd docs/iotsharp && hugo
