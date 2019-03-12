@@ -63,7 +63,7 @@ name = "<i class='fas fa-fw fa-camera'></i> 案例"
 url = "/showcase"
 weight = 11
 
-[[Languages.zh-cn..menu.shortcuts]]
+[[Languages.zh-cn.menu.shortcuts]]
 name = "<i class='fas fa-fw fa-bookmark'></i> IoTSharp 文档"
 identifier = "iotsharpdoc"
 url = "https://docs.iotsharp.io/"
