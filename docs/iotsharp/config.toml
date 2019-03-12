@@ -3,7 +3,7 @@ languageCode = "en-US"
 defaultContentLanguage = "en"
 
 title = "IoTSharp Documentation"
-theme = "iotsharp"
+theme = "hugo-theme-learn"
 themesdir = "../.."
 metaDataFormat = "yaml"
 defaultContentLanguageInSubdir= true
