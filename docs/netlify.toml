@@ -1,6 +1,5 @@
 [build]
-   base    = "docs"
-  publish = "docs/public"
+  publish = "iotsharp/public"
   command = "hugo -s iotsharp"
 
 [build.environment]
@@ -9,7 +8,7 @@
   HUGO_VERSION = "0.50"
 
 [context.production.environment]
-  HUGO_BASEURL = "https://docs.iotsharp.io/"
+  HUGO_BASEURL = "https://iotsharp.netlify.com"
 
 [context.deploy-preview]
   command = "hugo -s iotsharp -b $DEPLOY_PRIME_URL"
