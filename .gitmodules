@@ -1,0 +1,4 @@
+[submodule "ClientApp"]
+	path = ClientApp
+	url = https://github.com/IoTSharp/IoTSharp-UI.git
+	branch = master
