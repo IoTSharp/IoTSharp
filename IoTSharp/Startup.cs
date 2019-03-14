@@ -1,4 +1,4 @@
-using IoTSharp.Data;
+﻿using IoTSharp.Data;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
@@ -7,7 +7,9 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.SpaServices.AngularCli;
+using Microsoft.AspNetCore.ResponseCompression;
+using Microsoft.AspNetCore.SpaServices.VueCli;
+using Microsoft.AspNetCore.SpaServices.Webpack;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -16,6 +18,7 @@ using MQTTnet.AspNetCoreEx;
 using MQTTnet.Client;
 using NSwag.AspNetCore;
 using System;
+using System.Configuration;
 using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
 using System.Reflection;
@@ -55,6 +58,12 @@ namespace IoTSharp
             services.AddLogging(loggingBuilder => loggingBuilder.AddConsole());
 
             services.AddIoTSharpHub(Configuration);
+            // Enable the Gzip compression especially for Kestrel
+            services.Configure<GzipCompressionProviderOptions>(options => options.Level = System.IO.Compression.CompressionLevel.Optimal);
+            services.AddResponseCompression(options =>
+                {
+                    options.EnableForHttps = true;
+                });
 
             services.AddIdentity<IdentityUser, IdentityRole>()
                     .AddRoles<IdentityRole>()
@@ -77,11 +86,9 @@ namespace IoTSharp
                 configure.Description = description?.Description;
             });
             services.AddTransient<ApplicationDBInitializer>();
-    
+
             services.AddIoTSharpMqttServer(AppSettings.MqttBroker);
             services.AddMqttClient(AppSettings.MqttClient);
-   
-
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -101,6 +108,7 @@ namespace IoTSharp
             app.UseAuthentication();
 
             app.UseSwagger();
+            app.UseHttpsRedirection();
             app.UseIoTSharpMqttClient();
 
             app.UseIotSharpMqttServer();
@@ -108,8 +116,12 @@ namespace IoTSharp
             {
                 ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto
             });
+            app.UseResponseCompression(); // No need if you use IIS, but really something good for Kestrel!
 
-            app.UseHttpsRedirection();
+            // Idea: https://code.msdn.microsoft.com/How-to-fix-the-routing-225ac90f
+            // This avoid having a real mvc view. You have other way of doing, but this one works
+            // properly.
+            app.UseDefaultFiles();
             app.UseStaticFiles();
             app.UseSpaStaticFiles();
 
@@ -126,10 +138,10 @@ namespace IoTSharp
                 // see https://go.microsoft.com/fwlink/?linkid=864501
 
                 spa.Options.SourcePath = "ClientApp";
-                spa.Options.StartupTimeout = new TimeSpan(0, 0, 120);
+                spa.Options.StartupTimeout = TimeSpan.FromSeconds(80);
                 if (env.IsDevelopment())
                 {
-                    spa.UseAngularCliServer(npmScript: "start");
+                    spa.UseVueCliServer(npmScript: "serve");
                 }
             });
         }

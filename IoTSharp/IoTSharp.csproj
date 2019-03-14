@@ -21,7 +21,7 @@
     <DefaultItemExcludes>$(DefaultItemExcludes);$(SpaRoot)node_modules\**</DefaultItemExcludes>
 
     <!-- Set this to true if you enable server-side prerendering -->
-    <BuildServerSideRenderer>false</BuildServerSideRenderer>
+    <BuildServerSideRenderer>true</BuildServerSideRenderer>
   </PropertyGroup>
 
   <ItemGroup>
@@ -31,6 +31,7 @@
     <None Remove="Migrations\**" />
   </ItemGroup>
   <ItemGroup>
+    <PackageReference Include="Changwei.AspNetCore.SpaServices.Extensions.VueCli" Version="1.0.0" />
     <PackageReference Include="IoTSharp.X509Extensions" Version="1.3.3" />
     <PackageReference Include="LiteDB" Version="4.1.4" />
     <PackageReference Include="Microsoft.AspNetCore.App" />
