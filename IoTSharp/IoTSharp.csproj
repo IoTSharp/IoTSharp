@@ -2,6 +2,7 @@
 
   <PropertyGroup>
     <TargetFramework>netcoreapp2.2</TargetFramework>
+	 <TargetLatestRuntimePatch>true</TargetLatestRuntimePatch>
     <Company>IoT#</Company>
     <Product>IoTSharp</Product>
     <Authors>IoT#</Authors>
