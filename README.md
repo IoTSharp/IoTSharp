@@ -1,10 +1,10 @@
 # IoTSharp 
 
-[![Build status](https://ci.appveyor.com/api/projects/status/lfqpc9lrt99ar74h?svg=true)](https://ci.appveyor.com/project/MaiKeBing/iotsharp)
+[![Build status](https://ci.appveyor.com/api/projects/status/5o23f5vss89ct2lw/branch/master?svg=true)](https://ci.appveyor.com/project/MaiKeBing/iotsharp/branch/master)
 
 IoTSharp is an open-source IoT platform for data collection, processing, visualization, and device management.
 
-![IotSharp Logo](doc/img/logo.png)
+
 
 ## Contributing
  - If you'd like to contribute to IoTSharp, please take a look at our [Contributing Guide](contributing.md).
@@ -31,3 +31,5 @@ IoTSharp is an open-source IoT platform for data collection, processing, visuali
 
 ### Windows  
  - sc create iotsharp binPath= "D:\iotsharp\IoTSharp.exe" displayname= "IoTSharp"  start= auto
+
+![IotSharp Logo](docs/images/iot_sharp_logo.png)
