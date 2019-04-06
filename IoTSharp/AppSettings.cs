@@ -29,8 +29,8 @@ namespace IoTSharp
         /// built-in or IP、HostName
         /// </summary>
         public string MqttBroker { get; set; } = "built-in";
-        public string UserName { get; set; } = "root";
-        public string Password { get; set; } = "kissme";
+        public string UserName { get; set; } = "";
+        public string Password { get; set; } = "";
         public int Port { get; set; } = 1883;
     }
     public class MqttBrokerSetting

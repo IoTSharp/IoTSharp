@@ -17,11 +17,13 @@ namespace IoTSharp.Handlers
     public class MqttEventsHandler
     {
         ILogger<MqttEventsHandler> Logger { get; set; }
-        ApplicationDbContext  _dbContext;
-        public MqttEventsHandler(ILogger<MqttEventsHandler> _logger, ApplicationDbContext  dbContext)
+        readonly ApplicationDbContext  _dbContext;
+        readonly IMqttServerEx _serverEx;
+        public MqttEventsHandler(ILogger<MqttEventsHandler> _logger, ApplicationDbContext  dbContext,IMqttServerEx serverEx )
         {
             Logger = _logger;
             _dbContext = dbContext;
+            _serverEx = serverEx;
         }
 
         static long clients = 0;
@@ -29,7 +31,7 @@ namespace IoTSharp.Handlers
         {
             Logger.LogInformation($"Client [{e.ClientId}] connected");
             clients++;
-            Task.Run(() => ((IMqttServer)sender).PublishAsync("$SYS/broker/clients/total", clients.ToString()));
+            Task.Run(() => _serverEx.PublishAsync("$SYS/broker/clients/total", clients.ToString()));
         }
         static DateTime uptime = DateTime.MinValue;
         internal void Server_Started(object sender, EventArgs e)
@@ -50,7 +52,7 @@ namespace IoTSharp.Handlers
             if (!lstTopics.ContainsKey(e.ApplicationMessage.Topic))
             {
                 lstTopics.Add(e.ApplicationMessage.Topic, 1);
-                Task.Run(() => ((IMqttServer)sender).PublishAsync("$SYS/broker/subscriptions/count", lstTopics.Count.ToString()));
+                Task.Run(() => _serverEx.PublishAsync("$SYS/broker/subscriptions/count", lstTopics.Count.ToString()));
             }
             else
             {
@@ -68,17 +70,17 @@ namespace IoTSharp.Handlers
                 {
                     var mename = typeof(MqttEventsHandler).Assembly.GetName();
                     var mqttnet = typeof(MqttClientSubscribedTopicEventArgs).Assembly.GetName();
-                    Task.Run(() => ((IMqttServer)sender).PublishAsync("$SYS/broker/version", $"{mename.Name}V{mename.Version.ToString()},{mqttnet.Name}.{mqttnet.Version.ToString()}"));
+                    Task.Run(() => _serverEx.PublishAsync("$SYS/broker/version", $"{mename.Name}V{mename.Version.ToString()},{mqttnet.Name}.{mqttnet.Version.ToString()}"));
                 }
                 else if (e.TopicFilter.Topic.StartsWith("$SYS/broker/uptime"))
                 {
-                    Task.Run(() => ((IMqttServer)sender).PublishAsync("$SYS/broker/uptime", uptime.ToString()));
+                    Task.Run(() => _serverEx.PublishAsync("$SYS/broker/uptime", uptime.ToString()));
                 }
             }
             else
             {
                 Subscribed++;
-                Task.Run(() => ((IMqttServer)sender).PublishAsync("$SYS/broker/subscriptions/count", Subscribed.ToString()));
+                Task.Run(() => _serverEx.PublishAsync("$SYS/broker/subscriptions/count", Subscribed.ToString()));
             }
 
 
@@ -90,7 +92,7 @@ namespace IoTSharp.Handlers
             if (!e.TopicFilter.StartsWith("$SYS/"))
             {
                 Subscribed--;
-                Task.Run(() => ((IMqttServer)sender).PublishAsync("$SYS/broker/subscriptions/count", Subscribed.ToString()));
+                Task.Run(() => _serverEx.PublishAsync("$SYS/broker/subscriptions/count", Subscribed.ToString()));
             }
         }
         public static string MD5Sum(string text) => BitConverter.ToString(MD5.Create().ComputeHash(Encoding.UTF8.GetBytes(text))).Replace("-", "");
