@@ -32,9 +32,9 @@
     <None Remove="Migrations\**" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Changwei.AspNetCore.SpaServices.Extensions.VueCli" Version="1.0.0" />
     <PackageReference Include="IoTSharp.X509Extensions" Version="1.3.3" />
     <PackageReference Include="LiteDB" Version="4.1.4" />
+    <PackageReference Include="maikebing.AspNetCore.SpaServices.Extensions.VueCli.cnpm" Version="1.0.0" />
     <PackageReference Include="Microsoft.AspNetCore.App" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication" Version="2.2.0" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="2.2.0" />
@@ -75,15 +75,15 @@
     </Exec>
     <Error Condition="'$(ErrorCode)' != '0'" Text="Node.js is required to build and run this project. To continue, please install Node.js from https://nodejs.org/, and then restart your command prompt or IDE." />
     <Message Importance="high" Text="Restoring dependencies using 'npm'. This may take several minutes..." />
-    <Exec WorkingDirectory="$(SpaRoot)" Command="npm install" />
-    <Exec WorkingDirectory="$(SpaRoot)" Command="npm rebuild node-sass" />
+    <Exec WorkingDirectory="$(SpaRoot)" Command="cnpm install" />
+    <Exec WorkingDirectory="$(SpaRoot)" Command="cnpm rebuild node-sass" />
     
   </Target>
 
   <Target Name="PublishRunWebpack" AfterTargets="ComputeFilesToPublish">
     <!-- As part of publishing, ensure the JS resources are freshly built in production mode -->
-    <Exec WorkingDirectory="$(SpaRoot)" Command="npm install" />
-    <Exec WorkingDirectory="$(SpaRoot)" Command="npm run build   --prod" />
+    <Exec WorkingDirectory="$(SpaRoot)" Command="cnpm install" />
+    <Exec WorkingDirectory="$(SpaRoot)" Command="cnpm run build   --prod" />
  
 
     <!-- Include the newly-built files in the publish output -->
