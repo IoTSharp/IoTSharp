@@ -1,0 +1,3 @@
+[submodule "IoTSharp/ClientApp"]
+	path = IoTSharp/ClientApp
+	url = https://github.com/IoTSharp/IoTSharp.ClientApp.git
