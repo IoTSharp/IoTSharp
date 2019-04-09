@@ -141,7 +141,7 @@ namespace IoTSharp
                 spa.Options.StartupTimeout = TimeSpan.FromSeconds(80);
                 if (env.IsDevelopment())
                 {
-                    spa.UseVueCliServer(npmScript: "serve");
+                    spa.UseVueCliServer(npmScript: "dev");
                 }
             });
         }
