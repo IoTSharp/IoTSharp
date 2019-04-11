@@ -63,10 +63,10 @@ namespace IoTSharp.Controllers
         {
             try
             {
-                var result = await _signInManager.PasswordSignInAsync(model.Email, model.Password, false, false);
+                var result = await _signInManager.PasswordSignInAsync(model.UserName, model.Password, false, false);
                 if (result.Succeeded)
                 {
-                    var appUser = _userManager.Users.SingleOrDefault(r => r.Email == model.Email);
+                    var appUser = _userManager.Users.SingleOrDefault(r => r.Email == model.UserName);
                     var token = await _userManager.GenerateJwtTokenAsync(appUser);
                     return Ok(new LoginResult()
                     {
@@ -85,6 +85,22 @@ namespace IoTSharp.Controllers
             {
                 return this.ExceptionRequest(ex);
             }
+        }
+
+        [AllowAnonymous]
+        [HttpPost]
+        public async Task<IActionResult> Logout( )
+        {
+            try
+            {
+                await _signInManager.SignOutAsync();
+                return new  OkResult();
+            }
+            catch (Exception ex)
+            {
+                return this.ExceptionRequest(ex);
+            }
+          
         }
 
         /// <summary>
@@ -116,7 +132,7 @@ namespace IoTSharp.Controllers
                         await _signInManager.UserManager.AddClaimAsync(user, new Claim(IoTSharpClaimTypes.Customer, customer.Id.ToString()));
                         await _signInManager.UserManager.AddClaimAsync(user, new Claim(IoTSharpClaimTypes.Tenant, customer.Tenant.Id.ToString()));
                         await _signInManager.UserManager.AddToRolesAsync(user, new[] { nameof(UserRole.NormalUser) });
-                        actionResult = CreatedAtAction(nameof(this.Login), new LoginDto() { Email = model.Email, Password = model.Password });
+                        actionResult = CreatedAtAction(nameof(this.Login), new LoginDto() { UserName = model.Email, Password = model.Password });
                     }
                 }
                 else
