@@ -10,66 +10,13 @@ using MQTTnet.AspNetCore;
 using MQTTnet.Diagnostics;
 using MQTTnet.AspNetCoreEx;
 using IoTSharp.Handlers;
+using IoTSharp.Services;
 
 namespace IoTSharp
 {
-
     public static class MqttExtension
     {
-        public static void AddMqttClient(this IServiceCollection services, MqttClientSetting setting)
-        {
-            if (setting == null) setting = new MqttClientSetting();
-            services.AddSingleton(options => new MQTTnet.MqttFactory().CreateMqttClient());
-            services.AddTransient(options => new MqttClientOptionsBuilder()
-                                     .WithClientId("buind-in")
-                                     .WithTcpServer((setting.MqttBroker == "built-in" || string.IsNullOrEmpty(setting.MqttBroker)) ? "127.0.0.1" : setting.MqttBroker, setting.Port)
-                                     .WithCredentials(setting.UserName, setting.Password)
-                                     .WithCleanSession()
-                                     .Build());
-        }
-        public static void UseIoTSharpMqttClient(this IApplicationBuilder app)
-        {
-            var _logger = app.ApplicationServices.GetService<ILoggerFactory>().CreateLogger<MqttClient>();
-            var mqtt = app.ApplicationServices.GetService<IMqttClient>();
-            var clientOptions = app.ApplicationServices.GetService<IMqttClientOptions>();
-            mqtt.ApplicationMessageReceived += (sender, e) =>
-                {
-                  
-                    _logger.LogInformation($"Received  : {e.ApplicationMessage.Topic}");
-                };
-            mqtt.Connected += (sender, e) =>
-                {
-                    _logger.LogInformation($"CONNECTED  IsSessionPresent: {e.IsSessionPresent}");
-                };
-            mqtt.Disconnected += async (s, e) =>
-            {
-                _logger.LogInformation($"DISCONNECTED FROM SERVER  ClientWasConnected:{e.ClientWasConnected}, Exception={ e.Exception.Message}");
-                await Task.Delay(TimeSpan.FromSeconds(5));
-                try
-                {
-                    await mqtt.ConnectAsync(clientOptions);
-                    _logger.LogInformation("RECONNECT AGAIN");
-                }
-                catch (Exception exception)
-                {
-                    _logger.LogError("CONNECTING FAILED", exception);
-                }
-            };
-
-            try
-            {
-                Task.Run(() =>
-                {
-                    mqtt.ConnectAsync(clientOptions);
-                    _logger.LogInformation("CONNECTED");
-                });
-            }
-            catch (Exception exception)
-            {
-                _logger.LogError("CONNECTING FAILED", exception);
-            }
-        }
-        public static void AddIoTSharpMqttServer( this IServiceCollection services,MqttBrokerSetting setting)
+        public static void AddIoTSharpMqttServer(this IServiceCollection services, MqttBrokerSetting setting)
         {
 
             services.AddMqttTcpServerAdapter();
@@ -97,21 +44,21 @@ namespace IoTSharp
             services.AddMqttWebSocketServerAdapter();
             services.AddTransient<MqttEventsHandler>();
         }
-        public static void UseIotSharpMqttServer(this IApplicationBuilder app )
+        public static void UseIotSharpMqttServer(this IApplicationBuilder app)
         {
             app.UseMqttEndpoint();
-            var mqttEvents  =   app.ApplicationServices.CreateScope().ServiceProvider.GetService<MqttEventsHandler>();
+            var mqttEvents = app.ApplicationServices.CreateScope().ServiceProvider.GetService<MqttEventsHandler>();
             app.UseMqttServerEx(server =>
                 {
                     server.ClientConnected += mqttEvents.Server_ClientConnected;
                     server.Started += mqttEvents.Server_Started;
-                    server.Stopped +=  mqttEvents.Server_Stopped;
+                    server.Stopped += mqttEvents.Server_Stopped;
                     server.ApplicationMessageReceived += mqttEvents.Server_ApplicationMessageReceived;
                     server.ClientSubscribedTopic += mqttEvents.Server_ClientSubscribedTopic;
                     server.ClientUnsubscribedTopic += mqttEvents.Server_ClientUnsubscribedTopic;
                     server.ClientConnectionValidator += mqttEvents.Server_ClientConnectionValidator;
                 });
-      
+
             var mqttNetLogger = app.ApplicationServices.GetService<IMqttNetLogger>();
             var _loggerFactory = app.ApplicationServices.GetService<ILoggerFactory>();
             var logger = _loggerFactory.CreateLogger<IMqttNetLogger>();
@@ -142,6 +89,18 @@ namespace IoTSharp
             };
         }
 
-       
+        public static void AddMqttClient(this IServiceCollection services, MqttClientSetting setting)
+        {
+            if (setting == null) setting = new MqttClientSetting();
+            services.AddSingleton(options => new MQTTnet.MqttFactory().CreateMqttClient());
+            services.AddTransient(options => new MqttClientOptionsBuilder()
+                                     .WithClientId("buind-in")
+                                     .WithTcpServer((setting.MqttBroker == "built-in" || string.IsNullOrEmpty(setting.MqttBroker)) ? "127.0.0.1" : setting.MqttBroker, setting.Port)
+                                     .WithCredentials(setting.UserName, setting.Password)
+                                     .WithCleanSession()
+                                     .Build());
+            services.AddHostedService <MqttClientService>();
+        }
+
     }
 }

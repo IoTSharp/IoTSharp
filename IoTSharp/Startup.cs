@@ -70,7 +70,6 @@ namespace IoTSharp
                     .AddRoleManager<RoleManager<IdentityRole>>()
                    .AddDefaultTokenProviders()
                     .AddEntityFrameworkStores<ApplicationDbContext>();
-
             services.ConfigureJwtAuthentication(Configuration["JwtIssuer"], Configuration["JwtAudience"], Configuration["JwtKey"], TimeSpan.FromDays(Convert.ToInt32(Configuration["JwtExpireDays"])));
             services.Configure<ForwardedHeadersOptions>(options =>
             {
@@ -109,8 +108,6 @@ namespace IoTSharp
 
             app.UseSwagger();
             app.UseHttpsRedirection();
-            app.UseIoTSharpMqttClient();
-
             app.UseIotSharpMqttServer();
             app.UseForwardedHeaders(new ForwardedHeadersOptions
             {
@@ -144,6 +141,7 @@ namespace IoTSharp
                     spa.UseVueCliServer(npmScript: "dev");
                 }
             });
+          
         }
     }
 }
