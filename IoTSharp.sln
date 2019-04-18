@@ -14,10 +14,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IoTSharp.Test", "IoTSharp.T
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IoTSharp", "IoTSharp\IoTSharp.csproj", "{CCD2C255-72D2-4A25-B0E9-E30FBEF774C7}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IoTSharp.Cicada", "IoTSharp.Cicada\IoTSharp.Cicada\IoTSharp.Cicada.csproj", "{EC9B85A8-74C9-43E2-AD91-E5EE55E67B1A}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IoTSharp.Sdk", "IoTSharp.SDKs\IoTSharp.Sdk.CSharp\IoTSharp.Sdk.csproj", "{C3BA5E01-C699-4A16-937E-F78BB9DD77FA}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -32,14 +28,6 @@ Global
 		{CCD2C255-72D2-4A25-B0E9-E30FBEF774C7}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{CCD2C255-72D2-4A25-B0E9-E30FBEF774C7}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{CCD2C255-72D2-4A25-B0E9-E30FBEF774C7}.Release|Any CPU.Build.0 = Release|Any CPU
-		{EC9B85A8-74C9-43E2-AD91-E5EE55E67B1A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{EC9B85A8-74C9-43E2-AD91-E5EE55E67B1A}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{EC9B85A8-74C9-43E2-AD91-E5EE55E67B1A}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{EC9B85A8-74C9-43E2-AD91-E5EE55E67B1A}.Release|Any CPU.Build.0 = Release|Any CPU
-		{C3BA5E01-C699-4A16-937E-F78BB9DD77FA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{C3BA5E01-C699-4A16-937E-F78BB9DD77FA}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{C3BA5E01-C699-4A16-937E-F78BB9DD77FA}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{C3BA5E01-C699-4A16-937E-F78BB9DD77FA}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
