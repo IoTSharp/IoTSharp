@@ -1,11 +1,3 @@
 [submodule "IoTSharp/ClientApp"]
 	path = IoTSharp/ClientApp
 	url = https://github.com/IoTSharp/IoTSharp.ClientApp.git
-[submodule "IoTSharp.Cicada"]
-	path = IoTSharp.Cicada
-	url = https://github.com/IoTSharp/Cicada.git
-	branch = master
-[submodule "IoTSharp.SDKs"]
-	path = IoTSharp.SDKs
-	url = https://github.com/IoTSharp/IoTSharp.SDKs.git
-	branch = master
