@@ -1,9 +1,9 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.28307.168
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.28803.156
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IoT.Sharp.Sdk.CSharp", "IoT.Sharp.Sdk.CSharp\IoT.Sharp.Sdk.CSharp.csproj", "{D9CAE67D-61AC-4AC3-8D8A-78D08FD9F996}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IoTSharp.Sdk", "IoTSharp.Sdk.CSharp\IoTSharp.Sdk.csproj", "{9084E809-B5F1-4782-B29C-6C784591CB77}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -11,10 +11,10 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{D9CAE67D-61AC-4AC3-8D8A-78D08FD9F996}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{D9CAE67D-61AC-4AC3-8D8A-78D08FD9F996}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{D9CAE67D-61AC-4AC3-8D8A-78D08FD9F996}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{D9CAE67D-61AC-4AC3-8D8A-78D08FD9F996}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9084E809-B5F1-4782-B29C-6C784591CB77}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9084E809-B5F1-4782-B29C-6C784591CB77}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9084E809-B5F1-4782-B29C-6C784591CB77}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9084E809-B5F1-4782-B29C-6C784591CB77}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

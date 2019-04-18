@@ -52,7 +52,7 @@
       "wrapResponseMethods": [],
       "generateResponseClasses": true,
       "responseClass": "SwaggerResponse",
-      "namespace": "IoT.Sharp.Sdk.CSharp",
+      "namespace": "IoTSharp.Sdk",
       "requiredPropertiesMustBeDefined": true,
       "dateType": "System.DateTimeOffset",
       "jsonConverters": null,

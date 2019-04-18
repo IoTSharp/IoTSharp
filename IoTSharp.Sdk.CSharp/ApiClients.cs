@@ -4,7 +4,7 @@
 // </auto-generated>
 //----------------------
 
-namespace IoT.Sharp.Sdk.CSharp
+namespace IoTSharp.Sdk
 {
     #pragma warning disable
 

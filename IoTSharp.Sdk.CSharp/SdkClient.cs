@@ -5,7 +5,7 @@ using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace IoT.Sharp.Sdk.CSharp
+namespace IoTSharp.Sdk
 {
     public static class SdkClient
     {

@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
 
-namespace IoT.Sharp.Sdk.CSharp
+namespace IoTSharp.Sdk
 {
     public static class ApiExtension
     {

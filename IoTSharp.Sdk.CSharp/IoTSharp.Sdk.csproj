@@ -2,6 +2,7 @@
 
   <PropertyGroup>
     <TargetFrameworks>net45;netstandard2.0</TargetFrameworks>
+    <RootNamespace>IoTSharp.Sdk.CSharp</RootNamespace>
   </PropertyGroup>
 
   <ItemGroup>
