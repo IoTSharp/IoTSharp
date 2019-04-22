@@ -3,6 +3,7 @@ using IoTSharp.Extensions;
 using IoTSharp.Handlers;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using MQTTnet;
@@ -17,20 +18,21 @@ namespace IoTSharp.Services
 {
     public class MqttClientService : IHostedService
     {
-
         private readonly ILogger _logger;
         readonly IMqttClient _mqtt;
         private readonly IMqttClientOptions _clientOptions;
         private ApplicationDbContext _dbContext;
-        public MqttClientService(ILogger<MqttClientService> logger, ApplicationDbContext context, IMqttClient mqtt, IMqttClientOptions clientOptions,DbContextOptions<ApplicationDbContext> options, IConfiguration configuration)
+        private IServiceScope _serviceScope;
+        public MqttClientService(ILogger<MqttClientService> logger, IServiceScopeFactory scopeFactor, IMqttClient mqtt, IMqttClientOptions clientOptions)
         {
             _logger = logger;
             _mqtt = mqtt;
             _clientOptions = clientOptions;
-            _dbContext = context;
             mqtt.ApplicationMessageReceived += Mqtt_ApplicationMessageReceived;
             mqtt.Connected += Mqtt_Connected;
             mqtt.Disconnected += Mqtt_DisconnectedAsync;
+            _serviceScope = scopeFactor.CreateScope();
+            _dbContext = _serviceScope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
         }
 
         private async void Mqtt_DisconnectedAsync(object sender, MqttClientDisconnectedEventArgs e)
