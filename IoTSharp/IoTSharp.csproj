@@ -2,6 +2,10 @@
 
   <PropertyGroup>
     <TargetFramework>netcoreapp2.2</TargetFramework>
+    <RuntimeIdentifiers>win7-x64;rhel.7-x64;ubuntu.16.04-x64</RuntimeIdentifiers>
+    <PreserveCompilationContext>true</PreserveCompilationContext>
+    <CreateUser>true</CreateUser>
+    <InstallService>true</InstallService>
     <TargetLatestRuntimePatch>true</TargetLatestRuntimePatch>
     <Company>IoT#</Company>
     <Product>IoTSharp</Product>
@@ -24,7 +28,29 @@
     <!-- Set this to true if you enable server-side prerendering -->
     <BuildServerSideRenderer>false</BuildServerSideRenderer>
   </PropertyGroup>
-
+  <ItemGroup>
+    <Content Update="appsettings.json">
+      <LinuxPath>/etc/iotsharp/appsettings.json</LinuxPath>
+    </Content>
+    <Content Update="appsettings.Development.json">
+      <LinuxPath>/etc/iotsharp/appsettings.Development.json</LinuxPath>
+    </Content>
+    <Content Include="iotsharp.service" CopyToPublishDirectory="PreserveNewest">
+      <LinuxPath>/etc/systemd/system/iotsharp.service</LinuxPath>
+    </Content>
+    <LinuxFolder Include="/var/log/iotsharp" Group="iotsharp" Owner="iotsharp" RemoveOnUninstall="true" />
+    <LinuxFolder Include="/var/run/iotsharp" Group="iotsharp" Owner="iotsharp" RemoveOnUninstall="true" />
+    <LinuxFolder Include="/var/lib/iotsharp" Group="iotsharp" Owner="iotsharp" RemoveOnUninstall="true" />
+    <RpmDependency Include="libunwind" Version="1.1" />
+    <RpmDependency Include="libicu" Version="50.1.2" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Packaging.Targets" Version="0.1.70" />
+    <DotNetCliToolReference Include="dotnet-tarball" Version="0.1.70" />
+    <DotNetCliToolReference Include="dotnet-zip" Version="0.1.70" />
+    <DotNetCliToolReference Include="dotnet-rpm" Version="0.1.70" />
+    <DotNetCliToolReference Include="dotnet-deb" Version="0.1.70" />
+  </ItemGroup>
   <ItemGroup>
     <Compile Remove="Migrations\**" />
     <Content Remove="Migrations\**" />
