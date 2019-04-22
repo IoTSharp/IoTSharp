@@ -46,7 +46,7 @@ namespace IoTSharp.Controllers
             var f = from c in _context.Device where c.Customer.Id == customerId select c;
             if (!f.Any())
             {
-                return NotFound(new ApiResult<Guid>(ApiCode.NotFoundCustomer, $"Customer {customerId} not found ", customerId));
+                return NotFound(new ApiResult<Guid>(ApiCode.CustomerDoesNotHaveDevice, $"The customer does not have any device", customerId));
             }
             else
             {

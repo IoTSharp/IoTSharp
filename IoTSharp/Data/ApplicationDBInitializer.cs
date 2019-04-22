@@ -92,6 +92,7 @@ namespace IoTSharp.Data
                     await _signInManager.UserManager.AddToRoleAsync(user, nameof(UserRole.CustomerAdmin));
                     await _signInManager.UserManager.AddToRoleAsync(user, nameof(UserRole.TenantAdmin));
                     await _signInManager.UserManager.AddToRoleAsync(user, nameof(UserRole.SystemAdmin));
+                    
                 }
             }
             var rship = new Relationship
