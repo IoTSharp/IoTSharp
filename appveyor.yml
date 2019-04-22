@@ -19,11 +19,15 @@ install:
     git submodule update --init --recursive
 build_script:
 - cmd: >-
-    dotnet deb -r ubuntu.16.04-x64   -f netcoreapp2.2 -c Release
-    
-    dotnet rpm  -r  rhel.7-x64   -f netcoreapp2.2 -c Release
-    
-    dotnet zip   -r  win7-x64   -f netcoreapp2.2 -c Release
+    dotnet msbuild IoTSharp/IoTSharp.csproj /t:CreateDeb  /p:TargetFramework=netcoreapp2.2 /p:RuntimeIdentifier=ubuntu.16.04-x64/p:Configuration=Release
+
+    dotnet msbuild IoTSharp/IoTSharp.csproj /t:CreateRpm /p:TargetFramework=netcoreapp2.2 /p:RuntimeIdentifier=rhel.7-x64 /p:Configuration=Release
+
+    dotnet msbuild IoTSharp/IoTSharp.csproj /t:CreateZip /p:TargetFramework=netcoreapp2.2 /p:RuntimeIdentifier=win7-x64 /p:Configuration=Release
 artifacts:
-- path: IoTSharp\bin\Release\netcoreapp2.2\linux-x64\publish\
-  name: IoTSharp-linux-x64
+- path: IoTSharp\bin\Release\netcoreapp2.2\ubuntu.16.04-x64\*.deb
+  name: IoTSharp.ubuntu
+- path: IoTSharp\bin\Release\netcoreapp2.2\rhel.7-x64\*.rpm
+  name: IoTSharp.centos
+- path: IoTSharp\bin\Release\netcoreapp2.2\win7-x64\*.zip
+  name: IoTSharp.win
