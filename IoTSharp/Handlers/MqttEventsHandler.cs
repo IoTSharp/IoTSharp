@@ -28,7 +28,7 @@ namespace IoTSharp.Handlers
         }
 
         static long clients = 0;
-        internal void Server_ClientConnected(object sender, MqttClientConnectedEventArgs e)
+        internal void Server_ClientConnected(object sender, MqttServerClientConnectedEventArgs e)
         {
             _logger.LogInformation($"Client [{e.ClientId}] connected");
             clients++;
@@ -63,7 +63,7 @@ namespace IoTSharp.Handlers
             received += e.ApplicationMessage.Payload.Length;
         }
         long Subscribed;
-        internal void Server_ClientSubscribedTopic(object sender, MqttClientSubscribedTopicEventArgs e)
+        internal void Server_ClientSubscribedTopic(object sender, MqttServerClientSubscribedTopicEventArgs   e)
         {
             _logger.LogInformation($"Client [{e.ClientId}] subscribed [{e.TopicFilter}]");
             if (e.TopicFilter.Topic.StartsWith("$SYS/"))
@@ -71,7 +71,7 @@ namespace IoTSharp.Handlers
                 if (e.TopicFilter.Topic.StartsWith("$SYS/broker/version"))
                 {
                     var mename = typeof(MqttEventsHandler).Assembly.GetName();
-                    var mqttnet = typeof(MqttClientSubscribedTopicEventArgs).Assembly.GetName();
+                    var mqttnet = typeof(MqttServerClientSubscribedTopicEventArgs).Assembly.GetName();
                     Task.Run(() => _serverEx.PublishAsync("$SYS/broker/version", $"{mename.Name}V{mename.Version.ToString()},{mqttnet.Name}.{mqttnet.Version.ToString()}"));
                 }
                 else if (e.TopicFilter.Topic.StartsWith("$SYS/broker/uptime"))
@@ -96,7 +96,7 @@ namespace IoTSharp.Handlers
 
         }
 
-        internal void Server_ClientUnsubscribedTopic(object sender, MqttClientUnsubscribedTopicEventArgs e)
+        internal void Server_ClientUnsubscribedTopic(object sender, MqttServerClientUnsubscribedTopicEventArgs   e)
         {
             _logger.LogInformation($"Client [{e.ClientId}] unsubscribed[{e.TopicFilter}]");
             if (!e.TopicFilter.StartsWith("$SYS/"))
@@ -107,7 +107,7 @@ namespace IoTSharp.Handlers
         }
         internal static  Dictionary<string, Device> Devices = new Dictionary<string, Device>();
         public static string MD5Sum(string text) => BitConverter.ToString(MD5.Create().ComputeHash(Encoding.UTF8.GetBytes(text))).Replace("-", "");
-        internal void Server_ClientConnectionValidator(object sender, MqttClientConnectionValidatorEventArgs e)
+        internal void Server_ClientConnectionValidator(object sender, MqttServerClientConnectionValidatorEventArgs   e)
         {
             MqttConnectionValidatorContext obj = e.Context;
             Uri uri = new Uri("mqtt://" + obj.Endpoint);

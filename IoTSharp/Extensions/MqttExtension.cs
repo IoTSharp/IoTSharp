@@ -11,6 +11,9 @@ using MQTTnet.Diagnostics;
 using MQTTnet.AspNetCoreEx;
 using IoTSharp.Handlers;
 using IoTSharp.Services;
+using MQTTnet.Server;
+using MQTTnet.Client.Receiving;
+using MQTTnet.Client.Options;
 
 namespace IoTSharp
 {
@@ -50,13 +53,14 @@ namespace IoTSharp
             var mqttEvents = app.ApplicationServices.CreateScope().ServiceProvider.GetService<MqttEventsHandler>();
             app.UseMqttServerEx(server =>
                 {
-                    server.ClientConnected += mqttEvents.Server_ClientConnected;
-                    server.Started += mqttEvents.Server_Started;
-                    server.Stopped += mqttEvents.Server_Stopped;
-                    server.ApplicationMessageReceived += mqttEvents.Server_ApplicationMessageReceived;
-                    server.ClientSubscribedTopic += mqttEvents.Server_ClientSubscribedTopic;
-                    server.ClientUnsubscribedTopic += mqttEvents.Server_ClientUnsubscribedTopic;
-                    server.ClientConnectionValidator += mqttEvents.Server_ClientConnectionValidator;
+                    server.ClientConnectedHandler = new MqttServerClientConnectedHandlerDelegate(args => mqttEvents.Server_ClientConnected(server, args));
+                    server.StartedHandler = new MqttServerStartedHandlerDelegate(args => mqttEvents.Server_Started(server, args));
+                    server.StoppedHandler = new MqttServerStoppedHandlerDelegate(args => mqttEvents.Server_Stopped(server, args));
+                    server.ApplicationMessageReceivedHandler = new MqttApplicationMessageReceivedHandlerDelegate(args => mqttEvents.Server_ApplicationMessageReceived(server, args));
+                    server.ClientSubscribedTopicHandler = new MqttServerClientSubscribedHandlerDelegate(args => mqttEvents.Server_ClientSubscribedTopic(server, args));
+                    server.ClientUnsubscribedTopicHandler = new MqttServerClientUnsubscribedTopicHandlerDelegate(args => mqttEvents.Server_ClientUnsubscribedTopic(server, args));
+                    server.ClientConnectionValidatorHandler = new MqttServerClientConnectionValidatorHandlerDelegate(args => mqttEvents.Server_ClientConnectionValidator(server, args));
+ 
                 });
 
             var mqttNetLogger = app.ApplicationServices.GetService<IMqttNetLogger>();

@@ -8,6 +8,11 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using MQTTnet;
 using MQTTnet.Client;
+using MQTTnet.Client.Connecting;
+using MQTTnet.Client.Disconnecting;
+using MQTTnet.Client.Options;
+using MQTTnet.Client.Receiving;
+using MQTTnet.Server;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -28,9 +33,9 @@ namespace IoTSharp.Services
             _logger = logger;
             _mqtt = mqtt;
             _clientOptions = clientOptions;
-            mqtt.ApplicationMessageReceived += Mqtt_ApplicationMessageReceived;
-            mqtt.Connected += Mqtt_Connected;
-            mqtt.Disconnected += Mqtt_DisconnectedAsync;
+            mqtt.ApplicationMessageReceivedHandler = new MqttApplicationMessageReceivedHandlerDelegate(args => Mqtt_ApplicationMessageReceived(mqtt, args));
+            mqtt.ConnectedHandler  =new  MqttClientConnectedHandlerDelegate (args=> Mqtt_ConnectedAsync(mqtt,args));
+            mqtt.DisconnectedHandler =new MqttClientDisconnectedHandlerDelegate   (args=> Mqtt_DisconnectedAsync(mqtt,args));
             _serviceScope = scopeFactor.CreateScope();
             _dbContext = _serviceScope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
         }
@@ -49,9 +54,11 @@ namespace IoTSharp.Services
             }
         }
 
-        private void Mqtt_Connected(object sender, MqttClientConnectedEventArgs e)
+        private async void  Mqtt_ConnectedAsync(object sender, MqttClientConnectedEventArgs e)
         {
-            _logger.LogInformation($"CONNECTED  IsSessionPresent: {e.IsSessionPresent}");
+            _logger.LogInformation($"CONNECTED  IsSessionPresent:  {e.AuthenticateResult.IsSessionPresent } ResultCode: { e.AuthenticateResult.ResultCode}");
+         var  subresult1=await   _mqtt.SubscribeAsync("/devices/telemetry/#");
+            var subresult2= await  _mqtt.SubscribeAsync("/devices/attributes/#");
         }
 
         Dictionary<string, Device> Devices => MqttEventsHandler.Devices;
@@ -120,7 +127,7 @@ namespace IoTSharp.Services
 
         public Task StopAsync(CancellationToken cancellationToken)
         {
-            _mqtt.Disconnected -= Mqtt_DisconnectedAsync;
+            _mqtt.DisconnectedHandler = null;
             return _mqtt.DisconnectAsync();
         }
     }

@@ -1,5 +1,7 @@
 ﻿using MQTTnet;
 using MQTTnet.Client;
+using MQTTnet.Client.Options;
+using MQTTnet.Client.Receiving;
 using MQTTnet.Exceptions;
 using MQTTnet.Protocol;
 using System;
@@ -25,7 +27,7 @@ namespace IoTSharp.Extensions
         {
             _mqttClient = mqttClient ?? throw new ArgumentNullException(nameof(mqttClient));
 
-            _mqttClient.ApplicationMessageReceived += OnApplicationMessageReceived;
+            _mqttClient.ApplicationMessageReceivedHandler    = new MqttApplicationMessageReceivedHandlerDelegate(args => OnApplicationMessageReceived(mqttClient, args)  );
         }
 
         public RpcClient(IMqttClientOptions mqtt):this (new MQTTnet.MqttFactory().CreateMqttClient())
