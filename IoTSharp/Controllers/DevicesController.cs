@@ -15,6 +15,7 @@ using MQTTnet.Extensions.Rpc;
 using MQTTnet.Protocol;
 using IoTSharp.Extensions;
 using MQTTnet.Exceptions;
+using MQTTnet.Client.Options;
 
 namespace IoTSharp.Controllers
 {
