@@ -69,7 +69,7 @@ namespace IoTSharp.Handlers
             var tpary = topic.Split('/');
             if (tpary.Length >= 3 && tpary[0] == "devices" && Devices.ContainsKey(e.ClientId))
             {
-                Device device = JudgeDevice(tpary, Devices[e.ClientId]);
+                Device device = JudgeOrCreateNewDevice(tpary, Devices[e.ClientId]);
                 if (device != null)
                 {
                     if (tpary[2] == "telemetry")
@@ -111,15 +111,24 @@ namespace IoTSharp.Handlers
 
         }
 
-        private Device JudgeDevice(string[] tpary, Device device)
+        private Device JudgeOrCreateNewDevice(string[] tpary, Device device)
         {
             Device devicedatato = device;
             if (tpary[1] != "me" && device.DeviceType == DeviceType.Gateway)
             {
-                //var ch = from g in _dbContext.Gateway.Include(c => c.Children) where g.Id == device.Id select g.Children;
-                //if (ch.Any)
-                //var subdev = from cd in ().FirstOrDefault() where cd.Name == tpary[1] select cd ;
-                //devicedatato = subdev.FirstOrDefault();
+                var ch = from g in _dbContext.Gateway.Include(c => c.Children) where g.Id == device.Id select g;
+                var gw = ch.FirstOrDefault();
+                var subdev = from cd in  gw.Children where cd.Name == tpary[1] select cd;
+                if (!subdev.Any())
+                {
+                    devicedatato = new Device() { Id = Guid.NewGuid(), Name = tpary[1], DeviceType = DeviceType.Device, Tenant = device.Tenant, Customer = device.Customer };
+                    gw.Children.Add(devicedatato);
+                    _dbContext.SaveChangesAsync();
+                }
+                else
+                {
+                    devicedatato = subdev.FirstOrDefault();
+                }
             }
             return devicedatato;
         }
