@@ -1,6 +1,7 @@
 ﻿using IoTSharp.Data;
 using IoTSharp.Extensions;
 using IoTSharp.X509Extensions;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using MQTTnet;
 using MQTTnet.AspNetCoreEx;
@@ -17,10 +18,10 @@ namespace IoTSharp.Handlers
 {
     public class MqttEventsHandler
     {
-        readonly ILogger<MqttEventsHandler> _logger ;
-        readonly ApplicationDbContext  _dbContext;
+        readonly ILogger<MqttEventsHandler> _logger;
+        readonly ApplicationDbContext _dbContext;
         readonly IMqttServerEx _serverEx;
-        public MqttEventsHandler(ILogger<MqttEventsHandler> logger, ApplicationDbContext  dbContext,IMqttServerEx serverEx )
+        public MqttEventsHandler(ILogger<MqttEventsHandler> logger, ApplicationDbContext dbContext, IMqttServerEx serverEx)
         {
             _logger = logger;
             _dbContext = dbContext;
@@ -47,6 +48,7 @@ namespace IoTSharp.Handlers
         }
         Dictionary<string, int> lstTopics = new Dictionary<string, int>();
         long received = 0;
+
         internal void Server_ApplicationMessageReceived(object sender, MqttApplicationMessageReceivedEventArgs e)
         {
             _logger.LogInformation($"Server received {e.ClientId}'s message: Topic=[{e.ApplicationMessage.Topic }],Retain=[{e.ApplicationMessage.Retain}],QualityOfServiceLevel=[{e.ApplicationMessage.QualityOfServiceLevel}]");
@@ -59,11 +61,71 @@ namespace IoTSharp.Handlers
             {
                 lstTopics[e.ApplicationMessage.Topic]++;
             }
-       
-            received += e.ApplicationMessage.Payload.Length;
+            if (e.ApplicationMessage.Payload != null)
+            {
+                received += e.ApplicationMessage.Payload.Length;
+            }
+            string topic = e.ApplicationMessage.Topic;
+            var tpary = topic.Split('/');
+            if (tpary.Length >= 3 && tpary[0] == "devices" && Devices.ContainsKey(e.ClientId))
+            {
+                Device device = JudgeDevice(tpary, Devices[e.ClientId]);
+                if (device != null)
+                {
+                    if (tpary[2] == "telemetry")
+                    {
+                        Task.Run(async () =>
+                        {
+                            try
+                            {
+                                var telemetrys = Newtonsoft.Json.JsonConvert.DeserializeObject<Dictionary<string, object>>(e.ApplicationMessage.ConvertPayloadToString());
+                                var result = await _dbContext.SaveAsync<TelemetryLatest, TelemetryData>(telemetrys, device, DataSide.ClientSide);
+                            }
+                            catch (Exception ex)
+                            {
+                                _logger.LogError(ex, $"Can't upload telemetry to device {device.Name}({device.Id}).the payload is {e.ApplicationMessage.ConvertPayloadToString()}");
+                            }
+                        });
+                    }
+                    else if (tpary[2] == "attributes")
+                    {
+                        Task.Run(async () =>
+                        {
+                            try
+                            {
+                                var attributes = Newtonsoft.Json.JsonConvert.DeserializeObject<Dictionary<string, object>>(e.ApplicationMessage.ConvertPayloadToString());
+                                var result = await _dbContext.SaveAsync<AttributeLatest, AttributeData>(attributes, device, DataSide.ClientSide);
+                            }
+                            catch (Exception ex)
+                            {
+                                _logger.LogError(ex, $"Can't upload attributes to device {device.Name}({device.Id}).the payload is \"{e.ApplicationMessage.ConvertPayloadToString()}\"");
+                            }
+                        });
+
+                    }
+                }
+            }
+
+
+
+
         }
+
+        private Device JudgeDevice(string[] tpary, Device device)
+        {
+            Device devicedatato = device;
+            if (tpary[1] != "me" && device.DeviceType == DeviceType.Gateway)
+            {
+                //var ch = from g in _dbContext.Gateway.Include(c => c.Children) where g.Id == device.Id select g.Children;
+                //if (ch.Any)
+                //var subdev = from cd in ().FirstOrDefault() where cd.Name == tpary[1] select cd ;
+                //devicedatato = subdev.FirstOrDefault();
+            }
+            return devicedatato;
+        }
+
         long Subscribed;
-        internal void Server_ClientSubscribedTopic(object sender, MqttServerClientSubscribedTopicEventArgs   e)
+        internal void Server_ClientSubscribedTopic(object sender, MqttServerClientSubscribedTopicEventArgs e)
         {
             _logger.LogInformation($"Client [{e.ClientId}] subscribed [{e.TopicFilter}]");
             if (e.TopicFilter.Topic.StartsWith("$SYS/"))
@@ -79,13 +141,10 @@ namespace IoTSharp.Handlers
                     Task.Run(() => _serverEx.PublishAsync("$SYS/broker/uptime", uptime.ToString()));
                 }
             }
-            if (e.TopicFilter.Topic.ToLower().StartsWith("/Telemetry/"))
+            if (e.TopicFilter.Topic.ToLower().StartsWith("/devices/telemetry"))///devices/attributes
             {
-                if (Devices.ContainsKey(e.ClientId))
-                {
-                   
-                  
-                }
+
+
             }
             else
             {
@@ -96,7 +155,7 @@ namespace IoTSharp.Handlers
 
         }
 
-        internal void Server_ClientUnsubscribedTopic(object sender, MqttServerClientUnsubscribedTopicEventArgs   e)
+        internal void Server_ClientUnsubscribedTopic(object sender, MqttServerClientUnsubscribedTopicEventArgs e)
         {
             _logger.LogInformation($"Client [{e.ClientId}] unsubscribed[{e.TopicFilter}]");
             if (!e.TopicFilter.StartsWith("$SYS/"))
@@ -105,9 +164,9 @@ namespace IoTSharp.Handlers
                 Task.Run(() => _serverEx.PublishAsync("$SYS/broker/subscriptions/count", Subscribed.ToString()));
             }
         }
-        internal static  Dictionary<string, Device> Devices = new Dictionary<string, Device>();
+        internal static Dictionary<string, Device> Devices = new Dictionary<string, Device>();
         public static string MD5Sum(string text) => BitConverter.ToString(MD5.Create().ComputeHash(Encoding.UTF8.GetBytes(text))).Replace("-", "");
-        internal void Server_ClientConnectionValidator(object sender, MqttServerClientConnectionValidatorEventArgs   e)
+        internal void Server_ClientConnectionValidator(object sender, MqttServerClientConnectionValidatorEventArgs e)
         {
             MqttConnectionValidatorContext obj = e.Context;
             Uri uri = new Uri("mqtt://" + obj.Endpoint);
@@ -119,8 +178,8 @@ namespace IoTSharp.Handlers
             else
             {
                 _logger.LogInformation($"ClientId={obj.ClientId},Endpoint={obj.Endpoint},Username={obj.Username}，Password={obj.Password},WillMessage={obj.WillMessage?.ConvertPayloadToString()}");
-                var mcr = _dbContext.DeviceIdentities.FirstOrDefault(mc => (mc.IdentityType == IdentityType.AccessToken && mc.IdentityId == obj.Username) 
-                                                                            || (mc.IdentityType== IdentityType.DevicePassword && mc.IdentityId==obj.Username && mc.IdentityValue==obj.Password));
+                var mcr = _dbContext.DeviceIdentities.FirstOrDefault(mc => (mc.IdentityType == IdentityType.AccessToken && mc.IdentityId == obj.Username)
+                                                                            || (mc.IdentityType == IdentityType.DevicePassword && mc.IdentityId == obj.Username && mc.IdentityValue == obj.Password));
                 if (mcr != null)
                 {
                     try

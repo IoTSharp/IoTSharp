@@ -93,4 +93,9 @@ namespace IoTSharp.Data
         MQTTClient
           
     }
+    public enum DeviceType
+    {
+        Device =0,
+        Gateway =1
+    }
 }
