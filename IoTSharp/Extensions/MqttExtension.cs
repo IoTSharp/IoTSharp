@@ -60,6 +60,7 @@ namespace IoTSharp
                     server.ClientSubscribedTopicHandler = new MqttServerClientSubscribedHandlerDelegate(args => mqttEvents.Server_ClientSubscribedTopic(server, args));
                     server.ClientUnsubscribedTopicHandler = new MqttServerClientUnsubscribedTopicHandlerDelegate(args => mqttEvents.Server_ClientUnsubscribedTopic(server, args));
                     server.ClientConnectionValidatorHandler = new MqttServerClientConnectionValidatorHandlerDelegate(args => mqttEvents.Server_ClientConnectionValidator(server, args));
+                    server.ClientDisconnectedHandler = new MqttServerClientDisconnectedHandlerDelegate(args => mqttEvents.Server_ClientDisconnected(server, args));
  
                 });
 
