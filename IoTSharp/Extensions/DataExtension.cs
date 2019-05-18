@@ -1,4 +1,6 @@
 ﻿using IoTSharp.Data;
+using MQTTnet;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -60,6 +62,44 @@ namespace IoTSharp.Extensions
             int ret = await _context.SaveChangesAsync();
             return (ret, exceptions);
         }
+        public static object JPropertyToObject(this JProperty property)
+        {
+            object obj = null;
+            switch (property.Value.Type)
+            {
+                case JTokenType.Integer:
+                    obj = property.Value.ToObject<int>();
+                    break;
+                case JTokenType.Float:
+                    obj = property.Value.ToObject<float>();
+                    break;
+                case JTokenType.String:
+                    obj = property.Value.ToObject<string>();
+                    break;
+                case JTokenType.Boolean:
+                    obj = property.Value.ToObject<bool>();
+                    break;
+                case JTokenType.Date:
+                    obj = property.Value.ToObject<DateTime>();
+                    break;
+                case JTokenType.Bytes:
+                    obj = property.Value.ToObject<byte[]>();
+                    break;
+                case JTokenType.Guid:
+                    obj = property.Value.ToObject<Guid>();
+                    break;
+                case JTokenType.Uri:
+                    obj = property.Value.ToObject<Uri>();
+                    break;
+                case JTokenType.TimeSpan:
+                    obj = property.Value.ToObject<TimeSpan>();
+                    break;
+                default:
+                    obj = property.Value;
+                    break;
+            }
+            return obj;
+        }
         internal static void FillKVToMe<T>(this T tdata, KeyValuePair<string, object> kp) where T : DataStorage
         {
             switch (Type.GetTypeCode(kp.Value.GetType()))
@@ -118,6 +158,20 @@ namespace IoTSharp.Extensions
                     }
                     break;
             }
+        }
+        public static Dictionary<string, object> ConvertPayloadToDictionary(this MqttApplicationMessage msg)
+        {
+            var jojb = JToken.Parse(msg.ConvertPayloadToString());
+            Dictionary<string, object> keyValues = new Dictionary<string, object>();
+            if (jojb.Type != JTokenType.Array)
+            {
+                jojb.Children().ToList().ForEach(a => keyValues.Add(((JProperty)a).Name, ((JProperty)a).JPropertyToObject()));
+            }
+            else
+            {
+                jojb.Children().ToList().ForEach(jt => jt.Children().ToList().ForEach(a => keyValues.Add(((JProperty)a).Name, ((JProperty)a).JPropertyToObject())));
+            }
+            return keyValues;
         }
     }
 }

@@ -66,10 +66,11 @@ namespace IoTSharp.Handlers
                 received += e.ApplicationMessage.Payload.Length;
             }
             string topic = e.ApplicationMessage.Topic;
-            var tpary = topic.Split('/');
+            var tpary = topic.Split('/', StringSplitOptions.RemoveEmptyEntries);
             if (tpary.Length >= 3 && tpary[0] == "devices" && Devices.ContainsKey(e.ClientId))
             {
                 Device device = JudgeOrCreateNewDevice(tpary, Devices[e.ClientId]);
+                var  keyValues = e.ApplicationMessage.ConvertPayloadToDictionary();
                 if (device != null)
                 {
                     if (tpary[2] == "telemetry")
@@ -78,8 +79,7 @@ namespace IoTSharp.Handlers
                         {
                             try
                             {
-                                var telemetrys = Newtonsoft.Json.JsonConvert.DeserializeObject<Dictionary<string, object>>(e.ApplicationMessage.ConvertPayloadToString());
-                                var result = await _dbContext.SaveAsync<TelemetryLatest, TelemetryData>(telemetrys, device, DataSide.ClientSide);
+                                var result = await _dbContext.SaveAsync<TelemetryLatest, TelemetryData>(keyValues, device, DataSide.ClientSide);
                             }
                             catch (Exception ex)
                             {
@@ -93,8 +93,8 @@ namespace IoTSharp.Handlers
                         {
                             try
                             {
-                                var attributes = Newtonsoft.Json.JsonConvert.DeserializeObject<Dictionary<string, object>>(e.ApplicationMessage.ConvertPayloadToString());
-                                var result = await _dbContext.SaveAsync<AttributeLatest, AttributeData>(attributes, device, DataSide.ClientSide);
+                              
+                                var result = await _dbContext.SaveAsync<AttributeLatest, AttributeData>(keyValues, device, DataSide.ClientSide);
                             }
                             catch (Exception ex)
                             {
@@ -109,6 +109,19 @@ namespace IoTSharp.Handlers
 
 
 
+        }
+
+        internal void Server_ClientDisconnected(IMqttServerEx server, MqttServerClientDisconnectedEventArgs args)
+        {
+            try
+            {
+                Devices.Remove(args.ClientId);
+            }
+            catch (Exception)
+            {
+
+             
+            }
         }
 
         private Device JudgeOrCreateNewDevice(string[] tpary, Device device)
@@ -187,14 +200,17 @@ namespace IoTSharp.Handlers
             else
             {
                 _logger.LogInformation($"ClientId={obj.ClientId},Endpoint={obj.Endpoint},Username={obj.Username}，Password={obj.Password},WillMessage={obj.WillMessage?.ConvertPayloadToString()}");
-                var mcr = _dbContext.DeviceIdentities.FirstOrDefault(mc => (mc.IdentityType == IdentityType.AccessToken && mc.IdentityId == obj.Username)
+                var mcr = _dbContext.DeviceIdentities.Include(d=>d.Device).FirstOrDefault(mc => (mc.IdentityType == IdentityType.AccessToken && mc.IdentityId == obj.Username)
                                                                             || (mc.IdentityType == IdentityType.DevicePassword && mc.IdentityId == obj.Username && mc.IdentityValue == obj.Password));
                 if (mcr != null)
                 {
                     try
                     {
                         var device = mcr.Device;
-                        Devices.Add(e.Context.ClientId, device);
+                        if (!Devices.ContainsKey(e.Context.ClientId))
+                        {
+                            Devices.Add(e.Context.ClientId, device);
+                        }
                     }
                     catch (Exception ex)
                     {
