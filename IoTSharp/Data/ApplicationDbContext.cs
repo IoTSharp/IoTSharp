@@ -1,5 +1,4 @@
-﻿using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using System;
@@ -44,6 +43,10 @@ namespace IoTSharp.Data
             modelBuilder.Entity<AttributeLatest>().HasDiscriminator<DataCatalog>(nameof(Data.DataStorage.Catalog));
             modelBuilder.Entity<TelemetryData>().HasDiscriminator<DataCatalog>(nameof(Data.DataStorage.Catalog));
             modelBuilder.Entity<TelemetryLatest>().HasDiscriminator<DataCatalog>(nameof(Data.DataStorage.Catalog));
+
+            modelBuilder.Entity<Device>().HasDiscriminator<DeviceType>(nameof(Data.Device.DeviceType)).HasValue<Gateway>(DeviceType.Gateway).HasValue<Device>(DeviceType.Device);
+
+            modelBuilder.Entity<Gateway>().HasDiscriminator<DeviceType>(nameof(Data.Device.DeviceType));
 
             switch (DatabaseType)
             {
@@ -104,8 +107,6 @@ namespace IoTSharp.Data
             modelBuilder.Entity<AuditLog>()
             .Property(b => b.ActionResult)
             .HasColumnType("jsonb");
-
- 
         }
 
         private void ForSqlServer(ModelBuilder modelBuilder)
@@ -131,6 +132,7 @@ namespace IoTSharp.Data
         public DbSet<Customer> Customer { get; set; }
         public DbSet<Relationship> Relationship { get; set; }
         public DbSet<Device> Device { get; set; }
+        public DbSet<Gateway> Gateway { get; set; }
         public DbSet<TelemetryData> TelemetryData { get; set; }
         public DbSet<AttributeLatest> AttributeLatest { get; set; }
         public DbSet<DataStorage> DataStorage { get; set; }

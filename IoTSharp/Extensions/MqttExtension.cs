@@ -101,7 +101,7 @@ namespace IoTSharp
                                      .WithClientId("buind-in")
                                      .WithTcpServer((setting.MqttBroker == "built-in" || string.IsNullOrEmpty(setting.MqttBroker)) ? "127.0.0.1" : setting.MqttBroker, setting.Port)
                                      .WithCredentials(setting.UserName, setting.Password)
-                                     .WithCleanSession()
+                                     .WithCleanSession()//.WithProtocolVersion (MQTTnet.Formatter.MqttProtocolVersion.V500)
                                      .Build());
             services.AddHostedService <MqttClientService>();
         }
