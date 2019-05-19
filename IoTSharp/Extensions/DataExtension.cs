@@ -162,12 +162,12 @@ namespace IoTSharp.Extensions
                     if (kp.Value.GetType() == typeof(byte[]))
                     {
                         tdata.Type = DataType.Binary;
-                        tdata.Value_Boolean = (bool)kp.Value;
+                        tdata.Value_Binary = (byte[])kp.Value;
                     }
                     else if (kp.Value.GetType() == typeof(System.Xml.XmlDocument))
                     {
                         tdata.Type = DataType.XML;
-                        tdata.Value_XML = ((System.Xml.XmlDocument)kp.Value).ToString();
+                        tdata.Value_XML = ((System.Xml.XmlDocument)kp.Value).InnerXml;
                     }
                     else
                     {

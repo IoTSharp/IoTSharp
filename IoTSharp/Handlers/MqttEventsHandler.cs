@@ -70,9 +70,41 @@ namespace IoTSharp.Handlers
             if (tpary.Length >= 3 && tpary[0] == "devices" && Devices.ContainsKey(e.ClientId))
             {
                 Device device = JudgeOrCreateNewDevice(tpary, Devices[e.ClientId]);
-                var  keyValues = e.ApplicationMessage.ConvertPayloadToDictionary();
                 if (device != null)
                 {
+                    Dictionary<string, object> keyValues = new Dictionary<string, object>();
+                    if (tpary.Length >= 4)
+                    {
+                        string keyname = tpary.Length >= 5 ? tpary[4] : tpary[3];
+                        if (tpary[3].ToLower() == "xml")
+                        {
+                            try
+                            {
+                                var xml = new System.Xml.XmlDocument();
+                                xml.LoadXml(e.ApplicationMessage.ConvertPayloadToString());
+                                keyValues.Add(keyname, xml);
+                            }
+                            catch (Exception ex)
+                            {
+                                _logger.LogWarning(ex, $"xml data error {topic},{ex.Message}");
+                            }
+                        }
+                        else if (tpary[3].ToLower() == "binary")
+                        {
+                            keyValues.Add(keyname, e.ApplicationMessage.Payload);
+                        }
+                    }
+                    else
+                    {
+                        try
+                        {
+                            keyValues = e.ApplicationMessage.ConvertPayloadToDictionary();
+                        }
+                        catch (Exception ex)
+                        {
+                            _logger.LogWarning(ex, $"ConvertPayloadToDictionary   Error {topic},{ex.Message}");
+                        }
+                    }
                     if (tpary[2] == "telemetry")
                     {
                         Task.Run(async () =>
@@ -93,7 +125,7 @@ namespace IoTSharp.Handlers
                         {
                             try
                             {
-                              
+
                                 var result = await _dbContext.SaveAsync<AttributeLatest, AttributeData>(keyValues, device, DataSide.ClientSide);
                             }
                             catch (Exception ex)
@@ -105,10 +137,7 @@ namespace IoTSharp.Handlers
                     }
                 }
             }
-
-
-
-
+        
         }
 
         internal void Server_ClientDisconnected(IMqttServerEx server, MqttServerClientDisconnectedEventArgs args)
