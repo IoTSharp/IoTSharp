@@ -1,4 +1,5 @@
-﻿using System;
+﻿using IoTSharp.Sdk.CSharp;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
@@ -9,7 +10,7 @@ namespace IoTSharp.Sdk
 {
     public static class SdkClient
     {
-        public static LoginResult Session { get; set; }
+        public static Session Session { get; set; }
         public static UserInfoDto MyInfo { get; set; }
 
         public static string BaseURL { get; set; } = "http://localhost:51498";
@@ -22,9 +23,9 @@ namespace IoTSharp.Sdk
             return t;
         }
 
-        public static async Task<LoginResult> LoginAsync(this AccountClient client, string username, string password)
+        public static async Task<Session> LoginAsync(this AccountClient client, string username, string password)
         {
-            Session = await client.LoginAsync(new LoginDto() {  UserName = username, Password = password });
+            Session = await client.LoginAsync(new LoginDto() { UserName = username, Password = password });
             var token = Session.Token;
             HttpClient.DefaultRequestHeaders.Add("Authorization", $"Bearer {token.Access_token}");
             ApiResultOfUserInfoDto userInfoDto = await client.MyInfoAsync();
