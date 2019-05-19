@@ -129,13 +129,14 @@ namespace IoTSharp.Handlers
             Device devicedatato = device;
             if (tpary[1] != "me" && device.DeviceType == DeviceType.Gateway)
             {
-                var ch = from g in _dbContext.Gateway.Include(c => c.Children) where g.Id == device.Id select g;
+                var ch = from g in _dbContext.Gateway.Include(g=>g.Tenant).Include(g=>g.Customer).Include(c => c.Children) where g.Id == device.Id select g;
                 var gw = ch.FirstOrDefault();
                 var subdev = from cd in  gw.Children where cd.Name == tpary[1] select cd;
                 if (!subdev.Any())
                 {
-                    devicedatato = new Device() { Id = Guid.NewGuid(), Name = tpary[1], DeviceType = DeviceType.Device, Tenant = device.Tenant, Customer = device.Customer };
+                    devicedatato = new Device() { Id = Guid.NewGuid(), Name = tpary[1], DeviceType = DeviceType.Device, Tenant = gw.Tenant, Customer = gw.Customer, Owner=gw };
                     gw.Children.Add(devicedatato);
+                    _dbContext.AfterCreateDevice(devicedatato);
                     _dbContext.SaveChangesAsync();
                 }
                 else

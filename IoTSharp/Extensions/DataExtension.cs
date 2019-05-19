@@ -20,7 +20,7 @@ namespace IoTSharp.Extensions
             return (ok, devices.FirstOrDefault());
         }
         /// <summary>
-        ///
+        /// Save Data to Device's <typeparamref name="D"/> and <typeparamref name="L"/>
         /// </summary>
         /// <typeparam name="L">Latest</typeparam>
         /// <typeparam name="D">Data</typeparam>
@@ -28,6 +28,24 @@ namespace IoTSharp.Extensions
         /// <param name="device"></param>
         /// <returns></returns>
         internal static async Task<(int ret, Dic exceptions)> SaveAsync<L, D>(this ApplicationDbContext _context, Dictionary<string, object> data, Device device, DataSide dataSide) where L : DataStorage, new() where D : DataStorage, new()
+        {
+            Dic exceptions = _context.PreparingData<L, D>( data, device, dataSide);
+            int ret = await _context.SaveChangesAsync();
+            return (ret, exceptions);
+        }
+        /// <summary>
+        /// Preparing Data to Device's <typeparamref name="D"/> and <typeparamref name="L"/>
+        /// </summary>
+        /// <typeparam name="L"></typeparam>
+        /// <typeparam name="D"></typeparam>
+        /// <param name="_context"></param>
+        /// <param name="data"></param>
+        /// <param name="device"></param>
+        /// <param name="dataSide"></param>
+        /// <returns></returns>
+        internal static Dic PreparingData<L, D>(this ApplicationDbContext _context, Dictionary<string, object> data, Device device, DataSide dataSide)
+            where L : DataStorage, new()
+            where D : DataStorage, new()
         {
             Dic exceptions = new Dic();
             data.ToList().ForEach(kp =>
@@ -59,9 +77,9 @@ namespace IoTSharp.Extensions
                     exceptions.Add(kp.Key, ex.Message);
                 }
             });
-            int ret = await _context.SaveChangesAsync();
-            return (ret, exceptions);
+            return exceptions;
         }
+
         public static object JPropertyToObject(this JProperty property)
         {
             object obj = null;
