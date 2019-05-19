@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
@@ -119,7 +120,9 @@ namespace IoTSharp.Controllers
             {
                 var user = new IdentityUser
                 {
-                    Email = model.Email
+                    Email = model.Email,
+                    UserName = model.Email,
+                    PhoneNumber = model.PhoneNumber
                 };
                 var result = await _userManager.CreateAsync(user, model.Password);
 
@@ -127,14 +130,14 @@ namespace IoTSharp.Controllers
                 {
                     await _signInManager.SignInAsync(user, false);
                     await _signInManager.UserManager.AddClaimAsync(user, new Claim(ClaimTypes.Email, model.Email));
-                    var customer = _context.Customer.FirstOrDefault(c => c.Name == model.CustomerName);
+                    var customer = await _context.Customer.Include(c=>c.Tenant).FirstOrDefaultAsync(c=>c.Id== model.CustomerId);
                     if (customer != null)
                     {
                         await _signInManager.UserManager.AddClaimAsync(user, new Claim(ClaimTypes.Email, model.Email));
                         await _signInManager.UserManager.AddClaimAsync(user, new Claim(IoTSharpClaimTypes.Customer, customer.Id.ToString()));
                         await _signInManager.UserManager.AddClaimAsync(user, new Claim(IoTSharpClaimTypes.Tenant, customer.Tenant.Id.ToString()));
                         await _signInManager.UserManager.AddToRolesAsync(user, new[] { nameof(UserRole.NormalUser) });
-                        actionResult = CreatedAtAction(nameof(this.Login), new LoginDto() { UserName = model.Email, Password = model.Password });
+                        actionResult = CreatedAtAction(nameof(this.Login), new LoginDto() { UserName = model.Email,  Password = model.Password });
                     }
                 }
                 else
@@ -151,5 +154,26 @@ namespace IoTSharp.Controllers
 
             return actionResult;
         }
+
+        [HttpGet("{customerId}")]
+        public async Task<ActionResult<List<UserItemDto>>> All(Guid customerId)
+        {
+            List<UserItemDto> dtos = new List<UserItemDto>();
+            var users = await _userManager.GetUsersForClaimAsync (_signInManager.Context.User.FindFirst( m=> m.Type==  IoTSharpClaimTypes.Customer && m.Value==customerId.ToString()));
+            users.ToList().ForEach(async c =>
+            {
+                var uid = new UserItemDto()
+                {
+                    Id =c.Id,
+                    Email = c.Email,
+                    Roles = new List<string>(await _userManager.GetRolesAsync(c)),
+                    PhoneNumber = c.PhoneNumber,
+                    AccessFailedCount = c.AccessFailedCount 
+                };
+                dtos.Add(uid);
+            });
+            return dtos;
+        }
+
     }
 }

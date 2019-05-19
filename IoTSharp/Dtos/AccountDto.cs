@@ -18,7 +18,7 @@ namespace IoTSharp.Dtos
         public Microsoft.AspNetCore.Identity.SignInResult SignIn { get; set; }
         public bool Succeeded { get; set; }
         public TokenEntity Token { get; set; }
-        public IList<string> Roles { get;  set; }
+        public IList<string> Roles { get; set; }
     }
 
     public class LoginDto
@@ -34,12 +34,22 @@ namespace IoTSharp.Dtos
     {
         [Required]
         public string Email { get; set; }
-
         [Required]
-        public string CustomerName { get; set; }
+        public string PhoneNumber { get; set; }
+        [Required]
+        public Guid CustomerId { get; set; }
 
         [Required]
         [StringLength(100, ErrorMessage = "PASSWORD_MIN_LENGTH", MinimumLength = 6)]
         public string Password { get; set; }
+    }
+
+    public class UserItemDto
+    {
+        public string Email { get; set; }
+        public List<string> Roles { get; set; } = new List<string>();
+        public string PhoneNumber { get;  set; }
+        public int AccessFailedCount { get;  set; }
+        public string Id { get;  set; }
     }
 }
