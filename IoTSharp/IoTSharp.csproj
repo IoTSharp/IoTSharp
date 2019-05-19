@@ -45,7 +45,7 @@
     <RpmDependency Include="libicu" Version="50.1.2" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Packaging.Targets" Version="0.1.78" />
+    <PackageReference Include="Packaging.Targets" Version="0.1.70" />
     <DotNetCliToolReference Include="dotnet-tarball" Version="0.1.70" />
     <DotNetCliToolReference Include="dotnet-zip" Version="0.1.70" />
     <DotNetCliToolReference Include="dotnet-rpm" Version="0.1.70" />
