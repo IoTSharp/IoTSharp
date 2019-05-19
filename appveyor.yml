@@ -2,6 +2,12 @@ version: 1.0.{build}
 image: Visual Studio 2017
 init:
 - ps: Install-Product node $env:nodejs_version
+assembly_info:
+  patch: true
+  file: '**\AssemblyInfo.*'
+  assembly_version: '{version}'
+  assembly_file_version: '{version}'
+  assembly_informational_version: '{version}'
 dotnet_csproj:
   patch: true
   file: '**\*.csproj'
@@ -17,13 +23,16 @@ install:
     git submodule sync --recursive
 
     git submodule update --init --recursive
+
+    dotnet tool install --global dotnet-zip
+
+    dotnet tool install --global dotnet-tarball
+
+    dotnet tool install --global dotnet-rpm
+
+    dotnet tool install --global dotnet-deb
 build_script:
-- cmd: >-
-    dotnet msbuild IoTSharp/IoTSharp.csproj /t:CreateDeb  /p:TargetFramework=netcoreapp2.2 /p:RuntimeIdentifier=ubuntu.16.04-x64/p:Configuration=Release
-
-    dotnet msbuild IoTSharp/IoTSharp.csproj /t:CreateRpm /p:TargetFramework=netcoreapp2.2 /p:RuntimeIdentifier=rhel.7-x64 /p:Configuration=Release
-
-    dotnet msbuild IoTSharp/IoTSharp.csproj /t:CreateZip /p:TargetFramework=netcoreapp2.2 /p:RuntimeIdentifier=win7-x64 /p:Configuration=Release
+- cmd: "dotnet msbuild IoTSharp/IoTSharp.csproj /t:CreateDeb  /p:TargetFramework=netcoreapp2.2  /p:RuntimeIdentifier=ubuntu.16.04-x64  \n       /p:Configuration=Release \ndotnet msbuild IoTSharp/IoTSharp.csproj /t:CreateRpm \n       /p:TargetFramework=netcoreapp2.2 /p:RuntimeIdentifier=rhel.7-x64 \n        /p:Configuration=Release\ndotnet msbuild IoTSharp/IoTSharp.csproj /t:CreateZip \n      /p:TargetFramework=netcoreapp2.2 /p:RuntimeIdentifier=win7-x64 \n       /p:Configuration=Release"
 artifacts:
 - path: IoTSharp\bin\Release\netcoreapp2.2\ubuntu.16.04-x64\*.deb
   name: IoTSharp.ubuntu
