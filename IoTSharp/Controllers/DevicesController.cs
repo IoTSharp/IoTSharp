@@ -136,7 +136,7 @@ namespace IoTSharp.Controllers
         // PUT: api/Devices/5
         [Authorize(Roles = nameof(UserRole.CustomerAdmin))]
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutDevice(Guid id, Device device)
+        public async Task<IActionResult> PutDevice(Guid id, DevicePutDto device)
         {
             if (id != device.Id)
             {
@@ -145,7 +145,7 @@ namespace IoTSharp.Controllers
 
             var cid = User.Claims.First(c => c.Type == IoTSharpClaimTypes.Customer);
             var tid = User.Claims.First(c => c.Type == IoTSharpClaimTypes.Tenant);
-            var dev = _context.Device.First(d => d.Id == device.Id);
+            var dev = _context.Device.Include(d=>d.Tenant).Include(d=>d.Customer).First(d => d.Id == device.Id);
             var tenid = dev.Tenant.Id;
             var cusid = dev.Customer.Id;
 
@@ -157,9 +157,7 @@ namespace IoTSharp.Controllers
             {
                 return BadRequest(new ApiResult(ApiCode.DoNotAllow, $"Do not allow access to devices from other customers or tenants"));
             }
-
-            _context.Entry(device).State = EntityState.Modified;
-
+            dev.Name = device.Name;
             try
             {
                 await _context.SaveChangesAsync();
@@ -199,12 +197,7 @@ namespace IoTSharp.Controllers
                 return NotFound(new ApiResult<Device>(ApiCode.NotFoundTenantOrCustomer, $"Not found Tenant or Customer ", device));
             }
             _context.Device.Add(device);
-            _context.DeviceIdentities.Add(new DeviceIdentity()
-            {
-                Device = device,
-                IdentityType = IdentityType.AccessToken,
-                IdentityId = Guid.NewGuid().ToString().Replace("-", "")
-            });
+            _context.AfterCreateDevice(device);
             await _context.SaveChangesAsync();
             return await GetDevice(device.Id);
         }
