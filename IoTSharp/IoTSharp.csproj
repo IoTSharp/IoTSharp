@@ -46,10 +46,7 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Packaging.Targets" Version="0.1.78" />
-    <DotNetCliToolReference Include="dotnet-tarball" Version="0.1.78" />
-    <DotNetCliToolReference Include="dotnet-zip" Version="0.1.78" />
-    <DotNetCliToolReference Include="dotnet-rpm" Version="0.1.78" />
-    <DotNetCliToolReference Include="dotnet-deb" Version="0.1.78" />
+
   </ItemGroup>
   <ItemGroup>
     <Compile Remove="Migrations\**" />
