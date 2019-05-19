@@ -68,12 +68,14 @@ namespace IoTSharp.Controllers
                 {
                     var appUser = _userManager.Users.SingleOrDefault(r => r.Email == model.UserName);
                     var token = await _userManager.GenerateJwtTokenAsync(appUser);
+                    var roles = await _userManager.GetRolesAsync(appUser);
                     return Ok(new LoginResult()
                     {
                         Succeeded = result.Succeeded,
                         Token = token,
                         UserName = appUser.UserName,
-                        SignIn = result
+                        SignIn = result,
+                        Roles = roles
                     });
                 }
                 else

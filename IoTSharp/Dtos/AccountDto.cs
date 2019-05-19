@@ -18,6 +18,7 @@ namespace IoTSharp.Dtos
         public Microsoft.AspNetCore.Identity.SignInResult SignIn { get; set; }
         public bool Succeeded { get; set; }
         public TokenEntity Token { get; set; }
+        public IList<string> Roles { get;  set; }
     }
 
     public class LoginDto
