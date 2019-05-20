@@ -5,8 +5,9 @@ pre: "<b>1. </b>"
 chapter: true
 ---
 
-### Chapter 1
+# Introduction 
 
-# Basics
+# What is IoTSharp
 
-Discover what this IotSharp
+IoTSharp is an open source IoT platform with data collection, data processing, data visualization, multi-tenant device management, and more
+

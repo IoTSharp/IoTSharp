@@ -1,6 +1,6 @@
 baseURL = "/"
-languageCode = "en-US"
-defaultContentLanguage = "en"
+languageCode = "zh-cn"
+defaultContentLanguage = "zh-cn"
 
 title = "IoTSharp Documentation"
 theme = "docs"
@@ -37,9 +37,9 @@ url = "showcase"
 weight = 11
 
 [[Languages.en.menu.shortcuts]]
-name = "<i class='fas fa-fw fa-bookmark'></i> IoTSharp Documentation"
-identifier = "iotsharpdoc"
-url = "https://docs.iotsharp.io/"
+name = "<i class='fas fa-fw fa-bookmark'></i> IoTSharp Home Page"
+identifier = "iotsharhome"
+url = "https://iotsharp.io/"
 weight = 20
 
 [[Languages.en.menu.shortcuts]]
@@ -64,9 +64,9 @@ url = "/showcase"
 weight = 11
 
 [[Languages.zh-cn.menu.shortcuts]]
-name = "<i class='fas fa-fw fa-bookmark'></i> IoTSharp 文档"
+name = "<i class='fas fa-fw fa-bookmark'></i> IoTSharp 首页"
 identifier = "iotsharpdoc"
-url = "https://docs.iotsharp.io/"
+url = "https://iotsharp.io/"
 weight = 20
 
 [[Languages.zh-cn.menu.shortcuts]]
