@@ -2,29 +2,18 @@
 title: "IotSharp"
 ---
 
+
+ 
+
 # IotSharp
 
-[IotSharp](http://github.com/iotsharp/IotSharp) is a theme for [Hugo](https://gohugo.io/), a fast and modern static website engine written in Go. Where Hugo is often used for blogs, this multilingual-ready theme is **fully designed for documentation**.
-
-This theme is a partial porting of the [Learn theme](http://learn.getgrav.org/) of [Grav](https://getgrav.org/), a modern flat-file CMS written in PHP.
+IoTSharp is a. Net Core Open Source IoT Foundation platform that supports HTTP, MQTT protocols, attribute data, and telemetry data protocols with simple types and rich, and is the cornerstone of your IoT system building. 
 
 {{% notice tip %}} 
-aaaaaaaaaa
+The Web UI interface has not yet been developed, so after deployment, only the API and Swagger interface, there is no other content. If you are interested in developing a Web version of the UI, you can join the  <https://github.com/IoTSharp/IoTSharp.ClientApp> 
+
+If you like the desktop version of the interface, you can join the  <https://github.com/IoTSharp/Cicada> 
+
 {{% /notice %}}
 
  
-![Screenshot](https://github.com/matcornic/hugo-theme-learn/raw/master/images/screenshot.png?width=40pc&classes=shadow)
-
-## Contribute to this documentation
-Feel free to update this content, just click the **Edit this page** link displayed on top right of each page, and pullrequest it
-
-{{% notice info %}}
-Your modification will be deployed automatically when merged.
-{{% /notice %}}
-
-## Documentation website
-This current documentation has been statically generated with Hugo with a simple command : `hugo -t hugo-theme-learn` -- source code is [available here at GitHub](https://github.com/matcornic/hugo-theme-learn)
-
-{{% notice note %}}
-Automatically published and hosted thanks to [Netlify](https://www.netlify.com/). Read more about [Automated HUGO deployments with Netlify](https://www.netlify.com/blog/2015/07/30/hosting-hugo-on-netlifyinsanely-fast-deploys/)
-{{% /notice %}}
