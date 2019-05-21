@@ -45,6 +45,7 @@
     <RpmDependency Include="libicu" Version="50.1.2" />
   </ItemGroup>
   <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Hosting.WindowsServices" Version="2.2.0" />
     <PackageReference Include="Packaging.Targets" Version="0.1.78" />
 
   </ItemGroup>

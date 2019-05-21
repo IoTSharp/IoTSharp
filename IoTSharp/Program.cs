@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using IoTSharp.Extensions;
 using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -15,8 +16,7 @@ namespace IoTSharp
     {
         public static void Main(string[] args)
         {
-            Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
-            CreateWebHostBuilder(args).Build().Run();
+            CreateWebHostBuilder(args).Build().RunAsEnv();
         }
 
         public static IWebHostBuilder CreateWebHostBuilder(string[] args) =>
