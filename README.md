@@ -7,7 +7,6 @@
 IoTSharp is an open-source IoT platform for data collection, processing, visualization, and device management.
 
 
-
 ## Contributing
  - If you'd like to contribute to IoTSharp, please take a look at our [Contributing Guide](contributing.md).
  - If you have a question or have found a bug,[ file an issue.](https://github.com/IoTSharp/IoTSharp/issues)
@@ -18,6 +17,11 @@ IoTSharp is an open-source IoT platform for data collection, processing, visuali
  - [Stackoverflow](http://stackoverflow.com/questions/tagged/iotsharp)
 
 ## [Document](https://docs.iotsharp.io)
+
+## IoTSharp's Clients and Sdks
+ - Cicada    A desktop application  https://github.com/IoTSharp/Cicada
+ - C Client SDK for IoTSharp  https://github.com/IoTSharp/IoTSharp-C-Client-Sdk
+ - C# Client SDK for IoTSharp  https://github.com/IoTSharp/IoTSharp.SDKs 
 
 
 ![IotSharp Logo](docs/images/iot_sharp_logo.png)
