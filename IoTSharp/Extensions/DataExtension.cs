@@ -179,7 +179,11 @@ namespace IoTSharp.Extensions
         }
         public static Dictionary<string, object> ConvertPayloadToDictionary(this MqttApplicationMessage msg)
         {
-            var jojb = JToken.Parse(msg.ConvertPayloadToString());
+            return JToken.Parse(msg.ConvertPayloadToString())?.JsonToDictionary();
+        }
+
+        public static Dictionary<string, object> JsonToDictionary(this JToken jojb)
+        {
             Dictionary<string, object> keyValues = new Dictionary<string, object>();
             if (jojb.Type != JTokenType.Array)
             {

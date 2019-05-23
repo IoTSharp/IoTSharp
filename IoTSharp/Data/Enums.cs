@@ -98,4 +98,9 @@ namespace IoTSharp.Data
         Device =0,
         Gateway =1
     }
+    public enum CoApRes
+    {
+        Attributes,
+        Telemetry,
+    }
 }
