@@ -15,9 +15,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IoTSharp.Test", "IoTSharp.T
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IoTSharp", "IoTSharp\IoTSharp.csproj", "{CCD2C255-72D2-4A25-B0E9-E30FBEF774C7}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CoAPClient", "CoAPClient\CoAPClient.csproj", "{EE801BD6-5757-4A55-BC94-7FBA6E98F393}"
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Clients", "Clients", "{897B15C4-C504-4B7C-B01F-E6162959B665}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CoAPClient", "Clients\CoAPClient\CoAPClient.csproj", "{EE801BD6-5757-4A55-BC94-7FBA6E98F393}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
