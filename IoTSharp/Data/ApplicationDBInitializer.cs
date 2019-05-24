@@ -36,24 +36,23 @@ namespace IoTSharp.Data
             _role = role;
         }
 
-        public void SeedRoleAsync()
+        public async Task SeedRoleAsync()
         {
             var roles = new IdentityRole[]{new IdentityRole(nameof(UserRole.Anonymous))
                     , new IdentityRole(nameof(UserRole.NormalUser))
                     , new IdentityRole(nameof(UserRole.CustomerAdmin))
                     , new IdentityRole(nameof(UserRole.TenantAdmin))
                     , new IdentityRole(nameof(UserRole.SystemAdmin)) };
-            roles.ToList().ForEach(async role =>
+            foreach (var role in roles)
             {
-                await _role.CreateAsync(role).ContinueWith(async ir =>
+                if (!await _role.RoleExistsAsync(role.Name))
                 {
-                    if (ir.Result.Succeeded)
+                    if ((await _role.CreateAsync(role)).Succeeded)
                     {
                         await _role.UpdateNormalizedRoleNameAsync(role);
                     }
-                });
-            });
-            _context.SaveChanges();
+                };
+            }
         }
 
         public async Task SeedUserAsync(InstallDto model)
