@@ -19,6 +19,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Clients", "Clients", "{897B
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CoAPClient", "Clients\CoAPClient\CoAPClient.csproj", "{EE801BD6-5757-4A55-BC94-7FBA6E98F393}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MQTTClient", "Clients\MQTTClient\MQTTClient\MQTTClient.csproj", "{FD6857C8-295B-492C-B959-C8773149B96D}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -37,12 +39,17 @@ Global
 		{EE801BD6-5757-4A55-BC94-7FBA6E98F393}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{EE801BD6-5757-4A55-BC94-7FBA6E98F393}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{EE801BD6-5757-4A55-BC94-7FBA6E98F393}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FD6857C8-295B-492C-B959-C8773149B96D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FD6857C8-295B-492C-B959-C8773149B96D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FD6857C8-295B-492C-B959-C8773149B96D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FD6857C8-295B-492C-B959-C8773149B96D}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{EE801BD6-5757-4A55-BC94-7FBA6E98F393} = {897B15C4-C504-4B7C-B01F-E6162959B665}
+		{FD6857C8-295B-492C-B959-C8773149B96D} = {897B15C4-C504-4B7C-B01F-E6162959B665}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {CD7ADD62-E3BD-453A-B653-BC70DB9FF817}
