@@ -1,0 +1,35 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="main.c" />
+    <ClCompile Include="mqtt.c" />
+    <ClCompile Include="mqtt_pal.c">
+      <Filter>include</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="templates\bio_sockets.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="mqtt.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="mqtt_pal.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="templates\openssl_sockets.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="templates\posix_sockets.h">
+      <Filter>include</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="include">
+      <UniqueIdentifier>{237da9ec-b626-49d7-ad63-da64c71aada0}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="readme.md" />
+  </ItemGroup>
+</Project>
