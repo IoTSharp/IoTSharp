@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <TargetFramework>netcoreapp2.2</TargetFramework>
-    <RuntimeIdentifiers>win7-x64;rhel.7-x64;ubuntu.16.04-x64</RuntimeIdentifiers>
+    <RuntimeIdentifiers>win7-x64;rhel.7-x64;ubuntu.18.04-x64</RuntimeIdentifiers>
     <PreserveCompilationContext>true</PreserveCompilationContext>
     <CreateUser>true</CreateUser>
     <InstallService>true</InstallService>
@@ -79,7 +79,7 @@
     <PackageReference Include="MQTTnet.Extensions.Rpc" Version="3.0.2" />
     <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="2.2.4" />
     <PackageReference Include="NSwag.AspNetCore" Version="12.3.1" />
-    <PackageReference Include="QuartzHostedService" Version="0.0.4" />
+    <PackageReference Include="QuartzHostedService" Version="0.0.5" />
     <PackageReference Include="System.Text.Encoding.CodePages" Version="4.5.1" />
   </ItemGroup>
   <ProjectExtensions>
