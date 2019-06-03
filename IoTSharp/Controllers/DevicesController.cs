@@ -185,21 +185,21 @@ namespace IoTSharp.Controllers
         // POST: api/Devices
         [Authorize(Roles = nameof(UserRole.CustomerAdmin))]
         [HttpPost]
-        public async Task<ActionResult<Device>> PostDevice(Device device)
+        public async Task<ActionResult<Device>> PostDevice(DevicePostDto device)
         {
             var cid = User.Claims.First(c => c.Type == IoTSharpClaimTypes.Customer);
             var tid = User.Claims.First(c => c.Type == IoTSharpClaimTypes.Tenant);
-
-            device.Tenant = _context.Tenant.Find(new Guid(tid.Value));
-            device.Customer = _context.Customer.Find(new Guid(cid.Value));
-            if (device.Tenant == null || device.Customer == null)
+            var devvalue = new Device() { Name = device.Name, DeviceType = device.DeviceType };
+            devvalue.Tenant = _context.Tenant.Find(new Guid(tid.Value));
+            devvalue.Customer = _context.Customer.Find(new Guid(cid.Value));
+            if (devvalue.Tenant == null || devvalue.Customer == null)
             {
-                return NotFound(new ApiResult<Device>(ApiCode.NotFoundTenantOrCustomer, $"Not found Tenant or Customer ", device));
+                return NotFound(new ApiResult<DevicePostDto>(ApiCode.NotFoundTenantOrCustomer, $"Not found Tenant or Customer ", device));
             }
-            _context.Device.Add(device);
-            _context.AfterCreateDevice(device);
+            _context.Device.Add(devvalue);
+            _context.AfterCreateDevice(devvalue);
             await _context.SaveChangesAsync();
-            return await GetDevice(device.Id);
+            return await GetDevice(devvalue.Id);
         }
 
         // DELETE: api/Devices/5

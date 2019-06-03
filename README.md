@@ -25,3 +25,15 @@ IoTSharp is an open-source IoT platform for data collection, processing, visuali
 
 
 ![IotSharp Logo](docs/images/iot_sharp_logo.png)
+
+## How to install ?
+ -  mkdir  /var/lib/iotsharp/
+ -	cp ./*  /var/lib/iotsharp/
+ -	chmod 777 /var/lib/iotsharp/IoTSharp
+ -	cp  iotsharp.service   /etc/systemd/system/iotsharp.service
+ -	sudo systemctl enable  /etc/systemd/system/iotsharp.service 
+ -	sudo systemctl start  iotsharp.service 
+ -	sudo journalctl -fu  iotsharp.service 
+ -	http://127.0.0.1:80/ 
+ -  
+
