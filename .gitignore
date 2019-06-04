@@ -330,3 +330,4 @@ ASALocalRun/
 .mfractor/
 /healthchecksdb
 /.vscode
+/Clients/MQTTClient/.vscode

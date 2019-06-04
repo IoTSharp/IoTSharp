@@ -19,6 +19,11 @@ namespace MQTTClient
                         .WithTcpServer("localhost")
                         .WithCredentials("3cb97cd31fbc40b08d12ec47a6fad622")//token
                         .Build();
+         client.UseApplicationMessageReceivedHandler(ax=>
+         {
+             Console.WriteLine($"ClientId{ ax.ClientId},msg={ax.ApplicationMessage.ConvertPayloadToString()}");
+         });
+      
             Task.Run(async () =>
             {
                 await client.ConnectAsync(options);
@@ -35,6 +40,8 @@ namespace MQTTClient
                     Console.WriteLine(message.ConvertPayloadToString());
                     await client.PublishAsync(message);
                     await Task.Delay(TimeSpan.FromSeconds(10));
+                    await client.SubscribeAsync("/devices/me/attributes/response/+");
+                    await client.PublishAsync("/devices/me/attributes/request/1", "{\"anySide\":\"Doublevalue,longvalue,Doublevalue,longvalue\"}");
                 } while (Console.ReadKey().Key != ConsoleKey.Escape);
                 await client.DisconnectAsync();
             }).Wait();
