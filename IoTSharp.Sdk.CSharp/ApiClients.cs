@@ -1089,14 +1089,14 @@ namespace IoTSharp.Sdk
         }
     
         /// <exception cref="SwaggerException">A server side error occurred.</exception>
-        public System.Threading.Tasks.Task<Device> PostDeviceAsync(Device device)
+        public System.Threading.Tasks.Task<Device> PostDeviceAsync(DevicePostDto device)
         {
             return PostDeviceAsync(device, System.Threading.CancellationToken.None);
         }
     
         /// <exception cref="SwaggerException">A server side error occurred.</exception>
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
-        public async System.Threading.Tasks.Task<Device> PostDeviceAsync(Device device, System.Threading.CancellationToken cancellationToken)
+        public async System.Threading.Tasks.Task<Device> PostDeviceAsync(DevicePostDto device, System.Threading.CancellationToken cancellationToken)
         {
             var urlBuilder_ = new System.Text.StringBuilder();
             urlBuilder_.Append(BaseUrl != null ? BaseUrl.TrimEnd('/') : "").Append("/api/Devices");
@@ -3256,6 +3256,27 @@ namespace IoTSharp.Sdk
         public static DevicePutDto FromJson(string data)
         {
             return Newtonsoft.Json.JsonConvert.DeserializeObject<DevicePutDto>(data);
+        }
+    
+    }
+    
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "9.13.37.0 (Newtonsoft.Json v11.0.0.0)")]
+    public partial class DevicePostDto 
+    {
+        [Newtonsoft.Json.JsonProperty("name", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string Name { get; set; }
+    
+        [Newtonsoft.Json.JsonProperty("deviceType", Required = Newtonsoft.Json.Required.Always)]
+        public DeviceType DeviceType { get; set; }
+    
+        public string ToJson() 
+        {
+            return Newtonsoft.Json.JsonConvert.SerializeObject(this);
+        }
+    
+        public static DevicePostDto FromJson(string data)
+        {
+            return Newtonsoft.Json.JsonConvert.DeserializeObject<DevicePostDto>(data);
         }
     
     }
