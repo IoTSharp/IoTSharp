@@ -1,4 +1,5 @@
-﻿using System;
+﻿using IoTSharp.Data;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
@@ -14,6 +15,7 @@ namespace IoTSharp.Dtos
 
     public class LoginResult
     {
+        public ApiCode Code { get; set; }
         public string UserName { get; set; }
         public Microsoft.AspNetCore.Identity.SignInResult SignIn { get; set; }
         public bool Succeeded { get; set; }

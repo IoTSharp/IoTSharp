@@ -331,3 +331,4 @@ ASALocalRun/
 /healthchecksdb
 /.vscode
 /Clients/MQTTClient/.vscode
+/IoTSharp/ClientApp.rar
