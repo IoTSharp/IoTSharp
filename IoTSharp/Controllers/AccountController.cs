@@ -44,14 +44,21 @@ namespace IoTSharp.Controllers
             _logger = logger;
             _context = context;
         }
-
         [HttpGet]
-        public ActionResult<ApiResult<UserInfoDto>> MyInfo()
+        public async Task<ActionResult<ApiResult<UserInfoDto>>> MyInfo()
         {
             string custid = _signInManager.Context.User.FindFirstValue(IoTSharpClaimTypes.Customer);
+            var user = await _userManager.GetUserAsync(_signInManager.Context.User);
             var Customer = _context.Customer.FirstOrDefault(c => c.Id.ToString() == custid);
+            var   rooles= await _userManager.GetRolesAsync(user  );
+            
             var uidto = new UserInfoDto()
             {
+                Code = ApiCode.OK,
+                Roles = string.Join(',',rooles).ToLower().Contains("admin")?"admin":"editor",//TODO: Permission control
+                Name = user.UserName,
+                Avatar = user.Gravatar(),
+                Introduction =  user.NormalizedUserName,
                 Customer = Customer,
                 Tenant = Customer.Tenant
             };
@@ -72,6 +79,7 @@ namespace IoTSharp.Controllers
                     var roles = await _userManager.GetRolesAsync(appUser);
                     return Ok(new LoginResult()
                     {
+                        Code = ApiCode.OK,
                         Succeeded = result.Succeeded,
                         Token = token,
                         UserName = appUser.UserName,

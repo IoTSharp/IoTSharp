@@ -17,6 +17,8 @@ namespace IoTSharp.Data
 
     public enum ApiCode : int
     {
+        OK=2000,
+        NotFound=404,
         Success = 10000,
         LoginError = 10001,
         Exception = 10002,
