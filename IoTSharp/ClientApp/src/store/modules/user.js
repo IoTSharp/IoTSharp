@@ -37,10 +37,8 @@ const actions = {
   login({ commit }, userInfo) {
     const { username, password } = userInfo
     return new Promise((resolve, reject) => {
-      login({ username: username.trim(), password: password }).then(response => {
+      login({ userName: username.trim(), password }).then(response => {
         commit('SET_TOKEN', response.token.access_token)
-        console.log('Set_token:')
-        console.log(response.token.access_token)
         setToken(response.token.access_token)
         resolve()
       }).catch(error => {
@@ -98,12 +96,9 @@ const actions = {
 
   // user register
   register({ commit }, registerInfo) {
-    console.log('commit register info')
-    console.log(registerInfo.username)
-    console.log('commit register end info')
-    const { useremail, phonenumber, customerid, password } = registerInfo
+    const { email, phoneNumber, customerId, password } = registerInfo
     return new Promise((resolve, reject) => {
-      register({ email: useremail, phoneNumber: phonenumber.trim(), customerId: customerid, password: password }).then(response => {
+      register({ email, phoneNumber: phoneNumber.trim(), customerId, password }).then(response => {
         console.log('User Register OK! ')
         resolve()
       }).catch(error => {

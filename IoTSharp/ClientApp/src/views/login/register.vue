@@ -5,43 +5,43 @@
       <div class="title-container">
         <h3 class="title">IoTSharp注册</h3>
       </div>
-      <el-form-item prop="useremail">
+      <el-form-item prop="email">
         <span class="svg-container">
           <svg-icon icon-class="message" />
         </span>
         <el-input
-          ref="useremail"
-          v-model="registerForm.useremail"
+          ref="email"
+          v-model="registerForm.email"
           placeholder="Useremail"
-          name="useremail"
+          name="email"
           type="text"
           tabindex="1"
           auto-complete="off"
         />
       </el-form-item>
-      <el-form-item prop="phonenumber">
+      <el-form-item prop="phoneNumber">
         <span class="svg-container">
           <svg-icon icon-class="message" />
         </span>
         <el-input
-          ref="phonenumber"
-          v-model="registerForm.phonenumber"
+          ref="phoneNumber"
+          v-model="registerForm.phoneNumber"
           placeholder="PhoneNumber"
-          name="phonenumber"
+          name="phoneNumber"
           type="text"
           tabindex="1"
           auto-complete="off"
         />
       </el-form-item>
-      <el-form-item v-if="false" prop="customerid">
+      <el-form-item v-if="false" prop="customerId">
         <span class="svg-container">
           <svg-icon icon-class="message" />
         </span>
         <el-input
-          ref="useremail"
-          v-model="registerForm.customerid"
+          ref="email"
+          v-model="registerForm.customerId"
           placeholder="Customerid"
-          name="customerid"
+          name="customerId"
           type="text"
           tabindex="1"
           auto-complete="off"
@@ -119,9 +119,9 @@ export default {
     }
     return {
       registerForm: {
-        useremail: 'iotmaster2@iotsharp.net',
-        phonenumber: '18640088888',
-        customerid: '',
+        email: 'iotmaster2@iotsharp.net',
+        phoneNumber: '18640088888',
+        customerId: '',
         password: 'Admin_123'
       },
       loginRules: {
@@ -149,12 +149,12 @@ export default {
   },
   created() {
     this.uuid()
-    this.registerForm.customerid = this.text
+    this.registerForm.customerId = this.text
     // window.addEventListener('storage', this.afterQRScan)
   },
   mounted() {
-    if (this.registerForm.useremail === '') {
-      this.$refs.useremail.focus()
+    if (this.registerForm.email === '') {
+      this.$refs.email.focus()
     } else if (this.registerForm.username === '') {
       this.$refs.username.focus()
     } else if (this.registerForm.password === '') {
