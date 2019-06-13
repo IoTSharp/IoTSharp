@@ -15,8 +15,7 @@ export function isExternal(path) {
  * @returns {Boolean}
  */
 export function validUsername(str) {
-  const valid_map = ['admin', 'editor', 'iotmaster@iotsharp.net']
-  return valid_map.indexOf(str.trim()) >= 0
+  return validEmail(str)
 }
 
 /**

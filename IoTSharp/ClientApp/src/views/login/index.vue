@@ -3,7 +3,7 @@
     <el-form ref="loginForm" :model="loginForm" :rules="loginRules" class="login-form" auto-complete="on" label-position="left">
 
       <div class="title-container">
-        <h3 class="title">IoTSharp登录入口</h3>
+        <h3 class="title">IoTSharp</h3>
       </div>
       <el-form-item prop="username">
         <span class="svg-container">
@@ -44,38 +44,36 @@
       </el-tooltip>
       <div style="position:relative" align="right">
         <div class="block">
-          <el-button :loading="loading" type="primary" class="item-btn" size="medium" style="width:25%" @click.native.prevent="handleLogin">登陆</el-button>
+          <el-button :loading="loading" type="primary" class="item-btn" size="medium" style="width:25%" @click.native.prevent="handleLogin">登录</el-button>
           <el-button type="primary" class="item-btn" size="medium" @click.native.prevent="gotoRegisterPage">我要注册</el-button>
+          
         </div>
       </div>
       <div style="position:relative;margin-top:30px">
         <div class="tips">
-          <span>Username : admin</span>
-          <span>Password : any</span>
+          <span>Please register the user first.the username must be email.</span>
         </div>
         <div class="tips">
-          <span style="margin-right:18px;">Username : editor</span>
-          <span>Password : any</span>
+          <span style="margin-right:18px;">The password must contain upper and lower case letters, numbers, and symbols.</span>
         </div>
-
-        <el-button class="thirdparty-button" type="primary" @click="showDialog=true">
-          Or connect with
-        </el-button>
+        <el-button class="thirdparty-button" type="primary" @click="showDialog=true">Getting a tenant?</el-button>
       </div>
     </el-form>
 
-    <el-dialog title="Or connect with" :visible.sync="showDialog">
-      Can not be simulated on local, so please combine you own business simulation! ! !
+    <el-dialog title="Getting a tenant?" :visible.sync="showDialog">
+      If you need to register a tenant,
       <br>
+      you need to contact us.Our e-mail is mysticboy@live.com
       <br>
+      或者加入QQ群 63631741
       <br>
-      <social-sign />
+      <!--<social-sign />-->
     </el-dialog>
   </div>
 </template>
 
 <script>
-import { validUsername } from '@/utils/validate'
+import { validEmail } from '@/utils/validate'
 import SocialSign from './components/SocialSignin'
 
 export default {
@@ -83,7 +81,7 @@ export default {
   components: { SocialSign },
   data() {
     const validateUsername = (rule, value, callback) => {
-      if (!validUsername(value)) {
+      if (!validEmail(value)) {
         callback(new Error('Please enter the correct user name'))
         // callback()
       } else {

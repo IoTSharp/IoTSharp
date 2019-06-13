@@ -3,68 +3,60 @@
     <el-form ref="registerForm" :model="registerForm" :rules="loginRules" class="register-form" auto-complete="on" label-position="left">
 
       <div class="title-container">
-        <h3 class="title">IoTSharp注册</h3>
+        <h3 class="title">IoTSharp Register</h3>
       </div>
+      <el-form-item prop="customerId">
+        <span class="svg-container">
+          <svg-icon icon-class="message" />
+        </span>
+        <el-input ref="customerId"
+                  v-model="registerForm.customerId"
+                  placeholder="Customer's Id"
+                  name="customerId"
+                  type="text"
+                  tabindex="1"
+                  auto-complete="off" />
+      </el-form-item>
       <el-form-item prop="email">
         <span class="svg-container">
           <svg-icon icon-class="message" />
         </span>
-        <el-input
-          ref="email"
-          v-model="registerForm.email"
-          placeholder="Useremail"
-          name="email"
-          type="text"
-          tabindex="1"
-          auto-complete="off"
-        />
+        <el-input ref="email"
+                  v-model="registerForm.email"
+                  placeholder="Your email"
+                  name="email"
+                  type="text"
+                  tabindex="1"
+                  auto-complete="off" />
       </el-form-item>
       <el-form-item prop="phoneNumber">
         <span class="svg-container">
           <svg-icon icon-class="message" />
         </span>
-        <el-input
-          ref="phoneNumber"
-          v-model="registerForm.phoneNumber"
-          placeholder="PhoneNumber"
-          name="phoneNumber"
-          type="text"
-          tabindex="1"
-          auto-complete="off"
-        />
-      </el-form-item>
-      <el-form-item v-if="false" prop="customerId">
-        <span class="svg-container">
-          <svg-icon icon-class="message" />
-        </span>
-        <el-input
-          ref="email"
-          v-model="registerForm.customerId"
-          placeholder="Customerid"
-          name="customerId"
-          type="text"
-          tabindex="1"
-          auto-complete="off"
-        />
+        <el-input ref="phoneNumber"
+                  v-model="registerForm.phoneNumber"
+                  placeholder="PhoneNumber"
+                  name="phoneNumber"
+                  type="text"
+                  tabindex="1"
+                  auto-complete="off" />
       </el-form-item>
       <el-tooltip v-model="capsTooltip" content="Caps lock is On" placement="right" manual>
         <el-form-item prop="password">
           <span class="svg-container">
             <svg-icon icon-class="password" />
           </span>
-          <el-input
-            :key="passwordType"
-            ref="password"
-            v-model="registerForm.password"
-            :type="passwordType"
-            placeholder="Password"
-            name="password"
-            tabindex="2"
-            auto-complete="on"
-            @keyup.native="checkCapslock"
-            @blur="capsTooltip = false"
-            @keyup.enter.native="handleRegister"
-          />
+          <el-input :key="passwordType"
+                    ref="password"
+                    v-model="registerForm.password"
+                    :type="passwordType"
+                    placeholder="Password"
+                    name="password"
+                    tabindex="2"
+                    auto-complete="on"
+                    @keyup.native="checkCapslock"
+                    @blur="capsTooltip = false"
+                    @keyup.enter.native="handleRegister" />
           <span class="show-pwd" @click="showPwd">
             <svg-icon :icon-class="passwordType === 'password' ? 'eye' : 'eye-open'" />
           </span>
@@ -72,17 +64,27 @@
       </el-tooltip>
       <div style="position:relative" align="center">
         <div class="block">
-          <el-button :loading="loading" type="primary" class="item-btn" size="medium" @click.native.prevent="handleRegister">注册</el-button>
+          <el-button :loading="loading" type="primary" class="item-btn" size="medium" @click.native.prevent="handleRegister">Register</el-button>
         </div>
-      </div>
+        <div class="block">
+          <el-button class="thirdparty-button" type="primary" @click="showDialog=true">Getting a tenant?</el-button>
+        </div>
+       </div>
     </el-form>
+    <el-dialog title="Getting a tenant?" :visible.sync="showDialog">
+      If you need to register a tenant,
+      <br>
+      you need to contact us.Our e-mail is mysticboy@live.com
+      <br>
+      或者加入QQ群 63631741
+      <br>
+      Here is a test customer ID, please copy it.
 
-    <el-dialog title="Or connect with" :visible.sync="showDialog">
-      Can not be simulated on local, so please combine you own business simulation! ! !
+      <br>
+      b1075b75-7170-437a-aa0a-9787d63ae1f8
       <br>
       <br>
-      <br>
-      <social-sign />
+      <!--<social-sign />-->
     </el-dialog>
   </div>
 </template>
@@ -119,10 +121,10 @@ export default {
     }
     return {
       registerForm: {
-        email: 'iotmaster2@iotsharp.net',
-        phoneNumber: '18640088888',
+        email: '',
+        phoneNumber: '',
         customerId: '',
-        password: 'Admin_123'
+        password: ''
       },
       loginRules: {
         password: [{ required: true, trigger: 'blur', validator: validatePassword }]
@@ -148,8 +150,6 @@ export default {
     }
   },
   created() {
-    this.uuid()
-    this.registerForm.customerId = this.text
     // window.addEventListener('storage', this.afterQRScan)
   },
   mounted() {
@@ -214,19 +214,6 @@ export default {
         }
         return acc
       }, {})
-    },
-    uuid() {
-      var s = []
-      var hexDigits = '0123456789abcdef'
-      for (var i = 0; i < 36; i++) {
-        s[i] = hexDigits.substr(Math.floor(Math.random() * 0x10), 1)
-      }
-      s[14] = '4'
-      s[19] = hexDigits.substr((s[19] & 0x3) | 0x8, 1)
-      s[8] = s[13] = s[18] = s[23] = '-'
-      var uuid = s.join('')
-      this.text = uuid
-      console.log(this.text)
     }
   }
 }

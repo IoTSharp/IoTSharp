@@ -1,8 +1,8 @@
 {
   "name": "vue-element-admin",
   "version": "4.2.1",
-  "description": "A magical vue admin. An out-of-box UI solution for enterprise applications. Newest development stack of vue. Lots of awesome features",
-  "author": "Pan <panfree23@gmail.com>",
+  "description": "IoTSharp is an open-source IoT platform for data collection, processing, visualization, and device management.",
+  "author": "maikebing <mysticboy@live.com>",
   "license": "MIT",
   "scripts": {
     "dev": "vue-cli-service serve",
@@ -37,10 +37,10 @@
   ],
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/PanJiaChen/vue-element-admin.git"
+    "url": "git+https://github.com/IoTSharp/IoTSharp.git"
   },
   "bugs": {
-    "url": "https://github.com/PanJiaChen/vue-element-admin/issues"
+    "url": "https://github.com/IoTSharp/IoTSharp/issues"
   },
   "dependencies": {
     "@fortawesome/fontawesome-svg-core": "^1.2.18",
