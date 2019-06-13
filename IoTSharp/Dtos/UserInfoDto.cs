@@ -15,5 +15,6 @@ namespace IoTSharp.Dtos
         public string Introduction { get; set; }
         public Customer Customer { get; set; }
         public Tenant Tenant { get; set; }
+        public string Email { get;  set; }
     }
 }
