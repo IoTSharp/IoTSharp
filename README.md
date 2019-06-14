@@ -24,7 +24,7 @@ IoTSharp is an open-source IoT platform for data collection, processing, visuali
  - C# Client SDK for IoTSharp  https://github.com/IoTSharp/IoTSharp.SDKs 
 
 
-![IotSharp Logo](docs/images/iot_sharp_logo.png)
+
 
 ## How to install ?
  -  mkdir  /var/lib/iotsharp/
@@ -37,3 +37,12 @@ IoTSharp is an open-source IoT platform for data collection, processing, visuali
  -	http://127.0.0.1:80/ 
  -  
 
+##  IoTSharp.Edge.RT-Thread
+
+IoTSharp.Edge.RT-Thread (STM32L4 + Wi-Fi, sensor, lcd, audio etc)
+
+https://github.com/IoTSharp/IoTSharp.Edge.RT-Thread
+
+![20190615010003.jpg](docs/images/20190615010003.jpg)
+
+![20190615010115.jpg](docs/images/20190615010115.jpg)
