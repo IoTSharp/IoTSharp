@@ -49,18 +49,19 @@ namespace IoTSharp.Controllers
         {
             string custid = _signInManager.Context.User.FindFirstValue(IoTSharpClaimTypes.Customer);
             var user = await _userManager.GetUserAsync(_signInManager.Context.User);
-            var Customer = _context.Customer.FirstOrDefault(c => c.Id.ToString() == custid);
+            var Customer = _context.Customer.Include(c=>c.Tenant).FirstOrDefault(c => c.Id.ToString() == custid);
             var   rooles= await _userManager.GetRolesAsync(user  );
             
             var uidto = new UserInfoDto()
             {
                 Code = ApiCode.OK,
-                Roles = string.Join(',',rooles).ToLower().Contains("admin")?"admin":"editor",//TODO: Permission control
+                Roles = string.Join(',',rooles).ToLower().Contains("admin")?"admin": "admin",//TODO: Permission control
                 Name = user.UserName,
+                Email = user.Email,
                 Avatar = user.Gravatar(),
                 Introduction =  user.NormalizedUserName,
                 Customer = Customer,
-                Tenant = Customer.Tenant
+                Tenant = Customer?.Tenant
             };
             return new ApiResult<UserInfoDto>(ApiCode.Success, "OK", uidto);
         }

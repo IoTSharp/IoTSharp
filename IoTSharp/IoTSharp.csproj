@@ -11,11 +11,9 @@
     <Product>IoTSharp</Product>
     <Authors>IoT#</Authors>
     <PackageProjectUrl>https://github.com/IoTSharp/IoTSharp</PackageProjectUrl>
-    <PackageLicenseUrl>https://github.com/IoTSharp/IoTSharp/blob/master/LICENSE</PackageLicenseUrl>
+    <PackageLicenseUrl></PackageLicenseUrl>
     <RepositoryUrl>https://github.com/IoTSharp/IoTSharp</RepositoryUrl>
-    <PackageReleaseNotes>
-      Open-source IoT Platform - Device management, data collection, processing and visualization.   https://www.iotsharp.net
-    </PackageReleaseNotes>
+    <PackageReleaseNotes>Open-source IoT Platform - Device management, data collection, processing and visualization.   https://www.iotsharp.net</PackageReleaseNotes>
     <Description>Open-source IoT Platform - Device management, data collection, processing and visualization.</Description>
     <PackageId>IoTSharp</PackageId>
     <UserSecretsId>18970590-05bf-4a1f-a70b-3c8a120d12cb</UserSecretsId>
@@ -27,6 +25,11 @@
 
     <!-- Set this to true if you enable server-side prerendering -->
     <BuildServerSideRenderer>false</BuildServerSideRenderer>
+    <Version>0.1.99</Version>
+    <PackageLicenseFile>LICENSE.txt</PackageLicenseFile>
+    <RepositoryType>git</RepositoryType>
+    <PackageTags>IoT</PackageTags>
+    <PackageIconUrl>https://avatars2.githubusercontent.com/u/44353254?s=200&amp;v=4</PackageIconUrl>
   </PropertyGroup>
   <ItemGroup>
     <Content Update="appsettings.json">
@@ -55,6 +58,10 @@
     <Content Remove="Migrations\**" />
     <EmbeddedResource Remove="Migrations\**" />
     <None Remove="Migrations\**" />
+    <None Include="..\LICENSE.txt">
+      <Pack>True</Pack>
+      <PackagePath></PackagePath>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Changwei.AspNetCore.SpaServices.Extensions.VueCli" Version="1.0.0" />
@@ -101,13 +108,13 @@
     </Exec>
     <Error Condition="'$(ErrorCode)' != '0'" Text="Node.js is required to build and run this project. To continue, please install Node.js from https://nodejs.org/, and then restart your command prompt or IDE." />
     <Message Importance="high" Text="Restoring dependencies using 'npm'. This may take several minutes..." />
-    <Exec WorkingDirectory="$(SpaRoot)" Command="npm install --registry=https://registry.npm.taobao.org" />
-    <Exec WorkingDirectory="$(SpaRoot)" Command="npm install -g @vue/cli --registry=https://registry.npm.taobao.org" />
+    <Exec WorkingDirectory="$(SpaRoot)" Command="npm install " />
+    <Exec WorkingDirectory="$(SpaRoot)" Command="npm install -g @vue/cli " />
   </Target>
 
   <Target Name="PublishRunWebpack" AfterTargets="ComputeFilesToPublish">
     <!-- As part of publishing, ensure the JS resources are freshly built in production mode -->
-    <Exec WorkingDirectory="$(SpaRoot)" Command="npm install --registry=https://registry.npm.taobao.org" />
+    <Exec WorkingDirectory="$(SpaRoot)" Command="npm install " />
     <Exec WorkingDirectory="$(SpaRoot)" Command="npm run build:prod" />
 
 

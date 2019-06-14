@@ -332,3 +332,4 @@ ASALocalRun/
 /.vscode
 /Clients/MQTTClient/.vscode
 /IoTSharp/ClientApp.rar
+/IoTSharp/ClientApp/package-lock.json
