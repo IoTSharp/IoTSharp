@@ -54,7 +54,7 @@ namespace IoTSharp.Controllers
             
             var uidto = new UserInfoDto()
             {
-                Code = ApiCode.OK,
+                Code = ApiCode.Success,
                 Roles = string.Join(',',rooles).ToLower().Contains("admin")?"admin": "admin",//TODO: Permission control
                 Name = user.UserName,
                 Email = user.Email,
@@ -80,7 +80,7 @@ namespace IoTSharp.Controllers
                     var roles = await _userManager.GetRolesAsync(appUser);
                     return Ok(new LoginResult()
                     {
-                        Code = ApiCode.OK,
+                        Code = ApiCode.Success,
                         Succeeded = result.Succeeded,
                         Token = token,
                         UserName = appUser.UserName,
@@ -152,15 +152,14 @@ namespace IoTSharp.Controllers
                 else
                 {
                     var msg = from e in result.Errors select $"{e.Code}:{e.Description}\r\n";
-                    actionResult = BadRequest(new { code = -3, msg = string.Join(';', msg.ToArray()) });
+                    actionResult = BadRequest(new ApiResult(ApiCode.CreateUserFailed, string.Join(';', msg.ToArray())));
                 }
             }
             catch (Exception ex)
             {
-                actionResult = BadRequest(new { code = -2, msg = ex.Message, data = ex });
+                actionResult = this.ExceptionRequest(ex);
                 _logger.LogError(ex, ex.Message);
             }
-
             return actionResult;
         }
 
