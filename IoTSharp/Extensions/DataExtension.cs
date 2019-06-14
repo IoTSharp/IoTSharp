@@ -126,9 +126,11 @@ namespace IoTSharp.Extensions
                     tdata.Type = DataType.Boolean;
                     tdata.Value_Boolean = (bool)kp.Value;
                     break;
-
-                case TypeCode.Double:
                 case TypeCode.Single:
+                    tdata.Type = DataType.Double;
+                    tdata.Value_Double = double.Parse(kp.Value.ToString(), System.Globalization.NumberStyles.Float);
+                    break;
+                case TypeCode.Double:
                 case TypeCode.Decimal:
                     tdata.Type = DataType.Double;
                     tdata.Value_Double = (double)kp.Value;
