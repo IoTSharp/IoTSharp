@@ -27,7 +27,7 @@ namespace IoTSharp
             {
                 var broker = setting;
                 if (broker == null) broker = new MqttBrokerSetting();
-                options.WithDefaultEndpointPort(broker.Port).WithDefaultEndpointBoundIPAddress(System.Net.IPAddress.Parse("127.0.0.1")).WithDefaultEndpoint();
+                options.WithDefaultEndpointPort(broker.Port).WithDefaultEndpoint();
                 if (broker.EnableTls)
                 {
                     options.WithEncryptedEndpoint();
