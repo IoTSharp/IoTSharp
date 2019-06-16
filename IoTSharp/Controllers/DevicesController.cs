@@ -106,6 +106,61 @@ namespace IoTSharp.Controllers
             }
             return await devid.FirstOrDefaultAsync();
         }
+        
+        /// <summary>
+        /// Request telemetry values from the server
+        /// </summary>
+        /// <param name="deviceId"></param>
+        /// <returns></returns>
+        [Authorize(Roles = nameof(UserRole.NormalUser))]
+        [HttpGet("{deviceId}/TelemetryLatest/{keyName}")]
+        public async Task<ActionResult<object>> GetTelemetryLatest(Guid deviceId,string keyName)
+        {
+            var dev = _context.Device.Find(deviceId);
+            if (dev == null)
+            {
+                return NotFound(new ApiResult(ApiCode.NotFoundDeviceIdentity, $"Device's Identity not found "));
+            }
+            else
+            { 
+                var kv = from t in _context.TelemetryLatest where t.Device == dev && t.KeyName == keyName select t;
+                var kxv = await kv.FirstOrDefaultAsync();
+                object obj = null;
+                if (kxv!=null)
+                {
+                    switch (kxv.Type)
+                    {
+                        case DataType.Boolean:
+                            obj = kxv.Value_Boolean;
+                            break;
+                        case DataType.String:
+                            obj = kxv.Value_String;
+                            break;
+                        case DataType.Long:
+                            obj = kxv.Value_Long;
+                            break;
+                        case DataType.Double:
+                            obj = kxv.Value_Double;
+                            break;
+                        case DataType.Json:
+                            obj = kxv.Value_Json;
+                            break;
+                        case DataType.XML:
+                            obj = kxv.Value_XML;
+                            break;
+                        case DataType.Binary:
+                            obj = kxv.Value_Binary;
+                            break;
+                        case DataType.DateTime:
+                            obj = kxv.DateTime;
+                            break;
+                        default:
+                            break;
+                    }
+                }
+                return obj;
+            }
+        }
 
         /// <summary>
         /// Get a device's detail
