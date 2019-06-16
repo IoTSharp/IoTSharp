@@ -26,6 +26,8 @@ namespace IoTSharp.Extensions
         /// <typeparam name="D">Data</typeparam>
         /// <param name="data"></param>
         /// <param name="device"></param>
+        /// <param name="dataSide"></param>
+        /// <param name="_context"></param>
         /// <returns></returns>
         internal static async Task<(int ret, Dic exceptions)> SaveAsync<L, D>(this ApplicationDbContext _context, Dictionary<string, object> data, Device device, DataSide dataSide) where L : DataStorage, new() where D : DataStorage, new()
         {
@@ -196,6 +198,46 @@ namespace IoTSharp.Extensions
                 jojb.Children().ToList().ForEach(jt => jt.Children().ToList().ForEach(a => keyValues.Add(((JProperty)a).Name, ((JProperty)a).JPropertyToObject())));
             }
             return keyValues;
+        }
+      
+
+        public static object ToObject(this DataStorage kxv)
+        {
+            object obj = null;
+            if (kxv != null)
+            {
+                switch (kxv.Type)
+                {
+                    case DataType.Boolean:
+                        obj = kxv.Value_Boolean;
+                        break;
+                    case DataType.String:
+                        obj = kxv.Value_String;
+                        break;
+                    case DataType.Long:
+                        obj = kxv.Value_Long;
+                        break;
+                    case DataType.Double:
+                        obj = kxv.Value_Double;
+                        break;
+                    case DataType.Json:
+                        obj = kxv.Value_Json;
+                        break;
+                    case DataType.XML:
+                        obj = kxv.Value_XML;
+                        break;
+                    case DataType.Binary:
+                        obj = kxv.Value_Binary;
+                        break;
+                    case DataType.DateTime:
+                        obj = kxv.DateTime;
+                        break;
+                    default:
+                        break;
+                }
+            }
+
+            return obj;
         }
     }
 }
