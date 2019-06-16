@@ -1,4 +1,13 @@
-# IoTSharp 
+
+<pre>
+ _         _______   ______  _                          
+| |       (_______) / _____)| |                         
+| |  ___      _    ( (____  | |__   _____   ____  ____  
+| | / _ \    | |    \____ \ |  _ \ (____ | / ___)|  _ \ 
+| || |_| |   | |    _____) )| | | |/ ___ || |    | |_| |
+|_| \___/    |_|   (______/ |_| |_|\_____||_|    |  __/ 
+                                                 |_|    
+</pre>
 
 [![Build status](https://ci.appveyor.com/api/projects/status/5o23f5vss89ct2lw/branch/master?svg=true)](https://ci.appveyor.com/project/MaiKeBing/iotsharp/branch/master)
 ![GitHub](https://img.shields.io/github/license/iotsharp/iotsharp.svg)
