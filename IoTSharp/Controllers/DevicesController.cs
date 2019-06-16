@@ -106,15 +106,15 @@ namespace IoTSharp.Controllers
             }
             return await devid.FirstOrDefaultAsync();
         }
-        
         /// <summary>
         /// Request telemetry values from the server
         /// </summary>
-        /// <param name="deviceId"></param>
+        /// <param name="deviceId">Which device do you read?</param>
+        /// <param name="keyName">Specify key name</param>
         /// <returns></returns>
         [Authorize(Roles = nameof(UserRole.NormalUser))]
         [HttpGet("{deviceId}/TelemetryLatest/{keyName}")]
-        public async Task<ActionResult<object>> GetTelemetryLatest(Guid deviceId,string keyName)
+        public async Task<ActionResult<object>> GetTelemetryLatest(Guid deviceId, string keyName)
         {
             var dev = _context.Device.Find(deviceId);
             if (dev == null)
@@ -122,45 +122,81 @@ namespace IoTSharp.Controllers
                 return NotFound(new ApiResult(ApiCode.NotFoundDeviceIdentity, $"Device's Identity not found "));
             }
             else
-            { 
+            {
                 var kv = from t in _context.TelemetryLatest where t.Device == dev && t.KeyName == keyName select t;
-                var kxv = await kv.FirstOrDefaultAsync();
-                object obj = null;
-                if (kxv!=null)
-                {
-                    switch (kxv.Type)
-                    {
-                        case DataType.Boolean:
-                            obj = kxv.Value_Boolean;
-                            break;
-                        case DataType.String:
-                            obj = kxv.Value_String;
-                            break;
-                        case DataType.Long:
-                            obj = kxv.Value_Long;
-                            break;
-                        case DataType.Double:
-                            obj = kxv.Value_Double;
-                            break;
-                        case DataType.Json:
-                            obj = kxv.Value_Json;
-                            break;
-                        case DataType.XML:
-                            obj = kxv.Value_XML;
-                            break;
-                        case DataType.Binary:
-                            obj = kxv.Value_Binary;
-                            break;
-                        case DataType.DateTime:
-                            obj = kxv.DateTime;
-                            break;
-                        default:
-                            break;
-                    }
-                }
-                return obj;
+                return (await kv.FirstOrDefaultAsync())?.ToObject();
             }
         }
+        /// <summary>
+        /// Request telemetry values from the server
+        /// </summary>
+        /// <param name="deviceId">Which device do you read?</param>
+        /// <param name="keyName">Specify key name</param>
+        /// <returns></returns>
+        [Authorize(Roles = nameof(UserRole.NormalUser))]
+        [HttpGet("{deviceId}/AttributeLatest/{keyName}")]
+        public async Task<ActionResult<object>> GetAttributeLatest(Guid deviceId,string keyName)
+        {
+            var dev = _context.Device.Find(deviceId);
+            if (dev == null)
+            {
+                return NotFound(new ApiResult(ApiCode.NotFoundDeviceIdentity, $"Device's Identity not found "));
+            }
+            else
+            {
+                var kv = from t in _context.AttributeLatest where t.Device == dev && t.KeyName == keyName select t;
+                return (await kv.FirstOrDefaultAsync())?.ToObject();
+            }
+        }
+
+        /// <summary>
+        /// Request telemetry values from the server
+        /// </summary>
+        /// <param name="deviceId">Which device do you read?</param>
+        /// <param name="keyName">Specify key name</param>
+        /// <param name="begin">For example: 2019-06-06 12:24</param>
+        /// <returns></returns>
+        [Authorize(Roles = nameof(UserRole.NormalUser))]
+        [HttpGet("{deviceId}/TelemetryLatest/{keyName}/{begin}")]
+        public async Task<ActionResult<object[]>> GetTelemetryLatest(Guid deviceId, string keyName, DateTime begin)
+        {
+            var dev = _context.Device.Find(deviceId);
+            if (dev == null)
+            {
+                return NotFound(new ApiResult(ApiCode.NotFoundDeviceIdentity, $"Device's Identity not found "));
+            }
+            else
+            {
+                var kv = from t in _context.TelemetryLatest where t.Device == dev && t.KeyName == keyName && t.DateTime >= begin   select t.ToObject();
+                return  await kv.ToArrayAsync();
+            }
+        }
+        /// <summary>
+        /// Request telemetry values from the server
+        /// </summary>
+        /// <param name="deviceId">Which device do you read?</param>
+        /// <param name="keyName">Specify key name</param>
+        /// <param name="begin">For example: 2019-06-06 12:24</param>
+        /// <param name="end">For example: 2019-06-06 12:24</param>
+        /// <returns></returns>
+        [Authorize(Roles = nameof(UserRole.NormalUser))]
+        [HttpGet("{deviceId}/TelemetryLatest/{keyName}/{begin}/{end}")]
+        public async Task<ActionResult<object>> GetTelemetryLatest(Guid deviceId, string keyName, DateTime begin,DateTime end )
+        {
+            var dev = _context.Device.Find(deviceId);
+            if (dev == null)
+            {
+                return NotFound(new ApiResult(ApiCode.NotFoundDeviceIdentity, $"Device's Identity not found "));
+            }
+            else
+            {
+                var kv = from t in _context.TelemetryLatest where t.Device == dev && t.KeyName == keyName && t.DateTime>=begin && t.DateTime <end select t.ToObject() ;
+                return await kv.ToArrayAsync();
+            }
+        }
+
+  
+
 
         /// <summary>
         /// Get a device's detail
