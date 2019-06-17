@@ -9,54 +9,62 @@
         <span class="svg-container">
           <svg-icon icon-class="message" />
         </span>
-        <el-input ref="customerId"
-                  v-model="registerForm.customerId"
-                  placeholder="Customer's Id"
-                  name="customerId"
-                  type="text"
-                  tabindex="1"
-                  auto-complete="off" />
+        <el-input
+          ref="customerId"
+          v-model="registerForm.customerId"
+          placeholder="Customer's Id"
+          name="customerId"
+          type="text"
+          tabindex="1"
+          auto-complete="off"
+        />
       </el-form-item>
       <el-form-item prop="email">
         <span class="svg-container">
           <svg-icon icon-class="message" />
         </span>
-        <el-input ref="email"
-                  v-model="registerForm.email"
-                  placeholder="Your email"
-                  name="email"
-                  type="text"
-                  tabindex="1"
-                  auto-complete="off" />
+        <el-input
+          ref="email"
+          v-model="registerForm.email"
+          placeholder="Your email"
+          name="email"
+          type="text"
+          tabindex="1"
+          auto-complete="off"
+        />
       </el-form-item>
       <el-form-item prop="phoneNumber">
         <span class="svg-container">
           <svg-icon icon-class="message" />
         </span>
-        <el-input ref="phoneNumber"
-                  v-model="registerForm.phoneNumber"
-                  placeholder="PhoneNumber"
-                  name="phoneNumber"
-                  type="text"
-                  tabindex="1"
-                  auto-complete="off" />
+        <el-input
+          ref="phoneNumber"
+          v-model="registerForm.phoneNumber"
+          placeholder="PhoneNumber"
+          name="phoneNumber"
+          type="text"
+          tabindex="1"
+          auto-complete="off"
+        />
       </el-form-item>
       <el-tooltip v-model="capsTooltip" content="Caps lock is On" placement="right" manual>
         <el-form-item prop="password">
           <span class="svg-container">
             <svg-icon icon-class="password" />
           </span>
-          <el-input :key="passwordType"
-                    ref="password"
-                    v-model="registerForm.password"
-                    :type="passwordType"
-                    placeholder="Password"
-                    name="password"
-                    tabindex="2"
-                    auto-complete="on"
-                    @keyup.native="checkCapslock"
-                    @blur="capsTooltip = false"
-                    @keyup.enter.native="handleRegister" />
+          <el-input
+            :key="passwordType"
+            ref="password"
+            v-model="registerForm.password"
+            :type="passwordType"
+            placeholder="Password"
+            name="password"
+            tabindex="2"
+            auto-complete="on"
+            @keyup.native="checkCapslock"
+            @blur="capsTooltip = false"
+            @keyup.enter.native="handleRegister"
+          />
           <span class="show-pwd" @click="showPwd">
             <svg-icon :icon-class="passwordType === 'password' ? 'eye' : 'eye-open'" />
           </span>
@@ -69,7 +77,7 @@
         <div class="block">
           <el-button class="thirdparty-button" type="primary" @click="showDialog=true">Getting a tenant?</el-button>
         </div>
-       </div>
+      </div>
     </el-form>
     <el-dialog title="Getting a tenant?" :visible.sync="showDialog">
       If you need to register a tenant,
@@ -91,11 +99,11 @@
 
 <script>
 // import { validUsername } from '@/utils/validate'
-import SocialSign from './components/SocialSignin'
-
+// import SocialSign from './components/SocialSignin'
+import customerId from '@/utils/test-customer-id'
 export default {
   name: 'Register',
-  components: { SocialSign },
+  // components: { SocialSign },
   data() {
     const validatePassword = (rule, value, callback) => {
       if (value == null || value.length < 6 || value.trim().length === '') {
@@ -123,7 +131,7 @@ export default {
       registerForm: {
         email: '',
         phoneNumber: '',
-        customerId: '',
+        customerId: customerId,
         password: ''
       },
       loginRules: {
