@@ -70,9 +70,10 @@
           </span>
         </el-form-item>
       </el-tooltip>
-      <div style="position:relative" align="center">
+      <div style="position:relative" align="right">
         <div class="block">
           <el-button :loading="loading" type="primary" class="item-btn" size="medium" @click.native.prevent="handleRegister">Register</el-button>
+          <el-button class="item-btn" type="primary" @click="showDialog=true">Getting a tenant?</el-button>
         </div>
         <div class="block">
           <el-button class="thirdparty-button" type="primary" @click="showDialog=true">Getting a tenant?</el-button>
@@ -99,11 +100,9 @@
 
 <script>
 // import { validUsername } from '@/utils/validate'
-// import SocialSign from './components/SocialSignin'
 import customerId from '@/utils/test-customer-id'
 export default {
   name: 'Register',
-  // components: { SocialSign },
   data() {
     const validatePassword = (rule, value, callback) => {
       if (value == null || value.length < 6 || value.trim().length === '') {
