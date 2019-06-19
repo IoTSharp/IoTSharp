@@ -1,0 +1,243 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>IoTSharp</name>
+    </assembly>
+    <members>
+        <member name="P:IoTSharp.AppSettings.MqttBroker">
+            <summary>
+            Broker settings
+            </summary>
+        </member>
+        <member name="P:IoTSharp.AppSettings.MqttClient">
+            <summary>
+            mqtt client settings
+            </summary>
+        </member>
+        <member name="P:IoTSharp.MqttClientSetting.MqttBroker">
+            <summary>
+            built-in or IP、HostName
+            </summary>
+        </member>
+        <member name="T:IoTSharp.Extensions.RpcClient">
+            <summary>
+            https://github.com/chkr1011/MQTTnet/blob/master/Source/MQTTnet.Extensions.Rpc/MqttRpcClient.cs
+            </summary>
+        </member>
+        <member name="M:IoTSharp.Extensions.DataExtension.SaveAsync``2(IoTSharp.Data.ApplicationDbContext,System.Collections.Generic.Dictionary{System.String,System.Object},IoTSharp.Data.Device,IoTSharp.Data.DataSide)">
+            <summary>
+            Save Data to Device's <typeparamref name="D"/> and <typeparamref name="L"/>
+            </summary>
+            <typeparam name="L">Latest</typeparam>
+            <typeparam name="D">Data</typeparam>
+            <param name="data"></param>
+            <param name="device"></param>
+            <param name="dataSide"></param>
+            <param name="_context"></param>
+            <returns></returns>
+        </member>
+        <member name="M:IoTSharp.Extensions.DataExtension.PreparingData``2(IoTSharp.Data.ApplicationDbContext,System.Collections.Generic.Dictionary{System.String,System.Object},IoTSharp.Data.Device,IoTSharp.Data.DataSide)">
+            <summary>
+            Preparing Data to Device's <typeparamref name="D"/> and <typeparamref name="L"/>
+            </summary>
+            <typeparam name="L"></typeparam>
+            <typeparam name="D"></typeparam>
+            <param name="_context"></param>
+            <param name="data"></param>
+            <param name="device"></param>
+            <param name="dataSide"></param>
+            <returns></returns>
+        </member>
+        <member name="M:IoTSharp.Extensions.DeviceExtension.AfterCreateDevice(IoTSharp.Data.ApplicationDbContext,IoTSharp.Data.Device)">
+            <summary>
+            When creating a device, all the things that need to be done here are done
+            </summary>
+            <param name="_context"></param>
+            <param name="device"></param>
+        </member>
+        <member name="M:IoTSharp.Controllers.AccountController.Register(IoTSharp.Dtos.RegisterDto)">
+            <summary>
+            Register a user
+            </summary>
+            <param name="model"></param>
+            <returns ></returns>
+        </member>
+        <member name="M:IoTSharp.Controllers.DevicesController.GetDevices(System.Guid)">
+            <summary>
+            Get all of the customer's devices.
+            </summary>
+            <param name="customerId"></param>
+            <returns></returns>
+        </member>
+        <member name="M:IoTSharp.Controllers.DevicesController.GetIdentity(System.Guid)">
+            <summary>
+            Get a device's credentials
+            </summary>
+            <param name="deviceId"></param>
+            <returns></returns>
+        </member>
+        <member name="M:IoTSharp.Controllers.DevicesController.GetAttributeLatest(System.Guid)">
+            <summary>
+            Request attribute values from the server
+            </summary>
+            <param name="deviceId"></param>
+            <returns></returns>
+        </member>
+        <member name="M:IoTSharp.Controllers.DevicesController.GetTelemetryLatest(System.Guid)">
+            <summary>
+            Request telemetry values from the server
+            </summary>
+            <param name="deviceId"></param>
+            <returns></returns>
+        </member>
+        <member name="M:IoTSharp.Controllers.DevicesController.GetTelemetryLatest(System.Guid,System.String)">
+            <summary>
+            Request telemetry values from the server
+            </summary>
+            <param name="deviceId">Which device do you read?</param>
+            <param name="keyName">Specify key name</param>
+            <returns></returns>
+        </member>
+        <member name="M:IoTSharp.Controllers.DevicesController.GetAttributeLatest(System.Guid,System.String)">
+            <summary>
+            Request telemetry values from the server
+            </summary>
+            <param name="deviceId">Which device do you read?</param>
+            <param name="keyName">Specify key name</param>
+            <returns></returns>
+        </member>
+        <member name="M:IoTSharp.Controllers.DevicesController.GetTelemetryLatest(System.Guid,System.String,System.DateTime)">
+            <summary>
+            Request telemetry values from the server
+            </summary>
+            <param name="deviceId">Which device do you read?</param>
+            <param name="keyName">Specify key name</param>
+            <param name="begin">For example: 2019-06-06 12:24</param>
+            <returns></returns>
+        </member>
+        <member name="M:IoTSharp.Controllers.DevicesController.GetTelemetryLatest(System.Guid,System.String,System.DateTime,System.DateTime)">
+            <summary>
+            Request telemetry values from the server
+            </summary>
+            <param name="deviceId">Which device do you read?</param>
+            <param name="keyName">Specify key name</param>
+            <param name="begin">For example: 2019-06-06 12:24</param>
+            <param name="end">For example: 2019-06-06 12:24</param>
+            <returns></returns>
+        </member>
+        <member name="M:IoTSharp.Controllers.DevicesController.GetDevice(System.Guid)">
+            <summary>
+            Get a device's detail
+            </summary>
+            <param name="id"></param>
+            <returns></returns>
+        </member>
+        <member name="M:IoTSharp.Controllers.DevicesController.PutDevice(System.Guid,IoTSharp.Dtos.DevicePutDto)">
+            <summary>
+            Modify a device
+            </summary>
+            <param name="id"></param>
+            <param name="device"></param>
+            <returns></returns>
+        </member>
+        <member name="M:IoTSharp.Controllers.DevicesController.PostDevice(IoTSharp.Dtos.DevicePostDto)">
+            <summary>
+            Create a new device
+            </summary>
+            <param name="device"></param>
+            <returns></returns>
+        </member>
+        <member name="M:IoTSharp.Controllers.DevicesController.Rpc(System.String,System.String,System.Int32,System.Object)">
+            <summary>
+            Device rpc
+            </summary>
+            <param name="access_token"></param>
+            <param name="method"></param>
+            <param name="timeout"></param>
+            <param name="args"></param>
+            <returns></returns>
+        </member>
+        <member name="M:IoTSharp.Controllers.DevicesController.Telemetry(System.String,System.Collections.Generic.Dictionary{System.String,System.Object})">
+            <summary>
+            Upload  device telemetry to the server.
+            </summary>
+            <param name="access_token">Device 's access token</param>
+            <param name="telemetrys"></param>
+            <returns></returns>
+        </member>
+        <member name="M:IoTSharp.Controllers.DevicesController.Attributes(System.String,IoTSharp.Data.DataSide,System.String)">
+             <summary>
+             Get service-side device attributes from  the server.
+             </summary>
+             <param name="access_token">Device 's access token </param>
+            <param name="dataSide">Specifying data side.</param>
+            <param name="keys">Specifying Attribute's keys</param>
+             <returns></returns>
+        </member>
+        <member name="M:IoTSharp.Controllers.DevicesController.Attributes(System.String,System.Collections.Generic.Dictionary{System.String,System.Object})">
+            <summary>
+            Upload client-side device attributes to the server.
+            </summary>
+            <param name="access_token">Device 's access token </param>
+            <param name="attributes">attributes</param>
+            <returns></returns>
+        </member>
+        <member name="M:IoTSharp.Controllers.TenantsController.GetTenant">
+            <summary>
+            Only for SystemAdmin
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:IoTSharp.Controllers.TenantsController.GetTenant(System.Guid)">
+            <summary>
+            Normal user can use
+            </summary>
+            <param name="id"></param>
+            <returns></returns>
+        </member>
+        <member name="P:IoTSharp.Data.DeviceIdentity.IdentityId">
+            <summary>
+            When <see cref="P:IoTSharp.Data.DeviceIdentity.IdentityType"/> Is <see cref="F:IoTSharp.Data.IdentityType.AccessToken"/> ,this is a Token.
+            When <see cref="P:IoTSharp.Data.DeviceIdentity.IdentityType"/> Is <see cref="F:IoTSharp.Data.IdentityType.DevicePassword"/> ,this is a device name.
+            When <see cref="P:IoTSharp.Data.DeviceIdentity.IdentityType"/> Is <see cref="F:IoTSharp.Data.IdentityType.X509Certificate"/> ,this is X509 Certificate' Fingerprint.
+            </summary>
+        </member>
+        <member name="P:IoTSharp.Data.DeviceIdentity.IdentityValue">
+            <summary>
+            When <see cref="P:IoTSharp.Data.DeviceIdentity.IdentityType"/> Is <see cref="F:IoTSharp.Data.IdentityType.AccessToken"/> ,this is null.
+            When <see cref="P:IoTSharp.Data.DeviceIdentity.IdentityType"/> Is <see cref="F:IoTSharp.Data.IdentityType.DevicePassword"/> ,this is a password.
+            When <see cref="P:IoTSharp.Data.DeviceIdentity.IdentityType"/> Is <see cref="F:IoTSharp.Data.IdentityType.X509Certificate"/> ,this is X509 Certificate' PEM.
+            </summary>
+        </member>
+        <member name="M:IoTSharp.TokenExtension.Gravatar(Microsoft.AspNetCore.Identity.IdentityUser)">
+            Hashes an email with MD5.  Suitable for use with Gravatar profile
+            image urls
+        </member>
+        <member name="T:IoTSharp.Properties.Resources">
+            <summary>
+              一个强类型的资源类，用于查找本地化的字符串等。
+            </summary>
+        </member>
+        <member name="P:IoTSharp.Properties.Resources.ResourceManager">
+            <summary>
+              返回此类使用的缓存的 ResourceManager 实例。
+            </summary>
+        </member>
+        <member name="P:IoTSharp.Properties.Resources.Culture">
+            <summary>
+              重写当前线程的 CurrentUICulture 属性
+              重写当前线程的 CurrentUICulture 属性。
+            </summary>
+        </member>
+        <member name="P:IoTSharp.Properties.Resources.ShowHelp">
+            <summary>
+              查找类似 显示帮助 的本地化字符串。
+            </summary>
+        </member>
+        <member name="P:IoTSharp.Properties.Resources.TheCertificateIsInstalled">
+            <summary>
+              查找类似 The certificate is installed 的本地化字符串。
+            </summary>
+        </member>
+    </members>
+</doc>

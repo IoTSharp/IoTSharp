@@ -277,7 +277,7 @@ namespace IoTSharp.Handlers
                     Task.Run(() => _serverEx.PublishAsync("$SYS/broker/uptime", uptime.ToString()));
                 }
             }
-            if (e.TopicFilter.Topic.ToLower().StartsWith("/devices/telemetry"))///devices/attributes
+            if (e.TopicFilter.Topic.ToLower().StartsWith("/devices/telemetry"))
             {
 
 

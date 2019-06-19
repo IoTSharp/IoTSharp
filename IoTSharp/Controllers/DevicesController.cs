@@ -106,6 +106,97 @@ namespace IoTSharp.Controllers
             }
             return await devid.FirstOrDefaultAsync();
         }
+        /// <summary>
+        /// Request telemetry values from the server
+        /// </summary>
+        /// <param name="deviceId">Which device do you read?</param>
+        /// <param name="keyName">Specify key name</param>
+        /// <returns></returns>
+        [Authorize(Roles = nameof(UserRole.NormalUser))]
+        [HttpGet("{deviceId}/TelemetryLatest/{keyName}")]
+        public async Task<ActionResult<object>> GetTelemetryLatest(Guid deviceId, string keyName)
+        {
+            var dev = _context.Device.Find(deviceId);
+            if (dev == null)
+            {
+                return NotFound(new ApiResult(ApiCode.NotFoundDeviceIdentity, $"Device's Identity not found "));
+            }
+            else
+            {
+                var kv = from t in _context.TelemetryLatest where t.Device == dev && t.KeyName == keyName select t;
+                return (await kv.FirstOrDefaultAsync())?.ToObject();
+            }
+        }
+        /// <summary>
+        /// Request telemetry values from the server
+        /// </summary>
+        /// <param name="deviceId">Which device do you read?</param>
+        /// <param name="keyName">Specify key name</param>
+        /// <returns></returns>
+        [Authorize(Roles = nameof(UserRole.NormalUser))]
+        [HttpGet("{deviceId}/AttributeLatest/{keyName}")]
+        public async Task<ActionResult<object>> GetAttributeLatest(Guid deviceId,string keyName)
+        {
+            var dev = _context.Device.Find(deviceId);
+            if (dev == null)
+            {
+                return NotFound(new ApiResult(ApiCode.NotFoundDeviceIdentity, $"Device's Identity not found "));
+            }
+            else
+            {
+                var kv = from t in _context.AttributeLatest where t.Device == dev && t.KeyName == keyName select t;
+                return (await kv.FirstOrDefaultAsync())?.ToObject();
+            }
+        }
+
+        /// <summary>
+        /// Request telemetry values from the server
+        /// </summary>
+        /// <param name="deviceId">Which device do you read?</param>
+        /// <param name="keyName">Specify key name</param>
+        /// <param name="begin">For example: 2019-06-06 12:24</param>
+        /// <returns></returns>
+        [Authorize(Roles = nameof(UserRole.NormalUser))]
+        [HttpGet("{deviceId}/TelemetryLatest/{keyName}/{begin}")]
+        public async Task<ActionResult<object[]>> GetTelemetryLatest(Guid deviceId, string keyName, DateTime begin)
+        {
+            var dev = _context.Device.Find(deviceId);
+            if (dev == null)
+            {
+                return NotFound(new ApiResult(ApiCode.NotFoundDeviceIdentity, $"Device's Identity not found "));
+            }
+            else
+            {
+                var kv = from t in _context.TelemetryLatest where t.Device == dev && t.KeyName == keyName && t.DateTime >= begin   select t.ToObject();
+                return  await kv.ToArrayAsync();
+            }
+        }
+        /// <summary>
+        /// Request telemetry values from the server
+        /// </summary>
+        /// <param name="deviceId">Which device do you read?</param>
+        /// <param name="keyName">Specify key name</param>
+        /// <param name="begin">For example: 2019-06-06 12:24</param>
+        /// <param name="end">For example: 2019-06-06 12:24</param>
+        /// <returns></returns>
+        [Authorize(Roles = nameof(UserRole.NormalUser))]
+        [HttpGet("{deviceId}/TelemetryLatest/{keyName}/{begin}/{end}")]
+        public async Task<ActionResult<object>> GetTelemetryLatest(Guid deviceId, string keyName, DateTime begin,DateTime end )
+        {
+            var dev = _context.Device.Find(deviceId);
+            if (dev == null)
+            {
+                return NotFound(new ApiResult(ApiCode.NotFoundDeviceIdentity, $"Device's Identity not found "));
+            }
+            else
+            {
+                var kv = from t in _context.TelemetryLatest where t.Device == dev && t.KeyName == keyName && t.DateTime>=begin && t.DateTime <end select t.ToObject() ;
+                return await kv.ToArrayAsync();
+            }
+        }
+
+  
+
 
         /// <summary>
         /// Get a device's detail
