@@ -75,6 +75,9 @@
           <el-button :loading="loading" type="primary" class="item-btn" size="medium" @click.native.prevent="handleRegister">Register</el-button>
           <el-button class="item-btn" type="primary" @click="showDialog=true">Getting a tenant?</el-button>
         </div>
+        <div class="block">
+          <el-button class="thirdparty-button" type="primary" @click="showDialog=true">Getting a tenant?</el-button>
+        </div>
       </div>
     </el-form>
     <el-dialog title="Getting a tenant?" :visible.sync="showDialog">
@@ -97,7 +100,7 @@
 
 <script>
 // import { validUsername } from '@/utils/validate'
-
+import customerId from '@/utils/test-customer-id'
 export default {
   name: 'Register',
   data() {
@@ -127,7 +130,7 @@ export default {
       registerForm: {
         email: '',
         phoneNumber: '',
-        customerId: '',
+        customerId: customerId,
         password: ''
       },
       loginRules: {

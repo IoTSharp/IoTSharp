@@ -17,8 +17,6 @@ namespace IoTSharp.Data
 
     public enum ApiCode : int
     {
-        OK=2000,
-        NotFound=404,
         Success = 10000,
         LoginError = 10001,
         Exception = 10002,
@@ -33,6 +31,7 @@ namespace IoTSharp.Data
         RPCFailed = 10011,
         RPCTimeout = 10012,
         CustomerDoesNotHaveDevice = 10013,
+        CreateUserFailed = 10014,
     }
 
     public enum DataCatalog

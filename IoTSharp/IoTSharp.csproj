@@ -31,6 +31,12 @@
     <PackageTags>IoT</PackageTags>
     <PackageIconUrl>https://avatars2.githubusercontent.com/u/44353254?s=200&amp;v=4</PackageIconUrl>
   </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <GenerateSerializationAssemblies>Off</GenerateSerializationAssemblies>
+    <DocumentationFile>D:\GitHub\IoTSharp\IoTSharp\IoTSharp\IoTSharp.xml</DocumentationFile>
+    <NoWarn>1701;1702;1591</NoWarn>
+  </PropertyGroup>
   <ItemGroup>
     <Content Update="appsettings.json">
       <LinuxPath>/etc/iotsharp/appsettings.json</LinuxPath>
