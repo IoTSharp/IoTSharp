@@ -7,10 +7,10 @@ Vue.use(Router)
 import Layout from '@/layout'
 
 /* Router Modules */
-import componentsRouter from './modules/components'
-import chartsRouter from './modules/charts'
-import tableRouter from './modules/table'
-import nestedRouter from './modules/nested'
+// import componentsRouter from './modules/components'
+// import chartsRouter from './modules/charts'
+// import tableRouter from './modules/table'
+// import nestedRouter from './modules/nested'
 
 /**
  * Note: sub-menu only appear when route children.length >= 1
@@ -110,12 +110,27 @@ export const constantRoutes = [
         }
       },
       {
-        path: 'add',
-        component: () => import('@/views/device/add'),
-        name: 'DeviceAdd',
+        path: 'board',
+        component: () => import('@/views/device/device-board'),
+        name: 'DeviceBoard',
         meta: {
-          title: '添加设备'
-          // if do not set roles, means: this page does not require permission
+          title: '设备详情'
+        }
+      },
+      {
+        path: 'compomentlib',
+        component: () => import('@/views/device/component-lib'),
+        name: 'ComponentLib',
+        meta: {
+          title: '部件库'
+        }
+      },
+      {
+        path: 'DeviceVisionBoardboard',
+        component: () => import('@/views/device/device-visionboard'),
+        name: 'DeviceVisionBoardboard',
+        meta: {
+          title: '仪表盘'
         }
       },
       {
@@ -204,8 +219,8 @@ export const asyncRoutes = [
       }
     ]
   },
-
   /** when your routing map is too long, you can split it into small modules **/
+  /*
   componentsRouter,
   chartsRouter,
   nestedRouter,
@@ -414,7 +429,7 @@ export const asyncRoutes = [
       }
     ]
   },
-
+  */
   // 404 page must be placed at the end !!!
   { path: '*', redirect: '/404', hidden: true }
 ]

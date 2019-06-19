@@ -46,17 +46,18 @@
         <div class="block">
           <el-button :loading="loading" type="primary" class="item-btn" size="medium" style="width:25%" @click.native.prevent="handleLogin">登录</el-button>
           <el-button type="primary" class="item-btn" size="medium" @click.native.prevent="gotoRegisterPage">我要注册</el-button>
-          
         </div>
       </div>
       <div style="position:relative;margin-top:30px">
         <div class="tips">
-          <span>Please register the user first.the username must be email.</span>
+          <span style="color:gray">Please register first.The username must be email.</span>
         </div>
         <div class="tips">
-          <span style="margin-right:18px;">The password must contain upper and lower case letters, numbers, and symbols.</span>
+          <span style="margin-right:18px;color:gray">The password must contain upper and lower case letters, numbers, and symbols.</span>
         </div>
-        <el-button class="thirdparty-button" type="primary" @click="showDialog=true">Getting a tenant?</el-button>
+        <div style="position:relative" align="right">
+          <el-button class="item-btn" type="primary" @click="showDialog=true">Getting a tenant?</el-button>
+        </div>
       </div>
     </el-form>
 
@@ -74,11 +75,11 @@
 
 <script>
 import { validEmail } from '@/utils/validate'
-import SocialSign from './components/SocialSignin'
+// import SocialSign from './components/SocialSignin'
 
 export default {
   name: 'Login',
-  components: { SocialSign },
+  // components: { SocialSign },
   data() {
     const validateUsername = (rule, value, callback) => {
       if (!validEmail(value)) {
