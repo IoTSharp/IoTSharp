@@ -1,4 +1,13 @@
-# IoTSharp 
+
+<pre>
+ _         _______   ______  _                          
+| |       (_______) / _____)| |                         
+| |  ___      _    ( (____  | |__   _____   ____  ____  
+| | / _ \    | |    \____ \ |  _ \ (____ | / ___)|  _ \ 
+| || |_| |   | |    _____) )| | | |/ ___ || |    | |_| |
+|_| \___/    |_|   (______/ |_| |_|\_____||_|    |  __/ 
+                                                 |_|    
+</pre>
 
 [![Build status](https://ci.appveyor.com/api/projects/status/5o23f5vss89ct2lw/branch/master?svg=true)](https://ci.appveyor.com/project/MaiKeBing/iotsharp/branch/master)
 ![GitHub](https://img.shields.io/github/license/iotsharp/iotsharp.svg)
@@ -24,7 +33,7 @@ IoTSharp is an open-source IoT platform for data collection, processing, visuali
  - C# Client SDK for IoTSharp  https://github.com/IoTSharp/IoTSharp.SDKs 
 
 
-![IotSharp Logo](docs/images/iot_sharp_logo.png)
+
 
 ## How to install ?
  -  mkdir  /var/lib/iotsharp/
@@ -37,3 +46,12 @@ IoTSharp is an open-source IoT platform for data collection, processing, visuali
  -	http://127.0.0.1:80/ 
  -  
 
+##  IoTSharp.Edge.RT-Thread
+
+IoTSharp.Edge.RT-Thread (STM32L4 + Wi-Fi, sensor, lcd, audio etc)
+
+https://github.com/IoTSharp/IoTSharp.Edge.RT-Thread
+
+![20190615010003.jpg](docs/images/20190615010003.jpg)
+
+![20190615010115.jpg](docs/images/20190615010115.jpg)
