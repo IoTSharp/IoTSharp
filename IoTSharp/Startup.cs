@@ -1,4 +1,7 @@
-﻿using IoTSharp.Data;
+﻿using IoTSharp.Contracts;
+using IoTSharp.Data;
+using IoTSharp.Extensions;
+using IoTSharp.MQTT;
 using IoTSharp.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
@@ -49,16 +52,18 @@ namespace IoTSharp
                 options.MinimumSameSitePolicy = SameSiteMode.None;
             });
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
+            
             // In production, the Angular files will be served from this directory
             services.AddSpaStaticFiles(configuration =>
             {
                 configuration.RootPath = "ClientApp/dist";
             });
+            
             services.Configure<AppSettings>(Configuration);
 
             services.AddLogging(loggingBuilder => loggingBuilder.AddConsole());
 
-            services.AddIoTSharpHub(Configuration);
+            //services.AddIoTSharpHub(Configuration);
             // Enable the Gzip compression especially for Kestrel
             services.Configure<GzipCompressionProviderOptions>(options => options.Level = System.IO.Compression.CompressionLevel.Optimal);
             services.AddResponseCompression(options =>
@@ -87,13 +92,18 @@ namespace IoTSharp
             });
             services.AddTransient<ApplicationDBInitializer>();
 
-            services.AddIoTSharpMqttServer(AppSettings.MqttBroker);
-            services.AddMqttClient(AppSettings.MqttClient);
-            services.AddHostedService<CoAPService>();
+            //services.AddIoTSharpMqttServer(AppSettings.MqttBroker);
+            //services.AddMqttClient(AppSettings.MqttClient);
+            // services.AddHostedService<CoAPService>();
+            services.AddTransient<IoTSharp.Sys.SystemCancellationToken>();
+            foreach (var singletonService in Reflection.GetClassesImplementingInterface<IService>())
+            {
+                services.AddSingleton(singletonService);
+            }
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env)
+        public void Configure(IApplicationBuilder app, IHostingEnvironment env, IServiceProvider serviceProvider)
         {
             if (env.IsDevelopment())
             {
@@ -110,7 +120,9 @@ namespace IoTSharp
 
             app.UseSwagger();
             app.UseHttpsRedirection();
-            app.UseIotSharpMqttServer();
+            //app.UseIotSharpMqttServer();
+            serviceProvider.GetRequiredService<MqttService>().Start();
+
             app.UseForwardedHeaders(new ForwardedHeadersOptions
             {
                 ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto
@@ -130,7 +142,7 @@ namespace IoTSharp
                     name: "default",
                     template: "{controller}/{action=Index}/{id?}");
             });
-
+            
             app.UseSpa(spa =>
             {
                 // To learn more about options for serving an Angular SPA from ASP.NET Core,
