@@ -11,12 +11,12 @@ namespace IoTSharp.MQTT
     public class MqttTopicImporter
     {
         private readonly MqttImportTopicParameters _parameters;
-        private readonly MqttEventsHandler _mqttService;
+        private readonly MQTTService _mqttService;
         private readonly ILogger _logger;
 
         private IManagedMqttClient _mqttClient;
 
-        public MqttTopicImporter(MqttImportTopicParameters parameters, MqttEventsHandler mqttService,  ILogger logger)
+        public MqttTopicImporter(MqttImportTopicParameters parameters, MQTTService mqttService,  ILogger logger)
         {
             _parameters = parameters ?? throw new ArgumentNullException(nameof(parameters));
             _mqttService = mqttService ?? throw new ArgumentNullException(nameof(mqttService));
