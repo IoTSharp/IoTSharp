@@ -1,5 +1,4 @@
-﻿using IoTSharp.Contracts;
-using IoTSharp.Data;
+﻿using IoTSharp.Data;
 using IoTSharp.Extensions;
 using IoTSharp.MQTT;
 using IoTSharp.Services;
@@ -92,14 +91,14 @@ namespace IoTSharp
             });
             services.AddTransient<ApplicationDBInitializer>();
 
-            //services.AddIoTSharpMqttServer(AppSettings.MqttBroker);
-            //services.AddMqttClient(AppSettings.MqttClient);
-            // services.AddHostedService<CoAPService>();
-            services.AddTransient<IoTSharp.Sys.SystemCancellationToken>();
-            foreach (var singletonService in Reflection.GetClassesImplementingInterface<IService>())
-            {
-                services.AddSingleton(singletonService);
-            }
+            services.AddIoTSharpMqttServer(AppSettings.MqttBroker);
+            services.AddMqttClient(AppSettings.MqttClient);
+            services.AddHostedService<CoAPService>();
+            //services.AddTransient<IoTSharp.Sys.SystemCancellationToken>();
+            //foreach (var singletonService in Reflection.GetClassesImplementingInterface<IService>())
+            //{
+            //    services.AddSingleton(singletonService);
+            //}
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -121,7 +120,7 @@ namespace IoTSharp
             app.UseSwagger();
             app.UseHttpsRedirection();
             //app.UseIotSharpMqttServer();
-            serviceProvider.GetRequiredService<MqttService>().Start();
+         //   serviceProvider.GetRequiredService<MqttService>().Start();
 
             app.UseForwardedHeaders(new ForwardedHeadersOptions
             {

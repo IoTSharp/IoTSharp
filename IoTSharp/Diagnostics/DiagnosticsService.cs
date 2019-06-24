@@ -3,29 +3,28 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
-using IoTSharp.Contracts;
 using IoTSharp.Sys;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
 namespace IoTSharp.Diagnostics
 {
-    public class DiagnosticsService : IService
+    public class DiagnosticsService : IHostedService
     {
         private readonly List<OperationsPerSecondCounter> _operationsPerSecondCounters = new List<OperationsPerSecondCounter>();
-        private readonly SystemCancellationToken _systemCancellationToken;
         
         private readonly ILogger _logger;
 
-        public DiagnosticsService(SystemCancellationToken systemCancellationToken, ILogger<DiagnosticsService> logger)
+        public DiagnosticsService(ILogger<DiagnosticsService> logger)
         {
-            _systemCancellationToken = systemCancellationToken ?? throw new ArgumentNullException(nameof(systemCancellationToken));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
-        public void Start()
+        public Task StartAsync(CancellationToken cancellationToken)
         {
-            Task.Run(() => ResetOperationsPerSecondCountersAsync(_systemCancellationToken.Token), _systemCancellationToken.Token).ConfigureAwait(false);
+         return    ResetOperationsPerSecondCountersAsync(cancellationToken);
         }
+        
 
         public OperationsPerSecondCounter CreateOperationsPerSecondCounter(string uid)
         {
@@ -65,6 +64,16 @@ namespace IoTSharp.Diagnostics
                     _logger.LogError(exception, "Error while resetting operations per second counters.");
                 }
             }
+        }
+
+
+      
+        
+ 
+        public Task StopAsync(CancellationToken cancellationToken)
+        {
+            _logger.LogInformation("DiagnosticsService stop !");
+            return Task.CompletedTask;
         }
     }
 }

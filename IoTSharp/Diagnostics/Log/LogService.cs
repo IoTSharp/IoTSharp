@@ -1,13 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
-using IoTSharp.Contracts;
+using System.Threading;
+using System.Threading.Tasks;
 using IoTSharp.Storage;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
 
 namespace IoTSharp.Diagnostics.Log
 {
-    public class LogService : IService
+    public class LogService : IHostedService
     {
         private readonly LinkedList<LogEntry> _logEntries = new LinkedList<LogEntry>();
         private readonly SystemStatusService _systemStatusService;
@@ -27,10 +29,8 @@ namespace IoTSharp.Diagnostics.Log
             }
         }
 
-        public void Start()
-        {
-        }
-        
+
+
         public void Publish(DateTime timestamp, LogLevel logLevel, string source, string message, Exception exception)
         {
             var newLogEntry = new LogEntry(timestamp, logLevel, source, message, exception?.ToString());
@@ -132,6 +132,16 @@ namespace IoTSharp.Diagnostics.Log
             _systemStatusService.Set("log.informations_count", _informationsCount);
             _systemStatusService.Set("log.warnings_count", _warningsCount);
             _systemStatusService.Set("log.errors_count", _errorsCount);
+        }
+
+        public Task StartAsync(CancellationToken cancellationToken)
+        {
+            return Task.CompletedTask;
+        }
+
+        public Task StopAsync(CancellationToken cancellationToken)
+        {
+            return Task.CompletedTask;
         }
     }
 }

@@ -3,13 +3,13 @@ using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
-using IoTSharp.Contracts;
 using IoTSharp.Diagnostics;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
 namespace IoTSharp.Sys
 {
-    public class SystemService : IService
+    public class SystemService 
     {
         private readonly SystemStatusService _systemStatusService;
         private readonly SystemLaunchArguments _systemLaunchArguments;
