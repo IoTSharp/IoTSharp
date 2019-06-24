@@ -18,9 +18,9 @@ namespace IoTSharp.Controllers
     {
         private readonly MqttService _mqttService;
 
-        public MqttController()
+        public MqttController(MqttService mqttService)
         {
-            _mqttService = MqttExtension.mqttServer;
+            _mqttService = mqttService;
         }
         [HttpPost]
         [Route("/api/v1/mqtt/publish")]

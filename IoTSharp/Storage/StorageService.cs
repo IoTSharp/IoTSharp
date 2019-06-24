@@ -3,12 +3,11 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
-using IoTSharp.Contracts;
 using Microsoft.Extensions.Logging;
 
 namespace IoTSharp.Storage
 {
-    public class StorageService : IService
+    public class StorageService 
     {
         private readonly JsonSerializerService _jsonSerializerService;
         

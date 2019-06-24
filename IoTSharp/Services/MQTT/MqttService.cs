@@ -5,10 +5,10 @@ using System.Linq;
 using System.Runtime.InteropServices.ComTypes;
 using System.Threading;
 using System.Threading.Tasks;
-using IoTSharp.Contracts;
 using IoTSharp.Diagnostics;
 using IoTSharp.Storage;
 using IoTSharp.Sys;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using MQTTnet;
 using MQTTnet.Client.Receiving;
@@ -17,7 +17,7 @@ using MQTTnet.Server.Status;
 
 namespace IoTSharp.MQTT
 {
-    public class MqttService : IService
+    public class MqttService : IHostedService
     {
         private readonly BlockingCollection<MqttApplicationMessageReceivedEventArgs> _incomingMessages = new BlockingCollection<MqttApplicationMessageReceivedEventArgs>();
         private readonly Dictionary<string, MqttTopicImporter> _importers = new Dictionary<string, MqttTopicImporter>();
@@ -56,7 +56,7 @@ namespace IoTSharp.MQTT
             systemStatusService.Set("mqtt.connected_clients_count", () => _mqttServer.GetClientStatusAsync().GetAwaiter().GetResult().Count);
         }
 
-        public void Start()
+        public Task StartAsync(CancellationToken cancellationToken)
         {
             _storageService.TryReadOrCreate(out MqttServiceOptions options, MqttServiceOptions.Filename);
 
@@ -85,9 +85,7 @@ namespace IoTSharp.MQTT
                 serverOptions.WithStorage(storage);
             }
 
-            _mqttServer.StartAsync(serverOptions.Build()).GetAwaiter().GetResult();
-
-            Task.Factory.StartNew(() => ProcessIncomingMqttMessages(_systemCancellationToken.Token), _systemCancellationToken.Token, TaskCreationOptions.LongRunning, TaskScheduler.Default);
+            return _mqttServer.StartAsync(serverOptions.Build()).ContinueWith(a => ProcessIncomingMqttMessages(cancellationToken));
         }
 
         public List<string> GetTopicImportUids()
@@ -280,6 +278,13 @@ namespace IoTSharp.MQTT
         {
             _inboundCounter.Increment();
             _incomingMessages.Add(eventArgs);
+        }
+
+ 
+
+        public Task StopAsync(CancellationToken cancellationToken)
+        {
+            return Task.CompletedTask;
         }
     }
 }

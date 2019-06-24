@@ -1,12 +1,14 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using IoTSharp.Contracts;
+using System.Threading;
+using System.Threading.Tasks;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
 namespace IoTSharp.Diagnostics
 {
-    public class SystemStatusService : IService
+    public class SystemStatusService 
     {
         private readonly ConcurrentDictionary<string, Func<object>> _values = new ConcurrentDictionary<string, Func<object>>();
 
@@ -17,10 +19,7 @@ namespace IoTSharp.Diagnostics
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
-        public void Start()
-        {
-        }
-
+       
         public void Set(string uid, object value)
         {
             if (uid == null) throw new ArgumentNullException(nameof(uid));
@@ -83,5 +82,7 @@ namespace IoTSharp.Diagnostics
 
             return result;
         }
+
+    
     }
 }
