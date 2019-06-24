@@ -48,7 +48,7 @@ service.interceptors.response.use(
     console.log(response)
     console.log('response  token  = ')
     // if the custom code is not 20000, it is judged as an error.
-    if (res.code == 200000) {
+    if (res.code === 200000) {
       Message({
         message: res.message || 'Error',
         type: 'error',
