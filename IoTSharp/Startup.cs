@@ -1,7 +1,9 @@
 ﻿using IoTSharp.Data;
+using IoTSharp.Diagnostics;
 using IoTSharp.Extensions;
 using IoTSharp.MQTT;
 using IoTSharp.Services;
+using IoTSharp.Storage;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
@@ -62,7 +64,7 @@ namespace IoTSharp
 
             services.AddLogging(loggingBuilder => loggingBuilder.AddConsole());
 
-            //services.AddIoTSharpHub(Configuration);
+            services.AddIoTSharpHub(Configuration);
             // Enable the Gzip compression especially for Kestrel
             services.Configure<GzipCompressionProviderOptions>(options => options.Level = System.IO.Compression.CompressionLevel.Optimal);
             services.AddResponseCompression(options =>
@@ -90,15 +92,12 @@ namespace IoTSharp
                 configure.Description = description?.Description;
             });
             services.AddTransient<ApplicationDBInitializer>();
-
             services.AddIoTSharpMqttServer(AppSettings.MqttBroker);
             services.AddMqttClient(AppSettings.MqttClient);
             services.AddHostedService<CoAPService>();
-            //services.AddTransient<IoTSharp.Sys.SystemCancellationToken>();
-            //foreach (var singletonService in Reflection.GetClassesImplementingInterface<IService>())
-            //{
-            //    services.AddSingleton(singletonService);
-            //}
+            services.AddSingleton<DiagnosticsService>();
+            services.AddSingleton<RetainedMessageHandler>();
+            services.AddSingleton<SystemStatusService>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -119,7 +118,7 @@ namespace IoTSharp
 
             app.UseSwagger();
             app.UseHttpsRedirection();
-            //app.UseIotSharpMqttServer();
+            app.UseIotSharpMqttServer();
          //   serviceProvider.GetRequiredService<MqttService>().Start();
 
             app.UseForwardedHeaders(new ForwardedHeadersOptions

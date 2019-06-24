@@ -140,5 +140,7 @@ namespace IoTSharp.Data
         public DbSet<TelemetryLatest> TelemetryLatest { get; set; }
         public DbSet<DeviceIdentity> DeviceIdentities { get; set; }
         public DbSet<AuditLog> AuditLog { get; set; }
+
+        public DbSet<RetainedMessage> RetainedMessage { get; set; }
     }
 }
