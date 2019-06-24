@@ -22,6 +22,7 @@ namespace IoTSharp.Diagnostics
        
         public void Set(string uid, object value)
         {
+       
             if (uid == null) throw new ArgumentNullException(nameof(uid));
 
             _values[uid] = () => value;
