@@ -205,7 +205,6 @@ export default {
       const isEdit = this.dialogType === 'edit'
 
       const checkedKeys = this.$refs.tree.getCheckedKeys()
-      const checkednodes = this.$refs.tree.getCheckedNodes()
       this.role.routes = this.generateTree(deepClone(this.serviceRoutes), '/', checkedKeys)
 
       if (isEdit) {
