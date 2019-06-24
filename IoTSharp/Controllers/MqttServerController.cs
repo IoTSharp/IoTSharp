@@ -18,11 +18,11 @@ namespace IoTSharp.Controllers
 {
     [Route("api/[controller]/[action]")]
     [ApiController]
-    public class MqttController : ControllerBase
+    public class MqttServerController : ControllerBase
     {
         private readonly MQTTService _mqttService;
 
-        public MqttController(MQTTService mqttService)
+        public MqttServerController(MQTTService mqttService)
         {
             _mqttService = mqttService;
         }
