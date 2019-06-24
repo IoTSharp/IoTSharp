@@ -42,7 +42,7 @@ namespace IoTSharp
                 {
                     options.WithoutEncryptedEndpoint();
                 }
-            
+                options.WithPersistentSessions();
                 options.Build();
             });
             services.AddMqttConnectionHandler();

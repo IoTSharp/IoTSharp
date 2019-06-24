@@ -10,6 +10,7 @@ using Microsoft.Extensions.Logging;
 using MQTTnet;
 using MQTTnet.AspNetCoreEx;
 using MQTTnet.Server;
+using MQTTnet.Server.Status;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -17,6 +18,7 @@ using System.Linq;
 using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace IoTSharp.Handlers
@@ -79,6 +81,8 @@ namespace IoTSharp.Handlers
         long received = 0;
         internal void Server_ApplicationMessageReceived(object sender, MqttApplicationMessageReceivedEventArgs e)
         {
+            _inboundCounter.Increment();
+            _incomingMessages.Add(e);
             if (string.IsNullOrEmpty(e.ClientId))
             {
                 _logger.LogInformation($"Message: Topic=[{e.ApplicationMessage.Topic }]");
@@ -369,6 +373,192 @@ namespace IoTSharp.Handlers
                 }
             }
 
+        }
+
+        public List<string> GetTopicImportUids()
+        {
+            lock (_importers)
+            {
+                return _importers.Select(i => i.Key).ToList();
+            }
+        }
+
+        public string StartTopicImport(string uid, MqttImportTopicParameters parameters)
+        {
+            if (parameters == null) throw new ArgumentNullException(nameof(parameters));
+
+            if (string.IsNullOrEmpty(uid))
+            {
+                uid = Guid.NewGuid().ToString("D");
+            }
+
+            var importer = new MqttTopicImporter(parameters, this, _enableMqttLogging, _logger);
+            importer.Start();
+
+            lock (_importers)
+            {
+                if (_importers.TryGetValue(uid, out var existingImporter))
+                {
+                    existingImporter.Stop();
+                }
+
+                _importers[uid] = importer;
+            }
+
+            _logger.Log(LogLevel.Information, "Started importer '{0}' for topic '{1}' from server '{2}'.", uid, parameters.Topic, parameters.Server);
+            return uid;
+        }
+
+        public void StopTopicImport(string uid)
+        {
+            if (uid == null) throw new ArgumentNullException(nameof(uid));
+
+            lock (_importers)
+            {
+                if (_importers.TryGetValue(uid, out var importer))
+                {
+                    importer.Stop();
+                    _logger.Log(LogLevel.Information, "Stopped importer '{0}'.");
+                }
+
+                _importers.Remove(uid);
+            }
+        }
+
+        public List<MqttSubscriber> GetSubscribers()
+        {
+            lock (_subscribers)
+            {
+                return _subscribers.Values.ToList();
+            }
+        }
+
+        public Task<IList<MqttApplicationMessage>> GetRetainedMessagesAsync()
+        {
+            return _serverEx.GetRetainedApplicationMessagesAsync();
+        }
+
+        public Task DeleteRetainedMessagesAsync()
+        {
+            return _serverEx.ClearRetainedApplicationMessagesAsync();
+        }
+
+        public void Publish(MqttPublishParameters parameters)
+        {
+            var message = new MqttApplicationMessageBuilder()
+                .WithTopic(parameters.Topic)
+                .WithPayload(parameters.Payload)
+                .WithQualityOfServiceLevel(parameters.QualityOfServiceLevel)
+                .WithRetainFlag(parameters.Retain)
+                .Build();
+
+            _serverEx.PublishAsync(message).GetAwaiter().GetResult();
+            _outboundCounter.Increment();
+
+            _logger.Log(LogLevel.Trace, $"Published MQTT topic '{parameters.Topic}.");
+        }
+
+        public string Subscribe(string uid, string topicFilter, Action<MqttApplicationMessageReceivedEventArgs> callback)
+        {
+            if (topicFilter == null) throw new ArgumentNullException(nameof(topicFilter));
+            if (callback == null) throw new ArgumentNullException(nameof(callback));
+
+            if (string.IsNullOrEmpty(uid))
+            {
+                uid = Guid.NewGuid().ToString("D");
+            }
+
+            lock (_subscribers)
+            {
+                _subscribers[uid] = new MqttSubscriber(uid, topicFilter, callback);
+            }
+
+            // Enqueue all retained messages to match the expected MQTT behavior.
+            // Here we have no client per subscription. So we need to adopt some
+            // features here manually.
+            foreach (var retainedMessage in _serverEx.GetRetainedApplicationMessagesAsync().GetAwaiter().GetResult())
+            {
+                _incomingMessages.Add(new MqttApplicationMessageReceivedEventArgs(null, retainedMessage));
+            }
+
+            return uid;
+        }
+
+        public void Unsubscribe(string uid)
+        {
+            lock (_subscribers)
+            {
+                _subscribers.Remove(uid);
+            }
+        }
+
+        public Task<IList<IMqttClientStatus>> GetClientsAsync()
+        {
+            return _serverEx.GetClientStatusAsync();
+        }
+
+        public Task<IList<IMqttSessionStatus>> GetSessionsAsync()
+        {
+            return _serverEx.GetSessionStatusAsync();
+        }
+
+        private void ProcessIncomingMqttMessages(CancellationToken cancellationToken)
+        {
+            Thread.CurrentThread.Name = nameof(ProcessIncomingMqttMessages);
+
+            while (!cancellationToken.IsCancellationRequested)
+            {
+                MqttApplicationMessageReceivedEventArgs message = null;
+                try
+                {
+                    message = _incomingMessages.Take(cancellationToken);
+                    if (message == null || cancellationToken.IsCancellationRequested)
+                    {
+                        return;
+                    }
+
+                    var affectedSubscribers = new List<MqttSubscriber>();
+                    lock (_subscribers)
+                    {
+                        foreach (var subscriber in _subscribers.Values)
+                        {
+                            if (subscriber.IsFilterMatch(message.ApplicationMessage.Topic))
+                            {
+                                affectedSubscribers.Add(subscriber);
+                            }
+                        }
+                    }
+
+                    foreach (var subscriber in affectedSubscribers)
+                    {
+                        TryNotifySubscriber(subscriber, message);
+                    }
+
+                    _outboundCounter.Increment();
+                }
+                catch (OperationCanceledException)
+                {
+                }
+                catch (Exception exception)
+                {
+                    _logger.Log(LogLevel.Error, exception, $"Error while processing MQTT message with topic '{message?.ApplicationMessage?.Topic}'.");
+                }
+            }
+        }
+
+        private void TryNotifySubscriber(MqttSubscriber subscriber, MqttApplicationMessageReceivedEventArgs message)
+        {
+            try
+            {
+                subscriber.Notify(message);
+            }
+            catch (OperationCanceledException)
+            {
+            }
+            catch (Exception exception)
+            {
+                _logger.Log(LogLevel.Error, exception, $"Error while notifying subscriber '{subscriber.Uid}'.");
+            }
         }
     }
 }
