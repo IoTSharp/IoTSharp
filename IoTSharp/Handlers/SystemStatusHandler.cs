@@ -3,28 +3,22 @@ using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
-using IoTSharp.Diagnostics;
-using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
-namespace IoTSharp.Sys
+namespace IoTSharp.Handlers
 {
-    public class SystemService 
+    public class SystemStatusHandler 
     {
-        private readonly SystemStatusService _systemStatusService;
-        private readonly SystemLaunchArguments _systemLaunchArguments;
+        private readonly RuntimeStatusHandler _systemStatusService;
 
         private readonly ILogger _logger;
         private readonly DateTime _creationTimestamp;
 
-        public SystemService(
-            SystemStatusService systemStatusService,
-            SystemLaunchArguments systemLaunchArguments,
-            SystemCancellationToken systemCancellationToken,
-            ILogger<SystemService> logger)
+        public SystemStatusHandler(
+            RuntimeStatusHandler systemStatusService,
+            ILogger<SystemStatusHandler> logger)
         {
             _systemStatusService = systemStatusService ?? throw new ArgumentNullException(nameof(systemStatusService));
-            _systemLaunchArguments = systemLaunchArguments ?? throw new ArgumentNullException(nameof(systemLaunchArguments));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
 
             _creationTimestamp = DateTime.Now;
@@ -50,9 +44,9 @@ namespace IoTSharp.Sys
 
             _systemStatusService.Set("up_time", () => DateTime.Now - _creationTimestamp);
 
-            _systemStatusService.Set("arguments", string.Join(" ", _systemLaunchArguments.Values));
+            _systemStatusService.Set("arguments", string.Join(" ", Environment.GetCommandLineArgs()));
 
-            //_systemStatusService.Set("iotsharp.version", IotSharp.Version);
+            _systemStatusService.Set("iotsharp.version",  typeof(Startup).Assembly.GetName().Version.ToString());
 
             AddOSInformation();
             AddThreadPoolInformation();
