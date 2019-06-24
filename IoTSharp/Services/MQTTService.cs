@@ -1,10 +1,8 @@
 ﻿using IoTSharp.Data;
 using IoTSharp.Diagnostics;
 using IoTSharp.Extensions;
+using IoTSharp.Handlers;
 using IoTSharp.MQTT;
-using IoTSharp.Storage;
-using IoTSharp.Sys;
-using IoTSharp.X509Extensions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using MQTTnet;
@@ -33,15 +31,16 @@ namespace IoTSharp.Services
         private readonly OperationsPerSecondCounter _inboundCounter;
         private readonly OperationsPerSecondCounter _outboundCounter;
 
-
+        private readonly SystemStatusHandler _systemStatusHandler;
         public MqttEventsHandler(ILogger<MqttEventsHandler> logger, ApplicationDbContext dbContext, IMqttServerEx serverEx, DiagnosticsService diagnosticsService,
-            SystemStatusService systemStatusService
+            RuntimeStatusHandler systemStatusService,
+            SystemStatusHandler systemStatusHandler
             )
         {
             _logger = logger;
             _dbContext = dbContext;
             _serverEx = serverEx;
-
+            _systemStatusHandler = systemStatusHandler;
             _inboundCounter = diagnosticsService.CreateOperationsPerSecondCounter("mqtt.inbound_rate");
             _outboundCounter = diagnosticsService.CreateOperationsPerSecondCounter("mqtt.outbound_rate");
 

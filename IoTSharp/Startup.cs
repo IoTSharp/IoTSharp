@@ -1,6 +1,7 @@
 ﻿using IoTSharp.Data;
 using IoTSharp.Diagnostics;
 using IoTSharp.Extensions;
+using IoTSharp.Handlers;
 using IoTSharp.MQTT;
 using IoTSharp.Services;
 using IoTSharp.Storage;
@@ -97,7 +98,8 @@ namespace IoTSharp
             services.AddHostedService<CoAPService>();
             services.AddSingleton<DiagnosticsService>();
             services.AddSingleton<RetainedMessageHandler>();
-            services.AddSingleton<SystemStatusService>();
+            services.AddSingleton<RuntimeStatusHandler>();
+            services.AddSingleton<SystemStatusHandler>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

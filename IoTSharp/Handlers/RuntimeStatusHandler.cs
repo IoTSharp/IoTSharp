@@ -1,20 +1,18 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
-using Microsoft.Extensions.Hosting;
+
 using Microsoft.Extensions.Logging;
 
-namespace IoTSharp.Diagnostics
+namespace IoTSharp.Handlers
 {
-    public class SystemStatusService 
+    public class RuntimeStatusHandler 
     {
         private readonly ConcurrentDictionary<string, Func<object>> _values = new ConcurrentDictionary<string, Func<object>>();
 
-        private readonly ILogger<SystemStatusService> _logger;
+        private readonly ILogger<RuntimeStatusHandler> _logger;
 
-        public SystemStatusService(ILogger<SystemStatusService> logger)
+        public RuntimeStatusHandler(ILogger<RuntimeStatusHandler> logger)
         {
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
