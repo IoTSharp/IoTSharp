@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using IoTSharp.Data;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using MQTTnet;
 using MQTTnet.Server;
@@ -8,7 +9,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace IoTSharp.Data
+namespace IoTSharp.Handlers
 {
     public class RetainedMessageHandler : IMqttServerStorage
     {

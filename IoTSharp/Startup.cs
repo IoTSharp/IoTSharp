@@ -4,7 +4,6 @@ using IoTSharp.Extensions;
 using IoTSharp.Handlers;
 using IoTSharp.MQTT;
 using IoTSharp.Services;
-using IoTSharp.Storage;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;

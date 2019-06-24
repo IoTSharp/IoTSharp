@@ -9,12 +9,15 @@ using System.Threading.Tasks;
 
 namespace IoTSharp.Data
 {
-    [Serializable]
     public class RetainedMessage
     {
+        public RetainedMessage()
+        {
 
+        }
+        [Key]
+        public string Id { get; set; }
 
-        // user-defined conversion from Fraction to double
         public static implicit operator MqttApplicationMessage(RetainedMessage f)
         {
             return new MqttApplicationMessage() { Payload = f.Payload, Retain = true, Topic = f.Topic, QualityOfServiceLevel = f.QualityOfServiceLevel };
@@ -27,11 +30,7 @@ namespace IoTSharp.Data
         public MqttQualityOfServiceLevel QualityOfServiceLevel { get; set; }
         public string Topic { get; set; }
         public bool Retain { get; set; }
-        MD5 MD5 = MD5.Create();
-        public RetainedMessage()
-        {
-
-        }
+        static MD5 MD5 = MD5.Create();
         public RetainedMessage(MqttApplicationMessage retained)
         {
             Topic = retained.Topic;
@@ -42,7 +41,6 @@ namespace IoTSharp.Data
             lst.AddRange(System.Text.Encoding.UTF8.GetBytes(Topic));
             Id = BitConverter.ToString(MD5.ComputeHash(lst.ToArray())).Replace("-", "");
         }
-        [Key]
-        public string Id { get; set; }
+   
     }
 }

@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using Microsoft.Extensions.Logging;
 
-namespace IoTSharp.Storage
+namespace IoTSharp.Extensions
 {
     public static class StorageExtensions
     {
