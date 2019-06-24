@@ -14,14 +14,15 @@ using IoTSharp.Services;
 using MQTTnet.Server;
 using MQTTnet.Client.Receiving;
 using MQTTnet.Client.Options;
+using IoTSharp.MQTT;
 
 namespace IoTSharp
 {
     public static class MqttExtension
     {
+        //static private IMqttServer _mqttServer;
         public static void AddIoTSharpMqttServer(this IServiceCollection services, MqttBrokerSetting setting)
         {
-
             services.AddMqttTcpServerAdapter();
             services.AddHostedMqttServerEx(options =>
             {
@@ -41,6 +42,7 @@ namespace IoTSharp
                 {
                     options.WithoutEncryptedEndpoint();
                 }
+                options.WithPersistentSessions();
                 options.Build();
             });
             services.AddMqttConnectionHandler();
@@ -51,6 +53,7 @@ namespace IoTSharp
         {
             app.UseMqttEndpoint();
             var mqttEvents = app.ApplicationServices.CreateScope().ServiceProvider.GetService<MqttEventsHandler>();
+            IMqttServerStorage storage   = app.ApplicationServices.CreateScope().ServiceProvider.GetService<IMqttServerStorage>();
             app.UseMqttServerEx(server =>
                 {
                     server.ClientConnectedHandler = new MqttServerClientConnectedHandlerDelegate(args => mqttEvents.Server_ClientConnected(server, args));
@@ -61,7 +64,6 @@ namespace IoTSharp
                     server.ClientUnsubscribedTopicHandler = new MqttServerClientUnsubscribedTopicHandlerDelegate(args => mqttEvents.Server_ClientUnsubscribedTopic(server, args));
                     server.ClientConnectionValidatorHandler = new MqttServerClientConnectionValidatorHandlerDelegate(args => mqttEvents.Server_ClientConnectionValidator(server, args));
                     server.ClientDisconnectedHandler = new MqttServerClientDisconnectedHandlerDelegate(args => mqttEvents.Server_ClientDisconnected(server, args));
- 
                 });
 
             var mqttNetLogger = app.ApplicationServices.GetService<IMqttNetLogger>();

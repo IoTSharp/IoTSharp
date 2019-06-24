@@ -1,5 +1,10 @@
 ﻿using IoTSharp.Data;
+using IoTSharp.Diagnostics;
+using IoTSharp.Extensions;
+using IoTSharp.Handlers;
+using IoTSharp.MQTT;
 using IoTSharp.Services;
+using IoTSharp.Storage;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
@@ -49,11 +54,13 @@ namespace IoTSharp
                 options.MinimumSameSitePolicy = SameSiteMode.None;
             });
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
+            
             // In production, the Angular files will be served from this directory
             services.AddSpaStaticFiles(configuration =>
             {
                 configuration.RootPath = "ClientApp/dist";
             });
+            
             services.Configure<AppSettings>(Configuration);
 
             services.AddLogging(loggingBuilder => loggingBuilder.AddConsole());
@@ -86,14 +93,17 @@ namespace IoTSharp
                 configure.Description = description?.Description;
             });
             services.AddTransient<ApplicationDBInitializer>();
-
             services.AddIoTSharpMqttServer(AppSettings.MqttBroker);
             services.AddMqttClient(AppSettings.MqttClient);
             services.AddHostedService<CoAPService>();
+            services.AddSingleton<DiagnosticsService>();
+            services.AddSingleton<RetainedMessageHandler>();
+            services.AddSingleton<RuntimeStatusHandler>();
+            services.AddSingleton<SystemStatusHandler>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env)
+        public void Configure(IApplicationBuilder app, IHostingEnvironment env, IServiceProvider serviceProvider)
         {
             if (env.IsDevelopment())
             {
@@ -111,6 +121,8 @@ namespace IoTSharp
             app.UseSwagger();
             app.UseHttpsRedirection();
             app.UseIotSharpMqttServer();
+         //   serviceProvider.GetRequiredService<MqttService>().Start();
+
             app.UseForwardedHeaders(new ForwardedHeadersOptions
             {
                 ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto
@@ -130,7 +142,7 @@ namespace IoTSharp
                     name: "default",
                     template: "{controller}/{action=Index}/{id?}");
             });
-
+            
             app.UseSpa(spa =>
             {
                 // To learn more about options for serving an Angular SPA from ASP.NET Core,
