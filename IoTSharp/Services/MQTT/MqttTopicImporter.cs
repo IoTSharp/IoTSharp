@@ -1,4 +1,5 @@
 ﻿using System;
+using IoTSharp.Handlers;
 using Microsoft.Extensions.Logging;
 using MQTTnet;
 using MQTTnet.Client.Options;
@@ -9,13 +10,13 @@ namespace IoTSharp.MQTT
     public class MqttTopicImporter
     {
         private readonly MqttImportTopicParameters _parameters;
-        private readonly MqttService _mqttService;
+        private readonly MqttEventsHandler _mqttService;
         private readonly bool _enableMqttLogging;
         private readonly ILogger _logger;
 
         private IManagedMqttClient _mqttClient;
 
-        public MqttTopicImporter(MqttImportTopicParameters parameters, MqttService mqttService, bool enableMqttLogging, ILogger logger)
+        public MqttTopicImporter(MqttImportTopicParameters parameters, MqttEventsHandler mqttService, bool enableMqttLogging, ILogger logger)
         {
             _parameters = parameters ?? throw new ArgumentNullException(nameof(parameters));
             _mqttService = mqttService ?? throw new ArgumentNullException(nameof(mqttService));
@@ -44,15 +45,9 @@ namespace IoTSharp.MQTT
 
             var options = optionsBuilder.Build();
 
-            if (_enableMqttLogging)
-            {
-                _mqttClient = new MqttFactory().CreateManagedMqttClient(new LoggerAdapter(_logger));
-            }
-            else
-            {
-                _mqttClient = new MqttFactory().CreateManagedMqttClient();
-            }
-            
+
+            _mqttClient = new MqttFactory().CreateManagedMqttClient();
+
             _mqttClient.SubscribeAsync(_parameters.Topic, _parameters.QualityOfServiceLevel).GetAwaiter().GetResult();
             _mqttClient.UseApplicationMessageReceivedHandler(e => OnApplicationMessageReceived(e));
             _mqttClient.StartAsync(options).GetAwaiter().GetResult();
