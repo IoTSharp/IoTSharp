@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using IoTSharp.Data;
 using IoTSharp.Handlers;
 using IoTSharp.MQTT;
+using IoTSharp.Services;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using MQTTnet;

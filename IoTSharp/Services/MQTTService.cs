@@ -16,12 +16,11 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Security.Cryptography;
-using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace IoTSharp.Handlers
+namespace IoTSharp.Services
 {
     public class MqttEventsHandler
     {
@@ -34,12 +33,8 @@ namespace IoTSharp.Handlers
         private readonly OperationsPerSecondCounter _inboundCounter;
         private readonly OperationsPerSecondCounter _outboundCounter;
 
-        private bool _enableMqttLogging;
-        private readonly StorageService _storageService;
-        private readonly SystemCancellationToken _systemCancellationToken;
 
         public MqttEventsHandler(ILogger<MqttEventsHandler> logger, ApplicationDbContext dbContext, IMqttServerEx serverEx, DiagnosticsService diagnosticsService,
-            StorageService storageService,
             SystemStatusService systemStatusService
             )
         {
@@ -392,7 +387,7 @@ namespace IoTSharp.Handlers
                 uid = Guid.NewGuid().ToString("D");
             }
 
-            var importer = new MqttTopicImporter(parameters, this, _enableMqttLogging, _logger);
+            var importer = new MqttTopicImporter(parameters, this , _logger);
             importer.Start();
 
             lock (_importers)
