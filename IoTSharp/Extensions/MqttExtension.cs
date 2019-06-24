@@ -50,12 +50,12 @@ namespace IoTSharp
             });
             services.AddMqttConnectionHandler();
             services.AddMqttWebSocketServerAdapter();
-            services.AddTransient<MQTTService>();
+            services.AddSingleton<MQTTServerHandler>();
         }
         public static void UseIotSharpMqttServer(this IApplicationBuilder app)
         {
             app.UseMqttEndpoint();
-            var mqttEvents = app.ApplicationServices.CreateScope().ServiceProvider.GetService<MQTTService>();
+            var mqttEvents = app.ApplicationServices.CreateScope().ServiceProvider.GetService<MQTTServerHandler>();
             IMqttServerStorage storage = app.ApplicationServices.CreateScope().ServiceProvider.GetService<IMqttServerStorage>();
             app.UseMqttServerEx(server =>
                 {

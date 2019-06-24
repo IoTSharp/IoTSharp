@@ -99,6 +99,7 @@ namespace IoTSharp
             services.AddIoTSharpMqttServer(AppSettings.MqttBroker);
             services.AddMqttClient(AppSettings.MqttClient);
             services.AddHostedService<CoAPService>();
+            services.AddHostedService<MQTTMessageService>();
             services.AddSingleton<DiagnosticsService>();
             services.AddSingleton<RetainedMessageHandler>();
             services.AddSingleton<RuntimeStatusHandler>();

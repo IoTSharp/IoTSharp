@@ -2,11 +2,11 @@
 
 namespace IoTSharp.MQTT
 {
-    public class MqttPublishParameters
+    public class MqttPublishParameters<T>
     {
         public string Topic { get; set; }
 
-        public byte[] Payload { get; set; } = new byte[0];
+        public T Payload { get; set; } =default(T);
 
         public MqttQualityOfServiceLevel QualityOfServiceLevel { get; set; } = MqttQualityOfServiceLevel.AtMostOnce;
 
