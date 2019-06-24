@@ -20,9 +20,9 @@ using System.Threading.Tasks;
 
 namespace IoTSharp.Services
 {
-    public class MqttEventsHandler
+    public class MQTTService
     {
-        readonly ILogger<MqttEventsHandler> _logger;
+        readonly ILogger<MQTTService> _logger;
         readonly ApplicationDbContext _dbContext;
         readonly IMqttServerEx _serverEx;
         private readonly BlockingCollection<MqttApplicationMessageReceivedEventArgs> _incomingMessages = new BlockingCollection<MqttApplicationMessageReceivedEventArgs>();
@@ -31,16 +31,13 @@ namespace IoTSharp.Services
         private readonly OperationsPerSecondCounter _inboundCounter;
         private readonly OperationsPerSecondCounter _outboundCounter;
 
-        private readonly SystemStatusHandler _systemStatusHandler;
-        public MqttEventsHandler(ILogger<MqttEventsHandler> logger, ApplicationDbContext dbContext, IMqttServerEx serverEx, DiagnosticsService diagnosticsService,
-            RuntimeStatusHandler systemStatusService,
-            SystemStatusHandler systemStatusHandler
+        public MQTTService(ILogger<MQTTService> logger, ApplicationDbContext dbContext, IMqttServerEx serverEx, DiagnosticsService diagnosticsService,
+            RuntimeStatusHandler systemStatusService
             )
         {
             _logger = logger;
             _dbContext = dbContext;
             _serverEx = serverEx;
-            _systemStatusHandler = systemStatusHandler;
             _inboundCounter = diagnosticsService.CreateOperationsPerSecondCounter("mqtt.inbound_rate");
             _outboundCounter = diagnosticsService.CreateOperationsPerSecondCounter("mqtt.outbound_rate");
 
@@ -295,7 +292,7 @@ namespace IoTSharp.Services
             {
                 if (e.TopicFilter.Topic.StartsWith("$SYS/broker/version"))
                 {
-                    var mename = typeof(MqttEventsHandler).Assembly.GetName();
+                    var mename = typeof(MQTTService).Assembly.GetName();
                     var mqttnet = typeof(MqttServerClientSubscribedTopicEventArgs).Assembly.GetName();
                     Task.Run(() => _serverEx.PublishAsync("$SYS/broker/version", $"{mename.Name}V{mename.Version.ToString()},{mqttnet.Name}.{mqttnet.Version.ToString()}"));
                 }

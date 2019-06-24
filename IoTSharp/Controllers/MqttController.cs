@@ -20,9 +20,9 @@ namespace IoTSharp.Controllers
     [ApiController]
     public class MqttController : ControllerBase
     {
-        private readonly MqttEventsHandler _mqttService;
+        private readonly MQTTService _mqttService;
 
-        public MqttController(MqttEventsHandler mqttService)
+        public MqttController(MQTTService mqttService)
         {
             _mqttService = mqttService;
         }
