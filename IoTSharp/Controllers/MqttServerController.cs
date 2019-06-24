@@ -18,37 +18,29 @@ namespace IoTSharp.Controllers
 {
     [Route("api/[controller]/[action]")]
     [ApiController]
-    public class MqttController : ControllerBase
+    public class MqttServerController : ControllerBase
     {
-        private readonly MqttEventsHandler _mqttService;
+        private readonly MQTTServerHandler _mqttService;
 
-        public MqttController(MqttEventsHandler mqttService)
+        public MqttServerController(MQTTServerHandler mqttService)
         {
             _mqttService = mqttService;
         }
         [HttpPost]
-        public async Task PostPublish(string topic, int qos = 0, bool retain = false)
+        public async Task Publish(string topic, string Payload, int qos = 0, bool retain = false)
         {
             if (topic == null) throw new ArgumentNullException(nameof(topic));
-
-            var buffer = new byte[Request.ContentLength ?? 0];
-            if (buffer.Length > 0)
-            {
-                await Request.Body.ReadAsync(buffer, 0, buffer.Length);
-            }
-              _mqttService.Publish(new MqttPublishParameters() {  Payload=buffer, QualityOfServiceLevel= (MqttQualityOfServiceLevel)qos, Retain=retain, Topic=topic});
+            await _mqttService.Publish(new MqttPublishParameters<string>() { Payload = Payload, QualityOfServiceLevel = (MqttQualityOfServiceLevel)qos, Retain = retain, Topic = topic });
         }
 
         [HttpGet]
-        public List<string> GetImports()
+        public List<string> Imports()
         {
             return _mqttService.GetTopicImportUids();
         }
 
-        [HttpPost]
-        [Route("/api/v1/mqtt/imports/{uid}")]
-        [ApiExplorerSettings(GroupName = "v1")]
-        public void PostImport(string uid, [FromBody] MqttImportTopicParameters parameters)
+        [HttpPost("{uid}")]
+        public void Import(string uid, [FromBody] MqttImportTopicParameters parameters)
         {
             if (uid == null) throw new ArgumentNullException(nameof(uid));
             if (parameters == null) throw new ArgumentNullException(nameof(parameters));
@@ -56,8 +48,8 @@ namespace IoTSharp.Controllers
             _mqttService.StartTopicImport(uid, parameters);
         }
 
-        [HttpDelete]
-        [Route("/api/v1/mqtt/imports/{uid}")]
+        [HttpDelete("{uid}")]
+      
         [ApiExplorerSettings(GroupName = "v1")]
         public void DeleteImport(string uid)
         {
@@ -67,25 +59,20 @@ namespace IoTSharp.Controllers
         }
 
         [HttpGet]
-        [Route("api/v1/mqtt/clients")]
-        [ApiExplorerSettings(GroupName = "v1")]
-        public Task<IList<IMqttClientStatus>> GetClients()
+        public Task<IList<IMqttClientStatus>>  Clients()
         {
             return _mqttService.GetClientsAsync();
         }
 
         [HttpGet]
-        [Route("api/v1/mqtt/sessions")]
-        [ApiExplorerSettings(GroupName = "v1")]
-        public Task<IList<IMqttSessionStatus>> GetSessions()
+        public Task<IList<IMqttSessionStatus>> Sessions()
         {
             return _mqttService.GetSessionsAsync();
         }
 
         [HttpGet]
-        [Route("api/v1/mqtt/subscribers")]
-        [ApiExplorerSettings(GroupName = "v1")]
-        public Dictionary<string, MqttSubscriberModel> GetSubscriptions()
+  
+        public Dictionary<string, MqttSubscriberModel>  Subscriptions()
         {
             return _mqttService.GetSubscribers().ToDictionary(s => s.Uid, s => new MqttSubscriberModel
             {
@@ -93,28 +80,23 @@ namespace IoTSharp.Controllers
             });
         }
 
-        [HttpDelete]
-        [Route("api/v1/mqtt/subscribers/{uid}")]
-        [ApiExplorerSettings(GroupName = "v1")]
-        public void DeleteSubscriber(string uid)
+        [HttpDelete("{uid}")]
+       
+        public void  Subscriber(string uid)
         {
             _mqttService.Unsubscribe(uid);
         }
 
         [HttpGet]
-        [Route("api/v1/mqtt/retained_messages")]
-        [ApiExplorerSettings(GroupName = "v1")]
-        public Task<IList<MqttApplicationMessage>> GetRetainedMessages()
+        public Task<IList<MqttApplicationMessage>>  RetainedMessages()
         {
             return _mqttService.GetRetainedMessagesAsync();
         }
 
-        [HttpDelete]
-        [Route("api/v1/mqtt/retained_messages/{topic}")]
-        [ApiExplorerSettings(GroupName = "v1")]
-        public void DeleteRetainedMessage(string topic)
+        [HttpDelete("{topic}")]
+        public async Task  RetainedMessage(string topic)
         {
-            _mqttService.Publish(new MqttPublishParameters
+         await   _mqttService.Publish(new MqttPublishParameters<byte[]>
             {
                 Topic = topic,
                 Payload = new byte[0],
@@ -124,9 +106,7 @@ namespace IoTSharp.Controllers
         }
 
         [HttpDelete]
-        [Route("api/v1/mqtt/retained_messages")]
-        [ApiExplorerSettings(GroupName = "v1")]
-        public Task DeleteRetainedMessages()
+        public Task CleanRetainedMessages()
         {
             return _mqttService.DeleteRetainedMessagesAsync();
         }

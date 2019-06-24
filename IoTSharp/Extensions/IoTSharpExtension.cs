@@ -52,7 +52,7 @@ namespace IoTSharp
         internal static void UseSwagger(this IApplicationBuilder app)
         {
             app.UseSwaggerUi3();
-            app.UseSwagger(config => config.PostProcess = (document, request) =>
+            app.UseOpenApi(config => config.PostProcess = (document, request) =>
             {
                 if (request.Headers.ContainsKey("X-External-Host"))
                 {

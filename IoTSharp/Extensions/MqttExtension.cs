@@ -15,6 +15,9 @@ using MQTTnet.Server;
 using MQTTnet.Client.Receiving;
 using MQTTnet.Client.Options;
 using IoTSharp.MQTT;
+using System.Diagnostics;
+using System.Runtime.InteropServices;
+using System.Threading;
 
 namespace IoTSharp
 {
@@ -47,13 +50,13 @@ namespace IoTSharp
             });
             services.AddMqttConnectionHandler();
             services.AddMqttWebSocketServerAdapter();
-            services.AddTransient<MqttEventsHandler>();
+            services.AddSingleton<MQTTServerHandler>();
         }
         public static void UseIotSharpMqttServer(this IApplicationBuilder app)
         {
             app.UseMqttEndpoint();
-            var mqttEvents = app.ApplicationServices.CreateScope().ServiceProvider.GetService<MqttEventsHandler>();
-            IMqttServerStorage storage   = app.ApplicationServices.CreateScope().ServiceProvider.GetService<IMqttServerStorage>();
+            var mqttEvents = app.ApplicationServices.CreateScope().ServiceProvider.GetService<MQTTServerHandler>();
+            IMqttServerStorage storage = app.ApplicationServices.CreateScope().ServiceProvider.GetService<IMqttServerStorage>();
             app.UseMqttServerEx(server =>
                 {
                     server.ClientConnectedHandler = new MqttServerClientConnectedHandlerDelegate(args => mqttEvents.Server_ClientConnected(server, args));
@@ -96,6 +99,7 @@ namespace IoTSharp
             };
         }
 
+
         public static void AddMqttClient(this IServiceCollection services, MqttClientSetting setting)
         {
             if (setting == null) setting = new MqttClientSetting();
@@ -106,7 +110,76 @@ namespace IoTSharp
                                      .WithCredentials(setting.UserName, setting.Password)
                                      .WithCleanSession()//.WithProtocolVersion (MQTTnet.Formatter.MqttProtocolVersion.V500)
                                      .Build());
-            services.AddHostedService <MqttClientService>();
+            services.AddHostedService<MqttClientService>();
+        }
+
+        public static void UseIotSharpSelfCollecting(this IApplicationBuilder app)
+        {
+            var _systemStatusService = app.ApplicationServices.CreateScope().ServiceProvider.GetService<RuntimeStatusHandler>();
+            var _creationTimestamp = DateTime.Now;
+            _systemStatusService.Set("startup.timestamp", _creationTimestamp);
+            _systemStatusService.Set("framework.description", RuntimeInformation.FrameworkDescription);
+            _systemStatusService.Set("process.architecture", RuntimeInformation.ProcessArchitecture);
+            _systemStatusService.Set("process.id", Process.GetCurrentProcess().Id);
+            _systemStatusService.Set("system.processor_count", Environment.ProcessorCount);
+            _systemStatusService.Set("system.working_set", () => Environment.WorkingSet);
+            _systemStatusService.Set("arguments", string.Join(" ", Environment.GetCommandLineArgs()));
+            _systemStatusService.Set("iotsharp.version", typeof(Startup).Assembly.GetName().Version.ToString());
+            _systemStatusService.Set("startup.duration", DateTime.Now - _creationTimestamp);
+            _systemStatusService.Set("system.date_time", () => DateTime.Now);
+            _systemStatusService.Set("up_time", () => DateTime.Now - _creationTimestamp);
+
+            _systemStatusService.Set("os.description", RuntimeInformation.OSDescription);
+            _systemStatusService.Set("os.architecture", RuntimeInformation.OSArchitecture);
+
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+            {
+                _systemStatusService.Set("os.platform", "linux");
+            }
+            else if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            {
+                _systemStatusService.Set("os.platform", "windows");
+            }
+            else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
+            {
+                _systemStatusService.Set("os.platform", "osx");
+            }
+
+            _systemStatusService.Set("thread_pool.max_worker_threads", () =>
+            {
+                ThreadPool.GetMaxThreads(out var x, out _);
+                return x;
+            });
+
+            _systemStatusService.Set("thread_pool.max_completion_port_threads", () =>
+            {
+                ThreadPool.GetMaxThreads(out _, out var x);
+                return x;
+            });
+
+            _systemStatusService.Set("thread_pool.min_worker_threads", () =>
+            {
+                ThreadPool.GetMinThreads(out var x, out _);
+                return x;
+            });
+
+            _systemStatusService.Set("thread_pool.min_completion_port_threads", () =>
+            {
+                ThreadPool.GetMinThreads(out _, out var x);
+                return x;
+            });
+
+            _systemStatusService.Set("thread_pool.available_worker_threads", () =>
+            {
+                ThreadPool.GetAvailableThreads(out var x, out _);
+                return x;
+            });
+
+            _systemStatusService.Set("thread_pool.available_completion_port_threads", () =>
+            {
+                ThreadPool.GetAvailableThreads(out _, out var x);
+                return x;
+            });
         }
 
     }

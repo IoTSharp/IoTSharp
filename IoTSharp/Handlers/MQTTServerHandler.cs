@@ -4,6 +4,8 @@ using IoTSharp.Extensions;
 using IoTSharp.Handlers;
 using IoTSharp.MQTT;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using MQTTnet;
 using MQTTnet.AspNetCoreEx;
@@ -18,36 +20,28 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace IoTSharp.Services
+namespace IoTSharp.Handlers
 {
-    public class MqttEventsHandler
+    public class MQTTServerHandler
     {
-        readonly ILogger<MqttEventsHandler> _logger;
+        readonly ILogger<MQTTServerHandler> _logger;
         readonly ApplicationDbContext _dbContext;
         readonly IMqttServerEx _serverEx;
-        private readonly BlockingCollection<MqttApplicationMessageReceivedEventArgs> _incomingMessages = new BlockingCollection<MqttApplicationMessageReceivedEventArgs>();
-        private readonly Dictionary<string, MqttTopicImporter> _importers = new Dictionary<string, MqttTopicImporter>();
-        private readonly Dictionary<string, MqttSubscriber> _subscribers = new Dictionary<string, MqttSubscriber>();
-        private readonly OperationsPerSecondCounter _inboundCounter;
-        private readonly OperationsPerSecondCounter _outboundCounter;
 
-        private readonly SystemStatusHandler _systemStatusHandler;
-        public MqttEventsHandler(ILogger<MqttEventsHandler> logger, ApplicationDbContext dbContext, IMqttServerEx serverEx, DiagnosticsService diagnosticsService,
-            RuntimeStatusHandler systemStatusService,
-            SystemStatusHandler systemStatusHandler
+        public MQTTServerHandler(ILogger<MQTTServerHandler> logger, IServiceScopeFactory scopeFactor,IMqttServerEx serverEx, DiagnosticsService diagnosticsService,
+            RuntimeStatusHandler systemStatusService
             )
         {
             _logger = logger;
-            _dbContext = dbContext;
+            _dbContext = scopeFactor.CreateScope().ServiceProvider.GetRequiredService<ApplicationDbContext>();
             _serverEx = serverEx;
-            _systemStatusHandler = systemStatusHandler;
-            _inboundCounter = diagnosticsService.CreateOperationsPerSecondCounter("mqtt.inbound_rate");
-            _outboundCounter = diagnosticsService.CreateOperationsPerSecondCounter("mqtt.outbound_rate");
+            InboundCounter = diagnosticsService.CreateOperationsPerSecondCounter("mqtt.inbound_rate");
+            OutboundCounter = diagnosticsService.CreateOperationsPerSecondCounter("mqtt.outbound_rate");
 
-            systemStatusService.Set("mqtt.subscribers_count", () => _subscribers.Count);
-            systemStatusService.Set("mqtt.incoming_messages_count", () => _incomingMessages.Count);
-            systemStatusService.Set("mqtt.inbound_rate", () => _inboundCounter.Count);
-            systemStatusService.Set("mqtt.outbound_rate", () => _outboundCounter.Count);
+            systemStatusService.Set("mqtt.subscribers_count", () => Subscribers.Count);
+            systemStatusService.Set("mqtt.incoming_messages_count", () => IncomingMessages.Count);
+            systemStatusService.Set("mqtt.inbound_rate", () => InboundCounter.Count);
+            systemStatusService.Set("mqtt.outbound_rate", () => OutboundCounter.Count);
             systemStatusService.Set("mqtt.connected_clients_count", () => serverEx.GetClientStatusAsync().GetAwaiter().GetResult().Count);
 
 
@@ -75,8 +69,8 @@ namespace IoTSharp.Services
         long received = 0;
         internal void Server_ApplicationMessageReceived(object sender, MqttApplicationMessageReceivedEventArgs e)
         {
-            _inboundCounter.Increment();
-            _incomingMessages.Add(e);
+            InboundCounter.Increment();
+            IncomingMessages.Add(e);
             if (string.IsNullOrEmpty(e.ClientId))
             {
                 _logger.LogInformation($"Message: Topic=[{e.ApplicationMessage.Topic }]");
@@ -291,11 +285,12 @@ namespace IoTSharp.Services
         internal void Server_ClientSubscribedTopic(object sender, MqttServerClientSubscribedTopicEventArgs e)
         {
             _logger.LogInformation($"Client [{e.ClientId}] subscribed [{e.TopicFilter}]");
+       
             if (e.TopicFilter.Topic.StartsWith("$SYS/"))
             {
                 if (e.TopicFilter.Topic.StartsWith("$SYS/broker/version"))
                 {
-                    var mename = typeof(MqttEventsHandler).Assembly.GetName();
+                    var mename = typeof(MQTTServerHandler).Assembly.GetName();
                     var mqttnet = typeof(MqttServerClientSubscribedTopicEventArgs).Assembly.GetName();
                     Task.Run(() => _serverEx.PublishAsync("$SYS/broker/version", $"{mename.Name}V{mename.Version.ToString()},{mqttnet.Name}.{mqttnet.Version.ToString()}"));
                 }
@@ -328,6 +323,17 @@ namespace IoTSharp.Services
             }
         }
         internal static Dictionary<string, Device> Devices = new Dictionary<string, Device>();
+
+        public BlockingCollection<MqttApplicationMessageReceivedEventArgs> IncomingMessages { get; } = new BlockingCollection<MqttApplicationMessageReceivedEventArgs>();
+
+        public Dictionary<string, MqttTopicImporter> Importers { get; } = new Dictionary<string, MqttTopicImporter>();
+
+        public Dictionary<string, MqttSubscriber> Subscribers { get; } = new Dictionary<string, MqttSubscriber>();
+
+        public OperationsPerSecondCounter InboundCounter { get; }
+
+        public OperationsPerSecondCounter OutboundCounter { get; }
+
         public static string MD5Sum(string text) => BitConverter.ToString(MD5.Create().ComputeHash(Encoding.UTF8.GetBytes(text))).Replace("-", "");
         internal void Server_ClientConnectionValidator(object sender, MqttServerClientConnectionValidatorEventArgs e)
         {
@@ -371,9 +377,9 @@ namespace IoTSharp.Services
 
         public List<string> GetTopicImportUids()
         {
-            lock (_importers)
+            lock (Importers)
             {
-                return _importers.Select(i => i.Key).ToList();
+                return Importers.Select(i => i.Key).ToList();
             }
         }
 
@@ -389,14 +395,14 @@ namespace IoTSharp.Services
             var importer = new MqttTopicImporter(parameters, this , _logger);
             importer.Start();
 
-            lock (_importers)
+            lock (Importers)
             {
-                if (_importers.TryGetValue(uid, out var existingImporter))
+                if (Importers.TryGetValue(uid, out var existingImporter))
                 {
                     existingImporter.Stop();
                 }
 
-                _importers[uid] = importer;
+                Importers[uid] = importer;
             }
 
             _logger.Log(LogLevel.Information, "Started importer '{0}' for topic '{1}' from server '{2}'.", uid, parameters.Topic, parameters.Server);
@@ -407,23 +413,23 @@ namespace IoTSharp.Services
         {
             if (uid == null) throw new ArgumentNullException(nameof(uid));
 
-            lock (_importers)
+            lock (Importers)
             {
-                if (_importers.TryGetValue(uid, out var importer))
+                if (Importers.TryGetValue(uid, out var importer))
                 {
                     importer.Stop();
                     _logger.Log(LogLevel.Information, "Stopped importer '{0}'.");
                 }
 
-                _importers.Remove(uid);
+                Importers.Remove(uid);
             }
         }
 
         public List<MqttSubscriber> GetSubscribers()
         {
-            lock (_subscribers)
+            lock (Subscribers)
             {
-                return _subscribers.Values.ToList();
+                return Subscribers.Values.ToList();
             }
         }
 
@@ -436,8 +442,7 @@ namespace IoTSharp.Services
         {
             return _serverEx.ClearRetainedApplicationMessagesAsync();
         }
-
-        public void Publish(MqttPublishParameters parameters)
+        public async Task Publish(MqttPublishParameters<string> parameters)
         {
             var message = new MqttApplicationMessageBuilder()
                 .WithTopic(parameters.Topic)
@@ -445,12 +450,27 @@ namespace IoTSharp.Services
                 .WithQualityOfServiceLevel(parameters.QualityOfServiceLevel)
                 .WithRetainFlag(parameters.Retain)
                 .Build();
-
-            _serverEx.PublishAsync(message).GetAwaiter().GetResult();
-            _outboundCounter.Increment();
-
-            _logger.Log(LogLevel.Trace, $"Published MQTT topic '{parameters.Topic}.");
+            await Publish(message);
         }
+        public async Task Publish(MqttPublishParameters<byte[]> parameters)
+        {
+            var message = new MqttApplicationMessageBuilder()
+                .WithTopic(parameters.Topic)
+                .WithPayload(parameters.Payload)
+                .WithQualityOfServiceLevel(parameters.QualityOfServiceLevel)
+                .WithRetainFlag(parameters.Retain)
+                .Build();
+            await Publish(message);
+        }
+
+        private async Task Publish(MqttApplicationMessage message)
+        {
+            await _serverEx.PublishAsync(message);
+            OutboundCounter.Increment();
+            _logger.Log(LogLevel.Trace, $"Published MQTT topic '{message.Topic}.");
+        }
+
+        
 
         public string Subscribe(string uid, string topicFilter, Action<MqttApplicationMessageReceivedEventArgs> callback)
         {
@@ -462,9 +482,9 @@ namespace IoTSharp.Services
                 uid = Guid.NewGuid().ToString("D");
             }
 
-            lock (_subscribers)
+            lock (Subscribers)
             {
-                _subscribers[uid] = new MqttSubscriber(uid, topicFilter, callback);
+                Subscribers[uid] = new MqttSubscriber(uid, topicFilter, callback);
             }
 
             // Enqueue all retained messages to match the expected MQTT behavior.
@@ -472,7 +492,7 @@ namespace IoTSharp.Services
             // features here manually.
             foreach (var retainedMessage in _serverEx.GetRetainedApplicationMessagesAsync().GetAwaiter().GetResult())
             {
-                _incomingMessages.Add(new MqttApplicationMessageReceivedEventArgs(null, retainedMessage));
+                IncomingMessages.Add(new MqttApplicationMessageReceivedEventArgs(null, retainedMessage));
             }
 
             return uid;
@@ -480,9 +500,9 @@ namespace IoTSharp.Services
 
         public void Unsubscribe(string uid)
         {
-            lock (_subscribers)
+            lock (Subscribers)
             {
-                _subscribers.Remove(uid);
+                Subscribers.Remove(uid);
             }
         }
 
@@ -496,63 +516,8 @@ namespace IoTSharp.Services
             return _serverEx.GetSessionStatusAsync();
         }
 
-        private void ProcessIncomingMqttMessages(CancellationToken cancellationToken)
-        {
-            Thread.CurrentThread.Name = nameof(ProcessIncomingMqttMessages);
+     
 
-            while (!cancellationToken.IsCancellationRequested)
-            {
-                MqttApplicationMessageReceivedEventArgs message = null;
-                try
-                {
-                    message = _incomingMessages.Take(cancellationToken);
-                    if (message == null || cancellationToken.IsCancellationRequested)
-                    {
-                        return;
-                    }
-
-                    var affectedSubscribers = new List<MqttSubscriber>();
-                    lock (_subscribers)
-                    {
-                        foreach (var subscriber in _subscribers.Values)
-                        {
-                            if (subscriber.IsFilterMatch(message.ApplicationMessage.Topic))
-                            {
-                                affectedSubscribers.Add(subscriber);
-                            }
-                        }
-                    }
-
-                    foreach (var subscriber in affectedSubscribers)
-                    {
-                        TryNotifySubscriber(subscriber, message);
-                    }
-
-                    _outboundCounter.Increment();
-                }
-                catch (OperationCanceledException)
-                {
-                }
-                catch (Exception exception)
-                {
-                    _logger.Log(LogLevel.Error, exception, $"Error while processing MQTT message with topic '{message?.ApplicationMessage?.Topic}'.");
-                }
-            }
-        }
-
-        private void TryNotifySubscriber(MqttSubscriber subscriber, MqttApplicationMessageReceivedEventArgs message)
-        {
-            try
-            {
-                subscriber.Notify(message);
-            }
-            catch (OperationCanceledException)
-            {
-            }
-            catch (Exception exception)
-            {
-                _logger.Log(LogLevel.Error, exception, $"Error while notifying subscriber '{subscriber.Uid}'.");
-            }
-        }
+       
     }
 }

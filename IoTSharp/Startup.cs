@@ -4,7 +4,6 @@ using IoTSharp.Extensions;
 using IoTSharp.Handlers;
 using IoTSharp.MQTT;
 using IoTSharp.Services;
-using IoTSharp.Storage;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
@@ -23,6 +22,9 @@ using MQTTnet.AspNetCore;
 using MQTTnet.AspNetCoreEx;
 using MQTTnet.Client;
 using NSwag.AspNetCore;
+using Quartz;
+using QuartzHostedService;
+using Quartzmin;
 using System;
 using System.Configuration;
 using System.IdentityModel.Tokens.Jwt;
@@ -96,15 +98,17 @@ namespace IoTSharp
             services.AddIoTSharpMqttServer(AppSettings.MqttBroker);
             services.AddMqttClient(AppSettings.MqttClient);
             services.AddHostedService<CoAPService>();
+            services.AddHostedService<MQTTMessageService>();
             services.AddSingleton<DiagnosticsService>();
             services.AddSingleton<RetainedMessageHandler>();
             services.AddSingleton<RuntimeStatusHandler>();
-            services.AddSingleton<SystemStatusHandler>();
+ 
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env, IServiceProvider serviceProvider)
+        public void Configure(IApplicationBuilder app, IHostingEnvironment env)
         {
+        
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
@@ -116,12 +120,13 @@ namespace IoTSharp
                 // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
                 app.UseHsts();
             }
+           
             app.UseAuthentication();
-
+          
+            
             app.UseSwagger();
             app.UseHttpsRedirection();
             app.UseIotSharpMqttServer();
-         //   serviceProvider.GetRequiredService<MqttService>().Start();
 
             app.UseForwardedHeaders(new ForwardedHeadersOptions
             {
@@ -142,7 +147,7 @@ namespace IoTSharp
                     name: "default",
                     template: "{controller}/{action=Index}/{id?}");
             });
-            
+           
             app.UseSpa(spa =>
             {
                 // To learn more about options for serving an Angular SPA from ASP.NET Core,
@@ -155,7 +160,7 @@ namespace IoTSharp
                     spa.UseVueCliServer(npmScript: "dev");
                 }
             });
-          
+            app.UseIotSharpSelfCollecting();
         }
     }
 }

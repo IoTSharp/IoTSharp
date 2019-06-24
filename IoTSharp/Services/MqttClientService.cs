@@ -54,7 +54,7 @@ namespace IoTSharp.Services
             _logger.LogInformation($"CONNECTED  IsSessionPresent:  {e.AuthenticateResult.IsSessionPresent } ResultCode: { e.AuthenticateResult.ResultCode}");
         }
 
-        Dictionary<string, Device> Devices => MqttEventsHandler.Devices;
+        Dictionary<string, Device> Devices => MQTTServerHandler.Devices;
 
         private void Mqtt_ApplicationMessageReceived(object sender, MQTTnet.MqttApplicationMessageReceivedEventArgs e)
         {

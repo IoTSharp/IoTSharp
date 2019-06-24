@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading.Tasks;
 using IoTSharp.Handlers;
 using IoTSharp.Services;
 using Microsoft.Extensions.Logging;
@@ -11,12 +12,12 @@ namespace IoTSharp.MQTT
     public class MqttTopicImporter
     {
         private readonly MqttImportTopicParameters _parameters;
-        private readonly MqttEventsHandler _mqttService;
+        private readonly MQTTServerHandler _mqttService;
         private readonly ILogger _logger;
 
         private IManagedMqttClient _mqttClient;
 
-        public MqttTopicImporter(MqttImportTopicParameters parameters, MqttEventsHandler mqttService,  ILogger logger)
+        public MqttTopicImporter(MqttImportTopicParameters parameters, MQTTServerHandler mqttService, ILogger logger)
         {
             _parameters = parameters ?? throw new ArgumentNullException(nameof(parameters));
             _mqttService = mqttService ?? throw new ArgumentNullException(nameof(mqttService));
@@ -60,12 +61,17 @@ namespace IoTSharp.MQTT
 
         private void OnApplicationMessageReceived(MqttApplicationMessageReceivedEventArgs e)
         {
-            _mqttService.Publish(new MqttPublishParameters
+            Task.Run(async () =>
             {
-                Topic = e.ApplicationMessage.Topic,
-                Payload = e.ApplicationMessage.Payload,
-                QualityOfServiceLevel = e.ApplicationMessage.QualityOfServiceLevel,
-                Retain = e.ApplicationMessage.Retain
+
+
+                await _mqttService.Publish(new MqttPublishParameters<byte[]>
+                {
+                    Topic = e.ApplicationMessage.Topic,
+                    Payload = e.ApplicationMessage.Payload,
+                    QualityOfServiceLevel = e.ApplicationMessage.QualityOfServiceLevel,
+                    Retain = e.ApplicationMessage.Retain
+                });
             });
         }
     }
