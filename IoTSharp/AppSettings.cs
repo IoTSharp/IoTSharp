@@ -40,5 +40,6 @@ namespace IoTSharp
         public bool EnableTls { get; set; } = false;
         public string Certificate { get; set; }
         public SslProtocols SslProtocol { get; set; } = SslProtocols.None;
+        public bool PersistRetainedMessages { get; internal set; }
     }
 }

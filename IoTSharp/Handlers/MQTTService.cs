@@ -1,5 +1,9 @@
 ﻿using IoTSharp.Data;
+using IoTSharp.Diagnostics;
 using IoTSharp.Extensions;
+using IoTSharp.MQTT;
+using IoTSharp.Storage;
+using IoTSharp.Sys;
 using IoTSharp.X509Extensions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -7,6 +11,7 @@ using MQTTnet;
 using MQTTnet.AspNetCoreEx;
 using MQTTnet.Server;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Security.Cryptography;
@@ -21,11 +26,35 @@ namespace IoTSharp.Handlers
         readonly ILogger<MqttEventsHandler> _logger;
         readonly ApplicationDbContext _dbContext;
         readonly IMqttServerEx _serverEx;
-        public MqttEventsHandler(ILogger<MqttEventsHandler> logger, ApplicationDbContext dbContext, IMqttServerEx serverEx)
+        private readonly BlockingCollection<MqttApplicationMessageReceivedEventArgs> _incomingMessages = new BlockingCollection<MqttApplicationMessageReceivedEventArgs>();
+        private readonly Dictionary<string, MqttTopicImporter> _importers = new Dictionary<string, MqttTopicImporter>();
+        private readonly Dictionary<string, MqttSubscriber> _subscribers = new Dictionary<string, MqttSubscriber>();
+        private readonly OperationsPerSecondCounter _inboundCounter;
+        private readonly OperationsPerSecondCounter _outboundCounter;
+
+        private bool _enableMqttLogging;
+        private readonly StorageService _storageService;
+        private readonly SystemCancellationToken _systemCancellationToken;
+
+        public MqttEventsHandler(ILogger<MqttEventsHandler> logger, ApplicationDbContext dbContext, IMqttServerEx serverEx, DiagnosticsService diagnosticsService,
+            StorageService storageService,
+            SystemStatusService systemStatusService
+            )
         {
             _logger = logger;
             _dbContext = dbContext;
             _serverEx = serverEx;
+
+            _inboundCounter = diagnosticsService.CreateOperationsPerSecondCounter("mqtt.inbound_rate");
+            _outboundCounter = diagnosticsService.CreateOperationsPerSecondCounter("mqtt.outbound_rate");
+
+            systemStatusService.Set("mqtt.subscribers_count", () => _subscribers.Count);
+            systemStatusService.Set("mqtt.incoming_messages_count", () => _incomingMessages.Count);
+            systemStatusService.Set("mqtt.inbound_rate", () => _inboundCounter.Count);
+            systemStatusService.Set("mqtt.outbound_rate", () => _outboundCounter.Count);
+            systemStatusService.Set("mqtt.connected_clients_count", () => serverEx.GetClientStatusAsync().GetAwaiter().GetResult().Count);
+
+
         }
 
         static long clients = 0;
