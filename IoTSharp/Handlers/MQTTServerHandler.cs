@@ -339,40 +339,30 @@ namespace IoTSharp.Handlers
         {
             MqttConnectionValidatorContext obj = e.Context;
             Uri uri = new Uri("mqtt://" + obj.Endpoint);
-            if (string.IsNullOrEmpty(obj.Username) && uri.IsLoopback)
+            _logger.LogInformation($"ClientId={obj.ClientId},Endpoint={obj.Endpoint},Username={obj.Username}，Password={obj.Password},WillMessage={obj.WillMessage?.ConvertPayloadToString()}");
+            var mcr = _dbContext.DeviceIdentities.Include(d => d.Device).FirstOrDefault(mc => (mc.IdentityType == IdentityType.AccessToken && mc.IdentityId == obj.Username)
+                                                                          || (mc.IdentityType == IdentityType.DevicePassword && mc.IdentityId == obj.Username && mc.IdentityValue == obj.Password));
+            if (mcr != null)
             {
-                obj.ReturnCode = MQTTnet.Protocol.MqttConnectReturnCode.ConnectionAccepted;
-                _logger.LogInformation($"Loopback {obj.Endpoint}， ConnectionAccepted");
+                try
+                {
+                    var device = mcr.Device;
+                    if (!Devices.ContainsKey(e.Context.ClientId))
+                    {
+                        Devices.Add(e.Context.ClientId, device);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "ConnectionRefusedServerUnavailable {0}", ex.Message);
+                    obj.ReturnCode = MQTTnet.Protocol.MqttConnectReturnCode.ConnectionRefusedServerUnavailable;
+                }
             }
             else
             {
-                _logger.LogInformation($"ClientId={obj.ClientId},Endpoint={obj.Endpoint},Username={obj.Username}，Password={obj.Password},WillMessage={obj.WillMessage?.ConvertPayloadToString()}");
-                var mcr = _dbContext.DeviceIdentities.Include(d=>d.Device).FirstOrDefault(mc => (mc.IdentityType == IdentityType.AccessToken && mc.IdentityId == obj.Username)
-                                                                            || (mc.IdentityType == IdentityType.DevicePassword && mc.IdentityId == obj.Username && mc.IdentityValue == obj.Password));
-                if (mcr != null)
-                {
-                    try
-                    {
-                        var device = mcr.Device;
-                        if (!Devices.ContainsKey(e.Context.ClientId))
-                        {
-                            Devices.Add(e.Context.ClientId, device);
-                        }
-                    }
-                    catch (Exception ex)
-                    {
-                        _logger.LogError(ex, "ConnectionRefusedServerUnavailable {0}", ex.Message);
-                        obj.ReturnCode = MQTTnet.Protocol.MqttConnectReturnCode.ConnectionRefusedServerUnavailable;
-                    }
-
-                }
-                else
-                {
-                    obj.ReturnCode = MQTTnet.Protocol.MqttConnectReturnCode.ConnectionRefusedBadUsernameOrPassword;
-                    _logger.LogInformation($"Bad username or password {obj.Username},connection {obj.Endpoint} refused");
-                }
+                obj.ReturnCode = MQTTnet.Protocol.MqttConnectReturnCode.ConnectionRefusedBadUsernameOrPassword;
+                _logger.LogInformation($"Bad username or password {obj.Username},connection {obj.Endpoint} refused");
             }
-
         }
 
         public List<string> GetTopicImportUids()
