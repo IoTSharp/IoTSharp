@@ -24,13 +24,12 @@ namespace IoTSharp
     public static class MqttExtension
     {
         //static private IMqttServer _mqttServer;
-        public static void AddIoTSharpMqttServer(this IServiceCollection services, MqttBrokerSetting setting)
+        public static void AddIoTSharpMqttServer(this IServiceCollection services, MqttBrokerSetting broker)
         {
             services.AddMqttTcpServerAdapter();
             services.AddHostedMqttServerEx(options =>
             {
-                var broker = setting;
-                if (broker == null) broker = new MqttBrokerSetting();
+            
                 options.WithDefaultEndpointPort(broker.Port).WithDefaultEndpoint();
                 if (broker.EnableTls)
                 {
@@ -102,10 +101,10 @@ namespace IoTSharp
 
         public static void AddMqttClient(this IServiceCollection services, MqttClientSetting setting)
         {
-            if (setting == null) setting = new MqttClientSetting();
+          
             services.AddSingleton(options => new MQTTnet.MqttFactory().CreateMqttClient());
             services.AddTransient(options => new MqttClientOptionsBuilder()
-                                     .WithClientId("buind-in")
+                                     .WithClientId(setting.MqttBroker)
                                      .WithTcpServer((setting.MqttBroker == "built-in" || string.IsNullOrEmpty(setting.MqttBroker)) ? "127.0.0.1" : setting.MqttBroker, setting.Port)
                                      .WithCredentials(setting.UserName, setting.Password)
                                      .WithCleanSession()//.WithProtocolVersion (MQTTnet.Formatter.MqttProtocolVersion.V500)

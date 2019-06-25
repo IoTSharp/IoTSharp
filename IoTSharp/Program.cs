@@ -9,7 +9,7 @@ using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
-
+using MQTTnet.AspNetCore;
 namespace IoTSharp
 {
     public class Program
