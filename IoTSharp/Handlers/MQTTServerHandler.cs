@@ -7,6 +7,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using MQTTnet;
 using MQTTnet.AspNetCoreEx;
 using MQTTnet.Server;
@@ -27,13 +28,16 @@ namespace IoTSharp.Handlers
         readonly ILogger<MQTTServerHandler> _logger;
         readonly ApplicationDbContext _dbContext;
         readonly IMqttServerEx _serverEx;
-
+        readonly IServiceScope scope;
+        readonly MqttClientSetting _mcsetting;
         public MQTTServerHandler(ILogger<MQTTServerHandler> logger, IServiceScopeFactory scopeFactor,IMqttServerEx serverEx, DiagnosticsService diagnosticsService,
-            RuntimeStatusHandler systemStatusService
+            RuntimeStatusHandler systemStatusService, IOptions <AppSettings> options
             )
         {
+            _mcsetting = options.Value.MqttClient;
             _logger = logger;
-            _dbContext = scopeFactor.CreateScope().ServiceProvider.GetRequiredService<ApplicationDbContext>();
+            scope = scopeFactor.CreateScope();
+            _dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
             _serverEx = serverEx;
             InboundCounter = diagnosticsService.CreateOperationsPerSecondCounter("mqtt.inbound_rate");
             OutboundCounter = diagnosticsService.CreateOperationsPerSecondCounter("mqtt.outbound_rate");
@@ -337,31 +341,40 @@ namespace IoTSharp.Handlers
         public static string MD5Sum(string text) => BitConverter.ToString(MD5.Create().ComputeHash(Encoding.UTF8.GetBytes(text))).Replace("-", "");
         internal void Server_ClientConnectionValidator(object sender, MqttServerClientConnectionValidatorEventArgs e)
         {
+            var _dbContextcv = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
             MqttConnectionValidatorContext obj = e.Context;
             Uri uri = new Uri("mqtt://" + obj.Endpoint);
-            _logger.LogInformation($"ClientId={obj.ClientId},Endpoint={obj.Endpoint},Username={obj.Username}，Password={obj.Password},WillMessage={obj.WillMessage?.ConvertPayloadToString()}");
-            var mcr = _dbContext.DeviceIdentities.Include(d => d.Device).FirstOrDefault(mc => (mc.IdentityType == IdentityType.AccessToken && mc.IdentityId == obj.Username)
-                                                                          || (mc.IdentityType == IdentityType.DevicePassword && mc.IdentityId == obj.Username && mc.IdentityValue == obj.Password));
-            if (mcr != null)
+            if (uri.IsLoopback && !string.IsNullOrEmpty(e.Context.ClientId) && e.Context.ClientId == _mcsetting.MqttBroker && !string.IsNullOrEmpty(e.Context.Username) && e.Context.Username == _mcsetting.UserName    && e.Context.Password == _mcsetting.Password)
             {
-                try
-                {
-                    var device = mcr.Device;
-                    if (!Devices.ContainsKey(e.Context.ClientId))
-                    {
-                        Devices.Add(e.Context.ClientId, device);
-                    }
-                }
-                catch (Exception ex)
-                {
-                    _logger.LogError(ex, "ConnectionRefusedServerUnavailable {0}", ex.Message);
-                    obj.ReturnCode = MQTTnet.Protocol.MqttConnectReturnCode.ConnectionRefusedServerUnavailable;
-                }
+                obj.ReturnCode = MQTTnet.Protocol.MqttConnectReturnCode.ConnectionAccepted;
             }
             else
             {
-                obj.ReturnCode = MQTTnet.Protocol.MqttConnectReturnCode.ConnectionRefusedBadUsernameOrPassword;
-                _logger.LogInformation($"Bad username or password {obj.Username},connection {obj.Endpoint} refused");
+                _logger.LogInformation($"ClientId={obj.ClientId},Endpoint={obj.Endpoint},Username={obj.Username}，Password={obj.Password},WillMessage={obj.WillMessage?.ConvertPayloadToString()}");
+                var mcr = _dbContextcv.DeviceIdentities.Include(d => d.Device).FirstOrDefault(mc =>
+                                        (mc.IdentityType == IdentityType.AccessToken && mc.IdentityId == obj.Username) ||
+                                        (mc.IdentityType == IdentityType.DevicePassword && mc.IdentityId == obj.Username && mc.IdentityValue == obj.Password));
+                if (mcr != null)
+                {
+                    try
+                    {
+                        var device = mcr.Device;
+                        if (!Devices.ContainsKey(e.Context.ClientId))
+                        {
+                            Devices.Add(e.Context.ClientId, device);
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger.LogError(ex, "ConnectionRefusedServerUnavailable {0}", ex.Message);
+                        obj.ReturnCode = MQTTnet.Protocol.MqttConnectReturnCode.ConnectionRefusedServerUnavailable;
+                    }
+                }
+                else
+                {
+                    obj.ReturnCode = MQTTnet.Protocol.MqttConnectReturnCode.ConnectionRefusedBadUsernameOrPassword;
+                    _logger.LogInformation($"Bad username or password {obj.Username},connection {obj.Endpoint} refused");
+                }
             }
         }
 

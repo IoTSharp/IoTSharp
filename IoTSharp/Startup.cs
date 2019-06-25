@@ -40,10 +40,15 @@ namespace IoTSharp
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
-            AppSettings = Configuration.Get<AppSettings>();
+            settings = Configuration.Get<AppSettings>();
+            if (settings.MqttBroker == null) settings.MqttBroker = new MqttBrokerSetting();
+            if (settings.MqttClient == null) settings.MqttClient = new MqttClientSetting();
+            if (string.IsNullOrEmpty(settings.MqttClient.MqttBroker)) settings.MqttClient.MqttBroker = "built-in";
+            if (string.IsNullOrEmpty(settings.MqttClient.Password)) settings.MqttClient.Password = Guid.NewGuid().ToString();
+            if (string.IsNullOrEmpty(settings.MqttClient.UserName)) settings.MqttClient.UserName = Guid.NewGuid().ToString();
+            if (settings.MqttClient.Port == 0) settings.MqttClient.Port = 1883;
         }
-
-        public AppSettings AppSettings { get; }
+        private AppSettings settings;
         public IConfiguration Configuration { get; private set; }
 
         // This method gets called by the runtime. Use this method to add services to the container.
@@ -62,11 +67,15 @@ namespace IoTSharp
             {
                 configuration.RootPath = "ClientApp/dist";
             });
-            
-            services.Configure<AppSettings>(Configuration);
-
+            services.AddOptions();
+            services.Configure((Action<AppSettings>)(setting =>
+            {
+                Configuration.Bind(setting);
+                setting.MqttBroker = settings.MqttBroker;
+                setting.MqttClient = settings.MqttClient;
+            }));
+          
             services.AddLogging(loggingBuilder => loggingBuilder.AddConsole());
-
             services.AddIoTSharpHub(Configuration);
             // Enable the Gzip compression especially for Kestrel
             services.Configure<GzipCompressionProviderOptions>(options => options.Level = System.IO.Compression.CompressionLevel.Optimal);
@@ -80,7 +89,7 @@ namespace IoTSharp
                     .AddRoleManager<RoleManager<IdentityRole>>()
                    .AddDefaultTokenProviders()
                     .AddEntityFrameworkStores<ApplicationDbContext>();
-            services.ConfigureJwtAuthentication(Configuration["JwtIssuer"], Configuration["JwtAudience"], Configuration["JwtKey"], TimeSpan.FromDays(Convert.ToInt32(Configuration["JwtExpireDays"])));
+            services.ConfigureJwtAuthentication(settings.JwtIssuer , settings.JwtAudience, settings.JwtKey, TimeSpan.FromDays(Convert.ToInt32(settings.JwtExpireDays)));
             services.Configure<ForwardedHeadersOptions>(options =>
             {
                 options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
@@ -95,8 +104,8 @@ namespace IoTSharp
                 configure.Description = description?.Description;
             });
             services.AddTransient<ApplicationDBInitializer>();
-            services.AddIoTSharpMqttServer(AppSettings.MqttBroker);
-            services.AddMqttClient(AppSettings.MqttClient);
+            services.AddIoTSharpMqttServer(settings.MqttBroker);
+            services.AddMqttClient(settings.MqttClient);
             services.AddHostedService<CoAPService>();
             services.AddHostedService<MQTTMessageService>();
             services.AddSingleton<DiagnosticsService>();
@@ -105,6 +114,7 @@ namespace IoTSharp
  
         }
 
+      
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IHostingEnvironment env)
         {
