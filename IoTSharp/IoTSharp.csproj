@@ -57,8 +57,7 @@
     <PackageReference Include="CoAP.NET.Core" Version="1.1.0" />
     <PackageReference Include="Microsoft.AspNetCore.Hosting.WindowsServices" Version="2.2.0" />
     <PackageReference Include="MQTTnet.AspNetCoreEx" Version="3.0.2.1" />
-    <PackageReference Include="MQTTnet.Extensions.ManagedClient" Version="3.0.2" />
-    <PackageReference Include="Packaging.Targets" Version="0.1.78" />
+    <PackageReference Include="MQTTnet.Extensions.ManagedClient" Version="3.0.4" />
 
   </ItemGroup>
   <ItemGroup>
@@ -88,9 +87,9 @@
     <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="2.2.4" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite.Design" Version="1.1.6" />
     <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="2.2.3" />
-    <PackageReference Include="MQTTnet" Version="3.0.2" />
-    <PackageReference Include="MQTTnet.AspNetCore" Version="3.0.2" />
-    <PackageReference Include="MQTTnet.Extensions.Rpc" Version="3.0.2" />
+    <PackageReference Include="MQTTnet" Version="3.0.4" />
+    <PackageReference Include="MQTTnet.AspNetCore" Version="3.0.4" />
+    <PackageReference Include="MQTTnet.Extensions.Rpc" Version="3.0.4" />
     <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="2.2.4" />
     <PackageReference Include="NSwag.AspNetCore" Version="13.0.2" />
     <PackageReference Include="QuartzHostedService" Version="0.0.5" />

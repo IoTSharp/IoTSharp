@@ -61,7 +61,7 @@ namespace IoTSharp.Extensions
                         tdata.Id = Guid.NewGuid();
                         _context.Set<D>().Add(tdata);
                     }
-                    var tl = _context.Set<L>().FirstOrDefault(tx => tx.Device.Id == device.Id && tx.KeyName == kp.Key);
+                    var tl = _context.Set<L>().FirstOrDefault(tx => tx.Device.Id == device.Id && tx.KeyName == kp.Key &&  tx.DataSide==dataSide);
                     if (tl != null)
                     {
                         tl.FillKVToMe(kp);
@@ -147,7 +147,7 @@ namespace IoTSharp.Extensions
                 case TypeCode.Byte:
                 case TypeCode.SByte:
                     tdata.Type = DataType.Long;
-                    tdata.Value_Long = (long)kp.Value;
+                    tdata.Value_Long =(Int64)Convert.ChangeType( kp.Value, TypeCode.Int64);
                     break;
                 case TypeCode.String:
                 case TypeCode.Char:

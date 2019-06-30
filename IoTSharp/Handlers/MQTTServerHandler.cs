@@ -196,7 +196,7 @@ namespace IoTSharp.Handlers
             {
                 Dictionary<string, object> reps = new Dictionary<string, object>();
                 var reqid = tpary.Length > 4 ? tpary[4] : Guid.NewGuid().ToString();
-                List<AttributeData> datas = new List<AttributeData>();
+                List<AttributeLatest> datas = new List<AttributeLatest>();
                 foreach (var kx in keyValues)
                 {
                     var keys = kx.Value?.ToString().Split(',');
@@ -204,8 +204,16 @@ namespace IoTSharp.Handlers
                     {
                         if (Enum.TryParse(kx.Key, true, out DataSide ds))
                         {
-                            var qf = from at in _dbContext.AttributeData where at.Device== device &&  at.DataSide == ds && keys.Contains(at.KeyName) select at;
-                            datas.AddRange(await qf.ToArrayAsync());
+                            var qf = from at in _dbContext.AttributeLatest.Include(al => al.Device) where at.Device == device && keys.Contains(at.KeyName) select at;
+                            if (ds == DataSide.AnySide)
+                            {
+                                datas.AddRange(await qf.ToArrayAsync());
+                            }
+                            else
+                            { 
+                                var qx = from at in qf where  at.DataSide == ds select at;
+                                datas.AddRange(await qx.ToArrayAsync());
+                            }
                         }
                     }
                 }
@@ -264,7 +272,7 @@ namespace IoTSharp.Handlers
 
         private Device JudgeOrCreateNewDevice(string[] tpary, Device device)
         {
-            Device devicedatato = device;
+            Device devicedatato =null;
             if (tpary[1] != "me" && device.DeviceType == DeviceType.Gateway)
             {
                 var ch = from g in _dbContext.Gateway.Include(g=>g.Tenant).Include(g=>g.Customer).Include(c => c.Children) where g.Id == device.Id select g;
@@ -281,6 +289,10 @@ namespace IoTSharp.Handlers
                 {
                     devicedatato = subdev.FirstOrDefault();
                 }
+            }
+            else
+            {
+                devicedatato = _dbContext.Device.Find(device.Id);
             }
             return devicedatato;
         }
@@ -341,39 +353,41 @@ namespace IoTSharp.Handlers
         public static string MD5Sum(string text) => BitConverter.ToString(MD5.Create().ComputeHash(Encoding.UTF8.GetBytes(text))).Replace("-", "");
         internal void Server_ClientConnectionValidator(object sender, MqttServerClientConnectionValidatorEventArgs e)
         {
-            var _dbContextcv = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-            MqttConnectionValidatorContext obj = e.Context;
-            Uri uri = new Uri("mqtt://" + obj.Endpoint);
-            if (uri.IsLoopback && !string.IsNullOrEmpty(e.Context.ClientId) && e.Context.ClientId == _mcsetting.MqttBroker && !string.IsNullOrEmpty(e.Context.Username) && e.Context.Username == _mcsetting.UserName    && e.Context.Password == _mcsetting.Password)
+            using (var _dbContextcv = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>())
             {
-                obj.ReturnCode = MQTTnet.Protocol.MqttConnectReturnCode.ConnectionAccepted;
-            }
-            else
-            {
-                _logger.LogInformation($"ClientId={obj.ClientId},Endpoint={obj.Endpoint},Username={obj.Username}，Password={obj.Password},WillMessage={obj.WillMessage?.ConvertPayloadToString()}");
-                var mcr = _dbContextcv.DeviceIdentities.Include(d => d.Device).FirstOrDefault(mc =>
-                                        (mc.IdentityType == IdentityType.AccessToken && mc.IdentityId == obj.Username) ||
-                                        (mc.IdentityType == IdentityType.DevicePassword && mc.IdentityId == obj.Username && mc.IdentityValue == obj.Password));
-                if (mcr != null)
+                MqttConnectionValidatorContext obj = e.Context;
+                Uri uri = new Uri("mqtt://" + obj.Endpoint);
+                if (uri.IsLoopback && !string.IsNullOrEmpty(e.Context.ClientId) && e.Context.ClientId == _mcsetting.MqttBroker && !string.IsNullOrEmpty(e.Context.Username) && e.Context.Username == _mcsetting.UserName && e.Context.Password == _mcsetting.Password)
                 {
-                    try
-                    {
-                        var device = mcr.Device;
-                        if (!Devices.ContainsKey(e.Context.ClientId))
-                        {
-                            Devices.Add(e.Context.ClientId, device);
-                        }
-                    }
-                    catch (Exception ex)
-                    {
-                        _logger.LogError(ex, "ConnectionRefusedServerUnavailable {0}", ex.Message);
-                        obj.ReturnCode = MQTTnet.Protocol.MqttConnectReturnCode.ConnectionRefusedServerUnavailable;
-                    }
+                    obj.ReasonCode = MQTTnet.Protocol.MqttConnectReasonCode.Success;
                 }
                 else
                 {
-                    obj.ReturnCode = MQTTnet.Protocol.MqttConnectReturnCode.ConnectionRefusedBadUsernameOrPassword;
-                    _logger.LogInformation($"Bad username or password {obj.Username},connection {obj.Endpoint} refused");
+                    _logger.LogInformation($"ClientId={obj.ClientId},Endpoint={obj.Endpoint},Username={obj.Username}，Password={obj.Password},WillMessage={obj.WillMessage?.ConvertPayloadToString()}");
+                    var mcr = _dbContextcv.DeviceIdentities.Include(d => d.Device).FirstOrDefault(mc =>
+                                            (mc.IdentityType == IdentityType.AccessToken && mc.IdentityId == obj.Username) ||
+                                            (mc.IdentityType == IdentityType.DevicePassword && mc.IdentityId == obj.Username && mc.IdentityValue == obj.Password));
+                    if (mcr != null)
+                    {
+                        try
+                        {
+                            var device = mcr.Device;
+                            if (!Devices.ContainsKey(e.Context.ClientId))
+                            {
+                                Devices.Add(e.Context.ClientId, device);
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            _logger.LogError(ex, "ConnectionRefusedServerUnavailable {0}", ex.Message);
+                            obj.ReasonCode = MQTTnet.Protocol.MqttConnectReasonCode.ServerUnavailable;
+                        }
+                    }
+                    else
+                    {
+                        obj.ReasonCode = MQTTnet.Protocol.MqttConnectReasonCode.BadUserNameOrPassword;
+                        _logger.LogInformation($"Bad username or password {obj.Username},connection {obj.Endpoint} refused");
+                    }
                 }
             }
         }
@@ -518,9 +532,5 @@ namespace IoTSharp.Handlers
         {
             return _serverEx.GetSessionStatusAsync();
         }
-
-     
-
-       
     }
 }
