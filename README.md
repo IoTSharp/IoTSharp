@@ -11,7 +11,7 @@
 
 [![Build status](https://ci.appveyor.com/api/projects/status/5o23f5vss89ct2lw/branch/master?svg=true)](https://ci.appveyor.com/project/MaiKeBing/iotsharp/branch/master)
 ![GitHub](https://img.shields.io/github/license/iotsharp/iotsharp.svg)
-![GitHub package.json version](https://img.shields.io/github/package-json/v/iotsharp/iotsharp-ui.svg?label=IoTSharp-UI%20Version)
+
 
 IoTSharp is an open-source IoT platform for data collection, processing, visualization, and device management.
 
