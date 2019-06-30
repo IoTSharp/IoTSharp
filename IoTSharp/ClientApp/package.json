@@ -46,7 +46,7 @@
     "@fortawesome/fontawesome-svg-core": "^1.2.18",
     "@fortawesome/free-solid-svg-icons": "^5.8.2",
     "@fortawesome/vue-fontawesome": "^0.1.6",
-    "axios": "0.18.0",
+    "axios": "0.18.1",
     "clipboard": "2.0.4",
     "codemirror": "5.45.0",
     "driver.js": "0.9.5",
