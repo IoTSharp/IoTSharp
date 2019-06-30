@@ -49,6 +49,7 @@ namespace IoTSharp.Data
         ServerSide,
         ClientSide,
     }
+    [JsonConverter(typeof(StringEnumConverter))]
     public enum UserRole
     {
         Anonymous,
@@ -57,7 +58,7 @@ namespace IoTSharp.Data
         TenantAdmin,
         SystemAdmin,
     }
-
+    [JsonConverter(typeof(StringEnumConverter))]
     public enum DataType
     {
         Boolean,
@@ -76,14 +77,15 @@ namespace IoTSharp.Data
         npgsql,
         sqlite
     }
-
+    [JsonConverter(typeof(StringEnumConverter))]
     public enum IdentityType
     {
         AccessToken,
         DevicePassword,
         X509Certificate
     }
-    public  enum ObjectType
+    [JsonConverter(typeof(StringEnumConverter))]
+    public enum ObjectType
     {
         Unknow,
         Device,
@@ -92,13 +94,15 @@ namespace IoTSharp.Data
         User,
         MQTTBroker,
         MQTTClient
-          
+
     }
+    [JsonConverter(typeof(StringEnumConverter))]
     public enum DeviceType
     {
-        Device =0,
-        Gateway =1
+        Device = 0,
+        Gateway = 1
     }
+    [JsonConverter(typeof(StringEnumConverter))]
     public enum CoApRes
     {
         Attributes,
