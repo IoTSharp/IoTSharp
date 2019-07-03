@@ -7,7 +7,7 @@
         </div>
         <div class="card-panel-description">
           <div class="card-panel-text">
-            Éè±¸×ÜÊý
+            è®¾å¤‡æ€»æ•°
           </div>
           <count-to :start-val="0" :end-val="102400" :duration="2600" class="card-panel-num" />
         </div>
@@ -20,7 +20,7 @@
         </div>
         <div class="card-panel-description">
           <div class="card-panel-text">
-            MQTT¿Í»§¶Ë
+            MQTTå®¢æˆ·ç«¯
           </div>
           <count-to :start-val="0" :end-val="81212" :duration="3000" class="card-panel-num" />
         </div>
@@ -33,7 +33,7 @@
         </div>
         <div class="card-panel-description">
           <div class="card-panel-text">
-            MQTTÖ÷Ìâ
+            MQTTä¸»é¢˜
           </div>
           <count-to :start-val="0" :end-val="9280" :duration="3200" class="card-panel-num" />
         </div>
@@ -46,7 +46,7 @@
         </div>
         <div class="card-panel-description">
           <div class="card-panel-text">
-            MQTTÏûÏ¢
+            MQTTæ¶ˆæ¯
           </div>
           <count-to :start-val="0" :end-val="13600" :duration="3600" class="card-panel-num" />
         </div>

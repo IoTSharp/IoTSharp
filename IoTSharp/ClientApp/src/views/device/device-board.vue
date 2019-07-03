@@ -48,7 +48,7 @@
           </div>
           <div style="float:right;margin-right:10px;">
             <span style="margin-left:5px;"> Access Token:</span>
-            <span style="margin-left:10px; color:#F00">{{ this.curSelectedDeviceToken }}</span>
+            <span style="margin-left:10px; color:#F00">{{ curSelectedDeviceToken }}</span>
             <el-button @click="getDevicToken"><svg-icon icon-class="password" /></el-button>
           </div>
         </div>
@@ -143,7 +143,7 @@
           </el-table-column>
         </el-table>
       </el-col>
-      <el-col :span="18" style="padding-left:20px;margin-bottom:30px;margin-top:8px">
+      <el-col :span="18" :offset="6" style="padding-left:20px;margin-bottom:30px;margin-top:8px">
         <div>
           <svg-icon icon-class="list" />
           <span style="margin-left:10px;">设备数据:</span>
