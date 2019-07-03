@@ -41,9 +41,16 @@
         </el-card>
       </el-col>
       <el-col :span="18" style="padding-left:20px;margin-bottom:30px;margin-top:8px">
-        <div>
-          <svg-icon icon-class="list" />
-          <span style="margin-left:10px;">设备属性:</span>
+        <div style="display:inline">
+          <div style="float:left">
+            <svg-icon icon-class="list" />
+            <span style="margin-left:10px;">设备属性:</span>
+          </div>
+          <div style="float:right;margin-right:10px;">
+            <span style="margin-left:5px;"> Access Token:</span>
+            <span style="margin-left:10px; color:#F00">{{ this.curSelectedDeviceToken }}</span>
+            <el-button @click="getDevicToken"><svg-icon icon-class="password" /></el-button>
+          </div>
         </div>
         <el-table
           :key="tableKey"
@@ -425,16 +432,23 @@ export default {
       })
     },
 
-    getDevicToken(id) {
+    getDevicToken() {
+      if (this.curSelectedDevIdAndName.id === '') {
+        this.$message({
+          message: '请选择一个设备！',
+          type: 'error'
+        })
+        return
+      }
       return new Promise((resolve, reject) => {
-        getDeviceAccessToken(id).then(response => {
+        getDeviceAccessToken(this.curSelectedDevIdAndName.id).then(response => {
           console.log('dev access token response:')
           console.log(response)
           this.curSelectedDeviceToken = response.id
         }).catch(() => {
           this.$message({
-            message: '获取DeviceId失败',
-            type: 'success'
+            message: '获取 DeviceId 失败',
+            type: 'error'
           })
         }).catch(err => {
           console.log(err)
@@ -444,7 +458,6 @@ export default {
     },
     openDeviceDetails(row) {
       console.log('Start get token:')
-      // this.getDevicToken(row.id)
       console.log(row.id)
       console.log('start get attr, passed value :')
       console.log(row.id)
@@ -457,7 +470,7 @@ export default {
       }).catch(() => {
         this.$message({
           message: '获取Device Attr失败',
-          type: 'success'
+          type: 'error'
         })
       })
       getDeviceTelemetryLatest(row.id).then(response => {
@@ -466,8 +479,8 @@ export default {
         this.devMeterList = response
       }).catch(() => {
         this.$message({
-          message: '获取Device Attr失败',
-          type: 'success'
+          message: '获取Device Telemeter失败',
+          type: 'error'
         })
       })
     },
