@@ -16,6 +16,14 @@ export function getDevice(id) {
   })
 }
 
+// Get a device's credentials
+export function GetIdentity(id) {
+  return request({
+    url: '/Devices/' + id,
+    method: 'get'
+  })
+}
+
 // Create a new device
 export function creatDevice(data) {
   return request({
