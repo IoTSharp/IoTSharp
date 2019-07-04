@@ -1,14 +1,21 @@
 ﻿using IoTSharp.Data;
+using IoTSharp.Dtos;
 using IoTSharp.Extensions;
+using IoTSharp.Releases;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.IO;
+using System.IO.Compression;
 using System.Linq;
+using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Security.Claims;
 using System.Threading.Tasks;
 
@@ -60,20 +67,39 @@ namespace IoTSharp.Controllers
 
         [AllowAnonymous]
         [HttpPost]
-        public async Task<ActionResult<InstanceDto>> Install([FromBody] InstallDto model)
+        public   ActionResult<InstanceDto> Upgrade([FromHeader(Name ="Authorization")] string token, [FromHeader(Name ="Source")]  string source , [FromHeader(Name = "AssetName")]  string assetname )
         {
             ActionResult<InstanceDto> actionResult = NoContent();
             try
             {
-                if (!_context.Relationship.Any())
+                var githubDownloader = new ReleaseDownloader(source, token);
+                var releases = githubDownloader.GetDataForAllReleases();
+                var asset = releases.FirstOrDefault()?.assets?.FirstOrDefault(at => at.name == assetname);
+                if (asset != null)
                 {
-                    await _dBInitializer.SeedRoleAsync();
-                    await _dBInitializer.SeedUserAsync(model);
-                    actionResult = Ok(GetInstanceDto());
+                    if (githubDownloader.DownloadAsset(asset.id, out byte[] assetbinary))
+                    {
+                        using (var ms = new MemoryStream(assetbinary))
+                        {
+                            using (var zip = new System.IO.Compression.ZipArchive(ms))
+                            {
+                                foreach (ZipArchiveEntry item in zip.Entries)
+                                {
+                                    var file = new System.IO.FileInfo(System.IO.Path.Combine(AppContext.BaseDirectory, item.FullName));
+                                    item.ExtractToFile(file.FullName, true);
+                                }
+                            }
+                        }
+                        actionResult = Ok(asset);
+                    }
+                    else
+                    {
+                        actionResult = BadRequest(new ApiResult(ApiCode.Exception, "Can't download asset!"));
+                    }
                 }
                 else
                 {
-                    actionResult = BadRequest(new { code = ApiCode.AlreadyExists, msg = "Already installed", data = GetInstanceDto() });
+                    actionResult =  NotFound(new ApiResult(ApiCode.Exception, "Can't found asset!"));
                 }
             }
             catch (Exception ex)

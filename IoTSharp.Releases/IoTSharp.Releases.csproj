@@ -1,0 +1,18 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFrameworks>netstandard2.0;net46</TargetFrameworks>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <Description></Description>
+    <PackageProjectUrl>https://github.com/maikebing/GithubReleasesDownloader</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/maikebing/GithubReleasesDownloader</RepositoryUrl>
+    <Authors>mwhitis;IoTSharp;maikebing</Authors>
+    <Company>mwhitis;IoTSharp;maikebing</Company>
+    <PackageTags>Github;Releases;Downloader;IoTSharp</PackageTags>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Newtonsoft.Json" Version="12.0.2" />
+  </ItemGroup>
+
+</Project>
