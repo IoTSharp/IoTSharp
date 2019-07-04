@@ -113,6 +113,10 @@
   <ItemGroup>
     <Folder Include="Jobs\" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\IoTSharp.Extensions\IoTSharp.Extensions.csproj" />
+    <ProjectReference Include="..\IoTSharp.Releases\IoTSharp.Releases.csproj" />
+  </ItemGroup>
 
   <Target Name="DebugEnsureNodeEnv" BeforeTargets="Build" Condition=" '$(Configuration)' == 'Debug' And !Exists('$(SpaRoot)node_modules') ">
     <!-- Ensure Node.js is installed -->
