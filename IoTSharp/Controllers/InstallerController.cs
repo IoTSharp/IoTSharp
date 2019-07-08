@@ -67,6 +67,30 @@ namespace IoTSharp.Controllers
 
         [AllowAnonymous]
         [HttpPost]
+        public async Task<ActionResult<InstanceDto>> Install([FromBody] InstallDto model)
+        {
+            ActionResult<InstanceDto> actionResult = NoContent();
+            try
+            {
+                if (!_context.Relationship.Any())
+                {
+                    await _dBInitializer.SeedRoleAsync();
+                    await _dBInitializer.SeedUserAsync(model);
+                    actionResult = Ok(GetInstanceDto());
+                }
+                else
+                {
+                    actionResult = BadRequest(new { code = ApiCode.AlreadyExists, msg = "Already installed", data = GetInstanceDto() });
+                }
+            }
+            catch (Exception ex)
+            {
+                actionResult = this.ExceptionRequest(ex);
+            }
+            return actionResult;
+        }
+        [AllowAnonymous]
+        [HttpPost]
         public   ActionResult<InstanceDto> Upgrade([FromHeader(Name ="Authorization")] string token, [FromHeader(Name ="Source")]  string source , [FromHeader(Name = "AssetName")]  string assetname )
         {
             ActionResult<InstanceDto> actionResult = NoContent();
