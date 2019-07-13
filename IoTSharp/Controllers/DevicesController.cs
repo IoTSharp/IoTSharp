@@ -82,7 +82,7 @@ namespace IoTSharp.Controllers
         [HttpGet("{deviceId}/AttributeLatest")]
         public async Task<ActionResult<List<AttributeLatest>>> GetAttributeLatest(Guid deviceId)
         {
-            var devid = from dev in _context.Device where dev.Id == deviceId select dev.AttributeLatest;
+            var devid = from dev in _context.Device.Include(d =>d.AttributeLatest) where dev.Id == deviceId select dev.AttributeLatest;
             if (!devid.Any())
             {
                 return NotFound(new ApiResult(ApiCode.NotFoundDeviceIdentity, $"Device's Identity not found "));
@@ -99,7 +99,7 @@ namespace IoTSharp.Controllers
         [HttpGet("{deviceId}/TelemetryLatest")]
         public async Task<ActionResult<List<TelemetryLatest>>> GetTelemetryLatest(Guid deviceId)
         {
-            var devid = from dev in _context.Device where dev.Id == deviceId select dev.TelemetryLatest;
+            var devid = from dev in _context.Device.Include(d=>d.TelemetryLatest) where dev.Id == deviceId select dev.TelemetryLatest;
             if (!devid.Any())
             {
                 return NotFound(new ApiResult(ApiCode.NotFoundDeviceIdentity, $"Device's Identity not found "));
