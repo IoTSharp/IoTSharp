@@ -1,4 +1,5 @@
-﻿using IoT.Things.ModBus.Models;
+﻿using HslCommunication;
+using IoT.Things.ModBus.Models;
 using IoTSharp.EdgeSdk.MQTT;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -39,6 +40,7 @@ namespace IoT.Things.ModBus.Jobs
                     var _modbusuri = mbconfig.ModBusUri;
                     try
                     {
+                       
                         _logger.LogInformation($"{keyname}  {mbconfig.ModBusUri}");
                         var ok = Task.Run(async () =>
                         {
@@ -54,15 +56,17 @@ namespace IoT.Things.ModBus.Jobs
                                     if (!info.IsSuccess) info = _modbus.ConnectServer();
                                     if (info.IsSuccess)
                                     {
-                                
+                                        var _datatype = mbconfig.ValueType ?? "UInt16";
+                                        var readmethod =  _modbus.GetType().GetMethod($"Read{_datatype}Async",new Type[] { typeof(string),typeof(ushort)});
+                                     
                                         ushort address = ushort.Parse(mbconfig.Address);
                                         var length = mbconfig.Lenght+ address;
                                         for (ushort i = address; i < length; i += _MAXREADLEN)
                                         {
                                             ushort tmpmax = (ushort)(i + _MAXREADLEN > length ? length - i : _MAXREADLEN);
-                                            var dataresult = await _modbus.ReadUInt16Async(i.ToString(), tmpmax);
-                                            if (!dataresult.IsSuccess) dataresult = await _modbus.ReadUInt16Async(i.ToString(), tmpmax);
-                                            if (!dataresult.IsSuccess) dataresult = await _modbus.ReadUInt16Async(i.ToString(), tmpmax);
+                                            var dataresult = await   (dynamic)readmethod.Invoke(_modbus, new object[] { i.ToString(), tmpmax });
+                                            if (!dataresult.IsSuccess) dataresult = await (Task<OperateResult<object[]>>)readmethod.Invoke(_modbus, new object[] { i.ToString(), tmpmax });
+                                            if (!dataresult.IsSuccess) dataresult = await (Task<OperateResult<object[]>>)readmethod.Invoke(_modbus, new object[] { i.ToString(), tmpmax });
                                             _logger.LogInformation($"JobId: {keynamejob}  ReadRanage:{i}->{tmpmax + i})  Max:{length} Data: {Newtonsoft.Json.JsonConvert.SerializeObject(dataresult)}");
                                             if (dataresult.IsSuccess && dataresult.Content != null && dataresult.Content.Length > 0)
                                             {
