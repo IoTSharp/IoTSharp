@@ -185,11 +185,13 @@ namespace IoTSharp.Handlers
             if (tpary.Length>5 &&  tpary[4] == "xml" )
             {
                 var qf = from at in _dbContext.AttributeData where at.Type == DataType.XML && at.KeyName == tpary[5] select at;
+                await qf.LoadAsync();
                 await _serverEx.PublishAsync($"/devices/me/attributes/response/{tpary[5]}", qf.FirstOrDefault()?.Value_XML);
             }
             else if (tpary.Length > 5 &&  tpary[4] == "binary")
             {
                 var qf = from at in _dbContext.AttributeData where at.Type == DataType.Binary && at.KeyName == tpary[5] select at;
+                await qf.LoadAsync();
                 await _serverEx.PublishAsync(new MqttApplicationMessage() {  Topic = $"/devices/me/attributes/response/{tpary[5]}", Payload = qf.FirstOrDefault()?.Value_Binary });
             }
             else
@@ -205,6 +207,7 @@ namespace IoTSharp.Handlers
                         if (Enum.TryParse(kx.Key, true, out DataSide ds))
                         {
                             var qf = from at in _dbContext.AttributeLatest.Include(al => al.Device) where at.Device == device && keys.Contains(at.KeyName) select at;
+                            await qf.LoadAsync();
                             if (ds == DataSide.AnySide)
                             {
                                 datas.AddRange(await qf.ToArrayAsync());

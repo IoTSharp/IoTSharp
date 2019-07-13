@@ -32,27 +32,34 @@ namespace IoT.Things.ModBus.Services
             _mqtt.OnReceiveAttributes += Mqtt_OnReceiveAttributesAsync;
             _factory = factory;
         }
-
+        bool HaveModBusConfig = false;
         private async void Mqtt_OnReceiveAttributesAsync(object sender, IoTSharp.EdgeSdk.MQTT.AttributeResponse e)
         {
-            string key = $"{e.DeviceName}_{e.KeyName}";
-            var sc = await _factory.GetScheduler();
-            var job = JobBuilder.Create<Slaver>().WithIdentity($"{e.DeviceName}_{e.KeyName}").Build();
-            ITrigger trigger = TriggerBuilder.Create()
-                             .WithIdentity(key).UsingJobData(nameof(ModBusConfig), e.Data).UsingJobData(nameof(e.DeviceName), e.DeviceName).UsingJobData(nameof(e.KeyName), e.KeyName).ForJob(job)
-                             .WithSimpleSchedule(x => x.WithIntervalInSeconds(10).RepeatForever()).StartNow().Build();
-
-            if (await sc.CheckExists(new JobKey(key)))
+            try
             {
-                await sc.RescheduleJob(new TriggerKey(key), trigger);
-            }
-            else
-            {
-                await sc.ScheduleJob(job, trigger);
-            }
+                string key = $"{e.DeviceName}_{e.KeyName}";
+                var sc = await _factory.GetScheduler();
+                var job = JobBuilder.Create<Slaver>().WithIdentity($"{e.DeviceName}_{e.KeyName}").Build();
+                ITrigger trigger = TriggerBuilder.Create()
+                                 .WithIdentity(key).UsingJobData(nameof(ModBusConfig), e.Data).UsingJobData(nameof(e.DeviceName), e.DeviceName).UsingJobData(nameof(e.KeyName), e.KeyName).ForJob(job)
+                                 .WithSimpleSchedule(x => x.WithIntervalInSeconds(10).RepeatForever()).StartNow().Build();
 
-     
-    }
+                if (await sc.CheckExists(new JobKey(key)))
+                {
+                    await sc.RescheduleJob(new TriggerKey(key), trigger);
+                }
+                else
+                {
+                    await sc.ScheduleJob(job, trigger);
+                }
+                HaveModBusConfig = true;
+            }
+            catch (Exception ex)
+            {
+                HaveModBusConfig = false;
+                _logger.LogError($"Mqtt_OnReceiveAttributesAsync: {ex.GetType().Name}{ex.Message}");
+            }
+        }
 
 
         private void _mqtt_OnExcCommand(object sender, RpcRequest e)
@@ -74,10 +81,14 @@ namespace IoT.Things.ModBus.Services
                 await _mqtt.ConnectAsync(_options.BrokerUri, _options.AccessToken);
 
 
-                await _mqtt.ResponseAttributes("me",true, "ModBusConfig");
+              
                 do
                 {
-                   await _mqtt.UploadAttributeAsync(new { ModBusServiceStatus = "OK" });
+                    if (!HaveModBusConfig)
+                    {
+                        await _mqtt.ResponseAttributes("me", true, "ModBusConfig");
+                    }
+                    await _mqtt.UploadAttributeAsync(new { ModBusServiceStatus = "OK" });
                     Thread.Sleep(TimeSpan.FromSeconds(60));
                 } while (!cancellationToken.IsCancellationRequested);
             });

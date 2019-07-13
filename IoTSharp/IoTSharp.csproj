@@ -57,7 +57,7 @@
     <PackageReference Include="CoAP.NET.Core" Version="1.1.0" />
     <PackageReference Include="Microsoft.AspNetCore.Hosting.WindowsServices" Version="2.2.0" />
     <PackageReference Include="MQTTnet.AspNetCoreEx" Version="3.0.2.1" />
-    <PackageReference Include="MQTTnet.Extensions.ManagedClient" Version="3.0.4" />
+    <PackageReference Include="MQTTnet.Extensions.ManagedClient" Version="3.0.5" />
 
   </ItemGroup>
   <ItemGroup>
@@ -81,19 +81,20 @@
     <PackageReference Include="Microsoft.AspNetCore.Identity" Version="2.2.0" />
     <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="2.2.0" />
     <PackageReference Include="Microsoft.AspNetCore.Razor.Design" Version="2.2.0" PrivateAssets="All" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="2.2.4" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" Version="2.2.4" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="2.2.4" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="2.2.4" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="2.2.6" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" Version="2.2.6" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="2.2.6" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="2.2.6" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite.Design" Version="1.1.6" />
     <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="2.2.3" />
-    <PackageReference Include="MQTTnet" Version="3.0.4" />
-    <PackageReference Include="MQTTnet.AspNetCore" Version="3.0.4" />
-    <PackageReference Include="MQTTnet.Extensions.Rpc" Version="3.0.4" />
+    <PackageReference Include="MQTTnet" Version="3.0.5" />
+    <PackageReference Include="MQTTnet.AspNetCore" Version="3.0.5" />
+    <PackageReference Include="MQTTnet.Extensions.Rpc" Version="3.0.5" />
     <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="2.2.4" />
-    <PackageReference Include="NSwag.AspNetCore" Version="13.0.2" />
+    <PackageReference Include="NSwag.AspNetCore" Version="13.0.4" />
     <PackageReference Include="QuartzHostedService" Version="0.0.5" />
     <PackageReference Include="Quartzmin" Version="1.0.3" />
+    <PackageReference Include="System.ServiceModel.Primitives" Version="4.5.3" />
     <PackageReference Include="System.Text.Encoding.CodePages" Version="4.5.1" />
   </ItemGroup>
   <ProjectExtensions>
