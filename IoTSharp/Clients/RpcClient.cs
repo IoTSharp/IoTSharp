@@ -39,12 +39,12 @@ namespace IoTSharp.Extensions
 
         public Task<byte[]> ExecuteAsync(TimeSpan timeout, string deviceid, string methodName, string payload, MqttQualityOfServiceLevel qualityOfServiceLevel)
         {
-            return ExecuteAsync(timeout, methodName, deviceid, Encoding.UTF8.GetBytes(payload), qualityOfServiceLevel, CancellationToken.None);
+            return ExecuteAsync(timeout, deviceid, methodName,  Encoding.UTF8.GetBytes(payload), qualityOfServiceLevel, CancellationToken.None);
         }
 
         public Task<byte[]> ExecuteAsync(TimeSpan timeout, string deviceid, string methodName, string payload, MqttQualityOfServiceLevel qualityOfServiceLevel, CancellationToken cancellationToken)
         {
-            return ExecuteAsync(timeout, methodName, deviceid, Encoding.UTF8.GetBytes(payload), qualityOfServiceLevel, cancellationToken);
+            return ExecuteAsync(timeout,  deviceid, methodName, Encoding.UTF8.GetBytes(payload), qualityOfServiceLevel, cancellationToken);
         }
 
         public Task<byte[]> ExecuteAsync(TimeSpan timeout, string deviceid, string methodName, byte[] payload, MqttQualityOfServiceLevel qualityOfServiceLevel)
@@ -61,8 +61,8 @@ namespace IoTSharp.Extensions
                 throw new ArgumentException("The method name cannot contain /, + or #.");
             }
             string rpcid = $"{Guid.NewGuid():N}";
-            var requestTopic = $"{deviceid}/rpc/request/{methodName}";
-            var responseTopic = $"{deviceid}/rpc/response/{methodName}";
+            var requestTopic = $"/devices/{deviceid}/rpc/request/{methodName}/{rpcid}";
+            var responseTopic = $"/devices/{deviceid}/rpc/response/{methodName}/{rpcid}";
 
             var requestMessage = new MqttApplicationMessageBuilder()
                 .WithTopic(requestTopic)
