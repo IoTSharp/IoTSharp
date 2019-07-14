@@ -34,10 +34,11 @@ namespace IoTSharp.EdgeSdk.MQTT
             _logger = logger;
             BrokerUri = uri;
         }
+        public string DeviceId { get; set; } = string.Empty;
         public Uri BrokerUri { get; set; }
         public bool IsConnected => (Client?.IsConnected).GetValueOrDefault();
         private IMqttClient Client { get; set; }
-        public event EventHandler<RpcRequest> OnExcCommand;
+        public event EventHandler<RpcRequest> OnExcRpc;
         public event EventHandler<AttributeResponse> OnReceiveAttributes;
         public Task<bool> ConnectAsync(Uri uri, string accesstoken) => ConnectAsync(uri, accesstoken, null);
 
@@ -96,7 +97,11 @@ namespace IoTSharp.EdgeSdk.MQTT
 
         private   void Client_ConnectedAsync(object sender, MqttClientConnectedEventArgs e)
         {
+
+            Client.SubscribeAsync($"/devices/{DeviceId}/rpc/request/+/+");
+            Client.SubscribeAsync($"/devices/{DeviceId}/attributes/update/", MqttQualityOfServiceLevel.ExactlyOnce);
             _logger.LogInformation($"CONNECTED WITH SERVER ");
+
         }
 
         private void Client_ApplicationMessageReceived(object sender, MqttApplicationMessageReceivedEventArgs e)
@@ -104,46 +109,60 @@ namespace IoTSharp.EdgeSdk.MQTT
             _logger.LogDebug($"ApplicationMessageReceived Topic {e.ApplicationMessage.Topic}  QualityOfServiceLevel:{e.ApplicationMessage.QualityOfServiceLevel} Retain:{e.ApplicationMessage.Retain} ");
             try
             {
-              
-
                 if (e.ApplicationMessage.Topic.StartsWith($"/devices/") && e.ApplicationMessage.Topic.Contains("/response/"))
                 {
+                    ReceiveAttributes(e);
+                }
+                else if (e.ApplicationMessage.Topic.StartsWith($"/devices/") && e.ApplicationMessage.Topic.Contains("/rpc/request/"))
+                {
                     var tps = e.ApplicationMessage.Topic.Split(new char[] { '/' }, StringSplitOptions.RemoveEmptyEntries);
-                    var rpcmethodname = tps[2];
+                    var rpcmethodname = tps[4];
                     var rpcdevicename = tps[1];
-                    var rpcrequestid = tps[4];
+                    var rpcrequestid = tps[5];
                     _logger.LogInformation($"rpcmethodname={rpcmethodname} ");
                     _logger.LogInformation($"rpcdevicename={rpcdevicename } ");
                     _logger.LogInformation($"rpcrequestid={rpcrequestid}   ");
-
-                    if (!string.IsNullOrEmpty(rpcmethodname) &&!string.IsNullOrEmpty( rpcdevicename) &&  !string.IsNullOrEmpty(rpcrequestid))
+                    if (!string.IsNullOrEmpty(rpcmethodname) && !string.IsNullOrEmpty(rpcdevicename) && !string.IsNullOrEmpty(rpcrequestid))
                     {
-                        if (e.ApplicationMessage.Topic.Contains("/attributes/"))
+                        OnExcRpc?.Invoke(Client, new RpcRequest()
                         {
-                            OnReceiveAttributes?.Invoke(Client, new AttributeResponse()
-                            {
-                                KeyName = rpcmethodname,
-                                DeviceName = rpcdevicename,
-                                Id = rpcrequestid,
-                                Data = e.ApplicationMessage.ConvertPayloadToString()
-                            });
-                        }
-                        else
-                        {
-                            OnExcCommand?.Invoke(Client, new RpcRequest()
-                            {
-                                Command = rpcmethodname ,
-                                DeviceName = rpcdevicename ,
-                                RequestId = rpcrequestid ,
-                                Params = e.ApplicationMessage.ConvertPayloadToString()
-                            });
-                        }
+                            Method = rpcmethodname,
+                            DeviceId = rpcdevicename,
+                            RequestId = rpcrequestid,
+                            Params = e.ApplicationMessage.ConvertPayloadToString()
+                        });
                     }
                 }
+                
             }
             catch (Exception ex)
             {
                 _logger.LogError($"ClientId:{e.ClientId} Topic:{e.ApplicationMessage.Topic},Payload:{e.ApplicationMessage.ConvertPayloadToString()}", ex);
+            }
+        }
+
+        private void ReceiveAttributes(MqttApplicationMessageReceivedEventArgs e)
+        {
+            var tps = e.ApplicationMessage.Topic.Split(new char[] { '/' }, StringSplitOptions.RemoveEmptyEntries);
+            var rpcmethodname = tps[2];
+            var rpcdevicename = tps[1];
+            var rpcrequestid = tps[4];
+            _logger.LogInformation($"rpcmethodname={rpcmethodname} ");
+            _logger.LogInformation($"rpcdevicename={rpcdevicename } ");
+            _logger.LogInformation($"rpcrequestid={rpcrequestid}   ");
+
+            if (!string.IsNullOrEmpty(rpcmethodname) && !string.IsNullOrEmpty(rpcdevicename) && !string.IsNullOrEmpty(rpcrequestid))
+            {
+                if (e.ApplicationMessage.Topic.Contains("/attributes/"))
+                {
+                    OnReceiveAttributes?.Invoke(Client, new AttributeResponse()
+                    {
+                        KeyName = rpcmethodname,
+                        DeviceName = rpcdevicename,
+                        Id = rpcrequestid,
+                        Data = e.ApplicationMessage.ConvertPayloadToString()
+                    });
+                }
             }
         }
 
@@ -164,14 +183,15 @@ namespace IoTSharp.EdgeSdk.MQTT
 
         public Task ResponseExecommand(RpcResponse rpcResult)
         {
-            string topic = $"devices/{rpcResult.DeviceName}/response/{rpcResult.Command.ToString()}/{rpcResult.ResponseId}";
+            ///IoTSharp/Clients/RpcClient.cs#L65     var responseTopic = $"/devices/{deviceid}/rpc/response/{methodName}/{rpcid}";
+            string topic = $"/devices/{rpcResult.DeviceId}/rpc/response/{rpcResult.Method.ToString()}/{rpcResult.ResponseId}";
             return Client.PublishAsync(topic, rpcResult.Data.ToString(), MqttQualityOfServiceLevel.ExactlyOnce);
         }
-        public Task ResponseAttributes(params string[] args) => ResponseAttributes("me", false, args);
-        public Task ResponseAttributes(string _device, params string[] args) => ResponseAttributes(_device, false, args);
-        public Task ResponseAttributes(bool anySide = true, params string[] args) => ResponseAttributes("me", true, args);
+        public Task RequestAttributes(params string[] args) => RequestAttributes("me", false, args);
+        public Task RequestAttributes(string _device, params string[] args) => RequestAttributes(_device, false, args);
+        public Task RequestAttributes(bool anySide = true, params string[] args) => RequestAttributes("me", true, args);
 
-        public Task ResponseAttributes(string _device, bool anySide  , params string[] args)
+        public Task RequestAttributes(string _device, bool anySide  , params string[] args)
         {
             string id = Guid.NewGuid().ToString();
             string topic = $"devices/{_device}/attributes/request/{id}";
@@ -183,15 +203,15 @@ namespace IoTSharp.EdgeSdk.MQTT
     }
     public class RpcRequest
     {
-        public string DeviceName { get; set; }
-        public string Command { get; set; }
+        public string DeviceId { get; set; }
+        public string Method { get; set; }
         public string RequestId { get; set; }
         public string Params { get; set; }
     }
     public class RpcResponse
     {
-        public string DeviceName { get; set; }
-        public string Command { get; set; }
+        public string DeviceId { get; set; }
+        public string Method { get; set; }
         public string ResponseId { get; set; }
         public string Data { get; set; }
     }

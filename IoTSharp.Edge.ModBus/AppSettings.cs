@@ -11,7 +11,7 @@ namespace IoT.Things.ModBus
         public Uri BrokerUri { get;  set; }
         public string AccessToken { get;   set; }
         public List<string> ModBusList { get; set; }
-
+        public string DeviceId { get;   set; }
     }
     public class ModBusConfig
     {

@@ -1,9 +1,11 @@
 ﻿using IoT.Things.ModBus.Jobs;
+using IoT.Things.ModBus.Models;
 using IoTSharp.EdgeSdk.MQTT;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using Quartz;
 using QuartzHostedService;
 using System;
@@ -23,16 +25,19 @@ namespace IoT.Things.ModBus.Services
         private readonly AppSettings _options;
         private readonly ILogger _logger;
         private readonly ISchedulerFactory _factory;
+        private   Uri _modbusuri;
         public ModBusService(MQTTClient mqtt, IOptions<AppSettings> options, ILogger<ModBusService> logger, ISchedulerFactory factory)
         {
             _logger = logger;
             _options = options.Value;
             _mqtt = mqtt;
-            _mqtt.OnExcCommand += _mqtt_OnExcCommand;
+            _mqtt.OnExcRpc += _mqtt_OnExcCommand;
             _mqtt.OnReceiveAttributes += Mqtt_OnReceiveAttributesAsync;
             _factory = factory;
+            _mqtt.DeviceId = _options.DeviceId;
         }
         bool HaveModBusConfig = false;
+        ModBusConfig modBusConfig = null;
         private async void Mqtt_OnReceiveAttributesAsync(object sender, IoTSharp.EdgeSdk.MQTT.AttributeResponse e)
         {
             try
@@ -52,7 +57,12 @@ namespace IoT.Things.ModBus.Services
                 {
                     await sc.ScheduleJob(job, trigger);
                 }
-                HaveModBusConfig = true;
+                modBusConfig = JToken.Parse( e.Data).SelectToken("ModBusConfig").ToObject<ModBusConfig>();
+                if (modBusConfig != null )
+                {
+                    _modbusuri = modBusConfig.ModBusUri;
+                    HaveModBusConfig = true;
+                }
             }
             catch (Exception ex)
             {
@@ -64,12 +74,17 @@ namespace IoT.Things.ModBus.Services
 
         private void _mqtt_OnExcCommand(object sender, RpcRequest e)
         {
-            if (e.Command =="WriteInt")
+            if (e.Method =="WriteInt")
             {
                 Task.Run(async () =>
                 {
-
-                    await _mqtt.ResponseExecommand(new  RpcResponse() { Command = e.Command, Data =  "OK", DeviceName = e.DeviceName, ResponseId = e.RequestId });
+                    
+                var _modbus = new HslCommunication.ModBus.ModbusTcpNet(_modbusuri.Host, _modbusuri.Port, byte.Parse(_modbusuri.AbsolutePath.Trim('/', '\\')));
+                        _modbus.UseSynchronousNet = true;
+                        var info = _modbus.ConnectServer();
+                        var paramsx = Newtonsoft.Json.JsonConvert.DeserializeObject<RpcParam<int>>(e.Params);
+                    var result=  await   _modbus.WriteAsync(paramsx.Address, paramsx.Value);
+                    await _mqtt.ResponseExecommand(new  RpcResponse() { Method = e.Method, Data = JsonConvert.SerializeObject(result) , DeviceId = e.DeviceId, ResponseId = e.RequestId });
                 });
             }
         }
@@ -86,7 +101,7 @@ namespace IoT.Things.ModBus.Services
                 {
                     if (!HaveModBusConfig)
                     {
-                        await _mqtt.ResponseAttributes("me", true, "ModBusConfig");
+                        await _mqtt.RequestAttributes("me", true, "ModBusConfig");
                     }
                     await _mqtt.UploadAttributeAsync(new { ModBusServiceStatus = "OK" });
                     Thread.Sleep(TimeSpan.FromSeconds(60));
