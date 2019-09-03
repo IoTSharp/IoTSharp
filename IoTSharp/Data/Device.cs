@@ -15,14 +15,5 @@ namespace IoTSharp.Data
 
         public Customer Customer { get; set; }
 
-        [Newtonsoft.Json.JsonIgnore]
-        public virtual List<AttributeData> AttributeData { get; set; }
-
-        [Newtonsoft.Json.JsonIgnore]
-        public virtual List<TelemetryData> TelemetryData { get; set; }
-
-        public virtual List<AttributeLatest> AttributeLatest { get; set; }
-
-        public virtual List<TelemetryLatest> TelemetryLatest { get; set; }
     }
 }

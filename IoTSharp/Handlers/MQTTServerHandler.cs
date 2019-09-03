@@ -206,7 +206,7 @@ namespace IoTSharp.Handlers
                     {
                         if (Enum.TryParse(kx.Key, true, out DataSide ds))
                         {
-                            var qf = from at in _dbContext.AttributeLatest.Include(al => al.Device) where at.Device == device && keys.Contains(at.KeyName) select at;
+                            var qf = from at in _dbContext.AttributeLatest where at.DeviceId == device.Id && keys.Contains(at.KeyName) select at;
                             await qf.LoadAsync();
                             if (ds == DataSide.AnySide)
                             {
