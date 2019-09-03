@@ -82,12 +82,12 @@ namespace IoTSharp.Controllers
         [HttpGet("{deviceId}/AttributeLatest")]
         public async Task<ActionResult<List<AttributeLatest>>> GetAttributeLatest(Guid deviceId)
         {
-            var devid = from dev in _context.Device.Include(d =>d.AttributeLatest) where dev.Id == deviceId select dev.AttributeLatest;
+            var devid = from dev in _context.AttributeLatest where dev.DeviceId == deviceId select dev ;
             if (!devid.Any())
             {
                 return NotFound(new ApiResult(ApiCode.NotFoundDeviceIdentity, $"Device's Identity not found "));
             }
-            return await devid.FirstOrDefaultAsync();
+            return await devid.ToListAsync();
         }
 
         /// <summary>
@@ -99,12 +99,12 @@ namespace IoTSharp.Controllers
         [HttpGet("{deviceId}/TelemetryLatest")]
         public async Task<ActionResult<List<TelemetryLatest>>> GetTelemetryLatest(Guid deviceId)
         {
-            var devid = from dev in _context.Device.Include(d=>d.TelemetryLatest) where dev.Id == deviceId select dev.TelemetryLatest;
+            var devid = from dev in _context.TelemetryLatest where dev.DeviceId == deviceId select dev;
             if (!devid.Any())
             {
                 return NotFound(new ApiResult(ApiCode.NotFoundDeviceIdentity, $"Device's Identity not found "));
             }
-            return await devid.FirstOrDefaultAsync();
+            return await devid.ToListAsync();
         }
         /// <summary>
         /// Request telemetry values from the server
@@ -123,7 +123,7 @@ namespace IoTSharp.Controllers
             }
             else
             {
-                var kv = from t in _context.TelemetryLatest where t.Device == dev && t.KeyName == keyName select t;
+                var kv = from t in _context.TelemetryLatest where t.DeviceId == dev.Id && t.KeyName == keyName select t;
                 return (await kv.FirstOrDefaultAsync())?.ToObject();
             }
         }
@@ -144,7 +144,7 @@ namespace IoTSharp.Controllers
             }
             else
             {
-                var kv = from t in _context.AttributeLatest where t.Device == dev && t.KeyName == keyName select t;
+                var kv = from t in _context.AttributeLatest where t.DeviceId == dev.Id && t.KeyName == keyName select t;
                 return (await kv.FirstOrDefaultAsync())?.ToObject();
             }
         }
@@ -167,7 +167,7 @@ namespace IoTSharp.Controllers
             }
             else
             {
-                var kv = from t in _context.TelemetryLatest where t.Device == dev && t.KeyName == keyName && t.DateTime >= begin   select t.ToObject();
+                var kv = from t in _context.TelemetryLatest where t.DeviceId == dev.Id && t.KeyName == keyName && t.DateTime >= begin   select t.ToObject();
                 return  await kv.ToArrayAsync();
             }
         }
@@ -190,7 +190,7 @@ namespace IoTSharp.Controllers
             }
             else
             {
-                var kv = from t in _context.TelemetryLatest where t.Device == dev && t.KeyName == keyName && t.DateTime>=begin && t.DateTime <end select t.ToObject() ;
+                var kv = from t in _context.TelemetryLatest where t.DeviceId == dev.Id && t.KeyName == keyName && t.DateTime>=begin && t.DateTime <end select t.ToObject() ;
                 return await kv.ToArrayAsync();
             }
         }
@@ -403,9 +403,8 @@ namespace IoTSharp.Controllers
                 var deviceId = device.Id;
                 try
                 {
-                    var attributes = from dev in _context.Device where dev.Id == deviceId select dev.AttributeLatest;
-                    var arrys = await attributes.FirstOrDefaultAsync();
-                    var fs = from at in arrys.ToArray() where at.DataSide == dataSide && keys.Split(',', options: StringSplitOptions.RemoveEmptyEntries).Contains(at.KeyName) select at;
+                    var attributes = from dev in _context.AttributeLatest where dev.DeviceId == deviceId select dev;
+                    var fs = from at in await attributes.ToListAsync() where at.DataSide == dataSide && keys.Split(',', options: StringSplitOptions.RemoveEmptyEntries).Contains(at.KeyName) select at;
                     return Ok(fs.ToArray());
                 }
                 catch (Exception ex)

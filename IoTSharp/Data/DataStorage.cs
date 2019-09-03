@@ -1,33 +1,30 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace IoTSharp.Data
 {
     public class DataStorage
     {
-        [Key]
-        public Guid Id { get; set; } = Guid.NewGuid();
+        [EnumDataType(typeof(DataCatalog)), Column(Order = 0)]
+        public DataCatalog Catalog { get; set; }
 
-        [Required]
+        [Newtonsoft.Json.JsonIgnore, Column(Order = 1)]
+        public Guid DeviceId { get; set; }
+
+        [Column(Order = 2)]
         public string KeyName { get; set; }
 
-        [Newtonsoft.Json.JsonIgnore]
-        [Required]
-        public Device Device { get; set; }
+        [Column(Order = 3)]
+        public DateTime DateTime { get; set; }
 
-        [Required]
+        [Column(Order = 4)]
         [EnumDataType(typeof(DataSide))]
         public DataSide DataSide { get; set; } = DataSide.AnySide;
 
-        [Required]
-        [EnumDataType(typeof(DataCatalog))]
-        public DataCatalog Catalog { get; set; }
-
-        [Required]
+        [Column(Order = 5)]
         [EnumDataType(typeof(DataType))]
         public DataType Type { get; set; }
-
-        public DateTime DateTime { get; set; }
 
         public bool Value_Boolean { get; set; }
         public string Value_String { get; set; }

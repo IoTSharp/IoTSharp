@@ -30,7 +30,11 @@ namespace IoTSharp.Data
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
-
+            modelBuilder.Entity<DataStorage>().HasKey(c => new { c.Catalog, c.DeviceId, c.KeyName, c.DateTime });
+            modelBuilder.Entity<DataStorage>().HasIndex(c =>  c.Catalog);
+            modelBuilder.Entity<DataStorage>().HasIndex(c => new { c.Catalog, c.DeviceId });
+            modelBuilder.Entity<DataStorage>().HasIndex(c =>  new {c.Catalog,c.DeviceId,  c.KeyName } );
+            modelBuilder.Entity<DataStorage>().HasIndex(c => new { c.Catalog, c.DeviceId, c.KeyName,c.DateTime });
             modelBuilder.Entity<DataStorage>()
            .HasDiscriminator<DataCatalog>(nameof(Data.DataStorage.Catalog))
            .HasValue<DataStorage>(DataCatalog.None)

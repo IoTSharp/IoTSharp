@@ -54,14 +54,13 @@ namespace IoTSharp.Extensions
             {
                 try
                 {
-                    var tdata = new D() { DateTime = DateTime.Now, Device = device, Id = Guid.NewGuid(), KeyName = kp.Key };
+                    var tdata = new D() { DateTime = DateTime.Now, DeviceId = device.Id, KeyName = kp.Key };
                     if (kp.Key != null)
                     {
                         tdata.FillKVToMe(kp);
-                        tdata.Id = Guid.NewGuid();
                         _context.Set<D>().Add(tdata);
                     }
-                    var tl = _context.Set<L>().FirstOrDefault(tx => tx.Device.Id == device.Id && tx.KeyName == kp.Key &&  tx.DataSide==dataSide);
+                    var tl = _context.Set<L>().FirstOrDefault(tx => tx.DeviceId == device.Id && tx.KeyName == kp.Key &&  tx.DataSide==dataSide);
                     if (tl != null)
                     {
                         tl.FillKVToMe(kp);
@@ -69,7 +68,7 @@ namespace IoTSharp.Extensions
                     }
                     else
                     {
-                        var t2 = new L() { DateTime = DateTime.Now, Device = device, Id = Guid.NewGuid(), KeyName = kp.Key, DataSide = dataSide };
+                        var t2 = new L() { DateTime = DateTime.Now, DeviceId = device.Id,  KeyName = kp.Key, DataSide = dataSide };
                         t2.FillKVToMe(kp);
                         _context.Set<L>().Add(t2);
                     }
