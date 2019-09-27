@@ -14,6 +14,8 @@ using Microsoft.AspNetCore.Hosting.WindowsServices;
 using Microsoft.Extensions.Configuration;
 using System.Threading.Tasks;
 using System.Threading;
+using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace IoTSharp.Extensions
 {
@@ -62,7 +64,7 @@ namespace IoTSharp.Extensions
             return hostBuilder;
         }
 
-        public static void RunAsEnv(this IWebHost host)
+        public static void RunAsEnv(this IHost host)
         {
             bool IsWindowsService = false;
 
@@ -77,7 +79,7 @@ namespace IoTSharp.Extensions
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows) && IsWindowsService)
             {
                 System.IO.Directory.SetCurrentDirectory(AppContext.BaseDirectory);
-                host.RunAsService();
+                host.Run();
             }
             else
             {
@@ -176,6 +178,9 @@ namespace IoTSharp.Extensions
             thread.Start();
             return tcs.Task;
         }
+
+        public static T GetRequiredService<T>(this IServiceScopeFactory scopeFactor) =>
+                                    scopeFactor.CreateScope().ServiceProvider.GetRequiredService<T>();
     }
 
 }

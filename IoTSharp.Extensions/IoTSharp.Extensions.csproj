@@ -1,18 +1,17 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netcoreapp2.2</TargetFramework>
+    <TargetFramework>netcoreapp3.0</TargetFramework>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <PackageProjectUrl>https://github.com/IoTSharp/IoTSharp/tree/master/IoTSharp.Extensions</PackageProjectUrl>
     <RepositoryUrl>https://github.com/IoTSharp/IoTSharp</RepositoryUrl>
     <PackageTags>Endian;Json;XML</PackageTags>
-    <PackageIconUrl>https://raw.githubusercontent.com/IoTSharp/IoTSharp/master/docs/images/iot_sharp_logo.png</PackageIconUrl>
     <Copyright>IoTSharp</Copyright>
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="3.0.0" />
     <PackageReference Include="Newtonsoft.Json" Version="12.0.2" />
-    <PackageReference Include="Microsoft.AspNetCore.App" />
     <PackageReference Include="System.Text.Encoding.CodePages" Version="4.5.1" />
     <PackageReference Include="Microsoft.AspNetCore.Hosting.WindowsServices" Version="2.2.0" />
   </ItemGroup>

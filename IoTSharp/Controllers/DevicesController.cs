@@ -42,6 +42,9 @@ namespace IoTSharp.Controllers
         [HttpGet("Customers/{customerId}")]
         [Authorize(Roles = nameof(UserRole.NormalUser))]
         [HttpGet]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ApiResult<Guid>), StatusCodes.Status404NotFound)]
+        [ProducesDefaultResponseType]
         public async Task<ActionResult<IEnumerable<Device>>> GetDevices(Guid customerId)
         {
             var f = from c in _context.Device where c.Customer.Id == customerId select c;
@@ -62,6 +65,9 @@ namespace IoTSharp.Controllers
         /// <returns></returns>
         [Authorize(Roles = nameof(UserRole.NormalUser))]
         [HttpGet("{deviceId}/Identity")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ApiResult), StatusCodes.Status404NotFound)]
+        [ProducesDefaultResponseType]
         public async Task<ActionResult<DeviceIdentity>> GetIdentity(Guid deviceId)
         {
             var devid = from did in _context.DeviceIdentities where did.Device.Id == deviceId select did;
@@ -80,6 +86,9 @@ namespace IoTSharp.Controllers
         /// <returns></returns>
         [Authorize(Roles = nameof(UserRole.NormalUser))]
         [HttpGet("{deviceId}/AttributeLatest")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ApiResult), StatusCodes.Status404NotFound)]
+        [ProducesDefaultResponseType]
         public async Task<ActionResult<List<AttributeLatest>>> GetAttributeLatest(Guid deviceId)
         {
             var devid = from dev in _context.AttributeLatest where dev.DeviceId == deviceId select dev ;
@@ -97,6 +106,9 @@ namespace IoTSharp.Controllers
         /// <returns></returns>
         [Authorize(Roles = nameof(UserRole.NormalUser))]
         [HttpGet("{deviceId}/TelemetryLatest")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ApiResult), StatusCodes.Status404NotFound)]
+        [ProducesDefaultResponseType]
         public async Task<ActionResult<List<TelemetryLatest>>> GetTelemetryLatest(Guid deviceId)
         {
             var devid = from dev in _context.TelemetryLatest where dev.DeviceId == deviceId select dev;
@@ -114,6 +126,9 @@ namespace IoTSharp.Controllers
         /// <returns></returns>
         [Authorize(Roles = nameof(UserRole.NormalUser))]
         [HttpGet("{deviceId}/TelemetryLatest/{keyName}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ApiResult), StatusCodes.Status404NotFound)]
+        [ProducesDefaultResponseType]
         public async Task<ActionResult<object>> GetTelemetryLatest(Guid deviceId, string keyName)
         {
             var dev = _context.Device.Find(deviceId);
@@ -135,6 +150,9 @@ namespace IoTSharp.Controllers
         /// <returns></returns>
         [Authorize(Roles = nameof(UserRole.NormalUser))]
         [HttpGet("{deviceId}/AttributeLatest/{keyName}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ApiResult), StatusCodes.Status404NotFound)]
+        [ProducesDefaultResponseType]
         public async Task<ActionResult<object>> GetAttributeLatest(Guid deviceId,string keyName)
         {
             var dev = _context.Device.Find(deviceId);
@@ -158,6 +176,9 @@ namespace IoTSharp.Controllers
         /// <returns></returns>
         [Authorize(Roles = nameof(UserRole.NormalUser))]
         [HttpGet("{deviceId}/TelemetryLatest/{keyName}/{begin}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ApiResult), StatusCodes.Status404NotFound)]
+        [ProducesDefaultResponseType]
         public async Task<ActionResult<object[]>> GetTelemetryLatest(Guid deviceId, string keyName, DateTime begin)
         {
             var dev = _context.Device.Find(deviceId);
@@ -181,6 +202,9 @@ namespace IoTSharp.Controllers
         /// <returns></returns>
         [Authorize(Roles = nameof(UserRole.NormalUser))]
         [HttpGet("{deviceId}/TelemetryLatest/{keyName}/{begin}/{end}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ApiResult), StatusCodes.Status404NotFound)]
+        [ProducesDefaultResponseType]
         public async Task<ActionResult<object>> GetTelemetryLatest(Guid deviceId, string keyName, DateTime begin,DateTime end )
         {
             var dev = _context.Device.Find(deviceId);
@@ -206,6 +230,9 @@ namespace IoTSharp.Controllers
         // GET: api/Devices/5
         [Authorize(Roles = nameof(UserRole.NormalUser))]
         [HttpGet("{id}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ApiResult<Guid>), StatusCodes.Status404NotFound)]
+        [ProducesDefaultResponseType]
         public async Task<ActionResult<Device>> GetDevice(Guid id)
         {
             var device = await _context.Device.FindAsync(id);
@@ -227,6 +254,10 @@ namespace IoTSharp.Controllers
         // PUT: api/Devices/5
         [Authorize(Roles = nameof(UserRole.CustomerAdmin))]
         [HttpPut("{id}")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(ApiResult<Guid>), StatusCodes.Status404NotFound)]
+        [ProducesDefaultResponseType]
         public async Task<IActionResult> PutDevice(Guid id, DevicePutDto device)
         {
             if (id != device.Id)
@@ -276,6 +307,9 @@ namespace IoTSharp.Controllers
         // POST: api/Devices
         [Authorize(Roles = nameof(UserRole.CustomerAdmin))]
         [HttpPost]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ApiResult<DevicePostDto>), StatusCodes.Status404NotFound)]
+        [ProducesDefaultResponseType]
         public async Task<ActionResult<Device>> PostDevice(DevicePostDto device)
         {
             var cid = User.Claims.First(c => c.Type == IoTSharpClaimTypes.Customer);
@@ -296,6 +330,9 @@ namespace IoTSharp.Controllers
         // DELETE: api/Devices/5
         [Authorize(Roles = nameof(UserRole.CustomerAdmin))]
         [HttpDelete("{id}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ApiResult<Guid>), StatusCodes.Status404NotFound)]
+        [ProducesDefaultResponseType]
         public async Task<ActionResult<Device>> DeleteDevice(Guid id)
         {
             var device = await _context.Device.FindAsync(id);
@@ -325,6 +362,9 @@ namespace IoTSharp.Controllers
         /// <returns></returns>
         [AllowAnonymous]
         [HttpPost("{access_token}/Rpc/{method}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ApiResult<Dic>), StatusCodes.Status404NotFound)]
+        [ProducesDefaultResponseType]
         public async Task<ActionResult<string>> Rpc(string access_token, string method, int timeout, object args)
         {
             ActionResult<string> result = null;
@@ -366,6 +406,9 @@ namespace IoTSharp.Controllers
         /// <returns></returns>
         [AllowAnonymous]
         [HttpPost("{access_token}/Telemetry")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ApiResult<Dic>), StatusCodes.Status404NotFound)]
+        [ProducesDefaultResponseType]
         public async Task<ActionResult<ApiResult<Dic>>> Telemetry(string access_token, Dictionary<string, object> telemetrys)
         {
             Dic exceptions = new Dic();
@@ -390,6 +433,10 @@ namespace IoTSharp.Controllers
         /// <returns></returns>
         [AllowAnonymous]
         [HttpGet("{access_token}/Attributes/{dataSide}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ApiResult), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(ApiResult<Dic>), StatusCodes.Status404NotFound)]
+        [ProducesDefaultResponseType]
         public async Task<ActionResult<AttributeLatest>> Attributes(string access_token, DataSide dataSide, string keys)
         {
             Dic exceptions = new Dic();
@@ -422,6 +469,9 @@ namespace IoTSharp.Controllers
         /// <returns></returns>
         [AllowAnonymous]
         [HttpPost("{access_token}/Attributes")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ApiResult<Dic>), StatusCodes.Status404NotFound)]
+        [ProducesDefaultResponseType]
         public async Task<ActionResult<ApiResult<Dic>>> Attributes(string access_token, Dictionary<string, object> attributes)
         {
             Dic exceptions = new Dic();

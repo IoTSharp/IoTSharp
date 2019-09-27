@@ -8,20 +8,28 @@ using IoTSharp.Extensions;
 using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using MQTTnet.AspNetCore;
+
 namespace IoTSharp
 {
     public class Program
     {
+
         public static void Main(string[] args)
         {
-            CreateWebHostBuilder(args).Build().RunAsEnv();
+            CreateHostBuilder(args).Build().RunAsEnv();
         }
 
-        public static IWebHostBuilder CreateWebHostBuilder(string[] args) =>
-            WebHost.CreateDefaultBuilder(args)
-                    .UseContentRootAsEnv()
-                    .UseStartup<Startup>();
+        public static IHostBuilder CreateHostBuilder(string[] args) =>
+            Host.CreateDefaultBuilder(args)
+                .UseWindowsService()
+                .ConfigureWebHostDefaults(webBuilder =>
+                {
+                    webBuilder.UseContentRootAsEnv()
+                                .UseStartup<Startup>();
+                });
+  
     }
 }

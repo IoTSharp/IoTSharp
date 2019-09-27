@@ -18,6 +18,7 @@ using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Security.Claims;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
 
 namespace IoTSharp.Controllers
 {
@@ -48,6 +49,9 @@ namespace IoTSharp.Controllers
 
         [AllowAnonymous]
         [HttpGet]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesDefaultResponseType]
         public ActionResult<InstanceDto> Instance()
         {
             try

@@ -1,13 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using IoTSharp.Data;
+using IoTSharp.Dtos;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using IoTSharp.Data;
-using Microsoft.AspNetCore.Authorization;
-using IoTSharp.Dtos;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace IoTSharp.Controllers
 {
@@ -26,6 +26,9 @@ namespace IoTSharp.Controllers
         // GET: api/Tenants
         [HttpGet("Tenant/{tenantId}")]
         [Authorize(Roles = nameof(UserRole.NormalUser))]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ApiResult), StatusCodes.Status404NotFound)]
+        [ProducesDefaultResponseType]
         public async Task<ActionResult<IEnumerable<Customer>>> GetCustomers(Guid tenantId)
         {
             var f = from c in _context.Customer where c.Tenant.Id == tenantId select c;
@@ -42,6 +45,9 @@ namespace IoTSharp.Controllers
         // GET: api/Customers/5
         [Authorize(Roles = nameof(UserRole.NormalUser))]
         [HttpGet("{id}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ApiResult), StatusCodes.Status404NotFound)]
+        [ProducesDefaultResponseType]
         public async Task<ActionResult<Customer>> GetCustomer(Guid id)
         {
             var customer = await _context.Customer.FindAsync(id);
@@ -57,6 +63,10 @@ namespace IoTSharp.Controllers
         // PUT: api/Customers/5
         [Authorize(Roles = nameof(UserRole.CustomerAdmin))]
         [HttpPut("{id}")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(ApiResult), StatusCodes.Status404NotFound)]
+        [ProducesDefaultResponseType]
         public async Task<IActionResult> PutCustomer(Guid id, CustomerDto customer)
         {
             if (id != customer.Id)
@@ -109,6 +119,9 @@ namespace IoTSharp.Controllers
         // DELETE: api/Customers/5
         [Authorize(Roles = nameof(UserRole.TenantAdmin))]
         [HttpDelete("{id}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ApiResult), StatusCodes.Status404NotFound)]
+        [ProducesDefaultResponseType]
         public async Task<ActionResult<Customer>> DeleteCustomer(Guid id)
         {
             var customer = await _context.Customer.FindAsync(id);
