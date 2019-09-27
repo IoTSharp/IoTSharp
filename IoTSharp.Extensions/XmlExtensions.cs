@@ -26,7 +26,7 @@ namespace IoTSharp.Extensions
                 obj = JsonConvert.DeserializeObject(jsonText);
                 ok = true;
             }
-            catch (Exception ex)
+            catch (Exception)
             {
             }
             return ok;
@@ -44,7 +44,7 @@ namespace IoTSharp.Extensions
                 obj = JsonConvert.DeserializeObject(jsonText);
                 ok = true;
             }
-            catch (Exception ex)
+            catch (Exception)
             {
             }
             return ok;
@@ -66,7 +66,7 @@ namespace IoTSharp.Extensions
                 obj = JsonConvert.DeserializeObject(jsonText);
                 ok = true;
             }
-            catch (Exception ex)
+            catch (Exception)
             {
             }
             return ok;

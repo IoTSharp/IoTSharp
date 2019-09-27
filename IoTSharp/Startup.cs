@@ -17,6 +17,7 @@ using Microsoft.AspNetCore.SpaServices.VueCli;
 using Microsoft.AspNetCore.SpaServices.Webpack;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using MQTTnet.AspNetCore;
 using MQTTnet.AspNetCoreEx;
@@ -60,7 +61,7 @@ namespace IoTSharp
                 options.CheckConsentNeeded = context => true;
                 options.MinimumSameSitePolicy = SameSiteMode.None;
             });
-            services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
+            services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Latest);
             
             // In production, the Angular files will be served from this directory
             services.AddSpaStaticFiles(configuration =>
@@ -111,14 +112,12 @@ namespace IoTSharp
             services.AddSingleton<DiagnosticsService>();
             services.AddSingleton<RetainedMessageHandler>();
             services.AddSingleton<RuntimeStatusHandler>();
- 
+
         }
 
-      
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
-        
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
@@ -126,15 +125,27 @@ namespace IoTSharp
             }
             else
             {
-                app.UseExceptionHandler("/Error");
+                app.UseExceptionHandler("/Home/Error");
                 // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
                 app.UseHsts();
             }
-           
+            app.UseHttpsRedirection();
+            app.UseStaticFiles();
+
+            app.UseRouting();
+
             app.UseAuthentication();
-          
-            
-            app.UseSwagger();
+            app.UseAuthorization();
+
+            app.UseEndpoints(endpoints =>
+            {
+                endpoints.MapControllerRoute(
+                    name: "default",
+                    pattern: "{controller}/{action=Index}/{id?}");
+            });
+        
+
+        app.UseSwagger();
             app.UseHttpsRedirection();
             app.UseIotSharpMqttServer();
 
@@ -147,16 +158,8 @@ namespace IoTSharp
             // Idea: https://code.msdn.microsoft.com/How-to-fix-the-routing-225ac90f
             // This avoid having a real mvc view. You have other way of doing, but this one works
             // properly.
-            app.UseDefaultFiles();
-            app.UseStaticFiles();
             app.UseSpaStaticFiles();
-
-            app.UseMvc(routes =>
-            {
-                routes.MapRoute(
-                    name: "default",
-                    template: "{controller}/{action=Index}/{id?}");
-            });
+ 
            
             app.UseSpa(spa =>
             {

@@ -1,12 +1,9 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
-    <TargetFramework>netcoreapp2.2</TargetFramework>
-    <RuntimeIdentifiers>win7-x64;rhel.7-x64;ubuntu.18.04-x64</RuntimeIdentifiers>
-    <PreserveCompilationContext>true</PreserveCompilationContext>
-    <CreateUser>true</CreateUser>
-    <InstallService>true</InstallService>
-    <TargetLatestRuntimePatch>true</TargetLatestRuntimePatch>
+    <TargetFramework>netcoreapp3.0</TargetFramework>
+     <IncludeOpenAPIAnalyzers>true</IncludeOpenAPIAnalyzers>
+      <IsTransformWebConfigDisabled>true</IsTransformWebConfigDisabled>
     <Company>IoT#</Company>
     <Product>IoTSharp</Product>
     <Authors>IoT#</Authors>
@@ -29,7 +26,7 @@
     <PackageLicenseFile>LICENSE.txt</PackageLicenseFile>
     <RepositoryType>git</RepositoryType>
     <PackageTags>IoT</PackageTags>
-    <PackageIconUrl>https://avatars2.githubusercontent.com/u/44353254?s=200&amp;v=4</PackageIconUrl>
+    <PackageIcon>https://avatars2.githubusercontent.com/u/44353254?s=200&amp;v=4</PackageIcon>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
@@ -37,27 +34,22 @@
     <DocumentationFile>D:\GitHub\IoTSharp\IoTSharp\IoTSharp\IoTSharp.xml</DocumentationFile>
     <NoWarn>1701;1702;1591</NoWarn>
   </PropertyGroup>
-  <ItemGroup>
-    <Content Update="appsettings.json">
-      <LinuxPath>/etc/iotsharp/appsettings.json</LinuxPath>
-    </Content>
-    <Content Update="appsettings.Development.json">
-      <LinuxPath>/etc/iotsharp/appsettings.Development.json</LinuxPath>
-    </Content>
-    <Content Include="iotsharp.service" CopyToPublishDirectory="PreserveNewest">
-      <LinuxPath>/etc/systemd/system/iotsharp.service</LinuxPath>
-    </Content>
-    <LinuxFolder Include="/var/log/iotsharp" Group="iotsharp" Owner="iotsharp" RemoveOnUninstall="true" />
-    <LinuxFolder Include="/var/run/iotsharp" Group="iotsharp" Owner="iotsharp" RemoveOnUninstall="true" />
-    <LinuxFolder Include="/var/lib/iotsharp" Group="iotsharp" Owner="iotsharp" RemoveOnUninstall="true" />
-    <RpmDependency Include="libunwind" Version="1.1" />
-    <RpmDependency Include="libicu" Version="50.1.2" />
-  </ItemGroup>
+   
   <ItemGroup>
     <PackageReference Include="CoAP.NET.Core" Version="1.1.0" />
-    <PackageReference Include="Microsoft.AspNetCore.Hosting.WindowsServices" Version="2.2.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="3.0.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore" Version="3.0.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Hosting.WindowsServices" Version="3.0.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="3.0.0" />
+    <PackageReference Include="Microsoft.AspNetCore.SpaServices" Version="3.0.0" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="3.0.0" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" Version="3.0.0" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="3.0.0" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="3.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="3.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Hosting.WindowsServices" Version="3.0.0" />
     <PackageReference Include="MQTTnet.AspNetCoreEx" Version="3.0.2.1" />
-    <PackageReference Include="MQTTnet.Extensions.ManagedClient" Version="3.0.5" />
+    <PackageReference Include="MQTTnet.Extensions.ManagedClient" Version="3.0.8" />
 
   </ItemGroup>
   <ItemGroup>
@@ -74,28 +66,16 @@
     <PackageReference Include="Changwei.AspNetCore.SpaServices.Extensions.VueCli" Version="1.0.0" />
     <PackageReference Include="IoTSharp.X509Extensions" Version="1.3.3" />
     <PackageReference Include="LiteDB" Version="4.1.4" />
-
-    <PackageReference Include="Microsoft.AspNetCore.App" />
-    <PackageReference Include="Microsoft.AspNetCore.Authentication" Version="2.2.0" />
-    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="2.2.0" />
-    <PackageReference Include="Microsoft.AspNetCore.Identity" Version="2.2.0" />
-    <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="2.2.0" />
-    <PackageReference Include="Microsoft.AspNetCore.Razor.Design" Version="2.2.0" PrivateAssets="All" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="2.2.6" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" Version="2.2.6" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="2.2.6" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="2.2.6" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite.Design" Version="1.1.6" />
-    <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="2.2.3" />
-    <PackageReference Include="MQTTnet" Version="3.0.5" />
-    <PackageReference Include="MQTTnet.AspNetCore" Version="3.0.5" />
-    <PackageReference Include="MQTTnet.Extensions.Rpc" Version="3.0.5" />
-    <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="2.2.4" />
-    <PackageReference Include="NSwag.AspNetCore" Version="13.0.4" />
+ 
+    <PackageReference Include="MQTTnet" Version="3.0.8" />
+    <PackageReference Include="MQTTnet.AspNetCore" Version="3.0.8" />
+    <PackageReference Include="MQTTnet.Extensions.Rpc" Version="3.0.8" />
+    <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="3.0.0" />
+    <PackageReference Include="NSwag.AspNetCore" Version="13.1.1" />
     <PackageReference Include="QuartzHostedService" Version="0.0.5" />
     <PackageReference Include="Quartzmin" Version="1.0.3" />
-    <PackageReference Include="System.ServiceModel.Primitives" Version="4.5.3" />
-    <PackageReference Include="System.Text.Encoding.CodePages" Version="4.5.1" />
+    <PackageReference Include="System.ServiceModel.Primitives" Version="4.6.0" />
+    <PackageReference Include="System.Text.Encoding.CodePages" Version="4.6.0" />
   </ItemGroup>
   <ProjectExtensions>
     <VisualStudio>

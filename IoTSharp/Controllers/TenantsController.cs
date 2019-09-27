@@ -44,6 +44,9 @@ namespace IoTSharp.Controllers
         /// <returns></returns>
         [Authorize(Roles = nameof(UserRole.SystemAdmin))]
         [HttpGet]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ApiResult), StatusCodes.Status400BadRequest)]
+        [ProducesDefaultResponseType]
         public async Task<ActionResult<IEnumerable<Tenant>>> GetTenant()
         {
             try
@@ -63,6 +66,9 @@ namespace IoTSharp.Controllers
         /// <returns></returns>
         [Authorize(Roles = nameof(UserRole.NormalUser))]
         [HttpGet("{id}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ApiResult), StatusCodes.Status404NotFound)]
+        [ProducesDefaultResponseType]
         public async Task<ActionResult<Tenant>> GetTenant(Guid id)
         {
             var tenant = await _context.Tenant.FindAsync(id);
@@ -76,6 +82,10 @@ namespace IoTSharp.Controllers
         [Authorize(Roles = nameof(UserRole.TenantAdmin))]
         // PUT: api/Tenants/5
         [HttpPut("{id}")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(ApiResult<Tenant>), StatusCodes.Status404NotFound)]
+        [ProducesDefaultResponseType]
         public async Task<IActionResult> PutTenant(Guid id, Tenant tenant)
         {
             if (id != tenant.Id)
@@ -111,6 +121,9 @@ namespace IoTSharp.Controllers
         [Authorize(Roles = nameof(UserRole.SystemAdmin))]
         // POST: api/Tenants
         [HttpPost]
+        [ProducesResponseType(StatusCodes.Status201Created)]
+        [ProducesResponseType(typeof(ApiResult<Tenant>), StatusCodes.Status400BadRequest)]
+        [ProducesDefaultResponseType]
         public async Task<ActionResult<Tenant>> PostTenant(Tenant tenant)
         {
             try
@@ -129,6 +142,10 @@ namespace IoTSharp.Controllers
         [Authorize(Roles = nameof(UserRole.SystemAdmin))]
         // DELETE: api/Tenants/5
         [HttpDelete("{id}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ApiResult<Tenant>), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(ApiResult<Tenant>), StatusCodes.Status404NotFound)]
+        [ProducesDefaultResponseType]
         public async Task<ActionResult<Tenant>> DeleteTenant(Guid id)
         {
             var tenant = await _context.Tenant.FindAsync(id);

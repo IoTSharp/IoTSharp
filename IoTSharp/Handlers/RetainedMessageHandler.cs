@@ -1,5 +1,6 @@
 ﻿using IoTSharp.Data;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using MQTTnet;
 using MQTTnet.Server;
@@ -8,7 +9,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-
+using IoTSharp.Extensions;
 namespace IoTSharp.Handlers
 {
     public class RetainedMessageHandler : IMqttServerStorage
@@ -16,9 +17,9 @@ namespace IoTSharp.Handlers
         private ApplicationDbContext _context;
         private ILogger _logger;
 
-        public RetainedMessageHandler(ILogger<RetainedMessageHandler> logger, ApplicationDbContext context)
+        public RetainedMessageHandler(ILogger<RetainedMessageHandler> logger, IServiceScopeFactory scopeFactor)
         {
-            _context = context;
+            _context = scopeFactor.GetRequiredService<ApplicationDbContext>();
             _logger = logger;
         }
 
