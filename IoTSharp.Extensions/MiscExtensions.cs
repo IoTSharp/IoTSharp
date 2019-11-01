@@ -16,7 +16,6 @@ using System.Threading.Tasks;
 using System.Threading;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.DependencyInjection;
-
 namespace IoTSharp.Extensions
 {
 
@@ -39,7 +38,7 @@ namespace IoTSharp.Extensions
                 }
             });
         }
-        public static IWebHostBuilder UseContentRootAsEnv(this IWebHostBuilder hostBuilder)
+        public static IHostBuilder ConfigureWindowsServices(this IHostBuilder hostBuilder)
         {
             bool IsWindowsService = false;
             Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
@@ -53,42 +52,11 @@ namespace IoTSharp.Extensions
             if (Environment.CommandLine.Contains("--usebasedirectory") || (RuntimeInformation.IsOSPlatform(OSPlatform.Windows) && IsWindowsService))
             {
                 hostBuilder.UseContentRoot(AppContext.BaseDirectory);
-            }
-            else
-            {
-                if (!Debugger.IsAttached)
-                {
-                    hostBuilder.UseContentRoot(System.IO.Directory.GetCurrentDirectory());
-                }
-            }
-            return hostBuilder;
-        }
-
-        public static void RunAsEnv(this IHost host)
-        {
-            bool IsWindowsService = false;
-
-            Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
-            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-            {
-                using (var process = GetParent(Process.GetCurrentProcess()))
-                {
-                    IsWindowsService = process != null && process.ProcessName == "services";
-                }
-            }
-            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows) && IsWindowsService)
-            {
                 System.IO.Directory.SetCurrentDirectory(AppContext.BaseDirectory);
-                host.Run();
+                hostBuilder.UseWindowsService();
             }
-            else
-            {
-                if (Environment.CommandLine.Contains("--usebasedirectory"))
-                {
-                    System.IO.Directory.SetCurrentDirectory(AppContext.BaseDirectory);
-                }
-                host.Run();
-            }
+
+            return hostBuilder;
         }
         private static Process GetParent(Process child)
         {
