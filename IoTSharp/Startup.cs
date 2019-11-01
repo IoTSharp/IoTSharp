@@ -1,4 +1,5 @@
-﻿using IoTSharp.Data;
+﻿using CrystalQuartz.AspNetCore;
+using IoTSharp.Data;
 using IoTSharp.Diagnostics;
 using IoTSharp.Extensions;
 using IoTSharp.Handlers;
@@ -19,6 +20,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Microsoft.IdentityModel.Tokens;
 using MQTTnet.AspNetCore;
 using MQTTnet.AspNetCoreEx;
 using MQTTnet.Client;
@@ -55,20 +57,38 @@ namespace IoTSharp
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.Configure<CookiePolicyOptions>(options =>
+            services.AddIdentity<IdentityUser, IdentityRole>()
+                  .AddRoles<IdentityRole>()
+                  .AddRoleManager<RoleManager<IdentityRole>>()
+                 .AddDefaultTokenProviders()
+                  .AddEntityFrameworkStores<ApplicationDbContext>();
+
+            services.AddControllersWithViews();
+            services.AddCors();
+
+            services.AddAuthentication(option =>
             {
-                // This lambda determines whether user consent for non-essential cookies is needed for a given request.
-                options.CheckConsentNeeded = context => true;
-                options.MinimumSameSitePolicy = SameSiteMode.None;
+                option.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                option.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+
+            }).AddJwtBearer(options =>
+            {
+                options.TokenValidationParameters = new TokenValidationParameters
+                {
+                    ValidateIssuer = true,
+                    ValidateAudience = true,
+                    ValidateLifetime = false,
+                    ValidateIssuerSigningKey = true,
+                    ValidIssuer = Configuration["JwtIssuer"],
+                    ValidAudience = Configuration["JwtAudience"],
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Configuration["JwtKey"]))
+                };
             });
-            services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Latest);
-            
             // In production, the Angular files will be served from this directory
             services.AddSpaStaticFiles(configuration =>
             {
                 configuration.RootPath = "ClientApp/dist";
             });
-            services.AddOptions();
             services.Configure((Action<AppSettings>)(setting =>
             {
                 Configuration.Bind(setting);
@@ -85,12 +105,8 @@ namespace IoTSharp
                     options.EnableForHttps = true;
                 });
 
-            services.AddIdentity<IdentityUser, IdentityRole>()
-                    .AddRoles<IdentityRole>()
-                    .AddRoleManager<RoleManager<IdentityRole>>()
-                   .AddDefaultTokenProviders()
-                    .AddEntityFrameworkStores<ApplicationDbContext>();
-            services.ConfigureJwtAuthentication(settings.JwtIssuer , settings.JwtAudience, settings.JwtKey, TimeSpan.FromDays(Convert.ToInt32(settings.JwtExpireDays)));
+          
+          
             services.Configure<ForwardedHeadersOptions>(options =>
             {
                 options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
@@ -107,16 +123,17 @@ namespace IoTSharp
             services.AddTransient<ApplicationDBInitializer>();
             services.AddIoTSharpMqttServer(settings.MqttBroker);
             services.AddMqttClient(settings.MqttClient);
-            services.AddHostedService<CoAPService>();
-            services.AddHostedService<MQTTMessageService>();
+      
             services.AddSingleton<DiagnosticsService>();
             services.AddSingleton<RetainedMessageHandler>();
             services.AddSingleton<RuntimeStatusHandler>();
 
+            services.AddQuartzHostedService();
+
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, ISchedulerFactory factory)
         {
             if (env.IsDevelopment())
             {
@@ -133,20 +150,24 @@ namespace IoTSharp
             app.UseStaticFiles();
 
             app.UseRouting();
-
+            app.UseCors(option => option
+            .AllowAnyOrigin()
+            .AllowAnyMethod()
+            .AllowAnyHeader());
             app.UseAuthentication();
             app.UseAuthorization();
 
+            app.UseDefaultFiles();
+            app.UseStaticFiles();
+
             app.UseEndpoints(endpoints =>
             {
-                endpoints.MapControllerRoute(
-                    name: "default",
-                    pattern: "{controller}/{action=Index}/{id?}");
+                endpoints.MapControllers();
             });
-        
 
-        app.UseSwagger();
-            app.UseHttpsRedirection();
+            app.UseSwaggerUi3();
+            app.UseOpenApi();
+            app.UseCrystalQuartz(() => factory.GetScheduler().Result);
             app.UseIotSharpMqttServer();
 
             app.UseForwardedHeaders(new ForwardedHeadersOptions

@@ -1,19 +1,35 @@
 ﻿using IoTSharp.Data;
+using IoTSharp.Services;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using MQTTnet.Diagnostics;
 using System;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.InteropServices;
+using System.Text;
 
 namespace IoTSharp
 {
     public static class IoTSharpExtension
     {
+
+
+        public static IHostBuilder ConfigureIoTSharpHost(this IHostBuilder hostBuilder)
+        {
+            hostBuilder.ConfigureServices(services =>
+            {
+                services.AddHostedService<CoAPService>();
+                services.AddHostedService<MQTTMessageService>();
+            });
+            return hostBuilder;
+        }
+
         public static void AddIoTSharpHub(this IServiceCollection services, IConfiguration configuration)
         {
             var _DataBase = configuration["DataBase"] ?? "sqlite";
