@@ -1,7 +1,12 @@
-﻿using IoTSharp.Extensions;
+﻿using IoT.Things.ModBus.Services;
+using IoTSharp.Extensions;
+using IoTSharp.Extensions.AspNetCore;
 using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+using QuartzHostedService;
 
 namespace IoT.Things.ModBus
 {
@@ -9,14 +14,27 @@ namespace IoT.Things.ModBus
     {
         public static void Main(string[] args)
         {
-            CreateWebHostBuilder(args).Build().RunAsEnv();
+            CreateHostBuilder(args).Build().Run();
         }
 
-        public static IWebHostBuilder CreateWebHostBuilder(string[] args) =>
-                        WebHost.CreateDefaultBuilder(args)
-                        .UseContentRootAsEnv()
-                        .UseStartup<Startup>();
+        public static IHostBuilder CreateHostBuilder(string[] args) =>
+            Host.CreateDefaultBuilder(args)
+                .ConfigureWindowsServices()
+                .ConfigureWebHostDefaults(webBuilder =>
+                {
+                    webBuilder.ConfigureKestrel(serverOptions =>
+                    {
+                        serverOptions.AllowSynchronousIO = true;
+                    });
+                    webBuilder.UseStartup<Startup>();
+                })
+                .ConfigureQuartzHost()
+                .ConfigureServices(services =>
+                {
+                    services.AddHostedService<ModBusService>();
+                 
+                }); 
 
-       
+
     }
 }

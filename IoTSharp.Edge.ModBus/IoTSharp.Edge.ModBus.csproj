@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
-    <TargetFramework>netcoreapp2.2</TargetFramework>
+    <TargetFramework>netcoreapp3.0</TargetFramework>
     <AspNetCoreHostingModel>InProcess</AspNetCoreHostingModel>
   </PropertyGroup>
 
@@ -20,24 +20,23 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="CrystalQuartz.AspNetCore" Version="6.8.1" />
     <PackageReference Include="HslCommunication" Version="6.2.5" />
-    <PackageReference Include="Microsoft.AspNetCore.App" />
-    <PackageReference Include="Microsoft.AspNetCore.Razor.Design" Version="2.2.0" PrivateAssets="All" />
-    <PackageReference Include="Microsoft.AspNetCore.Hosting.WindowsServices" Version="2.2.0" />
+  
     <PackageReference Include="Quartz" Version="3.0.7" />
-    <PackageReference Include="QuartzHostedService" Version="0.0.5" />
-    <PackageReference Include="Quartzmin.SelfHost" Version="1.0.3" />
-    <PackageReference Include="System.ServiceModel.Duplex" Version="4.5.3" />
-    <PackageReference Include="System.ServiceModel.Http" Version="4.5.3" />
-    <PackageReference Include="System.ServiceModel.NetTcp" Version="4.5.3" />
-    <PackageReference Include="System.ServiceModel.Security" Version="4.5.3" />
-    <PackageReference Include="System.Text.Encoding.CodePages" Version="4.5.1" />
+    <PackageReference Include="QuartzHostedServiceEx" Version="0.0.7" />
+    <PackageReference Include="System.ServiceModel.Duplex" Version="4.6.0" />
+    <PackageReference Include="System.ServiceModel.Http" Version="4.6.0" />
+    <PackageReference Include="System.ServiceModel.NetTcp" Version="4.6.0" />
+    <PackageReference Include="System.ServiceModel.Security" Version="4.6.0" />
+    <PackageReference Include="System.Text.Encoding.CodePages" Version="4.6.0" />
     <PackageReference Include="System.IO.Compression" Version="4.3.0" />
     <PackageReference Include="System.Memory" Version="4.5.3" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\IoTSharp.EdgeSdk.MQTT\IoTSharp.EdgeSdk.MQTT.csproj" />
+    <ProjectReference Include="..\IoTSharp.Extensions.AspNetCore\IoTSharp.Extensions.AspNetCore.csproj" />
     <ProjectReference Include="..\IoTSharp.Extensions\IoTSharp.Extensions.csproj" />
   </ItemGroup>
 

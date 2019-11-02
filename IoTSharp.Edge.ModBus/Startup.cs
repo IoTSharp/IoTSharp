@@ -1,15 +1,16 @@
-﻿using IoT.Things.ModBus.Jobs;
+﻿using CrystalQuartz.AspNetCore;
+using IoT.Things.ModBus.Jobs;
 using IoT.Things.ModBus.Services;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Quartz;
 using QuartzHostedService;
-using Quartzmin;
 using System;
 using System.Linq;
 using System.Reflection;
@@ -28,8 +29,7 @@ namespace IoT.Things.ModBus
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddQuartzmin();
-            services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
+            services.AddControllersWithViews();
 
             services.AddOptions();
             services.Configure<AppSettings>(Configuration);
@@ -39,7 +39,7 @@ namespace IoT.Things.ModBus
             });
             services.AddQuartzHostedService();
             services.AddTransient<Slaver>();
-            services.AddHostedService<ModBusService>();
+       
             services.AddSingleton(options =>
             {
                 var mqtt = new IoTSharp.EdgeSdk.MQTT.MQTTClient();
@@ -49,20 +49,22 @@ namespace IoT.Things.ModBus
 
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env, IOptions<AppSettings> options, ISchedulerFactory factory)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, IOptions<AppSettings> options, ISchedulerFactory factory)
         {
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
             }
-            app.UseQuartzmin(new QuartzminOptions()
+
+            app.UseRouting();
+           
+
+            app.UseEndpoints(endpoints =>
             {
-                Scheduler = factory.GetScheduler().Result,
-                ProductName = typeof(Startup).Assembly.GetName().Name,
+                endpoints.MapControllers();
             });
-            app.UseMvc();
-            
-         
+            app.UseCrystalQuartz(() => factory.GetScheduler().Result);
+
         }
     }
 }
