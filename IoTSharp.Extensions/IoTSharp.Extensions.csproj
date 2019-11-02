@@ -7,6 +7,11 @@
     <RepositoryUrl>https://github.com/IoTSharp/IoTSharp</RepositoryUrl>
     <PackageTags>Endian;Json;XML</PackageTags>
     <Copyright>IoTSharp</Copyright>
+    <PackageIconUrl>https://raw.githubusercontent.com/IoTSharp/IoTSharp/master/docs/images/64x64.png</PackageIconUrl>
+    <PackageLicenseFile>LICENSE.txt</PackageLicenseFile>
+    <Company>IoTSharp</Company>
+    <Product>IoTSharp</Product>
+    <Authors>MaiKeBing</Authors>
   </PropertyGroup>
 
   <ItemGroup>
@@ -16,6 +21,13 @@
     </PackageReference>
     <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="3.0.0" />
     <PackageReference Include="Newtonsoft.Json" Version="12.0.2" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="..\LICENSE.txt">
+      <Pack>True</Pack>
+      <PackagePath></PackagePath>
+    </None>
   </ItemGroup>
 
 </Project>

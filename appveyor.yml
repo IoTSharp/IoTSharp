@@ -1,4 +1,4 @@
-version: 1.0.{build}
+version: 0.1.{build}
 image: Visual Studio 2019
 init:
 - ps: Install-Product node $env:nodejs_version
@@ -12,6 +12,7 @@ dotnet_csproj:
   patch: true
   file: '**\*.csproj'
   version: '{version}'
+  version_prefix: '{version}'
   package_version: '{version}'
   assembly_version: '{version}'
   file_version: '{version}'
@@ -23,20 +24,16 @@ install:
     git submodule sync --recursive
 
     git submodule update --init --recursive
-
-    dotnet tool install --global dotnet-zip
-
-    dotnet tool install --global dotnet-tarball
-
-    dotnet tool install --global dotnet-rpm
-
-    dotnet tool install --global dotnet-deb
 build_script:
-- cmd: "dotnet msbuild IoTSharp/IoTSharp.csproj /t:CreateDeb  /p:TargetFramework=netcoreapp3.0  /p:RuntimeIdentifier=ubuntu.16.04-x64  \n       /p:Configuration=Release \ndotnet msbuild IoTSharp/IoTSharp.csproj /t:CreateRpm \n       /p:TargetFramework=netcoreapp3.0 /p:RuntimeIdentifier=rhel.7-x64 \n        /p:Configuration=Release\ndotnet msbuild IoTSharp/IoTSharp.csproj /t:CreateZip \n      /p:TargetFramework=netcoreapp3.0 /p:RuntimeIdentifier=win7-x64 \n       /p:Configuration=Release"
+- cmd: >-
+    dotnet publish  -c Release   ./IoTSharp/IoTSharp.csproj
+
+    dotnet publish  -c Release    ./IoTSharp.Edge.ModBus/IoTSharp.Edge.ModBus.csproj
 artifacts:
-- path: IoTSharp\bin\Release\netcoreapp3.0\ubuntu.16.04-x64\*.deb
-  name: IoTSharp.ubuntu
-- path: IoTSharp\bin\Release\netcoreapp3.0\rhel.7-x64\*.rpm
-  name: IoTSharp.centos
-- path: IoTSharp\bin\Release\netcoreapp3.0\win7-x64\*.zip
-  name: IoTSharp.win
+- path: IoTSharp\bin\Release\netcoreapp3.0\publish\
+  name: IoTSharp
+- path: IoTSharp.Extensions\bin\Release\*.nupkg
+  name: IoTSharp.Extensions
+- path: IoTSharp.Edge.ModBus\bin\Release\netcoreapp3.0\publish\
+  name: IoTSharp.Edge.ModBus
+deploy: off
