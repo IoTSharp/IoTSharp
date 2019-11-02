@@ -6,6 +6,7 @@ MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{D5C97089-F896-436D-8E99-27B2E43BC65F}"
 	ProjectSection(SolutionItems) = preProject
 		appveyor.yml = appveyor.yml
+		GitVersion.yml = GitVersion.yml
 		LICENSE = LICENSE
 		README.md = README.md
 		roadmap.md = roadmap.md
@@ -22,6 +23,8 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IoTSharp.Edge.ModBus", "IoTSharp.Edge.ModBus\IoTSharp.Edge.ModBus.csproj", "{9267A0CE-ECBC-41E4-AD83-927117FD625E}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IoTSharp.Extensions", "IoTSharp.Extensions\IoTSharp.Extensions.csproj", "{551E62E3-51DA-4C1D-8DBB-7346A29EE817}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IoTSharp.Extensions.AspNetCore", "IoTSharp.Extensions.AspNetCore\IoTSharp.Extensions.AspNetCore.csproj", "{AC80DA58-F40E-4B3C-8271-A25F65FEB0CB}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -163,6 +166,26 @@ Global
 		{551E62E3-51DA-4C1D-8DBB-7346A29EE817}.Release|x64.Build.0 = Release|Any CPU
 		{551E62E3-51DA-4C1D-8DBB-7346A29EE817}.Release|x86.ActiveCfg = Release|Any CPU
 		{551E62E3-51DA-4C1D-8DBB-7346A29EE817}.Release|x86.Build.0 = Release|Any CPU
+		{AC80DA58-F40E-4B3C-8271-A25F65FEB0CB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AC80DA58-F40E-4B3C-8271-A25F65FEB0CB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AC80DA58-F40E-4B3C-8271-A25F65FEB0CB}.Debug|ARM.ActiveCfg = Debug|Any CPU
+		{AC80DA58-F40E-4B3C-8271-A25F65FEB0CB}.Debug|ARM.Build.0 = Debug|Any CPU
+		{AC80DA58-F40E-4B3C-8271-A25F65FEB0CB}.Debug|ARM64.ActiveCfg = Debug|Any CPU
+		{AC80DA58-F40E-4B3C-8271-A25F65FEB0CB}.Debug|ARM64.Build.0 = Debug|Any CPU
+		{AC80DA58-F40E-4B3C-8271-A25F65FEB0CB}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{AC80DA58-F40E-4B3C-8271-A25F65FEB0CB}.Debug|x64.Build.0 = Debug|Any CPU
+		{AC80DA58-F40E-4B3C-8271-A25F65FEB0CB}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{AC80DA58-F40E-4B3C-8271-A25F65FEB0CB}.Debug|x86.Build.0 = Debug|Any CPU
+		{AC80DA58-F40E-4B3C-8271-A25F65FEB0CB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AC80DA58-F40E-4B3C-8271-A25F65FEB0CB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AC80DA58-F40E-4B3C-8271-A25F65FEB0CB}.Release|ARM.ActiveCfg = Release|Any CPU
+		{AC80DA58-F40E-4B3C-8271-A25F65FEB0CB}.Release|ARM.Build.0 = Release|Any CPU
+		{AC80DA58-F40E-4B3C-8271-A25F65FEB0CB}.Release|ARM64.ActiveCfg = Release|Any CPU
+		{AC80DA58-F40E-4B3C-8271-A25F65FEB0CB}.Release|ARM64.Build.0 = Release|Any CPU
+		{AC80DA58-F40E-4B3C-8271-A25F65FEB0CB}.Release|x64.ActiveCfg = Release|Any CPU
+		{AC80DA58-F40E-4B3C-8271-A25F65FEB0CB}.Release|x64.Build.0 = Release|Any CPU
+		{AC80DA58-F40E-4B3C-8271-A25F65FEB0CB}.Release|x86.ActiveCfg = Release|Any CPU
+		{AC80DA58-F40E-4B3C-8271-A25F65FEB0CB}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
