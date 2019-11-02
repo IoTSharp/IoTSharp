@@ -6,6 +6,7 @@ MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{D5C97089-F896-436D-8E99-27B2E43BC65F}"
 	ProjectSection(SolutionItems) = preProject
 		appveyor.yml = appveyor.yml
+		GitVersion.yml = GitVersion.yml
 		LICENSE = LICENSE
 		README.md = README.md
 		roadmap.md = roadmap.md
@@ -26,6 +27,8 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IoTSharp.Extensions", "IoTSharp.Extensions\IoTSharp.Extensions.csproj", "{551E62E3-51DA-4C1D-8DBB-7346A29EE817}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IoTSharp.Releases", "IoTSharp.Releases\IoTSharp.Releases.csproj", "{AA859239-6539-4A35-9A56-DF0D31ADCEED}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IoTSharp.Extensions.AspNetCore", "IoTSharp.Extensions.AspNetCore\IoTSharp.Extensions.AspNetCore.csproj", "{EA1A2F33-BFF3-4CE2-B18C-992B78AD6FDB}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -187,6 +190,26 @@ Global
 		{AA859239-6539-4A35-9A56-DF0D31ADCEED}.Release|x64.Build.0 = Release|Any CPU
 		{AA859239-6539-4A35-9A56-DF0D31ADCEED}.Release|x86.ActiveCfg = Release|Any CPU
 		{AA859239-6539-4A35-9A56-DF0D31ADCEED}.Release|x86.Build.0 = Release|Any CPU
+		{EA1A2F33-BFF3-4CE2-B18C-992B78AD6FDB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EA1A2F33-BFF3-4CE2-B18C-992B78AD6FDB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EA1A2F33-BFF3-4CE2-B18C-992B78AD6FDB}.Debug|ARM.ActiveCfg = Debug|Any CPU
+		{EA1A2F33-BFF3-4CE2-B18C-992B78AD6FDB}.Debug|ARM.Build.0 = Debug|Any CPU
+		{EA1A2F33-BFF3-4CE2-B18C-992B78AD6FDB}.Debug|ARM64.ActiveCfg = Debug|Any CPU
+		{EA1A2F33-BFF3-4CE2-B18C-992B78AD6FDB}.Debug|ARM64.Build.0 = Debug|Any CPU
+		{EA1A2F33-BFF3-4CE2-B18C-992B78AD6FDB}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{EA1A2F33-BFF3-4CE2-B18C-992B78AD6FDB}.Debug|x64.Build.0 = Debug|Any CPU
+		{EA1A2F33-BFF3-4CE2-B18C-992B78AD6FDB}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{EA1A2F33-BFF3-4CE2-B18C-992B78AD6FDB}.Debug|x86.Build.0 = Debug|Any CPU
+		{EA1A2F33-BFF3-4CE2-B18C-992B78AD6FDB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EA1A2F33-BFF3-4CE2-B18C-992B78AD6FDB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EA1A2F33-BFF3-4CE2-B18C-992B78AD6FDB}.Release|ARM.ActiveCfg = Release|Any CPU
+		{EA1A2F33-BFF3-4CE2-B18C-992B78AD6FDB}.Release|ARM.Build.0 = Release|Any CPU
+		{EA1A2F33-BFF3-4CE2-B18C-992B78AD6FDB}.Release|ARM64.ActiveCfg = Release|Any CPU
+		{EA1A2F33-BFF3-4CE2-B18C-992B78AD6FDB}.Release|ARM64.Build.0 = Release|Any CPU
+		{EA1A2F33-BFF3-4CE2-B18C-992B78AD6FDB}.Release|x64.ActiveCfg = Release|Any CPU
+		{EA1A2F33-BFF3-4CE2-B18C-992B78AD6FDB}.Release|x64.Build.0 = Release|Any CPU
+		{EA1A2F33-BFF3-4CE2-B18C-992B78AD6FDB}.Release|x86.ActiveCfg = Release|Any CPU
+		{EA1A2F33-BFF3-4CE2-B18C-992B78AD6FDB}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

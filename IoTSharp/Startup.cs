@@ -16,6 +16,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.AspNetCore.SpaServices.VueCli;
 using Microsoft.AspNetCore.SpaServices.Webpack;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -27,7 +28,6 @@ using MQTTnet.Client;
 using NSwag.AspNetCore;
 using Quartz;
 using QuartzHostedService;
-using Quartzmin;
 using System;
 using System.Configuration;
 using System.IdentityModel.Tokens.Jwt;
@@ -57,6 +57,14 @@ namespace IoTSharp
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            services.Configure((Action<AppSettings>)(setting =>
+            {
+                Configuration.Bind(setting);
+                setting.MqttBroker = settings.MqttBroker;
+                setting.MqttClient = settings.MqttClient;
+            }));
+            services.AddEntityFrameworkNpgsql();
+            services.AddDbContext<ApplicationDbContext>(options => options.UseNpgsql(Configuration.GetConnectionString("IoTSharp")), ServiceLifetime.Transient);
             services.AddIdentity<IdentityUser, IdentityRole>()
                   .AddRoles<IdentityRole>()
                   .AddRoleManager<RoleManager<IdentityRole>>()
@@ -89,15 +97,10 @@ namespace IoTSharp
             {
                 configuration.RootPath = "ClientApp/dist";
             });
-            services.Configure((Action<AppSettings>)(setting =>
-            {
-                Configuration.Bind(setting);
-                setting.MqttBroker = settings.MqttBroker;
-                setting.MqttClient = settings.MqttClient;
-            }));
+       
           
             services.AddLogging(loggingBuilder => loggingBuilder.AddConsole());
-            services.AddIoTSharpHub(Configuration);
+          
             // Enable the Gzip compression especially for Kestrel
             services.Configure<GzipCompressionProviderOptions>(options => options.Level = System.IO.Compression.CompressionLevel.Optimal);
             services.AddResponseCompression(options =>

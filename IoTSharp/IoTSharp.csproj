@@ -27,6 +27,7 @@
     <RepositoryType>git</RepositoryType>
     <PackageTags>IoT</PackageTags>
     <PackageIcon>https://avatars2.githubusercontent.com/u/44353254?s=200&amp;v=4</PackageIcon>
+    <ApplicationIcon>Resources\Logo.ico</ApplicationIcon>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
@@ -35,6 +36,10 @@
     <NoWarn>1701;1702;1591</NoWarn>
   </PropertyGroup>
   <ItemGroup>
+    <PackageReference Include="GitVersionTask" Version="5.1.1">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
     <PackageReference Include="maikebing.AspNetCore.SpaServices.Extensions.VueCli " Version="1.0.5" />
     <PackageReference Include="IoTSharp.X509Extensions" Version="1.3.3" />
     <PackageReference Include="LiteDB" Version="4.1.4" />
@@ -96,6 +101,7 @@
     <Folder Include="Jobs\" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\IoTSharp.Extensions.AspNetCore\IoTSharp.Extensions.AspNetCore.csproj" />
     <ProjectReference Include="..\IoTSharp.Extensions\IoTSharp.Extensions.csproj" />
     <ProjectReference Include="..\IoTSharp.Releases\IoTSharp.Releases.csproj" />
   </ItemGroup>

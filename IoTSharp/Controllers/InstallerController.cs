@@ -19,6 +19,7 @@ using System.Net.Http.Headers;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
+using IoTSharp.Extensions.AspNetCore;
 
 namespace IoTSharp.Controllers
 {
@@ -60,7 +61,7 @@ namespace IoTSharp.Controllers
             }
             catch (Exception ex)
             {
-                return this.ExceptionRequest(ex);
+                return this.ExceptionRequest(ApiCode.Exception,ex.Message, ex);
             }
         }
 
@@ -89,7 +90,7 @@ namespace IoTSharp.Controllers
             }
             catch (Exception ex)
             {
-                actionResult = this.ExceptionRequest(ex);
+                actionResult =          this.ExceptionRequest(ApiCode.Exception, ex.Message, ex);
             }
             return actionResult;
         }
@@ -132,7 +133,7 @@ namespace IoTSharp.Controllers
             }
             catch (Exception ex)
             {
-                actionResult = this.ExceptionRequest(ex);
+                actionResult = this.ExceptionRequest(ApiCode.Exception, ex.Message, ex);
             }
             return actionResult;
         }
