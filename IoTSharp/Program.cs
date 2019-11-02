@@ -4,13 +4,9 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using IoTSharp.Extensions;
-using Microsoft.AspNetCore;
+using IoTSharp.Extensions.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
-using MQTTnet.AspNetCore;
 using QuartzHostedService;
 
 namespace IoTSharp

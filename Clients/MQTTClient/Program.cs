@@ -17,7 +17,7 @@ namespace MQTTClient
             var options = new MqttClientOptionsBuilder()
                         .WithClientId(Guid.NewGuid().ToString())
                         .WithTcpServer("localhost")
-                        .WithCredentials("3cb97cd31fbc40b08d12ec47a6fad622")//token
+                        .WithCredentials("3cb97cd31fbc40b08d12ec47a6fad622","")//token
                         .Build();
          client.UseApplicationMessageReceivedHandler(ax=>
          {

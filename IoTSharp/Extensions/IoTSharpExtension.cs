@@ -30,31 +30,7 @@ namespace IoTSharp
             return hostBuilder;
         }
 
-        public static void AddIoTSharpHub(this IServiceCollection services, IConfiguration configuration)
-        {
-            var _DataBase = configuration["DataBase"] ?? "sqlite";
-            var _ConnectionString = Environment.ExpandEnvironmentVariables(configuration.GetConnectionString(_DataBase) ?? "Data Source=%APPDATA%\\IoTSharp\\MQTTChat.db;Pooling=true;");
-            switch (_DataBase)
-            {
-                case "mssql":
-                    services.AddEntityFrameworkSqlServer();
-                    services.AddDbContext<ApplicationDbContext>(options => options.UseSqlServer(_ConnectionString), ServiceLifetime.Transient);
-                    break;
-                case "npgsql":
-                    services.AddEntityFrameworkNpgsql();
-                    services.AddDbContext<ApplicationDbContext>(options => options.UseNpgsql(_ConnectionString), ServiceLifetime.Transient);
-                    break;
-                case "memory":
-                    services.AddEntityFrameworkInMemoryDatabase();
-                    services.AddDbContext<ApplicationDbContext>(options => options.UseInMemoryDatabase(nameof(ApplicationDbContext)), ServiceLifetime.Transient);
-                    break;
-                case "sqlite":
-                default:
-                    services.AddEntityFrameworkSqlite();
-                    services.AddDbContext<ApplicationDbContext>(options => options.UseSqlite(_ConnectionString), ServiceLifetime.Transient);
-                    break;
-            }
-        }
+      
 
         private static string GetFullPathName(string filename)
         {

@@ -8,11 +8,10 @@ namespace IoTSharp
 {
     public class AppSettings
     {
-        public string DataBase { get; set; }
         public string JwtKey { get; set; }
-        public string JwtExpireDays { get; set; }
         public string JwtIssuer { get; set; }
-
+        public string JwtAudience { get; set; }
+        public int JwtExpireHours { get; set; }
         /// <summary>
         /// Broker settings
         /// </summary>
@@ -21,7 +20,7 @@ namespace IoTSharp
         /// mqtt client settings
         /// </summary>
         public MqttClientSetting MqttClient { get; set; }
-        public string JwtAudience { get;  set; }
+ 
     }
     public class MqttClientSetting
     {

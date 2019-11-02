@@ -19,6 +19,8 @@ using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Options;
+using IoTSharp.Extensions.AspNetCore;
 
 namespace IoTSharp.Controllers
 {
@@ -28,7 +30,8 @@ namespace IoTSharp.Controllers
     public class AccountController : ControllerBase
     {
         private ApplicationDbContext _context;
-        private ILogger _logger;
+        private readonly AppSettings _settings;
+        private readonly ILogger _logger;
         private readonly UserManager<IdentityUser> _userManager;
         private readonly IConfiguration _configuration;
         private readonly SignInManager<IdentityUser> _signInManager;
@@ -36,7 +39,8 @@ namespace IoTSharp.Controllers
         public AccountController(
             UserManager<IdentityUser> userManager,
             SignInManager<IdentityUser> signInManager,
-            IConfiguration configuration, ILogger<AccountController> logger, ApplicationDbContext context
+            IConfiguration configuration, ILogger<AccountController> logger, ApplicationDbContext context,
+            IOptions<AppSettings> options  
             )
         {
             _userManager = userManager;
@@ -44,15 +48,15 @@ namespace IoTSharp.Controllers
             _configuration = configuration;
             _logger = logger;
             _context = context;
+            _settings = options.Value;
         }
-        [HttpGet]
+        [HttpGet, Authorize(Roles = nameof(UserRole.NormalUser))]
         public async Task<ActionResult<ApiResult<UserInfoDto>>> MyInfo()
         {
-            string custid = _signInManager.Context.User.FindFirstValue(IoTSharpClaimTypes.Customer);
-            var user = await _userManager.GetUserAsync(_signInManager.Context.User);
+            var user = await _userManager.GetUserAsync(User);
+            var rooles = await _userManager.GetRolesAsync(user);
+            string custid =  User.FindFirstValue(IoTSharpClaimTypes.Customer);
             var Customer = _context.Customer.Include(c=>c.Tenant).FirstOrDefault(c => c.Id.ToString() == custid);
-            var   rooles= await _userManager.GetRolesAsync(user  );
-            
             var uidto = new UserInfoDto()
             {
                 Code = ApiCode.Success,
@@ -80,8 +84,33 @@ namespace IoTSharp.Controllers
                 if (result.Succeeded)
                 {
                     var appUser = _userManager.Users.SingleOrDefault(r => r.Email == model.UserName);
-                    var token = await _userManager.GenerateJwtTokenAsync(appUser);
+                    var secretKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["JwtKey"]));
+                    var signinCredentials = new SigningCredentials(secretKey, SecurityAlgorithms.HmacSha256Signature);
+                    var claims = new List<Claim>
+                                    {
+                                        new Claim(ClaimTypes.Email, appUser.Email),
+                                        new Claim(ClaimTypes.NameIdentifier, appUser.Id),
+                                        new Claim(ClaimTypes.Name,  appUser.UserName),
+                                    };
+                    var lstclaims = await _userManager.GetClaimsAsync(appUser);
+                    claims.AddRange(lstclaims);
                     var roles = await _userManager.GetRolesAsync(appUser);
+                    if (roles != null)
+                    {
+                        claims.AddRange(from role in roles
+                                        select new Claim(ClaimTypes.Role, role));
+                    }
+                    var tokeOptions = new JwtSecurityToken(
+                                issuer: _configuration["JwtIssuer"],
+                                audience: _configuration["JwtAudience"],
+                                claims: claims,
+                                expires: DateTime.Now.AddHours(_settings.JwtExpireHours * 24),
+                                signingCredentials: signinCredentials);
+                    var token = new TokenEntity
+                    {
+                        access_token = new JwtSecurityTokenHandler().WriteToken(tokeOptions),
+                        expires_in = (int)DateTime.UtcNow.AddHours(_settings.JwtExpireHours * 24).Subtract(new DateTime(1970, 1, 1, 0, 0, 0, 0)).TotalSeconds
+                    };
                     return Ok(new LoginResult()
                     {
                         Code = ApiCode.Success,

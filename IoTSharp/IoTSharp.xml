@@ -209,10 +209,6 @@
             When <see cref="P:IoTSharp.Data.DeviceIdentity.IdentityType"/> Is <see cref="F:IoTSharp.Data.IdentityType.X509Certificate"/> ,this is X509 Certificate' PEM.
             </summary>
         </member>
-        <member name="M:IoTSharp.TokenExtension.Gravatar(Microsoft.AspNetCore.Identity.IdentityUser)">
-            Hashes an email with MD5.  Suitable for use with Gravatar profile
-            image urls
-        </member>
         <member name="T:IoTSharp.Properties.Resources">
             <summary>
               一个强类型的资源类，用于查找本地化的字符串等。
