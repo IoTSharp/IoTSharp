@@ -1,20 +1,11 @@
-
-<pre>
- _         _______   ______  _                          
-| |       (_______) / _____)| |                         
-| |  ___      _    ( (____  | |__   _____   ____  ____  
-| | / _ \    | |    \____ \ |  _ \ (____ | / ___)|  _ \ 
-| || |_| |   | |    _____) )| | | |/ ___ || |    | |_| |
-|_| \___/    |_|   (______/ |_| |_|\_____||_|    |  __/ 
-                                                 |_|    
-</pre>
+![IOTSharp LOGO](docs/images/350x100.png)  
 
 [![Build status](https://ci.appveyor.com/api/projects/status/5o23f5vss89ct2lw/branch/master?svg=true)](https://ci.appveyor.com/project/MaiKeBing/iotsharp/branch/master)
 ![GitHub](https://img.shields.io/github/license/iotsharp/iotsharp.svg)
 
 
 IoTSharp is an open-source IoT platform for data collection, processing, visualization, and device management.
-
+IoTSharp 中文名称  貔貅物联网平台，用于数据收集通过规则引擎流转数据最后通过数据可视化管理数据结果，以及租户结构的资产管理。可用于实现自主可控的、自有机房、无需支付高额租赁费用的自有物联网平台 
 
 ## Contributing
  - If you'd like to contribute to IoTSharp, please take a look at our [Contributing Guide](contributing.md).
