@@ -14,8 +14,6 @@ using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.ResponseCompression;
-using Microsoft.AspNetCore.SpaServices.VueCli;
-using Microsoft.AspNetCore.SpaServices.Webpack;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -92,11 +90,7 @@ namespace IoTSharp
                     IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Configuration["JwtKey"]))
                 };
             });
-            // In production, the Angular files will be served from this directory
-            services.AddSpaStaticFiles(configuration =>
-            {
-                configuration.RootPath = "ClientApp/dist";
-            });
+     
        
           
             services.AddLogging(loggingBuilder => loggingBuilder.AddConsole());
@@ -178,25 +172,8 @@ namespace IoTSharp
                 ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto
             });
             app.UseResponseCompression(); // No need if you use IIS, but really something good for Kestrel!
-
-            // Idea: https://code.msdn.microsoft.com/How-to-fix-the-routing-225ac90f
-            // This avoid having a real mvc view. You have other way of doing, but this one works
-            // properly.
-            app.UseSpaStaticFiles();
- 
            
-            app.UseSpa(spa =>
-            {
-                // To learn more about options for serving an Angular SPA from ASP.NET Core,
-                // see https://go.microsoft.com/fwlink/?linkid=864501
-
-                spa.Options.SourcePath = "ClientApp";
-                spa.Options.StartupTimeout = TimeSpan.FromSeconds(80);
-                if (env.IsDevelopment())
-                {
-                    spa.UseVueCliServer(npmScript: "dev");
-                }
-            });
+            
             app.UseIotSharpSelfCollecting();
         }
     }

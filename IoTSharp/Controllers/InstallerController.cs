@@ -1,7 +1,6 @@
 ﻿using IoTSharp.Data;
 using IoTSharp.Dtos;
 using IoTSharp.Extensions;
-using IoTSharp.Releases;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -94,50 +93,7 @@ namespace IoTSharp.Controllers
             }
             return actionResult;
         }
-        [AllowAnonymous]
-        [HttpPost]
-        public   ActionResult<InstanceDto> Upgrade([FromHeader(Name ="Authorization")] string token, [FromHeader(Name ="Source")]  string source , [FromHeader(Name = "AssetName")]  string assetname )
-        {
-            ActionResult<InstanceDto> actionResult = NoContent();
-            try
-            {
-                var githubDownloader = new ReleaseDownloader(source, token);
-                var releases = githubDownloader.GetDataForAllReleases();
-                var asset = releases.FirstOrDefault()?.assets?.FirstOrDefault(at => at.name == assetname);
-                if (asset != null)
-                {
-                    if (githubDownloader.DownloadAsset(asset.id, out byte[] assetbinary))
-                    {
-                        using (var ms = new MemoryStream(assetbinary))
-                        {
-                            using (var zip = new System.IO.Compression.ZipArchive(ms))
-                            {
-                                foreach (ZipArchiveEntry item in zip.Entries)
-                                {
-                                    var file = new System.IO.FileInfo(System.IO.Path.Combine(AppContext.BaseDirectory, item.FullName));
-                                    item.ExtractToFile(file.FullName, true);
-                                }
-                            }
-                        }
-                        actionResult = Ok(asset);
-                    }
-                    else
-                    {
-                        actionResult = BadRequest(new ApiResult(ApiCode.Exception, "Can't download asset!"));
-                    }
-                }
-                else
-                {
-                    actionResult =  NotFound(new ApiResult(ApiCode.Exception, "Can't found asset!"));
-                }
-            }
-            catch (Exception ex)
-            {
-                actionResult = this.ExceptionRequest(ApiCode.Exception, ex.Message, ex);
-            }
-            return actionResult;
-        }
-
+   
         public class InstanceDto
         {
             public string Version { get; internal set; }
