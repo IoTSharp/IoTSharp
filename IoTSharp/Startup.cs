@@ -1,4 +1,4 @@
-﻿using CrystalQuartz.AspNetCore;
+﻿using HealthChecks.UI.Client;
 using IoTSharp.Data;
 using IoTSharp.Diagnostics;
 using IoTSharp.Extensions;
@@ -8,14 +8,13 @@ using IoTSharp.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.ResponseCompression;
-using Microsoft.AspNetCore.SpaServices.VueCli;
-using Microsoft.AspNetCore.SpaServices.Webpack;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -28,7 +27,9 @@ using MQTTnet.Client;
 using NSwag.AspNetCore;
 using Quartz;
 using QuartzHostedService;
+using Quartzmin;
 using System;
+using System.Collections.Generic;
 using System.Configuration;
 using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
@@ -92,11 +93,7 @@ namespace IoTSharp
                     IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Configuration["JwtKey"]))
                 };
             });
-            // In production, the Angular files will be served from this directory
-            services.AddSpaStaticFiles(configuration =>
-            {
-                configuration.RootPath = "ClientApp/dist";
-            });
+     
        
           
             services.AddLogging(loggingBuilder => loggingBuilder.AddConsole());
@@ -130,7 +127,15 @@ namespace IoTSharp
             services.AddSingleton<DiagnosticsService>();
             services.AddSingleton<RetainedMessageHandler>();
             services.AddSingleton<RuntimeStatusHandler>();
+            services.AddHealthChecks()
+                 .AddNpgSql(Configuration["IoTSharp"], name: "PostgreSQL")
+                 .AddDiskStorageHealthCheck(dso =>
+                 {
+                     System.IO.DriveInfo.GetDrives().Distinct().ToList().ForEach(f => dso.AddDrive(f.Name, 1024));
 
+                 }, name: "Disk Storage");
+            services.AddHealthChecksUI();
+            services.AddQuartzmin();
             services.AddQuartzHostedService();
 
         }
@@ -159,10 +164,17 @@ namespace IoTSharp
             .AllowAnyHeader());
             app.UseAuthentication();
             app.UseAuthorization();
-
             app.UseDefaultFiles();
             app.UseStaticFiles();
-
+            app.UseQuartzmin(new QuartzminOptions()
+            {
+                Scheduler = factory.GetScheduler().Result,
+                VirtualPathRoot = "/quartzmin",
+                ProductName = "IoTSharp",
+                DefaultDateFormat = "yyyy-MM-dd",
+                DefaultTimeFormat = "HH:mm:ss",
+                UseLocalTime = true
+            });
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
@@ -170,7 +182,7 @@ namespace IoTSharp
 
             app.UseSwaggerUi3();
             app.UseOpenApi();
-            app.UseCrystalQuartz(() => factory.GetScheduler().Result);
+       
             app.UseIotSharpMqttServer();
 
             app.UseForwardedHeaders(new ForwardedHeadersOptions
@@ -178,26 +190,15 @@ namespace IoTSharp
                 ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto
             });
             app.UseResponseCompression(); // No need if you use IIS, but really something good for Kestrel!
-
-            // Idea: https://code.msdn.microsoft.com/How-to-fix-the-routing-225ac90f
-            // This avoid having a real mvc view. You have other way of doing, but this one works
-            // properly.
-            app.UseSpaStaticFiles();
- 
            
-            app.UseSpa(spa =>
-            {
-                // To learn more about options for serving an Angular SPA from ASP.NET Core,
-                // see https://go.microsoft.com/fwlink/?linkid=864501
-
-                spa.Options.SourcePath = "ClientApp";
-                spa.Options.StartupTimeout = TimeSpan.FromSeconds(80);
-                if (env.IsDevelopment())
-                {
-                    spa.UseVueCliServer(npmScript: "dev");
-                }
-            });
+            
             app.UseIotSharpSelfCollecting();
+            app.UseHealthChecks("/healthz", new HealthCheckOptions
+            {
+                Predicate = _ => true,
+                ResponseWriter = UIResponseWriter.WriteHealthCheckUIResponse
+            });
+            app.UseHealthChecksUI();
         }
     }
 }
