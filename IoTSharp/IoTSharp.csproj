@@ -20,6 +20,7 @@
     <PackageTags>IoT</PackageTags>
     <PackageIcon>https://avatars2.githubusercontent.com/u/44353254?s=200&amp;v=4</PackageIcon>
     <ApplicationIcon>Resources\Logo.ico</ApplicationIcon>
+    <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
@@ -66,7 +67,6 @@
     <Content Remove="Migrations\**" />
     <EmbeddedResource Remove="Migrations\**" />
     <None Remove="Migrations\**" />
-    <None Include="..\Dockerfile" Link="Dockerfile" />
     <None Include="..\LICENSE.txt">
       <Pack>True</Pack>
       <PackagePath></PackagePath>
