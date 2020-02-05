@@ -1,4 +1,4 @@
-﻿using CrystalQuartz.AspNetCore;
+﻿using HealthChecks.UI.Client;
 using IoTSharp.Data;
 using IoTSharp.Diagnostics;
 using IoTSharp.Extensions;
@@ -8,6 +8,7 @@ using IoTSharp.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.HttpOverrides;
@@ -26,7 +27,9 @@ using MQTTnet.Client;
 using NSwag.AspNetCore;
 using Quartz;
 using QuartzHostedService;
+using Quartzmin;
 using System;
+using System.Collections.Generic;
 using System.Configuration;
 using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
@@ -124,7 +127,15 @@ namespace IoTSharp
             services.AddSingleton<DiagnosticsService>();
             services.AddSingleton<RetainedMessageHandler>();
             services.AddSingleton<RuntimeStatusHandler>();
+            services.AddHealthChecks()
+                 .AddNpgSql(Configuration["IoTSharp"], name: "PostgreSQL")
+                 .AddDiskStorageHealthCheck(dso =>
+                 {
+                     System.IO.DriveInfo.GetDrives().Distinct().ToList().ForEach(f => dso.AddDrive(f.Name, 1024));
 
+                 }, name: "Disk Storage");
+            services.AddHealthChecksUI();
+            services.AddQuartzmin();
             services.AddQuartzHostedService();
 
         }
@@ -153,10 +164,17 @@ namespace IoTSharp
             .AllowAnyHeader());
             app.UseAuthentication();
             app.UseAuthorization();
-
             app.UseDefaultFiles();
             app.UseStaticFiles();
-
+            app.UseQuartzmin(new QuartzminOptions()
+            {
+                Scheduler = factory.GetScheduler().Result,
+                VirtualPathRoot = "/quartzmin",
+                ProductName = "IoTSharp",
+                DefaultDateFormat = "yyyy-MM-dd",
+                DefaultTimeFormat = "HH:mm:ss",
+                UseLocalTime = true
+            });
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
@@ -164,7 +182,7 @@ namespace IoTSharp
 
             app.UseSwaggerUi3();
             app.UseOpenApi();
-            app.UseCrystalQuartz(() => factory.GetScheduler().Result);
+       
             app.UseIotSharpMqttServer();
 
             app.UseForwardedHeaders(new ForwardedHeadersOptions
@@ -175,6 +193,12 @@ namespace IoTSharp
            
             
             app.UseIotSharpSelfCollecting();
+            app.UseHealthChecks("/healthz", new HealthCheckOptions
+            {
+                Predicate = _ => true,
+                ResponseWriter = UIResponseWriter.WriteHealthCheckUIResponse
+            });
+            app.UseHealthChecksUI();
         }
     }
 }
