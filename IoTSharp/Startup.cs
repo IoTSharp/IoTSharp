@@ -64,7 +64,6 @@ namespace IoTSharp
                 setting.MqttBroker = settings.MqttBroker;
                 setting.MqttClient = settings.MqttClient;
             }));
-            services.AddEntityFrameworkNpgsql();
             services.AddDbContext<ApplicationDbContext>(options => options.UseNpgsql(Configuration.GetConnectionString("IoTSharp")), ServiceLifetime.Transient);
             services.AddIdentity<IdentityUser, IdentityRole>()
                   .AddRoles<IdentityRole>()
