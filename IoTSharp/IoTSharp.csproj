@@ -81,6 +81,8 @@
     <Content Remove="Migrations\**" />
     <EmbeddedResource Remove="Migrations\**" />
     <None Remove="Migrations\**" />
+    <Content Remove="appsettings.Production.json" />
+    <None Remove="healthchecksdb" />
     <None Include="..\docs\images\200x200.png">
       <Pack>True</Pack>
       <PackagePath></PackagePath>
@@ -88,6 +90,9 @@
     <None Include="..\LICENSE.txt">
       <Pack>True</Pack>
       <PackagePath></PackagePath>
+    </None>
+    <None Include="appsettings.Production.json">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </None>
   </ItemGroup>
 

@@ -8,7 +8,7 @@ using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
 
-namespace Uixe.Extensions
+namespace IoTSharp.Extensions
 {
     public static class DataExtension
     {
@@ -131,7 +131,7 @@ namespace Uixe.Extensions
             return jArray;
         }
 
-
+         
         public static List<T> ToList<T>(this IDataReader dataReader) where T : class
         {
             List<T> jArray = new List<T>();
@@ -174,6 +174,68 @@ namespace Uixe.Extensions
             return jArray;
         }
 
+        public static List<T> ToTupleList<T>(this IDataReader dataReader) 
+        {
+            List<T> jArray = new List<T>();
+            var prs = typeof(T).GetFields();
+            try
+            {
+                while (dataReader.Read())
+                {
+                    T jObject = Activator.CreateInstance<T>();
+                   object  jObjectEx = jObject;
+                    for (int i = 0; i < dataReader.FieldCount; i++)
+                    {
+                        try
+                        {
+                            string strKey = dataReader.GetName(i);
+
+                            if (dataReader[i] != DBNull.Value)
+                            {
+                                var ft = dataReader.GetFieldType(i);
+                                var _v = dataReader[i];
+                                object obj = Convert.ChangeType(_v, ft);
+                                var p = prs[i];
+                                if (p != null)
+                                {
+                                    SetValue(jObjectEx, ft, obj, p);
+                                }
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            System.Diagnostics.Debug.WriteLine(ex.Message);
+                        }
+                    }
+                    jObject = (T)Convert.ChangeType(jObjectEx, typeof(T));
+                    jArray.Add(jObject);
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine(ex.Message);
+            }
+            return jArray;
+        }
+
+        private static void SetValue<T>(T jObject, Type ft, object obj, System.Reflection.FieldInfo p)  
+        {
+            if (p.FieldType == ft)
+            {
+                p.SetValue(jObject, obj);
+            }
+            else if (p.FieldType == typeof(DateTime) && ft == typeof(string))
+            {
+                if (DateTime.TryParse((string)obj, out DateTime dt))
+                {
+                    p.SetValue(jObject, dt);
+                }
+            }
+            else
+            {
+                p.SetValue(jObject, Convert.ChangeType(obj, p.FieldType));
+            }
+        }
         private static void SetValue<T>(T jObject, Type ft, object obj, System.Reflection.PropertyInfo p) where T : class
         {
             if (p.PropertyType == ft)

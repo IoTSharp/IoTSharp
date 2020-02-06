@@ -8,7 +8,10 @@ namespace IoTSharp.Extensions
 {
     public static class FileExtension
     {
-
+        public static DriveInfo GetDriveInfo(this FileInfo file)
+        {
+            return new DriveInfo(file.Directory.Root.FullName);
+        }
         public static string GetSHA1(this FileInfo s)
         {
             string result = string.Empty;
@@ -34,7 +37,8 @@ namespace IoTSharp.Extensions
             byte[] buffer = new byte[count];
             using (var fs = fi.OpenRead())
             {
-                fs.Read(buffer, offset, count);
+                fs.Seek(offset, SeekOrigin.Begin);
+                fs.Read(buffer, 0, count);
             }
             return buffer;
         }

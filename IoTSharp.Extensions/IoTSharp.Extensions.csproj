@@ -7,23 +7,25 @@
     <RepositoryUrl>https://github.com/IoTSharp/IoTSharp</RepositoryUrl>
     <PackageTags>Endian;Json;XML</PackageTags>
     <Copyright>IoTSharp</Copyright>
-    <PackageIconUrl>https://raw.githubusercontent.com/IoTSharp/IoTSharp/master/docs/images/64x64.png</PackageIconUrl>
+    <PackageIconUrl></PackageIconUrl>
     <PackageLicenseFile>LICENSE.txt</PackageLicenseFile>
     <Company>IoTSharp</Company>
     <Product>IoTSharp</Product>
     <Authors>MaiKeBing</Authors>
+    <PackageIcon>200x200.png</PackageIcon>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="GitVersionTask" Version="5.1.3">
-      <PrivateAssets>all</PrivateAssets>
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-    </PackageReference>
     <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="3.1.1" />
     <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
+    <PackageReference Include="RestSharp" Version="106.10.1" />
   </ItemGroup>
 
   <ItemGroup>
+    <None Include="..\docs\images\200x200.png">
+      <Pack>True</Pack>
+      <PackagePath></PackagePath>
+    </None>
     <None Include="..\LICENSE.txt">
       <Pack>True</Pack>
       <PackagePath></PackagePath>

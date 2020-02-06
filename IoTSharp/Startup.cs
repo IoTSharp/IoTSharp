@@ -130,7 +130,7 @@ namespace IoTSharp
                  .AddNpgSql(Configuration["IoTSharp"], name: "PostgreSQL")
                  .AddDiskStorageHealthCheck(dso =>
                  {
-                     System.IO.DriveInfo.GetDrives().Distinct().ToList().ForEach(f => dso.AddDrive(f.Name, 1024));
+                     System.IO.DriveInfo.GetDrives().Select(f=>f.Name).Distinct().ToList().ForEach(f => dso.AddDrive(f, 1024));
 
                  }, name: "Disk Storage");
             services.AddHealthChecksUI();
