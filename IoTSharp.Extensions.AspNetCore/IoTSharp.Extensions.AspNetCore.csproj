@@ -11,6 +11,7 @@
     <PackageProjectUrl>https://github.com/IoTSharp/IoTSharp</PackageProjectUrl>
     <RepositoryUrl>https://github.com/IoTSharp/IoTSharp</RepositoryUrl>
     <PackageIcon>200x200.png</PackageIcon>
+    <Version>1.0.1</Version>
   </PropertyGroup>
   <ItemGroup>
     <FrameworkReference Include="Microsoft.AspNetCore.App" />

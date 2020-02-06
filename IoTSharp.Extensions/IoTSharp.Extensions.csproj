@@ -13,6 +13,7 @@
     <Product>IoTSharp</Product>
     <Authors>MaiKeBing</Authors>
     <PackageIcon>200x200.png</PackageIcon>
+    <Version>1.0.1</Version>
   </PropertyGroup>
 
   <ItemGroup>

@@ -14,7 +14,7 @@
     <Description>Open-source IoT Platform - Device management, data collection, processing and visualization.</Description>
     <PackageId>IoTSharp</PackageId>
     <UserSecretsId>18970590-05bf-4a1f-a70b-3c8a120d12cb</UserSecretsId>
-    <Version>0.1.99</Version>
+    <Version>1.0.1</Version>
     <PackageLicenseFile>LICENSE.txt</PackageLicenseFile>
     <RepositoryType>git</RepositoryType>
     <PackageTags>IoT</PackageTags>
