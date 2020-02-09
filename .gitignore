@@ -333,3 +333,5 @@ ASALocalRun/
 /Clients/MQTTClient/.vscode
 /IoTSharp/ClientApp.rar
 /IoTSharp/ClientApp/package-lock.json
+/IoTSharp/healthchecksdb
+/IoTSharp/healthchecksdb-shm

@@ -36,8 +36,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\IoTSharp.EdgeSdk.MQTT\IoTSharp.EdgeSdk.MQTT.csproj" />
-    <ProjectReference Include="..\IoTSharp.Extensions.AspNetCore\IoTSharp.Extensions.AspNetCore.csproj" />
-    <ProjectReference Include="..\IoTSharp.Extensions\IoTSharp.Extensions.csproj" />
   </ItemGroup>
 
   <ItemGroup>

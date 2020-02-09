@@ -93,6 +93,10 @@ namespace IoTSharp.Data
                     await _signInManager.UserManager.AddToRoleAsync(user, nameof(UserRole.SystemAdmin));
                     
                 }
+                else
+                {
+                    throw new Exception(string.Join(',', result.Errors.ToList().Select(ie => $"code={ie.Code},msg={ie.Description}")));
+                }
             }
             var rship = new Relationship
             {
