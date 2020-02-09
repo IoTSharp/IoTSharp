@@ -13,26 +13,7 @@ namespace IoTSharp.Sdk
 
         public static T ToData<T>(this ApiResult _apiResult) => (T)_apiResult.Data;
 
-        public static async Task<T> ToResultAsync<T>(this Task<FileResponse> fr)
-        {
-            return await ToResultAsync<T>(fr.Result);
-        }
-
-        public static async Task<T> ToResultAsync<T>(this FileResponse fr)
-        {
-            T result = default(T);
-            try
-            {
-                using (System.Net.Http.StreamContent stream = new System.Net.Http.StreamContent(fr.Stream))
-                {
-                    result = Newtonsoft.Json.JsonConvert.DeserializeObject<T>(await stream.ReadAsStringAsync());
-                }
-            }
-            catch (Exception)
-            {
-            }
-            return result;
-        }
+     
         public static string ToDisplayText(this DataStorage storage)
         {
             string _display = "";
