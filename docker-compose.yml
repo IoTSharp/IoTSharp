@@ -1,6 +1,37 @@
 version: '3.4'
-
 services:
+  pgsql:
+    image: postgres
+    container_name: pgsql
+    restart: always
+    volumes:
+      -  /dbdata/postgresql:/var/lib/postgresql/data 
+    environment:
+      TZ: "Asia/Shanghai"
+      POSTGRES_USER: postgres
+      POSTGRES_DB: xjmtclanedb
+      POSTGRES_PASSWORD: future 
+    ports: 
+     - "5432:5432"
+    networks:
+      - iotsharp-network
+  
+  pgadmin:
+    image: dpage/pgadmin4
+    container_name: pgadmin
+    restart: always
+    volumes:
+       - "./servers.json:/pgadmin4/servers.json"
+    depends_on:
+      - pgsql 
+    links:
+      - pgsql
+    environment:
+      TZ: "Asia/Shanghai"
+      PGADMIN_DEFAULT_EMAIL: "root@iotsharp.io"
+      PGADMIN_DEFAULT_PASSWORD: "1-q2-w3-e4-r5-t"
+    networks:
+      - iotsharp-network
   iotsharp:
     image: ${DOCKER_REGISTRY-}iotsharp
     build:
