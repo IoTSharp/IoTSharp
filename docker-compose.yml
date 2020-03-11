@@ -9,7 +9,7 @@ services:
     environment:
       TZ: "Asia/Shanghai"
       POSTGRES_USER: postgres
-      POSTGRES_DB: xjmtclanedb
+      POSTGRES_DB: IoTSharp
       POSTGRES_PASSWORD: future 
     ports: 
      - "5432:5432"
