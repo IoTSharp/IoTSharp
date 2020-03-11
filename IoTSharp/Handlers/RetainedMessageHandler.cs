@@ -10,6 +10,8 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using IoTSharp.Extensions;
+using Silkier.AspNetCore;
+
 namespace IoTSharp.Handlers
 {
     public class RetainedMessageHandler : IMqttServerStorage

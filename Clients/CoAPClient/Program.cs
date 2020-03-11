@@ -1,4 +1,5 @@
-﻿using CoAP;
+﻿
+using CoAP;
 using CoAP.Util;
 using System;
 using System.Collections.Generic;

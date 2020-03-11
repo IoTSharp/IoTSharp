@@ -20,7 +20,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Options;
-using IoTSharp.Extensions.AspNetCore;
+using Silkier.AspNetCore;
 
 namespace IoTSharp.Controllers
 {

@@ -8,24 +8,16 @@ namespace IoTSharp.Data
 {
     public class ApplicationDbContext : IdentityDbContext
     {
-        private IConfiguration _configuration;
 
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options, IConfiguration configuration)
             : base(options)
         {
-            _configuration = configuration;
-            var _DataBase = configuration["DataBase"] ?? "sqlite";
-            if (Enum.TryParse(_DataBase, out DatabaseType databaseType))
-            {
-                DatabaseType = databaseType;
-            }
             if (Database.GetPendingMigrations().Count() > 0)
             {
                 Database.Migrate();
             }
         }
 
-        public DatabaseType DatabaseType { get; private set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -47,27 +39,9 @@ namespace IoTSharp.Data
             modelBuilder.Entity<AttributeLatest>().HasDiscriminator<DataCatalog>(nameof(Data.DataStorage.Catalog));
             modelBuilder.Entity<TelemetryData>().HasDiscriminator<DataCatalog>(nameof(Data.DataStorage.Catalog));
             modelBuilder.Entity<TelemetryLatest>().HasDiscriminator<DataCatalog>(nameof(Data.DataStorage.Catalog));
-
             modelBuilder.Entity<Device>().HasDiscriminator<DeviceType>(nameof(Data.Device.DeviceType)).HasValue<Gateway>(DeviceType.Gateway).HasValue<Device>(DeviceType.Device);
-
             modelBuilder.Entity<Gateway>().HasDiscriminator<DeviceType>(nameof(Data.Device.DeviceType));
-
-            switch (DatabaseType)
-            {
-                case DatabaseType.mssql:
-                    ForSqlServer(modelBuilder);
-                    break;
-
-                case DatabaseType.npgsql:
-                    ForNpgsql(modelBuilder);
-                    break;
-
-                case DatabaseType.sqlite:
-                    break;
-
-                default:
-                    break;
-            }
+            ForNpgsql(modelBuilder);
         }
 
         private void ForNpgsql(ModelBuilder modelBuilder)
@@ -112,26 +86,7 @@ namespace IoTSharp.Data
             .Property(b => b.ActionResult)
             .HasColumnType("jsonb");
         }
-
-        private void ForSqlServer(ModelBuilder modelBuilder)
-        {
-            modelBuilder.Entity<TelemetryData>()
-            .Property(b => b.Value_XML)
-            .HasColumnType("xml");
-
-            modelBuilder.Entity<AttributeLatest>()
-            .Property(b => b.Value_XML)
-            .HasColumnType("xml");
-
-            modelBuilder.Entity<DataStorage>()
-            .Property(b => b.Value_XML)
-            .HasColumnType("xml");
-
-            modelBuilder.Entity<TelemetryLatest>()
-            .Property(b => b.Value_XML)
-            .HasColumnType("xml");
-        }
-
+         
         public DbSet<Tenant> Tenant { get; set; }
         public DbSet<Customer> Customer { get; set; }
         public DbSet<Relationship> Relationship { get; set; }
