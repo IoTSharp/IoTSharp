@@ -52,7 +52,7 @@
     <PackageReference Include="MQTTnet" Version="3.0.8" />
     <PackageReference Include="MQTTnet.AspNetCore" Version="3.0.8" />
     <PackageReference Include="MQTTnet.Extensions.Rpc" Version="3.0.8" />
-    <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="3.1.2" />
+    <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="3.1.3" />
     <PackageReference Include="NSwag.AspNetCore" Version="13.2.5" />
     <PackageReference Include="QuartzHostedServiceEx" Version="0.0.7" />
     <PackageReference Include="Silkier" Version="1.0.12" />
