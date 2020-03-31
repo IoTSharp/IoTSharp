@@ -25,7 +25,7 @@
   
     <PackageReference Include="Quartz" Version="3.0.7" />
     <PackageReference Include="QuartzHostedServiceEx" Version="0.0.7" />
-    <PackageReference Include="System.ServiceModel.Duplex" Version="4.6.0" />
+    <PackageReference Include="System.ServiceModel.Duplex" Version="4.7.0" />
     <PackageReference Include="System.ServiceModel.Http" Version="4.6.0" />
     <PackageReference Include="System.ServiceModel.NetTcp" Version="4.7.0" />
     <PackageReference Include="System.ServiceModel.Security" Version="4.6.0" />
