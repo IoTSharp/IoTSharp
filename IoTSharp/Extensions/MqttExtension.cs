@@ -73,23 +73,23 @@ namespace IoTSharp
             var logger = _loggerFactory.CreateLogger<IMqttNetLogger>();
             mqttNetLogger.LogMessagePublished += (object sender, MqttNetLogMessagePublishedEventArgs e) =>
             {
-                var message = $"ID:{e.TraceMessage.LogId},ThreadId:{e.TraceMessage.ThreadId},Source:{e.TraceMessage.Source},Timestamp:{e.TraceMessage.Timestamp},Message:{e.TraceMessage.Message}";
-                switch (e.TraceMessage.Level)
+                var message = $"ID:{e.LogMessage.LogId},ThreadId:{e.LogMessage.ThreadId},Source:{e.LogMessage.Source},Timestamp:{e.LogMessage.Timestamp},Message:{e.LogMessage.Message}";
+                switch (e.LogMessage.Level)
                 {
                     case MqttNetLogLevel.Verbose:
-                        logger.LogTrace(e.TraceMessage.Exception, message);
+                        logger.LogTrace(e.LogMessage.Exception, message);
                         break;
 
                     case MqttNetLogLevel.Info:
-                        logger.LogInformation(e.TraceMessage.Exception, message);
+                        logger.LogInformation(e.LogMessage.Exception, message);
                         break;
 
                     case MqttNetLogLevel.Warning:
-                        logger.LogWarning(e.TraceMessage.Exception, message);
+                        logger.LogWarning(e.LogMessage.Exception, message);
                         break;
 
                     case MqttNetLogLevel.Error:
-                        logger.LogError(e.TraceMessage.Exception, message);
+                        logger.LogError(e.LogMessage.Exception, message);
                         break;
 
                     default:
