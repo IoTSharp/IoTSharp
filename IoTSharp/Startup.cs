@@ -37,6 +37,9 @@ using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using MQTTnet.Server;
+using System.Runtime.InteropServices.ComTypes;
+using SshNet.Security.Cryptography;
+
 namespace IoTSharp
 {
     public class Startup
@@ -177,6 +180,7 @@ namespace IoTSharp
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
+                 endpoints.MapMqtt("/mqtt");
             });
             app.UseSwaggerUi3();
             app.UseOpenApi();
