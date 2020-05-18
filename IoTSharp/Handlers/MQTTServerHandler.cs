@@ -1,8 +1,6 @@
 ﻿using IoTSharp.Data;
-using IoTSharp.Diagnostics;
 using IoTSharp.Extensions;
 using IoTSharp.Handlers;
-using IoTSharp.MQTT;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -30,8 +28,8 @@ namespace IoTSharp.Handlers
         readonly IMqttServerEx _serverEx;
         readonly IServiceScope scope;
         readonly MqttClientSetting _mcsetting;
-        public MQTTServerHandler(ILogger<MQTTServerHandler> logger, IServiceScopeFactory scopeFactor,IMqttServerEx serverEx, DiagnosticsService diagnosticsService,
-            RuntimeStatusHandler systemStatusService, IOptions <AppSettings> options
+        public MQTTServerHandler(ILogger<MQTTServerHandler> logger, IServiceScopeFactory scopeFactor,IMqttServerEx serverEx 
+           , IOptions <AppSettings> options
             )
         {
             _mcsetting = options.Value.MqttClient;
@@ -39,16 +37,6 @@ namespace IoTSharp.Handlers
             scope = scopeFactor.CreateScope();
             _dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
             _serverEx = serverEx;
-            InboundCounter = diagnosticsService.CreateOperationsPerSecondCounter("mqtt.inbound_rate");
-            OutboundCounter = diagnosticsService.CreateOperationsPerSecondCounter("mqtt.outbound_rate");
-
-            systemStatusService.Set("mqtt.subscribers_count", () => Subscribers.Count);
-            systemStatusService.Set("mqtt.incoming_messages_count", () => IncomingMessages.Count);
-            systemStatusService.Set("mqtt.inbound_rate", () => InboundCounter.Count);
-            systemStatusService.Set("mqtt.outbound_rate", () => OutboundCounter.Count);
-            systemStatusService.Set("mqtt.connected_clients_count", () => serverEx.GetClientStatusAsync().GetAwaiter().GetResult().Count);
-
-
         }
 
         static long clients = 0;
@@ -73,8 +61,6 @@ namespace IoTSharp.Handlers
         long received = 0;
         internal void Server_ApplicationMessageReceived(object sender, MqttApplicationMessageReceivedEventArgs e)
         {
-            InboundCounter.Increment();
-            IncomingMessages.Add(e);
             if (string.IsNullOrEmpty(e.ClientId))
             {
                 _logger.LogInformation($"Message: Topic=[{e.ApplicationMessage.Topic }]");
@@ -343,16 +329,8 @@ namespace IoTSharp.Handlers
         }
         internal static Dictionary<string, Device> Devices = new Dictionary<string, Device>();
 
-        public BlockingCollection<MqttApplicationMessageReceivedEventArgs> IncomingMessages { get; } = new BlockingCollection<MqttApplicationMessageReceivedEventArgs>();
-
-        public Dictionary<string, MqttTopicImporter> Importers { get; } = new Dictionary<string, MqttTopicImporter>();
-
-        public Dictionary<string, MqttSubscriber> Subscribers { get; } = new Dictionary<string, MqttSubscriber>();
-
-        public OperationsPerSecondCounter InboundCounter { get; }
-
-        public OperationsPerSecondCounter OutboundCounter { get; }
-
+    
+        
         public static string MD5Sum(string text) => BitConverter.ToString(MD5.Create().ComputeHash(Encoding.UTF8.GetBytes(text))).Replace("-", "");
         internal void Server_ClientConnectionValidator(object sender, MqttServerClientConnectionValidatorEventArgs e)
         {
@@ -395,64 +373,7 @@ namespace IoTSharp.Handlers
             }
         }
 
-        public List<string> GetTopicImportUids()
-        {
-            lock (Importers)
-            {
-                return Importers.Select(i => i.Key).ToList();
-            }
-        }
-
-        public string StartTopicImport(string uid, MqttImportTopicParameters parameters)
-        {
-            if (parameters == null) throw new ArgumentNullException(nameof(parameters));
-
-            if (string.IsNullOrEmpty(uid))
-            {
-                uid = Guid.NewGuid().ToString("D");
-            }
-
-            var importer = new MqttTopicImporter(parameters, this , _logger);
-            importer.Start();
-
-            lock (Importers)
-            {
-                if (Importers.TryGetValue(uid, out var existingImporter))
-                {
-                    existingImporter.Stop();
-                }
-
-                Importers[uid] = importer;
-            }
-
-            _logger.Log(LogLevel.Information, "Started importer '{0}' for topic '{1}' from server '{2}'.", uid, parameters.Topic, parameters.Server);
-            return uid;
-        }
-
-        public void StopTopicImport(string uid)
-        {
-            if (uid == null) throw new ArgumentNullException(nameof(uid));
-
-            lock (Importers)
-            {
-                if (Importers.TryGetValue(uid, out var importer))
-                {
-                    importer.Stop();
-                    _logger.Log(LogLevel.Information, "Stopped importer '{0}'.");
-                }
-
-                Importers.Remove(uid);
-            }
-        }
-
-        public List<MqttSubscriber> GetSubscribers()
-        {
-            lock (Subscribers)
-            {
-                return Subscribers.Values.ToList();
-            }
-        }
-
+        
         public Task<IList<MqttApplicationMessage>> GetRetainedMessagesAsync()
         {
             return _serverEx.GetRetainedApplicationMessagesAsync();
@@ -462,69 +383,15 @@ namespace IoTSharp.Handlers
         {
             return _serverEx.ClearRetainedApplicationMessagesAsync();
         }
-        public async Task Publish(MqttPublishParameters<string> parameters)
-        {
-            var message = new MqttApplicationMessageBuilder()
-                .WithTopic(parameters.Topic)
-                .WithPayload(parameters.Payload)
-                .WithQualityOfServiceLevel(parameters.QualityOfServiceLevel)
-                .WithRetainFlag(parameters.Retain)
-                .Build();
-            await Publish(message);
-        }
-        public async Task Publish(MqttPublishParameters<byte[]> parameters)
-        {
-            var message = new MqttApplicationMessageBuilder()
-                .WithTopic(parameters.Topic)
-                .WithPayload(parameters.Payload)
-                .WithQualityOfServiceLevel(parameters.QualityOfServiceLevel)
-                .WithRetainFlag(parameters.Retain)
-                .Build();
-            await Publish(message);
-        }
 
         private async Task Publish(MqttApplicationMessage message)
         {
             await _serverEx.PublishAsync(message);
-            OutboundCounter.Increment();
             _logger.Log(LogLevel.Trace, $"Published MQTT topic '{message.Topic}.");
         }
 
-        
-
-        public string Subscribe(string uid, string topicFilter, Action<MqttApplicationMessageReceivedEventArgs> callback)
-        {
-            if (topicFilter == null) throw new ArgumentNullException(nameof(topicFilter));
-            if (callback == null) throw new ArgumentNullException(nameof(callback));
-
-            if (string.IsNullOrEmpty(uid))
-            {
-                uid = Guid.NewGuid().ToString("D");
-            }
-
-            lock (Subscribers)
-            {
-                Subscribers[uid] = new MqttSubscriber(uid, topicFilter, callback);
-            }
-
-            // Enqueue all retained messages to match the expected MQTT behavior.
-            // Here we have no client per subscription. So we need to adopt some
-            // features here manually.
-            foreach (var retainedMessage in _serverEx.GetRetainedApplicationMessagesAsync().GetAwaiter().GetResult())
-            {
-                IncomingMessages.Add(new MqttApplicationMessageReceivedEventArgs(null, retainedMessage));
-            }
-
-            return uid;
-        }
-
-        public void Unsubscribe(string uid)
-        {
-            lock (Subscribers)
-            {
-                Subscribers.Remove(uid);
-            }
-        }
+    
+   
 
         public Task<IList<IMqttClientStatus>> GetClientsAsync()
         {

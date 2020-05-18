@@ -25,7 +25,6 @@ namespace IoTSharp
             hostBuilder.ConfigureServices(services =>
             {
                 services.AddHostedService<CoAPService>();
-                services.AddHostedService<MQTTMessageService>();
             });
             return hostBuilder;
         }

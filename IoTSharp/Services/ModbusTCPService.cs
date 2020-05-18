@@ -59,6 +59,58 @@ namespace IoTSharp.Services
 
                 return (buffer, MbExceptionCode.Ok);
             };
+            _slave.OnWriteCoils = (_, start, bools) =>
+           {
+               Console.WriteLine("Write coils at {0}, len: {1}", start, bools.Length);
+
+               for (var i = 0; i < bools.Length; ++i)
+               {
+                   Console.WriteLine("{0}: {1}", i + start, bools[i]);
+               }
+
+               return MbExceptionCode.Ok;
+           };
+
+            _slave.OnWriteHoldingRegisters = (_, start, hrs) =>
+                {
+                    Console.WriteLine("Write holding registers at {0}, len: {1}", start, hrs.Length);
+
+                    for (var i = 0; i < hrs.Length; ++i)
+                    {
+                        Console.WriteLine("{0}: {1}", i + start, hrs[i]);
+                    }
+
+                    return MbExceptionCode.Ok;
+
+                };
+
+            _slave.OnReadHoldingRegisters = (_, start, count) =>
+                {
+                    var buffer = new ushort[count];
+
+                    for (var i = 0; i < count; ++i)
+                    {
+                        buffer[i] = (ushort)(i + start);
+                    }
+
+                    return (buffer, MbExceptionCode.Ok);
+                };
+
+            _slave.OnReadInputRegisters = _slave.OnReadHoldingRegisters;
+
+
+            _slave.OnReadCoils = (_, start, count) =>
+            {
+                var buffer = new bool[count];
+
+                for (var i = 0; i < count; ++i)
+                {
+                    buffer[i] = (start + i) % 3 == 0;
+                }
+
+                return (buffer, MbExceptionCode.Ok);
+            };
+            _slave.OnReadDiscretes = _slave.OnReadCoils;
             return _slave.Listen();
         }
 

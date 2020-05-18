@@ -14,7 +14,6 @@ using IoTSharp.Services;
 using MQTTnet.Server;
 using MQTTnet.Client.Receiving;
 using MQTTnet.Client.Options;
-using IoTSharp.MQTT;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Threading;

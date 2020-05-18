@@ -1,9 +1,7 @@
 ﻿using HealthChecks.UI.Client;
 using IoTSharp.Data;
-using IoTSharp.Diagnostics;
 using IoTSharp.Extensions;
 using IoTSharp.Handlers;
-using IoTSharp.MQTT;
 using IoTSharp.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
@@ -126,7 +124,6 @@ namespace IoTSharp
             services.AddIoTSharpMqttServer(settings.MqttBroker);
             services.AddMqttClient(settings.MqttClient);
       
-            services.AddSingleton<DiagnosticsService>();
             services.AddSingleton<RetainedMessageHandler>();
             services.AddSingleton<RuntimeStatusHandler>();
             services.AddHealthChecks()
