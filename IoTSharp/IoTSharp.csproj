@@ -61,7 +61,7 @@
     <PackageReference Include="NSwag.AspNetCore" Version="13.5.0" />
     <PackageReference Include="QuartzHostedServiceEx" Version="0.0.7" />
     <PackageReference Include="Silkier" Version="1.0.110" />
-    <PackageReference Include="Silkier.AspNetCore" Version="1.0.110" />
+    <PackageReference Include="Silkier.AspNetCore" Version="1.0.117" />
     <PackageReference Include="Silkier.EFCore" Version="1.0.110" />
     <PackageReference Include="System.ServiceModel.Primitives" Version="4.7.0" />
     <PackageReference Include="System.Text.Encoding.CodePages" Version="4.7.1" />
