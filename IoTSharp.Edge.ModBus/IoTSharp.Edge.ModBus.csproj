@@ -21,7 +21,7 @@
 
   <ItemGroup>
     <PackageReference Include="CrystalQuartz.AspNetCore" Version="6.8.1" />
-    <PackageReference Include="HslCommunication" Version="6.2.5" />
+    <PackageReference Include="HslCommunication" Version="9.2.3" />
   
     <PackageReference Include="Quartz" Version="3.0.7" />
     <PackageReference Include="QuartzHostedServiceEx" Version="0.0.7" />
