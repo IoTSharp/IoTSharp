@@ -2,7 +2,11 @@
 
 FROM mcr.microsoft.com/dotnet/core/aspnet:3.1-buster-slim AS base
 WORKDIR /app
-EXPOSE 80
+EXPOSE 80  
+EXPOSE 1883 
+EXPOSE 8883 
+EXPOSE 8080 
+EXPOSE 502 
 
 FROM mcr.microsoft.com/dotnet/core/sdk:3.1-buster AS build
 WORKDIR /src

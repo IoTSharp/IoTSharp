@@ -4,6 +4,7 @@ using IoTSharp.Handlers;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using MQTTnet.Client;
 using MQTTnet.Client.Connecting;
 using MQTTnet.Client.Disconnecting;
@@ -24,10 +25,11 @@ namespace IoTSharp.Services
         private ApplicationDbContext _dbContext;
         private IServiceScope _serviceScope;
         private CoapServer server;
-        public CoAPService(ILogger<CoAPService> logger, IServiceScopeFactory scopeFactor)
+        private readonly AppSettings _settings;
+        public CoAPService(ILogger<CoAPService> logger, IServiceScopeFactory scopeFactor, IOptions<AppSettings> options)
         {
-
-            server = new CoapServer();
+            _settings = options.Value;
+            server = new CoapServer(_settings.CoapServer);
             _logger = logger;
             _serviceScope = scopeFactor.CreateScope();
             _dbContext = _serviceScope.ServiceProvider.GetRequiredService<ApplicationDbContext>();

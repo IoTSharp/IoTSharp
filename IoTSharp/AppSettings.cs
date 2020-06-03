@@ -1,4 +1,6 @@
-﻿using System;
+﻿using CoAP;
+using CoAP.Server;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Security.Authentication;
@@ -20,7 +22,10 @@ namespace IoTSharp
         /// mqtt client settings
         /// </summary>
         public MqttClientSetting MqttClient { get; set; }
- 
+
+        public CoapConfig CoapServer { get; set; } = new CoapConfig();
+
+
     }
     public class MqttClientSetting
     {
