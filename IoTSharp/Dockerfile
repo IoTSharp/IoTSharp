@@ -5,8 +5,11 @@ WORKDIR /app
 EXPOSE 80  
 EXPOSE 1883 
 EXPOSE 8883 
-EXPOSE 8080 
 EXPOSE 502 
+EXPOSE 5683
+EXPOSE 5684 
+EXPOSE 8080
+
 
 FROM mcr.microsoft.com/dotnet/core/sdk:3.1-buster AS build
 WORKDIR /src

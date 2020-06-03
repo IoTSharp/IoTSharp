@@ -25,6 +25,7 @@ namespace IoTSharp
             hostBuilder.ConfigureServices(services =>
             {
                 services.AddHostedService<CoAPService>();
+                services.AddHostedService<ModbusTCPService>();
             });
             return hostBuilder;
         }

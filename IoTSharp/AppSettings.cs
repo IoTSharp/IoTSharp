@@ -25,7 +25,14 @@ namespace IoTSharp
 
         public CoapConfig CoapServer { get; set; } = new CoapConfig();
 
+        public ModBusServerSetting ModBusServer { get; set; } = new ModBusServerSetting();
 
+
+    }
+    public class ModBusServerSetting
+    {
+        public int Port { get; set; } = 502;
+        public int TimeOut { get; set; } = 120000;
     }
     public class MqttClientSetting
     {

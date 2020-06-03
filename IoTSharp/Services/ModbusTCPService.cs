@@ -6,6 +6,7 @@ using Kimbus.Slave;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using MQTTnet.Client;
 using MQTTnet.Client.Connecting;
 using MQTTnet.Client.Disconnecting;
@@ -25,9 +26,11 @@ namespace IoTSharp.Services
         private MbTcpSlave _slave;
         private ApplicationDbContext _dbContext;
         private IServiceScope _serviceScope;
-        public ModbusTCPService(ILogger<ModbusTCPService> logger, IServiceScopeFactory scopeFactor)
+        private readonly AppSettings _settings;
+        public ModbusTCPService(ILogger<ModbusTCPService> logger, IServiceScopeFactory scopeFactor, IOptions<AppSettings> options)
         {
-            _slave = new MbTcpSlave("*", 502);
+            _settings = options.Value;
+            _slave = new MbTcpSlave("*", _settings.ModBusServer.Port, _settings.ModBusServer.TimeOut);
             _logger = logger;
             _serviceScope = scopeFactor.CreateScope();
             _dbContext = _serviceScope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
