@@ -1,12 +1,11 @@
-﻿using IoTSharp.Sdk.CSharp;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace IoTSharp.Sdk
+namespace IoTSharp.Sdk.Http
 {
     public static class SdkClient
     {

@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.28803.156
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IoTSharp.Sdk", "IoTSharp.Sdk.CSharp\IoTSharp.Sdk.csproj", "{9084E809-B5F1-4782-B29C-6C784591CB77}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IoTSharp.Sdk.Http", "IoTSharp.Sdk.CSharp\IoTSharp.Sdk.Http.csproj", "{9084E809-B5F1-4782-B29C-6C784591CB77}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IoTSharp.Sdk.MQTT", "IoTSharp.Sdk.MQTT\IoTSharp.Sdk.MQTT.csproj", "{7771F940-3297-4E41-AE61-F007A84D4FA4}"
 EndProject

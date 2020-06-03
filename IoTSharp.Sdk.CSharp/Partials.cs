@@ -1,6 +1,6 @@
 ﻿using Newtonsoft.Json.Linq;
 
-namespace IoTSharp.Sdk
+namespace IoTSharp.Sdk.Http
 {
     public class InstallRresult
     {

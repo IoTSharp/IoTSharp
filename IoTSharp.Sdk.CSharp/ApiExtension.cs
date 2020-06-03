@@ -2,7 +2,7 @@
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace IoTSharp.Sdk
+namespace IoTSharp.Sdk.Http
 {
     public static class ApiExtension
     {

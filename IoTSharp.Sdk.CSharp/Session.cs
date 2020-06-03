@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace IoTSharp.Sdk.CSharp
+namespace IoTSharp.Sdk.Http
 {
     public enum UserRole
     {
