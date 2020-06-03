@@ -123,9 +123,7 @@ namespace IoTSharp
             services.AddTransient<ApplicationDBInitializer>();
             services.AddIoTSharpMqttServer(settings.MqttBroker);
             services.AddMqttClient(settings.MqttClient);
-      
             services.AddSingleton<RetainedMessageHandler>();
-            services.AddSingleton<RuntimeStatusHandler>();
             services.AddHealthChecks()
                  .AddNpgSql(Configuration["IoTSharp"], name: "PostgreSQL")
                  .AddDiskStorageHealthCheck(dso =>
@@ -174,15 +172,16 @@ namespace IoTSharp
                 DefaultTimeFormat = "HH:mm:ss",
                 UseLocalTime = true
             });
+            app.UseIotSharpMqttServer();
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
-               //  endpoints.MapMqtt("/mqtt");
+            //   endpoints.MapMqtt("/mqtt");
             });
             app.UseSwaggerUi3();
             app.UseOpenApi();
        
-            app.UseIotSharpMqttServer();
+    
 
             app.UseForwardedHeaders(new ForwardedHeadersOptions
             {
@@ -191,7 +190,6 @@ namespace IoTSharp
             app.UseResponseCompression(); // No need if you use IIS, but really something good for Kestrel!
            
             
-            app.UseIotSharpSelfCollecting();
             app.UseHealthChecks("/healthz", new HealthCheckOptions
             {
                 Predicate = _ => true,
