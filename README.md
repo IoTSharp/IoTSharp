@@ -1,6 +1,6 @@
 # IoTSharp.SDKs    所有IoTSharp的SDK集合
 
-![Build status](https://ci.appveyor.com/api/projects/status/ol6hu6d7k57viu9v?svg=true)](https://ci.appveyor.com/project/MaiKeBing/iotsharp-sdks)
+[![Build status](https://ci.appveyor.com/api/projects/status/ol6hu6d7k57viu9v?svg=true)](https://ci.appveyor.com/project/MaiKeBing/iotsharp-sdks)
 
  要通过HTTP接口管理IoTSharp或者数据采集可以使用 IoTSharp.Sdk.Http
  
