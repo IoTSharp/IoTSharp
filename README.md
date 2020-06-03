@@ -18,15 +18,18 @@ IoTSharp 中文名称  貔貅物联网平台，用于数据收集通过规则引
 
 ## [Document](https://docs.iotsharp.io)
 
-## IoTSharp's Clients and Sdks
+## IoTSharp's Clients 
  - Cicada    A desktop application  https://github.com/IoTSharp/Cicada
- - C Client SDK for IoTSharp  https://github.com/IoTSharp/IoTSharp-C-Client-Sdk
- - C# Client SDK for IoTSharp  https://github.com/IoTSharp/IoTSharp.SDKs 
+ 
+ 
+## How to install with docker-compose  ?
+
+download docker-compose.yml and  docker-compose up -d  
 
 
 
+## How to install as Linux service  ?
 
-## How to install ?
  -  mkdir  /var/lib/iotsharp/
  -	cp ./*  /var/lib/iotsharp/
  -	chmod 777 /var/lib/iotsharp/IoTSharp
@@ -37,12 +40,30 @@ IoTSharp 中文名称  貔貅物联网平台，用于数据收集通过规则引
  -	http://127.0.0.1:80/ 
  -  
 
+## IoTSharp.X509Extensions
+
+We cloned q2g-helper-pem-nuget.removed     Nlog. Added self-signed X509 functions, all of which will be used in iot#, while hope is useful for you. ...
+
+https://github.com/IoTSharp/IoTSharp.X509Extensions
+
+
+##  IoTSharp.SDKs
+
+IoTSharp.SDKs  包含了 IoTSharp.Sdk.MQTT  IoTSharp.Sdk.Http 用于采集端或者边缘部分进行数据采集通过sdk发送给IoTSharp。 
+https://github.com/IoTSharp/IoTSharp.SDKs
+
+## IoTSharp-C-Client-Sdk
+
+ IoTSharp-C-Client-Sdk 是一个使用C语言进行对接IoTSharp的例子
+
+ https://github.com/IoTSharp/IoTSharp-C-Client-Sdk
+
+
 ##  IoTSharp.Edge.RT-Thread
 
 IoTSharp.Edge.RT-Thread (STM32L4 + Wi-Fi, sensor, lcd, audio etc)
 
 https://github.com/IoTSharp/IoTSharp.Edge.RT-Thread
-
 ![20190615010003.jpg](docs/images/20190615010003.jpg)
 
 ![20190615010115.jpg](docs/images/20190615010115.jpg)
