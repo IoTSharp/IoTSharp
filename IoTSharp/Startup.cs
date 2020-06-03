@@ -177,7 +177,7 @@ namespace IoTSharp
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
-                 endpoints.MapMqtt("/mqtt");
+               //  endpoints.MapMqtt("/mqtt");
             });
             app.UseSwaggerUi3();
             app.UseOpenApi();

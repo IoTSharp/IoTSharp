@@ -39,10 +39,8 @@ services:
       - pgsql
     links:
       - pgsql 
-    volumes:
-      - "/etc/iotsharp/appsettings.Production.json:/app/appsettings.Production.json"
     ports:
-      - 80:8080
+      - 8080:80
     networks:
       - iotsharp-network
     build:
