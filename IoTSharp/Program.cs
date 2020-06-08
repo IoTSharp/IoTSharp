@@ -6,8 +6,8 @@ using System.Text;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Hosting;
-using QuartzHostedService;
 using Silkier.AspNetCore;
+using SilkierQuartz;
 
 namespace IoTSharp
 {
@@ -24,13 +24,9 @@ namespace IoTSharp
                 .ConfigureWindowsServices()
                 .ConfigureWebHostDefaults(webBuilder =>
                 {
-                    webBuilder.ConfigureKestrel(serverOptions =>
-                    {
-                        serverOptions.AllowSynchronousIO = true;
-                    });
                     webBuilder.UseStartup<Startup>();
                 })
-                .ConfigureQuartzHost()
+               .ConfigureSilkierQuartzHost()
                 .ConfigureIoTSharpHost();
 
     }

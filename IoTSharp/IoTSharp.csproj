@@ -35,8 +35,9 @@
     <PackageReference Include="AspNetCore.HealthChecks.Network" Version="3.0.1" />
 
     <PackageReference Include="AspNetCore.HealthChecks.NpgSql" Version="3.0.0" />
-    <PackageReference Include="AspNetCore.HealthChecks.System" Version="3.1.1" />
-    <PackageReference Include="AspNetCore.HealthChecks.UI" Version="3.1.0" />
+    <PackageReference Include="AspNetCore.HealthChecks.System" Version="3.1.2" />
+    <PackageReference Include="AspNetCore.HealthChecks.UI" Version="3.1.1" />
+    <PackageReference Include="AspNetCore.HealthChecks.UI.Client" Version="3.1.1" />
     <PackageReference Include="AspNetCore.HealthChecks.Uris" Version="3.1.1" />
     <PackageReference Include="AspNetCore.HealthChecks.Network" Version="3.1.1" />
 
@@ -60,15 +61,13 @@
     <PackageReference Include="MQTTnet.Extensions.Rpc" Version="3.0.12-rc1" />
     <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="3.1.4" />
     <PackageReference Include="NSwag.AspNetCore" Version="13.6.0" />
-    <PackageReference Include="QuartzHostedServiceEx" Version="0.0.7" />
-    <PackageReference Include="Silkier" Version="1.0.117" />
-    <PackageReference Include="Silkier.AspNetCore" Version="1.0.117" />
-    <PackageReference Include="Silkier.EFCore" Version="1.0.117" />
+    <PackageReference Include="Silkier" Version="1.0.121" />
+    <PackageReference Include="Silkier.AspNetCore" Version="1.0.121" />
+    <PackageReference Include="Silkier.EFCore" Version="1.0.121" />
+    <PackageReference Include="SilkierQuartz" Version="1.0.21" />
     <PackageReference Include="System.ServiceModel.Primitives" Version="4.7.0" />
     <PackageReference Include="System.Text.Encoding.CodePages" Version="4.7.1" />
     <PackageReference Include="CoAP.NET.Core" Version="1.1.0" />
-    <PackageReference Include="Quartz.Plugins.RecentHistory" Version="1.0.3" />
-    <PackageReference Include="QuartzminFork" Version="1.0.17" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="3.1.4" />
     <PackageReference Include="Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore" Version="3.1.4" />
     <PackageReference Include="Microsoft.AspNetCore.Hosting.WindowsServices" Version="3.1.4" />

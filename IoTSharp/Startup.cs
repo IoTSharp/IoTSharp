@@ -1,5 +1,4 @@
-﻿using HealthChecks.UI.Client;
-using IoTSharp.Data;
+﻿using IoTSharp.Data;
 using IoTSharp.Extensions;
 using IoTSharp.Handlers;
 using IoTSharp.Services;
@@ -24,8 +23,6 @@ using MQTTnet.AspNetCoreEx;
 using MQTTnet.Client;
 using NSwag.AspNetCore;
 using Quartz;
-using QuartzHostedService;
-using Quartzmin;
 using System;
 using System.Collections.Generic;
 using System.Configuration;
@@ -37,6 +34,8 @@ using System.Threading.Tasks;
 using MQTTnet.Server;
 using System.Runtime.InteropServices.ComTypes;
 using SshNet.Security.Cryptography;
+using SilkierQuartz;
+using HealthChecks.UI.Client;
 
 namespace IoTSharp
 {
@@ -132,8 +131,7 @@ namespace IoTSharp
 
                  }, name: "Disk Storage");
             services.AddHealthChecksUI();
-            services.AddQuartzmin();
-            services.AddQuartzHostedService();
+            services.AddSilkierQuartz();
 
         }
 
@@ -163,7 +161,7 @@ namespace IoTSharp
             app.UseAuthorization();
             app.UseDefaultFiles();
             app.UseStaticFiles();
-            app.UseQuartzmin(new QuartzminOptions()
+            app.UseSilkierQuartz(new  SilkierQuartzOptions()
             {
                 Scheduler = factory.GetScheduler().Result,
                 VirtualPathRoot = "/quartzmin",
