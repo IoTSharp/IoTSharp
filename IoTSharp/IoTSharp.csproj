@@ -53,7 +53,7 @@
 
     <PackageReference Include="kimbus" Version="2.0.1" />
     <PackageReference Include="LiteDB" Version="5.0.8" />
-    <PackageReference Include="Microsoft.AspNetCore.Http.Features" Version="3.1.4" />
+    <PackageReference Include="Microsoft.AspNetCore.Http.Features" Version="3.1.5" />
     
     <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.10.8" />
     <PackageReference Include="MQTTnet" Version="3.0.12-rc1" />
