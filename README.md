@@ -2,6 +2,7 @@
 
 [![Build status](https://ci.appveyor.com/api/projects/status/5o23f5vss89ct2lw/branch/master?svg=true)](https://ci.appveyor.com/project/MaiKeBing/iotsharp/branch/master)
 ![GitHub](https://img.shields.io/github/license/iotsharp/iotsharp.svg)
+![.NET Core](https://github.com/IoTSharp/IoTSharp/workflows/.NET%20Core/badge.svg?branch=master)
 
 
 IoTSharp is an open-source IoT platform for data collection, processing, visualization, and device management.
@@ -27,7 +28,11 @@ IoTSharp 中文名称  貔貅物联网平台，用于数据收集通过规则引
 download docker-compose.yml and  docker-compose up -d  
 
 
+## How to install as docker ?
 
+  -  docker pull iotsharp/iotsharp
+ 
+  
 ## How to install as Linux service  ?
 
  -  mkdir  /var/lib/iotsharp/
