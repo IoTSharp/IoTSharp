@@ -26,6 +26,8 @@ services:
       - pgsql 
     links:
       - pgsql
+    ports:
+      - 8090:80
     environment:
       TZ: "Asia/Shanghai"
       PGADMIN_DEFAULT_EMAIL: "root@iotsharp.io"

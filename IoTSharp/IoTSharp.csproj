@@ -38,6 +38,7 @@
     <PackageReference Include="AspNetCore.HealthChecks.System" Version="3.1.2" />
     <PackageReference Include="AspNetCore.HealthChecks.UI" Version="3.1.1" />
     <PackageReference Include="AspNetCore.HealthChecks.UI.Client" Version="3.1.1" />
+    <PackageReference Include="AspNetCore.HealthChecks.UI.PostgreSQL.Storage" Version="3.1.1" />
     <PackageReference Include="AspNetCore.HealthChecks.Uris" Version="3.1.1" />
     <PackageReference Include="AspNetCore.HealthChecks.Network" Version="3.1.1" />
 

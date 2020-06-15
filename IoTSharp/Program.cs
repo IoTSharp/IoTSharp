@@ -28,6 +28,7 @@ namespace IoTSharp
                 })
                .ConfigureSilkierQuartzHost()
                 .ConfigureIoTSharpHost();
+        
 
     }
 }

@@ -18,6 +18,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IoTSharp", "IoTSharp\IoTSha
 EndProject
 Project("{E53339B2-1760-4266-BCC7-CA923CBCF16C}") = "docker-compose", "docker-compose.dcproj", "{91C3C01F-68D2-4D9C-8932-B91B264EFBE6}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IoTSharp.Desktop", "..\IoTSharp.Desktop\IoTSharp.Desktop.csproj", "{130B23C0-AAF3-4E7F-898C-5E90C8DBE0C6}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -92,6 +94,26 @@ Global
 		{91C3C01F-68D2-4D9C-8932-B91B264EFBE6}.Release|x64.Build.0 = Release|Any CPU
 		{91C3C01F-68D2-4D9C-8932-B91B264EFBE6}.Release|x86.ActiveCfg = Release|Any CPU
 		{91C3C01F-68D2-4D9C-8932-B91B264EFBE6}.Release|x86.Build.0 = Release|Any CPU
+		{130B23C0-AAF3-4E7F-898C-5E90C8DBE0C6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{130B23C0-AAF3-4E7F-898C-5E90C8DBE0C6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{130B23C0-AAF3-4E7F-898C-5E90C8DBE0C6}.Debug|ARM.ActiveCfg = Debug|Any CPU
+		{130B23C0-AAF3-4E7F-898C-5E90C8DBE0C6}.Debug|ARM.Build.0 = Debug|Any CPU
+		{130B23C0-AAF3-4E7F-898C-5E90C8DBE0C6}.Debug|ARM64.ActiveCfg = Debug|Any CPU
+		{130B23C0-AAF3-4E7F-898C-5E90C8DBE0C6}.Debug|ARM64.Build.0 = Debug|Any CPU
+		{130B23C0-AAF3-4E7F-898C-5E90C8DBE0C6}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{130B23C0-AAF3-4E7F-898C-5E90C8DBE0C6}.Debug|x64.Build.0 = Debug|Any CPU
+		{130B23C0-AAF3-4E7F-898C-5E90C8DBE0C6}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{130B23C0-AAF3-4E7F-898C-5E90C8DBE0C6}.Debug|x86.Build.0 = Debug|Any CPU
+		{130B23C0-AAF3-4E7F-898C-5E90C8DBE0C6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{130B23C0-AAF3-4E7F-898C-5E90C8DBE0C6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{130B23C0-AAF3-4E7F-898C-5E90C8DBE0C6}.Release|ARM.ActiveCfg = Release|Any CPU
+		{130B23C0-AAF3-4E7F-898C-5E90C8DBE0C6}.Release|ARM.Build.0 = Release|Any CPU
+		{130B23C0-AAF3-4E7F-898C-5E90C8DBE0C6}.Release|ARM64.ActiveCfg = Release|Any CPU
+		{130B23C0-AAF3-4E7F-898C-5E90C8DBE0C6}.Release|ARM64.Build.0 = Release|Any CPU
+		{130B23C0-AAF3-4E7F-898C-5E90C8DBE0C6}.Release|x64.ActiveCfg = Release|Any CPU
+		{130B23C0-AAF3-4E7F-898C-5E90C8DBE0C6}.Release|x64.Build.0 = Release|Any CPU
+		{130B23C0-AAF3-4E7F-898C-5E90C8DBE0C6}.Release|x86.ActiveCfg = Release|Any CPU
+		{130B23C0-AAF3-4E7F-898C-5E90C8DBE0C6}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
