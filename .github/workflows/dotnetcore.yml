@@ -18,8 +18,7 @@ jobs:
     - name: Install dependencies
       run: dotnet restore ./IoTSharp.sln
     - name: Build
-      run: dotnet build  ./IoTSharp.sln  --configuration Release  
-    - name: Test
-      run: dotnet test ./IoTSharp.Test/IoTSharp.Test.csproj  --verbosity normal
+      run: dotnet build  ./IoTSharp.sln  --configuration Release  --no-restore
+
       
       
