@@ -1,0 +1,38 @@
+<Card Class="dashboard-totalusers-root">
+    <CardContent>
+        <Grid
+            Container
+            Justify="@Justify.SpaceBetween">
+            <Grid Item>
+                <Typography
+                    Class="dashboard-totalusers-title"
+                    Color="@Color.TextSecondary"
+                    GutterBottom
+                    Variant="@TypographyVariant.Body2">
+                    TOTAL USERS
+                </Typography>
+                <Typography Variant="@TypographyVariant.H4">
+                    1,600
+                </Typography>
+            </Grid>
+            <Grid Item>
+                <Avatar Class="dashboard-totalusers-avatar">
+                    <PeopleIcon Class="dashboard-totalusers-icon" />
+                </Avatar>
+            </Grid>
+        </Grid>
+        <div class="dashboard-totalusers-difference">
+            <ArrowUpwardIcon Class="dashboard-totalusers-difference-icon" />
+            <Typography
+                Class="dashboard-totalusers-difference-value"
+                Variant="@TypographyVariant.Body2">
+                16%
+            </Typography>
+            <Typography
+                Class="dashboard-totalusers-caption"
+                Variant="@TypographyVariant.Caption">
+                Since last month
+            </Typography>
+        </div>
+    </CardContent>
+</Card>

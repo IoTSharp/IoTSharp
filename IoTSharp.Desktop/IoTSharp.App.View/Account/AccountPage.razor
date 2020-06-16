@@ -1,0 +1,24 @@
+@page "/account"
+
+<div class="account-root">
+    <Grid
+        Container
+        Spacing="@Spacing.Four">
+        <Grid
+            Item
+            Large="@GridSize.Four"
+            Medium="@GridSize.Six"
+            ExtraLarge="@GridSize.Four"
+            ExtraSmall="@GridSize.Twelve">
+            <AccountProfile />
+        </Grid>
+        <Grid
+            Item
+            Large="@GridSize.Eight"
+            Medium="@GridSize.Six"
+            ExtraLarge="@GridSize.Eight"
+            ExtraSmall="@GridSize.Twelve">
+            <AccountDetails />
+        </Grid>
+    </Grid>
+</div>

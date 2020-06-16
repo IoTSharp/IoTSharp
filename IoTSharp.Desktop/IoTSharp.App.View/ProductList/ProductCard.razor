@@ -1,0 +1,55 @@
+<Card Class="product-card-root">
+  <CardContent>
+    <div class="product-card-image-container">
+      <img
+        alt="Product"
+        class="product-card-image"
+        src="@Product.ImageUrl"
+      />
+    </div>
+    <Typography
+        Align="@Align.Center"
+        GutterBottom
+        Variant="@TypographyVariant.H4">
+        @Product.Title
+    </Typography>
+    <Typography
+        Align="@Align.Center"
+        Variant="@TypographyVariant.Body1">
+        @Product.Description
+    </Typography>
+  </CardContent>
+  <Divider />
+  <CardActions>
+    <Grid
+        Container
+        Justify="@Justify.SpaceBetween">
+        <Grid
+            Class="product-card-stats-item"
+            Item>
+            <AccessTimeIcon Class="product-card-stats-icon" />
+            <Typography
+                Display="@Display.Inline"
+                Variant="@TypographyVariant.Body2">
+                Updated 2hr ago
+            </Typography>
+        </Grid>
+        <Grid
+            Class="product-card-stats-item"
+            Item>
+            <GetAppIcon Class="product-card-stats-icon" />
+            <Typography
+                Display="@Display.Inline"
+                Variant="@TypographyVariant.Body2">
+                @Product.TotalDownloads Downloads
+            </Typography>
+        </Grid>
+      </Grid>
+  </CardActions>
+</Card>
+
+@code
+{
+    [Parameter]
+    public Product Product { set; get; }
+}

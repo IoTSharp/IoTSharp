@@ -1,0 +1,38 @@
+@inherits UsersByDeviceComponent
+
+<Card Class="dashboard-userdivces-root">
+    <CardHeader
+        Title="Users By Device">
+        <ActionContent>
+            <IconButton Size="@IconButtonSize.Small">
+                <RefreshIcon />
+            </IconButton>
+        </ActionContent>
+    </CardHeader>
+    <Divider />
+    <CardContent>
+        <div class="dashboard-userdivces-chart-container">
+            <ChartJsPieChart @ref="_doughnutChartJs" Config="@_config" />
+        </div>
+        <div class="dashboard-userdivces-stats">
+        @foreach(var device in Devices)
+        {
+            <div
+                class="dashboard-userdivces-device"
+                @key="@device.title">
+                <span class="dashboard-userdivces-device-icon">
+                    @device.icon
+                </span>
+                <Typography Variant="@TypographyVariant.Body1">
+                    @device.title
+                </Typography>
+                <Typography
+                    Style="@("color: " + device.color)"
+                    Variant="@TypographyVariant.H5">
+                    @(device.value)%
+                </Typography>
+            </div>
+        }
+        </div>
+    </CardContent>
+</Card>

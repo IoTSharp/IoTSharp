@@ -1,0 +1,29 @@
+@inherits LatestSalesComponent
+
+<Card Class="dashboard-sales-root">
+    <CardHeader
+        Title="Latest Sales">
+        <ActionContent>
+            <Button
+                Size="@Size.Small"
+                Variant="@ButtonVariant.Text">
+                Last 7 days <ArrowDropDownIcon />
+            </Button>
+        </ActionContent>
+    </CardHeader>
+    <Divider />
+    <CardContent>
+        <div class="dashboard-sales-chart-container">
+            <ChartJsBarChart @ref="_barChartJs" Config="@_config" />
+        </div>
+    </CardContent>
+    <CardActions Class="dashboard-sales-chart-actions">
+        <Button
+          Color="@Color.Primary"
+          Size="@Size.Small"
+          Variant="@ButtonVariant.Text"
+        >
+          Overview <ArrowRightIcon />
+        </Button>
+    </CardActions>
+</Card>

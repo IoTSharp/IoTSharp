@@ -1,0 +1,87 @@
+﻿<Card Class="settings-notification-root">
+    <form>
+        <CardHeader
+            Subheader="Manage the notifications"
+            Title="Notifications" />
+        <Divider />
+        <CardContent>
+            <Grid
+                Container
+                Spacing="@Spacing.Six"
+                Wrap="@Wrap.Wrap">
+                <Grid
+                    Class="settings-notification-item"
+                    Item
+                    Medium="@GridSize.Four"
+                    Small="@GridSize.Six"
+                    ExtraSmall="@GridSize.Twelve">
+                    <Typography
+                        GutterBottom
+                        Variant="@TypographyVariant.H6">
+                        Notifications
+                    </Typography>
+                    <FormControlLabel
+                        Label="Email">
+                        <Checkbox
+                            Color="@Color.Primary"
+                            DefaultChecked="true" />
+                    </FormControlLabel>
+                    <FormControlLabel
+                        Label="Push Notifications">
+                        <Checkbox
+                            Color="@Color.Primary"
+                            DefaultChecked="true" />
+                    </FormControlLabel>
+                    <FormControlLabel Label="Text Messages">
+                        <Checkbox
+                            Color="@Color.Primary"
+                            DefaultChecked="false" />
+                    </FormControlLabel>
+                    <FormControlLabel Label="Phone calls">
+                        <Checkbox
+                            Color="@Color.Primary"
+                            DefaultChecked="true" />
+                    </FormControlLabel>
+                </Grid>
+                <Grid
+                    Class="settings-notification-item"
+                    Item
+                    Medium="@GridSize.Four"
+                    Small="@GridSize.Six"
+                    ExtraSmall="@GridSize.Twelve">
+                    <Typography
+                        GutterBottom
+                        Variant="@TypographyVariant.H6">
+                        Messages
+                    </Typography>
+                    <FormControlLabel
+                        Label="Email">
+                        <Checkbox
+                            Color="@Color.Primary"
+                            DefaultChecked="true" />
+                    </FormControlLabel>
+                    <FormControlLabel
+                        Label="Push Notifications">
+                        <Checkbox
+                            Color="@Color.Primary"
+                            DefaultChecked="false" />
+                    </FormControlLabel>
+                    <FormControlLabel
+                        Label="Phone calls">
+                        <Checkbox
+                            Color="@Color.Primary"
+                            DefaultChecked="true" />
+                    </FormControlLabel>
+                </Grid>
+            </Grid>
+        </CardContent>
+        <Divider />
+        <CardActions>
+            <Button
+                Color="@Color.Primary"
+                Variant="@ButtonVariant.Outlined">
+                Save
+            </Button>
+        </CardActions>
+    </form>
+</Card>

@@ -1,0 +1,8 @@
+@page "/users"
+
+<div class="users-root">
+    <UsersToolbar />
+    <div class="users-content">
+        <UsersTable Users="@UserData.GetUsers()" />
+    </div>
+</div>

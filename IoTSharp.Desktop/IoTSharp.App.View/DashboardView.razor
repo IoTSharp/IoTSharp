@@ -1,0 +1,17 @@
+﻿<DashboardResources />
+
+<Router
+    AppAssembly="@typeof(FullLayout).Assembly">
+    <Found
+        Context="routeData">
+        <RouteView
+            RouteData="@routeData"
+            DefaultLayout="@typeof(FullLayout)" />
+    </Found>
+    <NotFound>
+        <LayoutView
+            Layout="@typeof(SmallLayout)">
+            <NotFound />
+        </LayoutView>
+    </NotFound>
+</Router>

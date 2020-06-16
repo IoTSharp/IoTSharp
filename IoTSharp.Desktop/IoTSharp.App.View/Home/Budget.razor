@@ -1,0 +1,38 @@
+<Card Class="dashboard-budget-root">
+    <CardContent>
+        <Grid
+            Container
+            Justify="@Justify.SpaceBetween">
+            <Grid Item>
+                <Typography
+                    Class="dashboard-budget-title"
+                    Color="@Color.TextSecondary"
+                    GutterBottom
+                    Variant="@TypographyVariant.Body2">
+                    BUDGET
+                </Typography>
+                <Typography Variant="@TypographyVariant.H4">
+                    $24,000
+                </Typography>
+            </Grid>
+            <Grid Item>
+                <Avatar Class="dashboard-budget-avatar">
+                    <MoneyIcon Class="dashboard-budget-icon" />
+                </Avatar>
+            </Grid>
+        </Grid>
+        <div class="dashboard-budget-difference">
+            <ArrowDownwardIcon Class="dashboard-budget-difference-icon" />
+            <Typography
+                Class="dashboard-budget-difference-value"
+                Variant="@TypographyVariant.Body2">
+                12%
+            </Typography>
+            <Typography
+                Class="dashboard-budget-caption"
+                Variant="@TypographyVariant.Caption">
+                Since last month
+            </Typography>
+        </div>
+    </CardContent>
+</Card>

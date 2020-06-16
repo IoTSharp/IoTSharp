@@ -1,0 +1,73 @@
+﻿@page "/"
+@page "/dashboard"
+
+<div class="dashboard-root">
+    <Grid
+        Container
+        Spacing="@Spacing.Four">
+        <Grid
+            Item
+            Large="@GridSize.Three"
+            Small="@GridSize.Six"
+            ExtraLarge="@GridSize.Three"
+            ExtraSmall="@GridSize.Twelve">
+            <Budget />
+        </Grid>
+        <Grid
+            Item
+            Large="@GridSize.Three"
+            Small="@GridSize.Six"
+            ExtraLarge="@GridSize.Three"
+            ExtraSmall="@GridSize.Twelve">
+            <TotalUsers />
+        </Grid>
+        <Grid
+            Item
+            Large="@GridSize.Three"
+            Small="@GridSize.Six"
+            ExtraLarge="@GridSize.Three"
+            ExtraSmall="@GridSize.Twelve">
+            <TasksProgress />
+        </Grid>
+        <Grid
+            Item
+            Large="@GridSize.Three"
+            Small="@GridSize.Six"
+            ExtraLarge="@GridSize.Three"
+            ExtraSmall="@GridSize.Twelve">
+            <TotalProfit />
+        </Grid>
+        <Grid
+            Item
+            Large="@GridSize.Eight"
+            Medium="@GridSize.Twelve"
+            ExtraLarge="@GridSize.Nine"
+            ExtraSmall="@GridSize.Twelve">
+            <LatestSales />
+        </Grid>
+        <Grid
+            Item
+            Large="@GridSize.Four"
+            Medium="@GridSize.Six"
+            ExtraLarge="@GridSize.Three"
+            ExtraSmall="@GridSize.Twelve">
+            <UsersByDevice />
+        </Grid>
+        <Grid
+            Item
+            Large="@GridSize.Four"
+            Medium="@GridSize.Six"
+            ExtraLarge="@GridSize.Three"
+            ExtraSmall="@GridSize.Twelve">
+            <LatestProducts Products="@ProductData.GetProducts().Take(5)" />
+        </Grid>
+        <Grid
+            Item
+            Large="@GridSize.Eight"
+            Medium="@GridSize.Twelve"
+            ExtraLarge="@GridSize.Nine"
+            ExtraSmall="@GridSize.Twelve">
+            <LatestOrders Orders="@OrderData.GetOrders()"/>
+        </Grid>
+    </Grid>
+</div>

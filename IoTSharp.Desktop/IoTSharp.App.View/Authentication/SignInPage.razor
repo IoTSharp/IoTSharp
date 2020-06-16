@@ -1,0 +1,116 @@
+@layout AuthLayout
+
+@page "/signin"
+
+@inject ScriptHelpers ScriptHelpers
+
+<form
+    class="auth-form-root"
+    @onsubmit="@HandleSignIn">
+    <Typography
+        Class="auth-form-title"
+        Variant="TypographyVariant.H2">
+        Sign in
+    </Typography>
+    <Typography
+        Color="@Color.TextSecondary"
+        GutterBottom>
+        Sign in with social media
+    </Typography>
+    <Grid
+        Class="auth-form-social-buttons"
+        Container
+        Spacing="@Spacing.Two">
+        <Grid Item>
+            <Button
+                Color="@Color.Primary"
+                OnClick="@HandleSignIn"
+                Size="@Size.Large"
+                Variant="@ButtonVariant.Contained">
+                <FacebookIcon Class="signin-social-icon" />
+                Login with Facebook
+            </Button>
+        </Grid>
+        <Grid Item>
+            <Button
+                OnClick="@HandleSignIn"
+                Size="@Size.Large"
+                Variant="@ButtonVariant.Contained">
+                <GoogleIcon Class="auth-form-social-icon" />
+                Login with Google
+            </Button>
+        </Grid>
+    </Grid>
+    <Typography
+        Align="@Align.Center"
+        Class="auth-form-sugestion"
+        Color="@Color.TextSecondary"
+        Variant="@TypographyVariant.Body1">
+        or login with email address
+    </Typography>
+    <TextField
+        Class="auth-form-text-field"
+        FullWidth
+        Label="Email address"
+        Name="email"
+        OnChange="@HandleEmailChange"
+        Type="text"
+        Value="@Email"
+        Variant="@TextFieldVariant.Outlined" />
+    <TextField
+        Class="auth-form-text-field"
+        FullWidth
+        Label="Password"
+        Name="password"
+        OnChange="@HandlePasswordChange"
+        Type="password"
+        Value="@Password"
+        Variant="@TextFieldVariant.Outlined" />
+    <Button
+        Class="auth-form-submit-button"
+        Color="@Color.Primary"
+        FullWidth
+        Size="@Size.Large"
+        Type="@ButtonType.Submit"
+        Variant="@ButtonVariant.Contained">
+        Sign in now
+    </Button>
+    <Typography
+        Color="@Color.TextSecondary"
+        Variant="@TypographyVariant.Body1">
+        Don't have an account?
+        <NavLink href="signup" Match="NavLinkMatch.Prefix">
+            Sign up
+        </NavLink>
+    </Typography>
+</form>
+
+@code
+{
+    private string Email { set; get; }
+
+    private string Password { set; get; }
+
+    private void HandleEmailChange(ChangeEventArgs arg)
+    {
+        Email = arg.Value.ToString();
+
+        StateHasChanged();
+    }
+
+    private void HandlePasswordChange(ChangeEventArgs arg)
+    {
+        Password = arg.Value.ToString();
+
+        StateHasChanged();
+    }
+
+    private void HandleSignIn()
+    {
+        System.Console.WriteLine("HandleSignIn");
+
+         _ = ScriptHelpers.GoBackAsync();
+
+        System.Console.WriteLine("HandleSignInDone");
+    }
+}

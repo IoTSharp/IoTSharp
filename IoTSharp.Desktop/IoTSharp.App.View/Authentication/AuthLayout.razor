@@ -1,0 +1,52 @@
+@layout SmallLayout
+
+@inherits DisposableComponentBase
+
+@inject HistoryBackHelper HistoryBackHelper
+
+<div class="auth-layout-root">
+    <Grid
+        Class="auth-layout-grid"
+        Container>
+        <Grid
+            Class="auth-layout-quote-container"
+            Item
+            Large="@GridSize.Six">
+            <AuthQuote />
+        </Grid>
+        <Grid
+            Class="auth-layout-content"
+            Item
+            Large="@GridSize.Six"
+            ExtraLarget="@GridSize.Twelve">
+            <div class="auth-layout-content">
+                <div class="auth-layout-content-header">
+                    <IconButton RootRef="@BackReference">
+                        <ArrowBackIcon />
+                    </IconButton>
+                </div>
+                <div class="auth-layout-content-body">
+                    @Body
+                </div>
+            </div>
+        </Grid>
+    </Grid>
+</div>
+
+@code
+{
+    [Parameter]
+    public RenderFragment Body { get; set; }
+
+    private Reference BackReference { set; get; } = new Reference();
+
+    protected override async Task OnAfterMountAsync()
+    {
+        await HistoryBackHelper.RegisterAsync(BackReference.Current.Value, "click", 300);
+    }
+
+    protected override void Dispose()
+    {
+        HistoryBackHelper.Dispose();
+    }
+}

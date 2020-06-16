@@ -1,0 +1,29 @@
+<Card Class="dashboard-tasks-root">
+    <CardContent>
+        <Grid
+            Container
+            Justify="@Justify.SpaceBetween">
+            <Grid Item>
+                <Typography
+                    Class="dashboard-tasks-title"
+                    Color="@Color.TextSecondary"
+                    GutterBottom
+                    Variant="@TypographyVariant.Body2">
+                    TASKS PROGRESS
+                </Typography>
+                <Typography Variant="@TypographyVariant.H4">
+                    75.5%
+                </Typography>
+            </Grid>
+            <Grid Item>
+                <Avatar Class="dashboard-tasks-avatar">
+                    <InsertChartIcon Class="dashboard-tasks-icon" />
+                </Avatar>
+            </Grid>
+        </Grid>
+        <LinearProgress
+            Class="dashboard-tasks-progress"
+            Value="75.5M"
+            Variant="@LinearProgressVariant.Determinate" />
+    </CardContent>
+</Card>

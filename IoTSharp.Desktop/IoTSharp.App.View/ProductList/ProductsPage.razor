@@ -1,0 +1,19 @@
+@page "/products"
+
+<div class="products-root">
+    <ProductsToolbar />
+    <div class="products-content">
+        <ProductsPanel Products="@ProductData.GetProducts()" />
+    </div>
+    <div class="products-pagination">
+        <Typography Variant="@TypographyVariant.Caption">
+            1-6 of 20
+        </Typography>
+        <IconButton>
+            <ChevronLeftIcon />
+        </IconButton>
+        <IconButton>
+            <ChevronRightIcon />
+        </IconButton>
+    </div>
+</div>
