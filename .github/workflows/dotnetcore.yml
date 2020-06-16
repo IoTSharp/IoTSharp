@@ -1,15 +1,25 @@
 name: .NET Core
 
-on: [push]
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
 
 jobs:
   build:
 
     runs-on: ubuntu-latest
+
     steps:
- 
-    - name: Setup .NET Core
+    - uses: actions/checkout@v2
+    - name: Setup .NET Core SDK
       uses: actions/setup-dotnet@v1.5.0
+    - name: Install dependencies
+      run: dotnet restore ./IoTSharp.sln
+    - name: Build
+      run: dotnet build  ./IoTSharp.sln  --configuration Release  
+    - name: Test
+      run: dotnet test ./IoTSharp.Test/IoTSharp.Test.csproj  --verbosity normal
       
-    - name: Build with dotnet
-      run: ls;dotnet build ./IoTSharp.sln --configuration Release
+      
