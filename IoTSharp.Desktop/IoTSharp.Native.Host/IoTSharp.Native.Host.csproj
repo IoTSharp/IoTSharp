@@ -4,8 +4,8 @@
     <TargetFramework>netcoreapp3.1</TargetFramework>
     <OutputType>WinExe</OutputType>
     <RazorLangVersion>3.0</RazorLangVersion>
-    <AssemblyName>Skclusive.Blazor.Dashboard.Native.Host</AssemblyName>
-    <RootNamespace>Skclusive.Blazor.Dashboard.Native.Host</RootNamespace>
+    <AssemblyName>IoTSharp.Native.Host</AssemblyName>
+    <RootNamespace>IoTSharp.Native.Host</RootNamespace>
   </PropertyGroup>
 
   <ItemGroup>

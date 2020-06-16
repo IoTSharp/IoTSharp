@@ -8,7 +8,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="ChartJs.Blazor" Version="1.0.2" />
+    <PackageReference Include="ChartJs.Blazor" Version="1.1.0" />
     <PackageReference Include="Skclusive.Material.Layout" Version="2.0.0" />
   </ItemGroup>
 

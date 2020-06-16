@@ -1,10 +1,10 @@
-
+﻿
 <Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
     <TargetFramework>netcoreapp3.1</TargetFramework>
-    <AssemblyName>Skclusive.Blazor.Dashboard.ServerPrerendered.Host</AssemblyName>
-    <RootNamespace>Skclusive.Blazor.Dashboard.ServerPrerendered.Host</RootNamespace>
+    <AssemblyName>IoTSharp.ServerPrerendered.Host</AssemblyName>
+    <RootNamespace>IoTSharp.ServerPrerendered.Host</RootNamespace>
   </PropertyGroup>
 
   <ItemGroup>
