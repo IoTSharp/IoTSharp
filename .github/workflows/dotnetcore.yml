@@ -6,9 +6,10 @@ jobs:
   build:
 
     runs-on: ubuntu-latest
-
     steps:
-    - uses: actions/setup-dotnet@v1.5.0
+ 
     - name: Setup .NET Core
+      uses: actions/setup-dotnet@v1.5.0
+      
     - name: Build with dotnet
       run: dotnet build IoTSharp.sln --configuration Release
