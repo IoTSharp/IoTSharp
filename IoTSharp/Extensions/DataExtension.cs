@@ -1,6 +1,7 @@
 ﻿using IoTSharp.Data;
 using MQTTnet;
 using Newtonsoft.Json.Linq;
+using Org.BouncyCastle.Asn1.X509.Qualified;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -49,6 +50,7 @@ namespace IoTSharp.Extensions
             where L : DataStorage, new()
             where D : DataStorage, new()
         {
+            
             Dic exceptions = new Dic();
             data.ToList().ForEach(kp =>
             {
@@ -59,16 +61,12 @@ namespace IoTSharp.Extensions
                     {
                         tdata.FillKVToMe(kp);
                         _context.Set<D>().Add(tdata);
-                    }
-                    var tl = _context.Set<L>().FirstOrDefault(tx => tx.DeviceId == device.Id && tx.KeyName == kp.Key &&  tx.DataSide==dataSide);
-                    if (tl != null)
-                    {
-                        tl.FillKVToMe(kp);
-                        tl.DateTime = DateTime.Now;
-                    }
-                    else
-                    {
-                        var t2 = new L() { DateTime = DateTime.Now, DeviceId = device.Id,  KeyName = kp.Key, DataSide = dataSide };
+                        var tl = _context.Set<L>().Where(tx => tx.DeviceId == device.Id && tx.KeyName == kp.Key && tx.DataSide == dataSide);
+                        if (tl != null)
+                        {
+                            _context.Set<L>().RemoveRange(tl.ToList());
+                        }
+                        var t2 = new L() { DateTime = DateTime.Now, DeviceId = device.Id, KeyName = kp.Key, DataSide = dataSide };
                         t2.FillKVToMe(kp);
                         _context.Set<L>().Add(t2);
                     }
@@ -121,6 +119,12 @@ namespace IoTSharp.Extensions
         }
         internal static void FillKVToMe<T>(this T tdata, KeyValuePair<string, object> kp) where T : DataStorage
         {
+
+            tdata.Catalog = typeof(T) == typeof(AttributeData) ? DataCatalog.AttributeData
+                                                     : (typeof(T) == typeof(TelemetryData) ? DataCatalog.TelemetryData
+                                                     : ((typeof(T) == typeof(AttributeLatest) ? DataCatalog.AttributeLatest
+                                                     : ((typeof(T) == typeof(TelemetryLatest) ? DataCatalog.TelemetryLatest
+                                                     : 0))))); ;
             switch (Type.GetTypeCode(kp.Value.GetType()))
             {
                 case TypeCode.Boolean:

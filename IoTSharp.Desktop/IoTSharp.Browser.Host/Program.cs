@@ -7,6 +7,7 @@ using Microsoft.Extensions.DependencyInjection;
 using IoTSharp.App.View;
 using Skclusive.Material.Layout;
 using System.Net.Http;
+using Microsoft.Extensions.Configuration;
 
 namespace IoTSharp.Browser.Host
 {
@@ -28,6 +29,7 @@ namespace IoTSharp.Browser.Host
                 .WithResponsive(true)
                 .Build()
             );
+ 
 
             await builder.Build().RunAsync();
         }
