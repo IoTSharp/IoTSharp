@@ -55,8 +55,7 @@ namespace IoTSharp.Controllers
         {
             var user = await _userManager.GetUserAsync(User);
             var rooles = await _userManager.GetRolesAsync(user);
-            string custid =  User.FindFirstValue(IoTSharpClaimTypes.Customer);
-            var Customer = _context.Customer.Include(c=>c.Tenant).FirstOrDefault(c => c.Id.ToString() == custid);
+            var Customer = _context.GetCustomer(this.GetCustomerId());
             var uidto = new UserInfoDto()
             {
                 Code = ApiCode.Success,

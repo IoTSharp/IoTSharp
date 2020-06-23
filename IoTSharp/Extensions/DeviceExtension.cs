@@ -32,5 +32,25 @@ namespace IoTSharp.Extensions
                 _context.PreparingData<AttributeLatest, AttributeData>(pairs, device, DataSide.ServerSide);
             }
         }
+        public static void AfterCreateDevice(this ApplicationDbContext _context, Device device,string username,string password)
+        {
+            if (device.Customer == null || device.Tenant == null || string.IsNullOrEmpty(device.Name))
+            {
+                throw new Exception("Customer or  Tenant or  Name is null or empty!");
+            }
+            else
+            {
+                _context.DeviceIdentities.Add(new DeviceIdentity()
+                {
+                    Device = device,
+                    IdentityType = IdentityType.DevicePassword,
+                    IdentityId = username,
+                    IdentityValue = password
+                }) ;
+                Dictionary<string, object> pairs = new Dictionary<string, object>();
+                pairs.Add("CreateDateTime", DateTime.Now);
+                _context.PreparingData<AttributeLatest, AttributeData>(pairs, device, DataSide.ServerSide);
+            }
+        }
     }
 }

@@ -16,6 +16,8 @@ using MQTTnet.Protocol;
 using IoTSharp.Extensions;
 using MQTTnet.Exceptions;
 using MQTTnet.Client.Options;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.Extensions.Logging;
 
 namespace IoTSharp.Controllers
 {
@@ -26,11 +28,18 @@ namespace IoTSharp.Controllers
     {
         private readonly ApplicationDbContext _context;
         private readonly IMqttClientOptions _mqtt;
+        private readonly UserManager<IdentityUser> _userManager;
+        private readonly SignInManager<IdentityUser> _signInManager;
+        private readonly ILogger _logger;
 
-        public DevicesController(ApplicationDbContext context, IMqttClientOptions mqtt)
+        public DevicesController(UserManager<IdentityUser> userManager,
+            SignInManager<IdentityUser> signInManager, ILogger<DevicesController> logger, ApplicationDbContext context, IMqttClientOptions mqtt)
         {
             _context = context;
             _mqtt = mqtt;
+            _userManager = userManager;
+            _signInManager = signInManager;
+            _logger = logger;
         }
 
         /// <summary>

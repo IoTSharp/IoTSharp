@@ -364,8 +364,37 @@ namespace IoTSharp.Handlers
                             obj.ReasonCode = MQTTnet.Protocol.MqttConnectReasonCode.ServerUnavailable;
                         }
                     }
-                    else
+                    else if (_dbContextcv.AuthorizedKeys.Any(ak=>ak.AuthToken==obj.Password))
                     {
+                        var ak = _dbContextcv.AuthorizedKeys.Include(ak => ak.Customer).Include(ak => ak.Tenant).Include(ak => ak.Devices).First(ak => ak.AuthToken == obj.Password);
+                        if (!ak.Devices.Any(dev => dev.Name == obj.Username))
+                        {
+
+                            var devvalue = new Device() { Name = obj.Username, DeviceType = DeviceType.Device };
+                            devvalue.Tenant = ak.Tenant;
+                            devvalue.Customer = ak.Customer;
+                            _dbContextcv.Device.Add(devvalue);
+                            ak.Devices.Add(devvalue);
+                            _dbContextcv.AfterCreateDevice(devvalue,obj.Username,obj.Password);
+                            _dbContextcv.SaveChanges();
+                        }
+                        var mcp = _dbContextcv.DeviceIdentities.Include(d => d.Device).FirstOrDefault(mc => mc.IdentityType == IdentityType.DevicePassword && mc.IdentityId == obj.Username && mc.IdentityValue == obj.Password);
+                        if (mcp != null)
+                        {
+                            if (!Devices.ContainsKey(e.Context.ClientId))
+                            {
+                                Devices.Add(e.Context.ClientId, mcp.Device);
+                            }
+                            obj.ReasonCode = MQTTnet.Protocol.MqttConnectReasonCode.Success;
+                        }
+                        else
+                        {
+                            obj.ReasonCode = MQTTnet.Protocol.MqttConnectReasonCode.BadUserNameOrPassword;
+                        }
+                    }
+                    else 
+                    {
+
                         obj.ReasonCode = MQTTnet.Protocol.MqttConnectReasonCode.BadUserNameOrPassword;
                         _logger.LogInformation($"Bad username or password {obj.Username},connection {obj.Endpoint} refused");
                     }
