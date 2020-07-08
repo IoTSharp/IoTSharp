@@ -36,6 +36,8 @@ using System.Runtime.InteropServices.ComTypes;
 using SshNet.Security.Cryptography;
 using SilkierQuartz;
 using HealthChecks.UI.Client;
+using NSwag;
+using NSwag.Generation.Processors.Security;
 
 namespace IoTSharp
 {
@@ -104,20 +106,28 @@ namespace IoTSharp
                     options.EnableForHttps = true;
                 });
 
-          
-          
+
+
             services.Configure<ForwardedHeadersOptions>(options =>
             {
                 options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
             });
-
-            services.AddSwaggerDocument(configure =>
+            services.AddOpenApiDocument(configure =>
             {
                 Assembly assembly = typeof(Startup).GetTypeInfo().Assembly;
                 var description = (AssemblyDescriptionAttribute)Attribute.GetCustomAttribute(assembly, typeof(AssemblyDescriptionAttribute));
                 configure.Title = typeof(Startup).GetTypeInfo().Assembly.GetName().Name;
                 configure.Version = typeof(Startup).GetTypeInfo().Assembly.GetName().Version.ToString();
                 configure.Description = description?.Description;
+                configure.AddSecurity("JWT", Enumerable.Empty<string>(), new OpenApiSecurityScheme
+                {
+                    Type = OpenApiSecuritySchemeType.ApiKey,
+                    Name = "Authorization",
+                    In = OpenApiSecurityApiKeyLocation.Header,
+                    Description = "Type into the textbox: Bearer {your JWT token}." 
+                });
+
+                configure.OperationProcessors.Add(new AspNetCoreOperationSecurityScopeProcessor("JWT"));
             });
             services.AddTransient<ApplicationDBInitializer>();
             services.AddIoTSharpMqttServer(settings.MqttBroker);
