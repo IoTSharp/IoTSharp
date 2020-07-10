@@ -37,13 +37,16 @@ services:
 
   iotsharp:
     image: iotsharp/iotsharp:latest
+    container_name: iotsharp
+    restart: always
     environment:
+      - TZ=Asia/Shanghai
       - ASPNETCORE_ENVIRONMENT=Production
       - ASPNETCORE_URLS=http://+:80
     depends_on:
       - pgsql
     links:
-      - pgsql
+      - pgsql 
     ports:
       - 2927:80
       - 1883:1883
@@ -52,7 +55,8 @@ services:
       - 5684:5684
       - 502:502
     volumes:
-      - "/var/iotsharp/Microsoft/UserSecrets:/root/.microsoft/usersecrets:ro
+      - "/var/iotsharp/Microsoft/UserSecrets:/root/.microsoft/usersecrets:ro"
+      - "/etc/iotsharp/appsettings.Production.json:/app/appsettings.Production.json"
     networks:
       - iotsharp-network
 
