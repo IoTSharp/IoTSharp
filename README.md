@@ -13,26 +13,32 @@ IoTSharp 中文名称  貔貅物联网平台，用于数据收集通过规则引
  - If you have a question or have found a bug,[ file an issue.](https://github.com/IoTSharp/IoTSharp/issues)
  - To learn about project priorities as well as status and ship dates see the [IoTShap roadmap](roadmap.md).
 
-## Support
 
- - [Stackoverflow](http://stackoverflow.com/questions/tagged/iotsharp)
+
 
 ## [Document](https://docs.iotsharp.io)
 
 ## IoTSharp's Clients 
- - Cicada    A desktop application  https://github.com/IoTSharp/Cicada
- 
- 
+ - Cicada    A desktop application   
+
+
 ## How to install with docker-compose  ?
 
-download docker-compose.yml and  docker-compose up -d  
+```
+ mkdir iotsharp
+cd iotsharp 
+wget https://raw.githubusercontent.com/IoTSharp/IoTSharp/master/docker-compose.yml
+docker-compose up -d  
+```
+
+Demo url : http://139.9.232.10:2927
 
 
 ## How to install as docker ?
 
   -  docker pull iotsharp/iotsharp
- 
-  
+
+
 ## How to install as Linux service  ?
 
  -  mkdir  /var/lib/iotsharp/
@@ -42,8 +48,7 @@ download docker-compose.yml and  docker-compose up -d
  -	sudo systemctl enable  /etc/systemd/system/iotsharp.service 
  -	sudo systemctl start  iotsharp.service 
  -	sudo journalctl -fu  iotsharp.service 
- -	http://127.0.0.1:80/ 
- -  
+
 
 ## IoTSharp.X509Extensions
 
@@ -59,16 +64,81 @@ https://github.com/IoTSharp/IoTSharp.SDKs
 
 ## IoTSharp-C-Client-Sdk
 
- IoTSharp-C-Client-Sdk 是一个使用C语言进行对接IoTSharp的例子
+IoTSharp-C-client-Sdk is mqttt client, it is by   c;
 
  https://github.com/IoTSharp/IoTSharp-C-Client-Sdk
 
+## paho.mqtt.c's demo 
+
+It' like IoTSharp-C-Client-Sdk, but is use paho.mqtt.c
+ https://github.com/IoTSharp/IoTSharp.Edge.paho.mqtt.c
+
+## IoTSharp.Edge.nanoFramework
+
+IoTSharp.Edge.nanoFramework is a nanoFramework's mqtt client , it run on STM32 ！
+
+  https://github.com/IoTSharp/IoTSharp.Edge.nanoFramework
+
+more info read https://www.cnblogs.com/MysticBoy/p/13159648.html
+or click  https://www.nanoframework.net/
 
 ##  IoTSharp.Edge.RT-Thread
 
 IoTSharp.Edge.RT-Thread (STM32L4 + Wi-Fi, sensor, lcd, audio etc)
 
 https://github.com/IoTSharp/IoTSharp.Edge.RT-Thread
-![20190615010003.jpg](docs/images/20190615010003.jpg)
 
-![20190615010115.jpg](docs/images/20190615010115.jpg)
+
+
+
+|                                                              |                                                              |
+| ------------------------------------------------------------ | ------------------------------------------------------------ |
+| <img src="docs/images/20190615010003.jpg" alt="20190615010003.jpg" style="zoom: 67%;" /> | <img src="docs/images/20190615010115.jpg" alt="20190615010115.jpg" style="zoom: 50%;" /> |
+
+
+
+
+## MQTTnet.AspNetCoreEx
+
+Makes client connection authentication easier  ! 
+ https://github.com/maikebing/MQTTnet.AspNetCoreEx
+
+## Silkier
+
+Silkier is a common collection of extensions. For example, retry, partitioning in parallel,ObjectPool，RestClient's extension, LITTLE-ENDIAN and BIG-ENDIAN coversions and more .....
+
+
+
+###  Silkier.EFCore
+
+Silkier.EFCore is an extension for EF.Core, and the main features include executing the original sql statement, converting the original sql statement to a tuple or a class or array or json object or DataTable
+
+
+### Silkier.AspNetCore
+
+Silkier.AspNetCore have ConfigureWindowsServices and UseJsonToSettings and more ...
+
+  https://github.com/maikebing/Silkier
+
+
+##   SilkierQuartz
+
+SilkierQuartz can be used within your existing application with minimum effort as a Quartz.NET plugin when it automatically creates embedded web server. Or it can be plugged into your existing OWIN-based web application as a middleware.
+
+https://github.com/maikebing/SilkierQuartz
+
+
+## Maikebing.EntityFrameworkCore.Taos
+
+Entity, Framework, EF, Core, Data, O/RM, entity-framework-core,TDengine
+
+https://github.com/maikebing/Maikebing.EntityFrameworkCore.Taos
+
+
+
+## Support
+
+| 公众号 |    QQ群  |
+| ------ | ---- |
+| ![](docs/images/qrcode.jpg) | ![](docs/images/IoTSharpQQGruop.png) |
+

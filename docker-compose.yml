@@ -43,7 +43,7 @@ services:
     depends_on:
       - pgsql
     links:
-      - pgsql 
+      - pgsql
     ports:
       - 2927:80
       - 1883:1883
@@ -51,6 +51,8 @@ services:
       - 5683:5683
       - 5684:5684
       - 502:502
+    volumes:
+      - "/var/iotsharp/Microsoft/UserSecrets:/root/.microsoft/usersecrets:ro
     networks:
       - iotsharp-network
 
