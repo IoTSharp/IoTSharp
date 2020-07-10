@@ -2,6 +2,7 @@ version: '3.4'
 
 services:
   iotsharp:
+    image: ${DOCKER_REGISTRY-}iotsharp
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - ASPNETCORE_URLS=http://+:80
