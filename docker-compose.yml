@@ -36,7 +36,7 @@ services:
       - iotsharp-network
 
   iotsharp:
-    image: docker.pkg.github.com/iotsharp/iotsharp/iotsharp:latest
+    image: iotsharp/iotsharp:latest
     environment:
       - ASPNETCORE_ENVIRONMENT=Production
       - ASPNETCORE_URLS=http://+:80
