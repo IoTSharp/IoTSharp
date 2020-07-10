@@ -6,7 +6,10 @@ services:
       - ASPNETCORE_ENVIRONMENT=Development
       - ASPNETCORE_URLS=http://+:80
     ports:
-      - "80"
+      - "2927::80"
     volumes:
       - ${APPDATA}/Microsoft/UserSecrets:/root/.microsoft/usersecrets:ro
+    build:
+      context: .
+      dockerfile: IoTSharp/Dockerfile
   
