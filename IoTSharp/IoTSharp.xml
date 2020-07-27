@@ -235,5 +235,113 @@
               查找类似 The certificate is installed 的本地化字符串。
             </summary>
         </member>
+        <member name="T:LiteQueue.LiteQueue`1">
+            <summary>
+            Uses LiteDB to provide a persisted, thread safe, (optionally) transactional, FIFO queue.
+            
+            Suitable for use on clients as a lightweight, portable alternative to MSMQ. Not recommended for use 
+            on large server side applications due to performance limitations of LiteDB.
+            </summary>
+        </member>
+        <member name="P:LiteQueue.LiteQueue`1.IsTransactional">
+            <summary>
+            Impacts operation of <see cref="M:LiteQueue.LiteQueue`1.Dequeue"/> method. Can only be set once in constructor.
+            </summary>
+        </member>
+        <member name="M:LiteQueue.LiteQueue`1.#ctor(LiteDB.LiteDatabase,System.String,System.Boolean)">
+            <summary>
+            Creates a collection for you in the database
+            </summary>
+            <param name="db">The LiteDB database. You are responsible for its lifecycle (using/dispose)</param>
+            <param name="collectionName">Name of the collection to create</param>
+            <param name="transactional">Whether the queue should use transaction logic, default true</param>
+        </member>
+        <member name="M:LiteQueue.LiteQueue`1.#ctor(LiteDB.ILiteCollection{LiteQueue.QueueEntry{`0}},System.Boolean)">
+            <summary>
+            Uses the provided database collection
+            </summary>
+            <param name="collection">A LiteDB collection.</param>
+            <param name="transactional">Whether the queue should use transaction logic, default true</param>
+        </member>
+        <member name="M:LiteQueue.LiteQueue`1.#ctor(LiteDB.LiteDatabase,System.Boolean)">
+            <summary>
+            Creates a collection for you in the database, collection's name is  <typeparamref name="T"/>
+            </summary>
+            <param name="db">The LiteDB database. You are responsible for its lifecycle (using/dispose)</param>
+            <param name="transactional">Whether the queue should use transaction logic, default true</param>
+        </member>
+        <member name="M:LiteQueue.LiteQueue`1.Enqueue(`0)">
+            <summary>
+            Adds a single item to queue. See <see cref="M:LiteQueue.LiteQueue`1.Enqueue(System.Collections.Generic.IEnumerable{`0})"/> for adding a batch.
+            </summary>
+            <param name="item"></param>
+        </member>
+        <member name="M:LiteQueue.LiteQueue`1.Enqueue(System.Collections.Generic.IEnumerable{`0})">
+            <summary>
+            Adds a batch of items to the queue. See <see cref="M:LiteQueue.LiteQueue`1.Enqueue(`0)"/> for adding a single item.
+            </summary>
+            <param name="items"></param>
+        </member>
+        <member name="M:LiteQueue.LiteQueue`1.Dequeue">
+            <summary>
+            Transactional queues:
+                Marks item as checked out but does not remove from queue. You are expected to later call <see cref="M:LiteQueue.LiteQueue`1.Commit(LiteQueue.QueueEntry{`0})"/> or <see cref="M:LiteQueue.LiteQueue`1.Abort(LiteQueue.QueueEntry{`0})"/>
+            Non-transactional queues:
+                Removes item from queue with no need to call <see cref="M:LiteQueue.LiteQueue`1.Commit(LiteQueue.QueueEntry{`0})"/> or <see cref="M:LiteQueue.LiteQueue`1.Abort(LiteQueue.QueueEntry{`0})"/>
+            </summary>
+            <returns>An item if found or null</returns>
+        </member>
+        <member name="M:LiteQueue.LiteQueue`1.Dequeue(System.Int32)">
+            <summary>
+            Batch equivalent of <see cref="M:LiteQueue.LiteQueue`1.Dequeue"/>
+            </summary>
+            <param name="batchSize">The maximum number of items to dequeue</param>
+            <returns>The items found or an empty collection (never null)</returns>
+        </member>
+        <member name="M:LiteQueue.LiteQueue`1.CurrentCheckouts">
+            <summary>
+            Obtains list of items currently checked out (but not yet commited or aborted) as a result of Dequeue calls on a transactional queue
+            </summary>
+            <exception cref="T:System.InvalidOperationException">Thrown when queue is not transactional</exception>
+            <returns>Items found or empty collection (never null)</returns>
+        </member>
+        <member name="M:LiteQueue.LiteQueue`1.ResetOrphans">
+            <summary>
+            Aborts all currently checked out items. Equivalent of calling <see cref="M:LiteQueue.LiteQueue`1.CurrentCheckouts"/> followed by <see cref="M:LiteQueue.LiteQueue`1.Abort(System.Collections.Generic.IEnumerable{LiteQueue.QueueEntry{`0}})"/>
+            </summary>
+            <exception cref="T:System.InvalidOperationException">Thrown when queue is not transactional</exception>
+        </member>
+        <member name="M:LiteQueue.LiteQueue`1.Abort(LiteQueue.QueueEntry{`0})">
+            <summary>
+            Aborts a transaction on a single item. See <see cref="M:LiteQueue.LiteQueue`1.Abort(System.Collections.Generic.IEnumerable{LiteQueue.QueueEntry{`0}})"/> for batches.
+            </summary>
+            <param name="item">An item that was obtained from a <see cref="M:LiteQueue.LiteQueue`1.Dequeue"/> call</param>
+            <exception cref="T:System.InvalidOperationException">Thrown when queue is not transactional</exception>
+        </member>
+        <member name="M:LiteQueue.LiteQueue`1.Abort(System.Collections.Generic.IEnumerable{LiteQueue.QueueEntry{`0}})">
+            <summary>
+            Aborts a transation on a group of items. See <see cref="M:LiteQueue.LiteQueue`1.Abort(LiteQueue.QueueEntry{`0})"/> for a single item.
+            </summary>
+            <param name="items">Items that were obtained from a <see cref="M:LiteQueue.LiteQueue`1.Dequeue"/> call</param>
+            <exception cref="T:System.InvalidOperationException">Thrown when queue is not transactional</exception>
+        </member>
+        <member name="M:LiteQueue.LiteQueue`1.Commit(LiteQueue.QueueEntry{`0})">
+            <summary>
+            Commits a transaction on a single item. See <see cref="M:LiteQueue.LiteQueue`1.Commit(System.Collections.Generic.IEnumerable{LiteQueue.QueueEntry{`0}})"/> for batches.
+            </summary>
+            <param name="item">An item that was obtained from a <see cref="M:LiteQueue.LiteQueue`1.Dequeue"/> call</param>
+            <exception cref="T:System.InvalidOperationException">Thrown when queue is not transactional</exception>
+        </member>
+        <!-- Badly formed XML comment ignored for member "M:LiteQueue.LiteQueue`1.Commit(System.Collections.Generic.IEnumerable{LiteQueue.QueueEntry{`0}})" -->
+        <member name="M:LiteQueue.LiteQueue`1.Count">
+            <summary>
+            Number of items in queue, including those that have been checked out.
+            </summary>
+        </member>
+        <member name="M:LiteQueue.LiteQueue`1.Clear">
+            <summary>
+            Removes all items from queue, including any that have been checked out.
+            </summary>
+        </member>
     </members>
 </doc>

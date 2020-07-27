@@ -335,3 +335,4 @@ ASALocalRun/
 /IoTSharp/ClientApp/package-lock.json
 /IoTSharp/healthchecksdb
 /IoTSharp/healthchecksdb-shm
+/IoTSharp/DiskQuue.iotsharp

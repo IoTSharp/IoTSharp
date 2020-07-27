@@ -38,6 +38,7 @@ using SilkierQuartz;
 using HealthChecks.UI.Client;
 using NSwag;
 using NSwag.Generation.Processors.Security;
+using IoTSharp.Queue;
 
 namespace IoTSharp
 {
@@ -142,6 +143,11 @@ namespace IoTSharp
                  }, name: "Disk Storage");
             services.AddHealthChecksUI().AddPostgreSqlStorage(Configuration.GetConnectionString("IoTSharp"));
             services.AddSilkierQuartz();
+            services.AddSingleton<IMsgQueue>(o =>
+            {
+                return new DiskQueue(System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "DiskQuue.iotsharp"));
+            });
+            services.AddMemoryCache();
 
         }
 

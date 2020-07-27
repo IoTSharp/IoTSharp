@@ -54,9 +54,6 @@ services:
       - 5683:5683
       - 5684:5684
       - 502:502
-    volumes:
-      - "/var/iotsharp/Microsoft/UserSecrets:/root/.microsoft/usersecrets:ro"
-      - "/etc/iotsharp/appsettings.Production.json:/app/appsettings.Production.json"
     networks:
       - iotsharp-network
 

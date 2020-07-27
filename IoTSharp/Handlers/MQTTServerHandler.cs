@@ -1,6 +1,7 @@
 ﻿using IoTSharp.Data;
 using IoTSharp.Extensions;
 using IoTSharp.Handlers;
+using IoTSharp.Queue;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -26,10 +27,11 @@ namespace IoTSharp.Handlers
         readonly ILogger<MQTTServerHandler> _logger;
         readonly ApplicationDbContext _dbContext;
         readonly IMqttServerEx _serverEx;
+        private readonly IMsgQueue _queue;
         readonly IServiceScope scope;
         readonly MqttClientSetting _mcsetting;
         public MQTTServerHandler(ILogger<MQTTServerHandler> logger, IServiceScopeFactory scopeFactor,IMqttServerEx serverEx 
-           , IOptions <AppSettings> options
+           , IOptions <AppSettings> options,IMsgQueue queue
             )
         {
             _mcsetting = options.Value.MqttClient;
@@ -37,6 +39,7 @@ namespace IoTSharp.Handlers
             scope = scopeFactor.CreateScope();
             _dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
             _serverEx = serverEx;
+            _queue = queue;
         }
 
         static long clients = 0;
@@ -123,17 +126,7 @@ namespace IoTSharp.Handlers
                         }
                         if (tpary[2] == "telemetry")
                         {
-                            Task.Run(async () =>
-                            {
-                                try
-                                {
-                                    var result = await _dbContext.SaveAsync<TelemetryLatest, TelemetryData>(keyValues, device, DataSide.ClientSide);
-                                }
-                                catch (Exception ex)
-                                {
-                                    _logger.LogError(ex, $"Can't upload telemetry to device {device.Name}({device.Id}).the payload is {e.ApplicationMessage.ConvertPayloadToString()}");
-                                }
-                            });
+                            _queue.Enqueue(new RawMsg() { DeviceId = device.Id, MsgBody = keyValues, DataSide = DataSide.ClientSide, DataCatalog = DataCatalog.TelemetryData });
                         }
                         else if (tpary[2] == "attributes")
                         {
@@ -146,18 +139,7 @@ namespace IoTSharp.Handlers
                             }
                             else
                             {
-                                Task.Run(async () =>
-                                {
-                                    try
-                                    {
-
-                                        var result = await _dbContext.SaveAsync<AttributeLatest, AttributeData>(keyValues, device, DataSide.ClientSide);
-                                    }
-                                    catch (Exception ex)
-                                    {
-                                        _logger.LogError(ex, $"Can't upload attributes to device {device.Name}({device.Id}).the payload is \"{e.ApplicationMessage.ConvertPayloadToString()}\"");
-                                    }
-                                });
+                                _queue.Enqueue(new RawMsg() { DeviceId = device.Id, MsgBody = keyValues, DataSide = DataSide.ClientSide, DataCatalog = DataCatalog.AttributeData });
                             }
 
                         }

@@ -2,6 +2,7 @@
 using CoAP.Server.Resources;
 using IoTSharp.Data;
 using IoTSharp.Extensions;
+using IoTSharp.Queue;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json.Linq;
@@ -23,8 +24,9 @@ namespace IoTSharp.Handlers
             MediaType.ApplicationOctetStream
         };
         private readonly ILogger _logger;
+        private readonly IMsgQueue _queue;
 
-        public CoApResource(string name, ApplicationDbContext dbContext, ILogger logger)
+        public CoApResource(string name, ApplicationDbContext dbContext, ILogger logger, IMsgQueue queue)
        : base(name)
         {
             Attributes.Title = name;
@@ -35,6 +37,7 @@ namespace IoTSharp.Handlers
                 Attributes.AddContentType(item);
             }
             _logger = logger;
+            _queue = queue;
             _logger.LogInformation($"CoApResource {name} is created.");
         }
         protected override void DoPost(CoapExchange exchange)
@@ -110,12 +113,12 @@ namespace IoTSharp.Handlers
                                 switch (_res)
                                 {
                                     case CoApRes.Attributes:
-                                        var result1 = await _dbContext.SaveAsync<AttributeLatest, AttributeData>(keyValues, dev, DataSide.ClientSide);
-                                        exchange.Respond(StatusCode.Changed, $"{result1.ret}");
+                                        _queue.Enqueue(new RawMsg() { MsgType = MsgType.CoAP, MsgBody = keyValues, DataCatalog = DataCatalog.AttributeData, DataSide = DataSide.ClientSide, DeviceId = dev.Id });
+                                        exchange.Respond(StatusCode.Changed, $"OK");
                                         break;
                                     case CoApRes.Telemetry:
-                                        var result2 = await _dbContext.SaveAsync<TelemetryLatest, TelemetryData>(keyValues, dev, DataSide.ClientSide);
-                                        exchange.Respond(StatusCode.Created, $"{result2.ret}");
+                                        _queue.Enqueue(new RawMsg() { MsgType = MsgType.CoAP, MsgBody = keyValues, DataCatalog = DataCatalog.AttributeData, DataSide = DataSide.ClientSide, DeviceId = dev.Id });
+                                        exchange.Respond(StatusCode.Created, $"OK");
                                         break;
                                     default:
                                         break;

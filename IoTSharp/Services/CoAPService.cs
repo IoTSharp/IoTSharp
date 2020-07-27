@@ -1,6 +1,7 @@
 ﻿using CoAP.Server;
 using IoTSharp.Data;
 using IoTSharp.Handlers;
+using IoTSharp.Queue;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -26,14 +27,14 @@ namespace IoTSharp.Services
         private IServiceScope _serviceScope;
         private CoapServer server;
         private readonly AppSettings _settings;
-        public CoAPService(ILogger<CoAPService> logger, IServiceScopeFactory scopeFactor, IOptions<AppSettings> options)
+        public CoAPService(ILogger<CoAPService> logger, IServiceScopeFactory scopeFactor, IOptions<AppSettings> options,IMsgQueue queue)
         {
             _settings = options.Value;
             server = new CoapServer(_settings.CoapServer);
             _logger = logger;
             _serviceScope = scopeFactor.CreateScope();
             _dbContext = _serviceScope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-            Enum.GetNames(typeof(CoApRes)).ToList().ForEach(n => server.Add(new CoApResource(n, _serviceScope.ServiceProvider.GetRequiredService<ApplicationDbContext>(), _logger)));
+            Enum.GetNames(typeof(CoApRes)).ToList().ForEach(n => server.Add(new CoApResource(n, _serviceScope.ServiceProvider.GetRequiredService<ApplicationDbContext>(), _logger,queue)));
         }
 
 
