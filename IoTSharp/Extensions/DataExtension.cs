@@ -58,7 +58,7 @@ namespace IoTSharp.Extensions
             {
                 try
                 {
-                    var tdata = new D() { DateTime = DateTime.Now, DeviceId = device.Id, KeyName = kp.Key, Value_DateTime= DateTime.MinValue };
+                    var tdata = new D() { DateTime = DateTime.Now, DeviceId = device.Id, KeyName = kp.Key, Value_DateTime=new  DateTime(1970,1,1) };
                     if (kp.Key != null)
                     {
                         tdata.FillKVToMe(kp);
