@@ -336,3 +336,4 @@ ASALocalRun/
 /IoTSharp/healthchecksdb
 /IoTSharp/healthchecksdb-shm
 /IoTSharp/DiskQuue.iotsharp
+/IoTSharp/DiskQuue-log.iotsharp

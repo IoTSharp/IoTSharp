@@ -7,9 +7,11 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 	ProjectSection(SolutionItems) = preProject
 		appveyor.yml = appveyor.yml
 		buildimage.cmd = buildimage.cmd
+		ef_mg_add.cmd = ef_mg_add.cmd
 		LICENSE = LICENSE
 		README.md = README.md
 		roadmap.md = roadmap.md
+		upgrade_ef.cmd = upgrade_ef.cmd
 	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IoTSharp.Test", "IoTSharp.Test\IoTSharp.Test.csproj", "{70DFF66F-6791-4713-81F3-DD7A64B59185}"

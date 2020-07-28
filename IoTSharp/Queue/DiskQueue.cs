@@ -20,16 +20,23 @@ namespace IoTSharp.Queue
         }
         public new RawMsg Dequeue()
         {
-            var msg = base.Dequeue();
-            var result = msg.Payload;
-            try
+            RawMsg result = null;
+            if (this.Count() > 0)
             {
-                base.Commit(msg);
-            }
-            catch (Exception)
-            {
-                base.Abort(msg);
-                result = null;
+                var msg = base.Dequeue();
+                if (msg != null)
+                {
+                    result = msg.Payload;
+                    try
+                    {
+                        base.Commit(msg);
+                    }
+                    catch (Exception)
+                    {
+                        base.Abort(msg);
+                        result = null;
+                    }
+                }
             }
             return result;
         }

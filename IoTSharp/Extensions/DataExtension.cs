@@ -1,6 +1,8 @@
 ﻿using IoTSharp.Data;
+using Microsoft.EntityFrameworkCore;
 using MQTTnet;
 using Newtonsoft.Json.Linq;
+using NodaTime.Extensions;
 using Org.BouncyCastle.Asn1.X509.Qualified;
 using System;
 using System.Collections.Generic;
@@ -15,7 +17,7 @@ namespace IoTSharp.Extensions
     {
         internal static (bool ok, Device device) GetDeviceByToken(this ApplicationDbContext _context, string access_token)
         {
-            var deviceIdentity = from id in _context.DeviceIdentities where id.IdentityId == access_token && id.IdentityType == IdentityType.AccessToken select id;
+            var deviceIdentity = from id in _context.DeviceIdentities.Include(di=>di.Device) where id.IdentityId == access_token && id.IdentityType == IdentityType.AccessToken select id;
             var devices = from dev in _context.Device where deviceIdentity.Any() && dev.Id == deviceIdentity.FirstOrDefault().Device.Id select dev;
             bool ok = deviceIdentity == null || !devices.Any();
             return (ok, devices.FirstOrDefault());
@@ -56,7 +58,7 @@ namespace IoTSharp.Extensions
             {
                 try
                 {
-                    var tdata = new D() { DateTime = DateTime.Now, DeviceId = device.Id, KeyName = kp.Key };
+                    var tdata = new D() { DateTime = DateTime.Now, DeviceId = device.Id, KeyName = kp.Key, Value_DateTime= DateTime.MinValue };
                     if (kp.Key != null)
                     {
                         tdata.FillKVToMe(kp);
@@ -66,7 +68,7 @@ namespace IoTSharp.Extensions
                         {
                             _context.Set<L>().RemoveRange(tl.ToList());
                         }
-                        var t2 = new L() { DateTime = DateTime.Now, DeviceId = device.Id, KeyName = kp.Key, DataSide = dataSide };
+                        var t2 = new L() { DateTime =  DateTime.Now, DeviceId = device.Id, KeyName = kp.Key, DataSide = dataSide };
                         t2.FillKVToMe(kp);
                         _context.Set<L>().Add(t2);
                     }
@@ -159,7 +161,7 @@ namespace IoTSharp.Extensions
                     break;
                 case TypeCode.DateTime:
                     tdata.Type = DataType.DateTime;
-                    tdata.Value_DateTime = (DateTime)kp.Value;
+                    tdata.Value_DateTime =( (DateTime)kp.Value);
                     break;
                 case TypeCode.DBNull:
                 case TypeCode.Empty:

@@ -13,8 +13,8 @@ namespace IoTSharp.Queue
         public MsgType MsgType { get; set; }
   
         public Guid DeviceId { get;   set; }
-        public Dictionary<string, object> MsgBody { get; internal set; }
-        public DataSide DataSide { get; internal set; }
-        public DataCatalog DataCatalog { get; internal set; }
+        public Dictionary<string, object> MsgBody { get;  set; }
+        public DataSide DataSide { get;  set; }
+        public DataCatalog DataCatalog { get;  set; }
     }
 }

@@ -69,6 +69,7 @@
     <PackageReference Include="MQTTnet" Version="3.0.12-rc1" />
     <PackageReference Include="MQTTnet.AspNetCore" Version="3.0.12-rc1" />
     <PackageReference Include="MQTTnet.Extensions.Rpc" Version="3.0.12-rc1" />
+    <PackageReference Include="NodaTime" Version="3.0.0" />
     <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="3.1.4" />
     <PackageReference Include="NSwag.AspNetCore" Version="13.6.2" />
     <PackageReference Include="ProxyKit" Version="2.3.3" />
@@ -84,9 +85,6 @@
     <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="3.1.6" />
     <PackageReference Include="Microsoft.AspNetCore.SpaServices" Version="3.1.6" />
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="3.1.6" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" Version="3.1.6" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="3.1.6" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="3.1.6" />
     <PackageReference Include="Microsoft.Extensions.Hosting" Version="3.1.6" />
     <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="3.1.6" />
     <PackageReference Include="Microsoft.Extensions.Hosting.WindowsServices" Version="3.1.6" />
@@ -99,7 +97,6 @@
     <Content Remove="Migrations\**" />
     <EmbeddedResource Remove="Migrations\**" />
     <None Remove="Migrations\**" />
-    <Content Remove="appsettings.Production.json" />
     <None Remove=".gitignore" />
     <None Remove="healthchecksdb" />
     <None Remove="healthchecksdb-shm" />
@@ -111,8 +108,6 @@
       <Pack>True</Pack>
       <PackagePath></PackagePath>
     </None>
-    <None Include="appsettings.Production.json">
-      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
-    </None>
+    
   </ItemGroup>
 </Project>

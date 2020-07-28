@@ -39,6 +39,7 @@ using HealthChecks.UI.Client;
 using NSwag;
 using NSwag.Generation.Processors.Security;
 using IoTSharp.Queue;
+using Npgsql;
 
 namespace IoTSharp
 {
@@ -67,7 +68,8 @@ namespace IoTSharp
                 setting.MqttBroker = settings.MqttBroker;
                 setting.MqttClient = settings.MqttClient;
             }));
-            services.AddDbContext<ApplicationDbContext>(options => options.UseNpgsql(Configuration.GetConnectionString("IoTSharp")), ServiceLifetime.Transient);
+            services.AddDbContext<ApplicationDbContext>(options =>  options.UseNpgsql(Configuration.GetConnectionString("IoTSharp"))      
+            , ServiceLifetime.Transient);
             services.AddIdentity<IdentityUser, IdentityRole>()
                   .AddRoles<IdentityRole>()
                   .AddRoleManager<RoleManager<IdentityRole>>()
@@ -75,6 +77,7 @@ namespace IoTSharp
                   .AddEntityFrameworkStores<ApplicationDbContext>();
 
             services.AddControllersWithViews();
+       
             services.AddCors();
 
             services.AddAuthentication(option =>

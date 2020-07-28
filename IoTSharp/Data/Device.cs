@@ -15,5 +15,7 @@ namespace IoTSharp.Data
 
         public Customer Customer { get; set; }
 
+        
+
     }
 }
