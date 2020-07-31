@@ -54,7 +54,7 @@ namespace IoTSharp.Jobs
                            {
 
                                case DataCatalog.AttributeData:
-                                   var result2 = await _dbContext.SaveAsync<AttributeLatest, AttributeData>(msg.MsgBody, device, msg.DataSide);
+                                   var result2 = await _dbContext.SaveAsync<AttributeLatest>(msg.MsgBody, device, msg.DataSide);
                                    if (result2.exceptions?.Count>0)
                                    {
                                        _logger.LogError(Newtonsoft.Json.JsonConvert.SerializeObject(msg.MsgBody));
@@ -63,7 +63,7 @@ namespace IoTSharp.Jobs
                                    break;
 
                                case DataCatalog.TelemetryData:
-                                   var result1 = await _dbContext.SaveAsync<TelemetryLatest, TelemetryData>(msg.MsgBody, device, msg.DataSide);
+                                   var result1 = await _dbContext.SaveAsync<TelemetryLatest>(msg.MsgBody, device, msg.DataSide);
                                    if (result1.exceptions?.Count > 0)
                                    {
                                        _logger.LogError(Newtonsoft.Json.JsonConvert.SerializeObject(msg.MsgBody));

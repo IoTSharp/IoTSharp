@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace IoTSharp.Data
@@ -22,27 +23,26 @@ namespace IoTSharp.Data
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
+            modelBuilder.Entity<TelemetryData>().HasKey(c => new {  c.DeviceId, c.KeyName, c.DateTime });
+            modelBuilder.Entity<TelemetryData>().HasIndex(c => new {  c.DeviceId, c.KeyName, c.DateTime });
             modelBuilder.Entity<DataStorage>().HasKey(c => new { c.Catalog, c.DeviceId, c.KeyName, c.DateTime });
             modelBuilder.Entity<DataStorage>().HasIndex(c =>  c.Catalog);
             modelBuilder.Entity<DataStorage>().HasIndex(c => new { c.Catalog, c.DeviceId });
             modelBuilder.Entity<DataStorage>().HasIndex(c =>  new {c.Catalog,c.DeviceId,  c.KeyName } );
-            modelBuilder.Entity<DataStorage>().HasIndex(c => new { c.Catalog, c.DeviceId, c.KeyName,c.DateTime });
+         
             modelBuilder.Entity<DataStorage>()
            .HasDiscriminator<DataCatalog>(nameof(Data.DataStorage.Catalog))
            .HasValue<DataStorage>(DataCatalog.None)
-           .HasValue<AttributeData>(DataCatalog.AttributeData)
                   .HasValue<AttributeLatest>(DataCatalog.AttributeLatest)
-                         .HasValue<TelemetryData>(DataCatalog.TelemetryData)
            .HasValue<TelemetryLatest>(DataCatalog.TelemetryLatest);
 
-            modelBuilder.Entity<AttributeData>().HasDiscriminator<DataCatalog>(nameof(Data.DataStorage.Catalog));
             modelBuilder.Entity<AttributeLatest>().HasDiscriminator<DataCatalog>(nameof(Data.DataStorage.Catalog));
-            modelBuilder.Entity<TelemetryData>().HasDiscriminator<DataCatalog>(nameof(Data.DataStorage.Catalog));
             modelBuilder.Entity<TelemetryLatest>().HasDiscriminator<DataCatalog>(nameof(Data.DataStorage.Catalog));
             modelBuilder.Entity<Device>().HasDiscriminator<DeviceType>(nameof(Data.Device.DeviceType)).HasValue<Gateway>(DeviceType.Gateway).HasValue<Device>(DeviceType.Device);
             modelBuilder.Entity<Gateway>().HasDiscriminator<DeviceType>(nameof(Data.Device.DeviceType));
             ForNpgsql(modelBuilder);
         }
+
 
         private void ForNpgsql(ModelBuilder modelBuilder)
         {
@@ -61,14 +61,7 @@ namespace IoTSharp.Data
             modelBuilder.Entity<AttributeLatest>()
             .Property(b => b.Value_XML)
             .HasColumnType("xml");
-
-            modelBuilder.Entity<AttributeData>()
-            .Property(b => b.Value_Json)
-            .HasColumnType("jsonb");
-
-            modelBuilder.Entity<AttributeData>()
-            .Property(b => b.Value_XML)
-            .HasColumnType("xml");
+ 
 
             modelBuilder.Entity<TelemetryLatest>()
             .Property(b => b.Value_Json)
@@ -95,7 +88,6 @@ namespace IoTSharp.Data
         public DbSet<TelemetryData> TelemetryData { get; set; }
         public DbSet<AttributeLatest> AttributeLatest { get; set; }
         public DbSet<DataStorage> DataStorage { get; set; }
-        public DbSet<AttributeData> AttributeData { get; set; }
         public DbSet<TelemetryLatest> TelemetryLatest { get; set; }
         public DbSet<DeviceIdentity> DeviceIdentities { get; set; }
         public DbSet<AuditLog> AuditLog { get; set; }

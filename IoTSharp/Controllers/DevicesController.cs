@@ -428,7 +428,7 @@ namespace IoTSharp.Controllers
             }
             else
             {
-                var result = await _context.SaveAsync<TelemetryLatest, TelemetryData>(telemetrys, device, DataSide.ClientSide);
+                var result = await _context.SaveAsync<TelemetryLatest>(telemetrys, device, DataSide.ClientSide);
                 return Ok(new ApiResult<Dic>(result.ret > 0 ? ApiCode.Success : ApiCode.NothingToDo, result.ret > 0 ? "OK" : "No Telemetry save", result.exceptions));
             }
         }
@@ -491,7 +491,7 @@ namespace IoTSharp.Controllers
             }
             else
             {
-                var result = await _context.SaveAsync<AttributeLatest, AttributeData>(attributes, dev, DataSide.ClientSide);
+                var result = await _context.SaveAsync<AttributeLatest>(attributes, dev, DataSide.ClientSide);
                 return Ok(new ApiResult<Dic>(result.ret > 0 ? ApiCode.Success : ApiCode.NothingToDo, result.ret > 0 ? "OK" : "No Attribute save", result.exceptions));
             }
         }

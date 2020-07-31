@@ -24,24 +24,22 @@
             https://github.com/chkr1011/MQTTnet/blob/master/Source/MQTTnet.Extensions.Rpc/MqttRpcClient.cs
             </summary>
         </member>
-        <member name="M:IoTSharp.Extensions.DataExtension.SaveAsync``2(IoTSharp.Data.ApplicationDbContext,System.Collections.Generic.Dictionary{System.String,System.Object},IoTSharp.Data.Device,IoTSharp.Data.DataSide)">
+        <member name="M:IoTSharp.Extensions.DataExtension.SaveAsync``1(IoTSharp.Data.ApplicationDbContext,System.Collections.Generic.Dictionary{System.String,System.Object},IoTSharp.Data.Device,IoTSharp.Data.DataSide)">
             <summary>
-            Save Data to Device's <typeparamref name="D"/> and <typeparamref name="L"/>
+            Save Data to Device's and <typeparamref name="L"/>
             </summary>
             <typeparam name="L">Latest</typeparam>
-            <typeparam name="D">Data</typeparam>
             <param name="data"></param>
             <param name="device"></param>
             <param name="dataSide"></param>
             <param name="_context"></param>
             <returns></returns>
         </member>
-        <member name="M:IoTSharp.Extensions.DataExtension.PreparingData``2(IoTSharp.Data.ApplicationDbContext,System.Collections.Generic.Dictionary{System.String,System.Object},IoTSharp.Data.Device,IoTSharp.Data.DataSide)">
+        <member name="M:IoTSharp.Extensions.DataExtension.PreparingData``1(IoTSharp.Data.ApplicationDbContext,System.Collections.Generic.Dictionary{System.String,System.Object},IoTSharp.Data.Device,IoTSharp.Data.DataSide)">
             <summary>
-            Preparing Data to Device's <typeparamref name="D"/> and <typeparamref name="L"/>
+            Preparing Data to Device's   <typeparamref name="L"/>
             </summary>
             <typeparam name="L"></typeparam>
-            <typeparam name="D"></typeparam>
             <param name="_context"></param>
             <param name="data"></param>
             <param name="device"></param>

@@ -23,34 +23,31 @@ namespace IoTSharp.Extensions
             return (ok, devices.FirstOrDefault());
         }
         /// <summary>
-        /// Save Data to Device's <typeparamref name="D"/> and <typeparamref name="L"/>
+        /// Save Data to Device's and <typeparamref name="L"/>
         /// </summary>
         /// <typeparam name="L">Latest</typeparam>
-        /// <typeparam name="D">Data</typeparam>
         /// <param name="data"></param>
         /// <param name="device"></param>
         /// <param name="dataSide"></param>
         /// <param name="_context"></param>
         /// <returns></returns>
-        internal static async Task<(int ret, Dic exceptions)> SaveAsync<L, D>(this ApplicationDbContext _context, Dictionary<string, object> data, Device device, DataSide dataSide) where L : DataStorage, new() where D : DataStorage, new()
+        internal static async Task<(int ret, Dic exceptions)> SaveAsync<L>(this ApplicationDbContext _context, Dictionary<string, object> data, Device device, DataSide dataSide) where L : DataStorage, new() 
         {
-            Dic exceptions = _context.PreparingData<L, D>( data, device, dataSide);
+            Dic exceptions = _context.PreparingData<L>( data, device, dataSide);
             int ret = await _context.SaveChangesAsync();
             return (ret, exceptions);
         }
         /// <summary>
-        /// Preparing Data to Device's <typeparamref name="D"/> and <typeparamref name="L"/>
+        /// Preparing Data to Device's   <typeparamref name="L"/>
         /// </summary>
         /// <typeparam name="L"></typeparam>
-        /// <typeparam name="D"></typeparam>
         /// <param name="_context"></param>
         /// <param name="data"></param>
         /// <param name="device"></param>
         /// <param name="dataSide"></param>
         /// <returns></returns>
-        internal static Dic PreparingData<L, D>(this ApplicationDbContext _context, Dictionary<string, object> data, Device device, DataSide dataSide)
+        internal static Dic PreparingData<L>(this ApplicationDbContext _context, Dictionary<string, object> data, Device device, DataSide dataSide)
             where L : DataStorage, new()
-            where D : DataStorage, new()
         {
             
             Dic exceptions = new Dic();
@@ -58,17 +55,26 @@ namespace IoTSharp.Extensions
             {
                 try
                 {
-                    var tdata = new D() { DateTime = DateTime.Now, DeviceId = device.Id, KeyName = kp.Key, Value_DateTime=new  DateTime(1970,1,1) };
+                   
                     if (kp.Key != null)
                     {
-                        tdata.FillKVToMe(kp);
-                        _context.Set<D>().Add(tdata);
+                        if (typeof(L) == typeof(TelemetryLatest))
+                        {
+                            var tdata = new TelemetryData() { DateTime = DateTime.Now, DeviceId = device.Id, KeyName = kp.Key, Value_DateTime = new DateTime(1970, 1, 1) };
+                            tdata.FillKVToMe(kp);
+                            _context.Set<TelemetryData>().Add(tdata);
+                        }
+
+
                         var tl = _context.Set<L>().Where(tx => tx.DeviceId == device.Id && tx.KeyName == kp.Key && tx.DataSide == dataSide);
                         if (tl != null)
                         {
                             _context.Set<L>().RemoveRange(tl.ToList());
                         }
                         var t2 = new L() { DateTime =  DateTime.Now, DeviceId = device.Id, KeyName = kp.Key, DataSide = dataSide };
+                         t2.Catalog=  (typeof(L) == typeof(AttributeLatest) ? DataCatalog.AttributeLatest
+                                                    : ((typeof(L) == typeof(TelemetryLatest) ? DataCatalog.TelemetryLatest
+                                                    : 0)));
                         t2.FillKVToMe(kp);
                         _context.Set<L>().Add(t2);
                     }
@@ -119,14 +125,10 @@ namespace IoTSharp.Extensions
             }
             return obj;
         }
-        internal static void FillKVToMe<T>(this T tdata, KeyValuePair<string, object> kp) where T : DataStorage
+        internal static void FillKVToMe<T>(this T tdata, KeyValuePair<string, object> kp) where T : IDataStorage
         {
 
-            tdata.Catalog = typeof(T) == typeof(AttributeData) ? DataCatalog.AttributeData
-                                                     : (typeof(T) == typeof(TelemetryData) ? DataCatalog.TelemetryData
-                                                     : ((typeof(T) == typeof(AttributeLatest) ? DataCatalog.AttributeLatest
-                                                     : ((typeof(T) == typeof(TelemetryLatest) ? DataCatalog.TelemetryLatest
-                                                     : 0))))); ;
+    
             switch (Type.GetTypeCode(kp.Value.GetType()))
             {
                 case TypeCode.Boolean:
