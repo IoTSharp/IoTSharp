@@ -10,7 +10,7 @@ namespace IoTSharp.Test
     [TestClass]
     public class TestQueue
     {
-        Dictionary<string, object> dic=new Dictionary<string, object> ();
+        Dictionary<string, object> dic = new Dictionary<string, object>();
         [TestInitialize]
         public void InitTest()
         {
@@ -20,7 +20,9 @@ namespace IoTSharp.Test
             }
         }
 
-      
+
+ 
+
         [TestMethod]
         public void TestSimpleQueue() => TestIMsgQueue<SimpleQueue>();
 
@@ -37,17 +39,15 @@ namespace IoTSharp.Test
 
         public void TestIMsgQueue<T>() where T : IMsgQueue, new()
         {
-            List<Task> tasks = new List<Task>();
             var t = new T();
             for (int i = 0; i < 10000; i++)
             {
-                tasks.Add( Task.Run(()=>   t.Enqueue(new RawMsg() { DataCatalog = Data.DataCatalog.TelemetryData, DataSide = Data.DataSide.AnySide, DeviceId = Guid.NewGuid(), MsgBody = dic, MsgType = MsgType.MQTT })));
+                t.Enqueue(new RawMsg() { DataCatalog = Data.DataCatalog.TelemetryData, DataSide = Data.DataSide.AnySide, DeviceId = Guid.NewGuid(), MsgBody = dic, MsgType = MsgType.MQTT });
             }
             for (int i = 0; i < 10000; i++)
             {
-                tasks.Add(Task.Run(() => t.Dequeue()));
+                t.Dequeue();
             }
-            Task.WaitAll(tasks.ToArray());
         }
         private int rep = 0;
         private string GenerateCheckCodeNum(int codeCount)
