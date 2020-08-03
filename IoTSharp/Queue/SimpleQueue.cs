@@ -1,4 +1,5 @@
 ﻿using Org.BouncyCastle.Asn1;
+using Priority_Queue;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,27 +8,20 @@ using System.Threading.Tasks;
 
 namespace IoTSharp.Queue
 {
-    public class MemoryQueue : IMsgQueue
+    public class SimpleQueue : IMsgQueue
     {
-        Queue<RawMsg> _raws;
-        public MemoryQueue()
+        Priority_Queue.SimplePriorityQueue<RawMsg> _raws;
+        public SimpleQueue()
         {
-            _raws = new Queue<RawMsg>();
+            _raws = new Priority_Queue.SimplePriorityQueue<RawMsg>();
         }
         public void Enqueue(RawMsg msg)
         {
-            lock (this)
-            {
-                _raws.Enqueue(msg);
-            }
+            _raws.Enqueue(msg,0);
         }
         public RawMsg Dequeue()
         {
-            lock (this)
-            {
-                return _raws.TryDequeue(out RawMsg raw) ? raw : null;
-            }
-          
+            return _raws.Dequeue();
         }
 
         public void Flush()

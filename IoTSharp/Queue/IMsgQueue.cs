@@ -10,5 +10,6 @@ namespace IoTSharp.Queue
     {
         public void Enqueue(RawMsg msg);
         public RawMsg Dequeue();
+        public void Flush();
     }
 }

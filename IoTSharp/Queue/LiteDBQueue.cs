@@ -8,9 +8,14 @@ using System.Threading.Tasks;
 
 namespace IoTSharp.Queue
 {
-    public    class DiskQueue : LiteQueue<RawMsg>,IMsgQueue
+    public    class LiteDBQueue : LiteQueue<RawMsg>,IMsgQueue
     {
-        public DiskQueue(string ConnectionString):base(new LiteDatabase(ConnectionString))
+        public LiteDBQueue() : base(new LiteDatabase("DiskQueue.db"))
+        {
+
+        }
+
+        public LiteDBQueue(string ConnectionString):base(new LiteDatabase(ConnectionString))
         {
        
         }
@@ -41,5 +46,8 @@ namespace IoTSharp.Queue
             return result;
         }
 
+        public void Flush()
+        {
+        }
     }
 }

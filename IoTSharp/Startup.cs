@@ -148,7 +148,7 @@ namespace IoTSharp
             services.AddSilkierQuartz();
             services.AddSingleton<IMsgQueue>(o =>
             {
-                return new DiskQueue(System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "DiskQuue.iotsharp"));
+                return new LiteDBQueue(System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "DiskQuue.iotsharp"));
             });
             services.AddMemoryCache();
 
