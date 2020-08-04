@@ -108,4 +108,11 @@ namespace IoTSharp.Data
         Attributes,
         Telemetry,
     }
+
+    [JsonConverter(typeof(StringEnumConverter))]
+    public enum RuleType
+    {
+        RuleNode,
+        RuleSwitcher
+    }
 }

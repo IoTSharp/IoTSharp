@@ -1,7 +1,11 @@
 ﻿using IoTSharp.Data;
+using IoTSharp.Queue;
+using Microsoft.AspNetCore.Routing.Matching;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.EntityFrameworkCore;
 using MQTTnet;
 using Newtonsoft.Json.Linq;
+using Org.BouncyCastle.Crypto.Modes.Gcm;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,7 +18,7 @@ namespace IoTSharp.Extensions
     {
         internal static (bool ok, Device device) GetDeviceByToken(this ApplicationDbContext _context, string access_token)
         {
-            var deviceIdentity = from id in _context.DeviceIdentities.Include(di=>di.Device) where id.IdentityId == access_token && id.IdentityType == IdentityType.AccessToken select id;
+            var deviceIdentity = from id in _context.DeviceIdentities.Include(di => di.Device) where id.IdentityId == access_token && id.IdentityType == IdentityType.AccessToken select id;
             var devices = from dev in _context.Device where deviceIdentity.Any() && dev.Id == deviceIdentity.FirstOrDefault().Device.Id select dev;
             bool ok = deviceIdentity == null || !devices.Any();
             return (ok, devices.FirstOrDefault());
@@ -28,9 +32,9 @@ namespace IoTSharp.Extensions
         /// <param name="dataSide"></param>
         /// <param name="_context"></param>
         /// <returns></returns>
-        internal static async Task<(int ret, Dic exceptions)> SaveAsync<L>(this ApplicationDbContext _context, Dictionary<string, object> data, Device device, DataSide dataSide) where L : DataStorage, new() 
+        internal static async Task<(int ret, Dic exceptions)> SaveAsync<L>(this ApplicationDbContext _context, Dictionary<string, object> data, Device device, DataSide dataSide) where L : DataStorage, new()
         {
-            Dic exceptions = _context.PreparingData<L>( data, device, dataSide);
+            Dic exceptions = _context.PreparingData<L>(data, device, dataSide);
             int ret = await _context.SaveChangesAsync();
             return (ret, exceptions);
         }
@@ -46,34 +50,29 @@ namespace IoTSharp.Extensions
         internal static Dic PreparingData<L>(this ApplicationDbContext _context, Dictionary<string, object> data, Device device, DataSide dataSide)
             where L : DataStorage, new()
         {
-            
+
             Dic exceptions = new Dic();
+            var devdata = from tx in _context.Set<L>() where tx.DeviceId == device.Id select tx;
             data.ToList().ForEach(kp =>
             {
                 try
                 {
-                   
                     if (kp.Key != null)
                     {
-                        if (typeof(L) == typeof(TelemetryLatest))
+                        var tl = from tx in devdata  where  tx.KeyName == kp.Key && tx.DataSide == dataSide select tx;
+                        if (tl.Any())
                         {
-                            var tdata = new TelemetryData() { DateTime = DateTime.Now, DeviceId = device.Id, KeyName = kp.Key, Value_DateTime = new DateTime(1970, 1, 1) };
-                            tdata.FillKVToMe(kp);
-                            _context.Set<TelemetryData>().Add(tdata);
+                            tl.First().FillKVToMe(kp);
                         }
-
-
-                        var tl = _context.Set<L>().Where(tx => tx.DeviceId == device.Id && tx.KeyName == kp.Key && tx.DataSide == dataSide);
-                        if (tl != null)
+                        else 
                         {
-                            _context.Set<L>().RemoveRange(tl.ToList());
+                            var t2 = new L() { DateTime = DateTime.Now, DeviceId = device.Id, KeyName = kp.Key, DataSide = dataSide };
+                            t2.Catalog = (typeof(L) == typeof(AttributeLatest) ? DataCatalog.AttributeLatest
+                                                       : ((typeof(L) == typeof(TelemetryLatest) ? DataCatalog.TelemetryLatest
+                                                       : 0)));
+                            _context.Set<L>().Add(t2);
+                            t2.FillKVToMe(kp);
                         }
-                        var t2 = new L() { DateTime =  DateTime.Now, DeviceId = device.Id, KeyName = kp.Key, DataSide = dataSide };
-                         t2.Catalog=  (typeof(L) == typeof(AttributeLatest) ? DataCatalog.AttributeLatest
-                                                    : ((typeof(L) == typeof(TelemetryLatest) ? DataCatalog.TelemetryLatest
-                                                    : 0)));
-                        t2.FillKVToMe(kp);
-                        _context.Set<L>().Add(t2);
                     }
                 }
                 catch (Exception ex)
@@ -125,7 +124,7 @@ namespace IoTSharp.Extensions
         internal static void FillKVToMe<T>(this T tdata, KeyValuePair<string, object> kp) where T : IDataStorage
         {
 
-    
+
             switch (Type.GetTypeCode(kp.Value.GetType()))
             {
                 case TypeCode.Boolean:
@@ -151,7 +150,7 @@ namespace IoTSharp.Extensions
                 case TypeCode.Byte:
                 case TypeCode.SByte:
                     tdata.Type = DataType.Long;
-                    tdata.Value_Long =(Int64)Convert.ChangeType( kp.Value, TypeCode.Int64);
+                    tdata.Value_Long = (Int64)Convert.ChangeType(kp.Value, TypeCode.Int64);
                     break;
                 case TypeCode.String:
                 case TypeCode.Char:
@@ -160,7 +159,7 @@ namespace IoTSharp.Extensions
                     break;
                 case TypeCode.DateTime:
                     tdata.Type = DataType.DateTime;
-                    tdata.Value_DateTime =( (DateTime)kp.Value);
+                    tdata.Value_DateTime = ((DateTime)kp.Value);
                     break;
                 case TypeCode.DBNull:
                 case TypeCode.Empty:
@@ -203,9 +202,9 @@ namespace IoTSharp.Extensions
             }
             return keyValues;
         }
-      
 
-        public static object ToObject(this DataStorage kxv)
+
+        public static object ToObject(this IDataStorage kxv)
         {
             object obj = null;
             if (kxv != null)
@@ -240,8 +239,8 @@ namespace IoTSharp.Extensions
                         break;
                 }
             }
-
             return obj;
         }
+      
     }
 }

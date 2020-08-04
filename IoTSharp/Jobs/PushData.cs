@@ -1,6 +1,7 @@
 ﻿using IoTSharp.Data;
 using IoTSharp.Extensions;
 using IoTSharp.Queue;
+using IoTSharp.Storage;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -23,19 +24,21 @@ namespace IoTSharp.Jobs
     [SilkierQuartz(0, "PushData", "Push Iot Message Data to DataBase ", TriggerGroup = "Data")]
     public class PushData : IJob
     {
+        private readonly AppSettings _appSettings;
         readonly ILogger _logger;
         readonly IServiceScope scope;
-        readonly MqttClientSetting _mcsetting;
         readonly IMsgQueue _queue;
+        private readonly IStorage _storage;
 
         public PushData(ILogger<PushData> logger, IServiceScopeFactory scopeFactor
-           , IOptions<AppSettings> options, IMsgQueue queue
+           , IOptions<AppSettings> options, IMsgQueue queue, IStorage storage
             )
         {
-            _mcsetting = options.Value.MqttClient;
+              _appSettings = options.Value;
             _logger = logger;
             scope = scopeFactor.CreateScope();
             _queue = queue;
+            _storage = storage;
         }
         public Task Execute(IJobExecutionContext context)
         {
@@ -55,20 +58,36 @@ namespace IoTSharp.Jobs
 
                                case DataCatalog.AttributeData:
                                    var result2 = await _dbContext.SaveAsync<AttributeLatest>(msg.MsgBody, device, msg.DataSide);
-                                   if (result2.exceptions?.Count>0)
+                                   if (result2.exceptions?.Count > 0)
                                    {
                                        _logger.LogError(Newtonsoft.Json.JsonConvert.SerializeObject(msg.MsgBody));
                                    }
-                                   _logger.LogInformation(Newtonsoft.Json.JsonConvert.SerializeObject(result2));
+                                   else
+                                   {
+                                       _logger.LogInformation(Newtonsoft.Json.JsonConvert.SerializeObject(result2));
+                                   }
                                    break;
 
                                case DataCatalog.TelemetryData:
+                                   switch (_appSettings.TelemetryStorage)
+                                   {
+                                       case TelemetryStorage.SingleTable:
+                                         await  _storage.StoreTelemetryAsync(msg);
+                                           break;
+                                       case TelemetryStorage.Sharding:
+                                           break;
+                                       default:
+                                           break;
+                                   }
                                    var result1 = await _dbContext.SaveAsync<TelemetryLatest>(msg.MsgBody, device, msg.DataSide);
                                    if (result1.exceptions?.Count > 0)
                                    {
                                        _logger.LogError(Newtonsoft.Json.JsonConvert.SerializeObject(msg.MsgBody));
                                    }
-                                   _logger.LogInformation(Newtonsoft.Json.JsonConvert.SerializeObject(result1));
+                                   else
+                                   {
+                                       _logger.LogInformation(Newtonsoft.Json.JsonConvert.SerializeObject(result1));
+                                   }
                                    break;
                                default:
                                    break;
@@ -79,6 +98,7 @@ namespace IoTSharp.Jobs
            });
         }
 
+    
     }
 
 }

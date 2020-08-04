@@ -21,7 +21,8 @@ namespace IoTSharp.Test
         }
 
 
- 
+
+    
 
         [TestMethod]
         public void TestSimpleQueue() => TestIMsgQueue<SimpleQueue>();
@@ -31,8 +32,7 @@ namespace IoTSharp.Test
 
         [TestMethod]
         public void TestDiskQueue() => TestIMsgQueue<LiteDBQueue>();
-
-
+    
 
         [TestMethod]
         public void TestMemoryQueue() => TestIMsgQueue<MemoryQueue>();

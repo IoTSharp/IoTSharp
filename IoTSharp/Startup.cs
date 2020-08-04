@@ -40,6 +40,8 @@ using NSwag;
 using NSwag.Generation.Processors.Security;
 using IoTSharp.Queue;
 using Npgsql;
+using EFCore.Sharding;
+using IoTSharp.Storage;
 
 namespace IoTSharp
 {
@@ -151,7 +153,23 @@ namespace IoTSharp
                 return new LiteDBQueue(System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "DiskQuue.iotsharp"));
             });
             services.AddMemoryCache();
-
+            switch (settings.TelemetryStorage)
+            {
+                case TelemetryStorage.Sharding:
+                    services.AddEFCoreSharding(config =>
+                    {
+                        config.AddDataSource(Configuration.GetConnectionString("TelemetryStorage"), ReadWriteType.Read | ReadWriteType.Write, settings.Sharding.DatabaseType)
+                        .SetDateSharding<TelemetryData>(nameof(TelemetryData.DateTime), settings.Sharding.ExpandByDateMode, DateTime.MinValue);
+                    });
+                
+                    break;
+                case TelemetryStorage.SingleTable:
+                    services.AddSingleton<IStorage, EFStorage>();
+                    break;
+                default:
+                    break;
+            }
+       
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

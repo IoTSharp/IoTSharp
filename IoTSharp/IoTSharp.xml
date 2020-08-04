@@ -93,7 +93,7 @@
             Request telemetry values from the server
             </summary>
             <param name="deviceId">Which device do you read?</param>
-            <param name="keyName">Specify key name</param>
+            <param name="keys">Specify key name list , use , or space or  ; to split </param>
             <returns></returns>
         </member>
         <member name="M:IoTSharp.Controllers.DevicesController.GetAttributeLatest(System.Guid,System.String)">
@@ -101,24 +101,24 @@
             Request telemetry values from the server
             </summary>
             <param name="deviceId">Which device do you read?</param>
-            <param name="keyName">Specify key name</param>
+            <param name="keys">Specify key name list , use , or space or  ; to split </param>
             <returns></returns>
         </member>
-        <member name="M:IoTSharp.Controllers.DevicesController.GetTelemetryLatest(System.Guid,System.String,System.DateTime)">
+        <member name="M:IoTSharp.Controllers.DevicesController.GetTelemetryData(System.Guid,System.String,System.DateTime)">
             <summary>
             Request telemetry values from the server
             </summary>
             <param name="deviceId">Which device do you read?</param>
-            <param name="keyName">Specify key name</param>
+            <param name="keys">Specify key name list , use , or space or  ; to split </param>
             <param name="begin">For example: 2019-06-06 12:24</param>
             <returns></returns>
         </member>
-        <member name="M:IoTSharp.Controllers.DevicesController.GetTelemetryLatest(System.Guid,System.String,System.DateTime,System.DateTime)">
+        <member name="M:IoTSharp.Controllers.DevicesController.GetTelemetryData(System.Guid,System.String,System.DateTime,System.DateTime)">
             <summary>
             Request telemetry values from the server
             </summary>
             <param name="deviceId">Which device do you read?</param>
-            <param name="keyName">Specify key name</param>
+            <param name="keys">Specify key name list , use , or space or  ; to split </param>
             <param name="begin">For example: 2019-06-06 12:24</param>
             <param name="end">For example: 2019-06-06 12:24</param>
             <returns></returns>

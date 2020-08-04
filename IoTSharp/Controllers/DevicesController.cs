@@ -18,6 +18,7 @@ using MQTTnet.Exceptions;
 using MQTTnet.Client.Options;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Logging;
+using IoTSharp.Storage;
 
 namespace IoTSharp.Controllers
 {
@@ -31,15 +32,17 @@ namespace IoTSharp.Controllers
         private readonly UserManager<IdentityUser> _userManager;
         private readonly SignInManager<IdentityUser> _signInManager;
         private readonly ILogger _logger;
+        private readonly IStorage _storage;
 
         public DevicesController(UserManager<IdentityUser> userManager,
-            SignInManager<IdentityUser> signInManager, ILogger<DevicesController> logger, ApplicationDbContext context, IMqttClientOptions mqtt)
+            SignInManager<IdentityUser> signInManager, ILogger<DevicesController> logger, ApplicationDbContext context, IMqttClientOptions mqtt,IStorage storage)
         {
             _context = context;
             _mqtt = mqtt;
             _userManager = userManager;
             _signInManager = signInManager;
             _logger = logger;
+            _storage = storage;
         }
 
         /// <summary>
@@ -131,14 +134,14 @@ namespace IoTSharp.Controllers
         /// Request telemetry values from the server
         /// </summary>
         /// <param name="deviceId">Which device do you read?</param>
-        /// <param name="keyName">Specify key name</param>
+        /// <param name="keys">Specify key name list , use , or space or  ; to split </param>
         /// <returns></returns>
         [Authorize(Roles = nameof(UserRole.NormalUser))]
-        [HttpGet("{deviceId}/TelemetryLatest/{keyName}")]
+        [HttpGet("{deviceId}/TelemetryLatest/{keys}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ApiResult), StatusCodes.Status404NotFound)]
         [ProducesDefaultResponseType]
-        public async Task<ActionResult<object>> GetTelemetryLatest(Guid deviceId, string keyName)
+        public async Task<ActionResult<object>> GetTelemetryLatest(Guid deviceId, string keys)
         {
             var dev = _context.Device.Find(deviceId);
             if (dev == null)
@@ -147,7 +150,7 @@ namespace IoTSharp.Controllers
             }
             else
             {
-                var kv = from t in _context.TelemetryLatest where t.DeviceId == dev.Id && t.KeyName == keyName select t;
+                var kv = from t in _context.TelemetryLatest where t.DeviceId == dev.Id && keys.Split(',',' ',';').Contains(t.KeyName) select t;
                 return (await kv.FirstOrDefaultAsync())?.ToObject();
             }
         }
@@ -155,14 +158,14 @@ namespace IoTSharp.Controllers
         /// Request telemetry values from the server
         /// </summary>
         /// <param name="deviceId">Which device do you read?</param>
-        /// <param name="keyName">Specify key name</param>
+        /// <param name="keys">Specify key name list , use , or space or  ; to split </param>
         /// <returns></returns>
         [Authorize(Roles = nameof(UserRole.NormalUser))]
-        [HttpGet("{deviceId}/AttributeLatest/{keyName}")]
+        [HttpGet("{deviceId}/AttributeLatest/{keys}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ApiResult), StatusCodes.Status404NotFound)]
         [ProducesDefaultResponseType]
-        public async Task<ActionResult<object>> GetAttributeLatest(Guid deviceId,string keyName)
+        public async Task<ActionResult<object>> GetAttributeLatest(Guid deviceId,string keys)
         {
             var dev = _context.Device.Find(deviceId);
             if (dev == null)
@@ -171,7 +174,7 @@ namespace IoTSharp.Controllers
             }
             else
             {
-                var kv = from t in _context.AttributeLatest where t.DeviceId == dev.Id && t.KeyName == keyName select t;
+                var kv = from t in _context.AttributeLatest where t.DeviceId == dev.Id && keys.Split(',', ' ', ';').Contains(t.KeyName) select t;
                 return (await kv.FirstOrDefaultAsync())?.ToObject();
             }
         }
@@ -180,7 +183,7 @@ namespace IoTSharp.Controllers
         /// Request telemetry values from the server
         /// </summary>
         /// <param name="deviceId">Which device do you read?</param>
-        /// <param name="keyName">Specify key name</param>
+        /// <param name="keys">Specify key name list , use , or space or  ; to split </param>
         /// <param name="begin">For example: 2019-06-06 12:24</param>
         /// <returns></returns>
         [Authorize(Roles = nameof(UserRole.NormalUser))]
@@ -188,7 +191,7 @@ namespace IoTSharp.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ApiResult), StatusCodes.Status404NotFound)]
         [ProducesDefaultResponseType]
-        public async Task<ActionResult<object[]>> GetTelemetryLatest(Guid deviceId, string keyName, DateTime begin)
+        public async Task<ActionResult<List<TelemetryDataDto>>> GetTelemetryData(Guid deviceId, string keys, DateTime begin)
         {
             var dev = _context.Device.Find(deviceId);
             if (dev == null)
@@ -197,24 +200,24 @@ namespace IoTSharp.Controllers
             }
             else
             {
-                var kv = from t in _context.TelemetryLatest where t.DeviceId == dev.Id && t.KeyName == keyName && t.DateTime >= begin   select t.ToObject();
-                return  await kv.ToArrayAsync();
+              return keys=="all" ? await _storage.LoadTelemetryAsync(deviceId, begin):  await _storage.LoadTelemetryAsync(deviceId,keys,begin);
+             
             }
         }
         /// <summary>
         /// Request telemetry values from the server
         /// </summary>
         /// <param name="deviceId">Which device do you read?</param>
-        /// <param name="keyName">Specify key name</param>
+        /// <param name="keys">Specify key name list , use , or space or  ; to split </param>
         /// <param name="begin">For example: 2019-06-06 12:24</param>
         /// <param name="end">For example: 2019-06-06 12:24</param>
         /// <returns></returns>
         [Authorize(Roles = nameof(UserRole.NormalUser))]
-        [HttpGet("{deviceId}/TelemetryLatest/{keyName}/{begin}/{end}")]
+        [HttpGet("{deviceId}/TelemetryData/{keyName}/{begin}/{end}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ApiResult), StatusCodes.Status404NotFound)]
         [ProducesDefaultResponseType]
-        public async Task<ActionResult<object>> GetTelemetryLatest(Guid deviceId, string keyName, DateTime begin,DateTime end )
+        public async Task<ActionResult<List<TelemetryDataDto>>> GetTelemetryData(Guid deviceId, string keys, DateTime begin,DateTime end )
         {
             var dev = _context.Device.Find(deviceId);
             if (dev == null)
@@ -223,8 +226,8 @@ namespace IoTSharp.Controllers
             }
             else
             {
-                var kv = from t in _context.TelemetryLatest where t.DeviceId == dev.Id && t.KeyName == keyName && t.DateTime>=begin && t.DateTime <end select t.ToObject() ;
-                return await kv.ToArrayAsync();
+                return keys == "all" ? await _storage.LoadTelemetryAsync(deviceId, begin, end): await _storage.LoadTelemetryAsync(deviceId, keys, begin, end);
+             
             }
         }
 
