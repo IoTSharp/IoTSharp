@@ -59,7 +59,7 @@
     <PackageReference Include="MQTTnet.AspNetCore" Version="3.0.12-rc1" />
     <PackageReference Include="MQTTnet.Extensions.Rpc" Version="3.0.12-rc1" />
     <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="3.1.4" />
-    <PackageReference Include="NSwag.AspNetCore" Version="13.6.2" />
+    <PackageReference Include="NSwag.AspNetCore" Version="13.7.0" />
     <PackageReference Include="OptimizedPriorityQueue" Version="4.2.0" />
     <PackageReference Include="ProxyKit" Version="2.3.3" />
     <PackageReference Include="Silkier" Version="1.0.121" />
