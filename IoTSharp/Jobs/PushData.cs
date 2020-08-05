@@ -21,7 +21,7 @@ using System.Threading.Tasks;
 namespace IoTSharp.Jobs
 {
 
-    [SilkierQuartz(0, "PushData", "Push Iot Message Data to DataBase ", TriggerGroup = "Data")]
+    [SilkierQuartz(1, "PushData", "Push Iot Message Data to DataBase ", TriggerGroup = "Data")]
     public class PushData : IJob
     {
         private readonly AppSettings _appSettings;
@@ -69,16 +69,7 @@ namespace IoTSharp.Jobs
                                    break;
 
                                case DataCatalog.TelemetryData:
-                                   switch (_appSettings.TelemetryStorage)
-                                   {
-                                       case TelemetryStorage.SingleTable:
-                                         await  _storage.StoreTelemetryAsync(msg);
-                                           break;
-                                       case TelemetryStorage.Sharding:
-                                           break;
-                                       default:
-                                           break;
-                                   }
+                                   await _storage.StoreTelemetryAsync(msg);
                                    var result1 = await _dbContext.SaveAsync<TelemetryLatest>(msg.MsgBody, device, msg.DataSide);
                                    if (result1.exceptions?.Count > 0)
                                    {
