@@ -29,7 +29,33 @@ namespace IoTSharp.Storage
             scope = scopeFactor.CreateScope();
         }
 
-   
+        public   Task<List<TelemetryDataDto>> GetTelemetryLatest(Guid deviceId)
+        {
+            using (var _context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>())
+            {
+                var devid = from fx in (  from t in _context.TelemetryData where t.DeviceId == deviceId orderby t.DateTime group t by t.KeyName into g
+                            select new   { KeyName = g.Key, td =g.OrderByDescending(x=>x.DateTime).Take(1).First()})
+                            select new TelemetryDataDto() { DateTime = fx.td.DateTime, KeyName = fx.KeyName, Value = fx.td.ToObject() };
+
+                return   devid.ToListAsync();
+            }
+        }
+      
+        public  Task<List<TelemetryDataDto>> GetTelemetryLatest(Guid deviceId, string keys)
+        {
+            using (var _context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>())
+            {
+                var devid = from fx in (from t in _context.TelemetryData
+                                        where t.DeviceId == deviceId && 
+                                          keys.Split(',', ' ', ';').Contains(t.KeyName)
+                                        orderby t.DateTime
+                                        group t by t.KeyName into g
+                                        select new { KeyName = g.Key, td = g.OrderByDescending(x => x.DateTime).Take(1).First() })
+                            select new TelemetryDataDto() { DateTime = fx.td.DateTime, KeyName = fx.KeyName, Value = fx.td.ToObject() };
+
+                return  devid.ToListAsync();
+            }
+        }
 
         public Task<List<TelemetryDataDto>> LoadTelemetryAsync(Guid deviceId, string keys, DateTime begin)
         {

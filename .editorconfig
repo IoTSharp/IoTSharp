@@ -1,0 +1,6 @@
+﻿[*.cs]
+
+# CS1584: XML 注释中有语法错误的 cref 特性
+dotnet_diagnostic.CS1584.severity = none
+dotnet_diagnostic.CS1658.severity = none
+

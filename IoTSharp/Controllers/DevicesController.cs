@@ -121,14 +121,14 @@ namespace IoTSharp.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ApiResult), StatusCodes.Status404NotFound)]
         [ProducesDefaultResponseType]
-        public async Task<ActionResult<List<TelemetryLatest>>> GetTelemetryLatest(Guid deviceId)
+        public async Task<ActionResult<List<TelemetryDataDto>>> GetTelemetryLatest(Guid deviceId)
         {
             var devid = from dev in _context.TelemetryLatest where dev.DeviceId == deviceId select dev;
             if (!devid.Any())
             {
                 return NotFound(new ApiResult(ApiCode.NotFoundDeviceIdentity, $"Device's Identity not found "));
             }
-            return await devid.ToListAsync();
+            return  await  _storage.GetTelemetryLatest(deviceId);
         }
         /// <summary>
         /// Request telemetry values from the server
@@ -141,7 +141,7 @@ namespace IoTSharp.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ApiResult), StatusCodes.Status404NotFound)]
         [ProducesDefaultResponseType]
-        public async Task<ActionResult<object>> GetTelemetryLatest(Guid deviceId, string keys)
+        public async Task<ActionResult<List<TelemetryDataDto>>> GetTelemetryLatest(Guid deviceId, string keys)
         {
             var dev = _context.Device.Find(deviceId);
             if (dev == null)
@@ -150,8 +150,7 @@ namespace IoTSharp.Controllers
             }
             else
             {
-                var kv = from t in _context.TelemetryLatest where t.DeviceId == dev.Id && keys.Split(',',' ',';').Contains(t.KeyName) select t;
-                return (await kv.FirstOrDefaultAsync())?.ToObject();
+                return await _storage.GetTelemetryLatest(deviceId,keys);
             }
         }
         /// <summary>
@@ -431,7 +430,7 @@ namespace IoTSharp.Controllers
             }
             else
             {
-                var result = await _context.SaveAsync<TelemetryLatest>(telemetrys, device, DataSide.ClientSide);
+                var result = await _context.SaveAsync<TelemetryLatest>(telemetrys, device.Id, DataSide.ClientSide);
                 return Ok(new ApiResult<Dic>(result.ret > 0 ? ApiCode.Success : ApiCode.NothingToDo, result.ret > 0 ? "OK" : "No Telemetry save", result.exceptions));
             }
         }
@@ -494,7 +493,7 @@ namespace IoTSharp.Controllers
             }
             else
             {
-                var result = await _context.SaveAsync<AttributeLatest>(attributes, dev, DataSide.ClientSide);
+                var result = await _context.SaveAsync<AttributeLatest>(attributes, dev.Id, DataSide.ClientSide);
                 return Ok(new ApiResult<Dic>(result.ret > 0 ? ApiCode.Success : ApiCode.NothingToDo, result.ret > 0 ? "OK" : "No Attribute save", result.exceptions));
             }
         }

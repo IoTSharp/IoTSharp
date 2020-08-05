@@ -28,13 +28,13 @@ namespace IoTSharp.Extensions
         /// </summary>
         /// <typeparam name="L">Latest</typeparam>
         /// <param name="data"></param>
-        /// <param name="device"></param>
         /// <param name="dataSide"></param>
+        /// <param name="deviceId"></param>
         /// <param name="_context"></param>
         /// <returns></returns>
-        internal static async Task<(int ret, Dic exceptions)> SaveAsync<L>(this ApplicationDbContext _context, Dictionary<string, object> data, Device device, DataSide dataSide) where L : DataStorage, new()
+        internal static async Task<(int ret, Dic exceptions)> SaveAsync<L>(this ApplicationDbContext _context, Dictionary<string, object> data, Guid deviceId, DataSide dataSide) where L : DataStorage, new()
         {
-            Dic exceptions = _context.PreparingData<L>(data, device, dataSide);
+            Dic exceptions = _context.PreparingData<L>(data, deviceId, dataSide);
             int ret = await _context.SaveChangesAsync();
             return (ret, exceptions);
         }
@@ -44,15 +44,15 @@ namespace IoTSharp.Extensions
         /// <typeparam name="L"></typeparam>
         /// <param name="_context"></param>
         /// <param name="data"></param>
-        /// <param name="device"></param>
+        /// <param name="deviceId"></param>
         /// <param name="dataSide"></param>
         /// <returns></returns>
-        internal static Dic PreparingData<L>(this ApplicationDbContext _context, Dictionary<string, object> data, Device device, DataSide dataSide)
+        internal static Dic PreparingData<L>(this ApplicationDbContext _context, Dictionary<string, object> data, Guid deviceId, DataSide dataSide)
             where L : DataStorage, new()
         {
 
             Dic exceptions = new Dic();
-            var devdata = from tx in _context.Set<L>() where tx.DeviceId == device.Id select tx;
+            var devdata = from tx in _context.Set<L>() where tx.DeviceId == deviceId select tx;
             data.ToList().ForEach(kp =>
             {
                 try
@@ -66,7 +66,7 @@ namespace IoTSharp.Extensions
                         }
                         else 
                         {
-                            var t2 = new L() { DateTime = DateTime.Now, DeviceId = device.Id, KeyName = kp.Key, DataSide = dataSide };
+                            var t2 = new L() { DateTime = DateTime.Now, DeviceId = deviceId, KeyName = kp.Key, DataSide = dataSide };
                             t2.Catalog = (typeof(L) == typeof(AttributeLatest) ? DataCatalog.AttributeLatest
                                                        : ((typeof(L) == typeof(TelemetryLatest) ? DataCatalog.TelemetryLatest
                                                        : 0)));

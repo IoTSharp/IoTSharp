@@ -29,7 +29,7 @@ namespace IoTSharp.Extensions
                 });
                 Dictionary<string, object> pairs = new Dictionary<string, object>();
                 pairs.Add("CreateDateTime", DateTime.Now);
-                _context.PreparingData<AttributeLatest>(pairs, device, DataSide.ServerSide);
+                _context.PreparingData<AttributeLatest>(pairs, device.Id, DataSide.ServerSide);
             }
         }
         public static void AfterCreateDevice(this ApplicationDbContext _context, Device device,string username,string password)
@@ -49,7 +49,7 @@ namespace IoTSharp.Extensions
                 }) ;
                 Dictionary<string, object> pairs = new Dictionary<string, object>();
                 pairs.Add("CreateDateTime", DateTime.Now);
-                _context.PreparingData<AttributeLatest>(pairs, device, DataSide.ServerSide);
+                _context.PreparingData<AttributeLatest>(pairs, device.Id, DataSide.ServerSide);
             }
         }
     }

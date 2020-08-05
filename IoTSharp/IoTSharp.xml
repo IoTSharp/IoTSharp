@@ -24,25 +24,25 @@
             https://github.com/chkr1011/MQTTnet/blob/master/Source/MQTTnet.Extensions.Rpc/MqttRpcClient.cs
             </summary>
         </member>
-        <member name="M:IoTSharp.Extensions.DataExtension.SaveAsync``1(IoTSharp.Data.ApplicationDbContext,System.Collections.Generic.Dictionary{System.String,System.Object},IoTSharp.Data.Device,IoTSharp.Data.DataSide)">
+        <member name="M:IoTSharp.Extensions.DataExtension.SaveAsync``1(IoTSharp.Data.ApplicationDbContext,System.Collections.Generic.Dictionary{System.String,System.Object},System.Guid,IoTSharp.Data.DataSide)">
             <summary>
             Save Data to Device's and <typeparamref name="L"/>
             </summary>
             <typeparam name="L">Latest</typeparam>
             <param name="data"></param>
-            <param name="device"></param>
             <param name="dataSide"></param>
+            <param name="deviceId"></param>
             <param name="_context"></param>
             <returns></returns>
         </member>
-        <member name="M:IoTSharp.Extensions.DataExtension.PreparingData``1(IoTSharp.Data.ApplicationDbContext,System.Collections.Generic.Dictionary{System.String,System.Object},IoTSharp.Data.Device,IoTSharp.Data.DataSide)">
+        <member name="M:IoTSharp.Extensions.DataExtension.PreparingData``1(IoTSharp.Data.ApplicationDbContext,System.Collections.Generic.Dictionary{System.String,System.Object},System.Guid,IoTSharp.Data.DataSide)">
             <summary>
             Preparing Data to Device's   <typeparamref name="L"/>
             </summary>
             <typeparam name="L"></typeparam>
             <param name="_context"></param>
             <param name="data"></param>
-            <param name="device"></param>
+            <param name="deviceId"></param>
             <param name="dataSide"></param>
             <returns></returns>
         </member>
@@ -231,6 +231,12 @@
         <member name="P:IoTSharp.Properties.Resources.TheCertificateIsInstalled">
             <summary>
               查找类似 The certificate is installed 的本地化字符串。
+            </summary>
+        </member>
+        <member name="T:IoTSharp.Storage.ShardingStorage">
+            <summary>
+            由于此模式目前无法通过EFCore.Sharding 进行Group By 获取最新遥测数据， 和Select  新对象， 所以， 最新遥测依然从DataStorage表里获取，历史从分表里获取
+            更多内容可以参考<seealso cref="!:https://github.com/Coldairarrow/EFCore.Sharding/issues/52"/>
             </summary>
         </member>
         <member name="T:LiteQueue.LiteQueue`1">

@@ -161,7 +161,7 @@ namespace IoTSharp
                         config.AddDataSource(Configuration.GetConnectionString("TelemetryStorage"), ReadWriteType.Read | ReadWriteType.Write, settings.Sharding.DatabaseType)
                         .SetDateSharding<TelemetryData>(nameof(TelemetryData.DateTime), settings.Sharding.ExpandByDateMode, DateTime.MinValue);
                     });
-                
+                    services.AddSingleton<IStorage, ShardingStorage>();
                     break;
                 case TelemetryStorage.SingleTable:
                     services.AddSingleton<IStorage, EFStorage>();
