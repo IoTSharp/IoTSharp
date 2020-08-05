@@ -58,27 +58,19 @@ namespace IoTSharp.Jobs
 
                                case DataCatalog.AttributeData:
                                    var result2 = await _dbContext.SaveAsync<AttributeLatest>(msg.MsgBody, device, msg.DataSide);
-                                   if (result2.exceptions?.Count > 0)
+                                   result2.exceptions?.ToList().ForEach(ex =>
                                    {
-                                       _logger.LogError(Newtonsoft.Json.JsonConvert.SerializeObject(msg.MsgBody));
-                                   }
-                                   else
-                                   {
-                                       _logger.LogInformation(Newtonsoft.Json.JsonConvert.SerializeObject(result2));
-                                   }
+                                       _logger.LogError($"{ex.Key} {ex.Value}");
+                                   });
                                    break;
 
                                case DataCatalog.TelemetryData:
                                    await _storage.StoreTelemetryAsync(msg);
                                    var result1 = await _dbContext.SaveAsync<TelemetryLatest>(msg.MsgBody, device, msg.DataSide);
-                                   if (result1.exceptions?.Count > 0)
+                                   result1.exceptions?.ToList().ForEach(ex =>
                                    {
-                                       _logger.LogError(Newtonsoft.Json.JsonConvert.SerializeObject(msg.MsgBody));
-                                   }
-                                   else
-                                   {
-                                       _logger.LogInformation(Newtonsoft.Json.JsonConvert.SerializeObject(result1));
-                                   }
+                                       _logger.LogError($"{ex.Key} {ex.Value}");
+                                   });
                                    break;
                                default:
                                    break;
