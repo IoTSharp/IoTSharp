@@ -63,15 +63,17 @@ namespace IoTSharp.Jobs
                                    {
                                        _logger.LogError($"{ex.Key} {ex.Value}");
                                    });
+                                   _logger.LogInformation($"更新{device.Name}({device.Id})属性数据结果{result2.ret}");
                                    break;
 
                                case DataCatalog.TelemetryData:
-                                   await _storage.StoreTelemetryAsync(msg);
+                                 bool sta=   await _storage.StoreTelemetryAsync(msg);
                                    var result1 = await _dbContext.SaveAsync<TelemetryLatest>(msg.MsgBody, device, msg.DataSide);
                                    result1.exceptions?.ToList().ForEach(ex =>
                                    {
                                        _logger.LogError($"{ex.Key} {ex.Value}");
                                    });
+                                   _logger.LogInformation($"新增{device.Name}({device.Id})遥测数据{sta},更新最新信息{result1.ret}");
                                    break;
                                default:
                                    break;
