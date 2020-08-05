@@ -61,7 +61,7 @@ namespace IoTSharp.Jobs
                                    var result2 = await _dbContext.SaveAsync<AttributeLatest>(msg.MsgBody, device, msg.DataSide);
                                    result2.exceptions?.ToList().ForEach(ex =>
                                    {
-                                       _logger.LogError($"{ex.Key} {ex.Value}");
+                                       _logger.LogError($"{ex.Key} {ex.Value} {Newtonsoft.Json.JsonConvert.SerializeObject( msg.MsgBody[ex.Key])}");
                                    });
                                    _logger.LogInformation($"更新{device.Name}({device.Id})属性数据结果{result2.ret}");
                                    break;
@@ -71,7 +71,7 @@ namespace IoTSharp.Jobs
                                    var result1 = await _dbContext.SaveAsync<TelemetryLatest>(msg.MsgBody, device, msg.DataSide);
                                    result1.exceptions?.ToList().ForEach(ex =>
                                    {
-                                       _logger.LogError($"{ex.Key} {ex.Value}");
+                                       _logger.LogError($"{ex.Key} {ex.Value} {Newtonsoft.Json.JsonConvert.SerializeObject(msg.MsgBody[ex.Key])}");
                                    });
                                    _logger.LogInformation($"新增{device.Name}({device.Id})遥测数据{sta},更新最新信息{result1.ret}");
                                    break;
