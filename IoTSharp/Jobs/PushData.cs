@@ -16,12 +16,13 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace IoTSharp.Jobs
 {
 
-    [SilkierQuartz(1, "PushData", "Push Iot Message Data to DataBase ", TriggerGroup = "Data")]
+    [SilkierQuartz(0, "PushData", "Push Iot Message Data to DataBase ", TriggerGroup = "Data")]
     public class PushData : IJob
     {
         private readonly AppSettings _appSettings;
@@ -77,6 +78,10 @@ namespace IoTSharp.Jobs
                            }
                        }
                    }
+               }
+               else
+               {
+                   Thread.Sleep(TimeSpan.FromSeconds(1));
                }
            });
         }
