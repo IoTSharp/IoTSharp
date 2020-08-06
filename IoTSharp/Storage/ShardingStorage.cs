@@ -37,12 +37,9 @@ namespace IoTSharp.Storage
         {
             using (var _context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>())
             {
-                var devid = from fx in (from t in _context.TelemetryData
-                                        where t.DeviceId == deviceId
-                                        orderby t.DateTime
-                                        group t by t.KeyName into g
-                                        select new { KeyName = g.Key, td = g.OrderByDescending(x => x.DateTime).Take(1).First() })
-                            select new TelemetryDataDto() { DateTime = fx.td.DateTime, KeyName = fx.KeyName, Value = fx.td.ToObject() };
+                var devid = from t in _context.TelemetryLatest
+                            where t.DeviceId == deviceId
+                            select new TelemetryDataDto() { DateTime = t.DateTime, KeyName = t.KeyName, Value = t.ToObject() };
 
                 return devid.ToListAsync();
             }
@@ -52,13 +49,10 @@ namespace IoTSharp.Storage
         {
             using (var _context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>())
             {
-                var devid = from fx in (from t in _context.TelemetryData
-                                        where t.DeviceId == deviceId &&
-                                          keys.Split(',', ' ', ';').Contains(t.KeyName)
-                                        orderby t.DateTime
-                                        group t by t.KeyName into g
-                                        select new { KeyName = g.Key, td = g.OrderByDescending(x => x.DateTime).Take(1).First() })
-                            select new TelemetryDataDto() { DateTime = fx.td.DateTime, KeyName = fx.KeyName, Value = fx.td.ToObject() };
+                var devid = from t in _context.TelemetryLatest
+                            where t.DeviceId == deviceId && keys.Split(',', ' ', ';').Contains(t.KeyName)
+
+                            select new TelemetryDataDto() { DateTime = t.DateTime, KeyName = t.KeyName, Value = t.ToObject() };
 
                 return devid.ToListAsync();
             }

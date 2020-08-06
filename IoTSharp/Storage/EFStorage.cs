@@ -33,9 +33,8 @@ namespace IoTSharp.Storage
         {
             using (var _context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>())
             {
-                var devid = from fx in (  from t in _context.TelemetryData where t.DeviceId == deviceId orderby t.DateTime group t by t.KeyName into g
-                            select new   { KeyName = g.Key, td =g.OrderByDescending(x=>x.DateTime).Take(1).First()})
-                            select new TelemetryDataDto() { DateTime = fx.td.DateTime, KeyName = fx.KeyName, Value = fx.td.ToObject() };
+                var devid = from t in _context.TelemetryLatest where t.DeviceId == deviceId  
+                            select new TelemetryDataDto() { DateTime = t.DateTime, KeyName = t.KeyName, Value =t.ToObject() };
 
                 return   devid.ToListAsync();
             }
@@ -45,13 +44,10 @@ namespace IoTSharp.Storage
         {
             using (var _context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>())
             {
-                var devid = from fx in (from t in _context.TelemetryData
-                                        where t.DeviceId == deviceId && 
-                                          keys.Split(',', ' ', ';').Contains(t.KeyName)
-                                        orderby t.DateTime
-                                        group t by t.KeyName into g
-                                        select new { KeyName = g.Key, td = g.OrderByDescending(x => x.DateTime).Take(1).First() })
-                            select new TelemetryDataDto() { DateTime = fx.td.DateTime, KeyName = fx.KeyName, Value = fx.td.ToObject() };
+                var devid =  from t in _context.TelemetryLatest
+                             where t.DeviceId == deviceId && keys.Split(',', ' ', ';').Contains(t.KeyName)
+                                    
+                            select new TelemetryDataDto() { DateTime = t.DateTime, KeyName = t.KeyName, Value = t.ToObject() };
 
                 return  devid.ToListAsync();
             }
@@ -113,8 +109,12 @@ namespace IoTSharp.Storage
                         tdata.FillKVToMe(kp);
                         _dbContext.Set<TelemetryData>().Add(tdata);
                     });
-                    await _dbContext.SaveChangesAsync();
-                    result = true;
+                    var result1 = await _dbContext.SaveAsync<TelemetryLatest>(msg.MsgBody, msg.DeviceId, msg.DataSide);
+                    result1.exceptions?.ToList().ForEach(ex =>
+                    {
+                        _logger.LogError($"{ex.Key} {ex.Value} {Newtonsoft.Json.JsonConvert.SerializeObject(msg.MsgBody[ex.Key])}");
+                    });
+                    _logger.LogInformation($"新增({msg.DeviceId})遥测数据更新最新信息{result1.ret}");
                 }
             }
             catch (Exception ex)
