@@ -46,7 +46,7 @@
     <PackageReference Include="IoTSharp.CoAP.NET" Version="2.0.8" />
     <PackageReference Include="IoTSharp.X509Extensions" Version="1.4.9" />
     <PackageReference Include="kimbus" Version="2.0.1" />
-    <PackageReference Include="LiteDB" Version="5.0.8" />
+    <PackageReference Include="LiteDB" Version="5.0.9" />
     <PackageReference Include="Microsoft.AspNetCore.Http.Features" Version="3.1.6" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="3.1.6">
       <PrivateAssets>all</PrivateAssets>
