@@ -12,6 +12,9 @@ using IoTSharp.Dtos;
 
 namespace IoTSharp.Controllers
 {
+    /// <summary>
+    /// 全局设备认证KEY管理
+    /// </summary>
     [Route("api/[controller]")]
     [ApiController]
     public class AuthorizedKeysController : ControllerBase
@@ -33,14 +36,21 @@ namespace IoTSharp.Controllers
         }
 
 
-        // GET: api/AuthorizedKeys
+      /// <summary>
+      /// 获取当前已登录用户所属客户的全局认证KEY
+      /// </summary>
+      /// <returns></returns>
         [HttpGet]
         public async Task<ActionResult<IEnumerable<AuthorizedKey>>> GetAuthorizedKeys()
         {
             return await _context.AuthorizedKeys.JustCustomer(_customerId).ToListAsync();
         }
 
-        // GET: api/AuthorizedKeys/5
+       /// <summary>
+       /// 根据ID获取KEY
+       /// </summary>
+       /// <param name="id"></param>
+       /// <returns></returns>
         [HttpGet("{id}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]

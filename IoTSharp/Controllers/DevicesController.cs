@@ -22,6 +22,9 @@ using IoTSharp.Storage;
 
 namespace IoTSharp.Controllers
 {
+    /// <summary>
+    /// 设备管理
+    /// </summary>
     [Route("api/[controller]")]
     [Authorize]
     [ApiController]
@@ -46,7 +49,7 @@ namespace IoTSharp.Controllers
         }
 
         /// <summary>
-        /// Get all of the customer's devices.
+        /// 获取指定客户的设备列表
         /// </summary>
         /// <param name="customerId"></param>
         /// <returns></returns>
@@ -71,7 +74,7 @@ namespace IoTSharp.Controllers
         }
 
         /// <summary>
-        /// Get a device's credentials
+        /// 获取指定设备的认证方式信息
         /// </summary>
         /// <param name="deviceId"></param>
         /// <returns></returns>
@@ -92,7 +95,7 @@ namespace IoTSharp.Controllers
         }
 
         /// <summary>
-        /// Request attribute values from the server
+        ///获取指定设备的最新属性
         /// </summary>
         /// <param name="deviceId"></param>
         /// <returns></returns>
@@ -112,7 +115,7 @@ namespace IoTSharp.Controllers
         }
 
         /// <summary>
-        /// Request telemetry values from the server
+        ///获取指定设备的最新遥测数据
         /// </summary>
         /// <param name="deviceId"></param>
         /// <returns></returns>
@@ -131,10 +134,10 @@ namespace IoTSharp.Controllers
             return  await  _storage.GetTelemetryLatest(deviceId);
         }
         /// <summary>
-        /// Request telemetry values from the server
+        /// 获取指定设备的指定key 的遥测数据
         /// </summary>
         /// <param name="deviceId">Which device do you read?</param>
-        /// <param name="keys">Specify key name list , use , or space or  ; to split </param>
+        /// <param name="keys">指定键值列表， 使用分号或者逗号分割 。 </param>
         /// <returns></returns>
         [Authorize(Roles = nameof(UserRole.NormalUser))]
         [HttpGet("{deviceId}/TelemetryLatest/{keys}")]
@@ -154,7 +157,7 @@ namespace IoTSharp.Controllers
             }
         }
         /// <summary>
-        /// Request telemetry values from the server
+        /// 获取指定设备指定keys的最新属性
         /// </summary>
         /// <param name="deviceId">Which device do you read?</param>
         /// <param name="keys">Specify key name list , use , or space or  ; to split </param>
@@ -179,11 +182,11 @@ namespace IoTSharp.Controllers
         }
 
         /// <summary>
-        /// Request telemetry values from the server
+        /// 获取指定设备和指定时间， 指定key的数据
         /// </summary>
         /// <param name="deviceId">Which device do you read?</param>
         /// <param name="keys">Specify key name list , use , or space or  ; to split </param>
-        /// <param name="begin">For example: 2019-06-06 12:24</param>
+        /// <param name="begin">开始以时间， 比如 2019-06-06 12:24</param>
         /// <returns></returns>
         [Authorize(Roles = nameof(UserRole.NormalUser))]
         [HttpGet("{deviceId}/TelemetryLatest/{keyName}/{begin}")]
@@ -204,7 +207,7 @@ namespace IoTSharp.Controllers
             }
         }
         /// <summary>
-        /// Request telemetry values from the server
+        /// 返回指定设备的的遥测数据， 按照keyname 和指定时间范围获取，如果keyname 为 all  , 则返回全部key 的数据
         /// </summary>
         /// <param name="deviceId">Which device do you read?</param>
         /// <param name="keys">Specify key name list , use , or space or  ; to split </param>
@@ -234,7 +237,7 @@ namespace IoTSharp.Controllers
 
 
         /// <summary>
-        /// Get a device's detail
+        /// 获取设备详情
         /// </summary>
         /// <param name="id"></param>
         /// <returns></returns>
@@ -257,7 +260,7 @@ namespace IoTSharp.Controllers
         }
 
         /// <summary>
-        /// Modify a device
+        /// 修改设备
         /// </summary>
         /// <param name="id"></param>
         /// <param name="device"></param>
@@ -311,7 +314,7 @@ namespace IoTSharp.Controllers
         }
 
         /// <summary>
-        /// Create a new device
+        /// 创建设备， 客户ID和租户ID均为当前登录用户所属
         /// </summary>
         /// <param name="device"></param>
         /// <returns></returns>
@@ -338,7 +341,11 @@ namespace IoTSharp.Controllers
             return await GetDevice(devvalue.Id);
         }
 
-        // DELETE: api/Devices/5
+      /// <summary>
+      /// 删除设备
+      /// </summary>
+      /// <param name="id"></param>
+      /// <returns></returns>
         [Authorize(Roles = nameof(UserRole.CustomerAdmin))]
         [HttpDelete("{id}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
@@ -364,7 +371,7 @@ namespace IoTSharp.Controllers
         }
 
         /// <summary>
-        /// Device rpc
+        /// 远程控制指定设备， 此方法通过给远程设备发送mqtt消息进行控制，设备在收到信息后回复结果，此方法才算调用结束
         /// </summary>
         /// <param name="access_token"></param>
         /// <param name="method"></param>
@@ -410,7 +417,7 @@ namespace IoTSharp.Controllers
         }
 
         /// <summary>
-        /// Upload  device telemetry to the server.
+        /// HTTP方式上传遥测数据
         /// </summary>
         /// <param name="access_token">Device 's access token</param>
         /// <param name="telemetrys"></param>
@@ -436,7 +443,7 @@ namespace IoTSharp.Controllers
         }
 
         /// <summary>
-        /// Get service-side device attributes from  the server.
+        /// 获取服务测的设备熟悉
         /// </summary>
         /// <param name="access_token">Device 's access token </param>
         ///<param name="dataSide">Specifying data side.</param>
@@ -473,7 +480,7 @@ namespace IoTSharp.Controllers
         }
 
         /// <summary>
-        /// Upload client-side device attributes to the server.
+        /// 上传客户侧属性数据
         /// </summary>
         /// <param name="access_token">Device 's access token </param>
         /// <param name="attributes">attributes</param>

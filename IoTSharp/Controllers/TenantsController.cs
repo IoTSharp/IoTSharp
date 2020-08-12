@@ -16,6 +16,9 @@ using Microsoft.EntityFrameworkCore.ChangeTracking;
 
 namespace IoTSharp.Controllers
 {
+    /// <summary>
+    /// 租户管理
+    /// </summary>
     [Route("api/[controller]")]
     [Authorize]
     [ApiController]
@@ -39,7 +42,7 @@ namespace IoTSharp.Controllers
         }
 
         /// <summary>
-        /// Only for SystemAdmin
+        /// 系统管理员用来获取全部租户列表
         /// </summary>
         /// <returns></returns>
         [Authorize(Roles = nameof(UserRole.SystemAdmin))]
@@ -60,7 +63,7 @@ namespace IoTSharp.Controllers
         }
 
         /// <summary>
-        /// Normal user can use
+        /// 普通用户用于活的自身的租户信息
         /// </summary>
         /// <param name="id"></param>
         /// <returns></returns>
@@ -78,9 +81,13 @@ namespace IoTSharp.Controllers
             }
             return tenant;
         }
-
+        /// <summary>
+        /// 修改指定的租户信息， 仅限租户管理员
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="tenant"></param>
+        /// <returns></returns>
         [Authorize(Roles = nameof(UserRole.TenantAdmin))]
-        // PUT: api/Tenants/5
         [HttpPut("{id}")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -117,7 +124,11 @@ namespace IoTSharp.Controllers
 
             return NoContent();
         }
-
+        /// <summary>
+        /// 新增租户， 仅限系统管理员
+        /// </summary>
+        /// <param name="tenant"></param>
+        /// <returns></returns>
         [Authorize(Roles = nameof(UserRole.SystemAdmin))]
         // POST: api/Tenants
         [HttpPost]
@@ -138,7 +149,11 @@ namespace IoTSharp.Controllers
                 return BadRequest(new ApiResult<Tenant>(ApiCode.Exception, ex.Message, tenant));
             }
         }
-
+        /// <summary>
+        /// 删除租户，仅限系统用户
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
         [Authorize(Roles = nameof(UserRole.SystemAdmin))]
         // DELETE: api/Tenants/5
         [HttpDelete("{id}")]

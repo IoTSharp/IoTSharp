@@ -11,6 +11,9 @@ using System.Threading.Tasks;
 
 namespace IoTSharp.Controllers
 {
+   /// <summary>
+   /// 客户管理
+   /// </summary>
     [Route("api/[controller]")]
     [Authorize]
     [ApiController]
@@ -22,8 +25,11 @@ namespace IoTSharp.Controllers
         {
             _context = context;
         }
-
-        // GET: api/Tenants
+        /// <summary>
+        /// 获取指定租户下的所有客户
+        /// </summary>
+        /// <param name="tenantId">租户</param>
+        /// <returns></returns>
         [HttpGet("Tenant/{tenantId}")]
         [Authorize(Roles = nameof(UserRole.NormalUser))]
         [ProducesResponseType(StatusCodes.Status200OK)]
@@ -42,7 +48,11 @@ namespace IoTSharp.Controllers
             }
         }
 
-        // GET: api/Customers/5
+       /// <summary>
+       /// 返回指定id的客户
+       /// </summary>
+       /// <param name="id"></param>
+       /// <returns></returns>
         [Authorize(Roles = nameof(UserRole.NormalUser))]
         [HttpGet("{id}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
@@ -60,7 +70,12 @@ namespace IoTSharp.Controllers
             return customer;
         }
 
-        // PUT: api/Customers/5
+     /// <summary>
+     /// 修改指定租户为 指定的信息
+     /// </summary>
+     /// <param name="id"></param>
+     /// <param name="customer"></param>
+     /// <returns></returns>
         [Authorize(Roles = nameof(UserRole.CustomerAdmin))]
         [HttpPut("{id}")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
@@ -94,7 +109,11 @@ namespace IoTSharp.Controllers
             return NoContent();
         }
 
-        // POST: api/Customers
+      /// <summary>
+      /// 为当前客户所在的租户新增客户
+      /// </summary>
+      /// <param name="customer"></param>
+      /// <returns></returns>
         [Authorize(Roles = nameof(UserRole.CustomerAdmin))]
         [HttpPost]
         public async Task<ActionResult<Customer>> PostCustomer(CustomerDto customer)
@@ -115,7 +134,11 @@ namespace IoTSharp.Controllers
             await _context.SaveChangesAsync();
             return await GetCustomer(customer.Id);
         }
-
+        /// <summary>
+        /// 删除指定的客户ID
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
         // DELETE: api/Customers/5
         [Authorize(Roles = nameof(UserRole.TenantAdmin))]
         [HttpDelete("{id}")]

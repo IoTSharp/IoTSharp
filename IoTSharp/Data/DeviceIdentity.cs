@@ -8,9 +8,14 @@ namespace IoTSharp.Data
 {
     public class DeviceIdentity
     {
+        /// <summary>
+        /// 认证方式ID
+        /// </summary>
         [Key]
         public Guid Id { get; set; }
-
+        /// <summary>
+        /// 认证方式类型
+        /// </summary>
         [Required]
         [EnumDataType(typeof(IdentityType))]
         public IdentityType IdentityType { get; set; }

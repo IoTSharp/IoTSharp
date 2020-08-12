@@ -88,6 +88,10 @@
     <None Remove=".gitignore" />
     <None Remove="healthchecksdb" />
     <None Remove="healthchecksdb-shm" />
+    <None Remove="IoTSharp.xml" />
+    <Content Include="IoTSharp.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <None Include="..\docs\images\200x200.png">
       <Pack>True</Pack>
       <PackagePath></PackagePath>

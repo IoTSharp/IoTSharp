@@ -24,6 +24,9 @@ using Silkier.AspNetCore;
 
 namespace IoTSharp.Controllers
 {
+    /// <summary>
+    /// 用户管理
+    /// </summary>
     [ApiController]
     [Authorize]
     [Route("api/[controller]/[action]")]
@@ -50,6 +53,10 @@ namespace IoTSharp.Controllers
             _context = context;
             _settings = options.Value;
         }
+        /// <summary>
+        /// 获取当前登录用户信息
+        /// </summary>
+        /// <returns></returns>
         [HttpGet, Authorize(Roles = nameof(UserRole.NormalUser))]
         public async Task<ActionResult<ApiResult<UserInfoDto>>> MyInfo()
         {
@@ -69,7 +76,11 @@ namespace IoTSharp.Controllers
             };
             return new ApiResult<UserInfoDto>(ApiCode.Success, "OK", uidto);
         }
-
+        /// <summary>
+        /// 登录用户
+        /// </summary>
+        /// <param name="model"></param>
+        /// <returns></returns>
         [AllowAnonymous]
         [HttpPost]
         [ProducesResponseType(StatusCodes.Status200OK)]
@@ -130,7 +141,10 @@ namespace IoTSharp.Controllers
                 return this.ExceptionRequest(ex);
             }
         }
-
+        /// <summary>
+        /// 退出账号
+        /// </summary>
+        /// <returns></returns>
         [AllowAnonymous]
         [HttpPost]
         [ProducesResponseType(StatusCodes.Status200OK)]
@@ -149,12 +163,12 @@ namespace IoTSharp.Controllers
             }
           
         }
-
+        
         /// <summary>
-        /// Register a user
+        /// 注册用户
         /// </summary>
         /// <param name="model"></param>
-        /// <returns ></returns>
+        /// <returns >返回登录结果</returns>
         [AllowAnonymous]
         [HttpPost]
         public async Task<ActionResult<LoginResult>> Register([FromBody] RegisterDto model)
@@ -197,7 +211,11 @@ namespace IoTSharp.Controllers
             }
             return actionResult;
         }
-
+        /// <summary>
+        /// 返回客户所属用户列表
+        /// </summary>
+        /// <param name="customerId"></param>
+        /// <returns></returns>
         [HttpGet("{customerId}")]
         public async Task<ActionResult<List<UserItemDto>>> All(Guid customerId)
         {
