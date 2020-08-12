@@ -104,9 +104,12 @@ namespace IoTSharp.Storage
                     var lst = new List<TelemetryData>();
                     msg.MsgBody.ToList().ForEach(kp =>
                                      {
-                                         var tdata = new TelemetryData() { DateTime = DateTime.Now, DeviceId = msg.DeviceId, KeyName = kp.Key, Value_DateTime = new DateTime(1970, 1, 1) };
-                                         tdata.FillKVToMe(kp);
-                                         lst.Add(tdata);
+                                         if (kp.Value != null)
+                                         {
+                                             var tdata = new TelemetryData() { DateTime = DateTime.Now, DeviceId = msg.DeviceId, KeyName = kp.Key, Value_DateTime = new DateTime(1970, 1, 1) };
+                                             tdata.FillKVToMe(kp);
+                                             lst.Add(tdata);
+                                         }
                                      });
                     int ret = db.Insert(lst);
                     _logger.LogInformation($"新增({msg.DeviceId})遥测数据{ret}");

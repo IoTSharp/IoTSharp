@@ -91,9 +91,12 @@ namespace IoTSharp.Storage
                 {
                     msg.MsgBody.ToList().ForEach(kp =>
                     {
-                        var tdata = new TelemetryData() { DateTime = DateTime.Now, DeviceId = msg.DeviceId, KeyName = kp.Key, Value_DateTime = new DateTime(1970, 1, 1) };
-                        tdata.FillKVToMe(kp);
-                        _dbContext.Set<TelemetryData>().Add(tdata);
+                        if (kp.Value != null)
+                        {
+                            var tdata = new TelemetryData() { DateTime = DateTime.Now, DeviceId = msg.DeviceId, KeyName = kp.Key, Value_DateTime = new DateTime(1970, 1, 1) };
+                            tdata.FillKVToMe(kp);
+                            _dbContext.Set<TelemetryData>().Add(tdata);
+                        }
                     });
                     var result1 = await _dbContext.SaveAsync<TelemetryLatest>(msg.MsgBody, msg.DeviceId, msg.DataSide);
                     result1.exceptions?.ToList().ForEach(ex =>

@@ -57,7 +57,7 @@ namespace IoTSharp.Extensions
             {
                 try
                 {
-                    if (kp.Key != null)
+                    if (kp.Key != null && kp.Value !=null)
                     {
                         var tl = from tx in devdata  where  tx.KeyName == kp.Key && tx.DataSide == dataSide select tx;
                         if (tl.Any())
@@ -73,6 +73,10 @@ namespace IoTSharp.Extensions
                             _context.Set<L>().Add(t2);
                             t2.FillKVToMe(kp);
                         }
+                    }
+                    else
+                    {
+                        exceptions.Add($"Key:{ kp.Key}","Key is null or value is null");
                     }
                 }
                 catch (Exception ex)
@@ -123,8 +127,6 @@ namespace IoTSharp.Extensions
         }
         internal static void FillKVToMe<T>(this T tdata, KeyValuePair<string, object> kp) where T : IDataStorage
         {
-
-
             switch (Type.GetTypeCode(kp.Value.GetType()))
             {
                 case TypeCode.Boolean:
