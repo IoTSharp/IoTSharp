@@ -21,7 +21,7 @@ using System.Threading.Tasks;
 
 namespace IoTSharp.Jobs
 {
-
+    [DisallowConcurrentExecution]
     [SilkierQuartz(0, "PushData", "Push Iot Message Data to DataBase ", TriggerGroup = "Data")]
     public class PushData : IJob
     {
@@ -45,7 +45,17 @@ namespace IoTSharp.Jobs
         {
             return Task.Run(async () =>
            {
-               var msg = _queue.Dequeue();
+               RawMsg msg = null;
+               int sec = 0;
+               do
+               {
+                   msg = _queue.Dequeue();
+                   if (msg == null)
+                   {
+                       Thread.Sleep(TimeSpan.FromSeconds(1));
+                       sec++;
+                   }
+               } while (msg == null && sec<60);
                if (msg != null)
                {
                    using (var _dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>())
@@ -61,13 +71,13 @@ namespace IoTSharp.Jobs
                                    var result2 = await _dbContext.SaveAsync<AttributeLatest>(msg.MsgBody, device.Id, msg.DataSide);
                                    result2.exceptions?.ToList().ForEach(ex =>
                                    {
-                                       _logger.LogError($"{ex.Key} {ex.Value} {Newtonsoft.Json.JsonConvert.SerializeObject( msg.MsgBody[ex.Key])}");
+                                       _logger.LogError($"{ex.Key} {ex.Value} {Newtonsoft.Json.JsonConvert.SerializeObject(msg.MsgBody[ex.Key])}");
                                    });
                                    _logger.LogInformation($"更新{device.Name}({device.Id})属性数据结果{result2.ret}");
                                    break;
 
                                case DataCatalog.TelemetryData:
-                                 bool sta=   await _storage.StoreTelemetryAsync(msg);
+                                   bool sta = await _storage.StoreTelemetryAsync(msg);
                                    _logger.LogInformation($"新增{device.Name}({device.Id})遥测数据{sta}");
                                    break;
                                default:
@@ -75,10 +85,6 @@ namespace IoTSharp.Jobs
                            }
                        }
                    }
-               }
-               else
-               {
-                   Thread.Sleep(TimeSpan.FromSeconds(1));
                }
            });
         }
