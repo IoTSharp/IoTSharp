@@ -158,14 +158,21 @@ namespace IoTSharp.Controllers
 
         private Device Found( Guid deviceId)
         {
-            var cid = User.Claims.First(c => c.Type == IoTSharpClaimTypes.Customer);
-            var dev = _context.Device.Include(d => d.Customer).FirstOrDefault(d => d.Id == deviceId && d.Customer.Id.ToString() == cid.Value);
-            return dev;
+            return FoundAsync(deviceId).GetAwaiter().GetResult();
         }
-        private  Task<Device> FoundAsync(Guid deviceId)
+        private async Task<Device> FoundAsync(Guid deviceId)
         {
-            var cid = User.Claims.First(c => c.Type == IoTSharpClaimTypes.Customer);
-            var dev = _context.Device.Include(d => d.Customer).FirstOrDefaultAsync(d => d.Id == deviceId && d.Customer.Id.ToString() == cid.Value);
+            Device dev = null;
+            if (User.IsInRole(nameof(UserRole.TenantAdmin)))
+            {
+                var tid = User.Claims.First(c => c.Type == IoTSharpClaimTypes.Tenant);
+                dev = await _context.Device.Include(d => d.Tenant).FirstOrDefaultAsync(d => d.Id == deviceId && d.Tenant.Id.ToString() == tid.Value);
+            }
+            else if (User.IsInRole(nameof(UserRole.NormalUser)))
+            {
+                var cid = User.Claims.First(c => c.Type == IoTSharpClaimTypes.Customer);
+                dev = await _context.Device.Include(d => d.Customer).FirstOrDefaultAsync(d => d.Id == deviceId && d.Customer.Id.ToString() == cid.Value);
+            }
             return dev;
         }
 
