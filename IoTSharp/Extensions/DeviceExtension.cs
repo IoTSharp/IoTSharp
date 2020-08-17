@@ -1,4 +1,5 @@
 ﻿using IoTSharp.Data;
+using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,6 +9,7 @@ namespace IoTSharp.Extensions
 {
     public static class DeviceExtension
     {
+      
         /// <summary>
         /// When creating a device, all the things that need to be done here are done
         /// </summary>

@@ -19,6 +19,8 @@ using MQTTnet.Client.Options;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Logging;
 using IoTSharp.Storage;
+using k8s.Models;
+using Newtonsoft.Json.Linq;
 
 namespace IoTSharp.Controllers
 {
@@ -104,14 +106,67 @@ namespace IoTSharp.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ApiResult), StatusCodes.Status404NotFound)]
         [ProducesDefaultResponseType]
-        public async Task<ActionResult<List<AttributeLatest>>> GetAttributeLatest(Guid deviceId)
+        public async Task<ActionResult<List<AttributeDataDto>>> GetAttributeLatest(Guid deviceId)
         {
-            var devid = from dev in _context.AttributeLatest where dev.DeviceId == deviceId select dev ;
-            if (!devid.Any())
+            Device dev = Found(deviceId);
+            if (dev == null)
             {
                 return NotFound(new ApiResult(ApiCode.NotFoundDeviceIdentity, $"Device's Identity not found "));
             }
-            return await devid.ToListAsync();
+            else
+            {
+                var devid = from t in _context.AttributeLatest
+                            where t.DeviceId == deviceId
+                            select new AttributeDataDto()
+                            {
+                                DataSide = t.DataSide,
+                                DateTime = t.DateTime,
+                                KeyName = t.KeyName,
+                                Value = t.ToObject()
+                            };
+                if (!devid.Any())
+                {
+                    return NotFound(new ApiResult(ApiCode.NotFoundDeviceIdentity, $"Device's Identity not found "));
+                }
+                return await devid.ToListAsync();
+            }
+        }
+        /// <summary>
+        /// 获取指定设备指定keys的最新属性
+        /// </summary>
+        /// <param name="deviceId">Which device do you read?</param>
+        /// <param name="keys">Specify key name list , use , or space or  ; to split </param>
+        /// <returns></returns>
+        [Authorize(Roles = nameof(UserRole.NormalUser))]
+        [HttpGet("{deviceId}/AttributeLatest/{keys}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ApiResult), StatusCodes.Status404NotFound)]
+        [ProducesDefaultResponseType]
+        public async Task<ActionResult<List<AttributeDataDto>>> GetAttributeLatest(Guid deviceId, string keys)
+        {
+            Device dev = Found(deviceId);
+            if (dev == null)
+            {
+                return NotFound(new ApiResult(ApiCode.NotFoundDeviceIdentity, $"Device's Identity not found "));
+            }
+            else
+            {
+                var kv = from t in _context.AttributeLatest where t.DeviceId == t.DeviceId && keys.Split(',', ' ', ';').Contains(t.KeyName) select new AttributeDataDto() { DataSide = t.DataSide, DateTime = t.DateTime, KeyName = t.KeyName, Value = t.ToObject() };
+                return await kv.ToListAsync();
+            }
+        }
+
+        private Device Found( Guid deviceId)
+        {
+            var cid = User.Claims.First(c => c.Type == IoTSharpClaimTypes.Customer);
+            var dev = _context.Device.Include(d => d.Customer).FirstOrDefault(d => d.Id == deviceId && d.Customer.Id.ToString() == cid.Value);
+            return dev;
+        }
+        private  Task<Device> FoundAsync(Guid deviceId)
+        {
+            var cid = User.Claims.First(c => c.Type == IoTSharpClaimTypes.Customer);
+            var dev = _context.Device.Include(d => d.Customer).FirstOrDefaultAsync(d => d.Id == deviceId && d.Customer.Id.ToString() == cid.Value);
+            return dev;
         }
 
         /// <summary>
@@ -126,8 +181,8 @@ namespace IoTSharp.Controllers
         [ProducesDefaultResponseType]
         public async Task<ActionResult<List<TelemetryDataDto>>> GetTelemetryLatest(Guid deviceId)
         {
-            var devid = from dev in _context.TelemetryLatest where dev.DeviceId == deviceId select dev;
-            if (!devid.Any())
+            Device dev = Found(deviceId);
+            if (dev==null)
             {
                 return NotFound(new ApiResult(ApiCode.NotFoundDeviceIdentity, $"Device's Identity not found "));
             }
@@ -146,7 +201,7 @@ namespace IoTSharp.Controllers
         [ProducesDefaultResponseType]
         public async Task<ActionResult<List<TelemetryDataDto>>> GetTelemetryLatest(Guid deviceId, string keys)
         {
-            var dev = _context.Device.Find(deviceId);
+            Device dev = Found(deviceId);
             if (dev == null)
             {
                 return NotFound(new ApiResult(ApiCode.NotFoundDeviceIdentity, $"Device's Identity not found "));
@@ -156,30 +211,7 @@ namespace IoTSharp.Controllers
                 return await _storage.GetTelemetryLatest(deviceId,keys);
             }
         }
-        /// <summary>
-        /// 获取指定设备指定keys的最新属性
-        /// </summary>
-        /// <param name="deviceId">Which device do you read?</param>
-        /// <param name="keys">Specify key name list , use , or space or  ; to split </param>
-        /// <returns></returns>
-        [Authorize(Roles = nameof(UserRole.NormalUser))]
-        [HttpGet("{deviceId}/AttributeLatest/{keys}")]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(typeof(ApiResult), StatusCodes.Status404NotFound)]
-        [ProducesDefaultResponseType]
-        public async Task<ActionResult<object>> GetAttributeLatest(Guid deviceId,string keys)
-        {
-            var dev = _context.Device.Find(deviceId);
-            if (dev == null)
-            {
-                return NotFound(new ApiResult(ApiCode.NotFoundDeviceIdentity, $"Device's Identity not found "));
-            }
-            else
-            {
-                var kv = from t in _context.AttributeLatest where t.DeviceId == dev.Id && keys.Split(',', ' ', ';').Contains(t.KeyName) select t;
-                return (await kv.FirstOrDefaultAsync())?.ToObject();
-            }
-        }
+    
 
         /// <summary>
         /// 获取指定设备和指定时间， 指定key的数据
@@ -195,7 +227,7 @@ namespace IoTSharp.Controllers
         [ProducesDefaultResponseType]
         public async Task<ActionResult<List<TelemetryDataDto>>> GetTelemetryData(Guid deviceId, string keys, DateTime begin)
         {
-            var dev = _context.Device.Find(deviceId);
+            Device dev = Found(deviceId);
             if (dev == null)
             {
                 return NotFound(new ApiResult(ApiCode.NotFoundDeviceIdentity, $"Device's Identity not found "));
@@ -221,7 +253,7 @@ namespace IoTSharp.Controllers
         [ProducesDefaultResponseType]
         public async Task<ActionResult<List<TelemetryDataDto>>> GetTelemetryData(Guid deviceId, string keys, DateTime begin,DateTime end )
         {
-            var dev = _context.Device.Find(deviceId);
+            Device dev = Found(deviceId);
             if (dev == null)
             {
                 return NotFound(new ApiResult(ApiCode.NotFoundDeviceIdentity, $"Device's Identity not found "));
@@ -249,13 +281,11 @@ namespace IoTSharp.Controllers
         [ProducesDefaultResponseType]
         public async Task<ActionResult<Device>> GetDevice(Guid id)
         {
-            var device = await _context.Device.FindAsync(id);
-
+            Device device = await FoundAsync(id);
             if (device == null)
             {
                 return NotFound(new ApiResult<Guid>(ApiCode.NotFoundDevice, $"Device {id} not found ", id));
             }
-
             return device;
         }
 
@@ -353,7 +383,7 @@ namespace IoTSharp.Controllers
         [ProducesDefaultResponseType]
         public async Task<ActionResult<Device>> DeleteDevice(Guid id)
         {
-            var device = await _context.Device.FindAsync(id);
+            Device device = Found(id);
             if (device == null)
             {
                 return NotFound(new ApiResult<Guid>(ApiCode.NotFoundDevice, $"Device {id} not found ", id));

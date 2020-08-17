@@ -176,6 +176,14 @@
              <param name="deviceId"></param>
              <returns></returns>
         </member>
+        <member name="M:IoTSharp.Controllers.DevicesController.GetAttributeLatest(System.Guid,System.String)">
+            <summary>
+            获取指定设备指定keys的最新属性
+            </summary>
+            <param name="deviceId">Which device do you read?</param>
+            <param name="keys">Specify key name list , use , or space or  ; to split </param>
+            <returns></returns>
+        </member>
         <member name="M:IoTSharp.Controllers.DevicesController.GetTelemetryLatest(System.Guid)">
              <summary>
             获取指定设备的最新遥测数据
@@ -189,14 +197,6 @@
             </summary>
             <param name="deviceId">Which device do you read?</param>
             <param name="keys">指定键值列表， 使用分号或者逗号分割 。 </param>
-            <returns></returns>
-        </member>
-        <member name="M:IoTSharp.Controllers.DevicesController.GetAttributeLatest(System.Guid,System.String)">
-            <summary>
-            获取指定设备指定keys的最新属性
-            </summary>
-            <param name="deviceId">Which device do you read?</param>
-            <param name="keys">Specify key name list , use , or space or  ; to split </param>
             <returns></returns>
         </member>
         <member name="M:IoTSharp.Controllers.DevicesController.GetTelemetryData(System.Guid,System.String,System.DateTime)">
