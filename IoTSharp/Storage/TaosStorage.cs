@@ -1,5 +1,4 @@
-﻿using EFCore.Sharding;
-using IoTSharp.Data;
+﻿using IoTSharp.Data;
 using IoTSharp.Dtos;
 using IoTSharp.Extensions;
 using IoTSharp.Queue;
