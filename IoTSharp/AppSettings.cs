@@ -15,7 +15,8 @@ namespace IoTSharp
     public enum TelemetryStorage
     {
         SingleTable,
-        Sharding
+        Sharding,
+        Taos
     }
     public class AppSettings
     {
@@ -31,7 +32,7 @@ namespace IoTSharp
         /// mqtt client settings
         /// </summary>
         public MqttClientSetting MqttClient { get; set; }
-
+        public Dictionary<string, string> ConnectionStrings { get; set; }
         public CoapConfig CoapServer { get; set; } = new CoapConfig();
 
         public ModBusServerSetting ModBusServer { get; set; } = new ModBusServerSetting();

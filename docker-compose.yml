@@ -56,7 +56,17 @@ services:
       - 502:502
     networks:
       - iotsharp-network
-
+  taos:
+    image: tdengine/tdengine:2.0.1.1
+    restart: always
+    container_name: taos
+    ports:
+      - 6030:6030
+      - 6035:6035
+      - 6041:6041
+      - 6030-6040:6030-6040/udp
+    volumes:
+      - /etc/taos:/etc/taos
 networks: 
   iotsharp-network:
       driver:  bridge

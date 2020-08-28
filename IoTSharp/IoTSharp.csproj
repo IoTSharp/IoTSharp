@@ -41,12 +41,13 @@
     <PackageReference Include="AspNetCore.HealthChecks.Uris" Version="3.1.2" />
     <PackageReference Include="AspNetCore.HealthChecks.Network" Version="3.1.1" />
     <PackageReference Include="AspNetCore.HealthChecks.NpgSql" Version="3.1.1" />
-    <PackageReference Include="EFCore.Sharding" Version="3.1.6.9" />
-    <PackageReference Include="EFCore.Sharding.PostgreSql" Version="3.1.6.9" />
+    <PackageReference Include="EFCore.Sharding" Version="3.1.6.12" />
+    <PackageReference Include="EFCore.Sharding.PostgreSql" Version="3.1.6.12" />
     <PackageReference Include="IoTSharp.CoAP.NET" Version="2.0.8" />
     <PackageReference Include="IoTSharp.X509Extensions" Version="1.4.9" />
     <PackageReference Include="kimbus" Version="2.0.1" />
     <PackageReference Include="LiteDB" Version="5.0.9" />
+    <PackageReference Include="Maikebing.Data.Taos" Version="2.0.128" />
     <PackageReference Include="Microsoft.AspNetCore.Http.Features" Version="3.1.7" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="3.1.7">
       <PrivateAssets>all</PrivateAssets>

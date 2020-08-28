@@ -21,7 +21,6 @@ using System.Threading.Tasks;
 
 namespace IoTSharp.Jobs
 {
-    [DisallowConcurrentExecution]
     [SilkierQuartz(0, "PushData", "Push Iot Message Data to DataBase ", TriggerGroup = "Data")]
     public class PushData : IJob
     {

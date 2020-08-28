@@ -166,6 +166,9 @@ namespace IoTSharp
                 case TelemetryStorage.SingleTable:
                     services.AddSingleton<IStorage, EFStorage>();
                     break;
+                case TelemetryStorage.Taos:
+                    services.AddSingleton<IStorage, TaosStorage>();
+                    break;
                 default:
                     break;
             }
