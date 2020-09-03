@@ -23,13 +23,13 @@ namespace IoTSharp.Data
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
-            modelBuilder.Entity<TelemetryData>().HasKey(c => new {  c.DeviceId, c.KeyName, c.DateTime });
-            modelBuilder.Entity<TelemetryData>().HasIndex(c => new {  c.DeviceId, c.KeyName, c.DateTime });
-            modelBuilder.Entity<DataStorage>().HasKey(c => new { c.Catalog, c.DeviceId, c.KeyName, c.DateTime });
-            modelBuilder.Entity<DataStorage>().HasIndex(c =>  c.Catalog);
+            modelBuilder.Entity<TelemetryData>().HasKey(c => new { c.DeviceId, c.KeyName, c.DateTime });
+            modelBuilder.Entity<TelemetryData>().HasIndex(c => new { c.DeviceId, c.KeyName, c.DateTime });
+            modelBuilder.Entity<DataStorage>().HasKey(c => new { c.Catalog, c.DeviceId, c.KeyName });
+            modelBuilder.Entity<DataStorage>().HasIndex(c => c.Catalog);
             modelBuilder.Entity<DataStorage>().HasIndex(c => new { c.Catalog, c.DeviceId });
-            modelBuilder.Entity<DataStorage>().HasIndex(c =>  new {c.Catalog,c.DeviceId,  c.KeyName } );
-         
+
+
             modelBuilder.Entity<DataStorage>()
            .HasDiscriminator<DataCatalog>(nameof(Data.DataStorage.Catalog))
            .HasValue<DataStorage>(DataCatalog.None)
@@ -61,7 +61,7 @@ namespace IoTSharp.Data
             modelBuilder.Entity<AttributeLatest>()
             .Property(b => b.Value_XML)
             .HasColumnType("xml");
- 
+
 
             modelBuilder.Entity<TelemetryLatest>()
             .Property(b => b.Value_Json)
@@ -79,7 +79,7 @@ namespace IoTSharp.Data
             .Property(b => b.ActionResult)
             .HasColumnType("jsonb");
         }
-         
+
         public DbSet<Tenant> Tenant { get; set; }
         public DbSet<Customer> Customer { get; set; }
         public DbSet<Relationship> Relationship { get; set; }
@@ -95,6 +95,6 @@ namespace IoTSharp.Data
         public DbSet<RetainedMessage> RetainedMessage { get; set; }
 
         public DbSet<AuthorizedKey> AuthorizedKeys { get; set; }
-        
+
     }
 }

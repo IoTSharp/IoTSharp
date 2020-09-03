@@ -16,7 +16,7 @@ namespace IoTSharp.Migrations
 #pragma warning disable 612, 618
             modelBuilder
                 .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn)
-                .HasAnnotation("ProductVersion", "3.1.5")
+                .HasAnnotation("ProductVersion", "3.1.7")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             modelBuilder.Entity("IoTSharp.Data.AuditLog", b =>
@@ -148,11 +148,11 @@ namespace IoTSharp.Migrations
                     b.Property<string>("KeyName")
                         .HasColumnType("text");
 
-                    b.Property<DateTime>("DateTime")
-                        .HasColumnType("timestamp without time zone");
-
                     b.Property<int>("DataSide")
                         .HasColumnType("integer");
+
+                    b.Property<DateTime>("DateTime")
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<int>("Type")
                         .HasColumnType("integer");
@@ -164,7 +164,7 @@ namespace IoTSharp.Migrations
                         .HasColumnType("boolean");
 
                     b.Property<DateTime>("Value_DateTime")
-                        .HasColumnType("timestamp without time zone");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<double>("Value_Double")
                         .HasColumnType("double precision");
@@ -181,15 +181,11 @@ namespace IoTSharp.Migrations
                     b.Property<string>("Value_XML")
                         .HasColumnType("xml");
 
-                    b.HasKey("Catalog", "DeviceId", "KeyName", "DateTime");
+                    b.HasKey("Catalog", "DeviceId", "KeyName");
 
                     b.HasIndex("Catalog");
 
                     b.HasIndex("Catalog", "DeviceId");
-
-                    b.HasIndex("Catalog", "DeviceId", "KeyName");
-
-                    b.HasIndex("Catalog", "DeviceId", "KeyName", "DateTime");
 
                     b.ToTable("DataStorage");
 
@@ -307,6 +303,54 @@ namespace IoTSharp.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("RetainedMessage");
+                });
+
+            modelBuilder.Entity("IoTSharp.Data.TelemetryData", b =>
+                {
+                    b.Property<Guid>("DeviceId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("KeyName")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("DateTime")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("DataSide")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("Type")
+                        .HasColumnType("integer");
+
+                    b.Property<byte[]>("Value_Binary")
+                        .HasColumnType("bytea");
+
+                    b.Property<bool>("Value_Boolean")
+                        .HasColumnType("boolean");
+
+                    b.Property<DateTime>("Value_DateTime")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<double>("Value_Double")
+                        .HasColumnType("double precision");
+
+                    b.Property<string>("Value_Json")
+                        .HasColumnType("jsonb");
+
+                    b.Property<long>("Value_Long")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("Value_String")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Value_XML")
+                        .HasColumnType("xml");
+
+                    b.HasKey("DeviceId", "KeyName", "DateTime");
+
+                    b.HasIndex("DeviceId", "KeyName", "DateTime");
+
+                    b.ToTable("TelemetryData");
                 });
 
             modelBuilder.Entity("IoTSharp.Data.Tenant", b =>
@@ -541,25 +585,11 @@ namespace IoTSharp.Migrations
                     b.ToTable("AspNetUserTokens");
                 });
 
-            modelBuilder.Entity("IoTSharp.Data.AttributeData", b =>
-                {
-                    b.HasBaseType("IoTSharp.Data.DataStorage");
-
-                    b.HasDiscriminator().HasValue(1);
-                });
-
             modelBuilder.Entity("IoTSharp.Data.AttributeLatest", b =>
                 {
                     b.HasBaseType("IoTSharp.Data.DataStorage");
 
                     b.HasDiscriminator().HasValue(2);
-                });
-
-            modelBuilder.Entity("IoTSharp.Data.TelemetryData", b =>
-                {
-                    b.HasBaseType("IoTSharp.Data.DataStorage");
-
-                    b.HasDiscriminator().HasValue(3);
                 });
 
             modelBuilder.Entity("IoTSharp.Data.TelemetryLatest", b =>

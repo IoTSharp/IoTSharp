@@ -62,7 +62,10 @@ namespace IoTSharp.Extensions
                         var tl = from tx in devdata  where  tx.KeyName == kp.Key && tx.DataSide == dataSide select tx;
                         if (tl.Any())
                         {
-                            tl.First().FillKVToMe(kp);
+                            var tx = tl.First();
+                            tx.FillKVToMe(kp);
+                            tx.DateTime = DateTime.Now;
+                            _context.Set<L>().Update(tx).State= EntityState.Modified;
                         }
                         else 
                         {

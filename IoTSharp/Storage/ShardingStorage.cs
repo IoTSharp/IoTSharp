@@ -37,21 +37,21 @@ namespace IoTSharp.Storage
 
         public Task<List<TelemetryDataDto>> GetTelemetryLatest(Guid deviceId)
         {
-                var devid = from t in _context.TelemetryLatest
-                            where t.DeviceId == deviceId
-                            select new TelemetryDataDto() { DateTime = t.DateTime, KeyName = t.KeyName, Value = t.ToObject() };
+            var devid = from t in _context.TelemetryLatest
+                        where t.DeviceId == deviceId
+                        select new TelemetryDataDto() { DateTime = t.DateTime, KeyName = t.KeyName, Value = t.ToObject() };
 
-                return devid.ToListAsync();
+            return devid.AsNoTracking().ToListAsync();
         }
 
         public Task<List<TelemetryDataDto>> GetTelemetryLatest(Guid deviceId, string keys)
         {
-                var devid = from t in _context.TelemetryLatest
-                            where t.DeviceId == deviceId && keys.Split(',', ' ', ';').Contains(t.KeyName)
+            var devid = from t in _context.TelemetryLatest
+                        where t.DeviceId == deviceId && keys.Split(',', ' ', ';').Contains(t.KeyName)
 
-                            select new TelemetryDataDto() { DateTime = t.DateTime, KeyName = t.KeyName, Value = t.ToObject() };
+                        select new TelemetryDataDto() { DateTime = t.DateTime, KeyName = t.KeyName, Value = t.ToObject() };
 
-                return devid.ToListAsync();
+            return devid.AsNoTracking().ToListAsync();
         }
 
         public Task<List<TelemetryDataDto>> LoadTelemetryAsync(Guid deviceId, string keys, DateTime begin)

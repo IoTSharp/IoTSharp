@@ -18,6 +18,21 @@ namespace IoTSharp
         Sharding,
         Taos
     }
+    [JsonConverter(typeof(StringEnumConverter))]
+    public enum EventBusStore
+    {
+        PostgreSql,
+        MongoDB,
+        InMemory
+    }
+    [JsonConverter(typeof(StringEnumConverter))]
+    public enum EventBusMQ
+    {
+        RabbitMQ,
+        Kafka,
+        InMemory
+    }
+
     public class AppSettings
     {
         public string JwtKey { get; set; }
@@ -40,6 +55,8 @@ namespace IoTSharp
         public TelemetryStorage TelemetryStorage { get; set; } = TelemetryStorage.SingleTable;
 
         public ShardingSetting Sharding { get; set; } = new ShardingSetting();
+        public  EventBusStore EventBusStore { get; set; } = EventBusStore.InMemory;
+        public   EventBusMQ EventBusMQ { get; set; } = EventBusMQ.InMemory;
     }
     public class ShardingSetting
     {

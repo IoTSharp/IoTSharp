@@ -337,3 +337,4 @@ ASALocalRun/
 /IoTSharp/healthchecksdb-shm
 /IoTSharp/DiskQuue.iotsharp
 /IoTSharp/DiskQuue-log.iotsharp
+/zk-single-kafka-single

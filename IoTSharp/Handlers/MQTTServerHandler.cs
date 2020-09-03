@@ -1,4 +1,5 @@
-﻿using IoTSharp.Data;
+﻿using DotNetCore.CAP;
+using IoTSharp.Data;
 using IoTSharp.Extensions;
 using IoTSharp.Handlers;
 using IoTSharp.Queue;
@@ -27,11 +28,11 @@ namespace IoTSharp.Handlers
         readonly ILogger<MQTTServerHandler> _logger;
         readonly ApplicationDbContext _dbContext;
         readonly IMqttServerEx _serverEx;
-        private readonly IMsgQueue _queue;
+        private readonly ICapPublisher _queue;
         readonly IServiceScope scope;
         readonly MqttClientSetting _mcsetting;
         public MQTTServerHandler(ILogger<MQTTServerHandler> logger, IServiceScopeFactory scopeFactor,IMqttServerEx serverEx 
-           , IOptions <AppSettings> options,IMsgQueue queue
+           , IOptions <AppSettings> options, ICapPublisher queue
             )
         {
             _mcsetting = options.Value.MqttClient;
@@ -126,7 +127,7 @@ namespace IoTSharp.Handlers
                         }
                         if (tpary[2] == "telemetry")
                         {
-                            _queue.Enqueue(new RawMsg() { DeviceId = device.Id, MsgBody = keyValues, DataSide = DataSide.ClientSide, DataCatalog = DataCatalog.TelemetryData });
+                            _queue.PublishTelemetryData(new RawMsg() { DeviceId = device.Id, MsgBody = keyValues, DataSide = DataSide.ClientSide, DataCatalog = DataCatalog.TelemetryData });
                         }
                         else if (tpary[2] == "attributes")
                         {
@@ -139,7 +140,7 @@ namespace IoTSharp.Handlers
                             }
                             else
                             {
-                                _queue.Enqueue(new RawMsg() { DeviceId = device.Id, MsgBody = keyValues, DataSide = DataSide.ClientSide, DataCatalog = DataCatalog.AttributeData });
+                                _queue.PublishAttributeData(new RawMsg() { DeviceId = device.Id, MsgBody = keyValues, DataSide = DataSide.ClientSide, DataCatalog = DataCatalog.AttributeData });
                             }
 
                         }

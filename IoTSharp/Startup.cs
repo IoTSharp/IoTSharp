@@ -42,6 +42,8 @@ using IoTSharp.Queue;
 using Npgsql;
 using EFCore.Sharding;
 using IoTSharp.Storage;
+using DotNetCore.CAP.Dashboard.NodeDiscovery;
+using Savorboard.CAP.InMemoryMessageQueue;
 
 namespace IoTSharp
 {
@@ -148,10 +150,6 @@ namespace IoTSharp
                  }, name: "Disk Storage");
             services.AddHealthChecksUI().AddPostgreSqlStorage(Configuration.GetConnectionString("IoTSharp"));
             services.AddSilkierQuartz();
-            services.AddSingleton<IMsgQueue>(o =>
-            {
-                return new LiteDBQueue(System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "DiskQuue.iotsharp"));
-            });
             services.AddMemoryCache();
             switch (settings.TelemetryStorage)
             {
@@ -172,7 +170,46 @@ namespace IoTSharp
                 default:
                     break;
             }
-       
+            //Note: The injection of services needs before of `services.AddCap()`
+            services.AddTransient<IEventBusHandler,  EventBusHandler>();
+            services.AddCap(x =>
+            {
+               
+                switch (settings.EventBusStore)
+                {
+                    case EventBusStore.PostgreSql:
+                        x.UsePostgreSql(Configuration.GetConnectionString("EventBusStore"));
+                        break;
+                    case EventBusStore.MongoDB:
+                        x.UseMongoDB(Configuration.GetConnectionString("EventBusStore"));  //注意，仅支持MongoDB 4.0+集群
+                        break;
+                    case EventBusStore.InMemory:
+                        x.UseInMemoryStorage();
+                        break;
+                    default:
+                        break;
+                }
+                switch (settings.EventBusMQ)
+                {
+                  
+                    case EventBusMQ.RabbitMQ:
+                        x.UseRabbitMQ(Configuration.GetConnectionString("EventBusMQ"));
+                        break;
+                    case EventBusMQ.Kafka:
+                        x.UseKafka( Configuration.GetConnectionString("EventBusMQ"));
+                        break;
+                    case EventBusMQ.InMemory:
+                        x.UseInMemoryMessageQueue();
+                        break;
+                    default:
+                        break;
+                }
+                // Register Dashboard
+                x.UseDashboard();
+                // Register to Consul
+                x.UseDiscovery();
+            });
+          
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

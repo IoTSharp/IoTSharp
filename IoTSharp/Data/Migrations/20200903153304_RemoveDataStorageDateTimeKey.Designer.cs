@@ -3,20 +3,22 @@ using System;
 using IoTSharp.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 namespace IoTSharp.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20200903153304_RemoveDataStorageDateTimeKey")]
+    partial class RemoveDataStorageDateTimeKey
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
                 .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn)
-                .HasAnnotation("ProductVersion", "3.1.6")
+                .HasAnnotation("ProductVersion", "3.1.7")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             modelBuilder.Entity("IoTSharp.Data.AuditLog", b =>
@@ -148,11 +150,11 @@ namespace IoTSharp.Migrations
                     b.Property<string>("KeyName")
                         .HasColumnType("text");
 
-                    b.Property<DateTime>("DateTime")
-                        .HasColumnType("timestamp with time zone");
-
                     b.Property<int>("DataSide")
                         .HasColumnType("integer");
+
+                    b.Property<DateTime>("DateTime")
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<int>("Type")
                         .HasColumnType("integer");
@@ -181,13 +183,11 @@ namespace IoTSharp.Migrations
                     b.Property<string>("Value_XML")
                         .HasColumnType("xml");
 
-                    b.HasKey("Catalog", "DeviceId", "KeyName", "DateTime");
+                    b.HasKey("Catalog", "DeviceId", "KeyName");
 
                     b.HasIndex("Catalog");
 
                     b.HasIndex("Catalog", "DeviceId");
-
-                    b.HasIndex("Catalog", "DeviceId", "KeyName");
 
                     b.ToTable("DataStorage");
 

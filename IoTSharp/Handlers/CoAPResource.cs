@@ -1,5 +1,6 @@
 ﻿using CoAP;
 using CoAP.Server.Resources;
+using DotNetCore.CAP;
 using IoTSharp.Data;
 using IoTSharp.Extensions;
 using IoTSharp.Queue;
@@ -24,9 +25,9 @@ namespace IoTSharp.Handlers
             MediaType.ApplicationOctetStream
         };
         private readonly ILogger _logger;
-        private readonly IMsgQueue _queue;
+        private readonly ICapPublisher _eventBus;
 
-        public CoApResource(string name, ApplicationDbContext dbContext, ILogger logger, IMsgQueue queue)
+        public CoApResource(string name, ApplicationDbContext dbContext, ILogger logger, ICapPublisher eventBus)
        : base(name)
         {
             Attributes.Title = name;
@@ -37,7 +38,7 @@ namespace IoTSharp.Handlers
                 Attributes.AddContentType(item);
             }
             _logger = logger;
-            _queue = queue;
+            _eventBus = eventBus;
             _logger.LogInformation($"CoApResource {name} is created.");
         }
         protected override void DoPost(CoapExchange exchange)
@@ -113,11 +114,11 @@ namespace IoTSharp.Handlers
                                 switch (_res)
                                 {
                                     case CoApRes.Attributes:
-                                        _queue.Enqueue(new RawMsg() { MsgType = MsgType.CoAP, MsgBody = keyValues, DataCatalog = DataCatalog.AttributeData, DataSide = DataSide.ClientSide, DeviceId = dev.Id });
+                                        _eventBus.PublishAttributeData(new RawMsg() { MsgType = MsgType.CoAP, MsgBody = keyValues, DataCatalog = DataCatalog.AttributeData, DataSide = DataSide.ClientSide, DeviceId = dev.Id });
                                         exchange.Respond(StatusCode.Changed, $"OK");
                                         break;
                                     case CoApRes.Telemetry:
-                                        _queue.Enqueue(new RawMsg() { MsgType = MsgType.CoAP, MsgBody = keyValues, DataCatalog = DataCatalog.AttributeData, DataSide = DataSide.ClientSide, DeviceId = dev.Id });
+                                        _eventBus.PublishTelemetryData( new RawMsg() { MsgType = MsgType.CoAP, MsgBody = keyValues, DataCatalog = DataCatalog.AttributeData, DataSide = DataSide.ClientSide, DeviceId = dev.Id });
                                         exchange.Respond(StatusCode.Created, $"OK");
                                         break;
                                     default:
