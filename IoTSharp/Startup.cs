@@ -172,6 +172,8 @@ namespace IoTSharp
             }
             //Note: The injection of services needs before of `services.AddCap()`
             services.AddTransient<IEventBusHandler,  EventBusHandler>();
+            services.AddHostedZeroMQ(Configuration);
+
             services.AddCap(x =>
             {
                
@@ -183,10 +185,12 @@ namespace IoTSharp
                     case EventBusStore.MongoDB:
                         x.UseMongoDB(Configuration.GetConnectionString("EventBusStore"));  //注意，仅支持MongoDB 4.0+集群
                         break;
-                    case EventBusStore.InMemory:
-                        x.UseInMemoryStorage();
+                    case EventBusStore.LiteDB:
+                        x.UseLiteDBStorage(Configuration.GetConnectionString("EventBusStore"));
                         break;
+                    case EventBusStore.InMemory:
                     default:
+                        x.UseInMemoryStorage();
                         break;
                 }
                 switch (settings.EventBusMQ)
@@ -198,10 +202,16 @@ namespace IoTSharp
                     case EventBusMQ.Kafka:
                         x.UseKafka( Configuration.GetConnectionString("EventBusMQ"));
                         break;
-                    case EventBusMQ.InMemory:
-                        x.UseInMemoryMessageQueue();
+                    case EventBusMQ.ZeroMQ:
+                        x.UseZeroMQ(cfg =>
+                        {
+                            cfg.HostName = Configuration.GetConnectionString("EventBusMQ")??"127.0.0.1";
+                            cfg.Pattern = MaiKeBing.CAP.NetMQPattern.PushPull;
+                        });
                         break;
+                    case EventBusMQ.InMemory:
                     default:
+                        x.UseInMemoryMessageQueue();
                         break;
                 }
                 // Register Dashboard

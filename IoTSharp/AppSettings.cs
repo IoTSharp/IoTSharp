@@ -1,6 +1,8 @@
 ﻿using CoAP;
 using CoAP.Server;
 using EFCore.Sharding;
+using MaiKeBing.CAP;
+using MaiKeBing.HostedService.ZeroMQ;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 using System;
@@ -23,14 +25,16 @@ namespace IoTSharp
     {
         PostgreSql,
         MongoDB,
-        InMemory
+        InMemory,
+        LiteDB
     }
     [JsonConverter(typeof(StringEnumConverter))]
     public enum EventBusMQ
     {
         RabbitMQ,
         Kafka,
-        InMemory
+        InMemory,
+        ZeroMQ
     }
 
     public class AppSettings
@@ -57,6 +61,15 @@ namespace IoTSharp
         public ShardingSetting Sharding { get; set; } = new ShardingSetting();
         public  EventBusStore EventBusStore { get; set; } = EventBusStore.InMemory;
         public   EventBusMQ EventBusMQ { get; set; } = EventBusMQ.InMemory;
+        public NetMQSetting NetMQ { get; set; } = new NetMQSetting();
+        public ZMQOption ZMQService { get; set; } = new ZMQOption();
+    }
+    public class NetMQSetting
+    {
+        public bool Enable { get; set; } = true;
+        public string SubscriberAddress { get; set; } = "tcp://127.0.0.1:5556";
+        public string PublisherAddress { get;   set; } = "tcp://127.0.0.1:5557";
+
     }
     public class ShardingSetting
     {

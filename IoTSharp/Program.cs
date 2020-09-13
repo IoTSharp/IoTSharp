@@ -27,7 +27,7 @@ namespace IoTSharp
                     webBuilder.UseStartup<Startup>();
                 })
                .ConfigureSilkierQuartzHost()
-                .ConfigureIoTSharpHost();
+               .ConfigureIoTSharpHost();
         
 
     }
