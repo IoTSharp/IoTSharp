@@ -71,7 +71,7 @@
     <PackageReference Include="MQTTnet.Extensions.Rpc" Version="3.0.12" />
     <PackageReference Include="NetMQ" Version="4.0.1.6" />
     <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="3.1.4" />
-    <PackageReference Include="NSwag.AspNetCore" Version="13.7.1" />
+    <PackageReference Include="NSwag.AspNetCore" Version="13.7.4" />
     <PackageReference Include="OptimizedPriorityQueue" Version="5.0.0" />
     <PackageReference Include="ProxyKit" Version="2.3.3" />
     <PackageReference Include="Savorboard.CAP.InMemoryMessageQueue" Version="3.0.0" />
