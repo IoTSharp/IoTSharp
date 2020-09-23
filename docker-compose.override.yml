@@ -10,6 +10,8 @@ services:
       - "2927::80"
     volumes:
       - ${APPDATA}/Microsoft/UserSecrets:/root/.microsoft/usersecrets:ro
+      - ./appsettings.Development.json:/app/appsettings.Development.json
+
     build:
       context: .
       dockerfile: IoTSharp/Dockerfile

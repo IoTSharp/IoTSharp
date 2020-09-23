@@ -10,7 +10,7 @@ namespace IoTSharp.Data
     public class ApplicationDbContext : IdentityDbContext
     {
 
-        public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options, IConfiguration configuration)
+        public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
             : base(options)
         {
             if (Database.GetPendingMigrations().Count() > 0)
@@ -22,8 +22,9 @@ namespace IoTSharp.Data
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            base.OnModelCreating(modelBuilder);
-            modelBuilder.Entity<TelemetryData>().HasKey(c => new { c.DeviceId, c.KeyName, c.DateTime });
+            modelBuilder.Entity<TelemetryData>().HasIndex(c => new { c.DeviceId });
+            modelBuilder.Entity<TelemetryData>().HasIndex(c => new { c.DeviceId, c.KeyName });
+            modelBuilder.Entity<TelemetryData>().HasIndex(c => new {  c.KeyName });
             modelBuilder.Entity<TelemetryData>().HasIndex(c => new { c.DeviceId, c.KeyName, c.DateTime });
             modelBuilder.Entity<DataStorage>().HasKey(c => new { c.Catalog, c.DeviceId, c.KeyName });
             modelBuilder.Entity<DataStorage>().HasIndex(c => c.Catalog);
@@ -41,6 +42,7 @@ namespace IoTSharp.Data
             modelBuilder.Entity<Device>().HasDiscriminator<DeviceType>(nameof(Data.Device.DeviceType)).HasValue<Gateway>(DeviceType.Gateway).HasValue<Device>(DeviceType.Device);
             modelBuilder.Entity<Gateway>().HasDiscriminator<DeviceType>(nameof(Data.Device.DeviceType));
             ForNpgsql(modelBuilder);
+            base.OnModelCreating(modelBuilder);
         }
 
 

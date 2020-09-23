@@ -10,14 +10,14 @@ namespace IoTSharp.Data
 
     public class TelemetryData : IDataStorage
     {
-
+        [Key]
+        public Guid Id { get; set; }
 
         [Newtonsoft.Json.JsonIgnore, Column(Order = 1)]
         public Guid DeviceId { get; set; }
 
         [Column(Order = 2)]
         public string KeyName { get; set; }
-
         [Column(Order = 3, TypeName = "timestamp with time zone")]
         public DateTime DateTime { get; set; }
 

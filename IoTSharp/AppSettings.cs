@@ -61,16 +61,8 @@ namespace IoTSharp
         public ShardingSetting Sharding { get; set; } = new ShardingSetting();
         public  EventBusStore EventBusStore { get; set; } = EventBusStore.InMemory;
         public   EventBusMQ EventBusMQ { get; set; } = EventBusMQ.InMemory;
-        public NetMQSetting NetMQ { get; set; } = new NetMQSetting();
-        public ZMQOption ZMQService { get; set; } = new ZMQOption();
     }
-    public class NetMQSetting
-    {
-        public bool Enable { get; set; } = true;
-        public string SubscriberAddress { get; set; } = "tcp://127.0.0.1:5556";
-        public string PublisherAddress { get;   set; } = "tcp://127.0.0.1:5557";
-
-    }
+  
     public class ShardingSetting
     {
         public DatabaseType DatabaseType { get; set; } = DatabaseType.PostgreSql;

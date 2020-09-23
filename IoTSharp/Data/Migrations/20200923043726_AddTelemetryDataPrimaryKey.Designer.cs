@@ -10,15 +10,15 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace IoTSharp.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20200903153304_RemoveDataStorageDateTimeKey")]
-    partial class RemoveDataStorageDateTimeKey
+    [Migration("20200923043726_AddTelemetryDataPrimaryKey")]
+    partial class AddTelemetryDataPrimaryKey
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
                 .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn)
-                .HasAnnotation("ProductVersion", "3.1.7")
+                .HasAnnotation("ProductVersion", "3.1.8")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             modelBuilder.Entity("IoTSharp.Data.AuditLog", b =>
@@ -309,17 +309,21 @@ namespace IoTSharp.Migrations
 
             modelBuilder.Entity("IoTSharp.Data.TelemetryData", b =>
                 {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<int>("DataSide")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime>("DateTime")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<Guid>("DeviceId")
                         .HasColumnType("uuid");
 
                     b.Property<string>("KeyName")
                         .HasColumnType("text");
-
-                    b.Property<DateTime>("DateTime")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<int>("DataSide")
-                        .HasColumnType("integer");
 
                     b.Property<int>("Type")
                         .HasColumnType("integer");
@@ -348,7 +352,13 @@ namespace IoTSharp.Migrations
                     b.Property<string>("Value_XML")
                         .HasColumnType("xml");
 
-                    b.HasKey("DeviceId", "KeyName", "DateTime");
+                    b.HasKey("Id");
+
+                    b.HasIndex("DeviceId");
+
+                    b.HasIndex("KeyName");
+
+                    b.HasIndex("DeviceId", "KeyName");
 
                     b.HasIndex("DeviceId", "KeyName", "DateTime");
 
