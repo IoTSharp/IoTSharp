@@ -63,7 +63,7 @@ namespace IoTSharp.Storage
         {
             return Task.Run(() =>
             {
-                using (var _context = scope.ServiceProvider.GetRequiredService<IShardingDbAccessor>())
+                using (var _context = scope.ServiceProvider.GetService<IShardingDbAccessor>())
                 {
                     var lst = new List<TelemetryDataDto>();
                     var kv = _context.GetIShardingQueryable<TelemetryData>()
@@ -83,7 +83,7 @@ namespace IoTSharp.Storage
         {
             return Task.Run(() =>
             {
-                using (var _context = scope.ServiceProvider.GetRequiredService<IShardingDbAccessor>())
+                using (var _context = scope.ServiceProvider.GetService<IShardingDbAccessor>())
                 {
                     var lst = new List<TelemetryDataDto>();
                     var kv = _context.GetIShardingQueryable<TelemetryData>()
@@ -107,7 +107,6 @@ namespace IoTSharp.Storage
                                          if (kp.Value != null)
                                          {
                                              var tdata = new TelemetryData() { DateTime = DateTime.Now, DeviceId = msg.DeviceId, KeyName = kp.Key, Value_DateTime = new DateTime(1970, 1, 1) };
-                                             tdata.Id = Guid.NewGuid();
                                              tdata.FillKVToMe(kp);
                                              lst.Add(tdata);
                                          }

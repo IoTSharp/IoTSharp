@@ -402,6 +402,11 @@
             When <see cref="P:IoTSharp.Data.DeviceIdentity.IdentityType"/> Is <see cref="F:IoTSharp.Data.IdentityType.X509Certificate"/> ,this is X509 Certificate' PEM.
             </summary>
         </member>
+        <member name="T:IoTSharp.Data.TelemetryDataConfiguration">
+            <summary>
+            https://github.com/Coldairarrow/EFCore.Sharding/issues/60
+            </summary>
+        </member>
         <member name="P:IoTSharp.Dtos.TokenEntity.access_token">
             <summary>
             token

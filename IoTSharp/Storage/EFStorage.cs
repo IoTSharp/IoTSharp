@@ -93,7 +93,6 @@ namespace IoTSharp.Storage
                         if (kp.Value != null)
                         {
                             var tdata = new TelemetryData() { DateTime = DateTime.Now, DeviceId = msg.DeviceId, KeyName = kp.Key, Value_DateTime = new DateTime(1970, 1, 1) };
-                            tdata.Id = Guid.NewGuid();
                             tdata.FillKVToMe(kp);
                             _dbContext.Set<TelemetryData>().Add(tdata);
                         }

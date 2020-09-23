@@ -7,11 +7,9 @@ using System.Threading.Tasks;
 
 namespace IoTSharp.Data
 {
-
+    [Table("TelemetryData")]
     public class TelemetryData : IDataStorage
     {
-        [Key]
-        public Guid Id { get; set; }
 
         [Newtonsoft.Json.JsonIgnore, Column(Order = 1)]
         public Guid DeviceId { get; set; }
