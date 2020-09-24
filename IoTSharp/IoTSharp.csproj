@@ -45,7 +45,7 @@
     <PackageReference Include="DotNetCore.CAP.Dashboard" Version="3.1.0" />
     <PackageReference Include="DotNetCore.CAP.InMemoryStorage" Version="3.1.0" />
     <PackageReference Include="DotNetCore.CAP.Kafka" Version="3.1.0" />
-    <PackageReference Include="DotNetCore.CAP.MongoDB" Version="3.1.0" />
+    <PackageReference Include="DotNetCore.CAP.MongoDB" Version="3.1.1" />
     <PackageReference Include="DotNetCore.CAP.PostgreSql" Version="3.1.0" />
     <PackageReference Include="DotNetCore.CAP.RabbitMQ" Version="3.1.0" />
     <PackageReference Include="EFCore.Sharding" Version="3.1.6.14" />
