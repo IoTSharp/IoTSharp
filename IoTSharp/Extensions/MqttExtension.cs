@@ -47,7 +47,8 @@ namespace IoTSharp
                 options.WithPersistentSessions();
                 options.Build();
             });
-            services.AddMqttConnectionHandler();
+            services.AddMqttConnectionHandler()
+                    .AddConnections(); 
             services.AddMqttWebSocketServerAdapter();
             services.AddSingleton<MQTTServerHandler>();
         }
@@ -104,7 +105,7 @@ namespace IoTSharp
                                      .WithClientId(setting.MqttBroker)
                                      .WithTcpServer((setting.MqttBroker == "built-in" || string.IsNullOrEmpty(setting.MqttBroker)) ? "127.0.0.1" : setting.MqttBroker, setting.Port)
                                      .WithCredentials(setting.UserName, setting.Password)
-                                     .WithCleanSession()//.WithProtocolVersion (MQTTnet.Formatter.MqttProtocolVersion.V500)
+                                     .WithCleanSession()
                                      .Build());
         }
     }

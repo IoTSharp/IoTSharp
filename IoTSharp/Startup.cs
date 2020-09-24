@@ -141,7 +141,7 @@ namespace IoTSharp
             services.AddIoTSharpMqttServer(settings.MqttBroker);
             services.AddMqttClient(settings.MqttClient);
             services.AddSingleton<RetainedMessageHandler>();
-            services.AddHealthChecks()
+           var healthChecks =  services.AddHealthChecks()
                  .AddNpgSql(Configuration["IoTSharp"], name: "PostgreSQL")
                  .AddDiskStorageHealthCheck(dso =>
                  {
@@ -166,11 +166,12 @@ namespace IoTSharp
                     break;
                 case TelemetryStorage.Taos:
                     services.AddSingleton<IStorage, TaosStorage>();
+                    healthChecks.AddTDengine(Configuration.GetConnectionString("Taos"));
                     break;
                 default:
                     break;
             }
-            //Note: The injection of services needs before of `services.AddCap()`
+           
             services.AddTransient<IEventBusHandler,  EventBusHandler>();
             services.AddHostedZeroMQ(Configuration);
 
@@ -181,9 +182,11 @@ namespace IoTSharp
                 {
                     case EventBusStore.PostgreSql:
                         x.UsePostgreSql(Configuration.GetConnectionString("EventBusStore"));
+                        healthChecks.AddNpgSql(Configuration.GetConnectionString("EventBusStore"),name: "EventBusStore");
                         break;
                     case EventBusStore.MongoDB:
                         x.UseMongoDB(Configuration.GetConnectionString("EventBusStore"));  //注意，仅支持MongoDB 4.0+集群
+                        healthChecks.AddMongoDb(Configuration.GetConnectionString("EventBusStore"),name: "EventBusStore");
                         break;
                     case EventBusStore.LiteDB:
                         x.UseLiteDBStorage(Configuration.GetConnectionString("EventBusStore"));
@@ -198,9 +201,15 @@ namespace IoTSharp
                   
                     case EventBusMQ.RabbitMQ:
                         x.UseRabbitMQ(Configuration.GetConnectionString("EventBusMQ"));
+                        healthChecks.AddRabbitMQ(Configuration.GetConnectionString("EventBusMQ"), name: "EventBusMQ");
                         break;
                     case EventBusMQ.Kafka:
+                        //BootstrapServers
                         x.UseKafka( Configuration.GetConnectionString("EventBusMQ"));
+                        healthChecks.AddKafka( cfg=>
+                        {
+                            cfg.BootstrapServers = Configuration.GetConnectionString("EventBusMQ");
+                        } , name: "EventBusMQ");
                         break;
                     case EventBusMQ.ZeroMQ:
                         x.UseZeroMQ(cfg =>
@@ -261,7 +270,7 @@ namespace IoTSharp
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
-            //   endpoints.MapMqtt("/mqtt");
+                 endpoints.MapMqtt("/mqtt");
             });
             app.UseSwaggerUi3();
             app.UseOpenApi();
