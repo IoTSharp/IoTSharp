@@ -42,7 +42,7 @@
     <PackageReference Include="AspNetCore.HealthChecks.Network" Version="3.1.3" />
     <PackageReference Include="AspNetCore.HealthChecks.NpgSql" Version="3.1.1" />
     <PackageReference Include="DotNetCore.CAP" Version="3.1.0" />
-    <PackageReference Include="DotNetCore.CAP.Dashboard" Version="3.1.0" />
+    <PackageReference Include="DotNetCore.CAP.Dashboard" Version="3.1.1" />
     <PackageReference Include="DotNetCore.CAP.InMemoryStorage" Version="3.1.0" />
     <PackageReference Include="DotNetCore.CAP.Kafka" Version="3.1.0" />
     <PackageReference Include="DotNetCore.CAP.MongoDB" Version="3.1.0" />
