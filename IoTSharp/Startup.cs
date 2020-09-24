@@ -149,7 +149,18 @@ namespace IoTSharp
 
                  }, name: "Disk Storage");
             services.AddHealthChecksUI().AddPostgreSqlStorage(Configuration.GetConnectionString("IoTSharp"));
-            services.AddSilkierQuartz();
+            services.AddSilkierQuartz(opt=>
+            {
+                opt.Add("quartz.serializer.type", "json");
+                opt.Add("quartz.jobStore.type", "Quartz.Impl.AdoJobStore.JobStoreTX, Quartz");
+                opt.Add("quartz.jobStore.driverDelegateType", "Quartz.Impl.AdoJobStore.StdAdoDelegate, Quartz");
+                opt.Add("quartz.jobStore.tablePrefix", "qrtz_");
+                opt.Add("quartz.jobStore.dataSource", "myDS");
+                opt.Add("quartz.dataSource.myDS.provider", "Npgsql");
+                opt.Add("quartz.dataSource.myDS.connectionString", Configuration.GetConnectionString("IoTSharp"));
+                opt.Add("quartz.plugin.recentHistory.type", "Quartz.Plugins.RecentHistory.ExecutionHistoryPlugin, Quartz.Plugins.RecentHistory");
+                opt.Add("quartz.plugin.recentHistory.storeType", "Quartz.Plugins.RecentHistory.Impl.InProcExecutionHistoryStore, Quartz.Plugins.RecentHistory");
+            });
             services.AddMemoryCache();
             switch (settings.TelemetryStorage)
             {
@@ -228,7 +239,7 @@ namespace IoTSharp
                 // Register to Consul
                 x.UseDiscovery();
             });
-          
+
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -270,7 +281,7 @@ namespace IoTSharp
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
-                 endpoints.MapMqtt("/mqtt");
+             endpoints.MapMqtt("/mqtt");
             });
             app.UseSwaggerUi3();
             app.UseOpenApi();

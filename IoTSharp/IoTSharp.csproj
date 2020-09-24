@@ -57,7 +57,7 @@
     <PackageReference Include="EFCore.Sharding" Version="3.1.6.14" />
     <PackageReference Include="EFCore.Sharding.PostgreSql" Version="3.1.6.14" />
     <PackageReference Include="IoTSharp.CoAP.NET" Version="2.0.8" />
-    <PackageReference Include="IoTSharp.X509Extensions" Version="1.4.9" />
+    <PackageReference Include="IoTSharp.X509Extensions" Version="1.4.19" />
     <PackageReference Include="kimbus" Version="2.0.1" />
     <PackageReference Include="LiteDB" Version="5.0.9" />
     <PackageReference Include="MaiKeBing.CAP.LiteDB" Version="1.0.19" />
@@ -79,13 +79,14 @@
     <PackageReference Include="NetMQ" Version="4.0.1.6" />
     <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="3.1.4" />
     <PackageReference Include="NSwag.AspNetCore" Version="13.7.4" />
-    <PackageReference Include="OptimizedPriorityQueue" Version="5.0.0" />
     <PackageReference Include="ProxyKit" Version="2.3.3" />
+    <PackageReference Include="Quartz.Serialization.Json" Version="3.1.0" />
     <PackageReference Include="Savorboard.CAP.InMemoryMessageQueue" Version="3.0.0" />
     <PackageReference Include="Silkier" Version="1.0.121" />
     <PackageReference Include="Silkier.AspNetCore" Version="1.0.121" />
     <PackageReference Include="Silkier.EFCore" Version="1.0.121" />
     <PackageReference Include="SilkierQuartz" Version="1.0.46" />
+    <PackageReference Include="SilkierQuartz.Plugins.RecentHistory" Version="1.0.46" />
     <PackageReference Include="System.ServiceModel.Primitives" Version="4.7.0" />
     <PackageReference Include="System.Text.Encoding.CodePages" Version="4.7.1" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="3.1.8" />
