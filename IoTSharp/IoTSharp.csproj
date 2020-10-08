@@ -84,7 +84,7 @@
     <PackageReference Include="Savorboard.CAP.InMemoryMessageQueue" Version="3.0.0" />
     <PackageReference Include="Silkier" Version="1.0.121" />
     <PackageReference Include="Silkier.AspNetCore" Version="1.0.233" />
-    <PackageReference Include="Silkier.EFCore" Version="1.0.121" />
+    <PackageReference Include="Silkier.EFCore" Version="1.0.233" />
     <PackageReference Include="SilkierQuartz" Version="1.0.46" />
     <PackageReference Include="SilkierQuartz.Plugins.RecentHistory" Version="1.0.46" />
     <PackageReference Include="System.ServiceModel.Primitives" Version="4.7.0" />
