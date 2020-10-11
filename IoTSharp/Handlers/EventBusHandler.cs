@@ -33,7 +33,7 @@ namespace IoTSharp.Handlers
     {
         private readonly AppSettings _appSettings;
         readonly ILogger _logger;
-        readonly IServiceScope scope;
+        private readonly IServiceScopeFactory _scopeFactor;
         private readonly IStorage _storage;
 
         public EventBusHandler(ILogger<EventBusHandler> logger, IServiceScopeFactory scopeFactor
@@ -42,7 +42,7 @@ namespace IoTSharp.Handlers
         {
             _appSettings = options.Value;
             _logger = logger;
-            scope = scopeFactor.CreateScope();
+            _scopeFactor = scopeFactor;
             _storage = storage;
         }
         [CapSubscribe("iotsharp.services.datastream.attributedata")]
@@ -50,17 +50,20 @@ namespace IoTSharp.Handlers
         {
             Task.Run(async () =>
             {
-                using (var _dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>())
+                using (var _scope = _scopeFactor.CreateScope())
                 {
-                    var device = _dbContext.Device.FirstOrDefault(d => d.Id == msg.DeviceId);
-                    if (device != null)
+                    using (var _dbContext = _scope.ServiceProvider.GetRequiredService<ApplicationDbContext>())
                     {
-                        var result2 = await _dbContext.SaveAsync<AttributeLatest>(msg.MsgBody, device.Id, msg.DataSide);
-                        result2.exceptions?.ToList().ForEach(ex =>
+                        var device = _dbContext.Device.FirstOrDefault(d => d.Id == msg.DeviceId);
+                        if (device != null)
                         {
-                            _logger.LogError($"{ex.Key} {ex.Value} {Newtonsoft.Json.JsonConvert.SerializeObject(msg.MsgBody[ex.Key])}");
-                        });
-                        _logger.LogInformation($"更新{device.Name}({device.Id})属性数据结果{result2.ret}");
+                            var result2 = await _dbContext.SaveAsync<AttributeLatest>(msg.MsgBody, device.Id, msg.DataSide);
+                            result2.exceptions?.ToList().ForEach(ex =>
+                            {
+                                _logger.LogError($"{ex.Key} {ex.Value} {Newtonsoft.Json.JsonConvert.SerializeObject(msg.MsgBody[ex.Key])}");
+                            });
+                            _logger.LogInformation($"更新{device.Name}({device.Id})属性数据结果{result2.ret}");
+                        }
                     }
                 }
             });
