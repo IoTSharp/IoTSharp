@@ -317,72 +317,75 @@ namespace IoTSharp.Handlers
         public static string MD5Sum(string text) => BitConverter.ToString(MD5.Create().ComputeHash(Encoding.UTF8.GetBytes(text))).Replace("-", "");
         internal void Server_ClientConnectionValidator(object sender, MqttServerClientConnectionValidatorEventArgs e)
         {
-            using (var _dbContextcv = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>())
+            Task.Run(async () =>
             {
-                MqttConnectionValidatorContext obj = e.Context;
-                Uri uri = new Uri("mqtt://" + obj.Endpoint);
-                if (uri.IsLoopback && !string.IsNullOrEmpty(e.Context.ClientId) && e.Context.ClientId == _mcsetting.MqttBroker && !string.IsNullOrEmpty(e.Context.Username) && e.Context.Username == _mcsetting.UserName && e.Context.Password == _mcsetting.Password)
+                using (var _dbContextcv = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>())
                 {
-                    obj.ReasonCode = MQTTnet.Protocol.MqttConnectReasonCode.Success;
-                }
-                else
-                {
-                    _logger.LogInformation($"ClientId={obj.ClientId},Endpoint={obj.Endpoint},Username={obj.Username}，Password={obj.Password},WillMessage={obj.WillMessage?.ConvertPayloadToString()}");
-                    var mcr = _dbContextcv.DeviceIdentities.Include(d => d.Device).FirstOrDefault(mc =>
-                                            (mc.IdentityType == IdentityType.AccessToken && mc.IdentityId == obj.Username) ||
-                                            (mc.IdentityType == IdentityType.DevicePassword && mc.IdentityId == obj.Username && mc.IdentityValue == obj.Password));
-                    if (mcr != null)
+                    MqttConnectionValidatorContext obj = e.Context;
+                    Uri uri = new Uri("mqtt://" + obj.Endpoint);
+                    if (uri.IsLoopback && !string.IsNullOrEmpty(e.Context.ClientId) && e.Context.ClientId == _mcsetting.MqttBroker && !string.IsNullOrEmpty(e.Context.Username) && e.Context.Username == _mcsetting.UserName && e.Context.Password == _mcsetting.Password)
                     {
-                        try
-                        {
-                            var device = mcr.Device;
-                            if (!Devices.ContainsKey(e.Context.ClientId))
-                            {
-                                Devices.Add(e.Context.ClientId, device);
-                            }
-                        }
-                        catch (Exception ex)
-                        {
-                            _logger.LogError(ex, "ConnectionRefusedServerUnavailable {0}", ex.Message);
-                            obj.ReasonCode = MQTTnet.Protocol.MqttConnectReasonCode.ServerUnavailable;
-                        }
+                        obj.ReasonCode = MQTTnet.Protocol.MqttConnectReasonCode.Success;
                     }
-                    else if (_dbContextcv.AuthorizedKeys.Any(ak=>ak.AuthToken==obj.Password))
+                    else
                     {
-                        var ak = _dbContextcv.AuthorizedKeys.Include(ak => ak.Customer).Include(ak => ak.Tenant).Include(ak => ak.Devices).First(ak => ak.AuthToken == obj.Password);
-                        if (!ak.Devices.Any(dev => dev.Name == obj.Username))
+                        _logger.LogInformation($"ClientId={obj.ClientId},Endpoint={obj.Endpoint},Username={obj.Username}，Password={obj.Password},WillMessage={obj.WillMessage?.ConvertPayloadToString()}");
+                        var mcr = await _dbContextcv.DeviceIdentities.Include(d => d.Device).FirstOrDefaultAsync(mc =>
+                                                (mc.IdentityType == IdentityType.AccessToken && mc.IdentityId == obj.Username) ||
+                                                (mc.IdentityType == IdentityType.DevicePassword && mc.IdentityId == obj.Username && mc.IdentityValue == obj.Password));
+                        if (mcr != null)
                         {
-
-                            var devvalue = new Device() { Name = obj.Username, DeviceType = DeviceType.Device };
-                            devvalue.Tenant = ak.Tenant;
-                            devvalue.Customer = ak.Customer;
-                            _dbContextcv.Device.Add(devvalue);
-                            ak.Devices.Add(devvalue);
-                            _dbContextcv.AfterCreateDevice(devvalue,obj.Username,obj.Password);
-                            _dbContextcv.SaveChanges();
-                        }
-                        var mcp = _dbContextcv.DeviceIdentities.Include(d => d.Device).FirstOrDefault(mc => mc.IdentityType == IdentityType.DevicePassword && mc.IdentityId == obj.Username && mc.IdentityValue == obj.Password);
-                        if (mcp != null)
-                        {
-                            if (!Devices.ContainsKey(e.Context.ClientId))
+                            try
                             {
-                                Devices.Add(e.Context.ClientId, mcp.Device);
+                                var device = mcr.Device;
+                                if (!Devices.ContainsKey(e.Context.ClientId))
+                                {
+                                    Devices.Add(e.Context.ClientId, device);
+                                }
                             }
-                            obj.ReasonCode = MQTTnet.Protocol.MqttConnectReasonCode.Success;
+                            catch (Exception ex)
+                            {
+                                _logger.LogError(ex, "ConnectionRefusedServerUnavailable {0}", ex.Message);
+                                obj.ReasonCode = MQTTnet.Protocol.MqttConnectReasonCode.ServerUnavailable;
+                            }
+                        }
+                        else if (_dbContextcv.AuthorizedKeys.Any(ak => ak.AuthToken == obj.Password))
+                        {
+                            var ak = await _dbContextcv.AuthorizedKeys.Include(ak => ak.Customer).Include(ak => ak.Tenant).Include(ak => ak.Devices).FirstAsync(ak => ak.AuthToken == obj.Password);
+                            if (!ak.Devices.Any(dev => dev.Name == obj.Username))
+                            {
+
+                                var devvalue = new Device() { Name = obj.Username, DeviceType = DeviceType.Device };
+                                devvalue.Tenant = ak.Tenant;
+                                devvalue.Customer = ak.Customer;
+                                await _dbContextcv.Device.AddAsync(devvalue);
+                                ak.Devices.Add(devvalue);
+                                _dbContextcv.AfterCreateDevice(devvalue, obj.Username, obj.Password);
+                                await _dbContextcv.SaveChangesAsync();
+                            }
+                            var mcp = await _dbContextcv.DeviceIdentities.Include(d => d.Device).FirstOrDefaultAsync(mc => mc.IdentityType == IdentityType.DevicePassword && mc.IdentityId == obj.Username && mc.IdentityValue == obj.Password);
+                            if (mcp != null)
+                            {
+                                if (!Devices.ContainsKey(e.Context.ClientId))
+                                {
+                                    Devices.Add(e.Context.ClientId, mcp.Device);
+                                }
+                                obj.ReasonCode = MQTTnet.Protocol.MqttConnectReasonCode.Success;
+                            }
+                            else
+                            {
+                                obj.ReasonCode = MQTTnet.Protocol.MqttConnectReasonCode.BadUserNameOrPassword;
+                            }
                         }
                         else
                         {
+
                             obj.ReasonCode = MQTTnet.Protocol.MqttConnectReasonCode.BadUserNameOrPassword;
+                            _logger.LogInformation($"Bad username or password {obj.Username},connection {obj.Endpoint} refused");
                         }
                     }
-                    else 
-                    {
-
-                        obj.ReasonCode = MQTTnet.Protocol.MqttConnectReasonCode.BadUserNameOrPassword;
-                        _logger.LogInformation($"Bad username or password {obj.Username},connection {obj.Endpoint} refused");
-                    }
                 }
-            }
+            });
         }
 
         

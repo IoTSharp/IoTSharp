@@ -3,6 +3,7 @@ using IoTSharp.Data;
 using IoTSharp.Extensions;
 using IoTSharp.Queue;
 using IoTSharp.Storage;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -65,6 +66,6 @@ namespace IoTSharp.Handlers
             });
         }
         [CapSubscribe("iotsharp.services.datastream.telemetrydata")]
-        public void StoreTelemetryData(RawMsg msg) => Task.Run(async () => await _storage.StoreTelemetryAsync(msg));
+        public void StoreTelemetryData(RawMsg msg) => Task.Run( () =>  _storage.StoreTelemetryAsync(msg));
     }
 }

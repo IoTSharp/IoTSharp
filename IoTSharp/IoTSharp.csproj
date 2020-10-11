@@ -54,8 +54,8 @@
     <PackageReference Include="DotNetCore.CAP.MongoDB" Version="3.1.1" />
     <PackageReference Include="DotNetCore.CAP.PostgreSql" Version="3.1.1" />
     <PackageReference Include="DotNetCore.CAP.RabbitMQ" Version="3.1.1" />
-    <PackageReference Include="EFCore.Sharding" Version="3.1.8.1" />
-    <PackageReference Include="EFCore.Sharding.PostgreSql" Version="3.1.8.1" />
+    <PackageReference Include="EFCore.Sharding" Version="3.1.8.2" />
+    <PackageReference Include="EFCore.Sharding.PostgreSql" Version="3.1.8.2" />
     <PackageReference Include="IoTSharp.CoAP.NET" Version="2.0.8" />
     <PackageReference Include="IoTSharp.X509Extensions" Version="1.4.19" />
     <PackageReference Include="kimbus" Version="2.0.1" />

@@ -10,7 +10,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Dic = System.Collections.Generic.Dictionary<string, string>;
+using Dic = System.Collections.Generic.Dictionary<string, System.Exception>;
 
 namespace IoTSharp.Extensions
 {
@@ -52,22 +52,23 @@ namespace IoTSharp.Extensions
         {
 
             Dic exceptions = new Dic();
-            var devdata = from tx in _context.Set<L>() where tx.DeviceId == deviceId select tx;
+        
             data.ToList().ForEach(kp =>
             {
                 try
                 {
                     if (kp.Key != null && kp.Value !=null)
                     {
+                        var devdata = from tx in _context.Set<L>() where tx.DeviceId == deviceId select tx;
                         var tl = from tx in devdata  where  tx.KeyName == kp.Key && tx.DataSide == dataSide select tx;
                         if (tl.Any())
                         {
                             var tx = tl.First();
                             tx.FillKVToMe(kp);
                             tx.DateTime = DateTime.Now;
-                            _context.Set<L>().Update(tx).State= EntityState.Modified;
+                            _context.Set<L>().Update(tx).State = EntityState.Modified;
                         }
-                        else 
+                        else
                         {
                             var t2 = new L() { DateTime = DateTime.Now, DeviceId = deviceId, KeyName = kp.Key, DataSide = dataSide };
                             t2.Catalog = (typeof(L) == typeof(AttributeLatest) ? DataCatalog.AttributeLatest
@@ -79,12 +80,12 @@ namespace IoTSharp.Extensions
                     }
                     else
                     {
-                        exceptions.Add($"Key:{ kp.Key}","Key is null or value is null");
+                        exceptions.Add($"Key:{ kp.Key}",new Exception( "Key is null or value is null"));
                     }
                 }
                 catch (Exception ex)
                 {
-                    exceptions.Add(kp.Key, ex.Message);
+                    exceptions.Add(kp.Key, ex);
                 }
             });
             return exceptions;

@@ -44,6 +44,7 @@ using EFCore.Sharding;
 using IoTSharp.Storage;
 using DotNetCore.CAP.Dashboard.NodeDiscovery;
 using Savorboard.CAP.InMemoryMessageQueue;
+using System.Diagnostics;
 
 namespace IoTSharp
 {
@@ -72,8 +73,7 @@ namespace IoTSharp
                 setting.MqttBroker = settings.MqttBroker;
                 setting.MqttClient = settings.MqttClient;
             }));
-            services.AddDbContext<ApplicationDbContext>(options =>  options.UseNpgsql(Configuration.GetConnectionString("IoTSharp"))      
-            , ServiceLifetime.Transient);
+            services.AddDbContextPool<ApplicationDbContext>(options =>  options.UseNpgsql(Configuration.GetConnectionString("IoTSharp"))    ,  poolSize:2048        );
             services.AddIdentity<IdentityUser, IdentityRole>()
                   .AddRoles<IdentityRole>()
                   .AddRoleManager<RoleManager<IdentityRole>>()
@@ -188,7 +188,7 @@ namespace IoTSharp
 
             services.AddCap(x =>
             {
-               
+                x.ConsumerThreadCount = settings.ConsumerThreadCount <=0? Environment.ProcessorCount: settings.ConsumerThreadCount;
                 switch (settings.EventBusStore)
                 {
                     case EventBusStore.PostgreSql:
@@ -281,7 +281,7 @@ namespace IoTSharp
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
-             endpoints.MapMqtt("/mqtt");
+                endpoints.MapMqtt("/mqtt");
             });
             app.UseSwaggerUi3();
             app.UseOpenApi();

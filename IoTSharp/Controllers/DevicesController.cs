@@ -395,10 +395,8 @@ namespace IoTSharp.Controllers
             {
                 return NotFound(new ApiResult<Guid>(ApiCode.NotFoundDevice, $"Device {id} not found ", id));
             }
-
             _context.Device.Remove(device);
             await _context.SaveChangesAsync();
-
             return device;
         }
 
@@ -475,7 +473,7 @@ namespace IoTSharp.Controllers
             else
             {
                 var result = await _context.SaveAsync<TelemetryLatest>(telemetrys, device.Id, DataSide.ClientSide);
-                return Ok(new ApiResult<Dic>(result.ret > 0 ? ApiCode.Success : ApiCode.NothingToDo, result.ret > 0 ? "OK" : "No Telemetry save", result.exceptions));
+                return Ok(new ApiResult<Dic>(result.ret > 0 ? ApiCode.Success : ApiCode.NothingToDo, result.ret > 0 ? "OK" : "No Telemetry save",  new Dic( result.exceptions?.Select(f=> new  DicKV(f.Key,f.Value.Message)))));
             }
         }
 
@@ -538,7 +536,7 @@ namespace IoTSharp.Controllers
             else
             {
                 var result = await _context.SaveAsync<AttributeLatest>(attributes, dev.Id, DataSide.ClientSide);
-                return Ok(new ApiResult<Dic>(result.ret > 0 ? ApiCode.Success : ApiCode.NothingToDo, result.ret > 0 ? "OK" : "No Attribute save", result.exceptions));
+                return Ok(new ApiResult<Dic>(result.ret > 0 ? ApiCode.Success : ApiCode.NothingToDo, result.ret > 0 ? "OK" : "No Attribute save", new Dic(result.exceptions?.Select(f => new DicKV(f.Key, f.Value.Message)))));
             }
         }
     }

@@ -61,6 +61,7 @@ namespace IoTSharp
         public ShardingSetting Sharding { get; set; } = new ShardingSetting();
         public  EventBusStore EventBusStore { get; set; } = EventBusStore.InMemory;
         public   EventBusMQ EventBusMQ { get; set; } = EventBusMQ.InMemory;
+        public int ConsumerThreadCount { get; set; }
     }
   
     public class ShardingSetting

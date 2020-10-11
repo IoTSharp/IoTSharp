@@ -23,6 +23,7 @@ namespace IoTSharp.Storage
         private readonly AppSettings _appSettings;
         private readonly ILogger _logger;
         private readonly IServiceScope scope;
+        private readonly IServiceScopeFactory _scopeFactor;
         private readonly ApplicationDbContext _context;
 
         public ShardingStorage(ILogger<ShardingStorage> logger, IServiceScopeFactory scopeFactor
@@ -32,6 +33,7 @@ namespace IoTSharp.Storage
             _appSettings = options.Value;
             _logger = logger;
             scope = scopeFactor.CreateScope();
+            _scopeFactor = scopeFactor;
             _context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
         }
 
@@ -63,13 +65,16 @@ namespace IoTSharp.Storage
         {
             return Task.Run(() =>
             {
-                using (var _context = scope.ServiceProvider.GetService<IShardingDbAccessor>())
+                using (var _scope = _scopeFactor.CreateScope())
                 {
-                    var lst = new List<TelemetryDataDto>();
-                    var kv = _context.GetIShardingQueryable<TelemetryData>()
-                        .Where(t => t.DeviceId == deviceId && keys.Split(',', ' ', ';').Contains(t.KeyName) && t.DateTime >= begin && t.DateTime < end)
-                        .ToList().Select(t => new TelemetryDataDto() { DateTime = t.DateTime, KeyName = t.KeyName, Value = t.ToObject() });
-                    return kv.ToList();
+                    using (var _context = _scope.ServiceProvider.GetService<IShardingDbAccessor>())
+                    {
+                        var lst = new List<TelemetryDataDto>();
+                        var kv = _context.GetIShardingQueryable<TelemetryData>()
+                            .Where(t => t.DeviceId == deviceId && keys.Split(',', ' ', ';').Contains(t.KeyName) && t.DateTime >= begin && t.DateTime < end)
+                            .ToList().Select(t => new TelemetryDataDto() { DateTime = t.DateTime, KeyName = t.KeyName, Value = t.ToObject() });
+                        return kv.ToList();
+                    }
                 }
             });
         }
@@ -99,30 +104,33 @@ namespace IoTSharp.Storage
             bool result = false;
             try
             {
-                using (var db = scope.ServiceProvider.GetService<IShardingDbAccessor>())
+                using (var _scope = _scopeFactor.CreateScope())
                 {
-                    var lst = new List<TelemetryData>();
-                    msg.MsgBody.ToList().ForEach(kp =>
-                                     {
-                                         if (kp.Value != null)
-                                         {
-                                             var tdata = new TelemetryData() { DateTime = DateTime.Now, DeviceId = msg.DeviceId, KeyName = kp.Key, Value_DateTime = new DateTime(1970, 1, 1) };
-                                             tdata.FillKVToMe(kp);
-                                             lst.Add(tdata);
-                                         }
-                                     });
-                    int ret = db.Insert(lst);
-                    _logger.LogInformation($"新增({msg.DeviceId})遥测数据{ret}");
-                }
-                using (var _dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>())
-                {
-                    var result1 = await _dbContext.SaveAsync<TelemetryLatest>(msg.MsgBody, msg.DeviceId, msg.DataSide);
-                    result1.exceptions?.ToList().ForEach(ex =>
+                    using (var db = _scope.ServiceProvider.GetService<IShardingDbAccessor>())
                     {
-                        _logger.LogError($"{ex.Key} {ex.Value} {Newtonsoft.Json.JsonConvert.SerializeObject(msg.MsgBody[ex.Key])}");
-                    });
-                    _logger.LogInformation($"新增({msg.DeviceId})遥测数据更新最新信息{result1.ret}");
-                    result = true;
+                        var lst = new List<TelemetryData>();
+                        msg.MsgBody.ToList().ForEach(kp =>
+                                         {
+                                             if (kp.Value != null)
+                                             {
+                                                 var tdata = new TelemetryData() { DateTime = DateTime.Now, DeviceId = msg.DeviceId, KeyName = kp.Key, Value_DateTime = new DateTime(1970, 1, 1) };
+                                                 tdata.FillKVToMe(kp);
+                                                 lst.Add(tdata);
+                                             }
+                                         });
+                        int ret = await db.InsertAsync(lst);
+                        _logger.LogInformation($"新增({msg.DeviceId})遥测数据{ret}");
+                    }
+                    using (var _dbContext = _scope.ServiceProvider.GetRequiredService<ApplicationDbContext>())
+                    {
+                        var result1 = await _dbContext.SaveAsync<TelemetryLatest>(msg.MsgBody, msg.DeviceId, msg.DataSide);
+                        result1.exceptions?.ToList().ForEach(ex =>
+                        {
+                            _logger.LogError(ex.Value, $"{ex.Key} {ex.Value.Message} {ex.Value.InnerException?.Message}");
+                        });
+                        _logger.LogInformation($"新增({msg.DeviceId})遥测数据更新最新信息{result1.ret}");
+                        result = true;
+                    }
                 }
             }
             catch (Exception ex)
