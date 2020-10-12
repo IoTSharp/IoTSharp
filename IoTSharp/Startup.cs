@@ -73,7 +73,7 @@ namespace IoTSharp
                 setting.MqttBroker = settings.MqttBroker;
                 setting.MqttClient = settings.MqttClient;
             }));
-            services.AddDbContextPool<ApplicationDbContext>(options =>  options.UseNpgsql(Configuration.GetConnectionString("IoTSharp"))    ,  poolSize:2048        );
+            services.AddDbContextPool<ApplicationDbContext>(options =>  options.UseNpgsql(Configuration.GetConnectionString("IoTSharp"))    ,  poolSize:  settings.DbContextPoolSize);
             services.AddIdentity<IdentityUser, IdentityRole>()
                   .AddRoles<IdentityRole>()
                   .AddRoleManager<RoleManager<IdentityRole>>()
@@ -188,7 +188,7 @@ namespace IoTSharp
 
             services.AddCap(x =>
             {
-                x.ConsumerThreadCount = settings.ConsumerThreadCount <=0? Environment.ProcessorCount: settings.ConsumerThreadCount;
+                x.ConsumerThreadCount = settings.ConsumerThreadCount  ;
                 switch (settings.EventBusStore)
                 {
                     case EventBusStore.PostgreSql:
@@ -237,7 +237,7 @@ namespace IoTSharp
                 // Register Dashboard
                 x.UseDashboard();
                 // Register to Consul
-                x.UseDiscovery();
+                //x.UseDiscovery();
             });
 
         }
