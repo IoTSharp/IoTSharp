@@ -139,13 +139,13 @@ namespace IoTSharp
             services.AddHealthChecksUI().AddPostgreSqlStorage(Configuration.GetConnectionString("IoTSharp"));
             services.AddSilkierQuartz(opt=>
             {
-                opt.Add("quartz.serializer.type", "json");
-                opt.Add("quartz.jobStore.type", "Quartz.Impl.AdoJobStore.JobStoreTX, Quartz");
-                opt.Add("quartz.jobStore.driverDelegateType", "Quartz.Impl.AdoJobStore.StdAdoDelegate, Quartz");
-                opt.Add("quartz.jobStore.tablePrefix", "qrtz_");
-                opt.Add("quartz.jobStore.dataSource", "myDS");
-                opt.Add("quartz.dataSource.myDS.provider", "Npgsql");
-                opt.Add("quartz.dataSource.myDS.connectionString", Configuration.GetConnectionString("IoTSharp"));
+                //opt.Add("quartz.serializer.type", "json");
+                //opt.Add("quartz.jobStore.type", "Quartz.Impl.AdoJobStore.JobStoreTX, Quartz");
+                //opt.Add("quartz.jobStore.driverDelegateType", "Quartz.Impl.AdoJobStore.StdAdoDelegate, Quartz");
+                //opt.Add("quartz.jobStore.tablePrefix", "qrtz_");
+                //opt.Add("quartz.jobStore.dataSource", "myDS");
+                //opt.Add("quartz.dataSource.myDS.provider", "Npgsql");
+                //opt.Add("quartz.dataSource.myDS.connectionString", Configuration.GetConnectionString("IoTSharp"));
                 opt.Add("quartz.plugin.recentHistory.type", "Quartz.Plugins.RecentHistory.ExecutionHistoryPlugin, Quartz.Plugins.RecentHistory");
                 opt.Add("quartz.plugin.recentHistory.storeType", "Quartz.Plugins.RecentHistory.Impl.InProcExecutionHistoryStore, Quartz.Plugins.RecentHistory");
             });
