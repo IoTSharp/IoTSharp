@@ -12,7 +12,7 @@ services:
       POSTGRES_DB: IoTSharp
       POSTGRES_PASSWORD: future 
     ports: 
-     - "5432:5432"
+     - "5439:5432"
     networks:
       - iotsharp-network
 

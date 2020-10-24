@@ -26,10 +26,9 @@ namespace IoTSharp.Handlers
     public class MQTTServerHandler
     {
         readonly ILogger<MQTTServerHandler> _logger;
-        readonly ApplicationDbContext _dbContext;
+        private readonly IServiceScopeFactory _scopeFactor;
         readonly IMqttServerEx _serverEx;
         private readonly ICapPublisher _queue;
-        readonly IServiceScope scope;
         readonly MqttClientSetting _mcsetting;
         public MQTTServerHandler(ILogger<MQTTServerHandler> logger, IServiceScopeFactory scopeFactor,IMqttServerEx serverEx 
            , IOptions <AppSettings> options, ICapPublisher queue
@@ -37,8 +36,8 @@ namespace IoTSharp.Handlers
         {
             _mcsetting = options.Value.MqttClient;
             _logger = logger;
-            scope = scopeFactor.CreateScope();
-            _dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+            _scopeFactor = scopeFactor;
+       
             _serverEx = serverEx;
             _queue = queue;
         }
@@ -151,80 +150,84 @@ namespace IoTSharp.Handlers
 
         private async Task RequestAttributes(string[] tpary, Dictionary<string, object> keyValues,Device device)
         {
-            if (tpary.Length>5 &&  tpary[4] == "xml" )
+            using (var scope= _scopeFactor.CreateScope())
+            using (var _dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>())
             {
-                var qf = from at in _dbContext.AttributeLatest where at.Type == DataType.XML && at.KeyName == tpary[5] select at;
-                await qf.LoadAsync();
-                await _serverEx.PublishAsync($"/devices/me/attributes/response/{tpary[5]}", qf.FirstOrDefault()?.Value_XML);
-            }
-            else if (tpary.Length > 5 &&  tpary[4] == "binary")
-            {
-                var qf = from at in _dbContext.AttributeLatest where at.Type == DataType.Binary && at.KeyName == tpary[5] select at;
-                await qf.LoadAsync();
-                await _serverEx.PublishAsync(new MqttApplicationMessage() {  Topic = $"/devices/me/attributes/response/{tpary[5]}", Payload = qf.FirstOrDefault()?.Value_Binary });
-            }
-            else
-            {
-                Dictionary<string, object> reps = new Dictionary<string, object>();
-                var reqid = tpary.Length > 4 ? tpary[4] : Guid.NewGuid().ToString();
-                List<AttributeLatest> datas = new List<AttributeLatest>();
-                foreach (var kx in keyValues)
+                if (tpary.Length > 5 && tpary[4] == "xml")
                 {
-                    var keys = kx.Value?.ToString().Split(',');
-                    if (keys != null && keys.Length > 0)
+                    var qf = from at in _dbContext.AttributeLatest where at.Type == DataType.XML && at.KeyName == tpary[5] select at;
+                    await qf.LoadAsync();
+                    await _serverEx.PublishAsync($"/devices/me/attributes/response/{tpary[5]}", qf.FirstOrDefault()?.Value_XML);
+                }
+                else if (tpary.Length > 5 && tpary[4] == "binary")
+                {
+                    var qf = from at in _dbContext.AttributeLatest where at.Type == DataType.Binary && at.KeyName == tpary[5] select at;
+                    await qf.LoadAsync();
+                    await _serverEx.PublishAsync(new MqttApplicationMessage() { Topic = $"/devices/me/attributes/response/{tpary[5]}", Payload = qf.FirstOrDefault()?.Value_Binary });
+                }
+                else
+                {
+                    Dictionary<string, object> reps = new Dictionary<string, object>();
+                    var reqid = tpary.Length > 4 ? tpary[4] : Guid.NewGuid().ToString();
+                    List<AttributeLatest> datas = new List<AttributeLatest>();
+                    foreach (var kx in keyValues)
                     {
-                        if (Enum.TryParse(kx.Key, true, out DataSide ds))
+                        var keys = kx.Value?.ToString().Split(',');
+                        if (keys != null && keys.Length > 0)
                         {
-                            var qf = from at in _dbContext.AttributeLatest where at.DeviceId == device.Id && keys.Contains(at.KeyName) select at;
-                            await qf.LoadAsync();
-                            if (ds == DataSide.AnySide)
+                            if (Enum.TryParse(kx.Key, true, out DataSide ds))
                             {
-                                datas.AddRange(await qf.ToArrayAsync());
-                            }
-                            else
-                            { 
-                                var qx = from at in qf where  at.DataSide == ds select at;
-                                datas.AddRange(await qx.ToArrayAsync());
+                                var qf = from at in _dbContext.AttributeLatest where at.DeviceId == device.Id && keys.Contains(at.KeyName) select at;
+                                await qf.LoadAsync();
+                                if (ds == DataSide.AnySide)
+                                {
+                                    datas.AddRange(await qf.ToArrayAsync());
+                                }
+                                else
+                                {
+                                    var qx = from at in qf where at.DataSide == ds select at;
+                                    datas.AddRange(await qx.ToArrayAsync());
+                                }
                             }
                         }
                     }
-                }
 
-       
-                foreach (var item in datas)
-                {
-                    switch (item.Type)
+
+                    foreach (var item in datas)
                     {
-                        case DataType.Boolean:
-                            reps.Add(item.KeyName, item.Value_Boolean);
-                            break;
-                        case DataType.String:
-                            reps.Add(item.KeyName, item.Value_String);
-                            break;
-                        case DataType.Long:
-                            reps.Add(item.KeyName, item.Value_Long);
-                            break;
-                        case DataType.Double:
-                            reps.Add(item.KeyName, item.Value_Double);
-                            break;
-                        case DataType.Json:
-                            reps.Add(item.KeyName, Newtonsoft.Json.Linq.JToken.Parse(item.Value_Json));
-                            break;
-                        case DataType.XML:
-                            reps.Add(item.KeyName, item.Value_XML);
-                            break;
-                        case DataType.Binary:
-                            reps.Add(item.KeyName, item.Value_Binary);
-                            break;
-                        case DataType.DateTime:
-                            reps.Add(item.KeyName, item.Value_DateTime);
-                            break;
-                        default:
-                            reps.Add(item.KeyName, item.Value_Json);
-                            break;
+                        switch (item.Type)
+                        {
+                            case DataType.Boolean:
+                                reps.Add(item.KeyName, item.Value_Boolean);
+                                break;
+                            case DataType.String:
+                                reps.Add(item.KeyName, item.Value_String);
+                                break;
+                            case DataType.Long:
+                                reps.Add(item.KeyName, item.Value_Long);
+                                break;
+                            case DataType.Double:
+                                reps.Add(item.KeyName, item.Value_Double);
+                                break;
+                            case DataType.Json:
+                                reps.Add(item.KeyName, Newtonsoft.Json.Linq.JToken.Parse(item.Value_Json));
+                                break;
+                            case DataType.XML:
+                                reps.Add(item.KeyName, item.Value_XML);
+                                break;
+                            case DataType.Binary:
+                                reps.Add(item.KeyName, item.Value_Binary);
+                                break;
+                            case DataType.DateTime:
+                                reps.Add(item.KeyName, item.Value_DateTime);
+                                break;
+                            default:
+                                reps.Add(item.KeyName, item.Value_Json);
+                                break;
+                        }
                     }
+                    await _serverEx.PublishAsync($"/devices/me/attributes/response/{reqid}", Newtonsoft.Json.JsonConvert.SerializeObject(reps));
                 }
-                await _serverEx.PublishAsync($"/devices/me/attributes/response/{reqid}", Newtonsoft.Json.JsonConvert.SerializeObject(reps));
             }
            
         }
@@ -244,27 +247,32 @@ namespace IoTSharp.Handlers
 
         private Device JudgeOrCreateNewDevice(string[] tpary, Device device)
         {
-            Device devicedatato =null;
-            if (tpary[1] != "me" && device.DeviceType == DeviceType.Gateway)
+            Device devicedatato = null;
+            using (var scope = _scopeFactor.CreateScope())
+            using (var _dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>())
             {
-                var ch = from g in _dbContext.Gateway.Include(g=>g.Tenant).Include(g=>g.Customer).Include(c => c.Children) where g.Id == device.Id select g;
-                var gw = ch.FirstOrDefault();
-                var subdev = from cd in  gw.Children where cd.Name == tpary[1] select cd;
-                if (!subdev.Any())
+              
+                if (tpary[1] != "me" && device.DeviceType == DeviceType.Gateway)
                 {
-                    devicedatato = new Device() { Id = Guid.NewGuid(), Name = tpary[1], DeviceType = DeviceType.Device, Tenant = gw.Tenant, Customer = gw.Customer, Owner=gw };
-                    gw.Children.Add(devicedatato);
-                    _dbContext.AfterCreateDevice(devicedatato);
-                    _dbContext.SaveChangesAsync();
+                    var ch = from g in _dbContext.Gateway.Include(g => g.Tenant).Include(g => g.Customer).Include(c => c.Children) where g.Id == device.Id select g;
+                    var gw = ch.FirstOrDefault();
+                    var subdev = from cd in gw.Children where cd.Name == tpary[1] select cd;
+                    if (!subdev.Any())
+                    {
+                        devicedatato = new Device() { Id = Guid.NewGuid(), Name = tpary[1], DeviceType = DeviceType.Device, Tenant = gw.Tenant, Customer = gw.Customer, Owner = gw };
+                        gw.Children.Add(devicedatato);
+                        _dbContext.AfterCreateDevice(devicedatato);
+                        _dbContext.SaveChangesAsync();
+                    }
+                    else
+                    {
+                        devicedatato = subdev.FirstOrDefault();
+                    }
                 }
                 else
                 {
-                    devicedatato = subdev.FirstOrDefault();
+                    devicedatato = _dbContext.Device.Find(device.Id);
                 }
-            }
-            else
-            {
-                devicedatato = _dbContext.Device.Find(device.Id);
             }
             return devicedatato;
         }
@@ -312,13 +320,12 @@ namespace IoTSharp.Handlers
         }
         internal static Dictionary<string, Device> Devices = new Dictionary<string, Device>();
 
-    
-        
         public static string MD5Sum(string text) => BitConverter.ToString(MD5.Create().ComputeHash(Encoding.UTF8.GetBytes(text))).Replace("-", "");
         internal void Server_ClientConnectionValidator(object sender, MqttServerClientConnectionValidatorEventArgs e)
         {
-            Task.Run(async () =>
+            try
             {
+                using (var scope = _scopeFactor.CreateScope())
                 using (var _dbContextcv = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>())
                 {
                     MqttConnectionValidatorContext obj = e.Context;
@@ -330,9 +337,9 @@ namespace IoTSharp.Handlers
                     else
                     {
                         _logger.LogInformation($"ClientId={obj.ClientId},Endpoint={obj.Endpoint},Username={obj.Username}，Password={obj.Password},WillMessage={obj.WillMessage?.ConvertPayloadToString()}");
-                        var mcr = await _dbContextcv.DeviceIdentities.Include(d => d.Device).FirstOrDefaultAsync(mc =>
-                                                (mc.IdentityType == IdentityType.AccessToken && mc.IdentityId == obj.Username) ||
-                                                (mc.IdentityType == IdentityType.DevicePassword && mc.IdentityId == obj.Username && mc.IdentityValue == obj.Password));
+                        var mcr = _dbContextcv.DeviceIdentities.Include(d => d.Device).FirstOrDefault(mc =>
+                                              (mc.IdentityType == IdentityType.AccessToken && mc.IdentityId == obj.Username) ||
+                                              (mc.IdentityType == IdentityType.DevicePassword && mc.IdentityId == obj.Username && mc.IdentityValue == obj.Password));
                         if (mcr != null)
                         {
                             try
@@ -351,19 +358,19 @@ namespace IoTSharp.Handlers
                         }
                         else if (_dbContextcv.AuthorizedKeys.Any(ak => ak.AuthToken == obj.Password))
                         {
-                            var ak = await _dbContextcv.AuthorizedKeys.Include(ak => ak.Customer).Include(ak => ak.Tenant).Include(ak => ak.Devices).FirstAsync(ak => ak.AuthToken == obj.Password);
-                            if (!ak.Devices.Any(dev => dev.Name == obj.Username))
+                            var ak = _dbContextcv.AuthorizedKeys.Include(ak => ak.Customer).Include(ak => ak.Tenant).Include(ak => ak.Devices).FirstOrDefault(ak => ak.AuthToken == obj.Password);
+                            if (ak!=null &&   !ak.Devices.Any(dev => dev.Name == obj.Username))
                             {
 
                                 var devvalue = new Device() { Name = obj.Username, DeviceType = DeviceType.Device };
                                 devvalue.Tenant = ak.Tenant;
                                 devvalue.Customer = ak.Customer;
-                                await _dbContextcv.Device.AddAsync(devvalue);
+                                _dbContextcv.Device.Add(devvalue);
                                 ak.Devices.Add(devvalue);
                                 _dbContextcv.AfterCreateDevice(devvalue, obj.Username, obj.Password);
-                                await _dbContextcv.SaveChangesAsync();
+                                _dbContextcv.SaveChanges();
                             }
-                            var mcp = await _dbContextcv.DeviceIdentities.Include(d => d.Device).FirstOrDefaultAsync(mc => mc.IdentityType == IdentityType.DevicePassword && mc.IdentityId == obj.Username && mc.IdentityValue == obj.Password);
+                            var mcp = _dbContextcv.DeviceIdentities.Include(d => d.Device).FirstOrDefault(mc => mc.IdentityType == IdentityType.DevicePassword && mc.IdentityId == obj.Username && mc.IdentityValue == obj.Password);
                             if (mcp != null)
                             {
                                 if (!Devices.ContainsKey(e.Context.ClientId))
@@ -384,11 +391,18 @@ namespace IoTSharp.Handlers
                             _logger.LogInformation($"Bad username or password {obj.Username},connection {obj.Endpoint} refused");
                         }
                     }
+
                 }
-            });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "ConnectionRefusedServerUnavailable2222222222222 {0}", ex.Message);
+            }
+
+
         }
 
-        
+
         public Task<IList<MqttApplicationMessage>> GetRetainedMessagesAsync()
         {
             return _serverEx.GetRetainedApplicationMessagesAsync();

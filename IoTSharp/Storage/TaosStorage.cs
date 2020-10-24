@@ -1,4 +1,5 @@
-﻿using IoTSharp.Data;
+﻿using hyjiacan.py4n;
+using IoTSharp.Data;
 using IoTSharp.Dtos;
 using IoTSharp.Extensions;
 using IoTSharp.Queue;
@@ -225,14 +226,16 @@ namespace IoTSharp.Storage
                                     default:
                                         break;
                                 }
-                                string vals = $"device_{tdata.DeviceId:N}_{tdata.KeyName} USING telemetrydata TAGS('{tdata.DeviceId:N}','{tdata.KeyName}')  (ts,value_type,{_type}) values (now,{(int)tdata.Type},{_value})";
+                                string vals = $"device_{tdata.DeviceId:N}_{ Pinyin4Net.GetPinyin( tdata.KeyName, PinyinFormat.WITHOUT_TONE ).Replace(" ",string.Empty).Replace("@",string.Empty)} USING telemetrydata TAGS('{tdata.DeviceId:N}','{tdata.KeyName}')  (ts,value_type,{_type}) values (now,{(int)tdata.Type},{_value})";
                                 lst.Add(vals);
                             }
                         });
                     await Retry.RetryOnAny(10, async f =>
                     {
                         db.Open();
-                        int dt = await db.CreateCommand($"INSERT INTO {string.Join("\r\n", lst)}").ExecuteNonQueryAsync();
+                        var cmd = db.CreateCommand($"INSERT INTO {string.Join("\r\n", lst)}");
+                        _logger.LogInformation(cmd.CommandText);
+                        int dt = await cmd.ExecuteNonQueryAsync();
                         db.Close();
                         _logger.LogInformation($"数据入库完成,共数据{lst.Count}条，写入{dt}条");
                     }, ef =>

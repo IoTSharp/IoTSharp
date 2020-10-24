@@ -10,6 +10,7 @@ using Microsoft.Extensions.Options;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace IoTSharp.Storage
@@ -24,7 +25,8 @@ namespace IoTSharp.Storage
         private readonly ILogger _logger;
         private readonly IServiceScope scope;
         private readonly IServiceScopeFactory _scopeFactor;
-        private readonly ApplicationDbContext _context;
+      
+        private bool createNew;
 
         public ShardingStorage(ILogger<ShardingStorage> logger, IServiceScopeFactory scopeFactor
            , IOptions<AppSettings> options
@@ -34,26 +36,53 @@ namespace IoTSharp.Storage
             _logger = logger;
             scope = scopeFactor.CreateScope();
             _scopeFactor = scopeFactor;
-            _context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
         }
 
         public Task<List<TelemetryDataDto>> GetTelemetryLatest(Guid deviceId)
         {
-            var devid = from t in _context.TelemetryLatest
-                        where t.DeviceId == deviceId
-                        select new TelemetryDataDto() { DateTime = t.DateTime, KeyName = t.KeyName, Value = t.ToObject() };
+            try
+            {
+                using (var _scope = _scopeFactor.CreateScope())
+                {
+                    using (var _context = _scope.ServiceProvider.GetRequiredService<ApplicationDbContext>())
+                    {
+                        var devid = from t in _context.TelemetryLatest
+                                    where t.DeviceId == deviceId
+                                    select new TelemetryDataDto() { DateTime = t.DateTime, KeyName = t.KeyName, Value = t.ToObject() };
 
-            return devid.AsNoTracking().ToListAsync();
+                        return devid.AsNoTracking().ToListAsync();
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"{ deviceId}数据处理失败{ex.Message} {ex.InnerException?.Message} ");
+                throw ex; 
+            }
         }
 
         public Task<List<TelemetryDataDto>> GetTelemetryLatest(Guid deviceId, string keys)
         {
-            var devid = from t in _context.TelemetryLatest
-                        where t.DeviceId == deviceId && keys.Split(',', ' ', ';').Contains(t.KeyName)
+            try
+            {
+                using (var _scope = _scopeFactor.CreateScope())
+                {
+                    using (var _context = _scope.ServiceProvider.GetRequiredService<ApplicationDbContext>())
+                    {
+                        var devid = from t in _context.TelemetryLatest
+                                    where t.DeviceId == deviceId && keys.Split(',', ' ', ';').Contains(t.KeyName)
 
-                        select new TelemetryDataDto() { DateTime = t.DateTime, KeyName = t.KeyName, Value = t.ToObject() };
+                                    select new TelemetryDataDto() { DateTime = t.DateTime, KeyName = t.KeyName, Value = t.ToObject() };
 
-            return devid.AsNoTracking().ToListAsync();
+                        return devid.AsNoTracking().ToListAsync();
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"{ deviceId}数据处理失败{ex.Message} {ex.InnerException?.Message} ");
+                throw ex;
+            }
         }
 
         public Task<List<TelemetryDataDto>> LoadTelemetryAsync(Guid deviceId, string keys, DateTime begin)
@@ -65,16 +94,24 @@ namespace IoTSharp.Storage
         {
             return Task.Run(() =>
             {
-                using (var _scope = _scopeFactor.CreateScope())
+                try
                 {
-                    using (var _context = _scope.ServiceProvider.GetService<IShardingDbAccessor>())
+                    using (var _scope = _scopeFactor.CreateScope())
                     {
-                        var lst = new List<TelemetryDataDto>();
-                        var kv = _context.GetIShardingQueryable<TelemetryData>()
-                            .Where(t => t.DeviceId == deviceId && keys.Split(',', ' ', ';').Contains(t.KeyName) && t.DateTime >= begin && t.DateTime < end)
-                            .ToList().Select(t => new TelemetryDataDto() { DateTime = t.DateTime, KeyName = t.KeyName, Value = t.ToObject() });
-                        return kv.ToList();
+                        using (var _context = _scope.ServiceProvider.GetService<IShardingDbAccessor>())
+                        {
+                            var lst = new List<TelemetryDataDto>();
+                            var kv = _context.GetIShardingQueryable<TelemetryData>()
+                                .Where(t => t.DeviceId == deviceId && keys.Split(',', ' ', ';').Contains(t.KeyName) && t.DateTime >= begin && t.DateTime < end)
+                                .ToList().Select(t => new TelemetryDataDto() { DateTime = t.DateTime, KeyName = t.KeyName, Value = t.ToObject() });
+                            return kv.ToList();
+                        }
                     }
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, $"{ deviceId}数据处理失败{ex.Message} {ex.InnerException?.Message} ");
+                    throw ex;
                 }
             });
         }
@@ -98,13 +135,14 @@ namespace IoTSharp.Storage
                 }
             });
         }
-
+        
         public async Task<bool> StoreTelemetryAsync(RawMsg msg)
         {
             bool result = false;
-            try
+
+            using (var _scope = _scopeFactor.CreateScope())
             {
-                using (var _scope = _scopeFactor.CreateScope())
+                try
                 {
                     using (var db = _scope.ServiceProvider.GetService<IShardingDbAccessor>())
                     {
@@ -121,22 +159,39 @@ namespace IoTSharp.Storage
                         int ret = await db.InsertAsync(lst);
                         _logger.LogInformation($"新增({msg.DeviceId})遥测数据{ret}");
                     }
-                    using (var _dbContext = _scope.ServiceProvider.GetRequiredService<ApplicationDbContext>())
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, $"{msg.DeviceId}数据处理失败{ex.Message} {ex.InnerException?.Message} ");
+                }
+                using (Mutex m = new  Mutex(true, _appSettings.ConnectionStrings["IoTSharp"], out createNew))
+                {
+
+                    try
                     {
-                        var result1 = await _dbContext.SaveAsync<TelemetryLatest>(msg.MsgBody, msg.DeviceId, msg.DataSide);
-                        result1.exceptions?.ToList().ForEach(ex =>
+                        m.WaitOne();
+                        using (var _dbContext = _scope.ServiceProvider.GetRequiredService<ApplicationDbContext>())
                         {
-                            _logger.LogError(ex.Value, $"{ex.Key} {ex.Value.Message} {ex.Value.InnerException?.Message}");
-                        });
-                        _logger.LogInformation($"新增({msg.DeviceId})遥测数据更新最新信息{result1.ret}");
-                        result = true;
+                            var result1 = _dbContext.SaveAsync<TelemetryLatest>(msg.MsgBody, msg.DeviceId, msg.DataSide).GetAwaiter().GetResult();
+                            result1.exceptions?.ToList().ForEach(ex =>
+                            {
+                                _logger.LogError(ex.Value, $"{ex.Key} {ex.Value.Message} {ex.Value.InnerException?.Message}");
+                            });
+                            _logger.LogInformation($"新增({msg.DeviceId})遥测数据更新最新信息{result1.ret}");
+                            result = true;
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger.LogError(ex, $"{msg.DeviceId}数据处理失败{ex.Message} {ex.InnerException?.Message} ");
+                    }
+                    finally
+                    {
+                        m.ReleaseMutex();
                     }
                 }
             }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, $"{msg.DeviceId}数据处理失败{ex.Message} {ex.InnerException?.Message} ");
-            }
+
             return result;
         }
     }
