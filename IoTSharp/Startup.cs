@@ -45,6 +45,7 @@ using IoTSharp.Storage;
 using DotNetCore.CAP.Dashboard.NodeDiscovery;
 using Savorboard.CAP.InMemoryMessageQueue;
 using System.Diagnostics;
+using EasyCaching.Core.Configurations;
 
 namespace IoTSharp
 {
@@ -162,7 +163,31 @@ namespace IoTSharp
                 opt.Add("quartz.plugin.recentHistory.storeType", "Quartz.Plugins.RecentHistory.Impl.InProcExecutionHistoryStore, Quartz.Plugins.RecentHistory");
             });
             services.AddMemoryCache();
-            switch (settings.TelemetryStorage)
+            services.AddEasyCaching(options =>
+            {
+                switch (settings.CachingUseIn)
+                {
+                    case CachingUseIn.Redis:
+                        options.UseRedis(config =>
+                        {
+                            settings.CachingUseRedisHosts?.Split(';').ToList().ForEach(h =>
+                            {
+                                var hx = h.Split(':');
+                                config.DBConfig.Endpoints.Add(new ServerEndPoint(hx[0],int.Parse(hx[1] )));
+                            });
+                        });
+                        break;
+                    case CachingUseIn.LiteDB:
+                        options.UseLiteDB(cfg=>cfg.DBConfig=new EasyCaching.LiteDB.LiteDBDBOptions() {  } );
+                        break;
+                   case CachingUseIn.InMemory:
+                    default:
+                        options.UseInMemory();
+                        break;
+                }
+              
+            });
+                switch (settings.TelemetryStorage)
             {
                 case TelemetryStorage.Sharding:
                     services.AddEFCoreSharding(config =>

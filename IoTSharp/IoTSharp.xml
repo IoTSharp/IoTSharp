@@ -378,6 +378,56 @@
             <param name="id"></param>
             <returns></returns>
         </member>
+        <member name="T:IoTSharp.Data.Device">
+            <summary>
+            设备
+            </summary>
+        </member>
+        <member name="P:IoTSharp.Data.Device.Id">
+            <summary>
+            设备ID
+            </summary>
+        </member>
+        <member name="P:IoTSharp.Data.Device.Name">
+            <summary>
+            设备名称
+            </summary>
+        </member>
+        <member name="P:IoTSharp.Data.Device.DeviceType">
+            <summary>
+            设备类型
+            </summary>
+        </member>
+        <member name="P:IoTSharp.Data.Device.Online">
+            <summary>
+            在线
+            </summary>
+        </member>
+        <member name="P:IoTSharp.Data.Device.LastActive">
+            <summary>
+            最后一次活跃时间
+            </summary>
+        </member>
+        <member name="P:IoTSharp.Data.Device.Timeout">
+            <summary>
+            超时时间 秒数 
+            </summary>
+        </member>
+        <member name="P:IoTSharp.Data.Device.Owner">
+            <summary>
+            所有者
+            </summary>
+        </member>
+        <member name="P:IoTSharp.Data.Device.Tenant">
+            <summary>
+            租户
+            </summary>
+        </member>
+        <member name="P:IoTSharp.Data.Device.Customer">
+            <summary>
+            客户
+            </summary>
+        </member>
         <member name="P:IoTSharp.Data.DeviceIdentity.Id">
             <summary>
             认证方式ID

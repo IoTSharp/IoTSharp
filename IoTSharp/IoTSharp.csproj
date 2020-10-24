@@ -54,6 +54,10 @@
     <PackageReference Include="DotNetCore.CAP.MongoDB" Version="3.1.1" />
     <PackageReference Include="DotNetCore.CAP.PostgreSql" Version="3.1.1" />
     <PackageReference Include="DotNetCore.CAP.RabbitMQ" Version="3.1.1" />
+    <PackageReference Include="EasyCaching.Core" Version="0.9.0" />
+    <PackageReference Include="EasyCaching.InMemory" Version="0.9.0" />
+    <PackageReference Include="EasyCaching.LiteDB" Version="0.9.0" />
+    <PackageReference Include="EasyCaching.Redis" Version="0.9.0" />
     <PackageReference Include="EFCore.Sharding" Version="3.1.8.4" />
     <PackageReference Include="EFCore.Sharding.PostgreSql" Version="3.1.8.4" />
     <PackageReference Include="hyjiacan.py4n" Version="4.0.0" />
@@ -74,9 +78,9 @@
     <PackageReference Include="Microsoft.Extensions.Options" Version="3.1.9" />
     <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.10.8" />
     <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="3.1.4" />
-    <PackageReference Include="MQTTnet" Version="3.0.12" />
-    <PackageReference Include="MQTTnet.AspNetCore" Version="3.0.12" />
-    <PackageReference Include="MQTTnet.Extensions.Rpc" Version="3.0.12" />
+    <PackageReference Include="MQTTnet" Version="3.0.13" />
+    <PackageReference Include="MQTTnet.AspNetCore" Version="3.0.13" />
+    <PackageReference Include="MQTTnet.Extensions.Rpc" Version="3.0.13" />
     <PackageReference Include="NetMQ" Version="4.0.1.6" />
     <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="3.1.4" />
     <PackageReference Include="NSwag.AspNetCore" Version="13.8.2" />
@@ -88,6 +92,7 @@
     <PackageReference Include="Silkier.EFCore" Version="1.0.233" />
     <PackageReference Include="SilkierQuartz" Version="1.0.46" />
     <PackageReference Include="SilkierQuartz.Plugins.RecentHistory" Version="1.0.46" />
+    <PackageReference Include="System.Collections" Version="4.3.0" />
     <PackageReference Include="System.ServiceModel.Primitives" Version="4.7.0" />
     <PackageReference Include="System.Text.Encoding.CodePages" Version="4.7.1" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="3.1.9" />
@@ -100,7 +105,7 @@
     <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="3.1.9" />
     <PackageReference Include="Microsoft.Extensions.Hosting.WindowsServices" Version="3.1.9" />
     <PackageReference Include="MQTTnet.AspNetCoreEx" Version="3.0.11" />
-    <PackageReference Include="MQTTnet.Extensions.ManagedClient" Version="3.0.12" />
+    <PackageReference Include="MQTTnet.Extensions.ManagedClient" Version="3.0.13" />
   </ItemGroup>
   <ItemGroup>
     <Compile Remove="Migrations\**" />

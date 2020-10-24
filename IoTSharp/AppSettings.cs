@@ -36,7 +36,14 @@ namespace IoTSharp
         InMemory,
         ZeroMQ
     }
-
+    [JsonConverter(typeof(StringEnumConverter))]
+    public enum CachingUseIn
+    {
+        InMemory,
+        Redis,
+        LiteDB,
+        SQlite
+    }
     public class AppSettings
     {
         public string JwtKey { get; set; }
@@ -63,6 +70,8 @@ namespace IoTSharp
         public   EventBusMQ EventBusMQ { get; set; } = EventBusMQ.InMemory;
         public int ConsumerThreadCount { get; set; } = Environment.ProcessorCount;
         public int DbContextPoolSize { get; set; } = 128;
+        public CachingUseIn CachingUseIn { get; set; } = CachingUseIn.InMemory;
+        public  string CachingUseRedisHosts { get; set; }
     }
   
     public class ShardingSetting
