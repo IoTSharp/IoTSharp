@@ -53,11 +53,11 @@ namespace IoTSharp
         /// <summary>
         /// Broker settings
         /// </summary>
-        public MqttBrokerSetting MqttBroker { get; set; }
+        public MqttBrokerSetting MqttBroker { get; set; } = new MqttBrokerSetting();
         /// <summary>
         /// mqtt client settings
         /// </summary>
-        public MqttClientSetting MqttClient { get; set; }
+        public MqttClientSetting MqttClient { get; set; } = new MqttClientSetting() { MqttBroker = "built-in", UserName = Guid.NewGuid().ToString(), Password = Guid.NewGuid().ToString(), Port = 1883 };
         public Dictionary<string, string> ConnectionStrings { get; set; }
         public CoapConfig CoapServer { get; set; } = new CoapConfig();
 

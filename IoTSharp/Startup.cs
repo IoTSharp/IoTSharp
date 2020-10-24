@@ -54,27 +54,14 @@ namespace IoTSharp
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
-            settings = Configuration.Get<AppSettings>();
-            if (settings.MqttBroker == null) settings.MqttBroker = new MqttBrokerSetting();
-            if (settings.MqttClient == null) settings.MqttClient = new MqttClientSetting();
-            if (string.IsNullOrEmpty(settings.MqttClient.MqttBroker)) settings.MqttClient.MqttBroker = "built-in";
-            if (string.IsNullOrEmpty(settings.MqttClient.Password)) settings.MqttClient.Password = Guid.NewGuid().ToString();
-            if (string.IsNullOrEmpty(settings.MqttClient.UserName)) settings.MqttClient.UserName = Guid.NewGuid().ToString();
-            if (settings.MqttClient.Port == 0) settings.MqttClient.Port = 1883;
         }
-        private AppSettings settings;
         public IConfiguration Configuration { get; private set; }
 
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.Configure((Action<AppSettings>)(setting =>
-            {
-                Configuration.Bind(setting);
-                setting.MqttBroker = settings.MqttBroker;
-                setting.MqttClient = settings.MqttClient;
-            }));
-            services.AddDbContextPool<ApplicationDbContext>(options =>  options.UseNpgsql(Configuration.GetConnectionString("IoTSharp"))    ,  poolSize:  settings.DbContextPoolSize);
+            var settings = Configuration.Get<AppSettings>();
+            services.AddDbContextPool<ApplicationDbContext>(options => options.UseNpgsql(Configuration.GetConnectionString("IoTSharp")), poolSize: settings.DbContextPoolSize);
             services.AddIdentity<IdentityUser, IdentityRole>()
                   .AddRoles<IdentityRole>()
                   .AddRoleManager<RoleManager<IdentityRole>>()
@@ -82,7 +69,7 @@ namespace IoTSharp
                   .AddEntityFrameworkStores<ApplicationDbContext>();
 
             services.AddControllersWithViews();
-       
+
             services.AddCors();
 
             services.AddAuthentication(option =>
@@ -175,14 +162,14 @@ namespace IoTSharp
                                 var hx = h.Split(':');
                                 config.DBConfig.Endpoints.Add(new ServerEndPoint(hx[0],int.Parse(hx[1] )));
                             });
-                        });
+                        }, "iotsharp");
                         break;
                     case CachingUseIn.LiteDB:
                         options.UseLiteDB(cfg=>cfg.DBConfig=new EasyCaching.LiteDB.LiteDBDBOptions() {  } );
                         break;
                    case CachingUseIn.InMemory:
                     default:
-                        options.UseInMemory();
+                        options.UseInMemory("iotsharp");
                         break;
                 }
               
@@ -264,7 +251,6 @@ namespace IoTSharp
                 // Register to Consul
                 //x.UseDiscovery();
             });
-
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

@@ -43,7 +43,7 @@ namespace IoTSharp.Handlers
             _factory = factory;
             _serverEx = serverEx;
             _queue = queue;
-          _device=  _factory.GetCachingProvider("_devices");
+          _device=  _factory.GetCachingProvider("iotsharp");
         }
 
         static long clients = 0;
