@@ -261,7 +261,6 @@ namespace IoTSharp.Handlers
                     using (var _dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>())
                     {
                         var devtmp = _dbContext.Device.FirstOrDefault(d => d.Id == dev.Id);
-                        devtmp.Online = false;
                         devtmp.LastActive = DateTime.Now;
                         _dbContext.SaveChanges();
                         _logger.LogInformation($"Server_ClientDisconnected   ClientId:{args.ClientId} DisconnectType:{args.DisconnectType}  Device is {devtmp.Name }({devtmp.Id}) ");
@@ -293,7 +292,7 @@ namespace IoTSharp.Handlers
                     var subdev = from cd in gw.Children where cd.Name == tpary[1] select cd;
                     if (!subdev.Any())
                     {
-                        devicedatato = new Device() { Id = Guid.NewGuid(), Name = tpary[1], DeviceType = DeviceType.Device, Tenant = gw.Tenant, Customer = gw.Customer, Owner = gw, Online = true, LastActive = DateTime.Now, Timeout = 180 };
+                        devicedatato = new Device() { Id = Guid.NewGuid(), Name = tpary[1], DeviceType = DeviceType.Device, Tenant = gw.Tenant, Customer = gw.Customer, Owner = gw,  LastActive = DateTime.Now, Timeout = 300 };
                         gw.Children.Add(devicedatato);
                         _dbContext.AfterCreateDevice(devicedatato);
                         _dbContext.SaveChangesAsync();
@@ -397,7 +396,7 @@ namespace IoTSharp.Handlers
                             if (ak != null && !ak.Devices.Any(dev => dev.Name == obj.Username))
                             {
 
-                                var devvalue = new Device() { Name = obj.Username, DeviceType = DeviceType.Device, Timeout = 180, LastActive = DateTime.Now, Online = true };
+                                var devvalue = new Device() { Name = obj.Username, DeviceType = DeviceType.Device, Timeout = 300, LastActive = DateTime.Now };
                                 devvalue.Tenant = ak.Tenant;
                                 devvalue.Customer = ak.Customer;
                                 _dbContextcv.Device.Add(devvalue);

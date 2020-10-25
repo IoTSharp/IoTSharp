@@ -38,29 +38,31 @@ namespace IoTSharp.Jobs
         {
             return Task.Run(async () =>
             {
-
+                //如果中断在mqtt服务器列表中， 则取得最后一次收到消息的时间戳， 
                 using (var scope = _scopeFactor.CreateScope())
                 using (var _dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>())
                 {
                     var clientstatus = await _serverEx.GetClientStatusAsync();
                     clientstatus.ToList().ForEach(cs =>
                     {
-                        var dev = _device.Get<Device>(cs.ClientId);
-                        if (dev.HasValue)
+                        if (_device.Exists(cs.ClientId))
                         {
+                            var dev = _device.Get<Device>(cs.ClientId);
                             var d = _dbContext.Device.FirstOrDefault(d => d.Id == dev.Value.Id);
                             if (d != null)
                             {
                                 d.LastActive = cs.LastPacketReceivedTimestamp;
-                                d.Online = true;
                             }
                         }
-
                     });
+                    //如果超时小于1 就设置为默认300秒
                     var tfx = from d in _dbContext.Device where d.Timeout < 1 select d;
-                    tfx.ToList().ForEach(d => d.Timeout = 180);
-                    var to = _dbContext.Device.ToList().Where(d => DateTime.Now.Subtract(d.LastActive).TotalSeconds > d.Timeout).ToList();
-                    to.ForEach(d => d.Online = false);
+                    tfx.ToList().ForEach(d => d.Timeout = 300);
+                    //当前时间减去最后活跃时间如果小于超时时间， 则为在线， 否则就是离线
+                    _dbContext.Device.ToList().ForEach(d =>
+                    {
+                        d.Online = DateTime.Now.Subtract(d.LastActive).TotalSeconds < d.Timeout;
+                    });
                     await _dbContext.SaveChangesAsync();
                 }
             });

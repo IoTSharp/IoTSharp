@@ -365,7 +365,7 @@ namespace IoTSharp.Controllers
         {
             var cid = User.Claims.First(c => c.Type == IoTSharpClaimTypes.Customer);
             var tid = User.Claims.First(c => c.Type == IoTSharpClaimTypes.Tenant);
-            var devvalue = new Device() { Name = device.Name, DeviceType = device.DeviceType , Timeout=180, LastActive=DateTime.Now, Online=false};
+            var devvalue = new Device() { Name = device.Name, DeviceType = device.DeviceType , Timeout=300, LastActive=DateTime.Now};
             devvalue.Tenant = _context.Tenant.Find(new Guid(tid.Value));
             devvalue.Customer = _context.Customer.Find(new Guid(cid.Value));
             if (devvalue.Tenant == null || devvalue.Customer == null)
