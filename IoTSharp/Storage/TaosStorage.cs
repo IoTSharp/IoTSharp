@@ -62,8 +62,10 @@ namespace IoTSharp.Storage
         {
             using (TaosConnection db = new TaosConnection(_taosBuilder.ConnectionString))
             {
+                db.Open();
                 string sql = $"select last_row(*) from telemetrydata where deviceid='{deviceId:N}' group by deviceid,keyname";
                 List<TelemetryDataDto> dt = SqlToTDD(db, sql, "last_row(", ")", string.Empty);
+                db.Close();
                 return Task.FromResult(dt);
             }
         }
@@ -119,10 +121,12 @@ namespace IoTSharp.Storage
         {
             using (TaosConnection db = new TaosConnection(_taosBuilder.ConnectionString))
             {
+                db.Open();
                 IEnumerable<string> kvs = from k in keys
                                           select $" keyname = '{k}' ";
                 string sql = $"select last_row(*) from telemetrydata where deviceid='{deviceId:N}' and ({string.Join("or", kvs) }) group by deviceid,keyname";
                 List<TelemetryDataDto> dt = SqlToTDD(db, sql, "last_row(", ")", string.Empty);
+                db.Close();
                 return Task.FromResult(dt);
             }
         }
@@ -148,10 +152,12 @@ namespace IoTSharp.Storage
         {
             using (TaosConnection db = new TaosConnection(_taosBuilder.ConnectionString))
             {
+                db.Open();
                 IEnumerable<string> kvs = from k in keys
                                           select $" keyname = '{k}' ";
                 string sql = $"select  tbname,keyname  from telemetrydata where deviceid='{deviceId:N}'  and ({string.Join("or", kvs) })  ";
                 List<TelemetryDataDto> dt = SQLToDTByDate(begin, end, db, sql);
+                db.Close();
                 return Task.FromResult(dt);
             }
         }
@@ -165,8 +171,10 @@ namespace IoTSharp.Storage
         {
             using (TaosConnection db = new TaosConnection(_taosBuilder.ConnectionString))
             {
+                db.Open();
                 string sql = $"select  tbname,keyname  from telemetrydata where deviceid='{deviceId:N}'";
                 List<TelemetryDataDto> dt = SQLToDTByDate(begin, end, db, sql);
+                db.Close();
                 return Task.FromResult(dt);
             }
         }
@@ -230,18 +238,27 @@ namespace IoTSharp.Storage
                                 lst.Add(vals);
                             }
                         });
-                    await Retry.RetryOnAny(10, async f =>
+
+                    try
                     {
+                       
                         db.Open();
                         var cmd = db.CreateCommand($"INSERT INTO {string.Join("\r\n", lst)}");
                         _logger.LogInformation(cmd.CommandText);
                         int dt = await cmd.ExecuteNonQueryAsync();
                         db.Close();
                         _logger.LogInformation($"数据入库完成,共数据{lst.Count}条，写入{dt}条");
-                    }, ef =>
-                     {
-                         _logger.LogError(ef.ex, $"{msg.DeviceId}数据处理第{ef.current}次失败{ef.ex.Message} {ef.ex.InnerException?.Message} ");
-                     });
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger.LogError(ex, $"{msg.DeviceId}数据处理失败{ex.Message} {ex.InnerException?.Message} ");
+                    }
+                    finally
+                    {
+                        db.Dispose();
+                    }
+                  
+                   
                 }
             }
             catch (TaosException ex)

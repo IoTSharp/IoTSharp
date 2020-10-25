@@ -253,9 +253,9 @@ namespace IoTSharp.Handlers
         {
             try
             {
-                var _xdev = _device.Get<Device>(args.ClientId);
-                if (_xdev.HasValue)
+                if (_device.Exists(args.ClientId))
                 {
+                    var _xdev = _device.Get<Device>(args.ClientId);
                     var dev = _xdev.Value;
                     using (var scope = _scopeFactor.CreateScope())
                     using (var _dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>())
@@ -269,7 +269,7 @@ namespace IoTSharp.Handlers
                 }
                 else
                 {
-                    _logger.LogError($"Server_ClientDisconnected ClientId:{args.ClientId} DisconnectType:{args.DisconnectType}, 未能在缓存中找到");
+                    _logger.LogWarning($"Server_ClientDisconnected ClientId:{args.ClientId} DisconnectType:{args.DisconnectType}, 未能在缓存中找到");
                 }
             }
             catch (Exception ex)

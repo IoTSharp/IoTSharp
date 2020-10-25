@@ -60,7 +60,12 @@ namespace IoTSharp
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            var settings = Configuration.Get<AppSettings>();
+
+           var settings=  Configuration.Get<AppSettings>();
+            services.Configure((Action<AppSettings>)(setting =>
+            {
+                Configuration.Bind(setting);
+            }));
             services.AddDbContextPool<ApplicationDbContext>(options => options.UseNpgsql(Configuration.GetConnectionString("IoTSharp")), poolSize: settings.DbContextPoolSize);
             services.AddIdentity<IdentityUser, IdentityRole>()
                   .AddRoles<IdentityRole>()
