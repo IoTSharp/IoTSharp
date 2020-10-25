@@ -46,6 +46,9 @@ using DotNetCore.CAP.Dashboard.NodeDiscovery;
 using Savorboard.CAP.InMemoryMessageQueue;
 using System.Diagnostics;
 using EasyCaching.Core.Configurations;
+using Silkier.Extensions;
+using Maikebing.Data.Taos;
+using Dynamitey;
 
 namespace IoTSharp
 {
@@ -194,6 +197,7 @@ namespace IoTSharp
                     break;
                 case TelemetryStorage.Taos:
                     services.AddSingleton<IStorage, TaosStorage>();
+                    services.AddObjectPool(()=>  new TaosConnection(settings.ConnectionStrings["Taos"]));
                     healthChecks.AddTDengine(Configuration.GetConnectionString("Taos"));
                     break;
                 default:

@@ -26,7 +26,6 @@ namespace IoTSharp.Storage
         private readonly IServiceScope scope;
         private readonly IServiceScopeFactory _scopeFactor;
       
-        private bool createNew;
 
         public ShardingStorage(ILogger<ShardingStorage> logger, IServiceScopeFactory scopeFactor
            , IOptions<AppSettings> options
@@ -140,58 +139,50 @@ namespace IoTSharp.Storage
         {
             bool result = false;
 
-            using (var _scope = _scopeFactor.CreateScope())
+            try
             {
-                try
+                using (var db = scope.ServiceProvider.GetService<IShardingDbAccessor>())
                 {
-                    using (var db = _scope.ServiceProvider.GetService<IShardingDbAccessor>())
-                    {
-                        var lst = new List<TelemetryData>();
-                        msg.MsgBody.ToList().ForEach(kp =>
+                    var lst = new List<TelemetryData>();
+                    msg.MsgBody.ToList().ForEach(kp =>
+                                     {
+                                         if (kp.Value != null)
                                          {
-                                             if (kp.Value != null)
-                                             {
-                                                 var tdata = new TelemetryData() { DateTime = DateTime.Now, DeviceId = msg.DeviceId, KeyName = kp.Key, Value_DateTime = new DateTime(1970, 1, 1) };
-                                                 tdata.FillKVToMe(kp);
-                                                 lst.Add(tdata);
-                                             }
-                                         });
-                        int ret = await db.InsertAsync(lst);
-                        _logger.LogInformation($"新增({msg.DeviceId})遥测数据{ret}");
-                    }
+                                             var tdata = new TelemetryData() { DateTime = DateTime.Now, DeviceId = msg.DeviceId, KeyName = kp.Key, Value_DateTime = new DateTime(1970, 1, 1) };
+                                             tdata.FillKVToMe(kp);
+                                             lst.Add(tdata);
+                                         }
+                                     });
+                    int ret = await db.InsertAsync(lst);
+                    _logger.LogInformation($"新增({msg.DeviceId})遥测数据{ret}");
                 }
-                catch (Exception ex)
-                {
-                    _logger.LogError(ex, $"{msg.DeviceId}数据处理失败{ex.Message} {ex.InnerException?.Message} ");
-                }
-                using (Mutex m = new  Mutex(true, _appSettings.ConnectionStrings["IoTSharp"], out createNew))
-                {
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"{msg.DeviceId}数据处理失败{ex.Message} {ex.InnerException?.Message} ");
+            }
 
-                    try
+
+            try
+            {
+                using (var _scope = _scopeFactor.CreateScope())
+                {
+                    using (var _dbContext = _scope.ServiceProvider.GetRequiredService<ApplicationDbContext>())
                     {
-                        m.WaitOne();
-                        using (var _dbContext = _scope.ServiceProvider.GetRequiredService<ApplicationDbContext>())
+                        var result1 = await _dbContext.SaveAsync<TelemetryLatest>(msg.MsgBody, msg.DeviceId, msg.DataSide);
+                        result1.exceptions?.ToList().ForEach(ex =>
                         {
-                            var result1 = _dbContext.SaveAsync<TelemetryLatest>(msg.MsgBody, msg.DeviceId, msg.DataSide).GetAwaiter().GetResult();
-                            result1.exceptions?.ToList().ForEach(ex =>
-                            {
-                                _logger.LogError(ex.Value, $"{ex.Key} {ex.Value.Message} {ex.Value.InnerException?.Message}");
-                            });
-                            _logger.LogInformation($"新增({msg.DeviceId})遥测数据更新最新信息{result1.ret}");
-                            result = true;
-                        }
-                    }
-                    catch (Exception ex)
-                    {
-                        _logger.LogError(ex, $"{msg.DeviceId}数据处理失败{ex.Message} {ex.InnerException?.Message} ");
-                    }
-                    finally
-                    {
-                        m.ReleaseMutex();
+                            _logger.LogError(ex.Value, $"{ex.Key} {ex.Value.Message} {ex.Value.InnerException?.Message}");
+                        });
+                        _logger.LogInformation($"新增({msg.DeviceId})遥测数据更新最新信息{result1.ret}");
+                        result = true;
                     }
                 }
             }
-
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"{msg.DeviceId}数据处理失败{ex.Message} {ex.InnerException?.Message} ");
+            }
             return result;
         }
     }
