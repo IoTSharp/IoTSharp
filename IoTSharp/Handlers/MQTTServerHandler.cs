@@ -151,6 +151,7 @@ namespace IoTSharp.Handlers
                             }
 
                         }
+                     
                     }
                 }
                 else
@@ -295,17 +296,23 @@ namespace IoTSharp.Handlers
                         devicedatato = new Device() { Id = Guid.NewGuid(), Name = tpary[1], DeviceType = DeviceType.Device, Tenant = gw.Tenant, Customer = gw.Customer, Owner = gw,  LastActive = DateTime.Now, Timeout = 300 };
                         gw.Children.Add(devicedatato);
                         _dbContext.AfterCreateDevice(devicedatato);
-                        _dbContext.SaveChangesAsync();
+                        gw.LastActive = DateTime.Now;
+                        gw.Online = true;
                     }
                     else
                     {
                         devicedatato = subdev.FirstOrDefault();
+                        devicedatato.LastActive = DateTime.Now;
+                        devicedatato.Online = true;
                     }
                 }
                 else
                 {
                     devicedatato = _dbContext.Device.Find(device.Id);
+                    devicedatato.LastActive = DateTime.Now;
+                    devicedatato.Online = true;
                 }
+                _dbContext.SaveChangesAsync();
             }
             return devicedatato;
         }
