@@ -312,7 +312,7 @@ namespace IoTSharp.Handlers
                     devicedatato.LastActive = DateTime.Now;
                     devicedatato.Online = true;
                 }
-                _dbContext.SaveChangesAsync();
+                _dbContext.SaveChanges();
             }
             return devicedatato;
         }
