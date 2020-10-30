@@ -19,8 +19,11 @@ roadmap](https://github.com/IoTSharp/IotSharp.Gateway/blob/master/roadmap.md).
 |---|---|
 |Initial launch of IoTSharp and MQTT.Chat |Q4 2018|
 |Multi-tenant devices and assets Management |Q1 2019|
-|Collect and visualize data |Q1 2019|
-|Process and React|Q2 2019|
+|Collect and visualize data |2019Q1 - 2020 Q3|
+|Process and React| 2020Q3-2022Q3|
+|Rule Engine| 2020Q3-2021Q2|
+|Scheduler| 2021Q1|
+|Reporting| 2021Q3|
 
 If you'd like to contribute to IotSharp, please take a look at our [Contributing
 Guide](contributing.md).
