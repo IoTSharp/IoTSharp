@@ -5,7 +5,7 @@ services:
     container_name: pgsql
     restart: always
     volumes:
-      - "./postgresql:/var/lib/postgresql/data"
+      - "./data/postgresql:/var/lib/postgresql/data"
     environment:
       TZ: "Asia/Shanghai"
       POSTGRES_USER: postgres
@@ -55,10 +55,38 @@ services:
     networks:
       - iotsharp-network
  
- 
+  rabbitmq:
+    image: rabbitmq:management
+    container_name: rabbitmq
+    restart: always
+    hostname: mq
+    ports:
+      - 15672:15672
+      - 5672:5672
+    volumes:
+      - ./data/rabbitmq:/var/lib/rabbitmq
+    environment:
+      - RABBITMQ_DEFAULT_USER=root
+      - RABBITMQ_DEFAULT_PASS=kissme
+    networks:
+      - iotsharp-network
+
+  mongodb:
+    image: mongo:latest
+    restart: always
+    container_name: mongodb
+    volumes:
+      - ./data/mongodb/db:/data/db
+      - ./data/mongodb/log:/var/log/mongodb
+    ports:
+      - 27017:27017
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: kissme
+    networks:
+      - iotsharp-network
+
 
 networks: 
   iotsharp-network:
       driver:  bridge
-
-      

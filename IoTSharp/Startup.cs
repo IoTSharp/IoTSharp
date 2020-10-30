@@ -49,6 +49,8 @@ using EasyCaching.Core.Configurations;
 using Silkier.Extensions;
 using Maikebing.Data.Taos;
 using Dynamitey;
+using DotNetCore.CAP;
+using RabbitMQ.Client;
 
 namespace IoTSharp
 {
@@ -138,13 +140,14 @@ namespace IoTSharp
             services.AddMqttClient(settings.MqttClient);
             services.AddSingleton<RetainedMessageHandler>();
            var healthChecks =  services.AddHealthChecks()
-                 .AddNpgSql(Configuration["IoTSharp"], name: "PostgreSQL")
+                 .AddNpgSql(Configuration.GetConnectionString("IoTSharp"), name: "PostgreSQL")
                  .AddDiskStorageHealthCheck(dso =>
                  {
                      System.IO.DriveInfo.GetDrives().Select(f=>f.Name).Distinct().ToList().ForEach(f => dso.AddDrive(f, 1024));
 
                  }, name: "Disk Storage");
-            services.AddHealthChecksUI().AddPostgreSqlStorage(Configuration.GetConnectionString("IoTSharp"));
+            services.AddHealthChecksUI(cfg=>cfg.AddHealthCheckEndpoint("IoTSharp", "http://iotsharp/healthz"))
+                    .AddPostgreSqlStorage(Configuration.GetConnectionString("IoTSharp"));
             services.AddSilkierQuartz(opt=>
             {
                 //opt.Add("quartz.serializer.type", "json");
@@ -197,8 +200,8 @@ namespace IoTSharp
                     break;
                 case TelemetryStorage.Taos:
                     services.AddSingleton<IStorage, TaosStorage>();
-                    services.AddObjectPool(()=>  new TaosConnection(settings.ConnectionStrings["Taos"]));
-                    healthChecks.AddTDengine(Configuration.GetConnectionString("Taos"));
+                    services.AddObjectPool(()=>  new TaosConnection(settings.ConnectionStrings["TelemetryStorage"]));
+                    healthChecks.AddTDengine(Configuration.GetConnectionString("TelemetryStorage"));
                     break;
                 default:
                     break;
@@ -232,7 +235,8 @@ namespace IoTSharp
                 {
                   
                     case EventBusMQ.RabbitMQ:
-                        x.UseRabbitMQ(Configuration.GetConnectionString("EventBusMQ"));
+                        x.UseRabbitMQ(new Uri(  Configuration.GetConnectionString("EventBusMQ")));
+                        //amqp://guest:guest@localhost:5672
                         healthChecks.AddRabbitMQ(Configuration.GetConnectionString("EventBusMQ"), name: "EventBusMQ");
                         break;
                     case EventBusMQ.Kafka:
@@ -305,22 +309,23 @@ namespace IoTSharp
             });
             app.UseSwaggerUi3();
             app.UseOpenApi();
-       
-    
+
+            app.UseHealthChecks("/healthz", new HealthCheckOptions
+            {
+                Predicate = _ => true,
+                ResponseWriter = (httpContext, report) =>
+                {
+                    return UIResponseWriter.WriteHealthCheckUIResponse(httpContext, report);
+                }
+            });
+            app.UseHealthChecksUI();
+
 
             app.UseForwardedHeaders(new ForwardedHeadersOptions
             {
                 ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto
             });
             app.UseResponseCompression(); // No need if you use IIS, but really something good for Kestrel!
-           
-            
-            app.UseHealthChecks("/healthz", new HealthCheckOptions
-            {
-                Predicate = _ => true,
-                ResponseWriter = UIResponseWriter.WriteHealthCheckUIResponse
-            });
-            app.UseHealthChecksUI();
         }
     }
 }

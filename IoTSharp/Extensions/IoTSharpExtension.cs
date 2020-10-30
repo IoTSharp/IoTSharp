@@ -1,4 +1,5 @@
-﻿using IoTSharp.Data;
+﻿using DotNetCore.CAP;
+using IoTSharp.Data;
 using IoTSharp.Services;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Mvc;
@@ -9,6 +10,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using MQTTnet.Diagnostics;
+using Silkier.Extensions;
 using System;
 using System.IO;
 using System.Linq;
@@ -95,6 +97,44 @@ namespace IoTSharp
                 // The header X-External-Path is set in the nginx.conf file
                 var externalPath = request.Headers.ContainsKey("X-External-Path") ? request.Headers["X-External-Path"].First() : "";
                 return externalPath + internalUiRoute;
+            });
+        }
+        public static CapOptions UseRabbitMQ(this CapOptions options, Uri url)
+        {
+            return options.UseRabbitMQ(opt =>
+            {
+                var usr = url.UserInfo?.Split(':');
+                opt.HostName = url.Host;
+                opt.UserName = usr?.Length > 0 ? usr[0] : RabbitMQOptions.DefaultUser;
+                opt.Password = usr?.Length > 1 ? usr[1] : RabbitMQOptions.DefaultPass;
+                opt.Port = url.Port;
+            });
+        }
+        public static void  ConnectionString2Options<T>(this T option ,string _connectionString )
+        {
+            _connectionString.Split(';', StringSplitOptions.RemoveEmptyEntries).ForEach(f =>
+            {
+                try
+                {
+                    var opt = f.Split('=');
+                    var pty = option?.GetType().GetProperty(opt[0]);
+                    if (pty.PropertyType == typeof(string))
+                    {
+                        pty.SetValue(option, opt[1]);
+                    }
+                    else if (pty.PropertyType == typeof(int))
+                    {
+                        pty.SetValue(option, int.Parse(opt[1]));
+                    }
+                    else if (pty.PropertyType == typeof(bool))
+                    {
+                        pty.SetValue(option, opt[1]?.ToString().ToLower() == bool.TrueString.ToLower());
+                    }
+                }
+                catch (Exception)
+                {
+
+                }
             });
         }
     }
