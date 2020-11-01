@@ -99,16 +99,18 @@ namespace IoTSharp
                 return externalPath + internalUiRoute;
             });
         }
-        public static CapOptions UseRabbitMQ(this CapOptions options, Uri url)
+     
+        /// <summary>
+        /// //如果上次活动时间距离当前时间超过10秒 或者 设备离线状态， 则更新状态。
+        /// </summary>
+        /// <param name="device"></param>
+        internal static void CheckOrUpdateDevStatus(this Device device)
         {
-            return options.UseRabbitMQ(opt =>
+            if (DateTime.Now.Subtract(device.LastActive).TotalSeconds > 10 || device.Online == false)
             {
-                var usr = url.UserInfo?.Split(':');
-                opt.HostName = url.Host;
-                opt.UserName = usr?.Length > 0 ? usr[0] : RabbitMQOptions.DefaultUser;
-                opt.Password = usr?.Length > 1 ? usr[1] : RabbitMQOptions.DefaultPass;
-                opt.Port = url.Port;
-            });
+                device.Online = true;
+                device.LastActive = DateTime.Now;
+            }
         }
         public static void  ConnectionString2Options<T>(this T option ,string _connectionString )
         {

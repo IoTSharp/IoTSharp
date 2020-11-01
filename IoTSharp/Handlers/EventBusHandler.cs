@@ -57,6 +57,8 @@ namespace IoTSharp.Handlers
                         var device = _dbContext.Device.FirstOrDefault(d => d.Id == msg.DeviceId);
                         if (device != null)
                         {
+                             
+                            device.CheckOrUpdateDevStatus();
                             var result2 = await _dbContext.SaveAsync<AttributeLatest>(msg.MsgBody, device.Id, msg.DataSide);
                             result2.exceptions?.ToList().ForEach(ex =>
                             {
@@ -68,6 +70,9 @@ namespace IoTSharp.Handlers
                 }
             });
         }
+
+     
+
         [CapSubscribe("iotsharp.services.datastream.telemetrydata")]
         public void StoreTelemetryData(RawMsg msg) => Task.Run( () =>  _storage.StoreTelemetryAsync(msg));
     }
