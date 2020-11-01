@@ -26,6 +26,7 @@
 		<AssemblyVersion>1.15.1.0</AssemblyVersion>
 		<FileVersion>1.15.1.0</FileVersion>
 		<PackageLicenseFile>LICENSE.txt</PackageLicenseFile>
+		<PackageIcon>96x96.png</PackageIcon>
 	</PropertyGroup>
 
 	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
@@ -120,13 +121,13 @@
 		<None Remove="healthchecksdb" />
 		<None Remove="healthchecksdb-shm" />
 		<None Remove="IoTSharp.xml" />
-		<Content Include="..\LICENSE.txt" Link="LICENSE.txt" />
-		<Content Include="IoTSharp.xml">
-			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-		</Content>
-		<None Include="..\docs\images\200x200.png">
-			<Pack>True</Pack>
-			<PackagePath></PackagePath>
+		<None Include="..\docs\images\96x96.png">
+		  <Pack>True</Pack>
+		  <PackagePath></PackagePath>
+		</None>
+		<None Include="..\LICENSE.txt">
+		  <Pack>True</Pack>
+		  <PackagePath></PackagePath>
 		</None>
 	</ItemGroup>
 </Project>
