@@ -22,6 +22,7 @@ namespace IoTSharp.Extensions
         private readonly ConcurrentDictionary<string, TaskCompletionSource<byte[]>> _waitingCalls = new ConcurrentDictionary<string, TaskCompletionSource<byte[]>>();
         private readonly IMqttClient _mqttClient;
         private IMqttClientOptions _mqtt;
+        private bool disposedValue;
 
         public RpcClient(IMqttClient mqttClient)
         {
@@ -35,8 +36,8 @@ namespace IoTSharp.Extensions
             _mqtt = mqtt;
           
         }
+ 
        
-
         public Task<byte[]> ExecuteAsync(TimeSpan timeout, string deviceid, string methodName, string payload, MqttQualityOfServiceLevel qualityOfServiceLevel)
         {
             return ExecuteAsync(timeout, deviceid, methodName,  Encoding.UTF8.GetBytes(payload), qualityOfServiceLevel, CancellationToken.None);
@@ -133,15 +134,7 @@ namespace IoTSharp.Extensions
             tcs.TrySetResult(eventArgs.ApplicationMessage.Payload);
         }
 
-        public void Dispose()
-        {
-            foreach (var tcs in _waitingCalls)
-            {
-                tcs.Value.SetCanceled();
-            }
-
-            _waitingCalls.Clear();
-        }
+       
 
         public async Task ConnectAsync()
         {
@@ -151,6 +144,34 @@ namespace IoTSharp.Extensions
         public async Task DisconnectAsync()
         {
             await _mqttClient.DisconnectAsync();
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!disposedValue)
+            {
+                if (disposing)
+                {
+                    foreach (var tcs in _waitingCalls)
+                    {
+                        tcs.Value.SetCanceled();
+                    }
+
+                    _waitingCalls.Clear();
+                }
+
+                // TODO: 释放未托管的资源(未托管的对象)并替代终结器
+                // TODO: 将大型字段设置为 null
+                disposedValue = true;
+            }
+        }
+
+      
+
+        public void Dispose()
+        {
+            Dispose(disposing: true);
+            GC.SuppressFinalize(this);
         }
     }
 }
