@@ -207,14 +207,10 @@ namespace IoTSharp
                     break;
                 case TelemetryStorage.InfluxDB:
                     //https://github.com/julian-fh/influxdb-setup
+
                     services.AddSingleton<IStorage, InfluxDBStorage>();
-                    services.AddObjectPool(() => InfluxDBClientFactory.Create(
-                                        InfluxDBClientOptions.Builder.CreateNew()
-                                        .Url(  Configuration.GetConnectionString("TelemetryStorage"))
-                                        .Org("iotsharp")
-                                        .Authenticate(  "root",  "future".ToArray())
-                                        .AuthenticateToken("iotsharp-token")
-                                        .Bucket("iotsharp-bucket").Build()));
+                    //"TelemetryStorage": "http://localhost:8086/?org=iotsharp&bucket=iotsharp-bucket&token=iotsharp-token"
+                    services.AddObjectPool(() => InfluxDBClientFactory.Create(Configuration.GetConnectionString("TelemetryStorage")));
                     break;
                 case TelemetryStorage.InfluxDBV1:
                     //docker run -d -p 8083:8083 -p8086:8086 --expose 8090 --expose 8099 --name influxsrv tutum/influxdb

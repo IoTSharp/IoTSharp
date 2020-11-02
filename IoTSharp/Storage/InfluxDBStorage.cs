@@ -16,8 +16,11 @@ using Silkier;
 using Silkier.EFCore;
 using System;
 using System.Collections.Generic;
+using System.Collections.Specialized;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Web;
+
 namespace IoTSharp.Storage
 {
 
@@ -27,6 +30,11 @@ namespace IoTSharp.Storage
         private readonly ILogger _logger;
         private readonly IServiceScope scope;
         private readonly ObjectPool<InfluxDBClient> _taospool;
+        private readonly string _org;
+        private readonly string _bucket;
+        private readonly string _token;
+        private readonly string _latest;
+
         public InfluxDBStorage(ILogger<InfluxDBStorage> logger, IServiceScopeFactory scopeFactor
            , IOptions<AppSettings> options,   ObjectPool<InfluxDBClient> taospool
             )
@@ -35,6 +43,17 @@ namespace IoTSharp.Storage
             _logger = logger;
             scope = scopeFactor.CreateScope();
             _taospool = taospool;
+            Uri uri = new Uri(_appSettings.ConnectionStrings["TelemetryStorage"]);
+            string leftPart = uri.GetLeftPart(UriPartial.Path);
+            NameValueCollection nameValueCollection = HttpUtility.ParseQueryString(uri.Query);
+              _org = nameValueCollection.Get("org");
+              _bucket = nameValueCollection.Get("bucket");
+              _token = nameValueCollection.Get("token");
+            _latest= nameValueCollection.Get("latest");
+            _latest ??= "-72h";
+            //string logLevel = nameValueCollection.Get("logLevel");
+            //string timeout = nameValueCollection.Get("timeout");
+            //string readWriteTimeout = nameValueCollection.Get("readWriteTimeout");
         }
        
 
@@ -43,8 +62,8 @@ namespace IoTSharp.Storage
             InfluxDBClient _taos = _taospool.Get();
             var query = _taos.GetQueryApi();
             var v = query.QueryAsync(@$"	
-from(bucket: ""iotsharp-bucket"")
-|> range(start: -72h)
+from(bucket: ""{_bucket}"")
+|> range(start: {_latest})
   |> filter(fn: (r) => r[""_measurement""] == ""TelemetryData"")
   |> filter(fn: (r) => r[""DeviceId""] == ""{deviceId}"")
   |> last()");
@@ -60,8 +79,8 @@ from(bucket: ""iotsharp-bucket"")
             var kvs = from k in keys.Split(';', ',')
                       select $"r[\"_field\"] == \"{k}\"";
             var v = query.QueryAsync(@$"	
-from(bucket: ""iotsharp-bucket"")
-|> range(start: -72h)
+from(bucket: ""{_bucket}"")
+|> range(start: {_latest})
 |> filter(fn: (r) => r[""_measurement""] == ""TelemetryData"")
 |> filter(fn: (r) => r[""DeviceId""] == ""{deviceId}"")
 |> filter(fn: (r) => {string.Join(" or ", kvs)})
@@ -85,7 +104,7 @@ from(bucket: ""iotsharp-bucket"")
             var  kvs = from k in keys.Split(';',',')
                                       select $"r[\"_field\"] == \"{k}\"";
             var v = query.QueryAsync(@$"	
-from(bucket: ""iotsharp-bucket"")
+from(bucket: ""{_bucket}"")
 |> range(start: {begin:o},stop:{end:o})
 |> filter(fn: (r) => r[""_measurement""] == ""TelemetryData"")
 |> filter(fn: (r) => r[""DeviceId""] == ""{deviceId}"")
@@ -124,7 +143,7 @@ from(bucket: ""iotsharp-bucket"")
             InfluxDBClient _taos = _taospool.Get();
             var query = _taos.GetQueryApi();
             var v = query.QueryAsync(@$"	
-from(bucket: ""iotsharp-bucket"")
+from(bucket: ""{_bucket}"")
 |> range(start: {begin:o},stop:{end:o})
 |> filter(fn: (r) => r[""_measurement""] == ""TelemetryData"")
 |> filter(fn: (r) => r[""DeviceId""] == ""{deviceId}"")
@@ -186,7 +205,7 @@ from(bucket: ""iotsharp-bucket"")
 
                 InfluxDBClient _taos = _taospool.Get();
                 var writeApi = _taos.GetWriteApiAsync();
-                await writeApi.WritePointsAsync("iotsharp-bucket", "iotsharp", lst );
+                await writeApi.WritePointsAsync(lst);
                 _taospool.Return(_taos);
                 _logger.LogInformation($"数据入库完成,共数据{lst.Count}条");
 
