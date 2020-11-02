@@ -1,6 +1,7 @@
 ﻿using hyjiacan.py4n;
 using InfluxDB.Client;
 using InfluxDB.Client.Api.Domain;
+using InfluxDB.Client.Core.Flux.Domain;
 using InfluxDB.Client.Writes;
 using IoTSharp.Data;
 using IoTSharp.Dtos;
@@ -41,38 +42,33 @@ namespace IoTSharp.Storage
         {
             InfluxDBClient _taos = _taospool.Get();
             var query = _taos.GetQueryApi();
-         var v=      query.QueryAsync( @$"	
+            var v = query.QueryAsync(@$"	
 from(bucket: ""iotsharp-bucket"")
-|> range(start: -10h)
+|> range(start: -72h)
   |> filter(fn: (r) => r[""_measurement""] == ""TelemetryData"")
   |> filter(fn: (r) => r[""DeviceId""] == ""{deviceId}"")
-  |> last()").GetAwaiter().GetResult();
-            List<TelemetryDataDto> dt =  new List<TelemetryDataDto> ();
-            v.ForEach(ft =>
-            {
-                ft.Records.ForEach(fr =>
-                {
-                    dt.Add(new TelemetryDataDto()
-                    {
-                        KeyName = fr.GetField(),
-                        DateTime = fr.GetTimeInDateTime().GetValueOrDefault(),
-                        Value = fr.GetValue()
-                    });
-                });
-            });
+  |> last()");
+           
             _taospool.Return(_taos);
-            return Task.FromResult(dt);
+            return FluxToDtoAsync(v);
         }
- 
+
         public Task<List<TelemetryDataDto>> GetTelemetryLatest(Guid deviceId, string keys)
         {
             InfluxDBClient _taos = _taospool.Get();
-            IEnumerable<string> kvs = from k in keys
-                                      select $" keyname = '{k}' ";
-            string sql = $"select last_row(*) from telemetrydata where deviceid='{deviceId:N}' and ({string.Join("or", kvs) }) group by deviceid,keyname";
-            List<TelemetryDataDto> dt = null;// SqlToTDD(_taos, sql, "last_row(", ")", string.Empty);
+            var query = _taos.GetQueryApi();
+            var kvs = from k in keys.Split(';', ',')
+                      select $"r[\"_field\"] == \"{k}\"";
+            var v = query.QueryAsync(@$"	
+from(bucket: ""iotsharp-bucket"")
+|> range(start: -72h)
+|> filter(fn: (r) => r[""_measurement""] == ""TelemetryData"")
+|> filter(fn: (r) => r[""DeviceId""] == ""{deviceId}"")
+|> filter(fn: (r) => {string.Join(" or ", kvs)})
+|> group(columns: [""_field""])
+|> last()");
             _taospool.Return(_taos);
-            return Task.FromResult(dt);
+            return FluxToDtoAsync(v);
 
         }
     
@@ -85,13 +81,37 @@ from(bucket: ""iotsharp-bucket"")
         public Task<List<TelemetryDataDto>> LoadTelemetryAsync(Guid deviceId, string keys, DateTime begin, DateTime end)
         {
             InfluxDBClient _taos = _taospool.Get();
-            IEnumerable<string> kvs = from k in keys
-                                          select $" keyname = '{k}' ";
-                string sql = $"select  tbname,keyname  from telemetrydata where deviceid='{deviceId:N}'  and ({string.Join("or", kvs) })  ";
-            List<TelemetryDataDto> dt = null;// SQLToDTByDate(begin, end, _taos, sql);
+            var query = _taos.GetQueryApi();
+            var  kvs = from k in keys.Split(';',',')
+                                      select $"r[\"_field\"] == \"{k}\"";
+            var v = query.QueryAsync(@$"	
+from(bucket: ""iotsharp-bucket"")
+|> range(start: {begin:o},stop:{end:o})
+|> filter(fn: (r) => r[""_measurement""] == ""TelemetryData"")
+|> filter(fn: (r) => r[""DeviceId""] == ""{deviceId}"")
+|> filter(fn: (r) => {string.Join(" or ", kvs)})
+|> group(columns: [""_field""])
+|> yield()");
             _taospool.Return(_taos);
-            return Task.FromResult(dt);
-            
+            return FluxToDtoAsync(v);
+        }
+
+        private async Task<List<TelemetryDataDto>> FluxToDtoAsync(Task< List<FluxTable>> v)
+        {
+            List<TelemetryDataDto> dt = new List<TelemetryDataDto>();
+            (await v)?.ForEach(ft =>
+            {
+                ft.Records.ForEach(fr =>
+                {
+                    dt.Add(new TelemetryDataDto()
+                    {
+                        KeyName = fr.GetField(),
+                        DateTime = fr.GetTimeInDateTime().GetValueOrDefault(),
+                        Value = fr.GetValue()
+                    });
+                });
+            });
+            return dt;
         }
 
         public Task<List<TelemetryDataDto>> LoadTelemetryAsync(Guid deviceId, DateTime begin)
@@ -102,10 +122,15 @@ from(bucket: ""iotsharp-bucket"")
         public Task<List<TelemetryDataDto>> LoadTelemetryAsync(Guid deviceId, DateTime begin, DateTime end)
         {
             InfluxDBClient _taos = _taospool.Get();
-            string sql = $"select  tbname,keyname  from telemetrydata where deviceid='{deviceId:N}'";
-            List<TelemetryDataDto> dt = null; //SQLToDTByDate(begin, end, _taos, sql);
+            var query = _taos.GetQueryApi();
+            var v = query.QueryAsync(@$"	
+from(bucket: ""iotsharp-bucket"")
+|> range(start: {begin:o},stop:{end:o})
+|> filter(fn: (r) => r[""_measurement""] == ""TelemetryData"")
+|> filter(fn: (r) => r[""DeviceId""] == ""{deviceId}"")
+|> yield()");
             _taospool.Return(_taos);
-            return Task.FromResult(dt);
+            return FluxToDtoAsync(v);
         }
 
         public async Task<bool> StoreTelemetryAsync(RawMsg msg)

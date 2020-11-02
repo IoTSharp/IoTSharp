@@ -59,18 +59,7 @@ namespace IoTSharp.Storage
             return Task.FromResult(dt);
 
         }
-        //private List<TelemetryDataDto> SQLToDTByDate(DateTime begin, DateTime end, TaosConnection db, string sql)
-        //{
-        //    List<TelemetryDataDto> dt = new List<TelemetryDataDto>();
-        //    List<(string tbname, string keyname)> list = db.CreateCommand(sql).ExecuteReader().ToList<(string tbname, string keyname)>();
-        //    foreach ((string tbname, string keyname) item in list)
-        //    {
-        //        string susql = $" select * from {item.tbname} where ts >={begin:yyyy-MM-dd HH:mm:ss.fff} and ts <={end:yyyy-MM-dd HH:mm:ss.fff}";
-        //        List<TelemetryDataDto> dtx = SqlToTDD(db, susql, "", "", item.keyname);
-        //        dt.AddRange(dtx);
-        //    }
-        //    return dt;
-        //}
+     
         public Task<List<TelemetryDataDto>> LoadTelemetryAsync(Guid deviceId, string keys, DateTime begin)
         {
             return LoadTelemetryAsync(deviceId, keys, begin, DateTime.Now);
