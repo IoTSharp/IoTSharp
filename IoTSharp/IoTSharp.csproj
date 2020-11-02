@@ -64,15 +64,16 @@
 		<PackageReference Include="EFCore.Sharding" Version="3.1.8.4" />
 		<PackageReference Include="EFCore.Sharding.PostgreSql" Version="3.1.8.4" />
 		<PackageReference Include="hyjiacan.py4n" Version="4.0.0" />
+		<PackageReference Include="InfluxDB.Client" Version="1.13.0" />
 		<PackageReference Include="IoTSharp.CoAP.NET" Version="2.0.8" />
 		<PackageReference Include="IoTSharp.X509Extensions" Version="1.4.24" />
 		<PackageReference Include="kimbus" Version="2.0.1" />
 		<PackageReference Include="LiteDB" Version="5.0.9" />
-		<PackageReference Include="MaiKeBing.CAP.LiteDB" Version="1.0.19" />
-		<PackageReference Include="MaiKeBing.CAP.ZeroMQ" Version="1.0.19" />
+		<PackageReference Include="MaiKeBing.CAP.LiteDB" Version="1.0.21" />
+		<PackageReference Include="MaiKeBing.CAP.ZeroMQ" Version="1.0.21" />
 		<PackageReference Include="Maikebing.Data.Taos" Version="2.0.170" />
 		<PackageReference Include="Maikebing.HealthChecks.Taos" Version="2.0.170" />
-		<PackageReference Include="MaiKeBing.HostedService.ZeroMQ" Version="1.0.19" />
+		<PackageReference Include="MaiKeBing.HostedService.ZeroMQ" Version="1.0.21" />
 		<PackageReference Include="Microsoft.AspNetCore.Http.Features" Version="3.1.9" />
 		<PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="3.1.9">
 			<PrivateAssets>all</PrivateAssets>
@@ -88,7 +89,7 @@
 		<PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="3.1.4" />
 		<PackageReference Include="NSwag.AspNetCore" Version="13.8.2" />
 		<PackageReference Include="ProxyKit" Version="2.3.4" />
-		<PackageReference Include="Quartz.Serialization.Json" Version="3.2.2" />
+		<PackageReference Include="Quartz.Serialization.Json" Version="3.2.3" />
 		<PackageReference Include="Savorboard.CAP.InMemoryMessageQueue" Version="3.0.0" />
 		<PackageReference Include="Silkier" Version="1.0.233" />
 		<PackageReference Include="Silkier.AspNetCore" Version="1.0.233" />

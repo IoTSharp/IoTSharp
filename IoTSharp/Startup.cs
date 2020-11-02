@@ -51,6 +51,8 @@ using Maikebing.Data.Taos;
 using Dynamitey;
 using DotNetCore.CAP;
 using RabbitMQ.Client;
+using InfluxDB.Client;
+using System.Security.Policy;
 
 namespace IoTSharp
 {
@@ -202,6 +204,22 @@ namespace IoTSharp
                     services.AddSingleton<IStorage, TaosStorage>();
                     services.AddObjectPool(()=>  new TaosConnection(settings.ConnectionStrings["TelemetryStorage"]));
                     healthChecks.AddTDengine(Configuration.GetConnectionString("TelemetryStorage"));
+                    break;
+                case TelemetryStorage.InfluxDB:
+                    //https://github.com/julian-fh/influxdb-setup
+                    services.AddSingleton<IStorage, InfluxDBV2Storage>();
+                    services.AddObjectPool(() => InfluxDBClientFactory.Create(
+                                        InfluxDBClientOptions.Builder.CreateNew()
+                                        .Url(  Configuration.GetConnectionString("TelemetryStorage"))
+                                        .Org("iotsharp")
+                                        .Authenticate(  "root",  "future".ToArray())
+                                        .AuthenticateToken("iotsharp-token")
+                                        .Bucket("iotsharp-bucket").Build()));
+                    break;
+                case TelemetryStorage.InfluxDBV1:
+                    //docker run -d -p 8083:8083 -p8086:8086 --expose 8090 --expose 8099 --name influxsrv tutum/influxdb
+                    services.AddSingleton<IStorage, InfluxDBV1Storage>();
+                    services.AddObjectPool(() => InfluxDBClientFactory.Create(Configuration.GetConnectionString("TelemetryStorage")));
                     break;
                 default:
                     break;

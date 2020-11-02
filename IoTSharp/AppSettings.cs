@@ -18,7 +18,9 @@ namespace IoTSharp
     {
         SingleTable,
         Sharding,
-        Taos
+        Taos,
+        InfluxDB,
+        InfluxDBV1
     }
     [JsonConverter(typeof(StringEnumConverter))]
     public enum EventBusStore
