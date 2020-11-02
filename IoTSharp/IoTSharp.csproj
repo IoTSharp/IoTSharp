@@ -72,7 +72,7 @@
 		<PackageReference Include="MaiKeBing.CAP.ZeroMQ" Version="1.0.19" />
 		<PackageReference Include="Maikebing.Data.Taos" Version="2.0.170" />
 		<PackageReference Include="Maikebing.HealthChecks.Taos" Version="2.0.170" />
-		<PackageReference Include="MaiKeBing.HostedService.ZeroMQ" Version="1.0.19" />
+		<PackageReference Include="MaiKeBing.HostedService.ZeroMQ" Version="1.0.21" />
 		<PackageReference Include="Microsoft.AspNetCore.Http.Features" Version="3.1.9" />
 		<PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="3.1.9">
 			<PrivateAssets>all</PrivateAssets>
