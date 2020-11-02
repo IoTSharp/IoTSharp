@@ -207,7 +207,7 @@ namespace IoTSharp
                     break;
                 case TelemetryStorage.InfluxDB:
                     //https://github.com/julian-fh/influxdb-setup
-                    services.AddSingleton<IStorage, InfluxDBV2Storage>();
+                    services.AddSingleton<IStorage, InfluxDBStorage>();
                     services.AddObjectPool(() => InfluxDBClientFactory.Create(
                                         InfluxDBClientOptions.Builder.CreateNew()
                                         .Url(  Configuration.GetConnectionString("TelemetryStorage"))

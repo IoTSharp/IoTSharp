@@ -20,13 +20,13 @@ using System.Threading.Tasks;
 namespace IoTSharp.Storage
 {
 
-    public class InfluxDBV2Storage : IStorage
+    public class InfluxDBStorage : IStorage
     {
         private readonly AppSettings _appSettings;
         private readonly ILogger _logger;
         private readonly IServiceScope scope;
         private readonly ObjectPool<InfluxDBClient> _taospool;
-        public InfluxDBV2Storage(ILogger<InfluxDBV2Storage> logger, IServiceScopeFactory scopeFactor
+        public InfluxDBStorage(ILogger<InfluxDBStorage> logger, IServiceScopeFactory scopeFactor
            , IOptions<AppSettings> options,   ObjectPool<InfluxDBClient> taospool
             )
         {
