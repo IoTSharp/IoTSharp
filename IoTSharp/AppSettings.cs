@@ -1,5 +1,6 @@
 ﻿using CoAP;
 using CoAP.Server;
+using DotNetCore.CAP.Dashboard.NodeDiscovery;
 using EFCore.Sharding;
 using MaiKeBing.CAP;
 using MaiKeBing.HostedService.ZeroMQ;
@@ -74,6 +75,10 @@ namespace IoTSharp
         public int DbContextPoolSize { get; set; } = 128;
         public CachingUseIn CachingUseIn { get; set; } = CachingUseIn.InMemory;
         public  string CachingUseRedisHosts { get; set; }
+        public DiscoveryOptions Discovery { get; set; } = null;
+        public ZMQOption ZMQOption { get; set; } = null;
+
+        
     }
   
     public class ShardingSetting

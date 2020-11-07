@@ -53,6 +53,7 @@ using DotNetCore.CAP;
 using RabbitMQ.Client;
 using InfluxDB.Client;
 using System.Security.Policy;
+using Microsoft.CodeAnalysis.FlowAnalysis;
 
 namespace IoTSharp
 {
@@ -222,8 +223,10 @@ namespace IoTSharp
             }
            
             services.AddTransient<IEventBusHandler,  EventBusHandler>();
-            services.AddHostedZeroMQ(Configuration);
-
+            if (settings.ZMQOption!=null)
+            {
+                services.AddHostedZeroMQ(cfg=>cfg= settings.ZMQOption);
+            }
             services.AddCap(x =>
             {
                 x.ConsumerThreadCount = settings.ConsumerThreadCount  ;
@@ -276,7 +279,10 @@ namespace IoTSharp
                 // Register Dashboard
                 x.UseDashboard();
                 // Register to Consul
-                //x.UseDiscovery();
+                if (settings.Discovery!=null)
+                {
+                    x.UseDiscovery(cfg => cfg=settings.Discovery);
+                }
             });
         }
 
