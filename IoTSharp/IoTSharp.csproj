@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
 	<PropertyGroup>
-		<TargetFramework>netcoreapp3.1</TargetFramework>
+		<TargetFramework>net5.0</TargetFramework>
 		<IncludeOpenAPIAnalyzers>true</IncludeOpenAPIAnalyzers>
 		<IsTransformWebConfigDisabled>true</IsTransformWebConfigDisabled>
 		<Company>MaiKebing</Company>
@@ -74,14 +74,14 @@
 		<PackageReference Include="Maikebing.Data.Taos" Version="2.0.170" />
 		<PackageReference Include="Maikebing.HealthChecks.Taos" Version="2.0.170" />
 		<PackageReference Include="MaiKeBing.HostedService.ZeroMQ" Version="1.0.21" />
-		<PackageReference Include="Microsoft.AspNetCore.Http.Features" Version="3.1.9" />
-		<PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="3.1.9">
+		<PackageReference Include="Microsoft.AspNetCore.Http.Features" Version="5.0.0" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="5.0.0">
 			<PrivateAssets>all</PrivateAssets>
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
-		<PackageReference Include="Microsoft.Extensions.Options" Version="3.1.9" />
+		<PackageReference Include="Microsoft.Extensions.Options" Version="5.0.0" />
 		<PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.10.8" />
-		<PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="3.1.4" />
+		<PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="5.0.0" />
 		<PackageReference Include="MQTTnet" Version="3.0.13" />
 		<PackageReference Include="MQTTnet.AspNetCore" Version="3.0.13" />
 		<PackageReference Include="MQTTnet.Extensions.Rpc" Version="3.0.13" />
@@ -90,24 +90,24 @@
 		<PackageReference Include="NSwag.AspNetCore" Version="13.8.2" />
 		<PackageReference Include="ProxyKit" Version="2.3.4" />
 		<PackageReference Include="Quartz.Serialization.Json" Version="3.2.3" />
-		<PackageReference Include="Savorboard.CAP.InMemoryMessageQueue" Version="3.0.0" />
+		<PackageReference Include="Savorboard.CAP.InMemoryMessageQueue" Version="3.1.1" />
 		<PackageReference Include="Silkier" Version="1.0.233" />
 		<PackageReference Include="Silkier.AspNetCore" Version="1.0.233" />
 		<PackageReference Include="Silkier.EFCore" Version="1.0.233" />
 		<PackageReference Include="SilkierQuartz" Version="1.0.46" />
 		<PackageReference Include="SilkierQuartz.Plugins.RecentHistory" Version="1.0.46" />
 		<PackageReference Include="System.Collections" Version="4.3.0" />
-		<PackageReference Include="System.ServiceModel.Primitives" Version="4.7.0" />
-		<PackageReference Include="System.Text.Encoding.CodePages" Version="4.7.1" />
-		<PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="3.1.9" />
-		<PackageReference Include="Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore" Version="3.1.9" />
-		<PackageReference Include="Microsoft.AspNetCore.Hosting.WindowsServices" Version="3.1.9" />
-		<PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="3.1.9" />
-		<PackageReference Include="Microsoft.AspNetCore.SpaServices" Version="3.1.9" />
-		<PackageReference Include="Microsoft.EntityFrameworkCore" Version="3.1.9" />
-		<PackageReference Include="Microsoft.Extensions.Hosting" Version="3.1.9" />
-		<PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="3.1.9" />
-		<PackageReference Include="Microsoft.Extensions.Hosting.WindowsServices" Version="3.1.9" />
+		<PackageReference Include="System.ServiceModel.Primitives" Version="4.8.0" />
+		<PackageReference Include="System.Text.Encoding.CodePages" Version="5.0.0" />
+		<PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="5.0.0" />
+		<PackageReference Include="Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore" Version="5.0.0" />
+		<PackageReference Include="Microsoft.AspNetCore.Hosting.WindowsServices" Version="5.0.0" />
+		<PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="5.0.0" />
+		<PackageReference Include="Microsoft.AspNetCore.SpaServices" Version="3.1.10" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore" Version="5.0.0" />
+		<PackageReference Include="Microsoft.Extensions.Hosting" Version="5.0.0" />
+		<PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="5.0.0" />
+		<PackageReference Include="Microsoft.Extensions.Hosting.WindowsServices" Version="5.0.0" />
 		<PackageReference Include="MQTTnet.AspNetCoreEx" Version="3.0.11" />
 		<PackageReference Include="MQTTnet.Extensions.ManagedClient" Version="3.0.13" />
 	</ItemGroup>

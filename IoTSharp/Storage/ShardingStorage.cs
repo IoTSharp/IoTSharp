@@ -56,7 +56,7 @@ namespace IoTSharp.Storage
             catch (Exception ex)
             {
                 _logger.LogError(ex, $"{ deviceId}数据处理失败{ex.Message} {ex.InnerException?.Message} ");
-                throw ex; 
+                throw;
             }
         }
 
@@ -80,7 +80,7 @@ namespace IoTSharp.Storage
             catch (Exception ex)
             {
                 _logger.LogError(ex, $"{ deviceId}数据处理失败{ex.Message} {ex.InnerException?.Message} ");
-                throw ex;
+                throw;
             }
         }
 
@@ -110,7 +110,7 @@ namespace IoTSharp.Storage
                 catch (Exception ex)
                 {
                     _logger.LogError(ex, $"{ deviceId}数据处理失败{ex.Message} {ex.InnerException?.Message} ");
-                    throw ex;
+                    throw;
                 }
             });
         }
