@@ -149,7 +149,7 @@ namespace IoTSharp
                      System.IO.DriveInfo.GetDrives().Select(f=>f.Name).Distinct().ToList().ForEach(f => dso.AddDrive(f, 1024));
 
                  }, name: "Disk Storage");
-            services.AddHealthChecksUI(cfg=>cfg.AddHealthCheckEndpoint("IoTSharp", "http://iotsharp/healthz"))
+            services.AddHealthChecksUI(cfg=>cfg.AddHealthCheckEndpoint("IoTSharp", "http://127.0.0.1/healthz"))
                     .AddPostgreSqlStorage(Configuration.GetConnectionString("IoTSharp"));
             services.AddSilkierQuartz(opt=>
             {

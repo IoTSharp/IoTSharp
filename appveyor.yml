@@ -1,4 +1,4 @@
-version: 0.1.{build}
+version: 1.5.{build}
 image: Visual Studio 2019
 init:
 - ps: Install-Product node $env:nodejs_version
@@ -28,12 +28,6 @@ build_script:
 - cmd: >-
     dotnet publish  -c Release   ./IoTSharp/IoTSharp.csproj
 
-    dotnet publish  -c Release    ./IoTSharp.Edge.ModBus/IoTSharp.Edge.ModBus.csproj
 artifacts:
-- path: IoTSharp\bin\Release\netcoreapp3.0\publish\
-  name: IoTSharp
-- path: IoTSharp.Extensions\bin\Release\*.nupkg
-  name: IoTSharp.Extensions
-- path: IoTSharp.Edge.ModBus\bin\Release\netcoreapp3.0\publish\
-  name: IoTSharp.Edge.ModBus
+- path: IoTSharp\bin\Release\net5.0\publish\
 deploy: off
