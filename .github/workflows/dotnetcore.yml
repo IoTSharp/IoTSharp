@@ -15,10 +15,10 @@ jobs:
     - uses: actions/checkout@v2
     - name: Setup .NET Core SDK
       uses: actions/setup-dotnet@v1.7.2
-    - name: Install dependencies
-      run: dotnet restore ./IoTSharp.sln
+      with: 
+        dotnet-version: 5.0
     - name: Build
-      run: dotnet build  ./IoTSharp.sln  --configuration Release  --no-restore
+      run: dotnet build  ./IoTSharp.sln  --configuration Release 
 
       
       
