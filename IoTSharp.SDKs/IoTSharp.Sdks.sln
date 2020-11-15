@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.28803.156
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IoTSharp.Sdk.Http", "IoTSharp.Sdk.CSharp\IoTSharp.Sdk.Http.csproj", "{9084E809-B5F1-4782-B29C-6C784591CB77}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IoTSharp.Sdk.MQTT", "IoTSharp.Sdk.MQTT\IoTSharp.Sdk.MQTT.csproj", "{7771F940-3297-4E41-AE61-F007A84D4FA4}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{9084E809-B5F1-4782-B29C-6C784591CB77}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9084E809-B5F1-4782-B29C-6C784591CB77}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9084E809-B5F1-4782-B29C-6C784591CB77}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9084E809-B5F1-4782-B29C-6C784591CB77}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7771F940-3297-4E41-AE61-F007A84D4FA4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7771F940-3297-4E41-AE61-F007A84D4FA4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7771F940-3297-4E41-AE61-F007A84D4FA4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7771F940-3297-4E41-AE61-F007A84D4FA4}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {12681F8A-54FB-4DEC-B9F5-B5A9345CD772}
+	EndGlobalSection
+EndGlobal
