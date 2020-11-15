@@ -71,13 +71,13 @@
 		<PackageReference Include="hyjiacan.py4n" Version="4.0.0" />
 		<PackageReference Include="InfluxDB.Client" Version="1.13.0" />
 		<PackageReference Include="IoTSharp.CoAP.NET" Version="2.0.8" />
-		<PackageReference Include="IoTSharp.X509Extensions" Version="1.4.24" />
+		<PackageReference Include="IoTSharp.X509Extensions" Version="1.4.27" />
 		<PackageReference Include="kimbus" Version="2.0.1" />
 		<PackageReference Include="LiteDB" Version="5.0.9" />
 		<PackageReference Include="MaiKeBing.CAP.LiteDB" Version="1.0.21" />
 		<PackageReference Include="MaiKeBing.CAP.ZeroMQ" Version="1.0.21" />
-		<PackageReference Include="Maikebing.Data.Taos" Version="2.0.170" />
-		<PackageReference Include="Maikebing.HealthChecks.Taos" Version="2.0.170" />
+		<PackageReference Include="Maikebing.Data.Taos" Version="2.0.191" />
+		<PackageReference Include="Maikebing.HealthChecks.Taos" Version="2.0.191" />
 		<PackageReference Include="MaiKeBing.HostedService.ZeroMQ" Version="1.0.21" />
 		<PackageReference Include="Microsoft.AspNetCore.Http.Features" Version="5.0.0" />
 		<PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="5.0.0">
@@ -99,8 +99,8 @@
 		<PackageReference Include="Silkier" Version="1.0.233" />
 		<PackageReference Include="Silkier.AspNetCore" Version="1.0.233" />
 		<PackageReference Include="Silkier.EFCore" Version="1.0.233" />
-		<PackageReference Include="SilkierQuartz" Version="1.0.46" />
-		<PackageReference Include="SilkierQuartz.Plugins.RecentHistory" Version="1.0.46" />
+		<PackageReference Include="SilkierQuartz" Version="5.0.178" />
+		<PackageReference Include="SilkierQuartz.Plugins.RecentHistory" Version="5.0.178" />
 		<PackageReference Include="System.Collections" Version="4.3.0" />
 		<PackageReference Include="System.ServiceModel.Primitives" Version="4.8.0" />
 		<PackageReference Include="System.Text.Encoding.CodePages" Version="5.0.0" />
@@ -112,7 +112,7 @@
 		<PackageReference Include="Microsoft.Extensions.Hosting" Version="5.0.0" />
 		<PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="5.0.0" />
 		<PackageReference Include="Microsoft.Extensions.Hosting.WindowsServices" Version="5.0.0" />
-		<PackageReference Include="MQTTnet.AspNetCoreEx" Version="3.0.11" />
+		<PackageReference Include="MQTTnet.AspNetCoreEx" Version="3.0.13" />
 		<PackageReference Include="MQTTnet.Extensions.ManagedClient" Version="3.0.13" />
 	</ItemGroup>
 	<ItemGroup>
