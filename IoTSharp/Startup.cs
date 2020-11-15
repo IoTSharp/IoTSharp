@@ -149,8 +149,7 @@ namespace IoTSharp
                      System.IO.DriveInfo.GetDrives().Select(f=>f.Name).Distinct().ToList().ForEach(f => dso.AddDrive(f, 1024));
 
                  }, name: "Disk Storage");
-            services.AddHealthChecksUI(cfg=>cfg.AddHealthCheckEndpoint("IoTSharp", "http://127.0.0.1/healthz"))
-                    .AddPostgreSqlStorage(Configuration.GetConnectionString("IoTSharp"));
+        
             services.AddSilkierQuartz(opt=>
             {
                 //opt.Add("quartz.serializer.type", "json");
@@ -284,6 +283,8 @@ namespace IoTSharp
                     x.UseDiscovery(cfg => cfg=settings.Discovery);
                 }
             });
+            //TODO:  services.AddHealthChecksUI(cfg => cfg.AddHealthCheckEndpoint("IoTSharp", "http://127.0.0.1/healthz"));
+            //TODO: .AddPostgreSqlStorage(Configuration.GetConnectionString("IoTSharp"));
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

@@ -80,42 +80,62 @@ namespace IoTSharp.Storage
             while (dataReader.Read())
             {
                 TelemetryDataDto telemetry = new TelemetryDataDto();
-                byte datatype = (byte)dataReader[dataReader.GetOrdinal($"{prefix}value_type{suffix}")];
-                if (string.IsNullOrEmpty(keyname))
+                try
                 {
-                    telemetry.KeyName = dataReader.GetString(dataReader.GetOrdinal("keyname"));
+                    int idx = dataReader.GetOrdinal($"{prefix}value_type{suffix}");
+                    byte datatype;
+                    if (dataReader.FieldCount > idx && idx >= 0)
+                    {
+                        datatype = (byte)dataReader[idx];
+                    }
+                    else
+                    {
+                        datatype = (byte)DataType.String;
+                    }
+
+                    if (string.IsNullOrEmpty(keyname))
+                    {
+                        telemetry.KeyName = dataReader.GetString(dataReader.GetOrdinal("keyname"));
+                    }
+                    else
+                    {
+                        telemetry.KeyName = keyname;
+                    }
+                    telemetry.DateTime = dataReader.GetDateTime(dataReader.GetOrdinal($"{prefix}ts{suffix}"));
+                    switch ((DataType)datatype)
+                    {
+                        case DataType.Boolean:
+                            telemetry.Value = dataReader.GetBoolean(dataReader.GetOrdinal($"{prefix}value_boolean{suffix}"));
+                            break;
+                        case DataType.String:
+                            telemetry.Value = dataReader.GetString(dataReader.GetOrdinal($"{prefix}value_string{suffix}"));
+                            break;
+                        case DataType.Long:
+                            telemetry.Value = dataReader.GetInt64(dataReader.GetOrdinal($"{prefix}value_long{suffix}"));
+                            break;
+                        case DataType.Double:
+                            telemetry.Value = dataReader.GetDouble(dataReader.GetOrdinal($"{prefix}value_double{suffix}"));
+                            break;
+                        case DataType.Json:
+                        case DataType.XML:
+                        case DataType.Binary:
+                            telemetry.Value = dataReader.GetString(dataReader.GetOrdinal($"{prefix}value_string{suffix}"));
+                            break;
+                        case DataType.DateTime:
+                            telemetry.Value = dataReader.GetDateTime(dataReader.GetOrdinal($"{prefix}value_datetime{suffix}"));
+                            break;
+                        default:
+                            break;
+                    }
                 }
-                else
+                catch (Exception ex)
                 {
-                    telemetry.KeyName = keyname;
+                    _logger.LogError(ex, $"{telemetry.KeyName}遇到{ex.Message}, sql:{sql}");
                 }
-                telemetry.DateTime = dataReader.GetDateTime(dataReader.GetOrdinal($"{prefix}ts{suffix}"));
-                switch ((DataType)datatype)
+                if (!string.IsNullOrEmpty(telemetry.KeyName))
                 {
-                    case DataType.Boolean:
-                        telemetry.Value = dataReader.GetBoolean(dataReader.GetOrdinal($"{prefix}value_boolean{suffix}"));
-                        break;
-                    case DataType.String:
-                        telemetry.Value = dataReader.GetString(dataReader.GetOrdinal($"{prefix}value_string{suffix}"));
-                        break;
-                    case DataType.Long:
-                        telemetry.Value = dataReader.GetInt64(dataReader.GetOrdinal($"{prefix}value_long{suffix}"));
-                        break;
-                    case DataType.Double:
-                        telemetry.Value = dataReader.GetDouble(dataReader.GetOrdinal($"{prefix}value_double{suffix}"));
-                        break;
-                    case DataType.Json:
-                    case DataType.XML:
-                    case DataType.Binary:
-                        telemetry.Value = dataReader.GetString(dataReader.GetOrdinal($"{prefix}value_string{suffix}"));
-                        break;
-                    case DataType.DateTime:
-                        telemetry.Value = dataReader.GetDateTime(dataReader.GetOrdinal($"{prefix}value_datetime{suffix}"));
-                        break;
-                    default:
-                        break;
+                    dt.Add(telemetry);
                 }
-                dt.Add(telemetry);
             }
             return dt;
         }
