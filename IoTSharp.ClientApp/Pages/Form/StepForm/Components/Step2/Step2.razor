@@ -1,0 +1,28 @@
+﻿@namespace AntDesign.Pro.Template.Pages.Form
+
+<Form LabelCol="new ColLayoutParam{ Span = 5 }"
+      WrapperCol="new ColLayoutParam{ Span = 19 }"
+      Layout="@FormLayout.Horizontal"
+      Class="stepForm"
+      Model="@_model">
+    <Alert Closable
+           ShowIcon
+           Message="确认转账后，资金将直接打入对方账户，无法退回。"
+           Style="margin-bottom: 24px;" />
+    <Descriptions Column="@(1)">
+        <DescriptionsItem Title="付款账户">@_model.PayAccount</DescriptionsItem>
+        <DescriptionsItem Title="收款账户">@_model.ReceiverAccount</DescriptionsItem>
+        <DescriptionsItem Title="收款人姓名">@_model.ReceiverName</DescriptionsItem>
+        <DescriptionsItem Title="转账金额">
+            <Statistic Value="@_model.Amount" Suffix="元" />
+        </DescriptionsItem>
+    </Descriptions>
+    <Divider Style="margin: 24px 0"/>
+    <FormItem Label="支付密码">
+        <Input Type="password" Style="width: 80%" @bind-Value="@context.Password" />
+    </FormItem>
+    <FormItem>
+        <Button Type="primary" OnClick="OnValidateForm">提交</Button>
+        <Button OnClick="Preview">上一步</Button>
+    </FormItem>
+</Form>

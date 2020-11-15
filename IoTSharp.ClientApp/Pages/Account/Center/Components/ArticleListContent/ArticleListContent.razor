@@ -1,0 +1,16 @@
+﻿@using AntDesign.Pro.Template.Models
+@namespace AntDesign.Pro.Template.Pages.Account.Center
+
+<div class="listContent">
+    <div class="description">@Data.Content</div>
+    <div class="extra">
+        <Avatar Src="@Data.Avatar" Size="small" />
+        <a href="@Data.Href">@Data.Owner</a> 发布在 <a href="@Data.Href">@Data.Href</a>
+        <em>@Data.UpdatedAt.ToString("yyyy-MM-dd HH:mm:ss")</em>
+    </div>
+</div>
+
+@code
+{
+    [Parameter] public ListItemDataType Data { get; set; }
+}

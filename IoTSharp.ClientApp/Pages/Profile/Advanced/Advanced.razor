@@ -1,0 +1,188 @@
+﻿@namespace AntDesign.Pro.Template.Pages.Profile
+@page "/profile/advanced"
+
+<PageContainer
+    Title="单号：234231029431"
+    Class="pageHeader"
+    TabList="_tabList">
+    <Breadcrumb>
+        <Breadcrumb>
+            <BreadcrumbItem>Home</BreadcrumbItem>
+            <BreadcrumbItem>Profile</BreadcrumbItem>
+            <BreadcrumbItem>Advanced Profile</BreadcrumbItem>
+        </Breadcrumb>
+    </Breadcrumb>
+    <Extra>
+        <ButtonGroup>
+            <Button>操作一</Button>
+            <Button>操作二</Button>
+            <Dropdown Placement="@PlacementType.BottomRight">
+                <Overlay>
+                    <Menu>
+                        <MenuItem Key="1">选项一</MenuItem>
+                        <MenuItem Key="2">选项二</MenuItem>
+                        <MenuItem Key="3">选项三</MenuItem>
+                    </Menu>
+                </Overlay>
+                <ChildContent>
+                    <Button>
+                        <Icon Type="ellipsis" Theme="outline" />
+                    </Button>
+                </ChildContent>
+            </Dropdown>
+        </ButtonGroup>
+        <Button Type="primary">主操作</Button>
+    </Extra>
+    <ExtraContent>
+        <div class="moreInfo">
+            <Statistic Title="@("状态")" Value="@("待审批")" />
+            <Statistic Title="@("订单金额")" Value="568.08" Prefix="@("¥")" />
+        </div>
+    </ExtraContent>
+    <Content>
+        <Descriptions Class="headerList" Size="small" Column="2">
+            <DescriptionsItem Title="@("创建人")">曲丽丽</DescriptionsItem>
+            <DescriptionsItem Title="@("订购产品")">XX 服务</DescriptionsItem>
+            <DescriptionsItem Title="@("创建时间")">2017-07-07</DescriptionsItem>
+            <DescriptionsItem Title="@("关联单据")">
+                <a href="">12421</a>
+            </DescriptionsItem>
+            <DescriptionsItem Title="@("生效日期")">2017-07-07 ~ 2017-08-08</DescriptionsItem>
+            <DescriptionsItem Title="@("备注")">请于两个工作日内确认</DescriptionsItem>
+        </Descriptions>
+    </Content>
+    <ChildContent>
+        <div class="main__b__3">
+            <GridContent>
+                <Card Title="@("流程进度")" Style="margin-bottom: 24px;">
+                    <Steps
+                        Direction="horizontal"
+                        Current="1">
+                        <ChildContent>
+                            <Step Title="@("创建项目")" DescriptionTemplate="@_desc1" />
+                            <Step Title="@("部门初审")" DescriptionTemplate="@_desc2" />
+                            <Step Title="@("财务复核")" />
+                            <Step Title="@("完成")" />
+                        </ChildContent>
+                    </Steps>
+                </Card>
+
+                <Card Title="@("用户信息")" Style="margin-bottom: 24px;">
+                    <Descriptions Style="margin-bottom: 24px;">
+                        <DescriptionsItem Title="@("用户姓名")">付小小</DescriptionsItem>
+                        <DescriptionsItem Title="@("会员卡号")">32943898021309809423</DescriptionsItem>
+                        <DescriptionsItem Title="@("身份证")">3321944288191034921</DescriptionsItem>
+                        <DescriptionsItem Title="@("联系方式")">18112345678</DescriptionsItem>
+                        <DescriptionsItem Title="@("联系地址")">
+                            曲丽丽 18100000000 浙江省杭州市西湖区黄姑山路工专路交叉路口
+                        </DescriptionsItem>
+                    </Descriptions>
+                    <Descriptions Style="margin-bottom: 24px;" Title="@("信息组")">
+                        <DescriptionsItem Title="@("某某数据")">725</DescriptionsItem>
+                        <DescriptionsItem Title="@("该数据更新时间")">2017-08-08</DescriptionsItem>
+                        <DescriptionsItem TitleTemplate="@_title">
+                            725
+                        </DescriptionsItem>
+                        <DescriptionsItem Title="@("该数据更新时间")">2017-08-08</DescriptionsItem>
+                    </Descriptions>
+                    <h4 style="margin-bottom: 16px;">信息组</h4>
+                    <Card Type="inner" Title="@("多层级信息组")" Bordered>
+                        <Descriptions Style="margin-bottom: 16px;" Title="@("组名称")">
+                            <DescriptionsItem Title="@("负责人")">林东东</DescriptionsItem>
+                            <DescriptionsItem Title="@("角色码")">1234567</DescriptionsItem>
+                            <DescriptionsItem Title="@("所属部门")">XX公司 - YY部</DescriptionsItem>
+                            <DescriptionsItem Title="@("过期时间")">2017-08-08</DescriptionsItem>
+                            <DescriptionsItem Title="@("描述")">
+                                这段描述很长很长很长很长很长很长很长很长很长很长很长很长很长很长...
+                            </DescriptionsItem>
+                        </Descriptions>
+                        <Divider Style="margin: 16px 0;" />
+                        <Descriptions Style="margin-bottom: 16px;" Title="@("组名称")" Column="1">
+                            <DescriptionsItem Title="@("学名")">
+                                Citrullus lanatus (Thunb.) Matsum. et
+                                Nakai一年生蔓生藤本；茎、枝粗壮，具明显的棱。卷须较粗..
+                            </DescriptionsItem>
+                        </Descriptions>
+                        <Divider Style="margin: 16px 0;" />
+                        <Descriptions Title="@("组名称")">
+                            <DescriptionsItem Title="@("负责人")">付小小</DescriptionsItem>
+                            <DescriptionsItem Title="@("角色码")">1234568</DescriptionsItem>
+                        </Descriptions>
+                    </Card>
+                </Card>
+
+                <Card Title="@("用户近半年来电记录")" Style="margin-bottom: 24px;">
+                    <Empty />
+                </Card>
+
+                <Card Class="tabsCard">
+                    <Tabs DefaultActiveKey="tab1">
+                        <TabPane Key="tab1">
+                            <Tab>操作日志一</Tab>
+                            <ChildContent>
+                                <Table
+                                    DataSource="@_data.AdvancedOperation1"
+                                    HidePagination>
+                                    <AntDesign.Column Title="操作类型" @bind-Field="@context.Type" />
+                                    <AntDesign.Column Title="操作人" @bind-Field="@context.Name" />
+                                    <AntDesign.Column Title="执行结果" @bind-Field="@context.Status" />
+                                    <AntDesign.Column Title="操作时间" @bind-Field="@context.UpdatedAt" />
+                                    <AntDesign.Column Title="备注" @bind-Field="@context.Memo" />
+                                </Table>
+                            </ChildContent>
+                        </TabPane>
+                        <TabPane Key="tab2">
+                            <Tab>操作日志二</Tab>
+                            <ChildContent>
+                                <Table
+                                    DataSource="@_data.AdvancedOperation2"
+                                    HidePagination>
+                                    <AntDesign.Column Title="操作类型" @bind-Field="@context.Type" />
+                                    <AntDesign.Column Title="操作人" @bind-Field="@context.Name" />
+                                    <AntDesign.Column Title="执行结果" @bind-Field="@context.Status" />
+                                    <AntDesign.Column Title="操作时间" @bind-Field="@context.UpdatedAt" />
+                                    <AntDesign.Column Title="备注" @bind-Field="@context.Memo" />
+                                </Table>
+                            </ChildContent>
+                        </TabPane>
+                        <TabPane Key="tab3">
+                            <Tab>操作日志三</Tab>
+                            <ChildContent>
+                                <Table
+                                    DataSource="@_data.AdvancedOperation3"
+                                    HidePagination>
+                                    <AntDesign.Column Title="操作类型" @bind-Field="@context.Type" />
+                                    <AntDesign.Column Title="操作人" @bind-Field="@context.Name" />
+                                    <AntDesign.Column Title="执行结果" @bind-Field="@context.Status" />
+                                    <AntDesign.Column Title="操作时间" @bind-Field="@context.UpdatedAt" />
+                                    <AntDesign.Column Title="备注" @bind-Field="@context.Memo" />
+                                </Table>
+                            </ChildContent>
+                        </TabPane>
+                    </Tabs>
+                </Card>
+            </GridContent>
+        </div>
+    </ChildContent>
+</PageContainer>
+
+@code
+{
+    private readonly RenderFragment _desc1 = @<div class="textSecondary stepDescription">
+                                                曲丽丽 <Icon Type="dingding" Theme="outline"/>
+                                             </div>;
+    private readonly RenderFragment _desc2 = @<div class="stepDescription">
+                                                周毛毛 
+                                                <Icon Type="dingding" Theme="outline" />
+                                                <div>
+                                                    <a href="">催一下</a>
+                                                </div>
+                                             </div>;
+
+    private readonly RenderFragment _title = @<span>
+                                                 某某数据
+                                                 <AntDesign.Tooltip Title="@("数据说明")">
+                                                     <Icon Type="info-circle" Theme="outline" Style="color: rgba(0, 0, 0, 0.43); margin-left: 4px;" />
+                                                 </AntDesign.Tooltip>
+                                             </span>;
+}

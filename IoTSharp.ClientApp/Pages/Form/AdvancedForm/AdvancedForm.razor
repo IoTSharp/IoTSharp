@@ -1,0 +1,112 @@
+﻿@namespace AntDesign.Pro.Template.Pages.Form
+@page "/form/advanced-form"
+
+<Form 
+    Layout="@FormLayout.Vertical"
+    Model="@_model">
+    <PageContainer>
+        <Content>高级表单常见于一次性输入和提交大批量数据的场景。</Content>
+        <ChildContent>
+            <Card Title="@("仓库管理")" Class="card">
+                <Row Gutter="24">
+                    <AntDesign.Col Span="8">
+                        <FormItem Label="仓库名">
+                            <Input Placeholder="请输入仓库名称" @bind-Value="@context.Name" />
+                        </FormItem>
+                    </AntDesign.Col>
+                    <AntDesign.Col Span="8">
+                        <FormItem Label="仓库域名">
+                            <AntDesign.Input Style="width: 100%" Placeholder="请输入" @bind-Value="@context.Url">
+                                <AddOnBefore>http://</AddOnBefore>
+                                <AddOnAfter>.com</AddOnAfter>
+                            </AntDesign.Input>
+                        </FormItem>
+                    </AntDesign.Col>
+                    <AntDesign.Col Span="8">
+                        <FormItem Label="仓库管理员">
+                            <Select Placeholder="请选择管理员" @bind-Value="@context.Owner">
+                                <SelectOption Value="xiao">付晓晓</SelectOption>
+                                <SelectOption Value="mao">周毛毛</SelectOption>
+                            </Select>
+                        </FormItem>
+                    </AntDesign.Col>
+                </Row>
+                <Row Gutter="24">
+                    <AntDesign.Col Span="8">
+                        <FormItem Label="审批人">
+                            <Select Placeholder="请选择审批员" @bind-Value="@context.Approver">
+                                <SelectOption Value="xiao">付晓晓</SelectOption>
+                                <SelectOption Value="mao">周毛毛</SelectOption>
+                            </Select>
+                        </FormItem>
+                    </AntDesign.Col>
+                    <AntDesign.Col Span="8">
+                        <FormItem Label="生效日期">
+                            <RangePicker Placeholder="@(new [] {"开始日期", "结束日期"})" Style="width: 100%" @bind-Value="@context.DateRange" />
+                        </FormItem>
+                    </AntDesign.Col>
+                    <AntDesign.Col Span="8">
+                        <FormItem Label="仓库类型">
+                            <Select Placeholder="请选择仓库类型" @bind-Value="@context.Type">
+                                <SelectOption Value="private">私密</SelectOption>
+                                <SelectOption Value="public">公开</SelectOption>
+                            </Select>
+                        </FormItem>
+                    </AntDesign.Col>
+                </Row>
+            </Card>
+
+            <Card Title="@("任务管理")">
+                <Row Gutter="24">
+                    <AntDesign.Col Span="8">
+                        <FormItem Label="任务名">
+                            <Input Placeholder="请输入" @bind-Value="@context.Name2" />
+                        </FormItem>
+                    </AntDesign.Col>
+                    <AntDesign.Col Span="8">
+                        <FormItem Label="任务描述">
+                            <Input Placeholder="请输入" @bind-Value="@context.Url2" />
+                        </FormItem>
+                    </AntDesign.Col>
+                    <AntDesign.Col Span="8">
+                        <FormItem Label="执行人">
+                            <Select Placeholder="请选择执行人" @bind-Value="@context.Owner2">
+                                <SelectOption Value="xiao">付晓晓</SelectOption>
+                                <SelectOption Value="mao">周毛毛</SelectOption>
+                            </Select>
+                        </FormItem>
+                    </AntDesign.Col>
+                </Row>
+                <Row Gutter="24">
+                    <AntDesign.Col Span="8">
+                        <FormItem Label="责任人">
+                            <Select Placeholder="请选择责任人" @bind-Value="@context.Approver2">
+                                <SelectOption Value="xiao">付晓晓</SelectOption>
+                                <SelectOption Value="mao">周毛毛</SelectOption>
+                            </Select>
+                        </FormItem>
+                    </AntDesign.Col>
+                    <AntDesign.Col Span="8">
+                        <FormItem Label="生效日期">
+                            <TimePicker Placeholder="@("提醒时间")" Style="width: 100%" @bind-Value="@context.DateRange2" />
+                        </FormItem>
+                    </AntDesign.Col>
+                    <AntDesign.Col Span="8">
+                        <FormItem Label="任务类型">
+                            <Select Placeholder="请选择任务类型" @bind-Value="@context.Type2">
+                                <SelectOption Value="private">私密</SelectOption>
+                                <SelectOption Value="public">公开</SelectOption>
+                            </Select>
+                        </FormItem>
+                    </AntDesign.Col>
+                </Row>
+            </Card>
+
+            <Card Title="@("成员管理")">
+                <FormItem>
+                    <!--todo: Table Form-->
+                </FormItem>
+            </Card>
+        </ChildContent>
+    </PageContainer>
+</Form>

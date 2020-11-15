@@ -1,0 +1,38 @@
+﻿@namespace AntDesign.Pro.Template.Pages.Form
+@page "/form/step-form"
+
+<PageContainer Title="Step Form">
+    <Breadcrumb>
+        <Breadcrumb>
+            <BreadcrumbItem>Home</BreadcrumbItem>
+            <BreadcrumbItem>Form</BreadcrumbItem>
+            <BreadcrumbItem>Step Form</BreadcrumbItem>
+        </Breadcrumb>
+    </Breadcrumb>
+    <Content>
+        <span>将一个冗长或用户不熟悉的表单任务分成多个步骤，指导用户完成。</span>
+    </Content>
+    <ChildContent>
+        <Card>
+            <Steps Current="@_current" Class="steps">
+                <Step Title="@("填写转账信息")" />
+                <Step Title="@("确认转账信息")" />
+                <Step Title="@("完成")" />
+            </Steps>
+            <CascadingValue Value="this">
+                @switch (_current)
+                {
+                    case 0:
+                        <Step1 />
+                        break;
+                    case 1:
+                        <Step2 />
+                        break;
+                    case 2:
+                        <Step3 />
+                        break;
+                }
+            </CascadingValue>
+        </Card>
+    </ChildContent>
+</PageContainer>

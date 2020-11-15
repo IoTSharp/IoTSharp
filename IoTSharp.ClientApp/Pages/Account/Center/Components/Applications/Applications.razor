@@ -1,0 +1,62 @@
+﻿@namespace AntDesign.Pro.Template.Pages.Account.Center
+
+<AntList 
+    TItem="ListItemDataType"
+    Class="filterCardList"
+    Grid="_listGridType"
+    DataSource="List">
+    <ListItem NoFlex Grid="_listGridType">
+        <Card
+            Bordered
+            Hoverable
+            BodyStyle="padding-bottom: 20px;"
+            Actions="Actions">
+            <CardMeta>
+                <AvatarTemplate>
+                    <Avatar Size="small" Src="@context.Avatar" />
+                </AvatarTemplate>
+                <TitleTemplate>@context.Title</TitleTemplate>
+            </CardMeta>
+            <div class="cardItemContent">
+                <div class="cardInfo">
+                    <div>
+                        <p>活跃用户</p>
+                        <p>@FormatWan(context.ActiveUser)</p>
+                    </div>
+                    <div>
+                        <p>新增用户</p>
+                        <p>@context.NewUser.ToString("0,0")</p>
+                    </div>
+                </div>
+            </div>
+        </Card>
+    </ListItem>
+</AntList>
+
+@code
+{
+    private static readonly RenderFragment Download = @<Tooltip Title="@("下载")">
+                                                           <Icon Type="download" Theme="outline"/>
+                                                       </Tooltip>;
+
+    private static readonly IList<RenderFragment> Actions = new List<RenderFragment>
+    {
+        Download,
+        @<Tooltip Title="@("编辑")"><Icon Type="edit" Theme="outline"/></Tooltip>,
+        @<Tooltip Title="@("分享")"><Icon Type="share-alt" Theme="outline"/></Tooltip>,
+        @<Dropdown><Icon Type="ellipsis" Theme="outline"/></Dropdown>
+    };
+
+    private static RenderFragment FormatWan(int val)
+    {
+        if (val > 10000)
+        {
+            val = (int)Math.Floor((double)val / 10000);
+        }
+
+        return @<span>
+                   @val
+                   <span style="position: relative; top: -2px; font-size: 14px; font-style: normal; margin-left: 2px;">万</span>
+               </span>;
+    }
+}

@@ -1,0 +1,47 @@
+﻿@namespace AntDesign.Pro.Template.Pages.Form
+
+<Form 
+    LabelCol="new ColLayoutParam{ Span = 5 }"
+    WrapperCol="new ColLayoutParam{ Span = 19 }"
+    Layout="@FormLayout.Horizontal"
+    Class="stepForm"
+    Model="_model">
+    <FormItem Label="付款账户">
+        <Select Placeholder="test@example.com" @bind-Value="@context.PayAccount">
+            <SelectOption Value="ant-design@alipay.com">ant-design@alipay.com</SelectOption>
+        </Select>
+    </FormItem>
+    <FormItem Label="收款账户">
+        <InputGroup Compact Style="display: table">
+            <Select DefaultValue="@("alipay")" Style="width: 100px;" @bind-Value="@context.ReceiverAccountType">
+                <SelectOption Value="alipay">支付宝</SelectOption>
+                <SelectOption Value="bank">银行账户</SelectOption>
+            </Select>
+            <Input Style="width: calc(100% - 100px);" Placeholder="test@example.com" @bind-Value="@context.ReceiverAccount" />
+        </InputGroup>
+    </FormItem>
+    <FormItem Label="收款人姓名">
+        <Input Placeholder="请输入收款人姓名" @bind-Value="@context.ReceiverName" />
+    </FormItem>
+    <FormItem Label="转账金额">
+        <Input Placeholder="请输入转账金额" @bind-Value="@context.ReceiverName" />
+    </FormItem>
+    <FormItem
+        WrapperCol="new ColLayoutParam {Xs = 24}">
+        <Button Type="primary" OnClick="OnValidateForm">
+            下一步
+        </Button>
+    </FormItem>
+</Form>
+<Divider Style="margin: 40px 0 24px 0;" />
+<div class="desc">
+    <h3>说明</h3>
+    <h4>转账到支付宝账户</h4>
+    <p>
+        如果需要，这里可以放一些关于产品的常见问题说明。如果需要，这里可以放一些关于产品的常见问题说明。如果需要，这里可以放一些关于产品的常见问题说明。
+    </p>
+    <h4>转账到银行卡</h4>
+    <p>
+        如果需要，这里可以放一些关于产品的常见问题说明。如果需要，这里可以放一些关于产品的常见问题说明。如果需要，这里可以放一些关于产品的常见问题说明。
+    </p>
+</div>

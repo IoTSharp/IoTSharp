@@ -1,0 +1,50 @@
+﻿@namespace AntDesign.Pro.Template.Pages.User
+@layout UserLayout
+@page "/user/register"
+
+<div class="main__b__1">
+    <div class="register">
+        <h3>注册</h3>
+        <Form Model="@_user">
+            <FormItem>
+                <Input Placeholder="邮箱" @bind-Value="@context.UserName" Size="@InputSize.Large"></Input>
+            </FormItem>
+
+            <FormItem>
+                <Input Placeholder="至少6位密码，区分大小写" @bind-Value="@context.Password" Size="@InputSize.Large" Type="password"></Input>
+            </FormItem>
+
+            <FormItem>
+                <Input Placeholder="确认密码" @bind-Value="@context.ConfirmPassword" Size="@InputSize.Large" Type="password"></Input>
+            </FormItem>
+
+            <FormItem>
+                <InputGroup Compact Size="@InputSize.Large" Style="display: table">
+                    <Select DefaultValue=@("+86") Style="width: 25%" Size="large">
+                        <SelectOption Value="+86">+86</SelectOption>
+                        <SelectOption Value="+87">+87</SelectOption>
+                    </Select>
+                    <AntDesign.Input Placeholder="手机号" Style="width: 75%;" @bind-Value="@context.Phone"></AntDesign.Input>
+                </InputGroup>
+            </FormItem>
+
+            <FormItem>
+                <FormItem>
+                    <Row Gutter="8">
+                        <AntDesign.Col Span="16">
+                            <AntDesign.Input Placeholder="验证码" @bind-Value="@context.Captcha" Size="@InputSize.Large"></AntDesign.Input>
+                        </AntDesign.Col>
+                        <AntDesign.Col Span="8">
+                            <Button Size="large" Block>获取验证码</Button>
+                        </AntDesign.Col>
+                    </Row>
+                </FormItem>
+            </FormItem>
+
+            <FormItem>
+                <Button Type="primary" Size="large" OnClick="Reg" class="submit">注册</Button>
+                <a class="login" href="/user/login">使用已有账户登录</a>
+            </FormItem>
+        </Form>
+    </div>
+</div>

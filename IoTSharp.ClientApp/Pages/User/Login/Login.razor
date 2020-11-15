@@ -1,0 +1,66 @@
+﻿@namespace AntDesign.Pro.Template.Pages.User
+@layout UserLayout
+@page "/user/login"
+
+<div class="main__b__0">
+    <div class="login">
+        <Form Model="@_model" OnFinish="HandleSubmit">
+            <Tabs ActiveKey="@context.LoginType">
+                <TabPane Key="1">
+                    <Tab>账户密码登录</Tab>
+                    <ChildContent>
+                        <FormItem>
+                            <AntDesign.Input Placeholder="用户名: admin or user" Size="large" @bind-Value="@context.UserName">
+                                <Prefix><Icon Type="user" /></Prefix>
+                            </AntDesign.Input>
+                        </FormItem>
+                        <FormItem>
+                            <AntDesign.Input Placeholder="密码: ant.design" Size="large" @bind-Value="@context.Password" Type="password">
+                                <Prefix><Icon Type="lock" /></Prefix>
+                            </AntDesign.Input>
+                        </FormItem>
+                    </ChildContent>
+                </TabPane>
+                <TabPane Key="2">
+                    <Tab>手机号登录</Tab>
+                    <ChildContent>
+                        <FormItem>
+                            <AntDesign.Input Placeholder="手机号" Size="large" @bind-Value="@context.Mobile">
+                                <Prefix><Icon Type="mobile" /></Prefix>
+                            </AntDesign.Input>
+                        </FormItem>
+                        <FormItem>
+                            <Row Gutter="8">
+                                <AntDesign.Col Span="16">
+                                    <AntDesign.Input Placeholder="验证码" Size="large" @bind-Value="@context.Captcha">
+                                        <Prefix><Icon Type="mail" /></Prefix>
+                                    </AntDesign.Input>
+                                </AntDesign.Col>
+                                <AntDesign.Col Span="8">
+                                    <Button Size="large" Block OnClick="GetCaptcha">获取验证码</Button>
+                                </AntDesign.Col>
+                            </Row>
+                        </FormItem>
+                    </ChildContent>
+                </TabPane>
+            </Tabs>
+            <div>
+                <Checkbox Checked="@context.AutoLogin">
+                    自动登录
+                </Checkbox>
+                <a style="float: right;">
+                    忘记密码
+                </a>
+            </div>
+            <Button Type="primary" HtmlType="submit" Class="submit" Size="large" Block>登&nbsp;录</Button>
+            <div class="other">
+                其他登录方式
+                <Icon Type="alipay-circle" />
+                <Icon Type="taobao-circle" />
+                <Icon Type="weibo-circle" />
+                <a class="register" href="/user/register">注册账户</a>
+            </div>
+        </Form>
+    </div>
+</div>
+<Message />

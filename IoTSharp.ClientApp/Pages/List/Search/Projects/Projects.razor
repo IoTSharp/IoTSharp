@@ -1,0 +1,81 @@
+﻿@namespace AntDesign.Pro.Template.Pages.List
+@layout SearchList
+@page "/list/search/projects"
+
+<div class="coverCardList">
+    <Card>
+        <Form Model="_model"
+              Layout="inline">
+            <StandardFormRow Title="所属类目" Block Style="padding-bottom: 11px">
+                <FormItem>
+                    <TagSelect Expandable>
+                        <TagSelectOption Value="cat1">类目一</TagSelectOption>
+                        <TagSelectOption Value="cat2">类目二</TagSelectOption>
+                        <TagSelectOption Value="cat3">类目三</TagSelectOption>
+                        <TagSelectOption Value="cat4">类目四</TagSelectOption>
+                        <TagSelectOption Value="cat5">类目五</TagSelectOption>
+                        <TagSelectOption Value="cat6">类目六</TagSelectOption>
+                        <TagSelectOption Value="cat7">类目七</TagSelectOption>
+                        <TagSelectOption Value="cat8">类目八</TagSelectOption>
+                        <TagSelectOption Value="cat9">类目九</TagSelectOption>
+                        <TagSelectOption Value="cat10">类目十</TagSelectOption>
+                        <TagSelectOption Value="cat11">类目十一</TagSelectOption>
+                        <TagSelectOption Value="cat12">类目十二</TagSelectOption>
+                    </TagSelect>
+                </FormItem>
+            </StandardFormRow>
+            <StandardFormRow Title="其它选项" Grid Last>
+                <Row Gutter="16">
+                    <AntDesign.Col Lg="8" Md="10" Sm="10" Xs="24">
+                        <FormItem Label="作者">
+                            <Select Placeholder="不限" Style="max-width: 200px; width: 100%;" @bind-Value="_model.ActiveUser">
+                                <SelectOption Value="lisa">王昭君</SelectOption>
+                            </Select>
+                        </FormItem>
+                    </AntDesign.Col>
+                    <AntDesign.Col Lg="8" Md="10" Sm="10" Xs="24">
+                        <FormItem Label="好评度">
+                            <Select Placeholder="不限" Style="max-width: 200px; width: 100%;" @bind-Value="_model.Satisfaction">
+                                <SelectOption Value="good">优秀</SelectOption>
+                                <SelectOption Value="normal">普通</SelectOption>
+                            </Select>
+                        </FormItem>
+                    </AntDesign.Col>
+                </Row>
+            </StandardFormRow>
+        </Form>
+    </Card>
+    <div class="cardList">
+        <AntList TItem="ListItemDataType"
+                 Grid="_listGridType"
+                 DataSource="_fakeList">
+            <ListItem NoFlex Grid="_listGridType">
+                <Card Class="card" Hoverable Bordered>
+                    <Cover>
+                        <img alt="@context.Title" src="@context.Cover"/>
+                    </Cover>
+                    <ChildContent>
+                        <CardMeta>
+                            <DescriptionTemplate>@context.SubDescription</DescriptionTemplate>
+                            <TitleTemplate><a>@context.Title</a></TitleTemplate>
+                        </CardMeta>
+                        <div class="cardItemContent">
+                            <span>@context.UpdatedAt.ToFriendlyDisplay()</span>
+                            <div class="avatarList">
+                                <AntDesign.Pro.Template.Pages.Account.Center.AvatarList>
+                                    @foreach (var member in context.Members)
+                                    {
+                                        <AntDesign.Pro.Template.Pages.Account.Center.AvatarListItem
+                                            Size="small"
+                                            Src="@member.Avatar"
+                                            Tips="@member.Name"/>
+                                    }
+                                </AntDesign.Pro.Template.Pages.Account.Center.AvatarList>
+                            </div>
+                        </div>
+                    </ChildContent>
+                </Card>
+            </ListItem>
+        </AntList>
+    </div>
+</div>

@@ -1,0 +1,76 @@
+﻿@namespace AntDesign.Pro.Template.Pages.List
+@layout SearchList
+@page "/list/search/articles"
+
+<Card>
+    <Form 
+        Model="_model"
+        Layout="inline">
+        <StandardFormRow Title="所属类目" Block Style="padding-bottom: 11px;">
+            <TagSelect Expandable>
+                <TagSelectOption Value="cat1">类目一</TagSelectOption>
+                <TagSelectOption Value="cat2">类目二</TagSelectOption>
+                <TagSelectOption Value="cat3">类目三</TagSelectOption>
+                <TagSelectOption Value="cat4">类目四</TagSelectOption>
+                <TagSelectOption Value="cat5">类目五</TagSelectOption>
+                <TagSelectOption Value="cat6">类目六</TagSelectOption>
+                <TagSelectOption Value="cat7">类目七</TagSelectOption>
+                <TagSelectOption Value="cat8">类目八</TagSelectOption>
+                <TagSelectOption Value="cat9">类目九</TagSelectOption>
+                <TagSelectOption Value="cat10">类目十</TagSelectOption>
+                <TagSelectOption Value="cat11">类目十一</TagSelectOption>
+                <TagSelectOption Value="cat12">类目十二</TagSelectOption>
+            </TagSelect>
+        </StandardFormRow>
+        <StandardFormRow Title="owner" Grid>
+            <Select Mode="multiple" Placeholder="选择 owner" DefaultValue="_defaultOwners" @bind-Value="_model.Owner">
+                @foreach (var owner in _owners)
+                {
+                    <SelectOption Value="@owner.Id">
+                        @owner.Name
+                    </SelectOption>
+                }
+            </Select>
+            <a class="selfTrigger" @onclick="SetOwner">
+                只看自己的
+            </a>
+        </StandardFormRow>
+        <StandardFormRow Title="其它选项" Grid Last>
+            <Row Gutter="16">
+                <AntDesign.Col Lg="8" Md="10" Sm="10" Xs="24">
+                    <FormItem Label="活跃用户">
+                        <Select Placeholder="不限" Style="max-width: 200px; width: 100%;" @bind-Value="_model.ActiveUser">
+                            <SelectOption Value="lisa">李三</SelectOption>
+                        </Select>
+                    </FormItem>
+                </AntDesign.Col>
+                <AntDesign.Col Lg="8" Md="10" Sm="10" Xs="24">
+                    <FormItem Label="好评度">
+                        <Select Placeholder="不限" Style="max-width: 200px; width: 100%;" @bind-Value="_model.Satisfaction">
+                            <SelectOption Value="good">优秀</SelectOption>
+                        </Select>
+                    </FormItem>
+                </AntDesign.Col>
+            </Row>
+        </StandardFormRow>
+    </Form>
+</Card>
+<Card 
+    Style="margin-top: 24px;"
+     BodyStyle="padding: 8px 32px 32px 32px;">
+    <AntList 
+        TItem="ListItemDataType"
+        Size="large"
+        Class="articleList"
+        ItemLayout="ListItemLayout.Vertical"
+        DataSource="_fakeList">
+        <ListItem NoFlex>
+            <ListItemMeta Description="">
+                <TitleTemplate>
+                    <a href="https://ng.ant.design">@context.Title</a>
+                </TitleTemplate>
+            </ListItemMeta>
+            <AntDesign.Pro.Template.Pages.Account.Center.ArticleListContent Data="@context" />
+        </ListItem>
+    </AntList>
+</Card>

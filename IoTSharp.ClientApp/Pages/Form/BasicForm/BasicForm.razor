@@ -1,0 +1,63 @@
+﻿@namespace AntDesign.Pro.Template.Pages.Form
+@page "/form/basic-form"
+
+<PageContainer Title="Basic Form">
+    <Breadcrumb>
+        <Breadcrumb>
+            <BreadcrumbItem>Home</BreadcrumbItem>
+            <BreadcrumbItem>Form</BreadcrumbItem>
+            <BreadcrumbItem>Basic Form</BreadcrumbItem>
+        </Breadcrumb>
+    </Breadcrumb>
+    <Content>
+        <span>Form pages are used to collect or verify information to users, and basic forms are common in scenarios where there are fewer data items.</span>
+    </Content>
+    <ChildContent>
+        <Card>
+            <Form 
+                Model="@_model"
+                Style="margin-top: 8px;"
+                LabelCol="new ColLayoutParam { Span = 7 }"
+                WrapperCol="new ColLayoutParam { Span = 17 }"
+                OnFinish="HandleSubmit">
+                <FormItem Label="Title">
+                    <Input Placeholder="Give the target a name" @bind-Value="@context.Title" />
+                </FormItem>
+                <FormItem Label="Start and end date">
+                    <RangePicker Style="width:100%;" TValue="DateTime?[]" @bind-Value="@context.DateRange" />
+                </FormItem>
+                <FormItem Label="Goal description">
+                    <TextArea MinRows="4" @bind-Value="@context.Goal"></TextArea>
+                </FormItem>
+                <FormItem Label="Metrics">
+                    <TextArea MinRows="4" @bind-Value="@context.Standard"></TextArea>
+                </FormItem>
+                <FormItem Label="Client">
+                    <Input Placeholder="Please describe your customer service, internal customers directly Name job number" @bind-Value="@context.Client" />
+                </FormItem>
+                <FormItem Label="Inviting critics">
+                    <Input Placeholder="Please describe your customer service, internal customers directly Name job number" @bind-Value="@context.Invites" />
+                </FormItem>
+                <FormItem Label="Weight">
+                    <AntDesign.InputNumber @bind-Value="@context.Weight" Min="0" Max="100" DefaultValue="0" />
+                    <span class="ant-form-text">%</span>
+                </FormItem>
+                <FormItem Label="Target disclosure">
+                    <RadioGroup @bind-Value="@context.Disclosure">
+                        <Radio Value="1">Public</Radio>
+                        <Radio Value="2">Partially public</Radio>
+                        <Radio Value="3">Private</Radio>
+                    </RadioGroup>
+                </FormItem>
+                <FormItem Label=" " Style="margin-top:32px">
+                    <Button Type="primary" HtmlType="submit">
+                        Submit
+                    </Button>
+                    <Button Style="margin-left:8px">
+                        Save
+                    </Button>
+                </FormItem>
+            </Form>
+        </Card>
+    </ChildContent>
+</PageContainer>

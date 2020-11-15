@@ -1,0 +1,88 @@
+﻿@namespace AntDesign.Pro.Template.Pages.List
+@page "/list/card-list"
+
+<PageContainer Title="Card List">
+    <Breadcrumb>
+        <Breadcrumb>
+            <BreadcrumbItem>Home</BreadcrumbItem>
+            <BreadcrumbItem>List</BreadcrumbItem>
+            <BreadcrumbItem>Card List</BreadcrumbItem>
+        </Breadcrumb>
+    </Breadcrumb>
+    <Content>
+        <div class="pageHeaderContent__b__1">
+            <p>
+                段落示意：蚂蚁金服务设计平台 ant.design，用最小的工作量，无缝接入蚂蚁金服生态，
+                提供跨越设计与开发的体验解决方案。
+            </p>
+            <div class="contentLink">
+                <a>
+                    <img alt="" src="https://gw.alipayobjects.com/zos/rmsportal/MjEImQtenlyueSmVEfUD.svg"/>
+                    快速开始
+                </a>
+                <a>
+                    <img alt="" src="https://gw.alipayobjects.com/zos/rmsportal/NbuDUAuBlIApFuDvWiND.svg"/>
+                    产品简介
+                </a>
+                <a>
+                    <img alt="" src="https://gw.alipayobjects.com/zos/rmsportal/ohOEPSYdDTNnyMbGuyLb.svg"/>
+                    产品文档
+                </a>
+            </div>
+        </div>
+    </Content>
+    <ExtraContent>
+        <div class="extraImg">
+            <img alt="这是一个标题"
+                 src="https://gw.alipayobjects.com/zos/rmsportal/RzwpdLnhmvDJToTdfDPe.png"/>
+        </div>
+    </ExtraContent>
+    <ChildContent>
+        <div class="cardList">
+            <AntList
+                TItem="ListItemDataType"
+                DataSource="_data"
+                ItemLayout="ListItemLayout.Horizontal"
+                Grid="_listGridType">
+                <ListItem NoFlex Grid="_listGridType">
+                    @if (string.IsNullOrEmpty(context.Id))
+                    {
+                        <Button Type="dashed" class="newButton">
+                            <Icon Type="plus" Theme="outline" /> 新增产品
+                        </Button>
+                    }
+                    else
+                    {
+                        <Card Hoverable Bordered Class="card" Actions="_actions">
+                            <CardMeta>
+                                <AvatarTemplate>
+                                    <img alt="" class="cardAvatar" src="@context.Avatar"/>
+                                </AvatarTemplate>
+                                <TitleTemplate>
+                                    <a>@context.Title</a>
+                                </TitleTemplate>
+                                <DescriptionTemplate>
+                                    <Paragraph class="item" Ellipsis>
+                                        <!--todo: Ellipsis not working-->
+                                        @context.Description
+                                    </Paragraph>
+                                </DescriptionTemplate>
+                            </CardMeta>
+                        </Card>
+                    }
+                </ListItem>
+            </AntList>
+        </div>
+    </ChildContent>
+</PageContainer>
+
+@code
+{
+    private static readonly RenderFragment Operate = @<a key="option1">操作一</a>;
+
+    private readonly RenderFragment[] _actions =
+    {
+        Operate,
+        @<a key="option2">操作二</a>,
+    };
+}

@@ -1,0 +1,109 @@
+﻿@namespace AntDesign.Pro.Template.Pages.List
+@page "/list/basic-list"
+
+<div>
+    <PageContainer Title="Basic List">
+        <Breadcrumb>
+            <Breadcrumb>
+                <BreadcrumbItem>Home</BreadcrumbItem>
+                <BreadcrumbItem>List</BreadcrumbItem>
+                <BreadcrumbItem>Basic List </BreadcrumbItem>
+            </Breadcrumb>
+        </Breadcrumb>
+        <ChildContent>
+            <div class="standardList">
+                <Card>
+                    <Row Gutter="24">
+                        <AntDesign.Col Sm="8" Xs="24">
+                            @Info("我的待办", "8个任务", true)
+                        </AntDesign.Col>
+                        <AntDesign.Col Sm="8" Xs="24">
+                            @Info("本周任务平均处理时间", "32分钟", true)
+                        </AntDesign.Col>
+                        <AntDesign.Col Sm="8" Xs="24">
+                            @Info("本周完成任务数", "24个任务")
+                        </AntDesign.Col>
+                    </Row>
+                </Card>
+
+                <Card Class="listCard"
+                      Title="基本列表"
+                      Style="margin-top: 24px;"
+                      BodyStyle="padding: 0 32px 40px 32px">
+                    <Extra>
+                        <div class="extraContent">
+                            <RadioGroup @bind-Value="_model.Status">
+                                <Radio RadioButton Value="@("all")">全部</Radio>
+                                <Radio RadioButton Value="@("progress")">进行中</Radio>
+                                <Radio RadioButton Value="@("waiting")">等待中</Radio>
+                            </RadioGroup>
+                            <Search Class="extraContentSearch" Placeholder="请输入" @bind-Value="_model.SearchKeyword" />
+                        </div>
+                    </Extra>
+                    <ChildContent>
+                        <Button Type="dashed"
+                                Style="width: 100%; margin-bottom: 8px;"
+                                OnClick="ShowModal">
+                            <Icon Type="plus" Theme="outline"/>
+                            添加
+                        </Button>
+
+                        <AntList 
+                            TItem="ListItemDataType" 
+                            DataSource="_data" 
+                            ItemLayout="ListItemLayout.Horizontal">
+                            <ListItem Actions="_actions">
+                                <ListItemMeta Avatar="@context.Avatar" Description="@context.SubDescription">
+                                    <TitleTemplate>
+                                        <a href="@context.Href">@context.Title</a>
+                                    </TitleTemplate>
+                                </ListItemMeta>
+                                <div class="listContent">
+                                    <div class="listContentItem">
+                                        <span>Owner</span>
+                                        <p>@context.Owner</p>
+                                    </div>
+                                    <div class="listContentItem">
+                                        <span>开始时间</span>
+                                        <p>@context.CreatedAt.ToString("yyyy-MM-dd HH:mm")</p>
+                                    </div>
+                                    <div class="listContentItem">
+                                        <AntDesign.Progress 
+                                            Percent="@context.Percent" 
+                                            Status="@_pStatus[context.Status]" 
+                                            StrokeWidth="6" 
+                                            Style="width: 180px;"/>
+                                    </div>
+                                </div>
+                            </ListItem>
+                        </AntList>
+                    </ChildContent>
+                </Card>
+            </div>
+        </ChildContent>
+    </PageContainer>
+</div>
+
+@code
+{
+    private static readonly RenderFragment Edit = @<a key="edit">
+                                                      编辑
+                                                   </a>;
+
+    private readonly RenderFragment[] _actions =
+    {
+        Edit
+    }; 
+
+    private RenderFragment Info(string title, string value, bool bordered = false)
+    {
+        return @<div class="headerInfo">
+                   <span>@title</span>
+                   <p>@value</p>
+                   @if (bordered)
+                   {
+                       <em/>
+                   }
+               </div>;
+    }
+}

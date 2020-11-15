@@ -1,0 +1,69 @@
+﻿@namespace AntDesign.Pro.Template.Pages.Dashboard.Monitor
+@page "/dashboard/monitor"
+
+<GridContent>
+    <Row Gutter="24">
+        <AntDesign.Col Span="18" Style="margin-bottom: 24px;">
+            <Card>
+                <Row>
+                    <AntDesign.Col Span="6">
+                        <Statistic Title="@("Total transactions today")" Value="124543233" Suffix="@("元")" />
+                    </AntDesign.Col>
+                    <AntDesign.Col Span="6">
+                        <Statistic Title="@("Sales target completion rate")" Value="92" Suffix="@("%")" />
+                    </AntDesign.Col>
+                    <AntDesign.Col Span="6">
+                        <CountDown Title="@("Remaining time of activity")" Value="@_deadline" Format="hh:mm:ss:fff" />
+                    </AntDesign.Col>
+                    <AntDesign.Col Span="6">
+                        <Statistic Title="@("Total transactions per second")" Value="234" Suffix="@("元")" />
+                    </AntDesign.Col>
+                </Row>
+                <div class="mapChart">
+                    <Map />
+                </div>
+            </Card>
+        </AntDesign.Col>
+        <AntDesign.Col Span="6" Style="margin-bottom: 24px;">
+            <Card Title="@("Activity forecast")">
+                <ActiveChart />
+            </Card>
+            <Card Title="@("Efficiency")">
+                @* <AntDesign.Pro.Pages.Monitor.Gauge Title="Ratio" Height="180" Percent="81" /> *@
+            </Card>
+        </AntDesign.Col>
+    </Row>
+
+    <Row Gutter="24">
+        <AntDesign.Col Span="12" Style="margin-bottom: 24px;">
+            <Card Title="@("Proportion Per Category")" Class="pieCard">
+                <Row Style="padding: 16px 0;">
+                    <AntDesign.Col Span="8">
+                        @* <AntDesign.Pro.Pages.Monitor.Pie LineWidth="2" /> *@
+                    </AntDesign.Col>
+                    <AntDesign.Col Span="8">
+                        @* <AntDesign.Pro.Pages.Monitor.Pie LineWidth="2" /> *@
+                    </AntDesign.Col>
+                    <AntDesign.Col Span="8">
+                        @* <AntDesign.Pro.Pages.Monitor.Pie LineWidth="2" /> *@
+                    </AntDesign.Col>
+                </Row>
+            </Card>
+        </AntDesign.Col>
+        <AntDesign.Col Span="6" Style="margin-bottom: 24px;">
+            <Card Title="@("Popular Searches")">
+                @* <TagCloud Data="Tags" Height="161" /> *@
+            </Card>
+        </AntDesign.Col>
+        <AntDesign.Col Span="6" Style="margin-bottom: 24px;">
+            <Card Title="@("Resource Surplus")">
+                @* <WaterWave Height="161" Title="Fund Surplus" Percent="34" /> *@
+            </Card>
+        </AntDesign.Col>
+    </Row>
+</GridContent>
+
+@code
+{
+    private readonly DateTime _deadline = DateTime.Now.AddMilliseconds(1000 * 60 * 60 * 24 * 2 + 1000 * 30);
+}

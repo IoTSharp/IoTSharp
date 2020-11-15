@@ -1,0 +1,170 @@
+﻿[
+  {
+    "path": "/dashboard",
+    "name": "Dashboard",
+    "key": "dashboard",
+    "icon": "dashboard",
+    "children": [
+      {
+        "path": "/",
+        "name": "分析页",
+        "key": "dashboard.analysis"
+      },
+      {
+        "path": "/dashboard/monitor",
+        "name": "监控页",
+        "key": "dashboard.monitor"
+      },
+      {
+        "path": "/dashboard/workplace",
+        "name": "工作台",
+        "key": "dashboard.workplace"
+      }
+    ]
+  },
+  {
+    "path": "/form",
+    "name": "表单页",
+    "key": "form",
+    "icon": "form",
+    "children": [
+      {
+        "path": "/form/basic-form",
+        "name": "基础表单",
+        "key": "form.basic-form"
+      },
+      {
+        "path": "/form/step-form",
+        "name": "分布表单",
+        "key": "form.step-form"
+      },
+      {
+        "path": "/form/advanced-form",
+        "name": "高级表单",
+        "key": "form.advanced-form"
+      }
+    ]
+  },
+  {
+    "path": "/list",
+    "name": "列表页",
+    "key": "list",
+    "icon": "table",
+    "children": [
+      {
+        "path": "/list/search",
+        "name": "搜索列表",
+        "key": "list.search",
+        "children": [
+          {
+            "path": "/list/search/articles",
+            "name": "搜索列表（文章）",
+            "key": "list.search.articles"
+          },
+          {
+            "path": "/list/search/projects",
+            "name": "搜索列表（项目）",
+            "key": "list.search.projects"
+          },
+          {
+            "path": "/list/search/applications",
+            "name": "搜索列表（应用）",
+            "key": "list.search.applications"
+          }
+        ] 
+      },
+      {
+        "path": "/list/table-list",
+        "name": "查询表格",
+        "key": "list.table-list"
+      },
+      {
+        "path": "/list/basic-list",
+        "name": "标准列表",
+        "key": "list.basic-list"
+      },
+      {
+        "path": "/list/card-list",
+        "name": "卡片列表",
+        "key": "list.card-list"
+      }
+    ]
+  },
+  {
+    "path": "/profile",
+    "name": "详情页",
+    "key": "profile",
+    "icon": "profile",
+    "children": [
+      {
+        "path": "/profile/basic",
+        "name": "基础详情页",
+        "key": "profile.basic"
+      },
+      {
+        "path": "/profile/advanced",
+        "name": "高级详情页",
+        "key": "profile.advanced"
+      }
+    ]
+  },
+  {
+    "path": "/result",
+    "name": "结果页",
+    "key": "result",
+    "icon": "check-circle",
+    "children": [
+      {
+        "path": "/result/success",
+        "name": "成功页",
+        "key": "result.success"
+      },
+      {
+        "path": "/result/fail",
+        "name": "失败页",
+        "key": "result.fail"
+      }
+    ]
+  },
+  {
+    "path": "/exception",
+    "name": "异常页",
+    "key": "exception",
+    "icon": "exception",
+    "children": [
+      {
+        "path": "/exception/403",
+        "name": "403",
+        "key": "exception.403"
+      },
+      {
+        "path": "/exception/404",
+        "name": "404",
+        "key": "exception.404"
+      },
+      {
+        "path": "/exception/500",
+        "name": "500",
+        "key": "exception.500"
+      }
+    ]
+  },
+  {
+    "path": "/account",
+    "name": "个人页",
+    "key": "account",
+    "icon": "user",
+    "children": [
+      {
+        "path": "/account/center",
+        "name": "个人中心",
+        "key": "account.center"
+      },
+      {
+        "path": "/account/settings",
+        "name": "个人设置",
+        "key": "account.settings"
+      }
+    ]
+  }
+]

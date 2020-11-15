@@ -1,0 +1,110 @@
+﻿@namespace AntDesign.Pro.Template.Pages.List
+@layout SearchList
+@page "/list/search/applications"
+
+<div class="filterCardList">
+    <Card>
+        <Form 
+            Model="_model"
+            Layout="inline">
+            <StandardFormRow Title="所属类目" Block Style="padding-bottom: 11px">
+                <FormItem>
+                    <TagSelect Expandable Value="_selectCategories">
+                        <TagSelectOption Value="cat1">类目一</TagSelectOption>
+                        <TagSelectOption Value="cat2">类目二</TagSelectOption>
+                        <TagSelectOption Value="cat3">类目三</TagSelectOption>
+                        <TagSelectOption Value="cat4">类目四</TagSelectOption>
+                        <TagSelectOption Value="cat5">类目五</TagSelectOption>
+                        <TagSelectOption Value="cat6">类目六</TagSelectOption>
+                        <TagSelectOption Value="cat7">类目七</TagSelectOption>
+                        <TagSelectOption Value="cat8">类目八</TagSelectOption>
+                        <TagSelectOption Value="cat9">类目九</TagSelectOption>
+                        <TagSelectOption Value="cat10">类目十</TagSelectOption>
+                        <TagSelectOption Value="cat11">类目十一</TagSelectOption>
+                        <TagSelectOption Value="cat12">类目十二</TagSelectOption>
+                    </TagSelect>
+                </FormItem>
+            </StandardFormRow>
+            <StandardFormRow Title="其它选项" Grid Last>
+                <Row Gutter="16">
+                    <AntDesign.Col Lg="8" Md="10" Sm="10" Xs="24">
+                        <FormItem Label="作者">
+                            <Select Placeholder="不限" Style="max-width: 200px; width: 100%;" @bind-Value="_model.ActiveUser">
+                                <SelectOption Value="lisa">王昭君</SelectOption>
+                            </Select>
+                        </FormItem>
+                    </AntDesign.Col>
+                    <AntDesign.Col Lg="8" Md="10" Sm="10" Xs="24">
+                        <FormItem Label="好评度">
+                            <Select Placeholder="不限" Style="max-width: 200px; width: 100%;" @bind-Value="_model.Satisfaction">
+                                <SelectOption Value="good">优秀</SelectOption>
+                                <SelectOption Value="normal">普通</SelectOption>
+                            </Select>
+                        </FormItem>
+                    </AntDesign.Col>
+                </Row>
+            </StandardFormRow>
+        </Form>
+    </Card>
+    <br />
+    <AntList
+        TItem="ListItemDataType"
+        Grid="_listGridType"
+        DataSource="_fakeList">
+        <ListItem NoFlex Grid="_listGridType">
+            <Card 
+                Hoverable
+                BodyStyle="padding-bottom: 20px;"
+                Actions="Actions">
+                <CardMeta>
+                    <TitleTemplate>
+                        @context.Title
+                    </TitleTemplate>
+                    <AvatarTemplate>
+                        <Avatar Size="small" Src="@context.Avatar"/>
+                    </AvatarTemplate>
+                </CardMeta>
+                <div class="cardItemContent">
+                    <div class="cardInfo">
+                        <div>
+                            <p>活跃用户</p>
+                            <p>@FormatWan(context.ActiveUser)</p>
+                        </div>
+                        <div>
+                            <p>新增用户</p>
+                            <p>@context.NewUser.ToString("0,0")</p>
+                        </div>
+                    </div>
+                </div>
+            </Card>
+        </ListItem>
+    </AntList>
+</div>
+
+@code
+{
+    private static readonly RenderFragment Download = @<Tooltip Title="@("下载")">
+                                                          <Icon Type="download" Theme="outline"/>
+                                                      </Tooltip>;
+
+    private static readonly IList<RenderFragment> Actions = new List<RenderFragment>
+    {
+        Download,
+        @<Tooltip Title="@("编辑")"><Icon Type="edit" Theme="outline"/></Tooltip>,
+        @<Tooltip Title="@("分享")"><Icon Type="share-alt" Theme="outline"/></Tooltip>,
+        @<Dropdown><Icon Type="ellipsis" Theme="outline"/></Dropdown>
+    };
+
+    private static RenderFragment FormatWan(int val)
+    {
+        if (val > 10000)
+        {
+            val = (int)Math.Floor((double)val / 10000);
+        }
+
+        return @<span>
+                   @val
+                   <span style="position: relative; top: -2px; font-size: 14px; font-style: normal; margin-left: 2px;">万</span>
+               </span>;
+    }
+}

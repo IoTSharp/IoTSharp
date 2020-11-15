@@ -1,0 +1,26 @@
+﻿@namespace AntDesign.Pro.Template.Pages.Form
+
+<Result 
+    Status="success"
+    Title="@("操作成功")"
+    SubTitle="@("预计两小时内到账")"
+    Class="result">
+    <Extra>
+        <Button Type="primary" OnClick="OnFinish">
+            再转一笔
+        </Button>
+        <Button>查看账单</Button>
+    </Extra>
+    <ChildContent>
+        <div class="information">
+            <Descriptions Column="1">
+                <DescriptionsItem Title="@("付款账户")"> @_model.PayAccount</DescriptionsItem>
+                <DescriptionsItem Title="@("收款账户")"> @_model.ReceiverAccount</DescriptionsItem>
+                <DescriptionsItem Title="@("收款人姓名")"> @_model.ReceiverName</DescriptionsItem>
+                <DescriptionsItem Title="@("转账金额")">
+                    <Statistic Value="_model.Amount" Suffix="@("元")" />
+                </DescriptionsItem>
+            </Descriptions>
+        </div>
+    </ChildContent>
+</Result>

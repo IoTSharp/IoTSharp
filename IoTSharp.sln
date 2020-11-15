@@ -10,6 +10,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		buildimage.cmd = buildimage.cmd
 		ef_mg_add.cmd = ef_mg_add.cmd
 		LICENSE = LICENSE
+		package.json = package.json
 		README.md = README.md
 		roadmap.md = roadmap.md
 		upgrade_ef.cmd = upgrade_ef.cmd
@@ -20,6 +21,8 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IoTSharp", "IoTSharp\IoTSharp.csproj", "{CCD2C255-72D2-4A25-B0E9-E30FBEF774C7}"
 EndProject
 Project("{E53339B2-1760-4266-BCC7-CA923CBCF16C}") = "docker-compose", "docker-compose.dcproj", "{91C3C01F-68D2-4D9C-8932-B91B264EFBE6}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IoTSharp.ClientApp", "IoTSharp.ClientApp\IoTSharp.ClientApp.csproj", "{A26274CE-4C99-4893-BFB6-86931530203B}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -95,6 +98,26 @@ Global
 		{91C3C01F-68D2-4D9C-8932-B91B264EFBE6}.Release|x64.Build.0 = Release|Any CPU
 		{91C3C01F-68D2-4D9C-8932-B91B264EFBE6}.Release|x86.ActiveCfg = Release|Any CPU
 		{91C3C01F-68D2-4D9C-8932-B91B264EFBE6}.Release|x86.Build.0 = Release|Any CPU
+		{A26274CE-4C99-4893-BFB6-86931530203B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A26274CE-4C99-4893-BFB6-86931530203B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A26274CE-4C99-4893-BFB6-86931530203B}.Debug|ARM.ActiveCfg = Debug|Any CPU
+		{A26274CE-4C99-4893-BFB6-86931530203B}.Debug|ARM.Build.0 = Debug|Any CPU
+		{A26274CE-4C99-4893-BFB6-86931530203B}.Debug|ARM64.ActiveCfg = Debug|Any CPU
+		{A26274CE-4C99-4893-BFB6-86931530203B}.Debug|ARM64.Build.0 = Debug|Any CPU
+		{A26274CE-4C99-4893-BFB6-86931530203B}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{A26274CE-4C99-4893-BFB6-86931530203B}.Debug|x64.Build.0 = Debug|Any CPU
+		{A26274CE-4C99-4893-BFB6-86931530203B}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{A26274CE-4C99-4893-BFB6-86931530203B}.Debug|x86.Build.0 = Debug|Any CPU
+		{A26274CE-4C99-4893-BFB6-86931530203B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A26274CE-4C99-4893-BFB6-86931530203B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A26274CE-4C99-4893-BFB6-86931530203B}.Release|ARM.ActiveCfg = Release|Any CPU
+		{A26274CE-4C99-4893-BFB6-86931530203B}.Release|ARM.Build.0 = Release|Any CPU
+		{A26274CE-4C99-4893-BFB6-86931530203B}.Release|ARM64.ActiveCfg = Release|Any CPU
+		{A26274CE-4C99-4893-BFB6-86931530203B}.Release|ARM64.Build.0 = Release|Any CPU
+		{A26274CE-4C99-4893-BFB6-86931530203B}.Release|x64.ActiveCfg = Release|Any CPU
+		{A26274CE-4C99-4893-BFB6-86931530203B}.Release|x64.Build.0 = Release|Any CPU
+		{A26274CE-4C99-4893-BFB6-86931530203B}.Release|x86.ActiveCfg = Release|Any CPU
+		{A26274CE-4C99-4893-BFB6-86931530203B}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

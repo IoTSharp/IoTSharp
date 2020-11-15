@@ -1,0 +1,12 @@
+﻿@namespace AntDesign.Pro.Template.Pages.Dashboard.Workplace
+
+<div class="linkGroup">
+    @foreach (var link in Links)
+    {
+        <a href="@link.Href">@link.Title</a>
+    }
+    
+    <Button Size="small" Type="primary" Ghost>
+        <Icon Type="plus" /> 添加
+    </Button>
+</div>
