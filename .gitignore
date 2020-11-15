@@ -342,3 +342,4 @@ ASALocalRun/
 /data
 /data
 /rabbitmq
+/Deployments/zeromq_taos/postgresql
