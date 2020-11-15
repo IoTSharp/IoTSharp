@@ -1,0 +1,120 @@
+version: '3.4'
+services:
+  pgsql:
+    image: postgres
+    container_name: pgsql
+    restart: always
+    volumes:
+      - "./data/postgresql:/var/lib/postgresql/data"
+    environment:
+      TZ: "Asia/Shanghai"
+      POSTGRES_USER: postgres
+      POSTGRES_DB: IoTSharp
+      POSTGRES_PASSWORD: future 
+    ports: 
+     - "5439:5432"
+    networks:
+      - iotsharp-network
+
+  pgadmin:
+    image: dpage/pgadmin4
+    container_name: pgadmin
+    restart: always
+    volumes:
+       - "./data/servers.json:/pgadmin4/servers.json"
+    depends_on:
+      - pgsql 
+    links:
+      - pgsql
+    ports:
+      - 8090:80
+    environment:
+      TZ: "Asia/Shanghai"
+      PGADMIN_DEFAULT_EMAIL: "root@iotsharp.io"
+      PGADMIN_DEFAULT_PASSWORD: "1-q2-w3-e4-r5-t"
+    networks:
+      - iotsharp-network
+
+  iotsharp:
+    image: iotsharp/iotsharp:latest
+    container_name: iotsharp
+    restart: always
+    environment:
+      - TZ=Asia/Shanghai
+    depends_on:
+      - pgsql
+      - rabbitmq
+      - mongodb
+      - influx
+    links:
+      - pgsql
+    ports:
+      - 2927:80
+      - 1883:1883
+      - 8883:8883 
+      - 5683:5683
+      - 5684:5684
+      - 502:502
+    networks:
+      - iotsharp-network
+ 
+  rabbitmq:
+    image: rabbitmq:management
+    container_name: rabbitmq
+    restart: always
+    hostname: mq
+    ports:
+      - 15672:15672
+      - 5672:5672
+    volumes:
+      - ./data/rabbitmq:/var/lib/rabbitmq
+    environment:
+      - RABBITMQ_DEFAULT_USER=root
+      - RABBITMQ_DEFAULT_PASS=kissme
+    networks:
+      - iotsharp-network
+
+  mongodb:
+    image: mongo:latest
+    restart: always
+    container_name: mongodb
+    volumes:
+      - ./data/mongodb/db:/data/db
+      - ./data/mongodb/log:/var/log/mongodb
+    ports:
+      - 27017:27017
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: kissme
+    networks:
+      - iotsharp-network
+
+  influx:
+        image: "quay.io/influxdb/influxdb:2.0.0-rc"
+        restart: always
+        container_name: influx
+        ports:
+        - "8086:8086"
+        volumes:
+        - ./data/influxdb-data:/var/lib/influxdb2
+        command: influxd run --bolt-path /var/lib/influxdb2/influxd.bolt --engine-path /var/lib/influxdb2/engine --store bolt
+
+  influx-setup:
+        image: "julianfh/influxdb-setup:latest"
+        depends_on:
+        - influx
+        environment:
+            TIMEOUT: 20
+            INFLUXDB_SCHEMA: "http"
+            INFLUXDB_HOST: "influx"
+            INFLUXDB_PORT: "8086"
+            INFLUXDB_TOKEN: "iotsharp-token"
+            INFLUXDB_BUCKETID: "iotsharp-bucket"
+            INFLUXDB_ORG: "iotsharp"
+            INFLUXDB_USER: "root"
+            INFLUXDB_PW: "1-q2-w3-e4-r5-t"
+            INFLUXDB_RETENTION: "23h60m"
+
+networks: 
+  iotsharp-network:
+      driver:  bridge

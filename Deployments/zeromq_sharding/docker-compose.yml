@@ -1,0 +1,63 @@
+version: '3.4'
+services:
+  pgsql:
+    image: postgres
+    container_name: pgsql
+    restart: always
+    volumes:
+      -  /var/iotsharp/postgresql:/var/lib/postgresql/data 
+    environment:
+      TZ: "Asia/Shanghai"
+      POSTGRES_USER: postgres
+      POSTGRES_DB: IoTSharp
+      POSTGRES_PASSWORD: future 
+    ports: 
+     - "5432:5432"
+    networks:
+      - iotsharp-network
+
+  pgadmin:
+    image: dpage/pgadmin4
+    container_name: pgadmin
+    restart: always
+    volumes:
+       - "/etc/iotsharp/servers.json:/pgadmin4/servers.json"
+    depends_on:
+      - pgsql 
+    links:
+      - pgsql
+    ports:
+      - 8090:80
+    environment:
+      TZ: "Asia/Shanghai"
+      PGADMIN_DEFAULT_EMAIL: "root@iotsharp.io"
+      PGADMIN_DEFAULT_PASSWORD: "1-q2-w3-e4-r5-t"
+    networks:
+      - iotsharp-network
+
+  iotsharp:
+    image: iotsharp/iotsharp:latest
+    container_name: iotsharp
+    restart: always
+    environment:
+      - TZ=Asia/Shanghai
+      - ASPNETCORE_ENVIRONMENT=Production
+      - ASPNETCORE_URLS=http://+:80
+    depends_on:
+      - pgsql
+    links:
+      - pgsql
+    ports:
+      - 2927:80
+      - 1883:1883
+      - 8883:8883 
+      - 5683:5683
+      - 5684:5684
+      - 5002:5002
+    networks:
+      - iotsharp-network
+ 
+
+networks: 
+  iotsharp-network:
+      driver:  bridge

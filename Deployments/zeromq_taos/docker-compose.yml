@@ -1,0 +1,79 @@
+version: '3.4'
+services:
+  pgsql:
+    image: registry.uixe.net/images/postgres
+    container_name: pgsql
+    restart: always
+    volumes:
+      -  ./postgresql:/var/lib/postgresql/data 
+    environment:
+      TZ: "Asia/Shanghai"
+      POSTGRES_USER: postgres
+      POSTGRES_DB: IoTSharp
+      POSTGRES_PASSWORD: future 
+    ports: 
+     - "5432:5432"
+    networks:
+      - iotsharp-network
+
+  pgadmin:
+    image: registry.uixe.net/images/pgadmin4
+    container_name: pgadmin
+    restart: always
+    volumes:
+       - "./servers.json:/pgadmin4/servers.json"
+    depends_on:
+      - pgsql 
+    links:
+      - pgsql
+    ports:
+      - 8090:80
+    environment:
+      TZ: "Asia/Shanghai"
+      PGADMIN_DEFAULT_EMAIL: "root@iotsharp.io"
+      PGADMIN_DEFAULT_PASSWORD: "1-q2-w3-e4-r5-t"
+    networks:
+      - iotsharp-network
+
+  iotsharp:
+    image: registry.uixe.net/uixe/iotsharp
+    restart: always
+    container_name: iotsharp
+    depends_on:
+      - pgsql
+      - taos
+    links:
+      - pgsql
+      - taos 
+    volumes:
+      - "./appsettings.Production.json:/app/appsettings.Production.json"
+    ports:
+      - 2927:80
+      - 1883:1883
+      - 8883:8883 
+      - 8080:8080
+      - 5683:5683
+      - 5684:5684
+      - 502:502
+    networks:
+      - iotsharp-network
+
+  taos:
+    image: registry.uixe.net/tdengine/tdengine:2.0.6.0
+    restart: always
+    container_name: taos
+    hostname: taos
+    volumes:
+       - "./taos/data:/var/lib/taos"
+       - "./taos/log:/var/log/taos"
+    ports:
+      - 6030:6030
+    networks:
+      - iotsharp-network
+
+
+
+networks: 
+  iotsharp-network:
+      driver:  bridge
+
