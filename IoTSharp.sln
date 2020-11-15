@@ -8,12 +8,10 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		.editorconfig = .editorconfig
 		appveyor.yml = appveyor.yml
 		buildimage.cmd = buildimage.cmd
-		ef_mg_add.cmd = ef_mg_add.cmd
 		LICENSE = LICENSE
 		package.json = package.json
 		README.md = README.md
 		roadmap.md = roadmap.md
-		upgrade_ef.cmd = upgrade_ef.cmd
 	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IoTSharp.Test", "IoTSharp.Test\IoTSharp.Test.csproj", "{70DFF66F-6791-4713-81F3-DD7A64B59185}"
@@ -31,6 +29,12 @@ EndProject
 Project("{E53339B2-1760-4266-BCC7-CA923CBCF16C}") = "zeromq_sharding", "Deployments\zeromq_sharding\zeromq_sharding.dcproj", "{F917604E-0785-4934-AE94-4125DC06C011}"
 EndProject
 Project("{E53339B2-1760-4266-BCC7-CA923CBCF16C}") = "zeromq_taos", "Deployments\zeromq_taos\zeromq_taos.dcproj", "{0BC5F27A-951D-45B7-BD3A-57AB6652B1F6}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tools", "Tools", "{3048484A-6A46-4E17-825C-D2C59D6D30ED}"
+	ProjectSection(SolutionItems) = preProject
+		tools\ef_mg_add.cmd = tools\ef_mg_add.cmd
+		tools\upgrade_ef.cmd = tools\upgrade_ef.cmd
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
