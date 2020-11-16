@@ -91,7 +91,7 @@
 		<PackageReference Include="MQTTnet.AspNetCore" Version="3.0.13" />
 		<PackageReference Include="MQTTnet.Extensions.Rpc" Version="3.0.13" />
 		<PackageReference Include="NetMQ" Version="4.0.1.6" />
-		<PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="5.0.0-rc2" />
+		<PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="5.0.0" />
 		<PackageReference Include="NSwag.AspNetCore" Version="13.9.2" />
 		<PackageReference Include="ProxyKit" Version="2.3.4" />
 		<PackageReference Include="Quartz.Serialization.Json" Version="3.2.3" />
