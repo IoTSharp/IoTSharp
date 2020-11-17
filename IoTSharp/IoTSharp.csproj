@@ -76,8 +76,8 @@
 		<PackageReference Include="LiteDB" Version="5.0.9" />
 		<PackageReference Include="MaiKeBing.CAP.LiteDB" Version="1.0.21" />
 		<PackageReference Include="MaiKeBing.CAP.ZeroMQ" Version="1.0.21" />
-		<PackageReference Include="Maikebing.Data.Taos" Version="2.0.191" />
-		<PackageReference Include="Maikebing.HealthChecks.Taos" Version="2.0.191" />
+		<PackageReference Include="Maikebing.Data.Taos" Version="2.0.194" />
+		<PackageReference Include="Maikebing.HealthChecks.Taos" Version="2.0.194" />
 		<PackageReference Include="MaiKeBing.HostedService.ZeroMQ" Version="1.0.21" />
 		<PackageReference Include="Microsoft.AspNetCore.Http.Features" Version="5.0.0" />
 		<PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="5.0.0">
@@ -91,7 +91,7 @@
 		<PackageReference Include="MQTTnet.AspNetCore" Version="3.0.13" />
 		<PackageReference Include="MQTTnet.Extensions.Rpc" Version="3.0.13" />
 		<PackageReference Include="NetMQ" Version="4.0.1.6" />
-		<PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="5.0.0-rc2" />
+		<PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="5.0.0" />
 		<PackageReference Include="NSwag.AspNetCore" Version="13.9.2" />
 		<PackageReference Include="ProxyKit" Version="2.3.4" />
 		<PackageReference Include="Quartz.Serialization.Json" Version="3.2.3" />

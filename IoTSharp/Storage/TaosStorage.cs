@@ -64,6 +64,7 @@ namespace IoTSharp.Storage
         public Task<List<TelemetryDataDto>> GetTelemetryLatest(Guid deviceId)
         {
             TaosConnection _taos = _taospool.Get();
+            _taos.ChangeDatabase(_taos.Database);
             if (_taos.State != System.Data.ConnectionState.Open) _taos.Open();
             string sql = $"select last_row(*) from telemetrydata where deviceid='{deviceId:N}' group by deviceid,keyname";
             List<TelemetryDataDto> dt = SqlToTDD(_taos, sql, "last_row(", ")", string.Empty);
