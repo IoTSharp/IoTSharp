@@ -18,36 +18,13 @@ env:
   IMAGE_NAME: iotsharp
 
 jobs:
-  # Run tests.
-  # See also https://docs.docker.com/docker-hub/builds/automated-testing/
-  test:
-    runs-on: ubuntu-latest
 
+  build_docker_image:
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
         with:
            fetch-depth: 0
-      - name: Run tests
-        run: |
-          if [ -f docker-compose.test.yml ]; then
-            docker-compose --file docker-compose.test.yml build
-            docker-compose --file docker-compose.test.yml run sut
-          else
-            docker build . --file ./IoTSharp/Dockerfile
-          fi
-
-  # Push image to GitHub Packages.
-  # See also https://docs.docker.com/docker-hub/builds/
-  push:
-    # Ensure test job passes before pushing image.
-    needs: test
-
-    runs-on: ubuntu-latest
-    if: github.event_name == 'push'
-
-    steps:
-      - uses: actions/checkout@v2
-
       - name: Build image
         run: docker build . --file IoTSharp/Dockerfile --tag $IMAGE_NAME
 
