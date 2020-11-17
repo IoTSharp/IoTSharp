@@ -66,6 +66,7 @@ namespace IoTSharp.Storage
             TaosConnection _taos = _taospool.Get();
             _taos.ChangeDatabase(_taos.Database);
             if (_taos.State != System.Data.ConnectionState.Open) _taos.Open();
+            //https://github.com/taosdata/TDengine/issues/4269
             string sql = $"select last_row(*) from telemetrydata where deviceid='{deviceId:N}' group by deviceid,keyname";
             List<TelemetryDataDto> dt = SqlToTDD(_taos, sql, "last_row(", ")", string.Empty);
             _taospool.Return(_taos);
@@ -73,7 +74,16 @@ namespace IoTSharp.Storage
 
 
         }
-
+        /// <summary>
+        /// 转换获取到的值
+        /// </summary>
+        /// <param name="db"></param>
+        /// <param name="sql"></param>
+        /// <param name="prefix"></param>
+        /// <param name="suffix"></param>
+        /// <param name="keyname"></param>
+        /// <returns></returns>
+        /// <exception cref="https://github.com/taosdata/TDengine/issues/4269">务必注意此bug</exception>
         private List<TelemetryDataDto> SqlToTDD(TaosConnection db, string sql, string prefix, string suffix, string keyname)
         {
             List<TelemetryDataDto> dt = new List<TelemetryDataDto>();
@@ -91,7 +101,7 @@ namespace IoTSharp.Storage
                     }
                     else
                     {
-                        datatype = (byte)DataType.String;
+                        throw new Exception($"字段{prefix}value_type{suffix}的Index={idx}小于0或者大于FieldCount{dataReader.FieldCount},更多信息请访问 HelpLink") { HelpLink= "https://github.com/taosdata/TDengine/issues/4269" };
                     }
 
                     if (string.IsNullOrEmpty(keyname))

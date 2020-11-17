@@ -32,6 +32,7 @@ Project("{E53339B2-1760-4266-BCC7-CA923CBCF16C}") = "zeromq_taos", "Deployments\
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tools", "Tools", "{3048484A-6A46-4E17-825C-D2C59D6D30ED}"
 	ProjectSection(SolutionItems) = preProject
+		buildimage.cmd = buildimage.cmd
 		tools\ef_mg_add.cmd = tools\ef_mg_add.cmd
 		tools\upgrade_ef.cmd = tools\upgrade_ef.cmd
 	EndProjectSection
