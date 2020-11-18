@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace AntDesign.Pro.Template
+namespace IoTSharp.ClientApp
 {
     public static class DateTimeExtension
     {

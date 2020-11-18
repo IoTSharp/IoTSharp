@@ -1,10 +1,10 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
-using AntDesign.Pro.Template.Models;
-using AntDesign.Pro.Template.Services;
+using IoTSharp.ClientApp.Models;
+using IoTSharp.ClientApp.Services;
 using Microsoft.AspNetCore.Components;
 
-namespace AntDesign.Pro.Template.Pages.Account.Center
+namespace IoTSharp.ClientApp.Pages.Account.Center
 {
     public partial class Index
     {

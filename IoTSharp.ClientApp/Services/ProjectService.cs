@@ -2,9 +2,9 @@ using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Json;
 using System.Threading.Tasks;
-using AntDesign.Pro.Template.Models;
+using IoTSharp.ClientApp.Models;
 
-namespace AntDesign.Pro.Template.Services
+namespace IoTSharp.ClientApp.Services
 {
     public interface IProjectService
     {

@@ -1,7 +1,7 @@
-using AntDesign.Pro.Template.Models;
+using IoTSharp.ClientApp.Models;
 using Microsoft.AspNetCore.Components;
 
-namespace AntDesign.Pro.Template.Pages.Form
+namespace IoTSharp.ClientApp.Pages.Form
 {
     public partial class Step2
     {

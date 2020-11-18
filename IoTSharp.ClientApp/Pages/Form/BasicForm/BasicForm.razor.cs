@@ -1,6 +1,6 @@
-using AntDesign.Pro.Template.Models;
+using IoTSharp.ClientApp.Models;
 
-namespace AntDesign.Pro.Template.Pages.Form
+namespace IoTSharp.ClientApp.Pages.Form
 {
     public partial class BasicForm
     {

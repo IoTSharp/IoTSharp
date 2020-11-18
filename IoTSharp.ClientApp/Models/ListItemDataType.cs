@@ -1,8 +1,8 @@
 using System;
 using System.Text.Json.Serialization;
-using AntDesign.Pro.Template.Utils;
+using IoTSharp.ClientApp.Utils;
 
-namespace AntDesign.Pro.Template.Models
+namespace IoTSharp.ClientApp.Models
 {
     public class Member
     {

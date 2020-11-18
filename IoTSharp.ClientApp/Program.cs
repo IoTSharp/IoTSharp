@@ -2,11 +2,11 @@ using System;
 using System.Net.Http;
 using System.Threading.Tasks;
 using AntDesign.Pro.Layout;
-using AntDesign.Pro.Template.Services;
+using IoTSharp.ClientApp.Services;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace AntDesign.Pro.Template
+namespace IoTSharp.ClientApp
 {
     public class Program
     {

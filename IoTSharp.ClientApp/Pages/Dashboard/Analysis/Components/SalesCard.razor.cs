@@ -1,9 +1,9 @@
 using System.Threading.Tasks;
 using AntDesign.Charts;
-using AntDesign.Pro.Template.Services;
+using IoTSharp.ClientApp.Services;
 using Microsoft.AspNetCore.Components;
 
-namespace AntDesign.Pro.Template.Pages.Dashboard.Analysis
+namespace IoTSharp.ClientApp.Pages.Dashboard.Analysis
 {
     public partial class SalesCard
     {

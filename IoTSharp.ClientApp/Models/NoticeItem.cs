@@ -1,6 +1,6 @@
 ﻿using AntDesign.Pro.Layout;
 
-namespace AntDesign.Pro.Template.Models
+namespace IoTSharp.ClientApp.Models
 {
     public class NoticeItem : NoticeIconData
     {

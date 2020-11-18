@@ -1,9 +1,9 @@
 using System.Collections.Generic;
-using AntDesign.Pro.Template.Models;
+using IoTSharp.ClientApp.Models;
 using Microsoft.AspNetCore.Components;
 using AntDesign;
 
-namespace AntDesign.Pro.Template.Pages.Account.Center
+namespace IoTSharp.ClientApp.Pages.Account.Center
 {
     public partial class Applications
     {

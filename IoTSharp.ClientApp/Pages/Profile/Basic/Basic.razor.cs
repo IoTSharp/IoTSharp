@@ -1,9 +1,9 @@
 using System.Threading.Tasks;
-using AntDesign.Pro.Template.Models;
-using AntDesign.Pro.Template.Services;
+using IoTSharp.ClientApp.Models;
+using IoTSharp.ClientApp.Services;
 using Microsoft.AspNetCore.Components;
 
-namespace AntDesign.Pro.Template.Pages.Profile
+namespace IoTSharp.ClientApp.Pages.Profile
 {
     public partial class Basic
     {

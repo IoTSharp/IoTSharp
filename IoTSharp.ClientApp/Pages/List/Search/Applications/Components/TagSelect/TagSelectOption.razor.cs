@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Components;
 
-namespace AntDesign.Pro.Template.Pages.List
+namespace IoTSharp.ClientApp.Pages.List
 {
     public partial class TagSelectOption
     {

@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using AntDesign;
 
-namespace AntDesign.Pro.Template.Pages.Account.Settings
+namespace IoTSharp.ClientApp.Pages.Account.Settings
 {
     public partial class Index
     {

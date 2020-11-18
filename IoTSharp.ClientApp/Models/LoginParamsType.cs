@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace AntDesign.Pro.Template.Models
+namespace IoTSharp.ClientApp.Models
 {
     public class LoginParamsType
     {

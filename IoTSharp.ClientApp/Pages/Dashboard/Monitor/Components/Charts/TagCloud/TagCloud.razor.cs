@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Components;
 
-namespace AntDesign.Pro.Template.Pages.Dashboard.Monitor
+namespace IoTSharp.ClientApp.Pages.Dashboard.Monitor
 {
     public partial class TagCloud
     {

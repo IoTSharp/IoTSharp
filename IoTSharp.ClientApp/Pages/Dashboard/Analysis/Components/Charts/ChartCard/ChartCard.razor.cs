@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Components;
 
-namespace AntDesign.Pro.Template.Pages.Dashboard.Analysis
+namespace IoTSharp.ClientApp.Pages.Dashboard.Analysis
 {
     public partial class ChartCard
     {

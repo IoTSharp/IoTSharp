@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace AntDesign.Pro.Template.Models
+namespace IoTSharp.ClientApp.Models
 {
     public class StepFormModel
     {

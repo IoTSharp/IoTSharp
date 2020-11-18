@@ -1,11 +1,11 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using AntDesign.Pro.Template.Models;
-using AntDesign.Pro.Template.Services;
+using IoTSharp.ClientApp.Models;
+using IoTSharp.ClientApp.Services;
 using Microsoft.AspNetCore.Components;
 using AntDesign;
 
-namespace AntDesign.Pro.Template.Pages.List
+namespace IoTSharp.ClientApp.Pages.List
 {
     public partial class Projects
     {

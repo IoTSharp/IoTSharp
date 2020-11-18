@@ -1,6 +1,6 @@
-using AntDesign.Pro.Template.Models;
+using IoTSharp.ClientApp.Models;
 
-namespace AntDesign.Pro.Template.Pages.Account.Settings
+namespace IoTSharp.ClientApp.Pages.Account.Settings
 {
     public partial class NotificationView
     {

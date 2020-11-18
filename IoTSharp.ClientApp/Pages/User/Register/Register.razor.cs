@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace AntDesign.Pro.Template.Pages.User
+namespace IoTSharp.ClientApp.Pages.User
 {
     public class RegisterModel
     {

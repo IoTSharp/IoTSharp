@@ -2,8 +2,8 @@
 
   <PropertyGroup>
     <TargetFramework>net5.0</TargetFramework>
-    <AssemblyName>AntDesign.Pro.Template</AssemblyName>
-    <RootNamespace>AntDesign.Pro.Template</RootNamespace>
+    <AssemblyName>IoTSharp.ClientApp</AssemblyName>
+    <RootNamespace>IoTSharp.ClientApp</RootNamespace>
   </PropertyGroup>
 
   <ItemGroup>

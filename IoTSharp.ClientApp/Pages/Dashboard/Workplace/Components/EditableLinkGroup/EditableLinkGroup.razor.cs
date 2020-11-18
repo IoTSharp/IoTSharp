@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Components;
 
-namespace AntDesign.Pro.Template.Pages.Dashboard.Workplace
+namespace IoTSharp.ClientApp.Pages.Dashboard.Workplace
 {
     public class EditableLink
     {

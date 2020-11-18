@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using AntDesign.Pro.Layout;
 using Microsoft.AspNetCore.Components;
 
-namespace AntDesign.Pro.Template.Pages.List
+namespace IoTSharp.ClientApp.Pages.List
 {
     public partial class SearchList
     {
