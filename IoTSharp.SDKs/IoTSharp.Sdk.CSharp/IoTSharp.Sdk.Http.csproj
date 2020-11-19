@@ -13,6 +13,8 @@
     <Description>IoTSharp's Sdk</Description>
     <Copyright>Copyright 2018-2020</Copyright>
     <PackageIcon>200x200.png</PackageIcon>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+	  <IsPackable>true</IsPackable>
   </PropertyGroup>
 
   <ItemGroup>

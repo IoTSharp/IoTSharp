@@ -572,6 +572,18 @@
             更多内容可以参考<seealso cref="!:https://github.com/Coldairarrow/EFCore.Sharding/issues/52"/>
             </summary>
         </member>
+        <member name="M:IoTSharp.Storage.TaosStorage.SqlToTDD(Maikebing.Data.Taos.TaosConnection,System.String,System.String,System.String,System.String)">
+            <summary>
+            转换获取到的值
+            </summary>
+            <param name="db"></param>
+            <param name="sql"></param>
+            <param name="prefix"></param>
+            <param name="suffix"></param>
+            <param name="keyname"></param>
+            <returns></returns>
+            <exception cref="!:https://github.com/taosdata/TDengine/issues/4269">务必注意此bug</exception>
+        </member>
         <member name="T:LiteQueue.LiteQueue`1">
             <summary>
             Uses LiteDB to provide a persisted, thread safe, (optionally) transactional, FIFO queue.
