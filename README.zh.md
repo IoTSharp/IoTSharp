@@ -4,33 +4,33 @@
 ![GitHub](https://img.shields.io/github/license/iotsharp/iotsharp.svg)
 ![.NET Core](https://github.com/IoTSharp/IoTSharp/workflows/.NET%20Core/badge.svg?branch=master)
 
-IoTSharp is an open-source IoT platform for data collection, processing, visualization, and device management.
+IoTSharp 是一个 基于.Net Core 开源的物联网基础平台， 支持 HTTP、MQTT 、CoAp 协议， 属性数据和遥测数据协议简单类型丰富，是一个用于数据收集、处理、可视化与设备管理的 IoT 平台.
 
 
 
 
-## How to  install  IoTSharp using docker-compose  ?
+## 如何使用docker-compose  安装IoTSharp ?
 
- * [ZPT](https://github.com/IoTSharp/IoTSharp/tree/master/Deployments/zeromq_taos) Using ZeroMQ as EventBus, PostgreSQL as message storage, telemetry data stored through TDengine  
+ * [ZPT](https://github.com/IoTSharp/IoTSharp/tree/master/Deployments/zeromq_taos) 使用ZeroMQ 作为 EventBus, PostgreSQL 作为消息存储， 遥测数据使用  TDengine  
 
- * [ZPS](https://github.com/IoTSharp/IoTSharp/tree/master/Deployments/zeromq_sharding) The default deployment configuration, IoTSharp and PostgreSql, telemetry data is stored through a single table or shading. 
+ * [ZPS](https://github.com/IoTSharp/IoTSharp/tree/master/Deployments/zeromq_sharding)  默认开发配置，  IoTSharp 和 PostgreSql, 遥测数据可以通过单表或者分表。 
 
- * [RMI](https://github.com/IoTSharp/IoTSharp/tree/master/Deployments/rabbit_mongo_influx) Using Rabbitmq as EventBus, mongodb as message storage, telemetry data stored through influx  
+ * [RMI](https://github.com/IoTSharp/IoTSharp/tree/master/Deployments/rabbit_mongo_influx) 使用Rabbitmq 作为 EventBus, Mongodb 作为消息存储， 遥测数据使用Influx 2.0 ，这个方案中遥测数据也可以使用TDengine
 
- more [Deployments](https://github.com/IoTSharp/IoTSharp/tree/master/Deployments)
+ 更多的 [部署方案请点这里访问](https://github.com/IoTSharp/IoTSharp/tree/master/Deployments)
 
 
 
-## Demo 
+## 演示：
   http://139.9.232.10:2927
 
 
-## How to install IoTSharp using docker ?
+## 如何使用 docker 安装IoTSharp?
 
   -  docker pull iotsharp/iotsharp
 
 
-## How to install  using Linux daemon ?
+## 如何使用Linux 安装?
 
  -  mkdir  /var/lib/iotsharp/
  -	cp ./*  /var/lib/iotsharp/
@@ -40,49 +40,45 @@ IoTSharp is an open-source IoT platform for data collection, processing, visuali
  -	sudo systemctl start  iotsharp.service 
  -	sudo journalctl -fu  iotsharp.service 
 
-## IoTSharp's Clients 
- - Cicada    A desktop application   
-
-
+## IoTSharp的客户端
+ - Cicada     一个桌面程序
+ -    [IoTSharp.ClientApp](IoTSharp.ClientApp)  Blazor编写的客户端
 
 ##  IoTSharp.SDKs
 
-- IoTSharp.Sdk.Http   [![IoTSharp.Sdk.Http](https://img.shields.io/nuget/v/IoTSharp.Sdk.Http.svg)](https://www.nuget.org/packages/IoTSharp.Sdk.Http/)
-- IoTSharp.Sdk.MQTT   [![IoTSharp.Sdk.MQTT](https://img.shields.io/nuget/v/IoTSharp.Sdk.MQTT.svg)](https://www.nuget.org/packages/IoTSharp.Sdk.MQTT/)
+IoTSharp.SDKs  包括了 IoTSharp.Sdk.MQTT  IoTSharp.Sdk.Http  
 
  
 
 ## IoTSharp-C-Client-Sdk
 
-IoTSharp-C-client-Sdk is mqttt client, write by   c;
+IoTSharp-C-client-Sdk 是mqtt客户端， c语言编写的例子。 
 
  https://github.com/IoTSharp/IoTSharp-C-Client-Sdk
 
-## paho.mqtt.c's demo 
+## paho.mqtt.c 的例子
 
-It' like IoTSharp-C-Client-Sdk, but is use paho.mqtt.c
+这个跟 IoTSharp-C-Client-Sdk 一样， 但是使用了 paho.mqtt.c
  https://github.com/IoTSharp/IoTSharp.Edge.paho.mqtt.c
 
 ## IoTSharp.Edge.nanoFramework
 
-IoTSharp.Edge.nanoFramework is a nanoFramework's mqtt client , it run on STM32 ！
+IoTSharp.Edge.nanoFramework 是一个 nanoFramework's mqtt 客户端， 它允许在STM32 ！
 
   https://github.com/IoTSharp/IoTSharp.Edge.nanoFramework
 
-more info read https://www.cnblogs.com/MysticBoy/p/13159648.html
-or click  https://www.nanoframework.net/
+更多信息请读这里 https://www.cnblogs.com/MysticBoy/p/13159648.html
+官方网站为：  https://www.nanoframework.net/ 
 
 ##  IoTSharp.Edge.RT-Thread
 
-IoTSharp.Edge.RT-Thread (STM32L4 + Wi-Fi, sensor, lcd, audio etc)
-
-https://github.com/IoTSharp/IoTSharp.Edge.RT-Thread
+IoTSharp.Edge.RT-Thread (STM32L4 + Wi-Fi, sensor, lcd, audio etc) 是一个国产实时操作系统RT-Thread的示例， 同时我们提供了两个图片， 供你参考。 项目链接如下 https://github.com/IoTSharp/IoTSharp.Edge.RT-Thread
 
 |                                                              |                                                              |
 | ------------------------------------------------------------ | ------------------------------------------------------------ |
 | <img src="docs/images/20190615010003.jpg" alt="20190615010003.jpg" style="zoom: 67%;" /> | <img src="docs/images/20190615010115.jpg" alt="20190615010115.jpg" style="zoom: 50%;" /> |
 
-IoTSharp's ecosystem
+IoTSharp 的软件生态
 
 - MaiKeBing.CAP.ZeroMQ [![MaiKeBing.CAP.ZeroMQ](https://img.shields.io/nuget/v/MaiKeBing.CAP.ZeroMQ.svg)](https://www.nuget.org/packages/MaiKeBing.CAP.ZeroMQ/)
 - MaiKeBing.CAP.LiteDB  [![MaiKeBing.CAP.LiteDB](https://img.shields.io/nuget/v/MaiKeBing.CAP.LiteDB.svg)](https://www.nuget.org/packages/MaiKeBing.CAP.LiteDB/)

@@ -8,8 +8,8 @@
     <Authors>Maikebing</Authors>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <Version>1.0.1</Version>
-    <PackageProjectUrl>https://github.com/IoTSharp/IoTSharp.SDKs</PackageProjectUrl>
-    <RepositoryUrl>https://github.com/IoTSharp/IoTSharp.SDKs</RepositoryUrl>
+	  <PackageProjectUrl>https://github.com/IoTSharp/IoTSharp/tree/master/IoTSharp.SDKs</PackageProjectUrl>
+	  <RepositoryUrl>https://github.com/IoTSharp/IoTSharp</RepositoryUrl>
     <Description>IoTSharp's Sdk</Description>
     <Copyright>Copyright 2018-2020</Copyright>
     <PackageIcon>200x200.png</PackageIcon>

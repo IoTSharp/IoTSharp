@@ -1,5 +1,7 @@
 version: 1.5.{build}
 image: Visual Studio 2019
+configuration: Release
+platform: Any CPU
 init:
 - ps: Install-Product node $env:nodejs_version
 assembly_info:
@@ -25,9 +27,11 @@ install:
 
     git submodule update --init --recursive
 build_script:
-- cmd: >-
-    dotnet publish  -c Release   ./IoTSharp/IoTSharp.csproj
-
+- cmd: msbuild  -r -v:m  -t:rebuild -p:Configuration=Release IoTSharp.sln
 artifacts:
-- path: IoTSharp\bin\Release\net5.0\publish\
+- path: IoTSharp\bin\Release\*.nupkg
+- path: IoTSharp.SDKs\IoTSharp.Sdk.MQTT\bin\Release\*.nupkg
+- path: IoTSharp.SDKs\IoTSharp.Sdk.CSharp\bin\Release\*.nupkg
+- path: IoTSharp.ClientApp\bin\Release\net5.0\wwwroot
+  name: IoTSharp.ClientApp
 deploy: off
