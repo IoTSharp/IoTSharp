@@ -1,23 +1,28 @@
 ﻿using System;
 using System.Threading.Tasks;
 using IoTSharp.ClientApp.Models;
+using IoTSharp.Sdk.Http;
 
 namespace IoTSharp.ClientApp.Services
 {
     public interface IAccountService
     {
-        Task LoginAsync(LoginParamsType model);
+        Task<bool> LoginAsync(LoginParamsType model);
         Task<string> GetCaptchaAsync(string modile);
     }
 
     public class AccountService : IAccountService
     {
         private readonly Random _random = new Random();
+        private  readonly IoTSharpClient _client;
 
-        public Task LoginAsync(LoginParamsType model)
+        public AccountService  ( IoTSharpClient client)
         {
-            // todo: login logic
-            return Task.CompletedTask;
+            _client = client;
+        }
+        public async Task<bool> LoginAsync(LoginParamsType model)
+        {
+          return   await _client.LoginAsync(model.UserName, model.Password);
         }
 
         public Task<string> GetCaptchaAsync(string modile)

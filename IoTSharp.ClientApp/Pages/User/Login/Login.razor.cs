@@ -16,15 +16,17 @@ namespace IoTSharp.ClientApp.Pages.User
 
         [Inject] public MessageService Message { get; set; }
 
-        public void HandleSubmit()
+        public async Task HandleSubmitAsync()
         {
-            if (_model.UserName == "admin" && _model.Password == "ant.design")
+            var ok= await  AccountService.LoginAsync(_model);
+            if (ok)
             {
                 NavigationManager.NavigateTo("/");
-                return;
             }
-
-            if (_model.UserName == "user" && _model.Password == "ant.design") NavigationManager.NavigateTo("/");
+            else
+            {
+                await Message.Error($"登录失败");
+            }
         }
 
         public async Task GetCaptcha()
