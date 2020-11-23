@@ -51,6 +51,7 @@ namespace IoTSharp
                     .AddConnections(); 
             services.AddMqttWebSocketServerAdapter();
             services.AddSingleton<MQTTServerHandler>();
+            services.AddTransient<IMqttNetLogger, IoTSharp.Handlers.MqttNetLogger>();
         }
         public static void UseIotSharpMqttServer(this IApplicationBuilder app)
         {
@@ -67,35 +68,6 @@ namespace IoTSharp
                     server.ClientConnectionValidatorHandler = new MqttServerClientConnectionValidatorHandlerDelegate(args => mqttEvents.Server_ClientConnectionValidator(server, args));
                     server.ClientDisconnectedHandler = new MqttServerClientDisconnectedHandlerDelegate(args => mqttEvents.Server_ClientDisconnected(server, args));
                 });
-
-            var mqttNetLogger = app.ApplicationServices.GetService<IMqttNetLogger>();
-            var _loggerFactory = app.ApplicationServices.GetService<ILoggerFactory>();
-            var logger = _loggerFactory.CreateLogger<IMqttNetLogger>();
-            mqttNetLogger.LogMessagePublished += (object sender, MqttNetLogMessagePublishedEventArgs e) =>
-            {
-                var message = $"ID:{e.LogMessage.LogId},ThreadId:{e.LogMessage.ThreadId},Source:{e.LogMessage.Source},Timestamp:{e.LogMessage.Timestamp},Message:{e.LogMessage.Message}";
-                switch (e.LogMessage.Level)
-                {
-                    case MqttNetLogLevel.Verbose:
-                        logger.LogTrace(e.LogMessage.Exception, message);
-                        break;
-
-                    case MqttNetLogLevel.Info:
-                        logger.LogInformation(e.LogMessage.Exception, message);
-                        break;
-
-                    case MqttNetLogLevel.Warning:
-                        logger.LogWarning(e.LogMessage.Exception, message);
-                        break;
-
-                    case MqttNetLogLevel.Error:
-                        logger.LogError(e.LogMessage.Exception, message);
-                        break;
-
-                    default:
-                        break;
-                }
-            };
         }
 
 
