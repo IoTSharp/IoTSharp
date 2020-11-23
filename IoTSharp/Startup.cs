@@ -140,7 +140,7 @@ namespace IoTSharp
                 //Maximum history entries by endpoint
                 setup.MaximumHistoryEntriesPerEndpoint(50);
                 //One endpoint is configured in appsettings, let's add another one programatically
-                setup.AddHealthCheckEndpoint("IoTSharp", "/healthz");
+                setup.AddHealthCheckEndpoint("IoTSharp", $"/healthz");
             }).AddPostgreSqlStorage(Configuration.GetConnectionString("IoTSharp"));
             services.AddSilkierQuartz(opt =>
             {
@@ -323,7 +323,7 @@ namespace IoTSharp
             {
 
                 endpoints.MapMqtt("/mqtt");
-                endpoints.MapHealthChecks("healthz", new HealthCheckOptions()
+                endpoints.MapHealthChecks("/healthz", new HealthCheckOptions()
                 {
                     Predicate = _ => true,
                     ResponseWriter = UIResponseWriter.WriteHealthCheckUIResponse

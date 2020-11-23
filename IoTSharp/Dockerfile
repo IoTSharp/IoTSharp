@@ -10,7 +10,7 @@ RUN echo "deb https://mirrors.tuna.tsinghua.edu.cn/debian/ buster main contrib n
     apt-get  -y   -q update   && apt-get install  -y   -q  apt-utils libgdiplus libc6-dev lsof net-tools wget sqlite3 python3  bashtop   iputils-ping inetutils-tools  libssl-dev  libssl1.0.0 curl  && \
 	apt-get autoremove -y &&  apt-get clean  &&  apt-get autoclean && rm  /var/cache/apt/* -rf &&  \
 	ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime
-RUN curl -o TDengine-client.tar.gz https://www.taosdata.com/download/download-gettingStarted.php?pkg=tdengine_linux && \
+RUN curl -o TDengine-client.tar.gz "https://www.taosdata.com/download/download-gettingStarted.php?pkg=tdengine_linux&pkgName=TDengine-client-2.0.8.0-Linux-x64.tar.gz" && \
    tar -xzvf TDengine-client.tar.gz && rm TDengine-client.tar.gz -f  && cd  $(ls TDengine-client*  -d) && ./install_client.sh && \
     rm $(pwd) -rf
 WORKDIR /app

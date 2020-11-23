@@ -94,10 +94,10 @@ namespace IoTSharp.Storage
                 try
                 {
                     int idx = dataReader.GetOrdinal($"{prefix}value_type{suffix}");
-                    byte datatype;
+                    byte  datatype;
                     if (dataReader.FieldCount > idx && idx >= 0)
                     {
-                        datatype = (byte)dataReader[idx];
+                        datatype =dataReader.GetByte(idx);
                     }
                     else
                     {
