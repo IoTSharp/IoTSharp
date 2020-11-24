@@ -1,7 +1,5 @@
 ﻿using IoTSharp.Data;
-using IoTSharp.Extensions;
 using IoTSharp.Handlers;
-using IoTSharp.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
@@ -31,14 +29,12 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
-using MQTTnet.Server;
 using System.Runtime.InteropServices.ComTypes;
 using SshNet.Security.Cryptography;
 using SilkierQuartz;
 using HealthChecks.UI.Client;
 using NSwag;
 using NSwag.Generation.Processors.Security;
-using IoTSharp.Queue;
 using Npgsql;
 using EFCore.Sharding;
 using IoTSharp.Storage;
@@ -48,12 +44,13 @@ using System.Diagnostics;
 using EasyCaching.Core.Configurations;
 using Silkier.Extensions;
 using Maikebing.Data.Taos;
-using Dynamitey;
-using DotNetCore.CAP;
-using RabbitMQ.Client;
 using InfluxDB.Client;
 using System.Security.Policy;
 using Microsoft.CodeAnalysis.FlowAnalysis;
+using Microsoft.AspNetCore.Hosting.Server.Features;
+using System.Text.RegularExpressions;
+using HealthChecks.UI.Configuration;
+using NSwag.Generation.AspNetCore;
 
 namespace IoTSharp
 {
@@ -111,15 +108,7 @@ namespace IoTSharp
                 configure.Title = typeof(Startup).GetTypeInfo().Assembly.GetName().Name;
                 configure.Version = typeof(Startup).GetTypeInfo().Assembly.GetName().Version.ToString();
                 configure.Description = description?.Description;
-                configure.AddSecurity("JWT", Enumerable.Empty<string>(), new OpenApiSecurityScheme
-                {
-                    Type = OpenApiSecuritySchemeType.ApiKey,
-                    Name = "Authorization",
-                    In = OpenApiSecurityApiKeyLocation.Header,
-                    Description = "Type into the textbox: Bearer {your JWT token}."
-                });
-
-                configure.OperationProcessors.Add(new AspNetCoreOperationSecurityScopeProcessor("JWT"));
+                configure.AddJWTSecurity() ;
             });
 
             services.AddTransient<ApplicationDBInitializer>();
@@ -134,14 +123,15 @@ namespace IoTSharp
                      System.IO.DriveInfo.GetDrives().Where(d=>d.DriveType != System.IO.DriveType.CDRom).Select(f => f.Name).Distinct().ToList().ForEach(f => dso.AddDrive(f, 1024));
 
                  }, name: "Disk Storage");
+
             services.AddHealthChecksUI(setup =>
             {
                 setup.SetHeaderText("IoTSharp HealthChecks");
                 //Maximum history entries by endpoint
                 setup.MaximumHistoryEntriesPerEndpoint(50);
-                //One endpoint is configured in appsettings, let's add another one programatically
-                setup.AddHealthCheckEndpoint("IoTSharp", $"/healthz");
+                setup.AddIoTSharpHealthCheckEndpoint();
             }).AddPostgreSqlStorage(Configuration.GetConnectionString("IoTSharp"));
+
             services.AddSilkierQuartz(opt =>
             {
                 //opt.Add("quartz.serializer.type", "json");
@@ -243,7 +233,6 @@ namespace IoTSharp
                 }
                 switch (settings.EventBusMQ)
                 {
-
                     case EventBusMQ.RabbitMQ:
                         x.UseRabbitMQ(new Uri(Configuration.GetConnectionString("EventBusMQ")));
                         //amqp://guest:guest@localhost:5672
@@ -275,11 +264,11 @@ namespace IoTSharp
                     x.UseDiscovery(cfg => cfg = settings.Discovery);
                 }
             });
-
-
-
-
         }
+
+      
+
+
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env, ISchedulerFactory factory)
@@ -294,7 +283,7 @@ namespace IoTSharp
                 // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
                 app.UseHsts();
             }
-            app.UseHttpsRedirection();
+
             app.UseStaticFiles();
 
             app.UseRouting();
@@ -321,7 +310,6 @@ namespace IoTSharp
             app.UseOpenApi();
             app.UseEndpoints(endpoints =>
             {
-
                 endpoints.MapMqtt("/mqtt");
                 endpoints.MapHealthChecks("/healthz", new HealthCheckOptions()
                 {
@@ -330,10 +318,7 @@ namespace IoTSharp
                 });
                 endpoints.MapHealthChecksUI();
                 endpoints.MapDefaultControllerRoute();
-
             });
-           
-         
         }
     }
 }

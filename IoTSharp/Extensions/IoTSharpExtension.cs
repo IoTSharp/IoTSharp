@@ -2,6 +2,7 @@
 using IoTSharp.Data;
 using IoTSharp.Services;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.EntityFrameworkCore;
@@ -10,14 +11,19 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using MQTTnet.Diagnostics;
+using NSwag;
+using NSwag.Generation.AspNetCore;
+using NSwag.Generation.Processors.Security;
 using Silkier.Extensions;
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Security.Claims;
 using System.Text;
+using System.Text.RegularExpressions;
 
 namespace IoTSharp
 {
@@ -111,32 +117,44 @@ namespace IoTSharp
                 device.LastActive = DateTime.Now;
             }
         }
-        public static void  ConnectionString2Options<T>(this T option ,string _connectionString )
-        {
-            _connectionString.Split(';', StringSplitOptions.RemoveEmptyEntries).ForEach(f =>
-            {
-                try
-                {
-                    var opt = f.Split('=');
-                    var pty = option?.GetType().GetProperty(opt[0]);
-                    if (pty.PropertyType == typeof(string))
-                    {
-                        pty.SetValue(option, opt[1]);
-                    }
-                    else if (pty.PropertyType == typeof(int))
-                    {
-                        pty.SetValue(option, int.Parse(opt[1]));
-                    }
-                    else if (pty.PropertyType == typeof(bool))
-                    {
-                        pty.SetValue(option, opt[1]?.ToString().ToLower() == bool.TrueString.ToLower());
-                    }
-                }
-                catch (Exception)
-                {
 
-                }
+        internal static HealthChecks.UI.Configuration.Settings AddIoTSharpHealthCheckEndpoint(this HealthChecks.UI.Configuration.Settings setup)
+        {
+            var urls = Environment.GetEnvironmentVariable("ASPNETCORE_URLS").Split(';');
+            var uris = urls.Select(url => Regex.Replace(url, @"^(?<scheme>https?):\/\/((\+)|(\*)|(0.0.0.0))(?=[\:\/]|$)", "${scheme}://localhost"))
+                            .Select(uri => new Uri(uri, UriKind.Absolute)).ToArray();
+            var httpEndpoint = uris.FirstOrDefault(uri => uri.Scheme == "http");
+            var httpsEndpoint = uris.FirstOrDefault(uri => uri.Scheme == "https");
+            if (httpEndpoint != null) // Create an HTTP healthcheck endpoint
+            {
+                setup.AddHealthCheckEndpoint("IoTSharp", new UriBuilder(httpEndpoint.Scheme, httpEndpoint.Host, httpEndpoint.Port, "/healthz").ToString());
+            }
+            else if (httpsEndpoint != null) // Create an HTTPS healthcheck endpoint
+            {
+                setup.AddHealthCheckEndpoint("IoTSharp", new UriBuilder(httpsEndpoint.Scheme, httpsEndpoint.Host, httpsEndpoint.Port, "/healthz").ToString());
+            }
+            else
+            {
+                //One endpoint is configured in appsettings, let's add another one programatically
+                setup.AddHealthCheckEndpoint("IoTSharp", "/healthz");
+            }
+            return setup;
+        }
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="configure"></param>
+        internal static void AddJWTSecurity(this AspNetCoreOpenApiDocumentGeneratorSettings configure)
+        {
+            configure.AddSecurity("JWT", Enumerable.Empty<string>(), new OpenApiSecurityScheme
+            {
+                Type = OpenApiSecuritySchemeType.ApiKey,
+                Name = "Authorization",
+                In = OpenApiSecurityApiKeyLocation.Header,
+                Description = "Type into the textbox: Bearer {your JWT token}."
             });
+
+            configure.OperationProcessors.Add(new AspNetCoreOperationSecurityScopeProcessor("JWT"));
         }
     }
 }

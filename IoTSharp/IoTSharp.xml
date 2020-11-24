@@ -533,6 +533,12 @@
             </summary>
             <param name="device"></param>
         </member>
+        <member name="M:IoTSharp.IoTSharpExtension.AddJWTSecurity(NSwag.Generation.AspNetCore.AspNetCoreOpenApiDocumentGeneratorSettings)">
+            <summary>
+            
+            </summary>
+            <param name="configure"></param>
+        </member>
         <member name="T:IoTSharp.Handlers.EventBusHandler">
              <summary>
              iotsharp.services.datastream
