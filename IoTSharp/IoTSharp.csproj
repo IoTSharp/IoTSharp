@@ -127,6 +127,7 @@
 		<None Remove="healthchecksdb" />
 		<None Remove="healthchecksdb-shm" />
 		<None Remove="IoTSharp.xml" />
+		<_WebToolingArtifacts Remove="Properties\PublishProfiles\registry.hub.docker.com_iotsharp.pubxml" />
 		<None Include="..\docs\images\96x96.png">
 		  <Pack>True</Pack>
 		  <PackagePath></PackagePath>

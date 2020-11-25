@@ -196,11 +196,7 @@ namespace IoTSharp
                     //"TelemetryStorage": "http://localhost:8086/?org=iotsharp&bucket=iotsharp-bucket&token=iotsharp-token"
                     services.AddObjectPool(() => InfluxDBClientFactory.Create(Configuration.GetConnectionString("TelemetryStorage")));
                     break;
-                case TelemetryStorage.InfluxDBV1:
-                    //docker run -d -p 8083:8083 -p8086:8086 --expose 8090 --expose 8099 --name influxsrv tutum/influxdb
-                    services.AddSingleton<IStorage, InfluxDBV1Storage>();
-                    services.AddObjectPool(() => InfluxDBClientFactory.Create(Configuration.GetConnectionString("TelemetryStorage")));
-                    break;
+         
                 default:
                     break;
             }

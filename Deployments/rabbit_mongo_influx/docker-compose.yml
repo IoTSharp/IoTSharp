@@ -48,6 +48,9 @@ services:
       - influx
     links:
       - pgsql
+      - rabbitmq
+      - mongodb
+      - influx
     ports:
       - 2927:80
       - 1883:1883
@@ -55,6 +58,8 @@ services:
       - 5683:5683
       - 5684:5684
       - 502:502
+    volumes:
+       - "./appsettings.Production.json:/app/appsettings.Production.json"
     networks:
       - iotsharp-network
  
@@ -113,7 +118,7 @@ services:
             INFLUXDB_ORG: "iotsharp"
             INFLUXDB_USER: "root"
             INFLUXDB_PW: "1-q2-w3-e4-r5-t"
-            INFLUXDB_RETENTION: "23h60m"
+            INFLUXDB_RETENTION: "240h60m"
 
 networks: 
   iotsharp-network:
