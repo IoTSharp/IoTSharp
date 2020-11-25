@@ -95,7 +95,7 @@ services:
       - iotsharp-network
 
   influx:
-        image: "quay.io/influxdb/influxdb:2.0.0-rc"
+        image: "quay.io/influxdb/influxdb:v2.0.2"
         restart: always
         container_name: influx
         ports:
