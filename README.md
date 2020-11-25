@@ -80,8 +80,9 @@ https://github.com/IoTSharp/IoTSharp.Edge.RT-Thread
 
 |                                                              |                                                              |
 | ------------------------------------------------------------ | ------------------------------------------------------------ |
-| <img src="docs/images/20190615010003.jpg" alt="20190615010003.jpg" style="zoom: 67%;" /> | <img src="docs/images/InfluxDB2.PNG" alt="InfluxDB2.PNG" style="zoom: 67%;" />  |
-
+| <img src="docs/images/20190615010003.jpg" alt="20190615010003.jpg" style="zoom: 67%;" /> |<img src="docs/images/20190615010115.jpg" alt="20190615010115.jpg" style="zoom: 50%;" />   |
+ <img src="docs/images/InfluxDB2.PNG" alt="InfluxDB2.PNG" style="zoom: 67%;" />
+ 
 IoTSharp's ecosystem
 
 - MaiKeBing.CAP.ZeroMQ [![MaiKeBing.CAP.ZeroMQ](https://img.shields.io/nuget/v/MaiKeBing.CAP.ZeroMQ.svg)](https://www.nuget.org/packages/MaiKeBing.CAP.ZeroMQ/)
