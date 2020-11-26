@@ -74,6 +74,7 @@ services:
     volumes:
       - ./data/rabbitmq:/var/lib/rabbitmq
     environment:
+      - TZ=Asia/Shanghai
       - RABBITMQ_DEFAULT_USER=root
       - RABBITMQ_DEFAULT_PASS=kissme
     networks:
@@ -89,6 +90,7 @@ services:
     ports:
       - 27017:27017
     environment:
+      TZ: "Asia/Shanghai"
       MONGO_INITDB_ROOT_USERNAME: root
       MONGO_INITDB_ROOT_PASSWORD: kissme
     networks:
@@ -100,6 +102,8 @@ services:
         container_name: influx
         ports:
          - "8086:8086"
+        environment:
+          TZ: "Asia/Shanghai"
         volumes:
          - ./data/influxdb-data:/var/lib/influxdb2
         command: influxd run --bolt-path /var/lib/influxdb2/influxd.bolt --engine-path /var/lib/influxdb2/engine --store bolt

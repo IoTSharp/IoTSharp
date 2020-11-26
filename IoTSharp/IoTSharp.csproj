@@ -70,7 +70,7 @@
 		  <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
 		<PackageReference Include="hyjiacan.py4n" Version="4.0.0" />
-		<PackageReference Include="InfluxDB.Client" Version="1.13.0" />
+		<PackageReference Include="InfluxDB.Client" Version="1.14.0-dev.1577" />
 		<PackageReference Include="IoTSharp.CoAP.NET" Version="2.0.8" />
 		<PackageReference Include="IoTSharp.X509Extensions" Version="1.4.27" />
 		<PackageReference Include="kimbus" Version="2.0.1" />
@@ -97,9 +97,9 @@
 		<PackageReference Include="ProxyKit" Version="2.3.4" />
 		<PackageReference Include="Quartz.Serialization.Json" Version="3.2.3" />
 		<PackageReference Include="Savorboard.CAP.InMemoryMessageQueue" Version="3.1.1" />
-		<PackageReference Include="Silkier" Version="1.0.233" />
-		<PackageReference Include="Silkier.AspNetCore" Version="1.0.233" />
-		<PackageReference Include="Silkier.EFCore" Version="1.0.233" />
+		<PackageReference Include="Silkier" Version="1.0.274" />
+		<PackageReference Include="Silkier.AspNetCore" Version="1.0.274" />
+		<PackageReference Include="Silkier.EFCore" Version="1.0.274" />
 		<PackageReference Include="SilkierQuartz" Version="5.0.178" />
 		<PackageReference Include="SilkierQuartz.Plugins.RecentHistory" Version="5.0.178" />
 		<PackageReference Include="System.Collections" Version="4.3.0" />
