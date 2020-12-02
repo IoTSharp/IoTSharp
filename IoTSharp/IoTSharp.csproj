@@ -98,7 +98,7 @@
 		<PackageReference Include="Quartz.Serialization.Json" Version="3.2.3" />
 		<PackageReference Include="Savorboard.CAP.InMemoryMessageQueue" Version="3.1.1" />
 		<PackageReference Include="Silkier" Version="1.0.274" />
-		<PackageReference Include="Silkier.AspNetCore" Version="1.0.233" />
+		<PackageReference Include="Silkier.AspNetCore" Version="1.0.274" />
 		<PackageReference Include="Silkier.EFCore" Version="1.0.274" />
 		<PackageReference Include="SilkierQuartz" Version="5.0.178" />
 		<PackageReference Include="SilkierQuartz.Plugins.RecentHistory" Version="5.0.178" />
