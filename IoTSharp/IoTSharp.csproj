@@ -38,7 +38,7 @@
 
 		<PackageReference Include="AspNetCore.HealthChecks.Kafka" Version="5.0.0-preview1" />
 		<PackageReference Include="AspNetCore.HealthChecks.MongoDb" Version="5.0.0-preview1" />
-		<PackageReference Include="AspNetCore.HealthChecks.Network" Version="5.0.0-preview1" />
+		<PackageReference Include="AspNetCore.HealthChecks.Network" Version="5.0.0-preview2" />
 		<PackageReference Include="AspNetCore.HealthChecks.NpgSql" Version="5.0.0-preview1" />
 		<PackageReference Include="AspNetCore.HealthChecks.Rabbitmq" Version="5.0.0-preview1" />
 		<PackageReference Include="AspNetCore.HealthChecks.Redis" Version="5.0.0-preview1" />
@@ -49,7 +49,7 @@
 		<PackageReference Include="AspNetCore.HealthChecks.UI.PostgreSQL.Storage" Version="5.0.0-preview1" />
 		<PackageReference Include="AspNetCore.HealthChecks.UI.SQLite.Storage" Version="5.0.0-preview1" />
 		<PackageReference Include="AspNetCore.HealthChecks.Uris" Version="5.0.0-preview3" />
-		<PackageReference Include="AspNetCore.HealthChecks.Network" Version="5.0.0-preview1" />
+		<PackageReference Include="AspNetCore.HealthChecks.Network" Version="5.0.0-preview2" />
 		<PackageReference Include="AspNetCore.HealthChecks.NpgSql" Version="5.0.0-preview1" />
 		<PackageReference Include="CAP.Extensions" Version="1.0.31" />
 		<PackageReference Include="DotNetCore.CAP" Version="3.1.1" />
