@@ -78,10 +78,13 @@ IoTSharp.Edge.RT-Thread (STM32L4 + Wi-Fi, sensor, lcd, audio etc)
 
 https://github.com/IoTSharp/IoTSharp.Edge.RT-Thread
 
-|                                                              |                                                              |
-| ------------------------------------------------------------ | ------------------------------------------------------------ |
-| <img src="docs/images/20190615010003.jpg" alt="20190615010003.jpg" style="zoom: 67%;" /> | <img src="docs/images/20190615010115.jpg" alt="20190615010115.jpg" style="zoom: 50%;" /> |
 
+ <img src="docs/images/20190615010003.jpg" alt="20190615010003.jpg" style="zoom: 70%;" /> 
+ 
+ <img src="docs/images/InfluxDB2.PNG" alt="InfluxDB2.PNG" style="zoom: 100%;" />
+ 
+ <img src="docs/images/20190615010115.jpg" alt="20190615010115.jpg" style="zoom: 40%;" />
+ 
 IoTSharp's ecosystem
 
 - MaiKeBing.CAP.ZeroMQ [![MaiKeBing.CAP.ZeroMQ](https://img.shields.io/nuget/v/MaiKeBing.CAP.ZeroMQ.svg)](https://www.nuget.org/packages/MaiKeBing.CAP.ZeroMQ/)
