@@ -16,8 +16,14 @@
                 <AntDesign.TextArea @bind-Value="@context.Signature" />
             </FormItem>
             <FormItem Label="Country/Region">
-                <Select Style="max-width: 220px;" @bind-Value="@context.Country">
-                    <SelectOption Value="China">中国</SelectOption>
+                <Select
+                    TItem="string"
+                    TItemValue="string"
+                    Style="max-width: 220px;"
+                    @bind-Value="@context.Country">
+                    <SelectOptions>
+                        <SelectOption TItem="string" TItemValue="string" Value="@("China")" Label="中国"/>
+                    </SelectOptions>
                 </Select>
             </FormItem>
             <FormItem Label="Province or city">

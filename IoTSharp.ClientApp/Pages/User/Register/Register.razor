@@ -1,5 +1,6 @@
 ﻿@namespace IoTSharp.ClientApp.Pages.User
 @layout UserLayout
+@using AntDesign
 @page "/user/register"
 
 <div class="main__b__1">
@@ -7,25 +8,29 @@
         <h3>注册</h3>
         <Form Model="@_user">
             <FormItem>
-                <Input Placeholder="租户账号" @bind-Value="@context.Customer" Size="@InputSize.Large"></Input>
-            </FormItem>
-            <FormItem>
-                <Input Placeholder="邮箱" @bind-Value="@context.UserName" Size="@InputSize.Large"></Input>
+                <AntDesign.Input  Placeholder="邮箱"  @bind-Value="@context.UserName" ></AntDesign.Input>
             </FormItem>
 
             <FormItem>
-                <Input Placeholder="至少6位密码，区分大小写" @bind-Value="@context.Password" Size="@InputSize.Large" Type="password"></Input>
+                <AntDesign.Input Placeholder="至少6位密码，区分大小写"    @bind-Value="@context.Password"   Type="password"></AntDesign.Input>
             </FormItem>
 
             <FormItem>
-                <Input Placeholder="确认密码" @bind-Value="@context.ConfirmPassword" Size="@InputSize.Large" Type="password"></Input>
+                <AntDesign.Input Placeholder="确认密码"   @bind-Value="@context.ConfirmPassword" Size="@InputSize.Large" Type="password"></AntDesign.Input>
             </FormItem>
 
             <FormItem>
                 <InputGroup Compact Size="@InputSize.Large" Style="display: table">
-                    <Select DefaultValue=@("+86") Style="width: 25%" Size="large">
-                        <SelectOption Value="+86">+86</SelectOption>
-                        <SelectOption Value="+87">+87</SelectOption>
+                    <Select
+                        TItem="string"
+                        TItemValue="string"
+                        DefaultValue=@("+86")
+                        Style="width: 25%"
+                        Size="large">
+                        <SelectOptions>
+                            <SelectOption TItem="string" TItemValue="string" Value="@("+86")" Label="+86"/>
+                            <SelectOption TItem="string" TItemValue="string" Value="@("+87")" Label="+87"/>
+                        </SelectOptions>
                     </Select>
                     <AntDesign.Input Placeholder="手机号" Style="width: 75%;" @bind-Value="@context.Phone"></AntDesign.Input>
                 </InputGroup>

@@ -15,10 +15,9 @@ gulp.task('less', function () {
       javascriptEnabled: true,
       plugins: [new npmImport({ prefix: '~' })]
     }))
-      .pipe(concatCss('site.css'))
+    .pipe(concatCss('site.css'))
     .pipe(cleanCss({ compatibility: '*' }))
     .pipe(gulp.dest('wwwroot/css'));
-
 });
 
 gulp.task('default', gulp.parallel('less'), function () { })

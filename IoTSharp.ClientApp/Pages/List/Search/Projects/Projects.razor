@@ -28,16 +28,30 @@
                 <Row Gutter="16">
                     <AntDesign.Col Lg="8" Md="10" Sm="10" Xs="24">
                         <FormItem Label="作者">
-                            <Select Placeholder="不限" Style="max-width: 200px; width: 100%;" @bind-Value="_model.ActiveUser">
-                                <SelectOption Value="lisa">王昭君</SelectOption>
+                            <Select
+                                TItem="string"
+                                TItemValue="string"
+                                Placeholder="不限"
+                                Style="max-width: 200px; width: 100%;"
+                                @bind-Value="_model.ActiveUser">
+                                <SelectOptions>
+                                    <SelectOption TItem="string" TItemValue="string" Value="@("lisa")" Label="王昭君"/>
+                                </SelectOptions>
                             </Select>
                         </FormItem>
                     </AntDesign.Col>
                     <AntDesign.Col Lg="8" Md="10" Sm="10" Xs="24">
                         <FormItem Label="好评度">
-                            <Select Placeholder="不限" Style="max-width: 200px; width: 100%;" @bind-Value="_model.Satisfaction">
-                                <SelectOption Value="good">优秀</SelectOption>
-                                <SelectOption Value="normal">普通</SelectOption>
+                            <Select
+                                TItem="string"
+                                TItemValue="string"
+                                Placeholder="不限"
+                                Style="max-width: 200px; width: 100%;"
+                                @bind-Value="_model.Satisfaction">
+                                <SelectOptions>
+                                    <SelectOption TItem="string" TItemValue="string" Value="@("good")" Label="优秀"/>
+                                    <SelectOption TItem="string" TItemValue="string" Value="@("normal")" Label="普通"/>
+                                </SelectOptions>
                             </Select>
                         </FormItem>
                     </AntDesign.Col>

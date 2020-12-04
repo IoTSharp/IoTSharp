@@ -18,15 +18,18 @@
 
 <body>
     <noscript>Out-of-the-box mid-stage front/design solution!</noscript>
-    <app id="root">
+    <div id="app">
         <style>
             html,
             body,
-            #root {
+            #app {
                 height: 100%;
                 margin: 0;
                 padding: 0;
-                background-image: url('assets/wallpaper-hiking.png');
+            }
+
+            #app {
+                background-image: url('<%= context.config.publicPath +"home_bg.png"%>');
                 background-repeat: no-repeat;
                 background-size: 100% auto;
             }
@@ -196,7 +199,7 @@
              IoTSharp
             </div>
         </div>
-    </app>
+    </div>
 
     <script src="_content/AntDesign.Charts/g2plot.js"></script>
     <script src="_content/AntDesign/js/ant-design-blazor.js"></script>

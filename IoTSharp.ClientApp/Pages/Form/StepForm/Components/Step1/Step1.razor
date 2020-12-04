@@ -7,15 +7,28 @@
     Class="stepForm"
     Model="_model">
     <FormItem Label="付款账户">
-        <Select Placeholder="test@example.com" @bind-Value="@context.PayAccount">
-            <SelectOption Value="ant-design@alipay.com">ant-design@alipay.com</SelectOption>
+        <Select
+            TItem="string"
+            TItemValue="string"
+            Placeholder="test@example.com"
+            @bind-Value="@context.PayAccount">
+            <SelectOptions>
+                <SelectOption TItem="string" TItemValue="string" Value="@("ant - design @alipay.com")" Label="ant-design@alipay.com" />
+            </SelectOptions>
         </Select>
     </FormItem>
     <FormItem Label="收款账户">
         <InputGroup Compact Style="display: table">
-            <Select DefaultValue="@("alipay")" Style="width: 100px;" @bind-Value="@context.ReceiverAccountType">
-                <SelectOption Value="alipay">支付宝</SelectOption>
-                <SelectOption Value="bank">银行账户</SelectOption>
+            <Select
+                TItem="string"
+                TItemValue="string"
+                DefaultValue="@("alipay")"
+                Style="width: 100px;"
+                @bind-Value="@context.ReceiverAccountType">
+                <SelectOptions>
+                    <SelectOption TItem="string" TItemValue="string" Value="@("alipay")" Label="支付宝"/>
+                    <SelectOption TItem="string" TItemValue="string" Value="@("bank")" Label="银行账户"/>
+                </SelectOptions>
             </Select>
             <Input Style="width: calc(100% - 100px);" Placeholder="test@example.com" @bind-Value="@context.ReceiverAccount" />
         </InputGroup>

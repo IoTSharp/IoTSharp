@@ -47,7 +47,7 @@ namespace IoTSharp.Sdk.Http
             try
             {
                 _act_client = new AccountClient(HttpClient);
-                _result = await _act_client.RegisterAsync( new RegisterDto() { CustomerId= customer, Email= username, Password=password, PhoneNumber= phoneNumber });
+                _result = await _act_client.RegisterAsync( new RegisterDto() {   Customer= customer, Email= username, Password=password, PhoneNumber= phoneNumber });
                 HttpClient.DefaultRequestHeaders.Add("Authorization", $"Bearer {Token.Access_token}");
                 ApiResultOfUserInfoDto userInfoDto = await _act_client.MyInfoAsync();
                 MyInfo = userInfoDto.Data;

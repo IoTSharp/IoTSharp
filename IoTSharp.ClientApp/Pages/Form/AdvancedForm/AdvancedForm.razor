@@ -24,9 +24,15 @@
                     </AntDesign.Col>
                     <AntDesign.Col Span="8">
                         <FormItem Label="仓库管理员">
-                            <Select Placeholder="请选择管理员" @bind-Value="@context.Owner">
-                                <SelectOption Value="xiao">付晓晓</SelectOption>
-                                <SelectOption Value="mao">周毛毛</SelectOption>
+                            <Select
+                                TItem="string"
+                                TItemValue="string"
+                                Placeholder="请选择管理员"
+                                @bind-Value="@context.Owner">
+                                <SelectOptions>
+                                    <SelectOption TItem="string" TItemValue="string" Value="@("xiao")" Label="付晓晓"/>
+                                    <SelectOption TItem="string" TItemValue="string" Value="@("mao")" Label="周毛毛"/>
+                                </SelectOptions>
                             </Select>
                         </FormItem>
                     </AntDesign.Col>
@@ -34,9 +40,15 @@
                 <Row Gutter="24">
                     <AntDesign.Col Span="8">
                         <FormItem Label="审批人">
-                            <Select Placeholder="请选择审批员" @bind-Value="@context.Approver">
-                                <SelectOption Value="xiao">付晓晓</SelectOption>
-                                <SelectOption Value="mao">周毛毛</SelectOption>
+                            <Select 
+                                TItem="string"
+                                TItemValue="string"
+                                Placeholder="请选择审批员" 
+                                @bind-Value="@context.Approver">
+                                <SelectOptions>
+                                    <SelectOption TItem="string" TItemValue="string" Value="@("xiao")" Label="付晓晓" />
+                                    <SelectOption TItem="string" TItemValue="string" Value="@("mao")" Label="周毛毛" />
+                                </SelectOptions>
                             </Select>
                         </FormItem>
                     </AntDesign.Col>
@@ -47,9 +59,15 @@
                     </AntDesign.Col>
                     <AntDesign.Col Span="8">
                         <FormItem Label="仓库类型">
-                            <Select Placeholder="请选择仓库类型" @bind-Value="@context.Type">
-                                <SelectOption Value="private">私密</SelectOption>
-                                <SelectOption Value="public">公开</SelectOption>
+                            <Select
+                                TItem="string"
+                                TItemValue="string"
+                                Placeholder="请选择仓库类型" 
+                                @bind-Value="@context.Type">
+                                <SelectOptions>
+                                    <SelectOption TItem="string" TItemValue="string" Value="@("private")" Label="私密" />
+                                    <SelectOption TItem="string" TItemValue="string" Value="@("public")" Label="公开" />
+                                </SelectOptions>
                             </Select>
                         </FormItem>
                     </AntDesign.Col>
@@ -70,9 +88,15 @@
                     </AntDesign.Col>
                     <AntDesign.Col Span="8">
                         <FormItem Label="执行人">
-                            <Select Placeholder="请选择执行人" @bind-Value="@context.Owner2">
-                                <SelectOption Value="xiao">付晓晓</SelectOption>
-                                <SelectOption Value="mao">周毛毛</SelectOption>
+                            <Select
+                                TItem="string"
+                                TItemValue="string"
+                                Placeholder="请选择执行人" 
+                                @bind-Value="@context.Owner2">
+                                <SelectOptions>
+                                    <SelectOption TItem="string" TItemValue="string" Value="@("xiao")" Label="付晓晓" />
+                                    <SelectOption TItem="string" TItemValue="string" Value="@("mao")" Label="周毛毛" />
+                                </SelectOptions>
                             </Select>
                         </FormItem>
                     </AntDesign.Col>
@@ -80,9 +104,15 @@
                 <Row Gutter="24">
                     <AntDesign.Col Span="8">
                         <FormItem Label="责任人">
-                            <Select Placeholder="请选择责任人" @bind-Value="@context.Approver2">
-                                <SelectOption Value="xiao">付晓晓</SelectOption>
-                                <SelectOption Value="mao">周毛毛</SelectOption>
+                            <Select 
+                                TItem="string"
+                                TItemValue="string"
+                                Placeholder="请选择责任人" 
+                                @bind-Value="@context.Approver2">
+                                <SelectOptions>
+                                    <SelectOption TItem="string" TItemValue="string" Value="@("xiao")" Label="付晓晓" />
+                                    <SelectOption TItem="string" TItemValue="string" Value="@("mao")" Label="周毛毛" />
+                                </SelectOptions>
                             </Select>
                         </FormItem>
                     </AntDesign.Col>
@@ -93,9 +123,15 @@
                     </AntDesign.Col>
                     <AntDesign.Col Span="8">
                         <FormItem Label="任务类型">
-                            <Select Placeholder="请选择任务类型" @bind-Value="@context.Type2">
-                                <SelectOption Value="private">私密</SelectOption>
-                                <SelectOption Value="public">公开</SelectOption>
+                            <Select 
+                                TItem="string"
+                                TItemValue="string"
+                                Placeholder="请选择任务类型" 
+                                @bind-Value="@context.Type2">
+                                <SelectOptions>
+                                    <SelectOption TItem="string" TItemValue="string" Value="@("private")" Label="私密" />
+                                    <SelectOption TItem="string" TItemValue="string" Value="@("public")" Label="公开" />
+                                </SelectOptions>
                             </Select>
                         </FormItem>
                     </AntDesign.Col>

@@ -1,5 +1,4 @@
-﻿@namespace IoTSharp.ClientApp 
-
+﻿@namespace IoTSharp.ClientApp
 @inherits LayoutComponentBase
 
 <AntDesign.Pro.Layout.BasicLayout 
@@ -23,8 +22,8 @@
 
     protected override async Task OnInitializedAsync()
     {
-          await base.OnInitializedAsync();
-            MenuData = await HttpClient.GetFromJsonAsync<MenuDataItem[]>("data/menu.json");
+        await base.OnInitializedAsync();
+        MenuData = await HttpClient.GetFromJsonAsync<MenuDataItem[]>("data/menu.json");
             if (!client.IsLogin)
             {
                 NavigationManager.NavigateTo("/user/login");

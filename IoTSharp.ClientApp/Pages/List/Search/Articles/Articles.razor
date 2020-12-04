@@ -23,13 +23,20 @@
             </TagSelect>
         </StandardFormRow>
         <StandardFormRow Title="owner" Grid>
-            <Select Mode="multiple" Placeholder="选择 owner" DefaultValue="_defaultOwners" @bind-Value="_model.Owner">
-                @foreach (var owner in _owners)
-                {
-                    <SelectOption Value="@owner.Id">
-                        @owner.Name
-                    </SelectOption>
-                }
+            <Select
+                TItem="string"
+                TItemValue="string"
+                Mode="multiple"
+                Placeholder="选择 owner"
+                DefaultValues="_defaultOwners"
+                Style="width:inherit"
+                @bind-Value="_model.Owner">
+                <SelectOptions>
+                    @foreach (var owner in _owners)
+                    {
+                        <SelectOption TItem="string" TItemValue="string" Value="@owner.Id" Label="@owner.Name"/>
+                    }
+                </SelectOptions>
             </Select>
             <a class="selfTrigger" @onclick="SetOwner">
                 只看自己的
@@ -39,15 +46,29 @@
             <Row Gutter="16">
                 <AntDesign.Col Lg="8" Md="10" Sm="10" Xs="24">
                     <FormItem Label="活跃用户">
-                        <Select Placeholder="不限" Style="max-width: 200px; width: 100%;" @bind-Value="_model.ActiveUser">
-                            <SelectOption Value="lisa">李三</SelectOption>
+                        <Select
+                            TItem="string"
+                            TItemValue="string"
+                            Placeholder="不限"
+                            Style="max-width: 200px; width: 100%;"
+                            @bind-Value="_model.ActiveUser">
+                            <SelectOptions>
+                                <SelectOption TItem="string" TItemValue="string" Value="@("lisa")" Label="李三"/>
+                            </SelectOptions>
                         </Select>
                     </FormItem>
                 </AntDesign.Col>
                 <AntDesign.Col Lg="8" Md="10" Sm="10" Xs="24">
                     <FormItem Label="好评度">
-                        <Select Placeholder="不限" Style="max-width: 200px; width: 100%;" @bind-Value="_model.Satisfaction">
-                            <SelectOption Value="good">优秀</SelectOption>
+                        <Select
+                            TItem="string"
+                            TItemValue="string"
+                            Placeholder="不限"
+                            Style="max-width: 200px; width: 100%;"
+                            @bind-Value="_model.Satisfaction">
+                            <SelectOptions>
+                                <SelectOption TItem="string" TItemValue="string" Value="@("good")" Label="优秀"/>
+                            </SelectOptions>
                         </Select>
                     </FormItem>
                 </AntDesign.Col>
