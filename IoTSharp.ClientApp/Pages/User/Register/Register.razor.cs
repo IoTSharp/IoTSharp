@@ -1,4 +1,7 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using AntDesign;
+using IoTSharp.ClientApp.Services;
+using Microsoft.AspNetCore.Components;
+using System.ComponentModel.DataAnnotations;
 
 namespace IoTSharp.ClientApp.Pages.User
 {
@@ -18,14 +21,21 @@ namespace IoTSharp.ClientApp.Pages.User
 
         [Required]
         public string Captcha { get; set; }
+        public string Customer { get;  set; }
     }
 
     public partial class Register
     {
         private readonly RegisterModel _user = new RegisterModel();
 
+        [Inject] public NavigationManager NavigationManager { get; set; }
+
+        [Inject] public IAccountService AccountService { get; set; }
+
+        [Inject] public MessageService Message { get; set; }
         public void Reg()
         {
+            AccountService.RegisterAsync(_user);
         }
     }
 }

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
 using IoTSharp.ClientApp.Models;
+using IoTSharp.ClientApp.Pages.User;
 using IoTSharp.Sdk.Http;
 
 namespace IoTSharp.ClientApp.Services
@@ -8,6 +9,7 @@ namespace IoTSharp.ClientApp.Services
     public interface IAccountService
     {
         Task<bool> LoginAsync(LoginParamsType model);
+        Task<bool> RegisterAsync(RegisterModel model);
         Task<string> GetCaptchaAsync(string modile);
     }
 
@@ -23,6 +25,10 @@ namespace IoTSharp.ClientApp.Services
         public async Task<bool> LoginAsync(LoginParamsType model)
         {
           return   await _client.LoginAsync(model.UserName, model.Password);
+        }
+        public async Task<bool> RegisterAsync(RegisterModel model)
+        {
+            return await _client.RegisterAsync(model.Customer,model.UserName, model.Password,model.Phone);
         }
 
         public Task<string> GetCaptchaAsync(string modile)

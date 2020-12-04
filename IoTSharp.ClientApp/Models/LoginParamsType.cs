@@ -15,5 +15,6 @@ namespace IoTSharp.ClientApp.Models
         public string LoginType { get; set; }
 
         public bool AutoLogin { get; set; }
+        public string Customer { get;  set; }
     }
 }

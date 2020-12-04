@@ -7,6 +7,9 @@
         <h3>注册</h3>
         <Form Model="@_user">
             <FormItem>
+                <Input Placeholder="租户账号" @bind-Value="@context.Customer" Size="@InputSize.Large"></Input>
+            </FormItem>
+            <FormItem>
                 <Input Placeholder="邮箱" @bind-Value="@context.UserName" Size="@InputSize.Large"></Input>
             </FormItem>
 
@@ -28,7 +31,7 @@
                 </InputGroup>
             </FormItem>
 
-            <FormItem>
+         @*   <FormItem>
                 <FormItem>
                     <Row Gutter="8">
                         <AntDesign.Col Span="16">
@@ -39,7 +42,7 @@
                         </AntDesign.Col>
                     </Row>
                 </FormItem>
-            </FormItem>
+            </FormItem>*@
 
             <FormItem>
                 <Button Type="primary" Size="large" OnClick="Reg" class="submit">注册</Button>

@@ -64,7 +64,7 @@ namespace IoTSharp.Dtos
     public class RegisterDto
     {
         /// <summary>
-        /// 邮箱地址， 也是用户名
+        /// 邮箱地址， 也是用户名，一个邮箱只能注册平台的一个客户，如果你在平台有两个租户都有账号，则需要两个邮箱地址。 
         /// </summary>
         [Required]
         public string Email { get; set; }
@@ -74,10 +74,10 @@ namespace IoTSharp.Dtos
         [Required]
         public string PhoneNumber { get; set; }
         /// <summary>
-        /// 用户隶属客户ID
+        /// 用户隶属客户邮箱地址
         /// </summary>
         [Required]
-        public Guid CustomerId { get; set; }
+        public string Customer { get; set; }
         /// <summary>
         /// 用户名密码
         /// </summary>

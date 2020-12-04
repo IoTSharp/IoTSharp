@@ -509,7 +509,7 @@
         </member>
         <member name="P:IoTSharp.Dtos.RegisterDto.Email">
             <summary>
-            邮箱地址， 也是用户名
+            邮箱地址， 也是用户名，一个邮箱只能注册平台的一个客户，如果你在平台有两个租户都有账号，则需要两个邮箱地址。 
             </summary>
         </member>
         <member name="P:IoTSharp.Dtos.RegisterDto.PhoneNumber">
@@ -517,9 +517,9 @@
             电话号码
             </summary>
         </member>
-        <member name="P:IoTSharp.Dtos.RegisterDto.CustomerId">
+        <member name="P:IoTSharp.Dtos.RegisterDto.Customer">
             <summary>
-            用户隶属客户ID
+            用户隶属客户邮箱地址
             </summary>
         </member>
         <member name="P:IoTSharp.Dtos.RegisterDto.Password">

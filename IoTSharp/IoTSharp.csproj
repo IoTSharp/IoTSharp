@@ -132,6 +132,7 @@
 		  <Pack>True</Pack>
 		  <PackagePath></PackagePath>
 		</None>
+		<None Include="..\IoTSharp.ClientApp\Pages\User\Register\Input.razor" Link="Input.razor" />
 		<None Include="..\LICENSE.txt">
 		  <Pack>True</Pack>
 		  <PackagePath></PackagePath>

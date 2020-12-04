@@ -42,7 +42,22 @@ namespace IoTSharp.Sdk.Http
         }
         AccountClient _act_client;
         private LoginResult _result;
-
+        public async Task<bool> RegisterAsync(string customer,string username, string password,string phoneNumber)
+        {
+            try
+            {
+                _act_client = new AccountClient(HttpClient);
+                _result = await _act_client.RegisterAsync( new RegisterDto() { CustomerId= customer, Email= username, Password=password, PhoneNumber= phoneNumber });
+                HttpClient.DefaultRequestHeaders.Add("Authorization", $"Bearer {Token.Access_token}");
+                ApiResultOfUserInfoDto userInfoDto = await _act_client.MyInfoAsync();
+                MyInfo = userInfoDto.Data;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Register error ", ex);
+            }
+            return (bool)(_result?.SignIn.Succeeded);
+        }
         public async Task<bool> LoginAsync(string username, string password)
         {
             try
