@@ -18,7 +18,7 @@ namespace IoTSharp.Sdk.Http
     [System.CodeDom.Compiler.GeneratedCode("NSwag", "13.9.4.0 (NJsonSchema v10.3.1.0 (Newtonsoft.Json v12.0.0.0))")]
     public partial class AccountClient 
     {
-        private string _baseUrl = "http://10.165.83.194:2927";
+        private string _baseUrl = "http://localhost:5000";
         private System.Net.Http.HttpClient _httpClient;
         private System.Lazy<Newtonsoft.Json.JsonSerializerSettings> _settings;
     
@@ -48,6 +48,7 @@ namespace IoTSharp.Sdk.Http
         partial void PrepareRequest(System.Net.Http.HttpClient client, System.Net.Http.HttpRequestMessage request, System.Text.StringBuilder urlBuilder);
         partial void ProcessResponse(System.Net.Http.HttpClient client, System.Net.Http.HttpResponseMessage response);
     
+        /// <summary>获取当前登录用户信息</summary>
         /// <exception cref="SwaggerException">A server side error occurred.</exception>
         public System.Threading.Tasks.Task<ApiResultOfUserInfoDto> MyInfoAsync()
         {
@@ -55,6 +56,7 @@ namespace IoTSharp.Sdk.Http
         }
     
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
+        /// <summary>获取当前登录用户信息</summary>
         /// <exception cref="SwaggerException">A server side error occurred.</exception>
         public async System.Threading.Tasks.Task<ApiResultOfUserInfoDto> MyInfoAsync(System.Threading.CancellationToken cancellationToken)
         {
@@ -118,6 +120,7 @@ namespace IoTSharp.Sdk.Http
             }
         }
     
+        /// <summary>登录用户</summary>
         /// <exception cref="SwaggerException">A server side error occurred.</exception>
         public System.Threading.Tasks.Task<LoginResult> LoginAsync(LoginDto model)
         {
@@ -125,6 +128,7 @@ namespace IoTSharp.Sdk.Http
         }
     
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
+        /// <summary>登录用户</summary>
         /// <exception cref="SwaggerException">A server side error occurred.</exception>
         public async System.Threading.Tasks.Task<LoginResult> LoginAsync(LoginDto model, System.Threading.CancellationToken cancellationToken)
         {
@@ -208,6 +212,7 @@ namespace IoTSharp.Sdk.Http
             }
         }
     
+        /// <summary>退出账号</summary>
         /// <exception cref="SwaggerException">A server side error occurred.</exception>
         public System.Threading.Tasks.Task LogoutAsync()
         {
@@ -215,6 +220,7 @@ namespace IoTSharp.Sdk.Http
         }
     
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
+        /// <summary>退出账号</summary>
         /// <exception cref="SwaggerException">A server side error occurred.</exception>
         public async System.Threading.Tasks.Task LogoutAsync(System.Threading.CancellationToken cancellationToken)
         {
@@ -287,6 +293,8 @@ namespace IoTSharp.Sdk.Http
             }
         }
     
+        /// <summary>注册用户</summary>
+        /// <returns>返回登录结果</returns>
         /// <exception cref="SwaggerException">A server side error occurred.</exception>
         public System.Threading.Tasks.Task<LoginResult> RegisterAsync(RegisterDto model)
         {
@@ -294,6 +302,8 @@ namespace IoTSharp.Sdk.Http
         }
     
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
+        /// <summary>注册用户</summary>
+        /// <returns>返回登录结果</returns>
         /// <exception cref="SwaggerException">A server side error occurred.</exception>
         public async System.Threading.Tasks.Task<LoginResult> RegisterAsync(RegisterDto model, System.Threading.CancellationToken cancellationToken)
         {
@@ -363,6 +373,7 @@ namespace IoTSharp.Sdk.Http
             }
         }
     
+        /// <summary>返回客户所属用户列表</summary>
         /// <exception cref="SwaggerException">A server side error occurred.</exception>
         public System.Threading.Tasks.Task<System.Collections.Generic.ICollection<UserItemDto>> AllAsync(System.Guid customerId)
         {
@@ -370,6 +381,7 @@ namespace IoTSharp.Sdk.Http
         }
     
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
+        /// <summary>返回客户所属用户列表</summary>
         /// <exception cref="SwaggerException">A server side error occurred.</exception>
         public async System.Threading.Tasks.Task<System.Collections.Generic.ICollection<UserItemDto>> AllAsync(System.Guid customerId, System.Threading.CancellationToken cancellationToken)
         {
@@ -543,7 +555,7 @@ namespace IoTSharp.Sdk.Http
     [System.CodeDom.Compiler.GeneratedCode("NSwag", "13.9.4.0 (NJsonSchema v10.3.1.0 (Newtonsoft.Json v12.0.0.0))")]
     public partial class AuthorizedKeysClient 
     {
-        private string _baseUrl = "http://10.165.83.194:2927";
+        private string _baseUrl = "http://localhost:5000";
         private System.Net.Http.HttpClient _httpClient;
         private System.Lazy<Newtonsoft.Json.JsonSerializerSettings> _settings;
     
@@ -573,6 +585,7 @@ namespace IoTSharp.Sdk.Http
         partial void PrepareRequest(System.Net.Http.HttpClient client, System.Net.Http.HttpRequestMessage request, System.Text.StringBuilder urlBuilder);
         partial void ProcessResponse(System.Net.Http.HttpClient client, System.Net.Http.HttpResponseMessage response);
     
+        /// <summary>获取当前已登录用户所属客户的全局认证KEY</summary>
         /// <exception cref="SwaggerException">A server side error occurred.</exception>
         public System.Threading.Tasks.Task<System.Collections.Generic.ICollection<AuthorizedKey>> GetAuthorizedKeysAsync()
         {
@@ -580,6 +593,7 @@ namespace IoTSharp.Sdk.Http
         }
     
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
+        /// <summary>获取当前已登录用户所属客户的全局认证KEY</summary>
         /// <exception cref="SwaggerException">A server side error occurred.</exception>
         public async System.Threading.Tasks.Task<System.Collections.Generic.ICollection<AuthorizedKey>> GetAuthorizedKeysAsync(System.Threading.CancellationToken cancellationToken)
         {
@@ -723,6 +737,7 @@ namespace IoTSharp.Sdk.Http
             }
         }
     
+        /// <summary>根据ID获取KEY</summary>
         /// <exception cref="SwaggerException">A server side error occurred.</exception>
         public System.Threading.Tasks.Task<AuthorizedKey> GetAuthorizedKeyAsync(System.Guid id)
         {
@@ -730,6 +745,7 @@ namespace IoTSharp.Sdk.Http
         }
     
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
+        /// <summary>根据ID获取KEY</summary>
         /// <exception cref="SwaggerException">A server side error occurred.</exception>
         public async System.Threading.Tasks.Task<AuthorizedKey> GetAuthorizedKeyAsync(System.Guid id, System.Threading.CancellationToken cancellationToken)
         {
@@ -1103,7 +1119,7 @@ namespace IoTSharp.Sdk.Http
     [System.CodeDom.Compiler.GeneratedCode("NSwag", "13.9.4.0 (NJsonSchema v10.3.1.0 (Newtonsoft.Json v12.0.0.0))")]
     public partial class CustomersClient 
     {
-        private string _baseUrl = "http://10.165.83.194:2927";
+        private string _baseUrl = "http://localhost:5000";
         private System.Net.Http.HttpClient _httpClient;
         private System.Lazy<Newtonsoft.Json.JsonSerializerSettings> _settings;
     
@@ -1133,6 +1149,8 @@ namespace IoTSharp.Sdk.Http
         partial void PrepareRequest(System.Net.Http.HttpClient client, System.Net.Http.HttpRequestMessage request, System.Text.StringBuilder urlBuilder);
         partial void ProcessResponse(System.Net.Http.HttpClient client, System.Net.Http.HttpResponseMessage response);
     
+        /// <summary>获取指定租户下的所有客户</summary>
+        /// <param name="tenantId">租户</param>
         /// <exception cref="SwaggerException">A server side error occurred.</exception>
         public System.Threading.Tasks.Task<System.Collections.Generic.ICollection<Customer>> GetCustomersAsync(System.Guid tenantId)
         {
@@ -1140,6 +1158,8 @@ namespace IoTSharp.Sdk.Http
         }
     
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
+        /// <summary>获取指定租户下的所有客户</summary>
+        /// <param name="tenantId">租户</param>
         /// <exception cref="SwaggerException">A server side error occurred.</exception>
         public async System.Threading.Tasks.Task<System.Collections.Generic.ICollection<Customer>> GetCustomersAsync(System.Guid tenantId, System.Threading.CancellationToken cancellationToken)
         {
@@ -1221,6 +1241,7 @@ namespace IoTSharp.Sdk.Http
             }
         }
     
+        /// <summary>返回指定id的客户</summary>
         /// <exception cref="SwaggerException">A server side error occurred.</exception>
         public System.Threading.Tasks.Task<Customer> GetCustomerAsync(System.Guid id)
         {
@@ -1228,6 +1249,7 @@ namespace IoTSharp.Sdk.Http
         }
     
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
+        /// <summary>返回指定id的客户</summary>
         /// <exception cref="SwaggerException">A server side error occurred.</exception>
         public async System.Threading.Tasks.Task<Customer> GetCustomerAsync(System.Guid id, System.Threading.CancellationToken cancellationToken)
         {
@@ -1309,6 +1331,7 @@ namespace IoTSharp.Sdk.Http
             }
         }
     
+        /// <summary>修改指定租户为 指定的信息</summary>
         /// <exception cref="SwaggerException">A server side error occurred.</exception>
         public System.Threading.Tasks.Task PutCustomerAsync(System.Guid id, CustomerDto customer)
         {
@@ -1316,6 +1339,7 @@ namespace IoTSharp.Sdk.Http
         }
     
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
+        /// <summary>修改指定租户为 指定的信息</summary>
         /// <exception cref="SwaggerException">A server side error occurred.</exception>
         public async System.Threading.Tasks.Task PutCustomerAsync(System.Guid id, CustomerDto customer, System.Threading.CancellationToken cancellationToken)
         {
@@ -1407,6 +1431,7 @@ namespace IoTSharp.Sdk.Http
             }
         }
     
+        /// <summary>删除指定的客户ID</summary>
         /// <exception cref="SwaggerException">A server side error occurred.</exception>
         public System.Threading.Tasks.Task<Customer> DeleteCustomerAsync(System.Guid id)
         {
@@ -1414,6 +1439,7 @@ namespace IoTSharp.Sdk.Http
         }
     
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
+        /// <summary>删除指定的客户ID</summary>
         /// <exception cref="SwaggerException">A server side error occurred.</exception>
         public async System.Threading.Tasks.Task<Customer> DeleteCustomerAsync(System.Guid id, System.Threading.CancellationToken cancellationToken)
         {
@@ -1495,6 +1521,7 @@ namespace IoTSharp.Sdk.Http
             }
         }
     
+        /// <summary>为当前客户所在的租户新增客户</summary>
         /// <exception cref="SwaggerException">A server side error occurred.</exception>
         public System.Threading.Tasks.Task<Customer> PostCustomerAsync(CustomerDto customer)
         {
@@ -1502,6 +1529,7 @@ namespace IoTSharp.Sdk.Http
         }
     
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
+        /// <summary>为当前客户所在的租户新增客户</summary>
         /// <exception cref="SwaggerException">A server side error occurred.</exception>
         public async System.Threading.Tasks.Task<Customer> PostCustomerAsync(CustomerDto customer, System.Threading.CancellationToken cancellationToken)
         {
@@ -1677,7 +1705,7 @@ namespace IoTSharp.Sdk.Http
     [System.CodeDom.Compiler.GeneratedCode("NSwag", "13.9.4.0 (NJsonSchema v10.3.1.0 (Newtonsoft.Json v12.0.0.0))")]
     public partial class DevicesClient 
     {
-        private string _baseUrl = "http://10.165.83.194:2927";
+        private string _baseUrl = "http://localhost:5000";
         private System.Net.Http.HttpClient _httpClient;
         private System.Lazy<Newtonsoft.Json.JsonSerializerSettings> _settings;
     
@@ -1707,6 +1735,7 @@ namespace IoTSharp.Sdk.Http
         partial void PrepareRequest(System.Net.Http.HttpClient client, System.Net.Http.HttpRequestMessage request, System.Text.StringBuilder urlBuilder);
         partial void ProcessResponse(System.Net.Http.HttpClient client, System.Net.Http.HttpResponseMessage response);
     
+        /// <summary>获取指定客户的设备列表</summary>
         /// <exception cref="SwaggerException">A server side error occurred.</exception>
         public System.Threading.Tasks.Task<System.Collections.Generic.ICollection<Device>> GetDevicesAllAsync(System.Guid customerId)
         {
@@ -1714,6 +1743,7 @@ namespace IoTSharp.Sdk.Http
         }
     
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
+        /// <summary>获取指定客户的设备列表</summary>
         /// <exception cref="SwaggerException">A server side error occurred.</exception>
         public async System.Threading.Tasks.Task<System.Collections.Generic.ICollection<Device>> GetDevicesAllAsync(System.Guid customerId, System.Threading.CancellationToken cancellationToken)
         {
@@ -1795,6 +1825,7 @@ namespace IoTSharp.Sdk.Http
             }
         }
     
+        /// <summary>获取指定客户的设备列表</summary>
         /// <exception cref="SwaggerException">A server side error occurred.</exception>
         public System.Threading.Tasks.Task<System.Collections.Generic.ICollection<Device>> GetDevicesAsync(System.Guid customerId)
         {
@@ -1802,6 +1833,7 @@ namespace IoTSharp.Sdk.Http
         }
     
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
+        /// <summary>获取指定客户的设备列表</summary>
         /// <exception cref="SwaggerException">A server side error occurred.</exception>
         public async System.Threading.Tasks.Task<System.Collections.Generic.ICollection<Device>> GetDevicesAsync(System.Guid customerId, System.Threading.CancellationToken cancellationToken)
         {
@@ -1883,6 +1915,7 @@ namespace IoTSharp.Sdk.Http
             }
         }
     
+        /// <summary>创建设备， 客户ID和租户ID均为当前登录用户所属</summary>
         /// <exception cref="SwaggerException">A server side error occurred.</exception>
         public System.Threading.Tasks.Task<Device> PostDeviceAsync(DevicePostDto device)
         {
@@ -1890,6 +1923,7 @@ namespace IoTSharp.Sdk.Http
         }
     
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
+        /// <summary>创建设备， 客户ID和租户ID均为当前登录用户所属</summary>
         /// <exception cref="SwaggerException">A server side error occurred.</exception>
         public async System.Threading.Tasks.Task<Device> PostDeviceAsync(DevicePostDto device, System.Threading.CancellationToken cancellationToken)
         {
@@ -1973,6 +2007,7 @@ namespace IoTSharp.Sdk.Http
             }
         }
     
+        /// <summary>获取指定设备的认证方式信息</summary>
         /// <exception cref="SwaggerException">A server side error occurred.</exception>
         public System.Threading.Tasks.Task<DeviceIdentity> GetIdentityAsync(System.Guid deviceId)
         {
@@ -1980,6 +2015,7 @@ namespace IoTSharp.Sdk.Http
         }
     
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
+        /// <summary>获取指定设备的认证方式信息</summary>
         /// <exception cref="SwaggerException">A server side error occurred.</exception>
         public async System.Threading.Tasks.Task<DeviceIdentity> GetIdentityAsync(System.Guid deviceId, System.Threading.CancellationToken cancellationToken)
         {
@@ -2061,6 +2097,7 @@ namespace IoTSharp.Sdk.Http
             }
         }
     
+        /// <summary>获取指定设备的最新属性</summary>
         /// <exception cref="SwaggerException">A server side error occurred.</exception>
         public System.Threading.Tasks.Task<System.Collections.Generic.ICollection<AttributeDataDto>> GetAttributeLatestAllAsync(System.Guid deviceId)
         {
@@ -2068,6 +2105,7 @@ namespace IoTSharp.Sdk.Http
         }
     
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
+        /// <summary>获取指定设备的最新属性</summary>
         /// <exception cref="SwaggerException">A server side error occurred.</exception>
         public async System.Threading.Tasks.Task<System.Collections.Generic.ICollection<AttributeDataDto>> GetAttributeLatestAllAsync(System.Guid deviceId, System.Threading.CancellationToken cancellationToken)
         {
@@ -2149,6 +2187,8 @@ namespace IoTSharp.Sdk.Http
             }
         }
     
+        /// <summary>获取指定设备指定keys的最新属性</summary>
+        /// <param name="keys">Specify key name list , use , or space or  ; to split</param>
         /// <exception cref="SwaggerException">A server side error occurred.</exception>
         public System.Threading.Tasks.Task<System.Collections.Generic.ICollection<AttributeDataDto>> GetAttributeLatestAsync(System.Guid deviceId, string keys)
         {
@@ -2156,6 +2196,8 @@ namespace IoTSharp.Sdk.Http
         }
     
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
+        /// <summary>获取指定设备指定keys的最新属性</summary>
+        /// <param name="keys">Specify key name list , use , or space or  ; to split</param>
         /// <exception cref="SwaggerException">A server side error occurred.</exception>
         public async System.Threading.Tasks.Task<System.Collections.Generic.ICollection<AttributeDataDto>> GetAttributeLatestAsync(System.Guid deviceId, string keys, System.Threading.CancellationToken cancellationToken)
         {
@@ -2238,6 +2280,7 @@ namespace IoTSharp.Sdk.Http
             }
         }
     
+        /// <summary>获取指定设备的最新遥测数据</summary>
         /// <exception cref="SwaggerException">A server side error occurred.</exception>
         public System.Threading.Tasks.Task<System.Collections.Generic.ICollection<TelemetryDataDto>> GetTelemetryLatestAllAsync(System.Guid deviceId)
         {
@@ -2245,6 +2288,7 @@ namespace IoTSharp.Sdk.Http
         }
     
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
+        /// <summary>获取指定设备的最新遥测数据</summary>
         /// <exception cref="SwaggerException">A server side error occurred.</exception>
         public async System.Threading.Tasks.Task<System.Collections.Generic.ICollection<TelemetryDataDto>> GetTelemetryLatestAllAsync(System.Guid deviceId, System.Threading.CancellationToken cancellationToken)
         {
@@ -2326,6 +2370,8 @@ namespace IoTSharp.Sdk.Http
             }
         }
     
+        /// <summary>获取指定设备的指定key 的遥测数据</summary>
+        /// <param name="keys">指定键值列表， 使用分号或者逗号分割 。</param>
         /// <exception cref="SwaggerException">A server side error occurred.</exception>
         public System.Threading.Tasks.Task<System.Collections.Generic.ICollection<TelemetryDataDto>> GetTelemetryLatestAsync(System.Guid deviceId, string keys)
         {
@@ -2333,6 +2379,8 @@ namespace IoTSharp.Sdk.Http
         }
     
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
+        /// <summary>获取指定设备的指定key 的遥测数据</summary>
+        /// <param name="keys">指定键值列表， 使用分号或者逗号分割 。</param>
         /// <exception cref="SwaggerException">A server side error occurred.</exception>
         public async System.Threading.Tasks.Task<System.Collections.Generic.ICollection<TelemetryDataDto>> GetTelemetryLatestAsync(System.Guid deviceId, string keys, System.Threading.CancellationToken cancellationToken)
         {
@@ -2415,6 +2463,10 @@ namespace IoTSharp.Sdk.Http
             }
         }
     
+        /// <summary>获取指定设备和指定时间， 指定key的数据</summary>
+        /// <param name="deviceId">Which device do you read?</param>
+        /// <param name="keys">Specify key name list , use , or space or  ; to split</param>
+        /// <param name="begin">开始以时间， 比如 2019-06-06 12:24</param>
         /// <exception cref="SwaggerException">A server side error occurred.</exception>
         public System.Threading.Tasks.Task<System.Collections.Generic.ICollection<TelemetryDataDto>> GetTelemetryDataAllAsync(System.Guid deviceId, string keys, System.DateTime begin, string keyName)
         {
@@ -2422,6 +2474,10 @@ namespace IoTSharp.Sdk.Http
         }
     
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
+        /// <summary>获取指定设备和指定时间， 指定key的数据</summary>
+        /// <param name="deviceId">Which device do you read?</param>
+        /// <param name="keys">Specify key name list , use , or space or  ; to split</param>
+        /// <param name="begin">开始以时间， 比如 2019-06-06 12:24</param>
         /// <exception cref="SwaggerException">A server side error occurred.</exception>
         public async System.Threading.Tasks.Task<System.Collections.Generic.ICollection<TelemetryDataDto>> GetTelemetryDataAllAsync(System.Guid deviceId, string keys, System.DateTime begin, string keyName, System.Threading.CancellationToken cancellationToken)
         {
@@ -2516,6 +2572,11 @@ namespace IoTSharp.Sdk.Http
             }
         }
     
+        /// <summary>返回指定设备的的遥测数据， 按照keyname 和指定时间范围获取，如果keyname 为 all  , 则返回全部key 的数据</summary>
+        /// <param name="deviceId">Which device do you read?</param>
+        /// <param name="keys">Specify key name list , use , or space or  ; to split</param>
+        /// <param name="begin">开始以时间， 比如 2019-06-06 12:24</param>
+        /// <param name="end">For example: 2019-06-06 12:24</param>
         /// <exception cref="SwaggerException">A server side error occurred.</exception>
         public System.Threading.Tasks.Task<System.Collections.Generic.ICollection<TelemetryDataDto>> GetTelemetryDataAsync(System.Guid deviceId, string keys, System.DateTime begin, System.DateTime end, string keyName)
         {
@@ -2523,6 +2584,11 @@ namespace IoTSharp.Sdk.Http
         }
     
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
+        /// <summary>返回指定设备的的遥测数据， 按照keyname 和指定时间范围获取，如果keyname 为 all  , 则返回全部key 的数据</summary>
+        /// <param name="deviceId">Which device do you read?</param>
+        /// <param name="keys">Specify key name list , use , or space or  ; to split</param>
+        /// <param name="begin">开始以时间， 比如 2019-06-06 12:24</param>
+        /// <param name="end">For example: 2019-06-06 12:24</param>
         /// <exception cref="SwaggerException">A server side error occurred.</exception>
         public async System.Threading.Tasks.Task<System.Collections.Generic.ICollection<TelemetryDataDto>> GetTelemetryDataAsync(System.Guid deviceId, string keys, System.DateTime begin, System.DateTime end, string keyName, System.Threading.CancellationToken cancellationToken)
         {
@@ -2621,6 +2687,7 @@ namespace IoTSharp.Sdk.Http
             }
         }
     
+        /// <summary>获取设备详情</summary>
         /// <exception cref="SwaggerException">A server side error occurred.</exception>
         public System.Threading.Tasks.Task<Device> GetDeviceAsync(System.Guid id)
         {
@@ -2628,6 +2695,7 @@ namespace IoTSharp.Sdk.Http
         }
     
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
+        /// <summary>获取设备详情</summary>
         /// <exception cref="SwaggerException">A server side error occurred.</exception>
         public async System.Threading.Tasks.Task<Device> GetDeviceAsync(System.Guid id, System.Threading.CancellationToken cancellationToken)
         {
@@ -2709,6 +2777,7 @@ namespace IoTSharp.Sdk.Http
             }
         }
     
+        /// <summary>修改设备</summary>
         /// <exception cref="SwaggerException">A server side error occurred.</exception>
         public System.Threading.Tasks.Task PutDeviceAsync(System.Guid id, DevicePutDto device)
         {
@@ -2716,6 +2785,7 @@ namespace IoTSharp.Sdk.Http
         }
     
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
+        /// <summary>修改设备</summary>
         /// <exception cref="SwaggerException">A server side error occurred.</exception>
         public async System.Threading.Tasks.Task PutDeviceAsync(System.Guid id, DevicePutDto device, System.Threading.CancellationToken cancellationToken)
         {
@@ -2807,6 +2877,7 @@ namespace IoTSharp.Sdk.Http
             }
         }
     
+        /// <summary>删除设备</summary>
         /// <exception cref="SwaggerException">A server side error occurred.</exception>
         public System.Threading.Tasks.Task<Device> DeleteDeviceAsync(System.Guid id)
         {
@@ -2814,6 +2885,7 @@ namespace IoTSharp.Sdk.Http
         }
     
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
+        /// <summary>删除设备</summary>
         /// <exception cref="SwaggerException">A server side error occurred.</exception>
         public async System.Threading.Tasks.Task<Device> DeleteDeviceAsync(System.Guid id, System.Threading.CancellationToken cancellationToken)
         {
@@ -2895,6 +2967,7 @@ namespace IoTSharp.Sdk.Http
             }
         }
     
+        /// <summary>远程控制指定设备， 此方法通过给远程设备发送mqtt消息进行控制，设备在收到信息后回复结果，此方法才算调用结束</summary>
         /// <exception cref="SwaggerException">A server side error occurred.</exception>
         public System.Threading.Tasks.Task<string> RpcAsync(string access_token, string method, int? timeout, object args)
         {
@@ -2902,6 +2975,7 @@ namespace IoTSharp.Sdk.Http
         }
     
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
+        /// <summary>远程控制指定设备， 此方法通过给远程设备发送mqtt消息进行控制，设备在收到信息后回复结果，此方法才算调用结束</summary>
         /// <exception cref="SwaggerException">A server side error occurred.</exception>
         public async System.Threading.Tasks.Task<string> RpcAsync(string access_token, string method, int? timeout, object args, System.Threading.CancellationToken cancellationToken)
         {
@@ -2992,6 +3066,8 @@ namespace IoTSharp.Sdk.Http
             }
         }
     
+        /// <summary>HTTP方式上传遥测数据</summary>
+        /// <param name="access_token">Device 's access token</param>
         /// <exception cref="SwaggerException">A server side error occurred.</exception>
         public System.Threading.Tasks.Task<ApiResultOfDictionaryOfStringAndString> TelemetryAsync(string access_token, System.Collections.Generic.IDictionary<string, object> telemetrys)
         {
@@ -2999,6 +3075,8 @@ namespace IoTSharp.Sdk.Http
         }
     
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
+        /// <summary>HTTP方式上传遥测数据</summary>
+        /// <param name="access_token">Device 's access token</param>
         /// <exception cref="SwaggerException">A server side error occurred.</exception>
         public async System.Threading.Tasks.Task<ApiResultOfDictionaryOfStringAndString> TelemetryAsync(string access_token, System.Collections.Generic.IDictionary<string, object> telemetrys, System.Threading.CancellationToken cancellationToken)
         {
@@ -3083,6 +3161,10 @@ namespace IoTSharp.Sdk.Http
             }
         }
     
+        /// <summary>获取服务测的设备熟悉</summary>
+        /// <param name="access_token">Device 's access token</param>
+        /// <param name="dataSide">Specifying data side.</param>
+        /// <param name="keys">Specifying Attribute's keys</param>
         /// <exception cref="SwaggerException">A server side error occurred.</exception>
         public System.Threading.Tasks.Task<AttributeLatest> AttributesAsync(string access_token, DataSide dataSide, string keys)
         {
@@ -3090,6 +3172,10 @@ namespace IoTSharp.Sdk.Http
         }
     
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
+        /// <summary>获取服务测的设备熟悉</summary>
+        /// <param name="access_token">Device 's access token</param>
+        /// <param name="dataSide">Specifying data side.</param>
+        /// <param name="keys">Specifying Attribute's keys</param>
         /// <exception cref="SwaggerException">A server side error occurred.</exception>
         public async System.Threading.Tasks.Task<AttributeLatest> AttributesAsync(string access_token, DataSide dataSide, string keys, System.Threading.CancellationToken cancellationToken)
         {
@@ -3187,6 +3273,9 @@ namespace IoTSharp.Sdk.Http
             }
         }
     
+        /// <summary>上传客户侧属性数据</summary>
+        /// <param name="access_token">Device 's access token</param>
+        /// <param name="attributes">attributes</param>
         /// <exception cref="SwaggerException">A server side error occurred.</exception>
         public System.Threading.Tasks.Task<ApiResultOfDictionaryOfStringAndString> Attributes2Async(string access_token, System.Collections.Generic.IDictionary<string, object> attributes)
         {
@@ -3194,6 +3283,9 @@ namespace IoTSharp.Sdk.Http
         }
     
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
+        /// <summary>上传客户侧属性数据</summary>
+        /// <param name="access_token">Device 's access token</param>
+        /// <param name="attributes">attributes</param>
         /// <exception cref="SwaggerException">A server side error occurred.</exception>
         public async System.Threading.Tasks.Task<ApiResultOfDictionaryOfStringAndString> Attributes2Async(string access_token, System.Collections.Generic.IDictionary<string, object> attributes, System.Threading.CancellationToken cancellationToken)
         {
@@ -3384,7 +3476,7 @@ namespace IoTSharp.Sdk.Http
     [System.CodeDom.Compiler.GeneratedCode("NSwag", "13.9.4.0 (NJsonSchema v10.3.1.0 (Newtonsoft.Json v12.0.0.0))")]
     public partial class InstallerClient 
     {
-        private string _baseUrl = "http://10.165.83.194:2927";
+        private string _baseUrl = "http://localhost:5000";
         private System.Net.Http.HttpClient _httpClient;
         private System.Lazy<Newtonsoft.Json.JsonSerializerSettings> _settings;
     
@@ -3414,6 +3506,7 @@ namespace IoTSharp.Sdk.Http
         partial void PrepareRequest(System.Net.Http.HttpClient client, System.Net.Http.HttpRequestMessage request, System.Text.StringBuilder urlBuilder);
         partial void ProcessResponse(System.Net.Http.HttpClient client, System.Net.Http.HttpResponseMessage response);
     
+        /// <summary>检查IoTSharp实例信息</summary>
         /// <exception cref="SwaggerException">A server side error occurred.</exception>
         public System.Threading.Tasks.Task<InstanceDto> InstanceAsync()
         {
@@ -3421,6 +3514,7 @@ namespace IoTSharp.Sdk.Http
         }
     
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
+        /// <summary>检查IoTSharp实例信息</summary>
         /// <exception cref="SwaggerException">A server side error occurred.</exception>
         public async System.Threading.Tasks.Task<InstanceDto> InstanceAsync(System.Threading.CancellationToken cancellationToken)
         {
@@ -3680,7 +3774,7 @@ namespace IoTSharp.Sdk.Http
     [System.CodeDom.Compiler.GeneratedCode("NSwag", "13.9.4.0 (NJsonSchema v10.3.1.0 (Newtonsoft.Json v12.0.0.0))")]
     public partial class TenantsClient 
     {
-        private string _baseUrl = "http://10.165.83.194:2927";
+        private string _baseUrl = "http://localhost:5000";
         private System.Net.Http.HttpClient _httpClient;
         private System.Lazy<Newtonsoft.Json.JsonSerializerSettings> _settings;
     
@@ -3710,6 +3804,7 @@ namespace IoTSharp.Sdk.Http
         partial void PrepareRequest(System.Net.Http.HttpClient client, System.Net.Http.HttpRequestMessage request, System.Text.StringBuilder urlBuilder);
         partial void ProcessResponse(System.Net.Http.HttpClient client, System.Net.Http.HttpResponseMessage response);
     
+        /// <summary>系统管理员用来获取全部租户列表</summary>
         /// <exception cref="SwaggerException">A server side error occurred.</exception>
         public System.Threading.Tasks.Task<System.Collections.Generic.ICollection<Tenant>> GetTenantAllAsync()
         {
@@ -3717,6 +3812,7 @@ namespace IoTSharp.Sdk.Http
         }
     
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
+        /// <summary>系统管理员用来获取全部租户列表</summary>
         /// <exception cref="SwaggerException">A server side error occurred.</exception>
         public async System.Threading.Tasks.Task<System.Collections.Generic.ICollection<Tenant>> GetTenantAllAsync(System.Threading.CancellationToken cancellationToken)
         {
@@ -3794,6 +3890,7 @@ namespace IoTSharp.Sdk.Http
             }
         }
     
+        /// <summary>新增租户， 仅限系统管理员</summary>
         /// <exception cref="SwaggerException">A server side error occurred.</exception>
         public System.Threading.Tasks.Task<Tenant> PostTenantAsync(Tenant tenant)
         {
@@ -3801,6 +3898,7 @@ namespace IoTSharp.Sdk.Http
         }
     
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
+        /// <summary>新增租户， 仅限系统管理员</summary>
         /// <exception cref="SwaggerException">A server side error occurred.</exception>
         public async System.Threading.Tasks.Task<Tenant> PostTenantAsync(Tenant tenant, System.Threading.CancellationToken cancellationToken)
         {
@@ -3884,6 +3982,7 @@ namespace IoTSharp.Sdk.Http
             }
         }
     
+        /// <summary>普通用户用于活的自身的租户信息</summary>
         /// <exception cref="SwaggerException">A server side error occurred.</exception>
         public System.Threading.Tasks.Task<Tenant> GetTenantAsync(System.Guid id)
         {
@@ -3891,6 +3990,7 @@ namespace IoTSharp.Sdk.Http
         }
     
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
+        /// <summary>普通用户用于活的自身的租户信息</summary>
         /// <exception cref="SwaggerException">A server side error occurred.</exception>
         public async System.Threading.Tasks.Task<Tenant> GetTenantAsync(System.Guid id, System.Threading.CancellationToken cancellationToken)
         {
@@ -3972,6 +4072,7 @@ namespace IoTSharp.Sdk.Http
             }
         }
     
+        /// <summary>修改指定的租户信息， 仅限租户管理员</summary>
         /// <exception cref="SwaggerException">A server side error occurred.</exception>
         public System.Threading.Tasks.Task PutTenantAsync(System.Guid id, Tenant tenant)
         {
@@ -3979,6 +4080,7 @@ namespace IoTSharp.Sdk.Http
         }
     
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
+        /// <summary>修改指定的租户信息， 仅限租户管理员</summary>
         /// <exception cref="SwaggerException">A server side error occurred.</exception>
         public async System.Threading.Tasks.Task PutTenantAsync(System.Guid id, Tenant tenant, System.Threading.CancellationToken cancellationToken)
         {
@@ -4070,6 +4172,7 @@ namespace IoTSharp.Sdk.Http
             }
         }
     
+        /// <summary>删除租户，仅限系统用户</summary>
         /// <exception cref="SwaggerException">A server side error occurred.</exception>
         public System.Threading.Tasks.Task<Tenant> DeleteTenantAsync(System.Guid id)
         {
@@ -4077,6 +4180,7 @@ namespace IoTSharp.Sdk.Http
         }
     
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
+        /// <summary>删除租户，仅限系统用户</summary>
         /// <exception cref="SwaggerException">A server side error occurred.</exception>
         public async System.Threading.Tasks.Task<Tenant> DeleteTenantAsync(System.Guid id, System.Threading.CancellationToken cancellationToken)
         {
@@ -4477,21 +4581,27 @@ namespace IoTSharp.Sdk.Http
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "10.3.1.0 (Newtonsoft.Json v12.0.0.0)")]
     public partial class LoginResult 
     {
+        /// <summary>登录结果</summary>
         [Newtonsoft.Json.JsonProperty("code", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public ApiCode Code { get; set; }
     
+        /// <summary>用户名</summary>
         [Newtonsoft.Json.JsonProperty("userName", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string UserName { get; set; }
     
+        /// <summary>登录结果</summary>
         [Newtonsoft.Json.JsonProperty("signIn", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public SignInResult SignIn { get; set; }
     
+        /// <summary>是否成功</summary>
         [Newtonsoft.Json.JsonProperty("succeeded", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public bool Succeeded { get; set; }
     
+        /// <summary>Token</summary>
         [Newtonsoft.Json.JsonProperty("token", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public TokenEntity Token { get; set; }
     
+        /// <summary>用户所具备权限</summary>
         [Newtonsoft.Json.JsonProperty("roles", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public System.Collections.Generic.ICollection<string> Roles { get; set; }
     
@@ -4537,9 +4647,11 @@ namespace IoTSharp.Sdk.Http
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "10.3.1.0 (Newtonsoft.Json v12.0.0.0)")]
     public partial class TokenEntity 
     {
+        /// <summary>token</summary>
         [Newtonsoft.Json.JsonProperty("access_token", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string Access_token { get; set; }
     
+        /// <summary>过期时间</summary>
         [Newtonsoft.Json.JsonProperty("expires_in", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public int Expires_in { get; set; }
     
@@ -4600,10 +4712,12 @@ namespace IoTSharp.Sdk.Http
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "10.3.1.0 (Newtonsoft.Json v12.0.0.0)")]
     public partial class LoginDto 
     {
+        /// <summary>密码</summary>
         [Newtonsoft.Json.JsonProperty("password", Required = Newtonsoft.Json.Required.Always)]
         [System.ComponentModel.DataAnnotations.Required]
         public string Password { get; set; }
     
+        /// <summary>用户名</summary>
         [Newtonsoft.Json.JsonProperty("userName", Required = Newtonsoft.Json.Required.Always)]
         [System.ComponentModel.DataAnnotations.Required]
         public string UserName { get; set; }
@@ -4623,18 +4737,22 @@ namespace IoTSharp.Sdk.Http
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "10.3.1.0 (Newtonsoft.Json v12.0.0.0)")]
     public partial class RegisterDto 
     {
+        /// <summary>邮箱地址， 也是用户名，一个邮箱只能注册平台的一个客户，如果你在平台有两个租户都有账号，则需要两个邮箱地址。 </summary>
         [Newtonsoft.Json.JsonProperty("email", Required = Newtonsoft.Json.Required.Always)]
         [System.ComponentModel.DataAnnotations.Required]
         public string Email { get; set; }
     
+        /// <summary>电话号码</summary>
         [Newtonsoft.Json.JsonProperty("phoneNumber", Required = Newtonsoft.Json.Required.Always)]
         [System.ComponentModel.DataAnnotations.Required]
         public string PhoneNumber { get; set; }
     
-        [Newtonsoft.Json.JsonProperty("customerId", Required = Newtonsoft.Json.Required.Always)]
+        /// <summary>用户隶属客户邮箱地址</summary>
+        [Newtonsoft.Json.JsonProperty("customer", Required = Newtonsoft.Json.Required.Always)]
         [System.ComponentModel.DataAnnotations.Required]
-        public System.Guid CustomerId { get; set; }
+        public string Customer { get; set; }
     
+        /// <summary>用户名密码</summary>
         [Newtonsoft.Json.JsonProperty("password", Required = Newtonsoft.Json.Required.Always)]
         [System.ComponentModel.DataAnnotations.Required]
         [System.ComponentModel.DataAnnotations.StringLength(100, MinimumLength = 6)]
@@ -4745,34 +4863,44 @@ namespace IoTSharp.Sdk.Http
     
     }
     
+    /// <summary>设备</summary>
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "10.3.1.0 (Newtonsoft.Json v12.0.0.0)")]
     public partial class Device 
     {
+        /// <summary>设备ID</summary>
         [Newtonsoft.Json.JsonProperty("id", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public System.Guid Id { get; set; }
     
+        /// <summary>设备名称</summary>
         [Newtonsoft.Json.JsonProperty("name", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string Name { get; set; }
     
+        /// <summary>设备类型</summary>
         [Newtonsoft.Json.JsonProperty("deviceType", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         [Newtonsoft.Json.JsonConverter(typeof(Newtonsoft.Json.Converters.StringEnumConverter))]
         public DeviceType DeviceType { get; set; }
     
+        /// <summary>在线</summary>
         [Newtonsoft.Json.JsonProperty("online", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public bool Online { get; set; }
     
+        /// <summary>最后一次活跃时间</summary>
         [Newtonsoft.Json.JsonProperty("lastActive", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public System.DateTime LastActive { get; set; }
     
+        /// <summary>超时时间 秒数 </summary>
         [Newtonsoft.Json.JsonProperty("timeout", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public int Timeout { get; set; }
     
+        /// <summary>所有者</summary>
         [Newtonsoft.Json.JsonProperty("owner", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public Gateway Owner { get; set; }
     
+        /// <summary>租户</summary>
         [Newtonsoft.Json.JsonProperty("tenant", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public Tenant Tenant { get; set; }
     
+        /// <summary>客户</summary>
         [Newtonsoft.Json.JsonProperty("customer", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public Customer Customer { get; set; }
     
@@ -4835,18 +4963,26 @@ namespace IoTSharp.Sdk.Http
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "10.3.1.0 (Newtonsoft.Json v12.0.0.0)")]
     public partial class DeviceIdentity 
     {
+        /// <summary>认证方式ID</summary>
         [Newtonsoft.Json.JsonProperty("id", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public System.Guid Id { get; set; }
     
+        /// <summary>认证方式类型</summary>
         [Newtonsoft.Json.JsonProperty("identityType", Required = Newtonsoft.Json.Required.Always)]
         [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
         [Newtonsoft.Json.JsonConverter(typeof(Newtonsoft.Json.Converters.StringEnumConverter))]
         public IdentityType IdentityType { get; set; }
     
+        /// <summary>When IdentityType Is AccessToken ,this is a Token.
+        /// When IdentityType Is DevicePassword ,this is a device name.
+        /// When IdentityType Is X509Certificate ,this is X509 Certificate' Fingerprint.</summary>
         [Newtonsoft.Json.JsonProperty("identityId", Required = Newtonsoft.Json.Required.Always)]
         [System.ComponentModel.DataAnnotations.Required]
         public string IdentityId { get; set; }
     
+        /// <summary>When IdentityType Is AccessToken ,this is null.
+        /// When IdentityType Is DevicePassword ,this is a password.
+        /// When IdentityType Is X509Certificate ,this is X509 Certificate' PEM.</summary>
         [Newtonsoft.Json.JsonProperty("identityValue", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string IdentityValue { get; set; }
     
@@ -5139,9 +5275,11 @@ namespace IoTSharp.Sdk.Http
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "10.3.1.0 (Newtonsoft.Json v12.0.0.0)")]
     public partial class InstanceDto 
     {
+        /// <summary>系统版本</summary>
         [Newtonsoft.Json.JsonProperty("version", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string Version { get; set; }
     
+        /// <summary>是否被安装</summary>
         [Newtonsoft.Json.JsonProperty("installed", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public bool Installed { get; set; }
     
@@ -5160,28 +5298,35 @@ namespace IoTSharp.Sdk.Http
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "10.3.1.0 (Newtonsoft.Json v12.0.0.0)")]
     public partial class InstallDto 
     {
+        /// <summary>系统管理员用户名</summary>
         [Newtonsoft.Json.JsonProperty("email", Required = Newtonsoft.Json.Required.Always)]
         [System.ComponentModel.DataAnnotations.Required]
         public string Email { get; set; }
     
+        /// <summary>客户名称</summary>
         [Newtonsoft.Json.JsonProperty("customerName", Required = Newtonsoft.Json.Required.Always)]
         [System.ComponentModel.DataAnnotations.Required]
         public string CustomerName { get; set; }
     
+        /// <summary>系统管理员密码</summary>
         [Newtonsoft.Json.JsonProperty("password", Required = Newtonsoft.Json.Required.Always)]
         [System.ComponentModel.DataAnnotations.Required]
         [System.ComponentModel.DataAnnotations.StringLength(100, MinimumLength = 6)]
         public string Password { get; set; }
     
+        /// <summary>租户姓名</summary>
         [Newtonsoft.Json.JsonProperty("tenantName", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string TenantName { get; set; }
     
+        /// <summary>租户邮箱</summary>
         [Newtonsoft.Json.JsonProperty("tenantEMail", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string TenantEMail { get; set; }
     
+        /// <summary>客户邮箱</summary>
         [Newtonsoft.Json.JsonProperty("customerEMail", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string CustomerEMail { get; set; }
     
+        /// <summary>电话号码</summary>
         [Newtonsoft.Json.JsonProperty("phoneNumber", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string PhoneNumber { get; set; }
     

@@ -52,13 +52,13 @@
 		<PackageReference Include="AspNetCore.HealthChecks.Network" Version="5.0.0-preview2" />
 		<PackageReference Include="AspNetCore.HealthChecks.NpgSql" Version="5.0.0-preview1" />
 		<PackageReference Include="CAP.Extensions" Version="1.0.31" />
-		<PackageReference Include="DotNetCore.CAP" Version="3.1.1" />
-		<PackageReference Include="DotNetCore.CAP.Dashboard" Version="3.1.1" />
-		<PackageReference Include="DotNetCore.CAP.InMemoryStorage" Version="3.1.1" />
-		<PackageReference Include="DotNetCore.CAP.Kafka" Version="3.1.1" />
-		<PackageReference Include="DotNetCore.CAP.MongoDB" Version="3.1.1" />
-		<PackageReference Include="DotNetCore.CAP.PostgreSql" Version="3.1.1" />
-		<PackageReference Include="DotNetCore.CAP.RabbitMQ" Version="3.1.1" />
+		<PackageReference Include="DotNetCore.CAP" Version="3.1.2" />
+		<PackageReference Include="DotNetCore.CAP.Dashboard" Version="3.1.2" />
+		<PackageReference Include="DotNetCore.CAP.InMemoryStorage" Version="3.1.2" />
+		<PackageReference Include="DotNetCore.CAP.Kafka" Version="3.1.2" />
+		<PackageReference Include="DotNetCore.CAP.MongoDB" Version="3.1.2" />
+		<PackageReference Include="DotNetCore.CAP.PostgreSql" Version="3.1.2" />
+		<PackageReference Include="DotNetCore.CAP.RabbitMQ" Version="3.1.2" />
 		<PackageReference Include="EasyCaching.Core" Version="1.1.0" />
 		<PackageReference Include="EasyCaching.InMemory" Version="1.1.0" />
 		<PackageReference Include="EasyCaching.LiteDB" Version="1.1.0" />
@@ -70,7 +70,7 @@
 		  <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
 		<PackageReference Include="hyjiacan.py4n" Version="4.0.0" />
-		<PackageReference Include="InfluxDB.Client" Version="1.14.0-dev.1577" />
+		<PackageReference Include="InfluxDB.Client" Version="1.15.0-dev.1677" />
 		<PackageReference Include="IoTSharp.CoAP.NET" Version="2.0.8" />
 		<PackageReference Include="IoTSharp.X509Extensions" Version="1.4.27" />
 		<PackageReference Include="kimbus" Version="2.0.1" />
