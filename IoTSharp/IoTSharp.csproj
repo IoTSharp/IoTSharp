@@ -52,7 +52,7 @@
 		<PackageReference Include="AspNetCore.HealthChecks.Network" Version="5.0.0-preview2" />
 		<PackageReference Include="AspNetCore.HealthChecks.NpgSql" Version="5.0.0-preview1" />
 		<PackageReference Include="CAP.Extensions" Version="1.0.31" />
-		<PackageReference Include="DotNetCore.CAP" Version="3.1.1" />
+		<PackageReference Include="DotNetCore.CAP" Version="3.1.2" />
 		<PackageReference Include="DotNetCore.CAP.Dashboard" Version="3.1.1" />
 		<PackageReference Include="DotNetCore.CAP.InMemoryStorage" Version="3.1.1" />
 		<PackageReference Include="DotNetCore.CAP.Kafka" Version="3.1.1" />
