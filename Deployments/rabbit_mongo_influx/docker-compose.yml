@@ -12,9 +12,10 @@ services:
       POSTGRES_DB: IoTSharp
       POSTGRES_PASSWORD: future 
     ports: 
-     - "5439:5432"
+     - "5432:5432"
     networks:
       - iotsharp-network
+
 
   pgadmin:
     image: dpage/pgadmin4
@@ -37,20 +38,24 @@ services:
 
   iotsharp:
     image: iotsharp/iotsharp:latest
-    container_name: iotsharp
     restart: always
+    container_name: iotsharp
+    hostname: iotsharp
     environment:
-      - TZ=Asia/Shanghai
+       ASPNETCORE_ENVIRONMENT: Production
+       TZ: Asia/Shanghai
     depends_on:
       - pgsql
-      - rabbitmq
       - mongodb
+      - rabbitmq
       - influx
     links:
       - pgsql
-      - rabbitmq
       - mongodb
+      - rabbitmq
       - influx
+    volumes:
+      - "./appsettings.Production.json:/app/appsettings.Production.json"
     ports:
       - 2927:80
       - 1883:1883
@@ -58,11 +63,36 @@ services:
       - 5683:5683
       - 5684:5684
       - 502:502
-    volumes:
-       - "./appsettings.Production.json:/app/appsettings.Production.json"
     networks:
       - iotsharp-network
- 
+
+  node_a:
+    image: iotsharp/iotsharp:latest
+    restart: always
+    container_name: node_a
+    hostname: node_a
+    environment:
+       ASPNETCORE_ENVIRONMENT: Production
+    depends_on:
+      - pgsql
+      - mongodb
+      - rabbitmq
+      - iotsharp
+      - influx
+    links:
+      - pgsql
+      - mongodb
+      - rabbitmq
+      - influx
+    volumes:
+      - "./appsettings.Production_Node_A.json:/app/appsettings.Production.json"
+    ports:
+      - 2928:80
+    networks:
+      - iotsharp-network
+
+
+
   rabbitmq:
     image: rabbitmq:management
     container_name: rabbitmq
@@ -79,6 +109,7 @@ services:
       - RABBITMQ_DEFAULT_PASS=kissme
     networks:
       - iotsharp-network
+
 
   mongodb:
     image: mongo:latest
@@ -97,7 +128,7 @@ services:
       - iotsharp-network
 
   influx:
-        image: "quay.io/influxdb/influxdb:v2.0.2"
+        image: "quay.io/influxdb/influxdb:2.0.0-rc"
         restart: always
         container_name: influx
         ports:
@@ -114,8 +145,11 @@ services:
   influx-setup:
         image: "julianfh/influxdb-setup:latest"
         depends_on:
-        - influx
+          - influx
+        links:
+          - influx
         environment:
+            TZ: "Asia/Shanghai"
             TIMEOUT: 20
             INFLUXDB_SCHEMA: "http"
             INFLUXDB_HOST: "influx"
@@ -126,7 +160,10 @@ services:
             INFLUXDB_USER: "root"
             INFLUXDB_PW: "1-q2-w3-e4-r5-t"
             INFLUXDB_RETENTION: "240h60m"
+        networks:
+          - iotsharp-network
 
 networks: 
   iotsharp-network:
       driver:  bridge
+

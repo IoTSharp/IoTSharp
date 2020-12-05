@@ -125,7 +125,7 @@ from(bucket: ""{_bucket}"")
                     dt.Add(new TelemetryDataDto()
                     {
                         KeyName = fr.GetField(),
-                        DateTime = fr.GetTimeInDateTime().GetValueOrDefault(),
+                        DateTime = fr.GetTimeInDateTime().GetValueOrDefault(DateTime.MinValue).ToLocalTime(),
                         Value = fr.GetValue()
                     });
                 });
