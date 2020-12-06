@@ -7,16 +7,6 @@
     "children": [
       {
         "path": "/",
-        "name": "分析页",
-        "key": "dashboard.analysis"
-      },
-      {
-        "path": "/dashboard/monitor",
-        "name": "监控页",
-        "key": "dashboard.monitor"
-      },
-      {
-        "path": "/dashboard/workplace",
         "name": "工作台",
         "key": "dashboard.workplace"
       }
@@ -32,6 +22,16 @@
         "path": "/form/basic-form",
         "name": "基础表单",
         "key": "form.basic-form"
+      },
+      {
+        "path": "/dashboard/analysis",
+        "name": "分析页",
+        "key": "dashboard.analysis"
+      },
+      {
+        "path": "/dashboard/monitor",
+        "name": "监控页",
+        "key": "dashboard.monitor"
       },
       {
         "path": "/form/step-form",

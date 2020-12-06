@@ -36,6 +36,7 @@ namespace IoTSharp.Sdk.Http
 
         public T Create<T>() where T : class
         {
+            HttpClient.BaseAddress = new Uri ( BaseURL);
             T t = Activator.CreateInstance(typeof(T), HttpClient) as T;
             typeof(T).GetProperty("BaseUrl").SetValue(t, BaseURL);
             return t;
@@ -46,7 +47,7 @@ namespace IoTSharp.Sdk.Http
         {
             try
             {
-                _act_client = new AccountClient(HttpClient);
+                _act_client = Create<AccountClient>();
                 _result = await _act_client.RegisterAsync( new RegisterDto() {   Customer= customer, Email= username, Password=password, PhoneNumber= phoneNumber });
                 HttpClient.DefaultRequestHeaders.Add("Authorization", $"Bearer {Token.Access_token}");
                 ApiResultOfUserInfoDto userInfoDto = await _act_client.MyInfoAsync();
@@ -62,7 +63,7 @@ namespace IoTSharp.Sdk.Http
         {
             try
             {
-                _act_client = new AccountClient(HttpClient);
+                _act_client = Create<AccountClient>();
                 _result = await _act_client.LoginAsync(new LoginDto() { UserName = username, Password = password });
                 HttpClient.DefaultRequestHeaders.Add("Authorization", $"Bearer {Token.Access_token}");
                 ApiResultOfUserInfoDto userInfoDto = await _act_client.MyInfoAsync();
