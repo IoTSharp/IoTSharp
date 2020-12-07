@@ -77,8 +77,7 @@ namespace IoTSharp
         public  string CachingUseRedisHosts { get; set; }
         public DiscoveryOptions Discovery { get; set; } = null;
         public ZMQOption ZMQOption { get; set; } = null;
-
-        
+        public int SucceedMessageExpiredAfter { get; set; } = 3600 * 6;
     }
   
     public class ShardingSetting

@@ -208,6 +208,7 @@ namespace IoTSharp
             }
             services.AddCap(x =>
             {
+                x.SucceedMessageExpiredAfter = settings.SucceedMessageExpiredAfter;
                 x.ConsumerThreadCount = settings.ConsumerThreadCount;
                 switch (settings.EventBusStore)
                 {
