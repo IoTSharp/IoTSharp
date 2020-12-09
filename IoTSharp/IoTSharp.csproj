@@ -80,14 +80,14 @@
 		<PackageReference Include="Maikebing.Data.Taos" Version="2.0.194" />
 		<PackageReference Include="Maikebing.HealthChecks.Taos" Version="2.0.194" />
 		<PackageReference Include="MaiKeBing.HostedService.ZeroMQ" Version="1.0.31" />
-		<PackageReference Include="Microsoft.AspNetCore.Http.Features" Version="5.0.0" />
-		<PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="5.0.0">
+		<PackageReference Include="Microsoft.AspNetCore.Http.Features" Version="5.0.1" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="5.0.1">
 			<PrivateAssets>all</PrivateAssets>
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
 		<PackageReference Include="Microsoft.Extensions.Options" Version="5.0.0" />
 		<PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.10.8" />
-		<PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="5.0.0" />
+		<PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="5.0.1" />
 		<PackageReference Include="MQTTnet" Version="3.0.14-rc2" />
 		<PackageReference Include="MQTTnet.AspNetCore" Version="3.0.14-rc2" />
 		<PackageReference Include="MQTTnet.Extensions.Rpc" Version="3.0.14-rc2" />
@@ -105,14 +105,14 @@
 		<PackageReference Include="System.Collections" Version="4.3.0" />
 		<PackageReference Include="System.ServiceModel.Primitives" Version="4.8.0" />
 		<PackageReference Include="System.Text.Encoding.CodePages" Version="5.0.0" />
-		<PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="5.0.0" />
-		<PackageReference Include="Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore" Version="5.0.0" />
-		<PackageReference Include="Microsoft.AspNetCore.Hosting.WindowsServices" Version="5.0.0" />
-		<PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="5.0.0" />
-		<PackageReference Include="Microsoft.EntityFrameworkCore" Version="5.0.0" />
+		<PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="5.0.1" />
+		<PackageReference Include="Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore" Version="5.0.1" />
+		<PackageReference Include="Microsoft.AspNetCore.Hosting.WindowsServices" Version="5.0.1" />
+		<PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="5.0.1" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore" Version="5.0.1" />
 		<PackageReference Include="Microsoft.Extensions.Hosting" Version="5.0.0" />
 		<PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="5.0.0" />
-		<PackageReference Include="Microsoft.Extensions.Hosting.WindowsServices" Version="5.0.0" />
+		<PackageReference Include="Microsoft.Extensions.Hosting.WindowsServices" Version="5.0.1" />
 		<PackageReference Include="MQTTnet.AspNetCoreEx" Version="3.0.13" />
 		<PackageReference Include="MQTTnet.Extensions.ManagedClient" Version="3.0.14-rc1" />
 	</ItemGroup>
