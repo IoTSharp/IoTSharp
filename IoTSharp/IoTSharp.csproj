@@ -63,7 +63,7 @@
 		<PackageReference Include="EasyCaching.InMemory" Version="1.1.0" />
 		<PackageReference Include="EasyCaching.LiteDB" Version="1.1.0" />
 		<PackageReference Include="EasyCaching.Redis" Version="1.1.0" />
-		<PackageReference Include="EFCore.Sharding" Version="5.0.0.1" />
+		<PackageReference Include="EFCore.Sharding" Version="5.0.0.5" />
 		<PackageReference Include="EFCore.Sharding.PostgreSql" Version="5.0.0.4" />
 		<PackageReference Include="GitVersionTask" Version="5.5.1">
 		  <PrivateAssets>all</PrivateAssets>
