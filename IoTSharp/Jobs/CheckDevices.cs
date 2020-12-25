@@ -20,19 +20,15 @@ namespace IoTSharp.Jobs
         private readonly MqttClientSetting _mcsetting;
         private readonly ILogger<CheckDevices> _logger;
         private readonly IServiceScopeFactory _scopeFactor;
-        private readonly IEasyCachingProviderFactory _factory;
         private readonly IMqttServerEx _serverEx;
-        private readonly IEasyCachingProvider _device;
 
         public CheckDevices(ILogger<CheckDevices> logger, IServiceScopeFactory scopeFactor, IMqttServerEx serverEx
-           , IOptions<AppSettings> options, IEasyCachingProviderFactory factory)
+           , IOptions<AppSettings> options)
         {
             _mcsetting = options.Value.MqttClient;
             _logger = logger;
             _scopeFactor = scopeFactor;
-            _factory = factory;
             _serverEx = serverEx;
-            _device = _factory.GetCachingProvider("iotsharp");
         }
         public Task Execute(IJobExecutionContext context)
         {
