@@ -64,6 +64,13 @@ namespace IoTSharp.Jobs
 
                        }
                    });
+                    var tfx = from d in _dbContext.Device where d.Timeout < 1 select d;
+                    tfx.ToList().ForEach(d => d.Timeout = 300);
+                    //当前时间减去最后活跃时间如果小于超时时间， 则为在线， 否则就是离线
+                    _dbContext.Device.ToList().ForEach(d =>
+                    {
+                        d.Online = DateTime.Now.Subtract(d.LastActive).TotalSeconds < d.Timeout;
+                    });
                     var saveresult = await _dbContext.SaveChangesAsync();
                     _logger.LogInformation($"设备检查程序已经处理{saveresult}调数据");
                 }
