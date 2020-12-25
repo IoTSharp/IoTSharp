@@ -70,7 +70,7 @@
 		  <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
 		<PackageReference Include="hyjiacan.py4n" Version="4.0.0" />
-		<PackageReference Include="InfluxDB.Client" Version="1.15.0-dev.1677" />
+		<PackageReference Include="InfluxDB.Client" Version="1.15.0-dev.1705" />
 		<PackageReference Include="IoTSharp.CoAP.NET" Version="2.0.8" />
 		<PackageReference Include="IoTSharp.X509Extensions" Version="1.4.27" />
 		<PackageReference Include="kimbus" Version="2.0.1" />
@@ -88,9 +88,9 @@
 		<PackageReference Include="Microsoft.Extensions.Options" Version="5.0.0" />
 		<PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.10.8" />
 		<PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="5.0.1" />
-		<PackageReference Include="MQTTnet" Version="3.0.14-rc2" />
-		<PackageReference Include="MQTTnet.AspNetCore" Version="3.0.14-rc2" />
-		<PackageReference Include="MQTTnet.Extensions.Rpc" Version="3.0.14-rc2" />
+		<PackageReference Include="MQTTnet" Version="3.0.14-rc3" />
+		<PackageReference Include="MQTTnet.AspNetCore" Version="3.0.14-rc3" />
+		<PackageReference Include="MQTTnet.Extensions.Rpc" Version="3.0.14-rc3" />
 		<PackageReference Include="NetMQ" Version="4.0.1.6" />
 		<PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="5.0.1" />
 		<PackageReference Include="NSwag.AspNetCore" Version="13.9.4" />
@@ -114,7 +114,7 @@
 		<PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="5.0.0" />
 		<PackageReference Include="Microsoft.Extensions.Hosting.WindowsServices" Version="5.0.1" />
 		<PackageReference Include="MQTTnet.AspNetCoreEx" Version="3.0.13" />
-		<PackageReference Include="MQTTnet.Extensions.ManagedClient" Version="3.0.14-rc1" />
+		<PackageReference Include="MQTTnet.Extensions.ManagedClient" Version="3.0.14-rc3" />
 	</ItemGroup>
 	<ItemGroup>
 		<Compile Remove="Migrations\**" />
