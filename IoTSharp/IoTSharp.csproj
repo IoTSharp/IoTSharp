@@ -63,8 +63,8 @@
 		<PackageReference Include="EasyCaching.InMemory" Version="1.1.0" />
 		<PackageReference Include="EasyCaching.LiteDB" Version="1.1.0" />
 		<PackageReference Include="EasyCaching.Redis" Version="1.1.0" />
-		<PackageReference Include="EFCore.Sharding" Version="5.0.0.1" />
-		<PackageReference Include="EFCore.Sharding.PostgreSql" Version="5.0.0.1" />
+		<PackageReference Include="EFCore.Sharding" Version="5.0.0.5" />
+		<PackageReference Include="EFCore.Sharding.PostgreSql" Version="5.0.0.5" />
 		<PackageReference Include="GitVersionTask" Version="5.5.1">
 		  <PrivateAssets>all</PrivateAssets>
 		  <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
@@ -77,8 +77,8 @@
 		<PackageReference Include="LiteDB" Version="5.0.9" />
 		<PackageReference Include="MaiKeBing.CAP.LiteDB" Version="1.0.31" />
 		<PackageReference Include="MaiKeBing.CAP.ZeroMQ" Version="1.0.31" />
-		<PackageReference Include="Maikebing.Data.Taos" Version="2.0.194" />
-		<PackageReference Include="Maikebing.HealthChecks.Taos" Version="2.0.194" />
+		<PackageReference Include="Maikebing.Data.Taos" Version="2.0.209" />
+		<PackageReference Include="Maikebing.HealthChecks.Taos" Version="2.0.209" />
 		<PackageReference Include="MaiKeBing.HostedService.ZeroMQ" Version="1.0.31" />
 		<PackageReference Include="Microsoft.AspNetCore.Http.Features" Version="5.0.1" />
 		<PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="5.0.1">
@@ -92,7 +92,7 @@
 		<PackageReference Include="MQTTnet.AspNetCore" Version="3.0.14-rc2" />
 		<PackageReference Include="MQTTnet.Extensions.Rpc" Version="3.0.14-rc2" />
 		<PackageReference Include="NetMQ" Version="4.0.1.6" />
-		<PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="5.0.0" />
+		<PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="5.0.1" />
 		<PackageReference Include="NSwag.AspNetCore" Version="13.9.4" />
 		<PackageReference Include="ProxyKit" Version="2.3.4" />
 		<PackageReference Include="Quartz.Serialization.Json" Version="3.2.3" />
@@ -100,8 +100,8 @@
 		<PackageReference Include="Silkier" Version="1.0.274" />
 		<PackageReference Include="Silkier.AspNetCore" Version="1.0.274" />
 		<PackageReference Include="Silkier.EFCore" Version="1.0.274" />
-		<PackageReference Include="SilkierQuartz" Version="5.0.178" />
-		<PackageReference Include="SilkierQuartz.Plugins.RecentHistory" Version="5.0.178" />
+		<PackageReference Include="SilkierQuartz" Version="5.0.196" />
+		<PackageReference Include="SilkierQuartz.Plugins.RecentHistory" Version="5.0.196" />
 		<PackageReference Include="System.Collections" Version="4.3.0" />
 		<PackageReference Include="System.ServiceModel.Primitives" Version="4.8.0" />
 		<PackageReference Include="System.Text.Encoding.CodePages" Version="5.0.0" />
