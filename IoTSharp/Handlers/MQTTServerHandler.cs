@@ -262,6 +262,7 @@ namespace IoTSharp.Handlers
                         {
                             var devtmp = _dbContext.Device.FirstOrDefault(d => d.Id == dev.Id);
                             devtmp.LastActive = DateTime.Now;
+                            devtmp.Online = false;
                             _dbContext.SaveChanges();
                             _logger.LogInformation($"Server_ClientDisconnected   ClientId:{args.ClientId} DisconnectType:{args.DisconnectType}  Device is {devtmp.Name }({devtmp.Id}) ");
                         }

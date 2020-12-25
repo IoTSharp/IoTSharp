@@ -44,26 +44,32 @@ namespace IoTSharp.Jobs
                 {
                     var clientstatus = await _serverEx.GetClientStatusAsync();
                     clientstatus.ToList().ForEach(cs =>
-                    {
-                        if (_device.Exists(cs.ClientId))
-                        {
-                            var dev = _device.Get<Device>(cs.ClientId);
-                            var d = _dbContext.Device.FirstOrDefault(d => d.Id == dev.Value.Id);
-                            if (d != null)
-                            {
-                                d.LastActive = cs.LastPacketReceivedTimestamp;
-                            }
-                        }
-                    });
-                    //如果超时小于1 就设置为默认300秒
-                    var tfx = from d in _dbContext.Device where d.Timeout < 1 select d;
-                    tfx.ToList().ForEach(d => d.Timeout = 300);
-                    //当前时间减去最后活跃时间如果小于超时时间， 则为在线， 否则就是离线
-                    _dbContext.Device.ToList().ForEach(d =>
-                    {
-                        d.Online = DateTime.Now.Subtract(d.LastActive).TotalSeconds < d.Timeout;
-                    });
-                    await _dbContext.SaveChangesAsync();
+                   {
+                       try
+                       {
+
+                           var _device = cs.Session.Items?.FirstOrDefault(k => (string)k.Key == nameof(Device)).Value as Device;
+                           var d = _dbContext.Device.FirstOrDefault(d => d.Id == _device.Id);
+                           if (d != null)
+                           {
+
+                               d.LastActive = cs.LastPacketReceivedTimestamp;
+                               d.Online = DateTime.Now.Subtract(d.LastActive).TotalSeconds < d.Timeout;
+                               _logger.LogInformation($"设备{cs.ClientId}-{d.Name}({d.Id},{cs.Endpoint}) 最后活动时间{d.LastActive} 在线{d.Online} 发送消息:{cs.SentApplicationMessagesCount}({cs.BytesSent}kb)  收到{cs.ReceivedApplicationMessagesCount}({cs.BytesReceived / 1024}KB )  ");
+                               if (!d.Online)
+                               {
+                                   Task.Run(cs.DisconnectAsync);
+                               }
+                           }
+                       }
+                       catch (Exception ex)
+                       {
+                           _logger.LogInformation($"检查设备{cs.ClientId}-{cs.Endpoint}) 时遇到异常{ex.Message}{ex.InnerException?.Message}  发送消息:{cs.SentApplicationMessagesCount}({cs.BytesSent}kb)  收到{cs.ReceivedApplicationMessagesCount}({cs.BytesReceived / 1024}KB )  ");
+
+                       }
+                   });
+                    var saveresult = await _dbContext.SaveChangesAsync();
+                    _logger.LogInformation($"设备检查程序已经处理{saveresult}调数据");
                 }
             });
         }
