@@ -64,7 +64,7 @@
 		<PackageReference Include="EasyCaching.LiteDB" Version="1.1.0" />
 		<PackageReference Include="EasyCaching.Redis" Version="1.1.0" />
 		<PackageReference Include="EFCore.Sharding" Version="5.0.0.5" />
-		<PackageReference Include="EFCore.Sharding.PostgreSql" Version="5.0.0.4" />
+		<PackageReference Include="EFCore.Sharding.PostgreSql" Version="5.0.0.5" />
 		<PackageReference Include="GitVersionTask" Version="5.5.1">
 		  <PrivateAssets>all</PrivateAssets>
 		  <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
@@ -101,7 +101,7 @@
 		<PackageReference Include="Silkier.AspNetCore" Version="1.0.274" />
 		<PackageReference Include="Silkier.EFCore" Version="1.0.274" />
 		<PackageReference Include="SilkierQuartz" Version="5.0.196" />
-		<PackageReference Include="SilkierQuartz.Plugins.RecentHistory" Version="5.0.178" />
+		<PackageReference Include="SilkierQuartz.Plugins.RecentHistory" Version="5.0.196" />
 		<PackageReference Include="System.Collections" Version="4.3.0" />
 		<PackageReference Include="System.ServiceModel.Primitives" Version="4.8.0" />
 		<PackageReference Include="System.Text.Encoding.CodePages" Version="5.0.0" />
