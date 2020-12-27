@@ -414,10 +414,12 @@ namespace IoTSharp.Handlers
                             {
                                 e.Context.SessionItems.TryAdd(nameof(Device), mcp.Device);
                                 obj.ReasonCode = MQTTnet.Protocol.MqttConnectReasonCode.Success;
+                                _logger.LogInformation($"Device {mcp.Device.Name}({mcp.Device.Id}) is online !username is {obj.Username} and  is endpoint{obj.Endpoint}");
                             }
                             else
                             {
                                 obj.ReasonCode = MQTTnet.Protocol.MqttConnectReasonCode.BadUserNameOrPassword;
+                                _logger.LogInformation($"Bad username or  password/AuthToken {obj.Username},connection {obj.Endpoint} refused");
                             }
                         }
                         else
