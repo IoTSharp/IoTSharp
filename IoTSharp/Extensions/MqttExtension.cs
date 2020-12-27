@@ -29,7 +29,6 @@ namespace IoTSharp
             services.AddMqttTcpServerAdapter();
             services.AddHostedMqttServerEx(options =>
             {
-            
                 options.WithDefaultEndpointPort(broker.Port).WithDefaultEndpoint();
                 if (broker.EnableTls)
                 {
@@ -45,10 +44,8 @@ namespace IoTSharp
                     options.WithoutEncryptedEndpoint();
                 }
                 options.WithPersistentSessions();
-                options.WithDefaultCommunicationTimeout(TimeSpan.FromMinutes(5));
                 options.Build();
-            });
-            services.AddMqttConnectionHandler()
+            }).AddMqttConnectionHandler()
                     .AddConnections(); 
             services.AddMqttWebSocketServerAdapter();
             services.AddSingleton<MQTTServerHandler>();
