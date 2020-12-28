@@ -388,6 +388,8 @@ namespace IoTSharp.Handlers
                             {
                                 var device = mcr.Device;
                                 e.Context.SessionItems.TryAdd(nameof(Device), device);
+                                obj.ReasonCode = MQTTnet.Protocol.MqttConnectReasonCode.Success;
+                                _logger.LogInformation($"Device {device.Name}({device.Id}) is online !username is {obj.Username} and  is endpoint{obj.Endpoint}");
                             }
                             catch (Exception ex)
                             {

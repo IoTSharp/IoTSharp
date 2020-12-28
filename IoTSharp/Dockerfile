@@ -34,7 +34,7 @@ RUN echo "deb https://mirrors.tuna.tsinghua.edu.cn/debian/ buster main contrib n
 	ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime
 WORKDIR /src
 COPY ["IoTSharp/IoTSharp.csproj", "IoTSharp/"]
-RUN dotnet restore "IoTSharp/IoTSharp.csproj"
+RUN dotnet restore  "IoTSharp/IoTSharp.csproj"  /clp:PerformanceSummary
 COPY . .
 WORKDIR "/src/IoTSharp"
 RUN dotnet build "IoTSharp.csproj" -c Release -o /app/build

@@ -49,7 +49,7 @@ namespace IoTSharp.Jobs
                            if (d != null)
                            {
 
-                               d.LastActive = cs.LastPacketReceivedTimestamp;
+                               d.LastActive = cs.LastPacketReceivedTimestamp.ToLocalTime();
                                d.Online = DateTime.Now.Subtract(d.LastActive).TotalSeconds < d.Timeout;
                                _logger.LogInformation($"设备{cs.ClientId}-{d.Name}({d.Id},{cs.Endpoint}) 最后活动时间{d.LastActive} 在线{d.Online} 发送消息:{cs.SentApplicationMessagesCount}({cs.BytesSent}kb)  收到{cs.ReceivedApplicationMessagesCount}({cs.BytesReceived / 1024}KB )  ");
                                if (!d.Online && DateTime.Now.Subtract(d.LastActive).TotalSeconds>d.Timeout*5)
