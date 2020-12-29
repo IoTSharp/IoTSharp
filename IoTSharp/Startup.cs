@@ -51,6 +51,7 @@ using Microsoft.AspNetCore.Hosting.Server.Features;
 using System.Text.RegularExpressions;
 using HealthChecks.UI.Configuration;
 using NSwag.Generation.AspNetCore;
+using RabbitMQ.Client;
 
 namespace IoTSharp
 {
@@ -242,7 +243,10 @@ namespace IoTSharp
                     case EventBusMQ.RabbitMQ:
                         x.UseRabbitMQ(new Uri(Configuration.GetConnectionString("EventBusMQ")));
                         //amqp://guest:guest@localhost:5672
-                        healthChecks.AddRabbitMQ(Configuration.GetConnectionString("EventBusMQ"), name: _hc_EventBusMQ);
+                        healthChecks.AddRabbitMQ(cf=>
+                        {
+                            return new ConnectionFactory() { Uri = new Uri(Configuration.GetConnectionString("EventBusMQ")) };
+                        }, name: _hc_EventBusMQ);
                         break;
                     case EventBusMQ.Kafka:
                         //BootstrapServers

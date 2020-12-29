@@ -43,8 +43,14 @@ services:
       - TZ=Asia/Shanghai
     depends_on:
       - pgsql
+      - mongodb
+      - rabbitmq
+      - influx
     links:
       - pgsql
+      - mongodb
+      - rabbitmq
+      - influx
     ports:
       - 2927:80
       - 1883:1883
@@ -66,6 +72,7 @@ services:
     volumes:
       - ./data/rabbitmq:/var/lib/rabbitmq
     environment:
+      - TZ=Asia/Shanghai
       - RABBITMQ_DEFAULT_USER=root
       - RABBITMQ_DEFAULT_PASS=kissme
     networks:
