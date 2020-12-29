@@ -121,7 +121,7 @@ namespace IoTSharp
                  .AddDiskStorageHealthCheck(dso =>
                  {
                      System.IO.DriveInfo.GetDrives()
-                        .Where(d=>d.DriveType != System.IO.DriveType.CDRom && d.DriveType== System.IO.DriveType.Ram)
+                        .Where(d=>d.DriveType != System.IO.DriveType.CDRom && d.DriveType!= System.IO.DriveType.Ram)
                         .Select(f => f.Name).Distinct().ToList()
                             .ForEach(f => dso.AddDrive(f, 1024));
 
@@ -150,6 +150,7 @@ namespace IoTSharp
             services.AddControllers();
 
             services.AddMemoryCache();
+            string _hc_Caching = $"{nameof(CachingUseIn)}-{Enum.GetName(settings.CachingUseIn)}";
             services.AddEasyCaching(options =>
             {
                 switch (settings.CachingUseIn)
@@ -163,6 +164,7 @@ namespace IoTSharp
                                 config.DBConfig.Endpoints.Add(new ServerEndPoint(hx[0], int.Parse(hx[1])));
                             });
                         }, "iotsharp");
+                        healthChecks.AddRedis(settings.CachingUseRedisHosts,name: _hc_Caching);
                         break;
                     case CachingUseIn.LiteDB:
                         options.UseLiteDB(cfg => cfg.DBConfig = new EasyCaching.LiteDB.LiteDBDBOptions() { });
@@ -174,6 +176,7 @@ namespace IoTSharp
                 }
 
             });
+            string _hc_telemetryStorage = $"{nameof(TelemetryStorage)}-{Enum.GetName(settings.TelemetryStorage)}";
             switch (settings.TelemetryStorage)
             {
                 case TelemetryStorage.Sharding:
@@ -190,7 +193,7 @@ namespace IoTSharp
                 case TelemetryStorage.Taos:
                     services.AddSingleton<IStorage, TaosStorage>();
                     services.AddObjectPool(() => new TaosConnection(settings.ConnectionStrings["TelemetryStorage"]));
-                    healthChecks.AddTDengine(Configuration.GetConnectionString("TelemetryStorage"));
+                    healthChecks.AddTDengine(Configuration.GetConnectionString("TelemetryStorage"),name: _hc_telemetryStorage);
                     break;
                 case TelemetryStorage.InfluxDB:
                     //https://github.com/julian-fh/influxdb-setup
@@ -198,6 +201,7 @@ namespace IoTSharp
                     services.AddSingleton<IStorage, InfluxDBStorage>();
                     //"TelemetryStorage": "http://localhost:8086/?org=iotsharp&bucket=iotsharp-bucket&token=iotsharp-token"
                     services.AddObjectPool(() => InfluxDBClientFactory.Create(Configuration.GetConnectionString("TelemetryStorage")));
+                    //healthChecks.AddInfluxDB(Configuration.GetConnectionString("TelemetryStorage"),name: _hc_telemetryStorage);
                     break;
          
                 default:
@@ -211,17 +215,18 @@ namespace IoTSharp
             }
             services.AddCap(x =>
             {
+                string _hc_EventBusStore = $"{nameof(EventBusStore)}-{Enum.GetName(settings.EventBusStore)}";
                 x.SucceedMessageExpiredAfter = settings.SucceedMessageExpiredAfter;
                 x.ConsumerThreadCount = settings.ConsumerThreadCount;
                 switch (settings.EventBusStore)
                 {
                     case EventBusStore.PostgreSql:
                         x.UsePostgreSql(Configuration.GetConnectionString("EventBusStore"));
-                        healthChecks.AddNpgSql(Configuration.GetConnectionString("EventBusStore"), name: "EventBusStore");
+                        healthChecks.AddNpgSql(Configuration.GetConnectionString("EventBusStore"), name: _hc_EventBusStore);
                         break;
                     case EventBusStore.MongoDB:
                         x.UseMongoDB(Configuration.GetConnectionString("EventBusStore"));  //注意，仅支持MongoDB 4.0+集群
-                        healthChecks.AddMongoDb(Configuration.GetConnectionString("EventBusStore"), name: "EventBusStore");
+                        healthChecks.AddMongoDb(Configuration.GetConnectionString("EventBusStore"), name: _hc_EventBusStore);
                         break;
                     case EventBusStore.LiteDB:
                         x.UseLiteDBStorage(Configuration.GetConnectionString("EventBusStore"));
@@ -231,12 +236,13 @@ namespace IoTSharp
                         x.UseInMemoryStorage();
                         break;
                 }
+                string _hc_EventBusMQ =$"{nameof(EventBusMQ)}-{Enum.GetName(settings.EventBusMQ)}" ;
                 switch (settings.EventBusMQ)
                 {
                     case EventBusMQ.RabbitMQ:
                         x.UseRabbitMQ(new Uri(Configuration.GetConnectionString("EventBusMQ")));
                         //amqp://guest:guest@localhost:5672
-                        healthChecks.AddRabbitMQ(Configuration.GetConnectionString("EventBusMQ"), name: "EventBusMQ");
+                        healthChecks.AddRabbitMQ(Configuration.GetConnectionString("EventBusMQ"), name: _hc_EventBusMQ);
                         break;
                     case EventBusMQ.Kafka:
                         //BootstrapServers
@@ -244,7 +250,7 @@ namespace IoTSharp
                         healthChecks.AddKafka(cfg =>
                        {
                            cfg.BootstrapServers = Configuration.GetConnectionString("EventBusMQ");
-                       }, name: "EventBusMQ");
+                       }, name: _hc_EventBusMQ);
                         break;
                     case EventBusMQ.ZeroMQ:
                         x.UseZeroMQ(cfg =>

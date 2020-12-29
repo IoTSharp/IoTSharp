@@ -59,7 +59,7 @@ services:
       - iotsharp-network
 
   taos:
-    image: registry.uixe.net/tdengine/tdengine:2.0.8.0
+    image: registry.uixe.net/tdengine/tdengine:2.0.12.0
     restart: always
     container_name: taos
     hostname: taos
