@@ -241,11 +241,16 @@ namespace IoTSharp
                 switch (settings.EventBusMQ)
                 {
                     case EventBusMQ.RabbitMQ:
-                        x.UseRabbitMQ(new Uri(Configuration.GetConnectionString("EventBusMQ")));
+                        var url = new Uri(Configuration.GetConnectionString("EventBusMQ"));
+                        var uary = url.UserInfo?.Split(':');
+                        string username =  uary?.Length>0?uary[0]:"guest";
+                        string password = uary?.Length > 1 ? uary[1] : "guest";
+                        x.UseRabbitMQ(url); 
+                       
                         //amqp://guest:guest@localhost:5672
                         healthChecks.AddRabbitMQ(cf=>
                         {
-                            return new ConnectionFactory() { Uri = new Uri(Configuration.GetConnectionString("EventBusMQ")) };
+                            return new ConnectionFactory() { Uri = url , UserName=username, Password=password};
                         }, name: _hc_EventBusMQ);
                         break;
                     case EventBusMQ.Kafka:
