@@ -44,7 +44,7 @@
 		<PackageReference Include="AspNetCore.HealthChecks.Redis" Version="5.0.0-preview1" />
 		<PackageReference Include="AspNetCore.HealthChecks.System" Version="5.0.0-preview1" />
 		<PackageReference Include="AspNetCore.HealthChecks.UI" Version="5.0.0-preview1" />
-		<PackageReference Include="AspNetCore.HealthChecks.UI.Client" Version="5.0.0-preview1" />
+		<PackageReference Include="AspNetCore.HealthChecks.UI.Client" Version="5.0.0" />
 		<PackageReference Include="AspNetCore.HealthChecks.UI.InMemory.Storage" Version="5.0.0-preview1" />
 		<PackageReference Include="AspNetCore.HealthChecks.UI.PostgreSQL.Storage" Version="5.0.0-preview1" />
 		<PackageReference Include="AspNetCore.HealthChecks.UI.SQLite.Storage" Version="5.0.0-preview1" />
