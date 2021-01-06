@@ -90,7 +90,7 @@
 		<PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="5.0.1" />
 		<PackageReference Include="MQTTnet" Version="3.0.14-rc4" />
 		<PackageReference Include="MQTTnet.AspNetCore" Version="3.0.14-rc5" />
-		<PackageReference Include="MQTTnet.Extensions.Rpc" Version="3.0.14-rc4" />
+		<PackageReference Include="MQTTnet.Extensions.Rpc" Version="3.0.14-rc5" />
 		<PackageReference Include="NetMQ" Version="4.0.1.6" />
 		<PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="5.0.1" />
 		<PackageReference Include="NSwag.AspNetCore" Version="13.9.4" />
