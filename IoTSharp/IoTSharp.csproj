@@ -40,7 +40,7 @@
 		<PackageReference Include="AspNetCore.HealthChecks.MongoDb" Version="5.0.0" />
 		<PackageReference Include="AspNetCore.HealthChecks.Network" Version="5.0.1" />
 		<PackageReference Include="AspNetCore.HealthChecks.NpgSql" Version="5.0.1" />
-		<PackageReference Include="AspNetCore.HealthChecks.Rabbitmq" Version="5.0.0" />
+		<PackageReference Include="AspNetCore.HealthChecks.Rabbitmq" Version="5.0.1" />
 		<PackageReference Include="AspNetCore.HealthChecks.Redis" Version="5.0.0" />
 		<PackageReference Include="AspNetCore.HealthChecks.System" Version="5.0.1" />
 		<PackageReference Include="AspNetCore.HealthChecks.UI" Version="5.0.1" />
