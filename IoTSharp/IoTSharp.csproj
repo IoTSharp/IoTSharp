@@ -36,7 +36,7 @@
 	</PropertyGroup>
 	<ItemGroup>
 
-		<PackageReference Include="AspNetCore.HealthChecks.Kafka" Version="5.0.0" />
+		<PackageReference Include="AspNetCore.HealthChecks.Kafka" Version="5.0.1" />
 		<PackageReference Include="AspNetCore.HealthChecks.MongoDb" Version="5.0.0" />
 		<PackageReference Include="AspNetCore.HealthChecks.Network" Version="5.0.1" />
 		<PackageReference Include="AspNetCore.HealthChecks.NpgSql" Version="5.0.1" />
