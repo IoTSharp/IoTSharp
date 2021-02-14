@@ -1,9 +1,7 @@
 ﻿using CoAP;
-using CoAP.Server;
 using DotNetCore.CAP.Dashboard.NodeDiscovery;
 using EFCore.Sharding;
 using IoTSharp.Data;
-using MaiKeBing.CAP;
 using MaiKeBing.HostedService.ZeroMQ;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;

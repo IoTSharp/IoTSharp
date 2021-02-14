@@ -72,18 +72,35 @@ namespace IoTSharp
             {
                 Configuration.Bind(setting);
             }));
-            services.AddDbContextPool<ApplicationDbContext>(options =>
+            var healthChecksUI = services.AddHealthChecksUI(setup =>
             {
-                switch (settings.DataBase)
-                {
-                    case DataBaseType.PostgreSql:
-                    default:
-                        options.UseNpgsql(Configuration.GetConnectionString("IoTSharp"), s => s.MigrationsAssembly("IoTSharp.Data.PostgreSQL"));
-                        break;
-                }
-              
+                setup.SetHeaderText("IoTSharp HealthChecks");
+                //Maximum history entries by endpoint
+                setup.MaximumHistoryEntriesPerEndpoint(50);
+                setup.AddIoTSharpHealthCheckEndpoint();
+            });
+
+            var healthChecks = services.AddHealthChecks()
+               .AddDiskStorageHealthCheck(dso =>
+               {
+                   System.IO.DriveInfo.GetDrives()
+                      .Where(d => d.DriveType != System.IO.DriveType.CDRom && d.DriveType != System.IO.DriveType.Ram)
+                      .Select(f => f.Name).Distinct().ToList()
+                          .ForEach(f => dso.AddDrive(f, 1024));
+
+               }, name: "Disk Storage");
+
+            switch (settings.DataBase)
+            {
+                case DataBaseType.MySql:
+                    services.ConfigureMySql(Configuration.GetConnectionString("IoTSharp"), settings.DbContextPoolSize, healthChecks, healthChecksUI);
+                    break;
+                case DataBaseType.PostgreSql:
+                default:
+                    services.ConfigureNpgsql(Configuration.GetConnectionString("IoTSharp"), settings.DbContextPoolSize, healthChecks, healthChecksUI);
+                    break;
             }
-            , poolSize: settings.DbContextPoolSize);
+
             services.AddIdentity<IdentityUser, IdentityRole>()
                   .AddRoles<IdentityRole>()
                   .AddRoleManager<RoleManager<IdentityRole>>()
@@ -128,24 +145,8 @@ namespace IoTSharp
             services.AddMqttClient(settings.MqttClient);
             services.AddSingleton<RetainedMessageHandler>();
 
-            var healthChecks = services.AddHealthChecks()
-                 .AddNpgSql(Configuration.GetConnectionString("IoTSharp"), name: "PostgreSQL")
-                 .AddDiskStorageHealthCheck(dso =>
-                 {
-                     System.IO.DriveInfo.GetDrives()
-                        .Where(d=>d.DriveType != System.IO.DriveType.CDRom && d.DriveType!= System.IO.DriveType.Ram)
-                        .Select(f => f.Name).Distinct().ToList()
-                            .ForEach(f => dso.AddDrive(f, 1024));
-
-                 }, name: "Disk Storage");
-
-            services.AddHealthChecksUI(setup =>
-            {
-                setup.SetHeaderText("IoTSharp HealthChecks");
-                //Maximum history entries by endpoint
-                setup.MaximumHistoryEntriesPerEndpoint(50);
-                setup.AddIoTSharpHealthCheckEndpoint();
-            }).AddPostgreSqlStorage(Configuration.GetConnectionString("IoTSharp"));
+          
+           
 
             services.AddSilkierQuartz(opt =>
             {
@@ -194,8 +195,17 @@ namespace IoTSharp
                 case TelemetryStorage.Sharding:
                     services.AddEFCoreSharding(config =>
                     {
-                        config.AddDataSource(Configuration.GetConnectionString("TelemetryStorage"), ReadWriteType.Read | ReadWriteType.Write, settings.Sharding.DatabaseType);
-                        config.SetDateSharding<TelemetryData>(nameof(TelemetryData.DateTime), settings.Sharding.ExpandByDateMode, DateTime.Now);
+                        switch (settings.DataBase)
+                        {
+                            case DataBaseType.MySql:
+                                config.UseMySqlToSharding(Configuration.GetConnectionString("TelemetryStorage"), settings.Sharding.ExpandByDateMode);
+                                break;
+                            case DataBaseType.PostgreSql:
+                            default:
+                                config.UseNpgsqlToSharding(Configuration.GetConnectionString("TelemetryStorage"), settings.Sharding.ExpandByDateMode);
+                                break;
+                        }
+                    
                     });
                     services.AddSingleton<IStorage, ShardingStorage>();
                     break;

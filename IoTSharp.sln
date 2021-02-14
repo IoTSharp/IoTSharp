@@ -43,9 +43,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IoTSharp.Sdk.Http", "IoTSha
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IoTSharp.Sdk.MQTT", "IoTSharp.SDKs\IoTSharp.Sdk.MQTT\IoTSharp.Sdk.MQTT.csproj", "{A2A1191C-32ED-482B-AACE-4091EE518CEC}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IoTSharp.Data.PostgreSQL", "IoTSharp.Data.PostgreSQL\IoTSharp.Data.PostgreSQL.csproj", "{0A6EAEEC-79A3-406B-9897-C3DA17F06BB9}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IoTSharp.Data.PostgreSQL", "IoTSharp.Data.PostgreSQL\IoTSharp.Data.PostgreSQL.csproj", "{0A6EAEEC-79A3-406B-9897-C3DA17F06BB9}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IoTSharp.Data", "IoTSharp.Data\IoTSharp.Data.csproj", "{522B2676-EB0E-4191-ACBC-EDC86DD2351D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IoTSharp.Data", "IoTSharp.Data\IoTSharp.Data.csproj", "{522B2676-EB0E-4191-ACBC-EDC86DD2351D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IoTSharp.Data.MySQL", "IoTSharp.Data.MySQL\IoTSharp.Data.MySQL.csproj", "{233F2C8D-DD4C-49B7-99A2-F3DB5620DEFB}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -276,6 +278,26 @@ Global
 		{522B2676-EB0E-4191-ACBC-EDC86DD2351D}.Release|x64.Build.0 = Release|Any CPU
 		{522B2676-EB0E-4191-ACBC-EDC86DD2351D}.Release|x86.ActiveCfg = Release|Any CPU
 		{522B2676-EB0E-4191-ACBC-EDC86DD2351D}.Release|x86.Build.0 = Release|Any CPU
+		{233F2C8D-DD4C-49B7-99A2-F3DB5620DEFB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{233F2C8D-DD4C-49B7-99A2-F3DB5620DEFB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{233F2C8D-DD4C-49B7-99A2-F3DB5620DEFB}.Debug|ARM.ActiveCfg = Debug|Any CPU
+		{233F2C8D-DD4C-49B7-99A2-F3DB5620DEFB}.Debug|ARM.Build.0 = Debug|Any CPU
+		{233F2C8D-DD4C-49B7-99A2-F3DB5620DEFB}.Debug|ARM64.ActiveCfg = Debug|Any CPU
+		{233F2C8D-DD4C-49B7-99A2-F3DB5620DEFB}.Debug|ARM64.Build.0 = Debug|Any CPU
+		{233F2C8D-DD4C-49B7-99A2-F3DB5620DEFB}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{233F2C8D-DD4C-49B7-99A2-F3DB5620DEFB}.Debug|x64.Build.0 = Debug|Any CPU
+		{233F2C8D-DD4C-49B7-99A2-F3DB5620DEFB}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{233F2C8D-DD4C-49B7-99A2-F3DB5620DEFB}.Debug|x86.Build.0 = Debug|Any CPU
+		{233F2C8D-DD4C-49B7-99A2-F3DB5620DEFB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{233F2C8D-DD4C-49B7-99A2-F3DB5620DEFB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{233F2C8D-DD4C-49B7-99A2-F3DB5620DEFB}.Release|ARM.ActiveCfg = Release|Any CPU
+		{233F2C8D-DD4C-49B7-99A2-F3DB5620DEFB}.Release|ARM.Build.0 = Release|Any CPU
+		{233F2C8D-DD4C-49B7-99A2-F3DB5620DEFB}.Release|ARM64.ActiveCfg = Release|Any CPU
+		{233F2C8D-DD4C-49B7-99A2-F3DB5620DEFB}.Release|ARM64.Build.0 = Release|Any CPU
+		{233F2C8D-DD4C-49B7-99A2-F3DB5620DEFB}.Release|x64.ActiveCfg = Release|Any CPU
+		{233F2C8D-DD4C-49B7-99A2-F3DB5620DEFB}.Release|x64.Build.0 = Release|Any CPU
+		{233F2C8D-DD4C-49B7-99A2-F3DB5620DEFB}.Release|x86.ActiveCfg = Release|Any CPU
+		{233F2C8D-DD4C-49B7-99A2-F3DB5620DEFB}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
