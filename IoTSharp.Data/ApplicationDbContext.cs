@@ -92,7 +92,6 @@ namespace IoTSharp.Data
         public DbSet<DeviceIdentity> DeviceIdentities { get; set; }
         public DbSet<AuditLog> AuditLog { get; set; }
 
-        public DbSet<RetainedMessage> RetainedMessage { get; set; }
 
         public DbSet<AuthorizedKey> AuthorizedKeys { get; set; }
 

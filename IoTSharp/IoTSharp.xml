@@ -307,51 +307,6 @@
             </summary>
             <returns></returns>
         </member>
-        <member name="P:IoTSharp.Controllers.InstallerController.InstanceDto.Version">
-            <summary>
-            系统版本
-            </summary>
-        </member>
-        <member name="P:IoTSharp.Controllers.InstallerController.InstanceDto.Installed">
-            <summary>
-            是否被安装
-            </summary>
-        </member>
-        <member name="P:IoTSharp.Controllers.InstallerController.InstallDto.Email">
-            <summary>
-            系统管理员用户名
-            </summary>
-        </member>
-        <member name="P:IoTSharp.Controllers.InstallerController.InstallDto.CustomerName">
-            <summary>
-            客户名称
-            </summary>
-        </member>
-        <member name="P:IoTSharp.Controllers.InstallerController.InstallDto.Password">
-            <summary>
-            系统管理员密码
-            </summary>
-        </member>
-        <member name="P:IoTSharp.Controllers.InstallerController.InstallDto.TenantName">
-            <summary>
-            租户姓名
-            </summary>
-        </member>
-        <member name="P:IoTSharp.Controllers.InstallerController.InstallDto.TenantEMail">
-            <summary>
-            租户邮箱
-            </summary>
-        </member>
-        <member name="P:IoTSharp.Controllers.InstallerController.InstallDto.CustomerEMail">
-            <summary>
-            客户邮箱
-            </summary>
-        </member>
-        <member name="P:IoTSharp.Controllers.InstallerController.InstallDto.PhoneNumber">
-            <summary>
-            电话号码
-            </summary>
-        </member>
         <member name="T:IoTSharp.Controllers.TenantsController">
             <summary>
             租户管理
@@ -391,85 +346,6 @@
             </summary>
             <param name="id"></param>
             <returns></returns>
-        </member>
-        <member name="T:IoTSharp.Data.Device">
-            <summary>
-            设备
-            </summary>
-        </member>
-        <member name="P:IoTSharp.Data.Device.Id">
-            <summary>
-            设备ID
-            </summary>
-        </member>
-        <member name="P:IoTSharp.Data.Device.Name">
-            <summary>
-            设备名称
-            </summary>
-        </member>
-        <member name="P:IoTSharp.Data.Device.DeviceType">
-            <summary>
-            设备类型
-            </summary>
-        </member>
-        <member name="P:IoTSharp.Data.Device.Online">
-            <summary>
-            在线
-            </summary>
-        </member>
-        <member name="P:IoTSharp.Data.Device.LastActive">
-            <summary>
-            最后一次活跃时间
-            </summary>
-        </member>
-        <member name="P:IoTSharp.Data.Device.Timeout">
-            <summary>
-            超时时间 秒数 
-            </summary>
-        </member>
-        <member name="P:IoTSharp.Data.Device.Owner">
-            <summary>
-            所有者
-            </summary>
-        </member>
-        <member name="P:IoTSharp.Data.Device.Tenant">
-            <summary>
-            租户
-            </summary>
-        </member>
-        <member name="P:IoTSharp.Data.Device.Customer">
-            <summary>
-            客户
-            </summary>
-        </member>
-        <member name="P:IoTSharp.Data.DeviceIdentity.Id">
-            <summary>
-            认证方式ID
-            </summary>
-        </member>
-        <member name="P:IoTSharp.Data.DeviceIdentity.IdentityType">
-            <summary>
-            认证方式类型
-            </summary>
-        </member>
-        <member name="P:IoTSharp.Data.DeviceIdentity.IdentityId">
-            <summary>
-            When <see cref="P:IoTSharp.Data.DeviceIdentity.IdentityType"/> Is <see cref="F:IoTSharp.Data.IdentityType.AccessToken"/> ,this is a Token.
-            When <see cref="P:IoTSharp.Data.DeviceIdentity.IdentityType"/> Is <see cref="F:IoTSharp.Data.IdentityType.DevicePassword"/> ,this is a device name.
-            When <see cref="P:IoTSharp.Data.DeviceIdentity.IdentityType"/> Is <see cref="F:IoTSharp.Data.IdentityType.X509Certificate"/> ,this is X509 Certificate' Fingerprint.
-            </summary>
-        </member>
-        <member name="P:IoTSharp.Data.DeviceIdentity.IdentityValue">
-            <summary>
-            When <see cref="P:IoTSharp.Data.DeviceIdentity.IdentityType"/> Is <see cref="F:IoTSharp.Data.IdentityType.AccessToken"/> ,this is null.
-            When <see cref="P:IoTSharp.Data.DeviceIdentity.IdentityType"/> Is <see cref="F:IoTSharp.Data.IdentityType.DevicePassword"/> ,this is a password.
-            When <see cref="P:IoTSharp.Data.DeviceIdentity.IdentityType"/> Is <see cref="F:IoTSharp.Data.IdentityType.X509Certificate"/> ,this is X509 Certificate' PEM.
-            </summary>
-        </member>
-        <member name="T:IoTSharp.Data.TelemetryDataConfiguration">
-            <summary>
-            https://github.com/Coldairarrow/EFCore.Sharding/issues/60
-            </summary>
         </member>
         <member name="P:IoTSharp.Dtos.TokenEntity.access_token">
             <summary>
@@ -539,6 +415,51 @@
         <member name="P:IoTSharp.Dtos.RegisterDto.Password">
             <summary>
             用户名密码
+            </summary>
+        </member>
+        <member name="P:IoTSharp.Dtos.InstallDto.Email">
+            <summary>
+            系统管理员用户名
+            </summary>
+        </member>
+        <member name="P:IoTSharp.Dtos.InstallDto.CustomerName">
+            <summary>
+            客户名称
+            </summary>
+        </member>
+        <member name="P:IoTSharp.Dtos.InstallDto.Password">
+            <summary>
+            系统管理员密码
+            </summary>
+        </member>
+        <member name="P:IoTSharp.Dtos.InstallDto.TenantName">
+            <summary>
+            租户姓名
+            </summary>
+        </member>
+        <member name="P:IoTSharp.Dtos.InstallDto.TenantEMail">
+            <summary>
+            租户邮箱
+            </summary>
+        </member>
+        <member name="P:IoTSharp.Dtos.InstallDto.CustomerEMail">
+            <summary>
+            客户邮箱
+            </summary>
+        </member>
+        <member name="P:IoTSharp.Dtos.InstallDto.PhoneNumber">
+            <summary>
+            电话号码
+            </summary>
+        </member>
+        <member name="P:IoTSharp.Dtos.InstanceDto.Version">
+            <summary>
+            系统版本
+            </summary>
+        </member>
+        <member name="P:IoTSharp.Dtos.InstanceDto.Installed">
+            <summary>
+            是否被安装
             </summary>
         </member>
         <member name="M:IoTSharp.IoTSharpExtension.CheckOrUpdateDevStatus(IoTSharp.Data.Device)">

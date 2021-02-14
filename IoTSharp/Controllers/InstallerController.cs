@@ -9,7 +9,6 @@ using Microsoft.Extensions.Logging;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
@@ -27,7 +26,7 @@ namespace IoTSharp.Controllers
     /// </summary>
     [ApiController]
     [Route("api/[controller]/[action]")]
-    public class InstallerController : ControllerBase
+    public partial class InstallerController : ControllerBase
     {
         private ApplicationDbContext _context;
         private ILogger _logger;
@@ -98,59 +97,6 @@ namespace IoTSharp.Controllers
                 actionResult =this.ExceptionRequest(ApiCode.Exception, ex.Message, ex);
             }
             return actionResult;
-        }
-   
-        public class InstanceDto
-        {
-            /// <summary>
-            /// 系统版本
-            /// </summary>
-            public string Version { get; internal set; }
-            /// <summary>
-            /// 是否被安装
-            /// </summary>
-            public bool Installed { get; internal set; }
-        }
-
-        public class InstallDto
-        {
-            /// <summary>
-            /// 系统管理员用户名
-            /// </summary>
-            [Required]
-            [EmailAddress]
-            public string Email { get; set; }
-
-            /// <summary>
-            /// 客户名称
-            /// </summary>
-            [Required]
-            public string CustomerName { get; set; }
-            /// <summary>
-            /// 系统管理员密码
-            /// </summary>
-            [Required]
-            [StringLength(100, ErrorMessage = "PASSWORD_MIN_LENGTH", MinimumLength = 6)]
-            public string Password { get; set; }
-            /// <summary>
-            /// 租户姓名
-            /// </summary>
-            public string TenantName { get; set; }
-            /// <summary>
-            /// 租户邮箱
-            /// </summary>
-            [EmailAddress]
-            public string TenantEMail { get; set; }
-            /// <summary>
-            /// 客户邮箱
-            /// </summary>
-            [EmailAddress]
-            public string CustomerEMail { get; set; }
-            /// <summary>
-            /// 电话号码
-            /// </summary>
-            [Phone]
-            public string PhoneNumber { get; set; }
         }
     }
 }

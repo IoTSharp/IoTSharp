@@ -70,12 +70,14 @@ namespace IoTSharp.Data
         Binary,
         DateTime
     }
-
-    public enum DatabaseType
+    [JsonConverter(typeof(StringEnumConverter))]
+    public enum DataBaseType
     {
-        mssql,
-        npgsql,
-        sqlite
+        PostgreSql,
+        SqlServer,
+        MySql ,
+        Oracle ,
+        SQLite
     }
     [JsonConverter(typeof(StringEnumConverter))]
     public enum IdentityType

@@ -33,6 +33,7 @@
 		<GenerateSerializationAssemblies>Off</GenerateSerializationAssemblies>
 		<DocumentationFile>IoTSharp.xml</DocumentationFile>
 		<NoWarn>1701;1702;1591</NoWarn>
+		<OutputPath></OutputPath>
 	</PropertyGroup>
 	<ItemGroup>
 
@@ -59,18 +60,18 @@
 		<PackageReference Include="DotNetCore.CAP.MongoDB" Version="3.1.2" />
 		<PackageReference Include="DotNetCore.CAP.PostgreSql" Version="3.1.2" />
 		<PackageReference Include="DotNetCore.CAP.RabbitMQ" Version="3.1.2" />
-		<PackageReference Include="EasyCaching.Core" Version="1.2.0-alpha20201214003208" />
-		<PackageReference Include="EasyCaching.InMemory" Version="1.2.0-alpha20201214003208" />
-		<PackageReference Include="EasyCaching.LiteDB" Version="1.2.0-alpha20201214003208" />
-		<PackageReference Include="EasyCaching.Redis" Version="1.2.0-alpha20201214003208" />
-		<PackageReference Include="EFCore.Sharding" Version="5.0.0.5" />
-		<PackageReference Include="EFCore.Sharding.PostgreSql" Version="5.0.0.5" />
+		<PackageReference Include="EasyCaching.Core" Version="1.2.0" />
+		<PackageReference Include="EasyCaching.InMemory" Version="1.2.0" />
+		<PackageReference Include="EasyCaching.LiteDB" Version="1.2.0" />
+		<PackageReference Include="EasyCaching.Redis" Version="1.2.1" />
+		<PackageReference Include="EFCore.Sharding" Version="5.0.0.6" />
+		<PackageReference Include="EFCore.Sharding.PostgreSql" Version="5.0.0.6" />
 		<PackageReference Include="GitVersionTask" Version="5.5.1">
 		  <PrivateAssets>all</PrivateAssets>
 		  <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
 		<PackageReference Include="hyjiacan.py4n" Version="4.0.0" />
-		<PackageReference Include="InfluxDB.Client" Version="1.15.0-dev.1705" />
+		<PackageReference Include="InfluxDB.Client" Version="1.15.0" />
 		<PackageReference Include="IoTSharp.CoAP.NET" Version="2.0.8" />
 		<PackageReference Include="IoTSharp.X509Extensions" Version="1.4.27" />
 		<PackageReference Include="kimbus" Version="2.0.1" />
@@ -80,41 +81,41 @@
 		<PackageReference Include="Maikebing.Data.Taos" Version="2.0.209" />
 		<PackageReference Include="Maikebing.HealthChecks.Taos" Version="2.0.209" />
 		<PackageReference Include="MaiKeBing.HostedService.ZeroMQ" Version="1.0.31" />
-		<PackageReference Include="Microsoft.AspNetCore.Http.Features" Version="5.0.1" />
-		<PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="5.0.1">
+		<PackageReference Include="Microsoft.AspNetCore.Http.Features" Version="5.0.3" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="5.0.3">
 			<PrivateAssets>all</PrivateAssets>
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
 		<PackageReference Include="Microsoft.Extensions.Options" Version="5.0.0" />
 		<PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.10.8" />
-		<PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="5.0.1" />
-		<PackageReference Include="MQTTnet" Version="3.0.14-rc5" />
-		<PackageReference Include="MQTTnet.AspNetCore" Version="3.0.14-rc5" />
-		<PackageReference Include="MQTTnet.Extensions.Rpc" Version="3.0.14-rc5" />
+		<PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="5.0.2" />
+		<PackageReference Include="MQTTnet" Version="3.0.14" />
+		<PackageReference Include="MQTTnet.AspNetCore" Version="3.0.14" />
+		<PackageReference Include="MQTTnet.Extensions.Rpc" Version="3.0.14" />
 		<PackageReference Include="NetMQ" Version="4.0.1.6" />
-		<PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="5.0.1" />
-		<PackageReference Include="NSwag.AspNetCore" Version="13.9.4" />
+		<PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="5.0.2" />
+		<PackageReference Include="NSwag.AspNetCore" Version="13.10.2" />
 		<PackageReference Include="ProxyKit" Version="2.3.4" />
-		<PackageReference Include="Quartz.Serialization.Json" Version="3.2.3" />
+		<PackageReference Include="Quartz.Serialization.Json" Version="3.2.4" />
 		<PackageReference Include="Savorboard.CAP.InMemoryMessageQueue" Version="3.1.1" />
-		<PackageReference Include="Silkier" Version="1.0.274" />
-		<PackageReference Include="Silkier.AspNetCore" Version="1.0.274" />
-		<PackageReference Include="Silkier.EFCore" Version="1.0.274" />
-		<PackageReference Include="SilkierQuartz" Version="5.0.196" />
-		<PackageReference Include="SilkierQuartz.Plugins.RecentHistory" Version="5.0.196" />
+		<PackageReference Include="Silkier" Version="1.0.312" />
+		<PackageReference Include="Silkier.AspNetCore" Version="1.0.312" />
+		<PackageReference Include="Silkier.EFCore" Version="1.0.312" />
+		<PackageReference Include="SilkierQuartz" Version="5.0.213" />
+		<PackageReference Include="SilkierQuartz.Plugins.RecentHistory" Version="5.0.213" />
 		<PackageReference Include="System.Collections" Version="4.3.0" />
-		<PackageReference Include="System.ServiceModel.Primitives" Version="4.8.0" />
+		<PackageReference Include="System.ServiceModel.Primitives" Version="4.8.1" />
 		<PackageReference Include="System.Text.Encoding.CodePages" Version="5.0.0" />
-		<PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="5.0.1" />
-		<PackageReference Include="Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore" Version="5.0.1" />
-		<PackageReference Include="Microsoft.AspNetCore.Hosting.WindowsServices" Version="5.0.1" />
-		<PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="5.0.1" />
-		<PackageReference Include="Microsoft.EntityFrameworkCore" Version="5.0.1" />
+		<PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="5.0.3" />
+		<PackageReference Include="Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore" Version="5.0.3" />
+		<PackageReference Include="Microsoft.AspNetCore.Hosting.WindowsServices" Version="5.0.3" />
+		<PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="5.0.3" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore" Version="5.0.3" />
 		<PackageReference Include="Microsoft.Extensions.Hosting" Version="5.0.0" />
 		<PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="5.0.0" />
 		<PackageReference Include="Microsoft.Extensions.Hosting.WindowsServices" Version="5.0.1" />
 		<PackageReference Include="MQTTnet.AspNetCoreEx" Version="3.0.13" />
-		<PackageReference Include="MQTTnet.Extensions.ManagedClient" Version="3.0.14-rc5" />
+		<PackageReference Include="MQTTnet.Extensions.ManagedClient" Version="3.0.14" />
 	</ItemGroup>
 	<ItemGroup>
 		<Compile Remove="Migrations\**" />
@@ -136,5 +137,9 @@
 		  <Pack>True</Pack>
 		  <PackagePath></PackagePath>
 		</None>
+	</ItemGroup>
+	<ItemGroup>
+	  <ProjectReference Include="..\IoTSharp.Data.PostgreSQL\IoTSharp.Data.PostgreSQL.csproj" />
+	  <ProjectReference Include="..\IoTSharp.Data\IoTSharp.Data.csproj" />
 	</ItemGroup>
 </Project>

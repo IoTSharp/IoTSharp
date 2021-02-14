@@ -2,6 +2,7 @@
 using CoAP.Server;
 using DotNetCore.CAP.Dashboard.NodeDiscovery;
 using EFCore.Sharding;
+using IoTSharp.Data;
 using MaiKeBing.CAP;
 using MaiKeBing.HostedService.ZeroMQ;
 using Newtonsoft.Json;
@@ -78,6 +79,7 @@ namespace IoTSharp
         public DiscoveryOptions Discovery { get; set; } = null;
         public ZMQOption ZMQOption { get; set; } = null;
         public int SucceedMessageExpiredAfter { get; set; } = 3600 * 6;
+        public DataBaseType DataBase { get; set; } = DataBaseType.PostgreSql;
     }
   
     public class ShardingSetting

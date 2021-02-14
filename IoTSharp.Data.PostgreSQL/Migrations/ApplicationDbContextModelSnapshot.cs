@@ -15,9 +15,9 @@ namespace IoTSharp.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn)
-                .HasAnnotation("ProductVersion", "3.1.9")
-                .HasAnnotation("Relational:MaxIdentifierLength", 63);
+                .UseIdentityByDefaultColumns()
+                .HasAnnotation("Relational:MaxIdentifierLength", 63)
+                .HasAnnotation("ProductVersion", "5.0.1");
 
             modelBuilder.Entity("IoTSharp.Data.AuditLog", b =>
                 {
@@ -246,7 +246,7 @@ namespace IoTSharp.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
-                    b.Property<Guid>("DeviceId")
+                    b.Property<Guid?>("DeviceId")
                         .HasColumnType("uuid");
 
                     b.Property<string>("IdentityId")
@@ -290,28 +290,6 @@ namespace IoTSharp.Migrations
                     b.HasIndex("TenantId");
 
                     b.ToTable("Relationship");
-                });
-
-            modelBuilder.Entity("IoTSharp.Data.RetainedMessage", b =>
-                {
-                    b.Property<string>("Id")
-                        .HasColumnType("text");
-
-                    b.Property<byte[]>("Payload")
-                        .HasColumnType("bytea");
-
-                    b.Property<int>("QualityOfServiceLevel")
-                        .HasColumnType("integer");
-
-                    b.Property<bool>("Retain")
-                        .HasColumnType("boolean");
-
-                    b.Property<string>("Topic")
-                        .HasColumnType("text");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("RetainedMessage");
                 });
 
             modelBuilder.Entity("IoTSharp.Data.TelemetryData", b =>
@@ -416,18 +394,18 @@ namespace IoTSharp.Migrations
                         .HasColumnType("text");
 
                     b.Property<string>("Name")
-                        .HasColumnType("character varying(256)")
-                        .HasMaxLength(256);
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
 
                     b.Property<string>("NormalizedName")
-                        .HasColumnType("character varying(256)")
-                        .HasMaxLength(256);
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
 
                     b.HasKey("Id");
 
                     b.HasIndex("NormalizedName")
                         .IsUnique()
-                        .HasName("RoleNameIndex");
+                        .HasDatabaseName("RoleNameIndex");
 
                     b.ToTable("AspNetRoles");
                 });
@@ -437,7 +415,7 @@ namespace IoTSharp.Migrations
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("integer")
-                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
+                        .UseIdentityByDefaultColumn();
 
                     b.Property<string>("ClaimType")
                         .HasColumnType("text");
@@ -469,8 +447,8 @@ namespace IoTSharp.Migrations
                         .HasColumnType("text");
 
                     b.Property<string>("Email")
-                        .HasColumnType("character varying(256)")
-                        .HasMaxLength(256);
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
 
                     b.Property<bool>("EmailConfirmed")
                         .HasColumnType("boolean");
@@ -482,12 +460,12 @@ namespace IoTSharp.Migrations
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("NormalizedEmail")
-                        .HasColumnType("character varying(256)")
-                        .HasMaxLength(256);
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
 
                     b.Property<string>("NormalizedUserName")
-                        .HasColumnType("character varying(256)")
-                        .HasMaxLength(256);
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
 
                     b.Property<string>("PasswordHash")
                         .HasColumnType("text");
@@ -505,17 +483,17 @@ namespace IoTSharp.Migrations
                         .HasColumnType("boolean");
 
                     b.Property<string>("UserName")
-                        .HasColumnType("character varying(256)")
-                        .HasMaxLength(256);
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
 
                     b.HasKey("Id");
 
                     b.HasIndex("NormalizedEmail")
-                        .HasName("EmailIndex");
+                        .HasDatabaseName("EmailIndex");
 
                     b.HasIndex("NormalizedUserName")
                         .IsUnique()
-                        .HasName("UserNameIndex");
+                        .HasDatabaseName("UserNameIndex");
 
                     b.ToTable("AspNetUsers");
                 });
@@ -525,7 +503,7 @@ namespace IoTSharp.Migrations
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("integer")
-                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
+                        .UseIdentityByDefaultColumn();
 
                     b.Property<string>("ClaimType")
                         .HasColumnType("text");
@@ -630,6 +608,10 @@ namespace IoTSharp.Migrations
                     b.HasOne("IoTSharp.Data.Tenant", "Tenant")
                         .WithMany()
                         .HasForeignKey("TenantId");
+
+                    b.Navigation("Customer");
+
+                    b.Navigation("Tenant");
                 });
 
             modelBuilder.Entity("IoTSharp.Data.AuthorizedKey", b =>
@@ -641,6 +623,10 @@ namespace IoTSharp.Migrations
                     b.HasOne("IoTSharp.Data.Tenant", "Tenant")
                         .WithMany()
                         .HasForeignKey("TenantId");
+
+                    b.Navigation("Customer");
+
+                    b.Navigation("Tenant");
                 });
 
             modelBuilder.Entity("IoTSharp.Data.Customer", b =>
@@ -648,6 +634,8 @@ namespace IoTSharp.Migrations
                     b.HasOne("IoTSharp.Data.Tenant", "Tenant")
                         .WithMany("Customers")
                         .HasForeignKey("TenantId");
+
+                    b.Navigation("Tenant");
                 });
 
             modelBuilder.Entity("IoTSharp.Data.Device", b =>
@@ -667,15 +655,21 @@ namespace IoTSharp.Migrations
                     b.HasOne("IoTSharp.Data.Tenant", "Tenant")
                         .WithMany("Devices")
                         .HasForeignKey("TenantId");
+
+                    b.Navigation("Customer");
+
+                    b.Navigation("Owner");
+
+                    b.Navigation("Tenant");
                 });
 
             modelBuilder.Entity("IoTSharp.Data.DeviceIdentity", b =>
                 {
                     b.HasOne("IoTSharp.Data.Device", "Device")
                         .WithMany()
-                        .HasForeignKey("DeviceId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("DeviceId");
+
+                    b.Navigation("Device");
                 });
 
             modelBuilder.Entity("IoTSharp.Data.Relationship", b =>
@@ -691,6 +685,12 @@ namespace IoTSharp.Migrations
                     b.HasOne("IoTSharp.Data.Tenant", "Tenant")
                         .WithMany()
                         .HasForeignKey("TenantId");
+
+                    b.Navigation("Customer");
+
+                    b.Navigation("IdentityUser");
+
+                    b.Navigation("Tenant");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
@@ -742,6 +742,28 @@ namespace IoTSharp.Migrations
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("IoTSharp.Data.AuthorizedKey", b =>
+                {
+                    b.Navigation("Devices");
+                });
+
+            modelBuilder.Entity("IoTSharp.Data.Customer", b =>
+                {
+                    b.Navigation("Devices");
+                });
+
+            modelBuilder.Entity("IoTSharp.Data.Tenant", b =>
+                {
+                    b.Navigation("Customers");
+
+                    b.Navigation("Devices");
+                });
+
+            modelBuilder.Entity("IoTSharp.Data.Gateway", b =>
+                {
+                    b.Navigation("Children");
                 });
 #pragma warning restore 612, 618
         }

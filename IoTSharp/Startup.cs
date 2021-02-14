@@ -72,7 +72,18 @@ namespace IoTSharp
             {
                 Configuration.Bind(setting);
             }));
-            services.AddDbContextPool<ApplicationDbContext>(options =>  options.UseNpgsql(Configuration.GetConnectionString("IoTSharp")), poolSize: settings.DbContextPoolSize);
+            services.AddDbContextPool<ApplicationDbContext>(options =>
+            {
+                switch (settings.DataBase)
+                {
+                    case DataBaseType.PostgreSql:
+                    default:
+                        options.UseNpgsql(Configuration.GetConnectionString("IoTSharp"), s => s.MigrationsAssembly("IoTSharp.Data.PostgreSQL"));
+                        break;
+                }
+              
+            }
+            , poolSize: settings.DbContextPoolSize);
             services.AddIdentity<IdentityUser, IdentityRole>()
                   .AddRoles<IdentityRole>()
                   .AddRoleManager<RoleManager<IdentityRole>>()
