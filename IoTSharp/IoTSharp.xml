@@ -282,6 +282,20 @@
             <param name="attributes">attributes</param>
             <returns></returns>
         </member>
+        <member name="M:IoTSharp.Controllers.DevicesController.GetSessionStatus(System.Guid)">
+            <summary>
+            SessionStatus
+            </summary>
+            <param name="deviceId"></param>
+            <returns></returns>
+        </member>
+        <member name="M:IoTSharp.Controllers.DevicesController.GetClientStatus(System.Guid)">
+            <summary>
+            SessionStatus
+            </summary>
+            <param name="deviceId"></param>
+            <returns></returns>
+        </member>
         <member name="T:IoTSharp.Controllers.InstallerController">
             <summary>
             安装

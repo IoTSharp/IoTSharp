@@ -72,7 +72,7 @@ namespace IoTSharp
             {
                 Configuration.Bind(setting);
             }));
-            services.AddDbContextPool<ApplicationDbContext>(options => options.UseNpgsql(Configuration.GetConnectionString("IoTSharp")), poolSize: settings.DbContextPoolSize);
+            services.AddDbContextPool<ApplicationDbContext>(options =>  options.UseNpgsql(Configuration.GetConnectionString("IoTSharp")), poolSize: settings.DbContextPoolSize);
             services.AddIdentity<IdentityUser, IdentityRole>()
                   .AddRoles<IdentityRole>()
                   .AddRoleManager<RoleManager<IdentityRole>>()
@@ -168,7 +168,7 @@ namespace IoTSharp
                         healthChecks.AddRedis(settings.CachingUseRedisHosts,name: _hc_Caching);
                         break;
                     case CachingUseIn.LiteDB:
-                        options.UseLiteDB(cfg => cfg.DBConfig = new EasyCaching.LiteDB.LiteDBDBOptions() { });
+                        options.UseLiteDB(cfg => cfg.DBConfig = new EasyCaching.LiteDB.LiteDBDBOptions() { },name: "iotsharp");
                         break;
                     case CachingUseIn.InMemory:
                     default:
@@ -242,9 +242,25 @@ namespace IoTSharp
                 {
                     case EventBusMQ.RabbitMQ:
                         var url = new Uri(Configuration.GetConnectionString("EventBusMQ"));
-                        x.UseRabbitMQ(url);
+                        x.UseRabbitMQ(cfg=>
+                        {
+                            cfg.ConnectionFactoryOptions = cf =>
+                            {
+                                cf.AutomaticRecoveryEnabled = true;
+                                cf.Uri = new Uri(Configuration.GetConnectionString("EventBusMQ"));
+                            };
+                            
+                        });
                         //amqp://guest:guest@localhost:5672
-                        healthChecks.AddRabbitMQ(url);
+                        healthChecks.AddRabbitMQ( connectionFactory=>
+                        {
+                            var factory = new ConnectionFactory()
+                            {
+                                Uri = new Uri(Configuration.GetConnectionString("EventBusMQ")),
+                                AutomaticRecoveryEnabled = true
+                            };
+                            return factory.CreateConnection();
+                        }, _hc_EventBusMQ);
                         break;
                     case EventBusMQ.Kafka:
                         x.UseKafka(Configuration.GetConnectionString("EventBusMQ"));

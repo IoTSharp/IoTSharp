@@ -13,6 +13,10 @@ RUN echo "deb https://mirrors.tuna.tsinghua.edu.cn/debian/ buster main contrib n
 RUN curl -o TDengine-client.tar.gz "https://www.taosdata.com/download/download-gettingStarted.php?pkg=tdengine_linux&pkgName=TDengine-client-2.0.12.0-Linux-x64.tar.gz" && \
    tar -xzvf TDengine-client.tar.gz && rm TDengine-client.tar.gz -f  && cd  $(ls TDengine-client*  -d) && ./install_client.sh && \
     rm $(pwd) -rf
+RUN echo "fs.file-max=6553500" >> /etc/sysctl.conf && \
+    echo "* soft nofile 65535" >> /etc/security/limits.conf && \
+    echo "* hard nofile 65535" >> /etc/security/limits.conf && \
+    echo "session    required   pam_limits.so" >> /etc/security/limits.conf
 WORKDIR /app
 EXPOSE 80  
 EXPOSE 1883 
