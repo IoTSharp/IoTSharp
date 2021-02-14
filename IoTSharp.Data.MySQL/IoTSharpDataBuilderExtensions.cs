@@ -1,6 +1,7 @@
 ﻿
 using EFCore.Sharding;
 using IoTSharp.Data;
+using IoTSharp.Data.MySQL;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using System;
@@ -11,8 +12,11 @@ namespace Microsoft.Extensions.DependencyInjection
     {
         public static void  ConfigureMySql(this IServiceCollection services,   string connectionString,int  poolSize , IHealthChecksBuilder checksBuilder, HealthChecksUIBuilder healthChecksUI)
         {
+            services.AddEntityFrameworkMySql();
+            services.AddSingleton<IDataBaseModelBuilderOptions>(c => new MySqlModelBuilderOptions());
             services.AddDbContextPool<ApplicationDbContext>(builder =>
             {
+                builder.UseInternalServiceProvider(services.BuildServiceProvider());
                 builder.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString), s => s.MigrationsAssembly("IoTSharp.Data.MySQL"));
             }
           , poolSize );

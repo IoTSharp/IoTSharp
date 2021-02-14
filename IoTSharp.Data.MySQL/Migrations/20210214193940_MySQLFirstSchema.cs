@@ -62,8 +62,8 @@ namespace IoTSharp.Data.MySQL.Migrations
                     Value_Long = table.Column<long>(type: "bigint", nullable: false),
                     Value_DateTime = table.Column<DateTime>(type: "timestamp with time zone(6)", nullable: false),
                     Value_Double = table.Column<double>(type: "double", nullable: false),
-                    Value_Json = table.Column<string>(type: "jsonb", nullable: true),
-                    Value_XML = table.Column<string>(type: "xml", nullable: true),
+                    Value_Json = table.Column<string>(type: "longtext CHARACTER SET utf8mb4", nullable: true),
+                    Value_XML = table.Column<string>(type: "longtext CHARACTER SET utf8mb4", nullable: true),
                     Value_Binary = table.Column<byte[]>(type: "longblob", nullable: true)
                 },
                 constraints: table =>
@@ -85,8 +85,8 @@ namespace IoTSharp.Data.MySQL.Migrations
                     Value_Long = table.Column<long>(type: "bigint", nullable: false),
                     Value_DateTime = table.Column<DateTime>(type: "timestamp with time zone(6)", nullable: false),
                     Value_Double = table.Column<double>(type: "double", nullable: false),
-                    Value_Json = table.Column<string>(type: "jsonb", nullable: true),
-                    Value_XML = table.Column<string>(type: "xml", nullable: true),
+                    Value_Json = table.Column<string>(type: "longtext CHARACTER SET utf8mb4", nullable: true),
+                    Value_XML = table.Column<string>(type: "longtext CHARACTER SET utf8mb4", nullable: true),
                     Value_Binary = table.Column<byte[]>(type: "longblob", nullable: true)
                 },
                 constraints: table =>
@@ -260,8 +260,8 @@ namespace IoTSharp.Data.MySQL.Migrations
                     ObjectName = table.Column<string>(type: "longtext CHARACTER SET utf8mb4", nullable: true),
                     ObjectType = table.Column<int>(type: "int", nullable: false),
                     ActionName = table.Column<string>(type: "longtext CHARACTER SET utf8mb4", nullable: true),
-                    ActionData = table.Column<string>(type: "jsonb", nullable: true),
-                    ActionResult = table.Column<string>(type: "jsonb", nullable: true),
+                    ActionData = table.Column<string>(type: "longtext CHARACTER SET utf8mb4", nullable: true),
+                    ActionResult = table.Column<string>(type: "longtext CHARACTER SET utf8mb4", nullable: true),
                     ActiveDateTime = table.Column<DateTime>(type: "datetime(6)", nullable: false)
                 },
                 constraints: table =>

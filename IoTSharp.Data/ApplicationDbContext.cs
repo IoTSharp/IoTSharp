@@ -4,15 +4,19 @@ using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace IoTSharp.Data
 {
     public class ApplicationDbContext : IdentityDbContext
     {
-
+      
+       
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
             : base(options)
         {
+           
             if (Database.GetPendingMigrations().Count() > 0)
             {
                 Database.Migrate();
@@ -38,47 +42,13 @@ namespace IoTSharp.Data
             modelBuilder.Entity<TelemetryLatest>().HasDiscriminator<DataCatalog>(nameof(Data.DataStorage.Catalog));
             modelBuilder.Entity<Device>().HasDiscriminator<DeviceType>(nameof(Data.Device.DeviceType)).HasValue<Gateway>(DeviceType.Gateway).HasValue<Device>(DeviceType.Device);
             modelBuilder.Entity<Gateway>().HasDiscriminator<DeviceType>(nameof(Data.Device.DeviceType));
-            ForNpgsql(modelBuilder);
+            this.GetService<IDataBaseModelBuilderOptions>().OnModelCreating(modelBuilder);
             modelBuilder.ApplyConfiguration(new TelemetryDataConfiguration());
             base.OnModelCreating(modelBuilder);
         }
 
 
-        private void ForNpgsql(ModelBuilder modelBuilder)
-        {
-            modelBuilder.Entity<TelemetryData>()
-            .Property(b => b.Value_Json)
-            .HasColumnType("jsonb");
-
-            modelBuilder.Entity<TelemetryData>()
-            .Property(b => b.Value_XML)
-            .HasColumnType("xml");
-
-            modelBuilder.Entity<AttributeLatest>()
-            .Property(b => b.Value_Json)
-            .HasColumnType("jsonb");
-
-            modelBuilder.Entity<AttributeLatest>()
-            .Property(b => b.Value_XML)
-            .HasColumnType("xml");
-
-
-            modelBuilder.Entity<TelemetryLatest>()
-            .Property(b => b.Value_Json)
-            .HasColumnType("jsonb");
-
-            modelBuilder.Entity<TelemetryLatest>()
-            .Property(b => b.Value_XML)
-            .HasColumnType("xml");
-
-            modelBuilder.Entity<AuditLog>()
-            .Property(b => b.ActionData)
-            .HasColumnType("jsonb");
-
-            modelBuilder.Entity<AuditLog>()
-            .Property(b => b.ActionResult)
-            .HasColumnType("jsonb");
-        }
+      
 
         public DbSet<Tenant> Tenant { get; set; }
         public DbSet<Customer> Customer { get; set; }

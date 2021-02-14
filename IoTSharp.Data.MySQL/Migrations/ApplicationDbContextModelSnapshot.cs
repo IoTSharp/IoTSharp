@@ -24,13 +24,13 @@ namespace IoTSharp.Data.MySQL.Migrations
                         .HasColumnType("char(36)");
 
                     b.Property<string>("ActionData")
-                        .HasColumnType("jsonb");
+                        .HasColumnType("longtext CHARACTER SET utf8mb4");
 
                     b.Property<string>("ActionName")
                         .HasColumnType("longtext CHARACTER SET utf8mb4");
 
                     b.Property<string>("ActionResult")
-                        .HasColumnType("jsonb");
+                        .HasColumnType("longtext CHARACTER SET utf8mb4");
 
                     b.Property<DateTime>("ActiveDateTime")
                         .HasColumnType("datetime(6)");
@@ -168,7 +168,7 @@ namespace IoTSharp.Data.MySQL.Migrations
                         .HasColumnType("double");
 
                     b.Property<string>("Value_Json")
-                        .HasColumnType("jsonb");
+                        .HasColumnType("longtext CHARACTER SET utf8mb4");
 
                     b.Property<long>("Value_Long")
                         .HasColumnType("bigint");
@@ -177,7 +177,7 @@ namespace IoTSharp.Data.MySQL.Migrations
                         .HasColumnType("longtext CHARACTER SET utf8mb4");
 
                     b.Property<string>("Value_XML")
-                        .HasColumnType("xml");
+                        .HasColumnType("longtext CHARACTER SET utf8mb4");
 
                     b.HasKey("Catalog", "DeviceId", "KeyName");
 
@@ -320,7 +320,7 @@ namespace IoTSharp.Data.MySQL.Migrations
                         .HasColumnType("double");
 
                     b.Property<string>("Value_Json")
-                        .HasColumnType("jsonb");
+                        .HasColumnType("longtext CHARACTER SET utf8mb4");
 
                     b.Property<long>("Value_Long")
                         .HasColumnType("bigint");
@@ -329,7 +329,7 @@ namespace IoTSharp.Data.MySQL.Migrations
                         .HasColumnType("longtext CHARACTER SET utf8mb4");
 
                     b.Property<string>("Value_XML")
-                        .HasColumnType("xml");
+                        .HasColumnType("longtext CHARACTER SET utf8mb4");
 
                     b.HasKey("DeviceId", "KeyName", "DateTime");
 
