@@ -77,7 +77,7 @@ namespace IoTSharp.Data
         SqlServer,
         MySql ,
         Oracle ,
-        SQLite
+        Sqlite
     }
     [JsonConverter(typeof(StringEnumConverter))]
     public enum IdentityType

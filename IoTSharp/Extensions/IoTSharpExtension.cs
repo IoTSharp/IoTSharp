@@ -53,7 +53,7 @@ namespace IoTSharp
             return ts.Include(ak => ak.Tenant).Where(ak => ak.Tenant.Id.ToString() == _tenantId);
         }
         public static Customer GetCustomer(this ApplicationDbContext context, string custid) 
-            => context.Customer.Include(c => c.Tenant).FirstOrDefault(c => c.Id.ToString() == custid);
+            => context.Customer.Include(c => c.Tenant).FirstOrDefault(c => c.Id  == Guid.Parse( custid));
 
         public static string GetCustomerId(this ControllerBase controller)
         {

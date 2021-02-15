@@ -98,6 +98,12 @@ namespace IoTSharp
                 case DataBaseType.SqlServer:
                     services.ConfigureSqlServer(Configuration.GetConnectionString("IoTSharp"), settings.DbContextPoolSize, healthChecks, healthChecksUI);
                     break;
+                case DataBaseType.Oracle:
+                    services.ConfigureOracle(Configuration.GetConnectionString("IoTSharp"), settings.DbContextPoolSize, healthChecks, healthChecksUI);
+                    break;
+                case DataBaseType.Sqlite:
+                    services.ConfigureSqlite(Configuration.GetConnectionString("IoTSharp"), settings.DbContextPoolSize, healthChecks, healthChecksUI);
+                    break;
                 case DataBaseType.PostgreSql:
                 default:
                     services.ConfigureNpgsql(Configuration.GetConnectionString("IoTSharp"), settings.DbContextPoolSize, healthChecks, healthChecksUI);
@@ -205,6 +211,12 @@ namespace IoTSharp
                                 break;
                             case DataBaseType.SqlServer:
                                 config.UseSqlServerToSharding(Configuration.GetConnectionString("TelemetryStorage"), settings.Sharding.ExpandByDateMode);
+                                break;
+                            case DataBaseType.Oracle:
+                                config.UseOracleToSharding(Configuration.GetConnectionString("TelemetryStorage"), settings.Sharding.ExpandByDateMode);
+                                break;
+                            case DataBaseType.Sqlite:
+                                config.UseSQLiteToSharding(Configuration.GetConnectionString("TelemetryStorage"), settings.Sharding.ExpandByDateMode);
                                 break;
                             case DataBaseType.PostgreSql:
                             default:

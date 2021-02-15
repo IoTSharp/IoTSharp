@@ -46,9 +46,6 @@
 		<PackageReference Include="AspNetCore.HealthChecks.System" Version="5.0.1" />
 		<PackageReference Include="AspNetCore.HealthChecks.UI" Version="5.0.1" />
 		<PackageReference Include="AspNetCore.HealthChecks.UI.Client" Version="5.0.1" />
-		<PackageReference Include="AspNetCore.HealthChecks.UI.InMemory.Storage" Version="5.0.1" />
-
-		<PackageReference Include="AspNetCore.HealthChecks.UI.SQLite.Storage" Version="5.0.1" />
 		<PackageReference Include="AspNetCore.HealthChecks.Uris" Version="5.0.1" />
 		<PackageReference Include="AspNetCore.HealthChecks.Network" Version="5.0.1" />
 
@@ -93,7 +90,6 @@
 		<PackageReference Include="MQTTnet.AspNetCoreEx" Version="3.0.14" />
 		<PackageReference Include="MQTTnet.Extensions.Rpc" Version="3.0.14" />
 		<PackageReference Include="NetMQ" Version="4.0.1.6" />
-		<PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="5.0.2" />
 		<PackageReference Include="NSwag.AspNetCore" Version="13.10.2" />
 		<PackageReference Include="ProxyKit" Version="2.3.4" />
 		<PackageReference Include="Quartz.Serialization.Json" Version="3.2.4" />
@@ -126,7 +122,10 @@
 		<None Remove=".gitignore" />
 		<None Remove="healthchecksdb" />
 		<None Remove="healthchecksdb-shm" />
+		<None Remove="health_checks.db" />
+		<None Remove="IoTSharp.db" />
 		<None Remove="IoTSharp.xml" />
+		<None Remove="TelemetryStorage.db" />
 		<_WebToolingArtifacts Remove="Properties\PublishProfiles\registry.hub.docker.com_iotsharp.pubxml" />
 		<None Include="..\docs\images\96x96.png">
 		  <Pack>True</Pack>
@@ -139,7 +138,9 @@
 	</ItemGroup>
 	<ItemGroup>
 	  <ProjectReference Include="..\IoTSharp.Data.MySQL\IoTSharp.Data.MySQL.csproj" />
+	  <ProjectReference Include="..\IoTSharp.Data.Oracle\IoTSharp.Data.Oracle.csproj" />
 	  <ProjectReference Include="..\IoTSharp.Data.PostgreSQL\IoTSharp.Data.PostgreSQL.csproj" />
+	  <ProjectReference Include="..\IoTSharp.Data.Sqlite\IoTSharp.Data.Sqlite.csproj" />
 	  <ProjectReference Include="..\IoTSharp.Data.SqlServer\IoTSharp.Data.SqlServer.csproj" />
 	  <ProjectReference Include="..\IoTSharp.Data\IoTSharp.Data.csproj" />
 	</ItemGroup>

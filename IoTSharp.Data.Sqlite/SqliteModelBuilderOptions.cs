@@ -2,11 +2,11 @@
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using System;
 
-namespace IoTSharp.Data.SqlServer
+namespace IoTSharp.Data.Sqlite
 {
-    public class MsSqlModelBuilderOptions : IDataBaseModelBuilderOptions
+    public class SqliteModelBuilderOptions : IDataBaseModelBuilderOptions
     {
-        public MsSqlModelBuilderOptions()
+        public SqliteModelBuilderOptions()
         {
         }
 
@@ -14,7 +14,7 @@ namespace IoTSharp.Data.SqlServer
 
         public void OnModelCreating(ModelBuilder modelBuilder)
         {
-            
+           
         }
     }
 }

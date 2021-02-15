@@ -2,11 +2,11 @@
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using System;
 
-namespace IoTSharp.Data.SqlServer
+namespace IoTSharp.Data.Oracle
 {
-    public class MsSqlModelBuilderOptions : IDataBaseModelBuilderOptions
+    public class OracleModelBuilderOptions : IDataBaseModelBuilderOptions
     {
-        public MsSqlModelBuilderOptions()
+        public OracleModelBuilderOptions()
         {
         }
 

@@ -18,7 +18,6 @@ namespace IoTSharp.Data
             builder.HasIndex(c => new { c.DeviceId });
             builder.HasIndex(c => new { c.DeviceId, c.KeyName });
             builder.HasIndex(c => new { c.KeyName });
-            builder.HasIndex(c => new { c.DeviceId, c.KeyName, c.DateTime });
             builder.HasKey(c => new { c.DeviceId, c.KeyName, c.DateTime });
             builder.Property(t => t.DeviceId)
                     .IsRequired();
