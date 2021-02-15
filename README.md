@@ -5,9 +5,7 @@
 ![.NET Core](https://github.com/IoTSharp/IoTSharp/workflows/.NET%20Core/badge.svg?branch=master)
 
 IoTSharp is an open-source IoT platform for data collection, processing, visualization, and device management.
-
-
-
+ 
 
 ## How to  install  IoTSharp using docker-compose  ?
 

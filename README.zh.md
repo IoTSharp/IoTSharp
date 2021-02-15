@@ -4,8 +4,7 @@
 ![GitHub](https://img.shields.io/github/license/iotsharp/iotsharp.svg)
 ![.NET Core](https://github.com/IoTSharp/IoTSharp/workflows/.NET%20Core/badge.svg?branch=master)
 
-IoTSharp 是一个 基于.Net Core 开源的物联网基础平台， 支持 HTTP、MQTT 、CoAp 协议， 属性数据和遥测数据协议简单类型丰富，是一个用于数据收集、处理、可视化与设备管理的 IoT 平台.
-
+IoTSharp 是一个 基于.Net Core 开源的物联网基础平台， 支持 HTTP、MQTT 、CoAp 协议， 属性数据和遥测数据协议简单类型丰富，简单设置即可将数据存储在PostgreSql、MySql、Oracle、SQLServer、Sqlite，是一个用于数据收集、处理、可视化与设备管理的 IoT 平台.
 
 
 
@@ -20,6 +19,13 @@ IoTSharp 是一个 基于.Net Core 开源的物联网基础平台， 支持 HTTP
  更多的 [部署方案请点这里访问](https://github.com/IoTSharp/IoTSharp/tree/master/Deployments)
 
 
+## 支持哪些数据库?
+
+ *  [PostgreSql](IoTSharp/appsettings.PostgreSql.json) 测试环境是   PostgreSQL 11.3,支持分表.
+ *  [MySql](IoTSharp/appsettings.MySql.json)  测试环境是MySQL 8.0.17,支持分表.
+ *  [Oracle](IoTSharp/appsettings.Oracle.json)  测试环境是 Oracle Standard Edition 12c Release 2, 支持分表.请参见: https://github.com/MaksymBilenko/docker-oracle-12c
+ *  [SQLServer](IoTSharp/appsettings.SQLServer.json) 测试环境是  Microsoft SQL Server 2016 (RTM-GDR) (KB4019088) - 13.0.1742.0 (X64),支持分表
+ *  [Sqlite](IoTSharp/appsettings.Sqlite.json)  支持分表。
 
 ## 演示：
   http://139.9.232.10:2927
