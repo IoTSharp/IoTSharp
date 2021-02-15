@@ -22,7 +22,7 @@ namespace Microsoft.Extensions.DependencyInjection
                 builder.UseInternalServiceProvider(services.BuildServiceProvider());
             }
      , poolSize);
-            checksBuilder.AddOracle(connectionString);
+            checksBuilder.AddOracle(connectionString,name: "IoTSharp.Data.Oracle");
             healthChecksUI.AddInMemoryStorage();
 
         }

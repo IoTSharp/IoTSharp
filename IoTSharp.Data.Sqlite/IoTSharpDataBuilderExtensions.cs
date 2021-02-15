@@ -22,7 +22,7 @@ namespace Microsoft.Extensions.DependencyInjection
                 builder.UseInternalServiceProvider(services.BuildServiceProvider());
             }
      , poolSize);
-            checksBuilder.AddSqlite(connectionString);
+            checksBuilder.AddSqlite(connectionString, name: "IoTSharp.Data.Sqlite");
             healthChecksUI.AddSqliteStorage("Data Source=health_checks.db");
 
         }

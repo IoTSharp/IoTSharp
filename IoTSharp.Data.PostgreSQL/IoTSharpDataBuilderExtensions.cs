@@ -22,7 +22,7 @@ namespace Microsoft.Extensions.DependencyInjection
                 builder.UseInternalServiceProvider(services.BuildServiceProvider());
             }
      , poolSize);
-            checksBuilder.AddNpgSql(connectionString);
+            checksBuilder.AddNpgSql(connectionString, name: "IoTSharp.Data.PostgreSQL");
             healthChecksUI.AddPostgreSqlStorage(connectionString);
 
         }

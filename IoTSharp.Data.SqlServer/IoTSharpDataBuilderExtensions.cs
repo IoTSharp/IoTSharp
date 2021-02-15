@@ -22,7 +22,7 @@ namespace Microsoft.Extensions.DependencyInjection
                 builder.UseInternalServiceProvider(services.BuildServiceProvider());
             }
      , poolSize);
-            checksBuilder.AddSqlServer(connectionString);
+            checksBuilder.AddSqlServer(connectionString,name: "IoTSharp.Data.SqlServer");
             healthChecksUI.AddSqlServerStorage(connectionString);
 
         }
