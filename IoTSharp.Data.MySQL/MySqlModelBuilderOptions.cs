@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,40 +14,66 @@ namespace IoTSharp.Data.MySQL
         {
 
         }
+
+        public IInfrastructure<IServiceProvider> Infrastructure { get; set; }
+
         public void OnModelCreating(ModelBuilder modelBuilder)
         {
-            //modelBuilder.Entity<TelemetryData>()
-            //.Property(b => b.Value_Json)
-            //.HasColumnType("jsonb");
+            var sv = Infrastructure.GetService<ServerVersion>();
 
-            //modelBuilder.Entity<TelemetryData>()
-            //.Property(b => b.Value_XML)
-            //.HasColumnType("xml");
-
-            //modelBuilder.Entity<AttributeLatest>()
-            //.Property(b => b.Value_Json)
-            //.HasColumnType("jsonb");
-
-            //modelBuilder.Entity<AttributeLatest>()
-            //.Property(b => b.Value_XML)
-            //.HasColumnType("xml");
+            modelBuilder.Entity<TelemetryData>()
+            .Property(b => b.DateTime)
+            .HasColumnType("timestamp");
+            modelBuilder.Entity<TelemetryData>()
+            .Property(b => b.Value_DateTime)
+            .HasColumnType("timestamp");
 
 
-            //modelBuilder.Entity<TelemetryLatest>()
-            //.Property(b => b.Value_Json)
-            //.HasColumnType("jsonb");
+            modelBuilder.Entity<TelemetryLatest>()
+            .Property(b => b.DateTime)
+            .HasColumnType("timestamp");
+            modelBuilder.Entity<TelemetryLatest>()
+            .Property(b => b.Value_DateTime)
+            .HasColumnType("timestamp");
 
-            //modelBuilder.Entity<TelemetryLatest>()
-            //.Property(b => b.Value_XML)
-            //.HasColumnType("xml");
+            modelBuilder.Entity<AttributeLatest>()
+            .Property(b => b.DateTime)
+            .HasColumnType("timestamp");
+            modelBuilder.Entity<AttributeLatest>()
+            .Property(b => b.Value_DateTime)
+            .HasColumnType("timestamp");
 
-            //modelBuilder.Entity<AuditLog>()
-            //.Property(b => b.ActionData)
-            //.HasColumnType("jsonb");
+            modelBuilder.Entity<AuditLog>()
+            .Property(b => b.ActiveDateTime)
+            .HasColumnType("timestamp");
+            modelBuilder.Entity<Device>()
+            .Property(b => b.LastActive)
+            .HasColumnType("timestamp");
+            if (sv.Supports.Json)
+            {
+                    modelBuilder.Entity<TelemetryData>()
+                    .Property(b => b.Value_Json)
+                    .HasColumnType("JSON");
+                    modelBuilder.Entity<TelemetryData>()
+                    .Property(b => b.Value_Json)
+                    .HasColumnType("JSON");
 
-            //modelBuilder.Entity<AuditLog>()
-            //.Property(b => b.ActionResult)
-            //.HasColumnType("jsonb");
+                    modelBuilder.Entity<AttributeLatest>()
+                    .Property(b => b.Value_Json)
+                    .HasColumnType("JSON");
+
+                    modelBuilder.Entity<TelemetryLatest>()
+                    .Property(b => b.Value_Json)
+                    .HasColumnType("JSON");
+
+                modelBuilder.Entity<AuditLog>()
+                .Property(b => b.ActionData)
+                .HasColumnType("JSON");
+
+                modelBuilder.Entity<AuditLog>()
+                .Property(b => b.ActionResult)
+                .HasColumnType("JSON");
+            }
         }
     }
 }

@@ -9,8 +9,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace IoTSharp.Data.MySQL.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20210214193940_MySQLFirstSchema")]
-    partial class MySQLFirstSchema
+    [Migration("20210215021817_MySqlFirstSchema")]
+    partial class MySqlFirstSchema
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -26,16 +26,16 @@ namespace IoTSharp.Data.MySQL.Migrations
                         .HasColumnType("char(36)");
 
                     b.Property<string>("ActionData")
-                        .HasColumnType("longtext CHARACTER SET utf8mb4");
+                        .HasColumnType("JSON");
 
                     b.Property<string>("ActionName")
                         .HasColumnType("longtext CHARACTER SET utf8mb4");
 
                     b.Property<string>("ActionResult")
-                        .HasColumnType("longtext CHARACTER SET utf8mb4");
+                        .HasColumnType("JSON");
 
                     b.Property<DateTime>("ActiveDateTime")
-                        .HasColumnType("datetime(6)");
+                        .HasColumnType("timestamp");
 
                     b.Property<Guid?>("CustomerId")
                         .HasColumnType("char(36)");
@@ -152,7 +152,7 @@ namespace IoTSharp.Data.MySQL.Migrations
                         .HasColumnType("int");
 
                     b.Property<DateTime>("DateTime")
-                        .HasColumnType("timestamp with time zone(6)");
+                        .HasColumnType("timestamp");
 
                     b.Property<int>("Type")
                         .HasColumnType("int");
@@ -164,13 +164,13 @@ namespace IoTSharp.Data.MySQL.Migrations
                         .HasColumnType("tinyint(1)");
 
                     b.Property<DateTime>("Value_DateTime")
-                        .HasColumnType("timestamp with time zone(6)");
+                        .HasColumnType("timestamp");
 
                     b.Property<double>("Value_Double")
                         .HasColumnType("double");
 
                     b.Property<string>("Value_Json")
-                        .HasColumnType("longtext CHARACTER SET utf8mb4");
+                        .HasColumnType("JSON");
 
                     b.Property<long>("Value_Long")
                         .HasColumnType("bigint");
@@ -208,7 +208,7 @@ namespace IoTSharp.Data.MySQL.Migrations
                         .HasColumnType("int");
 
                     b.Property<DateTime>("LastActive")
-                        .HasColumnType("datetime(6)");
+                        .HasColumnType("timestamp");
 
                     b.Property<string>("Name")
                         .HasColumnType("longtext CHARACTER SET utf8mb4");
@@ -301,7 +301,7 @@ namespace IoTSharp.Data.MySQL.Migrations
                         .HasColumnType("varchar(255) CHARACTER SET utf8mb4");
 
                     b.Property<DateTime>("DateTime")
-                        .HasColumnType("timestamp with time zone(6)");
+                        .HasColumnType("timestamp");
 
                     b.Property<int>("DataSide")
                         .HasColumnType("int");
@@ -316,13 +316,13 @@ namespace IoTSharp.Data.MySQL.Migrations
                         .HasColumnType("tinyint(1)");
 
                     b.Property<DateTime>("Value_DateTime")
-                        .HasColumnType("timestamp with time zone(6)");
+                        .HasColumnType("timestamp");
 
                     b.Property<double>("Value_Double")
                         .HasColumnType("double");
 
                     b.Property<string>("Value_Json")
-                        .HasColumnType("longtext CHARACTER SET utf8mb4");
+                        .HasColumnType("JSON");
 
                     b.Property<long>("Value_Long")
                         .HasColumnType("bigint");

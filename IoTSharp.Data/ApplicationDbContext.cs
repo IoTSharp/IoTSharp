@@ -16,7 +16,6 @@ namespace IoTSharp.Data
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
             : base(options)
         {
-           
             if (Database.GetPendingMigrations().Count() > 0)
             {
                 Database.Migrate();
@@ -42,7 +41,9 @@ namespace IoTSharp.Data
             modelBuilder.Entity<TelemetryLatest>().HasDiscriminator<DataCatalog>(nameof(Data.DataStorage.Catalog));
             modelBuilder.Entity<Device>().HasDiscriminator<DeviceType>(nameof(Data.Device.DeviceType)).HasValue<Gateway>(DeviceType.Gateway).HasValue<Device>(DeviceType.Device);
             modelBuilder.Entity<Gateway>().HasDiscriminator<DeviceType>(nameof(Data.Device.DeviceType));
-            this.GetService<IDataBaseModelBuilderOptions>().OnModelCreating(modelBuilder);
+            var builder_options= this.GetService<IDataBaseModelBuilderOptions>();
+            builder_options.Infrastructure = this;
+            builder_options.OnModelCreating(modelBuilder);
             modelBuilder.ApplyConfiguration(new TelemetryDataConfiguration());
             base.OnModelCreating(modelBuilder);
         }

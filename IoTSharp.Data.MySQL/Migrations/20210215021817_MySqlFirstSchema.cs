@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace IoTSharp.Data.MySQL.Migrations
 {
-    public partial class MySQLFirstSchema : Migration
+    public partial class MySqlFirstSchema : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -54,15 +54,15 @@ namespace IoTSharp.Data.MySQL.Migrations
                     Catalog = table.Column<int>(type: "int", nullable: false),
                     DeviceId = table.Column<Guid>(type: "char(36)", nullable: false),
                     KeyName = table.Column<string>(type: "varchar(255) CHARACTER SET utf8mb4", nullable: false),
-                    DateTime = table.Column<DateTime>(type: "timestamp with time zone(6)", nullable: false),
+                    DateTime = table.Column<DateTime>(type: "timestamp", nullable: false),
                     DataSide = table.Column<int>(type: "int", nullable: false),
                     Type = table.Column<int>(type: "int", nullable: false),
                     Value_Boolean = table.Column<bool>(type: "tinyint(1)", nullable: false),
                     Value_String = table.Column<string>(type: "longtext CHARACTER SET utf8mb4", nullable: true),
                     Value_Long = table.Column<long>(type: "bigint", nullable: false),
-                    Value_DateTime = table.Column<DateTime>(type: "timestamp with time zone(6)", nullable: false),
+                    Value_DateTime = table.Column<DateTime>(type: "timestamp", nullable: false),
                     Value_Double = table.Column<double>(type: "double", nullable: false),
-                    Value_Json = table.Column<string>(type: "longtext CHARACTER SET utf8mb4", nullable: true),
+                    Value_Json = table.Column<string>(type: "JSON", nullable: true),
                     Value_XML = table.Column<string>(type: "longtext CHARACTER SET utf8mb4", nullable: true),
                     Value_Binary = table.Column<byte[]>(type: "longblob", nullable: true)
                 },
@@ -75,7 +75,7 @@ namespace IoTSharp.Data.MySQL.Migrations
                 name: "TelemetryData",
                 columns: table => new
                 {
-                    DateTime = table.Column<DateTime>(type: "timestamp with time zone(6)", nullable: false),
+                    DateTime = table.Column<DateTime>(type: "timestamp", nullable: false),
                     DeviceId = table.Column<Guid>(type: "char(36)", nullable: false),
                     KeyName = table.Column<string>(type: "varchar(255) CHARACTER SET utf8mb4", nullable: false),
                     DataSide = table.Column<int>(type: "int", nullable: false),
@@ -83,9 +83,9 @@ namespace IoTSharp.Data.MySQL.Migrations
                     Value_Boolean = table.Column<bool>(type: "tinyint(1)", nullable: false),
                     Value_String = table.Column<string>(type: "longtext CHARACTER SET utf8mb4", nullable: true),
                     Value_Long = table.Column<long>(type: "bigint", nullable: false),
-                    Value_DateTime = table.Column<DateTime>(type: "timestamp with time zone(6)", nullable: false),
+                    Value_DateTime = table.Column<DateTime>(type: "timestamp", nullable: false),
                     Value_Double = table.Column<double>(type: "double", nullable: false),
-                    Value_Json = table.Column<string>(type: "longtext CHARACTER SET utf8mb4", nullable: true),
+                    Value_Json = table.Column<string>(type: "JSON", nullable: true),
                     Value_XML = table.Column<string>(type: "longtext CHARACTER SET utf8mb4", nullable: true),
                     Value_Binary = table.Column<byte[]>(type: "longblob", nullable: true)
                 },
@@ -260,9 +260,9 @@ namespace IoTSharp.Data.MySQL.Migrations
                     ObjectName = table.Column<string>(type: "longtext CHARACTER SET utf8mb4", nullable: true),
                     ObjectType = table.Column<int>(type: "int", nullable: false),
                     ActionName = table.Column<string>(type: "longtext CHARACTER SET utf8mb4", nullable: true),
-                    ActionData = table.Column<string>(type: "longtext CHARACTER SET utf8mb4", nullable: true),
-                    ActionResult = table.Column<string>(type: "longtext CHARACTER SET utf8mb4", nullable: true),
-                    ActiveDateTime = table.Column<DateTime>(type: "datetime(6)", nullable: false)
+                    ActionData = table.Column<string>(type: "JSON", nullable: true),
+                    ActionResult = table.Column<string>(type: "JSON", nullable: true),
+                    ActiveDateTime = table.Column<DateTime>(type: "timestamp", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -348,7 +348,7 @@ namespace IoTSharp.Data.MySQL.Migrations
                     Name = table.Column<string>(type: "longtext CHARACTER SET utf8mb4", nullable: true),
                     DeviceType = table.Column<int>(type: "int", nullable: false),
                     Online = table.Column<bool>(type: "tinyint(1)", nullable: false),
-                    LastActive = table.Column<DateTime>(type: "datetime(6)", nullable: false),
+                    LastActive = table.Column<DateTime>(type: "timestamp", nullable: false),
                     Timeout = table.Column<int>(type: "int", nullable: false),
                     OwnerId = table.Column<Guid>(type: "char(36)", nullable: true),
                     TenantId = table.Column<Guid>(type: "char(36)", nullable: true),

@@ -14,10 +14,12 @@ namespace Microsoft.Extensions.DependencyInjection
         {
             services.AddEntityFrameworkMySql();
             services.AddSingleton<IDataBaseModelBuilderOptions>(c => new MySqlModelBuilderOptions());
+            var sv = ServerVersion.AutoDetect(connectionString);
+            services.AddSingleton(sv);
             services.AddDbContextPool<ApplicationDbContext>(builder =>
             {
                 builder.UseInternalServiceProvider(services.BuildServiceProvider());
-                builder.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString), s => s.MigrationsAssembly("IoTSharp.Data.MySQL"));
+                builder.UseMySql(connectionString, sv, s => s.MigrationsAssembly("IoTSharp.Data.MySQL"));
             }
           , poolSize );
            
