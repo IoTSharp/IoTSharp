@@ -95,6 +95,9 @@ namespace IoTSharp
                 case DataBaseType.MySql:
                     services.ConfigureMySql(Configuration.GetConnectionString("IoTSharp"), settings.DbContextPoolSize, healthChecks, healthChecksUI);
                     break;
+                case DataBaseType.SqlServer:
+                    services.ConfigureSqlServer(Configuration.GetConnectionString("IoTSharp"), settings.DbContextPoolSize, healthChecks, healthChecksUI);
+                    break;
                 case DataBaseType.PostgreSql:
                 default:
                     services.ConfigureNpgsql(Configuration.GetConnectionString("IoTSharp"), settings.DbContextPoolSize, healthChecks, healthChecksUI);
@@ -199,6 +202,9 @@ namespace IoTSharp
                         {
                             case DataBaseType.MySql:
                                 config.UseMySqlToSharding(Configuration.GetConnectionString("TelemetryStorage"), settings.Sharding.ExpandByDateMode);
+                                break;
+                            case DataBaseType.SqlServer:
+                                config.UseSqlServerToSharding(Configuration.GetConnectionString("TelemetryStorage"), settings.Sharding.ExpandByDateMode);
                                 break;
                             case DataBaseType.PostgreSql:
                             default:

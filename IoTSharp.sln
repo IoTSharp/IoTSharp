@@ -47,7 +47,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IoTSharp.Data.PostgreSQL", 
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IoTSharp.Data", "IoTSharp.Data\IoTSharp.Data.csproj", "{522B2676-EB0E-4191-ACBC-EDC86DD2351D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IoTSharp.Data.MySQL", "IoTSharp.Data.MySQL\IoTSharp.Data.MySQL.csproj", "{233F2C8D-DD4C-49B7-99A2-F3DB5620DEFB}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IoTSharp.Data.MySQL", "IoTSharp.Data.MySQL\IoTSharp.Data.MySQL.csproj", "{233F2C8D-DD4C-49B7-99A2-F3DB5620DEFB}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IoTSharp.Data.SqlServer", "IoTSharp.Data.SqlServer\IoTSharp.Data.SqlServer.csproj", "{1B3287BE-4FC5-45C7-BA45-D6A3A92D30C8}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -298,6 +300,26 @@ Global
 		{233F2C8D-DD4C-49B7-99A2-F3DB5620DEFB}.Release|x64.Build.0 = Release|Any CPU
 		{233F2C8D-DD4C-49B7-99A2-F3DB5620DEFB}.Release|x86.ActiveCfg = Release|Any CPU
 		{233F2C8D-DD4C-49B7-99A2-F3DB5620DEFB}.Release|x86.Build.0 = Release|Any CPU
+		{1B3287BE-4FC5-45C7-BA45-D6A3A92D30C8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1B3287BE-4FC5-45C7-BA45-D6A3A92D30C8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1B3287BE-4FC5-45C7-BA45-D6A3A92D30C8}.Debug|ARM.ActiveCfg = Debug|Any CPU
+		{1B3287BE-4FC5-45C7-BA45-D6A3A92D30C8}.Debug|ARM.Build.0 = Debug|Any CPU
+		{1B3287BE-4FC5-45C7-BA45-D6A3A92D30C8}.Debug|ARM64.ActiveCfg = Debug|Any CPU
+		{1B3287BE-4FC5-45C7-BA45-D6A3A92D30C8}.Debug|ARM64.Build.0 = Debug|Any CPU
+		{1B3287BE-4FC5-45C7-BA45-D6A3A92D30C8}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{1B3287BE-4FC5-45C7-BA45-D6A3A92D30C8}.Debug|x64.Build.0 = Debug|Any CPU
+		{1B3287BE-4FC5-45C7-BA45-D6A3A92D30C8}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{1B3287BE-4FC5-45C7-BA45-D6A3A92D30C8}.Debug|x86.Build.0 = Debug|Any CPU
+		{1B3287BE-4FC5-45C7-BA45-D6A3A92D30C8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1B3287BE-4FC5-45C7-BA45-D6A3A92D30C8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1B3287BE-4FC5-45C7-BA45-D6A3A92D30C8}.Release|ARM.ActiveCfg = Release|Any CPU
+		{1B3287BE-4FC5-45C7-BA45-D6A3A92D30C8}.Release|ARM.Build.0 = Release|Any CPU
+		{1B3287BE-4FC5-45C7-BA45-D6A3A92D30C8}.Release|ARM64.ActiveCfg = Release|Any CPU
+		{1B3287BE-4FC5-45C7-BA45-D6A3A92D30C8}.Release|ARM64.Build.0 = Release|Any CPU
+		{1B3287BE-4FC5-45C7-BA45-D6A3A92D30C8}.Release|x64.ActiveCfg = Release|Any CPU
+		{1B3287BE-4FC5-45C7-BA45-D6A3A92D30C8}.Release|x64.Build.0 = Release|Any CPU
+		{1B3287BE-4FC5-45C7-BA45-D6A3A92D30C8}.Release|x86.ActiveCfg = Release|Any CPU
+		{1B3287BE-4FC5-45C7-BA45-D6A3A92D30C8}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
