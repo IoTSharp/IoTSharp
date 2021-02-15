@@ -39,7 +39,11 @@ RUN echo "deb https://mirrors.tuna.tsinghua.edu.cn/debian/ buster main contrib n
 WORKDIR /src
 COPY ["IoTSharp/IoTSharp.csproj", "IoTSharp/"]
 COPY ["IoTSharp.Data/IoTSharp.Data.csproj", "IoTSharp.Data/"]
+COPY ["IoTSharp.Data.SqlServer/IoTSharp.Data.SqlServer.csproj", "IoTSharp.Data.SqlServer/"]
+COPY ["IoTSharp.Data.Sqlite/IoTSharp.Data.Sqlite.csproj", "IoTSharp.Data.Sqlite/"]
+COPY ["IoTSharp.Data.Oracle/IoTSharp.Data.Oracle.csproj", "IoTSharp.Data.Oracle/"]
 COPY ["IoTSharp.Data.PostgreSQL/IoTSharp.Data.PostgreSQL.csproj", "IoTSharp.Data.PostgreSQL/"]
+COPY ["IoTSharp.Data.MySQL/IoTSharp.Data.MySQL.csproj", "IoTSharp.Data.MySQL/"]
 RUN dotnet restore "IoTSharp/IoTSharp.csproj"
 COPY . .
 WORKDIR "/src/IoTSharp"
