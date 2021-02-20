@@ -33,35 +33,7 @@ namespace IoTSharp.Storage
             scope = scopeFactor.CreateScope();
             _pinuspool = pinuspool;
         }
-        private bool dbisok = false;
-        private bool CheckDataBase()
-        {
-            if (!dbisok)
-            {
-                dbisok = Retry.RetryOnAny(10, f =>
-                           {
-                               PinusConnection _pinus = _pinuspool.Get();
-                               {
-                                   var _pinusBuilder = new PinusConnectionStringBuilder(_pinus.ConnectionString);
-                                   if (_pinus.State != System.Data.ConnectionState.Open) _pinus.Open();
-                                   if (_pinus.CreateCommand("select count(*) from sys_table where tabname ='telemetrydata'").ExecuteScalar() as long? == 1)
-                                   {
-                                       _pinus.CreateCommand($"DROP TABLE telemetrydata").ExecuteNonQuery();
-                                       _pinus.CreateCommand($"DELETE FROM sys_dev WHERE tabname='telemetrydata'").ExecuteNonQuery();
-                                   }
-                                   _pinus.CreateCommand("CREATE TABLE telemetrydata (devid bigint,tstamp datetime,keyname string , value_type  tinyint,value_boolean bool, value_string string, value_long bigint,value_datetime datetime,value_double double)")
-                                      .ExecuteNonQuery();
-                                   dbisok = true;
-                                   _pinuspool.Return(_pinus);
-                               }
-                               return true;
-                           }, ef =>
-                           {
-                               _logger.LogError(ef.ex, $"CheckDataBase第{ef.current}次失败{ef.ex.Message} {ef.ex.InnerException?.Message} ");
-                           });
-            }
-            return dbisok;
-        }
+    
 
         public Task<List<TelemetryDataDto>> GetTelemetryLatest(Guid deviceId)
         {
@@ -216,24 +188,18 @@ namespace IoTSharp.Storage
             bool result = false;
             try
             {
-                CheckDataBase();
-                List<string> lst = new List<string>();
-                List<PinusParameter> parameters = new List<PinusParameter>();
                 PinusConnection _pinus = _pinuspool.Get();
-                if (_pinus.State != System.Data.ConnectionState.Open) _pinus.Open();
-                long? devid = GetDevid(msg, _pinus);
-                if (!devid.HasValue)
+                var _havedev = _pinus.CreateCommand($"select count(*) from sys_table where tabname =  'telemetrydata_{msg.DeviceId}'").ExecuteScalar() as long?;
+                if ((long)_havedev==0)
                 {
-                    long? maxid = _pinus.CreateCommand("select  max(devid)  from sys_dev  where tabname='telemetrydata'").ExecuteScalar() as long?;
-                    long currdev = (long)(maxid + 1);
-                    _pinus.CreateCommand($"INSERT INTO sys_dev(tabname, devname,devid) VALUES('telemetrydata','{msg.DeviceId}',{maxid + 1})").ExecuteNonQuery();
-                    devid = GetDevid(msg, _pinus);
+                    _pinus.CreateCommand($"CREATE TABLE telemetrydata_{msg.DeviceId} (devid bigint,tstamp datetime,value_type  tinyint,value_boolean bool, value_string string, value_long bigint,value_datetime datetime,value_double double)").ExecuteNonQuery();
                 }
-
+                
                 msg.MsgBody.ToList().ForEach(kp =>
                 {
                     if (kp.Value != null)
                     {
+                        List<PinusParameter> parameters = new List<PinusParameter>();
                         TelemetryData tdata = new TelemetryData() { DateTime = DateTime.Now, DeviceId = msg.DeviceId, KeyName = kp.Key, Value_DateTime = new DateTime(1970, 1, 1) };
                         tdata.FillKVToMe(kp);
                         string _type = "";
@@ -275,7 +241,15 @@ namespace IoTSharp.Storage
                             default:
                                 break;
                         }
-                        cmd.CommandText = $"INSERT INTO telemetrydata(devid,tstamp,{_type}) VALUES({devid}, now(), @{_type})";
+                        var _keyid = GetKeyId(msg.DeviceId, kp.Key, _pinus);
+                        if (!_keyid.HasValue)
+                        {
+                            long? maxid = _pinus.CreateCommand($"select  max(devid)  from sys_dev  where tabname='telemetrydata_{msg.DeviceId}'").ExecuteScalar() as long?;
+                            long currdev = (long)(maxid + 1);
+                            _pinus.CreateCommand($"INSERT INTO sys_dev(tabname, devname,devid) VALUES('telemetrydata_{msg.DeviceId}'','{kp.Key}',{maxid + 1})").ExecuteNonQuery();
+                            _keyid = GetKeyId(msg.DeviceId, kp.Key, _pinus);
+                        }
+                        cmd.CommandText = $"INSERT INTO telemetrydata_{msg.DeviceId} (devid,tstamp,{_type}) VALUES({_keyid}, now(), @{_type})";
                         _logger.LogInformation(cmd.CommandText);
                         try
                         {
@@ -288,8 +262,6 @@ namespace IoTSharp.Storage
                     }
                 });
                 _pinuspool.Return(_pinus);
-                //_logger.LogInformation($"数据入库完成,共数据{lst.Count}条，写入{dt}条");
-
             }
             catch (PinusException ex)
             {
@@ -302,9 +274,9 @@ namespace IoTSharp.Storage
             return  Task.FromResult(result);
         }
 
-        private static long? GetDevid(RawMsg msg, PinusConnection _pinus)
+        private   long? GetKeyId(Guid devid,string keyname, PinusConnection _pinus)
         {
-            return _pinus.CreateCommand($"select devid from sys_dev where tabname='telemetrydata' and devname='{msg.DeviceId}'").ExecuteScalar() as long?;
+            return _pinus.CreateCommand($"select devid from sys_dev where tabname='telemetrydata_{devid}' and devname='{keyname}'").ExecuteScalar() as long?;
         }
     }
 }
