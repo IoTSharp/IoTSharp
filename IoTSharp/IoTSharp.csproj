@@ -13,7 +13,7 @@
 		<Description>Open-source IoT Platform - Device management, data collection, processing and visualization.</Description>
 		<PackageId>IoTSharp</PackageId>
 		<UserSecretsId>18970590-05bf-4a1f-a70b-3c8a120d12cb</UserSecretsId>
-		<Version>1.5.1</Version>
+		<Version>1.6.0</Version>
 		<RepositoryType>git</RepositoryType>
 		<PackageTags>IoT</PackageTags>
 		<ApplicationIcon>Resources\Logo.ico</ApplicationIcon>
@@ -23,8 +23,8 @@
 		<IsPackable>true</IsPackable>
 		<PackageLicenseExpression></PackageLicenseExpression>
 		<Copyright>Copyright 2018-2020  Yanhong Ma</Copyright>
-		<AssemblyVersion>1.15.1.0</AssemblyVersion>
-		<FileVersion>1.15.1.0</FileVersion>
+		<AssemblyVersion>1.6.0.0</AssemblyVersion>
+		<FileVersion>1.6.0.0</FileVersion>
 		<PackageLicenseFile>LICENSE.txt</PackageLicenseFile>
 		<PackageIcon>96x96.png</PackageIcon>
 	</PropertyGroup>
