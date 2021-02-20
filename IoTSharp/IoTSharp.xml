@@ -507,6 +507,18 @@
               查找类似 The certificate is installed 的本地化字符串。
             </summary>
         </member>
+        <member name="M:IoTSharp.Storage.PinusStorage.SqlToTDD(PinusDB.Data.PinusConnection,System.String,System.String,System.String,System.String)">
+            <summary>
+            转换获取到的值
+            </summary>
+            <param name="db"></param>
+            <param name="sql"></param>
+            <param name="prefix"></param>
+            <param name="suffix"></param>
+            <param name="keyname"></param>
+            <returns></returns>
+            <exception cref="!:https://github.com/Pinusdata/TDengine/issues/4269">务必注意此bug</exception>
+        </member>
         <member name="T:IoTSharp.Storage.ShardingStorage">
             <summary>
             由于此模式目前无法通过EFCore.Sharding 进行Group By 获取最新遥测数据， 和Select  新对象， 所以， 最新遥测依然从DataStorage表里获取，历史从分表里获取

@@ -91,6 +91,8 @@
 		<PackageReference Include="MQTTnet.Extensions.Rpc" Version="3.0.14" />
 		<PackageReference Include="NetMQ" Version="4.0.1.6" />
 		<PackageReference Include="NSwag.AspNetCore" Version="13.10.2" />
+		<PackageReference Include="PinusDB" Version="1.0.8" />
+		<PackageReference Include="PinusDB.HealthChecks" Version="1.0.8" />
 		<PackageReference Include="ProxyKit" Version="2.3.4" />
 		<PackageReference Include="Quartz.Serialization.Json" Version="3.2.4" />
 		<PackageReference Include="Savorboard.CAP.InMemoryMessageQueue" Version="3.1.1" />
