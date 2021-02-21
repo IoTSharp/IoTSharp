@@ -18,11 +18,11 @@ using System.Threading.Tasks;
 namespace IoTSharp.Storage
 {
 
-    public class PinusStorage : IStorage
+    public class PinusDBStorage : IStorage
     {
         private readonly ILogger _logger;
         private readonly ObjectPool<PinusConnection> _pinuspool;
-        public PinusStorage(ILogger<PinusStorage> logger, ObjectPool<PinusConnection> pinuspool
+        public PinusDBStorage(ILogger<PinusDBStorage> logger, ObjectPool<PinusConnection> pinuspool
             )
         {
             _logger = logger;

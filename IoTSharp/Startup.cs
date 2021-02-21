@@ -241,8 +241,8 @@ namespace IoTSharp
                     services.AddObjectPool(() => InfluxDBClientFactory.Create(Configuration.GetConnectionString("TelemetryStorage")));
                     //healthChecks.AddInfluxDB(Configuration.GetConnectionString("TelemetryStorage"),name: _hc_telemetryStorage);
                     break;
-                case TelemetryStorage.Pinus:
-                    services.AddSingleton<IStorage, PinusStorage>();
+                case TelemetryStorage.PinusDB:
+                    services.AddSingleton<IStorage, PinusDBStorage>();
                     services.AddObjectPool(() => 
                     {
                         var cnt = new PinusConnection(settings.ConnectionStrings["TelemetryStorage"]);

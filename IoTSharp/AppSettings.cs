@@ -20,7 +20,7 @@ namespace IoTSharp
         Sharding,
         Taos,
         InfluxDB,
-        Pinus
+        PinusDB
     }
     [JsonConverter(typeof(StringEnumConverter))]
     public enum EventBusStore
