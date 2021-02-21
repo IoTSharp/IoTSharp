@@ -507,17 +507,14 @@
               查找类似 The certificate is installed 的本地化字符串。
             </summary>
         </member>
-        <member name="M:IoTSharp.Storage.PinusStorage.SqlToTDD(PinusDB.Data.PinusConnection,System.String,System.String,System.String,System.String)">
+        <member name="M:IoTSharp.Storage.PinusStorage.SqlToTDD(PinusDB.Data.PinusConnection,System.String,System.Guid)">
             <summary>
             转换获取到的值
             </summary>
             <param name="db"></param>
             <param name="sql"></param>
-            <param name="prefix"></param>
-            <param name="suffix"></param>
-            <param name="keyname"></param>
+            <param name="devid"></param>
             <returns></returns>
-            <exception cref="!:https://github.com/Pinusdata/TDengine/issues/4269">务必注意此bug</exception>
         </member>
         <member name="T:IoTSharp.Storage.ShardingStorage">
             <summary>

@@ -20,29 +20,21 @@ namespace IoTSharp.Storage
 
     public class PinusStorage : IStorage
     {
-        private readonly AppSettings _appSettings;
         private readonly ILogger _logger;
-        private readonly IServiceScope scope;
         private readonly ObjectPool<PinusConnection> _pinuspool;
-        public PinusStorage(ILogger<PinusStorage> logger, IServiceScopeFactory scopeFactor
-           , IOptions<AppSettings> options,   ObjectPool<PinusConnection> pinuspool
+        public PinusStorage(ILogger<PinusStorage> logger, ObjectPool<PinusConnection> pinuspool
             )
         {
-            _appSettings = options.Value;
             _logger = logger;
-            scope = scopeFactor.CreateScope();
             _pinuspool = pinuspool;
         }
-    
+
 
         public Task<List<TelemetryDataDto>> GetTelemetryLatest(Guid deviceId)
         {
             PinusConnection _pinus = _pinuspool.Get();
-            _pinus.ChangeDatabase(_pinus.Database);
-            if (_pinus.State != System.Data.ConnectionState.Open) _pinus.Open();
-            //https://github.com/Pinusdata/TDengine/issues/4269
-            string sql = $"select last_row(*) from telemetrydata where deviceid='{deviceId:N}' group by deviceid,keyname";
-            List<TelemetryDataDto> dt = SqlToTDD(_pinus, sql, "last_row(", ")", string.Empty);
+            string sql = $"select  devid,devname,expand  from sys_dev  where tabname='telemetrydata_{deviceId:N}'";
+            List<TelemetryDataDto> dt = SqlToTDD(_pinus, sql, deviceId);
             _pinuspool.Return(_pinus);
             return Task.FromResult(dt);
 
@@ -53,65 +45,22 @@ namespace IoTSharp.Storage
         /// </summary>
         /// <param name="db"></param>
         /// <param name="sql"></param>
-        /// <param name="prefix"></param>
-        /// <param name="suffix"></param>
-        /// <param name="keyname"></param>
+        /// <param name="devid"></param>
         /// <returns></returns>
-        /// <exception cref="https://github.com/Pinusdata/TDengine/issues/4269">务必注意此bug</exception>
-        private List<TelemetryDataDto> SqlToTDD(PinusConnection db, string sql, string prefix, string suffix, string keyname)
+        private List<TelemetryDataDto> SqlToTDD(PinusConnection db, string sql, Guid devid)
         {
             List<TelemetryDataDto> dt = new List<TelemetryDataDto>();
-            PinusDataReader dataReader = db.CreateCommand(sql).ExecuteReader();
-            while (dataReader.Read())
+            var kts = db.CreateCommand(sql).ExecuteReader().ToList<(long keyid, string keyname, string datatype)>();
+            kts.ForEach(kf =>
             {
-                TelemetryDataDto telemetry = new TelemetryDataDto();
+                TelemetryDataDto telemetry = new TelemetryDataDto() { KeyName = kf.keyname };
                 try
                 {
-                    int idx = dataReader.GetOrdinal($"{prefix}value_type{suffix}");
-                    byte  datatype;
-                    if (dataReader.FieldCount > idx && idx >= 0)
-                    {
-                        datatype =dataReader.GetByte(idx);
-                    }
-                    else
-                    {
-                        throw new Exception($"字段{prefix}value_type{suffix}的Index={idx}小于0或者大于FieldCount{dataReader.FieldCount},更多信息请访问 HelpLink") { HelpLink= "https://github.com/Pinusdata/TDengine/issues/4269" };
-                    }
-
-                    if (string.IsNullOrEmpty(keyname))
-                    {
-                        telemetry.KeyName = dataReader.GetString(dataReader.GetOrdinal("keyname"));
-                    }
-                    else
-                    {
-                        telemetry.KeyName = keyname;
-                    }
-                    telemetry.DateTime = dataReader.GetDateTime(dataReader.GetOrdinal($"{prefix}ts{suffix}"));
-                    switch ((DataType)datatype)
-                    {
-                        case DataType.Boolean:
-                            telemetry.Value = dataReader.GetBoolean(dataReader.GetOrdinal($"{prefix}value_boolean{suffix}"));
-                            break;
-                        case DataType.String:
-                            telemetry.Value = dataReader.GetString(dataReader.GetOrdinal($"{prefix}value_string{suffix}"));
-                            break;
-                        case DataType.Long:
-                            telemetry.Value = dataReader.GetInt64(dataReader.GetOrdinal($"{prefix}value_long{suffix}"));
-                            break;
-                        case DataType.Double:
-                            telemetry.Value = dataReader.GetDouble(dataReader.GetOrdinal($"{prefix}value_double{suffix}"));
-                            break;
-                        case DataType.Json:
-                        case DataType.XML:
-                        case DataType.Binary:
-                            telemetry.Value = dataReader.GetString(dataReader.GetOrdinal($"{prefix}value_string{suffix}"));
-                            break;
-                        case DataType.DateTime:
-                            telemetry.Value = dataReader.GetDateTime(dataReader.GetOrdinal($"{prefix}value_datetime{suffix}"));
-                            break;
-                        default:
-                            break;
-                    }
+                    DataType datatype = (DataType)Convert.ToInt32(kf.datatype);
+                    var queryvalue = db.CreateCommand($"SELECT {datatype.ToFieldName()},tstamp from {GetDevTableName(devid)}   where  devid ={kf.keyid} order by tstamp desc  limit 1 ")
+                                        .ExecuteReader().ToList<(object obj, DateTime dt)>();
+                    telemetry.AttachValue(datatype, queryvalue.FirstOrDefault().obj);
+                    telemetry.DateTime = queryvalue.FirstOrDefault().dt;
                 }
                 catch (Exception ex)
                 {
@@ -121,34 +70,32 @@ namespace IoTSharp.Storage
                 {
                     dt.Add(telemetry);
                 }
-            }
+            });
             return dt;
         }
 
         public Task<List<TelemetryDataDto>> GetTelemetryLatest(Guid deviceId, string keys)
         {
-           PinusConnection _pinus = _pinuspool.Get();
-            if (_pinus.State != System.Data.ConnectionState.Open) _pinus.Open();
-            IEnumerable<string> kvs = from k in keys
-                                      select $" keyname = '{k}' ";
-            string sql = $"select last_row(*) from telemetrydata where deviceid='{deviceId:N}' and ({string.Join("or", kvs) }) group by deviceid,keyname";
-            List<TelemetryDataDto> dt = SqlToTDD(_pinus, sql, "last_row(", ")", string.Empty);
+            PinusConnection _pinus = _pinuspool.Get();
+            List<TelemetryDataDto> dt=null;
+            try
+            {
+                string sql = $"select  devid,devname,expand  from sys_dev  where tabname='telemetrydata_{deviceId:N}' and   in ('{ string.Join("','", keys.Split(';', ','))}')";
+                dt = SqlToTDD(_pinus, sql, deviceId);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"LoadTelemetryAsync({deviceId},{keys}){ex.Message}");
+            }
+            finally
+            {
+                _pinuspool.Return(_pinus);
+            }
             _pinuspool.Return(_pinus);
             return Task.FromResult(dt);
 
         }
-        private List<TelemetryDataDto> SQLToDTByDate(DateTime begin, DateTime end, PinusConnection db, string sql)
-        {
-            List<TelemetryDataDto> dt = new List<TelemetryDataDto>();
-            List<(string tbname, string keyname)> list = db.CreateCommand(sql).ExecuteReader().ToList<(string tbname, string keyname)>();
-            foreach ((string tbname, string keyname) item in list)
-            {
-                string susql = $" select * from {item.tbname} where ts >={begin:yyyy-MM-dd HH:mm:ss.fff} and ts <={end:yyyy-MM-dd HH:mm:ss.fff}";
-                List<TelemetryDataDto> dtx = SqlToTDD(db, susql, "", "", item.keyname);
-                dt.AddRange(dtx);
-            }
-            return dt;
-        }
+
         public Task<List<TelemetryDataDto>> LoadTelemetryAsync(Guid deviceId, string keys, DateTime begin)
         {
             return LoadTelemetryAsync(deviceId, keys, begin, DateTime.Now);
@@ -158,14 +105,23 @@ namespace IoTSharp.Storage
         public Task<List<TelemetryDataDto>> LoadTelemetryAsync(Guid deviceId, string keys, DateTime begin, DateTime end)
         {
             PinusConnection _pinus = _pinuspool.Get();
-            if (_pinus.State != System.Data.ConnectionState.Open) _pinus.Open();
-            IEnumerable<string> kvs = from k in keys
-                                          select $" keyname = '{k}' ";
-                string sql = $"select  tbname,keyname  from telemetrydata where deviceid='{deviceId:N}'  and ({string.Join("or", kvs) })  ";
-                List<TelemetryDataDto> dt = SQLToDTByDate(begin, end, _pinus, sql);
-            _pinuspool.Return(_pinus);
+            List<TelemetryDataDto> dt = null;
+            try
+            {
+                string sql = $"select  devid,devname,expand  from sys_dev  where tabname='telemetrydata_{deviceId:N}' and   in ('{ string.Join("','", keys.Split(';', ','))}')";
+                dt = SQLToDTByDate(begin, end, _pinus, sql, deviceId);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"LoadTelemetryAsync({deviceId},{keys},{begin},{end}){ex.Message}");
+            }
+            finally
+            {
+                _pinuspool.Return(_pinus);
+            }
+          
             return Task.FromResult(dt);
-            
+
         }
 
         public Task<List<TelemetryDataDto>> LoadTelemetryAsync(Guid deviceId, DateTime begin)
@@ -176,25 +132,63 @@ namespace IoTSharp.Storage
         public Task<List<TelemetryDataDto>> LoadTelemetryAsync(Guid deviceId, DateTime begin, DateTime end)
         {
             PinusConnection _pinus = _pinuspool.Get();
-            if (_pinus.State != System.Data.ConnectionState.Open) _pinus.Open();
-            string sql = $"select  tbname,keyname  from telemetrydata where deviceid='{deviceId:N}'";
-                List<TelemetryDataDto> dt = SQLToDTByDate(begin, end, _pinus, sql);
-            _pinuspool.Return(_pinus);
-            return Task.FromResult(dt);
-        }
-
-        public   Task<bool> StoreTelemetryAsync(RawMsg msg)
-        {
-            bool result = false;
+            List<TelemetryDataDto> dt = null;
             try
             {
-                PinusConnection _pinus = _pinuspool.Get();
-                var _havedev = _pinus.CreateCommand($"select count(*) from sys_table where tabname =  'telemetrydata_{msg.DeviceId}'").ExecuteScalar() as long?;
-                if ((long)_havedev==0)
+                string sql = $"select  tbname,keyname  from telemetrydata where deviceid='{deviceId:N}'";
+                dt = SQLToDTByDate(begin, end, _pinus, sql, deviceId);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"LoadTelemetryAsync({deviceId}, {begin},{end}){ex.Message}");
+            }
+            finally
+            {
+                _pinuspool.Return(_pinus);
+            }
+            return Task.FromResult(dt);
+        }
+        private List<TelemetryDataDto> SQLToDTByDate(DateTime begin, DateTime end, PinusConnection db, string sql, Guid devid)
+        {
+            List<TelemetryDataDto> dt = new List<TelemetryDataDto>();
+            var kts = db.CreateCommand(sql).ExecuteReader().ToList<(long keyid, string keyname, string datatype)>();
+            kts.ForEach(kf =>
+            {
+                TelemetryDataDto telemetry = new TelemetryDataDto() { KeyName = kf.keyname };
+                try
                 {
-                    _pinus.CreateCommand($"CREATE TABLE telemetrydata_{msg.DeviceId} (devid bigint,tstamp datetime,value_type  tinyint,value_boolean bool, value_string string, value_long bigint,value_datetime datetime,value_double double)").ExecuteNonQuery();
+                    DataType datatype = (DataType)Convert.ToInt32(kf.datatype);
+                    var scmd = db.CreateCommand($"SELECT {datatype.ToFieldName()},tstamp from {GetDevTableName(devid)}   where  devid ={kf.keyid} and tstamp>=@begin and tstamp <@end order by tstamp desc  ");
+                    scmd.Parameters.AddWithValue("@begin", begin);
+                    scmd.Parameters.AddWithValue("@end", end);
+                    var queryvalue = scmd.ExecuteReader().ToList<(object obj, DateTime dt)>();
+                    telemetry.AttachValue(datatype, queryvalue.FirstOrDefault().obj);
+                    telemetry.DateTime = queryvalue.FirstOrDefault().dt;
                 }
-                
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, $"{telemetry.KeyName}遇到{ex.Message}, sql:{sql}");
+                }
+                if (!string.IsNullOrEmpty(telemetry.KeyName))
+                {
+                    dt.Add(telemetry);
+                }
+            });
+            return dt;
+        }
+        public Task<bool> StoreTelemetryAsync(RawMsg msg)
+        {
+            bool result = false;
+            PinusConnection _pinus = _pinuspool.Get();
+            try
+            {
+                string tablename = GetDevTableName(msg);
+                var _havedev = _pinus.CreateCommand($"select count(*) from sys_table where tabname =  '{tablename}'").ExecuteScalar() as long?;
+                if ((long)_havedev == 0)
+                {
+                    _pinus.CreateCommand($"CREATE TABLE {tablename} (devid bigint,tstamp datetime,value_type  tinyint,value_boolean bool, value_string string, value_long bigint,value_datetime datetime,value_double double)").ExecuteNonQuery();
+                }
+
                 msg.MsgBody.ToList().ForEach(kp =>
                 {
                     if (kp.Value != null)
@@ -241,19 +235,20 @@ namespace IoTSharp.Storage
                             default:
                                 break;
                         }
-                        var _keyid = GetKeyId(msg.DeviceId, kp.Key, _pinus);
+                        long? _keyid = GetKeyId(msg.DeviceId, kp.Key, _pinus);
                         if (!_keyid.HasValue)
                         {
-                            long? maxid = _pinus.CreateCommand($"select  max(devid)  from sys_dev  where tabname='telemetrydata_{msg.DeviceId}'").ExecuteScalar() as long?;
-                            long currdev = (long)(maxid + 1);
-                            _pinus.CreateCommand($"INSERT INTO sys_dev(tabname, devname,devid) VALUES('telemetrydata_{msg.DeviceId}'','{kp.Key}',{maxid + 1})").ExecuteNonQuery();
+                            long? maxid = _pinus.CreateCommand($"select  max(devid)  from sys_dev  where tabname='{tablename}'").ExecuteScalar() as long?;
+                            long currdev = maxid.GetValueOrDefault() + 1;
+                            _pinus.CreateCommand($"INSERT INTO sys_dev(tabname, devname,devid,expand) VALUES('{tablename}','{kp.Key}',{currdev},'{(int)tdata.Type}')").ExecuteNonQuery();
                             _keyid = GetKeyId(msg.DeviceId, kp.Key, _pinus);
                         }
-                        cmd.CommandText = $"INSERT INTO telemetrydata_{msg.DeviceId} (devid,tstamp,{_type}) VALUES({_keyid}, now(), @{_type})";
+                        cmd.CommandText = $"INSERT INTO {tablename} (devid,tstamp,value_type,{_type}) VALUES({_keyid}, now(), {(int)tdata.Type}, @{_type})";
                         _logger.LogInformation(cmd.CommandText);
                         try
                         {
                             int dt = cmd.ExecuteNonQuery();
+                            result = dt > 0;
                         }
                         catch (Exception ex)
                         {
@@ -261,22 +256,25 @@ namespace IoTSharp.Storage
                         }
                     }
                 });
-                _pinuspool.Return(_pinus);
-            }
-            catch (PinusException ex)
-            {
-                _logger.LogError(ex, $"{msg.DeviceId}数据处理失败{ex.ErrorCode}-{ex.Message} {ex.InnerException?.Message}");
+
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, $"{msg.DeviceId}数据处理失败{ex.Message} {ex.InnerException?.Message} ");
             }
-            return  Task.FromResult(result);
+            finally
+            {
+                _pinuspool.Return(_pinus);
+            }
+            return Task.FromResult(result);
         }
 
-        private   long? GetKeyId(Guid devid,string keyname, PinusConnection _pinus)
+        private static string GetDevTableName(RawMsg msg) => $"telemetrydata_{msg.DeviceId:N}";
+        private static string GetDevTableName(Guid devid) => $"telemetrydata_{devid:N}";
+
+        private long? GetKeyId(Guid devid, string keyname, PinusConnection _pinus)
         {
-            return _pinus.CreateCommand($"select devid from sys_dev where tabname='telemetrydata_{devid}' and devname='{keyname}'").ExecuteScalar() as long?;
+            return _pinus.CreateCommand($"select devid from sys_dev where tabname='{GetDevTableName(devid)}' and devname='{keyname}'").ExecuteScalar() as long?;
         }
     }
 }

@@ -52,6 +52,7 @@ using System.Text.RegularExpressions;
 using HealthChecks.UI.Configuration;
 using NSwag.Generation.AspNetCore;
 using RabbitMQ.Client;
+using PinusDB.Data;
 
 namespace IoTSharp
 {
@@ -227,9 +228,7 @@ namespace IoTSharp
                     });
                     services.AddSingleton<IStorage, ShardingStorage>();
                     break;
-                case TelemetryStorage.SingleTable:
-                    services.AddSingleton<IStorage, EFStorage>();
-                    break;
+ 
                 case TelemetryStorage.Taos:
                     services.AddSingleton<IStorage, TaosStorage>();
                     services.AddObjectPool(() => new TaosConnection(settings.ConnectionStrings["TelemetryStorage"]));
@@ -237,14 +236,24 @@ namespace IoTSharp
                     break;
                 case TelemetryStorage.InfluxDB:
                     //https://github.com/julian-fh/influxdb-setup
-
                     services.AddSingleton<IStorage, InfluxDBStorage>();
                     //"TelemetryStorage": "http://localhost:8086/?org=iotsharp&bucket=iotsharp-bucket&token=iotsharp-token"
                     services.AddObjectPool(() => InfluxDBClientFactory.Create(Configuration.GetConnectionString("TelemetryStorage")));
                     //healthChecks.AddInfluxDB(Configuration.GetConnectionString("TelemetryStorage"),name: _hc_telemetryStorage);
                     break;
-         
+                case TelemetryStorage.Pinus:
+                    services.AddSingleton<IStorage, PinusStorage>();
+                    services.AddObjectPool(() => 
+                    {
+                        var cnt = new PinusConnection(settings.ConnectionStrings["TelemetryStorage"]);
+                        cnt.Open();
+                        return cnt;
+                    });
+                    healthChecks.AddPinusDB(Configuration.GetConnectionString("TelemetryStorage"), name: _hc_telemetryStorage);
+                    break;
+                case TelemetryStorage.SingleTable:
                 default:
+                    services.AddSingleton<IStorage, EFStorage>();
                     break;
             }
 
