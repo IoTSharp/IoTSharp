@@ -95,7 +95,7 @@
 		<PackageReference Include="Silkier.AspNetCore" Version="1.0.312" />
 		<PackageReference Include="Silkier.EFCore" Version="1.0.312" />
 		<PackageReference Include="SilkierQuartz" Version="5.0.226" />
-		<PackageReference Include="SilkierQuartz.Plugins.RecentHistory" Version="5.0.213" />
+		<PackageReference Include="SilkierQuartz.Plugins.RecentHistory" Version="5.0.226" />
 		<PackageReference Include="System.Collections" Version="4.3.0" />
 		<PackageReference Include="System.ServiceModel.Primitives" Version="4.8.1" />
 		<PackageReference Include="System.Text.Encoding.CodePages" Version="5.0.0" />
