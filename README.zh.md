@@ -105,7 +105,8 @@ IoTSharp 的软件生态
 | ------ | ---- |
 | ![](docs/images/qrcode.jpg) | ![](docs/images/IoTSharpQQGruop.png) |
 
-## DotNetChina
+## dotNET China
+
 [![DotNetChina](https://images.gitee.com/uploads/images/2021/0309/134044_9c191d7b_974299.png)](https://gitee.com/dotnetchina/IoTSharp)
 
 ## Contributing
