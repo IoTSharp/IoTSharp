@@ -62,7 +62,7 @@
 		<PackageReference Include="EasyCaching.LiteDB" Version="1.2.0" />
 		<PackageReference Include="EasyCaching.Redis" Version="1.2.1" />
 		<PackageReference Include="hyjiacan.py4n" Version="4.0.0" />
-		<PackageReference Include="InfluxDB.Client" Version="1.15.0" />
+		<PackageReference Include="InfluxDB.Client" Version="1.17.0" />
 		<PackageReference Include="IoTSharp.CoAP.NET" Version="2.0.8" />
 		<PackageReference Include="IoTSharp.X509Extensions" Version="1.4.27" />
 		<PackageReference Include="kimbus" Version="2.0.1" />
