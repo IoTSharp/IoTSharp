@@ -133,7 +133,9 @@ namespace IoTSharp.Extensions
         }
         internal static void FillKVToMe<T>(this T tdata, KeyValuePair<string, object> kp) where T : IDataStorage
         {
-            switch (Type.GetTypeCode(kp.Value.GetType()))
+            var tc = Type.GetTypeCode(kp.Value.GetType());
+         
+            switch (tc)
             {
                 case TypeCode.Boolean:
                     tdata.Type = DataType.Boolean;
@@ -174,7 +176,39 @@ namespace IoTSharp.Extensions
                     break;
                 case TypeCode.Object:
                 default:
-                    if (kp.Value.GetType() == typeof(byte[]))
+                    if (kp.Value.GetType() == typeof(System.Text.Json.JsonElement))
+                    {
+                         var je = (System.Text.Json.JsonElement)kp.Value;
+                        switch (je.ValueKind)
+                        {
+                            case System.Text.Json.JsonValueKind.Undefined:
+                            
+                            case System.Text.Json.JsonValueKind.Object:
+                             
+                            case System.Text.Json.JsonValueKind.Array:
+                                tdata.Type = DataType.Json;
+                                tdata.Value_Json = System.Text.Json.JsonSerializer.Serialize(je.EnumerateObject());
+                                break;
+                            case System.Text.Json.JsonValueKind.String:
+                                tdata.Type = DataType.String;
+                                tdata.Value_String = je.GetString();
+                                break;
+                            case System.Text.Json.JsonValueKind.Number:
+                                tdata.Type = DataType.Double;
+                                tdata.Value_Double = je.GetDouble() ;
+                                break;
+                            case System.Text.Json.JsonValueKind.True:
+                            case System.Text.Json.JsonValueKind.False:
+                                tdata.Type = DataType.Boolean;
+                                tdata.Value_Boolean =  je.GetBoolean();
+                                break;
+                            case System.Text.Json.JsonValueKind.Null:
+                                break;
+                            default:
+                                break;
+                        }
+                    }
+                    else if (kp.Value.GetType() == typeof(byte[]))
                     {
                         tdata.Type = DataType.Binary;
                         tdata.Value_Binary = (byte[])kp.Value;

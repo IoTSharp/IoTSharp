@@ -13,12 +13,13 @@ namespace IoTSharp.Data
         public string Name { get; set; }
 
         public string AuthToken { get; set; }
-
+        [System.Text.Json.Serialization.JsonIgnore]
         [Newtonsoft.Json.JsonIgnore]
         public Tenant Tenant { get; set; }
+        [System.Text.Json.Serialization.JsonIgnore]
         [Newtonsoft.Json.JsonIgnore]
         public Customer Customer { get; set; }
-
+        [System.Text.Json.Serialization.JsonIgnore]
         [Newtonsoft.Json.JsonIgnore]
         public List<Device> Devices { get; set; }
     }

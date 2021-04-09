@@ -29,7 +29,7 @@ namespace IoTSharp.Data
     {
         [EnumDataType(typeof(DataCatalog)), Column(Order = 0)]
         public DataCatalog Catalog { get; set; }
-
+        [System.Text.Json.Serialization.JsonIgnore]
         [Newtonsoft.Json.JsonIgnore, Column(Order = 1)]
         public Guid DeviceId { get; set; }
 

@@ -42,6 +42,7 @@ namespace IoTSharp.Data
         TelemetryData,
         TelemetryLatest,
     }
+    [System.Text.Json.Serialization.JsonConverter(typeof(System.Text.Json.Serialization.JsonStringEnumConverter))]
     [JsonConverter(typeof(StringEnumConverter))]
     public enum DataSide
     {
@@ -49,6 +50,7 @@ namespace IoTSharp.Data
         ServerSide,
         ClientSide,
     }
+    [System.Text.Json.Serialization.JsonConverter(typeof(System.Text.Json.Serialization.JsonStringEnumConverter))]
     [JsonConverter(typeof(StringEnumConverter))]
     public enum UserRole
     {
@@ -58,6 +60,7 @@ namespace IoTSharp.Data
         TenantAdmin,
         SystemAdmin,
     }
+    [System.Text.Json.Serialization.JsonConverter(typeof(System.Text.Json.Serialization.JsonStringEnumConverter))]
     [JsonConverter(typeof(StringEnumConverter))]
     public enum DataType
     {
@@ -70,6 +73,7 @@ namespace IoTSharp.Data
         Binary,
         DateTime
     }
+    [System.Text.Json.Serialization.JsonConverter(typeof(System.Text.Json.Serialization.JsonStringEnumConverter))]
     [JsonConverter(typeof(StringEnumConverter))]
     public enum DataBaseType
     {
@@ -79,6 +83,7 @@ namespace IoTSharp.Data
         Oracle ,
         Sqlite
     }
+    [System.Text.Json.Serialization.JsonConverter(typeof(System.Text.Json.Serialization.JsonStringEnumConverter))]
     [JsonConverter(typeof(StringEnumConverter))]
     public enum IdentityType
     {
@@ -86,6 +91,7 @@ namespace IoTSharp.Data
         DevicePassword,
         X509Certificate
     }
+    [System.Text.Json.Serialization.JsonConverter(typeof(System.Text.Json.Serialization.JsonStringEnumConverter))]
     [JsonConverter(typeof(StringEnumConverter))]
     public enum ObjectType
     {
@@ -98,19 +104,21 @@ namespace IoTSharp.Data
         MQTTClient
 
     }
+    [System.Text.Json.Serialization.JsonConverter(typeof(System.Text.Json.Serialization.JsonStringEnumConverter))]
     [JsonConverter(typeof(StringEnumConverter))]
     public enum DeviceType
     {
         Device = 0,
         Gateway = 1
     }
+    [System.Text.Json.Serialization.JsonConverter(typeof(System.Text.Json.Serialization.JsonStringEnumConverter))]
     [JsonConverter(typeof(StringEnumConverter))]
     public enum CoApRes
     {
         Attributes,
         Telemetry,
     }
-
+    [System.Text.Json.Serialization.JsonConverter(typeof(System.Text.Json.Serialization.JsonStringEnumConverter))]
     [JsonConverter(typeof(StringEnumConverter))]
     public enum RuleType
     {

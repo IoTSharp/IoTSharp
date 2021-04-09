@@ -11,6 +11,7 @@ namespace IoTSharp.Data
     public class TelemetryData : IDataStorage
     {
 
+        [System.Text.Json.Serialization.JsonIgnore]
         [Newtonsoft.Json.JsonIgnore, Column(Order = 1)]
         public Guid DeviceId { get; set; }
 

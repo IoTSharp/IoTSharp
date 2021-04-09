@@ -34,7 +34,7 @@ namespace IoTSharp.Data
         /// When <see cref="IdentityType"/> Is <see cref="IdentityType.X509Certificate"/> ,this is X509 Certificate' PEM.
         /// </summary>
         public string IdentityValue { get; set; }
-
+        [System.Text.Json.Serialization.JsonIgnore]
         [Newtonsoft.Json.JsonIgnore]
         [Required]
         public Device Device { get; set; }
