@@ -252,7 +252,8 @@ namespace IoTSharp
                     healthChecks.AddPinusDB(Configuration.GetConnectionString("TelemetryStorage"), name: _hc_telemetryStorage);
                     break;
                 case TelemetryStorage.TimescaleDB:
-
+                    services.AddSingleton<IStorage, TimescaleDBStorage>();
+                    break;
                 case TelemetryStorage.SingleTable:
                 default:
                     services.AddSingleton<IStorage, EFStorage>();

@@ -59,7 +59,42 @@ namespace IoTSharp.Handlers
                         {
                              
                             device.CheckOrUpdateDevStatus();
-                            var result2 = await _dbContext.SaveAsync<AttributeLatest>(msg.MsgBody, device.Id, msg.DataSide);
+                            var mb = msg.MsgBody;
+                            Dictionary<string, object> dc = new Dictionary<string, object>();
+                            mb.ToList().ForEach(kp =>
+                            {
+                                if (kp.Value.GetType() == typeof(System.Text.Json.JsonElement))
+                                {
+                                    var je = (System.Text.Json.JsonElement)kp.Value;
+                                    switch (je.ValueKind)
+                                    {
+                                        case System.Text.Json.JsonValueKind.Undefined:
+                                        case System.Text.Json.JsonValueKind.Object:
+                                        case System.Text.Json.JsonValueKind.Array:
+                                            dc.Add(kp.Key, je.GetRawText());
+                                            break;
+                                        case System.Text.Json.JsonValueKind.String:
+                                            dc.Add(kp.Key, je.GetString()); 
+                                            break;
+                                        case System.Text.Json.JsonValueKind.Number:
+                                            dc.Add(kp.Key, je.GetDouble());
+                                            break;
+                                        case System.Text.Json.JsonValueKind.True:
+                                        case System.Text.Json.JsonValueKind.False:
+                                            dc.Add(kp.Key, je.GetBoolean());
+                                            break;
+                                        case System.Text.Json.JsonValueKind.Null:
+                                            break;
+                                        default:
+                                            break;
+                                    }
+                                }
+                                else
+                                {
+                                    dc.Add(kp.Key, kp.Value);
+                                }
+                            });
+                            var result2 = await _dbContext.SaveAsync<AttributeLatest>(dc, device.Id, msg.DataSide);
                             result2.exceptions?.ToList().ForEach(ex =>
                             {
                                 _logger.LogError($"{ex.Key} {ex.Value} {Newtonsoft.Json.JsonConvert.SerializeObject(msg.MsgBody[ex.Key])}");
