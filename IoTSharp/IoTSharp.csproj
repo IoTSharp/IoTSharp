@@ -39,7 +39,7 @@
 
 		<PackageReference Include="AspNetCore.HealthChecks.Kafka" Version="5.0.1" />
 		<PackageReference Include="AspNetCore.HealthChecks.MongoDb" Version="5.0.1" />
-		<PackageReference Include="AspNetCore.HealthChecks.Network" Version="5.0.1" />
+		<PackageReference Include="AspNetCore.HealthChecks.Network" Version="5.0.4" />
 	
 		<PackageReference Include="AspNetCore.HealthChecks.Rabbitmq" Version="5.0.1" />
 		<PackageReference Include="AspNetCore.HealthChecks.Redis" Version="5.0.2" />
@@ -89,7 +89,7 @@
 		<PackageReference Include="PinusDB" Version="1.0.10" />
 		<PackageReference Include="PinusDB.HealthChecks" Version="1.0.10" />
 		<PackageReference Include="ProxyKit" Version="2.3.4" />
-		<PackageReference Include="Quartz.Serialization.Json" Version="3.3.1" />
+		<PackageReference Include="Quartz.Serialization.Json" Version="3.3.2" />
 		<PackageReference Include="Savorboard.CAP.InMemoryMessageQueue" Version="3.1.1" />
 		<PackageReference Include="Silkier" Version="1.0.345" />
 		<PackageReference Include="Silkier.AspNetCore" Version="1.0.345" />
