@@ -154,10 +154,6 @@ namespace IoTSharp
             services.AddIoTSharpMqttServer(settings.MqttBroker);
             services.AddMqttClient(settings.MqttClient);
             services.AddSingleton<RetainedMessageHandler>();
-
-          
-           
-
             services.AddSilkierQuartz(opt =>
             {
                 //opt.Add("quartz.serializer.type", "json");
@@ -224,9 +220,7 @@ namespace IoTSharp
                                 config.UseNpgsqlToSharding(Configuration.GetConnectionString("TelemetryStorage"), settings.Sharding.ExpandByDateMode);
                                 break;
                         }
-
                         config.SetEntityAssemblies(new Assembly[] { typeof(TelemetryData).Assembly });
-                    
                     });
                     services.AddSingleton<IStorage, ShardingStorage>();
                     break;
