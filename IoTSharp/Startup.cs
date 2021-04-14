@@ -224,9 +224,7 @@ namespace IoTSharp
                                 config.UseNpgsqlToSharding(Configuration.GetConnectionString("TelemetryStorage"), settings.Sharding.ExpandByDateMode);
                                 break;
                         }
-
-                        config.SetEntityAssemblies(new Assembly[] { typeof(TelemetryData).Assembly });
-
+                    
                     });
                     services.AddSingleton<IStorage, ShardingStorage>();
                     break;

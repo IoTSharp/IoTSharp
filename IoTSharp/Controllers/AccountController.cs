@@ -221,13 +221,13 @@ namespace IoTSharp.Controllers
         {
             List<UserItemDto> dtos = new List<UserItemDto>();
             var users = await _userManager.GetUsersForClaimAsync (_signInManager.Context.User.FindFirst( m=> m.Type==  IoTSharpClaimTypes.Customer && m.Value==customerId.ToString()));
-            users.ToList().ForEach(c =>
+            users.ToList().ForEach(async c =>
             {
                 var uid = new UserItemDto()
                 {
                     Id =c.Id,
                     Email = c.Email,
-                    Roles = new List<string>(_userManager.GetRolesAsync(c).Result),
+                    Roles = new List<string>(await _userManager.GetRolesAsync(c)),
                     PhoneNumber = c.PhoneNumber,
                     AccessFailedCount = c.AccessFailedCount 
                 };
