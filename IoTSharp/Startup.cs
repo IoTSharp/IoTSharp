@@ -154,10 +154,6 @@ namespace IoTSharp
             services.AddIoTSharpMqttServer(settings.MqttBroker);
             services.AddMqttClient(settings.MqttClient);
             services.AddSingleton<RetainedMessageHandler>();
-
-          
-           
-
             services.AddSilkierQuartz(opt =>
             {
                 //opt.Add("quartz.serializer.type", "json");
