@@ -15,4 +15,4 @@ const COMPONENTS: Type<null>[] = [];
   imports: [SharedModule, RouteRoutingModule],
   declarations: [...COMPONENTS, TenantlistComponent, TenantformComponent, CustomerlistComponent, CustomerformComponent, DeviceformComponent, DevicelistComponent],
 })
-export class RoutesModule {}
+export class RoutesModule { }
