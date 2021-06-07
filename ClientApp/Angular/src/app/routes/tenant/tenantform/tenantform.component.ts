@@ -1,4 +1,12 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, Input, OnInit } from '@angular/core';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { ActivatedRoute, Router } from '@angular/router';
+import { _HttpClient } from '@delon/theme';
+import { NzDrawerRef } from 'ng-zorro-antd/drawer';
+import { NzMessageService } from 'ng-zorro-antd/message';
+import { AppMessage } from '../../common/AppMessage';
+import { MyValidators } from '../../common/validators/MyValidators';
+
 
 @Component({
   selector: 'app-tenantform',
@@ -28,16 +36,12 @@ export class TenantformComponent implements OnInit {
     private drawerRef: NzDrawerRef<string>,
   ) { }
   form!: FormGroup;
-
   submitting = false;
-
-
-
   ngOnInit() {
     const { nullbigintid } = MyValidators;
     this.form = this.fb.group({
       name: [null, [Validators.required]],
-      id: [0, []],
+      id: ["0", []],
       email: [0, [nullbigintid]],
       phone: [null, []],
       country: [null, []],
@@ -51,7 +55,7 @@ export class TenantformComponent implements OnInit {
 
 
     if (this.id !== '-1') {
-      this._httpClient.get<AppMessage>('/api/Customers/' + this.id).subscribe(
+      this._httpClient.get<AppMessage>('/api/Tenants/' + this.id).subscribe(
         (x) => {
           this.form.patchValue(x.Result);
         },
@@ -65,9 +69,9 @@ export class TenantformComponent implements OnInit {
     this.submitting = true;
 
     if (this.id !== "-1") {
-      this._httpClient.put<AppMessage>("/api/Customers", this.form.value).subscribe();
+      this._httpClient.put<AppMessage>("/api/Tenants", this.form.value).subscribe();
     } else {
-      this._httpClient.post<AppMessage>("/api/Customers", this.form.value).subscribe();
+      this._httpClient.post<AppMessage>("/api/Tenants", this.form.value).subscribe();
     }
 
 

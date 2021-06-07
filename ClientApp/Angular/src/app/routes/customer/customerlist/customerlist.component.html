@@ -1,12 +1,12 @@
-<page-header [title]="'设备列表'">
+<page-header [title]="'客户列表'">
     <nz-card [nzBordered]="false" class>
         <form nz-form class="search__form" action="search">
             <div nz-row [nzGutter]="{ xs: 8, sm: 8, md: 8, lg: 24, xl: 48, xxl: 48 }">
                 <div nz-col nzMd="8" nzSm="24">
                     <nz-form-item>
-                        <nz-form-label nzFor="DeviceName">设备名称</nz-form-label>
+                        <nz-form-label nzFor="name">客户名</nz-form-label>
                         <nz-form-control>
-                            <input nz-input [(ngModel)]="q.DeviceName" placeholder="请输入设备名称"
+                            <input nz-input [(ngModel)]="q.name" placeholder="客户名"
                                 [ngModelOptions]="{ standalone: true }" />
                         </nz-form-control>
                     </nz-form-item>
@@ -30,13 +30,7 @@
         </button>-->
 
             <st #st [columns]="columns" [data]="url" ps="20" [page]="page" [req]="req" [res]="res">
-                <ng-template st-row="UserStatus" let-i>
-                    <nz-badge [nzStatus]="i.statusType" [nzText]="i.statusText"></nz-badge>
-                </ng-template>
 
-                <ng-template st-row="UserLogo" let-i>
-                    <nz-avatar [nzSrc]="i" nzSize="large" [nzShape]="'square'"></nz-avatar>
-                </ng-template>
             </st>
         </form>
     </nz-card>
@@ -49,4 +43,4 @@
             </nz-form-control>
         </nz-form-item>
     </ng-template>
-    </page-header-wrapper>
+</page-header>

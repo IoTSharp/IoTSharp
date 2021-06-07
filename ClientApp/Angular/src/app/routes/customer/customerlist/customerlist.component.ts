@@ -16,10 +16,7 @@ import { CustomerformComponent } from '../customerform/customerform.component';
   styleUrls: ['./customerlist.component.less']
 })
 export class CustomerlistComponent implements OnInit {
-
   constructor(
-
-
     private http: _HttpClient,
     public msg: NzMessageService,
     private modal: ModalHelper,
@@ -38,10 +35,12 @@ export class CustomerlistComponent implements OnInit {
     pi: number;
     ps: number;
     sorter: string;
+    name: string;
     status: number | null;
   } = {
       pi: 0,
       ps: 10,
+      name: '',
       sorter: '',
       status: null,
     };
@@ -73,11 +72,8 @@ export class CustomerlistComponent implements OnInit {
     { title: '省', index: 'province' },
     { title: '城市', index: 'city' },
     { title: '街道', index: 'street' },
-    { title: '联系电话', index: 'address' },
-    { title: '地址', index: 'zipCode' },
-    { title: '最后登录时间', type: 'date', index: 'UserLastLogin' },
-
-
+    { title: '地址', index: 'address' },
+    { title: '邮编', index: 'zipCode' },
 
     {
       title: '操作',
@@ -94,7 +90,11 @@ export class CustomerlistComponent implements OnInit {
         {
           acl: 10,
           text: '删除',
-          click: (item: any) => { },
+          click: (item: any) => {
+
+            this.delete(item.UserId);
+
+          },
         },
       ],
     },
@@ -119,18 +119,26 @@ export class CustomerlistComponent implements OnInit {
 
     drawerRef.afterOpen.subscribe(() => { });
 
-    drawerRef.afterClose.subscribe((data) => {
-      console.log(data);
-      if (typeof data === 'string') {
-      }
+    drawerRef.afterClose.subscribe((data: any) => {
+
+
+      this.getData()
     });
+  }
+  getData() {
+    this.st.req = this.req;
+    this.st.load(1);
   }
 
   reset() {
 
   }
+
   delete(id: string) {
-    this.http.delete('/api/Customers/' + id, {}).subscribe(x => { }, y => { }, () => { })
+    this.http.delete('/api/Customers/' + id, {}).subscribe(x => {
+
+      this.getData()
+    }, y => { }, () => { })
 
   }
 }

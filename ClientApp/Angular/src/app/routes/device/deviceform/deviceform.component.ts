@@ -1,4 +1,11 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, Input, OnInit } from '@angular/core';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { ActivatedRoute, Router } from '@angular/router';
+import { _HttpClient } from '@delon/theme';
+import { NzDrawerRef } from 'ng-zorro-antd/drawer';
+import { NzMessageService } from 'ng-zorro-antd/message';
+import { AppMessage } from '../../common/AppMessage';
+import { MyValidators } from '../../common/validators/MyValidators';
 
 @Component({
   selector: 'app-deviceform',
@@ -6,17 +13,11 @@ import { Component, OnInit } from '@angular/core';
   styleUrls: ['./deviceform.component.less']
 })
 export class DeviceformComponent implements OnInit {
-
   isManufactorLoading: Boolean = false;
-
   optionList: any;
   @Input() id: string = '-1';
-  RoleLogo: NzUploadFile[] = [];
-
   nodes = [];
-
   title: string = '';
-
   loading = false;
   avatarUrl?: string;
   constructor(
@@ -29,30 +30,18 @@ export class DeviceformComponent implements OnInit {
     private drawerRef: NzDrawerRef<string>,
   ) { }
   form!: FormGroup;
-
   submitting = false;
-
-
-
   ngOnInit() {
     const { nullbigintid } = MyValidators;
     this.form = this.fb.group({
       name: [null, [Validators.required]],
       id: [0, []],
-      email: [0, [nullbigintid]],
-      phone: [null, []],
-      country: [null, []],
-      province: [0, []],
-      city: [null, []],
-      street: [null, []],
-      address: [null, []],
-      zipCode: [null, []],
-
+      deviceType: [0, [nullbigintid]],
+      tenant: [null, []],
+      customer: [null, []],
     });
-
-
     if (this.id !== '-1') {
-      this._httpClient.get<AppMessage>('/api/Customers/' + this.id).subscribe(
+      this._httpClient.get<AppMessage>('/api/Devices/' + this.id).subscribe(
         (x) => {
           this.form.patchValue(x.Result);
         },
@@ -66,12 +55,16 @@ export class DeviceformComponent implements OnInit {
     this.submitting = true;
 
     if (this.id !== "-1") {
-      this._httpClient.put<AppMessage>("/api/Customers", this.form.value).subscribe();
+      this._httpClient.put<AppMessage>("/api/Devices", this.form.value).subscribe(x => {
+
+
+      });
     } else {
-      this._httpClient.post<AppMessage>("/api/Customers", this.form.value).subscribe();
+      this._httpClient.post<AppMessage>("/api/Devices", this.form.value).subscribe(x => {
+
+
+      });
     }
-
-
   }
   close(): void {
     this.drawerRef.close(this.id);
