@@ -49,7 +49,7 @@
 		<PackageReference Include="AspNetCore.HealthChecks.Network" Version="5.0.4" />
 		<PackageReference Include="CAP.Extensions" Version="1.0.32" />
 		<PackageReference Include="DotNetCore.CAP" Version="5.1.0" />
-		<PackageReference Include="DotNetCore.CAP.Dashboard" Version="5.0.3" />
+		<PackageReference Include="DotNetCore.CAP.Dashboard" Version="5.1.0" />
 		<PackageReference Include="DotNetCore.CAP.InMemoryStorage" Version="5.1.0" />
 		<PackageReference Include="DotNetCore.CAP.Kafka" Version="5.0.3" />
 		<PackageReference Include="DotNetCore.CAP.MongoDB" Version="5.0.3" />
