@@ -1,5 +1,6 @@
 import { Component, EventEmitter, OnInit, Output, Input } from '@angular/core';
 import { ControlValueAccessor } from '@angular/forms';
+import { ActivatedRoute, Router } from '@angular/router';
 import { SFSchema } from '@delon/form';
 import { UIDataType } from 'src/app/routes/common/UIDataType';
 //SFComponent is good ,but make things so complicated
@@ -11,7 +12,7 @@ import { UIDataType } from 'src/app/routes/common/UIDataType';
 export class ParampartComponent implements ControlValueAccessor, OnInit {
   @Output() OnRemove = new EventEmitter<DeviceTypeParam>();
   @Input()
-  DeviceTypeParam: DeviceTypeParam | undefined;
+  DeviceTypeParam!: DeviceTypeParam;
   @Input()
   AllSuportType: UIDataType[] = [];
   @Input()
@@ -21,7 +22,8 @@ export class ParampartComponent implements ControlValueAccessor, OnInit {
 
   DSVisble: boolean = false;
   DefaultVisble: boolean = false;
-  constructor() { }
+  constructor(private _router: Router,
+    private router: ActivatedRoute,) { }
   writeValue(obj: any): void {
     this.DeviceTypeParam = obj;
 
@@ -34,7 +36,23 @@ export class ParampartComponent implements ControlValueAccessor, OnInit {
   registerOnTouched(fn: any): void {
 
   }
+  dtcChange($event: any) {
 
+  }
+
+  dtpChange($event: any) {
+
+  }
+  remove($event: any) {
+
+  }
+  DeviceTypeParamUITypeChange($event: any) {
+
+  }
+
+  submit() {
+
+  }
   ngOnInit(): void {
   }
 
@@ -58,9 +76,9 @@ export class DeviceTypeParam {
     public IsRequired: boolean,
   ) { }
 
-  TemplateParamNamenzValidateStatus: string = "";
-  TemplateParamNamenzValidatingTip: string = "";
+  public TemplateParamNamenzValidateStatus: string = "";
+  public TemplateParamNamenzValidatingTip: string = "";
 
-  TemplateParamValueCodenzValidateStatus: string = "";
-  TemplateParamValueCodenzValidatingTip: string = "";
+  public TemplateParamValueCodenzValidateStatus: string = "";
+  public TemplateParamValueCodenzValidatingTip: string = "";
 }

@@ -32,12 +32,14 @@ export class CustomerlistComponent implements OnInit {
     zeroIndexed: true,
   };
   q: {
+    tenantId: string;
     pi: number;
     ps: number;
     sorter: string;
     name: string;
     status: number | null;
   } = {
+      tenantId: '',
       pi: 0,
       ps: 10,
       name: '',
