@@ -61,84 +61,84 @@ services:
     networks:
       - iotsharp-network
  
-  rabbitmq:
-    image: rabbitmq:management
-    container_name: rabbitmq
-    restart: always
-    hostname: mq
-    ports:
-      - 15672:15672
-      - 5672:5672
-    volumes:
-      - ./data/rabbitmq:/var/lib/rabbitmq
-    environment:
-      - TZ=Asia/Shanghai
-      - RABBITMQ_DEFAULT_USER=root
-      - RABBITMQ_DEFAULT_PASS=kissme
-    networks:
-      - iotsharp-network
+  #rabbitmq:
+  #  image: rabbitmq:management
+  #  container_name: rabbitmq
+  #  restart: always
+  #  hostname: mq
+  #  ports:
+  #    - 15672:15672
+  #    - 5672:5672
+  #  volumes:
+  #    - ./data/rabbitmq:/var/lib/rabbitmq
+  #  environment:
+  #    - TZ=Asia/Shanghai
+  #    - RABBITMQ_DEFAULT_USER=root
+  #    - RABBITMQ_DEFAULT_PASS=kissme
+  #  networks:
+  #    - iotsharp-network
 
-  mongodb:
-    image: mongo:latest
-    restart: always
-    container_name: mongodb
-    volumes:
-      - ./data/mongodb/db:/data/db
-      - ./data/mongodb/log:/var/log/mongodb
-    ports:
-      - 27017:27017
-    environment:
-      MONGO_INITDB_ROOT_USERNAME: root
-      MONGO_INITDB_ROOT_PASSWORD: kissme
-    networks:
-      - iotsharp-network
+  #mongodb:
+  #  image: mongo:latest
+  #  restart: always
+  #  container_name: mongodb
+  #  volumes:
+  #    - ./data/mongodb/db:/data/db
+  #    - ./data/mongodb/log:/var/log/mongodb
+  #  ports:
+  #    - 27017:27017
+  #  environment:
+  #    MONGO_INITDB_ROOT_USERNAME: root
+  #    MONGO_INITDB_ROOT_PASSWORD: kissme
+  #  networks:
+  #    - iotsharp-network
 
-  taos:
-    image: tdengine/tdengine:2.0.12.0
-    restart: always
-    container_name: taos
-    hostname: taos
-    volumes:
-       - "./taos/data:/var/lib/taos"
-       - "./taos/log:/var/log/taos"
-    networks:
-      - iotsharp-network
+  #taos:
+  #  image: tdengine/tdengine:2.0.12.0
+  #  restart: always
+  #  container_name: taos
+  #  hostname: taos
+  #  volumes:
+  #     - "./taos/data:/var/lib/taos"
+  #     - "./taos/log:/var/log/taos"
+  #  networks:
+  #    - iotsharp-network
 
-  influx:
-        image: "quay.io/influxdb/influxdb:2.0.0-rc"
-        restart: always
-        container_name: influx
-        ports:
-         - "8086:8086"
-        environment:
-          TZ: "Asia/Shanghai"
-        volumes:
-         - ./data/influxdb-data:/var/lib/influxdb2
-        command: influxd run --bolt-path /var/lib/influxdb2/influxd.bolt --engine-path /var/lib/influxdb2/engine --store bolt
-        networks:
-          - iotsharp-network
+  #influx:
+  #      image: "quay.io/influxdb/influxdb:2.0.0-rc"
+  #      restart: always
+  #      container_name: influx
+  #      ports:
+  #       - "8086:8086"
+  #      environment:
+  #        TZ: "Asia/Shanghai"
+  #      volumes:
+  #       - ./data/influxdb-data:/var/lib/influxdb2
+  #      command: influxd run --bolt-path /var/lib/influxdb2/influxd.bolt --engine-path /var/lib/influxdb2/engine --store bolt
+  #      networks:
+  #        - iotsharp-network
 
 
-  influx-setup:
-        image: "julianfh/influxdb-setup:latest"
-        depends_on:
-          - influx
-        links:
-          - influx
-        environment:
-            TZ: "Asia/Shanghai"
-            TIMEOUT: 20
-            INFLUXDB_SCHEMA: "http"
-            INFLUXDB_HOST: "influx"
-            INFLUXDB_PORT: "8086"
-            INFLUXDB_TOKEN: "iotsharp-token"
-            INFLUXDB_BUCKETID: "iotsharp-bucket"
-            INFLUXDB_ORG: "iotsharp"
-            INFLUXDB_USER: "root"
-            INFLUXDB_PW: "1-q2-w3-e4-r5-t"
-            INFLUXDB_RETENTION: "240h60m"
-        networks:
-          - iotsharp-network
+  #influx-setup:
+  #      image: "julianfh/influxdb-setup:latest"
+  #      depends_on:
+  #        - influx
+  #      links:
+  #        - influx
+  #      environment:
+  #          TZ: "Asia/Shanghai"
+  #          TIMEOUT: 20
+  #          INFLUXDB_SCHEMA: "http"
+  #          INFLUXDB_HOST: "influx"
+  #          INFLUXDB_PORT: "8086"
+  #          INFLUXDB_TOKEN: "iotsharp-token"
+  #          INFLUXDB_BUCKETID: "iotsharp-bucket"
+  #          INFLUXDB_ORG: "iotsharp"
+  #          INFLUXDB_USER: "root"
+  #          INFLUXDB_PW: "1-q2-w3-e4-r5-t"
+  #          INFLUXDB_RETENTION: "240h60m"
+  #      networks:
+  #        - iotsharp-network
 
 networks: 
   iotsharp-network:
