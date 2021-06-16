@@ -7,7 +7,7 @@
     <ProjectHome>
     </ProjectHome>
     <ProjectView>ShowAllFiles</ProjectView>
-    <StartupFile />
+    <StartupFile>Dockerfile</StartupFile>
     <WorkingDirectory>.</WorkingDirectory>
     <OutputPath>.</OutputPath>
     <ProjectTypeGuids>{3AF33F2E-1136-4D97-BBB7-1795711AC8B8};{349c5851-65df-11da-9384-00065b846f21};{9092AA53-FB77-4645-B42D-1CCCA6BD08BD}</ProjectTypeGuids>
@@ -19,10 +19,17 @@
   <PropertyGroup Condition="'$(Configuration)' == 'Debug'" />
   <PropertyGroup Condition="'$(Configuration)' == 'Release'" />
   <ItemGroup>
+    <Content Include=".dockerignore">
+      <SubType>Content</SubType>
+      <DependentUpon>Dockerfile</DependentUpon>
+    </Content>
     <Content Include="angular.json" />
+    <None Include="Dockerfile" />
+    <Content Include="libman.json" />
     <Content Include="ng-alain.json" />
     <Content Include="package-lock.json" />
     <Content Include="package.json" />
+    <None Include="Properties\PublishProfiles\registry.hub.docker.com_maikebing.pubxml" />
     <Content Include="proxy.conf.json" />
     <Content Include="tsconfig.app.json" />
     <None Include="tsconfig.json" />
@@ -304,6 +311,8 @@
     <Content Include="src\assets\tmp\img\half-float-bg-1.jpg" />
   </ItemGroup>
   <ItemGroup>
+    <Folder Include="Properties\" />
+    <Folder Include="Properties\PublishProfiles\" />
     <Folder Include="_cli-tpl" />
     <Folder Include="_cli-tpl\test" />
     <Folder Include="_cli-tpl\test\__path__" />

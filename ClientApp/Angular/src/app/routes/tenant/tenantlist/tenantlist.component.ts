@@ -104,7 +104,7 @@ export class TenantlistComponent implements OnInit {
 
   ngOnInit(): void {
     this.router.queryParams.subscribe((x: any) => {
-      this.q.customerId = x.customerId as string;
+     
     });
   }
 
