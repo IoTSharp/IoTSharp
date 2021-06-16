@@ -60,6 +60,9 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "ClientApp", "ClientApp", "{2F37F34F-C281-4D8D-BD9E-383E425C3E20}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IoTSharp.ClientApp.Angular", "ClientApp\Angular\IoTSharp.ClientApp.Angular.csproj", "{E7300985-2A0E-4B97-B252-2FFA7D1F2668}"
+	ProjectSection(ProjectDependencies) = postProject
+		{CCD2C255-72D2-4A25-B0E9-E30FBEF774C7} = {CCD2C255-72D2-4A25-B0E9-E30FBEF774C7}
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

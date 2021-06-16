@@ -50,6 +50,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\IoTSharp.SDKs\IoTSharp.Sdk.CSharp\IoTSharp.Sdk.Http.csproj" />
+    <ProjectReference Include="..\..\IoTSharp.SDKs\IoTSharp.Sdk.CSharp\IoTSharp.Sdk.Http.csproj" />
   </ItemGroup>
 </Project>
