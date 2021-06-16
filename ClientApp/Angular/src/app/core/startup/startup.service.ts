@@ -1,6 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Inject, Injectable } from '@angular/core';
 import { ACLService } from '@delon/acl';
+import { DA_SERVICE_TOKEN, ITokenService } from '@delon/auth';
 import { ALAIN_I18N_TOKEN, MenuService, SettingsService, TitleService } from '@delon/theme';
 import { TranslateService } from '@ngx-translate/core';
 import { NzSafeAny } from 'ng-zorro-antd/core/types';
@@ -25,7 +26,7 @@ export class StartupService {
     private settingService: SettingsService,
     private aclService: ACLService,
     private titleService: TitleService,
-    private httpClient: HttpClient,
+    private httpClient: HttpClient, @Inject(DA_SERVICE_TOKEN) private tokenService: ITokenService,
   ) {
     iconSrv.addIcon(...ICONS_AUTO, ...ICONS);
   }
@@ -34,28 +35,40 @@ export class StartupService {
     // only works with promises
     // https://github.com/angular/angular/issues/15088
 
+    var token = this.tokenService;
+
+    if (token && token.get() && token.get()?.token) {
+
+      return concat(this.httpClient.get(`assets/tmp/i18n/${this.i18n.defaultLang}.json`).pipe(map(langData => {
+        this.translate.setTranslation(this.i18n.defaultLang, langData);
+        this.translate.setDefaultLang(this.i18n.defaultLang);
 
 
-    return concat(this.httpClient.get(`assets/tmp/i18n/${this.i18n.defaultLang}.json`).pipe(map(langData => {
-      this.translate.setTranslation(this.i18n.defaultLang, langData);
-      this.translate.setDefaultLang(this.i18n.defaultLang);
+      })), this.httpClient.get('api/Account/MyInfo?_allow_anonymous=true').pipe(map(appData => {
+        const res = appData as NzSafeAny;
+
+        this.settingService.setApp(res.app);
+
+        this.settingService.setUser(res.user);
+
+        this.aclService.setFull(true);
+
+        this.menuService.add(res.menu);
+
+        this.titleService.default = '';
+        this.titleService.suffix = res.app.name;
+
+      }))).toPromise()
+
+    } else {
+      return concat(this.httpClient.get(`assets/tmp/i18n/${this.i18n.defaultLang}.json`).pipe(map(langData => {
+        this.translate.setTranslation(this.i18n.defaultLang, langData);
+        this.translate.setDefaultLang(this.i18n.defaultLang);
+      }))).toPromise()
+
+    }
 
 
-    })), this.httpClient.get('/api/Account/MyInfo').pipe(map(appData => {
-      const res = appData as NzSafeAny;
-
-      this.settingService.setApp(res.app);
-
-      this.settingService.setUser(res.user);
-
-      this.aclService.setFull(true);
-
-      this.menuService.add(res.menu);
-
-      this.titleService.default = '';
-      this.titleService.suffix = res.app.name;
-
-    }))).toPromise()
 
 
 

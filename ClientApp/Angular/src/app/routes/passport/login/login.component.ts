@@ -1,4 +1,4 @@
-import { Component, Inject, OnDestroy, Optional } from '@angular/core';
+import { AfterViewInit, Component, Inject, OnDestroy, OnInit, Optional } from '@angular/core';
 import { AbstractControl, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { StartupService } from '@core';
@@ -15,7 +15,7 @@ import { NzTabChangeEvent } from 'ng-zorro-antd/tabs';
   styleUrls: ['./login.component.less'],
   providers: [SocialService],
 })
-export class UserLoginComponent implements OnDestroy {
+export class UserLoginComponent implements OnDestroy, AfterViewInit {
   constructor(
     fb: FormBuilder,
     private router: Router,
@@ -30,13 +30,26 @@ export class UserLoginComponent implements OnDestroy {
     public msg: NzMessageService,
   ) {
     this.form = fb.group({
-      userName: [null, [Validators.required, Validators.pattern(/^(admin|user)$/)]],
-      password: [null, [Validators.required, Validators.pattern(/^(ng\-alain\.com)$/)]],
+      userName: [null, [Validators.required]],
+      password: [null, [Validators.required]],
       mobile: [null, [Validators.required, Validators.pattern(/^1\d{10}$/)]],
       captcha: [null, [Validators.required]],
       remember: [true],
     });
   }
+  ngAfterViewInit(): void {
+    this.http.get('api/installer/instance?_allow_anonymous=true').subscribe(x => {
+      console.log(x)
+      if (!x.installed) {
+        this.router.navigateByUrl('/passport/register');
+      }
+    }, error => { }, () => {
+
+
+    })
+
+  }
+
 
   // #region fields
 
@@ -85,6 +98,9 @@ export class UserLoginComponent implements OnDestroy {
   // #endregion
 
   submit(): void {
+
+
+
     this.error = '';
     if (this.type === 0) {
       this.userName.markAsDirty();
@@ -107,12 +123,13 @@ export class UserLoginComponent implements OnDestroy {
     // 默认配置中对所有HTTP请求都会强制 [校验](https://ng-alain.com/auth/getting-started) 用户 Token
     // 然一般来说登录请求不需要校验，因此可以在请求URL加上：`/login?_allow_anonymous=true` 表示不触发用户 Token 校验
     this.http
-      .post('/login/account?_allow_anonymous=true', {
+      .post('api/Account/Login?_allow_anonymous=true', {
         type: this.type,
         userName: this.userName.value,
         password: this.password.value,
       })
       .subscribe((res) => {
+        console.log("res")
         if (res.msg !== 'ok') {
           this.error = res.msg;
           return;
@@ -131,7 +148,15 @@ export class UserLoginComponent implements OnDestroy {
           }
           this.router.navigateByUrl(url);
         });
-      });
+      }, error => {
+        this.error = error.message;
+
+      }, () => {
+
+      }
+
+
+      );
   }
 
   // #region social

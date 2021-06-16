@@ -13,11 +13,15 @@ import { NzMessageService } from 'ng-zorro-antd/message';
 export class UserRegisterComponent implements OnDestroy {
   constructor(fb: FormBuilder, private router: Router, public http: _HttpClient, public msg: NzMessageService) {
     this.form = fb.group({
-      mail: [null, [Validators.required, Validators.email]],
+      email: [null, [Validators.required, Validators.email]],
       password: [null, [Validators.required, Validators.minLength(6), UserRegisterComponent.checkPassword.bind(this)]],
       confirm: [null, [Validators.required, Validators.minLength(6), UserRegisterComponent.passwordEquar]],
       mobilePrefix: ['+86'],
-      mobile: [null, [Validators.required, Validators.pattern(/^1\d{10}$/)]],
+      customerName: [null, [Validators.required]],
+      tenantName: [null, [Validators.required]],
+      tenantEMail: [null, [Validators.required, Validators.email]],
+      customerEMail: [null, [Validators.required, Validators.email]],
+      phoneNumber: [null, [Validators.required, Validators.pattern(/^1\d{10}$/)]],
       captcha: [null, [Validators.required]],
     });
   }
@@ -125,4 +129,14 @@ export class UserRegisterComponent implements OnDestroy {
       clearInterval(this.interval$);
     }
   }
+
+
+
+}
+
+export interface reguser {
+  email: string
+  phoneNumber: string
+  customer: string
+  password: string
 }
