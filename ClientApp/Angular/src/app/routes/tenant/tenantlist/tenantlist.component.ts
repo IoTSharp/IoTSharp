@@ -14,9 +14,10 @@ import { TenantformComponent } from '../tenantform/tenantform.component';
 @Component({
   selector: 'app-tenantlist',
   templateUrl: './tenantlist.component.html',
-  styleUrls: ['./tenantlist.component.less'],
+  styleUrls: ['./tenantlist.component.less']
 })
 export class TenantlistComponent implements OnInit {
+
   url = 'api/Tenants';
 
   page: STPage = {
@@ -31,13 +32,17 @@ export class TenantlistComponent implements OnInit {
 
     name: string;
     // anothor query field:The type you expect
+
+
   } = {
-    pi: 0,
-    ps: 10,
-    sorter: '',
-    name: '',
-  };
-  req: STReq = { method: 'POST', allInBody: true, reName: { pi: 'offset', ps: 'limit' }, params: this.q };
+      pi: 0,
+      ps: 10,
+      sorter: '',
+      name: ''
+
+
+    };
+  req: STReq = { method: 'GET', allInBody: true, reName: { pi: 'offset', ps: 'limit' }, params: this.q };
 
   // 定义返回的参数
   res: STRes = {
@@ -59,8 +64,7 @@ export class TenantlistComponent implements OnInit {
     { title: '省', index: 'province' },
     { title: '市', index: 'city' },
     { title: '街道', index: 'street' },
-    { title: '地址', index: 'address' },
-    { title: '邮编', index: 'zipCode' },
+    { title: '地址', index: 'address' }, { title: '邮编', index: 'zipCode' },
     {
       title: '操作',
       buttons: [
@@ -68,15 +72,23 @@ export class TenantlistComponent implements OnInit {
           acl: 9,
           text: '修改',
           click: (item: any) => {
-            this.edit(item.id);
+            this.edit(item.id)
           },
         },
 
+
+        {
+          acl: 10,
+          text: '租户管理',
+          click: (item: any) => {
+            this._router.navigateByUrl('iot/customer/customerlist?id=' + item.id)
+          },
+        },
         {
           acl: 10,
           text: '删除',
           click: (item: any) => {
-            this.delete(item.id);
+            this.delete(item.id)
           },
         },
       ],
@@ -91,16 +103,19 @@ export class TenantlistComponent implements OnInit {
     private modal: ModalHelper,
     private cdr: ChangeDetectorRef,
     private _router: Router,
+
     private router: ActivatedRoute,
     private drawerService: NzDrawerService,
     private globals: Globals,
-    aclSrv: ACLService,
-  ) {}
+    aclSrv: ACLService,) {
+  }
 
-  ngOnInit(): void {}
+  ngOnInit(): void {
+
+  }
 
   edit(id: string): void {
-    let title = id == '-1' ? '新建设备' : '修改设备';
+    let title = id == '-1' ? '新建设备' : '修改设备'
     const drawerRef = this.drawerService.create<TenantformComponent, { id: string }, string>({
       nzTitle: title,
       nzContent: TenantformComponent,
@@ -111,25 +126,32 @@ export class TenantlistComponent implements OnInit {
       },
     });
     drawerRef.afterOpen.subscribe(() => {
-      this.getData();
+
     });
-    drawerRef.afterClose.subscribe((data) => {});
+    drawerRef.afterClose.subscribe((data) => {
+      this.getData();
+
+    });
   }
 
-  reset() {}
+  reset() {
+
+  }
   delete(id: string) {
-    this.http.delete('/api/Tenants/' + id, {}).subscribe(
-      (x) => {
-        this.msg.info('设租户已删除');
-        this.getData();
-      },
-      (y) => {},
-      () => {},
-    );
+
+    this.http.delete('/api/Tenants/' + id, {}).subscribe(x => {
+      this.msg.info("租户已删除")
+      this.getData()
+    }, y => { }, () => {
+
+
+    })
+
   }
 
   getData() {
     this.st.req = this.req;
     this.st.load(1);
   }
+
 }

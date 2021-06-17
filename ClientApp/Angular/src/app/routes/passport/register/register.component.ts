@@ -13,16 +13,15 @@ import { NzMessageService } from 'ng-zorro-antd/message';
 export class UserRegisterComponent implements OnDestroy {
   constructor(fb: FormBuilder, private router: Router, public http: _HttpClient, public msg: NzMessageService) {
     this.form = fb.group({
-      email: [null, [Validators.required, Validators.email]],
-      password: [null, [Validators.required, Validators.minLength(6), UserRegisterComponent.checkPassword.bind(this)]],
-      confirm: [null, [Validators.required, Validators.minLength(6), UserRegisterComponent.passwordEquar]],
+      email: ['wq1234wq@163.com', [Validators.required, Validators.email]],
+      Password: ['wq1234wq@163.com', [Validators.required, Validators.minLength(6), UserRegisterComponent.checkPassword.bind(this)]],
+      confirm: ['wq1234wq@163.com', [Validators.required, Validators.minLength(6), UserRegisterComponent.passwordEquar]],
       mobilePrefix: ['+86'],
-      customerName: [null, [Validators.required]],
-      tenantName: [null, [Validators.required]],
-      tenantEMail: [null, [Validators.required, Validators.email]],
-      customerEMail: [null, [Validators.required, Validators.email]],
-      phoneNumber: [null, [Validators.required, Validators.pattern(/^1\d{10}$/)]],
-      captcha: [null, [Validators.required]],
+      customerName: ['wq1234wq@163.com', [Validators.required]],
+      tenantName: ['wq1234wq@163.com', [Validators.required]],
+      tenantEMail: ['wq1234wq@163.com', [Validators.required, Validators.email]],
+      customerEMail: ['wq1234wq@163.com', [Validators.required, Validators.email]],
+      phoneNumber: ['18999170940', [Validators.required, Validators.pattern(/^1\d{10}$/)]],
     });
   }
 
@@ -85,7 +84,7 @@ export class UserRegisterComponent implements OnDestroy {
     if (!control || !control.parent!) {
       return null;
     }
-    if (control.value !== control.parent!.get('password')!.value) {
+    if (control.value !== control.parent!.get('Password')!.value) {
       return { equar: true };
     }
     return null;
@@ -114,13 +113,16 @@ export class UserRegisterComponent implements OnDestroy {
       this.form.controls[key].markAsDirty();
       this.form.controls[key].updateValueAndValidity();
     });
+    const data = this.form.value;
+    console.log(data)
     if (this.form.invalid) {
       return;
     }
 
-    const data = this.form.value;
-    this.http.post('/register?_allow_anonymous=true', data).subscribe(() => {
-      this.router.navigate(['passport', 'register-result'], { queryParams: { email: data.mail } });
+
+    this.http.post('api/Installer/Install?_allow_anonymous=true', data).subscribe(() => {
+      this.router.navigateByUrl('/passport/login');
+
     });
   }
 
@@ -129,11 +131,14 @@ export class UserRegisterComponent implements OnDestroy {
       clearInterval(this.interval$);
     }
   }
+
+
+
 }
 
 export interface reguser {
-  email: string;
-  phoneNumber: string;
-  customer: string;
-  password: string;
+  email: string
+  phoneNumber: string
+  customer: string
+  password: string
 }

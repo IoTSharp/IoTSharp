@@ -30,25 +30,25 @@ export class UserLoginComponent implements OnDestroy, AfterViewInit {
     public msg: NzMessageService,
   ) {
     this.form = fb.group({
-      userName: [null, [Validators.required]],
-      password: [null, [Validators.required]],
+      userName: ['wq1234wq@163.com', [Validators.required]],
+      password: ['', [Validators.required]],
       mobile: [null, [Validators.required, Validators.pattern(/^1\d{10}$/)]],
       captcha: [null, [Validators.required]],
       remember: [true],
     });
   }
   ngAfterViewInit(): void {
-    this.http.get('api/installer/instance?_allow_anonymous=true').subscribe(
-      (x) => {
-        console.log(x);
-        if (!x.installed) {
-          this.router.navigateByUrl('/passport/register');
-        }
-      },
-      (error) => {},
-      () => {},
-    );
+    this.http.get('api/installer/instance?_allow_anonymous=true').subscribe(x => {
+      if (!x.installed) {
+        this.router.navigateByUrl('/passport/register');
+      }
+    }, error => { }, () => {
+
+
+    })
+
   }
+
 
   // #region fields
 
@@ -97,6 +97,9 @@ export class UserLoginComponent implements OnDestroy, AfterViewInit {
   // #endregion
 
   submit(): void {
+
+
+
     this.error = '';
     if (this.type === 0) {
       this.userName.markAsDirty();
@@ -124,32 +127,46 @@ export class UserLoginComponent implements OnDestroy, AfterViewInit {
         userName: this.userName.value,
         password: this.password.value,
       })
-      .subscribe(
-        (res) => {
-          console.log('res');
-          if (res.msg !== 'ok') {
-            this.error = res.msg;
-            return;
+      .subscribe((res) => {
+        if (!res.succeeded) {
+          this.error = res.msg;
+          return;
+        }
+        // 清空路由复用信息
+        this.reuseTabService.clear();
+        // 设置用户Token信息
+        // TODO: Mock expired value
+
+        this.tokenService.set({
+          token: res.token.access_token,
+          Authorization: res.token.access_token,
+          expired: res.token.expires_in,
+          name: res.userName,
+        });
+
+
+        this.settingsService.setUser({
+          token: res.token.access_token,
+          name: res.userName,
+          avatar: './assets/logo-color.svg',
+          email: 'cipchk@qq.com',
+        });
+        // 重新获取 StartupService 内容，我们始终认为应用信息一般都会受当前用户授权范围而影响
+        this.startupSrv.load().then(() => {
+          let url = this.tokenService.referrer!.url || '/';
+          if (url.includes('/passport')) {
+            url = '/';
           }
-          // 清空路由复用信息
-          this.reuseTabService.clear();
-          // 设置用户Token信息
-          // TODO: Mock expired value
-          res.user.expired = +new Date() + 1000 * 60 * 5;
-          this.tokenService.set(res.user);
-          // 重新获取 StartupService 内容，我们始终认为应用信息一般都会受当前用户授权范围而影响
-          this.startupSrv.load().then(() => {
-            let url = this.tokenService.referrer!.url || '/';
-            if (url.includes('/passport')) {
-              url = '/';
-            }
-            this.router.navigateByUrl(url);
-          });
-        },
-        (error) => {
-          this.error = error.message;
-        },
-        () => {},
+          this.router.navigateByUrl(url);
+        });
+      }, error => {
+        this.error = error.message;
+
+      }, () => {
+
+      }
+
+
       );
   }
 

@@ -1,5 +1,5 @@
-import { ChangeDetectorRef, Component, OnInit, TemplateRef, ViewChild } from '@angular/core';
-import { Router } from '@angular/router';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnInit, TemplateRef, ViewChild } from '@angular/core';
+import { ActivatedRoute, Router } from '@angular/router';
 import { STChange, STColumn, STComponent, STData, STPage, STReq, STRes } from '@delon/abc/st';
 import { ModalHelper, _HttpClient } from '@delon/theme';
 import { NzMessageService } from 'ng-zorro-antd/message';
@@ -13,7 +13,8 @@ import { CustomerformComponent } from '../customerform/customerform.component';
 @Component({
   selector: 'app-customerlist',
   templateUrl: './customerlist.component.html',
-  styleUrls: ['./customerlist.component.less'],
+
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class CustomerlistComponent implements OnInit {
   constructor(
@@ -22,10 +23,23 @@ export class CustomerlistComponent implements OnInit {
     private modal: ModalHelper,
     private cdr: ChangeDetectorRef,
     private _router: Router,
+    private router: ActivatedRoute,
     private drawerService: NzDrawerService,
     private globals: Globals,
     aclSrv: ACLService,
-  ) {}
+  ) {
+
+    this.router.queryParams.subscribe(x => {
+
+
+      this.q.tenantId = x.id as unknown as string;
+      this.tenantId = x.id as unknown as string;
+      this.url = 'api/Customers/Tenant/' + this.tenantId;
+
+    }, y => { }, () => { });
+
+  }
+  tenantId: string = '';
   page: STPage = {
     front: false,
     total: true,
@@ -39,19 +53,20 @@ export class CustomerlistComponent implements OnInit {
     name: string;
     status: number | null;
   } = {
-    tenantId: '',
-    pi: 0,
-    ps: 10,
-    name: '',
-    sorter: '',
-    status: null,
-  };
+      tenantId: '',
+      pi: 0,
+      ps: 10,
+      name: '',
+      sorter: '',
+      status: null,
+    };
   total = 0;
   data: any[] = [];
   loading = false;
 
-  url = 'api/Customers/Tenant';
-  req: STReq = { method: 'POST', allInBody: true, reName: { pi: 'offset', ps: 'limit' }, params: this.q };
+
+  url = 'api/Customers/Tenant/' + this.tenantId;
+  req: STReq = { method: 'GET', allInBody: true, reName: { pi: 'offset', ps: 'limit' }, params: this.q };
 
   // 定义返回的参数
   res: STRes = {
@@ -83,7 +98,14 @@ export class CustomerlistComponent implements OnInit {
           acl: 9,
           text: '修改',
           click: (item: any) => {
-            this.edit(item.UserId);
+            this.edit(item.id);
+          },
+        },
+        {
+          acl: 9,
+          text: '设备管理',
+          click: (item: any) => {
+            this._router.navigateByUrl('iot/device/devicelist?id=' + item.id);
           },
         },
 
@@ -91,7 +113,9 @@ export class CustomerlistComponent implements OnInit {
           acl: 10,
           text: '删除',
           click: (item: any) => {
-            this.delete(item.UserId);
+
+            this.delete(item.id);
+
           },
         },
       ],
@@ -101,23 +125,34 @@ export class CustomerlistComponent implements OnInit {
   description = '';
   totalCallNo = 0;
   expandForm = false;
-  ngOnInit(): void {}
+  ngOnInit(): void {
+  }
   edit(id: string): void {
-    let title = id == '-1' ? '新建客户' : '修改客户';
-    const drawerRef = this.drawerService.create<CustomerformComponent, { id: string }, string>({
+    let title = id == '-1' ? '新建客户' : '修改客户'
+    const drawerRef = this.drawerService.create<CustomerformComponent, {
+      params: {
+        id: string,
+        tenantId: string
+      }
+    }, any>({
       nzTitle: title,
       nzContent: CustomerformComponent,
       nzWidth: this.globals.drawerwidth,
       nzMaskClosable: this.globals.nzMaskClosable,
       nzContentParams: {
-        id: id,
+        params: {
+          id: id, tenantId: this.tenantId
+        }
+
       },
     });
 
-    drawerRef.afterOpen.subscribe(() => {});
+    drawerRef.afterOpen.subscribe(() => { });
 
     drawerRef.afterClose.subscribe((data: any) => {
-      this.getData();
+
+
+      this.getData()
     });
   }
   getData() {
@@ -125,15 +160,15 @@ export class CustomerlistComponent implements OnInit {
     this.st.load(1);
   }
 
-  reset() {}
+  reset() {
+
+  }
 
   delete(id: string) {
-    this.http.delete('/api/Customers/' + id, {}).subscribe(
-      (x) => {
-        this.getData();
-      },
-      (y) => {},
-      () => {},
-    );
+    this.http.delete('/api/Customers/' + id, {}).subscribe(x => {
+
+      this.getData()
+    }, y => { }, () => { })
+
   }
 }

@@ -2,6 +2,7 @@ import { Component, Input, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { _HttpClient } from '@delon/theme';
+import { Guid } from 'guid-typescript';
 import { NzDrawerRef } from 'ng-zorro-antd/drawer';
 import { NzMessageService } from 'ng-zorro-antd/message';
 import { AppMessage } from '../../common/AppMessage';
@@ -15,7 +16,10 @@ import { MyValidators } from '../../common/validators/MyValidators';
 export class DeviceformComponent implements OnInit {
   isManufactorLoading: Boolean = false;
   optionList: any;
-  @Input() id: string = '-1';
+  @Input() params: any = {
+    id: '-1',
+    customerId: '-1'
+  };
   nodes = [];
   title: string = '';
   loading = false;
@@ -35,13 +39,12 @@ export class DeviceformComponent implements OnInit {
     const { nullbigintid } = MyValidators;
     this.form = this.fb.group({
       name: [null, [Validators.required]],
-      id: [0, []],
-      deviceType: [0, [nullbigintid]],
-      tenant: [null, []],
-      customer: [null, []],
+      deviceType: [null, [Validators.required]],
+      customerId: [null, []],
+      id: [Guid.create().toString(), []], //骗过验证
     });
-    if (this.id !== '-1') {
-      this._httpClient.get<AppMessage>('/api/Devices/' + this.id).subscribe(
+    if (this.params.id !== '-1') {
+      this._httpClient.get('api/Devices/' + this.params.id).subscribe(
         (x) => {
           this.form.patchValue(x.Result);
         },
@@ -54,20 +57,16 @@ export class DeviceformComponent implements OnInit {
   submit() {
     this.submitting = true;
 
-    if (this.id !== "-1") {
-      this._httpClient.put<AppMessage>("/api/Devices", this.form.value).subscribe(x => {
-
-
+    if (this.params.id !== "-1") {
+      this._httpClient.put("api/Devices", this.form.value).subscribe(x => {
       });
     } else {
-      this._httpClient.post<AppMessage>("/api/Devices", this.form.value).subscribe(x => {
-
-
+      this._httpClient.post("api/Devices", this.form.value).subscribe(x => {
       });
     }
   }
   close(): void {
-    this.drawerRef.close(this.id);
+    this.drawerRef.close(this.params);
   }
 
 }

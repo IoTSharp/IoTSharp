@@ -6,7 +6,7 @@ import { NzDrawerRef } from 'ng-zorro-antd/drawer';
 import { NzMessageService } from 'ng-zorro-antd/message';
 import { AppMessage } from '../../common/AppMessage';
 import { MyValidators } from '../../common/validators/MyValidators';
-
+import { Guid } from "guid-typescript";
 
 @Component({
   selector: 'app-tenantform',
@@ -41,11 +41,11 @@ export class TenantformComponent implements OnInit {
     const { nullbigintid } = MyValidators;
     this.form = this.fb.group({
       name: [null, [Validators.required]],
-      id: ["0", []],
-      email: [0, [nullbigintid]],
+      id: [Guid.create().toString(), []],
+      eMail: [null, []],
       phone: [null, []],
       country: [null, []],
-      province: [0, []],
+      province: [null, []],
       city: [null, []],
       street: [null, []],
       address: [null, []],
@@ -55,9 +55,9 @@ export class TenantformComponent implements OnInit {
 
 
     if (this.id !== '-1') {
-      this._httpClient.get<AppMessage>('/api/Tenants/' + this.id).subscribe(
+      this._httpClient.get('api/Tenants/' + this.id).subscribe(
         (x) => {
-          this.form.patchValue(x.Result);
+          this.form.patchValue(x);
         },
         (y) => { },
         () => { },
@@ -69,9 +69,9 @@ export class TenantformComponent implements OnInit {
     this.submitting = true;
 
     if (this.id !== "-1") {
-      this._httpClient.put<AppMessage>("/api/Tenants", this.form.value).subscribe();
+      this._httpClient.put("api/Tenants/" + this.form.value.id, this.form.value).subscribe(x => { this.submitting = false; }, y => { }, () => { });
     } else {
-      this._httpClient.post<AppMessage>("/api/Tenants", this.form.value).subscribe();
+      this._httpClient.post("api/Tenants", this.form.value).subscribe(x => { this.submitting = false; }, y => { }, () => { });
     }
 
 

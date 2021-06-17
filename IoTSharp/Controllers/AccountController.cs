@@ -116,10 +116,16 @@ namespace IoTSharp.Controllers
                                 claims: claims,
                                 expires: DateTime.Now.AddHours(_settings.JwtExpireHours * 24),
                                 signingCredentials: signinCredentials);
+
+
+
+
+                    var t = (DateTime.Now.AddDays(1).Ticks - TimeZone.CurrentTimeZone
+                        .ToLocalTime(new System.DateTime(1970, 1, 1, 0, 0, 0, 0)).Ticks) / 10000;
                     var token = new TokenEntity
                     {
                         access_token = new JwtSecurityTokenHandler().WriteToken(tokeOptions),
-                        expires_in = (int)DateTime.UtcNow.AddHours(_settings.JwtExpireHours * 24).Subtract(new DateTime(1970, 1, 1, 0, 0, 0, 0)).TotalSeconds
+                        expires_in = t
                     };
                     return Ok(new LoginResult()
                     {

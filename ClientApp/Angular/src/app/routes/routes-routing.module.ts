@@ -6,16 +6,19 @@ import { environment } from '@env/environment';
 import { LayoutBasicComponent } from '../layout/basic/basic.component';
 import { LayoutBlankComponent } from '../layout/blank/blank.component';
 
+import { DevicelistComponent } from './device/devicelist/devicelist.component';
+import { TenantlistComponent } from './tenant/tenantlist/tenantlist.component';
+
 const routes: Routes = [
   {
     path: '',
     component: LayoutBasicComponent,
-    canActivate: [SimpleGuard],
-    canActivateChild: [SimpleGuard],
-    data: {},
+
+
     children: [
       { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
       { path: 'dashboard', loadChildren: () => import('./dashboard/dashboard.module').then((m) => m.DashboardModule) },
+
       {
         path: 'widgets',
         loadChildren: () => import('./widgets/widgets.module').then((m) => m.WidgetsModule),
@@ -26,6 +29,16 @@ const routes: Routes = [
       { path: 'pro', loadChildren: () => import('./pro/pro.module').then((m) => m.ProModule) },
     ],
   },
+  {
+    path: 'iot',
+    component: LayoutBasicComponent,
+    children: [
+      { path: 'tenant/tenantlist', component: TenantlistComponent },
+
+      { path: 'customer', loadChildren: () => import('./customer/customer.module').then((m) => m.CustomerModule) },
+      { path: 'device/devicelist', component: DevicelistComponent },]
+  },
+
   // Blak Layout 空白布局
   {
     path: 'data-v',
@@ -49,4 +62,4 @@ const routes: Routes = [
   ],
   exports: [RouterModule],
 })
-export class RouteRoutingModule {}
+export class RouteRoutingModule { }

@@ -11,6 +11,7 @@ import { catchError, map, mergeMap } from 'rxjs/operators';
 ;
 import { MyValidators } from '../../common/validators/MyValidators';
 import { AppMessage } from '../../common/AppMessage';
+import { Guid } from 'guid-typescript';
 @Component({
   selector: 'app-customerform',
   templateUrl: './customerform.component.html',
@@ -21,10 +22,13 @@ export class CustomerformComponent implements OnInit {
   isManufactorLoading: Boolean = false;
 
   optionList: any;
-  @Input() id: string = '-1';
-  RoleLogo: NzUploadFile[] = [];
+  @Input() params: any = {
+    id: '-1',
+    tenantId: '-1'
+  };
 
-  nodes = [];
+
+
 
   title: string = '';
 
@@ -47,25 +51,27 @@ export class CustomerformComponent implements OnInit {
 
   ngOnInit() {
     const { nullbigintid } = MyValidators;
+
+    console.log(this.params)
     this.form = this.fb.group({
       name: [null, [Validators.required]],
-      id: [0, []],
-      email: [0, [nullbigintid]],
+      id: [Guid.create().toString(), []],
+      email: [null, []],
       phone: [null, []],
       country: [null, []],
-      province: [0, []],
+      province: [null, []],
       city: [null, []],
       street: [null, []],
       address: [null, []],
       zipCode: [null, []],
-
+      tenantID: [this.params.tenantId, []],
     });
 
 
-    if (this.id !== '-1') {
-      this._httpClient.get<AppMessage>('/api/Customers/' + this.id).subscribe(
+    if (this.params.id !== '-1') {
+      this._httpClient.get('api/Customers/' + this.params.id).subscribe(
         (x) => {
-          this.form.patchValue(x.Result);
+          this.form.patchValue(x);
         },
         (y) => { },
         () => { },
@@ -76,16 +82,16 @@ export class CustomerformComponent implements OnInit {
   submit() {
     this.submitting = true;
 
-    if (this.id !== "-1") {
-      this._httpClient.put<AppMessage>("/api/Customers", this.form.value).subscribe();
+    if (this.params.id !== "-1") {
+      this._httpClient.put("api/Customers/" + this.form.value.id, this.form.value).subscribe(x => { this.submitting = false; }, y => { }, () => { this.submitting = false; });
     } else {
-      this._httpClient.post<AppMessage>("/api/Customers", this.form.value).subscribe();
+      this._httpClient.post("api/Customers", this.form.value).subscribe(x => { this.submitting = false; }, y => { }, () => { this.submitting = false; });
     }
 
 
   }
   close(): void {
-    this.drawerRef.close(this.id);
+    this.drawerRef.close(this.params);
   }
 
 }
