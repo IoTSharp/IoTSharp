@@ -13,7 +13,7 @@ import { CustomerformComponent } from '../customerform/customerform.component';
 @Component({
   selector: 'app-customerlist',
   templateUrl: './customerlist.component.html',
-  styleUrls: ['./customerlist.component.less']
+  styleUrls: ['./customerlist.component.less'],
 })
 export class CustomerlistComponent implements OnInit {
   constructor(
@@ -25,29 +25,30 @@ export class CustomerlistComponent implements OnInit {
     private drawerService: NzDrawerService,
     private globals: Globals,
     aclSrv: ACLService,
-  ) { }
+  ) {}
   page: STPage = {
     front: false,
     total: true,
     zeroIndexed: true,
   };
   q: {
+    tenantId: string;
     pi: number;
     ps: number;
     sorter: string;
     name: string;
     status: number | null;
   } = {
-      pi: 0,
-      ps: 10,
-      name: '',
-      sorter: '',
-      status: null,
-    };
+    tenantId: '',
+    pi: 0,
+    ps: 10,
+    name: '',
+    sorter: '',
+    status: null,
+  };
   total = 0;
   data: any[] = [];
   loading = false;
-
 
   url = 'api/Customers/Tenant';
   req: STReq = { method: 'POST', allInBody: true, reName: { pi: 'offset', ps: 'limit' }, params: this.q };
@@ -86,14 +87,11 @@ export class CustomerlistComponent implements OnInit {
           },
         },
 
-
         {
           acl: 10,
           text: '删除',
           click: (item: any) => {
-
             this.delete(item.UserId);
-
           },
         },
       ],
@@ -103,10 +101,9 @@ export class CustomerlistComponent implements OnInit {
   description = '';
   totalCallNo = 0;
   expandForm = false;
-  ngOnInit(): void {
-  }
+  ngOnInit(): void {}
   edit(id: string): void {
-    let title = id == '-1' ? '新建客户' : '修改客户'
+    let title = id == '-1' ? '新建客户' : '修改客户';
     const drawerRef = this.drawerService.create<CustomerformComponent, { id: string }, string>({
       nzTitle: title,
       nzContent: CustomerformComponent,
@@ -117,12 +114,10 @@ export class CustomerlistComponent implements OnInit {
       },
     });
 
-    drawerRef.afterOpen.subscribe(() => { });
+    drawerRef.afterOpen.subscribe(() => {});
 
     drawerRef.afterClose.subscribe((data: any) => {
-
-
-      this.getData()
+      this.getData();
     });
   }
   getData() {
@@ -130,15 +125,15 @@ export class CustomerlistComponent implements OnInit {
     this.st.load(1);
   }
 
-  reset() {
-
-  }
+  reset() {}
 
   delete(id: string) {
-    this.http.delete('/api/Customers/' + id, {}).subscribe(x => {
-
-      this.getData()
-    }, y => { }, () => { })
-
+    this.http.delete('/api/Customers/' + id, {}).subscribe(
+      (x) => {
+        this.getData();
+      },
+      (y) => {},
+      () => {},
+    );
   }
 }

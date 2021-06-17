@@ -129,16 +129,14 @@
   "app.register.get-verification-code": "Get code",
   "app.register.sign-in": "Already have an account?",
   "app.register-result.msg": "Account：registered at {{email}}",
-  "app.register-result.activation-email":
-    "The activation email has been sent to your email address and is valid for 24 hours. Please log in to the email in time and click on the link in the email to activate the account.",
+  "app.register-result.activation-email": "The activation email has been sent to your email address and is valid for 24 hours. Please log in to the email in time and click on the link in the email to activate the account.",
   "app.register-result.back-home": "Back to home",
   "app.register-result.view-mailbox": "View mailbox",
   "validation.email.required": "Please enter your email!",
   "validation.email.wrong-format": "The email address is in the wrong format!",
   "validation.password.required": "Please enter your password!",
   "validation.password.twice": "The passwords entered twice do not match!",
-  "validation.password.strength.msg":
-    "Please enter at least 6 characters and don't use passwords that are easy to guess.",
+  "validation.password.strength.msg": "Please enter at least 6 characters and don't use passwords that are easy to guess.",
   "validation.password.strength.strong": "Strength: strong",
   "validation.password.strength.medium": "Strength: medium",
   "validation.password.strength.short": "Strength: too short",
@@ -149,5 +147,6 @@
   "validation.title.required": "Please enter a title",
   "validation.date.required": "Please select the start and end date",
   "validation.goal.required": "Please enter a description of the goal",
-  "validation.standard.required": "Please enter a metric"
+  "validation.standard.required": "Please enter a metric",
+  "app.register.install": "Install"
 }
