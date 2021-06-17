@@ -14,45 +14,33 @@
   </nz-form-item>
 
   <nz-form-item>
-    <nz-form-control [nzErrorTip]="mailErrorTip">
+    <nz-form-control [nzErrorTip]="customerNameErrorTip">
       <nz-input-group nzSize="large" nzAddonBeforeIcon="user">
         <input nz-input formControlName="customerName" placeholder="用户名" />
       </nz-input-group>
-      <ng-template #mailErrorTip let-i>
-        <ng-container *ngIf="i.errors?.required">{{ 'validation.email.required' | translate }}</ng-container>
-        <ng-container *ngIf="i.errors?.email">{{ 'validation.email.wrong-format' | translate }}</ng-container>
+      <ng-template #customerNameErrorTip let-i>
+        <ng-container *ngIf="i.errors?.required">{{ 'validation.customerName.required' | translate }}</ng-container>
+
       </ng-template>
     </nz-form-control>
   </nz-form-item>
   <nz-form-item>
     <nz-form-control [nzErrorTip]="'validation.password.required' | translate">
-      <nz-input-group
-        nzSize="large"
-        nzAddonBeforeIcon="lock"
-        nz-popover
-        nzPopoverPlacement="right"
-        nzPopoverTrigger="focus"
-        [(nzPopoverVisible)]="visible"
-        nzPopoverOverlayClassName="register-password-cdk"
-        [nzPopoverOverlayStyle]="{ 'width.px': 240 }"
-        [nzPopoverContent]="pwdCdkTpl"
-      >
-        <input nz-input type="password" formControlName="password" placeholder="输入你的密码" />
+      <nz-input-group nzSize="large" nzAddonBeforeIcon="lock" nz-popover nzPopoverPlacement="right"
+        nzPopoverTrigger="focus" [(nzPopoverVisible)]="visible" nzPopoverOverlayClassName="register-password-cdk"
+        [nzPopoverOverlayStyle]="{ 'width.px': 240 }" [nzPopoverContent]="pwdCdkTpl">
+        <input nz-input type="password" formControlName="Password" placeholder="输入你的密码" />
       </nz-input-group>
       <ng-template #pwdCdkTpl>
-        <div style="padding: 4px 0">
+        <div style="padding: 4px 0;">
           <ng-container [ngSwitch]="status">
             <div *ngSwitchCase="'ok'" class="success">{{ 'validation.password.strength.strong' | translate }}</div>
             <div *ngSwitchCase="'pass'" class="warning">{{ 'validation.password.strength.medium' | translate }}</div>
             <div *ngSwitchDefault class="error">{{ 'validation.password.strength.short' | translate }}</div>
           </ng-container>
           <div class="progress-{{ status }}">
-            <nz-progress
-              [nzPercent]="progress"
-              [nzStatus]="passwordProgressMap[status]"
-              [nzStrokeWidth]="6"
-              [nzShowInfo]="false"
-            ></nz-progress>
+            <nz-progress [nzPercent]="progress" [nzStatus]="passwordProgressMap[status]" [nzStrokeWidth]="6"
+              [nzShowInfo]="false"></nz-progress>
           </div>
           <p class="mt-sm">{{ 'validation.password.strength.msg' | translate }}</p>
         </div>
@@ -71,45 +59,48 @@
     </nz-form-control>
   </nz-form-item>
   <nz-form-item>
-    <nz-form-control [nzErrorTip]="mailErrorTip">
+    <nz-form-control [nzErrorTip]="tenantNameErrorTip">
       <nz-input-group nzSize="large" nzAddonBeforeIcon="user">
         <input nz-input formControlName="tenantName" placeholder="租户名称" />
       </nz-input-group>
-      <ng-template #mailErrorTip let-i>
-        <ng-container *ngIf="i.errors?.required">{{ 'validation.email.required' | translate }}</ng-container>
-        <ng-container *ngIf="i.errors?.email">{{ 'validation.email.wrong-format' | translate }}</ng-container>
+      <ng-template #tenantNameErrorTip let-i>
+        <ng-container *ngIf="i.errors?.required">{{ 'validation.tenantName.required' | translate }}</ng-container>
+
       </ng-template>
     </nz-form-control>
   </nz-form-item>
 
   <nz-form-item>
-    <nz-form-control [nzErrorTip]="mailErrorTip">
+    <nz-form-control [nzErrorTip]="tenantEMailErrorTip">
       <nz-input-group nzSize="large" nzAddonBeforeIcon="user">
         <input nz-input formControlName="tenantEMail" placeholder="租户邮箱" />
       </nz-input-group>
-      <ng-template #mailErrorTip let-i>
-        <ng-container *ngIf="i.errors?.required">{{ 'validation.email.required' | translate }}</ng-container>
-        <ng-container *ngIf="i.errors?.email">{{ 'validation.email.wrong-format' | translate }}</ng-container>
+      <ng-template #tenantEMailErrorTip let-i>
+        <ng-container *ngIf="i.errors?.required">{{ 'validation.tenantEMail.required' | translate }}</ng-container>
+        <ng-container *ngIf="i.errors?.email">{{ 'validation.tenantEMail.wrong-format' | translate }}</ng-container>
       </ng-template>
     </nz-form-control>
   </nz-form-item>
   <nz-form-item>
-    <nz-form-control [nzErrorTip]="mailErrorTip">
+    <nz-form-control [nzErrorTip]="customerEMailErrorTip">
       <nz-input-group nzSize="large" nzAddonBeforeIcon="user">
         <input nz-input formControlName="customerEMail" placeholder="客户邮箱" />
       </nz-input-group>
-      <ng-template #mailErrorTip let-i>
-        <ng-container *ngIf="i.errors?.required">{{ 'validation.email.required' | translate }}</ng-container>
-        <ng-container *ngIf="i.errors?.email">{{ 'validation.email.wrong-format' | translate }}</ng-container>
+      <ng-template #customerEMailErrorTip let-i>
+        <ng-container *ngIf="i.errors?.required">{{ 'validation.customerEMail.required' | translate }}</ng-container>
+        <ng-container *ngIf="i.errors?.email">{{ 'validation.customerEMail.wrong-format' | translate }}</ng-container>
       </ng-template>
     </nz-form-control>
   </nz-form-item>
+
+
+
 
   <nz-form-item>
     <nz-form-control [nzErrorTip]="mobileErrorTip">
       <nz-input-group nzSize="large" [nzAddOnBefore]="addOnBeforeTemplate">
         <ng-template #addOnBeforeTemplate>
-          <nz-select formControlName="mobilePrefix" style="width: 100px">
+          <nz-select formControlName="mobilePrefix" style="width: 100px;">
             <nz-option [nzLabel]="'+86'" [nzValue]="'+86'"></nz-option>
             <nz-option [nzLabel]="'+87'" [nzValue]="'+87'"></nz-option>
           </nz-select>

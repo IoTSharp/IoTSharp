@@ -49,10 +49,6 @@
     "@angular/platform-browser": "~11.2.14",
     "@angular/platform-browser-dynamic": "~11.2.14",
     "@angular/router": "~11.2.14",
-    "rxjs": "~6.6.0",
-    "tslib": "^2.0.0",
-    "zone.js": "~0.11.3",
-    "ng-zorro-antd": "^11.4.1",
     "@delon/abc": "^11.10.2",
     "@delon/acl": "^11.10.2",
     "@delon/auth": "^11.10.2",
@@ -62,13 +58,18 @@
     "@delon/mock": "^11.10.2",
     "@delon/theme": "^11.10.2",
     "@delon/util": "^11.10.2",
-    "ngx-tinymce": "^11.0.0",
-    "ngx-ueditor": "^11.0.1",
     "@ngx-translate/core": "^13.0.0",
     "@ngx-translate/http-loader": "^6.0.0",
-    "screenfull": "^5.1.0",
     "ajv": "^8.1.0",
-    "ngx-countdown": "^11.0.3"
+    "guid-typescript": "^1.0.9",
+    "ng-zorro-antd": "^11.4.1",
+    "ngx-countdown": "^11.0.3",
+    "ngx-tinymce": "^11.0.0",
+    "ngx-ueditor": "^11.0.1",
+    "rxjs": "~6.6.0",
+    "screenfull": "^5.1.0",
+    "tslib": "^2.0.0",
+    "zone.js": "~0.11.3"
   },
   "devDependencies": {
     "@angular-devkit/build-angular": "~0.1102.13",
@@ -111,7 +112,7 @@
   },
   "husky": {
     "hooks": {
-     
+      "pre-commit": "pretty-quick --staged"
     }
   }
 }

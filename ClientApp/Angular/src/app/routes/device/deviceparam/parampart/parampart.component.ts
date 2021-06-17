@@ -7,7 +7,7 @@ import { UIDataType } from 'src/app/routes/common/UIDataType';
 @Component({
   selector: 'app-parampart',
   templateUrl: './parampart.component.html',
-  styleUrls: ['./parampart.component.less'],
+  styleUrls: ['./parampart.component.less']
 })
 export class ParampartComponent implements ControlValueAccessor, OnInit {
   @Output() OnRemove = new EventEmitter<DeviceTypeParam>();
@@ -22,22 +22,42 @@ export class ParampartComponent implements ControlValueAccessor, OnInit {
 
   DSVisble: boolean = false;
   DefaultVisble: boolean = false;
-  constructor(private _router: Router, private router: ActivatedRoute) {}
+  constructor(private _router: Router,
+    private router: ActivatedRoute,) { }
   writeValue(obj: any): void {
     this.DeviceTypeParam = obj;
+
+
   }
 
-  registerOnChange(fn: any): void {}
-  registerOnTouched(fn: any): void {}
-  dtcChange($event: any) {}
+  registerOnChange(fn: any): void {
 
-  dtpChange($event: any) {}
-  remove($event: any) {}
-  DeviceTypeParamUITypeChange($event: any) {}
+  }
+  registerOnTouched(fn: any): void {
 
-  submit() {}
-  ngOnInit(): void {}
+  }
+  dtcChange($event: any) {
+
+  }
+
+  dtpChange($event: any) {
+
+  }
+  remove($event: any) {
+
+  }
+  DeviceTypeParamUITypeChange($event: any) {
+
+  }
+
+  submit() {
+
+  }
+  ngOnInit(): void {
+  }
+
 }
+
 
 export class DeviceTypeParam {
   constructor(
@@ -54,11 +74,11 @@ export class DeviceTypeParam {
 
     public TemplateParamValueCode: string,
     public IsRequired: boolean,
-  ) {}
+  ) { }
 
-  public TemplateParamNamenzValidateStatus: string = '';
-  public TemplateParamNamenzValidatingTip: string = '';
+  public TemplateParamNamenzValidateStatus: string = "";
+  public TemplateParamNamenzValidatingTip: string = "";
 
-  public TemplateParamValueCodenzValidateStatus: string = '';
-  public TemplateParamValueCodenzValidatingTip: string = '';
+  public TemplateParamValueCodenzValidateStatus: string = "";
+  public TemplateParamValueCodenzValidatingTip: string = "";
 }

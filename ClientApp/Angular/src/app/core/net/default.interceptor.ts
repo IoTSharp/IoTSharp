@@ -49,6 +49,8 @@ export class DefaultInterceptor implements HttpInterceptor {
     if (this.refreshTokenType === 'auth-refresh') {
       this.buildAuthRefresh();
     }
+
+
   }
 
   private get notification(): NzNotificationService {
@@ -68,8 +70,9 @@ export class DefaultInterceptor implements HttpInterceptor {
   }
 
   private checkStatus(ev: HttpResponseBase): void {
+
     if ((ev.status >= 200 && ev.status < 300) || ev.status === 401) {
-      // return;
+      return;
     }
 
     const errortext = CODEMESSAGE[ev.status] || ev.statusText;
@@ -132,7 +135,7 @@ export class DefaultInterceptor implements HttpInterceptor {
     const token = this.tokenSrv.get()?.token;
     return req.clone({
       setHeaders: {
-        token: `Bearer ${token}`,
+        Authorization: `Bearer ${token}`,
       },
     });
   }
@@ -173,7 +176,9 @@ export class DefaultInterceptor implements HttpInterceptor {
   }
 
   private handleData(ev: HttpResponseBase, req: HttpRequest<any>, next: HttpHandler): Observable<any> {
-    this.checkStatus(ev);
+
+
+    //  this.checkStatus(ev);
     // 业务处理：一些通用操作
     switch (ev.status) {
       case 200:
@@ -196,6 +201,8 @@ export class DefaultInterceptor implements HttpInterceptor {
         //     return of(ev);
         //   }
         // }
+
+        return of(ev);
         break;
       case 401:
         if (this.refreshTokenEnabled && this.refreshTokenType === 're-request') {
@@ -206,7 +213,7 @@ export class DefaultInterceptor implements HttpInterceptor {
       case 403:
       case 404:
       case 500:
-        this.goTo(`/exception/${ev.status}`);
+        //   this.goTo(`/exception/${ev.status}`);
         break;
       default:
         if (ev instanceof HttpErrorResponse) {
@@ -219,18 +226,26 @@ export class DefaultInterceptor implements HttpInterceptor {
     }
     if (ev instanceof HttpErrorResponse) {
       return throwError(ev);
+
     } else {
       return of(ev);
     }
   }
 
   private getAdditionalHeaders(headers?: HttpHeaders): { [name: string]: string } {
+
+
+
     const res: { [name: string]: string } = {};
     const lang = this.injector.get(ALAIN_I18N_TOKEN).currentLang;
     if (!headers?.has('Accept-Language') && lang) {
       res['Accept-Language'] = lang;
     }
+    const token = this.tokenSrv.get()?.token;
+    if (token) {
 
+      res['Authorization'] = `Bearer ${token}`;
+    }
     return res;
   }
 
@@ -241,7 +256,10 @@ export class DefaultInterceptor implements HttpInterceptor {
       url = environment.api.baseUrl + url;
     }
 
+
     const newReq = req.clone({ url, setHeaders: this.getAdditionalHeaders(req.headers) });
+
+
     return next.handle(newReq).pipe(
       mergeMap((ev) => {
         // 允许统一对请求错误处理

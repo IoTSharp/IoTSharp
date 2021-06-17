@@ -8,13 +8,8 @@
             <se label="设备类型" error="设备类型">
                 <input nz-input formControlName="deviceType" placeholder="设备类型" />
             </se>
-            <se label="设备类型" error="设备类型">
-                <input nz-input formControlName="tenant" placeholder="设备类型" />
-            </se>
-            <se label="客户" error="客户">
-                <input nz-input formControlName="customer" placeholder="客户" />
-            </se>
             <se>
+                <input nz-input formControlName="customerId" type="hidden" />
                 <input nz-input formControlName="id" type="hidden" />
                 <button nz-button type="reset" (click)="close()">取消</button>
                 <button nz-button nzType="primary" [disabled]="form.invalid" type="submit"

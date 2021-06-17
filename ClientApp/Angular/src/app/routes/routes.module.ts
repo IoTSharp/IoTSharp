@@ -15,6 +15,6 @@ const COMPONENTS: Type<null>[] = [];
 
 @NgModule({
   imports: [SharedModule, RouteRoutingModule],
-  declarations: [...COMPONENTS, TenantlistComponent, TenantformComponent, CustomerlistComponent, CustomerformComponent, DeviceformComponent, DevicelistComponent, ParampartComponent, ProppartComponent],
+  declarations: [...COMPONENTS, TenantlistComponent, TenantformComponent, DeviceformComponent, DevicelistComponent, ParampartComponent, ProppartComponent],
 })
 export class RoutesModule { }

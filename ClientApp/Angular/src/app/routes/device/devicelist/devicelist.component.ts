@@ -18,9 +18,33 @@ import { DeviceformComponent } from '../deviceform/deviceform.component';
 })
 export class DevicelistComponent implements OnInit {
 
+  customerId: string = '';
+  constructor(
+    private http: _HttpClient,
+    public msg: NzMessageService,
+    private modal: ModalHelper,
+    private cdr: ChangeDetectorRef,
+    private _router: Router,
+    private router: ActivatedRoute,
+    private drawerService: NzDrawerService,
+    private globals: Globals,
+    aclSrv: ACLService,) {
+    this.router.queryParams.subscribe(x => {
+      this.q.customerId = x.id as unknown as string;
+      this.customerId = x.id as unknown as string;
+
+      if (x.id) {
+        this.url = 'api/Devices/Customers/' + this.customerId;
+      } else {
+        this.url = 'api/Devices';
+      }
 
 
-  url = 'api/Devices/Customers';
+
+
+    }, y => { }, () => { });
+  }
+  url = 'api/Devices/Customers/' + this.customerId;;
 
   page: STPage = {
     front: false,
@@ -45,7 +69,7 @@ export class DevicelistComponent implements OnInit {
 
 
     };
-  req: STReq = { method: 'POST', allInBody: true, reName: { pi: 'offset', ps: 'limit' }, params: this.q };
+  req: STReq = { method: 'GET', allInBody: true, reName: { pi: 'offset', ps: 'limit' }, params: this.q };
 
   // 定义返回的参数
   res: STRes = {
@@ -90,17 +114,7 @@ export class DevicelistComponent implements OnInit {
   selectedRows: STData[] = [];
   description = '';
   totalCallNo = 0;
-  constructor(
-    private http: _HttpClient,
-    public msg: NzMessageService,
-    private modal: ModalHelper,
-    private cdr: ChangeDetectorRef,
-    private _router: Router,
-    private router: ActivatedRoute,
-    private drawerService: NzDrawerService,
-    private globals: Globals,
-    aclSrv: ACLService,) {
-  }
+
 
   ngOnInit(): void {
     this.router.queryParams.subscribe((x: any) => {
@@ -110,13 +124,19 @@ export class DevicelistComponent implements OnInit {
 
   edit(id: string): void {
     let title = id == '-1' ? '新建设备' : '修改设备'
-    const drawerRef = this.drawerService.create<DeviceformComponent, { id: string }, string>({
+    const drawerRef = this.drawerService.create<DeviceformComponent, {
+      params: {
+        id: string, customerId: string
+      }
+    }, any>({
       nzTitle: title,
       nzContent: DeviceformComponent,
       nzWidth: this.globals.drawerwidth,
       nzMaskClosable: this.globals.nzMaskClosable,
       nzContentParams: {
-        id: id,
+        params: {
+          id: id, customerId: this.customerId
+        }
       },
     });
     drawerRef.afterOpen.subscribe(() => {

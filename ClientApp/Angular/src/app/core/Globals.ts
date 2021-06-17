@@ -8,11 +8,11 @@ export class Globals {
     UserWigets: string[] = [];
 
     constructor(public srv: CacheService) {
-        this.srv.get<UserProfile>('userProfile').subscribe((x) => {
-            this.drawerwidth = x.drawerwidth;
-            this.nzMaskClosable = x.nzMaskClosable;
-            this.UserWigets = x.UserWigets;
-        });
+        // this.srv.get<UserProfile>('userProfile').subscribe((x) => {
+        //     this.drawerwidth = x.drawerwidth;
+        //     this.nzMaskClosable = x.nzMaskClosable;
+        //     this.UserWigets = x.UserWigets;
+        // });
     }
     public load() { }
 }
