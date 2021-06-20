@@ -1,4 +1,4 @@
-version: '3.4'
+version: "3.4"
 services:
   pgsql:
     image: postgres
@@ -10,9 +10,9 @@ services:
       TZ: "Asia/Shanghai"
       POSTGRES_USER: postgres
       POSTGRES_DB: IoTSharp
-      POSTGRES_PASSWORD: future 
-    ports: 
-     - "5439:5432"
+      POSTGRES_PASSWORD: future
+    ports:
+      - "5439:5432"
     networks:
       - iotsharp-network
 
@@ -21,9 +21,9 @@ services:
     container_name: pgadmin
     restart: always
     volumes:
-       - "./servers.json:/pgadmin4/servers.json"
+      - "./servers.json:/pgadmin4/servers.json"
     depends_on:
-      - pgsql 
+      - pgsql
     links:
       - pgsql
     ports:
@@ -43,24 +43,24 @@ services:
       - TZ=Asia/Shanghai
     depends_on:
       - pgsql
-      - mongodb
-      - rabbitmq
-      - influx
+      #- mongodb
+      #- rabbitmq
+      #- influx
     links:
       - pgsql
-      - mongodb
-      - rabbitmq
-      - influx
+      #- mongodb
+      #- rabbitmq
+      #- influx
     ports:
       - 2927:80
       - 1883:1883
-      - 8883:8883 
+      - 8883:8883
       - 5683:5683
       - 5684:5684
       - 502:502
     networks:
       - iotsharp-network
- 
+
   #rabbitmq:
   #  image: rabbitmq:management
   #  container_name: rabbitmq
@@ -118,7 +118,6 @@ services:
   #      networks:
   #        - iotsharp-network
 
-
   #influx-setup:
   #      image: "julianfh/influxdb-setup:latest"
   #      depends_on:
@@ -140,6 +139,6 @@ services:
   #      networks:
   #        - iotsharp-network
 
-networks: 
+networks:
   iotsharp-network:
-      driver:  bridge
+    driver: bridge
