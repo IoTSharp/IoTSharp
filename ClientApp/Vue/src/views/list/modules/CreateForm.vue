@@ -44,33 +44,33 @@ export default {
   props: {
     visible: {
       type: Boolean,
-      required: true,
+      required: true
     },
     loading: {
       type: Boolean,
-      default: () => false,
+      default: () => false
     },
     model: {
       type: Object,
-      default: () => null,
-    },
+      default: () => null
+    }
   },
-  data() {
+  data () {
     this.formLayout = {
       labelCol: {
         xs: { span: 24 },
-        sm: { span: 7 },
+        sm: { span: 7 }
       },
       wrapperCol: {
         xs: { span: 24 },
-        sm: { span: 13 },
-      },
+        sm: { span: 13 }
+      }
     }
     return {
-      form: this.$form.createForm(this),
+      form: this.$form.createForm(this)
     }
   },
-  created() {
+  created () {
     console.log('custom modal created')
 
     // 防止表单未注册
@@ -80,6 +80,6 @@ export default {
     this.$watch('model', () => {
       this.model && this.form.setFieldsValue(pick(this.model, fields))
     })
-  },
+  }
 }
 </script>

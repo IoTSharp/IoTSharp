@@ -115,9 +115,9 @@ import { STable } from '@/components'
 export default {
   name: 'TableList',
   components: {
-    STable,
+    STable
   },
-  data() {
+  data () {
     return {
       description:
         '列表使用场景：后台管理中的权限管理以及角色管理，可用于基于 RBAC 设计的角色权限控制，颗粒度细到每一个操作类型。',
@@ -125,11 +125,11 @@ export default {
       visible: false,
       labelCol: {
         xs: { span: 24 },
-        sm: { span: 5 },
+        sm: { span: 5 }
       },
       wrapperCol: {
         xs: { span: 24 },
-        sm: { span: 16 },
+        sm: { span: 16 }
       },
       form: null,
       mdl: {},
@@ -142,28 +142,28 @@ export default {
       columns: [
         {
           title: '唯一识别码',
-          dataIndex: 'id',
+          dataIndex: 'id'
         },
         {
           title: '权限名称',
-          dataIndex: 'name',
+          dataIndex: 'name'
         },
         {
           title: '可操作权限',
           dataIndex: 'actions',
-          scopedSlots: { customRender: 'actions' },
+          scopedSlots: { customRender: 'actions' }
         },
         {
           title: '状态',
           dataIndex: 'status',
-          scopedSlots: { customRender: 'status' },
+          scopedSlots: { customRender: 'status' }
         },
         {
           title: '操作',
           width: '150px',
           dataIndex: 'action',
-          scopedSlots: { customRender: 'action' },
-        },
+          scopedSlots: { customRender: 'action' }
+        }
       ],
       // 向后端拉取可以用的操作列表
       permissionList: null,
@@ -171,7 +171,7 @@ export default {
       loadData: (parameter) => {
         return this.$http
           .get('/permission', {
-            params: Object.assign(parameter, this.queryParam),
+            params: Object.assign(parameter, this.queryParam)
           })
           .then((res) => {
             const result = res.result
@@ -184,23 +184,23 @@ export default {
       },
 
       selectedRowKeys: [],
-      selectedRows: [],
+      selectedRows: []
     }
   },
   filters: {
-    statusFilter(status) {
+    statusFilter (status) {
       const statusMap = {
         1: '正常',
-        2: '禁用',
+        2: '禁用'
       }
       return statusMap[status]
-    },
+    }
   },
-  created() {
+  created () {
     this.loadPermissionList()
   },
   methods: {
-    loadPermissionList() {
+    loadPermissionList () {
       // permissionList
       new Promise((resolve) => {
         const data = [
@@ -210,26 +210,26 @@ export default {
           { label: '列表', value: 'query', defaultChecked: false },
           { label: '删除', value: 'delete', defaultChecked: false },
           { label: '导入', value: 'import', defaultChecked: false },
-          { label: '导出', value: 'export', defaultChecked: false },
+          { label: '导出', value: 'export', defaultChecked: false }
         ]
         setTimeout(resolve(data), 1500)
       }).then((res) => {
         this.permissionList = res
       })
     },
-    handleEdit(record) {
+    handleEdit (record) {
       this.mdl = Object.assign({}, record)
       console.log(this.mdl)
       this.visible = true
     },
-    handleOk() {},
-    onChange(selectedRowKeys, selectedRows) {
+    handleOk () {},
+    onChange (selectedRowKeys, selectedRows) {
       this.selectedRowKeys = selectedRowKeys
       this.selectedRows = selectedRows
     },
-    toggleAdvanced() {
+    toggleAdvanced () {
       this.advanced = !this.advanced
-    },
+    }
   },
   watch: {
     /*
@@ -244,6 +244,6 @@ export default {
         })
       }
       */
-  },
+  }
 }
 </script>

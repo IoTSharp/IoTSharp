@@ -14,22 +14,22 @@ const tooltip = [
   'x*y',
   (x, y) => ({
     name: x,
-    value: y,
-  }),
+    value: y
+  })
 ]
 const scale = [
   {
     dataKey: 'x',
     title: '日期(天)',
     alias: '日期(天)',
-    min: 2,
+    min: 2
   },
   {
     dataKey: 'y',
     title: '流量(Gb)',
     alias: '流量(Gb)',
-    min: 1,
-  },
+    min: 1
+  }
 ]
 
 export default {
@@ -37,25 +37,25 @@ export default {
   props: {
     title: {
       type: String,
-      default: '',
-    },
+      default: ''
+    }
   },
-  data() {
+  data () {
     return {
       data: [],
       scale,
-      tooltip,
+      tooltip
     }
   },
-  created() {
+  created () {
     this.getMonthBar()
   },
   methods: {
-    getMonthBar() {
+    getMonthBar () {
       this.$http.get('/analysis/month-bar').then((res) => {
         this.data = res.result
       })
-    },
-  },
+    }
+  }
 }
 </script>

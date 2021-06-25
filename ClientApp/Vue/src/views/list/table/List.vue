@@ -121,9 +121,9 @@ import { getRoleList, getServiceList } from '@/api/manage'
 export default {
   name: 'TableList',
   components: {
-    STable,
+    STable
   },
-  data() {
+  data () {
     return {
       mdl: {},
       // 高级搜索 展开/关闭
@@ -134,39 +134,39 @@ export default {
       columns: [
         {
           title: '#',
-          scopedSlots: { customRender: 'serial' },
+          scopedSlots: { customRender: 'serial' }
         },
         {
           title: '规则编号',
-          dataIndex: 'no',
+          dataIndex: 'no'
         },
         {
           title: '描述',
-          dataIndex: 'description',
+          dataIndex: 'description'
         },
         {
           title: '服务调用次数',
           dataIndex: 'callNo',
           sorter: true,
           needTotal: true,
-          customRender: (text) => text + ' 次',
+          customRender: (text) => text + ' 次'
         },
         {
           title: '状态',
           dataIndex: 'status',
-          needTotal: true,
+          needTotal: true
         },
         {
           title: '更新时间',
           dataIndex: 'updatedAt',
-          sorter: true,
+          sorter: true
         },
         {
           title: '操作',
           dataIndex: 'action',
           width: '150px',
-          scopedSlots: { customRender: 'action' },
-        },
+          scopedSlots: { customRender: 'action' }
+        }
       ],
       // 加载数据方法 必须为 Promise 对象
       loadData: (parameter) => {
@@ -184,63 +184,63 @@ export default {
           show: true,
           clear: () => {
             this.selectedRowKeys = []
-          },
+          }
         },
         rowSelection: {
           selectedRowKeys: this.selectedRowKeys,
-          onChange: this.onSelectChange,
-        },
+          onChange: this.onSelectChange
+        }
       },
-      optionAlertShow: false,
+      optionAlertShow: false
     }
   },
-  created() {
+  created () {
     this.tableOption()
     getRoleList({ t: new Date() })
   },
   methods: {
-    tableOption() {
+    tableOption () {
       if (!this.optionAlertShow) {
         this.options = {
           alert: {
             show: true,
             clear: () => {
               this.selectedRowKeys = []
-            },
+            }
           },
           rowSelection: {
             selectedRowKeys: this.selectedRowKeys,
-            onChange: this.onSelectChange,
-          },
+            onChange: this.onSelectChange
+          }
         }
         this.optionAlertShow = true
       } else {
         this.options = {
           alert: false,
-          rowSelection: null,
+          rowSelection: null
         }
         this.optionAlertShow = false
       }
     },
 
-    handleEdit(record) {
+    handleEdit (record) {
       this.$emit('onEdit', record)
     },
-    handleOk() {},
+    handleOk () {},
 
-    onSelectChange(selectedRowKeys, selectedRows) {
+    onSelectChange (selectedRowKeys, selectedRows) {
       this.selectedRowKeys = selectedRowKeys
       this.selectedRows = selectedRows
     },
-    toggleAdvanced() {
+    toggleAdvanced () {
       this.advanced = !this.advanced
     },
 
-    resetSearchForm() {
+    resetSearchForm () {
       this.queryParam = {
-        date: moment(new Date()),
+        date: moment(new Date())
       }
-    },
-  },
+    }
+  }
 }
 </script>

@@ -2,7 +2,7 @@
 const googleAdsUrl = 'https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js'
 export default {
   props: {
-    isMobile: Boolean,
+    isMobile: Boolean
   },
   // watch: {
   //   $route (e, t) {
@@ -23,11 +23,11 @@ export default {
   //     }, 20000)
   //   }
   // },
-  mounted() {
+  mounted () {
     // this.load()
   },
   methods: {
-    load() {
+    load () {
       if (googleAdsUrl) {
         /* eslint-disable */
         let adsbygoogle = []

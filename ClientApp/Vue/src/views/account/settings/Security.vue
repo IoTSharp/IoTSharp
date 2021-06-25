@@ -19,7 +19,7 @@
 <script>
 export default {
   computed: {
-    data() {
+    data () {
       return [
         {
           title: this.$t('account.settings.security.password'),
@@ -29,8 +29,8 @@ export default {
             title: this.$t('account.settings.security.modify'),
             callback: () => {
               this.$message.info('This is a normal message')
-            },
-          },
+            }
+          }
         },
         {
           title: this.$t('account.settings.security.phone'),
@@ -40,8 +40,8 @@ export default {
             title: this.$t('account.settings.security.modify'),
             callback: () => {
               this.$message.success('This is a message of success')
-            },
-          },
+            }
+          }
         },
         {
           title: this.$t('account.settings.security.question'),
@@ -51,8 +51,8 @@ export default {
             title: this.$t('account.settings.security.set'),
             callback: () => {
               this.$message.error('This is a message of error')
-            },
-          },
+            }
+          }
         },
         {
           title: this.$t('account.settings.security.email'),
@@ -62,8 +62,8 @@ export default {
             title: this.$t('account.settings.security.modify'),
             callback: () => {
               this.$message.warning('This is message of warning')
-            },
-          },
+            }
+          }
         },
         {
           title: this.$t('account.settings.security.mfa'),
@@ -73,12 +73,12 @@ export default {
             title: this.$t('account.settings.security.bind'),
             callback: () => {
               this.$message.info('This is a normal message')
-            },
-          },
-        },
+            }
+          }
+        }
       ]
-    },
-  },
+    }
+  }
 }
 </script>
 

@@ -10,26 +10,26 @@
 <script>
 export default {
   name: 'RegisterResult',
-  data() {
+  data () {
     return {
       description: '激活邮件已发送到你的邮箱中，邮件有效期为24小时。请及时登录邮箱，点击邮件中的链接激活帐户。',
-      form: {},
+      form: {}
     }
   },
   computed: {
-    email() {
+    email () {
       const v = (this.form && this.form.email) || 'xxx'
       return `你的账户：${v} 注册成功`
-    },
+    }
   },
-  created() {
+  created () {
     this.form = this.$route.params
   },
   methods: {
-    goHomeHandle() {
+    goHomeHandle () {
       this.$router.push({ name: 'login' })
-    },
-  },
+    }
+  }
 }
 </script>
 

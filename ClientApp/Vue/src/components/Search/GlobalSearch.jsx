@@ -3,12 +3,12 @@ import './index.less'
 
 const GlobalSearch = {
   name: 'GlobalSearch',
-  data() {
+  data () {
     return {
-      visible: false,
+      visible: false
     }
   },
-  mounted() {
+  mounted () {
     const keyboardHandle = (e) => {
       e.preventDefault()
       e.stopPropagation()
@@ -21,7 +21,7 @@ const GlobalSearch = {
     }
     document.addEventListener('keydown', keyboardHandle)
   },
-  render() {
+  render () {
     const { visible } = this
     const handleSearch = (e) => {
       this.$emit('search', e)
@@ -52,7 +52,7 @@ const GlobalSearch = {
         </div>
       </div>
     )
-  },
+  }
 }
 
 GlobalSearch.install = function (Vue) {

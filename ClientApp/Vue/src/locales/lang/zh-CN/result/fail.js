@@ -6,5 +6,5 @@ export default {
   'result.fail.error.hint-btn1': '立即解冻',
   'result.fail.error.hint-text2': '您的账户还不具备申请资格',
   'result.fail.error.hint-btn2': '立即升级',
-  'result.fail.error.btn-text': '返回修改',
+  'result.fail.error.btn-text': '返回修改'
 }

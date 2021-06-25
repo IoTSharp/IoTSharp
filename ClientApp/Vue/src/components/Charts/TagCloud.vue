@@ -14,11 +14,11 @@ const imgUrl = 'https://gw.alipayobjects.com/zos/rmsportal/gWyeGLCdFFRavBGIDzWk.
 
 const scale = [
   { dataKey: 'x', nice: false },
-  { dataKey: 'y', nice: false },
+  { dataKey: 'y', nice: false }
 ]
 
 registerShape('point', 'cloud', {
-  draw(cfg, container) {
+  draw (cfg, container) {
     return container.addShape('text', {
       attrs: {
         fillOpacity: cfg.opacity,
@@ -31,10 +31,10 @@ registerShape('point', 'cloud', {
         textBaseline: 'Alphabetic',
         ...cfg.style,
         x: cfg.x,
-        y: cfg.y,
-      },
+        y: cfg.y
+      }
     })
-  },
+  }
 })
 
 export default {
@@ -42,21 +42,21 @@ export default {
   props: {
     tagList: {
       type: Array,
-      required: true,
+      required: true
     },
     height: {
       type: Number,
-      default: 400,
+      default: 400
     },
     width: {
       type: Number,
-      default: 640,
-    },
+      default: 640
+    }
   },
-  data() {
+  data () {
     return {
       data: [],
-      scale,
+      scale
     }
   },
   watch: {
@@ -64,15 +64,15 @@ export default {
       if (val.length > 0) {
         this.initTagCloud(val)
       }
-    },
+    }
   },
-  mounted() {
+  mounted () {
     if (this.tagList.length > 0) {
       this.initTagCloud(this.tagList)
     }
   },
   methods: {
-    initTagCloud(dataSource) {
+    initTagCloud (dataSource) {
       const { height, width } = this
 
       const dv = new DataSet.View().source(dataSource)
@@ -91,23 +91,23 @@ export default {
           font: 'Verdana',
           padding: 0,
           timeInterval: 5000, // max execute time
-          rotate() {
+          rotate () {
             let random = ~~(Math.random() * 4) % 4
             if (random === 2) {
               random = 0
             }
             return random * 90 // 0, 90, 270
           },
-          fontSize(d) {
+          fontSize (d) {
             if (d.value) {
               return ((d.value - min) / (max - min)) * (32 - 8) + 8
             }
             return 0
-          },
+          }
         })
         this.data = dv.rows
       }
-    },
-  },
+    }
+  }
 }
 </script>

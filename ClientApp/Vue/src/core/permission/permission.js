@@ -7,14 +7,14 @@ export const PERMISSION_ENUM = {
   enable: { key: 'enable', label: '启用' },
   disable: { key: 'disable', label: '禁用' },
   import: { key: 'import', label: '导入' },
-  export: { key: 'export', label: '导出' },
+  export: { key: 'export', label: '导出' }
 }
 
 /**
  * <a-button v-if="$auth('form.edit')">Button</a-button>
  * @param Vue
  */
-function plugin(Vue) {
+function plugin (Vue) {
   if (plugin.installed) {
     return
   }
@@ -22,7 +22,7 @@ function plugin(Vue) {
   !Vue.prototype.$auth &&
     Object.defineProperties(Vue.prototype, {
       $auth: {
-        get() {
+        get () {
           const _this = this
           return (permissions) => {
             const [permission, action] = permissions.split('.')
@@ -37,14 +37,14 @@ function plugin(Vue) {
                 }) > -1
             )
           }
-        },
-      },
+        }
+      }
     })
 
   !Vue.prototype.$enum &&
     Object.defineProperties(Vue.prototype, {
       $enum: {
-        get() {
+        get () {
           // const _this = this;
           return (val) => {
             let result = PERMISSION_ENUM
@@ -54,8 +54,8 @@ function plugin(Vue) {
               })
             return result
           }
-        },
-      },
+        }
+      }
     })
 }
 

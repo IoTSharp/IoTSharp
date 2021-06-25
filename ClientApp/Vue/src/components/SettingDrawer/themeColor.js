@@ -2,7 +2,7 @@ import client from 'webpack-theme-color-replacer/client'
 import generate from '@ant-design/colors/lib/generate'
 
 export default {
-  getAntdSerials(color) {
+  getAntdSerials (color) {
     // 淡化（即less的tint）
     const lightens = new Array(9).fill().map((t, i) => {
       return client.varyColor.lighten(color, i / 10)
@@ -12,13 +12,13 @@ export default {
     const rgb = client.varyColor.toNum3(color.replace('#', '')).join(',')
     return lightens.concat(colorPalettes).concat(rgb)
   },
-  changeColor(newColor) {
+  changeColor (newColor) {
     var options = {
       newColors: this.getAntdSerials(newColor), // new colors array, one-to-one corresponde with `matchColors`
-      changeUrl(cssUrl) {
+      changeUrl (cssUrl) {
         return `/${cssUrl}` // while router is not `hash` mode, it needs absolute path
-      },
+      }
     }
     return client.changer.changeColor(options, Promise)
-  },
+  }
 }

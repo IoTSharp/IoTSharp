@@ -25,7 +25,7 @@ const api = {
    */
   close: function (config) {
     events.$emit('close', config)
-  },
+  }
 }
 
 MultiTab.install = function (Vue) {

@@ -39,32 +39,32 @@ import { NAV_THEME, TOGGLE_NAV_THEME } from '@/store/mutation-types'
 
 const themeMap = {
   dark: '暗色',
-  light: '白色',
+  light: '白色'
 }
 
 export default {
   mixins: [baseMixin],
-  data() {
+  data () {
     return {}
   },
   filters: {
-    themeFilter(theme) {
+    themeFilter (theme) {
       return themeMap[theme]
-    },
+    }
   },
   methods: {
-    colorFilter(color) {
+    colorFilter (color) {
       const c = colorList.find((o) => o.color === color)
       return c && c.key
     },
 
-    onChange(checked) {
+    onChange (checked) {
       if (checked) {
         this.$store.commit(TOGGLE_NAV_THEME, NAV_THEME.DARK)
       } else {
         this.$store.commit(TOGGLE_NAV_THEME, NAV_THEME.LIGHT)
       }
-    },
-  },
+    }
+  }
 }
 </script>

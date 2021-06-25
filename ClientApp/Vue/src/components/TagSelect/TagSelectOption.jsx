@@ -6,34 +6,34 @@ export default {
   props: {
     prefixCls: {
       type: String,
-      default: 'ant-pro-tag-select-option',
+      default: 'ant-pro-tag-select-option'
     },
     value: {
       type: [String, Number, Object],
-      default: '',
+      default: ''
     },
     checked: {
       type: Boolean,
-      default: false,
-    },
+      default: false
+    }
   },
-  data() {
+  data () {
     return {
-      localChecked: this.checked || false,
+      localChecked: this.checked || false
     }
   },
   watch: {
-    checked(val) {
+    checked (val) {
       this.localChecked = val
     },
     '$parent.items': {
       handler: function (val) {
         this.value && val.hasOwnProperty(this.value) && (this.localChecked = val[this.value])
       },
-      deep: true,
-    },
+      deep: true
+    }
   },
-  render() {
+  render () {
     const { $slots, value } = this
     const onChange = (checked) => {
       this.$emit('change', { value, checked })
@@ -43,5 +43,5 @@ export default {
         {$slots.default}
       </CheckableTag>
     )
-  },
+  }
 }

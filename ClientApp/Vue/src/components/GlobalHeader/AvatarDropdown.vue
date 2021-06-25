@@ -39,21 +39,21 @@ export default {
   props: {
     currentUser: {
       type: Object,
-      default: () => null,
+      default: () => null
     },
     menu: {
       type: Boolean,
-      default: true,
-    },
+      default: true
+    }
   },
   methods: {
-    handleToCenter() {
+    handleToCenter () {
       this.$router.push({ path: '/account/center' })
     },
-    handleToSettings() {
+    handleToSettings () {
       this.$router.push({ path: '/account/settings' })
     },
-    handleLogout(e) {
+    handleLogout (e) {
       Modal.confirm({
         title: this.$t('layouts.usermenu.dialog.title'),
         content: this.$t('layouts.usermenu.dialog.content'),
@@ -65,10 +65,10 @@ export default {
             this.$router.push({ name: 'login' })
           })
         },
-        onCancel() {},
+        onCancel () {}
       })
-    },
-  },
+    }
+  }
 }
 </script>
 

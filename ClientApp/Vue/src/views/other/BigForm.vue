@@ -388,8 +388,12 @@
         </span>
       </template>
     </a-table>
-    <a-button style="width: 100%; margin-top: 16px; margin-bottom: 8px" type="dashed" icon="plus" @click="newMember"
-      >新增成员</a-button
+    <a-button
+      style="width: 100%; margin-top: 16px; margin-bottom: 8px"
+      type="dashed"
+      icon="plus"
+      @click="newMember"
+    >新增成员</a-button
     >
   </a-card>
 </template>
@@ -401,32 +405,32 @@ const columns = [
     dataIndex: 'name',
     key: 'name',
     width: '20%',
-    scopedSlots: { customRender: 'name' },
+    scopedSlots: { customRender: 'name' }
   },
   {
     title: '工号',
     dataIndex: 'workId',
     key: 'workId',
     width: '20%',
-    scopedSlots: { customRender: 'workId' },
+    scopedSlots: { customRender: 'workId' }
   },
   {
     title: '所属部门',
     dataIndex: 'department',
     key: 'department',
     width: '40%',
-    scopedSlots: { customRender: 'department' },
+    scopedSlots: { customRender: 'department' }
   },
   {
     title: '操作',
     key: 'action',
-    scopedSlots: { customRender: 'operation' },
-  },
+    scopedSlots: { customRender: 'operation' }
+  }
 ]
 
 export default {
   name: 'BigForm',
-  data() {
+  data () {
     return {
       showSubmit: true,
       form1: this.$form.createForm(this),
@@ -442,56 +446,56 @@ export default {
           name: '小明',
           workId: '001',
           editable: false,
-          department: '行政部',
+          department: '行政部'
         },
         {
           key: '2',
           name: '李莉',
           workId: '002',
           editable: false,
-          department: 'IT部',
+          department: 'IT部'
         },
         {
           key: '3',
           name: '王小帅',
           workId: '003',
           editable: false,
-          department: '财务部',
-        },
-      ],
+          department: '财务部'
+        }
+      ]
     }
   },
-  mounted() {
+  mounted () {
     // 加 10 个表单行
     new Array(10).fill(0).forEach(() => {
       this.newMember()
     })
   },
   methods: {
-    handleForm1Submit(e) {
+    handleForm1Submit (e) {
       e.preventDefault()
       this.form1.validateFields()
     },
-    handleForm2Submit(e) {
+    handleForm2Submit (e) {
       e.preventDefault()
       this.form2.validateFields()
     },
 
-    handleChange(value, key, column) {
+    handleChange (value, key, column) {
       const target = this.data.find((item) => key === item.key)
       if (target) {
         target[column] = value
       }
     },
 
-    toggle(record) {},
-    saveRow(record) {},
-    cancel(key) {},
-    remove(key) {
+    toggle (record) {},
+    saveRow (record) {},
+    cancel (key) {},
+    remove (key) {
       this.data = this.data.filter((item) => item.key !== key)
     },
 
-    newMember() {
+    newMember () {
       const length = this.data.length
       this.data.push({
         key: length === 0 ? '1' : (parseInt(this.data[length - 1].key) + 1).toString(),
@@ -499,10 +503,10 @@ export default {
         workId: '',
         department: '',
         editable: true,
-        isNew: true,
+        isNew: true
       })
-    },
-  },
+    }
+  }
 }
 </script>
 

@@ -57,5 +57,5 @@ export default {
   'account.settings.notification.todo-description':
     'The to-do list will be notified in the form of a letter from the station',
   'account.settings.settings.open': 'Open',
-  'account.settings.settings.close': 'Close',
+  'account.settings.settings.close': 'Close'
 }

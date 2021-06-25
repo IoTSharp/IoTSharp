@@ -12,13 +12,13 @@ export default {
   props: {
     title: {
       type: String,
-      default: '',
+      default: ''
     },
     divider: {
       type: Boolean,
-      default: false,
-    },
-  },
+      default: false
+    }
+  }
 }
 </script>
 

@@ -64,8 +64,8 @@ export default [
       'radius-bottomright',
       'radius-upleft',
       'fullscreen',
-      'fullscreen-exit',
-    ],
+      'fullscreen-exit'
+    ]
   },
   {
     key: 'suggested',
@@ -94,8 +94,8 @@ export default [
       'clock-circle',
       'warning',
       'issues-close',
-      'stop',
-    ],
+      'stop'
+    ]
   },
   {
     key: 'editor',
@@ -131,8 +131,8 @@ export default [
       'sort-descending',
       'drag',
       'ordered-list',
-      'radius-setting',
-    ],
+      'radius-setting'
+    ]
   },
   {
     key: 'data',
@@ -150,8 +150,8 @@ export default [
       'stock',
       'box-plot',
       'fund',
-      'sliders',
-    ],
+      'sliders'
+    ]
   },
   {
     key: 'brand_logo',
@@ -316,8 +316,8 @@ export default [
       'gateway',
       'gold',
       'robot',
-      'shopping',
-    ],
+      'shopping'
+    ]
   },
   {
     key: 'application',
@@ -368,7 +368,7 @@ export default [
       'instagram',
       'yuque',
       'alibaba',
-      'yahoo',
-    ],
-  },
+      'yahoo'
+    ]
+  }
 ]

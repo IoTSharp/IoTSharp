@@ -36,18 +36,18 @@ export default {
   props: {
     title: {
       type: String,
-      default: '',
+      default: ''
     },
     total: {
       type: [Function, Number, String],
       required: false,
-      default: null,
+      default: null
     },
     loading: {
       type: Boolean,
-      default: false,
-    },
-  },
+      default: false
+    }
+  }
 }
 </script>
 

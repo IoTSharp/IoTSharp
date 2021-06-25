@@ -75,42 +75,42 @@ import pick from 'lodash.pick'
 const stepForms = [
   ['name', 'desc'],
   ['target', 'template', 'type'],
-  ['time', 'frequency'],
+  ['time', 'frequency']
 ]
 
 export default {
   name: 'StepByStepModal',
-  data() {
+  data () {
     return {
       labelCol: {
         xs: { span: 24 },
-        sm: { span: 7 },
+        sm: { span: 7 }
       },
       wrapperCol: {
         xs: { span: 24 },
-        sm: { span: 13 },
+        sm: { span: 13 }
       },
       visible: false,
       confirmLoading: false,
       currentStep: 0,
       mdl: {},
 
-      form: this.$form.createForm(this),
+      form: this.$form.createForm(this)
     }
   },
   methods: {
-    edit(record) {
+    edit (record) {
       this.visible = true
       const {
-        form: { setFieldsValue },
+        form: { setFieldsValue }
       } = this
       this.$nextTick(() => {
         setFieldsValue(pick(record, []))
       })
     },
-    handleNext(step) {
+    handleNext (step) {
       const {
-        form: { validateFields },
+        form: { validateFields }
       } = this
       const currentStep = step + 1
       if (currentStep <= 2) {
@@ -137,14 +137,14 @@ export default {
         }
       })
     },
-    backward() {
+    backward () {
       this.currentStep--
     },
-    handleCancel() {
+    handleCancel () {
       // clear form & currentStep
       this.visible = false
       this.currentStep = 0
-    },
-  },
+    }
+  }
 }
 </script>

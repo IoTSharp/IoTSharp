@@ -38,5 +38,5 @@ new Vue({
   i18n,
   // init localstorage, vuex, Logo message
   created: bootstrap,
-  render: (h) => h(App),
+  render: (h) => h(App)
 }).$mount('#app')

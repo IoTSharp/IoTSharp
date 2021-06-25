@@ -8,40 +8,40 @@ export default {
   props: {
     dataSource: {
       type: Array,
-      required: true,
+      required: true
     },
     openKeys: {
       type: Array,
-      default: () => [],
+      default: () => []
     },
     search: {
       type: Boolean,
-      default: false,
-    },
+      default: false
+    }
   },
-  created() {
+  created () {
     this.localOpenKeys = this.openKeys.slice(0)
   },
-  data() {
+  data () {
     return {
-      localOpenKeys: [],
+      localOpenKeys: []
     }
   },
   methods: {
-    handlePlus(item) {
+    handlePlus (item) {
       this.$emit('add', item)
     },
-    handleTitleClick(...args) {
+    handleTitleClick (...args) {
       this.$emit('titleClick', { args })
     },
 
-    renderSearch() {
+    renderSearch () {
       return <Search placeholder="input search text" style="width: 100%; margin-bottom: 1rem" />
     },
-    renderIcon(icon) {
+    renderIcon (icon) {
       return (icon && <Icon type={icon} />) || null
     },
-    renderMenuItem(item) {
+    renderMenuItem (item) {
       return (
         <Item key={item.key}>
           {this.renderIcon(item.icon)}
@@ -52,10 +52,10 @@ export default {
         </Item>
       )
     },
-    renderItem(item) {
+    renderItem (item) {
       return item.children ? this.renderSubItem(item, item.key) : this.renderMenuItem(item, item.key)
     },
-    renderItemGroup(item) {
+    renderItemGroup (item) {
       const childrenItems = item.children.map((o) => {
         return this.renderItem(o, o.key)
       })
@@ -79,7 +79,7 @@ export default {
         </ItemGroup>
       )
     },
-    renderSubItem(item, key) {
+    renderSubItem (item, key) {
       const childrenItems =
         item.children &&
         item.children.map((o) => {
@@ -103,9 +103,9 @@ export default {
           {childrenItems}
         </SubMenu>
       )
-    },
+    }
   },
-  render() {
+  render () {
     const { dataSource, search } = this.$props
 
     // this.localOpenKeys = openKeys.slice(0)
@@ -124,8 +124,8 @@ export default {
               click: (item) => this.$emit('click', item),
               'update:openKeys': (val) => {
                 this.localOpenKeys = val
-              },
-            },
+              }
+            }
           }}
           openKeys={this.localOpenKeys}
         >
@@ -133,5 +133,5 @@ export default {
         </Menu>
       </div>
     )
-  },
+  }
 }

@@ -13,48 +13,48 @@ import { cutStrByFullLength, getStrFullLength } from '@/components/_util/util'
 export default {
   name: 'Ellipsis',
   components: {
-    Tooltip,
+    Tooltip
   },
   props: {
     prefixCls: {
       type: String,
-      default: 'ant-pro-ellipsis',
+      default: 'ant-pro-ellipsis'
     },
     tooltip: {
-      type: Boolean,
+      type: Boolean
     },
     length: {
       type: Number,
-      required: true,
+      required: true
     },
     lines: {
       type: Number,
-      default: 1,
+      default: 1
     },
     fullWidthRecognition: {
       type: Boolean,
-      default: false,
-    },
+      default: false
+    }
   },
   methods: {
-    getStrDom(str, fullLength) {
+    getStrDom (str, fullLength) {
       return <span>{cutStrByFullLength(str, this.length) + (fullLength > this.length ? '...' : '')}</span>
     },
-    getTooltip(fullStr, fullLength) {
+    getTooltip (fullStr, fullLength) {
       return (
         <Tooltip>
           <template slot="title">{fullStr}</template>
           {this.getStrDom(fullStr, fullLength)}
         </Tooltip>
       )
-    },
+    }
   },
-  render() {
+  render () {
     const { tooltip, length } = this.$props
     const str = this.$slots.default.map((vNode) => vNode.text).join('')
     const fullLength = getStrFullLength(str)
     const strDom = tooltip && fullLength > length ? this.getTooltip(str, fullLength) : this.getStrDom(str, fullLength)
     return strDom
-  },
+  }
 }
 </script>

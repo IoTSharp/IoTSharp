@@ -1,6 +1,12 @@
 <template>
   <div>
-    <v-chart :forceFit="true" :height="height" :width="width" :data="data" :scale="scale" :padding="0">
+    <v-chart
+      :forceFit="true"
+      :height="height"
+      :width="width"
+      :data="data"
+      :scale="scale"
+      :padding="0">
       <v-tooltip />
       <v-interval
         :shape="['liquid-fill-gauge']"
@@ -46,13 +52,13 @@ export default {
   props: {
     height: {
       type: Number,
-      default: 0,
+      default: 0
     },
     width: {
       type: Number,
-      default: 0,
-    },
-  },
+      default: 0
+    }
+  }
 }
 </script>
 

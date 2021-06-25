@@ -79,34 +79,34 @@ export default {
   props: {
     showSubmit: {
       type: Boolean,
-      default: false,
-    },
+      default: false
+    }
   },
-  data() {
+  data () {
     return {
-      form: this.$form.createForm(this),
+      form: this.$form.createForm(this)
     }
   },
   methods: {
-    handleSubmit(e) {
+    handleSubmit (e) {
       e.preventDefault()
       this.form.validateFields((err, values) => {
         if (!err) {
           this.$notification['error']({
             message: 'Received values of form:',
-            description: values,
+            description: values
           })
         }
       })
     },
-    validate(rule, value, callback) {
+    validate (rule, value, callback) {
       const regex = /^user-(.*)$/
       if (!regex.test(value)) {
         callback(new Error('需要以 user- 开头'))
       }
       callback()
-    },
-  },
+    }
+  }
 }
 </script>
 

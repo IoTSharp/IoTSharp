@@ -54,10 +54,10 @@ import { baseMixin } from '@/store/app-mixin'
 
 export default {
   components: {
-    RouteView,
+    RouteView
   },
   mixins: [baseMixin],
-  data() {
+  data () {
     return {
       // horizontal  inline
       mode: 'inline',
@@ -80,29 +80,29 @@ export default {
         fixedBox: true,
         // 开启宽度和高度比例
         fixed: true,
-        fixedNumber: [1, 1],
+        fixedNumber: [1, 1]
       },
 
-      pageTitle: '',
+      pageTitle: ''
     }
   },
-  mounted() {
+  mounted () {
     this.updateMenu()
   },
   methods: {
-    onOpenChange(openKeys) {
+    onOpenChange (openKeys) {
       this.openKeys = openKeys
     },
-    updateMenu() {
+    updateMenu () {
       const routes = this.$route.matched.concat()
       this.selectedKeys = [routes.pop().path]
-    },
+    }
   },
   watch: {
-    $route(val) {
+    $route (val) {
       this.updateMenu()
-    },
-  },
+    }
+  }
 }
 </script>
 

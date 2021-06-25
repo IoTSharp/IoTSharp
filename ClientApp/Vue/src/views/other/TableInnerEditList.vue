@@ -121,9 +121,9 @@ import { STable } from '@/components'
 export default {
   name: 'TableList',
   components: {
-    STable,
+    STable
   },
-  data() {
+  data () {
     return {
       // 高级搜索 展开/关闭
       advanced: false,
@@ -134,12 +134,12 @@ export default {
         {
           title: '规则编号',
           dataIndex: 'no',
-          width: 90,
+          width: 90
         },
         {
           title: '描述',
           dataIndex: 'description',
-          scopedSlots: { customRender: 'description' },
+          scopedSlots: { customRender: 'description' }
         },
         {
           title: '服务调用次数',
@@ -147,7 +147,7 @@ export default {
           width: '150px',
           sorter: true,
           needTotal: true,
-          scopedSlots: { customRender: 'callNo' },
+          scopedSlots: { customRender: 'callNo' }
           // customRender: (text) => text + ' 次'
         },
         {
@@ -155,27 +155,27 @@ export default {
           dataIndex: 'status',
           width: '100px',
           needTotal: true,
-          scopedSlots: { customRender: 'status' },
+          scopedSlots: { customRender: 'status' }
         },
         {
           title: '更新时间',
           dataIndex: 'updatedAt',
           width: '200px',
           sorter: true,
-          scopedSlots: { customRender: 'updatedAt' },
+          scopedSlots: { customRender: 'updatedAt' }
         },
         {
           table: '操作',
           dataIndex: 'action',
           width: '120px',
-          scopedSlots: { customRender: 'action' },
-        },
+          scopedSlots: { customRender: 'action' }
+        }
       ],
       // 加载数据方法 必须为 Promise 对象
       loadData: (parameter) => {
         return this.$http
           .get('/service', {
-            params: Object.assign(parameter, this.queryParam),
+            params: Object.assign(parameter, this.queryParam)
           })
           .then((res) => {
             return res.result
@@ -183,15 +183,15 @@ export default {
       },
 
       selectedRowKeys: [],
-      selectedRows: [],
+      selectedRows: []
     }
   },
   methods: {
-    handleChange(value, key, column, record) {
+    handleChange (value, key, column, record) {
       console.log(value, key, column)
       record[column.dataIndex] = value
     },
-    edit(row) {
+    edit (row) {
       row.editable = true
       // row = Object.assign({}, row)
     },
@@ -203,32 +203,32 @@ export default {
         okText: '删除',
         okType: 'danger',
         cancelText: '取消',
-        onOk() {
+        onOk () {
           console.log('OK')
           // 在这里调用删除接口
           return new Promise((resolve, reject) => {
             setTimeout(Math.random() > 0.5 ? resolve : reject, 1000)
           }).catch(() => console.log('Oops errors!'))
         },
-        onCancel() {
+        onCancel () {
           console.log('Cancel')
-        },
+        }
       })
     },
-    save(row) {
+    save (row) {
       row.editable = false
     },
-    cancel(row) {
+    cancel (row) {
       row.editable = false
     },
 
-    onSelectChange(selectedRowKeys, selectedRows) {
+    onSelectChange (selectedRowKeys, selectedRows) {
       this.selectedRowKeys = selectedRowKeys
       this.selectedRows = selectedRows
     },
-    toggleAdvanced() {
+    toggleAdvanced () {
       this.advanced = !this.advanced
-    },
+    }
   },
   watch: {
     /*
@@ -243,7 +243,7 @@ export default {
         })
       }
       */
-  },
+  }
 }
 </script>
 

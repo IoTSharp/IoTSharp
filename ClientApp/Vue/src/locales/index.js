@@ -12,27 +12,27 @@ export const defaultLang = 'en-US'
 
 const messages = {
   'en-US': {
-    ...enUS,
-  },
+    ...enUS
+  }
 }
 
 const i18n = new VueI18n({
   silentTranslationWarn: true,
   locale: defaultLang,
   fallbackLocale: defaultLang,
-  messages,
+  messages
 })
 
 const loadedLanguages = [defaultLang]
 
-function setI18nLanguage(lang) {
+function setI18nLanguage (lang) {
   i18n.locale = lang
   // request.headers['Accept-Language'] = lang
   document.querySelector('html').setAttribute('lang', lang)
   return lang
 }
 
-export function loadLanguageAsync(lang = defaultLang) {
+export function loadLanguageAsync (lang = defaultLang) {
   return new Promise((resolve) => {
     // 缓存语言设置
     storage.set('lang', lang)
@@ -52,7 +52,7 @@ export function loadLanguageAsync(lang = defaultLang) {
   })
 }
 
-export function i18nRender(key) {
+export function i18nRender (key) {
   return i18n.t(`${key}`)
 }
 

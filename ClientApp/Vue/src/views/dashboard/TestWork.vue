@@ -56,25 +56,25 @@
 <script>
 export default {
   name: 'TestWork',
-  data() {
+  data () {
     return {
       visible: false,
-      visible2: false,
+      visible2: false
     }
   },
-  created() {
+  created () {
     this.form = this.$form.createForm(this)
     this.form2 = this.$form.createForm(this)
   },
   methods: {
-    handleCloseCurrentTab() {
+    handleCloseCurrentTab () {
       this.$multiTab.closeCurrentPage() // or this.$multiTab.close()
     },
-    handleOpenTab() {
+    handleOpenTab () {
       this.$multiTab.open('/features/task')
     },
 
-    handleOpenLoading() {
+    handleOpenLoading () {
       this.$nextTick(function () {
         console.log('this', this)
         console.log('this.$refs.tInput', this.$refs.tInput)
@@ -84,7 +84,7 @@ export default {
         this.$loading.hide()
       }, 5000)
     },
-    handleOpenLoadingCustomTip() {
+    handleOpenLoadingCustomTip () {
       this.$loading.show({ tip: '自定义提示语' })
       setTimeout(() => {
         this.$loading.hide()
@@ -92,7 +92,7 @@ export default {
     },
 
     // confirm
-    confirm(e) {
+    confirm (e) {
       e.stopPropagation()
       const { path } = this.$route
       this.form.validateFields((err, values) => {
@@ -102,10 +102,10 @@ export default {
         }
       })
     },
-    cancel() {
+    cancel () {
       this.visible = false
     },
-    confirm2(e) {
+    confirm2 (e) {
       e.stopPropagation()
       this.form2.validateFields((err, values) => {
         if (!err) {
@@ -113,8 +113,8 @@ export default {
           this.visible2 = false
         }
       })
-    },
-  },
+    }
+  }
 }
 </script>
 

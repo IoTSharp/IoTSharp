@@ -12,30 +12,30 @@ export default {
   props: {
     prefixCls: {
       type: String,
-      default: 'ant-editor-wang',
+      default: 'ant-editor-wang'
     },
     // eslint-disable-next-line
     value: {
-      type: String,
-    },
+      type: String
+    }
   },
-  data() {
+  data () {
     return {
       editor: null,
-      editorContent: null,
+      editorContent: null
     }
   },
   watch: {
-    value(val) {
+    value (val) {
       this.editorContent = val
       this.editor.txt.html(val)
-    },
+    }
   },
-  mounted() {
+  mounted () {
     this.initEditor()
   },
   methods: {
-    initEditor() {
+    initEditor () {
       this.editor = new WEditor(this.$refs.editor)
       // this.editor.onchangeTimeout = 200
       this.editor.customConfig.onchange = (html) => {
@@ -43,8 +43,8 @@ export default {
         this.$emit('change', this.editorContent)
       }
       this.editor.create()
-    },
-  },
+    }
+  }
 }
 </script>
 

@@ -182,7 +182,7 @@ const tagCloudData = () => {
     { value: 2, name: 'Tableau' },
     { value: 2, name: 'D3' },
     { value: 2, name: 'Vega' },
-    { value: 2, name: '统计图表' },
+    { value: 2, name: '统计图表' }
   ])
 }
 

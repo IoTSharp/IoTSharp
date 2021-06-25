@@ -16,22 +16,22 @@ export default {
   props: {
     prefixCls: {
       type: String,
-      default: 'ant-pro-smooth-area',
+      default: 'ant-pro-smooth-area'
     },
     scale: {
       type: [Object, Array],
-      required: true,
+      required: true
     },
     dataSource: {
       type: Array,
-      required: true,
-    },
-  },
-  data() {
-    return {
-      height: 100,
+      required: true
     }
   },
+  data () {
+    return {
+      height: 100
+    }
+  }
 }
 </script>
 

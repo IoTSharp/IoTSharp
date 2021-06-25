@@ -5,14 +5,14 @@ export const PageLoading = {
   props: {
     tip: {
       type: String,
-      default: 'Loading..',
+      default: 'Loading..'
     },
     size: {
       type: String,
-      default: 'large',
-    },
+      default: 'large'
+    }
   },
-  render() {
+  render () {
     const style = {
       textAlign: 'center',
       background: 'rgba(0,0,0,0.6)',
@@ -21,20 +21,20 @@ export const PageLoading = {
       bottom: 0,
       left: 0,
       right: 0,
-      zIndex: 1100,
+      zIndex: 1100
     }
     const spinStyle = {
       position: 'absolute',
       left: '50%',
       top: '40%',
-      transform: 'translate(-50%, -50%)',
+      transform: 'translate(-50%, -50%)'
     }
     return (
       <div style={style}>
         <Spin size={this.size} style={spinStyle} tip={this.tip} />
       </div>
     )
-  },
+  }
 }
 
 const version = '0.0.1'
@@ -52,12 +52,12 @@ loading.newInstance = (Vue, options) => {
   const cdProps = Object.assign({ visible: false, size: 'large', tip: 'Loading...' }, options)
 
   const instance = new Vue({
-    data() {
+    data () {
       return {
-        ...cdProps,
+        ...cdProps
       }
     },
-    render() {
+    render () {
       const { tip } = this
       const props = {}
       this.tip && (props.tip = tip)
@@ -65,10 +65,10 @@ loading.newInstance = (Vue, options) => {
         return <PageLoading {...{ props }} />
       }
       return null
-    },
+    }
   }).$mount(loadingElement)
 
-  function update(config) {
+  function update (config) {
     const { visible, size, tip } = { ...cdProps, ...config }
     instance.$set(instance, 'visible', visible)
     if (tip) {
@@ -81,7 +81,7 @@ loading.newInstance = (Vue, options) => {
 
   return {
     instance,
-    update,
+    update
   }
 }
 
@@ -91,7 +91,7 @@ const api = {
   },
   hide: function () {
     this.instance.update({ visible: false })
-  },
+  }
 }
 
 const install = function (Vue, options) {
@@ -104,5 +104,5 @@ const install = function (Vue, options) {
 
 export default {
   version,
-  install,
+  install
 }

@@ -163,7 +163,7 @@
               <a
                 href="https://github.com/sendya/ant-design-pro-vue/blob/master/src/config/defaultSettings.js"
                 target="_blank"
-                >src/config/defaultSettings.js</a
+              >src/config/defaultSettings.js</a
               >
             </span>
           </a-alert>
@@ -184,43 +184,43 @@ import { updateTheme, updateColorWeak, colorList } from './settingConfig'
 
 export default {
   components: {
-    SettingItem,
+    SettingItem
   },
   mixins: [],
-  data() {
+  data () {
     return {
       visible: false,
-      colorList,
+      colorList
     }
   },
   watch: {},
-  mounted() {
+  mounted () {
     updateTheme(this.primaryColor)
     if (this.colorWeak !== config.colorWeak) {
       updateColorWeak(this.colorWeak)
     }
   },
   methods: {
-    showDrawer() {
+    showDrawer () {
       this.visible = true
     },
-    onClose() {
+    onClose () {
       this.visible = false
     },
-    toggle() {
+    toggle () {
       this.visible = !this.visible
     },
-    onColorWeak(checked) {
+    onColorWeak (checked) {
       this.$store.dispatch('ToggleWeak', checked)
       updateColorWeak(checked)
     },
-    onMultiTab(checked) {
+    onMultiTab (checked) {
       this.$store.dispatch('ToggleMultiTab', checked)
     },
-    handleMenuTheme(theme) {
+    handleMenuTheme (theme) {
       this.$store.dispatch('ToggleTheme', theme)
     },
-    doCopy() {
+    doCopy () {
       // get current settings from mixin or this.$store.state.app, pay attention to the property name
       const text = `export default {
   primaryColor: '${this.primaryColor}', // primary color of ant design
@@ -244,34 +244,34 @@ export default {
           this.$message.error('复制失败')
         })
     },
-    handleLayout(mode) {
+    handleLayout (mode) {
       this.$store.dispatch('ToggleLayoutMode', mode)
       // 因为顶部菜单不能固定左侧菜单栏，所以强制关闭
       this.handleFixSiderbar(false)
     },
-    handleContentWidthChange(type) {
+    handleContentWidthChange (type) {
       this.$store.dispatch('ToggleContentWidth', type)
     },
-    changeColor(color) {
+    changeColor (color) {
       if (this.primaryColor !== color) {
         this.$store.dispatch('ToggleColor', color)
         updateTheme(color)
       }
     },
-    handleFixedHeader(fixed) {
+    handleFixedHeader (fixed) {
       this.$store.dispatch('ToggleFixedHeader', fixed)
     },
-    handleFixedHeaderHidden(autoHidden) {
+    handleFixedHeaderHidden (autoHidden) {
       this.$store.dispatch('ToggleFixedHeaderHidden', autoHidden)
     },
-    handleFixSiderbar(fixed) {
+    handleFixSiderbar (fixed) {
       if (this.layoutMode === 'topmenu') {
         this.$store.dispatch('ToggleFixSiderbar', false)
         return
       }
       this.$store.dispatch('ToggleFixSiderbar', fixed)
-    },
-  },
+    }
+  }
 }
 </script>
 

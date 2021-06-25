@@ -55,7 +55,7 @@ const constantRouterComponents = {
   SecuritySettings: () => import('@/views/account/settings/Security'),
   CustomSettings: () => import('@/views/account/settings/Custom'),
   BindingSettings: () => import('@/views/account/settings/Binding'),
-  NotificationSettings: () => import('@/views/account/settings/Notification'),
+  NotificationSettings: () => import('@/views/account/settings/Notification')
 
   // 'TestWork': () => import(/* webpackChunkName: "TestWork" */ '@/views/dashboard/TestWork')
 }
@@ -64,7 +64,7 @@ const constantRouterComponents = {
 const notFoundRouter = {
   path: '*',
   redirect: '/404',
-  hidden: true,
+  hidden: true
 }
 
 // 根级菜单
@@ -75,9 +75,9 @@ const rootRouter = {
   component: 'BasicLayout',
   redirect: '/dashboard',
   meta: {
-    title: '首页',
+    title: '首页'
   },
-  children: [],
+  children: []
 }
 
 /**
@@ -136,8 +136,8 @@ export const generator = (routerMap, parent) => {
         icon: icon || undefined,
         hiddenHeaderContent: hiddenHeaderContent,
         target: target,
-        permission: item.name,
-      },
+        permission: item.name
+      }
     }
     // 是否设置了隐藏菜单
     if (show === false) {
@@ -175,7 +175,7 @@ const listToTree = (list, tree, parentId) => {
       const child = {
         ...item,
         key: item.key || item.name,
-        children: [],
+        children: []
       }
       // 迭代 list， 找到当前菜单相符合的所有子菜单
       listToTree(list, child.children, item.id)
