@@ -28,16 +28,15 @@ export class CustomerlistComponent implements OnInit {
     private globals: Globals,
     aclSrv: ACLService,
   ) {
-
-    this.router.queryParams.subscribe(x => {
-
-
-      this.q.tenantId = x.id as unknown as string;
-      this.tenantId = x.id as unknown as string;
-      this.url = 'api/Customers/Tenant/' + this.tenantId;
-
-    }, y => { }, () => { });
-
+    this.router.queryParams.subscribe(
+      (x) => {
+        this.q.tenantId = x.id as unknown as string;
+        this.tenantId = x.id as unknown as string;
+        this.url = 'api/Customers/Tenant/' + this.tenantId;
+      },
+      (y) => {},
+      () => {},
+    );
   }
   tenantId: string = '';
   page: STPage = {
@@ -53,17 +52,16 @@ export class CustomerlistComponent implements OnInit {
     name: string;
     status: number | null;
   } = {
-      tenantId: '',
-      pi: 0,
-      ps: 10,
-      name: '',
-      sorter: '',
-      status: null,
-    };
+    tenantId: '',
+    pi: 0,
+    ps: 10,
+    name: '',
+    sorter: '',
+    status: null,
+  };
   total = 0;
   data: any[] = [];
   loading = false;
-
 
   url = 'api/Customers/Tenant/' + this.tenantId;
   req: STReq = { method: 'GET', allInBody: true, reName: { pi: 'offset', ps: 'limit' }, params: this.q };
@@ -108,14 +106,18 @@ export class CustomerlistComponent implements OnInit {
             this._router.navigateByUrl('iot/device/devicelist?id=' + item.id);
           },
         },
-
+        {
+          acl: 9,
+          text: '人员管理',
+          click: (item: any) => {
+            this._router.navigateByUrl('iot/user/userlist?id=' + item.id);
+          },
+        },
         {
           acl: 10,
           text: '删除',
           click: (item: any) => {
-
             this.delete(item.id);
-
           },
         },
       ],
@@ -125,34 +127,35 @@ export class CustomerlistComponent implements OnInit {
   description = '';
   totalCallNo = 0;
   expandForm = false;
-  ngOnInit(): void {
-  }
+  ngOnInit(): void {}
   edit(id: string): void {
-    let title = id == '-1' ? '新建客户' : '修改客户'
-    const drawerRef = this.drawerService.create<CustomerformComponent, {
-      params: {
-        id: string,
-        tenantId: string
-      }
-    }, any>({
+    let title = id == '-1' ? '新建客户' : '修改客户';
+    const drawerRef = this.drawerService.create<
+      CustomerformComponent,
+      {
+        params: {
+          id: string;
+          tenantId: string;
+        };
+      },
+      any
+    >({
       nzTitle: title,
       nzContent: CustomerformComponent,
       nzWidth: this.globals.drawerwidth,
       nzMaskClosable: this.globals.nzMaskClosable,
       nzContentParams: {
         params: {
-          id: id, tenantId: this.tenantId
-        }
-
+          id: id,
+          tenantId: this.tenantId,
+        },
       },
     });
 
-    drawerRef.afterOpen.subscribe(() => { });
+    drawerRef.afterOpen.subscribe(() => {});
 
     drawerRef.afterClose.subscribe((data: any) => {
-
-
-      this.getData()
+      this.getData();
     });
   }
   getData() {
@@ -160,15 +163,15 @@ export class CustomerlistComponent implements OnInit {
     this.st.load(1);
   }
 
-  reset() {
-
-  }
+  reset() {}
 
   delete(id: string) {
-    this.http.delete('/api/Customers/' + id, {}).subscribe(x => {
-
-      this.getData()
-    }, y => { }, () => { })
-
+    this.http.delete('/api/Customers/' + id, {}).subscribe(
+      (x) => {
+        this.getData();
+      },
+      (y) => {},
+      () => {},
+    );
   }
 }
