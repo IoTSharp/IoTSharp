@@ -2,7 +2,6 @@
 using IoTSharp.Dtos;
 using IoTSharp.Extensions;
 using IoTSharp.Queue;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -17,9 +16,9 @@ namespace IoTSharp.Storage
     public class EFStorage : IStorage
     {
         private readonly AppSettings _appSettings;
-        readonly ILogger _logger;
+        private readonly ILogger _logger;
         private readonly IServiceScopeFactory _scopeFactor;
-        readonly IServiceScope scope;
+        private readonly IServiceScope scope;
         private readonly ApplicationDbContext _context;
 
         public EFStorage(ILogger<EFStorage> logger, IServiceScopeFactory scopeFactor
@@ -83,7 +82,7 @@ namespace IoTSharp.Storage
             return kv.AsNoTracking().ToListAsync();
         }
 
-        public async Task<bool> StoreTelemetryAsync(RawMsg msg)
+        public virtual async Task<bool> StoreTelemetryAsync(RawMsg msg)
         {
             bool result = false;
             try
@@ -116,7 +115,5 @@ namespace IoTSharp.Storage
             }
             return result;
         }
-
-
     }
 }

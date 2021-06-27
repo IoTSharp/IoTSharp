@@ -1,8 +1,7 @@
 ﻿using CoAP;
-using CoAP.Server;
 using DotNetCore.CAP.Dashboard.NodeDiscovery;
 using EFCore.Sharding;
-using MaiKeBing.CAP;
+using IoTSharp.Data;
 using MaiKeBing.HostedService.ZeroMQ;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
@@ -21,7 +20,8 @@ namespace IoTSharp
         Sharding,
         Taos,
         InfluxDB,
-        InfluxDBV1
+        PinusDB,
+        TimescaleDB
     }
     [JsonConverter(typeof(StringEnumConverter))]
     public enum EventBusStore
@@ -78,6 +78,7 @@ namespace IoTSharp
         public DiscoveryOptions Discovery { get; set; } = null;
         public ZMQOption ZMQOption { get; set; } = null;
         public int SucceedMessageExpiredAfter { get; set; } = 3600 * 6;
+        public DataBaseType DataBase { get; set; } = DataBaseType.PostgreSql;
     }
   
     public class ShardingSetting

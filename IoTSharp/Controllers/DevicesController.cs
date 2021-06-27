@@ -21,6 +21,8 @@ using Microsoft.Extensions.Logging;
 using IoTSharp.Storage;
 using k8s.Models;
 using Newtonsoft.Json.Linq;
+using MQTTnet.AspNetCoreEx;
+using MQTTnet.Server.Status;
 
 namespace IoTSharp.Controllers
 {
@@ -38,9 +40,10 @@ namespace IoTSharp.Controllers
         private readonly SignInManager<IdentityUser> _signInManager;
         private readonly ILogger _logger;
         private readonly IStorage _storage;
+        private readonly IMqttServerEx _serverEx;
 
         public DevicesController(UserManager<IdentityUser> userManager,
-            SignInManager<IdentityUser> signInManager, ILogger<DevicesController> logger, ApplicationDbContext context, IMqttClientOptions mqtt,IStorage storage)
+            SignInManager<IdentityUser> signInManager, ILogger<DevicesController> logger, IMqttServerEx serverEx, ApplicationDbContext context, IMqttClientOptions mqtt,IStorage storage)
         {
             _context = context;
             _mqtt = mqtt;
@@ -48,6 +51,7 @@ namespace IoTSharp.Controllers
             _signInManager = signInManager;
             _logger = logger;
             _storage = storage;
+            _serverEx = serverEx;
         }
 
         /// <summary>
@@ -538,6 +542,33 @@ namespace IoTSharp.Controllers
                 var result = await _context.SaveAsync<AttributeLatest>(attributes, dev.Id, DataSide.ClientSide);
                 return Ok(new ApiResult<Dic>(result.ret > 0 ? ApiCode.Success : ApiCode.NothingToDo, result.ret > 0 ? "OK" : "No Attribute save", new Dic(result.exceptions?.Select(f => new DicKV(f.Key, f.Value.Message)))));
             }
+        }
+
+        /// <summary>
+        /// SessionStatus
+        /// </summary>
+        /// <param name="deviceId"></param>
+        /// <returns></returns>
+        [Authorize(Roles = nameof(UserRole.NormalUser))]
+        [HttpGet("SessionStatus")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesDefaultResponseType]
+        public async Task<ActionResult<IList<IMqttSessionStatus>>> GetSessionStatus(Guid deviceId)
+        {
+            return  Ok( new ApiResult<IList<IMqttSessionStatus>>( ApiCode.Success,"OK",  await _serverEx.GetSessionStatusAsync()));
+        }
+        /// <summary>
+        /// SessionStatus
+        /// </summary>
+        /// <param name="deviceId"></param>
+        /// <returns></returns>
+        [Authorize(Roles = nameof(UserRole.NormalUser))]
+        [HttpGet("ClientStatus")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesDefaultResponseType]
+        public async Task<ActionResult<IList<IMqttClientStatus>>> GetClientStatus(Guid deviceId)
+        {
+            return Ok(new ApiResult<IList<IMqttClientStatus>>(ApiCode.Success, "OK", await _serverEx.GetClientStatusAsync()));
         }
     }
 }

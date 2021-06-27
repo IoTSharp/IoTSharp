@@ -52,6 +52,7 @@ using System.Text.RegularExpressions;
 using HealthChecks.UI.Configuration;
 using NSwag.Generation.AspNetCore;
 using RabbitMQ.Client;
+using PinusDB.Data;
 
 namespace IoTSharp
 {
@@ -72,7 +73,44 @@ namespace IoTSharp
             {
                 Configuration.Bind(setting);
             }));
-            services.AddDbContextPool<ApplicationDbContext>(options => options.UseNpgsql(Configuration.GetConnectionString("IoTSharp")), poolSize: settings.DbContextPoolSize);
+            var healthChecksUI = services.AddHealthChecksUI(setup =>
+            {
+                setup.SetHeaderText("IoTSharp HealthChecks");
+                //Maximum history entries by endpoint
+                setup.MaximumHistoryEntriesPerEndpoint(50);
+                setup.AddIoTSharpHealthCheckEndpoint();
+            });
+
+            var healthChecks = services.AddHealthChecks()
+               .AddDiskStorageHealthCheck(dso =>
+               {
+                   System.IO.DriveInfo.GetDrives()
+                      .Where(d => d.DriveType != System.IO.DriveType.CDRom && d.DriveType != System.IO.DriveType.Ram)
+                      .Select(f => f.Name).Distinct().ToList()
+                          .ForEach(f => dso.AddDrive(f, 1024));
+
+               }, name: "Disk Storage");
+
+            switch (settings.DataBase)
+            {
+                case DataBaseType.MySql:
+                    services.ConfigureMySql(Configuration.GetConnectionString("IoTSharp"), settings.DbContextPoolSize, healthChecks, healthChecksUI);
+                    break;
+                case DataBaseType.SqlServer:
+                    services.ConfigureSqlServer(Configuration.GetConnectionString("IoTSharp"), settings.DbContextPoolSize, healthChecks, healthChecksUI);
+                    break;
+                case DataBaseType.Oracle:
+                    services.ConfigureOracle(Configuration.GetConnectionString("IoTSharp"), settings.DbContextPoolSize, healthChecks, healthChecksUI);
+                    break;
+                case DataBaseType.Sqlite:
+                    services.ConfigureSqlite(Configuration.GetConnectionString("IoTSharp"), settings.DbContextPoolSize, healthChecks, healthChecksUI);
+                    break;
+                case DataBaseType.PostgreSql:
+                default:
+                    services.ConfigureNpgsql(Configuration.GetConnectionString("IoTSharp"), settings.DbContextPoolSize, healthChecks, healthChecksUI);
+                    break;
+            }
+
             services.AddIdentity<IdentityUser, IdentityRole>()
                   .AddRoles<IdentityRole>()
                   .AddRoleManager<RoleManager<IdentityRole>>()
@@ -116,26 +154,6 @@ namespace IoTSharp
             services.AddIoTSharpMqttServer(settings.MqttBroker);
             services.AddMqttClient(settings.MqttClient);
             services.AddSingleton<RetainedMessageHandler>();
-
-            var healthChecks = services.AddHealthChecks()
-                 .AddNpgSql(Configuration.GetConnectionString("IoTSharp"), name: "PostgreSQL")
-                 .AddDiskStorageHealthCheck(dso =>
-                 {
-                     System.IO.DriveInfo.GetDrives()
-                        .Where(d=>d.DriveType != System.IO.DriveType.CDRom && d.DriveType!= System.IO.DriveType.Ram)
-                        .Select(f => f.Name).Distinct().ToList()
-                            .ForEach(f => dso.AddDrive(f, 1024));
-
-                 }, name: "Disk Storage");
-
-            services.AddHealthChecksUI(setup =>
-            {
-                setup.SetHeaderText("IoTSharp HealthChecks");
-                //Maximum history entries by endpoint
-                setup.MaximumHistoryEntriesPerEndpoint(50);
-                setup.AddIoTSharpHealthCheckEndpoint();
-            }).AddPostgreSqlStorage(Configuration.GetConnectionString("IoTSharp"));
-
             services.AddSilkierQuartz(opt =>
             {
                 //opt.Add("quartz.serializer.type", "json");
@@ -168,7 +186,7 @@ namespace IoTSharp
                         healthChecks.AddRedis(settings.CachingUseRedisHosts,name: _hc_Caching);
                         break;
                     case CachingUseIn.LiteDB:
-                        options.UseLiteDB(cfg => cfg.DBConfig = new EasyCaching.LiteDB.LiteDBDBOptions() { });
+                        options.UseLiteDB(cfg => cfg.DBConfig = new EasyCaching.LiteDB.LiteDBDBOptions() { },name: "iotsharp");
                         break;
                     case CachingUseIn.InMemory:
                     default:
@@ -183,14 +201,30 @@ namespace IoTSharp
                 case TelemetryStorage.Sharding:
                     services.AddEFCoreSharding(config =>
                     {
-                        config.AddDataSource(Configuration.GetConnectionString("TelemetryStorage"), ReadWriteType.Read | ReadWriteType.Write, settings.Sharding.DatabaseType);
-                        config.SetDateSharding<TelemetryData>(nameof(TelemetryData.DateTime), settings.Sharding.ExpandByDateMode, DateTime.Now);
+                        switch (settings.DataBase)
+                        {
+                            case DataBaseType.MySql:
+                                config.UseMySqlToSharding(Configuration.GetConnectionString("TelemetryStorage"), settings.Sharding.ExpandByDateMode);
+                                break;
+                            case DataBaseType.SqlServer:
+                                config.UseSqlServerToSharding(Configuration.GetConnectionString("TelemetryStorage"), settings.Sharding.ExpandByDateMode);
+                                break;
+                            case DataBaseType.Oracle:
+                                config.UseOracleToSharding(Configuration.GetConnectionString("TelemetryStorage"), settings.Sharding.ExpandByDateMode);
+                                break;
+                            case DataBaseType.Sqlite:
+                                config.UseSQLiteToSharding(Configuration.GetConnectionString("TelemetryStorage"), settings.Sharding.ExpandByDateMode);
+                                break;
+                            case DataBaseType.PostgreSql:
+                            default:
+                                config.UseNpgsqlToSharding(Configuration.GetConnectionString("TelemetryStorage"), settings.Sharding.ExpandByDateMode);
+                                break;
+                        }
+                        config.SetEntityAssemblies(new Assembly[] { typeof(TelemetryData).Assembly });
                     });
                     services.AddSingleton<IStorage, ShardingStorage>();
                     break;
-                case TelemetryStorage.SingleTable:
-                    services.AddSingleton<IStorage, EFStorage>();
-                    break;
+ 
                 case TelemetryStorage.Taos:
                     services.AddSingleton<IStorage, TaosStorage>();
                     services.AddObjectPool(() => new TaosConnection(settings.ConnectionStrings["TelemetryStorage"]));
@@ -198,14 +232,27 @@ namespace IoTSharp
                     break;
                 case TelemetryStorage.InfluxDB:
                     //https://github.com/julian-fh/influxdb-setup
-
                     services.AddSingleton<IStorage, InfluxDBStorage>();
                     //"TelemetryStorage": "http://localhost:8086/?org=iotsharp&bucket=iotsharp-bucket&token=iotsharp-token"
                     services.AddObjectPool(() => InfluxDBClientFactory.Create(Configuration.GetConnectionString("TelemetryStorage")));
                     //healthChecks.AddInfluxDB(Configuration.GetConnectionString("TelemetryStorage"),name: _hc_telemetryStorage);
                     break;
-         
+                case TelemetryStorage.PinusDB:
+                    services.AddSingleton<IStorage, PinusDBStorage>();
+                    services.AddObjectPool(() => 
+                    {
+                        var cnt = new PinusConnection(settings.ConnectionStrings["TelemetryStorage"]);
+                        cnt.Open();
+                        return cnt;
+                    });
+                    healthChecks.AddPinusDB(Configuration.GetConnectionString("TelemetryStorage"), name: _hc_telemetryStorage);
+                    break;
+                case TelemetryStorage.TimescaleDB:
+                    services.AddSingleton<IStorage, TimescaleDBStorage>();
+                    break;
+                case TelemetryStorage.SingleTable:
                 default:
+                    services.AddSingleton<IStorage, EFStorage>();
                     break;
             }
 
@@ -242,19 +289,27 @@ namespace IoTSharp
                 {
                     case EventBusMQ.RabbitMQ:
                         var url = new Uri(Configuration.GetConnectionString("EventBusMQ"));
-                        var uary = url.UserInfo?.Split(':');
-                        string username =  uary?.Length>0?uary[0]:"guest";
-                        string password = uary?.Length > 1 ? uary[1] : "guest";
-                        x.UseRabbitMQ(url); 
-                       
-                        //amqp://guest:guest@localhost:5672
-                        healthChecks.AddRabbitMQ(cf=>
+                        x.UseRabbitMQ(cfg=>
                         {
-                            return new ConnectionFactory() { Uri = url , UserName=username, Password=password};
-                        }, name: _hc_EventBusMQ);
+                            cfg.ConnectionFactoryOptions = cf =>
+                            {
+                                cf.AutomaticRecoveryEnabled = true;
+                                cf.Uri = new Uri(Configuration.GetConnectionString("EventBusMQ"));
+                            };
+                            
+                        });
+                        //amqp://guest:guest@localhost:5672
+                        healthChecks.AddRabbitMQ( connectionFactory=>
+                        {
+                            var factory = new ConnectionFactory()
+                            {
+                                Uri = new Uri(Configuration.GetConnectionString("EventBusMQ")),
+                                AutomaticRecoveryEnabled = true
+                            };
+                            return factory.CreateConnection();
+                        }, _hc_EventBusMQ);
                         break;
                     case EventBusMQ.Kafka:
-                        //BootstrapServers
                         x.UseKafka(Configuration.GetConnectionString("EventBusMQ"));
                         healthChecks.AddKafka(cfg =>
                        {

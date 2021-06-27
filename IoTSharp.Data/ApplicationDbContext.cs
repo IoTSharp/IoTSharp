@@ -1,0 +1,70 @@
+﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.Extensions.DependencyInjection;
+
+namespace IoTSharp.Data
+{
+    public class ApplicationDbContext : IdentityDbContext
+    {
+      
+       
+        public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
+            : base(options)
+        {
+            if (Database.GetPendingMigrations().Count() > 0)
+            {
+                Database.Migrate();
+            }
+        }
+
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+         
+            modelBuilder.Entity<DataStorage>().HasKey(c => new { c.Catalog, c.DeviceId, c.KeyName });
+            modelBuilder.Entity<DataStorage>().HasIndex(c => c.Catalog);
+            modelBuilder.Entity<DataStorage>().HasIndex(c => new { c.Catalog, c.DeviceId });
+
+
+            modelBuilder.Entity<DataStorage>()
+           .HasDiscriminator<DataCatalog>(nameof(Data.DataStorage.Catalog))
+           .HasValue<DataStorage>(DataCatalog.None)
+                  .HasValue<AttributeLatest>(DataCatalog.AttributeLatest)
+           .HasValue<TelemetryLatest>(DataCatalog.TelemetryLatest);
+
+            modelBuilder.Entity<AttributeLatest>().HasDiscriminator<DataCatalog>(nameof(Data.DataStorage.Catalog));
+            modelBuilder.Entity<TelemetryLatest>().HasDiscriminator<DataCatalog>(nameof(Data.DataStorage.Catalog));
+            modelBuilder.Entity<Device>().HasDiscriminator<DeviceType>(nameof(Data.Device.DeviceType)).HasValue<Gateway>(DeviceType.Gateway).HasValue<Device>(DeviceType.Device);
+            modelBuilder.Entity<Gateway>().HasDiscriminator<DeviceType>(nameof(Data.Device.DeviceType));
+            var builder_options= this.GetService<IDataBaseModelBuilderOptions>();
+            builder_options.Infrastructure = this;
+            builder_options.OnModelCreating(modelBuilder);
+            modelBuilder.ApplyConfiguration(new TelemetryDataConfiguration());
+            base.OnModelCreating(modelBuilder);
+        }
+
+
+      
+
+        public DbSet<Tenant> Tenant { get; set; }
+        public DbSet<Customer> Customer { get; set; }
+        public DbSet<Relationship> Relationship { get; set; }
+        public DbSet<Device> Device { get; set; }
+        public DbSet<Gateway> Gateway { get; set; }
+        public DbSet<TelemetryData> TelemetryData { get; set; }
+        public DbSet<AttributeLatest> AttributeLatest { get; set; }
+        public DbSet<DataStorage> DataStorage { get; set; }
+        public DbSet<TelemetryLatest> TelemetryLatest { get; set; }
+        public DbSet<DeviceIdentity> DeviceIdentities { get; set; }
+        public DbSet<AuditLog> AuditLog { get; set; }
+
+
+        public DbSet<AuthorizedKey> AuthorizedKeys { get; set; }
+
+    }
+}

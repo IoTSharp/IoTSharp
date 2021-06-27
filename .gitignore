@@ -344,3 +344,6 @@ ASALocalRun/
 /rabbitmq
 /Deployments/zeromq_taos/postgresql
 /taos/data
+/IoTSharp/TelemetryStorage.db
+/IoTSharp/IoTSharp.db
+/IoTSharp/health_checks.db

@@ -49,7 +49,7 @@ namespace IoTSharp.Storage
                                     where t.DeviceId == deviceId
                                     select new TelemetryDataDto() { DateTime = t.DateTime, KeyName = t.KeyName, Value = t.ToObject() };
 
-                        return devid.AsNoTracking().ToListAsync();
+                        return Task.FromResult(devid.AsNoTracking().ToList());
                     }
                 }
             }
@@ -73,7 +73,7 @@ namespace IoTSharp.Storage
 
                                     select new TelemetryDataDto() { DateTime = t.DateTime, KeyName = t.KeyName, Value = t.ToObject() };
 
-                        return devid.AsNoTracking().ToListAsync();
+                        return Task.FromResult(devid.AsNoTracking().ToList());
                     }
                 }
             }

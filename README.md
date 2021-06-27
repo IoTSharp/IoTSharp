@@ -7,19 +7,23 @@
 IoTSharp is an open-source IoT platform for data collection, processing, visualization, and device management.
 
 
-
-
 ## How to  install  IoTSharp using docker-compose  ?
 
- * [ZPT](https://github.com/IoTSharp/IoTSharp/tree/master/Deployments/zeromq_taos) Using ZeroMQ as EventBus, PostgreSQL as message storage, telemetry data stored through TDengine  
+ * [ZPT](Deployments/zeromq_taos) Using ZeroMQ as EventBus, PostgreSQL as message storage, telemetry data stored through TDengine  
 
- * [ZPS](https://github.com/IoTSharp/IoTSharp/tree/master/Deployments/zeromq_sharding) The default deployment configuration, IoTSharp and PostgreSql, telemetry data is stored through a single table or shading. 
+ * [ZPS](Deployments/zeromq_sharding) The default deployment configuration, IoTSharp and PostgreSql, telemetry data is stored through a single table or shading. 
 
- * [RMI](https://github.com/IoTSharp/IoTSharp/tree/master/Deployments/rabbit_mongo_influx) Using Rabbitmq as EventBus, mongodb as message storage, telemetry data stored through influx  
+ * [RMI](Deployments/rabbit_mongo_influx) Using Rabbitmq as EventBus, mongodb as message storage, telemetry data stored through influx  
 
  more [Deployments](https://github.com/IoTSharp/IoTSharp/tree/master/Deployments)
 
+## What databases are supported?
 
+ *  [PostgreSql](IoTSharp/appsettings.PostgreSql.json) The test environment is  PostgreSQL 11.3,Support for  sharding.
+ *  [MySql](IoTSharp/appsettings.MySql.json) The test environment is MySQL 8.0.17,Support for  sharding.
+ *  [Oracle](IoTSharp/appsettings.Oracle.json)  The test environment is  Oracle Standard Edition 12c Release 2 on CentOS , Support for  sharding.  See also: https://github.com/MaksymBilenko/docker-oracle-12c
+ *  [SQLServer](IoTSharp/appsettings.SQLServer.json)  Microsoft SQL Server 2016 (RTM-GDR) (KB4019088) - 13.0.1742.0 (X64)   ,Support for  sharding
+ *  [Sqlite](IoTSharp/appsettings.Sqlite.json) Support for  sharding
 
 ## Demo 
   http://139.9.232.10:2927
@@ -80,11 +84,11 @@ https://github.com/IoTSharp/IoTSharp.Edge.RT-Thread
 
 
  <img src="docs/images/20190615010003.jpg" alt="20190615010003.jpg" style="zoom: 70%;" /> 
- 
+
  <img src="docs/images/InfluxDB2.PNG" alt="InfluxDB2.PNG" style="zoom: 100%;" />
- 
+
  <img src="docs/images/20190615010115.jpg" alt="20190615010115.jpg" style="zoom: 40%;" />
- 
+
 IoTSharp's ecosystem
 
 - MaiKeBing.CAP.ZeroMQ [![MaiKeBing.CAP.ZeroMQ](https://img.shields.io/nuget/v/MaiKeBing.CAP.ZeroMQ.svg)](https://www.nuget.org/packages/MaiKeBing.CAP.ZeroMQ/)
@@ -106,7 +110,12 @@ IoTSharp's ecosystem
 | ------ | ---- |
 | ![](docs/images/qrcode.jpg) | ![](docs/images/IoTSharpQQGruop.png) |
 
+## dotNET China
+
+[![DotNetChina](https://images.gitee.com/uploads/images/2021/0309/134044_9c191d7b_974299.png)](https://gitee.com/dotnetchina/IoTSharp)
+
 ## Contributing
+
  - If you'd like to contribute to IoTSharp, please take a look at our [Contributing Guide](contributing.md).
  - If you have a question or have found a bug,[ file an issue.](https://github.com/IoTSharp/IoTSharp/issues)
  - To learn about project priorities as well as status and ship dates see the [IoTShap roadmap](roadmap.md).

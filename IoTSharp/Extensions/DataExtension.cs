@@ -1,4 +1,5 @@
 ﻿using IoTSharp.Data;
+using IoTSharp.Dtos;
 using IoTSharp.Queue;
 using Microsoft.AspNetCore.Routing.Matching;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -6,6 +7,7 @@ using Microsoft.EntityFrameworkCore;
 using MQTTnet;
 using Newtonsoft.Json.Linq;
 using Org.BouncyCastle.Crypto.Modes.Gcm;
+using Org.BouncyCastle.Utilities.Encoders;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -131,7 +133,9 @@ namespace IoTSharp.Extensions
         }
         internal static void FillKVToMe<T>(this T tdata, KeyValuePair<string, object> kp) where T : IDataStorage
         {
-            switch (Type.GetTypeCode(kp.Value.GetType()))
+            var tc = Type.GetTypeCode(kp.Value.GetType());
+         
+            switch (tc)
             {
                 case TypeCode.Boolean:
                     tdata.Type = DataType.Boolean;
@@ -172,7 +176,7 @@ namespace IoTSharp.Extensions
                     break;
                 case TypeCode.Object:
                 default:
-                    if (kp.Value.GetType() == typeof(byte[]))
+                   if (kp.Value.GetType() == typeof(byte[]))
                     {
                         tdata.Type = DataType.Binary;
                         tdata.Value_Binary = (byte[])kp.Value;
@@ -208,8 +212,71 @@ namespace IoTSharp.Extensions
             }
             return keyValues;
         }
+        public static string ToFieldName(this DataType _datatype)
+        {
+            string _fieldname = "";
+            switch (_datatype)
+            {
+                case DataType.Boolean:
+                    _fieldname = "value_boolean";
+                    break;
+                case DataType.String:
+                    _fieldname = "value_string";
+                    break;
+                case DataType.Long:
+                    _fieldname = "value_long";
+                    break;
+                case DataType.Double:
+                    _fieldname = "value_double";
+                    break;
+                case DataType.Json:
+                    _fieldname = "value_string";
+                    break;
+                case DataType.XML:
+                    _fieldname = "value_string";
+                    break;
+                case DataType.Binary:
+                    _fieldname = "value_string";
+                    break;
+                case DataType.DateTime:
+                    _fieldname = "value_datetime";
+                    break;
+                default:
+                    break;
+            }
+            return _fieldname;
+        }
 
-
+        public static void AttachValue(this TelemetryDataDto telemetry, DataType datatype,object _value)
+        {
+            switch (datatype)
+            {
+                case DataType.Boolean:
+                    telemetry.Value = (bool)_value;
+                    break;
+                case DataType.String:
+                    telemetry.Value = (string)_value;
+                    break;
+                case DataType.Long:
+                    telemetry.Value = (long)_value;
+                    break;
+                case DataType.Double:
+                    telemetry.Value = (double)_value;
+                    break;
+                case DataType.Json:
+                case DataType.XML:
+                    telemetry.Value = (string)_value;
+                    break;
+                case DataType.Binary:
+                    telemetry.Value = Hex.Decode((string)_value);
+                    break;
+                case DataType.DateTime:
+                    telemetry.Value = (DateTime)_value;
+                    break;
+                default:
+                    break;
+            }
+        }
         public static object ToObject(this IDataStorage kxv)
         {
             object obj = null;

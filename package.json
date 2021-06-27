@@ -2,12 +2,12 @@
     "name": "IoTSharp.ClientApp",
     "version": "1.0.0",
     "description": "An out-of-box UI solution for enterprise applications as a Blazor boilerplate.",
-  "scripts": {
-    "start": "dotnet watch -p ./IoTSharp.ClientApp run",
-    "build": "dotnet publish -o dist",
-    "gulp:pro": "gulp --gulpfile ./IoTSharp.ClientApp/gulpfile.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
+    "scripts": {
+        "start": "dotnet watch -p ./IoTSharp.ClientApp run",
+        "build": "dotnet publish -o dist",
+        "gulp:pro": "gulp --gulpfile ./IoTSharp.ClientApp/gulpfile.js",
+        "test": "echo \"Error: no test specified\" && exit 1"
+    },
     "author": "maikebing",
     "license": "MIT",
     "dependencies": {
