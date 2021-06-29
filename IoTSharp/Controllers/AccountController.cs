@@ -118,10 +118,8 @@ namespace IoTSharp.Controllers
                                 signingCredentials: signinCredentials);
 
 
-
-
-                    var t = (DateTime.Now.AddDays(1).Ticks - TimeZone.CurrentTimeZone
-                        .ToLocalTime(new System.DateTime(1970, 1, 1, 0, 0, 0, 0)).Ticks) / 10000;
+           
+                    var t = (DateTime.Now.AddDays(1).Ticks - TimeZoneInfo.ConvertTime(new DateTime(1970, 1, 1, 0, 0, 0, 0), TimeZoneInfo.Local).Ticks) / 10000;
                     var token = new TokenEntity
                     {
                         access_token = new JwtSecurityTokenHandler().WriteToken(tokeOptions),
