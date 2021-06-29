@@ -16,15 +16,15 @@ import IconSelector from '@/components/IconSelector'
 export default {
   name: 'IconSelectorView',
   components: {
-    IconSelector,
+    IconSelector
   },
-  data() {
+  data () {
     return {
-      currentSelectedIcon: 'pause-circle',
+      currentSelectedIcon: 'pause-circle'
     }
   },
   methods: {
-    handleIconChange(icon) {
+    handleIconChange (icon) {
       console.log('change Icon', icon)
       this.$message.info(
         <span>
@@ -32,9 +32,9 @@ export default {
         </span>
       )
     },
-    changeIcon(type) {
+    changeIcon (type) {
       this.currentSelectedIcon = type
-    },
-  },
+    }
+  }
 }
 </script>

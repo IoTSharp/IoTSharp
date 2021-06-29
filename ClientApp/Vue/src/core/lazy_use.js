@@ -45,7 +45,7 @@ import {
   Descriptions,
   Space,
   message,
-  notification,
+  notification
 } from 'ant-design-vue'
 import Viser from 'viser-vue'
 

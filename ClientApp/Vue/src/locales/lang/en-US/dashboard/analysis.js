@@ -32,5 +32,5 @@ export default {
   'dashboard.analysis.table.rank': 'Rank',
   'dashboard.analysis.table.search-keyword': 'Keyword',
   'dashboard.analysis.table.users': 'Users',
-  'dashboard.analysis.table.weekly-range': 'Weekly Range',
+  'dashboard.analysis.table.weekly-range': 'Weekly Range'
 }

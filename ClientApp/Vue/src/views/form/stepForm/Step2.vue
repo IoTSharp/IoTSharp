@@ -36,20 +36,20 @@
 <script>
 export default {
   name: 'Step2',
-  data() {
+  data () {
     return {
       labelCol: { lg: { span: 5 }, sm: { span: 5 } },
       wrapperCol: { lg: { span: 19 }, sm: { span: 19 } },
       form: this.$form.createForm(this),
       loading: false,
-      timer: 0,
+      timer: 0
     }
   },
   methods: {
-    nextStep() {
+    nextStep () {
       const that = this
       const {
-        form: { validateFields },
+        form: { validateFields }
       } = this
       that.loading = true
       validateFields((err, values) => {
@@ -64,13 +64,13 @@ export default {
         }
       })
     },
-    prevStep() {
+    prevStep () {
       this.$emit('prevStep')
-    },
+    }
   },
-  beforeDestroy() {
+  beforeDestroy () {
     clearTimeout(this.timer)
-  },
+  }
 }
 </script>
 

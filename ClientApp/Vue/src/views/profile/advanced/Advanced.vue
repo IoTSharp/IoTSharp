@@ -92,8 +92,9 @@
           <a-descriptions-item label="角色码">1234567</a-descriptions-item>
           <a-descriptions-item label="所属部门">XX公司-YY部</a-descriptions-item>
           <a-descriptions-item label="过期时间">2018-08-08</a-descriptions-item>
-          <a-descriptions-item label="描述"
-            >这段描述很长很长很长很长很长很长很长很长很长很长很长很长很长很长...</a-descriptions-item
+          <a-descriptions-item
+            label="描述"
+          >这段描述很长很长很长很长很长很长很长很长很长很长很长很长很长很长...</a-descriptions-item
           >
         </a-descriptions>
         <a-divider style="margin: 16px 0" />
@@ -167,27 +168,27 @@ import { baseMixin } from '@/store/app-mixin'
 export default {
   name: 'Advanced',
   mixins: [baseMixin],
-  data() {
+  data () {
     return {
       tabList: [
         { key: 'detail', tab: '详情' },
-        { key: 'rule', tab: '规则' },
+        { key: 'rule', tab: '规则' }
       ],
       tabActiveKey: 'detail',
 
       operationTabList: [
         {
           key: '1',
-          tab: '操作日志一',
+          tab: '操作日志一'
         },
         {
           key: '2',
-          tab: '操作日志二',
+          tab: '操作日志二'
         },
         {
           key: '3',
-          tab: '操作日志三',
-        },
+          tab: '操作日志三'
+        }
       ],
       operationActiveTabKey: '1',
 
@@ -195,29 +196,29 @@ export default {
         {
           title: '操作类型',
           dataIndex: 'type',
-          key: 'type',
+          key: 'type'
         },
         {
           title: '操作人',
           dataIndex: 'name',
-          key: 'name',
+          key: 'name'
         },
         {
           title: '执行结果',
           dataIndex: 'status',
           key: 'status',
-          scopedSlots: { customRender: 'status' },
+          scopedSlots: { customRender: 'status' }
         },
         {
           title: '操作时间',
           dataIndex: 'updatedAt',
-          key: 'updatedAt',
+          key: 'updatedAt'
         },
         {
           title: '备注',
           dataIndex: 'remark',
-          key: 'remark',
-        },
+          key: 'remark'
+        }
       ],
       operation1: [
         {
@@ -226,7 +227,7 @@ export default {
           name: '曲丽丽',
           status: 'agree',
           updatedAt: '2017-10-03  19:23:12',
-          remark: '-',
+          remark: '-'
         },
         {
           key: 'op2',
@@ -234,7 +235,7 @@ export default {
           name: '付小小',
           status: 'reject',
           updatedAt: '2017-10-03  19:23:12',
-          remark: '不通过原因',
+          remark: '不通过原因'
         },
         {
           key: 'op3',
@@ -242,7 +243,7 @@ export default {
           name: '周毛毛',
           status: 'agree',
           updatedAt: '2017-10-03  19:23:12',
-          remark: '-',
+          remark: '-'
         },
         {
           key: 'op4',
@@ -250,7 +251,7 @@ export default {
           name: '林东东',
           status: 'agree',
           updatedAt: '2017-10-03  19:23:12',
-          remark: '很棒',
+          remark: '很棒'
         },
         {
           key: 'op5',
@@ -258,8 +259,8 @@ export default {
           name: '汗牙牙',
           status: 'agree',
           updatedAt: '2017-10-03  19:23:12',
-          remark: '-',
-        },
+          remark: '-'
+        }
       ],
       operation2: [
         {
@@ -268,7 +269,7 @@ export default {
           name: '付小小',
           status: 'reject',
           updatedAt: '2017-10-03  19:23:12',
-          remark: '不通过原因',
+          remark: '不通过原因'
         },
         {
           key: 'op3',
@@ -276,7 +277,7 @@ export default {
           name: '周毛毛',
           status: 'agree',
           updatedAt: '2017-10-03  19:23:12',
-          remark: '-',
+          remark: '-'
         },
         {
           key: 'op4',
@@ -284,8 +285,8 @@ export default {
           name: '林东东',
           status: 'agree',
           updatedAt: '2017-10-03  19:23:12',
-          remark: '很棒',
-        },
+          remark: '很棒'
+        }
       ],
       operation3: [
         {
@@ -294,7 +295,7 @@ export default {
           name: '付小小',
           status: 'reject',
           updatedAt: '2017-10-03  19:23:12',
-          remark: '不通过原因',
+          remark: '不通过原因'
         },
         {
           key: 'op3',
@@ -302,33 +303,33 @@ export default {
           name: '周毛毛',
           status: 'agree',
           updatedAt: '2017-10-03  19:23:12',
-          remark: '-',
-        },
-      ],
+          remark: '-'
+        }
+      ]
     }
   },
   filters: {
-    statusFilter(status) {
+    statusFilter (status) {
       const statusMap = {
         agree: '成功',
-        reject: '驳回',
+        reject: '驳回'
       }
       return statusMap[status]
     },
-    statusTypeFilter(type) {
+    statusTypeFilter (type) {
       const statusTypeMap = {
         agree: 'success',
-        reject: 'error',
+        reject: 'error'
       }
       return statusTypeMap[type]
-    },
+    }
   },
   methods: {
-    handleTabChange(key) {
+    handleTabChange (key) {
       console.log('')
       this.tabActiveKey = key
-    },
-  },
+    }
+  }
 }
 </script>
 

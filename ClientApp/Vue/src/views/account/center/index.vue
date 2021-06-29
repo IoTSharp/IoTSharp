@@ -96,9 +96,9 @@ export default {
     PageView,
     AppPage,
     ArticlePage,
-    ProjectPage,
+    ProjectPage
   },
-  data() {
+  data () {
     return {
       tags: ['很有想法的', '专注设计', '辣~', '大长腿', '川妹子', '海纳百川'],
 
@@ -111,55 +111,55 @@ export default {
       tabListNoTitle: [
         {
           key: 'article',
-          tab: '文章(8)',
+          tab: '文章(8)'
         },
         {
           key: 'app',
-          tab: '应用(8)',
+          tab: '应用(8)'
         },
         {
           key: 'project',
-          tab: '项目(8)',
-        },
+          tab: '项目(8)'
+        }
       ],
-      noTitleKey: 'app',
+      noTitleKey: 'app'
     }
   },
   computed: {
-    ...mapGetters(['nickname', 'avatar']),
+    ...mapGetters(['nickname', 'avatar'])
   },
-  mounted() {
+  mounted () {
     this.getTeams()
   },
   methods: {
-    getTeams() {
+    getTeams () {
       this.$http.get('/workplace/teams').then((res) => {
         this.teams = res.result
         this.teamSpinning = false
       })
     },
 
-    handleTabChange(key, type) {
+    handleTabChange (key, type) {
       this[type] = key
     },
 
-    handleTagClose(removeTag) {
+    handleTagClose (removeTag) {
       const tags = this.tags.filter((tag) => tag !== removeTag)
       this.tags = tags
     },
 
-    showTagInput() {
+    showTagInput () {
       this.tagInputVisible = true
       this.$nextTick(() => {
         this.$refs.tagInput.focus()
       })
     },
 
-    handleInputChange(e) {
+    handleInputChange (e) {
       this.tagInputValue = e.target.value
     },
 
-    handleTagInputConfirm() {
+    handleTagInputConfirm () {
       const inputValue = this.tagInputValue
       let tags = this.tags
       if (inputValue && !tags.includes(inputValue)) {
@@ -169,10 +169,10 @@ export default {
       Object.assign(this, {
         tags,
         tagInputVisible: false,
-        tagInputValue: '',
+        tagInputValue: ''
       })
-    },
-  },
+    }
+  }
 }
 </script>
 

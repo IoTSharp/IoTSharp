@@ -47,30 +47,30 @@ for (let i = 0; i < 11; i++) {
     title: 'Alipay',
     avatar: 'https://gw.alipayobjects.com/zos/rmsportal/WdGqmHpayyMjiEhcKoVE.png',
     content:
-      '在中台产品的研发过程中，会出现不同的设计规范和实现方式，但其中往往存在很多类似的页面和组件，这些类似的组件会被抽离成一套标准规范。',
+      '在中台产品的研发过程中，会出现不同的设计规范和实现方式，但其中往往存在很多类似的页面和组件，这些类似的组件会被抽离成一套标准规范。'
   })
 }
 
 export default {
   name: 'CardList',
-  data() {
+  data () {
     this.tabList = [
       { key: 'tab1', tab: '快速开始' },
       { key: 'tab2', tab: '产品简介' },
-      { key: 'tab3', tab: '产品文档' },
+      { key: 'tab3', tab: '产品文档' }
     ]
     return {
       tabActiveKey: 'tab1',
 
       extraImage: 'https://gw.alipayobjects.com/zos/rmsportal/RzwpdLnhmvDJToTdfDPe.png',
-      dataSource,
+      dataSource
     }
   },
   methods: {
-    testFun() {
+    testFun () {
       this.$message.info('快速开始被点击！')
-    },
-  },
+    }
+  }
 }
 </script>
 

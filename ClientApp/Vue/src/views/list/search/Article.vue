@@ -101,24 +101,24 @@ const TagSelectOption = TagSelect.Option
 const owners = [
   {
     id: 'wzj',
-    name: '我自己',
+    name: '我自己'
   },
   {
     id: 'wjh',
-    name: '吴家豪',
+    name: '吴家豪'
   },
   {
     id: 'zxx',
-    name: '周星星',
+    name: '周星星'
   },
   {
     id: 'zly',
-    name: '赵丽颖',
+    name: '赵丽颖'
   },
   {
     id: 'ym',
-    name: '姚明',
-  },
+    name: '姚明'
+  }
 ]
 
 export default {
@@ -127,32 +127,32 @@ export default {
     TagSelectOption,
     StandardFormRow,
     ArticleListContent,
-    IconText,
+    IconText
   },
-  data() {
+  data () {
     return {
       owners,
       loading: true,
       loadingMore: false,
       data: [],
-      form: this.$form.createForm(this),
+      form: this.$form.createForm(this)
     }
   },
-  mounted() {
+  mounted () {
     this.getList()
   },
   methods: {
-    handleChange(value) {
+    handleChange (value) {
       console.log(`selected ${value}`)
     },
-    getList() {
+    getList () {
       this.$http.get('/list/article').then((res) => {
         console.log('res', res)
         this.data = res.result
         this.loading = false
       })
     },
-    loadMore() {
+    loadMore () {
       this.loadingMore = true
       this.$http
         .get('/list/article')
@@ -163,15 +163,15 @@ export default {
           this.loadingMore = false
         })
     },
-    setOwner() {
+    setOwner () {
       const {
-        form: { setFieldsValue },
+        form: { setFieldsValue }
       } = this
       setFieldsValue({
-        owner: ['wzj'],
+        owner: ['wzj']
       })
-    },
-  },
+    }
+  }
 }
 </script>
 

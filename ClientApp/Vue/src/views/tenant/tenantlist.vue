@@ -211,9 +211,9 @@ import { getTenantList, getTenant } from '@/api/manage'
 export default {
   name: 'TableList',
   components: {
-    STable,
+    STable
   },
-  data() {
+  data () {
     return {
       form: this.$form.createForm(this),
       title: '',
@@ -228,39 +228,39 @@ export default {
       columns: [
         {
           title: '#',
-          scopedSlots: { customRender: 'serial' },
+          scopedSlots: { customRender: 'serial' }
         },
         {
           title: '租户Id',
-          dataIndex: 'id',
+          dataIndex: 'id'
         },
         {
           title: '名称',
-          dataIndex: 'name',
+          dataIndex: 'name'
         },
         {
           title: '邮箱',
           dataIndex: 'eMail',
           sorter: true,
           needTotal: true,
-          customRender: (text) => text,
+          customRender: (text) => text
         },
         {
           title: '状态',
           dataIndex: 'phone',
-          needTotal: true,
+          needTotal: true
         },
         {
           title: '省',
           dataIndex: 'province',
-          sorter: true,
+          sorter: true
         },
         {
           title: '操作',
           dataIndex: 'action',
           width: '150px',
-          scopedSlots: { customRender: 'action' },
-        },
+          scopedSlots: { customRender: 'action' }
+        }
       ],
       // 加载数据方法 必须为 Promise 对象
       loadData: (parameter) => {
@@ -270,7 +270,7 @@ export default {
             pageSize: 10,
             pageNo: 0,
             totalPage: 1,
-            totalCount: 10,
+            totalCount: 10
           }
         })
       },
@@ -283,67 +283,67 @@ export default {
           show: true,
           clear: () => {
             this.selectedRowKeys = []
-          },
+          }
         },
         rowSelection: {
           selectedRowKeys: this.selectedRowKeys,
-          onChange: this.onSelectChange,
-        },
+          onChange: this.onSelectChange
+        }
       },
-      optionAlertShow: false,
+      optionAlertShow: false
     }
   },
-  created() {
+  created () {
     this.tableOption()
   },
   methods: {
-    tableOption() {
+    tableOption () {
       if (!this.optionAlertShow) {
         this.options = {
           alert: {
             show: true,
             clear: () => {
               this.selectedRowKeys = []
-            },
+            }
           },
           rowSelection: {
             selectedRowKeys: this.selectedRowKeys,
-            onChange: this.onSelectChange,
-          },
+            onChange: this.onSelectChange
+          }
         }
         this.optionAlertShow = true
       } else {
         this.options = {
           alert: false,
-          rowSelection: null,
+          rowSelection: null
         }
         this.optionAlertShow = false
       }
     },
 
-    handleEdit(record) {
+    handleEdit (record) {
       this.visible = true
       if (record) {
         getTenant(record.id).then((x) => {})
       } else {
       }
     },
-    onClose() {},
-    handleOk() {},
+    onClose () {},
+    handleOk () {},
 
-    onSelectChange(selectedRowKeys, selectedRows) {
+    onSelectChange (selectedRowKeys, selectedRows) {
       this.selectedRowKeys = selectedRowKeys
       this.selectedRows = selectedRows
     },
-    toggleAdvanced() {
+    toggleAdvanced () {
       this.advanced = !this.advanced
     },
 
-    resetSearchForm() {
+    resetSearchForm () {
       this.queryParam = {
-        date: moment(new Date()),
+        date: moment(new Date())
       }
-    },
-  },
+    }
+  }
 }
 </script>

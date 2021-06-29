@@ -151,7 +151,7 @@
           :loading="registerBtn"
           @click.stop.prevent="handleSubmit"
           :disabled="registerBtn"
-          >{{ $t('user.register.register') }}
+        >{{ $t('user.register.register') }}
         </a-button>
         <router-link class="login" :to="{ name: 'login' }">{{ $t('user.register.sign-in') }}</router-link>
       </a-form-item>
@@ -168,25 +168,25 @@ const levelNames = {
   0: 'user.password.strength.short',
   1: 'user.password.strength.low',
   2: 'user.password.strength.medium',
-  3: 'user.password.strength.strong',
+  3: 'user.password.strength.strong'
 }
 const levelClass = {
   0: 'error',
   1: 'error',
   2: 'warning',
-  3: 'success',
+  3: 'success'
 }
 const levelColor = {
   0: '#ff0000',
   1: '#ff0000',
   2: '#ff7e05',
-  3: '#52c41a',
+  3: '#52c41a'
 }
 export default {
   name: 'Register',
   components: {},
   mixins: [deviceMixin],
-  data() {
+  data () {
     return {
       form: this.$form.createForm(this),
 
@@ -197,24 +197,24 @@ export default {
         passwordLevel: 0,
         passwordLevelChecked: false,
         percent: 10,
-        progressColor: '#FF0000',
+        progressColor: '#FF0000'
       },
-      registerBtn: false,
+      registerBtn: false
     }
   },
   computed: {
-    passwordLevelClass() {
+    passwordLevelClass () {
       return levelClass[this.state.passwordLevel]
     },
-    passwordLevelName() {
+    passwordLevelName () {
       return levelNames[this.state.passwordLevel]
     },
-    passwordLevelColor() {
+    passwordLevelColor () {
       return levelColor[this.state.passwordLevel]
-    },
+    }
   },
   methods: {
-    handlePasswordLevel(rule, value, callback) {
+    handlePasswordLevel (rule, value, callback) {
       if (value === '') {
         return callback()
       }
@@ -239,7 +239,7 @@ export default {
       callback()
     },
 
-    handlePasswordCheck(rule, value, callback) {
+    handlePasswordCheck (rule, value, callback) {
       const password = this.form.getFieldValue('password')
       // console.log('value', value)
       if (value === undefined) {
@@ -251,7 +251,7 @@ export default {
       callback()
     },
 
-    handlePhoneCheck(rule, value, callback) {
+    handlePhoneCheck (rule, value, callback) {
       console.log('handlePhoneCheck, rule:', rule)
       console.log('handlePhoneCheck, value', value)
       console.log('handlePhoneCheck, callback', callback)
@@ -259,7 +259,7 @@ export default {
       callback()
     },
 
-    handlePasswordInputClick() {
+    handlePasswordInputClick () {
       if (!this.isMobile) {
         this.state.passwordLevelChecked = true
         return
@@ -267,11 +267,11 @@ export default {
       this.state.passwordLevelChecked = false
     },
 
-    handleSubmit() {
+    handleSubmit () {
       const {
         form: { validateFields },
         state,
-        $router,
+        $router
       } = this
       validateFields({ force: true }, (err, values) => {
         if (!err) {
@@ -283,7 +283,7 @@ export default {
               this.$notification['error']({
                 message: '错误',
                 description: res.msg,
-                duration: 4,
+                duration: 4
               })
             }
           })
@@ -291,20 +291,20 @@ export default {
         }
       })
     },
-    requestFailed(err) {
+    requestFailed (err) {
       this.$notification['error']({
         message: '错误',
         description: ((err.msg || {}).data || {}).message || '请求出现错误，请稍后再试',
-        duration: 4,
+        duration: 4
       })
       this.registerBtn = false
-    },
+    }
   },
   watch: {
-    'state.passwordLevel'(val) {
+    'state.passwordLevel' (val) {
       console.log(val)
-    },
-  },
+    }
+  }
 }
 </script>
 <style lang="less">

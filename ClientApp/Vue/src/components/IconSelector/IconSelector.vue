@@ -25,43 +25,43 @@ export default {
   props: {
     prefixCls: {
       type: String,
-      default: 'ant-pro-icon-selector',
+      default: 'ant-pro-icon-selector'
     },
     // eslint-disable-next-line
     value: {
-      type: String,
-    },
+      type: String
+    }
   },
-  data() {
+  data () {
     return {
       selectedIcon: this.value || '',
       currentTab: 'directional',
-      icons,
+      icons
     }
   },
   watch: {
-    value(val) {
+    value (val) {
       this.selectedIcon = val
       this.autoSwitchTab()
-    },
+    }
   },
-  created() {
+  created () {
     if (this.value) {
       this.autoSwitchTab()
     }
   },
   methods: {
-    handleSelectedIcon(icon) {
+    handleSelectedIcon (icon) {
       this.selectedIcon = icon
       this.$emit('change', icon)
     },
-    handleTabChange(activeKey) {
+    handleTabChange (activeKey) {
       this.currentTab = activeKey
     },
-    autoSwitchTab() {
+    autoSwitchTab () {
       icons.some((item) => item.icons.some((icon) => icon === this.value) && (this.currentTab = item.key))
-    },
-  },
+    }
+  }
 }
 </script>
 

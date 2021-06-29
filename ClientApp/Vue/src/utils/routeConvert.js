@@ -1,6 +1,6 @@
 import cloneDeep from 'lodash.clonedeep'
 
-export function convertRoutes(nodes) {
+export function convertRoutes (nodes) {
   if (!nodes) return null
 
   nodes = cloneDeep(nodes)

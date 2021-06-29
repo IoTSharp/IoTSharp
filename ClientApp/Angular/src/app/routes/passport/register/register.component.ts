@@ -114,15 +114,16 @@ export class UserRegisterComponent implements OnDestroy {
       this.form.controls[key].updateValueAndValidity();
     });
     const data = this.form.value;
-    console.log(data)
+    console.log(data);
     if (this.form.invalid) {
       return;
     }
-
-
-    this.http.post('api/Installer/Install?_allow_anonymous=true', data).subscribe(() => {
-      this.router.navigateByUrl('/passport/login');
-
+    this.http.post('api/Installer/Install?_allow_anonymous=true', data).subscribe((x) => {
+      if (x.installed) {
+        this.router.navigateByUrl('/passport/login');
+      } else {
+        this.error = x.msg;
+      }
     });
   }
 
@@ -131,14 +132,11 @@ export class UserRegisterComponent implements OnDestroy {
       clearInterval(this.interval$);
     }
   }
-
-
-
 }
 
 export interface reguser {
-  email: string
-  phoneNumber: string
-  customer: string
-  password: string
+  email: string;
+  phoneNumber: string;
+  customer: string;
+  password: string;
 }

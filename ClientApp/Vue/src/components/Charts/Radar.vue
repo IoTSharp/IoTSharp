@@ -17,10 +17,10 @@ const axis1Opts = {
   tickLine: null,
   grid: {
     lineStyle: {
-      lineDash: null,
+      lineDash: null
     },
-    hideFirstLine: false,
-  },
+    hideFirstLine: false
+  }
 }
 const axis2Opts = {
   dataKey: 'score',
@@ -29,21 +29,21 @@ const axis2Opts = {
   grid: {
     type: 'polygon',
     lineStyle: {
-      lineDash: null,
-    },
-  },
+      lineDash: null
+    }
+  }
 }
 
 const scale = [
   {
     dataKey: 'score',
     min: 0,
-    max: 80,
+    max: 80
   },
   {
     dataKey: 'user',
-    alias: '类型',
-  },
+    alias: '类型'
+  }
 ]
 
 export default {
@@ -51,16 +51,16 @@ export default {
   props: {
     data: {
       type: Array,
-      default: null,
-    },
+      default: null
+    }
   },
-  data() {
+  data () {
     return {
       axis1Opts,
       axis2Opts,
-      scale,
+      scale
     }
-  },
+  }
 }
 </script>
 

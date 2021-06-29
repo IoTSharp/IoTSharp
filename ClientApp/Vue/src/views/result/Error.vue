@@ -27,12 +27,12 @@
 export default {
   name: 'Error',
   computed: {
-    result() {
+    result () {
       return {
         title: this.$t('result.fail.error.title'),
-        description: this.$t('result.fail.error.description'),
+        description: this.$t('result.fail.error.description')
       }
-    },
-  },
+    }
+  }
 }
 </script>

@@ -11,12 +11,12 @@ import {
   TOGGLE_NAV_THEME,
   TOGGLE_WEAK,
   TOGGLE_COLOR,
-  TOGGLE_MULTI_TAB,
+  TOGGLE_MULTI_TAB
 } from '@/store/mutation-types'
 import { printANSI } from '@/utils/screenLog'
 import defaultSettings from '@/config/defaultSettings'
 
-export default function Initializer() {
+export default function Initializer () {
   printANSI() // 请自行移除该行.  please remove this line
 
   store.commit(TOGGLE_LAYOUT, storage.get(TOGGLE_LAYOUT, defaultSettings.layout))

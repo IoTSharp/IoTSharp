@@ -14,7 +14,7 @@ import account from './en-US/account'
 const components = {
   antLocale: antdEnUS,
   momentName: 'eu',
-  momentLocale: momentEU,
+  momentLocale: momentEU
 }
 
 export default {
@@ -31,5 +31,5 @@ export default {
   ...dashboard,
   ...form,
   ...result,
-  ...account,
+  ...account
 }

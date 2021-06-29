@@ -2,7 +2,7 @@ const responseBody = {
   message: '',
   timestamp: 0,
   result: null,
-  code: 0,
+  code: 0
 }
 
 export const builder = (data, message, code = 0, headers = {}) => {

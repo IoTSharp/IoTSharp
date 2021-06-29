@@ -28,7 +28,7 @@ const action = Vue.directive('action', {
         ;(el.parentNode && el.parentNode.removeChild(el)) || (el.style.display = 'none')
       }
     })
-  },
+  }
 })
 
 export default action

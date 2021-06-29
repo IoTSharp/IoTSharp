@@ -25,5 +25,5 @@ export default {
   'app.setting.themecolor.cyan': 'Cyan',
   'app.setting.themecolor.green': 'Polar Green',
   'app.setting.themecolor.geekblue': 'Geek Blue',
-  'app.setting.themecolor.purple': 'Golden Purple',
+  'app.setting.themecolor.purple': 'Golden Purple'
 }

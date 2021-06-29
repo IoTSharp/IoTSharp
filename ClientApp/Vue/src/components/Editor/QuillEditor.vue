@@ -23,47 +23,47 @@ import { quillEditor } from 'vue-quill-editor'
 export default {
   name: 'QuillEditor',
   components: {
-    quillEditor,
+    quillEditor
   },
   props: {
     prefixCls: {
       type: String,
-      default: 'ant-editor-quill',
+      default: 'ant-editor-quill'
     },
     // 表单校验用字段
     // eslint-disable-next-line
     value: {
-      type: String,
-    },
+      type: String
+    }
   },
-  data() {
+  data () {
     return {
       content: null,
       editorOption: {
         // some quill options
-      },
+      }
     }
   },
   methods: {
-    onEditorBlur(quill) {
+    onEditorBlur (quill) {
       console.log('editor blur!', quill)
     },
-    onEditorFocus(quill) {
+    onEditorFocus (quill) {
       console.log('editor focus!', quill)
     },
-    onEditorReady(quill) {
+    onEditorReady (quill) {
       console.log('editor ready!', quill)
     },
-    onEditorChange({ quill, html, text }) {
+    onEditorChange ({ quill, html, text }) {
       console.log('editor change!', quill, html, text)
       this.$emit('change', html)
-    },
+    }
   },
   watch: {
-    value(val) {
+    value (val) {
       this.content = val
-    },
-  },
+    }
+  }
 }
 </script>
 

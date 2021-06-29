@@ -41,9 +41,9 @@ import { baseMixin } from '@/store/app-mixin'
 export default {
   mixins: [baseMixin],
   components: {
-    AvatarModal,
+    AvatarModal
   },
-  data() {
+  data () {
     return {
       // cropper
       preview: {},
@@ -60,15 +60,15 @@ export default {
         fixedBox: true,
         // 开启宽度和高度比例
         fixed: true,
-        fixedNumber: [1, 1],
-      },
+        fixedNumber: [1, 1]
+      }
     }
   },
   methods: {
-    setavatar(url) {
+    setavatar (url) {
       this.option.img = url
-    },
-  },
+    }
+  }
 }
 </script>
 

@@ -19,29 +19,29 @@ export default {
   props: {
     prefixCls: {
       type: String,
-      default: 'antd-pro-components-article-list-content-index-listContent',
+      default: 'antd-pro-components-article-list-content-index-listContent'
     },
     description: {
       type: String,
-      default: '',
+      default: ''
     },
     owner: {
       type: String,
-      required: true,
+      required: true
     },
     avatar: {
       type: String,
-      required: true,
+      required: true
     },
     href: {
       type: String,
-      required: true,
+      required: true
     },
     updateAt: {
       type: String,
-      required: true,
-    },
-  },
+      required: true
+    }
+  }
 }
 </script>
 

@@ -18,13 +18,13 @@ export default {
   props: {
     title: {
       type: String,
-      default: '',
+      default: ''
     },
     list: {
       type: Array,
-      default: null,
-    },
-  },
+      default: null
+    }
+  }
 }
 </script>
 

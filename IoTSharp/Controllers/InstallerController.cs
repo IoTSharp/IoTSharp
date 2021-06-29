@@ -89,14 +89,17 @@ namespace IoTSharp.Controllers
                 }
                 else
                 {
-                    actionResult = BadRequest(new { code = ApiCode.AlreadyExists, msg = "Already installed", data = GetInstanceDto() });
+                    actionResult = Ok(new { code = ApiCode.AlreadyExists, msg = "Already installed", data = GetInstanceDto() });
                 }
             }
             catch (Exception ex)
             {
-                actionResult =this.ExceptionRequest(ApiCode.Exception, ex.Message, ex);
+                actionResult = Ok(new { code = ApiCode.Exception, msg = ex.Message});
             }
             return actionResult;
         }
+
+
+
     }
 }

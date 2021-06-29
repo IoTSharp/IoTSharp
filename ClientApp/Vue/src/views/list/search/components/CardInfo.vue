@@ -17,13 +17,13 @@ export default {
   props: {
     activeUser: {
       type: [String, Number],
-      default: 0,
+      default: 0
     },
     newUser: {
       type: [String, Number],
-      default: 0,
-    },
-  },
+      default: 0
+    }
+  }
 }
 </script>
 

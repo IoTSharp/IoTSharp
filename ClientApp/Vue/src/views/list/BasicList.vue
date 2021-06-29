@@ -82,8 +82,8 @@ data.push({
   owner: '付晓晓',
   startAt: '2018-07-26 22:44',
   progress: {
-    value: 90,
-  },
+    value: 90
+  }
 })
 data.push({
   title: 'Angular',
@@ -92,8 +92,8 @@ data.push({
   owner: '曲丽丽',
   startAt: '2018-07-26 22:44',
   progress: {
-    value: 54,
-  },
+    value: 54
+  }
 })
 data.push({
   title: 'Ant Design',
@@ -102,8 +102,8 @@ data.push({
   owner: '林东东',
   startAt: '2018-07-26 22:44',
   progress: {
-    value: 66,
-  },
+    value: 66
+  }
 })
 data.push({
   title: 'Ant Design Pro',
@@ -112,8 +112,8 @@ data.push({
   owner: '周星星',
   startAt: '2018-07-26 22:44',
   progress: {
-    value: 30,
-  },
+    value: 30
+  }
 })
 data.push({
   title: 'Bootstrap',
@@ -123,51 +123,51 @@ data.push({
   startAt: '2018-07-26 22:44',
   progress: {
     status: 'exception',
-    value: 100,
-  },
+    value: 100
+  }
 })
 
 export default {
   name: 'StandardList',
   components: {
     TaskForm,
-    Info,
+    Info
   },
-  data() {
+  data () {
     return {
       data,
-      status: 'all',
+      status: 'all'
     }
   },
   methods: {
-    add() {
+    add () {
       this.$dialog(
         TaskForm,
         // component props
         {
           record: {},
           on: {
-            ok() {
+            ok () {
               console.log('ok 回调')
             },
-            cancel() {
+            cancel () {
               console.log('cancel 回调')
             },
-            close() {
+            close () {
               console.log('modal close 回调')
-            },
-          },
+            }
+          }
         },
         // modal props
         {
           title: '新增',
           width: 700,
           centered: true,
-          maskClosable: false,
+          maskClosable: false
         }
       )
     },
-    edit(record) {
+    edit (record) {
       console.log('record', record)
       this.$dialog(
         TaskForm,
@@ -175,27 +175,27 @@ export default {
         {
           record,
           on: {
-            ok() {
+            ok () {
               console.log('ok 回调')
             },
-            cancel() {
+            cancel () {
               console.log('cancel 回调')
             },
-            close() {
+            close () {
               console.log('modal close 回调')
-            },
-          },
+            }
+          }
         },
         // modal props
         {
           title: '操作',
           width: 700,
           centered: true,
-          maskClosable: false,
+          maskClosable: false
         }
       )
-    },
-  },
+    }
+  }
 }
 </script>
 

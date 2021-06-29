@@ -29,7 +29,7 @@ const login = (options) => {
       deleted: 0,
       roleId: 'admin',
       lang: 'zh-CN',
-      token: '4291d7da9005377ec9aec4a71ea837f',
+      token: '4291d7da9005377ec9aec4a71ea837f'
     },
     '',
     200,

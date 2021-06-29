@@ -15,13 +15,13 @@ export default {
   props: {
     title: {
       type: String,
-      default: '',
+      default: ''
     },
     data: {
       type: Array,
       default: () => {
         return []
-      },
+      }
     },
     scale: {
       type: Array,
@@ -29,16 +29,16 @@ export default {
         return [
           {
             dataKey: 'x',
-            min: 2,
+            min: 2
           },
           {
             dataKey: 'y',
             title: '时间',
             min: 1,
-            max: 22,
-          },
+            max: 22
+          }
         ]
-      },
+      }
     },
     tooltip: {
       type: Array,
@@ -47,14 +47,14 @@ export default {
           'x*y',
           (x, y) => ({
             name: x,
-            value: y,
-          }),
+            value: y
+          })
         ]
-      },
-    },
+      }
+    }
   },
-  data() {
+  data () {
     return {}
-  },
+  }
 }
 </script>

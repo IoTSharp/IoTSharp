@@ -72,13 +72,13 @@ import { baseMixin } from '@/store/app-mixin'
 
 const directionType = {
   horizontal: 'horizontal',
-  vertical: 'vertical',
+  vertical: 'vertical'
 }
 
 export default {
   name: 'Success',
   mixins: [baseMixin],
-  data() {
+  data () {
     this.directionType = directionType
     return {
       // title: this.$t('result.success.title'),
@@ -86,12 +86,12 @@ export default {
     }
   },
   computed: {
-    result() {
+    result () {
       return {
         title: this.$t('result.success.title'),
-        description: this.$t('result.success.description'),
+        description: this.$t('result.success.description')
       }
-    },
-  },
+    }
+  }
 }
 </script>

@@ -21,10 +21,10 @@ export default {
   fixSiderbar: false, // sticky siderbar
   colorWeak: false,
   menu: {
-    locale: true,
+    locale: true
   },
   title: 'Ant Design Pro',
   pwa: false,
   iconfontUrl: '',
-  production: process.env.NODE_ENV === 'production' && process.env.VUE_APP_PREVIEW !== 'true',
+  production: process.env.NODE_ENV === 'production' && process.env.VUE_APP_PREVIEW !== 'true'
 }

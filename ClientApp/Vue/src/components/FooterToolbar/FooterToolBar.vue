@@ -15,30 +15,30 @@ export default {
   props: {
     prefixCls: {
       type: String,
-      default: 'ant-pro-footer-toolbar',
+      default: 'ant-pro-footer-toolbar'
     },
     collapsed: {
       type: Boolean,
-      default: false,
+      default: false
     },
     isMobile: {
       type: Boolean,
-      default: false,
+      default: false
     },
     siderWidth: {
       type: Number,
-      default: undefined,
+      default: undefined
     },
     extra: {
       type: [String, Object],
-      default: '',
-    },
+      default: ''
+    }
   },
   computed: {
-    barWidth() {
+    barWidth () {
       return this.isMobile ? undefined : `calc(100% - ${this.collapsed ? 80 : this.siderWidth || 256}px)`
-    },
-  },
+    }
+  }
 }
 </script>
 
