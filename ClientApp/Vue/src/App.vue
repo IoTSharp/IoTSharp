@@ -1,27 +1,28 @@
 <template>
-  <a-config-provider :locale="locale">
-    <div id="app">
-      <router-view />
-    </div>
-  </a-config-provider>
+  <ConfigProvider :locale="getAntdLocale">
+    <AppProvider>
+      <RouterView />
+    </AppProvider>
+  </ConfigProvider>
 </template>
 
-<script>
-import { domTitle, setDocumentTitle } from '@/utils/domUtil'
-import { i18nRender } from '@/locales'
+<script lang="ts">
+  import { defineComponent } from 'vue';
+  import { ConfigProvider } from 'ant-design-vue';
+  import { AppProvider } from '/@/components/Application';
+  import { useTitle } from '/@/hooks/web/useTitle';
+  import { useLocale } from '/@/locales/useLocale';
 
-export default {
-  data () {
-    return {}
-  },
-  computed: {
-    locale () {
-      // 只是为了切换语言时，更新标题
-      const { title } = this.$route.meta
-      title && setDocumentTitle(`${i18nRender(title)} - ${domTitle}`)
+  export default defineComponent({
+    name: 'App',
+    components: { ConfigProvider, AppProvider },
+    setup() {
+      useTitle();
 
-      return this.$i18n.getLocaleMessage(this.$store.getters.lang).antLocale
-    }
-  }
-}
+      // support Multi-language
+      const { getAntdLocale } = useLocale();
+
+      return { getAntdLocale };
+    },
+  });
 </script>
