@@ -3,12 +3,19 @@ import { BasicColumn } from '/@/components/Table/src/types/table';
 import { defHttp } from '/@/utils/http/axios';
 
 enum Api {
-  List = '/api/Devices',
-  Save = '',
+  List = '/Devices/Customers',
+  Save = '/Devices',
+  Update = '/Devices',
+  Delete = '/Devices',
+  Get = '/Devices',
+  AttributeLatestList = '/api​/Devices​/{deviceId}​/AttributeLatest',
+  TelemetryLatestList = '/api/Devices/{deviceId}/TelemetryLatest',
+  GetIdentity = '/Devices/{deviceId}/Identity',
+  SetAttribute = '/api/Devices/{access_token}/Attributes',
 }
-export const TenantListApi = (params: BasicPageParams) => {
+export const DeviceListApi = (params: BasicPageParams) => {
   return defHttp.get<BasicFetchResult<DeviceItem>>({
-    url: Api.List,
+    url: Api.List + '/' + params.customerId,
     params,
     headers: {
       ignoreCancelToken: true,
@@ -16,6 +23,100 @@ export const TenantListApi = (params: BasicPageParams) => {
   });
 };
 
+export const SetAttribute = (params: BasicPageParams) => {
+  return defHttp.post({
+    url: 'Devices/' + params.accesstoken + '/Attributes',
+    params,
+    headers: {
+      ignoreCancelToken: true,
+    },
+  });
+};
+
+export const GetIdentity = (id: any) => {
+  return defHttp.get({
+    url: '/Devices/' + id + '/Identity',
+    headers: {
+      ignoreCancelToken: true,
+    },
+  });
+};
+export const Get = (id: any) => {
+  return defHttp.get({
+    url: Api.Get + '/' + id,
+    headers: {
+      ignoreCancelToken: true,
+    },
+  });
+};
+
+export const Update = (params: any) => {
+  return defHttp.put({
+    url: Api.Update + '/' + params.id,
+    params,
+    headers: {
+      ignoreCancelToken: true,
+    },
+  });
+};
+
+export const Save = (params: any) => {
+  return defHttp.post({
+    url: Api.Save,
+    params,
+    headers: {
+      ignoreCancelToken: true,
+    },
+  });
+};
+export const Delete = (params: any) => {
+  return defHttp.delete({
+    url: Api.Delete + '/' + params.id,
+    headers: {
+      ignoreCancelToken: true,
+    },
+  });
+};
+
+export const GetAttributeLatest = (params: any) => {
+  return defHttp.get<BasicFetchResult<AttributeItem>>({
+    url: '/Devices/' + params.id + '/AttributeLatest',
+    // params,
+    headers: {
+      ignoreCancelToken: true,
+    },
+  });
+};
+export const SaveAttribute = (params: any) => {
+  return defHttp.get<BasicFetchResult<AttributeItem>>({
+    url: '/Devices/' + params.id + '/AttributeLatest',
+    // params,
+    headers: {
+      ignoreCancelToken: true,
+    },
+  });
+};
+export const GetTelemetryLatest = (params: any) => {
+  return defHttp.get<BasicFetchResult<TelemetryItem>>({
+    url: '/Devices/' + params.id + '/TelemetryLatest',
+    // params,
+    headers: {
+      ignoreCancelToken: true,
+    },
+  });
+};
+export interface AttributeItem {
+  keyName: string;
+  dataSide: string;
+  dateTime: string;
+  value: string;
+}
+
+export interface TelemetryItem {
+  keyName: string;
+  dateTime: string;
+  value: string;
+}
 export interface DeviceItem {
   id: string;
   name: string;
@@ -23,6 +124,8 @@ export interface DeviceItem {
   online: string;
   lastActive: string;
   timeout: string;
+  Telemetrys: TelemetryItem[];
+  Attributes: AttributeItem[];
 }
 
 export function getBasicColumns(): BasicColumn[] {

@@ -65,8 +65,8 @@ export default {
     signUpFormTitle: '注册',
     forgetFormTitle: '重置密码',
 
-    signInTitle: '开箱即用的中后台管理系统',
-    signInDesc: '输入您的个人详细信息开始使用！',
+    signInTitle: 'IoTSharp 是一个 基于.Net Core 开源的物联网基础平台',
+    signInDesc: '初始化信息立刻开始！',
     policy: '我同意xxx隐私政策',
     scanSign: `扫码后点击"确认"，即可完成登录`,
 

@@ -6,8 +6,8 @@ import { mainOutRoutes } from './mainOut';
 import { PageEnum } from '/@/enums/pageEnum';
 import { t } from '/@/hooks/web/useI18n';
 
-const modules = import.meta.globEager('./modules/**/*.ts');
-
+//const modules = import.meta.globEager('./modules/**/*.ts');
+const modules = import.meta.globEager('./modules/*.ts');
 const routeModuleList: AppRouteModule[] = [];
 
 Object.keys(modules).forEach((key) => {
@@ -16,6 +16,7 @@ Object.keys(modules).forEach((key) => {
   routeModuleList.push(...modList);
 });
 
+console.log(modules);
 export const asyncRoutes = [PAGE_NOT_FOUND_ROUTE, ...routeModuleList];
 
 export const RootRoute: AppRouteRecordRaw = {

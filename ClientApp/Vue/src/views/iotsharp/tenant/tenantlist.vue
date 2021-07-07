@@ -1,7 +1,8 @@
 <template>
   <div class="p-4">
     <div class="mb-4">
-      <a-button class="mr-2" @click="reloadTable"> 还原 </a-button>
+      <a-button class="mr-2" @click="Open"> 新增 </a-button>
+      <a-button class="mr-2" @click="reloadTable"> 刷新 </a-button>
     </div>
 
     <BasicTable @register="registerTable">
@@ -10,13 +11,13 @@
           :actions="[
             {
               label: '客户管理',
-              icon: 'ic:outline-delete-outline',
+              icon: 'ant-design:gold-outlined',
               onClick: CustomerManage.bind(null, record),
             },
 
             {
               label: '人员管理',
-              icon: 'ic:outline-delete-outline',
+              icon: ' ant-design:user-delete-outlined',
               onClick: UserManage.bind(null, record),
             },
             {
@@ -43,22 +44,25 @@
   import { BasicTable, ColumnChangeParam, useTable, TableAction } from '/@/components/Table';
   import { useDrawer } from '/@/components/Drawer';
   import tenantform from './tenantform.vue';
-  import { getBasicColumns, TenantListApi } from '../../../api/iotsharp/tenant';
+  import { useRouter } from 'vue-router';
+  import { getBasicColumns, TenantListApi, Get } from '../../../api/iotsharp/tenant';
   export default defineComponent({
     components: { BasicTable, TableAction, tenantform },
     setup() {
+      const router = useRouter();
       const [registerDrawer, { openDrawer }] = useDrawer();
       function onChange() {
         console.log('onChange', arguments);
       }
       const [registerTable, { setColumns, reload, clearSelectedRowKeys }] = useTable({
         canResize: false,
-        title: 'useTable示例',
-        titleHelpMessage: '使用useTable调用表格内方法',
+        title: '租户管理',
+        titleHelpMessage: '租户管理',
         api: TenantListApi,
         columns: getBasicColumns(),
         rowKey: 'id',
         showTableSetting: true,
+        showIndexColumn: false,
         onChange,
         rowSelection: {
           type: 'checkbox',
@@ -71,25 +75,31 @@
           slots: { customRender: 'action' },
         },
       });
-      function Delete(record: Recordable): void {
-        console.log('点击了删除', record);
+      function Delete(record: Recordable): void {}
+
+      function handleSuccess() {
+   
+        reload();
       }
+
       function Open(record: Recordable) {
         openDrawer(true, {
           isUpdate: false,
         });
       }
       function Edit(record: Recordable) {
-        openDrawer(true, {
-          record,
-          isUpdate: false,
+        Get(record.id).then((item) => {
+          openDrawer(true, {
+            item,
+            isUpdate: true,
+          });
         });
       }
       function UserManage(record: Recordable) {
-        console.log('点击了启用', record);
+        router.push('user?tenantid='+record.id);
       }
       function CustomerManage(record: Recordable) {
-        console.log('点击了启用', record);
+        router.push('customer?tenantid='+record.id);
       }
       function reloadTable() {
         setColumns(getBasicColumns());
@@ -113,6 +123,7 @@
         UserManage,
         CustomerManage,
         registerDrawer,
+        handleSuccess,
       };
     },
   });

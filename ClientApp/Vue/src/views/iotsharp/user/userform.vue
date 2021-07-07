@@ -7,24 +7,12 @@
     width="720px"
     @ok="handleSubmit"
   >
-    <BasicForm @register="registerForm">
-      <template #menu="{ model, field }">
-        <BasicTree
-          v-model:value="model[field]"
-          :treeData="treeData"
-          :replaceFields="{ title: 'menuName', key: 'id' }"
-          checkable
-          toolbar
-          title="菜单分配"
-        />
-      </template>
-    </BasicForm>
+    <BasicForm @register="registerForm" />
   </BasicDrawer>
 </template>
 
 <script lang="ts">
-  import { Guid } from 'guid-typescript';
-  import { Save, Update } from '../../../api/iotsharp/customer';
+  import { Save, Update } from '../../../api/iotsharp/user';
   import { defineComponent, ref, computed, unref } from 'vue';
   import { BasicForm, useForm } from '/@/components/Form/index';
   import { BasicDrawer, useDrawerInner } from '/@/components/Drawer';
@@ -34,19 +22,14 @@
     emits: ['success', 'register'],
     setup(_, { emit }) {
       const isUpdate = ref(true);
-
-      const [registerForm, { resetFields, setFieldsValue, validate }] = useForm({
+      const [registerForm, { resetFields, setFieldsValue, validate, getFieldsValue }] = useForm({
         labelWidth: 90,
         schemas: [
           {
-            field: 'name',
-            label: '客户名称',
+            field: 'email',
+            label: '邮箱',
             required: true,
             component: 'Input',
-          },
-          {
-            field: 'eMail',
-            label: '邮箱',
             rules: [
               {
                 required: true,
@@ -58,11 +41,12 @@
                 },
               },
             ],
-            component: 'Input',
           },
           {
-            field: 'phone',
+            field: 'phoneNumber',
             label: '联系电话',
+            required: true,
+            component: 'Input',
             rules: [
               {
                 required: true,
@@ -78,54 +62,52 @@
                 },
               },
             ],
+          },
+
+          {
+            field: 'password',
+            label: '密码',
+
+            component: 'Input',
+            rules: [
+              {
+                required: true,
+                validator: async (rule, value) => {
+                  if (!value) {
+                    return Promise.reject('两次密码不一致');
+                  }
+                  if (value.length < 6) {
+                    return Promise.reject('密码长度不应小于6');
+                  }
+                  if (!/^(?=.*[a-zA-Z])(?=.*[1-9])(?=.*[!|@|_|#|$|%|^|&|*]).{6,}$/.test(value)) {
+                    return Promise.reject('密码必须包含大小写字符以及特殊符号');
+                  }
+                  return Promise.resolve();
+                },
+              },
+            ],
+          },
+          {
+            field: 'passwords',
+            label: '确认密码',
+            rules: [
+              {
+                required: true,
+                validator: async (rule, value) => {
+                  if (value != getFieldsValue().password) {
+                    return Promise.reject('两次密码不一致');
+                  }
+
+                  return Promise.resolve();
+                },
+                trigger: 'change',
+              },
+            ],
             component: 'Input',
           },
           {
-            field: 'country',
-            label: '国家',
-            required: true,
-            component: 'Input',
-          },
-          {
-            field: 'province',
-            label: '省',
-            required: true,
-            component: 'Input',
-          },
-          {
-            field: 'city',
-            label: '市',
-            required: true,
-            component: 'Input',
-          },
-          {
-            field: 'street',
-            label: '街道',
-            required: true,
-            component: 'Input',
-          },
-          {
-            field: 'address',
-            label: '地址',
-            required: true,
-            component: 'Input',
-          },
-          {
-            field: 'zipCode',
-            label: '邮编',
-            required: true,
-            component: 'Input',
-          },
-          {
-            field: 'id',
-            label: 'id',
-            required: false,
-            component: 'Input',
-            show: false,
-          },
-          {
-            field: 'tenantID',
-            label: 'tenantID',
+            field: 'customer',
+            label: '联系电话',
             required: false,
             component: 'Input',
             show: false,
@@ -144,19 +126,18 @@
             ...data.item,
           });
         } else {
-
-          //may
           setFieldsValue({
             ...data.item,
           });
         }
       });
 
-      const getTitle = computed(() => (!unref(isUpdate) ? '新增客户' : '编辑客户'));
+      const getTitle = computed(() => (!unref(isUpdate) ? '新增设备' : '编辑设备'));
 
       async function handleSubmit() {
         try {
           const values = await validate();
+
           setDrawerProps({ confirmLoading: true });
           // TODO custom api
 
@@ -166,7 +147,6 @@
               closeDrawer();
             });
           } else {
-            values.id = Guid.create().value;
             Save(values).then((x) => {
               emit('success');
               closeDrawer();

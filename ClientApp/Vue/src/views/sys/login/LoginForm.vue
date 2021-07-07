@@ -40,7 +40,7 @@
     </ARow>
 
     <FormItem class="enter-x">
-      <Button type="primary" size="large" block @click="handleLogin" :loading="loading">
+      <Button type="default"  size="large" block @click="handleLogin" :loading="loading">
         {{ t('sys.login.loginButton') }}
       </Button>
       <!-- <Button size="large" class="mt-4 enter-x" block @click="handleRegister">
@@ -119,7 +119,7 @@
     setup() {
       CheckInstall().then(
         (x) => {
-          if (!x.data.installed) {
+          if (!x.installed) {
             setLoginState(LoginStateEnum.REGISTER);
           } else {
             return {
@@ -191,6 +191,7 @@
               mode: 'none', //不要默认的错误提示
             })
           );
+          console.log(userInfo)
           if (userInfo) {
             notification.success({
               message: t('sys.login.loginSuccessTitle'),
