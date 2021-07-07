@@ -11,7 +11,7 @@
           :actions="[
             {
               label: '修改',
-              icon: 'ic:outline-delete-outline',
+              icon: 'clarity:note-edit-line',
               onClick: Edit.bind(null, record),
             },
 

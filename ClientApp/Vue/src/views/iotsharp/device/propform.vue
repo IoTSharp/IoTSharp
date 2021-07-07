@@ -59,13 +59,16 @@
       async function handleSubmit() {
         try {
           const values = await validate();
+    
           console.log(values);
           setDrawerProps({ confirmLoading: true });
           // TODO custom api
 
-          GetIdentity(values.id).then((x) => {
-            values.accesstoken = x.identityId;
-            SetAttribute(values).then((y) => {
+          GetIdentity(values.id).then((x) => {     
+             delete values.id; //remove extra data
+           //  delete values.accesstoken; 
+
+            SetAttribute(values, x.identityId).then((y) => {
               emit('success');
               closeDrawer();
             });
@@ -86,7 +89,7 @@
               field: x.keyName,
               component: 'Input',
               label: x.keyName,
-              defaultValue: x.value,
+              defaultValue: x.value, //not works,after form created,you need rebind data
               colProps: {
                 span: 8,
               },
@@ -105,13 +108,15 @@
           //   },
           // });
         });
-
+        //hide id field
         updateSchema({
           field: 'id',
           label: 'id',
           component: 'Input',
           show: false,
         });
+
+        //binding field value
         setFieldsValue({
           ...o,
         });

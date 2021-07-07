@@ -23,9 +23,9 @@ export const DeviceListApi = (params: BasicPageParams) => {
   });
 };
 
-export const SetAttribute = (params: BasicPageParams) => {
+export const SetAttribute = (params: BasicPageParams, accesstoken: string) => {
   return defHttp.post({
-    url: 'Devices/' + params.accesstoken + '/Attributes',
+    url: 'Devices/' + accesstoken + '/Attributes',
     params,
     headers: {
       ignoreCancelToken: true,
