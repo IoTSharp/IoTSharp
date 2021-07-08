@@ -97,12 +97,9 @@ export const useUserStore = defineStore({
     },
     async getUserInfoAction() {
       const userInfo = await getUserInfo();
-
       //only one roles for now
-
       const { roles } = { roles: [{ value: userInfo.data.roles }] };
       const roleList = roles.map((item) => item.value) as RoleEnum[];
-      this.setUserInfo(userInfo.data);
       this.setRoleList(roleList);
       return userInfo;
     },

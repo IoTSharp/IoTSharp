@@ -23,11 +23,13 @@
 </template>
 
 <script lang="ts">
+  import { Guid } from 'guid-typescript';
+  import { Save, Update } from '../../../api/iotsharp/tenant';
   import { defineComponent, ref, computed, unref } from 'vue';
   import { BasicForm, useForm } from '/@/components/Form/index';
   import { BasicDrawer, useDrawerInner } from '/@/components/Drawer';
   export default defineComponent({
-    name: 'tenantform',
+    name: 'Tenantform',
     components: { BasicDrawer, BasicForm },
     emits: ['success', 'register'],
     setup(_, { emit }) {
@@ -90,6 +92,13 @@
             required: true,
             component: 'Input',
           },
+          {
+            field: 'id',
+            label: 'id',
+            required: false,
+            component: 'Input',
+            show: false,
+          },
         ],
         showActionButtonGroup: false,
       });
@@ -101,21 +110,31 @@
 
         if (unref(isUpdate)) {
           setFieldsValue({
-            ...data.record,
+            ...data.item,
           });
         }
       });
 
-      const getTitle = computed(() => (!unref(isUpdate) ? '新增角色' : '编辑角色'));
+      const getTitle = computed(() => (!unref(isUpdate) ? '新增客户' : '编辑客户'));
 
       async function handleSubmit() {
         try {
           const values = await validate();
           setDrawerProps({ confirmLoading: true });
           // TODO custom api
-          console.log(values);
-          closeDrawer();
-          emit('success');
+
+          if (values.id) {
+            Update(values).then((x) => {
+              emit('success');
+              closeDrawer();
+            });
+          } else {
+            values.id = Guid.create().value;
+            Save(values).then((x) => {
+              emit('success');
+              closeDrawer();
+            });
+          }
         } finally {
           setDrawerProps({ confirmLoading: false });
         }

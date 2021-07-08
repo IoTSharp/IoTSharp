@@ -95,7 +95,6 @@
   import LoginFormTitle from './LoginFormTitle.vue';
   import { Form, Input, Button, Checkbox } from 'ant-design-vue';
   import { StrengthMeter } from '/@/components/StrengthMeter';
-  import { CountdownInput } from '/@/components/CountDown';
 
   import { useI18n } from '/@/hooks/web/useI18n';
   import { useLoginState, useFormRules, useFormValid, LoginStateEnum } from './useLogin';
@@ -110,12 +109,12 @@
       InputPassword: Input.Password,
       Checkbox,
       StrengthMeter,
-      CountdownInput,
+
       LoginFormTitle,
     },
     setup() {
       const { t } = useI18n();
-      const { handleBackLogin, getLoginState } = useLoginState();
+      const { handleBackLogin, getLoginState, setLoginState } = useLoginState();
 
       const formRef = ref();
       const loading = ref(false);

@@ -1,108 +1,180 @@
 <template>
   <div class="p-4">
-    <BasicTable @register="registerTable">
+    <div class="mb-4">
+      <a-button class="mr-2" @click="Open"> 新增 </a-button>
+      <a-button class="mr-2" @click="reloadTable">刷新 </a-button>
+    </div>
+
+    <BasicTable @register="registerTable" :searchInfo="searchInfo" @expand="handleexpand">
+      <template #expandedRowRender="{ record }">
+        <BasicTitle helpMessage="属性数据">属性数据</BasicTitle>
+        <table style="width: 100%">
+          <tbody>
+            <tr>
+              <td>属性名称</td>
+              <td>属性值</td>
+              <td>类型</td>
+              <td>修改时间</td>
+            </tr>
+            <tr v-for="(_item, index) in record.Attributes">
+              <td>{{ _item.keyName }}</td>
+              <td>{{ _item.value }}</td>
+              <td>{{ _item.dataSide }}</td>
+              <td>{{ _item.dateTime }}</td>
+            </tr>
+          </tbody>
+        </table>
+        <BasicTitle helpMessage="遥测数据" >遥测数据</BasicTitle>
+
+        <table style="width: 100%">
+          <tbody>
+            <tr>
+              <td>属性名称</td>
+              <td>属性值</td>
+              <td>修改时间</td>
+            </tr>
+            <tr v-for="(_item, index) in record.Telemetrys">
+              <td>{{ _item.keyName }}</td>
+              <td>{{ _item.value }}</td>
+              <td>{{ _item.dateTime }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </template>
       <template #action="{ record }">
         <TableAction
           :actions="[
             {
-              label: '编辑',
-              onClick: handleEdit.bind(null, record),
-              auth: 'other', // 根据权限控制是否显示: 无权限，不显示
+              label: '修改',
+              icon: 'clarity:note-edit-line',
+              onClick: Edit.bind(null, record),
+            },
+            {
+              label: '属性修改',
+              icon: 'ant-design:profile-twotone',
+              onClick: PropEdit.bind(null, record),
             },
             {
               label: '删除',
               icon: 'ic:outline-delete-outline',
-              onClick: handleDelete.bind(null, record),
-              auth: 'super', // 根据权限控制是否显示: 有权限，会显示
+              onClick: Delete.bind(null, record),
             },
           ]"
-          :dropDownActions="[
-            {
-              label: '启用',
-              popConfirm: {
-                title: '是否启用？',
-                confirm: handleOpen.bind(null, record),
-              },
-              ifShow: (_action) => {
-                return record.status !== 'enable'; // 根据业务控制是否显示: 非enable状态的不显示启用按钮
-              },
-            },
-            {
-              label: '禁用',
-              popConfirm: {
-                title: '是否禁用？',
-                confirm: handleOpen.bind(null, record),
-              },
-              ifShow: () => {
-                return record.status === 'enable'; // 根据业务控制是否显示: enable状态的显示禁用按钮
-              },
-            },
-            {
-              label: '同时控制',
-              popConfirm: {
-                title: '是否动态显示？',
-                confirm: handleOpen.bind(null, record),
-              },
-              auth: 'super', // 同时根据权限和业务控制是否显示
-              ifShow: () => {
-                return true; // 根据业务控制是否显示
-              },
-            },
-          ]"
+          :dropDownActions="[]"
         />
       </template>
     </BasicTable>
+    <deviceform @register="registerDrawer" @success="handleSuccess" />
+    <propform @register="propDrawer" @success="handleSuccess" />
   </div>
 </template>
 <script lang="ts">
-  import { defineComponent } from 'vue';
-  import { BasicTable, useTable, BasicColumn, TableAction } from '/@/components/Table';
-
-  import { TenantListApi } from '../../../api/iotsharp/tenant';
-  const columns: BasicColumn[] = [
-    {
-      title: '姓名',
-      dataIndex: 'name',
-      auth: 'test', // 根据权限控制是否显示: 无权限，不显示
-    },
-    {
-      title: '地址',
-      dataIndex: 'address',
-      auth: 'super', // 同时根据权限控制是否显示
-      ifShow: (_column) => {
-        return true; // 根据业务控制是否显示
-      },
-    },
-  ];
+  import { defineComponent, reactive } from 'vue';
+  import { BasicTable, ColumnChangeParam, useTable, TableAction } from '/@/components/Table';
+  import { useDrawer } from '/@/components/Drawer';
+  import deviceform from './deviceform.vue';
+  import propform from './propform.vue';
+  import { useRouter } from 'vue-router';
+  import {
+    getBasicColumns,
+    DeviceListApi,
+    Get,
+    GetAttributeLatest,
+    GetTelemetryLatest,
+  } from '../../../api/iotsharp/device';
   export default defineComponent({
-    components: { BasicTable, TableAction },
+    components: { BasicTable, TableAction, deviceform, propform },
     setup() {
-      const [registerTable] = useTable({
-        title: 'TableAction组件及固定列示例',
-        api: TenantListApi,
-        columns: columns,
-        bordered: true,
+      const router = useRouter();
+      const searchInfo = reactive<Recordable>({});
+      searchInfo.customerId = router.currentRoute.value.query.customerid;
+      const [propDrawer, { openDrawer: openPropDrawer }] = useDrawer();
+      const [registerDrawer, { openDrawer: openDrawer }] = useDrawer();
+      function onChange() {
+        console.log('onChange', arguments);
+      }
+      const [registerTable, { setColumns, reload, clearSelectedRowKeys }] = useTable({
+        canResize: false,
+        title: '设备管理',
+        titleHelpMessage: '设备管理',
+        api: DeviceListApi,
+        columns: getBasicColumns(),
+        rowKey: 'id',
+        showTableSetting: true,
+        showIndexColumn: false,
+        expandRowByClick: false,
+        onChange,
+        rowSelection: {
+          type: 'checkbox',
+        },
+        onColumnsChange: (data: ColumnChangeParam[]) => {
+          console.log('ColumnsChanged', data);
+        },
         actionColumn: {
-          width: 250,
           title: 'Action',
-          dataIndex: 'action',
           slots: { customRender: 'action' },
         },
       });
-      function handleEdit(record: Recordable) {
-        console.log('点击了编辑', record);
-      }
-      function handleDelete(record: Recordable) {
+      function Delete(record: Recordable): void {
         console.log('点击了删除', record);
       }
-      function handleOpen(record: Recordable) {
-        console.log('点击了启用', record);
+      function Open(record: Recordable) {
+        openDrawer(true, {
+          isUpdate: false,
+        });
       }
+
+      function PropEdit(record: Recordable) {
+        GetAttributeLatest({ id: record.id }).then((x) => {
+          let b = [{ keyName: 'id', value: record.id }, ...x];
+          openPropDrawer(true, {
+            item: b,
+            isUpdate: false,
+          });
+        });
+      }
+
+      function Edit(record: Recordable) {
+        Get(record.id).then((x) => {
+          openDrawer(true, {
+            x,
+            isUpdate: false,
+          });
+        });
+      }
+
+      async function handleexpand(expanded: boolean, item: Recordable) {
+        if (expanded) {
+          item.Attributes = await GetAttributeLatest({ id: item.id });
+          item.Telemetrys = await GetTelemetryLatest({ id: item.id });
+        }
+      }
+
+      function reloadTable() {
+        //    setColumns(getBasicColumns());
+
+        reload({
+          page: 1,
+        });
+      }
+      function clearSelect() {
+        clearSelectedRowKeys();
+      }
+
       return {
         registerTable,
-        handleEdit,
-        handleDelete,
-        handleOpen,
+        reloadTable,
+        clearSelect,
+        onChange,
+        Delete,
+        Open,
+        Edit,
+        PropEdit,
+        handleexpand,
+        registerDrawer,
+        propDrawer,
+        openPropDrawer,
+        searchInfo,
       };
     },
   });

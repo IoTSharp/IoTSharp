@@ -20,10 +20,8 @@ const iotsharp: AppRouteModule = {
       name: 'Tenant',
       component: () => import('../../../views/iotsharp/tenant/tenantlist.vue'),
       meta: {
-        //  title: t('routes.dashboard.about'),
         icon: 'simple-icons:about-dot-me',
-        title: '租户管理',
-        // title: t('routes.dashboard.about'), translate someting
+        title: t('routes.iotsharp.tenant'),
       },
     },
     {
@@ -31,9 +29,8 @@ const iotsharp: AppRouteModule = {
       name: 'Customer',
       component: () => import('../../../views/iotsharp/customer/customerlist.vue'),
       meta: {
-        //  title: t('routes.dashboard.about'),
+        title: t('routes.iotsharp.customer'),
         icon: 'simple-icons:about-dot-me',
-        title: '客户管理',
       },
     },
     {
@@ -41,9 +38,8 @@ const iotsharp: AppRouteModule = {
       name: 'Device',
       component: () => import('../../../views/iotsharp/device/devicelist.vue'),
       meta: {
-        //  title: t('routes.dashboard.about'),
+        title: t('routes.iotsharp.device'),
         icon: 'simple-icons:about-dot-me',
-        title: '设备管理',
       },
     },
     {
@@ -51,9 +47,8 @@ const iotsharp: AppRouteModule = {
       name: 'User',
       component: () => import('../../../views/iotsharp/user/userlist.vue'),
       meta: {
-        //  title: t('routes.dashboard.about'),
+        title: t('routes.iotsharp.user'),
         icon: 'simple-icons:about-dot-me',
-        title: '人员管理',
       },
     },
   ],

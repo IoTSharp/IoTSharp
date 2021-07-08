@@ -307,6 +307,11 @@
             </summary>
             <returns></returns>
         </member>
+        <member name="T:IoTSharp.Controllers.MenuController">
+            <summary>
+            this is test purpose
+            </summary>
+        </member>
         <member name="T:IoTSharp.Controllers.TenantsController">
             <summary>
             租户管理

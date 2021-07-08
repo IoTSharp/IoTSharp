@@ -4,9 +4,13 @@ import { defHttp } from '/@/utils/http/axios';
 
 enum Api {
   List = '/Tenants',
-  Save = '',
+  Save = '/Tenants',
+  Update = '/Tenants',
+  Delete = '/Tenants',
+  Get = '/Tenants',
 }
 export const TenantListApi = (params: BasicPageParams) => {
+
   return defHttp.get<BasicFetchResult<TenantListItem>>({
     url: Api.List,
     params,
@@ -15,6 +19,46 @@ export const TenantListApi = (params: BasicPageParams) => {
     },
   });
 };
+
+
+export const Get = (id: any) => {
+  return defHttp.get({
+    url: Api.Get+'/'+id,
+    headers: {
+      ignoreCancelToken: true,
+    },
+  });
+};
+
+export const Update = (params: any) => {
+  console.log(params)
+  return defHttp.put({
+    url: Api.Update+'/'+params.id,
+    params,
+    headers: {
+      ignoreCancelToken: true,
+    },
+  });
+};
+
+export const Save = (params: any) => {
+  return defHttp.post({
+    url: Api.Save,
+    params,
+    headers: {
+      ignoreCancelToken: true,
+    },
+  });
+};
+export const Delete = (params: any) => {
+  return defHttp.delete({
+    url: Api.Delete+'/'+params.id,
+    headers: {
+      ignoreCancelToken: true,
+    },
+  });
+};
+
 
 export interface TenantListItem {
   id: string;
@@ -32,7 +76,6 @@ export function getBasicColumns(): BasicColumn[] {
     {
       title: 'ID',
       dataIndex: 'id',
-      fixed: 'left',
       width: 200,
     },
     {
@@ -56,7 +99,7 @@ export function getBasicColumns(): BasicColumn[] {
       width: 120,
       sorter: true,
       dataIndex: 'street',
-    },
+    }
   ];
 }
 
