@@ -5,6 +5,7 @@ import { environment } from '@env/environment';
 // layout
 import { LayoutBasicComponent } from '../layout/basic/basic.component';
 import { LayoutBlankComponent } from '../layout/blank/blank.component';
+import { DevicegraphComponent } from './device/devicegraph/devicegraph.component';
 
 import { DevicelistComponent } from './device/devicelist/devicelist.component';
 import { TenantlistComponent } from './tenant/tenantlist/tenantlist.component';
@@ -37,6 +38,7 @@ const routes: Routes = [
       { path: 'user/userlist', component: UserlistComponent },
       { path: 'customer', loadChildren: () => import('./customer/customer.module').then((m) => m.CustomerModule) },
       { path: 'device/devicelist', component: DevicelistComponent },
+      { path: 'device/devicegraph', component: DevicegraphComponent },
     ],
   },
 

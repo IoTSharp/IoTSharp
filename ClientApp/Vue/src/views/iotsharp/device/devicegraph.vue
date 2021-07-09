@@ -5,7 +5,7 @@
 </template>
 
 <script lang="ts">
-  //安装完X6但是报缺少MenuItem的错，是没有安装 @antv/x6-react-components，手动执行 yarn add @antv/x6-react-components，在angular这个不是必要的
+  //安装完X6但是报缺少MenuItem的错，是没有安装 @antv/x6-react-components，手动执行 yarn add @antv/x6-react-components，在angular这个又不是必要的，很有趣
   import { Graph, Edge, Shape, NodeView } from '@antv/x6';
   import { defineComponent, ref } from 'vue'; // reactive
   const magnetAvailabilityHighlighter = {
