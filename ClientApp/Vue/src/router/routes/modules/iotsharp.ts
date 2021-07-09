@@ -47,7 +47,8 @@ const iotsharp: AppRouteModule = {
       name: 'devicegraph',
       component: () => import('../../../views/iotsharp/device/devicegraph.vue'),
       meta: {
-        title: t('routes.iotsharp.device'),
+        //  title: t('routes.iotsharp.device'),
+        title: t('设计'),
         icon: 'simple-icons:about-dot-me',
       },
     },

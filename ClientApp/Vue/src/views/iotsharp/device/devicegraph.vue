@@ -1,12 +1,11 @@
 <template>
   <div class="x6-graph-wrap">
-
- 
     <div ref="container" class="x6-graph"></div>
   </div>
 </template>
 
 <script lang="ts">
+  //安装完X6但是报缺少MenuItem的错，是没有安装 @antv/x6-react-components，手动执行 yarn add @antv/x6-react-components，在angular这个不是必要的
   import { Graph, Edge, Shape, NodeView } from '@antv/x6';
   import { defineComponent, ref } from 'vue'; // reactive
   const magnetAvailabilityHighlighter = {
@@ -23,18 +22,9 @@
     setup() {
       const canUndo = ref(true);
       const canRedo = ref(false);
-      // eslint-disable-next-line
-      const history = ref(undefined as any);
+
       const graph = ref(Graph);
       const init: (any) => void = (that) => {
-        // const graph = new Graph({
-        //   container: that.$refs.container as HTMLDivElement,
-        //   width: 800,
-        //   height: 600,
-        //   grid: true,
-        //   history: true,
-        // });
-
         that.graph = new Graph({
           grid: true,
           container: that.$refs.container as HTMLDivElement,
@@ -105,12 +95,67 @@
         });
 
         that.graph.addNode(
-          new Device().resize(120, 40).position(200, 50).updateInPorts(that.graph)
+          new Device({
+            attrs: {
+              root: {
+                magnet: false,
+              },
+              body: {
+                fill: '#f5f5f5',
+                stroke: '#d9d9d9',
+                strokeWidth: 1,
+              },
+            },
+            ports: {
+              items: [
+                {
+                  group: 'out',
+                },
+              ],
+              groups: {
+                in: {
+                  position: {
+                    name: 'top',
+                  },
+                  attrs: {
+                    portBody: {
+                      magnet: 'passive',
+                      r: 6,
+                      stroke: '#ffa940',
+                      fill: '#fff',
+                      strokeWidth: 2,
+                    },
+                  },
+                },
+                out: {
+                  position: {
+                    name: 'bottom',
+                  },
+                  attrs: {
+                    portBody: {
+                      magnet: true,
+                      r: 6,
+                      fill: '#fff',
+                      stroke: '#3199FF',
+                      strokeWidth: 2,
+                    },
+                  },
+                },
+              },
+            },
+            portMarkup: [
+              {
+                tagName: 'circle',
+                selector: 'portBody',
+              },
+            ],
+          })
+            .resize(120, 40)
+            .position(200, 50)
+            .updateInPorts(that.graph)
         );
 
-        that.graph.addNode(
-          new Device().resize(120, 40).position(400, 50).updateInPorts(that.graph)
-        );
+        that.graph.addNode(new Device().resize(120, 40).position(0, 0).updateInPorts(that.graph));
 
         that.graph.addNode(
           new GateWay().resize(120, 40).position(300, 250).updateInPorts(that.graph)
@@ -174,15 +219,9 @@
               highlighter: magnetAvailabilityHighlighter,
             });
           });
-          console.log(graph);
-          cell.updateInPorts(graph.value);
+
+          cell.updateInPorts(graph);
         }
-      };
-      const onUndo: () => void = () => {
-        history.value.undo();
-      };
-      const onRedo: () => void = () => {
-        history.value.redo();
       };
 
       return {
@@ -190,8 +229,6 @@
         canRedo,
         history,
         init,
-        onUndo,
-        onRedo,
         update,
         graph,
       };
@@ -205,7 +242,7 @@
     },
   });
 
-  class Device extends Shape.Rect {
+  class Device extends Shape.Circle {
     getInPorts() {
       return this.getPortsByGroup('in');
     }
@@ -254,6 +291,8 @@
       return this;
     }
   }
+
+  //只是demo，实际上是这个JSON结构应该从后端传过来，然后在Device的构造方法中传入，参看左上角第一个设备
   Device.config({
     attrs: {
       root: {
