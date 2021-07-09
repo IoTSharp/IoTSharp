@@ -23,7 +23,6 @@
 </template>
 
 <script lang="ts">
-  import { Guid } from 'guid-typescript';
   import { GetIdentity, Save, Update, SetAttribute } from '../../../api/iotsharp/device';
   import { defineComponent, ref, computed, unref } from 'vue';
   import { BasicForm, useForm } from '/@/components/Form/index';
@@ -59,14 +58,14 @@
       async function handleSubmit() {
         try {
           const values = await validate();
-    
+
           console.log(values);
           setDrawerProps({ confirmLoading: true });
           // TODO custom api
 
-          GetIdentity(values.id).then((x) => {     
-             delete values.id; //remove extra data
-           //  delete values.accesstoken; 
+          GetIdentity(values.id).then((x) => {
+            delete values.id; //remove extra data
+            //  delete values.accesstoken;
 
             SetAttribute(values, x.identityId).then((y) => {
               emit('success');

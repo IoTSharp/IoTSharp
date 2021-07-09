@@ -43,6 +43,15 @@ const iotsharp: AppRouteModule = {
       },
     },
     {
+      path: 'devicegraph',
+      name: 'devicegraph',
+      component: () => import('../../../views/iotsharp/device/devicegraph.vue'),
+      meta: {
+        title: t('routes.iotsharp.device'),
+        icon: 'simple-icons:about-dot-me',
+      },
+    },
+    {
       path: 'user',
       name: 'User',
       component: () => import('../../../views/iotsharp/user/userlist.vue'),
