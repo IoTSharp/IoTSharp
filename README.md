@@ -6,6 +6,10 @@
 
 IoTSharp is an open-source IoT platform for data collection, processing, visualization, and device management.
 
+## Here is a blessing for all users of this project
+ * May you do good and not evil.
+ * May you find forgiveness for yourself and forgive others.
+ * May you share freely, never taking more than you give.
 
 ## How to  install  IoTSharp using docker-compose  ?
 
