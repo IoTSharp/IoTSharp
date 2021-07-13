@@ -33,9 +33,22 @@ RUN echo "deb https://mirrors.tuna.tsinghua.edu.cn/debian/ buster main contrib n
 	echo "deb https://mirrors.tuna.tsinghua.edu.cn/debian/ buster-backports main contrib non-free" >> /etc/apt/sources.list && \
 	echo "deb https://mirrors.tuna.tsinghua.edu.cn/debian-security buster/updates main contrib non-free" >> /etc/apt/sources.list && \
 	echo "deb https://mirrors.tuna.tsinghua.edu.cn/debian-security jessie/updates main contrib non-free" >> /etc/apt/sources.list && \
-    apt-get  -y   -q update   && apt-get install  -y   -q  git  libssl-dev  libcurl3 libssl1.0.0   && \
-	apt-get autoremove -y &&  apt-get clean  &&  apt-get autoclean && rm  /var/cache/apt/* -rf && \
+    apt-get  -y   -q update   && apt-get install  -y   -q  git  libssl-dev  curl gnupg libcurl4 libssl1.0.0 software-properties-common  && \
 	ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime
+
+RUN add-apt-repository -y -r ppa:chris-lea/node.js && \
+	rm -f /etc/apt/sources.list.d/chris-lea-node_js-*.list && \
+	rm -f /etc/apt/sources.list.d/chris-lea-node_js-*.list.save && \
+	curl -fsSL https://deb.nodesource.com/gpgkey/nodesource.gpg.key |  apt-key add - && \
+	VERSION=node_14.x && \
+	DISTRO="$(lsb_release -s -c)" && \
+	echo "deb https://deb.nodesource.com/$VERSION $DISTRO main" |  tee /etc/apt/sources.list.d/nodesource.list && \
+    echo "deb-src https://deb.nodesource.com/$VERSION $DISTRO main" |  tee -a /etc/apt/sources.list.d/nodesource.list && \
+	apt-get  -y   -q update   && apt-get install  -y   -q nodejs  npm
+
+RUN  apt-get autoremove -y &&  apt-get clean  &&  apt-get autoclean && rm  /var/cache/apt/* -rf 
+	
+
 WORKDIR /src
 COPY ["IoTSharp/IoTSharp.csproj", "IoTSharp/"]
 COPY ["IoTSharp.Data/IoTSharp.Data.csproj", "IoTSharp.Data/"]
@@ -48,6 +61,14 @@ RUN dotnet restore "IoTSharp/IoTSharp.csproj"
 COPY . .
 WORKDIR "/src/IoTSharp"
 RUN dotnet build "IoTSharp.csproj" -c Release -o /app/build
+
+
+FROM node:8.9-alpine as web
+WORKDIR /web
+COPY ../ClientApp/Vue/package*.json  ./
+RUN npm install
+COPY ../ClientApp/Vue  ./
+
 
 FROM build AS publish
 RUN dotnet publish "IoTSharp.csproj" -c Release -o /app/publish

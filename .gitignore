@@ -347,3 +347,5 @@ ASALocalRun/
 /IoTSharp/TelemetryStorage.db
 /IoTSharp/IoTSharp.db
 /IoTSharp/health_checks.db
+/ClientApp/Vue/build
+/ClientApp/Vue/mock
