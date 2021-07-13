@@ -63,7 +63,7 @@ WORKDIR "/src/IoTSharp"
 RUN dotnet build "IoTSharp.csproj" -c Release -o /app/build
 
 
-FROM node:8.9-alpine as web
+
 WORKDIR /web
 COPY ../ClientApp/Vue/package*.json  ./
 RUN npm install
