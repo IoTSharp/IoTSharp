@@ -3,6 +3,7 @@
     <div class="mb-4">
       <a-button class="mr-2" @click="Open"> 新增 </a-button>
       <a-button class="mr-2" @click="reloadTable">刷新 </a-button>
+      <a-button class="mr-2" @click="graphtest">X6 Test </a-button>
     </div>
 
     <BasicTable @register="registerTable" :searchInfo="searchInfo" @expand="handleexpand">
@@ -24,7 +25,7 @@
             </tr>
           </tbody>
         </table>
-        <BasicTitle helpMessage="遥测数据" >遥测数据</BasicTitle>
+        <BasicTitle helpMessage="遥测数据">遥测数据</BasicTitle>
 
         <table style="width: 100%">
           <tbody>
@@ -66,12 +67,14 @@
     </BasicTable>
     <deviceform @register="registerDrawer" @success="handleSuccess" />
     <propform @register="propDrawer" @success="handleSuccess" />
+    <devicegraph @register="graphtestDrawer" @success="handleSuccess" />
   </div>
 </template>
 <script lang="ts">
   import { defineComponent, reactive } from 'vue';
   import { BasicTable, ColumnChangeParam, useTable, TableAction } from '/@/components/Table';
   import { useDrawer } from '/@/components/Drawer';
+
   import deviceform from './deviceform.vue';
   import propform from './propform.vue';
   import { useRouter } from 'vue-router';
@@ -90,6 +93,7 @@
       searchInfo.customerId = router.currentRoute.value.query.customerid;
       const [propDrawer, { openDrawer: openPropDrawer }] = useDrawer();
       const [registerDrawer, { openDrawer: openDrawer }] = useDrawer();
+
       function onChange() {
         console.log('onChange', arguments);
       }
@@ -123,7 +127,13 @@
           isUpdate: false,
         });
       }
-
+      function graphtest(): void {
+        opengraphtestDrawer(true, {
+          // one of you need transfer data
+          data: {},
+          title: 'dummy title',
+        });
+      }
       function PropEdit(record: Recordable) {
         GetAttributeLatest({ id: record.id }).then((x) => {
           let b = [{ keyName: 'id', value: record.id }, ...x];
@@ -172,8 +182,11 @@
         PropEdit,
         handleexpand,
         registerDrawer,
+    
+        graphtest,
         propDrawer,
         openPropDrawer,
+  
         searchInfo,
       };
     },

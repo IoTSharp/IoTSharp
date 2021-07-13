@@ -26,7 +26,8 @@ export class StartupService {
     private settingService: SettingsService,
     private aclService: ACLService,
     private titleService: TitleService,
-    private httpClient: HttpClient, @Inject(DA_SERVICE_TOKEN) private tokenService: ITokenService,
+    private httpClient: HttpClient,
+    @Inject(DA_SERVICE_TOKEN) private tokenService: ITokenService,
   ) {
     iconSrv.addIcon(...ICONS_AUTO, ...ICONS);
   }
@@ -38,106 +39,105 @@ export class StartupService {
     var token = this.tokenService;
 
     if (token && token.get() && token.get()?.token) {
+      return concat(
+        this.httpClient.get(`assets/tmp/i18n/${this.i18n.defaultLang}.json`).pipe(
+          map((langData) => {
+            this.translate.setTranslation(this.i18n.defaultLang, langData);
+            this.translate.setDefaultLang(this.i18n.defaultLang);
+          }),
+        ),
+        this.httpClient.get('api/Account/MyInfo').pipe(
+          map((appData) => {
+            const res = appData as NzSafeAny;
+            console.log(res);
+            this.settingService.setApp({ name: 'IotSharp', description: 'IotSharp' });
 
-      return concat(this.httpClient.get(`assets/tmp/i18n/${this.i18n.defaultLang}.json`).pipe(map(langData => {
-        this.translate.setTranslation(this.i18n.defaultLang, langData);
-        this.translate.setDefaultLang(this.i18n.defaultLang);
+            this.settingService.setUser(res.data.customer);
 
-
-      })), this.httpClient.get(
-        'api/Account/MyInfo'
-      ).pipe(map(appData => {
-
-        const res = appData as NzSafeAny;
-        console.log(res)
-        this.settingService.setApp({ name: 'IotSharp', description: 'IotSharp' });
-
-        this.settingService.setUser(res.data.customer);
-
-        this.aclService.setFull(true);
-        var menu = [
-          {
-            "text": "主导航1",
-            "i18n": "menu.main",
-            "group": true,
-            "hideInBreadcrumb": true,
-            "children": [
+            this.aclService.setFull(true);
+            var menu = [
               {
-                "text": "仪表盘",
-                "i18n": "menu.dashboard",
-                "icon": "anticon-dashboard",
-                "children": [
+                text: '主导航1',
+                i18n: 'menu.main',
+                group: true,
+                hideInBreadcrumb: true,
+                children: [
                   {
-                    "text": "仪表盘V1",
-                    "link": "/dashboard/v1",
-                    "i18n": "menu.dashboard.v1"
-                  }
-                ]
+                    text: '仪表盘',
+                    i18n: 'menu.dashboard',
+                    icon: 'anticon-dashboard',
+                    children: [
+                      {
+                        text: '仪表盘V1',
+                        link: '/dashboard/v1',
+                        i18n: 'menu.dashboard.v1',
+                      },
+                    ],
+                  },
+                  {
+                    text: '租户管理',
+                    icon: 'anticon-rocket',
+                    shortcutRoot: true,
+                    i18n: 'menu.tenant.tenantmanage',
+                    children: [
+                      {
+                        text: '租户列表',
+                        link: '/iot/tenant/tenantlist',
+                        i18n: 'menu.tenant.tenantlist',
+                      },
+                    ],
+                  },
+                  {
+                    text: '客户管理',
+                    icon: 'anticon-appstore',
+                    i18n: 'menu.customer.customermanage',
+                    children: [
+                      {
+                        text: '客户列表',
+                        link: '/iot/customer/customerlist',
+                        i18n: 'menu.customer.customerlist',
+                      },
+                    ],
+                  },
+                  {
+                    text: '设备管理',
+                    icon: 'anticon-appstore',
+                    i18n: 'menu.device.devicemanage',
+                    children: [
+                      {
+                        text: '设备列表',
+                        link: '/iot/device/devicelist',
+                        i18n: 'menu.device.devicelist',
+                      },
+                      {
+                        text: '设计',
+                        link: '/iot/device/devicegraph',
+                        //   i18n: 'menu.device.devicelist',
+                      },
+                    ],
+                  },
+                ],
               },
-              {
-                "text": "租户管理",
-                "icon": "anticon-rocket",
-                "shortcutRoot": true,
-                "i18n": "menu.tenant.tenantmanage",
-                "children": [
-
-                  {
-                    "text": "租户列表",
-                    "link": "/iot/tenant/tenantlist",
-                    "i18n": "menu.tenant.tenantlist"
-                  }
-                ]
-              },
-              {
-                "text": "客户管理",
-                "icon": "anticon-appstore",
-                "i18n": "menu.customer.customermanage",
-                "children": [
-
-                  {
-                    "text": "客户列表",
-                    "link": "/iot/customer/customerlist",
-                    "i18n": "menu.customer.customerlist"
-                  }
-                ]
-
-
-              },
-              {
-                "text": "设备管理",
-                "icon": "anticon-appstore",
-                "i18n": "menu.device.devicemanage",
-                "children": [
-
-                  {
-                    "text": "设备列表",
-                    "link": "/iot/device/devicelist",
-                    "i18n": "menu.device.devicelist"
-                  }
-                ]
-              }
-            ]
-          }]
-        if (!res.data.menu) {
-          res.data.menu = menu;
-        }
-        this.menuService.add(res.data.menu);
-        this.titleService.default = '';
-        this.titleService.suffix = res.data.tenant.name;
-
-      }))).toPromise()
-
+            ];
+            if (!res.data.menu) {
+              res.data.menu = menu;
+            }
+            this.menuService.add(res.data.menu);
+            this.titleService.default = '';
+            this.titleService.suffix = res.data.tenant.name;
+          }),
+        ),
+      ).toPromise();
     } else {
-      return concat(this.httpClient.get(`assets/tmp/i18n/${this.i18n.defaultLang}.json`).pipe(map(langData => {
-        this.translate.setTranslation(this.i18n.defaultLang, langData);
-        this.translate.setDefaultLang(this.i18n.defaultLang);
-      }))).toPromise()
-
+      return concat(
+        this.httpClient.get(`assets/tmp/i18n/${this.i18n.defaultLang}.json`).pipe(
+          map((langData) => {
+            this.translate.setTranslation(this.i18n.defaultLang, langData);
+            this.translate.setDefaultLang(this.i18n.defaultLang);
+          }),
+        ),
+      ).toPromise();
     }
-
-
-
-
 
     // return new Promise((resolve) => {
     //   zip(this.httpClient.get(`assets/tmp/i18n/${this.i18n.defaultLang}.json`), this.httpClient.get('assets/tmp/app-data.json'))

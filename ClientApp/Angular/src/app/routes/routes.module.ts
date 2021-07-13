@@ -13,6 +13,7 @@ import { ProppartComponent } from './device/deviceprop/proppart/proppart.compone
 import { DesignerComponent } from './device/designer/designer.component';
 import { UserlistComponent } from './user/userlist/userlist.component';
 import { UserformComponent } from './user/userform/userform.component';
+import { DevicegraphComponent } from './device/devicegraph/devicegraph.component';
 
 const COMPONENTS: Type<null>[] = [];
 
@@ -29,6 +30,7 @@ const COMPONENTS: Type<null>[] = [];
     DesignerComponent,
     UserlistComponent,
     UserformComponent,
+    DevicegraphComponent,
   ],
 })
 export class RoutesModule {}

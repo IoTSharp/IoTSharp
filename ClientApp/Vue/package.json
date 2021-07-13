@@ -34,6 +34,9 @@
     "postinstall": "npm run install:husky"
   },
   "dependencies": {
+    "@antv/x6": "^1.24.4",
+    "@antv/x6-react-components": "^1.1.13",
+    "@antv/x6-vue3-shape": "^1.0.0",
     "@iconify/iconify": "^2.0.2",
     "@logicflow/core": "^0.5.0",
     "@logicflow/extension": "^0.5.0",
@@ -45,6 +48,8 @@
     "cropperjs": "^1.5.12",
     "crypto-js": "^4.0.0",
     "echarts": "^5.1.2",
+    "guid-typescript": "^1.0.9",
+    "imagemin-gifsicle": "^7.0.0",
     "intro.js": "^4.1.0",
     "lodash-es": "^4.17.21",
     "mockjs": "^1.1.0",
