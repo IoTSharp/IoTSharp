@@ -1,11 +1,7 @@
 {
   "name": "vben-admin",
   "version": "2.5.2",
-  "author": {
-    "name": "vben",
-    "email": "anncwb@126.com",
-    "url": "https://github.com/anncwb"
-  },
+  "author": "vben <anncwb@126.com> (https://github.com/anncwb)",
   "scripts": {
     "bootstrap": "yarn install",
     "serve": "npm run dev",
@@ -157,5 +153,11 @@
   "homepage": "https://github.com/anncwb/vue-vben-admin",
   "engines": {
     "node": "^12 || >=14"
-  }
+  },
+  "description": "<div align=\"center\"> <a href=\"https://github.com/anncwb/vue-vben-admin\"> <img alt=\"VbenAdmin Logo\" width=\"200\" height=\"200\" src=\"https://anncwb.github.io/anncwb/images/logo.png\"> </a> <br> <br>",
+  "main": ".eslintrc.js",
+  "directories": {
+    "test": "tests"
+  },
+  "keywords": []
 }

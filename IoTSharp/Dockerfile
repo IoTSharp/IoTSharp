@@ -52,8 +52,10 @@ RUN dotnet build "IoTSharp.csproj" -c Release -o /app/build
 
 FROM  node:14-buster AS web
 WORKDIR /web
+RUN  npm config set registry http://registry.npm.taobao.org/  &&  \
+	yarn config set registry http://registry.npm.taobao.org/
 COPY ../ClientApp/Vue/package*.json  ./
-RUN yarn install
+RUN  yarn install
 COPY ../ClientApp/Vue  ./
 RUN  yarn build
 
@@ -66,5 +68,5 @@ RUN dotnet publish "IoTSharp.csproj" -c Release -o /app/publish
 FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
-COPY --from=web /web/dist ./wwwroot/
+COPY --from=web /web/dist ./wwwroot
 ENTRYPOINT ["dotnet", "IoTSharp.dll"]
