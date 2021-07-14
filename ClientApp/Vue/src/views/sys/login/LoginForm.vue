@@ -96,7 +96,8 @@
   import { LoginStateEnum, useLoginState, useFormRules, useFormValid } from './useLogin';
   import { useDesign } from '/@/hooks/web/useDesign';
   //import { onKeyStroke } from '@vueuse/core';
-  import { CheckInstall } from '/@/api/sys/user';
+  import { CheckInstall, loginuserinfo } from '/@/api/sys/user';
+  import { appmessage } from '/@/api/sys/appmessage';
   export default defineComponent({
     name: 'LoginForm',
     components: {
@@ -191,11 +192,11 @@
               mode: 'none', //不要默认的错误提示
             })
           );
-          console.log(userInfo)
+    
           if (userInfo) {
             notification.success({
               message: t('sys.login.loginSuccessTitle'),
-              description: `${t('sys.login.loginSuccessDesc')}: ${userInfo.realName}`,
+              description: `${t('sys.login.loginSuccessDesc')}: ${userInfo.data.name}`,
               duration: 3,
             });
           }
@@ -225,4 +226,5 @@
       };
     },
   });
+  
 </script>

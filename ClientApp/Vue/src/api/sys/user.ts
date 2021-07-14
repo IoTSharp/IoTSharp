@@ -48,3 +48,27 @@ export function CheckInstall() {
 export function Register(params: any) {
   return defHttp.post<any>({ url: Api.Register, params: params });
 }
+
+export interface loginuserinfo {
+  avatar: string;
+  code: string;
+  email: string;
+  introduction: string;
+
+  name: string;
+  roles: string[];
+  tenant: tenant;
+}
+
+export interface tenant {
+  avatar: string;
+  city: string;
+  country: string;
+  eMail: string;
+  id: string;
+  name: string;
+  phone: string;
+  province: string;
+  street: string;
+  zipCode: string;
+}

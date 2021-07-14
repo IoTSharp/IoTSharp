@@ -110,17 +110,18 @@ namespace IoTSharp.Controllers
                         claims.AddRange(from role in roles
                                         select new Claim(ClaimTypes.Role, role));
                     }
+                    var expires = DateTime.Now.AddHours(_settings.JwtExpireHours);
                     var tokeOptions = new JwtSecurityToken(
                                 issuer: _configuration["JwtIssuer"],
                                 audience: _configuration["JwtAudience"],
                                 claims: claims,
-                                expires: DateTime.Now.AddHours(_settings.JwtExpireHours * 24),
+                                expires: expires,
                                 signingCredentials: signinCredentials);
 
 
 
 
-                    var t = (DateTime.Now.AddDays(1).Ticks - TimeZoneInfo.ConvertTimeFromUtc(new System.DateTime(1970, 1, 1, 0, 0, 0, 0), TimeZoneInfo.Local).Ticks) / 10000;
+                    var t = (expires.Ticks - TimeZoneInfo.ConvertTimeFromUtc(new System.DateTime(1970, 1, 1, 0, 0, 0, 0), TimeZoneInfo.Local).Ticks) / 10000;
                     var token = new TokenEntity
                     {
                         access_token = new JwtSecurityTokenHandler().WriteToken(tokeOptions),
