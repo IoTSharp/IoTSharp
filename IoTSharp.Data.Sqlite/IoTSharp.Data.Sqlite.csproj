@@ -8,7 +8,7 @@
 		<PackageReference Include="AspNetCore.HealthChecks.UI.Sqlite.Storage" Version="5.0.1" />
 		<PackageReference Include="AspNetCore.HealthChecks.UI.Core" Version="5.0.1" />
 		<PackageReference Include="Microsoft.EntityFrameworkCore" Version="5.0.7" />
-		<PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="5.0.7">
+		<PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="5.0.8">
 			<PrivateAssets>all</PrivateAssets>
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
