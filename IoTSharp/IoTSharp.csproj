@@ -70,7 +70,7 @@
 		<PackageReference Include="Maikebing.Data.Taos" Version="2.0.304" />
 		<PackageReference Include="Maikebing.HealthChecks.Taos" Version="2.0.304" />
 		<PackageReference Include="MaiKeBing.HostedService.ZeroMQ" Version="1.0.32" />
-		<PackageReference Include="Microsoft.AspNetCore.Http.Features" Version="5.0.7" />
+		<PackageReference Include="Microsoft.AspNetCore.Http.Features" Version="5.0.8" />
 		<PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="5.0.7">
 			<PrivateAssets>all</PrivateAssets>
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
