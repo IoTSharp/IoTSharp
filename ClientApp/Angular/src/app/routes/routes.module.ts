@@ -14,6 +14,7 @@ import { DesignerComponent } from './device/designer/designer.component';
 import { UserlistComponent } from './user/userlist/userlist.component';
 import { UserformComponent } from './user/userform/userform.component';
 import { DevicegraphComponent } from './device/devicegraph/devicegraph.component';
+import { PropformComponent } from './device/propform/propform.component';
 
 const COMPONENTS: Type<null>[] = [];
 
@@ -31,6 +32,7 @@ const COMPONENTS: Type<null>[] = [];
     UserlistComponent,
     UserformComponent,
     DevicegraphComponent,
+    PropformComponent,
   ],
 })
 export class RoutesModule {}

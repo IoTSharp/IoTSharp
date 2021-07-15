@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, OnInit, TemplateRef, ViewChild } from '@angular/core';
+import { ChangeDetectorRef, Component, EventEmitter, OnInit, TemplateRef, ViewChild } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { STChange, STColumn, STComponent, STData, STPage, STReq, STRes } from '@delon/abc/st';
 import { ModalHelper, _HttpClient } from '@delon/theme';
@@ -10,15 +10,17 @@ import { NzDrawerRef, NzDrawerService } from 'ng-zorro-antd/drawer';
 import { ACLService } from '@delon/acl';
 import { Globals } from 'src/app/core/Globals';
 import { DeviceformComponent } from '../deviceform/deviceform.component';
+import { PropformComponent } from '../propform/propform.component';
+import { zip } from 'rxjs';
 
 @Component({
   selector: 'app-devicelist',
   templateUrl: './devicelist.component.html',
-  styleUrls: ['./devicelist.component.less']
+  styleUrls: ['./devicelist.component.less'],
 })
 export class DevicelistComponent implements OnInit {
-
   customerId: string = '';
+  expand: any;
   constructor(
     private http: _HttpClient,
     public msg: NzMessageService,
@@ -28,23 +30,24 @@ export class DevicelistComponent implements OnInit {
     private router: ActivatedRoute,
     private drawerService: NzDrawerService,
     private globals: Globals,
-    aclSrv: ACLService,) {
-    this.router.queryParams.subscribe(x => {
-      this.q.customerId = x.id as unknown as string;
-      this.customerId = x.id as unknown as string;
+    aclSrv: ACLService,
+  ) {
+    this.router.queryParams.subscribe(
+      (x) => {
+        this.q.customerId = x.id as unknown as string;
+        this.customerId = x.id as unknown as string;
 
-      if (x.id) {
-        this.url = 'api/Devices/Customers/' + this.customerId;
-      } else {
-        this.url = 'api/Devices';
-      }
-
-
-
-
-    }, y => { }, () => { });
+        if (x.id) {
+          this.url = 'api/Devices/Customers/' + this.customerId;
+        } else {
+          this.url = 'api/Devices';
+        }
+      },
+      (y) => {},
+      () => {},
+    );
   }
-  url = 'api/Devices/Customers/' + this.customerId;;
+  url = 'api/Devices/Customers/' + this.customerId;
 
   page: STPage = {
     front: false,
@@ -58,17 +61,13 @@ export class DevicelistComponent implements OnInit {
     customerId: string;
     name: string;
     // anothor query field:The type you expect
-
-
   } = {
-      pi: 0,
-      ps: 10,
-      sorter: '',
-      customerId: '',
-      name: ''
-
-
-    };
+    pi: 0,
+    ps: 10,
+    sorter: '',
+    customerId: '',
+    name: '',
+  };
   req: STReq = { method: 'GET', allInBody: true, reName: { pi: 'offset', ps: 'limit' }, params: this.q };
 
   // 定义返回的参数
@@ -96,16 +95,21 @@ export class DevicelistComponent implements OnInit {
           acl: 9,
           text: '修改',
           click: (item: any) => {
-            this.edit(item.id)
+            this.edit(item.id);
           },
         },
-
-
+        {
+          acl: 11,
+          text: '属性修改',
+          click: (item: any) => {
+            this.SetAttribute(item.id);
+          },
+        },
         {
           acl: 10,
           text: '删除',
           click: (item: any) => {
-            this.delete(item.id)
+            this.delete(item.id);
           },
         },
       ],
@@ -115,7 +119,6 @@ export class DevicelistComponent implements OnInit {
   description = '';
   totalCallNo = 0;
 
-
   ngOnInit(): void {
     this.router.queryParams.subscribe((x: any) => {
       this.q.customerId = x.customerId as string;
@@ -123,44 +126,73 @@ export class DevicelistComponent implements OnInit {
   }
 
   edit(id: string): void {
-    let title = id == '-1' ? '新建设备' : '修改设备'
-    const drawerRef = this.drawerService.create<DeviceformComponent, {
-      params: {
-        id: string, customerId: string
-      }
-    }, any>({
+    let title = id == '-1' ? '新建设备' : '修改设备';
+    const drawerRef = this.drawerService.create<
+      DeviceformComponent,
+      {
+        params: {
+          id: string;
+          customerId: string;
+        };
+      },
+      any
+    >({
       nzTitle: title,
       nzContent: DeviceformComponent,
       nzWidth: this.globals.drawerwidth,
       nzMaskClosable: this.globals.nzMaskClosable,
       nzContentParams: {
         params: {
-          id: id, customerId: this.customerId
-        }
+          id: id,
+          customerId: this.customerId,
+        },
       },
     });
     drawerRef.afterOpen.subscribe(() => {
       this.getData();
     });
-    drawerRef.afterClose.subscribe((data) => {
+    drawerRef.afterClose.subscribe((data) => {});
+  }
 
-
+  SetAttribute(id: string): void {
+    let title = '属性修改';
+    const drawerRef = this.drawerService.create<
+      PropformComponent,
+      {
+        params: {
+          id: string;
+          customerId: string;
+        };
+      },
+      any
+    >({
+      nzTitle: title,
+      nzContent: PropformComponent,
+      nzWidth: this.globals.drawerwidth,
+      nzMaskClosable: this.globals.nzMaskClosable,
+      nzContentParams: {
+        params: {
+          id: id,
+          customerId: this.customerId,
+        },
+      },
     });
+    drawerRef.afterOpen.subscribe(() => {
+      this.getData();
+    });
+    drawerRef.afterClose.subscribe((data) => {});
   }
 
-  reset() {
-
-  }
+  reset() {}
   delete(id: string) {
-
-    this.http.delete('/api/Devices/' + id, {}).subscribe(x => {
-      this.msg.info("设备已删除")
-      this.getData()
-    }, y => { }, () => {
-
-
-    })
-
+    this.http.delete('/api/Devices/' + id, {}).subscribe(
+      (x) => {
+        this.msg.info('设备已删除');
+        this.getData();
+      },
+      (y) => {},
+      () => {},
+    );
   }
 
   getData() {
@@ -168,5 +200,44 @@ export class DevicelistComponent implements OnInit {
     this.st.load(1);
   }
 
+  onchange($events: STChange): void {
+    switch ($events.type) {
+      case 'expand':
+        zip(
+          this.http.get<attributeitem[]>('api/Devices/' + $events.expand?.id + '/AttributeLatest'),
+          // this.http.get<telemetryitem[]>('api/Devices/' + $events.expand?.id + '/TelemetryLatest'),
+        ).subscribe(([attributes, telemetries]) => {
+          $events.expand.attributes = attributes;
+          //  $events.expand.telemetries = telemetries;
+          this.cdr.detectChanges();
+        });
 
+        break;
+    }
+  }
+}
+
+export interface deviceitem {
+  deviceType: string;
+  id: string;
+  lastActive: string;
+  name: string;
+  online: string;
+  owner: string;
+  tenant: string;
+  timeout: string;
+  telemetries: telemetryitem[];
+  attributes: attributeitem[];
+}
+
+export interface telemetryitem {
+  keyName: string;
+  dateTime: string;
+  value: string;
+}
+export interface attributeitem {
+  keyName: string;
+  dataSide: string;
+  dateTime: string;
+  value: string;
 }
