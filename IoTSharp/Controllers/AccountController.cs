@@ -119,7 +119,7 @@ namespace IoTSharp.Controllers
                                 signingCredentials: signinCredentials);
 
 
-
+           
 
                     var t = (expires.Ticks - TimeZoneInfo.ConvertTimeFromUtc(new System.DateTime(1970, 1, 1, 0, 0, 0, 0), TimeZoneInfo.Local).Ticks) / 10000;
                     var token = new TokenEntity

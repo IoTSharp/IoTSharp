@@ -33,9 +33,9 @@ RUN echo "deb https://mirrors.tuna.tsinghua.edu.cn/debian/ buster main contrib n
 	echo "deb https://mirrors.tuna.tsinghua.edu.cn/debian/ buster-backports main contrib non-free" >> /etc/apt/sources.list && \
 	echo "deb https://mirrors.tuna.tsinghua.edu.cn/debian-security buster/updates main contrib non-free" >> /etc/apt/sources.list && \
 	echo "deb https://mirrors.tuna.tsinghua.edu.cn/debian-security jessie/updates main contrib non-free" >> /etc/apt/sources.list && \
-    apt-get  -y   -q update   && apt-get install  -y   -q  git  libssl-dev  libcurl3 libssl1.0.0   && \
-	apt-get autoremove -y &&  apt-get clean  &&  apt-get autoclean && rm  /var/cache/apt/* -rf && \
-	ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime
+    apt-get  -y   -q update   && apt-get install  -y   -q  git  libssl-dev  curl gnupg libcurl4 libssl1.0.0  && \
+	ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime && \
+    apt-get autoremove -y &&  apt-get clean  &&  apt-get autoclean && rm  /var/cache/apt/* -rf 	
 WORKDIR /src
 COPY ["IoTSharp/IoTSharp.csproj", "IoTSharp/"]
 COPY ["IoTSharp.Data/IoTSharp.Data.csproj", "IoTSharp.Data/"]
@@ -49,10 +49,24 @@ COPY . .
 WORKDIR "/src/IoTSharp"
 RUN dotnet build "IoTSharp.csproj" -c Release -o /app/build
 
+
+FROM  node:14-buster AS web
+WORKDIR /web
+RUN  npm config set registry http://registry.npm.taobao.org/  &&  \
+	yarn config set registry http://registry.npm.taobao.org/
+COPY ../ClientApp/Vue/package*.json  ./
+RUN  yarn install
+COPY ../ClientApp/Vue  ./
+RUN  yarn build
+
+
+
+
 FROM build AS publish
 RUN dotnet publish "IoTSharp.csproj" -c Release -o /app/publish
 
 FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
+COPY --from=web /web/dist ./wwwroot
 ENTRYPOINT ["dotnet", "IoTSharp.dll"]
