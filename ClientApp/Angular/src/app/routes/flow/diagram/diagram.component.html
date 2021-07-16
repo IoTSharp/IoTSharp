@@ -1,0 +1,37 @@
+<div #diagramcontainer style="float: left; width: 100%; height: 800px">
+  <div #ref class="diagram-container"></div>
+
+  <div
+    style="position: absolute; top: 15rem; right: 30px; z-index: 999; width: 420px; background-color: white; border: solid 1px #ccc"
+    ng-drag="true"
+    cdkDrag
+  >
+    <!-- <nz-collapse>
+        <nz-collapse-panel [nzHeader]="nzHeader" nzExpandIconPosition="right" nzActive="false"> -->
+    <nz-card nzTitle="对象属性">
+      <form nz-form se-container="1" labelWidth="100" gutter="32">
+        <se label="对象Id" error="对象Id" required>
+          <input nz-input placeholder="" [(ngModel)]="form.Eventid" name="Eventid" readonly="readonly" />
+        </se>
+
+        <se label="对象名称" error="对象名称" required>
+          <input nz-input placeholder="" [(ngModel)]="form.Eventname" name="Eventname" readonly="readonly" />
+        </se>
+
+        <se label="备注" error="备注">
+          <input nz-input placeholder="" [(ngModel)]="form.Eventdesc" name="Eventdesc" />
+        </se>
+
+        <se label="网关处理器" error="网关处理器" *ngIf="form.NodeProcessClassVisable">
+          <input nz-input [(ngModel)]="form.NodeProcessClass" placeholder="网关处理器" name="NodeProcessClass" />
+        </se>
+      </form>
+    </nz-card>
+    <!-- </nz-collapse-panel>
+      </nz-collapse> -->
+  </div>
+
+  <ng-template #extraTemplate>
+    <a>More</a>
+  </ng-template>
+</div>

@@ -42,6 +42,7 @@
   },
   "dependencies": {
     "@angular/animations": "~11.2.14",
+    "@angular/cdk": "^11.2.13",
     "@angular/common": "~11.2.14",
     "@angular/compiler": "~11.2.14",
     "@angular/core": "~11.2.14",
@@ -61,7 +62,10 @@
     "@delon/util": "^11.10.2",
     "@ngx-translate/core": "^13.0.0",
     "@ngx-translate/http-loader": "^6.0.0",
+    "@types/three": "^0.130.0",
+    "@types/webgl2": "0.0.6",
     "ajv": "^8.1.0",
+    "bpmn-js": "^8.1.0",
     "guid-typescript": "^1.0.9",
     "ng-zorro-antd": "^11.4.1",
     "ngx-countdown": "^11.0.3",
@@ -69,6 +73,7 @@
     "ngx-ueditor": "^11.0.1",
     "rxjs": "~6.6.0",
     "screenfull": "^5.1.0",
+    "three": "^0.130.1",
     "tslib": "^2.0.0",
     "zone.js": "~0.11.3"
   },

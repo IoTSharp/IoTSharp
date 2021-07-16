@@ -55,6 +55,7 @@ export class StartupService {
             this.settingService.setUser(res.data.customer);
 
             this.aclService.setFull(true);
+
             var menu = [
               {
                 text: '主导航1',
@@ -112,6 +113,16 @@ export class StartupService {
                       {
                         text: '设计',
                         link: '/iot/device/devicegraph',
+                        //   i18n: 'menu.device.devicelist',
+                      },
+                      {
+                        text: '场景',
+                        link: '/iot/device/devicescene',
+                        //   i18n: 'menu.device.devicelist',
+                      },
+                      {
+                        text: '流程',
+                        link: '/iot/flow/designer',
                         //   i18n: 'menu.device.devicelist',
                       },
                     ],
