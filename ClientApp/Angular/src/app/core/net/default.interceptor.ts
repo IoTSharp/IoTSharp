@@ -49,8 +49,6 @@ export class DefaultInterceptor implements HttpInterceptor {
     if (this.refreshTokenType === 'auth-refresh') {
       this.buildAuthRefresh();
     }
-
-
   }
 
   private get notification(): NzNotificationService {
@@ -70,7 +68,6 @@ export class DefaultInterceptor implements HttpInterceptor {
   }
 
   private checkStatus(ev: HttpResponseBase): void {
-
     if ((ev.status >= 200 && ev.status < 300) || ev.status === 401) {
       return;
     }
@@ -176,8 +173,6 @@ export class DefaultInterceptor implements HttpInterceptor {
   }
 
   private handleData(ev: HttpResponseBase, req: HttpRequest<any>, next: HttpHandler): Observable<any> {
-
-
     //  this.checkStatus(ev);
     // 业务处理：一些通用操作
     switch (ev.status) {
@@ -205,6 +200,7 @@ export class DefaultInterceptor implements HttpInterceptor {
         return of(ev);
         break;
       case 401:
+        this.tokenSrv.clear();
         if (this.refreshTokenEnabled && this.refreshTokenType === 're-request') {
           return this.tryRefreshToken(ev, req, next);
         }
@@ -226,16 +222,12 @@ export class DefaultInterceptor implements HttpInterceptor {
     }
     if (ev instanceof HttpErrorResponse) {
       return throwError(ev);
-
     } else {
       return of(ev);
     }
   }
 
   private getAdditionalHeaders(headers?: HttpHeaders): { [name: string]: string } {
-
-
-
     const res: { [name: string]: string } = {};
     const lang = this.injector.get(ALAIN_I18N_TOKEN).currentLang;
     if (!headers?.has('Accept-Language') && lang) {
@@ -243,7 +235,6 @@ export class DefaultInterceptor implements HttpInterceptor {
     }
     const token = this.tokenSrv.get()?.token;
     if (token) {
-
       res['Authorization'] = `Bearer ${token}`;
     }
     return res;
@@ -256,9 +247,7 @@ export class DefaultInterceptor implements HttpInterceptor {
       url = environment.api.baseUrl + url;
     }
 
-
     const newReq = req.clone({ url, setHeaders: this.getAdditionalHeaders(req.headers) });
-
 
     return next.handle(newReq).pipe(
       mergeMap((ev) => {

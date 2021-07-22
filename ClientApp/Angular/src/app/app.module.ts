@@ -101,6 +101,8 @@ import { SharedModule } from './shared/shared.module';
 import { STWidgetModule } from './shared/st-widget/st-widget.module';
 import { Globals } from './core/Globals';
 
+
+
 @NgModule({
   declarations: [AppComponent],
   imports: [
@@ -114,6 +116,7 @@ import { Globals } from './core/Globals';
     RoutesModule,
     STWidgetModule,
     NzNotificationModule,
+ 
     ...I18NSERVICE_MODULES,
     ...GLOBAL_THIRD_MODULES,
     ...FORM_MODULES,
@@ -121,4 +124,4 @@ import { Globals } from './core/Globals';
   providers: [...LANG_PROVIDES, ...INTERCEPTOR_PROVIDES, ...I18NSERVICE_PROVIDES, ...APPINIT_PROVIDES, Globals],
   bootstrap: [AppComponent],
 })
-export class AppModule { }
+export class AppModule {}

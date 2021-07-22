@@ -1,0 +1,6 @@
+<page-header [title]="title">
+  <button nz-button nzType="primary" nzShape="round" (click)="newdiagram()"><i nz-icon nzType="download"></i>新建</button>
+  <button nz-button nzType="primary" nzShape="round" (click)="savediagram()"><i nz-icon nzType="download"></i>保存</button>
+</page-header>
+
+<app-diagram [url]="diagramUrl" [DefinitionsId]="DefinitionsId" (importDone)="handleImported($event)" #diagram></app-diagram>
