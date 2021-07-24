@@ -31,6 +31,7 @@ import { NzTimePickerModule } from 'ng-zorro-antd/time-picker';
 import { NzToolTipModule } from 'ng-zorro-antd/tooltip';
 import { NzUploadModule } from 'ng-zorro-antd/upload';
 import { NzPageHeaderModule } from 'ng-zorro-antd/page-header';
+import { NzLayoutModule } from 'ng-zorro-antd/layout';
 export const SHARED_ZORRO_MODULES = [
   NzButtonModule,
   NzMessageModule,
@@ -63,5 +64,7 @@ export const SHARED_ZORRO_MODULES = [
   NzDividerModule,
   NzProgressModule,
   NzPopconfirmModule,
-  NzUploadModule, NzPageHeaderModule
+  NzUploadModule,
+  NzPageHeaderModule,
+  NzLayoutModule,
 ];
