@@ -51,8 +51,6 @@
     "@angular/platform-browser-dynamic": "~11.2.14",
     "@angular/router": "~11.2.14",
     "@antv/x6": "^1.24.4",
-    "@antv/x6-angular-shape": "^1.0.0",
-    "@antv/x6-components": "^0.10.7",
     "@delon/abc": "^11.10.2",
     "@delon/acl": "^11.10.2",
     "@delon/auth": "^11.10.2",

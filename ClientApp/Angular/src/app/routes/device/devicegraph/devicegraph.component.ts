@@ -1,6 +1,5 @@
 import { Component, ElementRef, Input, OnInit, Type, ViewChild } from '@angular/core';
 import { Graph, Edge, Shape, NodeView, Cell, Color } from '@antv/x6';
-import { Menu } from '@antv/x6-components';
 import { Subscription } from 'rxjs';
 
 @Component({
