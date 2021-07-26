@@ -10,9 +10,9 @@ RUN echo "deb https://mirrors.tuna.tsinghua.edu.cn/debian/ buster main contrib n
     apt-get  -y   -q update   && apt-get install  -y   -q  apt-utils libgdiplus libc6-dev lsof net-tools wget sqlite3 python3  bashtop   iputils-ping inetutils-tools  libssl-dev  libssl1.0.0 curl  && \
 	apt-get autoremove -y &&  apt-get clean  &&  apt-get autoclean && rm  /var/cache/apt/* -rf &&  \
 	ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime
-RUN curl -o TDengine-client.tar.gz "https://www.taosdata.com/download/download-gettingStarted.php?pkg=tdengine_linux&pkgName=TDengine-client-2.0.12.0-Linux-x64.tar.gz" && \
-   tar -xzvf TDengine-client.tar.gz && rm TDengine-client.tar.gz -f  && cd  $(ls TDengine-client*  -d) && ./install_client.sh && \
-    rm $(pwd) -rf
+#RUN curl -o TDengine-client.tar.gz "https://www.taosdata.com/download/download-gettingStarted.php?pkg=tdengine_linux&pkgName=TDengine-client-2.0.12.0-Linux-x64.tar.gz" && \
+   #tar -xzvf TDengine-client.tar.gz && rm TDengine-client.tar.gz -f  && cd  $(ls TDengine-client*  -d) && ./install_client.sh && \
+    #rm $(pwd) -rf
 RUN echo "fs.file-max=6553500" >> /etc/sysctl.conf && \
     echo "* soft nofile 65535" >> /etc/security/limits.conf && \
     echo "* hard nofile 65535" >> /etc/security/limits.conf && \
@@ -28,14 +28,26 @@ EXPOSE 8080
 
 
 FROM mcr.microsoft.com/dotnet/sdk:5.0-buster-slim AS build
+
 RUN echo "deb https://mirrors.tuna.tsinghua.edu.cn/debian/ buster main contrib non-free" > /etc/apt/sources.list && \
 	echo "deb https://mirrors.tuna.tsinghua.edu.cn/debian/ buster-updates main contrib non-free" >> /etc/apt/sources.list && \
 	echo "deb https://mirrors.tuna.tsinghua.edu.cn/debian/ buster-backports main contrib non-free" >> /etc/apt/sources.list && \
 	echo "deb https://mirrors.tuna.tsinghua.edu.cn/debian-security buster/updates main contrib non-free" >> /etc/apt/sources.list && \
-	echo "deb https://mirrors.tuna.tsinghua.edu.cn/debian-security jessie/updates main contrib non-free" >> /etc/apt/sources.list && \
-    apt-get  -y   -q update   && apt-get install  -y   -q  git  libssl-dev  curl gnupg libcurl4 libssl1.0.0  && \
-	ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime && \
-    apt-get autoremove -y &&  apt-get clean  &&  apt-get autoclean && rm  /var/cache/apt/* -rf 	
+    apt-get  -y   -q update   && apt-get install  -y   -q  git  libssl-dev  curl gnupg libcurl4  && \
+	ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime 
+ 
+
+RUN curl -fsSL https://deb.nodesource.com/setup_lts.x | bash - && \
+    apt-get install  -y   -q  nodejs && \
+	apt remove cmdtest  && \
+	apt remove yarn && \
+	curl -sL https://dl.yarnpkg.com/debian/pubkey.gpg | gpg --dearmor |  tee /usr/share/keyrings/yarnkey.gpg >/dev/null && \
+	echo "deb [signed-by=/usr/share/keyrings/yarnkey.gpg] https://dl.yarnpkg.com/debian stable main" |  tee /etc/apt/sources.list.d/yarn.list  && \
+	apt-get install  -y   -q  yarn 
+
+RUN    apt-get autoremove -y &&  apt-get clean  &&  apt-get autoclean && rm  /var/cache/apt/* -rf 	
+
+
 WORKDIR /src
 COPY ["IoTSharp/IoTSharp.csproj", "IoTSharp/"]
 COPY ["IoTSharp.Data/IoTSharp.Data.csproj", "IoTSharp.Data/"]
@@ -48,19 +60,12 @@ RUN dotnet restore "IoTSharp/IoTSharp.csproj"
 COPY . .
 WORKDIR "/src/IoTSharp"
 RUN dotnet build "IoTSharp.csproj" -c Release -o /app/build
-
-
-FROM  node:14-buster AS web
 WORKDIR /web
-RUN  npm config set registry http://registry.npm.taobao.org/  &&  \
-	yarn config set registry http://registry.npm.taobao.org/
-COPY ../ClientApp/Vue/package*.json  ./
+COPY  ../ClientApp/Vue/package*.json  .
 RUN  yarn install
-COPY ../ClientApp/Vue  ./
+COPY  ../ClientApp/Vue  .
 RUN  yarn build
-
-
-
+ 
 
 FROM build AS publish
 RUN dotnet publish "IoTSharp.csproj" -c Release -o /app/publish
@@ -68,5 +73,4 @@ RUN dotnet publish "IoTSharp.csproj" -c Release -o /app/publish
 FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
-COPY --from=web /web/dist ./wwwroot
 ENTRYPOINT ["dotnet", "IoTSharp.dll"]
