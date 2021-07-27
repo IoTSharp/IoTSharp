@@ -25,6 +25,10 @@
         <se label="网关处理器" error="网关处理器" *ngIf="form.NodeProcessClassVisable">
           <input nz-input [(ngModel)]="form.NodeProcessClass" placeholder="网关处理器" name="NodeProcessClass" />
         </se>
+
+        <se label="条件表达式" error="条件表达式" *ngIf="form.conditionexpressionVisable">
+          <input nz-input [(ngModel)]="form.conditionexpression" placeholder="条件表达式" name="conditionexpression" />
+        </se>
       </form>
     </nz-card>
     <!-- </nz-collapse-panel>

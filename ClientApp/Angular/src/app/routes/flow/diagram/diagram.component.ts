@@ -70,6 +70,8 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy 
     Eventtype: '',
     NodeProcessClass: '',
     NodeProcessClassVisable: false,
+    conditionexpression: '',
+    conditionexpressionVisable: false,
   };
   activity: Activity;
   selectedValue: any;
@@ -136,8 +138,9 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy 
                 Eventtype: '',
 
                 NodeProcessClass: '',
-
+                conditionexpression: '',
                 NodeProcessClassVisable: true,
+                conditionexpressionVisable: false,
               };
             }
 
@@ -155,9 +158,9 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy 
                 Eventname: '',
                 Eventdesc: '',
                 Eventtype: '',
-
+                conditionexpressionVisable: false,
                 NodeProcessClass: '',
-
+                conditionexpression: '',
                 NodeProcessClassVisable: true,
               };
             }
@@ -176,9 +179,9 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy 
                 Eventname: '',
                 Eventdesc: '',
                 Eventtype: '',
-
+                conditionexpressionVisable: false,
                 NodeProcessClass: '',
-
+                conditionexpression: '',
                 NodeProcessClassVisable: true,
               };
             }
@@ -197,9 +200,9 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy 
                 Eventname: '',
                 Eventdesc: '',
                 Eventtype: '',
-
+                conditionexpressionVisable: false,
                 NodeProcessClass: '',
-
+                conditionexpression: '',
                 NodeProcessClassVisable: true,
               };
             }
@@ -218,9 +221,9 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy 
                 Eventname: '',
                 Eventdesc: '',
                 Eventtype: '',
-
+                conditionexpressionVisable: false,
                 NodeProcessClass: '',
-
+                conditionexpression: '',
                 NodeProcessClassVisable: true,
               };
             }
@@ -239,7 +242,9 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy 
                 Eventname: '',
                 Eventdesc: '',
                 Eventtype: '',
+                conditionexpressionVisable: false,
                 NodeProcessClass: '',
+                conditionexpression: '',
                 NodeProcessClassVisable: true,
               };
             }
@@ -258,7 +263,9 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy 
                 Eventname: '',
                 Eventdesc: '',
                 Eventtype: '',
+                conditionexpressionVisable: false,
                 NodeProcessClass: '',
+                conditionexpression: '',
                 NodeProcessClassVisable: true,
               };
             }
@@ -277,9 +284,9 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy 
                 Eventname: '',
                 Eventdesc: '',
                 Eventtype: '',
-
+                conditionexpressionVisable: false,
                 NodeProcessClass: '',
-
+                conditionexpression: '',
                 NodeProcessClassVisable: true,
               };
             }
@@ -298,7 +305,9 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy 
                 Eventname: '',
                 Eventdesc: '',
                 Eventtype: '',
+                conditionexpressionVisable: false,
                 NodeProcessClass: '',
+                conditionexpression: '',
                 NodeProcessClassVisable: true,
               };
             }
@@ -316,7 +325,9 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy 
                 Eventname: '',
                 Eventdesc: '',
                 Eventtype: '',
+                conditionexpressionVisable: false,
                 NodeProcessClass: '',
+                conditionexpression: '',
                 NodeProcessClassVisable: true,
               };
             }
@@ -335,7 +346,9 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy 
                 Eventname: '',
                 Eventdesc: '',
                 Eventtype: '',
+                conditionexpressionVisable: false,
                 NodeProcessClass: '',
+                conditionexpression: '',
                 NodeProcessClassVisable: true,
               };
             }
@@ -354,7 +367,9 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy 
                 Eventname: '',
                 Eventdesc: '',
                 Eventtype: '',
+                conditionexpressionVisable: false,
                 NodeProcessClass: '',
+                conditionexpression: '',
                 NodeProcessClassVisable: true,
               };
             }
@@ -372,9 +387,9 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy 
                 Eventname: '',
                 Eventdesc: '',
                 Eventtype: '',
-
+                conditionexpressionVisable: false,
                 NodeProcessClass: '',
-
+                conditionexpression: '',
                 NodeProcessClassVisable: true,
               };
             }
@@ -393,7 +408,9 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy 
                 Eventname: '',
                 Eventdesc: '',
                 Eventtype: '',
+                conditionexpressionVisable: false,
                 NodeProcessClass: '',
+                conditionexpression: '',
                 NodeProcessClassVisable: true,
               };
             }
@@ -411,7 +428,9 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy 
                 Eventname: '',
                 Eventdesc: '',
                 Eventtype: '',
+                conditionexpressionVisable: false,
                 NodeProcessClass: '',
+                conditionexpression: '',
                 NodeProcessClassVisable: true,
               };
             }
@@ -430,9 +449,9 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy 
                 Eventname: '',
                 Eventdesc: '',
                 Eventtype: '',
-
+                conditionexpressionVisable: false,
                 NodeProcessClass: '',
-
+                conditionexpression: '',
                 NodeProcessClassVisable: true,
               };
             }
@@ -451,7 +470,9 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy 
                 Eventname: '',
                 Eventdesc: '',
                 Eventtype: '',
+                conditionexpressionVisable: false,
                 NodeProcessClass: '',
+                conditionexpression: '',
                 NodeProcessClassVisable: true,
               };
             }
@@ -469,10 +490,13 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy 
                 Eventname: '',
                 Eventdesc: '',
                 Eventtype: '',
+                conditionexpressionVisable: false,
                 NodeProcessClass: '',
+                conditionexpression: '',
                 NodeProcessClassVisable: true,
               };
             }
+            sequenceflow.BizObject.conditionexpressionVisable = true;
             sequenceflow.BizObject.NodeProcessClassVisable = false;
             this.form = sequenceflow.BizObject;
           }
@@ -487,7 +511,9 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy 
                 Eventname: '',
                 Eventdesc: '',
                 Eventtype: '',
+                conditionexpressionVisable: false,
                 NodeProcessClass: '',
+                conditionexpression: '',
                 NodeProcessClassVisable: true,
               };
             }
@@ -505,7 +531,9 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy 
                 Eventname: '',
                 Eventdesc: '',
                 Eventtype: '',
+                conditionexpressionVisable: false,
                 NodeProcessClass: '',
+                conditionexpression: '',
                 NodeProcessClassVisable: true,
               };
             }
@@ -524,8 +552,9 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy 
                 Eventname: '',
                 Eventdesc: '',
                 Eventtype: '',
+                conditionexpressionVisable: false,
                 NodeProcessClass: '',
-
+                conditionexpression: '',
                 NodeProcessClassVisable: true,
               };
             }
@@ -611,11 +640,56 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy 
         case 'bpmn:SequenceFlow':
           this.doSequenceFlow(event);
           break;
+
+        case 'bpmn:TextAnnotation':
+          this.doTextAnnotation(event);
+          break;
         default:
           this.DoBaseBpmnObject(event);
           break;
       }
     });
+  }
+  doTextAnnotation(e: any) {
+    if (e.gfx) {
+      var baseBpmnObject = this.activity.TextAnnotations.find((x) => x.id === e.element.businessObject.id);
+
+      if (baseBpmnObject) {
+        baseBpmnObject.id = e.element.id;
+        baseBpmnObject.bpmntype = e.element.type;
+        baseBpmnObject.BizObject.Eventname = e.element.businessObject.name;
+        baseBpmnObject.BizObject.Eventid = e.element.id;
+      } else {
+        baseBpmnObject = new TextAnnotation();
+        baseBpmnObject.id = e.element.businessObject.id;
+        baseBpmnObject.text = e.element.businessObject.text;
+        baseBpmnObject.bpmntype = e.element.type;
+        baseBpmnObject.BizObject = {
+          Eventid: '',
+          Eventname: '',
+          Eventdesc: '',
+          Eventtype: '',
+          conditionexpressionVisable: false,
+          NodeProcessClass: '',
+          conditionexpression: '',
+          NodeProcessClassVisable: true,
+        };
+        baseBpmnObject.outgoing = [];
+        baseBpmnObject.incoming = [];
+        baseBpmnObject.BizObject.Eventname = e.element.businessObject.name;
+        baseBpmnObject.BizObject.Eventid = e.element.id;
+        this.activity.TextAnnotations = [...this.activity.TextAnnotations, baseBpmnObject];
+      }
+      //TextAnnotation只有incoming
+      baseBpmnObject.incoming = [
+        ...baseBpmnObject.incoming,
+        ...e.element.incoming.map((x) => {
+          return { id: x.id, name: x.name, sourceId: e.element.businessObject.targetRef.id };
+        }),
+      ];
+    } else {
+      this.activity.TextAnnotations = this.activity.TextAnnotations.filter((x) => x.id != e.element.id) ?? [];
+    }
   }
 
   DoBaseBpmnObject(e: any): void {
@@ -636,7 +710,9 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy 
           Eventname: '',
           Eventdesc: '',
           Eventtype: '',
+          conditionexpressionVisable: false,
           NodeProcessClass: '',
+          conditionexpression: '',
           NodeProcessClassVisable: true,
         };
         baseBpmnObject.outgoing = [];
@@ -645,7 +721,7 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy 
         baseBpmnObject.BizObject.Eventid = e.element.id;
         this.activity.BaseBpmnObjects = [...this.activity.BaseBpmnObjects, baseBpmnObject];
       }
-      console.log(baseBpmnObject);
+      console.log('baseBpmnObject');
       baseBpmnObject.incoming = [
         ...baseBpmnObject.incoming,
         ...e.element.incoming.map((x) => {
@@ -681,7 +757,9 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy 
           Eventname: '',
           Eventdesc: '',
           Eventtype: '',
+          conditionexpressionVisable: false,
           NodeProcessClass: '',
+          conditionexpression: '',
           NodeProcessClassVisable: true,
         };
         dataStoreReference.outgoing = [];
@@ -724,7 +802,9 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy 
           Eventname: '',
           Eventdesc: '',
           Eventtype: '',
+          conditionexpressionVisable: false,
           NodeProcessClass: '',
+          conditionexpression: '',
           NodeProcessClassVisable: true,
         };
         container.outgoing = [];
@@ -769,7 +849,9 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy 
           Eventname: '',
           Eventdesc: '',
           Eventtype: '',
+          conditionexpressionVisable: false,
           NodeProcessClass: '',
+          conditionexpression: '',
           NodeProcessClassVisable: true,
         };
         subProcess.outgoing = [];
@@ -815,9 +897,9 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy 
           Eventname: '',
           Eventdesc: '',
           Eventtype: '',
-
+          conditionexpressionVisable: false,
           NodeProcessClass: '',
-
+          conditionexpression: '',
           NodeProcessClassVisable: true,
         };
         sequenceflow.outgoing = [];
@@ -864,9 +946,9 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy 
           Eventname: '',
           Eventdesc: '',
           Eventtype: '',
-
+          conditionexpressionVisable: false,
           NodeProcessClass: '',
-
+          conditionexpression: '',
           NodeProcessClassVisable: true,
         };
         task.id = e.element.businessObject.id;
@@ -911,7 +993,9 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy 
           Eventname: '',
           Eventdesc: '',
           Eventtype: '',
+          conditionexpressionVisable: false,
           NodeProcessClass: '',
+          conditionexpression: '',
           NodeProcessClassVisable: true,
         };
         gateway.id = e.element.businessObject.id;
@@ -954,8 +1038,10 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy 
           Eventname: '',
           Eventdesc: '',
           Eventtype: '',
+          conditionexpressionVisable: false,
           NodeProcessClass: '',
           NodeProcessClassVisable: true,
+          conditionexpression: '',
         };
         startevent.id = e.element.businessObject.id;
         startevent.outgoing = [];
@@ -996,7 +1082,9 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy 
           Eventname: '',
           Eventdesc: '',
           Eventtype: '',
+          conditionexpressionVisable: false,
           NodeProcessClass: '',
+          conditionexpression: '',
           NodeProcessClassVisable: true,
         };
         endevent.id = e.element.businessObject.id;
@@ -1050,7 +1138,6 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy 
     if (url === '') {
       this.bpmnJS.importXML(this.EMPTY_BPMN_DIAGRAM);
       this.bpmnJS.get('canvas').zoom('fit-viewport');
-      console.log('load');
       this.activity = new Activity();
       this.activity.SequenceFlows = [];
       this.activity.Tasks = [];
@@ -1129,7 +1216,9 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy 
           Eventname: element.BizObject.Eventname,
           Eventdesc: '',
           Eventtype: '',
+          conditionexpressionVisable: false,
           NodeProcessClass: element.BizObject.NodeProcessClass,
+          conditionexpression: '',
           NodeProcessClassVisable: true,
         };
         gateWay.incoming = element.incoming ?? [];
@@ -1141,19 +1230,23 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy 
     }
     if (data.SequenceFlows) {
       for (var element of data.SequenceFlows) {
-        var sequenceflows = new GateWay();
+        var sequenceflows = new SequenceFlow();
         sequenceflows.BizObject = {
           Eventid: element.id,
           Eventname: element.Eventname,
+
           Eventdesc: '',
           Eventtype: '',
+          conditionexpressionVisable: false,
           NodeProcessClass: '',
+          conditionexpression: '',
           NodeProcessClassVisable: false,
         };
         sequenceflows.incoming = element.incoming ?? [];
         sequenceflows.outgoing = element.incoming ?? [];
         sequenceflows.id = element.id;
         sequenceflows.bpmntype = element.bpmntype;
+
         this.activity.SequenceFlows.push(sequenceflows);
       }
     }
@@ -1165,7 +1258,9 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy 
           Eventname: element.BizObject.Eventname,
           Eventdesc: '',
           Eventtype: '',
+          conditionexpressionVisable: false,
           NodeProcessClass: '',
+          conditionexpression: '',
           NodeProcessClassVisable: false,
         };
         task.incoming = element.incoming ?? [];
@@ -1184,7 +1279,9 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy 
           Eventname: element.BizObject.Eventname,
           Eventdesc: '',
           Eventtype: '',
+          conditionexpressionVisable: false,
           NodeProcessClass: '',
+          conditionexpression: '',
           NodeProcessClassVisable: false,
         };
         laneset.incoming = element.incoming ?? [];
@@ -1202,9 +1299,9 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy 
           Eventname: element.BizObject.Eventname,
           Eventdesc: '',
           Eventtype: '',
-
+          conditionexpressionVisable: false,
           NodeProcessClass: '',
-
+          conditionexpression: '',
           NodeProcessClassVisable: false,
         };
         endevent.incoming = element.incoming ?? [];
@@ -1223,9 +1320,9 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy 
           Eventname: element.BizObject.Eventname,
           Eventdesc: '',
           Eventtype: '',
-
+          conditionexpressionVisable: false,
           NodeProcessClass: '',
-
+          conditionexpression: '',
           NodeProcessClassVisable: false,
         };
         startevent.incoming = [];
@@ -1244,7 +1341,9 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy 
           Eventname: element.BizObject.Eventname,
           Eventdesc: '',
           Eventtype: '',
+          conditionexpressionVisable: false,
           NodeProcessClass: '',
+          conditionexpression: '',
           NodeProcessClassVisable: false,
         };
         container.incoming = element.incoming ?? [];
@@ -1263,8 +1362,9 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy 
           Eventname: element.BizObject.Eventname,
           Eventdesc: '',
           Eventtype: '',
+          conditionexpressionVisable: false,
           NodeProcessClass: '',
-
+          conditionexpression: '',
           NodeProcessClassVisable: false,
         };
         baseBpmnObject.incoming = element.incoming ?? [];
@@ -1283,7 +1383,9 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy 
           Eventname: element.BizObject.Eventname,
           Eventdesc: '',
           Eventtype: '',
+          conditionexpressionVisable: false,
           NodeProcessClass: '',
+          conditionexpression: '',
           NodeProcessClassVisable: false,
         };
         datastorereference.incoming = element.incoming ?? [];
@@ -1301,7 +1403,9 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy 
           Eventname: element.BizObject.Eventname,
           Eventdesc: '',
           Eventtype: '',
+          conditionexpressionVisable: false,
           NodeProcessClass: '',
+          conditionexpression: '',
           NodeProcessClassVisable: false,
         };
         subprocess.incoming = element.incoming ?? [];
@@ -1320,7 +1424,9 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy 
           Eventname: element.BizObject.Eventname,
           Eventdesc: '',
           Eventtype: '',
+          conditionexpressionVisable: false,
           NodeProcessClass: '',
+          conditionexpression: '',
           NodeProcessClassVisable: false,
         };
         dataOutputAssociation.incoming = element.incoming ?? [];
@@ -1339,9 +1445,9 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy 
           Eventname: element.BizObject.Eventname,
           Eventdesc: '',
           Eventtype: '',
-
+          conditionexpressionVisable: false,
           NodeProcessClass: '',
-
+          conditionexpression: '',
           NodeProcessClassVisable: false,
         };
         dataInputAssociations.incoming = element.incoming ?? [];
@@ -1360,7 +1466,9 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy 
           Eventname: element.BizObject.Eventname,
           Eventdesc: '',
           Eventtype: '',
+          conditionexpressionVisable: false,
           NodeProcessClass: '',
+          conditionexpression: '',
           NodeProcessClassVisable: false,
         };
         lane.incoming = element.incoming ?? [];
@@ -1392,8 +1500,10 @@ export class BpmnBaseObject {
     Eventname: '',
     Eventdesc: '',
     Eventtype: '',
+    conditionexpressionVisable: false,
     NodeProcessClass: '',
     NodeProcessClassVisable: true,
+    conditionexpression: '',
   };
 }
 
@@ -1405,6 +1515,8 @@ export class Activity {
   public LaneSet!: BpmnBaseObject[];
   public EndEvents!: BpmnBaseObject[];
   public StartEvents!: BpmnBaseObject[];
+  public TextAnnotations!: TextAnnotation[];
+
   public Containers!: BpmnBaseObject[];
   public BaseBpmnObjects!: BpmnBaseObject[];
   public DataStoreReferences!: BpmnBaseObject[];
@@ -1415,6 +1527,9 @@ export class Activity {
   public DefinitionsId!: Number;
   public DefinitionsName!: String;
   public DefinitionsStatus!: Number;
+}
+export class TextAnnotation extends BpmnBaseObject {
+  public text!: String;
 }
 
 export class Task extends BpmnBaseObject {
@@ -1477,11 +1592,13 @@ export const importDiagram = (bpmnJS: any) => (source: Observable<any>) =>
     });
   });
 
-export class FormBpmnObject {
-  public Eventid!: string;
-  public Eventname!: string;
-  public Eventdesc!: string;
-  public Eventtype!: string;
-  public NodeProcessClass!: string;
-  public NodeProcessClassVisable: boolean = true;
+export interface FormBpmnObject {
+  Eventid: string;
+  Eventname: string;
+  Eventdesc: string;
+  Eventtype: string;
+  NodeProcessClass: string;
+  NodeProcessClassVisable: boolean;
+  conditionexpression: string;
+  conditionexpressionVisable: boolean;
 }

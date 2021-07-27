@@ -10,11 +10,12 @@ import { TranslateModule } from '@ngx-translate/core';
 import { SHARED_DELON_MODULES } from './shared-delon.module';
 import { SHARED_ZORRO_MODULES } from './shared-zorro.module';
 import { DragDropModule } from '@angular/cdk/drag-drop';
+import { DragAndDropModule } from 'angular-draggable-droppable';
 // #region third libs
 // import { NgxTinymceModule } from 'ngx-tinymce';
 // import { UEditorModule } from 'ngx-ueditor';
 
-const THIRDMODULES: Type<any>[] = [DragDropModule];
+const THIRDMODULES: Type<any>[] = [DragDropModule, DragAndDropModule];
 // #endregion
 
 // #region your componets & directives

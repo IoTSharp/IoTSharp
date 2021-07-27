@@ -65,6 +65,7 @@
     "@types/three": "^0.130.0",
     "@types/webgl2": "0.0.6",
     "ajv": "^8.1.0",
+    "angular-draggable-droppable": "^4.6.0",
     "bpmn-js": "^8.1.0",
     "guid-typescript": "^1.0.9",
     "ng-zorro-antd": "^11.4.1",
