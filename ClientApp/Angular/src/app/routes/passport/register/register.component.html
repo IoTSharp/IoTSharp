@@ -16,7 +16,7 @@
   <nz-form-item>
     <nz-form-control [nzErrorTip]="customerNameErrorTip">
       <nz-input-group nzSize="large" nzAddonBeforeIcon="user">
-        <input nz-input formControlName="customer" placeholder="用户名" />
+        <input nz-input formControlName="CustomerName" placeholder="用户名" />
       </nz-input-group>
       <ng-template #customerNameErrorTip let-i>
         <ng-container *ngIf="i.errors?.required">{{ 'validation.customer.required' | translate }}</ng-container>

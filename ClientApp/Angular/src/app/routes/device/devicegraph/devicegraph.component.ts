@@ -1,4 +1,4 @@
-import { Component, ElementRef, Input, OnInit, Type, ViewChild } from '@angular/core';
+import { ChangeDetectorRef, Component, ElementRef, Input, OnInit, Type, ViewChild } from '@angular/core';
 import { Graph, Edge, Shape, NodeView, Cell, Color } from '@antv/x6';
 import { Subscription } from 'rxjs';
 
@@ -15,7 +15,7 @@ export class DevicegraphComponent implements OnInit {
   @ViewChild('container', { static: true })
   private container!: ElementRef;
   //左侧未在设计上的设备和网关的列表数据，自己有时间搞Shape,可以用官方的dnd(https://x6.antv.vision/zh/docs/tutorial/basic/dnd)，不然就手动吧
-  data = [
+  data: Array<DeviceItem> = [
     {
       devicename: '设备1',
       id: '11',
@@ -89,6 +89,7 @@ export class DevicegraphComponent implements OnInit {
       remark: '这是一个设备，拖动它放到设计器上',
     },
   ];
+
   graph!: Graph;
   magnetAvailabilityHighlighter = {
     name: 'stroke',
@@ -99,7 +100,47 @@ export class DevicegraphComponent implements OnInit {
       },
     },
   };
-  constructor() {}
+  toolbtnclick = ({ cell }) => {
+    this.data = [...this.data, cell.getProp('Biz')]; //设计器删除的设备返回设备列表
+    this.graph.removeCell(cell);
+  };
+  tools: any = [
+    {
+      name: 'button',
+      args: {
+        markup: [
+          {
+            tagName: 'circle',
+            selector: 'button',
+            attrs: {
+              r: 14,
+              stroke: '#fe854f',
+              strokeWidth: 2,
+              fill: 'white',
+              cursor: 'pointer',
+            },
+          },
+          {
+            tagName: 'text',
+            textContent: '-',
+            selector: 'icon',
+            attrs: {
+              fill: '#fe854f',
+              fontSize: 24,
+              textAnchor: 'middle',
+              pointerEvents: 'none',
+              y: '0.3em',
+            },
+          },
+        ],
+        x: '50%',
+        y: '10%',
+        offset: { x: -0, y: -0 },
+        onClick: this.toolbtnclick, //闭包了哟
+      },
+    },
+  ];
+  constructor(cdr: ChangeDetectorRef) {}
 
   ngOnInit(): void {
     this.graph = new Graph({
@@ -234,7 +275,7 @@ export class DevicegraphComponent implements OnInit {
     switch ($event.dropData.type) {
       case 'device':
         var node = this.graph.addNode(
-          new Device({ label: $event.dropData.devicename })
+          new Device({ label: $event.dropData.devicename, tools: this.tools })
             .setProp('Biz', $event.dropData)
             .resize(80, 80)
             .position(this.dragEndlocation.offsetX, this.dragEndlocation.offsetY)
@@ -249,53 +290,7 @@ export class DevicegraphComponent implements OnInit {
         var node = this.graph.addNode(
           new GateWay({
             label: $event.dropData.devicename,
-            tools: [
-              {
-                name: 'button',
-                args: {
-                  markup: [
-                    {
-                      tagName: 'circle',
-                      selector: 'button',
-                      attrs: {
-                        r: 14,
-                        stroke: '#fe854f',
-                        strokeWidth: 2,
-                        fill: 'white',
-                        cursor: 'pointer',
-                      },
-                    },
-                    {
-                      tagName: 'text',
-                      textContent: '-',
-                      selector: 'icon',
-                      attrs: {
-                        fill: '#fe854f',
-                        fontSize: 24,
-                        textAnchor: 'middle',
-                        pointerEvents: 'none',
-                        y: '0.3em',
-                      },
-                    },
-                  ],
-                  x: '50%',
-                  y: '10%',
-                  offset: { x: -0, y: -0 },
-                  onClick({ cell }: { cell: Cell }) {
-                    this.graph.removeCell(cell);
-                    const fill = Color.randomHex();
-                    cell.attr({
-                      body: {
-                        fill,
-                      },
-                      label: {
-                        fill: Color.invert(fill, true),
-                      },
-                    });
-                  },
-                },
-              },
-            ],
+            tools: this.tools,
           })
             .setProp('Biz', $event.dropData)
             .resize(160, 200)
@@ -359,7 +354,14 @@ export class DevicegraphComponent implements OnInit {
     }
   }
 }
-
+export interface DeviceItem {
+  devicename: string;
+  id: string;
+  type: string;
+  logo: string;
+  image: string;
+  remark: string;
+}
 export interface DeviceInfo {
   Income: string[];
   OutGoing: string[];

@@ -1,8 +1,7 @@
 export class AppMessage {
-    ErrType?: number;
-    ErrMessage?: string;
-    Result?: any;
-    ErrLevel?: string;
-    IsVisble?: boolean;
-
+  errType?: number;
+  errMessage?: string;
+  result?: any;
+  errLevel?: string;
+  isVisble?: boolean;
 }

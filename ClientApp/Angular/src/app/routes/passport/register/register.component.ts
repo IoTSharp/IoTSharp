@@ -13,15 +13,15 @@ import { NzMessageService } from 'ng-zorro-antd/message';
 export class UserRegisterComponent implements OnDestroy {
   constructor(fb: FormBuilder, private router: Router, public http: _HttpClient, public msg: NzMessageService) {
     this.form = fb.group({
-      email: ['wq1234wq@163.com', [Validators.required, Validators.email]],
-      Password: ['wq1234wq@163.com', [Validators.required, Validators.minLength(6), UserRegisterComponent.checkPassword.bind(this)]],
-      confirm: ['wq1234wq@163.com', [Validators.required, Validators.minLength(6), UserRegisterComponent.passwordEquar]],
+      email: ['someone@163.com', [Validators.required, Validators.email]],
+      Password: ['Someone@163.com', [Validators.required, Validators.minLength(6), UserRegisterComponent.checkPassword.bind(this)]],
+      confirm: ['Someone@163.com', [Validators.required, Validators.minLength(6), UserRegisterComponent.passwordEquar]],
       mobilePrefix: ['+86'],
-      customerName: ['wq1234wq@163.com', [Validators.required]],
-      tenantName: ['wq1234wq@163.com', [Validators.required]],
-      tenantEMail: ['wq1234wq@163.com', [Validators.required, Validators.email]],
-      customerEMail: ['wq1234wq@163.com', [Validators.required, Validators.email]],
-      phoneNumber: ['18999170940', [Validators.required, Validators.pattern(/^1\d{10}$/)]],
+      CustomerName: ['someone@163.com', [Validators.required]],
+      tenantName: ['someone@163.com', [Validators.required]],
+      tenantEMail: ['someone@163.com', [Validators.required, Validators.email]],
+      customerEMail: ['someone@163.com', [Validators.required, Validators.email]],
+      phoneNumber: ['15911111111', [Validators.required, Validators.pattern(/^1\d{10}$/)]],
     });
   }
 

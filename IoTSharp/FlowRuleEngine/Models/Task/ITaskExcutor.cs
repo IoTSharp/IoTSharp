@@ -28,6 +28,9 @@ namespace IoTSharp.FlowRuleEngine.Models.Task
         public async Task<List<RuleResultTree>> Excute(ExcuteEntity Input)
         {
 
+            var a = new { a=2};
+
+           // a>1 a>100;
             if (Input.Action != null)
             {
                 Input.Action();
