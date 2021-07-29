@@ -36,6 +36,8 @@ export class StartupService {
     // only works with promises
     // https://github.com/angular/angular/issues/15088
 
+    //如果不是mock数据千万不要中途调用 resolve() subscribe()，直接返回Promise()就可以了，有些奇奇怪怪的问题（已知在刷新页面后，再点击其他窗口，ACL数据会丢失，所有受ACL控制的按钮会消失）,调用远端也不要zip合并，任意一个错误将导致所有请求执行CatchError，逻辑写起来就麻烦些
+
     var token = this.tokenService;
 
     if (token && token.get() && token.get()?.token) {
@@ -49,12 +51,12 @@ export class StartupService {
         this.httpClient.get('api/Account/MyInfo').pipe(
           map((appData) => {
             const res = appData as NzSafeAny;
-            console.log(res);
+            console.log(res.status);
             this.settingService.setApp({ name: 'IotSharp', description: 'IotSharp' });
 
             this.settingService.setUser(res.data.customer);
 
-            this.aclService.setFull(true);
+            this.aclService.setFull(true); //开启ACL
 
             var menu = [
               {
@@ -123,6 +125,11 @@ export class StartupService {
                       {
                         text: '流程',
                         link: '/iot/flow/designer',
+                        //   i18n: 'menu.device.devicelist',
+                      },
+                      {
+                        text: '规则',
+                        link: '/iot/flow/flowlist',
                         //   i18n: 'menu.device.devicelist',
                       },
                     ],

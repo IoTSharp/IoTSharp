@@ -93,28 +93,28 @@ export class CustomerlistComponent implements OnInit {
       title: '操作',
       buttons: [
         {
-          acl: 9,
+          //  acl: 9,
           text: '修改',
           click: (item: any) => {
             this.edit(item.id);
           },
         },
         {
-          acl: 9,
+          //   acl: 9,
           text: '设备管理',
           click: (item: any) => {
             this._router.navigateByUrl('iot/device/devicelist?id=' + item.id);
           },
         },
         {
-          acl: 9,
+          // acl: 9,
           text: '人员管理',
           click: (item: any) => {
             this._router.navigateByUrl('iot/user/userlist?id=' + item.id);
           },
         },
         {
-          acl: 10,
+          //  acl: 10,
           text: '删除',
           click: (item: any) => {
             this.delete(item.id);

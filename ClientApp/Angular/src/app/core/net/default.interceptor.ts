@@ -209,7 +209,12 @@ export class DefaultInterceptor implements HttpInterceptor {
       case 403:
       case 404:
       case 500:
-        //   this.goTo(`/exception/${ev.status}`);
+        // this.goTo(`/exception/${ev.status}`);
+        if (req.url.endsWith('api/Account/MyInfo')) {
+          this.tokenSrv.clear();
+          this.goTo('/passport/login');
+        }
+
         break;
       default:
         if (ev instanceof HttpErrorResponse) {

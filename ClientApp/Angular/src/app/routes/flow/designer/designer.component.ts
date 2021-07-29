@@ -13,7 +13,7 @@ import { DiagramComponent } from '../diagram/diagram.component';
 export class DesignerComponent implements OnInit {
   @ViewChild('diagram', { static: true })
   private diagram!: DiagramComponent;
-  DefinitionsId: number = 0;
+  ruleId: number = 0;
   constructor(
     private _router: ActivatedRoute,
     private router: Router,
@@ -22,24 +22,26 @@ export class DesignerComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    // this._router.queryParams
-    //   .pipe(
-    //     mergeMap((x) => {
-    //       this.DefinitionsId = x.Id;
-    //       if (x.Id !== '-1') {
-    //         this.title = '开始设计';
-    //         this.diagramUrl = 'api/manage/workflow/get?id=' + x.Id;
-    //         return of([]);
-    //       } else {
-    //         return of([]);
-    //       }
-    //       this.title = '开始设计';
-    //     }),
-    //     catchError(() => {
-    //       return of([]);
-    //     }),
-    //   )
-    //   .subscribe();
+    this._router.queryParams
+      .pipe(
+        mergeMap((x) => {
+          this.ruleId = x.Id;
+          if (x.Id !== '-1') {
+            this.title = '开始设计';
+            this.diagramUrl = 'api/rules/get?id=' + x.Id;
+            this.diagram.ruleId = this.ruleId;
+
+            return of([]);
+          } else {
+            return of([]);
+          }
+          this.title = '开始设计';
+        }),
+        catchError(() => {
+          return of([]);
+        }),
+      )
+      .subscribe();
   }
 
   title = '开始设计';

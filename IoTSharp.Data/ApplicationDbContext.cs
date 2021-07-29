@@ -11,15 +11,16 @@ namespace IoTSharp.Data
 {
     public class ApplicationDbContext : IdentityDbContext
     {
-      
-       
+     
+
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
             : base(options)
         {
             if (Database.GetPendingMigrations().Count() > 0)
             {
-                Database.Migrate();
+   Database.Migrate();
             }
+         
         }
 
 
@@ -29,8 +30,6 @@ namespace IoTSharp.Data
             modelBuilder.Entity<DataStorage>().HasKey(c => new { c.Catalog, c.DeviceId, c.KeyName });
             modelBuilder.Entity<DataStorage>().HasIndex(c => c.Catalog);
             modelBuilder.Entity<DataStorage>().HasIndex(c => new { c.Catalog, c.DeviceId });
-
-
             modelBuilder.Entity<DataStorage>()
            .HasDiscriminator<DataCatalog>(nameof(Data.DataStorage.Catalog))
            .HasValue<DataStorage>(DataCatalog.None)
@@ -62,6 +61,9 @@ namespace IoTSharp.Data
         public DbSet<TelemetryLatest> TelemetryLatest { get; set; }
         public DbSet<DeviceIdentity> DeviceIdentities { get; set; }
         public DbSet<AuditLog> AuditLog { get; set; }
+        public DbSet<FlowRule> FlowRules { get; set; }
+        public DbSet<Flow> Flows { get; set; }
+        public DbSet<FlowOperation> FlowOperations { get; set; }
 
 
         public DbSet<AuthorizedKey> AuthorizedKeys { get; set; }

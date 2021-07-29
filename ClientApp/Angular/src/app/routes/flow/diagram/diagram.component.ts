@@ -35,7 +35,6 @@ import { CombineLatestSubscriber } from 'rxjs/internal/observable/combineLatest'
 // 'element.mouseup'
 // 来自 https://github.com/bpmn-io/bpmn-js-examples/tree/master/interaction
 export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy {
-  //又菜又爱写
   isCollapsed = false;
 
   EMPTY_BPMN_DIAGRAM = `
@@ -61,13 +60,13 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy 
   @Output() private importDone: EventEmitter<any> = new EventEmitter();
 
   @Input() url: string;
-  @Input() DefinitionsId: number;
+  @Input() ruleId: number;
 
   form: FormBpmnObject = {
-    Eventid: '',
-    Eventname: '',
-    Eventdesc: '',
-    Eventtype: '',
+    Flowid: '',
+    Flowname: '',
+    Flowdesc: '',
+    Flowtype: '',
     NodeProcessClass: '',
     NodeProcessClassVisable: false,
     conditionexpression: '',
@@ -75,14 +74,24 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy 
   };
   activity: Activity;
   selectedValue: any;
+  ngModelChange($event) {
+    var x = this.activity.SequenceFlows.find((x) => x.id == this.form.Flowid);
+    x.BizObject = this.form;
+    var elementRegistry = this.bpmnJS.get('elementRegistry');
 
+    var modeling = this.bpmnJS.get('modeling');
+    // console.log(modeling);
+    // modeling.updateProperties(x.id, {
+    //   name: 'ssss', //名称设置无效，如需双向绑定仍旧需要直接改Dom
+    // });
+  }
   public savediagram() {
-    this.activity.DefinitionsId = this.DefinitionsId;
+    this.activity.ruleId = this.ruleId;
     console.log(this.activity);
     from(this.bpmnJS.saveXML({ format: true }))
       .pipe(
         mergeMap((x: any) => {
-          return this.http.post('api/manage/workflow/update', {
+          return this.http.post('api/rules/savediagram', {
             Xml: x.xml,
             Biz: JSON.stringify(this.activity),
           });
@@ -116,26 +125,24 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy 
     });
 
     this.bpmnJS.on('import.done', ({ error }) => {
-      console.log(error);
       if (!error) {
         this.bpmnJS.get('canvas').zoom('fit-viewport');
       }
     });
 
     this.bpmnJS.on('element.click', (event) => {
-      //  this.form.patchValue({ Eventid: event.element.id, Eventname: event.element.businessObject.name });
+      //  this.form.patchValue({ Flowid: event.element.id, Flowname: event.element.businessObject.name });
       console.log(event);
       switch (event.element.type) {
         case 'bpmn:Task':
           var task = this.activity.Tasks.find((x) => x.id == event.element.id);
           if (task) {
-            console.log(this.activity.Tasks);
             if (task.BizObject == null) {
               task.BizObject = {
-                Eventid: '',
-                Eventname: '',
-                Eventdesc: '',
-                Eventtype: '',
+                Flowid: '',
+                Flowname: '',
+                Flowdesc: '',
+                Flowtype: '',
 
                 NodeProcessClass: '',
                 conditionexpression: '',
@@ -154,10 +161,10 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy 
           if (endevent) {
             if (endevent.BizObject === null) {
               endevent.BizObject = {
-                Eventid: '',
-                Eventname: '',
-                Eventdesc: '',
-                Eventtype: '',
+                Flowid: '',
+                Flowname: '',
+                Flowdesc: '',
+                Flowtype: '',
                 conditionexpressionVisable: false,
                 NodeProcessClass: '',
                 conditionexpression: '',
@@ -175,10 +182,10 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy 
           if (startevent) {
             if (startevent.BizObject === null) {
               startevent.BizObject = {
-                Eventid: '',
-                Eventname: '',
-                Eventdesc: '',
-                Eventtype: '',
+                Flowid: '',
+                Flowname: '',
+                Flowdesc: '',
+                Flowtype: '',
                 conditionexpressionVisable: false,
                 NodeProcessClass: '',
                 conditionexpression: '',
@@ -196,10 +203,10 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy 
           if (intermediatethrowevent) {
             if (intermediatethrowevent.BizObject == null) {
               intermediatethrowevent.BizObject = {
-                Eventid: '',
-                Eventname: '',
-                Eventdesc: '',
-                Eventtype: '',
+                Flowid: '',
+                Flowname: '',
+                Flowdesc: '',
+                Flowtype: '',
                 conditionexpressionVisable: false,
                 NodeProcessClass: '',
                 conditionexpression: '',
@@ -217,10 +224,10 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy 
           if (complexgateway) {
             if (complexgateway.BizObject == null) {
               complexgateway.BizObject = {
-                Eventid: '',
-                Eventname: '',
-                Eventdesc: '',
-                Eventtype: '',
+                Flowid: '',
+                Flowname: '',
+                Flowdesc: '',
+                Flowtype: '',
                 conditionexpressionVisable: false,
                 NodeProcessClass: '',
                 conditionexpression: '',
@@ -238,10 +245,10 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy 
           if (parallelgteway) {
             if (parallelgteway.BizObject == null) {
               parallelgteway.BizObject = {
-                Eventid: '',
-                Eventname: '',
-                Eventdesc: '',
-                Eventtype: '',
+                Flowid: '',
+                Flowname: '',
+                Flowdesc: '',
+                Flowtype: '',
                 conditionexpressionVisable: false,
                 NodeProcessClass: '',
                 conditionexpression: '',
@@ -259,10 +266,10 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy 
           if (exclusivegateway) {
             if (exclusivegateway.BizObject == null) {
               exclusivegateway.BizObject = {
-                Eventid: '',
-                Eventname: '',
-                Eventdesc: '',
-                Eventtype: '',
+                Flowid: '',
+                Flowname: '',
+                Flowdesc: '',
+                Flowtype: '',
                 conditionexpressionVisable: false,
                 NodeProcessClass: '',
                 conditionexpression: '',
@@ -280,10 +287,10 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy 
           if (inclusivegateway) {
             if (inclusivegateway.BizObject == null) {
               inclusivegateway.BizObject = {
-                Eventid: '',
-                Eventname: '',
-                Eventdesc: '',
-                Eventtype: '',
+                Flowid: '',
+                Flowname: '',
+                Flowdesc: '',
+                Flowtype: '',
                 conditionexpressionVisable: false,
                 NodeProcessClass: '',
                 conditionexpression: '',
@@ -301,10 +308,10 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy 
           if (businessruletask) {
             if (businessruletask.BizObject == null) {
               businessruletask.BizObject = {
-                Eventid: '',
-                Eventname: '',
-                Eventdesc: '',
-                Eventtype: '',
+                Flowid: '',
+                Flowname: '',
+                Flowdesc: '',
+                Flowtype: '',
                 conditionexpressionVisable: false,
                 NodeProcessClass: '',
                 conditionexpression: '',
@@ -321,10 +328,10 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy 
           if (eventbasedgateway) {
             if (eventbasedgateway.BizObject == null) {
               eventbasedgateway.BizObject = {
-                Eventid: '',
-                Eventname: '',
-                Eventdesc: '',
-                Eventtype: '',
+                Flowid: '',
+                Flowname: '',
+                Flowdesc: '',
+                Flowtype: '',
                 conditionexpressionVisable: false,
                 NodeProcessClass: '',
                 conditionexpression: '',
@@ -342,10 +349,10 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy 
           if (receivetask) {
             if (receivetask.BizObject == null) {
               receivetask.BizObject = {
-                Eventid: '',
-                Eventname: '',
-                Eventdesc: '',
-                Eventtype: '',
+                Flowid: '',
+                Flowname: '',
+                Flowdesc: '',
+                Flowtype: '',
                 conditionexpressionVisable: false,
                 NodeProcessClass: '',
                 conditionexpression: '',
@@ -363,10 +370,10 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy 
           if (usertask) {
             if (usertask.BizObject == null) {
               usertask.BizObject = {
-                Eventid: '',
-                Eventname: '',
-                Eventdesc: '',
-                Eventtype: '',
+                Flowid: '',
+                Flowname: '',
+                Flowdesc: '',
+                Flowtype: '',
                 conditionexpressionVisable: false,
                 NodeProcessClass: '',
                 conditionexpression: '',
@@ -383,10 +390,10 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy 
           if (intermediatecatchevent) {
             if (intermediatecatchevent.BizObject == null) {
               intermediatecatchevent.BizObject = {
-                Eventid: '',
-                Eventname: '',
-                Eventdesc: '',
-                Eventtype: '',
+                Flowid: '',
+                Flowname: '',
+                Flowdesc: '',
+                Flowtype: '',
                 conditionexpressionVisable: false,
                 NodeProcessClass: '',
                 conditionexpression: '',
@@ -404,10 +411,10 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy 
           if (servicetask) {
             if (servicetask.BizObject == null) {
               servicetask.BizObject = {
-                Eventid: '',
-                Eventname: '',
-                Eventdesc: '',
-                Eventtype: '',
+                Flowid: '',
+                Flowname: '',
+                Flowdesc: '',
+                Flowtype: '',
                 conditionexpressionVisable: false,
                 NodeProcessClass: '',
                 conditionexpression: '',
@@ -424,10 +431,10 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy 
           if (manualtask) {
             if (manualtask.BizObject == null) {
               manualtask.BizObject = {
-                Eventid: '',
-                Eventname: '',
-                Eventdesc: '',
-                Eventtype: '',
+                Flowid: '',
+                Flowname: '',
+                Flowdesc: '',
+                Flowtype: '',
                 conditionexpressionVisable: false,
                 NodeProcessClass: '',
                 conditionexpression: '',
@@ -445,10 +452,10 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy 
           if (sendtask) {
             if (sendtask.BizObject == null) {
               sendtask.BizObject = {
-                Eventid: '',
-                Eventname: '',
-                Eventdesc: '',
-                Eventtype: '',
+                Flowid: '',
+                Flowname: '',
+                Flowdesc: '',
+                Flowtype: '',
                 conditionexpressionVisable: false,
                 NodeProcessClass: '',
                 conditionexpression: '',
@@ -466,10 +473,10 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy 
           if (callactivity) {
             if (callactivity.BizObject == null) {
               callactivity.BizObject = {
-                Eventid: '',
-                Eventname: '',
-                Eventdesc: '',
-                Eventtype: '',
+                Flowid: '',
+                Flowname: '',
+                Flowdesc: '',
+                Flowtype: '',
                 conditionexpressionVisable: false,
                 NodeProcessClass: '',
                 conditionexpression: '',
@@ -486,10 +493,10 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy 
           if (sequenceflow) {
             if (!sequenceflow.BizObject) {
               sequenceflow.BizObject = {
-                Eventid: '',
-                Eventname: '',
-                Eventdesc: '',
-                Eventtype: '',
+                Flowid: '',
+                Flowname: '',
+                Flowdesc: '',
+                Flowtype: '',
                 conditionexpressionVisable: false,
                 NodeProcessClass: '',
                 conditionexpression: '',
@@ -507,10 +514,10 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy 
           if (participant) {
             if (participant.BizObject == null) {
               participant.BizObject = {
-                Eventid: '',
-                Eventname: '',
-                Eventdesc: '',
-                Eventtype: '',
+                Flowid: '',
+                Flowname: '',
+                Flowdesc: '',
+                Flowtype: '',
                 conditionexpressionVisable: false,
                 NodeProcessClass: '',
                 conditionexpression: '',
@@ -527,10 +534,10 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy 
           if (subprocess) {
             if (subprocess.BizObject == null) {
               subprocess.BizObject = {
-                Eventid: '',
-                Eventname: '',
-                Eventdesc: '',
-                Eventtype: '',
+                Flowid: '',
+                Flowname: '',
+                Flowdesc: '',
+                Flowtype: '',
                 conditionexpressionVisable: false,
                 NodeProcessClass: '',
                 conditionexpression: '',
@@ -548,10 +555,10 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy 
           if (collaboration) {
             if (collaboration.BizObject == null) {
               collaboration.BizObject = {
-                Eventid: '',
-                Eventname: '',
-                Eventdesc: '',
-                Eventtype: '',
+                Flowid: '',
+                Flowname: '',
+                Flowdesc: '',
+                Flowtype: '',
                 conditionexpressionVisable: false,
                 NodeProcessClass: '',
                 conditionexpression: '',
@@ -571,7 +578,7 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy 
     this.bpmnJS.on('element.changed', (event) => {
       if (event.element.type.indexOf('bpmn') !== -1) {
       }
-      console.log(event);
+
       switch (event.element.type) {
         case 'bpmn:Task':
           this.doTask(event);
@@ -657,18 +664,18 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy 
       if (baseBpmnObject) {
         baseBpmnObject.id = e.element.id;
         baseBpmnObject.bpmntype = e.element.type;
-        baseBpmnObject.BizObject.Eventname = e.element.businessObject.name;
-        baseBpmnObject.BizObject.Eventid = e.element.id;
+        baseBpmnObject.BizObject.Flowname = e.element.businessObject.name;
+        baseBpmnObject.BizObject.Flowid = e.element.id;
       } else {
         baseBpmnObject = new TextAnnotation();
         baseBpmnObject.id = e.element.businessObject.id;
         baseBpmnObject.text = e.element.businessObject.text;
         baseBpmnObject.bpmntype = e.element.type;
         baseBpmnObject.BizObject = {
-          Eventid: '',
-          Eventname: '',
-          Eventdesc: '',
-          Eventtype: '',
+          Flowid: '',
+          Flowname: '',
+          Flowdesc: '',
+          Flowtype: '',
           conditionexpressionVisable: false,
           NodeProcessClass: '',
           conditionexpression: '',
@@ -676,8 +683,8 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy 
         };
         baseBpmnObject.outgoing = [];
         baseBpmnObject.incoming = [];
-        baseBpmnObject.BizObject.Eventname = e.element.businessObject.name;
-        baseBpmnObject.BizObject.Eventid = e.element.id;
+        baseBpmnObject.BizObject.Flowname = e.element.businessObject.name;
+        baseBpmnObject.BizObject.Flowid = e.element.id;
         this.activity.TextAnnotations = [...this.activity.TextAnnotations, baseBpmnObject];
       }
       //TextAnnotation只有incoming
@@ -699,17 +706,17 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy 
       if (baseBpmnObject) {
         baseBpmnObject.id = e.element.id;
         baseBpmnObject.bpmntype = e.element.type;
-        baseBpmnObject.BizObject.Eventname = e.element.businessObject.name;
-        baseBpmnObject.BizObject.Eventid = e.element.id;
+        baseBpmnObject.BizObject.Flowname = e.element.businessObject.name;
+        baseBpmnObject.BizObject.Flowid = e.element.id;
       } else {
         baseBpmnObject = new SequenceFlow();
         baseBpmnObject.id = e.element.businessObject.id;
         baseBpmnObject.bpmntype = e.element.type;
         baseBpmnObject.BizObject = {
-          Eventid: '',
-          Eventname: '',
-          Eventdesc: '',
-          Eventtype: '',
+          Flowid: '',
+          Flowname: '',
+          Flowdesc: '',
+          Flowtype: '',
           conditionexpressionVisable: false,
           NodeProcessClass: '',
           conditionexpression: '',
@@ -717,8 +724,8 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy 
         };
         baseBpmnObject.outgoing = [];
         baseBpmnObject.incoming = [];
-        baseBpmnObject.BizObject.Eventname = e.element.businessObject.name;
-        baseBpmnObject.BizObject.Eventid = e.element.id;
+        baseBpmnObject.BizObject.Flowname = e.element.businessObject.name;
+        baseBpmnObject.BizObject.Flowid = e.element.id;
         this.activity.BaseBpmnObjects = [...this.activity.BaseBpmnObjects, baseBpmnObject];
       }
       console.log('baseBpmnObject');
@@ -745,18 +752,18 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy 
 
       if (dataStoreReference) {
         dataStoreReference.id = e.element.id;
-        dataStoreReference.BizObject.Eventname = e.element.businessObject.name;
-        dataStoreReference.BizObject.Eventid = e.element.id;
+        dataStoreReference.BizObject.Flowname = e.element.businessObject.name;
+        dataStoreReference.BizObject.Flowid = e.element.id;
         dataStoreReference.bpmntype = e.element.type;
       } else {
         dataStoreReference = new SequenceFlow();
         dataStoreReference.id = e.element.businessObject.id;
         dataStoreReference.bpmntype = e.element.type;
         dataStoreReference.BizObject = {
-          Eventid: '',
-          Eventname: '',
-          Eventdesc: '',
-          Eventtype: '',
+          Flowid: '',
+          Flowname: '',
+          Flowdesc: '',
+          Flowtype: '',
           conditionexpressionVisable: false,
           NodeProcessClass: '',
           conditionexpression: '',
@@ -764,8 +771,8 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy 
         };
         dataStoreReference.outgoing = [];
         dataStoreReference.incoming = [];
-        dataStoreReference.BizObject.Eventname = e.element.businessObject.name;
-        dataStoreReference.BizObject.Eventid = e.element.id;
+        dataStoreReference.BizObject.Flowname = e.element.businessObject.name;
+        dataStoreReference.BizObject.Flowid = e.element.id;
         this.activity.DataStoreReferences = [...this.activity.DataStoreReferences, dataStoreReference];
       }
       dataStoreReference.incoming = [
@@ -790,18 +797,18 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy 
 
       if (container) {
         container.id = e.element.id;
-        container.BizObject.Eventname = e.element.businessObject.name;
-        container.BizObject.Eventid = e.element.id;
+        container.BizObject.Flowname = e.element.businessObject.name;
+        container.BizObject.Flowid = e.element.id;
         container.bpmntype = e.element.type;
       } else {
         container = new SequenceFlow();
         container.id = e.element.businessObject.id;
         container.bpmntype = e.element.type;
         container.BizObject = {
-          Eventid: '',
-          Eventname: '',
-          Eventdesc: '',
-          Eventtype: '',
+          Flowid: '',
+          Flowname: '',
+          Flowdesc: '',
+          Flowtype: '',
           conditionexpressionVisable: false,
           NodeProcessClass: '',
           conditionexpression: '',
@@ -809,8 +816,8 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy 
         };
         container.outgoing = [];
         container.incoming = [];
-        container.BizObject.Eventname = e.element.businessObject.name;
-        container.BizObject.Eventid = e.element.id;
+        container.BizObject.Flowname = e.element.businessObject.name;
+        container.BizObject.Flowid = e.element.id;
         this.activity.DataStoreReferences = [...this.activity.Containers, container];
       }
 
@@ -838,17 +845,17 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy 
       if (subProcess) {
         subProcess.id = e.element.id;
         subProcess.bpmntype = e.element.type;
-        subProcess.BizObject.Eventname = e.element.businessObject.name;
-        subProcess.BizObject.Eventid = e.element.id;
+        subProcess.BizObject.Flowname = e.element.businessObject.name;
+        subProcess.BizObject.Flowid = e.element.id;
       } else {
         subProcess = new SequenceFlow();
         subProcess.id = e.element.businessObject.id;
         subProcess.bpmntype = e.element.type;
         subProcess.BizObject = {
-          Eventid: '',
-          Eventname: '',
-          Eventdesc: '',
-          Eventtype: '',
+          Flowid: '',
+          Flowname: '',
+          Flowdesc: '',
+          Flowtype: '',
           conditionexpressionVisable: false,
           NodeProcessClass: '',
           conditionexpression: '',
@@ -856,8 +863,8 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy 
         };
         subProcess.outgoing = [];
         subProcess.incoming = [];
-        subProcess.BizObject.Eventname = e.element.businessObject.name;
-        subProcess.BizObject.Eventid = e.element.id;
+        subProcess.BizObject.Flowname = e.element.businessObject.name;
+        subProcess.BizObject.Flowid = e.element.id;
         this.activity.DataStoreReferences = [...this.activity.SubProcesses, subProcess];
       }
 
@@ -886,17 +893,17 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy 
       if (sequenceflow) {
         sequenceflow.id = e.element.id;
         sequenceflow.bpmntype = e.element.type;
-        sequenceflow.BizObject.Eventname = e.element.businessObject.name;
-        sequenceflow.BizObject.Eventid = e.element.id;
+        sequenceflow.BizObject.Flowname = e.element.businessObject.name;
+        sequenceflow.BizObject.Flowid = e.element.id;
       } else {
         sequenceflow = new SequenceFlow();
         sequenceflow.id = e.element.businessObject.id;
         sequenceflow.bpmntype = e.element.type;
         sequenceflow.BizObject = {
-          Eventid: '',
-          Eventname: '',
-          Eventdesc: '',
-          Eventtype: '',
+          Flowid: '',
+          Flowname: '',
+          Flowdesc: '',
+          Flowtype: '',
           conditionexpressionVisable: false,
           NodeProcessClass: '',
           conditionexpression: '',
@@ -905,8 +912,8 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy 
         sequenceflow.outgoing = [];
         sequenceflow.incoming = [];
         sequenceflow.sourceId = e.element.businessObject.targetRef.id;
-        sequenceflow.BizObject.Eventname = e.element.businessObject.name;
-        sequenceflow.BizObject.Eventid = e.element.id;
+        sequenceflow.BizObject.Flowname = e.element.businessObject.name;
+        sequenceflow.BizObject.Flowid = e.element.id;
         this.activity.SequenceFlows = [...this.activity.SequenceFlows, sequenceflow];
       }
 
@@ -935,25 +942,25 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy 
       if (task) {
         task.id = e.element.id;
         task.bpmntype = e.element.type;
-        task.BizObject.Eventname = e.element.businessObject.name;
-        task.BizObject.Eventid = e.element.id;
+        task.BizObject.Flowname = e.element.businessObject.name;
+        task.BizObject.Flowid = e.element.id;
       } else {
         task = new Task();
         task.id = e.element.id;
         task.bpmntype = e.element.type;
         task.BizObject = {
-          Eventid: '',
-          Eventname: '',
-          Eventdesc: '',
-          Eventtype: '',
+          Flowid: '',
+          Flowname: '',
+          Flowdesc: '',
+          Flowtype: '',
           conditionexpressionVisable: false,
           NodeProcessClass: '',
           conditionexpression: '',
           NodeProcessClassVisable: true,
         };
         task.id = e.element.businessObject.id;
-        task.BizObject.Eventname = e.element.businessObject.name;
-        task.BizObject.Eventid = e.element.id;
+        task.BizObject.Flowname = e.element.businessObject.name;
+        task.BizObject.Flowid = e.element.id;
         this.activity.Tasks = [...this.activity.Tasks, task];
       }
       task.incoming = [];
@@ -983,16 +990,16 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy 
         gateway.id = e.element.id;
 
         gateway.bpmntype = e.element.type;
-        gateway.BizObject.Eventname = e.element.businessObject.name;
+        gateway.BizObject.Flowname = e.element.businessObject.name;
       } else {
         gateway = new GateWay();
         gateway.id = e.element.id;
         gateway.bpmntype = e.element.type;
         gateway.BizObject = {
-          Eventid: '',
-          Eventname: '',
-          Eventdesc: '',
-          Eventtype: '',
+          Flowid: '',
+          Flowname: '',
+          Flowdesc: '',
+          Flowtype: '',
           conditionexpressionVisable: false,
           NodeProcessClass: '',
           conditionexpression: '',
@@ -1001,8 +1008,8 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy 
         gateway.id = e.element.businessObject.id;
         gateway.outgoing = [];
         gateway.incoming = [];
-        gateway.BizObject.Eventname = e.element.businessObject.name;
-        gateway.BizObject.Eventid = e.element.id;
+        gateway.BizObject.Flowname = e.element.businessObject.name;
+        gateway.BizObject.Flowid = e.element.id;
         this.activity.GateWays = [...this.activity.GateWays, gateway];
       }
       gateway.incoming = [
@@ -1028,16 +1035,16 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy 
       if (startevent) {
         startevent.bpmntype = e.element.type;
         startevent.id = e.element.id;
-        startevent.BizObject.Eventname = e.element.businessObject.name;
+        startevent.BizObject.Flowname = e.element.businessObject.name;
       } else {
         startevent = new BpmnBaseObject();
         startevent.bpmntype = e.element.type;
         startevent.id = e.element.id;
         startevent.BizObject = {
-          Eventid: '',
-          Eventname: '',
-          Eventdesc: '',
-          Eventtype: '',
+          Flowid: '',
+          Flowname: '',
+          Flowdesc: '',
+          Flowtype: '',
           conditionexpressionVisable: false,
           NodeProcessClass: '',
           NodeProcessClassVisable: true,
@@ -1046,8 +1053,8 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy 
         startevent.id = e.element.businessObject.id;
         startevent.outgoing = [];
         startevent.incoming = [];
-        startevent.BizObject.Eventname = e.element.businessObject.name;
-        startevent.BizObject.Eventid = e.element.id;
+        startevent.BizObject.Flowname = e.element.businessObject.name;
+        startevent.BizObject.Flowid = e.element.id;
         this.activity.StartEvents = [...this.activity.StartEvents, startevent];
       }
       startevent.incoming = [
@@ -1072,16 +1079,16 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy 
       if (endevent) {
         endevent.id = e.element.id;
         endevent.bpmntype = e.element.type;
-        endevent.BizObject.Eventname = e.element.businessObject.name;
+        endevent.BizObject.Flowname = e.element.businessObject.name;
       } else {
         endevent = new BpmnBaseObject();
         endevent.id = e.element.id;
         endevent.bpmntype = e.element.type;
         endevent.BizObject = {
-          Eventid: '',
-          Eventname: '',
-          Eventdesc: '',
-          Eventtype: '',
+          Flowid: '',
+          Flowname: '',
+          Flowdesc: '',
+          Flowtype: '',
           conditionexpressionVisable: false,
           NodeProcessClass: '',
           conditionexpression: '',
@@ -1090,8 +1097,8 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy 
         endevent.id = e.element.businessObject.id;
         endevent.outgoing = [];
         endevent.incoming = [];
-        endevent.BizObject.Eventname = e.element.businessObject.name;
-        endevent.BizObject.Eventid = e.element.id;
+        endevent.BizObject.Flowname = e.element.businessObject.name;
+        endevent.BizObject.Flowid = e.element.id;
         this.activity.EndEvents = [...this.activity.EndEvents, endevent];
       }
       endevent.incoming = [
@@ -1151,10 +1158,7 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy 
       this.activity.SubProcesses = [];
       this.activity.DataOutputAssociations = [];
       this.activity.DataInputAssociations = [];
-      this.activity.DefinitionsDesc = '';
-      this.activity.DefinitionsId = 0;
-      this.activity.DefinitionsName = '';
-      this.activity.DefinitionsStatus = 1;
+      this.activity.ruleId = 0;
     } else {
       this.http.get<DesignerResult>(url).subscribe(
         async (data) => {
@@ -1171,10 +1175,8 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy 
           this.activity.SubProcesses = [];
           this.activity.DataOutputAssociations = [];
           this.activity.DataInputAssociations = [];
-          this.activity.DefinitionsDesc = '';
-          this.activity.DefinitionsId = 0;
-          this.activity.DefinitionsName = '';
-          this.activity.DefinitionsStatus = 1;
+          this.activity.ruleId = 0;
+
           await this.bpmnJS.importXML(data.Xml);
           this.InitData(data.Biz);
           this.bpmnJS.get('canvas').zoom('fit-viewport');
@@ -1212,10 +1214,10 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy 
       for (var element of data.GateWays) {
         var gateWay = new GateWay();
         gateWay.BizObject = {
-          Eventid: element.id,
-          Eventname: element.BizObject.Eventname,
-          Eventdesc: '',
-          Eventtype: '',
+          Flowid: element.id,
+          Flowname: element.BizObject.Flowname,
+          Flowdesc: '',
+          Flowtype: '',
           conditionexpressionVisable: false,
           NodeProcessClass: element.BizObject.NodeProcessClass,
           conditionexpression: '',
@@ -1232,11 +1234,11 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy 
       for (var element of data.SequenceFlows) {
         var sequenceflows = new SequenceFlow();
         sequenceflows.BizObject = {
-          Eventid: element.id,
-          Eventname: element.Eventname,
+          Flowid: element.id,
+          Flowname: element.Flowname,
 
-          Eventdesc: '',
-          Eventtype: '',
+          Flowdesc: '',
+          Flowtype: '',
           conditionexpressionVisable: false,
           NodeProcessClass: '',
           conditionexpression: '',
@@ -1254,10 +1256,10 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy 
       for (var element of data.Tasks) {
         var task = new Task();
         task.BizObject = {
-          Eventid: element.id,
-          Eventname: element.BizObject.Eventname,
-          Eventdesc: '',
-          Eventtype: '',
+          Flowid: element.id,
+          Flowname: element.BizObject.Flowname,
+          Flowdesc: '',
+          Flowtype: '',
           conditionexpressionVisable: false,
           NodeProcessClass: '',
           conditionexpression: '',
@@ -1275,10 +1277,10 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy 
       for (var element of data.LaneSet) {
         var laneset = new BpmnBaseObject();
         laneset.BizObject = {
-          Eventid: element.id,
-          Eventname: element.BizObject.Eventname,
-          Eventdesc: '',
-          Eventtype: '',
+          Flowid: element.id,
+          Flowname: element.BizObject.Flowname,
+          Flowdesc: '',
+          Flowtype: '',
           conditionexpressionVisable: false,
           NodeProcessClass: '',
           conditionexpression: '',
@@ -1295,10 +1297,10 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy 
       for (var element of data.EndEvents) {
         var endevent = new BpmnBaseObject();
         endevent.BizObject = {
-          Eventid: element.id,
-          Eventname: element.BizObject.Eventname,
-          Eventdesc: '',
-          Eventtype: '',
+          Flowid: element.id,
+          Flowname: element.BizObject.Flowname,
+          Flowdesc: '',
+          Flowtype: '',
           conditionexpressionVisable: false,
           NodeProcessClass: '',
           conditionexpression: '',
@@ -1316,10 +1318,10 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy 
       for (var element of data.StartEvents) {
         var startevent = new BpmnBaseObject();
         startevent.BizObject = {
-          Eventid: element.id,
-          Eventname: element.BizObject.Eventname,
-          Eventdesc: '',
-          Eventtype: '',
+          Flowid: element.id,
+          Flowname: element.BizObject.Flowname,
+          Flowdesc: '',
+          Flowtype: '',
           conditionexpressionVisable: false,
           NodeProcessClass: '',
           conditionexpression: '',
@@ -1337,10 +1339,10 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy 
       for (var element of data.Containers) {
         var container = new BpmnBaseObject();
         container.BizObject = {
-          Eventid: element.id,
-          Eventname: element.BizObject.Eventname,
-          Eventdesc: '',
-          Eventtype: '',
+          Flowid: element.id,
+          Flowname: element.BizObject.Flowname,
+          Flowdesc: '',
+          Flowtype: '',
           conditionexpressionVisable: false,
           NodeProcessClass: '',
           conditionexpression: '',
@@ -1358,10 +1360,10 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy 
       for (var element of data.BaseBpmnObjects) {
         var baseBpmnObject = new BpmnBaseObject();
         baseBpmnObject.BizObject = {
-          Eventid: element.id,
-          Eventname: element.BizObject.Eventname,
-          Eventdesc: '',
-          Eventtype: '',
+          Flowid: element.id,
+          Flowname: element.BizObject.Flowname,
+          Flowdesc: '',
+          Flowtype: '',
           conditionexpressionVisable: false,
           NodeProcessClass: '',
           conditionexpression: '',
@@ -1379,10 +1381,10 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy 
       for (var element of data.DataStoreReferences) {
         var datastorereference = new BpmnBaseObject();
         datastorereference.BizObject = {
-          Eventid: element.id,
-          Eventname: element.BizObject.Eventname,
-          Eventdesc: '',
-          Eventtype: '',
+          Flowid: element.id,
+          Flowname: element.BizObject.Flowname,
+          Flowdesc: '',
+          Flowtype: '',
           conditionexpressionVisable: false,
           NodeProcessClass: '',
           conditionexpression: '',
@@ -1399,10 +1401,10 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy 
       for (var element of data.SubProcesses) {
         var subprocess = new BpmnBaseObject();
         subprocess.BizObject = {
-          Eventid: element.id,
-          Eventname: element.BizObject.Eventname,
-          Eventdesc: '',
-          Eventtype: '',
+          Flowid: element.id,
+          Flowname: element.BizObject.Flowname,
+          Flowdesc: '',
+          Flowtype: '',
           conditionexpressionVisable: false,
           NodeProcessClass: '',
           conditionexpression: '',
@@ -1420,10 +1422,10 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy 
       for (var element of data.DataOutputAssociations) {
         var dataOutputAssociation = new DataOutputAssociation();
         dataOutputAssociation.BizObject = {
-          Eventid: element.id,
-          Eventname: element.BizObject.Eventname,
-          Eventdesc: '',
-          Eventtype: '',
+          Flowid: element.id,
+          Flowname: element.BizObject.Flowname,
+          Flowdesc: '',
+          Flowtype: '',
           conditionexpressionVisable: false,
           NodeProcessClass: '',
           conditionexpression: '',
@@ -1441,10 +1443,10 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy 
       for (var element of data.DataInputAssociations) {
         var dataInputAssociations = new DataOutputAssociation();
         dataInputAssociations.BizObject = {
-          Eventid: element.id,
-          Eventname: element.BizObject.Eventname,
-          Eventdesc: '',
-          Eventtype: '',
+          Flowid: element.id,
+          Flowname: element.BizObject.Flowname,
+          Flowdesc: '',
+          Flowtype: '',
           conditionexpressionVisable: false,
           NodeProcessClass: '',
           conditionexpression: '',
@@ -1462,10 +1464,10 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy 
       for (var element of data.Lane) {
         var lane = new BpmnBaseObject();
         lane.BizObject = {
-          Eventid: element.id,
-          Eventname: element.BizObject.Eventname,
-          Eventdesc: '',
-          Eventtype: '',
+          Flowid: element.id,
+          Flowname: element.BizObject.Flowname,
+          Flowdesc: '',
+          Flowtype: '',
           conditionexpressionVisable: false,
           NodeProcessClass: '',
           conditionexpression: '',
@@ -1482,8 +1484,8 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy 
 }
 
 export class BaseBizObject {
-  Eventid!: String;
-  Eventname!: String;
+  Flowid!: String;
+  Flowname!: String;
 }
 
 export class DesignerResult {
@@ -1496,10 +1498,10 @@ export class BpmnBaseObject {
   public incoming!: BpmnBaseObject[];
   public outgoing!: BpmnBaseObject[];
   public BizObject: FormBpmnObject = {
-    Eventid: '',
-    Eventname: '',
-    Eventdesc: '',
-    Eventtype: '',
+    Flowid: '',
+    Flowname: '',
+    Flowdesc: '',
+    Flowtype: '',
     conditionexpressionVisable: false,
     NodeProcessClass: '',
     NodeProcessClassVisable: true,
@@ -1523,9 +1525,9 @@ export class Activity {
   public SubProcesses!: BpmnBaseObject[];
   public DataOutputAssociations!: DataOutputAssociation[];
   public DataInputAssociations!: DataOutputAssociation[];
-  public DefinitionsDesc!: String;
-  public DefinitionsId!: Number;
-  public DefinitionsName!: String;
+
+  public ruleId!: Number;
+
   public DefinitionsStatus!: Number;
 }
 export class TextAnnotation extends BpmnBaseObject {
@@ -1533,7 +1535,7 @@ export class TextAnnotation extends BpmnBaseObject {
 }
 
 export class Task extends BpmnBaseObject {
-  public Eventtype!: String;
+  public Flowtype!: String;
   public FlowId!: Number;
 }
 export class GateWay extends BpmnBaseObject {
@@ -1593,10 +1595,10 @@ export const importDiagram = (bpmnJS: any) => (source: Observable<any>) =>
   });
 
 export interface FormBpmnObject {
-  Eventid: string;
-  Eventname: string;
-  Eventdesc: string;
-  Eventtype: string;
+  Flowid: string;
+  Flowname: string;
+  Flowdesc: string;
+  Flowtype: string;
   NodeProcessClass: string;
   NodeProcessClassVisable: boolean;
   conditionexpression: string;
