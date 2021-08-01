@@ -62,7 +62,7 @@ export class PropformComponent implements OnInit {
 
   submit(value: any) {
     this.http
-      .get<deviceidentityinfo>('api/Devices/' + this.params.id + '/Identity', { form: value, id: this.params.id })
+      .get<deviceidentityinfo>('api/Devices/' + this.params.id + '/Identity')
       .pipe(
         switchMap((deviceidentityinfo: deviceidentityinfo) =>
           this.http.post('api/Devices/' + deviceidentityinfo.identityId + '/Attributes', value),

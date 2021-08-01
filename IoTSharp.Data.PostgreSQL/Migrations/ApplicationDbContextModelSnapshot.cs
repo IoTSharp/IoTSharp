@@ -15,9 +15,9 @@ namespace IoTSharp.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .UseIdentityByDefaultColumns()
                 .HasAnnotation("Relational:MaxIdentifierLength", 63)
-                .HasAnnotation("ProductVersion", "5.0.1");
+                .HasAnnotation("ProductVersion", "5.0.7")
+                .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
 
             modelBuilder.Entity("IoTSharp.Data.AuditLog", b =>
                 {
@@ -266,6 +266,142 @@ namespace IoTSharp.Migrations
                     b.ToTable("DeviceIdentities");
                 });
 
+            modelBuilder.Entity("IoTSharp.Data.Flow", b =>
+                {
+                    b.Property<long>("FlowId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
+
+                    b.Property<string>("Conditionexpression")
+                        .HasColumnType("text");
+
+                    b.Property<string>("FlowType")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Flowdesc")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Flowname")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Incoming")
+                        .HasColumnType("text");
+
+                    b.Property<string>("NodeProcessClass")
+                        .HasColumnType("text");
+
+                    b.Property<string>("NodeProcessMethod")
+                        .HasColumnType("text");
+
+                    b.Property<string>("NodeProcessParams")
+                        .HasColumnType("text");
+
+                    b.Property<string>("NodeProcessScript")
+                        .HasColumnType("text");
+
+                    b.Property<string>("NodeProcessType")
+                        .HasColumnType("text");
+
+                    b.Property<string>("ObjectId")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Outgoing")
+                        .HasColumnType("text");
+
+                    b.Property<long>("RuleId")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("SourceId")
+                        .HasColumnType("text");
+
+                    b.Property<string>("TargetId")
+                        .HasColumnType("text");
+
+                    b.Property<string>("bpmnid")
+                        .HasColumnType("text");
+
+                    b.HasKey("FlowId");
+
+                    b.ToTable("Flows");
+                });
+
+            modelBuilder.Entity("IoTSharp.Data.FlowOperation", b =>
+                {
+                    b.Property<long>("OperationId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
+
+                    b.Property<DateTime?>("AddDate")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<string>("BizId")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Data")
+                        .HasColumnType("text");
+
+                    b.Property<long>("FlowId")
+                        .HasColumnType("bigint");
+
+                    b.Property<int?>("NodeStatus")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("OperationDesc")
+                        .HasColumnType("text");
+
+                    b.Property<long>("RuleId")
+                        .HasColumnType("bigint");
+
+                    b.HasKey("OperationId");
+
+                    b.ToTable("FlowOperations");
+                });
+
+            modelBuilder.Entity("IoTSharp.Data.FlowRule", b =>
+                {
+                    b.Property<long>("RuleId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
+
+                    b.Property<DateTime?>("CreatTime")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<string>("Creator")
+                        .HasColumnType("text");
+
+                    b.Property<string>("DefinitionsXml")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Describes")
+                        .HasColumnType("text");
+
+                    b.Property<string>("ExecutableCode")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("RuleDesc")
+                        .HasColumnType("text");
+
+                    b.Property<int?>("RuleStatus")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("RuleType")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Runner")
+                        .HasColumnType("text");
+
+                    b.HasKey("RuleId");
+
+                    b.ToTable("FlowRules");
+                });
+
             modelBuilder.Entity("IoTSharp.Data.Relationship", b =>
                 {
                     b.Property<Guid>("Id")
@@ -341,8 +477,6 @@ namespace IoTSharp.Migrations
 
                     b.HasIndex("DeviceId", "KeyName");
 
-                    b.HasIndex("DeviceId", "KeyName", "DateTime");
-
                     b.ToTable("TelemetryData");
                 });
 
@@ -415,7 +549,7 @@ namespace IoTSharp.Migrations
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("integer")
-                        .UseIdentityByDefaultColumn();
+                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
 
                     b.Property<string>("ClaimType")
                         .HasColumnType("text");
@@ -503,7 +637,7 @@ namespace IoTSharp.Migrations
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("integer")
-                        .UseIdentityByDefaultColumn();
+                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
 
                     b.Property<string>("ClaimType")
                         .HasColumnType("text");

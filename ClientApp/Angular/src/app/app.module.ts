@@ -114,6 +114,7 @@ import { Globals } from './core/Globals';
     RoutesModule,
     STWidgetModule,
     NzNotificationModule,
+
     ...I18NSERVICE_MODULES,
     ...GLOBAL_THIRD_MODULES,
     ...FORM_MODULES,
@@ -121,4 +122,4 @@ import { Globals } from './core/Globals';
   providers: [...LANG_PROVIDES, ...INTERCEPTOR_PROVIDES, ...I18NSERVICE_PROVIDES, ...APPINIT_PROVIDES, Globals],
   bootstrap: [AppComponent],
 })
-export class AppModule { }
+export class AppModule {}

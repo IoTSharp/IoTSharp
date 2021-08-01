@@ -8,6 +8,9 @@ import { LayoutBlankComponent } from '../layout/blank/blank.component';
 import { DevicegraphComponent } from './device/devicegraph/devicegraph.component';
 
 import { DevicelistComponent } from './device/devicelist/devicelist.component';
+import { DevicesceneComponent } from './device/devicescene/devicescene.component';
+import { DesignerComponent } from './flow/designer/designer.component';
+import { FlowlistComponent } from './flow/flowlist/flowlist.component';
 import { TenantlistComponent } from './tenant/tenantlist/tenantlist.component';
 import { UserlistComponent } from './user/userlist/userlist.component';
 
@@ -39,6 +42,9 @@ const routes: Routes = [
       { path: 'customer', loadChildren: () => import('./customer/customer.module').then((m) => m.CustomerModule) },
       { path: 'device/devicelist', component: DevicelistComponent },
       { path: 'device/devicegraph', component: DevicegraphComponent },
+      { path: 'device/devicescene', component: DevicesceneComponent },
+      { path: 'flow/designer', component: DesignerComponent },
+      { path: 'flow/flowlist', component: FlowlistComponent },
     ],
   },
 

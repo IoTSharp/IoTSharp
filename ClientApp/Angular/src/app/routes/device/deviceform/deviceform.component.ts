@@ -11,14 +11,14 @@ import { MyValidators } from '../../common/validators/MyValidators';
 @Component({
   selector: 'app-deviceform',
   templateUrl: './deviceform.component.html',
-  styleUrls: ['./deviceform.component.less']
+  styleUrls: ['./deviceform.component.less'],
 })
 export class DeviceformComponent implements OnInit {
   isManufactorLoading: Boolean = false;
   optionList: any;
   @Input() params: any = {
     id: '-1',
-    customerId: '-1'
+    customerId: '-1',
   };
   nodes = [];
   title: string = '';
@@ -32,7 +32,7 @@ export class DeviceformComponent implements OnInit {
     private fb: FormBuilder,
     private msg: NzMessageService,
     private drawerRef: NzDrawerRef<string>,
-  ) { }
+  ) {}
   form!: FormGroup;
   submitting = false;
   ngOnInit() {
@@ -48,8 +48,8 @@ export class DeviceformComponent implements OnInit {
         (x) => {
           this.form.patchValue(x.Result);
         },
-        (y) => { },
-        () => { },
+        (y) => {},
+        () => {},
       );
     }
   }
@@ -57,16 +57,19 @@ export class DeviceformComponent implements OnInit {
   submit() {
     this.submitting = true;
 
-    if (this.params.id !== "-1") {
-      this._httpClient.put("api/Devices", this.form.value).subscribe(x => {
+    if (this.params.id !== '-1') {
+      this._httpClient.put('api/Devices', this.form.value).subscribe((x) => {
+        this.submitting = false;
+        this.drawerRef.close(this.params);
       });
     } else {
-      this._httpClient.post("api/Devices", this.form.value).subscribe(x => {
+      this._httpClient.post('api/Devices', this.form.value).subscribe((x) => {
+        this.submitting = false;
+        this.drawerRef.close(this.params);
       });
     }
   }
   close(): void {
     this.drawerRef.close(this.params);
   }
-
 }

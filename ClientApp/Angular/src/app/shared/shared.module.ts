@@ -9,12 +9,13 @@ import { TranslateModule } from '@ngx-translate/core';
 
 import { SHARED_DELON_MODULES } from './shared-delon.module';
 import { SHARED_ZORRO_MODULES } from './shared-zorro.module';
-
+import { DragDropModule } from '@angular/cdk/drag-drop';
+import { DragAndDropModule } from 'angular-draggable-droppable';
 // #region third libs
 // import { NgxTinymceModule } from 'ngx-tinymce';
 // import { UEditorModule } from 'ngx-ueditor';
 
-const THIRDMODULES: Type<any>[] = [];
+const THIRDMODULES: Type<any>[] = [DragDropModule, DragAndDropModule];
 // #endregion
 
 // #region your componets & directives
@@ -31,6 +32,7 @@ const DIRECTIVES: Type<any>[] = [];
     AlainThemeModule.forChild(),
     DelonACLModule,
     DelonFormModule,
+
     ...SHARED_DELON_MODULES,
     ...SHARED_ZORRO_MODULES,
     // third libs
@@ -50,6 +52,7 @@ const DIRECTIVES: Type<any>[] = [];
     DelonACLModule,
     DelonFormModule,
     TranslateModule,
+
     ...SHARED_DELON_MODULES,
     ...SHARED_ZORRO_MODULES,
     // third libs
