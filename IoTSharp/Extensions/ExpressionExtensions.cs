@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace IoTSharp.App_Code.Util
 {
-    public static class ExpressionBuilder
+    public static class ExpressionExtensions
     {
         public static Expression<Func<T, bool>> In<T, TValue>(this Expression<Func<T, bool>> first, Expression<Func<T, TValue>> valueSelector, IEnumerable<TValue> values)
         {

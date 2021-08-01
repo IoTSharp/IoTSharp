@@ -349,3 +349,4 @@ ASALocalRun/
 /IoTSharp/health_checks.db
 /ClientApp/Vue/build
 /ClientApp/Vue/mock
+/ClientApp/Vue/package-lock.json
