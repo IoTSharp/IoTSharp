@@ -1,0 +1,42 @@
+@page "/"
+@using AntDesign.ProLayout
+
+<PageContainer Title="欢迎">
+    <Card>
+        <Alert
+            Message="AntDesign.Templates 已经发布到nuget，可以直接下载使用"
+            Type="success"
+            ShowIcon="true"
+            Banner
+            Style="margin: -12px; margin-bottom: 24px"/>
+        <Text Strong>
+            <a target="_blank" rel="noopener noreferrer" href="https://www.nuget.org/packages/AntDesign.Templates">
+                使用dotnet快速安装最新模板
+            </a>
+        </Text>
+        <pre class="pre"><code><Text Copyable> dotnet new --install AntDesign.Templates::0.1.0-*</Text></code></pre>
+        <Text
+            Strong
+            Style="margin-bottom: 12px">
+            <a target="_blank" rel="noopener noreferrer" href="https://github.com/ant-design-blazor/ant-design-pro-blazor">
+                创建wasm空项目
+            </a>
+        </Text>
+        <pre class="pre"><code><Text Copyable> dotnet new antdesign --host=wasm</Text></code></pre>
+        <Text
+            Strong
+            Style="margin-bottom: 12px">
+            <a target="_blank" rel="noopener noreferrer" href="https://github.com/ant-design-blazor/ant-design-pro-blazor">
+                创建包含所有页面的wasm项目
+            </a>
+        </Text>
+        <pre class="pre"><code><Text Copyable> dotnet new antdesign --host=wasm --full</Text></code></pre>
+    </Card>
+    <p style="text-align: center; margin-top: 24px;">
+        Want to add more pages? Please refer to
+        <a href="https://github.com/ant-design-blazor/ant-design-pro-blazor" target="_blank" rel="noopener noreferrer">
+            ant-design-pro-blazor project
+        </a>
+        。
+    </p>
+</PageContainer>

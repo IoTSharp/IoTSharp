@@ -7,7 +7,7 @@
         <Form Model="@_model" OnFinish="HandleSubmitAsync">
             <Tabs ActiveKey="@context.LoginType">
                 <TabPane Key="1">
-                    <Tab>账户密码登录</Tab>
+                    <TabTemplate>账户密码登录</TabTemplate>
                     <ChildContent>
                         <FormItem>
                             <AntDesign.Input Placeholder="用户名: " Size="large" @bind-Value="@context.UserName">

@@ -1,4 +1,4 @@
-﻿var gulp = require("gulp"),
+var gulp = require("gulp"),
   cleanCss = require("gulp-clean-css"),
   less = require("gulp-less"),
   rename = require("gulp-rename"),
@@ -7,7 +7,7 @@
 
 gulp.task("less", function () {
   return gulp
-    .src(["**/*.less", "!node_modules/**"])
+    .src(["**/*.less", "!node_modules/**", "!**/bin/**", "!**/obj/**"])
     .pipe(
       less({
         javascriptEnabled: true,

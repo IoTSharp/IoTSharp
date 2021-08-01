@@ -1,5 +1,6 @@
 ﻿@namespace IoTSharp.ClientApp.Pages.Profile
 @page "/profile/advanced"
+@using AntDesign.ProLayout
 
 <PageContainer
     Title="单号：234231029431"
@@ -118,7 +119,7 @@
                 <Card Class="tabsCard">
                     <Tabs DefaultActiveKey="tab1">
                         <TabPane Key="tab1">
-                            <Tab>操作日志一</Tab>
+                            <TabTemplate>操作日志一</TabTemplate>
                             <ChildContent>
                                 <Table
                                     DataSource="@_data.AdvancedOperation1"
@@ -132,7 +133,7 @@
                             </ChildContent>
                         </TabPane>
                         <TabPane Key="tab2">
-                            <Tab>操作日志二</Tab>
+                            <TabTemplate>操作日志二</TabTemplate>
                             <ChildContent>
                                 <Table
                                     DataSource="@_data.AdvancedOperation2"
@@ -146,7 +147,7 @@
                             </ChildContent>
                         </TabPane>
                         <TabPane Key="tab3">
-                            <Tab>操作日志三</Tab>
+                            <TabTemplate>操作日志三</TabTemplate>
                             <ChildContent>
                                 <Table
                                     DataSource="@_data.AdvancedOperation3"

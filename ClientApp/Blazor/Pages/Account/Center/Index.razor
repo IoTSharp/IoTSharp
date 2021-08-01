@@ -1,5 +1,6 @@
 ﻿@namespace IoTSharp.ClientApp.Pages.Account.Center
 @page "/account/center"
+@using AntDesign.ProLayout
 
 <GridContent>
     <Row Gutter="24">
@@ -63,23 +64,26 @@
             </Card>
         </AntDesign.Col>
         <AntDesign.Col Span="17">
+            
             <Card Class="tabsCard">
                 <CardTabs>
                     <Tabs DefaultActiveKey="1">
                         <TabPane Key="1">
-                            <Tab>文章 (@_fakeList.Count)</Tab>
+                            <TabTemplate>
+                           文章 (@_fakeList.Count)
+                       </TabTemplate>
                             <ChildContent>
                                 <Articles List="_fakeList"/>
                             </ChildContent>
                         </TabPane>
                         <TabPane Key="2">
-                            <Tab>应用 (@_fakeList.Count)</Tab>
+                            <TabTemplate>应用 (@_fakeList.Count)</TabTemplate>
                             <ChildContent>
                                 <Applications List="_fakeList"/>
                             </ChildContent>
                         </TabPane>
                         <TabPane Key="3">
-                            <Tab>项目 (@_fakeList.Count)</Tab>
+                            <TabTemplate>项目 (@_fakeList.Count)</TabTemplate>
                             <ChildContent>
                                 <Projects List="_fakeList"/>
                             </ChildContent>

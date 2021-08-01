@@ -2,6 +2,7 @@
 
   <PropertyGroup>
     <TargetFramework>net5.0</TargetFramework>
+    <RazorLangVersion>3.0</RazorLangVersion>
     <AssemblyName>IoTSharp.ClientApp</AssemblyName>
     <RootNamespace>IoTSharp.ClientApp</RootNamespace>
   </PropertyGroup>
@@ -9,12 +10,11 @@
   <ItemGroup>
     <PackageReference Include="AntDesign" Version="0.9.0" />
     <PackageReference Include="AntDesign.Charts" Version="0.2.1" />
-    <PackageReference Include="AntDesign.Pro.Layout" Version="0.1.0-nightly-210129055145" />
-	  <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="5.0.8" />
-	  <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" Version="5.0.8" PrivateAssets="all" />
-	  <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Authentication" Version="5.0.8" />
-	  <PackageReference Include="System.Net.Http.Json" Version="5.0.0" />
+    <PackageReference Include="AntDesign.ProLayout" Version="0.1.3" />
+    <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="5.0.8" />
+    <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" Version="5.0.8" PrivateAssets="all" />
     <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="5.0.0" />
+    <PackageReference Include="System.Net.Http.Json" Version="5.0.0" />
   </ItemGroup>
 
   <PropertyGroup Condition=" '$(SolutionDir)'==''">
@@ -39,16 +39,6 @@
     <Exec WorkingDirectory="$(SolutionDir)" Command="npm install" />
     <Exec WorkingDirectory="$(SolutionDir)" Command="npm run gulp:pro" />
   </Target>
-
-  <ItemGroup>
-    <Watch Include="**\*.razor" />
-    <Watch Include="**\*.less" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <None Remove="AntDesign.Pro.csproj.DotSettings" />
-  </ItemGroup>
-
   <ItemGroup>
     <ProjectReference Include="..\..\IoTSharp.SDKs\IoTSharp.Sdk.CSharp\IoTSharp.Sdk.Http.csproj" />
   </ItemGroup>

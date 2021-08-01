@@ -1,32 +1,57 @@
 ﻿@namespace IoTSharp.ClientApp
+@using AntDesign.ProLayout
 @inherits LayoutComponentBase
 
-<AntDesign.Pro.Layout.BasicLayout 
-    Logo="@("https://portrait.gitee.com/uploads/avatars/namespace/790/2372506_IoTSharp_1581268628.png!avatar100")"
-    MenuData="MenuData">
+<AntDesign.ProLayout.BasicLayout 
+    Logo="@("https://gw.alipayobjects.com/zos/rmsportal/KDpgvguMpGfqaHPjicRK.svg")"
+    MenuData="_menuData">
     <RightContentRender>
         <IoTSharp.ClientApp.Components.RightContent />
     </RightContentRender>
     <ChildContent>
         @Body
     </ChildContent>
-</AntDesign.Pro.Layout.BasicLayout>
+    <FooterRender>
+        <FooterView Copyright="2021 Ant Design Blazor" Links="Links"></FooterView>
+    </FooterRender>
+</AntDesign.ProLayout.BasicLayout>
 <SettingDrawer />
-@using IoTSharp.Sdk.Http;
-@inject HttpClient HttpClient
-@inject IoTSharpClient client
-@inject NavigationManager NavigationManager
+
 @code
 {
-    private MenuDataItem[] MenuData { get; set; } = {};
-
-    protected override async Task OnInitializedAsync()
+    private readonly MenuDataItem[] _menuData =
     {
-        await base.OnInitializedAsync();
-        MenuData = await HttpClient.GetFromJsonAsync<MenuDataItem[]>("data/menu.json");
-            if (!client.IsLogin)
-            {
-                NavigationManager.NavigateTo("/user/login");
-            }
-    }
+        new MenuDataItem
+        {
+            Path = "/",
+            Name = "welcome",
+            Key = "welcome",
+            Icon = "smile",
+        }
+    };
+
+    public LinkItem[] Links { get; set; } =
+    {
+        new LinkItem
+        {
+            Key = "Ant Design Blazor",
+            Title = "Ant Design Blazor",
+            Href = "https://antblazor.com",
+            BlankTarget = true,
+        },
+        new LinkItem
+        {
+            Key = "github",
+            Title = (RenderFragment)(@<Icon Type="github" />),
+            Href = "https://github.com/ant-design-blazor/ant-design-pro-blazor",
+            BlankTarget = true,
+        },
+        new LinkItem
+        {
+            Key = "Blazor",
+            Title = "Blazor",
+            Href = "https://dotnet.microsoft.com/apps/aspnet/web-apps/blazor?WT.mc_id=DT-MVP-5003987",
+            BlankTarget = true,
+        }
+    };
 }
