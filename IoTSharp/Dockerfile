@@ -33,19 +33,9 @@ RUN echo "deb https://mirrors.tuna.tsinghua.edu.cn/debian/ buster main contrib n
 	echo "deb https://mirrors.tuna.tsinghua.edu.cn/debian/ buster-updates main contrib non-free" >> /etc/apt/sources.list && \
 	echo "deb https://mirrors.tuna.tsinghua.edu.cn/debian/ buster-backports main contrib non-free" >> /etc/apt/sources.list && \
 	echo "deb https://mirrors.tuna.tsinghua.edu.cn/debian-security buster/updates main contrib non-free" >> /etc/apt/sources.list && \
-    apt-get  -y   -q update   && apt-get install  -y   -q  git  libssl-dev  curl gnupg libcurl4  && \
-	ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime 
- 
-
-RUN curl -fsSL https://deb.nodesource.com/setup_lts.x | bash - && \
-    apt-get install  -y   -q  nodejs && \
-	apt remove cmdtest  && \
-	apt remove yarn && \
-	curl -sL https://dl.yarnpkg.com/debian/pubkey.gpg | gpg --dearmor |  tee /usr/share/keyrings/yarnkey.gpg >/dev/null && \
-	echo "deb [signed-by=/usr/share/keyrings/yarnkey.gpg] https://dl.yarnpkg.com/debian stable main" |  tee /etc/apt/sources.list.d/yarn.list  && \
-	apt-get install  -y   -q  yarn 
-
-RUN    apt-get autoremove -y &&  apt-get clean  &&  apt-get autoclean && rm  /var/cache/apt/* -rf 	
+    apt-get  -y   -q update   && apt-get install  -y   -q  git  libssl-dev  curl gnupg libcurl4  gcc g++ make && \
+	ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime && \
+	apt-get autoremove -y &&  apt-get clean  &&  apt-get autoclean && rm  /var/cache/apt/* -rf 	
 
 
 WORKDIR /src
@@ -60,11 +50,6 @@ RUN dotnet restore "IoTSharp/IoTSharp.csproj"
 COPY . .
 WORKDIR "/src/IoTSharp"
 RUN dotnet build "IoTSharp.csproj" -c Release -o /app/build
-WORKDIR /web
-COPY  ../ClientApp/Vue/package*.json  .
-RUN  yarn install
-COPY  ../ClientApp/Vue  .
-RUN  yarn build
  
 
 FROM build AS publish
