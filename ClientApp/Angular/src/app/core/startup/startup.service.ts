@@ -134,6 +134,35 @@ export class StartupService {
                       },
                     ],
                   },
+
+                  {
+                    text: '资源',
+                    icon: 'anticon-appstore',
+                    children: [
+                      {
+                        text: '字典分组',
+                        link: '/iot/dictionary/dictionarygrouplist',
+                        //   i18n: 'menu.device.devicelist',
+                      },
+                      {
+                        text: '字典',
+                        link: '/iot/dictionary/dictionarylist',
+                        //   i18n: 'menu.device.devicelist',
+                      },
+                      {
+                        text: '国际化',
+                        link: '/iot/resouce/i18nlist',
+                        //   i18n: 'menu.device.devicelist',
+                      },
+                      {
+                        text: '表单',
+                        link: '/iot/util/dynamicformlist',
+                        //   i18n: 'menu.device.devicelist',
+                      },
+                    ],
+
+                    //   i18n: 'menu.device.devicelist',
+                  },
                 ],
               },
             ];

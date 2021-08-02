@@ -3,4 +3,4 @@
   <button nz-button nzType="primary" nzShape="round" (click)="savediagram()"><i nz-icon nzType="download"></i>保存</button>
 </page-header>
 
-<app-diagram [url]="diagramUrl" [DefinitionsId]="DefinitionsId" (importDone)="handleImported($event)" #diagram></app-diagram>
+<app-diagram [url]="diagramUrl" [ruleId]="ruleId" (importDone)="handleImported($event)" #diagram></app-diagram>

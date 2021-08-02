@@ -28,14 +28,13 @@ export class DesignerComponent implements OnInit {
           this.ruleId = x.Id;
           if (x.Id !== '-1') {
             this.title = '开始设计';
-            this.diagramUrl = 'api/rules/get?id=' + x.Id;
+            this.diagramUrl = 'api/rules/GetDiagram?id=' + x.Id;
             this.diagram.ruleId = this.ruleId;
 
             return of([]);
           } else {
             return of([]);
           }
-          this.title = '开始设计';
         }),
         catchError(() => {
           return of([]);

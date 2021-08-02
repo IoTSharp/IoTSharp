@@ -9,10 +9,14 @@ import { DevicegraphComponent } from './device/devicegraph/devicegraph.component
 
 import { DevicelistComponent } from './device/devicelist/devicelist.component';
 import { DevicesceneComponent } from './device/devicescene/devicescene.component';
+import { DictionarygrouplistComponent } from './dictionary/dictionarygrouplist/dictionarygrouplist.component';
+import { DictionarylistComponent } from './dictionary/dictionarylist/dictionarylist.component';
 import { DesignerComponent } from './flow/designer/designer.component';
 import { FlowlistComponent } from './flow/flowlist/flowlist.component';
+import { I18nlistComponent } from './resource/i18nlist/i18nlist.component';
 import { TenantlistComponent } from './tenant/tenantlist/tenantlist.component';
 import { UserlistComponent } from './user/userlist/userlist.component';
+import { DynamicformlistComponent } from './util/dynamicform/dynamicformlist/dynamicformlist.component';
 
 const routes: Routes = [
   {
@@ -45,6 +49,10 @@ const routes: Routes = [
       { path: 'device/devicescene', component: DevicesceneComponent },
       { path: 'flow/designer', component: DesignerComponent },
       { path: 'flow/flowlist', component: FlowlistComponent },
+      { path: 'dictionary/dictionarylist', component: DictionarylistComponent },
+      { path: 'dictionary/dictionarygrouplist', component: DictionarygrouplistComponent },
+      { path: 'resouce/i18nlist', component: I18nlistComponent },
+      { path: 'util/dynamicformlist', component: DynamicformlistComponent },
     ],
   },
 

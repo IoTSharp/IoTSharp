@@ -20,6 +20,19 @@ import { FlowlistComponent } from './flow/flowlist/flowlist.component';
 import { FlowformComponent } from './flow/flowform/flowform.component';
 import { DiagramComponent } from './flow/diagram/diagram.component';
 import { DesignerComponent } from './flow/designer/designer.component';
+import { DynamicformlistComponent } from './util/dynamicform/dynamicformlist/dynamicformlist.component';
+import { DynamicformeditorComponent } from './util/dynamicform/dynamicformeditor/dynamicformeditor.component';
+import { DynamicformdesignerComponent } from './util/dynamicform/dynamicformdesigner/dynamicformdesigner.component';
+import { DynamicformtesterComponent } from './util/dynamicform/dynamicformtester/dynamicformtester.component';
+import { DynamicformfieldeditorComponent } from './util/dynamicform/dynamicformfieldeditor/dynamicformfieldeditor.component';
+import { FlowsimulatorComponent } from './util/flow/flowsimulator/flowsimulator.component';
+import { FieldpartComponent } from './util/dynamicform/fieldpart/fieldpart.component';
+import { DictionarygrouplistComponent } from './dictionary/dictionarygrouplist/dictionarygrouplist.component';
+import { DictionarylistComponent } from './dictionary/dictionarylist/dictionarylist.component';
+import { DictionaryformComponent } from './dictionary/dictionaryform/dictionaryform.component';
+import { DictionarygroupformComponent } from './dictionary/dictionarygroupform/dictionarygroupform.component';
+import { I18nlistComponent } from './resource/i18nlist/i18nlist.component';
+import { I18nformComponent } from './resource/i18nform/i18nform.component';
 
 const COMPONENTS: Type<null>[] = [];
 
@@ -42,6 +55,19 @@ const COMPONENTS: Type<null>[] = [];
     FlowlistComponent,
     FlowformComponent,
     DiagramComponent,
+    DynamicformlistComponent,
+    DynamicformeditorComponent,
+    DynamicformdesignerComponent,
+    DynamicformtesterComponent,
+    DynamicformfieldeditorComponent,
+    FlowsimulatorComponent,
+    FieldpartComponent,
+    DictionarygrouplistComponent,
+    DictionarylistComponent,
+    DictionaryformComponent,
+    DictionarygroupformComponent,
+    I18nlistComponent,
+    I18nformComponent,
   ],
 })
 export class RoutesModule {}

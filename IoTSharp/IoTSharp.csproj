@@ -141,4 +141,7 @@
 	  <ProjectReference Include="..\IoTSharp.Data.SqlServer\IoTSharp.Data.SqlServer.csproj" />
 	  <ProjectReference Include="..\IoTSharp.Data\IoTSharp.Data.csproj" />
 	</ItemGroup>
+	<ItemGroup>
+	  <Folder Include="App_Code\Util\" />
+	</ItemGroup>
 </Project>
