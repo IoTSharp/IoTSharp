@@ -44,18 +44,25 @@ export class DynamicformfieldeditorComponent implements OnInit {
     concat(
       this.http.post('api/dictionary/index', { DictionaryGroupId: 1, pi: 0, ps: 50 }).pipe(
         map((x) => {
-          this.AllSuportType = x.Result;
+          this.AllSuportType = x.result.rows.map((x) => {
+            return { label: x.dictionaryName, value: x.dictionaryValue };
+          });
+
+          console.log(this.AllSuportType);
         }),
       ),
       this.http.post('api/dictionary/index', { DictionaryGroupId: 2, pi: 0, ps: 50 }).pipe(
         map((x) => {
-          this.AllControlType = x.Result;
+          this.AllControlType = x.result.rows.map((x) => {
+            return { label: x.dictionaryName, value: x.dictionaryValue };
+          });
+          console.log(this.AllControlType);
         }),
       ),
       this.http.get('api/dynamicforminfo/getParams?id=' + this.id).pipe(
         map((x) => {
-          if (x.Result.propdata) {
-            for (var i = 0; i < x.Result.propdata.length; i++) {
+          if (x.result.propdata) {
+            for (var i = 0; i < x.result.propdata.length; i++) {
               //始终从头插入
               const componentRef = this.viewContainerRef.createComponent<FieldpartComponent>(this.componentFactory, 0);
               let key = this.makeString();
@@ -72,7 +79,7 @@ export class DynamicformfieldeditorComponent implements OnInit {
                 x.Result.propdata[i].FieldUIElement + '',
                 x.Result.propdata[i].FieldUnit,
                 {
-                  properties: this.createschema(x.Result.propdata[i].FieldUIElement, x.Result.propdata[i].FieldUIElementSchema),
+                  properties: this.createschema(x.result.propdata[i].FieldUIElement, x.result.propdata[i].FieldUIElementSchema),
                 },
                 {},
                 //  () => {},

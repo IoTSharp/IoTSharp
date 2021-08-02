@@ -1,14 +1,14 @@
 import { ChangeDetectorRef, Component, OnInit, TemplateRef, ViewChild } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { STChange, STColumn, STComponent, STData, STPage, STReq, STRes } from '@delon/abc/st';
-import { ModalHelper, _HttpClient } from '@delon/theme';
+import { ModalHelper, SettingsService, _HttpClient } from '@delon/theme';
 import { NzMessageService } from 'ng-zorro-antd/message';
 import { map, tap } from 'rxjs/operators';
 import { Validators, FormBuilder, FormGroup } from '@angular/forms/forms';
 import { NzDrawerRef, NzDrawerService } from 'ng-zorro-antd/drawer';
 
 import { ACLService } from '@delon/acl';
-import { Globals } from 'src/app/core/Globals';
+
 import { TenantformComponent } from '../tenantform/tenantform.component';
 
 @Component({
@@ -101,7 +101,7 @@ export class TenantlistComponent implements OnInit {
 
     private router: ActivatedRoute,
     private drawerService: NzDrawerService,
-    private globals: Globals,
+    private settingService: SettingsService,
     aclSrv: ACLService,
   ) {}
 
@@ -109,11 +109,12 @@ export class TenantlistComponent implements OnInit {
 
   edit(id: string): void {
     let title = id == '-1' ? '新建租户' : '修改租户';
+    var { nzMaskClosable, width } = this.settingService.getData('drawerconfig');
     const drawerRef = this.drawerService.create<TenantformComponent, { id: string }, string>({
       nzTitle: title,
       nzContent: TenantformComponent,
-      nzWidth: this.globals.drawerwidth,
-      nzMaskClosable: this.globals.nzMaskClosable,
+      nzWidth: width,
+      nzMaskClosable: nzMaskClosable,
       nzContentParams: {
         id: id,
       },

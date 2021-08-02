@@ -3,12 +3,10 @@
   <nz-card [nzBordered]="false">
     <form nz-form [formGroup]="form" (ngSubmit)="submit()" se-container="1" labelWidth="200">
       <se label="字典分组" error="请选择字典分组" required>
-        <nz-select formControlName="DictionaryGroupId" nzPlaceHolder="选择字典分组" nzAllowClear [nzDropdownRender]="renderTemplate">
+        <nz-select formControlName="DictionaryGroupId" nzPlaceHolder="选择字典分组" nzAllowClear >
           <nz-option *ngFor="let o of optionList" [nzValue]="o.DictionaryGroupId" [nzLabel]="o.DictionaryGroupName"> </nz-option>
         </nz-select>
-        <ng-template #renderTemplate>
-          <nz-spin *ngIf="isManufactorLoading"></nz-spin>
-        </ng-template>
+     
       </se>
       <se label="字典名称" error="请输入字典名称" required>
         <input nz-input formControlName="DictionaryName" placeholder="请输入字典名称" />

@@ -33,13 +33,15 @@ import { DictionaryformComponent } from './dictionary/dictionaryform/dictionaryf
 import { DictionarygroupformComponent } from './dictionary/dictionarygroupform/dictionarygroupform.component';
 import { I18nlistComponent } from './resource/i18nlist/i18nlist.component';
 import { I18nformComponent } from './resource/i18nform/i18nform.component';
+import { fielddirective } from './util/dynamicform/fieldpartdirective';
 
 const COMPONENTS: Type<null>[] = [];
-
+const Directive: Type<void>[] = [fielddirective];
 @NgModule({
   imports: [SharedModule, RouteRoutingModule],
   declarations: [
     ...COMPONENTS,
+    ...Directive,
     TenantlistComponent,
     TenantformComponent,
     DeviceformComponent,

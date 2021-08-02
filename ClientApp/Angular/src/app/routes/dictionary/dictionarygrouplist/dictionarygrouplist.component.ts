@@ -1,10 +1,10 @@
 import { ChangeDetectorRef, Component, OnInit, TemplateRef, ViewChild } from '@angular/core';
 import { Router } from '@angular/router';
 import { STPage, STReq, STRes, STComponent, STColumnTag, STColumn, STData } from '@delon/abc/st';
-import { _HttpClient, ModalHelper } from '@delon/theme';
+import { _HttpClient, ModalHelper, SettingsService } from '@delon/theme';
 import { NzDrawerService } from 'ng-zorro-antd/drawer';
 import { NzMessageService } from 'ng-zorro-antd/message';
-import { Globals } from 'src/app/core/Globals';
+
 import { AppMessage } from '../../common/AppMessage';
 import { DictionarygroupformComponent } from '../dictionarygroupform/dictionarygroupform.component';
 
@@ -21,7 +21,7 @@ export class DictionarygrouplistComponent implements OnInit {
     private cdr: ChangeDetectorRef,
     private _router: Router,
     private drawerService: NzDrawerService,
-    private globals: Globals,
+    private settingService: SettingsService,
   ) {}
 
   page: STPage = {
@@ -190,12 +190,13 @@ export class DictionarygrouplistComponent implements OnInit {
     }
   }
   openComponent(id: Number): void {
+    var { nzMaskClosable, width } = this.settingService.getData('drawerconfig');
     var title = id == -1 ? '新增字典分组' : '修改字典分组';
     const drawerRef = this.drawerService.create<DictionarygroupformComponent, { id: Number }, string>({
       nzTitle: title,
       nzContent: DictionarygroupformComponent,
-      nzWidth: this.globals.drawerwidth,
-      nzMaskClosable: this.globals.nzMaskClosable,
+      nzWidth: width,
+      nzMaskClosable: nzMaskClosable,
       nzContentParams: {
         id: id,
       },

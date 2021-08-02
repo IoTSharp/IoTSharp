@@ -1,10 +1,10 @@
 import { ChangeDetectorRef, Component, OnInit, TemplateRef, ViewChild } from '@angular/core';
 import { Router } from '@angular/router';
 import { STPage, STReq, STRes, STComponent, STColumn, STData } from '@delon/abc/st';
-import { _HttpClient, ModalHelper } from '@delon/theme';
+import { _HttpClient, ModalHelper, SettingsService } from '@delon/theme';
 import { NzDrawerService } from 'ng-zorro-antd/drawer';
 import { NzMessageService } from 'ng-zorro-antd/message';
-import { Globals } from 'src/app/core/Globals';
+
 import { DynamicformeditorComponent } from '../dynamicformeditor/dynamicformeditor.component';
 import { DynamicformfieldeditorComponent } from '../dynamicformfieldeditor/dynamicformfieldeditor.component';
 import { DynamicformtesterComponent } from '../dynamicformtester/dynamicformtester.component';
@@ -22,7 +22,7 @@ export class DynamicformlistComponent implements OnInit {
     private cdr: ChangeDetectorRef,
     private _router: Router,
     private drawerService: NzDrawerService,
-    private globals: Globals,
+    private settingService: SettingsService,
   ) {}
 
   page: STPage = {
@@ -169,11 +169,12 @@ export class DynamicformlistComponent implements OnInit {
   ngOnInit() {}
   openComponent(id: Number): void {
     var title = id == -1 ? '新增表单' : '修改表单';
+    var { nzMaskClosable, width } = this.settingService.getData('drawerconfig');
     const drawerRef = this.drawerService.create<DynamicformeditorComponent, { id: Number }, string>({
       nzTitle: title,
       nzContent: DynamicformeditorComponent,
-      nzWidth: this.globals.drawerwidth,
-      nzMaskClosable: this.globals.nzMaskClosable,
+      nzWidth: width,
+      nzMaskClosable: nzMaskClosable,
 
       nzContentParams: {
         id: id,
@@ -192,11 +193,12 @@ export class DynamicformlistComponent implements OnInit {
 
   openFieldComponent(id: Number): void {
     var title = id == -1 ? '新增表单' : '修改表单';
+    var { nzMaskClosable, width } = this.settingService.getData('drawerconfig');
     const drawerRef = this.drawerService.create<DynamicformfieldeditorComponent, { id: Number }, string>({
       nzTitle: title,
       nzContent: DynamicformfieldeditorComponent,
-      nzWidth: this.globals.drawerwidth,
-      nzMaskClosable: this.globals.nzMaskClosable,
+      nzWidth: width,
+      nzMaskClosable: nzMaskClosable,
 
       nzContentParams: {
         id: id,
@@ -215,11 +217,12 @@ export class DynamicformlistComponent implements OnInit {
 
   openFormComponent(id: Number): void {
     var title = '预览';
+    var { nzMaskClosable, width } = this.settingService.getData('drawerconfig');
     const drawerRef = this.drawerService.create<DynamicformtesterComponent, { id: Number }, string>({
       nzTitle: title,
       nzContent: DynamicformtesterComponent,
-      nzWidth: this.globals.drawerwidth,
-      nzMaskClosable: this.globals.nzMaskClosable,
+      nzWidth: width,
+      nzMaskClosable: nzMaskClosable,
 
       nzContentParams: {
         id: id,

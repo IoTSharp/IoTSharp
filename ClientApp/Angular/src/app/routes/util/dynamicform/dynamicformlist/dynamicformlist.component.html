@@ -19,14 +19,10 @@
       </div>
     </form>
 
-    <button nz-button [nzType]="'primary'" (click)="openComponent(-1)">
+    <button nz-button [nzType]="'primary'" (click)="openComponent(-1)" acl [acl-ability]="102">
       <i nz-icon nzType="plus"></i>
       <span>{{ 'button.new' | translate }}</span>
     </button>
-    <!--<button nz-button [nzType]="'primary'" [routerLink]="['/manage/authority/roleform']" [queryParams]="{Id:-1}">
-            <i nz-icon nzType="plus"></i>
-            <span>{{ 'button.new' | translate }}</span>
-          </button>-->
 
     <st #st [columns]="columns" [data]="url" ps="3" [page]="page" [req]="req" [res]="res"> </st>
   </nz-card>

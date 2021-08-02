@@ -51,13 +51,22 @@ export class StartupService {
         this.httpClient.get('api/Account/MyInfo').pipe(
           map((appData) => {
             const res = appData as NzSafeAny;
-            console.log(res.status);
+
             this.settingService.setApp({ name: 'IotSharp', description: 'IotSharp' });
-
+            this.settingService.setData('drawerconfig', { width: 720, nzMaskClosable: false });
             this.settingService.setUser(res.data.customer);
+            var ACL = [];
+            if (!res.data.funcs) {
+              for (var i = 0; i < 500; i++) {
+                ACL = [...ACL, i];
+              }
+            } else {
+              this.aclService.setAbility(res.data.funcs);
+            }
 
-            this.aclService.setFull(true); //开启ACL
-
+            this.aclService.setAbility(ACL);
+            this.aclService.setFull(false); //开启ACL
+            console.log(this.aclService.data);
             var menu = [
               {
                 text: '主导航1',

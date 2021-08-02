@@ -1,5 +1,6 @@
 import { ChangeDetectorRef, Component, ElementRef, Input, OnInit, Type, ViewChild } from '@angular/core';
 import { Graph, Edge, Shape, NodeView, Cell, Color } from '@antv/x6';
+import { SettingsService } from '@delon/theme';
 import { Subscription } from 'rxjs';
 
 @Component({
@@ -140,7 +141,7 @@ export class DevicegraphComponent implements OnInit {
       },
     },
   ];
-  constructor(cdr: ChangeDetectorRef) {}
+  constructor(cdr: ChangeDetectorRef, private settingService: SettingsService) {}
 
   ngOnInit(): void {
     this.graph = new Graph({

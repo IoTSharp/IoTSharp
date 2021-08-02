@@ -1,10 +1,10 @@
 import { ChangeDetectorRef, Component, OnInit, TemplateRef, ViewChild } from '@angular/core';
 import { Router } from '@angular/router';
 import { STPage, STReq, STRes, STComponent, STColumn, STData } from '@delon/abc/st';
-import { _HttpClient, ModalHelper } from '@delon/theme';
+import { _HttpClient, ModalHelper, SettingsService } from '@delon/theme';
 import { NzDrawerService } from 'ng-zorro-antd/drawer';
 import { NzMessageService } from 'ng-zorro-antd/message';
-import { Globals } from 'src/app/core/Globals';
+
 import { DictionaryformComponent } from '../dictionaryform/dictionaryform.component';
 
 @Component({
@@ -20,7 +20,7 @@ export class DictionarylistComponent implements OnInit {
     private cdr: ChangeDetectorRef,
     private _router: Router,
     private drawerService: NzDrawerService,
-    private globals: Globals,
+    private settingService: SettingsService,
   ) {}
 
   page: STPage = {
@@ -105,13 +105,6 @@ export class DictionarylistComponent implements OnInit {
           acl: 56,
           click: (item: any) => {
             this.openComponent(item.dictionaryId);
-            //this._router.navigate(['manage/role/roleform'],
-            //  {
-            //    queryParams: {
-            //      UserId: item.UserId,
-            //      type: 'clone'
-            //    }
-            //  });
           },
         },
         {
@@ -161,12 +154,13 @@ export class DictionarylistComponent implements OnInit {
     );
   }
   openComponent(id: Number): void {
+    var { nzMaskClosable, width } = this.settingService.getData('drawerconfig');
     var title = id == -1 ? '新增字典' : '修改字典';
     const drawerRef = this.drawerService.create<DictionaryformComponent, { id: Number }, string>({
       nzTitle: title,
       nzContent: DictionaryformComponent,
-      nzWidth: this.globals.drawerwidth,
-      nzMaskClosable: this.globals.nzMaskClosable,
+      nzWidth: width,
+      nzMaskClosable: nzMaskClosable,
       nzContentParams: {
         id: id,
       },

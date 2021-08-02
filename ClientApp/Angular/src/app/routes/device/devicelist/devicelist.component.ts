@@ -1,14 +1,14 @@
 import { ChangeDetectorRef, Component, EventEmitter, OnInit, TemplateRef, ViewChild } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { STChange, STColumn, STComponent, STData, STPage, STReq, STRes } from '@delon/abc/st';
-import { ModalHelper, _HttpClient } from '@delon/theme';
+import { ModalHelper, SettingsService, _HttpClient } from '@delon/theme';
 import { NzMessageService } from 'ng-zorro-antd/message';
 import { map, tap } from 'rxjs/operators';
 import { Validators, FormBuilder, FormGroup } from '@angular/forms/forms';
 import { NzDrawerRef, NzDrawerService } from 'ng-zorro-antd/drawer';
 
 import { ACLService } from '@delon/acl';
-import { Globals } from 'src/app/core/Globals';
+
 import { DeviceformComponent } from '../deviceform/deviceform.component';
 import { PropformComponent } from '../propform/propform.component';
 import { zip } from 'rxjs';
@@ -29,7 +29,7 @@ export class DevicelistComponent implements OnInit {
     private _router: Router,
     private router: ActivatedRoute,
     private drawerService: NzDrawerService,
-    private globals: Globals,
+    private settingService: SettingsService,
     aclSrv: ACLService,
   ) {
     this.router.queryParams.subscribe(
@@ -126,6 +126,7 @@ export class DevicelistComponent implements OnInit {
   }
 
   edit(id: string): void {
+    var { nzMaskClosable, width } = this.settingService.getData('drawerconfig');
     let title = id == '-1' ? '新建设备' : '修改设备';
     const drawerRef = this.drawerService.create<
       DeviceformComponent,
@@ -139,8 +140,8 @@ export class DevicelistComponent implements OnInit {
     >({
       nzTitle: title,
       nzContent: DeviceformComponent,
-      nzWidth: this.globals.drawerwidth,
-      nzMaskClosable: this.globals.nzMaskClosable,
+      nzWidth: width,
+      nzMaskClosable: nzMaskClosable,
       nzContentParams: {
         params: {
           id: id,
@@ -155,6 +156,7 @@ export class DevicelistComponent implements OnInit {
   }
 
   SetAttribute(id: string): void {
+    var { nzMaskClosable, width } = this.settingService.getData('drawerconfig');
     let title = '属性修改';
     const drawerRef = this.drawerService.create<
       PropformComponent,
@@ -168,8 +170,8 @@ export class DevicelistComponent implements OnInit {
     >({
       nzTitle: title,
       nzContent: PropformComponent,
-      nzWidth: this.globals.drawerwidth,
-      nzMaskClosable: this.globals.nzMaskClosable,
+      nzWidth: width,
+      nzMaskClosable: nzMaskClosable,
       nzContentParams: {
         params: {
           id: id,

@@ -2,10 +2,10 @@ import { ChangeDetectorRef, Component, OnInit, TemplateRef, ViewChild } from '@a
 import { Router } from '@angular/router';
 import { STColumn, STComponent, STData, STPage, STReq, STRes } from '@delon/abc/st';
 import { ACLService } from '@delon/acl';
-import { _HttpClient, ModalHelper } from '@delon/theme';
+import { _HttpClient, ModalHelper, SettingsService } from '@delon/theme';
 import { NzDrawerService } from 'ng-zorro-antd/drawer';
 import { NzMessageService } from 'ng-zorro-antd/message';
-import { Globals } from 'src/app/core/Globals';
+
 import { FlowformComponent } from '../flowform/flowform.component';
 
 @Component({
@@ -21,7 +21,7 @@ export class FlowlistComponent implements OnInit {
     private cdr: ChangeDetectorRef,
     private _router: Router,
     private drawerService: NzDrawerService,
-    private globals: Globals,
+    private settingService: SettingsService,
     aclSrv: ACLService,
   ) {
     aclSrv.setFull(false);
@@ -159,12 +159,13 @@ export class FlowlistComponent implements OnInit {
 
   ngOnInit() {}
   openComponent(id: number): void {
+    var { nzMaskClosable, width } = this.settingService.getData('drawerconfig');
     var title = id == -1 ? '新建规则' : '修改规则';
     const drawerRef = this.drawerService.create<FlowformComponent, { id: number }, string>({
       nzTitle: title,
       nzContent: FlowformComponent,
-      nzWidth: this.globals.drawerwidth,
-      nzMaskClosable: this.globals.nzMaskClosable,
+      nzWidth: width,
+      nzMaskClosable: nzMaskClosable,
       nzContentParams: {
         id: id,
       },
