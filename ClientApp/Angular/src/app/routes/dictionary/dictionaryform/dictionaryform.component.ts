@@ -51,7 +51,7 @@ export class DictionaryformComponent implements OnInit {
     });
 
     if (this.id !== -1) {
-      this._httpClient.get<AppMessage>('api/manage/dictionary/get?id=' + this.id).subscribe(
+      this._httpClient.get<AppMessage>('api/dictionary/get?id=' + this.id).subscribe(
         (x) => {
           this.form.patchValue(x.result);
         },
@@ -63,7 +63,7 @@ export class DictionaryformComponent implements OnInit {
 
   submit() {
     this.submitting = true;
-    var uri = this.id > 0 ? 'api/manage/dictionary/update' : 'api/manage/dictionary/save';
+    var uri = this.id > 0 ? 'api/dictionary/update' : 'api/dictionary/save';
     this._httpClient.post(uri, this.form.value).subscribe(
       (x) => {
         this.submitting = false;

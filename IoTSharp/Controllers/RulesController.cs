@@ -1,20 +1,29 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
-using Dynamitey;
-
+using Castle.Components.DictionaryAdapter;
 using IoTSharp.Controllers.Models;
 using IoTSharp.Data;
+using IoTSharp.FlowRuleEngine.Models;
+using IoTSharp.FlowRuleEngine.Models.Task;
 using IoTSharp.Models;
 using IoTSharp.Models.Rule;
+using IoTSharp.Models.Rule.Params;
 using LinqKit;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+using System.CodeDom.Compiler;
+using System.Diagnostics;
+using System.IO;
+using System.Reflection;
+using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.Emit;
 
 
 namespace IoTSharp.Controllers
@@ -43,7 +52,7 @@ namespace IoTSharp.Controllers
                 expression = expression.And(x => x.Name.Contains(m.Name));
             }
 
-            if (m.CreatTime != null)
+            if (m.CreatTime != null && m.CreatTime.Length == 2)
             {
                 expression = expression.And(x => x.CreatTime > m.CreatTime[0] && x.CreatTime < m.CreatTime[1]);
             }
@@ -60,7 +69,7 @@ namespace IoTSharp.Controllers
                 ErrType = ErrType.正常返回,
                 Result = new
                 {
-                    rows = _context.FlowRules.OrderByDescending(c => c.CreatTime).Where(expression).Skip(m.offset * m.limit).Take(m.limit)
+                    rows = _context.FlowRules.OrderByDescending(c => c.RuleId).Where(expression).Skip(m.offset * m.limit).Take(m.limit)
                         .ToList(),
                     totel = _context.FlowRules.Count(expression)
                 }
@@ -129,10 +138,10 @@ namespace IoTSharp.Controllers
                 rule.RuleStatus = -1;
                 _context.FlowRules.Update(rule);
                 _context.SaveChanges();
-                return new AppMessage {ErrType = ErrType.正常返回,};
+                return new AppMessage { ErrType = ErrType.正常返回, };
             }
 
-            return new AppMessage {ErrType = ErrType.找不到对象,};
+            return new AppMessage { ErrType = ErrType.找不到对象, };
         }
 
         [HttpGet("[action]")]
@@ -141,20 +150,20 @@ namespace IoTSharp.Controllers
             var rule = _context.FlowRules.FirstOrDefault(c => c.RuleId == id);
             if (rule != null)
             {
-                return new AppMessage<FlowRule> {ErrType = ErrType.正常返回, Result = rule};
+                return new AppMessage<FlowRule> { ErrType = ErrType.正常返回, Result = rule };
             }
 
-            return new AppMessage<FlowRule> {ErrType = ErrType.找不到对象,};
+            return new AppMessage<FlowRule> { ErrType = ErrType.找不到对象, };
         }
 
-      
+
 
 
         [HttpPost("[action]")]
-        public ActionResult SaveDiagram(ModelWorkFlow m)
+        public AppMessage SaveDiagram(ModelWorkFlow m)
         {
             var user = _userManager.GetUserId(User);
-            var activity = JsonConvert.DeserializeObject<Activity>(m.Biz);
+            var activity = JsonConvert.DeserializeObject<IoTSharp.Models.Rule.Activity>(m.Biz);
 
             var rule = _context.FlowRules.FirstOrDefault(c => c.RuleId == activity.RuleId);
             rule.DefinitionsXml = m.Xml;
@@ -218,7 +227,8 @@ namespace IoTSharp.Controllers
                     bpmnid = c.id,
                     FlowType = c.bpmntype,
                     SourceId = c.sourceId,
-                    TargetId = c.targetId, Conditionexpression = c.BizObject.conditionexpression,
+                    TargetId = c.targetId,
+                    Conditionexpression = c.BizObject.conditionexpression,
                     NodeProcessParams = c.BizObject.NodeProcessParams
 
                 }).ToList());
@@ -355,8 +365,8 @@ namespace IoTSharp.Controllers
 
             }
 
-            return new JsonResult(new AppMessage
-                {ErrMessage = "操作成功", ErrType = ErrType.正常返回, IsVisble = true, ErrLevel = ErrLevel.Success});
+            return new AppMessage
+            { ErrMessage = "操作成功", ErrType = ErrType.正常返回, IsVisble = true, ErrLevel = ErrLevel.Success };
         }
 
 
@@ -366,7 +376,7 @@ namespace IoTSharp.Controllers
         {
 
             var ruleflow = _context.FlowRules.FirstOrDefault(c => c.RuleId == id);
-            Activity activity = new Activity();
+            IoTSharp.Models.Rule.Activity activity = new IoTSharp.Models.Rule.Activity();
 
             activity.SequenceFlows ??= new List<SequenceFlow>();
             activity.GateWays ??= new List<GateWay>();
@@ -824,7 +834,7 @@ namespace IoTSharp.Controllers
                         activity.RuleId = ruleflow.RuleId;
                         activity.DefinitionsName = ruleflow.Name;
                         activity.DefinitionsStatus = ruleflow.RuleStatus ?? 0;
-                       
+
                         activity.BaseBpmnObjects ??= new List<BpmnBaseObject>();
                         activity.BaseBpmnObjects.Add(node);
                         break;
@@ -836,7 +846,8 @@ namespace IoTSharp.Controllers
             {
                 Result = new
                 {
-                    Xml = ruleflow.DefinitionsXml?.Trim('\r'), Biz = activity
+                    Xml = ruleflow.DefinitionsXml?.Trim('\r'),
+                    Biz = activity
                 }
             };
         }
@@ -850,16 +861,130 @@ namespace IoTSharp.Controllers
 
 
         [HttpPost("[action]")]
-        public AppMessage Active(string id)
+        public async Task<AppMessage> Active([FromBody] JObject form)
         {
+           
+            string textcode = "public class DemoParam{public int Temperature { get; set; }public int humidity { get; set; }}";
+
+            List<string> referencedDlls = new EditableList<string>();
+            var parameters = new CompilerParameters(
+                assemblyNames: referencedDlls.ToArray(),
+                outputName: "demo",
+                // only include debug information if we are currently debugging
+                includeDebugInformation: Debugger.IsAttached);
+    
+            parameters.GenerateInMemory = true;
+
+            var compiler = CodeDomProvider.CreateProvider("CSharp");
+          
+            //添加需要引用的dll
+            var results = compiler.CompileAssemblyFromSource(parameters, new []{ textcode });
+
+          var compiledAssembly=  results.CompiledAssembly;
+
+
+            var formdata = form.First.First;
+          var s=  formdata.ToObject<DemoParam>();
+            var extradata = form.First.Next;
+            var obj = extradata.First.First.First.Value<JToken>();
+            var formid = obj.Value<int>();
+
+
+            var _params = _context.DynamicFormFieldInfos.Where(c => c.FormId == 1).ToList();
+
+
+
+            AbstractTaskExcutor taskExcutor = new AbstractTaskExcutor();
+
+            var tasks = new BaseRuleTask()
+            { Name = "aa", Eventid = "aa", id = "aa",
+
+                outgoing = new EditableList<BaseRuleFlow>()
+            };
+
+            var rule1 = new BaseRuleFlow();
+            rule1.Expression = "Temperature>2";
+            rule1.id = "1";
+            rule1.Name = "Name1";
+            rule1.Eventid = "Eventid1";
+             var rule2 = new BaseRuleFlow();
+             rule2.id = "2";
+             rule2.Name = "Name2";
+             rule2.Eventid = "Eventid2";
+            rule2.Expression = "Temperature>100";
+            var rule3 = new BaseRuleFlow();
+            rule3.id = "3";
+            rule3.Name = "Name3";
+            rule3.Eventid = "Eventid3";
+            rule3.Expression = "Temperature>1000";
+            tasks.outgoing.Add(rule1);
+            tasks.outgoing.Add(rule2);
+            tasks.outgoing.Add(rule3);
+         var result=   await taskExcutor.Excute(new ExcuteEntity()
+            {
+                Action = null,
+                Params = s,
+                Task = tasks,
+                WaitTime = 0
+
+            });
+
+
+            foreach (var item in _params)
+            {
+                foreach (JProperty _item in formdata)
+                {
+                    if (_item.Path == "form." + item.FieldCode)
+                    {
+
+                        var v = _item.First.Value<JToken>();
+                        var vl = DynamicProp.GetValue(item.FieldValueType ?? 4, v).ToString();
+
+                        var code = item.FieldCode;
+
+                    }
+                }
+            }
+
+
+
             return new AppMessage();
         }
 
 
-        private void findNext()
+        private void FindNext()
         {
 
 
+
+        }
+
+        private Type BuildPocoObject(string classtext)
+        {
+            MetadataReference[] references = {
+                MetadataReference.CreateFromFile(typeof(object).Assembly.Location),
+                MetadataReference.CreateFromFile(typeof(Enumerable).Assembly.Location)
+            };
+            var tree = SyntaxFactory.ParseSyntaxTree(classtext);
+            CSharpCompilation compilation = CSharpCompilation.Create("Poco", new[] { tree }, references, new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
+            using var ms = new MemoryStream();
+            EmitResult result = compilation.Emit(ms);
+            if (!result.Success)
+            {
+                IEnumerable<Diagnostic> failures = result.Diagnostics.Where(diagnostic =>
+                    diagnostic.IsWarningAsError ||
+                    diagnostic.Severity == DiagnosticSeverity.Error);
+                foreach (Diagnostic diagnostic in failures)
+                {
+                 
+                }
+                return null;
+            }
+            else
+            {
+                ms.Seek(0, SeekOrigin.Begin);
+                return  Assembly.Load(ms.ToArray()).DefinedTypes.FirstOrDefault();
+            }
 
         }
 
@@ -867,5 +992,5 @@ namespace IoTSharp.Controllers
 
 
 
-   
+
 }

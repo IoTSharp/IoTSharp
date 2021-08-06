@@ -5,6 +5,7 @@ import { ACLService } from '@delon/acl';
 import { _HttpClient, ModalHelper, SettingsService } from '@delon/theme';
 import { NzDrawerService } from 'ng-zorro-antd/drawer';
 import { NzMessageService } from 'ng-zorro-antd/message';
+import { FlowsimulatorComponent } from '../../util/flow/flowsimulator/flowsimulator.component';
 
 import { FlowformComponent } from '../flowform/flowform.component';
 
@@ -50,7 +51,7 @@ export class FlowlistComponent implements OnInit {
     status: null,
   };
   total = 0;
-  data: any[] = [];
+
   loading = false;
 
   url = 'api/rules/index';
@@ -87,9 +88,9 @@ export class FlowlistComponent implements OnInit {
       title: '操作',
       buttons: [
         {
-          //    acl: 9,  权限已经启用，如果ACL没有，则按钮不会渲染，如需控制权限则
+          acl: 9,
           text: '修改',
-          click: (item: any) => {
+          click: (item: ruleflow) => {
             this.openComponent(item.ruleId);
           },
         },
@@ -100,14 +101,14 @@ export class FlowlistComponent implements OnInit {
             okType: 'danger',
             icon: 'warning',
           },
-          click: (item: any) => {
+          click: (item: ruleflow) => {
             this.openComponent(item.ruleId);
           },
         },
         {
           text: '设计',
-          //    acl: 104,
-          click: (item: any) => {
+          acl: 104,
+          click: (item: ruleflow) => {
             this._router.navigate(['/iot/flow/designer'], {
               queryParams: {
                 Id: item.ruleId,
@@ -118,16 +119,10 @@ export class FlowlistComponent implements OnInit {
         },
         {
           text: '测试',
-          //    acl: 104,
+          acl: 104,
 
-          click: (item: any) => {
-            this.http.get('api/rules/delete?id=' + item.ruleId).subscribe(
-              (x) => {
-                this.getData();
-              },
-              (y) => {},
-              () => {},
-            );
+          click: (item: ruleflow) => {
+            this.testthisflow(item);
           },
         },
 
@@ -139,7 +134,7 @@ export class FlowlistComponent implements OnInit {
             okType: 'danger',
             icon: 'warning',
           },
-          click: (item: any) => {
+          click: (item: ruleflow) => {
             this.http.get('api/rules/delete?id=' + item.ruleId).subscribe(
               (x) => {
                 this.getData();
@@ -180,11 +175,42 @@ export class FlowlistComponent implements OnInit {
     });
   }
 
+  testthisflow(ruleflow: ruleflow): void {
+    var { nzMaskClosable, width } = this.settingService.getData('drawerconfig');
+
+    var title = '测试' + ruleflow.name;
+    const drawerRef = this.drawerService.create<FlowsimulatorComponent, { id: number }, string>({
+      nzTitle: title,
+      nzContent: FlowsimulatorComponent,
+      nzWidth: width < 1280 ? 1280 : width,
+      nzMaskClosable: nzMaskClosable,
+      nzContentParams: {
+        id: ruleflow.ruleId,
+      },
+    });
+
+    drawerRef.afterOpen.subscribe(() => {});
+
+    drawerRef.afterClose.subscribe((data) => {
+      this.st.load(this.st.pi);
+      if (typeof data === 'string') {
+      }
+    });
+  }
+
   getData() {
-    console.log(this.req);
     this.st.req = this.req;
-    this.st.load(1);
+    this.st.load(this.st.pi);
   }
 
   setstatus(number: number, status: number) {}
+}
+
+export interface ruleflow {
+  ruleId: number;
+  name: string;
+  ruledesc: string;
+  CreatTime: Date;
+  rulestatus: number;
+  definitionsXml: string;
 }

@@ -39,7 +39,7 @@ export class DictionarygroupformComponent implements OnInit {
     });
 
     if (this.id !== -1) {
-      this._httpClient.get<AppMessage>('api/manage/dictionarygroup/get?id=' + this.id).subscribe(
+      this._httpClient.get<AppMessage>('api/dictionarygroup/get?id=' + this.id).subscribe(
         (x) => {
           this.form.patchValue(x.result);
         },
@@ -51,7 +51,7 @@ export class DictionarygroupformComponent implements OnInit {
 
   submit() {
     this.submitting = true;
-    var uri = this.id > 0 ? 'api/manage/dictionarygroup/update' : 'api/manage/dictionarygroup/save';
+    var uri = this.id > 0 ? 'api/dictionarygroup/update' : 'api/dictionarygroup/save';
     this._httpClient.post(uri, this.form.value).subscribe(
       (x) => {
         this.submitting = false;

@@ -34,11 +34,15 @@ import { DictionarygroupformComponent } from './dictionary/dictionarygroupform/d
 import { I18nlistComponent } from './resource/i18nlist/i18nlist.component';
 import { I18nformComponent } from './resource/i18nform/i18nform.component';
 import { fielddirective } from './util/dynamicform/fieldpartdirective';
+import { DynamicformresultviewComponent } from './util/dynamicform/dynamicformresultview/dynamicformresultview.component';
+import { DynamicformviewComponent } from './util/dynamicform/dynamicformview/dynamicformview.component';
+import { WidgetsModule } from './widgets/widgets.module';
+import { CodeviewComponent } from './util/code/codeview/codeview.component';
 
 const COMPONENTS: Type<null>[] = [];
 const Directive: Type<void>[] = [fielddirective];
 @NgModule({
-  imports: [SharedModule, RouteRoutingModule],
+  imports: [SharedModule, RouteRoutingModule, WidgetsModule],
   declarations: [
     ...COMPONENTS,
     ...Directive,
@@ -70,6 +74,9 @@ const Directive: Type<void>[] = [fielddirective];
     DictionarygroupformComponent,
     I18nlistComponent,
     I18nformComponent,
+    DynamicformresultviewComponent,
+    DynamicformviewComponent,
+    CodeviewComponent,
   ],
 })
 export class RoutesModule {}

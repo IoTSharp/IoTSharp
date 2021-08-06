@@ -25,5 +25,6 @@ namespace IoTSharp.Data
         public string DictionaryDesc { get; set; }
         public string DictionaryColor { get; set; }
         public string DictionaryIcon { get; set; }
+        public string DictionaryTag { get; set; }
     }
 }

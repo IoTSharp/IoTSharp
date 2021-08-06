@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Text;
 using System.Threading.Tasks;
 using IoTSharp.Controllers.Models;
 using IoTSharp.Data;
@@ -289,7 +290,28 @@ namespace IoTSharp.Controllers
                         _context.SaveChanges();
                     }
 
+
+                 var allfields=   _context.DynamicFormFieldInfos.Where(c => c.FormId == model.Id &&
+                                                              c.FieldStatus > -1).ToList();
+
+                 var typeinfo = _context.BaseDictionaries.Where(c => c.DictionaryGroupId == 2 && c.DictionaryStatus > 0)
+                     .ToList();
+
+
+                 StringBuilder builder = new StringBuilder("public class FormData" + model.Id + "{\n");
+                 allfields.ForEach(x =>
+                 {
+
+
+                     builder.Append("public ").Append(x.FieldValue).Append(" ").Append(x.FieldName)
+                         .Append("{ get; set;}\n");
+
+                 });
+                 builder.Append("}");
+
                 }
+
+
                 return new AppMessage
                 {
                     ErrType = ErrType.正常返回
@@ -362,6 +384,21 @@ namespace IoTSharp.Controllers
 
         }
 
+
+        [HttpGet("[action]")]
+        public AppMessage CodeGen(FormFieldData model)
+        {
+            // a stupid code generator
+
+
+            
+
+            return new AppMessage
+            {
+                ErrType = ErrType.正常返回,
+         
+            };
+        }
 
     }
 

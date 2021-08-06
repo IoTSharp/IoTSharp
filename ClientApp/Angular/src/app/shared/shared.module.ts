@@ -11,11 +11,13 @@ import { SHARED_DELON_MODULES } from './shared-delon.module';
 import { SHARED_ZORRO_MODULES } from './shared-zorro.module';
 import { DragDropModule } from '@angular/cdk/drag-drop';
 import { DragAndDropModule } from 'angular-draggable-droppable';
+import { NgxJsonViewModule } from 'ngw-json-view';
+
 // #region third libs
 // import { NgxTinymceModule } from 'ngx-tinymce';
-// import { UEditorModule } from 'ngx-ueditor';
+import { UEditorModule } from 'ngx-ueditor';
 
-const THIRDMODULES: Type<any>[] = [DragDropModule, DragAndDropModule];
+const THIRDMODULES: Type<any>[] = [DragDropModule, DragAndDropModule, NgxJsonViewModule];
 // #endregion
 
 // #region your componets & directives

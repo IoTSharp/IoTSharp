@@ -20,6 +20,8 @@ namespace IoTSharp.Data
         public string FormDesc { get; set; }
         public int? FormStatus { get; set; }
         public string FormSchame { get; set; }
+        public string ModelClass { get; set; }
+        public string Url { get; set; }
         public Guid Creator { get; set; }
         public DateTime? FromCreateDate { get; set; }
     }

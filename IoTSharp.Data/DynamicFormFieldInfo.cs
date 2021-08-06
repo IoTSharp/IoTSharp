@@ -24,6 +24,7 @@ namespace IoTSharp.Data
         public string FieldCode { get; set; }
         public string FieldUnit { get; set; }
         public bool? IsRequired { get; set; }
+        public bool? IsEnabled { get; set; }
         public int? FieldStatus { get; set; }
         public string FieldI18nKey { get; set; }
         public string FieldValueDataSource { get; set; }

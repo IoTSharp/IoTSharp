@@ -16,6 +16,7 @@ import { FlowlistComponent } from './flow/flowlist/flowlist.component';
 import { I18nlistComponent } from './resource/i18nlist/i18nlist.component';
 import { TenantlistComponent } from './tenant/tenantlist/tenantlist.component';
 import { UserlistComponent } from './user/userlist/userlist.component';
+import { CodeviewComponent } from './util/code/codeview/codeview.component';
 import { DynamicformlistComponent } from './util/dynamicform/dynamicformlist/dynamicformlist.component';
 
 const routes: Routes = [
@@ -53,6 +54,7 @@ const routes: Routes = [
       { path: 'dictionary/dictionarygrouplist', component: DictionarygrouplistComponent },
       { path: 'resouce/i18nlist', component: I18nlistComponent },
       { path: 'util/dynamicformlist', component: DynamicformlistComponent },
+      { path: 'code/codeview', component: CodeviewComponent },
     ],
   },
 

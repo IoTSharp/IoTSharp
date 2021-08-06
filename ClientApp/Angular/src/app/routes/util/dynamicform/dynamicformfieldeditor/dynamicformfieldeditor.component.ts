@@ -42,7 +42,7 @@ export class DynamicformfieldeditorComponent implements OnInit {
 
     //一定要顺序发射指令
     concat(
-      this.http.post('api/dictionary/index', { DictionaryGroupId: 1, pi: 0, ps: 50 }).pipe(
+      this.http.post('api/dictionary/index', { DictionaryGroupId: 1, pi: 0, ps: 20, limit: 20, offset: 0 }).pipe(
         map((x) => {
           this.AllSuportType = x.result.rows.map((x) => {
             return { label: x.dictionaryName, value: x.dictionaryValue };
@@ -51,7 +51,7 @@ export class DynamicformfieldeditorComponent implements OnInit {
           console.log(this.AllSuportType);
         }),
       ),
-      this.http.post('api/dictionary/index', { DictionaryGroupId: 2, pi: 0, ps: 50 }).pipe(
+      this.http.post('api/dictionary/index', { DictionaryGroupId: 2, pi: 0, ps: 20, limit: 20, offset: 0 }).pipe(
         map((x) => {
           this.AllControlType = x.result.rows.map((x) => {
             return { label: x.dictionaryName, value: x.dictionaryValue };
@@ -62,6 +62,20 @@ export class DynamicformfieldeditorComponent implements OnInit {
       this.http.get('api/dynamicforminfo/getParams?id=' + this.id).pipe(
         map((x) => {
           if (x.result.propdata) {
+            x.result.propdata = x.result.propdata.map((x) => {
+              return {
+                FieldId: x.fieldId,
+                FieldName: x.fieldName,
+                FieldValue: x.fieldValue,
+                FieldValueType: x.fieldValueType,
+                FieldValueDataSource: x.fieldValueDataSource,
+                FieldUIElementSchema: x.fieldUIElementSchema,
+                FieldUIElement: x.fieldUIElement,
+                FieldCode: x.fieldCode,
+                IsRequired: x.isRequired,
+              };
+            });
+
             for (var i = 0; i < x.result.propdata.length; i++) {
               //始终从头插入
               const componentRef = this.viewContainerRef.createComponent<FieldpartComponent>(this.componentFactory, 0);
@@ -70,21 +84,21 @@ export class DynamicformfieldeditorComponent implements OnInit {
               componentRef.instance.AllControlType = this.AllControlType;
               let e = new FormField(
                 key,
-                x.Result.propdata[i].FieldId,
-                x.Result.propdata[i].FieldName,
-                x.Result.propdata[i].FieldValue,
-                x.Result.propdata[i].FieldValueType,
-                x.Result.propdata[i].FieldValueDataSource,
-                x.Result.propdata[i].FieldUIElementSchema,
-                x.Result.propdata[i].FieldUIElement + '',
-                x.Result.propdata[i].FieldUnit,
+                x.result.propdata[i].FieldId,
+                x.result.propdata[i].FieldName,
+                x.result.propdata[i].FieldValue,
+                x.result.propdata[i].FieldValueType,
+                x.result.propdata[i].FieldValueDataSource,
+                x.result.propdata[i].FieldUIElementSchema,
+                x.result.propdata[i].FieldUIElement + '',
+                x.result.propdata[i].FieldUnit,
                 {
                   properties: this.createschema(x.result.propdata[i].FieldUIElement, x.result.propdata[i].FieldUIElementSchema),
                 },
                 {},
                 //  () => {},
-                x.Result.propdata[i].FieldCode,
-                x.Result.propdata[i].IsRequired,
+                x.result.propdata[i].FieldCode,
+                x.result.propdata[i].IsRequired,
               );
               componentRef.instance.FormField = e;
               componentRef.instance.OnRemove.subscribe((x) => {
@@ -178,7 +192,7 @@ export class DynamicformfieldeditorComponent implements OnInit {
     //   });
 
     this.http
-      .post('api/manage/dynamicforminfo/saveparams', {
+      .post('api/dynamicforminfo/saveparams', {
         Id: this.id,
         propdata: this.FieldDatas.map((x) => {
           return {

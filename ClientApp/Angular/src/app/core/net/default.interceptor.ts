@@ -201,10 +201,11 @@ export class DefaultInterceptor implements HttpInterceptor {
         break;
       case 401:
         this.tokenSrv.clear();
+        this.toLogin();
         if (this.refreshTokenEnabled && this.refreshTokenType === 're-request') {
           return this.tryRefreshToken(ev, req, next);
         }
-        this.toLogin();
+
         break;
       case 403:
       case 404:

@@ -71,6 +71,7 @@
 		<PackageReference Include="Maikebing.HealthChecks.Taos" Version="2.0.304" />
 		<PackageReference Include="MaiKeBing.HostedService.ZeroMQ" Version="1.0.32" />
 		<PackageReference Include="Microsoft.AspNetCore.Http.Features" Version="5.0.7" />
+		<PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="5.0.8" />
 		<PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="5.0.7">
 			<PrivateAssets>all</PrivateAssets>
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
@@ -95,6 +96,7 @@
 		<PackageReference Include="Silkier.EFCore" Version="1.0.345" />
 		<PackageReference Include="SilkierQuartz" Version="5.0.244" />
 		<PackageReference Include="SilkierQuartz.Plugins.RecentHistory" Version="5.0.244" />
+		<PackageReference Include="System.CodeDom" Version="5.0.0" />
 		<PackageReference Include="System.Collections" Version="4.3.0" />
 		<PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="6.11.1" />
 		<PackageReference Include="System.ServiceModel.Primitives" Version="4.8.1" />
@@ -140,8 +142,5 @@
 	  <ProjectReference Include="..\IoTSharp.Data.Sqlite\IoTSharp.Data.Sqlite.csproj" />
 	  <ProjectReference Include="..\IoTSharp.Data.SqlServer\IoTSharp.Data.SqlServer.csproj" />
 	  <ProjectReference Include="..\IoTSharp.Data\IoTSharp.Data.csproj" />
-	</ItemGroup>
-	<ItemGroup>
-	  <Folder Include="App_Code\Util\" />
 	</ItemGroup>
 </Project>
