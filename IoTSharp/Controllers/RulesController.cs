@@ -19,11 +19,14 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System.CodeDom.Compiler;
 using System.Diagnostics;
+using System.Dynamic;
 using System.IO;
 using System.Reflection;
+using IoTSharp.Extensions;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.Emit;
+
 
 
 namespace IoTSharp.Controllers
@@ -851,11 +854,125 @@ namespace IoTSharp.Controllers
                 }
             };
         }
-        [HttpPost("[action]")]
-        public AppMessage Process(FlowRule m)
+
+        private async System.Threading.Tasks.Task Process(Flow flow, List<Flow> allflow, object data,int nextstep)
         {
 
-            return new AppMessage();
+            switch (flow.FlowType)
+            {
+                case "bpmn:SequenceFlow":
+                    var t = allflow.FirstOrDefault(c => c.TargetId == flow.bpmnid);
+                    _context.FlowOperations.Add(new FlowOperation() { AddDate = DateTime.Now, RuleId = flow.RuleId, FlowId = t.FlowId, Data = JsonConvert.SerializeObject(data), NodeStatus = 1, OperationDesc = "执行条件" + flow.Conditionexpression , Step = nextstep});
+                    await _context.SaveChangesAsync();
+                    await Process(t, allflow, data, nextstep++);
+                    break;
+                case "bpmn:Task":
+                    {
+                        var flows = allflow.Where(c => c.SourceId == flow.bpmnid).ToList();
+
+                        var tasks = new BaseRuleTask()
+                        {
+                            Name = flow.Flowname,
+                            Eventid = flow.bpmnid,
+                            id = flow.bpmnid,
+
+                            outgoing = new EditableList<BaseRuleFlow>()
+                        };
+
+                        _context.FlowOperations.Add(new FlowOperation() { AddDate = DateTime.Now, RuleId = flow.RuleId, FlowId = flow.FlowId, Data = JsonConvert.SerializeObject(data), NodeStatus = 1, OperationDesc = "执行任务" + flow.Flowname, Step = nextstep });
+                        await _context.SaveChangesAsync();
+                        nextstep++;
+                        foreach (var item in flows)
+                        {
+
+                            var rule = new BaseRuleFlow();
+                            rule.Expression = item.Conditionexpression;
+                            rule.id = item.bpmnid;
+                            rule.Name = item.Flowname;
+                            rule.Eventid = item.bpmnid;
+                            tasks.outgoing.Add(rule);
+                        }
+                        AbstractTaskExcutor taskExcutor = new AbstractTaskExcutor();
+                        var result = await taskExcutor.Excute(new ExcuteEntity()
+                        {
+                            Action = null,
+                            Params = data,
+                            Task = tasks,
+                            WaitTime = 0
+
+                        });
+
+                        var next = result.Where(c => c.IsSuccess).ToList().Select(c => c.Rule.Properties["Flow"]);
+
+
+
+
+                        foreach (var item in next)
+                        {
+                            var _flow = item as BaseRuleFlow;
+                            var nextflow = allflow.FirstOrDefault(a => a.bpmnid == _flow.id);
+                            await Process(nextflow, allflow, data,nextstep);
+                        }
+                    }
+
+                    break;
+                case "bpmn:EndEvent":
+                    _context.FlowOperations.Add(new FlowOperation() { AddDate = DateTime.Now, RuleId = flow.RuleId, FlowId = flow.FlowId, Data = JsonConvert.SerializeObject(data), NodeStatus = 1, OperationDesc =  "处理完成", Step = nextstep});
+                    await _context.SaveChangesAsync();
+
+                    break;
+                case "bpmn:StartEvent":
+
+                    {
+                        var flows = allflow.Where(c => c.SourceId == flow.bpmnid).ToList();
+
+                        var tasks = new BaseRuleTask()
+                        {
+                            Name =flow.Flowname,
+                            Eventid = flow.bpmnid,
+                            id = flow.bpmnid,
+
+                            outgoing = new EditableList<BaseRuleFlow>()
+                        };
+                        _context.FlowOperations.Add(new FlowOperation() { AddDate = DateTime.Now, RuleId = flow.RuleId, FlowId = flow.FlowId, Data = JsonConvert.SerializeObject(data), NodeStatus = 1, OperationDesc = "开始处理", Step = nextstep});
+                        await _context.SaveChangesAsync();
+
+
+                        foreach (var item in flows)
+                        {
+                            var rule = new BaseRuleFlow();
+                          
+                            rule.id = item.bpmnid;
+                            rule.Name = item.bpmnid;
+                            rule.Eventid = item.bpmnid;
+                            rule.Expression = item.Conditionexpression;
+                            tasks.outgoing.Add(rule);
+                        }
+                        AbstractTaskExcutor taskExcutor = new AbstractTaskExcutor();
+                        var result = await taskExcutor.Excute(new ExcuteEntity()
+                        {
+                            Action = null,
+                            Params = data,
+                            Task = tasks,
+                            WaitTime = 0
+
+                        });
+
+                        var next = result.Where(c => c.IsSuccess).ToList();
+                            
+                            
+                        nextstep++;
+                        foreach (var item in next)
+                        {
+                            var _flow = item.Rule.Properties["flow"] as BaseRuleFlow;
+                            var nextflow = allflow.FirstOrDefault(a => a.bpmnid == _flow.id);
+                            await Process(nextflow, allflow, data, nextstep);
+                        }
+                    }
+                    break;
+
+            }
+
         }
 
 
@@ -863,71 +980,68 @@ namespace IoTSharp.Controllers
         [HttpPost("[action]")]
         public async Task<AppMessage> Active([FromBody] JObject form)
         {
-           
-            string textcode = "public class DemoParam{public int Temperature { get; set; }public int humidity { get; set; }}";
 
-            List<string> referencedDlls = new EditableList<string>();
-            var parameters = new CompilerParameters(
-                assemblyNames: referencedDlls.ToArray(),
-                outputName: "demo",
-                // only include debug information if we are currently debugging
-                includeDebugInformation: Debugger.IsAttached);
-    
-            parameters.GenerateInMemory = true;
-
-            var compiler = CodeDomProvider.CreateProvider("CSharp");
-          
-            //添加需要引用的dll
-            var results = compiler.CompileAssemblyFromSource(parameters, new []{ textcode });
-
-          var compiledAssembly=  results.CompiledAssembly;
 
 
             var formdata = form.First.First;
-          var s=  formdata.ToObject<DemoParam>();
+
+
+
+
             var extradata = form.First.Next;
             var obj = extradata.First.First.First.Value<JToken>();
+            var obj1 = extradata.First.First.Next.First.Value<JToken>();
             var formid = obj.Value<int>();
+            var ruleid = obj1.Value<int>();
+            var _form = _context.DynamicFormInfos.FirstOrDefault(c => c.FormId == formid);
+            object data = formdata.ToObject(BuildPocoObject(_form.ModelClass, "FormData"+ _form.FormId));
+            var d = formdata.ToObject(typeof(ExpandoObject));
+                  var _params = _context.DynamicFormFieldInfos.Where(c => c.FormId == formid).ToList();
 
+            var flows = _context.Flows.Where(c => c.RuleId == ruleid).ToList();
 
-            var _params = _context.DynamicFormFieldInfos.Where(c => c.FormId == 1).ToList();
+            var start = flows.FirstOrDefault(c => c.FlowType == "bpmn:StartEvent");
+            var end = flows.FirstOrDefault(c => c.FlowType == "bpmn:EndEvent");
+           
 
+            await Process(start, flows, d, 1);
+            //AbstractTaskExcutor taskExcutor = new AbstractTaskExcutor();
 
+            //var tasks = new BaseRuleTask()
+            //{
+            //    Name = "aa",
+            //    Eventid = "aa",
+            //    id = "aa",
 
-            AbstractTaskExcutor taskExcutor = new AbstractTaskExcutor();
+            //    outgoing = new EditableList<BaseRuleFlow>()
+            //};
 
-            var tasks = new BaseRuleTask()
-            { Name = "aa", Eventid = "aa", id = "aa",
+            //var rule1 = new BaseRuleFlow();
+            //rule1.Expression = "Temperature>2";
+            //rule1.id = "1";
+            //rule1.Name = "Name1";
+            //rule1.Eventid = "Eventid1";
+            //var rule2 = new BaseRuleFlow();
+            //rule2.id = "2";
+            //rule2.Name = "Name2";
+            //rule2.Eventid = "Eventid2";
+            //rule2.Expression = "Temperature>100";
+            //var rule3 = new BaseRuleFlow();
+            //rule3.id = "3";
+            //rule3.Name = "Name3";
+            //rule3.Eventid = "Eventid3";
+            //rule3.Expression = "Temperature>1000";
+            //tasks.outgoing.Add(rule1);
+            //tasks.outgoing.Add(rule2);
+            //tasks.outgoing.Add(rule3);
+            //var result = await taskExcutor.Excute(new ExcuteEntity()
+            //{
+            //    Action = null,
+            //    Params = data,
+            //    Task = tasks,
+            //    WaitTime = 0
 
-                outgoing = new EditableList<BaseRuleFlow>()
-            };
-
-            var rule1 = new BaseRuleFlow();
-            rule1.Expression = "Temperature>2";
-            rule1.id = "1";
-            rule1.Name = "Name1";
-            rule1.Eventid = "Eventid1";
-             var rule2 = new BaseRuleFlow();
-             rule2.id = "2";
-             rule2.Name = "Name2";
-             rule2.Eventid = "Eventid2";
-            rule2.Expression = "Temperature>100";
-            var rule3 = new BaseRuleFlow();
-            rule3.id = "3";
-            rule3.Name = "Name3";
-            rule3.Eventid = "Eventid3";
-            rule3.Expression = "Temperature>1000";
-            tasks.outgoing.Add(rule1);
-            tasks.outgoing.Add(rule2);
-            tasks.outgoing.Add(rule3);
-         var result=   await taskExcutor.Excute(new ExcuteEntity()
-            {
-                Action = null,
-                Params = s,
-                Task = tasks,
-                WaitTime = 0
-
-            });
+            //});
 
 
             foreach (var item in _params)
@@ -959,14 +1073,21 @@ namespace IoTSharp.Controllers
 
         }
 
-        private Type BuildPocoObject(string classtext)
+        private Type BuildPocoObject(string classtext,string typename)
         {
             MetadataReference[] references = {
                 MetadataReference.CreateFromFile(typeof(object).Assembly.Location),
-                MetadataReference.CreateFromFile(typeof(Enumerable).Assembly.Location)
+                MetadataReference.CreateFromFile(typeof(Enumerable).Assembly.Location),
+                MetadataReference.CreateFromFile(typeof(System.Double).Assembly.Location),
+                MetadataReference.CreateFromFile(typeof(System.Int32).Assembly.Location),
+                MetadataReference.CreateFromFile(typeof(System.Int64).Assembly.Location),           
+                MetadataReference.CreateFromFile(typeof(System.String).Assembly.Location),
+                MetadataReference.CreateFromFile(typeof(System.Single).Assembly.Location),
             };
+
+            
             var tree = SyntaxFactory.ParseSyntaxTree(classtext);
-            CSharpCompilation compilation = CSharpCompilation.Create("Poco", new[] { tree }, references, new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
+            CSharpCompilation compilation = CSharpCompilation.Create(typename, new[] { tree }, references, new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
             using var ms = new MemoryStream();
             EmitResult result = compilation.Emit(ms);
             if (!result.Success)
@@ -976,14 +1097,14 @@ namespace IoTSharp.Controllers
                     diagnostic.Severity == DiagnosticSeverity.Error);
                 foreach (Diagnostic diagnostic in failures)
                 {
-                 
+
                 }
                 return null;
             }
             else
             {
                 ms.Seek(0, SeekOrigin.Begin);
-                return  Assembly.Load(ms.ToArray()).DefinedTypes.FirstOrDefault();
+                return Assembly.Load(ms.ToArray()).DefinedTypes.FirstOrDefault();
             }
 
         }

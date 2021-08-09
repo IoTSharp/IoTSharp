@@ -97,7 +97,7 @@ namespace IoTSharp.Controllers
         public AppMessage Save(DynamicFormInfo m)
         {
 
-            
+
             var route = new DynamicFormInfo()
             {
                 FormName = m.FormName,
@@ -183,12 +183,14 @@ namespace IoTSharp.Controllers
         [HttpPost("[action]")]
         public AppMessage SaveParams(FormFieldData model)
         {
-         
+
             var fields = _context.DynamicFormFieldInfos.
                 Where(c => c.FormId == model.Id && c.FieldStatus > -1).ToList();
 
             if (fields != null)
             {
+                var typeinfo = _context.BaseDictionaries.Where(c => c.DictionaryGroupId == 1 && c.DictionaryStatus > 0)
+                    .ToList();
                 _context.DynamicFormFieldInfos.Where(c => c.FormId == model.Id &&
                                                           c.FieldStatus > -1).ToList()
                     .ForEach(x =>
@@ -203,13 +205,14 @@ namespace IoTSharp.Controllers
                     });
                 foreach (var item in model.propdata)
                 {
-                  
+
                     var field =
                         fields.FirstOrDefault(c => c.FieldId == item.FieldId);
                     if (field != null)
                     {
                         field.FieldStatus = 1;
-
+                        field.FieldPocoTypeName = typeinfo
+                            .FirstOrDefault(c => c.DictionaryValue == item.FieldValueType.ToString())?.DictionaryTag;
                         field.FieldCode = item.FieldCode;
                         field.FieldName = item.FieldName;
                         field.IsRequired = item.IsRequired;
@@ -222,7 +225,7 @@ namespace IoTSharp.Controllers
                         field.FieldUIElementSchema = item.FieldUIElementSchema;
                         field.FieldUIElement = item.FieldUIElement;
                         field.FieldUnit = item.FieldUnit;
-             
+
                         field.FieldCreateDate = DateTime.Now;
 
                         switch (item.FieldUIElement)
@@ -259,6 +262,8 @@ namespace IoTSharp.Controllers
                             FieldStatus = 1,
                             IsRequired = item.IsRequired,
                             FormId = model.Id,
+                            FieldPocoTypeName = typeinfo
+                                .FirstOrDefault(c => c.DictionaryValue == item.FieldValueType.ToString())?.DictionaryTag,
                             FieldName = item.FieldName,
                             FieldValue = item.FieldValue,
                             FieldValueType = item.FieldValueType,
@@ -291,26 +296,24 @@ namespace IoTSharp.Controllers
                     }
 
 
-                 var allfields=   _context.DynamicFormFieldInfos.Where(c => c.FormId == model.Id &&
-                                                              c.FieldStatus > -1).ToList();
-
-                 var typeinfo = _context.BaseDictionaries.Where(c => c.DictionaryGroupId == 2 && c.DictionaryStatus > 0)
-                     .ToList();
-
-
-                 StringBuilder builder = new StringBuilder("public class FormData" + model.Id + "{\n");
-                 allfields.ForEach(x =>
-                 {
-
-
-                     builder.Append("public ").Append(x.FieldValue).Append(" ").Append(x.FieldName)
-                         .Append("{ get; set;}\n");
-
-                 });
-                 builder.Append("}");
-
+                    
                 }
+                var allfields = _context.DynamicFormFieldInfos.Where(c => c.FormId == model.Id &&
+                                                                          c.FieldStatus > -1).ToList();
 
+                // 土味代码生成
+                StringBuilder builder = new StringBuilder("public class FormData" + model.Id + "{\n");
+                allfields.ForEach(x =>
+                {
+                    builder.Append("public ").Append(Type.GetType(x.FieldPocoTypeName)?.Name).Append(" ").Append(x.FieldCode)
+                        .Append("{ get; set;}\n");
+
+                });
+                builder.Append("}");
+                var form = _context.DynamicFormInfos.FirstOrDefault(c => c.FormId == model.Id);
+                form.ModelClass = builder.ToString();
+                _context.DynamicFormInfos.Update(form);
+                _context.SaveChanges();
 
                 return new AppMessage
                 {
@@ -391,12 +394,12 @@ namespace IoTSharp.Controllers
             // a stupid code generator
 
 
-            
+
 
             return new AppMessage
             {
                 ErrType = ErrType.正常返回,
-         
+
             };
         }
 

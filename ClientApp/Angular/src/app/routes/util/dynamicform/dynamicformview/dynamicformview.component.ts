@@ -30,6 +30,7 @@ export class DynamicformviewComponent implements OnInit {
   AllControlType: any = [];
   AllSuportType: any = [];
   SuportType: any = [];
+
   constructor(
     private _router: ActivatedRoute,
     private router: Router,
@@ -550,7 +551,6 @@ export class DynamicformviewComponent implements OnInit {
   };
 
   submit(value: any) {
-    console.log(value);
     this.onsubmit.emit(value);
 
     return;

@@ -12,15 +12,9 @@
   </div>
   <div nz-col nzSpan="12">
     <nz-card [nzBordered]="false" class="mb-0" nzTitle="Time Line">
-      <!-- <nz-steps [nzCurrent]="current">
-        <nz-step
-          *ngFor="let step of this.steps; trackBy: trackById"
-          [nzTitle]="step.title"
-          [nzDescription]="step.description"
-          [nzPercentage]="step.async ? step.percentage : null"
-        ></nz-step>
-      </nz-steps> -->
-      <app-codeview></app-codeview>
+      <nz-steps [nzCurrent]="current">
+        <nz-step></nz-step>
+      </nz-steps>
     </nz-card>
   </div>
 </div>

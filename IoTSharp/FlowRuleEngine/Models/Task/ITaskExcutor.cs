@@ -28,25 +28,17 @@ namespace IoTSharp.FlowRuleEngine.Models.Task
         public async Task<List<RuleResultTree>> Excute(ExcuteEntity Input)
         {
 
-            var a = new { a=2};
-
-           // a>1 a>100;
             if (Input.Action != null)
             {
                 Input.Action();
             }
-
             if (Input.WaitTime > 0)
             {
-
                 await System.Threading.Tasks.Task.Delay(Input.WaitTime);
-
             }
             var mainRules = new WorkflowRules
             {
-
                 WorkflowName = Input.Task.Name,
-
             };
 
             foreach (var item in Input.Task.outgoing)

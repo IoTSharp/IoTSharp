@@ -22,11 +22,14 @@ export class FlowsimulatorComponent implements OnInit {
   flowview: FlowviewerComponent;
   @ViewChild('dynamicformview', { static: true })
   dynamicformview: DynamicformviewComponent;
-  constructor(private httpClient: _HttpClient, private cdr: ChangeDetectorRef) //  private timelineservice: TimelineService
-  {}
+  constructor(
+    private httpClient: _HttpClient,
+    private cdr: ChangeDetectorRef, //  private timelineservice: TimelineService
+  ) {}
   // @ViewChild('TimeLineItemTemplate', { read: TemplateRef }) TimeLineItemTemplate: TemplateRef<any>;
   thisisyourtestdataformid: number = 1;
-
+  steps: [];
+  current: 0;
   ngOnInit(): void {
     this.httpClient.get<appmessage<ruleflow>>('api/rules/get?id=' + this.id).subscribe(
       (next) => {
@@ -39,6 +42,7 @@ export class FlowsimulatorComponent implements OnInit {
     );
     this.dynamicformview.id = this.thisisyourtestdataformid;
 
+    //it's deadend
     // let item = new NzTimelineItemComponent(this.cdr, this.timelineservice);
     // item.borderColor = '#eeeeff';
     // item.template = this.TimeLineItemTemplate;
@@ -59,6 +63,7 @@ export class FlowsimulatorComponent implements OnInit {
         form: formdata,
         extradata: {
           formid: this.thisisyourtestdataformid,
+          ruleflowid: this.id,
         },
       })
       .subscribe(

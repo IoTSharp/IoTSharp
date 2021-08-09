@@ -16,6 +16,8 @@ import { _HttpClient } from '@delon/theme';
 import { NzDrawerRef } from 'ng-zorro-antd/drawer';
 import { NzMessageService } from 'ng-zorro-antd/message';
 import { map } from 'rxjs/operators';
+import { AppMessage } from 'src/app/routes/common/AppMessage';
+import { CodeviewComponent } from '../../code/codeview/codeview.component';
 import { DynamicformresultviewComponent } from '../dynamicformresultview/dynamicformresultview.component';
 import { DynamicformviewComponent } from '../dynamicformview/dynamicformview.component';
 
@@ -25,12 +27,13 @@ import { DynamicformviewComponent } from '../dynamicformview/dynamicformview.com
   styleUrls: ['./dynamicformtester.component.less'],
 })
 export class DynamicformtesterComponent implements OnInit {
+  @Input() id: Number = -1;
   @ViewChild('dfv', { static: true })
   dfv: DynamicformviewComponent;
   @ViewChild('dfr', { static: true })
   dfr: DynamicformresultviewComponent;
-  @Input() id: Number = -1;
-
+  @ViewChild('dcv', { static: true })
+  dcv: CodeviewComponent;
   constructor(
     private _router: ActivatedRoute,
     private router: Router,
@@ -44,6 +47,14 @@ export class DynamicformtesterComponent implements OnInit {
 
   ngOnInit(): void {
     this.dfv.id = this.id;
+
+    this._httpClient.get<AppMessage>('api/DynamicFormInfo/get?id=' + this.id).subscribe(
+      (next) => {
+        this.dcv.code = next.result.modelClass;
+      },
+      (error) => {},
+      () => {},
+    );
   }
 
   onsubmit(data): void {
