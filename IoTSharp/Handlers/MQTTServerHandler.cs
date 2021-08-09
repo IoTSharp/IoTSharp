@@ -64,7 +64,7 @@ namespace IoTSharp.Handlers
         }
         Dictionary<string, int> lstTopics = new Dictionary<string, int>();
         long received = 0;
-        internal void Server_ApplicationMessageReceived(object sender, MqttApplicationMessageReceivedEventArgs e)
+        internal async void Server_ApplicationMessageReceived(object sender, MqttApplicationMessageReceivedEventArgs e)
         {
             if (string.IsNullOrEmpty(e.ClientId))
             {
@@ -72,104 +72,102 @@ namespace IoTSharp.Handlers
             }
             else
             {
-                Task.Run(async () =>
+                try
                 {
-                    try
+                    _logger.LogInformation($"Server received {e.ClientId}'s message: Topic=[{e.ApplicationMessage.Topic }],Retain=[{e.ApplicationMessage.Retain}],QualityOfServiceLevel=[{e.ApplicationMessage.QualityOfServiceLevel}]");
+                    if (!lstTopics.ContainsKey(e.ApplicationMessage.Topic))
                     {
-                        _logger.LogInformation($"Server received {e.ClientId}'s message: Topic=[{e.ApplicationMessage.Topic }],Retain=[{e.ApplicationMessage.Retain}],QualityOfServiceLevel=[{e.ApplicationMessage.QualityOfServiceLevel}]");
-                        if (!lstTopics.ContainsKey(e.ApplicationMessage.Topic))
+                        lstTopics.Add(e.ApplicationMessage.Topic, 1);
+                        await _serverEx.PublishAsync("$SYS/broker/subscriptions/count", lstTopics.Count.ToString());
+                    }
+                    else
+                    {
+                        lstTopics[e.ApplicationMessage.Topic]++;
+                    }
+                    if (e.ApplicationMessage.Payload != null)
+                    {
+                        received += e.ApplicationMessage.Payload.Length;
+                    }
+                    string topic = e.ApplicationMessage.Topic;
+                    var tpary = topic.Split('/', StringSplitOptions.RemoveEmptyEntries);
+                    var _dev = await FoundDevice(e.ClientId);
+                    if (tpary.Length >= 3 && tpary[0] == "devices" && _dev != null)
+                    {
+                        Device device = JudgeOrCreateNewDevice(tpary, _dev);
+                        if (device != null)
                         {
-                            lstTopics.Add(e.ApplicationMessage.Topic, 1);
-                            await _serverEx.PublishAsync("$SYS/broker/subscriptions/count", lstTopics.Count.ToString());
-                        }
-                        else
-                        {
-                            lstTopics[e.ApplicationMessage.Topic]++;
-                        }
-                        if (e.ApplicationMessage.Payload != null)
-                        {
-                            received += e.ApplicationMessage.Payload.Length;
-                        }
-                        string topic = e.ApplicationMessage.Topic;
-                        var tpary = topic.Split('/', StringSplitOptions.RemoveEmptyEntries);
-                        var _dev = await FoundDevice(e.ClientId);
-                        if (tpary.Length >= 3 && tpary[0] == "devices" && _dev != null)
-                        {
-                            Device device = JudgeOrCreateNewDevice(tpary, _dev);
-                            if (device != null)
+                            Dictionary<string, object> keyValues = new Dictionary<string, object>();
+                            if (tpary.Length >= 4)
                             {
-                                Dictionary<string, object> keyValues = new Dictionary<string, object>();
-                                if (tpary.Length >= 4)
-                                {
-                                    string keyname = tpary.Length >= 5 ? tpary[4] : tpary[3];
-                                    if (tpary[3].ToLower() == "xml")
-                                    {
-                                        try
-                                        {
-                                            var xml = new System.Xml.XmlDocument();
-                                            xml.LoadXml(e.ApplicationMessage.ConvertPayloadToString());
-                                            keyValues.Add(keyname, xml);
-                                        }
-                                        catch (Exception ex)
-                                        {
-                                            _logger.LogWarning(ex, $"xml data error {topic},{ex.Message}");
-                                        }
-                                    }
-                                    else if (tpary[3].ToLower() == "binary")
-                                    {
-                                        keyValues.Add(keyname, e.ApplicationMessage.Payload);
-                                    }
-                                }
-                                else
+                                string keyname = tpary.Length >= 5 ? tpary[4] : tpary[3];
+                                if (tpary[3].ToLower() == "xml")
                                 {
                                     try
                                     {
-                                        keyValues = e.ApplicationMessage.ConvertPayloadToDictionary();
+                                        var xml = new System.Xml.XmlDocument();
+                                        xml.LoadXml(e.ApplicationMessage.ConvertPayloadToString());
+                                        keyValues.Add(keyname, xml);
                                     }
                                     catch (Exception ex)
                                     {
-                                        _logger.LogWarning(ex, $"ConvertPayloadToDictionary   Error {topic},{ex.Message}");
+                                        _logger.LogWarning(ex, $"xml data error {topic},{ex.Message}");
                                     }
                                 }
-                                if (tpary[2] == "telemetry")
+                                else if (tpary[3].ToLower() == "binary")
                                 {
-                                    _queue.PublishTelemetryData(new RawMsg() { DeviceId = device.Id, MsgBody = keyValues, DataSide = DataSide.ClientSide, DataCatalog = DataCatalog.TelemetryData });
+                                    keyValues.Add(keyname, e.ApplicationMessage.Payload);
                                 }
-                                else if (tpary[2] == "attributes")
+                            }
+                            else
+                            {
+                                try
                                 {
-                                    if (tpary.Length > 3 && tpary[3] == "request")
-                                    {
-                                        await RequestAttributes(tpary, e.ApplicationMessage.ConvertPayloadToDictionary(), device);
-                                    }
-                                    else
-                                    {
-                                        _queue.PublishAttributeData(new RawMsg() { DeviceId = device.Id, MsgBody = keyValues, DataSide = DataSide.ClientSide, DataCatalog = DataCatalog.AttributeData });
-                                    }
-
+                                    keyValues = e.ApplicationMessage.ConvertPayloadToDictionary();
+                                }
+                                catch (Exception ex)
+                                {
+                                    _logger.LogWarning(ex, $"ConvertPayloadToDictionary   Error {topic},{ex.Message}");
+                                }
+                            }
+                            if (tpary[2] == "telemetry")
+                            {
+                                _queue.PublishTelemetryData(new RawMsg() { DeviceId = device.Id, MsgBody = keyValues, DataSide = DataSide.ClientSide, DataCatalog = DataCatalog.TelemetryData });
+                            }
+                            else if (tpary[2] == "attributes")
+                            {
+                                if (tpary.Length > 3 && tpary[3] == "request")
+                                {
+                                    await RequestAttributes(tpary, e.ApplicationMessage.ConvertPayloadToDictionary(), device);
                                 }
                                 else
                                 {
-                                    _logger.LogInformation($"{e.ClientId}的数据{e.ApplicationMessage.Topic}未能识别格式");
+                                    _queue.PublishAttributeData(new RawMsg() { DeviceId = device.Id, MsgBody = keyValues, DataSide = DataSide.ClientSide, DataCatalog = DataCatalog.AttributeData });
                                 }
 
                             }
                             else
                             {
-                                _logger.LogInformation($"{e.ClientId}的数据{e.ApplicationMessage.Topic}未能匹配到设备");
+                                _logger.LogInformation($"{e.ClientId}的数据{e.ApplicationMessage.Topic}未能识别格式");
                             }
+
                         }
                         else
                         {
-                            _logger.LogInformation($"{e.ClientId}的数据{e.ApplicationMessage.Topic}未能识别");
+                            _logger.LogInformation($"{e.ClientId}的数据{e.ApplicationMessage.Topic}未能匹配到设备");
                         }
-                      
                     }
-                    catch (Exception ex)
+                    else
                     {
-                        e.ProcessingFailed = true;
-                        _logger.LogWarning(ex, $"ApplicationMessageReceived {ex.Message} {ex.InnerException?.Message}");
+                        _logger.LogInformation($"{e.ClientId}的数据{e.ApplicationMessage.Topic}未能识别");
                     }
-                }).Wait(TimeSpan.FromSeconds(5));
+
+                }
+                catch (Exception ex)
+                {
+                    e.ProcessingFailed = true;
+                    _logger.LogWarning(ex, $"ApplicationMessageReceived {ex.Message} {ex.InnerException?.Message}");
+                }
+
             }
         }
 
@@ -264,10 +262,9 @@ namespace IoTSharp.Handlers
 
         }
 
-        internal void Server_ClientDisconnected(IMqttServerEx server, MqttServerClientDisconnectedEventArgs args)
+        internal async void Server_ClientDisconnected(IMqttServerEx server, MqttServerClientDisconnectedEventArgs args)
         {
-            Task.Run(async () =>
-            {
+         
                 try
                 {
                     var dev = await FoundDevice(args.ClientId);
@@ -293,7 +290,6 @@ namespace IoTSharp.Handlers
                     _logger.LogError(ex, $"Server_ClientDisconnected ClientId:{args.ClientId} DisconnectType:{args.DisconnectType},{ex.Message}");
 
                 }
-            });
         }
 
         private Device JudgeOrCreateNewDevice(string[] tpary, Device device)
