@@ -50,7 +50,6 @@ using Microsoft.CodeAnalysis.FlowAnalysis;
 using Microsoft.AspNetCore.Hosting.Server.Features;
 using System.Text.RegularExpressions;
 using HealthChecks.UI.Configuration;
-using IoTSharp.App_Code.Util;
 using Newtonsoft.Json.Serialization;
 using NSwag.Generation.AspNetCore;
 using RabbitMQ.Client;
