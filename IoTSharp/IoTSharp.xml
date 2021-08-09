@@ -296,6 +296,34 @@
             <param name="deviceId"></param>
             <returns></returns>
         </member>
+        <member name="M:IoTSharp.Controllers.DictionaryController.Delete(System.Int32)">
+            <summary>
+            
+            </summary>
+            <param name="id"></param>
+            <returns></returns>
+        </member>
+        <member name="M:IoTSharp.Controllers.DictionaryGroupController.Save(IoTSharp.Data.BaseDictionaryGroup)">
+            <summary>
+            
+            </summary>
+            <param name="m"></param>
+            <returns></returns>
+        </member>
+        <member name="M:IoTSharp.Controllers.DictionaryGroupController.Delete(System.Int32)">
+            <summary>
+            
+            </summary>
+            <param name="id"></param>
+            <returns></returns>
+        </member>
+        <member name="M:IoTSharp.Controllers.DynamicFormInfoController.Save(IoTSharp.Data.DynamicFormInfo)">
+            <summary>
+            
+            </summary>
+            <param name="m"></param>
+            <returns></returns>
+        </member>
         <member name="T:IoTSharp.Controllers.InstallerController">
             <summary>
             安装

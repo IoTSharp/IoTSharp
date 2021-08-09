@@ -14,9 +14,9 @@
           <input
             nz-input
             placeholder=""
-            [(ngModel)]="form.Eventid"
-            name="Eventid"
+            [(ngModel)]="form.flowid"
             readonly="readonly"
+            [ngModelOptions]="{ standalone: true }"
             (ngModelChange)="ngModelChange($event)"
           />
         </se>
@@ -25,23 +25,30 @@
           <input
             nz-input
             placeholder=""
-            [(ngModel)]="form.Eventname"
-            name="Eventname"
+            [(ngModel)]="form.flowname"
             readonly="readonly"
+            [ngModelOptions]="{ standalone: true }"
             (ngModelChange)="ngModelChange($event)"
           />
         </se>
 
         <se label="备注" error="备注">
-          <input nz-input placeholder="" [(ngModel)]="form.Eventdesc" name="Eventdesc" (ngModelChange)="ngModelChange($event)" />
-        </se>
-
-        <se label="网关处理器" error="网关处理器" *ngIf="form.NodeProcessClassVisable">
           <input
             nz-input
-            [(ngModel)]="form.NodeProcessClass"
+            placeholder=""
+            [(ngModel)]="form.flowdesc"
+            name="flowdesc"
+            [ngModelOptions]="{ standalone: true }"
+            (ngModelChange)="ngModelChange($event)"
+          />
+        </se>
+
+        <se label="网关处理器" error="网关处理器" *ngIf="form.nodeProcessClassVisable">
+          <input
+            nz-input
+            [(ngModel)]="form.nodeProcessClass"
             placeholder="网关处理器"
-            name="NodeProcessClass"
+            [ngModelOptions]="{ standalone: true }"
             (ngModelChange)="ngModelChange($event)"
           />
         </se>
@@ -51,7 +58,7 @@
             nz-input
             [(ngModel)]="form.conditionexpression"
             placeholder="条件表达式"
-            name="conditionexpression"
+            [ngModelOptions]="{ standalone: true }"
             (ngModelChange)="ngModelChange($event)"
           />
         </se>

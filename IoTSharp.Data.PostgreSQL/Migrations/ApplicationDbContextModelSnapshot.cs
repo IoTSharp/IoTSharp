@@ -94,6 +94,243 @@ namespace IoTSharp.Migrations
                     b.ToTable("AuthorizedKeys");
                 });
 
+            modelBuilder.Entity("IoTSharp.Data.BaseDictionary", b =>
+                {
+                    b.Property<long>("DictionaryId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
+
+                    b.Property<string>("Dictionary18NKeyName")
+                        .HasColumnType("text");
+
+                    b.Property<string>("DictionaryColor")
+                        .HasColumnType("text");
+
+                    b.Property<string>("DictionaryDesc")
+                        .HasColumnType("text");
+
+                    b.Property<long?>("DictionaryGroupId")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("DictionaryIcon")
+                        .HasColumnType("text");
+
+                    b.Property<string>("DictionaryName")
+                        .HasColumnType("text");
+
+                    b.Property<string>("DictionaryPattern")
+                        .HasColumnType("text");
+
+                    b.Property<int?>("DictionaryStatus")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("DictionaryTag")
+                        .HasColumnType("text");
+
+                    b.Property<string>("DictionaryValue")
+                        .HasColumnType("text");
+
+                    b.Property<int?>("DictionaryValueType")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("DictionaryValueTypeName")
+                        .HasColumnType("text");
+
+                    b.HasKey("DictionaryId");
+
+                    b.ToTable("BaseDictionaries");
+                });
+
+            modelBuilder.Entity("IoTSharp.Data.BaseDictionaryGroup", b =>
+                {
+                    b.Property<long>("DictionaryGroupId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
+
+                    b.Property<string>("DictionaryGroup18NKeyName")
+                        .HasColumnType("text");
+
+                    b.Property<string>("DictionaryGroupDesc")
+                        .HasColumnType("text");
+
+                    b.Property<string>("DictionaryGroupKey")
+                        .HasColumnType("text");
+
+                    b.Property<string>("DictionaryGroupName")
+                        .HasColumnType("text");
+
+                    b.Property<int?>("DictionaryGroupStatus")
+                        .HasColumnType("integer");
+
+                    b.Property<int?>("DictionaryGroupValueType")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("DictionaryGroupValueTypeName")
+                        .HasColumnType("text");
+
+                    b.HasKey("DictionaryGroupId");
+
+                    b.ToTable("BaseDictionaryGroups");
+                });
+
+            modelBuilder.Entity("IoTSharp.Data.BaseEvent", b =>
+                {
+                    b.Property<long>("EventId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
+
+                    b.Property<DateTime>("CreaterDateTime")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<Guid>("Creator")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("EventDesc")
+                        .HasColumnType("text");
+
+                    b.Property<string>("EventName")
+                        .HasColumnType("text");
+
+                    b.Property<int>("EventStaus")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("MataData")
+                        .HasColumnType("text");
+
+                    b.Property<int>("Type")
+                        .HasColumnType("integer");
+
+                    b.HasKey("EventId");
+
+                    b.ToTable("BaseEvents");
+                });
+
+            modelBuilder.Entity("IoTSharp.Data.BaseI18N", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
+
+                    b.Property<DateTime?>("AddDate")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<string>("KeyName")
+                        .HasColumnType("text");
+
+                    b.Property<string>("ResouceDesc")
+                        .HasColumnType("text");
+
+                    b.Property<int?>("ResouceGroupId")
+                        .HasColumnType("integer");
+
+                    b.Property<long?>("ResourceId")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("ResourceKey")
+                        .HasColumnType("text");
+
+                    b.Property<string>("ResourceTag")
+                        .HasColumnType("text");
+
+                    b.Property<int?>("ResourceType")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("integer");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("ValueBG")
+                        .HasColumnType("text");
+
+                    b.Property<string>("ValueCS")
+                        .HasColumnType("text");
+
+                    b.Property<string>("ValueDA")
+                        .HasColumnType("text");
+
+                    b.Property<string>("ValueDEDE")
+                        .HasColumnType("text");
+
+                    b.Property<string>("ValueELGR")
+                        .HasColumnType("text");
+
+                    b.Property<string>("ValueENGR")
+                        .HasColumnType("text");
+
+                    b.Property<string>("ValueENUS")
+                        .HasColumnType("text");
+
+                    b.Property<string>("ValueESES")
+                        .HasColumnType("text");
+
+                    b.Property<string>("ValueFI")
+                        .HasColumnType("text");
+
+                    b.Property<string>("ValueFRFR")
+                        .HasColumnType("text");
+
+                    b.Property<string>("ValueHE")
+                        .HasColumnType("text");
+
+                    b.Property<string>("ValueHRHR")
+                        .HasColumnType("text");
+
+                    b.Property<string>("ValueHU")
+                        .HasColumnType("text");
+
+                    b.Property<string>("ValueITIT")
+                        .HasColumnType("text");
+
+                    b.Property<string>("ValueJAJP")
+                        .HasColumnType("text");
+
+                    b.Property<string>("ValueKOKR")
+                        .HasColumnType("text");
+
+                    b.Property<string>("ValueNL")
+                        .HasColumnType("text");
+
+                    b.Property<string>("ValuePLPL")
+                        .HasColumnType("text");
+
+                    b.Property<string>("ValuePT")
+                        .HasColumnType("text");
+
+                    b.Property<string>("ValueSLSL")
+                        .HasColumnType("text");
+
+                    b.Property<string>("ValueSR")
+                        .HasColumnType("text");
+
+                    b.Property<string>("ValueSV")
+                        .HasColumnType("text");
+
+                    b.Property<string>("ValueTRTR")
+                        .HasColumnType("text");
+
+                    b.Property<string>("ValueUK")
+                        .HasColumnType("text");
+
+                    b.Property<string>("ValueVI")
+                        .HasColumnType("text");
+
+                    b.Property<string>("ValueZHCN")
+                        .HasColumnType("text");
+
+                    b.Property<string>("ValueZHTW")
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("BaseI18Ns");
+                });
+
             modelBuilder.Entity("IoTSharp.Data.Customer", b =>
                 {
                     b.Property<Guid>("Id")
@@ -266,6 +503,165 @@ namespace IoTSharp.Migrations
                     b.ToTable("DeviceIdentities");
                 });
 
+            modelBuilder.Entity("IoTSharp.Data.DynamicFormFieldInfo", b =>
+                {
+                    b.Property<long>("FieldId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
+
+                    b.Property<Guid>("Creator")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("FieldCode")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("FieldCreateDate")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<DateTime?>("FieldEditDate")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<string>("FieldI18nKey")
+                        .HasColumnType("text");
+
+                    b.Property<int?>("FieldMaxLength")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("FieldName")
+                        .HasColumnType("text");
+
+                    b.Property<string>("FieldPattern")
+                        .HasColumnType("text");
+
+                    b.Property<string>("FieldPocoTypeName")
+                        .HasColumnType("text");
+
+                    b.Property<int?>("FieldStatus")
+                        .HasColumnType("integer");
+
+                    b.Property<long?>("FieldUIElement")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("FieldUIElementSchema")
+                        .HasColumnType("text");
+
+                    b.Property<string>("FieldUnit")
+                        .HasColumnType("text");
+
+                    b.Property<string>("FieldValue")
+                        .HasColumnType("text");
+
+                    b.Property<string>("FieldValueDataSource")
+                        .HasColumnType("text");
+
+                    b.Property<string>("FieldValueLocalDataSource")
+                        .HasColumnType("text");
+
+                    b.Property<int?>("FieldValueType")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("FieldValueTypeName")
+                        .HasColumnType("text");
+
+                    b.Property<long?>("FormId")
+                        .HasColumnType("bigint");
+
+                    b.Property<bool?>("IsEnabled")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool?>("IsRequired")
+                        .HasColumnType("boolean");
+
+                    b.HasKey("FieldId");
+
+                    b.ToTable("DynamicFormFieldInfos");
+                });
+
+            modelBuilder.Entity("IoTSharp.Data.DynamicFormFieldValueInfo", b =>
+                {
+                    b.Property<long>("FieldValueId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
+
+                    b.Property<long?>("BizId")
+                        .HasColumnType("bigint");
+
+                    b.Property<Guid>("Creator")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("FieldCode")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("FieldCreateDate")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<long?>("FieldId")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("FieldName")
+                        .HasColumnType("text");
+
+                    b.Property<string>("FieldUnit")
+                        .HasColumnType("text");
+
+                    b.Property<string>("FieldValue")
+                        .HasColumnType("text");
+
+                    b.Property<long?>("FieldValueType")
+                        .HasColumnType("bigint");
+
+                    b.Property<long?>("FromId")
+                        .HasColumnType("bigint");
+
+                    b.HasKey("FieldValueId");
+
+                    b.ToTable("DynamicFormFieldValueInfos");
+                });
+
+            modelBuilder.Entity("IoTSharp.Data.DynamicFormInfo", b =>
+                {
+                    b.Property<long>("FormId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
+
+                    b.Property<long?>("BizId")
+                        .HasColumnType("bigint");
+
+                    b.Property<Guid>("Creator")
+                        .HasColumnType("uuid");
+
+                    b.Property<long?>("FormCreator")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("FormDesc")
+                        .HasColumnType("text");
+
+                    b.Property<string>("FormName")
+                        .HasColumnType("text");
+
+                    b.Property<string>("FormSchame")
+                        .HasColumnType("text");
+
+                    b.Property<int?>("FormStatus")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime?>("FromCreateDate")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<string>("ModelClass")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Url")
+                        .HasColumnType("text");
+
+                    b.HasKey("FormId");
+
+                    b.ToTable("DynamicFormInfos");
+                });
+
             modelBuilder.Entity("IoTSharp.Data.Flow", b =>
                 {
                     b.Property<long>("FlowId")
@@ -353,6 +749,12 @@ namespace IoTSharp.Migrations
 
                     b.Property<long>("RuleId")
                         .HasColumnType("bigint");
+
+                    b.Property<int>("Step")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Tag")
+                        .HasColumnType("text");
 
                     b.HasKey("OperationId");
 

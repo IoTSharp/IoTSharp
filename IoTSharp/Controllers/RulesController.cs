@@ -1,17 +1,33 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
-using IoTSharp.App_Code.Util;
+using Castle.Components.DictionaryAdapter;
+using IoTSharp.Controllers.Models;
 using IoTSharp.Data;
+using IoTSharp.FlowRuleEngine.Models;
+using IoTSharp.FlowRuleEngine.Models.Task;
 using IoTSharp.Models;
 using IoTSharp.Models.Rule;
+using IoTSharp.Models.Rule.Params;
+using LinqKit;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+using System.CodeDom.Compiler;
+using System.Diagnostics;
+using System.Dynamic;
+using System.IO;
+using System.Reflection;
+using IoTSharp.Extensions;
+using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.Emit;
+
+
 
 namespace IoTSharp.Controllers
 {
@@ -23,42 +39,47 @@ namespace IoTSharp.Controllers
 
         private ApplicationDbContext _context;
         private UserManager<IdentityUser> _userManager;
+
         public RulesController(ApplicationDbContext context, UserManager<IdentityUser> userManager)
         {
             this._userManager = userManager;
             this._context = context;
         }
+
         [HttpPost("[action]")]
         public AppMessage Index([FromBody] RulePageParam m)
         {
-            Expression<Func<FlowRule, bool>> expression = x => x.RuleStatus>-1;
+            Expression<Func<FlowRule, bool>> expression = x => x.RuleStatus > -1;
             if (!string.IsNullOrEmpty(m.Name))
             {
                 expression = expression.And(x => x.Name.Contains(m.Name));
             }
 
-            if (m.CreatTime != null)
+            if (m.CreatTime != null && m.CreatTime.Length == 2)
             {
                 expression = expression.And(x => x.CreatTime > m.CreatTime[0] && x.CreatTime < m.CreatTime[1]);
             }
+
             if (!string.IsNullOrEmpty(m.Creator))
             {
                 expression = expression.And(x => x.Creator == m.Creator);
             }
 
-         
+
 
             return new AppMessage()
             {
                 ErrType = ErrType.正常返回,
                 Result = new
                 {
-                    rows = _context.FlowRules.OrderByDescending(c => c.CreatTime).Skip(m.offset* m.limit).Take(m.limit).ToList(),
-                    totel = _context.FlowRules.Count()
+                    rows = _context.FlowRules.OrderByDescending(c => c.RuleId).Where(expression).Skip(m.offset * m.limit).Take(m.limit)
+                        .ToList(),
+                    totel = _context.FlowRules.Count(expression)
                 }
 
             };
         }
+
         [HttpPost("[action]")]
         public AppMessage Save(FlowRule m)
         {
@@ -80,7 +101,7 @@ namespace IoTSharp.Controllers
             {
                 ErrType = ErrType.参数错误,
                 ErrMessage = ModelState.Values.SelectMany(c => c.Errors.FirstOrDefault()?.ErrorMessage).Aggregate("",
-                (x, y) => x + "," + y)
+                    (x, y) => x + "," + y)
             };
         }
 
@@ -89,7 +110,10 @@ namespace IoTSharp.Controllers
         {
             if (ModelState.IsValid)
             {
-                _context.FlowRules.Update(m);
+                FlowRule flowrule = new FlowRule();
+                flowrule.Name = m.Name;
+                flowrule.RuleDesc = m.RuleDesc;
+                _context.FlowRules.Update(flowrule);
                 _context.SaveChanges();
                 return new AppMessage
                 {
@@ -116,7 +140,8 @@ namespace IoTSharp.Controllers
             {
                 rule.RuleStatus = -1;
                 _context.FlowRules.Update(rule);
-                _context.SaveChanges(); return new AppMessage { ErrType = ErrType.正常返回, };
+                _context.SaveChanges();
+                return new AppMessage { ErrType = ErrType.正常返回, };
             }
 
             return new AppMessage { ErrType = ErrType.找不到对象, };
@@ -130,33 +155,29 @@ namespace IoTSharp.Controllers
             {
                 return new AppMessage<FlowRule> { ErrType = ErrType.正常返回, Result = rule };
             }
+
             return new AppMessage<FlowRule> { ErrType = ErrType.找不到对象, };
         }
 
-        [HttpGet("[action]")]
-        public AppMessage Active(string id)
-        {
-            return new AppMessage();
-        }
 
 
 
         [HttpPost("[action]")]
-        public ActionResult SaveDiagram(ModelWorkFlow m)
+        public AppMessage SaveDiagram(ModelWorkFlow m)
         {
             var user = _userManager.GetUserId(User);
-            var activity = JsonConvert.DeserializeObject<Activity>(m.Biz);
+            var activity = JsonConvert.DeserializeObject<IoTSharp.Models.Rule.Activity>(m.Biz);
 
-             var rule = _context.FlowRules.FirstOrDefault(c => c.RuleId == activity.RuleId);
-             rule.DefinitionsXml = m.Xml;
-             _context.FlowRules.Update(rule);
-             _context.SaveChanges();
-             _context.Flows.RemoveRange(_context.Flows.Where(c => c.RuleId == activity.RuleId).ToList());
+            var rule = _context.FlowRules.FirstOrDefault(c => c.RuleId == activity.RuleId);
+            rule.DefinitionsXml = m.Xml;
+            _context.FlowRules.Update(rule);
+            _context.SaveChanges();
+            _context.Flows.RemoveRange(_context.Flows.Where(c => c.RuleId == activity.RuleId).ToList());
             _context.SaveChanges();
 
             if (activity.BaseBpmnObjects != null)
             {
-         
+
                 _context.Flows.AddRange(activity.BaseBpmnObjects.Select(c => new Flow
                 {
 
@@ -167,7 +188,7 @@ namespace IoTSharp.Controllers
 
                 }).ToList());
                 _context.SaveChanges();
-    
+
             }
 
             if (activity.StartEvents != null)
@@ -183,6 +204,7 @@ namespace IoTSharp.Controllers
                 }).ToList());
                 _context.SaveChanges();
             }
+
             if (activity.EndEvents != null)
             {
                 _context.Flows.AddRange(activity.EndEvents.Select(c => new Flow
@@ -197,6 +219,7 @@ namespace IoTSharp.Controllers
                 _context.SaveChanges();
 
             }
+
             if (activity.SequenceFlows != null)
             {
                 _context.Flows.AddRange(activity.SequenceFlows.Select(c => new Flow
@@ -205,12 +228,17 @@ namespace IoTSharp.Controllers
                     RuleId = activity.RuleId,
                     Flowname = c.BizObject.Flowname,
                     bpmnid = c.id,
-                    FlowType = c.bpmntype, SourceId = c.sourceId, TargetId = c.targetId
+                    FlowType = c.bpmntype,
+                    SourceId = c.sourceId,
+                    TargetId = c.targetId,
+                    Conditionexpression = c.BizObject.conditionexpression,
+                    NodeProcessParams = c.BizObject.NodeProcessParams
 
                 }).ToList());
                 _context.SaveChanges();
 
             }
+
             if (activity.Tasks != null)
             {
                 _context.Flows.AddRange(activity.Tasks.Select(c => new Flow
@@ -219,12 +247,13 @@ namespace IoTSharp.Controllers
                     RuleId = activity.RuleId,
                     Flowname = c.BizObject.Flowname,
                     bpmnid = c.id,
-                    FlowType = c.bpmntype, 
+                    FlowType = c.bpmntype,
                     NodeProcessParams = c.BizObject.NodeProcessParams,
                     NodeProcessClass = c.BizObject.NodeProcessClass
                 }).ToList());
                 _context.SaveChanges();
             }
+
             if (activity.DataInputAssociations != null)
             {
                 _context.Flows.AddRange(activity.DataInputAssociations.Select(c => new Flow
@@ -233,11 +262,12 @@ namespace IoTSharp.Controllers
                     RuleId = activity.RuleId,
                     Flowname = c.BizObject.Flowname,
                     bpmnid = c.id,
-                    FlowType = c.bpmntype, 
+                    FlowType = c.bpmntype,
 
                 }).ToList());
                 _context.SaveChanges();
             }
+
             if (activity.DataOutputAssociations != null)
             {
                 _context.Flows.AddRange(activity.DataOutputAssociations.Select(c => new Flow
@@ -251,6 +281,7 @@ namespace IoTSharp.Controllers
                 }).ToList());
                 _context.SaveChanges();
             }
+
             if (activity.TextAnnotations != null)
             {
                 _context.Flows.AddRange(activity.TextAnnotations.Select(c => new Flow
@@ -264,6 +295,7 @@ namespace IoTSharp.Controllers
                 }).ToList());
                 _context.SaveChanges();
             }
+
             if (activity.Containers != null)
             {
                 _context.Flows.AddRange(activity.Containers.Select(c => new Flow
@@ -277,6 +309,7 @@ namespace IoTSharp.Controllers
                 }).ToList());
                 _context.SaveChanges();
             }
+
             if (activity.GateWays != null)
             {
                 _context.Flows.AddRange(activity.GateWays.Select(c => new Flow
@@ -290,6 +323,7 @@ namespace IoTSharp.Controllers
                 }).ToList());
                 _context.SaveChanges();
             }
+
             if (activity.DataStoreReferences != null)
             {
                 _context.Flows.AddRange(activity.DataStoreReferences.Select(c => new Flow
@@ -303,6 +337,7 @@ namespace IoTSharp.Controllers
                 }).ToList());
                 _context.SaveChanges();
             }
+
             if (activity.Lane != null)
             {
                 _context.Flows.AddRange(activity.Lane.Select(c => new Flow
@@ -317,6 +352,7 @@ namespace IoTSharp.Controllers
                 _context.SaveChanges();
 
             }
+
             if (activity.LaneSet != null)
             {
                 _context.Flows.AddRange(activity.LaneSet.Select(c => new Flow
@@ -331,9 +367,751 @@ namespace IoTSharp.Controllers
                 _context.SaveChanges();
 
             }
-            return new JsonResult(new AppMessage { ErrMessage = "操作成功", ErrType = ErrType.正常返回, IsVisble = true, ErrLevel = ErrLevel.Success });
+
+            return new AppMessage
+            { ErrMessage = "操作成功", ErrType = ErrType.正常返回, IsVisble = true, ErrLevel = ErrLevel.Success };
         }
+
+
+
+        [HttpGet("[action]")]
+        public AppMessage GetDiagram(long id)
+        {
+
+            var ruleflow = _context.FlowRules.FirstOrDefault(c => c.RuleId == id);
+            IoTSharp.Models.Rule.Activity activity = new IoTSharp.Models.Rule.Activity();
+
+            activity.SequenceFlows ??= new List<SequenceFlow>();
+            activity.GateWays ??= new List<GateWay>();
+            activity.Tasks ??= new List<IoTSharp.Models.Rule.Task>();
+            activity.LaneSet ??= new List<BpmnBaseObject>();
+            activity.EndEvents ??= new List<BpmnBaseObject>();
+            activity.StartEvents ??= new List<BpmnBaseObject>();
+            activity.Containers ??= new List<BpmnBaseObject>();
+            activity.BaseBpmnObjects ??= new List<BpmnBaseObject>();
+            activity.DataStoreReferences ??= new List<BpmnBaseObject>();
+            activity.SubProcesses ??= new List<BpmnBaseObject>();
+            activity.DataOutputAssociations ??= new List<BpmnBaseObject>();
+            activity.DataInputAssociations ??= new List<BpmnBaseObject>();
+            activity.Lane ??= new List<BpmnBaseObject>();
+            activity.TextAnnotations ??= new List<BpmnBaseObject>();
+            activity.RuleId = id;
+            var flows = _context.Flows.Where(c => c.RuleId == id).ToList();
+
+
+            foreach (var item in flows)
+            {
+
+                switch (item.FlowType)
+                {
+                    case "bpmn:SequenceFlow":
+
+                        activity.SequenceFlows.Add(
+                            new SequenceFlow()
+                            {
+                                sourceId = item.SourceId,
+                                targetId = item.TargetId,
+                                id = item.bpmnid,
+                                bpmntype = item.FlowType,
+                                BizObject = new FormBpmnObject
+                                {
+                                    Flowid = item.FlowId.ToString(),
+                                    Flowdesc = item.Flowdesc,
+                                    Flowtype = item.FlowType.ToString(),
+                                    Flowname = item.Flowname,
+                                    conditionexpression = item.Conditionexpression
+
+                                }
+                            });
+                        break;
+
+                    case "bpmn:EndEvent":
+                        activity.EndEvents.Add(
+
+                            new GateWay
+                            {
+                                sourceId = item.SourceId,
+                                id = item.bpmnid,
+                                bpmntype = item.FlowType,
+                                BizObject = new FormBpmnObject
+                                {
+                                    Flowid = item.FlowId.ToString(),
+                                    Flowdesc = item.Flowdesc,
+                                    Flowtype = item.FlowType.ToString(),
+                                    Flowname = item.Flowname,
+                                    NodeProcessClass = item.NodeProcessClass,
+                                }
+                            });
+                        break;
+                    case "bpmn:StartEvent":
+                        activity.StartEvents.Add(
+
+                            new GateWay
+                            {
+                                sourceId = item.SourceId,
+
+                                id = item.bpmnid,
+                                bpmntype = item.FlowType,
+                                BizObject = new FormBpmnObject
+                                {
+                                    Flowid = item.FlowId.ToString(),
+                                    Flowdesc = item.Flowdesc,
+                                    Flowtype = item.FlowType.ToString(),
+                                    Flowname = item.Flowname,
+                                }
+                            });
+
+                        break;
+                    case "bpmn:ExclusiveGateway":
+                        activity.GateWays.Add(
+
+                            new GateWay
+                            {
+                                sourceId = item.SourceId,
+
+                                id = item.bpmnid,
+                                bpmntype = item.FlowType,
+                                BizObject = new FormBpmnObject
+                                {
+                                    Flowid = item.FlowId.ToString(),
+                                    Flowdesc = item.Flowdesc,
+                                    Flowtype = item.FlowType.ToString(),
+                                    Flowname = item.Flowname,
+                                    NodeProcessClass = item.NodeProcessClass
+                                }
+                            });
+                        break;
+                    case "bpmn:ParallelGateway":
+                        activity.GateWays.Add(
+
+                            new GateWay
+                            {
+                                sourceId = item.SourceId,
+
+                                id = item.bpmnid,
+                                bpmntype = item.FlowType,
+                                BizObject = new FormBpmnObject
+                                {
+                                    Flowid = item.FlowId.ToString(),
+                                    Flowdesc = item.Flowdesc,
+                                    Flowtype = item.FlowType.ToString(),
+                                    Flowname = item.Flowname,
+                                    NodeProcessClass = item.NodeProcessClass
+                                }
+                            });
+                        break;
+
+                    case "bpmn:InclusiveGateway":
+                        activity.GateWays.Add(
+
+                            new GateWay
+                            {
+                                sourceId = item.SourceId,
+
+                                id = item.bpmnid,
+                                bpmntype = item.FlowType,
+                                BizObject = new FormBpmnObject
+                                {
+
+                                    Flowid = item.FlowId.ToString(),
+                                    Flowdesc = item.Flowdesc,
+                                    Flowtype = item.FlowType.ToString(),
+                                    Flowname = item.Flowname,
+                                    NodeProcessClass = item.NodeProcessClass
+                                }
+                            });
+                        break;
+                    case "bpmn:EventBasedGateway":
+                        activity.GateWays.Add(
+
+                            new GateWay
+                            {
+                                sourceId = item.SourceId,
+
+                                id = item.bpmnid,
+                                bpmntype = item.FlowType,
+                                BizObject = new FormBpmnObject
+                                {
+                                    Flowid = item.FlowId.ToString(),
+                                    Flowdesc = item.Flowdesc,
+                                    Flowtype = item.FlowType.ToString(),
+                                    Flowname = item.Flowname,
+                                    NodeProcessClass = item.NodeProcessClass
+                                }
+                            });
+                        break;
+
+                    case "bpmn:ComplexGateway":
+                        activity.GateWays.Add(
+
+                            new GateWay
+                            {
+                                sourceId = item.SourceId,
+
+                                id = item.bpmnid,
+                                bpmntype = item.FlowType,
+                                BizObject = new FormBpmnObject
+                                {
+                                    Flowid = item.FlowId.ToString(),
+                                    Flowdesc = item.Flowdesc,
+                                    Flowtype = item.FlowType.ToString(),
+                                    Flowname = item.Flowname,
+                                    NodeProcessClass = item.NodeProcessClass
+                                }
+                            });
+                        break;
+                    case "bpmn:Task":
+                        activity.Tasks.Add(
+
+                            new IoTSharp.Models.Rule.Task
+                            {
+
+
+                                id = item.bpmnid,
+                                Flowname = item.Flowname,
+                                bpmntype = item.FlowType,
+                                BizObject = new FormBpmnObject
+                                {
+                                    Flowid = item.FlowId.ToString(),
+                                    Flowdesc = item.Flowdesc,
+                                    Flowtype = item.FlowType.ToString(),
+                                    Flowname = item.Flowname,
+                                }
+                            });
+                        break;
+                    case "bpmn:BusinessRuleTask":
+                        activity.Tasks.Add(
+
+                            new IoTSharp.Models.Rule.Task
+                            {
+                                Flowname = item.Flowname,
+                                id = item.bpmnid,
+                                bpmntype = item.FlowType,
+                                BizObject = new FormBpmnObject
+                                {
+                                    Flowid = item.FlowId.ToString(),
+                                    Flowdesc = item.Flowdesc,
+                                    Flowtype = item.FlowType.ToString(),
+                                    Flowname = item.Flowname,
+                                }
+                            });
+                        break;
+                    case "bpmn:ReceiveTask":
+                        activity.Tasks.Add(
+
+                            new IoTSharp.Models.Rule.Task
+                            {
+
+                                Flowname = item.Flowname,
+                                id = item.bpmnid,
+                                bpmntype = item.FlowType,
+                                BizObject = new FormBpmnObject
+                                {
+                                    Flowid = item.FlowId.ToString(),
+                                    Flowdesc = item.Flowdesc,
+                                    Flowtype = item.FlowType.ToString(),
+                                    Flowname = item.Flowname,
+
+                                }
+                            });
+                        break;
+                    case "bpmn:UserTask":
+                        activity.Tasks.Add(
+
+                            new IoTSharp.Models.Rule.Task
+                            {
+
+                                Flowname = item.Flowname,
+                                id = item.bpmnid,
+                                bpmntype = item.FlowType,
+                                BizObject = new FormBpmnObject
+                                {
+                                    Flowid = item.FlowId.ToString(),
+                                    Flowdesc = item.Flowdesc,
+                                    Flowtype = item.FlowType.ToString(),
+                                    Flowname = item.Flowname,
+                                }
+                            });
+                        break;
+
+                    case "bpmn:ServiceTask":
+                        activity.Tasks.Add(
+
+                            new IoTSharp.Models.Rule.Task
+                            {
+
+                                Flowname = item.Flowname,
+                                id = item.bpmnid,
+                                bpmntype = item.FlowType,
+                                BizObject = new FormBpmnObject
+                                {
+                                    Flowid = item.FlowId.ToString(),
+                                    Flowdesc = item.Flowdesc,
+                                    Flowtype = item.FlowType.ToString(),
+                                    Flowname = item.Flowname,
+                                }
+                            });
+                        break;
+                    case "bpmn:ManualTask":
+                        activity.Tasks.Add(
+
+                            new IoTSharp.Models.Rule.Task
+                            {
+
+                                Flowname = item.Flowname,
+                                id = item.bpmnid,
+                                bpmntype = item.FlowType,
+                                BizObject = new FormBpmnObject
+                                {
+                                    Flowid = item.FlowId.ToString(),
+                                    Flowdesc = item.Flowdesc,
+                                    Flowtype = item.FlowType.ToString(),
+                                    Flowname = item.Flowname,
+                                }
+                            });
+                        break;
+                    case "bpmn:SendTask":
+                        activity.Tasks.Add(
+
+                            new IoTSharp.Models.Rule.Task
+                            {
+
+                                Flowname = item.Flowname,
+                                id = item.bpmnid,
+                                bpmntype = item.FlowType,
+                                BizObject = new FormBpmnObject
+                                {
+                                    Flowid = item.FlowId.ToString(),
+                                    Flowdesc = item.Flowdesc,
+                                    Flowtype = item.FlowType.ToString(),
+                                    Flowname = item.Flowname,
+                                }
+                            });
+                        break;
+                    case "bpmn:CallActivity":
+                        activity.Tasks.Add(
+
+                            new IoTSharp.Models.Rule.Task
+                            {
+
+                                Flowname = item.Flowname,
+                                id = item.bpmnid,
+                                bpmntype = item.FlowType,
+                                BizObject = new FormBpmnObject
+                                {
+                                    Flowid = item.FlowId.ToString(),
+                                    Flowdesc = item.Flowdesc,
+                                    Flowtype = item.FlowType.ToString(),
+                                    Flowname = item.Flowname,
+                                }
+                            });
+                        break;
+                    case "bpmn:IntermediateCatchEvent":
+                        activity.EndEvents.Add(
+
+                            new BpmnBaseObject
+                            {
+                                Flowname = item.Flowname,
+                                id = item.bpmnid,
+                                bpmntype = item.FlowType,
+                                BizObject = new FormBpmnObject
+                                {
+                                    Flowid = item.FlowId.ToString(),
+                                    Flowdesc = item.Flowdesc,
+                                    Flowtype = item.FlowType.ToString(),
+                                    Flowname = item.Flowname,
+                                }
+                            });
+                        break;
+                    case "bpmn:IntermediateThrowEvent":
+                        activity.EndEvents.Add(
+
+                            new BpmnBaseObject()
+                            {
+                                Flowname = item.Flowname,
+                                id = item.bpmnid,
+                                bpmntype = item.FlowType,
+                                BizObject = new FormBpmnObject
+                                {
+                                    Flowid = item.FlowId.ToString(),
+                                    Flowdesc = item.Flowdesc,
+                                    Flowtype = item.FlowType.ToString(),
+                                    Flowname = item.Flowname,
+                                }
+                            });
+                        break;
+
+                    case "bpmn:Lane":
+                        activity.Containers.Add(
+
+                            new BpmnBaseObject
+                            {
+                                Flowname = item.Flowname,
+                                id = item.bpmnid,
+                                bpmntype = item.FlowType,
+                                BizObject = new FormBpmnObject
+                                {
+                                    Flowid = item.FlowId.ToString(),
+                                    Flowdesc = item.Flowdesc,
+                                    Flowtype = item.FlowType.ToString(),
+                                    Flowname = item.Flowname,
+                                }
+                            });
+                        break;
+                    case "bpmn:Participant":
+                        activity.Containers.Add(
+
+                            new BpmnBaseObject
+                            {
+
+
+                                Flowname = item.Flowname,
+                                id = item.bpmnid,
+                                bpmntype = item.FlowType,
+                                BizObject = new FormBpmnObject
+                                {
+
+                                    Flowid = item.FlowId.ToString(),
+                                    Flowdesc = item.Flowdesc,
+                                    Flowtype = item.FlowType.ToString(),
+                                    Flowname = item.Flowname,
+                                }
+                            });
+                        break;
+                    case "bpmn:DataStoreReference":
+                        activity.DataStoreReferences.Add(
+
+                            new BpmnBaseObject
+                            {
+
+
+                                Flowname = item.Flowname,
+                                id = item.bpmnid,
+                                bpmntype = item.FlowType,
+                                BizObject = new FormBpmnObject
+                                {
+
+                                    Flowid = item.FlowId.ToString(),
+                                    Flowdesc = item.Flowdesc,
+                                    Flowtype = item.FlowType.ToString(),
+                                    Flowname = item.Flowname,
+                                }
+                            });
+                        break;
+                    case "bpmn:SubProcess":
+                        activity.SubProcesses.Add(
+
+                            new BpmnBaseObject
+                            {
+                                Flowname = item.Flowname,
+                                id = item.bpmnid,
+                                bpmntype = item.FlowType,
+                                BizObject = new FormBpmnObject
+                                {
+
+                                    Flowid = item.FlowId.ToString(),
+                                    Flowdesc = item.Flowdesc,
+                                    Flowtype = item.FlowType.ToString(),
+                                    Flowname = item.Flowname,
+
+
+                                }
+                            });
+                        break;
+
+
+                    default:
+                        BpmnBaseObject node = new BpmnBaseObject
+                        {
+                            BizObject = new FormBpmnObject
+                            {
+                                Flowid = item.FlowId.ToString(),
+                                Flowdesc = item.Flowdesc,
+                                Flowtype = item.FlowType.ToString(),
+                                Flowname = item.Flowname,
+                            },
+                            bpmntype = item.FlowType,
+                            id = item.FlowId.ToString(),
+                        };
+                        activity.DefinitionsDesc = ruleflow.RuleDesc;
+                        activity.RuleId = ruleflow.RuleId;
+                        activity.DefinitionsName = ruleflow.Name;
+                        activity.DefinitionsStatus = ruleflow.RuleStatus ?? 0;
+
+                        activity.BaseBpmnObjects ??= new List<BpmnBaseObject>();
+                        activity.BaseBpmnObjects.Add(node);
+                        break;
+                }
+
+            }
+
+            return new AppMessage
+            {
+                Result = new
+                {
+                    Xml = ruleflow.DefinitionsXml?.Trim('\r'),
+                    Biz = activity
+                }
+            };
+        }
+
+        private async System.Threading.Tasks.Task Process(Flow flow, List<Flow> allflow, object data,int nextstep)
+        {
+
+            switch (flow.FlowType)
+            {
+                case "bpmn:SequenceFlow":
+                    var t = allflow.FirstOrDefault(c => c.TargetId == flow.bpmnid);
+                    _context.FlowOperations.Add(new FlowOperation() { AddDate = DateTime.Now, RuleId = flow.RuleId, FlowId = t.FlowId, Data = JsonConvert.SerializeObject(data), NodeStatus = 1, OperationDesc = "执行条件" + flow.Conditionexpression , Step = nextstep});
+                    await _context.SaveChangesAsync();
+                    await Process(t, allflow, data, nextstep++);
+                    break;
+                case "bpmn:Task":
+                    {
+                        var flows = allflow.Where(c => c.SourceId == flow.bpmnid).ToList();
+
+                        var tasks = new BaseRuleTask()
+                        {
+                            Name = flow.Flowname,
+                            Eventid = flow.bpmnid,
+                            id = flow.bpmnid,
+
+                            outgoing = new EditableList<BaseRuleFlow>()
+                        };
+
+                        _context.FlowOperations.Add(new FlowOperation() { AddDate = DateTime.Now, RuleId = flow.RuleId, FlowId = flow.FlowId, Data = JsonConvert.SerializeObject(data), NodeStatus = 1, OperationDesc = "执行任务" + flow.Flowname, Step = nextstep });
+                        await _context.SaveChangesAsync();
+                        nextstep++;
+                        foreach (var item in flows)
+                        {
+
+                            var rule = new BaseRuleFlow();
+                            rule.Expression = item.Conditionexpression;
+                            rule.id = item.bpmnid;
+                            rule.Name = item.Flowname;
+                            rule.Eventid = item.bpmnid;
+                            tasks.outgoing.Add(rule);
+                        }
+                        AbstractTaskExcutor taskExcutor = new AbstractTaskExcutor();
+                        var result = await taskExcutor.Excute(new ExcuteEntity()
+                        {
+                            Action = null,
+                            Params = data,
+                            Task = tasks,
+                            WaitTime = 0
+
+                        });
+
+                        var next = result.Where(c => c.IsSuccess).ToList().Select(c => c.Rule.Properties["Flow"]);
+
+
+
+
+                        foreach (var item in next)
+                        {
+                            var _flow = item as BaseRuleFlow;
+                            var nextflow = allflow.FirstOrDefault(a => a.bpmnid == _flow.id);
+                            await Process(nextflow, allflow, data,nextstep);
+                        }
+                    }
+
+                    break;
+                case "bpmn:EndEvent":
+                    _context.FlowOperations.Add(new FlowOperation() { AddDate = DateTime.Now, RuleId = flow.RuleId, FlowId = flow.FlowId, Data = JsonConvert.SerializeObject(data), NodeStatus = 1, OperationDesc =  "处理完成", Step = nextstep});
+                    await _context.SaveChangesAsync();
+
+                    break;
+                case "bpmn:StartEvent":
+
+                    {
+                        var flows = allflow.Where(c => c.SourceId == flow.bpmnid).ToList();
+
+                        var tasks = new BaseRuleTask()
+                        {
+                            Name =flow.Flowname,
+                            Eventid = flow.bpmnid,
+                            id = flow.bpmnid,
+
+                            outgoing = new EditableList<BaseRuleFlow>()
+                        };
+                        _context.FlowOperations.Add(new FlowOperation() { AddDate = DateTime.Now, RuleId = flow.RuleId, FlowId = flow.FlowId, Data = JsonConvert.SerializeObject(data), NodeStatus = 1, OperationDesc = "开始处理", Step = nextstep});
+                        await _context.SaveChangesAsync();
+
+
+                        foreach (var item in flows)
+                        {
+                            var rule = new BaseRuleFlow();
+                          
+                            rule.id = item.bpmnid;
+                            rule.Name = item.bpmnid;
+                            rule.Eventid = item.bpmnid;
+                            rule.Expression = item.Conditionexpression;
+                            tasks.outgoing.Add(rule);
+                        }
+                        AbstractTaskExcutor taskExcutor = new AbstractTaskExcutor();
+                        var result = await taskExcutor.Excute(new ExcuteEntity()
+                        {
+                            Action = null,
+                            Params = data,
+                            Task = tasks,
+                            WaitTime = 0
+
+                        });
+
+                        var next = result.Where(c => c.IsSuccess).ToList();
+                            
+                            
+                        nextstep++;
+                        foreach (var item in next)
+                        {
+                            var _flow = item.Rule.Properties["flow"] as BaseRuleFlow;
+                            var nextflow = allflow.FirstOrDefault(a => a.bpmnid == _flow.id);
+                            await Process(nextflow, allflow, data, nextstep);
+                        }
+                    }
+                    break;
+
+            }
+
+        }
+
+
+
+        [HttpPost("[action]")]
+        public async Task<AppMessage> Active([FromBody] JObject form)
+        {
+
+
+
+            var formdata = form.First.First;
+
+
+
+
+            var extradata = form.First.Next;
+            var obj = extradata.First.First.First.Value<JToken>();
+            var obj1 = extradata.First.First.Next.First.Value<JToken>();
+            var formid = obj.Value<int>();
+            var ruleid = obj1.Value<int>();
+            var _form = _context.DynamicFormInfos.FirstOrDefault(c => c.FormId == formid);
+            object data = formdata.ToObject(BuildPocoObject(_form.ModelClass, "FormData"+ _form.FormId));
+            var d = formdata.ToObject(typeof(ExpandoObject));
+                  var _params = _context.DynamicFormFieldInfos.Where(c => c.FormId == formid).ToList();
+
+            var flows = _context.Flows.Where(c => c.RuleId == ruleid).ToList();
+
+            var start = flows.FirstOrDefault(c => c.FlowType == "bpmn:StartEvent");
+            var end = flows.FirstOrDefault(c => c.FlowType == "bpmn:EndEvent");
+           
+
+            await Process(start, flows, d, 1);
+            //AbstractTaskExcutor taskExcutor = new AbstractTaskExcutor();
+
+            //var tasks = new BaseRuleTask()
+            //{
+            //    Name = "aa",
+            //    Eventid = "aa",
+            //    id = "aa",
+
+            //    outgoing = new EditableList<BaseRuleFlow>()
+            //};
+
+            //var rule1 = new BaseRuleFlow();
+            //rule1.Expression = "Temperature>2";
+            //rule1.id = "1";
+            //rule1.Name = "Name1";
+            //rule1.Eventid = "Eventid1";
+            //var rule2 = new BaseRuleFlow();
+            //rule2.id = "2";
+            //rule2.Name = "Name2";
+            //rule2.Eventid = "Eventid2";
+            //rule2.Expression = "Temperature>100";
+            //var rule3 = new BaseRuleFlow();
+            //rule3.id = "3";
+            //rule3.Name = "Name3";
+            //rule3.Eventid = "Eventid3";
+            //rule3.Expression = "Temperature>1000";
+            //tasks.outgoing.Add(rule1);
+            //tasks.outgoing.Add(rule2);
+            //tasks.outgoing.Add(rule3);
+            //var result = await taskExcutor.Excute(new ExcuteEntity()
+            //{
+            //    Action = null,
+            //    Params = data,
+            //    Task = tasks,
+            //    WaitTime = 0
+
+            //});
+
+
+            foreach (var item in _params)
+            {
+                foreach (JProperty _item in formdata)
+                {
+                    if (_item.Path == "form." + item.FieldCode)
+                    {
+
+                        var v = _item.First.Value<JToken>();
+                        var vl = DynamicProp.GetValue(item.FieldValueType ?? 4, v).ToString();
+
+                        var code = item.FieldCode;
+
+                    }
+                }
+            }
+
+
+
+            return new AppMessage();
+        }
+
+
+        private void FindNext()
+        {
+
+
+
+        }
+
+        private Type BuildPocoObject(string classtext,string typename)
+        {
+            MetadataReference[] references = {
+                MetadataReference.CreateFromFile(typeof(object).Assembly.Location),
+                MetadataReference.CreateFromFile(typeof(Enumerable).Assembly.Location),
+                MetadataReference.CreateFromFile(typeof(System.Double).Assembly.Location),
+                MetadataReference.CreateFromFile(typeof(System.Int32).Assembly.Location),
+                MetadataReference.CreateFromFile(typeof(System.Int64).Assembly.Location),           
+                MetadataReference.CreateFromFile(typeof(System.String).Assembly.Location),
+                MetadataReference.CreateFromFile(typeof(System.Single).Assembly.Location),
+            };
+
+            
+            var tree = SyntaxFactory.ParseSyntaxTree(classtext);
+            CSharpCompilation compilation = CSharpCompilation.Create(typename, new[] { tree }, references, new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
+            using var ms = new MemoryStream();
+            EmitResult result = compilation.Emit(ms);
+            if (!result.Success)
+            {
+                IEnumerable<Diagnostic> failures = result.Diagnostics.Where(diagnostic =>
+                    diagnostic.IsWarningAsError ||
+                    diagnostic.Severity == DiagnosticSeverity.Error);
+                foreach (Diagnostic diagnostic in failures)
+                {
+
+                }
+                return null;
+            }
+            else
+            {
+                ms.Seek(0, SeekOrigin.Begin);
+                return Assembly.Load(ms.ToArray()).DefinedTypes.FirstOrDefault();
+            }
+
+        }
+
     }
+
+
 
 
 }

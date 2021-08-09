@@ -99,8 +99,6 @@ import { LayoutModule } from './layout/layout.module';
 import { RoutesModule } from './routes/routes.module';
 import { SharedModule } from './shared/shared.module';
 import { STWidgetModule } from './shared/st-widget/st-widget.module';
-import { Globals } from './core/Globals';
-
 @NgModule({
   declarations: [AppComponent],
   imports: [
@@ -119,7 +117,7 @@ import { Globals } from './core/Globals';
     ...GLOBAL_THIRD_MODULES,
     ...FORM_MODULES,
   ],
-  providers: [...LANG_PROVIDES, ...INTERCEPTOR_PROVIDES, ...I18NSERVICE_PROVIDES, ...APPINIT_PROVIDES, Globals],
+  providers: [...LANG_PROVIDES, ...INTERCEPTOR_PROVIDES, ...I18NSERVICE_PROVIDES, ...APPINIT_PROVIDES], //TimelineService is test
   bootstrap: [AppComponent],
 })
 export class AppModule {}

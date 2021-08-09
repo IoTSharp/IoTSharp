@@ -1,14 +1,14 @@
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnInit, TemplateRef, ViewChild } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { STChange, STColumn, STComponent, STData, STPage, STReq, STRes } from '@delon/abc/st';
-import { ModalHelper, _HttpClient } from '@delon/theme';
+import { ModalHelper, SettingsService, _HttpClient } from '@delon/theme';
 import { NzMessageService } from 'ng-zorro-antd/message';
 import { map, tap } from 'rxjs/operators';
 import { Validators, FormBuilder, FormGroup } from '@angular/forms/forms';
 import { NzDrawerRef, NzDrawerService } from 'ng-zorro-antd/drawer';
 
 import { ACLService } from '@delon/acl';
-import { Globals } from 'src/app/core/Globals';
+
 import { CustomerformComponent } from '../customerform/customerform.component';
 @Component({
   selector: 'app-customerlist',
@@ -25,7 +25,7 @@ export class CustomerlistComponent implements OnInit {
     private _router: Router,
     private router: ActivatedRoute,
     private drawerService: NzDrawerService,
-    private globals: Globals,
+    private settingService: SettingsService,
     aclSrv: ACLService,
   ) {
     this.router.queryParams.subscribe(
@@ -129,6 +129,7 @@ export class CustomerlistComponent implements OnInit {
   expandForm = false;
   ngOnInit(): void {}
   edit(id: string): void {
+    var { nzMaskClosable, width } = this.settingService.getData('drawerconfig');
     let title = id == '-1' ? '新建客户' : '修改客户';
     const drawerRef = this.drawerService.create<
       CustomerformComponent,
@@ -142,8 +143,8 @@ export class CustomerlistComponent implements OnInit {
     >({
       nzTitle: title,
       nzContent: CustomerformComponent,
-      nzWidth: this.globals.drawerwidth,
-      nzMaskClosable: this.globals.nzMaskClosable,
+      nzWidth: width,
+      nzMaskClosable: nzMaskClosable,
       nzContentParams: {
         params: {
           id: id,

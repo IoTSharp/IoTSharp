@@ -126,6 +126,7 @@ namespace IoTSharp.Controllers
                                 DataSide = t.DataSide,
                                 DateTime = t.DateTime,
                                 KeyName = t.KeyName,
+                                KeyType=t.Type,
                                 Value = t.ToObject()
                             };
                 if (!devid.Any())

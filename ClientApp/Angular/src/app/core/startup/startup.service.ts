@@ -51,13 +51,22 @@ export class StartupService {
         this.httpClient.get('api/Account/MyInfo').pipe(
           map((appData) => {
             const res = appData as NzSafeAny;
-            console.log(res.status);
+
             this.settingService.setApp({ name: 'IotSharp', description: 'IotSharp' });
-
+            this.settingService.setData('drawerconfig', { width: 720, nzMaskClosable: false });
             this.settingService.setUser(res.data.customer);
+            var ACL = [];
+            if (!res.data.funcs) {
+              for (var i = 0; i < 500; i++) {
+                ACL = [...ACL, i];
+              }
+            } else {
+              this.aclService.setAbility(res.data.funcs);
+            }
 
-            this.aclService.setFull(true); //开启ACL
-
+            this.aclService.setAbility(ACL);
+            this.aclService.setFull(false); //开启ACL
+            console.log(this.aclService.data);
             var menu = [
               {
                 text: '主导航1',
@@ -133,6 +142,35 @@ export class StartupService {
                         //   i18n: 'menu.device.devicelist',
                       },
                     ],
+                  },
+
+                  {
+                    text: '资源',
+                    icon: 'anticon-appstore',
+                    children: [
+                      {
+                        text: '字典分组',
+                        link: '/iot/dictionary/dictionarygrouplist',
+                        //   i18n: 'menu.device.devicelist',
+                      },
+                      {
+                        text: '字典',
+                        link: '/iot/dictionary/dictionarylist',
+                        //   i18n: 'menu.device.devicelist',
+                      },
+                      {
+                        text: '国际化',
+                        link: '/iot/resouce/i18nlist',
+                        //   i18n: 'menu.device.devicelist',
+                      },
+                      {
+                        text: '表单',
+                        link: '/iot/util/dynamicformlist',
+                        //   i18n: 'menu.device.devicelist',
+                      },
+                    ],
+
+                    //   i18n: 'menu.device.devicelist',
                   },
                 ],
               },

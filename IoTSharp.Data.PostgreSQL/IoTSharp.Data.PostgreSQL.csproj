@@ -5,6 +5,11 @@
 	</PropertyGroup>
 
 	<ItemGroup>
+	  <Compile Remove="Migrations\20210730042815_forms.cs" />
+	  <Compile Remove="Migrations\20210730042815_forms.Designer.cs" />
+	</ItemGroup>
+
+	<ItemGroup>
 		<PackageReference Include="AspNetCore.HealthChecks.NpgSql" Version="5.0.2" />
 		<PackageReference Include="AspNetCore.HealthChecks.UI.PostgreSQL.Storage" Version="5.0.1" />
 		<PackageReference Include="AspNetCore.HealthChecks.UI.Core" Version="5.0.1" />

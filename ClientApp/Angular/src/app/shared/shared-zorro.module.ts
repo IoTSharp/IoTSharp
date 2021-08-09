@@ -32,6 +32,8 @@ import { NzToolTipModule } from 'ng-zorro-antd/tooltip';
 import { NzUploadModule } from 'ng-zorro-antd/upload';
 import { NzPageHeaderModule } from 'ng-zorro-antd/page-header';
 import { NzLayoutModule } from 'ng-zorro-antd/layout';
+import { NzStepsModule } from 'ng-zorro-antd/steps';
+import { NzCodeEditorModule } from 'ng-zorro-antd/code-editor';
 export const SHARED_ZORRO_MODULES = [
   NzButtonModule,
   NzMessageModule,
@@ -67,4 +69,6 @@ export const SHARED_ZORRO_MODULES = [
   NzUploadModule,
   NzPageHeaderModule,
   NzLayoutModule,
+  NzStepsModule,
+  NzCodeEditorModule,
 ];

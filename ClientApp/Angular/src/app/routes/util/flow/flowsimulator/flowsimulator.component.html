@@ -1,0 +1,20 @@
+<div nz-row>
+  <div nz-col nzSpan="24">
+    <nz-card nzTitle="FLows" [nzBordered]="false"> <app-flowviewer #flowview></app-flowviewer></nz-card>
+  </div>
+</div>
+
+<div nz-row>
+  <div nz-col nzSpan="12">
+    <nz-card nzTitle="Test Data" [nzBordered]="false">
+      <app-dynamicformview (onsubmit)="onsubmit($event)" #dynamicformview> </app-dynamicformview
+    ></nz-card>
+  </div>
+  <div nz-col nzSpan="12">
+    <nz-card [nzBordered]="false" class="mb-0" nzTitle="Time Line">
+      <nz-steps [nzCurrent]="current">
+        <nz-step></nz-step>
+      </nz-steps>
+    </nz-card>
+  </div>
+</div>

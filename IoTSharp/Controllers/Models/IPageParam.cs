@@ -31,5 +31,17 @@ namespace IoTSharp.Controllers.Models
         public bool Online { get; set; }
         public string Name { get; set; }
     }
+    public class RulePageParam : IPageParam
+    {
 
+        public string Name { get; set; }
+
+        public string Creator { get; set; }
+        public DateTime[] CreatTime { get; set; }
+    }
+    public class DictionaryParam : IPageParam
+    {
+        public string DictionaryName { get; set; }
+        public int DictionaryGroupId { get; set; }
+    }
 }

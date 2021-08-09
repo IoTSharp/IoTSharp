@@ -1,14 +1,14 @@
 import { ChangeDetectorRef, Component, OnInit, TemplateRef, ViewChild } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { STChange, STColumn, STComponent, STData, STPage, STReq, STRes } from '@delon/abc/st';
-import { ModalHelper, _HttpClient } from '@delon/theme';
+import { ModalHelper, SettingsService, _HttpClient } from '@delon/theme';
 import { NzMessageService } from 'ng-zorro-antd/message';
 import { map, tap } from 'rxjs/operators';
 import { Validators, FormBuilder, FormGroup } from '@angular/forms/forms';
 import { NzDrawerRef, NzDrawerService } from 'ng-zorro-antd/drawer';
 
 import { ACLService } from '@delon/acl';
-import { Globals } from 'src/app/core/Globals';
+
 import { UserformComponent } from '../userform/userform.component';
 
 @Component({
@@ -88,7 +88,7 @@ export class UserlistComponent implements OnInit {
 
     private router: ActivatedRoute,
     private drawerService: NzDrawerService,
-    private globals: Globals,
+    private settingService: SettingsService,
     aclSrv: ACLService,
   ) {}
 
@@ -110,12 +110,13 @@ export class UserlistComponent implements OnInit {
   }
 
   edit(id: string): void {
+    var { nzMaskClosable, width } = this.settingService.getData('drawerconfig');
     let title = id == '-1' ? '新建设备' : '修改设备';
     const drawerRef = this.drawerService.create<UserformComponent, { id: string }, string>({
       nzTitle: title,
       nzContent: UserformComponent,
-      nzWidth: this.globals.drawerwidth,
-      nzMaskClosable: this.globals.nzMaskClosable,
+      nzWidth: width,
+      nzMaskClosable: nzMaskClosable,
       nzContentParams: {
         id: id,
       },

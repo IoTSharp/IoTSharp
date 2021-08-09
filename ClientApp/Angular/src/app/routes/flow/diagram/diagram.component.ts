@@ -19,6 +19,7 @@ import * as BpmnJS from 'bpmn-js/dist/bpmn-modeler.production.min.js';
 import { Observable, throwError, from, fromEvent } from 'rxjs';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { CombineLatestSubscriber } from 'rxjs/internal/observable/combineLatest';
+import { appmessage, AppMessage } from '../../common/AppMessage';
 
 @Component({
   selector: 'app-diagram',
@@ -63,20 +64,20 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy 
   @Input() ruleId: number;
 
   form: FormBpmnObject = {
-    Flowid: '',
-    Flowname: '',
-    Flowdesc: '',
-    Flowtype: '',
-    NodeProcessClass: '',
-    NodeProcessClassVisable: false,
+    flowid: '',
+    flowname: '',
+    flowdesc: '',
+    flowtype: '',
+    nodeProcessClass: '',
+    nodeProcessClassVisable: false,
     conditionexpression: '',
     conditionexpressionVisable: false,
   };
   activity: Activity;
   selectedValue: any;
   ngModelChange($event) {
-    var x = this.activity.SequenceFlows.find((x) => x.id == this.form.Flowid);
-    x.BizObject = this.form;
+    var x = this.activity.sequenceFlows.find((x) => x.id == this.form.flowid);
+    x.bizObject = this.form;
     var elementRegistry = this.bpmnJS.get('elementRegistry');
 
     var modeling = this.bpmnJS.get('modeling');
@@ -107,16 +108,16 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy 
     private render: Renderer2,
   ) {
     this.activity = new Activity();
-    this.activity.Tasks = [];
-    this.activity.GateWays = [];
-    this.activity.DataInputAssociations = [];
-    this.activity.DataOutputAssociations = [];
-    this.activity.SequenceFlows = [];
-    this.activity.Lane = [];
-    this.activity.LaneSet = [];
-    this.activity.EndEvents = [];
-    this.activity.StartEvents = [];
-
+    this.activity.tasks = [];
+    this.activity.gateWays = [];
+    this.activity.dataInputAssociations = [];
+    this.activity.dataOutputAssociations = [];
+    this.activity.sequenceFlows = [];
+    this.activity.lane = [];
+    this.activity.laneSet = [];
+    this.activity.endEvents = [];
+    this.activity.startEvents = [];
+    this.activity.textAnnotations = [];
     this.bpmnJS = new BpmnJS({
       bpmnRenderer: {
         defaultFillColor: '#e6f7ff',
@@ -131,443 +132,445 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy 
     });
 
     this.bpmnJS.on('element.click', (event) => {
-      //  this.form.patchValue({ Flowid: event.element.id, Flowname: event.element.businessObject.name });
+      //  this.form.patchValue({ Flowid: event.element.id, flowname: event.element.businessObject.name });
       console.log(event);
+      console.log(this.activity);
       switch (event.element.type) {
         case 'bpmn:Task':
-          var task = this.activity.Tasks.find((x) => x.id == event.element.id);
+          var task = this.activity.tasks.find((x) => x.id == event.element.id);
           if (task) {
-            if (task.BizObject == null) {
-              task.BizObject = {
-                Flowid: '',
-                Flowname: '',
-                Flowdesc: '',
-                Flowtype: '',
+            if (task.bizObject == null) {
+              task.bizObject = {
+                flowid: '',
+                flowname: '',
+                flowdesc: '',
+                flowtype: '',
 
-                NodeProcessClass: '',
+                nodeProcessClass: '',
                 conditionexpression: '',
-                NodeProcessClassVisable: true,
+                nodeProcessClassVisable: true,
                 conditionexpressionVisable: false,
               };
             }
 
-            task.BizObject.NodeProcessClassVisable = false;
-            this.form = task.BizObject;
+            task.bizObject.nodeProcessClassVisable = false;
+            this.form = task.bizObject;
+            console.log(task);
           }
 
           break;
         case 'bpmn:EndEvent':
-          var endevent = this.activity.EndEvents.find((x) => x.id == event.element.id);
+          var endevent = this.activity.endEvents.find((x) => x.id == event.element.id);
           if (endevent) {
-            if (endevent.BizObject === null) {
-              endevent.BizObject = {
-                Flowid: '',
-                Flowname: '',
-                Flowdesc: '',
-                Flowtype: '',
+            if (endevent.bizObject === null) {
+              endevent.bizObject = {
+                flowid: '',
+                flowname: '',
+                flowdesc: '',
+                flowtype: '',
                 conditionexpressionVisable: false,
-                NodeProcessClass: '',
+                nodeProcessClass: '',
                 conditionexpression: '',
-                NodeProcessClassVisable: true,
+                nodeProcessClassVisable: true,
               };
             }
 
-            endevent.BizObject.NodeProcessClassVisable = false;
-            this.form = endevent.BizObject;
+            endevent.bizObject.nodeProcessClassVisable = false;
+            this.form = endevent.bizObject;
           }
 
           break;
         case 'bpmn:StartEvent':
-          var startevent = this.activity.StartEvents.find((x) => x.id == event.element.id);
+          var startevent = this.activity.startEvents.find((x) => x.id == event.element.id);
           if (startevent) {
-            if (startevent.BizObject === null) {
-              startevent.BizObject = {
-                Flowid: '',
-                Flowname: '',
-                Flowdesc: '',
-                Flowtype: '',
+            if (startevent.bizObject === null) {
+              startevent.bizObject = {
+                flowid: '',
+                flowname: '',
+                flowdesc: '',
+                flowtype: '',
                 conditionexpressionVisable: false,
-                NodeProcessClass: '',
+                nodeProcessClass: '',
                 conditionexpression: '',
-                NodeProcessClassVisable: true,
+                nodeProcessClassVisable: true,
               };
             }
 
-            startevent.BizObject.NodeProcessClassVisable = false;
-            this.form = startevent.BizObject;
+            startevent.bizObject.nodeProcessClassVisable = false;
+            this.form = startevent.bizObject;
           }
 
           break;
         case 'bpmn:IntermediateThrowEvent':
-          var intermediatethrowevent = this.activity.EndEvents.find((x) => x.id == event.element.id);
+          var intermediatethrowevent = this.activity.endEvents.find((x) => x.id == event.element.id);
           if (intermediatethrowevent) {
-            if (intermediatethrowevent.BizObject == null) {
-              intermediatethrowevent.BizObject = {
-                Flowid: '',
-                Flowname: '',
-                Flowdesc: '',
-                Flowtype: '',
+            if (intermediatethrowevent.bizObject == null) {
+              intermediatethrowevent.bizObject = {
+                flowid: '',
+                flowname: '',
+                flowdesc: '',
+                flowtype: '',
                 conditionexpressionVisable: false,
-                NodeProcessClass: '',
+                nodeProcessClass: '',
                 conditionexpression: '',
-                NodeProcessClassVisable: true,
+                nodeProcessClassVisable: true,
               };
             }
 
-            intermediatethrowevent.BizObject.NodeProcessClassVisable = false;
-            this.form = intermediatethrowevent.BizObject;
+            intermediatethrowevent.bizObject.nodeProcessClassVisable = false;
+            this.form = intermediatethrowevent.bizObject;
           }
 
           break;
         case 'bpmn:ComplexGateway':
-          var complexgateway = this.activity.GateWays.find((x) => x.id == event.element.id);
+          var complexgateway = this.activity.gateWays.find((x) => x.id == event.element.id);
           if (complexgateway) {
-            if (complexgateway.BizObject == null) {
-              complexgateway.BizObject = {
-                Flowid: '',
-                Flowname: '',
-                Flowdesc: '',
-                Flowtype: '',
+            if (complexgateway.bizObject == null) {
+              complexgateway.bizObject = {
+                flowid: '',
+                flowname: '',
+                flowdesc: '',
+                flowtype: '',
                 conditionexpressionVisable: false,
-                NodeProcessClass: '',
+                nodeProcessClass: '',
                 conditionexpression: '',
-                NodeProcessClassVisable: true,
+                nodeProcessClassVisable: true,
               };
             }
 
-            complexgateway.BizObject.NodeProcessClassVisable = true;
-            this.form = complexgateway.BizObject;
+            complexgateway.bizObject.nodeProcessClassVisable = true;
+            this.form = complexgateway.bizObject;
           }
 
           break;
         case 'bpmn:ParallelGateway':
-          var parallelgteway = this.activity.GateWays.find((x) => x.id == event.element.id);
+          var parallelgteway = this.activity.gateWays.find((x) => x.id == event.element.id);
           if (parallelgteway) {
-            if (parallelgteway.BizObject == null) {
-              parallelgteway.BizObject = {
-                Flowid: '',
-                Flowname: '',
-                Flowdesc: '',
-                Flowtype: '',
+            if (parallelgteway.bizObject == null) {
+              parallelgteway.bizObject = {
+                flowid: '',
+                flowname: '',
+                flowdesc: '',
+                flowtype: '',
                 conditionexpressionVisable: false,
-                NodeProcessClass: '',
+                nodeProcessClass: '',
                 conditionexpression: '',
-                NodeProcessClassVisable: true,
+                nodeProcessClassVisable: true,
               };
             }
 
-            parallelgteway.BizObject.NodeProcessClassVisable = false;
-            this.form = parallelgteway.BizObject;
+            parallelgteway.bizObject.nodeProcessClassVisable = false;
+            this.form = parallelgteway.bizObject;
           }
 
           break;
         case 'bpmn:ExclusiveGateway':
-          var exclusivegateway = this.activity.GateWays.find((x) => x.id == event.element.id);
+          var exclusivegateway = this.activity.gateWays.find((x) => x.id == event.element.id);
           if (exclusivegateway) {
-            if (exclusivegateway.BizObject == null) {
-              exclusivegateway.BizObject = {
-                Flowid: '',
-                Flowname: '',
-                Flowdesc: '',
-                Flowtype: '',
+            if (exclusivegateway.bizObject == null) {
+              exclusivegateway.bizObject = {
+                flowid: '',
+                flowname: '',
+                flowdesc: '',
+                flowtype: '',
                 conditionexpressionVisable: false,
-                NodeProcessClass: '',
+                nodeProcessClass: '',
                 conditionexpression: '',
-                NodeProcessClassVisable: true,
+                nodeProcessClassVisable: true,
               };
             }
 
-            exclusivegateway.BizObject.NodeProcessClassVisable = true;
-            this.form = exclusivegateway.BizObject;
+            exclusivegateway.bizObject.nodeProcessClassVisable = true;
+            this.form = exclusivegateway.bizObject;
           }
 
           break;
         case 'bpmn:InclusiveGateway':
-          var inclusivegateway = this.activity.GateWays.find((x) => x.id == event.element.id);
+          var inclusivegateway = this.activity.gateWays.find((x) => x.id == event.element.id);
           if (inclusivegateway) {
-            if (inclusivegateway.BizObject == null) {
-              inclusivegateway.BizObject = {
-                Flowid: '',
-                Flowname: '',
-                Flowdesc: '',
-                Flowtype: '',
+            if (inclusivegateway.bizObject == null) {
+              inclusivegateway.bizObject = {
+                flowid: '',
+                flowname: '',
+                flowdesc: '',
+                flowtype: '',
                 conditionexpressionVisable: false,
-                NodeProcessClass: '',
+                nodeProcessClass: '',
                 conditionexpression: '',
-                NodeProcessClassVisable: true,
+                nodeProcessClassVisable: true,
               };
             }
 
-            inclusivegateway.BizObject.NodeProcessClassVisable = true;
-            this.form = inclusivegateway.BizObject;
+            inclusivegateway.bizObject.nodeProcessClassVisable = true;
+            this.form = inclusivegateway.bizObject;
           }
 
           break;
         case 'bpmn:BusinessRuleTask':
-          var businessruletask = this.activity.Tasks.find((x) => x.id == event.element.id);
+          var businessruletask = this.activity.tasks.find((x) => x.id == event.element.id);
           if (businessruletask) {
-            if (businessruletask.BizObject == null) {
-              businessruletask.BizObject = {
-                Flowid: '',
-                Flowname: '',
-                Flowdesc: '',
-                Flowtype: '',
+            if (businessruletask.bizObject == null) {
+              businessruletask.bizObject = {
+                flowid: '',
+                flowname: '',
+                flowdesc: '',
+                flowtype: '',
                 conditionexpressionVisable: false,
-                NodeProcessClass: '',
+                nodeProcessClass: '',
                 conditionexpression: '',
-                NodeProcessClassVisable: true,
+                nodeProcessClassVisable: true,
               };
             }
-            businessruletask.BizObject.NodeProcessClassVisable = false;
-            this.form = businessruletask.BizObject;
+            businessruletask.bizObject.nodeProcessClassVisable = false;
+            this.form = businessruletask.bizObject;
           }
 
           break;
         case 'bpmn:EventBasedGateway':
-          var eventbasedgateway = this.activity.GateWays.find((x) => x.id == event.element.id);
+          var eventbasedgateway = this.activity.gateWays.find((x) => x.id == event.element.id);
           if (eventbasedgateway) {
-            if (eventbasedgateway.BizObject == null) {
-              eventbasedgateway.BizObject = {
-                Flowid: '',
-                Flowname: '',
-                Flowdesc: '',
-                Flowtype: '',
+            if (eventbasedgateway.bizObject == null) {
+              eventbasedgateway.bizObject = {
+                flowid: '',
+                flowname: '',
+                flowdesc: '',
+                flowtype: '',
                 conditionexpressionVisable: false,
-                NodeProcessClass: '',
+                nodeProcessClass: '',
                 conditionexpression: '',
-                NodeProcessClassVisable: true,
+                nodeProcessClassVisable: true,
               };
             }
 
-            eventbasedgateway.BizObject.NodeProcessClassVisable = true;
-            this.form = eventbasedgateway.BizObject;
+            eventbasedgateway.bizObject.nodeProcessClassVisable = true;
+            this.form = eventbasedgateway.bizObject;
           }
 
           break;
         case 'bpmn:ReceiveTask':
-          var receivetask = this.activity.Tasks.find((x) => x.id == event.element.id);
+          var receivetask = this.activity.tasks.find((x) => x.id == event.element.id);
           if (receivetask) {
-            if (receivetask.BizObject == null) {
-              receivetask.BizObject = {
-                Flowid: '',
-                Flowname: '',
-                Flowdesc: '',
-                Flowtype: '',
+            if (receivetask.bizObject == null) {
+              receivetask.bizObject = {
+                flowid: '',
+                flowname: '',
+                flowdesc: '',
+                flowtype: '',
                 conditionexpressionVisable: false,
-                NodeProcessClass: '',
+                nodeProcessClass: '',
                 conditionexpression: '',
-                NodeProcessClassVisable: true,
+                nodeProcessClassVisable: true,
               };
             }
 
-            receivetask.BizObject.NodeProcessClassVisable = false;
-            this.form = receivetask.BizObject;
+            receivetask.bizObject.nodeProcessClassVisable = false;
+            this.form = receivetask.bizObject;
           }
 
           break;
         case 'bpmn:UserTask':
-          var usertask = this.activity.Tasks.find((x) => x.id == event.element.id);
+          var usertask = this.activity.tasks.find((x) => x.id == event.element.id);
           if (usertask) {
-            if (usertask.BizObject == null) {
-              usertask.BizObject = {
-                Flowid: '',
-                Flowname: '',
-                Flowdesc: '',
-                Flowtype: '',
+            if (usertask.bizObject == null) {
+              usertask.bizObject = {
+                flowid: '',
+                flowname: '',
+                flowdesc: '',
+                flowtype: '',
                 conditionexpressionVisable: false,
-                NodeProcessClass: '',
+                nodeProcessClass: '',
                 conditionexpression: '',
-                NodeProcessClassVisable: true,
+                nodeProcessClassVisable: true,
               };
             }
-            usertask.BizObject.NodeProcessClassVisable = false;
-            this.form = usertask.BizObject;
+            usertask.bizObject.nodeProcessClassVisable = false;
+            this.form = usertask.bizObject;
           }
 
           break;
         case 'bpmn:IntermediateCatchEvent':
-          var intermediatecatchevent = this.activity.EndEvents.find((x) => x.id == event.element.id);
+          var intermediatecatchevent = this.activity.endEvents.find((x) => x.id == event.element.id);
           if (intermediatecatchevent) {
-            if (intermediatecatchevent.BizObject == null) {
-              intermediatecatchevent.BizObject = {
-                Flowid: '',
-                Flowname: '',
-                Flowdesc: '',
-                Flowtype: '',
+            if (intermediatecatchevent.bizObject == null) {
+              intermediatecatchevent.bizObject = {
+                flowid: '',
+                flowname: '',
+                flowdesc: '',
+                flowtype: '',
                 conditionexpressionVisable: false,
-                NodeProcessClass: '',
+                nodeProcessClass: '',
                 conditionexpression: '',
-                NodeProcessClassVisable: true,
+                nodeProcessClassVisable: true,
               };
             }
 
-            intermediatecatchevent.BizObject.NodeProcessClassVisable = false;
-            this.form = intermediatecatchevent.BizObject;
+            intermediatecatchevent.bizObject.nodeProcessClassVisable = false;
+            this.form = intermediatecatchevent.bizObject;
           }
 
           break;
         case 'bpmn:ServiceTask':
-          var servicetask = this.activity.Tasks.find((x) => x.id == event.element.id);
+          var servicetask = this.activity.tasks.find((x) => x.id == event.element.id);
           if (servicetask) {
-            if (servicetask.BizObject == null) {
-              servicetask.BizObject = {
-                Flowid: '',
-                Flowname: '',
-                Flowdesc: '',
-                Flowtype: '',
+            if (servicetask.bizObject == null) {
+              servicetask.bizObject = {
+                flowid: '',
+                flowname: '',
+                flowdesc: '',
+                flowtype: '',
                 conditionexpressionVisable: false,
-                NodeProcessClass: '',
+                nodeProcessClass: '',
                 conditionexpression: '',
-                NodeProcessClassVisable: true,
+                nodeProcessClassVisable: true,
               };
             }
-            servicetask.BizObject.NodeProcessClassVisable = false;
-            this.form = servicetask.BizObject;
+            servicetask.bizObject.nodeProcessClassVisable = false;
+            this.form = servicetask.bizObject;
           }
 
           break;
         case 'bpmn:ManualTask':
-          var manualtask = this.activity.Tasks.find((x) => x.id == event.element.id);
+          var manualtask = this.activity.tasks.find((x) => x.id == event.element.id);
           if (manualtask) {
-            if (manualtask.BizObject == null) {
-              manualtask.BizObject = {
-                Flowid: '',
-                Flowname: '',
-                Flowdesc: '',
-                Flowtype: '',
+            if (manualtask.bizObject == null) {
+              manualtask.bizObject = {
+                flowid: '',
+                flowname: '',
+                flowdesc: '',
+                flowtype: '',
                 conditionexpressionVisable: false,
-                NodeProcessClass: '',
+                nodeProcessClass: '',
                 conditionexpression: '',
-                NodeProcessClassVisable: true,
+                nodeProcessClassVisable: true,
               };
             }
 
-            manualtask.BizObject.NodeProcessClassVisable = false;
-            this.form = manualtask.BizObject;
+            manualtask.bizObject.nodeProcessClassVisable = false;
+            this.form = manualtask.bizObject;
           }
 
           break;
         case 'bpmn:SendTask':
-          var sendtask = this.activity.Tasks.find((x) => x.id == event.element.id);
+          var sendtask = this.activity.tasks.find((x) => x.id == event.element.id);
           if (sendtask) {
-            if (sendtask.BizObject == null) {
-              sendtask.BizObject = {
-                Flowid: '',
-                Flowname: '',
-                Flowdesc: '',
-                Flowtype: '',
+            if (sendtask.bizObject == null) {
+              sendtask.bizObject = {
+                flowid: '',
+                flowname: '',
+                flowdesc: '',
+                flowtype: '',
                 conditionexpressionVisable: false,
-                NodeProcessClass: '',
+                nodeProcessClass: '',
                 conditionexpression: '',
-                NodeProcessClassVisable: true,
+                nodeProcessClassVisable: true,
               };
             }
 
-            sendtask.BizObject.NodeProcessClassVisable = false;
-            this.form = sendtask.BizObject;
+            sendtask.bizObject.nodeProcessClassVisable = false;
+            this.form = sendtask.bizObject;
           }
 
           break;
         case 'bpmn:CallActivity':
-          var callactivity = this.activity.Tasks.find((x) => x.id == event.element.id);
+          var callactivity = this.activity.tasks.find((x) => x.id == event.element.id);
           if (callactivity) {
-            if (callactivity.BizObject == null) {
-              callactivity.BizObject = {
-                Flowid: '',
-                Flowname: '',
-                Flowdesc: '',
-                Flowtype: '',
+            if (callactivity.bizObject == null) {
+              callactivity.bizObject = {
+                flowid: '',
+                flowname: '',
+                flowdesc: '',
+                flowtype: '',
                 conditionexpressionVisable: false,
-                NodeProcessClass: '',
+                nodeProcessClass: '',
                 conditionexpression: '',
-                NodeProcessClassVisable: true,
+                nodeProcessClassVisable: true,
               };
             }
-            callactivity.BizObject.NodeProcessClassVisable = false;
-            this.form = callactivity.BizObject;
+            callactivity.bizObject.nodeProcessClassVisable = false;
+            this.form = callactivity.bizObject;
           }
 
           break;
         case 'bpmn:SequenceFlow':
-          var sequenceflow = this.activity.SequenceFlows.find((x) => x.id == event.element.id);
+          var sequenceflow = this.activity.sequenceFlows.find((x) => x.id == event.element.id);
           if (sequenceflow) {
-            if (!sequenceflow.BizObject) {
-              sequenceflow.BizObject = {
-                Flowid: '',
-                Flowname: '',
-                Flowdesc: '',
-                Flowtype: '',
+            if (!sequenceflow.bizObject) {
+              sequenceflow.bizObject = {
+                flowid: '',
+                flowname: '',
+                flowdesc: '',
+                flowtype: '',
                 conditionexpressionVisable: false,
-                NodeProcessClass: '',
+                nodeProcessClass: '',
                 conditionexpression: '',
-                NodeProcessClassVisable: true,
+                nodeProcessClassVisable: true,
               };
             }
-            sequenceflow.BizObject.conditionexpressionVisable = true;
-            sequenceflow.BizObject.NodeProcessClassVisable = false;
-            this.form = sequenceflow.BizObject;
+            sequenceflow.bizObject.conditionexpressionVisable = true;
+            sequenceflow.bizObject.nodeProcessClassVisable = false;
+            this.form = sequenceflow.bizObject;
           }
 
           break;
         case 'bpmn:Participant':
-          var participant = this.activity.Containers.find((x) => x.id == event.element.id);
+          var participant = this.activity.containers.find((x) => x.id == event.element.id);
           if (participant) {
-            if (participant.BizObject == null) {
-              participant.BizObject = {
-                Flowid: '',
-                Flowname: '',
-                Flowdesc: '',
-                Flowtype: '',
+            if (participant.bizObject == null) {
+              participant.bizObject = {
+                flowid: '',
+                flowname: '',
+                flowdesc: '',
+                flowtype: '',
                 conditionexpressionVisable: false,
-                NodeProcessClass: '',
+                nodeProcessClass: '',
                 conditionexpression: '',
-                NodeProcessClassVisable: true,
+                nodeProcessClassVisable: true,
               };
             }
-            participant.BizObject.NodeProcessClassVisable = false;
-            this.form = participant.BizObject;
+            participant.bizObject.nodeProcessClassVisable = false;
+            this.form = participant.bizObject;
           }
 
           break;
         case 'bpmn:SubProcess':
-          var subprocess = this.activity.Tasks.find((x) => x.id == event.element.id);
+          var subprocess = this.activity.tasks.find((x) => x.id == event.element.id);
           if (subprocess) {
-            if (subprocess.BizObject == null) {
-              subprocess.BizObject = {
-                Flowid: '',
-                Flowname: '',
-                Flowdesc: '',
-                Flowtype: '',
+            if (subprocess.bizObject == null) {
+              subprocess.bizObject = {
+                flowid: '',
+                flowname: '',
+                flowdesc: '',
+                flowtype: '',
                 conditionexpressionVisable: false,
-                NodeProcessClass: '',
+                nodeProcessClass: '',
                 conditionexpression: '',
-                NodeProcessClassVisable: true,
+                nodeProcessClassVisable: true,
               };
             }
 
-            subprocess.BizObject.NodeProcessClassVisable = false;
-            this.form = subprocess.BizObject;
+            subprocess.bizObject.nodeProcessClassVisable = false;
+            this.form = subprocess.bizObject;
           }
 
           break;
         case 'bpmn:Collaboration':
-          var collaboration = this.activity.Containers.find((x) => x.id == event.element.id);
+          var collaboration = this.activity.containers.find((x) => x.id == event.element.id);
           if (collaboration) {
-            if (collaboration.BizObject == null) {
-              collaboration.BizObject = {
-                Flowid: '',
-                Flowname: '',
-                Flowdesc: '',
-                Flowtype: '',
+            if (collaboration.bizObject == null) {
+              collaboration.bizObject = {
+                flowid: '',
+                flowname: '',
+                flowdesc: '',
+                flowtype: '',
                 conditionexpressionVisable: false,
-                NodeProcessClass: '',
+                nodeProcessClass: '',
                 conditionexpression: '',
-                NodeProcessClassVisable: true,
+                nodeProcessClassVisable: true,
               };
             }
 
-            collaboration.BizObject.NodeProcessClassVisable = false;
-            this.form = collaboration.BizObject;
+            collaboration.bizObject.nodeProcessClassVisable = false;
+            this.form = collaboration.bizObject;
           }
 
           break;
@@ -659,33 +662,33 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy 
   }
   doTextAnnotation(e: any) {
     if (e.gfx) {
-      var baseBpmnObject = this.activity.TextAnnotations.find((x) => x.id === e.element.businessObject.id);
+      var baseBpmnObject = this.activity.textAnnotations.find((x) => x.id === e.element.businessObject.id);
 
       if (baseBpmnObject) {
         baseBpmnObject.id = e.element.id;
         baseBpmnObject.bpmntype = e.element.type;
-        baseBpmnObject.BizObject.Flowname = e.element.businessObject.name;
-        baseBpmnObject.BizObject.Flowid = e.element.id;
+        baseBpmnObject.bizObject.flowname = e.element.businessObject.name;
+        baseBpmnObject.bizObject.flowid = e.element.id;
       } else {
         baseBpmnObject = new TextAnnotation();
         baseBpmnObject.id = e.element.businessObject.id;
         baseBpmnObject.text = e.element.businessObject.text;
         baseBpmnObject.bpmntype = e.element.type;
-        baseBpmnObject.BizObject = {
-          Flowid: '',
-          Flowname: '',
-          Flowdesc: '',
-          Flowtype: '',
+        baseBpmnObject.bizObject = {
+          flowid: '',
+          flowname: '',
+          flowdesc: '',
+          flowtype: '',
           conditionexpressionVisable: false,
-          NodeProcessClass: '',
+          nodeProcessClass: '',
           conditionexpression: '',
-          NodeProcessClassVisable: true,
+          nodeProcessClassVisable: true,
         };
         baseBpmnObject.outgoing = [];
         baseBpmnObject.incoming = [];
-        baseBpmnObject.BizObject.Flowname = e.element.businessObject.name;
-        baseBpmnObject.BizObject.Flowid = e.element.id;
-        this.activity.TextAnnotations = [...this.activity.TextAnnotations, baseBpmnObject];
+        baseBpmnObject.bizObject.flowname = e.element.businessObject.name;
+        baseBpmnObject.bizObject.flowid = e.element.id;
+        this.activity.textAnnotations = [...this.activity.textAnnotations, baseBpmnObject];
       }
       //TextAnnotation只有incoming
       baseBpmnObject.incoming = [
@@ -695,38 +698,38 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy 
         }),
       ];
     } else {
-      this.activity.TextAnnotations = this.activity.TextAnnotations.filter((x) => x.id != e.element.id) ?? [];
+      this.activity.textAnnotations = this.activity.textAnnotations.filter((x) => x.id != e.element.id) ?? [];
     }
   }
 
   DoBaseBpmnObject(e: any): void {
     if (e.gfx) {
-      var baseBpmnObject = this.activity.BaseBpmnObjects.find((x) => x.id === e.element.businessObject.id);
+      var baseBpmnObject = this.activity.baseBpmnObjects.find((x) => x.id === e.element.businessObject.id);
 
       if (baseBpmnObject) {
         baseBpmnObject.id = e.element.id;
         baseBpmnObject.bpmntype = e.element.type;
-        baseBpmnObject.BizObject.Flowname = e.element.businessObject.name;
-        baseBpmnObject.BizObject.Flowid = e.element.id;
+        baseBpmnObject.bizObject.flowname = e.element.businessObject.name;
+        baseBpmnObject.bizObject.flowid = e.element.id;
       } else {
         baseBpmnObject = new SequenceFlow();
         baseBpmnObject.id = e.element.businessObject.id;
         baseBpmnObject.bpmntype = e.element.type;
-        baseBpmnObject.BizObject = {
-          Flowid: '',
-          Flowname: '',
-          Flowdesc: '',
-          Flowtype: '',
+        baseBpmnObject.bizObject = {
+          flowid: '',
+          flowname: '',
+          flowdesc: '',
+          flowtype: '',
           conditionexpressionVisable: false,
-          NodeProcessClass: '',
+          nodeProcessClass: '',
           conditionexpression: '',
-          NodeProcessClassVisable: true,
+          nodeProcessClassVisable: true,
         };
         baseBpmnObject.outgoing = [];
         baseBpmnObject.incoming = [];
-        baseBpmnObject.BizObject.Flowname = e.element.businessObject.name;
-        baseBpmnObject.BizObject.Flowid = e.element.id;
-        this.activity.BaseBpmnObjects = [...this.activity.BaseBpmnObjects, baseBpmnObject];
+        baseBpmnObject.bizObject.flowname = e.element.businessObject.name;
+        baseBpmnObject.bizObject.flowid = e.element.id;
+        this.activity.baseBpmnObjects = [...this.activity.baseBpmnObjects, baseBpmnObject];
       }
       console.log('baseBpmnObject');
       baseBpmnObject.incoming = [
@@ -743,37 +746,37 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy 
         }),
       ];
     } else {
-      this.activity.BaseBpmnObjects = this.activity.BaseBpmnObjects.filter((x) => x.id != e.element.id) ?? [];
+      this.activity.baseBpmnObjects = this.activity.baseBpmnObjects.filter((x) => x.id != e.element.id) ?? [];
     }
   }
   DoDataStoreReference(e: any): void {
     if (e.gfx) {
-      var dataStoreReference = this.activity.DataStoreReferences.find((x) => x.id === e.element.businessObject.id);
+      var dataStoreReference = this.activity.dataStoreReferences.find((x) => x.id === e.element.businessObject.id);
 
       if (dataStoreReference) {
         dataStoreReference.id = e.element.id;
-        dataStoreReference.BizObject.Flowname = e.element.businessObject.name;
-        dataStoreReference.BizObject.Flowid = e.element.id;
+        dataStoreReference.bizObject.flowname = e.element.businessObject.name;
+        dataStoreReference.bizObject.flowid = e.element.id;
         dataStoreReference.bpmntype = e.element.type;
       } else {
         dataStoreReference = new SequenceFlow();
         dataStoreReference.id = e.element.businessObject.id;
         dataStoreReference.bpmntype = e.element.type;
-        dataStoreReference.BizObject = {
-          Flowid: '',
-          Flowname: '',
-          Flowdesc: '',
-          Flowtype: '',
+        dataStoreReference.bizObject = {
+          flowid: '',
+          flowname: '',
+          flowdesc: '',
+          flowtype: '',
           conditionexpressionVisable: false,
-          NodeProcessClass: '',
+          nodeProcessClass: '',
           conditionexpression: '',
-          NodeProcessClassVisable: true,
+          nodeProcessClassVisable: true,
         };
         dataStoreReference.outgoing = [];
         dataStoreReference.incoming = [];
-        dataStoreReference.BizObject.Flowname = e.element.businessObject.name;
-        dataStoreReference.BizObject.Flowid = e.element.id;
-        this.activity.DataStoreReferences = [...this.activity.DataStoreReferences, dataStoreReference];
+        dataStoreReference.bizObject.flowname = e.element.businessObject.name;
+        dataStoreReference.bizObject.flowid = e.element.id;
+        this.activity.dataStoreReferences = [...this.activity.dataStoreReferences, dataStoreReference];
       }
       dataStoreReference.incoming = [
         ...dataStoreReference.incoming,
@@ -788,37 +791,37 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy 
         }),
       ];
     } else {
-      this.activity.DataStoreReferences = this.activity.DataStoreReferences.filter((x) => x.id != e.element.id) ?? [];
+      this.activity.dataStoreReferences = this.activity.dataStoreReferences.filter((x) => x.id != e.element.id) ?? [];
     }
   }
   DoContainer(e: any): void {
     if (e.gfx) {
-      var container = this.activity.Containers.find((x) => x.id === e.element.businessObject.id);
+      var container = this.activity.containers.find((x) => x.id === e.element.businessObject.id);
 
       if (container) {
         container.id = e.element.id;
-        container.BizObject.Flowname = e.element.businessObject.name;
-        container.BizObject.Flowid = e.element.id;
+        container.bizObject.flowname = e.element.businessObject.name;
+        container.bizObject.flowid = e.element.id;
         container.bpmntype = e.element.type;
       } else {
         container = new SequenceFlow();
         container.id = e.element.businessObject.id;
         container.bpmntype = e.element.type;
-        container.BizObject = {
-          Flowid: '',
-          Flowname: '',
-          Flowdesc: '',
-          Flowtype: '',
+        container.bizObject = {
+          flowid: '',
+          flowname: '',
+          flowdesc: '',
+          flowtype: '',
           conditionexpressionVisable: false,
-          NodeProcessClass: '',
+          nodeProcessClass: '',
           conditionexpression: '',
-          NodeProcessClassVisable: true,
+          nodeProcessClassVisable: true,
         };
         container.outgoing = [];
         container.incoming = [];
-        container.BizObject.Flowname = e.element.businessObject.name;
-        container.BizObject.Flowid = e.element.id;
-        this.activity.DataStoreReferences = [...this.activity.Containers, container];
+        container.bizObject.flowname = e.element.businessObject.name;
+        container.bizObject.flowid = e.element.id;
+        this.activity.containers = [...this.activity.containers, container];
       }
 
       container.incoming = [
@@ -835,37 +838,37 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy 
         }),
       ];
     } else {
-      this.activity.Containers = this.activity.Containers.filter((x) => x.id != e.element.id) ?? [];
+      this.activity.containers = this.activity.containers.filter((x) => x.id != e.element.id) ?? [];
     }
   }
   DoSubProcess(e: any): void {
     if (e.gfx) {
-      let subProcess = this.activity.SubProcesses.find((x) => x.id === e.element.businessObject.id);
+      let subProcess = this.activity.subProcesses.find((x) => x.id === e.element.businessObject.id);
 
       if (subProcess) {
         subProcess.id = e.element.id;
         subProcess.bpmntype = e.element.type;
-        subProcess.BizObject.Flowname = e.element.businessObject.name;
-        subProcess.BizObject.Flowid = e.element.id;
+        subProcess.bizObject.flowname = e.element.businessObject.name;
+        subProcess.bizObject.flowid = e.element.id;
       } else {
         subProcess = new SequenceFlow();
         subProcess.id = e.element.businessObject.id;
         subProcess.bpmntype = e.element.type;
-        subProcess.BizObject = {
-          Flowid: '',
-          Flowname: '',
-          Flowdesc: '',
-          Flowtype: '',
+        subProcess.bizObject = {
+          flowid: '',
+          flowname: '',
+          flowdesc: '',
+          flowtype: '',
           conditionexpressionVisable: false,
-          NodeProcessClass: '',
+          nodeProcessClass: '',
           conditionexpression: '',
-          NodeProcessClassVisable: true,
+          nodeProcessClassVisable: true,
         };
         subProcess.outgoing = [];
         subProcess.incoming = [];
-        subProcess.BizObject.Flowname = e.element.businessObject.name;
-        subProcess.BizObject.Flowid = e.element.id;
-        this.activity.DataStoreReferences = [...this.activity.SubProcesses, subProcess];
+        subProcess.bizObject.flowname = e.element.businessObject.name;
+        subProcess.bizObject.flowid = e.element.id;
+        this.activity.subProcesses = [...this.activity.subProcesses, subProcess];
       }
 
       subProcess.incoming = [
@@ -882,39 +885,41 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy 
         }),
       ];
     } else {
-      this.activity.SubProcesses = this.activity.SubProcesses.filter((x) => x.id != e.element.id) ?? [];
+      this.activity.subProcesses = this.activity.subProcesses.filter((x) => x.id != e.element.id) ?? [];
     }
   }
 
   doSequenceFlow(e: any): void {
+    console.log(e);
     if (e.gfx) {
-      let sequenceflow = this.activity.SequenceFlows.find((x) => x.id === e.element.businessObject.id);
+      let sequenceflow = this.activity.sequenceFlows.find((x) => x.id === e.element.businessObject.id);
 
       if (sequenceflow) {
         sequenceflow.id = e.element.id;
         sequenceflow.bpmntype = e.element.type;
-        sequenceflow.BizObject.Flowname = e.element.businessObject.name;
-        sequenceflow.BizObject.Flowid = e.element.id;
+        sequenceflow.bizObject.flowname = e.element.businessObject.name;
+        sequenceflow.bizObject.flowid = e.element.id;
       } else {
         sequenceflow = new SequenceFlow();
         sequenceflow.id = e.element.businessObject.id;
         sequenceflow.bpmntype = e.element.type;
-        sequenceflow.BizObject = {
-          Flowid: '',
-          Flowname: '',
-          Flowdesc: '',
-          Flowtype: '',
+        sequenceflow.bizObject = {
+          flowid: '',
+          flowname: '',
+          flowdesc: '',
+          flowtype: '',
           conditionexpressionVisable: false,
-          NodeProcessClass: '',
+          nodeProcessClass: '',
           conditionexpression: '',
-          NodeProcessClassVisable: true,
+          nodeProcessClassVisable: true,
         };
         sequenceflow.outgoing = [];
         sequenceflow.incoming = [];
-        sequenceflow.sourceId = e.element.businessObject.targetRef.id;
-        sequenceflow.BizObject.Flowname = e.element.businessObject.name;
-        sequenceflow.BizObject.Flowid = e.element.id;
-        this.activity.SequenceFlows = [...this.activity.SequenceFlows, sequenceflow];
+        sequenceflow.sourceId = e.element.businessObject.sourceRef.id;
+        sequenceflow.targetId = e.element.businessObject.targetRef.id;
+        sequenceflow.bizObject.flowname = e.element.businessObject.name;
+        sequenceflow.bizObject.flowid = e.element.id;
+        this.activity.sequenceFlows = [...this.activity.sequenceFlows, sequenceflow];
       }
 
       sequenceflow.incoming = [
@@ -931,37 +936,37 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy 
         }),
       ];
     } else {
-      this.activity.SequenceFlows = this.activity.SequenceFlows.filter((x) => x.id != e.element.id) ?? [];
+      this.activity.sequenceFlows = this.activity.sequenceFlows.filter((x) => x.id != e.element.id) ?? [];
     }
   }
 
   doTask(e: any): void {
     if (e.gfx) {
-      var task = this.activity.Tasks.find((x) => x.id === e.element.businessObject.id);
+      var task = this.activity.tasks.find((x) => x.id === e.element.businessObject.id);
 
       if (task) {
         task.id = e.element.id;
         task.bpmntype = e.element.type;
-        task.BizObject.Flowname = e.element.businessObject.name;
-        task.BizObject.Flowid = e.element.id;
+        task.bizObject.flowname = e.element.businessObject.name;
+        task.bizObject.flowid = e.element.id;
       } else {
         task = new Task();
         task.id = e.element.id;
         task.bpmntype = e.element.type;
-        task.BizObject = {
-          Flowid: '',
-          Flowname: '',
-          Flowdesc: '',
-          Flowtype: '',
+        task.bizObject = {
+          flowid: '',
+          flowname: '',
+          flowdesc: '',
+          flowtype: '',
           conditionexpressionVisable: false,
-          NodeProcessClass: '',
+          nodeProcessClass: '',
           conditionexpression: '',
-          NodeProcessClassVisable: true,
+          nodeProcessClassVisable: true,
         };
         task.id = e.element.businessObject.id;
-        task.BizObject.Flowname = e.element.businessObject.name;
-        task.BizObject.Flowid = e.element.id;
-        this.activity.Tasks = [...this.activity.Tasks, task];
+        task.bizObject.flowname = e.element.businessObject.name;
+        task.bizObject.flowid = e.element.id;
+        this.activity.tasks = [...this.activity.tasks, task];
       }
       task.incoming = [];
       task.incoming = [
@@ -978,39 +983,39 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy 
         }),
       ];
     } else {
-      this.activity.Tasks = this.activity.Tasks.filter((x) => x.id != e.element.id) ?? [];
+      this.activity.tasks = this.activity.tasks.filter((x) => x.id != e.element.id) ?? [];
     }
   }
 
   doGateWay(e: any): void {
     if (e.gfx) {
-      var gateway = this.activity.GateWays.find((x) => x.id === e.element.businessObject.id);
+      var gateway = this.activity.gateWays.find((x) => x.id === e.element.businessObject.id);
 
       if (gateway) {
         gateway.id = e.element.id;
 
         gateway.bpmntype = e.element.type;
-        gateway.BizObject.Flowname = e.element.businessObject.name;
+        gateway.bizObject.flowname = e.element.businessObject.name;
       } else {
         gateway = new GateWay();
         gateway.id = e.element.id;
         gateway.bpmntype = e.element.type;
-        gateway.BizObject = {
-          Flowid: '',
-          Flowname: '',
-          Flowdesc: '',
-          Flowtype: '',
+        gateway.bizObject = {
+          flowid: '',
+          flowname: '',
+          flowdesc: '',
+          flowtype: '',
           conditionexpressionVisable: false,
-          NodeProcessClass: '',
+          nodeProcessClass: '',
           conditionexpression: '',
-          NodeProcessClassVisable: true,
+          nodeProcessClassVisable: true,
         };
         gateway.id = e.element.businessObject.id;
         gateway.outgoing = [];
         gateway.incoming = [];
-        gateway.BizObject.Flowname = e.element.businessObject.name;
-        gateway.BizObject.Flowid = e.element.id;
-        this.activity.GateWays = [...this.activity.GateWays, gateway];
+        gateway.bizObject.flowname = e.element.businessObject.name;
+        gateway.bizObject.flowid = e.element.id;
+        this.activity.gateWays = [...this.activity.gateWays, gateway];
       }
       gateway.incoming = [
         ...gateway.incoming,
@@ -1025,37 +1030,37 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy 
         }),
       ];
     } else {
-      this.activity.GateWays = this.activity.GateWays.filter((x) => x.id != e.element.id) ?? [];
+      this.activity.gateWays = this.activity.gateWays.filter((x) => x.id != e.element.id) ?? [];
     }
   }
 
   doStartEvent(e: any): void {
-    var startevent = this.activity.StartEvents.find((x) => x.id === e.element.businessObject.id);
+    var startevent = this.activity.startEvents.find((x) => x.id === e.element.businessObject.id);
     if (e.gfx) {
       if (startevent) {
         startevent.bpmntype = e.element.type;
         startevent.id = e.element.id;
-        startevent.BizObject.Flowname = e.element.businessObject.name;
+        startevent.bizObject.flowname = e.element.businessObject.name;
       } else {
         startevent = new BpmnBaseObject();
         startevent.bpmntype = e.element.type;
         startevent.id = e.element.id;
-        startevent.BizObject = {
-          Flowid: '',
-          Flowname: '',
-          Flowdesc: '',
-          Flowtype: '',
+        startevent.bizObject = {
+          flowid: '',
+          flowname: '',
+          flowdesc: '',
+          flowtype: '',
           conditionexpressionVisable: false,
-          NodeProcessClass: '',
-          NodeProcessClassVisable: true,
+          nodeProcessClass: '',
+          nodeProcessClassVisable: true,
           conditionexpression: '',
         };
         startevent.id = e.element.businessObject.id;
         startevent.outgoing = [];
         startevent.incoming = [];
-        startevent.BizObject.Flowname = e.element.businessObject.name;
-        startevent.BizObject.Flowid = e.element.id;
-        this.activity.StartEvents = [...this.activity.StartEvents, startevent];
+        startevent.bizObject.flowname = e.element.businessObject.name;
+        startevent.bizObject.flowid = e.element.id;
+        this.activity.startEvents = [...this.activity.startEvents, startevent];
       }
       startevent.incoming = [
         ...startevent.incoming,
@@ -1070,36 +1075,36 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy 
         }),
       ];
     } else {
-      this.activity.StartEvents = this.activity.StartEvents.filter((x) => x.id != e.element.id) ?? [];
+      this.activity.startEvents = this.activity.startEvents.filter((x) => x.id != e.element.id) ?? [];
     }
   }
   doEndEvent(e: any): void {
-    var endevent = this.activity.EndEvents.find((x) => x.id === e.element.businessObject.id);
+    var endevent = this.activity.endEvents.find((x) => x.id === e.element.businessObject.id);
     if (e.gfx) {
       if (endevent) {
         endevent.id = e.element.id;
         endevent.bpmntype = e.element.type;
-        endevent.BizObject.Flowname = e.element.businessObject.name;
+        endevent.bizObject.flowname = e.element.businessObject.name;
       } else {
         endevent = new BpmnBaseObject();
         endevent.id = e.element.id;
         endevent.bpmntype = e.element.type;
-        endevent.BizObject = {
-          Flowid: '',
-          Flowname: '',
-          Flowdesc: '',
-          Flowtype: '',
+        endevent.bizObject = {
+          flowid: '',
+          flowname: '',
+          flowdesc: '',
+          flowtype: '',
           conditionexpressionVisable: false,
-          NodeProcessClass: '',
+          nodeProcessClass: '',
           conditionexpression: '',
-          NodeProcessClassVisable: true,
+          nodeProcessClassVisable: true,
         };
         endevent.id = e.element.businessObject.id;
         endevent.outgoing = [];
         endevent.incoming = [];
-        endevent.BizObject.Flowname = e.element.businessObject.name;
-        endevent.BizObject.Flowid = e.element.id;
-        this.activity.EndEvents = [...this.activity.EndEvents, endevent];
+        endevent.bizObject.flowname = e.element.businessObject.name;
+        endevent.bizObject.flowid = e.element.id;
+        this.activity.endEvents = [...this.activity.endEvents, endevent];
       }
       endevent.incoming = [
         ...endevent.incoming,
@@ -1114,7 +1119,7 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy 
         }),
       ];
     } else {
-      this.activity.EndEvents = this.activity.EndEvents.filter((x) => x.id != e.element.id) ?? [];
+      this.activity.endEvents = this.activity.endEvents.filter((x) => x.id != e.element.id) ?? [];
     }
   }
 
@@ -1146,39 +1151,39 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy 
       this.bpmnJS.importXML(this.EMPTY_BPMN_DIAGRAM);
       this.bpmnJS.get('canvas').zoom('fit-viewport');
       this.activity = new Activity();
-      this.activity.SequenceFlows = [];
-      this.activity.Tasks = [];
-      this.activity.GateWays = [];
-      this.activity.Lane = [];
-      this.activity.LaneSet = [];
-      this.activity.EndEvents = [];
-      this.activity.StartEvents = [];
-      this.activity.BaseBpmnObjects = [];
-      this.activity.DataStoreReferences = [];
-      this.activity.SubProcesses = [];
-      this.activity.DataOutputAssociations = [];
-      this.activity.DataInputAssociations = [];
+      this.activity.sequenceFlows = [];
+      this.activity.tasks = [];
+      this.activity.gateWays = [];
+      this.activity.lane = [];
+      this.activity.laneSet = [];
+      this.activity.endEvents = [];
+      this.activity.startEvents = [];
+      this.activity.baseBpmnObjects = [];
+      this.activity.dataStoreReferences = [];
+      this.activity.subProcesses = [];
+      this.activity.dataOutputAssociations = [];
+      this.activity.dataInputAssociations = [];
       this.activity.ruleId = 0;
     } else {
-      this.http.get<DesignerResult>(url).subscribe(
+      this.http.get<appmessage<DesignerResult>>(url).subscribe(
         async (data) => {
           this.activity = new Activity();
-          this.activity.SequenceFlows = [];
-          this.activity.Tasks = [];
-          this.activity.GateWays = [];
-          this.activity.Lane = [];
-          this.activity.LaneSet = [];
-          this.activity.EndEvents = [];
-          this.activity.StartEvents = [];
-          this.activity.BaseBpmnObjects = [];
-          this.activity.DataStoreReferences = [];
-          this.activity.SubProcesses = [];
-          this.activity.DataOutputAssociations = [];
-          this.activity.DataInputAssociations = [];
+          this.activity.sequenceFlows = [];
+          this.activity.tasks = [];
+          this.activity.gateWays = [];
+          this.activity.lane = [];
+          this.activity.laneSet = [];
+          this.activity.endEvents = [];
+          this.activity.startEvents = [];
+          this.activity.baseBpmnObjects = [];
+          this.activity.dataStoreReferences = [];
+          this.activity.subProcesses = [];
+          this.activity.dataOutputAssociations = [];
+          this.activity.dataInputAssociations = [];
           this.activity.ruleId = 0;
 
-          await this.bpmnJS.importXML(data.Xml);
-          this.InitData(data.Biz);
+          await this.bpmnJS.importXML(data.result.xml);
+          this.InitData(data.result.biz);
           this.bpmnJS.get('canvas').zoom('fit-viewport');
 
           //  before bpmn 7.x
@@ -1210,342 +1215,344 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy 
   }
 
   private InitData(data: any): void {
-    if (data.GateWays) {
-      for (var element of data.GateWays) {
+    if (data.gateWays) {
+      for (var element of data.gateWays) {
         var gateWay = new GateWay();
-        gateWay.BizObject = {
-          Flowid: element.id,
-          Flowname: element.BizObject.Flowname,
-          Flowdesc: '',
-          Flowtype: '',
+        gateWay.bizObject = {
+          flowid: element.id,
+          flowname: element.bizObject.flowname,
+          flowdesc: '',
+          flowtype: '',
           conditionexpressionVisable: false,
-          NodeProcessClass: element.BizObject.NodeProcessClass,
+          nodeProcessClass: element.bizObject.NodeProcessClass,
           conditionexpression: '',
-          NodeProcessClassVisable: true,
+          nodeProcessClassVisable: true,
         };
         gateWay.incoming = element.incoming ?? [];
         gateWay.outgoing == element.incoming ?? [];
         gateWay.id = element.id;
         gateWay.bpmntype = element.bpmntype;
-        this.activity.GateWays.push(gateWay);
+        this.activity.gateWays.push(gateWay);
       }
     }
-    if (data.SequenceFlows) {
-      for (var element of data.SequenceFlows) {
+    if (data.sequenceFlows) {
+      for (var element of data.sequenceFlows) {
         var sequenceflows = new SequenceFlow();
-        sequenceflows.BizObject = {
-          Flowid: element.id,
-          Flowname: element.Flowname,
+        sequenceflows.bizObject = {
+          flowid: element.id,
+          flowname: element.flowname,
 
-          Flowdesc: '',
-          Flowtype: '',
+          flowdesc: '',
+          flowtype: '',
           conditionexpressionVisable: false,
-          NodeProcessClass: '',
-          conditionexpression: '',
-          NodeProcessClassVisable: false,
+          nodeProcessClass: '',
+          conditionexpression: element.bizObject.conditionexpression,
+          nodeProcessClassVisable: false,
         };
+        sequenceflows.sourceId = element.sourceId;
+        sequenceflows.targetId = element.targetId;
         sequenceflows.incoming = element.incoming ?? [];
         sequenceflows.outgoing = element.incoming ?? [];
         sequenceflows.id = element.id;
         sequenceflows.bpmntype = element.bpmntype;
 
-        this.activity.SequenceFlows.push(sequenceflows);
+        this.activity.sequenceFlows.push(sequenceflows);
       }
     }
-    if (data.Tasks) {
-      for (var element of data.Tasks) {
+    if (data.tasks) {
+      for (var element of data.tasks) {
         var task = new Task();
-        task.BizObject = {
-          Flowid: element.id,
-          Flowname: element.BizObject.Flowname,
-          Flowdesc: '',
-          Flowtype: '',
+        task.bizObject = {
+          flowid: element.id,
+          flowname: element.bizObject.flowname,
+          flowdesc: '',
+          flowtype: '',
           conditionexpressionVisable: false,
-          NodeProcessClass: '',
+          nodeProcessClass: '',
           conditionexpression: '',
-          NodeProcessClassVisable: false,
+          nodeProcessClassVisable: false,
         };
         task.incoming = element.incoming ?? [];
         task.outgoing = element.incoming ?? [];
         task.id = element.id;
         task.bpmntype = element.bpmntype;
-        this.activity.Tasks.push(task);
+        this.activity.tasks.push(task);
       }
     }
 
-    if (data.LaneSet) {
-      for (var element of data.LaneSet) {
+    if (data.laneSet) {
+      for (var element of data.laneSet) {
         var laneset = new BpmnBaseObject();
-        laneset.BizObject = {
-          Flowid: element.id,
-          Flowname: element.BizObject.Flowname,
-          Flowdesc: '',
-          Flowtype: '',
+        laneset.bizObject = {
+          flowid: element.id,
+          flowname: element.bizObject.flowname,
+          flowdesc: '',
+          flowtype: '',
           conditionexpressionVisable: false,
-          NodeProcessClass: '',
+          nodeProcessClass: '',
           conditionexpression: '',
-          NodeProcessClassVisable: false,
+          nodeProcessClassVisable: false,
         };
         laneset.incoming = element.incoming ?? [];
         laneset.outgoing = element.incoming ?? [];
         laneset.id = element.id;
         laneset.bpmntype = element.bpmntype;
-        this.activity.LaneSet.push(laneset);
+        this.activity.laneSet.push(laneset);
       }
     }
-    if (data.EndEvents) {
-      for (var element of data.EndEvents) {
+    if (data.endEvents) {
+      for (var element of data.endEvents) {
         var endevent = new BpmnBaseObject();
-        endevent.BizObject = {
-          Flowid: element.id,
-          Flowname: element.BizObject.Flowname,
-          Flowdesc: '',
-          Flowtype: '',
+        endevent.bizObject = {
+          flowid: element.id,
+          flowname: element.bizObject.flowname,
+          flowdesc: '',
+          flowtype: '',
           conditionexpressionVisable: false,
-          NodeProcessClass: '',
+          nodeProcessClass: '',
           conditionexpression: '',
-          NodeProcessClassVisable: false,
+          nodeProcessClassVisable: false,
         };
         endevent.incoming = element.incoming ?? [];
         endevent.outgoing = element.incoming ?? [];
         endevent.id = element.id;
         endevent.bpmntype = element.bpmntype;
-        this.activity.EndEvents.push(endevent);
+        this.activity.endEvents.push(endevent);
       }
     }
 
-    if (data.StartEvents) {
-      for (var element of data.StartEvents) {
+    if (data.startEvents) {
+      for (var element of data.startEvents) {
         var startevent = new BpmnBaseObject();
-        startevent.BizObject = {
-          Flowid: element.id,
-          Flowname: element.BizObject.Flowname,
-          Flowdesc: '',
-          Flowtype: '',
+        startevent.bizObject = {
+          flowid: element.id,
+          flowname: element.bizObject.flowname,
+          flowdesc: '',
+          flowtype: '',
           conditionexpressionVisable: false,
-          NodeProcessClass: '',
+          nodeProcessClass: '',
           conditionexpression: '',
-          NodeProcessClassVisable: false,
+          nodeProcessClassVisable: false,
         };
         startevent.incoming = [];
         startevent.outgoing = [];
         startevent.id = element.id;
         startevent.bpmntype = element.bpmntype;
-        this.activity.StartEvents.push(startevent);
+        this.activity.startEvents.push(startevent);
       }
     }
 
-    if (data.Containers) {
-      for (var element of data.Containers) {
+    if (data.containers) {
+      for (var element of data.containers) {
         var container = new BpmnBaseObject();
-        container.BizObject = {
-          Flowid: element.id,
-          Flowname: element.BizObject.Flowname,
-          Flowdesc: '',
-          Flowtype: '',
+        container.bizObject = {
+          flowid: element.id,
+          flowname: element.bizObject.flowname,
+          flowdesc: '',
+          flowtype: '',
           conditionexpressionVisable: false,
-          NodeProcessClass: '',
+          nodeProcessClass: '',
           conditionexpression: '',
-          NodeProcessClassVisable: false,
+          nodeProcessClassVisable: false,
         };
         container.incoming = element.incoming ?? [];
         container.outgoing = element.incoming ?? [];
         container.id = element.id;
         container.bpmntype = element.bpmntype;
-        this.activity.Containers.push(container);
+        this.activity.containers.push(container);
       }
     }
 
-    if (data.BaseBpmnObjects) {
-      for (var element of data.BaseBpmnObjects) {
+    if (data.baseBpmnObjects) {
+      for (var element of data.baseBpmnObjects) {
         var baseBpmnObject = new BpmnBaseObject();
-        baseBpmnObject.BizObject = {
-          Flowid: element.id,
-          Flowname: element.BizObject.Flowname,
-          Flowdesc: '',
-          Flowtype: '',
+        baseBpmnObject.bizObject = {
+          flowid: element.id,
+          flowname: element.bizObject.flowname,
+          flowdesc: '',
+          flowtype: '',
           conditionexpressionVisable: false,
-          NodeProcessClass: '',
+          nodeProcessClass: '',
           conditionexpression: '',
-          NodeProcessClassVisable: false,
+          nodeProcessClassVisable: false,
         };
         baseBpmnObject.incoming = element.incoming ?? [];
         baseBpmnObject.outgoing = element.incoming ?? [];
         baseBpmnObject.id = element.id;
         baseBpmnObject.bpmntype = element.bpmntype;
-        this.activity.BaseBpmnObjects.push(baseBpmnObject);
+        this.activity.baseBpmnObjects.push(baseBpmnObject);
       }
     }
 
-    if (data.DataStoreReferences) {
-      for (var element of data.DataStoreReferences) {
+    if (data.dataStoreReferences) {
+      for (var element of data.dataStoreReferences) {
         var datastorereference = new BpmnBaseObject();
-        datastorereference.BizObject = {
-          Flowid: element.id,
-          Flowname: element.BizObject.Flowname,
-          Flowdesc: '',
-          Flowtype: '',
+        datastorereference.bizObject = {
+          flowid: element.id,
+          flowname: element.bizObject.flowname,
+          flowdesc: '',
+          flowtype: '',
           conditionexpressionVisable: false,
-          NodeProcessClass: '',
+          nodeProcessClass: '',
           conditionexpression: '',
-          NodeProcessClassVisable: false,
+          nodeProcessClassVisable: false,
         };
         datastorereference.incoming = element.incoming ?? [];
         datastorereference.outgoing = element.incoming ?? [];
         datastorereference.id = element.id;
         datastorereference.bpmntype = element.bpmntype;
-        this.activity.DataStoreReferences.push(datastorereference);
+        this.activity.dataStoreReferences.push(datastorereference);
       }
     }
-    if (data.SubProcesses) {
-      for (var element of data.SubProcesses) {
+    if (data.subProcesses) {
+      for (var element of data.subProcesses) {
         var subprocess = new BpmnBaseObject();
-        subprocess.BizObject = {
-          Flowid: element.id,
-          Flowname: element.BizObject.Flowname,
-          Flowdesc: '',
-          Flowtype: '',
+        subprocess.bizObject = {
+          flowid: element.id,
+          flowname: element.bizObject.flowname,
+          flowdesc: '',
+          flowtype: '',
           conditionexpressionVisable: false,
-          NodeProcessClass: '',
+          nodeProcessClass: '',
           conditionexpression: '',
-          NodeProcessClassVisable: false,
+          nodeProcessClassVisable: false,
         };
         subprocess.incoming = element.incoming ?? [];
         subprocess.outgoing = element.incoming ?? [];
         subprocess.id = element.id;
         subprocess.bpmntype = element.bpmntype;
-        this.activity.SubProcesses.push(subprocess);
+        this.activity.subProcesses.push(subprocess);
       }
     }
 
-    if (data.DataOutputAssociations) {
-      for (var element of data.DataOutputAssociations) {
+    if (data.dataOutputAssociations) {
+      for (var element of data.dataOutputAssociations) {
         var dataOutputAssociation = new DataOutputAssociation();
-        dataOutputAssociation.BizObject = {
-          Flowid: element.id,
-          Flowname: element.BizObject.Flowname,
-          Flowdesc: '',
-          Flowtype: '',
+        dataOutputAssociation.bizObject = {
+          flowid: element.id,
+          flowname: element.bizObject.flowname,
+          flowdesc: '',
+          flowtype: '',
           conditionexpressionVisable: false,
-          NodeProcessClass: '',
+          nodeProcessClass: '',
           conditionexpression: '',
-          NodeProcessClassVisable: false,
+          nodeProcessClassVisable: false,
         };
         dataOutputAssociation.incoming = element.incoming ?? [];
         dataOutputAssociation.outgoing = element.incoming ?? [];
         dataOutputAssociation.id = element.id;
         dataOutputAssociation.bpmntype = element.bpmntype;
-        this.activity.DataOutputAssociations.push(dataOutputAssociation);
+        this.activity.dataOutputAssociations.push(dataOutputAssociation);
       }
     }
 
-    if (data.DataInputAssociations) {
-      for (var element of data.DataInputAssociations) {
+    if (data.dataInputAssociations) {
+      for (var element of data.dataInputAssociations) {
         var dataInputAssociations = new DataOutputAssociation();
-        dataInputAssociations.BizObject = {
-          Flowid: element.id,
-          Flowname: element.BizObject.Flowname,
-          Flowdesc: '',
-          Flowtype: '',
+        dataInputAssociations.bizObject = {
+          flowid: element.id,
+          flowname: element.bizObject.flowname,
+          flowdesc: '',
+          flowtype: '',
           conditionexpressionVisable: false,
-          NodeProcessClass: '',
+          nodeProcessClass: '',
           conditionexpression: '',
-          NodeProcessClassVisable: false,
+          nodeProcessClassVisable: false,
         };
         dataInputAssociations.incoming = element.incoming ?? [];
         dataInputAssociations.outgoing = element.incoming ?? [];
         dataInputAssociations.id = element.id;
         dataInputAssociations.bpmntype = element.bpmntype;
-        this.activity.DataInputAssociations.push(dataInputAssociations);
+        this.activity.dataInputAssociations.push(dataInputAssociations);
       }
     }
 
-    if (data.Lane) {
-      for (var element of data.Lane) {
+    if (data.lane) {
+      for (var element of data.lane) {
         var lane = new BpmnBaseObject();
-        lane.BizObject = {
-          Flowid: element.id,
-          Flowname: element.BizObject.Flowname,
-          Flowdesc: '',
-          Flowtype: '',
+        lane.bizObject = {
+          flowid: element.id,
+          flowname: element.bizObject.flowname,
+          flowdesc: '',
+          flowtype: '',
           conditionexpressionVisable: false,
-          NodeProcessClass: '',
+          nodeProcessClass: '',
           conditionexpression: '',
-          NodeProcessClassVisable: false,
+          nodeProcessClassVisable: false,
         };
         lane.incoming = element.incoming ?? [];
         lane.outgoing = element.incoming ?? [];
         lane.id = element.id;
         lane.bpmntype = element.bpmntype;
-        this.activity.Lane.push(lane);
+        this.activity.lane.push(lane);
       }
     }
   }
 }
 
-export class BaseBizObject {
-  Flowid!: String;
-  Flowname!: String;
+export class BasebizObject {
+  flowid!: String;
+  flowname!: String;
 }
 
 export class DesignerResult {
-  public Biz!: Activity;
-  public Xml!: String;
+  public biz!: Activity;
+  public xml!: String;
 }
 export class BpmnBaseObject {
   public id!: String;
   public bpmntype!: String;
   public incoming!: BpmnBaseObject[];
   public outgoing!: BpmnBaseObject[];
-  public BizObject: FormBpmnObject = {
-    Flowid: '',
-    Flowname: '',
-    Flowdesc: '',
-    Flowtype: '',
+  public bizObject: FormBpmnObject = {
+    flowid: '',
+    flowname: '',
+    flowdesc: '',
+    flowtype: '',
     conditionexpressionVisable: false,
-    NodeProcessClass: '',
-    NodeProcessClassVisable: true,
+    nodeProcessClass: '',
+    nodeProcessClassVisable: true,
     conditionexpression: '',
   };
 }
 
 export class Activity {
-  public SequenceFlows!: SequenceFlow[];
-  public Tasks!: Task[];
-  public GateWays!: GateWay[];
-  public Lane!: BpmnBaseObject[];
-  public LaneSet!: BpmnBaseObject[];
-  public EndEvents!: BpmnBaseObject[];
-  public StartEvents!: BpmnBaseObject[];
-  public TextAnnotations!: TextAnnotation[];
+  public sequenceFlows!: SequenceFlow[];
+  public tasks!: Task[];
+  public gateWays!: GateWay[];
+  public lane!: BpmnBaseObject[];
+  public laneSet!: BpmnBaseObject[];
+  public endEvents!: BpmnBaseObject[];
+  public startEvents!: BpmnBaseObject[];
+  public textAnnotations!: TextAnnotation[];
 
-  public Containers!: BpmnBaseObject[];
-  public BaseBpmnObjects!: BpmnBaseObject[];
-  public DataStoreReferences!: BpmnBaseObject[];
-  public SubProcesses!: BpmnBaseObject[];
-  public DataOutputAssociations!: DataOutputAssociation[];
-  public DataInputAssociations!: DataOutputAssociation[];
+  public containers!: BpmnBaseObject[];
+  public baseBpmnObjects!: BpmnBaseObject[];
+  public dataStoreReferences!: BpmnBaseObject[];
+  public subProcesses!: BpmnBaseObject[];
+  public dataOutputAssociations!: DataOutputAssociation[];
+  public dataInputAssociations!: DataOutputAssociation[];
 
   public ruleId!: Number;
 
-  public DefinitionsStatus!: Number;
+  public definitionsStatus!: Number;
 }
 export class TextAnnotation extends BpmnBaseObject {
   public text!: String;
 }
 
 export class Task extends BpmnBaseObject {
-  public Flowtype!: String;
-  public FlowId!: Number;
+  public flowtype!: String;
+  public flowId!: Number;
 }
 export class GateWay extends BpmnBaseObject {
-  public NodeProcessClass!: String;
+  public nodeProcessClass!: String;
   public sourceId!: String;
   public targetId!: String;
 }
 
 export class DataStoreReference extends BpmnBaseObject {
-  public NodeProcessClass!: String;
+  public nodeProcessClass!: String;
   public sourceId!: String;
   public targetId!: String;
 }
@@ -1574,7 +1581,8 @@ export const importDiagram = (bpmnJS: any) => (source: Observable<any>) =>
         // canceling the subscription as we are interested
         // in the first diagram to display only
         subscription.unsubscribe();
-        bpmnJS.importXML(xml.Xml, (err: any, warnings: string | undefined) => {
+        console.log(xml);
+        bpmnJS.importXML(xml.xml, (err: any, warnings: string | undefined) => {
           if (err) {
             observer.error(err);
           } else {
@@ -1595,12 +1603,12 @@ export const importDiagram = (bpmnJS: any) => (source: Observable<any>) =>
   });
 
 export interface FormBpmnObject {
-  Flowid: string;
-  Flowname: string;
-  Flowdesc: string;
-  Flowtype: string;
-  NodeProcessClass: string;
-  NodeProcessClassVisable: boolean;
+  flowid: string;
+  flowname: string;
+  flowdesc: string;
+  flowtype: string;
+  nodeProcessClass: string;
+  nodeProcessClassVisable: boolean;
   conditionexpression: string;
   conditionexpressionVisable: boolean;
 }
