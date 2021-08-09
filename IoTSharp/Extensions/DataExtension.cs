@@ -249,6 +249,7 @@ namespace IoTSharp.Extensions
 
         public static void AttachValue(this TelemetryDataDto telemetry, DataType datatype,object _value)
         {
+            telemetry.DataType = datatype;
             switch (datatype)
             {
                 case DataType.Boolean:

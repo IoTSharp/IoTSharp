@@ -126,7 +126,7 @@ namespace IoTSharp.Controllers
                                 DataSide = t.DataSide,
                                 DateTime = t.DateTime,
                                 KeyName = t.KeyName,
-                                KeyType=t.Type,
+                                DataType=t.Type,
                                 Value = t.ToObject()
                             };
                 if (!devid.Any())
@@ -156,7 +156,7 @@ namespace IoTSharp.Controllers
             }
             else
             {
-                var kv = from t in _context.AttributeLatest where t.DeviceId == t.DeviceId && keys.Split(',', ' ', ';').Contains(t.KeyName) select new AttributeDataDto() { DataSide = t.DataSide, DateTime = t.DateTime, KeyName = t.KeyName, Value = t.ToObject() };
+                var kv = from t in _context.AttributeLatest where t.DeviceId == t.DeviceId && keys.Split(',', ' ', ';').Contains(t.KeyName) select new AttributeDataDto() { DataSide = t.DataSide, DateTime = t.DateTime, KeyName = t.KeyName, DataType= t.Type, Value = t.ToObject() };
                 return await kv.ToListAsync();
             }
         }
