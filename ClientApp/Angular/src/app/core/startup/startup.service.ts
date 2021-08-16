@@ -67,7 +67,7 @@ export class StartupService {
             } else {
               this.aclService.setAbility(res.result.funcs);
             }
-            this.aclService.setAbility(ACL);
+            //this.aclService.setAbility(ACL);
             this.aclService.setFull(false); //开启ACL
 
             var menu = [

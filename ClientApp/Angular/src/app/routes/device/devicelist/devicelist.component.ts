@@ -92,21 +92,21 @@ export class DevicelistComponent implements OnInit {
       title: '操作',
       buttons: [
         {
-          acl: 9,
+          acl: 91,
           text: '修改',
           click: (item: any) => {
             this.edit(item.id);
           },
         },
         {
-          acl: 11,
+          acl: 111,
           text: '属性修改',
           click: (item: any) => {
             this.SetAttribute(item.id);
           },
         },
         {
-          acl: 10,
+          acl: 110,
           text: '删除',
           click: (item: any) => {
             this.delete(item.id);
