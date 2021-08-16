@@ -140,6 +140,11 @@ export class StartupService {
                         link: '/iot/flow/flowlist',
                         //   i18n: 'menu.device.devicelist',
                       },
+                      {
+                        text: '事件',
+                        link: '/iot/event/eventlist',
+                        //   i18n: 'menu.device.devicelist',
+                      },
                     ],
                   },
 

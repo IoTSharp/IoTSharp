@@ -41,6 +41,7 @@ import { CodeviewComponent } from './util/code/codeview/codeview.component';
 import { DelonFormModule, WidgetRegistry } from '@delon/form';
 
 import { CodefieldComponent } from './util/codefield/codefield.component';
+import { EventlistComponent } from './event/eventlist/eventlist.component';
 
 const COMPONENTS: Type<null>[] = [];
 const Directive: Type<void>[] = [fielddirective];
@@ -81,6 +82,7 @@ const Directive: Type<void>[] = [fielddirective];
     DynamicformviewComponent,
     CodeviewComponent,
     CodefieldComponent,
+    EventlistComponent,
   ],
 })
 export class RoutesModule {
