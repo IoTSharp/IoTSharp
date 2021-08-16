@@ -21,7 +21,7 @@ namespace IoTSharp.FlowRuleEngine.Models.Task
         public int WaitTime { get; set; }
     }
 
-    public class AbstractTaskExcutor : ITaskExcutor<ExcuteEntity>
+    public class SimpleTaskExcutor : ITaskExcutor<ExcuteEntity>
     {
 
 
@@ -43,7 +43,7 @@ namespace IoTSharp.FlowRuleEngine.Models.Task
 
             foreach (var item in Input.Task.outgoing)
             {
-                item.Rule.Properties = new Dictionary<string, object> {{"Flow", item}};
+                item.Rule.Operator=item.id;
             }
             mainRules.Rules = Input.Task.outgoing.Select(c => c.Rule).ToList();
             var bre = new RulesEngine.RulesEngine(new[] { mainRules }, null);

@@ -48,25 +48,28 @@ export class StartupService {
             this.translate.setDefaultLang(this.i18n.defaultLang);
           }),
         ),
-        this.httpClient.get('api/Account/MyInfo').pipe(
+        this.httpClient.get('api/Menu/GetProfile').pipe(
           map((appData) => {
             const res = appData as NzSafeAny;
 
             this.settingService.setApp({ name: 'IotSharp', description: 'IotSharp' });
             this.settingService.setData('drawerconfig', { width: 720, nzMaskClosable: false });
-            this.settingService.setUser(res.data.customer);
+            this.settingService.setUser({
+              name: res.result.username,
+              avatar: '',
+              email: res.result.email,
+            });
             var ACL = [];
-            if (!res.data.funcs) {
+            if (!res.result.funcs) {
               for (var i = 0; i < 500; i++) {
                 ACL = [...ACL, i];
               }
             } else {
-              this.aclService.setAbility(res.data.funcs);
+              this.aclService.setAbility(res.result.funcs);
             }
-
             this.aclService.setAbility(ACL);
             this.aclService.setFull(false); //开启ACL
-            console.log(this.aclService.data);
+
             var menu = [
               {
                 text: '主导航1',
@@ -131,11 +134,7 @@ export class StartupService {
                         link: '/iot/device/devicescene',
                         //   i18n: 'menu.device.devicelist',
                       },
-                      {
-                        text: '流程',
-                        link: '/iot/flow/designer',
-                        //   i18n: 'menu.device.devicelist',
-                      },
+
                       {
                         text: '规则',
                         link: '/iot/flow/flowlist',
@@ -175,12 +174,12 @@ export class StartupService {
                 ],
               },
             ];
-            if (!res.data.menu) {
+            if (!res.result.menu) {
               res.data.menu = menu;
             }
-            this.menuService.add(res.data.menu);
+            this.menuService.add(res.result.menu);
             this.titleService.default = '';
-            this.titleService.suffix = res.data.tenant.name;
+            this.titleService.suffix = res.result.appName;
           }),
         ),
       ).toPromise();

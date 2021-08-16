@@ -67,8 +67,8 @@ namespace IoTSharp.Models.Rule
         public string NodeProcessClass { get; set; }
         public string conditionexpression { get; set; }
         public string NodeProcessParams { get; set; }
-
-
+        public string flowscript { get; set; }
+        public string flowscripttype { get; set; }
     }
 
 }

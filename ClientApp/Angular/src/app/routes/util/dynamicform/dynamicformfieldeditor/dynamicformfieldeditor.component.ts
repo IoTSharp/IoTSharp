@@ -47,8 +47,6 @@ export class DynamicformfieldeditorComponent implements OnInit {
           this.AllSuportType = x.result.rows.map((x) => {
             return { label: x.dictionaryName, value: x.dictionaryValue };
           });
-
-          console.log(this.AllSuportType);
         }),
       ),
       this.http.post('api/dictionary/index', { DictionaryGroupId: 2, pi: 0, ps: 20, limit: 20, offset: 0 }).pipe(
@@ -56,7 +54,6 @@ export class DynamicformfieldeditorComponent implements OnInit {
           this.AllControlType = x.result.rows.map((x) => {
             return { label: x.dictionaryName, value: x.dictionaryValue };
           });
-          console.log(this.AllControlType);
         }),
       ),
       this.http.get('api/dynamicforminfo/getParams?id=' + this.id).pipe(

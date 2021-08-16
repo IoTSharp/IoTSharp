@@ -18,8 +18,10 @@ namespace IoTSharp.Data
         public string OperationDesc { get; set; }
         public string Data  { get; set; }
         public string BizId { get; set; }
+        public string bpmnid { get; set; }
         public long FlowId { get; set; }
         public long RuleId { get; set; }
+        public long EventId { get; set; }
         public int Step { get; set; }
         public string Tag { get; set; }
     }

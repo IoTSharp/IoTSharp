@@ -35,7 +35,7 @@ namespace IoTSharp.FlowRuleEngine.Models
             {
                 RuleName = this.id,
                 RuleExpressionType = RuleExpressionType.LambdaExpression,
-                Expression = this.Expression, SuccessEvent = this.id, Properties = new Dictionary<string, object>()
+                Expression = this.Expression, SuccessEvent = this.id, 
             };
     }
 }

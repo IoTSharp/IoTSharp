@@ -3,15 +3,17 @@ using System;
 using IoTSharp.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 namespace IoTSharp.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20210813043858_addformfield")]
+    partial class addformfield
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -181,9 +183,6 @@ namespace IoTSharp.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("bigint")
                         .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
-
-                    b.Property<string>("Bizid")
-                        .HasColumnType("text");
 
                     b.Property<DateTime>("CreaterDateTime")
                         .HasColumnType("timestamp without time zone");
@@ -752,9 +751,6 @@ namespace IoTSharp.Migrations
 
                     b.Property<string>("Data")
                         .HasColumnType("text");
-
-                    b.Property<long>("EventId")
-                        .HasColumnType("bigint");
 
                     b.Property<long>("FlowId")
                         .HasColumnType("bigint");

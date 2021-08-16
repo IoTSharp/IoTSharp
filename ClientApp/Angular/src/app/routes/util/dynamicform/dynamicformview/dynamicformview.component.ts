@@ -24,12 +24,20 @@ import { map } from 'rxjs/operators';
 })
 export class DynamicformviewComponent implements OnInit {
   @ViewChild('sf', { static: false }) sf: SFComponent;
-  @Input() id: Number = -1;
+  @Input() _id: Number = -1;
   @Output() onsubmit = new EventEmitter();
   options: {};
   AllControlType: any = [];
   AllSuportType: any = [];
   SuportType: any = [];
+
+  get id() {
+    return this._id;
+  }
+  set id(val) {
+    this._id = val;
+    this.CreatForm(val);
+  }
 
   constructor(
     private _router: ActivatedRoute,
@@ -42,7 +50,7 @@ export class DynamicformviewComponent implements OnInit {
     private cd: ChangeDetectorRef,
   ) {}
 
-  ngOnInit(): void {
+  private CreatForm(id) {
     this._httpClient.get('api/DynamicFormInfo/GetFormFieldValue?FormId=' + this.id + '&BizId=0').subscribe(
       (x) => {
         var properties = {};
@@ -546,6 +554,8 @@ export class DynamicformviewComponent implements OnInit {
       () => {},
     );
   }
+
+  ngOnInit(): void {}
   schema: SFSchema = {
     properties: {},
   };

@@ -3,15 +3,17 @@ using System;
 using IoTSharp.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 namespace IoTSharp.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20210811030553_addfolwscriptfield")]
+    partial class addfolwscriptfield
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -182,9 +184,6 @@ namespace IoTSharp.Migrations
                         .HasColumnType("bigint")
                         .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
 
-                    b.Property<string>("Bizid")
-                        .HasColumnType("text");
-
                     b.Property<DateTime>("CreaterDateTime")
                         .HasColumnType("timestamp without time zone");
 
@@ -202,9 +201,6 @@ namespace IoTSharp.Migrations
 
                     b.Property<string>("MataData")
                         .HasColumnType("text");
-
-                    b.Property<long>("RuleId")
-                        .HasColumnType("bigint");
 
                     b.Property<int>("Type")
                         .HasColumnType("integer");
@@ -645,9 +641,6 @@ namespace IoTSharp.Migrations
                     b.Property<string>("FormDesc")
                         .HasColumnType("text");
 
-                    b.Property<string>("FormLayout")
-                        .HasColumnType("text");
-
                     b.Property<string>("FormName")
                         .HasColumnType("text");
 
@@ -659,9 +652,6 @@ namespace IoTSharp.Migrations
 
                     b.Property<DateTime?>("FromCreateDate")
                         .HasColumnType("timestamp without time zone");
-
-                    b.Property<bool>("IsCompact")
-                        .HasColumnType("boolean");
 
                     b.Property<string>("ModelClass")
                         .HasColumnType("text");
@@ -752,9 +742,6 @@ namespace IoTSharp.Migrations
 
                     b.Property<string>("Data")
                         .HasColumnType("text");
-
-                    b.Property<long>("EventId")
-                        .HasColumnType("bigint");
 
                     b.Property<long>("FlowId")
                         .HasColumnType("bigint");

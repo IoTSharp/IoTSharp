@@ -24,5 +24,8 @@ namespace IoTSharp.Data
         public string Url { get; set; }
         public Guid Creator { get; set; }
         public DateTime? FromCreateDate { get; set; }
+        public string FormLayout { get; set; } //horizontal  vertical inline
+
+        public bool IsCompact { get; set; }
     }
 }

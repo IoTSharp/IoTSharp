@@ -26,6 +26,7 @@ namespace IoTSharp.Data
         public string NodeProcessMethod { get; set; }
         public string NodeProcessParams { get; set; }
         public string NodeProcessType{ get; set; }
+        public string NodeProcessScriptType { get; set; }
         public string NodeProcessScript { get; set; }
         public string Incoming { get; set; }
         public string Outgoing { get; set; }

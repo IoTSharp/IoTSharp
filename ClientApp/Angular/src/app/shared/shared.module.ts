@@ -16,8 +16,9 @@ import { NgxJsonViewModule } from 'ngw-json-view';
 // #region third libs
 // import { NgxTinymceModule } from 'ngx-tinymce';
 import { UEditorModule } from 'ngx-ueditor';
+import { NzCodeEditorModule } from 'ng-zorro-antd/code-editor';
 
-const THIRDMODULES: Type<any>[] = [DragDropModule, DragAndDropModule, NgxJsonViewModule];
+const THIRDMODULES: Type<any>[] = [DragDropModule, DragAndDropModule, NgxJsonViewModule, NzCodeEditorModule];
 // #endregion
 
 // #region your componets & directives
