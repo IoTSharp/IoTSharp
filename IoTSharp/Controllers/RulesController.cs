@@ -893,7 +893,7 @@ namespace IoTSharp.Controllers
                         FlowId = flow.FlowId,
                         Data = JsonConvert.SerializeObject(data),
                         NodeStatus = 1,
-                        OperationDesc = "执行条件" + flow.Conditionexpression,
+                        OperationDesc = "执行条件（" + (string.IsNullOrEmpty(flow.Conditionexpression)?"空条件": flow.Conditionexpression)+")",
                         Step = nextstep,
                         bpmnid = flow.bpmnid,
                         EventId = _eventid
@@ -926,7 +926,10 @@ namespace IoTSharp.Controllers
                         });
                         await _context.SaveChangesAsync();
                         nextstep++;
-                        foreach (var item in flows)
+
+                        var emptyflow = flows.Where(c => c.Conditionexpression == string.Empty).ToList();
+
+                        foreach (var item in flows.Except(emptyflow))
                         {
                             var rule = new BaseRuleFlow();
                             rule.Expression = item.Conditionexpression;
@@ -935,38 +938,59 @@ namespace IoTSharp.Controllers
                             rule.Eventid = item.bpmnid;
                             tasks.outgoing.Add(rule);
                         }
-                        SimpleTaskExcutor taskExcutor = new SimpleTaskExcutor();
-                        var result = await taskExcutor.Excute(new ExcuteEntity()
-                        {
-                            Action = null,
-                            Params = data,
-                            Task = tasks,
-                            WaitTime = 0
 
-                        });
-                        var next = result.Where(c => c.IsSuccess).ToList();
-                        foreach (var item in next)
-                        {
 
-                            var nextflow = allflow.FirstOrDefault(a => a.bpmnid == item.Rule.SuccessEvent);
-                            await Process(nextflow, allflow, data, nextstep, _eventid);
+                        if (tasks.outgoing.Count > 0)
+                        {
+                            SimpleTaskExcutor taskExcutor = new SimpleTaskExcutor();
+                            var result = await taskExcutor.Excute(new ExcuteEntity()
+                            {
+                                Action = null,
+                                Params = data,
+                                Task = tasks,
+                                WaitTime = 0
+
+                            });
+                            var next = result.Where(c => c.IsSuccess).ToList();
+                            foreach (var item in next)
+                            {
+
+                                var nextflow = allflow.FirstOrDefault(a => a.bpmnid == item.Rule.SuccessEvent);
+                                emptyflow.Add(nextflow);
+                            }
+                        }
+                       
+
+                        foreach (var item in emptyflow)
+                        {
+                            await Process(item, allflow, data, nextstep, _eventid);
                         }
                     }
 
                     break;
                 case "bpmn:EndEvent":
-                    _context.FlowOperations.Add(new FlowOperation()
+                    // 合并结束
+                  var end=  _context.FlowOperations.FirstOrDefault(c => c.bpmnid == flow.bpmnid&&c.EventId==_eventid)??new FlowOperation();
+
+
+                    end.bpmnid = flow.bpmnid;
+                    end.AddDate = DateTime.Now;
+                    end.RuleId = flow.RuleId;
+                    end.FlowId = flow.FlowId;
+                    end.Data = JsonConvert.SerializeObject(data);
+                    end.NodeStatus = 1;
+                    end.OperationDesc = "处理完成";
+                    end.Step = _context.FlowOperations.Where(c =>  c.EventId == _eventid).Max(c=>c.Step)+1;
+                    end.EventId = _eventid;
+
+                    if (end.OperationId > 0)
                     {
-                        bpmnid = flow.bpmnid,
-                        AddDate = DateTime.Now,
-                        RuleId = flow.RuleId,
-                        FlowId = flow.FlowId,
-                        Data = JsonConvert.SerializeObject(data),
-                        NodeStatus = 1,
-                        OperationDesc = "处理完成",
-                        Step = nextstep,
-                        EventId = _eventid
-                    });
+                        _context.FlowOperations.Update(end);
+                    }
+                    else
+                    {
+                        _context.FlowOperations.Add(end);
+                    }
                     await _context.SaveChangesAsync();
 
                     break;
@@ -994,10 +1018,10 @@ namespace IoTSharp.Controllers
                             Step = nextstep,
                             EventId = _eventid
                         });
-                        await _context.SaveChangesAsync();
+                        await _context.SaveChangesAsync(); 
+                        var emptyflow = flows.Where(c => c.Conditionexpression == string.Empty).ToList();
 
-
-                        foreach (var item in flows)
+                        foreach (var item in flows.Except(emptyflow))
                         {
                             var rule = new BaseRuleFlow();
 
@@ -1007,25 +1031,37 @@ namespace IoTSharp.Controllers
                             rule.Expression = item.Conditionexpression;
                             tasks.outgoing.Add(rule);
                         }
-                        SimpleTaskExcutor taskExcutor = new SimpleTaskExcutor();
-                        var result = await taskExcutor.Excute(new ExcuteEntity()
+
+                        if (tasks.outgoing.Count > 0)
                         {
-                            Action = null,
-                            Params = data,
-                            Task = tasks,
-                            WaitTime = 0
+                            SimpleTaskExcutor taskExcutor = new SimpleTaskExcutor();
+                            var result = await taskExcutor.Excute(new ExcuteEntity()
+                            {
+                                Action = null,
+                                Params = data,
+                                Task = tasks,
+                                WaitTime = 0
 
-                        });
+                            });
 
-                        var next = result.Where(c => c.IsSuccess).ToList();
+                            var next = result.Where(c => c.IsSuccess).ToList();
 
 
+                    
+                            foreach (var item in next)
+                            {
+
+                                var nextflow = allflow.FirstOrDefault(a => a.bpmnid == item.Rule.SuccessEvent);
+                                emptyflow.Add(nextflow);
+
+                            }
+
+                          
+                        }
                         nextstep++;
-                        foreach (var item in next)
+                        foreach (var item in emptyflow)
                         {
-
-                            var nextflow = allflow.FirstOrDefault(a => a.bpmnid == item.Rule.SuccessEvent);
-                            await Process(nextflow, allflow, data, nextstep, _eventid);
+                            await Process(item, allflow, data, nextstep, _eventid);
                         }
                     }
                     break;
@@ -1072,7 +1108,8 @@ namespace IoTSharp.Controllers
                         });
                         await _context.SaveChangesAsync();
                         nextstep++;
-                        foreach (var item in flows)
+                        var emptyflow = flows.Where(c => c.Conditionexpression == string.Empty).ToList();
+                        foreach (var item in flows.Except(emptyflow))
                         {
                             var rule = new BaseRuleFlow();
                             rule.Expression = item.Conditionexpression;
@@ -1081,21 +1118,33 @@ namespace IoTSharp.Controllers
                             rule.Eventid = item.bpmnid;
                             tasks.outgoing.Add(rule);
                         }
-                        SimpleTaskExcutor taskExcutor = new SimpleTaskExcutor();
-                        var result = await taskExcutor.Excute(new ExcuteEntity()
-                        {
-                            Action = null,
-                            Params = data,
-                            Task = tasks,
-                            WaitTime = 0
 
-                        });
-                        var next = result.Where(c => c.IsSuccess).ToList();
-                        foreach (var item in next)
-                        {
 
-                            var nextflow = allflow.FirstOrDefault(a => a.bpmnid == item.Rule.SuccessEvent);
-                            await Process(nextflow, allflow, data, nextstep, _eventid);
+                        if (tasks.outgoing.Count > 0)
+                        {
+                            SimpleTaskExcutor taskExcutor = new SimpleTaskExcutor();
+                            var result = await taskExcutor.Excute(new ExcuteEntity()
+                            {
+                                Action = null,
+                                Params = data,
+                                Task = tasks,
+                                WaitTime = 0
+
+                            });
+                            var next = result.Where(c => c.IsSuccess).ToList();
+                            foreach (var item in next)
+                            {
+
+                                var nextflow = allflow.FirstOrDefault(a => a.bpmnid == item.Rule.SuccessEvent);
+                                emptyflow.Add(nextflow);
+
+
+                            }
+                        }
+
+                        foreach (var item in emptyflow)
+                        {
+                            await Process(item, allflow, data, nextstep, _eventid);
                         }
 
                         break;
@@ -1140,6 +1189,9 @@ namespace IoTSharp.Controllers
             };
             _context.BaseEvents.Add(_event);
             _context.SaveChanges();
+            // 非测试环境事件产生完，此时应当返回事件，剩余处理下一步进行异步处理。
+
+
 
 
             var flows = _context.Flows.Where(c => c.RuleId == ruleid && c.FlowType != "label").ToList();
@@ -1147,9 +1199,9 @@ namespace IoTSharp.Controllers
             //    var end = flows.FirstOrDefault(c => c.FlowType == "bpmn:EndEvent");
             await Process(start, flows, d, 1, _event.EventId);
 
+
+
             //应该由事件总线去通知
-
-
             return new AppMessage
             {
                 ErrType = ErrType.正常返回,

@@ -42,6 +42,10 @@ import { DelonFormModule, WidgetRegistry } from '@delon/form';
 
 import { CodefieldComponent } from './util/codefield/codefield.component';
 import { EventlistComponent } from './event/eventlist/eventlist.component';
+import { DynamictablecolumeditorComponent } from './util/dynamictable/dynamictablecolumeditor/dynamictablecolumeditor.component';
+import { DynamictableviewComponent } from './util/dynamictable/dynamictableview/dynamictableview.component';
+import { DynamictabletesterComponent } from './util/dynamictable/dynamictabletester/dynamictabletester.component';
+import { DynamictablelistComponent } from './util/dynamictable/dynamictablelist/dynamictablelist.component';
 
 const COMPONENTS: Type<null>[] = [];
 const Directive: Type<void>[] = [fielddirective];
@@ -83,6 +87,11 @@ const Directive: Type<void>[] = [fielddirective];
     CodeviewComponent,
     CodefieldComponent,
     EventlistComponent,
+
+    DynamictablecolumeditorComponent,
+    DynamictableviewComponent,
+    DynamictabletesterComponent,
+    DynamictablelistComponent,
   ],
 })
 export class RoutesModule {

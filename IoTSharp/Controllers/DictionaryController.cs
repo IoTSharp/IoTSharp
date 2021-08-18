@@ -22,11 +22,11 @@ namespace IoTSharp.Controllers
 
 
         private ApplicationDbContext _context;
-        private UserManager<IdentityUser> _userManager;
+     
 
-        public DictionaryController(ApplicationDbContext context, UserManager<IdentityUser> userManager)
+        public DictionaryController(ApplicationDbContext context)
         {
-            this._userManager = userManager;
+         
             this._context = context;
         }
 
