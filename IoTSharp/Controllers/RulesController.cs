@@ -904,6 +904,27 @@ namespace IoTSharp.Controllers
                 case "bpmn:Task":
                     {
                         var flows = allflow.Where(c => c.SourceId == flow.bpmnid).ToList();
+
+
+                        switch (flow.NodeProcessScriptType)
+                        {
+                            case "csharp":
+                                var scripts = flow.NodeProcessScript;
+
+                                break;
+                            case "python":
+                                break;
+                            case "xml":
+                                break;
+                            case "json":
+                                break;
+                            case "bat":
+                                break;
+                            case "sql":
+                                break;
+                        }
+
+
                         var tasks = new BaseRuleTask()
                         {
                             Name = flow.Flowname,
