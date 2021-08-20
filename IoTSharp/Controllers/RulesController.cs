@@ -903,37 +903,30 @@ namespace IoTSharp.Controllers
                     break;
                 case "bpmn:Task":
                     {
-                        var flows = allflow.Where(c => c.SourceId == flow.bpmnid).ToList();
-
-
-                        switch (flow.NodeProcessScriptType)
+                        //脚本处理
+                        if (!string.IsNullOrEmpty(flow.NodeProcessScriptType)&&!string.IsNullOrEmpty(flow.NodeProcessScript))
                         {
-                            case "csharp":
-                                var scripts = flow.NodeProcessScript;
+                            switch (flow.NodeProcessScriptType)
+                            {
+                                case "csharp":
+                                    var scripts = flow.NodeProcessScript;
 
-                                break;
-                            case "python":
-                                break;
-                            case "xml":
-                                break;
-                            case "json":
-                                break;
-                            case "bat":
-                                break;
-                            case "sql":
-                                break;
+                                    //脚本处理逻辑
+                                    break;
+                                case "python":
+                                    break;
+                                case "xml":
+                                    break;
+                                case "json":
+                                    break;
+                                case "bat":
+                                    break;
+                                case "sql":
+                                    break;
+                            }
                         }
-
-
-                        var tasks = new BaseRuleTask()
-                        {
-                            Name = flow.Flowname,
-                            Eventid = flow.bpmnid,
-                            id = flow.bpmnid,
-
-                            outgoing = new EditableList<BaseRuleFlow>()
-                        };
-                        _context.FlowOperations.Add(new FlowOperation()
+           
+                        var taskoperation = new FlowOperation()
                         {
                             bpmnid = flow.bpmnid,
                             AddDate = DateTime.Now,
@@ -944,8 +937,22 @@ namespace IoTSharp.Controllers
                             OperationDesc = "执行任务" + flow.Flowname,
                             Step = nextstep,
                             EventId = _eventid
-                        });
+                        };
+                        _context.FlowOperations.Add(taskoperation);
                         await _context.SaveChangesAsync();
+                        //如果是异步调用，可以在此终止，然后通过FlowOperation表中当前的taskoperation.OperationId找到当前挂起的FlowId 再次恢复处理
+
+                        //条件处理
+                        var flows = allflow.Where(c => c.SourceId == flow.bpmnid).ToList();
+                        var tasks = new BaseRuleTask()
+                        {
+                            Name = flow.Flowname,
+                            Eventid = flow.bpmnid,
+                            id = flow.bpmnid,
+
+                            outgoing = new EditableList<BaseRuleFlow>()
+                        };
+                    
                         nextstep++;
 
                         var emptyflow = flows.Where(c => c.Conditionexpression == string.Empty).ToList();
