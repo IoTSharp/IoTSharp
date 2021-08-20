@@ -182,6 +182,9 @@ namespace IoTSharp.Migrations
                         .HasColumnType("bigint")
                         .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
 
+                    b.Property<string>("Bizid")
+                        .HasColumnType("text");
+
                     b.Property<DateTime>("CreaterDateTime")
                         .HasColumnType("timestamp without time zone");
 
@@ -199,6 +202,9 @@ namespace IoTSharp.Migrations
 
                     b.Property<string>("MataData")
                         .HasColumnType("text");
+
+                    b.Property<long>("RuleId")
+                        .HasColumnType("bigint");
 
                     b.Property<int>("Type")
                         .HasColumnType("integer");
@@ -639,6 +645,9 @@ namespace IoTSharp.Migrations
                     b.Property<string>("FormDesc")
                         .HasColumnType("text");
 
+                    b.Property<string>("FormLayout")
+                        .HasColumnType("text");
+
                     b.Property<string>("FormName")
                         .HasColumnType("text");
 
@@ -650,6 +659,9 @@ namespace IoTSharp.Migrations
 
                     b.Property<DateTime?>("FromCreateDate")
                         .HasColumnType("timestamp without time zone");
+
+                    b.Property<bool>("IsCompact")
+                        .HasColumnType("boolean");
 
                     b.Property<string>("ModelClass")
                         .HasColumnType("text");
@@ -696,6 +708,9 @@ namespace IoTSharp.Migrations
                     b.Property<string>("NodeProcessScript")
                         .HasColumnType("text");
 
+                    b.Property<string>("NodeProcessScriptType")
+                        .HasColumnType("text");
+
                     b.Property<string>("NodeProcessType")
                         .HasColumnType("text");
 
@@ -738,6 +753,9 @@ namespace IoTSharp.Migrations
                     b.Property<string>("Data")
                         .HasColumnType("text");
 
+                    b.Property<long>("EventId")
+                        .HasColumnType("bigint");
+
                     b.Property<long>("FlowId")
                         .HasColumnType("bigint");
 
@@ -754,6 +772,9 @@ namespace IoTSharp.Migrations
                         .HasColumnType("integer");
 
                     b.Property<string>("Tag")
+                        .HasColumnType("text");
+
+                    b.Property<string>("bpmnid")
                         .HasColumnType("text");
 
                     b.HasKey("OperationId");

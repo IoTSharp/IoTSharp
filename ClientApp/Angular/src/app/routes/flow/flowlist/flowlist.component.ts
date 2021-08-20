@@ -107,7 +107,7 @@ export class FlowlistComponent implements OnInit {
         },
         {
           text: '设计',
-          acl: 104,
+          //   acl: 104,
           click: (item: ruleflow) => {
             this._router.navigate(['/iot/flow/designer'], {
               queryParams: {
@@ -119,7 +119,7 @@ export class FlowlistComponent implements OnInit {
         },
         {
           text: '测试',
-          acl: 104,
+          //  acl: 104,
 
           click: (item: ruleflow) => {
             this.testthisflow(item);
@@ -202,7 +202,18 @@ export class FlowlistComponent implements OnInit {
     this.st.req = this.req;
     this.st.load(this.st.pi);
   }
-
+  reset() {
+    this.q ==
+      {
+        pi: 0,
+        ps: 10,
+        Name: '',
+        Creator: '',
+        CreatTime: [],
+        sorter: '',
+        status: null,
+      };
+  }
   setstatus(number: number, status: number) {}
 }
 

@@ -18,7 +18,6 @@ import { interval } from 'rxjs';
   styleUrls: ['./flowviewer.component.less'],
 })
 export class FlowviewerComponent implements AfterContentInit, OnChanges, OnDestroy {
-  nodes = ['Event_1ugcz6g', 'Flow_1d2x8ry', 'Activity_1fl2v8i', 'Flow_09ib71g', 'Activity_1pl6xim', 'Flow_1nmme3b', 'Event_1e0aci8'];
   @ViewChild('viewer', { static: true })
   private viewer: ElementRef;
   @Input()
@@ -43,9 +42,8 @@ export class FlowviewerComponent implements AfterContentInit, OnChanges, OnDestr
     this.bpmnViewer.attachTo(this.viewer.nativeElement);
   }
   async loadXml() {
-    console.log(this.diagramdata);
     await this.bpmnViewer.importXML(this.diagramdata.definitionsXml);
-
+    this.bpmnViewer.get('canvas').zoom('fit-viewport');
     var elementRegistry = this.bpmnViewer.get('elementRegistry');
     var shape = elementRegistry.get('Activity_1pl6xim');
     var overlays = this.bpmnViewer.get('overlays');
@@ -64,19 +62,17 @@ export class FlowviewerComponent implements AfterContentInit, OnChanges, OnDestr
     // });
     // console.log(overlays);
     // overlays.remove(id);
-    var canvas = this.bpmnViewer.get('canvas');
+
     //只是修改了属性
+  }
 
-    const souce = interval(1000).subscribe(async (x) => {
-      var index = x % this.nodes.length;
-
-      if (index == 0) {
-        await this.bpmnViewer.importXML(this.diagramdata.definitionsXml);
-      }
-      if (index < this.nodes.length) {
-        canvas.addMarker(this.nodes[index], 'flowviewhighlight');
-      }
-    });
+  async redraw() {
+    await this.bpmnViewer.importXML(this.diagramdata.definitionsXml);
+  }
+  sethighlight(bpmnid) {
+    var canvas = this.bpmnViewer.get('canvas');
+    //只能添加一次，再次添加只能重绘后添加了
+    canvas.addMarker(bpmnid, 'flowviewhighlight');
   }
 
   ngOnChanges(changes: SimpleChanges): void {}

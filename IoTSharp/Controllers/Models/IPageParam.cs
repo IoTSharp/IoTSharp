@@ -44,4 +44,11 @@ namespace IoTSharp.Controllers.Models
         public string DictionaryName { get; set; }
         public int DictionaryGroupId { get; set; }
     }
+
+
+    public class I18NParam : IPageParam
+    {
+        public string KeyName { get; set; }
+     
+    }
 }

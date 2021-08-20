@@ -38,11 +38,19 @@ import { DynamicformresultviewComponent } from './util/dynamicform/dynamicformre
 import { DynamicformviewComponent } from './util/dynamicform/dynamicformview/dynamicformview.component';
 import { WidgetsModule } from './widgets/widgets.module';
 import { CodeviewComponent } from './util/code/codeview/codeview.component';
+import { DelonFormModule, WidgetRegistry } from '@delon/form';
+
+import { CodefieldComponent } from './util/codefield/codefield.component';
+import { EventlistComponent } from './event/eventlist/eventlist.component';
+import { DynamictablecolumeditorComponent } from './util/dynamictable/dynamictablecolumeditor/dynamictablecolumeditor.component';
+import { DynamictableviewComponent } from './util/dynamictable/dynamictableview/dynamictableview.component';
+import { DynamictabletesterComponent } from './util/dynamictable/dynamictabletester/dynamictabletester.component';
+import { DynamictablelistComponent } from './util/dynamictable/dynamictablelist/dynamictablelist.component';
 
 const COMPONENTS: Type<null>[] = [];
 const Directive: Type<void>[] = [fielddirective];
 @NgModule({
-  imports: [SharedModule, RouteRoutingModule, WidgetsModule],
+  imports: [SharedModule, RouteRoutingModule, WidgetsModule, DelonFormModule.forRoot()],
   declarations: [
     ...COMPONENTS,
     ...Directive,
@@ -77,6 +85,17 @@ const Directive: Type<void>[] = [fielddirective];
     DynamicformresultviewComponent,
     DynamicformviewComponent,
     CodeviewComponent,
+    CodefieldComponent,
+    EventlistComponent,
+
+    DynamictablecolumeditorComponent,
+    DynamictableviewComponent,
+    DynamictabletesterComponent,
+    DynamictablelistComponent,
   ],
 })
-export class RoutesModule {}
+export class RoutesModule {
+  constructor(widgetRegistry: WidgetRegistry) {
+    widgetRegistry.register(CodefieldComponent.KEY, CodefieldComponent);
+  }
+}

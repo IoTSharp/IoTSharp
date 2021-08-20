@@ -1,7 +1,7 @@
 import { ChangeDetectorRef } from '@angular/core';
 import { Input, ViewChild } from '@angular/core';
 import { Component, OnInit } from '@angular/core';
-import { SFComponent, SFSchema } from '@delon/form';
+import { SFComponent, SFNumberWidgetSchema, SFSchema, SFTextareaWidgetSchema } from '@delon/form';
 import { _HttpClient } from '@delon/theme';
 import { switchMap } from 'rxjs/operators';
 
@@ -33,22 +33,122 @@ export class PropformComponent implements OnInit {
       (next) => {
         var properties: any = {};
         for (var item of next) {
-          // switch (item.uielement) {
-          //   case 'uielement':
-          properties[item.keyName] = {
-            type: 'string',
-            title: item.keyName,
-            // maxLength: item.maxLength,
-            //  pattern: item.pattern,
-            // ui: {
-            //   addOnAfter: item.ui.addOnAfter,
-            //   placeholder: item.ui.placeholder,
-            // },
-            default: item.value,
-          };
-          //     };
-          //     break;
-          // }
+          switch (item.keyType) {
+            case 'XML':
+              properties[item.keyName] = {
+                type: 'string',
+                title: item.keyName,
+                // maxLength: item.maxLength,
+                //  pattern: item.pattern,
+                ui: {
+                  widget: 'codefield',
+                  loadingTip: 'loading...',
+                  config: { theme: 'vs-dark', language: 'xml' },
+                  value: item.value,
+                },
+                default: item.value,
+              };
+
+              break;
+
+            case 'Boolean':
+              properties[item.keyName] = {
+                type: 'boolean',
+                title: item.keyName,
+                // maxLength: item.maxLength,
+                //  pattern: item.pattern,
+                ui: {
+                  checkedChildren: 'True',
+                  unCheckedChildren: 'False',
+                },
+                default: item.value,
+              };
+
+              break;
+
+            case 'String':
+              properties[item.keyName] = {
+                type: 'string',
+                title: item.keyName,
+                // maxLength: item.maxLength,
+                //  pattern: item.pattern,
+
+                default: item.value,
+              };
+
+              break;
+
+            case 'Long':
+              properties[item.keyName] = {
+                type: 'number',
+                title: item.keyName,
+                // maxLength: item.maxLength,
+                //  pattern: item.pattern,
+                ui: {
+                  hideStep: true,
+                } as SFNumberWidgetSchema,
+                default: item.value,
+              };
+
+              break;
+
+            case 'Double':
+              properties[item.keyName] = {
+                type: 'number',
+                title: item.keyName,
+                // maxLength: item.maxLength,
+                //  pattern: item.pattern,
+                ui: {
+                  hideStep: true,
+                } as SFNumberWidgetSchema,
+                default: item.value,
+              };
+
+              break;
+
+            case 'Json':
+              properties[item.keyName] = {
+                type: 'string',
+                title: item.keyName,
+                // maxLength: item.maxLength,
+                //  pattern: item.pattern,
+                ui: {
+                  widget: 'codefield',
+                  loadingTip: 'loading...',
+                  config: { theme: 'vs-dark', language: 'json' },
+                  value: item.value,
+                },
+                default: item.value,
+              };
+
+              break;
+
+            case 'Binary':
+              properties[item.keyName] = {
+                type: 'string',
+                title: item.keyName,
+                // maxLength: item.maxLength,
+                //  pattern: item.pattern,
+                ui: {
+                  widget: 'textarea',
+                  autosize: { minRows: 2, maxRows: 10 },
+                } as SFTextareaWidgetSchema,
+                default: item.value,
+              };
+
+              break;
+            case 'DateTime':
+              properties[item.keyName] = {
+                type: 'string',
+                title: item.keyName,
+                format: 'date-time',
+                displayFormat: 'yyyy-MM-dd HH:mm:ss',
+                ui: {},
+                default: item.value,
+              };
+
+              break;
+          }
         }
 
         this.schema.properties = properties;
@@ -87,4 +187,5 @@ export interface deviceattributeitem {
   dataSide: any;
   dateTime: string;
   value: string;
+  keyType: string;
 }

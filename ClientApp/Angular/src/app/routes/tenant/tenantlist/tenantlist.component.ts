@@ -74,7 +74,7 @@ export class TenantlistComponent implements OnInit {
 
         {
           // acl: 10,
-          text: '租户管理',
+          text: '客户管理',
           click: (item: any) => {
             this._router.navigateByUrl('iot/customer/customerlist?id=' + item.id);
           },

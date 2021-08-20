@@ -125,4 +125,15 @@ namespace IoTSharp.Data
         RuleNode,
         RuleSwitcher
     }
+
+    [System.Text.Json.Serialization.JsonConverter(typeof(System.Text.Json.Serialization.JsonStringEnumConverter))]
+    [JsonConverter(typeof(StringEnumConverter))]
+    public enum EventType
+    {
+        Normal=1,
+        TestPurpose=2
+    }
+
+
+    
 }

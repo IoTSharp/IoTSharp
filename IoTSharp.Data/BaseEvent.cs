@@ -18,9 +18,12 @@ namespace IoTSharp.Data
         public string EventName { get; set; }
         public string EventDesc { get; set; }
         public int EventStaus { get; set; }
-        public int Type { get; set; }
+        public EventType Type { get; set; }
         public string MataData { get; set; }
+        public long RuleId { get; set; }
         public Guid Creator { get; set; }
+
+        public string Bizid { get; set; }
         public DateTime CreaterDateTime { get; set; }
     }
 }

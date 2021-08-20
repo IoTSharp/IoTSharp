@@ -90,6 +90,8 @@ namespace IoTSharp.Controllers
         {
             try
             {
+             
+
                 var result = await _signInManager.PasswordSignInAsync(model.UserName, model.Password, false, false);
                 if (result.Succeeded)
                 {
@@ -101,6 +103,7 @@ namespace IoTSharp.Controllers
                                         new Claim(ClaimTypes.Email, appUser.Email),
                                         new Claim(ClaimTypes.NameIdentifier, appUser.Id),
                                         new Claim(ClaimTypes.Name,  appUser.UserName),
+                                    
                                     };
                     var lstclaims = await _userManager.GetClaimsAsync(appUser);
                     claims.AddRange(lstclaims);
