@@ -25,7 +25,7 @@ namespace IoTSharp.Controllers
         }
 
         [HttpGet("[action]")]
-        public IActionResult GetDeviceListForComboxDataSouce(string? q )
+        public IActionResult GetDeviceListForComboxDataSouce(string q )
         {
             return new JsonResult(new AppMessage{Result = _context.Device.ToList().Select(c => new { value = c.Id.ToString(), label = c.Name, title = c.Name }).ToArray() });
         }

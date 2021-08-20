@@ -141,7 +141,7 @@ namespace IoTSharp.Controllers.Models
                         return "";
                     }
                    
-                    break;
+              
                 case 11:
                     if (target.HasValues)
                     {
