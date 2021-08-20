@@ -942,13 +942,13 @@ namespace IoTSharp.Controllers
 
                         if (tasks.outgoing.Count > 0)
                         {
-                            SimpleTaskExcutor taskExcutor = new SimpleTaskExcutor();
-                            var result = await taskExcutor.Excute(new ExcuteEntity()
+                            SimpleFLowExcutor fLowExcutor = new SimpleFLowExcutor();
+                            var result = await fLowExcutor.Excute(new FlowExcuteEntity()
                             {
-                                Action = null,
+                            //    Action = null,
                                 Params = data,
                                 Task = tasks,
-                                WaitTime = 0
+                             //   WaitTime = 0
 
                             });
                             var next = result.Where(c => c.IsSuccess).ToList();
@@ -1034,13 +1034,13 @@ namespace IoTSharp.Controllers
 
                         if (tasks.outgoing.Count > 0)
                         {
-                            SimpleTaskExcutor taskExcutor = new SimpleTaskExcutor();
-                            var result = await taskExcutor.Excute(new ExcuteEntity()
+                            SimpleFLowExcutor fLowExcutor = new SimpleFLowExcutor();
+                            var result = await fLowExcutor.Excute(new FlowExcuteEntity()
                             {
-                                Action = null,
+                              //  Action = null,
                                 Params = data,
                                 Task = tasks,
-                                WaitTime = 0
+                             //   WaitTime = 0
 
                             });
 
@@ -1122,13 +1122,13 @@ namespace IoTSharp.Controllers
 
                         if (tasks.outgoing.Count > 0)
                         {
-                            SimpleTaskExcutor taskExcutor = new SimpleTaskExcutor();
-                            var result = await taskExcutor.Excute(new ExcuteEntity()
+                            SimpleFLowExcutor fLowExcutor = new SimpleFLowExcutor();
+                            var result = await fLowExcutor.Excute(new FlowExcuteEntity()
                             {
-                                Action = null,
+                                //  Action = null,
                                 Params = data,
                                 Task = tasks,
-                                WaitTime = 0
+                             //   WaitTime = 0
 
                             });
                             var next = result.Where(c => c.IsSuccess).ToList();
@@ -1216,12 +1216,7 @@ namespace IoTSharp.Controllers
         }
 
 
-        private void FindNext()
-        {
-
-
-
-        }
+     
 
         private Type BuildPocoObject(string classtext, string typename)
         {

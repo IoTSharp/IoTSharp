@@ -13,9 +13,7 @@ export class CodefieldComponent extends ControlWidget implements OnInit {
   ngOnInit(): void {
     this.loadingTip = this.ui.loadingTip || '加载中……';
     this.config = this.ui.config || { theme: 'vs-dark', language: 'csharp' };
-    console.log(this.value);
     this.setValue(this.ui.value);
-    console.log(this.value);
     this.detectChanges();
     //this.config = { theme: 'vs-dark', language: 'csharp' };
   }
