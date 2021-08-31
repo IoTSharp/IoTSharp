@@ -4,11 +4,20 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Net.Http;
+using System.Security.Cryptography;
+using System.Text;
 using System.Threading.Tasks;
+using System.Web;
+using EasyCaching.Core;
 using IoTSharp.Controllers.Models;
 using IoTSharp.Data;
 using IoTSharp.Models;
 using LinqKit;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.Extensions.Options;
+using Newtonsoft.Json;
+using RestSharp.Extensions;
 
 namespace IoTSharp.Controllers
 {
@@ -16,16 +25,57 @@ namespace IoTSharp.Controllers
     [ApiController]
     public class I18NController : ControllerBase
     {
-
-
+        private readonly IEasyCachingProvider _cachingprovider;
+        private readonly IOptions<BaiduTranslateProfile> _profile;
         private ApplicationDbContext _context;
 
 
-        public I18NController(ApplicationDbContext context)
+        public I18NController(ApplicationDbContext context, IEasyCachingProvider provider, IOptions<BaiduTranslateProfile> profile )
         {
-
+            this._cachingprovider = provider;
             this._context = context;
+            this._profile = profile;
         }
+
+        [HttpGet("[action]")]
+        [AllowAnonymous]
+        public AppMessage Current(string lang)
+        {
+            
+             lang =  lang?.ToLower();
+            var i18n = _cachingprovider.Get<BaseI18N[]>("i18n").Value;
+            if (i18n == null)
+            {
+                i18n = _context.BaseI18Ns.ToArray();
+                _cachingprovider.Set<BaseI18N[]>("i18n", i18n,TimeSpan.FromMinutes(5));
+            }
+            switch (lang)
+            {
+
+                case "el-gr":
+                    return new AppMessage { Result = i18n.Select(c => new { c.KeyName, c.ValueENGR }).ToDictionary(x => x.KeyName, y => y.ValueENGR) };
+                case "en-us":
+                    return new AppMessage { Result = i18n.Select(c => new { c.KeyName, c.ValueENUS }).ToDictionary(x => x.KeyName, y => y.ValueENUS) };
+                case "fr-fr":
+                    return new AppMessage { Result = i18n.Select(c => new { c.KeyName, c.ValueFRFR }).ToDictionary(x => x.KeyName, y => y.ValueFRFR) };
+                case "hr-hr":
+                    return new AppMessage { Result = i18n.Select(c => new { c.KeyName, c.ValueHRHR }).ToDictionary(x => x.KeyName, y => y.ValueHRHR) };
+                case "ko-kr":
+                    return new AppMessage { Result = i18n.Select(c => new { c.KeyName, c.ValueKOKR }).ToDictionary(x => x.KeyName, y => y.ValueKOKR) };
+                case "pl-pl":
+                    return new AppMessage { Result = i18n.Select(c => new { c.KeyName, c.ValuePLPL }).ToDictionary(x => x.KeyName, y => y.ValuePLPL) };
+                case "sl-sl":
+                    return new AppMessage { Result = i18n.Select(c => new { c.KeyName, c.ValueSLSL }).ToDictionary(x => x.KeyName, y => y.ValueSLSL) };
+                case "tr-tr":
+                    return new AppMessage { Result = i18n.Select(c => new { c.KeyName, c.ValueTRTR }).ToDictionary(x => x.KeyName, y => y.ValueTRTR) };
+                case "zh-tw":
+                    return new AppMessage { Result = i18n.Select(c => new { c.KeyName, c.ValueZHTW }).ToDictionary(x => x.KeyName, y => y.ValueZHTW) };
+                case "zh-cn":
+                    return new AppMessage { Result = i18n.Select(c => new { c.KeyName, c.ValueZHCN }).ToDictionary(x => x.KeyName, y => y.ValueZHCN) };
+            }
+            return new AppMessage { Result = i18n.Select(c => new { c.KeyName, c.ValueZHCN }).ToDictionary(x => x.KeyName, y => y.ValueZHCN) };
+        }
+
 
 
         [HttpPost("[action]")]
@@ -56,13 +106,13 @@ namespace IoTSharp.Controllers
             return new AppMessage
             {
                 ErrType = ErrType.正常返回,
-                Result = _context.BaseI18Ns.SingleOrDefault(c=>c.Id==id)
+                Result = _context.BaseI18Ns.SingleOrDefault(c => c.Id == id)
 
             };
 
         }
         [HttpPost("[action]")]
-        public AppMessage Save(BaseI18N m )
+        public AppMessage Save(BaseI18N m)
         {
             var i18n = new BaseI18N()
             {
@@ -101,7 +151,7 @@ namespace IoTSharp.Controllers
 
             _context.BaseI18Ns.Add(i18n);
             _context.SaveChanges();
-            var i18ns = _context.BaseI18Ns.Where(c => c.Status > -1).ToArray();
+       
 
             return new AppMessage
             {
@@ -224,6 +274,59 @@ namespace IoTSharp.Controllers
 
             };
 
+        }
+
+        [HttpGet("[action]")]
+        public async Task<AppMessage> Translate(string Words)
+        {
+            string q = Words;
+            string from = _profile.Value.DefaultLang ?? "zh";
+            string appId = _profile.Value.AppKey;
+            Random rd = new Random();
+            string secretKey = _profile.Value.AppSecret;
+            int _wait = _profile.Value.ApiInterval ?? 80;
+            List<BaiduTranslateResult> l = new List<BaiduTranslateResult>();
+            foreach (var item in _profile.Value.LangFieldMapping)
+            {
+                string to = item.Target;
+                using (HttpClient client = new HttpClient())
+                {
+                    string salt = rd.Next(100000).ToString();
+                    string sign = EncryptString(appId + q + salt + secretKey);
+                    string url = "http://api.fanyi.baidu.com/api/trans/vip/translate?";
+                    url += "q=" + HttpUtility.UrlEncode(q);
+                    url += "&from=" + from;
+                    url += "&to=" + to;
+                    url += "&appid=" + appId;
+                    url += "&salt=" + salt;
+                    url += "&sign=" + sign;
+                    var response = await client.GetAsync(url);
+                    response.EnsureSuccessStatusCode();
+                    //使用 await 语法读取响应内容
+                    string responseBody = await response.Content.ReadAsStringAsync();
+                    responseBody = responseBody.TrimStart('\n');
+                    l.Add(JsonConvert.DeserializeObject<BaiduTranslateResult>(responseBody));
+                }
+               
+
+            }
+            return new AppMessage() { Result = l, ErrLevel = ErrLevel.Success, ErrType = ErrType.正常返回 };
+
+
+        }
+
+
+        public static string EncryptString(string str)
+        {
+            MD5 md5 = MD5.Create();
+            byte[] byteOld = Encoding.UTF8.GetBytes(str);
+            byte[] byteNew = md5.ComputeHash(byteOld);
+            StringBuilder sb = new StringBuilder();
+            foreach (byte b in byteNew)
+            {
+                sb.Append(b.ToString("x2"));
+            }
+            return sb.ToString();
         }
     }
 }

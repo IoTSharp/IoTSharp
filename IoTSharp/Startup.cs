@@ -51,6 +51,7 @@ using Microsoft.AspNetCore.Hosting.Server.Features;
 using System.Text.RegularExpressions;
 using HealthChecks.UI.Configuration;
 using IoTSharp.App_Code.Util.Extensions;
+using IoTSharp.Controllers.Models;
 using Newtonsoft.Json.Serialization;
 using NSwag.Generation.AspNetCore;
 using RabbitMQ.Client;
@@ -341,11 +342,12 @@ namespace IoTSharp
                 }
             });
 
-
+            services.Configure<BaiduTranslateProfile>(Configuration.GetSection("BaiduTranslateProfile"));
             services.AddControllers().AddNewtonsoftJson(options =>
                 {
                     options.SerializerSettings.ContractResolver = new CamelCasePropertyNamesContractResolver();
                 });
+    
 
 
         }

@@ -42,9 +42,9 @@ export class StartupService {
 
     if (token && token.get() && token.get()?.token) {
       return concat(
-        this.httpClient.get(`assets/tmp/i18n/${this.i18n.defaultLang}.json`).pipe(
-          map((langData) => {
-            this.translate.setTranslation(this.i18n.defaultLang, langData);
+        this.httpClient.get(`api/i18n/current?_allow_anonymous=true&lang=${this.i18n.defaultLang}`).pipe(
+          map((langData: any) => {
+            this.translate.setTranslation(this.i18n.defaultLang, langData.result);
             this.translate.setDefaultLang(this.i18n.defaultLang);
           }),
         ),
@@ -190,9 +190,9 @@ export class StartupService {
       ).toPromise();
     } else {
       return concat(
-        this.httpClient.get(`assets/tmp/i18n/${this.i18n.defaultLang}.json`).pipe(
-          map((langData) => {
-            this.translate.setTranslation(this.i18n.defaultLang, langData);
+        this.httpClient.get(`api/i18n/current?_allow_anonymous=true&lang=${this.i18n.defaultLang}`).pipe(
+          map((langData: any) => {
+            this.translate.setTranslation(this.i18n.defaultLang, langData.result);
             this.translate.setDefaultLang(this.i18n.defaultLang);
           }),
         ),

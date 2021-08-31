@@ -882,6 +882,9 @@ namespace IoTSharp.Controllers
         private async System.Threading.Tasks.Task Process(Flow flow, List<Flow> allflow, object data, int nextstep, long _eventid)
         {
 
+            
+       
+
             switch (flow.FlowType)
             {
                 case "bpmn:SequenceFlow":
@@ -1066,7 +1069,7 @@ namespace IoTSharp.Controllers
                             var result = await fLowExcutor.Excute(new FlowExcuteEntity()
                             {
                               //  Action = null,
-                                Params = data,
+                                Params = data,  //也可以放自定义数据
                                 Task = tasks,
                              //   WaitTime = 0
 
