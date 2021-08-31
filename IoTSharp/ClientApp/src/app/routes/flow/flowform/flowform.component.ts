@@ -57,7 +57,7 @@ export class FlowformComponent implements OnInit {
       (y) => {
         this.submitting = false;
       },
-      () => {},
+      () => { this.drawerRef.close(this.id);},
     );
   }
   close(): void {

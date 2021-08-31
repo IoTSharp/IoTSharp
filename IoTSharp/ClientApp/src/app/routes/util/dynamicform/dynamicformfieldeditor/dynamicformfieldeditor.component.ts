@@ -12,6 +12,7 @@ import {
 import { FormGroup } from '@angular/forms';
 import { SFObjectWidgetSchema, SFSelectWidgetSchema } from '@delon/form';
 import { _HttpClient } from '@delon/theme';
+import { NzDrawerRef } from 'ng-zorro-antd/drawer';
 import { concat } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { UIDataType } from 'src/app/routes/common/UIDataType';
@@ -34,7 +35,7 @@ export class DynamicformfieldeditorComponent implements OnInit {
   SuportType: UIDataType[] = [];
   AllControlType: any = [];
   AllSuportType: any = [];
-  constructor(private componentFactoryResolver: ComponentFactoryResolver, private http: _HttpClient, private cd: ChangeDetectorRef) {}
+  constructor(private componentFactoryResolver: ComponentFactoryResolver, private http: _HttpClient, private cd: ChangeDetectorRef, private drawerRef: NzDrawerRef<string>) {}
   ngOnDestroy(): void {}
   ngOnInit(): void {
     this.componentFactory = this.componentFactoryResolver.resolveComponentFactory(FieldpartComponent);
@@ -209,7 +210,7 @@ export class DynamicformfieldeditorComponent implements OnInit {
       .subscribe(
         (x) => {},
         (y) => {},
-        () => {},
+        () => { this.drawerRef.close(this.id);},
       );
   }
 
