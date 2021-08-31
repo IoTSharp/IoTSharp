@@ -35,6 +35,8 @@ namespace IoTSharp.Controllers
 
         public async Task<AppMessage> GetUserAsset(int type)
         {
+      
+
             var profile = await this.GetUserProfile();
             switch (type)
             {

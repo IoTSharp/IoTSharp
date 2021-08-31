@@ -40,7 +40,7 @@
               "src/styles.less"
             ],
             "scripts": [],
-            "allowedCommonJsDependencies": ["@antv/g2", "file-saver", "ajv", "ajv-formats", "date-fns"]
+            "allowedCommonJsDependencies": ["@antv/g2", "file-saver", "ajv", "ajv-formats", "date-fns", "jquery", "mousetrap"]
           },
           "configurations": {
             "production": {

@@ -2,6 +2,14 @@
 
 	<PropertyGroup>
 		<TargetFramework>net5.0</TargetFramework>
+		<TypeScriptCompileBlocked>true</TypeScriptCompileBlocked>
+		<TypeScriptToolsVersion>Latest</TypeScriptToolsVersion>
+		<IsPackable>false</IsPackable>
+		<SpaRoot>ClientApp\</SpaRoot>
+		<DefaultItemExcludes>$(DefaultItemExcludes);$(SpaRoot)node_modules\**</DefaultItemExcludes>
+		<!-- Set this to true if you enable server-side prerendering -->
+		<BuildServerSideRenderer>false</BuildServerSideRenderer>
+
 		<IncludeOpenAPIAnalyzers>true</IncludeOpenAPIAnalyzers>
 		<IsTransformWebConfigDisabled>true</IsTransformWebConfigDisabled>
 		<Company>MaiKebing</Company>
@@ -27,6 +35,8 @@
 		<FileVersion>1.6.0.0</FileVersion>
 		<PackageLicenseFile>LICENSE.txt</PackageLicenseFile>
 		<PackageIcon>96x96.png</PackageIcon>
+		
+		
 	</PropertyGroup>
 
 	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
@@ -97,7 +107,7 @@
 		<PackageReference Include="SilkierQuartz.Plugins.RecentHistory" Version="5.0.244" />
 		<PackageReference Include="System.CodeDom" Version="5.0.0" />
 		<PackageReference Include="System.Collections" Version="4.3.0" />
-		<PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="6.12.1" />
+		<PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="6.12.2" />
 		<PackageReference Include="System.ServiceModel.Primitives" Version="4.8.1" />
 		<PackageReference Include="System.Text.Encoding.CodePages" Version="5.0.0" />
 		<PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="5.0.9" />
@@ -109,15 +119,24 @@
 		<PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="5.0.0" />
 		<PackageReference Include="Microsoft.Extensions.Hosting.WindowsServices" Version="5.0.1" />
 		<PackageReference Include="MQTTnet.Extensions.ManagedClient" Version="3.0.16" />
+		<PackageReference Include="Microsoft.AspNetCore.SpaServices.Extensions" Version="5.0.9" />
+		<PackageReference Include="Microsoft.AspNetCore.ApiAuthorization.IdentityServer" Version="5.0.9" />
+		<PackageReference Include="Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore" Version="5.0.9" />
+		<PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="5.0.9" />
+		<PackageReference Include="Microsoft.AspNetCore.Identity.UI" Version="5.0.9" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="5.0.9" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="5.0.9" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="5.0.9" />
+		
 	</ItemGroup>
 	<ItemGroup>
-		<Compile Remove="ClientApp\**" />
+		 
 		<Compile Remove="Migrations\**" />
-		<Content Remove="ClientApp\**" />
+ 
 		<Content Remove="Migrations\**" />
-		<EmbeddedResource Remove="ClientApp\**" />
+	 
 		<EmbeddedResource Remove="Migrations\**" />
-		<None Remove="ClientApp\**" />
+	 
 		<None Remove="Migrations\**" />
 		<Content Remove="wwwroot\lib\jquery-validation-unobtrusive\LICENSE.txt" />
 		<Content Remove="wwwroot\lib\jquery\LICENSE.txt" />
@@ -138,6 +157,41 @@
 		  <PackagePath></PackagePath>
 		</None>
 	</ItemGroup>
+	
+	<ItemGroup>
+		<!-- Don't publish the SPA source files, but do show them in the project files list -->
+		<Content Remove="$(SpaRoot)**" />
+		<None Remove="$(SpaRoot)**" />
+		<None Include="$(SpaRoot)**" Exclude="$(SpaRoot)node_modules\**" />
+	</ItemGroup>
+
+	<Target Name="DebugEnsureNodeEnv" BeforeTargets="Build" Condition=" '$(Configuration)' == 'Debug' And !Exists('$(SpaRoot)node_modules') ">
+		<!-- Ensure Node.js is installed -->
+		<Exec Command="node --version" ContinueOnError="true">
+			<Output TaskParameter="ExitCode" PropertyName="ErrorCode" />
+		</Exec>
+		<Error Condition="'$(ErrorCode)' != '0'" Text="Node.js is required to build and run this project. To continue, please install Node.js from https://nodejs.org/, and then restart your command prompt or IDE." />
+		<Message Importance="high" Text="Restoring dependencies using 'npm'. This may take several minutes..." />
+		<Exec WorkingDirectory="$(SpaRoot)" Command="npm install" />
+	</Target>
+
+	<Target Name="PublishRunWebpack" AfterTargets="ComputeFilesToPublish">
+		<!-- As part of publishing, ensure the JS resources are freshly built in production mode -->
+		<Exec WorkingDirectory="$(SpaRoot)" Command="npm install" />
+		<Exec WorkingDirectory="$(SpaRoot)" Command="npm run build -- --prod" />
+		<Exec WorkingDirectory="$(SpaRoot)" Command="npm run build:ssr -- --prod" Condition=" '$(BuildServerSideRenderer)' == 'true' " />
+
+		<!-- Include the newly-built files in the publish output -->
+		<ItemGroup>
+			<DistFiles Include="$(SpaRoot)dist\**; $(SpaRoot)dist-server\**" />
+			<DistFiles Include="$(SpaRoot)node_modules\**" Condition="'$(BuildServerSideRenderer)' == 'true'" />
+			<ResolvedFileToPublish Include="@(DistFiles->'%(FullPath)')" Exclude="@(ResolvedFileToPublish)">
+				<RelativePath>%(DistFiles.Identity)</RelativePath>
+				<CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+				<ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+			</ResolvedFileToPublish>
+		</ItemGroup>
+	</Target>
 	<ItemGroup>
 	  <ProjectReference Include="..\IoTSharp.Data.MySQL\IoTSharp.Data.MySQL.csproj" />
 	  <ProjectReference Include="..\IoTSharp.Data.Oracle\IoTSharp.Data.Oracle.csproj" />
@@ -146,4 +200,5 @@
 	  <ProjectReference Include="..\IoTSharp.Data.SqlServer\IoTSharp.Data.SqlServer.csproj" />
 	  <ProjectReference Include="..\IoTSharp.Data\IoTSharp.Data.csproj" />
 	</ItemGroup>
+	<ProjectExtensions><VisualStudio><UserProperties clientapp_4package_1json__JsonSchema="" /></VisualStudio></ProjectExtensions>
 </Project>

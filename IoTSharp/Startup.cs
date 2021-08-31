@@ -56,6 +56,7 @@ using NSwag.Generation.AspNetCore;
 using RabbitMQ.Client;
 using PinusDB.Data;
 using IoTSharp.Extensions;
+using Microsoft.AspNetCore.SpaServices.AngularCli;
 
 namespace IoTSharp
 {
@@ -346,8 +347,13 @@ namespace IoTSharp
                 {
                     options.SerializerSettings.ContractResolver = new CamelCasePropertyNamesContractResolver();
                 });
-    
+            services.AddRazorPages();
 
+            // In production, the Angular files will be served from this directory
+            services.AddSpaStaticFiles(configuration =>
+            {
+                configuration.RootPath = "ClientApp/dist";
+            });
 
         }
 
@@ -403,6 +409,23 @@ namespace IoTSharp
                 });
                 endpoints.MapHealthChecksUI();
                 endpoints.MapDefaultControllerRoute();
+                endpoints.MapRazorPages();
+            });
+            app.UseSpa(spa =>
+            {
+                // To learn more about options for serving an Angular SPA from ASP.NET Core,
+                // see https://go.microsoft.com/fwlink/?linkid=864501
+             
+                spa.Options.SourcePath = "ClientApp";
+                if (env.IsDevelopment())
+                {
+                    spa.UseAngularCliServer(npmScript: "start");
+                    //var urls = Environment.GetEnvironmentVariable("ASPNETCORE_URLS")?.Split(';');
+                    //var uris = urls?.Select(url => Regex.Replace(url, @"^(?<scheme>https?):\/\/((\+)|(\*)|(0.0.0.0))(?=[\:\/]|$)", "${scheme}://localhost"))
+                    //                .Select(uri => new Uri(uri, UriKind.Absolute)).ToArray();
+                    //var httpEndpoint = uris?.FirstOrDefault(uri => uri.Scheme == "http");
+                    //spa.UseProxyToSpaDevelopmentServer(httpEndpoint);
+                }
             });
         }
     }

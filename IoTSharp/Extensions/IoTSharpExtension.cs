@@ -120,11 +120,11 @@ namespace IoTSharp
 
         internal static HealthChecks.UI.Configuration.Settings AddIoTSharpHealthCheckEndpoint(this HealthChecks.UI.Configuration.Settings setup)
         {
-            var urls = Environment.GetEnvironmentVariable("ASPNETCORE_URLS").Split(';');
-            var uris = urls.Select(url => Regex.Replace(url, @"^(?<scheme>https?):\/\/((\+)|(\*)|(0.0.0.0))(?=[\:\/]|$)", "${scheme}://localhost"))
+            var urls = Environment.GetEnvironmentVariable("ASPNETCORE_URLS")?.Split(';');
+            var uris = urls?.Select(url => Regex.Replace(url, @"^(?<scheme>https?):\/\/((\+)|(\*)|(0.0.0.0))(?=[\:\/]|$)", "${scheme}://localhost"))
                             .Select(uri => new Uri(uri, UriKind.Absolute)).ToArray();
-            var httpEndpoint = uris.FirstOrDefault(uri => uri.Scheme == "http");
-            var httpsEndpoint = uris.FirstOrDefault(uri => uri.Scheme == "https");
+            var httpEndpoint = uris?.FirstOrDefault(uri => uri.Scheme == "http");
+            var httpsEndpoint = uris?.FirstOrDefault(uri => uri.Scheme == "https");
             if (httpEndpoint != null) // Create an HTTP healthcheck endpoint
             {
                 setup.AddHealthCheckEndpoint("IoTSharp", new UriBuilder(httpEndpoint.Scheme, httpEndpoint.Host, httpEndpoint.Port, "/healthz").ToString());
