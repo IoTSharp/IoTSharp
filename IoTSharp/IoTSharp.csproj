@@ -111,9 +111,13 @@
 		<PackageReference Include="MQTTnet.Extensions.ManagedClient" Version="3.0.16" />
 	</ItemGroup>
 	<ItemGroup>
+		<Compile Remove="ClientApp\**" />
 		<Compile Remove="Migrations\**" />
+		<Content Remove="ClientApp\**" />
 		<Content Remove="Migrations\**" />
+		<EmbeddedResource Remove="ClientApp\**" />
 		<EmbeddedResource Remove="Migrations\**" />
+		<None Remove="ClientApp\**" />
 		<None Remove="Migrations\**" />
 		<Content Remove="wwwroot\lib\jquery-validation-unobtrusive\LICENSE.txt" />
 		<Content Remove="wwwroot\lib\jquery\LICENSE.txt" />

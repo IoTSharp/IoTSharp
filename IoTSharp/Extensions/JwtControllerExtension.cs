@@ -15,7 +15,7 @@ using Microsoft.IdentityModel.Tokens;
 using Newtonsoft.Json;
 
 
-namespace IoTSharp.App_Code.Util.Extensions
+namespace IoTSharp.Extensions
 {
     public static class JwtControllerExtension
     {

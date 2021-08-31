@@ -50,12 +50,12 @@ using Microsoft.CodeAnalysis.FlowAnalysis;
 using Microsoft.AspNetCore.Hosting.Server.Features;
 using System.Text.RegularExpressions;
 using HealthChecks.UI.Configuration;
-using IoTSharp.App_Code.Util.Extensions;
 using IoTSharp.Controllers.Models;
 using Newtonsoft.Json.Serialization;
 using NSwag.Generation.AspNetCore;
 using RabbitMQ.Client;
 using PinusDB.Data;
+using IoTSharp.Extensions;
 
 namespace IoTSharp
 {
@@ -70,7 +70,6 @@ namespace IoTSharp
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            JwtControllerExtension.JWTKEY = Configuration["JwtKey"];
             var settings = Configuration.Get<AppSettings>();
             services.Configure((Action<AppSettings>)(setting =>
             {

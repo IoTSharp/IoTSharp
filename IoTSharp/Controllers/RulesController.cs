@@ -22,7 +22,6 @@ using System.Diagnostics;
 using System.Dynamic;
 using System.IO;
 using System.Reflection;
-using IoTSharp.App_Code.Util.Extensions;
 using IoTSharp.Extensions;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
