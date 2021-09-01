@@ -22,6 +22,8 @@ export class DesignerComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
+
+    this.newdiagram();
     this._router.queryParams
       .pipe(
         mergeMap((x) => {
@@ -67,5 +69,10 @@ export class DesignerComponent implements OnInit {
 
   savediagram() {
     this.diagram.savediagram();
+
+    this.router.navigate(['/iot/flow/flowlist'], {
+     
+    });
+
   }
 }

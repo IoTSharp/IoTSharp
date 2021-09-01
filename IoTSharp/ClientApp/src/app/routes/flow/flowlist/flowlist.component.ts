@@ -97,12 +97,15 @@ export class FlowlistComponent implements OnInit {
         {
           text: (record) => (record.rulestatus == 1 ? '禁用' : '启用'),
           pop: {
-            title: '确认用户状态?',
+            title: '确认修改规则状态?',
             okType: 'danger',
             icon: 'warning',
           },
           click: (item: ruleflow) => {
-            this.openComponent(item.ruleId);
+
+
+            //do something
+
           },
         },
         {
