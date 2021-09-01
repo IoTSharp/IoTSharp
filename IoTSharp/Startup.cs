@@ -420,11 +420,6 @@ namespace IoTSharp
                 if (env.IsDevelopment())
                 {
                     spa.UseAngularCliServer(npmScript: "start");
-                    //var urls = Environment.GetEnvironmentVariable("ASPNETCORE_URLS")?.Split(';');
-                    //var uris = urls?.Select(url => Regex.Replace(url, @"^(?<scheme>https?):\/\/((\+)|(\*)|(0.0.0.0))(?=[\:\/]|$)", "${scheme}://localhost"))
-                    //                .Select(uri => new Uri(uri, UriKind.Absolute)).ToArray();
-                    //var httpEndpoint = uris?.FirstOrDefault(uri => uri.Scheme == "http");
-                    //spa.UseProxyToSpaDevelopmentServer(httpEndpoint);
                 }
             });
         }

@@ -33,7 +33,13 @@ RUN echo "deb https://mirrors.tuna.tsinghua.edu.cn/debian/ buster main contrib n
 	echo "deb https://mirrors.tuna.tsinghua.edu.cn/debian/ buster-updates main contrib non-free" >> /etc/apt/sources.list && \
 	echo "deb https://mirrors.tuna.tsinghua.edu.cn/debian/ buster-backports main contrib non-free" >> /etc/apt/sources.list && \
 	echo "deb https://mirrors.tuna.tsinghua.edu.cn/debian-security buster/updates main contrib non-free" >> /etc/apt/sources.list && \
-    apt-get  -y   -q update   && apt-get install  -y   -q  git  libssl-dev  curl gnupg libcurl4  gcc g++ make && \
+    apt-get  -y   -q update   && apt-get install  -y   -q  git  libssl-dev  curl gnupg libcurl4  gcc g++ make  && \
+	apt-get install -y wget && \
+    apt-get install -y gnupg2 && \
+	wget -qO- https://deb.nodesource.com/setup_14.x | bash - && \
+    apt-get install -y build-essential nodejs && \
+	npm config set registry https://registry.npm.taobao.org && \
+	npm i -g express && \
 	ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime && \
 	apt-get autoremove -y &&  apt-get clean  &&  apt-get autoclean && rm  /var/cache/apt/* -rf 	
 
@@ -50,7 +56,9 @@ RUN dotnet restore "IoTSharp/IoTSharp.csproj"
 COPY . .
 WORKDIR "/src/IoTSharp"
 RUN dotnet build "IoTSharp.csproj" -c Release -o /app/build
- 
+
+     
+	 
 
 FROM build AS publish
 RUN dotnet publish "IoTSharp.csproj" -c Release -o /app/publish
