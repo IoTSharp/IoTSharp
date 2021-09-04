@@ -38,8 +38,6 @@ RUN echo "deb https://mirrors.tuna.tsinghua.edu.cn/debian/ buster main contrib n
     apt-get install -y gnupg2 && \
 	wget -qO- https://deb.nodesource.com/setup_14.x | bash - && \
     apt-get install -y build-essential nodejs && \
-	npm config set registry https://registry.npm.taobao.org && \
-	npm i -g express && \
 	ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime && \
 	apt-get autoremove -y &&  apt-get clean  &&  apt-get autoclean && rm  /var/cache/apt/* -rf 	
 

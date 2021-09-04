@@ -57,6 +57,7 @@ using RabbitMQ.Client;
 using PinusDB.Data;
 using IoTSharp.Extensions;
 using Microsoft.AspNetCore.SpaServices.AngularCli;
+using Microsoft.AspNetCore.Authentication.Cookies;
 
 namespace IoTSharp
 {
@@ -161,8 +162,30 @@ namespace IoTSharp
             services.AddIoTSharpMqttServer(settings.MqttBroker);
             services.AddMqttClient(settings.MqttClient);
             services.AddSingleton<RetainedMessageHandler>();
-            services.AddSilkierQuartz(opt =>
+            services.AddSilkierQuartz(options =>
             {
+                options.VirtualPathRoot = "/";
+                options.VirtualPathRoot = "/quartz";
+                options.UseLocalTime = true;
+                options.DefaultDateFormat = "yyyy-MM-dd";
+                options.DefaultTimeFormat = "HH:mm:ss";
+                options.CronExpressionOptions = new CronExpressionDescriptor.Options()
+                {
+                    DayOfWeekStartIndexZero = false //Quartz uses 1-7 as the range
+                };
+            }
+            ,
+            authenticationOptions =>
+            {
+                authenticationOptions.AuthScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+                authenticationOptions.SilkierQuartzClaim = "Silkier";
+                authenticationOptions.SilkierQuartzClaimValue = "Quartz";
+                authenticationOptions.UserName = "admin";
+                authenticationOptions.UserPassword = "password";
+                authenticationOptions.AccessRequirement = SilkierQuartzAuthenticationOptions.SimpleAccessRequirement.AllowOnlyAuthenticated;
+            },stdSchedulerFactoryOption=>
+            {
+
                 //opt.Add("quartz.serializer.type", "json");
                 //opt.Add("quartz.jobStore.type", "Quartz.Impl.AdoJobStore.JobStoreTX, Quartz");
                 //opt.Add("quartz.jobStore.driverDelegateType", "Quartz.Impl.AdoJobStore.StdAdoDelegate, Quartz");
@@ -170,9 +193,10 @@ namespace IoTSharp
                 //opt.Add("quartz.jobStore.dataSource", "myDS");
                 //opt.Add("quartz.dataSource.myDS.provider", "Npgsql");
                 //opt.Add("quartz.dataSource.myDS.connectionString", Configuration.GetConnectionString("IoTSharp"));
-                opt.Add("quartz.plugin.recentHistory.type", "Quartz.Plugins.RecentHistory.ExecutionHistoryPlugin, Quartz.Plugins.RecentHistory");
-                opt.Add("quartz.plugin.recentHistory.storeType", "Quartz.Plugins.RecentHistory.Impl.InProcExecutionHistoryStore, Quartz.Plugins.RecentHistory");
-            });
+                stdSchedulerFactoryOption.Add("quartz.plugin.recentHistory.type", "Quartz.Plugins.RecentHistory.ExecutionHistoryPlugin, Quartz.Plugins.RecentHistory");
+                stdSchedulerFactoryOption.Add("quartz.plugin.recentHistory.storeType", "Quartz.Plugins.RecentHistory.Impl.InProcExecutionHistoryStore, Quartz.Plugins.RecentHistory");
+            }
+        );
             services.AddControllers();
 
             services.AddMemoryCache();
@@ -348,13 +372,13 @@ namespace IoTSharp
                     options.SerializerSettings.ContractResolver = new CamelCasePropertyNamesContractResolver();
                 });
             services.AddRazorPages();
-
-            // In production, the Angular files will be served from this directory
-            services.AddSpaStaticFiles(configuration =>
+            
+                // In production, the Angular files will be served from this directory
+                services.AddSpaStaticFiles(configuration =>
             {
                 configuration.RootPath = "ClientApp/dist";
             });
-
+           
         }
 
 
@@ -375,7 +399,7 @@ namespace IoTSharp
                 app.UseHsts();
             }
 
-            app.UseStaticFiles();
+       
 
             app.UseRouting();
             app.UseCors(option => option
@@ -385,18 +409,12 @@ namespace IoTSharp
             app.UseAuthentication();
             app.UseAuthorization();
             app.UseDefaultFiles();
-            app.UseStaticFiles();
-
-            app.UseIotSharpMqttServer();
-            app.UseSilkierQuartz(new SilkierQuartzOptions()
+            if (env.IsDevelopment())
             {
-                Scheduler = factory.GetScheduler().Result,
-                VirtualPathRoot = "/quartzmin",
-                ProductName = "IoTSharp",
-                DefaultDateFormat = "yyyy-MM-dd",
-                DefaultTimeFormat = "HH:mm:ss",
-                UseLocalTime = true
-            });
+                app.UseStaticFiles();
+            }
+            app.UseIotSharpMqttServer();
+         
             app.UseSwaggerUi3();
             app.UseOpenApi();
             app.UseEndpoints(endpoints =>
