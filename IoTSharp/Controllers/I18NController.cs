@@ -25,28 +25,39 @@ namespace IoTSharp.Controllers
     [ApiController]
     public class I18NController : ControllerBase
     {
+        private readonly ApplicationDBInitializer _dBInitializer;
         private readonly IEasyCachingProvider _cachingprovider;
         private readonly IOptions<BaiduTranslateProfile> _profile;
         private ApplicationDbContext _context;
 
 
-        public I18NController(ApplicationDbContext context, IEasyCachingProvider provider, IOptions<BaiduTranslateProfile> profile )
+        public I18NController(ApplicationDbContext context, IEasyCachingProvider provider, IOptions<BaiduTranslateProfile> profile, ApplicationDBInitializer dBInitializer)
         {
             this._cachingprovider = provider;
             this._context = context;
             this._profile = profile;
+            _dBInitializer = dBInitializer;
         }
 
         [HttpGet("[action]")]
         [AllowAnonymous]
-        public AppMessage Current(string lang)
+        public async Task<AppMessage> Current(string lang)
         {
             
              lang =  lang?.ToLower();
-            var i18n = _cachingprovider.Get<BaseI18N[]>("i18n").Value;
+
+            var _cachedi18n = await _cachingprovider.GetAsync<BaseI18N[]>("i18n");
+
+
+            var i18n = _cachedi18n?.Value;
             if (i18n == null)
             {
                 i18n = _context.BaseI18Ns.ToArray();
+                if (i18n.Length == 0)
+                {
+                  await  _dBInitializer.SeedI18N();
+                  i18n = _context.BaseI18Ns.ToArray();
+                }
                 _cachingprovider.Set<BaseI18N[]>("i18n", i18n,TimeSpan.FromMinutes(5));
             }
             switch (lang)
@@ -111,6 +122,29 @@ namespace IoTSharp.Controllers
             };
 
         }
+
+        [HttpGet("[action]")]
+        public JsonResult CheckExist(string key)
+        {
+            if (string.IsNullOrEmpty(key))
+            {
+                return new JsonResult(new AppMessage
+                {
+                    ErrType = ErrType.正常返回,
+                    Result = false
+                });
+            }
+            else
+            {
+                return new JsonResult( new AppMessage
+                {
+                    ErrType = ErrType.正常返回,
+                    Result = _context.BaseI18Ns.Any(c => c.KeyName.ToLower() == key.ToLower())
+                });
+            }
+        }
+    
+
         [HttpPost("[action]")]
         public AppMessage Save(BaseI18N m)
         {

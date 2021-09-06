@@ -1,8 +1,10 @@
 import { HttpClient } from '@angular/common/http';
 import { Component, Input, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { AsyncValidatorFn, AbstractControl, FormBuilder, FormControl, FormGroup, ValidationErrors, Validators } from '@angular/forms';
 import { I18NService } from '@core';
 import { NzNotificationService } from 'ng-zorro-antd/notification';
+import { Observable, observable, Observer } from 'rxjs';
+import { debounceTime, map, switchMap, take } from 'rxjs/operators';
 import { AppMessage } from '../../common/AppMessage';
 /*import * as md5 from 'md5';*/ //NPM 安装 md5
 @Component({
@@ -23,7 +25,7 @@ export class I18nformComponent implements OnInit {
 
   ngOnInit(): void {
     this.form = this.fb.group({
-      keyName: [null, [Validators.required]],
+      keyName: [null, [Validators.required,], [this.keyNameValidator]],
       valueBG: [null, []],
       valueCS: [null, []],
       valueDA: [null, []],
@@ -86,6 +88,20 @@ export class I18nformComponent implements OnInit {
       () => {},
     );
   }
+
+  keyNameValidator = (control: FormControl) => {
+
+    return this._httpClient.get<AppMessage>('api/i18n/checkexist?key=' + control.value)
+      .pipe(
+        map(x =>
+          x.result ? '1111' : null
+        )
+      )
+  }
+
+
+  
+
 
   close() {}
 

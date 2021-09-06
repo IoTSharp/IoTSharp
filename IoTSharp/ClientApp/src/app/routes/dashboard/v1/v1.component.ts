@@ -72,8 +72,8 @@ export class DashboardV1Component implements OnInit {
       return;
     }
     this.http.get(`./assets/tmp/on-boarding.json`).subscribe((res) => {
-      this.obSrv.start(res);
-      localStorage.setItem(KEY, '1');
+   //   this.obSrv.start(res);
+    //  localStorage.setItem(KEY, '1');
     });
   }
 }
