@@ -43,14 +43,14 @@ export class DynamicformfieldeditorComponent implements OnInit {
 
     //一定要顺序发射指令
     concat(
-      this.http.post('api/dictionary/index', { DictionaryGroupId: 1, pi: 0, ps: 20, limit: 20, offset: 0 }).pipe(
+      this.http.post('api/dictionary/index', { DictionaryGroupId: 2, pi: 0, ps: 20, limit: 20, offset: 0 }).pipe(
         map((x) => {
           this.AllSuportType = x.result.rows.map((x) => {
             return { label: x.dictionaryName, value: x.dictionaryValue };
           });
         }),
       ),
-      this.http.post('api/dictionary/index', { DictionaryGroupId: 2, pi: 0, ps: 20, limit: 20, offset: 0 }).pipe(
+      this.http.post('api/dictionary/index', { DictionaryGroupId: 1, pi: 0, ps: 20, limit: 20, offset: 0 }).pipe(
         map((x) => {
           this.AllControlType = x.result.rows.map((x) => {
             return { label: x.dictionaryName, value: x.dictionaryValue };
