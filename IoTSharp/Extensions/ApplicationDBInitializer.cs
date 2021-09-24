@@ -507,10 +507,10 @@ namespace IoTSharp.Data
                     await _signInManager.UserManager.AddClaimAsync(user, new Claim(ClaimTypes.Email, model.Email));
                     await _signInManager.UserManager.AddClaimAsync(user, new Claim(IoTSharpClaimTypes.Customer, customer.Id.ToString()));
                     await _signInManager.UserManager.AddClaimAsync(user, new Claim(IoTSharpClaimTypes.Tenant, tenant.Id.ToString()));
-                    //await _signInManager.UserManager.AddToRoleAsync(user, nameof(UserRole.Anonymous));
-                    //await _signInManager.UserManager.AddToRoleAsync(user, nameof(UserRole.NormalUser));
-                    //await _signInManager.UserManager.AddToRoleAsync(user, nameof(UserRole.CustomerAdmin));
-                    //await _signInManager.UserManager.AddToRoleAsync(user, nameof(UserRole.TenantAdmin));
+                    await _signInManager.UserManager.AddToRoleAsync(user, nameof(UserRole.Anonymous));
+                    await _signInManager.UserManager.AddToRoleAsync(user, nameof(UserRole.NormalUser));
+                    await _signInManager.UserManager.AddToRoleAsync(user, nameof(UserRole.CustomerAdmin));
+                    await _signInManager.UserManager.AddToRoleAsync(user, nameof(UserRole.TenantAdmin));
                     await _signInManager.UserManager.AddToRoleAsync(user, nameof(UserRole.SystemAdmin));
 
                 }
