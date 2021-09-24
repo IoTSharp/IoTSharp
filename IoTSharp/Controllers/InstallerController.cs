@@ -86,7 +86,7 @@ namespace IoTSharp.Controllers
                     await _dBInitializer.SeedRoleAsync();
                     await _dBInitializer.SeedUserAsync(model);
                     await _dBInitializer.SeedDictionary();
-                    await _dBInitializer.SeedI18N();
+               //     await _dBInitializer.SeedI18N();
                     actionResult = Ok(GetInstanceDto());
                 }
                 else

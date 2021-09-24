@@ -972,8 +972,8 @@ namespace IoTSharp.Controllers
 
                         if (tasks.outgoing.Count > 0)
                         {
-                            SimpleFLowExcutor fLowExcutor = new SimpleFLowExcutor();
-                            var result = await fLowExcutor.Excute(new FlowExcuteEntity()
+                            SimpleFLowExcutor flowExcutor = new SimpleFLowExcutor();
+                            var result = await flowExcutor.Excute(new FlowExcuteEntity()
                             {
                             //    Action = null,
                                 Params = data,
@@ -1064,8 +1064,8 @@ namespace IoTSharp.Controllers
 
                         if (tasks.outgoing.Count > 0)
                         {
-                            SimpleFLowExcutor fLowExcutor = new SimpleFLowExcutor();
-                            var result = await fLowExcutor.Excute(new FlowExcuteEntity()
+                            SimpleFLowExcutor flowExcutor = new SimpleFLowExcutor();
+                            var result = await flowExcutor.Excute(new FlowExcuteEntity()
                             {
                               //  Action = null,
                                 Params = data,  //也可以放自定义数据
@@ -1152,8 +1152,8 @@ namespace IoTSharp.Controllers
 
                         if (tasks.outgoing.Count > 0)
                         {
-                            SimpleFLowExcutor fLowExcutor = new SimpleFLowExcutor();
-                            var result = await fLowExcutor.Excute(new FlowExcuteEntity()
+                            SimpleFLowExcutor flowExcutor = new SimpleFLowExcutor();
+                            var result = await flowExcutor.Excute(new FlowExcuteEntity()
                             {
                                 //  Action = null,
                                 Params = data,
