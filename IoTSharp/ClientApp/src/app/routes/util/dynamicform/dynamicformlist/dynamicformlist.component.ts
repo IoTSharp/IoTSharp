@@ -4,6 +4,7 @@ import { STPage, STReq, STRes, STComponent, STColumn, STData } from '@delon/abc/
 import { _HttpClient, ModalHelper, SettingsService } from '@delon/theme';
 import { NzDrawerService } from 'ng-zorro-antd/drawer';
 import { NzMessageService } from 'ng-zorro-antd/message';
+import { DynamicformdesignerComponent } from '../dynamicformdesigner/dynamicformdesigner.component';
 
 import { DynamicformeditorComponent } from '../dynamicformeditor/dynamicformeditor.component';
 import { DynamicformfieldeditorComponent } from '../dynamicformfieldeditor/dynamicformfieldeditor.component';
@@ -113,7 +114,14 @@ export class DynamicformlistComponent implements OnInit {
             this.openFieldComponent(item.formId);
           },
         },
-
+        {
+          text: '设计',
+          acl: 103,
+      //    i18n: 'dynamicform.fieldedit',
+          click: (item: any) => {
+            this.openDesignerComponent(item.formId);
+          },
+        },
         {
           text: '预览',
           acl: 103,
@@ -199,6 +207,31 @@ export class DynamicformlistComponent implements OnInit {
       nzContent: DynamicformfieldeditorComponent,
       nzWidth: width,
       nzMaskClosable: nzMaskClosable,
+
+      nzContentParams: {
+        id: id,
+      },
+    });
+
+    drawerRef.afterOpen.subscribe(() => {});
+
+    drawerRef.afterClose.subscribe((data) => {
+      if (typeof data === 'string') {
+      }
+
+      this.getData();
+    });
+  }
+
+
+  openDesignerComponent(id: Number): void {
+    var title = id == -1 ? '设计' : '设计';
+    var { nzMaskClosable, width } = this.settingService.getData('drawerconfig');
+    const drawerRef = this.drawerService.create<DynamicformdesignerComponent, { id: Number }, string>({
+      nzTitle: title,
+      nzContent: DynamicformdesignerComponent,
+       nzWidth: 1024,
+       nzMaskClosable: nzMaskClosable,
 
       nzContentParams: {
         id: id,
