@@ -171,17 +171,17 @@ from(bucket: ""{_bucket}"")
                             {
                                 case DataType.Boolean:
                                     // point.Field("value_type", "value_boolean");
-                                    point= point.Field(tdata.KeyName, tdata.Value_Boolean);
+                                  if (tdata.Value_Boolean.HasValue)  point = point.Field(tdata.KeyName, tdata.Value_Boolean.Value);
                                     break;
                                 case DataType.String:
                                     //point.Field("value_string", "value_boolean");
                                     point = point.Field(tdata.KeyName, tdata.Value_String);
                                     break;
                                 case DataType.Long:
-                                    point = point.Field(tdata.KeyName, tdata.Value_Long);
+                                    if (tdata.Value_Long.HasValue) point = point.Field(tdata.KeyName, tdata.Value_Long.Value);
                                     break;
                                 case DataType.Double:
-                                    point = point.Field(tdata.KeyName, tdata.Value_Double);
+                                    if (tdata.Value_Double.HasValue) point = point.Field(tdata.KeyName, tdata.Value_Double.Value);
                                     break;
                                 case DataType.Json:
                                     point = point.Field(tdata.KeyName, tdata.Value_Json);
@@ -193,13 +193,16 @@ from(bucket: ""{_bucket}"")
                                     point = point.Field(tdata.KeyName, Hex.ToHexString(tdata.Value_Binary));
                                     break;
                                 case DataType.DateTime:
-                                    point = point.Field(tdata.KeyName, tdata.Value_DateTime.Subtract(new DateTime(1970, 1, 1, 0, 0, 0, 0)).TotalMilliseconds);
+                                    point = point.Field(tdata.KeyName, tdata.Value_DateTime.GetValueOrDefault().Subtract(new DateTime(1970, 1, 1, 0, 0, 0, 0)).TotalMilliseconds);
                                     break;
                                 default:
                                     break;
                             }
-                            point = point.Timestamp(DateTime.UtcNow, WritePrecision.Ns);
-                            lst.Add(point);
+                            if (point.HasFields())
+                            {
+                                point = point.Timestamp(DateTime.UtcNow, WritePrecision.Ns);
+                                lst.Add(point);
+                            }
                         }
                     });
 

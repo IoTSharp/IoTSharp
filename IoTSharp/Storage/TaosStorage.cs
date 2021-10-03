@@ -224,12 +224,14 @@ namespace IoTSharp.Storage
                             tdata.FillKVToMe(kp);
                             string _type = "";
                             string _value = "";
+                            bool _hasvalue = true;
                             // value_boolean bool, value_string binary(4096), value_long bigint,value_datetime timestamp,value_double double,value_json binary(4096) ,value_xml binary
                             switch (tdata.Type)
                             {
                                 case DataType.Boolean:
                                     _type = "value_boolean";
                                     _value = tdata.Value_Boolean.ToString().ToLower();
+                                    _hasvalue = tdata.Value_Boolean.HasValue;
                                     break;
                                 case DataType.String:
                                     _type = "value_string";
@@ -238,10 +240,12 @@ namespace IoTSharp.Storage
                                 case DataType.Long:
                                     _type = "value_long";
                                     _value = $"{tdata.Value_Long}";
+                                    _hasvalue = tdata.Value_Long.HasValue;
                                     break;
                                 case DataType.Double:
                                     _type = "value_double";
                                     _value = $"{tdata.Value_Double}";
+                                    _hasvalue = tdata.Value_Double.HasValue;
                                     break;
                                 case DataType.Json://td 一条记录16kb , 因此为了写更多数据， 我们json  xml binary 全部使用 string 
                                     _type = "value_string";
@@ -257,13 +261,17 @@ namespace IoTSharp.Storage
                                     break;
                                 case DataType.DateTime:
                                     _type = "value_datetime";
-                                    _value = $"{tdata.Value_DateTime.Subtract(new DateTime(1970, 1, 1, 0, 0, 0, 0)).TotalMilliseconds}";
+                                    _value = $"{tdata.Value_DateTime?.Subtract(new DateTime(1970, 1, 1, 0, 0, 0, 0)).TotalMilliseconds}";
+                                    _hasvalue = tdata.Value_DateTime.HasValue;
                                     break;
                                 default:
                                     break;
                             }
-                            string vals = $"device_{tdata.DeviceId:N}_{ Pinyin4Net.GetPinyin(tdata.KeyName, PinyinFormat.WITHOUT_TONE).Replace(" ", string.Empty).Replace("@", string.Empty)} USING telemetrydata TAGS('{tdata.DeviceId:N}','{tdata.KeyName}')  (ts,value_type,{_type}) values (now,{(int)tdata.Type},{_value})";
-                            lst.Add(vals);
+                            if (_hasvalue)
+                            {
+                                string vals = $"device_{tdata.DeviceId:N}_{ Pinyin4Net.GetPinyin(tdata.KeyName, PinyinFormat.WITHOUT_TONE).Replace(" ", string.Empty).Replace("@", string.Empty)} USING telemetrydata TAGS('{tdata.DeviceId:N}','{tdata.KeyName}')  (ts,value_type,{_type}) values (now,{(int)tdata.Type},{_value})";
+                                lst.Add(vals);
+                            }
                         }
                     });
 

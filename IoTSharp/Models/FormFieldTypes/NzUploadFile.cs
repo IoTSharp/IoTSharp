@@ -7,7 +7,6 @@ namespace IoTSharp.Models.FormFieldTypes
 {
     public class NzUploadFile
     {
-        private string _Name;
         private string _FileName;
         private int _Uploaded;
         private string _Url;

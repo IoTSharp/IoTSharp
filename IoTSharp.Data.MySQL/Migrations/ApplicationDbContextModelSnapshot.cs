@@ -15,7 +15,7 @@ namespace IoTSharp.Data.MySQL.Migrations
 #pragma warning disable 612, 618
             modelBuilder
                 .HasAnnotation("Relational:MaxIdentifierLength", 64)
-                .HasAnnotation("ProductVersion", "5.0.3");
+                .HasAnnotation("ProductVersion", "5.0.10");
 
             modelBuilder.Entity("IoTSharp.Data.AuditLog", b =>
                 {
@@ -27,7 +27,7 @@ namespace IoTSharp.Data.MySQL.Migrations
                         .HasColumnType("JSON");
 
                     b.Property<string>("ActionName")
-                        .HasColumnType("longtext CHARACTER SET utf8mb4");
+                        .HasColumnType("longtext");
 
                     b.Property<string>("ActionResult")
                         .HasColumnType("JSON");
@@ -42,7 +42,7 @@ namespace IoTSharp.Data.MySQL.Migrations
                         .HasColumnType("char(36)");
 
                     b.Property<string>("ObjectName")
-                        .HasColumnType("longtext CHARACTER SET utf8mb4");
+                        .HasColumnType("longtext");
 
                     b.Property<int>("ObjectType")
                         .HasColumnType("int");
@@ -51,10 +51,10 @@ namespace IoTSharp.Data.MySQL.Migrations
                         .HasColumnType("char(36)");
 
                     b.Property<string>("UserId")
-                        .HasColumnType("longtext CHARACTER SET utf8mb4");
+                        .HasColumnType("longtext");
 
                     b.Property<string>("UserName")
-                        .HasColumnType("longtext CHARACTER SET utf8mb4");
+                        .HasColumnType("longtext");
 
                     b.HasKey("Id");
 
@@ -72,13 +72,13 @@ namespace IoTSharp.Data.MySQL.Migrations
                         .HasColumnType("char(36)");
 
                     b.Property<string>("AuthToken")
-                        .HasColumnType("longtext CHARACTER SET utf8mb4");
+                        .HasColumnType("longtext");
 
                     b.Property<Guid?>("CustomerId")
                         .HasColumnType("char(36)");
 
                     b.Property<string>("Name")
-                        .HasColumnType("longtext CHARACTER SET utf8mb4");
+                        .HasColumnType("longtext");
 
                     b.Property<Guid?>("TenantId")
                         .HasColumnType("char(36)");
@@ -92,6 +92,245 @@ namespace IoTSharp.Data.MySQL.Migrations
                     b.ToTable("AuthorizedKeys");
                 });
 
+            modelBuilder.Entity("IoTSharp.Data.BaseDictionary", b =>
+                {
+                    b.Property<long>("DictionaryId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("Dictionary18NKeyName")
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("DictionaryColor")
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("DictionaryDesc")
+                        .HasColumnType("longtext");
+
+                    b.Property<long?>("DictionaryGroupId")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("DictionaryIcon")
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("DictionaryName")
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("DictionaryPattern")
+                        .HasColumnType("longtext");
+
+                    b.Property<int?>("DictionaryStatus")
+                        .HasColumnType("int");
+
+                    b.Property<string>("DictionaryTag")
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("DictionaryValue")
+                        .HasColumnType("longtext");
+
+                    b.Property<int?>("DictionaryValueType")
+                        .HasColumnType("int");
+
+                    b.Property<string>("DictionaryValueTypeName")
+                        .HasColumnType("longtext");
+
+                    b.HasKey("DictionaryId");
+
+                    b.ToTable("BaseDictionaries");
+                });
+
+            modelBuilder.Entity("IoTSharp.Data.BaseDictionaryGroup", b =>
+                {
+                    b.Property<long>("DictionaryGroupId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("DictionaryGroup18NKeyName")
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("DictionaryGroupDesc")
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("DictionaryGroupKey")
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("DictionaryGroupName")
+                        .HasColumnType("longtext");
+
+                    b.Property<int?>("DictionaryGroupStatus")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("DictionaryGroupValueType")
+                        .HasColumnType("int");
+
+                    b.Property<string>("DictionaryGroupValueTypeName")
+                        .HasColumnType("longtext");
+
+                    b.HasKey("DictionaryGroupId");
+
+                    b.ToTable("BaseDictionaryGroups");
+                });
+
+            modelBuilder.Entity("IoTSharp.Data.BaseEvent", b =>
+                {
+                    b.Property<long>("EventId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("Bizid")
+                        .HasColumnType("longtext");
+
+                    b.Property<DateTime>("CreaterDateTime")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<Guid>("Creator")
+                        .HasColumnType("char(36)");
+
+                    b.Property<string>("EventDesc")
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("EventName")
+                        .HasColumnType("longtext");
+
+                    b.Property<int>("EventStaus")
+                        .HasColumnType("int");
+
+                    b.Property<string>("MataData")
+                        .HasColumnType("longtext");
+
+                    b.Property<long>("RuleId")
+                        .HasColumnType("bigint");
+
+                    b.Property<int>("Type")
+                        .HasColumnType("int");
+
+                    b.HasKey("EventId");
+
+                    b.ToTable("BaseEvents");
+                });
+
+            modelBuilder.Entity("IoTSharp.Data.BaseI18N", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    b.Property<DateTime?>("AddDate")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<string>("KeyName")
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("ResouceDesc")
+                        .HasColumnType("longtext");
+
+                    b.Property<int?>("ResouceGroupId")
+                        .HasColumnType("int");
+
+                    b.Property<long?>("ResourceId")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("ResourceKey")
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("ResourceTag")
+                        .HasColumnType("longtext");
+
+                    b.Property<int?>("ResourceType")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("int");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("char(36)");
+
+                    b.Property<string>("ValueBG")
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("ValueCS")
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("ValueDA")
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("ValueDEDE")
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("ValueELGR")
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("ValueENGR")
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("ValueENUS")
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("ValueESES")
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("ValueFI")
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("ValueFRFR")
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("ValueHE")
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("ValueHRHR")
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("ValueHU")
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("ValueITIT")
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("ValueJAJP")
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("ValueKOKR")
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("ValueNL")
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("ValuePLPL")
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("ValuePT")
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("ValueSLSL")
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("ValueSR")
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("ValueSV")
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("ValueTRTR")
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("ValueUK")
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("ValueVI")
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("ValueZHCN")
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("ValueZHTW")
+                        .HasColumnType("longtext");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("BaseI18Ns");
+                });
+
             modelBuilder.Entity("IoTSharp.Data.Customer", b =>
                 {
                     b.Property<Guid>("Id")
@@ -99,28 +338,28 @@ namespace IoTSharp.Data.MySQL.Migrations
                         .HasColumnType("char(36)");
 
                     b.Property<string>("Address")
-                        .HasColumnType("longtext CHARACTER SET utf8mb4");
+                        .HasColumnType("longtext");
 
                     b.Property<string>("City")
-                        .HasColumnType("longtext CHARACTER SET utf8mb4");
+                        .HasColumnType("longtext");
 
                     b.Property<string>("Country")
-                        .HasColumnType("longtext CHARACTER SET utf8mb4");
+                        .HasColumnType("longtext");
 
                     b.Property<string>("Email")
-                        .HasColumnType("longtext CHARACTER SET utf8mb4");
+                        .HasColumnType("longtext");
 
                     b.Property<string>("Name")
-                        .HasColumnType("longtext CHARACTER SET utf8mb4");
+                        .HasColumnType("longtext");
 
                     b.Property<string>("Phone")
-                        .HasColumnType("longtext CHARACTER SET utf8mb4");
+                        .HasColumnType("longtext");
 
                     b.Property<string>("Province")
-                        .HasColumnType("longtext CHARACTER SET utf8mb4");
+                        .HasColumnType("longtext");
 
                     b.Property<string>("Street")
-                        .HasColumnType("longtext CHARACTER SET utf8mb4");
+                        .HasColumnType("longtext");
 
                     b.Property<Guid?>("TenantId")
                         .HasColumnType("char(36)");
@@ -144,7 +383,7 @@ namespace IoTSharp.Data.MySQL.Migrations
                         .HasColumnType("char(36)");
 
                     b.Property<string>("KeyName")
-                        .HasColumnType("varchar(255) CHARACTER SET utf8mb4");
+                        .HasColumnType("varchar(255)");
 
                     b.Property<int>("DataSide")
                         .HasColumnType("int");
@@ -158,26 +397,26 @@ namespace IoTSharp.Data.MySQL.Migrations
                     b.Property<byte[]>("Value_Binary")
                         .HasColumnType("longblob");
 
-                    b.Property<bool>("Value_Boolean")
+                    b.Property<bool?>("Value_Boolean")
                         .HasColumnType("tinyint(1)");
 
-                    b.Property<DateTime>("Value_DateTime")
+                    b.Property<DateTime?>("Value_DateTime")
                         .HasColumnType("timestamp");
 
-                    b.Property<double>("Value_Double")
+                    b.Property<double?>("Value_Double")
                         .HasColumnType("double");
 
                     b.Property<string>("Value_Json")
                         .HasColumnType("JSON");
 
-                    b.Property<long>("Value_Long")
+                    b.Property<long?>("Value_Long")
                         .HasColumnType("bigint");
 
                     b.Property<string>("Value_String")
-                        .HasColumnType("longtext CHARACTER SET utf8mb4");
+                        .HasColumnType("longtext");
 
                     b.Property<string>("Value_XML")
-                        .HasColumnType("longtext CHARACTER SET utf8mb4");
+                        .HasColumnType("longtext");
 
                     b.HasKey("Catalog", "DeviceId", "KeyName");
 
@@ -209,7 +448,7 @@ namespace IoTSharp.Data.MySQL.Migrations
                         .HasColumnType("timestamp");
 
                     b.Property<string>("Name")
-                        .HasColumnType("longtext CHARACTER SET utf8mb4");
+                        .HasColumnType("longtext");
 
                     b.Property<bool>("Online")
                         .HasColumnType("tinyint(1)");
@@ -249,19 +488,329 @@ namespace IoTSharp.Data.MySQL.Migrations
 
                     b.Property<string>("IdentityId")
                         .IsRequired()
-                        .HasColumnType("longtext CHARACTER SET utf8mb4");
+                        .HasColumnType("longtext");
 
                     b.Property<int>("IdentityType")
                         .HasColumnType("int");
 
                     b.Property<string>("IdentityValue")
-                        .HasColumnType("longtext CHARACTER SET utf8mb4");
+                        .HasColumnType("longtext");
 
                     b.HasKey("Id");
 
                     b.HasIndex("DeviceId");
 
                     b.ToTable("DeviceIdentities");
+                });
+
+            modelBuilder.Entity("IoTSharp.Data.DynamicFormFieldInfo", b =>
+                {
+                    b.Property<long>("FieldId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    b.Property<Guid>("Creator")
+                        .HasColumnType("char(36)");
+
+                    b.Property<string>("FieldCode")
+                        .HasColumnType("longtext");
+
+                    b.Property<DateTime?>("FieldCreateDate")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<DateTime?>("FieldEditDate")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<string>("FieldI18nKey")
+                        .HasColumnType("longtext");
+
+                    b.Property<int?>("FieldMaxLength")
+                        .HasColumnType("int");
+
+                    b.Property<string>("FieldName")
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("FieldPattern")
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("FieldPocoTypeName")
+                        .HasColumnType("longtext");
+
+                    b.Property<int?>("FieldStatus")
+                        .HasColumnType("int");
+
+                    b.Property<long?>("FieldUIElement")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("FieldUIElementSchema")
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("FieldUnit")
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("FieldValue")
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("FieldValueDataSource")
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("FieldValueLocalDataSource")
+                        .HasColumnType("longtext");
+
+                    b.Property<int?>("FieldValueType")
+                        .HasColumnType("int");
+
+                    b.Property<string>("FieldValueTypeName")
+                        .HasColumnType("longtext");
+
+                    b.Property<long?>("FormId")
+                        .HasColumnType("bigint");
+
+                    b.Property<bool?>("IsEnabled")
+                        .HasColumnType("tinyint(1)");
+
+                    b.Property<bool?>("IsRequired")
+                        .HasColumnType("tinyint(1)");
+
+                    b.HasKey("FieldId");
+
+                    b.ToTable("DynamicFormFieldInfos");
+                });
+
+            modelBuilder.Entity("IoTSharp.Data.DynamicFormFieldValueInfo", b =>
+                {
+                    b.Property<long>("FieldValueId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    b.Property<long?>("BizId")
+                        .HasColumnType("bigint");
+
+                    b.Property<Guid>("Creator")
+                        .HasColumnType("char(36)");
+
+                    b.Property<string>("FieldCode")
+                        .HasColumnType("longtext");
+
+                    b.Property<DateTime?>("FieldCreateDate")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<long?>("FieldId")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("FieldName")
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("FieldUnit")
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("FieldValue")
+                        .HasColumnType("longtext");
+
+                    b.Property<long?>("FieldValueType")
+                        .HasColumnType("bigint");
+
+                    b.Property<long?>("FromId")
+                        .HasColumnType("bigint");
+
+                    b.HasKey("FieldValueId");
+
+                    b.ToTable("DynamicFormFieldValueInfos");
+                });
+
+            modelBuilder.Entity("IoTSharp.Data.DynamicFormInfo", b =>
+                {
+                    b.Property<long>("FormId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    b.Property<long?>("BizId")
+                        .HasColumnType("bigint");
+
+                    b.Property<Guid>("Creator")
+                        .HasColumnType("char(36)");
+
+                    b.Property<long?>("FormCreator")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("FormDesc")
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("FormLayout")
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("FormName")
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("FormSchame")
+                        .HasColumnType("longtext");
+
+                    b.Property<int?>("FormStatus")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("FromCreateDate")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<bool>("IsCompact")
+                        .HasColumnType("tinyint(1)");
+
+                    b.Property<string>("ModelClass")
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("Url")
+                        .HasColumnType("longtext");
+
+                    b.HasKey("FormId");
+
+                    b.ToTable("DynamicFormInfos");
+                });
+
+            modelBuilder.Entity("IoTSharp.Data.Flow", b =>
+                {
+                    b.Property<long>("FlowId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("Conditionexpression")
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("FlowType")
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("Flowdesc")
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("Flowname")
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("Incoming")
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("NodeProcessClass")
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("NodeProcessMethod")
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("NodeProcessParams")
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("NodeProcessScript")
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("NodeProcessScriptType")
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("NodeProcessType")
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("ObjectId")
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("Outgoing")
+                        .HasColumnType("longtext");
+
+                    b.Property<long>("RuleId")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("SourceId")
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("TargetId")
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("bpmnid")
+                        .HasColumnType("longtext");
+
+                    b.HasKey("FlowId");
+
+                    b.ToTable("Flows");
+                });
+
+            modelBuilder.Entity("IoTSharp.Data.FlowOperation", b =>
+                {
+                    b.Property<long>("OperationId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    b.Property<DateTime?>("AddDate")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<string>("BizId")
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("Data")
+                        .HasColumnType("longtext");
+
+                    b.Property<long>("EventId")
+                        .HasColumnType("bigint");
+
+                    b.Property<long>("FlowId")
+                        .HasColumnType("bigint");
+
+                    b.Property<int?>("NodeStatus")
+                        .HasColumnType("int");
+
+                    b.Property<string>("OperationDesc")
+                        .HasColumnType("longtext");
+
+                    b.Property<long>("RuleId")
+                        .HasColumnType("bigint");
+
+                    b.Property<int>("Step")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Tag")
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("bpmnid")
+                        .HasColumnType("longtext");
+
+                    b.HasKey("OperationId");
+
+                    b.ToTable("FlowOperations");
+                });
+
+            modelBuilder.Entity("IoTSharp.Data.FlowRule", b =>
+                {
+                    b.Property<long>("RuleId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    b.Property<DateTime?>("CreatTime")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<string>("Creator")
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("DefinitionsXml")
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("Describes")
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("ExecutableCode")
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("RuleDesc")
+                        .HasColumnType("longtext");
+
+                    b.Property<int?>("RuleStatus")
+                        .HasColumnType("int");
+
+                    b.Property<int>("RuleType")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Runner")
+                        .HasColumnType("longtext");
+
+                    b.HasKey("RuleId");
+
+                    b.ToTable("FlowRules");
                 });
 
             modelBuilder.Entity("IoTSharp.Data.Relationship", b =>
@@ -274,7 +823,7 @@ namespace IoTSharp.Data.MySQL.Migrations
                         .HasColumnType("char(36)");
 
                     b.Property<string>("IdentityUserId")
-                        .HasColumnType("varchar(255) CHARACTER SET utf8mb4");
+                        .HasColumnType("varchar(255)");
 
                     b.Property<Guid?>("TenantId")
                         .HasColumnType("char(36)");
@@ -296,7 +845,7 @@ namespace IoTSharp.Data.MySQL.Migrations
                         .HasColumnType("char(36)");
 
                     b.Property<string>("KeyName")
-                        .HasColumnType("varchar(255) CHARACTER SET utf8mb4");
+                        .HasColumnType("varchar(255)");
 
                     b.Property<DateTime>("DateTime")
                         .HasColumnType("timestamp");
@@ -310,26 +859,26 @@ namespace IoTSharp.Data.MySQL.Migrations
                     b.Property<byte[]>("Value_Binary")
                         .HasColumnType("longblob");
 
-                    b.Property<bool>("Value_Boolean")
+                    b.Property<bool?>("Value_Boolean")
                         .HasColumnType("tinyint(1)");
 
-                    b.Property<DateTime>("Value_DateTime")
+                    b.Property<DateTime?>("Value_DateTime")
                         .HasColumnType("timestamp");
 
-                    b.Property<double>("Value_Double")
+                    b.Property<double?>("Value_Double")
                         .HasColumnType("double");
 
                     b.Property<string>("Value_Json")
                         .HasColumnType("JSON");
 
-                    b.Property<long>("Value_Long")
+                    b.Property<long?>("Value_Long")
                         .HasColumnType("bigint");
 
                     b.Property<string>("Value_String")
-                        .HasColumnType("longtext CHARACTER SET utf8mb4");
+                        .HasColumnType("longtext");
 
                     b.Property<string>("Value_XML")
-                        .HasColumnType("longtext CHARACTER SET utf8mb4");
+                        .HasColumnType("longtext");
 
                     b.HasKey("DeviceId", "KeyName", "DateTime");
 
@@ -338,8 +887,6 @@ namespace IoTSharp.Data.MySQL.Migrations
                     b.HasIndex("KeyName");
 
                     b.HasIndex("DeviceId", "KeyName");
-
-                    b.HasIndex("DeviceId", "KeyName", "DateTime");
 
                     b.ToTable("TelemetryData");
                 });
@@ -351,28 +898,28 @@ namespace IoTSharp.Data.MySQL.Migrations
                         .HasColumnType("char(36)");
 
                     b.Property<string>("Address")
-                        .HasColumnType("longtext CHARACTER SET utf8mb4");
+                        .HasColumnType("longtext");
 
                     b.Property<string>("City")
-                        .HasColumnType("longtext CHARACTER SET utf8mb4");
+                        .HasColumnType("longtext");
 
                     b.Property<string>("Country")
-                        .HasColumnType("longtext CHARACTER SET utf8mb4");
+                        .HasColumnType("longtext");
 
                     b.Property<string>("EMail")
-                        .HasColumnType("longtext CHARACTER SET utf8mb4");
+                        .HasColumnType("longtext");
 
                     b.Property<string>("Name")
-                        .HasColumnType("longtext CHARACTER SET utf8mb4");
+                        .HasColumnType("longtext");
 
                     b.Property<string>("Phone")
-                        .HasColumnType("longtext CHARACTER SET utf8mb4");
+                        .HasColumnType("longtext");
 
                     b.Property<string>("Province")
-                        .HasColumnType("longtext CHARACTER SET utf8mb4");
+                        .HasColumnType("longtext");
 
                     b.Property<string>("Street")
-                        .HasColumnType("longtext CHARACTER SET utf8mb4");
+                        .HasColumnType("longtext");
 
                     b.Property<int>("ZipCode")
                         .HasColumnType("int");
@@ -385,19 +932,19 @@ namespace IoTSharp.Data.MySQL.Migrations
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
                 {
                     b.Property<string>("Id")
-                        .HasColumnType("varchar(255) CHARACTER SET utf8mb4");
+                        .HasColumnType("varchar(255)");
 
                     b.Property<string>("ConcurrencyStamp")
                         .IsConcurrencyToken()
-                        .HasColumnType("longtext CHARACTER SET utf8mb4");
+                        .HasColumnType("longtext");
 
                     b.Property<string>("Name")
                         .HasMaxLength(256)
-                        .HasColumnType("varchar(256) CHARACTER SET utf8mb4");
+                        .HasColumnType("varchar(256)");
 
                     b.Property<string>("NormalizedName")
                         .HasMaxLength(256)
-                        .HasColumnType("varchar(256) CHARACTER SET utf8mb4");
+                        .HasColumnType("varchar(256)");
 
                     b.HasKey("Id");
 
@@ -415,14 +962,14 @@ namespace IoTSharp.Data.MySQL.Migrations
                         .HasColumnType("int");
 
                     b.Property<string>("ClaimType")
-                        .HasColumnType("longtext CHARACTER SET utf8mb4");
+                        .HasColumnType("longtext");
 
                     b.Property<string>("ClaimValue")
-                        .HasColumnType("longtext CHARACTER SET utf8mb4");
+                        .HasColumnType("longtext");
 
                     b.Property<string>("RoleId")
                         .IsRequired()
-                        .HasColumnType("varchar(255) CHARACTER SET utf8mb4");
+                        .HasColumnType("varchar(255)");
 
                     b.HasKey("Id");
 
@@ -434,18 +981,18 @@ namespace IoTSharp.Data.MySQL.Migrations
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUser", b =>
                 {
                     b.Property<string>("Id")
-                        .HasColumnType("varchar(255) CHARACTER SET utf8mb4");
+                        .HasColumnType("varchar(255)");
 
                     b.Property<int>("AccessFailedCount")
                         .HasColumnType("int");
 
                     b.Property<string>("ConcurrencyStamp")
                         .IsConcurrencyToken()
-                        .HasColumnType("longtext CHARACTER SET utf8mb4");
+                        .HasColumnType("longtext");
 
                     b.Property<string>("Email")
                         .HasMaxLength(256)
-                        .HasColumnType("varchar(256) CHARACTER SET utf8mb4");
+                        .HasColumnType("varchar(256)");
 
                     b.Property<bool>("EmailConfirmed")
                         .HasColumnType("tinyint(1)");
@@ -458,30 +1005,30 @@ namespace IoTSharp.Data.MySQL.Migrations
 
                     b.Property<string>("NormalizedEmail")
                         .HasMaxLength(256)
-                        .HasColumnType("varchar(256) CHARACTER SET utf8mb4");
+                        .HasColumnType("varchar(256)");
 
                     b.Property<string>("NormalizedUserName")
                         .HasMaxLength(256)
-                        .HasColumnType("varchar(256) CHARACTER SET utf8mb4");
+                        .HasColumnType("varchar(256)");
 
                     b.Property<string>("PasswordHash")
-                        .HasColumnType("longtext CHARACTER SET utf8mb4");
+                        .HasColumnType("longtext");
 
                     b.Property<string>("PhoneNumber")
-                        .HasColumnType("longtext CHARACTER SET utf8mb4");
+                        .HasColumnType("longtext");
 
                     b.Property<bool>("PhoneNumberConfirmed")
                         .HasColumnType("tinyint(1)");
 
                     b.Property<string>("SecurityStamp")
-                        .HasColumnType("longtext CHARACTER SET utf8mb4");
+                        .HasColumnType("longtext");
 
                     b.Property<bool>("TwoFactorEnabled")
                         .HasColumnType("tinyint(1)");
 
                     b.Property<string>("UserName")
                         .HasMaxLength(256)
-                        .HasColumnType("varchar(256) CHARACTER SET utf8mb4");
+                        .HasColumnType("varchar(256)");
 
                     b.HasKey("Id");
 
@@ -502,14 +1049,14 @@ namespace IoTSharp.Data.MySQL.Migrations
                         .HasColumnType("int");
 
                     b.Property<string>("ClaimType")
-                        .HasColumnType("longtext CHARACTER SET utf8mb4");
+                        .HasColumnType("longtext");
 
                     b.Property<string>("ClaimValue")
-                        .HasColumnType("longtext CHARACTER SET utf8mb4");
+                        .HasColumnType("longtext");
 
                     b.Property<string>("UserId")
                         .IsRequired()
-                        .HasColumnType("varchar(255) CHARACTER SET utf8mb4");
+                        .HasColumnType("varchar(255)");
 
                     b.HasKey("Id");
 
@@ -521,17 +1068,17 @@ namespace IoTSharp.Data.MySQL.Migrations
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<string>", b =>
                 {
                     b.Property<string>("LoginProvider")
-                        .HasColumnType("varchar(255) CHARACTER SET utf8mb4");
+                        .HasColumnType("varchar(255)");
 
                     b.Property<string>("ProviderKey")
-                        .HasColumnType("varchar(255) CHARACTER SET utf8mb4");
+                        .HasColumnType("varchar(255)");
 
                     b.Property<string>("ProviderDisplayName")
-                        .HasColumnType("longtext CHARACTER SET utf8mb4");
+                        .HasColumnType("longtext");
 
                     b.Property<string>("UserId")
                         .IsRequired()
-                        .HasColumnType("varchar(255) CHARACTER SET utf8mb4");
+                        .HasColumnType("varchar(255)");
 
                     b.HasKey("LoginProvider", "ProviderKey");
 
@@ -543,10 +1090,10 @@ namespace IoTSharp.Data.MySQL.Migrations
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserRole<string>", b =>
                 {
                     b.Property<string>("UserId")
-                        .HasColumnType("varchar(255) CHARACTER SET utf8mb4");
+                        .HasColumnType("varchar(255)");
 
                     b.Property<string>("RoleId")
-                        .HasColumnType("varchar(255) CHARACTER SET utf8mb4");
+                        .HasColumnType("varchar(255)");
 
                     b.HasKey("UserId", "RoleId");
 
@@ -558,16 +1105,16 @@ namespace IoTSharp.Data.MySQL.Migrations
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<string>", b =>
                 {
                     b.Property<string>("UserId")
-                        .HasColumnType("varchar(255) CHARACTER SET utf8mb4");
+                        .HasColumnType("varchar(255)");
 
                     b.Property<string>("LoginProvider")
-                        .HasColumnType("varchar(255) CHARACTER SET utf8mb4");
+                        .HasColumnType("varchar(255)");
 
                     b.Property<string>("Name")
-                        .HasColumnType("varchar(255) CHARACTER SET utf8mb4");
+                        .HasColumnType("varchar(255)");
 
                     b.Property<string>("Value")
-                        .HasColumnType("longtext CHARACTER SET utf8mb4");
+                        .HasColumnType("longtext");
 
                     b.HasKey("UserId", "LoginProvider", "Name");
 

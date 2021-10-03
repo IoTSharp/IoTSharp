@@ -33,7 +33,7 @@ namespace IoTSharp.FlowRuleEngine.Models.Task
         public async Task<List<RuleResultTree>> Excute(FlowExcuteEntity Input)
         {
 
-            var mainRules = new WorkflowRules
+            var mainRules = new Workflow
             {
                 WorkflowName = Input.Task.id, 
             };
