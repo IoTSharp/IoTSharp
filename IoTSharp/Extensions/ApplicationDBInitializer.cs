@@ -423,8 +423,9 @@ namespace IoTSharp.Data
             this._context.BaseI18Ns.Add(new BaseI18N() { KeyName = "mm.modulemnt.modulelist", ValueENUS = "Module management", ValueFRFR = "Gestion des modules", ValueHRHR = "", ValueKOKR = "모듈 관리", ValuePLPL = "Zarządzanie modułami", ValueSLSL = "Upravljanje modulov", ValueTRTR = "", ValueZHCN = "模块管理", ValueZHTW = "模塊管理", });
             this._context.BaseI18Ns.Add(new BaseI18N() { KeyName = "mm.dynamicform.list", ValueENUS = "Dynamic form list", ValueFRFR = "Liste des formulaires dynamiques", ValueHRHR = "", ValueKOKR = "동적 폼 리스트", ValuePLPL = "Lista form dynamicznych", ValueSLSL = "Dinamični seznam oblik", ValueTRTR = "", ValueZHCN = "动态表单列表", ValueZHTW = "動態表單清單", });
             this._context.BaseI18Ns.Add(new BaseI18N() { KeyName = "mm.usermanage", ValueENUS = "", ValueFRFR = "", ValueHRHR = "", ValueKOKR = "", ValuePLPL = "", ValueSLSL = "", ValueTRTR = "", ValueZHCN = "人员管理", ValueZHTW = "", });
+            this._context.BaseI18Ns.Add(new BaseI18N() { KeyName = "app.register.install", ValueENUS = "install", ValueFRFR = "", ValueHRHR = "", ValueKOKR = "", ValuePLPL = "", ValueSLSL = "", ValueTRTR = "", ValueZHCN = "安装", ValueZHTW = "安装", });
 
-           await this._context.SaveChangesAsync();
+            await this._context.SaveChangesAsync();
         }
 
         public async Task SeedDictionary()

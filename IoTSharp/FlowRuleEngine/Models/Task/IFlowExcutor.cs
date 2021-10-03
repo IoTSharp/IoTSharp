@@ -33,17 +33,9 @@ namespace IoTSharp.FlowRuleEngine.Models.Task
         public async Task<List<RuleResultTree>> Excute(FlowExcuteEntity Input)
         {
 
-            //if (Input.Action != null)
-            //{
-            //    Input.Action();
-            //}
-            //if (Input.WaitTime > 0)
-            //{
-            //    await System.Threading.Tasks.Task.Delay(Input.WaitTime);
-            //}
             var mainRules = new WorkflowRules
             {
-                WorkflowName = Input.Task.Name,
+                WorkflowName = Input.Task.id, 
             };
 
             foreach (var item in Input.Task.outgoing)
@@ -52,7 +44,7 @@ namespace IoTSharp.FlowRuleEngine.Models.Task
             }
             mainRules.Rules = Input.Task.outgoing.Select(c => c.Rule).ToList();
             var bre = new RulesEngine.RulesEngine(new[] { mainRules }, null);
-            return await bre.ExecuteAllRulesAsync(Input.Task.Name, Input.Params);
+            return await bre.ExecuteAllRulesAsync(Input.Task.id, Input.Params);
         }
 
     }
