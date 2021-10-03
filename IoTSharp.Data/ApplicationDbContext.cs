@@ -18,7 +18,7 @@ namespace IoTSharp.Data
         {
             if (Database.GetPendingMigrations().Count() > 0)
             {
-   Database.Migrate();
+                Database.Migrate();
             }
          
         }

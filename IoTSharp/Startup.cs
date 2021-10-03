@@ -49,6 +49,7 @@ using System.Security.Policy;
 using Microsoft.CodeAnalysis.FlowAnalysis;
 using Microsoft.AspNetCore.Hosting.Server.Features;
 using System.Text.RegularExpressions;
+using DotNetCore.CAP;
 using HealthChecks.UI.Configuration;
 using IoTSharp.Controllers.Models;
 using Newtonsoft.Json.Serialization;
@@ -86,14 +87,13 @@ namespace IoTSharp
             });
 
             var healthChecks = services.AddHealthChecks()
-               .AddDiskStorageHealthCheck(dso =>
-               {
-                   System.IO.DriveInfo.GetDrives()
-                      .Where(d => d.DriveType != System.IO.DriveType.CDRom && d.DriveType != System.IO.DriveType.Ram)
-                      .Select(f => f.Name).Distinct().ToList()
-                          .ForEach(f => dso.AddDrive(f, 1024));
-
-               }, name: "Disk Storage");
+                .AddDiskStorageHealthCheck(dso =>
+                {
+                    System.IO.DriveInfo.GetDrives()
+                        .Where(d => d.DriveType != System.IO.DriveType.CDRom && d.DriveType != System.IO.DriveType.Ram)
+                        .Select(f => f.Name).Distinct().ToList()
+                        .ForEach(f => dso.AddDrive(f, 1024));
+                }, name: "Disk Storage");
 
             switch (settings.DataBase)
             {
@@ -116,10 +116,10 @@ namespace IoTSharp
             }
 
             services.AddIdentity<IdentityUser, IdentityRole>()
-                  .AddRoles<IdentityRole>()
-                  .AddRoleManager<RoleManager<IdentityRole>>()
-                 .AddDefaultTokenProviders()
-                  .AddEntityFrameworkStores<ApplicationDbContext>();
+                .AddRoles<IdentityRole>()
+                .AddRoleManager<RoleManager<IdentityRole>>()
+                .AddDefaultTokenProviders()
+                .AddEntityFrameworkStores<ApplicationDbContext>();
 
 
             services.AddAuthentication(option =>
@@ -164,7 +164,6 @@ namespace IoTSharp
             services.AddSingleton<RetainedMessageHandler>();
             services.AddSilkierQuartz(options =>
             {
-                options.VirtualPathRoot = "/";
                 options.VirtualPathRoot = "/quartz";
                 options.UseLocalTime = true;
                 options.DefaultDateFormat = "yyyy-MM-dd";
@@ -173,16 +172,14 @@ namespace IoTSharp
                 {
                     DayOfWeekStartIndexZero = false //Quartz uses 1-7 as the range
                 };
-            }
-            ,
-            authenticationOptions =>
+            }, authenticationOptions =>
             {
                 authenticationOptions.AuthScheme = CookieAuthenticationDefaults.AuthenticationScheme;
                 authenticationOptions.SilkierQuartzClaim = "Silkier";
                 authenticationOptions.SilkierQuartzClaimValue = "Quartz";
                 authenticationOptions.UserName = "admin";
                 authenticationOptions.UserPassword = "password";
-                authenticationOptions.AccessRequirement = SilkierQuartzAuthenticationOptions.SimpleAccessRequirement.AllowOnlyAuthenticated;
+                authenticationOptions.AccessRequirement = SilkierQuartzAuthenticationOptions.SimpleAccessRequirement.AllowAnonymous;//登录认证有问题
             },stdSchedulerFactoryOption=>
             {
 
@@ -368,13 +365,13 @@ namespace IoTSharp
 
             services.Configure<BaiduTranslateProfile>(Configuration.GetSection("BaiduTranslateProfile"));
             services.AddControllers().AddNewtonsoftJson(options =>
-                {
-                    options.SerializerSettings.ContractResolver = new CamelCasePropertyNamesContractResolver();
-                });
+            {
+                options.SerializerSettings.ContractResolver = new CamelCasePropertyNamesContractResolver();
+            });
             services.AddRazorPages();
             
                 // In production, the Angular files will be served from this directory
-                services.AddSpaStaticFiles(configuration =>
+            services.AddSpaStaticFiles(configuration =>
             {
                 configuration.RootPath = "ClientApp/dist";
             });
@@ -403,9 +400,9 @@ namespace IoTSharp
 
             app.UseRouting();
             app.UseCors(option => option
-            .AllowAnyOrigin()
-            .AllowAnyMethod()
-            .AllowAnyHeader());
+                .AllowAnyOrigin()
+                .AllowAnyMethod()
+                .AllowAnyHeader());
             app.UseAuthentication();
             app.UseAuthorization();
             app.UseDefaultFiles();
@@ -417,6 +414,10 @@ namespace IoTSharp
          
             app.UseSwaggerUi3();
             app.UseOpenApi();
+            
+            app.UseSilkierQuartz();//必须要在UseEndpoints之前调用
+            app.UseCapDashboard();
+
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapMqtt("/mqtt");
