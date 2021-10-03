@@ -15,8 +15,8 @@ namespace IoTSharp.Data.Oracle.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("Relational:MaxIdentifierLength", 128)
-                .HasAnnotation("ProductVersion", "5.0.3")
+                .HasAnnotation("Relational:MaxIdentifierLength", 30)
+                .HasAnnotation("ProductVersion", "5.0.10")
                 .HasAnnotation("Oracle:ValueGenerationStrategy", OracleValueGenerationStrategy.IdentityColumn);
 
             modelBuilder.Entity("IoTSharp.Data.AuditLog", b =>
@@ -94,6 +94,249 @@ namespace IoTSharp.Data.Oracle.Migrations
                     b.ToTable("AuthorizedKeys");
                 });
 
+            modelBuilder.Entity("IoTSharp.Data.BaseDictionary", b =>
+                {
+                    b.Property<long>("DictionaryId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("NUMBER(19)")
+                        .HasAnnotation("Oracle:ValueGenerationStrategy", OracleValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<string>("Dictionary18NKeyName")
+                        .HasColumnType("NVARCHAR2(2000)");
+
+                    b.Property<string>("DictionaryColor")
+                        .HasColumnType("NVARCHAR2(2000)");
+
+                    b.Property<string>("DictionaryDesc")
+                        .HasColumnType("NVARCHAR2(2000)");
+
+                    b.Property<long?>("DictionaryGroupId")
+                        .HasColumnType("NUMBER(19)");
+
+                    b.Property<string>("DictionaryIcon")
+                        .HasColumnType("NVARCHAR2(2000)");
+
+                    b.Property<string>("DictionaryName")
+                        .HasColumnType("NVARCHAR2(2000)");
+
+                    b.Property<string>("DictionaryPattern")
+                        .HasColumnType("NVARCHAR2(2000)");
+
+                    b.Property<int?>("DictionaryStatus")
+                        .HasColumnType("NUMBER(10)");
+
+                    b.Property<string>("DictionaryTag")
+                        .HasColumnType("NVARCHAR2(2000)");
+
+                    b.Property<string>("DictionaryValue")
+                        .HasColumnType("NVARCHAR2(2000)");
+
+                    b.Property<int?>("DictionaryValueType")
+                        .HasColumnType("NUMBER(10)");
+
+                    b.Property<string>("DictionaryValueTypeName")
+                        .HasColumnType("NVARCHAR2(2000)");
+
+                    b.HasKey("DictionaryId");
+
+                    b.ToTable("BaseDictionaries");
+                });
+
+            modelBuilder.Entity("IoTSharp.Data.BaseDictionaryGroup", b =>
+                {
+                    b.Property<long>("DictionaryGroupId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("NUMBER(19)")
+                        .HasAnnotation("Oracle:ValueGenerationStrategy", OracleValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<string>("DictionaryGroup18NKeyName")
+                        .HasColumnType("NVARCHAR2(2000)");
+
+                    b.Property<string>("DictionaryGroupDesc")
+                        .HasColumnType("NVARCHAR2(2000)");
+
+                    b.Property<string>("DictionaryGroupKey")
+                        .HasColumnType("NVARCHAR2(2000)");
+
+                    b.Property<string>("DictionaryGroupName")
+                        .HasColumnType("NVARCHAR2(2000)");
+
+                    b.Property<int?>("DictionaryGroupStatus")
+                        .HasColumnType("NUMBER(10)");
+
+                    b.Property<int?>("DictionaryGroupValueType")
+                        .HasColumnType("NUMBER(10)");
+
+                    b.Property<string>("DictionaryGroupValueTypeName")
+                        .HasColumnType("NVARCHAR2(2000)");
+
+                    b.HasKey("DictionaryGroupId");
+
+                    b.ToTable("BaseDictionaryGroups");
+                });
+
+            modelBuilder.Entity("IoTSharp.Data.BaseEvent", b =>
+                {
+                    b.Property<long>("EventId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("NUMBER(19)")
+                        .HasAnnotation("Oracle:ValueGenerationStrategy", OracleValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<string>("Bizid")
+                        .HasColumnType("NVARCHAR2(2000)");
+
+                    b.Property<DateTime>("CreaterDateTime")
+                        .HasColumnType("TIMESTAMP(7)");
+
+                    b.Property<Guid>("Creator")
+                        .HasColumnType("RAW(16)");
+
+                    b.Property<string>("EventDesc")
+                        .HasColumnType("NVARCHAR2(2000)");
+
+                    b.Property<string>("EventName")
+                        .HasColumnType("NVARCHAR2(2000)");
+
+                    b.Property<int>("EventStaus")
+                        .HasColumnType("NUMBER(10)");
+
+                    b.Property<string>("MataData")
+                        .HasColumnType("NVARCHAR2(2000)");
+
+                    b.Property<long>("RuleId")
+                        .HasColumnType("NUMBER(19)");
+
+                    b.Property<int>("Type")
+                        .HasColumnType("NUMBER(10)");
+
+                    b.HasKey("EventId");
+
+                    b.ToTable("BaseEvents");
+                });
+
+            modelBuilder.Entity("IoTSharp.Data.BaseI18N", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("NUMBER(19)")
+                        .HasAnnotation("Oracle:ValueGenerationStrategy", OracleValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<DateTime?>("AddDate")
+                        .HasColumnType("TIMESTAMP(7)");
+
+                    b.Property<string>("KeyName")
+                        .HasColumnType("NVARCHAR2(2000)");
+
+                    b.Property<string>("ResouceDesc")
+                        .HasColumnType("NVARCHAR2(2000)");
+
+                    b.Property<int?>("ResouceGroupId")
+                        .HasColumnType("NUMBER(10)");
+
+                    b.Property<long?>("ResourceId")
+                        .HasColumnType("NUMBER(19)");
+
+                    b.Property<string>("ResourceKey")
+                        .HasColumnType("NVARCHAR2(2000)");
+
+                    b.Property<string>("ResourceTag")
+                        .HasColumnType("NVARCHAR2(2000)");
+
+                    b.Property<int?>("ResourceType")
+                        .HasColumnType("NUMBER(10)");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("NUMBER(10)");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("RAW(16)");
+
+                    b.Property<string>("ValueBG")
+                        .HasColumnType("NVARCHAR2(2000)");
+
+                    b.Property<string>("ValueCS")
+                        .HasColumnType("NVARCHAR2(2000)");
+
+                    b.Property<string>("ValueDA")
+                        .HasColumnType("NVARCHAR2(2000)");
+
+                    b.Property<string>("ValueDEDE")
+                        .HasColumnType("NVARCHAR2(2000)");
+
+                    b.Property<string>("ValueELGR")
+                        .HasColumnType("NVARCHAR2(2000)");
+
+                    b.Property<string>("ValueENGR")
+                        .HasColumnType("NVARCHAR2(2000)");
+
+                    b.Property<string>("ValueENUS")
+                        .HasColumnType("NVARCHAR2(2000)");
+
+                    b.Property<string>("ValueESES")
+                        .HasColumnType("NVARCHAR2(2000)");
+
+                    b.Property<string>("ValueFI")
+                        .HasColumnType("NVARCHAR2(2000)");
+
+                    b.Property<string>("ValueFRFR")
+                        .HasColumnType("NVARCHAR2(2000)");
+
+                    b.Property<string>("ValueHE")
+                        .HasColumnType("NVARCHAR2(2000)");
+
+                    b.Property<string>("ValueHRHR")
+                        .HasColumnType("NVARCHAR2(2000)");
+
+                    b.Property<string>("ValueHU")
+                        .HasColumnType("NVARCHAR2(2000)");
+
+                    b.Property<string>("ValueITIT")
+                        .HasColumnType("NVARCHAR2(2000)");
+
+                    b.Property<string>("ValueJAJP")
+                        .HasColumnType("NVARCHAR2(2000)");
+
+                    b.Property<string>("ValueKOKR")
+                        .HasColumnType("NVARCHAR2(2000)");
+
+                    b.Property<string>("ValueNL")
+                        .HasColumnType("NVARCHAR2(2000)");
+
+                    b.Property<string>("ValuePLPL")
+                        .HasColumnType("NVARCHAR2(2000)");
+
+                    b.Property<string>("ValuePT")
+                        .HasColumnType("NVARCHAR2(2000)");
+
+                    b.Property<string>("ValueSLSL")
+                        .HasColumnType("NVARCHAR2(2000)");
+
+                    b.Property<string>("ValueSR")
+                        .HasColumnType("NVARCHAR2(2000)");
+
+                    b.Property<string>("ValueSV")
+                        .HasColumnType("NVARCHAR2(2000)");
+
+                    b.Property<string>("ValueTRTR")
+                        .HasColumnType("NVARCHAR2(2000)");
+
+                    b.Property<string>("ValueUK")
+                        .HasColumnType("NVARCHAR2(2000)");
+
+                    b.Property<string>("ValueVI")
+                        .HasColumnType("NVARCHAR2(2000)");
+
+                    b.Property<string>("ValueZHCN")
+                        .HasColumnType("NVARCHAR2(2000)");
+
+                    b.Property<string>("ValueZHTW")
+                        .HasColumnType("NVARCHAR2(2000)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("BaseI18Ns");
+                });
+
             modelBuilder.Entity("IoTSharp.Data.Customer", b =>
                 {
                     b.Property<Guid>("Id")
@@ -160,19 +403,19 @@ namespace IoTSharp.Data.Oracle.Migrations
                     b.Property<byte[]>("Value_Binary")
                         .HasColumnType("RAW(2000)");
 
-                    b.Property<bool>("Value_Boolean")
+                    b.Property<bool?>("Value_Boolean")
                         .HasColumnType("NUMBER(1)");
 
-                    b.Property<DateTime>("Value_DateTime")
+                    b.Property<DateTime?>("Value_DateTime")
                         .HasColumnType("TIMESTAMP(7)");
 
-                    b.Property<double>("Value_Double")
+                    b.Property<double?>("Value_Double")
                         .HasColumnType("BINARY_DOUBLE");
 
                     b.Property<string>("Value_Json")
                         .HasColumnType("NVARCHAR2(2000)");
 
-                    b.Property<long>("Value_Long")
+                    b.Property<long?>("Value_Long")
                         .HasColumnType("NUMBER(19)");
 
                     b.Property<string>("Value_String")
@@ -266,6 +509,322 @@ namespace IoTSharp.Data.Oracle.Migrations
                     b.ToTable("DeviceIdentities");
                 });
 
+            modelBuilder.Entity("IoTSharp.Data.DynamicFormFieldInfo", b =>
+                {
+                    b.Property<long>("FieldId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("NUMBER(19)")
+                        .HasAnnotation("Oracle:ValueGenerationStrategy", OracleValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<Guid>("Creator")
+                        .HasColumnType("RAW(16)");
+
+                    b.Property<string>("FieldCode")
+                        .HasColumnType("NVARCHAR2(2000)");
+
+                    b.Property<DateTime?>("FieldCreateDate")
+                        .HasColumnType("TIMESTAMP(7)");
+
+                    b.Property<DateTime?>("FieldEditDate")
+                        .HasColumnType("TIMESTAMP(7)");
+
+                    b.Property<string>("FieldI18nKey")
+                        .HasColumnType("NVARCHAR2(2000)");
+
+                    b.Property<int?>("FieldMaxLength")
+                        .HasColumnType("NUMBER(10)");
+
+                    b.Property<string>("FieldName")
+                        .HasColumnType("NVARCHAR2(2000)");
+
+                    b.Property<string>("FieldPattern")
+                        .HasColumnType("NVARCHAR2(2000)");
+
+                    b.Property<string>("FieldPocoTypeName")
+                        .HasColumnType("NVARCHAR2(2000)");
+
+                    b.Property<int?>("FieldStatus")
+                        .HasColumnType("NUMBER(10)");
+
+                    b.Property<long?>("FieldUIElement")
+                        .HasColumnType("NUMBER(19)");
+
+                    b.Property<string>("FieldUIElementSchema")
+                        .HasColumnType("NVARCHAR2(2000)");
+
+                    b.Property<string>("FieldUnit")
+                        .HasColumnType("NVARCHAR2(2000)");
+
+                    b.Property<string>("FieldValue")
+                        .HasColumnType("NVARCHAR2(2000)");
+
+                    b.Property<string>("FieldValueDataSource")
+                        .HasColumnType("NVARCHAR2(2000)");
+
+                    b.Property<string>("FieldValueLocalDataSource")
+                        .HasColumnType("NVARCHAR2(2000)");
+
+                    b.Property<int?>("FieldValueType")
+                        .HasColumnType("NUMBER(10)");
+
+                    b.Property<string>("FieldValueTypeName")
+                        .HasColumnType("NVARCHAR2(2000)");
+
+                    b.Property<long?>("FormId")
+                        .HasColumnType("NUMBER(19)");
+
+                    b.Property<bool?>("IsEnabled")
+                        .HasColumnType("NUMBER(1)");
+
+                    b.Property<bool?>("IsRequired")
+                        .HasColumnType("NUMBER(1)");
+
+                    b.HasKey("FieldId");
+
+                    b.ToTable("DynamicFormFieldInfos");
+                });
+
+            modelBuilder.Entity("IoTSharp.Data.DynamicFormFieldValueInfo", b =>
+                {
+                    b.Property<long>("FieldValueId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("NUMBER(19)")
+                        .HasAnnotation("Oracle:ValueGenerationStrategy", OracleValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<long?>("BizId")
+                        .HasColumnType("NUMBER(19)");
+
+                    b.Property<Guid>("Creator")
+                        .HasColumnType("RAW(16)");
+
+                    b.Property<string>("FieldCode")
+                        .HasColumnType("NVARCHAR2(2000)");
+
+                    b.Property<DateTime?>("FieldCreateDate")
+                        .HasColumnType("TIMESTAMP(7)");
+
+                    b.Property<long?>("FieldId")
+                        .HasColumnType("NUMBER(19)");
+
+                    b.Property<string>("FieldName")
+                        .HasColumnType("NVARCHAR2(2000)");
+
+                    b.Property<string>("FieldUnit")
+                        .HasColumnType("NVARCHAR2(2000)");
+
+                    b.Property<string>("FieldValue")
+                        .HasColumnType("NVARCHAR2(2000)");
+
+                    b.Property<long?>("FieldValueType")
+                        .HasColumnType("NUMBER(19)");
+
+                    b.Property<long?>("FromId")
+                        .HasColumnType("NUMBER(19)");
+
+                    b.HasKey("FieldValueId");
+
+                    b.ToTable("DynamicFormFieldValueInfos");
+                });
+
+            modelBuilder.Entity("IoTSharp.Data.DynamicFormInfo", b =>
+                {
+                    b.Property<long>("FormId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("NUMBER(19)")
+                        .HasAnnotation("Oracle:ValueGenerationStrategy", OracleValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<long?>("BizId")
+                        .HasColumnType("NUMBER(19)");
+
+                    b.Property<Guid>("Creator")
+                        .HasColumnType("RAW(16)");
+
+                    b.Property<long?>("FormCreator")
+                        .HasColumnType("NUMBER(19)");
+
+                    b.Property<string>("FormDesc")
+                        .HasColumnType("NVARCHAR2(2000)");
+
+                    b.Property<string>("FormLayout")
+                        .HasColumnType("NVARCHAR2(2000)");
+
+                    b.Property<string>("FormName")
+                        .HasColumnType("NVARCHAR2(2000)");
+
+                    b.Property<string>("FormSchame")
+                        .HasColumnType("NVARCHAR2(2000)");
+
+                    b.Property<int?>("FormStatus")
+                        .HasColumnType("NUMBER(10)");
+
+                    b.Property<DateTime?>("FromCreateDate")
+                        .HasColumnType("TIMESTAMP(7)");
+
+                    b.Property<bool>("IsCompact")
+                        .HasColumnType("NUMBER(1)");
+
+                    b.Property<string>("ModelClass")
+                        .HasColumnType("NVARCHAR2(2000)");
+
+                    b.Property<string>("Url")
+                        .HasColumnType("NVARCHAR2(2000)");
+
+                    b.HasKey("FormId");
+
+                    b.ToTable("DynamicFormInfos");
+                });
+
+            modelBuilder.Entity("IoTSharp.Data.Flow", b =>
+                {
+                    b.Property<long>("FlowId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("NUMBER(19)")
+                        .HasAnnotation("Oracle:ValueGenerationStrategy", OracleValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<string>("Conditionexpression")
+                        .HasColumnType("NVARCHAR2(2000)");
+
+                    b.Property<string>("FlowType")
+                        .HasColumnType("NVARCHAR2(2000)");
+
+                    b.Property<string>("Flowdesc")
+                        .HasColumnType("NVARCHAR2(2000)");
+
+                    b.Property<string>("Flowname")
+                        .HasColumnType("NVARCHAR2(2000)");
+
+                    b.Property<string>("Incoming")
+                        .HasColumnType("NVARCHAR2(2000)");
+
+                    b.Property<string>("NodeProcessClass")
+                        .HasColumnType("NVARCHAR2(2000)");
+
+                    b.Property<string>("NodeProcessMethod")
+                        .HasColumnType("NVARCHAR2(2000)");
+
+                    b.Property<string>("NodeProcessParams")
+                        .HasColumnType("NVARCHAR2(2000)");
+
+                    b.Property<string>("NodeProcessScript")
+                        .HasColumnType("NVARCHAR2(2000)");
+
+                    b.Property<string>("NodeProcessScriptType")
+                        .HasColumnType("NVARCHAR2(2000)");
+
+                    b.Property<string>("NodeProcessType")
+                        .HasColumnType("NVARCHAR2(2000)");
+
+                    b.Property<string>("ObjectId")
+                        .HasColumnType("NVARCHAR2(2000)");
+
+                    b.Property<string>("Outgoing")
+                        .HasColumnType("NVARCHAR2(2000)");
+
+                    b.Property<long>("RuleId")
+                        .HasColumnType("NUMBER(19)");
+
+                    b.Property<string>("SourceId")
+                        .HasColumnType("NVARCHAR2(2000)");
+
+                    b.Property<string>("TargetId")
+                        .HasColumnType("NVARCHAR2(2000)");
+
+                    b.Property<string>("bpmnid")
+                        .HasColumnType("NVARCHAR2(2000)");
+
+                    b.HasKey("FlowId");
+
+                    b.ToTable("Flows");
+                });
+
+            modelBuilder.Entity("IoTSharp.Data.FlowOperation", b =>
+                {
+                    b.Property<long>("OperationId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("NUMBER(19)")
+                        .HasAnnotation("Oracle:ValueGenerationStrategy", OracleValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<DateTime?>("AddDate")
+                        .HasColumnType("TIMESTAMP(7)");
+
+                    b.Property<string>("BizId")
+                        .HasColumnType("NVARCHAR2(2000)");
+
+                    b.Property<string>("Data")
+                        .HasColumnType("NVARCHAR2(2000)");
+
+                    b.Property<long>("EventId")
+                        .HasColumnType("NUMBER(19)");
+
+                    b.Property<long>("FlowId")
+                        .HasColumnType("NUMBER(19)");
+
+                    b.Property<int?>("NodeStatus")
+                        .HasColumnType("NUMBER(10)");
+
+                    b.Property<string>("OperationDesc")
+                        .HasColumnType("NVARCHAR2(2000)");
+
+                    b.Property<long>("RuleId")
+                        .HasColumnType("NUMBER(19)");
+
+                    b.Property<int>("Step")
+                        .HasColumnType("NUMBER(10)");
+
+                    b.Property<string>("Tag")
+                        .HasColumnType("NVARCHAR2(2000)");
+
+                    b.Property<string>("bpmnid")
+                        .HasColumnType("NVARCHAR2(2000)");
+
+                    b.HasKey("OperationId");
+
+                    b.ToTable("FlowOperations");
+                });
+
+            modelBuilder.Entity("IoTSharp.Data.FlowRule", b =>
+                {
+                    b.Property<long>("RuleId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("NUMBER(19)")
+                        .HasAnnotation("Oracle:ValueGenerationStrategy", OracleValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<DateTime?>("CreatTime")
+                        .HasColumnType("TIMESTAMP(7)");
+
+                    b.Property<string>("Creator")
+                        .HasColumnType("NVARCHAR2(2000)");
+
+                    b.Property<string>("DefinitionsXml")
+                        .HasColumnType("NVARCHAR2(2000)");
+
+                    b.Property<string>("Describes")
+                        .HasColumnType("NVARCHAR2(2000)");
+
+                    b.Property<string>("ExecutableCode")
+                        .HasColumnType("NVARCHAR2(2000)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("NVARCHAR2(2000)");
+
+                    b.Property<string>("RuleDesc")
+                        .HasColumnType("NVARCHAR2(2000)");
+
+                    b.Property<int?>("RuleStatus")
+                        .HasColumnType("NUMBER(10)");
+
+                    b.Property<int>("RuleType")
+                        .HasColumnType("NUMBER(10)");
+
+                    b.Property<string>("Runner")
+                        .HasColumnType("NVARCHAR2(2000)");
+
+                    b.HasKey("RuleId");
+
+                    b.ToTable("FlowRules");
+                });
+
             modelBuilder.Entity("IoTSharp.Data.Relationship", b =>
                 {
                     b.Property<Guid>("Id")
@@ -312,19 +871,19 @@ namespace IoTSharp.Data.Oracle.Migrations
                     b.Property<byte[]>("Value_Binary")
                         .HasColumnType("RAW(2000)");
 
-                    b.Property<bool>("Value_Boolean")
+                    b.Property<bool?>("Value_Boolean")
                         .HasColumnType("NUMBER(1)");
 
-                    b.Property<DateTime>("Value_DateTime")
+                    b.Property<DateTime?>("Value_DateTime")
                         .HasColumnType("TIMESTAMP(7)");
 
-                    b.Property<double>("Value_Double")
+                    b.Property<double?>("Value_Double")
                         .HasColumnType("BINARY_DOUBLE");
 
                     b.Property<string>("Value_Json")
                         .HasColumnType("NVARCHAR2(2000)");
 
-                    b.Property<long>("Value_Long")
+                    b.Property<long?>("Value_Long")
                         .HasColumnType("NUMBER(19)");
 
                     b.Property<string>("Value_String")
