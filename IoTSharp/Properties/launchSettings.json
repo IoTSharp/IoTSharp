@@ -1,0 +1,80 @@
+{
+  "iisSettings": {
+    "windowsAuthentication": false,
+    "anonymousAuthentication": true,
+    "iisExpress": {
+      "applicationUrl": "http://localhost:60410/",
+      "sslPort": 44314
+    }
+  },
+  "profiles": {
+    "IIS Express": {
+      "commandName": "IISExpress",
+      "launchBrowser": true,
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Development"
+      }
+    },
+    "Development": {
+      "commandName": "Development",
+      "launchBrowser": true,
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Development"
+      },
+      "applicationUrl": ";http://localhost:5000"
+    },
+    "MySql": {
+      "commandName": "MySql",
+      "launchBrowser": true,
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "MySql"
+      },
+      "applicationUrl": ";http://localhost:5000"
+    },
+    "Oracle": {
+      "commandName": "Oracle",
+      "launchBrowser": true,
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Oracle"
+      },
+      "applicationUrl": ";http://localhost:5000"
+    },
+    "PostgreSql": {
+      "commandName": "PostgreSql",
+      "launchBrowser": true,
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "PostgreSql"
+      },
+      "applicationUrl": ";http://localhost:5000"
+    },
+    "TimescaleDB": {
+      "commandName": "TimescaleDB",
+      "launchBrowser": true,
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "TimescaleDB"
+      },
+      "applicationUrl": ";http://localhost:5000"
+    },
+    "Sqlite": {
+      "commandName": "Sqlite",
+      "launchBrowser": true,
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Sqlite"
+      },
+      "applicationUrl": ";http://localhost:5000"
+    },
+    "SQLServer": {
+      "commandName": "SQLServer",
+      "launchBrowser": true,
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "SQLServer"
+      },
+      "applicationUrl": ";http://localhost:5000"
+    },
+    "Docker": {
+      "commandName": "Docker",
+      "launchBrowser": true,
+      "launchUrl": "{Scheme}://{ServiceHost}:{ServicePort}"
+    }
+  }
+}

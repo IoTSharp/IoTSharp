@@ -1,0 +1,16 @@
+{
+  "profiles": {
+    "Docker Compose": {
+      "commandName": "DockerCompose",
+      "composeLaunchServiceName": "iotsharp",
+      "serviceActions": {
+        "iotsharp": "StartDebugging",
+        "pgadmin": "StartWithoutDebugging",
+        "pgsql": "StartWithoutDebugging"
+      },
+      "composeLaunchAction": "LaunchBrowser",
+      "commandVersion": "1.0",
+      "composeLaunchUrl": "{Scheme}://localhost:{ServicePort}"
+    }
+  }
+}
