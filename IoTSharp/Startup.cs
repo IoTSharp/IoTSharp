@@ -385,7 +385,7 @@ namespace IoTSharp
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env, ISchedulerFactory factory)
         {
-            if (env.IsDevelopment())
+            if (env.IsDevelopment() || !env.IsEnvironment("Production"))
             {
                 app.UseDeveloperExceptionPage();
             }
@@ -406,7 +406,7 @@ namespace IoTSharp
             app.UseAuthentication();
             app.UseAuthorization();
             app.UseDefaultFiles();
-            if (env.IsDevelopment())
+            if (env.IsDevelopment() || !env.IsEnvironment("Production"))
             {
                 app.UseStaticFiles();
             }
@@ -436,7 +436,7 @@ namespace IoTSharp
                 // see https://go.microsoft.com/fwlink/?linkid=864501
              
                 spa.Options.SourcePath = "ClientApp";
-                if (env.IsDevelopment())
+                if (env.IsDevelopment() || !env.IsEnvironment("Production"))
                 {
                     spa.UseAngularCliServer(npmScript: "start");
                 }

@@ -8,7 +8,7 @@ import { environment } from '@env/environment';
   template: `
     <layout-default [options]="options" [asideUser]="asideUserTpl" [content]="contentTpl">
       <layout-default-header-item direction="left">
-        <a layout-default-header-item-trigger href="//github.com/IotSharp/IotSharp" target="_blank">
+        <a layout-default-header-item-trigger href="//github.com/IoTSharp/IoTSharp" target="_blank">
           <i nz-icon nzType="github"></i>
         </a>
       </layout-default-header-item>
@@ -33,7 +33,7 @@ import { environment } from '@env/environment';
       </layout-default-header-item>
       <layout-default-header-item direction="right" hidden="mobile">
         <header-icon></header-icon>
-      </layout-default-header-item> 
+      </layout-default-header-item>
       <layout-default-header-item direction="right" hidden="mobile">
         <div layout-default-header-item-trigger nz-dropdown [nzDropdownMenu]="settingsMenu" nzTrigger="click" nzPlacement="bottomRight">
           <i nz-icon nzType="setting"></i>
@@ -93,5 +93,5 @@ export class LayoutBasicComponent {
     return this.settings.user;
   }
 
-  constructor(private settings: SettingsService) { }
+  constructor(private settings: SettingsService) {}
 }

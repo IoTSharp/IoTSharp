@@ -52,7 +52,7 @@ export class StartupService {
           map((appData) => {
             const res = appData as NzSafeAny;
 
-            this.settingService.setApp({ name: 'IotSharp', description: 'IotSharp' });
+            this.settingService.setApp({ name: 'IoTSharp', description: 'IoTSharp' });
             this.settingService.setData('drawerconfig', { width: 720, nzMaskClosable: false });
             this.settingService.setUser({
               name: res.result.username,
@@ -70,11 +70,8 @@ export class StartupService {
             //this.aclService.setAbility(ACL);
             this.aclService.setFull(false); //开启ACL
 
-         
             if (!res.result.menu) {
-
-
-           //   res.data.menu = menu;
+              //   res.data.menu = menu;
             }
             this.menuService.add(res.result.menu);
             this.titleService.default = '';

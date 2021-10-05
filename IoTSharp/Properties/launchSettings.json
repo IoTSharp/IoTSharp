@@ -16,7 +16,7 @@
       }
     },
     "Development": {
-      "commandName": "Development",
+      "commandName": "Project",
       "launchBrowser": true,
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"
@@ -24,7 +24,7 @@
       "applicationUrl": ";http://localhost:5000"
     },
     "MySql": {
-      "commandName": "MySql",
+      "commandName": "Project",
       "launchBrowser": true,
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "MySql"
@@ -32,7 +32,7 @@
       "applicationUrl": ";http://localhost:5000"
     },
     "Oracle": {
-      "commandName": "Oracle",
+      "commandName": "Project",
       "launchBrowser": true,
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Oracle"
@@ -40,7 +40,7 @@
       "applicationUrl": ";http://localhost:5000"
     },
     "PostgreSql": {
-      "commandName": "PostgreSql",
+      "commandName": "Project",
       "launchBrowser": true,
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "PostgreSql"
@@ -48,7 +48,7 @@
       "applicationUrl": ";http://localhost:5000"
     },
     "TimescaleDB": {
-      "commandName": "TimescaleDB",
+      "commandName": "Project",
       "launchBrowser": true,
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "TimescaleDB"
@@ -56,7 +56,7 @@
       "applicationUrl": ";http://localhost:5000"
     },
     "Sqlite": {
-      "commandName": "Sqlite",
+      "commandName": "Project",
       "launchBrowser": true,
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Sqlite"
@@ -64,7 +64,7 @@
       "applicationUrl": ";http://localhost:5000"
     },
     "SQLServer": {
-      "commandName": "SQLServer",
+      "commandName": "Project",
       "launchBrowser": true,
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "SQLServer"
