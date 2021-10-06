@@ -915,6 +915,12 @@ namespace IoTSharp.Controllers
 
                                     //脚本处理逻辑
                                     break;
+                                case "javascript":
+                                    {
+                                      
+                                    }
+                                    //脚本处理逻辑
+                                    break;
                                 case "python":
                                     break;
                                 case "xml":
