@@ -1,5 +1,4 @@
 ﻿using IoTSharp.Interpreter;
-using IoTSharp.Interpreter.JavaScript;
 using Microsoft.Extensions.Logging;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;

@@ -1,6 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
 using Microsoft.Scripting.Hosting;
-using MoonSharp.Interpreter;
+using Neo.IronLua;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 using System;
@@ -11,22 +11,21 @@ namespace IoTSharp.Interpreter
 {
     public class LuaScriptEngine : ScriptEngineBase
     {
-        private Script _engine;
+        private Lua _engine;
+        private LuaGlobal env;
 
         public LuaScriptEngine(ILogger<LuaScriptEngine> logger, EngineSetting setting, CancellationToken cancellationToken) : base(logger, setting, cancellationToken)
         {
-            _engine = new Script();
+            _engine = new Lua();
+             env = _engine.CreateEnvironment(); // Create a environment
         }
         public override string Do(string _source, string input)
         {
             var expConverter = new ExpandoObjectConverter();
             dynamic obj = JsonConvert.DeserializeObject<ExpandoObject>(input, expConverter);
-            UserData.RegisterExtensionType(obj.GetType());
-            UserData.RegisterType(obj.GetType());
-            DynValue dvobj = UserData.Create(obj);
-            _engine.Globals.Set("input", dvobj);
-             DynValue res = _engine.DoString(_source);
-            var outputjson = res.ToObject().ToString();
+            env["input"] = obj;
+              var  res = env.DoChunk(_source,"lua_iotsharp");
+            var outputjson = res.ToString();
             return outputjson;
         }
     }

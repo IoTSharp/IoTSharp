@@ -7,7 +7,7 @@ using System.Threading;
 using IoTSharp.Interpreter;
 using Esprima;
 
-namespace IoTSharp.Interpreter.JavaScript
+namespace IoTSharp.Interpreter
 {
     public class JavaScriptEngine: ScriptEngineBase
     {
