@@ -202,6 +202,7 @@
 	  <ProjectReference Include="..\IoTSharp.Data.Sqlite\IoTSharp.Data.Sqlite.csproj" />
 	  <ProjectReference Include="..\IoTSharp.Data.SqlServer\IoTSharp.Data.SqlServer.csproj" />
 	  <ProjectReference Include="..\IoTSharp.Data\IoTSharp.Data.csproj" />
+	  <ProjectReference Include="..\IoTSharp.Interpreter\IoTSharp.Interpreter.csproj" />
 	</ItemGroup>
 	<ProjectExtensions><VisualStudio><UserProperties clientapp_4package_1json__JsonSchema="" /></VisualStudio></ProjectExtensions>
 </Project>
