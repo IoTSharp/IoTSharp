@@ -15,6 +15,7 @@ namespace IoTSharp.Test
         private JavaScriptEngine _js_engine;
         private PythonScriptEngine _python_engine;
         private LuaScriptEngine _lua_engine;
+        private CScriptEngine _c_engine;
 
         [TestInitialize]
         public void InitTestScriptEngine()
@@ -27,7 +28,8 @@ namespace IoTSharp.Test
             _js_engine = new JavaScriptEngine(lgf.CreateLogger<JavaScriptEngine>(), new Interpreter.EngineSetting() { Timeout = 4 }, System.Threading.Tasks.Task.Factory.CancellationToken);
             _python_engine = new PythonScriptEngine(lgf.CreateLogger<PythonScriptEngine>(), new Interpreter.EngineSetting() { Timeout = 4 }, System.Threading.Tasks.Task.Factory.CancellationToken);
             _lua_engine = new  LuaScriptEngine (lgf.CreateLogger<LuaScriptEngine>(), new Interpreter.EngineSetting() { Timeout = 4 }, System.Threading.Tasks.Task.Factory.CancellationToken);
-
+            _c_engine = new CScriptEngine(lgf.CreateLogger<CScriptEngine>(), new Interpreter.EngineSetting() { Timeout = 4 }, System.Threading.Tasks.Task.Factory.CancellationToken);
+            
         }
         [TestMethod]
         public void TestJavaScript()
@@ -94,6 +96,14 @@ return    fff:new()
             var t = new { fever = true, fat = true };
             var outpuobj = System.Text.Json.JsonSerializer.Deserialize(output, t.GetType());
             Assert.AreEqual(outpuobj, t);
+        }
+        [TestMethod]
+        public void TestC()
+        {
+            var input = "38";
+            string output = _c_engine.Do("atoi(input)>38?1:0;", input);
+            
+            Assert.AreEqual(int.Parse(input) > 38 ? 1 : 0, output);
         }
     }
 }

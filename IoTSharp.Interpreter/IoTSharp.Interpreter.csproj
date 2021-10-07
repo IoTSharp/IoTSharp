@@ -4,6 +4,7 @@
     <TargetFramework>net5.0</TargetFramework>
   </PropertyGroup>
 	<ItemGroup>
+		<PackageReference Include="CLanguage" Version="0.15.30" />
 		<PackageReference Include="Jint" Version="3.0.0-beta-2035" />
 		<PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="5.0.0" />
 		<PackageReference Include="IronPython" Version="3.4.0-alpha1" />
