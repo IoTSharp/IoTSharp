@@ -48,7 +48,7 @@ export class DevicelistComponent implements OnInit {
     );
   }
   url = 'api/Devices/Customers/' + this.customerId;
-
+   
   page: STPage = {
     front: false,
     total: true,
@@ -102,7 +102,7 @@ export class DevicelistComponent implements OnInit {
           acl: 111,
           text: '属性修改',
           click: (item: any) => {
-            this.SetAttribute(item.id);
+            this.setAttribute(item.id);
           },
         },
         {
@@ -150,12 +150,12 @@ export class DevicelistComponent implements OnInit {
       },
     });
     drawerRef.afterOpen.subscribe(() => {
-      this.getData();
+    
     });
-    drawerRef.afterClose.subscribe((data) => {});
+    drawerRef.afterClose.subscribe((data) => { this.getData();});
   }
 
-  SetAttribute(id: string): void {
+  setAttribute(id: string): void {
     var { nzMaskClosable, width } = this.settingService.getData('drawerconfig');
     let title = '属性修改';
     const drawerRef = this.drawerService.create<

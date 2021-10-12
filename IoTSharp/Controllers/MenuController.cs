@@ -101,7 +101,7 @@ namespace IoTSharp.Controllers
         {
          
             var profile = await this.GetUserProfile();
-            if (profile.Roles.Contains("SystemAdmin"))
+            if (profile.Roles.FirstOrDefault()?.Contains("SystemAdmin")??false)
             {
                 return new AppMessage()
                 {
@@ -138,41 +138,41 @@ namespace IoTSharp.Controllers
                                }
                                },
 
-                               new
-                               {
-                                   text = "客户管理",
-                                   i18n="",
-                                   icon="anticon-rocket",
-                                   children=new[]
-                                   {
+                               //new
+                               //{
+                               //    text = "客户管理",
+                               //    i18n="",
+                               //    icon="anticon-rocket",
+                               //    children=new[]
+                               //    {
 
-                                       new { text = "租户列表", i18n = "",link="/iot/customer/customerlist" }
-                                   }
-                               },
-                               new
-                               {
-                                   text = "用户管理",
-                                   i18n="",
-                                   icon="anticon-rocket",
-                                   children=new[]
-                                   {
+                               //        new { text = "租户列表", i18n = "",link="/iot/customer/customerlist" }
+                               //    }
+                               //},
+                               //new
+                               //{
+                               //    text = "用户管理",
+                               //    i18n="",
+                               //    icon="anticon-rocket",
+                               //    children=new[]
+                               //    {
 
-                                       new { text = "用户列表", i18n = "",link="/iot/user/userlist" }
-                                   }
-                               },
-                               new
-                               {
-                                   text = "设备管理",
-                                   i18n="",
-                                   icon="anticon-rocket",
-                                   children=new[]
-                                   {
+                               //        new { text = "用户列表", i18n = "",link="/iot/user/userlist" }
+                               //    }
+                               //},
+                               //new
+                               //{
+                               //    text = "设备管理",
+                               //    i18n="",
+                               //    icon="anticon-rocket",
+                               //    children=new[]
+                               //    {
 
-                                       new { text = "设备列表", i18n = "",link="/iot/device/devicelist" },
-                                       new { text = "设计", i18n = "",link="/iot/device/devicegraph" },
-                                       new { text = "规则链", i18n = "",link="/iot/flow/flowlist" },
-                                   }
-                               },
+                               //        new { text = "设备列表", i18n = "",link="/iot/device/devicelist" },
+                               //        new { text = "设计", i18n = "",link="/iot/device/devicegraph" },
+                               //        new { text = "规则链", i18n = "",link="/iot/flow/flowlist" },
+                               //    }
+                               //},
                                new
                                {
                                    text = "资源",
@@ -200,7 +200,7 @@ namespace IoTSharp.Controllers
                 };
             }
 
-            if (profile.Roles.Contains("TenantAdmin"))
+            if (profile.Roles.FirstOrDefault() ? .Contains("TenantAdmin")??false)
             {
                 return new AppMessage()
                 {
@@ -253,7 +253,7 @@ namespace IoTSharp.Controllers
                     }
                 };
             }
-            if (profile.Roles.Contains("CustomerAdmin"))
+            if (profile.Roles.FirstOrDefault() ? .Contains("CustomerAdmin")??false)
             {
                 return new AppMessage()
                 {
@@ -310,7 +310,7 @@ namespace IoTSharp.Controllers
                 };
             }
 
-            if (profile.Roles.Contains("NormalUser"))
+            if (profile.Roles.FirstOrDefault()?.Contains("NormalUser")??false)
             {
                 return new AppMessage()
                 {

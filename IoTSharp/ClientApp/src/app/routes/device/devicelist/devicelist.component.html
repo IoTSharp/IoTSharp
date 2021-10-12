@@ -18,63 +18,67 @@
         </div>
       </div>
 
+      <!--<button nz-button [nzType]="'primary'" [routerLink]="['/manage/authority/roleform']" [queryParams]="{Id:-1}">
+      <i nz-icon nzType="plus"></i>
+      <span>{{ 'button.new' | translate }}</span>
+    </button>-->
+
+
+    </form>
+
+    <div nz-col nzMd="8" nzSm="24">
       <button nz-button [nzType]="'primary'" (click)="edit('-1')" acl [acl-ability]="137">
         <i nz-icon nzType="plus"></i>
         <span>{{ 'button.new' | translate }}</span>
       </button>
-      <!--<button nz-button [nzType]="'primary'" [routerLink]="['/manage/authority/roleform']" [queryParams]="{Id:-1}">
-          <i nz-icon nzType="plus"></i>
-          <span>{{ 'button.new' | translate }}</span>
-        </button>-->
-
-      <st
-        [expandAccordion]="true"
-        #st
-        [columns]="columns"
-        [data]="url"
-        ps="20"
-        [page]="page"
-        [req]="req"
-        [expand]="expand"
-        [res]="res"
-        expandAccordion
-        (change)="onchange($event)"
-      >
-        <ng-template #expand let-item let-index="index" let-column="column">
-          <nz-card nzTitle="设备属性">
-            <table>
-              <tr>
-                <td>属性名称</td>
-                <td>属性值</td>
-                <td>数据侧</td>
-                <td>时间</td>
-              </tr>
-              <tr *ngFor="let _item of item.attributes; let i = index; let odd = odd">
-                <td>{{ _item.keyName }}</td>
-                <td>{{ _item.value }}</td>
-                <td>{{ _item.dataSide }}</td>
-
-                <td>{{ _item.dateTime }}</td>
-              </tr>
-            </table>
-          </nz-card>
-
-          <nz-card nzTitle="遥测数据">
-            <table>
-              <tr>
-                <td>属性名称</td>
-                <td>属性值</td>
-                <td>时间</td>
-              </tr>
-              <tr *ngFor="let _item of item.telemetries; let i = index; let odd = odd">
-                <td>{{ _item.keyName }}</td>
-                <td>{{ _item.value }}</td>
-                <td>{{ _item.dateTime }}</td>
-              </tr>
-            </table>
-          </nz-card>
-        </ng-template>
-      </st>
-    </form>
+    </div>
   </nz-card>
+
+
+  <st [expandAccordion]="true"
+      #st
+      [columns]="columns"
+      [data]="url"
+      ps="20"
+      [page]="page"
+      [req]="req"
+      [expand]="expand"
+      [res]="res"
+      expandAccordion
+      (change)="onchange($event)">
+    <ng-template #expand let-item let-index="index" let-column="column">
+      <nz-card nzTitle="设备属性">
+        <table>
+          <tr>
+            <td>属性名称</td>
+            <td>属性值</td>
+            <td>数据侧</td>
+            <td>时间</td>
+          </tr>
+          <tr *ngFor="let _item of item.attributes; let i = index; let odd = odd">
+            <td>{{ _item.keyName }}</td>
+            <td>{{ _item.value }}</td>
+            <td>{{ _item.dataSide }}</td>
+
+            <td>{{ _item.dateTime }}</td>
+          </tr>
+        </table>
+      </nz-card>
+
+      <nz-card nzTitle="遥测数据">
+        <table>
+          <tr>
+            <td>属性名称</td>
+            <td>属性值</td>
+            <td>时间</td>
+          </tr>
+          <tr *ngFor="let _item of item.telemetries; let i = index; let odd = odd">
+            <td>{{ _item.keyName }}</td>
+            <td>{{ _item.value }}</td>
+            <td>{{ _item.dateTime }}</td>
+          </tr>
+        </table>
+      </nz-card>
+    </ng-template>
+  </st>
 </page-header>

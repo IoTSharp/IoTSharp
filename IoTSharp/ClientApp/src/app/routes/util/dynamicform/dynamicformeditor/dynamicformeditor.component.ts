@@ -32,9 +32,9 @@ export class DynamicformeditorComponent implements OnInit {
   submitting = false;
   ngOnInit() {
     this.form = this.fb.group({
-      FormName: [null, [Validators.required]],
-      FormId: [0, []],
-      FormDesc: [null, []],
+      formName: [null, [Validators.required]],
+      formId: [0, []],
+      formDesc: [null, []],
     });
 
     if (this.id !== -1) {
