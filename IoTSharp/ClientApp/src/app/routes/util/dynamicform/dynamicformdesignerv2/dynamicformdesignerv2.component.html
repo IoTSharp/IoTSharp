@@ -1,0 +1,37 @@
+<nz-layout>
+    <nz-sider nzCollapsible [(nzCollapsed)]="isCollapsed" [nzTrigger]="null" nzTheme="light">
+      <div class="example-container">
+        <div
+          id="all"
+          cdkDropList
+          [cdkDropListData]="all"
+          cdkDropListConnectedTo="even"
+          class="example-list"
+          (cdkDropListDropped)="drop($event)"
+          [cdkDropListEnterPredicate]="noReturnPredicate"
+        >
+          <div class="example-box" *ngFor="let number of all" [cdkDragData]="number" cdkDrag>{{ number }}</div>
+        </div>
+      </div>
+    </nz-sider>
+    <nz-layout>
+      <nz-content>
+        <div class="example-container">
+          <div
+            id="even"
+            cdkDropList
+            [cdkDropListData]="even"
+            cdkDropListConnectedTo="all"
+            class="target-list"
+            (cdkDropListDropped)="drop($event)"
+            [cdkDropListEnterPredicate]="evenPredicate"
+          >
+            <div class="example-box" *ngFor="let number of even" cdkDrag [cdkDragData]="number">
+              <app-dynamicpart type="{{ number }}"></app-dynamicpart>
+            </div>
+          </div>
+        </div>
+      </nz-content>
+    </nz-layout>
+  </nz-layout>
+  

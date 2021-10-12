@@ -46,9 +46,14 @@ import { DynamictablecolumeditorComponent } from './util/dynamictable/dynamictab
 import { DynamictableviewComponent } from './util/dynamictable/dynamictableview/dynamictableview.component';
 import { DynamictabletesterComponent } from './util/dynamictable/dynamictabletester/dynamictabletester.component';
 import { DynamictablelistComponent } from './util/dynamictable/dynamictablelist/dynamictablelist.component';
+import { Dynamicformdesignerv2Component } from './util/dynamicform/dynamicformdesignerv2/dynamicformdesignerv2.component';
+import { DynamicpartComponent } from './util/dynamicform/dynamicpart/dynamicpart.component';
+
+import { TextBoxComponent } from './util/dynamicform/cps/text-box/text-box.component';
+import { controldirective } from './util/dynamicform/controldirective';
 
 const COMPONENTS: Type<null>[] = [];
-const Directive: Type<void>[] = [fielddirective];
+const Directive: Type<void>[] = [fielddirective,controldirective];
 @NgModule({
   imports: [SharedModule, RouteRoutingModule, WidgetsModule, DelonFormModule.forRoot()],
   declarations: [
@@ -92,6 +97,10 @@ const Directive: Type<void>[] = [fielddirective];
     DynamictableviewComponent,
     DynamictabletesterComponent,
     DynamictablelistComponent,
+    Dynamicformdesignerv2Component,
+    DynamicpartComponent,
+
+    TextBoxComponent,
   ],
 })
 export class RoutesModule {

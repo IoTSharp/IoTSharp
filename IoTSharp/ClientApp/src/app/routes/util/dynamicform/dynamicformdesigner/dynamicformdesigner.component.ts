@@ -1,4 +1,10 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, Injector, OnInit } from '@angular/core';
+import pluginForms from 'grapesjs-plugin-forms';
+import pluginBlocks from 'grapesjs-blocks-basic';
+import { createCustomElement } from '@angular/elements';
+import { NzSelectComponent } from 'ng-zorro-antd/select';
+import { TextBoxComponent } from '../cps/text-box/text-box.component';
+
 
 @Component({
   selector: 'app-dynamicformdesigner',
@@ -6,52 +12,55 @@ import { Component, OnInit } from '@angular/core';
   styleUrls: ['./dynamicformdesigner.component.less'],
 })
 export class DynamicformdesignerComponent implements OnInit {
-  constructor() {}
+  constructor(private injector: Injector) {}
   editor;
   ngOnInit(): void {
     this.editor = grapesjs.init({
       container: '#gjs',
-      // ...
-      blockManager: {
-        appendTo: '#blocks',
-        blocks: [
-          {
-            id: 'section', // id is mandatory
-            label: '<b>Section</b>', // You can use HTML/SVG inside labels
-            attributes: { class: 'gjs-block-section' },
-            content: `<section>
-          <h1>This is a simple title</h1>
-          <div>This is just a Lorem text: Lorem ipsum dolor sit amet</div>
-        </section>`,
-          },
-          {
-            id: 'text',
-            label: 'Text',
-            content: '<div data-gjs-type="text">Insert your text here</div>',
-          },
-          {
-            id: 'image',
-            label: 'Image',
-            // Select the component once it's dropped
-            select: true,
-            // You can pass components as a JSON instead of a simple HTML string,
-            // in this case we also use a defined component type `image`
-            content: { type: 'image' },
-            // This triggers `active` event on dropped components and the `image`
-            // reacts by opening the AssetManager
-            activate: true,
-          },
-        ],
+      showOffsets: 1,
+      storageManager: false,
+      plugins: ['form'],
+      pluginsOpts: {
+        'form': {},
       },
+      // ...
+     
     });
+    //导入布局栏
+    pluginBlocks(this.editor,{});
+    //导入Form栏
+    pluginForms(this.editor,{});
 
+
+    //导入ng-zorro组件 需要安装@angular/elements支持
+    customElements.define('nz-select', createCustomElement(NzSelectComponent, { injector: this.injector }));
+    // Input没有专门的Component,再包装一下就行了，AutoComplate也是一样，把属性和事件暴露出来，然后就跟普通Component一样用，difine和add中的名字和你定义的selector一定要保持一致
+    customElements.define('app-text-box', createCustomElement(TextBoxComponent, { injector: this.injector }));
+    //样式丢了，结构没有问题
     this._initBlock();
   }
 
   _initBlock() {
-    this.editor.BlockManager.add('my-first-block', {
-      label: 'Simple block',
-      content: '<div class="my-block">This is a simple block</div>',
+
+
+
+    this.editor.BlockManager.add('nz-select', {
+      label: 'nz-select',
+      content: `<nz-select ngModel="lucy">
+          <nz-option nzValue="jack" nzLabel="Jack"></nz-option>
+          <nz-option nzValue="lucy" nzLabel="Lucy"></nz-option>
+          <nz-option nzValue="disabled" nzLabel="Disabled" nzDisabled></nz-option>
+        </nz-select>
+        `,
+    });
+
+
+    this.editor.BlockManager.add('app-text-box', {
+      label: 'nz-textbox',
+      content: `<app-text-box>
+ 
+        </app-text-box>
+        `,
     });
   }
 }
