@@ -382,8 +382,8 @@ namespace IoTSharp
             .AllowAnyOrigin()
             .AllowAnyMethod()
             .AllowAnyHeader());
-            app.UseAuthentication();
-            app.UseAuthorization();
+          app.UseAuthentication();
+               app.UseAuthorization();
             app.UseDefaultFiles();
             app.UseStaticFiles();
 

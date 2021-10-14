@@ -51,6 +51,7 @@ import { DynamicpartComponent } from './util/dynamicform/dynamicpart/dynamicpart
 
 import { TextBoxComponent } from './util/dynamicform/cps/text-box/text-box.component';
 import { controldirective } from './util/dynamicform/controldirective';
+import { RulesdownlinkComponent } from './device/rulesdownlink/rulesdownlink.component';
 
 const COMPONENTS: Type<null>[] = [];
 const Directive: Type<void>[] = [fielddirective,controldirective];
@@ -101,6 +102,7 @@ const Directive: Type<void>[] = [fielddirective,controldirective];
     DynamicpartComponent,
 
     TextBoxComponent,
+      RulesdownlinkComponent,
   ],
 })
 export class RoutesModule {

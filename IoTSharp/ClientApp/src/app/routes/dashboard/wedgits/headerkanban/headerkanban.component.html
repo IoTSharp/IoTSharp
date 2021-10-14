@@ -1,0 +1,79 @@
+
+<div nz-row nzGutter="16">
+    <div nz-col nzXs="24" nzSm="12" nzMd="6" class="mb-md">
+      <div nz-row nzType="flex" nzAlign="middle" class="bg-primary rounded-md">
+        <div nz-col nzSpan="12" class="p-md text-white">
+          <div class="h2 mt0">{{data.devive.count}}</div>
+          <p class="text-nowrap mb0">设备总量</p>
+        </div>
+        <div nz-col nzSpan="12">
+          <g2-mini-bar
+            *ngIf="data.devive.count"
+            height="35"
+            color="#fff"
+            borderWidth="3"
+            [padding]="[5, 30]"
+            [data]="data.devive.data"
+            tooltipType="mini"
+          ></g2-mini-bar>
+        </div>
+      </div>
+    </div>
+    <div nz-col nzXs="24" nzSm="12" nzMd="6" class="mb-md">
+      <div nz-row nzType="flex" nzAlign="middle" class="bg-success rounded-md">
+        <div nz-col nzSpan="12" class="p-md text-white">
+          <div class="h2 mt0">{{data.warning.count}}</div>
+          <p class="text-nowrap mb0">警告次数</p>
+        </div>
+        <div nz-col nzSpan="12">
+          <g2-mini-bar
+            *ngIf="data.warning.count"
+            height="35"
+            color="#fff"
+            borderWidth="3"
+            [padding]="[5, 30]"
+            [data]="data.warning.data"
+            tooltipType="mini"
+          ></g2-mini-bar>
+        </div>
+      </div>
+    </div>
+    <div nz-col nzXs="24" nzSm="12" nzMd="6" class="mb-md">
+      <div nz-row nzType="flex" nzAlign="middle" class="bg-orange rounded-md">
+        <div nz-col nzSpan="12" class="p-md text-white">
+          <div class="h2 mt0">租户数量</div>
+          <p class="text-nowrap mb0">{{data.talent.count}} </p>
+        </div>
+        <div nz-col nzSpan="12">
+          <g2-mini-bar
+            *ngIf="data.talent.count"
+            height="35"
+            color="#fff"
+            borderWidth="3"
+            [padding]="[5, 30]"
+            [data]="data.talent.data"
+            tooltipType="mini"
+          ></g2-mini-bar>
+        </div>
+      </div>
+    </div>
+    <div nz-col nzXs="24" nzSm="12" nzMd="6" class="mb-md">
+      <div nz-row nzType="flex" nzAlign="middle" class="bg-magenta rounded-md">
+        <div nz-col nzSpan="12" class="p-md text-white">
+          <div class="h2 mt0">客户数量</div>
+          <p class="text-nowrap mb0">{{data.customer.count}}</p>
+        </div>
+        <div nz-col nzSpan="12">
+          <g2-mini-bar
+            *ngIf="data.customer.count"
+            height="35"
+            color="#fff"
+            borderWidth="3"
+            [padding]="[5, 30]"
+            [data]="data.customer.data"
+            tooltipType="mini"
+          ></g2-mini-bar>
+        </div>
+      </div>
+    </div>
+  </div>

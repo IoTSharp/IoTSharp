@@ -3,6 +3,7 @@ import { Input, ViewChild } from '@angular/core';
 import { Component, OnInit } from '@angular/core';
 import { SFComponent, SFNumberWidgetSchema, SFSchema, SFTextareaWidgetSchema } from '@delon/form';
 import { _HttpClient } from '@delon/theme';
+import { NzNotificationService } from 'ng-zorro-antd/notification';
 import { switchMap } from 'rxjs/operators';
 
 @Component({
@@ -17,7 +18,7 @@ export class PropformComponent implements OnInit {
     id: '-1',
     customerId: '-1',
   };
-  constructor(private http: _HttpClient, private cd: ChangeDetectorRef) {}
+  constructor(private http: _HttpClient, private cd: ChangeDetectorRef,private notification: NzNotificationService) {}
   schema: SFSchema = {
     properties: {
       // "field1": {
@@ -171,7 +172,11 @@ export class PropformComponent implements OnInit {
       .subscribe(
         (next) => {},
         (error) => {
-
+          this.notification.create(
+            'warning',
+            '修改错误',
+            '属性数据修改失败.'
+          );
         },
         () => {},
       );

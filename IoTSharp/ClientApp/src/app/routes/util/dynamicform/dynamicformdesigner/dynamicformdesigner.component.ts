@@ -12,7 +12,7 @@ import { TextBoxComponent } from '../cps/text-box/text-box.component';
   styleUrls: ['./dynamicformdesigner.component.less'],
 })
 export class DynamicformdesignerComponent implements OnInit {
-  constructor(private injector: Injector) {}
+  constructor(private injector: Injector) { }
   editor;
   ngOnInit(): void {
     this.editor = grapesjs.init({
@@ -24,18 +24,27 @@ export class DynamicformdesignerComponent implements OnInit {
         'form': {},
       },
       // ...
-     
+
     });
     //导入布局栏
-    pluginBlocks(this.editor,{});
+    pluginBlocks(this.editor, {});
     //导入Form栏
-    pluginForms(this.editor,{});
+    pluginForms(this.editor, {});
 
 
+
+    console.log(customElements.get('nz-select'))
     //导入ng-zorro组件 需要安装@angular/elements支持
-    customElements.define('nz-select', createCustomElement(NzSelectComponent, { injector: this.injector }));
+    if (!customElements.get('nz-select')) {
+      customElements.define('nz-select', createCustomElement(NzSelectComponent, { injector: this.injector }));
+    }
+
     // Input没有专门的Component,再包装一下就行了，AutoComplate也是一样，把属性和事件暴露出来，然后就跟普通Component一样用，difine和add中的名字和你定义的selector一定要保持一致
-    customElements.define('app-text-box', createCustomElement(TextBoxComponent, { injector: this.injector }));
+    if (!customElements.get('app-text-box')) {
+      customElements.define('app-text-box', createCustomElement(TextBoxComponent, { injector: this.injector }));
+    }
+
+
     //样式丢了，结构没有问题
     this._initBlock();
   }

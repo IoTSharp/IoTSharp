@@ -31,6 +31,12 @@
         <i nz-icon nzType="plus"></i>
         <span>{{ 'button.new' | translate }}</span>
       </button>
+
+
+      <button nz-button [nzType]="'primary'" (click)="downlink([])" acl [acl-ability]="137">
+        <i nz-icon nzType="plus"></i>
+        <span>规则下发</span>
+      </button>
     </div>
   </nz-card>
 

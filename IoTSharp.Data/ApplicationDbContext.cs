@@ -71,8 +71,7 @@ namespace IoTSharp.Data
         public DbSet<DynamicFormFieldInfo> DynamicFormFieldInfos { get; set; }
         public DbSet<DynamicFormFieldValueInfo> DynamicFormFieldValueInfos { get; set; }
         public DbSet<DynamicFormInfo> DynamicFormInfos { get; set; }
-    
-
+        public DbSet<DeviceRule> DeviceRules { get; set; }
         public DbSet<AuthorizedKey> AuthorizedKeys { get; set; }
 
     }

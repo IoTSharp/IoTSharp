@@ -163,6 +163,33 @@ namespace IoTSharp.Controllers
             return new AppMessage<FlowRule> { ErrType = ErrType.找不到对象, };
         }
 
+        [HttpGet("[action]")]
+        public AppMessage<FlowRule> BindDevice (ModelRuleBind m)
+        {
+
+
+            var profile = this.GetUserProfile();
+            if (m.dev != null)
+
+            {
+                m.dev.ToList().ForEach(d => {
+                    if (_context.DeviceRules.Any(c => c.RuleId == m.rule && c.DeviceId == d)) {
+                        var dr = new DeviceRule();
+
+
+
+                    }
+                
+                });
+            }
+            //var rule = _context.FlowRules.FirstOrDefault(c => c.RuleId == id);
+            //if (rule != null)
+            //{
+            //    return new AppMessage<FlowRule> { ErrType = ErrType.正常返回, Result = rule };
+            //}
+
+            return new AppMessage<FlowRule> { ErrType = ErrType.找不到对象, };
+        }
 
 
 
