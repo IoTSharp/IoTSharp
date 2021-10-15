@@ -33,7 +33,7 @@ export class PropformComponent implements OnInit {
       (next) => {
         var properties: any = {};
         for (var item of next) {
-          switch (item.keyType) {
+          switch (item.dataType) {
             case 'XML':
               properties[item.keyName] = {
                 type: 'string',
@@ -187,5 +187,5 @@ export interface deviceattributeitem {
   dataSide: any;
   dateTime: string;
   value: string;
-  keyType: string;
+  dataType: string;
 }

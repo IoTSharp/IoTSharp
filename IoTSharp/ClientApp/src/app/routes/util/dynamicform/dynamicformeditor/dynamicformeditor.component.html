@@ -3,13 +3,13 @@
   <nz-card [nzBordered]="false">
     <form nz-form [formGroup]="form" (ngSubmit)="submit()" se-container="1" labelWidth="200">
       <se label="表单名称" error="表单名称" required>
-        <input nz-input formControlName="FormName" placeholder="表单名称" />
+        <input nz-input formControlName="formName" placeholder="表单名称" />
       </se>
       <se label="表单备注" error="表单备注">
-        <textarea nz-input formControlName="FormDesc" placeholder="表单备注" [nzAutosize]="{ minRows: 2, maxRows: 6 }"></textarea>
+        <textarea nz-input formControlName="formDesc" placeholder="表单备注" [nzAutosize]="{ minRows: 2, maxRows: 6 }"></textarea>
       </se>
       <se>
-        <input nz-input formControlName="FormId" placeholder="Action" type="hidden" />
+        <input nz-input formControlName="formId" placeholder="Action" type="hidden" />
         <button nz-button type="reset" (click)="close()">取消</button>
         <button nz-button nzType="primary" [disabled]="form.invalid" type="submit" [nzLoading]="submitting">保存</button>
       </se>

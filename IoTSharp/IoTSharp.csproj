@@ -35,6 +35,7 @@
 		<FileVersion>1.6.0.0</FileVersion>
 		<PackageLicenseFile>LICENSE.txt</PackageLicenseFile>
 		<PackageIcon>96x96.png</PackageIcon>
+		<TypeScriptModuleKind>system</TypeScriptModuleKind>
 		
 		
 	</PropertyGroup>
@@ -182,7 +183,7 @@
 		<!-- As part of publishing, ensure the JS resources are freshly built in production mode -->
 		<Exec WorkingDirectory="$(SpaRoot)" Command="npm install" />
 		<Exec WorkingDirectory="$(SpaRoot)" Command="npm run build -- --prod" />
-		<Exec WorkingDirectory="$(SpaRoot)" Command="npm run build:ssr -- --prod" Condition=" '$(BuildServerSideRenderer)' == 'true' " />
+		<Exec WorkingDirectory="$(SpaRoot)" Command="npm run build -- --prod" Condition=" '$(BuildServerSideRenderer)' == 'true' " />
 
 		<!-- Include the newly-built files in the publish output -->
 		<ItemGroup>

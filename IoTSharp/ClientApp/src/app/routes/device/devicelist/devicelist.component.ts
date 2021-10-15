@@ -102,7 +102,7 @@ export class DevicelistComponent implements OnInit {
           acl: 111,
           text: '属性修改',
           click: (item: any) => {
-            this.SetAttribute(item.id);
+            this.setAttribute(item.id);
           },
         },
         {
@@ -149,13 +149,13 @@ export class DevicelistComponent implements OnInit {
         },
       },
     });
-    drawerRef.afterOpen.subscribe(() => {
+    drawerRef.afterOpen.subscribe(() => {});
+    drawerRef.afterClose.subscribe((data) => {
       this.getData();
     });
-    drawerRef.afterClose.subscribe((data) => {});
   }
 
-  SetAttribute(id: string): void {
+  setAttribute(id: string): void {
     var { nzMaskClosable, width } = this.settingService.getData('drawerconfig');
     let title = '属性修改';
     const drawerRef = this.drawerService.create<
