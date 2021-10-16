@@ -163,6 +163,36 @@ namespace IoTSharp.Controllers
             return new AppMessage<FlowRule> { ErrType = ErrType.找不到对象, };
         }
 
+        [HttpGet("[action]")]
+        public async Task<AppMessage<FlowRule>> BindDevice (ModelRuleBind m)
+        {
+
+
+            var profile =await this.GetUserProfile();
+            if (m.dev != null)
+
+            {
+                m.dev.ToList().ForEach(d => {
+                    if (_context.DeviceRules.Any(c => c.RuleId == m.rule && c.DeviceId == d)) {
+                        var dr = new DeviceRule();
+                        dr.DeviceId = d;
+                        dr.ConfigDateTime=DateTime.Now;
+                        dr.ConfigUser = profile.Id;
+                        dr.RuleId = m.rule;
+                        _context.DeviceRules.Add(dr);
+                        _context.SaveChanges();
+                    }
+                
+                });
+            }
+            //var rule = _context.FlowRules.FirstOrDefault(c => c.RuleId == id);
+            //if (rule != null)
+            //{
+            //    return new AppMessage<FlowRule> { ErrType = ErrType.正常返回, Result = rule };
+            //}
+
+            return new AppMessage<FlowRule> { ErrType = ErrType.参数错误, ErrMessage = "请选择下发设备"};
+        }
 
 
 

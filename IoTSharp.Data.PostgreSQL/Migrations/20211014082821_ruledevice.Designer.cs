@@ -3,20 +3,22 @@ using System;
 using IoTSharp.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 namespace IoTSharp.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20211014082821_ruledevice")]
+    partial class ruledevice
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
                 .HasAnnotation("Relational:MaxIdentifierLength", 63)
-                .HasAnnotation("ProductVersion", "5.0.10")
+                .HasAnnotation("ProductVersion", "5.0.9")
                 .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
 
             modelBuilder.Entity("IoTSharp.Data.AuditLog", b =>
@@ -403,19 +405,19 @@ namespace IoTSharp.Migrations
                     b.Property<byte[]>("Value_Binary")
                         .HasColumnType("bytea");
 
-                    b.Property<bool?>("Value_Boolean")
+                    b.Property<bool>("Value_Boolean")
                         .HasColumnType("boolean");
 
-                    b.Property<DateTime?>("Value_DateTime")
+                    b.Property<DateTime>("Value_DateTime")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<double?>("Value_Double")
+                    b.Property<double>("Value_Double")
                         .HasColumnType("double precision");
 
                     b.Property<string>("Value_Json")
                         .HasColumnType("jsonb");
 
-                    b.Property<long?>("Value_Long")
+                    b.Property<long>("Value_Long")
                         .HasColumnType("bigint");
 
                     b.Property<string>("Value_String")
@@ -895,19 +897,19 @@ namespace IoTSharp.Migrations
                     b.Property<byte[]>("Value_Binary")
                         .HasColumnType("bytea");
 
-                    b.Property<bool?>("Value_Boolean")
+                    b.Property<bool>("Value_Boolean")
                         .HasColumnType("boolean");
 
-                    b.Property<DateTime?>("Value_DateTime")
+                    b.Property<DateTime>("Value_DateTime")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<double?>("Value_Double")
+                    b.Property<double>("Value_Double")
                         .HasColumnType("double precision");
 
                     b.Property<string>("Value_Json")
                         .HasColumnType("jsonb");
 
-                    b.Property<long?>("Value_Long")
+                    b.Property<long>("Value_Long")
                         .HasColumnType("bigint");
 
                     b.Property<string>("Value_String")

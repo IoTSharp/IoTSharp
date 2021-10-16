@@ -35,7 +35,12 @@ export class DynamicformfieldeditorComponent implements OnInit {
   SuportType: UIDataType[] = [];
   AllControlType: any = [];
   AllSuportType: any = [];
-  constructor(private componentFactoryResolver: ComponentFactoryResolver, private http: _HttpClient, private cd: ChangeDetectorRef, private drawerRef: NzDrawerRef<string>) {}
+  constructor(
+    private componentFactoryResolver: ComponentFactoryResolver,
+    private http: _HttpClient,
+    private cd: ChangeDetectorRef,
+    private drawerRef: NzDrawerRef<string>,
+  ) {}
   ngOnDestroy(): void {}
   ngOnInit(): void {
     this.componentFactory = this.componentFactoryResolver.resolveComponentFactory(FieldpartComponent);
@@ -43,14 +48,14 @@ export class DynamicformfieldeditorComponent implements OnInit {
 
     //一定要顺序发射指令
     concat(
-      this.http.post('api/dictionary/index', { DictionaryGroupId: 2, pi: 0, ps: 20, limit: 20, offset: 0 }).pipe(
+      this.http.post('api/dictionary/index', { DictionaryGroupId: 1, pi: 0, ps: 20, limit: 20, offset: 0 }).pipe(
         map((x) => {
           this.AllSuportType = x.result.rows.map((x) => {
             return { label: x.dictionaryName, value: x.dictionaryValue };
           });
         }),
       ),
-      this.http.post('api/dictionary/index', { DictionaryGroupId: 1, pi: 0, ps: 20, limit: 20, offset: 0 }).pipe(
+      this.http.post('api/dictionary/index', { DictionaryGroupId: 2, pi: 0, ps: 20, limit: 20, offset: 0 }).pipe(
         map((x) => {
           this.AllControlType = x.result.rows.map((x) => {
             return { label: x.dictionaryName, value: x.dictionaryValue };
@@ -210,7 +215,9 @@ export class DynamicformfieldeditorComponent implements OnInit {
       .subscribe(
         (x) => {},
         (y) => {},
-        () => { this.drawerRef.close(this.id);},
+        () => {
+          this.drawerRef.close(this.id);
+        },
       );
   }
 

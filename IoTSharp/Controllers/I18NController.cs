@@ -23,6 +23,7 @@ namespace IoTSharp.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize]
     public class I18NController : ControllerBase
     {
         private readonly ApplicationDBInitializer _dBInitializer;

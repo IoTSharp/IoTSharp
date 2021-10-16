@@ -12,6 +12,7 @@ import { ACLService } from '@delon/acl';
 import { DeviceformComponent } from '../deviceform/deviceform.component';
 import { PropformComponent } from '../propform/propform.component';
 import { zip } from 'rxjs';
+import { RulesdownlinkComponent } from '../rulesdownlink/rulesdownlink.component';
 
 @Component({
   selector: 'app-devicelist',
@@ -105,6 +106,14 @@ export class DevicelistComponent implements OnInit {
             this.setAttribute(item.id);
           },
         },
+
+        {
+          acl: 111,
+          text: '规则下发',
+          click: (item: any) => {
+            this.downlink([item]);
+          },
+        },
         {
           acl: 110,
           text: '删除',
@@ -125,6 +134,38 @@ export class DevicelistComponent implements OnInit {
     });
   }
 
+  downlink(dev: any[]) {
+    console.log(dev);
+    if (dev.length == 0) {
+      dev = this.st.list.filter((c) => c.checked);
+    }
+    var { nzMaskClosable, width } = this.settingService.getData('drawerconfig');
+    let title = '属性修改';
+    const drawerRef = this.drawerService.create<
+      RulesdownlinkComponent,
+      {
+        params: {
+          id: string;
+          customerId: string;
+        };
+      },
+      any
+    >({
+      nzTitle: title,
+      nzContent: RulesdownlinkComponent,
+      nzWidth: width,
+      nzMaskClosable: nzMaskClosable,
+      nzContentParams: {
+        params: {
+          dev: dev,
+        },
+      },
+    });
+    drawerRef.afterOpen.subscribe(() => {
+      this.getData();
+    });
+    drawerRef.afterClose.subscribe((data) => {});
+  }
   edit(id: string): void {
     var { nzMaskClosable, width } = this.settingService.getData('drawerconfig');
     let title = id == '-1' ? '新建设备' : '修改设备';

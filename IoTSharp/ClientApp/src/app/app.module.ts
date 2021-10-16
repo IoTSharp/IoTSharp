@@ -71,7 +71,7 @@ import { HTTP_INTERCEPTORS } from '@angular/common/http';
 import { DefaultInterceptor } from '@core';
 import { SimpleInterceptor } from '@delon/auth';
 const INTERCEPTOR_PROVIDES = [
-  { provide: HTTP_INTERCEPTORS, useClass: SimpleInterceptor, multi: true },
+  //  { provide: HTTP_INTERCEPTORS, useClass: SimpleInterceptor, multi: true },
   { provide: HTTP_INTERCEPTORS, useClass: DefaultInterceptor, multi: true },
 ];
 // #endregion

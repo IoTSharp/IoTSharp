@@ -21,6 +21,7 @@ namespace IoTSharp.Controllers
 
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize]
     public class MenuController : ControllerBase
     {
         private readonly UserManager<IdentityUser> _userManager;
@@ -35,7 +36,7 @@ namespace IoTSharp.Controllers
 
         public async Task<AppMessage> GetUserAsset(int type)
         {
-      
+
 
             var profile = await this.GetUserProfile();
             switch (type)
@@ -45,7 +46,8 @@ namespace IoTSharp.Controllers
                     {
                         return new AppMessage()
                         {
-                            ErrType = ErrType.正常返回, Result = new[] {""}
+                            ErrType = ErrType.正常返回,
+                            Result = new[] { "" }
                         };
                     }
                     if (profile.Roles.Contains("SystemAdmin"))
@@ -95,13 +97,13 @@ namespace IoTSharp.Controllers
 
 
 
-        [Authorize]
+
         [HttpGet("[action]")]
         public async Task<AppMessage> GetProfile()
         {
-         
+
             var profile = await this.GetUserProfile();
-            if (profile.Roles.FirstOrDefault()?.Contains("SystemAdmin")??false)
+            if (profile.Roles.FirstOrDefault()?.Contains("SystemAdmin") ?? false)
             {
                 return new AppMessage()
                 {
@@ -109,98 +111,99 @@ namespace IoTSharp.Controllers
                     {
                         menu = new[]
                     {
-                        new
-                        {
-                            text = "主导航",i18n="menu.main",group=true ,hideInBreadcrumb=true,
-                            children=new[]
+                            new
                             {
-                               new
-                               {
-                                   text = "仪表盘",
-                                   i18n="menu.dashboard",
-                                   icon="anticon-dashboard",
-                                   children=new[]
+                                text = "主导航", i18n = "menu.main", group = true, hideInBreadcrumb = true,
+                                children = new[]
+                            {
+                                    new
+                                    {
+                                        text = "仪表盘",
+                                        i18n = "menu.dashboard",
+                                        icon = "anticon-dashboard",
+                                        children = new[]
                                    {
 
-                                       new { text = "仪表盘", i18n = "",link="/dashboard/v1" }
-                                   }
-                               },
+                                            new { text = "仪表盘", i18n = "", link = "/dashboard/v1" }
+                                        }
+                                    },
 
-                               new
+                                    new
+                                    {
+                                        text = "租户管理",
+                                        i18n = "",
+                                        icon = "anticon-rocket",
+                                        children = new[]
                                {
-                               text = "租户管理",
-                               i18n="",
-                               icon="anticon-rocket",
-                               children=new[]
-                               {
 
-                                   new { text = "租户列表", i18n = "",link="/iot/tenant/tenantlist" }
-                               }
-                               },
+                                            new { text = "租户列表", i18n = "", link = "/iot/tenant/tenantlist" }
+                                        }
+                                    },
 
-                               //new
-                               //{
-                               //    text = "客户管理",
-                               //    i18n="",
-                               //    icon="anticon-rocket",
-                               //    children=new[]
-                               //    {
+                                    //new
+                                    //{
+                                    //    text = "客户管理",
+                                    //    i18n="",
+                                    //    icon="anticon-rocket",
+                                    //    children=new[]
+                                    //    {
 
-                               //        new { text = "租户列表", i18n = "",link="/iot/customer/customerlist" }
-                               //    }
-                               //},
-                               //new
-                               //{
-                               //    text = "用户管理",
-                               //    i18n="",
-                               //    icon="anticon-rocket",
-                               //    children=new[]
-                               //    {
+                                    //        new { text = "租户列表", i18n = "",link="/iot/customer/customerlist" }
+                                    //    }
+                                    //},
+                                    //new
+                                    //{
+                                    //    text = "用户管理",
+                                    //    i18n="",
+                                    //    icon="anticon-rocket",
+                                    //    children=new[]
+                                    //    {
 
-                               //        new { text = "用户列表", i18n = "",link="/iot/user/userlist" }
-                               //    }
-                               //},
-                               //new
-                               //{
-                               //    text = "设备管理",
-                               //    i18n="",
-                               //    icon="anticon-rocket",
-                               //    children=new[]
-                               //    {
-
-                               //        new { text = "设备列表", i18n = "",link="/iot/device/devicelist" },
-                               //        new { text = "设计", i18n = "",link="/iot/device/devicegraph" },
-                               //        new { text = "规则链", i18n = "",link="/iot/flow/flowlist" },
-                               //    }
-                               //},
-                               new
-                               {
-                                   text = "资源",
-                                   i18n="",
-                                   icon="anticon-rocket",
-                                   children=new[]
+                                    //        new { text = "用户列表", i18n = "",link="/iot/user/userlist" }
+                                    //    }
+                                    //},
+                                    new 
+                                    {
+                                        text = "规则管理",
+                                        i18n = "",
+                                        icon = "anticon-rocket",
+                                        children = new[]
                                    {
 
-                                       new { text = "字典分组", i18n = "",link="/iot/dictionary/dictionarygrouplist" },
-                                       new { text = "字典", i18n = "",link="/iot/dictionary/dictionarylist" },
-                                       new { text = "国际化", i18n = "",link="/iot/resouce/i18nlist" },
-                                       new { text = "表单", i18n = "",link="/iot/util/dynamicformlist" },
-                                   }
-                               },
+                                            new { text = "设备列表", i18n = "", link = "/iot/device/devicelist" },
+                                            new { text = "设计", i18n = "", link = "/iot/device/devicegraph" },
+                                            new { text = "规则链", i18n = "", link = "/iot/flow/flowlist" },
+                                        }
+                                    },
+                                    new
+                                    {
+                                        text = "资源",
+                                        i18n = "",
+                                        icon = "anticon-rocket",
+                                        children = new[]
+                                   {
 
+                                            new { text = "字典分组", i18n = "", link = "/iot/dictionary/dictionarygrouplist" },
+                                            new { text = "字典", i18n = "", link = "/iot/dictionary/dictionarylist" },
+                                            new { text = "国际化", i18n = "", link = "/iot/resouce/i18nlist" },
+                                            new { text = "表单", i18n = "", link = "/iot/util/dynamicformlist" },
+                                        }
+                                    },
+
+                                }
                             }
-                        }
-                    },
+                        },
                         funcs = Enumerable.Range(0, 500),
-                        username= profile.Name,
-                        AppName="IOTSHARP",
-                        Email= profile.Email.FirstOrDefault(),
-                        Logo=""
+                        username = profile.Name,
+                        AppName = "iotsharp",
+                        Modules = new[] { "kanban", "statistics", "lists" }, // 用户首页模块
+                        Email = profile.Email.FirstOrDefault(),
+                        Logo = ""
                     }
                 };
             }
 
-            if (profile.Roles.FirstOrDefault() ? .Contains("TenantAdmin")??false)
+            if (profile.Roles.FirstOrDefault()?.Contains("TenantAdmin") ?? false)
             {
                 return new AppMessage()
                 {
@@ -253,7 +256,7 @@ namespace IoTSharp.Controllers
                     }
                 };
             }
-            if (profile.Roles.FirstOrDefault() ? .Contains("CustomerAdmin")??false)
+            if (profile.Roles.FirstOrDefault()?.Contains("CustomerAdmin") ?? false)
             {
                 return new AppMessage()
                 {
@@ -310,7 +313,7 @@ namespace IoTSharp.Controllers
                 };
             }
 
-            if (profile.Roles.FirstOrDefault()?.Contains("NormalUser")??false)
+            if (profile.Roles.FirstOrDefault()?.Contains("NormalUser") ?? false)
             {
                 return new AppMessage()
                 {

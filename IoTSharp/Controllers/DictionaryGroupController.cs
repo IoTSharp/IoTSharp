@@ -9,11 +9,13 @@ using IoTSharp.Controllers.Models;
 using IoTSharp.Data;
 using IoTSharp.Models;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Authorization;
 
 namespace IoTSharp.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize]
     public class DictionaryGroupController : ControllerBase
     {
 

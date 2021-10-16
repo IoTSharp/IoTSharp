@@ -58,6 +58,7 @@ export class StartupService {
               name: res.result.username,
               avatar: '',
               email: res.result.email,
+              modules: res.result.modules,
             });
             var ACL = [];
             if (!res.result.funcs) {
