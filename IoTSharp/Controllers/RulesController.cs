@@ -163,27 +163,29 @@ namespace IoTSharp.Controllers
             return new AppMessage<FlowRule> { ErrType = ErrType.找不到对象, };
         }
 
-        [HttpGet("[action]")]
-        public async Task<AppMessage<FlowRule>> BindDevice (ModelRuleBind m)
+        [HttpPost("[action]")]
+        public async Task<AppMessage<FlowRule>> BindDevice(ModelRuleBind m)
         {
 
 
-            var profile =await this.GetUserProfile();
+            var profile = await this.GetUserProfile();
             if (m.dev != null)
 
             {
                 m.dev.ToList().ForEach(d => {
-                    if (_context.DeviceRules.Any(c => c.RuleId == m.rule && c.DeviceId == d)) {
+                    if (!_context.DeviceRules.Any(c => c.FlowRule.RuleId == m.rule && c.Device.Id == d))
+                    {
                         var dr = new DeviceRule();
-                        dr.DeviceId = d;
-                        dr.ConfigDateTime=DateTime.Now;
+                        dr.Device = _context.Device.SingleOrDefault(c => c.Id == d);
+                        dr.FlowRule = _context.FlowRules.SingleOrDefault(c => c.RuleId == m.rule);
+                        dr.ConfigDateTime = DateTime.Now;
                         dr.ConfigUser = profile.Id;
-                        dr.RuleId = m.rule;
                         _context.DeviceRules.Add(dr);
                         _context.SaveChanges();
                     }
-                
+
                 });
+                return new AppMessage<FlowRule> { ErrType = ErrType.正常返回, ErrMessage = "规则已下发" };
             }
             //var rule = _context.FlowRules.FirstOrDefault(c => c.RuleId == id);
             //if (rule != null)
@@ -191,10 +193,51 @@ namespace IoTSharp.Controllers
             //    return new AppMessage<FlowRule> { ErrType = ErrType.正常返回, Result = rule };
             //}
 
-            return new AppMessage<FlowRule> { ErrType = ErrType.参数错误, ErrMessage = "请选择下发设备"};
+            return new AppMessage<FlowRule> { ErrType = ErrType.参数错误, ErrMessage = "请选择下发设备" };
         }
 
 
+
+        [HttpGet("[action]")]
+        public async Task<AppMessage<FlowRule>> DeleteDeviceRules(Guid deviceId, long ruleId)
+        {
+
+
+            var profile = await this.GetUserProfile();
+
+            var map = _context.DeviceRules.FirstOrDefault(c => c.FlowRule.RuleId == ruleId && c.Device.Id == deviceId);
+
+            if (map != null)
+
+            {
+                _context.DeviceRules.Remove(map);
+                _context.SaveChanges();
+                return new AppMessage<FlowRule> { ErrType = ErrType.正常返回, ErrMessage = "规则绑定已删除" };
+            }
+            //var rule = _context.FlowRules.FirstOrDefault(c => c.RuleId == id);
+            //if (rule != null)
+            //{
+            //    return new AppMessage<FlowRule> { ErrType = ErrType.正常返回, Result = rule };
+            //}
+
+            return new AppMessage<FlowRule> { ErrType = ErrType.参数错误, ErrMessage = "规则绑定不存在或已删除" };
+        }
+
+
+
+        [HttpGet("[action]")]
+        public async Task<AppMessage<List<FlowRule>>> GetDeviceRules(Guid deviceId)
+        {
+            return new AppMessage<List<FlowRule>> { ErrType = ErrType.正常返回, Result = await _context.DeviceRules.Where(c => c.Device.Id == deviceId).Select(c => c.FlowRule).ToListAsync() };
+        }
+
+
+        [HttpGet("[action]")]
+        public async Task<AppMessage<List<Device>>> GetRuleDevices(long ruleId)
+        {
+
+            return new AppMessage<List<Device>> { ErrType = ErrType.正常返回, Result = await _context.DeviceRules.Where(c => c.FlowRule.RuleId == ruleId).Select(c => c.Device).ToListAsync() };
+        }
 
         [HttpPost("[action]")]
         public async Task<AppMessage> SaveDiagram(ModelWorkFlow m)

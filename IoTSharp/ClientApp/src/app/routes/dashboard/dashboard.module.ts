@@ -29,11 +29,13 @@ import { WarningboardComponent } from './wedgits/warningboard/warningboard.compo
 import { NewdeviceComponent } from './wedgits/newdevice/newdevice.component';
 import { StatisticsComponent } from './wedgits/statistics/statistics.component';
 import { widgetdirective } from './wedgits/widgetdirective';
+import { AbmModule } from 'angular-baidu-maps';
 
 const COMPONENTS = [DashboardV1Component, DashboardAnalysisComponent, DashboardMonitorComponent, DashboardWorkplaceComponent];
-var Directives = [widgetdirective];
+var Directives=[widgetdirective]
 @NgModule({
   imports: [
+    
     SharedModule,
     DashboardRoutingModule,
     CountDownModule,
@@ -54,7 +56,10 @@ var Directives = [widgetdirective];
     TrendModule,
     QuickMenuModule,
     OnboardingModule,
+    AbmModule.forRoot({
+      apiKey: 'Xgk3DdnaP9KNZdiKROD5Ad14BQGb3kYS' // app key为必选项
+    })
   ],
-  declarations: [...COMPONENTS, HeaderkanbanComponent, WarningboardComponent, NewdeviceComponent, StatisticsComponent, Directives],
+  declarations: [...COMPONENTS, HeaderkanbanComponent, WarningboardComponent, NewdeviceComponent, StatisticsComponent,Directives],
 })
 export class DashboardModule {}

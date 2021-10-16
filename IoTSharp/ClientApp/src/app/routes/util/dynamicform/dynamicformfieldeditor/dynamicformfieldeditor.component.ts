@@ -35,12 +35,7 @@ export class DynamicformfieldeditorComponent implements OnInit {
   SuportType: UIDataType[] = [];
   AllControlType: any = [];
   AllSuportType: any = [];
-  constructor(
-    private componentFactoryResolver: ComponentFactoryResolver,
-    private http: _HttpClient,
-    private cd: ChangeDetectorRef,
-    private drawerRef: NzDrawerRef<string>,
-  ) {}
+  constructor(private componentFactoryResolver: ComponentFactoryResolver, private http: _HttpClient, private cd: ChangeDetectorRef, private drawerRef: NzDrawerRef<string>) {}
   ngOnDestroy(): void {}
   ngOnInit(): void {
     this.componentFactory = this.componentFactoryResolver.resolveComponentFactory(FieldpartComponent);
@@ -215,9 +210,7 @@ export class DynamicformfieldeditorComponent implements OnInit {
       .subscribe(
         (x) => {},
         (y) => {},
-        () => {
-          this.drawerRef.close(this.id);
-        },
+        () => { this.drawerRef.close(this.id);},
       );
   }
 

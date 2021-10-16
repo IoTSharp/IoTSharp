@@ -6,6 +6,7 @@ import { WidgetItem } from '../../common/widgetItem';
 import { HeaderkanbanComponent } from '../wedgits/headerkanban/headerkanban.component';
 import { NewdeviceComponent } from '../wedgits/newdevice/newdevice.component';
 import { StatisticsComponent } from '../wedgits/statistics/statistics.component';
+import { WarningboardComponent } from '../wedgits/warningboard/warningboard.component';
 
 import { widgetdirective } from '../wedgits/widgetdirective';
 import { IWidgetComponent } from './widgetcomponent';
@@ -28,6 +29,10 @@ export class DashboardV1Component implements OnInit {
     new WidgetItem('lists', NewdeviceComponent, {
       //  someneedtransferdata: "yourdata,don't forget declara a @Input someneedtransferdata Property ",
     }),
+
+    new WidgetItem('warning', WarningboardComponent, {
+      //  someneedtransferdata: "yourdata,don't forget declara a @Input someneedtransferdata Property ",
+    }),
   ];
   constructor(
     private http: _HttpClient,
@@ -36,12 +41,12 @@ export class DashboardV1Component implements OnInit {
     private componentFactoryResolver: ComponentFactoryResolver,
   ) {}
 
-  ngOnInit(): void {
-    this.initialwidgets();
-  }
+  ngOnInit(): void {this.initialwidgets();}
 
   initialwidgets() {
-    var modules = this.settingService.user['modules'] ?? ['kanban', 'statistics', 'lists'];
+
+
+    var modules = this.settingService.user['modules']??['kanban', 'statistics', 'lists'];
 
     for (let item of this.widgets) {
       if (modules.find((x) => x == item.name)) {
@@ -49,8 +54,9 @@ export class DashboardV1Component implements OnInit {
         const viewContainerRef = this.widgetcontainer.viewContainerRef;
         const componentRef = viewContainerRef.createComponent<IWidgetComponent>(componentFactory);
         // componentRef.instance.someproperties={prop1:"value1"}
-        //   componentRef.instance.dosomethingyouwanado()
+     //   componentRef.instance.dosomethingyouwanado()
       }
     }
+
   }
 }

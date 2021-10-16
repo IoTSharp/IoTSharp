@@ -6,7 +6,7 @@ import { IWidgetComponent } from '../../v1/widgetcomponent';
   templateUrl: './statistics.component.html',
   styleUrls: ['./statistics.component.less'],
 })
-export class StatisticsComponent implements OnInit, IWidgetComponent {
+export class StatisticsComponent implements OnInit ,IWidgetComponent {
   offlineData: any[] = [];
 
   offlineChartData: any[] = [];

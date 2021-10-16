@@ -403,7 +403,7 @@ export class DevicegraphComponent implements OnInit {
       },
     },
   ];
-  constructor(cdr: ChangeDetectorRef, private settingService: SettingsService) {}
+  constructor(cdr: ChangeDetectorRef, private settingService: SettingsService) { }
 
   newport(id) {
     this.selcetedDevice.ports.in = [...this.selcetedDevice.ports.in, { id: '0', portname: '新端口', type: 1, iotype: 1 }];
@@ -436,7 +436,7 @@ export class DevicegraphComponent implements OnInit {
           },
         },
       },
-      onPortRendered: (args) => {},
+      onPortRendered: (args) => { },
       connecting: {
         snap: true,
         allowBlank: false,
@@ -564,7 +564,7 @@ export class DevicegraphComponent implements OnInit {
     }
   }
 
-  dragend($event) {}
+  dragend($event) { }
   onDrop($event) {
     switch ($event.dropData.type) {
       case 'device':
@@ -783,7 +783,7 @@ export class DevicegraphComponent implements OnInit {
     this.data.splice(this.data.indexOf(data.Biz), 1);
   }
 
-  dragEnd(event) {}
+  dragEnd(event) { }
 
   onmove($event) {
     this.dragEndlocation = $event;
@@ -791,7 +791,7 @@ export class DevicegraphComponent implements OnInit {
 
   dragEndlocation: any;
 
-  load() {}
+  load() { }
 
   savediagram() {
     var edges = this.graph.getEdges();

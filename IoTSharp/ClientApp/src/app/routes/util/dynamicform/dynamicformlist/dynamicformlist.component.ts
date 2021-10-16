@@ -110,16 +110,16 @@ export class DynamicformlistComponent implements OnInit {
         {
           text: '字段编辑',
           acl: 103,
-          //  i18n: 'dynamicform.fieldedit',
+        //  i18n: 'dynamicform.fieldedit',
           click: (item: any) => {
             this.openFieldComponent(item.formId);
           },
         },
-
+    
         {
           text: '预览',
           acl: 103,
-          //   i18n: 'dynamicform.formpriview',
+       //   i18n: 'dynamicform.formpriview',
           click: (item: any) => {
             this.openFormComponent(item.formId);
           },
@@ -159,8 +159,10 @@ export class DynamicformlistComponent implements OnInit {
               () => {},
             );
           },
-        },
-        {
+
+
+
+        }, {
           text: '设计',
           acl: 103,
           //    i18n: 'dynamicform.fieldedit',
@@ -168,6 +170,7 @@ export class DynamicformlistComponent implements OnInit {
             this.openDesignerComponent(item.formId);
           },
         },
+
 
         {
           text: '设计2',
@@ -234,14 +237,15 @@ export class DynamicformlistComponent implements OnInit {
     });
   }
 
+
   openDesignerComponent(id: Number): void {
     var title = id == -1 ? '设计' : '设计';
     var { nzMaskClosable, width } = this.settingService.getData('drawerconfig');
     const drawerRef = this.drawerService.create<DynamicformdesignerComponent, { id: Number }, string>({
       nzTitle: title,
       nzContent: DynamicformdesignerComponent,
-      nzWidth: 1024,
-      nzMaskClosable: nzMaskClosable,
+       nzWidth: 1024,
+       nzMaskClosable: nzMaskClosable,
 
       nzContentParams: {
         id: id,
@@ -258,6 +262,9 @@ export class DynamicformlistComponent implements OnInit {
     });
   }
 
+
+
+
   openDesignerComponentV2(id: Number): void {
     var title = id == -1 ? '设计' : '设计';
     var { nzMaskClosable, width } = this.settingService.getData('drawerconfig');
@@ -272,7 +279,7 @@ export class DynamicformlistComponent implements OnInit {
       },
     });
 
-    drawerRef.afterOpen.subscribe(() => {});
+    drawerRef.afterOpen.subscribe(() => { });
 
     drawerRef.afterClose.subscribe((data) => {
       if (typeof data === 'string') {

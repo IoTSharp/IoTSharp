@@ -1,7 +1,7 @@
 import { Directive, Type, ViewContainerRef } from '@angular/core';
 @Directive({
-  selector: '[controlcontainer]',
+    selector: '[controlcontainer]',
 })
 export class controldirective {
-  constructor(public viewContainerRef: ViewContainerRef) {}
+    constructor(public viewContainerRef: ViewContainerRef) { }
 }

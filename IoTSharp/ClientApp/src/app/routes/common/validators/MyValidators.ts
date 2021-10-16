@@ -38,10 +38,64 @@ export class MyValidators extends Validators {
         }
         return { messsage: { 'zh-cn': `值不能为空`, en: `this value is not empty` } };
     }
+
+
+    static ip(control: AbstractControl): MyValidationErrors | null {
+        const value = control.value;
+
+        if (isEmptyInputValue(value)) {
+            return null;
+        }
+        return isIp(value) ? null : { mobile: { 'zh-cn': `Ip格式不正确`, en: `ip is not valid` } };
+    }
+
+    static identity(control: AbstractControl): MyValidationErrors | null {
+        const value = control.value;
+
+        if (isEmptyInputValue(value)) {
+            return null;
+        }
+        return isIdentity(value) ? null : { mobile: { 'zh-cn': `身份证格式不正确`, en: `identity is not valid` } };
+    }
+   static zip(control: AbstractControl): MyValidationErrors | null {
+        const value = control.value;
+
+        if (isEmptyInputValue(value)) {
+            return null;
+        }
+        return isZip(value) ? null : { mobile: { 'zh-cn': `邮编格式不正确`, en: `zipCode is not valid` } };
+    }
+    static email(control: AbstractControl): MyValidationErrors | null {
+        const value = control.value;
+
+        if (isEmptyInputValue(value)) {
+            return null;
+        }
+        return isEmail(value) ? null : { mobile: { 'zh-cn': `邮件格式不正确`, en: `email is not valid` } };
+    }
+ 
+ 
 }
 
 function isEmptyInputValue(value: NzSafeAny): boolean {
     return value == null || value.length === 0;
+}
+
+
+function isZip(value: string): boolean {
+    return typeof value === 'string' && /[1-9]\d{5}(?!\d)/.test(value);
+}
+
+function isIp(value: string): boolean {
+    return typeof value === 'string' && /((2(5[0-5]|[0-4]\d))|[0-1]?\d{1,2})(\.((2(5[0-5]|[0-4]\d))|[0-1]?\d{1,2})){3}/.test(value);
+}
+
+function isIdentity(value: string): boolean {
+    return typeof value === 'string' && /(^\d{15}$)|(^\d{18}$)|(^\d{17}(\d|X|x)$)/.test(value);
+}
+
+function isEmail(value: string): boolean {
+    return typeof value === 'string' && /^\w+([-+.]\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*$/.test(value);
 }
 
 function isMobile(value: string): boolean {

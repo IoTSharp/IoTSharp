@@ -38,18 +38,18 @@ export class TenantformComponent implements OnInit {
   form!: FormGroup;
   submitting = false;
   ngOnInit() {
-    const { nullbigintid } = MyValidators;
+    const { nullbigintid ,zip,email,mobile} = MyValidators;
     this.form = this.fb.group({
       name: [null, [Validators.required]],
       id: [Guid.create().toString(), []],
-      eMail: [null, []],
-      phone: [null, []],
+      eMail: [null, [email]],
+      phone: [null, [mobile]],
       country: [null, []],
       province: [null, []],
       city: [null, []],
       street: [null, []],
       address: [null, []],
-      zipCode: [null, []],
+      zipCode: [null, [Validators.required,zip]],
 
     });
 

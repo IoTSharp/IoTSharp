@@ -18,7 +18,6 @@ namespace IoTSharp.Controllers
     /// <summary>
     /// this is test purpose
     /// </summary>
-
     [Route("api/[controller]")]
     [ApiController]
     [Authorize]
@@ -162,7 +161,7 @@ namespace IoTSharp.Controllers
                                     //        new { text = "用户列表", i18n = "",link="/iot/user/userlist" }
                                     //    }
                                     //},
-                                    new 
+                                    new
                                     {
                                         text = "规则管理",
                                         i18n = "",
@@ -170,7 +169,7 @@ namespace IoTSharp.Controllers
                                         children = new[]
                                    {
 
-                                            new { text = "设备列表", i18n = "", link = "/iot/device/devicelist" },
+                                            //new { text = "设备列表", i18n = "", link = "/iot/device/devicelist" },
                                             new { text = "设计", i18n = "", link = "/iot/device/devicegraph" },
                                             new { text = "规则链", i18n = "", link = "/iot/flow/flowlist" },
                                         }
@@ -196,7 +195,7 @@ namespace IoTSharp.Controllers
                         funcs = Enumerable.Range(0, 500),
                         username = profile.Name,
                         AppName = "iotsharp",
-                        Modules = new[] { "kanban", "statistics", "lists" }, // 用户首页模块
+                        Modules = new[] { "kanban", "statistics", "lists", "warning" }, // 用户首页模块
                         Email = profile.Email.FirstOrDefault(),
                         Logo = ""
                     }
@@ -419,3 +418,4 @@ namespace IoTSharp.Controllers
         }
     }
 }
+

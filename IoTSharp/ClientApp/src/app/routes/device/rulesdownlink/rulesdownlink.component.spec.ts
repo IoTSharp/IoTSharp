@@ -8,8 +8,9 @@ describe('RulesdownlinkComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [RulesdownlinkComponent],
-    }).compileComponents();
+      declarations: [ RulesdownlinkComponent ]
+    })
+    .compileComponents();
   });
 
   beforeEach(() => {

@@ -179,19 +179,17 @@ export class DictionarygrouplistComponent implements OnInit {
     console.log(event);
     switch (event.type) {
       case 'expand':
-        this.http
-          .post<AppMessage>('api/dictionary/index', {
-            DictionaryGroupId: event.expand.dictionaryGroupId,
-            offset: 0,
-            limit: 100,
-          })
-          .subscribe(
-            (x) => {
-              event.expand.Children = x.result.rows;
-            },
-            (y) => {},
-            () => {},
-          );
+        this.http.post<AppMessage>('api/dictionary/index' ,{
+          DictionaryGroupId:event.expand.dictionaryGroupId,
+          offset:0,
+          limit:100
+        }).subscribe(
+          (x) => {
+            event.expand.Children = x.result.rows;
+          },
+          (y) => {},
+          () => {},
+        );
         break;
     }
   }

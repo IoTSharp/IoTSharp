@@ -1,12 +1,13 @@
 import { Component, OnInit } from '@angular/core';
 import { IWidgetComponent } from '../../v1/widgetcomponent';
 
+
 @Component({
   selector: 'app-newdevice',
   templateUrl: './newdevice.component.html',
-  styleUrls: ['./newdevice.component.less'],
+  styleUrls: ['./newdevice.component.less']
 })
-export class NewdeviceComponent implements OnInit, IWidgetComponent {
+export class NewdeviceComponent implements OnInit  ,IWidgetComponent{
   todoData = [
     {
       completed: true,
@@ -46,7 +47,9 @@ export class NewdeviceComponent implements OnInit, IWidgetComponent {
     },
   ];
 
-  constructor() {}
+  constructor() { }
 
-  ngOnInit(): void {}
+  ngOnInit(): void {
+  }
+
 }

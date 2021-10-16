@@ -8,15 +8,17 @@ import { TextBoxComponent } from '../cps/text-box/text-box.component';
 @Component({
   selector: 'app-dynamicpart',
   templateUrl: './dynamicpart.component.html',
-  styleUrls: ['./dynamicpart.component.less'],
+  styleUrls: ['./dynamicpart.component.less']
 })
 export class DynamicpartComponent implements OnInit {
+
+
   @Input()
   type: string = '0';
   @ViewChild(controldirective, { static: true })
   controlcontainer!: controldirective;
   viewContainerRef!: ViewContainerRef;
-  constructor(private componentFactoryResolver: ComponentFactoryResolver, private http: _HttpClient, private cd: ChangeDetectorRef) {}
+  constructor(private componentFactoryResolver: ComponentFactoryResolver, private http: _HttpClient, private cd: ChangeDetectorRef) { }
 
   ngOnInit(): void {
     switch (this.type) {
@@ -29,19 +31,22 @@ export class DynamicpartComponent implements OnInit {
         break;
       }
 
+     
       case '2': {
         var component2 = this.componentFactoryResolver.resolveComponentFactory(TextWidget);
         var viewContainerRef = this.controlcontainer.viewContainerRef;
         viewContainerRef.createComponent<TextWidget>(component2, 0);
         break;
       }
-
+  
       case '3': {
         var component3 = this.componentFactoryResolver.resolveComponentFactory(NzSelectComponent);
         var viewContainerRef = this.controlcontainer.viewContainerRef;
         viewContainerRef.createComponent<NzSelectComponent>(component3, 0);
         break;
       }
+
+
     }
   }
 }

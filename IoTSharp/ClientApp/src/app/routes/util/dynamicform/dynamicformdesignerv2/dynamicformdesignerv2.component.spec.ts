@@ -8,8 +8,9 @@ describe('Dynamicformdesignerv2Component', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [Dynamicformdesignerv2Component],
-    }).compileComponents();
+      declarations: [ Dynamicformdesignerv2Component ]
+    })
+    .compileComponents();
   });
 
   beforeEach(() => {

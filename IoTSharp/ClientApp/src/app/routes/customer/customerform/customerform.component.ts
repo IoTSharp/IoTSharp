@@ -50,20 +50,18 @@ export class CustomerformComponent implements OnInit {
 
 
   ngOnInit() {
-    const { nullbigintid } = MyValidators;
-
-    console.log(this.params)
+    const { nullbigintid ,zip,email,mobile} = MyValidators;
     this.form = this.fb.group({
       name: [null, [Validators.required]],
       id: [Guid.create().toString(), []],
-      email: [null, []],
-      phone: [null, []],
+      email: [null, [email]],
+      phone: [null, [mobile]],
       country: [null, []],
       province: [null, []],
       city: [null, []],
       street: [null, []],
       address: [null, []],
-      zipCode: [null, []],
+      zipCode: [null, [Validators.required,zip]],
       tenantID: [this.params.tenantId, []],
     });
 

@@ -13,6 +13,7 @@ import { DeviceformComponent } from '../deviceform/deviceform.component';
 import { PropformComponent } from '../propform/propform.component';
 import { zip } from 'rxjs';
 import { RulesdownlinkComponent } from '../rulesdownlink/rulesdownlink.component';
+import { appmessage, AppMessage } from '../../common/AppMessage';
 
 @Component({
   selector: 'app-devicelist',
@@ -248,15 +249,30 @@ export class DevicelistComponent implements OnInit {
       case 'expand':
         zip(
           this.http.get<attributeitem[]>('api/Devices/' + $events.expand?.id + '/AttributeLatest'),
+          this.http.get<appmessage<ruleitem>>('api/Rules/GetDeviceRules?deviceId=' + $events.expand?.id),
           // this.http.get<telemetryitem[]>('api/Devices/' + $events.expand?.id + '/TelemetryLatest'),
-        ).subscribe(([attributes, telemetries]) => {
-          $events.expand.attributes = attributes;
-          //  $events.expand.telemetries = telemetries;
-          this.cdr.detectChanges();
-        });
+        ).subscribe(
+          ([
+            attributes,
+            rules,
+            //  telemetries
+          ]) => {
+            $events.expand.attributes = attributes;
+            $events.expand.rules = rules.result;
+            //  $events.expand.telemetries = telemetries;
+            this.cdr.detectChanges();
+          },
+        );
 
         break;
     }
+  }
+
+  removerule(item:deviceitem, rule: ruleitem) {
+    this.http.get('api/Rules/DeleteDeviceRules?deviceId='+item.id+'&ruleId='+rule.ruleId).subscribe(next=>{
+      item.rules = item.rules.filter(x=>x.ruleId!=rule.ruleId);
+    },error=>{},()=>{});
+
   }
 }
 
@@ -271,6 +287,7 @@ export interface deviceitem {
   timeout: string;
   telemetries: telemetryitem[];
   attributes: attributeitem[];
+  rules: ruleitem[];
 }
 
 export interface telemetryitem {
@@ -283,4 +300,11 @@ export interface attributeitem {
   dataSide: string;
   dateTime: string;
   value: string;
+}
+
+export interface ruleitem {
+  ruleId: number;
+  name: string;
+  ruleDesc: string;
+  describes: string;
 }

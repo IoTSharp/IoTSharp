@@ -8,8 +8,9 @@ describe('HeaderkanbanComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [HeaderkanbanComponent],
-    }).compileComponents();
+      declarations: [ HeaderkanbanComponent ]
+    })
+    .compileComponents();
   });
 
   beforeEach(() => {

@@ -27,7 +27,7 @@ namespace IoTSharp.Controllers
             this._userManager = userManager;
             this._context = context;
         }
-
+     
 
 
         [HttpPost("[action]")]

@@ -5,13 +5,14 @@ import { createCustomElement } from '@angular/elements';
 import { NzSelectComponent } from 'ng-zorro-antd/select';
 import { TextBoxComponent } from '../cps/text-box/text-box.component';
 
+
 @Component({
   selector: 'app-dynamicformdesigner',
   templateUrl: './dynamicformdesigner.component.html',
   styleUrls: ['./dynamicformdesigner.component.less'],
 })
 export class DynamicformdesignerComponent implements OnInit {
-  constructor(private injector: Injector) {}
+  constructor(private injector: Injector) { }
   editor;
   ngOnInit(): void {
     this.editor = grapesjs.init({
@@ -20,16 +21,19 @@ export class DynamicformdesignerComponent implements OnInit {
       storageManager: false,
       plugins: ['form'],
       pluginsOpts: {
-        form: {},
+        'form': {},
       },
       // ...
+
     });
     //导入布局栏
     pluginBlocks(this.editor, {});
     //导入Form栏
     pluginForms(this.editor, {});
 
-    console.log(customElements.get('nz-select'));
+
+
+    console.log(customElements.get('nz-select'))
     //导入ng-zorro组件 需要安装@angular/elements支持
     if (!customElements.get('nz-select')) {
       customElements.define('nz-select', createCustomElement(NzSelectComponent, { injector: this.injector }));
@@ -40,11 +44,15 @@ export class DynamicformdesignerComponent implements OnInit {
       customElements.define('app-text-box', createCustomElement(TextBoxComponent, { injector: this.injector }));
     }
 
+
     //样式丢了，结构没有问题
     this._initBlock();
   }
 
   _initBlock() {
+
+
+
     this.editor.BlockManager.add('nz-select', {
       label: 'nz-select',
       content: `<nz-select ngModel="lucy">
@@ -54,6 +62,7 @@ export class DynamicformdesignerComponent implements OnInit {
         </nz-select>
         `,
     });
+
 
     this.editor.BlockManager.add('app-text-box', {
       label: 'nz-textbox',

@@ -60,8 +60,8 @@ export class DynamicformeditorComponent implements OnInit {
         this.submitting = false;
       },
       () => {
-        this.drawerRef.close(this.id);
-      },
+
+          this.drawerRef.close(this.id);},
     );
   }
   close(): void {

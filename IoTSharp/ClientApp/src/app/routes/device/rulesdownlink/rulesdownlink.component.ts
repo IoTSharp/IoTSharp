@@ -51,7 +51,7 @@ export class RulesdownlinkComponent implements OnInit {
 
   downlink() {
     this.http
-      .post('/api/rules/binddevice', {
+      .post('api/rules/binddevice', {
         rule: this.rule,
         dev: this.params.dev.map((x) => x.id),
       })
