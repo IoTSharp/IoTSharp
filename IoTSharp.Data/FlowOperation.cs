@@ -14,7 +14,10 @@ namespace IoTSharp.Data
         [DatabaseGenerated(System.ComponentModel.DataAnnotations.Schema.DatabaseGeneratedOption.Identity)]
         public long OperationId { get; set; } 
         public DateTime? AddDate { get; set; }
-        public int? NodeStatus { get; set; }
+        /// <summary>
+        /// 节点处理状态，0 创建完
+        /// </summary>
+        public int? NodeStatus { get; set; }  
         public string OperationDesc { get; set; }
         public string Data  { get; set; }
         public string BizId { get; set; }

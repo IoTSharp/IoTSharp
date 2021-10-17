@@ -135,5 +135,16 @@ namespace IoTSharp.Data
     }
 
 
+
+    public enum NodeStatus
+    {
+        Abort = -1,
+        Created = 0,
+        Processing =1,
+        Suspend = 2,
+        Complete = 1,
+    }
+
     
+
 }

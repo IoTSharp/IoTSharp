@@ -950,8 +950,10 @@ namespace IoTSharp.Controllers
                 }
             };
         }
-
-        private async System.Threading.Tasks.Task Process(Flow flow, List<Flow> allflow, object data, int nextstep, long _eventid)
+        //模拟处理
+        private async System.Threading.Tasks.Task Process(Flow flow, List<Flow> allflow, object data,
+            //nextstep仅作为参考，迭代深度的计数器，设置最大迭代深度防止循环引用引起堆栈崩溃
+            int nextstep, long _eventid)
         {
 
             
@@ -1107,14 +1109,7 @@ namespace IoTSharp.Controllers
 
                     {
                         var flows = allflow.Where(c => c.SourceId == flow.bpmnid).ToList();
-                        var tasks = new BaseRuleTask()
-                        {
-                            Name = flow.Flowname,
-                            Eventid = flow.bpmnid,
-                            id = flow.bpmnid,
-
-                            outgoing = new EditableList<BaseRuleFlow>()
-                        };
+                     
                         _context.FlowOperations.Add(new FlowOperation()
                         {
                             bpmnid = flow.bpmnid,
@@ -1129,7 +1124,14 @@ namespace IoTSharp.Controllers
                         });
                         await _context.SaveChangesAsync(); 
                         var emptyflow = flows.Where(c => c.Conditionexpression == string.Empty).ToList();
+                        var tasks = new BaseRuleTask()
+                        {
+                            Name = flow.Flowname,
+                            Eventid = flow.bpmnid,
+                            id = flow.bpmnid,
 
+                            outgoing = new EditableList<BaseRuleFlow>()
+                        };
                         foreach (var item in flows.Except(emptyflow))
                         {
                             var rule = new BaseRuleFlow();
