@@ -2,7 +2,6 @@
 using DotNetCore.CAP;
 using IoTSharp.Data;
 using IoTSharp.Handlers;
-using IoTSharp.Queue;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;

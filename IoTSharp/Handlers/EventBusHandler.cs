@@ -1,7 +1,6 @@
 ﻿using DotNetCore.CAP;
 using IoTSharp.Data;
 using IoTSharp.Extensions;
-using IoTSharp.Queue;
 using IoTSharp.Storage;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;

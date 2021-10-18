@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using Microsoft.Scripting.Hosting;
 using Neo.IronLua;
 using Newtonsoft.Json;
@@ -14,7 +15,7 @@ namespace IoTSharp.Interpreter
         private Lua _engine;
         private LuaGlobal env;
 
-        public LuaScriptEngine(ILogger<LuaScriptEngine> logger, EngineSetting setting, CancellationToken cancellationToken) : base(logger, setting, cancellationToken)
+        public LuaScriptEngine(ILogger<LuaScriptEngine> logger, IOptions<EngineSetting> _opt) : base(logger, _opt.Value, System.Threading.Tasks.Task.Factory.CancellationToken)
         {
             _engine = new Lua();
              env = _engine.CreateEnvironment(); // Create a environment

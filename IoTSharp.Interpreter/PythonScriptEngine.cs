@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using Microsoft.Scripting.Hosting;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
@@ -12,7 +13,7 @@ namespace IoTSharp.Interpreter
     {
         private ScriptEngine _engine;
 
-        public PythonScriptEngine(ILogger<PythonScriptEngine> logger, EngineSetting setting, CancellationToken cancellationToken) : base(logger, setting, cancellationToken)
+        public PythonScriptEngine(ILogger<PythonScriptEngine> logger, IOptions< EngineSetting> setting) : base(logger, setting.Value,System.Threading.Tasks.Task.Factory.CancellationToken)
         {
             _engine = IronPython.Hosting.Python.CreateEngine();
         }

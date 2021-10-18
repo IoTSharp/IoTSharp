@@ -1,5 +1,4 @@
 ﻿using IoTSharp.Data;
-using IoTSharp.Queue;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;

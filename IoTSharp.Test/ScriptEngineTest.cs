@@ -1,5 +1,6 @@
 ﻿using IoTSharp.Interpreter;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Collections.Generic;
@@ -25,10 +26,11 @@ namespace IoTSharp.Test
                   f.AddConsole();
               });
            
-            _js_engine = new JavaScriptEngine(lgf.CreateLogger<JavaScriptEngine>(), new Interpreter.EngineSetting() { Timeout = 4 }, System.Threading.Tasks.Task.Factory.CancellationToken);
-            _python_engine = new PythonScriptEngine(lgf.CreateLogger<PythonScriptEngine>(), new Interpreter.EngineSetting() { Timeout = 4 }, System.Threading.Tasks.Task.Factory.CancellationToken);
-            _lua_engine = new  LuaScriptEngine (lgf.CreateLogger<LuaScriptEngine>(), new Interpreter.EngineSetting() { Timeout = 4 }, System.Threading.Tasks.Task.Factory.CancellationToken);
-            _c_engine = new CScriptEngine(lgf.CreateLogger<CScriptEngine>(), new Interpreter.EngineSetting() { Timeout = 4 }, System.Threading.Tasks.Task.Factory.CancellationToken);
+          
+             _js_engine = new JavaScriptEngine(lgf.CreateLogger<JavaScriptEngine>(), Options.Create( new Interpreter.EngineSetting() { Timeout = 4 }));
+            _python_engine = new PythonScriptEngine(lgf.CreateLogger<PythonScriptEngine>(), Options.Create(new Interpreter.EngineSetting() { Timeout = 4 }));
+            _lua_engine = new  LuaScriptEngine (lgf.CreateLogger<LuaScriptEngine>(), Options.Create(new Interpreter.EngineSetting() { Timeout = 4 }));
+            _c_engine = new CScriptEngine(lgf.CreateLogger<CScriptEngine>(), Options.Create(new Interpreter.EngineSetting() { Timeout = 4 }));
             
         }
         [TestMethod]

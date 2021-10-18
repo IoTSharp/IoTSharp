@@ -1,5 +1,6 @@
 ﻿using CLanguage;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using Microsoft.Scripting.Hosting;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
@@ -12,7 +13,7 @@ namespace IoTSharp.Interpreter
     public class CScriptEngine : ScriptEngineBase
     {
       
-        public CScriptEngine(ILogger<CScriptEngine> logger, EngineSetting setting, CancellationToken cancellationToken) : base(logger, setting, cancellationToken)
+        public CScriptEngine(ILogger<CScriptEngine> logger, IOptions<EngineSetting> _opt) : base(logger, _opt.Value, System.Threading.Tasks.Task.Factory.CancellationToken)
         {
            
         }
