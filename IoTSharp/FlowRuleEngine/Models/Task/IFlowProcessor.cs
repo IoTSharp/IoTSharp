@@ -30,8 +30,10 @@ namespace IoTSharp.FlowRuleEngine.Models.Task
 
 
 
-        public async System.Threading.Tasks.Task Start(long ruleid, object? data, Guid creator, string BizId)
+        public async System.Threading.Tasks.Task Start(Guid ruleid, object? data, Guid creator, string BizId)
         {
+
+            var rule = _context.FlowRules.SingleOrDefault(c => c.RuleId == ruleid);
             var _event = new BaseEvent()
             {
                 CreaterDateTime = DateTime.Now,
@@ -39,14 +41,14 @@ namespace IoTSharp.FlowRuleEngine.Models.Task
                 EventDesc = "测试",
                 EventName = "测试",
                 MataData = JsonConvert.SerializeObject(data),
-                RuleId = ruleid,
+            //   FlowRule  = rule,
                 Bizid = BizId,
                 Type = EventType.TestPurpose,
                 EventStaus = 1
             };
             _context.BaseEvents.Add(_event);
             _context.SaveChanges();
-            var flows = _context.Flows.Where(c => c.RuleId == ruleid && c.FlowType != "label").ToList();
+            var flows = _context.Flows.Where(c => c.FlowRule.RuleId == ruleid && c.FlowType != "label").ToList();
             var start = flows.FirstOrDefault(c => c.FlowType == "bpmn:StartEvent");
 
 
@@ -54,13 +56,13 @@ namespace IoTSharp.FlowRuleEngine.Models.Task
             {
                 bpmnid = start.bpmnid,
                 AddDate = DateTime.Now,
-                RuleId = start.RuleId,
-                FlowId = start.FlowId,
+                FlowRule = start.FlowRule,
+                Flow = start,
                 Data = JsonConvert.SerializeObject(data),
                 NodeStatus = 1,
                 OperationDesc = "开始处理",
                 Step = 1,
-                EventId = _event.EventId
+                BaseEvent = _event
             };
             _context.FlowOperations.Add(startoperation);
             await _context.SaveChangesAsync();
@@ -71,8 +73,8 @@ namespace IoTSharp.FlowRuleEngine.Models.Task
                 var flowOperation = new FlowOperation()
                 {
                     AddDate = DateTime.Now,
-                    RuleId = item.RuleId,
-                    FlowId = item.FlowId,
+                    FlowRule = item.FlowRule,
+                    Flow = item,
                     Data = JsonConvert.SerializeObject(data),
                     NodeStatus = 1,
                     OperationDesc = "执行条件（" + (string.IsNullOrEmpty(item.Conditionexpression)
@@ -80,7 +82,7 @@ namespace IoTSharp.FlowRuleEngine.Models.Task
                         : item.Conditionexpression) + ")",
                     Step = startoperation.Step++,
                     bpmnid = item.bpmnid,
-                    EventId = _event.EventId
+                    BaseEvent = _event
                 };
                 _context.FlowOperations.Add(flowOperation);
                 await _context.SaveChangesAsync();
@@ -96,7 +98,7 @@ namespace IoTSharp.FlowRuleEngine.Models.Task
 
         }
 
-        private async Task<List<Flow>> ProcessCondition(long FlowId, dynamic data)
+        private async Task<List<Flow>> ProcessCondition(Guid FlowId, dynamic data)
         {
             var flow = _context.Flows.SingleOrDefault(c => c.FlowId == FlowId);
             var flows = _context.Flows.Where(c => c.SourceId == flow.bpmnid).ToList();
@@ -145,7 +147,7 @@ namespace IoTSharp.FlowRuleEngine.Models.Task
         }
 
         // 由operationid唤起处理流程
-        public async System.Threading.Tasks.Task Process(long operationid, object data)
+        public async System.Threading.Tasks.Task Process(Guid operationid, object data)
         {
 
             var peroperation = _context.FlowOperations.SingleOrDefault(c => c.OperationId == operationid);
@@ -156,8 +158,8 @@ namespace IoTSharp.FlowRuleEngine.Models.Task
                 return;
             }
 
-            var flow = _context.Flows.SingleOrDefault(c => c.FlowId == peroperation.FlowId);
-            var allflow = _context.Flows.Where(c => c.RuleId == flow.RuleId).ToList();
+            var flow = _context.Flows.SingleOrDefault(c => c.FlowId == peroperation.Flow.FlowId);
+            var allflow = _context.Flows.Where(c => c.FlowRule.RuleId == flow.FlowRule.RuleId).ToList();
             switch (flow.FlowType)
             {
                 case "bpmn:SequenceFlow":
@@ -165,8 +167,8 @@ namespace IoTSharp.FlowRuleEngine.Models.Task
                     var operation = new FlowOperation()
                     {
                         AddDate = DateTime.Now,
-                        RuleId = flow.RuleId,
-                        FlowId = flow.FlowId,
+                        FlowRule = flow.FlowRule,
+                        Flow = flow,
                         Data = JsonConvert.SerializeObject(data),
                         NodeStatus = 1,
                         OperationDesc = "执行条件（" + (string.IsNullOrEmpty(flow.Conditionexpression)
@@ -174,7 +176,7 @@ namespace IoTSharp.FlowRuleEngine.Models.Task
                             : flow.Conditionexpression) + ")",
                         Step = peroperation.Step++,
                         bpmnid = flow.bpmnid,
-                        EventId = peroperation.EventId
+                        BaseEvent = peroperation.BaseEvent
                     };
                     _context.FlowOperations.Add(operation);
                     await _context.SaveChangesAsync();
@@ -186,13 +188,13 @@ namespace IoTSharp.FlowRuleEngine.Models.Task
                         {
                             bpmnid = flow.bpmnid,
                             AddDate = DateTime.Now,
-                            RuleId = flow.RuleId,
-                            FlowId = flow.FlowId,
+                            FlowRule = flow.FlowRule,
+                            Flow = flow,
                             Data = JsonConvert.SerializeObject(data),
                             NodeStatus = 1,
                             OperationDesc = "执行任务" + flow.Flowname,
                             Step = peroperation.Step++,
-                            EventId = peroperation.EventId
+                            BaseEvent = peroperation.BaseEvent
                         };
                         _context.FlowOperations.Add(taskoperation);
                         await _context.SaveChangesAsync();
@@ -284,25 +286,26 @@ namespace IoTSharp.FlowRuleEngine.Models.Task
                     break;
                 case "bpmn:EndEvent":
                     // 合并结束
-                    var end = _context.FlowOperations.FirstOrDefault(c => c.bpmnid == flow.bpmnid && c.EventId == peroperation.EventId) ?? new FlowOperation();
+                    var end = _context.FlowOperations.FirstOrDefault(c => c.bpmnid == flow.bpmnid && c.BaseEvent.EventId == peroperation.BaseEvent.EventId) ;
 
 
-                    end.bpmnid = flow.bpmnid;
-                    end.AddDate = DateTime.Now;
-                    end.RuleId = flow.RuleId;
-                    end.FlowId = flow.FlowId;
-                    end.Data = JsonConvert.SerializeObject(data);
-                    end.NodeStatus = 1;
-                    end.OperationDesc = "处理完成";
-                    end.Step = _context.FlowOperations.Where(c => c.EventId == peroperation.EventId).Max(c => c.Step) + 1;
-                    end.EventId = peroperation.EventId;
+                 
 
-                    if (end.OperationId > 0)
+                    if (end!=null)
                     {
                         _context.FlowOperations.Update(end);
                     }
                     else
                     {
+                        end.bpmnid = flow.bpmnid;
+                        end.AddDate = DateTime.Now;
+                        end.FlowRule = flow.FlowRule;
+                        end.Flow = flow;
+                        end.Data = JsonConvert.SerializeObject(data);
+                        end.NodeStatus = 1;
+                        end.OperationDesc = "处理完成";
+                        end.Step = _context.FlowOperations.Where(c => c.BaseEvent.EventId == peroperation.BaseEvent.EventId).Max(c => c.Step) + 1;
+                        end.BaseEvent = peroperation.BaseEvent;
                         _context.FlowOperations.Add(end);
                     }
                     await _context.SaveChangesAsync();

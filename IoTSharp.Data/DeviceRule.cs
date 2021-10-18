@@ -12,8 +12,9 @@ namespace IoTSharp.Data
     {
 
         [Key]
-        [DatabaseGenerated(System.ComponentModel.DataAnnotations.Schema.DatabaseGeneratedOption.Identity)]
-        public long DeviceRuleId { get; set; }
+        public int DeviceRuleId { get; set; }
+        public Guid Id { get; set; }
+
         //public long RuleId { get; set; }
         //public Guid DeviceId { get; set; }
         public Device Device { get; set; }

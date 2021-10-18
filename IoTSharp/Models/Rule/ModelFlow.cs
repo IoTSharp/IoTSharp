@@ -7,7 +7,7 @@ namespace IoTSharp.Models.Rule
 {
     public class Activity
     {
-        public long RuleId { get; set; }
+        public Guid RuleId { get; set; }
         public string DefinitionsDesc { get; set; }
         public string DefinitionsName { get; set; }
         public int DefinitionsStatus { get; set; }

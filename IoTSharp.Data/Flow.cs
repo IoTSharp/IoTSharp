@@ -9,13 +9,20 @@ using System.Threading.Tasks;
 namespace IoTSharp.Data
 {
    public class Flow
-    {
-        [Key]
-        [DatabaseGenerated(System.ComponentModel.DataAnnotations.Schema.DatabaseGeneratedOption.Identity)]
-        public long FlowId { get; set; }
+   {
+
+
+
+       [Key]
+        public Guid FlowId { get; set; }
+        public Guid Id { get; set; }
+
         public string bpmnid { get; set; }
         public string Flowname { get; set; }
-        public long RuleId { get; set; }
+        public FlowRule FlowRule { get; set; }
+
+
+
         public string Flowdesc { get; set; }
         public string ObjectId { get; set; }
         public string FlowType { get; set; }

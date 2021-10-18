@@ -10,21 +10,13 @@ namespace IoTSharp.Data
     public class FlowRule
     {
         [Key]
-        [DatabaseGenerated(System.ComponentModel.DataAnnotations.Schema.DatabaseGeneratedOption.Identity)]
-        public long RuleId { get; set; } 
+        public Guid RuleId { get; set; } 
         public RuleType RuleType { get; set; }
         [Required]
         public string Name { get; set; }
-
         public string Describes { get; set; }
-
         public string Runner { get; set; }
-
         public string ExecutableCode {get;set;}
-
-
-
-
         public string Creator { get; set; }
         public string RuleDesc { get; set; }
         public int? RuleStatus { get; set; }
