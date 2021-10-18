@@ -10,15 +10,15 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace IoTSharp.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20211014082821_ruledevice")]
-    partial class ruledevice
+    [Migration("20211018123939_modifycolumnkey")]
+    partial class modifycolumnkey
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
                 .HasAnnotation("Relational:MaxIdentifierLength", 63)
-                .HasAnnotation("ProductVersion", "5.0.9")
+                .HasAnnotation("ProductVersion", "5.0.11")
                 .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
 
             modelBuilder.Entity("IoTSharp.Data.AuditLog", b =>
@@ -179,10 +179,9 @@ namespace IoTSharp.Migrations
 
             modelBuilder.Entity("IoTSharp.Data.BaseEvent", b =>
                 {
-                    b.Property<long>("EventId")
+                    b.Property<Guid>("EventId")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint")
-                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
+                        .HasColumnType("uuid");
 
                     b.Property<string>("Bizid")
                         .HasColumnType("text");
@@ -202,16 +201,18 @@ namespace IoTSharp.Migrations
                     b.Property<int>("EventStaus")
                         .HasColumnType("integer");
 
+                    b.Property<Guid?>("FlowRuleRuleId")
+                        .HasColumnType("uuid");
+
                     b.Property<string>("MataData")
                         .HasColumnType("text");
-
-                    b.Property<long>("RuleId")
-                        .HasColumnType("bigint");
 
                     b.Property<int>("Type")
                         .HasColumnType("integer");
 
                     b.HasKey("EventId");
+
+                    b.HasIndex("FlowRuleRuleId");
 
                     b.ToTable("BaseEvents");
                 });
@@ -405,19 +406,19 @@ namespace IoTSharp.Migrations
                     b.Property<byte[]>("Value_Binary")
                         .HasColumnType("bytea");
 
-                    b.Property<bool>("Value_Boolean")
+                    b.Property<bool?>("Value_Boolean")
                         .HasColumnType("boolean");
 
-                    b.Property<DateTime>("Value_DateTime")
+                    b.Property<DateTime?>("Value_DateTime")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<double>("Value_Double")
+                    b.Property<double?>("Value_Double")
                         .HasColumnType("double precision");
 
                     b.Property<string>("Value_Json")
                         .HasColumnType("jsonb");
 
-                    b.Property<long>("Value_Long")
+                    b.Property<long?>("Value_Long")
                         .HasColumnType("bigint");
 
                     b.Property<string>("Value_String")
@@ -513,10 +514,9 @@ namespace IoTSharp.Migrations
 
             modelBuilder.Entity("IoTSharp.Data.DeviceRule", b =>
                 {
-                    b.Property<long>("DeviceRuleId")
+                    b.Property<Guid>("DeviceRuleId")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint")
-                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
+                        .HasColumnType("uuid");
 
                     b.Property<DateTime>("ConfigDateTime")
                         .HasColumnType("timestamp without time zone");
@@ -524,13 +524,17 @@ namespace IoTSharp.Migrations
                     b.Property<Guid>("ConfigUser")
                         .HasColumnType("uuid");
 
-                    b.Property<Guid>("DeviceId")
+                    b.Property<Guid?>("DeviceId")
                         .HasColumnType("uuid");
 
-                    b.Property<long>("FlowId")
-                        .HasColumnType("bigint");
+                    b.Property<Guid?>("FlowRuleRuleId")
+                        .HasColumnType("uuid");
 
                     b.HasKey("DeviceRuleId");
+
+                    b.HasIndex("DeviceId");
+
+                    b.HasIndex("FlowRuleRuleId");
 
                     b.ToTable("DeviceRules");
                 });
@@ -702,13 +706,15 @@ namespace IoTSharp.Migrations
 
             modelBuilder.Entity("IoTSharp.Data.Flow", b =>
                 {
-                    b.Property<long>("FlowId")
+                    b.Property<Guid>("FlowId")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint")
-                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
+                        .HasColumnType("uuid");
 
                     b.Property<string>("Conditionexpression")
                         .HasColumnType("text");
+
+                    b.Property<Guid?>("FlowRuleRuleId")
+                        .HasColumnType("uuid");
 
                     b.Property<string>("FlowType")
                         .HasColumnType("text");
@@ -746,9 +752,6 @@ namespace IoTSharp.Migrations
                     b.Property<string>("Outgoing")
                         .HasColumnType("text");
 
-                    b.Property<long>("RuleId")
-                        .HasColumnType("bigint");
-
                     b.Property<string>("SourceId")
                         .HasColumnType("text");
 
@@ -760,18 +763,22 @@ namespace IoTSharp.Migrations
 
                     b.HasKey("FlowId");
 
+                    b.HasIndex("FlowRuleRuleId");
+
                     b.ToTable("Flows");
                 });
 
             modelBuilder.Entity("IoTSharp.Data.FlowOperation", b =>
                 {
-                    b.Property<long>("OperationId")
+                    b.Property<Guid>("OperationId")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint")
-                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
+                        .HasColumnType("uuid");
 
                     b.Property<DateTime?>("AddDate")
                         .HasColumnType("timestamp without time zone");
+
+                    b.Property<Guid?>("BaseEventEventId")
+                        .HasColumnType("uuid");
 
                     b.Property<string>("BizId")
                         .HasColumnType("text");
@@ -779,20 +786,17 @@ namespace IoTSharp.Migrations
                     b.Property<string>("Data")
                         .HasColumnType("text");
 
-                    b.Property<long>("EventId")
-                        .HasColumnType("bigint");
+                    b.Property<Guid?>("FlowId")
+                        .HasColumnType("uuid");
 
-                    b.Property<long>("FlowId")
-                        .HasColumnType("bigint");
+                    b.Property<Guid?>("FlowRuleRuleId")
+                        .HasColumnType("uuid");
 
                     b.Property<int?>("NodeStatus")
                         .HasColumnType("integer");
 
                     b.Property<string>("OperationDesc")
                         .HasColumnType("text");
-
-                    b.Property<long>("RuleId")
-                        .HasColumnType("bigint");
 
                     b.Property<int>("Step")
                         .HasColumnType("integer");
@@ -805,15 +809,20 @@ namespace IoTSharp.Migrations
 
                     b.HasKey("OperationId");
 
+                    b.HasIndex("BaseEventEventId");
+
+                    b.HasIndex("FlowId");
+
+                    b.HasIndex("FlowRuleRuleId");
+
                     b.ToTable("FlowOperations");
                 });
 
             modelBuilder.Entity("IoTSharp.Data.FlowRule", b =>
                 {
-                    b.Property<long>("RuleId")
+                    b.Property<Guid>("RuleId")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint")
-                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
+                        .HasColumnType("uuid");
 
                     b.Property<DateTime?>("CreatTime")
                         .HasColumnType("timestamp without time zone");
@@ -897,19 +906,19 @@ namespace IoTSharp.Migrations
                     b.Property<byte[]>("Value_Binary")
                         .HasColumnType("bytea");
 
-                    b.Property<bool>("Value_Boolean")
+                    b.Property<bool?>("Value_Boolean")
                         .HasColumnType("boolean");
 
-                    b.Property<DateTime>("Value_DateTime")
+                    b.Property<DateTime?>("Value_DateTime")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<double>("Value_Double")
+                    b.Property<double?>("Value_Double")
                         .HasColumnType("double precision");
 
                     b.Property<string>("Value_Json")
                         .HasColumnType("jsonb");
 
-                    b.Property<long>("Value_Long")
+                    b.Property<long?>("Value_Long")
                         .HasColumnType("bigint");
 
                     b.Property<string>("Value_String")
@@ -1212,6 +1221,15 @@ namespace IoTSharp.Migrations
                     b.Navigation("Tenant");
                 });
 
+            modelBuilder.Entity("IoTSharp.Data.BaseEvent", b =>
+                {
+                    b.HasOne("IoTSharp.Data.FlowRule", "FlowRule")
+                        .WithMany()
+                        .HasForeignKey("FlowRuleRuleId");
+
+                    b.Navigation("FlowRule");
+                });
+
             modelBuilder.Entity("IoTSharp.Data.Customer", b =>
                 {
                     b.HasOne("IoTSharp.Data.Tenant", "Tenant")
@@ -1253,6 +1271,51 @@ namespace IoTSharp.Migrations
                         .HasForeignKey("DeviceId");
 
                     b.Navigation("Device");
+                });
+
+            modelBuilder.Entity("IoTSharp.Data.DeviceRule", b =>
+                {
+                    b.HasOne("IoTSharp.Data.Device", "Device")
+                        .WithMany()
+                        .HasForeignKey("DeviceId");
+
+                    b.HasOne("IoTSharp.Data.FlowRule", "FlowRule")
+                        .WithMany()
+                        .HasForeignKey("FlowRuleRuleId");
+
+                    b.Navigation("Device");
+
+                    b.Navigation("FlowRule");
+                });
+
+            modelBuilder.Entity("IoTSharp.Data.Flow", b =>
+                {
+                    b.HasOne("IoTSharp.Data.FlowRule", "FlowRule")
+                        .WithMany()
+                        .HasForeignKey("FlowRuleRuleId");
+
+                    b.Navigation("FlowRule");
+                });
+
+            modelBuilder.Entity("IoTSharp.Data.FlowOperation", b =>
+                {
+                    b.HasOne("IoTSharp.Data.BaseEvent", "BaseEvent")
+                        .WithMany()
+                        .HasForeignKey("BaseEventEventId");
+
+                    b.HasOne("IoTSharp.Data.Flow", "Flow")
+                        .WithMany()
+                        .HasForeignKey("FlowId");
+
+                    b.HasOne("IoTSharp.Data.FlowRule", "FlowRule")
+                        .WithMany()
+                        .HasForeignKey("FlowRuleRuleId");
+
+                    b.Navigation("BaseEvent");
+
+                    b.Navigation("Flow");
+
+                    b.Navigation("FlowRule");
                 });
 
             modelBuilder.Entity("IoTSharp.Data.Relationship", b =>

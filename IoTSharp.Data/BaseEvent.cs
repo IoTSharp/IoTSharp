@@ -13,15 +13,13 @@ namespace IoTSharp.Data
 
         [Key]
         public Guid EventId { get; set; }
-
-        public Guid Id { get; set; }
         public string EventName { get; set; }
         public string EventDesc { get; set; }
         public int EventStaus { get; set; }
         public EventType Type { get; set; }
         public string MataData { get; set; }
         public Guid Creator { get; set; }
-    //    public FlowRule FlowRule { get; set; }
+        public FlowRule FlowRule { get; set; }
         public string Bizid { get; set; }
         public DateTime CreaterDateTime { get; set; }
     }

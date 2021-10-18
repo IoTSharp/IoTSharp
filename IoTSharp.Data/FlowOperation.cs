@@ -11,8 +11,8 @@ namespace IoTSharp.Data
    public class FlowOperation
     {
         [Key]
+
         public Guid OperationId { get; set; }
-        public Guid Id { get; set; }
         public DateTime? AddDate { get; set; }
         /// <summary>
         /// 节点处理状态，0 创建完
@@ -22,10 +22,10 @@ namespace IoTSharp.Data
         public string Data  { get; set; }
         public string BizId { get; set; }
         public string bpmnid { get; set; }
-        public Flow Flow{ get; set; }
+        public Flow Flow { get; set; }
 
         public FlowRule FlowRule { get; set; }
-        
+
         public BaseEvent BaseEvent { get; set; }
 
         public int Step { get; set; }

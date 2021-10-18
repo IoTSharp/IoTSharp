@@ -15,14 +15,9 @@ namespace IoTSharp.Data
 
        [Key]
         public Guid FlowId { get; set; }
-        public Guid Id { get; set; }
-
-        public string bpmnid { get; set; }
+        public string bpmnid { get; set; }   
         public string Flowname { get; set; }
         public FlowRule FlowRule { get; set; }
-
-
-
         public string Flowdesc { get; set; }
         public string ObjectId { get; set; }
         public string FlowType { get; set; }

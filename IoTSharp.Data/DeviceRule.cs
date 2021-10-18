@@ -12,13 +12,13 @@ namespace IoTSharp.Data
     {
 
         [Key]
-        public int DeviceRuleId { get; set; }
-        public Guid Id { get; set; }
+    
+        public Guid DeviceRuleId { get; set; }
 
-        //public long RuleId { get; set; }
-        //public Guid DeviceId { get; set; }
-        public Device Device { get; set; }
-        public FlowRule FlowRule { get; set; }
+      
+
+      public Device Device { get; set; }
+      public FlowRule FlowRule { get; set; }
         public Guid ConfigUser { get; set; }
         public DateTime ConfigDateTime { get; set; }
     }

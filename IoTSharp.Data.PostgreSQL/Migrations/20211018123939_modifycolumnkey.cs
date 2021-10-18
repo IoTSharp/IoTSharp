@@ -2,7 +2,7 @@
 
 namespace IoTSharp.Migrations
 {
-    public partial class forms : Migration
+    public partial class modifycolumnkey : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {

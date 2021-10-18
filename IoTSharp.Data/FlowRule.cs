@@ -4,13 +4,14 @@ using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore.Storage;
 
 namespace IoTSharp.Data
 {
     public class FlowRule
     {
         [Key]
-        public Guid RuleId { get; set; } 
+        public Guid RuleId { get; set; }
         public RuleType RuleType { get; set; }
         [Required]
         public string Name { get; set; }
