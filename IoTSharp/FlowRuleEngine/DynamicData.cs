@@ -4,7 +4,7 @@ using System.Dynamic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace IoTSharp.FlowRuleEngine.Models
+namespace IoTSharp.FlowRuleEngine
 {
     public class DynamicData : DynamicObject
     {
