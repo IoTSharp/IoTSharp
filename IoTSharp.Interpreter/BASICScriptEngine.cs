@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using Microsoft.Scripting.Hosting;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
@@ -11,9 +12,9 @@ namespace IoTSharp.Interpreter
     public class BASICScriptEngine : ScriptEngineBase
     {
       
-        public BASICScriptEngine(ILogger<PythonScriptEngine> logger, EngineSetting setting, CancellationToken cancellationToken) : base(logger, setting, cancellationToken)
+        public BASICScriptEngine(ILogger<PythonScriptEngine> logger  , IOptions<EngineSetting> _opt) : base(logger, _opt.Value, System.Threading.Tasks.Task.Factory.CancellationToken)
         {
-           
+
         }
         public override string Do(string _source, string input)
         {

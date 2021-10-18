@@ -59,6 +59,7 @@ using PinusDB.Data;
 using IoTSharp.Extensions;
 using Microsoft.AspNetCore.SpaServices.AngularCli;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using IoTSharp.Interpreter;
 
 namespace IoTSharp
 {
@@ -375,7 +376,7 @@ namespace IoTSharp
             {
                 configuration.RootPath = "ClientApp/dist";
             });
-           
+            services.AddScriptEngines(Configuration.GetSection("EngineSetting"));
         }
 
 

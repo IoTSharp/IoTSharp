@@ -12,7 +12,7 @@ namespace IoTSharp.Interpreter
     {
         private ScriptEngine _engine;
 
-        public PythonScriptEngine(ILogger<PythonScriptEngine> logger, EngineSetting setting, CancellationToken cancellationToken) : base(logger, setting, cancellationToken)
+        public PythonScriptEngine(ILogger<PythonScriptEngine> logger, EngineSetting setting) : base(logger, setting,System.Threading.Tasks.Task.Factory.CancellationToken)
         {
             _engine = IronPython.Hosting.Python.CreateEngine();
         }
