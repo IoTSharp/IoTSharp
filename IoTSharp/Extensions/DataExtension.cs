@@ -1,6 +1,5 @@
 ﻿using IoTSharp.Data;
 using IoTSharp.Dtos;
-using IoTSharp.Queue;
 using Microsoft.AspNetCore.Routing.Matching;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.EntityFrameworkCore;

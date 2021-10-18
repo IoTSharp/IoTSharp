@@ -145,6 +145,11 @@ namespace IoTSharp.Data
         Complete = 1,
     }
 
-    
+    public enum MsgType
+    {
+        MQTT,
+        CoAP,
+        HTTP
+    }
 
 }

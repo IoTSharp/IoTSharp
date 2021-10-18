@@ -15,6 +15,7 @@ namespace IoTSharp.Interpreter
     {
         private readonly Engine _engine;
         private readonly JsonParser _parser;
+
         public JavaScriptEngine(ILogger<JavaScriptEngine> logger, IOptions<EngineSetting> _opt):base(logger,_opt.Value, Task.Factory.CancellationToken)
         {
             var engine = new Engine(options =>
@@ -34,7 +35,8 @@ namespace IoTSharp.Interpreter
             _engine = engine;
             _parser = new JsonParser(_engine);
         }
- 
+
+
         public  override string    Do(string _source,string input)
         {
            var js = _engine.SetValue("input",_parser.Parse(input)).Evaluate(_source).ToObject();

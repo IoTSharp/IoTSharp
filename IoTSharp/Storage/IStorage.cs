@@ -1,6 +1,5 @@
 ﻿using IoTSharp.Data;
 using IoTSharp.Dtos;
-using IoTSharp.Queue;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;

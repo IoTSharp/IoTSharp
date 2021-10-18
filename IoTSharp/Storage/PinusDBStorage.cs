@@ -2,7 +2,6 @@
 using IoTSharp.Data;
 using IoTSharp.Dtos;
 using IoTSharp.Extensions;
-using IoTSharp.Queue;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.ObjectPool;

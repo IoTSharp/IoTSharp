@@ -2,7 +2,6 @@
 using IoTSharp.Data;
 using IoTSharp.Dtos;
 using IoTSharp.Extensions;
-using IoTSharp.Queue;
 using Maikebing.Data.Taos;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;

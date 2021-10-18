@@ -3,7 +3,6 @@ using EasyCaching.Core;
 using IoTSharp.Data;
 using IoTSharp.Extensions;
 using IoTSharp.Handlers;
-using IoTSharp.Queue;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;

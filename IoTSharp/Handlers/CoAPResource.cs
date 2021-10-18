@@ -3,7 +3,6 @@ using CoAP.Server.Resources;
 using DotNetCore.CAP;
 using IoTSharp.Data;
 using IoTSharp.Extensions;
-using IoTSharp.Queue;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json.Linq;
