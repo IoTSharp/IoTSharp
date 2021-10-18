@@ -5,7 +5,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using RulesEngine.Models;
 
-namespace IoTSharp.FlowRuleEngine.Models
+namespace IoTSharp.FlowRuleEngine
 {
     public class BaseRuleObject
     {

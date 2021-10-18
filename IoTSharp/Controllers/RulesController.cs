@@ -1,33 +1,27 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Linq.Expressions;
-using System.Threading.Tasks;
-using Castle.Components.DictionaryAdapter;
-using IoTSharp.Controllers.Models;
+﻿using IoTSharp.Controllers.Models;
 using IoTSharp.Data;
-using IoTSharp.FlowRuleEngine.Models;
-using IoTSharp.FlowRuleEngine.Models.Task;
+using IoTSharp.Extensions;
+using IoTSharp.FlowRuleEngine;
 using IoTSharp.Models;
 using IoTSharp.Models.Rule;
-using IoTSharp.Models.Rule.Params;
 using LinqKit;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
-using System.CodeDom.Compiler;
-using System.Diagnostics;
-using System.Dynamic;
-using System.IO;
-using System.Reflection;
-using IoTSharp.Extensions;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.Emit;
 using Microsoft.EntityFrameworkCore;
-
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+using System;
+using System.Collections.Generic;
+using System.Dynamic;
+using System.IO;
+using System.Linq;
+using System.Linq.Expressions;
+using System.Reflection;
+using System.Threading.Tasks;
 
 namespace IoTSharp.Controllers
 {
@@ -36,21 +30,20 @@ namespace IoTSharp.Controllers
     [ApiController]
     public class RulesController : ControllerBase
     {
-
         private ApplicationDbContext _context;
+        private readonly FlowRuleProcessor _flowRuleProcessor;
         private UserManager<IdentityUser> _userManager;
 
-        public RulesController(ApplicationDbContext context, UserManager<IdentityUser> userManager)
+        public RulesController(ApplicationDbContext context, UserManager<IdentityUser> userManager, FlowRuleProcessor flowRuleProcessor)
         {
             this._userManager = userManager;
             this._context = context;
+            _flowRuleProcessor = flowRuleProcessor;
         }
 
         [HttpPost("[action]")]
         public async Task<AppMessage> Index([FromBody] RulePageParam m)
         {
-
-
             var profile = await this.GetUserProfile();
 
             Expression<Func<FlowRule, bool>> expression = x => x.RuleStatus > -1;
@@ -69,8 +62,6 @@ namespace IoTSharp.Controllers
                 expression = expression.And(x => x.Creator == m.Creator);
             }
 
-
-
             return new AppMessage()
             {
                 ErrType = ErrType.正常返回,
@@ -80,7 +71,6 @@ namespace IoTSharp.Controllers
                         .ToListAsync(),
                     totel = await _context.FlowRules.CountAsync(expression)
                 }
-
             };
         }
 
@@ -98,7 +88,6 @@ namespace IoTSharp.Controllers
                     ErrType = ErrType.正常返回,
                     Result = m
                 };
-
             }
 
             return new AppMessage
@@ -124,9 +113,7 @@ namespace IoTSharp.Controllers
                     ErrType = ErrType.正常返回,
                     Result = m
                 };
-
             }
-
 
             return new AppMessage
             {
@@ -166,13 +153,12 @@ namespace IoTSharp.Controllers
         [HttpPost("[action]")]
         public async Task<AppMessage<FlowRule>> BindDevice(ModelRuleBind m)
         {
-
-
             var profile = await this.GetUserProfile();
             if (m.dev != null)
 
             {
-                m.dev.ToList().ForEach(d => {
+                m.dev.ToList().ForEach(d =>
+                {
                     if (!_context.DeviceRules.Any(c => c.FlowRule.RuleId == m.rule && c.Device.Id == d))
                     {
                         var dr = new DeviceRule();
@@ -183,7 +169,6 @@ namespace IoTSharp.Controllers
                         _context.DeviceRules.Add(dr);
                         _context.SaveChanges();
                     }
-
                 });
                 return new AppMessage<FlowRule> { ErrType = ErrType.正常返回, ErrMessage = "规则已下发" };
             }
@@ -196,13 +181,9 @@ namespace IoTSharp.Controllers
             return new AppMessage<FlowRule> { ErrType = ErrType.参数错误, ErrMessage = "请选择下发设备" };
         }
 
-
-
         [HttpGet("[action]")]
         public async Task<AppMessage<FlowRule>> DeleteDeviceRules(Guid deviceId, Guid ruleId)
         {
-
-
             var profile = await this.GetUserProfile();
 
             var map = _context.DeviceRules.FirstOrDefault(c => c.FlowRule.RuleId == ruleId && c.Device.Id == deviceId);
@@ -223,19 +204,15 @@ namespace IoTSharp.Controllers
             return new AppMessage<FlowRule> { ErrType = ErrType.参数错误, ErrMessage = "规则绑定不存在或已删除" };
         }
 
-
-
         [HttpGet("[action]")]
         public async Task<AppMessage<List<FlowRule>>> GetDeviceRules(Guid deviceId)
         {
             return new AppMessage<List<FlowRule>> { ErrType = ErrType.正常返回, Result = await _context.DeviceRules.Where(c => c.Device.Id == deviceId).Select(c => c.FlowRule).ToListAsync() };
         }
 
-
         [HttpGet("[action]")]
         public async Task<AppMessage<List<Device>>> GetRuleDevices(Guid ruleId)
         {
-
             return new AppMessage<List<Device>> { ErrType = ErrType.正常返回, Result = await _context.DeviceRules.Where(c => c.FlowRule.RuleId == ruleId).Select(c => c.Device).ToListAsync() };
         }
 
@@ -257,32 +234,26 @@ namespace IoTSharp.Controllers
 
             if (activity.BaseBpmnObjects != null)
             {
-
                 _context.Flows.AddRange(activity.BaseBpmnObjects.Select(c => new Flow
                 {
-
                     FlowRule = rule,
                     Flowname = c.BizObject.Flowname,
                     bpmnid = c.id,
                     FlowType = c.bpmntype,
                     NodeProcessScript = c.BizObject.flowscript,
                     NodeProcessScriptType = c.BizObject.flowscripttype
-
                 }).ToList());
                 _context.SaveChanges();
-
             }
 
             if (activity.StartEvents != null)
             {
                 _context.Flows.AddRange(activity.StartEvents.Select(c => new Flow
                 {
-
                     FlowRule = rule,
                     Flowname = c.BizObject.Flowname,
                     bpmnid = c.id,
                     FlowType = c.bpmntype,
-
                 }).ToList());
                 _context.SaveChanges();
             }
@@ -291,22 +262,18 @@ namespace IoTSharp.Controllers
             {
                 _context.Flows.AddRange(activity.EndEvents.Select(c => new Flow
                 {
-
                     FlowRule = rule,
                     Flowname = c.BizObject.Flowname,
                     bpmnid = c.id,
                     FlowType = c.bpmntype,
-
                 }).ToList());
                 _context.SaveChanges();
-
             }
 
             if (activity.SequenceFlows != null)
             {
                 _context.Flows.AddRange(activity.SequenceFlows.Select(c => new Flow
                 {
-
                     FlowRule = rule,
                     Flowname = c.BizObject.Flowname,
                     bpmnid = c.id,
@@ -315,17 +282,14 @@ namespace IoTSharp.Controllers
                     TargetId = c.targetId,
                     Conditionexpression = c.BizObject.conditionexpression,
                     NodeProcessParams = c.BizObject.NodeProcessParams
-
                 }).ToList());
                 _context.SaveChanges();
-
             }
 
             if (activity.Tasks != null)
             {
                 _context.Flows.AddRange(activity.Tasks.Select(c => new Flow
                 {
-
                     FlowRule = rule,
                     Flowname = c.BizObject.Flowname,
                     bpmnid = c.id,
@@ -342,12 +306,10 @@ namespace IoTSharp.Controllers
             {
                 _context.Flows.AddRange(activity.DataInputAssociations.Select(c => new Flow
                 {
-
                     FlowRule = rule,
                     Flowname = c.BizObject.Flowname,
                     bpmnid = c.id,
                     FlowType = c.bpmntype,
-
                 }).ToList());
                 _context.SaveChanges();
             }
@@ -356,12 +318,10 @@ namespace IoTSharp.Controllers
             {
                 _context.Flows.AddRange(activity.DataOutputAssociations.Select(c => new Flow
                 {
-
                     FlowRule = rule,
                     Flowname = c.BizObject.Flowname,
                     bpmnid = c.id,
                     FlowType = c.bpmntype,
-
                 }).ToList());
                 _context.SaveChanges();
             }
@@ -370,12 +330,10 @@ namespace IoTSharp.Controllers
             {
                 _context.Flows.AddRange(activity.TextAnnotations.Select(c => new Flow
                 {
-
                     FlowRule = rule,
                     Flowname = c.BizObject.Flowname,
                     bpmnid = c.id,
                     FlowType = c.bpmntype,
-
                 }).ToList());
                 _context.SaveChanges();
             }
@@ -384,12 +342,10 @@ namespace IoTSharp.Controllers
             {
                 _context.Flows.AddRange(activity.Containers.Select(c => new Flow
                 {
-
                     FlowRule = rule,
                     Flowname = c.BizObject.Flowname,
                     bpmnid = c.id,
                     FlowType = c.bpmntype,
-
                 }).ToList());
                 _context.SaveChanges();
             }
@@ -398,12 +354,10 @@ namespace IoTSharp.Controllers
             {
                 _context.Flows.AddRange(activity.GateWays.Select(c => new Flow
                 {
-
                     FlowRule = rule,
                     Flowname = c.BizObject.Flowname,
                     bpmnid = c.id,
                     FlowType = c.bpmntype,
-
                 }).ToList());
                 _context.SaveChanges();
             }
@@ -412,12 +366,10 @@ namespace IoTSharp.Controllers
             {
                 _context.Flows.AddRange(activity.DataStoreReferences.Select(c => new Flow
                 {
-
                     FlowRule = rule,
                     Flowname = c.BizObject.Flowname,
                     bpmnid = c.id,
                     FlowType = c.bpmntype,
-
                 }).ToList());
                 _context.SaveChanges();
             }
@@ -426,42 +378,33 @@ namespace IoTSharp.Controllers
             {
                 _context.Flows.AddRange(activity.Lane.Select(c => new Flow
                 {
-
                     FlowRule = rule,
                     Flowname = c.BizObject.Flowname,
                     bpmnid = c.id,
                     FlowType = c.bpmntype,
-
                 }).ToList());
                 _context.SaveChanges();
-
             }
 
             if (activity.LaneSet != null)
             {
                 _context.Flows.AddRange(activity.LaneSet.Select(c => new Flow
                 {
-
                     FlowRule = rule,
                     Flowname = c.BizObject.Flowname,
                     bpmnid = c.id,
                     FlowType = c.bpmntype,
-
                 }).ToList());
                 _context.SaveChanges();
-
             }
 
             return new AppMessage
             { ErrMessage = "操作成功", ErrType = ErrType.正常返回, IsVisble = true, ErrLevel = ErrLevel.Success };
         }
 
-
-
         [HttpGet("[action]")]
         public AppMessage GetDiagram(Guid id)
         {
-
             var ruleflow = _context.FlowRules.FirstOrDefault(c => c.RuleId == id);
             IoTSharp.Models.Rule.Activity activity = new IoTSharp.Models.Rule.Activity();
 
@@ -482,10 +425,8 @@ namespace IoTSharp.Controllers
             activity.RuleId = id;
             var flows = _context.Flows.Where(c => c.FlowRule.RuleId == id).ToList();
 
-
             foreach (var item in flows)
             {
-
                 switch (item.FlowType)
                 {
                     case "bpmn:SequenceFlow":
@@ -504,7 +445,6 @@ namespace IoTSharp.Controllers
                                     Flowtype = item.FlowType.ToString(),
                                     Flowname = item.Flowname,
                                     conditionexpression = item.Conditionexpression
-
                                 }
                             });
                         break;
@@ -527,6 +467,7 @@ namespace IoTSharp.Controllers
                                 }
                             });
                         break;
+
                     case "bpmn:StartEvent":
                         activity.StartEvents.Add(
 
@@ -546,6 +487,7 @@ namespace IoTSharp.Controllers
                             });
 
                         break;
+
                     case "bpmn:ExclusiveGateway":
                         activity.GateWays.Add(
 
@@ -565,6 +507,7 @@ namespace IoTSharp.Controllers
                                 }
                             });
                         break;
+
                     case "bpmn:ParallelGateway":
                         activity.GateWays.Add(
 
@@ -596,7 +539,6 @@ namespace IoTSharp.Controllers
                                 bpmntype = item.FlowType,
                                 BizObject = new FormBpmnObject
                                 {
-
                                     Flowid = item.FlowId.ToString(),
                                     Flowdesc = item.Flowdesc,
                                     Flowtype = item.FlowType.ToString(),
@@ -605,6 +547,7 @@ namespace IoTSharp.Controllers
                                 }
                             });
                         break;
+
                     case "bpmn:EventBasedGateway":
                         activity.GateWays.Add(
 
@@ -644,13 +587,12 @@ namespace IoTSharp.Controllers
                                 }
                             });
                         break;
+
                     case "bpmn:Task":
                         activity.Tasks.Add(
 
                             new IoTSharp.Models.Rule.Task
                             {
-
-
                                 id = item.bpmnid,
                                 Flowname = item.Flowname,
                                 bpmntype = item.FlowType,
@@ -665,6 +607,7 @@ namespace IoTSharp.Controllers
                                 }
                             });
                         break;
+
                     case "bpmn:BusinessRuleTask":
                         activity.Tasks.Add(
 
@@ -684,12 +627,12 @@ namespace IoTSharp.Controllers
                                 }
                             });
                         break;
+
                     case "bpmn:ReceiveTask":
                         activity.Tasks.Add(
 
                             new IoTSharp.Models.Rule.Task
                             {
-
                                 Flowname = item.Flowname,
                                 id = item.bpmnid,
                                 bpmntype = item.FlowType,
@@ -699,16 +642,15 @@ namespace IoTSharp.Controllers
                                     Flowdesc = item.Flowdesc,
                                     Flowtype = item.FlowType.ToString(),
                                     Flowname = item.Flowname,
-
                                 }
                             });
                         break;
+
                     case "bpmn:UserTask":
                         activity.Tasks.Add(
 
                             new IoTSharp.Models.Rule.Task
                             {
-
                                 Flowname = item.Flowname,
                                 id = item.bpmnid,
                                 bpmntype = item.FlowType,
@@ -729,7 +671,6 @@ namespace IoTSharp.Controllers
 
                             new IoTSharp.Models.Rule.Task
                             {
-
                                 Flowname = item.Flowname,
                                 id = item.bpmnid,
                                 bpmntype = item.FlowType,
@@ -744,12 +685,12 @@ namespace IoTSharp.Controllers
                                 }
                             });
                         break;
+
                     case "bpmn:ManualTask":
                         activity.Tasks.Add(
 
                             new IoTSharp.Models.Rule.Task
                             {
-
                                 Flowname = item.Flowname,
                                 id = item.bpmnid,
                                 bpmntype = item.FlowType,
@@ -764,12 +705,12 @@ namespace IoTSharp.Controllers
                                 }
                             });
                         break;
+
                     case "bpmn:SendTask":
                         activity.Tasks.Add(
 
                             new IoTSharp.Models.Rule.Task
                             {
-
                                 Flowname = item.Flowname,
                                 id = item.bpmnid,
                                 bpmntype = item.FlowType,
@@ -784,12 +725,12 @@ namespace IoTSharp.Controllers
                                 }
                             });
                         break;
+
                     case "bpmn:CallActivity":
                         activity.Tasks.Add(
 
                             new IoTSharp.Models.Rule.Task
                             {
-
                                 Flowname = item.Flowname,
                                 id = item.bpmnid,
                                 bpmntype = item.FlowType,
@@ -802,6 +743,7 @@ namespace IoTSharp.Controllers
                                 }
                             });
                         break;
+
                     case "bpmn:IntermediateCatchEvent":
                         activity.EndEvents.Add(
 
@@ -819,6 +761,7 @@ namespace IoTSharp.Controllers
                                 }
                             });
                         break;
+
                     case "bpmn:IntermediateThrowEvent":
                         activity.EndEvents.Add(
 
@@ -854,19 +797,17 @@ namespace IoTSharp.Controllers
                                 }
                             });
                         break;
+
                     case "bpmn:Participant":
                         activity.Containers.Add(
 
                             new BpmnBaseObject
                             {
-
-
                                 Flowname = item.Flowname,
                                 id = item.bpmnid,
                                 bpmntype = item.FlowType,
                                 BizObject = new FormBpmnObject
                                 {
-
                                     Flowid = item.FlowId.ToString(),
                                     Flowdesc = item.Flowdesc,
                                     Flowtype = item.FlowType.ToString(),
@@ -874,19 +815,17 @@ namespace IoTSharp.Controllers
                                 }
                             });
                         break;
+
                     case "bpmn:DataStoreReference":
                         activity.DataStoreReferences.Add(
 
                             new BpmnBaseObject
                             {
-
-
                                 Flowname = item.Flowname,
                                 id = item.bpmnid,
                                 bpmntype = item.FlowType,
                                 BizObject = new FormBpmnObject
                                 {
-
                                     Flowid = item.FlowId.ToString(),
                                     Flowdesc = item.Flowdesc,
                                     Flowtype = item.FlowType.ToString(),
@@ -894,6 +833,7 @@ namespace IoTSharp.Controllers
                                 }
                             });
                         break;
+
                     case "bpmn:SubProcess":
                         activity.SubProcesses.Add(
 
@@ -904,17 +844,13 @@ namespace IoTSharp.Controllers
                                 bpmntype = item.FlowType,
                                 BizObject = new FormBpmnObject
                                 {
-
                                     Flowid = item.FlowId.ToString(),
                                     Flowdesc = item.Flowdesc,
                                     Flowtype = item.FlowType.ToString(),
                                     Flowname = item.Flowname,
-
-
                                 }
                             });
                         break;
-
 
                     default:
                         BpmnBaseObject node = new BpmnBaseObject
@@ -938,7 +874,6 @@ namespace IoTSharp.Controllers
                         activity.BaseBpmnObjects.Add(node);
                         break;
                 }
-
             }
 
             return new AppMessage
@@ -950,330 +885,12 @@ namespace IoTSharp.Controllers
                 }
             };
         }
+
         //模拟处理
-        private async System.Threading.Tasks.Task Process(Flow flow, List<Flow> allflow, object data,
-            //nextstep仅作为参考，迭代深度的计数器，设置最大迭代深度防止循环引用引起堆栈崩溃
-            int nextstep, Guid _eventid)
-        {
-
-            var _event = _context.BaseEvents.SingleOrDefault(c => c.EventId == _eventid);
-       
-
-            switch (flow.FlowType)
-            {
-                case "bpmn:SequenceFlow":
-                    var t = allflow.FirstOrDefault(c => c.bpmnid == flow.TargetId);
-                    _context.FlowOperations.Add(new FlowOperation()
-                    {
-                        AddDate = DateTime.Now,
-                        FlowRule = flow.FlowRule,
-                        Flow = flow,
-                        Data = JsonConvert.SerializeObject(data),
-                        NodeStatus = 1,
-                        OperationDesc = "执行条件（" + (string.IsNullOrEmpty(flow.Conditionexpression)?"空条件": flow.Conditionexpression)+")",
-                        Step = nextstep,
-                        bpmnid = flow.bpmnid,
-                        BaseEvent = _event
-                    });
-                    await _context.SaveChangesAsync();
-                    await Process(t, allflow, data, ++nextstep, _eventid);
-                    break;
-                case "bpmn:Task":
-                    {
-                        //脚本处理
-                        if (!string.IsNullOrEmpty(flow.NodeProcessScriptType)&&!string.IsNullOrEmpty(flow.NodeProcessScript))
-                        {
-                            switch (flow.NodeProcessScriptType)
-                            {
-                                case "csharp":
-                                    var scripts = flow.NodeProcessScript;
-
-                                    //脚本处理逻辑
-                                    break;
-                                case "javascript":
-                                    {
-                                      
-                                    }
-                                    //脚本处理逻辑
-                                    break;
-                                case "python":
-                                    break;
-                                case "xml":
-                                    break;
-                                case "json":
-                                    break;
-                                case "bat":
-                                    break;
-                                case "sql":
-                                    break;
-                            }
-                        }
-           
-                        var taskoperation = new FlowOperation()
-                        {
-                            bpmnid = flow.bpmnid,
-                            AddDate = DateTime.Now,
-                            FlowRule = flow.FlowRule,
-                            Flow = flow,
-                            Data = JsonConvert.SerializeObject(data),
-                            NodeStatus = 1,
-                            OperationDesc = "执行任务" + flow.Flowname,
-                            Step = nextstep,
-                            BaseEvent = _event
-                        };
-                        _context.FlowOperations.Add(taskoperation);
-                        await _context.SaveChangesAsync();
-                        //如果是异步调用，可以在此终止，然后通过FlowOperation表中当前的taskoperation.OperationId找到当前挂起的FlowId 再次恢复处理
-
-                        //条件处理
-                        var flows = allflow.Where(c => c.SourceId == flow.bpmnid).ToList();
-                        var tasks = new BaseRuleTask()
-                        {
-                            Name = flow.Flowname,
-                            Eventid = flow.bpmnid,
-                            id = flow.bpmnid,
-
-                            outgoing = new EditableList<BaseRuleFlow>()
-                        };
-                    
-                        nextstep++;
-
-                        var emptyflow = flows.Where(c => c.Conditionexpression == string.Empty).ToList();
-
-                        foreach (var item in flows.Except(emptyflow))
-                        {
-                            var rule = new BaseRuleFlow();
-                            rule.Expression = item.Conditionexpression;
-                            rule.id = item.bpmnid;
-                            rule.Name = item.Flowname;
-                            rule.Eventid = item.bpmnid;
-                            tasks.outgoing.Add(rule);
-                        }
-
-
-                        if (tasks.outgoing.Count > 0)
-                        {
-                            SimpleFLowExcutor flowExcutor = new SimpleFLowExcutor();
-                            var result = await flowExcutor.Excute(new FlowExcuteEntity()
-                            {
-                            //    Action = null,
-                                Params = data,
-                                Task = tasks,
-                             //   WaitTime = 0
-
-                            });
-                            var next = result.Where(c => c.IsSuccess).ToList();
-                            foreach (var item in next)
-                            {
-
-                                var nextflow = allflow.FirstOrDefault(a => a.bpmnid == item.Rule.SuccessEvent);
-                                emptyflow.Add(nextflow);
-                            }
-                        }
-                       
-
-                        foreach (var item in emptyflow)
-                        {
-                            await Process(item, allflow, data, nextstep, _eventid);
-                        }
-                    }
-
-                    break;
-                case "bpmn:EndEvent":
-                    // 合并结束
-                  var end=  _context.FlowOperations.FirstOrDefault(c => c.bpmnid == flow.bpmnid&&c.BaseEvent.EventId==_eventid);
-
-
-                   
-
-                    if (end!=null)
-                    {
-                        _context.FlowOperations.Update(end);
-                    }
-                    else
-                    {
-                        end.bpmnid = flow.bpmnid;
-                        end.AddDate = DateTime.Now;
-                        end.FlowRule = flow.FlowRule;
-                        end.Flow = flow;
-                        end.Data = JsonConvert.SerializeObject(data);
-                        end.NodeStatus = 1;
-                        end.OperationDesc = "处理完成";
-                        end.Step = _context.FlowOperations.Where(c => c.BaseEvent.EventId == _eventid).Max(c => c.Step) + 1;
-                        end.BaseEvent = _event;
-                        _context.FlowOperations.Add(end);
-                    }
-                    await _context.SaveChangesAsync();
-
-                    break;
-                case "bpmn:StartEvent":
-
-                    {
-                        var flows = allflow.Where(c => c.SourceId == flow.bpmnid).ToList();
-                     
-                        _context.FlowOperations.Add(new FlowOperation()
-                        {
-                            bpmnid = flow.bpmnid,
-                            AddDate = DateTime.Now,
-                           FlowRule = flow.FlowRule,
-                            Flow = flow,
-                            Data = JsonConvert.SerializeObject(data),
-                            NodeStatus = 1,
-                            OperationDesc = "开始处理",
-                            Step = nextstep,
-                            BaseEvent = _event
-                        });
-                        await _context.SaveChangesAsync(); 
-                        var emptyflow = flows.Where(c => c.Conditionexpression == string.Empty).ToList();
-                        var tasks = new BaseRuleTask()
-                        {
-                            Name = flow.Flowname,
-                            Eventid = flow.bpmnid,
-                            id = flow.bpmnid,
-
-                            outgoing = new EditableList<BaseRuleFlow>()
-                        };
-                        foreach (var item in flows.Except(emptyflow))
-                        {
-                            var rule = new BaseRuleFlow();
-
-                            rule.id = item.bpmnid;
-                            rule.Name = item.bpmnid;
-                            rule.Eventid = item.bpmnid;
-                            rule.Expression = item.Conditionexpression;
-                            tasks.outgoing.Add(rule);
-                        }
-
-                        if (tasks.outgoing.Count > 0)
-                        {
-                            SimpleFLowExcutor flowExcutor = new SimpleFLowExcutor();
-                            var result = await flowExcutor.Excute(new FlowExcuteEntity()
-                            {
-                              //  Action = null,
-                                Params = data,  //也可以放自定义数据
-                                Task = tasks,
-                             //   WaitTime = 0
-
-                            });
-
-                            var next = result.Where(c => c.IsSuccess).ToList();
-
-
-                    
-                            foreach (var item in next)
-                            {
-
-                                var nextflow = allflow.FirstOrDefault(a => a.bpmnid == item.Rule.SuccessEvent);
-                                emptyflow.Add(nextflow);
-
-                            }
-
-                          
-                        }
-                        nextstep++;
-                        foreach (var item in emptyflow)
-                        {
-                            await Process(item, allflow, data, nextstep, _eventid);
-                        }
-                    }
-                    break;
-                case "label":
-
-                    break;
-                case "bpmn:Lane":
-
-                    break;
-
-                case "bpmn:Participant":
-
-                    break;
-
-                case "bpmn:DataStoreReference":
-
-                    break;
-
-                case "bpmn:SubProcess":
-
-                    break;
-                default:
-                    {
-                        var flows = allflow.Where(c => c.SourceId == flow.bpmnid).ToList();
-                        var tasks = new BaseRuleTask()
-                        {
-                            Name = flow.Flowname,
-                            Eventid = flow.bpmnid,
-                            id = flow.bpmnid,
-
-                            outgoing = new EditableList<BaseRuleFlow>()
-                        };
-                        _context.FlowOperations.Add(new FlowOperation()
-                        {
-                            bpmnid = flow.bpmnid,
-                            AddDate = DateTime.Now,
-                            FlowRule = flow.FlowRule,
-                            Flow = flow,
-                            Data = JsonConvert.SerializeObject(data),
-                            NodeStatus = 1,
-                            OperationDesc = "执行任务" + flow.Flowname,
-                            Step = nextstep,
-                            BaseEvent = _event
-                        });
-                        await _context.SaveChangesAsync();
-                        nextstep++;
-                        var emptyflow = flows.Where(c => c.Conditionexpression == string.Empty).ToList();
-                        foreach (var item in flows.Except(emptyflow))
-                        {
-                            var rule = new BaseRuleFlow();
-                            rule.Expression = item.Conditionexpression;
-                            rule.id = item.bpmnid;
-                            rule.Name = item.Flowname;
-                            rule.Eventid = item.bpmnid;
-                            tasks.outgoing.Add(rule);
-                        }
-
-
-                        if (tasks.outgoing.Count > 0)
-                        {
-                            SimpleFLowExcutor flowExcutor = new SimpleFLowExcutor();
-                            var result = await flowExcutor.Excute(new FlowExcuteEntity()
-                            {
-                                //  Action = null,
-                                Params = data,
-                                Task = tasks,
-                             //   WaitTime = 0
-
-                            });
-                            var next = result.Where(c => c.IsSuccess).ToList();
-                            foreach (var item in next)
-                            {
-
-                                var nextflow = allflow.FirstOrDefault(a => a.bpmnid == item.Rule.SuccessEvent);
-                                emptyflow.Add(nextflow);
-
-
-                            }
-                        }
-
-                        foreach (var item in emptyflow)
-                        {
-                            await Process(item, allflow, data, nextstep, _eventid);
-                        }
-
-                        break;
-                    }
-
-
-
-            }
-
-        }
-
-
 
         [HttpPost("[action]")]
         public async Task<AppMessage> Active([FromBody] JObject form)
         {
-
             var profile = await this.GetUserProfile();
             var formdata = form.First.First;
             var extradata = form.First.Next;
@@ -1287,7 +904,6 @@ namespace IoTSharp.Controllers
             //  var _params = _context.DynamicFormFieldInfos.Where(c => c.FormId == formid).ToList();
             var d = formdata.ToObject(typeof(ExpandoObject));
 
-
             var rule = _context.FlowRules.SingleOrDefault(c => c.RuleId == ruleid);
             var _event = new BaseEvent()
             {
@@ -1296,7 +912,7 @@ namespace IoTSharp.Controllers
                 EventDesc = "测试",
                 EventName = "测试",
                 MataData = JsonConvert.SerializeObject(d),
-             //   FlowRule = rule,
+                //   FlowRule = rule,
                 Bizid = formid.ToString(),
                 Type = EventType.TestPurpose,
                 EventStaus = 1
@@ -1305,15 +921,7 @@ namespace IoTSharp.Controllers
             _context.SaveChanges();
             // 非测试环境事件产生完，此时应当返回事件，剩余处理下一步进行异步处理。
 
-
-
-
-            var flows = _context.Flows.Where(c => c.FlowRule == rule && c.FlowType != "label").ToList();
-            var start = flows.FirstOrDefault(c => c.FlowType == "bpmn:StartEvent");
-            //    var end = flows.FirstOrDefault(c => c.FlowType == "bpmn:EndEvent");
-            await Process(start, flows, d, 1, _event.EventId);
-
-
+            await _flowRuleProcessor.RunFlowRules(ruleid, d, Guid.Parse(this._userManager.GetUserId(this.User)), null);
 
             //应该由事件总线去通知
             return new AppMessage
@@ -1329,16 +937,10 @@ namespace IoTSharp.Controllers
             };
         }
 
-
-     
-
         private Type BuildPocoObject(string classtext, string typename)
         {
             MetadataReference[] references = {
-
-
             };
-
 
             var tree = SyntaxFactory.ParseSyntaxTree(classtext);
             CSharpCompilation compilation = CSharpCompilation.Create(typename, new[] { tree }, references, new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
@@ -1351,7 +953,6 @@ namespace IoTSharp.Controllers
                     diagnostic.Severity == DiagnosticSeverity.Error);
                 foreach (Diagnostic diagnostic in failures)
                 {
-
                 }
                 return null;
             }
@@ -1360,12 +961,6 @@ namespace IoTSharp.Controllers
                 ms.Seek(0, SeekOrigin.Begin);
                 return Assembly.Load(ms.ToArray()).DefinedTypes.FirstOrDefault();
             }
-
         }
-
     }
-
-
-
-
 }
