@@ -55,16 +55,18 @@ namespace IoTSharp.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesDefaultResponseType]
-        public async Task<ActionResult<AuthorizedKey>> GetAuthorizedKey(Guid id)
+        public async Task<ApiResult<AuthorizedKey>> GetAuthorizedKey(Guid id)
         {
             var authorizedKey = await _context.AuthorizedKeys.JustCustomer(_customerId).FirstOrDefaultAsync(ak=>ak.Id== id);
 
             if (authorizedKey == null)
             {
-                return NotFound();
-            }
+       
 
-            return authorizedKey;
+                return new ApiResult<AuthorizedKey>(ApiCode.InValidData, "can't find this object", null);
+            }
+            return new ApiResult<AuthorizedKey>(ApiCode.Success, "Ok", authorizedKey);
+      
         }
 
         // PUT: api/AuthorizedKeys/5
@@ -75,15 +77,16 @@ namespace IoTSharp.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesDefaultResponseType]
-        public async Task<IActionResult> PutAuthorizedKey(Guid id, AuthorizedKey authorizedKey)
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        public async Task<ApiResult<bool>> PutAuthorizedKey(Guid id, AuthorizedKey authorizedKey)
         {
             if (id != authorizedKey.Id)
             {
-                return BadRequest();
+                return new ApiResult<bool>(ApiCode.InValidData, "can't find this object", false);
             }
             if (!AuthorizedKeyExists(id))
             {
-                return NotFound();
+                return new ApiResult<bool>(ApiCode.CantFindObject, "can't find this object", false);
             }
 
             _context.Entry(authorizedKey).State = EntityState.Modified;
@@ -91,12 +94,13 @@ namespace IoTSharp.Controllers
             try
             {
                 await _context.SaveChangesAsync();
+                return new ApiResult<bool>(ApiCode.Success, "Ok", true);
             }
             catch (DbUpdateConcurrencyException)
             {
                 if (!AuthorizedKeyExists(id))
                 {
-                    return NotFound();
+                    return new ApiResult<bool>(ApiCode.CantFindObject, "can't find this object", false);
                 }
                 else
                 {
@@ -104,7 +108,7 @@ namespace IoTSharp.Controllers
                 }
             }
 
-            return NoContent();
+      
         }
 
         // POST: api/AuthorizedKeys
@@ -113,18 +117,21 @@ namespace IoTSharp.Controllers
         [HttpPost]
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesDefaultResponseType]
-        public async Task<ActionResult<AuthorizedKey>> PostAuthorizedKey(AuthorizedKeyDto    dto)
+        public async Task<ApiResult<AuthorizedKey>> PostAuthorizedKey(AuthorizedKeyDto    dto)
         {
             var authorizedKey = new AuthorizedKey() { Name = dto.Name, AuthToken = dto.AuthToken };
             authorizedKey.Id = Guid.NewGuid();
             _context.JustFill(this, authorizedKey);
             if (authorizedKey.Tenant == null || authorizedKey.Customer == null)
             {
-                return NotFound(new ApiResult<AuthorizedKey>(ApiCode.NotFoundTenantOrCustomer, $"Not found Tenant or Customer ", authorizedKey));
+                //  return NotFound(new ApiResult<AuthorizedKey>(ApiCode.NotFoundTenantOrCustomer, $"Not found Tenant or Customer ", authorizedKey));
+
+                return new ApiResult<AuthorizedKey>(ApiCode.CantFindObject, "can't find this object", null);
             }
             _context.AuthorizedKeys.Add(authorizedKey);
             await _context.SaveChangesAsync();
-            return CreatedAtAction("GetAuthorizedKey", new { id = authorizedKey.Id }, authorizedKey);
+            return await GetAuthorizedKey(authorizedKey.Id);
+           // return  CreatedAtAction("GetAuthorizedKey", new { id = authorizedKey.Id }, authorizedKey);
         }
 
         // DELETE: api/AuthorizedKeys/5
@@ -132,19 +139,19 @@ namespace IoTSharp.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesDefaultResponseType]
-        public async Task<ActionResult<AuthorizedKey>> DeleteAuthorizedKey(Guid id)
+        public async Task<ApiResult<AuthorizedKey>> DeleteAuthorizedKey(Guid id)
         {
 
             var authorizedKey = await _context.AuthorizedKeys.JustCustomer(_customerId).FirstOrDefaultAsync(ak=>ak.Id== id);
             if (authorizedKey == null)
             {
-                return NotFound();
+                return new ApiResult<AuthorizedKey>(ApiCode.CantFindObject, "can't find this object", null);
             }
 
             _context.AuthorizedKeys.Remove(authorizedKey);
             await _context.SaveChangesAsync();
 
-            return authorizedKey;
+                return new ApiResult<AuthorizedKey>(ApiCode.Success, "Ok", authorizedKey); ;
         }
 
         private bool AuthorizedKeyExists(Guid id)

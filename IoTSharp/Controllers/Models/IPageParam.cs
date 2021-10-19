@@ -20,8 +20,8 @@ namespace IoTSharp.Controllers.Models
 
     public class DeviceParam : IPageParam
     {
-        public string TenantId { get; set; }
-        public string CustomerId { get; set; }
+        public Guid TenantId { get; set; }
+        public Guid customerId { get; set; }
  
      
         public int DeviceType{ get; set; }
@@ -51,4 +51,11 @@ namespace IoTSharp.Controllers.Models
         public string KeyName { get; set; }
      
     }
+
+    public class CustomerParam : IPageParam
+    {
+        public Guid tenantId { get; set; }
+
+    }
+  
 }

@@ -13,20 +13,19 @@ namespace IoTSharp.Models.Rule
         public int DefinitionsStatus { get; set; }
         public List<Task> Tasks { get; set; }
         public List<GateWay> GateWays { get; set; }
-
         public List<SequenceFlow> SequenceFlows { get; set; }
         public List<BpmnBaseObject> LaneSet { get; set; }
         public List<BpmnBaseObject> EndEvents { get; set; }
         public List<BpmnBaseObject> StartEvents { get; set; }
         public List<BpmnBaseObject> Containers { get; set; }
         public List<BpmnBaseObject> BaseBpmnObjects { get; set; }
-
         public List<BpmnBaseObject> DataStoreReferences { get; set; }
         public List<BpmnBaseObject> SubProcesses { get; set; }
         public List<BpmnBaseObject> DataOutputAssociations { get; set; }
         public List<BpmnBaseObject> DataInputAssociations { get; set; }
         public List<BpmnBaseObject> Lane { get; set; }
         public List<BpmnBaseObject> TextAnnotations { get; set; }
+        public string DefinitionsXml { get; set; }
 
     }
     public class Task : BpmnBaseObject

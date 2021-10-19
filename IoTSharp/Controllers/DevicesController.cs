@@ -1,7 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Dynamic.Core;
+using System.Linq.Expressions;
 using System.Threading.Tasks;
+using IoTSharp.Controllers.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -14,6 +17,7 @@ using MQTTnet.Client;
 using MQTTnet.Extensions.Rpc;
 using MQTTnet.Protocol;
 using IoTSharp.Extensions;
+using IoTSharp.Models;
 using MQTTnet.Exceptions;
 using MQTTnet.Client.Options;
 using Microsoft.AspNetCore.Identity;
@@ -66,17 +70,27 @@ namespace IoTSharp.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ApiResult<Guid>), StatusCodes.Status404NotFound)]
         [ProducesDefaultResponseType]
-        public async Task<ActionResult<IEnumerable<Device>>> GetDevices(Guid customerId)
+        public async Task<ApiResult<PagedData<Device>>> GetDevices(DeviceParam m)
         {
-            var f = from c in _context.Device where c.Customer.Id == customerId select c;
-            if (!f.Any())
+            //var f = from c in _context.Device where c.Customer.Id == customerId select c;
+            //if (!f.Any())
+            //{
+            //    return NotFound(new ApiResult<Guid>(ApiCode.CustomerDoesNotHaveDevice, $"The customer does not have any device", customerId));
+            //}
+            //else
+            //{
+            //    return await f.ToArrayAsync();
+            //}
+            Expression<Func<Device, bool>> condition = x => x.Customer.Id == m.customerId;
+
+            return new ApiResult<PagedData<Device>>(ApiCode.Success, "OK", new PagedData<Device>
             {
-                return NotFound(new ApiResult<Guid>(ApiCode.CustomerDoesNotHaveDevice, $"The customer does not have any device", customerId));
-            }
-            else
-            {
-                return await f.ToArrayAsync();
-            }
+                total = _context.Device.Count(condition),
+                rows = _context.Device.OrderByDescending(c => c.Id).Where(condition).Skip((m.offset) * m.limit).Take(m.limit).ToList()
+            });
+
+
+
         }
 
         /// <summary>
@@ -89,15 +103,26 @@ namespace IoTSharp.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ApiResult), StatusCodes.Status404NotFound)]
         [ProducesDefaultResponseType]
-        public async Task<ActionResult<DeviceIdentity>> GetIdentity(Guid deviceId)
+        public async Task<ApiResult<DeviceIdentity>> GetIdentity(Guid deviceId)
         {
-            var devid = from did in _context.DeviceIdentities where did.Device.Id == deviceId select did;
-            var deviceid = await devid.FirstOrDefaultAsync();
-            if (deviceid == null)
+            //var devid = from did in _context.DeviceIdentities where did.Device.Id == deviceId select did;
+            //var deviceid = await devid.FirstOrDefaultAsync();
+            //if (deviceid == null)
+            //{
+            //    return NotFound(new ApiResult(ApiCode.NotFoundDeviceIdentity, $"Device's Identity not found "));
+            //}
+            //return deviceid;
+
+            var did =await _context.DeviceIdentities.FirstOrDefaultAsync(c => c.Device.Id == deviceId);
+            if (did == null)
             {
-                return NotFound(new ApiResult(ApiCode.NotFoundDeviceIdentity, $"Device's Identity not found "));
+                return new ApiResult<DeviceIdentity>(ApiCode.CantFindObject, "CantFindObject", null);
             }
-            return deviceid;
+            else
+            {
+                return new ApiResult<DeviceIdentity>(ApiCode.Success, "OK", did);
+            }
+
         }
 
         /// <summary>
@@ -110,12 +135,12 @@ namespace IoTSharp.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ApiResult), StatusCodes.Status404NotFound)]
         [ProducesDefaultResponseType]
-        public async Task<ActionResult<List<AttributeDataDto>>> GetAttributeLatest(Guid deviceId)
+        public async Task<ApiResult<List<AttributeDataDto>>> GetAttributeLatest(Guid deviceId)
         {
             Device dev = Found(deviceId);
             if (dev == null)
             {
-                return NotFound(new ApiResult(ApiCode.NotFoundDeviceIdentity, $"Device's Identity not found "));
+                return new ApiResult<List<AttributeDataDto>>(ApiCode.CantFindObject, "Device's Identity not found", null);
             }
             else
             {
@@ -131,9 +156,11 @@ namespace IoTSharp.Controllers
                             };
                 if (!devid.Any())
                 {
-                    return NotFound(new ApiResult(ApiCode.NotFoundDeviceIdentity, $"Device's Identity not found "));
+                //    return NotFound(new ApiResult(ApiCode.NotFoundDeviceIdentity, $"Device's Identity not found "));
+                    return new ApiResult<List<AttributeDataDto>>(ApiCode.CantFindObject, "Device's Identity not found", null);
                 }
-                return await devid.ToListAsync();
+                return new ApiResult<List<AttributeDataDto>>(ApiCode.Success, "Ok", await  devid.ToListAsync());
+               // return await devid.ToListAsync();
             }
         }
         /// <summary>
@@ -147,17 +174,23 @@ namespace IoTSharp.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ApiResult), StatusCodes.Status404NotFound)]
         [ProducesDefaultResponseType]
-        public async Task<ActionResult<List<AttributeDataDto>>> GetAttributeLatest(Guid deviceId, string keys)
+        public async Task<ApiResult<List<AttributeDataDto>>> GetAttributeLatest(Guid deviceId, string keys)
         {
             Device dev = Found(deviceId);
             if (dev == null)
             {
-                return NotFound(new ApiResult(ApiCode.NotFoundDeviceIdentity, $"Device's Identity not found "));
+
+                return new ApiResult<List<AttributeDataDto>>(ApiCode.NotFoundDevice, "Device's  not found", null);
+               // return NotFound(new ApiResult(ApiCode.NotFoundDeviceIdentity, $"Device's Identity not found "));
             }
             else
             {
                 var kv = from t in _context.AttributeLatest where t.DeviceId == t.DeviceId && keys.Split(',', ' ', ';').Contains(t.KeyName) select new AttributeDataDto() { DataSide = t.DataSide, DateTime = t.DateTime, KeyName = t.KeyName, DataType= t.Type, Value = t.ToObject() };
-                return await kv.ToListAsync();
+             //   return await kv.ToListAsync();
+
+                return new ApiResult<List<AttributeDataDto>>(ApiCode.Success, "Ok", await kv.ToListAsync());
+
+
             }
         }
 
@@ -191,14 +224,18 @@ namespace IoTSharp.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ApiResult), StatusCodes.Status404NotFound)]
         [ProducesDefaultResponseType]
-        public async Task<ActionResult<List<TelemetryDataDto>>> GetTelemetryLatest(Guid deviceId)
+        public async Task<ApiResult<List<TelemetryDataDto>>> GetTelemetryLatest(Guid deviceId)
         {
             Device dev = Found(deviceId);
             if (dev==null)
             {
-                return NotFound(new ApiResult(ApiCode.NotFoundDeviceIdentity, $"Device's Identity not found "));
+                return new ApiResult<List<TelemetryDataDto>>(ApiCode.NotFoundDeviceIdentity, "Device's Identity not found", null);
+       
             }
-            return  await  _storage.GetTelemetryLatest(deviceId);
+
+
+            return new ApiResult<List<TelemetryDataDto>>(ApiCode.Success, "Ok", await _storage.GetTelemetryLatest(deviceId));
+        
         }
         /// <summary>
         /// 获取指定设备的指定key 的遥测数据
@@ -211,16 +248,18 @@ namespace IoTSharp.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ApiResult), StatusCodes.Status404NotFound)]
         [ProducesDefaultResponseType]
-        public async Task<ActionResult<List<TelemetryDataDto>>> GetTelemetryLatest(Guid deviceId, string keys)
+        public async Task<ApiResult<List<TelemetryDataDto>>> GetTelemetryLatest(Guid deviceId, string keys)
         {
             Device dev = Found(deviceId);
             if (dev == null)
             {
-                return NotFound(new ApiResult(ApiCode.NotFoundDeviceIdentity, $"Device's Identity not found "));
+                return new ApiResult<List<TelemetryDataDto>>(ApiCode.NotFoundDeviceIdentity, "Device's Identity not found", null);
+     
             }
             else
             {
-                return await _storage.GetTelemetryLatest(deviceId,keys);
+                return new ApiResult<List<TelemetryDataDto>>(ApiCode.Success, "Ok", await _storage.GetTelemetryLatest(deviceId, keys));
+       
             }
         }
     
@@ -237,17 +276,25 @@ namespace IoTSharp.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ApiResult), StatusCodes.Status404NotFound)]
         [ProducesDefaultResponseType]
-        public async Task<ActionResult<List<TelemetryDataDto>>> GetTelemetryData(Guid deviceId, string keys, DateTime begin)
+        public async Task<ApiResult<List<TelemetryDataDto>>> GetTelemetryData(Guid deviceId, string keys, DateTime begin)
         {
             Device dev = Found(deviceId);
             if (dev == null)
             {
-                return NotFound(new ApiResult(ApiCode.NotFoundDeviceIdentity, $"Device's Identity not found "));
+                return new ApiResult<List<TelemetryDataDto>>(ApiCode.NotFoundDeviceIdentity, "Device's Identity not found", null);
+        
             }
             else
             {
-              return keys=="all" ? await _storage.LoadTelemetryAsync(deviceId, begin):  await _storage.LoadTelemetryAsync(deviceId,keys,begin);
-             
+
+                return new ApiResult<List<TelemetryDataDto>>(ApiCode.Success, "Ok",
+                    keys == "all"
+                        ? await _storage.LoadTelemetryAsync(deviceId, begin)
+                        : await _storage.LoadTelemetryAsync(deviceId, keys, begin));
+
+
+                ///    return keys=="all" ? await _storage.LoadTelemetryAsync(deviceId, begin):  await _storage.LoadTelemetryAsync(deviceId,keys,begin);
+
             }
         }
         /// <summary>
@@ -263,17 +310,19 @@ namespace IoTSharp.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ApiResult), StatusCodes.Status404NotFound)]
         [ProducesDefaultResponseType]
-        public async Task<ActionResult<List<TelemetryDataDto>>> GetTelemetryData(Guid deviceId, string keys, DateTime begin,DateTime end )
+        public async Task<ApiResult<List<TelemetryDataDto>>> GetTelemetryData(Guid deviceId, string keys, DateTime begin,DateTime end )
         {
             Device dev = Found(deviceId);
             if (dev == null)
             {
-                return NotFound(new ApiResult(ApiCode.NotFoundDeviceIdentity, $"Device's Identity not found "));
+                return new ApiResult<List<TelemetryDataDto>>(ApiCode.NotFoundDeviceIdentity, "Device's Identity not found", null);
+
             }
             else
             {
-                return keys == "all" ? await _storage.LoadTelemetryAsync(deviceId, begin, end): await _storage.LoadTelemetryAsync(deviceId, keys, begin, end);
-             
+                return new ApiResult<List<TelemetryDataDto>>(ApiCode.Success, "Ok",
+                    keys == "all" ? await _storage.LoadTelemetryAsync(deviceId, begin, end) : await _storage.LoadTelemetryAsync(deviceId, keys, begin, end));
+
             }
         }
 
@@ -291,14 +340,16 @@ namespace IoTSharp.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ApiResult<Guid>), StatusCodes.Status404NotFound)]
         [ProducesDefaultResponseType]
-        public async Task<ActionResult<Device>> GetDevice(Guid id)
+        public async Task<ApiResult<Device>> GetDevice(Guid id)
         {
             Device device = await FoundAsync(id);
             if (device == null)
             {
-                return NotFound(new ApiResult<Guid>(ApiCode.NotFoundDevice, $"Device {id} not found ", id));
+                return new ApiResult<Device>(ApiCode.NotFoundDeviceIdentity, "Device's Identity not found", null);
+       
             }
-            return device;
+            return new ApiResult<Device>(ApiCode.Success, "Device's Identity not found", device);
+        
         }
 
         /// <summary>
@@ -314,11 +365,12 @@ namespace IoTSharp.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(ApiResult<Guid>), StatusCodes.Status404NotFound)]
         [ProducesDefaultResponseType]
-        public async Task<IActionResult> PutDevice(Guid id, DevicePutDto device)
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        public async Task<ApiResult<bool>> PutDevice(Guid id, DevicePutDto device)
         {
             if (id != device.Id)
             {
-                return BadRequest();
+                return new ApiResult<bool>(ApiCode.InValidData, "Device's Identity not InValidData", false);
             }
 
             var cid = User.Claims.First(c => c.Type == IoTSharpClaimTypes.Customer);
@@ -329,22 +381,29 @@ namespace IoTSharp.Controllers
 
             if (dev == null)
             {
-                return BadRequest(new ApiResult(ApiCode.NotFoundDevice, $"{dev.Id} not found in database"));
+                return new ApiResult<bool>(ApiCode.NotFoundDeviceIdentity, "Device's Identity not found", false);
             }
             else if (dev.Tenant?.Id.ToString() != tid.Value || dev.Customer?.Id.ToString() != cid.Value)
             {
-                return BadRequest(new ApiResult(ApiCode.DoNotAllow, $"Do not allow access to devices from other customers or tenants"));
+
+
+                return new ApiResult<bool>(ApiCode.DoNotAllow ,"Do not allow access to devices from other customers or tenants", false);
+               // return BadRequest(new ApiResult(ApiCode.DoNotAllow, $"Do not allow access to devices from other customers or tenants"));
             }
             dev.Name = device.Name;
             try
             {
                 await _context.SaveChangesAsync();
+
+                return new ApiResult<bool>(ApiCode.Success, "Ok", true);
             }
             catch (DbUpdateConcurrencyException)
             {
                 if (!DeviceExists(id))
                 {
-                    return NotFound(new ApiResult<Guid>(ApiCode.NotFoundDevice, $"Device {id} not found ", id));
+                  //  return NotFound(new ApiResult<Guid>(ApiCode.NotFoundDevice, $"Device {id} not found ", id));
+
+                    return new ApiResult<bool>(ApiCode.NotFoundDevice ,"Device {id} not found ", false);
                 }
                 else
                 {
@@ -352,7 +411,7 @@ namespace IoTSharp.Controllers
                 }
             }
 
-            return NoContent();
+          
         }
 
         /// <summary>
@@ -366,7 +425,7 @@ namespace IoTSharp.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ApiResult<DevicePostDto>), StatusCodes.Status404NotFound)]
         [ProducesDefaultResponseType]
-        public async Task<ActionResult<Device>> PostDevice(DevicePostDto device)
+        public async Task<ApiResult<Device>> PostDevice(DevicePostDto device)
         {
             var cid = User.Claims.First(c => c.Type == IoTSharpClaimTypes.Customer);
             var tid = User.Claims.First(c => c.Type == IoTSharpClaimTypes.Tenant);
@@ -375,12 +434,19 @@ namespace IoTSharp.Controllers
             devvalue.Customer = _context.Customer.Find(new Guid(cid.Value));
             if (devvalue.Tenant == null || devvalue.Customer == null)
             {
-                return NotFound(new ApiResult<DevicePostDto>(ApiCode.NotFoundTenantOrCustomer, $"Not found Tenant or Customer ", device));
+
+
+                return new ApiResult<Device>(ApiCode.NotFoundTenantOrCustomer, "Not found Tenant or Customer", null);
+
+                //return NotFound(new ApiResult<DevicePostDto>(ApiCode.NotFoundTenantOrCustomer, $"Not found Tenant or Customer ", device));
             }
             _context.Device.Add(devvalue);
             _context.AfterCreateDevice(devvalue);
             await _context.SaveChangesAsync();
-            return await GetDevice(devvalue.Id);
+         
+
+
+            return new ApiResult<Device>(ApiCode.Success, "Ok", await FoundAsync(devvalue.Id));
         }
 
       /// <summary>
@@ -393,16 +459,22 @@ namespace IoTSharp.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ApiResult<Guid>), StatusCodes.Status404NotFound)]
         [ProducesDefaultResponseType]
-        public async Task<ActionResult<Device>> DeleteDevice(Guid id)
+        public async Task<ApiResult<Device>> DeleteDevice(Guid id)
         {
             Device device = Found(id);
             if (device == null)
             {
-                return NotFound(new ApiResult<Guid>(ApiCode.NotFoundDevice, $"Device {id} not found ", id));
+
+
+                return new ApiResult<Device>(ApiCode.NotFoundTenantOrCustomer, "Device {id} not found", null);
+             //   return NotFound(new ApiResult<Guid>(ApiCode.NotFoundDevice, $"Device {id} not found ", id));
             }
             _context.Device.Remove(device);
             await _context.SaveChangesAsync();
-            return device;
+          //  return device;
+
+
+            return new ApiResult<Device>(ApiCode.Success, "Ok", device);
         }
 
         private bool DeviceExists(Guid id)
@@ -429,7 +501,7 @@ namespace IoTSharp.Controllers
             var (ok, dev) = _context.GetDeviceByToken(access_token);
             if (ok)
             {
-                return NotFound(new ApiResult<Dic>(ApiCode.NotFoundDevice, $"{access_token} not a device's access token", new Dic(new DicKV[] { new DicKV("access_token", access_token) })));
+                return Ok(new ApiResult<Dic>(ApiCode.NotFoundDevice, $"{access_token} not a device's access token", new Dic(new DicKV[] { new DicKV("access_token", access_token) })));
             }
             else
             {
@@ -446,11 +518,11 @@ namespace IoTSharp.Controllers
                 }
                 catch (MqttCommunicationTimedOutException ex1)
                 {
-                    result = BadRequest(new ApiResult(ApiCode.RPCTimeout, $"{dev.Id} RPC Timeout {ex1.Message}"));
+                    result = Ok(new ApiResult(ApiCode.RPCTimeout, $"{dev.Id} RPC Timeout {ex1.Message}"));
                 }
                 catch (Exception ex)
                 {
-                    result = BadRequest(new ApiResult(ApiCode.RPCFailed, $"{dev.Id} RPCFailed {ex.Message}"));
+                    result = Ok(new ApiResult(ApiCode.RPCFailed, $"{dev.Id} RPCFailed {ex.Message}"));
                 }
             }
             return result;
@@ -473,7 +545,7 @@ namespace IoTSharp.Controllers
             var (ok, device) = _context.GetDeviceByToken(access_token);
             if (ok)
             {
-                return NotFound(new ApiResult<Dic>(ApiCode.NotFoundDevice, $"{access_token} not a device's access token", new Dic(new DicKV[] { new DicKV("access_token", access_token) })));
+                return Ok(new ApiResult<Dic>(ApiCode.NotFoundDevice, $"{access_token} not a device's access token", new Dic(new DicKV[] { new DicKV("access_token", access_token) })));
             }
             else
             {
@@ -501,7 +573,7 @@ namespace IoTSharp.Controllers
             var (ok, device) = _context.GetDeviceByToken(access_token);
             if (ok)
             {
-                return NotFound(new ApiResult<Dic>(ApiCode.NotFoundDevice, $"{access_token} not a device's access token", new Dic(new DicKV[] { new DicKV("access_token", access_token) })));
+                return Ok(new ApiResult<Dic>(ApiCode.NotFoundDevice, $"{access_token} not a device's access token", new Dic(new DicKV[] { new DicKV("access_token", access_token) })));
             }
             else
             {
@@ -514,7 +586,7 @@ namespace IoTSharp.Controllers
                 }
                 catch (Exception ex)
                 {
-                    return BadRequest(new ApiResult(ApiCode.Exception, $"{deviceId}  {ex.Message}"));
+                    return Ok(new ApiResult(ApiCode.Exception, $"{deviceId}  {ex.Message}"));
                 }
             }
         }
@@ -536,7 +608,7 @@ namespace IoTSharp.Controllers
             var (ok, dev) = _context.GetDeviceByToken(access_token);
             if (ok)
             {
-                return NotFound(new ApiResult<Dic>(ApiCode.NotFoundDevice, $"{access_token} not a device's access token", new Dic(new DicKV[] { new DicKV("access_token", access_token) })));
+                return Ok(new ApiResult<Dic>(ApiCode.NotFoundDevice, $"{access_token} not a device's access token", new Dic(new DicKV[] { new DicKV("access_token", access_token) })));
             }
             else
             {

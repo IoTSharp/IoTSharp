@@ -114,7 +114,7 @@
             客户管理
             </summary>
         </member>
-        <member name="M:IoTSharp.Controllers.CustomersController.GetCustomers(System.Guid)">
+        <member name="M:IoTSharp.Controllers.CustomersController.GetCustomers(IoTSharp.Controllers.Models.CustomerParam)">
             <summary>
             获取指定租户下的所有客户
             </summary>
@@ -155,7 +155,7 @@
             设备管理
             </summary>
         </member>
-        <member name="M:IoTSharp.Controllers.DevicesController.GetDevices(System.Guid)">
+        <member name="M:IoTSharp.Controllers.DevicesController.GetDevices(IoTSharp.Controllers.Models.DeviceParam)">
             <summary>
             获取指定客户的设备列表
             </summary>
@@ -345,7 +345,7 @@
             租户管理
             </summary>
         </member>
-        <member name="M:IoTSharp.Controllers.TenantsController.GetTenant">
+        <member name="M:IoTSharp.Controllers.TenantsController.GetTenant(IoTSharp.Controllers.Models.IPageParam)">
             <summary>
             系统管理员用来获取全部租户列表
             </summary>
@@ -506,6 +506,17 @@
             
             </summary>
             <param name="configure"></param>
+        </member>
+        <member name="M:IoTSharp.FlowRuleEngine.FlowRuleProcessor.RunFlowRules(System.Guid,System.Object,System.Guid,IoTSharp.Data.EventType,System.String)">
+            <summary>
+            
+            </summary>
+            <param name="ruleid"> 规则Id</param>
+            <param name="data">数据</param>
+            <param name="creator">创建者(可以是模拟器(测试)，可以是设备，在EventType中区分一下)</param>
+            <param name="type">类型</param>
+            <param name="BizId">业务Id(第三方唯一Id，用于取回事件以及记录的标识)</param>
+            <returns></returns>
         </member>
         <member name="T:IoTSharp.Handlers.EventBusHandler">
              <summary>

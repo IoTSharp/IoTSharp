@@ -19,9 +19,11 @@ using System.Collections.Generic;
 using System.Dynamic;
 using System.IO;
 using System.Linq;
+using System.Linq.Dynamic.Core;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Threading.Tasks;
+using IoTSharp.Dtos;
 
 namespace IoTSharp.Controllers
 {
@@ -42,40 +44,37 @@ namespace IoTSharp.Controllers
         }
 
         [HttpPost("[action]")]
-        public async Task<AppMessage> Index([FromBody] RulePageParam m)
+        public async Task<ApiResult<PagedData<FlowRule>>> Index([FromBody] RulePageParam m)
         {
             var profile = await this.GetUserProfile();
 
-            Expression<Func<FlowRule, bool>> expression = x => x.RuleStatus > -1;
+            Expression<Func<FlowRule, bool>> condition = x => x.RuleStatus > -1;
             if (!string.IsNullOrEmpty(m.Name))
             {
-                expression = expression.And(x => x.Name.Contains(m.Name));
+                condition = condition.And(x => x.Name.Contains(m.Name));
             }
 
             if (m.CreatTime != null && m.CreatTime.Length == 2)
             {
-                expression = expression.And(x => x.CreatTime > m.CreatTime[0] && x.CreatTime < m.CreatTime[1]);
+                condition = condition.And(x => x.CreatTime > m.CreatTime[0] && x.CreatTime < m.CreatTime[1]);
             }
 
             if (!string.IsNullOrEmpty(m.Creator))
             {
-                expression = expression.And(x => x.Creator == m.Creator);
+                condition = condition.And(x => x.Creator == m.Creator);
             }
 
-            return new AppMessage()
+            return new ApiResult<PagedData<FlowRule>>(ApiCode.Success, "OK", new PagedData<FlowRule>
             {
-                ErrType = ErrType.正常返回,
-                Result = new
-                {
-                    rows = await _context.FlowRules.OrderByDescending(c => c.RuleId).Where(expression).Skip(m.offset * m.limit).Take(m.limit)
-                        .ToListAsync(),
-                    totel = await _context.FlowRules.CountAsync(expression)
-                }
-            };
+                total = _context.FlowRules.Count(condition),
+                rows = _context.FlowRules.OrderByDescending(c => c.CreatTime).Where(condition).Skip((m.offset) * m.limit).Take(m.limit).ToList()
+            });
+
+
         }
 
         [HttpPost("[action]")]
-        public AppMessage Save(FlowRule m)
+        public ApiResult<bool> Save(FlowRule m)
         {
             if (ModelState.IsValid)
             {
@@ -83,23 +82,14 @@ namespace IoTSharp.Controllers
                 _context.FlowRules.Add(m);
                 _context.SaveChanges();
 
-                return new AppMessage
-                {
-                    ErrType = ErrType.正常返回,
-                    Result = m
-                };
+                return new ApiResult<bool>(ApiCode.Success, "OK", true);
             }
 
-            return new AppMessage
-            {
-                ErrType = ErrType.参数错误,
-                ErrMessage = ModelState.Values.SelectMany(c => c.Errors.FirstOrDefault()?.ErrorMessage).Aggregate("",
-                    (x, y) => x + "," + y)
-            };
+            return new ApiResult<bool>(ApiCode.InValidData, "can't find this object", false);
         }
 
         [HttpPost("[action]")]
-        public AppMessage Update(FlowRule m)
+        public ApiResult<bool> Update(FlowRule m)
         {
             if (ModelState.IsValid)
             {
@@ -108,23 +98,14 @@ namespace IoTSharp.Controllers
                 flowrule.RuleDesc = m.RuleDesc;
                 _context.FlowRules.Update(flowrule);
                 _context.SaveChanges();
-                return new AppMessage
-                {
-                    ErrType = ErrType.正常返回,
-                    Result = m
-                };
+                return new ApiResult<bool>(ApiCode.Success, "OK", true);
             }
 
-            return new AppMessage
-            {
-                ErrType = ErrType.参数错误,
-                ErrMessage = ModelState.Values.SelectMany(c => c.Errors.FirstOrDefault()?.ErrorMessage).Aggregate("",
-                    (x, y) => x + "," + y)
-            };
+            return new ApiResult<bool>(ApiCode.Success, "can't find this object", false);
         }
 
         [HttpGet("[action]")]
-        public AppMessage Delete(Guid id)
+        public ApiResult<bool> Delete(Guid id)
         {
             var rule = _context.FlowRules.FirstOrDefault(c => c.RuleId == id);
             if (rule != null)
@@ -132,26 +113,26 @@ namespace IoTSharp.Controllers
                 rule.RuleStatus = -1;
                 _context.FlowRules.Update(rule);
                 _context.SaveChanges();
-                return new AppMessage { ErrType = ErrType.正常返回, };
+                return new ApiResult<bool>(ApiCode.Success, "OK", true);
             }
 
-            return new AppMessage { ErrType = ErrType.找不到对象, };
+            return new ApiResult<bool>(ApiCode.Success, "can't find this object", false);
         }
 
         [HttpGet("[action]")]
-        public AppMessage<FlowRule> Get(Guid id)
+        public ApiResult<FlowRule> Get(Guid id)
         {
             var rule = _context.FlowRules.FirstOrDefault(c => c.RuleId == id);
             if (rule != null)
             {
-                return new AppMessage<FlowRule> { ErrType = ErrType.正常返回, Result = rule };
+                return new ApiResult<FlowRule>(ApiCode.Success, "OK", rule);
             }
 
-            return new AppMessage<FlowRule> { ErrType = ErrType.找不到对象, };
+            return new ApiResult<FlowRule>(ApiCode.CantFindObject, "can't find this object", null);
         }
 
         [HttpPost("[action]")]
-        public async Task<AppMessage<FlowRule>> BindDevice(ModelRuleBind m)
+        public async Task<ApiResult<bool>> BindDevice(ModelRuleBind m)
         {
             var profile = await this.GetUserProfile();
             if (m.dev != null)
@@ -170,50 +151,42 @@ namespace IoTSharp.Controllers
                         _context.SaveChanges();
                     }
                 });
-                return new AppMessage<FlowRule> { ErrType = ErrType.正常返回, ErrMessage = "规则已下发" };
-            }
-            //var rule = _context.FlowRules.FirstOrDefault(c => c.RuleId == id);
-            //if (rule != null)
-            //{
-            //    return new AppMessage<FlowRule> { ErrType = ErrType.正常返回, Result = rule };
-            //}
 
-            return new AppMessage<FlowRule> { ErrType = ErrType.参数错误, ErrMessage = "请选择下发设备" };
+
+                return new ApiResult<bool>(ApiCode.Success, "rule binding success", true);
+
+            }
+
+            return new ApiResult<bool>(ApiCode.CantFindObject, "No device found", false);
         }
 
         [HttpGet("[action]")]
-        public async Task<AppMessage<FlowRule>> DeleteDeviceRules(Guid deviceId, Guid ruleId)
+        public async Task<ApiResult<bool>> DeleteDeviceRules(Guid deviceId, Guid ruleId)
         {
             var profile = await this.GetUserProfile();
-
             var map = _context.DeviceRules.FirstOrDefault(c => c.FlowRule.RuleId == ruleId && c.Device.Id == deviceId);
-
             if (map != null)
-
             {
                 _context.DeviceRules.Remove(map);
                 _context.SaveChanges();
-                return new AppMessage<FlowRule> { ErrType = ErrType.正常返回, ErrMessage = "规则绑定已删除" };
+                return new ApiResult<bool>(ApiCode.Success, "rule has been removed", true);
             }
-            //var rule = _context.FlowRules.FirstOrDefault(c => c.RuleId == id);
-            //if (rule != null)
-            //{
-            //    return new AppMessage<FlowRule> { ErrType = ErrType.正常返回, Result = rule };
-            //}
+            return new ApiResult<bool>(ApiCode.CantFindObject, "this mapping was not found", true);
 
-            return new AppMessage<FlowRule> { ErrType = ErrType.参数错误, ErrMessage = "规则绑定不存在或已删除" };
+
         }
 
         [HttpGet("[action]")]
-        public async Task<AppMessage<List<FlowRule>>> GetDeviceRules(Guid deviceId)
+        public ApiResult<List<FlowRule>> GetDeviceRules(Guid deviceId)
         {
-            return new AppMessage<List<FlowRule>> { ErrType = ErrType.正常返回, Result = await _context.DeviceRules.Where(c => c.Device.Id == deviceId).Select(c => c.FlowRule).ToListAsync() };
+            return new ApiResult<List<FlowRule>>(ApiCode.Success, "Ok", _context.DeviceRules.Where(c => c.Device.Id == deviceId).Select(c => c.FlowRule).ToList());
         }
 
         [HttpGet("[action]")]
-        public async Task<AppMessage<List<Device>>> GetRuleDevices(Guid ruleId)
+        public ApiResult<List<Device>> GetRuleDevices(Guid ruleId)
         {
-            return new AppMessage<List<Device>> { ErrType = ErrType.正常返回, Result = await _context.DeviceRules.Where(c => c.FlowRule.RuleId == ruleId).Select(c => c.Device).ToListAsync() };
+            return new ApiResult<List<Device>>(ApiCode.Success, "Ok", _context.DeviceRules.Where(c => c.FlowRule.RuleId == ruleId).Select(c => c.Device).ToList());
+
         }
 
         [HttpPost("[action]")]
@@ -403,7 +376,7 @@ namespace IoTSharp.Controllers
         }
 
         [HttpGet("[action]")]
-        public AppMessage GetDiagram(Guid id)
+        public ApiResult<IoTSharp.Models.Rule.Activity> GetDiagram(Guid id)
         {
             var ruleflow = _context.FlowRules.FirstOrDefault(c => c.RuleId == id);
             IoTSharp.Models.Rule.Activity activity = new IoTSharp.Models.Rule.Activity();
@@ -424,7 +397,7 @@ namespace IoTSharp.Controllers
             activity.TextAnnotations ??= new List<BpmnBaseObject>();
             activity.RuleId = id;
             var flows = _context.Flows.Where(c => c.FlowRule.RuleId == id).ToList();
-
+            activity.DefinitionsXml = ruleflow.DefinitionsXml?.Trim('\r');
             foreach (var item in flows)
             {
                 switch (item.FlowType)
@@ -875,21 +848,15 @@ namespace IoTSharp.Controllers
                         break;
                 }
             }
+            return new ApiResult<IoTSharp.Models.Rule.Activity>(ApiCode.Success, "rule has been removed", activity);
 
-            return new AppMessage
-            {
-                Result = new
-                {
-                    Xml = ruleflow.DefinitionsXml?.Trim('\r'),
-                    Biz = activity
-                }
-            };
+
         }
 
         //模拟处理
 
         [HttpPost("[action]")]
-        public async Task<AppMessage> Active([FromBody] JObject form)
+        public async Task<ApiResult<dynamic>> Active([FromBody] JObject form)
         {
             var profile = await this.GetUserProfile();
             var formdata = form.First.First;
@@ -898,69 +865,19 @@ namespace IoTSharp.Controllers
             var obj1 = extradata.First.First.Next.First.Value<JToken>();
             var formid = obj.Value<int>();
             var ruleid = obj1.Value<Guid>();
-            //wrong way
-            //   var _form = _context.DynamicFormInfos.FirstOrDefault(c => c.FormId == formid);
-            //   object data = formdata.ToObject(BuildPocoObject(_form.ModelClass, "FormData"+ _form.FormId));
-            //  var _params = _context.DynamicFormFieldInfos.Where(c => c.FormId == formid).ToList();
             var d = formdata.ToObject(typeof(ExpandoObject));
-
-            var rule = _context.FlowRules.SingleOrDefault(c => c.RuleId == ruleid);
-            var _event = new BaseEvent()
-            {
-                CreaterDateTime = DateTime.Now,
-                Creator = profile.Id,
-                EventDesc = "测试",
-                EventName = "测试",
-                MataData = JsonConvert.SerializeObject(d),
-                //   FlowRule = rule,
-                Bizid = formid.ToString(),
-                Type = EventType.TestPurpose,
-                EventStaus = 1
-            };
-            _context.BaseEvents.Add(_event);
-            _context.SaveChanges();
-            // 非测试环境事件产生完，此时应当返回事件，剩余处理下一步进行异步处理。
-
-            await _flowRuleProcessor.RunFlowRules(ruleid, d, Guid.Parse(this._userManager.GetUserId(this.User)), null);
-
+            var testabizId = Guid.NewGuid().ToString(); //根据业务保存起来，用来查询执行事件和步骤
+            await _flowRuleProcessor.RunFlowRules(ruleid, d, profile.Id, EventType.TestPurpose, testabizId);
             //应该由事件总线去通知
-            return new AppMessage
-            {
-                ErrType = ErrType.正常返回,
-                Result = _context.FlowOperations.OrderBy(c => c.Step).
-                Where(c => c.BaseEvent == _event).ToList()
+            return new ApiResult<dynamic>(ApiCode.Success, "test complete", _context.FlowOperations.OrderBy(c => c.Step).
+                Where(c => c.BaseEvent.Bizid == testabizId).ToList()
                 .GroupBy(c => c.Step).Select(c => new
                 {
                     Step = c.Key,
                     Nodes = c
-                }).ToList()
-            };
+                }).ToList());
         }
 
-        private Type BuildPocoObject(string classtext, string typename)
-        {
-            MetadataReference[] references = {
-            };
-
-            var tree = SyntaxFactory.ParseSyntaxTree(classtext);
-            CSharpCompilation compilation = CSharpCompilation.Create(typename, new[] { tree }, references, new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
-            using var ms = new MemoryStream();
-            EmitResult result = compilation.Emit(ms);
-            if (!result.Success)
-            {
-                IEnumerable<Diagnostic> failures = result.Diagnostics.Where(diagnostic =>
-                    diagnostic.IsWarningAsError ||
-                    diagnostic.Severity == DiagnosticSeverity.Error);
-                foreach (Diagnostic diagnostic in failures)
-                {
-                }
-                return null;
-            }
-            else
-            {
-                ms.Seek(0, SeekOrigin.Begin);
-                return Assembly.Load(ms.ToArray()).DefinedTypes.FirstOrDefault();
-            }
-        }
+       
     }
 }

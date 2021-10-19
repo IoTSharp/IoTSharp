@@ -86,7 +86,7 @@ namespace IoTSharp.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesDefaultResponseType]
-        public async Task<ActionResult<LoginResult>> Login([FromBody] LoginDto model)
+        public async Task<ApiResult<LoginResult>> Login([FromBody] LoginDto model)
         {
             try
             {
@@ -130,7 +130,10 @@ namespace IoTSharp.Controllers
                         access_token = new JwtSecurityTokenHandler().WriteToken(tokeOptions),
                         expires_in = t
                     };
-                    return Ok(new LoginResult()
+
+
+
+                    return new ApiResult<LoginResult>(ApiCode.Success, "Ok", new LoginResult()
                     {
                         Code = ApiCode.Success,
                         Succeeded = result.Succeeded,
@@ -139,15 +142,29 @@ namespace IoTSharp.Controllers
                         SignIn = result,
                         Roles = roles
                     });
+                    //return Ok(new LoginResult()
+                    //{
+                    //    Code = ApiCode.Success,
+                    //    Succeeded = result.Succeeded,
+                    //    Token = token,
+                    //    UserName = appUser.UserName,
+                    //    SignIn = result,
+                    //    Roles = roles
+                    //});
                 }
                 else
                 {
-                    return Unauthorized(new { code = ApiCode.LoginError, msg = "Unauthorized", data = result });
+
+                    return new ApiResult<LoginResult>(ApiCode.InValidData, "Unauthorized", null);
+
+                //    return Unauthorized(new { code = ApiCode.LoginError, msg = "Unauthorized", data = result });
                 }
             }
             catch (Exception ex)
             {
-                return this.ExceptionRequest(ex);
+
+                return new ApiResult<LoginResult>(ApiCode.InValidData, ex.Message, null);
+          //      return this.ExceptionRequest(ex);
             }
         }
         /// <summary>
@@ -159,16 +176,19 @@ namespace IoTSharp.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesDefaultResponseType]
-        public async Task<IActionResult> Logout( )
+        public async Task<ApiResult<bool>> Logout( )
         {
             try
             {
                 await _signInManager.SignOutAsync();
-                return new  OkResult();
+
+                return new ApiResult<bool>(ApiCode.InValidData, "Ok", true);
+                //  return new  OkResult();
             }
             catch (Exception ex)
             {
-                return this.ExceptionRequest(ex);
+                return new ApiResult<bool>(ApiCode.InValidData, ex.Message, true);
+                    //    return this.ExceptionRequest(ex);
             }
           
         }
@@ -180,9 +200,9 @@ namespace IoTSharp.Controllers
         /// <returns >返回登录结果</returns>
         [AllowAnonymous]
         [HttpPost]
-        public async Task<ActionResult<LoginResult>> Register([FromBody] RegisterDto model)
+        public async Task<ApiResult<LoginResult>> Register([FromBody] RegisterDto model)
         {
-            ActionResult<LoginResult> actionResult = NoContent();
+
             try
             {
                 var user = new IdentityUser
@@ -204,21 +224,27 @@ namespace IoTSharp.Controllers
                         await _signInManager.UserManager.AddClaimAsync(user, new Claim(IoTSharpClaimTypes.Customer, customer.Id.ToString()));
                         await _signInManager.UserManager.AddClaimAsync(user, new Claim(IoTSharpClaimTypes.Tenant, customer.Tenant.Id.ToString()));
                         await _signInManager.UserManager.AddToRolesAsync(user, new[] { nameof(UserRole.NormalUser) });
-                        actionResult = CreatedAtAction(nameof(this.Login), new LoginDto() { UserName = model.Email,  Password = model.Password });
+                        return new ApiResult<LoginResult>(ApiCode.Success, "Ok", new LoginResult()
+                        {
+                            Code = ApiCode.Success,
+                            Succeeded = result.Succeeded,
+                            UserName = model.Email,
+                            
+                        });
+                        //    actionResult = CreatedAtAction(nameof(this.Login), new LoginDto() { UserName = model.Email,  Password = model.Password });
                     }
                 }
                 else
                 {
                     var msg = from e in result.Errors select $"{e.Code}:{e.Description}\r\n";
-                    actionResult = BadRequest(new ApiResult(ApiCode.CreateUserFailed, string.Join(';', msg.ToArray())));
+                    return new ApiResult<LoginResult>(ApiCode.InValidData, string.Join(';', msg.ToArray()), null);
                 }
             }
             catch (Exception ex)
             {
-                actionResult = this.ExceptionRequest(ex);
-                _logger.LogError(ex, ex.Message);
+                return new ApiResult<LoginResult>(ApiCode.InValidData, ex.Message, null);
             }
-            return actionResult;
+            return new ApiResult<LoginResult>(ApiCode.InValidData, "", null);
         }
         /// <summary>
         /// 返回客户所属用户列表
@@ -226,7 +252,7 @@ namespace IoTSharp.Controllers
         /// <param name="customerId"></param>
         /// <returns></returns>
         [HttpGet("{customerId}")]
-        public async Task<ActionResult<List<UserItemDto>>> All(Guid customerId)
+        public async Task<ApiResult<List<UserItemDto>>> All(Guid customerId)
         {
             List<UserItemDto> dtos = new List<UserItemDto>();
             var users = await _userManager.GetUsersForClaimAsync (_signInManager.Context.User.FindFirst( m=> m.Type==  IoTSharpClaimTypes.Customer && m.Value==customerId.ToString()));
@@ -242,7 +268,9 @@ namespace IoTSharp.Controllers
                 };
                 dtos.Add(uid);
             });
-            return dtos;
+
+            return new ApiResult<List<UserItemDto>>(ApiCode.InValidData, "", dtos);
+         
         }
 
     }

@@ -4,7 +4,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using IoTSharp.Data;
+using IoTSharp.Dtos;
 using IoTSharp.Models;
+using IoTSharp.Models.FormFieldTypes;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Authorization;
 
@@ -18,18 +20,23 @@ namespace IoTSharp.Controllers
 
 
         private ApplicationDbContext _context;
-        private UserManager<IdentityUser> _userManager;
+       
 
-        public DynamicFormRemoteApiController(ApplicationDbContext context, UserManager<IdentityUser> userManager)
+        public DynamicFormRemoteApiController(ApplicationDbContext context)
         {
-            this._userManager = userManager;
+         
             this._context = context;
         }
 
+
+        //测试动态表单的远程数据源
         [HttpGet("[action]")]
-        public IActionResult GetDeviceListForComboxDataSouce(string q )
+        public ApiResult<List<NzOption>> GetDeviceListForComboxDataSouce(string q)
         {
-            return new JsonResult(new AppMessage{Result = _context.Device.ToList().Select(c => new { value = c.Id.ToString(), label = c.Name, title = c.Name }).ToArray() });
+
+            return new ApiResult<List<NzOption>>(ApiCode.Success, "",
+                _context.Device.OrderByDescending(c=>c.LastActive).Skip(0).Take(10).ToList()
+                    .Select(c => new NzOption {value = c.Id.ToString(), label = c.Name, title = c.Name}).ToList());
         }
 
     }

@@ -8,10 +8,13 @@ using Microsoft.EntityFrameworkCore;
 using IoTSharp.Data;
 using Microsoft.AspNetCore.Authorization;
 using System.IdentityModel.Tokens.Jwt;
+using System.Linq.Dynamic.Core;
+using IoTSharp.Controllers.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using IoTSharp.Dtos;
+using IoTSharp.Models;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 
 namespace IoTSharp.Controllers
@@ -50,15 +53,24 @@ namespace IoTSharp.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ApiResult), StatusCodes.Status400BadRequest)]
         [ProducesDefaultResponseType]
-        public async Task<ActionResult<IEnumerable<Tenant>>> GetTenant()
+        public async Task<ApiResult<PagedData<Tenant>>> GetTenant([FromBody] IPageParam  m)
         {
             try
             {
-                return await _context.Tenant.ToListAsync();
+
+
+                return new ApiResult<PagedData<Tenant>>(ApiCode.Success, "OK", new PagedData<Tenant>
+                {
+                    total = _context.Tenant.Count(),
+                    rows = _context.Tenant.OrderByDescending(c => c.Id).Skip((m.offset) * m.limit).Take(m.limit).ToList()
+                });
+
+             
             }
             catch (Exception ex)
             {
-                return BadRequest(new ApiResult(ApiCode.Exception, ex.Message));
+                return new ApiResult<PagedData<Tenant>>(ApiCode.InValidData, ex.Message, null);
+
             }
         }
 
@@ -72,14 +84,16 @@ namespace IoTSharp.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ApiResult), StatusCodes.Status404NotFound)]
         [ProducesDefaultResponseType]
-        public async Task<ActionResult<Tenant>> GetTenant(Guid id)
+        public async Task<ApiResult<Tenant>> GetTenant(Guid id)
         {
             var tenant = await _context.Tenant.FindAsync(id);
             if (tenant == null)
             {
-                return NotFound(new ApiResult(ApiCode.NotFoundTenant, "Not found tenant"));
+                return new ApiResult<Tenant>(ApiCode.Success, "can't find this object", null);
             }
-            return tenant;
+
+            return new ApiResult<Tenant>(ApiCode.Success, "OK", tenant);
+     
         }
         /// <summary>
         /// 修改指定的租户信息， 仅限租户管理员
@@ -93,11 +107,12 @@ namespace IoTSharp.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(ApiResult<Tenant>), StatusCodes.Status404NotFound)]
         [ProducesDefaultResponseType]
-        public async Task<IActionResult> PutTenant(Guid id, Tenant tenant)
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        public async Task<ApiResult<Tenant>> PutTenant(Guid id, Tenant tenant)
         {
             if (id != tenant.Id)
             {
-                return BadRequest();
+                return new ApiResult<Tenant>(ApiCode.InValidData, "InValidData", tenant);
             }
 
             _context.Entry(tenant).State = EntityState.Modified;
@@ -108,21 +123,24 @@ namespace IoTSharp.Controllers
             }
             catch (DbUpdateConcurrencyException ex)
             {
-                if (!TenantExists(id))
+                if (!_context.Tenant.Any(c=>c.Id==id))
                 {
-                    return NotFound(new ApiResult<Tenant>(ApiCode.NotFoundTenant, "Not found tenant", tenant));
+                    return new ApiResult<Tenant>(ApiCode.CantFindObject, "cant't find this object", tenant);
                 }
                 else
                 {
-                    return BadRequest(new ApiResult<EntityEntry[]>(ApiCode.Exception, ex.Message, ex.Entries.ToArray()));
+
+                    return new ApiResult<Tenant>(ApiCode.InValidData, ex.Message, tenant);
+                 //  return BadRequest(new ApiResult<EntityEntry[]>(ApiCode.Exception, ex.Message, ex.Entries.ToArray()));
                 }
             }
             catch (Exception ex)
             {
-                return BadRequest(new ApiResult<Tenant>(ApiCode.Exception, ex.Message, tenant));
+                return new ApiResult<Tenant>(ApiCode.InValidData, ex.Message, tenant);
+             //   return BadRequest(new ApiResult<Tenant>(ApiCode.Exception, ex.Message, tenant));
             }
 
-            return NoContent();
+            return new ApiResult<Tenant>(ApiCode.Success, "Ok", tenant);
         }
         /// <summary>
         /// 新增租户， 仅限系统管理员
@@ -135,18 +153,20 @@ namespace IoTSharp.Controllers
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(typeof(ApiResult<Tenant>), StatusCodes.Status400BadRequest)]
         [ProducesDefaultResponseType]
-        public async Task<ActionResult<Tenant>> PostTenant(Tenant tenant)
+        public async Task<ApiResult<Tenant>> PostTenant(Tenant tenant)
         {
             try
             {
                 _context.Tenant.Add(tenant);
                 await _context.SaveChangesAsync();
-
-                return CreatedAtAction("GetTenant", new { id = tenant.Id }, tenant);
+                return new ApiResult<Tenant>(ApiCode.Success, "Ok", tenant);
+             //   return CreatedAtAction("GetTenant", new { id = tenant.Id }, tenant);
             }
             catch (Exception ex)
             {
-                return BadRequest(new ApiResult<Tenant>(ApiCode.Exception, ex.Message, tenant));
+
+                return new ApiResult<Tenant>(ApiCode.InValidData, ex.Message, tenant);
+            //    return BadRequest(new ApiResult<Tenant>(ApiCode.Exception, ex.Message, tenant));
             }
         }
         /// <summary>
@@ -161,28 +181,34 @@ namespace IoTSharp.Controllers
         [ProducesResponseType(typeof(ApiResult<Tenant>), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(ApiResult<Tenant>), StatusCodes.Status404NotFound)]
         [ProducesDefaultResponseType]
-        public async Task<ActionResult<Tenant>> DeleteTenant(Guid id)
+        public async Task<ApiResult<Tenant>> DeleteTenant(Guid id)
         {
             var tenant = await _context.Tenant.FindAsync(id);
             if (tenant == null)
             {
-                return NotFound(new ApiResult<Tenant>(ApiCode.NotFoundTenant, "Not found tenant", tenant));
+                return new ApiResult<Tenant>(ApiCode.CantFindObject, "Not found tenant", tenant);
+             //   return NotFound(new ApiResult<Tenant>(ApiCode.NotFoundTenant, "Not found tenant", tenant));
             }
             try
             {
                 _context.Tenant.Remove(tenant);
                 await _context.SaveChangesAsync();
-                return tenant;
+              //  return tenant;
+
+                return new ApiResult<Tenant>(ApiCode.Success, "Ok", tenant);
             }
             catch (Exception ex)
             {
-                return BadRequest(new ApiResult<Tenant>(ApiCode.Exception, ex.Message, tenant));
+                return new ApiResult<Tenant>(ApiCode.InValidData, ex.Message, tenant);
+            
             }
         }
 
-        private bool TenantExists(Guid id)
+        private ApiResult<bool> TenantExists(Guid id)
         {
-            return _context.Tenant.Any(e => e.Id == id);
+            return new ApiResult<bool>(ApiCode.InValidData, "Ok", _context.Tenant.Any(e => e.Id == id));
+
+
         }
     }
 }

@@ -11,11 +11,11 @@ using System.Threading.Tasks;
 
 namespace IoTSharp.Interpreter
 {
-    public class JavaScriptEngine:ScriptEngineBase
+    public class JavaScriptEngine:ScriptEngineBase, IDisposable
     {
-        private readonly Engine _engine;
-        private readonly JsonParser _parser;
-
+        private  Engine _engine;
+        private  JsonParser _parser;
+        private bool disposedValue;
         public JavaScriptEngine(ILogger<JavaScriptEngine> logger, IOptions<EngineSetting> _opt):base(logger,_opt.Value, Task.Factory.CancellationToken)
         {
             var engine = new Engine(options =>
@@ -43,6 +43,33 @@ namespace IoTSharp.Interpreter
             var json= System.Text.Json.JsonSerializer.Serialize(js);
             _logger.LogDebug($"source:{Environment.NewLine}{ _source}{Environment.NewLine}{Environment.NewLine}input:{Environment.NewLine}{ input}{Environment.NewLine}{Environment.NewLine} ouput:{Environment.NewLine}{ json}{Environment.NewLine}{Environment.NewLine}");
             return json;
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+           
+            if (!disposedValue)
+            {
+                if (disposing)
+                {
+                    _engine= null;
+                    _parser = null;
+                    // TODO: 释放托管状态(托管对象)
+                }
+
+                // TODO: 释放未托管的资源(未托管的对象)并重写终结器
+                // TODO: 将大型字段设置为 null
+                disposedValue = true;
+            }
+        }
+
+
+
+        public void Dispose()
+        {
+            // 不要更改此代码。请将清理代码放入“Dispose(bool disposing)”方法中
+            Dispose(disposing: true);
+            GC.SuppressFinalize(this);
         }
     }
 }

@@ -32,6 +32,9 @@ namespace IoTSharp.Data
         RPCTimeout = 10012,
         CustomerDoesNotHaveDevice = 10013,
         CreateUserFailed = 10014,
+
+        CantFindObject = 10015,
+        InValidData = 10016,
     }
 
     public enum DataCatalog

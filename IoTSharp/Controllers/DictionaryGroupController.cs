@@ -3,10 +3,12 @@ using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Dynamic.Core;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
 using IoTSharp.Controllers.Models;
 using IoTSharp.Data;
+using IoTSharp.Dtos;
 using IoTSharp.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Authorization;
@@ -30,49 +32,36 @@ namespace IoTSharp.Controllers
 
 
         [HttpPost("[action]")]
-        public AppMessage Index([FromBody] IPageParam m)
+        public ApiResult<PagedData<BaseDictionaryGroup>> Index([FromBody] IPageParam m)
         {
 
             Expression<Func<BaseDictionaryGroup, bool>> condition = x => x.DictionaryGroupStatus > -1;
-
-
-
-            var result = _context.BaseDictionaryGroups
+            var result = _context.BaseDictionaryGroups.Where(condition)
                 .OrderByDescending(c => c.DictionaryGroupId).Skip((m.offset) * m.limit).Take(m.limit).ToList();
-            return new AppMessage
-            {
-                Result = new 
-                {
-                    rows = result,
-                    total = _context.BaseDictionaryGroups.Count()
-                }
-            };
 
+            return new ApiResult<PagedData<BaseDictionaryGroup>>(ApiCode.Success, "OK", new PagedData<BaseDictionaryGroup>
+            {
+                total = _context.BaseDictionaryGroups.Count(condition),
+                rows = result
+            });
         }
 
         [HttpGet("[action]")]
-        public AppMessage Get(int id)
+        public ApiResult<BaseDictionaryGroup> Get(int id)
         {
             var dictionaryGroup = _context.BaseDictionaryGroups.FirstOrDefault(c => c.DictionaryGroupId == id);
-
             if (dictionaryGroup != null)
             {
-                return new AppMessage
-                {
-                    Result = dictionaryGroup
-                };
+                return new ApiResult<BaseDictionaryGroup>(ApiCode.Success, "OK", dictionaryGroup);
             }
-            return new AppMessage
-            {
-                ErrType = ErrType.找不到对象
-            };
+            return new ApiResult<BaseDictionaryGroup>(ApiCode.Success, "can't find this object", null);
 
 
         }
 
 
         [HttpGet("[action]")]
-        public AppMessage SetStatus(int id)
+        public ApiResult<bool> SetStatus(int id)
         {
             var obj = _context.BaseDictionaryGroups.FirstOrDefault(c => c.DictionaryGroupId == id);
             if (obj != null)
@@ -80,15 +69,9 @@ namespace IoTSharp.Controllers
                 obj.DictionaryGroupStatus = obj.DictionaryGroupStatus == 1 ? 0 : 1;
                 _context.BaseDictionaryGroups.Update(obj);
                 _context.SaveChanges();
-                return new AppMessage
-                {
-                    ErrType = ErrType.正常返回
-                };
+                return new ApiResult<bool>(ApiCode.Success, "OK", true);
             }
-            return new AppMessage
-            {
-                ErrType = ErrType.找不到对象
-            };
+            return new ApiResult<bool>(ApiCode.Success, "can't find this object", false);
         }
 
 
@@ -103,7 +86,7 @@ namespace IoTSharp.Controllers
         /// <param name="m"></param>
         /// <returns></returns>
         [HttpPost("[action]")]
-        public AppMessage Save(BaseDictionaryGroup m)
+        public ApiResult<bool> Save(BaseDictionaryGroup m)
         {
             var dictionaryGroup = new BaseDictionaryGroup()
             {
@@ -119,13 +102,10 @@ namespace IoTSharp.Controllers
 
             _context.BaseDictionaryGroups.Add(dictionaryGroup);
             _context.SaveChanges();
-            return new AppMessage
-            {
-                ErrType = ErrType.正常返回
-            };
+            return new ApiResult<bool>(ApiCode.Success, "OK", true);
         }
         [HttpPost("[action]")]
-        public AppMessage Update(BaseDictionaryGroup m)
+        public ApiResult<bool> Update(BaseDictionaryGroup m)
         {
             var dictionaryGroup = _context.BaseDictionaryGroups.FirstOrDefault(c => c.DictionaryGroupId == m.DictionaryGroupId);
 
@@ -140,17 +120,10 @@ namespace IoTSharp.Controllers
                 _context.BaseDictionaryGroups.Update(dictionaryGroup);
                 _context.SaveChanges();
 
-                return new AppMessage
-                {
-                    ErrType = ErrType.正常返回
-                };
+                return new ApiResult<bool>(ApiCode.Success, "OK", true);
 
             }
-            return new AppMessage
-            {
-                ErrType = ErrType.找不到对象
-            }
-            ;
+            return new ApiResult<bool>(ApiCode.Success, "can't find this object", false);
 
         }
 
@@ -160,7 +133,7 @@ namespace IoTSharp.Controllers
         /// <param name="id"></param>
         /// <returns></returns>
         [HttpGet("[action]")]
-        public AppMessage Delete(int id)
+        public ApiResult<bool> Delete(int id)
         {
             var dictionaryGroup = _context.BaseDictionaryGroups.FirstOrDefault(c => c.DictionaryGroupId == id);
 
@@ -170,15 +143,9 @@ namespace IoTSharp.Controllers
                 dictionaryGroup.DictionaryGroupStatus = -1;
                 _context.BaseDictionaryGroups.Update(dictionaryGroup);
                 _context.SaveChanges();
-                return new AppMessage
-                {
-                    ErrType = ErrType.正常返回
-                };
+                return new ApiResult<bool>(ApiCode.Success, "OK", true);
             }
-            return new AppMessage
-            {
-                ErrType = ErrType.找不到对象
-            };
+            return new ApiResult<bool>(ApiCode.Success, "can't find this object", false);
         }
 
 
