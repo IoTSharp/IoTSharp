@@ -93,12 +93,15 @@ namespace IoTSharp.Controllers
         {
             if (ModelState.IsValid)
             {
-                FlowRule flowrule = new FlowRule();
-                flowrule.Name = m.Name;
-                flowrule.RuleDesc = m.RuleDesc;
-                _context.FlowRules.Update(flowrule);
-                _context.SaveChanges();
-                return new ApiResult<bool>(ApiCode.Success, "OK", true);
+                var flowrule = _context.FlowRules.SingleOrDefault(c => c.RuleId==m.RuleId);
+                if (flowrule != null)
+                {
+                    flowrule.Name = m.Name;
+                    flowrule.RuleDesc = m.RuleDesc;
+                    _context.FlowRules.Update(flowrule);
+                    _context.SaveChanges();
+                    return new ApiResult<bool>(ApiCode.Success, "OK", true);
+                }
             }
 
             return new ApiResult<bool>(ApiCode.Success, "can't find this object", false);
@@ -397,7 +400,7 @@ namespace IoTSharp.Controllers
             activity.TextAnnotations ??= new List<BpmnBaseObject>();
             activity.RuleId = id;
             var flows = _context.Flows.Where(c => c.FlowRule.RuleId == id).ToList();
-            activity.DefinitionsXml = ruleflow.DefinitionsXml?.Trim('\r');
+            activity.Xml = ruleflow.DefinitionsXml?.Trim('\r');
             foreach (var item in flows)
             {
                 switch (item.FlowType)

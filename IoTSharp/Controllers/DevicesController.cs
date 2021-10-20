@@ -64,13 +64,12 @@ namespace IoTSharp.Controllers
         /// <param name="customerId"></param>
         /// <returns></returns>
         // GET: api/Devices
-        [HttpGet("Customers/{customerId}")]
+        [HttpPost("Customers")]
         [Authorize(Roles = nameof(UserRole.NormalUser))]
-        [HttpGet]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ApiResult<Guid>), StatusCodes.Status404NotFound)]
         [ProducesDefaultResponseType]
-        public async Task<ApiResult<PagedData<Device>>> GetDevices(DeviceParam m)
+        public async Task<ApiResult<PagedData<Device>>> GetDevices([FromBody] DeviceParam m)
         {
             //var f = from c in _context.Device where c.Customer.Id == customerId select c;
             //if (!f.Any())
@@ -85,8 +84,8 @@ namespace IoTSharp.Controllers
 
             return new ApiResult<PagedData<Device>>(ApiCode.Success, "OK", new PagedData<Device>
             {
-                total = _context.Device.Count(condition),
-                rows = _context.Device.OrderByDescending(c => c.Id).Where(condition).Skip((m.offset) * m.limit).Take(m.limit).ToList()
+                total = await _context.Device.CountAsync(condition),
+                rows = await _context.Device.OrderByDescending(c => c.Id).Where(condition).Skip((m.offset) * m.limit).Take(m.limit).ToListAsync()
             });
 
 
@@ -583,6 +582,8 @@ namespace IoTSharp.Controllers
                     var attributes = from dev in _context.AttributeLatest where dev.DeviceId == deviceId select dev;
                     var fs = from at in await attributes.ToListAsync() where at.DataSide == dataSide && keys.Split(',', options: StringSplitOptions.RemoveEmptyEntries).Contains(at.KeyName) select at;
                     return Ok(fs.ToArray());
+
+                    return Ok(new ApiResult<AttributeLatest[]>(ApiCode.Success,"Ok", fs.ToArray()));
                 }
                 catch (Exception ex)
                 {

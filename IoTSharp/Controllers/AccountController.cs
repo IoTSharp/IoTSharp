@@ -18,6 +18,7 @@ using System.Linq;
 using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
+using Esprima.Ast;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Options;
 using Silkier.AspNetCore;
@@ -43,7 +44,7 @@ namespace IoTSharp.Controllers
             UserManager<IdentityUser> userManager,
             SignInManager<IdentityUser> signInManager,
             IConfiguration configuration, ILogger<AccountController> logger, ApplicationDbContext context,
-            IOptions<AppSettings> options  
+            IOptions<AppSettings> options
             )
         {
             _userManager = userManager;
@@ -66,11 +67,11 @@ namespace IoTSharp.Controllers
             var uidto = new UserInfoDto()
             {
                 Code = ApiCode.Success,
-                Roles = string.Join(',',rooles).ToLower().Contains("admin")?"admin": "admin",//TODO: Permission control
+                Roles = string.Join(',', rooles).ToLower().Contains("admin") ? "admin" : "admin",//TODO: Permission control
                 Name = user.UserName,
                 Email = user.Email,
                 Avatar = user.Gravatar(),
-                Introduction =  user.NormalizedUserName,
+                Introduction = user.NormalizedUserName,
                 Customer = Customer,
                 Tenant = Customer?.Tenant
             };
@@ -90,7 +91,7 @@ namespace IoTSharp.Controllers
         {
             try
             {
-             
+
 
                 var result = await _signInManager.PasswordSignInAsync(model.UserName, model.Password, false, false);
                 if (result.Succeeded)
@@ -103,7 +104,7 @@ namespace IoTSharp.Controllers
                                         new Claim(ClaimTypes.Email, appUser.Email),
                                         new Claim(ClaimTypes.NameIdentifier, appUser.Id),
                                         new Claim(ClaimTypes.Name,  appUser.UserName),
-                                    
+
                                     };
                     var lstclaims = await _userManager.GetClaimsAsync(appUser);
                     claims.AddRange(lstclaims);
@@ -122,7 +123,7 @@ namespace IoTSharp.Controllers
                                 signingCredentials: signinCredentials);
 
 
-           
+
 
                     var t = (expires.Ticks - TimeZoneInfo.ConvertTimeFromUtc(new System.DateTime(1970, 1, 1, 0, 0, 0, 0), TimeZoneInfo.Local).Ticks) / 10000;
                     var token = new TokenEntity
@@ -157,14 +158,14 @@ namespace IoTSharp.Controllers
 
                     return new ApiResult<LoginResult>(ApiCode.InValidData, "Unauthorized", null);
 
-                //    return Unauthorized(new { code = ApiCode.LoginError, msg = "Unauthorized", data = result });
+                    //    return Unauthorized(new { code = ApiCode.LoginError, msg = "Unauthorized", data = result });
                 }
             }
             catch (Exception ex)
             {
 
                 return new ApiResult<LoginResult>(ApiCode.InValidData, ex.Message, null);
-          //      return this.ExceptionRequest(ex);
+                //      return this.ExceptionRequest(ex);
             }
         }
         /// <summary>
@@ -176,7 +177,7 @@ namespace IoTSharp.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesDefaultResponseType]
-        public async Task<ApiResult<bool>> Logout( )
+        public async Task<ApiResult<bool>> Logout()
         {
             try
             {
@@ -188,11 +189,11 @@ namespace IoTSharp.Controllers
             catch (Exception ex)
             {
                 return new ApiResult<bool>(ApiCode.InValidData, ex.Message, true);
-                    //    return this.ExceptionRequest(ex);
+                //    return this.ExceptionRequest(ex);
             }
-          
+
         }
-        
+
         /// <summary>
         /// 注册用户
         /// </summary>
@@ -217,7 +218,7 @@ namespace IoTSharp.Controllers
                 {
                     await _signInManager.SignInAsync(user, false);
                     await _signInManager.UserManager.AddClaimAsync(user, new Claim(ClaimTypes.Email, model.Email));
-                    var customer = await _context.Customer.Include(c=>c.Tenant).FirstOrDefaultAsync(c=>c.Email== model.Customer);
+                    var customer = await _context.Customer.Include(c => c.Tenant).FirstOrDefaultAsync(c => c.Email == model.Customer);
                     if (customer != null)
                     {
                         await _signInManager.UserManager.AddClaimAsync(user, new Claim(ClaimTypes.Email, model.Email));
@@ -229,7 +230,7 @@ namespace IoTSharp.Controllers
                             Code = ApiCode.Success,
                             Succeeded = result.Succeeded,
                             UserName = model.Email,
-                            
+
                         });
                         //    actionResult = CreatedAtAction(nameof(this.Login), new LoginDto() { UserName = model.Email,  Password = model.Password });
                     }
@@ -255,22 +256,61 @@ namespace IoTSharp.Controllers
         public async Task<ApiResult<List<UserItemDto>>> All(Guid customerId)
         {
             List<UserItemDto> dtos = new List<UserItemDto>();
-            var users = await _userManager.GetUsersForClaimAsync (_signInManager.Context.User.FindFirst( m=> m.Type==  IoTSharpClaimTypes.Customer && m.Value==customerId.ToString()));
+            var users = await _userManager.GetUsersForClaimAsync(_signInManager.Context.User.FindFirst(m => m.Type == IoTSharpClaimTypes.Customer && m.Value == customerId.ToString()));
             users.ToList().ForEach(c =>
             {
                 var uid = new UserItemDto()
                 {
-                    Id =c.Id,
+                    Id = c.Id,
                     Email = c.Email,
                     Roles = new List<string>(_userManager.GetRolesAsync(c).Result),
                     PhoneNumber = c.PhoneNumber,
-                    AccessFailedCount = c.AccessFailedCount 
+                    AccessFailedCount = c.AccessFailedCount
                 };
                 dtos.Add(uid);
             });
 
             return new ApiResult<List<UserItemDto>>(ApiCode.InValidData, "", dtos);
-         
+
+        }
+
+
+        /// <summary>
+        /// 返回用户信息
+        /// </summary>
+        /// <param name="customerId"></param>
+        /// <returns></returns>
+        [HttpGet]
+        public async Task<ApiResult<UserItemDto>> Get(String Id)
+        {
+
+
+            var user = await _userManager.FindByIdAsync(Id);
+            if (user != null)
+            {
+                return new ApiResult<UserItemDto>(ApiCode.Success, "", new UserItemDto { PhoneNumber = user.PhoneNumber ,Id = Id, Email = user.Email});
+            }
+
+            return new ApiResult<UserItemDto>(ApiCode.CantFindObject, "can't find that user",null );
+
+        }
+
+
+
+
+        /// <summary>
+        /// 修改用户信息
+        /// </summary>
+        /// <param name="customerId"></param>
+        /// <returns></returns>
+        [HttpPut]
+        public async Task<ApiResult<bool>> Modify(UserItemDto user)
+        {
+            var idu = await _userManager.FindByIdAsync(user.Id);
+            idu.PhoneNumber = user.PhoneNumber;
+            var result = await _userManager.UpdateAsync(idu);
+            return new ApiResult<bool>(ApiCode.Success, "Ok", result.Succeeded);
+
         }
 
     }

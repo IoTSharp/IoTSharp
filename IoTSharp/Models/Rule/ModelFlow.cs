@@ -25,7 +25,7 @@ namespace IoTSharp.Models.Rule
         public List<BpmnBaseObject> DataInputAssociations { get; set; }
         public List<BpmnBaseObject> Lane { get; set; }
         public List<BpmnBaseObject> TextAnnotations { get; set; }
-        public string DefinitionsXml { get; set; }
+        public string Xml { get; set; }
 
     }
     public class Task : BpmnBaseObject

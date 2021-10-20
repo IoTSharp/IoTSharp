@@ -53,24 +53,17 @@ namespace IoTSharp.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ApiResult), StatusCodes.Status400BadRequest)]
         [ProducesDefaultResponseType]
-        public async Task<ApiResult<PagedData<Tenant>>> GetTenant([FromBody] IPageParam  m)
+        public async Task<ActionResult<List<Tenant>>> GetTenant()
         {
             try
             {
-
-
-                return new ApiResult<PagedData<Tenant>>(ApiCode.Success, "OK", new PagedData<Tenant>
-                {
-                    total = _context.Tenant.Count(),
-                    rows = _context.Tenant.OrderByDescending(c => c.Id).Skip((m.offset) * m.limit).Take(m.limit).ToList()
-                });
-
+               // return await _context.Tenant.ToListAsync();
              
+                return Ok(new ApiResult<PagedData<Tenant>>(ApiCode.Exception, "Ok", new PagedData<Tenant>() { rows = await _context.Tenant.ToListAsync(), total = await _context.Tenant.CountAsync() }));
             }
             catch (Exception ex)
             {
-                return new ApiResult<PagedData<Tenant>>(ApiCode.InValidData, ex.Message, null);
-
+                return Ok(new ApiResult(ApiCode.Exception, ex.Message));
             }
         }
 

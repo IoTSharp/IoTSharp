@@ -91,6 +91,20 @@
             <param name="customerId"></param>
             <returns></returns>
         </member>
+        <member name="M:IoTSharp.Controllers.AccountController.Get(System.String)">
+            <summary>
+            返回用户信息
+            </summary>
+            <param name="customerId"></param>
+            <returns></returns>
+        </member>
+        <member name="M:IoTSharp.Controllers.AccountController.Modify(IoTSharp.Dtos.UserItemDto)">
+            <summary>
+            修改用户信息
+            </summary>
+            <param name="customerId"></param>
+            <returns></returns>
+        </member>
         <member name="T:IoTSharp.Controllers.AuthorizedKeysController">
             <summary>
             全局设备认证KEY管理
@@ -345,7 +359,7 @@
             租户管理
             </summary>
         </member>
-        <member name="M:IoTSharp.Controllers.TenantsController.GetTenant(IoTSharp.Controllers.Models.IPageParam)">
+        <member name="M:IoTSharp.Controllers.TenantsController.GetTenant">
             <summary>
             系统管理员用来获取全部租户列表
             </summary>

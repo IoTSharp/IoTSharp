@@ -35,7 +35,7 @@ namespace IoTSharp.Controllers
         /// </summary>
         /// <param name="tenantId">租户</param>
         /// <returns></returns>
-        [HttpGet("Tenant/{tenantId}")]
+        [HttpPost("Tenant/{tenantId}")]
         [Authorize(Roles = nameof(UserRole.NormalUser))]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ApiResult), StatusCodes.Status404NotFound)]
@@ -57,8 +57,8 @@ namespace IoTSharp.Controllers
 
             return new ApiResult<PagedData<Customer>>(ApiCode.Success, "OK", new PagedData<Customer>
             {
-                total = _context.Customer.Count(condition),
-                rows = _context.Customer.OrderByDescending(c => c.Id).Where(condition).Skip((m.offset) * m.limit).Take(m.limit).ToList()
+                total = await _context.Customer.CountAsync(condition),
+                rows =await _context.Customer.OrderByDescending(c => c.Id).Where(condition).Skip((m.offset) * m.limit).Take(m.limit).ToListAsync()
             });
 
 

@@ -61,11 +61,14 @@ namespace IoTSharp.Controllers
         {
             try
             {
-                return base.Ok(GetInstanceDto());
+                return base.Ok(new ApiResult<InstanceDto>(ApiCode.Success,"Ok", GetInstanceDto()));
             }
             catch (Exception ex)
             {
-                return this.ExceptionRequest(ApiCode.Exception,ex.Message, ex);
+
+
+                return base.Ok(new ApiResult<Exception>(ApiCode.Exception, ex.Message, ex));
+              
             }
         }
 
@@ -87,18 +90,24 @@ namespace IoTSharp.Controllers
                     await _dBInitializer.SeedUserAsync(model);
                     await _dBInitializer.SeedDictionary();
                //     await _dBInitializer.SeedI18N();
-                    actionResult = Ok(GetInstanceDto());
+              //     actionResult = Ok(GetInstanceDto());
+
+                    return base.Ok(new ApiResult<InstanceDto>(ApiCode.Success, "Ok", GetInstanceDto()));
                 }
                 else
                 {
-                    actionResult = Ok(new { code = ApiCode.AlreadyExists, msg = "Already installed", data = GetInstanceDto() });
+
+                    return base.Ok(new ApiResult<InstanceDto>(ApiCode.AlreadyExists, "Already installed", GetInstanceDto()));
+                 
                 }
             }
             catch (Exception ex)
             {
-                actionResult = Ok(new { code = ApiCode.Exception, msg = ex.Message});
+
+                return base.Ok(new ApiResult<Exception>(ApiCode.Exception, ex.Message, ex));
+              
             }
-            return actionResult;
+       
         }
 
 

@@ -76,28 +76,37 @@ namespace IoTSharp.Controllers
                                         }
                                     },
 
-                                    //new
-                                    //{
-                                    //    text = "客户管理",
-                                    //    i18n="",
-                                    //    icon="anticon-rocket",
-                                    //    children=new[]
-                                    //    {
+                                    new
+                                    {
+                                        text = "客户管理",
+                                        i18n="",
+                                        icon="anticon-rocket",
+                                        children=new[]
+                                        {
 
-                                    //        new { text = "租户列表", i18n = "",link="/iot/customer/customerlist" }
-                                    //    }
-                                    //},
-                                    //new
-                                    //{
-                                    //    text = "用户管理",
-                                    //    i18n="",
-                                    //    icon="anticon-rocket",
-                                    //    children=new[]
-                                    //    {
+                                            new { text = "租户列表", i18n = "",link="/iot/customer/customerlist" }
+                                        }
+                                    },
+                                    new
+                                    {
+                                        text = "用户管理",
+                                        i18n="",
+                                        icon="anticon-rocket",
+                                        children=new[]
+                                        {
 
-                                    //        new { text = "用户列表", i18n = "",link="/iot/user/userlist" }
-                                    //    }
-                                    //},
+                                            new { text = "用户列表", i18n = "",link="/iot/user/userlist" }
+                                        }
+                                    },   new
+                                    {
+                                        text = "设备管理",
+                                        i18n="",
+                                        icon="anticon-rocket",
+                                        children=new[]
+                                        {
+                                            new { text = "设备管理", i18n = "",link="/iot/device/devicelist" }
+                                        }
+                                    },
                                     new
                                     {
                                         text = "规则管理",
@@ -134,6 +143,8 @@ namespace IoTSharp.Controllers
                     AppName = "iotsharp",
                     Modules = new[] { "kanban", "statistics", "lists", "warning" }, // 用户首页模块
                     Email = profile.Email.FirstOrDefault(),
+                    Comstomer=  profile.Comstomer,
+                    Tenant=  profile.Tenant,
                     Logo = ""
                 }
                 );
