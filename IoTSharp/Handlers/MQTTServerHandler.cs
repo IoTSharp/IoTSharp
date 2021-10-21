@@ -2,6 +2,7 @@
 using EasyCaching.Core;
 using IoTSharp.Data;
 using IoTSharp.Extensions;
+using IoTSharp.FlowRuleEngine;
 using IoTSharp.Handlers;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
@@ -30,9 +31,11 @@ namespace IoTSharp.Handlers
         private readonly IEasyCachingProviderFactory _factory;
         readonly IMqttServerEx _serverEx;
         private readonly ICapPublisher _queue;
+        private readonly FlowRuleProcessor _flowRuleProcessor;
+        private readonly IEasyCachingProvider _caching;
         readonly MqttClientSetting _mcsetting;
         public MQTTServerHandler(ILogger<MQTTServerHandler> logger, IServiceScopeFactory scopeFactor, IMqttServerEx serverEx
-           , IOptions<AppSettings> options, ICapPublisher queue, IEasyCachingProviderFactory factory
+           , IOptions<AppSettings> options, ICapPublisher queue, IEasyCachingProviderFactory factory, FlowRuleProcessor flowRuleProcessor
             )
         {
             _mcsetting = options.Value.MqttClient;
@@ -41,6 +44,8 @@ namespace IoTSharp.Handlers
             _factory = factory;
             _serverEx = serverEx;
             _queue = queue;
+            _flowRuleProcessor = flowRuleProcessor;
+            _caching = factory.GetCachingProvider("iotsharp");
         }
 
         static long clients = 0;
@@ -146,7 +151,30 @@ namespace IoTSharp.Handlers
                             }
                             else
                             {
-                                _logger.LogInformation($"{e.ClientId}的数据{e.ApplicationMessage.Topic}未能识别格式");
+                                var rules = await _caching.GetAsync($"ruleid_{_dev.Id}", () =>
+                                {
+                                    using (var scope = _scopeFactor.CreateScope())
+                                    using (var _dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>())
+                                    {
+                                        return _dbContext.GerDeviceRulesIdList(_dev.Id);
+                                    }
+                                }
+                                , TimeSpan.FromMinutes(5));
+                                if (rules.HasValue)
+                                {
+                                    
+                                    var obj = new { e.ApplicationMessage.Topic, Payload = e.ApplicationMessage.ConvertPayloadToString() };
+                                    rules.Value.ToList().ForEach(async g =>
+                                    {
+                                        _logger.LogInformation($"{e.ClientId}的数据{e.ApplicationMessage.Topic}通过规则链{g}进行处理。");
+                                        await _flowRuleProcessor.RunFlowRules(g, obj, _dev.Id, EventType.Normal, null);
+                                    });
+                                }
+                                else
+                                {
+                                    _logger.LogInformation($"{e.ClientId}的数据{e.ApplicationMessage.Topic}不符合规范， 也无相关规则链处理。");
+                                }
+                                
                             }
 
                         }

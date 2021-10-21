@@ -1,6 +1,8 @@
 ﻿using DotNetCore.CAP;
+using EasyCaching.Core;
 using IoTSharp.Data;
 using IoTSharp.Extensions;
+using IoTSharp.FlowRuleEngine;
 using IoTSharp.Storage;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
@@ -8,6 +10,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using System;
 using System.Collections.Generic;
+using System.Dynamic;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -34,15 +37,20 @@ namespace IoTSharp.Handlers
         readonly ILogger _logger;
         private readonly IServiceScopeFactory _scopeFactor;
         private readonly IStorage _storage;
+        private readonly FlowRuleProcessor _flowRuleProcessor;
+        private readonly IEasyCachingProvider _caching;
 
         public EventBusHandler(ILogger<EventBusHandler> logger, IServiceScopeFactory scopeFactor
-           , IOptions<AppSettings> options, IStorage storage
+           , IOptions<AppSettings> options, IStorage storage, FlowRuleProcessor flowRuleProcessor, IEasyCachingProviderFactory factory
             )
         {
             _appSettings = options.Value;
             _logger = logger;
             _scopeFactor = scopeFactor;
             _storage = storage;
+            _flowRuleProcessor = flowRuleProcessor;
+            _caching = factory.GetCachingProvider("iotsharp");
+         
         }
         [CapSubscribe("iotsharp.services.datastream.attributedata")]
         public void StoreAttributeData(RawMsg msg)
@@ -56,7 +64,7 @@ namespace IoTSharp.Handlers
                         var device = _dbContext.Device.FirstOrDefault(d => d.Id == msg.DeviceId);
                         if (device != null)
                         {
-                             
+
                             device.CheckOrUpdateDevStatus();
                             var mb = msg.MsgBody;
                             Dictionary<string, object> dc = new Dictionary<string, object>();
@@ -73,7 +81,7 @@ namespace IoTSharp.Handlers
                                             dc.Add(kp.Key, je.GetRawText());
                                             break;
                                         case System.Text.Json.JsonValueKind.String:
-                                            dc.Add(kp.Key, je.GetString()); 
+                                            dc.Add(kp.Key, je.GetString());
                                             break;
                                         case System.Text.Json.JsonValueKind.Number:
                                             dc.Add(kp.Key, je.GetDouble());
@@ -105,9 +113,39 @@ namespace IoTSharp.Handlers
             });
         }
 
-     
+
 
         [CapSubscribe("iotsharp.services.datastream.telemetrydata")]
-        public void StoreTelemetryData(RawMsg msg) => Task.Run( () =>  _storage.StoreTelemetryAsync(msg));
+        public void StoreTelemetryData(RawMsg msg)
+        {
+            Task.Run(async () =>
+            {
+                var devid = msg.DeviceId;
+                var formdata = Newtonsoft.Json.Linq.JToken.Parse(Newtonsoft.Json.JsonConvert.SerializeObject(msg.MsgBody));
+                var dtaobj = formdata.ToObject(typeof(ExpandoObject));
+                var rules = await _caching.GetAsync($"ruleid_{devid}", () =>
+                {
+                    using (var scope = _scopeFactor.CreateScope())
+                    using (var _dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>())
+                    {
+                        return _dbContext.GerDeviceRulesIdList(devid);
+                    }
+                }, TimeSpan.FromMinutes(5));
+                if (rules.HasValue)
+                {
+                    rules.Value.ToList().ForEach(async g =>
+                    {
+                        await _flowRuleProcessor.RunFlowRules(g, dtaobj, devid, EventType.Normal, null);
+                    });
+                }
+                else
+                {
+                    await _storage.StoreTelemetryAsync(msg);
+                }
+
+            });
+        }
+
+ 
     }
 }

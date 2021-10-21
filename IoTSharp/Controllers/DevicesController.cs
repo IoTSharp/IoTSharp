@@ -292,7 +292,7 @@ namespace IoTSharp.Controllers
                         : await _storage.LoadTelemetryAsync(deviceId, keys, begin));
 
 
-                ///    return keys=="all" ? await _storage.LoadTelemetryAsync(deviceId, begin):  await _storage.LoadTelemetryAsync(deviceId,keys,begin);
+                //    return keys=="all" ? await _storage.LoadTelemetryAsync(deviceId, begin):  await _storage.LoadTelemetryAsync(deviceId,keys,begin);
 
             }
         }

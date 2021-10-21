@@ -208,10 +208,8 @@ namespace IoTSharp.FlowRuleEngine
                             {
                                 case "csharp":
 
-
                                     //脚本处理逻辑
                                     break;
-
                                 case "python":
                                     {
                                         dynamic obj = null;
@@ -225,24 +223,9 @@ namespace IoTSharp.FlowRuleEngine
                                             await Process(taskoperation.OperationId, obj);
                                         }
                                     }
-
-
-
                                     break;
-
-                                case "xml":
-                                    break;
-
-                                case "json":
-                                    break;
-
-                                case "bat":
-                                    break;
-
                                 case "sql":
                                     break;
-
-
                                 case "javascript":
                                     {
                                         dynamic obj = null;
@@ -258,7 +241,6 @@ namespace IoTSharp.FlowRuleEngine
                                             await Process(taskoperation.OperationId, obj);
                                         }
                                     }
-
                                     break;
                             }
                         }
