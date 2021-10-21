@@ -430,8 +430,8 @@ namespace IoTSharp.Data
 
         public async Task SeedDictionary()
         {
-            var controltype = this._context.BaseDictionaryGroups.Add(new BaseDictionaryGroup { DictionaryGroupName = "控件类型", });
-            var datatype = this._context.BaseDictionaryGroups.Add(new BaseDictionaryGroup { DictionaryGroupName = "数据类型", });
+            var controltype = this._context.BaseDictionaryGroups.Add(new BaseDictionaryGroup { DictionaryGroupName = "控件类型",  DictionaryGroupStatus = 1});
+            var datatype = this._context.BaseDictionaryGroups.Add(new BaseDictionaryGroup { DictionaryGroupName = "数据类型", DictionaryGroupStatus = 1 });
             this._context.SaveChanges();
 
             this._context.BaseDictionaries.Add(new BaseDictionary { DictionaryName = "bool", DictionaryTag = typeof(bool).FullName, DictionaryValue = "13", Dictionary18NKeyName = "dic.types.bool", DictionaryStatus = 1, DictionaryGroupId = datatype.Entity.DictionaryGroupId, DictionaryDesc = "", DictionaryIcon = "" });

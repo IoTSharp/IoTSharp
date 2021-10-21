@@ -22,6 +22,7 @@ using Esprima.Ast;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Options;
 using Silkier.AspNetCore;
+using Silkier.Extensions;
 
 namespace IoTSharp.Controllers
 {
@@ -64,6 +65,9 @@ namespace IoTSharp.Controllers
             var user = await _userManager.GetUserAsync(User);
             var rooles = await _userManager.GetRolesAsync(user);
             var Customer = _context.GetCustomer(this.GetCustomerId());
+
+
+    
             var uidto = new UserInfoDto()
             {
                 Code = ApiCode.Success,
@@ -71,8 +75,10 @@ namespace IoTSharp.Controllers
                 Name = user.UserName,
                 Email = user.Email,
                 Avatar = user.Gravatar(),
+                PhoneNumber= user.PhoneNumber,
                 Introduction = user.NormalizedUserName,
-                Customer = Customer,
+                Customer = Customer, 
+                
                 Tenant = Customer?.Tenant
             };
             return new ApiResult<UserInfoDto>(ApiCode.Success, "OK", uidto);
@@ -92,7 +98,7 @@ namespace IoTSharp.Controllers
             try
             {
 
-
+              
                 var result = await _signInManager.PasswordSignInAsync(model.UserName, model.Password, false, false);
                 if (result.Succeeded)
                 {
@@ -312,6 +318,57 @@ namespace IoTSharp.Controllers
             return new ApiResult<bool>(ApiCode.Success, "Ok", result.Succeeded);
 
         }
+
+
+
+        /// <summary>
+        /// 修改当前用户信息
+        /// </summary>
+        /// <param name="customerId"></param>
+        /// <returns></returns>
+        [HttpPut]
+        public async Task<ApiResult<bool>> ModifyMyInfo(UserItemDto user)
+        {
+
+            var cuser = await _userManager.GetUserAsync(User);
+
+            cuser.PhoneNumber = user.PhoneNumber;
+            var result = await _userManager.UpdateAsync(cuser);
+            return new ApiResult<bool>(ApiCode.Success, "Ok", result.Succeeded);
+
+        }
+
+
+
+        /// <summary>
+        /// 修改当前用户信息
+        /// </summary>
+        /// <param name="customerId"></param>
+        /// <returns></returns>
+        [HttpPut]
+        public async Task<ApiResult<bool>> ModifyMyPassword(UserPassword password)
+        {
+
+            if (password.PassNew.Length > 6)
+            {
+
+                if (password.PassNew == password.PassNewSecond)
+                {
+                    var cuser = await _userManager.GetUserAsync(User);
+                    var result = await _signInManager.UserManager.ChangePasswordAsync(cuser, password.Pass, password.PassNew);
+                    if (result.Succeeded)
+                    {
+                        return new ApiResult<bool>(ApiCode.Success, "Ok", result.Succeeded);
+                    }
+                    return new ApiResult<bool>(ApiCode.InValidData, result.Errors.Aggregate("",(x,y)=>x+y.Description+"\n\r"), false);
+                }
+                return new ApiResult<bool>(ApiCode.InValidData, "Repeat password must be equal new password", false);
+
+
+            }
+            return new ApiResult<bool>(ApiCode.InValidData, "password length must great than six character", false);
+        }
+
 
     }
 }

@@ -105,6 +105,20 @@
             <param name="customerId"></param>
             <returns></returns>
         </member>
+        <member name="M:IoTSharp.Controllers.AccountController.ModifyMyInfo(IoTSharp.Dtos.UserItemDto)">
+            <summary>
+            修改当前用户信息
+            </summary>
+            <param name="customerId"></param>
+            <returns></returns>
+        </member>
+        <member name="M:IoTSharp.Controllers.AccountController.ModifyMyPassword(IoTSharp.Dtos.UserPassword)">
+            <summary>
+            修改当前用户信息
+            </summary>
+            <param name="customerId"></param>
+            <returns></returns>
+        </member>
         <member name="T:IoTSharp.Controllers.AuthorizedKeysController">
             <summary>
             全局设备认证KEY管理

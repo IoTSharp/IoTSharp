@@ -94,4 +94,13 @@ namespace IoTSharp.Dtos
         public int AccessFailedCount { get;  set; }
         public string Id { get;  set; }
     }
+
+    public class UserPassword
+    {
+        public string Pass { get; set; }
+        public string PassNew { get; set; }
+        public string PassNewSecond { get; set; }
+    }
+
+
 }

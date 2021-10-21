@@ -164,7 +164,7 @@ namespace IoTSharp.Controllers
 
             if (fields != null)
             {
-                var typeinfo = _context.BaseDictionaries.Where(c => c.DictionaryGroupId == 1 && c.DictionaryStatus > 0)
+                var typeinfo = _context.BaseDictionaries.Where(c => c.DictionaryGroupId == 2 && c.DictionaryStatus > 0)
                     .ToList();
                 _context.DynamicFormFieldInfos.Where(c => c.FormId == model.Id &&
                                                           c.FieldStatus > -1).ToList()

@@ -75,27 +75,32 @@ namespace IoTSharp.FlowRuleEngine
             _context.FlowOperations.Add(startoperation);
             await _context.SaveChangesAsync();
             var nextflows = await ProcessCondition(start.FlowId, data);
-
-            foreach (var item in nextflows)
+            if (nextflows != null)
             {
-                var flowOperation = new FlowOperation()
+
+                foreach (var item in nextflows)
                 {
-                    AddDate = DateTime.Now,
-                    FlowRule = item.FlowRule,
-                    Flow = item,
-                    Data = JsonConvert.SerializeObject(data),
-                    NodeStatus = 1,
-                    OperationDesc = "执行条件（" + (string.IsNullOrEmpty(item.Conditionexpression)
-                        ? "空条件"
-                        : item.Conditionexpression) + ")",
-                    Step = startoperation.Step++,
-                    bpmnid = item.bpmnid,
-                    BaseEvent = _event
-                };
-                _context.FlowOperations.Add(flowOperation);
-                await _context.SaveChangesAsync();
-                await Process(flowOperation.OperationId, data);
+                    var flowOperation = new FlowOperation()
+                    {
+                        AddDate = DateTime.Now,
+                        FlowRule = item.FlowRule,
+                        Flow = item,
+                        Data = JsonConvert.SerializeObject(data),
+                        NodeStatus = 1,
+                        OperationDesc = "执行条件（" + (string.IsNullOrEmpty(item.Conditionexpression)
+                            ? "空条件"
+                            : item.Conditionexpression) + ")",
+                        Step = startoperation.Step++,
+                        bpmnid = item.bpmnid,
+                        BaseEvent = _event
+                    };
+                    _context.FlowOperations.Add(flowOperation);
+                    await _context.SaveChangesAsync();
+                    await Process(flowOperation.OperationId, data);
+                }
+
             }
+
         }
 
         private async Task<List<Flow>> ProcessCondition(Guid FlowId, dynamic data)
@@ -138,10 +143,10 @@ namespace IoTSharp.FlowRuleEngine
                     emptyflow.Add(nextflow);
                 }
 
-                return emptyflow;
+       
             }
 
-            return null;
+            return emptyflow;
         }
 
 
@@ -161,15 +166,15 @@ namespace IoTSharp.FlowRuleEngine
                     var operation = new FlowOperation()
                     {
                         AddDate = DateTime.Now,
-                        FlowRule = flow.FlowRule,
-                        Flow = flow,
+                        FlowRule = t.FlowRule,
+                        Flow = t,
                         Data = JsonConvert.SerializeObject(data),
                         NodeStatus = 1,
                         OperationDesc = "执行条件（" + (string.IsNullOrEmpty(flow.Conditionexpression)
                             ? "空条件"
                             : flow.Conditionexpression) + ")",
                         Step = peroperation.Step++,
-                        bpmnid = flow.bpmnid,
+                        bpmnid = t.bpmnid,
                         BaseEvent = peroperation.BaseEvent
                     };
                     _context.FlowOperations.Add(operation);
@@ -179,12 +184,13 @@ namespace IoTSharp.FlowRuleEngine
 
                 case "bpmn:Task":
                     {
+                        var task = _allFlows.FirstOrDefault(c => c.bpmnid == flow.bpmnid);
                         var taskoperation = new FlowOperation()
                         {
-                            bpmnid = flow.bpmnid,
+                            bpmnid = task.bpmnid,
                             AddDate = DateTime.Now,
-                            FlowRule = flow.FlowRule,
-                            Flow = flow,
+                            FlowRule = task.FlowRule,
+                            Flow = task,
                             Data = JsonConvert.SerializeObject(data),
                             NodeStatus = 1,
                             OperationDesc = "执行任务" + flow.Flowname,
@@ -255,6 +261,13 @@ namespace IoTSharp.FlowRuleEngine
 
                                     break;
                             }
+                        }
+                        else
+                        {
+
+                        await    Process(taskoperation.OperationId, data);
+
+
                         }
 
                         // 执行任务，完成后

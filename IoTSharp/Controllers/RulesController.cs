@@ -193,7 +193,7 @@ namespace IoTSharp.Controllers
         }
 
         [HttpPost("[action]")]
-        public async Task<AppMessage> SaveDiagram(ModelWorkFlow m)
+        public async Task<ApiResult<bool>> SaveDiagram(ModelWorkFlow m)
         {
             //    var user = _userManager.GetUserId(User);
             var profile = await this.GetUserProfile();
@@ -373,9 +373,8 @@ namespace IoTSharp.Controllers
                 }).ToList());
                 _context.SaveChanges();
             }
-
-            return new AppMessage
-            { ErrMessage = "操作成功", ErrType = ErrType.正常返回, IsVisble = true, ErrLevel = ErrLevel.Success };
+            return new ApiResult<bool>(ApiCode.Success, "Ok", true);
+         
         }
 
         [HttpGet("[action]")]
@@ -864,10 +863,13 @@ namespace IoTSharp.Controllers
             var profile = await this.GetUserProfile();
             var formdata = form.First.First;
             var extradata = form.First.Next;
-            var obj = extradata.First.First.First.Value<JToken>();
+            var obj = extradata.First.First.First.Value<JToken>(); 
             var obj1 = extradata.First.First.Next.First.Value<JToken>();
             var formid = obj.Value<int>();
-            var ruleid = obj1.Value<Guid>();
+            var __ruleid = obj1.Value<string>();
+            var ruleid = Guid.Parse(__ruleid);
+
+
             var d = formdata.ToObject(typeof(ExpandoObject));
             var testabizId = Guid.NewGuid().ToString(); //根据业务保存起来，用来查询执行事件和步骤
             await _flowRuleProcessor.RunFlowRules(ruleid, d, profile.Id, EventType.TestPurpose, testabizId);
