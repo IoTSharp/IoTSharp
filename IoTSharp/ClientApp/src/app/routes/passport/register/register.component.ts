@@ -122,11 +122,12 @@ export class UserRegisterComponent implements OnDestroy {
     this.http.post('api/Installer/Install?_allow_anonymous=true', data).subscribe((x) => {
       if(x.code===10000){
         if (x.data.installed) {
+          this.router.navigateByUrl('/passport/login?_allow_anonymous=true');
         }else{
-          this.router.navigateByUrl('/passport/register');
+          this.router.navigateByUrl('/passport/login?_allow_anonymous=true');
         }
       }else{
-        this.notification.error('请求错误','Api请求不正确');
+        this.notification.error('错误',x.msg);
       }
     });
   }

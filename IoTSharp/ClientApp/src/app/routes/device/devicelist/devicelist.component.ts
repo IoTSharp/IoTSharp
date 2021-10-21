@@ -57,7 +57,7 @@ export class DevicelistComponent implements OnInit {
     customerId: '',
     name: '',
   };
-  req: STReq = { method: 'Post', allInBody: true, reName: { pi: 'offset', ps: 'limit' }, params: this.q };
+  req: STReq = { method: 'GET', allInBody: true, reName: { pi: 'offset', ps: 'limit' }, params: this.q };
 
   // 定义返回的参数
   res: STRes = {
@@ -124,9 +124,12 @@ export class DevicelistComponent implements OnInit {
         if( !x.id){
           this.q.customerId= this.settingService.user.comstomer
           this.customerId = this.settingService.user.comstomer;
+
+
+         this. url = 'api/Devices/Customers';
         }else{
           this.q.customerId = x.id as unknown as string;
-          this.customerId = x.id as unknown as string;
+          this.customerId = x.id as unknown as string;      this. url = 'api/Devices/Customers';
         }
       },
       (y) => {},
