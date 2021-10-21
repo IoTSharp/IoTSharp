@@ -123,22 +123,14 @@ namespace IoTSharp.Handlers
                 var devid = msg.DeviceId;
                 var formdata = Newtonsoft.Json.Linq.JToken.Parse(Newtonsoft.Json.JsonConvert.SerializeObject(msg.MsgBody));
                 var dtaobj = formdata.ToObject(typeof(ExpandoObject));
-                var rules = await _caching.GetAsync($"ruleid_{msg.DeviceId}", () =>
-                         {
-                             Task<Guid[]> lst = null;
-                             using (var _scope = _scopeFactor.CreateScope())
-                             {
-                                 using (var _dbContext = _scope.ServiceProvider.GetRequiredService<ApplicationDbContext>())
-                                 {
-                                     var r = from dr in _dbContext.DeviceRules.Include(d => d.Device).Include(d => d.FlowRule) where    dr.Device.Id == msg.DeviceId select dr.FlowRule.RuleId;
-                                     if (r.Any())
-                                     {
-                                         lst = r.ToArrayAsync();
-                                     }
-                                 }
-                             }
-                             return lst;
-                         }, TimeSpan.FromMinutes(5));
+                var rules = await _caching.GetAsync($"ruleid_{devid}", () =>
+                {
+                    using (var scope = _scopeFactor.CreateScope())
+                    using (var _dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>())
+                    {
+                        return _dbContext.GerDeviceRulesIdList(devid);
+                    }
+                }, TimeSpan.FromMinutes(5));
                 if (rules.HasValue)
                 {
                     rules.Value.ToList().ForEach(async g =>
@@ -150,7 +142,10 @@ namespace IoTSharp.Handlers
                 {
                     await _storage.StoreTelemetryAsync(msg);
                 }
+
             });
         }
+
+ 
     }
 }

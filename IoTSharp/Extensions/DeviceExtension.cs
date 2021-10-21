@@ -1,5 +1,6 @@
 ﻿using IoTSharp.Data;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -53,6 +54,17 @@ namespace IoTSharp.Extensions
                 pairs.Add("CreateDateTime", DateTime.Now);
                 _context.PreparingData<AttributeLatest>(pairs, device.Id, DataSide.ServerSide);
             }
+        }
+
+        public  static Task<Guid[]> GerDeviceRulesIdList(this ApplicationDbContext _dbContext, Guid devid)
+        {
+            Task<Guid[]> lst = null;
+            var r = from dr in _dbContext.DeviceRules.Include(d => d.Device).Include(d => d.FlowRule) where dr.Device.Id == devid select dr.FlowRule.RuleId;
+            if (r.Any())
+            {
+                lst = r.ToArrayAsync();
+            }
+            return lst;
         }
     }
 }
