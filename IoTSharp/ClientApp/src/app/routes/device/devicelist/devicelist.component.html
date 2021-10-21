@@ -1,0 +1,112 @@
+<page-header [title]="'设备列表'">
+  <nz-card [nzBordered]="false" class>
+    <form nz-form class="search__form" action="search">
+      <div nz-row [nzGutter]="{ xs: 8, sm: 8, md: 8, lg: 24, xl: 48, xxl: 48 }">
+        <div nz-col nzMd="8" nzSm="24">
+          <nz-form-item>
+            <nz-form-label nzFor="name">设备名称</nz-form-label>
+            <nz-form-control>
+              <input nz-input [(ngModel)]="q.name" placeholder="请输入设备名称" [ngModelOptions]="{ standalone: true }" />
+            </nz-form-control>
+          </nz-form-item>
+        </div>
+
+        <div nz-col [nzSpan]="24" style="text-align: right">
+          <button nz-button type="submit" [nzType]="'primary'" (click)="getData()">搜索</button>
+          <!--<button nz-button type="submit" (click)="getData()" [nzType]="'primary'" [nzLoading]="loading">查询</button>-->
+          <button nz-button type="reset" (click)="reset()" class="mx-sm">重置</button>
+        </div>
+      </div>
+
+      <!--<button nz-button [nzType]="'primary'" [routerLink]="['/manage/authority/roleform']" [queryParams]="{Id:-1}">
+      <i nz-icon nzType="plus"></i>
+      <span>{{ 'button.new' | translate }}</span>
+    </button>-->
+
+
+    </form>
+
+    <div nz-col nzMd="8" nzSm="24">
+      <button nz-button [nzType]="'primary'" (click)="edit('-1')" acl [acl-ability]="137">
+        <i nz-icon nzType="plus"></i>
+        <span>{{ 'button.new' | translate }}</span>
+      </button>
+
+
+      <button nz-button [nzType]="'primary'" (click)="downlink([])" acl [acl-ability]="137">
+        <i nz-icon nzType="plus"></i>
+        <span>规则下发</span>
+      </button>
+    </div>
+  </nz-card>
+
+
+  <st [expandAccordion]="true"
+      #st
+      [columns]="columns"
+      [data]="url"
+      ps="20"
+      [page]="page"
+      [req]="req"
+      [expand]="expand"
+      [res]="res"
+      expandAccordion
+      (change)="onchange($event)">
+    <ng-template #expand let-item let-index="index" let-column="column">
+      <nz-card nzTitle="设备属性">
+        <table>
+          <tr>
+            <td>属性名称</td>
+            <td>属性值</td>
+            <td>数据侧</td>
+            <td>时间</td>
+          </tr>
+          <tr *ngFor="let _item of item.attributes; let i = index; let odd = odd">
+            <td>{{ _item.keyName }}</td>
+            <td>{{ _item.value }}</td>
+            <td>{{ _item.dataSide }}</td>
+
+            <td>{{ _item.dateTime }}</td>
+          </tr>
+        </table>
+      </nz-card>
+
+      <nz-card nzTitle="遥测数据">
+        <table>
+          <tr>
+            <td>属性名称</td>
+            <td>属性值</td>
+            <td>时间</td>
+          </tr>
+          <tr *ngFor="let _item of item.telemetries; let i = index; let odd = odd">
+            <td>{{ _item.keyName }}</td>
+            <td>{{ _item.value }}</td>
+            <td>{{ _item.dateTime }}</td>
+          </tr>
+        </table>
+      </nz-card>
+
+
+      <nz-card nzTitle="规则">
+        <table>
+          <tr>
+            <td>规则名称</td>
+            <td>备注</td>
+            <td>操作</td>
+          </tr>
+          <tr *ngFor="let _item of item.rules; let i = index; let odd = odd">
+            <td>{{ _item.name }}</td>
+            <td>{{ _item.ruleDesc }}</td>
+            <td>
+
+              <button nz-button nzType="text" nzDanger  nz-popconfirm
+              nzPopconfirmTitle="确认删除规则?"
+              (nzOnConfirm)="removerule(item,_item)"
+              nzPopconfirmPlacement="topLeft">删除</button>
+            </td>
+          </tr>
+        </table>
+      </nz-card>
+    </ng-template>
+  </st>
+</page-header>

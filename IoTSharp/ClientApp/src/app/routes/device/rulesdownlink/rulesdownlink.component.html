@@ -1,0 +1,17 @@
+<div nz-col nzMd="24" nzXs="24" nzSm="24">
+  <nz-form-item>
+    <nz-form-label nzFor="CreateDate">请选择规则</nz-form-label>
+    <nz-form-control>
+      <nz-select [(ngModel)]="rule" (ngModelChange)="selectchanged($event)">
+        <nz-option *ngFor="let c of rules" [nzValue]="c.ruleId" [nzLabel]="c.name"></nz-option>
+      </nz-select>
+    </nz-form-control>
+  </nz-form-item>
+
+  <st [expandAccordion]="true" #st [data]="params.dev" [columns]="columns"  expandAccordion> </st>
+
+  <button nz-button [nzType]="'primary'" (click)="downlink()" acl [acl-ability]="137">
+    <i nz-icon nzType="apartment"></i>
+    <span>规则下发</span>
+  </button>
+</div>

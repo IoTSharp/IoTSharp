@@ -1,0 +1,29 @@
+<page-header [title]="'表单列表'">
+  <nz-card [nzBordered]="false" class>
+    <form nz-form [nzLayout]="'inline'" class="search__form" action="search">
+      <div nz-row [nzGutter]="{ xs: 8, sm: 8, md: 8, lg: 24, xl: 48, xxl: 48 }">
+        <div nz-col nzMd="8" nzSm="24">
+          <nz-form-item>
+            <nz-form-label nzFor="RouteName">表单名称</nz-form-label>
+            <nz-form-control>
+              <input nz-input [(ngModel)]="q.RouteName" name="RouteName" #RouteName placeholder="请输入" />
+            </nz-form-control>
+          </nz-form-item>
+        </div>
+
+        <div nz-col [nzSpan]="24" [class.text-right]="expandForm" style="text-align: right">
+          <button nz-button type="submit" [nzType]="'primary'" (click)="getData()">搜索</button>
+          <!--<button nz-button type="submit" (click)="getData()" [nzType]="'primary'" [nzLoading]="loading">查询</button>-->
+          <button nz-button type="reset" (click)="reset()" class="mx-sm">重置</button>
+        </div>
+      </div>
+    </form>
+
+    <button nz-button [nzType]="'primary'" (click)="openComponent(-1)" acl [acl-ability]="102">
+      <i nz-icon nzType="plus"></i>
+      <span>{{ 'button.new' | translate }}</span>
+    </button>
+
+    <st #st [columns]="columns" [data]="url" ps="3" [page]="page" [req]="req" [res]="res"> </st>
+  </nz-card>
+</page-header>
