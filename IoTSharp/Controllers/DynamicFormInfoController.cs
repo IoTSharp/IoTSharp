@@ -32,7 +32,7 @@ namespace IoTSharp.Controllers
 
 
         [HttpPost("[action]")]
-        public new ApiResult<PagedData<DynamicFormInfo>> Index([FromBody] IPageParam m)
+        public ApiResult<PagedData<DynamicFormInfo>> Index([FromBody] IPageParam m)
         {
 
             Expression<Func<DynamicFormInfo, bool>> condition = x => x.FormStatus > -1;

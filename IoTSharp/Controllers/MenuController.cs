@@ -28,12 +28,11 @@ namespace IoTSharp.Controllers
         private readonly ApplicationDbContext _context;
         public MenuController(UserManager<IdentityUser> userManager, ApplicationDbContext context)
         {
-            this._userManager = userManager;
-            this._context = context;
+            _userManager = userManager;
+            _context = context;
         }
-        public async Task<ApiResult<dynamic>> GetUserAsset(int type)
+        public ApiResult<dynamic> GetUserAsset(int type)
         {
-
             return new ApiResult<dynamic>(ApiCode.Success, "OK", null);
         }
 
