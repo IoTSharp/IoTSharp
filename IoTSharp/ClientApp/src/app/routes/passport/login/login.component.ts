@@ -137,8 +137,8 @@ export class UserLoginComponent implements OnDestroy, AfterViewInit {
       })
       .subscribe(
         (x) => {
-          if (x.data.code!==10000) {
-            this.error = x.data.msg;
+          if (x.code!==10000) {
+            this.error = x.msg;
             return;
           }
           // 清空路由复用信息

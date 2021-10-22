@@ -36,17 +36,25 @@ export class DeviceformComponent implements OnInit {
   form!: FormGroup;
   submitting = false;
   ngOnInit() {
+
+    console.log()
     const { nullbigintid } = MyValidators;
     this.form = this.fb.group({
       name: [null, [Validators.required]],
       deviceType: [null, [Validators.required]],
       customerId: [null, []],
-      id: [Guid.create().toString(), []], //骗过验证
+      id: [Guid.EMPTY, []], //骗过验证
     });
     if (this.params.id !== '-1') {
       this._httpClient.get('api/Devices/' + this.params.id).subscribe(
         (x) => {
-          this.form.patchValue(x.Result);
+        
+          if(  x.data.deviceType==='Gateway'){
+            x.data.deviceType='2'
+          }else{
+            x.data.deviceType='1'
+          }
+          this.form.patchValue(x.data);
         },
         (y) => {},
         () => {},
@@ -57,13 +65,13 @@ export class DeviceformComponent implements OnInit {
   submit() {
     this.submitting = true;
 
-    if (this.params.id !== '-1') {
-      this._httpClient.put('api/Devices', this.form.value).subscribe((x) => {
+    if (this.params.id !==Guid.EMPTY) {
+      this._httpClient.post('api/Devices', this.form.value).subscribe((x) => {
         this.submitting = false;
         this.drawerRef.close(this.params);
       });
     } else {
-      this._httpClient.post('api/Devices', this.form.value).subscribe((x) => {
+      this._httpClient.put('api/Devices', this.form.value).subscribe((x) => {
         this.submitting = false;
         this.drawerRef.close(this.params);
       });

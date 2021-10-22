@@ -64,12 +64,12 @@ namespace IoTSharp.Controllers
         /// <param name="customerId"></param>
         /// <returns></returns>
         // GET: api/Devices
-        [HttpPost("Customers")]
+        [HttpGet("Customers")]
         [Authorize(Roles = nameof(UserRole.NormalUser))]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ApiResult<Guid>), StatusCodes.Status404NotFound)]
         [ProducesDefaultResponseType]
-        public async Task<ApiResult<PagedData<Device>>> GetDevices([FromBody] DeviceParam m)
+        public async  Task<ApiResult<PagedData<Device>>> GetDevices([FromQuery] DeviceParam m)
         {
             //var f = from c in _context.Device where c.Customer.Id == customerId select c;
             //if (!f.Any())
@@ -82,10 +82,12 @@ namespace IoTSharp.Controllers
             //}
             Expression<Func<Device, bool>> condition = x => x.Customer.Id == m.customerId;
 
+
+
             return new ApiResult<PagedData<Device>>(ApiCode.Success, "OK", new PagedData<Device>
             {
                 total = await _context.Device.CountAsync(condition),
-                rows = await _context.Device.OrderByDescending(c => c.Id).Where(condition).Skip((m.offset) * m.limit).Take(m.limit).ToListAsync()
+                rows = await _context.Device.OrderByDescending(c => c.LastActive).Where(condition).Skip((m.offset) * m.limit).Take(m.limit).ToListAsync()
             });
 
 
