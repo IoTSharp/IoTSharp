@@ -71,7 +71,7 @@
 		<PackageReference Include="EasyCaching.LiteDB" Version="1.4.1" />
 		<PackageReference Include="EasyCaching.Redis" Version="1.4.1" />
 		<PackageReference Include="hyjiacan.pinyin4net" Version="4.1.0" />
-		<PackageReference Include="InfluxDB.Client" Version="3.0.0" />
+		<PackageReference Include="InfluxDB.Client" Version="3.1.0" />
 		<PackageReference Include="IoTSharp.CoAP.NET" Version="2.0.8" />
 		<PackageReference Include="IoTSharp.X509Extensions" Version="1.4.27" />
 		<PackageReference Include="kimbus" Version="2.0.1" />
@@ -82,10 +82,6 @@
 		<PackageReference Include="Maikebing.HealthChecks.Taos" Version="2.0.357" />
 		<PackageReference Include="MaiKeBing.HostedService.ZeroMQ" Version="1.0.32" />
 		<PackageReference Include="Microsoft.AspNetCore.Http.Features" Version="5.0.11" />
-		<PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="5.0.10">
-			<PrivateAssets>all</PrivateAssets>
-			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-		</PackageReference>
 		<PackageReference Include="Microsoft.Extensions.Options" Version="5.0.0" />
 		<PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.11.1" />
 		<PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="5.0.2" />
@@ -114,7 +110,6 @@
 		<PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="5.0.11" />
 		<PackageReference Include="Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore" Version="5.0.11" />
 		<PackageReference Include="Microsoft.AspNetCore.Hosting.WindowsServices" Version="5.0.11" />
-		<PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="5.0.10" />
 		<PackageReference Include="Microsoft.EntityFrameworkCore" Version="5.0.11" />
 		<PackageReference Include="Microsoft.Extensions.Hosting" Version="5.0.0" />
 		<PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="5.0.0" />
