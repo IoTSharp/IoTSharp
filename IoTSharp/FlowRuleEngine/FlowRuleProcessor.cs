@@ -7,6 +7,7 @@ using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.Dynamic;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -128,7 +129,7 @@ namespace IoTSharp.FlowRuleEngine
             }
             if (tasks.outgoing.Count > 0)
             {
-                SimpleFLowExcutor flowExcutor = new SimpleFLowExcutor();
+                SimpleFlowExcutor flowExcutor = new SimpleFlowExcutor();
                 var result = await flowExcutor.Excute(new FlowExcuteEntity()
                 {
                     //  Action = null,
@@ -158,23 +159,23 @@ namespace IoTSharp.FlowRuleEngine
             {
                 return;
             }
-            var flow = _allFlows.SingleOrDefault(c => c.FlowId == peroperation.Flow.FlowId);
+            var flow = _allFlows.SingleOrDefault(c => c.bpmnid == peroperation.Flow.TargetId);
             switch (flow.FlowType)
             {
                 case "bpmn:SequenceFlow":
-                    var t = _allFlows.FirstOrDefault(c => c.bpmnid == flow.TargetId);
+            
                     var operation = new FlowOperation()
                     {
                         AddDate = DateTime.Now,
-                        FlowRule = t.FlowRule,
-                        Flow = t,
+                        FlowRule = flow.FlowRule,
+                        Flow = flow,
                         Data = JsonConvert.SerializeObject(data),
                         NodeStatus = 1,
                         OperationDesc = "执行条件（" + (string.IsNullOrEmpty(flow.Conditionexpression)
                             ? "空条件"
                             : flow.Conditionexpression) + ")",
                         Step = peroperation.Step++,
-                        bpmnid = t.bpmnid,
+                        bpmnid = flow.bpmnid,
                         BaseEvent = peroperation.BaseEvent
                     };
                     _context.FlowOperations.Add(operation);
@@ -184,17 +185,17 @@ namespace IoTSharp.FlowRuleEngine
 
                 case "bpmn:Task":
                     {
-                        var task = _allFlows.FirstOrDefault(c => c.bpmnid == flow.bpmnid);
+                
                         var taskoperation = new FlowOperation()
                         {
-                            bpmnid = task.bpmnid,
+                            bpmnid = flow.bpmnid,
                             AddDate = DateTime.Now,
-                            FlowRule = task.FlowRule,
-                            Flow = task,
+                            FlowRule = flow.FlowRule,
+                            Flow = flow,
                             Data = JsonConvert.SerializeObject(data),
                             NodeStatus = 1,
                             OperationDesc = "执行任务" + flow.Flowname,
-                            Step = peroperation.Step++,
+                            Step = ++peroperation.Step,
                             BaseEvent = peroperation.BaseEvent
                         };
                         _context.FlowOperations.Add(taskoperation);
@@ -217,7 +218,7 @@ namespace IoTSharp.FlowRuleEngine
                                         {
                                             obj = pse.Do(scriptsrc, taskoperation.Data);
                                         }
-                                        var next = ProcessCondition(taskoperation.Flow.FlowId, obj);
+                                        var next =await ProcessCondition(taskoperation.Flow.FlowId, obj);
                                         foreach (var item in next)
                                         {
 
@@ -246,13 +247,16 @@ namespace IoTSharp.FlowRuleEngine
                                     break;
                                 case "javascript":
                                     {
-                                        dynamic obj = null;
+                                        ExpandoObject obj = null;
                                         using (var js = _sp.GetRequiredService<JavaScriptEngine>())
                                         {
-                                            obj = js.Do(scriptsrc, taskoperation.Data);
+                                            string result = js.Do(@"var output=input.Temperature;output = output + 100; return { Temperature:output};", taskoperation.Data);
+                                            obj = JsonConvert.DeserializeObject<ExpandoObject>(result);
+                                     
+
                                         }
 
-                                        var next = ProcessCondition(taskoperation.Flow.FlowId, obj);
+                                        var next =await ProcessCondition(taskoperation.Flow.FlowId, obj);
 
                                         foreach (var item in next)
                                         {
@@ -261,12 +265,12 @@ namespace IoTSharp.FlowRuleEngine
                                                 AddDate = DateTime.Now,
                                                 FlowRule = item.FlowRule,
                                                 Flow = item,
-                                                Data = JsonConvert.SerializeObject(data),
+                                                Data = JsonConvert.SerializeObject(obj),
                                                 NodeStatus = 1,
                                                 OperationDesc = "执行条件（" + (string.IsNullOrEmpty(item.Conditionexpression)
                                                     ? "空条件"
                                                     : item.Conditionexpression) + ")",
-                                                Step = taskoperation.Step++,
+                                                Step = ++taskoperation.Step,
                                                 bpmnid = item.bpmnid,
                                                 BaseEvent = taskoperation.BaseEvent
                                             };
@@ -294,7 +298,7 @@ namespace IoTSharp.FlowRuleEngine
                                     OperationDesc = "执行条件（" + (string.IsNullOrEmpty(item.Conditionexpression)
                                         ? "空条件"
                                         : item.Conditionexpression) + ")",
-                                    Step = taskoperation.Step++,
+                                    Step = ++taskoperation.Step,
                                     bpmnid = item.bpmnid,
                                     BaseEvent = taskoperation.BaseEvent
                                 };
@@ -340,7 +344,7 @@ namespace IoTSharp.FlowRuleEngine
 
                         //if (tasks.outgoing.Count > 0)
                         //{
-                        //    SimpleFLowExcutor flowExcutor = new SimpleFLowExcutor();
+                        //    SimpleFlowExcutor flowExcutor = new SimpleFlowExcutor();
                         //    var result = await flowExcutor.Excute(new FlowExcuteEntity()
                         //    {
                         //        //    Action = null,
@@ -374,6 +378,7 @@ namespace IoTSharp.FlowRuleEngine
                     }
                     else
                     {
+                        end = new FlowOperation();
                         end.bpmnid = flow.bpmnid;
                         end.AddDate = DateTime.Now;
                         end.FlowRule = flow.FlowRule;
@@ -428,7 +433,7 @@ namespace IoTSharp.FlowRuleEngine
 
                 //        if (tasks.outgoing.Count > 0)
                 //        {
-                //            SimpleFLowExcutor flowExcutor = new SimpleFLowExcutor();
+                //            SimpleFlowExcutor flowExcutor = new SimpleFlowExcutor();
                 //            var result = await flowExcutor.Excute(new FlowExcuteEntity()
                 //            {
                 //                //  Action = null,
@@ -516,7 +521,7 @@ namespace IoTSharp.FlowRuleEngine
 
                         //if (tasks.outgoing.Count > 0)
                         //{
-                        //    SimpleFLowExcutor flowExcutor = new SimpleFLowExcutor();
+                        //    SimpleFlowExcutor flowExcutor = new SimpleFlowExcutor();
                         //    var result = await flowExcutor.Excute(new FlowExcuteEntity()
                         //    {
                         //        //  Action = null,

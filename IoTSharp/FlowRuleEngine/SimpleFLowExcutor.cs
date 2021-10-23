@@ -22,7 +22,7 @@ namespace IoTSharp.FlowRuleEngine
         //public int WaitTime { get; set; }
     }
 
-    public class SimpleFLowExcutor : IFlowExcutor<FlowExcuteEntity>
+    public class SimpleFlowExcutor : IFlowExcutor<FlowExcuteEntity>
     {
         public async Task<List<RuleResultTree>> Excute(FlowExcuteEntity Input)
         {

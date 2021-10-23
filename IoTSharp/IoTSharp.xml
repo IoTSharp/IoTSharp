@@ -478,6 +478,46 @@
             用户名密码
             </summary>
         </member>
+        <member name="P:IoTSharp.Dtos.DeviceDetailDto.Name">
+            <summary>
+            设备名称
+            </summary>
+        </member>
+        <member name="P:IoTSharp.Dtos.DeviceDetailDto.DeviceType">
+            <summary>
+            设备类型
+            </summary>
+        </member>
+        <member name="P:IoTSharp.Dtos.DeviceDetailDto.Online">
+            <summary>
+            在线
+            </summary>
+        </member>
+        <member name="P:IoTSharp.Dtos.DeviceDetailDto.LastActive">
+            <summary>
+            最后一次活跃时间
+            </summary>
+        </member>
+        <member name="P:IoTSharp.Dtos.DeviceDetailDto.Timeout">
+            <summary>
+            超时时间 秒数 
+            </summary>
+        </member>
+        <member name="P:IoTSharp.Dtos.DeviceDetailDto.Owner">
+            <summary>
+            所有者
+            </summary>
+        </member>
+        <member name="P:IoTSharp.Dtos.DeviceDetailDto.Tenant">
+            <summary>
+            租户
+            </summary>
+        </member>
+        <member name="P:IoTSharp.Dtos.DeviceDetailDto.Customer">
+            <summary>
+            客户
+            </summary>
+        </member>
         <member name="P:IoTSharp.Dtos.InstallDto.Email">
             <summary>
             系统管理员用户名

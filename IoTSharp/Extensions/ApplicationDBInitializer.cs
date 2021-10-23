@@ -431,6 +431,7 @@ namespace IoTSharp.Data
         public async Task SeedDictionary()
         {
             var controltype = this._context.BaseDictionaryGroups.Add(new BaseDictionaryGroup { DictionaryGroupName = "控件类型",  DictionaryGroupStatus = 1});
+            this._context.SaveChanges();
             var datatype = this._context.BaseDictionaryGroups.Add(new BaseDictionaryGroup { DictionaryGroupName = "数据类型", DictionaryGroupStatus = 1 });
             this._context.SaveChanges();
 

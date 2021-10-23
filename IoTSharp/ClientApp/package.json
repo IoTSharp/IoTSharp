@@ -69,6 +69,7 @@
     "angular-baidu-maps": "^11.1.0",
     "angular-draggable-droppable": "^4.6.0",
     "bpmn-js": "^8.1.0",
+    "file-saver": "^2.0.5",
     "grapesjs": "^0.17.26",
     "grapesjs-blocks-basic": "^0.1.8",
     "grapesjs-plugin-forms": "^2.0.1",

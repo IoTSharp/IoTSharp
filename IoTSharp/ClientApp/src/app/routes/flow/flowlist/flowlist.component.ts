@@ -3,6 +3,7 @@ import { Router } from '@angular/router';
 import { STColumn, STComponent, STData, STPage, STReq, STRes } from '@delon/abc/st';
 import { ACLService } from '@delon/acl';
 import { _HttpClient, ModalHelper, SettingsService } from '@delon/theme';
+import { Guid } from 'guid-typescript';
 import { NzDrawerService } from 'ng-zorro-antd/drawer';
 import { NzMessageService } from 'ng-zorro-antd/message';
 import { FlowsimulatorComponent } from '../../util/flow/flowsimulator/flowsimulator.component';
@@ -156,10 +157,10 @@ export class FlowlistComponent implements OnInit {
   expandForm = false;
 
   ngOnInit() {}
-  openComponent(id: number): void {
+  openComponent(id: string): void {
     var { nzMaskClosable, width } = this.settingService.getData('drawerconfig');
-    var title = id == -1 ? '新建规则' : '修改规则';
-    const drawerRef = this.drawerService.create<FlowformComponent, { id: number }, string>({
+    var title = id === Guid.EMPTY ? '新建规则' : '修改规则';
+    const drawerRef = this.drawerService.create<FlowformComponent, { id: string }, string>({
       nzTitle: title,
       nzContent: FlowformComponent,
       nzWidth: width,
@@ -168,7 +169,7 @@ export class FlowlistComponent implements OnInit {
         id: id,
       },
     });
-
+  
     drawerRef.afterOpen.subscribe(() => {});
 
     drawerRef.afterClose.subscribe((data) => {
@@ -182,7 +183,7 @@ export class FlowlistComponent implements OnInit {
     var { nzMaskClosable, width } = this.settingService.getData('drawerconfig');
 
     var title = '测试' + ruleflow.name;
-    const drawerRef = this.drawerService.create<FlowsimulatorComponent, { id: number }, string>({
+    const drawerRef = this.drawerService.create<FlowsimulatorComponent, { id: string }, string>({
       nzTitle: title,
       nzContent: FlowsimulatorComponent,
       nzWidth: width < 1280 ? 1280 : width,
@@ -221,7 +222,7 @@ export class FlowlistComponent implements OnInit {
 }
 
 export interface ruleflow {
-  ruleId: number;
+  ruleId: string;
   name: string;
   ruledesc: string;
   CreatTime: Date;

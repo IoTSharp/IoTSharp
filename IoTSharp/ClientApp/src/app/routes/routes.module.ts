@@ -53,6 +53,8 @@ import { TextBoxComponent } from './util/dynamicform/cps/text-box/text-box.compo
 import { controldirective } from './util/dynamicform/controldirective';
 import { RulesdownlinkComponent } from './device/rulesdownlink/rulesdownlink.component';
 
+import { DevicecertificateComponent } from './device/devicecertificate/devicecertificate.component';
+
 const COMPONENTS: Type<null>[] = [];
 const Directive: Type<void>[] = [fielddirective, controldirective];
 @NgModule({
@@ -103,6 +105,8 @@ const Directive: Type<void>[] = [fielddirective, controldirective];
 
     TextBoxComponent,
     RulesdownlinkComponent,
+
+    DevicecertificateComponent,
   ],
 })
 export class RoutesModule {
