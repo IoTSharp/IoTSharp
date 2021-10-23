@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, EventEmitter, OnInit, TemplateRef, ViewChild } from '@angular/core';
+import { ChangeDetectorRef, Component, EventEmitter, OnDestroy, OnInit, TemplateRef, ViewChild } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { STChange, STColumn, STComponent, STData, STPage, STReq, STRes } from '@delon/abc/st';
 import { ModalHelper, SettingsService, _HttpClient } from '@delon/theme';
@@ -11,11 +11,11 @@ import { ACLService } from '@delon/acl';
 
 import { DeviceformComponent } from '../deviceform/deviceform.component';
 import { PropformComponent } from '../propform/propform.component';
-import { zip } from 'rxjs';
+import { interval, Subscription, zip } from 'rxjs';
 import { RulesdownlinkComponent } from '../rulesdownlink/rulesdownlink.component';
 import { appmessage, AppMessage } from '../../common/AppMessage';
 import { HttpHeaders } from '@angular/common/http';
-import { saveAs,fileSaver } from 'file-saver';
+import { saveAs, fileSaver } from 'file-saver';
 import { ClipboardService } from 'ngx-clipboard';
 import { DevicetokendialogComponent } from '../devicetokendialog/devicetokendialog.component';
 @Component({
@@ -23,7 +23,8 @@ import { DevicetokendialogComponent } from '../devicetokendialog/devicetokendial
   templateUrl: './devicelist.component.html',
   styleUrls: ['./devicelist.component.less'],
 })
-export class DevicelistComponent implements OnInit {
+export class DevicelistComponent implements OnInit, OnDestroy {
+  obs: Subscription;
   customerId: string = '';
   expand: any;
   constructor(
@@ -38,7 +39,12 @@ export class DevicelistComponent implements OnInit {
 
 
     aclSrv: ACLService,
-  ) {}
+  ) { }
+  ngOnDestroy(): void {
+    if (this.obs) {
+      this.obs.unsubscribe();
+    }
+  }
   url = 'api/Devices/Customers';
 
   page: STPage = {
@@ -54,12 +60,12 @@ export class DevicelistComponent implements OnInit {
     name: string;
     // anothor query field:The type you expect
   } = {
-    pi: 0,
-    ps: 10,
-    sorter: '',
-    customerId: '',
-    name: '',
-  };
+      pi: 0,
+      ps: 10,
+      sorter: '',
+      customerId: '',
+      name: '',
+    };
   req: STReq = { method: 'GET', allInBody: true, reName: { pi: 'offset', ps: 'limit' }, params: this.q };
 
   // 定义返回的参数
@@ -73,7 +79,7 @@ export class DevicelistComponent implements OnInit {
   @ViewChild('st', { static: true })
   st!: STComponent;
 
- ctype={};
+  ctype = {};
 
   columns: STColumn[] = [
     { title: '', index: 'id', type: 'checkbox' },
@@ -84,9 +90,9 @@ export class DevicelistComponent implements OnInit {
     { title: '租户', index: 'country' },
     { title: '客户', index: 'province' },
     {
-      title: '操作', 
-      type:'link',
-      render:'download',
+      title: '操作',
+      type: 'link',
+      render: 'download',
       buttons: [
         {
           acl: 91,
@@ -142,14 +148,14 @@ export class DevicelistComponent implements OnInit {
   totalCallNo = 0;
 
 
-getbuttons(item){
+  getbuttons(item) {
 
 
 
 
-return []
+    return []
 
-}
+  }
 
   ngOnInit(): void {
     this.router.queryParams.subscribe(
@@ -165,8 +171,8 @@ return []
           this.url = 'api/Devices/Customers';
         }
       },
-      (y) => {},
-      () => {},
+      (y) => { },
+      () => { },
     );
   }
 
@@ -200,7 +206,7 @@ return []
     drawerRef.afterOpen.subscribe(() => {
       this.getData();
     });
-    drawerRef.afterClose.subscribe((data) => {});
+    drawerRef.afterClose.subscribe((data) => { });
   }
   edit(id: string): void {
     var { nzMaskClosable, width } = this.settingService.getData('drawerconfig');
@@ -226,7 +232,7 @@ return []
         },
       },
     });
-    drawerRef.afterOpen.subscribe(() => {});
+    drawerRef.afterOpen.subscribe(() => { });
     drawerRef.afterClose.subscribe((data) => {
       this.getData();
     });
@@ -259,18 +265,18 @@ return []
     drawerRef.afterOpen.subscribe(() => {
       this.getData();
     });
-    drawerRef.afterClose.subscribe((data) => {});
+    drawerRef.afterClose.subscribe((data) => { });
   }
 
-  reset() {}
+  reset() { }
   delete(id: string) {
     this.http.delete('/api/Devices/' + id, {}).subscribe(
       (x) => {
         this.msg.info('设备已删除');
         this.getData();
       },
-      (y) => {},
-      () => {},
+      (y) => { },
+      () => { },
     );
   }
 
@@ -280,24 +286,45 @@ return []
   }
 
   onchange($events: STChange): void {
+
+    console.log($events)
     switch ($events.type) {
+
+
       case 'expand':
-        zip(
-          this.http.get<appmessage<attributeitem[]>>('api/Devices/' + $events.expand?.id + '/AttributeLatest'),
-          this.http.get<appmessage<ruleitem[]>>('api/Rules/GetDeviceRules?deviceId=' + $events.expand?.id),
-           this.http.get<appmessage<telemetryitem[]>>('api/Devices/' + $events.expand?.id + '/TelemetryLatest'),
-        ).subscribe(
-          ([
-            attributes,
-            rules,
-              telemetries
-          ]) => {
-            $events.expand.attributes = attributes.data;
-            $events.expand.rules = rules.data;
-             $events.expand.telemetries = telemetries.data;
-            this.cdr.detectChanges();
-          },
-        );
+        if ($events.expand.expand) {
+          if (this.obs) {
+            this.obs.unsubscribe();
+          }
+          this.obs = interval(1000).subscribe(async (x) => {
+            zip(
+              this.http.get<appmessage<attributeitem[]>>('api/Devices/' + $events.expand?.id + '/AttributeLatest'),
+              this.http.get<appmessage<ruleitem[]>>('api/Rules/GetDeviceRules?deviceId=' + $events.expand?.id),
+              this.http.get<appmessage<telemetryitem[]>>('api/Devices/' + $events.expand?.id + '/TelemetryLatest'),
+            ).subscribe(
+              ([
+                attributes,
+                rules,
+                telemetries
+              ]) => {
+                $events.expand.attributes = attributes.data;
+                $events.expand.rules = rules.data;
+                $events.expand.telemetries = telemetries.data;
+                this.cdr.detectChanges();
+              },
+            );
+
+          });
+
+
+        } else {
+
+          this.obs.unsubscribe();
+
+        }
+
+
+
 
         break;
     }
@@ -308,8 +335,8 @@ return []
       (next) => {
         item.rules = item.rules.filter((x) => x.ruleId != rule.ruleId);
       },
-      (error) => {},
-      () => {},
+      (error) => { },
+      () => { },
     );
   }
 }
@@ -326,6 +353,7 @@ export interface deviceitem {
   telemetries: telemetryitem[];
   attributes: attributeitem[];
   rules: ruleitem[];
+  expand: boolean;
 }
 
 export interface telemetryitem {

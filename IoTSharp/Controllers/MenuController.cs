@@ -103,20 +103,22 @@ namespace IoTSharp.Controllers
                                         icon="anticon-rocket",
                                         children=new[]
                                         {
-                                            new { text = "设备管理", i18n = "",link="/iot/device/devicelist" }
-                                        }
+                                            new { text = "设备管理", i18n = "",link="/iot/device/devicelist" },
+                                            new { text = "网关配置器", i18n = "", link = "/iot/device/devicegraph" },
+                                        },
                                     },
                                     new
                                     {
-                                        text = "规则管理",
+                                        text = "规则链 ",
                                         i18n = "",
                                         icon = "anticon-rocket",
                                         children = new[]
                                    {
 
                                             //new { text = "设备列表", i18n = "", link = "/iot/device/devicelist" },
-                                            new { text = "设计", i18n = "", link = "/iot/device/devicegraph" },
-                                            new { text = "规则链", i18n = "", link = "/iot/flow/flowlist" },
+                                            new { text = "设计器", i18n = "", link = "/iot/flow/flowlist" },
+                                            new { text = "脚本管理", i18n = "", link = "/iot/flow/scriptlist" },
+                                            new { text = "组件管理", i18n = "", link = "/iot/flow/componentlist" },
                                         }
                                     },
                                     new

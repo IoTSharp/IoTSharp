@@ -56,6 +56,8 @@ import { RulesdownlinkComponent } from './device/rulesdownlink/rulesdownlink.com
 import { DevicecertificateComponent } from './device/devicecertificate/devicecertificate.component';
 import { ClipboardModule } from 'ngx-clipboard';
 import { DevicetokendialogComponent } from './device/devicetokendialog/devicetokendialog.component';
+import { ScriptlistComponent } from './flow/scriptlist/scriptlist.component';
+import { ComponentlistComponent } from './flow/componentlist/componentlist.component';
 
 const COMPONENTS: Type<null>[] = [];
 const Directive: Type<void>[] = [fielddirective, controldirective];
@@ -110,6 +112,8 @@ const Directive: Type<void>[] = [fielddirective, controldirective];
 
     DevicecertificateComponent,
       DevicetokendialogComponent,
+      ScriptlistComponent,
+      ComponentlistComponent,
   ],
 })
 export class RoutesModule {
