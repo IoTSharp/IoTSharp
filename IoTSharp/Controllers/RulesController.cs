@@ -205,7 +205,7 @@ namespace IoTSharp.Controllers
             rule.Creator = profile.Id.ToString();
             _context.FlowRules.Update(rule);
             _context.SaveChanges();
-            _context.Flows.RemoveRange(_context.Flows.Where(c => c.FlowRule == rule).ToList());
+            _context.Flows.RemoveRange(_context.Flows.Where(c => c.FlowRule.RuleId == rule.RuleId).ToList());
             _context.SaveChanges();
 
             if (activity.BaseBpmnObjects != null)

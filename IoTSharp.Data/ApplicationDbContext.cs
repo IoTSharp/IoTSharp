@@ -40,6 +40,7 @@ namespace IoTSharp.Data
             modelBuilder.Entity<TelemetryLatest>().HasDiscriminator<DataCatalog>(nameof(Data.DataStorage.Catalog));
             modelBuilder.Entity<Device>().HasDiscriminator<DeviceType>(nameof(Data.Device.DeviceType)).HasValue<Gateway>(DeviceType.Gateway).HasValue<Device>(DeviceType.Device);
             modelBuilder.Entity<Gateway>().HasDiscriminator<DeviceType>(nameof(Data.Device.DeviceType));
+       
             var builder_options= this.GetService<IDataBaseModelBuilderOptions>();
             builder_options.Infrastructure = this;
             builder_options.OnModelCreating(modelBuilder);

@@ -69,7 +69,7 @@ namespace IoTSharp.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ApiResult<Guid>), StatusCodes.Status404NotFound)]
         [ProducesDefaultResponseType]
-        public async  Task<ApiResult<PagedData<Device>>> GetDevices([FromQuery] DeviceParam m)
+        public async  Task<ApiResult<PagedData<DeviceDetailDto>>> GetDevices([FromQuery] DeviceParam m)
         {
             //var f = from c in _context.Device where c.Customer.Id == customerId select c;
             //if (!f.Any())
@@ -82,12 +82,17 @@ namespace IoTSharp.Controllers
             //}
             Expression<Func<Device, bool>> condition = x => x.Customer.Id == m.customerId;
 
+          
 
-
-            return new ApiResult<PagedData<Device>>(ApiCode.Success, "OK", new PagedData<Device>
+            return new ApiResult<PagedData<DeviceDetailDto>>(ApiCode.Success, "OK", new PagedData<DeviceDetailDto>
             {
                 total = await _context.Device.CountAsync(condition),
-                rows = await _context.Device.OrderByDescending(c => c.LastActive).Where(condition).Skip((m.offset) * m.limit).Take(m.limit).ToListAsync()
+                rows = await _context.Device.OrderByDescending(c => c.LastActive).Where(condition).Skip((m.offset) * m.limit).Take(m.limit).Join(_context.DeviceIdentities,x=>x.Id,y=>y.Device.Id,(x,y)=>new DeviceDetailDto()
+                {
+                    Id = x.Id, Name = x.Name, LastActive = x.LastActive, IdentityType =y.IdentityType, Tenant = x.Tenant, Customer = x.Customer, DeviceType = x.DeviceType, Online = x.Online, Owner = x.Owner, Timeout = x.Timeout
+
+
+                }).ToListAsync()
             });
 
 

@@ -14,7 +14,8 @@ import { PropformComponent } from '../propform/propform.component';
 import { zip } from 'rxjs';
 import { RulesdownlinkComponent } from '../rulesdownlink/rulesdownlink.component';
 import { appmessage, AppMessage } from '../../common/AppMessage';
-
+import { HttpHeaders } from '@angular/common/http';
+import { saveAs,fileSaver } from 'file-saver';
 @Component({
   selector: 'app-devicelist',
   templateUrl: './devicelist.component.html',
@@ -33,9 +34,7 @@ export class DevicelistComponent implements OnInit {
     private drawerService: NzDrawerService,
     private settingService: SettingsService,
     aclSrv: ACLService,
-  ) {
-    
-  }
+  ) {}
   url = 'api/Devices/Customers';
 
   page: STPage = {
@@ -69,6 +68,9 @@ export class DevicelistComponent implements OnInit {
 
   @ViewChild('st', { static: true })
   st!: STComponent;
+
+ ctype={};
+
   columns: STColumn[] = [
     { title: '', index: 'id', type: 'checkbox' },
     { title: 'id', index: 'id' },
@@ -78,7 +80,9 @@ export class DevicelistComponent implements OnInit {
     { title: '租户', index: 'country' },
     { title: '客户', index: 'province' },
     {
-      title: '操作',
+      title: '操作', 
+      type:'link',
+      render:'download',
       buttons: [
         {
           acl: 91,
@@ -102,6 +106,17 @@ export class DevicelistComponent implements OnInit {
             this.downlink([item]);
           },
         },
+
+        {
+          acl: 111,
+          text: '证书管理',
+          click: (item: any) => {
+            this.downlink([item]);
+          },
+        },
+
+
+
         {
           acl: 110,
           text: '删除',
@@ -116,28 +131,33 @@ export class DevicelistComponent implements OnInit {
   description = '';
   totalCallNo = 0;
 
-  ngOnInit(): void {
-  
 
+getbuttons(item){
+
+
+
+
+return []
+
+}
+
+  ngOnInit(): void {
     this.router.queryParams.subscribe(
       (x) => {
-        if( !x.id){
-          this.q.customerId= this.settingService.user.comstomer
+        if (!x.id) {
+          this.q.customerId = this.settingService.user.comstomer;
           this.customerId = this.settingService.user.comstomer;
 
-
-         this. url = 'api/Devices/Customers';
-        }else{
+          this.url = 'api/Devices/Customers';
+        } else {
           this.q.customerId = x.id as unknown as string;
-          this.customerId = x.id as unknown as string;      this. url = 'api/Devices/Customers';
+          this.customerId = x.id as unknown as string;
+          this.url = 'api/Devices/Customers';
         }
       },
       (y) => {},
       () => {},
     );
-
-
-
   }
 
   downlink(dev: any[]) {
@@ -273,11 +293,14 @@ export class DevicelistComponent implements OnInit {
     }
   }
 
-  removerule(item:deviceitem, rule: ruleitem) {
-    this.http.get('api/Rules/DeleteDeviceRules?deviceId='+item.id+'&ruleId='+rule.ruleId).subscribe(next=>{
-      item.rules = item.rules.filter(x=>x.ruleId!=rule.ruleId);
-    },error=>{},()=>{});
-
+  removerule(item: deviceitem, rule: ruleitem) {
+    this.http.get('api/Rules/DeleteDeviceRules?deviceId=' + item.id + '&ruleId=' + rule.ruleId).subscribe(
+      (next) => {
+        item.rules = item.rules.filter((x) => x.ruleId != rule.ruleId);
+      },
+      (error) => {},
+      () => {},
+    );
   }
 }
 

@@ -23,8 +23,10 @@
         <nz-step
           *ngFor="let step of this.steps"
           [nzStatus]="step.nzStatus"
-          [nzTitle]="step.addDate"
-          [nzDescription]="step.operationDesc"
+          [nzTitle]="step.operationDesc"
+
+          [nzSubtitle]="step.addDate"
+          [nzDescription]="step.data"
         ></nz-step>
       </nz-steps>
     </nz-card>

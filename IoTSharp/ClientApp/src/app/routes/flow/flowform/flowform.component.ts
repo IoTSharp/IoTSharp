@@ -15,7 +15,7 @@ import { AppMessage } from '../../common/AppMessage';
 export class FlowformComponent implements OnInit {
   title: string = '';
   loading = false;
-  @Input() id: number = -1;
+  @Input() id: string ;
   form!: FormGroup;
   constructor(
     private _router: ActivatedRoute,
@@ -32,10 +32,10 @@ export class FlowformComponent implements OnInit {
     this.form = this.fb.group({
       name: [null, [Validators.required]],
       ruleDesc: [null, []],
-      ruleId: [Guid.create().toString(), []],
+      ruleId: [Guid.EMPTY, []],
     });
 
-    if (this.id !== -1) {
+    if (this.id !== Guid.EMPTY) {
       this._httpClient.get<AppMessage>('api/rules/get?id=' + this.id).subscribe(
         (x) => {
           this.form.patchValue(x.data);
@@ -48,7 +48,7 @@ export class FlowformComponent implements OnInit {
 
   submit() {
     this.submitting = true;
-    var uri = this.id !== -1 ? 'api/rules/update' : 'api/rules/save';
+    var uri = this.id !== Guid.EMPTY ? 'api/rules/update' : 'api/rules/save';
     if (this.form.value.id === '') {
     }
     this._httpClient.post(uri, this.form.value).subscribe(

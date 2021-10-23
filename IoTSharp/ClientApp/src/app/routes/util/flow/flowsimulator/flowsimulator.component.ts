@@ -16,7 +16,7 @@ import { DynamicformviewComponent } from '../../dynamicform/dynamicformview/dyna
 })
 export class FlowsimulatorComponent implements OnInit, OnDestroy {
   @Input()
-  id: Number;
+  id: string;
   listOfOption = [];
   obs: Subscription;
   // @ViewChild('flowtimeline', { static: true })
@@ -121,7 +121,7 @@ export class FlowsimulatorComponent implements OnInit, OnDestroy {
 
       for (const node of this.nodes[index].nodes) {
         this.flowview.sethighlight(node.bpmnid);
-        this.steps = [...this.steps, { addDate: node.addDate, operationDesc: node.operationDesc, nzStatus: 'process' }];
+        this.steps = [...this.steps, { addDate: node.addDate, operationDesc: node.operationDesc, nzStatus: 'process',data:node.data }];
       }
 
       // if (this.nodes.length + 3 == x) {
