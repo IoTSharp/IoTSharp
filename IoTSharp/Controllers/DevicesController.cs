@@ -89,7 +89,7 @@ namespace IoTSharp.Controllers
                 total = await _context.Device.CountAsync(condition),
                 rows = await _context.Device.OrderByDescending(c => c.LastActive).Where(condition).Skip((m.offset) * m.limit).Take(m.limit).Join(_context.DeviceIdentities,x=>x.Id,y=>y.Device.Id,(x,y)=>new DeviceDetailDto()
                 {
-                    Id = x.Id, Name = x.Name, LastActive = x.LastActive, IdentityType =y.IdentityType, Tenant = x.Tenant, Customer = x.Customer, DeviceType = x.DeviceType, Online = x.Online, Owner = x.Owner, Timeout = x.Timeout
+                    Id = x.Id, Name = x.Name, LastActive = x.LastActive, IdentityId =y.IdentityId, IdentityValue =y.IdentityValue, Tenant = x.Tenant, Customer = x.Customer, DeviceType = x.DeviceType, Online = x.Online, Owner = x.Owner, Timeout = x.Timeout
 
 
                 }).ToListAsync()

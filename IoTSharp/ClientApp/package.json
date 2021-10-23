@@ -77,6 +77,7 @@
     "monaco-editor": "^0.26.1",
     "ng-zorro-antd": "^11.4.1",
     "ngw-json-view": "^3.0.6",
+    "ngx-clipboard": "^14.0.1",
     "ngx-countdown": "^11.0.3",
     "ngx-tinymce": "^11.0.0",
     "ngx-ueditor": "^11.0.1",

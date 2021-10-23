@@ -16,6 +16,8 @@ import { RulesdownlinkComponent } from '../rulesdownlink/rulesdownlink.component
 import { appmessage, AppMessage } from '../../common/AppMessage';
 import { HttpHeaders } from '@angular/common/http';
 import { saveAs,fileSaver } from 'file-saver';
+import { ClipboardService } from 'ngx-clipboard';
+import { DevicetokendialogComponent } from '../devicetokendialog/devicetokendialog.component';
 @Component({
   selector: 'app-devicelist',
   templateUrl: './devicelist.component.html',
@@ -33,6 +35,8 @@ export class DevicelistComponent implements OnInit {
     private router: ActivatedRoute,
     private drawerService: NzDrawerService,
     private settingService: SettingsService,
+
+
     aclSrv: ACLService,
   ) {}
   url = 'api/Devices/Customers';
@@ -109,10 +113,16 @@ export class DevicelistComponent implements OnInit {
 
         {
           acl: 111,
-          text: '证书管理',
-          click: (item: any) => {
-            this.downlink([item]);
+          text: '获取Token',
+          type: 'modal',
+          modal: {
+            component: DevicetokendialogComponent,
           },
+          click: (item: any) => {
+
+
+
+          }
         },
 
 

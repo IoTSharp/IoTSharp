@@ -1,0 +1,8 @@
+<div class="modal-header">
+    <div class="modal-title">Custom component</div>
+  </div>
+  <p>Token：{{ record.identityId }}</p>
+  <div class="modal-footer">
+    <button nz-button [nzType]="'default'" [nzSize]="'large'" (click)="cancel()"> 取消 </button>
+    <button nz-button [nzType]="'primary'" [nzSize]="'large'" (click)="ok()"> 复制 </button>
+  </div>

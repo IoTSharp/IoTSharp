@@ -43,6 +43,9 @@ namespace IoTSharp.Dtos
         public Customer Customer { get; set; }
 
         public IdentityType IdentityType { get; set; }
-        
+
+
+        public string IdentityValue { get; set; }
+        public string IdentityId { get; set; }
     }
 }

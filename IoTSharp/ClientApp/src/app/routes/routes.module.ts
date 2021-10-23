@@ -54,11 +54,13 @@ import { controldirective } from './util/dynamicform/controldirective';
 import { RulesdownlinkComponent } from './device/rulesdownlink/rulesdownlink.component';
 
 import { DevicecertificateComponent } from './device/devicecertificate/devicecertificate.component';
+import { ClipboardModule } from 'ngx-clipboard';
+import { DevicetokendialogComponent } from './device/devicetokendialog/devicetokendialog.component';
 
 const COMPONENTS: Type<null>[] = [];
 const Directive: Type<void>[] = [fielddirective, controldirective];
 @NgModule({
-  imports: [SharedModule, RouteRoutingModule, WidgetsModule, DelonFormModule.forRoot()],
+  imports: [SharedModule, RouteRoutingModule, WidgetsModule,ClipboardModule, DelonFormModule.forRoot()],
   declarations: [
     ...COMPONENTS,
     ...Directive,
@@ -107,6 +109,7 @@ const Directive: Type<void>[] = [fielddirective, controldirective];
     RulesdownlinkComponent,
 
     DevicecertificateComponent,
+      DevicetokendialogComponent,
   ],
 })
 export class RoutesModule {
