@@ -149,6 +149,10 @@ namespace IoTSharp.Handlers
                                 }
 
                             }
+                            else if (tpary[2] == "rpc")
+                            {
+
+                            }
                             else
                             {
                                 var rules = await _caching.GetAsync($"ruleid_{_dev.Id}", () =>
@@ -477,7 +481,7 @@ namespace IoTSharp.Handlers
             {
                 e.Context.ReasonCode = MQTTnet.Protocol.MqttConnectReasonCode.ImplementationSpecificError;
                 e.Context.ReasonString = ex.Message;
-                _logger.LogError(ex, "ConnectionRefusedServerUnavailable2222222222222 {0}", ex.Message);
+                _logger.LogError(ex, "ConnectionRefusedServerUnavailable {0}", ex.Message);
             }
 
 
