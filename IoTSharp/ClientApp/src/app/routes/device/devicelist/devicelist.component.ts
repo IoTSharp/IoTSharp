@@ -101,7 +101,7 @@ export class DevicelistComponent implements OnInit {
 
         {
           acl: 111,
-          text: '规则下发',
+          text: '设置规则',
           click: (item: any) => {
             this.downlink([item]);
           },
@@ -284,7 +284,7 @@ return []
           ]) => {
             $events.expand.attributes = attributes.data;
             $events.expand.rules = rules.data;
-             $events.expand.telemetries = telemetries;
+             $events.expand.telemetries = telemetries.data;
             this.cdr.detectChanges();
           },
         );
