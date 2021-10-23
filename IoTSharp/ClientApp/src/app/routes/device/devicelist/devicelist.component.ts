@@ -275,16 +275,16 @@ return []
         zip(
           this.http.get<appmessage<attributeitem[]>>('api/Devices/' + $events.expand?.id + '/AttributeLatest'),
           this.http.get<appmessage<ruleitem[]>>('api/Rules/GetDeviceRules?deviceId=' + $events.expand?.id),
-          // this.http.get<appmessage<telemetryitem[]>>('api/Devices/' + $events.expand?.id + '/TelemetryLatest'),
+           this.http.get<appmessage<telemetryitem[]>>('api/Devices/' + $events.expand?.id + '/TelemetryLatest'),
         ).subscribe(
           ([
             attributes,
             rules,
-            //  telemetries
+              telemetries
           ]) => {
             $events.expand.attributes = attributes.data;
             $events.expand.rules = rules.data;
-            //  $events.expand.telemetries = telemetries;
+             $events.expand.telemetries = telemetries;
             this.cdr.detectChanges();
           },
         );
