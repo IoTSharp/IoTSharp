@@ -33,18 +33,36 @@ RUN echo "deb https://mirrors.tuna.tsinghua.edu.cn/debian/ buster main contrib n
 	echo "deb https://mirrors.tuna.tsinghua.edu.cn/debian/ buster-updates main contrib non-free" >> /etc/apt/sources.list && \
 	echo "deb https://mirrors.tuna.tsinghua.edu.cn/debian/ buster-backports main contrib non-free" >> /etc/apt/sources.list && \
 	echo "deb https://mirrors.tuna.tsinghua.edu.cn/debian-security buster/updates main contrib non-free" >> /etc/apt/sources.list && \
-    apt-get  -y   -q update   && apt-get install  -y   -q  git  libssl-dev  curl gnupg libcurl4  gcc g++ make  && \
-	apt-get install -y wget && \
-    apt-get install -y gnupg2 && \
-	wget -qO- https://deb.nodesource.com/setup_14.x | bash - && \
-    apt-get install -y build-essential nodejs && \
+    apt-get  -y   -q update   && apt-get install  -y   -q  git  libssl-dev  curl gnupg libcurl4  gcc g++ make  gnupg2 build-essential wget &&  \
+    apt-get autoremove -y &&  apt-get clean  &&  apt-get autoclean && rm  /var/cache/apt/* -rf 	
+
+
+#RUN	wget -qO- https://deb.nodesource.com/setup_15.x | bash - && \
+    #apt-get  -y   -q update  && \
+    #apt-get install -y nodejs && \
+	#ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime && \
+	#npm config set registry https://registry.npm.taobao.org && \
+	#export NODE_OPTIONS=--openssl-legacy-provider && \
+	#apt-get autoremove -y &&  apt-get clean  &&  apt-get autoclean && rm  /var/cache/apt/* -rf 	
+#
+#
+
+RUN KEYRING=/usr/share/keyrings/nodesource.gpg && curl -fsSL https://deb.nodesource.com/gpgkey/nodesource.gpg.key | gpg --dearmor |  tee "$KEYRING" >/dev/null && \
+	gpg --no-default-keyring --keyring "$KEYRING" --list-keys && \
+	VERSION=node_16.x &&  DISTRO=bullseye  && \
+	echo "deb [signed-by=$KEYRING] https://deb.nodesource.com/$VERSION $DISTRO main" |  tee /etc/apt/sources.list.d/nodesource.list && \
+	apt-get  -y   -q update  && \
+    apt-get install -y nodejs && \
 	ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime && \
-	apt-get autoremove -y &&  apt-get clean  &&  apt-get autoclean && rm  /var/cache/apt/* -rf 	
+	npm config set registry https://registry.npm.taobao.org && \
+	export NODE_OPTIONS=--openssl-legacy-provider && \
+	apt-get autoremove -y &&  apt-get clean  &&  apt-get autoclean && rm  /var/cache/apt/* -rf 
 
-
+    
 WORKDIR /src
 COPY ["IoTSharp/IoTSharp.csproj", "IoTSharp/"]
 COPY ["IoTSharp.Data/IoTSharp.Data.csproj", "IoTSharp.Data/"]
+COPY ["IoTSharp.Interpreter/IoTSharp.Interpreter.csproj", "IoTSharp.Interpreter/"]
 COPY ["IoTSharp.Data.SqlServer/IoTSharp.Data.SqlServer.csproj", "IoTSharp.Data.SqlServer/"]
 COPY ["IoTSharp.Data.Sqlite/IoTSharp.Data.Sqlite.csproj", "IoTSharp.Data.Sqlite/"]
 COPY ["IoTSharp.Data.Oracle/IoTSharp.Data.Oracle.csproj", "IoTSharp.Data.Oracle/"]
