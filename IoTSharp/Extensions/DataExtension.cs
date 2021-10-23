@@ -185,6 +185,38 @@ namespace IoTSharp.Extensions
                         tdata.Type = DataType.XML;
                         tdata.Value_XML = ((System.Xml.XmlDocument)kp.Value).InnerXml;
                     }
+                    else if (kp.Value.GetType() == typeof(System.Text.Json.JsonElement))
+                    {
+                        var kvx = kp.Value as System.Text.Json.JsonElement?;
+                        if (kvx.HasValue)
+                        {
+                            switch (kvx.Value.ValueKind)
+                            {
+                                case System.Text.Json.JsonValueKind.Undefined:
+                                case System.Text.Json.JsonValueKind.Object:
+                                    break;
+                                case System.Text.Json.JsonValueKind.Array:
+                                    break;
+                                case System.Text.Json.JsonValueKind.String:
+                                    tdata.Type = DataType.String;
+                                    tdata.Value_String = kvx.Value.GetString();
+                                    break;
+                                case System.Text.Json.JsonValueKind.Number:
+                                    tdata.Type = DataType.Double;
+                                    tdata.Value_Double = kvx.Value.GetDouble();
+                                    break;
+                                case System.Text.Json.JsonValueKind.True:
+                                case System.Text.Json.JsonValueKind.False:
+                                    tdata.Type = DataType.Boolean;
+                                    tdata.Value_Boolean = kvx.Value.GetBoolean();
+                                    break;
+                                case System.Text.Json.JsonValueKind.Null:
+                                    break;
+                                default:
+                                    break;
+                            }
+                        }
+                    }
                     else
                     {
                         tdata.Type = DataType.Json;

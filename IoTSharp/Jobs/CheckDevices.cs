@@ -45,16 +45,19 @@ namespace IoTSharp.Jobs
                        {
 
                            var _device = cs.Session.Items?.FirstOrDefault(k => (string)k.Key == nameof(Device)).Value as Device;
-                           var d = _dbContext.Device.FirstOrDefault(d => d.Id == _device.Id);
-                           if (d != null)
+                           if (_device != null)
                            {
-
-                               d.LastActive = cs.LastPacketReceivedTimestamp.ToLocalTime();
-                               d.Online = DateTime.Now.Subtract(d.LastActive).TotalSeconds < d.Timeout;
-                               _logger.LogInformation($"设备{cs.ClientId}-{d.Name}({d.Id},{cs.Endpoint}) 最后活动时间{d.LastActive} 在线{d.Online} 发送消息:{cs.SentApplicationMessagesCount}({cs.BytesSent}kb)  收到{cs.ReceivedApplicationMessagesCount}({cs.BytesReceived / 1024}KB )  ");
-                               if (!d.Online && DateTime.Now.Subtract(d.LastActive).TotalSeconds>d.Timeout*5)
+                               var d = _dbContext.Device.FirstOrDefault(d => d.Id == _device.Id);
+                               if (d != null)
                                {
-                                   Task.Run(cs.DisconnectAsync);
+
+                                   d.LastActive = cs.LastPacketReceivedTimestamp.ToLocalTime();
+                                   d.Online = DateTime.Now.Subtract(d.LastActive).TotalSeconds < d.Timeout;
+                                   _logger.LogInformation($"设备{cs.ClientId}-{d.Name}({d.Id},{cs.Endpoint}) 最后活动时间{d.LastActive} 在线{d.Online} 发送消息:{cs.SentApplicationMessagesCount}({cs.BytesSent}kb)  收到{cs.ReceivedApplicationMessagesCount}({cs.BytesReceived / 1024}KB )  ");
+                                   if (!d.Online && DateTime.Now.Subtract(d.LastActive).TotalSeconds > d.Timeout * 5)
+                                   {
+                                       Task.Run(cs.DisconnectAsync);
+                                   }
                                }
                            }
                        }

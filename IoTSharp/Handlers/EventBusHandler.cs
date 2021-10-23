@@ -123,12 +123,12 @@ namespace IoTSharp.Handlers
                 var devid = msg.DeviceId;
                 var formdata = Newtonsoft.Json.Linq.JToken.Parse(Newtonsoft.Json.JsonConvert.SerializeObject(msg.MsgBody));
                 var dtaobj = formdata.ToObject(typeof(ExpandoObject));
-                var rules = await _caching.GetAsync($"ruleid_{devid}", () =>
+                var rules = await _caching.GetAsync($"ruleid_{devid}", async () =>
                 {
                     using (var scope = _scopeFactor.CreateScope())
                     using (var _dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>())
                     {
-                        return _dbContext.GerDeviceRulesIdList(devid);
+                        return await _dbContext.GerDeviceRulesIdList(devid);
                     }
                 }, TimeSpan.FromMinutes(5));
                 if (rules.HasValue)
