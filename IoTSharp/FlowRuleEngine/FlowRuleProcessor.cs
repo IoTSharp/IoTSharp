@@ -205,6 +205,7 @@ namespace IoTSharp.FlowRuleEngine
                         if (!string.IsNullOrEmpty(flow.NodeProcessScriptType) && !string.IsNullOrEmpty(flow.NodeProcessScript))
                         {
                             var scriptsrc = flow.NodeProcessScript;
+                            string result = null;
                             switch (flow.NodeProcessScriptType)
                             {
                                 case "csharp":
@@ -213,73 +214,51 @@ namespace IoTSharp.FlowRuleEngine
                                     break;
                                 case "python":
                                     {
-                                        dynamic obj = null;
                                         using (var pse = _sp.GetRequiredService<PythonScriptEngine>())
                                         {
-                                            obj = pse.Do(scriptsrc, taskoperation.Data);
-                                        }
-                                        var next =await ProcessCondition(taskoperation.Flow.FlowId, obj);
-                                        foreach (var item in next)
-                                        {
-
-                                            var flowOperation = new FlowOperation()
-                                            {
-                                                AddDate = DateTime.Now,
-                                                FlowRule = item.FlowRule,
-                                                Flow = item,
-                                                Data = JsonConvert.SerializeObject(data),
-                                                NodeStatus = 1,
-                                                OperationDesc = "执行条件（" + (string.IsNullOrEmpty(item.Conditionexpression)
-                                                    ? "空条件"
-                                                    : item.Conditionexpression) + ")",
-                                                Step = taskoperation.Step++,
-                                                bpmnid = item.bpmnid,
-                                                BaseEvent = taskoperation.BaseEvent
-                                            };
-                                            _context.FlowOperations.Add(flowOperation);
-                                            await _context.SaveChangesAsync();
-
-                                            await Process(flowOperation.OperationId, obj);
+                                            result = pse.Do(scriptsrc, taskoperation.Data);
                                         }
                                     }
                                     break;
                                 case "sql":
                                     break;
+                                case "lua":
+                                    using (var lua = _sp.GetRequiredService<LuaScriptEngine>())
+                                    {
+                                        result = lua.Do(scriptsrc, taskoperation.Data);
+                                    }
+                                    break;
                                 case "javascript":
                                     {
-                                        ExpandoObject obj = null;
                                         using (var js = _sp.GetRequiredService<JavaScriptEngine>())
                                         {
-                                            string result = js.Do(@"var output=input.Temperature;output = output + 100; return { Temperature:output};", taskoperation.Data);
-                                            obj = JsonConvert.DeserializeObject<ExpandoObject>(result);
-                                     
-
-                                        }
-
-                                        var next =await ProcessCondition(taskoperation.Flow.FlowId, obj);
-
-                                        foreach (var item in next)
-                                        {
-                                            var flowOperation = new FlowOperation()
-                                            {
-                                                AddDate = DateTime.Now,
-                                                FlowRule = item.FlowRule,
-                                                Flow = item,
-                                                Data = JsonConvert.SerializeObject(obj),
-                                                NodeStatus = 1,
-                                                OperationDesc = "执行条件（" + (string.IsNullOrEmpty(item.Conditionexpression)
-                                                    ? "空条件"
-                                                    : item.Conditionexpression) + ")",
-                                                Step = ++taskoperation.Step,
-                                                bpmnid = item.bpmnid,
-                                                BaseEvent = taskoperation.BaseEvent
-                                            };
-                                            _context.FlowOperations.Add(flowOperation);
-                                            await _context.SaveChangesAsync();
-                                            await Process(flowOperation.OperationId, obj);
+                                             result = js.Do(scriptsrc, taskoperation.Data);
                                         }
                                     }
                                     break;
+                            }
+                           var  obj = JsonConvert.DeserializeObject<ExpandoObject>(result);
+                            var next = await ProcessCondition(taskoperation.Flow.FlowId, obj);
+
+                            foreach (var item in next)
+                            {
+                                var flowOperation = new FlowOperation()
+                                {
+                                    AddDate = DateTime.Now,
+                                    FlowRule = item.FlowRule,
+                                    Flow = item,
+                                    Data = JsonConvert.SerializeObject(obj),
+                                    NodeStatus = 1,
+                                    OperationDesc = "执行条件（" + (string.IsNullOrEmpty(item.Conditionexpression)
+                                        ? "空条件"
+                                        : item.Conditionexpression) + ")",
+                                    Step = ++taskoperation.Step,
+                                    bpmnid = item.bpmnid,
+                                    BaseEvent = taskoperation.BaseEvent
+                                };
+                                _context.FlowOperations.Add(flowOperation);
+                                await _context.SaveChangesAsync();
+                                await Process(flowOperation.OperationId, obj);
                             }
                         }
                         else
