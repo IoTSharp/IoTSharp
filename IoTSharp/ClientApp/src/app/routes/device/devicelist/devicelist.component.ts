@@ -14,7 +14,7 @@ import { PropformComponent } from '../propform/propform.component';
 import { interval, Subscription, zip } from 'rxjs';
 import { RulesdownlinkComponent } from '../rulesdownlink/rulesdownlink.component';
 import { appmessage, AppMessage } from '../../common/AppMessage';
-import { HttpHeaders } from '@angular/common/http';
+import { HttpHeaders, HttpResponse } from '@angular/common/http';
 import { saveAs, fileSaver } from 'file-saver';
 import { ClipboardService } from 'ngx-clipboard';
 import { DevicetokendialogComponent } from '../devicetokendialog/devicetokendialog.component';
@@ -113,6 +113,7 @@ export class DevicelistComponent implements OnInit, OnDestroy {
           acl: 111,
           text: '设置规则',
           click: (item: any) => {
+            this.download()
             this.downlink([item]);
           },
         },
@@ -126,7 +127,7 @@ export class DevicelistComponent implements OnInit, OnDestroy {
           },
           click: (item: any) => {
 
-
+ 
 
           }
         },
@@ -156,6 +157,28 @@ export class DevicelistComponent implements OnInit, OnDestroy {
     return []
 
   }
+
+
+
+  private download(){
+    this.http
+   .get('./assets/tmp/demo.xlsx', {},{
+     responseType: 'blob',
+   })
+   .subscribe(res => {
+     let url = window.URL.createObjectURL(res);
+     let a = document.createElement('a');
+     document.body.appendChild(a);
+     a.setAttribute('style', 'display: none');
+     a.href = url;
+     a.download = res.filename;
+     a.click();
+     window.URL.revokeObjectURL(url);
+     a.remove();
+   });
+  
+  }
+ 
 
   ngOnInit(): void {
     this.router.queryParams.subscribe(

@@ -1,33 +1,36 @@
-﻿using Castle.Components.DictionaryAdapter;
+﻿using System;
+using System.Collections.Generic;
+using System.Dynamic;
+using System.Linq;
+using System.Threading.Tasks;
+using Castle.Components.DictionaryAdapter;
 using IoTSharp.Data;
 using IoTSharp.Interpreter;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
-using System;
-using System.Collections.Generic;
-using System.Dynamic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace IoTSharp.FlowRuleEngine
 {
-    public class FlowRuleProcessor
+    public class FlowRuleProcessorV2
     {
         private readonly IServiceProvider _sp;
         private readonly ApplicationDbContext _context;
         private readonly ILogger<FlowRuleProcessor> _logger;
         private readonly AppSettings _setting;
         private List<Flow> _allFlows = new List<Flow>();
-        public FlowRuleProcessor(ILogger<FlowRuleProcessor> logger, IServiceScopeFactory scopeFactor, IOptions<AppSettings> options)
-        {
-            _sp = scopeFactor.CreateScope().ServiceProvider;
-            _context = _sp.GetRequiredService<ApplicationDbContext>();
-            _logger = logger;
-            _setting = options.Value;
-        }
 
+        private List<FlowOperation> _allflowoperation = new List<FlowOperation>();
+        public FlowRuleProcessorV2(
+
+            ApplicationDbContext context)
+        {
+         
+            _context = context;
+         
+        }
+   
 
         /// <summary>
         /// 
@@ -36,13 +39,13 @@ namespace IoTSharp.FlowRuleEngine
         /// <param name="data">数据</param>
         /// <param name="creator">创建者(可以是模拟器(测试)，可以是设备，在EventType中区分一下)</param>
         /// <param name="type">类型</param>
-            /// <param name="BizId">业务Id(第三方唯一Id，用于取回事件以及记录的标识)</param>
+        /// <param name="BizId">业务Id(第三方唯一Id，用于取回事件以及记录的标识)</param>
         /// <returns></returns>
 
-        public async Task RunFlowRules(Guid ruleid, object data, Guid creator, EventType type, string BizId)
+        public async Task<List<FlowOperation>> RunFlowRules(Guid ruleid, object data, Guid creator, EventType type, string BizId)
         {
             _allFlows.Clear();
-            var rule = _context.FlowRules.SingleOrDefault(c => c.RuleId == ruleid);
+            var rule = _context.FlowRules.FirstOrDefault(c => c.RuleId == ruleid);
             _allFlows = _context.Flows.Where(c => c.FlowRule == rule).ToList();
             var _event = new BaseEvent()
             {
@@ -53,7 +56,7 @@ namespace IoTSharp.FlowRuleEngine
                 MataData = JsonConvert.SerializeObject(data),
                 FlowRule = rule,
                 Bizid = BizId,
-                Type = type,
+                Type = EventType.TestPurpose,
                 EventStaus = 1
             };
             _context.BaseEvents.Add(_event);
@@ -63,6 +66,8 @@ namespace IoTSharp.FlowRuleEngine
 
             var startoperation = new FlowOperation()
             {
+
+                OperationId =  Guid.NewGuid(),
                 bpmnid = start.bpmnid,
                 AddDate = DateTime.Now,
                 FlowRule = start.FlowRule,
@@ -73,8 +78,7 @@ namespace IoTSharp.FlowRuleEngine
                 Step = 1,
                 BaseEvent = _event
             };
-            _context.FlowOperations.Add(startoperation);
-            await _context.SaveChangesAsync();
+            _allflowoperation.Add(startoperation);
             var nextflows = await ProcessCondition(start.FlowId, data);
             if (nextflows != null)
             {
@@ -82,7 +86,7 @@ namespace IoTSharp.FlowRuleEngine
                 foreach (var item in nextflows)
                 {
                     var flowOperation = new FlowOperation()
-                    {
+                    {   OperationId = Guid.NewGuid(),
                         AddDate = DateTime.Now,
                         FlowRule = item.FlowRule,
                         Flow = item,
@@ -95,77 +99,35 @@ namespace IoTSharp.FlowRuleEngine
                         bpmnid = item.bpmnid,
                         BaseEvent = _event
                     };
-                    _context.FlowOperations.Add(flowOperation);
-                    await _context.SaveChangesAsync();
+                    _allflowoperation.Add(flowOperation);
                     await Process(flowOperation.OperationId, data);
+
+
+                    return _allflowoperation;
                 }
 
             }
-
+            return null;
         }
 
-        private async Task<List<Flow>> ProcessCondition(Guid FlowId, dynamic data)
-        {
-            var flow = _allFlows.SingleOrDefault(c => c.FlowId == FlowId);
-            var flows = _allFlows.Where(c => c.SourceId == flow.bpmnid).ToList();
-            var emptyflow = flows.Where(c => c.Conditionexpression == string.Empty).ToList() ?? new List<Flow>();
-            var tasks = new BaseRuleTask()
-            {
-                Name = flow.Flowname,
-                Eventid = flow.bpmnid,
-                id = flow.bpmnid,
-
-                outgoing = new EditableList<BaseRuleFlow>()
-            };
-            foreach (var item in flows.Except(emptyflow))
-            {
-                var rule = new BaseRuleFlow();
-
-                rule.id = item.bpmnid;
-                rule.Name = item.bpmnid;
-                rule.Eventid = item.bpmnid;
-                rule.Expression = item.Conditionexpression;
-                tasks.outgoing.Add(rule);
-            }
-            if (tasks.outgoing.Count > 0)
-            {
-                SimpleFlowExcutor flowExcutor = new SimpleFlowExcutor();
-                var result = await flowExcutor.Excute(new FlowExcuteEntity()
-                {
-                    //  Action = null,
-                    Params = data,  //交给下一个节点的义数据
-                    Task = tasks,
-                    //   WaitTime = 0
-                });
-                var next = result.Where(c => c.IsSuccess).ToList();
-                foreach (var item in next)
-                {
-                    var nextflow = flows.FirstOrDefault(a => a.bpmnid == item.Rule.SuccessEvent);
-                    emptyflow.Add(nextflow);
-                }
-
-       
-            }
-
-            return emptyflow;
-        }
 
 
         public async Task Process(Guid operationid, object data)
         {
-            var peroperation = _context.FlowOperations.SingleOrDefault(c => c.OperationId == operationid);
+            var peroperation = _allflowoperation.FirstOrDefault(c => c.OperationId == operationid);
             if (peroperation == null
             )
             {
                 return;
             }
-            var flow = _allFlows.SingleOrDefault(c => c.bpmnid == peroperation.Flow.TargetId);
+            var flow = _allFlows.FirstOrDefault(c => c.bpmnid == peroperation.Flow.TargetId);
             switch (flow.FlowType)
             {
                 case "bpmn:SequenceFlow":
-            
+
                     var operation = new FlowOperation()
                     {
+                        OperationId = Guid.NewGuid(),
                         AddDate = DateTime.Now,
                         FlowRule = flow.FlowRule,
                         Flow = flow,
@@ -178,16 +140,16 @@ namespace IoTSharp.FlowRuleEngine
                         bpmnid = flow.bpmnid,
                         BaseEvent = peroperation.BaseEvent
                     };
-                    _context.FlowOperations.Add(operation);
-                    await _context.SaveChangesAsync();
+                    _allflowoperation.Add(operation);
                     await Process(operation.OperationId, data);
                     break;
 
                 case "bpmn:Task":
                     {
-                
+
                         var taskoperation = new FlowOperation()
                         {
+                            OperationId = Guid.NewGuid(),
                             bpmnid = flow.bpmnid,
                             AddDate = DateTime.Now,
                             FlowRule = flow.FlowRule,
@@ -198,8 +160,8 @@ namespace IoTSharp.FlowRuleEngine
                             Step = ++peroperation.Step,
                             BaseEvent = peroperation.BaseEvent
                         };
-                        _context.FlowOperations.Add(taskoperation);
-                        await _context.SaveChangesAsync();
+                        _allflowoperation.Add(taskoperation);
+              
 
                         //脚本处理
                         if (!string.IsNullOrEmpty(flow.NodeProcessScriptType) && !string.IsNullOrEmpty(flow.NodeProcessScript))
@@ -218,12 +180,13 @@ namespace IoTSharp.FlowRuleEngine
                                         {
                                             obj = pse.Do(scriptsrc, taskoperation.Data);
                                         }
-                                        var next =await ProcessCondition(taskoperation.Flow.FlowId, obj);
+                                        var next = await ProcessCondition(taskoperation.Flow.FlowId, obj);
                                         foreach (var item in next)
                                         {
 
                                             var flowOperation = new FlowOperation()
                                             {
+                                                OperationId = Guid.NewGuid(),
                                                 AddDate = DateTime.Now,
                                                 FlowRule = item.FlowRule,
                                                 Flow = item,
@@ -236,8 +199,7 @@ namespace IoTSharp.FlowRuleEngine
                                                 bpmnid = item.bpmnid,
                                                 BaseEvent = taskoperation.BaseEvent
                                             };
-                                            _context.FlowOperations.Add(flowOperation);
-                                            await _context.SaveChangesAsync();
+                                            _allflowoperation.Add(flowOperation);
 
                                             await Process(flowOperation.OperationId, obj);
                                         }
@@ -252,16 +214,17 @@ namespace IoTSharp.FlowRuleEngine
                                         {
                                             string result = js.Do(@"var output=input.Temperature;output = output + 100; return { Temperature:output};", taskoperation.Data);
                                             obj = JsonConvert.DeserializeObject<ExpandoObject>(result);
-                                     
+
 
                                         }
 
-                                        var next =await ProcessCondition(taskoperation.Flow.FlowId, obj);
+                                        var next = await ProcessCondition(taskoperation.Flow.FlowId, obj);
 
                                         foreach (var item in next)
                                         {
                                             var flowOperation = new FlowOperation()
                                             {
+                                                OperationId = Guid.NewGuid(),
                                                 AddDate = DateTime.Now,
                                                 FlowRule = item.FlowRule,
                                                 Flow = item,
@@ -274,8 +237,7 @@ namespace IoTSharp.FlowRuleEngine
                                                 bpmnid = item.bpmnid,
                                                 BaseEvent = taskoperation.BaseEvent
                                             };
-                                            _context.FlowOperations.Add(flowOperation);
-                                            await _context.SaveChangesAsync();
+                                            _allflowoperation.Add(flowOperation);
                                             await Process(flowOperation.OperationId, obj);
                                         }
                                     }
@@ -284,12 +246,13 @@ namespace IoTSharp.FlowRuleEngine
                         }
                         else
                         {
-                            var next =await ProcessCondition(taskoperation.Flow.FlowId, data);
+                            var next = await ProcessCondition(taskoperation.Flow.FlowId, data);
 
                             foreach (var item in next)
                             {
                                 var flowOperation = new FlowOperation()
                                 {
+                                    OperationId = Guid.NewGuid(),
                                     AddDate = DateTime.Now,
                                     FlowRule = item.FlowRule,
                                     Flow = item,
@@ -302,8 +265,8 @@ namespace IoTSharp.FlowRuleEngine
                                     bpmnid = item.bpmnid,
                                     BaseEvent = taskoperation.BaseEvent
                                 };
-                                _context.FlowOperations.Add(flowOperation);
-                                await _context.SaveChangesAsync();
+                                _allflowoperation.Add(flowOperation);
+                        
 
 
 
@@ -370,15 +333,10 @@ namespace IoTSharp.FlowRuleEngine
 
                 case "bpmn:EndEvent":
                     // 合并结束
-                    var end = _context.FlowOperations.FirstOrDefault(c => c.bpmnid == flow.bpmnid && c.BaseEvent.EventId == peroperation.BaseEvent.EventId);
+                    var end = _allflowoperation.FirstOrDefault(c => c.bpmnid == flow.bpmnid && c.BaseEvent.EventId == peroperation.BaseEvent.EventId);
 
                     if (end != null)
                     {
-                        _context.FlowOperations.Update(end);
-                    }
-                    else
-                    {
-                        end = new FlowOperation();
                         end.bpmnid = flow.bpmnid;
                         end.AddDate = DateTime.Now;
                         end.FlowRule = flow.FlowRule;
@@ -386,11 +344,25 @@ namespace IoTSharp.FlowRuleEngine
                         end.Data = JsonConvert.SerializeObject(data);
                         end.NodeStatus = 1;
                         end.OperationDesc = "处理完成";
-                        end.Step = _context.FlowOperations.Where(c => c.BaseEvent.EventId == peroperation.BaseEvent.EventId).Max(c => c.Step) + 1;
+                        end.Step = _allflowoperation.Where(c => c.BaseEvent.EventId == peroperation.BaseEvent.EventId).Max(c => c.Step) + 1;
                         end.BaseEvent = peroperation.BaseEvent;
-                        _context.FlowOperations.Add(end);
                     }
-                    await _context.SaveChangesAsync();
+                    else
+                    {
+                        end = new FlowOperation();
+                        end.OperationId = Guid.NewGuid();
+                        end.bpmnid = flow.bpmnid;
+                        end.AddDate = DateTime.Now;
+                        end.FlowRule = flow.FlowRule;
+                        end.Flow = flow;
+                        end.Data = JsonConvert.SerializeObject(data);
+                        end.NodeStatus = 1;
+                        end.OperationDesc = "处理完成";
+                        end.Step = _allflowoperation.Where(c => c.BaseEvent.EventId == peroperation.BaseEvent.EventId).Max(c => c.Step) + 1;
+                        end.BaseEvent = peroperation.BaseEvent;
+                        _allflowoperation.Add(end);
+                    }
+              
 
                     break;
                 //case "bpmn:StartEvent":
@@ -485,68 +457,57 @@ namespace IoTSharp.FlowRuleEngine
 
                 default:
                     {
-                        //var flows = allflow.Where(c => c.SourceId == flow.bpmnid).ToList();
-                        //var tasks = new BaseRuleTask()
-                        //{
-                        //    Name = flow.Flowname,
-                        //    Eventid = flow.bpmnid,
-                        //    id = flow.bpmnid,
-
-                        //    outgoing = new EditableList<BaseRuleFlow>()
-                        //};
-                        //_context.FlowOperations.Add(new FlowOperation()
-                        //{
-                        //    bpmnid = flow.bpmnid,
-                        //    AddDate = DateTime.Now,
-                        //    RuleId = flow.RuleId,
-                        //    FlowId = flow.FlowId,
-                        //    Data = JsonConvert.SerializeObject(data),
-                        //    NodeStatus = 1,
-                        //    OperationDesc = "执行任务" + flow.Flowname,
-                        //    Step = nextstep,
-                        //    EventId = _eventid
-                        //});
-                        //await _context.SaveChangesAsync();
-                        //nextstep++;
-                        //var emptyflow = flows.Where(c => c.Conditionexpression == string.Empty).ToList();
-                        //foreach (var item in flows.Except(emptyflow))
-                        //{
-                        //    var rule = new BaseRuleFlow();
-                        //    rule.Expression = item.Conditionexpression;
-                        //    rule.id = item.bpmnid;
-                        //    rule.Name = item.Flowname;
-                        //    rule.Eventid = item.bpmnid;
-                        //    tasks.outgoing.Add(rule);
-                        //}
-
-                        //if (tasks.outgoing.Count > 0)
-                        //{
-                        //    SimpleFlowExcutor flowExcutor = new SimpleFlowExcutor();
-                        //    var result = await flowExcutor.Excute(new FlowExcuteEntity()
-                        //    {
-                        //        //  Action = null,
-                        //        Params = data,
-                        //        Task = tasks,
-                        //        //   WaitTime = 0
-
-                        //    });
-                        //    var next = result.Where(c => c.IsSuccess).ToList();
-                        //    foreach (var item in next)
-                        //    {
-                        //        var nextflow = allflow.FirstOrDefault(a => a.bpmnid == item.Rule.SuccessEvent);
-                        //        emptyflow.Add(nextflow);
-
-                        //    }
-                        //}
-
-                        //foreach (var item in emptyflow)
-                        //{
-                        //    await Process(item.FlowId, allflow, data, nextstep, _eventid);
-                        //}
+                       
 
                         break;
                     }
             }
+        }
+
+
+
+        private async Task<List<Flow>> ProcessCondition(Guid FlowId, dynamic data)
+        {
+            var flow = _allFlows.FirstOrDefault(c => c.FlowId == FlowId);
+            var flows = _allFlows.Where(c => c.SourceId == flow.bpmnid).ToList();
+            var emptyflow = flows.Where(c => c.Conditionexpression == string.Empty).ToList() ?? new List<Flow>();
+            var tasks = new BaseRuleTask()
+            {
+                Name = flow.Flowname,
+                Eventid = flow.bpmnid,
+                id = flow.bpmnid,
+                outgoing = new EditableList<BaseRuleFlow>()
+            };
+            foreach (var item in flows.Except(emptyflow))
+            {
+                var rule = new BaseRuleFlow();
+                rule.id = item.bpmnid;
+                rule.Name = item.bpmnid;
+                rule.Eventid = item.bpmnid;
+                rule.Expression = item.Conditionexpression;
+                tasks.outgoing.Add(rule);
+            }
+            if (tasks.outgoing.Count > 0)
+            {
+                SimpleFlowExcutor flowExcutor = new SimpleFlowExcutor();
+                var result = await flowExcutor.Excute(new FlowExcuteEntity()
+                {
+                    //  Action = null,
+                    Params = data,  //交给下一个节点的义数据
+                    Task = tasks,
+                    //   WaitTime = 0
+                });
+                var next = result.Where(c => c.IsSuccess).ToList();
+                foreach (var item in next)
+                {
+                    var nextflow = flows.FirstOrDefault(a => a.bpmnid == item.Rule.SuccessEvent);
+                    emptyflow.Add(nextflow);
+                }
+
+
+            }
+
+            return emptyflow;
         }
     }
 }
