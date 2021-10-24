@@ -15,6 +15,8 @@ namespace IoTSharp.Interpreter
         {
             services.AddTransient<JavaScriptEngine>();
             services.AddTransient<PythonScriptEngine>();
+            services.AddTransient<SQLEngine>();
+            services.AddTransient<LuaScriptEngine>();
             services.Configure<EngineSetting>(configuration);
             return services;
         }

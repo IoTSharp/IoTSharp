@@ -2,8 +2,11 @@
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
 using System;
 using System.Collections.Generic;
+using System.Dynamic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -17,6 +20,7 @@ namespace IoTSharp.Test
         private PythonScriptEngine _python_engine;
         private LuaScriptEngine _lua_engine;
         private CScriptEngine _c_engine;
+        private SQLEngine _sql_engine;
 
         [TestInitialize]
         public void InitTestScriptEngine()
@@ -31,7 +35,7 @@ namespace IoTSharp.Test
             _python_engine = new PythonScriptEngine(lgf.CreateLogger<PythonScriptEngine>(), Options.Create(new Interpreter.EngineSetting() { Timeout = 4 }));
             _lua_engine = new  LuaScriptEngine (lgf.CreateLogger<LuaScriptEngine>(), Options.Create(new Interpreter.EngineSetting() { Timeout = 4 }));
             _c_engine = new CScriptEngine(lgf.CreateLogger<CScriptEngine>(), Options.Create(new Interpreter.EngineSetting() { Timeout = 4 }));
-            
+            _sql_engine=new SQLEngine(lgf.CreateLogger<SQLEngine>(), Options.Create(new Interpreter.EngineSetting() { Timeout = 4 }));
         }
         [TestMethod]
         public void TestJavaScript()
@@ -107,5 +111,16 @@ return    fff:new()
             
             Assert.AreEqual(int.Parse(input) > 38 ? 1 : 0, output);
         }
+        [TestMethod]
+        public void TestSQL()
+        {
+            var sql = "select sex from input where (username=\"李红\")";
+            var input = "[{\"username\":\"张三\",\"sex\":\"男\",\"birthday\":{\"year\":2000,\"month\":6,\"day\":18}},{\"username\":\"李红\",\"sex\":\"女\",\"birthday\":{\"year\":1986,\"month\":9,\"day\":22}}]";
+            string output = _sql_engine.Do(sql,input );
+            dynamic obj = JsonConvert.DeserializeObject<List<ExpandoObject>>(output);
+            Assert.AreEqual(obj[0].sex, "女");
+        }
+        
+
     }
 }

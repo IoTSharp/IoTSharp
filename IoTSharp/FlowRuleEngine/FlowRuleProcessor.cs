@@ -221,6 +221,10 @@ namespace IoTSharp.FlowRuleEngine
                                     }
                                     break;
                                 case "sql":
+                                    using (var pse = _sp.GetRequiredService<SQLEngine>())
+                                    {
+                                        result = pse.Do(scriptsrc, taskoperation.Data);
+                                    }
                                     break;
                                 case "lua":
                                     using (var lua = _sp.GetRequiredService<LuaScriptEngine>())
