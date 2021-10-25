@@ -33,7 +33,6 @@ namespace IoTSharp.Controllers
         /// <summary>
         /// 获取指定租户下的所有客户
         /// </summary>
-        /// <param name="tenantId">租户</param>
         /// <returns></returns>
         [HttpPost("Tenant/{tenantId}")]
         [Authorize(Roles = nameof(UserRole.NormalUser))]

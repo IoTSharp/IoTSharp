@@ -12063,7 +12063,7 @@ namespace IoTSharp.Sdk.Http
         public int DefinitionsStatus { get; set; }
     
         [Newtonsoft.Json.JsonProperty("tasks", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.Collections.Generic.ICollection<Task> Tasks { get; set; }
+        public System.Collections.Generic.ICollection<BaseTask> Tasks { get; set; }
     
         [Newtonsoft.Json.JsonProperty("gateWays", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public System.Collections.Generic.ICollection<GateWay> GateWays { get; set; }
@@ -12120,16 +12120,16 @@ namespace IoTSharp.Sdk.Http
     }
     
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "10.4.1.0 (Newtonsoft.Json v12.0.0.0)")]
-    public partial class Task : BpmnBaseObject
+    public partial class BaseTask : BpmnBaseObject
     {
         public string ToJson()
         {
             return Newtonsoft.Json.JsonConvert.SerializeObject(this, new Newtonsoft.Json.JsonSerializerSettings());
         }
     
-        public static Task FromJson(string data)
+        public static BaseTask FromJson(string data)
         {
-            return Newtonsoft.Json.JsonConvert.DeserializeObject<Task>(data, new Newtonsoft.Json.JsonSerializerSettings());
+            return Newtonsoft.Json.JsonConvert.DeserializeObject<BaseTask>(data, new Newtonsoft.Json.JsonSerializerSettings());
         }
     
     }

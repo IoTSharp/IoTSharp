@@ -284,7 +284,7 @@ namespace IoTSharp.Controllers
         /// <summary>
         /// 返回用户信息
         /// </summary>
-        /// <param name="customerId"></param>
+        /// <param name="Id"></param>
         /// <returns></returns>
         [HttpGet]
         public async Task<ApiResult<UserItemDto>> Get(String Id)
@@ -307,7 +307,6 @@ namespace IoTSharp.Controllers
         /// <summary>
         /// 修改用户信息
         /// </summary>
-        /// <param name="customerId"></param>
         /// <returns></returns>
         [HttpPut]
         public async Task<ApiResult<bool>> Modify(UserItemDto user)
@@ -324,7 +323,6 @@ namespace IoTSharp.Controllers
         /// <summary>
         /// 修改当前用户信息
         /// </summary>
-        /// <param name="customerId"></param>
         /// <returns></returns>
         [HttpPut]
         public async Task<ApiResult<bool>> ModifyMyInfo(UserItemDto user)
@@ -343,7 +341,6 @@ namespace IoTSharp.Controllers
         /// <summary>
         /// 修改当前用户信息
         /// </summary>
-        /// <param name="customerId"></param>
         /// <returns></returns>
         [HttpPut]
         public async Task<ApiResult<bool>> ModifyMyPassword(UserPassword password)

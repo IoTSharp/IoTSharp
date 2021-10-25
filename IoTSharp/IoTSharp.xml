@@ -183,11 +183,17 @@
             设备管理
             </summary>
         </member>
-        <member name="M:IoTSharp.Controllers.DevicesController.GetDevices(IoTSharp.Controllers.Models.DeviceParam)">
+        <member name="M:IoTSharp.Controllers.DevicesController.GetAllDevices(System.Guid)">
             <summary>
             获取指定客户的设备列表
             </summary>
             <param name="customerId"></param>
+            <returns></returns>
+        </member>
+        <member name="M:IoTSharp.Controllers.DevicesController.GetDevices(IoTSharp.Controllers.Models.DeviceParam)">
+            <summary>
+            获取指定客户的设备列表
+            </summary>
             <returns></returns>
         </member>
         <member name="M:IoTSharp.Controllers.DevicesController.GetIdentity(System.Guid)">
