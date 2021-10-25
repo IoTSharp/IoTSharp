@@ -41,7 +41,7 @@
               "src/styles.less"
             ],
             "scripts": ["node_modules/grapesjs/dist/grapes.min.js"],
-            "allowedCommonJsDependencies": ["@antv/g2", "file-saver", "ajv", "ajv-formats", "date-fns", "jquery", "mousetrap"]
+            "allowedCommonJsDependencies": ["@antv/g2", "file-saver", "ajv", "ajv-formats", "date-fns", "jquery", "mousetrap","grapesjs-blocks-basic"]
           },
           "configurations": {
             "production": {

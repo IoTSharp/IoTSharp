@@ -21,7 +21,7 @@ export class FloweventviewComponent implements OnInit, OnDestroy {
   nodes = [];
   @ViewChild('flowview', { static: true })
   flowview: FlowviewerComponent;
-
+  current: 0;
   constructor(private http: _HttpClient,) { }
 
   ngOnDestroy(): void {

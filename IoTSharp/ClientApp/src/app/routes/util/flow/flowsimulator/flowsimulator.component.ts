@@ -19,22 +19,21 @@ export class FlowsimulatorComponent implements OnInit, OnDestroy {
   id: string;
   listOfOption = [];
   obs: Subscription;
-  // @ViewChild('flowtimeline', { static: true })
-  // flowtimeline: NzTimelineComponent;
+
   @ViewChild('flowview', { static: true })
   flowview: FlowviewerComponent;
   @ViewChild('dynamicformview', { static: true })
   dynamicformview: DynamicformviewComponent;
   constructor(
     private http: _HttpClient,
-    private cdr: ChangeDetectorRef, //  private timelineservice: TimelineService
+    private cdr: ChangeDetectorRef, 
   ) {}
   ngOnDestroy(): void {
     if (this.obs) {
       this.obs.unsubscribe();
     }
   }
-  // @ViewChild('TimeLineItemTemplate', { read: TemplateRef }) TimeLineItemTemplate: TemplateRef<any>;
+
   thisisyourtestdataformid: Number = 1;
   steps: any = [];
   nodes = [];
@@ -59,29 +58,6 @@ export class FlowsimulatorComponent implements OnInit, OnDestroy {
       ),
     ).subscribe();
 
-    // this.http.get<appmessage<ruleflow>>('api/rules/get?id=' + this.id).subscribe(
-    //   (next) => {
-    //     this.flowview.diagramdata = next.result;
-
-    //     this.flowview.loadXml();
-    //   },
-    //   (error) => {},
-    //   () => {},
-    // );
-
-    //it's deadend，nothing you can get
-    // let item = new NzTimelineItemComponent(this.cdr, this.timelineservice);
-    // item.borderColor = '#eeeeff';
-    // item.template = this.TimeLineItemTemplate;
-
-    // let item1 = new NzTimelineItemComponent(this.cdr, this.timelineservice);
-    // item1.borderColor = '#eeeeff';
-    // item1.template = this.TimeLineItemTemplate;
-
-    // this.flowtimeline.timelineItems = [...this.flowtimeline.timelineItems, item, item1];
-    // this.cdr.detectChanges();
-
-    // console.log(this.flowtimeline.timelineItems);
   }
   formIdChange(iamnottheformidyouwantit): void {
     this.dynamicformview.id = this.thisisyourtestdataformid;
@@ -124,9 +100,6 @@ export class FlowsimulatorComponent implements OnInit, OnDestroy {
         this.steps = [...this.steps, { addDate: node.addDate, operationDesc: node.operationDesc, nzStatus: 'process',data:node.data }];
       }
 
-      // if (this.nodes.length + 3 == x) {
-      //   this.obs.unsubscribe();
-      // }
     });
   }
 }

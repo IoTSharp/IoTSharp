@@ -105,6 +105,23 @@ export class FloweventsComponent implements OnInit {
     });
   }
 
+  getData() {
+    this.st.req = this.req;
+    this.st.load(this.st.pi);
+  }
+
+  reset() {
+    this.q ==
+      {
+        pi: 0,
+        ps: 10,
+        Name: '',
+        Creator: '',
+        CreatTime: [],
+        sorter: '',
+        status: null,
+      };
+  }
   constructor(
     private http: _HttpClient,
     public msg: NzMessageService,
