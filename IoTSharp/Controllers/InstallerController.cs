@@ -1,23 +1,14 @@
 ﻿using IoTSharp.Data;
 using IoTSharp.Dtos;
-using IoTSharp.Extensions;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
-using Newtonsoft.Json.Linq;
 using System;
-using System.Collections.Generic;
-using System.IO;
-using System.IO.Compression;
 using System.Linq;
-using System.Net.Http;
-using System.Net.Http.Headers;
-using System.Security.Claims;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
-using Silkier.AspNetCore;
 
 namespace IoTSharp.Controllers
 {
@@ -48,6 +39,7 @@ namespace IoTSharp.Controllers
             _context = context;
             _dBInitializer = dBInitializer;
         }
+
         /// <summary>
         /// 检查IoTSharp实例信息
         /// </summary>
@@ -57,18 +49,15 @@ namespace IoTSharp.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesDefaultResponseType]
-        public ActionResult<InstanceDto> Instance()
+        public ApiResult<InstanceDto> Instance()
         {
             try
             {
-                return base.Ok(new ApiResult<InstanceDto>(ApiCode.Success,"Ok", GetInstanceDto()));
+                return new ApiResult<InstanceDto>(ApiCode.Success, "Ok", GetInstanceDto());
             }
             catch (Exception ex)
             {
-
-
-                return base.Ok(new ApiResult<Exception>(ApiCode.Exception, ex.Message, ex));
-              
+                return new ApiResult<InstanceDto>(ApiCode.Exception, ex.Message, null);
             }
         }
 
@@ -79,7 +68,7 @@ namespace IoTSharp.Controllers
 
         [AllowAnonymous]
         [HttpPost]
-        public async Task<ActionResult<InstanceDto>> Install([FromBody] InstallDto model)
+        public async Task<ApiResult<InstanceDto>> Install([FromBody] InstallDto model)
         {
             ActionResult<InstanceDto> actionResult = NoContent();
             try
@@ -89,28 +78,20 @@ namespace IoTSharp.Controllers
                     await _dBInitializer.SeedRoleAsync();
                     await _dBInitializer.SeedUserAsync(model);
                     await _dBInitializer.SeedDictionary();
-               //     await _dBInitializer.SeedI18N();
-              //     actionResult = Ok(GetInstanceDto());
+                    //     await _dBInitializer.SeedI18N();
+                    //     actionResult = Ok(GetInstanceDto());
 
-                    return base.Ok(new ApiResult<InstanceDto>(ApiCode.Success, "Ok", GetInstanceDto()));
+                    return new ApiResult<InstanceDto>(ApiCode.Success, "Ok", GetInstanceDto());
                 }
                 else
                 {
-
-                    return base.Ok(new ApiResult<InstanceDto>(ApiCode.AlreadyExists, "Already installed", GetInstanceDto()));
-                 
+                    return new ApiResult<InstanceDto>(ApiCode.AlreadyExists, "Already installed", GetInstanceDto());
                 }
             }
             catch (Exception ex)
             {
-
-                return base.Ok(new ApiResult<Exception>(ApiCode.Exception, ex.Message, ex));
-              
+                return new ApiResult<InstanceDto>(ApiCode.Exception, ex.Message, null);
             }
-       
         }
-
-
-
     }
 }

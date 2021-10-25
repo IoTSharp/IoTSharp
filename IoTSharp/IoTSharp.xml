@@ -139,6 +139,12 @@
             客户管理
             </summary>
         </member>
+        <member name="M:IoTSharp.Controllers.CustomersController.GetAllCustomers(System.Guid)">
+            <summary>
+            获取指定租户下的所有客户
+            </summary>
+            <returns></returns>
+        </member>
         <member name="M:IoTSharp.Controllers.CustomersController.GetCustomers(IoTSharp.Controllers.Models.CustomerParam)">
             <summary>
             获取指定租户下的所有客户

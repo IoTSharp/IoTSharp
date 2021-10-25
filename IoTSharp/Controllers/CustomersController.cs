@@ -34,6 +34,20 @@ namespace IoTSharp.Controllers
         /// 获取指定租户下的所有客户
         /// </summary>
         /// <returns></returns>
+        [HttpPost("Tenant/{tenantId}/All")]
+        [Authorize(Roles = nameof(UserRole.NormalUser))]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ApiResult), StatusCodes.Status404NotFound)]
+        [ProducesDefaultResponseType]
+        public async Task<ApiResult<List<Customer>>> GetAllCustomers([FromRoute]  Guid tenantId)
+        {
+            return new ApiResult<List<Customer>>(ApiCode.Success, "OK", await _context.Customer.Where(c=>c.Tenant.Id== tenantId ).ToListAsync());
+        }
+
+        /// <summary>
+        /// 获取指定租户下的所有客户
+        /// </summary>
+        /// <returns></returns>
         [HttpPost("Tenant/{tenantId}")]
         [Authorize(Roles = nameof(UserRole.NormalUser))]
         [ProducesResponseType(StatusCodes.Status200OK)]
