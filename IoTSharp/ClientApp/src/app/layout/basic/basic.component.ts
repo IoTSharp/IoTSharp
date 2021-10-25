@@ -6,7 +6,7 @@ import { environment } from '@env/environment';
 @Component({
   selector: 'layout-basic',
   template: `
-    <layout-default [options]="options" [asideUser]="asideUserTpl" [content]="contentTpl">
+    <layout-default [options]="options" [content]="contentTpl">
       <layout-default-header-item direction="left">
         <a layout-default-header-item-trigger href="//github.com/IoTSharp/IoTSharp" target="_blank">
           <i nz-icon nzType="github"></i>

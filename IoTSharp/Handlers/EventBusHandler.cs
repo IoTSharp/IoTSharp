@@ -37,11 +37,11 @@ namespace IoTSharp.Handlers
         readonly ILogger _logger;
         private readonly IServiceScopeFactory _scopeFactor;
         private readonly IStorage _storage;
-        private readonly FlowRuleProcessor _flowRuleProcessor;
+        private readonly FlowRuleProcessorV2 _flowRuleProcessor;
         private readonly IEasyCachingProvider _caching;
 
         public EventBusHandler(ILogger<EventBusHandler> logger, IServiceScopeFactory scopeFactor
-           , IOptions<AppSettings> options, IStorage storage, FlowRuleProcessor flowRuleProcessor, IEasyCachingProviderFactory factory
+           , IOptions<AppSettings> options, IStorage storage, FlowRuleProcessorV2 flowRuleProcessor, IEasyCachingProviderFactory factory
             )
         {
             _appSettings = options.Value;

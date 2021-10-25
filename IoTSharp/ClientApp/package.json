@@ -68,6 +68,7 @@
     "ajv": "^8.1.0",
     "angular-baidu-maps": "^11.1.0",
     "angular-draggable-droppable": "^4.6.0",
+    "babel-loader": "^7.1.5",
     "bpmn-js": "^8.1.0",
     "file-saver": "^2.0.5",
     "grapesjs": "^0.17.26",

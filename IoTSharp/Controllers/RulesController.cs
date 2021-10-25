@@ -33,10 +33,10 @@ namespace IoTSharp.Controllers
     public class RulesController : ControllerBase
     {
         private ApplicationDbContext _context;
-        private readonly FlowRuleProcessor _flowRuleProcessor;
+        private readonly FlowRuleProcessorV2 _flowRuleProcessor;
         private UserManager<IdentityUser> _userManager;
 
-        public RulesController(ApplicationDbContext context, UserManager<IdentityUser> userManager, FlowRuleProcessor flowRuleProcessor)
+        public RulesController(ApplicationDbContext context, UserManager<IdentityUser> userManager, FlowRuleProcessorV2 flowRuleProcessor)
         {
             this._userManager = userManager;
             this._context = context;
@@ -874,8 +874,8 @@ namespace IoTSharp.Controllers
             var testabizId = Guid.NewGuid().ToString(); //根据业务保存起来，用来查询执行事件和步骤
           //  await _flowRuleProcessor.RunFlowRules(ruleid, d, profile.Id, EventType.TestPurpose, testabizId);
 
-            FlowRuleProcessorV2 ruleProcessorV2 = new FlowRuleProcessorV2(this._context);
-       var   result=  await  ruleProcessorV2.RunFlowRules(ruleid, d, profile.Id, EventType.TestPurpose, testabizId);
+      //      FlowRuleProcessorV2 ruleProcessorV2 = new FlowRuleProcessorV2(this._context);
+       var   result=  await _flowRuleProcessor.RunFlowRules(ruleid, d, profile.Id, EventType.TestPurpose, testabizId);
 
             //应该由事件总线去通知
             return new ApiResult<dynamic>(ApiCode.Success, "test complete", result.OrderBy(c => c.Step).

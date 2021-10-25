@@ -17,20 +17,21 @@ namespace IoTSharp.FlowRuleEngine
     {
         private readonly IServiceProvider _sp;
         private readonly ApplicationDbContext _context;
-        private readonly ILogger<FlowRuleProcessor> _logger;
+        private readonly ILogger<FlowRuleProcessorV2> _logger;
         private readonly AppSettings _setting;
         private List<Flow> _allFlows = new List<Flow>();
 
         private List<FlowOperation> _allflowoperation = new List<FlowOperation>();
         public FlowRuleProcessorV2(
 
-            ApplicationDbContext context)
+            ApplicationDbContext context, ILogger<FlowRuleProcessorV2> logger, IServiceScopeFactory scopeFactor, IOptions<AppSettings> options)
         {
-         
+            _sp = scopeFactor.CreateScope().ServiceProvider;
             _context = context;
-         
+            _logger = logger;
+            _setting = options.Value;
         }
-   
+
 
         /// <summary>
         /// 
@@ -40,7 +41,7 @@ namespace IoTSharp.FlowRuleEngine
         /// <param name="creator">创建者(可以是模拟器(测试)，可以是设备，在EventType中区分一下)</param>
         /// <param name="type">类型</param>
         /// <param name="BizId">业务Id(第三方唯一Id，用于取回事件以及记录的标识)</param>
-        /// <returns></returns>
+        /// <returns> 返回所有节点的记录信息，需要保存则保存</returns>
 
         public async Task<List<FlowOperation>> RunFlowRules(Guid ruleid, object data, Guid creator, EventType type, string BizId)
         {
@@ -56,7 +57,7 @@ namespace IoTSharp.FlowRuleEngine
                 MataData = JsonConvert.SerializeObject(data),
                 FlowRule = rule,
                 Bizid = BizId,
-                Type = EventType.TestPurpose,
+                Type = type,
                 EventStaus = 1
             };
             _context.BaseEvents.Add(_event);
@@ -67,7 +68,7 @@ namespace IoTSharp.FlowRuleEngine
             var startoperation = new FlowOperation()
             {
 
-                OperationId =  Guid.NewGuid(),
+                OperationId = Guid.NewGuid(),
                 bpmnid = start.bpmnid,
                 AddDate = DateTime.Now,
                 FlowRule = start.FlowRule,
@@ -86,7 +87,8 @@ namespace IoTSharp.FlowRuleEngine
                 foreach (var item in nextflows)
                 {
                     var flowOperation = new FlowOperation()
-                    {   OperationId = Guid.NewGuid(),
+                    {
+                        OperationId = Guid.NewGuid(),
                         AddDate = DateTime.Now,
                         FlowRule = item.FlowRule,
                         Flow = item,
@@ -161,7 +163,7 @@ namespace IoTSharp.FlowRuleEngine
                             BaseEvent = peroperation.BaseEvent
                         };
                         _allflowoperation.Add(taskoperation);
-              
+
 
                         //脚本处理
                         if (!string.IsNullOrEmpty(flow.NodeProcessScriptType) && !string.IsNullOrEmpty(flow.NodeProcessScript))
@@ -175,11 +177,111 @@ namespace IoTSharp.FlowRuleEngine
                                     break;
                                 case "python":
                                     {
+
+
                                         dynamic obj = null;
                                         using (var pse = _sp.GetRequiredService<PythonScriptEngine>())
                                         {
                                             obj = pse.Do(scriptsrc, taskoperation.Data);
                                         }
+
+                                        if (obj != null)
+                                        {
+                                            var next = await ProcessCondition(taskoperation.Flow.FlowId, obj);
+                                            foreach (var item in next)
+                                            {
+                                                var flowOperation = new FlowOperation()
+                                                {
+                                                    OperationId = Guid.NewGuid(),
+                                                    AddDate = DateTime.Now,
+                                                    FlowRule = item.FlowRule,
+                                                    Flow = item,
+                                                    Data = JsonConvert.SerializeObject(data),
+                                                    NodeStatus = 1,
+                                                    OperationDesc = "执行条件（" + (string.IsNullOrEmpty(item.Conditionexpression)
+                                                        ? "空条件"
+                                                        : item.Conditionexpression) + ")",
+                                                    Step = taskoperation.Step++,
+                                                    bpmnid = item.bpmnid,
+                                                    BaseEvent = taskoperation.BaseEvent
+                                                };
+                                                _allflowoperation.Add(flowOperation);
+                                                await Process(flowOperation.OperationId, obj);
+                                            }
+
+                                        }
+                                        else
+                                        {
+                                            taskoperation.OperationDesc = "脚本执行异常";
+                                            taskoperation.NodeStatus = 2;
+                                        }
+                                    }
+                                    break;
+                                case "sql":
+                                    {
+                                        dynamic obj = null;
+                                        using (var pse = _sp.GetRequiredService<SQLEngine>())
+                                        {
+                                            obj = pse.Do(scriptsrc, taskoperation.Data);
+                                        }
+
+                                        var next = await ProcessCondition(taskoperation.Flow.FlowId, obj);
+
+
+                                        if (obj!=null)
+                                        {
+                                            foreach (var item in next)
+                                            {
+
+                                                var flowOperation = new FlowOperation()
+                                                {
+                                                    OperationId = Guid.NewGuid(),
+                                                    AddDate = DateTime.Now,
+                                                    FlowRule = item.FlowRule,
+                                                    Flow = item,
+                                                    Data = JsonConvert.SerializeObject(data),
+                                                    NodeStatus = 1,
+                                                    OperationDesc = "执行条件（" + (string.IsNullOrEmpty(item.Conditionexpression)
+                                                        ? "空条件"
+                                                        : item.Conditionexpression) + ")",
+                                                    Step = taskoperation.Step++,
+                                                    bpmnid = item.bpmnid,
+                                                    BaseEvent = taskoperation.BaseEvent
+                                                };
+                                                _allflowoperation.Add(flowOperation);
+
+                                                await Process(flowOperation.OperationId, obj);
+                                            }
+
+
+                                        }
+                                        else
+                                        {
+                                            taskoperation.OperationDesc = "脚本执行异常";
+                                            taskoperation.NodeStatus = 2;
+                                        }
+
+
+
+                                    }
+
+                                    break;
+                                case "lua":
+                                    {
+                                        dynamic obj = null;
+
+                                        using (var lua = _sp.GetRequiredService<LuaScriptEngine>())
+                                        {
+                                            obj = lua.Do(scriptsrc, taskoperation.Data);
+                                        }
+
+
+                                        if (obj != null)
+                                        {
+
+
+                               
+
                                         var next = await ProcessCondition(taskoperation.Flow.FlowId, obj);
                                         foreach (var item in next)
                                         {
@@ -203,42 +305,65 @@ namespace IoTSharp.FlowRuleEngine
 
                                             await Process(flowOperation.OperationId, obj);
                                         }
+                                        }
+                                        else
+                                        {
+
+                                            taskoperation.OperationDesc = "脚本执行异常";
+                                            taskoperation.NodeStatus = 2;
+                                        }
+
                                     }
+
+
                                     break;
-                                case "sql":
-                                    break;
+
+
+
                                 case "javascript":
                                     {
                                         ExpandoObject obj = null;
                                         using (var js = _sp.GetRequiredService<JavaScriptEngine>())
                                         {
-                                            string result = js.Do(@"var output=input.Temperature;output = output + 100; return { Temperature:output};", taskoperation.Data);
+                                            string result = js.Do(scriptsrc, taskoperation.Data);
                                             obj = JsonConvert.DeserializeObject<ExpandoObject>(result);
 
 
                                         }
 
-                                        var next = await ProcessCondition(taskoperation.Flow.FlowId, obj);
-
-                                        foreach (var item in next)
+                                        if (obj != null)
                                         {
-                                            var flowOperation = new FlowOperation()
+
+                                            var next = await ProcessCondition(taskoperation.Flow.FlowId, obj);
+
+                                            foreach (var item in next)
                                             {
-                                                OperationId = Guid.NewGuid(),
-                                                AddDate = DateTime.Now,
-                                                FlowRule = item.FlowRule,
-                                                Flow = item,
-                                                Data = JsonConvert.SerializeObject(obj),
-                                                NodeStatus = 1,
-                                                OperationDesc = "执行条件（" + (string.IsNullOrEmpty(item.Conditionexpression)
-                                                    ? "空条件"
-                                                    : item.Conditionexpression) + ")",
-                                                Step = ++taskoperation.Step,
-                                                bpmnid = item.bpmnid,
-                                                BaseEvent = taskoperation.BaseEvent
-                                            };
-                                            _allflowoperation.Add(flowOperation);
-                                            await Process(flowOperation.OperationId, obj);
+                                                var flowOperation = new FlowOperation()
+                                                {
+                                                    OperationId = Guid.NewGuid(),
+                                                    AddDate = DateTime.Now,
+                                                    FlowRule = item.FlowRule,
+                                                    Flow = item,
+                                                    Data = JsonConvert.SerializeObject(obj),
+                                                    NodeStatus = 1,
+                                                    OperationDesc = "执行条件（" +
+                                                                    (string.IsNullOrEmpty(item.Conditionexpression)
+                                                                        ? "空条件"
+                                                                        : item.Conditionexpression) + ")",
+                                                    Step = ++taskoperation.Step,
+                                                    bpmnid = item.bpmnid,
+                                                    BaseEvent = taskoperation.BaseEvent
+                                                };
+                                                _allflowoperation.Add(flowOperation);
+                                                await Process(flowOperation.OperationId, obj);
+                                            }
+                                        }
+                                        else
+                                        {
+
+                                            taskoperation.OperationDesc = "脚本执行异常";
+                                            taskoperation.NodeStatus = 2;
+
                                         }
                                     }
                                     break;
@@ -266,7 +391,7 @@ namespace IoTSharp.FlowRuleEngine
                                     BaseEvent = taskoperation.BaseEvent
                                 };
                                 _allflowoperation.Add(flowOperation);
-                        
+
 
 
 
@@ -362,7 +487,7 @@ namespace IoTSharp.FlowRuleEngine
                         end.BaseEvent = peroperation.BaseEvent;
                         _allflowoperation.Add(end);
                     }
-              
+
 
                     break;
                 //case "bpmn:StartEvent":
@@ -434,7 +559,7 @@ namespace IoTSharp.FlowRuleEngine
                 //    break;
                 // //
 
-                //没有终结点的节点必须
+                //没有终结点的节点必须留个空标签
                 case "label":
 
                     break;
@@ -457,7 +582,7 @@ namespace IoTSharp.FlowRuleEngine
 
                 default:
                     {
-                       
+
 
                         break;
                     }

@@ -31,11 +31,11 @@ namespace IoTSharp.Handlers
         private readonly IEasyCachingProviderFactory _factory;
         readonly IMqttServerEx _serverEx;
         private readonly ICapPublisher _queue;
-        private readonly FlowRuleProcessor _flowRuleProcessor;
+        private readonly FlowRuleProcessorV2 _flowRuleProcessor;
         private readonly IEasyCachingProvider _caching;
         readonly MqttClientSetting _mcsetting;
         public MQTTServerHandler(ILogger<MQTTServerHandler> logger, IServiceScopeFactory scopeFactor, IMqttServerEx serverEx
-           , IOptions<AppSettings> options, ICapPublisher queue, IEasyCachingProviderFactory factory, FlowRuleProcessor flowRuleProcessor
+           , IOptions<AppSettings> options, ICapPublisher queue, IEasyCachingProviderFactory factory, FlowRuleProcessorV2 flowRuleProcessor
             )
         {
             _mcsetting = options.Value.MqttClient;

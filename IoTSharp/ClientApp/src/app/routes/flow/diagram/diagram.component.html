@@ -62,14 +62,15 @@
             [ngModelOptions]="{ standalone: true }"
             (ngModelChange)="flowscripttypeChange($event)"
           >
-            <nz-option nzValue="csharp" nzLabel="csharp"></nz-option>
             <nz-option nzValue="javascript" nzLabel="javascript"></nz-option>
             <nz-option nzValue="python" nzLabel="python"></nz-option>
-            <nz-option nzValue="bat" nzLabel="bat"></nz-option>
-            <nz-option nzValue="xml" nzLabel="xml"></nz-option>
             <nz-option nzValue="sql" nzLabel="sql"></nz-option>
-            <nz-option nzValue="json" nzLabel="json"></nz-option>
-          
+            <nz-option nzValue="lua" nzLabel="lua"></nz-option>
+            <nz-option nzValue="csharp" nzLabel="csharp" [nzDisabled]="true"></nz-option>
+            <nz-option nzValue="json" nzLabel="json"[nzDisabled]="true"></nz-option>
+            <nz-option  nzValue="bat" nzLabel="bat" [nzDisabled]="true"></nz-option>
+            <nz-option nzValue="xml" nzLabel="xml" [nzDisabled]="true"></nz-option>
+
           </nz-select>
         </se>
 
