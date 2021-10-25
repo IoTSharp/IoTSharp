@@ -48,7 +48,8 @@ namespace IoTSharp.Sdk.Http
             try
             {
                 _act_client = Create<AccountClient>();
-                _result = await _act_client.RegisterAsync( new RegisterDto() {   Customer= customer, Email= username, Password=password, PhoneNumber= phoneNumber });
+             var    apiresult = await _act_client.RegisterAsync( new RegisterDto() {   Customer= customer, Email= username, Password=password, PhoneNumber= phoneNumber });
+                _result = apiresult.Data;
                 HttpClient.DefaultRequestHeaders.Add("Authorization", $"Bearer {Token.Access_token}");
                 ApiResultOfUserInfoDto userInfoDto = await _act_client.MyInfoAsync();
                 MyInfo = userInfoDto.Data;
@@ -64,10 +65,15 @@ namespace IoTSharp.Sdk.Http
             try
             {
                 _act_client = Create<AccountClient>();
-                _result = await _act_client.LoginAsync(new LoginDto() { UserName = username, Password = password });
-                HttpClient.DefaultRequestHeaders.Add("Authorization", $"Bearer {Token.Access_token}");
-                ApiResultOfUserInfoDto userInfoDto = await _act_client.MyInfoAsync();
-                MyInfo = userInfoDto.Data;
+                var apiResultOfLoginResult = await _act_client.LoginAsync(new LoginDto() { UserName = username, Password = password });
+                if (apiResultOfLoginResult.Code == (int)ApiCode.Success)
+                {
+
+                    _result = apiResultOfLoginResult.Data;
+                    HttpClient.DefaultRequestHeaders.Add("Authorization", $"Bearer {Token.Access_token}");
+                    ApiResultOfUserInfoDto userInfoDto = await _act_client.MyInfoAsync();
+                    MyInfo = userInfoDto.Data;
+                }
             }
             catch (Exception ex)
             {
