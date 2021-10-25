@@ -55,10 +55,23 @@ namespace IoTSharp.Controllers
         [ProducesDefaultResponseType]
         public async Task<ApiResult<PagedData<Customer>>> GetCustomers([FromBody] CustomerParam m)
         {
+
+            Expression<Func<Customer, bool>> condition = x => x.Tenant.Id ==m.tenantId;
+
+            //var f = from c in _context.Customer where c.Tenant.Id == select c;
+            //if (!f.Any())
+            //{
+            //    return NotFound(new ApiResult(ApiCode.NotFoundCustomer, "This tenant does not have any customers"));
+            //}
+            //else
+            //{
+            //    return await f.ToArrayAsync();
+            //}
+
             return new ApiResult<PagedData<Customer>>(ApiCode.Success, "OK", new PagedData<Customer>
             {
-                total = await _context.Customer.CountAsync(x => x.Tenant.Id == m.tenantId),
-                rows = await _context.Customer.OrderByDescending(c => c.Id).Where(x => x.Tenant.Id == m.tenantId).Skip((m.offset) * m.limit).Take(m.limit).ToListAsync()
+                total = await _context.Customer.CountAsync(condition),
+                rows =await _context.Customer.OrderByDescending(c => c.Id).Where(condition).Skip((m.offset) * m.limit).Take(m.limit).ToListAsync()
             });
         }
 
