@@ -33,10 +33,10 @@ namespace IoTSharp.Controllers
     public class RulesController : ControllerBase
     {
         private ApplicationDbContext _context;
-        private readonly FlowRuleProcessorV2 _flowRuleProcessor;
+        private readonly FlowRuleProcessor _flowRuleProcessor;
         private UserManager<IdentityUser> _userManager;
 
-        public RulesController(ApplicationDbContext context, UserManager<IdentityUser> userManager, FlowRuleProcessorV2 flowRuleProcessor)
+        public RulesController(ApplicationDbContext context, UserManager<IdentityUser> userManager, FlowRuleProcessor flowRuleProcessor)
         {
             this._userManager = userManager;
             this._context = context;
@@ -385,7 +385,7 @@ namespace IoTSharp.Controllers
 
             activity.SequenceFlows ??= new List<SequenceFlow>();
             activity.GateWays ??= new List<GateWay>();
-            activity.Tasks ??= new List<IoTSharp.Models.Rule.Task>();
+            activity.Tasks ??= new List<IoTSharp.Models.Rule.BaseTask>();
             activity.LaneSet ??= new List<BpmnBaseObject>();
             activity.EndEvents ??= new List<BpmnBaseObject>();
             activity.StartEvents ??= new List<BpmnBaseObject>();
@@ -566,7 +566,7 @@ namespace IoTSharp.Controllers
                     case "bpmn:Task":
                         activity.Tasks.Add(
 
-                            new IoTSharp.Models.Rule.Task
+                            new IoTSharp.Models.Rule.BaseTask
                             {
                                 id = item.bpmnid,
                                 Flowname = item.Flowname,
@@ -586,7 +586,7 @@ namespace IoTSharp.Controllers
                     case "bpmn:BusinessRuleTask":
                         activity.Tasks.Add(
 
-                            new IoTSharp.Models.Rule.Task
+                            new IoTSharp.Models.Rule.BaseTask
                             {
                                 Flowname = item.Flowname,
                                 id = item.bpmnid,
@@ -606,7 +606,7 @@ namespace IoTSharp.Controllers
                     case "bpmn:ReceiveTask":
                         activity.Tasks.Add(
 
-                            new IoTSharp.Models.Rule.Task
+                            new IoTSharp.Models.Rule.BaseTask
                             {
                                 Flowname = item.Flowname,
                                 id = item.bpmnid,
@@ -624,7 +624,7 @@ namespace IoTSharp.Controllers
                     case "bpmn:UserTask":
                         activity.Tasks.Add(
 
-                            new IoTSharp.Models.Rule.Task
+                            new IoTSharp.Models.Rule.BaseTask
                             {
                                 Flowname = item.Flowname,
                                 id = item.bpmnid,
@@ -644,7 +644,7 @@ namespace IoTSharp.Controllers
                     case "bpmn:ServiceTask":
                         activity.Tasks.Add(
 
-                            new IoTSharp.Models.Rule.Task
+                            new IoTSharp.Models.Rule.BaseTask
                             {
                                 Flowname = item.Flowname,
                                 id = item.bpmnid,
@@ -664,7 +664,7 @@ namespace IoTSharp.Controllers
                     case "bpmn:ManualTask":
                         activity.Tasks.Add(
 
-                            new IoTSharp.Models.Rule.Task
+                            new IoTSharp.Models.Rule.BaseTask
                             {
                                 Flowname = item.Flowname,
                                 id = item.bpmnid,
@@ -684,7 +684,7 @@ namespace IoTSharp.Controllers
                     case "bpmn:SendTask":
                         activity.Tasks.Add(
 
-                            new IoTSharp.Models.Rule.Task
+                            new IoTSharp.Models.Rule.BaseTask
                             {
                                 Flowname = item.Flowname,
                                 id = item.bpmnid,
@@ -704,7 +704,7 @@ namespace IoTSharp.Controllers
                     case "bpmn:CallActivity":
                         activity.Tasks.Add(
 
-                            new IoTSharp.Models.Rule.Task
+                            new IoTSharp.Models.Rule.BaseTask
                             {
                                 Flowname = item.Flowname,
                                 id = item.bpmnid,
@@ -874,7 +874,7 @@ namespace IoTSharp.Controllers
             var testabizId = Guid.NewGuid().ToString(); //根据业务保存起来，用来查询执行事件和步骤
           //  await _flowRuleProcessor.RunFlowRules(ruleid, d, profile.Id, EventType.TestPurpose, testabizId);
 
-      //      FlowRuleProcessorV2 ruleProcessorV2 = new FlowRuleProcessorV2(this._context);
+      //      FlowRuleProcessor ruleProcessorV2 = new FlowRuleProcessor(this._context);
        var   result=  await _flowRuleProcessor.RunFlowRules(ruleid, d, profile.Id, EventType.TestPurpose, testabizId);
 
             //应该由事件总线去通知

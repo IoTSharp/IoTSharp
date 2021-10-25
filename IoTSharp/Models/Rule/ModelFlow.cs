@@ -11,7 +11,7 @@ namespace IoTSharp.Models.Rule
         public string DefinitionsDesc { get; set; }
         public string DefinitionsName { get; set; }
         public int DefinitionsStatus { get; set; }
-        public List<Task> Tasks { get; set; }
+        public List<BaseTask> Tasks { get; set; }
         public List<GateWay> GateWays { get; set; }
         public List<SequenceFlow> SequenceFlows { get; set; }
         public List<BpmnBaseObject> LaneSet { get; set; }
@@ -28,7 +28,7 @@ namespace IoTSharp.Models.Rule
         public string Xml { get; set; }
 
     }
-    public class Task : BpmnBaseObject
+    public class BaseTask : BpmnBaseObject
     {
     
     }

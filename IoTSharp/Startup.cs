@@ -378,7 +378,7 @@ namespace IoTSharp
                 configuration.RootPath = "ClientApp/dist";
             });
             services.AddScriptEngines(Configuration.GetSection("EngineSetting"));
-            services.AddTransient<FlowRuleProcessorV2>();
+            services.AddTransient<FlowRuleProcessor>();
         }
 
 
