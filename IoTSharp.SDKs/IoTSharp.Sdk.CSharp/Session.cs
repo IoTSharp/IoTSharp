@@ -26,6 +26,10 @@ namespace IoTSharp.Sdk.Http
         {
             return new Session(result);
         }
+        public static implicit operator Session(ApiResultOfLoginResult result)
+        {
+            return new Session(result.Data);
+        }
         public static explicit operator LoginResult(Session result)
         {
             return (LoginResult) result;

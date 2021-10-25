@@ -2,6 +2,7 @@
 
 namespace IoTSharp.Sdk.Http
 {
+
     public class InstallRresult
     {
         public string result { get; set; }

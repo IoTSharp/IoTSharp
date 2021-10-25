@@ -31,7 +31,7 @@ namespace IoTSharp.Sdk.Http
                         _display = storage.Value_Boolean.ToString();
                         break;
                     case DataType.DateTime:
-                     if (storage.Value_DateTime!=DateTime.MinValue)   _display = storage.Value_DateTime.ToString("yyyy-MM-dd HH:mm:ss");
+                     if (storage.Value_DateTime!=DateTime.MinValue)   _display = storage.Value_DateTime?.ToString("yyyy-MM-dd HH:mm:ss");
                         break;
                     case DataType.Double:
                         _display = storage.Value_Double.ToString();
