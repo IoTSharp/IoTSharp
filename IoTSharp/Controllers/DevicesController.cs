@@ -62,8 +62,8 @@ namespace IoTSharp.Controllers
         /// </summary>
         /// <param name="customerId"></param>
         /// <returns></returns>
-        // GET: api/Devices
-        [HttpGet("Customers")]
+        // GET: api/Customers/All
+        [HttpGet("Devices/Customers/All")]
         [Authorize(Roles = nameof(UserRole.NormalUser))]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ApiResult<Guid>), StatusCodes.Status404NotFound)]
@@ -85,7 +85,7 @@ namespace IoTSharp.Controllers
         /// 获取指定客户的设备列表
         /// </summary>
         /// <returns></returns>
-        // GET: api/Devices
+        // GET: api/Devices/Customers
         [HttpGet("Customers")]
         [Authorize(Roles = nameof(UserRole.NormalUser))]
         [ProducesResponseType(StatusCodes.Status200OK)]
@@ -589,8 +589,6 @@ namespace IoTSharp.Controllers
                 {
                     var attributes = from dev in _context.AttributeLatest where dev.DeviceId == deviceId select dev;
                     var fs = from at in await attributes.ToListAsync() where at.DataSide == dataSide && keys.Split(',', options: StringSplitOptions.RemoveEmptyEntries).Contains(at.KeyName) select at;
-                    return Ok(fs.ToArray());
-
                     return Ok(new ApiResult<AttributeLatest[]>(ApiCode.Success, "Ok", fs.ToArray()));
                 }
                 catch (Exception ex)
@@ -635,9 +633,9 @@ namespace IoTSharp.Controllers
         [HttpGet("SessionStatus")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesDefaultResponseType]
-        public async Task<ActionResult<IList<IMqttSessionStatus>>> GetSessionStatus(Guid deviceId)
+        public async Task<ApiResult<IList<IMqttSessionStatus>>> GetSessionStatus(Guid deviceId)
         {
-            return Ok(new ApiResult<IList<IMqttSessionStatus>>(ApiCode.Success, "OK", await _serverEx.GetSessionStatusAsync()));
+            return new ApiResult<IList<IMqttSessionStatus>>(ApiCode.Success, "OK", await _serverEx.GetSessionStatusAsync());
         }
         /// <summary>
         /// SessionStatus
@@ -648,9 +646,9 @@ namespace IoTSharp.Controllers
         [HttpGet("ClientStatus")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesDefaultResponseType]
-        public async Task<ActionResult<IList<IMqttClientStatus>>> GetClientStatus(Guid deviceId)
+        public async Task<ApiResult<IList<IMqttClientStatus>>> GetClientStatus(Guid deviceId)
         {
-            return Ok(new ApiResult<IList<IMqttClientStatus>>(ApiCode.Success, "OK", await _serverEx.GetClientStatusAsync()));
+            return new ApiResult<IList<IMqttClientStatus>>(ApiCode.Success, "OK", await _serverEx.GetClientStatusAsync());
         }
     }
 }

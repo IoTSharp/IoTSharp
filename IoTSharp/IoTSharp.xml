@@ -95,28 +95,25 @@
             <summary>
             返回用户信息
             </summary>
-            <param name="customerId"></param>
+            <param name="Id"></param>
             <returns></returns>
         </member>
         <member name="M:IoTSharp.Controllers.AccountController.Modify(IoTSharp.Dtos.UserItemDto)">
             <summary>
             修改用户信息
             </summary>
-            <param name="customerId"></param>
             <returns></returns>
         </member>
         <member name="M:IoTSharp.Controllers.AccountController.ModifyMyInfo(IoTSharp.Dtos.UserItemDto)">
             <summary>
             修改当前用户信息
             </summary>
-            <param name="customerId"></param>
             <returns></returns>
         </member>
         <member name="M:IoTSharp.Controllers.AccountController.ModifyMyPassword(IoTSharp.Dtos.UserPassword)">
             <summary>
             修改当前用户信息
             </summary>
-            <param name="customerId"></param>
             <returns></returns>
         </member>
         <member name="T:IoTSharp.Controllers.AuthorizedKeysController">
@@ -146,7 +143,6 @@
             <summary>
             获取指定租户下的所有客户
             </summary>
-            <param name="tenantId">租户</param>
             <returns></returns>
         </member>
         <member name="M:IoTSharp.Controllers.CustomersController.GetCustomer(System.Guid)">
