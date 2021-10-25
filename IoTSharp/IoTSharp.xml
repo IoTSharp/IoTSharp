@@ -368,6 +368,13 @@
             this is test purpose
             </summary>
         </member>
+        <member name="M:IoTSharp.Controllers.RulesController.FlowEvents(IoTSharp.Controllers.Models.EventParam)">
+             <summary>
+            
+             </summary>
+             <param name="m"></param>
+             <returns></returns>
+        </member>
         <member name="T:IoTSharp.Controllers.TenantsController">
             <summary>
             租户管理

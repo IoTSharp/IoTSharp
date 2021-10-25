@@ -58,6 +58,8 @@ import { ClipboardModule } from 'ngx-clipboard';
 import { DevicetokendialogComponent } from './device/devicetokendialog/devicetokendialog.component';
 import { ScriptlistComponent } from './flow/scriptlist/scriptlist.component';
 import { ComponentlistComponent } from './flow/componentlist/componentlist.component';
+import { FloweventsComponent } from './flow/flowevents/flowevents.component';
+import { FloweventviewComponent } from './flow/floweventview/floweventview.component';
 
 const COMPONENTS: Type<null>[] = [];
 const Directive: Type<void>[] = [fielddirective, controldirective];
@@ -114,6 +116,8 @@ const Directive: Type<void>[] = [fielddirective, controldirective];
       DevicetokendialogComponent,
       ScriptlistComponent,
       ComponentlistComponent,
+      FloweventsComponent,
+      FloweventviewComponent,
   ],
 })
 export class RoutesModule {

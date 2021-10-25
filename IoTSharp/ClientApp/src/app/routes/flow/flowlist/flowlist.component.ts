@@ -24,9 +24,9 @@ export class FlowlistComponent implements OnInit {
     private _router: Router,
     private drawerService: NzDrawerService,
     private settingService: SettingsService,
-    aclSrv: ACLService,
+    
   ) {
-    aclSrv.setFull(false);
+
   }
 
   page: STPage = {

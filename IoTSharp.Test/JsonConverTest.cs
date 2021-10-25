@@ -1,10 +1,8 @@
 ﻿using IoTSharp.Extensions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Newtonsoft.Json.Linq;
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 
 namespace IoTSharp.Test
 {
@@ -14,16 +12,17 @@ namespace IoTSharp.Test
         [TestMethod]
         public void TestJsonObject()
         {
-            var jojb =JToken.Parse ("{\"aaa\":\"bbb\"}");
+            var jojb = JToken.Parse("{\"aaa\":\"bbb\"}");
             Dictionary<string, object> keyValues = new Dictionary<string, object>();
             jojb.Children().ToList().ForEach(a => keyValues.Add(((JProperty)a).Name, ((JProperty)a).JPropertyToObject()));
             Assert.AreEqual<string>("bbb", keyValues["aaa"].ToString());
         }
+
         [TestMethod]
         public void TestJsonArray()
         {
             var jojb = JToken.Parse("[{\"aaa\":\"bbb\"},{\"ccc\":\"ddd\"}]");
-            Dictionary<string, object> keyValues =    Newtonsoft.Json.JsonConvert.DeserializeObject<Dictionary<string, object>>(jojb.ToString());
+            Dictionary<string, object> keyValues = Newtonsoft.Json.JsonConvert.DeserializeObject<Dictionary<string, object>>(jojb.ToString());
             Assert.AreEqual<string>("bbb", keyValues["aaa"].ToString());
             Assert.AreEqual<string>("ddd", keyValues["ccc"].ToString());
         }

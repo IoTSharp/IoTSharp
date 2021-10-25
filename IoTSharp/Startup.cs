@@ -1,15 +1,23 @@
-﻿using IoTSharp.Data;
+﻿using DotNetCore.CAP;
+using DotNetCore.CAP.Dashboard.NodeDiscovery;
+using EasyCaching.Core.Configurations;
+using EFCore.Sharding;
+using HealthChecks.UI.Client;
+using InfluxDB.Client;
+using IoTSharp.Controllers.Models;
+using IoTSharp.Data;
+using IoTSharp.FlowRuleEngine;
 using IoTSharp.Handlers;
+using IoTSharp.Interpreter;
+using IoTSharp.Storage;
+using Maikebing.Data.Taos;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.ResponseCompression;
+using Microsoft.AspNetCore.SpaServices.AngularCli;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -17,50 +25,18 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
 using MQTTnet.AspNetCore;
-using MQTTnet.AspNetCoreEx;
-using MQTTnet.Client;
-using NSwag.AspNetCore;
+using Newtonsoft.Json.Serialization;
+using PinusDB.Data;
 using Quartz;
+using RabbitMQ.Client;
+using Savorboard.CAP.InMemoryMessageQueue;
+using Silkier.Extensions;
+using SilkierQuartz;
 using System;
 using System.Collections.Generic;
-using System.Configuration;
-using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
 using System.Reflection;
 using System.Text;
-using System.Threading.Tasks;
-using System.Runtime.InteropServices.ComTypes;
-using SshNet.Security.Cryptography;
-using SilkierQuartz;
-using HealthChecks.UI.Client;
-using NSwag;
-using NSwag.Generation.Processors.Security;
-using Npgsql;
-using EFCore.Sharding;
-using IoTSharp.Storage;
-using DotNetCore.CAP.Dashboard.NodeDiscovery;
-using Savorboard.CAP.InMemoryMessageQueue;
-using System.Diagnostics;
-using EasyCaching.Core.Configurations;
-using Silkier.Extensions;
-using Maikebing.Data.Taos;
-using InfluxDB.Client;
-using System.Security.Policy;
-using Microsoft.CodeAnalysis.FlowAnalysis;
-using Microsoft.AspNetCore.Hosting.Server.Features;
-using System.Text.RegularExpressions;
-using DotNetCore.CAP;
-using HealthChecks.UI.Configuration;
-using IoTSharp.Controllers.Models;
-using Newtonsoft.Json.Serialization;
-using NSwag.Generation.AspNetCore;
-using RabbitMQ.Client;
-using PinusDB.Data;
-using IoTSharp.Extensions;
-using Microsoft.AspNetCore.SpaServices.AngularCli;
-using Microsoft.AspNetCore.Authentication.Cookies;
-using IoTSharp.Interpreter;
-using IoTSharp.FlowRuleEngine;
 
 namespace IoTSharp
 {
@@ -70,6 +46,7 @@ namespace IoTSharp
         {
             Configuration = configuration;
         }
+
         public IConfiguration Configuration { get; private set; }
 
         // This method gets called by the runtime. Use this method to add services to the container.
@@ -102,15 +79,19 @@ namespace IoTSharp
                 case DataBaseType.MySql:
                     services.ConfigureMySql(Configuration.GetConnectionString("IoTSharp"), settings.DbContextPoolSize, healthChecks, healthChecksUI);
                     break;
+
                 case DataBaseType.SqlServer:
                     services.ConfigureSqlServer(Configuration.GetConnectionString("IoTSharp"), settings.DbContextPoolSize, healthChecks, healthChecksUI);
                     break;
+
                 case DataBaseType.Oracle:
                     services.ConfigureOracle(Configuration.GetConnectionString("IoTSharp"), settings.DbContextPoolSize, healthChecks, healthChecksUI);
                     break;
+
                 case DataBaseType.Sqlite:
                     services.ConfigureSqlite(Configuration.GetConnectionString("IoTSharp"), settings.DbContextPoolSize, healthChecks, healthChecksUI);
                     break;
+
                 case DataBaseType.PostgreSql:
                 default:
                     services.ConfigureNpgsql(Configuration.GetConnectionString("IoTSharp"), settings.DbContextPoolSize, healthChecks, healthChecksUI);
@@ -123,12 +104,10 @@ namespace IoTSharp
                 .AddDefaultTokenProviders()
                 .AddEntityFrameworkStores<ApplicationDbContext>();
 
-
             services.AddAuthentication(option =>
             {
                 option.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
                 option.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-
             }).AddJwtBearer(options =>
             {
                 options.SaveToken = true;
@@ -138,15 +117,14 @@ namespace IoTSharp
                     ValidateAudience = true,
                     ValidateLifetime = true,
                     RequireExpirationTime = true,
-                    RequireSignedTokens = true, 
+                    RequireSignedTokens = true,
                     ValidateIssuerSigningKey = true,
                     ValidIssuer = Configuration["JwtIssuer"],
-                    ValidAudience = Configuration["JwtAudience"], 
+                    ValidAudience = Configuration["JwtAudience"],
                     IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Configuration["JwtKey"])),
                     //     ClockSkew=TimeSpan.Zero //JWT的缓冲时间默认5分钟，token实际过期时间为 appsettings.json 当中JwtExpireHours配置的时间（小时）加上这个时间。
                 };
             });
-
 
             services.AddCors();
             services.AddLogging(loggingBuilder => loggingBuilder.AddConsole());
@@ -157,7 +135,7 @@ namespace IoTSharp
                 configure.Title = typeof(Startup).GetTypeInfo().Assembly.GetName().Name;
                 configure.Version = typeof(Startup).GetTypeInfo().Assembly.GetName().Version.ToString();
                 configure.Description = description?.Description;
-                configure.AddJWTSecurity() ;
+                configure.AddJWTSecurity();
             });
 
             services.AddTransient<ApplicationDBInitializer>();
@@ -182,9 +160,8 @@ namespace IoTSharp
                 authenticationOptions.UserName = "admin";
                 authenticationOptions.UserPassword = "password";
                 authenticationOptions.AccessRequirement = SilkierQuartzAuthenticationOptions.SimpleAccessRequirement.AllowAnonymous;//登录认证有问题
-            },stdSchedulerFactoryOption=>
-            {
-
+            }, stdSchedulerFactoryOption =>
+             {
                 //opt.Add("quartz.serializer.type", "json");
                 //opt.Add("quartz.jobStore.type", "Quartz.Impl.AdoJobStore.JobStoreTX, Quartz");
                 //opt.Add("quartz.jobStore.driverDelegateType", "Quartz.Impl.AdoJobStore.StdAdoDelegate, Quartz");
@@ -193,8 +170,8 @@ namespace IoTSharp
                 //opt.Add("quartz.dataSource.myDS.provider", "Npgsql");
                 //opt.Add("quartz.dataSource.myDS.connectionString", Configuration.GetConnectionString("IoTSharp"));
                 stdSchedulerFactoryOption.Add("quartz.plugin.recentHistory.type", "Quartz.Plugins.RecentHistory.ExecutionHistoryPlugin, Quartz.Plugins.RecentHistory");
-                stdSchedulerFactoryOption.Add("quartz.plugin.recentHistory.storeType", "Quartz.Plugins.RecentHistory.Impl.InProcExecutionHistoryStore, Quartz.Plugins.RecentHistory");
-            }
+                 stdSchedulerFactoryOption.Add("quartz.plugin.recentHistory.storeType", "Quartz.Plugins.RecentHistory.Impl.InProcExecutionHistoryStore, Quartz.Plugins.RecentHistory");
+             }
         );
             services.AddControllers();
 
@@ -213,17 +190,18 @@ namespace IoTSharp
                                 config.DBConfig.Endpoints.Add(new ServerEndPoint(hx[0], int.Parse(hx[1])));
                             });
                         }, "iotsharp");
-                        healthChecks.AddRedis(settings.CachingUseRedisHosts,name: _hc_Caching);
+                        healthChecks.AddRedis(settings.CachingUseRedisHosts, name: _hc_Caching);
                         break;
+
                     case CachingUseIn.LiteDB:
-                        options.UseLiteDB(cfg => cfg.DBConfig = new EasyCaching.LiteDB.LiteDBDBOptions() { },name: "iotsharp");
+                        options.UseLiteDB(cfg => cfg.DBConfig = new EasyCaching.LiteDB.LiteDBDBOptions() { }, name: "iotsharp");
                         break;
+
                     case CachingUseIn.InMemory:
                     default:
                         options.UseInMemory("iotsharp");
                         break;
                 }
-
             });
             string _hc_telemetryStorage = $"{nameof(TelemetryStorage)}-{Enum.GetName(settings.TelemetryStorage)}";
             switch (settings.TelemetryStorage)
@@ -236,15 +214,19 @@ namespace IoTSharp
                             case DataBaseType.MySql:
                                 config.UseMySqlToSharding(Configuration.GetConnectionString("TelemetryStorage"), settings.Sharding.ExpandByDateMode);
                                 break;
+
                             case DataBaseType.SqlServer:
                                 config.UseSqlServerToSharding(Configuration.GetConnectionString("TelemetryStorage"), settings.Sharding.ExpandByDateMode);
                                 break;
+
                             case DataBaseType.Oracle:
                                 config.UseOracleToSharding(Configuration.GetConnectionString("TelemetryStorage"), settings.Sharding.ExpandByDateMode);
                                 break;
+
                             case DataBaseType.Sqlite:
                                 config.UseSQLiteToSharding(Configuration.GetConnectionString("TelemetryStorage"), settings.Sharding.ExpandByDateMode);
                                 break;
+
                             case DataBaseType.PostgreSql:
                             default:
                                 config.UseNpgsqlToSharding(Configuration.GetConnectionString("TelemetryStorage"), settings.Sharding.ExpandByDateMode);
@@ -254,12 +236,13 @@ namespace IoTSharp
                     });
                     services.AddSingleton<IStorage, ShardingStorage>();
                     break;
- 
+
                 case TelemetryStorage.Taos:
                     services.AddSingleton<IStorage, TaosStorage>();
                     services.AddObjectPool(() => new TaosConnection(settings.ConnectionStrings["TelemetryStorage"]));
-                    healthChecks.AddTDengine(Configuration.GetConnectionString("TelemetryStorage"),name: _hc_telemetryStorage);
+                    healthChecks.AddTDengine(Configuration.GetConnectionString("TelemetryStorage"), name: _hc_telemetryStorage);
                     break;
+
                 case TelemetryStorage.InfluxDB:
                     //https://github.com/julian-fh/influxdb-setup
                     services.AddSingleton<IStorage, InfluxDBStorage>();
@@ -267,9 +250,10 @@ namespace IoTSharp
                     services.AddObjectPool(() => InfluxDBClientFactory.Create(Configuration.GetConnectionString("TelemetryStorage")));
                     //healthChecks.AddInfluxDB(Configuration.GetConnectionString("TelemetryStorage"),name: _hc_telemetryStorage);
                     break;
+
                 case TelemetryStorage.PinusDB:
                     services.AddSingleton<IStorage, PinusDBStorage>();
-                    services.AddObjectPool(() => 
+                    services.AddObjectPool(() =>
                     {
                         var cnt = new PinusConnection(settings.ConnectionStrings["TelemetryStorage"]);
                         cnt.Open();
@@ -277,9 +261,11 @@ namespace IoTSharp
                     });
                     healthChecks.AddPinusDB(Configuration.GetConnectionString("TelemetryStorage"), name: _hc_telemetryStorage);
                     break;
+
                 case TelemetryStorage.TimescaleDB:
                     services.AddSingleton<IStorage, TimescaleDBStorage>();
                     break;
+
                 case TelemetryStorage.SingleTable:
                 default:
                     services.AddSingleton<IStorage, EFStorage>();
@@ -302,43 +288,46 @@ namespace IoTSharp
                         x.UsePostgreSql(Configuration.GetConnectionString("EventBusStore"));
                         healthChecks.AddNpgSql(Configuration.GetConnectionString("EventBusStore"), name: _hc_EventBusStore);
                         break;
+
                     case EventBusStore.MongoDB:
                         x.UseMongoDB(Configuration.GetConnectionString("EventBusStore"));  //注意，仅支持MongoDB 4.0+集群
                         healthChecks.AddMongoDb(Configuration.GetConnectionString("EventBusStore"), name: _hc_EventBusStore);
                         break;
+
                     case EventBusStore.LiteDB:
                         x.UseLiteDBStorage(Configuration.GetConnectionString("EventBusStore"));
                         break;
+
                     case EventBusStore.InMemory:
                     default:
                         x.UseInMemoryStorage();
                         break;
                 }
-                string _hc_EventBusMQ =$"{nameof(EventBusMQ)}-{Enum.GetName(settings.EventBusMQ)}" ;
+                string _hc_EventBusMQ = $"{nameof(EventBusMQ)}-{Enum.GetName(settings.EventBusMQ)}";
                 switch (settings.EventBusMQ)
                 {
                     case EventBusMQ.RabbitMQ:
                         var url = new Uri(Configuration.GetConnectionString("EventBusMQ"));
-                        x.UseRabbitMQ(cfg=>
+                        x.UseRabbitMQ(cfg =>
                         {
                             cfg.ConnectionFactoryOptions = cf =>
                             {
                                 cf.AutomaticRecoveryEnabled = true;
                                 cf.Uri = new Uri(Configuration.GetConnectionString("EventBusMQ"));
                             };
-                            
                         });
                         //amqp://guest:guest@localhost:5672
-                        healthChecks.AddRabbitMQ( connectionFactory=>
-                        {
-                            var factory = new ConnectionFactory()
-                            {
-                                Uri = new Uri(Configuration.GetConnectionString("EventBusMQ")),
-                                AutomaticRecoveryEnabled = true
-                            };
-                            return factory.CreateConnection();
-                        }, _hc_EventBusMQ);
+                        healthChecks.AddRabbitMQ(connectionFactory =>
+                       {
+                           var factory = new ConnectionFactory()
+                           {
+                               Uri = new Uri(Configuration.GetConnectionString("EventBusMQ")),
+                               AutomaticRecoveryEnabled = true
+                           };
+                           return factory.CreateConnection();
+                       }, _hc_EventBusMQ);
                         break;
+
                     case EventBusMQ.Kafka:
                         x.UseKafka(Configuration.GetConnectionString("EventBusMQ"));
                         healthChecks.AddKafka(cfg =>
@@ -346,6 +335,7 @@ namespace IoTSharp
                            cfg.BootstrapServers = Configuration.GetConnectionString("EventBusMQ");
                        }, name: _hc_EventBusMQ);
                         break;
+
                     case EventBusMQ.ZeroMQ:
                         x.UseZeroMQ(cfg =>
                         {
@@ -353,6 +343,7 @@ namespace IoTSharp
                             cfg.Pattern = MaiKeBing.CAP.NetMQPattern.PushPull;
                         });
                         break;
+
                     case EventBusMQ.InMemory:
                     default:
                         x.UseInMemoryMessageQueue();
@@ -371,8 +362,8 @@ namespace IoTSharp
                 options.SerializerSettings.ContractResolver = new CamelCasePropertyNamesContractResolver();
             });
             services.AddRazorPages();
-            
-                // In production, the Angular files will be served from this directory
+
+            // In production, the Angular files will be served from this directory
             services.AddSpaStaticFiles(configuration =>
             {
                 configuration.RootPath = "ClientApp/dist";
@@ -380,10 +371,6 @@ namespace IoTSharp
             services.AddScriptEngines(Configuration.GetSection("EngineSetting"));
             services.AddTransient<FlowRuleProcessor>();
         }
-
-
-
-
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env, ISchedulerFactory factory)
@@ -399,8 +386,6 @@ namespace IoTSharp
                 app.UseHsts();
             }
 
-       
-
             app.UseRouting();
             app.UseCors(option => option
                 .AllowAnyOrigin()
@@ -414,10 +399,10 @@ namespace IoTSharp
                 app.UseStaticFiles();
             }
             app.UseIotSharpMqttServer();
-         
+
             app.UseSwaggerUi3();
             app.UseOpenApi();
-            
+
             app.UseSilkierQuartz();//必须要在UseEndpoints之前调用
             app.UseCapDashboard();
 
@@ -437,7 +422,7 @@ namespace IoTSharp
             {
                 // To learn more about options for serving an Angular SPA from ASP.NET Core,
                 // see https://go.microsoft.com/fwlink/?linkid=864501
-             
+
                 spa.Options.SourcePath = "ClientApp";
                 if (env.IsDevelopment() || !env.IsEnvironment("Production"))
                 {

@@ -1,14 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Dynamic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace IoTSharp.FlowRuleEngine
 {
     public class DynamicData : DynamicObject
     {
-        Dictionary<string, object> properties = new Dictionary<string, object>();
+        private Dictionary<string, object> properties = new Dictionary<string, object>();
 
         public override bool TryGetMember(GetMemberBinder binder, out object result)
         {
@@ -19,7 +16,7 @@ namespace IoTSharp.FlowRuleEngine
             }
             else
             {
-                result = ""; 
+                result = "";
                 return false;
             }
         }

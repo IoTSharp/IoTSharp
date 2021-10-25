@@ -246,6 +246,8 @@ namespace IoTSharp.FlowRuleEngine
                             {
                                 taskoperation.OperationDesc = "脚本执行异常,未能获取到结果";
                                 taskoperation.NodeStatus = 2;
+
+                                _logger.Log(LogLevel.Warning,"脚本未能顺利执行");
                             }
                         }
                         else

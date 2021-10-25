@@ -1,21 +1,14 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace IoTSharp.Data
 {
-   public class Flow
-   {
-
-
-
-       [Key]
+    public class Flow
+    {
+        [Key]
         public Guid FlowId { get; set; }
-        public string bpmnid { get; set; }   
+
+        public string bpmnid { get; set; }
         public string Flowname { get; set; }
         public FlowRule FlowRule { get; set; }
         public string Flowdesc { get; set; }
@@ -27,7 +20,7 @@ namespace IoTSharp.Data
         public string Conditionexpression { get; set; }
         public string NodeProcessMethod { get; set; }
         public string NodeProcessParams { get; set; }
-        public string NodeProcessType{ get; set; }
+        public string NodeProcessType { get; set; }
         public string NodeProcessScriptType { get; set; }
         public string NodeProcessScript { get; set; }
         public string Incoming { get; set; }

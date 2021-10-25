@@ -4,7 +4,6 @@ using IoTSharp.Data;
 using IoTSharp.Extensions;
 using IoTSharp.FlowRuleEngine;
 using IoTSharp.Storage;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -16,11 +15,8 @@ using System.Threading.Tasks;
 
 namespace IoTSharp.Handlers
 {
-
     public interface IEventBusHandler
     {
-
-
         public void StoreAttributeData(RawMsg msg);
 
         public void StoreTelemetryData(RawMsg msg);
@@ -34,7 +30,7 @@ namespace IoTSharp.Handlers
     public class EventBusHandler : IEventBusHandler, ICapSubscribe
     {
         private readonly AppSettings _appSettings;
-        readonly ILogger _logger;
+        private readonly ILogger _logger;
         private readonly IServiceScopeFactory _scopeFactor;
         private readonly IStorage _storage;
         private readonly FlowRuleProcessor _flowRuleProcessor;
@@ -50,8 +46,8 @@ namespace IoTSharp.Handlers
             _storage = storage;
             _flowRuleProcessor = flowRuleProcessor;
             _caching = factory.GetCachingProvider("iotsharp");
-         
         }
+
         [CapSubscribe("iotsharp.services.datastream.attributedata")]
         public void StoreAttributeData(RawMsg msg)
         {
@@ -64,7 +60,6 @@ namespace IoTSharp.Handlers
                         var device = _dbContext.Device.FirstOrDefault(d => d.Id == msg.DeviceId);
                         if (device != null)
                         {
-
                             device.CheckOrUpdateDevStatus();
                             var mb = msg.MsgBody;
                             Dictionary<string, object> dc = new Dictionary<string, object>();
@@ -80,18 +75,23 @@ namespace IoTSharp.Handlers
                                         case System.Text.Json.JsonValueKind.Array:
                                             dc.Add(kp.Key, je.GetRawText());
                                             break;
+
                                         case System.Text.Json.JsonValueKind.String:
                                             dc.Add(kp.Key, je.GetString());
                                             break;
+
                                         case System.Text.Json.JsonValueKind.Number:
                                             dc.Add(kp.Key, je.GetDouble());
                                             break;
+
                                         case System.Text.Json.JsonValueKind.True:
                                         case System.Text.Json.JsonValueKind.False:
                                             dc.Add(kp.Key, je.GetBoolean());
                                             break;
+
                                         case System.Text.Json.JsonValueKind.Null:
                                             break;
+
                                         default:
                                             break;
                                     }
@@ -112,8 +112,6 @@ namespace IoTSharp.Handlers
                 }
             });
         }
-
-
 
         [CapSubscribe("iotsharp.services.datastream.telemetrydata")]
         public void StoreTelemetryData(RawMsg msg)
@@ -142,10 +140,7 @@ namespace IoTSharp.Handlers
                 {
                     await _storage.StoreTelemetryAsync(msg);
                 }
-
             });
         }
-
- 
     }
 }

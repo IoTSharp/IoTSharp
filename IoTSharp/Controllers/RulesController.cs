@@ -1,5 +1,6 @@
 ﻿using IoTSharp.Controllers.Models;
 using IoTSharp.Data;
+using IoTSharp.Dtos;
 using IoTSharp.Extensions;
 using IoTSharp.FlowRuleEngine;
 using IoTSharp.Models;
@@ -9,21 +10,16 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CSharp;
-using Microsoft.CodeAnalysis.Emit;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Dynamic;
-using System.IO;
 using System.Linq;
 using System.Linq.Dynamic.Core;
 using System.Linq.Expressions;
-using System.Reflection;
 using System.Threading.Tasks;
-using IoTSharp.Dtos;
 
 namespace IoTSharp.Controllers
 {
@@ -69,8 +65,6 @@ namespace IoTSharp.Controllers
                 total = _context.FlowRules.Count(condition),
                 rows = _context.FlowRules.OrderByDescending(c => c.CreatTime).Where(condition).Skip((m.offset) * m.limit).Take(m.limit).ToList()
             });
-
-
         }
 
         [HttpPost("[action]")]
@@ -93,7 +87,7 @@ namespace IoTSharp.Controllers
         {
             if (ModelState.IsValid)
             {
-                var flowrule = _context.FlowRules.SingleOrDefault(c => c.RuleId==m.RuleId);
+                var flowrule = _context.FlowRules.SingleOrDefault(c => c.RuleId == m.RuleId);
                 if (flowrule != null)
                 {
                     flowrule.Name = m.Name;
@@ -155,9 +149,7 @@ namespace IoTSharp.Controllers
                     }
                 });
 
-
                 return new ApiResult<bool>(ApiCode.Success, "rule binding success", true);
-
             }
 
             return new ApiResult<bool>(ApiCode.CantFindObject, "No device found", false);
@@ -175,8 +167,6 @@ namespace IoTSharp.Controllers
                 return new ApiResult<bool>(ApiCode.Success, "rule has been removed", true);
             }
             return new ApiResult<bool>(ApiCode.CantFindObject, "this mapping was not found", true);
-
-
         }
 
         [HttpGet("[action]")]
@@ -189,7 +179,6 @@ namespace IoTSharp.Controllers
         public ApiResult<List<Device>> GetRuleDevices(Guid ruleId)
         {
             return new ApiResult<List<Device>>(ApiCode.Success, "Ok", _context.DeviceRules.Where(c => c.FlowRule.RuleId == ruleId).Select(c => c.Device).ToList());
-
         }
 
         [HttpPost("[action]")]
@@ -374,7 +363,6 @@ namespace IoTSharp.Controllers
                 _context.SaveChanges();
             }
             return new ApiResult<bool>(ApiCode.Success, "Ok", true);
-         
         }
 
         [HttpGet("[action]")]
@@ -851,8 +839,6 @@ namespace IoTSharp.Controllers
                 }
             }
             return new ApiResult<IoTSharp.Models.Rule.Activity>(ApiCode.Success, "rule has been removed", activity);
-
-
         }
 
         //模拟处理
@@ -863,19 +849,19 @@ namespace IoTSharp.Controllers
             var profile = await this.GetUserProfile();
             var formdata = form.First.First;
             var extradata = form.First.Next;
-            var obj = extradata.First.First.First.Value<JToken>(); 
+            var obj = extradata.First.First.First.Value<JToken>();
             var obj1 = extradata.First.First.Next.First.Value<JToken>();
             var formid = obj.Value<int>();
             var __ruleid = obj1.Value<string>();
             var ruleid = Guid.Parse(__ruleid);
 
-
             var d = formdata.ToObject(typeof(ExpandoObject));
             var testabizId = Guid.NewGuid().ToString(); //根据业务保存起来，用来查询执行事件和步骤
-          //  await _flowRuleProcessor.RunFlowRules(ruleid, d, profile.Id, EventType.TestPurpose, testabizId);
 
-      //      FlowRuleProcessor ruleProcessorV2 = new FlowRuleProcessor(this._context);
-       var   result=  await _flowRuleProcessor.RunFlowRules(ruleid, d, profile.Id, EventType.TestPurpose, testabizId);
+            var result = await _flowRuleProcessor.RunFlowRules(ruleid, d, profile.Id, EventType.TestPurpose, testabizId);
+
+            await _context.FlowOperations.AddRangeAsync(result);
+            _context.SaveChanges();
 
             //应该由事件总线去通知
             return new ApiResult<dynamic>(ApiCode.Success, "test complete", result.OrderBy(c => c.Step).
@@ -887,6 +873,89 @@ namespace IoTSharp.Controllers
                 }).ToList());
         }
 
+        /// <summary>
+        ///
+        /// </summary>
+        /// <param name="m"></param>
+        /// <returns></returns>
+
+        [HttpPost("[action]")]
+        public async Task<ApiResult<PagedData<BaseEventDto>>> FlowEvents([FromBody] EventParam m)
+        {
+            var profile = await this.GetUserProfile();
+            Expression<Func<BaseEvent, bool>> condition = x => x.EventStaus > -1;
+            if (!string.IsNullOrEmpty(m.Name))
+            {
+                condition = condition.And(x => x.EventName.Contains(m.Name));
+            }
+
+            if (m.CreatTime != null && m.CreatTime.Length == 2)
+            {
+                condition = condition.And(x => x.CreaterDateTime > m.CreatTime[0] && x.CreaterDateTime < m.CreatTime[1]);
+            }
+
+            //if (m.Creator!=null)
+            //{
+            //    condition = condition.And(x => x.Creator == m.Creator);
+            //}
+
+
+            var result = _context.BaseEvents.OrderByDescending(c => c.CreaterDateTime).Where(condition)
+                .Skip((m.offset) * m.limit).Take(m.limit).Select(c => new BaseEventDto
+                {
+                    Name = c.FlowRule.Name,
+                    Bizid = c.Bizid,
+                    CreaterDateTime = c.CreaterDateTime,
+                    Creator = c.Creator,
+                    EventDesc = c.EventDesc,
+                    EventId = c.EventId,
+                    EventStaus = c.EventStaus,
+                    EventName = c.EventName,
+                    MataData = c.MataData,
+                    RuleId = c.FlowRule.RuleId,
+                    Type = c.Type
+                }).ToList();
        
+
+
+            foreach (var item in result)
+            {
+                item.CreatorName = await GetCreatorName(item);
+
+            }
+            return new ApiResult<PagedData<BaseEventDto>>(ApiCode.Success, "OK", new PagedData<BaseEventDto>
+            {
+                total = _context.BaseEvents.Count(condition),
+                rows = result
+            });
+        }
+
+
+        private async Task<string> GetCreatorName(BaseEventDto dto)
+        {
+            if (dto.Type == EventType.Normal)
+            {
+                return _context.Device.SingleOrDefault(c => c.Id == dto.Creator)?.Name;
+            }
+            else
+            {
+                return (await this._userManager.FindByIdAsync(dto.Creator.ToString()))?.UserName;
+
+            }
+        }
+
+
+
+        [HttpGet("[action]")]
+        public  ApiResult<dynamic> GetFlowOperstions(Guid eventId)
+        {
+            return new ApiResult<dynamic>(ApiCode.Success, "OK",   _context.FlowOperations.Where(c => c.BaseEvent.EventId == eventId).ToList().OrderBy(c => c.Step).
+              ToList()
+                .GroupBy(c => c.Step).Select(c => new
+                {
+                    Step = c.Key,
+                    Nodes = c
+                }).ToList());
+        }
     }
 }

@@ -13,6 +13,7 @@ import { DictionarygrouplistComponent } from './dictionary/dictionarygrouplist/d
 import { DictionarylistComponent } from './dictionary/dictionarylist/dictionarylist.component';
 import { ComponentlistComponent } from './flow/componentlist/componentlist.component';
 import { DesignerComponent } from './flow/designer/designer.component';
+import { FloweventsComponent } from './flow/flowevents/flowevents.component';
 import { FlowlistComponent } from './flow/flowlist/flowlist.component';
 import { ScriptlistComponent } from './flow/scriptlist/scriptlist.component';
 import { I18nlistComponent } from './resource/i18nlist/i18nlist.component';
@@ -53,6 +54,7 @@ const routes: Routes = [
       { path: 'flow/designer', component: DesignerComponent },
       { path: 'flow/flowlist', component: FlowlistComponent },
       { path: 'flow/scriptlist', component: ScriptlistComponent },
+      { path: 'flow/flowevents', component: FloweventsComponent },
       { path: 'flow/componentlist', component: ComponentlistComponent },
       { path: 'dictionary/dictionarylist', component: DictionarylistComponent },
       { path: 'dictionary/dictionarygrouplist', component: DictionarygrouplistComponent },

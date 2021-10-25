@@ -1,9 +1,5 @@
-﻿using System;
+﻿using RulesEngine.Models;
 using System.Collections.Generic;
-
-using System.Linq;
-using System.Threading.Tasks;
-using RulesEngine.Models;
 
 namespace IoTSharp.FlowRuleEngine
 {
@@ -15,13 +11,11 @@ namespace IoTSharp.FlowRuleEngine
         public string Name { get; set; }
     }
 
-
     public class BaseRuleTask : BaseRuleObject
     {
         public List<BaseRuleFlow> incoming { get; set; }
         public List<BaseRuleFlow> outgoing { get; set; }
     }
-
 
     public class BaseRuleFlow : BaseRuleObject
     {
@@ -35,7 +29,8 @@ namespace IoTSharp.FlowRuleEngine
             {
                 RuleName = this.id,
                 RuleExpressionType = RuleExpressionType.LambdaExpression,
-                Expression = this.Expression, SuccessEvent = this.id, 
+                Expression = this.Expression,
+                SuccessEvent = this.id,
             };
     }
 }
