@@ -95,28 +95,25 @@
             <summary>
             返回用户信息
             </summary>
-            <param name="customerId"></param>
+            <param name="Id"></param>
             <returns></returns>
         </member>
         <member name="M:IoTSharp.Controllers.AccountController.Modify(IoTSharp.Dtos.UserItemDto)">
             <summary>
             修改用户信息
             </summary>
-            <param name="customerId"></param>
             <returns></returns>
         </member>
         <member name="M:IoTSharp.Controllers.AccountController.ModifyMyInfo(IoTSharp.Dtos.UserItemDto)">
             <summary>
             修改当前用户信息
             </summary>
-            <param name="customerId"></param>
             <returns></returns>
         </member>
         <member name="M:IoTSharp.Controllers.AccountController.ModifyMyPassword(IoTSharp.Dtos.UserPassword)">
             <summary>
             修改当前用户信息
             </summary>
-            <param name="customerId"></param>
             <returns></returns>
         </member>
         <member name="T:IoTSharp.Controllers.AuthorizedKeysController">
@@ -142,11 +139,16 @@
             客户管理
             </summary>
         </member>
+        <member name="M:IoTSharp.Controllers.CustomersController.GetAllCustomers(System.Guid)">
+            <summary>
+            获取指定租户下的所有客户
+            </summary>
+            <returns></returns>
+        </member>
         <member name="M:IoTSharp.Controllers.CustomersController.GetCustomers(IoTSharp.Controllers.Models.CustomerParam)">
             <summary>
             获取指定租户下的所有客户
             </summary>
-            <param name="tenantId">租户</param>
             <returns></returns>
         </member>
         <member name="M:IoTSharp.Controllers.CustomersController.GetCustomer(System.Guid)">
@@ -183,11 +185,17 @@
             设备管理
             </summary>
         </member>
-        <member name="M:IoTSharp.Controllers.DevicesController.GetDevices(IoTSharp.Controllers.Models.DeviceParam)">
+        <member name="M:IoTSharp.Controllers.DevicesController.GetAllDevices(System.Guid)">
             <summary>
             获取指定客户的设备列表
             </summary>
             <param name="customerId"></param>
+            <returns></returns>
+        </member>
+        <member name="M:IoTSharp.Controllers.DevicesController.GetDevices(IoTSharp.Controllers.Models.DeviceParam)">
+            <summary>
+            获取指定客户的设备列表
+            </summary>
             <returns></returns>
         </member>
         <member name="M:IoTSharp.Controllers.DevicesController.GetIdentity(System.Guid)">
