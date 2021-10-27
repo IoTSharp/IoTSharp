@@ -47,7 +47,7 @@ namespace IoTSharp.FlowRuleEngine
         public async Task<List<FlowOperation>> RunFlowRules(Guid ruleid, object data, Guid creator, EventType type, string BizId)
         {
             var rule = _context.FlowRules.FirstOrDefault(c => c.RuleId == ruleid);
-            _allFlows = _context.Flows.Where(c => c.FlowRule == rule).ToList();
+            _allFlows = _context.Flows.Where(c => c.FlowRule == rule&&c.FlowStatus>0).ToList();
             var _event = new BaseEvent()
             {
                 CreaterDateTime = DateTime.Now,
@@ -155,7 +155,7 @@ namespace IoTSharp.FlowRuleEngine
                             Flow = flow,
                             Data = JsonConvert.SerializeObject(data),
                             NodeStatus = 1,
-                            OperationDesc = "执行任务" + flow.Flowname,
+                            OperationDesc = "执行"+flow.NodeProcessScriptType+"任务:" + flow.Flowname,
                             Step = ++peroperation.Step,
                             BaseEvent = peroperation.BaseEvent
                         };
@@ -163,7 +163,7 @@ namespace IoTSharp.FlowRuleEngine
 
 
                         //脚本处理
-                        if (!string.IsNullOrEmpty(flow.NodeProcessScriptType) && !string.IsNullOrEmpty(flow.NodeProcessScript))
+                        if (!string.IsNullOrEmpty(flow.NodeProcessScriptType) && (!string.IsNullOrEmpty(flow.NodeProcessScript)||!string.IsNullOrEmpty(flow.NodeProcessClass)))
                         {
                             var scriptsrc = flow.NodeProcessScript;
 
@@ -172,6 +172,43 @@ namespace IoTSharp.FlowRuleEngine
                             switch (flow.NodeProcessScriptType)
                             {
                                 case "csharp":
+
+                                    if (!string.IsNullOrEmpty(flow.NodeProcessClass))
+                                    {
+
+                                        var t = Type.GetType(flow.NodeProcessClass);
+                                        if (t != null)
+                                        {
+                                            ITaskExcutor excutor =  (ITaskExcutor) Activator.CreateInstance(t);
+                                            if (excutor != null)
+                                            {
+                                            var result    = excutor.Excute(new TaskExcutorParam()
+                                                    {ExcutEntity = null, Param = taskoperation.Data });
+                                            obj = result.Result;
+                                            }
+                                            else
+                                            {
+                                                taskoperation.OperationDesc = "脚本执行异常,未能实例化执行器";
+                                                taskoperation.NodeStatus = 2;
+                                                return;
+                                            }
+
+
+                                        }
+                                        else
+                                        {
+
+                                            taskoperation.OperationDesc = "脚本执行异常,未能实例化执行器";
+                                            taskoperation.NodeStatus = 2;
+                                            return;
+                                        }
+
+
+
+                                    }
+
+
+
 
                                     //脚本处理逻辑
                                     break;

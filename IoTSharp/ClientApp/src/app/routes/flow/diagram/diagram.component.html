@@ -36,7 +36,7 @@
           />
         </se>
 
-        <se label="网关处理器" error="网关处理器" *ngIf="form.nodeProcessClassVisable">
+        <!-- <se label="网关处理器" error="网关处理器" *ngIf="form.nodeProcessClassVisable">
           <input
             nz-input
             [(ngModel)]="form.nodeProcessClass"
@@ -44,7 +44,7 @@
             [ngModelOptions]="{ standalone: true }"
             (ngModelChange)="ngModelChange($event)"
           />
-        </se>
+        </se> -->
 
         <se label="条件表达式" error="条件表达式" *ngIf="form.conditionexpressionVisable">
           <input
@@ -62,18 +62,31 @@
             [ngModelOptions]="{ standalone: true }"
             (ngModelChange)="flowscripttypeChange($event)"
           >
-            <nz-option nzValue="javascript" nzLabel="javascript"></nz-option>
+          <nz-option nzValue="javascript" nzLabel="javascript"></nz-option>
+            <nz-option nzValue="csharp" nzLabel="csharp"></nz-option>
+
             <nz-option nzValue="python" nzLabel="python"></nz-option>
             <nz-option nzValue="sql" nzLabel="sql"></nz-option>
             <nz-option nzValue="lua" nzLabel="lua"></nz-option>
-            <nz-option nzValue="csharp" nzLabel="csharp" [nzDisabled]="true"></nz-option>
+
             <nz-option nzValue="json" nzLabel="json"[nzDisabled]="true"></nz-option>
             <nz-option  nzValue="bat" nzLabel="bat" [nzDisabled]="true"></nz-option>
             <nz-option nzValue="xml" nzLabel="xml" [nzDisabled]="true"></nz-option>
 
           </nz-select>
         </se>
+        <se label="执行器" error="请选择执行器" *ngIf="form.nodeProcessClassVisable">
+          <nz-select
+          [(ngModel)]="form.nodeProcessClass"
+          [ngModelOptions]="{ standalone: true }"
+          (ngModelChange)="ngModelChange($event)"
+        >
 
+        <nz-option *ngFor="let option of excutors" [nzLabel]="option.label" [nzValue]="option.value"></nz-option>
+   
+
+        </nz-select>
+        </se>
         <se label="脚本" error="类型" *ngIf="form.flowscriptVisable">
           <nz-code-editor
             (ngModelChange)="ngModelChange($event)"

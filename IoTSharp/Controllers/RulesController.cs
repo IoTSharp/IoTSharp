@@ -15,11 +15,15 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Dynamic;
 using System.Linq;
 using System.Linq.Dynamic.Core;
 using System.Linq.Expressions;
+using System.Reflection;
 using System.Threading.Tasks;
+using Dynamitey.DynamicObjects;
+using Namotion.Reflection;
 
 namespace IoTSharp.Controllers
 {
@@ -187,15 +191,28 @@ namespace IoTSharp.Controllers
             //    var user = _userManager.GetUserId(User);
             var profile = await this.GetUserProfile();
             var activity = JsonConvert.DeserializeObject<IoTSharp.Models.Rule.Activity>(m.Biz);
-
-            var rule = _context.FlowRules.FirstOrDefault(c => c.RuleId == activity.RuleId);
+            var CreatorId = Guid.NewGuid();
+            var CreateDate = DateTime.Now;
+       var rule = _context.FlowRules.FirstOrDefault(c => c.RuleId == activity.RuleId);
 
             rule.DefinitionsXml = m.Xml;
             rule.Creator = profile.Id.ToString();
+
+          
+
+
+         //   _context.Flows.RemoveRange(_context.Flows.Where(c => c.FlowRule.RuleId == rule.RuleId).ToList());
+
+            _context.Flows.Where(c => c.FlowRule.RuleId == rule.RuleId).ToList().ForEach(c =>
+            {
+                c.FlowStatus = -1;
+            });
+
+            _context.SaveChanges();
+            
             _context.FlowRules.Update(rule);
             _context.SaveChanges();
-            _context.Flows.RemoveRange(_context.Flows.Where(c => c.FlowRule.RuleId == rule.RuleId).ToList());
-            _context.SaveChanges();
+       
 
             if (activity.BaseBpmnObjects != null)
             {
@@ -206,7 +223,7 @@ namespace IoTSharp.Controllers
                     bpmnid = c.id,
                     FlowType = c.bpmntype,
                     NodeProcessScript = c.BizObject.flowscript,
-                    NodeProcessScriptType = c.BizObject.flowscripttype
+                    NodeProcessScriptType = c.BizObject.flowscripttype, FlowStatus = 1, CreateId = CreatorId, Createor = profile.Id, CreateDate = CreateDate
                 }).ToList());
                 _context.SaveChanges();
             }
@@ -219,6 +236,10 @@ namespace IoTSharp.Controllers
                     Flowname = c.BizObject.Flowname,
                     bpmnid = c.id,
                     FlowType = c.bpmntype,
+                    FlowStatus = 1,
+                    CreateId = CreatorId,
+                    Createor = profile.Id,
+                    CreateDate = CreateDate
                 }).ToList());
                 _context.SaveChanges();
             }
@@ -231,6 +252,10 @@ namespace IoTSharp.Controllers
                     Flowname = c.BizObject.Flowname,
                     bpmnid = c.id,
                     FlowType = c.bpmntype,
+                    FlowStatus = 1,
+                    CreateId = CreatorId,
+                    Createor = profile.Id,
+                    CreateDate = CreateDate
                 }).ToList());
                 _context.SaveChanges();
             }
@@ -245,8 +270,12 @@ namespace IoTSharp.Controllers
                     FlowType = c.bpmntype,
                     SourceId = c.sourceId,
                     TargetId = c.targetId,
+                    FlowStatus = 1,
+                    CreateId = CreatorId,
                     Conditionexpression = c.BizObject.conditionexpression,
-                    NodeProcessParams = c.BizObject.NodeProcessParams
+                    NodeProcessParams = c.BizObject.NodeProcessParams,
+                    Createor = profile.Id,
+                    CreateDate = CreateDate
                 }).ToList());
                 _context.SaveChanges();
             }
@@ -262,7 +291,11 @@ namespace IoTSharp.Controllers
                     NodeProcessParams = c.BizObject.NodeProcessParams,
                     NodeProcessClass = c.BizObject.NodeProcessClass,
                     NodeProcessScript = c.BizObject.flowscript,
-                    NodeProcessScriptType = c.BizObject.flowscripttype
+                    NodeProcessScriptType = c.BizObject.flowscripttype,
+                    FlowStatus = 1,
+                    CreateId = CreatorId,
+                    Createor = profile.Id,
+                    CreateDate = CreateDate
                 }).ToList());
                 _context.SaveChanges();
             }
@@ -275,6 +308,10 @@ namespace IoTSharp.Controllers
                     Flowname = c.BizObject.Flowname,
                     bpmnid = c.id,
                     FlowType = c.bpmntype,
+                    FlowStatus = 1,
+                    CreateId = CreatorId,
+                    Createor = profile.Id,
+                    CreateDate = CreateDate
                 }).ToList());
                 _context.SaveChanges();
             }
@@ -287,6 +324,10 @@ namespace IoTSharp.Controllers
                     Flowname = c.BizObject.Flowname,
                     bpmnid = c.id,
                     FlowType = c.bpmntype,
+                    FlowStatus = 1,
+                    CreateId = CreatorId,
+                    Createor = profile.Id,
+                    CreateDate = CreateDate
                 }).ToList());
                 _context.SaveChanges();
             }
@@ -299,6 +340,11 @@ namespace IoTSharp.Controllers
                     Flowname = c.BizObject.Flowname,
                     bpmnid = c.id,
                     FlowType = c.bpmntype,
+                    FlowStatus = 1,
+                    CreateId = CreatorId,
+                    Createor = profile.Id,
+                    CreateDate = CreateDate
+
                 }).ToList());
                 _context.SaveChanges();
             }
@@ -311,6 +357,10 @@ namespace IoTSharp.Controllers
                     Flowname = c.BizObject.Flowname,
                     bpmnid = c.id,
                     FlowType = c.bpmntype,
+                    FlowStatus = 1,
+                    CreateId = CreatorId,
+                    Createor = profile.Id,
+                    CreateDate = CreateDate
                 }).ToList());
                 _context.SaveChanges();
             }
@@ -323,6 +373,10 @@ namespace IoTSharp.Controllers
                     Flowname = c.BizObject.Flowname,
                     bpmnid = c.id,
                     FlowType = c.bpmntype,
+                    FlowStatus = 1,
+                    CreateId = CreatorId,
+                    Createor = profile.Id,
+                    CreateDate = CreateDate
                 }).ToList());
                 _context.SaveChanges();
             }
@@ -335,6 +389,11 @@ namespace IoTSharp.Controllers
                     Flowname = c.BizObject.Flowname,
                     bpmnid = c.id,
                     FlowType = c.bpmntype,
+                    FlowStatus = 1,
+                    CreateId = CreatorId,
+                    Createor = profile.Id,
+                    CreateDate = CreateDate
+
                 }).ToList());
                 _context.SaveChanges();
             }
@@ -347,6 +406,10 @@ namespace IoTSharp.Controllers
                     Flowname = c.BizObject.Flowname,
                     bpmnid = c.id,
                     FlowType = c.bpmntype,
+                    FlowStatus = 1,
+                    CreateId = CreatorId,
+                    Createor = profile.Id,
+                    CreateDate = CreateDate
                 }).ToList());
                 _context.SaveChanges();
             }
@@ -359,6 +422,10 @@ namespace IoTSharp.Controllers
                     Flowname = c.BizObject.Flowname,
                     bpmnid = c.id,
                     FlowType = c.bpmntype,
+                    FlowStatus = 1,
+                    CreateId = CreatorId,
+                    Createor = profile.Id,
+                    CreateDate = CreateDate
                 }).ToList());
                 _context.SaveChanges();
             }
@@ -386,7 +453,7 @@ namespace IoTSharp.Controllers
             activity.Lane ??= new List<BpmnBaseObject>();
             activity.TextAnnotations ??= new List<BpmnBaseObject>();
             activity.RuleId = id;
-            var flows = _context.Flows.Where(c => c.FlowRule.RuleId == id).ToList();
+            var flows = _context.Flows.Where(c => c.FlowRule.RuleId == id&&c.FlowStatus>0).ToList();
             activity.Xml = ruleflow.DefinitionsXml?.Trim('\r');
             foreach (var item in flows)
             {
@@ -566,7 +633,8 @@ namespace IoTSharp.Controllers
                                     Flowtype = item.FlowType.ToString(),
                                     Flowname = item.Flowname,
                                     flowscript = item.NodeProcessScript,
-                                    flowscripttype = item.NodeProcessScriptType
+                                    flowscripttype = item.NodeProcessScriptType,
+                                    NodeProcessClass = item.NodeProcessClass
                                 }
                             });
                         break;
@@ -586,7 +654,8 @@ namespace IoTSharp.Controllers
                                     Flowtype = item.FlowType.ToString(),
                                     Flowname = item.Flowname,
                                     flowscript = item.NodeProcessScript,
-                                    flowscripttype = item.NodeProcessScriptType
+                                    flowscripttype = item.NodeProcessScriptType,
+                                    NodeProcessClass = item.NodeProcessClass
                                 }
                             });
                         break;
@@ -605,6 +674,7 @@ namespace IoTSharp.Controllers
                                     Flowdesc = item.Flowdesc,
                                     Flowtype = item.FlowType.ToString(),
                                     Flowname = item.Flowname,
+                                    NodeProcessClass = item.NodeProcessClass
                                 }
                             });
                         break;
@@ -624,7 +694,8 @@ namespace IoTSharp.Controllers
                                     Flowtype = item.FlowType.ToString(),
                                     Flowname = item.Flowname,
                                     flowscript = item.NodeProcessScript,
-                                    flowscripttype = item.NodeProcessScriptType
+                                    flowscripttype = item.NodeProcessScriptType,
+                                    NodeProcessClass = item.NodeProcessClass
                                 }
                             });
                         break;
@@ -644,7 +715,8 @@ namespace IoTSharp.Controllers
                                     Flowtype = item.FlowType.ToString(),
                                     Flowname = item.Flowname,
                                     flowscript = item.NodeProcessScript,
-                                    flowscripttype = item.NodeProcessScriptType
+                                    flowscripttype = item.NodeProcessScriptType,
+                                    NodeProcessClass = item.NodeProcessClass
                                 }
                             });
                         break;
@@ -664,7 +736,8 @@ namespace IoTSharp.Controllers
                                     Flowtype = item.FlowType.ToString(),
                                     Flowname = item.Flowname,
                                     flowscript = item.NodeProcessScript,
-                                    flowscripttype = item.NodeProcessScriptType
+                                    flowscripttype = item.NodeProcessScriptType,
+                                    NodeProcessClass = item.NodeProcessClass
                                 }
                             });
                         break;
@@ -684,7 +757,8 @@ namespace IoTSharp.Controllers
                                     Flowtype = item.FlowType.ToString(),
                                     Flowname = item.Flowname,
                                     flowscript = item.NodeProcessScript,
-                                    flowscripttype = item.NodeProcessScriptType
+                                    flowscripttype = item.NodeProcessScriptType,
+                                    NodeProcessClass = item.NodeProcessClass
                                 }
                             });
                         break;
@@ -957,5 +1031,16 @@ namespace IoTSharp.Controllers
                     Nodes = c
                 }).ToList());
         }
-    }
+
+
+
+
+        [HttpGet("[action]")]
+        public ApiResult<dynamic> GetExcutor()
+        {
+
+            return new ApiResult<dynamic > (ApiCode.Success, "OK", Assembly.GetExecutingAssembly().GetTypes().Where(c => c.GetInterfaces().Contains(typeof(ITaskExcutor))).Select(c => new { label = c.GetCustomAttribute<DisplayNameAttribute>()?.DisplayName?? c.FullName, value = c.FullName }).ToList());
+        }
+   
+}
 }

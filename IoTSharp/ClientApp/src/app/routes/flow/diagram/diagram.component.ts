@@ -41,6 +41,8 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy 
   @ViewChild(NzCodeEditorComponent, { static: false }) editorComponent?: NzCodeEditorComponent;
   isCollapsed = false;
 
+   excutors = [];
+
   EMPTY_BPMN_DIAGRAM = `
   <?xml version="1.0" encoding="UTF-8"?>
   <definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL"
@@ -85,6 +87,14 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy 
 
   flowscripttypeChange($event) {
     console.log(this.form.flowscripttype);
+    if (this.form.flowscripttype === 'csharp') {
+      this.form.nodeProcessClassVisable = true;
+      this.form.flowscriptVisable = false;
+    } else {
+      this.form.nodeProcessClassVisable = false;
+      this.form.flowscriptVisable = true;
+    }
+
     // this.nzConfigService.set('codeEditor', {
     //   defaultEditorOption: {
     //     language: this.form.flowscripttype,
@@ -103,10 +113,13 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy 
 
     var y = this.activity.tasks.find((x) => x.id == this.form.flowid);
     if (y) {
-      console.log(this.form);
+
       y.bizObject = this.form;
       return;
     }
+
+
+
 
     var elementRegistry = this.bpmnJS.get('elementRegistry');
 
@@ -130,6 +143,18 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy 
       )
       .subscribe();
   }
+
+  getexcutors(){
+
+
+this.http.get('api/rules/getexcutor').subscribe(next=>{
+
+this.excutors=next.data;
+},error=>{},()=>{})
+
+  }
+
+
   constructor(
     private http: _HttpClient,
     private fb: FormBuilder,
@@ -184,11 +209,18 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy 
                 flowscripttype: '',
               };
             }
-
-            task.bizObject.flowscriptVisable = true;
+            task.bizObject.conditionexpressionVisable = false;
             task.bizObject.flowscripttypeVisable = true;
-            task.bizObject.nodeProcessClassVisable = false;
-            console.log(task);
+            if (task.bizObject.flowscripttype === 'csharp') {
+              task.bizObject.nodeProcessClassVisable = true;
+               task.bizObject.flowscriptVisable = false;
+
+            } else {
+              task.bizObject.nodeProcessClassVisable = false;
+              task.bizObject.flowscriptVisable = true;
+            }
+
+
             this.form = task.bizObject;
           }
 
@@ -789,7 +821,13 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy 
           break;
       }
     });
+
+this.getexcutors();
+
   }
+
+
+
   doTextAnnotation(e: any) {
     if (e.gfx) {
       var baseBpmnObject = this.activity.textAnnotations.find((x) => x.id === e.element.businessObject.id);
@@ -1296,6 +1334,12 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy 
   ngAfterContentInit(): void {
     this.bpmnJS.attachTo(this.el.nativeElement);
     this.render.setStyle(this.el.nativeElement, 'height', window.innerHeight - 64 + 'px');
+
+
+    this.http.get('').subscribe(next => {
+
+
+    }, error => { }, () => { });
   }
 
   ngOnChanges(changes: SimpleChanges) {
@@ -1448,7 +1492,7 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy 
           flowtype: '',
           flowscript: element.bizObject.flowscript ?? '',
           conditionexpressionVisable: false,
-          nodeProcessClass: '',
+          nodeProcessClass: element.bizObject.nodeProcessClass,
           conditionexpression: '',
           nodeProcessClassVisable: false,
           flowscriptVisable: false,
@@ -1800,7 +1844,7 @@ export class DataInputAssociation extends BpmnBaseObject {
   public targetId!: String;
 }
 
-export class Collaboration extends BpmnBaseObject {}
+export class Collaboration extends BpmnBaseObject { }
 
 export const importDiagram = (bpmnJS: any) => (source: Observable<any>) =>
   new Observable<any>((observer) => {

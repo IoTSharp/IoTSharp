@@ -25,5 +25,12 @@ namespace IoTSharp.Data
         public string NodeProcessScript { get; set; }
         public string Incoming { get; set; }
         public string Outgoing { get; set; }
+        public int FlowStatus { get; set; }
+
+        public Guid CreateId { get; set; }
+
+        public DateTime CreateDate { get; set; }
+
+        public Guid Createor { get; set; }
     }
 }

@@ -85,7 +85,7 @@ export class DevicelistComponent implements OnInit, OnDestroy {
     { title: '', index: 'id', type: 'checkbox' },
     { title: 'id', index: 'id' },
     { title: '名称', index: 'name', render: 'name' },
-    { title: '设备类型', index: 'email' },
+    { title: '设备类型', index: 'deviceType' },
     { title: '所有者', index: 'phone' },
     { title: '租户', index: 'country' },
     { title: '客户', index: 'province' },

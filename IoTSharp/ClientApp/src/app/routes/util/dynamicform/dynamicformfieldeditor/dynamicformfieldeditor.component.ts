@@ -70,6 +70,7 @@ export class DynamicformfieldeditorComponent implements OnInit {
                 FieldUIElementSchema: x.fieldUIElementSchema,
                 FieldUIElement: x.fieldUIElement,
                 FieldCode: x.fieldCode,
+                FieldUnit: x.fieldUnit,
                 IsRequired: x.isRequired,
               };
             });
@@ -80,7 +81,7 @@ export class DynamicformfieldeditorComponent implements OnInit {
               let key = this.makeString();
               componentRef.instance.AllSuportType = this.AllSuportType;
               componentRef.instance.AllControlType = this.AllControlType;
-              let e = new FormField(
+              let field = new FormField(
                 key,
                 x.data.propdata[i].FieldId,
                 x.data.propdata[i].FieldName,
@@ -91,14 +92,16 @@ export class DynamicformfieldeditorComponent implements OnInit {
                 x.data.propdata[i].FieldUIElement + '',
                 x.data.propdata[i].FieldUnit,
                 {
-                  properties: this.createschema(x.result.propdata[i].FieldUIElement, x.data.propdata[i].FieldUIElementSchema),
+                  properties: this.createschema(x.data.propdata[i].FieldUIElement, x.data.propdata[i].FieldUIElementSchema),
                 },
                 {},
                 //  () => {},
                 x.data.propdata[i].FieldCode,
                 x.data.propdata[i].IsRequired,
               );
-              componentRef.instance.FormField = e;
+
+              console.log(  field)
+              componentRef.instance.FormField = field;
               componentRef.instance.OnRemove.subscribe((x) => {
                 var index = this.FieldDatas.findIndex((c) => c.Key == x.Key);
                 if (index > -1) {
@@ -107,7 +110,7 @@ export class DynamicformfieldeditorComponent implements OnInit {
                   this.cd.detectChanges();
                 }
               });
-              this.FieldDatas = [new FieldData(e, componentRef, key), ...this.FieldDatas];
+              this.FieldDatas = [new FieldData(field, componentRef, key), ...this.FieldDatas];
             }
           }
 

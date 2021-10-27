@@ -43,6 +43,8 @@ export class DesignerComponent implements OnInit {
         }),
       )
       .subscribe();
+
+    
   }
 
   title = '开始设计';
@@ -69,10 +71,16 @@ export class DesignerComponent implements OnInit {
 
   savediagram() {
     this.diagram.savediagram();
-
     this.router.navigate(['/iot/flow/flowlist'], {
-     
     });
-
   }
+
+
+  returntolist(){
+
+    this.router.navigate(['/iot/flow/flowlist'])
+  }
+
+
+
 }
