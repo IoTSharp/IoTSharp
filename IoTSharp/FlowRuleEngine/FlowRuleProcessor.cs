@@ -19,8 +19,8 @@ namespace IoTSharp.FlowRuleEngine
         private readonly ApplicationDbContext _context;
         private readonly ILogger<FlowRuleProcessor> _logger;
         private readonly AppSettings _setting;
-        private List<Flow> _allFlows ;
-        private List<FlowOperation> _allflowoperation ;
+        private List<Flow> _allFlows;
+        private List<FlowOperation> _allflowoperation;
         public FlowRuleProcessor(
 
             ApplicationDbContext context, ILogger<FlowRuleProcessor> logger, IServiceScopeFactory scopeFactor, IOptions<AppSettings> options)
@@ -47,7 +47,7 @@ namespace IoTSharp.FlowRuleEngine
         public async Task<List<FlowOperation>> RunFlowRules(Guid ruleid, object data, Guid creator, EventType type, string BizId)
         {
             var rule = _context.FlowRules.FirstOrDefault(c => c.RuleId == ruleid);
-            _allFlows = _context.Flows.Where(c => c.FlowRule == rule&&c.FlowStatus>0).ToList();
+            _allFlows = _context.Flows.Where(c => c.FlowRule == rule && c.FlowStatus > 0).ToList();
             var _event = new BaseEvent()
             {
                 CreaterDateTime = DateTime.Now,
@@ -155,7 +155,7 @@ namespace IoTSharp.FlowRuleEngine
                             Flow = flow,
                             Data = JsonConvert.SerializeObject(data),
                             NodeStatus = 1,
-                            OperationDesc = "执行"+flow.NodeProcessScriptType+"任务:" + flow.Flowname,
+                            OperationDesc = "执行" + flow.NodeProcessScriptType + "任务:" + flow.Flowname,
                             Step = ++peroperation.Step,
                             BaseEvent = peroperation.BaseEvent
                         };
@@ -163,7 +163,7 @@ namespace IoTSharp.FlowRuleEngine
 
 
                         //脚本处理
-                        if (!string.IsNullOrEmpty(flow.NodeProcessScriptType) && (!string.IsNullOrEmpty(flow.NodeProcessScript)||!string.IsNullOrEmpty(flow.NodeProcessClass)))
+                        if (!string.IsNullOrEmpty(flow.NodeProcessScriptType) && (!string.IsNullOrEmpty(flow.NodeProcessScript) || !string.IsNullOrEmpty(flow.NodeProcessClass)))
                         {
                             var scriptsrc = flow.NodeProcessScript;
 
@@ -171,20 +171,19 @@ namespace IoTSharp.FlowRuleEngine
                             dynamic obj = null;
                             switch (flow.NodeProcessScriptType)
                             {
-                                case "csharp":
+                                case "executor":
 
                                     if (!string.IsNullOrEmpty(flow.NodeProcessClass))
                                     {
-
                                         var t = Type.GetType(flow.NodeProcessClass);
                                         if (t != null)
                                         {
-                                            ITaskExcutor excutor =  (ITaskExcutor) Activator.CreateInstance(t);
-                                            if (excutor != null)
+                                            ITaskExecutor executor = (ITaskExecutor)Activator.CreateInstance(t);
+                                            if (executor != null)
                                             {
-                                            var result    = excutor.Excute(new TaskExcutorParam()
-                                                    {ExcutEntity = null, Param = taskoperation.Data });
-                                            obj = result.Result;
+                                                var result = executor.Execute(new TaskExecutorParam()
+                                                { ExecutEntity = null, Param = taskoperation.Data });
+                                                obj = result.Result;
                                             }
                                             else
                                             {
@@ -192,23 +191,14 @@ namespace IoTSharp.FlowRuleEngine
                                                 taskoperation.NodeStatus = 2;
                                                 return;
                                             }
-
-
                                         }
                                         else
                                         {
-
-                                            taskoperation.OperationDesc = "脚本执行异常,未能实例化执行器";
+                                            taskoperation.OperationDesc = "脚本执行异常,未能找到执行器类型";
                                             taskoperation.NodeStatus = 2;
                                             return;
                                         }
-
-
-
                                     }
-
-
-
 
                                     //脚本处理逻辑
                                     break;
@@ -223,7 +213,7 @@ namespace IoTSharp.FlowRuleEngine
                                     break;
                                 case "sql":
                                     {
-                               
+
                                         using (var pse = _sp.GetRequiredService<SQLEngine>())
                                         {
                                             string result = pse.Do(scriptsrc, taskoperation.Data);
@@ -284,7 +274,7 @@ namespace IoTSharp.FlowRuleEngine
                                 taskoperation.OperationDesc = "脚本执行异常,未能获取到结果";
                                 taskoperation.NodeStatus = 2;
 
-                                _logger.Log(LogLevel.Warning,"脚本未能顺利执行");
+                                _logger.Log(LogLevel.Warning, "脚本未能顺利执行");
                             }
                         }
                         else
@@ -317,8 +307,8 @@ namespace IoTSharp.FlowRuleEngine
                     break;
 
                 case "bpmn:EndEvent":
-             
-                    var end = _allflowoperation.FirstOrDefault(c => c.bpmnid == flow.bpmnid );
+
+                    var end = _allflowoperation.FirstOrDefault(c => c.bpmnid == flow.bpmnid);
 
                     if (end != null)
                     {
@@ -329,7 +319,7 @@ namespace IoTSharp.FlowRuleEngine
                         end.Data = JsonConvert.SerializeObject(data);
                         end.NodeStatus = 1;
                         end.OperationDesc = "处理完成";
-                        end.Step = 1+_allflowoperation.Max(c => c.Step) ;
+                        end.Step = 1 + _allflowoperation.Max(c => c.Step);
                         end.BaseEvent = peroperation.BaseEvent;
                     }
                     else
@@ -343,14 +333,14 @@ namespace IoTSharp.FlowRuleEngine
                         end.Data = JsonConvert.SerializeObject(data);
                         end.NodeStatus = 1;
                         end.OperationDesc = "处理完成";
-                        end.Step = 1+_allflowoperation.Max(c => c.Step) ;
+                        end.Step = 1 + _allflowoperation.Max(c => c.Step);
                         end.BaseEvent = peroperation.BaseEvent;
                         _allflowoperation.Add(end);
                     }
 
 
                     break;
-      
+
 
                 //没有终结点的节点必须留个空标签
                 case "label":

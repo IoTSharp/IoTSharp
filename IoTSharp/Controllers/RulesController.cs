@@ -1036,10 +1036,10 @@ namespace IoTSharp.Controllers
 
 
         [HttpGet("[action]")]
-        public ApiResult<dynamic> GetExcutor()
+        public ApiResult<dynamic> GetExecutor()
         {
 
-            return new ApiResult<dynamic > (ApiCode.Success, "OK", Assembly.GetExecutingAssembly().GetTypes().Where(c => c.GetInterfaces().Contains(typeof(ITaskExcutor))).Select(c => new { label = c.GetCustomAttribute<DisplayNameAttribute>()?.DisplayName?? c.FullName, value = c.FullName }).ToList());
+            return new ApiResult<dynamic > (ApiCode.Success, "OK", Assembly.GetExecutingAssembly().GetTypes().Where(c => c.GetInterfaces().Contains(typeof(ITaskExecutor))).Select(c => new { label = c.GetCustomAttribute<DisplayNameAttribute>()?.DisplayName?? c.FullName, value = c.FullName }).ToList());
         }
    
 }

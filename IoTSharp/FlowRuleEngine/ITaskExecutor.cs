@@ -6,16 +6,16 @@ using System.Threading.Tasks;
 
 namespace IoTSharp.FlowRuleEngine
 {
-    public interface ITaskExcutor
+    public interface ITaskExecutor
     {
 
-        public TaskExcutorResult Excute(TaskExcutorParam param);
+        public TaskExecutorResult Execute(TaskExecutorParam param);
 
 
     }
 
 
-    public interface IExcutEntity
+    public interface IExecutEntity
     {
         public Guid Id { get; set; }
 
@@ -23,15 +23,15 @@ namespace IoTSharp.FlowRuleEngine
 
     }
 
-    public class TaskExcutorResult
+    public class TaskExecutorResult
     {
     
         public dynamic Result { get; set; }
     }
 
-    public class TaskExcutorParam
+    public class TaskExecutorParam
     {
-        public IExcutEntity ExcutEntity { get; set; }
+        public IExecutEntity ExecutEntity { get; set; }
         public string Param { get; set; }
 
     }

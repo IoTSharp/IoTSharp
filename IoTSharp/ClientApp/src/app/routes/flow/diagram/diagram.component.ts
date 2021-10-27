@@ -41,7 +41,7 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy 
   @ViewChild(NzCodeEditorComponent, { static: false }) editorComponent?: NzCodeEditorComponent;
   isCollapsed = false;
 
-   excutors = [];
+  executors = [];
 
   EMPTY_BPMN_DIAGRAM = `
   <?xml version="1.0" encoding="UTF-8"?>
@@ -87,7 +87,7 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy 
 
   flowscripttypeChange($event) {
     console.log(this.form.flowscripttype);
-    if (this.form.flowscripttype === 'csharp') {
+    if (this.form.flowscripttype === 'executor') {
       this.form.nodeProcessClassVisable = true;
       this.form.flowscriptVisable = false;
     } else {
@@ -144,13 +144,10 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy 
       .subscribe();
   }
 
-  getexcutors(){
-
-
-this.http.get('api/rules/getexcutor').subscribe(next=>{
-
-this.excutors=next.data;
-},error=>{},()=>{})
+  getexcutors() {
+    this.http.get('api/rules/getexecutor').subscribe(next => {
+      this.executors = next.data;
+    }, error => { }, () => { })
 
   }
 
@@ -211,9 +208,9 @@ this.excutors=next.data;
             }
             task.bizObject.conditionexpressionVisable = false;
             task.bizObject.flowscripttypeVisable = true;
-            if (task.bizObject.flowscripttype === 'csharp') {
+            if (task.bizObject.flowscripttype === 'executor') {
               task.bizObject.nodeProcessClassVisable = true;
-               task.bizObject.flowscriptVisable = false;
+              task.bizObject.flowscriptVisable = false;
 
             } else {
               task.bizObject.nodeProcessClassVisable = false;
@@ -822,7 +819,7 @@ this.excutors=next.data;
       }
     });
 
-this.getexcutors();
+    this.getexcutors();
 
   }
 
