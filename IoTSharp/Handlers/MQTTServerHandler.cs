@@ -166,8 +166,7 @@ namespace IoTSharp.Handlers
                                 , TimeSpan.FromMinutes(5));
                                 if (rules.HasValue)
                                 {
-                                    
-                                    var obj = new { e.ApplicationMessage.Topic, Payload = e.ApplicationMessage.ConvertPayloadToString() };
+                                    var obj = new { e.ApplicationMessage.Topic, Payload = Convert.ToBase64String(e.ApplicationMessage.Payload), e.ClientId };
                                     rules.Value.ToList().ForEach(async g =>
                                     {
                                         _logger.LogInformation($"{e.ClientId}的数据{e.ApplicationMessage.Topic}通过规则链{g}进行处理。");

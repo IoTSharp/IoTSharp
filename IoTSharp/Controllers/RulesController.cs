@@ -25,6 +25,7 @@ using System.Threading.Tasks;
 using Castle.Components.DictionaryAdapter;
 using Dynamitey.DynamicObjects;
 using Namotion.Reflection;
+using IoTSharp.TaskExecutor;
 
 namespace IoTSharp.Controllers
 {
@@ -35,13 +36,15 @@ namespace IoTSharp.Controllers
     {
         private ApplicationDbContext _context;
         private readonly FlowRuleProcessor _flowRuleProcessor;
+        private readonly TaskExecutorHelper _helper;
         private UserManager<IdentityUser> _userManager;
 
-        public RulesController(ApplicationDbContext context, UserManager<IdentityUser> userManager, FlowRuleProcessor flowRuleProcessor)
+        public RulesController(ApplicationDbContext context, UserManager<IdentityUser> userManager, FlowRuleProcessor flowRuleProcessor, TaskExecutorHelper helper)
         {
             this._userManager = userManager;
             this._context = context;
             _flowRuleProcessor = flowRuleProcessor;
+            _helper = helper;
         }
 
         [HttpPost("[action]")]
@@ -1091,7 +1094,7 @@ namespace IoTSharp.Controllers
             }
             else
             {
-                return (await this._userManager.FindByIdAsync(dto.Creator.ToString()))?.UserName;
+                return (await _userManager.FindByIdAsync(dto.Creator.ToString()))?.UserName;
 
             }
         }
@@ -1116,48 +1119,8 @@ namespace IoTSharp.Controllers
         [HttpGet("[action]")]
         public ApiResult<dynamic> GetExecutor()
         {
-
-            return new ApiResult<dynamic>(ApiCode.Success, "OK", Assembly.GetExecutingAssembly().GetTypes().Where(c => c.GetInterfaces().Contains(typeof(ITaskExecutor))).Select(c => new { label = c.GetCustomAttribute<DisplayNameAttribute>()?.DisplayName ?? c.FullName, value = c.FullName }).ToList());
+            return new ApiResult<dynamic>(ApiCode.Success, "OK", _helper.GetTaskExecutorList().Select(c => new { label = c.Key, value = c.Value.FullName }).ToList());
         }
 
-
-        //[HttpGet("[action]")]
-        //public ApiResult<dynamic> Executors()
-        //{
-
-
-
-        //    return new ApiResult<dynamic>();
-        //}
-
-
-        //[HttpGet("[action]")]
-        //public ApiResult<dynamic> AddExecutor()
-        //{
-
-
-
-        //    return new ApiResult<dynamic>();
-        //}
-
-
-        //[HttpGet("[action]")]
-        //public ApiResult<dynamic> UpdateExecutor()
-        //{
-
-
-
-        //    return new ApiResult<dynamic>();
-        //}
-
-
-        //[HttpGet("[action]")]
-        //public ApiResult<dynamic> Update()
-        //{
-
-
-
-        //    return new ApiResult<dynamic>();
-        //}
     }
 }

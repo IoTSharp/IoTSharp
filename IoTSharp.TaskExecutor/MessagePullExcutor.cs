@@ -5,16 +5,16 @@ using System.Dynamic;
 using System.Linq;
 using System.Threading.Tasks;
 using IoTSharp.Data;
+using IoTSharp.TaskExecutor;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
-namespace IoTSharp.FlowRuleEngine.TaskExcutor
+namespace IoTSharp.TaskExecutor
 {
     [DisplayName("用于消息推送的执行器")]
     public class MessagePullExecutor : ITaskExecutor
     {
 
-        private readonly ApplicationDbContext _context;
         public MessagePullExecutor()
         {
 
@@ -28,9 +28,8 @@ namespace IoTSharp.FlowRuleEngine.TaskExcutor
             var d = o.Property("temperature");
             d.Value = new JValue(d.Value.Value<double>() + 100);
             return new TaskExecutorResult() { Result = o.ToObject(typeof(ExpandoObject)) };
-
             var p= JsonConvert.DeserializeObject<MessagePullParam>(param.Param);
-           p.temperature = p.temperature + 120;
+           p.temperature += 120;
            return new TaskExecutorResult() { Result =p };
         }
 
