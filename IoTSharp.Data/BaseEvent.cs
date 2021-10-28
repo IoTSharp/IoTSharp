@@ -22,5 +22,6 @@ namespace IoTSharp.Data
         public FlowRule FlowRule { get; set; }
         public string Bizid { get; set; }
         public DateTime CreaterDateTime { get; set; }
+        public string BizData { get; set; }
     }
 }

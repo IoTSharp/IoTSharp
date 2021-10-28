@@ -55,9 +55,10 @@ namespace IoTSharp.FlowRuleEngine
                 EventDesc = "测试",
                 EventName = "测试",
                 MataData = JsonConvert.SerializeObject(data),
+                BizData = JsonConvert.SerializeObject(rule),  //所有规则修改都会让对应的flow数据和设计文件不一致，最终导致回放失败，在此拷贝一份原始数据
                 FlowRule = rule,
                 Bizid = BizId,
-                Type = type,
+                Type = type, 
                 EventStaus = 1
             };
             _context.BaseEvents.Add(_event);

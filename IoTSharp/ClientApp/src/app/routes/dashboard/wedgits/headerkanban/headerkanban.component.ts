@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { G2MiniBarData } from '@delon/chart';
 import { IWidgetComponent } from '../../v1/widgetcomponent';
-
+import {_HttpClient } from '@delon/theme';
 
 
 
@@ -35,7 +35,17 @@ export class HeaderkanbanComponent implements OnInit ,IWidgetComponent{
 
     },
   };
-  constructor() {}
+  constructor(private http:_HttpClient) {}
 
-  ngOnInit(): void {}
+  ngOnInit(): void {
+
+
+    this.http.get('api/rules/getexecutor').subscribe(
+      (next) => {
+        
+      },
+      (error) => {},
+      () => {},
+    );
+  }
 }

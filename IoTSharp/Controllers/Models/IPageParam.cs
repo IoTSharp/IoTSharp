@@ -53,4 +53,10 @@ namespace IoTSharp.Controllers.Models
     {
         public Guid tenantId { get; set; }
     }
+
+
+    public class ExecutorParam : IPageParam
+    {
+        public Guid tenantId { get; set; }
+    }
 }

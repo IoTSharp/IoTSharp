@@ -60,6 +60,8 @@ import { ScriptlistComponent } from './flow/scriptlist/scriptlist.component';
 import { ComponentlistComponent } from './flow/componentlist/componentlist.component';
 import { FloweventsComponent } from './flow/flowevents/flowevents.component';
 import { FloweventviewComponent } from './flow/floweventview/floweventview.component';
+import { TaskexecutorlistComponent } from './flow/taskexecutorlist/taskexecutorlist.component';
+import { TaskexecutorformComponent } from './flow/taskexecutorform/taskexecutorform.component';
 
 const COMPONENTS: Type<null>[] = [];
 const Directive: Type<void>[] = [fielddirective, controldirective];
@@ -118,6 +120,8 @@ const Directive: Type<void>[] = [fielddirective, controldirective];
       ComponentlistComponent,
       FloweventsComponent,
       FloweventviewComponent,
+      TaskexecutorlistComponent,
+      TaskexecutorformComponent,
   ],
 })
 export class RoutesModule {
