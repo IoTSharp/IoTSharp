@@ -47,6 +47,15 @@
       },
       "applicationUrl": ";http://localhost:5000"
     },
+    "Production": {
+      "commandName": "Project",
+      "launchBrowser": true,
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Production"
+      },
+      "applicationUrl": ";http://localhost:5000"
+    },
+
     "TimescaleDB": {
       "commandName": "Project",
       "launchBrowser": true,
