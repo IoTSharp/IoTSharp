@@ -26,8 +26,5 @@ namespace IoTSharp.TaskExecutor
             var playload = Convert.FromBase64String(msg.Payload);
             return new TaskExecutorResult();
         }
-
-
-
     }
 }
