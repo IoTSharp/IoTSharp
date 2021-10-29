@@ -15,7 +15,7 @@
 		</PackageReference>
 		<PackageReference Include="Microsoft.Extensions.Diagnostics.HealthChecks" Version="5.0.11" />
 		<PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="5.0.10" />
-		<PackageReference Include="EFCore.Sharding.PostgreSql" Version="5.0.17" />
+		<PackageReference Include="EFCore.Sharding.PostgreSql" Version="5.0.18" />
 	</ItemGroup>
 
 	<ItemGroup>

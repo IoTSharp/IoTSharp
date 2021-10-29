@@ -39,7 +39,12 @@ namespace IoTSharp.FlowRuleEngine
             {
                 LoadTypesInfo();
             }
-            return CreateInstance(pairs[name]);
+            object obj = null;
+            if (pairs.TryGetValue(name, out var t))
+            {
+                obj = CreateInstance(t);
+            }
+            return obj;
         }
         public object CreateInstanceByTypeName(string typename)
         {
@@ -47,8 +52,12 @@ namespace IoTSharp.FlowRuleEngine
             {
                 LoadTypesInfo();
             }
-            var t = pairstypename[typename];
-            object obj = CreateInstance(t);
+            object obj = null;
+            if (pairstypename.TryGetValue(typename, out var t))
+            {
+                obj = CreateInstance(t);
+            }
+
             return obj;
         }
 
@@ -56,7 +65,7 @@ namespace IoTSharp.FlowRuleEngine
         {
             var cnst = t.GetConstructors();
             object obj;
-            if (cnst.Any())
+            if (cnst.FirstOrDefault()?.GetParameters().Any()==true)
             {
                 obj = _sp.GetRequiredService(t);
             }
@@ -64,7 +73,6 @@ namespace IoTSharp.FlowRuleEngine
             {
                 obj = Activator.CreateInstance(t);
             }
-
             return obj;
         }
 
@@ -73,16 +81,27 @@ namespace IoTSharp.FlowRuleEngine
             pairs = new Dictionary<string, Type>();
             Assembly.GetEntryAssembly().GetTypes().Where(c => c.GetInterfaces().Contains(typeof(ITaskAction))).ToList().ForEach(c =>
             {
-                pairs.Add(c.GetCustomAttribute<DisplayNameAttribute>()?.DisplayName ?? c.FullName, c);
+                var key = c.GetCustomAttribute<DisplayNameAttribute>()?.DisplayName ?? c.FullName;
+                if (!pairs.ContainsKey(key))
+                {
+                    pairs.Add(key, c);
+                }
             });
             typeof(ITaskAction).Assembly.GetTypes().Where(c => c.GetInterfaces().Contains(typeof(ITaskAction))).ToList().ForEach(c =>
             {
-                pairs.Add(c.GetCustomAttribute<DisplayNameAttribute>()?.DisplayName ?? c.FullName, c);
+                var key = c.GetCustomAttribute<DisplayNameAttribute>()?.DisplayName ?? c.FullName;
+                if (!pairs.ContainsKey(key))
+                {
+                    pairs.Add(key, c);
+                }
             });
             pairstypename = new Dictionary<string, Type>();
             pairs.Values.ToList().ForEach(t =>
             {
-                pairstypename.Add(t.FullName, t);
+                if (!pairstypename.ContainsKey(t.FullName))
+                {
+                    pairstypename.Add(t.FullName, t);
+                }
             });
         }
     }

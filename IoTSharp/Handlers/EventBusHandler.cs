@@ -47,7 +47,7 @@ namespace IoTSharp.Handlers
             _flowRuleProcessor = flowRuleProcessor;
             _caching = factory.GetCachingProvider("iotsharp");
         }
-
+        Dictionary<Guid, DateTime> _check_device_status = new Dictionary<Guid, DateTime>();
         [CapSubscribe("iotsharp.services.datastream.attributedata")]
         public void StoreAttributeData(RawMsg msg)
         {
@@ -112,33 +112,30 @@ namespace IoTSharp.Handlers
                 }
             });
         }
-
+      
         [CapSubscribe("iotsharp.services.datastream.telemetrydata")]
         public void StoreTelemetryData(RawMsg msg)
         {
             Task.Run(async () =>
             {
-                var devid = msg.DeviceId;
-                var formdata = Newtonsoft.Json.Linq.JToken.Parse(Newtonsoft.Json.JsonConvert.SerializeObject(msg.MsgBody));
-                var dtaobj = formdata.ToObject(typeof(ExpandoObject));
-                var rules = await _caching.GetAsync($"ruleid_{devid}", async () =>
+                await _storage.StoreTelemetryAsync(msg);
+                if (!_check_device_status.ContainsKey(msg.DeviceId))
                 {
+                    _check_device_status.Add(msg.DeviceId, DateTime.Now);
+                }
+                if (_check_device_status[msg.DeviceId].Subtract(DateTime.Now).TotalSeconds > 60)
+                {
+                    _check_device_status[msg.DeviceId] = DateTime.Now;
                     using (var scope = _scopeFactor.CreateScope())
                     using (var _dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>())
                     {
-                        return await _dbContext.GerDeviceRulesIdList(devid);
+                        var device = _dbContext.Device.FirstOrDefault(d => d.Id == msg.DeviceId);
+                        if (device != null)
+                        {
+                            device.CheckOrUpdateDevStatus();
+                            await _dbContext.SaveChangesAsync();
+                        }
                     }
-                }, TimeSpan.FromMinutes(5));
-                if (rules.HasValue)
-                {
-                    rules.Value.ToList().ForEach(async g =>
-                    {
-                        await _flowRuleProcessor.RunFlowRules(g, dtaobj, devid, EventType.Normal, null);
-                    });
-                }
-                else
-                {
-                    await _storage.StoreTelemetryAsync(msg);
                 }
             });
         }

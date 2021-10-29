@@ -3,6 +3,7 @@ using IoTSharp.Data;
 using IoTSharp.Extensions;
 using IoTSharp.TaskAction;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -22,14 +23,22 @@ namespace IoTSharp.Handlers
             _queue = queue;
         }
 
-        public TaskActionOutput Execute(TaskInput param)
+        public TaskActionOutput Execute(TaskActionInput param)
         {
-            var msg = JsonConvert.DeserializeObject<RawMsg>(param.Intput);
-            if (msg.DeviceId != Guid.Empty && msg.MsgBody?.Count > 0)
+            var result = new TaskActionOutput() { DynamicOutput = new { code = ApiCode.Success, msg = "OK" } };
+            try
             {
-                _queue.PublishAttributeData(msg);
+                var msg = new RawMsg() { MsgType = MsgType.CoAP, MsgBody = JToken.Parse(param.Input)?.JsonToDictionary(), DataCatalog = DataCatalog.AttributeData, DataSide = DataSide.ClientSide, DeviceId = param.DeviceId };
+                if (msg.DeviceId != Guid.Empty && msg.MsgBody?.Count > 0)
+                {
+                    _queue.PublishAttributeData(msg);
+                }
             }
-            return new TaskActionOutput();
+            catch (Exception ex)
+            {
+                result.DynamicOutput = new { code = ApiCode.Exception, msg = ex.Message };
+            }
+            return result;
         }
     }
 }
