@@ -1172,7 +1172,7 @@ namespace IoTSharp.Controllers
         }
 
 
-        [HttpPut("[action]")]
+        [HttpPost("[action]")]
         public async Task<ApiResult<bool>> UpdateExecutor(RuleTaskExecutor m)
         {
             var executor = await _context.RuleTaskExecutors.SingleOrDefaultAsync(c => c.ExecutorId == m.ExecutorId);
@@ -1220,23 +1220,16 @@ namespace IoTSharp.Controllers
 
 
         [HttpPost("[action]")]
-        public async Task<ApiResult<bool>> TestExecutor(RuleTaskExecutor m)
+        public async Task<ApiResult<RuleTaskExecutorTestResultDto>> TestExecutor(RuleTaskExecutorTestDto m)
         {
             var profile = await this.GetUserProfile();
-            var executor = new RuleTaskExecutor();
-            executor.DefaultConfig = m.DefaultConfig;
-            executor.ExecutorDesc = m.ExecutorDesc;
-            executor.ExecutorName = m.ExecutorName;
-            executor.TypeName = m.ExecutorName;
-            executor.Path = m.Path;
-            executor.Tag = m.Tag;
-            executor.Path = m.Path;
-            executor.AddDateTime = DateTime.Now;
-            executor.Creator = profile.Id;
-            executor.ExecutorStatus = 1;
-            _context.RuleTaskExecutors.Add(executor);
+            
+
+
+
+      
             await _context.SaveChangesAsync();
-            return new ApiResult<bool>(ApiCode.Success, "Ok", true);
+            return new ApiResult<RuleTaskExecutorTestResultDto>(ApiCode.Success, "Ok", new RuleTaskExecutorTestResultDto());
         }
 
     }
