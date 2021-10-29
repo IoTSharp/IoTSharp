@@ -16,6 +16,7 @@ import { DesignerComponent } from './flow/designer/designer.component';
 import { FloweventsComponent } from './flow/flowevents/flowevents.component';
 import { FlowlistComponent } from './flow/flowlist/flowlist.component';
 import { ScriptlistComponent } from './flow/scriptlist/scriptlist.component';
+import { TaskexecutorlistComponent } from './flow/taskexecutorlist/taskexecutorlist.component';
 import { I18nlistComponent } from './resource/i18nlist/i18nlist.component';
 import { TenantlistComponent } from './tenant/tenantlist/tenantlist.component';
 import { UserlistComponent } from './user/userlist/userlist.component';
@@ -56,6 +57,7 @@ const routes: Routes = [
       { path: 'flow/scriptlist', component: ScriptlistComponent },
       { path: 'flow/flowevents', component: FloweventsComponent },
       { path: 'flow/componentlist', component: ComponentlistComponent },
+      { path: 'flow/taskexecutorlist', component: TaskexecutorlistComponent },
       { path: 'dictionary/dictionarylist', component: DictionarylistComponent },
       { path: 'dictionary/dictionarygrouplist', component: DictionarygrouplistComponent },
       { path: 'resouce/i18nlist', component: I18nlistComponent },

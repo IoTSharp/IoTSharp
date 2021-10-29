@@ -3,15 +3,17 @@ using System;
 using IoTSharp.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 namespace IoTSharp.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20211029031319_addexecfield")]
+    partial class addexecfield
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -723,9 +725,6 @@ namespace IoTSharp.Migrations
                     b.Property<Guid>("Createor")
                         .HasColumnType("uuid");
 
-                    b.Property<Guid?>("ExecutorId")
-                        .HasColumnType("uuid");
-
                     b.Property<Guid?>("FlowRuleRuleId")
                         .HasColumnType("uuid");
 
@@ -778,8 +777,6 @@ namespace IoTSharp.Migrations
                         .HasColumnType("text");
 
                     b.HasKey("FlowId");
-
-                    b.HasIndex("ExecutorId");
 
                     b.HasIndex("FlowRuleRuleId");
 
@@ -908,47 +905,6 @@ namespace IoTSharp.Migrations
                     b.HasIndex("TenantId");
 
                     b.ToTable("Relationship");
-                });
-
-            modelBuilder.Entity("IoTSharp.Data.RuleTaskExecutor", b =>
-                {
-                    b.Property<Guid>("ExecutorId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
-
-                    b.Property<DateTime>("AddDateTime")
-                        .HasColumnType("timestamp without time zone");
-
-                    b.Property<Guid>("Creator")
-                        .HasColumnType("uuid");
-
-                    b.Property<string>("DefaultConfig")
-                        .HasColumnType("text");
-
-                    b.Property<string>("ExecutorDesc")
-                        .HasColumnType("text");
-
-                    b.Property<string>("ExecutorName")
-                        .HasColumnType("text");
-
-                    b.Property<int>("ExecutorStatus")
-                        .HasColumnType("integer");
-
-                    b.Property<string>("MataData")
-                        .HasColumnType("text");
-
-                    b.Property<string>("Path")
-                        .HasColumnType("text");
-
-                    b.Property<string>("Tag")
-                        .HasColumnType("text");
-
-                    b.Property<string>("TypeName")
-                        .HasColumnType("text");
-
-                    b.HasKey("ExecutorId");
-
-                    b.ToTable("RuleTaskExecutors");
                 });
 
             modelBuilder.Entity("IoTSharp.Data.TelemetryData", b =>
@@ -1355,15 +1311,9 @@ namespace IoTSharp.Migrations
 
             modelBuilder.Entity("IoTSharp.Data.Flow", b =>
                 {
-                    b.HasOne("IoTSharp.Data.RuleTaskExecutor", "Executor")
-                        .WithMany()
-                        .HasForeignKey("ExecutorId");
-
                     b.HasOne("IoTSharp.Data.FlowRule", "FlowRule")
                         .WithMany()
                         .HasForeignKey("FlowRuleRuleId");
-
-                    b.Navigation("Executor");
 
                     b.Navigation("FlowRule");
                 });

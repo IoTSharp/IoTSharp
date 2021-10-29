@@ -76,5 +76,7 @@ namespace IoTSharp.Data
         public DbSet<Flow> Flows { get; set; }
         public DbSet<FlowOperation> FlowOperations { get; set; }
         public DbSet<DeviceRule> DeviceRules { get; set; }
+
+        public DbSet<RuleTaskExecutor> RuleTaskExecutors { get; set; }
     }
 }

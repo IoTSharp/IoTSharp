@@ -109,6 +109,18 @@ export class FlowlistComponent implements OnInit {
 
           },
         },
+
+
+
+        {
+          text: (record) => 'fork',
+          click: (item: ruleflow) => {
+
+
+            //do something
+
+          },
+        },
         {
           text: '设计',
           //   acl: 104,

@@ -120,6 +120,7 @@ namespace IoTSharp.Controllers
                                             new { text = "脚本管理", i18n = "", link = "/iot/flow/scriptlist" },
                                             new { text = "组件管理", i18n = "", link = "/iot/flow/componentlist" },
                                             new { text = "事件", i18n = "", link = "/iot/flow/flowevents" },
+                                            new { text = "执行器", i18n = "", link = "/iot/flow/taskexecutorlist" },
                                         }
                                     },
                                     new
