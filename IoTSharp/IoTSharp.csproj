@@ -201,7 +201,7 @@
 	  <ProjectReference Include="..\IoTSharp.Data.SqlServer\IoTSharp.Data.SqlServer.csproj" />
 	  <ProjectReference Include="..\IoTSharp.Data\IoTSharp.Data.csproj" />
 	  <ProjectReference Include="..\IoTSharp.Interpreter\IoTSharp.Interpreter.csproj" />
-	  <ProjectReference Include="..\IoTSharp.TaskExecutor\IoTSharp.TaskExecutor.csproj" />
+	  <ProjectReference Include="..\IoTSharp.TaskExecutor\IoTSharp.TaskAction.csproj" />
 	</ItemGroup>
 	<ItemGroup>
 	  <Folder Include="ClientApp\" />

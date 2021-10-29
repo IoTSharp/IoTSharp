@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using Castle.Components.DictionaryAdapter;
 using IoTSharp.Data;
 using IoTSharp.Interpreter;
-using IoTSharp.TaskExecutor;
+using IoTSharp.TaskAction;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -40,12 +40,12 @@ namespace IoTSharp.FlowRuleEngine
         /// </summary>
         /// <param name="ruleid"> 规则Id</param>
         /// <param name="data">数据</param>
-        /// <param name="creator">创建者(可以是模拟器(测试)，可以是设备，在EventType中区分一下)</param>
+        /// <param name="deviceId">创建者(可以是模拟器(测试)，可以是设备，在EventType中区分一下)</param>
         /// <param name="type">类型</param>
         /// <param name="BizId">业务Id(第三方唯一Id，用于取回事件以及记录的标识)</param>
         /// <returns> 返回所有节点的记录信息，需要保存则保存</returns>
 
-        public async Task<List<FlowOperation>> RunFlowRules(Guid ruleid, object data, Guid creator, EventType type, string BizId)
+        public async Task<List<FlowOperation>> RunFlowRules(Guid ruleid, object data, Guid deviceId, EventType type, string BizId)
         {
             using (var _context = _sp.GetRequiredService<ApplicationDbContext>())
             {
@@ -54,7 +54,7 @@ namespace IoTSharp.FlowRuleEngine
                 var _event = new BaseEvent()
                 {
                     CreaterDateTime = DateTime.Now,
-                    Creator = creator,
+                    Creator = deviceId,
                     EventDesc = "测试",
                     EventName = "测试",
                     MataData = JsonConvert.SerializeObject(data),
@@ -106,7 +106,7 @@ namespace IoTSharp.FlowRuleEngine
                             BaseEvent = _event
                         };
                         _allflowoperation.Add(flowOperation);
-                        await Process(flowOperation.OperationId, data);
+                        await Process(flowOperation.OperationId, data, deviceId);
                     }
                     return _allflowoperation;
                 }
@@ -116,7 +116,7 @@ namespace IoTSharp.FlowRuleEngine
 
 
 
-        public async Task Process(Guid operationid, object data)
+        public async Task Process(Guid operationid, object data,Guid  deviceId)
         {
             var peroperation = _allflowoperation.FirstOrDefault(c => c.OperationId == operationid);
             if (peroperation != null)
@@ -142,7 +142,7 @@ namespace IoTSharp.FlowRuleEngine
                             BaseEvent = peroperation.BaseEvent
                         };
                         _allflowoperation.Add(operation);
-                        await Process(operation.OperationId, data);
+                        await Process(operation.OperationId, data, deviceId);
                         break;
 
                     case "bpmn:Task":
@@ -178,16 +178,15 @@ namespace IoTSharp.FlowRuleEngine
                                         if (!string.IsNullOrEmpty(flow.NodeProcessClass))
                                         {
 
-                                            ITaskExecutor executor = _helper.CreateInstanceByTypeName(flow.NodeProcessClass) as ITaskExecutor;
+                                            ITaskAction executor = _helper.CreateInstanceByTypeName(flow.NodeProcessClass) as ITaskAction;
                                             if (executor != null)
                                             {
-                                                var result = executor.Execute(new TaskExecutorParam()
+                                                var result = executor.Execute(new TaskInput()
                                                 {
-                                                    ExecutEntity = null,
-                                                    Param = taskoperation.Data
+                                                    Intput = taskoperation.Data, DeviceId= deviceId
                                                 }
                                                 );
-                                                obj = result.Result;
+                                                obj = result.DynamicOutput;
                                             }
                                             else
                                             {
@@ -261,7 +260,7 @@ namespace IoTSharp.FlowRuleEngine
                                             BaseEvent = taskoperation.BaseEvent
                                         };
                                         _allflowoperation.Add(flowOperation);
-                                        await Process(flowOperation.OperationId, obj);
+                                        await Process(flowOperation.OperationId, obj, deviceId);
                                     }
                                 }
                                 else
@@ -293,7 +292,7 @@ namespace IoTSharp.FlowRuleEngine
                                         BaseEvent = taskoperation.BaseEvent
                                     };
                                     _allflowoperation.Add(flowOperation);
-                                    await Process(flowOperation.OperationId, data);
+                                    await Process(flowOperation.OperationId, data,deviceId);
                                 }
 
                             }
