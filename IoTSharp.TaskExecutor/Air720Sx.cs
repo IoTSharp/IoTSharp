@@ -5,14 +5,14 @@ using System.Dynamic;
 using System.Linq;
 using System.Threading.Tasks;
 using IoTSharp.Data;
-using IoTSharp.TaskExecutor;
+using IoTSharp.TaskAction;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
-namespace IoTSharp.TaskExecutor
+namespace IoTSharp.TaskAction
 {
     [DisplayName("Air720S解析器")]
-    public class Air720Sx : ITaskExecutor
+    public class Air720Sx : ITaskAction
     {
 
         public Air720Sx()
@@ -20,11 +20,11 @@ namespace IoTSharp.TaskExecutor
 
         }
 
-        public TaskExecutorResult Execute(TaskExecutorParam param)
+        public TaskActionOutput Execute(TaskInput param)
         {
-            var msg = JsonConvert.DeserializeObject<(string Topic, string Payload, string ClientId)>(param.Param);
+            var msg = JsonConvert.DeserializeObject<(string Topic, string Payload, string ClientId)>(param.Intput);
             var playload = Convert.FromBase64String(msg.Payload);
-            return new TaskExecutorResult();
+            return new TaskActionOutput();
         }
     }
 }

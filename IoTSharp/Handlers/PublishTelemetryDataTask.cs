@@ -1,7 +1,7 @@
 ﻿using DotNetCore.CAP;
 using IoTSharp.Data;
 using IoTSharp.Extensions;
-using IoTSharp.TaskExecutor;
+using IoTSharp.TaskAction;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -13,7 +13,7 @@ namespace IoTSharp.Handlers
 {
     [DisplayName("属性发布器")]
     [Description("发布属性至队列")]
-    public class PublishTelemetryDataTask : ITaskExecutor
+    public class PublishTelemetryDataTask : ITaskAction
     {
         private readonly ICapPublisher _queue;
 
@@ -22,14 +22,14 @@ namespace IoTSharp.Handlers
             _queue = queue;
         }
 
-        public TaskExecutorResult Execute(TaskExecutorParam param)
+        public TaskActionOutput Execute(TaskInput param)
         {
-            var msg = JsonConvert.DeserializeObject<RawMsg>(param.Param);
+            var msg = JsonConvert.DeserializeObject<RawMsg>(param.Intput);
             if (msg.DeviceId != Guid.Empty && msg.MsgBody?.Count > 0)
             {
                 _queue.PublishTelemetryData(msg);
             }
-            return new TaskExecutorResult();
+            return new TaskActionOutput();
         }
     }
 }

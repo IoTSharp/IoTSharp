@@ -5,14 +5,14 @@ using System.Dynamic;
 using System.Linq;
 using System.Threading.Tasks;
 using IoTSharp.Data;
-using IoTSharp.TaskExecutor;
+using IoTSharp.TaskAction;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
-namespace IoTSharp.TaskExecutor
+namespace IoTSharp.TaskAction
 {
     [DisplayName("用于消息推送的执行器")]
-    public class MessagePullExecutor : ITaskExecutor
+    public class MessagePullExecutor : ITaskAction
     {
 
         public MessagePullExecutor()
@@ -21,16 +21,16 @@ namespace IoTSharp.TaskExecutor
 
         }
 
-        public TaskExecutorResult Execute(TaskExecutorParam param)
+        public TaskActionOutput Execute(TaskInput input)
         {
 
-            JObject o = JsonConvert.DeserializeObject(param.Param) as JObject;
+            JObject o = JsonConvert.DeserializeObject(input.Intput) as JObject;
             var d = o.Property("temperature");
             d.Value = new JValue(d.Value.Value<double>() + 100);
-            return new TaskExecutorResult() { Result = o.ToObject(typeof(ExpandoObject)) };
-            var p= JsonConvert.DeserializeObject<MessagePullParam>(param.Param);
+            return new TaskActionOutput() { DynamicOutput = o.ToObject(typeof(ExpandoObject)) };
+            var p= JsonConvert.DeserializeObject<MessagePullParam>(input.Intput);
            p.temperature += 120;
-           return new TaskExecutorResult() { Result =p };
+           return new TaskActionOutput() { DynamicOutput =p };
         }
 
 

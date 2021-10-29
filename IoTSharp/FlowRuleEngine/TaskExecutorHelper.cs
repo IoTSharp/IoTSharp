@@ -1,5 +1,5 @@
 ﻿using IoTSharp.Data;
-using IoTSharp.TaskExecutor;
+using IoTSharp.TaskAction;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -71,11 +71,11 @@ namespace IoTSharp.FlowRuleEngine
         private void LoadTypesInfo()
         {
             pairs = new Dictionary<string, Type>();
-            Assembly.GetEntryAssembly().GetTypes().Where(c => c.GetInterfaces().Contains(typeof(ITaskExecutor))).ToList().ForEach(c =>
+            Assembly.GetEntryAssembly().GetTypes().Where(c => c.GetInterfaces().Contains(typeof(ITaskAction))).ToList().ForEach(c =>
             {
                 pairs.Add(c.GetCustomAttribute<DisplayNameAttribute>()?.DisplayName ?? c.FullName, c);
             });
-            typeof(ITaskExecutor).Assembly.GetTypes().Where(c => c.GetInterfaces().Contains(typeof(ITaskExecutor))).ToList().ForEach(c =>
+            typeof(ITaskAction).Assembly.GetTypes().Where(c => c.GetInterfaces().Contains(typeof(ITaskAction))).ToList().ForEach(c =>
             {
                 pairs.Add(c.GetCustomAttribute<DisplayNameAttribute>()?.DisplayName ?? c.FullName, c);
             });

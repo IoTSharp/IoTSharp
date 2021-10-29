@@ -25,7 +25,7 @@ using System.Threading.Tasks;
 using Castle.Components.DictionaryAdapter;
 using Dynamitey.DynamicObjects;
 using Namotion.Reflection;
-using IoTSharp.TaskExecutor;
+using IoTSharp.TaskAction;
 
 namespace IoTSharp.Controllers
 {
