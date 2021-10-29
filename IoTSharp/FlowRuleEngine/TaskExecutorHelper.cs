@@ -39,7 +39,7 @@ namespace IoTSharp.FlowRuleEngine
             {
                 LoadTypesInfo();
             }
-            return Activator.CreateInstance(pairs[name]);
+            return CreateInstance(pairs[name]);
         }
         public object CreateInstanceByTypeName(string typename)
         {
@@ -47,9 +47,27 @@ namespace IoTSharp.FlowRuleEngine
             {
                 LoadTypesInfo();
             }
-
-            return Activator.CreateInstance(pairstypename[typename]);
+            var t = pairstypename[typename];
+            object obj = CreateInstance(t);
+            return obj;
         }
+
+        public object CreateInstance(Type t)
+        {
+            var cnst = t.GetConstructors();
+            object obj;
+            if (cnst.Any())
+            {
+                obj = _sp.GetRequiredService(t);
+            }
+            else
+            {
+                obj = Activator.CreateInstance(t);
+            }
+
+            return obj;
+        }
+
         private void LoadTypesInfo()
         {
             pairs = new Dictionary<string, Type>();
