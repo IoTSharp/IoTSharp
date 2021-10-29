@@ -68,15 +68,15 @@ export class TaskexecutorlistComponent implements OnInit {
   @ViewChild('st', { static: true })
   st!: STComponent;
   columns: STColumn[] = [
-    { title: '', index: 'ruleId', type: 'checkbox' },
-    { title: 'id', index: 'ruleId' },
-    { title: '规则名称', index: 'name', render: 'name' },
-    { title: '备注', index: 'ruledesc' },
-    { title: '创建时间', type: 'date', index: 'CreatTime' },
+    { title: '', index: 'executorId', type: 'checkbox' },
+    { title: '规则名称', index: 'executorName', render: 'executorName' },
+    { title: '备注', index: 'executorDesc' },
+    { title: '创建时间', type: 'date', index: 'addDateTime' },
+    { title: '测试状态', type: 'date', index: 'addDateTime' },
     {
       title: { i18n: 'i18n.columns.Status' },
-      index: 'rulestatus',
-      render: 'rulestatus',
+      index: 'executorStatus',
+      render: 'executorStatus',
       type: 'badge',
       badge: {
         0: { text: '禁用', color: 'error' },
@@ -158,7 +158,9 @@ export class TaskexecutorlistComponent implements OnInit {
     });
   }
 
- 
+
+  
+
 
   getData() {
     this.st.req = this.req;
@@ -191,5 +193,6 @@ interface taskexecutor{
   addDateTime:string;
   creator:string;
   mataData:string;
+    executorStatus:number;
   tag:string;
 }

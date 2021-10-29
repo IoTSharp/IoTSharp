@@ -49,11 +49,7 @@ export class DeviceformComponent implements OnInit {
       this._httpClient.get('api/Devices/' + this.params.id).subscribe(
         (x) => {
         
-          if(  x.data.deviceType==='Gateway'){
-            x.data.deviceType='2'
-          }else{
-            x.data.deviceType='1'
-          }
+         
           this.form.patchValue(x.data);
         },
         (y) => {},
