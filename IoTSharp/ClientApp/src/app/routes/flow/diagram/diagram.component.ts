@@ -38,8 +38,8 @@ import { NzCodeEditorComponent } from 'ng-zorro-antd/code-editor';
 // 'element.mouseup'
 // 来自 https://github.com/bpmn-io/bpmn-js-examples/tree/master/interaction
 export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy {
-  nzEditorOption: { theme: 'vs-dark'; language: 'json' };
-  paramnzEditorOption: { theme: 'vs-dark'; language: 'json' };
+  nzEditorOption: { theme: 'vs-dark',language: 'json' };
+  paramnzEditorOption: { theme: 'vs-dark',language: 'json' };
   @ViewChild(NzCodeEditorComponent, { static: false }) editorComponent?: NzCodeEditorComponent;
   isCollapsed = false;
 
@@ -143,7 +143,7 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy 
   }
 
   getexcutors() {
-    this.http.get('api/rules/getexecutor').subscribe(
+    this.http.get('api/rules/getexecutors').subscribe(
       (next) => {
         this.executors = next.data;
       },

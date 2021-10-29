@@ -32,5 +32,8 @@ namespace IoTSharp.Data
         public DateTime CreateDate { get; set; }
 
         public Guid Createor { get; set; }
+
+        public RuleTaskExecutor Executor { get; set; }
+        
     }
 }

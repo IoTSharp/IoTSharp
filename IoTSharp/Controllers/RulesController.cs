@@ -191,7 +191,7 @@ namespace IoTSharp.Controllers
                     await _context.SaveChangesAsync();
                 }
 
-         
+
             }
             else
             {
@@ -1117,9 +1117,126 @@ namespace IoTSharp.Controllers
 
 
         [HttpGet("[action]")]
-        public ApiResult<dynamic> GetExecutor()
+        public ApiResult<dynamic> GetExecutors()
         {
             return new ApiResult<dynamic>(ApiCode.Success, "OK", _helper.GetTaskExecutorList().Select(c => new { label = c.Key, value = c.Value.FullName }).ToList());
+        }
+
+
+        [HttpPost("[action]")]
+        public async Task<ApiResult<PagedData<RuleTaskExecutor>>> Executors(ExecutorParam m)
+        {
+            var profile = await this.GetUserProfile();
+            Expression<Func<Data.RuleTaskExecutor, bool>> condition = x => x.ExecutorStatus > -1;
+            return new ApiResult<PagedData<RuleTaskExecutor>>(ApiCode.Success, "OK", new PagedData<RuleTaskExecutor>
+            {
+                total = await _context.RuleTaskExecutors.CountAsync(condition),
+                rows = await _context.RuleTaskExecutors.OrderByDescending(c => c.AddDateTime).Where(condition).Skip((m.offset) * m.limit).Take(m.limit).ToListAsync()
+            });
+
+        }
+
+
+
+        [HttpGet("[action]")]
+        public async Task<ApiResult<RuleTaskExecutor>> GetExecutor(Guid Id)
+        {
+            var executor = await _context.RuleTaskExecutors.SingleOrDefaultAsync(c => c.ExecutorId == Id);
+
+            if (executor != null)
+            {
+                return new ApiResult<RuleTaskExecutor>(ApiCode.Success, "Ok", executor);
+
+            }
+            return new ApiResult<RuleTaskExecutor>(ApiCode.CantFindObject, "cant't find that object", null);
+
+        }
+
+
+        [HttpGet("[action]")]
+        public async Task<ApiResult<bool>> DeleteExecutor(Guid Id)
+        {
+            var executor = await _context.RuleTaskExecutors.SingleOrDefaultAsync(c => c.ExecutorId == Id);
+
+            if (executor != null)
+            {
+
+
+                executor.ExecutorStatus = -1;
+                _context.RuleTaskExecutors.Update(executor);
+                await _context.SaveChangesAsync();
+                return new ApiResult<bool>(ApiCode.Success, "Ok", true);
+
+            }
+            return new ApiResult<bool>(ApiCode.CantFindObject, "cant't find that object", false);
+        }
+
+
+        [HttpPut("[action]")]
+        public async Task<ApiResult<bool>> UpdateExecutor(RuleTaskExecutor m)
+        {
+            var executor = await _context.RuleTaskExecutors.SingleOrDefaultAsync(c => c.ExecutorId == m.ExecutorId);
+            var profile = await this.GetUserProfile();
+            if (executor != null)
+            {
+
+             //   executor.Creator = profile.Id;
+           //    executor.MataData = m.MataData;
+                executor.DefaultConfig = m.DefaultConfig;
+                executor.ExecutorDesc = m.ExecutorDesc;
+                executor.ExecutorName = m.ExecutorName;
+                executor.TypeName = m.ExecutorName;
+                executor.Path = m.Path;
+                executor.Tag = m.Tag;
+                executor.Path = m.Path;
+                _context.RuleTaskExecutors.Update(executor);
+                await _context.SaveChangesAsync();
+                return new ApiResult<bool>(ApiCode.Success, "Ok", true);
+
+            }
+            return new ApiResult<bool>(ApiCode.CantFindObject, "cant't find that object", false);
+
+        }
+
+        [HttpPost("[action]")]
+        public async Task<ApiResult<bool>> AddExecutor(RuleTaskExecutor m)
+        {
+            var profile = await this.GetUserProfile();
+            var executor = new RuleTaskExecutor();
+            executor.DefaultConfig = m.DefaultConfig;
+            executor.ExecutorDesc = m.ExecutorDesc;
+            executor.ExecutorName = m.ExecutorName;
+            executor.TypeName = m.ExecutorName;
+            executor.Path = m.Path;
+            executor.Tag = m.Tag;
+            executor.Path = m.Path;
+            executor.AddDateTime=DateTime.Now;
+            executor.Creator = profile.Id;
+            executor.ExecutorStatus = 1;
+            _context.RuleTaskExecutors.Add(executor);
+           await _context.SaveChangesAsync();
+            return new ApiResult<bool>(ApiCode.Success, "Ok", true);
+        }
+
+
+        [HttpPost("[action]")]
+        public async Task<ApiResult<bool>> TestExecutor(RuleTaskExecutor m)
+        {
+            var profile = await this.GetUserProfile();
+            var executor = new RuleTaskExecutor();
+            executor.DefaultConfig = m.DefaultConfig;
+            executor.ExecutorDesc = m.ExecutorDesc;
+            executor.ExecutorName = m.ExecutorName;
+            executor.TypeName = m.ExecutorName;
+            executor.Path = m.Path;
+            executor.Tag = m.Tag;
+            executor.Path = m.Path;
+            executor.AddDateTime = DateTime.Now;
+            executor.Creator = profile.Id;
+            executor.ExecutorStatus = 1;
+            _context.RuleTaskExecutors.Add(executor);
+            await _context.SaveChangesAsync();
+            return new ApiResult<bool>(ApiCode.Success, "Ok", true);
         }
 
     }
