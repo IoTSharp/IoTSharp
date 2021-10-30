@@ -63,7 +63,7 @@ WORKDIR /src
 COPY ["IoTSharp/IoTSharp.csproj", "IoTSharp/"]
 COPY ["IoTSharp.Data/IoTSharp.Data.csproj", "IoTSharp.Data/"]
 COPY ["IoTSharp.Interpreter/IoTSharp.Interpreter.csproj", "IoTSharp.Interpreter/"]
-COPY ["IoTSharp.TaskExecutor/IoTSharp.TaskExecutor.csproj", "IoTSharp.TaskExecutor/"]
+COPY ["IoTSharp.TaskAction/IoTSharp.TaskAction.csproj", "IoTSharp.TaskAction/"]
 COPY ["IoTSharp.Data.SqlServer/IoTSharp.Data.SqlServer.csproj", "IoTSharp.Data.SqlServer/"]
 COPY ["IoTSharp.Data.Sqlite/IoTSharp.Data.Sqlite.csproj", "IoTSharp.Data.Sqlite/"]
 COPY ["IoTSharp.Data.Oracle/IoTSharp.Data.Oracle.csproj", "IoTSharp.Data.Oracle/"]

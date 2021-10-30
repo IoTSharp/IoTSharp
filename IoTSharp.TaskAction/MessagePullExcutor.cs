@@ -23,14 +23,10 @@ namespace IoTSharp.TaskAction
 
         public TaskActionOutput Execute(TaskActionInput input)
         {
-
             JObject o = JsonConvert.DeserializeObject(input.Input) as JObject;
             var d = o.Property("temperature");
             d.Value = new JValue(d.Value.Value<double>() + 100);
             return new TaskActionOutput() { DynamicOutput = o.ToObject(typeof(ExpandoObject)) };
-            var p= JsonConvert.DeserializeObject<MessagePullParam>(input.Input);
-           p.temperature += 120;
-           return new TaskActionOutput() { DynamicOutput =p };
         }
 
 

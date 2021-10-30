@@ -57,7 +57,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IoTSharp.Data.Sqlite", "IoT
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IoTSharp.Interpreter", "IoTSharp.Interpreter\IoTSharp.Interpreter.csproj", "{01210118-0A41-4A6D-9B4A-06F5540B139A}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IoTSharp.TaskAction", "IoTSharp.TaskExecutor\IoTSharp.TaskAction.csproj", "{01671BDE-398D-423C-B3E4-A05FF0AB7B4F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IoTSharp.TaskAction", "IoTSharp.TaskAction\IoTSharp.TaskAction.csproj", "{01671BDE-398D-423C-B3E4-A05FF0AB7B4F}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
