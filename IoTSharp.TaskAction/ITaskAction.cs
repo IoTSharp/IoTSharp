@@ -7,7 +7,7 @@ namespace IoTSharp.TaskAction
 {
     public interface ITaskAction
     {
-        public TaskActionOutput Execute(TaskActionInput param);
+        public TaskActionOutput Execute(TaskActionInput _input);
     }
 
     public class TaskActionOutput

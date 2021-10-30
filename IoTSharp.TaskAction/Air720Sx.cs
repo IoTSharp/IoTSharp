@@ -20,11 +20,11 @@ namespace IoTSharp.TaskAction
 
         }
 
-        public TaskActionOutput Execute(TaskActionInput param)
+        public TaskActionOutput Execute(TaskActionInput _input)
         {
-            dynamic msg = JsonConvert.DeserializeObject<ExpandoObject>(param.Input,new Newtonsoft.Json.Converters.ExpandoObjectConverter ());
+            var msg = _input.DynamicInput;
             var playload = System.Text.Encoding.Default.GetString( Convert.FromBase64String(msg.Payload));
-            return new TaskActionOutput() {   Output=playload, DeviceId=param.DeviceId};
+            return new TaskActionOutput() {   Output=playload, DeviceId=_input.DeviceId};
         }
     }
 }
