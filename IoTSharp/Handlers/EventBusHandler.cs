@@ -49,95 +49,91 @@ namespace IoTSharp.Handlers
         }
         Dictionary<Guid, DateTime> _check_device_status = new Dictionary<Guid, DateTime>();
         [CapSubscribe("iotsharp.services.datastream.attributedata")]
-        public void StoreAttributeData(RawMsg msg)
+        public async void StoreAttributeData(RawMsg msg)
         {
-            Task.Run(async () =>
+
+            using (var _scope = _scopeFactor.CreateScope())
             {
-                using (var _scope = _scopeFactor.CreateScope())
+                using (var _dbContext = _scope.ServiceProvider.GetRequiredService<ApplicationDbContext>())
                 {
-                    using (var _dbContext = _scope.ServiceProvider.GetRequiredService<ApplicationDbContext>())
+                    var device = _dbContext.Device.FirstOrDefault(d => d.Id == msg.DeviceId);
+                    if (device != null)
                     {
-                        var device = _dbContext.Device.FirstOrDefault(d => d.Id == msg.DeviceId);
-                        if (device != null)
+                        device.CheckOrUpdateDevStatus();
+                        var mb = msg.MsgBody;
+                        Dictionary<string, object> dc = new Dictionary<string, object>();
+                        mb.ToList().ForEach(kp =>
                         {
-                            device.CheckOrUpdateDevStatus();
-                            var mb = msg.MsgBody;
-                            Dictionary<string, object> dc = new Dictionary<string, object>();
-                            mb.ToList().ForEach(kp =>
+                            if (kp.Value.GetType() == typeof(System.Text.Json.JsonElement))
                             {
-                                if (kp.Value.GetType() == typeof(System.Text.Json.JsonElement))
+                                var je = (System.Text.Json.JsonElement)kp.Value;
+                                switch (je.ValueKind)
                                 {
-                                    var je = (System.Text.Json.JsonElement)kp.Value;
-                                    switch (je.ValueKind)
-                                    {
-                                        case System.Text.Json.JsonValueKind.Undefined:
-                                        case System.Text.Json.JsonValueKind.Object:
-                                        case System.Text.Json.JsonValueKind.Array:
-                                            dc.Add(kp.Key, je.GetRawText());
-                                            break;
+                                    case System.Text.Json.JsonValueKind.Undefined:
+                                    case System.Text.Json.JsonValueKind.Object:
+                                    case System.Text.Json.JsonValueKind.Array:
+                                        dc.Add(kp.Key, je.GetRawText());
+                                        break;
 
-                                        case System.Text.Json.JsonValueKind.String:
-                                            dc.Add(kp.Key, je.GetString());
-                                            break;
+                                    case System.Text.Json.JsonValueKind.String:
+                                        dc.Add(kp.Key, je.GetString());
+                                        break;
 
-                                        case System.Text.Json.JsonValueKind.Number:
-                                            dc.Add(kp.Key, je.GetDouble());
-                                            break;
+                                    case System.Text.Json.JsonValueKind.Number:
+                                        dc.Add(kp.Key, je.GetDouble());
+                                        break;
 
-                                        case System.Text.Json.JsonValueKind.True:
-                                        case System.Text.Json.JsonValueKind.False:
-                                            dc.Add(kp.Key, je.GetBoolean());
-                                            break;
+                                    case System.Text.Json.JsonValueKind.True:
+                                    case System.Text.Json.JsonValueKind.False:
+                                        dc.Add(kp.Key, je.GetBoolean());
+                                        break;
 
-                                        case System.Text.Json.JsonValueKind.Null:
-                                            break;
+                                    case System.Text.Json.JsonValueKind.Null:
+                                        break;
 
-                                        default:
-                                            break;
-                                    }
+                                    default:
+                                        break;
                                 }
-                                else
-                                {
-                                    dc.Add(kp.Key, kp.Value);
-                                }
-                            });
-                            var result2 = await _dbContext.SaveAsync<AttributeLatest>(dc, device.Id, msg.DataSide);
-                            result2.exceptions?.ToList().ForEach(ex =>
+                            }
+                            else
                             {
-                                _logger.LogError($"{ex.Key} {ex.Value} {Newtonsoft.Json.JsonConvert.SerializeObject(msg.MsgBody[ex.Key])}");
-                            });
-                            _logger.LogInformation($"更新{device.Name}({device.Id})属性数据结果{result2.ret}");
-                        }
+                                dc.Add(kp.Key, kp.Value);
+                            }
+                        });
+                        var result2 = await _dbContext.SaveAsync<AttributeLatest>(dc, device.Id, msg.DataSide);
+                        result2.exceptions?.ToList().ForEach(ex =>
+                        {
+                            _logger.LogError($"{ex.Key} {ex.Value} {Newtonsoft.Json.JsonConvert.SerializeObject(msg.MsgBody[ex.Key])}");
+                        });
+                        _logger.LogInformation($"更新{device.Name}({device.Id})属性数据结果{result2.ret}");
                     }
                 }
-            });
+            }
         }
-      
+
         [CapSubscribe("iotsharp.services.datastream.telemetrydata")]
-        public void StoreTelemetryData(RawMsg msg)
+        public async void StoreTelemetryData(RawMsg msg)
         {
-            Task.Run(async () =>
+
+            await _storage.StoreTelemetryAsync(msg);
+            if (!_check_device_status.ContainsKey(msg.DeviceId))
             {
-                await _storage.StoreTelemetryAsync(msg);
-                if (!_check_device_status.ContainsKey(msg.DeviceId))
+                _check_device_status.Add(msg.DeviceId, DateTime.Now);
+            }
+            if (_check_device_status[msg.DeviceId].Subtract(DateTime.Now).TotalSeconds > 60)
+            {
+                _check_device_status[msg.DeviceId] = DateTime.Now;
+                using (var scope = _scopeFactor.CreateScope())
+                using (var _dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>())
                 {
-                    _check_device_status.Add(msg.DeviceId, DateTime.Now);
-                }
-                if (_check_device_status[msg.DeviceId].Subtract(DateTime.Now).TotalSeconds > 60)
-                {
-                    _check_device_status[msg.DeviceId] = DateTime.Now;
-                    using (var scope = _scopeFactor.CreateScope())
-                    using (var _dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>())
+                    var device = _dbContext.Device.FirstOrDefault(d => d.Id == msg.DeviceId);
+                    if (device != null)
                     {
-                        var device = _dbContext.Device.FirstOrDefault(d => d.Id == msg.DeviceId);
-                        if (device != null)
-                        {
-                            device.CheckOrUpdateDevStatus();
-                            await _dbContext.SaveChangesAsync();
-                        }
+                        device.CheckOrUpdateDevStatus();
+                        await _dbContext.SaveChangesAsync();
                     }
                 }
-            });
+            }
         }
     }
 }
