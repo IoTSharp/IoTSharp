@@ -22,4 +22,25 @@ namespace IoTSharp.Dtos
         public dynamic Params { get; set; }
     }
 
+
+
+    public class RuleTaskFlowTestResultDto
+    {
+
+        public Guid ExecutorId { get; set; }
+        public dynamic Data { get; set; }
+
+        public dynamic Params { get; set; }
+    }
+
+
+
+    public class RuleTaskScriptTestResultDto
+    {
+
+        public Guid ExecutorId { get; set; }
+        public dynamic Data { get; set; }
+
+        public dynamic Params { get; set; }
+    }
 }

@@ -260,6 +260,11 @@ namespace IoTSharp.Controllers
 
 
 
+        [HttpGet("[action]")]
+        public ApiResult<List<Flow>> GetFlows(Guid ruleId)
+        {
+            return new ApiResult<List<Flow>>(ApiCode.Success, "Ok", _context.Flows.Where(c => c.FlowRule.RuleId == ruleId).ToList());
+        }
 
 
         [HttpPost("[action]")]
@@ -1028,6 +1033,12 @@ namespace IoTSharp.Controllers
                 }).ToList());
         }
 
+
+
+
+
+
+
         /// <summary>
         ///
         /// </summary>
@@ -1137,6 +1148,10 @@ namespace IoTSharp.Controllers
         }
 
 
+       
+
+
+
 
         [HttpGet("[action]")]
         public async Task<ApiResult<RuleTaskExecutor>> GetExecutor(Guid Id)
@@ -1231,6 +1246,37 @@ namespace IoTSharp.Controllers
             await _context.SaveChangesAsync();
             return new ApiResult<RuleTaskExecutorTestResultDto>(ApiCode.Success, "Ok", new RuleTaskExecutorTestResultDto());
         }
+
+
+
+
+        [HttpPost("[action]")]
+        public async Task<ApiResult<RuleTaskExecutorTestResultDto>> TestTask(RuleTaskExecutorTestDto m)
+        {
+            var profile = await this.GetUserProfile();
+
+
+
+
+
+            await _context.SaveChangesAsync();
+            return new ApiResult<RuleTaskExecutorTestResultDto>(ApiCode.Success, "Ok", new RuleTaskExecutorTestResultDto());
+        }
+
+
+
+        [HttpPost("[action]")]
+        public async Task<ApiResult<RuleTaskExecutorTestResultDto>> TestFlow(RuleTaskExecutorTestDto m)
+        {
+            var profile = await this.GetUserProfile();
+
+          //  this._flowRuleProcessor.ProcessCondition()
+
+
+            await _context.SaveChangesAsync();
+            return new ApiResult<RuleTaskExecutorTestResultDto>(ApiCode.Success, "Ok", new RuleTaskExecutorTestResultDto());
+        }
+
 
     }
 }

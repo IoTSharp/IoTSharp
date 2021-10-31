@@ -10,3 +10,9 @@ export class appmessage<T> {
   data?: T;
 
 }
+export interface pageddata<T>{
+rows:T[];
+total:number;
+
+
+}

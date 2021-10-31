@@ -6,6 +6,7 @@ import { _HttpClient, ModalHelper, SettingsService } from '@delon/theme';
 import { Guid } from 'guid-typescript';
 import { NzDrawerService } from 'ng-zorro-antd/drawer';
 import { NzMessageService } from 'ng-zorro-antd/message';
+import { appmessage, pageddata } from '../../common/AppMessage';
 import { FlowsimulatorComponent } from '../../util/flow/flowsimulator/flowsimulator.component';
 
 import { FlowformComponent } from '../flowform/flowform.component';
@@ -191,6 +192,25 @@ export class FlowlistComponent implements OnInit {
     });
   }
 
+  onchange($event){
+    switch ($event.type) {
+      case 'expand':
+
+        if ($event.expand.expand) {
+this.http.get<appmessage<flow>>('api/rules/GetFlows?ruleId='+$event.expand?.ruleId).subscribe(next=>{
+console.log(next)
+$event.expand.flows=next.data;
+},error=>{},()=>{});
+
+
+        }
+        break;
+    
+    
+    }
+
+  }
+
   testthisflow(ruleflow: ruleflow): void {
     var { nzMaskClosable, width } = this.settingService.getData('drawerconfig');
 
@@ -240,4 +260,18 @@ export interface ruleflow {
   CreatTime: Date;
   rulestatus: number;
   definitionsXml: string;
+  flows:flow[]
+}
+
+export interface flow{
+  flowId:string;
+  flowname:string;
+  bpmnid:string;
+  nodeProcessClass:string;
+  conditionexpression:string;
+  nodeProcessMethod:string;
+  nodeProcessParams:string;
+  nodeProcessScriptType:string;
+  nodeProcessScript:string;
+
 }

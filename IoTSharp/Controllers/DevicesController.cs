@@ -249,8 +249,56 @@ namespace IoTSharp.Controllers
 
             }
 
+            try
+            {
+                return new ApiResult<List<TelemetryDataDto>>(ApiCode.Success, "Ok",
+                    await _storage.GetTelemetryLatest(deviceId));
+            }
+            catch (Exception ex)
+            {
+                _logger.Log(LogLevel.Error,ex.Message);
+                return new ApiResult<List<TelemetryDataDto>>(ApiCode.Exception, ex.Message,
+                    null);
+            }
 
-            return new ApiResult<List<TelemetryDataDto>>(ApiCode.Success, "Ok", await _storage.GetTelemetryLatest(deviceId));
+
+
+        }
+
+
+
+        /// <summary>
+        ///按时间区间获取指定设备的最新遥测数据
+        /// </summary>
+        /// <param name="deviceId"></param>
+        /// <returns></returns>
+        [Authorize(Roles = nameof(UserRole.NormalUser))]
+        [HttpGet("{deviceId}/TelemetryLatest")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ApiResult), StatusCodes.Status404NotFound)]
+        [ProducesDefaultResponseType]
+        public async Task<ApiResult<List<TelemetryDataDto>>> GetTelemetryLatest(Guid deviceId,DateTime begin,DateTime end)
+        {
+            Device dev = Found(deviceId);
+            if (dev == null)
+            {
+                return new ApiResult<List<TelemetryDataDto>>(ApiCode.NotFoundDeviceIdentity, "Device's Identity not found", null);
+
+            }
+
+            try
+            {
+                return new ApiResult<List<TelemetryDataDto>>(ApiCode.Success, "Ok",
+                    await _storage.GetTelemetryLatest(deviceId));
+            }
+            catch (Exception ex)
+            {
+                _logger.Log(LogLevel.Error, ex.Message);
+                return new ApiResult<List<TelemetryDataDto>>(ApiCode.Exception, ex.Message,
+                    null);
+            }
+
+
 
         }
         /// <summary>
@@ -363,7 +411,7 @@ namespace IoTSharp.Controllers
                 return new ApiResult<Device>(ApiCode.NotFoundDeviceIdentity, "Device's Identity not found", null);
 
             }
-            return new ApiResult<Device>(ApiCode.Success, "Device's Identity not found", device);
+            return new ApiResult<Device>(ApiCode.Success, "Ok", device);
 
         }
 

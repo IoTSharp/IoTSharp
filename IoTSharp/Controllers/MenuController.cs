@@ -125,7 +125,7 @@ namespace IoTSharp.Controllers
                                     },
                                     new
                                     {
-                                        text = "资源",
+                                        text = "设置",
                                         i18n = "",
                                         icon = "anticon-rocket",
                                         children = new[]
