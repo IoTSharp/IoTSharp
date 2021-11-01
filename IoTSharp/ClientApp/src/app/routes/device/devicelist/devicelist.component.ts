@@ -309,11 +309,7 @@ export class DevicelistComponent implements OnInit, OnDestroy {
   }
 
   onchange($events: STChange): void {
-
-    console.log($events)
     switch ($events.type) {
-
-
       case 'expand':
         if ($events.expand.expand) {
           if (this.obs) {

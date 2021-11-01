@@ -26,7 +26,9 @@ namespace IoTSharp.Data
         public string Incoming { get; set; }
         public string Outgoing { get; set; }
         public int FlowStatus { get; set; }
-
+        public int TestStatus { get; set; }
+        public Guid Tester { get; set; }
+        public DateTime TesterDateTime { get; set; }
         public Guid CreateId { get; set; }
 
         public DateTime CreateDate { get; set; }

@@ -62,6 +62,8 @@ import { FloweventsComponent } from './flow/flowevents/flowevents.component';
 import { FloweventviewComponent } from './flow/floweventview/floweventview.component';
 import { TaskexecutorlistComponent } from './flow/taskexecutorlist/taskexecutorlist.component';
 import { TaskexecutorformComponent } from './flow/taskexecutorform/taskexecutorform.component';
+import { SequenceflowtesterComponent } from './flow/sequenceflowtester/sequenceflowtester.component';
+import { TasktesterComponent } from './flow/tasktester/tasktester.component';
 
 const COMPONENTS: Type<null>[] = [];
 const Directive: Type<void>[] = [fielddirective, controldirective];
@@ -122,6 +124,8 @@ const Directive: Type<void>[] = [fielddirective, controldirective];
       FloweventviewComponent,
       TaskexecutorlistComponent,
       TaskexecutorformComponent,
+      SequenceflowtesterComponent,
+      TasktesterComponent,
   ],
 })
 export class RoutesModule {

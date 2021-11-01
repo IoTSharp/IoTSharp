@@ -64,7 +64,44 @@
       </nz-dropdown-menu>
     </ng-container>
 
-    <st #st [columns]="columns" [data]="url" ps="10" [page]="page" [req]="req" [res]="res">
+    <st
+      #st
+      (change)="onchange($event)"
+      expandAccordion
+      [expandAccordion]="true"
+      [columns]="columns"
+      [data]="url"
+      ps="10"
+      [expand]="expand"
+      [page]="page"
+      [req]="req"
+      [res]="res"
+    >
+      <ng-template #expand let-item let-index="index" let-column="column">
+        <nz-card nzTitle="节点">
+          <table>
+            <tr>
+              <td>BpmnId</td>
+              <td>名称</td>
+              <td>执行器</td>
+              <td>默认参数</td>
+              <td>脚本类型</td>
+              <td>操作</td>
+            </tr>
+            <tr *ngFor="let _item of item.flows; let i = index; let odd = odd">
+              <td>{{ _item.bpmnid }}</td>
+              <td>{{ _item.flowname }}</td>
+              <td>{{ _item.nodeProcessClass }}</td>
+              <td>{{ _item.nodeProcessParams }}</td>
+              <td>{{ _item.nodeProcessScriptType }}</td>
+              <td><button>测试</button></td>
+
+
+            </tr>
+          </table>
+        </nz-card>
+      </ng-template>
+
       <ng-template st-row="rulestatus" let-i>
         <nz-badge [nzStatus]="i.statusType" [nzText]="i.statusText"></nz-badge>
       </ng-template>
