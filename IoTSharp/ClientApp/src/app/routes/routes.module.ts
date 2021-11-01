@@ -64,6 +64,7 @@ import { TaskexecutorlistComponent } from './flow/taskexecutorlist/taskexecutorl
 import { TaskexecutorformComponent } from './flow/taskexecutorform/taskexecutorform.component';
 import { SequenceflowtesterComponent } from './flow/sequenceflowtester/sequenceflowtester.component';
 import { TasktesterComponent } from './flow/tasktester/tasktester.component';
+import { ForkdialogComponent } from './flow/forkdialog/forkdialog.component';
 
 const COMPONENTS: Type<null>[] = [];
 const Directive: Type<void>[] = [fielddirective, controldirective];
@@ -126,6 +127,7 @@ const Directive: Type<void>[] = [fielddirective, controldirective];
       TaskexecutorformComponent,
       SequenceflowtesterComponent,
       TasktesterComponent,
+      ForkdialogComponent,
   ],
 })
 export class RoutesModule {

@@ -10,6 +10,7 @@ import { appmessage, pageddata } from '../../common/AppMessage';
 import { FlowsimulatorComponent } from '../../util/flow/flowsimulator/flowsimulator.component';
 
 import { FlowformComponent } from '../flowform/flowform.component';
+import { ForkdialogComponent } from '../forkdialog/forkdialog.component';
 
 @Component({
   selector: 'app-flowlist',
@@ -25,10 +26,8 @@ export class FlowlistComponent implements OnInit {
     private _router: Router,
     private drawerService: NzDrawerService,
     private settingService: SettingsService,
-    
-  ) {
-
-  }
+    private message: NzMessageService,
+  ) {}
 
   page: STPage = {
     front: false,
@@ -104,22 +103,21 @@ export class FlowlistComponent implements OnInit {
             icon: 'warning',
           },
           click: (item: ruleflow) => {
-
-
             //do something
-
           },
         },
 
-
-
         {
-          text: (record) => 'fork',
-          click: (item: ruleflow) => {
+          text: (record) => '复制',
 
+          type: 'modal',
+          modal: {
+            component: ForkdialogComponent,
+          },
+          click: (record, modal) => {
+            this.message.success(`复制：${modal.data ? '成功' : '失败'}`);
 
-            //do something
-
+            this.getData();
           },
         },
         {
@@ -182,7 +180,7 @@ export class FlowlistComponent implements OnInit {
         id: id,
       },
     });
-  
+
     drawerRef.afterOpen.subscribe(() => {});
 
     drawerRef.afterClose.subscribe((data) => {
@@ -192,28 +190,25 @@ export class FlowlistComponent implements OnInit {
     });
   }
 
-  onchange($event){
+  onchange($event) {
     switch ($event.type) {
       case 'expand':
-
         if ($event.expand.expand) {
-this.http.get<appmessage<flow>>('api/rules/GetFlows?ruleId='+$event.expand?.ruleId).subscribe(next=>{
-console.log(next)
-$event.expand.flows=next.data;
-},error=>{},()=>{});
-
-
+          this.http.get<appmessage<flow>>('api/rules/GetFlows?ruleId=' + $event.expand?.ruleId).subscribe(
+            (next) => {
+              console.log(next);
+              $event.expand.flows = next.data;
+            },
+            (error) => {},
+            () => {},
+          );
         }
         break;
-    
-    
     }
-
   }
 
   testthisflow(ruleflow: ruleflow): void {
     var { nzMaskClosable, width } = this.settingService.getData('drawerconfig');
-
     var title = '测试' + ruleflow.name;
     const drawerRef = this.drawerService.create<FlowsimulatorComponent, { id: string }, string>({
       nzTitle: title,
@@ -224,14 +219,22 @@ $event.expand.flows=next.data;
         id: ruleflow.ruleId,
       },
     });
-
     drawerRef.afterOpen.subscribe(() => {});
-
     drawerRef.afterClose.subscribe((data) => {
       this.st.load(this.st.pi);
       if (typeof data === 'string') {
       }
     });
+  }
+
+  testunit(flow: flow) {
+    console.log(flow);
+    switch (flow.flowType) {
+      case 'bpmn:SequenceFlow':
+        break;
+      case 'bpmn:Task':
+        break;
+    }
   }
 
   getData() {
@@ -260,18 +263,19 @@ export interface ruleflow {
   CreatTime: Date;
   rulestatus: number;
   definitionsXml: string;
-  flows:flow[]
+  flows: flow[];
 }
 
-export interface flow{
-  flowId:string;
-  flowname:string;
-  bpmnid:string;
-  nodeProcessClass:string;
-  conditionexpression:string;
-  nodeProcessMethod:string;
-  nodeProcessParams:string;
-  nodeProcessScriptType:string;
-  nodeProcessScript:string;
-
+export interface flow {
+  flowId: string;
+  flowname: string;
+  flowType: string;
+  bpmnid: string;
+  nodeProcessClass: string;
+  conditionexpression: string;
+  nodeProcessMethod: string;
+  nodeProcessParams: string;
+  nodeProcessScriptType: string;
+  nodeProcessScript: string;
+  teststatus: number;
 }

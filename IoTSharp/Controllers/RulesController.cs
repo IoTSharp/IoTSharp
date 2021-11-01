@@ -135,7 +135,11 @@ namespace IoTSharp.Controllers
 
             return new ApiResult<FlowRule>(ApiCode.CantFindObject, "can't find this object", null);
         }
-
+        /// <summary>
+        /// 复制一个规则副本
+        /// </summary>
+        /// <param name="flowRule"></param>
+        /// <returns></returns>
 
 
         [HttpPost("[action]")]
@@ -154,7 +158,7 @@ namespace IoTSharp.Controllers
                 newrule.ExecutableCode = rule.ExecutableCode;
                 newrule.RuleDesc = flowRule.RuleDesc;
                 newrule.RuleStatus = 1;
-                newrule.ParentRuleId = rule.ParentRuleId;
+                newrule.ParentRuleId = rule.RuleId;
                 newrule.SubVersion = rule.SubVersion + 0.01;
                 newrule.Runner = rule.Runner;
                 _context.FlowRules.Add(newrule);
@@ -191,6 +195,7 @@ namespace IoTSharp.Controllers
                     await _context.SaveChangesAsync();
                 }
 
+                return new ApiResult<bool>(ApiCode.Success, "Ok", true);
 
             }
             else
@@ -519,7 +524,7 @@ namespace IoTSharp.Controllers
         }
 
         [HttpGet("[action]")]
-        public ApiResult<IoTSharp.Models.Rule.Activity> GetDiagram(Guid id)
+        public ApiResult<Activity> GetDiagram(Guid id)
         {
             var ruleflow = _context.FlowRules.FirstOrDefault(c => c.RuleId == id);
             IoTSharp.Models.Rule.Activity activity = new IoTSharp.Models.Rule.Activity();
@@ -1270,12 +1275,15 @@ namespace IoTSharp.Controllers
         {
             var profile = await this.GetUserProfile();
 
-          //  this._flowRuleProcessor.ProcessCondition()
+           this._flowRuleProcessor.ProcessCondition()
 
 
             await _context.SaveChangesAsync();
             return new ApiResult<RuleTaskExecutorTestResultDto>(ApiCode.Success, "Ok", new RuleTaskExecutorTestResultDto());
         }
+
+
+
 
 
     }

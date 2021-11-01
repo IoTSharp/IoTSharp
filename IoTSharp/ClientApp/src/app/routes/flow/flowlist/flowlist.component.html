@@ -86,6 +86,7 @@
               <td>执行器</td>
               <td>默认参数</td>
               <td>脚本类型</td>
+              <td>测试状态</td>
               <td>操作</td>
             </tr>
             <tr *ngFor="let _item of item.flows; let i = index; let odd = odd">
@@ -94,14 +95,15 @@
               <td>{{ _item.nodeProcessClass }}</td>
               <td>{{ _item.nodeProcessParams }}</td>
               <td>{{ _item.nodeProcessScriptType }}</td>
-              <td><button>测试</button></td>
-
-
+              <td>{{ _item.teststatus===1?'测试通过':'未测试' }}</td>
+              <td><a (click)="testunit(_item)">{{
+                _item.flowType==='bpmn:Task'?'脚本测试':_item.flowType==='bpmn:SequenceFlow'?'条件测试':''
+              
+              }}</a></td>
             </tr>
           </table>
         </nz-card>
       </ng-template>
-
       <ng-template st-row="rulestatus" let-i>
         <nz-badge [nzStatus]="i.statusType" [nzText]="i.statusText"></nz-badge>
       </ng-template>
