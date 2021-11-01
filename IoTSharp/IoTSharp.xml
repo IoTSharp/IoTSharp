@@ -227,13 +227,6 @@
              <param name="deviceId"></param>
              <returns></returns>
         </member>
-        <member name="M:IoTSharp.Controllers.DevicesController.GetTelemetryLatest(System.Guid,System.DateTime,System.DateTime)">
-             <summary>
-            按时间区间获取指定设备的最新遥测数据
-             </summary>
-             <param name="deviceId"></param>
-             <returns></returns>
-        </member>
         <member name="M:IoTSharp.Controllers.DevicesController.GetTelemetryLatest(System.Guid,System.String)">
             <summary>
             获取指定设备的指定key 的遥测数据
