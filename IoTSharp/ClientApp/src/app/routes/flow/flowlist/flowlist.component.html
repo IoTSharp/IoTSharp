@@ -95,11 +95,18 @@
               <td>{{ _item.nodeProcessClass }}</td>
               <td>{{ _item.nodeProcessParams }}</td>
               <td>{{ _item.nodeProcessScriptType }}</td>
-              <td>{{ _item.teststatus===1?'测试通过':'未测试' }}</td>
+              <td>{{_item.flowType==='bpmn:Task'? _item.teststatus===1?'测试通过':'未测试':'' }}</td>
               <td><a (click)="testunit(_item)">{{
-                _item.flowType==='bpmn:Task'?'脚本测试':_item.flowType==='bpmn:SequenceFlow'?'条件测试':''
+                _item.flowType==='bpmn:Task'?'脚本测试':''
               
-              }}</a></td>
+              }}</a>
+              <nz-divider nzType="vertical"></nz-divider>
+              <a (click)="testunit(_item)">{{
+                _item.flowType==='bpmn:Task'?'条件测试':''
+              
+              }}</a>
+            
+            </td>
             </tr>
           </table>
         </nz-card>

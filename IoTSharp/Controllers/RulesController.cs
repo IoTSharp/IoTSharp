@@ -268,7 +268,7 @@ namespace IoTSharp.Controllers
         [HttpGet("[action]")]
         public ApiResult<List<Flow>> GetFlows(Guid ruleId)
         {
-            return new ApiResult<List<Flow>>(ApiCode.Success, "Ok", _context.Flows.Where(c => c.FlowRule.RuleId == ruleId).ToList());
+            return new ApiResult<List<Flow>>(ApiCode.Success, "Ok", _context.Flows.Include(c=>c.FlowRule).Where(c => c.FlowRule.RuleId == ruleId&&c.FlowStatus>0).ToList());
         }
 
 
@@ -1025,8 +1025,8 @@ namespace IoTSharp.Controllers
 
             var result = await _flowRuleProcessor.RunFlowRules(ruleid, d, profile.Id, EventType.TestPurpose, testabizId);
 
-            await _context.FlowOperations.AddRangeAsync(result);
-            _context.SaveChanges();
+            //await _context.FlowOperations.AddRangeAsync(result);
+            //_context.SaveChanges();
 
             //应该由事件总线去通知
             return new ApiResult<dynamic>(ApiCode.Success, "test complete", result.OrderBy(c => c.Step).
@@ -1270,16 +1270,20 @@ namespace IoTSharp.Controllers
 
 
 
-        [HttpPost("[action]")]
-        public async Task<ApiResult<RuleTaskExecutorTestResultDto>> TestFlow(RuleTaskExecutorTestDto m)
+        [HttpPost("RuleCondition")]
+        public async Task<ApiResult<ConditionTestResult>> RuleCondition([FromBody]RuleTaskFlowTestResultDto m)
         {
             var profile = await this.GetUserProfile();
+         var data=   JsonConvert.DeserializeObject(m.Data) as JObject;
 
-           this._flowRuleProcessor.ProcessCondition()
+            var d = data.ToObject(typeof(ExpandoObject));
+
+            var result= await   this._flowRuleProcessor.TestCondition(m.ruleId, m.flowId, d);
+
+       
 
 
-            await _context.SaveChangesAsync();
-            return new ApiResult<RuleTaskExecutorTestResultDto>(ApiCode.Success, "Ok", new RuleTaskExecutorTestResultDto());
+            return new ApiResult<ConditionTestResult>(ApiCode.Success, "Ok", result);
         }
 
 

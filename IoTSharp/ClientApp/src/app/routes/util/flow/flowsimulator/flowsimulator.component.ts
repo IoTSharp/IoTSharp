@@ -5,7 +5,7 @@ import { NzTimelineComponent, NzTimelineItemComponent, TimelineService } from 'n
 import { concat, interval, Observable, Subject, Subscription } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { appmessage } from 'src/app/routes/common/AppMessage';
-import { ruleflow } from 'src/app/routes/flow/flowlist/flowlist.component';
+import { flowrule } from 'src/app/routes/flow/flowlist/flowlist.component';
 import { FlowviewerComponent } from 'src/app/routes/widgets/flowviewer/flowviewer.component';
 import { DynamicformviewComponent } from '../../dynamicform/dynamicformview/dynamicformview.component';
 
@@ -50,7 +50,7 @@ export class FlowsimulatorComponent implements OnInit, OnDestroy {
           console.log(this.dynamicformview.id);
         }),
       ),
-      this.http.get<appmessage<ruleflow>>('api/rules/get?id=' + this.id).pipe(
+      this.http.get<appmessage<flowrule>>('api/rules/get?id=' + this.id).pipe(
         map((x) => {
           this.flowview.diagramdata = x.data;
           this.flowview.loadXml();

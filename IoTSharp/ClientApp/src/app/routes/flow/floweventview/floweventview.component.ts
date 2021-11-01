@@ -5,7 +5,7 @@ import { concat, } from 'rxjs'; import { map } from 'rxjs/operators';
 import { appmessage } from '../../common/AppMessage';
 import { FlowviewerComponent } from '../../widgets/flowviewer/flowviewer.component';
 import { baseevent } from '../flowevents/flowevents.component';
-import { ruleflow } from '../flowlist/flowlist.component';
+import { flowrule } from '../flowlist/flowlist.component';
 
 @Component({
   selector: 'app-floweventview',
@@ -31,7 +31,7 @@ export class FloweventviewComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
-    concat(this.http.get<appmessage<ruleflow>>('api/rules/get?id=' + this.event.ruleId).pipe(
+    concat(this.http.get<appmessage<flowrule>>('api/rules/get?id=' + this.event.ruleId).pipe(
       map((x) => {
         this.flowview.diagramdata = x.data;
         this.flowview.loadXml();

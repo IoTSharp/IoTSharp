@@ -11,6 +11,7 @@ import { FlowsimulatorComponent } from '../../util/flow/flowsimulator/flowsimula
 
 import { FlowformComponent } from '../flowform/flowform.component';
 import { ForkdialogComponent } from '../forkdialog/forkdialog.component';
+import { SequenceflowtesterComponent } from '../sequenceflowtester/sequenceflowtester.component';
 
 @Component({
   selector: 'app-flowlist',
@@ -20,13 +21,13 @@ import { ForkdialogComponent } from '../forkdialog/forkdialog.component';
 export class FlowlistComponent implements OnInit {
   constructor(
     private http: _HttpClient,
-    public msg: NzMessageService,
+    private message: NzMessageService,
     private modal: ModalHelper,
     private cdr: ChangeDetectorRef,
     private _router: Router,
     private drawerService: NzDrawerService,
     private settingService: SettingsService,
-    private message: NzMessageService,
+
   ) {}
 
   page: STPage = {
@@ -91,7 +92,7 @@ export class FlowlistComponent implements OnInit {
         {
           acl: 9,
           text: '修改',
-          click: (item: ruleflow) => {
+          click: (item: flowrule) => {
             this.openComponent(item.ruleId);
           },
         },
@@ -102,7 +103,7 @@ export class FlowlistComponent implements OnInit {
             okType: 'danger',
             icon: 'warning',
           },
-          click: (item: ruleflow) => {
+          click: (item: flowrule) => {
             //do something
           },
         },
@@ -123,7 +124,7 @@ export class FlowlistComponent implements OnInit {
         {
           text: '设计',
           //   acl: 104,
-          click: (item: ruleflow) => {
+          click: (item: flowrule) => {
             this._router.navigate(['/iot/flow/designer'], {
               queryParams: {
                 Id: item.ruleId,
@@ -136,7 +137,7 @@ export class FlowlistComponent implements OnInit {
           text: '测试',
           //  acl: 104,
 
-          click: (item: ruleflow) => {
+          click: (item: flowrule) => {
             this.testthisflow(item);
           },
         },
@@ -149,7 +150,7 @@ export class FlowlistComponent implements OnInit {
             okType: 'danger',
             icon: 'warning',
           },
-          click: (item: ruleflow) => {
+          click: (item: flowrule) => {
             this.http.get('api/rules/delete?id=' + item.ruleId).subscribe(
               (x) => {
                 this.getData();
@@ -207,7 +208,7 @@ export class FlowlistComponent implements OnInit {
     }
   }
 
-  testthisflow(ruleflow: ruleflow): void {
+  testthisflow(ruleflow: flowrule): void {
     var { nzMaskClosable, width } = this.settingService.getData('drawerconfig');
     var title = '测试' + ruleflow.name;
     const drawerRef = this.drawerService.create<FlowsimulatorComponent, { id: string }, string>({
@@ -230,9 +231,25 @@ export class FlowlistComponent implements OnInit {
   testunit(flow: flow) {
     console.log(flow);
     switch (flow.flowType) {
-      case 'bpmn:SequenceFlow':
-        break;
       case 'bpmn:Task':
+        var { nzMaskClosable, width } = this.settingService.getData('drawerconfig');
+        var title = '测试' + (flow.flowname??flow.bpmnid);
+        const drawerRef = this.drawerService.create<SequenceflowtesterComponent, { flow: flow }, string>({
+          nzTitle: title,
+          nzContent: SequenceflowtesterComponent,
+          nzWidth: width < 1280 ? 1280 : width,
+          nzMaskClosable: nzMaskClosable,
+          nzContentParams: {
+            flow: flow,
+          },
+        });
+        drawerRef.afterOpen.subscribe(() => {});
+        drawerRef.afterClose.subscribe((data) => {
+          if (typeof data === 'string') {
+          }
+        });
+        break;
+      case 'bpmn:SequenceFlow':
         break;
     }
   }
@@ -256,7 +273,7 @@ export class FlowlistComponent implements OnInit {
   setstatus(number: number, status: number) {}
 }
 
-export interface ruleflow {
+export interface flowrule {
   ruleId: string;
   name: string;
   ruledesc: string;
@@ -267,6 +284,7 @@ export interface ruleflow {
 }
 
 export interface flow {
+  flowRule: flowrule;
   flowId: string;
   flowname: string;
   flowType: string;
