@@ -4,9 +4,11 @@ using System.Dynamic;
 using System.Linq;
 using System.Threading.Tasks;
 using Castle.Components.DictionaryAdapter;
+using EasyCaching.Core;
 using IoTSharp.Data;
 using IoTSharp.Interpreter;
 using IoTSharp.TaskAction;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -17,23 +19,25 @@ namespace IoTSharp.FlowRuleEngine
     public class FlowRuleProcessor
     {
         private readonly IServiceScopeFactory _scopeFactor;
-        private readonly IServiceProvider _sp;
         private readonly ILogger<FlowRuleProcessor> _logger;
         private readonly AppSettings _setting;
         private List<Flow> _allFlows;
         private List<FlowOperation> _allflowoperation;
         private TaskExecutorHelper _helper;
+        private readonly IEasyCachingProvider _caching;
+        private readonly IServiceProvider _sp;
 
-        public FlowRuleProcessor(ILogger<FlowRuleProcessor> logger, IServiceScopeFactory scopeFactor, IOptions<AppSettings> options, TaskExecutorHelper helper)
+        public FlowRuleProcessor(ILogger<FlowRuleProcessor> logger, IServiceScopeFactory scopeFactor, IOptions<AppSettings> options, TaskExecutorHelper helper, IEasyCachingProviderFactory factory)
         {
 
             _scopeFactor = scopeFactor;
-            _sp = _scopeFactor.CreateScope().ServiceProvider;
             _logger = logger;
             _setting = options.Value;
             _allFlows = new List<Flow>();
             _allflowoperation = new List<FlowOperation>();
             _helper = helper;
+            _caching = factory.GetCachingProvider("iotsharp");
+            _sp = _scopeFactor.CreateScope().ServiceProvider;
         }
 
 
@@ -49,73 +53,92 @@ namespace IoTSharp.FlowRuleEngine
 
         public async Task<List<FlowOperation>> RunFlowRules(Guid ruleid, object data, Guid deviceId, EventType type, string BizId)
         {
-            var _event = new BaseEvent();
-            using ( var _sp = _scopeFactor.CreateScope())
+            var _cache_rule = await _caching.GetAsync($"RunFlowRules_{ruleid}", async () =>
             {
-                using (var _context = _sp.ServiceProvider.GetRequiredService<ApplicationDbContext>())
+                FlowRule rule;
+                List<Flow> _allFlows;
+                using (var _sp = _scopeFactor.CreateScope())
                 {
-                    var rule = _context.FlowRules.FirstOrDefault(c => c.RuleId == ruleid);
-                    _allFlows = _context.Flows.Where(c => c.FlowRule == rule && c.FlowStatus > 0).ToList();
-                    _event=new BaseEvent()
-                    { 
-                        CreaterDateTime = DateTime.Now,
-                        Creator = deviceId,
-                        EventDesc = "测试",
-                        EventName = "测试",
-                        MataData = JsonConvert.SerializeObject(data),
-                        BizData = JsonConvert.SerializeObject(rule),  //所有规则修改都会让对应的flow数据和设计文件不一致，最终导致回放失败，在此拷贝一份原始数据
-                        FlowRule = rule,
-                        Bizid = BizId,
-                        Type = type,
-                        EventStaus = 1
-                    };
-                    _context.BaseEvents.Add(_event);
-                    _context.SaveChanges();
-                }
-            }
-            var flows = _allFlows.Where(c => c.FlowType != "label").ToList();
-            var start = flows.FirstOrDefault(c => c.FlowType == "bpmn:StartEvent");
-
-            var startoperation = new FlowOperation()
-            {
-
-                OperationId = Guid.NewGuid(),
-                bpmnid = start.bpmnid,
-                AddDate = DateTime.Now,
-                FlowRule = start.FlowRule,
-                Flow = start,
-                Data = JsonConvert.SerializeObject(data),
-                NodeStatus = 1,
-                OperationDesc = "开始处理",
-                Step = 1,
-                BaseEvent = _event
-            };
-            _allflowoperation.Add(startoperation);
-            var nextflows = await ProcessCondition(start.FlowId, data);
-            if (nextflows != null)
-            {
-
-                foreach (var item in nextflows)
-                {
-                    var flowOperation = new FlowOperation()
+                    using (var _context = _sp.ServiceProvider.GetRequiredService<ApplicationDbContext>())
                     {
-                        OperationId = Guid.NewGuid(),
-                        AddDate = DateTime.Now,
-                        FlowRule = item.FlowRule,
-                        Flow = item,
-                        Data = JsonConvert.SerializeObject(data),
-                        NodeStatus = 1,
-                        OperationDesc = "执行条件（" + (string.IsNullOrEmpty(item.Conditionexpression)
-                            ? "空条件"
-                            : item.Conditionexpression) + ")",
-                        Step = ++startoperation.Step,
-                        bpmnid = item.bpmnid,
-                        BaseEvent = _event
-                    };
-                    _allflowoperation.Add(flowOperation);
-                    await Process(flowOperation.OperationId, data, deviceId);
+                        rule = await _context.FlowRules.FirstOrDefaultAsync(c => c.RuleId == ruleid);
+                        _allFlows = await _context.Flows.Where(c => c.FlowRule == rule && c.FlowStatus > 0).ToListAsync();
+                        _logger.LogInformation($"读取规则链{rule?.Name}({ruleid}),子流程共计:{_allFlows.Count}");
+                    }
                 }
-                return _allflowoperation;
+                return (rule, _allFlows);
+            }, TimeSpan.FromMinutes(5));
+            if (_cache_rule.HasValue)
+            {
+                
+                FlowRule rule = _cache_rule.Value.rule;
+                List<Flow> _allFlows = _cache_rule.Value._allFlows;
+                _logger.LogInformation($"开始执行规则链{rule?.Name}({ruleid})");
+                var _event =  new BaseEvent()
+                {
+                    CreaterDateTime = DateTime.Now,
+                    Creator = deviceId,
+                    EventDesc = $"Event Rule:{rule?.Name}({ruleid}) device is {deviceId}",
+                    EventName = $"Event_Rule{ruleid}_{deviceId}",
+                    MataData = JsonConvert.SerializeObject(data),
+                    BizData = JsonConvert.SerializeObject(rule),  //所有规则修改都会让对应的flow数据和设计文件不一致，最终导致回放失败，在此拷贝一份原始数据
+                    FlowRule = rule,
+                    Bizid = BizId,
+                    Type = type,
+                    EventStaus = 1
+                };
+                using (var _sp = _scopeFactor.CreateScope())
+                {
+                    using (var _context = _sp.ServiceProvider.GetRequiredService<ApplicationDbContext>())
+                    {
+                        _context.BaseEvents.Add(_event);
+                        _context.SaveChanges();
+                    }
+                }
+                var flows = _allFlows.Where(c => c.FlowType != "label").ToList();
+                var start = flows.FirstOrDefault(c => c.FlowType == "bpmn:StartEvent");
+
+                var startoperation = new FlowOperation()
+                {
+
+                    OperationId = Guid.NewGuid(),
+                    bpmnid = start.bpmnid,
+                    AddDate = DateTime.Now,
+                    FlowRule = start.FlowRule,
+                    Flow = start,
+                    Data = JsonConvert.SerializeObject(data),
+                    NodeStatus = 1,
+                    OperationDesc = "Start Event",
+                    Step = 1,
+                    BaseEvent = _event
+                };
+                _allflowoperation.Add(startoperation);
+                var nextflows = await ProcessCondition(start.FlowId, data);
+                if (nextflows != null)
+                {
+
+                    foreach (var item in nextflows)
+                    {
+                        var flowOperation = new FlowOperation()
+                        {
+                            OperationId = Guid.NewGuid(),
+                            AddDate = DateTime.Now,
+                            FlowRule = item.FlowRule,
+                            Flow = item,
+                            Data = JsonConvert.SerializeObject(data),
+                            NodeStatus = 1,
+                            OperationDesc = "Condition（" + (string.IsNullOrEmpty(item.Conditionexpression)
+                                ? "Empty Condition"
+                                : item.Conditionexpression) + ")",
+                            Step = ++startoperation.Step,
+                            bpmnid = item.bpmnid,
+                            BaseEvent = _event
+                        };
+                        _allflowoperation.Add(flowOperation);
+                        await Process(flowOperation.OperationId, data, deviceId);
+                    }
+                    return _allflowoperation;
+                }
             }
             return null;
         }
@@ -140,8 +163,8 @@ namespace IoTSharp.FlowRuleEngine
                             Flow = flow,
                             Data = JsonConvert.SerializeObject(data),
                             NodeStatus = 1,
-                            OperationDesc = "执行条件（" + (string.IsNullOrEmpty(flow.Conditionexpression)
-                                ? "空条件"
+                            OperationDesc = "Condition（" + (string.IsNullOrEmpty(flow.Conditionexpression)
+                                ? "Empty Condition"
                                 : flow.Conditionexpression) + ")",
                             Step = ++peroperation.Step,
                             bpmnid = flow.bpmnid,
@@ -163,7 +186,7 @@ namespace IoTSharp.FlowRuleEngine
                                 Flow = flow,
                                 Data = JsonConvert.SerializeObject(data),
                                 NodeStatus = 1,
-                                OperationDesc = "执行" + flow.NodeProcessScriptType + "任务:" + flow.Flowname,
+                                OperationDesc = "Run" + flow.NodeProcessScriptType + "Task:" + flow.Flowname,
                                 Step = ++peroperation.Step,
                                 BaseEvent = peroperation.BaseEvent
                             };
@@ -284,7 +307,6 @@ namespace IoTSharp.FlowRuleEngine
                                 {
                                     taskoperation.OperationDesc = "脚本执行异常,未能获取到结果";
                                     taskoperation.NodeStatus = 2;
-
                                     _logger.Log(LogLevel.Warning, "脚本未能顺利执行");
                                 }
                             }
