@@ -125,11 +125,37 @@ from(bucket: ""{_bucket}"")
                     {
                         KeyName = fr.GetField(),
                         DateTime = fr.GetTimeInDateTime().GetValueOrDefault(DateTime.MinValue).ToLocalTime(),
-                        Value = fr.GetValue()
+                        Value = fr.GetValue() ,
+                         DataType= InfluxTypeToIoTSharpType(ft.Columns.Find(fv=>fv.Label=="_value")?.DataType)
                     });
                 });
             });
             return dt;
+        }
+        Data.DataType InfluxTypeToIoTSharpType(string _itype)
+        {
+            Data.DataType data = DataType.String;
+            switch (_itype)
+            {
+                case "long":
+                    data = DataType.Long;
+                    break;
+                case "double":
+                    data = DataType.Double;
+                    break;
+                case "boolean":
+                case "bool":
+                    data = DataType.Boolean;
+                    break;
+                case "dateTime:RFC3339":
+                    data = DataType.DateTime;
+                    break;
+                case "string":
+                default:
+                    data = DataType.String;
+                    break;
+            }
+            return data;
         }
 
         public Task<List<TelemetryDataDto>> LoadTelemetryAsync(Guid deviceId, DateTime begin)

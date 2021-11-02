@@ -65,32 +65,7 @@ services:
       - 502:502
     networks:
       - iotsharp-network
-
-  node_a:
-    image: iotsharp/iotsharp:latest
-    restart: always
-    container_name: node_a
-    hostname: node_a
-    environment:
-       ASPNETCORE_ENVIRONMENT: Production
-    depends_on:
-      - pgsql
-      - mongodb
-      - rabbitmq
-      - iotsharp
-      - influx
-    links:
-      - pgsql
-      - mongodb
-      - rabbitmq
-      - influx
-    volumes:
-      - "./appsettings.Production_Node_A.json:/app/appsettings.Production.json"
-    ports:
-      - 2928:80
-    networks:
-      - iotsharp-network
-
+       
 
 
   rabbitmq:
@@ -128,7 +103,7 @@ services:
       - iotsharp-network
 
   influx:
-        image: "quay.io/influxdb/influxdb:2.0.0-rc"
+        image: "quay.io/influxdb/influxdb:v2.0.4"
         restart: always
         container_name: influx
         ports:
@@ -141,27 +116,17 @@ services:
         networks:
           - iotsharp-network
 
+  influxdb_cli:
+    links:
+        - influx
+    image: quay.io/influxdb/influxdb:v2.0.4
+    entrypoint: influx setup --bucket iotsharp-bucket -t iotsharp-token -o iotsharp --username=root --password=1-q2-w3-e4-r5-t --host=http://influx:8086 -f
+    restart: on-failure:20
+    depends_on:
+         - influx
 
-  influx-setup:
-        image: "julianfh/influxdb-setup:latest"
-        depends_on:
-          - influx
-        links:
-          - influx
-        environment:
-            TZ: "Asia/Shanghai"
-            TIMEOUT: 20
-            INFLUXDB_SCHEMA: "http"
-            INFLUXDB_HOST: "influx"
-            INFLUXDB_PORT: "8086"
-            INFLUXDB_TOKEN: "iotsharp-token"
-            INFLUXDB_BUCKETID: "iotsharp-bucket"
-            INFLUXDB_ORG: "iotsharp"
-            INFLUXDB_USER: "root"
-            INFLUXDB_PW: "1-q2-w3-e4-r5-t"
-            INFLUXDB_RETENTION: "240h60m"
-        networks:
-          - iotsharp-network
+
+ 
 
 networks: 
   iotsharp-network:
