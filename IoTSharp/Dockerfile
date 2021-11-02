@@ -37,16 +37,6 @@ RUN echo "deb https://mirrors.tuna.tsinghua.edu.cn/debian/ buster main contrib n
     apt-get autoremove -y &&  apt-get clean  &&  apt-get autoclean && rm  /var/cache/apt/* -rf 	
 
 
-#RUN	wget -qO- https://deb.nodesource.com/setup_15.x | bash - && \
-    #apt-get  -y   -q update  && \
-    #apt-get install -y nodejs && \
-	#ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime && \
-	#npm config set registry https://registry.npm.taobao.org && \
-	#export NODE_OPTIONS=--openssl-legacy-provider && \
-	#apt-get autoremove -y &&  apt-get clean  &&  apt-get autoclean && rm  /var/cache/apt/* -rf 	
-#
-#
-
 RUN KEYRING=/usr/share/keyrings/nodesource.gpg && curl -fsSL https://deb.nodesource.com/gpgkey/nodesource.gpg.key | gpg --dearmor |  tee "$KEYRING" >/dev/null && \
 	gpg --no-default-keyring --keyring "$KEYRING" --list-keys && \
 	VERSION=node_16.x &&  DISTRO=bullseye  && \
