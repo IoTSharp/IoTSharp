@@ -1,1 +1,46 @@
-<p>sequenceflowtester works!</p>
+<nz-card [nzBordered]="false">
+
+
+    <nz-alert nzType="success" nzMessage="条件" [nzDescription]="flow.conditionexpression"></nz-alert>
+
+  <nz-code-editor
+    style="width: 100%; height: 500px; padding-top: 1rem"
+    class="editor"
+    [(ngModel)]="param"
+    [ngModelOptions]="{ standalone: true }"
+    [nzEditorOption]="{ language: 'json' }"
+  ></nz-code-editor>
+
+  <button nz-button nzType="primary" type="submit" (click)="test($event)" [nzLoading]="submitting">保存</button>
+</nz-card>
+
+<nz-card [nzBordered]="false">
+
+<nz-row>
+
+    <ul nz-list [nzDataSource]="data" nzBordered nzSize="large" nz-col nzSpan="12">
+        <nz-list-header>通过的分支</nz-list-header>
+        <li nz-list-item *ngFor="let item of data" nzNoFlex>
+          <ul nz-list-item-actions>
+            <nz-list-item-action> </nz-list-item-action>
+          </ul>
+          {{ item }}
+        </li>
+    
+      </ul>
+      <ul nz-list [nzDataSource]="data" nzBordered nzSize="large" nz-col nzSpan="12">
+        <nz-list-header>未通过的分支</nz-list-header>
+        <li nz-list-item *ngFor="let item of data" nzNoFlex>
+          <ul nz-list-item-actions>
+            <nz-list-item-action> </nz-list-item-action>
+          </ul>
+          {{ item }}
+        </li>
+    
+      </ul>
+</nz-row>
+
+
+
+
+</nz-card>

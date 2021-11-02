@@ -376,6 +376,13 @@
             this is test purpose
             </summary>
         </member>
+        <member name="M:IoTSharp.Controllers.RulesController.Fork(IoTSharp.Data.FlowRule)">
+            <summary>
+            复制一个规则副本
+            </summary>
+            <param name="flowRule"></param>
+            <returns></returns>
+        </member>
         <member name="M:IoTSharp.Controllers.RulesController.FlowEvents(IoTSharp.Controllers.Models.EventParam)">
              <summary>
             

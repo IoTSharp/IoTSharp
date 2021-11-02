@@ -23,5 +23,10 @@ namespace IoTSharp.Data
         public int ExecutorStatus { get; set; }
         public DateTime AddDateTime { get; set; }
         public Guid Creator { get; set; }
+
+
+        public int TestStatus { get; set; }
+        public Guid Tester { get; set; }
+        public DateTime TesterDateTime { get; set; }
     }
 }

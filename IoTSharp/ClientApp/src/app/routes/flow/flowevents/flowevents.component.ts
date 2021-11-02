@@ -5,7 +5,7 @@ import { _HttpClient, ModalHelper, SettingsService } from '@delon/theme';
 import { NzDrawerService } from 'ng-zorro-antd/drawer';
 import { NzMessageService } from 'ng-zorro-antd/message';
 import { FloweventviewComponent } from '../floweventview/floweventview.component';
-import { ruleflow } from '../flowlist/flowlist.component';
+
 
 @Component({
   selector: 'app-flowevents',

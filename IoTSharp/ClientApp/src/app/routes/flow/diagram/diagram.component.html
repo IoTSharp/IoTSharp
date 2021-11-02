@@ -3,7 +3,17 @@
   <div nz-col nzSm="6" style="padding: 0.1rem">
     <nz-card nzTitle="对象属性">
       <form nz-form se-container="1" labelWidth="100" gutter="32">
-        <se label="对象Id" error="对象Id" required>
+        <se label="Id" error="Id" >
+          <input
+            nz-input
+            placeholder=""
+            [(ngModel)]="form.id"
+            readonly="readonly"
+            [ngModelOptions]="{ standalone: true }"
+            (ngModelChange)="ngModelChange($event)"
+          />
+        </se>
+        <se label="对象Id" error="对象Id" >
           <input
             nz-input
             placeholder=""

@@ -72,7 +72,7 @@ namespace IoTSharp.FlowRuleEngine
             {
                 
                 FlowRule rule = _cache_rule.Value.rule;
-                List<Flow> _allFlows = _cache_rule.Value._allFlows;
+             _allFlows = _cache_rule.Value._allFlows;
                 _logger.LogInformation($"开始执行规则链{rule?.Name}({ruleid})");
                 var _event =  new BaseEvent()
                 {
@@ -91,6 +91,8 @@ namespace IoTSharp.FlowRuleEngine
                 {
                     using (var _context = _sp.ServiceProvider.GetRequiredService<ApplicationDbContext>())
                     {
+
+                        _event.FlowRule = _context.FlowRules.SingleOrDefault(c => c.RuleId == rule.RuleId);
                         _context.BaseEvents.Add(_event);
                         _context.SaveChanges();
                     }
@@ -104,7 +106,7 @@ namespace IoTSharp.FlowRuleEngine
                     OperationId = Guid.NewGuid(),
                     bpmnid = start.bpmnid,
                     AddDate = DateTime.Now,
-                    FlowRule = start.FlowRule,
+                    FlowRule = _event.FlowRule,
                     Flow = start,
                     Data = JsonConvert.SerializeObject(data),
                     NodeStatus = 1,
@@ -123,7 +125,7 @@ namespace IoTSharp.FlowRuleEngine
                         {
                             OperationId = Guid.NewGuid(),
                             AddDate = DateTime.Now,
-                            FlowRule = item.FlowRule,
+                            FlowRule = _event.FlowRule,
                             Flow = item,
                             Data = JsonConvert.SerializeObject(data),
                             NodeStatus = 1,
@@ -159,7 +161,7 @@ namespace IoTSharp.FlowRuleEngine
                         {
                             OperationId = Guid.NewGuid(),
                             AddDate = DateTime.Now,
-                            FlowRule = flow.FlowRule,
+                            FlowRule = peroperation.BaseEvent.FlowRule,
                             Flow = flow,
                             Data = JsonConvert.SerializeObject(data),
                             NodeStatus = 1,
@@ -182,7 +184,7 @@ namespace IoTSharp.FlowRuleEngine
                                 OperationId = Guid.NewGuid(),
                                 bpmnid = flow.bpmnid,
                                 AddDate = DateTime.Now,
-                                FlowRule = flow.FlowRule,
+                                FlowRule = peroperation.BaseEvent.FlowRule,
                                 Flow = flow,
                                 Data = JsonConvert.SerializeObject(data),
                                 NodeStatus = 1,
@@ -287,7 +289,7 @@ namespace IoTSharp.FlowRuleEngine
                                         {
                                             OperationId = Guid.NewGuid(),
                                             AddDate = DateTime.Now,
-                                            FlowRule = item.FlowRule,
+                                            FlowRule = peroperation.BaseEvent.FlowRule,
                                             Flow = item,
                                             Data = JsonConvert.SerializeObject(obj),
                                             NodeStatus = 1,
@@ -319,7 +321,7 @@ namespace IoTSharp.FlowRuleEngine
                                     {
                                         OperationId = Guid.NewGuid(),
                                         AddDate = DateTime.Now,
-                                        FlowRule = item.FlowRule,
+                                        FlowRule = peroperation.BaseEvent.FlowRule,
                                         Flow = item,
                                         Data = JsonConvert.SerializeObject(data),
                                         NodeStatus = 1,
@@ -347,7 +349,7 @@ namespace IoTSharp.FlowRuleEngine
                         {
                             end.bpmnid = flow.bpmnid;
                             end.AddDate = DateTime.Now;
-                            end.FlowRule = flow.FlowRule;
+                            end.FlowRule = peroperation.BaseEvent.FlowRule;
                             end.Flow = flow;
                             end.Data = JsonConvert.SerializeObject(data);
                             end.NodeStatus = 1;
@@ -361,7 +363,7 @@ namespace IoTSharp.FlowRuleEngine
                             end.OperationId = Guid.NewGuid();
                             end.bpmnid = flow.bpmnid;
                             end.AddDate = DateTime.Now;
-                            end.FlowRule = flow.FlowRule;
+                            end.FlowRule = peroperation.BaseEvent.FlowRule;
                             end.Flow = flow;
                             end.Data = JsonConvert.SerializeObject(data);
                             end.NodeStatus = 1;
@@ -448,5 +450,83 @@ namespace IoTSharp.FlowRuleEngine
 
             return emptyflow;
         }
+
+        public async Task<ConditionTestResult> TestCondition(Guid ruleid,Guid FlowId, dynamic data)
+        {
+            var _cache_rule = await _caching.GetAsync($"RunFlowRules_{ruleid}", async () =>
+            {
+                FlowRule rule;
+                List<Flow> _allFlows;
+                using (var _sp = _scopeFactor.CreateScope())
+                {
+                    using (var _context = _sp.ServiceProvider.GetRequiredService<ApplicationDbContext>())
+                    {
+                        rule = await _context.FlowRules.FirstOrDefaultAsync(c => c.RuleId == ruleid);
+                        _allFlows = await _context.Flows.Where(c => c.FlowRule == rule && c.FlowStatus > 0).ToListAsync();
+                        _logger.LogInformation($"读取规则链{rule?.Name}({ruleid}),子流程共计:{_allFlows.Count}");
+                    }
+                }
+                return (rule, _allFlows);
+            }, TimeSpan.FromMinutes(5));
+            if (_cache_rule.HasValue)
+            {
+                using (var _sp = _scopeFactor.CreateScope())
+                {
+                    using (var _context = _sp.ServiceProvider.GetRequiredService<ApplicationDbContext>())
+                    {
+                     
+                        _allFlows = await _context.Flows.Where(c => c.FlowRule.RuleId == ruleid && c.FlowStatus > 0).ToListAsync();
+      
+                    }
+                }
+                var flow = _allFlows.FirstOrDefault(c => c.FlowId == FlowId);
+                var flows = _allFlows.Where(c => c.SourceId == flow.bpmnid).ToList();
+                var emptyflow = flows.Where(c => c.Conditionexpression == string.Empty).ToList() ?? new List<Flow>();
+                var tasks = new BaseRuleTask()
+                {
+                    Name = flow.Flowname,
+                    Eventid = flow.bpmnid,
+                    id = flow.bpmnid,
+                    outgoing = new EditableList<BaseRuleFlow>()
+                };
+                foreach (var item in flows.Except(emptyflow))
+                {
+                    var rule = new BaseRuleFlow();
+                    rule.id = item.bpmnid;
+                    rule.Name = item.bpmnid;
+                    rule.Eventid = item.bpmnid;
+                    rule.Expression = item.Conditionexpression;
+                    tasks.outgoing.Add(rule);
+                }
+                if (tasks.outgoing.Count > 0)
+                {
+                    SimpleFlowExcutor flowExcutor = new SimpleFlowExcutor();
+                    var result = await flowExcutor.Excute(new FlowExcuteEntity()
+                    {
+                        Params = data,
+                        Task = tasks,
+                    });
+                    var next = result.Where(c => c.IsSuccess).ToList();
+                    foreach (var item in next)
+                    {
+                        var nextflow = flows.FirstOrDefault(a => a.bpmnid == item.Rule.SuccessEvent);
+                        emptyflow.Add(nextflow);
+                    }
+
+                }
+                return new ConditionTestResult{ Failed = flows.Except(emptyflow).ToList(), Passd = emptyflow };
+
+
+            }
+            else
+            {
+                return null;
+            }
+
+
+
+
+        }
+
     }
 }

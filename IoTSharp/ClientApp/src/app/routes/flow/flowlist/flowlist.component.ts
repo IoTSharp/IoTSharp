@@ -10,6 +10,8 @@ import { appmessage, pageddata } from '../../common/AppMessage';
 import { FlowsimulatorComponent } from '../../util/flow/flowsimulator/flowsimulator.component';
 
 import { FlowformComponent } from '../flowform/flowform.component';
+import { ForkdialogComponent } from '../forkdialog/forkdialog.component';
+import { SequenceflowtesterComponent } from '../sequenceflowtester/sequenceflowtester.component';
 
 @Component({
   selector: 'app-flowlist',
@@ -19,16 +21,14 @@ import { FlowformComponent } from '../flowform/flowform.component';
 export class FlowlistComponent implements OnInit {
   constructor(
     private http: _HttpClient,
-    public msg: NzMessageService,
+    private message: NzMessageService,
     private modal: ModalHelper,
     private cdr: ChangeDetectorRef,
     private _router: Router,
     private drawerService: NzDrawerService,
     private settingService: SettingsService,
-    
-  ) {
 
-  }
+  ) {}
 
   page: STPage = {
     front: false,
@@ -92,7 +92,7 @@ export class FlowlistComponent implements OnInit {
         {
           acl: 9,
           text: '修改',
-          click: (item: ruleflow) => {
+          click: (item: flowrule) => {
             this.openComponent(item.ruleId);
           },
         },
@@ -103,29 +103,28 @@ export class FlowlistComponent implements OnInit {
             okType: 'danger',
             icon: 'warning',
           },
-          click: (item: ruleflow) => {
-
-
+          click: (item: flowrule) => {
             //do something
-
           },
         },
 
-
-
         {
-          text: (record) => 'fork',
-          click: (item: ruleflow) => {
+          text: (record) => '复制',
 
+          type: 'modal',
+          modal: {
+            component: ForkdialogComponent,
+          },
+          click: (record, modal) => {
+            this.message.success(`复制：${modal.data ? '成功' : '失败'}`);
 
-            //do something
-
+            this.getData();
           },
         },
         {
           text: '设计',
           //   acl: 104,
-          click: (item: ruleflow) => {
+          click: (item: flowrule) => {
             this._router.navigate(['/iot/flow/designer'], {
               queryParams: {
                 Id: item.ruleId,
@@ -138,7 +137,7 @@ export class FlowlistComponent implements OnInit {
           text: '测试',
           //  acl: 104,
 
-          click: (item: ruleflow) => {
+          click: (item: flowrule) => {
             this.testthisflow(item);
           },
         },
@@ -151,7 +150,7 @@ export class FlowlistComponent implements OnInit {
             okType: 'danger',
             icon: 'warning',
           },
-          click: (item: ruleflow) => {
+          click: (item: flowrule) => {
             this.http.get('api/rules/delete?id=' + item.ruleId).subscribe(
               (x) => {
                 this.getData();
@@ -182,7 +181,7 @@ export class FlowlistComponent implements OnInit {
         id: id,
       },
     });
-  
+
     drawerRef.afterOpen.subscribe(() => {});
 
     drawerRef.afterClose.subscribe((data) => {
@@ -192,28 +191,25 @@ export class FlowlistComponent implements OnInit {
     });
   }
 
-  onchange($event){
+  onchange($event) {
     switch ($event.type) {
       case 'expand':
-
         if ($event.expand.expand) {
-this.http.get<appmessage<flow>>('api/rules/GetFlows?ruleId='+$event.expand?.ruleId).subscribe(next=>{
-console.log(next)
-$event.expand.flows=next.data;
-},error=>{},()=>{});
-
-
+          this.http.get<appmessage<flow>>('api/rules/GetFlows?ruleId=' + $event.expand?.ruleId).subscribe(
+            (next) => {
+              console.log(next);
+              $event.expand.flows = next.data;
+            },
+            (error) => {},
+            () => {},
+          );
         }
         break;
-    
-    
     }
-
   }
 
-  testthisflow(ruleflow: ruleflow): void {
+  testthisflow(ruleflow: flowrule): void {
     var { nzMaskClosable, width } = this.settingService.getData('drawerconfig');
-
     var title = '测试' + ruleflow.name;
     const drawerRef = this.drawerService.create<FlowsimulatorComponent, { id: string }, string>({
       nzTitle: title,
@@ -224,14 +220,38 @@ $event.expand.flows=next.data;
         id: ruleflow.ruleId,
       },
     });
-
     drawerRef.afterOpen.subscribe(() => {});
-
     drawerRef.afterClose.subscribe((data) => {
       this.st.load(this.st.pi);
       if (typeof data === 'string') {
       }
     });
+  }
+
+  testunit(flow: flow) {
+    console.log(flow);
+    switch (flow.flowType) {
+      case 'bpmn:Task':
+        var { nzMaskClosable, width } = this.settingService.getData('drawerconfig');
+        var title = '测试' + (flow.flowname??flow.bpmnid);
+        const drawerRef = this.drawerService.create<SequenceflowtesterComponent, { flow: flow }, string>({
+          nzTitle: title,
+          nzContent: SequenceflowtesterComponent,
+          nzWidth: width < 1280 ? 1280 : width,
+          nzMaskClosable: nzMaskClosable,
+          nzContentParams: {
+            flow: flow,
+          },
+        });
+        drawerRef.afterOpen.subscribe(() => {});
+        drawerRef.afterClose.subscribe((data) => {
+          if (typeof data === 'string') {
+          }
+        });
+        break;
+      case 'bpmn:SequenceFlow':
+        break;
+    }
   }
 
   getData() {
@@ -253,25 +273,27 @@ $event.expand.flows=next.data;
   setstatus(number: number, status: number) {}
 }
 
-export interface ruleflow {
+export interface flowrule {
   ruleId: string;
   name: string;
   ruledesc: string;
   CreatTime: Date;
   rulestatus: number;
   definitionsXml: string;
-  flows:flow[]
+  flows: flow[];
 }
 
-export interface flow{
-  flowId:string;
-  flowname:string;
-  bpmnid:string;
-  nodeProcessClass:string;
-  conditionexpression:string;
-  nodeProcessMethod:string;
-  nodeProcessParams:string;
-  nodeProcessScriptType:string;
-  nodeProcessScript:string;
-
+export interface flow {
+  flowRule: flowrule;
+  flowId: string;
+  flowname: string;
+  flowType: string;
+  bpmnid: string;
+  nodeProcessClass: string;
+  conditionexpression: string;
+  nodeProcessMethod: string;
+  nodeProcessParams: string;
+  nodeProcessScriptType: string;
+  nodeProcessScript: string;
+  teststatus: number;
 }

@@ -1,15 +1,40 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, Input, OnInit } from '@angular/core';
+import { _HttpClient } from '@delon/theme';
+import { NzMessageService } from 'ng-zorro-antd/message';
+import { flow } from '../flowlist/flowlist.component';
 
 @Component({
   selector: 'app-sequenceflowtester',
   templateUrl: './sequenceflowtester.component.html',
-  styleUrls: ['./sequenceflowtester.component.less']
+  styleUrls: ['./sequenceflowtester.component.less'],
 })
 export class SequenceflowtesterComponent implements OnInit {
-
-  constructor() { }
+  @Input()
+  flow: flow;
+  data: any;
+  submitting: false;
+  param: {};
+  constructor(private http: _HttpClient, private message: NzMessageService) {}
 
   ngOnInit(): void {
+
+
+    console.log(this.flow)
   }
 
+  test($event) {
+    this.http
+      .post('api/rules/RuleCondition', {
+        ruleId: this.flow.flowRule.ruleId,
+        flowId: this.flow.flowId,
+        Data: this.param,
+      })
+      .subscribe(
+        (next) => {
+          console.log(next);
+        },
+        (error) => {},
+        () => {},
+      );
+  }
 }
