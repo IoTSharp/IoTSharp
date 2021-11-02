@@ -12,6 +12,7 @@ import { FlowsimulatorComponent } from '../../util/flow/flowsimulator/flowsimula
 import { FlowformComponent } from '../flowform/flowform.component';
 import { ForkdialogComponent } from '../forkdialog/forkdialog.component';
 import { SequenceflowtesterComponent } from '../sequenceflowtester/sequenceflowtester.component';
+import { TasktesterComponent } from '../tasktester/tasktester.component';
 
 @Component({
   selector: 'app-flowlist',
@@ -227,9 +228,9 @@ export class FlowlistComponent implements OnInit {
       }
     });
   }
-
+  
   testunit(flow: flow) {
-    console.log(flow);
+ 
     switch (flow.flowType) {
       case 'bpmn:Task':
         var { nzMaskClosable, width } = this.settingService.getData('drawerconfig');
@@ -253,6 +254,34 @@ export class FlowlistComponent implements OnInit {
         break;
     }
   }
+
+
+  testscript(flow: flow) {
+   
+    switch (flow.flowType) {
+      case 'bpmn:Task':
+        var { nzMaskClosable, width } = this.settingService.getData('drawerconfig');
+        var title = '测试' + (flow.flowname??flow.bpmnid);
+        const drawerRef = this.drawerService.create<TasktesterComponent, { flow: flow }, string>({
+          nzTitle: title,
+          nzContent: TasktesterComponent,
+          nzWidth: width < 1280 ? 1280 : width,
+          nzMaskClosable: nzMaskClosable,
+          nzContentParams: {
+            flow: flow,
+          },
+        });
+        drawerRef.afterOpen.subscribe(() => {});
+        drawerRef.afterClose.subscribe((data) => {
+          if (typeof data === 'string') {
+          }
+        });
+        break;
+      case 'bpmn:SequenceFlow':
+        break;
+    }
+  }
+
 
   getData() {
     this.st.req = this.req;

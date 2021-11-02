@@ -3,6 +3,7 @@ using Newtonsoft.Json.Converters;
 using System;
 using System.Dynamic;
 
+
 namespace IoTSharp.TaskAction
 {
     public interface ITaskAction
@@ -16,6 +17,8 @@ namespace IoTSharp.TaskAction
         private dynamic _DynamicOutput;
         private readonly ExpandoObjectConverter expConverter = new();
         public Guid DeviceId { get; set; }
+        public bool ExxcutionStatus { get; set; }
+        public string ExxcutionInfo { get; set; }
         public dynamic DynamicOutput
         {
             get
@@ -49,6 +52,7 @@ namespace IoTSharp.TaskAction
         private string _value;
         private readonly ExpandoObjectConverter expConverter = new();
         public Guid  DeviceId { get; set; }
+        public String ExecutorConfig { get; set; }
         public dynamic DynamicInput
         {
             get

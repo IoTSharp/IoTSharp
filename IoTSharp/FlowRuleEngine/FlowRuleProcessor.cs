@@ -40,6 +40,8 @@ namespace IoTSharp.FlowRuleEngine
             _sp = _scopeFactor.CreateScope().ServiceProvider;
         }
 
+  
+
 
         /// <summary>
         /// 
@@ -70,11 +72,11 @@ namespace IoTSharp.FlowRuleEngine
             }, TimeSpan.FromMinutes(5));
             if (_cache_rule.HasValue)
             {
-                
+
                 FlowRule rule = _cache_rule.Value.rule;
-             _allFlows = _cache_rule.Value._allFlows;
+                _allFlows = _cache_rule.Value._allFlows;
                 _logger.LogInformation($"开始执行规则链{rule?.Name}({ruleid})");
-                var _event =  new BaseEvent()
+                var _event = new BaseEvent()
                 {
                     CreaterDateTime = DateTime.Now,
                     Creator = deviceId,
@@ -147,7 +149,7 @@ namespace IoTSharp.FlowRuleEngine
 
 
 
-        public async Task Process(Guid operationid, object data,Guid  deviceId)
+        public async Task Process(Guid operationid, object data, Guid deviceId)
         {
             var peroperation = _allflowoperation.FirstOrDefault(c => c.OperationId == operationid);
             if (peroperation != null)
@@ -333,7 +335,7 @@ namespace IoTSharp.FlowRuleEngine
                                         BaseEvent = taskoperation.BaseEvent
                                     };
                                     _allflowoperation.Add(flowOperation);
-                                    await Process(flowOperation.OperationId, data,deviceId);
+                                    await Process(flowOperation.OperationId, data, deviceId);
                                 }
 
                             }
@@ -451,12 +453,17 @@ namespace IoTSharp.FlowRuleEngine
             return emptyflow;
         }
 
-        public async Task<ConditionTestResult> TestCondition(Guid ruleid,Guid FlowId, dynamic data)
+
+
+
+
+
+        public async Task<ScriptTestResult> TestScript(Guid ruleid, Guid FlowId, string data)
         {
             var _cache_rule = await _caching.GetAsync($"RunFlowRules_{ruleid}", async () =>
             {
                 FlowRule rule;
-                List<Flow> _allFlows;
+
                 using (var _sp = _scopeFactor.CreateScope())
                 {
                     using (var _context = _sp.ServiceProvider.GetRequiredService<ApplicationDbContext>())
@@ -470,15 +477,123 @@ namespace IoTSharp.FlowRuleEngine
             }, TimeSpan.FromMinutes(5));
             if (_cache_rule.HasValue)
             {
+                var flow = _allFlows.FirstOrDefault(c => c.FlowId == FlowId);
+
+                if (!string.IsNullOrEmpty(flow?.NodeProcessScriptType) &&
+                    (!string.IsNullOrEmpty(flow.NodeProcessScript) || !string.IsNullOrEmpty(flow.NodeProcessClass)))
+                {
+
+                    var scriptsrc = flow.NodeProcessScript;
+
+
+                    dynamic obj = null;
+
+                    switch (flow.NodeProcessScriptType)
+                    {
+                        case "executor":
+
+                            if (!string.IsNullOrEmpty(flow.NodeProcessClass))
+                            {
+
+                                ITaskAction executor = _helper.CreateInstanceByTypeName(flow.NodeProcessClass) as ITaskAction;
+                                if (executor != null)
+                                {
+                                    try
+                                    {
+                                        var result = executor.Execute(new TaskActionInput()
+                                        {
+                                            Input = data,
+                                            ExecutorConfig = flow.NodeProcessParams,
+                                            DeviceId = Guid.NewGuid()
+                                        });
+                                      
+                                  
+                                        obj = result.DynamicOutput;
+                                    }
+                                    catch (Exception ex)
+                                    {
+
+                                    }
+                                }
+
+                            }
+                            break;
+                        case "python":
+                            {
+                                using (var pse = _sp.GetRequiredService<PythonScriptEngine>())
+                                {
+                                    string result = pse.Do(scriptsrc, data);
+                                    obj = JsonConvert.DeserializeObject<ExpandoObject>(result);
+                                }
+                            }
+                            break;
+                        case "sql":
+                            {
+
+                                using (var pse = _sp.GetRequiredService<SQLEngine>())
+                                {
+                                    string result = pse.Do(scriptsrc, data);
+                                    obj = JsonConvert.DeserializeObject<ExpandoObject>(result);
+                                }
+                            }
+
+                            break;
+                        case "lua":
+                            {
+                                using (var lua = _sp.GetRequiredService<LuaScriptEngine>())
+                                {
+                                    string result = lua.Do(scriptsrc, data);
+                                    obj = JsonConvert.DeserializeObject<ExpandoObject>(result);
+                                }
+                            }
+                            break;
+
+
+                        case "javascript":
+                            {
+                                using (var js = _sp.GetRequiredService<JavaScriptEngine>())
+                                {
+                                    string result = js.Do(scriptsrc, data);
+                                    obj = JsonConvert.DeserializeObject<ExpandoObject>(result);
+                                }
+                            }
+                            break;
+                    }
+
+
+                    if (obj != null)
+                    {
+                        return new ScriptTestResult(){ Data = obj , IsExecuted = true};
+                    }
+
+                }
+            }
+
+            return new ScriptTestResult() { Data = null, IsExecuted = false }; ;
+
+        }
+
+
+        public async Task<ConditionTestResult> TestCondition(Guid ruleid, Guid FlowId, dynamic data)
+        {
+            var _cache_rule = await _caching.GetAsync($"RunFlowRules_{ruleid}", async () =>
+            {
+                FlowRule rule;
+
                 using (var _sp = _scopeFactor.CreateScope())
                 {
                     using (var _context = _sp.ServiceProvider.GetRequiredService<ApplicationDbContext>())
                     {
-                     
-                        _allFlows = await _context.Flows.Where(c => c.FlowRule.RuleId == ruleid && c.FlowStatus > 0).ToListAsync();
-      
+                        rule = await _context.FlowRules.FirstOrDefaultAsync(c => c.RuleId == ruleid);
+                        _allFlows = await _context.Flows.Where(c => c.FlowRule == rule && c.FlowStatus > 0).ToListAsync();
+                        _logger.LogInformation($"读取规则链{rule?.Name}({ruleid}),子流程共计:{_allFlows.Count}");
                     }
                 }
+                return (rule, _allFlows);
+            }, TimeSpan.FromMinutes(5));
+            if (_cache_rule.HasValue)
+            {
+                _allFlows = _cache_rule.Value._allFlows;
                 var flow = _allFlows.FirstOrDefault(c => c.FlowId == FlowId);
                 var flows = _allFlows.Where(c => c.SourceId == flow.bpmnid).ToList();
                 var emptyflow = flows.Where(c => c.Conditionexpression == string.Empty).ToList() ?? new List<Flow>();
@@ -514,7 +629,7 @@ namespace IoTSharp.FlowRuleEngine
                     }
 
                 }
-                return new ConditionTestResult{ Failed = flows.Except(emptyflow).ToList(), Passd = emptyflow };
+                return new ConditionTestResult { Failed = flows.Except(emptyflow).ToList(), Passed = emptyflow };
 
 
             }

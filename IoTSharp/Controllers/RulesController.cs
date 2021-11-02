@@ -47,6 +47,30 @@ namespace IoTSharp.Controllers
             _helper = helper;
         }
 
+
+
+
+
+        /// <summary>
+        /// 更新节点的条件表达式
+        /// </summary>
+        /// <param name="flowid"> 节点Id</param>
+        /// <param name="expression">数据</param>
+        /// <returns> 返回所有节点的记录信息，需要保存则保存</returns>
+        public async Task<ApiResult<bool>> UpdateFlowExpression([FromBody] UpdateFlowExpression m)
+        {
+            var flow =await _context.Flows.SingleOrDefaultAsync(c => c.FlowId == m.FlowId);
+            if (flow != null)
+            {
+                flow.Conditionexpression = m.Expression;
+                _context.Flows.Update(flow);
+               await _context.SaveChangesAsync();
+
+               return new ApiResult<bool>(ApiCode.Success, "Ok", true);
+            }
+            return new ApiResult<bool>(ApiCode.InValidData, "can't find this object", false);
+        }
+
         [HttpPost("[action]")]
         public async Task<ApiResult<PagedData<FlowRule>>> Index([FromBody] RulePageParam m)
         {
@@ -1239,19 +1263,7 @@ namespace IoTSharp.Controllers
         }
 
 
-        [HttpPost("[action]")]
-        public async Task<ApiResult<RuleTaskExecutorTestResultDto>> TestExecutor(RuleTaskExecutorTestDto m)
-        {
-            var profile = await this.GetUserProfile();
-            
-
-
-
-      
-            await _context.SaveChangesAsync();
-            return new ApiResult<RuleTaskExecutorTestResultDto>(ApiCode.Success, "Ok", new RuleTaskExecutorTestResultDto());
-        }
-
+     
 
 
 
@@ -1259,13 +1271,13 @@ namespace IoTSharp.Controllers
         public async Task<ApiResult<RuleTaskExecutorTestResultDto>> TestTask(RuleTaskExecutorTestDto m)
         {
             var profile = await this.GetUserProfile();
-
-
+       
+            var result = await this._flowRuleProcessor.TestScript(m.ruleId, m.flowId, m.Data);
 
 
 
             await _context.SaveChangesAsync();
-            return new ApiResult<RuleTaskExecutorTestResultDto>(ApiCode.Success, "Ok", new RuleTaskExecutorTestResultDto());
+            return new ApiResult<RuleTaskExecutorTestResultDto>(ApiCode.Success, "Ok", new RuleTaskExecutorTestResultDto(){Data = result.Data });
         }
 
 
@@ -1274,11 +1286,9 @@ namespace IoTSharp.Controllers
         public async Task<ApiResult<ConditionTestResult>> RuleCondition([FromBody]RuleTaskFlowTestResultDto m)
         {
             var profile = await this.GetUserProfile();
-         var data=   JsonConvert.DeserializeObject(m.Data) as JObject;
-
-            var d = data.ToObject(typeof(ExpandoObject));
-
-            var result= await   this._flowRuleProcessor.TestCondition(m.ruleId, m.flowId, d);
+         var data=   JsonConvert.DeserializeObject(m.Data) as JObject; 
+         var d = data.ToObject(typeof(ExpandoObject));
+         var result= await   this._flowRuleProcessor.TestCondition(m.ruleId, m.flowId, d);
 
        
 

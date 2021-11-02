@@ -96,7 +96,7 @@
               <td>{{ _item.nodeProcessParams }}</td>
               <td>{{ _item.nodeProcessScriptType }}</td>
               <td>{{_item.flowType==='bpmn:Task'? _item.teststatus===1?'测试通过':'未测试':'' }}</td>
-              <td><a (click)="testunit(_item)">{{
+              <td><a (click)="testscript(_item)">{{
                 _item.flowType==='bpmn:Task'?'脚本测试':''
               
               }}</a>

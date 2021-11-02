@@ -1,7 +1,5 @@
 <nz-card [nzBordered]="false">
-
-
-    <nz-alert nzType="success" nzMessage="条件" [nzDescription]="flow.conditionexpression"></nz-alert>
+  <nz-alert nzType="success" nzMessage="任务" [nzDescription]="flow.flowname"></nz-alert>
 
   <nz-code-editor
     style="width: 100%; height: 500px; padding-top: 1rem"
@@ -11,36 +9,28 @@
     [nzEditorOption]="{ language: 'json' }"
   ></nz-code-editor>
 
-  <button nz-button nzType="primary" type="submit" (click)="test($event)" [nzLoading]="submitting">保存</button>
+  <button nz-button nzType="primary" type="submit" (click)="test($event)" [nzLoading]="submitting">测试</button>
 </nz-card>
 
 <nz-card [nzBordered]="false">
+  <nz-row>
+    <ul nz-list [nzDataSource]="data.passed" nzBordered nzSize="large" nz-col nzSpan="12">
+      <nz-list-header>命中的分支</nz-list-header>
+      <li nz-list-item *ngFor="let item of data.passed" nzNoFlex>
+        <span nz-typography
+          ><mark> {{ item.flowname ? item.flowname : item.bpmnid }}</mark></span
+        >
 
-<nz-row>
-
-    <ul nz-list [nzDataSource]="data" nzBordered nzSize="large" nz-col nzSpan="12">
-        <nz-list-header>通过的分支</nz-list-header>
-        <li nz-list-item *ngFor="let item of data" nzNoFlex>
-          <ul nz-list-item-actions>
-            <nz-list-item-action> </nz-list-item-action>
-          </ul>
-          {{ item }}
-        </li>
-    
-      </ul>
-      <ul nz-list [nzDataSource]="data" nzBordered nzSize="large" nz-col nzSpan="12">
-        <nz-list-header>未通过的分支</nz-list-header>
-        <li nz-list-item *ngFor="let item of data" nzNoFlex>
-          <ul nz-list-item-actions>
-            <nz-list-item-action> </nz-list-item-action>
-          </ul>
-          {{ item }}
-        </li>
-    
-      </ul>
-</nz-row>
-
-
-
-
+        {{ item.conditionexpression ? item.conditionexpression : '空条件' }}
+      </li>
+    </ul>
+    <ul nz-list [nzDataSource]="data.failed" nzBordered nzSize="large" nz-col nzSpan="12">
+      <nz-list-header>未命中的分支</nz-list-header>
+      <li nz-list-item *ngFor="let item of data.failed" nzNoFlex>
+        <span nz-typography
+          ><mark> {{ item.flowname ? item.flowname : item.bpmnid }}</mark></span>
+        {{ item.conditionexpression ? item.conditionexpression : '空条件' }}
+      </li>
+    </ul>
+  </nz-row>
 </nz-card>

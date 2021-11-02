@@ -11,15 +11,16 @@ import { flow } from '../flowlist/flowlist.component';
 export class SequenceflowtesterComponent implements OnInit {
   @Input()
   flow: flow;
-  data: any;
+  data={
+    passed: [],
+    failed: [],
+  };
   submitting: false;
   param: {};
   constructor(private http: _HttpClient, private message: NzMessageService) {}
 
   ngOnInit(): void {
-
-
-    console.log(this.flow)
+    console.log(this.flow);
   }
 
   test($event) {
@@ -31,7 +32,7 @@ export class SequenceflowtesterComponent implements OnInit {
       })
       .subscribe(
         (next) => {
-          console.log(next);
+        this.data=next.data;
         },
         (error) => {},
         () => {},
