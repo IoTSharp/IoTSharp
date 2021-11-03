@@ -4,9 +4,8 @@
     <ProjectVersion>2.1</ProjectVersion>
     <DockerTargetOS>Linux</DockerTargetOS>
     <ProjectGuid>bb96b645-c082-4259-8bec-dcee437d944e</ProjectGuid>
-    <DockerLaunchAction>LaunchBrowser</DockerLaunchAction>
+    <DockerLaunchAction>None</DockerLaunchAction>
     <DockerServiceUrl>{Scheme}://localhost:{ServicePort}</DockerServiceUrl>
-    <DockerServiceName>iotsharp</DockerServiceName>
   </PropertyGroup>
   <ItemGroup>
     <None Include="appsettings.Production.json" />
