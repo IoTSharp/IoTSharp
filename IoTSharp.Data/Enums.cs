@@ -156,9 +156,9 @@ namespace IoTSharp.Data
     }
     public enum MountType
     {
-        Telemetry=1,
+        RAW = 0,
+        Telemetry =1,
         Attribute=2,
-        RAW=3
     }
 
     
