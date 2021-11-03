@@ -149,25 +149,25 @@ page: STPage = {
   couponFormat(value) {}
 
   private download() {
-    this.http
-      .get(
-        './assets/tmp/demo.xlsx',
-        {},
-        {
-          responseType: 'blob',
-        },
-      )
-      .subscribe((res) => {
-        let url = window.URL.createObjectURL(res);
-        let a = document.createElement('a');
-        document.body.appendChild(a);
-        a.setAttribute('style', 'display: none');
-        a.href = url;
-        a.download = res.filename;
-        a.click();
-        window.URL.revokeObjectURL(url);
-        a.remove();
-      });
+    // this.http
+    //   .get(
+    //     './assets/tmp/demo.xlsx',
+    //     {},
+    //     {
+    //       responseType: 'blob',
+    //     },
+    //   )
+    //   .subscribe((res) => {
+    //     let url = window.URL.createObjectURL(res);
+    //     let a = document.createElement('a');
+    //     document.body.appendChild(a);
+    //     a.setAttribute('style', 'display: none');
+    //     a.href = url;
+    //     a.download = res.filename;
+    //     a.click();
+    //     window.URL.revokeObjectURL(url);
+    //     a.remove();
+    //   });
   }
 
   ngOnInit(): void {

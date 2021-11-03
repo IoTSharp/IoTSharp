@@ -5,6 +5,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="RestSharp" Version="106.13.0" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\IoTSharp.Data\IoTSharp.Data.csproj" />
   </ItemGroup>
 

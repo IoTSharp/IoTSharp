@@ -3,11 +3,13 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Dynamic;
 using System.Linq;
+using System.Net;
 using System.Threading.Tasks;
 using IoTSharp.Data;
 using IoTSharp.TaskAction;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using RestSharp;
 
 namespace IoTSharp.TaskAction
 {
@@ -31,7 +33,16 @@ namespace IoTSharp.TaskAction
                 JObject o = JsonConvert.DeserializeObject(input.Input) as JObject;
                 var d = o.Property("temperature");
                 d.Value = new JValue(d.Value.Value<double>() + 100);
-                return new TaskActionOutput() { DynamicOutput = o.ToObject(typeof(ExpandoObject)) };
+                var restclient = new RestClient(config.BaseUrl);
+                var request = new RestRequest(config.Url, Method.POST);
+                request.AddObject(d);
+                var response = restclient.Execute(request);
+              //  if (response.StatusCode == HttpStatusCode.OK)
+              
+                    return new TaskActionOutput() { DynamicOutput = o.ToObject(typeof(ExpandoObject)) };
+              
+
+              //  return new TaskActionOutput() { DynamicOutput = o.ToObject(typeof(ExpandoObject)) };
             }
             catch (Exception ex)
             {
@@ -50,7 +61,8 @@ namespace IoTSharp.TaskAction
 
         class ModelExecutorConfig
         {
-            public string PullUrl { get; set; }
+            public string Url { get; set; }
+            public string BaseUrl { get; set; }
             public string Mothod { get; set; }
         
         }
