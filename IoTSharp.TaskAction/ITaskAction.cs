@@ -17,8 +17,8 @@ namespace IoTSharp.TaskAction
         private dynamic _DynamicOutput;
         private readonly ExpandoObjectConverter expConverter = new();
         public Guid DeviceId { get; set; }
-        public bool ExxcutionStatus { get; set; }
-        public string ExxcutionInfo { get; set; }
+        public bool ExecutionStatus { get; set; }
+        public string ExecutionInfo { get; set; }
         public dynamic DynamicOutput
         {
             get

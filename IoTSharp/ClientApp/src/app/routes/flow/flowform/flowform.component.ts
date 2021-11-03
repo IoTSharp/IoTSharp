@@ -32,12 +32,14 @@ export class FlowformComponent implements OnInit {
     this.form = this.fb.group({
       name: [null, [Validators.required]],
       ruleDesc: [null, []],
+      mountType: [null, [Validators.required]],
       ruleId: [Guid.EMPTY, []],
     });
 
     if (this.id !== Guid.EMPTY) {
       this._httpClient.get<AppMessage>('api/rules/get?id=' + this.id).subscribe(
         (x) => {
+          x.data.mountType= x.data.mountType+'';
           this.form.patchValue(x.data);
         },
         (y) => {},

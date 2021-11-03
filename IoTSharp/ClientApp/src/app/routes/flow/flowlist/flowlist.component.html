@@ -102,7 +102,7 @@
               }}</a>
               <nz-divider nzType="vertical"></nz-divider>
               <a (click)="testunit(_item)">{{
-                _item.flowType==='bpmn:Task'?'条件测试':''
+                _item.flowType==='bpmn:Task'|| _item.flowType==='bpmn:StartEvent'?'条件测试':''
               
               }}</a>
             

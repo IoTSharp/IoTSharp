@@ -104,7 +104,10 @@ namespace IoTSharp.Controllers
         {
             if (ModelState.IsValid)
             {
+                m.MountType = m.MountType;
                 m.RuleStatus = 1;
+                m.CreatTime=DateTime.Now;
+           
                 _context.FlowRules.Add(m);
                 _context.SaveChanges();
 
@@ -122,6 +125,7 @@ namespace IoTSharp.Controllers
                 var flowrule = _context.FlowRules.SingleOrDefault(c => c.RuleId == m.RuleId);
                 if (flowrule != null)
                 {
+                    flowrule.MountType = m.MountType;
                     flowrule.Name = m.Name;
                     flowrule.RuleDesc = m.RuleDesc;
                     _context.FlowRules.Update(flowrule);

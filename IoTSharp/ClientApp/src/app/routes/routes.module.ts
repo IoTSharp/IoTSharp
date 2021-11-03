@@ -65,11 +65,12 @@ import { TaskexecutorformComponent } from './flow/taskexecutorform/taskexecutorf
 import { SequenceflowtesterComponent } from './flow/sequenceflowtester/sequenceflowtester.component';
 import { TasktesterComponent } from './flow/tasktester/tasktester.component';
 import { ForkdialogComponent } from './flow/forkdialog/forkdialog.component';
+import { G2BarModule,G2GaugeModule } from '@delon/chart';
 
 const COMPONENTS: Type<null>[] = [];
 const Directive: Type<void>[] = [fielddirective, controldirective];
 @NgModule({
-  imports: [SharedModule, RouteRoutingModule, WidgetsModule,ClipboardModule, DelonFormModule.forRoot()],
+  imports: [SharedModule,G2BarModule,G2GaugeModule , RouteRoutingModule, WidgetsModule,ClipboardModule, DelonFormModule.forRoot()],
   declarations: [
     ...COMPONENTS,
     ...Directive,

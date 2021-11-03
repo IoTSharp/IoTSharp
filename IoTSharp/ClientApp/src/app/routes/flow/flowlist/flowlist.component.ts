@@ -1,6 +1,6 @@
 import { ChangeDetectorRef, Component, OnInit, TemplateRef, ViewChild } from '@angular/core';
 import { Router } from '@angular/router';
-import { STColumn, STComponent, STData, STPage, STReq, STRes } from '@delon/abc/st';
+import { STColumn, STColumnTag, STComponent, STData, STPage, STReq, STRes } from '@delon/abc/st';
 import { ACLService } from '@delon/acl';
 import { _HttpClient, ModalHelper, SettingsService } from '@delon/theme';
 import { Guid } from 'guid-typescript';
@@ -30,7 +30,11 @@ export class FlowlistComponent implements OnInit {
     private settingService: SettingsService,
 
   ) {}
-
+  TAG: STColumnTag = {
+    1: { text: '遥测', color: 'green' },
+    2: { text: '属性', color: 'orange' },
+    3: { text: 'RAW', color: 'orange' },
+  };
   page: STPage = {
     front: false,
     total: true,
@@ -75,11 +79,12 @@ export class FlowlistComponent implements OnInit {
     { title: 'id', index: 'ruleId' },
     { title: '规则名称', index: 'name', render: 'name' },
     { title: '备注', index: 'ruledesc' },
-    { title: '创建时间', type: 'date', index: 'CreatTime' },
+    { title: '创建时间', type: 'date', index: 'creatTime' },
+    { title: '挂载点', type: 'tag', index: 'mountType', tag:this.TAG },
     {
       title: { i18n: 'i18n.columns.Status' },
-      index: 'rulestatus',
-      render: 'rulestatus',
+      index: 'ruleStatus',
+      render: 'ruleStatus',
       type: 'badge',
       badge: {
         0: { text: '禁用', color: 'error' },
@@ -233,6 +238,7 @@ export class FlowlistComponent implements OnInit {
  
     switch (flow.flowType) {
       case 'bpmn:Task':
+      {
         var { nzMaskClosable, width } = this.settingService.getData('drawerconfig');
         var title = '测试' + (flow.flowname??flow.bpmnid);
         const drawerRef = this.drawerService.create<SequenceflowtesterComponent, { flow: flow }, string>({
@@ -249,8 +255,28 @@ export class FlowlistComponent implements OnInit {
           if (typeof data === 'string') {
           }
         });
+      }
         break;
-      case 'bpmn:SequenceFlow':
+      case 'bpmn:StartEvent':
+        {
+          var { nzMaskClosable, width } = this.settingService.getData('drawerconfig');
+          var title = '测试' + (flow.flowname??flow.bpmnid);
+          const drawerRef = this.drawerService.create<SequenceflowtesterComponent, { flow: flow }, string>({
+            nzTitle: title,
+            nzContent: SequenceflowtesterComponent,
+            nzWidth: width < 1280 ? 1280 : width,
+            nzMaskClosable: nzMaskClosable,
+            nzContentParams: {
+              flow: flow,
+            },
+          });
+          drawerRef.afterOpen.subscribe(() => {});
+          drawerRef.afterClose.subscribe((data) => {
+            if (typeof data === 'string') {
+            }
+          });
+        }
+      
         break;
     }
   }

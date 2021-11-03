@@ -35,7 +35,7 @@ namespace IoTSharp.TaskAction
             }
             catch (Exception ex)
             {
-                return new TaskActionOutput() {ExxcutionInfo = ex.Message, ExxcutionStatus = false};
+                return new TaskActionOutput() {ExecutionInfo = ex.Message, ExecutionStatus = false};
             }
 
         }

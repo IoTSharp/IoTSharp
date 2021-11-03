@@ -18,6 +18,7 @@ import { HttpHeaders, HttpResponse } from '@angular/common/http';
 import { saveAs, fileSaver } from 'file-saver';
 import { ClipboardService } from 'ngx-clipboard';
 import { DevicetokendialogComponent } from '../devicetokendialog/devicetokendialog.component';
+import { fork } from 'child_process';
 @Component({
   selector: 'app-devicelist',
   templateUrl: './devicelist.component.html',
@@ -37,17 +38,16 @@ export class DevicelistComponent implements OnInit, OnDestroy {
     private drawerService: NzDrawerService,
     private settingService: SettingsService,
 
-
     aclSrv: ACLService,
-  ) { }
+  ) {}
   ngOnDestroy(): void {
     if (this.obs) {
       this.obs.unsubscribe();
     }
   }
   url = 'api/Devices/Customers';
-
-  page: STPage = {
+  cetd  : telemetryitem []= [];
+page: STPage = {
     front: false,
     total: true,
     zeroIndexed: true,
@@ -60,12 +60,12 @@ export class DevicelistComponent implements OnInit, OnDestroy {
     name: string;
     // anothor query field:The type you expect
   } = {
-      pi: 0,
-      ps: 10,
-      sorter: '',
-      customerId: '',
-      name: '',
-    };
+    pi: 0,
+    ps: 10,
+    sorter: '',
+    customerId: '',
+    name: '',
+  };
   req: STReq = { method: 'GET', allInBody: true, reName: { pi: 'offset', ps: 'limit' }, params: this.q };
 
   // 定义返回的参数
@@ -86,8 +86,8 @@ export class DevicelistComponent implements OnInit, OnDestroy {
     { title: 'id', index: 'id' },
     { title: '名称', index: 'name', render: 'name' },
     { title: '设备类型', index: 'deviceType' },
-    { title: '所有者', index: 'phone' },
-    { title: '租户', index: 'country' },
+    { title: '在线状态', index: 'online' },
+    { title: '最后活动时间', index: 'lastActive' },
     { title: '客户', index: 'province' },
     {
       title: '操作',
@@ -113,7 +113,7 @@ export class DevicelistComponent implements OnInit, OnDestroy {
           acl: 111,
           text: '设置规则',
           click: (item: any) => {
-            this.download()
+            this.download();
             this.downlink([item]);
           },
         },
@@ -125,14 +125,8 @@ export class DevicelistComponent implements OnInit, OnDestroy {
           modal: {
             component: DevicetokendialogComponent,
           },
-          click: (item: any) => {
-
- 
-
-          }
+          click: (item: any) => {},
         },
-
-
 
         {
           acl: 110,
@@ -148,37 +142,33 @@ export class DevicelistComponent implements OnInit, OnDestroy {
   description = '';
   totalCallNo = 0;
 
-
   getbuttons(item) {
-
-
-
-
-    return []
-
+    return [];
   }
 
+  couponFormat(value) {}
 
-
-  private download(){
+  private download() {
     this.http
-   .get('./assets/tmp/demo.xlsx', {},{
-     responseType: 'blob',
-   })
-   .subscribe(res => {
-     let url = window.URL.createObjectURL(res);
-     let a = document.createElement('a');
-     document.body.appendChild(a);
-     a.setAttribute('style', 'display: none');
-     a.href = url;
-     a.download = res.filename;
-     a.click();
-     window.URL.revokeObjectURL(url);
-     a.remove();
-   });
-  
+      .get(
+        './assets/tmp/demo.xlsx',
+        {},
+        {
+          responseType: 'blob',
+        },
+      )
+      .subscribe((res) => {
+        let url = window.URL.createObjectURL(res);
+        let a = document.createElement('a');
+        document.body.appendChild(a);
+        a.setAttribute('style', 'display: none');
+        a.href = url;
+        a.download = res.filename;
+        a.click();
+        window.URL.revokeObjectURL(url);
+        a.remove();
+      });
   }
- 
 
   ngOnInit(): void {
     this.router.queryParams.subscribe(
@@ -194,8 +184,8 @@ export class DevicelistComponent implements OnInit, OnDestroy {
           this.url = 'api/Devices/Customers';
         }
       },
-      (y) => { },
-      () => { },
+      (y) => {},
+      () => {},
     );
   }
 
@@ -229,7 +219,7 @@ export class DevicelistComponent implements OnInit, OnDestroy {
     drawerRef.afterOpen.subscribe(() => {
       this.getData();
     });
-    drawerRef.afterClose.subscribe((data) => { });
+    drawerRef.afterClose.subscribe((data) => {});
   }
   edit(id: string): void {
     var { nzMaskClosable, width } = this.settingService.getData('drawerconfig');
@@ -255,7 +245,7 @@ export class DevicelistComponent implements OnInit, OnDestroy {
         },
       },
     });
-    drawerRef.afterOpen.subscribe(() => { });
+    drawerRef.afterOpen.subscribe(() => {});
     drawerRef.afterClose.subscribe((data) => {
       this.getData();
     });
@@ -288,18 +278,18 @@ export class DevicelistComponent implements OnInit, OnDestroy {
     drawerRef.afterOpen.subscribe(() => {
       this.getData();
     });
-    drawerRef.afterClose.subscribe((data) => { });
+    drawerRef.afterClose.subscribe((data) => {});
   }
 
-  reset() { }
+  reset() {}
   delete(id: string) {
     this.http.delete('/api/Devices/' + id, {}).subscribe(
       (x) => {
         this.msg.info('设备已删除');
         this.getData();
       },
-      (y) => { },
-      () => { },
+      (y) => {},
+      () => {},
     );
   }
 
@@ -320,30 +310,26 @@ export class DevicelistComponent implements OnInit, OnDestroy {
               this.http.get<appmessage<attributeitem[]>>('api/Devices/' + $events.expand?.id + '/AttributeLatest'),
               this.http.get<appmessage<ruleitem[]>>('api/Rules/GetDeviceRules?deviceId=' + $events.expand?.id),
               this.http.get<appmessage<telemetryitem[]>>('api/Devices/' + $events.expand?.id + '/TelemetryLatest'),
-            ).subscribe(
-              ([
-                attributes,
-                rules,
-                telemetries
-              ]) => {
-                $events.expand.attributes = attributes.data;
-                $events.expand.rules = rules.data;
-                $events.expand.telemetries = telemetries.data;
-                this.cdr.detectChanges();
-              },
-            );
+            ).subscribe(([attributes, rules, telemetries]) => {
+              $events.expand.attributes = attributes.data;
+              $events.expand.rules = rules.data;
+              $events.expand.telemetries = telemetries.data;
 
+              if (this.cetd.length === 0) {
+                this.cetd = $events.expand.telemetries;
+              } else {
+                for (var i = 0; i < this.cetd.length; i++) {
+                  this.cetd[i].value= telemetries.data[i].value
+
+                }
+              }
+
+              //       this.cdr.detectChanges();
+            });
           });
-
-
         } else {
-
           this.obs.unsubscribe();
-
         }
-
-
-
 
         break;
     }
@@ -354,8 +340,8 @@ export class DevicelistComponent implements OnInit, OnDestroy {
       (next) => {
         item.rules = item.rules.filter((x) => x.ruleId != rule.ruleId);
       },
-      (error) => { },
-      () => { },
+      (error) => {},
+      () => {},
     );
   }
 }

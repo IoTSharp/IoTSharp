@@ -20,7 +20,7 @@ import { ChangeDetectionStrategy, ChangeDetectorRef, Component } from '@angular/
         <div *ngIf="loading" class="mx-lg p-lg"><nz-spin></nz-spin></div>
         <nz-card *ngIf="!loading" nzTitle="Notifications" nzBordered="false" class="ant-card__body-nopadding">
           <ng-template #extra><i nz-icon nzType="plus"></i></ng-template>
-          <div nz-row [nzJustify]="'center'" [nzAlign]="'middle'" class="py-sm pr-md point bg-grey-lighter-h">
+          <!-- <div nz-row [nzJustify]="'center'" [nzAlign]="'middle'" class="py-sm pr-md point bg-grey-lighter-h">
             <div nz-col [nzSpan]="4" class="text-center">
               <nz-avatar [nzSrc]="'./assets/tmp/img/1.png'"></nz-avatar>
             </div>
@@ -64,7 +64,7 @@ import { ChangeDetectionStrategy, ChangeDetectorRef, Component } from '@angular/
               <strong>Jefferson</strong>
               <p class="mb0">Please tell me what happened in a few words, don't go into details.</p>
             </div>
-          </div>
+          </div> -->
           <div nz-row>
             <div nz-col [nzSpan]="24" class="pt-md border-top-1 text-center text-grey point">See All</div>
           </div>

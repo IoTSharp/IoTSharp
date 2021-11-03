@@ -4,7 +4,15 @@
       <se label="规则名称" error="请输入规则名称" required>
         <input nz-input formControlName="name" placeholder="规则名称" />
       </se>
+      <se label="挂载点" error="请选择挂载点" required>
+        <nz-select formControlName="mountType" placeholder="设备类型">
+          <nz-option nzValue="1" nzLabel="遥测"></nz-option>
+           <nz-option nzValue="2" nzLabel="属性"></nz-option>
+           <nz-option nzValue="3" nzLabel="RAW"></nz-option>
+        </nz-select>
 
+
+      </se>
       <se label="备注" error="备注">
         <!-- <editor formControlName="RuleDesc"></editor> -->
 

@@ -23,5 +23,7 @@ namespace IoTSharp.Data
         public string DefinitionsXml { get; set; }
         public Guid ParentRuleId { get; set; }
         public double SubVersion { get; set; }
+
+        public MountType MountType { get; set; }
     }
 }
