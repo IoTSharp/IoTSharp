@@ -245,21 +245,7 @@ namespace IoTSharp.Controllers
 
         
 
-            Random r = new Random((int) System.DateTime.Now.Ticks);
-            var l = new List<TelemetryDataDto>();
-            for (int i = 0; i < 10; i++)
-            {
-                TelemetryDataDto t= new TelemetryDataDto();
-                t.Value = r.Next(1,10);
-                t.KeyName = "tele"+i;
-                t.DateTime= DateTime.Now;
-                t.DataType = DataType.Double;
-                l.Add(t);
-            }
-
-            return new ApiResult<List<TelemetryDataDto>>(ApiCode.Success, "Ok",
-                l);
-
+            
 
             Device dev = Found(deviceId);
             if (dev == null)
