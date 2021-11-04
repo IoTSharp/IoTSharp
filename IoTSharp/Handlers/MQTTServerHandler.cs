@@ -155,12 +155,12 @@ namespace IoTSharp.Handlers
                             }
                             else
                             {
-                                var rules = await _caching.GetAsync($"ruleid_{_dev.Id}", async () =>
+                                var rules = await _caching.GetAsync($"ruleid_{_dev.Id}_raw", async () =>
                                 {
                                     using (var scope = _scopeFactor.CreateScope())
                                     using (var _dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>())
                                     {
-                                        var guids = await _dbContext.GerDeviceRulesIdList(_dev.Id);
+                                        var guids = await _dbContext.GerDeviceRulesIdList(_dev.Id, MountType.RAW);
                                         return guids;
                                     }
                                 }

@@ -22,11 +22,6 @@ namespace IoTSharp.Handlers
         public void StoreTelemetryData(RawMsg msg);
     }
 
-    /// <summary>
-    /// iotsharp.services.datastream
-    /// </summary>
-    ///<remarks>Note: The injection of services needs before of `services.AddCap()`</remarks>
-    ///
     public class EventBusHandler : IEventBusHandler, ICapSubscribe
     {
         private readonly AppSettings _appSettings;
@@ -109,6 +104,8 @@ namespace IoTSharp.Handlers
                     }
                 }
             }
+
+            await RunRules(msg, MountType.Telemetry);
         }
 
         [CapSubscribe("iotsharp.services.datastream.telemetrydata")]
@@ -133,6 +130,34 @@ namespace IoTSharp.Handlers
                         await _dbContext.SaveChangesAsync();
                     }
                 }
+            }
+            await RunRules(msg, MountType.Telemetry);
+
+        }
+
+        private async Task RunRules(RawMsg msg, MountType mountType)
+        {
+            var devid = msg.DeviceId;
+            var rules = await _caching.GetAsync($"ruleid_{devid}_{Enum.GetName(mountType)}", async () =>
+            {
+                using (var scope = _scopeFactor.CreateScope())
+                using (var _dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>())
+                {
+                    var guids = await _dbContext.GerDeviceRulesIdList(devid, mountType);
+                    return guids;
+                }
+            }, TimeSpan.FromMinutes(5));
+            if (rules.HasValue)
+            {
+                var obj = msg.MsgBody;
+                rules.Value.ToList().ForEach(async g =>
+                {
+                    await _flowRuleProcessor.RunFlowRules(g, obj, devid, EventType.Normal, null);
+                });
+            }
+            else
+            {
+                _logger.LogInformation($"{devid}的数据无相关规则链处理。");
             }
         }
     }
