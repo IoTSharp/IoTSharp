@@ -139,6 +139,12 @@ export class CustomerlistComponent implements OnInit {
         },
         {
           //  acl: 10,
+
+          pop: {
+            title: '确认删除客户?',
+            okType: 'danger',
+            icon: 'delete',
+          },
           text: '删除',
           click: (item: any) => {
             this.delete(item.id);
@@ -191,7 +197,7 @@ export class CustomerlistComponent implements OnInit {
   reset() {}
 
   delete(id: string) {
-    this.http.delete('/api/Customers/' + id, {}).subscribe(
+    this.http.delete('api/Customers/' + id, {}).subscribe(
       (x) => {
         this.getData();
       },

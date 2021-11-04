@@ -36,11 +36,13 @@ export class UserformComponent implements OnInit {
   form!: FormGroup;
   submitting = false;
   ngOnInit() {
-    const { nullbigintid } = MyValidators;
+   
+    const { nullbigintid ,zip,email,mobile} = MyValidators;
+  
     this.form = this.fb.group({
-      email: ['', [Validators.required]],
-      id: ['', []],
-      phoneNumber: ['', []],
+      email: [null, [Validators.required,email]],
+      id: [Guid.EMPTY, []],
+      phoneNumber: ['', [mobile]],
     });
 
     if (this.id !== '-1') {
@@ -57,15 +59,21 @@ export class UserformComponent implements OnInit {
   submit() {
     this.submitting = true;
 
-    if (this.id !== '-1') {
+    if (this.id !== Guid.EMPTY) {
       this._httpClient.put('api/Account/Modify' , this.form.value).subscribe(
         (x) => {
           this.submitting = false;
+          this.msg.create('success', '用户信息保存成功');
+          this.close();
         },
         (y) => {},
         () => {},
       );
    
+    }else{
+
+
+      
     }
   }
   close(): void {

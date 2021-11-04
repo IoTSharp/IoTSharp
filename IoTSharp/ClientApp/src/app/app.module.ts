@@ -91,7 +91,7 @@ const APPINIT_PROVIDES = [
   },
 ];
 // #endregion
-
+import { NzIconModule } from 'ng-zorro-antd/icon';
 import { AppComponent } from './app.component';
 import { CoreModule } from './core/core.module';
 import { GlobalConfigModule } from './global-config.module';
@@ -111,7 +111,7 @@ import { STWidgetModule } from './shared/st-widget/st-widget.module';
     LayoutModule,
     RoutesModule,
     STWidgetModule,
-    NzNotificationModule,
+    NzNotificationModule,NzIconModule,
 
     ...I18NSERVICE_MODULES,
     ...GLOBAL_THIRD_MODULES,

@@ -54,10 +54,13 @@ export class DynamicformeditorComponent implements OnInit {
     this._httpClient.post(uri, this.form.value).subscribe(
       (x) => {
         this.submitting = false;
-        //   this.router.navigateByUrl('manage/uri/userlist');
+        this.msg.create('success', '表单保存成功');
+        this.close();
       },
       (y) => {
         this.submitting = false;
+        this.msg.create('error', '表单保存失败');
+        this.close();
       },
       () => {
 

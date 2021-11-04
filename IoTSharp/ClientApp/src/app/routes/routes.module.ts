@@ -66,11 +66,11 @@ import { SequenceflowtesterComponent } from './flow/sequenceflowtester/sequencef
 import { TasktesterComponent } from './flow/tasktester/tasktester.component';
 import { ForkdialogComponent } from './flow/forkdialog/forkdialog.component';
 import { G2BarModule,G2GaugeModule } from '@delon/chart';
-
+import { NzIconModule } from 'ng-zorro-antd/icon';
 const COMPONENTS: Type<null>[] = [];
 const Directive: Type<void>[] = [fielddirective, controldirective];
 @NgModule({
-  imports: [SharedModule,G2BarModule,G2GaugeModule , RouteRoutingModule, WidgetsModule,ClipboardModule, DelonFormModule.forRoot()],
+  imports: [SharedModule,G2BarModule,G2GaugeModule ,NzIconModule, RouteRoutingModule, WidgetsModule,ClipboardModule, DelonFormModule.forRoot()],
   declarations: [
     ...COMPONENTS,
     ...Directive,

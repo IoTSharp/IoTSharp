@@ -83,7 +83,7 @@ page: STPage = {
 
   columns: STColumn[] = [
     { title: '', index: 'id', type: 'checkbox' },
-    { title: 'id', index: 'id' },
+
     { title: '名称', index: 'name', render: 'name' },
     { title: '设备类型', index: 'deviceType' },
     { title: '在线状态', index: 'online' },
@@ -283,12 +283,12 @@ page: STPage = {
 
   reset() {}
   delete(id: string) {
-    this.http.delete('/api/Devices/' + id, {}).subscribe(
+    this.http.delete('api/Devices/' + id, {}).subscribe(
       (x) => {
-        this.msg.info('设备已删除');
+        this.msg.create('success', '设备删除成功');
         this.getData();
       },
-      (y) => {},
+      (y) => {  this.msg.create('error', '设备删除失败');},
       () => {},
     );
   }

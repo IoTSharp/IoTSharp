@@ -22,7 +22,7 @@ import { TasktesterComponent } from '../tasktester/tasktester.component';
 export class FlowlistComponent implements OnInit {
   constructor(
     private http: _HttpClient,
-    private message: NzMessageService,
+    private msg: NzMessageService,
     private modal: ModalHelper,
     private cdr: ChangeDetectorRef,
     private _router: Router,
@@ -122,8 +122,7 @@ export class FlowlistComponent implements OnInit {
             component: ForkdialogComponent,
           },
           click: (record, modal) => {
-            this.message.success(`复制：${modal.data ? '成功' : '失败'}`);
-
+            this.msg.create(`${modal.data ? 'success' : 'error'}`, `规则复制：${modal.data ? '成功' : '失败'}`);
             this.getData();
           },
         },
@@ -159,9 +158,12 @@ export class FlowlistComponent implements OnInit {
           click: (item: flowrule) => {
             this.http.get('api/rules/delete?id=' + item.ruleId).subscribe(
               (x) => {
+                this.msg.create('success', '规则删除成功');
                 this.getData();
               },
-              (y) => {},
+              (y) => {   
+                 this.msg.create('error', '规则删除失败');
+              this.getData();},
               () => {},
             );
           },

@@ -4,8 +4,8 @@
         <form nz-form [formGroup]="form" (ngSubmit)="submit()" se-container="1" labelWidth="200">
       
 
-            <se label="用户邮箱地址" error="客户邮箱地址">
-                <input nz-input formControlName="email" placeholder="客户邮箱地址" />
+            <se label="用户邮箱地址" error="客户邮箱地址" required>
+                <input nz-input formControlName="email" placeholder="客户邮箱地址" readonly />
             </se>
 
             <se label="联系电话" error="联系电话">

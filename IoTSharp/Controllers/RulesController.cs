@@ -186,6 +186,7 @@ namespace IoTSharp.Controllers
                 newrule.ExecutableCode = rule.ExecutableCode;
                 newrule.RuleDesc = flowRule.RuleDesc;
                 newrule.RuleStatus = 1;
+                newrule.MountType = flowRule.MountType;
                 newrule.ParentRuleId = rule.RuleId;
                 newrule.SubVersion = rule.SubVersion + 0.01;
                 newrule.Runner = rule.Runner;
@@ -753,7 +754,8 @@ namespace IoTSharp.Controllers
                                     Flowname = item.Flowname,
                                     flowscript = item.NodeProcessScript,
                                     flowscripttype = item.NodeProcessScriptType,
-                                    NodeProcessClass = item.NodeProcessClass
+                                    NodeProcessClass = item.NodeProcessClass, NodeProcessParams = item.NodeProcessParams
+                                    
                                 }
                             });
                         break;
@@ -1043,18 +1045,17 @@ namespace IoTSharp.Controllers
             var formdata = form.First.First;
             var extradata = form.First.Next;
             var obj = extradata.First.First.First.Value<JToken>();
-            var obj1 = extradata.First.First.Next.First.Value<JToken>();
-            var formid = obj.Value<int>();
-            var __ruleid = obj1.Value<string>();
+            var __ruleid = obj.Value<string>();
             var ruleid = Guid.Parse(__ruleid);
 
-            var d = formdata.ToObject(typeof(ExpandoObject));
+            var d = formdata.Value<JToken>().ToObject(typeof(ExpandoObject));
             var testabizId = Guid.NewGuid().ToString(); //根据业务保存起来，用来查询执行事件和步骤
 
             var result = await _flowRuleProcessor.RunFlowRules(ruleid, d, profile.Id, EventType.TestPurpose, testabizId);
 
-            //await _context.FlowOperations.AddRangeAsync(result);
-            //_context.SaveChanges();
+
+            _context.FlowOperations.AttachRange(result);
+            _context.SaveChanges();
 
             //应该由事件总线去通知
             return new ApiResult<dynamic>(ApiCode.Success, "test complete", result.OrderBy(c => c.Step).

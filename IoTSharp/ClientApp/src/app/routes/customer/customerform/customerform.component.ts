@@ -53,7 +53,7 @@ export class CustomerformComponent implements OnInit {
     const { nullbigintid ,zip,email,mobile} = MyValidators;
     this.form = this.fb.group({
       name: [null, [Validators.required]],
-      id: [Guid.create().toString(), []],
+      id: [Guid.EMPTY, []],
       email: [null, [email]],
       phone: [null, [mobile]],
       country: [null, []],
@@ -80,10 +80,22 @@ export class CustomerformComponent implements OnInit {
   submit() {
     this.submitting = true;
 
-    if (this.params.id !== "-1") {
-      this._httpClient.put("api/Customers/" + this.form.value.id, this.form.value).subscribe(x => { this.submitting = false; }, y => { }, () => { this.submitting = false; });
+    if (this.params.id !==Guid.EMPTY) {
+      this._httpClient.put("api/Customers/" + this.form.value.id, this.form.value).subscribe(x => {
+        
+        this.submitting = false;
+        this.msg.create('success', '租户保存成功');
+        this.close();
+      
+      
+      }, y => { }, () => { this.submitting = false;
+         });
     } else {
-      this._httpClient.post("api/Customers", this.form.value).subscribe(x => { this.submitting = false; }, y => { }, () => { this.submitting = false; });
+      this._httpClient.post("api/Customers", this.form.value).subscribe(x => { this.submitting = false; }, y => { }, () => { this.submitting = false;
+      
+      
+        this.msg.create('success', '租户保存成功');
+        this.close()});
     }
 
 

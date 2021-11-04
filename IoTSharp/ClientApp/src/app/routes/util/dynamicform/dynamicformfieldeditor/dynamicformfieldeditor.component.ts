@@ -100,7 +100,7 @@ export class DynamicformfieldeditorComponent implements OnInit {
                 x.data.propdata[i].IsRequired,
               );
 
-              console.log(  field)
+            
               componentRef.instance.FormField = field;
               componentRef.instance.OnRemove.subscribe((x) => {
                 var index = this.FieldDatas.findIndex((c) => c.Key == x.Key);
@@ -804,6 +804,12 @@ export class DynamicformfieldeditorComponent implements OnInit {
           },
         };
         break;
+
+
+        case 20:
+          return {}; 
+         
+
     }
   }
 
@@ -908,6 +914,9 @@ export class DynamicformfieldeditorComponent implements OnInit {
       case '19':
         this.SuportType = this.AllSuportType.filter((c) => c.value === '1' || c.value === '2' || c.value === '3' || c.value === '9');
         break;
+        case '20':
+          this.SuportType = this.AllSuportType.filter((c) => c.value === '4'); 
+               break;
     }
 
     //  this.AllSuportType.filter(c=>c.value===)

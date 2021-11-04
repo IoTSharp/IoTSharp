@@ -3,8 +3,11 @@ import { Input, ViewChild } from '@angular/core';
 import { Component, OnInit } from '@angular/core';
 import { SFComponent, SFNumberWidgetSchema, SFSchema, SFTextareaWidgetSchema } from '@delon/form';
 import { _HttpClient } from '@delon/theme';
+import { NzDrawerRef } from 'ng-zorro-antd/drawer';
+import { NzMessageService } from 'ng-zorro-antd/message';
 import { NzNotificationService } from 'ng-zorro-antd/notification';
 import { switchMap } from 'rxjs/operators';
+import { appmessage } from '../../common/AppMessage';
 
 @Component({
   selector: 'app-propform',
@@ -18,7 +21,13 @@ export class PropformComponent implements OnInit {
     id: '-1',
     customerId: '-1',
   };
-  constructor(private http: _HttpClient, private cd: ChangeDetectorRef,private notification: NzNotificationService) {}
+  constructor(
+    private http: _HttpClient, 
+    
+    private drawerRef: NzDrawerRef<string>,
+      private msg: NzMessageService,
+       private cd: ChangeDetectorRef
+       ,private notification: NzNotificationService) {}
   schema: SFSchema = {
     properties: {
       // "field1": {
@@ -163,20 +172,20 @@ export class PropformComponent implements OnInit {
 
   submit(value: any) {
     this.http
-      .get<deviceidentityinfo>('api/Devices/' + this.params.id + '/Identity')
+      .get<appmessage<deviceidentityinfo>>('api/Devices/' + this.params.id + '/Identity')
       .pipe(
-        switchMap((deviceidentityinfo: deviceidentityinfo) =>
-          this.http.post('api/Devices/' + deviceidentityinfo.identityId + '/Attributes', value),
+        switchMap((deviceidentityinfo: appmessage<deviceidentityinfo>) =>
+          this.http.post('api/Devices/' + deviceidentityinfo.data?.identityId + '/Attributes', value),
         ),
       )
       .subscribe(
-        (next) => {},
+        (next) => {
+          this.msg.create('success', '设备属性更新成功');
+          this.drawerRef.close(this.params);
+        },
         (error) => {
-          this.notification.create(
-            'warning',
-            '修改错误',
-            '属性数据修改失败.'
-          );
+          this.msg.create('error', '设备属性更新失败');
+          this.drawerRef.close(this.params);
         },
         () => {},
       );

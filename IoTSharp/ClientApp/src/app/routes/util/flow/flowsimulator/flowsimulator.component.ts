@@ -19,7 +19,7 @@ export class FlowsimulatorComponent implements OnInit, OnDestroy {
   id: string;
   listOfOption = [];
   obs: Subscription;
-
+  param:string;
   @ViewChild('flowview', { static: true })
   flowview: FlowviewerComponent;
   @ViewChild('dynamicformview', { static: true })
@@ -40,16 +40,16 @@ export class FlowsimulatorComponent implements OnInit, OnDestroy {
   current: 0;
   ngOnInit(): void {
     concat(
-      this.http.post('api/dynamicforminfo/index', { DictionaryGroupId: 1, pi: 0, ps: 20, limit: 20, offset: 0 }).pipe(
-        map((x) => {
-          this.listOfOption = x.data.rows.map((x) => {
-            return { label: x.formName, value: x.formId };
-          });
+      // this.http.post('api/dynamicforminfo/index', { DictionaryGroupId: 1, pi: 0, ps: 20, limit: 20, offset: 0 }).pipe(
+      //   map((x) => {
+      //     this.listOfOption = x.data.rows.map((x) => {
+      //       return { label: x.formName, value: x.formId };
+      //     });
 
-          this.dynamicformview.id = this.listOfOption[0]?.value;
-          console.log(this.dynamicformview.id);
-        }),
-      ),
+      //     this.dynamicformview.id = this.listOfOption[0]?.value;
+      //     console.log(this.dynamicformview.id);
+      //   }),
+      // ),
       this.http.get<appmessage<flowrule>>('api/rules/get?id=' + this.id).pipe(
         map((x) => {
           this.flowview.diagramdata = x.data;
@@ -65,9 +65,9 @@ export class FlowsimulatorComponent implements OnInit, OnDestroy {
   onsubmit(formdata) {
     this.http
       .post('api/rules/active', {
-        form: formdata,
+        form: JSON.parse(this.param),
         extradata: {
-          formid: this.thisisyourtestdataformid,
+  //       formid: this.thisisyourtestdataformid,
           ruleflowid: this.id,
         },
       })
@@ -85,7 +85,7 @@ export class FlowsimulatorComponent implements OnInit, OnDestroy {
     if (this.obs) {
       this.obs.unsubscribe();
     }
-    this.obs = interval(1000).subscribe(async (x) => {
+    this.obs = interval(2000).subscribe(async (x) => {
       var index = x % this.nodes.length;
       if (index == 0) {
         await this.flowview.redraw();

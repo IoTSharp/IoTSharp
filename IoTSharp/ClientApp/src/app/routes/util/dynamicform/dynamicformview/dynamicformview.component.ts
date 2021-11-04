@@ -543,6 +543,31 @@ export class DynamicformviewComponent implements OnInit {
               };
 
               break;
+
+              case 20:
+                //Schame.IotSharp.key
+                properties[a.FieldCode] = {
+                  type: 'string',
+                  title: a.FieldName,
+                  default: a.FieldValue,
+                  ui: {
+                    widget: 'codefield',
+                    loadingTip: 'loading...',
+                    config: { theme: 'vs-dark', language: 'json' },
+                    value: a.FieldValue,
+                  },
+                };
+  
+                break;
+  
+
+
+           
+
+
+
+
+
           }
         }
 
