@@ -205,6 +205,20 @@
             <param name="deviceId"></param>
             <returns></returns>
         </member>
+        <member name="M:IoTSharp.Controllers.DevicesController.CreateX509Identity(System.Guid)">
+            <summary>
+            获取指定设备的认证方式信息
+            </summary>
+            <param name="deviceId"></param>
+            <returns></returns>
+        </member>
+        <member name="M:IoTSharp.Controllers.DevicesController.DownloadCertificates(System.Guid)">
+            <summary>
+            下载证书
+            </summary>
+            <param name="deviceId"></param>
+            <returns>一个压缩包，包含ca.crt client.crt client.key</returns>
+        </member>
         <member name="M:IoTSharp.Controllers.DevicesController.GetAttributeLatest(System.Guid)">
              <summary>
             获取指定设备的最新属性
@@ -371,6 +385,12 @@
             </summary>
             <returns></returns>
         </member>
+        <member name="M:IoTSharp.Controllers.InstallerController.CreateRootCertificate">
+            <summary>
+            域名可以不配置， 默认会使用机器名  
+            </summary>
+            <returns></returns>
+        </member>
         <member name="T:IoTSharp.Controllers.MenuController">
             <summary>
             this is test purpose
@@ -380,8 +400,6 @@
             <summary>
             更新节点的条件表达式
             </summary>
-            <param name="flowid"> 节点Id</param>
-            <param name="expression">数据</param>
             <returns> 返回所有节点的记录信息，需要保存则保存</returns>
         </member>
         <member name="M:IoTSharp.Controllers.RulesController.Fork(IoTSharp.Data.FlowRule)">

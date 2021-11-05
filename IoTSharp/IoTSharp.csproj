@@ -141,11 +141,15 @@
 		<Content Remove="wwwroot\lib\jquery-validation-unobtrusive\LICENSE.txt" />
 		<Content Remove="wwwroot\lib\jquery\LICENSE.txt" />
 		<None Remove=".gitignore" />
+		<None Remove="ca.crt" />
+		<None Remove="ca.key" />
 		<None Remove="healthchecksdb" />
 		<None Remove="healthchecksdb-shm" />
 		<None Remove="health_checks.db" />
 		<None Remove="IoTSharp.db" />
 		<None Remove="IoTSharp.xml" />
+		<None Remove="server.crt" />
+		<None Remove="server.key" />
 		<None Remove="TelemetryStorage.db" />
 		<_WebToolingArtifacts Remove="Properties\PublishProfiles\registry.hub.docker.com_iotsharp.pubxml" />
 		<None Include="..\docs\images\96x96.png">

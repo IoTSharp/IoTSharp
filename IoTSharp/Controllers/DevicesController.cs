@@ -27,6 +27,11 @@ using k8s.Models;
 using Newtonsoft.Json.Linq;
 using MQTTnet.AspNetCoreEx;
 using MQTTnet.Server.Status;
+using System.Security.Cryptography.X509Certificates;
+using Microsoft.Extensions.Options;
+using IoTSharp.X509Extensions;
+using System.IO;
+using System.IO.Compression;
 
 namespace IoTSharp.Controllers
 {
@@ -45,9 +50,10 @@ namespace IoTSharp.Controllers
         private readonly ILogger _logger;
         private readonly IStorage _storage;
         private readonly IMqttServerEx _serverEx;
+        private readonly AppSettings _setting;
 
         public DevicesController(UserManager<IdentityUser> userManager,
-            SignInManager<IdentityUser> signInManager, ILogger<DevicesController> logger, IMqttServerEx serverEx, ApplicationDbContext context, IMqttClientOptions mqtt, IStorage storage)
+            SignInManager<IdentityUser> signInManager, ILogger<DevicesController> logger, IMqttServerEx serverEx, ApplicationDbContext context, IMqttClientOptions mqtt, IStorage storage, IOptions<AppSettings> options)
         {
             _context = context;
             _mqtt = mqtt;
@@ -56,6 +62,7 @@ namespace IoTSharp.Controllers
             _logger = logger;
             _storage = storage;
             _serverEx = serverEx;
+            _setting = options.Value;
         }
         /// <summary>
         /// 获取指定客户的设备列表
@@ -104,7 +111,7 @@ namespace IoTSharp.Controllers
                     Name = x.Name,
                     LastActive = x.LastActive,
                     IdentityId = y.IdentityId,
-                    IdentityValue = y.IdentityValue,
+                    IdentityValue = y.IdentityType== IdentityType.X509Certificate?"": y.IdentityValue,
                     Tenant = x.Tenant,
                     Customer = x.Customer,
                     DeviceType = x.DeviceType,
@@ -138,12 +145,134 @@ namespace IoTSharp.Controllers
             {
                 return new ApiResult<DeviceIdentity>(ApiCode.CantFindObject, "CantFindObject", null);
             }
+            else if (did.IdentityType == IdentityType.X509Certificate)
+            {
+                return new ApiResult<DeviceIdentity>(ApiCode.Success, "OK", new DeviceIdentity() { Id = did.Id, IdentityType = did.IdentityType, IdentityId = did.IdentityId });
+            }
             else
             {
                 return new ApiResult<DeviceIdentity>(ApiCode.Success, "OK", did);
             }
 
         }
+
+        /// <summary>
+        /// 获取指定设备的认证方式信息
+        /// </summary>
+        /// <param name="deviceId"></param>
+        /// <returns></returns>
+        [Authorize(Roles = nameof(UserRole.NormalUser))]
+        [HttpGet("{deviceId}/CreateX509Identity")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ApiResult), StatusCodes.Status404NotFound)]
+        [ProducesDefaultResponseType]
+        public async Task<ApiResult<DeviceIdentity>> CreateX509Identity(Guid deviceId)
+        {
+            var did = await _context.DeviceIdentities.Include(d=>d.Device).FirstOrDefaultAsync(c => c.Device.Id == deviceId);
+            var cust = from c in _context.Device.Include(d => d.Customer).Include(d => d.Tenant) where c.Id == deviceId select c ;
+            var dev = cust.FirstOrDefault();
+            if (did != null &&  dev!=null)
+            {
+                var option = _setting.MqttBroker;
+
+                   SubjectAlternativeNameBuilder altNames = new SubjectAlternativeNameBuilder();
+                altNames.AddUserPrincipalName(did.Device.Id.ToString());
+                        altNames.AddDnsName(_setting.MqttBroker.DomainName);
+                altNames.AddUri(new Uri($"mqtt://{_setting.MqttBroker.ServerIPAddress}:{_setting.MqttBroker.TlsPort}"));
+                string name = $"CN={dev.Name},C=CN,L={dev.Customer.Province??"IoTSharp"},ST={dev.Customer.City ?? "IoTSharp"},O={dev.Customer.Name},OU={dev.Tenant.Name}";
+                var tlsclient = option.CACertificate.CreateTlsClientRSA(name, altNames);
+                string x509CRT, x509Key;
+                tlsclient.SavePem(out x509CRT, out x509Key);
+                did.IdentityType = IdentityType.X509Certificate;
+                did.IdentityId = tlsclient.Thumbprint;
+                var pem = new
+                {
+                    PrivateKey = x509Key,
+                    PublicKey = x509CRT
+                };
+                did.IdentityValue = Newtonsoft.Json.JsonConvert.SerializeObject(pem);
+                await _context.SaveChangesAsync();
+                return new ApiResult<DeviceIdentity>(ApiCode.Success, "OK", new DeviceIdentity() { Id=did.Id, IdentityType=  did.IdentityType, IdentityId=did.IdentityId }  );
+            }
+            else
+            {
+                return new ApiResult<DeviceIdentity>(ApiCode.NotFoundDeviceIdentity, "Not found device identity", null);
+            }
+
+        }
+
+        /// <summary>
+        /// 下载证书
+        /// </summary>
+        /// <param name="deviceId"></param>
+        /// <returns>一个压缩包，包含ca.crt client.crt client.key</returns>
+        [HttpGet("{deviceId}/DownloadCertificates")]
+        public ActionResult DownloadCertificates([FromQuery] Guid deviceId)
+        {
+            try
+            {
+
+                var dt =  _context.DeviceIdentities.Include(d => d.Device).FirstOrDefault(c => c.Device.Id == deviceId);
+                if (dt == null || dt.IdentityType!= IdentityType.X509Certificate  ||  string.IsNullOrEmpty(dt.IdentityValue))
+                {
+                    return Ok(new ApiResult(ApiCode.NotFoundDevice, "未找到设备或设备公钥、秘钥为空" ));
+                }
+                else
+                {
+                    var tsl = Newtonsoft.Json.JsonConvert.DeserializeAnonymousType(dt.IdentityValue, new
+                    {
+                        PrivateKey = "",
+                        PublicKey = ""
+                    });
+                    if (tsl == null || string.IsNullOrEmpty(tsl.PrivateKey) || string.IsNullOrEmpty(tsl.PublicKey))
+                    {
+                        return Ok(new ApiResult(  ApiCode.NotFoundDevice, "秘钥格式未能解析。可能是版本不通。 "));
+                    }
+                    else
+                    {
+                        string fileNameZip = $"client_{dt.Device.Id.ToString().Replace("-", "")}.zip";
+                        byte[] fileBytes = System.Text.Encoding.UTF8.GetBytes(tsl.PublicKey);
+                        byte[] fileBytes1 = System.Text.Encoding.UTF8.GetBytes(tsl.PrivateKey);
+                        byte[] compressedBytes;
+                        using (var outStream = new MemoryStream())
+                        {
+                            using (var archive = new ZipArchive(outStream, ZipArchiveMode.Create, true))
+                            {
+                                var fileInArchive = archive.CreateEntry("client.crt", CompressionLevel.Optimal);
+                                using (var entryStream = fileInArchive.Open())
+                                using (var fileToCompressStream = new MemoryStream(fileBytes))
+                                {
+                                    fileToCompressStream.CopyTo(entryStream);
+                                }
+
+                                var fileInArchive1 = archive.CreateEntry("client.key", CompressionLevel.Optimal);
+                                using (var entryStream = fileInArchive1.Open())
+                                using (var fileToCompressStream = new MemoryStream(fileBytes1))
+                                {
+                                    fileToCompressStream.CopyTo(entryStream);
+                                }
+                                var fileInArchive2 = archive.CreateEntry("ca.crt", CompressionLevel.Optimal);
+                                using (var entryStream = fileInArchive2.Open())
+                                using (var fileToCompressStream = new FileStream(_setting.MqttBroker.CACertificateFile, FileMode.Open))
+                                {
+                                    fileToCompressStream.CopyTo(entryStream);
+                                }
+                            }
+                            compressedBytes = outStream.ToArray();
+                        }
+                        return File(compressedBytes, "application/octet-stream", fileNameZip);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                return Ok(new ApiResult(ApiCode.NotFoundDevice, ex.Message));
+            }
+        }
+
+
+
+
 
         /// <summary>
         ///获取指定设备的最新属性

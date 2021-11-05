@@ -356,3 +356,7 @@ ASALocalRun/
 *.bolt
 *.wt
 /Deployments/rabbit_mongo_influx/data
+/IoTSharp/ca.key
+/IoTSharp/ca.crt
+/IoTSharp/server.key
+/IoTSharp/server.crt

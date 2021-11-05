@@ -9,6 +9,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Security.Authentication;
+using System.Security.Cryptography.X509Certificates;
 using System.Threading.Tasks;
 
 namespace IoTSharp
@@ -109,5 +110,15 @@ namespace IoTSharp
         public string Certificate { get; set; }
         public SslProtocols SslProtocol { get; set; } = SslProtocols.None;
         public bool PersistRetainedMessages { get; set; }
+
+        public X509Certificate2 CACertificate { get; set; }
+
+        public X509Certificate2 BrokerCertificate { get; set; }
+        public string CACertificateFile { get; set; } = "ca.crt";
+        public string CAPrivateKeyFile { get; set; } = "ca.key";
+        public string CertificateFile { get; set; } ="server.crt";
+        public string PrivateKeyFile { get; set; } = "server.key";
+        public string ServerIPAddress { get;  set; }
+        public string DomainName { get;   set; }
     }
 }

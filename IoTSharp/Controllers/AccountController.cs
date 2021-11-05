@@ -64,7 +64,7 @@ namespace IoTSharp.Controllers
         {
             var user = await _userManager.GetUserAsync(User);
             var rooles = await _userManager.GetRolesAsync(user);
-            var Customer = _context.GetCustomer(this.GetCustomerId());
+            var Customer = _context.GetCustomer(this.GetNowUserCustomerId());
 
 
     

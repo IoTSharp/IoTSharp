@@ -1,6 +1,7 @@
 ﻿using DotNetCore.CAP;
 using IoTSharp.Data;
 using IoTSharp.Services;
+using IoTSharp.X509Extensions;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
@@ -19,9 +20,12 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Net;
+using System.Net.NetworkInformation;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Security.Claims;
+using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Text.RegularExpressions;
 
@@ -39,14 +43,14 @@ namespace IoTSharp
         }
 
         public static IQueryable<T> JustCustomer<T>(this DbSet<T> ts, ControllerBase controller) where T : class, IJustMy 
-            => JustCustomer(ts, GetCustomerId(controller));
+            => JustCustomer(ts, GetNowUserCustomerId(controller));
         public static IQueryable<T> JustCustomer<T>(this DbSet<T> ts, string _customerId) where T : class, IJustMy
         {
             return ts.Include(ak => ak.Customer).Where(ak => ak.Customer.Id.ToString() == _customerId);
         }
 
         public static IQueryable<T> JustTenant<T>(this DbSet<T> ts, ControllerBase controller) where T : class, IJustMy 
-            => JustTenant(ts, GetTenantId(controller));
+            => JustTenant(ts, GetNowUserTenantId(controller));
 
         public static IQueryable<T> JustTenant<T>(this DbSet<T> ts, string _tenantId) where T : class, IJustMy
         {
@@ -54,13 +58,16 @@ namespace IoTSharp
         }
         public static Customer GetCustomer(this ApplicationDbContext context, string custid) 
             => context.Customer.Include(c => c.Tenant).FirstOrDefault(c => c.Id  == Guid.Parse( custid));
+        public static Tenant GetTenant(this ApplicationDbContext context, string custid)
+           => context.Tenant.FirstOrDefault(c => c.Id == Guid.Parse(custid));
 
-        public static string GetCustomerId(this ControllerBase controller)
+        public static string GetNowUserCustomerId(this ControllerBase controller)
         {
             string custid = controller.User?.FindFirstValue(IoTSharpClaimTypes.Customer);
             return custid;
         }
-        public static string GetTenantId(this ControllerBase controller)
+       
+        public static string GetNowUserTenantId(this ControllerBase controller)
         {
             string custid = controller.User.FindFirstValue(IoTSharpClaimTypes.Tenant);
             return custid;
@@ -156,5 +163,61 @@ namespace IoTSharp
 
             configure.OperationProcessors.Add(new AspNetCoreOperationSecurityScopeProcessor("JWT"));
         }
+
+        public static void CreateBrokerTlsCert(this X509Certificate2 CACertificate, string domainname, IPAddress iP, string pubfile, string pivfile,string email)
+        {
+            var build = new SubjectAlternativeNameBuilder();
+            build.AddDnsName(domainname);
+            build.AddIpAddress(iP);
+            build.AddEmailAddress(email??"mysticboy@live.com");
+            string name = $"C=CN,CN={iP.ToString()},ST=IoTSharp,O={Dns.GetHostName()},OU= CA_{MethodBase.GetCurrentMethod().Module.Assembly.GetName().Name}";
+            var broker = CACertificate.CreateTlsClientRSA(name, build);
+            broker.SavePem(pubfile, pivfile);
+        }
+
+        public static X509Certificate2 CreateCA(this IPAddress ip, string capubfile, string capivfile)
+        {
+            var ca = new X509Certificate2().CreateCA($"C=CN,CN={ip},ST=IoTSharp,O={Dns.GetHostName()},OU=CA_{MethodBase.GetCurrentMethod().Module.Assembly.GetName().Name}");
+            ca.SavePem(capubfile, capivfile);
+            return ca;
+        }
+
+        public static string GetDefaultIPAddress()
+        {
+            var infos = GetDefaultAddressInfos();
+            var add = from address in Dns.GetHostAddresses(Dns.GetHostName()) where infos.ContainsValue(address.ToString()) select address.ToString();
+            return add.FirstOrDefault();
+        }
+
+        public static bool IPAddressInUse(this IPAddress _address)
+        {
+            var infos = GetDefaultAddressInfos();
+            var add = from address in infos where address.Value == _address.ToString() select address;
+            return add.Any();
+        }
+
+        public static string GetDefaultMacAddress()
+        {
+            var ipaddress = GetDefaultIPAddress();
+            var infos = from mac in GetDefaultAddressInfos() where mac.Value == ipaddress select mac.Key;
+            return infos.FirstOrDefault();
+        }
+
+        public static Dictionary<string, string> GetDefaultAddressInfos()
+        {
+            Dictionary<string, string> pairs = new Dictionary<string, string>();
+            var ip = from nic in NetworkInterface.GetAllNetworkInterfaces()
+                     let searchSub = from p in nic.GetIPProperties().UnicastAddresses
+                                     where p.Address.AddressFamily == System.Net.Sockets.AddressFamily.InterNetwork && !System.Net.IPAddress.IsLoopback(p.Address)
+                                     select p
+                     where
+                     nic.OperationalStatus == OperationalStatus.Up
+                     && (nic.NetworkInterfaceType == NetworkInterfaceType.Ethernet || nic.NetworkInterfaceType == NetworkInterfaceType.Wireless80211)
+                     && searchSub.Any() // && nic.GetIPProperties().GatewayAddresses.Count>0
+                     select new { PhysicalAddress = nic.GetPhysicalAddress().ToString(), IPAddress = (searchSub).FirstOrDefault()?.Address.ToString() };
+            ip.ToList().ForEach(ipx => pairs.Add(ipx.PhysicalAddress, ipx.IPAddress));
+            return pairs;
+        }
+
     }
 }

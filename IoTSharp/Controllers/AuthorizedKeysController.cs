@@ -32,7 +32,7 @@ namespace IoTSharp.Controllers
             _userManager = userManager;
             _signInManager = signInManager;
             _logger = logger;
-            _customerId = this.GetCustomerId();
+            _customerId = this.GetNowUserCustomerId();
         }
 
 

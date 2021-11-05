@@ -10,6 +10,7 @@ using IoTSharp.FlowRuleEngine;
 using IoTSharp.Handlers;
 using IoTSharp.Interpreter;
 using IoTSharp.Storage;
+using IoTSharp.X509Extensions;
 using Maikebing.Data.Taos;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -36,6 +37,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Security.Cryptography.X509Certificates;
 using System.Text;
 
 namespace IoTSharp
@@ -55,6 +57,17 @@ namespace IoTSharp
             var settings = Configuration.Get<AppSettings>();
             services.Configure((Action<AppSettings>)(setting =>
             {
+                var option = setting.MqttBroker;
+                if (System.IO.File.Exists(option.CACertificateFile) && System.IO.File.Exists(option.CAPrivateKeyFile))
+                {
+                    option.CACertificate = new X509Certificate2().LoadPem(option.CACertificateFile, option.CAPrivateKeyFile);
+                }
+                if (System.IO.File.Exists(option.CertificateFile) && System.IO.File.Exists(option.PrivateKeyFile))
+                {
+                    option.BrokerCertificate = new X509Certificate2().LoadPem(option.CertificateFile, option.PrivateKeyFile);
+                }
+              
+
                 Configuration.Bind(setting);
             }));
             var healthChecksUI = services.AddHealthChecksUI(setup =>
