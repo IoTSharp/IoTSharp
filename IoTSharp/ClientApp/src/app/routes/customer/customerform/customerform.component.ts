@@ -84,17 +84,22 @@ export class CustomerformComponent implements OnInit {
       this._httpClient.put("api/Customers/" + this.form.value.id, this.form.value).subscribe(x => {
         
         this.submitting = false;
-        this.msg.create('success', '租户保存成功');
+        this.msg.create('success', '客户保存成功');
         this.close();
       
       
-      }, y => { }, () => { this.submitting = false;
+      }, y => {
+
+        this.submitting = false;
+        this.msg.create('error', '客户保存失败');
+
+       }, () => { this.submitting = false;
          });
     } else {
       this._httpClient.post("api/Customers", this.form.value).subscribe(x => { this.submitting = false; }, y => { }, () => { this.submitting = false;
       
       
-        this.msg.create('success', '租户保存成功');
+        this.msg.create('success', '客户保存成功');
         this.close()});
     }
 

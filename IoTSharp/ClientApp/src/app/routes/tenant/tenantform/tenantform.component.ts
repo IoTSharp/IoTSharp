@@ -71,7 +71,8 @@ export class TenantformComponent implements OnInit {
           this.msg.create('success', '租户保存成功');
           this.close();
         },
-        (y) => {},
+        (y) => {  this.submitting = false;
+          this.msg.create('error', '租户保存失败');},
         () => {},
       );
     } else {

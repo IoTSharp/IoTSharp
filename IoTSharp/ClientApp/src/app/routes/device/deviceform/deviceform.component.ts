@@ -48,8 +48,6 @@ export class DeviceformComponent implements OnInit {
     if (this.params.id !== Guid.EMPTY) {
       this._httpClient.get('api/Devices/' + this.params.id).subscribe(
         (x) => {
-        
-         
           this.form.patchValue(x.data);
         },
         (y) => {},
@@ -67,14 +65,25 @@ export class DeviceformComponent implements OnInit {
         this.msg.create('success', '设备新增成功');
         this.close();
      
-      });
+      },y=>{
+
+        this.msg.create('error', '设备新增失败');
+        this.close();
+
+      },()=>{}
+      
+      
+      );
     } else {
       this._httpClient.put('api/Devices/'+this.params.id, this.form.value).subscribe((x) => {
         this.submitting = false;
         this.msg.create('success', '设备修改成功');
         this.close();
    
-      });
+      },y=>{
+        this.msg.create('error', '设备修改失败');
+        this.close();
+      },()=>{});
     }
   }
   close(): void {
