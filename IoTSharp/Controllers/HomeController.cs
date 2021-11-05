@@ -16,6 +16,15 @@ namespace IoTSharp.Controllers
     {
         public new ApiResult<HomeDto> Index()
         {
+
+
+
+
+
+
+
+
+
             return new ApiResult<HomeDto>(ApiCode.Success, "OK", null);
         }
     }

@@ -120,6 +120,8 @@ export class TaskexecutorlistComponent implements OnInit {
           click: (item: taskexecutor) => {
             this.http.get('api/rules/deleteexecutor?id=' + item.executorId).subscribe(
               (x) => {
+
+                this.msg.create('success', '执行器删除成功');
                 this.getData();
               },
               (y) => {},

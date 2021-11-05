@@ -17,7 +17,7 @@ export class DeviceformComponent implements OnInit {
   isManufactorLoading: Boolean = false;
   optionList: any;
   @Input() params: any = {
-    id: '-1',
+    id: Guid.EMPTY,
     customerId: '-1',
   };
   nodes = [];
@@ -43,13 +43,11 @@ export class DeviceformComponent implements OnInit {
       name: [null, [Validators.required]],
       deviceType: [null, [Validators.required]],
       customerId: [null, []],
-      id: [Guid.EMPTY, []], //骗过验证
+      id: [Guid.EMPTY, []], 
     });
-    if (this.params.id !== '-1') {
+    if (this.params.id !== Guid.EMPTY) {
       this._httpClient.get('api/Devices/' + this.params.id).subscribe(
         (x) => {
-        
-         
           this.form.patchValue(x.data);
         },
         (y) => {},
@@ -61,16 +59,31 @@ export class DeviceformComponent implements OnInit {
   submit() {
     this.submitting = true;
 
-    if (this.params.id !==Guid.EMPTY) {
+    if (this.params.id ==Guid.EMPTY) {
       this._httpClient.post('api/Devices', this.form.value).subscribe((x) => {
         this.submitting = false;
-        this.drawerRef.close(this.params);
-      });
+        this.msg.create('success', '设备新增成功');
+        this.close();
+     
+      },y=>{
+
+        this.msg.create('error', '设备新增失败');
+        this.close();
+
+      },()=>{}
+      
+      
+      );
     } else {
-      this._httpClient.put('api/Devices', this.form.value).subscribe((x) => {
+      this._httpClient.put('api/Devices/'+this.params.id, this.form.value).subscribe((x) => {
         this.submitting = false;
-        this.drawerRef.close(this.params);
-      });
+        this.msg.create('success', '设备修改成功');
+        this.close();
+   
+      },y=>{
+        this.msg.create('error', '设备修改失败');
+        this.close();
+      },()=>{});
     }
   }
   close(): void {

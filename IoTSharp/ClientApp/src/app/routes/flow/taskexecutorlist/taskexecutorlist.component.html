@@ -1,10 +1,10 @@
-<page-header [title]="'规则列表'">
+<page-header [title]="'执行器列表'">
     <nz-card [nzBordered]="false" class>
       <form nz-form [nzLayout]="'inline'" class="search__form" action="search">
         <div nz-row [nzGutter]="{ xs: 8, sm: 8, md: 8, lg: 24, xl: 48, xxl: 48 }">
           <div nz-col nzMd="8" nzSm="24">
             <nz-form-item>
-              <nz-form-label nzFor="Name">规则名称</nz-form-label>
+              <nz-form-label nzFor="Name">执行器名称</nz-form-label>
               <nz-form-control>
                 <input nz-input [(ngModel)]="q.Name" name="Name" #UserName placeholder="请输入" />
               </nz-form-control>

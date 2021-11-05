@@ -51,17 +51,19 @@ export class TaskexecutorformComponent implements OnInit {
 
   submit() {
     this.submitting = true;
-    var uri = this.id !== Guid.EMPTY ? 'api/rules/updateExecutor' : 'api/rules/addExecutor';
+    var uri = this.id !== Guid.EMPTY ? 'api/rules/updateexecutor' : 'api/rules/addexecutor';
     if (this.form.value.id === '') {
     }
     this._httpClient.post(uri, this.form.value).subscribe(
       (x) => {
         this.submitting = false;
+        this.msg.create('success', '执行器保存成功');
       },
       (y) => {
-        this.submitting = false;
+        this.submitting = false; this.msg.create('success', '执行器保存成功');
       },
-      () => { this.drawerRef.close(this.id);},
+      () => { 
+        this.drawerRef.close(this.id);},
     );
   }
 

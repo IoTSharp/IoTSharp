@@ -81,6 +81,12 @@ export class TenantlistComponent implements OnInit {
         },
         {
           //    acl: 10,
+
+          pop: {
+            title: '确认删除租户?',
+            okType: 'danger',
+            icon: 'delete',
+          },
           text: '删除',
           click: (item: any) => {
             this.delete(item.id);
@@ -127,7 +133,7 @@ export class TenantlistComponent implements OnInit {
 
   reset() {}
   delete(id: string) {
-    this.http.delete('/api/Tenants/' + id, {}).subscribe(
+    this.http.delete('api/Tenants/' + id, {}).subscribe(
       (x) => {
         this.msg.info('租户已删除');
         this.getData();

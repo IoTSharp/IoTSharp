@@ -79,16 +79,19 @@
     >
       <ng-template #expand let-item let-index="index" let-column="column">
         <nz-card nzTitle="节点">
-          <table>
+          <nz-table [nzNoResult]="null">
+
+            <thead>
             <tr>
               <td>BpmnId</td>
               <td>名称</td>
-              <td>执行器</td>
+              <td nzAlign="center">执行器</td>
               <td>默认参数</td>
               <td>脚本类型</td>
               <td>测试状态</td>
-              <td>操作</td>
-            </tr>
+              <td nzAlign="center">操作</td>
+            </tr>  </thead>
+            <tbody>
             <tr *ngFor="let _item of item.flows; let i = index; let odd = odd">
               <td>{{ _item.bpmnid }}</td>
               <td>{{ _item.flowname }}</td>
@@ -96,19 +99,24 @@
               <td>{{ _item.nodeProcessParams }}</td>
               <td>{{ _item.nodeProcessScriptType }}</td>
               <td>{{_item.flowType==='bpmn:Task'? _item.teststatus===1?'测试通过':'未测试':'' }}</td>
-              <td><a (click)="testscript(_item)">{{
-                _item.flowType==='bpmn:Task'?'脚本测试':''
-              
-              }}</a>
-              <nz-divider nzType="vertical"></nz-divider>
+              <td>
+           
               <a (click)="testunit(_item)">{{
                 _item.flowType==='bpmn:Task'|| _item.flowType==='bpmn:StartEvent'?'条件测试':''
+              
+              }}</a>   
+              
+              <nz-divider nzType="vertical" *ngIf="_item.flowType==='bpmn:Task'?true:false"></nz-divider>
+              
+              <a (click)="testscript(_item)">{{
+                _item.flowType==='bpmn:Task'?'脚本测试':''
               
               }}</a>
             
             </td>
-            </tr>
-          </table>
+            </tr> 
+           </tbody>
+          </nz-table>
         </nz-card>
       </ng-template>
       <ng-template st-row="rulestatus" let-i>

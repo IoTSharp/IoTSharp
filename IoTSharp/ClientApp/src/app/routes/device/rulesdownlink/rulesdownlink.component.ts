@@ -1,6 +1,8 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { STColumn } from '@delon/abc/st';
 import { _HttpClient } from '@delon/theme';
+import { NzDrawerRef } from 'ng-zorro-antd/drawer';
+import { NzMessageService } from 'ng-zorro-antd/message';
 import { AppMessage } from '../../common/AppMessage';
 
 @Component({
@@ -19,7 +21,7 @@ export class RulesdownlinkComponent implements OnInit {
     { title: '租户', index: 'country' },
     { title: '客户', index: 'province' },
   ];
-  constructor(private http: _HttpClient) {}
+  constructor(private http: _HttpClient,      private msg: NzMessageService,    private drawerRef: NzDrawerRef<string>,) {}
   @Input()
   params: any = {
     dev: [],
@@ -56,8 +58,16 @@ export class RulesdownlinkComponent implements OnInit {
         dev: this.params.dev.map((x) => x.id),
       })
       .subscribe(
-        (next) => {},
-        (error) => {},
+        (next) => {
+
+          this.msg.create('success', '规则下发成功');
+          this.drawerRef.close(this.params);
+        },
+        (error) => {
+
+          this.msg.create('error', '规则下发失败');
+          this.drawerRef.close(this.params);
+        },
         () => {},
       );
   }

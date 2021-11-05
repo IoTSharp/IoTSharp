@@ -30,6 +30,11 @@ namespace IoTSharp.TaskAction
             try
             {
                 var config = JsonConvert.DeserializeObject<ModelExecutorConfig>(input.ExecutorConfig);
+
+
+
+
+                return new TaskActionOutput() { DynamicOutput = input.DynamicInput, ExecutionStatus = true };
                 JObject o = JsonConvert.DeserializeObject(input.Input) as JObject;
                 var d = o.Property("temperature");
                 d.Value = new JValue(d.Value.Value<double>() + 100);
@@ -63,7 +68,7 @@ namespace IoTSharp.TaskAction
         {
             public string Url { get; set; }
             public string BaseUrl { get; set; }
-            public string Mothod { get; set; }
+            public string Method { get; set; }
         
         }
     }

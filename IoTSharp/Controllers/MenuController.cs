@@ -67,10 +67,10 @@ namespace IoTSharp.Controllers
                                     {
                                         text = "租户管理",
                                         i18n = "",
-                                        icon = "anticon-rocket",
+                                        icon = "anticon-cloud",
                                         children = new[]
                                {
-
+                               
                                             new { text = "租户列表", i18n = "", link = "/iot/tenant/tenantlist" }
                                         }
                                     },
@@ -79,18 +79,18 @@ namespace IoTSharp.Controllers
                                     {
                                         text = "客户管理",
                                         i18n="",
-                                        icon="anticon-rocket",
+                                        icon="anticon-appstore",
                                         children=new[]
                                         {
 
-                                            new { text = "租户列表", i18n = "",link="/iot/customer/customerlist" }
+                                            new { text = "客户列表", i18n = "",link="/iot/customer/customerlist" }
                                         }
                                     },
                                     new
                                     {
                                         text = "用户管理",
                                         i18n="",
-                                        icon="anticon-rocket",
+                                        icon="anticon-user",
                                         children=new[]
                                         {
 
@@ -100,7 +100,7 @@ namespace IoTSharp.Controllers
                                     {
                                         text = "设备管理",
                                         i18n="",
-                                        icon="anticon-rocket",
+                                        icon="anticon-database",
                                         children=new[]
                                         {
                                             new { text = "设备管理", i18n = "",link="/iot/device/devicelist" },
@@ -111,7 +111,7 @@ namespace IoTSharp.Controllers
                                     {
                                         text = "规则链 ",
                                         i18n = "",
-                                        icon = "anticon-rocket",
+                                        icon = "anticon-fork",
                                         children = new[]
                                    {
 
@@ -123,11 +123,14 @@ namespace IoTSharp.Controllers
                                             new { text = "执行器", i18n = "", link = "/iot/flow/taskexecutorlist" },
                                         }
                                     },
+
+
+                                    //<i nz-icon nzType="partition" nzTheme="outline"></i>
                                     new
                                     {
                                         text = "设置",
                                         i18n = "",
-                                        icon = "anticon-rocket",
+                                        icon = "anticon-setting",
                                         children = new[]
                                    {
 

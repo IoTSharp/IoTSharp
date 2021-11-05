@@ -63,8 +63,8 @@ namespace IoTSharp.FlowRuleEngine
                 {
                     using (var _context = _sp.ServiceProvider.GetRequiredService<ApplicationDbContext>())
                     {
-                        rule = await _context.FlowRules.FirstOrDefaultAsync(c => c.RuleId == ruleid);
-                        _allFlows = await _context.Flows.Where(c => c.FlowRule == rule && c.FlowStatus > 0).ToListAsync();
+                        rule = await _context.FlowRules.AsNoTracking().FirstOrDefaultAsync(c => c.RuleId == ruleid);
+                        _allFlows = await _context.Flows.AsNoTracking().Where(c => c.FlowRule == rule && c.FlowStatus > 0).ToListAsync();
                         _logger.LogInformation($"读取规则链{rule?.Name}({ruleid}),子流程共计:{_allFlows.Count}");
                     }
                 }
@@ -81,7 +81,7 @@ namespace IoTSharp.FlowRuleEngine
                     CreaterDateTime = DateTime.Now,
                     Creator = deviceId,
                     EventDesc = $"Event Rule:{rule?.Name}({ruleid}) device is {deviceId}",
-                    EventName = $"Event_Rule{ruleid}_{deviceId}",
+                    EventName = $"开始执行规则链{rule?.Name}({ruleid})",
                     MataData = JsonConvert.SerializeObject(data),
                     BizData = JsonConvert.SerializeObject(rule),  //所有规则修改都会让对应的flow数据和设计文件不一致，最终导致回放失败，在此拷贝一份原始数据
                     FlowRule = rule,
@@ -93,8 +93,8 @@ namespace IoTSharp.FlowRuleEngine
                 {
                     using (var _context = _sp.ServiceProvider.GetRequiredService<ApplicationDbContext>())
                     {
-
-                        _event.FlowRule = _context.FlowRules.SingleOrDefault(c => c.RuleId == rule.RuleId);
+                        rule = _context.FlowRules.SingleOrDefault(c => c.RuleId == rule.RuleId);
+                        _event.FlowRule = rule;
                         _context.BaseEvents.Add(_event);
                         _context.SaveChanges();
                     }
@@ -108,7 +108,7 @@ namespace IoTSharp.FlowRuleEngine
                     OperationId = Guid.NewGuid(),
                     bpmnid = start.bpmnid,
                     AddDate = DateTime.Now,
-                    FlowRule = _event.FlowRule,
+                    FlowRule = rule,
                     Flow = start,
                     Data = JsonConvert.SerializeObject(data),
                     NodeStatus = 1,
@@ -219,7 +219,7 @@ namespace IoTSharp.FlowRuleEngine
                                                     var result = executor.Execute(new TaskActionInput()
                                                     {
                                                         Input = taskoperation.Data,
-                                                        DeviceId = deviceId
+                                                        DeviceId = deviceId, ExecutorConfig = flow.NodeProcessParams
                                                     }
                                                );
                                                     obj = result.DynamicOutput;

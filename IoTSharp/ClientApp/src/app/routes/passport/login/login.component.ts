@@ -41,6 +41,10 @@ export class UserLoginComponent implements OnDestroy, AfterViewInit {
     });
   }
   ngAfterViewInit(): void {
+
+    localStorage.clear();
+
+
     this.http.get('api/installer/instance?_allow_anonymous=true').subscribe(
       (x) => {
         if(x.code===10000){
