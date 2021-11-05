@@ -207,7 +207,7 @@ namespace IoTSharp.Controllers
         /// <param name="deviceId"></param>
         /// <returns>一个压缩包，包含ca.crt client.crt client.key</returns>
         [HttpGet("{deviceId}/DownloadCertificates")]
-        public ActionResult DownloadCertificates([FromQuery] Guid deviceId)
+        public ActionResult DownloadCertificates(Guid deviceId)
         {
             try
             {

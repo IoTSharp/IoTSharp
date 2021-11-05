@@ -362,7 +362,7 @@ namespace IoTSharp.Handlers
         }
 
         long Subscribed;
-        internal void Server_ClientSubscribedTopic(object sender, MqttServerClientSubscribedTopicEventArgs e)
+        internal  async  Task Server_ClientSubscribedTopic(object sender, MqttServerClientSubscribedTopicEventArgs e)
         {
             _logger.LogInformation($"Client [{e.ClientId}] subscribed [{e.TopicFilter}]");
 
@@ -372,11 +372,11 @@ namespace IoTSharp.Handlers
                 {
                     var mename = typeof(MQTTServerHandler).Assembly.GetName();
                     var mqttnet = typeof(MqttServerClientSubscribedTopicEventArgs).Assembly.GetName();
-                    Task.Run(() => _serverEx.PublishAsync("$SYS/broker/version", $"{mename.Name}V{mename.Version.ToString()},{mqttnet.Name}.{mqttnet.Version.ToString()}"));
+                    await _serverEx.PublishAsync("$SYS/broker/version", $"{mename.Name}V{mename.Version.ToString()},{mqttnet.Name}.{mqttnet.Version.ToString()}");
                 }
                 else if (e.TopicFilter.Topic.StartsWith("$SYS/broker/uptime"))
                 {
-                    Task.Run(() => _serverEx.PublishAsync("$SYS/broker/uptime", uptime.ToString()));
+                    await _serverEx.PublishAsync("$SYS/broker/uptime", uptime.ToString());
                 }
             }
             if (e.TopicFilter.Topic.ToLower().StartsWith("/devices/telemetry"))
@@ -387,10 +387,8 @@ namespace IoTSharp.Handlers
             else
             {
                 Subscribed++;
-                Task.Run(() => _serverEx.PublishAsync("$SYS/broker/subscriptions/count", Subscribed.ToString()));
+               await  _serverEx.PublishAsync("$SYS/broker/subscriptions/count", Subscribed.ToString());
             }
-
-
         }
 
         internal void Server_ClientUnsubscribedTopic(object sender, MqttServerClientUnsubscribedTopicEventArgs e)

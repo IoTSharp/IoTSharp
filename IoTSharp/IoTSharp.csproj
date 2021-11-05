@@ -51,7 +51,7 @@
 		<PackageReference Include="AspNetCore.HealthChecks.Kafka" Version="5.0.1" />
 		<PackageReference Include="AspNetCore.HealthChecks.MongoDb" Version="5.0.1" />
 		<PackageReference Include="AspNetCore.HealthChecks.Network" Version="5.0.4" />
-		<PackageReference Include="AspNetCore.HealthChecks.Rabbitmq" Version="5.0.1" />
+		<PackageReference Include="AspNetCore.HealthChecks.Rabbitmq" Version="5.0.2" />
 		<PackageReference Include="AspNetCore.HealthChecks.Redis" Version="5.0.2" />
 		<PackageReference Include="AspNetCore.HealthChecks.System" Version="5.0.1" />
 		<PackageReference Include="AspNetCore.HealthChecks.UI" Version="5.0.1" />
@@ -85,10 +85,10 @@
 		<PackageReference Include="Microsoft.Extensions.Options" Version="5.0.0" />
 		<PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.11.1" />
 		<PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="5.0.2" />
-		<PackageReference Include="MQTTnet" Version="3.0.16" />
-		<PackageReference Include="MQTTnet.AspNetCore" Version="3.0.16" />
-		<PackageReference Include="MQTTnet.AspNetCoreEx" Version="3.0.15" />
-		<PackageReference Include="MQTTnet.Extensions.Rpc" Version="3.0.16" />
+		<PackageReference Include="MQTTnet" Version="3.0.17" />
+		<PackageReference Include="MQTTnet.AspNetCore" Version="3.0.17" />
+		<PackageReference Include="MQTTnet.AspNetCoreEx" Version="3.0.17" />
+		<PackageReference Include="MQTTnet.Extensions.Rpc" Version="3.0.17" />
 		<PackageReference Include="NetMQ" Version="4.0.1.6" />
 		<PackageReference Include="NSwag.AspNetCore" Version="13.13.2" />
 		<PackageReference Include="PinusDB" Version="1.0.10" />
@@ -105,7 +105,7 @@
 		<PackageReference Include="SilkierQuartz.Plugins.RecentHistory" Version="5.0.309" />
 		<PackageReference Include="System.CodeDom" Version="5.0.0" />
 		<PackageReference Include="System.Collections" Version="4.3.0" />
-		<PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="6.13.1" />
+		<PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="6.14.1" />
 		<PackageReference Include="System.ServiceModel.Primitives" Version="4.8.1" />
 		<PackageReference Include="System.Text.Encoding.CodePages" Version="5.0.0" />
 		<PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="5.0.11" />
@@ -115,7 +115,7 @@
 		<PackageReference Include="Microsoft.Extensions.Hosting" Version="5.0.0" />
 		<PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="5.0.0" />
 		<PackageReference Include="Microsoft.Extensions.Hosting.WindowsServices" Version="5.0.1" />
-		<PackageReference Include="MQTTnet.Extensions.ManagedClient" Version="3.0.16" />
+		<PackageReference Include="MQTTnet.Extensions.ManagedClient" Version="3.0.17" />
 		<PackageReference Include="Microsoft.AspNetCore.SpaServices.Extensions" Version="5.0.11" />
 		<PackageReference Include="Microsoft.AspNetCore.ApiAuthorization.IdentityServer" Version="5.0.11" />
 		<PackageReference Include="Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore" Version="5.0.11" />

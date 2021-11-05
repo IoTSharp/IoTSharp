@@ -18,6 +18,8 @@ using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Threading;
 using MQTTnet.AspNetCore.Extensions;
+using MQTTnet.Diagnostics.Logger;
+using System.Security.Cryptography.X509Certificates;
 
 namespace IoTSharp
 {
@@ -32,11 +34,15 @@ namespace IoTSharp
                 options.WithDefaultEndpointPort(broker.Port).WithDefaultEndpoint();
                 if (broker.EnableTls)
                 {
+                    if (broker.CACertificate!=null)
+                    {
+                        broker.CACertificate.LoadCAToRoot();
+                    }
                     options.WithEncryptedEndpoint();
                     options.WithEncryptedEndpointPort(broker.TlsPort);
-                    if (System.IO.File.Exists(broker.Certificate))
+                    if (broker.BrokerCertificate!=null)
                     {
-                        options.WithEncryptionCertificate(System.IO.File.ReadAllBytes(broker.Certificate)).WithEncryptionSslProtocol(broker.SslProtocol);
+                        options.WithEncryptionCertificate(broker.BrokerCertificate.Export(X509ContentType.Pfx)).WithEncryptionSslProtocol(broker.SslProtocol);
                     }
                 }
                 else
@@ -61,7 +67,7 @@ namespace IoTSharp
                     server.StartedHandler = new MqttServerStartedHandlerDelegate(args => mqttEvents.Server_Started(server, args));
                     server.StoppedHandler = new MqttServerStoppedHandlerDelegate(args => mqttEvents.Server_Stopped(server, args));
                     server.ApplicationMessageReceivedHandler = new MqttApplicationMessageReceivedHandlerDelegate(args => mqttEvents.Server_ApplicationMessageReceived(server, args));
-                    server.ClientSubscribedTopicHandler = new MqttServerClientSubscribedHandlerDelegate(args => mqttEvents.Server_ClientSubscribedTopic(server, args));
+                    server.ClientSubscribedTopicHandler = new MqttServerClientSubscribedTopicHandlerDelegate( args =>    mqttEvents.Server_ClientSubscribedTopic(server, args));
                     server.ClientUnsubscribedTopicHandler = new MqttServerClientUnsubscribedTopicHandlerDelegate(args => mqttEvents.Server_ClientUnsubscribedTopic(server, args));
                     server.ClientConnectionValidatorHandler = new MqttServerClientConnectionValidatorHandlerDelegate(args => mqttEvents.Server_ClientConnectionValidator(server, args));
                     server.ClientDisconnectedHandler = new MqttServerClientDisconnectedHandlerDelegate(args => mqttEvents.Server_ClientDisconnected(server, args));

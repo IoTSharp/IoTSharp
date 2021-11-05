@@ -96,14 +96,7 @@ namespace IoTSharp.Controllers
                 var option = _setting.MqttBroker;
                 var ca = ip.CreateCA(option.CACertificateFile, option.CAPrivateKeyFile);
                 ca.CreateBrokerTlsCert(_setting.MqttBroker.DomainName?? Dns.GetHostName(), ip, option.CertificateFile, option.PrivateKeyFile, ten.EMail);
-                if (System.IO.File.Exists(option.CACertificateFile) && System.IO.File.Exists(option.CAPrivateKeyFile))
-                {
-                    option.CACertificate = new X509Certificate2().LoadPem(option.CACertificateFile, option.CAPrivateKeyFile);
-                }
-                if (System.IO.File.Exists(option.CertificateFile) && System.IO.File.Exists(option.PrivateKeyFile))
-                {
-                    option.BrokerCertificate = new X509Certificate2().LoadPem(option.CertificateFile, option.PrivateKeyFile);
-                }
+                ca.LoadCAToRoot();
                 result = new ApiResult(ApiCode.Success, ca.Thumbprint);
 
             }

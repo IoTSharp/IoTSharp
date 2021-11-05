@@ -2,6 +2,7 @@
 using DotNetCore.CAP.Dashboard.NodeDiscovery;
 using EFCore.Sharding;
 using IoTSharp.Data;
+using IoTSharp.X509Extensions;
 using MaiKeBing.HostedService.ZeroMQ;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
@@ -111,9 +112,40 @@ namespace IoTSharp
         public SslProtocols SslProtocol { get; set; } = SslProtocols.None;
         public bool PersistRetainedMessages { get; set; }
 
-        public X509Certificate2 CACertificate { get; set; }
 
-        public X509Certificate2 BrokerCertificate { get; set; }
+        X509Certificate2 _CACertificate;
+        public X509Certificate2 CACertificate
+        {
+            get
+            {
+                if (_CACertificate == null)
+                {
+                    if (System.IO.File.Exists(CACertificateFile) && System.IO.File.Exists(CAPrivateKeyFile))
+                    {
+                        _CACertificate = new X509Certificate2().LoadPem(CACertificateFile, CAPrivateKeyFile);
+                    }
+                }
+                return _CACertificate;
+
+
+            }
+        }
+
+        X509Certificate2 _BrokerCertificate;
+        public X509Certificate2 BrokerCertificate
+        {
+            get
+            {
+                if (_BrokerCertificate == null)
+                {
+                    if (System.IO.File.Exists(CertificateFile) && System.IO.File.Exists(PrivateKeyFile))
+                    {
+                        _BrokerCertificate = new X509Certificate2().LoadPem(CertificateFile, PrivateKeyFile);
+                    }
+                }
+                return _BrokerCertificate;
+            }
+        }
         public string CACertificateFile { get; set; } = "ca.crt";
         public string CAPrivateKeyFile { get; set; } = "ca.key";
         public string CertificateFile { get; set; } ="server.crt";

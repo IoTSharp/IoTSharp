@@ -175,6 +175,17 @@ namespace IoTSharp
             broker.SavePem(pubfile, pivfile);
         }
 
+        public static void LoadCAToRoot(this X509Certificate2 CACertificate)
+        {
+            //https://stackoverflow.com/questions/3625624/inserting-certificate-with-privatekey-in-root-localmachine-certificate-store?lq=1
+            X509Store x509 = new X509Store(StoreName.My, StoreLocation.CurrentUser);
+            if (!x509.Certificates.Contains(CACertificate))
+            {
+                x509.Open(OpenFlags.MaxAllowed);
+                x509.Add(CACertificate);
+                x509.Close();
+            }
+        }
         public static X509Certificate2 CreateCA(this IPAddress ip, string capubfile, string capivfile)
         {
             var ca = new X509Certificate2().CreateCA($"C=CN,CN={ip},ST=IoTSharp,O={Dns.GetHostName()},OU=CA_{MethodBase.GetCurrentMethod().Module.Assembly.GetName().Name}");

@@ -58,16 +58,6 @@ namespace IoTSharp
             services.Configure((Action<AppSettings>)(setting =>
             {
                 var option = setting.MqttBroker;
-                if (System.IO.File.Exists(option.CACertificateFile) && System.IO.File.Exists(option.CAPrivateKeyFile))
-                {
-                    option.CACertificate = new X509Certificate2().LoadPem(option.CACertificateFile, option.CAPrivateKeyFile);
-                }
-                if (System.IO.File.Exists(option.CertificateFile) && System.IO.File.Exists(option.PrivateKeyFile))
-                {
-                    option.BrokerCertificate = new X509Certificate2().LoadPem(option.CertificateFile, option.PrivateKeyFile);
-                }
-              
-
                 Configuration.Bind(setting);
             }));
             var healthChecksUI = services.AddHealthChecksUI(setup =>
