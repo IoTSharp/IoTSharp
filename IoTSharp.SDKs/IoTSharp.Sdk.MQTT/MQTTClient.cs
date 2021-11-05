@@ -42,9 +42,7 @@ namespace IoTSharp.EdgeSdk.MQTT
             try
             {
                 var factory = new MqttFactory();
-                MqttNetLogger mqttNetLogger = new MqttNetLogger();
-                mqttNetLogger.LogMessagePublished += MqttNetLogger_LogMessagePublished; ;
-                Client = factory.CreateMqttClient(mqttNetLogger);
+                Client = factory.CreateMqttClient( );
                 var clientOptions = new MqttClientOptionsBuilder()
                        .WithClientId(uri.ToString() + Guid.NewGuid().ToString())
                           .WithTcpServer(uri.Host, uri.Port)
@@ -81,11 +79,6 @@ namespace IoTSharp.EdgeSdk.MQTT
             }
             return initok;
         }
-
-        private void MqttNetLogger_LogMessagePublished(object sender, MqttNetLogMessagePublishedEventArgs e)
-        {
-        }
-
 
         private   void Client_ConnectedAsync(object sender, MqttClientConnectedEventArgs e)
         {
