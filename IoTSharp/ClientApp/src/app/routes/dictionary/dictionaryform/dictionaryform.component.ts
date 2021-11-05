@@ -20,12 +20,9 @@ export class DictionaryformComponent implements OnInit {
   title: string = '';
 
   constructor(
-    private _router: ActivatedRoute,
-    private router: Router,
-    private _formBuilder: FormBuilder,
     private _httpClient: _HttpClient,
-    private fb: FormBuilder,
     private msg: NzMessageService,
+    private fb: FormBuilder,
     private drawerRef: NzDrawerRef<string>,
   ) {}
   form!: FormGroup;

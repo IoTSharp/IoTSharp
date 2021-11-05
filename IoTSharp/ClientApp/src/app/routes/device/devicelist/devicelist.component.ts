@@ -1,6 +1,6 @@
 import { ChangeDetectorRef, Component, EventEmitter, OnDestroy, OnInit, TemplateRef, ViewChild } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { STChange, STColumn, STComponent, STData, STPage, STReq, STRes } from '@delon/abc/st';
+import { STChange, STColumn, STColumnBadge, STColumnTag, STComponent, STData, STPage, STReq, STRes } from '@delon/abc/st';
 import { ModalHelper, SettingsService, _HttpClient } from '@delon/theme';
 import { NzMessageService } from 'ng-zorro-antd/message';
 import { map, tap } from 'rxjs/operators';
@@ -25,20 +25,34 @@ import { fork } from 'child_process';
   styleUrls: ['./devicelist.component.less'],
 })
 export class DevicelistComponent implements OnInit, OnDestroy {
+
+
+   BADGE: STColumnBadge = {
+    true: { text: '在线', color: 'success' },
+    false: { text: '离线', color: 'error' },
+
+  };
+   TAG: STColumnTag = {
+    'AccessToken': { text: 'AccessToken', color: 'green' },
+    'X509Certificate': { text: 'X509Certificate', color: 'blue' },
+
+  };
+
+  DeviceTAG: STColumnTag = {
+    'Device': { text: '设备', color: 'green' },
+    'Gateway': { text: '网关', color: 'blue' },
+
+  };
+
   obs: Subscription;
   customerId: string = '';
   expand: any;
   constructor(
     private http: _HttpClient,
     public msg: NzMessageService,
-    private modal: ModalHelper,
-    private cdr: ChangeDetectorRef,
-    private _router: Router,
     private router: ActivatedRoute,
     private drawerService: NzDrawerService,
     private settingService: SettingsService,
-
-    aclSrv: ACLService,
   ) {}
   ngOnDestroy(): void {
     if (this.obs) {
@@ -46,8 +60,8 @@ export class DevicelistComponent implements OnInit, OnDestroy {
     }
   }
   url = 'api/Devices/Customers';
-  cetd  : telemetryitem []= [];
-page: STPage = {
+  cetd: telemetryitem[] = [];
+  page: STPage = {
     front: false,
     total: true,
     zeroIndexed: true,
@@ -78,17 +92,15 @@ page: STPage = {
 
   @ViewChild('st', { static: true })
   st!: STComponent;
-
   ctype = {};
-
   columns: STColumn[] = [
     { title: '', index: 'id', type: 'checkbox' },
 
     { title: '名称', index: 'name', render: 'name' },
-    { title: '设备类型', index: 'deviceType' },
-    { title: '在线状态', index: 'online' },
+    { title: '设备类型', index: 'deviceType',type: 'tag', tag: this.DeviceTAG  },
+    { title: '在线状态', index: 'online',type: 'badge', badge: this.BADGE },
     { title: '最后活动时间', index: 'lastActive' },
-    { title: '客户', index: 'province' },
+    { title: '认证方式', index: 'identityType',  type: 'tag', tag: this.TAG},
     {
       title: '操作',
       type: 'link',
@@ -113,7 +125,6 @@ page: STPage = {
           acl: 111,
           text: '设置规则',
           click: (item: any) => {
-            this.download();
             this.downlink([item]);
           },
         },
@@ -122,12 +133,22 @@ page: STPage = {
           acl: 111,
           text: '获取Token',
           type: 'modal',
+          iif: (record) => record.identityType ==='AccessToken',
           modal: {
             component: DevicetokendialogComponent,
           },
-          click: (item: any) => {},
+          click: () => {},
         },
 
+        {
+          acl: 111,
+          text: '下载证书',
+          iif: (record) => record.identityType === 'X509Certificate',
+
+          click: (record) => {
+            this.download(record);
+          },
+        },
         {
           acl: 110,
           text: '删除',
@@ -141,33 +162,38 @@ page: STPage = {
   selectedRows: STData[] = [];
   description = '';
   totalCallNo = 0;
-
-  getbuttons(item) {
+  getbuttons() {
     return [];
   }
+  couponFormat() {}
 
-  couponFormat(value) {}
 
-  private download() {
-    // this.http
-    //   .get(
-    //     './assets/tmp/demo.xlsx',
-    //     {},
-    //     {
-    //       responseType: 'blob',
-    //     },
-    //   )
-    //   .subscribe((res) => {
-    //     let url = window.URL.createObjectURL(res);
-    //     let a = document.createElement('a');
-    //     document.body.appendChild(a);
-    //     a.setAttribute('style', 'display: none');
-    //     a.href = url;
-    //     a.download = res.filename;
-    //     a.click();
-    //     window.URL.revokeObjectURL(url);
-    //     a.remove();
-    //   });
+
+
+  private download(record) {
+    this.http
+      .get(
+        'api/Devices/' + record.id + '/DownloadCertificates',
+        {},
+        {
+          responseType: 'blob',
+        },
+      )
+      .subscribe((res) => {
+        let url = window.URL.createObjectURL(res);
+        let a = document.createElement('a');
+        document.body.appendChild(a);
+        a.setAttribute('style', 'display: none');
+        a.href = url;
+        a.download = record.id+'.zip';
+        a.click();
+        window.URL.revokeObjectURL(url);
+        a.remove();
+      }, error=>{
+        console.log(error)
+        this.msg.create('error', '证书下载失败,请检查是否未生成');
+
+      });
   }
 
   ngOnInit(): void {
@@ -176,7 +202,6 @@ page: STPage = {
         if (!x.id) {
           this.q.customerId = this.settingService.user.comstomer;
           this.customerId = this.settingService.user.comstomer;
-
           this.url = 'api/Devices/Customers';
         } else {
           this.q.customerId = x.id as unknown as string;
@@ -184,7 +209,7 @@ page: STPage = {
           this.url = 'api/Devices/Customers';
         }
       },
-      (y) => {},
+      () => {},
       () => {},
     );
   }
@@ -219,7 +244,7 @@ page: STPage = {
     drawerRef.afterOpen.subscribe(() => {
       this.getData();
     });
-    drawerRef.afterClose.subscribe((data) => {});
+    drawerRef.afterClose.subscribe(() => {});
   }
   edit(id: string): void {
     var { nzMaskClosable, width } = this.settingService.getData('drawerconfig');
@@ -246,7 +271,7 @@ page: STPage = {
       },
     });
     drawerRef.afterOpen.subscribe(() => {});
-    drawerRef.afterClose.subscribe((data) => {
+    drawerRef.afterClose.subscribe(() => {
       this.getData();
     });
   }
@@ -278,17 +303,19 @@ page: STPage = {
     drawerRef.afterOpen.subscribe(() => {
       this.getData();
     });
-    drawerRef.afterClose.subscribe((data) => {});
+    drawerRef.afterClose.subscribe(() => {});
   }
 
   reset() {}
   delete(id: string) {
     this.http.delete('api/Devices/' + id, {}).subscribe(
-      (x) => {
+      () => {
         this.msg.create('success', '设备删除成功');
         this.getData();
       },
-      (y) => {  this.msg.create('error', '设备删除失败');},
+      () => {
+        this.msg.create('error', '设备删除失败');
+      },
       () => {},
     );
   }
@@ -305,7 +332,7 @@ page: STPage = {
           if (this.obs) {
             this.obs.unsubscribe();
           }
-          this.obs = interval(1000).subscribe(async (x) => {
+          this.obs = interval(1000).subscribe(async () => {
             zip(
               this.http.get<appmessage<attributeitem[]>>('api/Devices/' + $events.expand?.id + '/AttributeLatest'),
               this.http.get<appmessage<ruleitem[]>>('api/Rules/GetDeviceRules?deviceId=' + $events.expand?.id),
@@ -314,13 +341,11 @@ page: STPage = {
               $events.expand.attributes = attributes.data;
               $events.expand.rules = rules.data;
               $events.expand.telemetries = telemetries.data;
-
               if (this.cetd.length === 0) {
                 this.cetd = $events.expand.telemetries;
               } else {
                 for (var i = 0; i < this.cetd.length; i++) {
-                  this.cetd[i].value= telemetries.data[i].value
-
+                  this.cetd[i].value = telemetries.data[i].value;
                 }
               }
 
@@ -337,28 +362,31 @@ page: STPage = {
 
   removerule(item: deviceitem, rule: ruleitem) {
     this.http.get('api/Rules/DeleteDeviceRules?deviceId=' + item.id + '&ruleId=' + rule.ruleId).subscribe(
-      (next) => {
+      () => {
         item.rules = item.rules.filter((x) => x.ruleId != rule.ruleId);
       },
-      (error) => {},
+      () => {},
       () => {},
     );
   }
 }
 
 export interface deviceitem {
-  deviceType: string;
-  id: string;
-  lastActive: string;
-  name: string;
-  online: string;
-  owner: string;
-  tenant: string;
-  timeout: string;
-  telemetries: telemetryitem[];
-  attributes: attributeitem[];
-  rules: ruleitem[];
-  expand: boolean;
+  deviceType?: string;
+  id?: string;
+  lastActive?: string;
+  name?: string;
+  online?: string;
+  owner?: string;
+  tenant?: string;
+  timeout?: string;
+  customerId?: string;
+  telemetries?: telemetryitem[];
+  attributes?: attributeitem[];
+  rules?: ruleitem[];
+  expand?: boolean;
+  identityType?: string;
+  identityValue?: string;
 }
 
 export interface telemetryitem {

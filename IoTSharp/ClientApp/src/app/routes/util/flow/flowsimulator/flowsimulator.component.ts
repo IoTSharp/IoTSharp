@@ -1,8 +1,7 @@
-import { Component, OnInit, ViewChild, Input, ChangeDetectorRef, TemplateRef, OnDestroy } from '@angular/core';
+import { Component, OnInit, ViewChild, Input, OnDestroy } from '@angular/core';
 import { _HttpClient } from '@delon/theme';
-import { NzTimelineComponent, NzTimelineItemComponent, TimelineService } from 'ng-zorro-antd/timeline';
 
-import { concat, interval, Observable, Subject, Subscription } from 'rxjs';
+import { concat, interval, Subscription } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { appmessage } from 'src/app/routes/common/AppMessage';
 import { flowrule } from 'src/app/routes/flow/flowlist/flowlist.component';
@@ -25,8 +24,7 @@ export class FlowsimulatorComponent implements OnInit, OnDestroy {
   @ViewChild('dynamicformview', { static: true })
   dynamicformview: DynamicformviewComponent;
   constructor(
-    private http: _HttpClient,
-    private cdr: ChangeDetectorRef, 
+    private http: _HttpClient, 
   ) {}
   ngOnDestroy(): void {
     if (this.obs) {

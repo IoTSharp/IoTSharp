@@ -10,5 +10,6 @@ namespace IoTSharp.Dtos
     {
         public Guid Id { get; set; } 
         public string Name { get; set; }
+        public IdentityType IdentityType { get; set; }
     }
 }

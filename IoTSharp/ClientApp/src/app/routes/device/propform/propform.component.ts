@@ -26,8 +26,7 @@ export class PropformComponent implements OnInit {
     
     private drawerRef: NzDrawerRef<string>,
       private msg: NzMessageService,
-       private cd: ChangeDetectorRef
-       ,private notification: NzNotificationService) {}
+       private cd: ChangeDetectorRef) {}
   schema: SFSchema = {
     properties: {
       // "field1": {

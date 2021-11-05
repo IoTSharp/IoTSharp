@@ -1,12 +1,11 @@
-import { ChangeDetectorRef, Component, OnInit, TemplateRef, ViewChild } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { Router } from '@angular/router';
 import { STColumn, STColumnTag, STComponent, STData, STPage, STReq, STRes } from '@delon/abc/st';
-import { ACLService } from '@delon/acl';
-import { _HttpClient, ModalHelper, SettingsService } from '@delon/theme';
+import { _HttpClient, SettingsService } from '@delon/theme';
 import { Guid } from 'guid-typescript';
 import { NzDrawerService } from 'ng-zorro-antd/drawer';
 import { NzMessageService } from 'ng-zorro-antd/message';
-import { appmessage, pageddata } from '../../common/AppMessage';
+import { appmessage } from '../../common/AppMessage';
 import { FlowsimulatorComponent } from '../../util/flow/flowsimulator/flowsimulator.component';
 
 import { FlowformComponent } from '../flowform/flowform.component';
@@ -23,8 +22,6 @@ export class FlowlistComponent implements OnInit {
   constructor(
     private http: _HttpClient,
     private msg: NzMessageService,
-    private modal: ModalHelper,
-    private cdr: ChangeDetectorRef,
     private _router: Router,
     private drawerService: NzDrawerService,
     private settingService: SettingsService,
@@ -109,13 +106,13 @@ export class FlowlistComponent implements OnInit {
             okType: 'danger',
             icon: 'warning',
           },
-          click: (item: flowrule) => {
+          click: () => {
             //do something
           },
         },
 
         {
-          text: (record) => '复制',
+          text: () => '复制',
 
           type: 'modal',
           modal: {
@@ -157,11 +154,11 @@ export class FlowlistComponent implements OnInit {
           },
           click: (item: flowrule) => {
             this.http.get('api/rules/delete?id=' + item.ruleId).subscribe(
-              (x) => {
+              () => {
                 this.msg.create('success', '规则删除成功');
                 this.getData();
               },
-              (y) => {   
+              () => {   
                  this.msg.create('error', '规则删除失败');
               this.getData();},
               () => {},
@@ -208,7 +205,7 @@ export class FlowlistComponent implements OnInit {
               console.log(next);
               $event.expand.flows = next.data;
             },
-            (error) => {},
+            () => {},
             () => {},
           );
         }
@@ -327,7 +324,7 @@ export class FlowlistComponent implements OnInit {
         status: null,
       };
   }
-  setstatus(number: number, status: number) {}
+  setstatus() {}
 }
 
 export interface flowrule {

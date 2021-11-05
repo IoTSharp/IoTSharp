@@ -18,9 +18,6 @@ export class TaskexecutorlistComponent implements OnInit {
   constructor(
     private http: _HttpClient,
     public msg: NzMessageService,
-    private modal: ModalHelper,
-    private cdr: ChangeDetectorRef,
-    private _router: Router,
     private drawerService: NzDrawerService,
     private settingService: SettingsService,
     
@@ -101,7 +98,7 @@ export class TaskexecutorlistComponent implements OnInit {
             okType: 'danger',
             icon: 'warning',
           },
-          click: (item: taskexecutor) => {
+          click: () => {
 
 
             //do something
@@ -119,12 +116,12 @@ export class TaskexecutorlistComponent implements OnInit {
           },
           click: (item: taskexecutor) => {
             this.http.get('api/rules/deleteexecutor?id=' + item.executorId).subscribe(
-              (x) => {
+              () => {
 
                 this.msg.create('success', '执行器删除成功');
                 this.getData();
               },
-              (y) => {},
+              () => {},
               () => {},
             );
           },
@@ -180,7 +177,7 @@ export class TaskexecutorlistComponent implements OnInit {
         status: null,
       };
   }
-  setstatus(number: number, status: number) {}
+  setstatus() {}
 
 }
 

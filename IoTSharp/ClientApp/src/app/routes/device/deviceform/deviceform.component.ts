@@ -5,8 +5,11 @@ import { _HttpClient } from '@delon/theme';
 import { Guid } from 'guid-typescript';
 import { NzDrawerRef } from 'ng-zorro-antd/drawer';
 import { NzMessageService } from 'ng-zorro-antd/message';
-import { AppMessage } from '../../common/AppMessage';
+import { concat } from 'rxjs';
+import { map } from 'rxjs/operators';
+import { appmessage, AppMessage } from '../../common/AppMessage';
 import { MyValidators } from '../../common/validators/MyValidators';
+import { deviceitem } from '../devicelist/devicelist.component';
 
 @Component({
   selector: 'app-deviceform',
@@ -25,9 +28,6 @@ export class DeviceformComponent implements OnInit {
   loading = false;
   avatarUrl?: string;
   constructor(
-    private _router: ActivatedRoute,
-    private router: Router,
-    private _formBuilder: FormBuilder,
     private _httpClient: _HttpClient,
     private fb: FormBuilder,
     private msg: NzMessageService,
@@ -35,55 +35,94 @@ export class DeviceformComponent implements OnInit {
   ) {}
   form!: FormGroup;
   submitting = false;
-  ngOnInit() {
 
-    console.log()
+  data: deviceitem = {
+    name: '',
+    deviceType: '',
+    customerId: '',
+    id: Guid.EMPTY,
+    identityType: '',
+  };
+  ngOnInit() {
+    console.log();
     const { nullbigintid } = MyValidators;
     this.form = this.fb.group({
       name: [null, [Validators.required]],
       deviceType: [null, [Validators.required]],
       customerId: [null, []],
-      id: [Guid.EMPTY, []], 
+      id: [Guid.EMPTY, []],
+      identityType: [Guid.EMPTY, []],
     });
     if (this.params.id !== Guid.EMPTY) {
-      this._httpClient.get('api/Devices/' + this.params.id).subscribe(
-        (x) => {
-          this.form.patchValue(x.data);
-        },
-        (y) => {},
-        () => {},
-      );
+      concat(
+        this._httpClient.get<appmessage<deviceitem>>('api/Devices/' + this.params.id).pipe(
+          map((x) => {
+            this.data = x.data;
+          }),
+        ),
+        this._httpClient.get('api/Devices/' + this.params.id + '/Identity').pipe(
+          map((x) => {
+            this.data.identityType = x.data.identityType;
+
+            this.form.patchValue(this.data);
+          }),
+        ),
+      ).subscribe();
+
+      // this._httpClient.get('api/Devices/' + this.params.id).subscribe(
+      //   (x) => {
+      //     // this.form.patchValue(x.data);
+      //   },
+      //   () => {},
+      //   () => {},
+      // );
     }
   }
+  createcert($event) {
+    this._httpClient.get('api/Devices/' + this.params.id + '/CreateX509Identity').subscribe(
+      (next) => {
+        if (next.code === 10000) {
+          this.msg.create('success', '证书生成成功');
+        }else{
+          this.msg.create('error', '证书生成失败:' + next.msg);
+        }
 
+      },
+      (error) => {
+        this.msg.create('error', '证书生成失败');
+      },
+      () => {},
+    );
+  }
   submit() {
     this.submitting = true;
 
-    if (this.params.id ==Guid.EMPTY) {
-      this._httpClient.post('api/Devices', this.form.value).subscribe((x) => {
-        this.submitting = false;
-        this.msg.create('success', '设备新增成功');
-        this.close();
-     
-      },y=>{
-
-        this.msg.create('error', '设备新增失败');
-        this.close();
-
-      },()=>{}
-      
-      
+    if (this.params.id == Guid.EMPTY) {
+      this._httpClient.post('api/Devices', this.form.value).subscribe(
+        () => {
+          this.submitting = false;
+          this.msg.create('success', '设备新增成功');
+          this.close();
+        },
+        () => {
+          this.msg.create('error', '设备新增失败');
+          this.close();
+        },
+        () => {},
       );
     } else {
-      this._httpClient.put('api/Devices/'+this.params.id, this.form.value).subscribe((x) => {
-        this.submitting = false;
-        this.msg.create('success', '设备修改成功');
-        this.close();
-   
-      },y=>{
-        this.msg.create('error', '设备修改失败');
-        this.close();
-      },()=>{});
+      this._httpClient.put('api/Devices/' + this.params.id, this.form.value).subscribe(
+        () => {
+          this.submitting = false;
+          this.msg.create('success', '设备修改成功');
+          this.close();
+        },
+        () => {
+          this.msg.create('error', '设备修改失败');
+          this.close();
+        },
+        () => {},
+      );
     }
   }
   close(): void {

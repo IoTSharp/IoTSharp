@@ -1,10 +1,8 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { ActivatedRoute, Router } from '@angular/router';
 import { _HttpClient } from '@delon/theme';
 import { NzDrawerRef } from 'ng-zorro-antd/drawer';
 import { NzMessageService } from 'ng-zorro-antd/message';
-import { AppMessage } from '../../common/AppMessage';
 import { MyValidators } from '../../common/validators/MyValidators';
 import { Guid } from 'guid-typescript';
 
@@ -26,9 +24,6 @@ export class TenantformComponent implements OnInit {
   loading = false;
   avatarUrl?: string;
   constructor(
-    private _router: ActivatedRoute,
-    private router: Router,
-    private _formBuilder: FormBuilder,
     private _httpClient: _HttpClient,
     private fb: FormBuilder,
     private msg: NzMessageService,
@@ -37,7 +32,7 @@ export class TenantformComponent implements OnInit {
   form!: FormGroup;
   submitting = false;
   ngOnInit() {
-    const { nullbigintid, zip, email, mobile } = MyValidators;
+    const { zip, email, mobile } = MyValidators;
     this.form = this.fb.group({
       name: [null, [Validators.required]],
       id: [Guid.EMPTY, []],
@@ -56,7 +51,7 @@ export class TenantformComponent implements OnInit {
         (x) => {
           this.form.patchValue(x.data);
         },
-        (y) => {},
+        () => {},
         () => {},
       );
     }
@@ -66,23 +61,23 @@ export class TenantformComponent implements OnInit {
     this.submitting = true;
     if (this.id !== Guid.EMPTY) {
       this._httpClient.put('api/Tenants/' + this.form.value.id, this.form.value).subscribe(
-        (x) => {
+        () => {
           this.submitting = false;
           this.msg.create('success', '租户保存成功');
           this.close();
         },
-        (y) => {  this.submitting = false;
+        () => {  this.submitting = false;
           this.msg.create('error', '租户保存失败');},
         () => {},
       );
     } else {
       this._httpClient.post('api/Tenants', this.form.value).subscribe(
-        (x) => {
+        () => {
           this.submitting = false;
           this.msg.create('success', '租户保存成功');
           this.close();
         },
-        (y) => {},
+        () => {},
         () => {},
       );
     }

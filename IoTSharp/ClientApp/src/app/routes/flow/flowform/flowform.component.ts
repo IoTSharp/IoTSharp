@@ -1,10 +1,8 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { FormGroup, FormBuilder, Validators } from '@angular/forms';
-import { ActivatedRoute, Router } from '@angular/router';
 import { _HttpClient } from '@delon/theme';
 import { Guid } from 'guid-typescript';
 import { NzDrawerRef } from 'ng-zorro-antd/drawer';
-import { NzMessageService } from 'ng-zorro-antd/message';
 import { AppMessage } from '../../common/AppMessage';
 
 @Component({
@@ -18,12 +16,8 @@ export class FlowformComponent implements OnInit {
   @Input() id: string ;
   form!: FormGroup;
   constructor(
-    private _router: ActivatedRoute,
-    private router: Router,
-    private _formBuilder: FormBuilder,
     private _httpClient: _HttpClient,
     private fb: FormBuilder,
-    private msg: NzMessageService,
     private drawerRef: NzDrawerRef<string>,
   ) {}
 
@@ -42,7 +36,7 @@ export class FlowformComponent implements OnInit {
           x.data.mountType= x.data.mountType+'';
           this.form.patchValue(x.data);
         },
-        (y) => {},
+        () => {},
         () => {},
       );
     }
@@ -54,10 +48,10 @@ export class FlowformComponent implements OnInit {
     if (this.form.value.id === '') {
     }
     this._httpClient.post(uri, this.form.value).subscribe(
-      (x) => {
+      () => {
         this.submitting = false;
       },
-      (y) => {
+      () => {
         this.submitting = false;
       },
       () => { this.drawerRef.close(this.id);},

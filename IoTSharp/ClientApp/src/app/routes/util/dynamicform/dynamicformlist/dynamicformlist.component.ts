@@ -1,7 +1,6 @@
-import { ChangeDetectorRef, Component, OnInit, TemplateRef, ViewChild } from '@angular/core';
-import { Router } from '@angular/router';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { STPage, STReq, STRes, STComponent, STColumn, STData } from '@delon/abc/st';
-import { _HttpClient, ModalHelper, SettingsService } from '@delon/theme';
+import { _HttpClient, SettingsService } from '@delon/theme';
 import { NzDrawerService } from 'ng-zorro-antd/drawer';
 import { NzMessageService } from 'ng-zorro-antd/message';
 import { DynamicformdesignerComponent } from '../dynamicformdesigner/dynamicformdesigner.component';
@@ -20,9 +19,6 @@ export class DynamicformlistComponent implements OnInit {
   constructor(
     private http: _HttpClient,
     public msg: NzMessageService,
-    private modal: ModalHelper,
-    private cdr: ChangeDetectorRef,
-    private _router: Router,
     private drawerService: NzDrawerService,
     private settingService: SettingsService,
   ) {}
@@ -134,10 +130,10 @@ export class DynamicformlistComponent implements OnInit {
           },
           click: (item: any) => {
             this.http.get('api/dynamicforminfo/setstatus?id=' + item.formId).subscribe(
-              (x) => {
+              () => {
                 this.getData();
               },
-              (y) => {},
+              () => {},
               () => {},
             );
           },
@@ -152,10 +148,10 @@ export class DynamicformlistComponent implements OnInit {
           },
           click: (item: any) => {
             this.http.get('api/dynamicforminfo/delete?id=' + item.formId).subscribe(
-              (x) => {
+              () => {
                 this.getData();
               },
-              (y) => {},
+              () => {},
               () => {},
             );
           },
@@ -240,7 +236,7 @@ export class DynamicformlistComponent implements OnInit {
 
   openDesignerComponent(id: Number): void {
     var title = id == -1 ? '设计' : '设计';
-    var { nzMaskClosable, width } = this.settingService.getData('drawerconfig');
+    var { nzMaskClosable } = this.settingService.getData('drawerconfig');
     const drawerRef = this.drawerService.create<DynamicformdesignerComponent, { id: Number }, string>({
       nzTitle: title,
       nzContent: DynamicformdesignerComponent,
@@ -267,7 +263,7 @@ export class DynamicformlistComponent implements OnInit {
 
   openDesignerComponentV2(id: Number): void {
     var title = id == -1 ? '设计' : '设计';
-    var { nzMaskClosable, width } = this.settingService.getData('drawerconfig');
+    var { nzMaskClosable } = this.settingService.getData('drawerconfig');
     const drawerRef = this.drawerService.create<Dynamicformdesignerv2Component, { id: Number }, string>({
       nzTitle: title,
       nzContent: Dynamicformdesignerv2Component,
@@ -317,10 +313,10 @@ export class DynamicformlistComponent implements OnInit {
     this.st.load(this.st.pi);
   }
 
-  add(tpl: TemplateRef<{}>) {}
+  add() {}
 
   reset() {
     setTimeout(() => {}, 1000);
   }
-  setstatus(number: number, status: number) {}
+  setstatus() {}
 }

@@ -35,9 +35,6 @@ export class CustomerformComponent implements OnInit {
   loading = false;
   avatarUrl?: string;
   constructor(
-    private _router: ActivatedRoute,
-    private router: Router,
-    private _formBuilder: FormBuilder,
     private _httpClient: _HttpClient,
     private fb: FormBuilder,
     private msg: NzMessageService,
@@ -50,7 +47,7 @@ export class CustomerformComponent implements OnInit {
 
 
   ngOnInit() {
-    const { nullbigintid ,zip,email,mobile} = MyValidators;
+    const { zip,email,mobile} = MyValidators;
     this.form = this.fb.group({
       name: [null, [Validators.required]],
       id: [Guid.EMPTY, []],
@@ -71,7 +68,7 @@ export class CustomerformComponent implements OnInit {
         (x) => {
           this.form.patchValue(x.data);
         },
-        (y) => { },
+        () => { },
         () => { },
       );
     }
@@ -81,14 +78,14 @@ export class CustomerformComponent implements OnInit {
     this.submitting = true;
 
     if (this.params.id !==Guid.EMPTY) {
-      this._httpClient.put("api/Customers/" + this.form.value.id, this.form.value).subscribe(x => {
+      this._httpClient.put("api/Customers/" + this.form.value.id, this.form.value).subscribe(() => {
         
         this.submitting = false;
         this.msg.create('success', '客户保存成功');
         this.close();
       
       
-      }, y => {
+      }, () => {
 
         this.submitting = false;
         this.msg.create('error', '客户保存失败');
@@ -96,7 +93,7 @@ export class CustomerformComponent implements OnInit {
        }, () => { this.submitting = false;
          });
     } else {
-      this._httpClient.post("api/Customers", this.form.value).subscribe(x => { this.submitting = false; }, y => { }, () => { this.submitting = false;
+      this._httpClient.post("api/Customers", this.form.value).subscribe(() => { this.submitting = false; }, () => { }, () => { this.submitting = false;
       
       
         this.msg.create('success', '客户保存成功');

@@ -77,17 +77,12 @@
               图表
             </ng-template>
 
-
-<div nz-row>
-    <!--不要直接绑定,会导致界面重绘 -->
-  <div *ngFor="let _item of cetd; let i = index; let odd = odd">
-
-
-       <g2-gauge  [title]="_item.keyName" [height]="180" [percent]="_item.value" style="width: 200px;" ></g2-gauge>
-  </div>
-</div>
-
-
+            <div nz-row>
+              <!--不要直接绑定,会导致界面重绘 -->
+              <div *ngFor="let _item of cetd; let i = index; let odd = odd">
+                <g2-gauge [title]="_item.keyName" [height]="180" [percent]="_item.value" style="width: 200px"></g2-gauge>
+              </div>
+            </div>
           </nz-tab>
           <nz-tab [nzTitle]="titleTemplate">
             <ng-template #titleTemplate>

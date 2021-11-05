@@ -19,12 +19,8 @@ export class DictionarygroupformComponent implements OnInit {
 
   avatarUrl?: string;
   constructor(
-    private _router: ActivatedRoute,
-    private router: Router,
-    private _formBuilder: FormBuilder,
     private _httpClient: _HttpClient,
     private fb: FormBuilder,
-    private msg: NzMessageService,
     private drawerRef: NzDrawerRef<string>,
   ) {}
   form!: FormGroup;
@@ -43,7 +39,7 @@ export class DictionarygroupformComponent implements OnInit {
         (x) => {
           this.form.patchValue(x.data);
         },
-        (y) => {},
+        () => {},
         () => {},
       );
     }
@@ -53,11 +49,11 @@ export class DictionarygroupformComponent implements OnInit {
     this.submitting = true;
     var uri = this.id > 0 ? 'api/dictionarygroup/update' : 'api/dictionarygroup/save';
     this._httpClient.post(uri, this.form.value).subscribe(
-      (x) => {
+      () => {
         this.submitting = false;
         //   this.router.navigateByUrl('manage/uri/userlist');
       },
-      (y) => {
+      () => {
         this.submitting = false;
       },
       () => {},

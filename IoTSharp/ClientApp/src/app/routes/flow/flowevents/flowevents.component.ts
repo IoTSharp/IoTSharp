@@ -1,7 +1,6 @@
-import { ChangeDetectorRef, Component, OnInit, ViewChild } from '@angular/core';
-import { Router } from '@angular/router';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { STPage, STReq, STRes, STComponent, STColumn, STData, STColumnTag } from '@delon/abc/st';
-import { _HttpClient, ModalHelper, SettingsService } from '@delon/theme';
+import { _HttpClient, SettingsService } from '@delon/theme';
 import { NzDrawerService } from 'ng-zorro-antd/drawer';
 import { NzMessageService } from 'ng-zorro-antd/message';
 import { FloweventviewComponent } from '../floweventview/floweventview.component';
@@ -123,11 +122,7 @@ export class FloweventsComponent implements OnInit {
       };
   }
   constructor(
-    private http: _HttpClient,
     public msg: NzMessageService,
-    private modal: ModalHelper,
-    private cdr: ChangeDetectorRef,
-    private _router: Router,
     private drawerService: NzDrawerService,
     private settingService: SettingsService,
     

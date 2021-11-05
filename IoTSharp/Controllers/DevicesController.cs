@@ -111,13 +111,14 @@ namespace IoTSharp.Controllers
                     Name = x.Name,
                     LastActive = x.LastActive,
                     IdentityId = y.IdentityId,
-                    IdentityValue = y.IdentityType== IdentityType.X509Certificate?"": y.IdentityValue,
+                    IdentityValue = y.IdentityType == IdentityType.X509Certificate ? "" : y.IdentityValue,
                     Tenant = x.Tenant,
                     Customer = x.Customer,
                     DeviceType = x.DeviceType,
                     Online = x.Online,
                     Owner = x.Owner,
-                    Timeout = x.Timeout
+                    Timeout = x.Timeout,
+                    IdentityType = y.IdentityType
 
 
                 }).ToListAsync()
@@ -168,18 +169,18 @@ namespace IoTSharp.Controllers
         [ProducesDefaultResponseType]
         public async Task<ApiResult<DeviceIdentity>> CreateX509Identity(Guid deviceId)
         {
-            var did = await _context.DeviceIdentities.Include(d=>d.Device).FirstOrDefaultAsync(c => c.Device.Id == deviceId);
-            var cust = from c in _context.Device.Include(d => d.Customer).Include(d => d.Tenant) where c.Id == deviceId select c ;
+            var did = await _context.DeviceIdentities.Include(d => d.Device).FirstOrDefaultAsync(c => c.Device.Id == deviceId);
+            var cust = from c in _context.Device.Include(d => d.Customer).Include(d => d.Tenant) where c.Id == deviceId select c;
             var dev = cust.FirstOrDefault();
-            if (did != null &&  dev!=null)
+            if (did != null && dev != null)
             {
                 var option = _setting.MqttBroker;
 
-                   SubjectAlternativeNameBuilder altNames = new SubjectAlternativeNameBuilder();
+                SubjectAlternativeNameBuilder altNames = new SubjectAlternativeNameBuilder();
                 altNames.AddUserPrincipalName(did.Device.Id.ToString());
-                        altNames.AddDnsName(_setting.MqttBroker.DomainName);
+                altNames.AddDnsName(_setting.MqttBroker.DomainName);
                 altNames.AddUri(new Uri($"mqtt://{_setting.MqttBroker.ServerIPAddress}:{_setting.MqttBroker.TlsPort}"));
-                string name = $"CN={dev.Name},C=CN,L={dev.Customer.Province??"IoTSharp"},ST={dev.Customer.City ?? "IoTSharp"},O={dev.Customer.Name},OU={dev.Tenant.Name}";
+                string name = $"CN={dev.Name},C=CN,L={dev.Customer.Province ?? "IoTSharp"},ST={dev.Customer.City ?? "IoTSharp"},O={dev.Customer.Name},OU={dev.Tenant.Name}";
                 var tlsclient = option.CACertificate.CreateTlsClientRSA(name, altNames);
                 string x509CRT, x509Key;
                 tlsclient.SavePem(out x509CRT, out x509Key);
@@ -192,7 +193,7 @@ namespace IoTSharp.Controllers
                 };
                 did.IdentityValue = Newtonsoft.Json.JsonConvert.SerializeObject(pem);
                 await _context.SaveChangesAsync();
-                return new ApiResult<DeviceIdentity>(ApiCode.Success, "OK", new DeviceIdentity() { Id=did.Id, IdentityType=  did.IdentityType, IdentityId=did.IdentityId }  );
+                return new ApiResult<DeviceIdentity>(ApiCode.Success, "OK", new DeviceIdentity() { Id = did.Id, IdentityType = did.IdentityType, IdentityId = did.IdentityId });
             }
             else
             {
@@ -212,10 +213,10 @@ namespace IoTSharp.Controllers
             try
             {
 
-                var dt =  _context.DeviceIdentities.Include(d => d.Device).FirstOrDefault(c => c.Device.Id == deviceId);
-                if (dt == null || dt.IdentityType!= IdentityType.X509Certificate  ||  string.IsNullOrEmpty(dt.IdentityValue))
+                var dt = _context.DeviceIdentities.Include(d => d.Device).FirstOrDefault(c => c.Device.Id == deviceId);
+                if (dt == null || dt.IdentityType != IdentityType.X509Certificate || string.IsNullOrEmpty(dt.IdentityValue))
                 {
-                    return Ok(new ApiResult(ApiCode.NotFoundDevice, "未找到设备或设备公钥、秘钥为空" ));
+                    return BadRequest(new ApiResult(ApiCode.NotFoundDevice, "未找到设备或设备公钥、秘钥为空"));
                 }
                 else
                 {
@@ -226,7 +227,7 @@ namespace IoTSharp.Controllers
                     });
                     if (tsl == null || string.IsNullOrEmpty(tsl.PrivateKey) || string.IsNullOrEmpty(tsl.PublicKey))
                     {
-                        return Ok(new ApiResult(  ApiCode.NotFoundDevice, "秘钥格式未能解析。可能是版本不通。 "));
+                        return BadRequest(new ApiResult(ApiCode.NotFoundDevice, "秘钥格式未能解析。可能是版本不通。 "));
                     }
                     else
                     {
@@ -266,7 +267,7 @@ namespace IoTSharp.Controllers
             }
             catch (Exception ex)
             {
-                return Ok(new ApiResult(ApiCode.NotFoundDevice, ex.Message));
+                return BadRequest(new ApiResult(ApiCode.NotFoundDevice, ex.Message));
             }
         }
 
@@ -372,9 +373,9 @@ namespace IoTSharp.Controllers
         public async Task<ApiResult<List<TelemetryDataDto>>> GetTelemetryLatest(Guid deviceId)
         {
 
-        
 
-            
+
+
 
             Device dev = Found(deviceId);
             if (dev == null)
@@ -390,7 +391,7 @@ namespace IoTSharp.Controllers
             }
             catch (Exception ex)
             {
-                _logger.Log(LogLevel.Error,ex.Message);
+                _logger.Log(LogLevel.Error, ex.Message);
                 return new ApiResult<List<TelemetryDataDto>>(ApiCode.Exception, ex.Message,
                     null);
             }
@@ -401,7 +402,7 @@ namespace IoTSharp.Controllers
 
 
 
- 
+
         /// <summary>
         /// 获取指定设备的指定key 的遥测数据
         /// </summary>
@@ -542,7 +543,7 @@ namespace IoTSharp.Controllers
             var dev = _context.Device.Include(d => d.Tenant).Include(d => d.Customer).First(d => d.Id == device.Id);
             var tenid = dev.Tenant.Id;
             var cusid = dev.Customer.Id;
-
+           
             if (dev == null)
             {
                 return new ApiResult<bool>(ApiCode.NotFoundDeviceIdentity, "Device's Identity not found", false);
@@ -558,7 +559,13 @@ namespace IoTSharp.Controllers
             try
             {
                 await _context.SaveChangesAsync();
+                var identity = _context.DeviceIdentities.FirstOrDefault(c => c.Device.Id == dev.Id);
+                if (identity != null)
+                {
 
+                    identity.IdentityType = device.IdentityType;
+                    _context.DeviceIdentities.Update(identity); await _context.SaveChangesAsync();
+                }
                 return new ApiResult<bool>(ApiCode.Success, "Ok", true);
             }
             catch (DbUpdateConcurrencyException)
@@ -596,6 +603,10 @@ namespace IoTSharp.Controllers
             var devvalue = new Device() { Name = device.Name, DeviceType = device.DeviceType, Timeout = 300, LastActive = DateTime.Now };
             devvalue.Tenant = _context.Tenant.Find(new Guid(tid.Value));
             devvalue.Customer = _context.Customer.Find(new Guid(cid.Value));
+
+      
+       
+      
             if (devvalue.Tenant == null || devvalue.Customer == null)
             {
 
@@ -606,6 +617,14 @@ namespace IoTSharp.Controllers
             _context.Device.Add(devvalue);
             _context.AfterCreateDevice(devvalue);
             await _context.SaveChangesAsync();
+            var identity = _context.DeviceIdentities.FirstOrDefault(c => c.Device.Id == devvalue.Id);
+            if (identity != null)
+            {
+
+                identity.IdentityType = device.IdentityType;
+                _context.DeviceIdentities.Update(identity); await _context.SaveChangesAsync();
+            }
+
             return new ApiResult<Device>(ApiCode.Success, "Ok", await FoundAsync(devvalue.Id));
         }
 

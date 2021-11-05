@@ -17,8 +17,6 @@ export class DesignerComponent implements OnInit {
   constructor(
     private _router: ActivatedRoute,
     private router: Router,
-    private _formBuilder: FormBuilder,
-    private _httpClient: _HttpClient,
   ) {}
 
   ngOnInit(): void {

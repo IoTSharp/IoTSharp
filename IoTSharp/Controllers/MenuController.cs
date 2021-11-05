@@ -138,6 +138,7 @@ namespace IoTSharp.Controllers
                                             new { text = "字典", i18n = "", link = "/iot/dictionary/dictionarylist" },
                                             new { text = "国际化", i18n = "", link = "/iot/resouce/i18nlist" },
                                             new { text = "表单", i18n = "", link = "/iot/util/dynamicformlist" },
+                                            new { text = "证书管理", i18n = "", link = "/iot/settings/certmgr" },
                                         }
                                     },
 

@@ -20,13 +20,10 @@ export class CustomerlistComponent implements OnInit {
   constructor(
     private http: _HttpClient,
     public msg: NzMessageService,
-    private modal: ModalHelper,
-    private cdr: ChangeDetectorRef,
     private _router: Router,
     private router: ActivatedRoute,
     private drawerService: NzDrawerService,
     private settingService: SettingsService,
-    aclSrv: ACLService,
  
   ) {
 
@@ -57,7 +54,7 @@ export class CustomerlistComponent implements OnInit {
 
 
       },
-      (y) => {},
+      () => {},
       () => {},
     );
 
@@ -185,7 +182,7 @@ export class CustomerlistComponent implements OnInit {
 
     drawerRef.afterOpen.subscribe(() => {});
 
-    drawerRef.afterClose.subscribe((data: any) => {
+    drawerRef.afterClose.subscribe(() => {
       this.getData();
     });
   }
@@ -198,10 +195,10 @@ export class CustomerlistComponent implements OnInit {
 
   delete(id: string) {
     this.http.delete('api/Customers/' + id, {}).subscribe(
-      (x) => {
+      () => {
         this.getData();
       },
-      (y) => {},
+      () => {},
       () => {},
     );
   }

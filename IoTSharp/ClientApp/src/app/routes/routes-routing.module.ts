@@ -18,6 +18,7 @@ import { FlowlistComponent } from './flow/flowlist/flowlist.component';
 import { ScriptlistComponent } from './flow/scriptlist/scriptlist.component';
 import { TaskexecutorlistComponent } from './flow/taskexecutorlist/taskexecutorlist.component';
 import { I18nlistComponent } from './resource/i18nlist/i18nlist.component';
+import { CertmgrComponent } from './setttings/certmgr/certmgr.component';
 import { TenantlistComponent } from './tenant/tenantlist/tenantlist.component';
 import { UserlistComponent } from './user/userlist/userlist.component';
 import { CodeviewComponent } from './util/code/codeview/codeview.component';
@@ -37,7 +38,7 @@ const routes: Routes = [
         loadChildren: () => import('./widgets/widgets.module').then((m) => m.WidgetsModule),
       },
       { path: 'style', loadChildren: () => import('./style/style.module').then((m) => m.StyleModule) },
-      { path: 'delon', loadChildren: () => import('./delon/delon.module').then((m) => m.DelonModule) },
+
       { path: 'extras', loadChildren: () => import('./extras/extras.module').then((m) => m.ExtrasModule) },
       { path: 'pro', loadChildren: () => import('./pro/pro.module').then((m) => m.ProModule) },
     ],
@@ -63,6 +64,7 @@ const routes: Routes = [
       { path: 'resouce/i18nlist', component: I18nlistComponent },
       { path: 'util/dynamicformlist', component: DynamicformlistComponent },
       { path: 'code/codeview', component: CodeviewComponent },
+      { path: 'settings/certmgr', component: CertmgrComponent },
     ],
   },
 
