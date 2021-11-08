@@ -103,7 +103,7 @@
 		<PackageReference Include="Silkier.EFCore" Version="1.0.424" />
 		<PackageReference Include="SilkierQuartz" Version="5.0.309" />
 		<PackageReference Include="SilkierQuartz.Plugins.RecentHistory" Version="5.0.309" />
-		<PackageReference Include="System.CodeDom" Version="5.0.0" />
+		<PackageReference Include="System.CodeDom" Version="6.0.0" />
 		<PackageReference Include="System.Collections" Version="4.3.0" />
 		<PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="6.14.1" />
 		<PackageReference Include="System.ServiceModel.Primitives" Version="4.8.1" />
