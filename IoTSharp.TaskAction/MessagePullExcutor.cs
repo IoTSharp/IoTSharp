@@ -34,20 +34,30 @@ namespace IoTSharp.TaskAction
 
 
 
-                return new TaskActionOutput() { DynamicOutput = input.DynamicInput, ExecutionStatus = true };
-                JObject o = JsonConvert.DeserializeObject(input.Input) as JObject;
-                var d = o.Property("temperature");
-                d.Value = new JValue(d.Value.Value<double>() + 100);
+                // new TaskActionOutput() { DynamicOutput = input.DynamicInput, ExecutionStatus = true };
+
+
+
+                //JObject o = JsonConvert.DeserializeObject(input.Input) as JObject;
+                //var d = o.Property("temperature");
+                //d.Value = new JValue(d.Value.Value<double>() + 100);
+
+
+                var param = JsonConvert.DeserializeObject<MessagePullParam>(input.Input);
+                string contentType = "application/json";
                 var restclient = new RestClient(config.BaseUrl);
                 var request = new RestRequest(config.Url, Method.POST);
-                request.AddObject(d);
+                request.RequestFormat = DataFormat.Json;
+                request.AddHeader("cache-control", "no-cache");
+                request.AddJsonBody(input.Input);
+        
                 var response = restclient.Execute(request);
-              //  if (response.StatusCode == HttpStatusCode.OK)
-              
-                    return new TaskActionOutput() { DynamicOutput = o.ToObject(typeof(ExpandoObject)) };
+                if (response.StatusCode == HttpStatusCode.OK)
+
+                    return new TaskActionOutput() { DynamicOutput = param };
               
 
-              //  return new TaskActionOutput() { DynamicOutput = o.ToObject(typeof(ExpandoObject)) };
+             return new TaskActionOutput() { DynamicOutput = param};
             }
             catch (Exception ex)
             {
@@ -59,9 +69,26 @@ namespace IoTSharp.TaskAction
 
         class MessagePullParam
         {
-            public double temperature { get; set; }
+
+       
+            public double param1 { get; set; }
+            public double param2 { get; set; }
+            public double param3 { get; set; }
+            public int param4 { get; set; }
+
+            public long param5 { get; set; }
 
 
+            public ParamObject param6 { get; set; }
+
+            public string param9 { get; set; }
+        }
+
+        public class ParamObject
+        {
+
+            public bool param7 { get; set; }
+            public DateTime param8 { get; set; }
         }
 
         class ModelExecutorConfig

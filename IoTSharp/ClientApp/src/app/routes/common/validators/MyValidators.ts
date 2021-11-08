@@ -74,6 +74,16 @@ export class MyValidators extends Validators {
         return isEmail(value) ? null : { mobile: { 'zh-cn': `邮件格式不正确`, en: `email is not valid` } };
     }
  
+
+
+    static ValidField(control: AbstractControl): MyValidationErrors | null {
+        const value = control.value;
+
+        if (isEmptyInputValue(value)) {
+            return null;
+        }
+        return isValidField(value) ? null : { filed: { 'zh-cn': `字段格式不正确`, en: `field name is not valid` } };
+    }
  
 }
 
@@ -100,4 +110,7 @@ function isEmail(value: string): boolean {
 
 function isMobile(value: string): boolean {
     return typeof value === 'string' && /(^1\d{10}$)/.test(value);
+}
+function isValidField(value: string): boolean {
+    return typeof value === 'string' && /^[^\d#\$\*\+@!%\^&-=]{1,}[\u4E00-\u9FA5\uf900-\ufa2d\w]{1,50}/.test(value);
 }

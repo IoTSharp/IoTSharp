@@ -332,6 +332,20 @@
             <param name="attributes">attributes</param>
             <returns></returns>
         </member>
+        <member name="M:IoTSharp.Controllers.DevicesController.AddAttribute(System.String,IoTSharp.Controllers.DeviceAttributeDto)">
+            <summary>
+            服务侧新增属性
+            </summary>
+            <param name="deviceId"></param>
+            <returns></returns>
+        </member>
+        <member name="M:IoTSharp.Controllers.DevicesController.EditAttribute(System.Guid,IoTSharp.Dtos.DeviceAttrEditDto)">
+            <summary>
+            服务侧和任意侧属性修改
+            </summary>
+            <param name="deviceId"></param>
+            <returns></returns>
+        </member>
         <member name="M:IoTSharp.Controllers.DevicesController.GetSessionStatus(System.Guid)">
             <summary>
             SessionStatus

@@ -1,1 +1,9 @@
-<sf #sf [schema]="schema" (formSubmit)="submit($event)"></sf>
+
+<nz-card nzTitle="服务侧属性">
+<sf #sfserver [schema]="schemaserver"  [button]="null"></sf>
+</nz-card>
+<nz-card nzTitle="任意侧属性">
+<sf #sfany [schema]="schemaany"  [button]="null"></sf></nz-card>
+
+
+<button nz-button nzType="primary" (click)="save($event)" >保存</button>

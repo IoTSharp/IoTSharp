@@ -1,1 +1,35 @@
-<p>proppart works!</p>
+<page-header [breadcrumb]="phNgContent" title="新增属性">
+    <ng-template #phNgContent class> </ng-template>
+    <nz-card [nzBordered]="false">
+      <form nz-form [formGroup]="form" (ngSubmit)="submit()" se-container="1" labelWidth="200">
+        <se label="属性名称" error="请输入合法的名称" required>
+          <input nz-input formControlName="keyName" placeholder="不能以数字和特殊字符开头且长度大于1的字符" />
+        </se>
+        <se label="数据类型" error="数据类型" required>
+          <nz-select formControlName="type" placeholder="数据类型">
+            <nz-option nzValue="Boolean" nzLabel="Boolean"></nz-option>
+            <nz-option nzValue="String" nzLabel="String"></nz-option>
+            <nz-option nzValue="Long" nzLabel="Long"></nz-option>
+            <nz-option nzValue="Double" nzLabel="Double"></nz-option>
+            <nz-option nzValue="Json" nzLabel="Json"></nz-option>
+            <nz-option nzValue="XML" nzLabel="XML"></nz-option>
+            <nz-option nzValue="Binary" nzLabel="Binary"></nz-option>
+            <nz-option nzValue="DateTime" nzLabel="DateTime"></nz-option>
+          </nz-select>
+        </se>
+        <se label="数据侧" error="数据侧" required>
+          <nz-select formControlName="dataSide" placeholder="数据侧">
+            <nz-option nzValue="AnySide" nzLabel="AnySide"></nz-option>
+            <nz-option nzValue="ServerSide" nzLabel="ServerSide"></nz-option>
+            <nz-option nzValue="ClientSide" nzLabel="ClientSide"></nz-option>
+        </nz-select>
+        </se>
+        <se>
+          <input nz-input formControlName="deviceId" type="hidden" />
+          <button nz-button type="reset" (click)="close()">取消</button>
+          <button nz-button nzType="primary" [disabled]="form.invalid" type="submit" [nzLoading]="submitting">保存</button>
+        </se>
+      </form>
+    </nz-card>
+  </page-header>
+  

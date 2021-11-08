@@ -49,7 +49,7 @@ namespace IoTSharp.Data
         /// </summary>
         public Customer Customer { get; set; }
 
-
+        public int Status { get; set; }
 
     }
 }

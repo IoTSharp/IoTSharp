@@ -19,6 +19,7 @@ import { saveAs, fileSaver } from 'file-saver';
 import { ClipboardService } from 'ngx-clipboard';
 import { DevicetokendialogComponent } from '../devicetokendialog/devicetokendialog.component';
 import { fork } from 'child_process';
+import { ProppartComponent } from '../deviceprop/proppart/proppart.component';
 @Component({
   selector: 'app-devicelist',
   templateUrl: './devicelist.component.html',
@@ -120,7 +121,13 @@ export class DevicelistComponent implements OnInit, OnDestroy {
             this.setAttribute(item.id);
           },
         },
-
+        {
+          acl: 111,
+          text: '新增属性',
+          click: (item: any) => {
+            this.addAttribute(item.id);
+          },
+        },
         {
           acl: 111,
           text: '设置规则',
@@ -212,6 +219,8 @@ export class DevicelistComponent implements OnInit, OnDestroy {
       () => {},
       () => {},
     );
+
+    
   }
 
   downlink(dev: any[]) {
@@ -276,6 +285,37 @@ export class DevicelistComponent implements OnInit, OnDestroy {
     });
   }
 
+  addAttribute(id: string): void {
+    var { nzMaskClosable, width } = this.settingService.getData('drawerconfig');
+    let title = '增加属性';
+    const drawerRef = this.drawerService.create<
+    ProppartComponent,
+      {
+        params: {
+          id: string;
+          customerId: string;
+        };
+      },
+      any
+    >({
+      nzTitle: title,
+      nzContent: ProppartComponent,
+      nzWidth: width,
+      nzMaskClosable: nzMaskClosable,
+      nzContentParams: {
+        params: {
+          id: id,
+          customerId: this.customerId,
+        },
+      },
+    });
+    drawerRef.afterOpen.subscribe(() => {
+      this.getData();
+    });
+    drawerRef.afterClose.subscribe(() => {});
+  }
+
+
   setAttribute(id: string): void {
     var { nzMaskClosable, width } = this.settingService.getData('drawerconfig');
     let title = '属性修改';
@@ -326,6 +366,11 @@ export class DevicelistComponent implements OnInit, OnDestroy {
   }
 
   onchange($events: STChange): void {
+
+    if(this.obs){
+      this.obs.unsubscribe();
+      this.obs=null;
+    }
     switch ($events.type) {
       case 'expand':
         if ($events.expand.expand) {

@@ -101,7 +101,7 @@ namespace IoTSharp.Controllers
         public async Task<ApiResult<PagedData<DeviceDetailDto>>> GetDevices([FromQuery] DeviceParam m)
         {
 
-            Expression<Func<Device, bool>> condition = x => x.Customer.Id == m.customerId;
+            Expression<Func<Device, bool>> condition = x => x.Customer.Id == m.customerId && x.Status > -1;
             return new ApiResult<PagedData<DeviceDetailDto>>(ApiCode.Success, "OK", new PagedData<DeviceDetailDto>
             {
                 total = await _context.Device.CountAsync(condition),
@@ -350,12 +350,12 @@ namespace IoTSharp.Controllers
             if (User.IsInRole(nameof(UserRole.TenantAdmin)))
             {
                 var tid = User.Claims.First(c => c.Type == IoTSharpClaimTypes.Tenant);
-                dev = await _context.Device.Include(d => d.Tenant).FirstOrDefaultAsync(d => d.Id == deviceId && d.Tenant.Id.ToString() == tid.Value);
+                dev = await _context.Device.Include(d => d.Tenant).FirstOrDefaultAsync(d => d.Id == deviceId && d.Tenant.Id.ToString() == tid.Value && d.Status > -1);
             }
             else if (User.IsInRole(nameof(UserRole.NormalUser)))
             {
                 var cid = User.Claims.First(c => c.Type == IoTSharpClaimTypes.Customer);
-                dev = await _context.Device.Include(d => d.Customer).FirstOrDefaultAsync(d => d.Id == deviceId && d.Customer.Id.ToString() == cid.Value);
+                dev = await _context.Device.Include(d => d.Customer).FirstOrDefaultAsync(d => d.Id == deviceId && d.Customer.Id.ToString() == cid.Value && d.Status > -1);
             }
             return dev;
         }
@@ -399,6 +399,10 @@ namespace IoTSharp.Controllers
 
 
         }
+
+
+
+
 
 
 
@@ -543,7 +547,7 @@ namespace IoTSharp.Controllers
             var dev = _context.Device.Include(d => d.Tenant).Include(d => d.Customer).First(d => d.Id == device.Id);
             var tenid = dev.Tenant.Id;
             var cusid = dev.Customer.Id;
-           
+
             if (dev == null)
             {
                 return new ApiResult<bool>(ApiCode.NotFoundDeviceIdentity, "Device's Identity not found", false);
@@ -600,13 +604,13 @@ namespace IoTSharp.Controllers
         {
             var cid = User.Claims.First(c => c.Type == IoTSharpClaimTypes.Customer);
             var tid = User.Claims.First(c => c.Type == IoTSharpClaimTypes.Tenant);
-            var devvalue = new Device() { Name = device.Name, DeviceType = device.DeviceType, Timeout = 300, LastActive = DateTime.Now };
+            var devvalue = new Device() { Name = device.Name, DeviceType = device.DeviceType, Timeout = 300, LastActive = DateTime.Now, Status = 1 };
             devvalue.Tenant = _context.Tenant.Find(new Guid(tid.Value));
             devvalue.Customer = _context.Customer.Find(new Guid(cid.Value));
 
-      
-       
-      
+
+
+
             if (devvalue.Tenant == null || devvalue.Customer == null)
             {
 
@@ -647,7 +651,9 @@ namespace IoTSharp.Controllers
 
                 return new ApiResult<Device>(ApiCode.NotFoundTenantOrCustomer, "Device {id} not found", null);
             }
-            _context.Device.Remove(device);
+
+            device.Status = -1;
+            _context.Device.Update(device);
             await _context.SaveChangesAsync();
             return new ApiResult<Device>(ApiCode.Success, "Ok", device);
         }
@@ -791,6 +797,79 @@ namespace IoTSharp.Controllers
                 return Ok(new ApiResult<Dic>(result.ret > 0 ? ApiCode.Success : ApiCode.NothingToDo, result.ret > 0 ? "OK" : "No Attribute save", new Dic(result.exceptions?.Select(f => new DicKV(f.Key, f.Value.Message)))));
             }
         }
+
+
+
+        /// <summary>
+        /// 服务侧新增属性
+        /// </summary>
+        /// <param name="deviceId"></param>
+        /// <returns></returns>
+        [Authorize(Roles = nameof(UserRole.NormalUser))]
+        [HttpPost("{access_token}/AddAttribute")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ApiResult), StatusCodes.Status404NotFound)]
+        [ProducesDefaultResponseType]
+        public async Task<ApiResult<bool>> AddAttribute(string access_token, DeviceAttributeDto attribute)
+        {
+
+            if (_context.DataStorage.Any(c =>
+                c.DeviceId == attribute.DeviceId && c.KeyName.ToLower() == attribute.KeyName.ToLower()))
+            {
+                return new ApiResult<bool>(ApiCode.AlreadyExists, "this field name is exist", false);
+            }
+            _context.DataStorage.Add(new DataStorage()
+            {
+                DataSide = attribute.DataSide,
+                DeviceId = attribute.DeviceId,
+                Type = attribute.Type,
+                DateTime = DateTime.Now,
+                KeyName = attribute.KeyName,
+                Catalog = DataCatalog.AttributeLatest
+            });
+            await _context.SaveChangesAsync();
+            return new ApiResult<bool>(ApiCode.Success, "Ok", true);
+      
+        }
+
+
+
+
+        /// <summary>
+        /// 服务侧和任意侧属性修改
+        /// </summary>
+        /// <param name="deviceId"></param>
+        /// <returns></returns>
+        [Authorize(Roles = nameof(UserRole.NormalUser))]
+        [HttpPost("{devid}/EditAttribute")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ApiResult), StatusCodes.Status404NotFound)]
+        [ProducesDefaultResponseType]
+        public async Task<ApiResult<Dic>> EditAttribute(Guid devid, DeviceAttrEditDto attributes)
+        {
+
+            var result = await _context.SaveAsync<AttributeLatest>(attributes.anyside, devid, DataSide.AnySide);
+            var result1 = await _context.SaveAsync<AttributeLatest>(attributes.serverside, devid, DataSide.ServerSide);
+
+            if (result.ret > 0 && result1.ret > 0)
+            {
+                return new ApiResult<Dic>(ApiCode.Success, "Ok", null);
+            }
+            if (result.ret == 0)
+            {
+                return new ApiResult<Dic>(ApiCode.AlreadyExists, "anyside attribute update failed", new Dic(result.exceptions?.Select(f => new DicKV(f.Key, f.Value.Message)) ?? Array.Empty<DicKV>()));
+
+            }
+            if (result1.ret == 0)
+            {
+                return new ApiResult<Dic>(ApiCode.AlreadyExists, "serverside attribute update failed", new Dic(result1.exceptions?.Select(f => new DicKV(f.Key, f.Value.Message)) ?? Array.Empty<DicKV>()));
+            }
+
+            return new ApiResult<Dic>(ApiCode.InValidData, " attributes update failed", null);
+
+        }
+
+
 
         /// <summary>
         /// SessionStatus
