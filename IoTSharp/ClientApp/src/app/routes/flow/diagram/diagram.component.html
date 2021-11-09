@@ -57,13 +57,13 @@
         </se> -->
 
         <se label="条件表达式" error="条件表达式" *ngIf="form.conditionexpressionVisable">
-          <input
+          <textarea
             nz-input
             [(ngModel)]="form.conditionexpression"
             placeholder="条件表达式"
             [ngModelOptions]="{ standalone: true }"
             (ngModelChange)="ngModelChange($event)"
-          />
+          ></textarea>
         </se>
 
         <se label="脚本类型" error="脚本类型" *ngIf="form.flowscripttypeVisable">

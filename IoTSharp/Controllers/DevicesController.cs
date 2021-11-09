@@ -101,28 +101,57 @@ namespace IoTSharp.Controllers
         public async Task<ApiResult<PagedData<DeviceDetailDto>>> GetDevices([FromQuery] DeviceParam m)
         {
 
-            Expression<Func<Device, bool>> condition = x => x.Customer.Id == m.customerId && x.Status > -1;
-            return new ApiResult<PagedData<DeviceDetailDto>>(ApiCode.Success, "OK", new PagedData<DeviceDetailDto>
+            if (m.limit > 0)
             {
-                total = await _context.Device.CountAsync(condition),
-                rows = await _context.Device.OrderByDescending(c => c.LastActive).Where(condition).Skip((m.offset) * m.limit).Take(m.limit).Join(_context.DeviceIdentities, x => x.Id, y => y.Device.Id, (x, y) => new DeviceDetailDto()
+
+                Expression<Func<Device, bool>> condition = x => x.Customer.Id == m.customerId && x.Status > -1;
+                return new ApiResult<PagedData<DeviceDetailDto>>(ApiCode.Success, "OK", new PagedData<DeviceDetailDto>
                 {
-                    Id = x.Id,
-                    Name = x.Name,
-                    LastActive = x.LastActive,
-                    IdentityId = y.IdentityId,
-                    IdentityValue = y.IdentityType == IdentityType.X509Certificate ? "" : y.IdentityValue,
-                    Tenant = x.Tenant,
-                    Customer = x.Customer,
-                    DeviceType = x.DeviceType,
-                    Online = x.Online,
-                    Owner = x.Owner,
-                    Timeout = x.Timeout,
-                    IdentityType = y.IdentityType
+                    total = await _context.Device.CountAsync(condition),
+                    rows = await _context.Device.OrderByDescending(c => c.LastActive).Where(condition).Skip((m.offset) * m.limit).Take(m.limit).Join(_context.DeviceIdentities, x => x.Id, y => y.Device.Id, (x, y) => new DeviceDetailDto()
+                    {
+                        Id = x.Id,
+                        Name = x.Name,
+                        LastActive = x.LastActive,
+                        IdentityId = y.IdentityId,
+                        IdentityValue = y.IdentityType == IdentityType.X509Certificate ? "" : y.IdentityValue,
+                        Tenant = x.Tenant,
+                        Customer = x.Customer,
+                        DeviceType = x.DeviceType,
+                        Online = x.Online,
+                        Owner = x.Owner,
+                        Timeout = x.Timeout,
+                        IdentityType = y.IdentityType
 
 
-                }).ToListAsync()
-            });
+                    }).ToListAsync()
+                });
+
+            }
+            else
+            {
+
+                Expression<Func<Device, bool>> condition = x => x.Customer.Id == m.customerId && x.Status > -1;
+                return new ApiResult<PagedData<DeviceDetailDto>>(ApiCode.Success, "OK", new PagedData<DeviceDetailDto>
+                {
+                    total = await _context.Device.CountAsync(condition),
+                    rows = await _context.Device.OrderByDescending(c => c.LastActive).Where(condition).Select(x=> new DeviceDetailDto()
+                    {
+                        Id = x.Id,
+                        Name = x.Name,
+                        LastActive = x.LastActive,
+                        Tenant = x.Tenant,
+                        Customer = x.Customer,
+                        DeviceType = x.DeviceType,
+                        Online = x.Online,
+                        Owner = x.Owner,
+                        Timeout = x.Timeout,
+                    }).ToListAsync()
+                });
+
+            }
+
+
 
 
 
@@ -607,14 +636,8 @@ namespace IoTSharp.Controllers
             var devvalue = new Device() { Name = device.Name, DeviceType = device.DeviceType, Timeout = 300, LastActive = DateTime.Now, Status = 1 };
             devvalue.Tenant = _context.Tenant.Find(new Guid(tid.Value));
             devvalue.Customer = _context.Customer.Find(new Guid(cid.Value));
-
-
-
-
             if (devvalue.Tenant == null || devvalue.Customer == null)
             {
-
-
                 return new ApiResult<Device>(ApiCode.NotFoundTenantOrCustomer, "Not found Tenant or Customer", null);
 
             }
@@ -628,7 +651,6 @@ namespace IoTSharp.Controllers
                 identity.IdentityType = device.IdentityType;
                 _context.DeviceIdentities.Update(identity); await _context.SaveChangesAsync();
             }
-
             return new ApiResult<Device>(ApiCode.Success, "Ok", await FoundAsync(devvalue.Id));
         }
 
@@ -647,8 +669,6 @@ namespace IoTSharp.Controllers
             Device device = Found(id);
             if (device == null)
             {
-
-
                 return new ApiResult<Device>(ApiCode.NotFoundTenantOrCustomer, "Device {id} not found", null);
             }
 
