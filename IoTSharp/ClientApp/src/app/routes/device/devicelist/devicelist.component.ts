@@ -26,23 +26,18 @@ import { ProppartComponent } from '../deviceprop/proppart/proppart.component';
   styleUrls: ['./devicelist.component.less'],
 })
 export class DevicelistComponent implements OnInit, OnDestroy {
-
-
-   BADGE: STColumnBadge = {
+  BADGE: STColumnBadge = {
     true: { text: '在线', color: 'success' },
     false: { text: '离线', color: 'error' },
-
   };
-   TAG: STColumnTag = {
-    'AccessToken': { text: 'AccessToken', color: 'green' },
-    'X509Certificate': { text: 'X509Certificate', color: 'blue' },
-
+  TAG: STColumnTag = {
+    AccessToken: { text: 'AccessToken', color: 'green' },
+    X509Certificate: { text: 'X509Certificate', color: 'blue' },
   };
 
   DeviceTAG: STColumnTag = {
-    'Device': { text: '设备', color: 'green' },
-    'Gateway': { text: '网关', color: 'blue' },
-
+    Device: { text: '设备', color: 'green' },
+    Gateway: { text: '网关', color: 'blue' },
   };
 
   obs: Subscription;
@@ -62,6 +57,8 @@ export class DevicelistComponent implements OnInit, OnDestroy {
   }
   url = 'api/Devices/Customers';
   cetd: telemetryitem[] = [];
+  cead: attributeitem[] = [];
+
   page: STPage = {
     front: false,
     total: true,
@@ -98,10 +95,10 @@ export class DevicelistComponent implements OnInit, OnDestroy {
     { title: '', index: 'id', type: 'checkbox' },
 
     { title: '名称', index: 'name', render: 'name' },
-    { title: '设备类型', index: 'deviceType',type: 'tag', tag: this.DeviceTAG  },
-    { title: '在线状态', index: 'online',type: 'badge', badge: this.BADGE },
+    { title: '设备类型', index: 'deviceType', type: 'tag', tag: this.DeviceTAG },
+    { title: '在线状态', index: 'online', type: 'badge', badge: this.BADGE },
     { title: '最后活动时间', index: 'lastActive' },
-    { title: '认证方式', index: 'identityType',  type: 'tag', tag: this.TAG},
+    { title: '认证方式', index: 'identityType', type: 'tag', tag: this.TAG },
     {
       title: '操作',
       type: 'link',
@@ -140,7 +137,7 @@ export class DevicelistComponent implements OnInit, OnDestroy {
           acl: 111,
           text: '获取Token',
           type: 'modal',
-          iif: (record) => record.identityType ==='AccessToken',
+          iif: (record) => record.identityType === 'AccessToken',
           modal: {
             component: DevicetokendialogComponent,
           },
@@ -174,9 +171,6 @@ export class DevicelistComponent implements OnInit, OnDestroy {
   }
   couponFormat() {}
 
-
-
-
   private download(record) {
     this.http
       .get(
@@ -186,21 +180,23 @@ export class DevicelistComponent implements OnInit, OnDestroy {
           responseType: 'blob',
         },
       )
-      .subscribe((res) => {
-        let url = window.URL.createObjectURL(res);
-        let a = document.createElement('a');
-        document.body.appendChild(a);
-        a.setAttribute('style', 'display: none');
-        a.href = url;
-        a.download = record.id+'.zip';
-        a.click();
-        window.URL.revokeObjectURL(url);
-        a.remove();
-      }, error=>{
-        console.log(error)
-        this.msg.create('error', '证书下载失败,请检查是否未生成');
-
-      });
+      .subscribe(
+        (res) => {
+          let url = window.URL.createObjectURL(res);
+          let a = document.createElement('a');
+          document.body.appendChild(a);
+          a.setAttribute('style', 'display: none');
+          a.href = url;
+          a.download = record.id + '.zip';
+          a.click();
+          window.URL.revokeObjectURL(url);
+          a.remove();
+        },
+        (error) => {
+          console.log(error);
+          this.msg.create('error', '证书下载失败,请检查是否未生成');
+        },
+      );
   }
 
   ngOnInit(): void {
@@ -219,8 +215,6 @@ export class DevicelistComponent implements OnInit, OnDestroy {
       () => {},
       () => {},
     );
-
-    
   }
 
   downlink(dev: any[]) {
@@ -289,7 +283,7 @@ export class DevicelistComponent implements OnInit, OnDestroy {
     var { nzMaskClosable, width } = this.settingService.getData('drawerconfig');
     let title = '增加属性';
     const drawerRef = this.drawerService.create<
-    ProppartComponent,
+      ProppartComponent,
       {
         params: {
           id: string;
@@ -314,7 +308,6 @@ export class DevicelistComponent implements OnInit, OnDestroy {
     });
     drawerRef.afterClose.subscribe(() => {});
   }
-
 
   setAttribute(id: string): void {
     var { nzMaskClosable, width } = this.settingService.getData('drawerconfig');
@@ -366,10 +359,9 @@ export class DevicelistComponent implements OnInit, OnDestroy {
   }
 
   onchange($events: STChange): void {
-
-    if(this.obs){
+    if (this.obs) {
       this.obs.unsubscribe();
-      this.obs=null;
+      this.obs = null;
     }
     switch ($events.type) {
       case 'expand':
@@ -389,9 +381,37 @@ export class DevicelistComponent implements OnInit, OnDestroy {
               if (this.cetd.length === 0) {
                 this.cetd = $events.expand.telemetries;
               } else {
-                for (var i = 0; i < this.cetd.length; i++) {
-                  this.cetd[i].value = telemetries.data[i].value;
+                for (var i = 0; i < telemetries.data.length; i++) {
+                 var flag =false;
+                  for (var j = 0; j < this.cetd.length; j++) {
+                    if (telemetries.data[i].keyName == this.cetd[j].keyName) {
+                      this.cetd[j].value = telemetries.data[i].value;
+                      flag=true;
+                    }
+                  }
+                  if(!flag){
+                    this.cetd.push(telemetries.data[i])
+                  }
+          
                 }
+              }
+
+              if (this.cead.length === 0) {
+                this.cead = $events.expand.attributes;
+              } else {
+                for (var i = 0; i < attributes.data.length; i++) {
+                  var flag =false;
+                   for (var j = 0; j < this.cead.length; j++) {
+                     if (attributes.data[i].keyName == this.cead[j].keyName) {
+                       this.cead[j].value = attributes.data[i].value;
+                       flag=true;
+                     }
+                   }
+                   if(!flag){
+                    this.cead.push(attributes.data[i])
+                  }
+              
+                 }
               }
 
               //       this.cdr.detectChanges();

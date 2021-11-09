@@ -32,6 +32,7 @@ using Microsoft.Extensions.Options;
 using IoTSharp.X509Extensions;
 using System.IO;
 using System.IO.Compression;
+using DotNetCore.CAP;
 
 namespace IoTSharp.Controllers
 {
@@ -51,9 +52,10 @@ namespace IoTSharp.Controllers
         private readonly IStorage _storage;
         private readonly IMqttServerEx _serverEx;
         private readonly AppSettings _setting;
+        private readonly ICapPublisher _queue;
 
         public DevicesController(UserManager<IdentityUser> userManager,
-            SignInManager<IdentityUser> signInManager, ILogger<DevicesController> logger, IMqttServerEx serverEx, ApplicationDbContext context, IMqttClientOptions mqtt, IStorage storage, IOptions<AppSettings> options)
+            SignInManager<IdentityUser> signInManager, ILogger<DevicesController> logger, IMqttServerEx serverEx, ApplicationDbContext context, IMqttClientOptions mqtt, IStorage storage, IOptions<AppSettings> options, ICapPublisher queue)
         {
             _context = context;
             _mqtt = mqtt;
@@ -63,6 +65,7 @@ namespace IoTSharp.Controllers
             _storage = storage;
             _serverEx = serverEx;
             _setting = options.Value;
+            _queue = queue;
         }
         /// <summary>
         /// 获取指定客户的设备列表
@@ -145,7 +148,7 @@ namespace IoTSharp.Controllers
                         DeviceType = x.DeviceType,
                         Online = x.Online,
                         Owner = x.Owner,
-                        Timeout = x.Timeout,
+                        Timeout = x.Timeout, 
                     }).ToListAsync()
                 });
 
@@ -649,8 +652,11 @@ namespace IoTSharp.Controllers
             {
 
                 identity.IdentityType = device.IdentityType;
-                _context.DeviceIdentities.Update(identity); await _context.SaveChangesAsync();
+                _context.DeviceIdentities.Update(identity); 
+                await _context.SaveChangesAsync();
             }
+
+            await this._queue.PublishAsync("iotsharp.services.platform.addnewdevice", devvalue);
             return new ApiResult<Device>(ApiCode.Success, "Ok", await FoundAsync(devvalue.Id));
         }
 

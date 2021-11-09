@@ -108,6 +108,15 @@ namespace IoTSharp.Handlers
             await RunRules(msg, MountType.Telemetry);
         }
 
+        [CapSubscribe("iotsharp.services.platform.addnewdevice")]
+        public async void AddedNewDevice(Device msg)
+        {
+            
+
+           
+        }
+
+
         [CapSubscribe("iotsharp.services.datastream.telemetrydata")]
         public async void StoreTelemetryData(RawMsg msg)
         {
