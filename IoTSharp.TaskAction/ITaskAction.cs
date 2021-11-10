@@ -6,9 +6,12 @@ using System.Dynamic;
 
 namespace IoTSharp.TaskAction
 {
-    public interface ITaskAction
+    public abstract class ITaskAction
     {
-        public TaskActionOutput Execute(TaskActionInput _input);
+        public abstract TaskActionOutput  Execute(TaskActionInput _input);
+
+
+        public IServiceProvider ServiceProvider { get; set; }
     }
 
     public class TaskActionOutput

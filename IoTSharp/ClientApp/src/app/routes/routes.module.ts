@@ -68,6 +68,9 @@ import { ForkdialogComponent } from './flow/forkdialog/forkdialog.component';
 import { G2BarModule, G2GaugeModule } from '@delon/chart';
 import { NzIconModule } from 'ng-zorro-antd/icon';
 import { CertmgrComponent } from './setttings/certmgr/certmgr.component';
+import { SubscriptionlistComponent } from './flow/subscriptionlist/subscriptionlist.component';
+import { SubscriptionformComponent } from './flow/subscriptionform/subscriptionform.component';
+import { SubscriptionbindformComponent } from './flow/subscriptionbindform/subscriptionbindform.component';
 const COMPONENTS: Type<null>[] = [];
 const Directive: Type<void>[] = [fielddirective, controldirective];
 @NgModule({
@@ -137,6 +140,9 @@ const Directive: Type<void>[] = [fielddirective, controldirective];
     TasktesterComponent,
     ForkdialogComponent,
     CertmgrComponent,
+    SubscriptionlistComponent,
+    SubscriptionformComponent,
+    SubscriptionbindformComponent,
   ],
 })
 export class RoutesModule {
