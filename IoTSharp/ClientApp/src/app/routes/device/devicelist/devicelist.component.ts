@@ -303,10 +303,10 @@ export class DevicelistComponent implements OnInit, OnDestroy {
         },
       },
     });
-    drawerRef.afterOpen.subscribe(() => {
-      this.getData();
+
+    drawerRef.afterClose.subscribe(() => {
+      
     });
-    drawerRef.afterClose.subscribe(() => {});
   }
 
   setAttribute(id: string): void {
@@ -334,7 +334,7 @@ export class DevicelistComponent implements OnInit, OnDestroy {
       },
     });
     drawerRef.afterOpen.subscribe(() => {
-      this.getData();
+   
     });
     drawerRef.afterClose.subscribe(() => {});
   }
@@ -369,6 +369,8 @@ export class DevicelistComponent implements OnInit, OnDestroy {
           if (this.obs) {
             this.obs.unsubscribe();
           }
+          this.cead=[];
+          this.cetd=[];
           this.obs = interval(1000).subscribe(async () => {
             zip(
               this.http.get<appmessage<attributeitem[]>>('api/Devices/' + $events.expand?.id + '/AttributeLatest'),
@@ -410,14 +412,13 @@ export class DevicelistComponent implements OnInit, OnDestroy {
                    if(!flag){
                     this.cead.push(attributes.data[i])
                   }
-              
                  }
               }
-
-              //       this.cdr.detectChanges();
             });
           });
-        } else {
+        } else {  
+          this.cead=[];
+          this.cetd=[];
           this.obs.unsubscribe();
         }
 

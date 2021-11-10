@@ -38,8 +38,12 @@ export class FloweventviewComponent implements OnInit, OnDestroy {
       }),
     ), this.http.get('api/rules/getFlowOperstions?eventId=' + this.event.eventId).pipe(
       map((x) => {
-        this.nodes = x.data;
-        this.play();
+
+        if(x.data.length>0){
+          this.nodes = x.data;
+          this.play();
+        }
+    
       }),
     )).subscribe();
 

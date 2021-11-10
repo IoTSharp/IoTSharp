@@ -23,7 +23,7 @@ namespace IoTSharp.Handlers
             _queue = queue;
         }
 
-        public TaskActionOutput Execute(TaskActionInput param)
+        public override TaskActionOutput Execute(TaskActionInput param)
         {
             var result = new TaskActionOutput() { DynamicOutput = new { code = ApiCode.Success, msg = "OK" } };
             try

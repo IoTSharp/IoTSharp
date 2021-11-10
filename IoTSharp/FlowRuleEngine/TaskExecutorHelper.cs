@@ -33,45 +33,57 @@ namespace IoTSharp.FlowRuleEngine
             }
             return pairs;
         }
-        public object CreateInstance(string name)
+        public ITaskAction CreateInstance(string name)
         {
             if (pairs == null)
             {
                 LoadTypesInfo();
             }
-            object obj = null;
+            ITaskAction obj = null;
             if (pairs.TryGetValue(name, out var t))
             {
-                obj = CreateInstance(t);
+                obj = CreateInstance(t) as ITaskAction;
+                if (obj != null) {
+                    obj.ServiceProvider = this._sp;
+                }
             }
+
             return obj;
+       
         }
-        public object CreateInstanceByTypeName(string typename)
+        public ITaskAction CreateInstanceByTypeName(string typename)
         {
             if (pairs == null)
             {
                 LoadTypesInfo();
             }
-            object obj = null;
+            ITaskAction obj = null;
             if (pairstypename.TryGetValue(typename, out var t))
             {
                 obj = CreateInstance(t);
             }
-
+            if (obj != null)
+            {
+                obj.ServiceProvider = this._sp;
+            }
             return obj;
         }
 
-        public object CreateInstance(Type t)
+        public ITaskAction CreateInstance(Type t)
         {
             var cnst = t.GetConstructors();
-            object obj;
+            ITaskAction obj;
             if (cnst.FirstOrDefault()?.GetParameters().Any()==true)
             {
-                obj = _sp.GetRequiredService(t);
+                obj = _sp.GetRequiredService(t) as ITaskAction;
             }
             else
             {
-                obj = Activator.CreateInstance(t);
+                obj = Activator.CreateInstance(t) as ITaskAction;
+            }
+            if (obj != null)
+            {
+                obj.ServiceProvider = this._sp;
             }
             return obj;
         }
@@ -79,7 +91,7 @@ namespace IoTSharp.FlowRuleEngine
         private void LoadTypesInfo()
         {
             pairs = new Dictionary<string, Type>();
-            Assembly.GetEntryAssembly().GetTypes().Where(c => c.GetInterfaces().Contains(typeof(ITaskAction))).ToList().ForEach(c =>
+            Assembly.GetEntryAssembly().GetTypes().Where(c => c.BaseType== typeof(ITaskAction)).ToList().ForEach(c =>
             {
                 var key = c.GetCustomAttribute<DisplayNameAttribute>()?.DisplayName ?? c.FullName;
                 if (!pairs.ContainsKey(key))
@@ -87,7 +99,7 @@ namespace IoTSharp.FlowRuleEngine
                     pairs.Add(key, c);
                 }
             });
-            typeof(ITaskAction).Assembly.GetTypes().Where(c => c.GetInterfaces().Contains(typeof(ITaskAction))).ToList().ForEach(c =>
+            typeof(ITaskAction).Assembly.GetTypes().Where(c => c.BaseType == typeof(ITaskAction)).ToList().ForEach(c =>
             {
                 var key = c.GetCustomAttribute<DisplayNameAttribute>()?.DisplayName ?? c.FullName;
                 if (!pairs.ContainsKey(key))

@@ -20,7 +20,7 @@ namespace IoTSharp.TaskAction
 
         }
 
-        public TaskActionOutput Execute(TaskActionInput _input)
+        public override TaskActionOutput Execute(TaskActionInput _input)
         {
             var msg = _input.DynamicInput;
             var playload = System.Text.Encoding.Default.GetString( Convert.FromBase64String(msg.Payload));

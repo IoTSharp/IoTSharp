@@ -111,9 +111,14 @@ namespace IoTSharp.Handlers
         [CapSubscribe("iotsharp.services.platform.addnewdevice")]
         public async void AddedNewDevice(Device msg)
         {
-            
 
-           
+            using (var _scope = _scopeFactor.CreateScope())
+            {
+                using (var _dbContext = _scope.ServiceProvider.GetRequiredService<ApplicationDbContext>())
+                {
+
+                }
+            }
         }
 
 

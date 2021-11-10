@@ -1049,13 +1049,16 @@ namespace IoTSharp.Controllers
             var d = formdata.Value<JToken>().ToObject(typeof(ExpandoObject));
             var testabizId = Guid.NewGuid().ToString(); //根据业务保存起来，用来查询执行事件和步骤
 
-            var result = await _flowRuleProcessor.RunFlowRules(ruleid, d, profile.Id, EventType.TestPurpose, testabizId);
+            var result = await _flowRuleProcessor.RunFlowRules(ruleid, d, Guid.Empty, EventType.TestPurpose, testabizId);
 
+            result.ForEach(c =>
+            {
+                _context.FlowOperations.Attach(c);
+                _context.SaveChanges();
+            });
+    
 
-            _context.FlowOperations.AttachRange(result);
-            _context.SaveChanges();
-
-            //应该由事件总线去通知
+        
             return new ApiResult<dynamic>(ApiCode.Success, "test complete", result.OrderBy(c => c.Step).
                 Where(c => c.BaseEvent.Bizid == testabizId).ToList()
                 .GroupBy(c => c.Step).Select(c => new
