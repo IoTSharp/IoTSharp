@@ -14,7 +14,7 @@ namespace IoTSharp.Controllers
     [ApiController]
     public class HomeController :  ControllerBase
     {
-        public new ApiResult<HomeDto> Index()
+        public  ApiResult<HomeDto> Index()
         {
 
 

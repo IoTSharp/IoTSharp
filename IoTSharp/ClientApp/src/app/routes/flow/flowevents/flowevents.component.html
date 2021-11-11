@@ -61,9 +61,15 @@
         </nz-dropdown-menu>
       </ng-container>
   
-      <st #st [columns]="columns" [data]="url" ps="10" [page]="page" [req]="req" [res]="res">
-        <ng-template st-row="rulestatus" let-i>
-          <nz-badge [nzStatus]="i.statusType" [nzText]="i.statusText"></nz-badge>
+      <st #st [columns]="columns" [data]="url" ps="10" [page]="page" [req]="req" [res]="res"   [expand]="expand" expandAccordion>
+        <ng-template #expand let-item let-index="index" let-column="column">
+          <nz-card nzTitle="描述">
+            {{ item.eventDesc }}
+          </nz-card>
+          <nz-card nzTitle="输入值">
+            {{ item.mataData }}
+          </nz-card>
+     
         </ng-template>
       </st>
     </nz-card>

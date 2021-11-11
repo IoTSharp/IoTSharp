@@ -59,7 +59,6 @@ export class FloweventsComponent implements OnInit {
   columns: STColumn[] = [
     { title: '', index: 'eventId', type: 'checkbox' },
     { title: '事件名称', index: 'eventName', render: 'name' },
-    { title: '备注', index: 'eventDesc' },
     { title: '类型', index: 'type',type:'tag',tag: this.TAG },
     { title: '触发规则', index: 'name' },
     { title: '事件源', index: 'creatorName' },

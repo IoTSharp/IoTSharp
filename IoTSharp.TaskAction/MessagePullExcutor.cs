@@ -52,35 +52,46 @@ namespace IoTSharp.TaskAction
 
         private TaskActionOutput SendData(TaskActionInput input)
         {
-            JObject o = JsonConvert.DeserializeObject(input.Input) as JObject;
-            var config = JsonConvert.DeserializeObject<ModelExecutorConfig>(input.ExecutorConfig);
-            var dd = o.Properties().Select(c => new ParamObject { keyName = c.Name, value = JPropertyToObject(c) }).ToList();
 
-            string contentType = "application/json";
-            var restclient = new RestClient(config.BaseUrl);
-            var request = new RestRequest(config.Url+(input.DeviceId==Guid.Empty ?"":"/"+input.DeviceId), Method.POST);
-            request.AddHeader("X-Access-Token",
-                config.Token);
-            request.RequestFormat = DataFormat.Json;
-            request.AddHeader("cache-control", "no-cache");
-            request.AddJsonBody(JsonConvert.SerializeObject(dd));
-            var response = restclient.Execute(request);
-            if (response.StatusCode == HttpStatusCode.OK)
+
+            try
             {
-                var result = JsonConvert.DeserializeObject<MessagePullResult>(response.Content);
-                if (result != null && result.success)
+                JObject o = JsonConvert.DeserializeObject(input.Input) as JObject;
+                var config = JsonConvert.DeserializeObject<ModelExecutorConfig>(input.ExecutorConfig);
+                var dd = o.Properties().Select(c => new ParamObject { keyName = c.Name, value = JPropertyToObject(c) }).ToList();
+                string contentType = "application/json";
+                var restclient = new RestClient(config.BaseUrl);
+                var request = new RestRequest(config.Url + (input.DeviceId == Guid.Empty ? "" : "/" + input.DeviceId), Method.POST);
+                request.AddHeader("X-Access-Token",
+                    config.Token);
+                request.RequestFormat = DataFormat.Json;
+                request.AddHeader("cache-control", "no-cache");
+                request.AddJsonBody(JsonConvert.SerializeObject(dd));
+                var response = restclient.Execute(request);
+                if (response.StatusCode == HttpStatusCode.OK)
                 {
-                     return new TaskActionOutput() { ExecutionInfo = result.message, ExecutionStatus = result.success , DynamicOutput = input .DynamicInput}; ;
+                    var result = JsonConvert.DeserializeObject<MessagePullResult>(response.Content);
+                    if (result != null && result.success)
+                    {
+                        return new TaskActionOutput() { ExecutionInfo = result.message, ExecutionStatus = result.success, DynamicOutput = input.DynamicInput }; ;
+                    }
+                    else
+                    {
+                        return new TaskActionOutput() { ExecutionInfo = result.message, ExecutionStatus = result.success }; ;
+                    }
                 }
                 else
                 {
-                    return new TaskActionOutput() { ExecutionInfo = result.message, ExecutionStatus = result.success }; ;
+                    return new TaskActionOutput() { ExecutionInfo = response.ErrorMessage, ExecutionStatus = false }; ;
                 }
+
             }
-            else
+            catch (Exception ex)
             {
-                return new TaskActionOutput() { ExecutionInfo = response.ErrorMessage,  ExecutionStatus = false}; ;
+                return new TaskActionOutput() { ExecutionInfo = ex.Message, ExecutionStatus = false }; ;
             }
+
+          
 
 
 
