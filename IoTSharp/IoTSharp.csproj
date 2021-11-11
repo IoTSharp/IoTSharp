@@ -123,7 +123,7 @@
 		<PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="5.0.12" />
 		<PackageReference Include="Microsoft.AspNetCore.Identity.UI" Version="5.0.12" />
 		<PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="5.0.12" />
-		<PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="5.0.12" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="6.0.0" />
 		<PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.0.1" />
 		<PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="5.0.12">
 		  <PrivateAssets>all</PrivateAssets>
