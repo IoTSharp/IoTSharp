@@ -7,11 +7,11 @@
   <ItemGroup>
     <PackageReference Include="AspNetCore.HealthChecks.MySql" Version="5.0.1" />
     <PackageReference Include="AspNetCore.HealthChecks.UI.MySql.Storage" Version="5.0.1" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="5.0.11">
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="5.0.12">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="Microsoft.Extensions.Diagnostics.HealthChecks" Version="5.0.11" />
+    <PackageReference Include="Microsoft.Extensions.Diagnostics.HealthChecks" Version="5.0.12" />
     <PackageReference Include="Pomelo.EntityFrameworkCore.MySql" Version="5.0.2" />
 	  <PackageReference Include="EFCore.Sharding.MySql" Version="5.0.21" />
   </ItemGroup>
