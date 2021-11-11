@@ -307,6 +307,15 @@ namespace IoTSharp.FlowRuleEngine
                                             }
                                         }
                                         break;
+                                    case "csharp":
+                                        {
+                                            using (var js = _sp.GetRequiredService<CSharpScriptEngine>())
+                                            {
+                                                string result = js.Do(scriptsrc, taskoperation.Data);
+                                                obj = JsonConvert.DeserializeObject<ExpandoObject>(result);
+                                            }
+                                        }
+                                        break;
                                 }
 
                                 if (obj != null)
@@ -579,6 +588,15 @@ namespace IoTSharp.FlowRuleEngine
                         case "javascript":
                             {
                                 using (var js = _sp.GetRequiredService<JavaScriptEngine>())
+                                {
+                                    string result = js.Do(scriptsrc, data);
+                                    obj = JsonConvert.DeserializeObject<ExpandoObject>(result);
+                                }
+                            }
+                            break;
+                        case "csharp":
+                            {
+                                using (var js = _sp.GetRequiredService<CSharpScriptEngine>())
                                 {
                                     string result = js.Do(scriptsrc, data);
                                     obj = JsonConvert.DeserializeObject<ExpandoObject>(result);

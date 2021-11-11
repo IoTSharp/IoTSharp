@@ -864,7 +864,8 @@ namespace IoTSharp.Controllers
         /// <summary>
         /// 服务侧和任意侧属性修改
         /// </summary>
-        /// <param name="deviceId"></param>
+        /// <param name="devid"></param>
+        /// <param name="attributes"></param>
         /// <returns></returns>
         [Authorize(Roles = nameof(UserRole.NormalUser))]
         [HttpPost("{devid}/EditAttribute")]

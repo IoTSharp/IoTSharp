@@ -343,7 +343,8 @@
             <summary>
             服务侧和任意侧属性修改
             </summary>
-            <param name="deviceId"></param>
+            <param name="devid"></param>
+            <param name="attributes"></param>
             <returns></returns>
         </member>
         <member name="M:IoTSharp.Controllers.DevicesController.GetSessionStatus(System.Guid)">
