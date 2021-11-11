@@ -58,7 +58,7 @@ export class DevicelistComponent implements OnInit, OnDestroy {
   url = 'api/Devices/Customers';
   cetd: telemetryitem[] = [];
   cead: attributeitem[] = [];
-
+  cerd: ruleitem[] = [];
   page: STPage = {
     front: false,
     total: true,
@@ -304,9 +304,7 @@ export class DevicelistComponent implements OnInit, OnDestroy {
       },
     });
 
-    drawerRef.afterClose.subscribe(() => {
-      
-    });
+    drawerRef.afterClose.subscribe(() => {});
   }
 
   setAttribute(id: string): void {
@@ -333,9 +331,7 @@ export class DevicelistComponent implements OnInit, OnDestroy {
         },
       },
     });
-    drawerRef.afterOpen.subscribe(() => {
-   
-    });
+    drawerRef.afterOpen.subscribe(() => {});
     drawerRef.afterClose.subscribe(() => {});
   }
 
@@ -369,57 +365,86 @@ export class DevicelistComponent implements OnInit, OnDestroy {
           if (this.obs) {
             this.obs.unsubscribe();
           }
-          this.cead=[];
-          this.cetd=[];
+          this.cead = [];
+          this.cetd = [];
+          this.cerd = [];
           this.obs = interval(1000).subscribe(async () => {
             zip(
               this.http.get<appmessage<attributeitem[]>>('api/Devices/' + $events.expand?.id + '/AttributeLatest'),
               this.http.get<appmessage<ruleitem[]>>('api/Rules/GetDeviceRules?deviceId=' + $events.expand?.id),
               this.http.get<appmessage<telemetryitem[]>>('api/Devices/' + $events.expand?.id + '/TelemetryLatest'),
             ).subscribe(([attributes, rules, telemetries]) => {
-              $events.expand.attributes = attributes.data;
-              $events.expand.rules = rules.data;
-              $events.expand.telemetries = telemetries.data;
+              // $events.expand.attributes = attributes.data;
+              // $events.expand.rules = rules.data;
+              // $events.expand.telemetries = telemetries.data;
+
+              if (rules.data.length == 0) {
+                this.cerd = [];
+              } else {
+                for (var i = 0; i < rules.data.length; i++) {
+                  var index = this.cerd.findIndex((c) => c.ruleId == rules.data[i].ruleId);
+                  if (index === -1) {
+                    this.cerd.push(rules.data[i]);
+                  }
+                }
+
+                var removed:ruleitem[] = [];
+
+                for (var i = 0; i < this.cerd.length; i++) {
+                  if (!rules.data.some((c) => c.ruleId == this.cerd[i].ruleId)) {
+                    removed = [...removed, this.cerd[i]];
+                  }
+                }
+
+                for (var item of removed) {
+
+                  this.cerd.slice(   this.cerd.findIndex(c=>c.ruleId==item.ruleId),1);
+                }
+              }
+
               if (this.cetd.length === 0) {
-                this.cetd = $events.expand.telemetries;
+                this.cetd = telemetries.data;
               } else {
                 for (var i = 0; i < telemetries.data.length; i++) {
-                 var flag =false;
+                  var flag = false;
                   for (var j = 0; j < this.cetd.length; j++) {
                     if (telemetries.data[i].keyName == this.cetd[j].keyName) {
                       this.cetd[j].value = telemetries.data[i].value;
-                      flag=true;
+                      flag = true;
                     }
                   }
-                  if(!flag){
-                    this.cetd.push(telemetries.data[i])
+                  if (!flag) {
+                    this.cetd.push(telemetries.data[i]);
                   }
-          
                 }
               }
 
               if (this.cead.length === 0) {
-                this.cead = $events.expand.attributes;
+                this.cead = attributes.data;
               } else {
                 for (var i = 0; i < attributes.data.length; i++) {
-                  var flag =false;
-                   for (var j = 0; j < this.cead.length; j++) {
-                     if (attributes.data[i].keyName == this.cead[j].keyName) {
-                       this.cead[j].value = attributes.data[i].value;
-                       flag=true;
-                     }
-                   }
-                   if(!flag){
-                    this.cead.push(attributes.data[i])
+                  var flag = false;
+                  for (var j = 0; j < this.cead.length; j++) {
+                    if (attributes.data[i].keyName == this.cead[j].keyName) {
+                      this.cead[j].value = attributes.data[i].value;
+                      flag = true;
+                    }
                   }
-                 }
+                  if (!flag) {
+                    this.cead.push(attributes.data[i]);
+                  }
+                }
               }
             });
           });
-        } else {  
-          this.cead=[];
-          this.cetd=[];
-          this.obs.unsubscribe();
+        } else {
+          this.cead = [];
+          this.cetd = [];
+          this.cerd = [];
+          if(   this.obs){
+            this.obs.unsubscribe();
+          }
+        
         }
 
         break;
@@ -429,7 +454,7 @@ export class DevicelistComponent implements OnInit, OnDestroy {
   removerule(item: deviceitem, rule: ruleitem) {
     this.http.get('api/Rules/DeleteDeviceRules?deviceId=' + item.id + '&ruleId=' + rule.ruleId).subscribe(
       () => {
-        item.rules = item.rules.filter((x) => x.ruleId != rule.ruleId);
+        this.cerd = this.cerd.filter((x) => x.ruleId != rule.ruleId);
       },
       () => {},
       () => {},

@@ -57,14 +57,14 @@ namespace IoTSharp.Controllers
         /// <returns> 返回所有节点的记录信息，需要保存则保存</returns>
         public async Task<ApiResult<bool>> UpdateFlowExpression([FromBody] UpdateFlowExpression m)
         {
-            var flow =await _context.Flows.SingleOrDefaultAsync(c => c.FlowId == m.FlowId);
+            var flow = await _context.Flows.SingleOrDefaultAsync(c => c.FlowId == m.FlowId);
             if (flow != null)
             {
                 flow.Conditionexpression = m.Expression;
                 _context.Flows.Update(flow);
-               await _context.SaveChangesAsync();
+                await _context.SaveChangesAsync();
 
-               return new ApiResult<bool>(ApiCode.Success, "Ok", true);
+                return new ApiResult<bool>(ApiCode.Success, "Ok", true);
             }
             return new ApiResult<bool>(ApiCode.InValidData, "can't find this object", false);
         }
@@ -100,28 +100,36 @@ namespace IoTSharp.Controllers
         [HttpPost("[action]")]
         public ApiResult<bool> Save(FlowRule m)
         {
-            if (ModelState.IsValid)
+            try
             {
+
                 m.MountType = m.MountType;
                 m.RuleStatus = 1;
-                m.CreatTime=DateTime.Now;
-           
+                m.CreatTime = DateTime.Now;
                 _context.FlowRules.Add(m);
                 _context.SaveChanges();
 
                 return new ApiResult<bool>(ApiCode.Success, "OK", true);
+
+            }
+            catch (Exception ex)
+            {
+
+                return new ApiResult<bool>(ApiCode.Exception, ex.Message, false);
             }
 
-            return new ApiResult<bool>(ApiCode.InValidData, "can't find this object", false);
+
+
         }
 
         [HttpPost("[action]")]
         public ApiResult<bool> Update(FlowRule m)
         {
-            if (ModelState.IsValid)
+
+            var flowrule = _context.FlowRules.SingleOrDefault(c => c.RuleId == m.RuleId);
+            if (flowrule != null)
             {
-                var flowrule = _context.FlowRules.SingleOrDefault(c => c.RuleId == m.RuleId);
-                if (flowrule != null)
+                try
                 {
                     flowrule.MountType = m.MountType;
                     flowrule.Name = m.Name;
@@ -130,8 +138,11 @@ namespace IoTSharp.Controllers
                     _context.SaveChanges();
                     return new ApiResult<bool>(ApiCode.Success, "OK", true);
                 }
+                catch (Exception ex)
+                {
+                    return new ApiResult<bool>(ApiCode.Exception, ex.Message, false);
+                }
             }
-
             return new ApiResult<bool>(ApiCode.Success, "can't find this object", false);
         }
 
@@ -141,10 +152,17 @@ namespace IoTSharp.Controllers
             var rule = _context.FlowRules.SingleOrDefault(c => c.RuleId == id);
             if (rule != null)
             {
-                rule.RuleStatus = -1;
-                _context.FlowRules.Update(rule);
-                _context.SaveChanges();
-                return new ApiResult<bool>(ApiCode.Success, "OK", true);
+                try
+                {
+                    rule.RuleStatus = -1;
+                    _context.FlowRules.Update(rule);
+                    _context.SaveChanges();
+                    return new ApiResult<bool>(ApiCode.Success, "OK", true);
+                }
+                catch (Exception ex)
+                {
+                    return new ApiResult<bool>(ApiCode.Exception, ex.Message, false);
+                }
             }
 
             return new ApiResult<bool>(ApiCode.Success, "can't find this object", false);
@@ -280,7 +298,7 @@ namespace IoTSharp.Controllers
         [HttpGet("[action]")]
         public ApiResult<List<FlowRule>> GetDeviceRules(Guid deviceId)
         {
-            return new ApiResult<List<FlowRule>>(ApiCode.Success, "Ok", _context.DeviceRules.Where(c => c.Device.Id == deviceId).Select(c => c.FlowRule).ToList());
+            return new ApiResult<List<FlowRule>>(ApiCode.Success, "Ok", _context.DeviceRules.Where(c => c.Device.Id == deviceId).Select(c => c.FlowRule).Select(c=>new FlowRule(){ RuleId = c.RuleId, CreatTime = c.CreatTime, Name = c.Name, RuleDesc = c.RuleDesc}).ToList());
         }
 
         [HttpGet("[action]")]
@@ -295,7 +313,7 @@ namespace IoTSharp.Controllers
         [HttpGet("[action]")]
         public ApiResult<List<Flow>> GetFlows(Guid ruleId)
         {
-            return new ApiResult<List<Flow>>(ApiCode.Success, "Ok", _context.Flows.Include(c=>c.FlowRule).Where(c => c.FlowRule.RuleId == ruleId&&c.FlowStatus>0).ToList());
+            return new ApiResult<List<Flow>>(ApiCode.Success, "Ok", _context.Flows.Include(c => c.FlowRule).Where(c => c.FlowRule.RuleId == ruleId && c.FlowStatus > 0).ToList());
         }
 
 
@@ -752,8 +770,9 @@ namespace IoTSharp.Controllers
                                     Flowname = item.Flowname,
                                     flowscript = item.NodeProcessScript,
                                     flowscripttype = item.NodeProcessScriptType,
-                                    NodeProcessClass = item.NodeProcessClass, NodeProcessParams = item.NodeProcessParams
-                                    
+                                    NodeProcessClass = item.NodeProcessClass,
+                                    NodeProcessParams = item.NodeProcessParams
+
                                 }
                             });
                         break;
@@ -1056,9 +1075,9 @@ namespace IoTSharp.Controllers
                 _context.FlowOperations.Attach(c);
                 _context.SaveChanges();
             });
-    
 
-        
+
+
             return new ApiResult<dynamic>(ApiCode.Success, "test complete", result.OrderBy(c => c.Step).
                 Where(c => c.BaseEvent.Bizid == testabizId).ToList()
                 .GroupBy(c => c.Step).Select(c => new
@@ -1183,7 +1202,7 @@ namespace IoTSharp.Controllers
         }
 
 
-       
+
 
 
 
@@ -1230,8 +1249,8 @@ namespace IoTSharp.Controllers
             if (executor != null)
             {
 
-             //   executor.Creator = profile.Id;
-           //    executor.MataData = m.MataData;
+                //   executor.Creator = profile.Id;
+                //    executor.MataData = m.MataData;
                 executor.DefaultConfig = m.DefaultConfig;
                 executor.ExecutorDesc = m.ExecutorDesc;
                 executor.ExecutorName = m.ExecutorName;
@@ -1260,16 +1279,16 @@ namespace IoTSharp.Controllers
             executor.Path = m.Path;
             executor.Tag = m.Tag;
             executor.Path = m.Path;
-            executor.AddDateTime=DateTime.Now;
+            executor.AddDateTime = DateTime.Now;
             executor.Creator = profile.Id;
             executor.ExecutorStatus = 1;
             _context.RuleTaskExecutors.Add(executor);
-           await _context.SaveChangesAsync();
+            await _context.SaveChangesAsync();
             return new ApiResult<bool>(ApiCode.Success, "Ok", true);
         }
 
 
-     
+
 
 
 
@@ -1277,26 +1296,26 @@ namespace IoTSharp.Controllers
         public async Task<ApiResult<RuleTaskExecutorTestResultDto>> TestTask(RuleTaskExecutorTestDto m)
         {
             var profile = await this.GetUserProfile();
-       
+
             var result = await this._flowRuleProcessor.TestScript(m.ruleId, m.flowId, m.Data);
 
 
 
             await _context.SaveChangesAsync();
-            return new ApiResult<RuleTaskExecutorTestResultDto>(ApiCode.Success, "Ok", new RuleTaskExecutorTestResultDto(){Data = result.Data });
+            return new ApiResult<RuleTaskExecutorTestResultDto>(ApiCode.Success, "Ok", new RuleTaskExecutorTestResultDto() { Data = result.Data });
         }
 
 
 
         [HttpPost("RuleCondition")]
-        public async Task<ApiResult<ConditionTestResult>> RuleCondition([FromBody]RuleTaskFlowTestResultDto m)
+        public async Task<ApiResult<ConditionTestResult>> RuleCondition([FromBody] RuleTaskFlowTestResultDto m)
         {
             var profile = await this.GetUserProfile();
-         var data=   JsonConvert.DeserializeObject(m.Data) as JObject; 
-         var d = data.ToObject(typeof(ExpandoObject));
-         var result= await   this._flowRuleProcessor.TestCondition(m.ruleId, m.flowId, d);
+            var data = JsonConvert.DeserializeObject(m.Data) as JObject;
+            var d = data.ToObject(typeof(ExpandoObject));
+            var result = await this._flowRuleProcessor.TestCondition(m.ruleId, m.flowId, d);
 
-       
+
 
 
             return new ApiResult<ConditionTestResult>(ApiCode.Success, "Ok", result);

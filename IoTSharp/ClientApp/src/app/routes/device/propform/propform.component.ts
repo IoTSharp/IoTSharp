@@ -308,27 +308,23 @@ export class PropformComponent implements OnInit {
     );
   }
 
-
-  save($event){
-console.log(this.sfany.value)
-console.log(this.sfserver.value)
-
-var val={
-serverside:this.sfserver.value,
-anyside:this.sfany.value
-}
-this.http.post<appmessage<any>>('api/Devices/' + this.params.id + '/EditAttribute', val).subscribe(
-  (next) => {
-    if (next.code === 10000) {
-      this.msg.success('属性修改成功');
-      this.drawerRef.close(this.params);
-    } else {
-      this.msg.error(next.msg);
-    }
-  },
-  (error) => {},
-  () => {},
-);
+  save($event) {
+    var val = {
+      serverside: this.sfserver.value,
+      anyside: this.sfany.value,
+    };
+    this.http.post<appmessage<any>>('api/Devices/' + this.params.id + '/EditAttribute', val).subscribe(
+      (next) => {
+        if (next.code === 10000) {
+          this.msg.success('属性修改成功');
+          this.drawerRef.close(this.params);
+        } else {
+          this.msg.error(next.msg);
+        }
+      },
+      (error) => {},
+      () => {},
+    );
   }
 
   submit(value: any) {

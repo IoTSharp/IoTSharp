@@ -85,7 +85,7 @@ namespace IoTSharp.FlowRuleEngine
                     EventDesc = $"Event Rule:{rule?.Name}({ruleid}) device is {deviceId}",
                     EventName = $"开始执行规则链{rule?.Name}({ruleid})",
                     MataData = JsonConvert.SerializeObject(data),
-                    BizData = JsonConvert.SerializeObject(rule),  //所有规则修改都会让对应的flow数据和设计文件不一致，最终导致回放失败，在此拷贝一份原始数据
+                  //  BizData = JsonConvert.SerializeObject(rule),  //所有规则修改都会让对应的flow数据和设计文件不一致，最终导致回放失败，在此拷贝一份原始数据
                     FlowRule = rule,
                     Bizid = bizId,
                     Type = type,
@@ -235,20 +235,23 @@ namespace IoTSharp.FlowRuleEngine
                                                         DeviceId = deviceId,
                                                         ExecutorConfig = flow.NodeProcessParams
                                                     }
+                                                    );
 
-                                               );
+                                                    _logger.Log(LogLevel.Information, "执行器"+flow.NodeProcessClass+"已完成处理");
                                                     obj = result.DynamicOutput;
                                                     if (!result.ExecutionStatus) 
                                                     {
 
                                                         taskoperation.OperationDesc = result.ExecutionInfo;
                                                         taskoperation.NodeStatus = 2;
+
+                                                        _logger.Log(LogLevel.Information, "执行器" + flow.NodeProcessClass + "未能正确处理:" + result.ExecutionInfo);
                                                         return;
                                                     }
                                                 }
                                                 catch (Exception ex)
                                                 {
-
+                                                    _logger.Log(LogLevel.Information, "执行器" + flow.NodeProcessClass + "未能正确处理:" + ex.Source);
                                                     taskoperation.OperationDesc = ex.Message;
                                                     taskoperation.NodeStatus = 2;
                                                     return;
@@ -256,6 +259,8 @@ namespace IoTSharp.FlowRuleEngine
                                             }
                                             else
                                             {
+
+                                                _logger.Log(LogLevel.Warning, "脚本执行异常,未能实例化执行器");
                                                 taskoperation.OperationDesc = "脚本执行异常,未能实例化执行器";
                                                 taskoperation.NodeStatus = 2;
                                                 return;
@@ -396,7 +401,7 @@ namespace IoTSharp.FlowRuleEngine
                             end.BaseEvent = peroperation.BaseEvent;
                             _allflowoperation.Add(end);
                         }
-
+                        _logger.Log(LogLevel.Warning, "规则链执行完成");
 
                         break;
 
@@ -517,7 +522,7 @@ namespace IoTSharp.FlowRuleEngine
                             if (!string.IsNullOrEmpty(flow.NodeProcessClass))
                             {
 
-                                ITaskAction executor = _helper.CreateInstanceByTypeName(flow.NodeProcessClass) as ITaskAction;
+                                ITaskAction executor = _helper.CreateInstanceByTypeName(flow.NodeProcessClass);
                                 if (executor != null)
                                 {
                                     try

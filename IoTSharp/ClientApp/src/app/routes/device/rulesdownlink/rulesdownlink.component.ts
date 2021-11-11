@@ -1,6 +1,7 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { STColumn } from '@delon/abc/st';
 import { _HttpClient } from '@delon/theme';
+import { Guid } from 'guid-typescript';
 import { NzDrawerRef } from 'ng-zorro-antd/drawer';
 import { NzMessageService } from 'ng-zorro-antd/message';
 import { AppMessage } from '../../common/AppMessage';
@@ -11,7 +12,7 @@ import { AppMessage } from '../../common/AppMessage';
   styleUrls: ['./rulesdownlink.component.less'],
 })
 export class RulesdownlinkComponent implements OnInit {
-  rule = -1;
+  rule = Guid.EMPTY;
   columns: STColumn[] = [
     { title: '', index: 'id', type: 'checkbox' },
     { title: 'id', index: 'id' },
@@ -29,21 +30,14 @@ export class RulesdownlinkComponent implements OnInit {
   rules: any[];
   url = 'api/rules/index';
   ngOnInit(): void {
-    this.http.post(this.url, {}).subscribe(
-      (x) => {
-        this.rules = x.data.rows;
-      },
-      (y) => {},
-      () => {},
-    );
-
     this.http
       .post<AppMessage>(this.url, {
         offset: 0,
         limit: 100,
       })
       .subscribe(
-        (x) => {},
+        (x) => {      
+            this.rules = x.data.rows;},
         (y) => {},
         () => {},
       );
@@ -52,6 +46,10 @@ export class RulesdownlinkComponent implements OnInit {
   selectchanged($event) {}
 
   downlink() {
+    if(this.rule===Guid.EMPTY){
+     this.msg.warning('please select a rule to execute')
+      return
+    }
     this.http
       .post('api/rules/binddevice', {
         rule: this.rule,
@@ -59,12 +57,10 @@ export class RulesdownlinkComponent implements OnInit {
       })
       .subscribe(
         (next) => {
-
           this.msg.create('success', '规则下发成功');
           this.drawerRef.close(this.params);
         },
         (error) => {
-
           this.msg.create('error', '规则下发失败');
           this.drawerRef.close(this.params);
         },

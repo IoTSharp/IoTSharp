@@ -109,13 +109,14 @@
       </nz-card>
 
       <nz-card nzTitle="规则">
-        <nz-table [nzNoResult]="null">         <thead>
+        <nz-table [nzNoResult]="null">   
+                <thead>
           <tr>
             <td>规则名称</td>
             <td>备注</td>
             <td>操作</td>
           </tr></thead>  <tbody>
-          <tr *ngFor="let _item of item.rules; let i = index; let odd = odd">
+          <tr *ngFor="let _item of cerd; let i = index; let odd = odd">
             <td>{{ _item.name }}</td>
             <td>{{ _item.ruleDesc }}</td>
             <td>

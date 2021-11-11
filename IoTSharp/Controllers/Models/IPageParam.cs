@@ -5,7 +5,7 @@ namespace IoTSharp.Controllers.Models
     public class IPageParam
     {
         public int offset { get; set; } = 0;
-        public int limit { get; set; } = 2;
+        public int limit { get; set; } = 10;
         public string order { get; set; } = "desc";
         public string where { get; set; } = "";
     }
@@ -58,5 +58,11 @@ namespace IoTSharp.Controllers.Models
     public class ExecutorParam : IPageParam
     {
      
+    }
+
+
+    public class SubscriptionParam : IPageParam
+    {
+        public string Name { get; set; }
     }
 }
