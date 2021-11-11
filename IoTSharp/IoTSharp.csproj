@@ -114,7 +114,7 @@
 		<PackageReference Include="Microsoft.AspNetCore.Hosting.WindowsServices" Version="5.0.12" />
 		<PackageReference Include="Microsoft.EntityFrameworkCore" Version="5.0.12" />
 		<PackageReference Include="Microsoft.Extensions.Hosting" Version="5.0.0" />
-		<PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="5.0.0" />
+		<PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="6.0.0" />
 		<PackageReference Include="Microsoft.Extensions.Hosting.WindowsServices" Version="5.0.1" />
 		<PackageReference Include="MQTTnet.Extensions.ManagedClient" Version="3.1.0" />
 		<PackageReference Include="Microsoft.AspNetCore.SpaServices.Extensions" Version="5.0.12" />
