@@ -81,6 +81,7 @@ namespace IoTSharp
         public ZMQOption ZMQOption { get; set; } = null;
         public int SucceedMessageExpiredAfter { get; set; } = 3600 * 6;
         public DataBaseType DataBase { get; set; } = DataBaseType.PostgreSql;
+        public int RuleCachingExpiration { get; set; } = 60;
     }
   
     public class ShardingSetting

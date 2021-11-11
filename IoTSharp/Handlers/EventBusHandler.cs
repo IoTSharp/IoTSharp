@@ -42,7 +42,7 @@ namespace IoTSharp.Handlers
             _flowRuleProcessor = flowRuleProcessor;
             _caching = factory.GetCachingProvider("iotsharp");
         }
-        Dictionary<Guid, DateTime> _check_device_status = new Dictionary<Guid, DateTime>();
+        Dictionary<Guid, DateTime> _check_device_status = new();
         [CapSubscribe("iotsharp.services.datastream.attributedata")]
         public async void StoreAttributeData(RawMsg msg)
         {
@@ -94,6 +94,7 @@ namespace IoTSharp.Handlers
                             {
                                 dc.Add(kp.Key, kp.Value);
                             }
+
                         });
                         var result2 = await _dbContext.SaveAsync<AttributeLatest>(dc, device.Id, msg.DataSide);
                         result2.exceptions?.ToList().ForEach(ex =>
@@ -101,15 +102,21 @@ namespace IoTSharp.Handlers
                             _logger.LogError($"{ex.Key} {ex.Value} {Newtonsoft.Json.JsonConvert.SerializeObject(msg.MsgBody[ex.Key])}");
                         });
                         _logger.LogInformation($"更新{device.Name}({device.Id})属性数据结果{result2.ret}");
+                        ExpandoObject obj = new ExpandoObject();
+                        dc.ToList().ForEach(kv =>
+                        {
+                            obj.TryAdd(kv.Key, kv.Value);
+                        });
+                         await RunRules(msg.DeviceId, obj, MountType.Telemetry);
                     }
                 }
             }
 
-            await RunRules(msg, MountType.Telemetry);
+      
         }
 
         [CapSubscribe("iotsharp.services.platform.addnewdevice")]
-        public async void AddedNewDevice(Device msg)
+        public void AddedNewDevice(Device msg)
         {
 
             using (var _scope = _scopeFactor.CreateScope())
@@ -126,7 +133,7 @@ namespace IoTSharp.Handlers
         public async void StoreTelemetryData(RawMsg msg)
         {
 
-            await _storage.StoreTelemetryAsync(msg);
+        var result=     await _storage.StoreTelemetryAsync(msg);
             if (!_check_device_status.ContainsKey(msg.DeviceId))
             {
                 _check_device_status.Add(msg.DeviceId, DateTime.Now);
@@ -145,13 +152,17 @@ namespace IoTSharp.Handlers
                     }
                 }
             }
-            await RunRules(msg, MountType.Telemetry);
+            ExpandoObject exps = new ExpandoObject();
+            result.telemetries.ForEach(td =>
+            {
+                exps.TryAdd(td.KeyName, td.ToObject());
+            });
+            await RunRules(msg.DeviceId,(dynamic)exps, MountType.Telemetry);
 
         }
 
-        private async Task RunRules(RawMsg msg, MountType mountType)
+        private async Task RunRules(Guid devid, object obj, MountType mountType)
         {
-            var devid = msg.DeviceId;
             var rules = await _caching.GetAsync($"ruleid_{devid}_{Enum.GetName(mountType)}", async () =>
             {
                 using (var scope = _scopeFactor.CreateScope())
@@ -160,10 +171,9 @@ namespace IoTSharp.Handlers
                     var guids = await _dbContext.GerDeviceRulesIdList(devid, mountType);
                     return guids;
                 }
-            }, TimeSpan.FromMinutes(5));
+            }, TimeSpan.FromSeconds(_appSettings.RuleCachingExpiration));
             if (rules.HasValue)
             {
-                var obj = msg.MsgBody;
                 rules.Value.ToList().ForEach(async g =>
                 {
                     await _flowRuleProcessor.RunFlowRules(g, obj, devid, EventType.Normal, null);

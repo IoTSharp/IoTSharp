@@ -34,11 +34,14 @@ namespace IoTSharp.Handlers
         private readonly FlowRuleProcessor _flowRuleProcessor;
         private readonly IEasyCachingProvider _caching;
         readonly MqttClientSetting _mcsetting;
+        private readonly AppSettings _settings;
+
         public MQTTServerHandler(ILogger<MQTTServerHandler> logger, IServiceScopeFactory scopeFactor, IMqttServerEx serverEx
            , IOptions<AppSettings> options, ICapPublisher queue, IEasyCachingProviderFactory factory, FlowRuleProcessor flowRuleProcessor
             )
         {
             _mcsetting = options.Value.MqttClient;
+            _settings = options.Value;
             _logger = logger;
             _scopeFactor = scopeFactor;
             _factory = factory;
@@ -72,7 +75,7 @@ namespace IoTSharp.Handlers
         {
             if (string.IsNullOrEmpty(e.ClientId))
             {
-                _logger.LogInformation($"Message: Topic=[{e.ApplicationMessage.Topic }]");
+                _logger.LogInformation($"ClientId为空,无法进一步获取设备信息 Topic=[{e.ApplicationMessage.Topic }]");
             }
             else
             {
@@ -164,7 +167,7 @@ namespace IoTSharp.Handlers
                                         return guids;
                                     }
                                 }
-                                , TimeSpan.FromMinutes(5));
+                                , TimeSpan.FromSeconds(_settings.RuleCachingExpiration));
                                 if (rules.HasValue)
                                 {
                                     var obj = new { e.ApplicationMessage.Topic, Payload = Convert.ToBase64String(e.ApplicationMessage.Payload), e.ClientId };
@@ -189,7 +192,38 @@ namespace IoTSharp.Handlers
                     }
                     else
                     {
-                        _logger.LogInformation($"{e.ClientId}的数据{e.ApplicationMessage.Topic}未能识别");
+                        _logger.LogInformation($"{e.ClientId}的数据{e.ApplicationMessage.Topic}未能识别,分段:{tpary.Length} 前缀?{tpary[0]}  设备:{_dev?.Id} ,终端状态未找到。");
+                        var ss = await _serverEx.GetClientStatusAsync();
+                        var status=  ss.FirstOrDefault(s => s.ClientId == e.ClientId);
+                        if (status != null)
+                        {
+                            _logger.LogInformation($"{e.ClientId}的数据{e.ApplicationMessage.Topic}未能识别,分段:{tpary.Length} 前缀?{tpary[0]}  设备:{_dev?.Id} {status.ConnectedTimestamp} {status.Endpoint}   ");
+                            if (!status.Session.Items.ContainsKey("iotsharp_count"))
+                            {
+                                status.Session.Items.Add("iotsharp_count", 1);
+                            }
+                            else
+                            {
+                                status.Session.Items["iotsharp_count"] = 1 + (int)status.Session.Items["iotsharp_count"];
+                            }
+                            if (status.Session.Items.TryGetValue("iotsharp_count", out object count))
+                            {
+                                int _count = (int)count;
+                                if (_count > 10)
+                                {
+                                    await status.DisconnectAsync();
+                                    _logger.LogInformation($"未识别次数太多{_count}");
+                                }
+                            }
+                            else
+                            {
+                                _logger.LogInformation("识别次数获取错误");
+                            }
+                        }
+                        else
+                        {
+                            _logger.LogInformation("设备状态未能获取");
+                        }
                     }
 
                 }

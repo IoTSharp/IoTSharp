@@ -10,7 +10,7 @@ namespace IoTSharp.Storage
 {
     public interface IStorage
     {
-        Task<bool> StoreTelemetryAsync(RawMsg msg);
+        Task<(bool result, List<TelemetryData> telemetries)> StoreTelemetryAsync(RawMsg msg);
         Task<List<TelemetryDataDto>> GetTelemetryLatest(Guid deviceId);
         Task<List<TelemetryDataDto>> GetTelemetryLatest(Guid deviceId, string keys);
         Task<List<TelemetryDataDto>> LoadTelemetryAsync(Guid deviceId, string keyName, DateTime begin);

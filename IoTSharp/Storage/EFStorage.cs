@@ -81,9 +81,10 @@ namespace IoTSharp.Storage
             return kv.AsNoTracking().ToListAsync();
         }
 
-        public virtual async Task<bool> StoreTelemetryAsync(RawMsg msg)
+        public virtual async Task<(bool result, List<TelemetryData> telemetries)>  StoreTelemetryAsync(RawMsg msg)
         {
             bool result = false;
+            List<TelemetryData> telemetries = new List<TelemetryData>();
             try
             {
                 using (var _scope = _scopeFactor.CreateScope())
@@ -97,6 +98,7 @@ namespace IoTSharp.Storage
                                 var tdata = new TelemetryData() { DateTime = DateTime.Now, DeviceId = msg.DeviceId, KeyName = kp.Key };
                                 tdata.FillKVToMe(kp);
                                 _dbContext.Set<TelemetryData>().Add(tdata);
+                                telemetries.Add(tdata);
                             }
                         });
                         var result1 = await _dbContext.SaveAsync<TelemetryLatest>(msg.MsgBody, msg.DeviceId, msg.DataSide);
@@ -112,7 +114,9 @@ namespace IoTSharp.Storage
             {
                 _logger.LogError(ex, $"{msg.DeviceId}数据处理失败{ex.Message} {ex.InnerException?.Message} ");
             }
-            return result;
+            return (result, telemetries);
         }
+
+
     }
 }

@@ -134,9 +134,10 @@ namespace IoTSharp.Storage
             });
         }
         
-        public async Task<bool> StoreTelemetryAsync(RawMsg msg)
+        public async Task<(bool result, List<TelemetryData> telemetries)> StoreTelemetryAsync(RawMsg msg)
         {
             bool result = false;
+            List<TelemetryData> telemetries = new List<TelemetryData>();
 
             try
             {
@@ -150,6 +151,7 @@ namespace IoTSharp.Storage
                                              var tdata = new TelemetryData() { DateTime = DateTime.Now, DeviceId = msg.DeviceId, KeyName = kp.Key};
                                              tdata.FillKVToMe(kp);
                                              lst.Add(tdata);
+                                             telemetries.Add(tdata);
                                          }
                                      });
                     int ret = await db.InsertAsync(lst);
@@ -182,7 +184,7 @@ namespace IoTSharp.Storage
             {
                 _logger.LogError(ex, $"{msg.DeviceId}数据处理失败{ex.Message} {ex.InnerException?.Message} ");
             }
-            return result;
+            return (result,telemetries);
         }
     }
 }

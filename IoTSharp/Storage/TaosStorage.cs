@@ -208,9 +208,11 @@ namespace IoTSharp.Storage
             return Task.FromResult(dt);
         }
 
-        public async Task<bool> StoreTelemetryAsync(RawMsg msg)
+        public async   Task<(bool result, List<TelemetryData> telemetries)> StoreTelemetryAsync(RawMsg msg)
         {
             bool result = false;
+            List<TelemetryData> telemetries = new List<TelemetryData>();
+
             try
             {
                 CheckDataBase();
@@ -270,6 +272,7 @@ namespace IoTSharp.Storage
                             {
                                 string vals = $"device_{tdata.DeviceId:N}_{ Pinyin4Net.GetPinyin(tdata.KeyName, PinyinFormat.WITHOUT_TONE).Replace(" ", string.Empty).Replace("@", string.Empty)} USING telemetrydata TAGS('{tdata.DeviceId:N}','{tdata.KeyName}')  (ts,value_type,{_type}) values (now,{(int)tdata.Type},{_value})";
                                 lst.Add(vals);
+                                telemetries.Add(tdata);
                             }
                         }
                     });
@@ -291,7 +294,7 @@ namespace IoTSharp.Storage
             {
                 _logger.LogError(ex, $"{msg.DeviceId}数据处理失败{ex.Message} {ex.InnerException?.Message} ");
             }
-            return result;
+            return (result,telemetries);
         }
     }
 }

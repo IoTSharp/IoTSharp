@@ -3,6 +3,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Silkier.EFCore;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace IoTSharp.Storage
@@ -21,7 +22,7 @@ namespace IoTSharp.Storage
 
         private bool _needcrtate = false;
 
-        public override async Task<bool> StoreTelemetryAsync(RawMsg msg)
+        public override async   Task<(bool result, List<TelemetryData> telemetries)> StoreTelemetryAsync(RawMsg msg)
         {
             if (!_needcrtate)
             {

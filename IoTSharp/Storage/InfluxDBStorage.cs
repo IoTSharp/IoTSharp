@@ -177,9 +177,10 @@ from(bucket: ""{_bucket}"")
             return FluxToDtoAsync(v);
         }
 
-        public async Task<bool> StoreTelemetryAsync(RawMsg msg)
+        public async Task<(bool result, List<TelemetryData> telemetries)> StoreTelemetryAsync(RawMsg msg  )
         {
             bool result = false;
+            List<TelemetryData> telemetries = new List<TelemetryData>(); ;
             try
             {
                
@@ -227,6 +228,7 @@ from(bucket: ""{_bucket}"")
                             {
                                 point = point.Timestamp(DateTime.UtcNow, WritePrecision.Ns);
                                 lst.Add(point);
+                                telemetries.Add(tdata);
                             }
                         }
                     });
@@ -242,7 +244,7 @@ from(bucket: ""{_bucket}"")
             {
                 _logger.LogError(ex, $"{msg.DeviceId}数据处理失败{ex.Message} {ex.InnerException?.Message} ");
             }
-            return result;
+            return (result, telemetries);
         }
     }
 }

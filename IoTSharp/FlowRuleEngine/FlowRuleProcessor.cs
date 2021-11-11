@@ -71,7 +71,7 @@ namespace IoTSharp.FlowRuleEngine
                     }
                 }
                 return (rule, _allFlows: allFlows);
-            }, TimeSpan.FromMinutes(5));
+            }, TimeSpan.FromSeconds(_setting.RuleCachingExpiration));
             if (cacheRule.HasValue)
             {
 
@@ -510,7 +510,7 @@ namespace IoTSharp.FlowRuleEngine
                     }
                 }
                 return (rule, _allFlows);
-            }, TimeSpan.FromMinutes(5));
+            }, TimeSpan.FromSeconds(_setting.RuleCachingExpiration));
             if (cacheRule.HasValue)
             {
                 var flow = _allFlows.FirstOrDefault(c => c.FlowId == flowId);
@@ -635,7 +635,7 @@ namespace IoTSharp.FlowRuleEngine
                     }
                 }
                 return (rule, _allFlows);
-            }, TimeSpan.FromMinutes(5));
+            }, TimeSpan.FromSeconds(_setting.RuleCachingExpiration));
             if (cacheRule.HasValue)
             {
                 _allFlows = cacheRule.Value._allFlows;
