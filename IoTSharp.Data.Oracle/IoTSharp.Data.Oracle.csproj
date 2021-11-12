@@ -10,7 +10,7 @@
 		<PackageReference Include="EFCore.Sharding.Oracle" Version="5.0.21" />
 		<PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="5.0.12" />
 		<PackageReference Include="Oracle.EntityFrameworkCore" Version="5.21.4" />
-		<PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="5.0.12">
+		<PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="6.0.0">
 			<PrivateAssets>all</PrivateAssets>
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
