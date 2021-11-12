@@ -3,15 +3,17 @@ using System;
 using IoTSharp.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 namespace IoTSharp.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20211112075316_addrulecreateid")]
+    partial class addrulecreateid
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -530,9 +532,6 @@ namespace IoTSharp.Migrations
 
                     b.Property<Guid?>("DeviceId")
                         .HasColumnType("uuid");
-
-                    b.Property<int>("EnableTrace")
-                        .HasColumnType("integer");
 
                     b.Property<Guid?>("FlowRuleRuleId")
                         .HasColumnType("uuid");
