@@ -104,6 +104,28 @@ namespace IoTSharp.FlowRuleEngine
                 var flows = _allFlows.Where(c => c.FlowType != "label").ToList();
                 var start = flows.FirstOrDefault(c => c.FlowType == "bpmn:StartEvent");
 
+                if (start == null)
+                {
+
+
+                    _allflowoperation.Add(new FlowOperation()
+                    {
+                        OperationId = Guid.NewGuid(),
+                        bpmnid = "",
+                        AddDate = DateTime.Now,
+                        FlowRule = rule,
+                        Flow = start,
+                        Data = JsonConvert.SerializeObject(data),
+                        NodeStatus = 1,
+                        OperationDesc = "未能找到启动节点",
+                        Step = 1,
+                        BaseEvent = @event
+
+                    });
+
+                    return _allflowoperation;
+
+                }
                 var startoperation = new FlowOperation()
                 {
 
@@ -114,10 +136,11 @@ namespace IoTSharp.FlowRuleEngine
                     Flow = start,
                     Data = JsonConvert.SerializeObject(data),
                     NodeStatus = 1,
-                    OperationDesc = "Start Event",
+                    OperationDesc = "进入开始节点",
                     Step = 1,
                     BaseEvent = @event
                 };
+
                 _allflowoperation.Add(startoperation);
                 var nextflows = await ProcessCondition(start.FlowId, data);
                 if (nextflows != null)

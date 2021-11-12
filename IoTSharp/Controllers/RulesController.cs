@@ -204,12 +204,13 @@ namespace IoTSharp.Controllers
                 newrule.RuleStatus = 1;
                 newrule.MountType = flowRule.MountType;
                 newrule.ParentRuleId = rule.RuleId;
+                newrule.CreateId = new Guid();
                 newrule.SubVersion = rule.SubVersion + 0.01;
                 newrule.Runner = rule.Runner;
                 _context.FlowRules.Add(newrule);
                 await _context.SaveChangesAsync();
-                var CreatorId = Guid.NewGuid();
-                var flows = _context.Flows.Where(c => c.FlowRule == rule).ToList();
+          
+                var flows = _context.Flows.Where(c => c.FlowRule.RuleId == rule.RuleId&& c.CreateId== rule.CreateId).ToList();
                 var newflows = flows.Select(c => new Flow()
                 {
                     FlowRule = newrule,
@@ -230,8 +231,9 @@ namespace IoTSharp.Controllers
                     Outgoing = c.Outgoing,
                     SourceId = c.SourceId,
                     TargetId = c.TargetId,
+                     
                     bpmnid = c.bpmnid,
-                    CreateId = CreatorId
+                    CreateId = newrule.CreateId
 
                 }).ToList();
                 if (newflows.Count > 0)
@@ -326,11 +328,11 @@ namespace IoTSharp.Controllers
             var CreatorId = Guid.NewGuid();
             var CreateDate = DateTime.Now;
             var rule = _context.FlowRules.FirstOrDefault(c => c.RuleId == activity.RuleId);
-
+         
             rule.DefinitionsXml = m.Xml;
             rule.Creator = profile.Id.ToString();
 
-
+            rule.CreateId = CreatorId;
 
 
             //   _context.Flows.RemoveRange(_context.Flows.Where(c => c.FlowRule.RuleId == rule.RuleId).ToList());

@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using IoTSharp.Models.DeviceMapping;
+
 
 namespace IoTSharp.Models.Rule.Params
 {

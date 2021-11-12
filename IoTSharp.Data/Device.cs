@@ -51,5 +51,8 @@ namespace IoTSharp.Data
 
         public int Status { get; set; }
 
+
+
+
     }
 }
