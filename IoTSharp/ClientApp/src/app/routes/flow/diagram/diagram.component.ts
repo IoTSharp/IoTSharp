@@ -13,14 +13,15 @@ import {
   Renderer2,
 } from '@angular/core';
 import { _HttpClient } from '@delon/theme'; //test
-import { mergeMap } from 'rxjs/operators';
+import { delay, mergeMap } from 'rxjs/operators';
 import * as BpmnJS from 'bpmn-js/dist/bpmn-modeler.production.min.js';
 
-import { Observable, from } from 'rxjs';
+import { Observable, from, Subscription } from 'rxjs';
 import { FormBuilder } from '@angular/forms';
 import { appmessage } from '../../common/AppMessage';
 import { NzConfigService } from 'ng-zorro-antd/core/config';
 import { NzCodeEditorComponent } from 'ng-zorro-antd/code-editor';
+import { ObjectExt } from '@antv/x6';
 
 @Component({
   selector: 'app-diagram',
@@ -37,11 +38,11 @@ import { NzCodeEditorComponent } from 'ng-zorro-antd/code-editor';
 // 'element.mouseup'
 // 来自 https://github.com/bpmn-io/bpmn-js-examples/tree/master/interaction
 export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy {
-  nzEditorOption: { theme: 'vs-dark',language: 'json' };
-  paramnzEditorOption: { theme: 'vs-dark',language: 'json' };
+  nzEditorOption: { theme: 'vs-dark'; language: 'json' };
+  paramnzEditorOption: { theme: 'vs-dark'; language: 'json' };
   @ViewChild(NzCodeEditorComponent, { static: false }) editorComponent?: NzCodeEditorComponent;
   isCollapsed = false;
-
+ 
   executors = [];
 
   EMPTY_BPMN_DIAGRAM = `
@@ -70,7 +71,7 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy 
   @Input() ruleId: number;
 
   form: FormBpmnObject = {
-    id:'',
+    id: '',
     flowid: '',
     flowname: '',
     flowdesc: '',
@@ -122,7 +123,7 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy 
     var elementRegistry = this.bpmnJS.get('elementRegistry');
 
     var modeling = this.bpmnJS.get('modeling');
-    // console.log(modeling);
+ 
     // modeling.updateProperties(x.id, {
     //   name: 'ssss', //名称设置无效，如需双向绑定仍旧需要直接改Dom
     // });
@@ -193,7 +194,7 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy 
           if (task) {
             if (task.bizObject == null) {
               task.bizObject = {
-                id:'',
+                id: '',
                 flowid: '',
                 flowname: '',
                 flowdesc: '',
@@ -228,7 +229,7 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy 
           if (endevent) {
             if (endevent.bizObject === null) {
               endevent.bizObject = {
-                id:'',
+                id: '',
                 flowid: '',
                 flowname: '',
                 flowdesc: '',
@@ -255,7 +256,7 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy 
           if (startevent) {
             if (startevent.bizObject === null) {
               startevent.bizObject = {
-                id:'',
+                id: '',
                 flowid: '',
                 flowname: '',
                 flowdesc: '',
@@ -282,7 +283,7 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy 
           if (intermediatethrowevent) {
             if (intermediatethrowevent.bizObject == null) {
               intermediatethrowevent.bizObject = {
-                id:'',
+                id: '',
                 flowid: '',
                 flowname: '',
                 flowdesc: '',
@@ -309,7 +310,7 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy 
           if (complexgateway) {
             if (complexgateway.bizObject == null) {
               complexgateway.bizObject = {
-                id:'',
+                id: '',
                 flowid: '',
                 flowname: '',
                 flowdesc: '',
@@ -336,7 +337,7 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy 
           if (parallelgteway) {
             if (parallelgteway.bizObject == null) {
               parallelgteway.bizObject = {
-                id:'',
+                id: '',
                 flowid: '',
                 flowname: '',
                 flowdesc: '',
@@ -363,7 +364,7 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy 
           if (exclusivegateway) {
             if (exclusivegateway.bizObject == null) {
               exclusivegateway.bizObject = {
-                id:'',
+                id: '',
                 flowid: '',
                 flowname: '',
                 flowdesc: '',
@@ -390,7 +391,7 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy 
           if (inclusivegateway) {
             if (inclusivegateway.bizObject == null) {
               inclusivegateway.bizObject = {
-                id:'',
+                id: '',
                 flowid: '',
                 flowname: '',
                 flowdesc: '',
@@ -417,7 +418,7 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy 
           if (businessruletask) {
             if (businessruletask.bizObject == null) {
               businessruletask.bizObject = {
-                id:'',
+                id: '',
                 flowid: '',
                 flowname: '',
                 flowdesc: '',
@@ -446,7 +447,7 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy 
           if (eventbasedgateway) {
             if (eventbasedgateway.bizObject == null) {
               eventbasedgateway.bizObject = {
-                id:'',
+                id: '',
                 flowid: '',
                 flowname: '',
                 flowdesc: '',
@@ -473,7 +474,7 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy 
           if (receivetask) {
             if (receivetask.bizObject == null) {
               receivetask.bizObject = {
-                id:'',
+                id: '',
                 flowid: '',
                 flowname: '',
                 flowdesc: '',
@@ -502,7 +503,7 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy 
           if (usertask) {
             if (usertask.bizObject == null) {
               usertask.bizObject = {
-                id:'',
+                id: '',
                 flowid: '',
                 flowname: '',
                 flowdesc: '',
@@ -532,7 +533,7 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy 
           if (intermediatecatchevent) {
             if (intermediatecatchevent.bizObject == null) {
               intermediatecatchevent.bizObject = {
-                id:'',
+                id: '',
                 flowid: '',
                 flowname: '',
                 flowdesc: '',
@@ -559,7 +560,7 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy 
           if (servicetask) {
             if (servicetask.bizObject == null) {
               servicetask.bizObject = {
-                id:'',
+                id: '',
                 flowid: '',
                 flowname: '',
                 flowdesc: '',
@@ -588,7 +589,7 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy 
           if (manualtask) {
             if (manualtask.bizObject == null) {
               manualtask.bizObject = {
-                id:'',
+                id: '',
                 flowid: '',
                 flowname: '',
                 flowdesc: '',
@@ -617,7 +618,7 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy 
           if (sendtask) {
             if (sendtask.bizObject == null) {
               sendtask.bizObject = {
-                id:'',
+                id: '',
                 flowid: '',
                 flowname: '',
                 flowdesc: '',
@@ -646,7 +647,7 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy 
           if (callactivity) {
             if (callactivity.bizObject == null) {
               callactivity.bizObject = {
-                id:'',
+                id: '',
                 flowid: '',
                 flowname: '',
                 flowdesc: '',
@@ -674,7 +675,7 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy 
           if (sequenceflow) {
             if (!sequenceflow.bizObject) {
               sequenceflow.bizObject = {
-                id:'',
+                id: '',
                 flowid: '',
                 flowname: '',
                 flowdesc: '',
@@ -702,7 +703,7 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy 
           if (participant) {
             if (participant.bizObject == null) {
               participant.bizObject = {
-                id:'',
+                id: '',
                 flowid: '',
                 flowname: '',
                 flowdesc: '',
@@ -728,7 +729,7 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy 
           if (subprocess) {
             if (subprocess.bizObject == null) {
               subprocess.bizObject = {
-                id:'',
+                id: '',
                 flowid: '',
                 flowname: '',
                 flowdesc: '',
@@ -755,7 +756,7 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy 
           if (collaboration) {
             if (collaboration.bizObject == null) {
               collaboration.bizObject = {
-                id:'',
+                id: '',
                 flowid: '',
                 flowname: '',
                 flowdesc: '',
@@ -784,7 +785,7 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy 
 
       switch (event.element.type) {
         case 'bpmn:Task':
-          this.doTask(event);
+          this.doTask(event); 
           break;
         case 'bpmn:EndEvent':
           this.doEndEvent(event);
@@ -823,7 +824,7 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy 
           this.doGateWay(event);
           break;
         case 'bpmn:ServiceTask':
-          this.doTask(event);
+          this.doTask(event);     
           break;
         case 'bpmn:ManualTask':
           this.doTask(event);
@@ -858,15 +859,23 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy 
           this.DoBaseBpmnObject(event);
           break;
       }
-    });
+      setTimeout(()=>{
+        this.hiddentools();
+      },100)
 
-    this.getexcutors();
+
+      
+  
+
+    });
+ 
+    this.getexcutors();     
   }
   ngAfterContentInit(): void {
     this.bpmnJS.attachTo(this.el.nativeElement);
     this.render.setStyle(this.el.nativeElement, 'height', window.innerHeight - 64 + 'px');
 
-   this.hiddentools();
+    this.hiddentools();
   }
 
   // hide some elements
@@ -895,7 +904,12 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy 
       }
 
       if (element.getAttribute('data-group') == 'edit') {
-        element.style.display = 'none';
+        element.querySelectorAll('.bpmn-icon-screw-wrench').forEach((e) => {
+          if (e.getAttribute('data-action') == 'replace') {
+            e.style.display = 'none';
+
+          }
+        });
       }
     });
     this.el.nativeElement.querySelectorAll('.bpmn-icon-gateway-none').forEach((element) => {
@@ -914,8 +928,6 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy 
     this.el.nativeElement.querySelectorAll('.bpmn-icon-text-annotation').forEach((element) => {
       element.style.display = 'none';
     });
-
-    
   }
 
   ngOnChanges(changes: SimpleChanges) {
@@ -938,7 +950,8 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy 
         baseBpmnObject.id = e.element.businessObject.id;
         baseBpmnObject.text = e.element.businessObject.text;
         baseBpmnObject.bpmntype = e.element.type;
-        baseBpmnObject.bizObject = {  id:'',
+        baseBpmnObject.bizObject = {
+          id: '',
           flowid: '',
           flowname: '',
           flowdesc: '',
@@ -984,7 +997,8 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy 
         baseBpmnObject = new SequenceFlow();
         baseBpmnObject.id = e.element.businessObject.id;
         baseBpmnObject.bpmntype = e.element.type;
-        baseBpmnObject.bizObject = {  id:'',
+        baseBpmnObject.bizObject = {
+          id: '',
           flowid: '',
           flowname: '',
           flowdesc: '',
@@ -1036,7 +1050,8 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy 
         dataStoreReference = new SequenceFlow();
         dataStoreReference.id = e.element.businessObject.id;
         dataStoreReference.bpmntype = e.element.type;
-        dataStoreReference.bizObject = {  id:'',
+        dataStoreReference.bizObject = {
+          id: '',
           flowid: '',
           flowname: '',
           flowdesc: '',
@@ -1086,7 +1101,8 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy 
         container = new SequenceFlow();
         container.id = e.element.businessObject.id;
         container.bpmntype = e.element.type;
-        container.bizObject = {  id:'',
+        container.bizObject = {
+          id: '',
           flowid: '',
           flowname: '',
           flowdesc: '',
@@ -1138,7 +1154,8 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy 
         subProcess = new SequenceFlow();
         subProcess.id = e.element.businessObject.id;
         subProcess.bpmntype = e.element.type;
-        subProcess.bizObject = {  id:'',
+        subProcess.bizObject = {
+          id: '',
           flowid: '',
           flowname: '',
           flowdesc: '',
@@ -1179,7 +1196,7 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy 
   }
 
   doSequenceFlow(e: any): void {
-    console.log(e);
+
     if (e.gfx) {
       let sequenceflow = this.activity.sequenceFlows.find((x) => x.id === e.element.businessObject.id);
 
@@ -1192,7 +1209,8 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy 
         sequenceflow = new SequenceFlow();
         sequenceflow.id = e.element.businessObject.id;
         sequenceflow.bpmntype = e.element.type;
-        sequenceflow.bizObject = {  id:'',
+        sequenceflow.bizObject = {
+          id: '',
           flowid: '',
           flowname: '',
           flowdesc: '',
@@ -1232,6 +1250,8 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy 
     } else {
       this.activity.sequenceFlows = this.activity.sequenceFlows.filter((x) => x.id != e.element.id) ?? [];
     }
+
+
   }
 
   doTask(e: any): void {
@@ -1247,7 +1267,8 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy 
         task = new Task();
         task.id = e.element.id;
         task.bpmntype = e.element.type;
-        task.bizObject = {  id:'',
+        task.bizObject = {
+          id: '',
           flowid: '',
           flowname: '',
           flowdesc: '',
@@ -1299,7 +1320,8 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy 
         gateway = new GateWay();
         gateway.id = e.element.id;
         gateway.bpmntype = e.element.type;
-        gateway.bizObject = {  id:'',
+        gateway.bizObject = {
+          id: '',
           flowid: '',
           flowname: '',
           flowdesc: '',
@@ -1349,7 +1371,8 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy 
         startevent = new BpmnBaseObject();
         startevent.bpmntype = e.element.type;
         startevent.id = e.element.id;
-        startevent.bizObject = {  id:'',
+        startevent.bizObject = {
+          id: '',
           flowid: '',
           flowname: '',
           flowdesc: '',
@@ -1398,7 +1421,8 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy 
         endevent = new BpmnBaseObject();
         endevent.id = e.element.id;
         endevent.bpmntype = e.element.type;
-        endevent.bizObject = {  id:'',
+        endevent.bizObject = {
+          id: '',
           flowid: '',
           flowname: '',
           flowdesc: '',
@@ -1521,7 +1545,8 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy 
     if (data.gateWays) {
       for (var element of data.gateWays) {
         var gateWay = new GateWay();
-        gateWay.bizObject = {  id:element.bizObject.flowid,
+        gateWay.bizObject = {
+          id: element.bizObject.flowid,
           flowid: element.id,
           flowname: element.bizObject.flowname,
           flowdesc: '',
@@ -1547,7 +1572,8 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy 
     if (data.sequenceFlows) {
       for (var element of data.sequenceFlows) {
         var sequenceflows = new SequenceFlow();
-        sequenceflows.bizObject = { id:element.bizObject.flowid,
+        sequenceflows.bizObject = {
+          id: element.bizObject.flowid,
           flowid: element.id,
           flowname: element.flowname,
 
@@ -1576,7 +1602,8 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy 
     if (data.tasks) {
       for (var element of data.tasks) {
         var task = new Task();
-        task.bizObject = { id:element.bizObject.flowid,
+        task.bizObject = {
+          id: element.bizObject.flowid,
           flowid: element.id,
           flowname: element.bizObject.flowname,
           flowdesc: '',
@@ -1603,7 +1630,8 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy 
     if (data.laneSet) {
       for (var element of data.laneSet) {
         var laneset = new BpmnBaseObject();
-        laneset.bizObject = { id:element.bizObject.flowid,
+        laneset.bizObject = {
+          id: element.bizObject.flowid,
           flowid: element.id,
           flowname: element.bizObject.flowname,
           flowdesc: '',
@@ -1628,7 +1656,8 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy 
     if (data.endEvents) {
       for (var element of data.endEvents) {
         var endevent = new BpmnBaseObject();
-        endevent.bizObject = { id:element.bizObject.flowid,
+        endevent.bizObject = {
+          id: element.bizObject.flowid,
           flowid: element.id,
           flowname: element.bizObject.flowname,
           flowdesc: '',
@@ -1654,7 +1683,8 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy 
     if (data.startEvents) {
       for (var element of data.startEvents) {
         var startevent = new BpmnBaseObject();
-        startevent.bizObject = { id:element.bizObject.flowid,
+        startevent.bizObject = {
+          id: element.bizObject.flowid,
           flowid: element.id,
           flowname: element.bizObject.flowname,
           flowdesc: '',
@@ -1680,7 +1710,8 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy 
     if (data.containers) {
       for (var element of data.containers) {
         var container = new BpmnBaseObject();
-        container.bizObject = { id:element.bizObject.flowid,
+        container.bizObject = {
+          id: element.bizObject.flowid,
           flowid: element.id,
           flowname: element.bizObject.flowname,
           flowdesc: '',
@@ -1706,7 +1737,8 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy 
     if (data.baseBpmnObjects) {
       for (var element of data.baseBpmnObjects) {
         var baseBpmnObject = new BpmnBaseObject();
-        baseBpmnObject.bizObject = { id:element.bizObject.flowid,
+        baseBpmnObject.bizObject = {
+          id: element.bizObject.flowid,
           flowid: element.id,
           flowname: element.bizObject.flowname,
           flowdesc: '',
@@ -1732,7 +1764,8 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy 
     if (data.dataStoreReferences) {
       for (var element of data.dataStoreReferences) {
         var datastorereference = new BpmnBaseObject();
-        datastorereference.bizObject = { id:element.bizObject.flowid,
+        datastorereference.bizObject = {
+          id: element.bizObject.flowid,
           flowid: element.id,
           flowname: element.bizObject.flowname,
           flowdesc: '',
@@ -1757,7 +1790,8 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy 
     if (data.subProcesses) {
       for (var element of data.subProcesses) {
         var subprocess = new BpmnBaseObject();
-        subprocess.bizObject = { id:element.bizObject.flowid,
+        subprocess.bizObject = {
+          id: element.bizObject.flowid,
           flowid: element.id,
           flowname: element.bizObject.flowname,
           flowdesc: '',
@@ -1783,7 +1817,8 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy 
     if (data.dataOutputAssociations) {
       for (var element of data.dataOutputAssociations) {
         var dataOutputAssociation = new DataOutputAssociation();
-        dataOutputAssociation.bizObject = { id:element.bizObject.flowid,
+        dataOutputAssociation.bizObject = {
+          id: element.bizObject.flowid,
           flowid: element.id,
           flowname: element.bizObject.flowname,
           flowdesc: '',
@@ -1809,7 +1844,8 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy 
     if (data.dataInputAssociations) {
       for (var element of data.dataInputAssociations) {
         var dataInputAssociations = new DataOutputAssociation();
-        dataInputAssociations.bizObject = { id:element.bizObject.flowid,
+        dataInputAssociations.bizObject = {
+          id: element.bizObject.flowid,
           flowid: element.id,
           flowname: element.bizObject.flowname,
           flowdesc: '',
@@ -1835,7 +1871,8 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy 
     if (data.lane) {
       for (var element of data.lane) {
         var lane = new BpmnBaseObject();
-        lane.bizObject = { id:element.bizObject.flowid,
+        lane.bizObject = {
+          id: element.bizObject.flowid,
           flowid: element.id,
           flowname: element.bizObject.flowname,
           flowdesc: '',
@@ -1875,7 +1912,7 @@ export class BpmnBaseObject {
   public incoming!: BpmnBaseObject[];
   public outgoing!: BpmnBaseObject[];
   public bizObject: FormBpmnObject = {
-    id:'',
+    id: '',
     flowid: '',
     flowname: '',
     flowdesc: '',
@@ -1979,7 +2016,7 @@ export const importDiagram = (bpmnJS: any) => (source: Observable<any>) =>
   });
 
 export interface FormBpmnObject {
-  id:string;
+  id: string;
   flowid: string;
   flowname: string;
   flowdesc: string;

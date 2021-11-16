@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -8,6 +9,7 @@ namespace IoTSharp.Data
 {
   public  class DeviceGraphToolBox
     {
+        [Key]
         public Guid ToolBoxId { get; set; }
         public string ToolBoxName { get; set; }
         public string ToolBoxIcon { get; set; }

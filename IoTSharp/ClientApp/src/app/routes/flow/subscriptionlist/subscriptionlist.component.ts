@@ -7,6 +7,7 @@ import { NzDrawerService } from 'ng-zorro-antd/drawer';
 import { NzMessageService } from 'ng-zorro-antd/message';
 import { appmessage } from '../../common/AppMessage';
 import { SubscriptionbindformComponent } from '../subscriptionbindform/subscriptionbindform.component';
+import { SubscriptionformComponent } from '../subscriptionform/subscriptionform.component';
 
 @Component({
   selector: 'app-subscriptionlist',
@@ -50,7 +51,7 @@ export class SubscriptionlistComponent implements OnInit {
 
   loading = false;
 
-  url = 'api/rules/index';
+  url = 'api/subscriptionevent/index';
   req: STReq = { method: 'POST', allInBody: true, reName: { pi: 'offset', ps: 'limit' }, params: this.q };
 
   // 定义返回的参数
@@ -64,10 +65,13 @@ export class SubscriptionlistComponent implements OnInit {
   @ViewChild('st', { static: true })
   st!: STComponent;
   columns: STColumn[] = [
-    { title: '', index: 'ruleId', type: 'checkbox' },
-    { title: 'id', index: 'ruleId' },
-    { title: '事件名称', index: 'name', render: 'name' },
-    { title: '命名空间', index: 'ruledesc' },
+    { title: '', index: 'eventId', type: 'checkbox' },
+    { title: 'id', index: 'eventId' },
+    { title: '事件名称', index: 'eventName', render: 'name' },
+    { title: '命名空间', index: 'eventDesc' },
+    { title: '命名空间', index: 'eventNameSpace' },
+
+    
     { title: '创建时间', type: 'date', index: 'creatTime' },
 
     {
@@ -94,7 +98,7 @@ export class SubscriptionlistComponent implements OnInit {
         {
           text: (record) => (record.rulestatus == 1 ? '禁用' : '启用'),
           pop: {
-            title: '确认修改规则状态?',
+            title: '确认修改订阅事件状态?',
             okType: 'danger',
             icon: 'warning',
           },
@@ -108,18 +112,18 @@ export class SubscriptionlistComponent implements OnInit {
           text: '订阅',
           //    acl: 104,
           pop: {
-            title: '确认删除规则?',
+            title: '确认删除订阅事件?',
             okType: 'danger',
             icon: 'warning',
           },
           click: (item: any) => {
-            this.http.get('api/rules/delete?id=' + item.ruleId).subscribe(
+            this.http.get('api/subscriptionevent/delete?id=' + item.eventId).subscribe(
               () => {
-                this.msg.create('success', '规则删除成功');
+                this.msg.create('success', '订阅事件删除成功');
                 this.getData();
               },
               () => {   
-                 this.msg.create('error', '规则删除失败');
+                 this.msg.create('error', '订阅事件删除失败');
               this.getData();},
               () => {},
             );
@@ -130,18 +134,18 @@ export class SubscriptionlistComponent implements OnInit {
           text: '删除',
           //    acl: 104,
           pop: {
-            title: '确认删除规则?',
+            title: '确认删除订阅事件?',
             okType: 'danger',
             icon: 'warning',
           },
           click: (item: any) => {
-            this.http.get('api/rules/delete?id=' + item.ruleId).subscribe(
+            this.http.get('api/subscriptionevent/delete?id=' + item.eventId).subscribe(
               () => {
-                this.msg.create('success', '规则删除成功');
+                this.msg.create('success', '订阅事件删除成功');
                 this.getData();
               },
               () => {   
-                 this.msg.create('error', '规则删除失败');
+                 this.msg.create('error', '订阅事件删除失败');
               this.getData();},
               () => {},
             );
@@ -159,9 +163,9 @@ export class SubscriptionlistComponent implements OnInit {
   openComponent(id: string): void {
     var { nzMaskClosable, width } = this.settingService.getData('drawerconfig');
     var title = id === Guid.EMPTY ? '新建事件' : '修改事件';
-    const drawerRef = this.drawerService.create<SubscriptionbindformComponent, { id: string }, string>({
+    const drawerRef = this.drawerService.create<SubscriptionformComponent, { id: string }, string>({
       nzTitle: title,
-      nzContent: SubscriptionbindformComponent,
+      nzContent: SubscriptionformComponent,
       nzWidth: width,
       nzMaskClosable: nzMaskClosable,
       nzContentParams: {

@@ -79,11 +79,16 @@ namespace IoTSharp.Data
 
         public DbSet<RuleTaskExecutor> RuleTaskExecutors { get; set; }
 
-        //public DbSet<SubscriptionTask> SubscriptionTasks { get; set; }
+        public DbSet<SubscriptionTask> SubscriptionTasks { get; set; }
+        public DbSet<SubscriptionEvent> SubscriptionEvents { get; set; }
 
-        //public DbSet<SubscriptionEvent> SubscriptionEvents { get; set; }
+        public DbSet<DeviceDiagram> DeviceDiagrams { get; set; }
 
-        
+        public DbSet<DeviceGraph> DeviceGraphs { get; set; }
 
+        public DbSet<DeviceGraphToolBox> DeviceGraphToolBoxes { get; set; }
+
+        public DbSet<DevicePort> DevicePorts { get; set; }
+        public DbSet<DevicePortMapping> DevicePortMappings { get; set; }
     }
 }

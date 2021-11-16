@@ -9,6 +9,7 @@ namespace IoTSharp.Data
 {
   public  class DevicePortMapping
     {
+        [System.ComponentModel.DataAnnotations.Key]
         public Guid MappingId { get; set; }
         public string SourceId { get; set; }
         public string TargeId { get; set; }
