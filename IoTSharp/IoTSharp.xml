@@ -415,7 +415,8 @@
             <summary>
             更新节点的条件表达式
             </summary>
-            <returns> 返回所有节点的记录信息，需要保存则保存</returns>
+            <returns> </returns>
+            
         </member>
         <member name="M:IoTSharp.Controllers.RulesController.Fork(IoTSharp.Data.FlowRule)">
             <summary>

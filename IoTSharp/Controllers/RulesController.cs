@@ -48,14 +48,14 @@ namespace IoTSharp.Controllers
         }
 
 
-
-
-
         /// <summary>
         /// 更新节点的条件表达式
         /// </summary>
-        /// <returns> 返回所有节点的记录信息，需要保存则保存</returns>
-        public async Task<ApiResult<bool>> UpdateFlowExpression([FromBody] UpdateFlowExpression m)
+        /// <returns> </returns>
+        /// 
+
+        [HttpPost("[action]")]
+        public async Task<ApiResult<bool>> UpdateFlowExpression( UpdateFlowExpression m)
         {
             var flow = await _context.Flows.SingleOrDefaultAsync(c => c.FlowId == m.FlowId);
             if (flow != null)

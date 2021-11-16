@@ -3,15 +3,17 @@ using System;
 using IoTSharp.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 namespace IoTSharp.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20211115041140_addSubscription")]
+    partial class addSubscription
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -1285,8 +1287,6 @@ namespace IoTSharp.Migrations
 
                     b.HasKey("BindId");
 
-                    b.HasIndex("CustomerId");
-
                     b.HasIndex("RuleTaskExecutorExecutorId");
 
                     b.HasIndex("SubscriptionEventId");
@@ -1764,12 +1764,6 @@ namespace IoTSharp.Migrations
 
             modelBuilder.Entity("IoTSharp.Data.SubscriptionTask", b =>
                 {
-                    b.HasOne("IoTSharp.Data.Customer", "Customer")
-                        .WithMany()
-                        .HasForeignKey("CustomerId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.HasOne("IoTSharp.Data.RuleTaskExecutor", "RuleTaskExecutor")
                         .WithMany()
                         .HasForeignKey("RuleTaskExecutorExecutorId");
@@ -1777,8 +1771,6 @@ namespace IoTSharp.Migrations
                     b.HasOne("IoTSharp.Data.SubscriptionEvent", "Subscription")
                         .WithMany()
                         .HasForeignKey("SubscriptionEventId");
-
-                    b.Navigation("Customer");
 
                     b.Navigation("RuleTaskExecutor");
 

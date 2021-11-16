@@ -83,7 +83,7 @@ export class FlowsimulatorComponent implements OnInit, OnDestroy {
     if (this.obs) {
       this.obs.unsubscribe();
     }
-    this.obs = interval(2000).subscribe(async (x) => {
+    this.obs = interval(1500).subscribe(async (x) => {
       var index = x % this.nodes.length;
       if (index == 0) {
         await this.flowview.redraw();

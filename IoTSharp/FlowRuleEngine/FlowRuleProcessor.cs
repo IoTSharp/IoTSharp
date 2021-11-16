@@ -247,7 +247,7 @@ namespace IoTSharp.FlowRuleEngine
                                         if (!string.IsNullOrEmpty(flow.NodeProcessClass))
                                         {
 
-                                            ITaskAction executor = _helper.CreateInstanceByTypeName(flow.NodeProcessClass) as ITaskAction;
+                                            ITaskAction executor = _helper.CreateInstanceByTypeName(flow.NodeProcessClass);
                                             if (executor != null)
                                             {
                                                 try
