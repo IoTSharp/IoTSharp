@@ -4,7 +4,7 @@
     <TargetFramework>net5.0</TargetFramework>
   </PropertyGroup>
 	<ItemGroup>
-		<PackageReference Include="CLanguage" Version="0.15.30" />
+		<PackageReference Include="CLanguage" Version="0.16.36" />
 		<PackageReference Include="CS-Script" Version="4.2.0" />
 		<PackageReference Include="Jint" Version="3.0.0-beta-2036" />
 		<PackageReference Include="Microsoft.AspNetCore.Http.Abstractions" Version="2.2.0" />
