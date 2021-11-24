@@ -71,6 +71,8 @@ import { CertmgrComponent } from './setttings/certmgr/certmgr.component';
 import { SubscriptionlistComponent } from './flow/subscriptionlist/subscriptionlist.component';
 import { SubscriptionformComponent } from './flow/subscriptionform/subscriptionform.component';
 import { SubscriptionbindformComponent } from './flow/subscriptionbindform/subscriptionbindform.component';
+import { SearchformgeneratorComponent } from './util/dynamicform/searchformgenerator/searchformgenerator.component';
+import { ConditionbuilderComponent } from './util/dynamicform/conditionbuilder/conditionbuilder.component';
 const COMPONENTS: Type<null>[] = [];
 const Directive: Type<void>[] = [fielddirective, controldirective];
 @NgModule({
@@ -143,6 +145,8 @@ const Directive: Type<void>[] = [fielddirective, controldirective];
     SubscriptionlistComponent,
     SubscriptionformComponent,
     SubscriptionbindformComponent,
+    SearchformgeneratorComponent,
+    ConditionbuilderComponent,
   ],
 })
 export class RoutesModule {

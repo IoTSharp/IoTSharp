@@ -1,0 +1,31 @@
+<nz-tree-view [nzTreeControl]="treeControl" [nzDataSource]="dataSource" [trackBy]="trackBy">
+    <nz-tree-node *nzTreeNodeDef="let node; when: hasChild" nzTreeNodeIndentLine>
+      <nz-tree-node-toggle>
+        <i nz-icon nzType="caret-down" nzTreeNodeToggleRotateIcon></i>
+      </nz-tree-node-toggle>
+  
+      <nz-select [(ngModel)]="node.field">
+        <nz-option *ngFor="let option of columns" [nzLabel]="option.label" [nzValue]="option.value"></nz-option>
+      </nz-select>
+  
+      <nz-select [(ngModel)]="node.operator">
+        <nz-option nzLabel="等于" nzValue="And"></nz-option>
+        <nz-option nzLabel="大于" nzValue="GT"></nz-option>
+        <nz-option nzLabel="小于" nzValue="LT"></nz-option>
+      </nz-select>
+  
+      <input nz-input placeholder="值" [(ngModel)]="node.text" />
+      <nz-select [(ngModel)]="node.connector">
+        <nz-option nzLabel="And" nzValue="And"></nz-option>
+        <nz-option nzLabel="OR" nzValue="OR"></nz-option>
+      </nz-select>
+      <button nz-button nzType="text" nzSize="small" (click)="addNewNode(node)">
+        <i nz-icon nzType="plus" nzTheme="outline"></i>
+      </button>
+  
+      <button nz-button nzType="text" nzSize="small" (click)="delete(node)">
+        <i nz-icon nzType="plus" nzTheme="outline"></i>
+      </button>
+    </nz-tree-node>
+  </nz-tree-view>
+  

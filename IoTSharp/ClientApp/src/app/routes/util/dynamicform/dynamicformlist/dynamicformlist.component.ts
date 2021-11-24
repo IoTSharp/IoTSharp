@@ -3,12 +3,14 @@ import { STPage, STReq, STRes, STComponent, STColumn, STData } from '@delon/abc/
 import { _HttpClient, SettingsService } from '@delon/theme';
 import { NzDrawerService } from 'ng-zorro-antd/drawer';
 import { NzMessageService } from 'ng-zorro-antd/message';
+import { ConditionbuilderComponent } from '../conditionbuilder/conditionbuilder.component';
 import { DynamicformdesignerComponent } from '../dynamicformdesigner/dynamicformdesigner.component';
 import { Dynamicformdesignerv2Component } from '../dynamicformdesignerv2/dynamicformdesignerv2.component';
 
 import { DynamicformeditorComponent } from '../dynamicformeditor/dynamicformeditor.component';
 import { DynamicformfieldeditorComponent } from '../dynamicformfieldeditor/dynamicformfieldeditor.component';
 import { DynamicformtesterComponent } from '../dynamicformtester/dynamicformtester.component';
+import { SearchformgeneratorComponent } from '../searchformgenerator/searchformgenerator.component';
 
 @Component({
   selector: 'app-dynamicformlist',
@@ -176,6 +178,26 @@ export class DynamicformlistComponent implements OnInit {
             this.openDesignerComponentV2(item.formId);
           },
         },
+
+
+        {
+          text: 'SearchForm',
+          acl: 103,
+          //    i18n: 'dynamicform.fieldedit',
+          click: (item: any) => {
+            this.openSearchFormComponent(item.formId);
+          },
+        },
+
+
+        {
+          text: 'ConditionBuilder',
+          acl: 103,
+          //    i18n: 'dynamicform.fieldedit',
+          click: (item: any) => {
+            this.openConditionBuilderComponent(item.formId);
+          },
+        },
       ],
     },
   ];
@@ -291,6 +313,56 @@ export class DynamicformlistComponent implements OnInit {
       nzTitle: title,
       nzContent: DynamicformtesterComponent,
       nzWidth: width,
+      nzMaskClosable: nzMaskClosable,
+
+      nzContentParams: {
+        id: id,
+      },
+    });
+
+    drawerRef.afterOpen.subscribe(() => {});
+
+    drawerRef.afterClose.subscribe((data) => {
+      if (typeof data === 'string') {
+      }
+
+      this.getData();
+    });
+  }
+
+
+  openSearchFormComponent(id: Number): void {
+    var title = '预览';
+    var { nzMaskClosable, width } = this.settingService.getData('drawerconfig');
+    const drawerRef = this.drawerService.create<SearchformgeneratorComponent, { id: Number }, string>({
+      nzTitle: title,
+      nzContent: SearchformgeneratorComponent,
+      nzWidth: 1024,
+      nzMaskClosable: nzMaskClosable,
+
+      nzContentParams: {
+        id: id,
+      },
+    });
+
+    drawerRef.afterOpen.subscribe(() => {});
+
+    drawerRef.afterClose.subscribe((data) => {
+      if (typeof data === 'string') {
+      }
+
+      this.getData();
+    });
+  }
+
+
+  openConditionBuilderComponent(id: Number): void {
+    var title = '预览';
+    var { nzMaskClosable, width } = this.settingService.getData('drawerconfig');
+    const drawerRef = this.drawerService.create<ConditionbuilderComponent, { id: Number }, string>({
+      nzTitle: title,
+      nzContent: ConditionbuilderComponent,
+      nzWidth: 1024,
       nzMaskClosable: nzMaskClosable,
 
       nzContentParams: {

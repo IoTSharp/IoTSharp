@@ -65,8 +65,8 @@
 
   <nz-form-item>
     <nz-form-label [nzSm]="3" [nzXs]="24">目标类型</nz-form-label>
-    <nz-form-control nzErrorTip="目标类型">
-      <nz-select nzShowSearch nzAllowClear nzPlaceHolder="目标类型" [(ngModel)]="FormField.FieldValueType">
+    <nz-form-control nzErrorTip="目标类型" [nzValidateStatus]="FormField.FieldValueTypenzValidateStatus" [nzErrorTip]="FormField.FieldValueTypenzValidatingTip">
+      <nz-select nzShowSearch nzAllowClear nzPlaceHolder="目标类型" [(ngModel)]="FormField.FieldValueType" nzRequired>
         <nz-option *ngFor="let o of SuportType" [nzValue]="o.value" [nzLabel]="o.label"> </nz-option>
       </nz-select>
     </nz-form-control>

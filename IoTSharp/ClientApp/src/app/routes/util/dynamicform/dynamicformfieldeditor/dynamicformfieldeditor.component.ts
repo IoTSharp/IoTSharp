@@ -171,6 +171,14 @@ export class DynamicformfieldeditorComponent implements OnInit {
         item.componentRef.location.nativeElement.scrollIntoView();
         return;
       }
+
+
+      if (item.prop.FieldValueType==='0') {
+        item.prop.FieldValueTypenzValidatingTip = '数据类型不能为空';
+        item.prop.FieldValueTypenzValidateStatus = 'error';
+        item.componentRef.location.nativeElement.scrollIntoView();
+        return;
+      }
       if (keys.filter((x) => x == item.prop.FieldCode).length > 0) {
         item.prop.FieldCodenzValidatingTip = '索引重复';
         item.prop.FieldCodenzValidateStatus = 'error';
