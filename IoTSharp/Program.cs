@@ -8,7 +8,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Hosting;
 using Silkier.AspNetCore;
 using SilkierQuartz;
-
+using Rin;
 namespace IoTSharp
 {
     public class Program
