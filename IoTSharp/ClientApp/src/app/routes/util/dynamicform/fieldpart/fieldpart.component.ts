@@ -828,4 +828,8 @@ export class FormField {
 
   FieldCodenzValidateStatus: string;
   FieldCodenzValidatingTip: string;
+
+
+  FieldValueTypenzValidateStatus: string;
+  FieldValueTypenzValidatingTip: string;
 }
