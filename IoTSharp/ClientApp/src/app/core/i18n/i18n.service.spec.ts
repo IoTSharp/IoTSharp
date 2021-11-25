@@ -1,3 +1,4 @@
+import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { TestBed, TestBedStatic } from '@angular/core/testing';
 import { DelonLocaleService, SettingsService } from '@delon/theme';
 import { TranslateService } from '@ngx-translate/core';
@@ -12,15 +13,15 @@ describe('Service: I18n', () => {
   let srv: I18NService;
   const MockSettingsService: NzSafeAny = {
     layout: {
-      lang: null,
-    },
+      lang: null
+    }
   };
   const MockNzI18nService = {
     setLocale: () => {},
-    setDateLocale: () => {},
+    setDateLocale: () => {}
   };
   const MockDelonLocaleService = {
-    setLocale: () => {},
+    setLocale: () => {}
   };
   const MockTranslateService = {
     getBrowserLang: jasmine.createSpy('getBrowserLang'),
@@ -28,18 +29,19 @@ describe('Service: I18n', () => {
     setLocale: () => {},
     getDefaultLang: () => '',
     use: (lang: string) => of(lang),
-    instant: jasmine.createSpy('instant'),
+    instant: jasmine.createSpy('instant')
   };
 
   function genModule(): void {
     injector = TestBed.configureTestingModule({
+      imports: [HttpClientTestingModule],
       providers: [
         I18NService,
         { provide: SettingsService, useValue: MockSettingsService },
         { provide: NzI18nService, useValue: MockNzI18nService },
         { provide: DelonLocaleService, useValue: MockDelonLocaleService },
-        { provide: TranslateService, useValue: MockTranslateService },
-      ],
+        { provide: TranslateService, useValue: MockTranslateService }
+      ]
     });
     srv = TestBed.inject(I18NService);
   }
@@ -70,10 +72,16 @@ describe('Service: I18n', () => {
     expect(srv.defaultLang).toBe('zh-TW');
   });
 
+  it('should be use default language when the browser language is not in the list', () => {
+    spyOnProperty(navigator, 'languages').and.returnValue(['es-419']);
+    genModule();
+    expect(srv.defaultLang).toBe('zh-CN');
+  });
+
   it('should be trigger notify when changed language', () => {
     genModule();
-    srv.use('en-US');
-    srv.change.subscribe((lang) => {
+    srv.use('en-US', {});
+    srv.change.subscribe(lang => {
       expect(lang).toBe('en-US');
     });
   });

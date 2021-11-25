@@ -1,18 +1,22 @@
 {
+  "menu": {
+    "dashboard": {
+      "": "仪表盘",
+      "v1": "默认页",
+      "analysis": "分析页",
+      "monitor": "监控页",
+      "workplace": "工作台"
+    }
+  },
   "menu.search.placeholder": "搜索：员工、文件、照片等",
   "menu.fullscreen": "全屏",
   "menu.fullscreen.exit": "退出全屏",
   "menu.clear.local.storage": "清理本地缓存",
   "menu.lang": "语言",
   "menu.main": "主导航",
-  "menu.dashboard": "仪表盘",
-  "menu.dashboard.v1": "默认页",
-  "menu.dashboard.analysis": "分析页",
-  "menu.dashboard.monitor": "监控页",
-  "menu.dashboard.workplace": "工作台",
   "menu.shortcut": "快捷菜单",
   "menu.widgets": "小部件",
-  "menu.alain": "租户管理",
+  "menu.alain": "Alain",
   "menu.style": "样式",
   "menu.style.typography": "字体排印",
   "menu.style.gridmasonry": "瀑布流",
@@ -85,7 +89,7 @@
   "app.analysis.all-year": "全年",
   "app.analysis.all-month": "本月",
   "app.analysis.all-week": "本周",
-  "app.analysis.all-day": "今日",
+  "app.analysis.all-today": "今日",
   "app.analysis.search-users": "搜索用户数",
   "app.analysis.per-capita-search": "人均搜索次数",
   "app.analysis.online-top-search": "线上热门搜索",
@@ -148,13 +152,5 @@
   "validation.title.required": "请输入标题",
   "validation.date.required": "请选择起止日期",
   "validation.goal.required": "请输入目标描述",
-  "validation.standard.required": "请输入衡量标准",
-  "app.register.install": "安装",
-  "menu.tenant.tenantlist":"租户列表",
-  "menu.customer.customerlist":"客户列表",
-  "menu.device.devicelist":"设备列表",
-  "menu.tenant.tenantmanage":"租户管理",
-  "menu.customer.customermanage":"客户管理",
-  "menu.device.devicemanage":"设备管理",
-  "button.new":"新建"
+  "validation.standard.required": "请输入衡量标准"
 }

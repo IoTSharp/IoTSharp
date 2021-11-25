@@ -8,18 +8,18 @@ import {
   OnInit,
   SimpleChanges,
   TemplateRef,
-  ViewChild,
+  ViewChild
 } from '@angular/core';
 import * as BpmnJS from 'bpmn-js/dist/bpmn-viewer.production.min.js';
 import { interval } from 'rxjs';
 @Component({
   selector: 'app-flowviewer',
   templateUrl: './flowviewer.component.html',
-  styleUrls: ['./flowviewer.component.less'],
+  styleUrls: ['./flowviewer.component.less']
 })
 export class FlowviewerComponent implements AfterContentInit, OnChanges, OnDestroy {
   @ViewChild('viewer', { static: true })
-  private viewer: ElementRef;
+  private viewer!: ElementRef;
   @Input()
   diagramdata: any;
   private bpmnViewer: BpmnJS;
@@ -28,8 +28,8 @@ export class FlowviewerComponent implements AfterContentInit, OnChanges, OnDestr
     this.bpmnViewer = new BpmnJS({
       bpmnRenderer: {
         defaultFillColor: '#e6f7ff',
-        defaultStrokeColor: '#1890ff',
-      },
+        defaultStrokeColor: '#1890ff'
+      }
     });
 
     this.bpmnViewer.on('import.done', ({ error }) => {

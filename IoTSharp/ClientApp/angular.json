@@ -1,7 +1,7 @@
 {
   "$schema": "./node_modules/@angular/cli/lib/config/schema.json",
   "cli": {
-    "analytics": "002bc8c9-dd1d-44d6-b400-ce7e10f106c3"
+    "analytics": "6e2f945d-ecff-452b-8910-4c9b55eda917"
   },
   "version": 1,
   "newProjectRoot": "projects",
@@ -14,6 +14,9 @@
       "schematics": {
         "@schematics/angular:component": {
           "style": "less"
+        },
+        "@schematics/angular:application": {
+          "strict": true
         }
       },
       "architect": {
@@ -26,20 +29,18 @@
             "tsConfig": "tsconfig.app.json",
             "polyfills": "src/polyfills.ts",
             "assets": [
-              "src/assets",
-              "src/favicon.ico",
+              "src/assets", 
+              "src/favicon.ico", 
               {
-                "glob": "**/*",
-                "input": "./node_modules/monaco-editor/min/vs",
-                "output": "/assets/vs/"
-              }
-            ],
+              "glob": "**/*",
+              "input": "./node_modules/monaco-editor/min/vs",
+              "output": "/assets/vs/"
+            }],
             "styles": [
               "node_modules/grapesjs/dist/css/grapes.min.css",
               "node_modules/bpmn-js/dist/assets/diagram-js.css",
               "node_modules/bpmn-js/dist/assets/bpmn-font/css/bpmn.css",
-              "src/styles.less"
-            ],
+              "src/styles.less"],
             "scripts": ["node_modules/grapesjs/dist/grapes.min.js"],
             "allowedCommonJsDependencies": ["@antv/g2", "file-saver", "ajv", "ajv-formats", "date-fns", "jquery", "mousetrap","grapesjs-blocks-basic"]
           },
@@ -51,14 +52,7 @@
                   "with": "src/environments/environment.prod.ts"
                 }
               ],
-              "optimization": true,
               "outputHashing": "all",
-              "sourceMap": false,
-              "namedChunks": false,
-              "aot": true,
-              "extractLicenses": true,
-              "vendorChunk": false,
-              "buildOptimizer": true,
               "budgets": [
                 {
                   "type": "initial",
@@ -71,20 +65,35 @@
                   "maximumError": "10kb"
                 }
               ]
+            },
+            "development": {
+              "buildOptimizer": true,
+              "optimization": true,
+              "outputHashing": "all",
+              "vendorChunk": false,
+              "aot": true,
+              "extractLicenses": true,
+              "sourceMap": false,
+              "namedChunks": false
             }
-          }
+          },
+          "defaultConfiguration": "production"
         },
         "serve": {
           "builder": "@angular-devkit/build-angular:dev-server",
           "options": {
             "browserTarget": "ng-alain:build",
-            "proxyConfig": "proxy.conf.json"
+            "proxyConfig": "proxy.conf.js"
           },
           "configurations": {
             "production": {
               "browserTarget": "ng-alain:build:production"
+            },
+            "development": {
+              "browserTarget": "ng-alain:build:development"
             }
-          }
+          },
+          "defaultConfiguration": "development"
         },
         "extract-i18n": {
           "builder": "@angular-devkit/build-angular:extract-i18n",
@@ -105,10 +114,9 @@
           }
         },
         "lint": {
-          "builder": "@angular-devkit/build-angular:tslint",
+          "builder": "@angular-eslint/builder:lint",
           "options": {
-            "tsConfig": ["tsconfig.app.json", "tsconfig.spec.json", "e2e/tsconfig.json"],
-            "exclude": ["**/node_modules/**"]
+            "lintFilePatterns": ["src/**/*.ts", "src/**/*.html"]
           }
         },
         "e2e": {

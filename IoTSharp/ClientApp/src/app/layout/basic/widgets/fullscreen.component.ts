@@ -5,13 +5,12 @@ import * as screenfull from 'screenfull';
   selector: 'header-fullscreen',
   template: `
     <i nz-icon [nzType]="status ? 'fullscreen-exit' : 'fullscreen'"></i>
-    {{ (status ? 'menu.fullscreen.exit' : 'menu.fullscreen') | translate }}
+    {{ (status ? 'menu.fullscreen.exit' : 'menu.fullscreen') | i18n }}
   `,
-  // tslint:disable-next-line: no-host-metadata-property
   host: {
-    '[class.d-block]': 'true',
+    '[class.d-block]': 'true'
   },
-  changeDetection: ChangeDetectionStrategy.OnPush,
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class HeaderFullScreenComponent {
   status = false;

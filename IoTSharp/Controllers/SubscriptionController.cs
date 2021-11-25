@@ -56,7 +56,7 @@ namespace IoTSharp.Controllers
 
 
         [HttpGet("[action]")]
-        public async Task<ApiResult<SubscriptionEvent>> Get(Guid id)
+        public ApiResult<SubscriptionEvent> Get(Guid id)
         {
             var subscriptionEvent = _context.SubscriptionEvents.SingleOrDefault(c => c.EventId == id);
             if (subscriptionEvent != null)

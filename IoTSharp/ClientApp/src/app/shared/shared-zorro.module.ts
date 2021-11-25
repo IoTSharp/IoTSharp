@@ -71,5 +71,6 @@ export const SHARED_ZORRO_MODULES = [
   NzPageHeaderModule,
   NzLayoutModule,
   NzStepsModule,
-  NzCodeEditorModule,NzTreeViewModule
+  NzCodeEditorModule,
+  NzTreeViewModule
 ];

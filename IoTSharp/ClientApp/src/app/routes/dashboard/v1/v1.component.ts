@@ -14,7 +14,7 @@ import { IWidgetComponent } from './widgetcomponent';
 @Component({
   selector: 'app-dashboard-v1',
   templateUrl: './v1.component.html',
-  changeDetection: ChangeDetectionStrategy.OnPush,
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class DashboardV1Component implements OnInit {
   @ViewChild(widgetdirective, { static: true })
@@ -32,31 +32,30 @@ export class DashboardV1Component implements OnInit {
 
     new WidgetItem('warning', WarningboardComponent, {
       //  someneedtransferdata: "yourdata,don't forget declara a @Input someneedtransferdata Property ",
-    }),
+    })
   ];
   constructor(
     private http: _HttpClient,
     private cdr: ChangeDetectorRef, // echarts有时候没出来，cdr刷新一下
     private settingService: SettingsService,
-    private componentFactoryResolver: ComponentFactoryResolver,
+    private componentFactoryResolver: ComponentFactoryResolver
   ) {}
 
-  ngOnInit(): void {this.initialwidgets();}
+  ngOnInit(): void {
+    this.initialwidgets();
+  }
 
   initialwidgets() {
-
-
-    var modules = this.settingService.user['modules']??['kanban', 'statistics', 'lists'];
+    var modules = this.settingService.user['modules'] ?? ['kanban', 'statistics', 'lists'];
 
     for (let item of this.widgets) {
-      if (modules.find((x) => x == item.name)) {
+      if (modules.find(x => x == item.name)) {
         const componentFactory = this.componentFactoryResolver.resolveComponentFactory(item.component);
         const viewContainerRef = this.widgetcontainer.viewContainerRef;
         const componentRef = viewContainerRef.createComponent<IWidgetComponent>(componentFactory);
         // componentRef.instance.someproperties={prop1:"value1"}
-     //   componentRef.instance.dosomethingyouwanado()
+        //   componentRef.instance.dosomethingyouwanado()
       }
     }
-
   }
 }

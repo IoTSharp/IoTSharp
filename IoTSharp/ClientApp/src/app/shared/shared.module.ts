@@ -6,24 +6,22 @@ import { DelonACLModule } from '@delon/acl';
 import { DelonFormModule } from '@delon/form';
 import { AlainThemeModule } from '@delon/theme';
 import { TranslateModule } from '@ngx-translate/core';
-
 import { SHARED_DELON_MODULES } from './shared-delon.module';
 import { SHARED_ZORRO_MODULES } from './shared-zorro.module';
 import { DragDropModule } from '@angular/cdk/drag-drop';
 import { DragAndDropModule } from 'angular-draggable-droppable';
 import { NgxJsonViewModule } from 'ngw-json-view';
-
+import { NzCodeEditorModule } from 'ng-zorro-antd/code-editor';
 // #region third libs
 // import { NgxTinymceModule } from 'ngx-tinymce';
-import { UEditorModule } from 'ngx-ueditor';
-import { NzCodeEditorModule } from 'ng-zorro-antd/code-editor';
+// import { UEditorModule } from 'ngx-ueditor';
 
 const THIRDMODULES: Type<any>[] = [DragDropModule, DragAndDropModule, NgxJsonViewModule, NzCodeEditorModule];
 // #endregion
 
 // #region your componets & directives
-const COMPONENTS: Type<any>[] = [];
-const DIRECTIVES: Type<any>[] = [];
+const COMPONENTS: Array<Type<any>> = [];
+const DIRECTIVES: Array<Type<any>> = [];
 // #endregion
 
 @NgModule({
@@ -35,16 +33,15 @@ const DIRECTIVES: Type<any>[] = [];
     AlainThemeModule.forChild(),
     DelonACLModule,
     DelonFormModule,
-
     ...SHARED_DELON_MODULES,
     ...SHARED_ZORRO_MODULES,
     // third libs
-    ...THIRDMODULES,
+    ...THIRDMODULES
   ],
   declarations: [
     // your components
     ...COMPONENTS,
-    ...DIRECTIVES,
+    ...DIRECTIVES
   ],
   exports: [
     CommonModule,
@@ -55,14 +52,13 @@ const DIRECTIVES: Type<any>[] = [];
     DelonACLModule,
     DelonFormModule,
     TranslateModule,
-
     ...SHARED_DELON_MODULES,
     ...SHARED_ZORRO_MODULES,
     // third libs
     ...THIRDMODULES,
     // your components
     ...COMPONENTS,
-    ...DIRECTIVES,
-  ],
+    ...DIRECTIVES
+  ]
 })
 export class SharedModule {}

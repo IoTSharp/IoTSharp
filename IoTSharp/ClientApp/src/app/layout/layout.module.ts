@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { GlobalFooterModule } from '@delon/abc/global-footer';
 import { NoticeIconModule } from '@delon/abc/notice-icon';
+import { AlainThemeModule } from '@delon/theme';
 import { LayoutDefaultModule } from '@delon/theme/layout-default';
 import { SettingDrawerModule } from '@delon/theme/setting-drawer';
 import { ThemeBtnModule } from '@delon/theme/theme-btn';
@@ -29,6 +30,7 @@ import { HeaderRTLComponent } from './basic/widgets/rtl.component';
 import { HeaderSearchComponent } from './basic/widgets/search.component';
 import { HeaderTaskComponent } from './basic/widgets/task.component';
 import { HeaderUserComponent } from './basic/widgets/user.component';
+// eslint-disable-next-line import/order
 import { LayoutBlankComponent } from './blank/blank.component';
 
 const COMPONENTS = [LayoutBasicComponent, LayoutBlankComponent];
@@ -42,7 +44,7 @@ const HEADERCOMPONENTS = [
   HeaderI18nComponent,
   HeaderClearStorageComponent,
   HeaderUserComponent,
-  HeaderRTLComponent,
+  HeaderRTLComponent
 ];
 
 // passport
@@ -54,10 +56,11 @@ const PASSPORT = [LayoutPassportComponent];
     CommonModule,
     FormsModule,
     RouterModule,
+    AlainThemeModule.forChild(),
     ThemeBtnModule,
+    TranslateModule,
     SettingDrawerModule,
     LayoutDefaultModule,
-    TranslateModule,
     NoticeIconModule,
     GlobalFooterModule,
     NzDropDownModule,
@@ -69,9 +72,9 @@ const PASSPORT = [LayoutPassportComponent];
     NzBadgeModule,
     NzAvatarModule,
     NzIconModule,
-    NzCardModule,
+    NzCardModule
   ],
   declarations: [...COMPONENTS, ...HEADERCOMPONENTS, ...PASSPORT],
-  exports: [...COMPONENTS, ...PASSPORT],
+  exports: [...COMPONENTS, ...PASSPORT]
 })
 export class LayoutModule {}

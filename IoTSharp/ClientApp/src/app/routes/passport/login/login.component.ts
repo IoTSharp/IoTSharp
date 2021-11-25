@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, Inject, OnDestroy, OnInit, Optional } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, Inject, OnDestroy, Optional } from '@angular/core';
 import { AbstractControl, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { StartupService } from '@core';
@@ -9,14 +9,16 @@ import { environment } from '@env/environment';
 import { NzMessageService } from 'ng-zorro-antd/message';
 import { NzNotificationService } from 'ng-zorro-antd/notification';
 import { NzTabChangeEvent } from 'ng-zorro-antd/tabs';
+import { finalize } from 'rxjs/operators';
 
 @Component({
   selector: 'passport-login',
   templateUrl: './login.component.html',
   styleUrls: ['./login.component.less'],
   providers: [SocialService],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class UserLoginComponent implements OnDestroy, AfterViewInit {
+export class UserLoginComponent implements OnDestroy {
   constructor(
     fb: FormBuilder,
     private router: Router,
@@ -29,39 +31,34 @@ export class UserLoginComponent implements OnDestroy, AfterViewInit {
     private startupSrv: StartupService,
     public http: _HttpClient,
     public msg: NzMessageService,
-    public notification: NzNotificationService,
-
+    public notification: NzNotificationService
   ) {
     this.form = fb.group({
       userName: ['iotmaster@iotsharp.net', [Validators.required]],
       password: ['', [Validators.required]],
       mobile: [null, [Validators.required, Validators.pattern(/^1\d{10}$/)]],
       captcha: [null, [Validators.required]],
-      remember: [true],
+      remember: [true]
     });
   }
   ngAfterViewInit(): void {
-
     localStorage.clear();
 
-
     this.http.get('api/installer/instance?_allow_anonymous=true').subscribe(
-      (x) => {
-        if(x.code===10000){
+      x => {
+        if (x.code === 10000) {
           if (x.data.installed) {
-          }else{
+          } else {
             this.router.navigateByUrl('/passport/register');
           }
-        }else{
-          this.notification.error('请求错误','Api请求不正确');
+        } else {
+          this.notification.error('请求错误', 'Api请求不正确');
         }
-     
       },
-      (error) => {
-
-        this.notification.error('请求错误','系统异常');
+      error => {
+        this.notification.error('请求错误', '系统异常');
       },
-      () => {},
+      () => {}
     );
   }
 
@@ -137,11 +134,11 @@ export class UserLoginComponent implements OnDestroy, AfterViewInit {
       .post('api/Account/Login?_allow_anonymous=true', {
         type: this.type,
         userName: this.userName.value,
-        password: this.password.value,
+        password: this.password.value
       })
       .subscribe(
-        (x) => {
-          if (x.code!==10000) {
+        x => {
+          if (x.code !== 10000) {
             this.error = x.msg;
             return;
           }
@@ -154,17 +151,17 @@ export class UserLoginComponent implements OnDestroy, AfterViewInit {
             token: x.data.token.access_token,
             Authorization: x.data.token.access_token,
             expired: x.data.token.expires_in,
-            name: x.data.userName,
+            name: x.data.userName
           });
 
           this.settingsService.setUser({
             token: x.data.token.access_token,
             name: x.data.userName,
             avatar: './assets/logo-color.svg',
-            email: 'cipchk@qq.com',
+            email: 'cipchk@qq.com'
           });
           // 重新获取 StartupService 内容，我们始终认为应用信息一般都会受当前用户授权范围而影响
-          this.startupSrv.load().then(() => {
+          this.startupSrv.load().subscribe(() => {
             let url = this.tokenService.referrer!.url || '/';
             if (url.includes('/passport')) {
               url = '/';
@@ -172,10 +169,10 @@ export class UserLoginComponent implements OnDestroy, AfterViewInit {
             this.router.navigateByUrl(url);
           });
         },
-        (error) => {
+        error => {
           this.error = error.message;
         },
-        () => {},
+        () => {}
       );
   }
 
@@ -196,7 +193,7 @@ export class UserLoginComponent implements OnDestroy, AfterViewInit {
         break;
       case 'github':
         url = `//github.com/login/oauth/authorize?client_id=9d6baae4b04a23fcafa2&response_type=code&redirect_uri=${decodeURIComponent(
-          callback,
+          callback
         )}`;
         break;
       case 'weibo':
@@ -206,9 +203,9 @@ export class UserLoginComponent implements OnDestroy, AfterViewInit {
     if (openType === 'window') {
       this.socialService
         .login(url, '/', {
-          type: 'window',
+          type: 'window'
         })
-        .subscribe((res) => {
+        .subscribe(res => {
           if (res) {
             this.settingsService.setUser(res);
             this.router.navigateByUrl('/');
@@ -216,7 +213,7 @@ export class UserLoginComponent implements OnDestroy, AfterViewInit {
         });
     } else {
       this.socialService.login(url, '/', {
-        type: 'href',
+        type: 'href'
       });
     }
   }

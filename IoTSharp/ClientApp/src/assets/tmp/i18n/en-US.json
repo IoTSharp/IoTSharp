@@ -85,7 +85,7 @@
   "app.analysis.all-year": "All Year",
   "app.analysis.all-month": "All Month",
   "app.analysis.all-week": "All Week",
-  "app.analysis.all-day": "All day",
+  "app.analysis.all-today": "All day",
   "app.analysis.search-users": "Search Users",
   "app.analysis.per-capita-search": "Per Capita Search",
   "app.analysis.online-top-search": "Online Top Search",
@@ -149,17 +149,5 @@
   "validation.title.required": "Please enter a title",
   "validation.date.required": "Please select the start and end date",
   "validation.goal.required": "Please enter a description of the goal",
-  "validation.standard.required": "Please enter a metric",
-  "app.register.install": "Install",
-  "menu.tenant.tenantlist":"tenantlist",
-  "menu.customer.customerlist":"customerlist",
-  "menu.device.devicelist":"devicelist",
-  "menu.tenant.tenantmanage":"tenantmanage",
-  "menu.customer.customermanage":"customermanage",
-  "menu.device.devicemanage":"devicemanage",
-  "button.new":"New"
-
-
-
-  
+  "validation.standard.required": "Please enter a metric"
 }

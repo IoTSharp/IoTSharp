@@ -7,6 +7,9 @@ using System.Threading.Tasks;
 
 namespace IoTSharp.Data
 {
+
+
+    //mapping 对应Edge
   public  class DevicePortMapping
     {
         [System.ComponentModel.DataAnnotations.Key]

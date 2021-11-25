@@ -1,31 +1,34 @@
-import { Component, OnDestroy } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnDestroy } from '@angular/core';
 import { AbstractControl, FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { _HttpClient } from '@delon/theme';
+import { MatchControl } from '@delon/util/form';
 import { NzSafeAny } from 'ng-zorro-antd/core/types';
-import { NzMessageService } from 'ng-zorro-antd/message';
-import { NzNotificationService } from 'ng-zorro-antd/notification';
+import { finalize } from 'rxjs/operators';
 
 @Component({
   selector: 'passport-register',
   templateUrl: './register.component.html',
   styleUrls: ['./register.component.less'],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class UserRegisterComponent implements OnDestroy {
-  constructor(fb: FormBuilder, private router: Router, public http: _HttpClient, public msg: NzMessageService,    public notification: NzNotificationService,) {
-    this.form = fb.group({
-      email: ['iotmaster@iotsharp.net', [Validators.required, Validators.email]],
-      Password: ['', [Validators.required, Validators.minLength(6), UserRegisterComponent.checkPassword.bind(this)]],
-      confirm: ['', [Validators.required, Validators.minLength(6), UserRegisterComponent.passwordEquar]],
-      mobilePrefix: ['+86'],
-      CustomerName: ['iotmaster@iotsharp.net', [Validators.required]],
-      tenantName: ['iotmaster@iotsharp.net', [Validators.required]],
-      tenantEMail: ['iotmaster@iotsharp.net', [Validators.required, Validators.email]],
-      customerEMail: ['iotmaster@iotsharp.net', [Validators.required, Validators.email]],
-      phoneNumber: ['15911111111', [Validators.required, Validators.pattern(/^1\d{10}$/)]],
-    });
+  constructor(fb: FormBuilder, private router: Router, private http: _HttpClient, private cdr: ChangeDetectorRef) {
+    this.form = fb.group(
+      {
+        mail: [null, [Validators.required, Validators.email]],
+        password: [null, [Validators.required, Validators.minLength(6), UserRegisterComponent.checkPassword.bind(this)]],
+        confirm: [null, [Validators.required, Validators.minLength(6)]],
+        mobilePrefix: ['+86'],
+        mobile: [null, [Validators.required, Validators.pattern(/^1\d{10}$/)]],
+        captcha: [null, [Validators.required]]
+      },
+      {
+        validators: MatchControl('password', 'confirm')
+      }
+    );
   }
-  
+
   // #region fields
 
   get mail(): AbstractControl {
@@ -46,13 +49,14 @@ export class UserRegisterComponent implements OnDestroy {
   form: FormGroup;
   error = '';
   type = 0;
+  loading = false;
   visible = false;
   status = 'pool';
   progress = 0;
   passwordProgressMap: { [key: string]: 'success' | 'normal' | 'exception' } = {
     ok: 'success',
     pass: 'normal',
-    pool: 'exception',
+    pool: 'exception'
   };
 
   // #endregion
@@ -66,6 +70,7 @@ export class UserRegisterComponent implements OnDestroy {
     if (!control) {
       return null;
     }
+    // eslint-disable-next-line @typescript-eslint/no-this-alias
     const self: any = this;
     self.visible = !!control.value;
     if (control.value && control.value.length > 9) {
@@ -81,16 +86,6 @@ export class UserRegisterComponent implements OnDestroy {
     }
   }
 
-  static passwordEquar(control: FormControl): { equar: boolean } | null {
-    if (!control || !control.parent!) {
-      return null;
-    }
-    if (control.value !== control.parent!.get('Password')!.value) {
-      return { equar: true };
-    }
-    return null;
-  }
-
   getCaptcha(): void {
     if (this.mobile.invalid) {
       this.mobile.markAsDirty({ onlySelf: true });
@@ -98,8 +93,10 @@ export class UserRegisterComponent implements OnDestroy {
       return;
     }
     this.count = 59;
+    this.cdr.detectChanges();
     this.interval$ = setInterval(() => {
       this.count -= 1;
+      this.cdr.detectChanges();
       if (this.count <= 0) {
         clearInterval(this.interval$);
       }
@@ -110,26 +107,28 @@ export class UserRegisterComponent implements OnDestroy {
 
   submit(): void {
     this.error = '';
-    Object.keys(this.form.controls).forEach((key) => {
+    Object.keys(this.form.controls).forEach(key => {
       this.form.controls[key].markAsDirty();
       this.form.controls[key].updateValueAndValidity();
     });
-    const data = this.form.value;
-
     if (this.form.invalid) {
       return;
     }
-    this.http.post('api/Installer/Install?_allow_anonymous=true', data).subscribe((x) => {
-      if(x.code===10000){
-        if (x.data.installed) {
-          this.router.navigateByUrl('/passport/login?_allow_anonymous=true');
-        }else{
-          this.router.navigateByUrl('/passport/login?_allow_anonymous=true');
-        }
-      }else{
-        this.notification.error('错误',x.msg);
-      }
-    });
+
+    const data = this.form.value;
+    this.loading = true;
+    this.cdr.detectChanges();
+    this.http
+      .post('/register?_allow_anonymous=true', data)
+      .pipe(
+        finalize(() => {
+          this.loading = false;
+          this.cdr.detectChanges();
+        })
+      )
+      .subscribe(() => {
+        this.router.navigate(['passport', 'register-result'], { queryParams: { email: data.mail } });
+      });
   }
 
   ngOnDestroy(): void {
@@ -137,11 +136,4 @@ export class UserRegisterComponent implements OnDestroy {
       clearInterval(this.interval$);
     }
   }
-}
-
-export interface reguser {
-  email: string;
-  phoneNumber: string;
-  customer: string;
-  password: string;
 }
