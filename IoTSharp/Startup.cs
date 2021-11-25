@@ -130,7 +130,13 @@ namespace IoTSharp
             });
 
             services.AddCors();
-            services.AddLogging(loggingBuilder => loggingBuilder.AddConsole());
+            services.AddLogging(loggingBuilder =>
+            {
+                loggingBuilder.AddConsole();
+                loggingBuilder.AddRinLogger();
+            }
+            );
+            services.AddRin();
             services.AddOpenApiDocument(configure =>
             {
                 Assembly assembly = typeof(Startup).GetTypeInfo().Assembly;
@@ -383,7 +389,17 @@ namespace IoTSharp
         {
             if (env.IsDevelopment() || !env.IsEnvironment("Production"))
             {
-                app.UseDeveloperExceptionPage();
+                    // Add: Enable request/response recording and serve a inspector frontend.
+                    // Important: `UseRin` (Middlewares) must be top of the HTTP pipeline.
+                    app.UseRin();
+
+                    // Add(option): Enable ASP.NET Core MVC support if the project built with ASP.NET Core MVC
+                    app.UseRinMvcSupport();
+
+                    app.UseDeveloperExceptionPage();
+
+                    // Add: Enable Exception recorder. this handler must be after `UseDeveloperExceptionPage`.
+                    app.UseRinDiagnosticsHandler();
             }
             else
             {
