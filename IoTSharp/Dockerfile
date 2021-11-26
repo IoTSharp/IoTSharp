@@ -44,7 +44,7 @@ RUN KEYRING=/usr/share/keyrings/nodesource.gpg && curl -fsSL https://deb.nodesou
 	apt-get  -y   -q update  && \
     apt-get install -y nodejs && \
 	ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime && \
-	npm config set registry https://registry.npm.taobao.org && \
+	npm config set registry https://registry.npmmirror.com && \
 	export NODE_OPTIONS=--openssl-legacy-provider && \
 	apt-get autoremove -y &&  apt-get clean  &&  apt-get autoclean && rm  /var/cache/apt/* -rf 
 
