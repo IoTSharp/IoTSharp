@@ -166,8 +166,8 @@ namespace IoTSharp
                 authenticationOptions.AuthScheme = CookieAuthenticationDefaults.AuthenticationScheme;
                 authenticationOptions.SilkierQuartzClaim = "Silkier";
                 authenticationOptions.SilkierQuartzClaimValue = "Quartz";
-                authenticationOptions.UserName = "admin";
-                authenticationOptions.UserPassword = "password";
+                authenticationOptions.UserName = settings.SilkierUsername;
+                authenticationOptions.UserPassword = settings.SilkierPassword;  
                 authenticationOptions.AccessRequirement = SilkierQuartzAuthenticationOptions.SimpleAccessRequirement.AllowAnonymous;//登录认证有问题
             }, stdSchedulerFactoryOption =>
              {

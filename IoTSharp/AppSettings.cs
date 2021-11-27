@@ -76,14 +76,16 @@ namespace IoTSharp
         public int ConsumerThreadCount { get; set; } = Environment.ProcessorCount;
         public int DbContextPoolSize { get; set; } = 128;
         public CachingUseIn CachingUseIn { get; set; } = CachingUseIn.InMemory;
-        public  string CachingUseRedisHosts { get; set; }
+        public string CachingUseRedisHosts { get; set; }
         public DiscoveryOptions Discovery { get; set; } = null;
         public ZMQOption ZMQOption { get; set; } = null;
         public int SucceedMessageExpiredAfter { get; set; } = 3600 * 6;
         public DataBaseType DataBase { get; set; } = DataBaseType.PostgreSql;
         public int RuleCachingExpiration { get; set; } = 60;
+        public string SilkierUsername { get; set; }
+        public string SilkierPassword { get; set; }
     }
-  
+
     public class ShardingSetting
     {
         public DatabaseType DatabaseType { get; set; } = DatabaseType.PostgreSql;
