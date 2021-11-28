@@ -49,9 +49,6 @@ IoTSharp is an open-source IoT platform for data collection, processing, visuali
  -	sudo systemctl start  iotsharp.service 
  -	sudo journalctl -fu  iotsharp.service 
 
-## IoTSharp's Clients 
- - Cicada    A desktop application   
-
 
 
 ##  IoTSharp.SDKs

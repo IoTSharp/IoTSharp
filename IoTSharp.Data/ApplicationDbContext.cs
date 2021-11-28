@@ -16,7 +16,7 @@ namespace IoTSharp.Data
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
             : base(options)
         {
-            if (Database.GetPendingMigrations().Count() > 0)
+            if (Database.IsRelational()  && Database.GetPendingMigrations().Any())
             {
                 Database.Migrate();
             }

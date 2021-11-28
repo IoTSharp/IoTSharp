@@ -203,6 +203,7 @@
 		</ItemGroup>
 	</Target>
 	<ItemGroup>
+	  <ProjectReference Include="..\IoTSharp.Data.InMemory\IoTSharp.Data.InMemory.csproj" />
 	  <ProjectReference Include="..\IoTSharp.Data.MySQL\IoTSharp.Data.MySQL.csproj" />
 	  <ProjectReference Include="..\IoTSharp.Data.Oracle\IoTSharp.Data.Oracle.csproj" />
 	  <ProjectReference Include="..\IoTSharp.Data.PostgreSQL\IoTSharp.Data.PostgreSQL.csproj" />

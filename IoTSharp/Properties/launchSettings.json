@@ -72,6 +72,14 @@
       },
       "applicationUrl": ";http://localhost:5000"
     },
+    "InMemory": {
+      "commandName": "Project",
+      "launchBrowser": true,
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "InMemory"
+      },
+      "applicationUrl": ";http://localhost:5000"
+    },
     "SQLServer": {
       "commandName": "Project",
       "launchBrowser": true,

@@ -46,9 +46,7 @@ IoTSharp 是一个 基于.Net Core 开源的物联网基础平台， 支持 HTTP
  -	sudo systemctl start  iotsharp.service 
  -	sudo journalctl -fu  iotsharp.service 
 
-## IoTSharp的客户端
- - Cicada     一个桌面程序
- -    [IoTSharp.ClientApp](IoTSharp.ClientApp)  Blazor编写的客户端
+
 
 ##  IoTSharp.SDKs
 

@@ -6,6 +6,7 @@ using HealthChecks.UI.Client;
 using InfluxDB.Client;
 using IoTSharp.Controllers.Models;
 using IoTSharp.Data;
+using IoTSharp.Data.Sqlite;
 using IoTSharp.FlowRuleEngine;
 using IoTSharp.Handlers;
 using IoTSharp.Interpreter;
@@ -94,7 +95,10 @@ namespace IoTSharp
                 case DataBaseType.Sqlite:
                     services.ConfigureSqlite(Configuration.GetConnectionString("IoTSharp"), settings.DbContextPoolSize, healthChecks, healthChecksUI);
                     break;
+                case DataBaseType.InMemory:
+                    services.ConfigureInMemory(settings.DbContextPoolSize,  healthChecksUI);
 
+                    break;
                 case DataBaseType.PostgreSql:
                 default:
                     services.ConfigureNpgsql(Configuration.GetConnectionString("IoTSharp"), settings.DbContextPoolSize, healthChecks, healthChecksUI);

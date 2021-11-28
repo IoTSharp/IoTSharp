@@ -59,6 +59,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IoTSharp.Interpreter", "IoT
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IoTSharp.TaskAction", "IoTSharp.TaskAction\IoTSharp.TaskAction.csproj", "{01671BDE-398D-423C-B3E4-A05FF0AB7B4F}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IoTSharp.Data.InMemory", "IoTSharp.Data.InMemory\IoTSharp.Data.InMemory.csproj", "{A57917E3-6F60-4D0E-8F13-36E5088DEFCE}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -388,6 +390,26 @@ Global
 		{01671BDE-398D-423C-B3E4-A05FF0AB7B4F}.Release|x64.Build.0 = Release|Any CPU
 		{01671BDE-398D-423C-B3E4-A05FF0AB7B4F}.Release|x86.ActiveCfg = Release|Any CPU
 		{01671BDE-398D-423C-B3E4-A05FF0AB7B4F}.Release|x86.Build.0 = Release|Any CPU
+		{A57917E3-6F60-4D0E-8F13-36E5088DEFCE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A57917E3-6F60-4D0E-8F13-36E5088DEFCE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A57917E3-6F60-4D0E-8F13-36E5088DEFCE}.Debug|ARM.ActiveCfg = Debug|Any CPU
+		{A57917E3-6F60-4D0E-8F13-36E5088DEFCE}.Debug|ARM.Build.0 = Debug|Any CPU
+		{A57917E3-6F60-4D0E-8F13-36E5088DEFCE}.Debug|ARM64.ActiveCfg = Debug|Any CPU
+		{A57917E3-6F60-4D0E-8F13-36E5088DEFCE}.Debug|ARM64.Build.0 = Debug|Any CPU
+		{A57917E3-6F60-4D0E-8F13-36E5088DEFCE}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{A57917E3-6F60-4D0E-8F13-36E5088DEFCE}.Debug|x64.Build.0 = Debug|Any CPU
+		{A57917E3-6F60-4D0E-8F13-36E5088DEFCE}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{A57917E3-6F60-4D0E-8F13-36E5088DEFCE}.Debug|x86.Build.0 = Debug|Any CPU
+		{A57917E3-6F60-4D0E-8F13-36E5088DEFCE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A57917E3-6F60-4D0E-8F13-36E5088DEFCE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A57917E3-6F60-4D0E-8F13-36E5088DEFCE}.Release|ARM.ActiveCfg = Release|Any CPU
+		{A57917E3-6F60-4D0E-8F13-36E5088DEFCE}.Release|ARM.Build.0 = Release|Any CPU
+		{A57917E3-6F60-4D0E-8F13-36E5088DEFCE}.Release|ARM64.ActiveCfg = Release|Any CPU
+		{A57917E3-6F60-4D0E-8F13-36E5088DEFCE}.Release|ARM64.Build.0 = Release|Any CPU
+		{A57917E3-6F60-4D0E-8F13-36E5088DEFCE}.Release|x64.ActiveCfg = Release|Any CPU
+		{A57917E3-6F60-4D0E-8F13-36E5088DEFCE}.Release|x64.Build.0 = Release|Any CPU
+		{A57917E3-6F60-4D0E-8F13-36E5088DEFCE}.Release|x86.ActiveCfg = Release|Any CPU
+		{A57917E3-6F60-4D0E-8F13-36E5088DEFCE}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

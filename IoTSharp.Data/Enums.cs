@@ -84,7 +84,8 @@ namespace IoTSharp.Data
         SqlServer,
         MySql ,
         Oracle ,
-        Sqlite
+        Sqlite,
+        InMemory
     }
     [System.Text.Json.Serialization.JsonConverter(typeof(System.Text.Json.Serialization.JsonStringEnumConverter))]
     [JsonConverter(typeof(StringEnumConverter))]
