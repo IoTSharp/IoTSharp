@@ -22,7 +22,7 @@ namespace IoTSharp.Storage
     {
         private readonly AppSettings _appSettings;
         private readonly ILogger _logger;
-        private readonly IServiceScope scope;
+        //private readonly IServiceScope scope;
         private readonly IServiceScopeFactory _scopeFactor;
       
 
@@ -32,7 +32,7 @@ namespace IoTSharp.Storage
         {
             _appSettings = options.Value;
             _logger = logger;
-            scope = scopeFactor.CreateScope();
+            //scope = scopeFactor.CreateScope();
             _scopeFactor = scopeFactor;
         }
 
@@ -40,11 +40,11 @@ namespace IoTSharp.Storage
         {
             try
             {
-                using (var _scope = _scopeFactor.CreateScope())
+                using (var scope = _scopeFactor.CreateScope())
                 {
-                    using (var _context = _scope.ServiceProvider.GetRequiredService<ApplicationDbContext>())
+                    using (var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>())
                     {
-                        var devid = from t in _context.TelemetryLatest
+                        var devid = from t in context.TelemetryLatest
                                     where t.DeviceId == deviceId
                                     select new TelemetryDataDto() { DateTime = t.DateTime, KeyName = t.KeyName, Value = t.ToObject() };
 
@@ -63,11 +63,11 @@ namespace IoTSharp.Storage
         {
             try
             {
-                using (var _scope = _scopeFactor.CreateScope())
+                using (var scope = _scopeFactor.CreateScope())
                 {
-                    using (var _context = _scope.ServiceProvider.GetRequiredService<ApplicationDbContext>())
+                    using (var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>())
                     {
-                        var devid = from t in _context.TelemetryLatest
+                        var devid = from t in context.TelemetryLatest
                                     where t.DeviceId == deviceId && keys.Split(',', ' ', ';').Contains(t.KeyName)
 
                                     select new TelemetryDataDto() { DateTime = t.DateTime, KeyName = t.KeyName, Value = t.ToObject() };
@@ -94,12 +94,12 @@ namespace IoTSharp.Storage
             {
                 try
                 {
-                    using (var _scope = _scopeFactor.CreateScope())
+                    using (var scope = _scopeFactor.CreateScope())
                     {
-                        using (var _context = _scope.ServiceProvider.GetService<IShardingDbAccessor>())
+                        using (var context = scope.ServiceProvider.GetService<IShardingDbAccessor>())
                         {
                             var lst = new List<TelemetryDataDto>();
-                            var kv = _context.GetIShardingQueryable<TelemetryData>()
+                            var kv = context.GetIShardingQueryable<TelemetryData>()
                                 .Where(t => t.DeviceId == deviceId && keys.Split(',', ' ', ';').Contains(t.KeyName) && t.DateTime >= begin && t.DateTime < end)
                                 .ToList().Select(t => new TelemetryDataDto() { DateTime = t.DateTime, KeyName = t.KeyName, Value = t.ToObject() });
                             return kv.ToList();
@@ -123,10 +123,12 @@ namespace IoTSharp.Storage
         {
             return Task.Run(() =>
             {
-                using (var _context = scope.ServiceProvider.GetService<IShardingDbAccessor>())
+                using var scope = _scopeFactor.CreateScope();
+
+                using (var context = scope.ServiceProvider.GetService<IShardingDbAccessor>())
                 {
                     var lst = new List<TelemetryDataDto>();
-                    var kv = _context.GetIShardingQueryable<TelemetryData>()
+                    var kv = context.GetIShardingQueryable<TelemetryData>()
                         .Where(t => t.DeviceId == deviceId && t.DateTime >= begin && t.DateTime < end)
                         .ToList().Select(t => new TelemetryDataDto() { DateTime = t.DateTime, KeyName = t.KeyName, Value = t.ToObject() });
                     return kv.ToList();
@@ -141,6 +143,8 @@ namespace IoTSharp.Storage
 
             try
             {
+                using var scope = _scopeFactor.CreateScope();
+
                 using (var db = scope.ServiceProvider.GetService<IShardingDbAccessor>())
                 {
                     var lst = new List<TelemetryData>();
@@ -166,11 +170,11 @@ namespace IoTSharp.Storage
 
             try
             {
-                using (var _scope = _scopeFactor.CreateScope())
+                using (var scope = _scopeFactor.CreateScope())
                 {
-                    using (var _dbContext = _scope.ServiceProvider.GetRequiredService<ApplicationDbContext>())
+                    using (var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>())
                     {
-                        var result1 = await _dbContext.SaveAsync<TelemetryLatest>(msg.MsgBody, msg.DeviceId, msg.DataSide);
+                        var result1 = await dbContext.SaveAsync<TelemetryLatest>(msg.MsgBody, msg.DeviceId, msg.DataSide);
                         result1.exceptions?.ToList().ForEach(ex =>
                         {
                             _logger.LogError(ex.Value, $"{ex.Key} {ex.Value.Message} {ex.Value.InnerException?.Message}");
