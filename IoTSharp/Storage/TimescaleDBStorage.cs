@@ -10,7 +10,6 @@ namespace IoTSharp.Storage
 {
     public class TimescaleDBStorage : EFStorage
     {
-        //private readonly ApplicationDbContext _context;
 
         /// <summary>
         /// 解决单例注入问题 jy 
@@ -21,8 +20,7 @@ namespace IoTSharp.Storage
            , IOptions<AppSettings> options
             ) : base(logger, scopeFactor, options)
         {
-            //var scope = scopeFactor.CreateScope();
-            //_context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+        
             _scopeFactor = scopeFactor;
         }
 

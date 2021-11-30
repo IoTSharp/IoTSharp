@@ -19,9 +19,7 @@ namespace IoTSharp.Storage
         private readonly AppSettings _appSettings;
         private readonly ILogger _logger;
         private readonly IServiceScopeFactory _scopeFactor;
-        //private readonly IServiceScope scope;
-        //private readonly ApplicationDbContext _context;
-
+     
         public EFStorage(ILogger<EFStorage> logger, IServiceScopeFactory scopeFactor
            , IOptions<AppSettings> options
             )
@@ -29,8 +27,6 @@ namespace IoTSharp.Storage
             _appSettings = options.Value;
             _logger = logger;
             _scopeFactor = scopeFactor;
-            //scope = scopeFactor.CreateScope();
-            //_context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
         }
 
         public Task<List<TelemetryDataDto>> GetTelemetryLatest(Guid deviceId)
