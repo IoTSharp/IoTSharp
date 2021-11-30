@@ -66,6 +66,7 @@ namespace IoTSharp.Extensions
                         {
                             var tx = tl.First();
                             tx.FillKVToMe(kp);
+                            // TODO:jy 待重新设计主键
                             tx.DateTime = DateTime.Now;
                             _context.Set<L>().Update(tx).State = EntityState.Modified;
                         }
