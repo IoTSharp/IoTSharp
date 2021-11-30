@@ -12,6 +12,8 @@ using IoTSharp.Handlers;
 using IoTSharp.Interpreter;
 using IoTSharp.Storage;
 using IoTSharp.X509Extensions;
+using Jdenticon.AspNetCore;
+using Jdenticon.Rendering;
 using Maikebing.Data.Taos;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -40,6 +42,8 @@ using System.Linq;
 using System.Reflection;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
+using Jdenticon;
+
 
 namespace IoTSharp
 {
@@ -458,6 +462,17 @@ namespace IoTSharp
                 {
                     spa.UseAngularCliServer(npmScript: "start");
                 }
+            });
+            app.UseJdenticon(defaultStyle =>
+            {
+                // Custom identicon style
+                // https://jdenticon.com/icon-designer.html?config=8644440010c4330a24461852
+                defaultStyle.Hues = new HueCollection { { 196, HueUnit.Degrees } };
+                defaultStyle.BackColor = Color.FromRgba(134, 68, 68, 0);
+                defaultStyle.ColorLightness = Jdenticon.Range.Create(0.36f, 0.70f);
+                defaultStyle.GrayscaleLightness = Jdenticon.Range.Create(0.24f, 0.82f);
+                defaultStyle.ColorSaturation = 0.51f;
+                defaultStyle.GrayscaleSaturation = 0.10f;
             });
         }
     }

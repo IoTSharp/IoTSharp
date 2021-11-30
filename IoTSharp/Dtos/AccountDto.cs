@@ -45,6 +45,7 @@ namespace IoTSharp.Dtos
         /// 用户所具备权限
         /// </summary>
         public IList<string> Roles { get; set; }
+        public string Avatar { get; internal set; }
     }
 
     public class LoginDto

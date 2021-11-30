@@ -23,6 +23,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Options;
 using Silkier.AspNetCore;
 using Silkier.Extensions;
+using Jdenticon.AspNetCore;
 
 namespace IoTSharp.Controllers
 {
@@ -55,6 +56,13 @@ namespace IoTSharp.Controllers
             _context = context;
             _settings = options.Value;
         }
+
+        [HttpGet,AllowAnonymous ]
+        public async Task<IActionResult> Avatar()
+        {
+            var user = await _userManager.GetUserAsync(User);
+            return IdenticonResult.FromValue(user.Email+user.Id, 64);
+        }
         /// <summary>
         /// 获取当前登录用户信息
         /// </summary>
@@ -78,7 +86,6 @@ namespace IoTSharp.Controllers
                 PhoneNumber= user.PhoneNumber,
                 Introduction = user.NormalizedUserName,
                 Customer = Customer, 
-                
                 Tenant = Customer?.Tenant
             };
             return new ApiResult<UserInfoDto>(ApiCode.Success, "OK", uidto);
@@ -147,7 +154,8 @@ namespace IoTSharp.Controllers
                         Token = token,
                         UserName = appUser.UserName,
                         SignIn = result,
-                        Roles = roles
+                        Roles = roles,
+                        Avatar = appUser.Gravatar()
                     });
                     //return Ok(new LoginResult()
                     //{
