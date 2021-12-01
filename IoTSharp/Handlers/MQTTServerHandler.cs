@@ -446,8 +446,19 @@ namespace IoTSharp.Handlers
                 using (var _dbContextcv = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>())
                 {
                     MqttConnectionValidatorContext obj = e.Context;
-                    Uri uri = new Uri("mqtt://" + obj.Endpoint);
-                    if (uri.IsLoopback && !string.IsNullOrEmpty(e.Context.ClientId) && e.Context.ClientId == _mcsetting.MqttBroker && !string.IsNullOrEmpty(e.Context.Username) && e.Context.Username == _mcsetting.UserName && e.Context.Password == _mcsetting.Password)
+
+                    // jy 特殊处理 ::1
+                    var isLoopback = false;
+                    if (obj.Endpoint?.StartsWith("::1") == true)
+                    {
+                        isLoopback = true;
+                    }
+                    else
+                    {
+                        Uri uri = new Uri("mqtt://" + obj.Endpoint);
+                        isLoopback = uri.IsLoopback;
+                    }
+                    if (isLoopback && !string.IsNullOrEmpty(e.Context.ClientId) && e.Context.ClientId == _mcsetting.MqttBroker && !string.IsNullOrEmpty(e.Context.Username) && e.Context.Username == _mcsetting.UserName && e.Context.Password == _mcsetting.Password)
                     {
                         e.Context.ReasonCode = MQTTnet.Protocol.MqttConnectReasonCode.Success;
                     }
