@@ -91,7 +91,7 @@
 		<PackageReference Include="MQTTnet" Version="3.1.0" />
 		<PackageReference Include="MQTTnet.AspNetCore" Version="3.1.0" />
 		<PackageReference Include="MQTTnet.AspNetCoreEx" Version="3.1.0" />
-		<PackageReference Include="MQTTnet.Extensions.Rpc" Version="3.1.0" />
+		<PackageReference Include="MQTTnet.Extensions.Rpc" Version="3.1.1" />
 		<PackageReference Include="NetMQ" Version="4.0.1.6" />
 		<PackageReference Include="NSwag.AspNetCore" Version="13.14.1" />
 		<PackageReference Include="PinusDB" Version="1.0.10" />
