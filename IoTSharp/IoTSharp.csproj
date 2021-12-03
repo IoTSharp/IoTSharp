@@ -110,7 +110,7 @@
 		<PackageReference Include="SilkierQuartz.Plugins.RecentHistory" Version="5.0.309" />
 		<PackageReference Include="System.CodeDom" Version="5.0.0" />
 		<PackageReference Include="System.Collections" Version="4.3.0" />
-		<PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="6.14.1" />
+		<PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="6.15.0" />
 		<PackageReference Include="System.ServiceModel.Primitives" Version="4.9.0" />
 		<PackageReference Include="System.Text.Encoding.CodePages" Version="5.0.0" />
 		<PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="5.0.12" />
