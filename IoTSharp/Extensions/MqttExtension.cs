@@ -55,7 +55,6 @@ namespace IoTSharp
                     .AddConnections(); 
             services.AddMqttWebSocketServerAdapter();
             services.AddSingleton<MQTTServerHandler>();
-            services.AddTransient<IMqttNetLogger, IoTSharp.Handlers.MqttNetLogger>();
         }
         public static void UseIotSharpMqttServer(this IApplicationBuilder app)
         {
