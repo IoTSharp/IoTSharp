@@ -901,28 +901,35 @@ namespace IoTSharp.Controllers
         /// <summary>
         /// SessionStatus
         /// </summary>
-        /// <param name="deviceId"></param>
         /// <returns></returns>
         [Authorize(Roles = nameof(UserRole.NormalUser))]
         [HttpGet("SessionStatus")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesDefaultResponseType]
-        public async Task<ApiResult<IList<IMqttSessionStatus>>> GetSessionStatus(Guid deviceId)
+        public async Task<ApiResult<IList<IMqttSessionStatus>>> GetSessionStatus()
         {
             return new ApiResult<IList<IMqttSessionStatus>>(ApiCode.Success, "OK", await _serverEx.GetSessionStatusAsync());
         }
         /// <summary>
         /// SessionStatus
         /// </summary>
-        /// <param name="deviceId"></param>
         /// <returns></returns>
         [Authorize(Roles = nameof(UserRole.NormalUser))]
         [HttpGet("ClientStatus")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesDefaultResponseType]
-        public async Task<ApiResult<IList<IMqttClientStatus>>> GetClientStatus(Guid deviceId)
+        public async Task<ApiResult<IList<IMqttClientStatus>>> GetClientStatus()
         {
             return new ApiResult<IList<IMqttClientStatus>>(ApiCode.Success, "OK", await _serverEx.GetClientStatusAsync());
+        }
+
+        [Authorize(Roles = nameof(UserRole.NormalUser))]
+        [HttpGet("SessionsCount")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesDefaultResponseType]
+        public async Task<ApiResult<int>> GetSessionsCount()
+        {
+            return new ApiResult<int>(ApiCode.Success, "OK",( await _serverEx.GetClientStatusAsync()).Count);
         }
     }
 }

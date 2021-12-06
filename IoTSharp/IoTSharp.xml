@@ -347,18 +347,16 @@
             <param name="attributes"></param>
             <returns></returns>
         </member>
-        <member name="M:IoTSharp.Controllers.DevicesController.GetSessionStatus(System.Guid)">
+        <member name="M:IoTSharp.Controllers.DevicesController.GetSessionStatus">
             <summary>
             SessionStatus
             </summary>
-            <param name="deviceId"></param>
             <returns></returns>
         </member>
-        <member name="M:IoTSharp.Controllers.DevicesController.GetClientStatus(System.Guid)">
+        <member name="M:IoTSharp.Controllers.DevicesController.GetClientStatus">
             <summary>
             SessionStatus
             </summary>
-            <param name="deviceId"></param>
             <returns></returns>
         </member>
         <member name="M:IoTSharp.Controllers.DictionaryController.Delete(System.Int32)">
