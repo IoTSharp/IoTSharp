@@ -355,6 +355,7 @@ namespace IoTSharp.Handlers
                     _logger.LogError(ex, $"Server_ClientDisconnected ClientId:{args.ClientId} DisconnectType:{args.DisconnectType},{ex.Message}");
 
                 }
+       
         }
 
         private Device JudgeOrCreateNewDevice(string[] tpary, Device device)

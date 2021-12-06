@@ -703,6 +703,11 @@
             <returns></returns>
             <exception cref="!:https://github.com/taosdata/TDengine/issues/4269">务必注意此bug</exception>
         </member>
+        <member name="F:IoTSharp.Storage.TimescaleDBStorage._scopeFactor">
+            <summary>
+            解决单例注入问题 jy 
+            </summary>
+        </member>
         <member name="T:LiteQueue.LiteQueue`1">
             <summary>
             Uses LiteDB to provide a persisted, thread safe, (optionally) transactional, FIFO queue.
