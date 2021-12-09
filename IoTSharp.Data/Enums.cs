@@ -160,6 +160,7 @@ namespace IoTSharp.Data
         RAW = 0,
         Telemetry =1,
         Attribute=2,
+        RPC=3
     }
 
     

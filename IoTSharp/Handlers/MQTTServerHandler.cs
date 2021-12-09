@@ -154,34 +154,15 @@ namespace IoTSharp.Handlers
                             }
                             else if (tpary[2] == "rpc")
                             {
-
+                                if (tpary[3]== "request")
+                                {
+                                    await ExecFlowRules(e, _dev.DeviceType == DeviceType.Gateway ? device : _dev, tpary[4], MountType.RAW);//完善后改成 RPC 
+                                }
+                                
                             }
                             else
                             {
-                                var rules = await _caching.GetAsync($"ruleid_{_dev.Id}_raw", async () =>
-                                {
-                                    using (var scope = _scopeFactor.CreateScope())
-                                    using (var _dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>())
-                                    {
-                                        var guids = await _dbContext.GerDeviceRulesIdList(_dev.Id, MountType.RAW);
-                                        return guids;
-                                    }
-                                }
-                                , TimeSpan.FromSeconds(_settings.RuleCachingExpiration));
-                                if (rules.HasValue)
-                                {
-                                    var obj = new { e.ApplicationMessage.Topic, Payload = Convert.ToBase64String(e.ApplicationMessage.Payload), e.ClientId };
-                                    rules.Value.ToList().ForEach(async g =>
-                                    {
-                                        _logger.LogInformation($"{e.ClientId}的数据{e.ApplicationMessage.Topic}通过规则链{g}进行处理。");
-                                        await _flowRuleProcessor.RunFlowRules(g, obj, _dev.Id, EventType.Normal, null);
-                                    });
-                                }
-                                else
-                                {
-                                    _logger.LogInformation($"{e.ClientId}的数据{e.ApplicationMessage.Topic}不符合规范， 也无相关规则链处理。");
-                                }
-                                
+                                await ExecFlowRules(e, _dev.DeviceType == DeviceType.Gateway ? device : _dev, MountType.RAW);//如果是网关
                             }
 
                         }
@@ -233,6 +214,56 @@ namespace IoTSharp.Handlers
                     _logger.LogWarning(ex, $"ApplicationMessageReceived {ex.Message} {ex.InnerException?.Message}");
                 }
 
+            }
+        }
+        private async Task ExecFlowRules(MqttApplicationMessageReceivedEventArgs e, Device _dev, string method, MountType mount)
+        {
+            var rules = await _caching.GetAsync($"ruleid_{_dev.Id}_rpc_{method}", async () =>
+            {
+                using (var scope = _scopeFactor.CreateScope())
+                using (var _dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>())
+                {
+                    var guids = await _dbContext.GerDeviceRpcRulesList(_dev.Id, mount,method);
+                    return guids;
+                }
+            }
+            , TimeSpan.FromSeconds(_settings.RuleCachingExpiration));
+            if (rules.HasValue)
+            {
+                var obj = new { e.ApplicationMessage.Topic, Payload = Convert.ToBase64String(e.ApplicationMessage.Payload), e.ClientId };
+            
+                    _logger.LogInformation($"{e.ClientId}的rpc调用{e.ApplicationMessage.Topic} 方法 {method}通过规则链{rules.Value}进行处理。");
+                    await _flowRuleProcessor.RunFlowRules(rules.Value, obj, _dev.Id, EventType.Normal, null);
+            }
+            else
+            {
+                _logger.LogInformation($"{e.ClientId}的数据{e.ApplicationMessage.Topic}不符合规范， 也无相关规则链处理。");
+            }
+        }
+        private async Task ExecFlowRules(MqttApplicationMessageReceivedEventArgs e, Device _dev, MountType mount)
+        {
+            var rules = await _caching.GetAsync($"ruleid_{_dev.Id}_raw", async () =>
+            {
+                using (var scope = _scopeFactor.CreateScope())
+                using (var _dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>())
+                {
+                    var guids = await _dbContext.GerDeviceRulesIdList(_dev.Id, mount);
+                    return guids;
+                }
+            }
+            , TimeSpan.FromSeconds(_settings.RuleCachingExpiration));
+            if (rules.HasValue)
+            {
+                var obj = new { e.ApplicationMessage.Topic, Payload = Convert.ToBase64String(e.ApplicationMessage.Payload), e.ClientId };
+                rules.Value.ToList().ForEach(async g =>
+                {
+                    _logger.LogInformation($"{e.ClientId}的数据{e.ApplicationMessage.Topic}通过规则链{g}进行处理。");
+                    await _flowRuleProcessor.RunFlowRules(g, obj, _dev.Id, EventType.Normal, null);
+                });
+            }
+            else
+            {
+                _logger.LogInformation($"{e.ClientId}的数据{e.ApplicationMessage.Topic}不符合规范， 也无相关规则链处理。");
             }
         }
 
