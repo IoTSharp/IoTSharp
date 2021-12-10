@@ -9,8 +9,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace IoTSharp.Data.MySql.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20211210074256_MySqlFirstSchema2021")]
-    partial class MySqlFirstSchema2021
+    [Migration("20211210180317_CreateIdentitySchema")]
+    partial class CreateIdentitySchema
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
