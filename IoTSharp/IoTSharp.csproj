@@ -21,7 +21,7 @@
 		<Description>Open-source IoT Platform - Device management, data collection, processing and visualization.</Description>
 		<PackageId>IoTSharp</PackageId>
 		<UserSecretsId>18970590-05bf-4a1f-a70b-3c8a120d12cb</UserSecretsId>
-		<Version>2.0.0</Version>
+		<Version>2.0.1</Version>
 		<RepositoryType>git</RepositoryType>
 		<PackageTags>IoT</PackageTags>
 		<ApplicationIcon>Resources\Logo.ico</ApplicationIcon>
@@ -31,12 +31,12 @@
 		<IsPackable>true</IsPackable>
 		<PackageLicenseExpression></PackageLicenseExpression>
 		<Copyright>Copyright 2018-2021  Yanhong Ma</Copyright>
-		<AssemblyVersion>2.0.0.0</AssemblyVersion>
-		<FileVersion>2.0.0.0</FileVersion>
+		<AssemblyVersion>2.0.1.0</AssemblyVersion>
+		<FileVersion>2.0.1.0</FileVersion>
 		<PackageLicenseFile>LICENSE.txt</PackageLicenseFile>
 		<PackageIcon>96x96.png</PackageIcon>
-		<TypeScriptModuleKind>system</TypeScriptModuleKind>
-		<PackageReadmeFile>README.md</PackageReadmeFile>
+	 
+	 
 		
 		
 	</PropertyGroup>
@@ -166,10 +166,6 @@
 		<None Include="..\LICENSE.txt">
 		  <Pack>True</Pack>
 		  <PackagePath></PackagePath>
-		</None>
-		<None Include="..\README.md">
-		  <Pack>True</Pack>
-		  <PackagePath>\</PackagePath>
 		</None>
 		<None Include="wwwroot\fonts\fontawesome-webfont.svg" />
 		<None Include="wwwroot\fonts\glyphicons-halflings-regular.woff2" />
