@@ -6,11 +6,11 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
-namespace IoTSharp.Data.MySQL.Migrations
+namespace IoTSharp.Data.MySql.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20211210072631_Add20211210")]
-    partial class Add20211210
+    [Migration("20211210074256_MySqlFirstSchema2021")]
+    partial class MySqlFirstSchema2021
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
