@@ -485,6 +485,164 @@ namespace IoTSharp.Data.MySQL.Migrations
                     b.HasDiscriminator<int>("DeviceType").HasValue(0);
                 });
 
+            modelBuilder.Entity("IoTSharp.Data.DeviceDiagram", b =>
+                {
+                    b.Property<Guid>("DiagramId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("char(36)");
+
+                    b.Property<DateTimeOffset?>("CreateDate")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<Guid>("Creator")
+                        .HasColumnType("char(36)");
+
+                    b.Property<string>("DiagramDesc")
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("DiagramImage")
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("DiagramName")
+                        .HasColumnType("longtext");
+
+                    b.Property<int?>("DiagramStatus")
+                        .HasColumnType("int");
+
+                    b.Property<bool?>("IsDefault")
+                        .HasColumnType("tinyint(1)");
+
+                    b.HasKey("DiagramId");
+
+                    b.ToTable("DeviceDiagrams");
+                });
+
+            modelBuilder.Entity("IoTSharp.Data.DeviceGraph", b =>
+                {
+                    b.Property<Guid>("GraphId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("char(36)");
+
+                    b.Property<DateTime?>("CreateDate")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<Guid>("Creator")
+                        .HasColumnType("char(36)");
+
+                    b.Property<Guid?>("DeviceDiagramDiagramId")
+                        .HasColumnType("char(36)");
+
+                    b.Property<Guid>("DeviceId")
+                        .HasColumnType("char(36)");
+
+                    b.Property<string>("GraphElementId")
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("GraphFill")
+                        .HasColumnType("longtext");
+
+                    b.Property<decimal?>("GraphHeight")
+                        .HasColumnType("decimal(65,30)");
+
+                    b.Property<decimal?>("GraphPostionX")
+                        .HasColumnType("decimal(65,30)");
+
+                    b.Property<decimal?>("GraphPostionY")
+                        .HasColumnType("decimal(65,30)");
+
+                    b.Property<string>("GraphShape")
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("GraphStroke")
+                        .HasColumnType("longtext");
+
+                    b.Property<decimal?>("GraphStrokeWidth")
+                        .HasColumnType("decimal(65,30)");
+
+                    b.Property<string>("GraphTextAnchor")
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("GraphTextFill")
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("GraphTextFontFamily")
+                        .HasColumnType("longtext");
+
+                    b.Property<decimal?>("GraphTextFontSize")
+                        .HasColumnType("decimal(65,30)");
+
+                    b.Property<decimal?>("GraphTextRefX")
+                        .HasColumnType("decimal(65,30)");
+
+                    b.Property<decimal?>("GraphTextRefY")
+                        .HasColumnType("decimal(65,30)");
+
+                    b.Property<string>("GraphTextVerticalAnchor")
+                        .HasColumnType("longtext");
+
+                    b.Property<decimal?>("GraphWidth")
+                        .HasColumnType("decimal(65,30)");
+
+                    b.HasKey("GraphId");
+
+                    b.HasIndex("DeviceDiagramDiagramId");
+
+                    b.ToTable("DeviceGraphs");
+                });
+
+            modelBuilder.Entity("IoTSharp.Data.DeviceGraphToolBox", b =>
+                {
+                    b.Property<Guid>("ToolBoxId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("char(36)");
+
+                    b.Property<string>("CommondParam")
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("CommondType")
+                        .HasColumnType("longtext");
+
+                    b.Property<DateTime?>("CreateDate")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<Guid>("Creator")
+                        .HasColumnType("char(36)");
+
+                    b.Property<long?>("DeviceId")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("ToolBoxIcon")
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("ToolBoxName")
+                        .HasColumnType("longtext");
+
+                    b.Property<decimal?>("ToolBoxOffsetLeftPer")
+                        .HasColumnType("decimal(65,30)");
+
+                    b.Property<decimal?>("ToolBoxOffsetTopPer")
+                        .HasColumnType("decimal(65,30)");
+
+                    b.Property<decimal?>("ToolBoxOffsetX")
+                        .HasColumnType("decimal(65,30)");
+
+                    b.Property<decimal?>("ToolBoxOffsetY")
+                        .HasColumnType("decimal(65,30)");
+
+                    b.Property<string>("ToolBoxRequestUri")
+                        .HasColumnType("longtext");
+
+                    b.Property<int?>("ToolBoxStatus")
+                        .HasColumnType("int");
+
+                    b.Property<string>("ToolBoxType")
+                        .HasColumnType("longtext");
+
+                    b.HasKey("ToolBoxId");
+
+                    b.ToTable("DeviceGraphToolBoxes");
+                });
+
             modelBuilder.Entity("IoTSharp.Data.DeviceIdentity", b =>
                 {
                     b.Property<Guid>("Id")
@@ -511,6 +669,88 @@ namespace IoTSharp.Data.MySQL.Migrations
                     b.ToTable("DeviceIdentities");
                 });
 
+            modelBuilder.Entity("IoTSharp.Data.DevicePort", b =>
+                {
+                    b.Property<Guid>("PortId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("char(36)");
+
+                    b.Property<DateTime?>("CreateDate")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<long?>("Creator")
+                        .HasColumnType("bigint");
+
+                    b.Property<Guid>("DeviceId")
+                        .HasColumnType("char(36)");
+
+                    b.Property<string>("PortDesc")
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("PortElementId")
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("PortName")
+                        .HasColumnType("longtext");
+
+                    b.Property<int?>("PortPhyType")
+                        .HasColumnType("int");
+
+                    b.Property<string>("PortPic")
+                        .HasColumnType("longtext");
+
+                    b.Property<int?>("PortStatus")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("PortType")
+                        .HasColumnType("int");
+
+                    b.HasKey("PortId");
+
+                    b.ToTable("DevicePorts");
+                });
+
+            modelBuilder.Entity("IoTSharp.Data.DevicePortMapping", b =>
+                {
+                    b.Property<Guid>("MappingId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("char(36)");
+
+                    b.Property<DateTime?>("CreateDate")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<Guid>("Creator")
+                        .HasColumnType("char(36)");
+
+                    b.Property<decimal?>("MappingIndex")
+                        .HasColumnType("decimal(65,30)");
+
+                    b.Property<int?>("MappingStatus")
+                        .HasColumnType("int");
+
+                    b.Property<Guid>("SourceDeviceId")
+                        .HasColumnType("char(36)");
+
+                    b.Property<string>("SourceElementId")
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("SourceId")
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("TargeId")
+                        .HasColumnType("longtext");
+
+                    b.Property<Guid>("TargetDeviceId")
+                        .HasColumnType("char(36)");
+
+                    b.Property<string>("TargetElementId")
+                        .HasColumnType("longtext");
+
+                    b.HasKey("MappingId");
+
+                    b.ToTable("DevicePortMappings");
+                });
+
             modelBuilder.Entity("IoTSharp.Data.DeviceRule", b =>
                 {
                     b.Property<Guid>("DeviceRuleId")
@@ -525,6 +765,9 @@ namespace IoTSharp.Data.MySQL.Migrations
 
                     b.Property<Guid?>("DeviceId")
                         .HasColumnType("char(36)");
+
+                    b.Property<int>("EnableTrace")
+                        .HasColumnType("int");
 
                     b.Property<Guid?>("FlowRuleRuleId")
                         .HasColumnType("char(36)");
@@ -849,6 +1092,9 @@ namespace IoTSharp.Data.MySQL.Migrations
                     b.Property<DateTime?>("CreatTime")
                         .HasColumnType("datetime(6)");
 
+                    b.Property<Guid>("CreateId")
+                        .HasColumnType("char(36)");
+
                     b.Property<string>("Creator")
                         .HasColumnType("longtext");
 
@@ -965,6 +1211,79 @@ namespace IoTSharp.Data.MySQL.Migrations
                     b.HasKey("ExecutorId");
 
                     b.ToTable("RuleTaskExecutors");
+                });
+
+            modelBuilder.Entity("IoTSharp.Data.SubscriptionEvent", b =>
+                {
+                    b.Property<Guid>("EventId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("char(36)");
+
+                    b.Property<DateTime>("CreateDateTime")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<Guid>("Creator")
+                        .HasColumnType("char(36)");
+
+                    b.Property<string>("EventDesc")
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("EventName")
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("EventNameSpace")
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("EventParam")
+                        .HasColumnType("longtext");
+
+                    b.Property<int>("EventStatus")
+                        .HasColumnType("int");
+
+                    b.Property<string>("EventTag")
+                        .HasColumnType("longtext");
+
+                    b.Property<int>("Type")
+                        .HasColumnType("int");
+
+                    b.HasKey("EventId");
+
+                    b.ToTable("SubscriptionEvents");
+                });
+
+            modelBuilder.Entity("IoTSharp.Data.SubscriptionTask", b =>
+                {
+                    b.Property<Guid>("BindId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("char(36)");
+
+                    b.Property<Guid>("CustomerId")
+                        .HasColumnType("char(36)");
+
+                    b.Property<Guid>("EventId")
+                        .HasColumnType("char(36)");
+
+                    b.Property<Guid?>("RuleTaskExecutorExecutorId")
+                        .HasColumnType("char(36)");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("int");
+
+                    b.Property<Guid?>("SubscriptionEventId")
+                        .HasColumnType("char(36)");
+
+                    b.Property<string>("TaskConfig")
+                        .HasColumnType("longtext");
+
+                    b.HasKey("BindId");
+
+                    b.HasIndex("CustomerId");
+
+                    b.HasIndex("RuleTaskExecutorExecutorId");
+
+                    b.HasIndex("SubscriptionEventId");
+
+                    b.ToTable("SubscriptionTasks");
                 });
 
             modelBuilder.Entity("IoTSharp.Data.TelemetryData", b =>
@@ -1343,6 +1662,15 @@ namespace IoTSharp.Data.MySQL.Migrations
                     b.Navigation("Tenant");
                 });
 
+            modelBuilder.Entity("IoTSharp.Data.DeviceGraph", b =>
+                {
+                    b.HasOne("IoTSharp.Data.DeviceDiagram", "DeviceDiagram")
+                        .WithMany()
+                        .HasForeignKey("DeviceDiagramDiagramId");
+
+                    b.Navigation("DeviceDiagram");
+                });
+
             modelBuilder.Entity("IoTSharp.Data.DeviceIdentity", b =>
                 {
                     b.HasOne("IoTSharp.Data.Device", "Device")
@@ -1422,6 +1750,29 @@ namespace IoTSharp.Data.MySQL.Migrations
                     b.Navigation("IdentityUser");
 
                     b.Navigation("Tenant");
+                });
+
+            modelBuilder.Entity("IoTSharp.Data.SubscriptionTask", b =>
+                {
+                    b.HasOne("IoTSharp.Data.Customer", "Customer")
+                        .WithMany()
+                        .HasForeignKey("CustomerId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("IoTSharp.Data.RuleTaskExecutor", "RuleTaskExecutor")
+                        .WithMany()
+                        .HasForeignKey("RuleTaskExecutorExecutorId");
+
+                    b.HasOne("IoTSharp.Data.SubscriptionEvent", "Subscription")
+                        .WithMany()
+                        .HasForeignKey("SubscriptionEventId");
+
+                    b.Navigation("Customer");
+
+                    b.Navigation("RuleTaskExecutor");
+
+                    b.Navigation("Subscription");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>

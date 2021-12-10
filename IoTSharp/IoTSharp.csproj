@@ -36,6 +36,7 @@
 		<PackageLicenseFile>LICENSE.txt</PackageLicenseFile>
 		<PackageIcon>96x96.png</PackageIcon>
 		<TypeScriptModuleKind>system</TypeScriptModuleKind>
+		<PackageReadmeFile>README.md</PackageReadmeFile>
 		
 		
 	</PropertyGroup>
@@ -165,6 +166,10 @@
 		<None Include="..\LICENSE.txt">
 		  <Pack>True</Pack>
 		  <PackagePath></PackagePath>
+		</None>
+		<None Include="..\README.md">
+		  <Pack>True</Pack>
+		  <PackagePath>\</PackagePath>
 		</None>
 		<None Include="wwwroot\fonts\fontawesome-webfont.svg" />
 		<None Include="wwwroot\fonts\glyphicons-halflings-regular.woff2" />

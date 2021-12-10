@@ -336,7 +336,6 @@
             <summary>
             服务侧新增属性
             </summary>
-            <param name="deviceId"></param>
             <returns></returns>
         </member>
         <member name="M:IoTSharp.Controllers.DevicesController.EditAttribute(System.Guid,IoTSharp.Dtos.DeviceAttrEditDto)">

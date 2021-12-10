@@ -829,7 +829,6 @@ namespace IoTSharp.Controllers
         /// <summary>
         /// 服务侧新增属性
         /// </summary>
-        /// <param name="deviceId"></param>
         /// <returns></returns>
         [Authorize(Roles = nameof(UserRole.NormalUser))]
         [HttpPost("{access_token}/AddAttribute")]
