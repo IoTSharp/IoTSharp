@@ -5,6 +5,7 @@ using IoTSharp.Data.MySQL;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using System;
+using System.Diagnostics;
 
 namespace Microsoft.Extensions.DependencyInjection
 {
@@ -14,12 +15,20 @@ namespace Microsoft.Extensions.DependencyInjection
         {
             services.AddEntityFrameworkMySql();
             services.AddSingleton<IDataBaseModelBuilderOptions>(c => new MySqlModelBuilderOptions());
-            var sv = ServerVersion.AutoDetect(connectionString);
-            services.AddSingleton(sv);
+            ServerVersion serverVersion=null;
+            try
+            {
+                serverVersion = ServerVersion.AutoDetect(connectionString);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Can't detect MySql server's version ,  {ex.Message} ", ex);
+            }
+            services.AddSingleton(serverVersion);
             services.AddDbContextPool<ApplicationDbContext>(builder =>
             {
                 builder.UseInternalServiceProvider(services.BuildServiceProvider());
-                builder.UseMySql(connectionString, sv, s => s.MigrationsAssembly("IoTSharp.Data.MySQL"));
+                builder.UseMySql(connectionString, serverVersion, s => s.MigrationsAssembly("IoTSharp.Data.MySQL"));
             }
           , poolSize );
            
