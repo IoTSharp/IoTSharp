@@ -171,7 +171,7 @@ namespace IoTSharp.Handlers
                             _logger.LogInformation($"{e.ClientId}的数据{e.ApplicationMessage.Topic}未能匹配到设备");
                         }
                     }
-                    else
+                    else if (_dev?.Owner?.DeviceType== DeviceType.Gateway)
                     {
                         _logger.LogInformation($"{e.ClientId}的数据{e.ApplicationMessage.Topic}未能识别,分段:{tpary.Length} 前缀?{tpary[0]}  设备:{_dev?.Id} ,终端状态未找到。");
                         var ss = await _serverEx.GetClientStatusAsync();
