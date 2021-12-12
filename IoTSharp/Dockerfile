@@ -61,6 +61,8 @@ COPY ["IoTSharp.Data.Oracle/IoTSharp.Data.Oracle.csproj", "IoTSharp.Data.Oracle/
 COPY ["IoTSharp.Data.PostgreSQL/IoTSharp.Data.PostgreSQL.csproj", "IoTSharp.Data.PostgreSQL/"]
 COPY ["IoTSharp.Data.MySQL/IoTSharp.Data.MySQL.csproj", "IoTSharp.Data.MySQL/"]
 RUN dotnet restore "IoTSharp/IoTSharp.csproj"
+COPY ["IoTSharp/ClientApp/package.json", "IoTSharp/ClientApp/package.json"]
+RUN   npm install --prefix ./IoTSharp/ClientApp/
 COPY . .
 WORKDIR "/src/IoTSharp"
 RUN dotnet build "IoTSharp.csproj" -c Release -o /app/build
