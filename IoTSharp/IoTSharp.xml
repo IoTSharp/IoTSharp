@@ -397,7 +397,7 @@
             </summary>
             <returns></returns>
         </member>
-        <member name="M:IoTSharp.Controllers.InstallerController.CreateRootCertificate">
+        <member name="M:IoTSharp.Controllers.InstallerController.CreateRootCertificate(IoTSharp.Dtos.CreateRootCertificateDto)">
             <summary>
             域名可以不配置， 默认会使用机器名  
             </summary>

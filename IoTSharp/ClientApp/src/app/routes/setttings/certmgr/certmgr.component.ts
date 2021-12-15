@@ -9,6 +9,8 @@ import { appmessage } from '../../common/AppMessage';
   styleUrls: ['./certmgr.component.less'],
 })
 export class CertmgrComponent implements OnInit {
+
+  Domain:string='';
   installed = false;
   constructor(private http: _HttpClient, private msg: NzMessageService) {}
 
@@ -23,6 +25,7 @@ export class CertmgrComponent implements OnInit {
           this.installed = true;
         } else {
           this.installed = false;
+          this.Domain=next.data.domain
         }
       },
       (error) => {},
@@ -31,7 +34,7 @@ export class CertmgrComponent implements OnInit {
   }
 
   createcert($event) {
-    this.http.post('api/Installer/CreateRootCertificate').subscribe(
+    this.http.post('api/Installer/CreateRootCertificate',{Domain:this.Domain}).subscribe(
       (next) => {
         if (next.code === 10000) {
           this.msg.create('success', '证书生成成功');

@@ -69,7 +69,8 @@ namespace IoTSharp.Controllers
 
         private InstanceDto GetInstanceDto()
         {
-            return new InstanceDto() { Installed = _context.Relationship.Any(), Version = System.Reflection.Assembly.GetExecutingAssembly().GetName().Version.ToString(), CACertificate= _setting.MqttBroker.CACertificate != null };
+
+            return new InstanceDto() { Installed = _context.Relationship.Any(), Domain = this.Request.Host.Value, Version = System.Reflection.Assembly.GetExecutingAssembly().GetName().Version.ToString(), CACertificate= _setting.MqttBroker.CACertificate != null };
         }
 
         /// <summary>
@@ -78,20 +79,20 @@ namespace IoTSharp.Controllers
         /// <returns></returns>
         [Authorize(Roles = nameof(UserRole.SystemAdmin))]
         [HttpPost]
-        public ApiResult CreateRootCertificate()
+        public ApiResult CreateRootCertificate(CreateRootCertificateDto m)
         {
             ApiResult result = new ApiResult(ApiCode.Success, "OK");
             if (_setting.MqttBroker.CACertificate != null)
             {
                 result = new ApiResult(ApiCode.AlreadyExists, "CACertificate already exists.");
             }
-            else if (string.IsNullOrEmpty(_setting.MqttBroker.ServerIPAddress))
+            else if (string.IsNullOrEmpty(m.Domain))
             {
                 result = new ApiResult(ApiCode.AlreadyExists, "ServerIPAddress     is required.");
             }
             else
             {
-                var ip = IPAddress.Parse(_setting.MqttBroker.ServerIPAddress);
+                var ip = IPAddress.Parse(m.Domain);
                 var ten = _context.GetTenant(this.GetNowUserTenantId());
                 var option = _setting.MqttBroker;
                 var ca = ip.CreateCA(option.CACertificateFile, option.CAPrivateKeyFile);

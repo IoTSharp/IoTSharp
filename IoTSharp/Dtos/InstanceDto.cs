@@ -12,6 +12,9 @@
         /// </summary>
         public bool Installed { get;  set; }
         public bool CACertificate { get;  set; }
+
+
+        public string Domain { get; set; }
     }
 
 }
