@@ -125,7 +125,7 @@
 		<PackageReference Include="Microsoft.AspNetCore.SpaServices.Extensions" Version="5.0.12" />
 		<PackageReference Include="Microsoft.AspNetCore.ApiAuthorization.IdentityServer" Version="5.0.12" />
 		<PackageReference Include="Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore" Version="5.0.12" />
-		<PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="5.0.12" />
+		<PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="6.0.1" />
 		<PackageReference Include="Microsoft.AspNetCore.Identity.UI" Version="5.0.12" />
 		<PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="5.0.12" />
 		<PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="5.0.12" />
