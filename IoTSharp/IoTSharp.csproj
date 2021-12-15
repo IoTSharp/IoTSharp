@@ -84,7 +84,7 @@
 		<PackageReference Include="Maikebing.Data.Taos" Version="2.0.357" />
 		<PackageReference Include="Maikebing.HealthChecks.Taos" Version="2.0.357" />
 		<PackageReference Include="MaiKeBing.HostedService.ZeroMQ" Version="1.0.32" />
-		<PackageReference Include="Microsoft.AspNetCore.Http.Features" Version="5.0.12" />
+		<PackageReference Include="Microsoft.AspNetCore.Http.Features" Version="5.0.13" />
 		<PackageReference Include="Microsoft.CodeAnalysis.CSharp.Workspaces" Version="4.0.1" />
 		<PackageReference Include="Microsoft.Extensions.Options" Version="5.0.0" />
 		<PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.11.1" />
