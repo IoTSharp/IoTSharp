@@ -156,7 +156,7 @@ namespace IoTSharp.Handlers
                             {
                                 if (tpary[3]== "request")
                                 {
-                                    await ExecFlowRules(e, _dev.DeviceType == DeviceType.Gateway ? device : _dev, tpary[4], MountType.RAW);//完善后改成 RPC 
+                                    await ExecFlowRules(e, _dev.DeviceType == DeviceType.Gateway ? device : _dev, tpary[4], MountType.RPC);//完善后改成 RPC 
                                 }
                                 
                             }
