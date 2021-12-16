@@ -22,17 +22,17 @@
     <div nz-col nzXs="24" nzSm="12" nzMd="6" class="mb-md">
       <div nz-row nzType="flex" nzAlign="middle" class="bg-success rounded-md">
         <div nz-col nzSpan="12" class="p-md text-white">
-          <div class="h2 mt0">{{data.warning.count}}</div>
-          <p class="text-nowrap mb0">警告次数</p>
+          <div class="h2 mt0">{{data.onlinedevice.count}}</div>
+          <p class="text-nowrap mb0">在线设备</p>
         </div>
         <div nz-col nzSpan="12">
           <g2-mini-bar
-            *ngIf="data.warning.count"
+            *ngIf="data.onlinedevice.count"
             height="35"
             color="#fff"
             borderWidth="3"
             [padding]="[5, 30]"
-            [data]="data.warning.data"
+            [data]="data.onlinedevice.data"
             tooltipType="mini"
           ></g2-mini-bar>
         </div>
@@ -41,17 +41,17 @@
     <div nz-col nzXs="24" nzSm="12" nzMd="6" class="mb-md">
       <div nz-row nzType="flex" nzAlign="middle" class="bg-orange rounded-md">
         <div nz-col nzSpan="12" class="p-md text-white">
-          <div class="h2 mt0">租户数量</div>
-          <p class="text-nowrap mb0">{{data.talent.count}} </p>
+          <div class="h2 mt0">最新遥测</div>
+          <p class="text-nowrap mb0">{{data.telemetrydata.count}} </p>
         </div>
         <div nz-col nzSpan="12">
           <g2-mini-bar
-            *ngIf="data.talent.count"
+            *ngIf="data.telemetrydata.count"
             height="35"
             color="#fff"
             borderWidth="3"
             [padding]="[5, 30]"
-            [data]="data.talent.data"
+            [data]="data.telemetrydata.data"
             tooltipType="mini"
           ></g2-mini-bar>
         </div>
@@ -60,17 +60,17 @@
     <div nz-col nzXs="24" nzSm="12" nzMd="6" class="mb-md">
       <div nz-row nzType="flex" nzAlign="middle" class="bg-magenta rounded-md">
         <div nz-col nzSpan="12" class="p-md text-white">
-          <div class="h2 mt0">客户数量</div>
-          <p class="text-nowrap mb0">{{data.customer.count}}</p>
+          <div class="h2 mt0">事件</div>
+          <p class="text-nowrap mb0">{{data.events.count}}</p>
         </div>
         <div nz-col nzSpan="12">
           <g2-mini-bar
-            *ngIf="data.customer.count"
+            *ngIf="data.events.count"
             height="35"
             color="#fff"
             borderWidth="3"
             [padding]="[5, 30]"
-            [data]="data.customer.data"
+            [data]="data.events.data"
             tooltipType="mini"
           ></g2-mini-bar>
         </div>

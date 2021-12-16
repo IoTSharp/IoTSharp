@@ -1072,11 +1072,16 @@ namespace IoTSharp.Controllers
 
             var result = await _flowRuleProcessor.RunFlowRules(ruleid, d, Guid.Empty, EventType.TestPurpose, testabizId);
 
-            result.ForEach(c =>
-            {
-                _context.FlowOperations.Attach(c);
-                _context.SaveChanges();
-            });
+            //result.ForEach(c =>
+            //{
+            //    _context.FlowOperations.Add(new FlowOperation()
+            //    { 
+            //        AddDate = c.AddDate, BaseEvent = c.BaseEvent, BizId = c.BizId, Data = c.Data, Flow = c.Flow, FlowRule = c.FlowRule, NodeStatus = c.NodeStatus, OperationDesc = c.OperationDesc, OperationId = c.OperationId, Step = c.Step, Tag = c.Tag, bpmnid = c.bpmnid
+
+
+            //    });
+            //    _context.SaveChanges();
+            //});
 
 
 

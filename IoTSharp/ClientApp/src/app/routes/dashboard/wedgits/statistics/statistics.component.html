@@ -3,7 +3,7 @@
     <nz-card [nzBordered]="false" [nzTitle]="salesTitle">
       <ng-template #salesTitle>
         告警统计
-        <small class="text-sm font-weight-normal">Business Expectations & Retail Sales Statistics</small>
+        <small class="text-sm font-weight-normal"></small>
       </ng-template>
       <g2-bar *ngIf="salesData" height="275" [data]="salesData"></g2-bar>
     </nz-card>
@@ -12,7 +12,7 @@
     <nz-card [nzTitle]="growthTitle" [nzBordered]="false">
       <ng-template #growthTitle>
         设备增量
-        <small class="text-sm font-weight-normal">Business Expectations & Retail Sales Statistics</small>
+        <small class="text-sm font-weight-normal"></small>
       </ng-template>
       <g2-timeline
         *ngIf="offlineChartData"

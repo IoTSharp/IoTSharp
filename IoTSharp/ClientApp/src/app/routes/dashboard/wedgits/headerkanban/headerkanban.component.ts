@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { IWidgetComponent } from '../../v1/widgetcomponent';
 import { _HttpClient } from '@delon/theme';
 import { ThisReceiver } from '@angular/compiler';
@@ -21,7 +21,7 @@ export class HeaderkanbanComponent implements OnInit, IWidgetComponent {
         { x: 6, y: 6 }
       ]
     },
-    warning: {
+    onlinedevice: {
       count: 11,
       data: [
         { x: 1, y: 7 },
@@ -32,7 +32,7 @@ export class HeaderkanbanComponent implements OnInit, IWidgetComponent {
         { x: 6, y: 2 }
       ]
     },
-    talent: {
+    telemetrydata: {
       count: 11,
       data: [
         { x: 1, y: 1 },
@@ -43,7 +43,7 @@ export class HeaderkanbanComponent implements OnInit, IWidgetComponent {
         { x: 6, y: 6 }
       ]
     },
-    customer: {
+    events: {
       count: 11,
       data: [
         { x: 1, y: 1 },
@@ -55,15 +55,17 @@ export class HeaderkanbanComponent implements OnInit, IWidgetComponent {
       ]
     }
   };
-  constructor(private http: _HttpClient) {}
+  constructor(private http: _HttpClient , private cdr: ChangeDetectorRef, ) {}
 
   ngOnInit(): void {
     this.http.get('api/home/kanban').subscribe(
       next => {
 
         this.data.device.count=next.data.deviceCount
-        this.data.device.data=next.data.deviceCountData
-
+        this.data.onlinedevice.count=next.data.onlineDeviceCount
+        this.data.telemetrydata.count=next.data.telemetryDataCount
+        this.data.events.count=next.data.eventCount
+        this.cdr.detectChanges();
       },
       error => {},
       () => {}
