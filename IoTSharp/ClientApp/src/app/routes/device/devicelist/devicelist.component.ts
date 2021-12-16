@@ -93,7 +93,7 @@ export class DevicelistComponent implements OnInit, OnDestroy {
   ctype = {};
   columns: STColumn[] = [
     { title: '', index: 'id', type: 'checkbox' },
-
+    { title: 'id', index: 'id', render: 'id' },
     { title: '名称', index: 'name', render: 'name' },
     { title: '设备类型', index: 'deviceType', type: 'tag', tag: this.DeviceTAG },
     { title: '在线状态', index: 'online', type: 'badge', badge: this.BADGE },

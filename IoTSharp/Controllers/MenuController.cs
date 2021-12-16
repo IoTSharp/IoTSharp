@@ -48,13 +48,13 @@ namespace IoTSharp.Controllers
                     {
                             new
                             {
-                                text = "主导航", i18n = "menu.main", group = true, hideInBreadcrumb = true,
+                                text = "主导航", i18n = "主导航", group = true, hideInBreadcrumb = true,
                                 children = new[]
                             {
                                     new
                                     {
                                         text = "仪表盘",
-                                        i18n = "menu.dashboard",
+                                        i18n = "仪表盘",
                                         icon = "anticon-dashboard",
                                         children = new[]
                                    {
@@ -149,7 +149,13 @@ namespace IoTSharp.Controllers
                     funcs = Enumerable.Range(0, 500),
                     username = profile.Name,
                     AppName = "iotsharp",
-                    Modules = new[] { "kanban", "statistics", "lists", "warning" }, // 用户首页模块
+                    Modules = new[]
+                    {
+                        "kanban",
+                        "statistics", 
+                        "lists", 
+                        //"warning"
+                    }, // 用户首页模块
                     Email = profile.Email.FirstOrDefault(),
                     Comstomer=  profile.Comstomer,
                     Tenant=  profile.Tenant,

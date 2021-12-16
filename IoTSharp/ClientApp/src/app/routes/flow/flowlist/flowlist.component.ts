@@ -30,7 +30,8 @@ export class FlowlistComponent implements OnInit {
   TAG: STColumnTag = {
     1: { text: '遥测', color: 'green' },
     2: { text: '属性', color: 'orange' },
-    3: { text: 'RAW', color: 'orange' },
+    0: { text: 'RAW', color: 'blue' },
+    3: { text: 'RPC', color: 'red' },
   };
   page: STPage = {
     front: false,
