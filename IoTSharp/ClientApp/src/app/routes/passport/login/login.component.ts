@@ -157,8 +157,8 @@ export class UserLoginComponent implements OnDestroy {
           this.settingsService.setUser({
             token: x.data.token.access_token,
             name: x.data.userName,
-            avatar: './assets/logo-color.svg',
-            email: 'cipchk@qq.com'
+            avatar: './assets/logo.png',
+            email: 'iotmaster@iotsharp.net'
           });
           // 重新获取 StartupService 内容，我们始终认为应用信息一般都会受当前用户授权范围而影响
           this.startupSrv.load().subscribe(() => {
