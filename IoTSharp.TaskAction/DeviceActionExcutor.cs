@@ -30,9 +30,9 @@ namespace IoTSharp.TaskAction
             request.AddHeader("X-Access-Token",
                 config.Token);
             request.RequestFormat = DataFormat.Json;
-          
+            request.AddHeader("Content-Type", contentType);
             request.AddHeader("cache-control", "no-cache");
-            request.AddJsonBody(JsonConvert.SerializeObject(new{ sosType="1", sosContent= input.Input, usingUserId= "peopleinneed" }));
+            request.AddJsonBody(JsonConvert.SerializeObject(new{ sosType="1", sosContent= "快挂了", usingUserId= "zhangsan" }));
             var response = restclient.Execute(request);
             if (response.StatusCode == HttpStatusCode.OK)
             {
