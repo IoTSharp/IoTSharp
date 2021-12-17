@@ -1,5 +1,7 @@
 <div #diagramcontainer style="height: 800px" nz-row>
-  <div nz-col #ref class="diagram-container" nzLg="18" nzMd="18" nzSm="18" style="padding: 0.1rem"></div>
+  <div nz-col #ref class="diagram-container" nzLg="18" nzMd="18" nzSm="18" style="padding: 0.1rem">
+  
+  </div>
   <div nz-col nzSm="6" style="padding: 0.1rem">
     <nz-card nzTitle="对象属性">
       <form nz-form se-container="1" labelWidth="100" gutter="32">
@@ -101,28 +103,43 @@
         <se label="执行器参数(JSON)" error="请选择执行器" *ngIf="form.nodeProcessClassVisable">
        
           <nz-code-editor
+          [nzToolkit]="toolkit"
+          [class.full-screen]="fullScreen"
           (ngModelChange)="ngModelChange($event)"
           style="width: 100%; height: 500px; padding-top: 1rem"
           class="editor"
           [(ngModel)]="form.nodeProcessParams"
           [ngModelOptions]="{ standalone: true }"
-          [nzEditorOption]="{ theme: 'vs-dark',language: 'json' }"
+          [nzEditorOption]="{ theme: 'vs',language: 'json' }"
         ></nz-code-editor>
    
         </se>
 
         <se label="脚本" error="类型" *ngIf="form.flowscriptVisable">
           <nz-code-editor
+          [nzToolkit]="toolkit"
+          [class.full-screen]="fullScreen"
             (ngModelChange)="ngModelChange($event)"
             style="width: 100%; height: 500px; padding-top: 1rem"
             class="editor"
             [(ngModel)]="form.flowscript"
             [ngModelOptions]="{ standalone: true }"
-            [nzEditorOption]="{ theme: 'vs-dark',language: 'json' }"
+            [nzEditorOption]="{ theme: 'vs',language: 'json' }"
           ></nz-code-editor>
         </se>
       </form>
     </nz-card>
+
+    <ng-template #toolkit>
+      <i
+        nz-icon
+        [class.active]="fullScreen"
+        nz-tooltip
+        nzTooltipTitle="Toggle Fullscreen"
+        [nzType]="fullScreen ? 'fullscreen-exit' : 'fullscreen'"
+        (click)="toggleFullScreen()"
+      ></i>
+    </ng-template>
     <ng-template #extraTemplate>
       <a>More</a>
     </ng-template>

@@ -11,6 +11,7 @@ import {
   EventEmitter,
   ChangeDetectorRef,
   Renderer2,
+  Inject,
 } from '@angular/core';
 import { _HttpClient } from '@delon/theme'; //test
 import { delay, mergeMap } from 'rxjs/operators';
@@ -22,6 +23,8 @@ import { appmessage } from '../../common/AppMessage';
 import { NzConfigService } from 'ng-zorro-antd/core/config';
 import { NzCodeEditorComponent } from 'ng-zorro-antd/code-editor';
 import { ObjectExt } from '@antv/x6';
+import { DOCUMENT } from '@angular/common';
+import { NzTooltipDirective } from 'ng-zorro-antd/tooltip';
 
 @Component({
   selector: 'app-diagram',
@@ -38,11 +41,11 @@ import { ObjectExt } from '@antv/x6';
 // 'element.mouseup'
 // 来自 https://github.com/bpmn-io/bpmn-js-examples/tree/master/interaction
 export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy {
-  nzEditorOption: { theme: 'vs-dark'; language: 'json' };
-  paramnzEditorOption: { theme: 'vs-dark'; language: 'json' };
+  nzEditorOption: { theme: 'vs'; language: 'json' };
+  paramnzEditorOption: { theme: 'vs'; language: 'json' };
   @ViewChild(NzCodeEditorComponent, { static: false }) editorComponent?: NzCodeEditorComponent;
   isCollapsed = false;
- 
+  @ViewChild(NzTooltipDirective, { static: false }) tooltip?: NzTooltipDirective;
   executors = [];
 
   EMPTY_BPMN_DIAGRAM = `
@@ -69,7 +72,9 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy 
 
   @Input() url: string;
   @Input() ruleId: number;
-
+  loading = true;
+  fullScreen = false;
+  private document: Document;
   form: FormBpmnObject = {
     id: '',
     flowid: '',
@@ -89,6 +94,13 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy 
   activity: Activity;
   selectedValue: any;
 
+
+  toggleFullScreen(): void {
+    this.fullScreen = !this.fullScreen;
+    this.renderer.setStyle(this.document.body, 'overflow-y', this.fullScreen ? 'hidden' : null);
+    this.editorComponent?.layout();
+    this.tooltip?.hide();
+  }
   flowscripttypeChange($event) {
     if (this.form.flowscripttype === 'executor') {
       this.form.nodeProcessClassVisable = true;
@@ -160,7 +172,9 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy 
     private render: Renderer2,
     private nzConfigService: NzConfigService,
     private element: ElementRef,
+    @Inject(DOCUMENT) document: any, private renderer: Renderer2
   ) {
+    this.document = document;
     this.activity = new Activity();
     this.activity.tasks = [];
     this.activity.gateWays = [];
