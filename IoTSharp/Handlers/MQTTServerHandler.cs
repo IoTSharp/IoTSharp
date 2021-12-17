@@ -408,12 +408,14 @@ namespace IoTSharp.Handlers
                         _dbContext.AfterCreateDevice(devicedatato);
                         gw.LastActive = DateTime.Now;
                         gw.Online = true;
+                        _logger.LogInformation($"网关 {gw.Id}-{gw.Name}在线.最后活动时间{gw.LastActive},添加了子设备{devicedatato.Name}");
                     }
                     else
                     {
                         devicedatato = subdev.FirstOrDefault();
                         devicedatato.LastActive = DateTime.Now;
                         devicedatato.Online = true;
+                        _logger.LogInformation($"网关子设备 {devicedatato.Id}-{devicedatato.Name}在线.最后活动时间{devicedatato.LastActive}");
                     }
                 }
                 else
@@ -421,6 +423,7 @@ namespace IoTSharp.Handlers
                     devicedatato = _dbContext.Device.Find(device.Id);
                     devicedatato.LastActive = DateTime.Now;
                     devicedatato.Online = true;
+                    _logger.LogInformation($"独立设备 {devicedatato.Id}-{devicedatato.Name}在线.最后活动时间{devicedatato.LastActive}");
                 }
                 _dbContext.SaveChanges();
             }
