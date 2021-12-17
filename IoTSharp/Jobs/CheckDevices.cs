@@ -53,7 +53,7 @@ namespace IoTSharp.Jobs
 
                                    d.LastActive = cs.LastPacketReceivedTimestamp.ToLocalTime();
                                    d.Online = DateTime.Now.Subtract(d.LastActive).TotalSeconds < d.Timeout;
-                                   _logger.LogInformation($"设备{cs.ClientId}-{d.Name}({d.Id},{cs.Endpoint}) 最后活动时间{d.LastActive} 在线{d.Online} 发送消息:{cs.SentApplicationMessagesCount}({cs.BytesSent}kb)  收到{cs.ReceivedApplicationMessagesCount}({cs.BytesReceived / 1024}KB )  ");
+                                   _logger.LogInformation($"MQTT状态设备{cs.ClientId}-{d.Name}({d.Id},{cs.Endpoint}) 最后活动时间{d.LastActive} 是否在线{d.Online} 发送消息:{cs.SentApplicationMessagesCount}({cs.BytesSent}kb)  收到{cs.ReceivedApplicationMessagesCount}({cs.BytesReceived / 1024}KB )  ");
                                    if (!d.Online && DateTime.Now.Subtract(d.LastActive).TotalSeconds > d.Timeout * 5)
                                    {
                                        Task.Run(cs.DisconnectAsync);
@@ -72,7 +72,12 @@ namespace IoTSharp.Jobs
                     //当前时间减去最后活跃时间如果小于超时时间， 则为在线， 否则就是离线
                     _dbContext.Device.ToList().ForEach(d =>
                     {
+                        bool _old = d.Online;
                         d.Online = DateTime.Now.Subtract(d.LastActive).TotalSeconds < d.Timeout;
+                        if (_old != d.Online)
+                        {
+                            _logger.LogInformation($"根据最后活动时间改变设备状态 {d.Id}-{d.Name} {_old} { d.Online }.最后活动时间{d.LastActive}");
+                        }
                     });
                     var saveresult = await _dbContext.SaveChangesAsync();
                     _logger.LogInformation($"设备检查程序已经处理{saveresult}调数据");

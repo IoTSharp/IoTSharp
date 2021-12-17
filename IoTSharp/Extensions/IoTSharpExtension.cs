@@ -122,6 +122,7 @@ namespace IoTSharp
             {
                 device.Online = true;
                 device.LastActive = DateTime.Now;
+
             }
         }
 

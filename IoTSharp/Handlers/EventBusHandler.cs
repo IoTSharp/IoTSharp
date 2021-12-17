@@ -54,7 +54,12 @@ namespace IoTSharp.Handlers
                     var device = _dbContext.Device.FirstOrDefault(d => d.Id == msg.DeviceId);
                     if (device != null)
                     {
+                        var old = device.Online;
                         device.CheckOrUpdateDevStatus();
+                        if (old!=device.Online)
+                        {
+                            _logger.LogInformation($"通过属性修改变更设备状态 {device.Id}-{device.Name}在线.最后活动时间{device.LastActive}");
+                        }
                         var mb = msg.MsgBody;
                         Dictionary<string, object> dc = new Dictionary<string, object>();
                         mb.ToList().ForEach(kp =>
@@ -147,7 +152,12 @@ namespace IoTSharp.Handlers
                     var device = _dbContext.Device.FirstOrDefault(d => d.Id == msg.DeviceId);
                     if (device != null)
                     {
+                        var old = device.Online;
                         device.CheckOrUpdateDevStatus();
+                        if (old != device.Online)
+                        {
+                            _logger.LogInformation($"通过属性修改变更设备状态 {device.Id}-{device.Name}在线.最后活动时间{device.LastActive}");
+                        }
                         await _dbContext.SaveChangesAsync();
                     }
                 }
