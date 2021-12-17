@@ -36,7 +36,7 @@ export class FloweventviewComponent implements OnInit, OnDestroy {
         this.flowview.diagramdata = x.data;
         this.flowview.loadXml();
       }),
-    ), this.http.get('api/rules/getFlowOperstions?eventId=' + this.event.eventId).pipe(
+    ), this.http.get('api/rules/GetFlowOperations?eventId=' + this.event.eventId).pipe(
       map((x) => {
 
         if(x.data.length>0){

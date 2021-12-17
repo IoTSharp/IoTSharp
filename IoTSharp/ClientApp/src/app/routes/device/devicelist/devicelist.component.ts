@@ -97,7 +97,7 @@ export class DevicelistComponent implements OnInit, OnDestroy {
     { title: '名称', index: 'name', render: 'name' },
     { title: '设备类型', index: 'deviceType', type: 'tag', tag: this.DeviceTAG },
     { title: '在线状态', index: 'online', type: 'badge', badge: this.BADGE },
-    { title: '最后活动时间', index: 'lastActive' },
+    { title: '最后活动时间', index: 'lastActive',type:'date' },
     { title: '认证方式', index: 'identityType', type: 'tag', tag: this.TAG },
     {
       title: '操作',

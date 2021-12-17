@@ -1069,22 +1069,30 @@ namespace IoTSharp.Controllers
 
             var d = formdata.Value<JToken>().ToObject(typeof(ExpandoObject));
             var testabizId = Guid.NewGuid().ToString(); //根据业务保存起来，用来查询执行事件和步骤
-
             var result = await _flowRuleProcessor.RunFlowRules(ruleid, d, Guid.Empty, EventType.TestPurpose, testabizId);
+            if (result.Count > 0)
+            {
+                result.ForEach(c =>
+                {
+                    _context.FlowOperations.Add(new FlowOperation()
+                    {
+                        AddDate = c.AddDate,
+                        BaseEventId = c.BaseEventId,
+                        BizId = c.BizId,
+                        Data = c.Data,
+                        FlowId = c.FlowId,
+                        FlowRuleId = c.FlowRuleId,
+                        NodeStatus = c.NodeStatus,
+                        OperationDesc = c.OperationDesc,
+                        OperationId = new Guid(),
+                        Step = c.Step,
+                        Tag = c.Tag,
+                        bpmnid = c.bpmnid
+                    });
+                    _context.SaveChanges();
+                });
 
-            //result.ForEach(c =>
-            //{
-            //    _context.FlowOperations.Add(new FlowOperation()
-            //    { 
-            //        AddDate = c.AddDate, BaseEvent = c.BaseEvent, BizId = c.BizId, Data = c.Data, Flow = c.Flow, FlowRule = c.FlowRule, NodeStatus = c.NodeStatus, OperationDesc = c.OperationDesc, OperationId = c.OperationId, Step = c.Step, Tag = c.Tag, bpmnid = c.bpmnid
-
-
-            //    });
-            //    _context.SaveChanges();
-            //});
-
-
-
+            }
             return new ApiResult<dynamic>(ApiCode.Success, "test complete", result.OrderBy(c => c.Step).
                 Where(c => c.BaseEvent.Bizid == testabizId).ToList()
                 .GroupBy(c => c.Step).Select(c => new
@@ -1174,9 +1182,9 @@ namespace IoTSharp.Controllers
 
 
         [HttpGet("[action]")]
-        public ApiResult<dynamic> GetFlowOperstions(Guid eventId)
+        public ApiResult<dynamic> GetFlowOperations(Guid eventId)
         {
-            return new ApiResult<dynamic>(ApiCode.Success, "OK", _context.FlowOperations.Where(c => c.BaseEvent.EventId == eventId).ToList().OrderBy(c => c.Step).
+            return new ApiResult<dynamic>(ApiCode.Success, "OK", _context.FlowOperations.Where(c => c.BaseEventId == eventId).ToList().OrderBy(c => c.Step).
               ToList()
                 .GroupBy(c => c.Step).Select(c => new
                 {
@@ -1321,10 +1329,6 @@ namespace IoTSharp.Controllers
             var data = JsonConvert.DeserializeObject(m.Data) as JObject;
             var d = data.ToObject(typeof(ExpandoObject));
             var result = await this._flowRuleProcessor.TestCondition(m.ruleId, m.flowId, d);
-
-
-
-
             return new ApiResult<ConditionTestResult>(ApiCode.Success, "Ok", result);
         }
 
