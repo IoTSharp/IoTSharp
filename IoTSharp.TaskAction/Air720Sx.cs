@@ -20,11 +20,11 @@ namespace IoTSharp.TaskAction
 
         }
 
-        public override TaskActionOutput Execute(TaskActionInput _input)
+        public override Task<TaskActionOutput> ExecuteAsync(TaskActionInput _input)
         {
             var msg = _input.DynamicInput;
             var playload = System.Text.Encoding.Default.GetString( Convert.FromBase64String(msg.Payload));
-            return new TaskActionOutput() {   Output=playload, DeviceId=_input.DeviceId};
+            return  Task.FromResult( new TaskActionOutput() {   Output=playload, DeviceId=_input.DeviceId});
         }
     }
 }

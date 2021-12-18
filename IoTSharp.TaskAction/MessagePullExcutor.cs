@@ -25,18 +25,18 @@ namespace IoTSharp.TaskAction
 
         }
 
-        public override TaskActionOutput Execute(TaskActionInput input)
+        public override Task<TaskActionOutput> ExecuteAsync(TaskActionInput input)
         {
             try
             {
             //    var cache = this.ServiceProvider.GetService(typeof(IMemoryCache)) as IMemoryCache;
 
-                return SendData(input);
+                return  SendData(input);
 
             }
             catch (Exception ex)
             {
-                return new TaskActionOutput() { ExecutionInfo = ex.Message, ExecutionStatus = false, };
+                return  Task.FromResult( new TaskActionOutput() { ExecutionInfo = ex.Message, ExecutionStatus = false });
             }
         }
 
@@ -50,7 +50,7 @@ namespace IoTSharp.TaskAction
         }
 
 
-        private TaskActionOutput SendData(TaskActionInput input)
+        private async  Task<TaskActionOutput> SendData(TaskActionInput input)
         {
             try
             {
@@ -64,13 +64,13 @@ namespace IoTSharp.TaskAction
                     var dd = o.Properties().Select(c => new ParamObject { keyName = c.Name, value = JPropertyToObject(c.Value.First as JProperty) }).ToList();
                     string contentType = "application/json";
                     var restclient = new RestClient(config.BaseUrl);
-                    var request = new RestRequest(config.Url + (input.DeviceId == Guid.Empty ? "" : "/" + input.DeviceId), Method.POST);
+                    var request = new RestRequest(config.Url + (input.DeviceId == Guid.Empty ? "" : "/" + input.DeviceId), Method.Post);
                     request.AddHeader("X-Access-Token",
                         config.Token);
                     request.RequestFormat = DataFormat.Json;
                     request.AddHeader("cache-control", "no-cache");
                     request.AddJsonBody(JsonConvert.SerializeObject(dd));
-                    var response = restclient.Execute(request);
+                    var response = await restclient.ExecuteAsync(request);
                     if (response.StatusCode == HttpStatusCode.OK)
                     {
                         var result = JsonConvert.DeserializeObject<MessagePullResult>(response.Content);
@@ -98,13 +98,13 @@ namespace IoTSharp.TaskAction
                     var dd = o.Properties().Select(c => new ParamObject { keyName = c.Name, value = JPropertyToObject(c) }).ToList();
                     string contentType = "application/json";
                     var restclient = new RestClient(config.BaseUrl);
-                    var request = new RestRequest(config.Url + (input.DeviceId == Guid.Empty ? "" : "/" + input.DeviceId), Method.POST);
+                    var request = new RestRequest(config.Url + (input.DeviceId == Guid.Empty ? "" : "/" + input.DeviceId), Method.Post);
                     request.AddHeader("X-Access-Token",
                         config.Token);
                     request.RequestFormat = DataFormat.Json;
                     request.AddHeader("cache-control", "no-cache");
                     request.AddJsonBody(JsonConvert.SerializeObject(dd));
-                    var response = restclient.Execute(request);
+                    var response = await restclient.ExecuteAsync(request);
                     if (response.StatusCode == HttpStatusCode.OK)
                     {
                         var result = JsonConvert.DeserializeObject<MessagePullResult>(response.Content);
