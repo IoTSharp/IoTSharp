@@ -72,11 +72,10 @@ namespace IoTSharp.Jobs
                     //当前时间减去最后活跃时间如果小于超时时间， 则为在线， 否则就是离线
                     _dbContext.Device.ToList().ForEach(d =>
                     {
-                        bool _old = d.Online;
-                        d.Online = DateTime.Now.Subtract(d.LastActive).TotalSeconds < d.Timeout;
-                        if (_old != d.Online)
+                        if (d.Online &&   DateTime.Now.Subtract(d.LastActive).TotalSeconds > d.Timeout)
                         {
-                            _logger.LogInformation($"根据最后活动时间改变设备状态 {d.Id}-{d.Name} {_old} { d.Online }.最后活动时间{d.LastActive}");
+                            d.Online = false;
+                            _logger.LogInformation($"设备离线 {d.Id}-{d.Name} { d.Online }.最后活动时间{d.LastActive}");
                         }
                     });
                     var saveresult = await _dbContext.SaveChangesAsync();
