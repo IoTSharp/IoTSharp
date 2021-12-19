@@ -11,6 +11,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using MQTTnet;
 using MQTTnet.AspNetCoreEx;
+using MQTTnet.Client.Options;
 using MQTTnet.Server;
 using MQTTnet.Server.Status;
 using System;
@@ -33,11 +34,12 @@ namespace IoTSharp.Handlers
         private readonly ICapPublisher _queue;
         private readonly FlowRuleProcessor _flowRuleProcessor;
         private readonly IEasyCachingProvider _caching;
+        private readonly IMqttClientOptions _mqtt;
         readonly MqttClientSetting _mcsetting;
         private readonly AppSettings _settings;
 
         public MQTTServerHandler(ILogger<MQTTServerHandler> logger, IServiceScopeFactory scopeFactor, IMqttServerEx serverEx
-           , IOptions<AppSettings> options, ICapPublisher queue, IEasyCachingProviderFactory factory, FlowRuleProcessor flowRuleProcessor
+           , IOptions<AppSettings> options, IMqttClientOptions mqtt, ICapPublisher queue, IEasyCachingProviderFactory factory, FlowRuleProcessor flowRuleProcessor
             )
         {
             _mcsetting = options.Value.MqttClient;
@@ -49,6 +51,7 @@ namespace IoTSharp.Handlers
             _queue = queue;
             _flowRuleProcessor = flowRuleProcessor;
             _caching = factory.GetCachingProvider("iotsharp");
+            _mqtt = mqtt;
         }
 
         static long clients = 0;
@@ -493,7 +496,7 @@ namespace IoTSharp.Handlers
                         Uri uri = new Uri("mqtt://" + obj.Endpoint);
                         isLoopback = uri.IsLoopback;
                     }
-                    if (isLoopback && !string.IsNullOrEmpty(e.Context.ClientId) && e.Context.ClientId == _mcsetting.MqttBroker && !string.IsNullOrEmpty(e.Context.Username) && e.Context.Username == _mcsetting.UserName && e.Context.Password == _mcsetting.Password)
+                    if (isLoopback && !string.IsNullOrEmpty(e.Context.ClientId) && e.Context.ClientId == _mcsetting.MqttBroker && !string.IsNullOrEmpty(e.Context.Username) && e.Context.Username == _mqtt.Credentials.Username &&   e.Context.Password== Encoding.Default.GetString( _mqtt.Credentials.Password))
                     {
                         e.Context.ReasonCode = MQTTnet.Protocol.MqttConnectReasonCode.Success;
                     }
