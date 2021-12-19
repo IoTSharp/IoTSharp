@@ -1072,9 +1072,9 @@ namespace IoTSharp.Controllers
             var result = await _flowRuleProcessor.RunFlowRules(ruleid, d, Guid.Empty, EventType.TestPurpose, testabizId);
             if (result.Count > 0)
             {
-                result.ForEach(c =>
+                await Task.Run(() =>
                 {
-                    _context.FlowOperations.Add(new FlowOperation()
+                    var list = result.Select(c => new FlowOperation
                     {
                         AddDate = c.AddDate,
                         BaseEventId = c.BaseEventId,
@@ -1088,10 +1088,10 @@ namespace IoTSharp.Controllers
                         Step = c.Step,
                         Tag = c.Tag,
                         bpmnid = c.bpmnid
-                    });
+                    }).ToArray();
+                    _context.FlowOperations.AddRange(list);
                     _context.SaveChanges();
                 });
-
             }
             return new ApiResult<dynamic>(ApiCode.Success, "test complete", result.OrderBy(c => c.Step).
                 Where(c => c.BaseEvent.Bizid == testabizId).ToList()

@@ -74,13 +74,13 @@ namespace IoTSharp.TaskAction
                     if (response.StatusCode == HttpStatusCode.OK)
                     {
                         var result = JsonConvert.DeserializeObject<MessagePullResult>(response.Content);
-                        if (result != null && result.success)
+                        if (result is {success: true})
                         {
-                            return new TaskActionOutput() { ExecutionInfo = result.message, ExecutionStatus = result.success, DynamicOutput = input.DynamicInput }; ;
+                            return new TaskActionOutput() { ExecutionInfo = response.Content, ExecutionStatus = result.success, DynamicOutput = input.DynamicInput }; ;
                         }
                         else
                         {
-                            return new TaskActionOutput() { ExecutionInfo = result.message, ExecutionStatus = result.success }; ;
+                            return new TaskActionOutput() { ExecutionInfo = response.Content, ExecutionStatus = false }; ;
                         }
                     }
                     else
@@ -108,13 +108,13 @@ namespace IoTSharp.TaskAction
                     if (response.StatusCode == HttpStatusCode.OK)
                     {
                         var result = JsonConvert.DeserializeObject<MessagePullResult>(response.Content);
-                        if (result != null && result.success)
+                        if (result is {success: true})
                         {
-                            return new TaskActionOutput() { ExecutionInfo = result.message, ExecutionStatus = result.success, DynamicOutput = input.DynamicInput }; ;
+                            return new TaskActionOutput() { ExecutionInfo = response.Content, ExecutionStatus = result.success, DynamicOutput = input.DynamicInput }; ;
                         }
                         else
                         {
-                            return new TaskActionOutput() { ExecutionInfo = result.message, ExecutionStatus = result.success }; ;
+                            return new TaskActionOutput() { ExecutionInfo = response.Content, ExecutionStatus = false }; ;
                         }
                     }
                     else
