@@ -216,7 +216,7 @@ namespace IoTSharp.Handlers
                     e.ProcessingFailed = true;
                     _logger.LogWarning(ex, $"ApplicationMessageReceived {ex.Message} {ex.InnerException?.Message}");
                 }
-
+                
             }
         }
         private async Task ExecFlowRules(MqttApplicationMessageReceivedEventArgs e, Device _dev, string method, MountType mount)

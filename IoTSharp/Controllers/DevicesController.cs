@@ -711,30 +711,47 @@ namespace IoTSharp.Controllers
         public async Task<ActionResult<string>> Rpc(string access_token, string method, int timeout, object args)
         {
             ActionResult<string> result = null;
+            _logger.LogInformation($"RPC  access_token:{access_token}   method:{method}  timeout: {timeout}  ");
             var (ok, dev) = _context.GetDeviceByToken(access_token);
             if (ok)
             {
+                _logger.LogInformation($"RPC 通过 access_token:{access_token}  无法找到设备。  ");
                 return Ok(new ApiResult<Dic>(ApiCode.NotFoundDevice, $"{access_token} not a device's access token", new Dic(new DicKV[] { new DicKV("access_token", access_token) })));
             }
             else
             {
                 try
                 {
-                    var rpcClient = new RpcClient(_mqtt);
+                    _logger.LogInformation($"RPC 通过 access_token:{access_token}  找到设备{dev.Name}  ");
+                    var rpcClient = new RpcClient(_mqtt,_logger);
                     var _timeout = TimeSpan.FromSeconds(timeout);
                     var qos = MqttQualityOfServiceLevel.AtMostOnce;
                     var payload = Newtonsoft.Json.JsonConvert.SerializeObject(args);
                     await rpcClient.ConnectAsync();
-                    var response = await rpcClient.ExecuteAsync(_timeout, dev.Id.ToString(), method, payload, qos);
+                    byte[] response = null;
+                    //如果是网关的子设备， 因为客户端无法知道Id，因此发至名称 
+                    if (dev.DeviceType == DeviceType.Device && string.IsNullOrEmpty(dev.Owner?.Name))
+                    {
+                        _logger.LogInformation($"RPC  设备{dev.Name} 的所有者名称不为空， 因此是子设备。 传入名称 作为topic ");
+                        response = await rpcClient.ExecuteAsync(_timeout, dev.Name, method, payload, qos);
+                    }
+                    else
+                    {
+                        _logger.LogInformation($"RPC  设备{dev.Name} 是网关或者是独立设备， 传入设备ID{dev.Id}");
+                        response = await rpcClient.ExecuteAsync(_timeout, dev.Id.ToString(), method, payload, qos);
+                    }
                     await rpcClient.DisconnectAsync();
+                    _logger.LogInformation($"RPC  设备{dev.Name} 调用完成 { System.Text.Encoding.UTF8.GetString(response)}");
                     result = Ok(System.Text.Encoding.UTF8.GetString(response));
                 }
                 catch (MqttCommunicationTimedOutException ex1)
                 {
-                    result = Ok(new ApiResult(ApiCode.RPCTimeout, $"{dev.Id} RPC Timeout {ex1.Message}"));
+                    _logger.LogError(ex1, $"{dev.Id} RPC Timeout {ex1.Message}");
+                    result = Ok(new ApiResult(ApiCode.RPCTimeout, $"{dev.Name} RPC Timeout {ex1.Message}"));
                 }
                 catch (Exception ex)
                 {
+                    _logger.LogError(ex, $"{dev.Id} RPCFailed Timeout {ex.Message}");
                     result = Ok(new ApiResult(ApiCode.RPCFailed, $"{dev.Id} RPCFailed {ex.Message}"));
                 }
             }
