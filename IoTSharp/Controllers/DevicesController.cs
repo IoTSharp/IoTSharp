@@ -405,15 +405,10 @@ namespace IoTSharp.Controllers
         public async Task<ApiResult<List<TelemetryDataDto>>> GetTelemetryLatest(Guid deviceId)
         {
 
-
-
-
-
             Device dev = Found(deviceId);
             if (dev == null)
             {
                 return new ApiResult<List<TelemetryDataDto>>(ApiCode.NotFoundDeviceIdentity, "Device's Identity not found", null);
-
             }
 
             try
@@ -428,16 +423,7 @@ namespace IoTSharp.Controllers
                     null);
             }
 
-
-
         }
-
-
-
-
-
-
-
 
         /// <summary>
         /// 获取指定设备的指定key 的遥测数据
@@ -464,7 +450,6 @@ namespace IoTSharp.Controllers
 
             }
         }
-
 
         /// <summary>
         /// 获取指定设备和指定时间， 指定key的数据
@@ -493,8 +478,6 @@ namespace IoTSharp.Controllers
                     keys == "all"
                         ? await _storage.LoadTelemetryAsync(deviceId, begin)
                         : await _storage.LoadTelemetryAsync(deviceId, keys, begin));
-
-
 
             }
         }
@@ -591,6 +574,8 @@ namespace IoTSharp.Controllers
                 return new ApiResult<bool>(ApiCode.DoNotAllow, "Do not allow access to devices from other customers or tenants", false);
                 // return BadRequest(new ApiResult(ApiCode.DoNotAllow, $"Do not allow access to devices from other customers or tenants"));
             }
+
+            dev.DeviceModel = _context.DeviceModels.FirstOrDefault(c => c.DeviceModelId == device.DeviceModelId);
             dev.Name = device.Name;
             try
             {
@@ -636,11 +621,12 @@ namespace IoTSharp.Controllers
         {
             var cid = User.Claims.First(c => c.Type == IoTSharpClaimTypes.Customer);
             var tid = User.Claims.First(c => c.Type == IoTSharpClaimTypes.Tenant);
-            var devvalue = new Device() { Name = device.Name, DeviceType = device.DeviceType, Timeout = 300, LastActive = DateTime.Now, Status = 1, 
-                //CreateDate = DateTime.Today, 
-                //CreateMonth =DateTime.Now.ToString("yyyy-MM"), 
-                //CreateDateTime = DateTime.Now
-            };
+            var devvalue = new Device() { Name = device.Name, DeviceType = device.DeviceType, Timeout = 300, LastActive = DateTime.Now, Status = 1,
+               DeviceModel = _context.DeviceModels.FirstOrDefault(c => c.DeviceModelId == device.DeviceModelId),
+            //CreateDate = DateTime.Today, 
+            //CreateMonth =DateTime.Now.ToString("yyyy-MM"), 
+            //CreateDateTime = DateTime.Now
+        };
             devvalue.Tenant = _context.Tenant.Find(new Guid(tid.Value));
             devvalue.Customer = _context.Customer.Find(new Guid(cid.Value));
 

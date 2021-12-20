@@ -1,6 +1,6 @@
 export interface devicemodel{
   deviceModelId:string;
-  mdelName:string;
+  modelName:string;
   modelDesc:string;
   modelStatus:string;
   createDateTime:string;

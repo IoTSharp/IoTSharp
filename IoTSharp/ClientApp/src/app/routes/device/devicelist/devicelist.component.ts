@@ -20,6 +20,7 @@ import { ClipboardService } from 'ngx-clipboard';
 import { DevicetokendialogComponent } from '../devicetokendialog/devicetokendialog.component';
 import { fork } from 'child_process';
 import { ProppartComponent } from '../deviceprop/proppart/proppart.component';
+import { devicemodelcommand } from '../../devicemodel/devicemodelcommandparam';
 @Component({
   selector: 'app-devicelist',
   templateUrl: './devicelist.component.html',
@@ -59,6 +60,7 @@ export class DevicelistComponent implements OnInit, OnDestroy {
   cetd: telemetryitem[] = [];
   cead: attributeitem[] = [];
   cerd: ruleitem[] = [];
+  cett: devicemodelcommand[] = [];
   page: STPage = {
     front: false,
     total: true,
@@ -368,12 +370,14 @@ export class DevicelistComponent implements OnInit, OnDestroy {
           this.cead = [];
           this.cetd = [];
           this.cerd = [];
+          this.cett = [];
           this.obs = interval(1000).subscribe(async () => {
             zip(
               this.http.get<appmessage<attributeitem[]>>('api/Devices/' + $events.expand?.id + '/AttributeLatest'),
               this.http.get<appmessage<ruleitem[]>>('api/Rules/GetDeviceRules?deviceId=' + $events.expand?.id),
               this.http.get<appmessage<telemetryitem[]>>('api/Devices/' + $events.expand?.id + '/TelemetryLatest'),
-            ).subscribe(([attributes, rules, telemetries]) => {
+              this.http.get<appmessage<devicemodelcommand[]>>('api/deviceModel/getCommandsByDevice?id=' + $events.expand?.id ),
+            ).subscribe(([attributes, rules, telemetries,commands]) => {
               // $events.expand.attributes = attributes.data;
               // $events.expand.rules = rules.data;
               // $events.expand.telemetries = telemetries.data;
@@ -435,12 +439,18 @@ export class DevicelistComponent implements OnInit, OnDestroy {
                   }
                 }
               }
+
+              if(this.cett.length==0){
+                this.cett=commands.data;
+              }
+
             });
           });
         } else {
           this.cead = [];
           this.cetd = [];
           this.cerd = [];
+          this.cett = [];
           if(   this.obs){
             this.obs.unsubscribe();
           }
@@ -449,6 +459,23 @@ export class DevicelistComponent implements OnInit, OnDestroy {
 
         break;
     }
+  }
+
+
+
+  executeCommand(item: deviceitem,command: devicemodelcommand){
+
+    console.log(item)
+   this.http.post('api/Devices/'+item.identityId+'/Rpc/'+command.commandName+'?timeout=300',{}).subscribe(next=>{
+
+
+   },error=>{
+
+   },()=>{
+
+   })
+
+
   }
 
   removerule(item: deviceitem, rule: ruleitem) {
@@ -470,6 +497,7 @@ export interface deviceitem {
   online?: string;
   owner?: string;
   tenant?: string;
+  identityId?: string;
   timeout?: string;
   customerId?: string;
   telemetries?: telemetryitem[];

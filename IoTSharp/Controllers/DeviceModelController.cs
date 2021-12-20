@@ -10,6 +10,7 @@ using IoTSharp.Dtos;
 using IoTSharp.Models;
 using LinqKit;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.EntityFrameworkCore;
 
 namespace IoTSharp.Controllers
 {
@@ -108,6 +109,21 @@ namespace IoTSharp.Controllers
             return new ApiResult<bool>(ApiCode.CantFindObject, "CantFindObject", false);
 
         }
+
+        [HttpGet("[action]")]
+        public ApiResult<List<DeviceModelCommand>> GetCommandsByDevice(Guid id)
+        {
+
+            var dev = _context.Device.SingleOrDefault(c => c.Id == id);
+            if (dev!=null&&dev.DeviceModelId != null && dev.DeviceModelId != Guid.Empty)
+            {
+                return new ApiResult<List<DeviceModelCommand>>(ApiCode.Success, "Ok", _context.DeviceModelCommands.Where(c=>c.DeviceModelId==dev.DeviceModelId&&c.CommandStatus>-1).ToList());
+
+            }
+
+            return new ApiResult<List<DeviceModelCommand>>(ApiCode.Success, "Ok", null);
+        }
+
         [HttpGet("[action]")]
         public ApiResult<List<DeviceModelCommand>> GetCommands(Guid id)
         {
