@@ -53,6 +53,9 @@ namespace IoTSharp.Data
         public int Status { get; set; }
 
 
+        public DeviceModel? DeviceModel { get; set; }
+        public Guid? DeviceModelId { get; set; }
+
         //public DateTime? CreateDateTime { get; set; }
         //public string? CreateMonth { get; set; }
 

@@ -90,5 +90,8 @@ namespace IoTSharp.Data
 
         public DbSet<DevicePort> DevicePorts { get; set; }
         public DbSet<DevicePortMapping> DevicePortMappings { get; set; }
+
+        public DbSet<DeviceModel> DeviceModels { get; set; }
+        public DbSet<DeviceModelCommand> DeviceModelCommands { get; set; }
     }
 }

@@ -1,0 +1,99 @@
+<page-header [title]="'型号列表'">
+  <nz-card [nzBordered]="false" class>
+    <form nz-form [nzLayout]="'inline'" class="search__form" action="search">
+      <div nz-row [nzGutter]="{ xs: 8, sm: 8, md: 8, lg: 24, xl: 48, xxl: 48 }">
+        <div nz-col nzMd="8" nzSm="24">
+          <nz-form-item>
+            <nz-form-label nzFor="Name">型号名称</nz-form-label>
+            <nz-form-control>
+              <input nz-input [(ngModel)]="q.Name" name="Name" #UserName placeholder="请输入" />
+            </nz-form-control>
+          </nz-form-item>
+        </div>
+
+        <div nz-col [nzSpan]="expandForm ? 24 : 8" [class.text-right]="expandForm">
+          <button nz-button type="submit" [nzType]="'primary'" (click)="getData()">搜索</button>
+          <!--<button nz-button type="submit" (click)="getData()" [nzType]="'primary'" [nzLoading]="loading">查询</button>-->
+          <button nz-button type="reset" (click)="reset()" class="mx-sm">重置</button>
+          <a (click)="expandForm = !expandForm">
+            {{ expandForm ? '收起' : '展开' }}
+            <i nz-icon [nzType]="expandForm ? 'up' : 'down'"></i>
+          </a>
+        </div>
+      </div>
+    </form>
+    <!--<button nz-button [nzType]="'primary'" [routerLink]="['/manage/user/userform']" [queryParams]="{Id:-1}">
+          <i nz-icon nzType="plus"></i>
+          <span>{{ 'button.new' | translate }}</span>
+        </button>-->
+    <!-- <button nz-button [nzType]="'primary'" (click)="openComponent(-1)" acl [acl-ability]="1">
+          <i nz-icon nzType="plus"></i>
+          <span>{{ 'button.new' | translate }}</span>
+        </button> -->
+    <button nz-button [nzType]="'primary'" (click)="openComponent('00000000-0000-0000-0000-000000000000')">
+      <i nz-icon nzType="plus"></i>
+      <span>{{ 'button.new' | translate }}</span>
+    </button>
+    <ng-container *ngIf="selectedRows.length > 0">
+      <button nz-button>批量操作</button>
+      <button nz-button nz-dropdown [nzDropdownMenu]="batchMenu" nzPlacement="bottomLeft">
+        更多操作
+        <i nz-icon nzType="down"></i>
+      </button>
+      <nz-dropdown-menu #batchMenu="nzDropdownMenu">
+        <ul nz-menu>
+          <!--<li nz-menu-item (click)="remove()">删除</li>
+              <li nz-menu-item (click)="approval()">批量审批</li>-->
+        </ul>
+      </nz-dropdown-menu>
+    </ng-container>
+
+    <st
+      #st
+      (change)="onchange($event)"
+      expandAccordion
+      [expandAccordion]="true"
+      [columns]="columns"
+      [data]="url"
+      ps="10"
+      [expand]="expand"
+      [page]="page"
+      [req]="req"
+      [res]="res"
+    >
+      <ng-template #expand let-item let-index="index" let-column="column">
+        <nz-card nzTitle="指令">
+          <nz-table [nzNoResult]="null">
+            <thead>
+              <tr>
+                <!-- <td>Id</td> -->
+                <td>标题</td>
+                <td>名称</td>
+                <td>参数</td>
+
+                <td nzAlign="center">操作</td>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let _item of item.deviceModelCommands; let i = index; let odd = odd">
+                <!-- <td>{{ _item.commandId }}</td> -->
+                <td>{{ _item.commandTitle }}</td>
+                <td>{{ _item.commandName }}</td>
+
+                <td>{{ _item.commandParams }}</td>
+                <td>
+                  <a (click)="editCommand(_item)">修改</a>
+                  <nz-divider nzType="vertical"></nz-divider>
+                  <a (click)="deleteCommand(_item,item)">删除</a>
+                </td>
+              </tr>
+            </tbody>
+          </nz-table>
+        </nz-card>
+      </ng-template>
+      <ng-template st-row="rulestatus" let-i>
+        <nz-badge [nzStatus]="i.statusType" [nzText]="i.statusText"></nz-badge>
+      </ng-template>
+    </st>
+  </nz-card>
+</page-header>

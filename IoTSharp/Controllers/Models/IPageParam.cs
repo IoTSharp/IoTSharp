@@ -65,4 +65,15 @@ namespace IoTSharp.Controllers.Models
     {
         public string Name { get; set; }
     }
+    public class DeviceModelParam : IPageParam
+    {
+        public string Name { get; set; }
+
+
+
+
+
+
+    }
+
 }

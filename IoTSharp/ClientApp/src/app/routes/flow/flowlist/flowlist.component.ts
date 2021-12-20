@@ -314,7 +314,7 @@ export class FlowlistComponent implements OnInit {
     this.st.load(this.st.pi);
   }
   reset() {
-    this.q ==
+    this.q =
       {
         pi: 0,
         ps: 10,
