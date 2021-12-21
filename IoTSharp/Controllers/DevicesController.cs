@@ -104,53 +104,66 @@ namespace IoTSharp.Controllers
         public async Task<ApiResult<PagedData<DeviceDetailDto>>> GetDevices([FromQuery] DeviceParam m)
         {
 
+
+
             if (m.limit > 0)
             {
 
-                Expression<Func<Device, bool>> condition = x => x.Customer.Id == m.customerId && x.Status > -1;
-                return new ApiResult<PagedData<DeviceDetailDto>>(ApiCode.Success, "OK", new PagedData<DeviceDetailDto>
+
+                try
                 {
-                    total = await _context.Device.CountAsync(condition),
-                    rows = await _context.Device.OrderByDescending(c => c.LastActive).Where(condition).Skip((m.offset) * m.limit).Take(m.limit).Join(_context.DeviceIdentities, x => x.Id, y => y.Device.Id, (x, y) => new DeviceDetailDto()
+                    Expression<Func<Device, bool>> condition = x => x.Customer.Id == m.customerId && x.Status > -1;
+                    return new ApiResult<PagedData<DeviceDetailDto>>(ApiCode.Success, "OK", new PagedData<DeviceDetailDto>
                     {
-                        Id = x.Id,
-                        Name = x.Name,
-                        LastActive = x.LastActive,
-                        IdentityId = y.IdentityId,
-                        IdentityValue = y.IdentityType == IdentityType.X509Certificate ? "" : y.IdentityValue,
-                        Tenant = x.Tenant,
-                        Customer = x.Customer,
-                        DeviceType = x.DeviceType,
-                        Online = x.Online,
-                        Owner = x.Owner,
-                        Timeout = x.Timeout,
-                        IdentityType = y.IdentityType
-
-
-                    }).ToListAsync()
-                });
-
+                        total = await _context.Device.CountAsync(condition),
+                        rows = await _context.Device.OrderByDescending(c => c.LastActive).Where(condition).Skip((m.offset) * m.limit).Take(m.limit).Join(_context.DeviceIdentities, x => x.Id, y => y.Device.Id, (x, y) => new DeviceDetailDto()
+                        {
+                            Id = x.Id,
+                            Name = x.Name,
+                            LastActive = x.LastActive,
+                            IdentityId = y.IdentityId,
+                            IdentityValue = y.IdentityType == IdentityType.X509Certificate ? "" : y.IdentityValue,
+                            Tenant = x.Tenant,
+                            Customer = x.Customer,
+                            DeviceType = x.DeviceType,
+                            Online = x.Online,
+                            Owner = x.Owner,
+                            Timeout = x.Timeout,
+                            IdentityType = y.IdentityType
+                        }).ToListAsync()
+                    });
+                }
+                catch (Exception e)
+                {
+                    return new ApiResult<PagedData<DeviceDetailDto>>(ApiCode.Exception, e.Message, null);
+                }
             }
             else
             {
-
-                Expression<Func<Device, bool>> condition = x => x.Customer.Id == m.customerId && x.Status > -1;
-                return new ApiResult<PagedData<DeviceDetailDto>>(ApiCode.Success, "OK", new PagedData<DeviceDetailDto>
+                try
                 {
-                    total = await _context.Device.CountAsync(condition),
-                    rows = await _context.Device.OrderByDescending(c => c.LastActive).Where(condition).Select(x=> new DeviceDetailDto()
+                    Expression<Func<Device, bool>> condition = x => x.Customer.Id == m.customerId && x.Status > -1;
+                    return new ApiResult<PagedData<DeviceDetailDto>>(ApiCode.Success, "OK", new PagedData<DeviceDetailDto>
                     {
-                        Id = x.Id,
-                        Name = x.Name,
-                        LastActive = x.LastActive,
-                        Tenant = x.Tenant,
-                        Customer = x.Customer,
-                        DeviceType = x.DeviceType,
-                        Online = x.Online,
-                        Owner = x.Owner,
-                        Timeout = x.Timeout, 
-                    }).ToListAsync()
-                });
+                        total = await _context.Device.CountAsync(condition),
+                        rows = await _context.Device.OrderByDescending(c => c.LastActive).Where(condition).Select(x => new DeviceDetailDto()
+                        {
+                            Id = x.Id,
+                            Name = x.Name,
+                            LastActive = x.LastActive,
+                            Tenant = x.Tenant,
+                            Customer = x.Customer,
+                            DeviceType = x.DeviceType,
+                            Online = x.Online,
+                            Owner = x.Owner,
+                            Timeout = x.Timeout,
+                        }).ToListAsync()
+                    });
+                }
+                catch (Exception e)
+                {
+                    return new ApiResult<PagedData<DeviceDetailDto>>(ApiCode.Exception, e.Message, null);
+                }
 
             }
 
@@ -622,15 +635,21 @@ namespace IoTSharp.Controllers
         {
             var cid = User.Claims.First(c => c.Type == IoTSharpClaimTypes.Customer);
             var tid = User.Claims.First(c => c.Type == IoTSharpClaimTypes.Tenant);
-            var devvalue = new Device() { Name = device.Name, DeviceType = device.DeviceType, Timeout = device.Timeout, LastActive = DateTime.Now, Status = 1,
-               DeviceModel = _context.DeviceModels.FirstOrDefault(c => c.DeviceModelId == device.DeviceModelId),
-            //CreateDate = DateTime.Today, 
-            //CreateMonth =DateTime.Now.ToString("yyyy-MM"), 
-            //CreateDateTime = DateTime.Now
-        };
+            var devvalue = new Device()
+            {
+                Name = device.Name,
+                DeviceType = device.DeviceType,
+                Timeout = device.Timeout,
+                LastActive = DateTime.Now,
+                Status = 1,
+                DeviceModel = _context.DeviceModels.FirstOrDefault(c => c.DeviceModelId == device.DeviceModelId),
+                //CreateDate = DateTime.Today, 
+                //CreateMonth =DateTime.Now.ToString("yyyy-MM"), 
+                //CreateDateTime = DateTime.Now
+            };
             devvalue.Tenant = _context.Tenant.Find(new Guid(tid.Value));
             devvalue.Customer = _context.Customer.Find(new Guid(cid.Value));
-            
+
 
 
             if (devvalue.Tenant == null || devvalue.Customer == null)
@@ -646,7 +665,7 @@ namespace IoTSharp.Controllers
             {
 
                 identity.IdentityType = device.IdentityType;
-                _context.DeviceIdentities.Update(identity); 
+                _context.DeviceIdentities.Update(identity);
                 await _context.SaveChangesAsync();
             }
 
@@ -711,7 +730,7 @@ namespace IoTSharp.Controllers
                 try
                 {
                     _logger.LogInformation($"RPC 通过 access_token:{access_token}  找到设备{dev.Name}  ");
-                    var rpcClient = new RpcClient(_mqtt,_logger);
+                    var rpcClient = new RpcClient(_mqtt, _logger);
                     var _timeout = TimeSpan.FromSeconds(timeout);
                     var qos = MqttQualityOfServiceLevel.AtMostOnce;
                     var payload = Newtonsoft.Json.JsonConvert.SerializeObject(args);
@@ -865,7 +884,7 @@ namespace IoTSharp.Controllers
             });
             await _context.SaveChangesAsync();
             return new ApiResult<bool>(ApiCode.Success, "Ok", true);
-      
+
         }
 
 
@@ -939,7 +958,7 @@ namespace IoTSharp.Controllers
         [ProducesDefaultResponseType]
         public async Task<ApiResult<int>> GetSessionsCount()
         {
-            return new ApiResult<int>(ApiCode.Success, "OK",( await _serverEx.GetClientStatusAsync()).Count);
+            return new ApiResult<int>(ApiCode.Success, "OK", (await _serverEx.GetClientStatusAsync()).Count);
         }
     }
 }

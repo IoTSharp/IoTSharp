@@ -29,12 +29,23 @@ namespace IoTSharp.Controllers
         [HttpPost("[action]")]
         public ApiResult<PagedData<DeviceModel>> Index([FromQuery] DeviceModelParam m)
         {
-            Expression<Func<DeviceModel, bool>> condition = x => x.ModelStatus > -1;
-            if (!string.IsNullOrEmpty(m.Name))
+            try
             {
-                condition.And(x => x.ModelName == m.Name);
+                Expression<Func<DeviceModel, bool>> condition = x => x.ModelStatus > -1;
+                if (!string.IsNullOrEmpty(m.Name))
+                {
+                    condition.And(x => x.ModelName == m.Name);
+                }
+                return new ApiResult<PagedData<DeviceModel>>(ApiCode.Success, "OK", new PagedData<DeviceModel>() { rows = _context.DeviceModels.Where(condition).Skip((m.offset) * m.limit).Take(m.limit).ToList(), total = _context.DeviceModels.Count(condition) });
+
             }
-            return new ApiResult<PagedData<DeviceModel>>(ApiCode.Success, "OK", new PagedData<DeviceModel>() { rows = _context.DeviceModels.Where(condition).Skip((m.offset) * m.limit).Take(m.limit).ToList(), total = _context.DeviceModels.Count(condition) });
+            catch (Exception e)
+            {
+                return new ApiResult<PagedData<DeviceModel>>(ApiCode.Exception, e.Message, null);
+            }
+
+
+
         }
         [HttpGet("[action]")]
         public ApiResult<DeviceModel> Get(Guid id)
@@ -81,8 +92,6 @@ namespace IoTSharp.Controllers
                 _context.DeviceModels.Update(dm);
                 _context.SaveChanges();
                 return new ApiResult<bool>(ApiCode.CantFindObject, "Ok", true);
-
-
             }
             catch (Exception ex)
             {
@@ -115,9 +124,9 @@ namespace IoTSharp.Controllers
         {
 
             var dev = _context.Device.SingleOrDefault(c => c.Id == id);
-            if (dev!=null&&dev.DeviceModelId != null && dev.DeviceModelId != Guid.Empty)
+            if (dev != null && dev.DeviceModelId != null && dev.DeviceModelId != Guid.Empty)
             {
-                return new ApiResult<List<DeviceModelCommand>>(ApiCode.Success, "Ok", _context.DeviceModelCommands.Where(c=>c.DeviceModelId==dev.DeviceModelId&&c.CommandStatus>-1).ToList());
+                return new ApiResult<List<DeviceModelCommand>>(ApiCode.Success, "Ok", _context.DeviceModelCommands.Where(c => c.DeviceModelId == dev.DeviceModelId && c.CommandStatus > -1).ToList());
 
             }
 
@@ -127,7 +136,7 @@ namespace IoTSharp.Controllers
         [HttpGet("[action]")]
         public ApiResult<List<DeviceModelCommand>> GetCommands(Guid id)
         {
-            return new ApiResult<List<DeviceModelCommand>>(ApiCode.Success, "Ok", _context.DeviceModelCommands.Where(c => c.DeviceModelId == id&&c.CommandStatus>-1).ToList());
+            return new ApiResult<List<DeviceModelCommand>>(ApiCode.Success, "Ok", _context.DeviceModelCommands.Where(c => c.DeviceModelId == id && c.CommandStatus > -1).ToList());
         }
 
         [HttpGet("[action]")]
@@ -157,8 +166,8 @@ namespace IoTSharp.Controllers
                     CommandParams = m.CommandParams,
                     CommandName = m.CommandName,
                     DeviceModelId = m.DeviceModelId,
-                   CommandTemplate = m.CommandTemplate,
-                CreateDateTime = DateTime.Now
+                    CommandTemplate = m.CommandTemplate,
+                    CreateDateTime = DateTime.Now
                 };
 
                 _context.DeviceModelCommands.Add(dmc);
