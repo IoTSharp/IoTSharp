@@ -10,7 +10,9 @@ namespace IoTSharp.Dtos
     {
         public string Name { get; set; }
         public DeviceType DeviceType { get; set; }
-        public Guid DeviceModelId { get; set; }
+        public Guid? DeviceModelId { get; set; }
+
+        public int Timeout { get; set; }
         public IdentityType IdentityType { get; set; }
     }
 }
