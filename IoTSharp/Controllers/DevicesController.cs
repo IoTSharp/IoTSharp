@@ -588,7 +588,7 @@ namespace IoTSharp.Controllers
                 // return BadRequest(new ApiResult(ApiCode.DoNotAllow, $"Do not allow access to devices from other customers or tenants"));
             }
 
-            dev.DeviceModel = _context.DeviceModels.FirstOrDefault(c => c.DeviceModelId == device.DeviceModelId);
+          //  dev.DeviceModel = _context.DeviceModels.FirstOrDefault(c => c.DeviceModelId == device.DeviceModelId);
             dev.Name = device.Name;
             dev.Timeout = device.Timeout;
             try
@@ -642,7 +642,7 @@ namespace IoTSharp.Controllers
                 Timeout = device.Timeout,
                 LastActive = DateTime.Now,
                 Status = 1,
-                DeviceModel = _context.DeviceModels.FirstOrDefault(c => c.DeviceModelId == device.DeviceModelId),
+             //   DeviceModel = _context.DeviceModels.FirstOrDefault(c => c.DeviceModelId == device.DeviceModelId),
                 //CreateDate = DateTime.Today, 
                 //CreateMonth =DateTime.Now.ToString("yyyy-MM"), 
                 //CreateDateTime = DateTime.Now

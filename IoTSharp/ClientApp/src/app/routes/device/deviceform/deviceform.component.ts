@@ -54,7 +54,7 @@ export class DeviceformComponent implements OnInit {
       name: [null, [Validators.required]],
       deviceType: [null, [Validators.required]],
       customerId: [null, []],
-      deviceModelId: [null, []],
+      // deviceModelId: [null, []],
       timeout: [300, []],
       id: [Guid.EMPTY, []],
       identityType: [Guid.EMPTY, []],
