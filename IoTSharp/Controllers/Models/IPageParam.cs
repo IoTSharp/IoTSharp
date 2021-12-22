@@ -33,8 +33,10 @@ namespace IoTSharp.Controllers.Models
     public class EventParam : IPageParam
     {
         public string Name { get; set; }
+        public string RuleName { get; set; }
+        public string CreatorName { get; set; }
 
-        public string Creator { get; set; }
+        public Guid? Creator { get; set; }
         public DateTime[] CreatTime { get; set; }
     }
 

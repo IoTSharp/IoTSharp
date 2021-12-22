@@ -1,6 +1,7 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { STPage, STReq, STRes, STComponent, STColumn, STData, STColumnTag } from '@delon/abc/st';
 import { _HttpClient, SettingsService } from '@delon/theme';
+import { Guid } from 'guid-typescript';
 import { NzDrawerService } from 'ng-zorro-antd/drawer';
 import { NzMessageService } from 'ng-zorro-antd/message';
 import { FloweventviewComponent } from '../floweventview/floweventview.component';
@@ -12,6 +13,12 @@ import { FloweventviewComponent } from '../floweventview/floweventview.component
   styleUrls: ['./flowevents.component.less']
 })
 export class FloweventsComponent implements OnInit {
+   devices:creator[]=[{value:Guid.EMPTY,text:'测试'}];
+
+    
+   
+
+
    TAG: STColumnTag = {
     'Normal': { text: '设备', color: 'green' },
     'TestPurpose': { text: '测试', color: 'orange' },
@@ -26,7 +33,8 @@ export class FloweventsComponent implements OnInit {
     pi: number;
     ps: number;
     Name: string;
-    Creator: string;
+    Creator: string;  
+     RuleName:string;
     CreatTime: Date[];
     sorter: string;
     status: number | null;
@@ -35,6 +43,7 @@ export class FloweventsComponent implements OnInit {
     ps: 10,
     Name: '',
     Creator: '',
+    RuleName:'',
     CreatTime: [],
     sorter: '',
     status: null,
@@ -115,6 +124,7 @@ export class FloweventsComponent implements OnInit {
         ps: 10,
         Name: '',
         Creator: '',
+        RuleName:'',
         CreatTime: [],
         sorter: '',
         status: null,
@@ -144,7 +154,13 @@ export interface baseevent{
   Bizid: string;
   name: string;
   ruleId: string;
- createrDateTime: string;
- creatorName: string;
+  createrDateTime: string;
+  creatorName: string;
 
+}
+
+
+export interface creator{
+  value:string;
+  text:string;
 }
