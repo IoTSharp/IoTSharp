@@ -84,6 +84,7 @@ namespace IoTSharp.Handlers
                     string topic = e.ApplicationMessage.Topic.ToLower();
                     var tpary = topic.Split('/', StringSplitOptions.RemoveEmptyEntries);
                     var _dev = await FoundDevice(e.ClientId);
+                    
                     if (tpary.Length >= 3 && tpary[0] == "devices" && _dev != null)
                     {
                         Device device = JudgeOrCreateNewDevice(tpary, _dev);
@@ -166,7 +167,8 @@ namespace IoTSharp.Handlers
                     }
                     else
                     {
-                        _logger.LogWarning($"不支持{e.ClientId}的{e.ApplicationMessage.Topic}格式");
+                        //tpary.Length >= 3 && tpary[0] == "devices" && _dev != null
+                        _logger.LogWarning($"不支持{e.ClientId}的{e.ApplicationMessage.Topic}格式,Length:{tpary.Length },{tpary[0] },{ _dev != null}");
                     }
                 }
                 catch (Exception ex)
@@ -180,10 +182,12 @@ namespace IoTSharp.Handlers
 
         private void ResetDeviceStatus(Device device,bool status=true)
         {
-            if (device.DeviceType == DeviceType.Device && device.Owner != null && device.Owner?.Id != null)//虚拟设备上线
+            _logger.LogInformation($"重置状态{device.Id} {device.Name}");
+            if (device.DeviceType == DeviceType.Device && device.Owner != null && device.Owner?.Id != null && device.Owner?.Id !=Guid.Empty)//虚拟设备上线
             {
                 _queue.PublishDeviceStatus(device.Id, status);
                 _queue.PublishDeviceStatus(device.Owner.Id, status);
+                _logger.LogInformation($"重置网关状态{device.Owner.Id} {device.Owner.Name}");
             }
             else
             {
@@ -244,9 +248,23 @@ namespace IoTSharp.Handlers
 
         private async Task<Device> FoundDevice(string clientid)
         {
-            var ss = await _serverEx.GetSessionStatusAsync();
-            var _device = ss.FirstOrDefault(s => s.ClientId == clientid)?.Items?.FirstOrDefault(k => (string)k.Key == nameof(Device)).Value as Device;
-            return _device;
+            Device device = null;
+            var clients = await _serverEx.GetClientStatusAsync();
+            var client = clients.FirstOrDefault(c => c.ClientId == clientid);
+            if (client != null)
+            {
+                device = client.Session?.Items?.FirstOrDefault(k => (string)k.Key == nameof(Device)).Value as Device;
+                if (device==null)
+                {
+                    _logger.LogWarning($"未能找到客户端{clientid  }回话附加的设备信息，现在断开此链接。 ");
+                    await client.DisconnectAsync();
+                }
+            }
+            else
+            {
+                _logger.LogWarning($"未能找到客户端{clientid  }上下文信息");
+            }
+            return device;
         }
 
         private async Task RequestAttributes(string[] tpary, Dictionary<string, object> keyValues, Device device)
