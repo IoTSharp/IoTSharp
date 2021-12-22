@@ -629,12 +629,6 @@
             是否被安装
             </summary>
         </member>
-        <member name="M:IoTSharp.IoTSharpExtension.CheckOrUpdateDevStatus(IoTSharp.Data.Device)">
-            <summary>
-            //如果上次活动时间距离当前时间超过10秒 或者 设备离线状态， 则更新状态。
-            </summary>
-            <param name="device"></param>
-        </member>
         <member name="M:IoTSharp.IoTSharpExtension.AddJWTSecurity(NSwag.Generation.AspNetCore.AspNetCoreOpenApiDocumentGeneratorSettings)">
             <summary>
             

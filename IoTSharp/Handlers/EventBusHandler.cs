@@ -137,12 +137,14 @@ namespace IoTSharp.Handlers
                     {
                         dev.Online = false;
                         dev.LastActive = DateTime.Now;
+                        Task.Run(()=>  RunRules(dev.Id, status, MountType.Online));
                         //真正掉线
                     }
                     else if (dev.Online == false && status.Status == true)
                     {
                         dev.Online = true;
                         dev.LastActive = DateTime.Now;
+                        Task.Run(() => RunRules(dev.Id, status, MountType.Offline));
                         //真正离线
                     }
                     _dbContext.SaveChanges();
