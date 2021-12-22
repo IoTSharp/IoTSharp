@@ -111,20 +111,8 @@ namespace IoTSharp
                 return externalPath + internalUiRoute;
             });
         }
-     
-        /// <summary>
-        /// //如果上次活动时间距离当前时间超过10秒 或者 设备离线状态， 则更新状态。
-        /// </summary>
-        /// <param name="device"></param>
-        internal static void CheckOrUpdateDevStatus(this Device device)
-        {
-            if (DateTime.Now.Subtract(device.LastActive).TotalSeconds > 10 || device.Online == false)
-            {
-                device.Online = true;
-                device.LastActive = DateTime.Now;
 
-            }
-        }
+     
 
         internal static HealthChecks.UI.Configuration.Settings AddIoTSharpHealthCheckEndpoint(this HealthChecks.UI.Configuration.Settings setup)
         {

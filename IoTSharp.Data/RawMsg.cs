@@ -6,6 +6,11 @@ using System.Threading.Tasks;
 namespace IoTSharp.Data
 {
 
+    public class DeviceStatus
+    {
+        public Guid DeviceId { get; set; }
+        public bool Status { get; set; }
+    }
   
     public class RawMsg
     {

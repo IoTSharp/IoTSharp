@@ -43,18 +43,13 @@ namespace IoTSharp.Jobs
                    {
                        try
                        {
-
                            var _device = cs.Session.Items?.FirstOrDefault(k => (string)k.Key == nameof(Device)).Value as Device;
                            if (_device != null)
                            {
                                var d = _dbContext.Device.FirstOrDefault(d => d.Id == _device.Id);
                                if (d != null)
                                {
-
-                                   d.LastActive = cs.LastPacketReceivedTimestamp.ToLocalTime();
-                                   d.Online = DateTime.Now.Subtract(d.LastActive).TotalSeconds < d.Timeout;
-                                   _logger.LogInformation($"MQTT状态设备{cs.ClientId}-{d.Name}({d.Id},{cs.Endpoint}) 最后活动时间{d.LastActive} 是否在线{d.Online} 发送消息:{cs.SentApplicationMessagesCount}({cs.BytesSent}kb)  收到{cs.ReceivedApplicationMessagesCount}({cs.BytesReceived / 1024}KB )  ");
-                                   if (!d.Online && DateTime.Now.Subtract(d.LastActive).TotalSeconds > d.Timeout * 5)
+                                   if (!d.Online && DateTime.Now.Subtract(d.LastActive).TotalSeconds > d.Timeout)
                                    {
                                        Task.Run(cs.DisconnectAsync);
                                    }
@@ -72,11 +67,9 @@ namespace IoTSharp.Jobs
                     //当前时间减去最后活跃时间如果小于超时时间， 则为在线， 否则就是离线
                     _dbContext.Device.ToList().ForEach(d =>
                     {
-                        bool _old = d.Online;
-                        d.Online = DateTime.Now.Subtract(d.LastActive).TotalSeconds < d.Timeout;
-                        if (_old != d.Online)
+                         if  (d.Online  &&   DateTime.Now.Subtract(d.LastActive).TotalSeconds > d.Timeout)
                         {
-                            _logger.LogInformation($"根据最后活动时间改变设备状态 {d.Id}-{d.Name} {_old} { d.Online }.最后活动时间{d.LastActive}");
+                            d.Online = false;
                         }
                     });
                     var saveresult = await _dbContext.SaveChangesAsync();
