@@ -24,7 +24,7 @@
             <nz-form-item>
               <nz-form-label nzFor="Creator">创建对象</nz-form-label>
               <nz-form-control>
-                <input nz-input [(ngModel)]="q.Creator" name="Creator" #UserPhone placeholder="请输入"  [nzAutocomplete]="auto"/>
+                <input nz-input [(ngModel)]="q.Creator" (input)="onChange($event)" name="Creator" #UserPhone placeholder="请输入"  [nzAutocomplete]="auto"/>
 
                 <nz-autocomplete #auto>
                   <nz-auto-option *ngFor="let option of devices" [nzValue]="option.value">{{ option.text }}</nz-auto-option>

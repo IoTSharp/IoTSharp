@@ -4,6 +4,7 @@ import { _HttpClient, SettingsService } from '@delon/theme';
 import { Guid } from 'guid-typescript';
 import { NzDrawerService } from 'ng-zorro-antd/drawer';
 import { NzMessageService } from 'ng-zorro-antd/message';
+import { debounceTime } from 'rxjs/operators';
 import { FloweventviewComponent } from '../floweventview/floweventview.component';
 
 
@@ -14,10 +15,6 @@ import { FloweventviewComponent } from '../floweventview/floweventview.component
 })
 export class FloweventsComponent implements OnInit {
    devices:creator[]=[{value:Guid.EMPTY,text:'测试'}];
-
-    
-   
-
 
    TAG: STColumnTag = {
     'Normal': { text: '设备', color: 'green' },
@@ -111,7 +108,16 @@ export class FloweventsComponent implements OnInit {
       }
     });
   }
+  onChange($event: Event){
+   var element= $event.target as HTMLInputElement
+   
+   this.http.get('api/Devices/Customers',{
+    limit:20, 
+    offset:0,
+    customerId: this.settingService.user.comstomer,name:element?.value??''
+   }).pipe(debounceTime(500)).subscribe(next=>{},error=>{},()=>{})
 
+  }
   getData() {
     this.st.req = this.req;
     this.st.load(this.st.pi);
@@ -131,10 +137,11 @@ export class FloweventsComponent implements OnInit {
       };
   }
   constructor(
+    private http: _HttpClient,
     public msg: NzMessageService,
     private drawerService: NzDrawerService,
     private settingService: SettingsService,
-    
+   
   ) {
 
   }

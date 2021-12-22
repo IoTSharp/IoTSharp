@@ -33,6 +33,7 @@ using IoTSharp.X509Extensions;
 using System.IO;
 using System.IO.Compression;
 using DotNetCore.CAP;
+using LinqKit;
 
 namespace IoTSharp.Controllers
 {
@@ -113,6 +114,12 @@ namespace IoTSharp.Controllers
                 try
                 {
                     Expression<Func<Device, bool>> condition = x => x.Customer.Id == m.customerId && x.Status > -1;
+                    if (!string.IsNullOrEmpty(m.Name))
+                    {
+                        condition = condition.And(x => x.Name.Contains(m.Name));
+                    }
+
+
                     return new ApiResult<PagedData<DeviceDetailDto>>(ApiCode.Success, "OK", new PagedData<DeviceDetailDto>
                     {
                         total = await _context.Device.CountAsync(condition),
