@@ -10,11 +10,26 @@
               </nz-form-control>
             </nz-form-item>
           </div>
+
+
           <div nz-col nzMd="8" nzSm="24">
             <nz-form-item>
-              <nz-form-label nzFor="Creator">创建人</nz-form-label>
+              <nz-form-label nzFor="Name">规则</nz-form-label>
               <nz-form-control>
-                <input nz-input [(ngModel)]="q.Creator" name="Creator" #UserPhone placeholder="请输入" />
+                <input nz-input [(ngModel)]="q.RuleName" name="RuleName" #UserName placeholder="请输入" />
+              </nz-form-control>
+            </nz-form-item>
+          </div>
+          <div nz-col nzMd="8" nzSm="24">
+            <nz-form-item>
+              <nz-form-label nzFor="Creator">创建对象</nz-form-label>
+              <nz-form-control>
+                <input nz-input [(ngModel)]="q.Creator" name="Creator" #UserPhone placeholder="请输入"  [nzAutocomplete]="auto"/>
+
+                <nz-autocomplete #auto>
+                  <nz-auto-option *ngFor="let option of devices" [nzValue]="option.value">{{ option.text }}</nz-auto-option>
+                </nz-autocomplete>
+
               </nz-form-control>
             </nz-form-item>
           </div>

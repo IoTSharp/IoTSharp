@@ -32,7 +32,7 @@ namespace IoTSharp.TaskAction
             request.RequestFormat = DataFormat.Json;
             request.AddHeader("Content-Type", contentType);
             request.AddHeader("cache-control", "no-cache");
-            request.AddJsonBody(JsonConvert.SerializeObject(new{ sosType="1", sosContent= input.Input, usingUserId= "zhangsan" }));
+            request.AddJsonBody(JsonConvert.SerializeObject(new{ sosType="1", sosContent= input.Input, usingUserId= "" }));
             var response = restclient.Execute(request);
             if (response.StatusCode == HttpStatusCode.OK)
             {

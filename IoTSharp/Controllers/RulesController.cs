@@ -1129,10 +1129,17 @@ namespace IoTSharp.Controllers
                 condition = condition.And(x => x.CreaterDateTime > m.CreatTime[0] && x.CreaterDateTime < m.CreatTime[1]);
             }
 
-            //if (m.Creator!=null)
-            //{
-            //    condition = condition.And(x => x.Creator == m.Creator);
-            //}
+            if (!string.IsNullOrEmpty(m.RuleName))
+            {
+                condition = condition.And(x => x.FlowRule.Name.Contains(m.RuleName));
+            }
+
+
+            if (m.Creator!=null&&m.Creator!=Guid.Empty)
+            {
+                condition = condition.And(x => x.Creator==m.Creator.Value);
+            }
+
 
 
             var result = _context.BaseEvents.OrderByDescending(c => c.CreaterDateTime).Where(condition)
