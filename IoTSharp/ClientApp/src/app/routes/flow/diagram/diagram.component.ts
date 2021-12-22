@@ -93,7 +93,12 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy 
   };
   activity: Activity;
   selectedValue: any;
-
+  panels = [
+    {
+      active: true,
+      name: '对象属性',
+      disabled: false
+    },]
 
   toggleFullScreen(): void {
     this.fullScreen = !this.fullScreen;
