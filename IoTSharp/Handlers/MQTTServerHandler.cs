@@ -11,7 +11,6 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using MQTTnet;
 using MQTTnet.AspNetCoreEx;
-using MQTTnet.Client.Options;
 using MQTTnet.Server;
 using MQTTnet.Server.Status;
 using System;
@@ -34,12 +33,11 @@ namespace IoTSharp.Handlers
         private readonly ICapPublisher _queue;
         private readonly FlowRuleProcessor _flowRuleProcessor;
         private readonly IEasyCachingProvider _caching;
-        private readonly IMqttClientOptions _mqtt;
         readonly MqttClientSetting _mcsetting;
         private readonly AppSettings _settings;
 
         public MQTTServerHandler(ILogger<MQTTServerHandler> logger, IServiceScopeFactory scopeFactor, IMqttServerEx serverEx
-           , IOptions<AppSettings> options, IMqttClientOptions mqtt, ICapPublisher queue, IEasyCachingProviderFactory factory, FlowRuleProcessor flowRuleProcessor
+           , IOptions<AppSettings> options, ICapPublisher queue, IEasyCachingProviderFactory factory, FlowRuleProcessor flowRuleProcessor
             )
         {
             _mcsetting = options.Value.MqttClient;
@@ -51,7 +49,6 @@ namespace IoTSharp.Handlers
             _queue = queue;
             _flowRuleProcessor = flowRuleProcessor;
             _caching = factory.GetCachingProvider("iotsharp");
-            _mqtt = mqtt;
         }
 
         static long clients = 0;
@@ -72,7 +69,6 @@ namespace IoTSharp.Handlers
         {
             _logger.LogInformation($"Server is stopped");
         }
-        Dictionary<string, int> lstTopics = new Dictionary<string, int>();
         long received = 0;
         internal async void Server_ApplicationMessageReceived(object sender, MqttApplicationMessageReceivedEventArgs e)
         {
@@ -85,20 +81,7 @@ namespace IoTSharp.Handlers
                 try
                 {
                     _logger.LogInformation($"Server received {e.ClientId}'s message: Topic=[{e.ApplicationMessage.Topic }],Retain=[{e.ApplicationMessage.Retain}],QualityOfServiceLevel=[{e.ApplicationMessage.QualityOfServiceLevel}]");
-                    if (!lstTopics.ContainsKey(e.ApplicationMessage.Topic))
-                    {
-                        lstTopics.Add(e.ApplicationMessage.Topic, 1);
-                        await _serverEx.PublishAsync("$SYS/broker/subscriptions/count", lstTopics.Count.ToString());
-                    }
-                    else
-                    {
-                        lstTopics[e.ApplicationMessage.Topic]++;
-                    }
-                    if (e.ApplicationMessage.Payload != null)
-                    {
-                        received += e.ApplicationMessage.Payload.Length;
-                    }
-                    string topic = e.ApplicationMessage.Topic;
+                    string topic = e.ApplicationMessage.Topic.ToLower();
                     var tpary = topic.Split('/', StringSplitOptions.RemoveEmptyEntries);
                     var _dev = await FoundDevice(e.ClientId);
                     if (tpary.Length >= 3 && tpary[0] == "devices" && _dev != null)
@@ -106,6 +89,7 @@ namespace IoTSharp.Handlers
                         Device device = JudgeOrCreateNewDevice(tpary, _dev);
                         if (device != null)
                         {
+                            bool statushavevalue = false;
                             Dictionary<string, object> keyValues = new Dictionary<string, object>();
                             if (tpary.Length >= 4)
                             {
@@ -136,7 +120,7 @@ namespace IoTSharp.Handlers
                                 }
                                 catch (Exception ex)
                                 {
-                                    _logger.LogWarning(ex, $"ConvertPayloadToDictionary   Error {topic},{ex.Message}");
+                                    _logger.LogWarning(ex, $"转换为字典格式失败 {topic},{ex.Message}");
                                 }
                             }
                             if (tpary[2] == "telemetry")
@@ -153,7 +137,11 @@ namespace IoTSharp.Handlers
                                 {
                                     _queue.PublishAttributeData(new RawMsg() { DeviceId = device.Id, MsgBody = keyValues, DataSide = DataSide.ClientSide, DataCatalog = DataCatalog.AttributeData });
                                 }
-
+                            }
+                            else if (tpary[2] == "status" )
+                            {
+                                ResetDeviceStatus(device, tpary[3] == "online");
+                                statushavevalue = true;
                             }
                             else if (tpary[2] == "rpc")
                             {
@@ -161,64 +149,48 @@ namespace IoTSharp.Handlers
                                 {
                                     await ExecFlowRules(e, _dev.DeviceType == DeviceType.Gateway ? device : _dev, tpary[4], MountType.RPC);//完善后改成 RPC 
                                 }
-                                
                             }
                             else
                             {
                                 await ExecFlowRules(e, _dev.DeviceType == DeviceType.Gateway ? device : _dev, MountType.RAW);//如果是网关
                             }
-
+                            if (!statushavevalue)
+                            {
+                                ResetDeviceStatus(device);
+                            }
                         }
                         else
                         {
                             _logger.LogInformation($"{e.ClientId}的数据{e.ApplicationMessage.Topic}未能匹配到设备");
                         }
                     }
-                    else if (_dev?.Owner?.DeviceType== DeviceType.Gateway)
+                    else
                     {
-                        _logger.LogInformation($"{e.ClientId}的数据{e.ApplicationMessage.Topic}未能识别,分段:{tpary.Length} 前缀?{tpary[0]}  设备:{_dev?.Id} ,终端状态未找到。");
-                        var ss = await _serverEx.GetClientStatusAsync();
-                        var status=  ss.FirstOrDefault(s => s.ClientId == e.ClientId);
-                        if (status != null)
-                        {
-                            _logger.LogInformation($"{e.ClientId}的数据{e.ApplicationMessage.Topic}未能识别,分段:{tpary.Length} 前缀?{tpary[0]}  设备:{_dev?.Id} {status.ConnectedTimestamp} {status.Endpoint}   ");
-                            if (!status.Session.Items.ContainsKey("iotsharp_count"))
-                            {
-                                status.Session.Items.Add("iotsharp_count", 1);
-                            }
-                            else
-                            {
-                                status.Session.Items["iotsharp_count"] = 1 + (int)status.Session.Items["iotsharp_count"];
-                            }
-                            if (status.Session.Items.TryGetValue("iotsharp_count", out object count))
-                            {
-                                int _count = (int)count;
-                                if (_count > 10)
-                                {
-                                    await status.DisconnectAsync();
-                                    _logger.LogInformation($"未识别次数太多{_count}");
-                                }
-                            }
-                            else
-                            {
-                                _logger.LogInformation("识别次数获取错误");
-                            }
-                        }
-                        else
-                        {
-                            _logger.LogInformation("设备状态未能获取");
-                        }
+                        _logger.LogWarning($"不支持{e.ClientId}的{e.ApplicationMessage.Topic}格式");
                     }
-
                 }
                 catch (Exception ex)
                 {
                     e.ProcessingFailed = true;
                     _logger.LogWarning(ex, $"ApplicationMessageReceived {ex.Message} {ex.InnerException?.Message}");
                 }
-                
+
             }
         }
+
+        private void ResetDeviceStatus(Device device,bool status=true)
+        {
+            if (device.DeviceType == DeviceType.Device && device.Owner != null && device.Owner?.Id != null)//虚拟设备上线
+            {
+                _queue.PublishDeviceStatus(device.Id, status);
+                _queue.PublishDeviceStatus(device.Owner.Id, status);
+            }
+            else
+            {
+                _queue.PublishDeviceStatus(device.Id, status);
+            }
+        }
+
         private async Task ExecFlowRules(MqttApplicationMessageReceivedEventArgs e, Device _dev, string method, MountType mount)
         {
             var rules = await _caching.GetAsync($"ruleid_{_dev.Id}_rpc_{method}", async () =>
@@ -409,23 +381,17 @@ namespace IoTSharp.Handlers
                         devicedatato = new Device() { Id = Guid.NewGuid(), Name = tpary[1], DeviceType = DeviceType.Device, Tenant = gw.Tenant, Customer = gw.Customer, Owner = gw,  LastActive = DateTime.Now, Timeout = 300 };
                         gw.Children.Add(devicedatato);
                         _dbContext.AfterCreateDevice(devicedatato);
-                        gw.LastActive = DateTime.Now;
-                        gw.Online = true;
                         _logger.LogInformation($"网关 {gw.Id}-{gw.Name}在线.最后活动时间{gw.LastActive},添加了子设备{devicedatato.Name}");
                     }
                     else
                     {
                         devicedatato = subdev.FirstOrDefault();
-                        devicedatato.LastActive = DateTime.Now;
-                        devicedatato.Online = true;
                         _logger.LogInformation($"网关子设备 {devicedatato.Id}-{devicedatato.Name}在线.最后活动时间{devicedatato.LastActive}");
                     }
                 }
                 else
                 {
                     devicedatato = _dbContext.Device.Find(device.Id);
-                    devicedatato.LastActive = DateTime.Now;
-                    devicedatato.Online = true;
                     _logger.LogInformation($"独立设备 {devicedatato.Id}-{devicedatato.Name}在线.最后活动时间{devicedatato.LastActive}");
                 }
                 _dbContext.SaveChanges();
@@ -496,7 +462,7 @@ namespace IoTSharp.Handlers
                         Uri uri = new Uri("mqtt://" + obj.Endpoint);
                         isLoopback = uri.IsLoopback;
                     }
-                    if (isLoopback && !string.IsNullOrEmpty(e.Context.ClientId) && e.Context.ClientId == _mcsetting.MqttBroker && !string.IsNullOrEmpty(e.Context.Username) && e.Context.Username == _mqtt.Credentials.Username &&   e.Context.Password== Encoding.Default.GetString( _mqtt.Credentials.Password))
+                    if (isLoopback && !string.IsNullOrEmpty(e.Context.ClientId) && e.Context.ClientId == _mcsetting.MqttBroker && !string.IsNullOrEmpty(e.Context.Username) && e.Context.Username == _mcsetting.UserName && e.Context.Password == _mcsetting.Password)
                     {
                         e.Context.ReasonCode = MQTTnet.Protocol.MqttConnectReasonCode.Success;
                     }

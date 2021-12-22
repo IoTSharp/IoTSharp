@@ -46,7 +46,6 @@ namespace IoTSharp.Handlers
         [CapSubscribe("iotsharp.services.datastream.attributedata")]
         public async void StoreAttributeData(RawMsg msg)
         {
-
             using (var _scope = _scopeFactor.CreateScope())
             {
                 using (var _dbContext = _scope.ServiceProvider.GetRequiredService<ApplicationDbContext>())
@@ -54,12 +53,6 @@ namespace IoTSharp.Handlers
                     var device = _dbContext.Device.FirstOrDefault(d => d.Id == msg.DeviceId);
                     if (device != null)
                     {
-                        var old = device.Online;
-                        device.CheckOrUpdateDevStatus();
-                        if (old!=device.Online)
-                        {
-                            _logger.LogInformation($"通过属性修改变更设备状态 {device.Id}-{device.Name}在线.最后活动时间{device.LastActive}");
-                        }
                         var mb = msg.MsgBody;
                         Dictionary<string, object> dc = new Dictionary<string, object>();
                         mb.ToList().ForEach(kp =>
@@ -131,44 +124,45 @@ namespace IoTSharp.Handlers
 
                 }
             }
+        } 
+        [CapSubscribe("iotsharp.services.datastream.devicestatus")]
+        public void DeviceStatus(DeviceStatus status)
+        {
+            using (var _scope = _scopeFactor.CreateScope())
+            {
+                using (var _dbContext = _scope.ServiceProvider.GetRequiredService<ApplicationDbContext>())
+                {
+                    var dev = _dbContext.Device.Find(status.DeviceId);
+                    if (dev.Online == true && status.Status == false)
+                    {
+                        dev.Online = false;
+                        dev.LastActive = DateTime.Now;
+                        //真正掉线
+                    }
+                    else if (dev.Online == false && status.Status == true)
+                    {
+                        dev.Online = true;
+                        dev.LastActive = DateTime.Now;
+                        //真正离线
+                    }
+                    _dbContext.SaveChanges();
+                }
+            }
         }
+
+
 
 
         [CapSubscribe("iotsharp.services.datastream.telemetrydata")]
         public async void StoreTelemetryData(RawMsg msg)
         {
-
-        var result=     await _storage.StoreTelemetryAsync(msg);
-            if (!_check_device_status.ContainsKey(msg.DeviceId))
-            {
-                _check_device_status.Add(msg.DeviceId, DateTime.Now);
-            }
-            if (_check_device_status[msg.DeviceId].Subtract(DateTime.Now).TotalSeconds > 60)
-            {
-                _check_device_status[msg.DeviceId] = DateTime.Now;
-                using (var scope = _scopeFactor.CreateScope())
-                using (var _dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>())
-                {
-                    var device = _dbContext.Device.FirstOrDefault(d => d.Id == msg.DeviceId);
-                    if (device != null)
-                    {
-                        var old = device.Online;
-                        device.CheckOrUpdateDevStatus();
-                        if (old != device.Online)
-                        {
-                            _logger.LogInformation($"通过属性修改变更设备状态 {device.Id}-{device.Name}在线.最后活动时间{device.LastActive}");
-                        }
-                        await _dbContext.SaveChangesAsync();
-                    }
-                }
-            }
+            var result = await _storage.StoreTelemetryAsync(msg);
             ExpandoObject exps = new ExpandoObject();
             result.telemetries.ForEach(td =>
             {
                 exps.TryAdd(td.KeyName, td.ToObject());
             });
-            await RunRules(msg.DeviceId,(dynamic)exps, MountType.Telemetry);
-
+            await RunRules(msg.DeviceId, (dynamic)exps, MountType.Telemetry);
         }
 
         private async Task RunRules(Guid devid, object obj, MountType mountType)
