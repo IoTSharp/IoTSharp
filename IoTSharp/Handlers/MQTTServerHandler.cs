@@ -256,8 +256,11 @@ namespace IoTSharp.Handlers
                 device = client.Session?.Items?.FirstOrDefault(k => (string)k.Key == nameof(Device)).Value as Device;
                 if (device==null)
                 {
-                    _logger.LogWarning($"未能找到客户端{clientid  }回话附加的设备信息，现在断开此链接。 ");
-                    await client.DisconnectAsync();
+                    if (clientid != _mcsetting.MqttBroker)
+                    {
+                        _logger.LogWarning($"未能找到客户端{clientid  }回话附加的设备信息，现在断开此链接。 ");
+                        await client.DisconnectAsync();
+                    }
                 }
             }
             else
