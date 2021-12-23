@@ -33,7 +33,7 @@ namespace IoTSharp.Controllers.Models
     public class EventParam : IPageParam
     {
         public string Name { get; set; }
-        public string RuleName { get; set; }
+        public Guid? RuleId { get; set; }
         public string CreatorName { get; set; }
 
         public Guid? Creator { get; set; }
