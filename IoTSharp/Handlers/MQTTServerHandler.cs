@@ -81,7 +81,7 @@ namespace IoTSharp.Handlers
                 try
                 {
                     _logger.LogInformation($"Server received {e.ClientId}'s message: Topic=[{e.ApplicationMessage.Topic }],Retain=[{e.ApplicationMessage.Retain}],QualityOfServiceLevel=[{e.ApplicationMessage.QualityOfServiceLevel}]");
-                    string topic = e.ApplicationMessage.Topic.ToLower();
+                    string topic = e.ApplicationMessage.Topic;
                     var tpary = topic.Split('/', StringSplitOptions.RemoveEmptyEntries);
                     var _dev = await FoundDevice(e.ClientId);
                     
@@ -480,7 +480,7 @@ namespace IoTSharp.Handlers
                         Uri uri = new Uri("mqtt://" + obj.Endpoint);
                         isLoopback = uri.IsLoopback;
                     }
-                    if (isLoopback && !string.IsNullOrEmpty(e.Context.ClientId) && e.Context.ClientId == _mcsetting.MqttBroker && !string.IsNullOrEmpty(e.Context.Username) && e.Context.Username == _mcsetting.UserName && e.Context.Password == _mcsetting.Password)
+                    if (isLoopback && !string.IsNullOrEmpty(e.Context.ClientId) && e.Context.ClientId == _mcsetting.MqttBroker && !string.IsNullOrEmpty(e.Context.Username) )
                     {
                         e.Context.ReasonCode = MQTTnet.Protocol.MqttConnectReasonCode.Success;
                     }
