@@ -30,11 +30,12 @@
 		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
 		<IsPackable>true</IsPackable>
 		<PackageLicenseExpression></PackageLicenseExpression>
-		<Copyright>Copyright 2018-2021  Yanhong Ma</Copyright>
+		<Copyright>Copyright 2018-2022  Yanhong Ma</Copyright>
 		<AssemblyVersion>2.0.1.0</AssemblyVersion>
 		<FileVersion>2.0.1.0</FileVersion>
 		<PackageLicenseFile>LICENSE.txt</PackageLicenseFile>
 		<PackageIcon>96x96.png</PackageIcon>
+		<PackageReadmeFile>README.md</PackageReadmeFile>
 	 
 	 
 		
@@ -51,7 +52,7 @@
 
 		<PackageReference Include="AspNetCore.HealthChecks.Kafka" Version="6.0.1" />
 		<PackageReference Include="AspNetCore.HealthChecks.MongoDb" Version="6.0.1" />
-		<PackageReference Include="AspNetCore.HealthChecks.Network" Version="5.0.4" />
+		<PackageReference Include="AspNetCore.HealthChecks.Network" Version="6.0.1" />
 		<PackageReference Include="AspNetCore.HealthChecks.Rabbitmq" Version="6.0.1" />
 		<PackageReference Include="AspNetCore.HealthChecks.Redis" Version="6.0.1" />
 		<PackageReference Include="AspNetCore.HealthChecks.System" Version="6.0.1" />
@@ -98,12 +99,14 @@
 		<PackageReference Include="MQTTnet.AspNetCoreEx" Version="3.1.2" />
 		<PackageReference Include="MQTTnet.Extensions.Rpc" Version="3.1.1" />
 		<PackageReference Include="NetMQ" Version="4.0.1.6" />
+		<PackageReference Include="Npgsql" Version="6.0.2" />
+		<PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="6.0.2" />
 		<PackageReference Include="NSwag.AspNetCore" Version="13.15.5" />
 		<PackageReference Include="PinusDB" Version="1.0.10" />
 		<PackageReference Include="PinusDB.HealthChecks" Version="1.0.10" />
 		<PackageReference Include="ProxyKit" Version="2.3.4" />
 		<PackageReference Include="Quartz.Serialization.Json" Version="3.3.3" />
-		<PackageReference Include="RestSharp" Version="107.0.0-preview.11" />
+		<PackageReference Include="RestSharp" Version="107.0.0" />
 		<PackageReference Include="Rin" Version="2.6.0" />
 		<PackageReference Include="Rin.Mvc" Version="2.6.0" />
 		<PackageReference Include="RulesEngine" Version="3.5.0" />
@@ -170,6 +173,10 @@
 		<None Include="..\LICENSE.txt">
 		  <Pack>True</Pack>
 		  <PackagePath></PackagePath>
+		</None>
+		<None Include="..\README.md">
+		  <Pack>True</Pack>
+		  <PackagePath>\</PackagePath>
 		</None>
 		<None Include="wwwroot\fonts\fontawesome-webfont.svg" />
 		<None Include="wwwroot\fonts\glyphicons-halflings-regular.woff2" />
