@@ -49,24 +49,24 @@
 	</PropertyGroup>
 	<ItemGroup>
 
-		<PackageReference Include="AspNetCore.HealthChecks.Kafka" Version="6.0.1-rc2.4" />
-		<PackageReference Include="AspNetCore.HealthChecks.MongoDb" Version="6.0.1-rc2.2" />
+		<PackageReference Include="AspNetCore.HealthChecks.Kafka" Version="6.0.1" />
+		<PackageReference Include="AspNetCore.HealthChecks.MongoDb" Version="6.0.1" />
 		<PackageReference Include="AspNetCore.HealthChecks.Network" Version="5.0.4" />
-		<PackageReference Include="AspNetCore.HealthChecks.Rabbitmq" Version="6.0.1-rc2.3" />
-		<PackageReference Include="AspNetCore.HealthChecks.Redis" Version="6.0.1-rc2.2" />
-		<PackageReference Include="AspNetCore.HealthChecks.System" Version="6.0.1-rc2.2" />
-		<PackageReference Include="AspNetCore.HealthChecks.UI" Version="6.0.1-rc2.4" />
-		<PackageReference Include="AspNetCore.HealthChecks.UI.Client" Version="6.0.1-rc2.4" />
-		<PackageReference Include="AspNetCore.HealthChecks.Uris" Version="6.0.1" />
-		<PackageReference Include="AspNetCore.HealthChecks.Network" Version="6.0.1-rc2.2" />
+		<PackageReference Include="AspNetCore.HealthChecks.Rabbitmq" Version="6.0.1" />
+		<PackageReference Include="AspNetCore.HealthChecks.Redis" Version="6.0.1" />
+		<PackageReference Include="AspNetCore.HealthChecks.System" Version="6.0.1" />
+		<PackageReference Include="AspNetCore.HealthChecks.UI" Version="6.0.2" />
+		<PackageReference Include="AspNetCore.HealthChecks.UI.Client" Version="6.0.2" />
+		<PackageReference Include="AspNetCore.HealthChecks.Uris" Version="6.0.2" />
+		<PackageReference Include="AspNetCore.HealthChecks.Network" Version="6.0.1" />
 		<PackageReference Include="CAP.Extensions" Version="1.0.32" />
-		<PackageReference Include="DotNetCore.CAP" Version="6.0.0-preview-153999281" />
-		<PackageReference Include="DotNetCore.CAP.Dashboard" Version="6.0.0-preview-153999281" />
-		<PackageReference Include="DotNetCore.CAP.InMemoryStorage" Version="6.0.0-preview-153999281" />
-		<PackageReference Include="DotNetCore.CAP.Kafka" Version="6.0.0-preview-153999281" />
-		<PackageReference Include="DotNetCore.CAP.MongoDB" Version="6.0.0-preview-153999281" />
-		<PackageReference Include="DotNetCore.CAP.RabbitMQ" Version="6.0.0-preview-153999281" />
-		<PackageReference Include="DotNetCore.CAP.PostgreSql" Version="6.0.0-preview-153999281" />
+		<PackageReference Include="DotNetCore.CAP" Version="6.0.0" />
+		<PackageReference Include="DotNetCore.CAP.Dashboard" Version="6.0.0" />
+		<PackageReference Include="DotNetCore.CAP.InMemoryStorage" Version="6.0.0" />
+		<PackageReference Include="DotNetCore.CAP.Kafka" Version="6.0.0" />
+		<PackageReference Include="DotNetCore.CAP.MongoDB" Version="6.0.0" />
+		<PackageReference Include="DotNetCore.CAP.RabbitMQ" Version="6.0.0" />
+		<PackageReference Include="DotNetCore.CAP.PostgreSql" Version="6.0.0" />
 		<PackageReference Include="EasyCaching.Core" Version="1.4.1" />
 		<PackageReference Include="EasyCaching.InMemory" Version="1.4.1" />
 		<PackageReference Include="EasyCaching.LiteDB" Version="1.4.1" />
