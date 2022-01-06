@@ -23,7 +23,7 @@ namespace IoTSharp.Handlers
             _queue = queue;
         }
 
-        public override TaskActionOutput Execute(TaskActionInput param)
+        public override  Task<TaskActionOutput> ExecuteAsync(TaskActionInput param)
         {
             var result = new TaskActionOutput() { DynamicOutput = new { code = ApiCode.Success, msg = "OK" } };
             try
@@ -38,7 +38,7 @@ namespace IoTSharp.Handlers
             {
                 result.DynamicOutput = new { code = ApiCode.Exception, msg = ex.Message };
             }
-            return result;
+            return  Task.FromResult( result);
         }
     }
 }

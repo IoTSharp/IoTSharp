@@ -276,7 +276,7 @@ namespace IoTSharp.FlowRuleEngine
                                             {
                                                 try
                                                 {
-                                                    var result = executor.Execute(new TaskActionInput()
+                                                    var result = await executor.ExecuteAsync(new TaskActionInput()
                                                     {
                                                         Input = taskoperation.Data,
                                                         DeviceId = deviceId,
@@ -601,7 +601,7 @@ namespace IoTSharp.FlowRuleEngine
                                 {
                                     try
                                     {
-                                        var result = executor.Execute(new TaskActionInput()
+                                        var result = await executor.ExecuteAsync(new TaskActionInput()
                                         {
                                             Input = data,
                                             ExecutorConfig = flow.NodeProcessParams,
@@ -609,7 +609,7 @@ namespace IoTSharp.FlowRuleEngine
                                         });
 
 
-                                        obj = result.DynamicOutput;
+                                        obj =   result.DynamicOutput;
                                     }
                                     catch (Exception ex)
                                     {

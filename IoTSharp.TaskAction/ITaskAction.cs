@@ -2,13 +2,13 @@
 using Newtonsoft.Json.Converters;
 using System;
 using System.Dynamic;
-
+using System.Threading.Tasks;
 
 namespace IoTSharp.TaskAction
 {
     public abstract class ITaskAction
     {
-        public abstract TaskActionOutput  Execute(TaskActionInput _input);
+        public abstract Task<TaskActionOutput>  ExecuteAsync(TaskActionInput _input);
 
 
         public IServiceProvider ServiceProvider { get; set; }

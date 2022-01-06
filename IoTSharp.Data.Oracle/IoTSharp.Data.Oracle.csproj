@@ -1,16 +1,17 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
-		<TargetFramework>net5.0</TargetFramework>
+		<TargetFramework>net6.0</TargetFramework>
 	</PropertyGroup>
 
 	<ItemGroup>
-		<PackageReference Include="AspNetCore.HealthChecks.Oracle" Version="5.0.1" />
-		<PackageReference Include="AspNetCore.HealthChecks.UI.InMemory.Storage" Version="5.0.1" />
-		<PackageReference Include="EFCore.Sharding.Oracle" Version="5.0.21" />
-		<PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="5.0.12" />
-		<PackageReference Include="Oracle.EntityFrameworkCore" Version="5.21.4" />
-		<PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="5.0.12">
+		<PackageReference Include="AspNetCore.HealthChecks.Oracle" Version="6.0.1" />
+		<PackageReference Include="AspNetCore.HealthChecks.UI.Core" Version="6.0.2" />
+		<PackageReference Include="AspNetCore.HealthChecks.UI.InMemory.Storage" Version="6.0.2" />
+		<PackageReference Include="EFCore.Sharding.Oracle" Version="5.0.25" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="6.0.1" />
+		<PackageReference Include="Oracle.EntityFrameworkCore" Version="6.21.5" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="6.0.1">
 			<PrivateAssets>all</PrivateAssets>
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
