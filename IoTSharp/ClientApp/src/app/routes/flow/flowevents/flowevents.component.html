@@ -16,7 +16,12 @@
             <nz-form-item>
               <nz-form-label nzFor="Name">规则</nz-form-label>
               <nz-form-control>
-                <input nz-input [(ngModel)]="q.RuleName" name="RuleName" #UserName placeholder="请输入" />
+                <nz-select nzShowSearch nzAllowClear nzPlaceHolder="选择规则" [(ngModel)]="q.RuleId" name="RuleId">
+                  <ng-container *ngFor="let o of rules">
+                    <nz-option [nzValue]="o.ruleId" [nzLabel]="o.name"></nz-option>
+                  </ng-container>
+                </nz-select>
+
               </nz-form-control>
             </nz-form-item>
           </div>
@@ -24,10 +29,11 @@
             <nz-form-item>
               <nz-form-label nzFor="Creator">创建对象</nz-form-label>
               <nz-form-control>
-                <input nz-input [(ngModel)]="q.Creator" (input)="onChange($event)" name="Creator" #UserPhone placeholder="请输入"  [nzAutocomplete]="auto"/>
+                <input nz-input [(ngModel)]="q.CreatorName" (input)="onInput($event)" (ngModelChange)="onChange($event)" name="CreatorName" placeholder="请输入"  [nzAutocomplete]="auto"/>
+                <input type="hidden" [(ngModel)]="q.Creator"  name="Creator" placeholder="请输入"  />
 
                 <nz-autocomplete #auto>
-                  <nz-auto-option *ngFor="let option of devices" [nzValue]="option.value">{{ option.text }}</nz-auto-option>
+                  <nz-auto-option *ngFor="let option of devices" [nzValue]="option.name">{{ option.name }}</nz-auto-option>
                 </nz-autocomplete>
 
               </nz-form-control>
@@ -37,7 +43,7 @@
             <nz-form-item>
               <nz-form-label nzFor="CreatTime">创建时间</nz-form-label>
               <nz-form-control>
-                <input nz-input [(ngModel)]="q.CreatTime" name="CreatTime" placeholder="请输入" />
+                <nz-range-picker [nzFormat]="dateFormat" [(ngModel)]="q.CreatTime" name="CreatTime" placeholder="请输入"></nz-range-picker>
               </nz-form-control>
             </nz-form-item>
           </div>
