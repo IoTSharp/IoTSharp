@@ -37,7 +37,7 @@ services:
       - iotsharp-network
 
   iotsharp:
-    image: iotsharp/iotsharp:latest
+    image: maikebing/iotsharp:latest
     restart: always
     container_name: iotsharp
     hostname: iotsharp

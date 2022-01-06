@@ -36,7 +36,7 @@ services:
       - iotsharp-network
 
   iotsharp:
-    image: iotsharp/iotsharp:latest
+    image: maikebing/iotsharp:latest
     container_name: iotsharp
     restart: always
     environment:
