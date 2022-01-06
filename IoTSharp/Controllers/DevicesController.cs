@@ -260,6 +260,8 @@ namespace IoTSharp.Controllers
         /// <param name="deviceId"></param>
         /// <returns>一个压缩包，包含ca.crt client.crt client.key</returns>
         [HttpGet("{deviceId}/DownloadCertificates")]
+        [ProducesResponseType(typeof(ApiResult), StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(ApiResult), StatusCodes.Status400BadRequest)]
         public ActionResult DownloadCertificates(Guid deviceId)
         {
             try
