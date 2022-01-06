@@ -1072,9 +1072,9 @@ namespace IoTSharp.Controllers
             var result = await _flowRuleProcessor.RunFlowRules(ruleid, d, Guid.Empty, EventType.TestPurpose, testabizId);
             if (result.Count > 0)
             {
-                result.ForEach(c =>
+                await Task.Run(() =>
                 {
-                    _context.FlowOperations.Add(new FlowOperation()
+                    var list = result.Select(c => new FlowOperation
                     {
                         AddDate = c.AddDate,
                         BaseEventId = c.BaseEventId,
@@ -1088,10 +1088,10 @@ namespace IoTSharp.Controllers
                         Step = c.Step,
                         Tag = c.Tag,
                         bpmnid = c.bpmnid
-                    });
+                    }).ToArray();
+                    _context.FlowOperations.AddRange(list);
                     _context.SaveChanges();
                 });
-
             }
             return new ApiResult<dynamic>(ApiCode.Success, "test complete", result.OrderBy(c => c.Step).
                 Where(c => c.BaseEvent.Bizid == testabizId).ToList()
@@ -1129,10 +1129,17 @@ namespace IoTSharp.Controllers
                 condition = condition.And(x => x.CreaterDateTime > m.CreatTime[0] && x.CreaterDateTime < m.CreatTime[1]);
             }
 
-            //if (m.Creator!=null)
-            //{
-            //    condition = condition.And(x => x.Creator == m.Creator);
-            //}
+            if (m.RuleId!=null)
+            {
+                condition = condition.And(x => x.FlowRule.RuleId== m.RuleId);
+            }
+
+
+            if (m.Creator!=null&&m.Creator!=Guid.Empty)
+            {
+                condition = condition.And(x => x.Creator==m.Creator.Value);
+            }
+
 
 
             var result = _context.BaseEvents.OrderByDescending(c => c.CreaterDateTime).Where(condition)
@@ -1180,7 +1187,6 @@ namespace IoTSharp.Controllers
         }
 
 
-
         [HttpGet("[action]")]
         public ApiResult<dynamic> GetFlowOperations(Guid eventId)
         {
@@ -1192,8 +1198,6 @@ namespace IoTSharp.Controllers
                     Nodes = c
                 }).ToList());
         }
-
-
 
 
         [HttpGet("[action]")]
@@ -1215,11 +1219,6 @@ namespace IoTSharp.Controllers
             });
 
         }
-
-
-
-
-
 
 
         [HttpGet("[action]")]
@@ -1272,7 +1271,7 @@ namespace IoTSharp.Controllers
                 executor.TypeName = m.ExecutorName;
                 executor.Path = m.Path;
                 executor.Tag = m.Tag;
-                executor.Path = m.Path;
+            
                 _context.RuleTaskExecutors.Update(executor);
                 await _context.SaveChangesAsync();
                 return new ApiResult<bool>(ApiCode.Success, "Ok", true);
@@ -1293,7 +1292,7 @@ namespace IoTSharp.Controllers
             executor.TypeName = m.ExecutorName;
             executor.Path = m.Path;
             executor.Tag = m.Tag;
-            executor.Path = m.Path;
+      
             executor.AddDateTime = DateTime.Now;
             executor.Creator = profile.Id;
             executor.ExecutorStatus = 1;

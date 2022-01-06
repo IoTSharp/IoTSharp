@@ -280,16 +280,16 @@ namespace IoTSharp.FlowRuleEngine
                                                     {
                                                         Input = taskoperation.Data,
                                                         DeviceId = deviceId,
-                                                        ExecutorConfig = flow.NodeProcessParams
+                                                        ExecutorConfig = flow.NodeProcessParams,
                                                     }
                                                     );
 
                                                     _logger.Log(LogLevel.Information, "执行器"+flow.NodeProcessClass+"已完成处理");
                                                     obj = result.DynamicOutput;
+                                                    taskoperation.OperationDesc += "\r\n" + result.ExecutionInfo;
                                                     if (!result.ExecutionStatus) 
                                                     {
 
-                                                        taskoperation.OperationDesc = result.ExecutionInfo;
                                                         taskoperation.NodeStatus = 2;
 
                                                         _logger.Log(LogLevel.Information, "执行器" + flow.NodeProcessClass + "未能正确处理:" + result.ExecutionInfo);
@@ -299,7 +299,9 @@ namespace IoTSharp.FlowRuleEngine
                                                 catch (Exception ex)
                                                 {
                                                     _logger.Log(LogLevel.Information, "执行器" + flow.NodeProcessClass + "未能正确处理:" + ex.Source);
-                                                    taskoperation.OperationDesc = ex.Message;
+
+                                          
+                                                    taskoperation.OperationDesc += "\r\n" + ex.Message;
                                                     taskoperation.NodeStatus = 2;
                                                     return;
                                                 }
@@ -308,7 +310,7 @@ namespace IoTSharp.FlowRuleEngine
                                             {
 
                                                 _logger.Log(LogLevel.Warning, "脚本执行异常,未能实例化执行器");
-                                                taskoperation.OperationDesc = "脚本执行异常,未能实例化执行器";
+                                                taskoperation.OperationDesc += "\r\n" + "脚本执行异常,未能实例化执行器";
                                                 taskoperation.NodeStatus = 2;
                                                 return;
                                             }

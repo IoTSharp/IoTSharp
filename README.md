@@ -36,7 +36,7 @@ IoTSharp is an open-source IoT platform for data collection, processing, visuali
 
 ## How to install IoTSharp using docker ?
 
-  -  docker pull iotsharp/iotsharp
+  -  docker pull maikebing/iotsharp
 
 
 ## How to install  using Linux daemon ?

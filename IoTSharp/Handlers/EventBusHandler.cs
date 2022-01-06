@@ -128,25 +128,42 @@ namespace IoTSharp.Handlers
         [CapSubscribe("iotsharp.services.datastream.devicestatus")]
         public void DeviceStatus(DeviceStatus status)
         {
-            using (var _scope = _scopeFactor.CreateScope())
+            try
             {
-                using (var _dbContext = _scope.ServiceProvider.GetRequiredService<ApplicationDbContext>())
+                using (var _scope = _scopeFactor.CreateScope())
                 {
-                    var dev = _dbContext.Device.Find(status.DeviceId);
-                    if (dev.Online == true && status.Status == false)
+                    using (var _dbContext = _scope.ServiceProvider.GetRequiredService<ApplicationDbContext>())
                     {
-                        dev.Online = false;
-                        dev.LastActive = DateTime.Now;
-                        //真正掉线
+                        var dev = _dbContext.Device.FirstOrDefault(d=>d.Id==status.DeviceId);
+                        if (dev != null)
+                        {
+                            if (dev.Online == true && status.Status == false)
+                            {
+                                dev.Online = false;
+                                dev.LastActive = DateTime.Now;
+                                Task.Run(() => RunRules(dev.Id, status, MountType.Online));
+                                //真正掉线
+                            }
+                            else if (dev.Online == false && status.Status == true)
+                            {
+                                dev.Online = true;
+                                dev.LastActive = DateTime.Now;
+                                Task.Run(() => RunRules(dev.Id, status, MountType.Offline));
+                                //真正离线
+                            }
+                            _dbContext.SaveChanges();
+                        }
+                        else
+                        {
+                            _logger.LogWarning( $"未找到设备{status.DeviceId} ，因此无法处理设备状态");
+                        }
                     }
-                    else if (dev.Online == false && status.Status == true)
-                    {
-                        dev.Online = true;
-                        dev.LastActive = DateTime.Now;
-                        //真正离线
-                    }
-                    _dbContext.SaveChanges();
                 }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"处理{status.DeviceId} 的状态{status.Status} 时遇到异常:{ex.Message}");
+            
             }
         }
 

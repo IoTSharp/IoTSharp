@@ -9,6 +9,7 @@ import { concat } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { appmessage, AppMessage } from '../../common/AppMessage';
 import { MyValidators } from '../../common/validators/MyValidators';
+import { devicemodel } from '../../devicemodel/devicemodelcommandparam';
 import { deviceitem } from '../devicelist/devicelist.component';
 
 @Component({
@@ -36,6 +37,9 @@ export class DeviceformComponent implements OnInit {
   form!: FormGroup;
   submitting = false;
 
+
+  devicemodel:devicemodel[]=[];
+
   data: deviceitem = {
     name: '',
     deviceType: '',
@@ -44,15 +48,25 @@ export class DeviceformComponent implements OnInit {
     identityType: '',
   };
   ngOnInit() {
-    console.log();
-    const { nullbigintid } = MyValidators;
+    
+ 
     this.form = this.fb.group({
       name: [null, [Validators.required]],
       deviceType: [null, [Validators.required]],
       customerId: [null, []],
+      // deviceModelId: [null, []],
+      timeout: [300, []],
       id: [Guid.EMPTY, []],
       identityType: [Guid.EMPTY, []],
     });
+
+    this._httpClient.post('api/deviceModel/index',{offset:0, limit:100 }).subscribe(next=>{
+      this.devicemodel=next.data.rows;
+     },error=>{
+  
+     },()=>{})
+  
+
     if (this.params.id !== Guid.EMPTY) {
       concat(
         this._httpClient.get<appmessage<deviceitem>>('api/Devices/' + this.params.id).pipe(

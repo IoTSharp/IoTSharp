@@ -102,7 +102,7 @@ namespace IoTSharp.Controllers
                                         i18n="",
                                         icon="anticon-database",
                                         children=new[]
-                                        {
+                                        {   /*  new { text = "型号管理", i18n = "",link="/iot/devicemodel/devicemodellist" },*/
                                             new { text = "设备管理", i18n = "",link="/iot/device/devicelist" },
                                             new { text = "网关配置器", i18n = "", link = "/iot/device/devicegraph" },
                                         },

@@ -446,6 +446,9 @@ namespace IoTSharp.Data.MySql.Migrations
                     b.Property<Guid?>("CustomerId")
                         .HasColumnType("char(36)");
 
+                    b.Property<Guid?>("DeviceModelId")
+                        .HasColumnType("char(36)");
+
                     b.Property<int>("DeviceType")
                         .HasColumnType("int");
 
@@ -475,6 +478,8 @@ namespace IoTSharp.Data.MySql.Migrations
                     b.HasIndex("AuthorizedKeyId");
 
                     b.HasIndex("CustomerId");
+
+                    b.HasIndex("DeviceModelId");
 
                     b.HasIndex("OwnerId");
 
@@ -667,6 +672,75 @@ namespace IoTSharp.Data.MySql.Migrations
                     b.HasIndex("DeviceId");
 
                     b.ToTable("DeviceIdentities");
+                });
+
+            modelBuilder.Entity("IoTSharp.Data.DeviceModel", b =>
+                {
+                    b.Property<Guid>("DeviceModelId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("char(36)");
+
+                    b.Property<DateTime>("CreateDateTime")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<Guid>("Creator")
+                        .HasColumnType("char(36)");
+
+                    b.Property<string>("ModelDesc")
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("ModelName")
+                        .HasColumnType("longtext");
+
+                    b.Property<int>("ModelStatus")
+                        .HasColumnType("int");
+
+                    b.HasKey("DeviceModelId");
+
+                    b.ToTable("DeviceModels");
+                });
+
+            modelBuilder.Entity("IoTSharp.Data.DeviceModelCommand", b =>
+                {
+                    b.Property<Guid>("CommandId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("char(36)");
+
+                    b.Property<string>("CommandI18N")
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("CommandName")
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("CommandParams")
+                        .HasColumnType("longtext");
+
+                    b.Property<int>("CommandStatus")
+                        .HasColumnType("int");
+
+                    b.Property<string>("CommandTemplate")
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("CommandTitle")
+                        .HasColumnType("longtext");
+
+                    b.Property<int>("CommandType")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("CreateDateTime")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<Guid>("Creator")
+                        .HasColumnType("char(36)");
+
+                    b.Property<Guid>("DeviceModelId")
+                        .HasColumnType("char(36)");
+
+                    b.HasKey("CommandId");
+
+                    b.HasIndex("DeviceModelId");
+
+                    b.ToTable("DeviceModelCommands");
                 });
 
             modelBuilder.Entity("IoTSharp.Data.DevicePort", b =>
@@ -1042,7 +1116,7 @@ namespace IoTSharp.Data.MySql.Migrations
                     b.Property<DateTime?>("AddDate")
                         .HasColumnType("datetime(6)");
 
-                    b.Property<Guid?>("BaseEventEventId")
+                    b.Property<Guid>("BaseEventId")
                         .HasColumnType("char(36)");
 
                     b.Property<string>("BizId")
@@ -1051,10 +1125,10 @@ namespace IoTSharp.Data.MySql.Migrations
                     b.Property<string>("Data")
                         .HasColumnType("longtext");
 
-                    b.Property<Guid?>("FlowId")
+                    b.Property<Guid>("FlowId")
                         .HasColumnType("char(36)");
 
-                    b.Property<Guid?>("FlowRuleRuleId")
+                    b.Property<Guid>("FlowRuleId")
                         .HasColumnType("char(36)");
 
                     b.Property<int?>("NodeStatus")
@@ -1074,11 +1148,11 @@ namespace IoTSharp.Data.MySql.Migrations
 
                     b.HasKey("OperationId");
 
-                    b.HasIndex("BaseEventEventId");
+                    b.HasIndex("BaseEventId");
 
                     b.HasIndex("FlowId");
 
-                    b.HasIndex("FlowRuleRuleId");
+                    b.HasIndex("FlowRuleId");
 
                     b.ToTable("FlowOperations");
                 });
@@ -1647,6 +1721,10 @@ namespace IoTSharp.Data.MySql.Migrations
                         .WithMany("Devices")
                         .HasForeignKey("CustomerId");
 
+                    b.HasOne("IoTSharp.Data.DeviceModel", "DeviceModel")
+                        .WithMany()
+                        .HasForeignKey("DeviceModelId");
+
                     b.HasOne("IoTSharp.Data.Gateway", "Owner")
                         .WithMany("Children")
                         .HasForeignKey("OwnerId");
@@ -1656,6 +1734,8 @@ namespace IoTSharp.Data.MySql.Migrations
                         .HasForeignKey("TenantId");
 
                     b.Navigation("Customer");
+
+                    b.Navigation("DeviceModel");
 
                     b.Navigation("Owner");
 
@@ -1678,6 +1758,17 @@ namespace IoTSharp.Data.MySql.Migrations
                         .HasForeignKey("DeviceId");
 
                     b.Navigation("Device");
+                });
+
+            modelBuilder.Entity("IoTSharp.Data.DeviceModelCommand", b =>
+                {
+                    b.HasOne("IoTSharp.Data.DeviceModel", "DeviceModel")
+                        .WithMany("DeviceModelCommands")
+                        .HasForeignKey("DeviceModelId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("DeviceModel");
                 });
 
             modelBuilder.Entity("IoTSharp.Data.DeviceRule", b =>
@@ -1714,15 +1805,21 @@ namespace IoTSharp.Data.MySql.Migrations
                 {
                     b.HasOne("IoTSharp.Data.BaseEvent", "BaseEvent")
                         .WithMany()
-                        .HasForeignKey("BaseEventEventId");
+                        .HasForeignKey("BaseEventId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.HasOne("IoTSharp.Data.Flow", "Flow")
                         .WithMany()
-                        .HasForeignKey("FlowId");
+                        .HasForeignKey("FlowId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.HasOne("IoTSharp.Data.FlowRule", "FlowRule")
                         .WithMany()
-                        .HasForeignKey("FlowRuleRuleId");
+                        .HasForeignKey("FlowRuleId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("BaseEvent");
 
@@ -1834,6 +1931,11 @@ namespace IoTSharp.Data.MySql.Migrations
             modelBuilder.Entity("IoTSharp.Data.Customer", b =>
                 {
                     b.Navigation("Devices");
+                });
+
+            modelBuilder.Entity("IoTSharp.Data.DeviceModel", b =>
+                {
+                    b.Navigation("DeviceModelCommands");
                 });
 
             modelBuilder.Entity("IoTSharp.Data.Tenant", b =>

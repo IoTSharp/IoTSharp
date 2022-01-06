@@ -1,4 +1,5 @@
-﻿using MQTTnet;
+﻿using Microsoft.Extensions.Logging;
+using MQTTnet;
 using MQTTnet.Client;
 using MQTTnet.Client.Options;
 using MQTTnet.Client.Receiving;
@@ -21,17 +22,18 @@ namespace IoTSharp.Extensions
     {
         private readonly ConcurrentDictionary<string, TaskCompletionSource<byte[]>> _waitingCalls = new ConcurrentDictionary<string, TaskCompletionSource<byte[]>>();
         private readonly IMqttClient _mqttClient;
+        private readonly ILogger _logger;
         private IMqttClientOptions _mqtt;
         private bool disposedValue;
 
-        public RpcClient(IMqttClient mqttClient)
+        public RpcClient(IMqttClient mqttClient,  ILogger logger)
         {
             _mqttClient = mqttClient ?? throw new ArgumentNullException(nameof(mqttClient));
-
+            _logger = logger;
             _mqttClient.ApplicationMessageReceivedHandler    = new MqttApplicationMessageReceivedHandlerDelegate(args => OnApplicationMessageReceived(mqttClient, args)  );
         }
 
-        public RpcClient(IMqttClientOptions mqtt):this (new MQTTnet.MqttFactory().CreateMqttClient())
+        public RpcClient(IMqttClientOptions mqtt, Microsoft.Extensions.Logging.ILogger _logger) :this (new MQTTnet.MqttFactory().CreateMqttClient(), _logger)
         {
             _mqtt = mqtt;
           

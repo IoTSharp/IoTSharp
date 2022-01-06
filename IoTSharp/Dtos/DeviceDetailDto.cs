@@ -47,5 +47,10 @@ namespace IoTSharp.Dtos
 
         public string IdentityValue { get; set; }
         public string IdentityId { get; set; }
+
+
+        public DeviceModel? Model { get; set; }
+
+      
     }
 }

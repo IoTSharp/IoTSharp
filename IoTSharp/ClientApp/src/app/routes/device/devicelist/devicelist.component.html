@@ -135,6 +135,28 @@
           </tr></tbody>
         </nz-table>
       </nz-card>
+
+
+      <!-- <nz-card nzTitle="操作">
+
+<div nz-row >
+
+  <span *ngFor="let _item of cett; let i = index;">
+  <button 
+                nz-button
+                nzType="primary"
+                (nzOnConfirm)="executeCommand(item, _item)"
+                nz-popconfirm
+                nzPopconfirmTitle="{{'确认执行'+_item.commandTitle+'?'}}"
+                nzPopconfirmPlacement="topLeft"
+              >
+                {{_item.commandTitle}}
+              </button></span>
+
+</div>
+
+
+      </nz-card> -->
     </ng-template>
   </st>
 </page-header>

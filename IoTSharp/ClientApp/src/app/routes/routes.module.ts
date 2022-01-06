@@ -67,6 +67,9 @@ import { DynamictabletesterComponent } from './util/dynamictable/dynamictabletes
 import { DynamictableviewComponent } from './util/dynamictable/dynamictableview/dynamictableview.component';
 import { FlowsimulatorComponent } from './util/flow/flowsimulator/flowsimulator.component';
 import { WidgetsModule } from './widgets/widgets.module';
+import { DevicemodellistComponent } from './devicemodel/devicemodellist/devicemodellist.component';
+import { DevicemodelformComponent } from './devicemodel/devicemodelform/devicemodelform.component';
+import { DevicemodelcommandComponent } from './devicemodel/devicemodelcommand/devicemodelcommand.component';
 
 const COMPONENTS: Array<Type<null>> = [];
 const Directive: Type<void>[] = [fielddirective, controldirective];
@@ -133,7 +136,10 @@ const Directive: Type<void>[] = [fielddirective, controldirective];
     SubscriptionformComponent,
     SubscriptionbindformComponent,
     SearchformgeneratorComponent,
-    ConditionbuilderComponent
+    ConditionbuilderComponent,
+    DevicemodellistComponent,
+    DevicemodelformComponent,
+    DevicemodelcommandComponent
   ]
 })
 export class RoutesModule {}

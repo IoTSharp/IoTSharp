@@ -11,6 +11,15 @@
           <nz-option nzValue="Gateway" nzLabel="网关"></nz-option>
         </nz-select>
       </se>
+
+      <se label="超时" error="超时" required>
+        <input nz-input formControlName="timeout" placeholder="超时" />
+      </se>
+      <!-- <se label="设备型号" error="设备型号" >
+        <nz-select formControlName="deviceModelId" placeholder="设备型号"  >
+          <nz-option *ngFor="let o of devicemodel" [nzValue]="o.deviceModelId" [nzLabel]="o.modelName"></nz-option>
+        </nz-select>
+      </se> -->
       <se label="认证方式" error="认证方式" required>
         <nz-select formControlName="identityType" placeholder="设备类型">
           <nz-option nzValue="AccessToken" nzLabel="AccessToken"></nz-option>

@@ -33,7 +33,7 @@ IoTSharp 是一个 基于.Net Core 开源的物联网基础平台， 支持 HTTP
 
 ## 如何使用 docker 安装IoTSharp?
 
-  -  docker pull iotsharp/iotsharp
+  -  docker pull maikebing/iotsharp
 
 
 ## 如何使用Linux 安装?

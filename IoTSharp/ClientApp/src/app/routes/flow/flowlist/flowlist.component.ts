@@ -28,10 +28,12 @@ export class FlowlistComponent implements OnInit {
 
   ) {}
   TAG: STColumnTag = {
-    1: { text: '遥测', color: 'green' },
+    1: { text: '遥测', color: 'geekblue' },
     2: { text: '属性', color: 'orange' },
     0: { text: 'RAW', color: 'blue' },
-    3: { text: 'RPC', color: 'red' },
+    3: { text: 'RPC', color: 'cyan' },
+    4: { text: 'Online', color: 'green' },
+    5: { text: 'Offline', color: 'red' },
   };
   page: STPage = {
     front: false,
@@ -314,7 +316,7 @@ export class FlowlistComponent implements OnInit {
     this.st.load(this.st.pi);
   }
   reset() {
-    this.q ==
+    this.q =
       {
         pi: 0,
         ps: 10,

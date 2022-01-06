@@ -1,7 +1,7 @@
 version: '3.4'
 services:
   pgsql:
-    image: registry.uixe.net/images/postgres
+    image: postgres
     container_name: pgsql
     restart: always
     volumes:
@@ -17,7 +17,7 @@ services:
       - iotsharp-network
 
   pgadmin:
-    image: registry.uixe.net/images/pgadmin4
+    image: dpage/pgadmin4
     container_name: pgadmin
     restart: always
     volumes:
@@ -36,7 +36,7 @@ services:
       - iotsharp-network
 
   iotsharp:
-    image: registry.uixe.net/uixe/iotsharp
+    image: maikebing/iotsharp
     restart: always
     container_name: iotsharp
     depends_on:
@@ -59,7 +59,7 @@ services:
       - iotsharp-network
 
   taos:
-    image: registry.uixe.net/tdengine/tdengine:2.0.12.0
+    image: tdengine/tdengine:2.0.12.0
     restart: always
     container_name: taos
     hostname: taos
