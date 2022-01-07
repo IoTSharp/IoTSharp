@@ -110,7 +110,7 @@
 		<PackageReference Include="Rin" Version="2.6.0" />
 		<PackageReference Include="Rin.Mvc" Version="2.6.0" />
 		<PackageReference Include="RulesEngine" Version="3.5.0" />
-		<PackageReference Include="Savorboard.CAP.InMemoryMessageQueue" Version="5.1.1" />
+		<PackageReference Include="Savorboard.CAP.InMemoryMessageQueue" Version="6.0.0" />
 		<PackageReference Include="Silkier" Version="1.0.424" />
 		<PackageReference Include="Silkier.AspNetCore" Version="1.0.424" />
 		<PackageReference Include="Silkier.EFCore" Version="1.0.424" />
