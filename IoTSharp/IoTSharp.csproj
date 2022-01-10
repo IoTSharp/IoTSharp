@@ -106,7 +106,7 @@
 		<PackageReference Include="PinusDB.HealthChecks" Version="1.0.10" />
 		<PackageReference Include="ProxyKit" Version="2.3.4" />
 		<PackageReference Include="Quartz.Serialization.Json" Version="3.3.3" />
-		<PackageReference Include="RestSharp" Version="107.0.0" />
+		<PackageReference Include="RestSharp" Version="107.0.2" />
 		<PackageReference Include="Rin" Version="2.6.0" />
 		<PackageReference Include="Rin.Mvc" Version="2.6.0" />
 		<PackageReference Include="RulesEngine" Version="3.5.0" />
