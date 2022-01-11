@@ -101,16 +101,17 @@
 		<PackageReference Include="NetMQ" Version="4.0.1.6" />
 		<PackageReference Include="Npgsql" Version="6.0.2" />
 		<PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="6.0.2" />
+		<PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL.NetTopologySuite" Version="6.0.2" />
 		<PackageReference Include="NSwag.AspNetCore" Version="13.15.5" />
 		<PackageReference Include="PinusDB" Version="1.0.10" />
 		<PackageReference Include="PinusDB.HealthChecks" Version="1.0.10" />
 		<PackageReference Include="ProxyKit" Version="2.3.4" />
 		<PackageReference Include="Quartz.Serialization.Json" Version="3.3.3" />
-		<PackageReference Include="RestSharp" Version="107.0.0" />
+		<PackageReference Include="RestSharp" Version="107.0.3" />
 		<PackageReference Include="Rin" Version="2.6.0" />
 		<PackageReference Include="Rin.Mvc" Version="2.6.0" />
 		<PackageReference Include="RulesEngine" Version="3.5.0" />
-		<PackageReference Include="Savorboard.CAP.InMemoryMessageQueue" Version="5.1.1" />
+		<PackageReference Include="Savorboard.CAP.InMemoryMessageQueue" Version="6.0.0" />
 		<PackageReference Include="Silkier" Version="1.0.424" />
 		<PackageReference Include="Silkier.AspNetCore" Version="1.0.424" />
 		<PackageReference Include="Silkier.EFCore" Version="1.0.424" />
