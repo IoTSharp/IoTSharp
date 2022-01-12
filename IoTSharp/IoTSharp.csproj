@@ -35,11 +35,6 @@
 		<FileVersion>2.0.1.0</FileVersion>
 		<PackageLicenseFile>LICENSE.txt</PackageLicenseFile>
 		<PackageIcon>96x96.png</PackageIcon>
-		<PackageReadmeFile>README.md</PackageReadmeFile>
-	 
-	 
-		
-		
 	</PropertyGroup>
 
 	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
@@ -139,19 +134,19 @@
 		<PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="6.0.1" />
 		<PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.0.1" />
 		<PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="6.0.1">
-		  <PrivateAssets>all</PrivateAssets>
-		  <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+			<PrivateAssets>all</PrivateAssets>
+			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
-		
+
 	</ItemGroup>
 	<ItemGroup>
-		 
+
 		<Compile Remove="Migrations\**" />
- 
+
 		<Content Remove="Migrations\**" />
-	 
+
 		<EmbeddedResource Remove="Migrations\**" />
-	 
+
 		<None Remove="Migrations\**" />
 		<Content Remove="wwwroot\lib\jquery-validation-unobtrusive\LICENSE.txt" />
 		<Content Remove="wwwroot\lib\jquery\LICENSE.txt" />
@@ -168,21 +163,21 @@
 		<None Remove="TelemetryStorage.db" />
 		<_WebToolingArtifacts Remove="Properties\PublishProfiles\registry.hub.docker.com_iotsharp.pubxml" />
 		<None Include="..\docs\images\96x96.png">
-		  <Pack>True</Pack>
-		  <PackagePath></PackagePath>
+			<Pack>True</Pack>
+			<PackagePath></PackagePath>
 		</None>
 		<None Include="..\LICENSE.txt">
-		  <Pack>True</Pack>
-		  <PackagePath></PackagePath>
+			<Pack>True</Pack>
+			<PackagePath></PackagePath>
 		</None>
 		<None Include="..\README.md">
-		  <Pack>True</Pack>
-		  <PackagePath>\</PackagePath>
+			<Pack>True</Pack>
+			<PackagePath>\</PackagePath>
 		</None>
 		<None Include="wwwroot\fonts\fontawesome-webfont.svg" />
 		<None Include="wwwroot\fonts\glyphicons-halflings-regular.woff2" />
 	</ItemGroup>
-	
+
 	<ItemGroup>
 		<!-- Don't publish the SPA source files, but do show them in the project files list -->
 		<Content Remove="$(SpaRoot)**" />
@@ -218,18 +213,22 @@
 		</ItemGroup>
 	</Target>
 	<ItemGroup>
-	  <ProjectReference Include="..\IoTSharp.Data.InMemory\IoTSharp.Data.InMemory.csproj" />
-	  <ProjectReference Include="..\IoTSharp.Data.MySQL\IoTSharp.Data.MySQL.csproj" />
-	  <ProjectReference Include="..\IoTSharp.Data.Oracle\IoTSharp.Data.Oracle.csproj" />
-	  <ProjectReference Include="..\IoTSharp.Data.PostgreSQL\IoTSharp.Data.PostgreSQL.csproj" />
-	  <ProjectReference Include="..\IoTSharp.Data.Sqlite\IoTSharp.Data.Sqlite.csproj" />
-	  <ProjectReference Include="..\IoTSharp.Data.SqlServer\IoTSharp.Data.SqlServer.csproj" />
-	  <ProjectReference Include="..\IoTSharp.Data\IoTSharp.Data.csproj" />
-	  <ProjectReference Include="..\IoTSharp.Interpreter\IoTSharp.Interpreter.csproj" />
-	  <ProjectReference Include="..\IoTSharp.TaskAction\IoTSharp.TaskAction.csproj" />
+		<ProjectReference Include="..\IoTSharp.Data.InMemory\IoTSharp.Data.InMemory.csproj" />
+		<ProjectReference Include="..\IoTSharp.Data.MySQL\IoTSharp.Data.MySQL.csproj" />
+		<ProjectReference Include="..\IoTSharp.Data.Oracle\IoTSharp.Data.Oracle.csproj" />
+		<ProjectReference Include="..\IoTSharp.Data.PostgreSQL\IoTSharp.Data.PostgreSQL.csproj" />
+		<ProjectReference Include="..\IoTSharp.Data.Sqlite\IoTSharp.Data.Sqlite.csproj" />
+		<ProjectReference Include="..\IoTSharp.Data.SqlServer\IoTSharp.Data.SqlServer.csproj" />
+		<ProjectReference Include="..\IoTSharp.Data\IoTSharp.Data.csproj" />
+		<ProjectReference Include="..\IoTSharp.Interpreter\IoTSharp.Interpreter.csproj" />
+		<ProjectReference Include="..\IoTSharp.TaskAction\IoTSharp.TaskAction.csproj" />
 	</ItemGroup>
 	<ItemGroup>
-	  <Folder Include="ClientApp\" />
+		<Folder Include="ClientApp\" />
 	</ItemGroup>
-	<ProjectExtensions><VisualStudio><UserProperties clientapp_4package_1json__JsonSchema="" /></VisualStudio></ProjectExtensions>
+	<ProjectExtensions>
+		<VisualStudio>
+			<UserProperties clientapp_4package_1json__JsonSchema="" />
+		</VisualStudio>
+	</ProjectExtensions>
 </Project>
