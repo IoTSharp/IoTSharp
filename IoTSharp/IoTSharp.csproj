@@ -76,7 +76,7 @@
 		<PackageReference Include="kimbus" Version="2.0.1" />
 		<PackageReference Include="LiteDB" Version="5.0.11" />
 		<PackageReference Include="MaiKeBing.CAP.ZeroMQ" Version="1.0.32" />
-		<PackageReference Include="MaiKeBing.CAP.LiteDB" Version="1.0.32" />
+		<PackageReference Include="MaiKeBing.CAP.LiteDB" Version="1.0.35" />
 		<PackageReference Include="Maikebing.Data.Taos" Version="2.0.357" />
 		<PackageReference Include="Maikebing.HealthChecks.Taos" Version="2.0.357" />
 		<PackageReference Include="MaiKeBing.HostedService.ZeroMQ" Version="1.0.32" />
