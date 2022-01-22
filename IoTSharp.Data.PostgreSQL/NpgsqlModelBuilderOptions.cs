@@ -14,6 +14,9 @@ namespace IoTSharp.Data.PostgreSQL
 
         public void OnModelCreating(ModelBuilder modelBuilder)
         {
+            AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
+            AppContext.SetSwitch("Npgsql.DisableDateTimeInfinityConversions", true);
+
             modelBuilder.Entity<TelemetryData>()
             .Property(b => b.DateTime)
             .HasColumnType("timestamp with time zone");
