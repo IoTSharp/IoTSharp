@@ -65,7 +65,7 @@
 		<PackageReference Include="DotNetCore.CAP.PostgreSql" Version="6.0.0" />
 		<PackageReference Include="EasyCaching.Core" Version="1.4.1" />
 		<PackageReference Include="EasyCaching.InMemory" Version="1.4.1" />
-		<PackageReference Include="EasyCaching.LiteDB" Version="1.4.1" />
+		<PackageReference Include="EasyCaching.LiteDB" Version="1.5.0" />
 		<PackageReference Include="EasyCaching.Redis" Version="1.4.1" />
 		<PackageReference Include="hyjiacan.pinyin4net" Version="4.1.0" />
 		<PackageReference Include="InfluxDB.Client" Version="3.3.0-dev.4823" />
