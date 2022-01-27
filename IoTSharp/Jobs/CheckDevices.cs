@@ -3,7 +3,7 @@ using IoTSharp.Data;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using MQTTnet.AspNetCoreEx;
+using MQTTnet.Server;
 using Quartz;
 using SilkierQuartz;
 using System;
@@ -20,9 +20,9 @@ namespace IoTSharp.Jobs
         private readonly MqttClientSetting _mcsetting;
         private readonly ILogger<CheckDevices> _logger;
         private readonly IServiceScopeFactory _scopeFactor;
-        private readonly IMqttServerEx _serverEx;
+        private readonly MqttServer _serverEx;
 
-        public CheckDevices(ILogger<CheckDevices> logger, IServiceScopeFactory scopeFactor, IMqttServerEx serverEx
+        public CheckDevices(ILogger<CheckDevices> logger, IServiceScopeFactory scopeFactor, MqttServer serverEx
            , IOptions<AppSettings> options)
         {
             _mcsetting = options.Value.MqttClient;
@@ -38,12 +38,12 @@ namespace IoTSharp.Jobs
                 using (var scope = _scopeFactor.CreateScope())
                 using (var _dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>())
                 {
-                    var clientstatus = await _serverEx.GetClientStatusAsync();
+                    var clientstatus = await _serverEx.GetClientsAsync();
                     clientstatus.ToList().ForEach(cs =>
                    {
                        try
                        {
-                           var _device = cs.Session.Items?.FirstOrDefault(k => (string)k.Key == nameof(Device)).Value as Device;
+                           var _device = cs.Session.Items[ nameof(Device)] as Device;
                            if (_device != null)
                            {
                                var d = _dbContext.Device.FirstOrDefault(d => d.Id == _device.Id);
@@ -58,7 +58,7 @@ namespace IoTSharp.Jobs
                        }
                        catch (Exception ex)
                        {
-                           _logger.LogInformation($"检查设备{cs.ClientId}-{cs.Endpoint}) 时遇到异常{ex.Message}{ex.InnerException?.Message}  发送消息:{cs.SentApplicationMessagesCount}({cs.BytesSent}kb)  收到{cs.ReceivedApplicationMessagesCount}({cs.BytesReceived / 1024}KB )  ");
+                           _logger.LogInformation($"检查设备{cs.Id}-{cs.Endpoint}) 时遇到异常{ex.Message}{ex.InnerException?.Message}  发送消息:{cs.SentApplicationMessagesCount}({cs.BytesSent}kb)  收到{cs.ReceivedApplicationMessagesCount}({cs.BytesReceived / 1024}KB )  ");
 
                        }
                    });

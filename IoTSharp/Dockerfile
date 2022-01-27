@@ -48,6 +48,8 @@ RUN KEYRING=/usr/share/keyrings/nodesource.gpg && curl -fsSL https://deb.nodesou
 
     
 WORKDIR /src
+COPY ["IoTSharp/ClientApp/package.json", "IoTSharp/ClientApp/package.json"]
+RUN   npm install --prefix ./IoTSharp/ClientApp/
 COPY ["IoTSharp/IoTSharp.csproj", "IoTSharp/"]
 COPY ["IoTSharp.Data/IoTSharp.Data.csproj", "IoTSharp.Data/"]
 COPY ["IoTSharp.Interpreter/IoTSharp.Interpreter.csproj", "IoTSharp.Interpreter/"]
@@ -59,15 +61,11 @@ COPY ["IoTSharp.Data.Oracle/IoTSharp.Data.Oracle.csproj", "IoTSharp.Data.Oracle/
 COPY ["IoTSharp.Data.PostgreSQL/IoTSharp.Data.PostgreSQL.csproj", "IoTSharp.Data.PostgreSQL/"]
 COPY ["IoTSharp.Data.MySQL/IoTSharp.Data.MySQL.csproj", "IoTSharp.Data.MySQL/"]
 RUN dotnet restore "IoTSharp/IoTSharp.csproj"
-COPY ["IoTSharp/ClientApp/package.json", "IoTSharp/ClientApp/package.json"]
-RUN   npm install --prefix ./IoTSharp/ClientApp/
 COPY . .
 WORKDIR "/src/IoTSharp"
 RUN dotnet build "IoTSharp.csproj" -c Release -o /app/build
 
      
-	 
-
 FROM build AS publish
 RUN dotnet publish "IoTSharp.csproj" -c Release -o /app/publish
 

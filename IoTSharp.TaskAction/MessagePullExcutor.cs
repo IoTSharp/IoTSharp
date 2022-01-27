@@ -64,7 +64,7 @@ namespace IoTSharp.TaskAction
                     var dd = o.Properties().Select(c => new ParamObject { keyName = c.Name, value = JPropertyToObject(c.Value.First as JProperty) }).ToList();
                     string contentType = "application/json";
                     var restclient = new RestClient(config.BaseUrl);
-                    var request = new RestRequest(config.Url + (input.DeviceId == Guid.Empty ? "" : "/" + input.DeviceId), Method.Post);
+                    var request = new RestRequest(config.Url + (input.DeviceId == Guid.Empty ? "" : "/" + input.DeviceId), Method.POST);
                     request.AddHeader("X-Access-Token",
                         config.Token);
                     request.RequestFormat = DataFormat.Json;
@@ -98,7 +98,7 @@ namespace IoTSharp.TaskAction
                     var dd = o.Properties().Select(c => new ParamObject { keyName = c.Name, value = JPropertyToObject(c) }).ToList();
                     string contentType = "application/json";
                     var restclient = new RestClient(config.BaseUrl);
-                    var request = new RestRequest(config.Url + (input.DeviceId == Guid.Empty ? "" : "/" + input.DeviceId), Method.Post);
+                    var request = new RestRequest(config.Url + (input.DeviceId == Guid.Empty ? "" : "/" + input.DeviceId), Method.POST);
                     request.AddHeader("X-Access-Token",
                         config.Token);
                     request.RequestFormat = DataFormat.Json;
