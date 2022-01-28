@@ -46,68 +46,76 @@ namespace IoTSharp.Handlers
         [CapSubscribe("iotsharp.services.datastream.attributedata")]
         public async void StoreAttributeData(RawMsg msg)
         {
-            using (var _scope = _scopeFactor.CreateScope())
+            try
             {
-                using (var _dbContext = _scope.ServiceProvider.GetRequiredService<ApplicationDbContext>())
+                using (var _scope = _scopeFactor.CreateScope())
                 {
-                    var device = _dbContext.Device.FirstOrDefault(d => d.Id == msg.DeviceId);
-                    if (device != null)
+                    using (var _dbContext = _scope.ServiceProvider.GetRequiredService<ApplicationDbContext>())
                     {
-                        var mb = msg.MsgBody;
-                        Dictionary<string, object> dc = new Dictionary<string, object>();
-                        mb.ToList().ForEach(kp =>
+                        var device = _dbContext.Device.FirstOrDefault(d => d.Id == msg.DeviceId);
+                        if (device != null)
                         {
-                            if (kp.Value.GetType() == typeof(System.Text.Json.JsonElement))
+                            var mb = msg.MsgBody;
+                            Dictionary<string, object> dc = new Dictionary<string, object>();
+                            mb.ToList().ForEach(kp =>
                             {
-                                var je = (System.Text.Json.JsonElement)kp.Value;
-                                switch (je.ValueKind)
+                                if (kp.Value.GetType() == typeof(System.Text.Json.JsonElement))
                                 {
-                                    case System.Text.Json.JsonValueKind.Undefined:
-                                    case System.Text.Json.JsonValueKind.Object:
-                                    case System.Text.Json.JsonValueKind.Array:
-                                        dc.Add(kp.Key, je.GetRawText());
-                                        break;
+                                    var je = (System.Text.Json.JsonElement)kp.Value;
+                                    switch (je.ValueKind)
+                                    {
+                                        case System.Text.Json.JsonValueKind.Undefined:
+                                        case System.Text.Json.JsonValueKind.Object:
+                                        case System.Text.Json.JsonValueKind.Array:
+                                            dc.Add(kp.Key, je.GetRawText());
+                                            break;
 
-                                    case System.Text.Json.JsonValueKind.String:
-                                        dc.Add(kp.Key, je.GetString());
-                                        break;
+                                        case System.Text.Json.JsonValueKind.String:
+                                            dc.Add(kp.Key, je.GetString());
+                                            break;
 
-                                    case System.Text.Json.JsonValueKind.Number:
-                                        dc.Add(kp.Key, je.GetDouble());
-                                        break;
+                                        case System.Text.Json.JsonValueKind.Number:
+                                            dc.Add(kp.Key, je.GetDouble());
+                                            break;
 
-                                    case System.Text.Json.JsonValueKind.True:
-                                    case System.Text.Json.JsonValueKind.False:
-                                        dc.Add(kp.Key, je.GetBoolean());
-                                        break;
+                                        case System.Text.Json.JsonValueKind.True:
+                                        case System.Text.Json.JsonValueKind.False:
+                                            dc.Add(kp.Key, je.GetBoolean());
+                                            break;
 
-                                    case System.Text.Json.JsonValueKind.Null:
-                                        break;
+                                        case System.Text.Json.JsonValueKind.Null:
+                                            break;
 
-                                    default:
-                                        break;
+                                        default:
+                                            break;
+                                    }
                                 }
-                            }
-                            else
-                            {
-                                dc.Add(kp.Key, kp.Value);
-                            }
+                                else
+                                {
+                                    dc.Add(kp.Key, kp.Value);
+                                }
 
-                        });
-                        var result2 = await _dbContext.SaveAsync<AttributeLatest>(dc, device.Id, msg.DataSide);
-                        result2.exceptions?.ToList().ForEach(ex =>
-                        {
-                            _logger.LogError($"{ex.Key} {ex.Value} {Newtonsoft.Json.JsonConvert.SerializeObject(msg.MsgBody[ex.Key])}");
-                        });
-                        _logger.LogInformation($"更新{device.Name}({device.Id})属性数据结果{result2.ret}");
-                        ExpandoObject obj = new ExpandoObject();
-                        dc.ToList().ForEach(kv =>
-                        {
-                            obj.TryAdd(kv.Key, kv.Value);
-                        });
-                         await RunRules(msg.DeviceId, obj, MountType.Telemetry);
+                            });
+                            var result2 = await _dbContext.SaveAsync<AttributeLatest>(dc, device.Id, msg.DataSide);
+                            result2.exceptions?.ToList().ForEach(ex =>
+                            {
+                                _logger.LogError($"{ex.Key} {ex.Value} {Newtonsoft.Json.JsonConvert.SerializeObject(msg.MsgBody[ex.Key])}");
+                            });
+                            _logger.LogInformation($"更新{device.Name}({device.Id})属性数据结果{result2.ret}");
+                            ExpandoObject obj = new ExpandoObject();
+                            dc.ToList().ForEach(kv =>
+                            {
+                                obj.TryAdd(kv.Key, kv.Value);
+                            });
+                            await RunRules(msg.DeviceId, obj, MountType.Telemetry);
+                        }
                     }
                 }
+            }
+            catch (Exception ex)
+            {
+
+                _logger.LogError(ex, "StoreAttributeData:"+ex.Message);
             }
 
       
@@ -184,25 +192,33 @@ namespace IoTSharp.Handlers
 
         private async Task RunRules(Guid devid, object obj, MountType mountType)
         {
-            var rules = await _caching.GetAsync($"ruleid_{devid}_{Enum.GetName(mountType)}", async () =>
+            try
             {
-                using (var scope = _scopeFactor.CreateScope())
-                using (var _dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>())
+                var rules = await _caching.GetAsync($"ruleid_{devid}_{Enum.GetName(mountType)}", async () =>
                 {
-                    var guids = await _dbContext.GerDeviceRulesIdList(devid, mountType);
-                    return guids;
+                    using (var scope = _scopeFactor.CreateScope())
+                    using (var _dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>())
+                    {
+                        var guids = await _dbContext.GerDeviceRulesIdList(devid, mountType);
+                        return guids;
+                    }
+                }, TimeSpan.FromSeconds(_appSettings.RuleCachingExpiration));
+                if (rules.HasValue)
+                {
+                    rules.Value.ToList().ForEach(async g =>
+                    {
+                        await _flowRuleProcessor.RunFlowRules(g, obj, devid, EventType.Normal, null);
+                    });
                 }
-            }, TimeSpan.FromSeconds(_appSettings.RuleCachingExpiration));
-            if (rules.HasValue)
-            {
-                rules.Value.ToList().ForEach(async g =>
+                else
                 {
-                    await _flowRuleProcessor.RunFlowRules(g, obj, devid, EventType.Normal, null);
-                });
+                    _logger.LogInformation($"{devid}的数据无相关规则链处理。");
+                }
             }
-            else
+            catch (Exception ex)
             {
-                _logger.LogInformation($"{devid}的数据无相关规则链处理。");
+                _logger.LogError ( ex,$"{devid}的数据无相关规则链处理。");
+
             }
         }
     }

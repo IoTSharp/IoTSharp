@@ -23,8 +23,6 @@ namespace IoTSharp.Controllers
     public class SubscriptionEventController : Controller
     {
         private ApplicationDbContext _context;
-        private readonly FlowRuleProcessor _flowRuleProcessor;
-        private readonly TaskExecutorHelper _helper;
         private UserManager<IdentityUser> _userManager;
 
         // GET: SubscriptionEventController

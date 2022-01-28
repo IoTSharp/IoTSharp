@@ -19,14 +19,9 @@ using MQTTnet.Protocol;
 using IoTSharp.Extensions;
 using IoTSharp.Models;
 using MQTTnet.Exceptions;
-using MQTTnet.Client.Options;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Logging;
 using IoTSharp.Storage;
-using k8s.Models;
-using Newtonsoft.Json.Linq;
-using MQTTnet.AspNetCoreEx;
-using MQTTnet.Server.Status;
 using System.Security.Cryptography.X509Certificates;
 using Microsoft.Extensions.Options;
 using IoTSharp.X509Extensions;
@@ -34,6 +29,7 @@ using System.IO;
 using System.IO.Compression;
 using DotNetCore.CAP;
 using LinqKit;
+using MQTTnet.Server;
 
 namespace IoTSharp.Controllers
 {
@@ -51,12 +47,12 @@ namespace IoTSharp.Controllers
         private readonly SignInManager<IdentityUser> _signInManager;
         private readonly ILogger _logger;
         private readonly IStorage _storage;
-        private readonly IMqttServerEx _serverEx;
+        private readonly MqttServer _serverEx;
         private readonly AppSettings _setting;
         private readonly ICapPublisher _queue;
 
         public DevicesController(UserManager<IdentityUser> userManager,
-            SignInManager<IdentityUser> signInManager, ILogger<DevicesController> logger, IMqttServerEx serverEx, ApplicationDbContext context, IMqttClientOptions mqtt, IStorage storage, IOptions<AppSettings> options, ICapPublisher queue)
+            SignInManager<IdentityUser> signInManager, ILogger<DevicesController> logger, MqttServer serverEx, ApplicationDbContext context, IMqttClientOptions mqtt, IStorage storage, IOptions<AppSettings> options, ICapPublisher queue)
         {
             _context = context;
             _mqtt = mqtt;
@@ -944,9 +940,9 @@ namespace IoTSharp.Controllers
         [HttpGet("SessionStatus")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesDefaultResponseType]
-        public async Task<ApiResult<IList<IMqttSessionStatus>>> GetSessionStatus()
+        public async Task<ApiResult<IList<MqttSessionStatus>>> GetSessionStatus()
         {
-            return new ApiResult<IList<IMqttSessionStatus>>(ApiCode.Success, "OK", await _serverEx.GetSessionStatusAsync());
+            return new ApiResult<IList<MqttSessionStatus>>(ApiCode.Success, "OK", await _serverEx.GetSessionsAsync());
         }
         /// <summary>
         /// SessionStatus
@@ -956,9 +952,9 @@ namespace IoTSharp.Controllers
         [HttpGet("ClientStatus")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesDefaultResponseType]
-        public async Task<ApiResult<IList<IMqttClientStatus>>> GetClientStatus()
+        public async Task<ApiResult<IList<MqttClientStatus>>> GetClientStatus()
         {
-            return new ApiResult<IList<IMqttClientStatus>>(ApiCode.Success, "OK", await _serverEx.GetClientStatusAsync());
+            return new ApiResult<IList<MqttClientStatus>>(ApiCode.Success, "OK", await _serverEx.GetClientsAsync());
         }
 
         [Authorize(Roles = nameof(UserRole.NormalUser))]
@@ -967,7 +963,7 @@ namespace IoTSharp.Controllers
         [ProducesDefaultResponseType]
         public async Task<ApiResult<int>> GetSessionsCount()
         {
-            return new ApiResult<int>(ApiCode.Success, "OK", (await _serverEx.GetClientStatusAsync()).Count);
+            return new ApiResult<int>(ApiCode.Success, "OK", (await _serverEx.GetClientsAsync()).Count);
         }
     }
 }
