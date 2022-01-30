@@ -3,7 +3,7 @@ name: Test deployment
 on:
   pull_request:
     branches: [main]
-    paths: [website/**]
+    paths: [./**]
 
 jobs:
   test-deploy:
@@ -16,7 +16,7 @@ jobs:
           node-version: 14.x
           cache: yarn
       - name: Test build
-        working-directory: website
+        working-directory: ./
         run: |
           yarn install --frozen-lockfile
           yarn build
