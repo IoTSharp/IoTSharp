@@ -91,7 +91,7 @@
 		<PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="6.0.1" />
 		<PackageReference Include="MQTTnet" Version="4.0.0-preview1" />
 		<PackageReference Include="MQTTnet.AspNetCore" Version="4.0.0-preview1" />
-		<PackageReference Include="MQTTnet.Extensions.Rpc" Version="4.0.0-preview1" />
+		<PackageReference Include="MQTTnet.Extensions.Rpc" Version="4.0.0-preview3" />
 		<PackageReference Include="NetMQ" Version="4.0.1.6" />
 		<PackageReference Include="Npgsql" Version="6.0.2" />
 		<PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="6.0.2" />
