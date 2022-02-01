@@ -8,9 +8,8 @@ sidebar_position: 1
 
 ## 开始了解
 
-Get started by **creating a new site**.
+IoTSharp 是一个 基于.Net Core 开源的物联网基础平台， 支持 HTTP、MQTT 、CoAp 协议， 属性数据和遥测数据协议简单类型丰富，简单设置即可将数据存储在PostgreSql、MySql、Oracle、SQLServer、Sqlite，是一个用于数据收集、处理、可视化与设备管理的 IoT 平台.
 
-Or **try Docusaurus immediately** with **[docusaurus.new](https://docusaurus.new)**.
 
 ### 需要那些依赖?
 
@@ -44,29 +43,19 @@ Or **try Docusaurus immediately** with **[docusaurus.new](https://docusaurus.new
 
 ## 如何部署？
 
-Generate a new Docusaurus site using the **classic template**.
+### 如何使用docker-compose  安装IoTSharp ?
 
-The classic template will automatically be added to your project after you run the command:
+  * [ZPT](https://github.com/IoTSharp/IoTSharp/tree/master/Deployments/zeromq_taos) 使用ZeroMQ 作为 EventBus, PostgreSQL 作为消息存储， 遥测数据使用  TDengine  
 
-```bash
-npm init docusaurus@latest my-website classic
-```
+  * [ZPS](https://github.com/IoTSharp/IoTSharp/tree/master/Deployments/zeromq_sharding)  默认开发配置，  IoTSharp 和 PostgreSql, 遥测数据可以通过单表或者分表。 
 
-You can type this command into Command Prompt, Powershell, Terminal, or any other integrated terminal of your code editor.
+  * [RMI](https://github.com/IoTSharp/IoTSharp/tree/master/Deployments/rabbit_mongo_influx) 使用Rabbitmq 作为 EventBus, Mongodb 作为消息存储， 遥测数据使用Influx 2.0 ，这个方案中遥测数据也可以使用TDengine
 
-The command also installs all necessary dependencies you need to run Docusaurus.
 
-## Start your site
+## 初次使用
 
-Run the development server:
+* 初始租户和管理员、用户注册信息在系统发现你未初始化时自动跳转到安装界面， 填写完成后， 系统会初始化权限、基础数据等种子数据。 
+* X509 CA证书用于通过证书进行保障安全通讯和关系验证， 第一次时需要调用高级管理员权限办法并写入系统， 尤其是当你使用了非管理员用户进行启动IoTSharp 时 ， 因此， 需要确保第一次生成使用高权限， 后续使用低权限。 
 
-```bash
-cd my-website
-npm run start
-```
-
-The `cd` command changes the directory you're working with. In order to work with your newly created Docusaurus site, you'll need to navigate the terminal there.
-
-The `npm run start` command builds your website locally and serves it through a development server, ready for you to view at http://localhost:3000/.
-
-Open `docs/intro.md` (this page) and edit some lines: the site **reloads automatically** and displays your changes.
+ 
+ 

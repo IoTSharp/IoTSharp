@@ -30,7 +30,7 @@ const config = {
           showReadingTime: true,
           // Please change this to your repo.
           editUrl:
-            'https://github.com/IoTSharp/docs',
+            'https://github.com/IoTSharp/docs/blob/main/',
         },
         theme: {
           customCss: require.resolve('./src/css/custom.css'),
