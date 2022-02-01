@@ -4,32 +4,29 @@ import styles from './HomepageFeatures.module.css';
 
 const FeatureList = [
   {
-    title: 'Easy to Use',
+    title: '数字孪生',
     Svg: require('../../static/img/undraw_docusaurus_mountain.svg').default,
     description: (
       <>
-        Docusaurus was designed from the ground up to be easily installed and
-        used to get your website up and running quickly.
+        IoTSharp 通过服务侧、客户端侧属性、遥测数据、RPC等实现了数字孪生， 实现了所有设备统一接口提供给业务调用。
       </>
     ),
   },
   {
-    title: 'Focus on What Matters',
+    title: '规则链',
     Svg: require('../../static/img/undraw_docusaurus_tree.svg').default,
     description: (
       <>
-        Docusaurus lets you focus on your docs, and we&apos;ll do the chores. Go
-        ahead and move your docs into the <code>docs</code> directory.
+         IoTSharp 允许你通过JS、C#、Lua、Python、SQL等脚本处理数据并结合动态Linq表达式处理节点与节点之间的走向以实现数据清洗、告警、事件等相应手段， 也可以将网关数据通过规则链合成真正的数字孪生设备。 
       </>
     ),
   },
   {
-    title: 'Powered by React',
+    title: '多样性',
     Svg: require('../../static/img/undraw_docusaurus_react.svg').default,
     description: (
       <>
-        Extend or customize your website layout by reusing React. Docusaurus can
-        be extended while reusing the same header and footer.
+        IoTSharp 重复考虑到物联网架构的重要性，因此我们具有丰富的中间件支持，比如消息中间件(RabbitMQ、RabbitMQ、Kafka、ZeroMQ)进行处理、也支持多种时序数据库（InfluxDB、Taos、TimescaleDB）存储和处理遥测数据。基础数据我们支持多种关系型数据库(MySQl、PostgreSQL、Oracle、Sql Server、Sqlite)
       </>
     ),
   },

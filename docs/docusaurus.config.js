@@ -53,12 +53,17 @@ const config = {
             type: 'doc',
             docId: 'intro',
             position: 'left',
-            label: 'Tutorial',
+            label: '参考手册',
           },
-          {to: '/blog', label: 'Blog', position: 'left'},
+          {to: '/blog', label: '博客', position: 'left'},
           {
             href: 'https://github.com/IoTSharp/IoTSharp',
             label: 'GitHub',
+            position: 'right',
+          },
+          {
+            href: 'https://gitee.com/dotnetchina/IoTSharp',
+            label: 'Gitee',
             position: 'right',
           },
         ],
@@ -67,16 +72,16 @@ const config = {
         style: 'dark',
         links: [
           {
-            title: 'Docs',
+            title: '文档',
             items: [
               {
-                label: 'Tutorial',
+                label: '简介',
                 to: '/docs/intro',
               },
             ],
           },
           {
-            title: 'Community',
+            title: '社区',
             items: [
               {
                 label: 'QQ群',
@@ -93,12 +98,8 @@ const config = {
             ],
           },
           {
-            title: 'More',
+            title: '其他',
             items: [
-              {
-                label: 'Blog',
-                to: '/blog',
-              },
               {
                 label: 'GitHub',
                 href: 'https://github.com/IoTSharp/IoTSharp',
@@ -106,6 +107,10 @@ const config = {
               {
                 label: 'Gitee',
                 href: 'https://gitee.com/IoTSharp/IoTSharp',
+              },
+              {
+                label: ' 冀ICP备18039206号-2',
+                href: 'https://beian.miit.gov.cn/',
               },
             ],
           },
