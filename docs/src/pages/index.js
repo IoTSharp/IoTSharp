@@ -30,7 +30,7 @@ export default function Home() {
   return (
     <Layout
       title={` ${siteConfig.title}`}
-      description="IoTSharp 是一个 基于.Net Core 开源的物联网基础平台， 支持 HTTP、MQTT 、CoAp 协议， 属性数据和遥测数据协议简单类型丰富，简单设置即可将数据存储在PostgreSql、MySql、Oracle、SQLServer、Sqlite，是一个用于数据收集、处理、可视化与设备管理的 IoT 平台.">
+      description="IoTSharp 是一个基于.Net 6.0 使用C#开发的数据收集、处理、可视化与设备管理的开源物联网(IoT)平台基础平台,支持 HTTP、MQTT 、CoAP等协议实现设备的数字孪生,且属性数据和遥测数据协议简单类型丰富,简易设置即可将数据存储在PostgreSql、MySql、Oracle、SQLServer、Sqlite 或者 InfluxDB 2.0;TDengine;TimescaleDB等时序数据库中。">
       <HomepageHeader /> 
       <main>
         <HomepageFeatures />

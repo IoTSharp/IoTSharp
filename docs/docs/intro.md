@@ -6,23 +6,23 @@ sidebar_position: 1
 
 让我们探索一下  **IoTSharp 在五分钟内**.
 
-## 开始了解
+##  IoTSharp 是什么？
 
-IoTSharp 是一个 基于.Net Core 开源的物联网基础平台， 支持 HTTP、MQTT 、CoAp 协议， 属性数据和遥测数据协议简单类型丰富，简单设置即可将数据存储在PostgreSql、MySql、Oracle、SQLServer、Sqlite，是一个用于数据收集、处理、可视化与设备管理的 IoT 平台.
+ IoTSharp 是一个基于.Net 6.0 使用C#开发的数据收集、处理、可视化与设备管理的开源物联网(IoT)平台基础平台,支持 HTTP、MQTT 、CoAP等协议实现设备的数字孪生,且属性数据和遥测数据协议简单类型丰富,简易设置即可将数据存储在PostgreSql、MySql、Oracle、SQLServer、Sqlite 或者 InfluxDB 2.0;TDengine;TimescaleDB等时序数据库中。
 
 
-### 需要那些依赖?
+### IoTSharp的系统必备有哪些?
 
 - [Docker]](https://www.docker.com/) 最新版本
   - 如果你要部署IoTSharp, 我们首先推荐的是docker， 以及Docker-Compose, 通过我们推荐的[docker-compose.yml](https://github.com/IoTSharp/IoTSharp/raw/master/Deployments/rabbit_mongo_influx/docker-compose.yml) 你可以直接部署成功，而不用煞费周折的部署环境。
-- 关系型数据库  
+- 关系型数据库   用来存储基础数据和属性数据。
   - PostgreSQL 验证过的版本为  PostgreSQL 11.3,12.x等。 
   - MySql   验证过的版本为 MySQL 8.0.17  
   - Oracle  验证过的版本为  Oracle Standard Edition 12c Release 2  ， 操作系统为Cent OS 7 
   - Sqlite  程序内置，均验证。 小项目推荐。 
   - SQLServer  验证过的版本为 Microsoft SQL Server 2016 (RTM-GDR) (KB4019088) - 13.0.1742.0 (X64)  
   - InMemory 通过EF 的内存数据库，一般用于测试 。 
-- 时序数据库
+- 时序数据库    用来存储遥测数据并提供遥测数据的查询统计等等。 
   - 通过EFCore 使用关系型数据库来存储带有时间戳的数据，虽然不推荐，但不妨是一种小型项目的最佳选择。 
   - InfluxDB 2.x 我们致力于推荐的时序数据库， InfluxDB集成非常好用的可视化工具， 除了不符合信创没有任何可挑剔的。
   - TDengine  我们致力于推荐的国产时序数据库， 甚至为了支持它我花了大量时间编写他的提供程序 [Maikebing.EntityFrameworkCore.Taos](https://github.com/maikebing/Maikebing.EntityFrameworkCore.Taos)
@@ -45,11 +45,11 @@ IoTSharp 是一个 基于.Net Core 开源的物联网基础平台， 支持 HTTP
 
 ### 如何使用docker-compose  安装IoTSharp ?
 
+  * [RMI](https://github.com/IoTSharp/IoTSharp/tree/master/Deployments/rabbit_mongo_influx) 使用Rabbitmq 作为 EventBus, Mongodb 作为消息存储， 遥测数据使用Influx 2.0 ，这个方案中遥测数据也可以使用TDengine
+
   * [ZPT](https://github.com/IoTSharp/IoTSharp/tree/master/Deployments/zeromq_taos) 使用ZeroMQ 作为 EventBus, PostgreSQL 作为消息存储， 遥测数据使用  TDengine  
 
   * [ZPS](https://github.com/IoTSharp/IoTSharp/tree/master/Deployments/zeromq_sharding)  默认开发配置，  IoTSharp 和 PostgreSql, 遥测数据可以通过单表或者分表。 
-
-  * [RMI](https://github.com/IoTSharp/IoTSharp/tree/master/Deployments/rabbit_mongo_influx) 使用Rabbitmq 作为 EventBus, Mongodb 作为消息存储， 遥测数据使用Influx 2.0 ，这个方案中遥测数据也可以使用TDengine
 
 
 ## 初次使用
