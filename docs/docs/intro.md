@@ -2,7 +2,7 @@
 sidebar_position: 1
 ---
 
-# 参考手册
+# IoTSharp 简介
 
 让我们探索一下  **IoTSharp 在五分钟内**.
 
