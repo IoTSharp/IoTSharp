@@ -158,7 +158,6 @@ namespace IoTSharp
             services.AddTransient<ApplicationDBInitializer>();
             services.AddIoTSharpMqttServer(settings.MqttBroker);
             services.AddMqttClient(settings.MqttClient);
-            services.AddSingleton<RetainedMessageHandler>();
             services.AddSilkierQuartz(options =>
             {
                 options.VirtualPathRoot = "/quartz";

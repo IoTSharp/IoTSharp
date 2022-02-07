@@ -8,17 +8,14 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.AspNetCore.Builder;
 using MQTTnet.AspNetCore;
 using MQTTnet.Diagnostics;
-using MQTTnet.AspNetCoreEx;
 using IoTSharp.Handlers;
 using IoTSharp.Services;
 using MQTTnet.Server;
-using MQTTnet.Client.Receiving;
-using MQTTnet.Client.Options;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Threading;
-using MQTTnet.Diagnostics.Logger;
 using System.Security.Cryptography.X509Certificates;
+using MQTTnet;
 
 namespace IoTSharp
 {
@@ -28,7 +25,7 @@ namespace IoTSharp
         public static void AddIoTSharpMqttServer(this IServiceCollection services, MqttBrokerSetting broker)
         {
             services.AddMqttTcpServerAdapter();
-            services.AddHostedMqttServerEx(options =>
+            services.AddHostedMqttServer(options =>
             {
                 options.WithDefaultEndpointPort(broker.Port).WithDefaultEndpoint();
                 if (broker.EnableTls)
@@ -48,6 +45,7 @@ namespace IoTSharp
                 {
                     options.WithoutEncryptedEndpoint();
                 }
+                options.WithDefaultCommunicationTimeout(TimeSpan.FromSeconds(5));
                 options.WithPersistentSessions();
                 options.Build();
             }).AddMqttConnectionHandler()
@@ -58,18 +56,36 @@ namespace IoTSharp
         public static void UseIotSharpMqttServer(this IApplicationBuilder app)
         {
             var mqttEvents = app.ApplicationServices.CreateScope().ServiceProvider.GetService<MQTTServerHandler>();
-            IMqttServerStorage storage = app.ApplicationServices.CreateScope().ServiceProvider.GetService<IMqttServerStorage>();
-            app.UseMqttServerEx(server =>
+            app.UseMqttServer(server =>
                 {
-                    server.ClientConnectedHandler = new MqttServerClientConnectedHandlerDelegate(args => mqttEvents.Server_ClientConnected(server, args));
-                    server.StartedHandler = new MqttServerStartedHandlerDelegate(args => mqttEvents.Server_Started(server, args));
-                    server.StoppedHandler = new MqttServerStoppedHandlerDelegate(args => mqttEvents.Server_Stopped(server, args));
-                    server.ApplicationMessageReceivedHandler = new MqttApplicationMessageReceivedHandlerDelegate(args => mqttEvents.Server_ApplicationMessageReceived(server, args));
-                    server.ClientSubscribedTopicHandler = new MqttServerClientSubscribedTopicHandlerDelegate( args =>    mqttEvents.Server_ClientSubscribedTopic(server, args));
-                    server.ClientUnsubscribedTopicHandler = new MqttServerClientUnsubscribedTopicHandlerDelegate(args => mqttEvents.Server_ClientUnsubscribedTopic(server, args));
-                    server.ClientConnectionValidatorHandler = new MqttServerClientConnectionValidatorHandlerDelegate(args => mqttEvents.Server_ClientConnectionValidator(server, args));
-                    server.ClientDisconnectedHandler = new MqttServerClientDisconnectedHandlerDelegate(args => mqttEvents.Server_ClientDisconnected(server, args));
+                    server.ClientConnectedAsync +=  mqttEvents.Server_ClientConnectedAsync;
+                    server.StartedAsync += mqttEvents.Server_Started ;
+                    server.StoppedAsync +=  mqttEvents.Server_Stopped ;
+                    server.ApplicationMessageNotConsumedAsync +=  mqttEvents.Server_ApplicationMessageReceived ;
+                    server .ClientSubscribedTopicAsync    += mqttEvents.Server_ClientSubscribedTopic;
+                    server.ClientUnsubscribedTopicAsync += mqttEvents.Server_ClientUnsubscribedTopic;
+                    server.ValidatingConnectionAsync += mqttEvents.Server_ClientConnectionValidator;
+                    server.ClientDisconnectedAsync    +=mqttEvents.Server_ClientDisconnected;
                 });
+        }
+        public static async Task PublishAsync<T>(this MqttServer mqtt, string SenderClientId, string topic, T _payload) where T : class
+        {
+            await mqtt.PublishAsync(SenderClientId, new MqttApplicationMessage() { Topic = topic, Payload = System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(_payload) });
+        }
+        public static async Task PublishAsync(this MqttServer mqtt, string SenderClientId, string topic, string _payload)
+        {
+            await mqtt.PublishAsync(SenderClientId, new MqttApplicationMessage() { Topic = topic, Payload = System.Text.Encoding.Default.GetBytes(_payload) });
+        }
+        public static async Task PublishAsync(this MqttServer mqtt, string SenderClientId, string topic, byte[] _payload)
+        {
+            await mqtt.PublishAsync(SenderClientId, new MqttApplicationMessage() { Topic = topic, Payload = _payload });
+        }
+
+        public static async Task   PublishAsync ( this MqttServer mqtt, string SenderClientId ,MqttApplicationMessage message)
+        {
+            var clients = await mqtt.GetClientsAsync();
+            var client= clients.FirstOrDefault(c => c.Id == SenderClientId);
+            await client.Session.EnqueueApplicationMessageAsync(message);
         }
 
 

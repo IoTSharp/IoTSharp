@@ -26,7 +26,7 @@ namespace IoTSharp.TaskAction
             string contentType = "application/json";
             var restclient = new RestClient(config.BaseUrl);
             
-            var request = new RestRequest(config.Url + (input.DeviceId == Guid.Empty ? "" : "/" + input.DeviceId), Method.Post);
+            var request = new RestRequest(config.Url + (input.DeviceId == Guid.Empty ? "" : "/" + input.DeviceId), Method.POST);
             request.AddHeader("X-Access-Token",
                 config.Token);
             request.RequestFormat = DataFormat.Json;
