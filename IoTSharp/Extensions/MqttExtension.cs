@@ -46,6 +46,7 @@ namespace IoTSharp
                 {
                     options.WithoutEncryptedEndpoint();
                 }
+                options.WithDefaultCommunicationTimeout(TimeSpan.FromSeconds(5));
                 options.WithPersistentSessions();
                 options.Build();
             }).AddMqttConnectionHandler()

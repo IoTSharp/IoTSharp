@@ -52,7 +52,7 @@ namespace IoTSharp.Handlers
         static long clients = 0;
         internal  Task   Server_ClientConnectedAsync(ClientConnectedEventArgs e)
         {
-            _logger.LogInformation($"Client [{e.ClientId}] connected");
+            _logger.LogInformation($"Client [{e.ClientId}] {e.Endpoint} {e.UserName}  connected");
             clients++;
             return Task.CompletedTask;
         }
@@ -366,7 +366,7 @@ namespace IoTSharp.Handlers
                             var devtmp = _dbContext.Device.FirstOrDefault(d => d.Id == dev.Id);
                             devtmp.LastActive = DateTime.Now;
                             devtmp.Online = false;
-                            _dbContext.SaveChanges();
+                        await _dbContext.SaveChangesAsync();
                             _logger.LogInformation($"Server_ClientDisconnected   ClientId:{args.ClientId} DisconnectType:{args.DisconnectType}  Device is {devtmp.Name }({devtmp.Id}) ");
                         }
                     }
