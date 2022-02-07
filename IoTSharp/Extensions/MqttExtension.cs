@@ -17,7 +17,6 @@ using MQTTnet.Client.Options;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Threading;
-using MQTTnet.AspNetCore.Extensions;
 using MQTTnet.Diagnostics.Logger;
 using System.Security.Cryptography.X509Certificates;
 
