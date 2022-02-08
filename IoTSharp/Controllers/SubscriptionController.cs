@@ -14,6 +14,7 @@ using IoTSharp.Models;
 using LinqKit;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 
 namespace IoTSharp.Controllers
 {
@@ -39,7 +40,7 @@ namespace IoTSharp.Controllers
         {
             var profile = await this.GetUserProfile();
 
-            Expression<Func<SubscriptionEvent, bool>> condition = x => x.EventStatus > -1;
+            Expression<Func<SubscriptionEvent, bool>> condition = x => x.EventStatus > -1&&x.TenantId==profile.Tenant;
             if (!string.IsNullOrEmpty(m.Name))
             {
                 condition = condition.And(x => x.EventName.Contains(m.Name));
@@ -54,9 +55,10 @@ namespace IoTSharp.Controllers
 
 
         [HttpGet("[action]")]
-        public ApiResult<SubscriptionEvent> Get(Guid id)
+        public async Task<ApiResult<SubscriptionEvent>> Get(Guid id)
         {
-            var subscriptionEvent = _context.SubscriptionEvents.SingleOrDefault(c => c.EventId == id);
+            var profile = await this.GetUserProfile();
+            var subscriptionEvent = await _context.SubscriptionEvents.SingleOrDefaultAsync(c => c.EventId == id);
             if (subscriptionEvent != null)
             { 
                 return new ApiResult<SubscriptionEvent>(ApiCode.Success, "OK", subscriptionEvent);
@@ -105,7 +107,8 @@ namespace IoTSharp.Controllers
                 se.Type = m.Type;
                 se.CreateDateTime = DateTime.Now;
                 se.EventStatus = 1;
-
+                se.TenantId = profile.Tenant;
+                se.CustomerId = profile.Comstomer;
                 this._context.SubscriptionEvents.Add(se);
                 await this._context.SaveChangesAsync(); return new ApiResult<bool>(ApiCode.Success, "OK", true);
             }

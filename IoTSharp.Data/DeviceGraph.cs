@@ -32,5 +32,11 @@ namespace IoTSharp.Data
         public string GraphTextVerticalAnchor { get; set; }
         public string GraphTextFontFamily { get; set; }
         public decimal? GraphTextRefY { get; set; }
+
+        public Tenant Tenant { get; set; }
+        public Guid TenantId { get; set; }
+
+        public Guid CustomerId { get; set; }
+        public Customer Customer { get; set; }
     }
 }

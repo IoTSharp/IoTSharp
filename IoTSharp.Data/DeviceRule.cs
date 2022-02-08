@@ -24,6 +24,7 @@ namespace IoTSharp.Data
 
         public int EnableTrace { get; set; } //是否开启设备在规则链当中的链路跟踪
 
-
+        public Guid DeviceId { get; set; }
+        public Guid FlowRuleId { get; set; }
     }
 }

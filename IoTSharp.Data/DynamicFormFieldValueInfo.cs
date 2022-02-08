@@ -24,5 +24,12 @@ namespace IoTSharp.Data
         public string FieldUnit { get; set; }
         public long? FieldValueType { get; set; }
         public long? BizId { get; set; }
+
+
+        public Tenant Tenant { get; set; }
+        public Guid TenantId { get; set; }
+
+        public Guid CustomerId { get; set; }
+        public Customer Customer { get; set; }
     }
 }

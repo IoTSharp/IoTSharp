@@ -23,5 +23,13 @@ namespace IoTSharp.Data
         public string Bizid { get; set; }
         public DateTime CreaterDateTime { get; set; }
         public string BizData { get; set; }
+
+        public Tenant Tenant { get; set; }
+        public Guid TenantId { get; set; }
+
+        public Guid CustomerId { get; set; }
+        public Customer Customer { get; set; }
+
+
     }
 }

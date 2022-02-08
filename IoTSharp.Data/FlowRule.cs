@@ -30,5 +30,8 @@ namespace IoTSharp.Data
         public Tenant Tenant { get; set; }
         public Guid TenantId { get; set; }
 
+        public Guid CustomerId { get; set; }
+        public Customer Customer { get; set; }
+
     }
 }

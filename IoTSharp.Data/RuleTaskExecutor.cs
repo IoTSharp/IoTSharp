@@ -28,5 +28,11 @@ namespace IoTSharp.Data
         public int TestStatus { get; set; }
         public Guid Tester { get; set; }
         public DateTime TesterDateTime { get; set; }
+
+        public Tenant Tenant { get; set; }
+        public Guid TenantId { get; set; }
+
+        public Guid CustomerId { get; set; }
+        public Customer Customer { get; set; }
     }
 }

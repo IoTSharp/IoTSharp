@@ -35,5 +35,11 @@ namespace IoTSharp.Data
         public long? FieldUIElement { get; set; }
         public string FieldUIElementSchema { get; set; }
         public string FieldPocoTypeName { get; set; }
+
+        public Tenant Tenant { get; set; }
+        public Guid TenantId { get; set; }
+
+        public Guid CustomerId { get; set; }
+        public Customer Customer { get; set; }
     }
 }

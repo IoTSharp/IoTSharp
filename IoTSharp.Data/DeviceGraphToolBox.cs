@@ -25,5 +25,11 @@ namespace IoTSharp.Data
         public Guid Creator { get; set; }
         public string CommondParam { get; set; }
         public string CommondType { get; set; }
+
+        public Tenant Tenant { get; set; }
+        public Guid TenantId { get; set; }
+
+        public Guid CustomerId { get; set; }
+        public Customer Customer { get; set; }
     }
 }

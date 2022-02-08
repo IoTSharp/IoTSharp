@@ -57,7 +57,8 @@ namespace IoTSharp.Controllers
         [HttpPost("[action]")]
         public async Task<ApiResult<bool>> UpdateFlowExpression( UpdateFlowExpression m)
         {
-            var flow = await _context.Flows.SingleOrDefaultAsync(c => c.FlowId == m.FlowId);
+            var profile = await this.GetUserProfile();
+            var flow = await _context.Flows.SingleOrDefaultAsync(c => c.FlowId == m.FlowId&&c.TenantId==profile.Tenant);
             if (flow != null)
             {
                 flow.Conditionexpression = m.Expression;
@@ -74,7 +75,7 @@ namespace IoTSharp.Controllers
         {
             var profile = await this.GetUserProfile();
 
-            Expression<Func<FlowRule, bool>> condition = x => x.RuleStatus > -1;
+            Expression<Func<FlowRule, bool>> condition = x => x.RuleStatus > -1 && x.TenantId == profile.Tenant;
             if (!string.IsNullOrEmpty(m.Name))
             {
                 condition = condition.And(x => x.Name.Contains(m.Name));
@@ -98,17 +99,19 @@ namespace IoTSharp.Controllers
         }
 
         [HttpPost("[action]")]
-        public ApiResult<bool> Save(FlowRule m)
+        public async Task<ApiResult<bool>> Save(FlowRule m)
         {
+            var profile = await this.GetUserProfile();
             try
             {
 
                 m.MountType = m.MountType;
                 m.RuleStatus = 1;
+                m.TenantId = profile.Tenant;
+                m.CustomerId = profile.Comstomer;
                 m.CreatTime = DateTime.Now;
                 _context.FlowRules.Add(m);
-                _context.SaveChanges();
-
+               await _context.SaveChangesAsync();
                 return new ApiResult<bool>(ApiCode.Success, "OK", true);
 
             }
@@ -123,10 +126,10 @@ namespace IoTSharp.Controllers
         }
 
         [HttpPost("[action]")]
-        public ApiResult<bool> Update(FlowRule m)
+        public async Task<ApiResult<bool>> Update(FlowRule m)
         {
-
-            var flowrule = _context.FlowRules.SingleOrDefault(c => c.RuleId == m.RuleId);
+            var profile = await this.GetUserProfile();
+            var flowrule = _context.FlowRules.SingleOrDefault(c => c.RuleId == m.RuleId&&c.TenantId==profile.Tenant);
             if (flowrule != null)
             {
                 try
@@ -135,7 +138,7 @@ namespace IoTSharp.Controllers
                     flowrule.Name = m.Name;
                     flowrule.RuleDesc = m.RuleDesc;
                     _context.FlowRules.Update(flowrule);
-                    _context.SaveChanges();
+                    await _context.SaveChangesAsync();
                     return new ApiResult<bool>(ApiCode.Success, "OK", true);
                 }
                 catch (Exception ex)
@@ -147,16 +150,17 @@ namespace IoTSharp.Controllers
         }
 
         [HttpGet("[action]")]
-        public ApiResult<bool> Delete(Guid id)
+        public async Task<ApiResult<bool>> Delete(Guid id)
         {
-            var rule = _context.FlowRules.SingleOrDefault(c => c.RuleId == id);
+            var profile = await this.GetUserProfile();
+            var rule = _context.FlowRules.SingleOrDefault(c => c.RuleId == id && c.TenantId == profile.Tenant);
             if (rule != null)
             {
                 try
                 {
                     rule.RuleStatus = -1;
                     _context.FlowRules.Update(rule);
-                    _context.SaveChanges();
+                    await _context.SaveChangesAsync();
                     return new ApiResult<bool>(ApiCode.Success, "OK", true);
                 }
                 catch (Exception ex)
@@ -169,9 +173,10 @@ namespace IoTSharp.Controllers
         }
 
         [HttpGet("[action]")]
-        public ApiResult<FlowRule> Get(Guid id)
+        public async Task<ApiResult<FlowRule>> Get(Guid id)
         {
-            var rule = _context.FlowRules.SingleOrDefault(c => c.RuleId == id);
+            var profile = await this.GetUserProfile();
+            var rule = _context.FlowRules.SingleOrDefault(c => c.RuleId == id && c.TenantId == profile.Tenant);
             if (rule != null)
             {
                 return new ApiResult<FlowRule>(ApiCode.Success, "OK", rule);
@@ -190,7 +195,7 @@ namespace IoTSharp.Controllers
         public async Task<ApiResult<bool>> Fork(FlowRule flowRule)
         {
             var profile = await this.GetUserProfile();
-            var rule = await _context.FlowRules.SingleOrDefaultAsync(c => c.RuleId == flowRule.RuleId);
+            var rule = await _context.FlowRules.SingleOrDefaultAsync(c => c.RuleId == flowRule.RuleId && c.TenantId == profile.Tenant);
             if (rule != null)
             {
                 var newrule = new FlowRule();
@@ -263,21 +268,41 @@ namespace IoTSharp.Controllers
             if (m.dev != null)
 
             {
-                m.dev.ToList().ForEach(d =>
+                foreach (var d in m.dev.ToList())
                 {
                     if (!_context.DeviceRules.Any(c => c.FlowRule.RuleId == m.rule && c.Device.Id == d))
                     {
-                        var dr = new DeviceRule();
-                        dr.Device = _context.Device.SingleOrDefault(c => c.Id == d);
-                        dr.FlowRule = _context.FlowRules.SingleOrDefault(c => c.RuleId == m.rule);
-                        dr.ConfigDateTime = DateTime.Now;
-                        dr.ConfigUser = profile.Id;
-                        _context.DeviceRules.Add(dr);
-                        _context.SaveChanges();
-                    }
-                });
+                        var dev = _context.Device.SingleOrDefault(c => c.Id == d && c.Tenant.Id == profile.Tenant);
+                        var rule = _context.FlowRules.SingleOrDefault(c =>
+                            c.RuleId == m.rule && c.Tenant.Id == profile.Tenant);
+                        if (dev != null )
+                        {
+                            if (rule != null)
+                            {
+                                var dr = new DeviceRule();
+                                dr.Device = dev;
+                                dr.FlowRule = rule;
+                                dr.ConfigDateTime = DateTime.Now;
+                                dr.ConfigUser = profile.Id;
+                                _context.DeviceRules.Add(dr);
+                       
+                            }
+                            else
+                            {
+                                return new ApiResult<bool>(ApiCode.CantFindObject, "can not found that rule:"+ m.rule, false);
+                            }
 
+                        }
+                        else
+                        {
+                            return new ApiResult<bool>(ApiCode.CantFindObject, "can not found that device:" + d, false);
+                        }
+
+                    }
+                }
+                _context.SaveChanges();
                 return new ApiResult<bool>(ApiCode.Success, "rule binding success", true);
+
             }
 
             return new ApiResult<bool>(ApiCode.CantFindObject, "No device found", false);
@@ -287,7 +312,8 @@ namespace IoTSharp.Controllers
         public async Task<ApiResult<bool>> DeleteDeviceRules(Guid deviceId, Guid ruleId)
         {
             var profile = await this.GetUserProfile();
-            var map = _context.DeviceRules.FirstOrDefault(c => c.FlowRule.RuleId == ruleId && c.Device.Id == deviceId);
+            var map =await _context.DeviceRules.Include(c=>c.Device)
+                .Include(c=>c.FlowRule).FirstOrDefaultAsync(c => c.FlowRule.RuleId == ruleId && c.Device.Id == deviceId&&c.Device.Tenant.Id==profile.Tenant&&c.FlowRule.TenantId==profile.Tenant);
             if (map != null)
             {
                 _context.DeviceRules.Remove(map);
@@ -298,30 +324,34 @@ namespace IoTSharp.Controllers
         }
 
         [HttpGet("[action]")]
-        public ApiResult<List<FlowRule>> GetDeviceRules(Guid deviceId)
+        public async Task<ApiResult<List<FlowRule>>> GetDeviceRules(Guid deviceId)
         {
-            return new ApiResult<List<FlowRule>>(ApiCode.Success, "Ok", _context.DeviceRules.Where(c => c.Device.Id == deviceId).Select(c => c.FlowRule).Select(c=>new FlowRule(){ RuleId = c.RuleId, CreatTime = c.CreatTime, Name = c.Name, RuleDesc = c.RuleDesc}).ToList());
+            var profile = await this.GetUserProfile();
+            return new ApiResult<List<FlowRule>>(ApiCode.Success, "Ok", _context.DeviceRules.Include(c=>c.Device).Where(c => c.Device.Id == deviceId&&c.Device.Tenant.Id== profile.Tenant).Select(c => c.FlowRule).Select(c=>new FlowRule(){ RuleId = c.RuleId, CreatTime = c.CreatTime, Name = c.Name, RuleDesc = c.RuleDesc}).ToList());
         }
 
         [HttpGet("[action]")]
-        public ApiResult<List<Device>> GetRuleDevices(Guid ruleId)
+        public async Task<ApiResult<List<Device>>> GetRuleDevices(Guid ruleId)
         {
-            return new ApiResult<List<Device>>(ApiCode.Success, "Ok", _context.DeviceRules.Where(c => c.FlowRule.RuleId == ruleId).Select(c => c.Device).ToList());
+            var profile = await this.GetUserProfile();
+            return new ApiResult<List<Device>>(ApiCode.Success, "Ok", _context.DeviceRules.Include(c=>c.FlowRule).Where(c => c.FlowRule.RuleId == ruleId&&c.FlowRule.Tenant.Id==profile.Tenant).Select(c => c.Device).ToList());
         }
 
 
 
 
         [HttpGet("[action]")]
-        public ApiResult<List<Flow>> GetFlows(Guid ruleId)
+        public async Task<ApiResult<List<Flow>>> GetFlows(Guid ruleId)
         {
-            return new ApiResult<List<Flow>>(ApiCode.Success, "Ok", _context.Flows.Include(c => c.FlowRule).Where(c => c.FlowRule.RuleId == ruleId && c.FlowStatus > 0).ToList());
+            var profile = await this.GetUserProfile();
+            return new ApiResult<List<Flow>>(ApiCode.Success, "Ok", _context.Flows.Include(c => c.FlowRule).Where(c => c.FlowRule.RuleId == ruleId && c.FlowStatus > 0&&c.TenantId==profile.Tenant).ToList());
         }
 
 
         [HttpPost("[action]")]
         public async Task<ApiResult<bool>> SaveDiagram(ModelWorkFlow m)
         {
+      
             //    var user = _userManager.GetUserId(User);
             var profile = await this.GetUserProfile();
             var activity = JsonConvert.DeserializeObject<IoTSharp.Models.Rule.Activity>(m.Biz);
@@ -361,7 +391,7 @@ namespace IoTSharp.Controllers
                     FlowStatus = 1,
                     CreateId = CreatorId,
                     Createor = profile.Id,
-                    CreateDate = CreateDate
+                    CreateDate = CreateDate, TenantId = profile.Tenant, CustomerId = profile.Comstomer
                 }).ToList());
                 _context.SaveChanges();
             }
@@ -377,7 +407,9 @@ namespace IoTSharp.Controllers
                     FlowStatus = 1,
                     CreateId = CreatorId,
                     Createor = profile.Id,
-                    CreateDate = CreateDate
+                    CreateDate = CreateDate,
+                    TenantId = profile.Tenant,
+                    CustomerId = profile.Comstomer
                 }).ToList());
                 _context.SaveChanges();
             }
@@ -393,7 +425,8 @@ namespace IoTSharp.Controllers
                     FlowStatus = 1,
                     CreateId = CreatorId,
                     Createor = profile.Id,
-                    CreateDate = CreateDate
+                    CreateDate = CreateDate   ,      TenantId = profile.Tenant,
+                    CustomerId = profile.Comstomer
                 }).ToList());
                 _context.SaveChanges();
             }
@@ -413,7 +446,9 @@ namespace IoTSharp.Controllers
                     Conditionexpression = c.BizObject.conditionexpression,
                     NodeProcessParams = c.BizObject.NodeProcessParams,
                     Createor = profile.Id,
-                    CreateDate = CreateDate
+                    CreateDate = CreateDate,
+                    TenantId = profile.Tenant,
+                    CustomerId = profile.Comstomer
                 }).ToList());
                 _context.SaveChanges();
             }
@@ -433,7 +468,9 @@ namespace IoTSharp.Controllers
                     FlowStatus = 1,
                     CreateId = CreatorId,
                     Createor = profile.Id,
-                    CreateDate = CreateDate
+                    CreateDate = CreateDate,
+                    TenantId = profile.Tenant,
+                    CustomerId = profile.Comstomer
                 }).ToList());
                 _context.SaveChanges();
             }
@@ -449,7 +486,9 @@ namespace IoTSharp.Controllers
                     FlowStatus = 1,
                     CreateId = CreatorId,
                     Createor = profile.Id,
-                    CreateDate = CreateDate
+                    CreateDate = CreateDate,
+                    TenantId = profile.Tenant,
+                    CustomerId = profile.Comstomer
                 }).ToList());
                 _context.SaveChanges();
             }
@@ -465,7 +504,9 @@ namespace IoTSharp.Controllers
                     FlowStatus = 1,
                     CreateId = CreatorId,
                     Createor = profile.Id,
-                    CreateDate = CreateDate
+                    CreateDate = CreateDate,
+                    TenantId = profile.Tenant,
+                    CustomerId = profile.Comstomer
                 }).ToList());
                 _context.SaveChanges();
             }
@@ -481,7 +522,9 @@ namespace IoTSharp.Controllers
                     FlowStatus = 1,
                     CreateId = CreatorId,
                     Createor = profile.Id,
-                    CreateDate = CreateDate
+                    CreateDate = CreateDate,
+                    TenantId = profile.Tenant,
+                    CustomerId = profile.Comstomer
 
                 }).ToList());
                 _context.SaveChanges();
@@ -498,7 +541,9 @@ namespace IoTSharp.Controllers
                     FlowStatus = 1,
                     CreateId = CreatorId,
                     Createor = profile.Id,
-                    CreateDate = CreateDate
+                    CreateDate = CreateDate,
+                    TenantId = profile.Tenant,
+                    CustomerId = profile.Comstomer
                 }).ToList());
                 _context.SaveChanges();
             }
@@ -514,7 +559,9 @@ namespace IoTSharp.Controllers
                     FlowStatus = 1,
                     CreateId = CreatorId,
                     Createor = profile.Id,
-                    CreateDate = CreateDate
+                    CreateDate = CreateDate,
+                    TenantId = profile.Tenant,
+                    CustomerId = profile.Comstomer
                 }).ToList());
                 _context.SaveChanges();
             }
@@ -530,7 +577,9 @@ namespace IoTSharp.Controllers
                     FlowStatus = 1,
                     CreateId = CreatorId,
                     Createor = profile.Id,
-                    CreateDate = CreateDate
+                    CreateDate = CreateDate,
+                    TenantId = profile.Tenant,
+                    CustomerId = profile.Comstomer
 
                 }).ToList());
                 _context.SaveChanges();
@@ -547,7 +596,9 @@ namespace IoTSharp.Controllers
                     FlowStatus = 1,
                     CreateId = CreatorId,
                     Createor = profile.Id,
-                    CreateDate = CreateDate
+                    CreateDate = CreateDate,
+                    TenantId = profile.Tenant,
+                    CustomerId = profile.Comstomer
                 }).ToList());
                 _context.SaveChanges();
             }
@@ -563,7 +614,9 @@ namespace IoTSharp.Controllers
                     FlowStatus = 1,
                     CreateId = CreatorId,
                     Createor = profile.Id,
-                    CreateDate = CreateDate
+                    CreateDate = CreateDate,
+                    TenantId = profile.Tenant,
+                    CustomerId = profile.Comstomer
                 }).ToList());
                 _context.SaveChanges();
             }
@@ -571,10 +624,11 @@ namespace IoTSharp.Controllers
         }
 
         [HttpGet("[action]")]
-        public ApiResult<Activity> GetDiagram(Guid id)
+        public async Task<ApiResult<Activity>> GetDiagram(Guid id)
         {
-            var ruleflow = _context.FlowRules.FirstOrDefault(c => c.RuleId == id);
-            IoTSharp.Models.Rule.Activity activity = new IoTSharp.Models.Rule.Activity();
+            var profile = await this.GetUserProfile();
+             var ruleflow =await _context.FlowRules.FirstOrDefaultAsync(c => c.RuleId == id&&c.TenantId== profile.Tenant);
+            Activity activity = new Activity();
 
             activity.SequenceFlows ??= new List<SequenceFlow>();
             activity.GateWays ??= new List<GateWay>();
@@ -591,7 +645,7 @@ namespace IoTSharp.Controllers
             activity.Lane ??= new List<BpmnBaseObject>();
             activity.TextAnnotations ??= new List<BpmnBaseObject>();
             activity.RuleId = id;
-            var flows = _context.Flows.Where(c => c.FlowRule.RuleId == id && c.FlowStatus > 0).ToList();
+            var flows = _context.Flows.Where(c => c.FlowRule.RuleId == id && c.FlowStatus > 0&&c.TenantId== profile.Tenant).ToList();
             activity.Xml = ruleflow.DefinitionsXml?.Trim('\r');
             foreach (var item in flows)
             {
@@ -1055,7 +1109,6 @@ namespace IoTSharp.Controllers
             return new ApiResult<IoTSharp.Models.Rule.Activity>(ApiCode.Success, "rule has been removed", activity);
         }
 
-        //模拟处理
 
         [HttpPost("[action]")]
         public async Task<ApiResult<dynamic>> Active([FromBody] JObject form)
@@ -1118,7 +1171,7 @@ namespace IoTSharp.Controllers
         public async Task<ApiResult<PagedData<BaseEventDto>>> FlowEvents([FromBody] EventParam m)
         {
             var profile = await this.GetUserProfile();
-            Expression<Func<BaseEvent, bool>> condition = x => x.EventStaus > -1;
+            Expression<Func<BaseEvent, bool>> condition = x => x.EventStaus > -1&&x.TenantId==profile.Tenant;
             if (!string.IsNullOrEmpty(m.Name))
             {
                 condition = condition.And(x => x.EventName.Contains(m.Name));
@@ -1188,8 +1241,9 @@ namespace IoTSharp.Controllers
 
 
         [HttpGet("[action]")]
-        public ApiResult<dynamic> GetFlowOperations(Guid eventId)
+        public async Task<ApiResult<dynamic>> GetFlowOperations(Guid eventId)
         {
+            var profile = await this.GetUserProfile();
             return new ApiResult<dynamic>(ApiCode.Success, "OK", _context.FlowOperations.Where(c => c.BaseEventId == eventId).ToList().OrderBy(c => c.Step).
               ToList()
                 .GroupBy(c => c.Step).Select(c => new
@@ -1211,7 +1265,7 @@ namespace IoTSharp.Controllers
         public async Task<ApiResult<PagedData<RuleTaskExecutor>>> Executors(ExecutorParam m)
         {
             var profile = await this.GetUserProfile();
-            Expression<Func<Data.RuleTaskExecutor, bool>> condition = x => x.ExecutorStatus > -1;
+            Expression<Func<Data.RuleTaskExecutor, bool>> condition = x => x.ExecutorStatus > -1 && x.TenantId == profile.Tenant;
             return new ApiResult<PagedData<RuleTaskExecutor>>(ApiCode.Success, "OK", new PagedData<RuleTaskExecutor>
             {
                 total = await _context.RuleTaskExecutors.CountAsync(condition),
@@ -1224,7 +1278,8 @@ namespace IoTSharp.Controllers
         [HttpGet("[action]")]
         public async Task<ApiResult<RuleTaskExecutor>> GetExecutor(Guid Id)
         {
-            var executor = await _context.RuleTaskExecutors.SingleOrDefaultAsync(c => c.ExecutorId == Id);
+            var profile = await this.GetUserProfile();
+            var executor = await _context.RuleTaskExecutors.SingleOrDefaultAsync(c => c.ExecutorId == Id && c.TenantId == profile.Tenant);
 
             if (executor != null)
             {
@@ -1239,7 +1294,8 @@ namespace IoTSharp.Controllers
         [HttpGet("[action]")]
         public async Task<ApiResult<bool>> DeleteExecutor(Guid Id)
         {
-            var executor = await _context.RuleTaskExecutors.SingleOrDefaultAsync(c => c.ExecutorId == Id);
+            var profile = await this.GetUserProfile();
+            var executor = await _context.RuleTaskExecutors.SingleOrDefaultAsync(c => c.ExecutorId == Id && c.TenantId == profile.Tenant);
 
             if (executor != null)
             {
@@ -1258,8 +1314,9 @@ namespace IoTSharp.Controllers
         [HttpPost("[action]")]
         public async Task<ApiResult<bool>> UpdateExecutor(RuleTaskExecutor m)
         {
-            var executor = await _context.RuleTaskExecutors.SingleOrDefaultAsync(c => c.ExecutorId == m.ExecutorId);
             var profile = await this.GetUserProfile();
+            var executor = await _context.RuleTaskExecutors.SingleOrDefaultAsync(c => c.ExecutorId == m.ExecutorId && c.TenantId == profile.Tenant);
+   
             if (executor != null)
             {
 
@@ -1292,7 +1349,7 @@ namespace IoTSharp.Controllers
             executor.TypeName = m.ExecutorName;
             executor.Path = m.Path;
             executor.Tag = m.Tag;
-      
+            executor.TenantId = profile.Tenant; executor.CustomerId = profile.Comstomer;
             executor.AddDateTime = DateTime.Now;
             executor.Creator = profile.Id;
             executor.ExecutorStatus = 1;
