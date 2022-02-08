@@ -68,7 +68,7 @@
 		<PackageReference Include="EasyCaching.LiteDB" Version="1.5.0" />
 		<PackageReference Include="EasyCaching.Redis" Version="1.5.0" />
 		<PackageReference Include="hyjiacan.pinyin4net" Version="4.1.0" />
-		<PackageReference Include="InfluxDB.Client" Version="3.2.0" />
+		<PackageReference Include="InfluxDB.Client" Version="3.3.0" />
 		<PackageReference Include="IoTSharp.CoAP.NET" Version="2.0.8" />
 		<PackageReference Include="IoTSharp.X509Extensions" Version="1.4.27" />
 		<PackageReference Include="Jdenticon-net" Version="3.1.2" />
@@ -89,14 +89,14 @@
 		<PackageReference Include="Microsoft.Extensions.Options" Version="6.0.0" />
 		<PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.14.0" />
 		<PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="6.0.1" />
-		<PackageReference Include="MQTTnet" Version="4.0.0-preview1" />
-		<PackageReference Include="MQTTnet.AspNetCore" Version="4.0.0-preview1" />
-		<PackageReference Include="MQTTnet.Extensions.Rpc" Version="4.0.0-preview1" />
-		<PackageReference Include="NetMQ" Version="4.0.1.6" />
-		<PackageReference Include="Npgsql" Version="6.0.2" />
-		<PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="6.0.2" />
-		<PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL.NetTopologySuite" Version="6.0.2" />
-		<PackageReference Include="NSwag.AspNetCore" Version="13.15.5" />
+		<PackageReference Include="MQTTnet" Version="4.0.0-preview3" />
+		<PackageReference Include="MQTTnet.AspNetCore" Version="4.0.0-preview3" />
+		<PackageReference Include="MQTTnet.Extensions.Rpc" Version="4.0.0-preview3" />
+		<PackageReference Include="NetMQ" Version="4.0.1.8" />
+		<PackageReference Include="Npgsql" Version="6.0.3" />
+		<PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="6.0.3" />
+		<PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL.NetTopologySuite" Version="6.0.3" />
+		<PackageReference Include="NSwag.AspNetCore" Version="13.15.7" />
 		<PackageReference Include="PinusDB" Version="1.0.10" />
 		<PackageReference Include="PinusDB.HealthChecks" Version="1.0.10" />
 		<PackageReference Include="ProxyKit" Version="2.3.4" />
@@ -123,7 +123,7 @@
 		<PackageReference Include="Microsoft.Extensions.Hosting" Version="6.0.0" />
 		<PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="6.0.0" />
 		<PackageReference Include="Microsoft.Extensions.Hosting.WindowsServices" Version="6.0.0" />
-		<PackageReference Include="MQTTnet.Extensions.ManagedClient" Version="4.0.0-preview1" />
+		<PackageReference Include="MQTTnet.Extensions.ManagedClient" Version="4.0.0-preview3" />
 		<PackageReference Include="Microsoft.AspNetCore.SpaServices.Extensions" Version="6.0.1" />
 		<PackageReference Include="Microsoft.AspNetCore.ApiAuthorization.IdentityServer" Version="6.0.1" />
 		<PackageReference Include="Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore" Version="6.0.1" />

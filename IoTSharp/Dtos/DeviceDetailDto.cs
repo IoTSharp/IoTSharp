@@ -48,9 +48,9 @@ namespace IoTSharp.Dtos
         public string IdentityValue { get; set; }
         public string IdentityId { get; set; }
 
-
+#nullable enable
         public DeviceModel? Model { get; set; }
 
-      
+#nullable disable
     }
 }

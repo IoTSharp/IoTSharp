@@ -1,9 +1,5 @@
 ﻿using MQTTnet;
 using MQTTnet.Client;
-using MQTTnet.Client.Connecting;
-using MQTTnet.Client.Disconnecting;
-using MQTTnet.Client.Options;
-using MQTTnet.Client.Receiving;
 using MQTTnet.Diagnostics;
 using MQTTnet.Protocol;
 using System;
@@ -21,7 +17,7 @@ namespace IoTSharp.EdgeSdk.MQTT
         public string DeviceId { get; set; } = string.Empty;
         public Uri BrokerUri { get; set; }
         public bool IsConnected => (Client?.IsConnected).GetValueOrDefault();
-        private IMqttClient Client { get; set; }
+        private MqttClient Client { get; set; }
         public delegate void DLogError(string message,Exception exception );
         public event DLogError LogError;
         public delegate void DLogInformation(string message);
@@ -48,9 +44,14 @@ namespace IoTSharp.EdgeSdk.MQTT
                           .WithTcpServer(uri.Host, uri.Port)
                         .WithCredentials(username, password)
                         .Build();
-                Client.ApplicationMessageReceivedHandler = new MqttApplicationMessageReceivedHandlerDelegate(args => Client_ApplicationMessageReceived(Client, args));
-                Client.ConnectedHandler = new MqttClientConnectedHandlerDelegate(args => Client_ConnectedAsync(Client, args));
-                Client.DisconnectedHandler = new MqttClientDisconnectedHandlerDelegate(async e =>
+                Client.ApplicationMessageReceivedAsync +=  Client_ApplicationMessageReceived;
+                Client.ConnectedAsync += e => {
+                    Client.SubscribeAsync($"/devices/{DeviceId}/rpc/request/+/+");
+                    Client.SubscribeAsync($"/devices/{DeviceId}/attributes/update/", MqttQualityOfServiceLevel.ExactlyOnce);
+                    LogInformation?.Invoke($"CONNECTED WITH SERVER ");
+                    return Task.CompletedTask;
+                };
+                Client.DisconnectedAsync+=async e =>
                 {
                     try
                     {
@@ -60,7 +61,7 @@ namespace IoTSharp.EdgeSdk.MQTT
                     {
                         LogError?.Invoke("CONNECTING FAILED", exception);
                     }
-                });
+                };
 
                 try
                 {
@@ -80,16 +81,11 @@ namespace IoTSharp.EdgeSdk.MQTT
             return initok;
         }
 
-        private   void Client_ConnectedAsync(object sender, MqttClientConnectedEventArgs e)
-        {
+       
 
-            Client.SubscribeAsync($"/devices/{DeviceId}/rpc/request/+/+");
-            Client.SubscribeAsync($"/devices/{DeviceId}/attributes/update/", MqttQualityOfServiceLevel.ExactlyOnce);
-            LogInformation?.Invoke($"CONNECTED WITH SERVER ");
+    
 
-        }
-
-        private void Client_ApplicationMessageReceived(object sender, MqttApplicationMessageReceivedEventArgs e)
+        private Task Client_ApplicationMessageReceived( MqttApplicationMessageReceivedEventArgs e)
         {
            LogDebug?.Invoke($"ApplicationMessageReceived Topic {e.ApplicationMessage.Topic}  QualityOfServiceLevel:{e.ApplicationMessage.QualityOfServiceLevel} Retain:{e.ApplicationMessage.Retain} ");
             try
@@ -118,12 +114,12 @@ namespace IoTSharp.EdgeSdk.MQTT
                         });
                     }
                 }
-                
             }
             catch (Exception ex)
             {
                 LogError?.Invoke($"ClientId:{e.ClientId} Topic:{e.ApplicationMessage.Topic},Payload:{e.ApplicationMessage.ConvertPayloadToString()}", ex);
             }
+            return Task.CompletedTask;
         }
 
         private void ReceiveAttributes(MqttApplicationMessageReceivedEventArgs e)
@@ -156,21 +152,21 @@ namespace IoTSharp.EdgeSdk.MQTT
 
         public Task UploadAttributeAsync(string _devicename, object obj)
         {
-            return Client.PublishAsync($"devices/{_devicename}/attributes", Newtonsoft.Json.JsonConvert.SerializeObject(obj));
+            return Client.PublishAsync(new MqttApplicationMessageBuilder().WithTopic(  $"devices/{_devicename}/attributes").WithPayload( Newtonsoft.Json.JsonConvert.SerializeObject(obj)).Build());
         }
 
         public Task UploadTelemetryDataAsync(object obj) => UploadTelemetryDataAsync("me", obj);
 
         public Task UploadTelemetryDataAsync(string _devicename, object obj)
         {
-            return Client.PublishAsync($"devices/{_devicename}/telemetry", Newtonsoft.Json.JsonConvert.SerializeObject(obj));
+            return Client.PublishAsync(new MqttApplicationMessageBuilder().WithTopic($"devices/{_devicename}/telemetry").WithPayload(Newtonsoft.Json.JsonConvert.SerializeObject(obj)).Build());
         }
 
         public Task ResponseExecommand(RpcResponse rpcResult)
         {
             ///IoTSharp/Clients/RpcClient.cs#L65     var responseTopic = $"/devices/{deviceid}/rpc/response/{methodName}/{rpcid}";
             string topic = $"/devices/{rpcResult.DeviceId}/rpc/response/{rpcResult.Method.ToString()}/{rpcResult.ResponseId}";
-            return Client.PublishAsync(topic, rpcResult.Data.ToString(), MqttQualityOfServiceLevel.ExactlyOnce);
+            return Client.PublishAsync(new MqttApplicationMessageBuilder().WithTopic( topic).WithPayload( rpcResult.Data.ToString()).WithQualityOfServiceLevel( MqttQualityOfServiceLevel.ExactlyOnce).Build());
         }
         public Task RequestAttributes(params string[] args) => RequestAttributes("me", false, args);
         public Task RequestAttributes(string _device, params string[] args) => RequestAttributes(_device, false, args);
@@ -183,7 +179,7 @@ namespace IoTSharp.EdgeSdk.MQTT
             Dictionary<string, string> keys = new Dictionary<string, string>();
             keys.Add(anySide ? "anySide" : "server", string.Join(",", args));
             Client.SubscribeAsync($"/devices/{_device}/attributes/response/{id}", MqttQualityOfServiceLevel.ExactlyOnce);
-            return Client.PublishAsync(topic, Newtonsoft.Json.JsonConvert.SerializeObject(keys), MqttQualityOfServiceLevel.ExactlyOnce);
+            return Client.PublishStringAsync(topic, Newtonsoft.Json.JsonConvert.SerializeObject(keys), MqttQualityOfServiceLevel.ExactlyOnce);
         }
     }
     public class RpcRequest

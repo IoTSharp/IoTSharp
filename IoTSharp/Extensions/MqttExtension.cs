@@ -14,7 +14,6 @@ using MQTTnet.Server;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Threading;
-using MQTTnet.AspNetCore.Extensions;
 using System.Security.Cryptography.X509Certificates;
 using MQTTnet;
 
@@ -46,6 +45,7 @@ namespace IoTSharp
                 {
                     options.WithoutEncryptedEndpoint();
                 }
+                options.WithDefaultCommunicationTimeout(TimeSpan.FromSeconds(5));
                 options.WithPersistentSessions();
                 options.Build();
             }).AddMqttConnectionHandler()
