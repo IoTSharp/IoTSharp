@@ -26,7 +26,7 @@ namespace IoTSharp.Data
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-         
+            modelBuilder.Entity<Device>().HasOne(c => c.DeviceIdentity).WithOne(c => c.Device).HasForeignKey<DeviceIdentity>(c => c.DeviceId);
             modelBuilder.Entity<DataStorage>().HasKey(c => new { c.Catalog, c.DeviceId, c.KeyName });
             modelBuilder.Entity<DataStorage>().HasIndex(c => c.Catalog);
             modelBuilder.Entity<DataStorage>().HasIndex(c => new { c.Catalog, c.DeviceId });

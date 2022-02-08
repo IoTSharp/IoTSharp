@@ -38,5 +38,7 @@ namespace IoTSharp.Data
         [Newtonsoft.Json.JsonIgnore]
         [Required]
         public Device Device { get; set; }
+
+        public Guid DeviceId { get; set; }
     }
 }

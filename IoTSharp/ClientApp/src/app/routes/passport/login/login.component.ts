@@ -49,7 +49,7 @@ export class UserLoginComponent implements OnDestroy {
         if (x.code === 10000) {
           if (x.data.installed) {
           } else {
-            this.router.navigateByUrl('/passport/register');
+            this.router.navigateByUrl('/passport/register?type=install');
           }
         } else {
           this.notification.error('请求错误', 'Api请求不正确');

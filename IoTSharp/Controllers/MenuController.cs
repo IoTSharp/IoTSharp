@@ -163,6 +163,117 @@ namespace IoTSharp.Controllers
                 }
                 );
             }
+            else if(profile.Roles.FirstOrDefault()?.Contains("TenantAdmin") ?? false)
+            {
+                return new ApiResult<dynamic>(ApiCode.Success, "OK", new
+                {
+                    menu = new[]
+                  {
+                            new
+                            {
+                                text = "主导航", i18n = "主导航", group = true, hideInBreadcrumb = true,
+                                children = new[]
+                            {
+                                    new
+                                    {
+                                        text = "仪表盘",
+                                        i18n = "仪表盘",
+                                        icon = "anticon-dashboard",
+                                        children = new[]
+                                   {
+
+                                            new { text = "仪表盘", i18n = "", link = "/dashboard/v1" }
+                                        }
+                                    },
+
+                                    new
+                                    {
+                                        text = "租户管理",
+                                        i18n = "",
+                                        icon = "anticon-cloud",
+                                        children = new[]
+                               {
+
+                                            new { text = "租户列表", i18n = "", link = "/iot/tenant/tenantlist" }
+                                        }
+                                    },
+
+                                    new
+                                    {
+                                        text = "客户管理",
+                                        i18n="",
+                                        icon="anticon-appstore",
+                                        children=new[]
+                                        {
+
+                                            new { text = "客户列表", i18n = "",link="/iot/customer/customerlist" }
+                                        }
+                                    },
+                                    new
+                                    {
+                                        text = "用户管理",
+                                        i18n="",
+                                        icon="anticon-user",
+                                        children=new[]
+                                        {
+
+                                            new { text = "用户列表", i18n = "",link="/iot/user/userlist" }
+                                        }
+                                    },   new
+                                    {
+                                        text = "设备管理",
+                                        i18n="",
+                                        icon="anticon-database",
+                                        children=new[]
+                                        {   /*  new { text = "型号管理", i18n = "",link="/iot/devicemodel/devicemodellist" },*/
+                                            new { text = "设备管理", i18n = "",link="/iot/device/devicelist" },
+                                            new { text = "网关配置器", i18n = "", link = "/iot/device/devicegraph" },
+                                        },
+                                    },
+                                    new
+                                    {
+                                        text = "规则链 ",
+                                        i18n = "",
+                                        icon = "anticon-fork",
+                                        children = new[]
+                                   {
+
+                                            //new { text = "设备列表", i18n = "", link = "/iot/device/devicelist" },
+                                            new { text = "设计器", i18n = "", link = "/iot/flow/flowlist" },
+                                            new { text = "脚本管理", i18n = "", link = "/iot/flow/scriptlist" },
+                                            new { text = "组件管理", i18n = "", link = "/iot/flow/componentlist" },
+                                            new { text = "事件", i18n = "", link = "/iot/flow/flowevents" },
+                                            new { text = "执行器", i18n = "", link = "/iot/flow/taskexecutorlist" },
+                                            new { text = "订阅", i18n = "", link = "/iot/flow/subscriptionlist" },
+                                        }
+                                    },
+
+
+                               
+
+                                }
+                            }
+                        },
+                    funcs = Enumerable.Range(0, 500),
+                    username = profile.Name,
+                    AppName = "iotsharp",
+                    Modules = new[]
+                  {
+                        "kanban",
+                        "statistics",
+                        "lists", 
+                        //"warning"
+                    }, // 用户首页模块
+                    Email = profile.Email.FirstOrDefault(),
+                    Comstomer = profile.Comstomer,
+                    Tenant = profile.Tenant,
+                    Logo = ""
+                }
+              );
+
+
+            }
+
             return new ApiResult<dynamic>(ApiCode.Success, "OK",null);
         }
 

@@ -1,10 +1,13 @@
+import { ReturnStatement } from '@angular/compiler';
 import { Component, OnDestroy } from '@angular/core';
 import { AbstractControl, FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { _HttpClient } from '@delon/theme';
 import { NzSafeAny } from 'ng-zorro-antd/core/types';
 import { NzMessageService } from 'ng-zorro-antd/message';
 import { NzNotificationService } from 'ng-zorro-antd/notification';
+import { map } from 'rxjs/operators';
+import { AppMessage } from '../../common/AppMessage';
 
 @Component({
   selector: 'passport-register',
@@ -12,20 +15,70 @@ import { NzNotificationService } from 'ng-zorro-antd/notification';
   styleUrls: ['./register.component.less'],
 })
 export class UserRegisterComponent implements OnDestroy {
-  constructor(fb: FormBuilder, private router: Router, public http: _HttpClient, public msg: NzMessageService,    public notification: NzNotificationService,) {
-    this.form = fb.group({
-      email: ['iotmaster@iotsharp.net', [Validators.required, Validators.email]],
-      Password: ['', [Validators.required, Validators.minLength(6), UserRegisterComponent.checkPassword.bind(this)]],
-      confirm: ['', [Validators.required, Validators.minLength(6), UserRegisterComponent.passwordEquar]],
-      mobilePrefix: ['+86'],
-      CustomerName: ['iotmaster@iotsharp.net', [Validators.required]],
-      tenantName: ['iotmaster@iotsharp.net', [Validators.required]],
-      tenantEMail: ['iotmaster@iotsharp.net', [Validators.required, Validators.email]],
-      customerEMail: ['iotmaster@iotsharp.net', [Validators.required, Validators.email]],
-      phoneNumber: ['15911111111', [Validators.required, Validators.pattern(/^1\d{10}$/)]],
+
+  registertype:String='install'
+  constructor(
+    fb: FormBuilder,
+    private router: Router,
+    public http: _HttpClient,
+    public msg: NzMessageService,
+    public notification: NzNotificationService,
+    private _router: ActivatedRoute,
+  ) {
+
+    this._router.queryParams.subscribe(x => {  
+       this.registertype=x.type;
+      if (x && x.type === 'install') {
+     
+        this.form = fb.group({
+          email: ['iotmaster@iotsharp.net', [Validators.required, Validators.email]],
+          Password: ['', [Validators.required, Validators.minLength(6), UserRegisterComponent.checkPassword.bind(this)]],
+          confirm: ['', [Validators.required, Validators.minLength(6), UserRegisterComponent.passwordEquar]],
+          mobilePrefix: ['+86'],
+          CustomerName: ['iotmaster@iotsharp.net', [Validators.required]],
+          tenantName: ['iotmaster@iotsharp.net', [Validators.required]],
+          tenantEMail: ['iotmaster@iotsharp.net', [Validators.required, Validators.email]],
+          customerEMail: ['iotmaster@iotsharp.net', [Validators.required, Validators.email]],
+          phoneNumber: ['15911111111', [Validators.required, Validators.pattern(/^1\d{10}$/)]],
+        });
+
+      } else {
+        this.registertype='register'
+        this.form = fb.group({
+          email: ['', [Validators.required, Validators.email,],[this.emailValidator]],
+          Password: ['', [Validators.required, Validators.minLength(6), UserRegisterComponent.checkPassword.bind(this)]],
+          confirm: ['', [Validators.required, Validators.minLength(6), UserRegisterComponent.passwordEquar]],
+          mobilePrefix: ['+86'],
+          CustomerName: ['', [Validators.required]],
+          tenantName: ['', [Validators.required]],
+          tenantEMail: ['', [Validators.required, Validators.email],[this.tenantmailValidator]],
+          customerEMail: ['', [Validators.required, Validators.email],[this.customerEmailValidator]],
+          phoneNumber: ['', [Validators.required, Validators.pattern(/^1\d{10}$/)]],
+        });
+      }
+
+
     });
+
+
   }
-  
+
+  emailValidator = (control: FormControl) => this.checkemail(control.value,3)
+  customerEmailValidator = (control: FormControl) => this.checkemail(control.value,2)
+  tenantmailValidator = (control: FormControl) => this.checkemail(control.value,1)
+  checkemail(email:String,type :Number){
+    return   this.http.get<AppMessage>('api/account/checkExist?email=' + email+'&type='+type)
+    .pipe(
+      map(x =>
+        x.data ? '1' : null
+      )
+    )
+
+  }
+
+
+
+
   // #region fields
 
   get mail(): AbstractControl {
@@ -119,17 +172,39 @@ export class UserRegisterComponent implements OnDestroy {
     if (this.form.invalid) {
       return;
     }
-    this.http.post('api/Installer/Install?_allow_anonymous=true', data).subscribe((x) => {
-      if(x.code===10000){
-        if (x.data.installed) {
-          this.router.navigateByUrl('/passport/login?_allow_anonymous=true');
-        }else{
-          this.router.navigateByUrl('/passport/login?_allow_anonymous=true');
-        }
-      }else{
-        this.notification.error('错误',x.msg);
+if(this.registertype==='install'){
+
+  this.http.post('api/Installer/Install?_allow_anonymous=true', data).subscribe((x) => {
+    if (x.code === 10000) {
+      if (x.data.installed) {
+        this.router.navigateByUrl('/passport/login?_allow_anonymous=true');
+      } else {
+        this.router.navigateByUrl('/passport/login?_allow_anonymous=true');
       }
-    });
+    } else {
+      this.notification.error('错误', x.msg);
+    }
+  });
+}else{
+
+  this.http.post('api/account/create?_allow_anonymous=true', data).subscribe((x) => {
+    if (x.code === 10000) {
+      if (x.data.installed) {
+        this.router.navigateByUrl('/passport/login?_allow_anonymous=true');
+      } else {
+        this.router.navigateByUrl('/passport/login?_allow_anonymous=true');
+      }
+    } else {
+      this.notification.error('错误', x.msg);
+    }
+  });
+}
+
+
+
+
+
+
   }
 
   ngOnDestroy(): void {

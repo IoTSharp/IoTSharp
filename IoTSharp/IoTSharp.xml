@@ -84,6 +84,13 @@
             <param name="model"></param>
             <returns >返回登录结果</returns>
         </member>
+        <member name="M:IoTSharp.Controllers.AccountController.Create(IoTSharp.Dtos.InstallDto)">
+            <summary>
+            注册新的租户，客户，以及用户
+            </summary>
+            <param name="model"></param>
+            <returns >返回登录结果</returns>
+        </member>
         <member name="M:IoTSharp.Controllers.AccountController.All(System.Guid)">
             <summary>
             返回客户所属用户列表

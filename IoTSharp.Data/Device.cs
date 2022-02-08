@@ -56,6 +56,8 @@ namespace IoTSharp.Data
         public DeviceModel? DeviceModel { get; set; }
         public Guid? DeviceModelId { get; set; }
 
+        public DeviceIdentity DeviceIdentity { get; set; }
+
         //public DateTime? CreateDateTime { get; set; }
         //public string? CreateMonth { get; set; }
 

@@ -4,9 +4,11 @@
   <nz-form-item>
     <nz-form-control [nzErrorTip]="mailErrorTip">
       <nz-input-group nzSize="large" nzAddonBeforeIcon="user">
-        <input nz-input formControlName="email" placeholder="用户邮箱" />
+        <input nz-input formControlName="email" placeholder="用户邮箱"   />
       </nz-input-group>
       <ng-template #mailErrorTip let-i>
+
+        <ng-container *ngIf="i.errors[0]==='1'">邮箱已存在</ng-container>
         <ng-container *ngIf="i.errors?.required">{{ 'validation.email.required' | translate }}</ng-container>
         <ng-container *ngIf="i.errors?.email">{{ 'validation.email.wrong-format' | translate }}</ng-container>
       </ng-template>
@@ -86,6 +88,7 @@
         <input nz-input formControlName="tenantEMail" placeholder="租户邮箱" />
       </nz-input-group>
       <ng-template #tenantEMailErrorTip let-i>
+        <ng-container *ngIf="i.errors[0]==='1'">邮箱已存在</ng-container>
         <ng-container *ngIf="i.errors?.required">{{ 'validation.tenantEMail.required' | translate }}</ng-container>
         <ng-container *ngIf="i.errors?.email">{{ 'validation.tenantEMail.wrong-format' | translate }}</ng-container>
       </ng-template>
@@ -96,7 +99,7 @@
       <nz-input-group nzSize="large" nzAddonBeforeIcon="user">
         <input nz-input formControlName="customerEMail" placeholder="客户邮箱" />
       </nz-input-group>
-      <ng-template #customerEMailErrorTip let-i>
+      <ng-template #customerEMailErrorTip let-i>        <ng-container *ngIf="i.errors[0]==='1'">邮箱已存在</ng-container>
         <ng-container *ngIf="i.errors?.required">{{ 'validation.customerEMail.required' | translate }}</ng-container>
         <ng-container *ngIf="i.errors?.email">{{ 'validation.customerEMail.wrong-format' | translate }}</ng-container>
       </ng-template>

@@ -101,15 +101,15 @@ namespace IoTSharp.Controllers
         public async Task<ApiResult<PagedData<DeviceDetailDto>>> GetDevices([FromQuery] DeviceParam m)
         {
 
-
+            var profile =await this.GetUserProfile();
 
             if (m.limit > 0)
             {
 
-
+   
                 try
                 {
-                    Expression<Func<Device, bool>> condition = x => x.Customer.Id == m.customerId && x.Status > -1;
+                    Expression<Func<Device, bool>> condition = x => x.Customer.Id == m.customerId && x.Status > -1&&x.Tenant.Id== profile.Tenant;
                     if (!string.IsNullOrEmpty(m.Name))
                     {
                         condition = condition.And(x => x.Name.Contains(m.Name));
@@ -119,21 +119,21 @@ namespace IoTSharp.Controllers
                     return new ApiResult<PagedData<DeviceDetailDto>>(ApiCode.Success, "OK", new PagedData<DeviceDetailDto>
                     {
                         total = await _context.Device.CountAsync(condition),
-                        rows = await _context.Device.OrderByDescending(c => c.LastActive).Where(condition).Skip((m.offset) * m.limit).Take(m.limit).Join(_context.DeviceIdentities, x => x.Id, y => y.Device.Id, (x, y) => new DeviceDetailDto()
+                        rows =  _context.Device.Include(c=>c.DeviceIdentity).OrderByDescending(c => c.LastActive).Where(condition).Skip((m.offset) * m.limit).Take(m.limit).ToList().Select(x=> new DeviceDetailDto()
                         {
                             Id = x.Id,
                             Name = x.Name,
                             LastActive = x.LastActive,
-                            IdentityId = y.IdentityId,
-                            IdentityValue = y.IdentityType == IdentityType.X509Certificate ? "" : y.IdentityValue,
+                            IdentityId = x.DeviceIdentity?.IdentityId,
+                            IdentityValue = x.DeviceIdentity?.IdentityType == IdentityType.X509Certificate ? "" : x.DeviceIdentity?.IdentityValue,
                             Tenant = x.Tenant,
                             Customer = x.Customer,
                             DeviceType = x.DeviceType,
                             Online = x.Online,
                             Owner = x.Owner,
                             Timeout = x.Timeout,
-                            IdentityType = y.IdentityType
-                        }).ToListAsync()
+                            IdentityType = x.DeviceIdentity?.IdentityType??IdentityType.AccessToken
+                        }).ToList()
                     });
                 }
                 catch (Exception e)

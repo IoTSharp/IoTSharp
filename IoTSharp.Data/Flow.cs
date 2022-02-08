@@ -36,6 +36,9 @@ namespace IoTSharp.Data
         public Guid Createor { get; set; }
 
         public RuleTaskExecutor Executor { get; set; }
+
+
+
         
     }
 }

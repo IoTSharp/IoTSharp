@@ -12,6 +12,7 @@ using System.Linq;
 using System.Linq.Dynamic.Core;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
+using IoTSharp.Extensions;
 using Customer = IoTSharp.Data.Customer;
 
 namespace IoTSharp.Controllers
@@ -57,7 +58,11 @@ namespace IoTSharp.Controllers
         public async Task<ApiResult<PagedData<Customer>>> GetCustomers([FromBody] CustomerParam m)
         {
 
-            Expression<Func<Customer, bool>> condition = x => x.Tenant.Id ==m.tenantId;
+
+
+         var profile=await   this.GetUserProfile();
+
+            Expression<Func<Customer, bool>> condition = x => x.Tenant.Id == profile.Tenant;
 
             //var f = from c in _context.Customer where c.Tenant.Id == select c;
             //if (!f.Any())
