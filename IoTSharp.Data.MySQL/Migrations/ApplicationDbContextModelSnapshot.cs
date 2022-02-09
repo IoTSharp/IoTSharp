@@ -1453,9 +1453,6 @@ namespace IoTSharp.Data.MySql.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("char(36)");
 
-                    b.Property<Guid>("CustomerId")
-                        .HasColumnType("char(36)");
-
                     b.Property<Guid>("EventId")
                         .HasColumnType("char(36)");
 
@@ -1471,18 +1468,11 @@ namespace IoTSharp.Data.MySql.Migrations
                     b.Property<string>("TaskConfig")
                         .HasColumnType("longtext");
 
-                    b.Property<Guid>("TenantId")
-                        .HasColumnType("char(36)");
-
                     b.HasKey("BindId");
-
-                    b.HasIndex("CustomerId");
 
                     b.HasIndex("RuleTaskExecutorExecutorId");
 
                     b.HasIndex("SubscriptionEventId");
-
-                    b.HasIndex("TenantId");
 
                     b.ToTable("SubscriptionTasks");
                 });
@@ -2185,12 +2175,6 @@ namespace IoTSharp.Data.MySql.Migrations
 
             modelBuilder.Entity("IoTSharp.Data.SubscriptionTask", b =>
                 {
-                    b.HasOne("IoTSharp.Data.Customer", "Customer")
-                        .WithMany()
-                        .HasForeignKey("CustomerId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.HasOne("IoTSharp.Data.RuleTaskExecutor", "RuleTaskExecutor")
                         .WithMany()
                         .HasForeignKey("RuleTaskExecutorExecutorId");
@@ -2199,19 +2183,9 @@ namespace IoTSharp.Data.MySql.Migrations
                         .WithMany()
                         .HasForeignKey("SubscriptionEventId");
 
-                    b.HasOne("IoTSharp.Data.Tenant", "Tenant")
-                        .WithMany()
-                        .HasForeignKey("TenantId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Customer");
-
                     b.Navigation("RuleTaskExecutor");
 
                     b.Navigation("Subscription");
-
-                    b.Navigation("Tenant");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
