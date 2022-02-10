@@ -17,6 +17,10 @@ namespace IoTSharp.Dtos
         /// 过期时间
         /// </summary>
         public long expires_in { get; set; }
+
+
+        public string refresh_token { get; set; }
+        public DateTime expires { get; set; }
     }
 
     public class LoginResult

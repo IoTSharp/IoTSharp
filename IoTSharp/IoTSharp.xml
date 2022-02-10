@@ -71,6 +71,20 @@
             <param name="model"></param>
             <returns></returns>
         </member>
+        <member name="M:IoTSharp.Controllers.AccountController.CreateToken(System.String)">
+            <summary>
+            
+            </summary>
+            <param name="name"></param>
+            <returns></returns>
+        </member>
+        <member name="M:IoTSharp.Controllers.AccountController.RefreshToken(IoTSharp.Dtos.RefreshTokenDto)">
+            <summary>
+            刷新JWT Token
+            </summary>
+            <param name="model"></param>
+            <returns></returns>
+        </member>
         <member name="M:IoTSharp.Controllers.AccountController.Logout">
             <summary>
             退出账号

@@ -146,13 +146,16 @@ export class UserLoginComponent implements OnDestroy {
           this.reuseTabService.clear();
           // 设置用户Token信息
           // TODO: Mock expired value
+        var  expired = +new Date() + 1000 * x.data.token.expires_in
 
+        console.log(expired)
           this.tokenService.set({
             token: x.data.token.access_token,
             Authorization: x.data.token.access_token,
-            expired: x.data.token.expires_in,
-            name: x.data.userName
-          });
+            expired: expired,
+            name: x.data.userName,
+            refreshtoken: x.data.token.refresh_token
+          }); 
 
           this.settingsService.setUser({
             token: x.data.token.access_token,

@@ -93,5 +93,9 @@ namespace IoTSharp.Data
 
         public DbSet<DeviceModel> DeviceModels { get; set; }
         public DbSet<DeviceModelCommand> DeviceModelCommands { get; set; }
+
+        public DbSet<RefreshToken> RefreshTokens { get; set; }
+
     }
+    
 }

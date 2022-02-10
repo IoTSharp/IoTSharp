@@ -108,7 +108,7 @@ namespace IoTSharp.Controllers
                 m.MountType = m.MountType;
                 m.RuleStatus = 1;
                 m.TenantId = profile.Tenant;
-                m.CustomerId = profile.Comstomer;
+             
                 m.CreatTime = DateTime.Now;
                 _context.FlowRules.Add(m);
                await _context.SaveChangesAsync();
@@ -391,7 +391,7 @@ namespace IoTSharp.Controllers
                     FlowStatus = 1,
                     CreateId = CreatorId,
                     Createor = profile.Id,
-                    CreateDate = CreateDate, TenantId = profile.Tenant, CustomerId = profile.Comstomer
+                    CreateDate = CreateDate, TenantId = profile.Tenant
                 }).ToList());
                 _context.SaveChanges();
             }
@@ -409,7 +409,7 @@ namespace IoTSharp.Controllers
                     Createor = profile.Id,
                     CreateDate = CreateDate,
                     TenantId = profile.Tenant,
-                    CustomerId = profile.Comstomer
+             
                 }).ToList());
                 _context.SaveChanges();
             }
@@ -426,7 +426,7 @@ namespace IoTSharp.Controllers
                     CreateId = CreatorId,
                     Createor = profile.Id,
                     CreateDate = CreateDate   ,      TenantId = profile.Tenant,
-                    CustomerId = profile.Comstomer
+               
                 }).ToList());
                 _context.SaveChanges();
             }
@@ -448,7 +448,7 @@ namespace IoTSharp.Controllers
                     Createor = profile.Id,
                     CreateDate = CreateDate,
                     TenantId = profile.Tenant,
-                    CustomerId = profile.Comstomer
+             
                 }).ToList());
                 _context.SaveChanges();
             }
@@ -470,7 +470,7 @@ namespace IoTSharp.Controllers
                     Createor = profile.Id,
                     CreateDate = CreateDate,
                     TenantId = profile.Tenant,
-                    CustomerId = profile.Comstomer
+               
                 }).ToList());
                 _context.SaveChanges();
             }
@@ -488,7 +488,7 @@ namespace IoTSharp.Controllers
                     Createor = profile.Id,
                     CreateDate = CreateDate,
                     TenantId = profile.Tenant,
-                    CustomerId = profile.Comstomer
+    
                 }).ToList());
                 _context.SaveChanges();
             }
@@ -506,7 +506,7 @@ namespace IoTSharp.Controllers
                     Createor = profile.Id,
                     CreateDate = CreateDate,
                     TenantId = profile.Tenant,
-                    CustomerId = profile.Comstomer
+        
                 }).ToList());
                 _context.SaveChanges();
             }
@@ -524,7 +524,7 @@ namespace IoTSharp.Controllers
                     Createor = profile.Id,
                     CreateDate = CreateDate,
                     TenantId = profile.Tenant,
-                    CustomerId = profile.Comstomer
+               
 
                 }).ToList());
                 _context.SaveChanges();
@@ -543,7 +543,7 @@ namespace IoTSharp.Controllers
                     Createor = profile.Id,
                     CreateDate = CreateDate,
                     TenantId = profile.Tenant,
-                    CustomerId = profile.Comstomer
+               
                 }).ToList());
                 _context.SaveChanges();
             }
@@ -561,7 +561,7 @@ namespace IoTSharp.Controllers
                     Createor = profile.Id,
                     CreateDate = CreateDate,
                     TenantId = profile.Tenant,
-                    CustomerId = profile.Comstomer
+                
                 }).ToList());
                 _context.SaveChanges();
             }
@@ -579,7 +579,7 @@ namespace IoTSharp.Controllers
                     Createor = profile.Id,
                     CreateDate = CreateDate,
                     TenantId = profile.Tenant,
-                    CustomerId = profile.Comstomer
+             
 
                 }).ToList());
                 _context.SaveChanges();
@@ -598,7 +598,7 @@ namespace IoTSharp.Controllers
                     Createor = profile.Id,
                     CreateDate = CreateDate,
                     TenantId = profile.Tenant,
-                    CustomerId = profile.Comstomer
+                 
                 }).ToList());
                 _context.SaveChanges();
             }
@@ -616,7 +616,7 @@ namespace IoTSharp.Controllers
                     Createor = profile.Id,
                     CreateDate = CreateDate,
                     TenantId = profile.Tenant,
-                    CustomerId = profile.Comstomer
+               
                 }).ToList());
                 _context.SaveChanges();
             }
@@ -1349,7 +1349,7 @@ namespace IoTSharp.Controllers
             executor.TypeName = m.ExecutorName;
             executor.Path = m.Path;
             executor.Tag = m.Tag;
-            executor.TenantId = profile.Tenant; executor.CustomerId = profile.Comstomer;
+            executor.TenantId = profile.Tenant;
             executor.AddDateTime = DateTime.Now;
             executor.Creator = profile.Id;
             executor.ExecutorStatus = 1;

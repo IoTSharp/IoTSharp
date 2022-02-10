@@ -31,10 +31,10 @@ namespace IoTSharp.Extensions
                     var claims = JwtHeader.Base64UrlDeserialize(payload);
                     return new UserProfile()
                     {
-                        Id = Guid.Parse(claims[ClaimTypes.NameIdentifier].ToString() ?? string.Empty),
-                        Name = claims[ClaimTypes.Name].ToString() ?? string.Empty,
-                        Roles = claims[ClaimTypes.Role]?.ToString().Split(';') ?? new string[] { },
-                        Email = claims[ClaimTypes.Email]?.ToString().Split(';') ?? new string[] { },
+                        Id = Guid.Parse(claims["nameid"].ToString() ?? string.Empty),
+                        Name = claims["unique_name"].ToString() ?? string.Empty,
+                        Roles = claims["role"]?.ToString().Split(';') ?? new string[] { },
+                        Email = claims["email"]?.ToString().Split(';') ?? new string[] { },
                         Tenant = Guid.Parse(claims[IoTSharpClaimTypes.Tenant]?.ToString() ?? string.Empty),
                         Comstomer = Guid.Parse(claims[IoTSharpClaimTypes.Customer]?.ToString() ?? string.Empty),
                     };

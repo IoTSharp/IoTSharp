@@ -108,7 +108,7 @@ namespace IoTSharp.Controllers
                 se.CreateDateTime = DateTime.Now;
                 se.EventStatus = 1;
                 se.TenantId = profile.Tenant;
-                se.CustomerId = profile.Comstomer;
+ 
                 this._context.SubscriptionEvents.Add(se);
                 await this._context.SaveChangesAsync(); return new ApiResult<bool>(ApiCode.Success, "OK", true);
             }

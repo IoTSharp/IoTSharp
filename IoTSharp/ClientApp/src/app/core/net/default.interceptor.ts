@@ -80,14 +80,18 @@ export class DefaultInterceptor implements HttpInterceptor {
    */
   private refreshTokenRequest(): Observable<any> {
     const model = this.tokenSrv.get();
-    return this.http.post(`/api/auth/refresh`, null, null, { headers: { refresh_token: model?.refresh_token || '' } });
+    return this.http.post(`api/account/refreshtoken`, {
+      Token:model.token,
+      RefreshToken:model.refreshtoken,
+
+    }, null, { headers: { refresh_token: model?.refresh_token || '' } });
   }
 
   // #region 刷新Token方式一：使用 401 重新刷新 Token
 
   private tryRefreshToken(ev: HttpResponseBase, req: HttpRequest<any>, next: HttpHandler): Observable<any> {
     // 1、若请求为刷新Token请求，表示来自刷新Token可以直接跳转登录页
-    if ([`/api/auth/refresh`].some(url => req.url.includes(url))) {
+    if ([`api/account/refreshtoken`].some(url => req.url.includes(url))) {
       this.toLogin();
       return throwError(ev);
     }
@@ -105,11 +109,13 @@ export class DefaultInterceptor implements HttpInterceptor {
 
     return this.refreshTokenRequest().pipe(
       switchMap(res => {
+        console.log(res)   
+          console.log(res)
         // 通知后续请求继续执行
         this.refreshToking = false;
         this.refreshToken$.next(res);
         // 重新保存新 token
-        this.tokenSrv.set(res);
+        this.tokenSrv.set(res)
         // 重新发起请求
         return next.handle(this.reAttachToken(req));
       }),
@@ -148,7 +154,7 @@ export class DefaultInterceptor implements HttpInterceptor {
       .pipe(
         filter(() => !this.refreshToking),
         switchMap(res => {
-          console.log(res);
+         
           this.refreshToking = true;
           return this.refreshTokenRequest();
         })
@@ -156,9 +162,14 @@ export class DefaultInterceptor implements HttpInterceptor {
       .subscribe(
         res => {
           // TODO: Mock expired value
-          res.expired = +new Date() + 1000 * 60 * 5;
+          var  expired = +new Date() + 1000 *res.data.token.expires_in
           this.refreshToking = false;
-          this.tokenSrv.set(res);
+          this.tokenSrv.set({
+            token: res.data.token.access_token,
+            Authorization: res.data.token.access_token,
+            expired:   expired,
+            refreshtoken: res.data.token.refresh_token
+          }); 
         },
         () => this.toLogin()
       );
