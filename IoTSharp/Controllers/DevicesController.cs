@@ -42,7 +42,7 @@ namespace IoTSharp.Controllers
     public class DevicesController : ControllerBase
     {
         private readonly ApplicationDbContext _context;
-        private readonly IMqttClientOptions _mqtt;
+        private readonly MqttClientOptions _mqtt;
         private readonly UserManager<IdentityUser> _userManager;
         private readonly SignInManager<IdentityUser> _signInManager;
         private readonly ILogger _logger;
@@ -52,7 +52,7 @@ namespace IoTSharp.Controllers
         private readonly ICapPublisher _queue;
 
         public DevicesController(UserManager<IdentityUser> userManager,
-            SignInManager<IdentityUser> signInManager, ILogger<DevicesController> logger, MqttServer serverEx, ApplicationDbContext context, IMqttClientOptions mqtt, IStorage storage, IOptions<AppSettings> options, ICapPublisher queue)
+            SignInManager<IdentityUser> signInManager, ILogger<DevicesController> logger, MqttServer serverEx, ApplicationDbContext context, MqttClientOptions mqtt, IStorage storage, IOptions<AppSettings> options, ICapPublisher queue)
         {
             _context = context;
             _mqtt = mqtt;
