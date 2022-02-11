@@ -4,7 +4,7 @@
 
 namespace IoTSharp.Data.MySql.Migrations
 {
-    public partial class addtelantinfo : Migration
+    public partial class AddTenantInfoAndRefToken : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {

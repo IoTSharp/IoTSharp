@@ -6,6 +6,8 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Oracle.EntityFrameworkCore.Metadata;
 
+#nullable disable
+
 namespace IoTSharp.Data.Oracle.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
@@ -15,9 +17,10 @@ namespace IoTSharp.Data.Oracle.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("Relational:MaxIdentifierLength", 30)
-                .HasAnnotation("ProductVersion", "5.0.10")
-                .HasAnnotation("Oracle:ValueGenerationStrategy", OracleValueGenerationStrategy.IdentityColumn);
+                .HasAnnotation("ProductVersion", "6.0.2")
+                .HasAnnotation("Relational:MaxIdentifierLength", 30);
+
+            OracleModelBuilderExtensions.UseIdentityColumns(modelBuilder, 1L, 1);
 
             modelBuilder.Entity("IoTSharp.Data.AuditLog", b =>
                 {
@@ -98,8 +101,9 @@ namespace IoTSharp.Data.Oracle.Migrations
                 {
                     b.Property<long>("DictionaryId")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("NUMBER(19)")
-                        .HasAnnotation("Oracle:ValueGenerationStrategy", OracleValueGenerationStrategy.IdentityColumn);
+                        .HasColumnType("NUMBER(19)");
+
+                    OraclePropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("DictionaryId"), 1L, 1);
 
                     b.Property<string>("Dictionary18NKeyName")
                         .HasColumnType("NVARCHAR2(2000)");
@@ -146,8 +150,9 @@ namespace IoTSharp.Data.Oracle.Migrations
                 {
                     b.Property<long>("DictionaryGroupId")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("NUMBER(19)")
-                        .HasAnnotation("Oracle:ValueGenerationStrategy", OracleValueGenerationStrategy.IdentityColumn);
+                        .HasColumnType("NUMBER(19)");
+
+                    OraclePropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("DictionaryGroupId"), 1L, 1);
 
                     b.Property<string>("DictionaryGroup18NKeyName")
                         .HasColumnType("NVARCHAR2(2000)");
@@ -177,10 +182,12 @@ namespace IoTSharp.Data.Oracle.Migrations
 
             modelBuilder.Entity("IoTSharp.Data.BaseEvent", b =>
                 {
-                    b.Property<long>("EventId")
+                    b.Property<Guid>("EventId")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("NUMBER(19)")
-                        .HasAnnotation("Oracle:ValueGenerationStrategy", OracleValueGenerationStrategy.IdentityColumn);
+                        .HasColumnType("RAW(16)");
+
+                    b.Property<string>("BizData")
+                        .HasColumnType("NVARCHAR2(2000)");
 
                     b.Property<string>("Bizid")
                         .HasColumnType("NVARCHAR2(2000)");
@@ -189,6 +196,9 @@ namespace IoTSharp.Data.Oracle.Migrations
                         .HasColumnType("TIMESTAMP(7)");
 
                     b.Property<Guid>("Creator")
+                        .HasColumnType("RAW(16)");
+
+                    b.Property<Guid>("CustomerId")
                         .HasColumnType("RAW(16)");
 
                     b.Property<string>("EventDesc")
@@ -200,16 +210,25 @@ namespace IoTSharp.Data.Oracle.Migrations
                     b.Property<int>("EventStaus")
                         .HasColumnType("NUMBER(10)");
 
+                    b.Property<Guid?>("FlowRuleRuleId")
+                        .HasColumnType("RAW(16)");
+
                     b.Property<string>("MataData")
                         .HasColumnType("NVARCHAR2(2000)");
 
-                    b.Property<long>("RuleId")
-                        .HasColumnType("NUMBER(19)");
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("RAW(16)");
 
                     b.Property<int>("Type")
                         .HasColumnType("NUMBER(10)");
 
                     b.HasKey("EventId");
+
+                    b.HasIndex("CustomerId");
+
+                    b.HasIndex("FlowRuleRuleId");
+
+                    b.HasIndex("TenantId");
 
                     b.ToTable("BaseEvents");
                 });
@@ -218,8 +237,9 @@ namespace IoTSharp.Data.Oracle.Migrations
                 {
                     b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("NUMBER(19)")
-                        .HasAnnotation("Oracle:ValueGenerationStrategy", OracleValueGenerationStrategy.IdentityColumn);
+                        .HasColumnType("NUMBER(19)");
+
+                    OraclePropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"), 1L, 1);
 
                     b.Property<DateTime?>("AddDate")
                         .HasColumnType("TIMESTAMP(7)");
@@ -383,22 +403,28 @@ namespace IoTSharp.Data.Oracle.Migrations
             modelBuilder.Entity("IoTSharp.Data.DataStorage", b =>
                 {
                     b.Property<int>("Catalog")
-                        .HasColumnType("NUMBER(10)");
+                        .HasColumnType("NUMBER(10)")
+                        .HasColumnOrder(0);
 
                     b.Property<Guid>("DeviceId")
-                        .HasColumnType("RAW(16)");
+                        .HasColumnType("RAW(16)")
+                        .HasColumnOrder(1);
 
                     b.Property<string>("KeyName")
-                        .HasColumnType("NVARCHAR2(450)");
+                        .HasColumnType("NVARCHAR2(450)")
+                        .HasColumnOrder(2);
 
                     b.Property<int>("DataSide")
-                        .HasColumnType("NUMBER(10)");
+                        .HasColumnType("NUMBER(10)")
+                        .HasColumnOrder(4);
 
                     b.Property<DateTime>("DateTime")
-                        .HasColumnType("TIMESTAMP(7)");
+                        .HasColumnType("TIMESTAMP(7)")
+                        .HasColumnOrder(3);
 
                     b.Property<int>("Type")
-                        .HasColumnType("NUMBER(10)");
+                        .HasColumnType("NUMBER(10)")
+                        .HasColumnOrder(5);
 
                     b.Property<byte[]>("Value_Binary")
                         .HasColumnType("RAW(2000)");
@@ -447,6 +473,9 @@ namespace IoTSharp.Data.Oracle.Migrations
                     b.Property<Guid?>("CustomerId")
                         .HasColumnType("RAW(16)");
 
+                    b.Property<Guid?>("DeviceModelId")
+                        .HasColumnType("RAW(16)");
+
                     b.Property<int>("DeviceType")
                         .HasColumnType("NUMBER(10)");
 
@@ -462,6 +491,9 @@ namespace IoTSharp.Data.Oracle.Migrations
                     b.Property<Guid?>("OwnerId")
                         .HasColumnType("RAW(16)");
 
+                    b.Property<int>("Status")
+                        .HasColumnType("NUMBER(10)");
+
                     b.Property<Guid?>("TenantId")
                         .HasColumnType("RAW(16)");
 
@@ -474,6 +506,8 @@ namespace IoTSharp.Data.Oracle.Migrations
 
                     b.HasIndex("CustomerId");
 
+                    b.HasIndex("DeviceModelId");
+
                     b.HasIndex("OwnerId");
 
                     b.HasIndex("TenantId");
@@ -483,13 +517,201 @@ namespace IoTSharp.Data.Oracle.Migrations
                     b.HasDiscriminator<int>("DeviceType").HasValue(0);
                 });
 
+            modelBuilder.Entity("IoTSharp.Data.DeviceDiagram", b =>
+                {
+                    b.Property<Guid>("DiagramId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("RAW(16)");
+
+                    b.Property<DateTimeOffset?>("CreateDate")
+                        .HasColumnType("TIMESTAMP(7) WITH TIME ZONE");
+
+                    b.Property<Guid>("Creator")
+                        .HasColumnType("RAW(16)");
+
+                    b.Property<Guid>("CustomerId")
+                        .HasColumnType("RAW(16)");
+
+                    b.Property<string>("DiagramDesc")
+                        .HasColumnType("NVARCHAR2(2000)");
+
+                    b.Property<string>("DiagramImage")
+                        .HasColumnType("NVARCHAR2(2000)");
+
+                    b.Property<string>("DiagramName")
+                        .HasColumnType("NVARCHAR2(2000)");
+
+                    b.Property<int?>("DiagramStatus")
+                        .HasColumnType("NUMBER(10)");
+
+                    b.Property<bool?>("IsDefault")
+                        .HasColumnType("NUMBER(1)");
+
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("RAW(16)");
+
+                    b.HasKey("DiagramId");
+
+                    b.HasIndex("CustomerId");
+
+                    b.HasIndex("TenantId");
+
+                    b.ToTable("DeviceDiagrams");
+                });
+
+            modelBuilder.Entity("IoTSharp.Data.DeviceGraph", b =>
+                {
+                    b.Property<Guid>("GraphId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("RAW(16)");
+
+                    b.Property<DateTime?>("CreateDate")
+                        .HasColumnType("TIMESTAMP(7)");
+
+                    b.Property<Guid>("Creator")
+                        .HasColumnType("RAW(16)");
+
+                    b.Property<Guid>("CustomerId")
+                        .HasColumnType("RAW(16)");
+
+                    b.Property<Guid?>("DeviceDiagramDiagramId")
+                        .HasColumnType("RAW(16)");
+
+                    b.Property<Guid>("DeviceId")
+                        .HasColumnType("RAW(16)");
+
+                    b.Property<string>("GraphElementId")
+                        .HasColumnType("NVARCHAR2(2000)");
+
+                    b.Property<string>("GraphFill")
+                        .HasColumnType("NVARCHAR2(2000)");
+
+                    b.Property<decimal?>("GraphHeight")
+                        .HasColumnType("DECIMAL(18, 2)");
+
+                    b.Property<decimal?>("GraphPostionX")
+                        .HasColumnType("DECIMAL(18, 2)");
+
+                    b.Property<decimal?>("GraphPostionY")
+                        .HasColumnType("DECIMAL(18, 2)");
+
+                    b.Property<string>("GraphShape")
+                        .HasColumnType("NVARCHAR2(2000)");
+
+                    b.Property<string>("GraphStroke")
+                        .HasColumnType("NVARCHAR2(2000)");
+
+                    b.Property<decimal?>("GraphStrokeWidth")
+                        .HasColumnType("DECIMAL(18, 2)");
+
+                    b.Property<string>("GraphTextAnchor")
+                        .HasColumnType("NVARCHAR2(2000)");
+
+                    b.Property<string>("GraphTextFill")
+                        .HasColumnType("NVARCHAR2(2000)");
+
+                    b.Property<string>("GraphTextFontFamily")
+                        .HasColumnType("NVARCHAR2(2000)");
+
+                    b.Property<decimal?>("GraphTextFontSize")
+                        .HasColumnType("DECIMAL(18, 2)");
+
+                    b.Property<decimal?>("GraphTextRefX")
+                        .HasColumnType("DECIMAL(18, 2)");
+
+                    b.Property<decimal?>("GraphTextRefY")
+                        .HasColumnType("DECIMAL(18, 2)");
+
+                    b.Property<string>("GraphTextVerticalAnchor")
+                        .HasColumnType("NVARCHAR2(2000)");
+
+                    b.Property<decimal?>("GraphWidth")
+                        .HasColumnType("DECIMAL(18, 2)");
+
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("RAW(16)");
+
+                    b.HasKey("GraphId");
+
+                    b.HasIndex("CustomerId");
+
+                    b.HasIndex("DeviceDiagramDiagramId");
+
+                    b.HasIndex("TenantId");
+
+                    b.ToTable("DeviceGraphs");
+                });
+
+            modelBuilder.Entity("IoTSharp.Data.DeviceGraphToolBox", b =>
+                {
+                    b.Property<Guid>("ToolBoxId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("RAW(16)");
+
+                    b.Property<string>("CommondParam")
+                        .HasColumnType("NVARCHAR2(2000)");
+
+                    b.Property<string>("CommondType")
+                        .HasColumnType("NVARCHAR2(2000)");
+
+                    b.Property<DateTime?>("CreateDate")
+                        .HasColumnType("TIMESTAMP(7)");
+
+                    b.Property<Guid>("Creator")
+                        .HasColumnType("RAW(16)");
+
+                    b.Property<Guid>("CustomerId")
+                        .HasColumnType("RAW(16)");
+
+                    b.Property<long?>("DeviceId")
+                        .HasColumnType("NUMBER(19)");
+
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("RAW(16)");
+
+                    b.Property<string>("ToolBoxIcon")
+                        .HasColumnType("NVARCHAR2(2000)");
+
+                    b.Property<string>("ToolBoxName")
+                        .HasColumnType("NVARCHAR2(2000)");
+
+                    b.Property<decimal?>("ToolBoxOffsetLeftPer")
+                        .HasColumnType("DECIMAL(18, 2)");
+
+                    b.Property<decimal?>("ToolBoxOffsetTopPer")
+                        .HasColumnType("DECIMAL(18, 2)");
+
+                    b.Property<decimal?>("ToolBoxOffsetX")
+                        .HasColumnType("DECIMAL(18, 2)");
+
+                    b.Property<decimal?>("ToolBoxOffsetY")
+                        .HasColumnType("DECIMAL(18, 2)");
+
+                    b.Property<string>("ToolBoxRequestUri")
+                        .HasColumnType("NVARCHAR2(2000)");
+
+                    b.Property<int?>("ToolBoxStatus")
+                        .HasColumnType("NUMBER(10)");
+
+                    b.Property<string>("ToolBoxType")
+                        .HasColumnType("NVARCHAR2(2000)");
+
+                    b.HasKey("ToolBoxId");
+
+                    b.HasIndex("CustomerId");
+
+                    b.HasIndex("TenantId");
+
+                    b.ToTable("DeviceGraphToolBoxes");
+                });
+
             modelBuilder.Entity("IoTSharp.Data.DeviceIdentity", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("RAW(16)");
 
-                    b.Property<Guid?>("DeviceId")
+                    b.Property<Guid>("DeviceId")
                         .HasColumnType("RAW(16)");
 
                     b.Property<string>("IdentityId")
@@ -504,19 +726,205 @@ namespace IoTSharp.Data.Oracle.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("DeviceId");
+                    b.HasIndex("DeviceId")
+                        .IsUnique();
 
                     b.ToTable("DeviceIdentities");
+                });
+
+            modelBuilder.Entity("IoTSharp.Data.DeviceModel", b =>
+                {
+                    b.Property<Guid>("DeviceModelId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("RAW(16)");
+
+                    b.Property<DateTime>("CreateDateTime")
+                        .HasColumnType("TIMESTAMP(7)");
+
+                    b.Property<Guid>("Creator")
+                        .HasColumnType("RAW(16)");
+
+                    b.Property<string>("ModelDesc")
+                        .HasColumnType("NVARCHAR2(2000)");
+
+                    b.Property<string>("ModelName")
+                        .HasColumnType("NVARCHAR2(2000)");
+
+                    b.Property<int>("ModelStatus")
+                        .HasColumnType("NUMBER(10)");
+
+                    b.HasKey("DeviceModelId");
+
+                    b.ToTable("DeviceModels");
+                });
+
+            modelBuilder.Entity("IoTSharp.Data.DeviceModelCommand", b =>
+                {
+                    b.Property<Guid>("CommandId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("RAW(16)");
+
+                    b.Property<string>("CommandI18N")
+                        .HasColumnType("NVARCHAR2(2000)");
+
+                    b.Property<string>("CommandName")
+                        .HasColumnType("NVARCHAR2(2000)");
+
+                    b.Property<string>("CommandParams")
+                        .HasColumnType("NVARCHAR2(2000)");
+
+                    b.Property<int>("CommandStatus")
+                        .HasColumnType("NUMBER(10)");
+
+                    b.Property<string>("CommandTemplate")
+                        .HasColumnType("NVARCHAR2(2000)");
+
+                    b.Property<string>("CommandTitle")
+                        .HasColumnType("NVARCHAR2(2000)");
+
+                    b.Property<int>("CommandType")
+                        .HasColumnType("NUMBER(10)");
+
+                    b.Property<DateTime>("CreateDateTime")
+                        .HasColumnType("TIMESTAMP(7)");
+
+                    b.Property<Guid>("Creator")
+                        .HasColumnType("RAW(16)");
+
+                    b.Property<Guid>("DeviceModelId")
+                        .HasColumnType("RAW(16)");
+
+                    b.HasKey("CommandId");
+
+                    b.HasIndex("DeviceModelId");
+
+                    b.ToTable("DeviceModelCommands");
+                });
+
+            modelBuilder.Entity("IoTSharp.Data.DevicePort", b =>
+                {
+                    b.Property<Guid>("PortId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("RAW(16)");
+
+                    b.Property<DateTime?>("CreateDate")
+                        .HasColumnType("TIMESTAMP(7)");
+
+                    b.Property<long?>("Creator")
+                        .HasColumnType("NUMBER(19)");
+
+                    b.Property<Guid>("DeviceId")
+                        .HasColumnType("RAW(16)");
+
+                    b.Property<string>("PortDesc")
+                        .HasColumnType("NVARCHAR2(2000)");
+
+                    b.Property<string>("PortElementId")
+                        .HasColumnType("NVARCHAR2(2000)");
+
+                    b.Property<string>("PortName")
+                        .HasColumnType("NVARCHAR2(2000)");
+
+                    b.Property<int?>("PortPhyType")
+                        .HasColumnType("NUMBER(10)");
+
+                    b.Property<string>("PortPic")
+                        .HasColumnType("NVARCHAR2(2000)");
+
+                    b.Property<int?>("PortStatus")
+                        .HasColumnType("NUMBER(10)");
+
+                    b.Property<int?>("PortType")
+                        .HasColumnType("NUMBER(10)");
+
+                    b.HasKey("PortId");
+
+                    b.ToTable("DevicePorts");
+                });
+
+            modelBuilder.Entity("IoTSharp.Data.DevicePortMapping", b =>
+                {
+                    b.Property<Guid>("MappingId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("RAW(16)");
+
+                    b.Property<DateTime?>("CreateDate")
+                        .HasColumnType("TIMESTAMP(7)");
+
+                    b.Property<Guid>("Creator")
+                        .HasColumnType("RAW(16)");
+
+                    b.Property<decimal?>("MappingIndex")
+                        .HasColumnType("DECIMAL(18, 2)");
+
+                    b.Property<int?>("MappingStatus")
+                        .HasColumnType("NUMBER(10)");
+
+                    b.Property<Guid>("SourceDeviceId")
+                        .HasColumnType("RAW(16)");
+
+                    b.Property<string>("SourceElementId")
+                        .HasColumnType("NVARCHAR2(2000)");
+
+                    b.Property<string>("SourceId")
+                        .HasColumnType("NVARCHAR2(2000)");
+
+                    b.Property<string>("TargeId")
+                        .HasColumnType("NVARCHAR2(2000)");
+
+                    b.Property<Guid>("TargetDeviceId")
+                        .HasColumnType("RAW(16)");
+
+                    b.Property<string>("TargetElementId")
+                        .HasColumnType("NVARCHAR2(2000)");
+
+                    b.HasKey("MappingId");
+
+                    b.ToTable("DevicePortMappings");
+                });
+
+            modelBuilder.Entity("IoTSharp.Data.DeviceRule", b =>
+                {
+                    b.Property<Guid>("DeviceRuleId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("RAW(16)");
+
+                    b.Property<DateTime>("ConfigDateTime")
+                        .HasColumnType("TIMESTAMP(7)");
+
+                    b.Property<Guid>("ConfigUser")
+                        .HasColumnType("RAW(16)");
+
+                    b.Property<Guid?>("DeviceId")
+                        .HasColumnType("RAW(16)");
+
+                    b.Property<int>("EnableTrace")
+                        .HasColumnType("NUMBER(10)");
+
+                    b.Property<Guid?>("FlowRuleRuleId")
+                        .HasColumnType("RAW(16)");
+
+                    b.HasKey("DeviceRuleId");
+
+                    b.HasIndex("DeviceId");
+
+                    b.HasIndex("FlowRuleRuleId");
+
+                    b.ToTable("DeviceRules");
                 });
 
             modelBuilder.Entity("IoTSharp.Data.DynamicFormFieldInfo", b =>
                 {
                     b.Property<long>("FieldId")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("NUMBER(19)")
-                        .HasAnnotation("Oracle:ValueGenerationStrategy", OracleValueGenerationStrategy.IdentityColumn);
+                        .HasColumnType("NUMBER(19)");
+
+                    OraclePropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("FieldId"), 1L, 1);
 
                     b.Property<Guid>("Creator")
+                        .HasColumnType("RAW(16)");
+
+                    b.Property<Guid>("CustomerId")
                         .HasColumnType("RAW(16)");
 
                     b.Property<string>("FieldCode")
@@ -579,7 +987,14 @@ namespace IoTSharp.Data.Oracle.Migrations
                     b.Property<bool?>("IsRequired")
                         .HasColumnType("NUMBER(1)");
 
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("RAW(16)");
+
                     b.HasKey("FieldId");
+
+                    b.HasIndex("CustomerId");
+
+                    b.HasIndex("TenantId");
 
                     b.ToTable("DynamicFormFieldInfos");
                 });
@@ -588,13 +1003,17 @@ namespace IoTSharp.Data.Oracle.Migrations
                 {
                     b.Property<long>("FieldValueId")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("NUMBER(19)")
-                        .HasAnnotation("Oracle:ValueGenerationStrategy", OracleValueGenerationStrategy.IdentityColumn);
+                        .HasColumnType("NUMBER(19)");
+
+                    OraclePropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("FieldValueId"), 1L, 1);
 
                     b.Property<long?>("BizId")
                         .HasColumnType("NUMBER(19)");
 
                     b.Property<Guid>("Creator")
+                        .HasColumnType("RAW(16)");
+
+                    b.Property<Guid>("CustomerId")
                         .HasColumnType("RAW(16)");
 
                     b.Property<string>("FieldCode")
@@ -621,7 +1040,15 @@ namespace IoTSharp.Data.Oracle.Migrations
                     b.Property<long?>("FromId")
                         .HasColumnType("NUMBER(19)");
 
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("RAW(16)");
+
                     b.HasKey("FieldValueId");
+
+                    b.HasIndex("CustomerId");
+
+                    b.HasIndex("TenantId")
+                        .HasDatabaseName("IX_DynamicFormFieldValueInfo~1");
 
                     b.ToTable("DynamicFormFieldValueInfos");
                 });
@@ -630,13 +1057,17 @@ namespace IoTSharp.Data.Oracle.Migrations
                 {
                     b.Property<long>("FormId")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("NUMBER(19)")
-                        .HasAnnotation("Oracle:ValueGenerationStrategy", OracleValueGenerationStrategy.IdentityColumn);
+                        .HasColumnType("NUMBER(19)");
+
+                    OraclePropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("FormId"), 1L, 1);
 
                     b.Property<long?>("BizId")
                         .HasColumnType("NUMBER(19)");
 
                     b.Property<Guid>("Creator")
+                        .HasColumnType("RAW(16)");
+
+                    b.Property<Guid>("CustomerId")
                         .HasColumnType("RAW(16)");
 
                     b.Property<long?>("FormCreator")
@@ -666,23 +1097,50 @@ namespace IoTSharp.Data.Oracle.Migrations
                     b.Property<string>("ModelClass")
                         .HasColumnType("NVARCHAR2(2000)");
 
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("RAW(16)");
+
                     b.Property<string>("Url")
                         .HasColumnType("NVARCHAR2(2000)");
 
                     b.HasKey("FormId");
+
+                    b.HasIndex("CustomerId");
+
+                    b.HasIndex("TenantId");
 
                     b.ToTable("DynamicFormInfos");
                 });
 
             modelBuilder.Entity("IoTSharp.Data.Flow", b =>
                 {
-                    b.Property<long>("FlowId")
+                    b.Property<Guid>("FlowId")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("NUMBER(19)")
-                        .HasAnnotation("Oracle:ValueGenerationStrategy", OracleValueGenerationStrategy.IdentityColumn);
+                        .HasColumnType("RAW(16)");
 
                     b.Property<string>("Conditionexpression")
                         .HasColumnType("NVARCHAR2(2000)");
+
+                    b.Property<DateTime>("CreateDate")
+                        .HasColumnType("TIMESTAMP(7)");
+
+                    b.Property<Guid>("CreateId")
+                        .HasColumnType("RAW(16)");
+
+                    b.Property<Guid>("Createor")
+                        .HasColumnType("RAW(16)");
+
+                    b.Property<Guid>("CustomerId")
+                        .HasColumnType("RAW(16)");
+
+                    b.Property<Guid?>("ExecutorId")
+                        .HasColumnType("RAW(16)");
+
+                    b.Property<Guid?>("FlowRuleRuleId")
+                        .HasColumnType("RAW(16)");
+
+                    b.Property<int>("FlowStatus")
+                        .HasColumnType("NUMBER(10)");
 
                     b.Property<string>("FlowType")
                         .HasColumnType("NVARCHAR2(2000)");
@@ -720,32 +1178,51 @@ namespace IoTSharp.Data.Oracle.Migrations
                     b.Property<string>("Outgoing")
                         .HasColumnType("NVARCHAR2(2000)");
 
-                    b.Property<long>("RuleId")
-                        .HasColumnType("NUMBER(19)");
-
                     b.Property<string>("SourceId")
                         .HasColumnType("NVARCHAR2(2000)");
 
                     b.Property<string>("TargetId")
                         .HasColumnType("NVARCHAR2(2000)");
 
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("RAW(16)");
+
+                    b.Property<int>("TestStatus")
+                        .HasColumnType("NUMBER(10)");
+
+                    b.Property<Guid>("Tester")
+                        .HasColumnType("RAW(16)");
+
+                    b.Property<DateTime>("TesterDateTime")
+                        .HasColumnType("TIMESTAMP(7)");
+
                     b.Property<string>("bpmnid")
                         .HasColumnType("NVARCHAR2(2000)");
 
                     b.HasKey("FlowId");
+
+                    b.HasIndex("CustomerId");
+
+                    b.HasIndex("ExecutorId");
+
+                    b.HasIndex("FlowRuleRuleId");
+
+                    b.HasIndex("TenantId");
 
                     b.ToTable("Flows");
                 });
 
             modelBuilder.Entity("IoTSharp.Data.FlowOperation", b =>
                 {
-                    b.Property<long>("OperationId")
+                    b.Property<Guid>("OperationId")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("NUMBER(19)")
-                        .HasAnnotation("Oracle:ValueGenerationStrategy", OracleValueGenerationStrategy.IdentityColumn);
+                        .HasColumnType("RAW(16)");
 
                     b.Property<DateTime?>("AddDate")
                         .HasColumnType("TIMESTAMP(7)");
+
+                    b.Property<Guid>("BaseEventId")
+                        .HasColumnType("RAW(16)");
 
                     b.Property<string>("BizId")
                         .HasColumnType("NVARCHAR2(2000)");
@@ -753,20 +1230,17 @@ namespace IoTSharp.Data.Oracle.Migrations
                     b.Property<string>("Data")
                         .HasColumnType("NVARCHAR2(2000)");
 
-                    b.Property<long>("EventId")
-                        .HasColumnType("NUMBER(19)");
+                    b.Property<Guid>("FlowId")
+                        .HasColumnType("RAW(16)");
 
-                    b.Property<long>("FlowId")
-                        .HasColumnType("NUMBER(19)");
+                    b.Property<Guid>("FlowRuleId")
+                        .HasColumnType("RAW(16)");
 
                     b.Property<int?>("NodeStatus")
                         .HasColumnType("NUMBER(10)");
 
                     b.Property<string>("OperationDesc")
                         .HasColumnType("NVARCHAR2(2000)");
-
-                    b.Property<long>("RuleId")
-                        .HasColumnType("NUMBER(19)");
 
                     b.Property<int>("Step")
                         .HasColumnType("NUMBER(10)");
@@ -779,21 +1253,32 @@ namespace IoTSharp.Data.Oracle.Migrations
 
                     b.HasKey("OperationId");
 
+                    b.HasIndex("BaseEventId");
+
+                    b.HasIndex("FlowId");
+
+                    b.HasIndex("FlowRuleId");
+
                     b.ToTable("FlowOperations");
                 });
 
             modelBuilder.Entity("IoTSharp.Data.FlowRule", b =>
                 {
-                    b.Property<long>("RuleId")
+                    b.Property<Guid>("RuleId")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("NUMBER(19)")
-                        .HasAnnotation("Oracle:ValueGenerationStrategy", OracleValueGenerationStrategy.IdentityColumn);
+                        .HasColumnType("RAW(16)");
 
                     b.Property<DateTime?>("CreatTime")
                         .HasColumnType("TIMESTAMP(7)");
 
+                    b.Property<Guid>("CreateId")
+                        .HasColumnType("RAW(16)");
+
                     b.Property<string>("Creator")
                         .HasColumnType("NVARCHAR2(2000)");
+
+                    b.Property<Guid>("CustomerId")
+                        .HasColumnType("RAW(16)");
 
                     b.Property<string>("DefinitionsXml")
                         .HasColumnType("NVARCHAR2(2000)");
@@ -804,9 +1289,15 @@ namespace IoTSharp.Data.Oracle.Migrations
                     b.Property<string>("ExecutableCode")
                         .HasColumnType("NVARCHAR2(2000)");
 
+                    b.Property<int>("MountType")
+                        .HasColumnType("NUMBER(10)");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("NVARCHAR2(2000)");
+
+                    b.Property<Guid>("ParentRuleId")
+                        .HasColumnType("RAW(16)");
 
                     b.Property<string>("RuleDesc")
                         .HasColumnType("NVARCHAR2(2000)");
@@ -820,9 +1311,56 @@ namespace IoTSharp.Data.Oracle.Migrations
                     b.Property<string>("Runner")
                         .HasColumnType("NVARCHAR2(2000)");
 
+                    b.Property<double>("SubVersion")
+                        .HasColumnType("BINARY_DOUBLE");
+
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("RAW(16)");
+
+                    b.Property<double>("Version")
+                        .HasColumnType("BINARY_DOUBLE");
+
                     b.HasKey("RuleId");
 
+                    b.HasIndex("CustomerId");
+
+                    b.HasIndex("TenantId");
+
                     b.ToTable("FlowRules");
+                });
+
+            modelBuilder.Entity("IoTSharp.Data.RefreshToken", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("RAW(16)");
+
+                    b.Property<DateTime>("AddedDate")
+                        .HasColumnType("TIMESTAMP(7)");
+
+                    b.Property<DateTime>("ExpiryDate")
+                        .HasColumnType("TIMESTAMP(7)");
+
+                    b.Property<bool>("IsRevorked")
+                        .HasColumnType("NUMBER(1)");
+
+                    b.Property<bool>("IsUsed")
+                        .HasColumnType("NUMBER(1)");
+
+                    b.Property<string>("JwtId")
+                        .HasColumnType("NVARCHAR2(2000)");
+
+                    b.Property<string>("Token")
+                        .HasColumnType("NVARCHAR2(2000)");
+
+                    b.Property<string>("UserId")
+                        .HasColumnType("NVARCHAR2(450)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("RefreshTokens");
                 });
 
             modelBuilder.Entity("IoTSharp.Data.Relationship", b =>
@@ -851,22 +1389,165 @@ namespace IoTSharp.Data.Oracle.Migrations
                     b.ToTable("Relationship");
                 });
 
-            modelBuilder.Entity("IoTSharp.Data.TelemetryData", b =>
+            modelBuilder.Entity("IoTSharp.Data.RuleTaskExecutor", b =>
                 {
-                    b.Property<Guid>("DeviceId")
+                    b.Property<Guid>("ExecutorId")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("RAW(16)");
 
-                    b.Property<string>("KeyName")
-                        .HasColumnType("NVARCHAR2(450)");
-
-                    b.Property<DateTime>("DateTime")
+                    b.Property<DateTime>("AddDateTime")
                         .HasColumnType("TIMESTAMP(7)");
 
-                    b.Property<int>("DataSide")
+                    b.Property<Guid>("Creator")
+                        .HasColumnType("RAW(16)");
+
+                    b.Property<Guid>("CustomerId")
+                        .HasColumnType("RAW(16)");
+
+                    b.Property<string>("DefaultConfig")
+                        .HasColumnType("NVARCHAR2(2000)");
+
+                    b.Property<string>("ExecutorDesc")
+                        .HasColumnType("NVARCHAR2(2000)");
+
+                    b.Property<string>("ExecutorName")
+                        .HasColumnType("NVARCHAR2(2000)");
+
+                    b.Property<int>("ExecutorStatus")
                         .HasColumnType("NUMBER(10)");
+
+                    b.Property<string>("MataData")
+                        .HasColumnType("NVARCHAR2(2000)");
+
+                    b.Property<string>("Path")
+                        .HasColumnType("NVARCHAR2(2000)");
+
+                    b.Property<string>("Tag")
+                        .HasColumnType("NVARCHAR2(2000)");
+
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("RAW(16)");
+
+                    b.Property<int>("TestStatus")
+                        .HasColumnType("NUMBER(10)");
+
+                    b.Property<Guid>("Tester")
+                        .HasColumnType("RAW(16)");
+
+                    b.Property<DateTime>("TesterDateTime")
+                        .HasColumnType("TIMESTAMP(7)");
+
+                    b.Property<string>("TypeName")
+                        .HasColumnType("NVARCHAR2(2000)");
+
+                    b.HasKey("ExecutorId");
+
+                    b.HasIndex("CustomerId");
+
+                    b.HasIndex("TenantId");
+
+                    b.ToTable("RuleTaskExecutors");
+                });
+
+            modelBuilder.Entity("IoTSharp.Data.SubscriptionEvent", b =>
+                {
+                    b.Property<Guid>("EventId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("RAW(16)");
+
+                    b.Property<DateTime>("CreateDateTime")
+                        .HasColumnType("TIMESTAMP(7)");
+
+                    b.Property<Guid>("Creator")
+                        .HasColumnType("RAW(16)");
+
+                    b.Property<Guid>("CustomerId")
+                        .HasColumnType("RAW(16)");
+
+                    b.Property<string>("EventDesc")
+                        .HasColumnType("NVARCHAR2(2000)");
+
+                    b.Property<string>("EventName")
+                        .HasColumnType("NVARCHAR2(2000)");
+
+                    b.Property<string>("EventNameSpace")
+                        .HasColumnType("NVARCHAR2(2000)");
+
+                    b.Property<string>("EventParam")
+                        .HasColumnType("NVARCHAR2(2000)");
+
+                    b.Property<int>("EventStatus")
+                        .HasColumnType("NUMBER(10)");
+
+                    b.Property<string>("EventTag")
+                        .HasColumnType("NVARCHAR2(2000)");
+
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("RAW(16)");
 
                     b.Property<int>("Type")
                         .HasColumnType("NUMBER(10)");
+
+                    b.HasKey("EventId");
+
+                    b.HasIndex("CustomerId");
+
+                    b.HasIndex("TenantId");
+
+                    b.ToTable("SubscriptionEvents");
+                });
+
+            modelBuilder.Entity("IoTSharp.Data.SubscriptionTask", b =>
+                {
+                    b.Property<Guid>("BindId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("RAW(16)");
+
+                    b.Property<Guid>("EventId")
+                        .HasColumnType("RAW(16)");
+
+                    b.Property<Guid?>("RuleTaskExecutorExecutorId")
+                        .HasColumnType("RAW(16)");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("NUMBER(10)");
+
+                    b.Property<Guid?>("SubscriptionEventId")
+                        .HasColumnType("RAW(16)");
+
+                    b.Property<string>("TaskConfig")
+                        .HasColumnType("NVARCHAR2(2000)");
+
+                    b.HasKey("BindId");
+
+                    b.HasIndex("RuleTaskExecutorExecutorId");
+
+                    b.HasIndex("SubscriptionEventId");
+
+                    b.ToTable("SubscriptionTasks");
+                });
+
+            modelBuilder.Entity("IoTSharp.Data.TelemetryData", b =>
+                {
+                    b.Property<Guid>("DeviceId")
+                        .HasColumnType("RAW(16)")
+                        .HasColumnOrder(1);
+
+                    b.Property<string>("KeyName")
+                        .HasColumnType("NVARCHAR2(450)")
+                        .HasColumnOrder(2);
+
+                    b.Property<DateTime>("DateTime")
+                        .HasColumnType("TIMESTAMP(7)")
+                        .HasColumnOrder(3);
+
+                    b.Property<int>("DataSide")
+                        .HasColumnType("NUMBER(10)")
+                        .HasColumnOrder(4);
+
+                    b.Property<int>("Type")
+                        .HasColumnType("NUMBER(10)")
+                        .HasColumnOrder(5);
 
                     b.Property<byte[]>("Value_Binary")
                         .HasColumnType("RAW(2000)");
@@ -965,15 +1646,16 @@ namespace IoTSharp.Data.Oracle.Migrations
                         .HasDatabaseName("RoleNameIndex")
                         .HasFilter("\"NormalizedName\" IS NOT NULL");
 
-                    b.ToTable("AspNetRoles");
+                    b.ToTable("AspNetRoles", (string)null);
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("NUMBER(10)")
-                        .HasAnnotation("Oracle:ValueGenerationStrategy", OracleValueGenerationStrategy.IdentityColumn);
+                        .HasColumnType("NUMBER(10)");
+
+                    OraclePropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
 
                     b.Property<string>("ClaimType")
                         .HasColumnType("NVARCHAR2(2000)");
@@ -989,7 +1671,7 @@ namespace IoTSharp.Data.Oracle.Migrations
 
                     b.HasIndex("RoleId");
 
-                    b.ToTable("AspNetRoleClaims");
+                    b.ToTable("AspNetRoleClaims", (string)null);
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUser", b =>
@@ -1054,15 +1736,16 @@ namespace IoTSharp.Data.Oracle.Migrations
                         .HasDatabaseName("UserNameIndex")
                         .HasFilter("\"NormalizedUserName\" IS NOT NULL");
 
-                    b.ToTable("AspNetUsers");
+                    b.ToTable("AspNetUsers", (string)null);
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<string>", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("NUMBER(10)")
-                        .HasAnnotation("Oracle:ValueGenerationStrategy", OracleValueGenerationStrategy.IdentityColumn);
+                        .HasColumnType("NUMBER(10)");
+
+                    OraclePropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
 
                     b.Property<string>("ClaimType")
                         .HasColumnType("NVARCHAR2(2000)");
@@ -1078,7 +1761,7 @@ namespace IoTSharp.Data.Oracle.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("AspNetUserClaims");
+                    b.ToTable("AspNetUserClaims", (string)null);
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<string>", b =>
@@ -1100,7 +1783,7 @@ namespace IoTSharp.Data.Oracle.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("AspNetUserLogins");
+                    b.ToTable("AspNetUserLogins", (string)null);
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserRole<string>", b =>
@@ -1115,7 +1798,7 @@ namespace IoTSharp.Data.Oracle.Migrations
 
                     b.HasIndex("RoleId");
 
-                    b.ToTable("AspNetUserRoles");
+                    b.ToTable("AspNetUserRoles", (string)null);
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<string>", b =>
@@ -1134,7 +1817,7 @@ namespace IoTSharp.Data.Oracle.Migrations
 
                     b.HasKey("UserId", "LoginProvider", "Name");
 
-                    b.ToTable("AspNetUserTokens");
+                    b.ToTable("AspNetUserTokens", (string)null);
                 });
 
             modelBuilder.Entity("IoTSharp.Data.AttributeLatest", b =>
@@ -1144,18 +1827,18 @@ namespace IoTSharp.Data.Oracle.Migrations
                     b.HasDiscriminator().HasValue(2);
                 });
 
-            modelBuilder.Entity("IoTSharp.Data.TelemetryLatest", b =>
-                {
-                    b.HasBaseType("IoTSharp.Data.DataStorage");
-
-                    b.HasDiscriminator().HasValue(4);
-                });
-
             modelBuilder.Entity("IoTSharp.Data.Gateway", b =>
                 {
                     b.HasBaseType("IoTSharp.Data.Device");
 
                     b.HasDiscriminator().HasValue(1);
+                });
+
+            modelBuilder.Entity("IoTSharp.Data.TelemetryLatest", b =>
+                {
+                    b.HasBaseType("IoTSharp.Data.DataStorage");
+
+                    b.HasDiscriminator().HasValue(4);
                 });
 
             modelBuilder.Entity("IoTSharp.Data.AuditLog", b =>
@@ -1188,6 +1871,31 @@ namespace IoTSharp.Data.Oracle.Migrations
                     b.Navigation("Tenant");
                 });
 
+            modelBuilder.Entity("IoTSharp.Data.BaseEvent", b =>
+                {
+                    b.HasOne("IoTSharp.Data.Customer", "Customer")
+                        .WithMany()
+                        .HasForeignKey("CustomerId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("IoTSharp.Data.FlowRule", "FlowRule")
+                        .WithMany()
+                        .HasForeignKey("FlowRuleRuleId");
+
+                    b.HasOne("IoTSharp.Data.Tenant", "Tenant")
+                        .WithMany()
+                        .HasForeignKey("TenantId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Customer");
+
+                    b.Navigation("FlowRule");
+
+                    b.Navigation("Tenant");
+                });
+
             modelBuilder.Entity("IoTSharp.Data.Customer", b =>
                 {
                     b.HasOne("IoTSharp.Data.Tenant", "Tenant")
@@ -1207,6 +1915,10 @@ namespace IoTSharp.Data.Oracle.Migrations
                         .WithMany("Devices")
                         .HasForeignKey("CustomerId");
 
+                    b.HasOne("IoTSharp.Data.DeviceModel", "DeviceModel")
+                        .WithMany()
+                        .HasForeignKey("DeviceModelId");
+
                     b.HasOne("IoTSharp.Data.Gateway", "Owner")
                         .WithMany("Children")
                         .HasForeignKey("OwnerId");
@@ -1217,7 +1929,72 @@ namespace IoTSharp.Data.Oracle.Migrations
 
                     b.Navigation("Customer");
 
+                    b.Navigation("DeviceModel");
+
                     b.Navigation("Owner");
+
+                    b.Navigation("Tenant");
+                });
+
+            modelBuilder.Entity("IoTSharp.Data.DeviceDiagram", b =>
+                {
+                    b.HasOne("IoTSharp.Data.Customer", "Customer")
+                        .WithMany()
+                        .HasForeignKey("CustomerId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("IoTSharp.Data.Tenant", "Tenant")
+                        .WithMany()
+                        .HasForeignKey("TenantId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Customer");
+
+                    b.Navigation("Tenant");
+                });
+
+            modelBuilder.Entity("IoTSharp.Data.DeviceGraph", b =>
+                {
+                    b.HasOne("IoTSharp.Data.Customer", "Customer")
+                        .WithMany()
+                        .HasForeignKey("CustomerId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("IoTSharp.Data.DeviceDiagram", "DeviceDiagram")
+                        .WithMany()
+                        .HasForeignKey("DeviceDiagramDiagramId");
+
+                    b.HasOne("IoTSharp.Data.Tenant", "Tenant")
+                        .WithMany()
+                        .HasForeignKey("TenantId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Customer");
+
+                    b.Navigation("DeviceDiagram");
+
+                    b.Navigation("Tenant");
+                });
+
+            modelBuilder.Entity("IoTSharp.Data.DeviceGraphToolBox", b =>
+                {
+                    b.HasOne("IoTSharp.Data.Customer", "Customer")
+                        .WithMany()
+                        .HasForeignKey("CustomerId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("IoTSharp.Data.Tenant", "Tenant")
+                        .WithMany()
+                        .HasForeignKey("TenantId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Customer");
 
                     b.Navigation("Tenant");
                 });
@@ -1225,10 +2002,182 @@ namespace IoTSharp.Data.Oracle.Migrations
             modelBuilder.Entity("IoTSharp.Data.DeviceIdentity", b =>
                 {
                     b.HasOne("IoTSharp.Data.Device", "Device")
+                        .WithOne("DeviceIdentity")
+                        .HasForeignKey("IoTSharp.Data.DeviceIdentity", "DeviceId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Device");
+                });
+
+            modelBuilder.Entity("IoTSharp.Data.DeviceModelCommand", b =>
+                {
+                    b.HasOne("IoTSharp.Data.DeviceModel", "DeviceModel")
+                        .WithMany("DeviceModelCommands")
+                        .HasForeignKey("DeviceModelId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("DeviceModel");
+                });
+
+            modelBuilder.Entity("IoTSharp.Data.DeviceRule", b =>
+                {
+                    b.HasOne("IoTSharp.Data.Device", "Device")
                         .WithMany()
                         .HasForeignKey("DeviceId");
 
+                    b.HasOne("IoTSharp.Data.FlowRule", "FlowRule")
+                        .WithMany()
+                        .HasForeignKey("FlowRuleRuleId");
+
                     b.Navigation("Device");
+
+                    b.Navigation("FlowRule");
+                });
+
+            modelBuilder.Entity("IoTSharp.Data.DynamicFormFieldInfo", b =>
+                {
+                    b.HasOne("IoTSharp.Data.Customer", "Customer")
+                        .WithMany()
+                        .HasForeignKey("CustomerId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("IoTSharp.Data.Tenant", "Tenant")
+                        .WithMany()
+                        .HasForeignKey("TenantId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Customer");
+
+                    b.Navigation("Tenant");
+                });
+
+            modelBuilder.Entity("IoTSharp.Data.DynamicFormFieldValueInfo", b =>
+                {
+                    b.HasOne("IoTSharp.Data.Customer", "Customer")
+                        .WithMany()
+                        .HasForeignKey("CustomerId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("IoTSharp.Data.Tenant", "Tenant")
+                        .WithMany()
+                        .HasForeignKey("TenantId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("FK_DynamicFormFieldValueInfo~1");
+
+                    b.Navigation("Customer");
+
+                    b.Navigation("Tenant");
+                });
+
+            modelBuilder.Entity("IoTSharp.Data.DynamicFormInfo", b =>
+                {
+                    b.HasOne("IoTSharp.Data.Customer", "Customer")
+                        .WithMany()
+                        .HasForeignKey("CustomerId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("IoTSharp.Data.Tenant", "Tenant")
+                        .WithMany()
+                        .HasForeignKey("TenantId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Customer");
+
+                    b.Navigation("Tenant");
+                });
+
+            modelBuilder.Entity("IoTSharp.Data.Flow", b =>
+                {
+                    b.HasOne("IoTSharp.Data.Customer", "Customer")
+                        .WithMany()
+                        .HasForeignKey("CustomerId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("IoTSharp.Data.RuleTaskExecutor", "Executor")
+                        .WithMany()
+                        .HasForeignKey("ExecutorId");
+
+                    b.HasOne("IoTSharp.Data.FlowRule", "FlowRule")
+                        .WithMany()
+                        .HasForeignKey("FlowRuleRuleId");
+
+                    b.HasOne("IoTSharp.Data.Tenant", "Tenant")
+                        .WithMany()
+                        .HasForeignKey("TenantId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Customer");
+
+                    b.Navigation("Executor");
+
+                    b.Navigation("FlowRule");
+
+                    b.Navigation("Tenant");
+                });
+
+            modelBuilder.Entity("IoTSharp.Data.FlowOperation", b =>
+                {
+                    b.HasOne("IoTSharp.Data.BaseEvent", "BaseEvent")
+                        .WithMany()
+                        .HasForeignKey("BaseEventId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("IoTSharp.Data.Flow", "Flow")
+                        .WithMany()
+                        .HasForeignKey("FlowId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("IoTSharp.Data.FlowRule", "FlowRule")
+                        .WithMany()
+                        .HasForeignKey("FlowRuleId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("BaseEvent");
+
+                    b.Navigation("Flow");
+
+                    b.Navigation("FlowRule");
+                });
+
+            modelBuilder.Entity("IoTSharp.Data.FlowRule", b =>
+                {
+                    b.HasOne("IoTSharp.Data.Customer", "Customer")
+                        .WithMany()
+                        .HasForeignKey("CustomerId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("IoTSharp.Data.Tenant", "Tenant")
+                        .WithMany()
+                        .HasForeignKey("TenantId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Customer");
+
+                    b.Navigation("Tenant");
+                });
+
+            modelBuilder.Entity("IoTSharp.Data.RefreshToken", b =>
+                {
+                    b.HasOne("Microsoft.AspNetCore.Identity.IdentityUser", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId");
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("IoTSharp.Data.Relationship", b =>
@@ -1250,6 +2199,59 @@ namespace IoTSharp.Data.Oracle.Migrations
                     b.Navigation("IdentityUser");
 
                     b.Navigation("Tenant");
+                });
+
+            modelBuilder.Entity("IoTSharp.Data.RuleTaskExecutor", b =>
+                {
+                    b.HasOne("IoTSharp.Data.Customer", "Customer")
+                        .WithMany()
+                        .HasForeignKey("CustomerId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("IoTSharp.Data.Tenant", "Tenant")
+                        .WithMany()
+                        .HasForeignKey("TenantId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Customer");
+
+                    b.Navigation("Tenant");
+                });
+
+            modelBuilder.Entity("IoTSharp.Data.SubscriptionEvent", b =>
+                {
+                    b.HasOne("IoTSharp.Data.Customer", "Customer")
+                        .WithMany()
+                        .HasForeignKey("CustomerId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("IoTSharp.Data.Tenant", "Tenant")
+                        .WithMany()
+                        .HasForeignKey("TenantId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Customer");
+
+                    b.Navigation("Tenant");
+                });
+
+            modelBuilder.Entity("IoTSharp.Data.SubscriptionTask", b =>
+                {
+                    b.HasOne("IoTSharp.Data.RuleTaskExecutor", "RuleTaskExecutor")
+                        .WithMany()
+                        .HasForeignKey("RuleTaskExecutorExecutorId");
+
+                    b.HasOne("IoTSharp.Data.SubscriptionEvent", "Subscription")
+                        .WithMany()
+                        .HasForeignKey("SubscriptionEventId");
+
+                    b.Navigation("RuleTaskExecutor");
+
+                    b.Navigation("Subscription");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
@@ -1311,6 +2313,16 @@ namespace IoTSharp.Data.Oracle.Migrations
             modelBuilder.Entity("IoTSharp.Data.Customer", b =>
                 {
                     b.Navigation("Devices");
+                });
+
+            modelBuilder.Entity("IoTSharp.Data.Device", b =>
+                {
+                    b.Navigation("DeviceIdentity");
+                });
+
+            modelBuilder.Entity("IoTSharp.Data.DeviceModel", b =>
+                {
+                    b.Navigation("DeviceModelCommands");
                 });
 
             modelBuilder.Entity("IoTSharp.Data.Tenant", b =>
