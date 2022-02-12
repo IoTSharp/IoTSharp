@@ -17,7 +17,7 @@ namespace IoTSharp.Data
         /// <summary>
         /// 节点处理状态，0 创建完
         /// </summary>
-        public int? NodeStatus { get; set; }  
+        public int NodeStatus { get; set; }  
         public string OperationDesc { get; set; }
         public string Data  { get; set; }
         public string BizId { get; set; }

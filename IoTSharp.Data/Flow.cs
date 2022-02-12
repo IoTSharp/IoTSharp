@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace IoTSharp.Data
 {
-    public class Flow
+    public class Flow:IJustMy
     {
         [Key]
         public Guid FlowId { get; set; }

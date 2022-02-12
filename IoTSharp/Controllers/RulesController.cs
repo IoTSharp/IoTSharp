@@ -99,8 +99,7 @@ namespace IoTSharp.Controllers
             {
                 m.MountType = m.MountType;
                 m.RuleStatus = 1;
-
-                m.Tenant = new Tenant() { Id = profile.Tenant };
+                _context.JustFill(this, m);
                 m.CreatTime = DateTime.Now;
                 _context.FlowRules.Add(m);
                 await _context.SaveChangesAsync();

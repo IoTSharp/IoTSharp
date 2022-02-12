@@ -1,5 +1,13 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using EasyCaching.Core;
+using IoTSharp.Controllers.Models;
+using IoTSharp.Data;
+using IoTSharp.Dtos;
+using IoTSharp.Models;
+using LinqKit;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Options;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,16 +17,6 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 using System.Web;
-using EasyCaching.Core;
-using IoTSharp.Controllers.Models;
-using IoTSharp.Data;
-using IoTSharp.Dtos;
-using IoTSharp.Models;
-using LinqKit;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.Extensions.Options;
-using Newtonsoft.Json;
-using RestSharp.Extensions;
 
 namespace IoTSharp.Controllers
 {
@@ -31,7 +29,6 @@ namespace IoTSharp.Controllers
         private readonly IEasyCachingProvider _cachingprovider;
         private readonly IOptions<BaiduTranslateProfile> _profile;
         private ApplicationDbContext _context;
-
 
         public I18NController(ApplicationDbContext context, IEasyCachingProvider provider, IOptions<BaiduTranslateProfile> profile, ApplicationDBInitializer dBInitializer)
         {
@@ -60,36 +57,39 @@ namespace IoTSharp.Controllers
             }
             switch (lang)
             {
-
                 case "el-gr":
                     return new ApiResult<Dictionary<string, string>>(ApiCode.Success, "OK", i18n.Select(c => new { c.KeyName, c.ValueENGR }).ToDictionary(x => x.KeyName, y => y.ValueENGR));
+
                 case "en-us":
                     return new ApiResult<Dictionary<string, string>>(ApiCode.Success, "OK", i18n.Select(c => new { c.KeyName, c.ValueENUS }).ToDictionary(x => x.KeyName, y => y.ValueENUS));
+
                 case "fr-fr":
                     return new ApiResult<Dictionary<string, string>>(ApiCode.Success, "OK", i18n.Select(c => new { c.KeyName, c.ValueFRFR }).ToDictionary(x => x.KeyName, y => y.ValueFRFR));
+
                 case "hr-hr":
                     return new ApiResult<Dictionary<string, string>>(ApiCode.Success, "OK", i18n.Select(c => new { c.KeyName, c.ValueHRHR }).ToDictionary(x => x.KeyName, y => y.ValueHRHR));
+
                 case "ko-kr":
                     return new ApiResult<Dictionary<string, string>>(ApiCode.Success, "OK", i18n.Select(c => new { c.KeyName, c.ValueKOKR }).ToDictionary(x => x.KeyName, y => y.ValueKOKR));
+
                 case "pl-pl":
                     return new ApiResult<Dictionary<string, string>>(ApiCode.Success, "OK", i18n.Select(c => new { c.KeyName, c.ValuePLPL }).ToDictionary(x => x.KeyName, y => y.ValuePLPL));
+
                 case "sl-sl":
                     return new ApiResult<Dictionary<string, string>>(ApiCode.Success, "OK", i18n.Select(c => new { c.KeyName, c.ValueSLSL }).ToDictionary(x => x.KeyName, y => y.ValueSLSL));
+
                 case "tr-tr":
                     return new ApiResult<Dictionary<string, string>>(ApiCode.Success, "OK", i18n.Select(c => new { c.KeyName, c.ValueTRTR }).ToDictionary(x => x.KeyName, y => y.ValueTRTR));
+
                 case "zh-tw":
                     return new ApiResult<Dictionary<string, string>>(ApiCode.Success, "OK", i18n.Select(c => new { c.KeyName, c.ValueZHTW }).ToDictionary(x => x.KeyName, y => y.ValueZHTW));
+
                 case "zh-cn":
                     return new ApiResult<Dictionary<string, string>>(ApiCode.Success, "OK", i18n.Select(c => new { c.KeyName, c.ValueZHCN }).ToDictionary(x => x.KeyName, y => y.ValueZHCN));
             }
 
             return new ApiResult<Dictionary<string, string>>(ApiCode.Success, "OK", i18n.Select(c => new { c.KeyName, c.ValueZHCN }).ToDictionary(x => x.KeyName, y => y.ValueZHCN));
-
-
-
         }
-
-
 
         [HttpPost("[action]")]
         public ApiResult<PagedData<BaseI18N>> Index([FromBody] I18NParam m)
@@ -106,12 +106,9 @@ namespace IoTSharp.Controllers
             });
         }
 
-
-
         [HttpGet("[action]")]
         public ApiResult<BaseI18N> Get(int id)
         {
-
             var i18N = _context.BaseI18Ns.SingleOrDefault(c => c.Id == id);
             if (i18N != null)
             {
@@ -121,9 +118,6 @@ namespace IoTSharp.Controllers
             {
                 return new ApiResult<BaseI18N>(ApiCode.CantFindObject, "can't find this object", null);
             }
-
-
-
         }
 
         [HttpGet("[action]")]
@@ -138,7 +132,6 @@ namespace IoTSharp.Controllers
                 return new ApiResult<bool>(ApiCode.Success, "OK", _context.BaseI18Ns.Any(c => c.KeyName.ToLower() == key.ToLower()));
             }
         }
-
 
         [HttpPost("[action]")]
         public ApiResult<bool> Save(BaseI18N m)
@@ -175,13 +168,11 @@ namespace IoTSharp.Controllers
                 ValueSV = m.ValueSV,
                 ValueUK = m.ValueUK,
                 ValueVI = m.ValueVI,
-
             };
 
             _context.BaseI18Ns.Add(i18n);
             _context.SaveChanges();
             return new ApiResult<bool>(ApiCode.CantFindObject, "OK", true);
-
         }
 
         [HttpGet("[action]")]
@@ -199,7 +190,6 @@ namespace IoTSharp.Controllers
             }
 
             return new ApiResult<bool>(ApiCode.CantFindObject, "can't find this object", false);
-
         }
 
         [HttpGet("[action]")]
@@ -214,13 +204,11 @@ namespace IoTSharp.Controllers
                 return new ApiResult<bool>(ApiCode.Success, "OK", true);
             }
             return new ApiResult<bool>(ApiCode.CantFindObject, "can't find this object", false);
-
         }
+
         [HttpPost("[action]")]
         public ApiResult<bool> Update(BaseI18N m)
         {
-
-
             var i18n = _context.BaseI18Ns.FirstOrDefault(c => c.Id == m.Id);
             if (i18n != null)
             {
@@ -258,7 +246,6 @@ namespace IoTSharp.Controllers
             }
 
             return new ApiResult<bool>(ApiCode.CantFindObject, "can't find this object", false);
-
         }
 
         [HttpGet("[action]")]
@@ -295,7 +282,6 @@ namespace IoTSharp.Controllers
             }
             return new ApiResult<List<BaiduTranslateResult>>(ApiCode.Success, "OK", l);
         }
-
 
         public static string EncryptString(string str)
         {

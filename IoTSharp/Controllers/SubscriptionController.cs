@@ -34,7 +34,7 @@ namespace IoTSharp.Controllers
         public ApiResult<PagedData<SubscriptionEvent>> Index([FromBody] SubscriptionParam m)
         {
             var profile = this.GetUserProfile();
-            Expression<Func<SubscriptionEvent, bool>> condition = x => x.EventStatus > -1 && x.TenantId == profile.Tenant;
+            Expression<Func<SubscriptionEvent, bool>> condition = x => x.EventStatus > -1 && x.Tenant.Id == profile.Tenant;
             if (!string.IsNullOrEmpty(m.Name))
             {
                 condition = condition.And(x => x.EventName.Contains(m.Name));
@@ -97,9 +97,9 @@ namespace IoTSharp.Controllers
                     EventTag = m.EventTag,
                     Type = m.Type,
                     CreateDateTime = DateTime.Now,
-                    EventStatus = 1,
-                    TenantId = User.GetTenantId()
+                    EventStatus = 1
                 };
+                _context.JustFill(this,se);
                 _context.SubscriptionEvents.Add(se);
                 await this._context.SaveChangesAsync();
                 return new ApiResult<bool>(ApiCode.Success, "OK", true);

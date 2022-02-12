@@ -1,9 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace IoTSharp.Data
 {
@@ -11,6 +7,7 @@ namespace IoTSharp.Data
     {
         [Key]
         public Guid CommandId { get; set; }
+
         public string CommandTitle { get; set; }
         public string CommandI18N { get; set; }
 
@@ -27,7 +24,5 @@ namespace IoTSharp.Data
         public int CommandStatus { get; set; }
 
         public DeviceModel DeviceModel { get; set; }
-
-
     }
 }

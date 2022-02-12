@@ -191,8 +191,8 @@ namespace IoTSharp.Data.SqlServer.Migrations
                     TargetElementId = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     CreateDate = table.Column<DateTime>(type: "datetime2", nullable: true),
                     Creator = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    MappingStatus = table.Column<int>(type: "int", nullable: true),
-                    MappingIndex = table.Column<decimal>(type: "decimal(18,2)", nullable: true),
+                    MappingStatus = table.Column<int>(type: "int", nullable: false),
+                    MappingIndex = table.Column<int>(type: "int", nullable: false),
                     SourceDeviceId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     TargetDeviceId = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
                 },
@@ -209,12 +209,12 @@ namespace IoTSharp.Data.SqlServer.Migrations
                     PortName = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     PortDesc = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     PortPic = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    PortType = table.Column<int>(type: "int", nullable: true),
-                    PortPhyType = table.Column<int>(type: "int", nullable: true),
-                    PortStatus = table.Column<int>(type: "int", nullable: true),
+                    PortType = table.Column<int>(type: "int", nullable: false),
+                    PortPhyType = table.Column<int>(type: "int", nullable: false),
+                    PortStatus = table.Column<int>(type: "int", nullable: false),
                     DeviceId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     CreateDate = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    Creator = table.Column<long>(type: "bigint", nullable: true),
+                    Creator = table.Column<long>(type: "bigint", nullable: false),
                     PortElementId = table.Column<string>(type: "nvarchar(max)", nullable: true)
                 },
                 constraints: table =>
@@ -511,13 +511,13 @@ namespace IoTSharp.Data.SqlServer.Migrations
                     DiagramId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     DiagramName = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     DiagramDesc = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    DiagramStatus = table.Column<int>(type: "int", nullable: true),
+                    DiagramStatus = table.Column<int>(type: "int", nullable: false),
                     Creator = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     CreateDate = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: true),
                     DiagramImage = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    IsDefault = table.Column<bool>(type: "bit", nullable: true),
-                    TenantId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    CustomerId = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
+                    IsDefault = table.Column<bool>(type: "bit", nullable: false),
+                    TenantId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                    CustomerId = table.Column<Guid>(type: "uniqueidentifier", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -526,14 +526,12 @@ namespace IoTSharp.Data.SqlServer.Migrations
                         name: "FK_DeviceDiagrams_Customer_CustomerId",
                         column: x => x.CustomerId,
                         principalTable: "Customer",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        principalColumn: "Id");
                     table.ForeignKey(
                         name: "FK_DeviceDiagrams_Tenant_TenantId",
                         column: x => x.TenantId,
                         principalTable: "Tenant",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        principalColumn: "Id");
                 });
 
             migrationBuilder.CreateTable(
@@ -543,20 +541,20 @@ namespace IoTSharp.Data.SqlServer.Migrations
                     ToolBoxId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     ToolBoxName = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     ToolBoxIcon = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    ToolBoxStatus = table.Column<int>(type: "int", nullable: true),
+                    ToolBoxStatus = table.Column<int>(type: "int", nullable: false),
                     ToolBoxRequestUri = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     ToolBoxType = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    DeviceId = table.Column<long>(type: "bigint", nullable: true),
-                    ToolBoxOffsetX = table.Column<decimal>(type: "decimal(18,2)", nullable: true),
-                    ToolBoxOffsetY = table.Column<decimal>(type: "decimal(18,2)", nullable: true),
-                    ToolBoxOffsetTopPer = table.Column<decimal>(type: "decimal(18,2)", nullable: true),
-                    ToolBoxOffsetLeftPer = table.Column<decimal>(type: "decimal(18,2)", nullable: true),
+                    DeviceId = table.Column<long>(type: "bigint", nullable: false),
+                    ToolBoxOffsetX = table.Column<int>(type: "int", nullable: false),
+                    ToolBoxOffsetY = table.Column<int>(type: "int", nullable: false),
+                    ToolBoxOffsetTopPer = table.Column<int>(type: "int", nullable: false),
+                    ToolBoxOffsetLeftPer = table.Column<int>(type: "int", nullable: false),
                     CreateDate = table.Column<DateTime>(type: "datetime2", nullable: true),
                     Creator = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     CommondParam = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     CommondType = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    TenantId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    CustomerId = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
+                    TenantId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                    CustomerId = table.Column<Guid>(type: "uniqueidentifier", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -565,14 +563,12 @@ namespace IoTSharp.Data.SqlServer.Migrations
                         name: "FK_DeviceGraphToolBoxes_Customer_CustomerId",
                         column: x => x.CustomerId,
                         principalTable: "Customer",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        principalColumn: "Id");
                     table.ForeignKey(
                         name: "FK_DeviceGraphToolBoxes_Tenant_TenantId",
                         column: x => x.TenantId,
                         principalTable: "Tenant",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        principalColumn: "Id");
                 });
 
             migrationBuilder.CreateTable(
@@ -887,26 +883,26 @@ namespace IoTSharp.Data.SqlServer.Migrations
                     GraphId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     DeviceId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     GraphShape = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    GraphWidth = table.Column<decimal>(type: "decimal(18,2)", nullable: true),
-                    GraphHeight = table.Column<decimal>(type: "decimal(18,2)", nullable: true),
-                    GraphPostionX = table.Column<decimal>(type: "decimal(18,2)", nullable: true),
-                    GraphPostionY = table.Column<decimal>(type: "decimal(18,2)", nullable: true),
+                    GraphWidth = table.Column<int>(type: "int", nullable: false),
+                    GraphHeight = table.Column<int>(type: "int", nullable: false),
+                    GraphPostionX = table.Column<int>(type: "int", nullable: false),
+                    GraphPostionY = table.Column<int>(type: "int", nullable: false),
                     GraphElementId = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     CreateDate = table.Column<DateTime>(type: "datetime2", nullable: true),
                     Creator = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     DeviceDiagramDiagramId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
                     GraphFill = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     GraphStroke = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    GraphStrokeWidth = table.Column<decimal>(type: "decimal(18,2)", nullable: true),
+                    GraphStrokeWidth = table.Column<int>(type: "int", nullable: false),
                     GraphTextFill = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    GraphTextFontSize = table.Column<decimal>(type: "decimal(18,2)", nullable: true),
-                    GraphTextRefX = table.Column<decimal>(type: "decimal(18,2)", nullable: true),
+                    GraphTextFontSize = table.Column<int>(type: "int", nullable: false),
+                    GraphTextRefX = table.Column<int>(type: "int", nullable: false),
                     GraphTextAnchor = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     GraphTextVerticalAnchor = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     GraphTextFontFamily = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    GraphTextRefY = table.Column<decimal>(type: "decimal(18,2)", nullable: true),
-                    TenantId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    CustomerId = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
+                    GraphTextRefY = table.Column<int>(type: "int", nullable: false),
+                    TenantId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                    CustomerId = table.Column<Guid>(type: "uniqueidentifier", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -915,8 +911,7 @@ namespace IoTSharp.Data.SqlServer.Migrations
                         name: "FK_DeviceGraphs_Customer_CustomerId",
                         column: x => x.CustomerId,
                         principalTable: "Customer",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        principalColumn: "Id");
                     table.ForeignKey(
                         name: "FK_DeviceGraphs_DeviceDiagrams_DeviceDiagramDiagramId",
                         column: x => x.DeviceDiagramDiagramId,
@@ -926,8 +921,7 @@ namespace IoTSharp.Data.SqlServer.Migrations
                         name: "FK_DeviceGraphs_Tenant_TenantId",
                         column: x => x.TenantId,
                         principalTable: "Tenant",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        principalColumn: "Id");
                 });
 
             migrationBuilder.CreateTable(
