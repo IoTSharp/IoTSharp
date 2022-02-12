@@ -1171,7 +1171,7 @@ namespace IoTSharp.Controllers
         public async Task<ApiResult<PagedData<BaseEventDto>>> FlowEvents([FromBody] EventParam m)
         {
             var profile = await this.GetUserProfile();
-            Expression<Func<BaseEvent, bool>> condition = x => x.EventStaus > -1&&x.TenantId==profile.Tenant;
+            Expression<Func<BaseEvent, bool>> condition = x => x.EventStaus > -1&&x.Tenant.Id==profile.Tenant;
             if (!string.IsNullOrEmpty(m.Name))
             {
                 condition = condition.And(x => x.EventName.Contains(m.Name));

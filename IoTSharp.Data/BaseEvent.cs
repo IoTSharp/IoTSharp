@@ -25,9 +25,7 @@ namespace IoTSharp.Data
         public string BizData { get; set; }
 
         public Tenant Tenant { get; set; }
-        public Guid TenantId { get; set; }
-
-        public Guid CustomerId { get; set; }
+    
         public Customer Customer { get; set; }
 
 
