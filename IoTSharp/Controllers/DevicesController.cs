@@ -101,7 +101,7 @@ namespace IoTSharp.Controllers
         public async Task<ApiResult<PagedData<DeviceDetailDto>>> GetDevices([FromQuery] DeviceParam m)
         {
 
-            var profile =await this.GetUserProfile();
+            var profile =this.GetUserProfile();
 
             if (m.limit > 0)
             {

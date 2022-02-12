@@ -38,7 +38,7 @@ namespace IoTSharp.Controllers
         [HttpPost("[action]")]
         public async Task<ApiResult<PagedData<SubscriptionEvent>>> Index([FromBody] SubscriptionParam m)
         {
-            var profile = await this.GetUserProfile();
+            var profile = this.GetUserProfile();
 
             Expression<Func<SubscriptionEvent, bool>> condition = x => x.EventStatus > -1&&x.TenantId==profile.Tenant;
             if (!string.IsNullOrEmpty(m.Name))
@@ -57,7 +57,7 @@ namespace IoTSharp.Controllers
         [HttpGet("[action]")]
         public async Task<ApiResult<SubscriptionEvent>> Get(Guid id)
         {
-            var profile = await this.GetUserProfile();
+            var profile = this.GetUserProfile();
             var subscriptionEvent = await _context.SubscriptionEvents.SingleOrDefaultAsync(c => c.EventId == id);
             if (subscriptionEvent != null)
             { 
@@ -72,7 +72,7 @@ namespace IoTSharp.Controllers
         [HttpPut("[action]")]
         public async Task<ApiResult<bool>> Update(SubscriptionEvent m)
         {
-            var profile = await this.GetUserProfile();
+            var profile = this.GetUserProfile();
             var se = _context.SubscriptionEvents.SingleOrDefault(c => c.EventId == m.EventId);
             if (se != null)
             {
@@ -97,7 +97,7 @@ namespace IoTSharp.Controllers
 
             try
             {
-                var profile = await this.GetUserProfile();
+                var profile = this.GetUserProfile();
                 SubscriptionEvent se = new SubscriptionEvent();
                 se.Creator = profile.Id; se.EventName = m.EventName;
                 se.EventDesc = m.EventDesc;
@@ -142,7 +142,7 @@ namespace IoTSharp.Controllers
         [HttpGet("[action]")]
         public async Task<ApiResult<bool>> Delete(Guid id)
         {
-            var profile = await this.GetUserProfile();
+            var profile = this.GetUserProfile();
 
             var se = this._context.SubscriptionEvents.SingleOrDefault(c => c.EventId == id);
             if (se != null)

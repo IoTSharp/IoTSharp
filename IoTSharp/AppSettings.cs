@@ -125,7 +125,7 @@ namespace IoTSharp
                 {
                     if (System.IO.File.Exists(CACertificateFile) && System.IO.File.Exists(CAPrivateKeyFile))
                     {
-                        _CACertificate = new X509Certificate2().LoadPem(CACertificateFile, CAPrivateKeyFile);
+                        _CACertificate =   X509Certificate2.CreateFromPemFile(CACertificateFile, CAPrivateKeyFile);
                     }
                 }
                 return _CACertificate;
@@ -143,7 +143,7 @@ namespace IoTSharp
                 {
                     if (System.IO.File.Exists(CertificateFile) && System.IO.File.Exists(PrivateKeyFile))
                     {
-                        _BrokerCertificate = new X509Certificate2().LoadPem(CertificateFile, PrivateKeyFile);
+                        _BrokerCertificate =   X509Certificate2.CreateFromPemFile(CertificateFile, PrivateKeyFile);
                     }
                 }
                 return _BrokerCertificate;

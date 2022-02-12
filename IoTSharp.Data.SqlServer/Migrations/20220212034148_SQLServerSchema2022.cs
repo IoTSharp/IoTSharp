@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace IoTSharp.Data.SqlServer.Migrations
 {
-    public partial class AddTenantInfoAndRefToken : Migration
+    public partial class SQLServerSchema2022 : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -716,8 +716,8 @@ namespace IoTSharp.Data.SqlServer.Migrations
                     Version = table.Column<double>(type: "float", nullable: false),
                     CreateId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     MountType = table.Column<int>(type: "int", nullable: false),
-                    TenantId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    CustomerId = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
+                    TenantId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                    CustomerId = table.Column<Guid>(type: "uniqueidentifier", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -726,14 +726,12 @@ namespace IoTSharp.Data.SqlServer.Migrations
                         name: "FK_FlowRules_Customer_CustomerId",
                         column: x => x.CustomerId,
                         principalTable: "Customer",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        principalColumn: "Id");
                     table.ForeignKey(
                         name: "FK_FlowRules_Tenant_TenantId",
                         column: x => x.TenantId,
                         principalTable: "Tenant",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        principalColumn: "Id");
                 });
 
             migrationBuilder.CreateTable(
@@ -783,8 +781,8 @@ namespace IoTSharp.Data.SqlServer.Migrations
                     TestStatus = table.Column<int>(type: "int", nullable: false),
                     Tester = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     TesterDateTime = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    TenantId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    CustomerId = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
+                    TenantId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                    CustomerId = table.Column<Guid>(type: "uniqueidentifier", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -793,14 +791,12 @@ namespace IoTSharp.Data.SqlServer.Migrations
                         name: "FK_RuleTaskExecutors_Customer_CustomerId",
                         column: x => x.CustomerId,
                         principalTable: "Customer",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        principalColumn: "Id");
                     table.ForeignKey(
                         name: "FK_RuleTaskExecutors_Tenant_TenantId",
                         column: x => x.TenantId,
                         principalTable: "Tenant",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        principalColumn: "Id");
                 });
 
             migrationBuilder.CreateTable(
@@ -949,8 +945,8 @@ namespace IoTSharp.Data.SqlServer.Migrations
                     Bizid = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     CreaterDateTime = table.Column<DateTime>(type: "datetime2", nullable: false),
                     BizData = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    TenantId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    CustomerId = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
+                    TenantId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                    CustomerId = table.Column<Guid>(type: "uniqueidentifier", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -959,8 +955,7 @@ namespace IoTSharp.Data.SqlServer.Migrations
                         name: "FK_BaseEvents_Customer_CustomerId",
                         column: x => x.CustomerId,
                         principalTable: "Customer",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        principalColumn: "Id");
                     table.ForeignKey(
                         name: "FK_BaseEvents_FlowRules_FlowRuleRuleId",
                         column: x => x.FlowRuleRuleId,
@@ -970,8 +965,7 @@ namespace IoTSharp.Data.SqlServer.Migrations
                         name: "FK_BaseEvents_Tenant_TenantId",
                         column: x => x.TenantId,
                         principalTable: "Tenant",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        principalColumn: "Id");
                 });
 
             migrationBuilder.CreateTable(
@@ -1004,8 +998,8 @@ namespace IoTSharp.Data.SqlServer.Migrations
                     CreateDate = table.Column<DateTime>(type: "datetime2", nullable: false),
                     Createor = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     ExecutorId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
-                    TenantId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    CustomerId = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
+                    TenantId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                    CustomerId = table.Column<Guid>(type: "uniqueidentifier", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -1014,8 +1008,7 @@ namespace IoTSharp.Data.SqlServer.Migrations
                         name: "FK_Flows_Customer_CustomerId",
                         column: x => x.CustomerId,
                         principalTable: "Customer",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        principalColumn: "Id");
                     table.ForeignKey(
                         name: "FK_Flows_FlowRules_FlowRuleRuleId",
                         column: x => x.FlowRuleRuleId,
@@ -1030,8 +1023,7 @@ namespace IoTSharp.Data.SqlServer.Migrations
                         name: "FK_Flows_Tenant_TenantId",
                         column: x => x.TenantId,
                         principalTable: "Tenant",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        principalColumn: "Id");
                 });
 
             migrationBuilder.CreateTable(
@@ -1118,9 +1110,9 @@ namespace IoTSharp.Data.SqlServer.Migrations
                     Data = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     BizId = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     bpmnid = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    FlowId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    FlowRuleId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    BaseEventId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    FlowId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                    FlowRuleRuleId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                    BaseEventEventId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
                     Step = table.Column<int>(type: "int", nullable: false),
                     Tag = table.Column<string>(type: "nvarchar(max)", nullable: true)
                 },
@@ -1128,23 +1120,20 @@ namespace IoTSharp.Data.SqlServer.Migrations
                 {
                     table.PrimaryKey("PK_FlowOperations", x => x.OperationId);
                     table.ForeignKey(
-                        name: "FK_FlowOperations_BaseEvents_BaseEventId",
-                        column: x => x.BaseEventId,
+                        name: "FK_FlowOperations_BaseEvents_BaseEventEventId",
+                        column: x => x.BaseEventEventId,
                         principalTable: "BaseEvents",
-                        principalColumn: "EventId",
-                        onDelete: ReferentialAction.Cascade);
+                        principalColumn: "EventId");
                     table.ForeignKey(
-                        name: "FK_FlowOperations_FlowRules_FlowRuleId",
-                        column: x => x.FlowRuleId,
+                        name: "FK_FlowOperations_FlowRules_FlowRuleRuleId",
+                        column: x => x.FlowRuleRuleId,
                         principalTable: "FlowRules",
-                        principalColumn: "RuleId",
-                        onDelete: ReferentialAction.Cascade);
+                        principalColumn: "RuleId");
                     table.ForeignKey(
                         name: "FK_FlowOperations_Flows_FlowId",
                         column: x => x.FlowId,
                         principalTable: "Flows",
-                        principalColumn: "FlowId",
-                        onDelete: ReferentialAction.Cascade);
+                        principalColumn: "FlowId");
                 });
 
             migrationBuilder.CreateIndex(
@@ -1348,9 +1337,9 @@ namespace IoTSharp.Data.SqlServer.Migrations
                 column: "TenantId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_FlowOperations_BaseEventId",
+                name: "IX_FlowOperations_BaseEventEventId",
                 table: "FlowOperations",
-                column: "BaseEventId");
+                column: "BaseEventEventId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_FlowOperations_FlowId",
@@ -1358,9 +1347,9 @@ namespace IoTSharp.Data.SqlServer.Migrations
                 column: "FlowId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_FlowOperations_FlowRuleId",
+                name: "IX_FlowOperations_FlowRuleRuleId",
                 table: "FlowOperations",
-                column: "FlowRuleId");
+                column: "FlowRuleRuleId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_FlowRules_CustomerId",

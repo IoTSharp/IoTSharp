@@ -430,10 +430,10 @@
             </summary>
         </member>
         <member name="M:IoTSharp.Controllers.RulesController.UpdateFlowExpression(IoTSharp.Dtos.UpdateFlowExpression)">
-            <summary>
-            更新节点的条件表达式
-            </summary>
-            <returns> </returns>
+             <summary>
+             更新节点的条件表达式
+             </summary>
+             <returns> </returns>
             
         </member>
         <member name="M:IoTSharp.Controllers.RulesController.Fork(IoTSharp.Data.FlowRule)">
@@ -649,6 +649,95 @@
             <summary>
             是否被安装
             </summary>
+        </member>
+        <member name="M:IoTSharp.IoTSharpExtension.JustFill``1(IoTSharp.Data.ApplicationDbContext,Microsoft.AspNetCore.Mvc.ControllerBase,``0)">
+            <summary>
+            根据用户信息填写表里面的内容
+            </summary>
+            <typeparam name="T"></typeparam>
+            <param name="_context"></param>
+            <param name="controller"></param>
+            <param name="ak"></param>
+        </member>
+        <member name="M:IoTSharp.IoTSharpExtension.JustCustomer``1(Microsoft.EntityFrameworkCore.DbSet{``0},Microsoft.AspNetCore.Mvc.ControllerBase)">
+            <summary>
+            查询当前客户的数据
+            </summary>
+            <typeparam name="T"></typeparam>
+            <param name="ts"></param>
+            <param name="controller"></param>
+            <returns></returns>
+        </member>
+        <member name="M:IoTSharp.IoTSharpExtension.JustCustomer``1(Microsoft.EntityFrameworkCore.DbSet{``0},System.Guid)">
+            <summary>
+            查询指定客户的数据
+            </summary>
+            <typeparam name="T"></typeparam>
+            <param name="ts"></param>
+            <param name="_customerId"></param>
+            <returns></returns>
+        </member>
+        <member name="M:IoTSharp.IoTSharpExtension.JustTenant``1(Microsoft.EntityFrameworkCore.DbSet{``0},Microsoft.AspNetCore.Mvc.ControllerBase)">
+            <summary>
+            查询当前用户所在租户的数据
+            </summary>
+            <typeparam name="T"></typeparam>
+            <param name="ts"></param>
+            <param name="controller"></param>
+            <returns></returns>
+        </member>
+        <member name="M:IoTSharp.IoTSharpExtension.JustTenant``1(Microsoft.EntityFrameworkCore.DbSet{``0},System.Guid)">
+            <summary>
+            查询指定租户的数据
+            </summary>
+            <typeparam name="T"></typeparam>
+            <param name="ts"></param>
+            <param name="_tenantId"></param>
+            <returns></returns>
+        </member>
+        <member name="M:IoTSharp.IoTSharpExtension.GetCustomer(IoTSharp.Data.ApplicationDbContext,System.Guid)">
+            <summary>
+            获取指定客户信息
+            </summary>
+            <param name="context"></param>
+            <param name="custId"></param>
+            <returns></returns>
+        </member>
+        <member name="M:IoTSharp.IoTSharpExtension.GetTenant(IoTSharp.Data.ApplicationDbContext,System.Guid)">
+            <summary>
+            获取指定的租户信息
+            </summary>
+            <param name="context"></param>
+            <param name="tenId"></param>
+            <returns></returns>
+        </member>
+        <member name="M:IoTSharp.IoTSharpExtension.GetEmail(System.Security.Claims.ClaimsPrincipal)">
+            <summary>
+            获取当前用户的邮箱
+            </summary>
+            <param name="_user"></param>
+            <returns></returns>
+        </member>
+        <member name="M:IoTSharp.IoTSharpExtension.GetUserId(System.Security.Claims.ClaimsPrincipal)">
+            <summary>
+            获取当前用户的ID
+            </summary>
+            <param name="_user"></param>
+            <returns></returns>
+        </member>
+        <member name="M:IoTSharp.IoTSharpExtension.GetTenantId(System.Security.Claims.ClaimsPrincipal)">
+            <summary>
+            获取当前用户的ID
+            </summary>
+            <param name="_user"></param>
+            <returns></returns>
+        </member>
+        <member name="M:IoTSharp.IoTSharpExtension.GetCustomerId(System.Security.Claims.ClaimsPrincipal)">
+            <summary>
+            获取当前用户的客户ID
+            </summary>
+            <param name="_user"></param>
+            <returns></returns>
         </member>
         <member name="M:IoTSharp.IoTSharpExtension.AddJWTSecurity(NSwag.Generation.AspNetCore.AspNetCoreOpenApiDocumentGeneratorSettings)">
             <summary>

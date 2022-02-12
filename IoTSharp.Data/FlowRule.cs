@@ -12,7 +12,9 @@ namespace IoTSharp.Data
     {
         [Key] public Guid RuleId { get; set; }
         public RuleType RuleType { get; set; }
-        [Required] public string Name { get; set; }
+        
+        [Required] 
+        public string Name { get; set; }
         public string Describes { get; set; }
         public string Runner { get; set; }
         public string ExecutableCode { get; set; }
@@ -28,9 +30,7 @@ namespace IoTSharp.Data
         public Guid CreateId { get; set; }
         public MountType MountType { get; set; }
         public Tenant Tenant { get; set; }
-        public Guid TenantId { get; set; }
 
-        public Guid CustomerId { get; set; }
         public Customer Customer { get; set; }
 
     }

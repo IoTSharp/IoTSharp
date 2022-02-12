@@ -189,7 +189,7 @@ namespace IoTSharp.Data.Sqlite.Migrations
                     b.Property<Guid>("Creator")
                         .HasColumnType("TEXT");
 
-                    b.Property<Guid>("CustomerId")
+                    b.Property<Guid?>("CustomerId")
                         .HasColumnType("TEXT");
 
                     b.Property<string>("EventDesc")
@@ -207,7 +207,7 @@ namespace IoTSharp.Data.Sqlite.Migrations
                     b.Property<string>("MataData")
                         .HasColumnType("TEXT");
 
-                    b.Property<Guid>("TenantId")
+                    b.Property<Guid?>("TenantId")
                         .HasColumnType("TEXT");
 
                     b.Property<int>("Type")
@@ -1851,9 +1851,7 @@ namespace IoTSharp.Data.Sqlite.Migrations
                 {
                     b.HasOne("IoTSharp.Data.Customer", "Customer")
                         .WithMany()
-                        .HasForeignKey("CustomerId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("CustomerId");
 
                     b.HasOne("IoTSharp.Data.FlowRule", "FlowRule")
                         .WithMany()
@@ -1861,9 +1859,7 @@ namespace IoTSharp.Data.Sqlite.Migrations
 
                     b.HasOne("IoTSharp.Data.Tenant", "Tenant")
                         .WithMany()
-                        .HasForeignKey("TenantId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("TenantId");
 
                     b.Navigation("Customer");
 

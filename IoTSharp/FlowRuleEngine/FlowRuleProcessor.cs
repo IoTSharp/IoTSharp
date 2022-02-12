@@ -117,11 +117,7 @@ namespace IoTSharp.FlowRuleEngine
                         bpmnid = "",
                         AddDate = DateTime.Now,
                         FlowRule = rule,
-                        FlowRuleId = rule.RuleId,
-                        BaseEventId = @event.EventId,
-                        FlowId = start.FlowId,
                         Flow = start,
-                      
                         Data = JsonConvert.SerializeObject(data),
                         NodeStatus = 1,
                         OperationDesc = "未能找到启动节点",
@@ -141,9 +137,6 @@ namespace IoTSharp.FlowRuleEngine
                     AddDate = DateTime.Now,
                     FlowRule = rule,
                     Flow = start,
-                    FlowRuleId = rule.RuleId,
-                    BaseEventId = @event.EventId,
-                    FlowId = start.FlowId,
                     Data = JsonConvert.SerializeObject(data),
                     NodeStatus = 1,
                     OperationDesc = "进入开始节点",
@@ -162,14 +155,9 @@ namespace IoTSharp.FlowRuleEngine
                         {
                             OperationId = Guid.NewGuid(),
                             AddDate = DateTime.Now,
-                            FlowRule = @event.FlowRule,
-                            Flow = item,
-
-
-
-                            FlowRuleId = rule.RuleId,
-                            BaseEventId = @event.EventId,
-                            FlowId = start.FlowId,
+                            FlowRule = rule,
+                            BaseEvent = @event,
+                            Flow = start,
                             Data = JsonConvert.SerializeObject(data),
                             NodeStatus = 1,
                             OperationDesc = "Condition（" + (string.IsNullOrEmpty(item.Conditionexpression)
@@ -177,8 +165,8 @@ namespace IoTSharp.FlowRuleEngine
                                 : item.Conditionexpression) + ")",
                             Step = ++startoperation.Step,
                             bpmnid = item.bpmnid,
-                            BaseEvent = @event
                         };
+
                         _allflowoperation.Add(flowOperation);
                         await Process(flowOperation.OperationId, data, deviceId);
                     }
@@ -217,11 +205,6 @@ namespace IoTSharp.FlowRuleEngine
                             AddDate = DateTime.Now,
                             FlowRule = peroperation.BaseEvent.FlowRule,
                             Flow = flow,
-
-
-                            FlowRuleId = peroperation.BaseEvent.FlowRule.RuleId,
-                            BaseEventId = peroperation.BaseEvent.EventId,
-                            FlowId = flow.FlowId,
                             Data = JsonConvert.SerializeObject(data),
                             NodeStatus = 1,
                             OperationDesc = "Condition（" + (string.IsNullOrEmpty(flow.Conditionexpression)
@@ -245,9 +228,6 @@ namespace IoTSharp.FlowRuleEngine
                                 AddDate = DateTime.Now,
                                 FlowRule = peroperation.BaseEvent.FlowRule,
                                 Flow = flow,
-                                FlowRuleId = peroperation.BaseEvent.FlowRule.RuleId,
-                                BaseEventId = peroperation.BaseEvent.EventId,
-                                FlowId = flow.FlowId,
                                 Data = JsonConvert.SerializeObject(data),
                                 NodeStatus = 1,
                                 OperationDesc = "Run" + flow.NodeProcessScriptType + "Task:" + flow.Flowname,
@@ -378,9 +358,6 @@ namespace IoTSharp.FlowRuleEngine
                                             AddDate = DateTime.Now,
                                             FlowRule = peroperation.BaseEvent.FlowRule,
                                             Flow = item,
-                                            FlowRuleId = peroperation.BaseEvent.FlowRule.RuleId,
-                                            BaseEventId = peroperation.BaseEvent.EventId,
-                                            FlowId = item.FlowId,
                                             Data = JsonConvert.SerializeObject(obj),
                                             NodeStatus = 1,
                                             OperationDesc = "Execute（" +
@@ -413,9 +390,6 @@ namespace IoTSharp.FlowRuleEngine
                                         AddDate = DateTime.Now,
                                         FlowRule = peroperation.BaseEvent.FlowRule,
                                         Flow = item,
-                                        FlowRuleId = peroperation.BaseEvent.FlowRule.RuleId,
-                                        BaseEventId = peroperation.BaseEvent.EventId,
-                                        FlowId = item.FlowId,
                                         Data = JsonConvert.SerializeObject(data),
                                         NodeStatus = 1,
                                         OperationDesc = "执行条件（" + (string.IsNullOrEmpty(item.Conditionexpression)
@@ -442,9 +416,7 @@ namespace IoTSharp.FlowRuleEngine
                         {
 
 
-                            end.FlowRuleId = peroperation.BaseEvent.FlowRule.RuleId;
-                            end.BaseEventId = peroperation.BaseEvent.EventId;
-                            end.FlowId = flow.FlowId;
+                            end.BuildFlowOperation(peroperation, flow);
                             end.bpmnid = flow.bpmnid;
                             end.AddDate = DateTime.Now;
                             end.FlowRule = peroperation.BaseEvent.FlowRule;
@@ -459,10 +431,7 @@ namespace IoTSharp.FlowRuleEngine
                         else
                         {
                             end = new FlowOperation();
-
-                            end.FlowRuleId = peroperation.BaseEvent.FlowRule.RuleId;
-                            end.BaseEventId = peroperation.BaseEvent.EventId;
-                            end.FlowId = flow.FlowId;
+                            end.BuildFlowOperation(peroperation, flow);
                             end.OperationId = Guid.NewGuid();
                             end.bpmnid = flow.bpmnid;
                             end.AddDate = DateTime.Now;
@@ -511,7 +480,7 @@ namespace IoTSharp.FlowRuleEngine
             }
         }
 
-
+    
 
         public async Task<List<Flow>> ProcessCondition(Guid flowId, dynamic data)
         {

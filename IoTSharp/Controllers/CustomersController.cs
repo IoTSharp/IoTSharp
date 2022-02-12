@@ -60,7 +60,7 @@ namespace IoTSharp.Controllers
 
 
 
-         var profile=await   this.GetUserProfile();
+         var profile=this.GetUserProfile();
 
             Expression<Func<Customer, bool>> condition = x => x.Tenant.Id == profile.Tenant;
 

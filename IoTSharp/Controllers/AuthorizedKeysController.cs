@@ -23,7 +23,6 @@ namespace IoTSharp.Controllers
         private readonly UserManager<IdentityUser> _userManager;
         private readonly SignInManager<IdentityUser> _signInManager;
         private readonly ILogger _logger;
-        private readonly string _customerId;
 
         public AuthorizedKeysController(UserManager<IdentityUser> userManager,
             SignInManager<IdentityUser> signInManager, ILogger<AuthorizedKeysController> logger, ApplicationDbContext context)
@@ -32,7 +31,6 @@ namespace IoTSharp.Controllers
             _userManager = userManager;
             _signInManager = signInManager;
             _logger = logger;
-            _customerId = this.GetNowUserCustomerId();
         }
 
 
@@ -43,7 +41,7 @@ namespace IoTSharp.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<AuthorizedKey>>> GetAuthorizedKeys()
         {
-            return await _context.AuthorizedKeys.JustCustomer(_customerId).ToListAsync();
+            return await _context.AuthorizedKeys.JustCustomer(User.GetCustomerId() ).ToListAsync();
         }
 
        /// <summary>
@@ -57,7 +55,7 @@ namespace IoTSharp.Controllers
         [ProducesDefaultResponseType]
         public async Task<ApiResult<AuthorizedKey>> GetAuthorizedKey(Guid id)
         {
-            var authorizedKey = await _context.AuthorizedKeys.JustCustomer(_customerId).FirstOrDefaultAsync(ak=>ak.Id== id);
+            var authorizedKey = await _context.AuthorizedKeys.JustCustomer( User.GetCustomerId()).FirstOrDefaultAsync(ak=>ak.Id== id);
 
             if (authorizedKey == null)
             {
@@ -142,7 +140,7 @@ namespace IoTSharp.Controllers
         public async Task<ApiResult<AuthorizedKey>> DeleteAuthorizedKey(Guid id)
         {
 
-            var authorizedKey = await _context.AuthorizedKeys.JustCustomer(_customerId).FirstOrDefaultAsync(ak=>ak.Id== id);
+            var authorizedKey = await _context.AuthorizedKeys.JustCustomer(User.GetCustomerId()).FirstOrDefaultAsync(ak=>ak.Id== id);
             if (authorizedKey == null)
             {
                 return new ApiResult<AuthorizedKey>(ApiCode.CantFindObject, "can't find this object", null);
@@ -156,7 +154,7 @@ namespace IoTSharp.Controllers
 
         private bool AuthorizedKeyExists(Guid id)
         {
-            return _context.AuthorizedKeys.JustCustomer(_customerId).Any(e => e.Id == id);
+            return _context.AuthorizedKeys.JustCustomer(User.GetCustomerId()).Any(e => e.Id == id);
         }
     }
 }

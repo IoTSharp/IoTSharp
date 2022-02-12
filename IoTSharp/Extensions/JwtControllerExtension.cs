@@ -19,28 +19,17 @@ namespace IoTSharp.Extensions
 {
     public static class JwtControllerExtension
     {
-        public static async Task<UserProfile> GetUserProfile(this ControllerBase c)
+        public static UserProfile GetUserProfile(this ControllerBase @this)
         {
-            string token = await c.HttpContext.GetTokenAsync(JwtBearerDefaults.AuthenticationScheme, "access_token");
-            if (!string.IsNullOrEmpty(token))
+            return new UserProfile()
             {
-                var _token = token.Split(new[] { "." }, StringSplitOptions.RemoveEmptyEntries);
-                if (_token.Length == 3)
-                {
-                    var payload = _token[1];
-                    var claims = JwtHeader.Base64UrlDeserialize(payload);
-                    return new UserProfile()
-                    {
-                        Id = Guid.Parse(claims["nameid"].ToString() ?? string.Empty),
-                        Name = claims["unique_name"].ToString() ?? string.Empty,
-                        Roles = claims["role"]?.ToString().Split(';') ?? new string[] { },
-                        Email = claims["email"]?.ToString().Split(';') ?? new string[] { },
-                        Tenant = Guid.Parse(claims[IoTSharpClaimTypes.Tenant]?.ToString() ?? string.Empty),
-                        Comstomer = Guid.Parse(claims[IoTSharpClaimTypes.Customer]?.ToString() ?? string.Empty),
-                    };
-                }
-            }
-            return default;
+                Id = @this.User.GetUserId(),
+                Name = @this.User.Identity.Name,
+                Roles = @this.User.Claims.Where(c => c.Type == ClaimTypes.Role).Select(x => x.Value).ToArray(),
+                Email = @this.User.GetEmail(),
+                Tenant = @this.User.GetTenantId(),
+                Comstomer =@this.User.GetCustomerId()
+            };
         }
     }
 }

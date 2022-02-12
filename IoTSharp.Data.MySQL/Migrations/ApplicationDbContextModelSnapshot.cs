@@ -191,7 +191,7 @@ namespace IoTSharp.Data.MySql.Migrations
                     b.Property<Guid>("Creator")
                         .HasColumnType("char(36)");
 
-                    b.Property<Guid>("CustomerId")
+                    b.Property<Guid?>("CustomerId")
                         .HasColumnType("char(36)");
 
                     b.Property<string>("EventDesc")
@@ -209,7 +209,7 @@ namespace IoTSharp.Data.MySql.Migrations
                     b.Property<string>("MataData")
                         .HasColumnType("longtext");
 
-                    b.Property<Guid>("TenantId")
+                    b.Property<Guid?>("TenantId")
                         .HasColumnType("char(36)");
 
                     b.Property<int>("Type")
@@ -1853,9 +1853,7 @@ namespace IoTSharp.Data.MySql.Migrations
                 {
                     b.HasOne("IoTSharp.Data.Customer", "Customer")
                         .WithMany()
-                        .HasForeignKey("CustomerId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("CustomerId");
 
                     b.HasOne("IoTSharp.Data.FlowRule", "FlowRule")
                         .WithMany()
@@ -1863,9 +1861,7 @@ namespace IoTSharp.Data.MySql.Migrations
 
                     b.HasOne("IoTSharp.Data.Tenant", "Tenant")
                         .WithMany()
-                        .HasForeignKey("TenantId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("TenantId");
 
                     b.Navigation("Customer");
 

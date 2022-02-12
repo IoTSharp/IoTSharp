@@ -3,9 +3,9 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
-namespace IoTSharp.Migrations
+namespace IoTSharp.Data.MySql.Migrations
 {
-    public partial class FixIX_TelemetryData_DeviceId_KeyName_DateTime : Migration
+    public partial class AddTenantInfoAndToken : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -20,18 +20,22 @@ namespace IoTSharp.Migrations
             migrationBuilder.AlterColumn<Guid>(
                 name: "TenantId",
                 table: "BaseEvents",
-                type: "uuid",
+                type: "char(36)",
                 nullable: true,
+                collation: "ascii_general_ci",
                 oldClrType: typeof(Guid),
-                oldType: "uuid");
+                oldType: "char(36)")
+                .OldAnnotation("Relational:Collation", "ascii_general_ci");
 
             migrationBuilder.AlterColumn<Guid>(
                 name: "CustomerId",
                 table: "BaseEvents",
-                type: "uuid",
+                type: "char(36)",
                 nullable: true,
+                collation: "ascii_general_ci",
                 oldClrType: typeof(Guid),
-                oldType: "uuid");
+                oldType: "char(36)")
+                .OldAnnotation("Relational:Collation", "ascii_general_ci");
 
             migrationBuilder.AddForeignKey(
                 name: "FK_BaseEvents_Customer_CustomerId",
@@ -61,22 +65,26 @@ namespace IoTSharp.Migrations
             migrationBuilder.AlterColumn<Guid>(
                 name: "TenantId",
                 table: "BaseEvents",
-                type: "uuid",
+                type: "char(36)",
                 nullable: false,
                 defaultValue: new Guid("00000000-0000-0000-0000-000000000000"),
+                collation: "ascii_general_ci",
                 oldClrType: typeof(Guid),
-                oldType: "uuid",
-                oldNullable: true);
+                oldType: "char(36)",
+                oldNullable: true)
+                .OldAnnotation("Relational:Collation", "ascii_general_ci");
 
             migrationBuilder.AlterColumn<Guid>(
                 name: "CustomerId",
                 table: "BaseEvents",
-                type: "uuid",
+                type: "char(36)",
                 nullable: false,
                 defaultValue: new Guid("00000000-0000-0000-0000-000000000000"),
+                collation: "ascii_general_ci",
                 oldClrType: typeof(Guid),
-                oldType: "uuid",
-                oldNullable: true);
+                oldType: "char(36)",
+                oldNullable: true)
+                .OldAnnotation("Relational:Collation", "ascii_general_ci");
 
             migrationBuilder.AddForeignKey(
                 name: "FK_BaseEvents_Customer_CustomerId",

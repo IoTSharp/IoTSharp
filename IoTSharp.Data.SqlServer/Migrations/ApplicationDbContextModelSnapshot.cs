@@ -198,7 +198,7 @@ namespace IoTSharp.Data.SqlServer.Migrations
                     b.Property<Guid>("Creator")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<Guid>("CustomerId")
+                    b.Property<Guid?>("CustomerId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("EventDesc")
@@ -216,7 +216,7 @@ namespace IoTSharp.Data.SqlServer.Migrations
                     b.Property<string>("MataData")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<Guid>("TenantId")
+                    b.Property<Guid?>("TenantId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<int>("Type")
@@ -1129,7 +1129,7 @@ namespace IoTSharp.Data.SqlServer.Migrations
                     b.Property<Guid>("Createor")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<Guid>("CustomerId")
+                    b.Property<Guid?>("CustomerId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<Guid?>("ExecutorId")
@@ -1183,7 +1183,7 @@ namespace IoTSharp.Data.SqlServer.Migrations
                     b.Property<string>("TargetId")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<Guid>("TenantId")
+                    b.Property<Guid?>("TenantId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<int>("TestStatus")
@@ -1220,7 +1220,7 @@ namespace IoTSharp.Data.SqlServer.Migrations
                     b.Property<DateTime?>("AddDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<Guid>("BaseEventId")
+                    b.Property<Guid?>("BaseEventEventId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("BizId")
@@ -1229,10 +1229,10 @@ namespace IoTSharp.Data.SqlServer.Migrations
                     b.Property<string>("Data")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<Guid>("FlowId")
+                    b.Property<Guid?>("FlowId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<Guid>("FlowRuleId")
+                    b.Property<Guid?>("FlowRuleRuleId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<int?>("NodeStatus")
@@ -1252,11 +1252,11 @@ namespace IoTSharp.Data.SqlServer.Migrations
 
                     b.HasKey("OperationId");
 
-                    b.HasIndex("BaseEventId");
+                    b.HasIndex("BaseEventEventId");
 
                     b.HasIndex("FlowId");
 
-                    b.HasIndex("FlowRuleId");
+                    b.HasIndex("FlowRuleRuleId");
 
                     b.ToTable("FlowOperations");
                 });
@@ -1276,7 +1276,7 @@ namespace IoTSharp.Data.SqlServer.Migrations
                     b.Property<string>("Creator")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<Guid>("CustomerId")
+                    b.Property<Guid?>("CustomerId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("DefinitionsXml")
@@ -1313,7 +1313,7 @@ namespace IoTSharp.Data.SqlServer.Migrations
                     b.Property<double>("SubVersion")
                         .HasColumnType("float");
 
-                    b.Property<Guid>("TenantId")
+                    b.Property<Guid?>("TenantId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<double>("Version")
@@ -1400,7 +1400,7 @@ namespace IoTSharp.Data.SqlServer.Migrations
                     b.Property<Guid>("Creator")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<Guid>("CustomerId")
+                    b.Property<Guid?>("CustomerId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("DefaultConfig")
@@ -1424,7 +1424,7 @@ namespace IoTSharp.Data.SqlServer.Migrations
                     b.Property<string>("Tag")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<Guid>("TenantId")
+                    b.Property<Guid?>("TenantId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<int>("TestStatus")
@@ -1874,9 +1874,7 @@ namespace IoTSharp.Data.SqlServer.Migrations
                 {
                     b.HasOne("IoTSharp.Data.Customer", "Customer")
                         .WithMany()
-                        .HasForeignKey("CustomerId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("CustomerId");
 
                     b.HasOne("IoTSharp.Data.FlowRule", "FlowRule")
                         .WithMany()
@@ -1884,9 +1882,7 @@ namespace IoTSharp.Data.SqlServer.Migrations
 
                     b.HasOne("IoTSharp.Data.Tenant", "Tenant")
                         .WithMany()
-                        .HasForeignKey("TenantId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("TenantId");
 
                     b.Navigation("Customer");
 
@@ -2096,9 +2092,7 @@ namespace IoTSharp.Data.SqlServer.Migrations
                 {
                     b.HasOne("IoTSharp.Data.Customer", "Customer")
                         .WithMany()
-                        .HasForeignKey("CustomerId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("CustomerId");
 
                     b.HasOne("IoTSharp.Data.RuleTaskExecutor", "Executor")
                         .WithMany()
@@ -2110,9 +2104,7 @@ namespace IoTSharp.Data.SqlServer.Migrations
 
                     b.HasOne("IoTSharp.Data.Tenant", "Tenant")
                         .WithMany()
-                        .HasForeignKey("TenantId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("TenantId");
 
                     b.Navigation("Customer");
 
@@ -2127,21 +2119,15 @@ namespace IoTSharp.Data.SqlServer.Migrations
                 {
                     b.HasOne("IoTSharp.Data.BaseEvent", "BaseEvent")
                         .WithMany()
-                        .HasForeignKey("BaseEventId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("BaseEventEventId");
 
                     b.HasOne("IoTSharp.Data.Flow", "Flow")
                         .WithMany()
-                        .HasForeignKey("FlowId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("FlowId");
 
                     b.HasOne("IoTSharp.Data.FlowRule", "FlowRule")
                         .WithMany()
-                        .HasForeignKey("FlowRuleId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("FlowRuleRuleId");
 
                     b.Navigation("BaseEvent");
 
@@ -2154,15 +2140,11 @@ namespace IoTSharp.Data.SqlServer.Migrations
                 {
                     b.HasOne("IoTSharp.Data.Customer", "Customer")
                         .WithMany()
-                        .HasForeignKey("CustomerId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("CustomerId");
 
                     b.HasOne("IoTSharp.Data.Tenant", "Tenant")
                         .WithMany()
-                        .HasForeignKey("TenantId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("TenantId");
 
                     b.Navigation("Customer");
 
@@ -2203,15 +2185,11 @@ namespace IoTSharp.Data.SqlServer.Migrations
                 {
                     b.HasOne("IoTSharp.Data.Customer", "Customer")
                         .WithMany()
-                        .HasForeignKey("CustomerId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("CustomerId");
 
                     b.HasOne("IoTSharp.Data.Tenant", "Tenant")
                         .WithMany()
-                        .HasForeignKey("TenantId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("TenantId");
 
                     b.Navigation("Customer");
 
