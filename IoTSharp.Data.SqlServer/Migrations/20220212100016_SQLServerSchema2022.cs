@@ -579,27 +579,27 @@ namespace IoTSharp.Data.SqlServer.Migrations
                         .Annotation("SqlServer:Identity", "1, 1"),
                     FieldName = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     FieldValue = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    FieldValueType = table.Column<int>(type: "int", nullable: true),
-                    FormId = table.Column<long>(type: "bigint", nullable: true),
+                    FieldValueType = table.Column<int>(type: "int", nullable: false),
+                    FormId = table.Column<long>(type: "bigint", nullable: false),
                     Creator = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     FieldCreateDate = table.Column<DateTime>(type: "datetime2", nullable: true),
                     FieldEditDate = table.Column<DateTime>(type: "datetime2", nullable: true),
                     FieldCode = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     FieldUnit = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    IsRequired = table.Column<bool>(type: "bit", nullable: true),
-                    IsEnabled = table.Column<bool>(type: "bit", nullable: true),
-                    FieldStatus = table.Column<int>(type: "int", nullable: true),
+                    IsRequired = table.Column<bool>(type: "bit", nullable: false),
+                    IsEnabled = table.Column<bool>(type: "bit", nullable: false),
+                    FieldStatus = table.Column<int>(type: "int", nullable: false),
                     FieldI18nKey = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     FieldValueDataSource = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     FieldValueLocalDataSource = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     FieldPattern = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    FieldMaxLength = table.Column<int>(type: "int", nullable: true),
+                    FieldMaxLength = table.Column<int>(type: "int", nullable: false),
                     FieldValueTypeName = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    FieldUIElement = table.Column<long>(type: "bigint", nullable: true),
+                    FieldUIElement = table.Column<long>(type: "bigint", nullable: false),
                     FieldUIElementSchema = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     FieldPocoTypeName = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    TenantId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    CustomerId = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
+                    TenantId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                    CustomerId = table.Column<Guid>(type: "uniqueidentifier", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -608,14 +608,12 @@ namespace IoTSharp.Data.SqlServer.Migrations
                         name: "FK_DynamicFormFieldInfos_Customer_CustomerId",
                         column: x => x.CustomerId,
                         principalTable: "Customer",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        principalColumn: "Id");
                     table.ForeignKey(
                         name: "FK_DynamicFormFieldInfos_Tenant_TenantId",
                         column: x => x.TenantId,
                         principalTable: "Tenant",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        principalColumn: "Id");
                 });
 
             migrationBuilder.CreateTable(
@@ -624,18 +622,18 @@ namespace IoTSharp.Data.SqlServer.Migrations
                 {
                     FieldValueId = table.Column<long>(type: "bigint", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    FieldId = table.Column<long>(type: "bigint", nullable: true),
+                    FieldId = table.Column<long>(type: "bigint", nullable: false),
                     FieldName = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     FieldValue = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    FromId = table.Column<long>(type: "bigint", nullable: true),
+                    FromId = table.Column<long>(type: "bigint", nullable: false),
                     Creator = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     FieldCreateDate = table.Column<DateTime>(type: "datetime2", nullable: true),
                     FieldCode = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     FieldUnit = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    FieldValueType = table.Column<long>(type: "bigint", nullable: true),
-                    BizId = table.Column<long>(type: "bigint", nullable: true),
-                    TenantId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    CustomerId = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
+                    FieldValueType = table.Column<long>(type: "bigint", nullable: false),
+                    BizId = table.Column<long>(type: "bigint", nullable: false),
+                    TenantId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                    CustomerId = table.Column<Guid>(type: "uniqueidentifier", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -644,14 +642,12 @@ namespace IoTSharp.Data.SqlServer.Migrations
                         name: "FK_DynamicFormFieldValueInfos_Customer_CustomerId",
                         column: x => x.CustomerId,
                         principalTable: "Customer",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        principalColumn: "Id");
                     table.ForeignKey(
                         name: "FK_DynamicFormFieldValueInfos_Tenant_TenantId",
                         column: x => x.TenantId,
                         principalTable: "Tenant",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        principalColumn: "Id");
                 });
 
             migrationBuilder.CreateTable(
@@ -660,11 +656,11 @@ namespace IoTSharp.Data.SqlServer.Migrations
                 {
                     FormId = table.Column<long>(type: "bigint", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    BizId = table.Column<long>(type: "bigint", nullable: true),
-                    FormCreator = table.Column<long>(type: "bigint", nullable: true),
+                    BizId = table.Column<long>(type: "bigint", nullable: false),
+                    FormCreator = table.Column<long>(type: "bigint", nullable: false),
                     FormName = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     FormDesc = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    FormStatus = table.Column<int>(type: "int", nullable: true),
+                    FormStatus = table.Column<int>(type: "int", nullable: false),
                     FormSchame = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     ModelClass = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Url = table.Column<string>(type: "nvarchar(max)", nullable: true),
@@ -672,8 +668,8 @@ namespace IoTSharp.Data.SqlServer.Migrations
                     FromCreateDate = table.Column<DateTime>(type: "datetime2", nullable: true),
                     FormLayout = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     IsCompact = table.Column<bool>(type: "bit", nullable: false),
-                    TenantId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    CustomerId = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
+                    TenantId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                    CustomerId = table.Column<Guid>(type: "uniqueidentifier", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -682,14 +678,12 @@ namespace IoTSharp.Data.SqlServer.Migrations
                         name: "FK_DynamicFormInfos_Customer_CustomerId",
                         column: x => x.CustomerId,
                         principalTable: "Customer",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        principalColumn: "Id");
                     table.ForeignKey(
                         name: "FK_DynamicFormInfos_Tenant_TenantId",
                         column: x => x.TenantId,
                         principalTable: "Tenant",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        principalColumn: "Id");
                 });
 
             migrationBuilder.CreateTable(
@@ -809,8 +803,8 @@ namespace IoTSharp.Data.SqlServer.Migrations
                     EventTag = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     CreateDateTime = table.Column<DateTime>(type: "datetime2", nullable: false),
                     Creator = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    TenantId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    CustomerId = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
+                    TenantId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                    CustomerId = table.Column<Guid>(type: "uniqueidentifier", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -819,14 +813,12 @@ namespace IoTSharp.Data.SqlServer.Migrations
                         name: "FK_SubscriptionEvents_Customer_CustomerId",
                         column: x => x.CustomerId,
                         principalTable: "Customer",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        principalColumn: "Id");
                     table.ForeignKey(
                         name: "FK_SubscriptionEvents_Tenant_TenantId",
                         column: x => x.TenantId,
                         principalTable: "Tenant",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        principalColumn: "Id");
                 });
 
             migrationBuilder.CreateTable(
@@ -1099,7 +1091,7 @@ namespace IoTSharp.Data.SqlServer.Migrations
                 {
                     OperationId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     AddDate = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    NodeStatus = table.Column<int>(type: "int", nullable: true),
+                    NodeStatus = table.Column<int>(type: "int", nullable: false),
                     OperationDesc = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Data = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     BizId = table.Column<string>(type: "nvarchar(max)", nullable: true),

@@ -380,11 +380,11 @@
             <returns></returns>
         </member>
         <member name="M:IoTSharp.Controllers.DictionaryController.Delete(System.Int32)">
-            <summary>
+             <summary>
             
-            </summary>
-            <param name="id"></param>
-            <returns></returns>
+             </summary>
+             <param name="id"></param>
+             <returns></returns>
         </member>
         <member name="M:IoTSharp.Controllers.DictionaryGroupController.Save(IoTSharp.Data.BaseDictionaryGroup)">
             <summary>
@@ -401,11 +401,11 @@
             <returns></returns>
         </member>
         <member name="M:IoTSharp.Controllers.DynamicFormInfoController.Save(IoTSharp.Data.DynamicFormInfo)">
-            <summary>
+             <summary>
             
-            </summary>
-            <param name="m"></param>
-            <returns></returns>
+             </summary>
+             <param name="m"></param>
+             <returns></returns>
         </member>
         <member name="T:IoTSharp.Controllers.InstallerController">
             <summary>

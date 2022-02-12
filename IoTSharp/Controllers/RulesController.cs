@@ -326,31 +326,22 @@ namespace IoTSharp.Controllers
         public ApiResult<bool> SaveDiagram(ModelWorkFlow m)
         {
             var profile = this.GetUserProfile();
-            var activity = JsonConvert.DeserializeObject<IoTSharp.Models.Rule.Activity>(m.Biz);
+            var activity = JsonConvert.DeserializeObject<Activity>(m.Biz);
             var CreatorId = Guid.NewGuid();
             var CreateDate = DateTime.Now;
             var rule = _context.FlowRules.FirstOrDefault(c => c.RuleId == activity.RuleId);
-
             rule.DefinitionsXml = m.Xml;
             rule.Creator = profile.Id.ToString();
-
             rule.CreateId = CreatorId;
-
-            //   _context.Flows.RemoveRange(_context.Flows.Where(c => c.FlowRule.RuleId == rule.RuleId).ToList());
-
-            _context.Flows.Where(c => c.FlowRule.RuleId == rule.RuleId).ToList().ForEach(c =>
+            _context.Flows.Where(c => c.FlowRule.RuleId == rule.RuleId).ForEach(c =>
             {
                 c.FlowStatus = -1;
             });
-
-            _context.SaveChanges();
-
             _context.FlowRules.Update(rule);
             _context.SaveChanges();
-
             if (activity.BaseBpmnObjects != null)
             {
-                _context.Flows.AddRange(activity.BaseBpmnObjects.Select(c => new Flow
+                var fw = activity.BaseBpmnObjects.Select(c => new Flow
                 {
                     FlowRule = rule,
                     Flowname = c.BizObject.Flowname,
@@ -362,14 +353,15 @@ namespace IoTSharp.Controllers
                     CreateId = CreatorId,
                     Createor = profile.Id,
                     CreateDate = CreateDate,
-                    Tenant = new Tenant() { Id = profile.Tenant }
-                }).ToList());
+                });
+                fw.ForEach(f => _context.JustFill(this, f));
+                _context.Flows.AddRange(fw);
                 _context.SaveChanges();
             }
 
             if (activity.StartEvents != null)
             {
-                _context.Flows.AddRange(activity.StartEvents.Select(c => new Flow
+                var fw = activity.StartEvents.Select(c => new Flow
                 {
                     FlowRule = rule,
                     Flowname = c.BizObject.Flowname,
@@ -379,14 +371,15 @@ namespace IoTSharp.Controllers
                     CreateId = CreatorId,
                     Createor = profile.Id,
                     CreateDate = CreateDate,
-                    Tenant = new Tenant() { Id = profile.Tenant },
-                }).ToList());
+                });
+                fw.ForEach(f => _context.JustFill(this, f));
+                _context.Flows.AddRange(fw);
                 _context.SaveChanges();
             }
 
             if (activity.EndEvents != null)
             {
-                _context.Flows.AddRange(activity.EndEvents.Select(c => new Flow
+                var fw = activity.EndEvents.Select(c => new Flow
                 {
                     FlowRule = rule,
                     Flowname = c.BizObject.Flowname,
@@ -396,14 +389,15 @@ namespace IoTSharp.Controllers
                     CreateId = CreatorId,
                     Createor = profile.Id,
                     CreateDate = CreateDate,
-                    Tenant = new Tenant() { Id = profile.Tenant },
-                }).ToList());
+                });
+                fw.ForEach(f => _context.JustFill(this, f));
+                _context.Flows.AddRange(fw);
                 _context.SaveChanges();
             }
 
             if (activity.SequenceFlows != null)
             {
-                _context.Flows.AddRange(activity.SequenceFlows.Select(c => new Flow
+                var fw = activity.SequenceFlows.Select(c => new Flow
                 {
                     FlowRule = rule,
                     Flowname = c.BizObject.Flowname,
@@ -417,14 +411,15 @@ namespace IoTSharp.Controllers
                     NodeProcessParams = c.BizObject.NodeProcessParams,
                     Createor = profile.Id,
                     CreateDate = CreateDate,
-                    Tenant = new Tenant() { Id = profile.Tenant },
-                }).ToList());
+                });
+                fw.ForEach(f => _context.JustFill(this, f));
+                _context.Flows.AddRange(fw);
                 _context.SaveChanges();
             }
 
             if (activity.Tasks != null)
             {
-                _context.Flows.AddRange(activity.Tasks.Select(c => new Flow
+                var fw = activity.Tasks.Select(c => new Flow
                 {
                     FlowRule = rule,
                     Flowname = c.BizObject.Flowname,
@@ -438,14 +433,15 @@ namespace IoTSharp.Controllers
                     CreateId = CreatorId,
                     Createor = profile.Id,
                     CreateDate = CreateDate,
-                    Tenant = new Tenant() { Id = profile.Tenant },
-                }).ToList());
+                });
+                fw.ForEach(f => _context.JustFill(this, f));
+                _context.Flows.AddRange(fw);
                 _context.SaveChanges();
             }
 
             if (activity.DataInputAssociations != null)
             {
-                _context.Flows.AddRange(activity.DataInputAssociations.Select(c => new Flow
+                var fw = activity.DataInputAssociations.Select(c => new Flow
                 {
                     FlowRule = rule,
                     Flowname = c.BizObject.Flowname,
@@ -455,14 +451,15 @@ namespace IoTSharp.Controllers
                     CreateId = CreatorId,
                     Createor = profile.Id,
                     CreateDate = CreateDate,
-                    Tenant = new Tenant() { Id = profile.Tenant },
-                }).ToList());
+                });
+                fw.ForEach(f => _context.JustFill(this, f));
+                _context.Flows.AddRange(fw);
                 _context.SaveChanges();
             }
 
             if (activity.DataOutputAssociations != null)
             {
-                _context.Flows.AddRange(activity.DataOutputAssociations.Select(c => new Flow
+                var fw = activity.DataOutputAssociations.Select(c => new Flow
                 {
                     FlowRule = rule,
                     Flowname = c.BizObject.Flowname,
@@ -472,14 +469,15 @@ namespace IoTSharp.Controllers
                     CreateId = CreatorId,
                     Createor = profile.Id,
                     CreateDate = CreateDate,
-                    Tenant = new Tenant() { Id = profile.Tenant },
-                }).ToList());
+                });
+                fw.ForEach(f => _context.JustFill(this, f));
+                _context.Flows.AddRange(fw);
                 _context.SaveChanges();
             }
 
             if (activity.TextAnnotations != null)
             {
-                _context.Flows.AddRange(activity.TextAnnotations.Select(c => new Flow
+                var fw = activity.TextAnnotations.Select(c => new Flow
                 {
                     FlowRule = rule,
                     Flowname = c.BizObject.Flowname,
@@ -489,14 +487,15 @@ namespace IoTSharp.Controllers
                     CreateId = CreatorId,
                     Createor = profile.Id,
                     CreateDate = CreateDate,
-                    Tenant = new Tenant() { Id = profile.Tenant },
-                }).ToList());
+                });
+                fw.ForEach(f => _context.JustFill(this, f));
+                _context.Flows.AddRange(fw);
                 _context.SaveChanges();
             }
 
             if (activity.Containers != null)
             {
-                _context.Flows.AddRange(activity.Containers.Select(c => new Flow
+                var fw = activity.Containers.Select(c => new Flow
                 {
                     FlowRule = rule,
                     Flowname = c.BizObject.Flowname,
@@ -506,8 +505,9 @@ namespace IoTSharp.Controllers
                     CreateId = CreatorId,
                     Createor = profile.Id,
                     CreateDate = CreateDate,
-                    Tenant = new Tenant() { Id = profile.Tenant },
-                }).ToList());
+                });
+                fw.ForEach(f => _context.JustFill(this, f));
+                _context.Flows.AddRange(fw);
                 _context.SaveChanges();
             }
 
@@ -523,14 +523,13 @@ namespace IoTSharp.Controllers
                     CreateId = CreatorId,
                     Createor = profile.Id,
                     CreateDate = CreateDate,
-                    Tenant = new Tenant() { Id = profile.Tenant },
                 }).ToList());
                 _context.SaveChanges();
             }
 
             if (activity.DataStoreReferences != null)
             {
-                _context.Flows.AddRange(activity.DataStoreReferences.Select(c => new Flow
+                var fw = activity.DataStoreReferences.Select(c => new Flow
                 {
                     FlowRule = rule,
                     Flowname = c.BizObject.Flowname,
@@ -540,14 +539,15 @@ namespace IoTSharp.Controllers
                     CreateId = CreatorId,
                     Createor = profile.Id,
                     CreateDate = CreateDate,
-                    Tenant = new Tenant() { Id = profile.Tenant },
-                }).ToList());
+                });
+                fw.ForEach(f => _context.JustFill(this, f));
+                _context.Flows.AddRange(fw);
                 _context.SaveChanges();
             }
 
             if (activity.Lane != null)
             {
-                _context.Flows.AddRange(activity.Lane.Select(c => new Flow
+                var fw = activity.Lane.Select(c => new Flow
                 {
                     FlowRule = rule,
                     Flowname = c.BizObject.Flowname,
@@ -557,14 +557,15 @@ namespace IoTSharp.Controllers
                     CreateId = CreatorId,
                     Createor = profile.Id,
                     CreateDate = CreateDate,
-                    Tenant = new Tenant() { Id = profile.Tenant },
-                }).ToList());
+                });
+                fw.ForEach(f => _context.JustFill(this, f));
+                _context.Flows.AddRange(fw);
                 _context.SaveChanges();
             }
 
             if (activity.LaneSet != null)
             {
-                _context.Flows.AddRange(activity.LaneSet.Select(c => new Flow
+                var fws = activity.LaneSet.Select(c => new Flow
                 {
                     FlowRule = rule,
                     Flowname = c.BizObject.Flowname,
@@ -573,9 +574,10 @@ namespace IoTSharp.Controllers
                     FlowStatus = 1,
                     CreateId = CreatorId,
                     Createor = profile.Id,
-                    CreateDate = CreateDate,
-                    Tenant = new Tenant() { Id = profile.Tenant },
-                }).ToList());
+                    CreateDate = CreateDate
+                });
+                fws.ForEach(f => _context.JustFill(this, f));
+                _context.Flows.AddRange(fws);
                 _context.SaveChanges();
             }
             return new ApiResult<bool>(ApiCode.Success, "Ok", true);
@@ -1086,11 +1088,10 @@ namespace IoTSharp.Controllers
                     var list = result.Select(c => new FlowOperation
                     {
                         AddDate = c.AddDate,
-                        BaseEvent = new BaseEvent() { EventId = c.BaseEvent.EventId },
                         BizId = c.BizId,
                         Data = c.Data,
-                        Flow = new Flow() { FlowId = c.Flow.FlowId },
-                        FlowRule = new FlowRule() { RuleId = c.FlowRule.RuleId },
+                        Flow = c.Flow,
+                        FlowRule = c.FlowRule,
                         NodeStatus = c.NodeStatus,
                         OperationDesc = c.OperationDesc,
                         OperationId = new Guid(),
