@@ -66,15 +66,10 @@ namespace IoTSharp.Migrations
                 oldClrType: typeof(Guid),
                 oldNullable: true);
 
-            //migrationBuilder.AddPrimaryKey(
-            //    name: "PK_DataStorage",
-            //    table: "DataStorage",
-            //    columns: new[] { "Catalog", "DeviceId", "KeyName", "DateTime" });
-            // jy 修复表设计
             migrationBuilder.AddPrimaryKey(
                 name: "PK_DataStorage",
                 table: "DataStorage",
-                columns: new[] { "Catalog", "DeviceId", "KeyName" });
+                columns: new[] { "Catalog", "DeviceId", "KeyName", "DateTime" });
 
             migrationBuilder.CreateIndex(
                 name: "IX_DataStorage_Catalog",
