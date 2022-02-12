@@ -518,7 +518,7 @@ namespace IoTSharp.Data.Sqlite.Migrations
                     b.Property<Guid>("Creator")
                         .HasColumnType("TEXT");
 
-                    b.Property<Guid>("CustomerId")
+                    b.Property<Guid?>("CustomerId")
                         .HasColumnType("TEXT");
 
                     b.Property<string>("DiagramDesc")
@@ -530,13 +530,13 @@ namespace IoTSharp.Data.Sqlite.Migrations
                     b.Property<string>("DiagramName")
                         .HasColumnType("TEXT");
 
-                    b.Property<int?>("DiagramStatus")
+                    b.Property<int>("DiagramStatus")
                         .HasColumnType("INTEGER");
 
-                    b.Property<bool?>("IsDefault")
+                    b.Property<bool>("IsDefault")
                         .HasColumnType("INTEGER");
 
-                    b.Property<Guid>("TenantId")
+                    b.Property<Guid?>("TenantId")
                         .HasColumnType("TEXT");
 
                     b.HasKey("DiagramId");
@@ -560,7 +560,7 @@ namespace IoTSharp.Data.Sqlite.Migrations
                     b.Property<Guid>("Creator")
                         .HasColumnType("TEXT");
 
-                    b.Property<Guid>("CustomerId")
+                    b.Property<Guid?>("CustomerId")
                         .HasColumnType("TEXT");
 
                     b.Property<Guid?>("DeviceDiagramDiagramId")
@@ -575,14 +575,14 @@ namespace IoTSharp.Data.Sqlite.Migrations
                     b.Property<string>("GraphFill")
                         .HasColumnType("TEXT");
 
-                    b.Property<decimal?>("GraphHeight")
-                        .HasColumnType("TEXT");
+                    b.Property<int>("GraphHeight")
+                        .HasColumnType("INTEGER");
 
-                    b.Property<decimal?>("GraphPostionX")
-                        .HasColumnType("TEXT");
+                    b.Property<int>("GraphPostionX")
+                        .HasColumnType("INTEGER");
 
-                    b.Property<decimal?>("GraphPostionY")
-                        .HasColumnType("TEXT");
+                    b.Property<int>("GraphPostionY")
+                        .HasColumnType("INTEGER");
 
                     b.Property<string>("GraphShape")
                         .HasColumnType("TEXT");
@@ -590,8 +590,8 @@ namespace IoTSharp.Data.Sqlite.Migrations
                     b.Property<string>("GraphStroke")
                         .HasColumnType("TEXT");
 
-                    b.Property<decimal?>("GraphStrokeWidth")
-                        .HasColumnType("TEXT");
+                    b.Property<int>("GraphStrokeWidth")
+                        .HasColumnType("INTEGER");
 
                     b.Property<string>("GraphTextAnchor")
                         .HasColumnType("TEXT");
@@ -602,22 +602,22 @@ namespace IoTSharp.Data.Sqlite.Migrations
                     b.Property<string>("GraphTextFontFamily")
                         .HasColumnType("TEXT");
 
-                    b.Property<decimal?>("GraphTextFontSize")
-                        .HasColumnType("TEXT");
+                    b.Property<int>("GraphTextFontSize")
+                        .HasColumnType("INTEGER");
 
-                    b.Property<decimal?>("GraphTextRefX")
-                        .HasColumnType("TEXT");
+                    b.Property<int>("GraphTextRefX")
+                        .HasColumnType("INTEGER");
 
-                    b.Property<decimal?>("GraphTextRefY")
-                        .HasColumnType("TEXT");
+                    b.Property<int>("GraphTextRefY")
+                        .HasColumnType("INTEGER");
 
                     b.Property<string>("GraphTextVerticalAnchor")
                         .HasColumnType("TEXT");
 
-                    b.Property<decimal?>("GraphWidth")
-                        .HasColumnType("TEXT");
+                    b.Property<int>("GraphWidth")
+                        .HasColumnType("INTEGER");
 
-                    b.Property<Guid>("TenantId")
+                    b.Property<Guid?>("TenantId")
                         .HasColumnType("TEXT");
 
                     b.HasKey("GraphId");
@@ -649,13 +649,13 @@ namespace IoTSharp.Data.Sqlite.Migrations
                     b.Property<Guid>("Creator")
                         .HasColumnType("TEXT");
 
-                    b.Property<Guid>("CustomerId")
+                    b.Property<Guid?>("CustomerId")
                         .HasColumnType("TEXT");
 
-                    b.Property<long?>("DeviceId")
+                    b.Property<long>("DeviceId")
                         .HasColumnType("INTEGER");
 
-                    b.Property<Guid>("TenantId")
+                    b.Property<Guid?>("TenantId")
                         .HasColumnType("TEXT");
 
                     b.Property<string>("ToolBoxIcon")
@@ -664,22 +664,22 @@ namespace IoTSharp.Data.Sqlite.Migrations
                     b.Property<string>("ToolBoxName")
                         .HasColumnType("TEXT");
 
-                    b.Property<decimal?>("ToolBoxOffsetLeftPer")
-                        .HasColumnType("TEXT");
+                    b.Property<int>("ToolBoxOffsetLeftPer")
+                        .HasColumnType("INTEGER");
 
-                    b.Property<decimal?>("ToolBoxOffsetTopPer")
-                        .HasColumnType("TEXT");
+                    b.Property<int>("ToolBoxOffsetTopPer")
+                        .HasColumnType("INTEGER");
 
-                    b.Property<decimal?>("ToolBoxOffsetX")
-                        .HasColumnType("TEXT");
+                    b.Property<int>("ToolBoxOffsetX")
+                        .HasColumnType("INTEGER");
 
-                    b.Property<decimal?>("ToolBoxOffsetY")
-                        .HasColumnType("TEXT");
+                    b.Property<int>("ToolBoxOffsetY")
+                        .HasColumnType("INTEGER");
 
                     b.Property<string>("ToolBoxRequestUri")
                         .HasColumnType("TEXT");
 
-                    b.Property<int?>("ToolBoxStatus")
+                    b.Property<int>("ToolBoxStatus")
                         .HasColumnType("INTEGER");
 
                     b.Property<string>("ToolBoxType")
@@ -799,7 +799,7 @@ namespace IoTSharp.Data.Sqlite.Migrations
                     b.Property<DateTime?>("CreateDate")
                         .HasColumnType("TEXT");
 
-                    b.Property<long?>("Creator")
+                    b.Property<long>("Creator")
                         .HasColumnType("INTEGER");
 
                     b.Property<Guid>("DeviceId")
@@ -814,16 +814,16 @@ namespace IoTSharp.Data.Sqlite.Migrations
                     b.Property<string>("PortName")
                         .HasColumnType("TEXT");
 
-                    b.Property<int?>("PortPhyType")
+                    b.Property<int>("PortPhyType")
                         .HasColumnType("INTEGER");
 
                     b.Property<string>("PortPic")
                         .HasColumnType("TEXT");
 
-                    b.Property<int?>("PortStatus")
+                    b.Property<int>("PortStatus")
                         .HasColumnType("INTEGER");
 
-                    b.Property<int?>("PortType")
+                    b.Property<int>("PortType")
                         .HasColumnType("INTEGER");
 
                     b.HasKey("PortId");
@@ -843,10 +843,10 @@ namespace IoTSharp.Data.Sqlite.Migrations
                     b.Property<Guid>("Creator")
                         .HasColumnType("TEXT");
 
-                    b.Property<decimal?>("MappingIndex")
-                        .HasColumnType("TEXT");
+                    b.Property<int>("MappingIndex")
+                        .HasColumnType("INTEGER");
 
-                    b.Property<int?>("MappingStatus")
+                    b.Property<int>("MappingStatus")
                         .HasColumnType("INTEGER");
 
                     b.Property<Guid>("SourceDeviceId")
@@ -911,7 +911,7 @@ namespace IoTSharp.Data.Sqlite.Migrations
                     b.Property<Guid>("Creator")
                         .HasColumnType("TEXT");
 
-                    b.Property<Guid>("CustomerId")
+                    b.Property<Guid?>("CustomerId")
                         .HasColumnType("TEXT");
 
                     b.Property<string>("FieldCode")
@@ -926,7 +926,7 @@ namespace IoTSharp.Data.Sqlite.Migrations
                     b.Property<string>("FieldI18nKey")
                         .HasColumnType("TEXT");
 
-                    b.Property<int?>("FieldMaxLength")
+                    b.Property<int>("FieldMaxLength")
                         .HasColumnType("INTEGER");
 
                     b.Property<string>("FieldName")
@@ -938,10 +938,10 @@ namespace IoTSharp.Data.Sqlite.Migrations
                     b.Property<string>("FieldPocoTypeName")
                         .HasColumnType("TEXT");
 
-                    b.Property<int?>("FieldStatus")
+                    b.Property<int>("FieldStatus")
                         .HasColumnType("INTEGER");
 
-                    b.Property<long?>("FieldUIElement")
+                    b.Property<long>("FieldUIElement")
                         .HasColumnType("INTEGER");
 
                     b.Property<string>("FieldUIElementSchema")
@@ -959,22 +959,22 @@ namespace IoTSharp.Data.Sqlite.Migrations
                     b.Property<string>("FieldValueLocalDataSource")
                         .HasColumnType("TEXT");
 
-                    b.Property<int?>("FieldValueType")
+                    b.Property<int>("FieldValueType")
                         .HasColumnType("INTEGER");
 
                     b.Property<string>("FieldValueTypeName")
                         .HasColumnType("TEXT");
 
-                    b.Property<long?>("FormId")
+                    b.Property<long>("FormId")
                         .HasColumnType("INTEGER");
 
-                    b.Property<bool?>("IsEnabled")
+                    b.Property<bool>("IsEnabled")
                         .HasColumnType("INTEGER");
 
-                    b.Property<bool?>("IsRequired")
+                    b.Property<bool>("IsRequired")
                         .HasColumnType("INTEGER");
 
-                    b.Property<Guid>("TenantId")
+                    b.Property<Guid?>("TenantId")
                         .HasColumnType("TEXT");
 
                     b.HasKey("FieldId");
@@ -992,13 +992,13 @@ namespace IoTSharp.Data.Sqlite.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
 
-                    b.Property<long?>("BizId")
+                    b.Property<long>("BizId")
                         .HasColumnType("INTEGER");
 
                     b.Property<Guid>("Creator")
                         .HasColumnType("TEXT");
 
-                    b.Property<Guid>("CustomerId")
+                    b.Property<Guid?>("CustomerId")
                         .HasColumnType("TEXT");
 
                     b.Property<string>("FieldCode")
@@ -1007,7 +1007,7 @@ namespace IoTSharp.Data.Sqlite.Migrations
                     b.Property<DateTime?>("FieldCreateDate")
                         .HasColumnType("TEXT");
 
-                    b.Property<long?>("FieldId")
+                    b.Property<long>("FieldId")
                         .HasColumnType("INTEGER");
 
                     b.Property<string>("FieldName")
@@ -1019,13 +1019,13 @@ namespace IoTSharp.Data.Sqlite.Migrations
                     b.Property<string>("FieldValue")
                         .HasColumnType("TEXT");
 
-                    b.Property<long?>("FieldValueType")
+                    b.Property<long>("FieldValueType")
                         .HasColumnType("INTEGER");
 
-                    b.Property<long?>("FromId")
+                    b.Property<long>("FromId")
                         .HasColumnType("INTEGER");
 
-                    b.Property<Guid>("TenantId")
+                    b.Property<Guid?>("TenantId")
                         .HasColumnType("TEXT");
 
                     b.HasKey("FieldValueId");
@@ -1043,16 +1043,16 @@ namespace IoTSharp.Data.Sqlite.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
 
-                    b.Property<long?>("BizId")
+                    b.Property<long>("BizId")
                         .HasColumnType("INTEGER");
 
                     b.Property<Guid>("Creator")
                         .HasColumnType("TEXT");
 
-                    b.Property<Guid>("CustomerId")
+                    b.Property<Guid?>("CustomerId")
                         .HasColumnType("TEXT");
 
-                    b.Property<long?>("FormCreator")
+                    b.Property<long>("FormCreator")
                         .HasColumnType("INTEGER");
 
                     b.Property<string>("FormDesc")
@@ -1067,7 +1067,7 @@ namespace IoTSharp.Data.Sqlite.Migrations
                     b.Property<string>("FormSchame")
                         .HasColumnType("TEXT");
 
-                    b.Property<int?>("FormStatus")
+                    b.Property<int>("FormStatus")
                         .HasColumnType("INTEGER");
 
                     b.Property<DateTime?>("FromCreateDate")
@@ -1079,7 +1079,7 @@ namespace IoTSharp.Data.Sqlite.Migrations
                     b.Property<string>("ModelClass")
                         .HasColumnType("TEXT");
 
-                    b.Property<Guid>("TenantId")
+                    b.Property<Guid?>("TenantId")
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Url")
@@ -1112,7 +1112,7 @@ namespace IoTSharp.Data.Sqlite.Migrations
                     b.Property<Guid>("Createor")
                         .HasColumnType("TEXT");
 
-                    b.Property<Guid>("CustomerId")
+                    b.Property<Guid?>("CustomerId")
                         .HasColumnType("TEXT");
 
                     b.Property<Guid?>("ExecutorId")
@@ -1166,7 +1166,7 @@ namespace IoTSharp.Data.Sqlite.Migrations
                     b.Property<string>("TargetId")
                         .HasColumnType("TEXT");
 
-                    b.Property<Guid>("TenantId")
+                    b.Property<Guid?>("TenantId")
                         .HasColumnType("TEXT");
 
                     b.Property<int>("TestStatus")
@@ -1203,7 +1203,7 @@ namespace IoTSharp.Data.Sqlite.Migrations
                     b.Property<DateTime?>("AddDate")
                         .HasColumnType("TEXT");
 
-                    b.Property<Guid>("BaseEventId")
+                    b.Property<Guid?>("BaseEventEventId")
                         .HasColumnType("TEXT");
 
                     b.Property<string>("BizId")
@@ -1212,13 +1212,13 @@ namespace IoTSharp.Data.Sqlite.Migrations
                     b.Property<string>("Data")
                         .HasColumnType("TEXT");
 
-                    b.Property<Guid>("FlowId")
+                    b.Property<Guid?>("FlowId")
                         .HasColumnType("TEXT");
 
-                    b.Property<Guid>("FlowRuleId")
+                    b.Property<Guid?>("FlowRuleRuleId")
                         .HasColumnType("TEXT");
 
-                    b.Property<int?>("NodeStatus")
+                    b.Property<int>("NodeStatus")
                         .HasColumnType("INTEGER");
 
                     b.Property<string>("OperationDesc")
@@ -1235,11 +1235,11 @@ namespace IoTSharp.Data.Sqlite.Migrations
 
                     b.HasKey("OperationId");
 
-                    b.HasIndex("BaseEventId");
+                    b.HasIndex("BaseEventEventId");
 
                     b.HasIndex("FlowId");
 
-                    b.HasIndex("FlowRuleId");
+                    b.HasIndex("FlowRuleRuleId");
 
                     b.ToTable("FlowOperations");
                 });
@@ -1259,7 +1259,7 @@ namespace IoTSharp.Data.Sqlite.Migrations
                     b.Property<string>("Creator")
                         .HasColumnType("TEXT");
 
-                    b.Property<Guid>("CustomerId")
+                    b.Property<Guid?>("CustomerId")
                         .HasColumnType("TEXT");
 
                     b.Property<string>("DefinitionsXml")
@@ -1296,7 +1296,7 @@ namespace IoTSharp.Data.Sqlite.Migrations
                     b.Property<double>("SubVersion")
                         .HasColumnType("REAL");
 
-                    b.Property<Guid>("TenantId")
+                    b.Property<Guid?>("TenantId")
                         .HasColumnType("TEXT");
 
                     b.Property<double>("Version")
@@ -1383,7 +1383,7 @@ namespace IoTSharp.Data.Sqlite.Migrations
                     b.Property<Guid>("Creator")
                         .HasColumnType("TEXT");
 
-                    b.Property<Guid>("CustomerId")
+                    b.Property<Guid?>("CustomerId")
                         .HasColumnType("TEXT");
 
                     b.Property<string>("DefaultConfig")
@@ -1407,7 +1407,7 @@ namespace IoTSharp.Data.Sqlite.Migrations
                     b.Property<string>("Tag")
                         .HasColumnType("TEXT");
 
-                    b.Property<Guid>("TenantId")
+                    b.Property<Guid?>("TenantId")
                         .HasColumnType("TEXT");
 
                     b.Property<int>("TestStatus")
@@ -1443,7 +1443,7 @@ namespace IoTSharp.Data.Sqlite.Migrations
                     b.Property<Guid>("Creator")
                         .HasColumnType("TEXT");
 
-                    b.Property<Guid>("CustomerId")
+                    b.Property<Guid?>("CustomerId")
                         .HasColumnType("TEXT");
 
                     b.Property<string>("EventDesc")
@@ -1464,7 +1464,7 @@ namespace IoTSharp.Data.Sqlite.Migrations
                     b.Property<string>("EventTag")
                         .HasColumnType("TEXT");
 
-                    b.Property<Guid>("TenantId")
+                    b.Property<Guid?>("TenantId")
                         .HasColumnType("TEXT");
 
                     b.Property<int>("Type")
@@ -1912,15 +1912,11 @@ namespace IoTSharp.Data.Sqlite.Migrations
                 {
                     b.HasOne("IoTSharp.Data.Customer", "Customer")
                         .WithMany()
-                        .HasForeignKey("CustomerId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("CustomerId");
 
                     b.HasOne("IoTSharp.Data.Tenant", "Tenant")
                         .WithMany()
-                        .HasForeignKey("TenantId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("TenantId");
 
                     b.Navigation("Customer");
 
@@ -1931,9 +1927,7 @@ namespace IoTSharp.Data.Sqlite.Migrations
                 {
                     b.HasOne("IoTSharp.Data.Customer", "Customer")
                         .WithMany()
-                        .HasForeignKey("CustomerId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("CustomerId");
 
                     b.HasOne("IoTSharp.Data.DeviceDiagram", "DeviceDiagram")
                         .WithMany()
@@ -1941,9 +1935,7 @@ namespace IoTSharp.Data.Sqlite.Migrations
 
                     b.HasOne("IoTSharp.Data.Tenant", "Tenant")
                         .WithMany()
-                        .HasForeignKey("TenantId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("TenantId");
 
                     b.Navigation("Customer");
 
@@ -1956,15 +1948,11 @@ namespace IoTSharp.Data.Sqlite.Migrations
                 {
                     b.HasOne("IoTSharp.Data.Customer", "Customer")
                         .WithMany()
-                        .HasForeignKey("CustomerId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("CustomerId");
 
                     b.HasOne("IoTSharp.Data.Tenant", "Tenant")
                         .WithMany()
-                        .HasForeignKey("TenantId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("TenantId");
 
                     b.Navigation("Customer");
 
@@ -2012,15 +2000,11 @@ namespace IoTSharp.Data.Sqlite.Migrations
                 {
                     b.HasOne("IoTSharp.Data.Customer", "Customer")
                         .WithMany()
-                        .HasForeignKey("CustomerId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("CustomerId");
 
                     b.HasOne("IoTSharp.Data.Tenant", "Tenant")
                         .WithMany()
-                        .HasForeignKey("TenantId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("TenantId");
 
                     b.Navigation("Customer");
 
@@ -2031,15 +2015,11 @@ namespace IoTSharp.Data.Sqlite.Migrations
                 {
                     b.HasOne("IoTSharp.Data.Customer", "Customer")
                         .WithMany()
-                        .HasForeignKey("CustomerId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("CustomerId");
 
                     b.HasOne("IoTSharp.Data.Tenant", "Tenant")
                         .WithMany()
-                        .HasForeignKey("TenantId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("TenantId");
 
                     b.Navigation("Customer");
 
@@ -2050,15 +2030,11 @@ namespace IoTSharp.Data.Sqlite.Migrations
                 {
                     b.HasOne("IoTSharp.Data.Customer", "Customer")
                         .WithMany()
-                        .HasForeignKey("CustomerId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("CustomerId");
 
                     b.HasOne("IoTSharp.Data.Tenant", "Tenant")
                         .WithMany()
-                        .HasForeignKey("TenantId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("TenantId");
 
                     b.Navigation("Customer");
 
@@ -2069,9 +2045,7 @@ namespace IoTSharp.Data.Sqlite.Migrations
                 {
                     b.HasOne("IoTSharp.Data.Customer", "Customer")
                         .WithMany()
-                        .HasForeignKey("CustomerId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("CustomerId");
 
                     b.HasOne("IoTSharp.Data.RuleTaskExecutor", "Executor")
                         .WithMany()
@@ -2083,9 +2057,7 @@ namespace IoTSharp.Data.Sqlite.Migrations
 
                     b.HasOne("IoTSharp.Data.Tenant", "Tenant")
                         .WithMany()
-                        .HasForeignKey("TenantId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("TenantId");
 
                     b.Navigation("Customer");
 
@@ -2100,21 +2072,15 @@ namespace IoTSharp.Data.Sqlite.Migrations
                 {
                     b.HasOne("IoTSharp.Data.BaseEvent", "BaseEvent")
                         .WithMany()
-                        .HasForeignKey("BaseEventId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("BaseEventEventId");
 
                     b.HasOne("IoTSharp.Data.Flow", "Flow")
                         .WithMany()
-                        .HasForeignKey("FlowId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("FlowId");
 
                     b.HasOne("IoTSharp.Data.FlowRule", "FlowRule")
                         .WithMany()
-                        .HasForeignKey("FlowRuleId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("FlowRuleRuleId");
 
                     b.Navigation("BaseEvent");
 
@@ -2127,15 +2093,11 @@ namespace IoTSharp.Data.Sqlite.Migrations
                 {
                     b.HasOne("IoTSharp.Data.Customer", "Customer")
                         .WithMany()
-                        .HasForeignKey("CustomerId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("CustomerId");
 
                     b.HasOne("IoTSharp.Data.Tenant", "Tenant")
                         .WithMany()
-                        .HasForeignKey("TenantId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("TenantId");
 
                     b.Navigation("Customer");
 
@@ -2176,15 +2138,11 @@ namespace IoTSharp.Data.Sqlite.Migrations
                 {
                     b.HasOne("IoTSharp.Data.Customer", "Customer")
                         .WithMany()
-                        .HasForeignKey("CustomerId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("CustomerId");
 
                     b.HasOne("IoTSharp.Data.Tenant", "Tenant")
                         .WithMany()
-                        .HasForeignKey("TenantId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("TenantId");
 
                     b.Navigation("Customer");
 
@@ -2195,15 +2153,11 @@ namespace IoTSharp.Data.Sqlite.Migrations
                 {
                     b.HasOne("IoTSharp.Data.Customer", "Customer")
                         .WithMany()
-                        .HasForeignKey("CustomerId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("CustomerId");
 
                     b.HasOne("IoTSharp.Data.Tenant", "Tenant")
                         .WithMany()
-                        .HasForeignKey("TenantId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("TenantId");
 
                     b.Navigation("Customer");
 

@@ -529,7 +529,7 @@ namespace IoTSharp.Migrations
                     b.Property<Guid>("Creator")
                         .HasColumnType("uuid");
 
-                    b.Property<Guid>("CustomerId")
+                    b.Property<Guid?>("CustomerId")
                         .HasColumnType("uuid");
 
                     b.Property<string>("DiagramDesc")
@@ -541,13 +541,13 @@ namespace IoTSharp.Migrations
                     b.Property<string>("DiagramName")
                         .HasColumnType("text");
 
-                    b.Property<int?>("DiagramStatus")
+                    b.Property<int>("DiagramStatus")
                         .HasColumnType("integer");
 
-                    b.Property<bool?>("IsDefault")
+                    b.Property<bool>("IsDefault")
                         .HasColumnType("boolean");
 
-                    b.Property<Guid>("TenantId")
+                    b.Property<Guid?>("TenantId")
                         .HasColumnType("uuid");
 
                     b.HasKey("DiagramId");
@@ -571,7 +571,7 @@ namespace IoTSharp.Migrations
                     b.Property<Guid>("Creator")
                         .HasColumnType("uuid");
 
-                    b.Property<Guid>("CustomerId")
+                    b.Property<Guid?>("CustomerId")
                         .HasColumnType("uuid");
 
                     b.Property<Guid?>("DeviceDiagramDiagramId")
@@ -586,14 +586,14 @@ namespace IoTSharp.Migrations
                     b.Property<string>("GraphFill")
                         .HasColumnType("text");
 
-                    b.Property<decimal?>("GraphHeight")
-                        .HasColumnType("numeric");
+                    b.Property<int>("GraphHeight")
+                        .HasColumnType("integer");
 
-                    b.Property<decimal?>("GraphPostionX")
-                        .HasColumnType("numeric");
+                    b.Property<int>("GraphPostionX")
+                        .HasColumnType("integer");
 
-                    b.Property<decimal?>("GraphPostionY")
-                        .HasColumnType("numeric");
+                    b.Property<int>("GraphPostionY")
+                        .HasColumnType("integer");
 
                     b.Property<string>("GraphShape")
                         .HasColumnType("text");
@@ -601,8 +601,8 @@ namespace IoTSharp.Migrations
                     b.Property<string>("GraphStroke")
                         .HasColumnType("text");
 
-                    b.Property<decimal?>("GraphStrokeWidth")
-                        .HasColumnType("numeric");
+                    b.Property<int>("GraphStrokeWidth")
+                        .HasColumnType("integer");
 
                     b.Property<string>("GraphTextAnchor")
                         .HasColumnType("text");
@@ -613,22 +613,22 @@ namespace IoTSharp.Migrations
                     b.Property<string>("GraphTextFontFamily")
                         .HasColumnType("text");
 
-                    b.Property<decimal?>("GraphTextFontSize")
-                        .HasColumnType("numeric");
+                    b.Property<int>("GraphTextFontSize")
+                        .HasColumnType("integer");
 
-                    b.Property<decimal?>("GraphTextRefX")
-                        .HasColumnType("numeric");
+                    b.Property<int>("GraphTextRefX")
+                        .HasColumnType("integer");
 
-                    b.Property<decimal?>("GraphTextRefY")
-                        .HasColumnType("numeric");
+                    b.Property<int>("GraphTextRefY")
+                        .HasColumnType("integer");
 
                     b.Property<string>("GraphTextVerticalAnchor")
                         .HasColumnType("text");
 
-                    b.Property<decimal?>("GraphWidth")
-                        .HasColumnType("numeric");
+                    b.Property<int>("GraphWidth")
+                        .HasColumnType("integer");
 
-                    b.Property<Guid>("TenantId")
+                    b.Property<Guid?>("TenantId")
                         .HasColumnType("uuid");
 
                     b.HasKey("GraphId");
@@ -660,13 +660,13 @@ namespace IoTSharp.Migrations
                     b.Property<Guid>("Creator")
                         .HasColumnType("uuid");
 
-                    b.Property<Guid>("CustomerId")
+                    b.Property<Guid?>("CustomerId")
                         .HasColumnType("uuid");
 
-                    b.Property<long?>("DeviceId")
+                    b.Property<long>("DeviceId")
                         .HasColumnType("bigint");
 
-                    b.Property<Guid>("TenantId")
+                    b.Property<Guid?>("TenantId")
                         .HasColumnType("uuid");
 
                     b.Property<string>("ToolBoxIcon")
@@ -675,22 +675,22 @@ namespace IoTSharp.Migrations
                     b.Property<string>("ToolBoxName")
                         .HasColumnType("text");
 
-                    b.Property<decimal?>("ToolBoxOffsetLeftPer")
-                        .HasColumnType("numeric");
+                    b.Property<int>("ToolBoxOffsetLeftPer")
+                        .HasColumnType("integer");
 
-                    b.Property<decimal?>("ToolBoxOffsetTopPer")
-                        .HasColumnType("numeric");
+                    b.Property<int>("ToolBoxOffsetTopPer")
+                        .HasColumnType("integer");
 
-                    b.Property<decimal?>("ToolBoxOffsetX")
-                        .HasColumnType("numeric");
+                    b.Property<int>("ToolBoxOffsetX")
+                        .HasColumnType("integer");
 
-                    b.Property<decimal?>("ToolBoxOffsetY")
-                        .HasColumnType("numeric");
+                    b.Property<int>("ToolBoxOffsetY")
+                        .HasColumnType("integer");
 
                     b.Property<string>("ToolBoxRequestUri")
                         .HasColumnType("text");
 
-                    b.Property<int?>("ToolBoxStatus")
+                    b.Property<int>("ToolBoxStatus")
                         .HasColumnType("integer");
 
                     b.Property<string>("ToolBoxType")
@@ -810,7 +810,7 @@ namespace IoTSharp.Migrations
                     b.Property<DateTime?>("CreateDate")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<long?>("Creator")
+                    b.Property<long>("Creator")
                         .HasColumnType("bigint");
 
                     b.Property<Guid>("DeviceId")
@@ -825,16 +825,16 @@ namespace IoTSharp.Migrations
                     b.Property<string>("PortName")
                         .HasColumnType("text");
 
-                    b.Property<int?>("PortPhyType")
+                    b.Property<int>("PortPhyType")
                         .HasColumnType("integer");
 
                     b.Property<string>("PortPic")
                         .HasColumnType("text");
 
-                    b.Property<int?>("PortStatus")
+                    b.Property<int>("PortStatus")
                         .HasColumnType("integer");
 
-                    b.Property<int?>("PortType")
+                    b.Property<int>("PortType")
                         .HasColumnType("integer");
 
                     b.HasKey("PortId");
@@ -854,10 +854,10 @@ namespace IoTSharp.Migrations
                     b.Property<Guid>("Creator")
                         .HasColumnType("uuid");
 
-                    b.Property<decimal?>("MappingIndex")
-                        .HasColumnType("numeric");
+                    b.Property<int>("MappingIndex")
+                        .HasColumnType("integer");
 
-                    b.Property<int?>("MappingStatus")
+                    b.Property<int>("MappingStatus")
                         .HasColumnType("integer");
 
                     b.Property<Guid>("SourceDeviceId")
@@ -924,7 +924,7 @@ namespace IoTSharp.Migrations
                     b.Property<Guid>("Creator")
                         .HasColumnType("uuid");
 
-                    b.Property<Guid>("CustomerId")
+                    b.Property<Guid?>("CustomerId")
                         .HasColumnType("uuid");
 
                     b.Property<string>("FieldCode")
@@ -939,7 +939,7 @@ namespace IoTSharp.Migrations
                     b.Property<string>("FieldI18nKey")
                         .HasColumnType("text");
 
-                    b.Property<int?>("FieldMaxLength")
+                    b.Property<int>("FieldMaxLength")
                         .HasColumnType("integer");
 
                     b.Property<string>("FieldName")
@@ -951,10 +951,10 @@ namespace IoTSharp.Migrations
                     b.Property<string>("FieldPocoTypeName")
                         .HasColumnType("text");
 
-                    b.Property<int?>("FieldStatus")
+                    b.Property<int>("FieldStatus")
                         .HasColumnType("integer");
 
-                    b.Property<long?>("FieldUIElement")
+                    b.Property<long>("FieldUIElement")
                         .HasColumnType("bigint");
 
                     b.Property<string>("FieldUIElementSchema")
@@ -972,22 +972,22 @@ namespace IoTSharp.Migrations
                     b.Property<string>("FieldValueLocalDataSource")
                         .HasColumnType("text");
 
-                    b.Property<int?>("FieldValueType")
+                    b.Property<int>("FieldValueType")
                         .HasColumnType("integer");
 
                     b.Property<string>("FieldValueTypeName")
                         .HasColumnType("text");
 
-                    b.Property<long?>("FormId")
+                    b.Property<long>("FormId")
                         .HasColumnType("bigint");
 
-                    b.Property<bool?>("IsEnabled")
+                    b.Property<bool>("IsEnabled")
                         .HasColumnType("boolean");
 
-                    b.Property<bool?>("IsRequired")
+                    b.Property<bool>("IsRequired")
                         .HasColumnType("boolean");
 
-                    b.Property<Guid>("TenantId")
+                    b.Property<Guid?>("TenantId")
                         .HasColumnType("uuid");
 
                     b.HasKey("FieldId");
@@ -1007,13 +1007,13 @@ namespace IoTSharp.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("FieldValueId"));
 
-                    b.Property<long?>("BizId")
+                    b.Property<long>("BizId")
                         .HasColumnType("bigint");
 
                     b.Property<Guid>("Creator")
                         .HasColumnType("uuid");
 
-                    b.Property<Guid>("CustomerId")
+                    b.Property<Guid?>("CustomerId")
                         .HasColumnType("uuid");
 
                     b.Property<string>("FieldCode")
@@ -1022,7 +1022,7 @@ namespace IoTSharp.Migrations
                     b.Property<DateTime?>("FieldCreateDate")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<long?>("FieldId")
+                    b.Property<long>("FieldId")
                         .HasColumnType("bigint");
 
                     b.Property<string>("FieldName")
@@ -1034,13 +1034,13 @@ namespace IoTSharp.Migrations
                     b.Property<string>("FieldValue")
                         .HasColumnType("text");
 
-                    b.Property<long?>("FieldValueType")
+                    b.Property<long>("FieldValueType")
                         .HasColumnType("bigint");
 
-                    b.Property<long?>("FromId")
+                    b.Property<long>("FromId")
                         .HasColumnType("bigint");
 
-                    b.Property<Guid>("TenantId")
+                    b.Property<Guid?>("TenantId")
                         .HasColumnType("uuid");
 
                     b.HasKey("FieldValueId");
@@ -1060,16 +1060,16 @@ namespace IoTSharp.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("FormId"));
 
-                    b.Property<long?>("BizId")
+                    b.Property<long>("BizId")
                         .HasColumnType("bigint");
 
                     b.Property<Guid>("Creator")
                         .HasColumnType("uuid");
 
-                    b.Property<Guid>("CustomerId")
+                    b.Property<Guid?>("CustomerId")
                         .HasColumnType("uuid");
 
-                    b.Property<long?>("FormCreator")
+                    b.Property<long>("FormCreator")
                         .HasColumnType("bigint");
 
                     b.Property<string>("FormDesc")
@@ -1084,7 +1084,7 @@ namespace IoTSharp.Migrations
                     b.Property<string>("FormSchame")
                         .HasColumnType("text");
 
-                    b.Property<int?>("FormStatus")
+                    b.Property<int>("FormStatus")
                         .HasColumnType("integer");
 
                     b.Property<DateTime?>("FromCreateDate")
@@ -1096,7 +1096,7 @@ namespace IoTSharp.Migrations
                     b.Property<string>("ModelClass")
                         .HasColumnType("text");
 
-                    b.Property<Guid>("TenantId")
+                    b.Property<Guid?>("TenantId")
                         .HasColumnType("uuid");
 
                     b.Property<string>("Url")
@@ -1129,7 +1129,7 @@ namespace IoTSharp.Migrations
                     b.Property<Guid>("Createor")
                         .HasColumnType("uuid");
 
-                    b.Property<Guid>("CustomerId")
+                    b.Property<Guid?>("CustomerId")
                         .HasColumnType("uuid");
 
                     b.Property<Guid?>("ExecutorId")
@@ -1183,7 +1183,7 @@ namespace IoTSharp.Migrations
                     b.Property<string>("TargetId")
                         .HasColumnType("text");
 
-                    b.Property<Guid>("TenantId")
+                    b.Property<Guid?>("TenantId")
                         .HasColumnType("uuid");
 
                     b.Property<int>("TestStatus")
@@ -1220,7 +1220,7 @@ namespace IoTSharp.Migrations
                     b.Property<DateTime?>("AddDate")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<Guid>("BaseEventId")
+                    b.Property<Guid?>("BaseEventEventId")
                         .HasColumnType("uuid");
 
                     b.Property<string>("BizId")
@@ -1229,13 +1229,13 @@ namespace IoTSharp.Migrations
                     b.Property<string>("Data")
                         .HasColumnType("text");
 
-                    b.Property<Guid>("FlowId")
+                    b.Property<Guid?>("FlowId")
                         .HasColumnType("uuid");
 
-                    b.Property<Guid>("FlowRuleId")
+                    b.Property<Guid?>("FlowRuleRuleId")
                         .HasColumnType("uuid");
 
-                    b.Property<int?>("NodeStatus")
+                    b.Property<int>("NodeStatus")
                         .HasColumnType("integer");
 
                     b.Property<string>("OperationDesc")
@@ -1252,11 +1252,11 @@ namespace IoTSharp.Migrations
 
                     b.HasKey("OperationId");
 
-                    b.HasIndex("BaseEventId");
+                    b.HasIndex("BaseEventEventId");
 
                     b.HasIndex("FlowId");
 
-                    b.HasIndex("FlowRuleId");
+                    b.HasIndex("FlowRuleRuleId");
 
                     b.ToTable("FlowOperations");
                 });
@@ -1276,7 +1276,7 @@ namespace IoTSharp.Migrations
                     b.Property<string>("Creator")
                         .HasColumnType("text");
 
-                    b.Property<Guid>("CustomerId")
+                    b.Property<Guid?>("CustomerId")
                         .HasColumnType("uuid");
 
                     b.Property<string>("DefinitionsXml")
@@ -1313,7 +1313,7 @@ namespace IoTSharp.Migrations
                     b.Property<double>("SubVersion")
                         .HasColumnType("double precision");
 
-                    b.Property<Guid>("TenantId")
+                    b.Property<Guid?>("TenantId")
                         .HasColumnType("uuid");
 
                     b.Property<double>("Version")
@@ -1400,7 +1400,7 @@ namespace IoTSharp.Migrations
                     b.Property<Guid>("Creator")
                         .HasColumnType("uuid");
 
-                    b.Property<Guid>("CustomerId")
+                    b.Property<Guid?>("CustomerId")
                         .HasColumnType("uuid");
 
                     b.Property<string>("DefaultConfig")
@@ -1424,7 +1424,7 @@ namespace IoTSharp.Migrations
                     b.Property<string>("Tag")
                         .HasColumnType("text");
 
-                    b.Property<Guid>("TenantId")
+                    b.Property<Guid?>("TenantId")
                         .HasColumnType("uuid");
 
                     b.Property<int>("TestStatus")
@@ -1460,7 +1460,7 @@ namespace IoTSharp.Migrations
                     b.Property<Guid>("Creator")
                         .HasColumnType("uuid");
 
-                    b.Property<Guid>("CustomerId")
+                    b.Property<Guid?>("CustomerId")
                         .HasColumnType("uuid");
 
                     b.Property<string>("EventDesc")
@@ -1481,7 +1481,7 @@ namespace IoTSharp.Migrations
                     b.Property<string>("EventTag")
                         .HasColumnType("text");
 
-                    b.Property<Guid>("TenantId")
+                    b.Property<Guid?>("TenantId")
                         .HasColumnType("uuid");
 
                     b.Property<int>("Type")
@@ -1933,15 +1933,11 @@ namespace IoTSharp.Migrations
                 {
                     b.HasOne("IoTSharp.Data.Customer", "Customer")
                         .WithMany()
-                        .HasForeignKey("CustomerId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("CustomerId");
 
                     b.HasOne("IoTSharp.Data.Tenant", "Tenant")
                         .WithMany()
-                        .HasForeignKey("TenantId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("TenantId");
 
                     b.Navigation("Customer");
 
@@ -1952,9 +1948,7 @@ namespace IoTSharp.Migrations
                 {
                     b.HasOne("IoTSharp.Data.Customer", "Customer")
                         .WithMany()
-                        .HasForeignKey("CustomerId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("CustomerId");
 
                     b.HasOne("IoTSharp.Data.DeviceDiagram", "DeviceDiagram")
                         .WithMany()
@@ -1962,9 +1956,7 @@ namespace IoTSharp.Migrations
 
                     b.HasOne("IoTSharp.Data.Tenant", "Tenant")
                         .WithMany()
-                        .HasForeignKey("TenantId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("TenantId");
 
                     b.Navigation("Customer");
 
@@ -1977,15 +1969,11 @@ namespace IoTSharp.Migrations
                 {
                     b.HasOne("IoTSharp.Data.Customer", "Customer")
                         .WithMany()
-                        .HasForeignKey("CustomerId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("CustomerId");
 
                     b.HasOne("IoTSharp.Data.Tenant", "Tenant")
                         .WithMany()
-                        .HasForeignKey("TenantId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("TenantId");
 
                     b.Navigation("Customer");
 
@@ -2033,15 +2021,11 @@ namespace IoTSharp.Migrations
                 {
                     b.HasOne("IoTSharp.Data.Customer", "Customer")
                         .WithMany()
-                        .HasForeignKey("CustomerId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("CustomerId");
 
                     b.HasOne("IoTSharp.Data.Tenant", "Tenant")
                         .WithMany()
-                        .HasForeignKey("TenantId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("TenantId");
 
                     b.Navigation("Customer");
 
@@ -2052,15 +2036,11 @@ namespace IoTSharp.Migrations
                 {
                     b.HasOne("IoTSharp.Data.Customer", "Customer")
                         .WithMany()
-                        .HasForeignKey("CustomerId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("CustomerId");
 
                     b.HasOne("IoTSharp.Data.Tenant", "Tenant")
                         .WithMany()
-                        .HasForeignKey("TenantId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("TenantId");
 
                     b.Navigation("Customer");
 
@@ -2071,15 +2051,11 @@ namespace IoTSharp.Migrations
                 {
                     b.HasOne("IoTSharp.Data.Customer", "Customer")
                         .WithMany()
-                        .HasForeignKey("CustomerId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("CustomerId");
 
                     b.HasOne("IoTSharp.Data.Tenant", "Tenant")
                         .WithMany()
-                        .HasForeignKey("TenantId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("TenantId");
 
                     b.Navigation("Customer");
 
@@ -2090,9 +2066,7 @@ namespace IoTSharp.Migrations
                 {
                     b.HasOne("IoTSharp.Data.Customer", "Customer")
                         .WithMany()
-                        .HasForeignKey("CustomerId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("CustomerId");
 
                     b.HasOne("IoTSharp.Data.RuleTaskExecutor", "Executor")
                         .WithMany()
@@ -2104,9 +2078,7 @@ namespace IoTSharp.Migrations
 
                     b.HasOne("IoTSharp.Data.Tenant", "Tenant")
                         .WithMany()
-                        .HasForeignKey("TenantId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("TenantId");
 
                     b.Navigation("Customer");
 
@@ -2121,21 +2093,15 @@ namespace IoTSharp.Migrations
                 {
                     b.HasOne("IoTSharp.Data.BaseEvent", "BaseEvent")
                         .WithMany()
-                        .HasForeignKey("BaseEventId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("BaseEventEventId");
 
                     b.HasOne("IoTSharp.Data.Flow", "Flow")
                         .WithMany()
-                        .HasForeignKey("FlowId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("FlowId");
 
                     b.HasOne("IoTSharp.Data.FlowRule", "FlowRule")
                         .WithMany()
-                        .HasForeignKey("FlowRuleId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("FlowRuleRuleId");
 
                     b.Navigation("BaseEvent");
 
@@ -2148,15 +2114,11 @@ namespace IoTSharp.Migrations
                 {
                     b.HasOne("IoTSharp.Data.Customer", "Customer")
                         .WithMany()
-                        .HasForeignKey("CustomerId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("CustomerId");
 
                     b.HasOne("IoTSharp.Data.Tenant", "Tenant")
                         .WithMany()
-                        .HasForeignKey("TenantId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("TenantId");
 
                     b.Navigation("Customer");
 
@@ -2197,15 +2159,11 @@ namespace IoTSharp.Migrations
                 {
                     b.HasOne("IoTSharp.Data.Customer", "Customer")
                         .WithMany()
-                        .HasForeignKey("CustomerId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("CustomerId");
 
                     b.HasOne("IoTSharp.Data.Tenant", "Tenant")
                         .WithMany()
-                        .HasForeignKey("TenantId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("TenantId");
 
                     b.Navigation("Customer");
 
@@ -2216,15 +2174,11 @@ namespace IoTSharp.Migrations
                 {
                     b.HasOne("IoTSharp.Data.Customer", "Customer")
                         .WithMany()
-                        .HasForeignKey("CustomerId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("CustomerId");
 
                     b.HasOne("IoTSharp.Data.Tenant", "Tenant")
                         .WithMany()
-                        .HasForeignKey("TenantId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("TenantId");
 
                     b.Navigation("Customer");
 
