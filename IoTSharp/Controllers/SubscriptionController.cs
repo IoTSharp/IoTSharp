@@ -87,10 +87,9 @@ namespace IoTSharp.Controllers
         {
             try
             {
-                var profile = this.GetUserProfile();
-                SubscriptionEvent se = new SubscriptionEvent
+                SubscriptionEvent se = new()
                 {
-                    Creator = profile.Id,
+                    Creator =  User.GetUserId(),
                     EventName = m.EventName,
                     EventDesc = m.EventDesc,
                     EventNameSpace = m.EventNameSpace,
@@ -99,7 +98,7 @@ namespace IoTSharp.Controllers
                     Type = m.Type,
                     CreateDateTime = DateTime.Now,
                     EventStatus = 1,
-                    TenantId = profile.Tenant
+                    TenantId = User.GetTenantId()
                 };
                 _context.SubscriptionEvents.Add(se);
                 await this._context.SaveChangesAsync();
@@ -114,13 +113,12 @@ namespace IoTSharp.Controllers
         [HttpGet("[action]")]
         public async Task<ApiResult<bool>> Delete(Guid id)
         {
-            var profile = this.GetUserProfile();
-            var se = this._context.SubscriptionEvents.SingleOrDefault(c => c.EventId == id);
+            var se = _context.SubscriptionEvents.SingleOrDefault(c => c.EventId == id);
             if (se != null)
             {
                 se.EventStatus = -1;
-                this._context.SubscriptionEvents.Update(se);
-                await this._context.SaveChangesAsync();
+                _context.SubscriptionEvents.Update(se);
+                await _context.SaveChangesAsync();
                 return new ApiResult<bool>(ApiCode.Success, "OK", true);
             }
             else

@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Dynamic;
-using System.Linq;
-using System.Threading.Tasks;
-using Castle.Components.DictionaryAdapter;
+﻿using Castle.Components.DictionaryAdapter;
 using EasyCaching.Core;
 using IoTSharp.Data;
 using IoTSharp.Interpreter;
@@ -13,6 +8,11 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
+using System;
+using System.Collections.Generic;
+using System.Dynamic;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace IoTSharp.FlowRuleEngine
 {
@@ -31,7 +31,6 @@ namespace IoTSharp.FlowRuleEngine
 
         public FlowRuleProcessor(ILogger<FlowRuleProcessor> logger, IServiceScopeFactory scopeFactor, IOptions<AppSettings> options, TaskExecutorHelper helper, IEasyCachingProviderFactory factory)
         {
-
             _scopeFactor = scopeFactor;
             _logger = logger;
             _setting = options.Value;
@@ -42,11 +41,8 @@ namespace IoTSharp.FlowRuleEngine
             _sp = _scopeFactor.CreateScope().ServiceProvider;
         }
 
-
-
-
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="ruleid"> 规则Id</param>
         /// <param name="data">数据</param>
@@ -74,7 +70,6 @@ namespace IoTSharp.FlowRuleEngine
             }, TimeSpan.FromSeconds(_setting.RuleCachingExpiration));
             if (cacheRule.HasValue)
             {
-
                 FlowRule rule = cacheRule.Value.rule;
                 _allFlows = cacheRule.Value._allFlows;
                 _logger.LogInformation($"开始执行规则链{rule?.Name}({ruleid})");
@@ -85,7 +80,7 @@ namespace IoTSharp.FlowRuleEngine
                     EventDesc = $"Event Rule:{rule?.Name}({ruleid}) device is {deviceId}",
                     EventName = $"开始执行规则链{rule?.Name}({ruleid})",
                     MataData = JsonConvert.SerializeObject(data),
-                  //  BizData = JsonConvert.SerializeObject(rule),  //所有规则修改都会让对应的flow数据和设计文件不一致，最终导致回放失败，在此拷贝一份原始数据
+                    //  BizData = JsonConvert.SerializeObject(rule),  //所有规则修改都会让对应的flow数据和设计文件不一致，最终导致回放失败，在此拷贝一份原始数据
                     FlowRule = rule,
                     Bizid = bizId,
                     Type = type,
@@ -109,8 +104,6 @@ namespace IoTSharp.FlowRuleEngine
 
                 if (start == null)
                 {
-
-
                     _allflowoperation.Add(new FlowOperation()
                     {
                         OperationId = Guid.NewGuid(),
@@ -123,15 +116,12 @@ namespace IoTSharp.FlowRuleEngine
                         OperationDesc = "未能找到启动节点",
                         Step = 1,
                         BaseEvent = @event
-
                     });
 
                     return _allflowoperation;
-
                 }
                 var startoperation = new FlowOperation()
                 {
-
                     OperationId = Guid.NewGuid(),
                     bpmnid = start.bpmnid,
                     AddDate = DateTime.Now,
@@ -148,7 +138,6 @@ namespace IoTSharp.FlowRuleEngine
                 var nextflows = await ProcessCondition(start.FlowId, data);
                 if (nextflows != null)
                 {
-
                     foreach (var item in nextflows)
                     {
                         var flowOperation = new FlowOperation()
@@ -176,17 +165,11 @@ namespace IoTSharp.FlowRuleEngine
             return null;
         }
 
-
-
         public async Task Process(Guid operationid, object data, Guid deviceId)
         {
-
-
-          
             var peroperation = _allflowoperation.FirstOrDefault(c => c.OperationId == operationid);
             if (peroperation != null)
             {
-
                 if (peroperation.Step > this._maximumiteration)
                 {
                     peroperation.OperationDesc = "Maximum iteration depth has been reached";
@@ -220,7 +203,6 @@ namespace IoTSharp.FlowRuleEngine
 
                     case "bpmn:Task":
                         {
-
                             var taskoperation = new FlowOperation()
                             {
                                 OperationId = Guid.NewGuid(),
@@ -236,12 +218,10 @@ namespace IoTSharp.FlowRuleEngine
                             };
                             _allflowoperation.Add(taskoperation);
 
-
                             //脚本处理
                             if (!string.IsNullOrEmpty(flow.NodeProcessScriptType) && (!string.IsNullOrEmpty(flow.NodeProcessScript) || !string.IsNullOrEmpty(flow.NodeProcessClass)))
                             {
                                 var scriptsrc = flow.NodeProcessScript;
-
 
                                 dynamic obj = null;
                                 switch (flow.NodeProcessScriptType)
@@ -250,7 +230,6 @@ namespace IoTSharp.FlowRuleEngine
 
                                         if (!string.IsNullOrEmpty(flow.NodeProcessClass))
                                         {
-
                                             ITaskAction executor = _helper.CreateInstanceByTypeName(flow.NodeProcessClass);
                                             if (executor != null)
                                             {
@@ -264,12 +243,11 @@ namespace IoTSharp.FlowRuleEngine
                                                     }
                                                     );
 
-                                                    _logger.Log(LogLevel.Information, "执行器"+flow.NodeProcessClass+"已完成处理");
+                                                    _logger.Log(LogLevel.Information, "执行器" + flow.NodeProcessClass + "已完成处理");
                                                     obj = result.DynamicOutput;
                                                     taskoperation.OperationDesc += "\r\n" + result.ExecutionInfo;
-                                                    if (!result.ExecutionStatus) 
+                                                    if (!result.ExecutionStatus)
                                                     {
-
                                                         taskoperation.NodeStatus = 2;
 
                                                         _logger.Log(LogLevel.Information, "执行器" + flow.NodeProcessClass + "未能正确处理:" + result.ExecutionInfo);
@@ -280,7 +258,6 @@ namespace IoTSharp.FlowRuleEngine
                                                 {
                                                     _logger.Log(LogLevel.Information, "执行器" + flow.NodeProcessClass + "未能正确处理:" + ex.Source);
 
-                                          
                                                     taskoperation.OperationDesc += "\r\n" + ex.Message;
                                                     taskoperation.NodeStatus = 2;
                                                     return;
@@ -288,7 +265,6 @@ namespace IoTSharp.FlowRuleEngine
                                             }
                                             else
                                             {
-
                                                 _logger.Log(LogLevel.Warning, "脚本执行异常,未能实例化执行器");
                                                 taskoperation.OperationDesc += "\r\n" + "脚本执行异常,未能实例化执行器";
                                                 taskoperation.NodeStatus = 2;
@@ -296,6 +272,7 @@ namespace IoTSharp.FlowRuleEngine
                                             }
                                         }
                                         break;
+
                                     case "python":
                                         {
                                             using (var pse = _sp.GetRequiredService<PythonScriptEngine>())
@@ -305,9 +282,9 @@ namespace IoTSharp.FlowRuleEngine
                                             }
                                         }
                                         break;
+
                                     case "sql":
                                         {
-
                                             using (var pse = _sp.GetRequiredService<SQLEngine>())
                                             {
                                                 string result = pse.Do(scriptsrc, taskoperation.Data);
@@ -316,6 +293,7 @@ namespace IoTSharp.FlowRuleEngine
                                         }
 
                                         break;
+
                                     case "lua":
                                         {
                                             using (var lua = _sp.GetRequiredService<LuaScriptEngine>())
@@ -326,7 +304,6 @@ namespace IoTSharp.FlowRuleEngine
                                         }
                                         break;
 
-
                                     case "javascript":
                                         {
                                             using (var js = _sp.GetRequiredService<JavaScriptEngine>())
@@ -336,6 +313,7 @@ namespace IoTSharp.FlowRuleEngine
                                             }
                                         }
                                         break;
+
                                     case "csharp":
                                         {
                                             using (var js = _sp.GetRequiredService<CSharpScriptEngine>())
@@ -402,7 +380,6 @@ namespace IoTSharp.FlowRuleEngine
                                     _allflowoperation.Add(flowOperation);
                                     await Process(flowOperation.OperationId, data, deviceId);
                                 }
-
                             }
                         }
 
@@ -414,8 +391,6 @@ namespace IoTSharp.FlowRuleEngine
 
                         if (end != null)
                         {
-
-
                             end.BuildFlowOperation(peroperation, flow);
                             end.bpmnid = flow.bpmnid;
                             end.AddDate = DateTime.Now;
@@ -448,7 +423,6 @@ namespace IoTSharp.FlowRuleEngine
 
                         break;
 
-
                     //没有终结点的节点必须留个空标签
                     case "label":
 
@@ -472,15 +446,11 @@ namespace IoTSharp.FlowRuleEngine
 
                     default:
                         {
-
-
                             break;
                         }
                 }
             }
         }
-
-    
 
         public async Task<List<Flow>> ProcessCondition(Guid flowId, dynamic data)
         {
@@ -517,16 +487,10 @@ namespace IoTSharp.FlowRuleEngine
                     var nextflow = flows.FirstOrDefault(a => a.bpmnid == item.Rule.SuccessEvent);
                     emptyflow.Add(nextflow);
                 }
-
             }
 
             return emptyflow;
         }
-
-
-
-
-
 
         public async Task<ScriptTestResult> TestScript(Guid ruleid, Guid flowId, string data)
         {
@@ -552,9 +516,7 @@ namespace IoTSharp.FlowRuleEngine
                 if (!string.IsNullOrEmpty(flow?.NodeProcessScriptType) &&
                     (!string.IsNullOrEmpty(flow.NodeProcessScript) || !string.IsNullOrEmpty(flow.NodeProcessClass)))
                 {
-
                     var scriptsrc = flow.NodeProcessScript;
-
 
                     dynamic obj = null;
 
@@ -564,7 +526,6 @@ namespace IoTSharp.FlowRuleEngine
 
                             if (!string.IsNullOrEmpty(flow.NodeProcessClass))
                             {
-
                                 ITaskAction executor = _helper.CreateInstanceByTypeName(flow.NodeProcessClass);
                                 if (executor != null)
                                 {
@@ -574,20 +535,18 @@ namespace IoTSharp.FlowRuleEngine
                                         {
                                             Input = data,
                                             ExecutorConfig = flow.NodeProcessParams,
-                                     DeviceId = Guid.Empty
+                                            DeviceId = Guid.Empty
                                         });
 
-
-                                        obj =   result.DynamicOutput;
+                                        obj = result.DynamicOutput;
                                     }
                                     catch (Exception ex)
                                     {
-
                                     }
                                 }
-
                             }
                             break;
+
                         case "python":
                             {
                                 using (var pse = _sp.GetRequiredService<PythonScriptEngine>())
@@ -597,9 +556,9 @@ namespace IoTSharp.FlowRuleEngine
                                 }
                             }
                             break;
+
                         case "sql":
                             {
-
                                 using (var pse = _sp.GetRequiredService<SQLEngine>())
                                 {
                                     string result = pse.Do(scriptsrc, data);
@@ -608,6 +567,7 @@ namespace IoTSharp.FlowRuleEngine
                             }
 
                             break;
+
                         case "lua":
                             {
                                 using (var lua = _sp.GetRequiredService<LuaScriptEngine>())
@@ -618,7 +578,6 @@ namespace IoTSharp.FlowRuleEngine
                             }
                             break;
 
-
                         case "javascript":
                             {
                                 using (var js = _sp.GetRequiredService<JavaScriptEngine>())
@@ -628,6 +587,7 @@ namespace IoTSharp.FlowRuleEngine
                                 }
                             }
                             break;
+
                         case "csharp":
                             {
                                 using (var js = _sp.GetRequiredService<CSharpScriptEngine>())
@@ -639,19 +599,15 @@ namespace IoTSharp.FlowRuleEngine
                             break;
                     }
 
-
                     if (obj != null)
                     {
                         return new ScriptTestResult() { Data = obj, IsExecuted = true };
                     }
-
                 }
             }
 
             return new ScriptTestResult() { Data = null, IsExecuted = false }; ;
-
         }
-
 
         public async Task<ConditionTestResult> TestCondition(Guid ruleid, Guid flowId, dynamic data)
         {
@@ -706,21 +662,13 @@ namespace IoTSharp.FlowRuleEngine
                         var nextflow = flows.FirstOrDefault(a => a.bpmnid == item.Rule.SuccessEvent);
                         emptyflow.Add(nextflow);
                     }
-
                 }
                 return new ConditionTestResult { Failed = flows.Except(emptyflow).ToList(), Passed = emptyflow };
-
-
             }
             else
             {
                 return null;
             }
-
-
-
-
         }
-
     }
 }

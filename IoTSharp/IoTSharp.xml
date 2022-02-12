@@ -746,15 +746,15 @@
             <param name="configure"></param>
         </member>
         <member name="M:IoTSharp.FlowRuleEngine.FlowRuleProcessor.RunFlowRules(System.Guid,System.Object,System.Guid,IoTSharp.Data.EventType,System.String)">
-            <summary>
+             <summary>
             
-            </summary>
-            <param name="ruleid"> 规则Id</param>
-            <param name="data">数据</param>
-            <param name="deviceId">创建者(可以是模拟器(测试)，可以是设备，在EventType中区分一下)</param>
-            <param name="type">类型</param>
-            <param name="bizId">业务Id(第三方唯一Id，用于取回事件以及记录的标识)</param>
-            <returns> 返回所有节点的记录信息，需要保存则保存</returns>
+             </summary>
+             <param name="ruleid"> 规则Id</param>
+             <param name="data">数据</param>
+             <param name="deviceId">创建者(可以是模拟器(测试)，可以是设备，在EventType中区分一下)</param>
+             <param name="type">类型</param>
+             <param name="bizId">业务Id(第三方唯一Id，用于取回事件以及记录的标识)</param>
+             <returns> 返回所有节点的记录信息，需要保存则保存</returns>
         </member>
         <member name="T:IoTSharp.Properties.Resources">
             <summary>
