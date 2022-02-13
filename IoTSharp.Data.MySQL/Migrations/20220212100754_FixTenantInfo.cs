@@ -9,53 +9,15 @@ namespace IoTSharp.Data.MySql.Migrations
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.DropForeignKey(
-                name: "FK_DeviceIdentities_Device_DeviceId",
-                table: "DeviceIdentities");
+          
 
-            migrationBuilder.DropForeignKey(
-                name: "FK_FlowOperations_BaseEvents_BaseEventId",
-                table: "FlowOperations");
 
-            migrationBuilder.DropForeignKey(
-                name: "FK_FlowOperations_FlowRules_FlowRuleId",
-                table: "FlowOperations");
+     
 
-            migrationBuilder.DropForeignKey(
-                name: "FK_FlowOperations_Flows_FlowId",
-                table: "FlowOperations");
+     
 
-            migrationBuilder.DropForeignKey(
-                name: "FK_SubscriptionTasks_Customer_CustomerId",
-                table: "SubscriptionTasks");
+         
 
-            migrationBuilder.DropIndex(
-                name: "IX_SubscriptionTasks_CustomerId",
-                table: "SubscriptionTasks");
-
-            migrationBuilder.DropIndex(
-                name: "IX_FlowOperations_BaseEventId",
-                table: "FlowOperations");
-
-            migrationBuilder.DropIndex(
-                name: "IX_FlowOperations_FlowRuleId",
-                table: "FlowOperations");
-
-            migrationBuilder.DropIndex(
-                name: "IX_DeviceIdentities_DeviceId",
-                table: "DeviceIdentities");
-
-            migrationBuilder.DropColumn(
-                name: "CustomerId",
-                table: "SubscriptionTasks");
-
-            migrationBuilder.DropColumn(
-                name: "BaseEventId",
-                table: "FlowOperations");
-
-            migrationBuilder.DropColumn(
-                name: "FlowRuleId",
-                table: "FlowOperations");
 
             migrationBuilder.AlterColumn<int>(
                 name: "Type",
@@ -106,68 +68,16 @@ namespace IoTSharp.Data.MySql.Migrations
                 .Annotation("Relational:ColumnOrder", 1)
                 .OldAnnotation("Relational:Collation", "ascii_general_ci");
 
-            migrationBuilder.AddColumn<Guid>(
-                name: "CustomerId",
-                table: "SubscriptionEvents",
-                type: "char(36)",
-                nullable: true,
-                collation: "ascii_general_ci");
+      
 
-            migrationBuilder.AddColumn<Guid>(
-                name: "TenantId",
-                table: "SubscriptionEvents",
-                type: "char(36)",
-                nullable: true,
-                collation: "ascii_general_ci");
 
-            migrationBuilder.AddColumn<Guid>(
-                name: "CustomerId",
-                table: "RuleTaskExecutors",
-                type: "char(36)",
-                nullable: true,
-                collation: "ascii_general_ci");
+    
 
-            migrationBuilder.AddColumn<Guid>(
-                name: "TenantId",
-                table: "RuleTaskExecutors",
-                type: "char(36)",
-                nullable: true,
-                collation: "ascii_general_ci");
+     
 
-            migrationBuilder.AddColumn<Guid>(
-                name: "CustomerId",
-                table: "Flows",
-                type: "char(36)",
-                nullable: true,
-                collation: "ascii_general_ci");
 
-            migrationBuilder.AddColumn<Guid>(
-                name: "TenantId",
-                table: "Flows",
-                type: "char(36)",
-                nullable: true,
-                collation: "ascii_general_ci");
-
-            migrationBuilder.AddColumn<Guid>(
-                name: "CustomerId",
-                table: "FlowRules",
-                type: "char(36)",
-                nullable: true,
-                collation: "ascii_general_ci");
-
-            migrationBuilder.AddColumn<Guid>(
-                name: "TenantId",
-                table: "FlowRules",
-                type: "char(36)",
-                nullable: true,
-                collation: "ascii_general_ci");
-
-            migrationBuilder.AddColumn<double>(
-                name: "Version",
-                table: "FlowRules",
-                type: "double",
-                nullable: false,
-                defaultValue: 0.0);
+       
+   
 
             migrationBuilder.AlterColumn<int>(
                 name: "NodeStatus",
@@ -189,19 +99,8 @@ namespace IoTSharp.Data.MySql.Migrations
                 oldType: "char(36)")
                 .OldAnnotation("Relational:Collation", "ascii_general_ci");
 
-            migrationBuilder.AddColumn<Guid>(
-                name: "BaseEventEventId",
-                table: "FlowOperations",
-                type: "char(36)",
-                nullable: true,
-                collation: "ascii_general_ci");
+         
 
-            migrationBuilder.AddColumn<Guid>(
-                name: "FlowRuleRuleId",
-                table: "FlowOperations",
-                type: "char(36)",
-                nullable: true,
-                collation: "ascii_general_ci");
 
             migrationBuilder.AlterColumn<int>(
                 name: "FormStatus",
@@ -233,19 +132,8 @@ namespace IoTSharp.Data.MySql.Migrations
                 oldType: "bigint",
                 oldNullable: true);
 
-            migrationBuilder.AddColumn<Guid>(
-                name: "CustomerId",
-                table: "DynamicFormInfos",
-                type: "char(36)",
-                nullable: true,
-                collation: "ascii_general_ci");
+        
 
-            migrationBuilder.AddColumn<Guid>(
-                name: "TenantId",
-                table: "DynamicFormInfos",
-                type: "char(36)",
-                nullable: true,
-                collation: "ascii_general_ci");
 
             migrationBuilder.AlterColumn<long>(
                 name: "FromId",
@@ -287,19 +175,8 @@ namespace IoTSharp.Data.MySql.Migrations
                 oldType: "bigint",
                 oldNullable: true);
 
-            migrationBuilder.AddColumn<Guid>(
-                name: "CustomerId",
-                table: "DynamicFormFieldValueInfos",
-                type: "char(36)",
-                nullable: true,
-                collation: "ascii_general_ci");
 
-            migrationBuilder.AddColumn<Guid>(
-                name: "TenantId",
-                table: "DynamicFormFieldValueInfos",
-                type: "char(36)",
-                nullable: true,
-                collation: "ascii_general_ci");
+       
 
             migrationBuilder.AlterColumn<bool>(
                 name: "IsRequired",
@@ -371,19 +248,8 @@ namespace IoTSharp.Data.MySql.Migrations
                 oldType: "int",
                 oldNullable: true);
 
-            migrationBuilder.AddColumn<Guid>(
-                name: "CustomerId",
-                table: "DynamicFormFieldInfos",
-                type: "char(36)",
-                nullable: true,
-                collation: "ascii_general_ci");
+       
 
-            migrationBuilder.AddColumn<Guid>(
-                name: "TenantId",
-                table: "DynamicFormFieldInfos",
-                type: "char(36)",
-                nullable: true,
-                collation: "ascii_general_ci");
 
             migrationBuilder.AlterColumn<int>(
                 name: "PortType",
@@ -517,20 +383,9 @@ namespace IoTSharp.Data.MySql.Migrations
                 oldType: "bigint",
                 oldNullable: true);
 
-            migrationBuilder.AddColumn<Guid>(
-                name: "CustomerId",
-                table: "DeviceGraphToolBoxes",
-                type: "char(36)",
-                nullable: true,
-                collation: "ascii_general_ci");
+           
 
-            migrationBuilder.AddColumn<Guid>(
-                name: "TenantId",
-                table: "DeviceGraphToolBoxes",
-                type: "char(36)",
-                nullable: true,
-                collation: "ascii_general_ci");
-
+         
             migrationBuilder.AlterColumn<int>(
                 name: "GraphWidth",
                 table: "DeviceGraphs",
@@ -611,19 +466,7 @@ namespace IoTSharp.Data.MySql.Migrations
                 oldType: "decimal(65,30)",
                 oldNullable: true);
 
-            migrationBuilder.AddColumn<Guid>(
-                name: "CustomerId",
-                table: "DeviceGraphs",
-                type: "char(36)",
-                nullable: true,
-                collation: "ascii_general_ci");
-
-            migrationBuilder.AddColumn<Guid>(
-                name: "TenantId",
-                table: "DeviceGraphs",
-                type: "char(36)",
-                nullable: true,
-                collation: "ascii_general_ci");
+    
 
             migrationBuilder.AlterColumn<bool>(
                 name: "IsDefault",
@@ -645,20 +488,7 @@ namespace IoTSharp.Data.MySql.Migrations
                 oldType: "int",
                 oldNullable: true);
 
-            migrationBuilder.AddColumn<Guid>(
-                name: "CustomerId",
-                table: "DeviceDiagrams",
-                type: "char(36)",
-                nullable: true,
-                collation: "ascii_general_ci");
-
-            migrationBuilder.AddColumn<Guid>(
-                name: "TenantId",
-                table: "DeviceDiagrams",
-                type: "char(36)",
-                nullable: true,
-                collation: "ascii_general_ci");
-
+       
             migrationBuilder.AlterColumn<int>(
                 name: "Type",
                 table: "DataStorage",
@@ -717,233 +547,30 @@ namespace IoTSharp.Data.MySql.Migrations
                 oldType: "int")
                 .Annotation("Relational:ColumnOrder", 0);
 
-            migrationBuilder.AddColumn<Guid>(
-                name: "CustomerId",
-                table: "BaseEvents",
-                type: "char(36)",
-                nullable: true,
-                collation: "ascii_general_ci");
+    
+        
 
-            migrationBuilder.AddColumn<Guid>(
-                name: "TenantId",
-                table: "BaseEvents",
-                type: "char(36)",
-                nullable: true,
-                collation: "ascii_general_ci");
 
-            migrationBuilder.CreateTable(
-                name: "RefreshTokens",
-                columns: table => new
-                {
-                    Id = table.Column<Guid>(type: "char(36)", nullable: false, collation: "ascii_general_ci"),
-                    UserId = table.Column<string>(type: "varchar(255)", nullable: true)
-                        .Annotation("MySql:CharSet", "utf8mb4"),
-                    Token = table.Column<string>(type: "longtext", nullable: true)
-                        .Annotation("MySql:CharSet", "utf8mb4"),
-                    JwtId = table.Column<string>(type: "longtext", nullable: true)
-                        .Annotation("MySql:CharSet", "utf8mb4"),
-                    IsUsed = table.Column<bool>(type: "tinyint(1)", nullable: false),
-                    IsRevorked = table.Column<bool>(type: "tinyint(1)", nullable: false),
-                    AddedDate = table.Column<DateTime>(type: "datetime(6)", nullable: false),
-                    ExpiryDate = table.Column<DateTime>(type: "datetime(6)", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_RefreshTokens", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_RefreshTokens_AspNetUsers_UserId",
-                        column: x => x.UserId,
-                        principalTable: "AspNetUsers",
-                        principalColumn: "Id");
-                })
-                .Annotation("MySql:CharSet", "utf8mb4");
+         
 
-            migrationBuilder.CreateIndex(
-                name: "IX_SubscriptionEvents_CustomerId",
-                table: "SubscriptionEvents",
-                column: "CustomerId");
 
-            migrationBuilder.CreateIndex(
-                name: "IX_SubscriptionEvents_TenantId",
-                table: "SubscriptionEvents",
-                column: "TenantId");
+      
 
-            migrationBuilder.CreateIndex(
-                name: "IX_RuleTaskExecutors_CustomerId",
-                table: "RuleTaskExecutors",
-                column: "CustomerId");
+    
 
-            migrationBuilder.CreateIndex(
-                name: "IX_RuleTaskExecutors_TenantId",
-                table: "RuleTaskExecutors",
-                column: "TenantId");
+   
 
-            migrationBuilder.CreateIndex(
-                name: "IX_Flows_CustomerId",
-                table: "Flows",
-                column: "CustomerId");
 
-            migrationBuilder.CreateIndex(
-                name: "IX_Flows_TenantId",
-                table: "Flows",
-                column: "TenantId");
 
-            migrationBuilder.CreateIndex(
-                name: "IX_FlowRules_CustomerId",
-                table: "FlowRules",
-                column: "CustomerId");
 
-            migrationBuilder.CreateIndex(
-                name: "IX_FlowRules_TenantId",
-                table: "FlowRules",
-                column: "TenantId");
+       
 
-            migrationBuilder.CreateIndex(
-                name: "IX_FlowOperations_BaseEventEventId",
-                table: "FlowOperations",
-                column: "BaseEventEventId");
+   
 
-            migrationBuilder.CreateIndex(
-                name: "IX_FlowOperations_FlowRuleRuleId",
-                table: "FlowOperations",
-                column: "FlowRuleRuleId");
 
-            migrationBuilder.CreateIndex(
-                name: "IX_DynamicFormInfos_CustomerId",
-                table: "DynamicFormInfos",
-                column: "CustomerId");
 
-            migrationBuilder.CreateIndex(
-                name: "IX_DynamicFormInfos_TenantId",
-                table: "DynamicFormInfos",
-                column: "TenantId");
+         
 
-            migrationBuilder.CreateIndex(
-                name: "IX_DynamicFormFieldValueInfos_CustomerId",
-                table: "DynamicFormFieldValueInfos",
-                column: "CustomerId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_DynamicFormFieldValueInfos_TenantId",
-                table: "DynamicFormFieldValueInfos",
-                column: "TenantId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_DynamicFormFieldInfos_CustomerId",
-                table: "DynamicFormFieldInfos",
-                column: "CustomerId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_DynamicFormFieldInfos_TenantId",
-                table: "DynamicFormFieldInfos",
-                column: "TenantId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_DeviceIdentities_DeviceId",
-                table: "DeviceIdentities",
-                column: "DeviceId",
-                unique: true);
-
-            migrationBuilder.CreateIndex(
-                name: "IX_DeviceGraphToolBoxes_CustomerId",
-                table: "DeviceGraphToolBoxes",
-                column: "CustomerId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_DeviceGraphToolBoxes_TenantId",
-                table: "DeviceGraphToolBoxes",
-                column: "TenantId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_DeviceGraphs_CustomerId",
-                table: "DeviceGraphs",
-                column: "CustomerId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_DeviceGraphs_TenantId",
-                table: "DeviceGraphs",
-                column: "TenantId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_DeviceDiagrams_CustomerId",
-                table: "DeviceDiagrams",
-                column: "CustomerId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_DeviceDiagrams_TenantId",
-                table: "DeviceDiagrams",
-                column: "TenantId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_BaseEvents_CustomerId",
-                table: "BaseEvents",
-                column: "CustomerId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_BaseEvents_TenantId",
-                table: "BaseEvents",
-                column: "TenantId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_RefreshTokens_UserId",
-                table: "RefreshTokens",
-                column: "UserId");
-
-            migrationBuilder.AddForeignKey(
-                name: "FK_BaseEvents_Customer_CustomerId",
-                table: "BaseEvents",
-                column: "CustomerId",
-                principalTable: "Customer",
-                principalColumn: "Id");
-
-            migrationBuilder.AddForeignKey(
-                name: "FK_BaseEvents_Tenant_TenantId",
-                table: "BaseEvents",
-                column: "TenantId",
-                principalTable: "Tenant",
-                principalColumn: "Id");
-
-            migrationBuilder.AddForeignKey(
-                name: "FK_DeviceDiagrams_Customer_CustomerId",
-                table: "DeviceDiagrams",
-                column: "CustomerId",
-                principalTable: "Customer",
-                principalColumn: "Id");
-
-            migrationBuilder.AddForeignKey(
-                name: "FK_DeviceDiagrams_Tenant_TenantId",
-                table: "DeviceDiagrams",
-                column: "TenantId",
-                principalTable: "Tenant",
-                principalColumn: "Id");
-
-            migrationBuilder.AddForeignKey(
-                name: "FK_DeviceGraphs_Customer_CustomerId",
-                table: "DeviceGraphs",
-                column: "CustomerId",
-                principalTable: "Customer",
-                principalColumn: "Id");
-
-            migrationBuilder.AddForeignKey(
-                name: "FK_DeviceGraphs_Tenant_TenantId",
-                table: "DeviceGraphs",
-                column: "TenantId",
-                principalTable: "Tenant",
-                principalColumn: "Id");
-
-            migrationBuilder.AddForeignKey(
-                name: "FK_DeviceGraphToolBoxes_Customer_CustomerId",
-                table: "DeviceGraphToolBoxes",
-                column: "CustomerId",
-                principalTable: "Customer",
-                principalColumn: "Id");
-
-            migrationBuilder.AddForeignKey(
-                name: "FK_DeviceGraphToolBoxes_Tenant_TenantId",
-                table: "DeviceGraphToolBoxes",
-                column: "TenantId",
-                principalTable: "Tenant",
-                principalColumn: "Id");
 
             migrationBuilder.AddForeignKey(
                 name: "FK_DeviceIdentities_Device_DeviceId",
