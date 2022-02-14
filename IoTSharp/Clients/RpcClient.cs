@@ -21,7 +21,7 @@ namespace IoTSharp.Extensions
         private readonly ConcurrentDictionary<string, TaskCompletionSource<byte[]>> _waitingCalls = new ConcurrentDictionary<string, TaskCompletionSource<byte[]>>();
         private readonly MqttClient _mqttClient;
         private readonly ILogger _logger;
-        private IMqttClientOptions _mqtt;
+        private MqttClientOptions _mqtt;
         private bool disposedValue;
 
         public RpcClient(MqttClient mqttClient,  ILogger logger)
@@ -33,7 +33,7 @@ namespace IoTSharp.Extensions
 
       
 
-        public RpcClient(IMqttClientOptions mqtt, Microsoft.Extensions.Logging.ILogger _logger) :this (new MQTTnet.MqttFactory().CreateMqttClient(), _logger)
+        public RpcClient(MqttClientOptions mqtt, Microsoft.Extensions.Logging.ILogger _logger) :this (new MQTTnet.MqttFactory().CreateMqttClient(), _logger)
         {
             _mqtt = mqtt;
           

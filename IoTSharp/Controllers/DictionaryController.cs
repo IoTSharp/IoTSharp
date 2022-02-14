@@ -1,18 +1,14 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Linq.Dynamic.Core;
-using System.Linq.Expressions;
-using System.Threading.Tasks;
-using IoTSharp.Controllers.Models;
+﻿using IoTSharp.Controllers.Models;
 using IoTSharp.Data;
 using IoTSharp.Dtos;
 using IoTSharp.Models;
 using LinqKit;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using System;
+using System.Linq;
+using System.Linq.Dynamic.Core;
+using System.Linq.Expressions;
 
 namespace IoTSharp.Controllers
 {
@@ -21,23 +17,16 @@ namespace IoTSharp.Controllers
     [Authorize]
     public class DictionaryController : ControllerBase
     {
-
-
-
-
         private ApplicationDbContext _context;
-     
 
         public DictionaryController(ApplicationDbContext context)
         {
-         
             this._context = context;
         }
 
         [HttpPost("[action]")]
         public ApiResult<PagedData<BaseDictionary>> Index([FromBody] DictionaryParam m)
         {
-
             Expression<Func<BaseDictionary, bool>> condition = x => x.DictionaryStatus > -1;
             if (!string.IsNullOrEmpty(m.DictionaryName))
             {
@@ -51,13 +40,12 @@ namespace IoTSharp.Controllers
 
             var rows = _context.BaseDictionaries.OrderByDescending(c => c.DictionaryId).Where(condition).Skip((m.offset) * m.limit).Take(m.limit).ToList();
             var total = _context.BaseDictionaries.Count(condition);
-          
+
             return new ApiResult<PagedData<BaseDictionary>>(ApiCode.Success, "OK", new PagedData<BaseDictionary>
             {
                 total = total,
                 rows = rows
             });
-
         }
 
         [HttpGet("[action]")]
@@ -68,9 +56,8 @@ namespace IoTSharp.Controllers
             {
                 return new ApiResult<BaseDictionary>(ApiCode.Success, "OK", Dictionary);
             }
-            return new ApiResult<BaseDictionary>(ApiCode.CantFindObject, "can't find this object", null );
+            return new ApiResult<BaseDictionary>(ApiCode.CantFindObject, "can't find this object", null);
         }
-
 
         [HttpPost("[action]")]
         public ApiResult<bool> Save(BaseDictionary m)
@@ -92,9 +79,9 @@ namespace IoTSharp.Controllers
             _context.BaseDictionaries.Add(dict);
             _context.SaveChanges();
 
-
             return new ApiResult<bool>(ApiCode.Success, "OK", true);
         }
+
         [HttpPost("[action]")]
         public ApiResult<bool> Update(BaseDictionary m)
         {
@@ -114,11 +101,10 @@ namespace IoTSharp.Controllers
                 _context.BaseDictionaries.Update(dictionary);
                 _context.SaveChanges();
                 return new ApiResult<bool>(ApiCode.Success, "OK", true);
-
             }
             return new ApiResult<bool>(ApiCode.Success, "can't find this object", false);
-
         }
+
         [HttpGet("[action]")]
         public ApiResult<bool> SetStatus(int id)
         {
@@ -132,8 +118,9 @@ namespace IoTSharp.Controllers
             }
             return new ApiResult<bool>(ApiCode.Success, "can't find this object", false);
         }
+
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="id"></param>
         /// <returns></returns>
@@ -143,7 +130,6 @@ namespace IoTSharp.Controllers
             var Dictionary = _context.BaseDictionaries.FirstOrDefault(c => c.DictionaryId == id);
             if (Dictionary != null)
             {
-
                 Dictionary.DictionaryStatus = -1;
                 _context.BaseDictionaries.Update(Dictionary);
                 _context.SaveChanges();

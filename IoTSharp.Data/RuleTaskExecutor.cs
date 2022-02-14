@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace IoTSharp.Data
 {
-   public class RuleTaskExecutor
+   public class RuleTaskExecutor: IJustMy
     {
         [Key]
         public Guid ExecutorId { get; set; }
@@ -30,9 +30,7 @@ namespace IoTSharp.Data
         public DateTime TesterDateTime { get; set; }
 
         public Tenant Tenant { get; set; }
-        public Guid TenantId { get; set; }
 
-        public Guid CustomerId { get; set; }
         public Customer Customer { get; set; }
     }
 }

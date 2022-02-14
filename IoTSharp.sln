@@ -35,6 +35,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tools", "Tools", "{3048484A
 		buildimage.cmd = buildimage.cmd
 		tools\ef_db_drop.cmd = tools\ef_db_drop.cmd
 		tools\ef_mg_add.cmd = tools\ef_mg_add.cmd
+		tools\ef_mg_remove.cmd = tools\ef_mg_remove.cmd
 		tools\upgrade_ef.cmd = tools\upgrade_ef.cmd
 	EndProjectSection
 EndProject

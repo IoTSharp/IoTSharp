@@ -1,8 +1,6 @@
 ﻿using IoTSharp.Data;
 using IoTSharp.Dtos;
 using IoTSharp.Extensions;
-using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -12,13 +10,11 @@ using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
 using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
 using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
 using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
-using Esprima.Ast;
 using IoTSharp.Controllers.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Options;
@@ -74,10 +70,7 @@ namespace IoTSharp.Controllers
         {
             var user = await _userManager.GetUserAsync(User);
             var rooles = await _userManager.GetRolesAsync(user);
-            var Customer = _context.GetCustomer(this.GetNowUserCustomerId());
-
-
-
+            var Customer = _context.GetCustomer(User.GetCustomerId());
             var uidto = new UserInfoDto()
             {
                 Code = ApiCode.Success,
@@ -113,51 +106,6 @@ namespace IoTSharp.Controllers
                 {
 
 
-                    //var appUser = _userManager.Users.SingleOrDefault(r => r.Email == model.UserName);
-                    //var secretKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["JwtKey"]));
-                    //var signinCredentials = new SigningCredentials(secretKey, SecurityAlgorithms.HmacSha256Signature);
-                    //var claims = new List<Claim>
-                    //                {
-                    //                    new Claim(ClaimTypes.Email, appUser.Email),
-                    //                    new Claim(ClaimTypes.NameIdentifier, appUser.Id),
-                    //                    new Claim(ClaimTypes.Name,  appUser.UserName),
-
-                    //                };
-                    //var lstclaims = await _userManager.GetClaimsAsync(appUser);
-                    //claims.AddRange(lstclaims);
-                    //var roles = await _userManager.GetRolesAsync(appUser);
-                    //if (roles != null)
-                    //{
-                    //    claims.AddRange(from role in roles
-                    //                    select new Claim(ClaimTypes.Role, role));
-                    //}
-                    //var expires = DateTime.Now.AddHours(_settings.JwtExpireHours);
-
-                    //var t = (expires.Ticks - TimeZoneInfo.ConvertTimeFromUtc(new System.DateTime(1970, 1, 1, 0, 0, 0, 0), TimeZoneInfo.Local).Ticks) / 10000;
-                    //var jwtSecurityTokenHandler = new JwtSecurityTokenHandler();
-                    //var tokenDescriptor = new SecurityTokenDescriptor
-                    //{
-                    //    Issuer = _configuration["JwtIssuer"],
-                    //    Audience = _configuration["JwtAudience"],
-                    //    Subject = new ClaimsIdentity(claims),
-                    //    Expires = expires, 
-                    //    SigningCredentials = signinCredentials
-                    //};
-                    //var _token = jwtSecurityTokenHandler.CreateToken(tokenDescriptor);
-                    //var jwtToken = jwtSecurityTokenHandler.WriteToken(_token);
-                    //var refreshToken = new RefreshToken()
-                    //{
-                    //    JwtId = _token.Id,
-                    //    IsUsed = false,
-                    //    IsRevorked = false,
-                    //    UserId = appUser.Id,
-                    //    AddedDate = DateTime.UtcNow,
-                    //    ExpiryDate = DateTime.UtcNow.AddMonths(6),
-                    //    Token = Guid.NewGuid().ToString()
-                    //};
-                    //await _context.RefreshTokens.AddAsync(refreshToken);
-                    //await _context.SaveChangesAsync();
-
                     var SignInResult = await CreateToken(model.UserName);
 
                     return new ApiResult<LoginResult>(ApiCode.Success, "Ok", new LoginResult()
@@ -176,22 +124,11 @@ namespace IoTSharp.Controllers
                         Roles = SignInResult.Roles,
                         Avatar = SignInResult.AppUser.Gravatar()
                     });
-                    //return Ok(new LoginResult()
-                    //{
-                    //    Code = ApiCode.Success,
-                    //    Succeeded = result.Succeeded,
-                    //    Token = token,
-                    //    UserName = appUser.UserName,
-                    //    SignIn = result,
-                    //    Roles = roles
-                    //});
                 }
                 else
                 {
 
-                    return new ApiResult<LoginResult>(ApiCode.InValidData, "Unauthorized", null);
-
-                    //    return Unauthorized(new { code = ApiCode.LoginError, msg = "Unauthorized", data = result });
+                    return new ApiResult<LoginResult>(ApiCode.LoginError, "Unauthorized", null);
                 }
             }
             catch (Exception ex)
@@ -265,8 +202,8 @@ namespace IoTSharp.Controllers
 
         public async Task<ApiResult<LoginResult>> RefreshToken([FromBody] RefreshTokenDto model)
         {
-
-            var profile = await this.GetUserProfile();
+           
+            var profile = this.GetUserProfile();
 
 
             //    var jwtTokenHandler = new JwtSecurityTokenHandler();

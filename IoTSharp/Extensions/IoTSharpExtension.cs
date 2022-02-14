@@ -4,6 +4,7 @@ using IoTSharp.Services;
 using IoTSharp.X509Extensions;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.EntityFrameworkCore;
@@ -33,7 +34,13 @@ namespace IoTSharp
 {
     public static class IoTSharpExtension
     {
-
+        /// <summary>
+        /// 根据用户信息填写表里面的内容
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="_context"></param>
+        /// <param name="controller"></param>
+        /// <param name="ak"></param>
         public static void JustFill<T>(this ApplicationDbContext _context, ControllerBase controller,   T ak) where T : class, IJustMy
         {
             var cid = controller.User.Claims.First(c => c.Type == IoTSharpClaimTypes.Customer);
@@ -41,37 +48,97 @@ namespace IoTSharp
             ak.Tenant = _context.Tenant.Find(new Guid(tid.Value));
             ak.Customer = _context.Customer.Find(new Guid(cid.Value));
         }
-
+        /// <summary>
+        /// 查询当前客户的数据
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="ts"></param>
+        /// <param name="controller"></param>
+        /// <returns></returns>
         public static IQueryable<T> JustCustomer<T>(this DbSet<T> ts, ControllerBase controller) where T : class, IJustMy 
-            => JustCustomer(ts, GetNowUserCustomerId(controller));
-        public static IQueryable<T> JustCustomer<T>(this DbSet<T> ts, string _customerId) where T : class, IJustMy
+            => JustCustomer(ts,controller.User.GetCustomerId());
+        /// <summary>
+        /// 查询指定客户的数据
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="ts"></param>
+        /// <param name="_customerId"></param>
+        /// <returns></returns>
+        public static IQueryable<T> JustCustomer<T>(this DbSet<T> ts, Guid _customerId) where T : class, IJustMy
         {
-            return ts.Include(ak => ak.Customer).Where(ak => ak.Customer.Id.ToString() == _customerId);
+            return ts.Include(ak => ak.Customer).Where(ak => ak.Customer.Id == _customerId);
         }
-
+        /// <summary>
+        /// 查询当前用户所在租户的数据
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="ts"></param>
+        /// <param name="controller"></param>
+        /// <returns></returns>
         public static IQueryable<T> JustTenant<T>(this DbSet<T> ts, ControllerBase controller) where T : class, IJustMy 
-            => JustTenant(ts, GetNowUserTenantId(controller));
+            => JustTenant(ts, controller.User.GetTenantId());
+        /// <summary>
+        /// 查询指定租户的数据
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="ts"></param>
+        /// <param name="_tenantId"></param>
+        /// <returns></returns>
+        public static IQueryable<T> JustTenant<T>(this DbSet<T> ts, Guid _tenantId) where T : class, IJustMy
+        {
+            return ts.Include(ak => ak.Tenant).Where(ak => ak.Tenant.Id == _tenantId);
+        }
+        /// <summary>
+        /// 获取指定客户信息
+        /// </summary>
+        /// <param name="context"></param>
+        /// <param name="custId"></param>
+        /// <returns></returns>
+        public static Customer GetCustomer(this ApplicationDbContext context, Guid custId) 
+            => context.Customer.Include(c => c.Tenant).FirstOrDefault(c => c.Id  ==  custId);
+      /// <summary>
+      /// 获取指定的租户信息
+      /// </summary>
+      /// <param name="context"></param>
+      /// <param name="tenId"></param>
+      /// <returns></returns>
+        public static Tenant GetTenant(this ApplicationDbContext context, Guid tenId)
+           => context.Tenant.FirstOrDefault(c => c.Id == tenId);
 
-        public static IQueryable<T> JustTenant<T>(this DbSet<T> ts, string _tenantId) where T : class, IJustMy
+       /// <summary>
+       /// 获取当前用户的邮箱
+       /// </summary>
+       /// <param name="_user"></param>
+       /// <returns></returns>
+        public static string GetEmail(this ClaimsPrincipal _user) => _user.FindFirstValue(ClaimTypes.Email);
+        /// <summary>
+        /// 获取当前用户的ID
+        /// </summary>
+        /// <param name="_user"></param>
+        /// <returns></returns>
+        public static Guid  GetUserId(this ClaimsPrincipal _user)
         {
-            return ts.Include(ak => ak.Tenant).Where(ak => ak.Tenant.Id.ToString() == _tenantId);
+            return  Guid.Parse( _user.FindFirstValue(ClaimTypes.NameIdentifier));
         }
-        public static Customer GetCustomer(this ApplicationDbContext context, string custid) 
-            => context.Customer.Include(c => c.Tenant).FirstOrDefault(c => c.Id  == Guid.Parse( custid));
-        public static Tenant GetTenant(this ApplicationDbContext context, string custid)
-           => context.Tenant.FirstOrDefault(c => c.Id == Guid.Parse(custid));
-
-        public static string GetNowUserCustomerId(this ControllerBase controller)
+        /// <summary>
+        /// 获取当前用户的ID
+        /// </summary>
+        /// <param name="_user"></param>
+        /// <returns></returns>
+        public static Guid GetTenantId(this ClaimsPrincipal _user)
         {
-            string custid = controller.User?.FindFirstValue(IoTSharpClaimTypes.Customer);
-            return custid;
+            return  Guid.Parse( _user.FindFirstValue(IoTSharpClaimTypes.Tenant));
         }
-       
-        public static string GetNowUserTenantId(this ControllerBase controller)
+        /// <summary>
+        /// 获取当前用户的客户ID
+        /// </summary>
+        /// <param name="_user"></param>
+        /// <returns></returns>
+        public static Guid GetCustomerId(this ClaimsPrincipal _user)
         {
-            string custid = controller.User.FindFirstValue(IoTSharpClaimTypes.Tenant);
-            return custid;
+            return Guid.Parse(_user.FindFirstValue(IoTSharpClaimTypes.Customer));
         }
+        
         public static IHostBuilder ConfigureIoTSharpHost(this IHostBuilder hostBuilder)
         {
             hostBuilder.ConfigureServices(services =>
@@ -226,6 +293,11 @@ namespace IoTSharp
             ip.ToList().ForEach(ipx => pairs.Add(ipx.PhysicalAddress, ipx.IPAddress));
             return pairs;
         }
-
+        internal static void BuildFlowOperation(this FlowOperation end, FlowOperation peroperation, Flow flow)
+        {
+            end.FlowRule = new FlowRule() { RuleId = peroperation.BaseEvent.FlowRule.RuleId };
+            end.BaseEvent = new BaseEvent() { EventId = peroperation.BaseEvent.EventId };
+            end.Flow = new Flow() { FlowId = flow.FlowId };
+        }
     }
 }

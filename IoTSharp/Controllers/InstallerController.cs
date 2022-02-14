@@ -93,7 +93,7 @@ namespace IoTSharp.Controllers
             else
             {
                 var ip = IPAddress.Parse(m.Domain);
-                var ten = _context.GetTenant(this.GetNowUserTenantId());
+                var ten = _context.GetTenant(User.GetTenantId());
                 var option = _setting.MqttBroker;
                 var ca = ip.CreateCA(option.CACertificateFile, option.CAPrivateKeyFile);
                 ca.CreateBrokerTlsCert(_setting.MqttBroker.DomainName?? Dns.GetHostName(), ip, option.CertificateFile, option.PrivateKeyFile, ten.EMail);

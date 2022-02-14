@@ -116,14 +116,14 @@ services:
         networks:
           - iotsharp-network
 
-  influxdb_cli:
-    links:
-        - influx
-    image: quay.io/influxdb/influxdb:v2.0.4
-    entrypoint: influx setup --bucket iotsharp-bucket -t iotsharp-token -o iotsharp --username=root --password=1-q2-w3-e4-r5-t --host=http://influx:8086 -f
-    restart: on-failure:20
-    depends_on:
-         - influx
+  #influxdb_cli:
+  #  links:
+  #      - influx
+  #  image: quay.io/influxdb/influxdb:v2.0.4
+  #  entrypoint: influx setup --bucket iotsharp-bucket -t koMHcRQ9PJVPIIb6zFyLt-06EkM_oy1jut08bH7f0BwC85LUO6zxgihKZUayHzyetapJEkxrlO0KwJ278dKpnA== -o iotsharp --username=root --password=1-q2-w3-e4-r5-t --host=http://influx:8086 -f
+  #  restart: on-failure:20
+  #  depends_on:
+  #       - influx
 
 networks: 
   iotsharp-network:

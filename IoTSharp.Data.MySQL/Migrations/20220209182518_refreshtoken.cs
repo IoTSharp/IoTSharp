@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace IoTSharp.Data.MySql.Migrations
 {
-    public partial class RefreshToken : Migration
+    public partial class refreshtoken : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {

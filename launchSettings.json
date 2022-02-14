@@ -2,15 +2,18 @@
   "profiles": {
     "Docker Compose": {
       "commandName": "DockerCompose",
+      "composeLaunchAction": "LaunchBrowser",
       "composeLaunchServiceName": "iotsharp",
+      "composeLaunchUrl": "{Scheme}://localhost:{ServicePort}",
+      "commandVersion": "1.0",
       "serviceActions": {
         "iotsharp": "StartDebugging",
         "pgadmin": "StartWithoutDebugging",
-        "pgsql": "StartWithoutDebugging"
-      },
-      "composeLaunchAction": "LaunchBrowser",
-      "commandVersion": "1.0",
-      "composeLaunchUrl": "{Scheme}://localhost:{ServicePort}"
+        "pgsql": "StartWithoutDebugging",
+        "influx": "StartWithoutDebugging",
+        "mongodb": "StartWithoutDebugging",
+        "rabbitmq": "StartWithoutDebugging"
+      }
     }
   }
 }

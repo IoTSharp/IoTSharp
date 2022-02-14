@@ -8,28 +8,23 @@ using System.Threading.Tasks;
 
 namespace IoTSharp.Data
 {
-    public class DynamicFormFieldValueInfo
+    public class DynamicFormFieldValueInfo :IJustMy
     {
         [Key]
-        [DatabaseGenerated(System.ComponentModel.DataAnnotations.Schema.DatabaseGeneratedOption.Identity)]
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
 
         public long FieldValueId { get; set; }
-        public long? FieldId { get; set; }
+        public long FieldId { get; set; }
         public string FieldName { get; set; }
         public string FieldValue { get; set; }
-        public long? FromId { get; set; }
+        public long FromId { get; set; }
         public Guid Creator { get; set; }
         public DateTime? FieldCreateDate { get; set; }
         public string FieldCode { get; set; }
         public string FieldUnit { get; set; }
-        public long? FieldValueType { get; set; }
-        public long? BizId { get; set; }
-
-
+        public long FieldValueType { get; set; }
+        public long BizId { get; set; }
         public Tenant Tenant { get; set; }
-        public Guid TenantId { get; set; }
-
-        public Guid CustomerId { get; set; }
         public Customer Customer { get; set; }
     }
 }

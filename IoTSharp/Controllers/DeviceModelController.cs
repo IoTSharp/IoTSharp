@@ -1,16 +1,15 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Linq.Expressions;
-using System.Threading.Tasks;
-using IoTSharp.Controllers.Models;
+﻿using IoTSharp.Controllers.Models;
 using IoTSharp.Data;
 using IoTSharp.Dtos;
 using IoTSharp.Models;
 using LinqKit;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Linq.Expressions;
 
 namespace IoTSharp.Controllers
 {
@@ -21,11 +20,11 @@ namespace IoTSharp.Controllers
     {
         private readonly ApplicationDbContext _context;
 
-
         public DeviceModelController(ApplicationDbContext context)
         {
             this._context = context;
         }
+
         [HttpPost("[action]")]
         public ApiResult<PagedData<DeviceModel>> Index([FromQuery] DeviceModelParam m)
         {
@@ -37,32 +36,27 @@ namespace IoTSharp.Controllers
                     condition.And(x => x.ModelName == m.Name);
                 }
                 return new ApiResult<PagedData<DeviceModel>>(ApiCode.Success, "OK", new PagedData<DeviceModel>() { rows = _context.DeviceModels.Where(condition).Skip((m.offset) * m.limit).Take(m.limit).ToList(), total = _context.DeviceModels.Count(condition) });
-
             }
             catch (Exception e)
             {
                 return new ApiResult<PagedData<DeviceModel>>(ApiCode.Exception, e.Message, null);
             }
-
-
-
         }
+
         [HttpGet("[action]")]
         public ApiResult<DeviceModel> Get(Guid id)
         {
-
             var dm = _context.DeviceModels.SingleOrDefault(c => c.DeviceModelId == id);
             if (dm != null)
             {
                 return new ApiResult<DeviceModel>(ApiCode.Success, "Ok", dm);
             }
             return new ApiResult<DeviceModel>(ApiCode.CantFindObject, "CantFindObject", null);
-
         }
+
         [HttpPost("[action]")]
         public ApiResult<bool> Update(DeviceModelDto m)
         {
-
             var dm = _context.DeviceModels.SingleOrDefault(c => c.DeviceModelId == m.DeviceModelId);
             if (dm != null)
             {
@@ -71,17 +65,13 @@ namespace IoTSharp.Controllers
                 _context.DeviceModels.Update(dm);
                 _context.SaveChanges();
                 return new ApiResult<bool>(ApiCode.CantFindObject, "Ok", true);
-
             }
             return new ApiResult<bool>(ApiCode.CantFindObject, "CantFindObject", false);
-
-
         }
 
         [HttpPost("[action]")]
         public ApiResult<bool> Save(DeviceModelDto m)
         {
-
             try
             {
                 DeviceModel dm = new DeviceModel();
@@ -95,17 +85,13 @@ namespace IoTSharp.Controllers
             }
             catch (Exception ex)
             {
-
-
                 return new ApiResult<bool>(ApiCode.Exception, ex.Message, false);
             }
-
         }
 
         [HttpGet("[action]")]
         public ApiResult<bool> Delete(Guid id)
         {
-
             var dm = _context.DeviceModels.SingleOrDefault(c => c.DeviceModelId == id);
             if (dm != null)
             {
@@ -113,21 +99,17 @@ namespace IoTSharp.Controllers
                 _context.DeviceModels.Update(dm);
                 _context.SaveChanges();
                 return new ApiResult<bool>(ApiCode.CantFindObject, "Ok", true);
-
             }
             return new ApiResult<bool>(ApiCode.CantFindObject, "CantFindObject", false);
-
         }
 
         [HttpGet("[action]")]
         public ApiResult<List<DeviceModelCommand>> GetCommandsByDevice(Guid id)
         {
-
             var dev = _context.Device.SingleOrDefault(c => c.Id == id);
             if (dev != null && dev.DeviceModelId != null && dev.DeviceModelId != Guid.Empty)
             {
                 return new ApiResult<List<DeviceModelCommand>>(ApiCode.Success, "Ok", _context.DeviceModelCommands.Where(c => c.DeviceModelId == dev.DeviceModelId && c.CommandStatus > -1).ToList());
-
             }
 
             return new ApiResult<List<DeviceModelCommand>>(ApiCode.Success, "Ok", null);
@@ -146,16 +128,13 @@ namespace IoTSharp.Controllers
             if (dmc != null)
             {
                 return new ApiResult<DeviceModelCommand>(ApiCode.Success, "Ok", dmc);
-
             }
             return new ApiResult<DeviceModelCommand>(ApiCode.CantFindObject, "CantFindObject", null);
         }
 
-
         [HttpPost("[action]")]
         public ApiResult<bool> SaveCommand(DeviceModelCommandDto m)
         {
-
             try
             {
                 DeviceModelCommand dmc = new DeviceModelCommand
@@ -176,11 +155,8 @@ namespace IoTSharp.Controllers
             }
             catch (Exception ex)
             {
-
-
                 return new ApiResult<bool>(ApiCode.Exception, ex.Message, false);
             }
-
         }
 
         [HttpPost("[action]")]
@@ -189,7 +165,6 @@ namespace IoTSharp.Controllers
             var dmc = _context.DeviceModelCommands.SingleOrDefault(c => c.CommandId == m.CommandId);
             if (dmc != null)
             {
-
                 dmc.CommandTitle = m.CommandTitle;
                 dmc.CommandI18N = m.CommandI18N;
                 dmc.CommandType = m.CommandType;
@@ -203,9 +178,6 @@ namespace IoTSharp.Controllers
             }
 
             return new ApiResult<bool>(ApiCode.CantFindObject, "CantFindObject", false);
-
-
-
         }
 
         [HttpGet("[action]")]
@@ -222,7 +194,5 @@ namespace IoTSharp.Controllers
 
             return new ApiResult<bool>(ApiCode.CantFindObject, "CantFindObject", false);
         }
-
     }
-
 }
