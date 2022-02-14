@@ -717,7 +717,8 @@ namespace IoTSharp.Data.MySql.Migrations
 
                     b.HasKey("Id");
 
-            
+                    b.HasIndex("DeviceId")
+                        .IsUnique();
 
                     b.ToTable("DeviceIdentities");
                 });
