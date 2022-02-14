@@ -1,8 +1,11 @@
 import { ChangeDetectorRef, Component, ElementRef, Input, OnInit, Type, ViewChild } from '@angular/core';
-import { Graph, Edge, Shape, NodeView, Cell, Color } from '@antv/x6';
+import { Graph, NodeView, Shape } from '@antv/x6';
+
 import { STColumn, STColumnTag, STComponent, STData } from '@delon/abc/st';
 import { SettingsService } from '@delon/theme';
 import { Subscription } from 'rxjs';
+import { DeviceItem, port } from './models/data';
+import { Device, GateWay } from './models/shape';
 
 @Component({
   selector: 'app-devicegraph',
@@ -525,11 +528,22 @@ export class DevicegraphComponent implements OnInit {
       ]);
     });
 
+    this.graph.on('cell:click', ({ e, x, y, cell, view }) => {
+      var device = cell as Device;
+      var port = device.getPort(e.target.attributes.port.value);
+      device.setPortProp(port.id, 'attrs/circle', { fill: '#0000ff', stroke: '#fff' })
+    });
+
+    this.graph.on('edge:click', ({ e, x, y, edge, view }) => {
+     
+     })
+
     this.graph.on('cell:mousedown', ({ cell }) => {
       //  cell.removeTools(); //只读状态下移除Node中的操作按钮
     });
 
-    this.graph.on('node:click', (e) => {
+    this.graph.on('node:click', (e, x, y, node, view) => {
+   
       var matadata = e.node.getProp('Biz');
       this.graph.getNodes;
 
@@ -781,6 +795,9 @@ export class DevicegraphComponent implements OnInit {
     );
     node.setPortLabelMarkup;
     this.data.splice(this.data.indexOf(data.Biz), 1);
+
+
+  
   }
 
   dragEnd(event) { }
@@ -836,248 +853,6 @@ export class DevicegraphComponent implements OnInit {
     console.log(graph);
   }
 }
-export interface DeviceItem {
-  devicename: string;
-  id: string;
-  type: string;
-  logo: string;
-  image: string;
-  remark: string;
-  prop: any;
-  ports: any;
-}
-export interface DeviceInfo {
-  Income: string[];
-  OutGoing: string[];
-  Label: string;
-  LocationX: number;
-  LocationY: number;
-  Width: number;
-  Height: number;
-  Type: string;
-}
 
-class Device extends Shape.Rect {
-  getInPorts() {
-    return this.getPortsByGroup('in');
-  }
 
-  getOutPorts() {
-    return this.getPortsByGroup('out');
-  }
 
-  getUsedInPorts(graph: Graph) {
-    const incomingEdges = graph.getIncomingEdges(this) || [];
-    return incomingEdges.map((edge: Edge) => {
-      const portId = edge.getTargetPortId();
-      return this.getPort(portId!);
-    });
-  }
-
-  getNewInPorts(length: number) {
-    return Array.from(
-      {
-        length,
-      },
-      () => {
-        return {
-          group: 'in',
-        };
-      },
-    );
-  }
-
-  updateInPorts(graph: Graph) {
-    const minNumberOfPorts = 1;
-    const ports = this.getInPorts();
-    const usedPorts = this.getUsedInPorts(graph);
-    const newPorts = this.getNewInPorts(Math.max(minNumberOfPorts - usedPorts.length, 1));
-
-    if (ports.length === minNumberOfPorts && ports.length - usedPorts.length > 0) {
-      // noop
-    } else if (ports.length === usedPorts.length) {
-      //  this.addPorts(newPorts);
-    } else if (ports.length + 1 > usedPorts.length) {
-      this.prop(['ports', 'items'], this.getOutPorts().concat(usedPorts).concat(newPorts), {
-        rewrite: true,
-      });
-    }
-
-    return this;
-  }
-}
-Device.config({
-  label: '',
-  attrs: {
-    root: {
-      magnet: false,
-    },
-    body: {
-      fill: '#eeffee',
-      stroke: '#d9d9d9',
-      strokeWidth: 1,
-    },
-  },
-  ports: {
-    groups: {
-      in: {
-        position: {
-          name: 'right',
-        },
-        attrs: {
-          portBody: {
-            magnet: 'passive',
-            r: 6,
-            stroke: '#ff0000',
-            fill: '#fff',
-            strokeWidth: 2,
-          },
-        },
-      },
-      out: {
-        position: {
-          name: 'left',
-        },
-        attrs: {
-          portBody: {
-            magnet: true,
-            r: 6,
-            fill: '#fff',
-            stroke: '#3199FF',
-            strokeWidth: 2,
-          },
-        },
-      },
-    },
-  },
-  portMarkup: [
-    {
-      tagName: 'circle',
-      selector: 'portBody',
-    },
-  ],
-});
-
-class GateWay extends Shape.Rect {
-  initports(data: any) {
-    const ports = this.getInPorts();
-    console.log(data);
-    console.log(this.ports);
-    for (var item of data.ports) {
-      this.addPort(item);
-    }
-    return this;
-  }
-
-  getInPorts() {
-    return this.getPortsByGroup('in');
-  }
-
-  getOutPorts() {
-    return this.getPortsByGroup('out');
-  }
-
-  getUsedInPorts(graph: Graph) {
-    const incomingEdges = graph.getIncomingEdges(this) || [];
-    return incomingEdges.map((edge: Edge) => {
-      const portId = edge.getTargetPortId();
-      return this.getPort(portId!);
-    });
-  }
-
-  getNewInPorts(length: number) {
-    return Array.from(
-      {
-        length,
-      },
-      () => {
-        return {
-          group: 'in',
-        };
-      },
-    );
-  }
-
-  // updateInPorts(graph: Graph) {
-  //   const minNumberOfPorts = 8;
-  //   const ports = this.getInPorts();
-  //   const usedPorts = this.getUsedInPorts(graph);
-  //   const newPorts = this.getNewInPorts(Math.max(minNumberOfPorts - usedPorts.length, 1));
-
-  //   if (ports.length === minNumberOfPorts && ports.length - usedPorts.length > 0) {
-  //     // noop
-  //   } else if (ports.length === usedPorts.length) {
-  //     this.addPorts(newPorts);
-  //   } else if (ports.length + 1 > usedPorts.length) {
-  //     this.prop(['ports', 'items'], this.getOutPorts().concat(usedPorts).concat(newPorts), {
-  //       rewrite: true,
-  //     });
-  //   }
-
-  //   return this;
-  // }
-}
-
-GateWay.config({
-  attrs: {
-    root: {
-      magnet: false,
-    },
-    body: {
-      fill: '#ffa940',
-      stroke: '#d9d9d9',
-      strokeWidth: 1,
-    },
-  },
-  ports: {
-    groups: {
-      in: {
-        label: {
-          position: 'left',
-        },
-        position: {
-          name: 'right',
-        },
-        attrs: {
-          portBody: {
-            magnet: 'passive',
-            r: 6,
-            stroke: '#ff0000',
-            fill: '#fff',
-            strokeWidth: 2,
-          },
-        },
-      },
-      out: {
-        position: {
-          name: 'left',
-        },
-        label: {
-          position: 'right',
-        },
-        attrs: {
-          portBody: {
-            magnet: true,
-            r: 6,
-            fill: '#fff',
-            stroke: '#3199FF',
-            strokeWidth: 2,
-          },
-        },
-      },
-    },
-  },
-  portMarkup: [
-    {
-      tagName: 'circle',
-      selector: 'portBody',
-    },
-  ],
-});
-
-export interface port {
-  portid: number;
-  portName: string;
-  portType: number;
-  portPhyType: number;
-}

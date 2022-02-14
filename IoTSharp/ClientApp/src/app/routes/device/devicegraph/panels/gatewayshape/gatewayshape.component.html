@@ -1,0 +1,32 @@
+<nz-tabset>
+    <nz-tab nzTitle="设备属性"></nz-tab>
+    <nz-tab nzTitle="端口配置">
+      <button nz-button [nzType]="'primary'"  acl [acl-ability]="37">
+        <i nz-icon nzType="plus"></i>
+        <span>{{ 'button.new' | translate }}</span>
+      </button>
+      <st #st [page]="{ show: false }">
+        <ng-template st-row="portNameTpl" let-item let-index="index">
+          <input *ngIf="item.edit" nz-input [ngModel]="item.portname" (ngModelChange)="st.setRow(index, { portname: $event })" />
+          <ng-container *ngIf="!item.edit">{{ item.portname }}</ng-container>
+        </ng-template>
+        <ng-template st-row="portTypeTpl" let-item let-index="index">
+          <nz-select ngModel="item.iotype" *ngIf="item.edit" (ngModelChange)="st.setRow(index, { iotype: $event })">
+            <nz-option nzValue="1" nzLabel="输入"></nz-option>
+            <nz-option nzValue="2" nzLabel="输出"></nz-option>
+          </nz-select>
+
+          <ng-container *ngIf="!item.edit">{{ item.iotype }}</ng-container>
+        </ng-template>
+        <ng-template st-row="portPhyTypeTpl" let-item let-index="index">
+          <nz-select ngModel="item.type" *ngIf="item.edit" (ngModelChange)="st.setRow(index, { type: $event })">
+            <nz-option nzValue="1" nzLabel="以太网"></nz-option>
+            <nz-option nzValue="2" nzLabel="RS232"></nz-option>
+            <nz-option nzValue="3" nzLabel="RS485"></nz-option>
+          </nz-select>
+          <ng-container *ngIf="!item.edit">{{ item.type }}</ng-container>
+        </ng-template>
+      </st>
+    </nz-tab>
+    <nz-tab nzTitle="杂项"> </nz-tab>
+  </nz-tabset>

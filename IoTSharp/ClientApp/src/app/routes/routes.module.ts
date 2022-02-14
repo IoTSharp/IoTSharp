@@ -70,6 +70,10 @@ import { WidgetsModule } from './widgets/widgets.module';
 import { DevicemodellistComponent } from './devicemodel/devicemodellist/devicemodellist.component';
 import { DevicemodelformComponent } from './devicemodel/devicemodelform/devicemodelform.component';
 import { DevicemodelcommandComponent } from './devicemodel/devicemodelcommand/devicemodelcommand.component';
+import { ConnectionedgeComponent } from './device/devicegraph/panels/connectionedge/connectionedge.component';
+import { DevivceshapeComponent } from './device/devicegraph/panels/devivceshape/devivceshape.component';
+import { GatewayshapeComponent } from './device/devicegraph/panels/gatewayshape/gatewayshape.component';
+import { PortshapeComponent } from './device/devicegraph/panels/portshape/portshape.component';
 
 const COMPONENTS: Array<Type<null>> = [];
 const Directive: Type<void>[] = [fielddirective, controldirective];
@@ -139,7 +143,11 @@ const Directive: Type<void>[] = [fielddirective, controldirective];
     ConditionbuilderComponent,
     DevicemodellistComponent,
     DevicemodelformComponent,
-    DevicemodelcommandComponent
+    DevicemodelcommandComponent,
+    ConnectionedgeComponent,
+    DevivceshapeComponent,
+    GatewayshapeComponent,
+    PortshapeComponent
   ]
 })
 export class RoutesModule {}

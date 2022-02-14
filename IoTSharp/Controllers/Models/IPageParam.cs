@@ -12,10 +12,10 @@ namespace IoTSharp.Controllers.Models
 
     public class DeviceParam : IPageParam
     {
-        public Guid TenantId { get; set; }
+    
         public Guid customerId { get; set; }
 
-        public int DeviceType { get; set; }
+
 
         public DateTime[] LastActive { get; set; }
         public bool Online { get; set; }
