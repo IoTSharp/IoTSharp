@@ -186,9 +186,6 @@ namespace IoTSharp.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
-                    b.Property<string>("BizData")
-                        .HasColumnType("text");
-
                     b.Property<string>("Bizid")
                         .HasColumnType("text");
 
@@ -723,23 +720,8 @@ namespace IoTSharp.Migrations
                     b.Property<string>("Conditionexpression")
                         .HasColumnType("text");
 
-                    b.Property<DateTime>("CreateDate")
-                        .HasColumnType("timestamp without time zone");
-
-                    b.Property<Guid>("CreateId")
-                        .HasColumnType("uuid");
-
-                    b.Property<Guid>("Createor")
-                        .HasColumnType("uuid");
-
-                    b.Property<Guid?>("ExecutorId")
-                        .HasColumnType("uuid");
-
                     b.Property<Guid?>("FlowRuleRuleId")
                         .HasColumnType("uuid");
-
-                    b.Property<int>("FlowStatus")
-                        .HasColumnType("integer");
 
                     b.Property<string>("FlowType")
                         .HasColumnType("text");
@@ -783,21 +765,10 @@ namespace IoTSharp.Migrations
                     b.Property<string>("TargetId")
                         .HasColumnType("text");
 
-                    b.Property<int>("TestStatus")
-                        .HasColumnType("integer");
-
-                    b.Property<Guid>("Tester")
-                        .HasColumnType("uuid");
-
-                    b.Property<DateTime>("TesterDateTime")
-                        .HasColumnType("timestamp without time zone");
-
                     b.Property<string>("bpmnid")
                         .HasColumnType("text");
 
                     b.HasKey("FlowId");
-
-                    b.HasIndex("ExecutorId");
 
                     b.HasIndex("FlowRuleRuleId");
 
@@ -879,9 +850,6 @@ namespace IoTSharp.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<Guid>("ParentRuleId")
-                        .HasColumnType("uuid");
-
                     b.Property<string>("RuleDesc")
                         .HasColumnType("text");
 
@@ -893,9 +861,6 @@ namespace IoTSharp.Migrations
 
                     b.Property<string>("Runner")
                         .HasColumnType("text");
-
-                    b.Property<double>("SubVersion")
-                        .HasColumnType("double precision");
 
                     b.HasKey("RuleId");
 
@@ -926,56 +891,6 @@ namespace IoTSharp.Migrations
                     b.HasIndex("TenantId");
 
                     b.ToTable("Relationship", (string)null);
-                });
-
-            modelBuilder.Entity("IoTSharp.Data.RuleTaskExecutor", b =>
-                {
-                    b.Property<Guid>("ExecutorId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
-
-                    b.Property<DateTime>("AddDateTime")
-                        .HasColumnType("timestamp without time zone");
-
-                    b.Property<Guid>("Creator")
-                        .HasColumnType("uuid");
-
-                    b.Property<string>("DefaultConfig")
-                        .HasColumnType("text");
-
-                    b.Property<string>("ExecutorDesc")
-                        .HasColumnType("text");
-
-                    b.Property<string>("ExecutorName")
-                        .HasColumnType("text");
-
-                    b.Property<int>("ExecutorStatus")
-                        .HasColumnType("integer");
-
-                    b.Property<string>("MataData")
-                        .HasColumnType("text");
-
-                    b.Property<string>("Path")
-                        .HasColumnType("text");
-
-                    b.Property<string>("Tag")
-                        .HasColumnType("text");
-
-                    b.Property<int>("TestStatus")
-                        .HasColumnType("integer");
-
-                    b.Property<Guid>("Tester")
-                        .HasColumnType("uuid");
-
-                    b.Property<DateTime>("TesterDateTime")
-                        .HasColumnType("timestamp without time zone");
-
-                    b.Property<string>("TypeName")
-                        .HasColumnType("text");
-
-                    b.HasKey("ExecutorId");
-
-                    b.ToTable("RuleTaskExecutors", (string)null);
                 });
 
             modelBuilder.Entity("IoTSharp.Data.TelemetryData", b =>
@@ -1384,15 +1299,9 @@ namespace IoTSharp.Migrations
 
             modelBuilder.Entity("IoTSharp.Data.Flow", b =>
                 {
-                    b.HasOne("IoTSharp.Data.RuleTaskExecutor", "Executor")
-                        .WithMany()
-                        .HasForeignKey("ExecutorId");
-
                     b.HasOne("IoTSharp.Data.FlowRule", "FlowRule")
                         .WithMany()
                         .HasForeignKey("FlowRuleRuleId");
-
-                    b.Navigation("Executor");
 
                     b.Navigation("FlowRule");
                 });
