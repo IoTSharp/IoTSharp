@@ -56,7 +56,7 @@
 		<PackageReference Include="AspNetCore.HealthChecks.Uris" Version="6.0.2" />
 		<PackageReference Include="AspNetCore.HealthChecks.Network" Version="6.0.1" />
 		<PackageReference Include="CAP.Extensions" Version="1.0.35" />
-		<PackageReference Include="DotNetCore.CAP" Version="6.0.0" />
+		<PackageReference Include="DotNetCore.CAP" Version="6.0.1" />
 		<PackageReference Include="DotNetCore.CAP.Dashboard" Version="6.0.0" />
 		<PackageReference Include="DotNetCore.CAP.InMemoryStorage" Version="6.0.0" />
 		<PackageReference Include="DotNetCore.CAP.Kafka" Version="6.0.0" />
