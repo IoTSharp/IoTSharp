@@ -9,16 +9,16 @@ import { DA_SERVICE_TOKEN, ITokenService } from '@delon/auth';
 export class LayoutPassportComponent implements OnInit {
   links = [
     {
-      title: '帮助',
-      href: '',
+      title: '文档',
+      href: 'https://docs.iotsharp.net/',
     },
     {
-      title: '隐私',
-      href: '',
+      title: '源码',
+      href: 'https://github.com/IoTSharp/IoTSharp',
     },
     {
-      title: '条款',
-      href: '',
+      title: '容器',
+      href: 'https://hub.docker.com/r/iotsharp/iotsharp',
     },
   ];
 

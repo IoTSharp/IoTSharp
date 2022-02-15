@@ -39,7 +39,7 @@ export class UserRegisterComponent implements OnDestroy {
           tenantName: ['iotmaster@iotsharp.net', [Validators.required]],
           tenantEMail: ['iotmaster@iotsharp.net', [Validators.required, Validators.email]],
           customerEMail: ['iotmaster@iotsharp.net', [Validators.required, Validators.email]],
-          phoneNumber: ['15911111111', [Validators.required, Validators.pattern(/^1\d{10}$/)]],
+          phoneNumber: ['4000196186', [Validators.required, Validators.pattern(/^1\d{10}$/)]],
         });
 
       } else {
