@@ -17,7 +17,7 @@ namespace IoTSharp.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "6.0.2")
+                .HasAnnotation("ProductVersion", "5.0.11")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
@@ -38,7 +38,7 @@ namespace IoTSharp.Migrations
                         .HasColumnType("jsonb");
 
                     b.Property<DateTime>("ActiveDateTime")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<Guid?>("CustomerId")
                         .HasColumnType("uuid");
@@ -67,7 +67,7 @@ namespace IoTSharp.Migrations
 
                     b.HasIndex("TenantId");
 
-                    b.ToTable("AuditLog");
+                    b.ToTable("AuditLog", (string)null);
                 });
 
             modelBuilder.Entity("IoTSharp.Data.AuthorizedKey", b =>
@@ -94,7 +94,7 @@ namespace IoTSharp.Migrations
 
                     b.HasIndex("TenantId");
 
-                    b.ToTable("AuthorizedKeys");
+                    b.ToTable("AuthorizedKeys", (string)null);
                 });
 
             modelBuilder.Entity("IoTSharp.Data.BaseDictionary", b =>
@@ -143,7 +143,7 @@ namespace IoTSharp.Migrations
 
                     b.HasKey("DictionaryId");
 
-                    b.ToTable("BaseDictionaries");
+                    b.ToTable("BaseDictionaries", (string)null);
                 });
 
             modelBuilder.Entity("IoTSharp.Data.BaseDictionaryGroup", b =>
@@ -177,7 +177,7 @@ namespace IoTSharp.Migrations
 
                     b.HasKey("DictionaryGroupId");
 
-                    b.ToTable("BaseDictionaryGroups");
+                    b.ToTable("BaseDictionaryGroups", (string)null);
                 });
 
             modelBuilder.Entity("IoTSharp.Data.BaseEvent", b =>
@@ -193,12 +193,9 @@ namespace IoTSharp.Migrations
                         .HasColumnType("text");
 
                     b.Property<DateTime>("CreaterDateTime")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<Guid>("Creator")
-                        .HasColumnType("uuid");
-
-                    b.Property<Guid?>("CustomerId")
                         .HasColumnType("uuid");
 
                     b.Property<string>("EventDesc")
@@ -216,21 +213,14 @@ namespace IoTSharp.Migrations
                     b.Property<string>("MataData")
                         .HasColumnType("text");
 
-                    b.Property<Guid?>("TenantId")
-                        .HasColumnType("uuid");
-
                     b.Property<int>("Type")
                         .HasColumnType("integer");
 
                     b.HasKey("EventId");
 
-                    b.HasIndex("CustomerId");
-
                     b.HasIndex("FlowRuleRuleId");
 
-                    b.HasIndex("TenantId");
-
-                    b.ToTable("BaseEvents");
+                    b.ToTable("BaseEvents", (string)null);
                 });
 
             modelBuilder.Entity("IoTSharp.Data.BaseI18N", b =>
@@ -242,7 +232,7 @@ namespace IoTSharp.Migrations
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
 
                     b.Property<DateTime?>("AddDate")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<string>("KeyName")
                         .HasColumnType("text");
@@ -354,7 +344,7 @@ namespace IoTSharp.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("BaseI18Ns");
+                    b.ToTable("BaseI18Ns", (string)null);
                 });
 
             modelBuilder.Entity("IoTSharp.Data.Customer", b =>
@@ -397,34 +387,28 @@ namespace IoTSharp.Migrations
 
                     b.HasIndex("TenantId");
 
-                    b.ToTable("Customer");
+                    b.ToTable("Customer", (string)null);
                 });
 
             modelBuilder.Entity("IoTSharp.Data.DataStorage", b =>
                 {
                     b.Property<int>("Catalog")
-                        .HasColumnType("integer")
-                        .HasColumnOrder(0);
+                        .HasColumnType("integer");
 
                     b.Property<Guid>("DeviceId")
-                        .HasColumnType("uuid")
-                        .HasColumnOrder(1);
+                        .HasColumnType("uuid");
 
                     b.Property<string>("KeyName")
-                        .HasColumnType("text")
-                        .HasColumnOrder(2);
+                        .HasColumnType("text");
 
                     b.Property<int>("DataSide")
-                        .HasColumnType("integer")
-                        .HasColumnOrder(4);
+                        .HasColumnType("integer");
 
                     b.Property<DateTime>("DateTime")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnOrder(3);
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<int>("Type")
-                        .HasColumnType("integer")
-                        .HasColumnOrder(5);
+                        .HasColumnType("integer");
 
                     b.Property<byte[]>("Value_Binary")
                         .HasColumnType("bytea");
@@ -456,7 +440,7 @@ namespace IoTSharp.Migrations
 
                     b.HasIndex("Catalog", "DeviceId");
 
-                    b.ToTable("DataStorage");
+                    b.ToTable("DataStorage", (string)null);
 
                     b.HasDiscriminator<int>("Catalog").HasValue(0);
                 });
@@ -473,14 +457,11 @@ namespace IoTSharp.Migrations
                     b.Property<Guid?>("CustomerId")
                         .HasColumnType("uuid");
 
-                    b.Property<Guid?>("DeviceModelId")
-                        .HasColumnType("uuid");
-
                     b.Property<int>("DeviceType")
                         .HasColumnType("integer");
 
                     b.Property<DateTime>("LastActive")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<string>("Name")
                         .HasColumnType("text");
@@ -490,9 +471,6 @@ namespace IoTSharp.Migrations
 
                     b.Property<Guid?>("OwnerId")
                         .HasColumnType("uuid");
-
-                    b.Property<int>("Status")
-                        .HasColumnType("integer");
 
                     b.Property<Guid?>("TenantId")
                         .HasColumnType("uuid");
@@ -506,203 +484,13 @@ namespace IoTSharp.Migrations
 
                     b.HasIndex("CustomerId");
 
-                    b.HasIndex("DeviceModelId");
-
                     b.HasIndex("OwnerId");
 
                     b.HasIndex("TenantId");
 
-                    b.ToTable("Device");
+                    b.ToTable("Device", (string)null);
 
                     b.HasDiscriminator<int>("DeviceType").HasValue(0);
-                });
-
-            modelBuilder.Entity("IoTSharp.Data.DeviceDiagram", b =>
-                {
-                    b.Property<Guid>("DiagramId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
-
-                    b.Property<DateTimeOffset?>("CreateDate")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<Guid>("Creator")
-                        .HasColumnType("uuid");
-
-                    b.Property<Guid?>("CustomerId")
-                        .HasColumnType("uuid");
-
-                    b.Property<string>("DiagramDesc")
-                        .HasColumnType("text");
-
-                    b.Property<string>("DiagramImage")
-                        .HasColumnType("text");
-
-                    b.Property<string>("DiagramName")
-                        .HasColumnType("text");
-
-                    b.Property<int>("DiagramStatus")
-                        .HasColumnType("integer");
-
-                    b.Property<bool>("IsDefault")
-                        .HasColumnType("boolean");
-
-                    b.Property<Guid?>("TenantId")
-                        .HasColumnType("uuid");
-
-                    b.HasKey("DiagramId");
-
-                    b.HasIndex("CustomerId");
-
-                    b.HasIndex("TenantId");
-
-                    b.ToTable("DeviceDiagrams");
-                });
-
-            modelBuilder.Entity("IoTSharp.Data.DeviceGraph", b =>
-                {
-                    b.Property<Guid>("GraphId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
-
-                    b.Property<DateTime?>("CreateDate")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<Guid>("Creator")
-                        .HasColumnType("uuid");
-
-                    b.Property<Guid?>("CustomerId")
-                        .HasColumnType("uuid");
-
-                    b.Property<Guid?>("DeviceDiagramDiagramId")
-                        .HasColumnType("uuid");
-
-                    b.Property<Guid>("DeviceId")
-                        .HasColumnType("uuid");
-
-                    b.Property<string>("GraphElementId")
-                        .HasColumnType("text");
-
-                    b.Property<string>("GraphFill")
-                        .HasColumnType("text");
-
-                    b.Property<int>("GraphHeight")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("GraphPostionX")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("GraphPostionY")
-                        .HasColumnType("integer");
-
-                    b.Property<string>("GraphShape")
-                        .HasColumnType("text");
-
-                    b.Property<string>("GraphStroke")
-                        .HasColumnType("text");
-
-                    b.Property<int>("GraphStrokeWidth")
-                        .HasColumnType("integer");
-
-                    b.Property<string>("GraphTextAnchor")
-                        .HasColumnType("text");
-
-                    b.Property<string>("GraphTextFill")
-                        .HasColumnType("text");
-
-                    b.Property<string>("GraphTextFontFamily")
-                        .HasColumnType("text");
-
-                    b.Property<int>("GraphTextFontSize")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("GraphTextRefX")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("GraphTextRefY")
-                        .HasColumnType("integer");
-
-                    b.Property<string>("GraphTextVerticalAnchor")
-                        .HasColumnType("text");
-
-                    b.Property<int>("GraphWidth")
-                        .HasColumnType("integer");
-
-                    b.Property<Guid?>("TenantId")
-                        .HasColumnType("uuid");
-
-                    b.HasKey("GraphId");
-
-                    b.HasIndex("CustomerId");
-
-                    b.HasIndex("DeviceDiagramDiagramId");
-
-                    b.HasIndex("TenantId");
-
-                    b.ToTable("DeviceGraphs");
-                });
-
-            modelBuilder.Entity("IoTSharp.Data.DeviceGraphToolBox", b =>
-                {
-                    b.Property<Guid>("ToolBoxId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
-
-                    b.Property<string>("CommondParam")
-                        .HasColumnType("text");
-
-                    b.Property<string>("CommondType")
-                        .HasColumnType("text");
-
-                    b.Property<DateTime?>("CreateDate")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<Guid>("Creator")
-                        .HasColumnType("uuid");
-
-                    b.Property<Guid?>("CustomerId")
-                        .HasColumnType("uuid");
-
-                    b.Property<long>("DeviceId")
-                        .HasColumnType("bigint");
-
-                    b.Property<Guid?>("TenantId")
-                        .HasColumnType("uuid");
-
-                    b.Property<string>("ToolBoxIcon")
-                        .HasColumnType("text");
-
-                    b.Property<string>("ToolBoxName")
-                        .HasColumnType("text");
-
-                    b.Property<int>("ToolBoxOffsetLeftPer")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("ToolBoxOffsetTopPer")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("ToolBoxOffsetX")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("ToolBoxOffsetY")
-                        .HasColumnType("integer");
-
-                    b.Property<string>("ToolBoxRequestUri")
-                        .HasColumnType("text");
-
-                    b.Property<int>("ToolBoxStatus")
-                        .HasColumnType("integer");
-
-                    b.Property<string>("ToolBoxType")
-                        .HasColumnType("text");
-
-                    b.HasKey("ToolBoxId");
-
-                    b.HasIndex("CustomerId");
-
-                    b.HasIndex("TenantId");
-
-                    b.ToTable("DeviceGraphToolBoxes");
                 });
 
             modelBuilder.Entity("IoTSharp.Data.DeviceIdentity", b =>
@@ -711,7 +499,7 @@ namespace IoTSharp.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
-                    b.Property<Guid>("DeviceId")
+                    b.Property<Guid?>("DeviceId")
                         .HasColumnType("uuid");
 
                     b.Property<string>("IdentityId")
@@ -726,161 +514,9 @@ namespace IoTSharp.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("DeviceId")
-                        .IsUnique();
+                    b.HasIndex("DeviceId");
 
-                    b.ToTable("DeviceIdentities");
-                });
-
-            modelBuilder.Entity("IoTSharp.Data.DeviceModel", b =>
-                {
-                    b.Property<Guid>("DeviceModelId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
-
-                    b.Property<DateTime>("CreateDateTime")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<Guid>("Creator")
-                        .HasColumnType("uuid");
-
-                    b.Property<string>("ModelDesc")
-                        .HasColumnType("text");
-
-                    b.Property<string>("ModelName")
-                        .HasColumnType("text");
-
-                    b.Property<int>("ModelStatus")
-                        .HasColumnType("integer");
-
-                    b.HasKey("DeviceModelId");
-
-                    b.ToTable("DeviceModels");
-                });
-
-            modelBuilder.Entity("IoTSharp.Data.DeviceModelCommand", b =>
-                {
-                    b.Property<Guid>("CommandId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
-
-                    b.Property<string>("CommandI18N")
-                        .HasColumnType("text");
-
-                    b.Property<string>("CommandName")
-                        .HasColumnType("text");
-
-                    b.Property<string>("CommandParams")
-                        .HasColumnType("text");
-
-                    b.Property<int>("CommandStatus")
-                        .HasColumnType("integer");
-
-                    b.Property<string>("CommandTemplate")
-                        .HasColumnType("text");
-
-                    b.Property<string>("CommandTitle")
-                        .HasColumnType("text");
-
-                    b.Property<int>("CommandType")
-                        .HasColumnType("integer");
-
-                    b.Property<DateTime>("CreateDateTime")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<Guid>("Creator")
-                        .HasColumnType("uuid");
-
-                    b.Property<Guid>("DeviceModelId")
-                        .HasColumnType("uuid");
-
-                    b.HasKey("CommandId");
-
-                    b.HasIndex("DeviceModelId");
-
-                    b.ToTable("DeviceModelCommands");
-                });
-
-            modelBuilder.Entity("IoTSharp.Data.DevicePort", b =>
-                {
-                    b.Property<Guid>("PortId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
-
-                    b.Property<DateTime?>("CreateDate")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<long>("Creator")
-                        .HasColumnType("bigint");
-
-                    b.Property<Guid>("DeviceId")
-                        .HasColumnType("uuid");
-
-                    b.Property<string>("PortDesc")
-                        .HasColumnType("text");
-
-                    b.Property<string>("PortElementId")
-                        .HasColumnType("text");
-
-                    b.Property<string>("PortName")
-                        .HasColumnType("text");
-
-                    b.Property<int>("PortPhyType")
-                        .HasColumnType("integer");
-
-                    b.Property<string>("PortPic")
-                        .HasColumnType("text");
-
-                    b.Property<int>("PortStatus")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("PortType")
-                        .HasColumnType("integer");
-
-                    b.HasKey("PortId");
-
-                    b.ToTable("DevicePorts");
-                });
-
-            modelBuilder.Entity("IoTSharp.Data.DevicePortMapping", b =>
-                {
-                    b.Property<Guid>("MappingId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
-
-                    b.Property<DateTime?>("CreateDate")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<Guid>("Creator")
-                        .HasColumnType("uuid");
-
-                    b.Property<int>("MappingIndex")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("MappingStatus")
-                        .HasColumnType("integer");
-
-                    b.Property<Guid>("SourceDeviceId")
-                        .HasColumnType("uuid");
-
-                    b.Property<string>("SourceElementId")
-                        .HasColumnType("text");
-
-                    b.Property<string>("SourceId")
-                        .HasColumnType("text");
-
-                    b.Property<string>("TargeId")
-                        .HasColumnType("text");
-
-                    b.Property<Guid>("TargetDeviceId")
-                        .HasColumnType("uuid");
-
-                    b.Property<string>("TargetElementId")
-                        .HasColumnType("text");
-
-                    b.HasKey("MappingId");
-
-                    b.ToTable("DevicePortMappings");
+                    b.ToTable("DeviceIdentities", (string)null);
                 });
 
             modelBuilder.Entity("IoTSharp.Data.DeviceRule", b =>
@@ -890,16 +526,13 @@ namespace IoTSharp.Migrations
                         .HasColumnType("uuid");
 
                     b.Property<DateTime>("ConfigDateTime")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<Guid>("ConfigUser")
                         .HasColumnType("uuid");
 
                     b.Property<Guid?>("DeviceId")
                         .HasColumnType("uuid");
-
-                    b.Property<int>("EnableTrace")
-                        .HasColumnType("integer");
 
                     b.Property<Guid?>("FlowRuleRuleId")
                         .HasColumnType("uuid");
@@ -910,7 +543,7 @@ namespace IoTSharp.Migrations
 
                     b.HasIndex("FlowRuleRuleId");
 
-                    b.ToTable("DeviceRules");
+                    b.ToTable("DeviceRules", (string)null);
                 });
 
             modelBuilder.Entity("IoTSharp.Data.DynamicFormFieldInfo", b =>
@@ -924,22 +557,19 @@ namespace IoTSharp.Migrations
                     b.Property<Guid>("Creator")
                         .HasColumnType("uuid");
 
-                    b.Property<Guid?>("CustomerId")
-                        .HasColumnType("uuid");
-
                     b.Property<string>("FieldCode")
                         .HasColumnType("text");
 
                     b.Property<DateTime?>("FieldCreateDate")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<DateTime?>("FieldEditDate")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<string>("FieldI18nKey")
                         .HasColumnType("text");
 
-                    b.Property<int>("FieldMaxLength")
+                    b.Property<int?>("FieldMaxLength")
                         .HasColumnType("integer");
 
                     b.Property<string>("FieldName")
@@ -951,10 +581,10 @@ namespace IoTSharp.Migrations
                     b.Property<string>("FieldPocoTypeName")
                         .HasColumnType("text");
 
-                    b.Property<int>("FieldStatus")
+                    b.Property<int?>("FieldStatus")
                         .HasColumnType("integer");
 
-                    b.Property<long>("FieldUIElement")
+                    b.Property<long?>("FieldUIElement")
                         .HasColumnType("bigint");
 
                     b.Property<string>("FieldUIElementSchema")
@@ -972,31 +602,24 @@ namespace IoTSharp.Migrations
                     b.Property<string>("FieldValueLocalDataSource")
                         .HasColumnType("text");
 
-                    b.Property<int>("FieldValueType")
+                    b.Property<int?>("FieldValueType")
                         .HasColumnType("integer");
 
                     b.Property<string>("FieldValueTypeName")
                         .HasColumnType("text");
 
-                    b.Property<long>("FormId")
+                    b.Property<long?>("FormId")
                         .HasColumnType("bigint");
 
-                    b.Property<bool>("IsEnabled")
+                    b.Property<bool?>("IsEnabled")
                         .HasColumnType("boolean");
 
-                    b.Property<bool>("IsRequired")
+                    b.Property<bool?>("IsRequired")
                         .HasColumnType("boolean");
-
-                    b.Property<Guid?>("TenantId")
-                        .HasColumnType("uuid");
 
                     b.HasKey("FieldId");
 
-                    b.HasIndex("CustomerId");
-
-                    b.HasIndex("TenantId");
-
-                    b.ToTable("DynamicFormFieldInfos");
+                    b.ToTable("DynamicFormFieldInfos", (string)null);
                 });
 
             modelBuilder.Entity("IoTSharp.Data.DynamicFormFieldValueInfo", b =>
@@ -1007,22 +630,19 @@ namespace IoTSharp.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("FieldValueId"));
 
-                    b.Property<long>("BizId")
+                    b.Property<long?>("BizId")
                         .HasColumnType("bigint");
 
                     b.Property<Guid>("Creator")
-                        .HasColumnType("uuid");
-
-                    b.Property<Guid?>("CustomerId")
                         .HasColumnType("uuid");
 
                     b.Property<string>("FieldCode")
                         .HasColumnType("text");
 
                     b.Property<DateTime?>("FieldCreateDate")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp without time zone");
 
-                    b.Property<long>("FieldId")
+                    b.Property<long?>("FieldId")
                         .HasColumnType("bigint");
 
                     b.Property<string>("FieldName")
@@ -1034,22 +654,15 @@ namespace IoTSharp.Migrations
                     b.Property<string>("FieldValue")
                         .HasColumnType("text");
 
-                    b.Property<long>("FieldValueType")
+                    b.Property<long?>("FieldValueType")
                         .HasColumnType("bigint");
 
-                    b.Property<long>("FromId")
+                    b.Property<long?>("FromId")
                         .HasColumnType("bigint");
-
-                    b.Property<Guid?>("TenantId")
-                        .HasColumnType("uuid");
 
                     b.HasKey("FieldValueId");
 
-                    b.HasIndex("CustomerId");
-
-                    b.HasIndex("TenantId");
-
-                    b.ToTable("DynamicFormFieldValueInfos");
+                    b.ToTable("DynamicFormFieldValueInfos", (string)null);
                 });
 
             modelBuilder.Entity("IoTSharp.Data.DynamicFormInfo", b =>
@@ -1060,16 +673,13 @@ namespace IoTSharp.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("FormId"));
 
-                    b.Property<long>("BizId")
+                    b.Property<long?>("BizId")
                         .HasColumnType("bigint");
 
                     b.Property<Guid>("Creator")
                         .HasColumnType("uuid");
 
-                    b.Property<Guid?>("CustomerId")
-                        .HasColumnType("uuid");
-
-                    b.Property<long>("FormCreator")
+                    b.Property<long?>("FormCreator")
                         .HasColumnType("bigint");
 
                     b.Property<string>("FormDesc")
@@ -1084,11 +694,11 @@ namespace IoTSharp.Migrations
                     b.Property<string>("FormSchame")
                         .HasColumnType("text");
 
-                    b.Property<int>("FormStatus")
+                    b.Property<int?>("FormStatus")
                         .HasColumnType("integer");
 
                     b.Property<DateTime?>("FromCreateDate")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<bool>("IsCompact")
                         .HasColumnType("boolean");
@@ -1096,19 +706,12 @@ namespace IoTSharp.Migrations
                     b.Property<string>("ModelClass")
                         .HasColumnType("text");
 
-                    b.Property<Guid?>("TenantId")
-                        .HasColumnType("uuid");
-
                     b.Property<string>("Url")
                         .HasColumnType("text");
 
                     b.HasKey("FormId");
 
-                    b.HasIndex("CustomerId");
-
-                    b.HasIndex("TenantId");
-
-                    b.ToTable("DynamicFormInfos");
+                    b.ToTable("DynamicFormInfos", (string)null);
                 });
 
             modelBuilder.Entity("IoTSharp.Data.Flow", b =>
@@ -1121,15 +724,12 @@ namespace IoTSharp.Migrations
                         .HasColumnType("text");
 
                     b.Property<DateTime>("CreateDate")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<Guid>("CreateId")
                         .HasColumnType("uuid");
 
                     b.Property<Guid>("Createor")
-                        .HasColumnType("uuid");
-
-                    b.Property<Guid?>("CustomerId")
                         .HasColumnType("uuid");
 
                     b.Property<Guid?>("ExecutorId")
@@ -1183,9 +783,6 @@ namespace IoTSharp.Migrations
                     b.Property<string>("TargetId")
                         .HasColumnType("text");
 
-                    b.Property<Guid?>("TenantId")
-                        .HasColumnType("uuid");
-
                     b.Property<int>("TestStatus")
                         .HasColumnType("integer");
 
@@ -1193,22 +790,18 @@ namespace IoTSharp.Migrations
                         .HasColumnType("uuid");
 
                     b.Property<DateTime>("TesterDateTime")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<string>("bpmnid")
                         .HasColumnType("text");
 
                     b.HasKey("FlowId");
 
-                    b.HasIndex("CustomerId");
-
                     b.HasIndex("ExecutorId");
 
                     b.HasIndex("FlowRuleRuleId");
 
-                    b.HasIndex("TenantId");
-
-                    b.ToTable("Flows");
+                    b.ToTable("Flows", (string)null);
                 });
 
             modelBuilder.Entity("IoTSharp.Data.FlowOperation", b =>
@@ -1218,7 +811,7 @@ namespace IoTSharp.Migrations
                         .HasColumnType("uuid");
 
                     b.Property<DateTime?>("AddDate")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<Guid?>("BaseEventEventId")
                         .HasColumnType("uuid");
@@ -1235,7 +828,7 @@ namespace IoTSharp.Migrations
                     b.Property<Guid?>("FlowRuleRuleId")
                         .HasColumnType("uuid");
 
-                    b.Property<int>("NodeStatus")
+                    b.Property<int?>("NodeStatus")
                         .HasColumnType("integer");
 
                     b.Property<string>("OperationDesc")
@@ -1258,7 +851,7 @@ namespace IoTSharp.Migrations
 
                     b.HasIndex("FlowRuleRuleId");
 
-                    b.ToTable("FlowOperations");
+                    b.ToTable("FlowOperations", (string)null);
                 });
 
             modelBuilder.Entity("IoTSharp.Data.FlowRule", b =>
@@ -1268,16 +861,10 @@ namespace IoTSharp.Migrations
                         .HasColumnType("uuid");
 
                     b.Property<DateTime?>("CreatTime")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<Guid>("CreateId")
-                        .HasColumnType("uuid");
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<string>("Creator")
                         .HasColumnType("text");
-
-                    b.Property<Guid?>("CustomerId")
-                        .HasColumnType("uuid");
 
                     b.Property<string>("DefinitionsXml")
                         .HasColumnType("text");
@@ -1287,9 +874,6 @@ namespace IoTSharp.Migrations
 
                     b.Property<string>("ExecutableCode")
                         .HasColumnType("text");
-
-                    b.Property<int>("MountType")
-                        .HasColumnType("integer");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -1313,53 +897,9 @@ namespace IoTSharp.Migrations
                     b.Property<double>("SubVersion")
                         .HasColumnType("double precision");
 
-                    b.Property<Guid?>("TenantId")
-                        .HasColumnType("uuid");
-
-                    b.Property<double>("Version")
-                        .HasColumnType("double precision");
-
                     b.HasKey("RuleId");
 
-                    b.HasIndex("CustomerId");
-
-                    b.HasIndex("TenantId");
-
-                    b.ToTable("FlowRules");
-                });
-
-            modelBuilder.Entity("IoTSharp.Data.RefreshToken", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
-
-                    b.Property<DateTime>("AddedDate")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<DateTime>("ExpiryDate")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<bool>("IsRevorked")
-                        .HasColumnType("boolean");
-
-                    b.Property<bool>("IsUsed")
-                        .HasColumnType("boolean");
-
-                    b.Property<string>("JwtId")
-                        .HasColumnType("text");
-
-                    b.Property<string>("Token")
-                        .HasColumnType("text");
-
-                    b.Property<string>("UserId")
-                        .HasColumnType("text");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("RefreshTokens");
+                    b.ToTable("FlowRules", (string)null);
                 });
 
             modelBuilder.Entity("IoTSharp.Data.Relationship", b =>
@@ -1385,7 +925,7 @@ namespace IoTSharp.Migrations
 
                     b.HasIndex("TenantId");
 
-                    b.ToTable("Relationship");
+                    b.ToTable("Relationship", (string)null);
                 });
 
             modelBuilder.Entity("IoTSharp.Data.RuleTaskExecutor", b =>
@@ -1395,12 +935,9 @@ namespace IoTSharp.Migrations
                         .HasColumnType("uuid");
 
                     b.Property<DateTime>("AddDateTime")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<Guid>("Creator")
-                        .HasColumnType("uuid");
-
-                    b.Property<Guid?>("CustomerId")
                         .HasColumnType("uuid");
 
                     b.Property<string>("DefaultConfig")
@@ -1424,9 +961,6 @@ namespace IoTSharp.Migrations
                     b.Property<string>("Tag")
                         .HasColumnType("text");
 
-                    b.Property<Guid?>("TenantId")
-                        .HasColumnType("uuid");
-
                     b.Property<int>("TestStatus")
                         .HasColumnType("integer");
 
@@ -1434,119 +968,32 @@ namespace IoTSharp.Migrations
                         .HasColumnType("uuid");
 
                     b.Property<DateTime>("TesterDateTime")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<string>("TypeName")
                         .HasColumnType("text");
 
                     b.HasKey("ExecutorId");
 
-                    b.HasIndex("CustomerId");
-
-                    b.HasIndex("TenantId");
-
-                    b.ToTable("RuleTaskExecutors");
-                });
-
-            modelBuilder.Entity("IoTSharp.Data.SubscriptionEvent", b =>
-                {
-                    b.Property<Guid>("EventId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
-
-                    b.Property<DateTime>("CreateDateTime")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<Guid>("Creator")
-                        .HasColumnType("uuid");
-
-                    b.Property<Guid?>("CustomerId")
-                        .HasColumnType("uuid");
-
-                    b.Property<string>("EventDesc")
-                        .HasColumnType("text");
-
-                    b.Property<string>("EventName")
-                        .HasColumnType("text");
-
-                    b.Property<string>("EventNameSpace")
-                        .HasColumnType("text");
-
-                    b.Property<string>("EventParam")
-                        .HasColumnType("text");
-
-                    b.Property<int>("EventStatus")
-                        .HasColumnType("integer");
-
-                    b.Property<string>("EventTag")
-                        .HasColumnType("text");
-
-                    b.Property<Guid?>("TenantId")
-                        .HasColumnType("uuid");
-
-                    b.Property<int>("Type")
-                        .HasColumnType("integer");
-
-                    b.HasKey("EventId");
-
-                    b.HasIndex("CustomerId");
-
-                    b.HasIndex("TenantId");
-
-                    b.ToTable("SubscriptionEvents");
-                });
-
-            modelBuilder.Entity("IoTSharp.Data.SubscriptionTask", b =>
-                {
-                    b.Property<Guid>("BindId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
-
-                    b.Property<Guid>("EventId")
-                        .HasColumnType("uuid");
-
-                    b.Property<Guid?>("RuleTaskExecutorExecutorId")
-                        .HasColumnType("uuid");
-
-                    b.Property<int>("Status")
-                        .HasColumnType("integer");
-
-                    b.Property<Guid?>("SubscriptionEventId")
-                        .HasColumnType("uuid");
-
-                    b.Property<string>("TaskConfig")
-                        .HasColumnType("text");
-
-                    b.HasKey("BindId");
-
-                    b.HasIndex("RuleTaskExecutorExecutorId");
-
-                    b.HasIndex("SubscriptionEventId");
-
-                    b.ToTable("SubscriptionTasks");
+                    b.ToTable("RuleTaskExecutors", (string)null);
                 });
 
             modelBuilder.Entity("IoTSharp.Data.TelemetryData", b =>
                 {
                     b.Property<Guid>("DeviceId")
-                        .HasColumnType("uuid")
-                        .HasColumnOrder(1);
+                        .HasColumnType("uuid");
 
                     b.Property<string>("KeyName")
-                        .HasColumnType("text")
-                        .HasColumnOrder(2);
+                        .HasColumnType("text");
 
                     b.Property<DateTime>("DateTime")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnOrder(3);
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<int>("DataSide")
-                        .HasColumnType("integer")
-                        .HasColumnOrder(4);
+                        .HasColumnType("integer");
 
                     b.Property<int>("Type")
-                        .HasColumnType("integer")
-                        .HasColumnOrder(5);
+                        .HasColumnType("integer");
 
                     b.Property<byte[]>("Value_Binary")
                         .HasColumnType("bytea");
@@ -1580,7 +1027,7 @@ namespace IoTSharp.Migrations
 
                     b.HasIndex("DeviceId", "KeyName");
 
-                    b.ToTable("TelemetryData");
+                    b.ToTable("TelemetryData", (string)null);
                 });
 
             modelBuilder.Entity("IoTSharp.Data.Tenant", b =>
@@ -1618,7 +1065,7 @@ namespace IoTSharp.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Tenant");
+                    b.ToTable("Tenant", (string)null);
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
@@ -1870,23 +1317,11 @@ namespace IoTSharp.Migrations
 
             modelBuilder.Entity("IoTSharp.Data.BaseEvent", b =>
                 {
-                    b.HasOne("IoTSharp.Data.Customer", "Customer")
-                        .WithMany()
-                        .HasForeignKey("CustomerId");
-
                     b.HasOne("IoTSharp.Data.FlowRule", "FlowRule")
                         .WithMany()
                         .HasForeignKey("FlowRuleRuleId");
 
-                    b.HasOne("IoTSharp.Data.Tenant", "Tenant")
-                        .WithMany()
-                        .HasForeignKey("TenantId");
-
-                    b.Navigation("Customer");
-
                     b.Navigation("FlowRule");
-
-                    b.Navigation("Tenant");
                 });
 
             modelBuilder.Entity("IoTSharp.Data.Customer", b =>
@@ -1908,10 +1343,6 @@ namespace IoTSharp.Migrations
                         .WithMany("Devices")
                         .HasForeignKey("CustomerId");
 
-                    b.HasOne("IoTSharp.Data.DeviceModel", "DeviceModel")
-                        .WithMany()
-                        .HasForeignKey("DeviceModelId");
-
                     b.HasOne("IoTSharp.Data.Gateway", "Owner")
                         .WithMany("Children")
                         .HasForeignKey("OwnerId");
@@ -1922,60 +1353,7 @@ namespace IoTSharp.Migrations
 
                     b.Navigation("Customer");
 
-                    b.Navigation("DeviceModel");
-
                     b.Navigation("Owner");
-
-                    b.Navigation("Tenant");
-                });
-
-            modelBuilder.Entity("IoTSharp.Data.DeviceDiagram", b =>
-                {
-                    b.HasOne("IoTSharp.Data.Customer", "Customer")
-                        .WithMany()
-                        .HasForeignKey("CustomerId");
-
-                    b.HasOne("IoTSharp.Data.Tenant", "Tenant")
-                        .WithMany()
-                        .HasForeignKey("TenantId");
-
-                    b.Navigation("Customer");
-
-                    b.Navigation("Tenant");
-                });
-
-            modelBuilder.Entity("IoTSharp.Data.DeviceGraph", b =>
-                {
-                    b.HasOne("IoTSharp.Data.Customer", "Customer")
-                        .WithMany()
-                        .HasForeignKey("CustomerId");
-
-                    b.HasOne("IoTSharp.Data.DeviceDiagram", "DeviceDiagram")
-                        .WithMany()
-                        .HasForeignKey("DeviceDiagramDiagramId");
-
-                    b.HasOne("IoTSharp.Data.Tenant", "Tenant")
-                        .WithMany()
-                        .HasForeignKey("TenantId");
-
-                    b.Navigation("Customer");
-
-                    b.Navigation("DeviceDiagram");
-
-                    b.Navigation("Tenant");
-                });
-
-            modelBuilder.Entity("IoTSharp.Data.DeviceGraphToolBox", b =>
-                {
-                    b.HasOne("IoTSharp.Data.Customer", "Customer")
-                        .WithMany()
-                        .HasForeignKey("CustomerId");
-
-                    b.HasOne("IoTSharp.Data.Tenant", "Tenant")
-                        .WithMany()
-                        .HasForeignKey("TenantId");
-
-                    b.Navigation("Customer");
 
                     b.Navigation("Tenant");
                 });
@@ -1983,23 +1361,10 @@ namespace IoTSharp.Migrations
             modelBuilder.Entity("IoTSharp.Data.DeviceIdentity", b =>
                 {
                     b.HasOne("IoTSharp.Data.Device", "Device")
-                        .WithOne("DeviceIdentity")
-                        .HasForeignKey("IoTSharp.Data.DeviceIdentity", "DeviceId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .WithMany()
+                        .HasForeignKey("DeviceId");
 
                     b.Navigation("Device");
-                });
-
-            modelBuilder.Entity("IoTSharp.Data.DeviceModelCommand", b =>
-                {
-                    b.HasOne("IoTSharp.Data.DeviceModel", "DeviceModel")
-                        .WithMany("DeviceModelCommands")
-                        .HasForeignKey("DeviceModelId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("DeviceModel");
                 });
 
             modelBuilder.Entity("IoTSharp.Data.DeviceRule", b =>
@@ -2017,57 +1382,8 @@ namespace IoTSharp.Migrations
                     b.Navigation("FlowRule");
                 });
 
-            modelBuilder.Entity("IoTSharp.Data.DynamicFormFieldInfo", b =>
-                {
-                    b.HasOne("IoTSharp.Data.Customer", "Customer")
-                        .WithMany()
-                        .HasForeignKey("CustomerId");
-
-                    b.HasOne("IoTSharp.Data.Tenant", "Tenant")
-                        .WithMany()
-                        .HasForeignKey("TenantId");
-
-                    b.Navigation("Customer");
-
-                    b.Navigation("Tenant");
-                });
-
-            modelBuilder.Entity("IoTSharp.Data.DynamicFormFieldValueInfo", b =>
-                {
-                    b.HasOne("IoTSharp.Data.Customer", "Customer")
-                        .WithMany()
-                        .HasForeignKey("CustomerId");
-
-                    b.HasOne("IoTSharp.Data.Tenant", "Tenant")
-                        .WithMany()
-                        .HasForeignKey("TenantId");
-
-                    b.Navigation("Customer");
-
-                    b.Navigation("Tenant");
-                });
-
-            modelBuilder.Entity("IoTSharp.Data.DynamicFormInfo", b =>
-                {
-                    b.HasOne("IoTSharp.Data.Customer", "Customer")
-                        .WithMany()
-                        .HasForeignKey("CustomerId");
-
-                    b.HasOne("IoTSharp.Data.Tenant", "Tenant")
-                        .WithMany()
-                        .HasForeignKey("TenantId");
-
-                    b.Navigation("Customer");
-
-                    b.Navigation("Tenant");
-                });
-
             modelBuilder.Entity("IoTSharp.Data.Flow", b =>
                 {
-                    b.HasOne("IoTSharp.Data.Customer", "Customer")
-                        .WithMany()
-                        .HasForeignKey("CustomerId");
-
                     b.HasOne("IoTSharp.Data.RuleTaskExecutor", "Executor")
                         .WithMany()
                         .HasForeignKey("ExecutorId");
@@ -2076,17 +1392,9 @@ namespace IoTSharp.Migrations
                         .WithMany()
                         .HasForeignKey("FlowRuleRuleId");
 
-                    b.HasOne("IoTSharp.Data.Tenant", "Tenant")
-                        .WithMany()
-                        .HasForeignKey("TenantId");
-
-                    b.Navigation("Customer");
-
                     b.Navigation("Executor");
 
                     b.Navigation("FlowRule");
-
-                    b.Navigation("Tenant");
                 });
 
             modelBuilder.Entity("IoTSharp.Data.FlowOperation", b =>
@@ -2110,30 +1418,6 @@ namespace IoTSharp.Migrations
                     b.Navigation("FlowRule");
                 });
 
-            modelBuilder.Entity("IoTSharp.Data.FlowRule", b =>
-                {
-                    b.HasOne("IoTSharp.Data.Customer", "Customer")
-                        .WithMany()
-                        .HasForeignKey("CustomerId");
-
-                    b.HasOne("IoTSharp.Data.Tenant", "Tenant")
-                        .WithMany()
-                        .HasForeignKey("TenantId");
-
-                    b.Navigation("Customer");
-
-                    b.Navigation("Tenant");
-                });
-
-            modelBuilder.Entity("IoTSharp.Data.RefreshToken", b =>
-                {
-                    b.HasOne("Microsoft.AspNetCore.Identity.IdentityUser", "User")
-                        .WithMany()
-                        .HasForeignKey("UserId");
-
-                    b.Navigation("User");
-                });
-
             modelBuilder.Entity("IoTSharp.Data.Relationship", b =>
                 {
                     b.HasOne("IoTSharp.Data.Customer", "Customer")
@@ -2153,51 +1437,6 @@ namespace IoTSharp.Migrations
                     b.Navigation("IdentityUser");
 
                     b.Navigation("Tenant");
-                });
-
-            modelBuilder.Entity("IoTSharp.Data.RuleTaskExecutor", b =>
-                {
-                    b.HasOne("IoTSharp.Data.Customer", "Customer")
-                        .WithMany()
-                        .HasForeignKey("CustomerId");
-
-                    b.HasOne("IoTSharp.Data.Tenant", "Tenant")
-                        .WithMany()
-                        .HasForeignKey("TenantId");
-
-                    b.Navigation("Customer");
-
-                    b.Navigation("Tenant");
-                });
-
-            modelBuilder.Entity("IoTSharp.Data.SubscriptionEvent", b =>
-                {
-                    b.HasOne("IoTSharp.Data.Customer", "Customer")
-                        .WithMany()
-                        .HasForeignKey("CustomerId");
-
-                    b.HasOne("IoTSharp.Data.Tenant", "Tenant")
-                        .WithMany()
-                        .HasForeignKey("TenantId");
-
-                    b.Navigation("Customer");
-
-                    b.Navigation("Tenant");
-                });
-
-            modelBuilder.Entity("IoTSharp.Data.SubscriptionTask", b =>
-                {
-                    b.HasOne("IoTSharp.Data.RuleTaskExecutor", "RuleTaskExecutor")
-                        .WithMany()
-                        .HasForeignKey("RuleTaskExecutorExecutorId");
-
-                    b.HasOne("IoTSharp.Data.SubscriptionEvent", "Subscription")
-                        .WithMany()
-                        .HasForeignKey("SubscriptionEventId");
-
-                    b.Navigation("RuleTaskExecutor");
-
-                    b.Navigation("Subscription");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
@@ -2259,16 +1498,6 @@ namespace IoTSharp.Migrations
             modelBuilder.Entity("IoTSharp.Data.Customer", b =>
                 {
                     b.Navigation("Devices");
-                });
-
-            modelBuilder.Entity("IoTSharp.Data.Device", b =>
-                {
-                    b.Navigation("DeviceIdentity");
-                });
-
-            modelBuilder.Entity("IoTSharp.Data.DeviceModel", b =>
-                {
-                    b.Navigation("DeviceModelCommands");
                 });
 
             modelBuilder.Entity("IoTSharp.Data.Tenant", b =>
