@@ -30,6 +30,8 @@ IoTSharp 是一个 基于.Net Core 开源的物联网基础平台， 支持 HTTP
 ## 演示：
   http://139.9.232.10:2927
 
+## 文档：
+  https://docs.iotsharp.net/
 
 ## 如何使用 docker 安装IoTSharp?
 

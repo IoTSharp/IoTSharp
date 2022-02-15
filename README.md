@@ -33,6 +33,8 @@ IoTSharp is an open-source IoT platform for data collection, processing, visuali
 ## Demo 
   http://139.9.232.10:2927
 
+## doc
+  https://docs.iotsharp.net/
 
 ## How to install IoTSharp using docker ?
 
