@@ -61,7 +61,7 @@
 		<PackageReference Include="DotNetCore.CAP.InMemoryStorage" Version="6.0.0" />
 		<PackageReference Include="DotNetCore.CAP.Kafka" Version="6.0.0" />
 		<PackageReference Include="DotNetCore.CAP.MongoDB" Version="6.0.0" />
-		<PackageReference Include="DotNetCore.CAP.RabbitMQ" Version="6.0.0" />
+		<PackageReference Include="DotNetCore.CAP.RabbitMQ" Version="6.0.1" />
 		<PackageReference Include="DotNetCore.CAP.PostgreSql" Version="6.0.0" />
 		<PackageReference Include="EasyCaching.Core" Version="1.5.0" />
 		<PackageReference Include="EasyCaching.InMemory" Version="1.5.0" />
