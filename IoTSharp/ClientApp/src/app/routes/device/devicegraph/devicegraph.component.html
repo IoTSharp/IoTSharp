@@ -1,5 +1,5 @@
 <nz-header nzTheme="light" style="background-color: yellowgreen">
-  <button nz-button nzType="primary" nzShape="round" (click)="savediagram()">保存<i nz-icon nzType="download"></i></button>
+  <button nz-button nzType="primary" nzShape="round" (click)="savesense()">保存<i nz-icon nzType="download"></i></button>
 </nz-header>
 
 <nz-layout class="inner-layout" style="padding: 10px">
@@ -28,11 +28,15 @@
          style="float: left; width: 100%"></div>
   </nz-content>
   <nz-sider nzTheme="light" nzWidth="400px" style="padding: 1rem">
+    <ng-template  toolpanelcontainer>
 
+
+
+    </ng-template>
 
 
     
-    <nz-tabset>
+    <!-- <nz-tabset>
       <nz-tab nzTitle="设备属性"></nz-tab>
       <nz-tab nzTitle="端口配置">
         <button nz-button [nzType]="'primary'" (click)="newport(-1)" acl [acl-ability]="37">
@@ -63,6 +67,6 @@
         </st>
       </nz-tab>
       <nz-tab nzTitle="杂项"> </nz-tab>
-    </nz-tabset>
+    </nz-tabset> -->
   </nz-sider>
 </nz-layout>

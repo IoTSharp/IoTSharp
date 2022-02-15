@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, ElementRef, Input, OnInit, Type, ViewChild } from '@angular/core';
+import { ChangeDetectorRef, Component, ComponentFactoryResolver, ElementRef, Input, OnInit, Type, ViewChild } from '@angular/core';
 import { Graph, NodeView, Shape } from '@antv/x6';
 
 import { STColumn, STColumnTag, STComponent, STData } from '@delon/abc/st';
@@ -6,6 +6,12 @@ import { SettingsService } from '@delon/theme';
 import { Subscription } from 'rxjs';
 import { DeviceItem, port } from './models/data';
 import { Device, GateWay } from './models/shape';
+import { ConnectionedgeComponent } from './panels/connectionedge/connectionedge.component';
+import { DevivceshapeComponent } from './panels/devivceshape/devivceshape.component';
+import { GatewayshapeComponent } from './panels/gatewayshape/gatewayshape.component';
+import { PortshapeComponent } from './panels/portshape/portshape.component';
+import { toolpaneldirective } from './panels/toolpaneldirective';
+import { IToolsPanel, PanelItem } from './panels/toolspanel';
 
 @Component({
   selector: 'app-devicegraph',
@@ -13,6 +19,28 @@ import { Device, GateWay } from './models/shape';
   styleUrls: ['./devicegraph.component.less'],
 })
 export class DevicegraphComponent implements OnInit {
+  @ViewChild(toolpaneldirective, { static: true })
+  toolpanelcontainer!: toolpaneldirective;
+
+  //注册工具面板
+  toolpanels = [
+    new PanelItem<IToolsPanel>('device', DevivceshapeComponent, {
+
+    }),
+    new PanelItem<IToolsPanel>('gateway', GatewayshapeComponent, {
+      //  someneedtransferdata: "yourdata,don't forget declara a @Input someneedtransferdata Property ",
+    }),
+    new PanelItem<IToolsPanel>('edge', ConnectionedgeComponent, {
+      //  someneedtransferdata: "yourdata,don't forget declara a @Input someneedtransferdata Property ",
+    }),
+
+    new PanelItem<IToolsPanel>('port', PortshapeComponent, {
+      //  someneedtransferdata: "yourdata,don't forget declara a @Input someneedtransferdata Property ",
+    })
+  ];
+
+
+
   selectedstyle = {
     body: {
       stroke: '#00ff00',
@@ -101,65 +129,10 @@ export class DevicegraphComponent implements OnInit {
         GraphShape: '',
       },
       ports: {
-        in: [{ portname: 'port1', id: 1, type: 1, iotype: 1 }],
+        in: [{ portname: '温度', id: '1', type: 1, iotype: 1 }],
       },
     },
-    {
-      devicename: '设备2',
-      id: '22',
-      type: 'device',
-      logo: 'control',
-      image: './assets/logo.png',
-      remark: '这是一个设备，拖动它放到设计器上',
-      prop: {
-        GraphStroke: '#d9d9d9',
-        GraphStrokeWidth: 1,
-        GraphTextFill: '',
-        GraphTextFontSize: '',
-        GraphPostionX: '',
-        GraphPostionY: '',
-        GraphFill: '',
-        GraphTextRefX: '',
-        GraphHeight: '',
-        GraphTextRefY: '',
-        GraphTextAnchor: '',
-        GraphTextVerticalAnchor: '',
-        GraphTextFontFamily: '',
-        GraphWidth: '',
-        GraphShape: '',
-      },
-      ports: {
-        in: [{ portname: 'port1', id: 2, type: 1, iotype: 1 }],
-      },
-    },
-    {
-      devicename: '设备3',
-      id: '33',
-      type: 'device',
-      logo: 'control',
-      image: './assets/logo.png',
-      remark: '这是一个设备，拖动它放到设计器上',
-      prop: {
-        GraphStroke: '#d9d9d9',
-        GraphStrokeWidth: 1,
-        GraphTextFill: '',
-        GraphTextFontSize: '',
-        GraphPostionX: '',
-        GraphPostionY: '',
-        GraphFill: '',
-        GraphTextRefX: '',
-        GraphHeight: '',
-        GraphTextRefY: '',
-        GraphTextAnchor: '',
-        GraphTextVerticalAnchor: '',
-        GraphTextFontFamily: '',
-        GraphWidth: '',
-        GraphShape: '',
-      },
-      ports: {
-        in: [{ portname: 'port1', id: 3, type: 1, iotype: 1 }],
-      },
-    },
+
     {
       devicename: '网关1',
       id: '44',
@@ -231,103 +204,26 @@ export class DevicegraphComponent implements OnInit {
       },
       ports: {
         in: [
-          { portname: 'port1', id: 18, type: 1, iotype: 1 },
-          { portname: 'port2', id: 19, type: 1, iotype: 1 },
-          { portname: 'port3', id: 20, type: 1, iotype: 1 },
-          { portname: 'port4', id: 21, type: 1, iotype: 1 },
-          { portname: 'port5', id: 22, type: 1, iotype: 1 },
-          { portname: 'port6', id: 23, type: 1, iotype: 1 },
-          { portname: 'port7', id: 24, type: 1, iotype: 1 },
+          { portname: 'port1', id: '18', type: 1, iotype: 1 },
+          { portname: 'port2', id: '19', type: 1, iotype: 1 },
+          { portname: 'port3', id: '20', type: 1, iotype: 1 },
+          { portname: 'port4', id: '21', type: 1, iotype: 1 },
+          { portname: 'port5', id: '22', type: 1, iotype: 1 },
+          { portname: 'port6', id: '23', type: 1, iotype: 1 },
+          { portname: 'port7', id: '24', type: 1, iotype: 1 },
         ],
         out: [
-          { portname: 'port1', id: 25, type: 1, iotype: 1 },
-          { portname: 'port2', id: 26, type: 1, iotype: 1 },
-          { portname: 'port3', id: 27, type: 1, iotype: 1 },
-          { portname: 'port4', id: 28, type: 1, iotype: 1 },
-          { portname: 'port5', id: 29, type: 1, iotype: 1 },
-          { portname: 'port6', id: 30, type: 1, iotype: 1 },
-          { portname: 'port7', id: 31, type: 1, iotype: 1 },
+          { portname: 'port1', id: '25', type: 1, iotype: 1 },
+          { portname: 'port2', id: '26', type: 1, iotype: 1 },
+          { portname: 'port3', id: '27', type: 1, iotype: 1 },
+          { portname: 'port4', id: '28', type: 1, iotype: 1 },
+          { portname: 'port5', id: '29', type: 1, iotype: 1 },
+          { portname: 'port6', id: '30', type: 1, iotype: 1 },
+          { portname: 'port7', id: '31', type: 1, iotype: 1 },
         ],
       },
     },
-    {
-      devicename: '设备4',
-      id: '66',
-      type: 'device',
-      logo: 'control',
-      image: './assets/logo.png',
-      remark: '这是一个设备，拖动它放到设计器上',
-      prop: {
-        GraphStroke: '#d9d9d9',
-        GraphStrokeWidth: 1,
-        GraphTextFill: '',
-        GraphTextFontSize: '',
-        GraphPostionX: '',
-        GraphPostionY: '',
-        GraphFill: '',
-        GraphTextRefX: '',
-        GraphHeight: '',
-        GraphTextRefY: '',
-        GraphTextAnchor: '',
-        GraphTextVerticalAnchor: '',
-        GraphTextFontFamily: '',
-        GraphWidth: '',
-        GraphShape: '',
-      },
-      ports: { in: [{ portname: 'port1', id: 32, type: 1, iotype: 1 }] },
-    },
-    {
-      devicename: '设备5',
-      id: '77',
-      type: 'device',
-      logo: 'control',
-      image: './assets/logo.png',
-      remark: '这是一个设备，拖动它放到设计器上',
-      prop: {
-        GraphStroke: '#d9d9d9',
-        GraphStrokeWidth: 1,
-        GraphTextFill: '',
-        GraphTextFontSize: '',
-        GraphPostionX: '',
-        GraphPostionY: '',
-        GraphFill: '',
-        GraphTextRefX: '',
-        GraphHeight: '',
-        GraphTextRefY: '',
-        GraphTextAnchor: '',
-        GraphTextVerticalAnchor: '',
-        GraphTextFontFamily: '',
-        GraphWidth: '',
-        GraphShape: '',
-      },
-      ports: { in: [{ portname: 'port1', id: 33, type: 1, iotype: 1 }] },
-    },
-    {
-      devicename: '设备6',
-      id: '88',
-      type: 'device',
-      logo: 'control',
-      image: './assets/logo.png',
-      remark: '这是一个设备，拖动它放到设计器上',
-      prop: {
-        GraphStroke: '#d9d9d9',
-        GraphStrokeWidth: 1,
-        GraphTextFill: '',
-        GraphTextFontSize: '',
-        GraphPostionX: '',
-        GraphPostionY: '',
-        GraphFill: '',
-        GraphTextRefX: '',
-        GraphHeight: '',
-        GraphTextRefY: '',
-        GraphTextAnchor: '',
-        GraphTextVerticalAnchor: '',
-        GraphTextFontFamily: '',
-        GraphWidth: '',
-        GraphShape: '',
-      },
-      ports: { in: [{ portname: 'port1', id: 34, type: 1, iotype: 1 }] },
-    },
+
     {
       devicename: '设备7',
       id: '99',
@@ -352,7 +248,7 @@ export class DevicegraphComponent implements OnInit {
         GraphWidth: '',
         GraphShape: '',
       },
-      ports: { in: [{ portname: 'port1', id: 35, type: 1, iotype: 1 }] },
+      ports: { in: [{ portname: '湿度', id: '35', type: 1, iotype: 1 }] },
     },
   ];
 
@@ -402,16 +298,59 @@ export class DevicegraphComponent implements OnInit {
         x: '50%',
         y: '10%',
         offset: { x: -0, y: -0 },
-        onClick: this.toolbtnclick, //闭包了哟
+        onClick: this.toolbtnclick,
       },
     },
   ];
-  constructor(cdr: ChangeDetectorRef, private settingService: SettingsService) { }
+  constructor(cdr: ChangeDetectorRef, private settingService: SettingsService, private componentFactoryResolver: ComponentFactoryResolver) { }
 
   newport(id) {
     this.selcetedDevice.ports.in = [...this.selcetedDevice.ports.in, { id: '0', portname: '新端口', type: 1, iotype: 1 }];
     console.log(this.selcetedDevice.ports.in);
   }
+
+  private createpanel(
+    panel: string, BizData: any
+  ) {
+
+    const componentFactory = this.componentFactoryResolver.resolveComponentFactory(this.toolpanels.find(c => c.name === panel)?.component);
+    const viewContainerRef = this.toolpanelcontainer.viewContainerRef;
+    const componentRef = viewContainerRef.createComponent<DevivceshapeComponent>(componentFactory);
+    componentRef.instance.BizData = BizData;
+
+    // switch(panel){
+    //   case 'device':{
+    //     const componentFactory = this.componentFactoryResolver.resolveComponentFactory(DevivceshapeComponent);
+    //     const viewContainerRef = this.toolpanelcontainer.viewContainerRef;
+    //     const componentRef = viewContainerRef.createComponent<DevivceshapeComponent>(componentFactory);
+    //     componentRef.instance.BizData=BizData;
+    //   }
+    //     break;
+
+    //     case 'gateway':{
+    //       const componentFactory = this.componentFactoryResolver.resolveComponentFactory(GatewayshapeComponent);
+    //       const viewContainerRef = this.toolpanelcontainer.viewContainerRef;
+    //       const componentRef = viewContainerRef.createComponent<DevivceshapeComponent>(componentFactory);
+    //       componentRef.instance.BizData=BizData;
+    //     }         break;   
+    //     case 'edge':{
+    //       const componentFactory = this.componentFactoryResolver.resolveComponentFactory(ConnectionedgeComponent);
+    //       const viewContainerRef = this.toolpanelcontainer.viewContainerRef;
+    //       const componentRef = viewContainerRef.createComponent<DevivceshapeComponent>(componentFactory);
+    //       componentRef.instance.BizData=BizData;
+    //     }           break; 
+    //     case 'port':{
+    //       const componentFactory = this.componentFactoryResolver.resolveComponentFactory(PortshapeComponent);
+    //       const viewContainerRef = this.toolpanelcontainer.viewContainerRef;
+    //       const componentRef = viewContainerRef.createComponent<DevivceshapeComponent>(componentFactory);
+    //       componentRef.instance.BizData=BizData;
+    //     }
+    // }
+
+
+  }
+
+
 
   private submit(i: STData): void {
     this.updateEdit(i, false);
@@ -529,21 +468,47 @@ export class DevicegraphComponent implements OnInit {
     });
 
     this.graph.on('cell:click', ({ e, x, y, cell, view }) => {
-      var device = cell as Device;
-      var port = device.getPort(e.target.attributes.port.value);
-      device.setPortProp(port.id, 'attrs/circle', { fill: '#0000ff', stroke: '#fff' })
+
+
+      var matadata = cell.getProp('Biz') as DeviceItem;
+      if (matadata) {
+
+        switch (matadata.type) {
+          case 'device':
+            {
+              if (e.target.attributes?.port?.value) {
+                var device = cell as Device
+                var port = device.getPort(e.target.attributes.port.value);
+                device.setPortProp(port.id, 'attrs/circle', { fill: '#0000ff', stroke: '#fff' })
+              }
+            }
+            break;
+          case 'gateway':
+            {
+              if (e.target.attributes?.port?.value) {
+                var gateway = cell as GateWay
+                var port = gateway.getPort(e.target.attributes.port.value);
+                gateway.setPortProp(port.id, 'attrs/circle', { fill: '#0000ff', stroke: '#fff' })
+              }
+            }
+            break;
+        }
+      }
     });
 
     this.graph.on('edge:click', ({ e, x, y, edge, view }) => {
-     
-     })
+
+    })
 
     this.graph.on('cell:mousedown', ({ cell }) => {
       //  cell.removeTools(); //只读状态下移除Node中的操作按钮
     });
 
     this.graph.on('node:click', (e, x, y, node, view) => {
-   
+
+
+      this.createpanel('device', {});
+
       var matadata = e.node.getProp('Biz');
       this.graph.getNodes;
 
@@ -625,6 +590,7 @@ export class DevicegraphComponent implements OnInit {
           offsetX: this.dragEndlocation.offsetX,
           offsetY: this.dragEndlocation.offsetY,
           Biz: $event.dropData,
+
           portdata: {
             group: {
               in: {
@@ -665,7 +631,7 @@ export class DevicegraphComponent implements OnInit {
             ports: ports,
           },
         };
-        this.createshape(data);
+        this.createshape(data, 'device');
 
         break;
 
@@ -766,12 +732,12 @@ export class DevicegraphComponent implements OnInit {
             ports: ports,
           },
         };
-        this.createshape(data);
+        this.createshape(data, 'gateway');
         break;
     }
   }
 
-  createshape(data: any) {
+  createshape(data: any, type: string) {
     var node = this.graph.addNode(
       new GateWay({
         label: data.label,
@@ -797,7 +763,7 @@ export class DevicegraphComponent implements OnInit {
     this.data.splice(this.data.indexOf(data.Biz), 1);
 
 
-  
+
   }
 
   dragEnd(event) { }
@@ -808,9 +774,9 @@ export class DevicegraphComponent implements OnInit {
 
   dragEndlocation: any;
 
-  load() { }
+  loadsense() { }
 
-  savediagram() {
+  savesense() {
     var edges = this.graph.getEdges();
     var nodes = this.graph.getNodes();
     var shapes = [];
