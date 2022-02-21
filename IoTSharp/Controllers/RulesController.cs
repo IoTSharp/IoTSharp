@@ -1119,11 +1119,16 @@ namespace IoTSharp.Controllers
             {
                 await Task.Run(() =>
                 {
+
+                    var operevent =
+                        _context.BaseEvents.SingleOrDefault(
+                            c => c.EventId == result.FirstOrDefault().BaseEvent.EventId);
+
                     var list = result.Select(c => new FlowOperation
                     {
                         AddDate = c.AddDate,
                         BizId = c.BizId,
-                        Data = c.Data,
+                        Data = c.Data, BaseEvent = operevent,
                         Flow = flows.SingleOrDefault(x=>x.FlowId==c.Flow.FlowId
                         ),
                         FlowRule = flowRule,

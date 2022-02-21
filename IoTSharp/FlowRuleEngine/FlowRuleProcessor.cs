@@ -90,10 +90,12 @@ namespace IoTSharp.FlowRuleEngine
                 {
                     using (var context = sp.ServiceProvider.GetRequiredService<ApplicationDbContext>())
                     {
-                        var r = context.FlowRules.FirstOrDefault(c => c.RuleId == rule.RuleId);
+                        var r = context.FlowRules.Include(c=>c.Customer).Include(c=>c.Tenant).FirstOrDefault(c => c.RuleId == rule.RuleId);
                         if (r != null)
                         {
                             @event.FlowRule = r;
+                            @event.Tenant = r.Tenant;
+                            @event.Customer = r.Customer;
                             context.BaseEvents.Add(@event);
                             context.SaveChanges();
                         }
