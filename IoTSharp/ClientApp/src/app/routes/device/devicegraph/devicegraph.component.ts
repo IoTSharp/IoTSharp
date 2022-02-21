@@ -1,9 +1,9 @@
 import { ChangeDetectorRef, Component, ComponentFactoryResolver, ElementRef, Input, OnInit, Type, ViewChild } from '@angular/core';
-import { Graph, NodeView, Shape } from '@antv/x6';
+import { Cell, Graph, NodeView, Shape } from '@antv/x6';
 
 import { STColumn, STColumnTag, STComponent, STData } from '@delon/abc/st';
 import { SettingsService } from '@delon/theme';
-import { Subscription } from 'rxjs';
+import { Observable, Subscription, timer } from 'rxjs';
 import { DeviceItem, port } from './models/data';
 import { Device, GateWay } from './models/shape';
 import { ConnectionedgeComponent } from './panels/connectionedge/connectionedge.component';
@@ -21,7 +21,7 @@ import { IToolsPanel, PanelItem } from './panels/toolspanel';
 export class DevicegraphComponent implements OnInit {
   @ViewChild(toolpaneldirective, { static: true })
   toolpanelcontainer!: toolpaneldirective;
-
+  portiseselected = false;
   //注册工具面板
   toolpanels = [
     new PanelItem<IToolsPanel>('device', DevivceshapeComponent, {
@@ -39,8 +39,6 @@ export class DevicegraphComponent implements OnInit {
     })
   ];
 
-
-
   selectedstyle = {
     body: {
       stroke: '#00ff00',
@@ -55,6 +53,14 @@ export class DevicegraphComponent implements OnInit {
   };
 
   ports: port[] = [];
+
+  selectedport =
+    {
+      port: {},
+      owner: {},
+      orginattr: {}
+
+    };
   TAG: STColumnTag = {
     1: { text: '以太网', color: 'green' },
     2: { text: 'RS232', color: 'blue' },
@@ -312,42 +318,11 @@ export class DevicegraphComponent implements OnInit {
   private createpanel(
     panel: string, BizData: any
   ) {
-
     const componentFactory = this.componentFactoryResolver.resolveComponentFactory(this.toolpanels.find(c => c.name === panel)?.component);
     const viewContainerRef = this.toolpanelcontainer.viewContainerRef;
+    viewContainerRef.clear();
     const componentRef = viewContainerRef.createComponent<DevivceshapeComponent>(componentFactory);
     componentRef.instance.BizData = BizData;
-
-    // switch(panel){
-    //   case 'device':{
-    //     const componentFactory = this.componentFactoryResolver.resolveComponentFactory(DevivceshapeComponent);
-    //     const viewContainerRef = this.toolpanelcontainer.viewContainerRef;
-    //     const componentRef = viewContainerRef.createComponent<DevivceshapeComponent>(componentFactory);
-    //     componentRef.instance.BizData=BizData;
-    //   }
-    //     break;
-
-    //     case 'gateway':{
-    //       const componentFactory = this.componentFactoryResolver.resolveComponentFactory(GatewayshapeComponent);
-    //       const viewContainerRef = this.toolpanelcontainer.viewContainerRef;
-    //       const componentRef = viewContainerRef.createComponent<DevivceshapeComponent>(componentFactory);
-    //       componentRef.instance.BizData=BizData;
-    //     }         break;   
-    //     case 'edge':{
-    //       const componentFactory = this.componentFactoryResolver.resolveComponentFactory(ConnectionedgeComponent);
-    //       const viewContainerRef = this.toolpanelcontainer.viewContainerRef;
-    //       const componentRef = viewContainerRef.createComponent<DevivceshapeComponent>(componentFactory);
-    //       componentRef.instance.BizData=BizData;
-    //     }           break; 
-    //     case 'port':{
-    //       const componentFactory = this.componentFactoryResolver.resolveComponentFactory(PortshapeComponent);
-    //       const viewContainerRef = this.toolpanelcontainer.viewContainerRef;
-    //       const componentRef = viewContainerRef.createComponent<DevivceshapeComponent>(componentFactory);
-    //       componentRef.instance.BizData=BizData;
-    //     }
-    // }
-
-
   }
 
 
@@ -431,14 +406,51 @@ export class DevicegraphComponent implements OnInit {
       },
     });
 
-    this.graph.on('edge:connected', ({ previousView, currentView }) => {
+    this.graph.on('edge:connected', ({ previousView, currentView, previousCell, currentCell, isNew, edge }) => {
       if (previousView) {
         this.update(previousView as NodeView);
       }
       if (currentView) {
         this.update(currentView as NodeView);
       }
+
+      var targetcell = edge.getTargetCell()
+      var sourcecell = edge.getSourceCell() as GateWay
+      var targetport = edge.getTargetPortId();
+      var sourceport = edge.getSourcePortId();
+      var td = targetcell.getProp('Biz') as DeviceItem;
+      var sd = sourcecell.getProp('Biz') as DeviceItem;
+      var g = sourcecell as GateWay
+      var d = targetcell as Device;
+      var ip = d.getPort(targetport);
+      sourcecell.setPortProp(sourceport, 'attrs/text', {
+        text: ip.attrs.text.text
+      })
+
+
+      var sp = g.getPort(sourceport);
+      sp.attrs = { text: { text: 'dasd' } }
+
+      console.log(sp);
+
+
     });
+
+
+
+    this.graph.on('edge:added', ({ edge, index, options }) => {
+
+
+
+
+
+
+
+
+
+    })
+
+
     this.graph.on('blank:mousemove', ({ e }) => {
       this.dragEndlocation = e;
     });
@@ -469,17 +481,84 @@ export class DevicegraphComponent implements OnInit {
 
     this.graph.on('cell:click', ({ e, x, y, cell, view }) => {
 
+      console.log(this.selectedport)
 
+      if (this.selectedport.port['id'] && this.selectedport.owner['id']) {
+        var shape = this.graph.getCellById(this.selectedport.owner['id'])
+        var md = shape.getProp('Biz') as DeviceItem;
+        switch (md.type) {
+          case 'device':
+            {
+              var d = shape as Device;
+              switch (this.selectedport.port['group']) {
+                case 'in':
+                  d.setPortProp(this.selectedport.port['id'], 'attrs/circle', {
+                    stroke: '#ff0000',
+                    strokeWidth: 2,
+                  })
+                  break;
+                case 'out':
+                  d.setPortProp(this.selectedport.port['id'], 'attrs/circle', {
+                    stroke: '#3199FF',
+                    strokeWidth: 2,
+                  })
+                  break;
+              }
+            }
+
+            break;
+
+          case 'gateway':
+            {
+              var g = shape as GateWay;
+              switch (this.selectedport.port['group']) {
+                case 'in':
+                  g.setPortProp(this.selectedport.port['id'], 'attrs/circle', {
+                    stroke: '#ff0000',
+                    strokeWidth: 2,
+                  })
+                  break;
+                case 'out':
+                  g.setPortProp(this.selectedport.port['id'], 'attrs/circle', {
+                    stroke: '#3199FF',
+                    strokeWidth: 2,
+                  })
+                  break;
+              }
+            }
+
+            break;
+
+        }
+
+      }
+
+
+      this.portiseselected = true;
       var matadata = cell.getProp('Biz') as DeviceItem;
       if (matadata) {
 
         switch (matadata.type) {
           case 'device':
             {
+
+
               if (e.target.attributes?.port?.value) {
                 var device = cell as Device
                 var port = device.getPort(e.target.attributes.port.value);
-                device.setPortProp(port.id, 'attrs/circle', { fill: '#0000ff', stroke: '#fff' })
+                this.selectedport = {
+                  port: port,
+                  owner: device,
+                  orginattr: port.attrs
+                }
+                device.setPortProp(port.id, 'attrs/circle', this.selectedstyle.body)
+
+
+
+                timer(50).subscribe(next => {
+
+                  this.createpanel('port', port)
+                });
               }
             }
             break;
@@ -488,12 +567,28 @@ export class DevicegraphComponent implements OnInit {
               if (e.target.attributes?.port?.value) {
                 var gateway = cell as GateWay
                 var port = gateway.getPort(e.target.attributes.port.value);
-                gateway.setPortProp(port.id, 'attrs/circle', { fill: '#0000ff', stroke: '#fff' })
+
+
+
+                this.selectedport = {
+                  port: port,
+                  owner: gateway,
+                  orginattr: port.attrs
+                }
+                  ;
+
+
+                gateway.setPortProp(port.id, 'attrs/circle', this.selectedstyle.body)
+                timer(50).subscribe(next => { this.createpanel('port', port) });
+
+
               }
             }
             break;
         }
       }
+
+      this.portiseselected = false;
     });
 
     this.graph.on('edge:click', ({ e, x, y, edge, view }) => {
@@ -507,27 +602,39 @@ export class DevicegraphComponent implements OnInit {
     this.graph.on('node:click', (e, x, y, node, view) => {
 
 
-      this.createpanel('device', {});
+
 
       var matadata = e.node.getProp('Biz');
-      this.graph.getNodes;
+      if (matadata) {
+        if (!this.portiseselected) {
+          this.createpanel(matadata.type, matadata)
+        }
+        this.graph.getNodes;
 
-      for (var item of this.graph.getNodes()) {
-        var _matadata = e.node.getProp('Biz');
+        for (var item of this.graph.getNodes()) {
+          var _matadata = e.node.getProp('Biz');
 
-        item.attr({
-          root: {
-            magnet: false,
-          },
-          body: {
-            fill: '#eeffee',
-            stroke: _matadata.prop.GraphStroke,
-            strokeWidth: _matadata.prop.GraphStrokeWidth,
-          },
-        });
+          item.attr({
+            root: {
+              magnet: false,
+            },
+            body: {
+              fill: '#eeffee',
+              stroke: _matadata.prop.GraphStroke,
+              strokeWidth: _matadata.prop.GraphStrokeWidth,
+            },
+          });
+        }
+        e.cell.attr(this.selectedstyle);
+        this.selcetedDevice = matadata;
+
+
       }
-      e.cell.attr(this.selectedstyle);
-      this.selcetedDevice = matadata;
+
+
+
+
+
     });
   }
   update(view: NodeView) {
