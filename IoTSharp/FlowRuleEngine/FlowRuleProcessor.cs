@@ -138,6 +138,7 @@ namespace IoTSharp.FlowRuleEngine
                 var nextflows = await ProcessCondition(start.FlowId, data);
                 if (nextflows != null)
                 {
+                    var step =startoperation.Step+1;
                     foreach (var item in nextflows)
                     {
                         var flowOperation = new FlowOperation()
@@ -146,13 +147,13 @@ namespace IoTSharp.FlowRuleEngine
                             AddDate = DateTime.Now,
                             FlowRule = rule,
                             BaseEvent = @event,
-                            Flow = start,
+                            Flow = item,
                             Data = JsonConvert.SerializeObject(data),
                             NodeStatus = 1,
                             OperationDesc = "Condition（" + (string.IsNullOrEmpty(item.Conditionexpression)
                                 ? "Empty Condition"
                                 : item.Conditionexpression) + ")",
-                            Step = ++startoperation.Step,
+                            Step = step,
                             bpmnid = item.bpmnid,
                         };
 
@@ -181,7 +182,8 @@ namespace IoTSharp.FlowRuleEngine
                 switch (flow.FlowType)
                 {
                     case "bpmn:SequenceFlow":
-
+                    {
+                        var step = peroperation.Step + 1;
                         var operation = new FlowOperation()
                         {
                             OperationId = Guid.NewGuid(),
@@ -193,16 +195,20 @@ namespace IoTSharp.FlowRuleEngine
                             OperationDesc = "Condition（" + (string.IsNullOrEmpty(flow.Conditionexpression)
                                 ? "Empty Condition"
                                 : flow.Conditionexpression) + ")",
-                            Step = ++peroperation.Step,
+                            Step = step,
                             bpmnid = flow.bpmnid,
                             BaseEvent = peroperation.BaseEvent
                         };
                         _allflowoperation.Add(operation);
                         await Process(operation.OperationId, data, deviceId);
+
+                        }
+                        
                         break;
 
                     case "bpmn:Task":
                         {
+                            var step = peroperation.Step + 1;
                             var taskoperation = new FlowOperation()
                             {
                                 OperationId = Guid.NewGuid(),
@@ -213,7 +219,7 @@ namespace IoTSharp.FlowRuleEngine
                                 Data = JsonConvert.SerializeObject(data),
                                 NodeStatus = 1,
                                 OperationDesc = "Run" + flow.NodeProcessScriptType + "Task:" + flow.Flowname,
-                                Step = ++peroperation.Step,
+                                Step = step,
                                 BaseEvent = peroperation.BaseEvent
                             };
                             _allflowoperation.Add(taskoperation);
@@ -328,6 +334,7 @@ namespace IoTSharp.FlowRuleEngine
                                 if (obj != null)
                                 {
                                     var next = await ProcessCondition(taskoperation.Flow.FlowId, obj);
+                                    var cstep =taskoperation.Step+1;
                                     foreach (var item in next)
                                     {
                                         var flowOperation = new FlowOperation()
@@ -342,7 +349,7 @@ namespace IoTSharp.FlowRuleEngine
                                                             (string.IsNullOrEmpty(item.Conditionexpression)
                                                                 ? "Empty Condition"
                                                                 : item.Conditionexpression) + ")",
-                                            Step = ++taskoperation.Step,
+                                            Step = cstep,
                                             bpmnid = item.bpmnid,
                                             BaseEvent = taskoperation.BaseEvent
                                         };
@@ -360,6 +367,7 @@ namespace IoTSharp.FlowRuleEngine
                             else
                             {
                                 var next = await ProcessCondition(taskoperation.Flow.FlowId, data);
+                                var cstep = taskoperation.Step+1;
                                 foreach (var item in next)
                                 {
                                     var flowOperation = new FlowOperation()
@@ -370,10 +378,10 @@ namespace IoTSharp.FlowRuleEngine
                                         Flow = item,
                                         Data = JsonConvert.SerializeObject(data),
                                         NodeStatus = 1,
-                                        OperationDesc = "执行条件（" + (string.IsNullOrEmpty(item.Conditionexpression)
-                                            ? "空条件"
+                                        OperationDesc = "Execute（" + (string.IsNullOrEmpty(item.Conditionexpression)
+                                            ? "Empty Condition"
                                             : item.Conditionexpression) + ")",
-                                        Step = ++taskoperation.Step,
+                                        Step = cstep,
                                         bpmnid = item.bpmnid,
                                         BaseEvent = taskoperation.BaseEvent
                                     };

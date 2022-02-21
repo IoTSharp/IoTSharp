@@ -329,7 +329,7 @@ namespace IoTSharp.Controllers
             var activity = JsonConvert.DeserializeObject<Activity>(m.Biz);
             var CreatorId = Guid.NewGuid();
             var CreateDate = DateTime.Now;
-            var rule = _context.FlowRules.FirstOrDefault(c => c.RuleId == activity.RuleId);
+            var rule = _context.FlowRules.Include(c=>c.Customer).Include(c=>c.Tenant).FirstOrDefault(c => c.RuleId == activity.RuleId);
             rule.DefinitionsXml = m.Xml;
             rule.Creator = profile.Id.ToString();
             rule.CreateId = CreatorId;
@@ -353,8 +353,10 @@ namespace IoTSharp.Controllers
                     CreateId = CreatorId,
                     Createor = profile.Id,
                     CreateDate = CreateDate,
+                    Customer = rule.Customer,
+                    Tenant = rule.Tenant
                 });
-                fw.ForEach(f => _context.JustFill(this, f));
+      
                 _context.Flows.AddRange(fw);
                 _context.SaveChanges();
             }
@@ -371,8 +373,10 @@ namespace IoTSharp.Controllers
                     CreateId = CreatorId,
                     Createor = profile.Id,
                     CreateDate = CreateDate,
+                    Customer = rule.Customer,
+                    Tenant = rule.Tenant
                 });
-                fw.ForEach(f => _context.JustFill(this, f));
+               
                 _context.Flows.AddRange(fw);
                 _context.SaveChanges();
             }
@@ -389,8 +393,10 @@ namespace IoTSharp.Controllers
                     CreateId = CreatorId,
                     Createor = profile.Id,
                     CreateDate = CreateDate,
+                    Customer = rule.Customer,
+                    Tenant = rule.Tenant
                 });
-                fw.ForEach(f => _context.JustFill(this, f));
+           
                 _context.Flows.AddRange(fw);
                 _context.SaveChanges();
             }
@@ -411,8 +417,10 @@ namespace IoTSharp.Controllers
                     NodeProcessParams = c.BizObject.NodeProcessParams,
                     Createor = profile.Id,
                     CreateDate = CreateDate,
+                    Customer = rule.Customer,
+                    Tenant = rule.Tenant
                 });
-                fw.ForEach(f => _context.JustFill(this, f));
+         
                 _context.Flows.AddRange(fw);
                 _context.SaveChanges();
             }
@@ -433,8 +441,10 @@ namespace IoTSharp.Controllers
                     CreateId = CreatorId,
                     Createor = profile.Id,
                     CreateDate = CreateDate,
+                    Customer = rule.Customer,
+                    Tenant = rule.Tenant
                 });
-                fw.ForEach(f => _context.JustFill(this, f));
+           
                 _context.Flows.AddRange(fw);
                 _context.SaveChanges();
             }
@@ -451,8 +461,10 @@ namespace IoTSharp.Controllers
                     CreateId = CreatorId,
                     Createor = profile.Id,
                     CreateDate = CreateDate,
+                    Customer = rule.Customer,
+                    Tenant = rule.Tenant
                 });
-                fw.ForEach(f => _context.JustFill(this, f));
+      
                 _context.Flows.AddRange(fw);
                 _context.SaveChanges();
             }
@@ -469,8 +481,10 @@ namespace IoTSharp.Controllers
                     CreateId = CreatorId,
                     Createor = profile.Id,
                     CreateDate = CreateDate,
+                    Customer = rule.Customer,
+                    Tenant = rule.Tenant
                 });
-                fw.ForEach(f => _context.JustFill(this, f));
+            
                 _context.Flows.AddRange(fw);
                 _context.SaveChanges();
             }
@@ -487,8 +501,10 @@ namespace IoTSharp.Controllers
                     CreateId = CreatorId,
                     Createor = profile.Id,
                     CreateDate = CreateDate,
+                    Customer = rule.Customer,
+                    Tenant = rule.Tenant
                 });
-                fw.ForEach(f => _context.JustFill(this, f));
+            
                 _context.Flows.AddRange(fw);
                 _context.SaveChanges();
             }
@@ -505,8 +521,10 @@ namespace IoTSharp.Controllers
                     CreateId = CreatorId,
                     Createor = profile.Id,
                     CreateDate = CreateDate,
+                    Customer = rule.Customer,
+                    Tenant = rule.Tenant
                 });
-                fw.ForEach(f => _context.JustFill(this, f));
+           
                 _context.Flows.AddRange(fw);
                 _context.SaveChanges();
             }
@@ -523,6 +541,8 @@ namespace IoTSharp.Controllers
                     CreateId = CreatorId,
                     Createor = profile.Id,
                     CreateDate = CreateDate,
+                    Customer = rule.Customer,
+                    Tenant = rule.Tenant
                 }).ToList());
                 _context.SaveChanges();
             }
@@ -539,8 +559,10 @@ namespace IoTSharp.Controllers
                     CreateId = CreatorId,
                     Createor = profile.Id,
                     CreateDate = CreateDate,
+                    Customer = rule.Customer,
+                    Tenant = rule.Tenant
                 });
-                fw.ForEach(f => _context.JustFill(this, f));
+         
                 _context.Flows.AddRange(fw);
                 _context.SaveChanges();
             }
@@ -557,8 +579,10 @@ namespace IoTSharp.Controllers
                     CreateId = CreatorId,
                     Createor = profile.Id,
                     CreateDate = CreateDate,
+                    Customer = rule.Customer,
+                    Tenant = rule.Tenant
                 });
-                fw.ForEach(f => _context.JustFill(this, f));
+             
                 _context.Flows.AddRange(fw);
                 _context.SaveChanges();
             }
@@ -574,9 +598,11 @@ namespace IoTSharp.Controllers
                     FlowStatus = 1,
                     CreateId = CreatorId,
                     Createor = profile.Id,
-                    CreateDate = CreateDate
+                    CreateDate = CreateDate  ,    
+                    Customer = rule.Customer,
+                    Tenant = rule.Tenant
                 });
-                fws.ForEach(f => _context.JustFill(this, f));
+             
                 _context.Flows.AddRange(fws);
                 _context.SaveChanges();
             }
@@ -1081,6 +1107,14 @@ namespace IoTSharp.Controllers
             var d = formdata.Value<JToken>().ToObject(typeof(ExpandoObject));
             var testabizId = Guid.NewGuid().ToString(); //根据业务保存起来，用来查询执行事件和步骤
             var result = await _flowRuleProcessor.RunFlowRules(ruleid, d, Guid.Empty, EventType.TestPurpose, testabizId);
+
+
+        
+            var flowRule=_context.FlowRules.SingleOrDefault(c => c.RuleId == ruleid);
+
+            var flows = _context.Flows.Where(c => c.FlowRule == flowRule).ToList();
+
+
             if (result.Count > 0)
             {
                 await Task.Run(() =>
@@ -1090,8 +1124,9 @@ namespace IoTSharp.Controllers
                         AddDate = c.AddDate,
                         BizId = c.BizId,
                         Data = c.Data,
-                        Flow = c.Flow,
-                        FlowRule = c.FlowRule,
+                        Flow = flows.SingleOrDefault(x=>x.FlowId==c.Flow.FlowId
+                        ),
+                        FlowRule = flowRule,
                         NodeStatus = c.NodeStatus,
                         OperationDesc = c.OperationDesc,
                         OperationId = new Guid(),
