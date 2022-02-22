@@ -24,7 +24,7 @@ namespace IoTSharp.Handlers
 {
     public class MQTTServerHandler
     {
-        readonly ILogger<MQTTServerHandler> _logger;
+        readonly ILogger _logger;
         private readonly IServiceScopeFactory _scopeFactor;
         private readonly IEasyCachingProviderFactory _factory;
         readonly MqttServer _serverEx;
@@ -86,7 +86,7 @@ namespace IoTSharp.Handlers
                  
                     if (tpary.Length >= 3 && tpary[0] == "devices" && _dev != null)
                     {
-                        Device device = JudgeOrCreateNewDevice(tpary, _dev);
+                        var device = _dev.JudgeOrCreateNewDevice( tpary[1], _scopeFactor, _logger);
                         if (device != null)
                         {
                             bool statushavevalue = false;
@@ -383,40 +383,7 @@ namespace IoTSharp.Handlers
        
         }
 
-        private Device JudgeOrCreateNewDevice(string[] tpary, Device device)
-        {
-            Device devicedatato = null;
-            using (var scope = _scopeFactor.CreateScope())
-            using (var _dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>())
-            {
-
-                if (tpary[1] != "me" && device.DeviceType == DeviceType.Gateway)
-                {
-                    var ch = from g in _dbContext.Gateway.Include(g => g.Tenant).Include(g => g.Customer).Include(c => c.Children) where g.Id == device.Id select g;
-                    var gw = ch.FirstOrDefault();
-                    var subdev = from cd in gw.Children where cd.Name == tpary[1] select cd;
-                    if (!subdev.Any())
-                    {
-                        devicedatato = new Device() { Id = Guid.NewGuid(), Name = tpary[1], DeviceType = DeviceType.Device, Tenant = gw.Tenant, Customer = gw.Customer, Owner = gw,  LastActive = DateTime.Now, Timeout = 300 };
-                        gw.Children.Add(devicedatato);
-                        _dbContext.AfterCreateDevice(devicedatato);
-                        _logger.LogInformation($"网关 {gw.Id}-{gw.Name}在线.最后活动时间{gw.LastActive},添加了子设备{devicedatato.Name}");
-                    }
-                    else
-                    {
-                        devicedatato = subdev.FirstOrDefault();
-                        _logger.LogInformation($"网关子设备 {devicedatato.Id}-{devicedatato.Name}在线.最后活动时间{devicedatato.LastActive}");
-                    }
-                }
-                else
-                {
-                    devicedatato = _dbContext.Device.Find(device.Id);
-                    _logger.LogInformation($"独立设备 {devicedatato.Id}-{devicedatato.Name}在线.最后活动时间{devicedatato.LastActive}");
-                }
-                _dbContext.SaveChanges();
-            }
-            return devicedatato;
-        }
+      
 
         long Subscribed;
         internal    Task Server_ClientSubscribedTopic( ClientSubscribedTopicEventArgs e)

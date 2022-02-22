@@ -1,8 +1,10 @@
 ﻿using DotNetCore.CAP;
+using EasyCaching.Core;
 using IoTSharp.Controllers.Models;
 using IoTSharp.Data;
 using IoTSharp.Dtos;
 using IoTSharp.Extensions;
+using IoTSharp.FlowRuleEngine;
 using IoTSharp.Models;
 using IoTSharp.Storage;
 using IoTSharp.X509Extensions;
@@ -12,12 +14,14 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using MQTTnet.Client;
 using MQTTnet.Exceptions;
 using MQTTnet.Protocol;
 using MQTTnet.Server;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -27,6 +31,7 @@ using System.Linq.Dynamic.Core;
 using System.Linq.Expressions;
 using System.Security.Cryptography.X509Certificates;
 using System.Threading.Tasks;
+using System.Xml;
 using Dic = System.Collections.Generic.Dictionary<string, string>;
 using DicKV = System.Collections.Generic.KeyValuePair<string, string>;
 
@@ -40,6 +45,11 @@ namespace IoTSharp.Controllers
     [ApiController]
     public class DevicesController : ControllerBase
     {
+        private const string _map_to_telemety_ = "_map_to_telemetry_";
+        private const string _map_to_attribute_ = "_map_to_attribute_";
+        private const string _map_to_devname = "_map_to_devname";
+        private const string _map_var_devname = "$devname";
+        private const string _map_to_devname_format = "_map_to_devname_format";
         private readonly ApplicationDbContext _context;
         private readonly MqttClientOptions _mqtt;
         private readonly UserManager<IdentityUser> _userManager;
@@ -49,10 +59,15 @@ namespace IoTSharp.Controllers
         private readonly MqttServer _serverEx;
         private readonly AppSettings _setting;
         private readonly ICapPublisher _queue;
+        private readonly FlowRuleProcessor _flowRuleProcessor;
+        private readonly IEasyCachingProvider _caching;
+        private readonly IServiceScopeFactory _scopeFactor;
 
         public DevicesController(UserManager<IdentityUser> userManager,
-            SignInManager<IdentityUser> signInManager, ILogger<DevicesController> logger, MqttServer serverEx, ApplicationDbContext context, MqttClientOptions mqtt, IStorage storage, IOptions<AppSettings> options, ICapPublisher queue)
+            SignInManager<IdentityUser> signInManager, ILogger<DevicesController> logger, MqttServer serverEx, ApplicationDbContext context, MqttClientOptions mqtt, IStorage storage, IOptions<AppSettings> options, ICapPublisher queue
+            , IEasyCachingProviderFactory factory, FlowRuleProcessor flowRuleProcessor, IServiceScopeFactory scopeFactor)
         {
+          
             _context = context;
             _mqtt = mqtt;
             _userManager = userManager;
@@ -62,6 +77,9 @@ namespace IoTSharp.Controllers
             _serverEx = serverEx;
             _setting = options.Value;
             _queue = queue;
+            _flowRuleProcessor = flowRuleProcessor;
+            _caching = factory.GetCachingProvider("iotsharp");
+            _scopeFactor = scopeFactor;
         }
 
         /// <summary>
@@ -750,10 +768,14 @@ namespace IoTSharp.Controllers
             }
             else
             {
+                
                 var result = await _context.SaveAsync<TelemetryLatest>(telemetrys, device.Id, DataSide.ClientSide);
                 return Ok(new ApiResult<Dic>(result.ret > 0 ? ApiCode.Success : ApiCode.NothingToDo, result.ret > 0 ? "OK" : "No Telemetry save", new Dic(result.exceptions?.Select(f => new DicKV(f.Key, f.Value.Message)))));
             }
         }
+
+    
+
 
         /// <summary>
         /// 获取服务测的设备熟悉
@@ -815,6 +837,165 @@ namespace IoTSharp.Controllers
             {
                 var result = await _context.SaveAsync<AttributeLatest>(attributes, dev.Id, DataSide.ClientSide);
                 return Ok(new ApiResult<Dic>(result.ret > 0 ? ApiCode.Success : ApiCode.NothingToDo, result.ret > 0 ? "OK" : "No Attribute save", new Dic(result.exceptions?.Select(f => new DicKV(f.Key, f.Value.Message)))));
+            }
+        }
+
+        /// <summary>
+        /// 上传原始Json或者xml 通过规则链进行解析。 
+        /// </summary>
+        /// <param name="access_token">Device 's access token </param>
+        /// <param name="body"></param>
+        /// <param name="format"></param>
+        /// <returns></returns>
+        [AllowAnonymous]
+        [HttpPost("{access_token}/PushDataToMap/{fromat}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ApiResult<Dic>), StatusCodes.Status404NotFound)]
+        [ProducesDefaultResponseType]
+        public async Task<ActionResult<ApiResult>> PushDataToMap(string access_token, [FromBody] string body, string format = "json")
+        {
+
+            var (ok, _dev) = _context.GetDeviceByToken(access_token);
+            if (ok)
+            {
+                return NotFound(new ApiResult<Dic>(ApiCode.NotFoundDevice, $"{access_token} not a gateway's access token", new Dic(new DicKV[] { new DicKV("access_token", access_token) })));
+            }
+            else
+            {
+                string json = body;
+                if (format == "xml")
+                {
+                    XmlDocument doc = new XmlDocument();
+                    doc.LoadXml(body);
+                    json = Newtonsoft.Json.JsonConvert.SerializeXmlNode(doc);
+                }
+                var atts = await _caching.GetAsync($"_map_{_dev.Id}", async () =>
+                {
+                    var guids =  from al in _context.AttributeLatest where al.DeviceId == _dev.Id  &&  (al.KeyName== _map_to_devname ||  al.KeyName.StartsWith(_map_to_attribute_) || al.KeyName.StartsWith(_map_to_telemety_)) select al;
+                    return await guids.ToArrayAsync();
+                }
+             , TimeSpan.FromSeconds(_setting.RuleCachingExpiration));
+                if (atts.HasValue)
+                {
+                    try
+                    {
+                        var jt = JToken.Parse(json);
+                        var devnamekey = atts.Value.FirstOrDefault(g => g.KeyName == _map_to_devname);
+                        if (devnamekey != null)
+                        {
+                            var devnameformatkey = atts.Value.FirstOrDefault(g => g.KeyName == _map_to_devname_format)?.Value_String;
+                            var devname = (jt.SelectToken(devnamekey.Value_String) as JValue).ToObject<string>() ;
+                            if (devname != null && !string.IsNullOrEmpty(devname))
+                            {
+                                var _devname = (devnameformatkey ?? _map_var_devname).Replace(_map_var_devname, devname);
+                                if (!string.IsNullOrEmpty(_devname))
+                                {
+                                    var device = _dev.JudgeOrCreateNewDevice(devname, _scopeFactor, _logger);
+
+                                    var pairs_att = new Dictionary<string, object>();
+                                    var pairs_tel = new Dictionary<string, object>();
+                                    atts.Value?.ToList().ForEach(g =>
+                                    {
+                                        var value =( jt.SelectToken(g.Value_String) as JValue)?.JValueToObject();
+                                        if (value != null && g.KeyName?.Length>0)
+                                        {
+                                            if (g.KeyName.StartsWith(_map_to_attribute_) && g.KeyName.Length> _map_to_attribute_.Length)
+                                            {
+                                                pairs_att.Add(g.KeyName.Substring(_map_to_attribute_.Length), value);
+                                            }
+                                            else if (g.KeyName.StartsWith(_map_to_telemety_) && g.KeyName.Length > _map_to_telemety_.Length )
+                                            {
+                                                pairs_tel.Add(g.KeyName.Substring(_map_to_telemety_.Length), value);
+                                            }
+                                        }
+                                    });
+                                    if (pairs_tel.Any())
+                                    {
+                                        _queue.PublishTelemetryData(new RawMsg() { DeviceId = device.Id, MsgBody = pairs_tel, DataSide = DataSide.ClientSide, DataCatalog = DataCatalog.TelemetryData });
+                                    }
+                                    if (pairs_att.Any())
+                                    {
+                                        _queue.PublishAttributeData(new RawMsg() { DeviceId = device.Id, MsgBody = pairs_tel, DataSide = DataSide.ClientSide, DataCatalog = DataCatalog.AttributeData });
+                                    }
+                                }
+                            }
+                            else
+                            {
+                                _logger.LogInformation($"数据");
+                            }
+                        }
+                        return Ok(new ApiResult(ApiCode.Success, "OK"));
+                    }
+                    catch (Exception ex)
+                    {
+                        return BadRequest(new ApiResult(ApiCode.Exception, ex.Message));
+                    }
+                }
+                else
+                {
+                    _logger.LogInformation($"{_dev}的数据不符合规范， 也无相关规则链处理。");
+                    return BadRequest(new ApiResult(ApiCode.InValidData, $"{_dev}的数据不符合规范， 也无相关规则链处理。"));
+                }
+            }
+        }
+
+        /// <summary>
+        /// 上传原始Json或者xml 通过规则链进行解析。 
+        /// </summary>
+        /// <param name="access_token">Device 's access token </param>
+        /// <param name="body">原始数据， Post 在Body里面。 </param>
+        /// <param name="format">只支持json和 xml， XML会转换为 Json。</param>
+        /// <returns></returns>
+        [AllowAnonymous]
+        [HttpPost("{access_token}/PushDataToRuleChains/{fromat}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ApiResult<Dic>), StatusCodes.Status404NotFound)]
+        [ProducesDefaultResponseType]
+        public async Task<ActionResult<ApiResult>> PushDataToRuleChains(string access_token, [FromBody]string body,string format="json")
+        {
+        
+            var (ok, _dev) = _context.GetDeviceByToken(access_token);
+            if (ok)
+            {
+                return NotFound(new ApiResult<Dic>(ApiCode.NotFoundDevice, $"{access_token} not a gateway's access token", new Dic(new DicKV[] { new DicKV("access_token", access_token) })));
+            }
+            else
+            {
+                string json = body;
+                if (format=="xml")
+                {
+                    XmlDocument doc = new XmlDocument();
+                    doc.LoadXml(body);
+                    json = Newtonsoft.Json.JsonConvert.SerializeXmlNode(doc);
+                }
+                var rules = await _caching.GetAsync($"ruleid_{_dev.Id}_raw", async () =>
+                {
+                    var guids = await _context.GerDeviceRulesIdList(_dev.Id, MountType.RAW);
+                    return guids;
+                }
+             , TimeSpan.FromSeconds(_setting.RuleCachingExpiration));
+                if (rules.HasValue)
+                {
+                    try
+                    {
+                        rules.Value.ToList().ForEach(async g =>
+                        {
+                            _logger.LogInformation($"{_dev.Id}的数据通过规则链{g}进行处理。");
+                            var result = await _flowRuleProcessor.RunFlowRules(g, body, _dev.Id, EventType.Normal, null);
+
+                        });
+                        return Ok(new ApiResult(ApiCode.Success, "OK"));
+                    }
+                    catch (Exception ex)
+                    {
+                        return BadRequest(new ApiResult(ApiCode.Exception,ex.Message ));
+                    }
+                }
+                else
+                {
+                    _logger.LogInformation($"{_dev}的数据不符合规范， 也无相关规则链处理。");
+                    return BadRequest(new ApiResult(ApiCode.InValidData, $"{_dev}的数据不符合规范， 也无相关规则链处理。"));
+                }
             }
         }
 

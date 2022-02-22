@@ -51,10 +51,10 @@
 		<PackageReference Include="AspNetCore.HealthChecks.Rabbitmq" Version="6.0.1" />
 		<PackageReference Include="AspNetCore.HealthChecks.Redis" Version="6.0.1" />
 		<PackageReference Include="AspNetCore.HealthChecks.System" Version="6.0.1" />
-		<PackageReference Include="AspNetCore.HealthChecks.UI" Version="6.0.2" />
-		<PackageReference Include="AspNetCore.HealthChecks.UI.Client" Version="6.0.2" />
+		<PackageReference Include="AspNetCore.HealthChecks.UI" Version="6.0.3" />
+		<PackageReference Include="AspNetCore.HealthChecks.UI.Client" Version="6.0.3" />
 		<PackageReference Include="AspNetCore.HealthChecks.Uris" Version="6.0.2" />
-		<PackageReference Include="AspNetCore.HealthChecks.Network" Version="6.0.1" />
+		<PackageReference Include="AspNetCore.HealthChecks.Network" Version="6.0.2" />
 		<PackageReference Include="CAP.Extensions" Version="1.0.35" />
 		<PackageReference Include="DotNetCore.CAP" Version="6.0.1" />
 		<PackageReference Include="DotNetCore.CAP.Dashboard" Version="6.0.1" />
@@ -80,12 +80,12 @@
 		<PackageReference Include="Maikebing.Data.Taos" Version="2.0.357" />
 		<PackageReference Include="Maikebing.HealthChecks.Taos" Version="2.0.357" />
 		<PackageReference Include="MaiKeBing.HostedService.ZeroMQ" Version="1.0.35" />
-		<PackageReference Include="Microsoft.CodeAnalysis.Common" Version="4.0.1" />
-		<PackageReference Include="Microsoft.CodeAnalysis.CSharp.Features" Version="4.0.1" />
-		<PackageReference Include="Microsoft.CodeAnalysis.CSharp.Workspaces" Version="4.0.1" />
-		<PackageReference Include="Microsoft.CodeAnalysis.VisualBasic.Features" Version="4.0.1" />
-		<PackageReference Include="Microsoft.CodeAnalysis.Workspaces.Common" Version="4.0.1" />
-		<PackageReference Include="Microsoft.CodeAnalysis.Workspaces.MSBuild" Version="4.0.1" />
+		<PackageReference Include="Microsoft.CodeAnalysis.Common" Version="4.1.0" />
+		<PackageReference Include="Microsoft.CodeAnalysis.CSharp.Features" Version="4.1.0" />
+		<PackageReference Include="Microsoft.CodeAnalysis.CSharp.Workspaces" Version="4.1.0" />
+		<PackageReference Include="Microsoft.CodeAnalysis.VisualBasic.Features" Version="4.1.0" />
+		<PackageReference Include="Microsoft.CodeAnalysis.Workspaces.Common" Version="4.1.0" />
+		<PackageReference Include="Microsoft.CodeAnalysis.Workspaces.MSBuild" Version="4.1.0" />
 		<PackageReference Include="Microsoft.Extensions.Options" Version="6.0.0" />
 		<PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.14.0" />
 		<PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="6.0.2" />
@@ -113,7 +113,7 @@
 		<PackageReference Include="SilkierQuartz.Plugins.RecentHistory" Version="5.0.309" />
 		<PackageReference Include="System.CodeDom" Version="6.0.0" />
 		<PackageReference Include="System.Collections" Version="4.3.0" />
-		<PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="6.15.1" />
+		<PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="6.16.0" />
 		<PackageReference Include="System.ServiceModel.Primitives" Version="4.9.0" />
 		<PackageReference Include="System.Text.Encoding.CodePages" Version="6.0.0" />
 		<PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="6.0.2" />
@@ -130,7 +130,7 @@
 		<PackageReference Include="Microsoft.AspNetCore.Identity.UI" Version="6.0.2" />
 		<PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="6.0.2" />
 		<PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="6.0.2" />
-		<PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.0.1" />
+		<PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.1.0" />
 		<PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="6.0.2">
 			<PrivateAssets>all</PrivateAssets>
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>

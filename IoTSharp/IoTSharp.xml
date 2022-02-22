@@ -353,6 +353,24 @@
             <param name="attributes">attributes</param>
             <returns></returns>
         </member>
+        <member name="M:IoTSharp.Controllers.DevicesController.PushDataToMap(System.String,System.String,System.String)">
+            <summary>
+            上传原始Json或者xml 通过规则链进行解析。 
+            </summary>
+            <param name="access_token">Device 's access token </param>
+            <param name="body"></param>
+            <param name="format"></param>
+            <returns></returns>
+        </member>
+        <member name="M:IoTSharp.Controllers.DevicesController.PushDataToRuleChains(System.String,System.String,System.String)">
+            <summary>
+            上传原始Json或者xml 通过规则链进行解析。 
+            </summary>
+            <param name="access_token">Device 's access token </param>
+            <param name="body">原始数据， Post 在Body里面。 </param>
+            <param name="format">只支持json和 xml， XML会转换为 Json。</param>
+            <returns></returns>
+        </member>
         <member name="M:IoTSharp.Controllers.DevicesController.AddAttribute(System.String,IoTSharp.Controllers.DeviceAttributeDto)">
             <summary>
             服务侧新增属性
@@ -744,6 +762,16 @@
             
             </summary>
             <param name="configure"></param>
+        </member>
+        <member name="M:IoTSharp.IoTSharpExtension.JudgeOrCreateNewDevice(IoTSharp.Data.Device,System.String,Microsoft.Extensions.DependencyInjection.IServiceScopeFactory,Microsoft.Extensions.Logging.ILogger)">
+            <summary>
+            创建网关的子设备。 
+            </summary>
+            <param name="device">父设备</param>
+            <param name="devname">子设备名称</param>
+            <param name="_scopeFactor"></param>
+            <param name="_logger"></param>
+            <returns></returns>
         </member>
         <member name="M:IoTSharp.FlowRuleEngine.FlowRuleProcessor.RunFlowRules(System.Guid,System.Object,System.Guid,IoTSharp.Data.EventType,System.String)">
              <summary>
