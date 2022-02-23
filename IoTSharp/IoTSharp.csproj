@@ -47,7 +47,7 @@
 
 		<PackageReference Include="AspNetCore.HealthChecks.Kafka" Version="6.0.1" />
 		<PackageReference Include="AspNetCore.HealthChecks.MongoDb" Version="6.0.1" />
-		<PackageReference Include="AspNetCore.HealthChecks.Network" Version="6.0.1" />
+		<PackageReference Include="AspNetCore.HealthChecks.Network" Version="6.0.2" />
 		<PackageReference Include="AspNetCore.HealthChecks.Rabbitmq" Version="6.0.1" />
 		<PackageReference Include="AspNetCore.HealthChecks.Redis" Version="6.0.1" />
 		<PackageReference Include="AspNetCore.HealthChecks.System" Version="6.0.1" />
