@@ -20,5 +20,18 @@ module.exports = {
     "secure": false,
     "logLevel": "debug",
     "changeOrigin": true
+  },
+  "/healthchecks-api": {
+    "target": "http://localhost:5000",
+    "secure": false,
+    "logLevel": "debug",
+    "changeOrigin": true
+  },
+  "/cap/api/*": {
+    "target": "http://localhost:5000",
+    "secure": false,
+    "logLevel": "debug",
+    "changeOrigin": true
   }
+
 };

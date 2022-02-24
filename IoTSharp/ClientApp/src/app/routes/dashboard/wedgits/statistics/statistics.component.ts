@@ -1,4 +1,6 @@
-import { Component, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
+import { STColumn } from '@delon/abc/st';
+import { _HttpClient } from '@delon/theme';
 import { IWidgetComponent } from '../../v1/widgetcomponent';
 
 @Component({
@@ -11,29 +13,35 @@ export class StatisticsComponent implements OnInit ,IWidgetComponent {
 
   offlineChartData: any[] = [];
   salesData: any[] = [];
-  constructor() {}
+  data: any[] = [];
+
+  eventcolumns: STColumn[] =  [ 
+    
+    { title: 'id', index: 'id', render: 'name' },
+  { title: '应用', index: 'name' },
+  { title: '状态', index: 'status' },
+
+]
+  constructor(private http: _HttpClient, private cdr: ChangeDetectorRef,) {
+
+
+
+
+  }
 
   ngOnInit(): void {
-    for (let i = 0; i < 10; i += 1) {
-      this.offlineData.push({
-        name: `门店${i}`,
-        cvr: Math.ceil(Math.random() * 9) / 10,
-      });
-    }
 
-    for (let i = 0; i < 20; i += 1) {
-      this.offlineChartData.push({
-        time: new Date().getTime() + 1000 * 60 * 30 * i,
-        y1: Math.floor(Math.random() * 100) + 10,
-        y2: Math.floor(Math.random() * 100) + 10,
-      });
-    }
+    this.http.get('http://localhost:5000/cap/api/metrics').subscribe(next=>{
 
-    for (let i = 0; i < 12; i += 1) {
-      this.salesData.push({
-        x: `${i + 1}月`,
-        y: Math.floor(Math.random() * 1000) + 200,
-      });
-    }
+      console.log(next);
+
+      
+      },error=>{},()=>{});
+   
+      this.http.get('http://localhost:5000/healthchecks-api').subscribe(next=>{
+
+        this.data= next[0].entries
+
+        },error=>{},()=>{});
   }
 }
