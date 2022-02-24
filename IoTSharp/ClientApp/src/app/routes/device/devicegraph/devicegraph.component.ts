@@ -855,11 +855,13 @@ export class DevicegraphComponent implements OnInit {
         .position(this.dragEndlocation.offsetX, this.dragEndlocation.offsetY)
         .initports(data.portdata)
         .setAttrs({
+
+          image:{'xlink:href':'https://gw.alipayobjects.com/mdn/rms_43231b/afts/img/A*f6hhT75YjkIAAAAAAAAAAAAAARQnAQ'},
           root: {
             magnet: false,
           },
           body: {
-            fill: '#eeffee',
+            fill: '#00000000',
             stroke: data.Biz.prop.GraphStroke,
             strokeWidth: data.Biz.prop.GraphStrokeWidth,
           },

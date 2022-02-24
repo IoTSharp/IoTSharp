@@ -37,7 +37,6 @@
     "color-less": "ng-alain-plugin-theme -t=colorLess",
     "theme": "ng-alain-plugin-theme -t=themeCss",
     "icon": "ng g ng-alain:plugin icon"
- 
   },
   "dependencies": {
     "@angular/animations": "~12.2.0",
@@ -60,8 +59,6 @@
     "@delon/mock": "^12.4.1",
     "@delon/theme": "^12.4.1",
     "@delon/util": "^12.4.1",
-    "@ngx-translate/core": "^13.0.0",
-    "@ngx-translate/http-loader": "^6.0.0",
     "@types/three": "^0.134.0",
     "@types/webgl2": "^0.0.6",
     "ajv": "^8.6.2",

@@ -21,6 +21,7 @@ import { finalize } from 'rxjs/operators';
 export class UserLoginComponent implements OnDestroy {
   constructor(
     fb: FormBuilder,
+    private cdr: ChangeDetectorRef, 
     private router: Router,
     private settingsService: SettingsService,
     private socialService: SocialService,
@@ -77,9 +78,9 @@ export class UserLoginComponent implements OnDestroy {
     return this.form.controls.captcha;
   }
   form: FormGroup;
-  error = '';
-  type = 0;
 
+  type = 0;
+  error: boolean = false;
   // #region get captcha
 
   count = 0;
@@ -109,7 +110,7 @@ export class UserLoginComponent implements OnDestroy {
   // #endregion
 
   submit(): void {
-    this.error = '';
+    this.error = false;
     if (this.type === 0) {
       this.userName.markAsDirty();
       this.userName.updateValueAndValidity();
@@ -139,7 +140,10 @@ export class UserLoginComponent implements OnDestroy {
       .subscribe(
         x => {
           if (x.code !== 10000) {
-            this.error = x.msg;
+            this.error = true;
+            this.cdr.detectChanges();
+
+
             return;
           }
           // 清空路由复用信息
@@ -147,8 +151,6 @@ export class UserLoginComponent implements OnDestroy {
           // 设置用户Token信息
           // TODO: Mock expired value
         var  expired = +new Date() + 1000 * x.data.token.expires_in
-
-        console.log(expired)
           this.tokenService.set({
             token: x.data.token.access_token,
             Authorization: x.data.token.access_token,

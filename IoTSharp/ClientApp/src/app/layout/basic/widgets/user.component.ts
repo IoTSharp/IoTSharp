@@ -14,13 +14,13 @@ import { SettingsService, User } from '@delon/theme';
       <div nz-menu class="width-sm">
         <div nz-menu-item routerLink="/pro/account/settings">
           <i nz-icon nzType="setting" class="mr-sm"></i>
-          {{ 'menu.account.settings' | translate }}
+          {{ 'menu.account.settings' | i18n }}
         </div>
 
         <li nz-menu-divider></li>
         <div nz-menu-item (click)="logout()">
           <i nz-icon nzType="logout" class="mr-sm"></i>
-          {{ 'menu.account.logout' | translate }}
+          {{ 'menu.account.logout' | i18n }}
         </div>
       </div>
     </nz-dropdown-menu>

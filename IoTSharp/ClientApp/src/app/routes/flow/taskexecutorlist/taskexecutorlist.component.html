@@ -48,7 +48,7 @@
         </button> -->
       <button nz-button [nzType]="'primary'" (click)="openComponent('00000000-0000-0000-0000-000000000000')">
         <i nz-icon nzType="plus"></i>
-        <span>{{ 'button.new' | translate }}</span>
+        <span>{{ 'button.new' | i18n }}</span>
       </button>
       <ng-container *ngIf="selectedRows.length > 0">
         <button nz-button>批量操作</button>

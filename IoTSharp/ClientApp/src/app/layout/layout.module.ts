@@ -8,7 +8,7 @@ import { AlainThemeModule } from '@delon/theme';
 import { LayoutDefaultModule } from '@delon/theme/layout-default';
 import { SettingDrawerModule } from '@delon/theme/setting-drawer';
 import { ThemeBtnModule } from '@delon/theme/theme-btn';
-import { TranslateModule } from '@ngx-translate/core';
+
 import { NzAutocompleteModule } from 'ng-zorro-antd/auto-complete';
 import { NzAvatarModule } from 'ng-zorro-antd/avatar';
 import { NzBadgeModule } from 'ng-zorro-antd/badge';
@@ -58,7 +58,7 @@ const PASSPORT = [LayoutPassportComponent];
     RouterModule,
     AlainThemeModule.forChild(),
     ThemeBtnModule,
-    TranslateModule,
+
     SettingDrawerModule,
     LayoutDefaultModule,
     NoticeIconModule,

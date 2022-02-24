@@ -51,7 +51,7 @@ export class DeviceformComponent implements OnInit {
     
  
     this.form = this.fb.group({
-      name: [null, [Validators.required]],
+      name: [null, [Validators.required,Validators.pattern(/^(\s+\S+\s*)*(?!\s).*$/)]],
       deviceType: [null, [Validators.required]],
       customerId: [null, []],
       // deviceModelId: [null, []],

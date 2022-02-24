@@ -9,8 +9,7 @@ import { SimpleInterceptor } from '@delon/auth';
 import { DELON_LOCALE, zh_CN as delonLang, ALAIN_I18N_TOKEN } from '@delon/theme';
 import { NZ_DATE_LOCALE, NZ_I18N, zh_CN as zorroLang } from 'ng-zorro-antd/i18n';
 import { NzNotificationModule } from 'ng-zorro-antd/notification';
-import { TranslateLoader, TranslateModule } from '@ngx-translate/core';
-import { TranslateHttpLoader } from '@ngx-translate/http-loader';
+
 // #region default language
 // 参考：https://ng-alain.com/docs/i18n
 import { I18NService } from '@core';
@@ -31,20 +30,9 @@ const LANG_PROVIDES = [
   { provide: NZ_I18N, useValue: LANG.zorro },
   { provide: NZ_DATE_LOCALE, useValue: LANG.date },
   { provide: DELON_LOCALE, useValue: LANG.delon }
-];
 
-export function I18nHttpLoaderFactory(http: HttpClient): TranslateHttpLoader {
-  return new TranslateHttpLoader(http, `assets/tmp/i18n/`, '.json');
-}
-// #endregion
-const I18NSERVICE_MODULES = [
-  TranslateModule.forRoot({
-    loader: {
-      provide: TranslateLoader,
-      useFactory: I18nHttpLoaderFactory,
-      deps: [HttpClient]
-    }
-  })
+
+
 ];
 // #region i18n services
 
@@ -113,7 +101,7 @@ import { Observable } from 'rxjs';
     RoutesModule,
     STWidgetModule,
     NzNotificationModule,
-    ...I18NSERVICE_MODULES,
+
     ...GLOBAL_THIRD_MODULES,
     ...FORM_MODULES
   ],

@@ -3,7 +3,7 @@
     <nz-tab nzTitle="端口配置">
       <button nz-button [nzType]="'primary'"  acl [acl-ability]="37">
         <i nz-icon nzType="plus"></i>
-        <span>{{ 'button.new' | translate }}</span>
+        <span>{{ 'button.new' | i18n }}</span>
       </button>
       <st #st [page]="{ show: false }">
         <ng-template st-row="portNameTpl" let-item let-index="index">
