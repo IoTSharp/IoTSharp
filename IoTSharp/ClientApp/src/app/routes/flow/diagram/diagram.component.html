@@ -123,7 +123,7 @@
      
           </se>
   
-          <se label="脚本" error="类型" *ngIf="form.flowscriptVisable">
+          <se label="脚本" error="脚本" *ngIf="form.flowscriptVisable">
             <nz-code-editor
             [nzToolkit]="toolkit"
             [class.full-screen]="fullScreen"
@@ -132,7 +132,7 @@
               class="editor"
               [(ngModel)]="form.flowscript"
               [ngModelOptions]="{ standalone: true }"
-              [nzEditorOption]="{ theme: 'vs',language: 'json' }"
+              [nzEditorOption]="{ theme: 'vs',language: 'csharp' }"
             ></nz-code-editor>
           </se>
         </form>

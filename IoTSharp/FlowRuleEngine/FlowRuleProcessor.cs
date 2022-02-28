@@ -90,7 +90,7 @@ namespace IoTSharp.FlowRuleEngine
                 {
                     using (var context = sp.ServiceProvider.GetRequiredService<ApplicationDbContext>())
                     {
-                        var r = context.FlowRules.Include(c=>c.Customer).Include(c=>c.Tenant).FirstOrDefault(c => c.RuleId == rule.RuleId);
+                        var r = context.FlowRules.Include(c => c.Customer).Include(c => c.Tenant).FirstOrDefault(c => c.RuleId == rule.RuleId);
                         if (r != null)
                         {
                             @event.FlowRule = r;
@@ -140,7 +140,7 @@ namespace IoTSharp.FlowRuleEngine
                 var nextflows = await ProcessCondition(start.FlowId, data);
                 if (nextflows != null)
                 {
-                    var step =startoperation.Step+1;
+                    var step = startoperation.Step + 1;
                     foreach (var item in nextflows)
                     {
                         var flowOperation = new FlowOperation()
@@ -184,28 +184,28 @@ namespace IoTSharp.FlowRuleEngine
                 switch (flow.FlowType)
                 {
                     case "bpmn:SequenceFlow":
-                    {
-                        var step = peroperation.Step + 1;
-                        var operation = new FlowOperation()
                         {
-                            OperationId = Guid.NewGuid(),
-                            AddDate = DateTime.Now,
-                            FlowRule = peroperation.BaseEvent.FlowRule,
-                            Flow = flow,
-                            Data = JsonConvert.SerializeObject(data),
-                            NodeStatus = 1,
-                            OperationDesc = "Condition（" + (string.IsNullOrEmpty(flow.Conditionexpression)
-                                ? "Empty Condition"
-                                : flow.Conditionexpression) + ")",
-                            Step = step,
-                            bpmnid = flow.bpmnid,
-                            BaseEvent = peroperation.BaseEvent
-                        };
-                        _allflowoperation.Add(operation);
-                        await Process(operation.OperationId, data, deviceId);
+                            var step = peroperation.Step + 1;
+                            var operation = new FlowOperation()
+                            {
+                                OperationId = Guid.NewGuid(),
+                                AddDate = DateTime.Now,
+                                FlowRule = peroperation.BaseEvent.FlowRule,
+                                Flow = flow,
+                                Data = JsonConvert.SerializeObject(data),
+                                NodeStatus = 1,
+                                OperationDesc = "Condition（" + (string.IsNullOrEmpty(flow.Conditionexpression)
+                                    ? "Empty Condition"
+                                    : flow.Conditionexpression) + ")",
+                                Step = step,
+                                bpmnid = flow.bpmnid,
+                                BaseEvent = peroperation.BaseEvent
+                            };
+                            _allflowoperation.Add(operation);
+                            await Process(operation.OperationId, data, deviceId);
 
                         }
-                        
+
                         break;
 
                     case "bpmn:Task":
@@ -285,9 +285,19 @@ namespace IoTSharp.FlowRuleEngine
                                         {
                                             using (var pse = _sp.GetRequiredService<PythonScriptEngine>())
                                             {
-                                                string result = pse.Do(scriptsrc, taskoperation.Data);
+                                                try
+                                                {
+                                                    string result = pse.Do(scriptsrc, taskoperation.Data);
                                                 obj = JsonConvert.DeserializeObject<ExpandoObject>(result);
                                             }
+                                            catch (Exception ex)
+                                            {
+
+                                                _logger.Log(LogLevel.Warning, "python脚本执行异常");
+                                                taskoperation.OperationDesc += ex.Message;
+                                                taskoperation.NodeStatus = 2;
+                                            }
+                                        }
                                         }
                                         break;
 
@@ -295,29 +305,63 @@ namespace IoTSharp.FlowRuleEngine
                                         {
                                             using (var pse = _sp.GetRequiredService<SQLEngine>())
                                             {
+                                                try{
                                                 string result = pse.Do(scriptsrc, taskoperation.Data);
                                                 obj = JsonConvert.DeserializeObject<ExpandoObject>(result);
                                             }
+                                            catch (Exception ex)
+                                            {
+
+                                                _logger.Log(LogLevel.Warning, "sql脚本执行异常");
+                                                taskoperation.OperationDesc += ex.Message;
+                                                taskoperation.NodeStatus = 2;
+                                            }
+                                        }
                                         }
 
                                         break;
 
                                     case "lua":
                                         {
+
                                             using (var lua = _sp.GetRequiredService<LuaScriptEngine>())
                                             {
-                                                string result = lua.Do(scriptsrc, taskoperation.Data);
-                                                obj = JsonConvert.DeserializeObject<ExpandoObject>(result);
+                                                try
+                                                {
+                                                    string result = lua.Do(scriptsrc, taskoperation.Data);
+                                                    obj = JsonConvert.DeserializeObject<ExpandoObject>(result);
+                                                }
+                                                catch (Exception ex)
+                                                {
+
+                                                    _logger.Log(LogLevel.Warning, "lua脚本执行异常");
+                                                    taskoperation.OperationDesc += ex.Message;
+                                                    taskoperation.NodeStatus = 2;
+                                                }
                                             }
+
                                         }
                                         break;
 
                                     case "javascript":
                                         {
+
                                             using (var js = _sp.GetRequiredService<JavaScriptEngine>())
                                             {
-                                                string result = js.Do(scriptsrc, taskoperation.Data);
-                                                obj = JsonConvert.DeserializeObject<ExpandoObject>(result);
+                                                try
+                                                {
+                                                    string result = js.Do(scriptsrc, taskoperation.Data);
+                                                    obj = JsonConvert.DeserializeObject<ExpandoObject>(result);
+
+                                                }
+                                                catch (Exception ex)
+                                                {
+
+                                                    _logger.Log(LogLevel.Warning, "javascript脚本执行异常");
+                                                    taskoperation.OperationDesc += ex.Message;
+                                                    taskoperation.NodeStatus = 2;
+                                                }
+
                                             }
                                         }
                                         break;
@@ -326,8 +370,23 @@ namespace IoTSharp.FlowRuleEngine
                                         {
                                             using (var js = _sp.GetRequiredService<CSharpScriptEngine>())
                                             {
-                                                string result = js.Do(scriptsrc, taskoperation.Data);
-                                                obj = JsonConvert.DeserializeObject<ExpandoObject>(result);
+
+                                                try
+                                                {
+
+                                                    string result = js.Do(scriptsrc, taskoperation.Data);
+                                                    obj = JsonConvert.DeserializeObject<ExpandoObject>(result);
+                                                }
+                                                catch (Exception ex)
+                                                {
+
+                                                    _logger.Log(LogLevel.Warning, "csharp脚本执行异常");
+                                                    _logger.Log(LogLevel.Warning, ex.Message);
+                                                    taskoperation.OperationDesc += ex.Message;
+                                                    taskoperation.NodeStatus = 2;
+                                                }
+
+
                                             }
                                         }
                                         break;
@@ -336,7 +395,7 @@ namespace IoTSharp.FlowRuleEngine
                                 if (obj != null)
                                 {
                                     var next = await ProcessCondition(taskoperation.Flow.FlowId, obj);
-                                    var cstep =taskoperation.Step+1;
+                                    var cstep = taskoperation.Step + 1;
                                     foreach (var item in next)
                                     {
                                         var flowOperation = new FlowOperation()
@@ -361,7 +420,7 @@ namespace IoTSharp.FlowRuleEngine
                                 }
                                 else
                                 {
-                                    taskoperation.OperationDesc = "脚本执行异常,未能获取到结果";
+                                
                                     taskoperation.NodeStatus = 2;
                                     _logger.Log(LogLevel.Warning, "脚本未能顺利执行");
                                 }
@@ -369,7 +428,7 @@ namespace IoTSharp.FlowRuleEngine
                             else
                             {
                                 var next = await ProcessCondition(taskoperation.Flow.FlowId, data);
-                                var cstep = taskoperation.Step+1;
+                                var cstep = taskoperation.Step + 1;
                                 foreach (var item in next)
                                 {
                                     var flowOperation = new FlowOperation()

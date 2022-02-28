@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
 using System;
+using System.Collections.Generic;
 using System.Threading;
 using IoTSharp.Interpreter;
 using Microsoft.Extensions.Options;
@@ -7,7 +8,11 @@ using System.Threading.Tasks;
 using CSScriptLib;
 using Newtonsoft.Json;
 using System.Dynamic;
+using System.Linq;
+using System.Reflection;
+using IronPython.Runtime;
 using Newtonsoft.Json.Converters;
+using Newtonsoft.Json.Linq;
 
 namespace IoTSharp.Interpreter
 {
@@ -15,22 +20,49 @@ namespace IoTSharp.Interpreter
     {
          
         private bool disposedValue;
+
+
         public CSharpScriptEngine(ILogger<CSharpScriptEngine> logger, IOptions<EngineSetting> _opt):base(logger,_opt.Value, Task.Factory.CancellationToken)
         {
             //CSScript.EvaluatorConfig
+
+
+            CSScript.Evaluator.ReferenceAssembly(Assembly.GetAssembly(typeof(JsonConvert)))
+                .ReferenceAssembly(Assembly.GetAssembly(typeof(JObject)))
+                .ReferenceAssembly(Assembly.GetAssembly(typeof(JProperty)))
+                .ReferenceAssembly(Assembly.GetAssembly(typeof(ExpandoObject)));
         }
 
 
         public  override string    Do(string _source,string input)
         {
-            var expConverter = new ExpandoObjectConverter();
-            dynamic obj = JsonConvert.DeserializeObject<ExpandoObject>(input, expConverter);
-            var runscript = CSScript.Evaluator
-                  .CreateDelegate(@$"dynamic  runscript(dynamic   input)
-                                    {{
-                                      {_source} 
-                                    }}");
-            dynamic result =    runscript(obj);
+  
+            var requirednamespace =new Dictionary<string, String>();
+            requirednamespace.Add(typeof(JsonConvert).Namespace, "Newtonsoft.Json");
+            requirednamespace.Add(typeof(JObject).Namespace, "Newtonsoft.Json.Linq");
+            requirednamespace.Add(typeof(ExpandoObject).Namespace, "ExpandoObject ");
+            requirednamespace.Add(typeof(ICSAction).Namespace, "ICSAction");
+            string ClassTemplate = @$"public class Script:ICSAction
+                                        {{
+                                            public dynamic Run(string input)
+                                            {{
+                                                  {_source} 
+                                            }}
+                                        }}";
+
+
+            var runcode = requirednamespace.Aggregate("", (x, y) => x + "using " + y.Key + ";") + ClassTemplate;
+             ICSAction csa = CSScript.Evaluator.LoadCode<ICSAction>(runcode);
+          //   var expConverter = new ExpandoObjectConverter();
+            //dynamic obj = JsonConvert.DeserializeObject<ExpandoObject>(input, expConverter);
+
+            //var runscript = CSScript.Evaluator
+            //      .CreateDelegate(@$"dynamic  runscript(dynamic   input)
+            //                        {{
+            //                          {_source} 
+            //                        }}");
+
+            dynamic result = csa.Run(input);
             var json= System.Text.Json.JsonSerializer.Serialize(result);
             _logger.LogDebug($"source:{Environment.NewLine}{ _source}{Environment.NewLine}{Environment.NewLine}input:{Environment.NewLine}{ input}{Environment.NewLine}{Environment.NewLine} ouput:{Environment.NewLine}{ json}{Environment.NewLine}{Environment.NewLine}");
             return json;
@@ -62,5 +94,19 @@ namespace IoTSharp.Interpreter
             GC.SuppressFinalize(this);
         }
     }
+
+
+    public interface ICSAction
+    {
+        dynamic Run(string input);
+
+   
+          
+
+
+    } 
+
+
+
 }
 

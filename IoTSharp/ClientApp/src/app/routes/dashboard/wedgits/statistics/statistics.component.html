@@ -1,44 +1,37 @@
 <div nz-row nzGutter="16">
-  <div nz-col nzXs="24" nzMd="12">
+  <div nz-col nzXs="24" nzMd="24">
     <nz-card [nzBordered]="false" [nzTitle]="salesTitle">
       <ng-template #salesTitle>
         HealthChecks
         <small class="text-sm font-weight-normal"></small>
       </ng-template>
-
-
-<st [data]="data" [columns]="eventcolumns"></st>
-
-
-
-      <!-- <g2-bar *ngIf="salesData" height="275" [data]="salesData"></g2-bar> -->
+      <st [data]="data" [columns]="eventcolumns"></st>
     </nz-card>
   </div>
-  <div nz-col nzXs="24" nzMd="12">
+  <div nz-col nzXs="24" nzMd="24">
     <nz-card [nzTitle]="growthTitle" [nzBordered]="false">
       <ng-template #growthTitle>
         CAP
         <small class="text-sm font-weight-normal"></small>
       </ng-template>
-      <g2-timeline
-        *ngIf="offlineChartData"
-        [data]="offlineChartData"
-        [height]="289"
-        [titleMap]="{ y1: '客流量', y2: '支付笔数' }"
-      ></g2-timeline>
+      <g2-timeline maxAxis="4" [data]="chartdata" [titleMap]="" [height]="220" mask="MM月DD日" maskSlider="MM月dd日"
+        [titleMap]="titleMap"></g2-timeline>
     </nz-card>
   </div>
 </div>
 <div nz-row nzGutter="16">
   <div nz-col nzXs="24" nzMd="24">
-      <nz-card [nzBordered]="false" [nzTitle]="salesTitle">
-<iframe src="http://localhost:5000/quartz/Scheduler" width="100%" style="border: 0; padding-top: -40px;  position:relative; height: 1000px; " 
-scrolling="no">
-</iframe>
+    <nz-card [nzBordered]="false" nzTitle="Quartz">      <ng-template #growthTitle>
+      Quartz
+      <small class="text-sm font-weight-normal"></small>
+    </ng-template>
+      <iframe src="http://localhost:5000/quartz/Scheduler" width="100%"
+        style="border: 0; padding-top: -40px;  position:relative; height: 1000px; " scrolling="no">
+      </iframe>
 
-</nz-card>
+    </nz-card>
 
-</div>
+  </div>
 
 
 </div>

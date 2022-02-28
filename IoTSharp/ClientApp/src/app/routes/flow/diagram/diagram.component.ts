@@ -17,12 +17,12 @@ import { _HttpClient } from '@delon/theme'; //test
 import { delay, mergeMap } from 'rxjs/operators';
 import * as BpmnJS from 'bpmn-js/dist/bpmn-modeler.production.min.js';
 
-import { Observable, from, Subscription } from 'rxjs';
+import { Observable, from } from 'rxjs';
 import { FormBuilder } from '@angular/forms';
 import { appmessage } from '../../common/AppMessage';
 import { NzConfigService } from 'ng-zorro-antd/core/config';
 import { NzCodeEditorComponent } from 'ng-zorro-antd/code-editor';
-import { ObjectExt } from '@antv/x6';
+
 import { DOCUMENT } from '@angular/common';
 import { NzTooltipDirective } from 'ng-zorro-antd/tooltip';
 
@@ -115,13 +115,13 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy 
       this.form.flowscriptVisable = true;
     }
 
-    // this.nzConfigService.set('codeEditor', {
-    //   defaultEditorOption: {
-    //     language: this.form.flowscripttype,
-    //     theme: 'vs-dark',
-    //   },
-    // });
-    // this.editorComponent?.layout();
+    this.nzConfigService.set('codeEditor', {
+      defaultEditorOption: {
+        language: this.form.flowscripttype,
+        theme: 'vs',
+      },
+    });
+    this.editorComponent?.layout();
   }
 
   ngModelChange($event) {
