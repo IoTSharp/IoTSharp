@@ -472,7 +472,7 @@ namespace IoTSharp.Controllers
         /// <param name="begin">开始以时间， 比如 2019-06-06 12:24</param>
         /// <returns></returns>
         [Authorize(Roles = nameof(UserRole.NormalUser))]
-        [HttpGet("{deviceId}/TelemetryLatest/{keyName}/{begin}")]
+        [HttpGet("{deviceId}/TelemetryLatest/{keys}/{begin}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ApiResult), StatusCodes.Status404NotFound)]
         [ProducesDefaultResponseType]
@@ -501,7 +501,7 @@ namespace IoTSharp.Controllers
         /// <param name="end">For example: 2019-06-06 12:24</param>
         /// <returns></returns>
         [Authorize(Roles = nameof(UserRole.NormalUser))]
-        [HttpGet("{deviceId}/TelemetryData/{keyName}/{begin}/{end}")]
+        [HttpGet("{deviceId}/TelemetryData/{keys}/{begin}/{end}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ApiResult), StatusCodes.Status404NotFound)]
         [ProducesDefaultResponseType]
