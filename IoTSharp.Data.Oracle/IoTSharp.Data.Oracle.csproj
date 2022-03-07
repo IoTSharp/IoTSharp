@@ -5,7 +5,7 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-		<PackageReference Include="AspNetCore.HealthChecks.Oracle" Version="6.0.1" />
+		<PackageReference Include="AspNetCore.HealthChecks.Oracle" Version="6.0.2" />
 		<PackageReference Include="AspNetCore.HealthChecks.UI.Core" Version="6.0.3" />
 		<PackageReference Include="AspNetCore.HealthChecks.UI.InMemory.Storage" Version="6.0.3" />
 		<PackageReference Include="EFCore.Sharding.Oracle" Version="6.0.2" />
