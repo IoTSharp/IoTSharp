@@ -358,7 +358,6 @@
             上传原始Json或者xml 通过规则链进行解析。 
             </summary>
             <param name="access_token">Device 's access token </param>
-            <param name="body"></param>
             <param name="format"></param>
             <returns></returns>
         </member>

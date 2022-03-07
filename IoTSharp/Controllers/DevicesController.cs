@@ -48,8 +48,10 @@ namespace IoTSharp.Controllers
         private const string _map_to_telemety_ = "_map_to_telemetry_";
         private const string _map_to_attribute_ = "_map_to_attribute_";
         private const string _map_to_devname = "_map_to_devname";
+        private const string _map_to_jsontext_in_json = "_map_to_jsontext_in_json";
         private const string _map_var_devname = "$devname";
         private const string _map_to_devname_format = "_map_to_devname_format";
+        private const string _map_to_ = "_map_to_";
         private readonly ApplicationDbContext _context;
         private readonly MqttClientOptions _mqtt;
         private readonly UserManager<IdentityUser> _userManager;
@@ -844,21 +846,24 @@ namespace IoTSharp.Controllers
         /// 上传原始Json或者xml 通过规则链进行解析。 
         /// </summary>
         /// <param name="access_token">Device 's access token </param>
-        /// <param name="body"></param>
         /// <param name="format"></param>
         /// <returns></returns>
         [AllowAnonymous]
-        [HttpPost("{access_token}/PushDataToMap/{fromat}")]
+        [HttpPost("{access_token}/PushDataToMap/{format}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(typeof(ApiResult<Dic>), StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(ApiResult), StatusCodes.Status404NotFound)]
         [ProducesDefaultResponseType]
-        public async Task<ActionResult<ApiResult>> PushDataToMap(string access_token, [FromBody] string body, string format = "json")
+        public async Task<ActionResult<ApiResult>> PushDataToMap(string access_token,[FromRoute] string format="json")
         {
-
+            var body = string.Empty;
+            using (StreamReader reader = new StreamReader(Request.Body))
+            {
+                body= await reader.ReadToEndAsync();
+            }
             var (ok, _dev) = _context.GetDeviceByToken(access_token);
             if (ok)
             {
-                return NotFound(new ApiResult<Dic>(ApiCode.NotFoundDevice, $"{access_token} not a gateway's access token", new Dic(new DicKV[] { new DicKV("access_token", access_token) })));
+                return NotFound(new ApiResult(ApiCode.NotFoundDevice, $"{access_token} not a gateway's access token"));
             }
             else
             {
@@ -871,7 +876,7 @@ namespace IoTSharp.Controllers
                 }
                 var atts = await _caching.GetAsync($"_map_{_dev.Id}", async () =>
                 {
-                    var guids =  from al in _context.AttributeLatest where al.DeviceId == _dev.Id  &&  (al.KeyName== _map_to_devname ||  al.KeyName.StartsWith(_map_to_attribute_) || al.KeyName.StartsWith(_map_to_telemety_)) select al;
+                    var guids =  from al in _context.AttributeLatest where al.DeviceId == _dev.Id  &&    al.KeyName.StartsWith(_map_to_)  select al;
                     return await guids.ToArrayAsync();
                 }
              , TimeSpan.FromSeconds(_setting.RuleCachingExpiration));
@@ -879,12 +884,18 @@ namespace IoTSharp.Controllers
                 {
                     try
                     {
+                       
                         var jt = JToken.Parse(json);
+                        var pathx = atts.Value.FirstOrDefault(al => al.KeyName == _map_to_jsontext_in_json)?.Value_String;
+                        if (pathx != null)
+                        {
+                            jt = JToken.Parse(jt.SelectToken(pathx).ToObject<string>());
+                        }
                         var devnamekey = atts.Value.FirstOrDefault(g => g.KeyName == _map_to_devname);
                         if (devnamekey != null)
                         {
                             var devnameformatkey = atts.Value.FirstOrDefault(g => g.KeyName == _map_to_devname_format)?.Value_String;
-                            var devname = (jt.SelectToken(devnamekey.Value_String) as JValue).ToObject<string>() ;
+                            var devname = (jt.SelectToken(devnamekey.Value_String) as JValue)?.ToObject<string>() ;
                             if (devname != null && !string.IsNullOrEmpty(devname))
                             {
                                 var _devname = (devnameformatkey ?? _map_var_devname).Replace(_map_var_devname, devname);
@@ -949,15 +960,19 @@ namespace IoTSharp.Controllers
         [AllowAnonymous]
         [HttpPost("{access_token}/PushDataToRuleChains/{fromat}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(typeof(ApiResult<Dic>), StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(ApiResult), StatusCodes.Status404NotFound)]
         [ProducesDefaultResponseType]
-        public async Task<ActionResult<ApiResult>> PushDataToRuleChains(string access_token, [FromBody]string body,string format="json")
+        public async Task<ActionResult<ApiResult>> PushDataToRuleChains(string access_token, string format="json")
         {
-        
+            var body = string.Empty;
+            using (StreamReader reader = new StreamReader(Request.Body))
+            {
+                body = await reader.ReadToEndAsync();
+            }
             var (ok, _dev) = _context.GetDeviceByToken(access_token);
             if (ok)
             {
-                return NotFound(new ApiResult<Dic>(ApiCode.NotFoundDevice, $"{access_token} not a gateway's access token", new Dic(new DicKV[] { new DicKV("access_token", access_token) })));
+                return NotFound(new ApiResult(ApiCode.NotFoundDevice, $"{access_token} not a gateway's access token"));
             }
             else
             {
