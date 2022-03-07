@@ -353,7 +353,7 @@
             <param name="attributes">attributes</param>
             <returns></returns>
         </member>
-        <member name="M:IoTSharp.Controllers.DevicesController.PushDataToMap(System.String,System.String,System.String)">
+        <member name="M:IoTSharp.Controllers.DevicesController.PushDataToMap(System.String,System.String)">
             <summary>
             上传原始Json或者xml 通过规则链进行解析。 
             </summary>
@@ -362,7 +362,7 @@
             <param name="format"></param>
             <returns></returns>
         </member>
-        <member name="M:IoTSharp.Controllers.DevicesController.PushDataToRuleChains(System.String,System.String,System.String)">
+        <member name="M:IoTSharp.Controllers.DevicesController.PushDataToRuleChains(System.String,System.String)">
             <summary>
             上传原始Json或者xml 通过规则链进行解析。 
             </summary>
