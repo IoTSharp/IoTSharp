@@ -61,6 +61,9 @@ export class FlowsimulatorComponent implements OnInit, OnDestroy {
     this.dynamicformview.id = this.thisisyourtestdataformid;
   }
   onsubmit(formdata) {
+
+console.log(
+  JSON.parse(this.param))
     this.http
       .post('api/rules/active', {
         form: JSON.parse(this.param),

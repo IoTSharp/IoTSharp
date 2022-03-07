@@ -25,9 +25,9 @@
         <ng-template #pwdCdkTpl>
           <div style="padding: 4px 0">
             <ng-container [ngSwitch]="status">
-              <div *ngSwitchCase="'ok'" class="success">{{ 'validation.password.strength.strong' | translate }}</div>
-              <div *ngSwitchCase="'pass'" class="warning">{{ 'validation.password.strength.medium' | translate }}</div>
-              <div *ngSwitchDefault class="error">{{ 'validation.password.strength.short' | translate }}</div>
+              <div *ngSwitchCase="'ok'" class="success">{{ 'validation.password.strength.strong' | i18n }}</div>
+              <div *ngSwitchCase="'pass'" class="warning">{{ 'validation.password.strength.medium' | i18n }}</div>
+              <div *ngSwitchDefault class="error">{{ 'validation.password.strength.short' | i18n }}</div>
             </ng-container>
             <div class="progress-{{ status }}">
               <nz-progress
@@ -37,7 +37,7 @@
                 [nzShowInfo]="false"
               ></nz-progress>
             </div>
-            <p class="mt-sm">{{ 'validation.password.strength.msg' | translate }}</p>
+            <p class="mt-sm">{{ 'validation.password.strength.msg' | i18n }}</p>
           </div>
         </ng-template>
       </nz-form-control>

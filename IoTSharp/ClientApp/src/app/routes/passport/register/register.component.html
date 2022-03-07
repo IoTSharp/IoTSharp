@@ -1,4 +1,4 @@
-<h3>{{ 'app.register.install' | translate }}</h3>
+<h3>{{ 'app.register.install' | i18n }}</h3>
 <form nz-form [formGroup]="form" (ngSubmit)="submit()" role="form">
   <nz-alert *ngIf="error" [nzType]="'error'" [nzMessage]="error" [nzShowIcon]="true" class="mb-lg"></nz-alert>
   <nz-form-item>
@@ -9,8 +9,8 @@
       <ng-template #mailErrorTip let-i>
 
         <ng-container *ngIf="i.errors[0]==='1'">邮箱已存在</ng-container>
-        <ng-container *ngIf="i.errors?.required">{{ 'validation.email.required' | translate }}</ng-container>
-        <ng-container *ngIf="i.errors?.email">{{ 'validation.email.wrong-format' | translate }}</ng-container>
+        <ng-container *ngIf="i.errors?.required">{{ 'validation.email.required' | i18n }}</ng-container>
+        <ng-container *ngIf="i.errors?.email">{{ 'validation.email.wrong-format' | i18n }}</ng-container>
       </ng-template>
     </nz-form-control>
   </nz-form-item>
@@ -21,12 +21,12 @@
         <input nz-input formControlName="CustomerName" placeholder="用户名" />
       </nz-input-group>
       <ng-template #customerNameErrorTip let-i>
-        <ng-container *ngIf="i.errors?.required">{{ 'validation.customer.required' | translate }}</ng-container>
+        <ng-container *ngIf="i.errors?.required">{{ 'validation.customer.required' | i18n }}</ng-container>
       </ng-template>
     </nz-form-control>
   </nz-form-item>
   <nz-form-item>
-    <nz-form-control [nzErrorTip]="'validation.password.required' | translate">
+    <nz-form-control [nzErrorTip]="'validation.password.required' | i18n">
       <nz-input-group
         nzSize="large"
         nzAddonBeforeIcon="lock"
@@ -43,9 +43,9 @@
       <ng-template #pwdCdkTpl>
         <div style="padding: 4px 0">
           <ng-container [ngSwitch]="status">
-            <div *ngSwitchCase="'ok'" class="success">{{ 'validation.password.strength.strong' | translate }}</div>
-            <div *ngSwitchCase="'pass'" class="warning">{{ 'validation.password.strength.medium' | translate }}</div>
-            <div *ngSwitchDefault class="error">{{ 'validation.password.strength.short' | translate }}</div>
+            <div *ngSwitchCase="'ok'" class="success">{{ 'validation.password.strength.strong' | i18n }}</div>
+            <div *ngSwitchCase="'pass'" class="warning">{{ 'validation.password.strength.medium' | i18n }}</div>
+            <div *ngSwitchDefault class="error">{{ 'validation.password.strength.short' | i18n }}</div>
           </ng-container>
           <div class="progress-{{ status }}">
             <nz-progress
@@ -55,7 +55,7 @@
               [nzShowInfo]="false"
             ></nz-progress>
           </div>
-          <p class="mt-sm">{{ 'validation.password.strength.msg' | translate }}</p>
+          <p class="mt-sm">{{ 'validation.password.strength.msg' | i18n }}</p>
         </div>
       </ng-template>
     </nz-form-control>
@@ -66,8 +66,8 @@
         <input nz-input type="password" formControlName="confirm" placeholder="再次输入你的密码" />
       </nz-input-group>
       <ng-template #confirmErrorTip let-i>
-        <ng-container *ngIf="i.errors?.required">{{ 'validation.confirm-password.required' | translate }}</ng-container>
-        <ng-container *ngIf="i.errors?.equar">{{ 'validation.password.twice' | translate }}</ng-container>
+        <ng-container *ngIf="i.errors?.required">{{ 'validation.confirm-password.required' | i18n }}</ng-container>
+        <ng-container *ngIf="i.errors?.equar">{{ 'validation.password.twice' | i18n }}</ng-container>
       </ng-template>
     </nz-form-control>
   </nz-form-item>
@@ -77,7 +77,7 @@
         <input nz-input formControlName="tenantName" placeholder="租户名称" />
       </nz-input-group>
       <ng-template #tenantNameErrorTip let-i>
-        <ng-container *ngIf="i.errors?.required">{{ 'validation.tenantName.required' | translate }}</ng-container>
+        <ng-container *ngIf="i.errors?.required">{{ 'validation.tenantName.required' | i18n }}</ng-container>
       </ng-template>
     </nz-form-control>
   </nz-form-item>
@@ -89,8 +89,8 @@
       </nz-input-group>
       <ng-template #tenantEMailErrorTip let-i>
         <ng-container *ngIf="i.errors[0]==='1'">邮箱已存在</ng-container>
-        <ng-container *ngIf="i.errors?.required">{{ 'validation.tenantEMail.required' | translate }}</ng-container>
-        <ng-container *ngIf="i.errors?.email">{{ 'validation.tenantEMail.wrong-format' | translate }}</ng-container>
+        <ng-container *ngIf="i.errors?.required">{{ 'validation.tenantEMail.required' | i18n }}</ng-container>
+        <ng-container *ngIf="i.errors?.email">{{ 'validation.tenantEMail.wrong-format' | i18n }}</ng-container>
       </ng-template>
     </nz-form-control>
   </nz-form-item>
@@ -100,8 +100,8 @@
         <input nz-input formControlName="customerEMail" placeholder="客户邮箱" />
       </nz-input-group>
       <ng-template #customerEMailErrorTip let-i>        <ng-container *ngIf="i.errors[0]==='1'">邮箱已存在</ng-container>
-        <ng-container *ngIf="i.errors?.required">{{ 'validation.customerEMail.required' | translate }}</ng-container>
-        <ng-container *ngIf="i.errors?.email">{{ 'validation.customerEMail.wrong-format' | translate }}</ng-container>
+        <ng-container *ngIf="i.errors?.required">{{ 'validation.customerEMail.required' | i18n }}</ng-container>
+        <ng-container *ngIf="i.errors?.email">{{ 'validation.customerEMail.wrong-format' | i18n }}</ng-container>
       </ng-template>
     </nz-form-control>
   </nz-form-item>
@@ -118,8 +118,8 @@
         <input formControlName="phoneNumber" nz-input placeholder="电话号码" />
       </nz-input-group>
       <ng-template #mobileErrorTip let-i>
-        <ng-container *ngIf="i.errors?.required">{{ 'validation.phone-number.required' | translate }}</ng-container>
-        <ng-container *ngIf="i.errors?.pattern">{{ 'validation.phone-number.wrong-format' | translate }}</ng-container>
+        <ng-container *ngIf="i.errors?.required">{{ 'validation.phone-number.required' | i18n }}</ng-container>
+        <ng-container *ngIf="i.errors?.pattern">{{ 'validation.phone-number.wrong-format' | i18n }}</ng-container>
       </ng-template>
     </nz-form-control>
   </nz-form-item>
@@ -142,8 +142,8 @@
   </nz-form-item> -->
   <nz-form-item>
     <button nz-button nzType="primary" nzSize="large" type="submit" [nzLoading]="http.loading" class="submit">
-      {{ 'app.register.register' | translate }}
+      {{ 'app.register.register' | i18n }}
     </button>
-    <a class="login" routerLink="/passport/login">{{ 'app.register.sign-in' | translate }}</a>
+    <a class="login" routerLink="/passport/login">{{ 'app.register.sign-in' | i18n }}</a>
   </nz-form-item>
 </form>

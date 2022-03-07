@@ -1,4 +1,8 @@
-import { Component, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
+import { STColumn } from '@delon/abc/st';
+import { G2TimelineMap } from '@delon/chart/timeline';
+import { _HttpClient } from '@delon/theme';
+import { getTimeDistance, toDate } from '@delon/util';
 import { IWidgetComponent } from '../../v1/widgetcomponent';
 
 @Component({
@@ -6,34 +10,38 @@ import { IWidgetComponent } from '../../v1/widgetcomponent';
   templateUrl: './statistics.component.html',
   styleUrls: ['./statistics.component.less'],
 })
-export class StatisticsComponent implements OnInit ,IWidgetComponent {
-  offlineData: any[] = [];
+export class StatisticsComponent implements OnInit, IWidgetComponent {
+  chartdata: any[] = [];
+  data: any[] = [];
+  titleMap: G2TimelineMap = { y1: 'publishFailed', y2: 'publishSuccessed', y3: 'subscribeFailed', y4: 'subscribeSuccessed' };
+  eventcolumns: STColumn[] = [
 
-  offlineChartData: any[] = [];
-  salesData: any[] = [];
-  constructor() {}
+    { title: 'id', index: 'id', render: 'name' },
+    { title: '应用', index: 'name' },
+    { title: '状态', index: 'status' },
+  ]
+  constructor(private http: _HttpClient, private cdr: ChangeDetectorRef,) {
 
+  }
   ngOnInit(): void {
-    for (let i = 0; i < 10; i += 1) {
-      this.offlineData.push({
-        name: `门店${i}`,
-        cvr: Math.ceil(Math.random() * 9) / 10,
-      });
-    }
+    let date: Date = new Date();
+    this.http.get('http://localhost:5000/cap/api/metrics').subscribe(next => {
+      for (var i = 0; i < next.dayHour.length; i++) {
+        this.chartdata.push({
+          time: toDate(date.getFullYear() + '-' + next.dayHour[i]),
+          y1: next.publishFailed[i],
+          y2: next.publishSuccessed[i],
+          y3: next.subscribeFailed[i],
+          y4: next.subscribeSuccessed[i],
+        })
+      }
+      this.cdr.detectChanges();
 
-    for (let i = 0; i < 20; i += 1) {
-      this.offlineChartData.push({
-        time: new Date().getTime() + 1000 * 60 * 30 * i,
-        y1: Math.floor(Math.random() * 100) + 10,
-        y2: Math.floor(Math.random() * 100) + 10,
-      });
-    }
+    }, error => { }, () => { });
 
-    for (let i = 0; i < 12; i += 1) {
-      this.salesData.push({
-        x: `${i + 1}月`,
-        y: Math.floor(Math.random() * 1000) + 200,
-      });
-    }
+    this.http.get('http://localhost:5000/healthchecks-api').subscribe(next => {
+      this.data = next[0].entries
+      this.cdr.detectChanges();
+    }, error => { }, () => { });
   }
 }

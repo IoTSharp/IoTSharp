@@ -21,7 +21,7 @@
 
     <button nz-button [nzType]="'primary'" (click)="openComponent(-1)" acl [acl-ability]="102">
       <i nz-icon nzType="plus"></i>
-      <span>{{ 'button.new' | translate }}</span>
+      <span>{{ 'button.new' | i18n }}</span>
     </button>
 
     <st #st [columns]="columns" [data]="url" ps="3" [page]="page" [req]="req" [res]="res"> </st>

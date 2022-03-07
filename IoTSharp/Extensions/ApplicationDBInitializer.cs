@@ -424,6 +424,15 @@ namespace IoTSharp.Data
             this._context.BaseI18Ns.Add(new BaseI18N() { KeyName = "mm.dynamicform.list", ValueENUS = "Dynamic form list", ValueFRFR = "Liste des formulaires dynamiques", ValueHRHR = "", ValueKOKR = "동적 폼 리스트", ValuePLPL = "Lista form dynamicznych", ValueSLSL = "Dinamični seznam oblik", ValueTRTR = "", ValueZHCN = "动态表单列表", ValueZHTW = "動態表單清單", });
             this._context.BaseI18Ns.Add(new BaseI18N() { KeyName = "mm.usermanage", ValueENUS = "", ValueFRFR = "", ValueHRHR = "", ValueKOKR = "", ValuePLPL = "", ValueSLSL = "", ValueTRTR = "", ValueZHCN = "人员管理", ValueZHTW = "", });
             this._context.BaseI18Ns.Add(new BaseI18N() { KeyName = "app.register.install", ValueENUS = "install", ValueFRFR = "", ValueHRHR = "", ValueKOKR = "", ValuePLPL = "", ValueSLSL = "", ValueTRTR = "", ValueZHCN = "安装", ValueZHTW = "安装", });
+            this._context.BaseI18Ns.Add(new BaseI18N() { KeyName = "validation.customer.required", ValueENUS = "Incorrect customer name", ValueFRFR = "Nom du client incorrect", ValueHRHR = "", ValueKOKR = "잘못된 고객 이름", ValuePLPL = "", ValueSLSL = "", ValueTRTR = "", ValueZHCN = "客户名称不正确", ValueZHTW = "客戶名稱不正確", });
+
+            this._context.BaseI18Ns.Add(new BaseI18N() { KeyName = "validation.tenantName.required", ValueENUS = "Incorrect tenant name", ValueFRFR = "Nom du locataire incorrect", ValueHRHR = "", ValueKOKR = "임차인 명칭이 정확하지 않다", ValuePLPL = "", ValueSLSL = "", ValueTRTR = "", ValueZHCN = "租户名称不正确", ValueZHTW = "租戶名稱不正確", });
+
+            this._context.BaseI18Ns.Add(new BaseI18N() { KeyName = "validation.tenantEMail.required", ValueENUS = "Incorrect tenant email", ValueFRFR = "Boîte aux lettres du locataire incorrecte", ValueHRHR = "", ValueKOKR = "임대인 메일박스가 정확하지 않습니다", ValuePLPL = "", ValueSLSL = "", ValueTRTR = "", ValueZHCN = "租户邮箱不正确", ValueZHTW = "安装", });
+
+            this._context.BaseI18Ns.Add(new BaseI18N() { KeyName = "validation.customerEMail.required", ValueENUS = "Incorrect customer email", ValueFRFR = "La boîte aux lettres du client est incorrecte", ValueHRHR = "", ValueKOKR = "고객 메일박스가 잘못되었습니다", ValuePLPL = "", ValueSLSL = "", ValueTRTR = "", ValueZHCN = "客户邮箱不正确", ValueZHTW = "客戶郵箱不正確", });
+            this._context.BaseI18Ns.Add(new BaseI18N() { KeyName = "validation.signin.invalidusername", ValueENUS = "The user name does not exist or the password is incorrect", ValueFRFR = "Le nom d'utilisateur n'existe pas ou le mot de passe est incorrect", ValueHRHR = "", ValueKOKR = "사용자 이름이 없거나 암호가 잘못되었습니다.", ValuePLPL = "", ValueSLSL = "", ValueTRTR = "", ValueZHCN = "用户名不存在或者密码错误", ValueZHTW = "用戶名不存在或者密碼錯誤", });
+
 
             await this._context.SaveChangesAsync();
         }

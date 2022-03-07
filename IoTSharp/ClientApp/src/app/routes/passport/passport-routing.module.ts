@@ -1,6 +1,7 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 
+
 import { LayoutPassportComponent } from '../../layout/passport/passport.component';
 import { CallbackComponent } from './callback.component';
 import { UserLockComponent } from './lock/lock.component';
@@ -17,7 +18,7 @@ const routes: Routes = [
       {
         path: 'login',
         component: UserLoginComponent,
-        data: { title: '登录', titleI18n: 'app.login.login' }
+        data: { title: '登录', titleI18n: 'app.login.login',   }
       },
       {
         path: 'register',

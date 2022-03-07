@@ -9,7 +9,7 @@ import { BooleanInput, InputBoolean } from '@delon/util/decorator';
   template: `
     <div *ngIf="showLangText" nz-dropdown [nzDropdownMenu]="langMenu" nzPlacement="bottomRight">
       <i nz-icon nzType="global"></i>
-      {{ 'menu.lang' | translate }}
+      {{ 'menu.lang' | i18n }}
       <i nz-icon nzType="down"></i>
     </div>
     <i *ngIf="!showLangText" nz-dropdown [nzDropdownMenu]="langMenu" nzPlacement="bottomRight" nz-icon nzType="global"></i>

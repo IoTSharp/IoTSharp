@@ -14,13 +14,11 @@ import {
   _HttpClient,
   AlainI18nBaseService
 } from '@delon/theme';
-
-import { TranslateService } from '@ngx-translate/core';
 import { AlainConfigService } from '@delon/util/config';
 import { enUS as dfEn, zhCN as dfZhCn, zhTW as dfZhTw } from 'date-fns/locale';
 import { NzSafeAny } from 'ng-zorro-antd/core/types';
 import { en_US as zorroEnUS, NzI18nService, zh_CN as zorroZhCN, zh_TW as zorroZhTW } from 'ng-zorro-antd/i18n';
-import { BehaviorSubject, Observable } from 'rxjs';
+import { Observable } from 'rxjs';
 
 interface LangConfigData {
   abbr: string;
@@ -62,7 +60,6 @@ const LANGS: { [key: string]: LangConfigData } = {
 @Injectable({ providedIn: 'root' })
 export class I18NService extends AlainI18nBaseService {
   protected _defaultLang = DEFAULT;
-  private change$ = new BehaviorSubject<string | null>(null);
   private _langs = Object.keys(LANGS).map(code => {
     const item = LANGS[code];
     return { code, text: item.text, abbr: item.abbr };
@@ -74,15 +71,12 @@ export class I18NService extends AlainI18nBaseService {
     private nzI18nService: NzI18nService,
     private delonLocaleService: DelonLocaleService,
     private platform: Platform,
-    private translate: TranslateService,
     cogSrv: AlainConfigService
   ) {
     super(cogSrv);
 
     const defaultLang = this.getDefaultLang();
     this._defaultLang = this._langs.findIndex(w => w.code === defaultLang) === -1 ? DEFAULT : defaultLang;
-    const lans = this._langs.map(item => item.code);
-    translate.addLangs(lans);
   }
 
   private getDefaultLang(): string {
@@ -98,7 +92,7 @@ export class I18NService extends AlainI18nBaseService {
   }
 
   loadLangData(lang: string): Observable<NzSafeAny> {
-
+    console.log('lang'+lang)
     return this.http.get(`api/i18n/current?_allow_anonymous=true&lang=${lang}`);
   }
 
@@ -109,18 +103,12 @@ export class I18NService extends AlainI18nBaseService {
 
     const item = LANGS[lang];
     registerLocaleData(item.ng);
-    lang = lang || this.translate.getDefaultLang();
     this.nzI18nService.setLocale(item.zorro);
     this.nzI18nService.setDateLocale(item.date);
     this.delonLocaleService.setLocale(item.delon);
     this._currentLang = lang;
 
     this._change$.next(lang);
-
-    if (this.currentLang === lang) {
-      return;
-    }
-    this.translate.use(lang).subscribe(() => this.change$.next(lang));
   }
 
   getLangs(): Array<{ code: string; text: string; abbr: string }> {

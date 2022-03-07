@@ -1,36 +1,38 @@
 ﻿using Microsoft.Extensions.Logging;
 using System;
+using System.Collections.Generic;
 using System.Threading;
 using IoTSharp.Interpreter;
 using Microsoft.Extensions.Options;
 using System.Threading.Tasks;
 using CSScriptLib;
 using Newtonsoft.Json;
-using System.Dynamic;
-using Newtonsoft.Json.Converters;
 
+using System.Linq;
+using System.Reflection;
+using IronPython.Runtime;
+using Newtonsoft.Json.Converters;
+using Newtonsoft.Json.Linq;
+using System.Dynamic;
 namespace IoTSharp.Interpreter
 {
     public class CSharpScriptEngine : ScriptEngineBase, IDisposable
     {
          
         private bool disposedValue;
+
+
         public CSharpScriptEngine(ILogger<CSharpScriptEngine> logger, IOptions<EngineSetting> _opt):base(logger,_opt.Value, Task.Factory.CancellationToken)
         {
             //CSScript.EvaluatorConfig
+
         }
 
 
         public  override string    Do(string _source,string input)
         {
-            var expConverter = new ExpandoObjectConverter();
-            dynamic obj = JsonConvert.DeserializeObject<ExpandoObject>(input, expConverter);
-            var runscript = CSScript.Evaluator
-                  .CreateDelegate(@$"dynamic  runscript(dynamic   input)
-                                    {{
-                                      {_source} 
-                                    }}");
-            dynamic result =    runscript(obj);
+            ICSAction csa = CSScript.Evaluator.LoadCode<ICSAction>(_source);
+            dynamic result = csa.Run(input);
             var json= System.Text.Json.JsonSerializer.Serialize(result);
             _logger.LogDebug($"source:{Environment.NewLine}{ _source}{Environment.NewLine}{Environment.NewLine}input:{Environment.NewLine}{ input}{Environment.NewLine}{Environment.NewLine} ouput:{Environment.NewLine}{ json}{Environment.NewLine}{Environment.NewLine}");
             return json;
@@ -62,5 +64,19 @@ namespace IoTSharp.Interpreter
             GC.SuppressFinalize(this);
         }
     }
+
+
+    public interface ICSAction
+    {
+        dynamic Run(string input);
+
+   
+          
+
+
+    } 
+
+
+
 }
 

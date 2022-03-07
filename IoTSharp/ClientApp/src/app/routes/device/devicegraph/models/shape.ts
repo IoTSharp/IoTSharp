@@ -166,13 +166,14 @@ export class Device extends Shape.Rect {
   
   GateWay.config({
     attrs: {
+      image:{'xlink:href':'https://gw.alipayobjects.com/zos/bmw-prod/2010ac9f-40e7-49d4-8c4a-4fcf2f83033b.svg'},
       root: {
         magnet: false,
       },
       body: {
-        fill: '#ffa940',
-        stroke: '#d9d9d9',
-        strokeWidth: 1,
+        // fill: '#ffa940',
+        // stroke: '#d9d9d9',
+        // strokeWidth: 1,
       },
     },
     ports: {

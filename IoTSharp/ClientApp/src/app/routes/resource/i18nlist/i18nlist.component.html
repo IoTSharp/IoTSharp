@@ -1,25 +1,25 @@
-<page-header title="{{ 'mm.resoucemnt.i18n' | translate }}">
+<page-header title="{{ 'mm.resoucemnt.i18n' | i18n }}">
   <nz-card [nzBordered]="false" class>
     <form nz-form class="search__form" action="search">
       <div nz-row [nzGutter]="{ xs: 8, sm: 8, md: 8, lg: 24, xl: 48, xxl: 48 }">
         <div nz-col nzMd="8" nzSm="24">
           <nz-form-item>
-            <nz-form-label nzFor="KeyName">{{ 'i18n.columns.KeyName' | translate }}</nz-form-label>
+            <nz-form-label nzFor="KeyName">{{ 'i18n.columns.KeyName' | i18n }}</nz-form-label>
             <nz-form-control>
-              <input nz-input [(ngModel)]="q.KeyName" name="KeyName" #UserName placeholder="{{ 'i18n.l.s.t.KeyName' | translate }}" />
+              <input nz-input [(ngModel)]="q.KeyName" name="KeyName" #UserName placeholder="{{ 'i18n.l.s.t.KeyName' | i18n }}" />
             </nz-form-control>
           </nz-form-item>
         </div>
         <div nz-col [nzSpan]="24" [class.text-right]="expandForm" style="text-align: right">
-          <button nz-button type="submit" [nzType]="'primary'" (click)="getData()">{{ 'button.search' | translate }}</button>
+          <button nz-button type="submit" [nzType]="'primary'" (click)="getData()">{{ 'button.search' | i18n }}</button>
           <!--<button nz-button type="submit" (click)="getData()" [nzType]="'primary'" [nzLoading]="loading">查询</button>-->
-          <button nz-button type="reset" (click)="reset()" class="mx-sm">{{ 'button.reset' | translate }}</button>
+          <button nz-button type="reset" (click)="reset()" class="mx-sm">{{ 'button.reset' | i18n }}</button>
         </div>
       </div>
     </form>
     <button nz-button [nzType]="'primary'" (click)="openComponent(-1)" acl [acl-ability]="63">
       <i nz-icon nzType="plus"></i>
-      <span>{{ 'button.new' | translate }}</span>
+      <span>{{ 'button.new' | i18n }}</span>
     </button>
     <ng-container *ngIf="selectedRows.length > 0">
       <button nz-button>批量操作</button>

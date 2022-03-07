@@ -2,7 +2,7 @@
   <ng-template #phNgContent class> </ng-template>
   <nz-card [nzBordered]="false">
     <form nz-form [formGroup]="form" (ngSubmit)="submit()" se-container="1" labelWidth="200">
-      <se label="名称" error="名称" required>
+      <se label="名称" error="名称不能为空或者空白字符" required>
         <input nz-input formControlName="name" placeholder="名称" />
       </se>
       <se label="设备类型" error="设备类型" required>
@@ -13,7 +13,7 @@
       </se>
 
       <se label="超时" error="超时" required>
-        <input nz-input formControlName="timeout" placeholder="超时" />
+        <nz-input-number formControlName="timeout" [nzMin]="0"  [nzStep]="1"></nz-input-number>
       </se>
       <!-- <se label="设备型号" error="设备型号" >
         <nz-select formControlName="deviceModelId" placeholder="设备型号"  >

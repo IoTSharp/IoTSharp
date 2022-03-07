@@ -1,7 +1,8 @@
 import { HttpClient } from '@angular/common/http';
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, Inject, Input, OnInit } from '@angular/core';
 import { AsyncValidatorFn, AbstractControl, FormBuilder, FormControl, FormGroup, ValidationErrors, Validators } from '@angular/forms';
 import { I18NService } from '@core';
+import { ALAIN_I18N_TOKEN } from '@delon/theme';
 import { NzNotificationService } from 'ng-zorro-antd/notification';
 import { Observable, observable, Observer } from 'rxjs';
 import { debounceTime, map, switchMap, take } from 'rxjs/operators';
@@ -17,7 +18,7 @@ export class I18nformComponent implements OnInit {
   submitting = false;
   @Input() id: Number = -1;
   constructor(
-    private i18n: I18NService,
+    @Inject(ALAIN_I18N_TOKEN) private i18n: I18NService,
     private _httpClient: HttpClient,
     private fb: FormBuilder,
     private notification: NzNotificationService,
@@ -58,7 +59,6 @@ export class I18nformComponent implements OnInit {
       resouceDesc: [null, []],
       id: [0, []],
     });
-
     if (this.id !== -1) {
       this._httpClient.get<AppMessage>('api/i18n/get?id=' + this.id).subscribe(
         (x) => {
@@ -73,13 +73,11 @@ export class I18nformComponent implements OnInit {
   submit() {
     this.submitting = true;
     var uri = this.id > 0 ? 'api/i18n/update' : 'api/i18n/save';
-
     this._httpClient.post(uri, this.form.value).subscribe(
       (x) => {
         this.submitting = false;
         this.notification.blank(this.i18n.fanyi('message.save.success'), this.i18n.fanyi('message.save.success'), { nzDuration: 0 });
         this.form.reset();
-
         this.form.patchValue({ Id: 0, ResourceType: 1 });
       },
       (y) => {

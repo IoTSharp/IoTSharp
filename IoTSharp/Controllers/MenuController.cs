@@ -134,7 +134,7 @@ namespace IoTSharp.Controllers
                     },
                     funcs = Enumerable.Range(0, 500),
                     username = profile.Name,
-                    AppName = "iotsharp",
+                    AppName = "IoTSharp",
                     Modules = new[]
                                     {
                         "kanban",
@@ -233,7 +233,7 @@ namespace IoTSharp.Controllers
                         },
                     funcs = Enumerable.Range(0, 500),
                     username = profile.Name,
-                    AppName = "iotsharp",
+                    AppName = "IoTSharp",
                     Modules = new[]
                   {
                         "kanban",

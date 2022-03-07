@@ -11,25 +11,25 @@ import {
   EventEmitter,
   ChangeDetectorRef,
   Renderer2,
-  Inject,
+  Inject
 } from '@angular/core';
 import { _HttpClient } from '@delon/theme'; //test
 import { delay, mergeMap } from 'rxjs/operators';
 import * as BpmnJS from 'bpmn-js/dist/bpmn-modeler.production.min.js';
 
-import { Observable, from, Subscription } from 'rxjs';
+import { Observable, from } from 'rxjs';
 import { FormBuilder } from '@angular/forms';
 import { appmessage } from '../../common/AppMessage';
 import { NzConfigService } from 'ng-zorro-antd/core/config';
 import { NzCodeEditorComponent } from 'ng-zorro-antd/code-editor';
-import { ObjectExt } from '@antv/x6';
+
 import { DOCUMENT } from '@angular/common';
 import { NzTooltipDirective } from 'ng-zorro-antd/tooltip';
 
 @Component({
   selector: 'app-diagram',
   templateUrl: './diagram.component.html',
-  styleUrls: ['./diagram.component.less'],
+  styleUrls: ['./diagram.component.less']
 })
 
 //gfx 属性消失代表元素被删除，不用去遍历整个SVG DOM判断，已知增加的钩子还有以下
@@ -75,6 +75,8 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy 
   loading = true;
   fullScreen = false;
   private document: Document;
+  csharptemplate =
+    'using Newtonsoft.Json.Converters;\r\nusing Newtonsoft.Json.Linq;\r\nusing System.Dynamic;\r\nusing IoTSharp.Interpreter;\r\nusing Newtonsoft.Json;\r\n\r\npublic class Script : ICSAction\r\n{\r\n    public dynamic Run(string input)\r\n    {\r\n        //code here\r\n        return JsonConvert.SerializeObject(input);\r\n    }\r\n}';
   form: FormBpmnObject = {
     id: '',
     flowid: '',
@@ -89,7 +91,7 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy 
     flowscriptVisable: false,
     flowscripttype: '',
     flowscripttypeVisable: false,
-    nodeProcessParams: '',
+    nodeProcessParams: ''
   };
   activity: Activity;
   selectedValue: any;
@@ -98,7 +100,8 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy 
       active: true,
       name: '对象属性',
       disabled: false
-    },]
+    }
+  ];
 
   toggleFullScreen(): void {
     this.fullScreen = !this.fullScreen;
@@ -115,23 +118,35 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy 
       this.form.flowscriptVisable = true;
     }
 
-    // this.nzConfigService.set('codeEditor', {
-    //   defaultEditorOption: {
-    //     language: this.form.flowscripttype,
-    //     theme: 'vs-dark',
-    //   },
-    // });
-    // this.editorComponent?.layout();
+    this.nzConfigService.set('codeEditor', {
+      defaultEditorOption: {
+        language: this.form.flowscripttype,
+        theme: 'vs'
+      }
+    });
+
+    switch ($event) {
+      case 'csharp':
+        if (this.form.nodeProcessClass === '') {
+          this.form.flowscript = this.csharptemplate;
+        }
+        break;
+      default:
+   
+        break;
+    }
+
+    this.editorComponent?.layout();
   }
 
   ngModelChange($event) {
-    var x = this.activity.sequenceFlows.find((x) => x.id == this.form.flowid);
+    var x = this.activity.sequenceFlows.find(x => x.id == this.form.flowid);
     if (x != null) {
       x.bizObject = this.form;
       return;
     }
 
-    var y = this.activity.tasks.find((x) => x.id == this.form.flowid);
+    var y = this.activity.tasks.find(x => x.id == this.form.flowid);
     if (y) {
       y.bizObject = this.form;
       return;
@@ -140,7 +155,7 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy 
     var elementRegistry = this.bpmnJS.get('elementRegistry');
 
     var modeling = this.bpmnJS.get('modeling');
- 
+
     // modeling.updateProperties(x.id, {
     //   name: 'ssss', //名称设置无效，如需双向绑定仍旧需要直接改Dom
     // });
@@ -153,20 +168,20 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy 
         mergeMap((x: any) => {
           return this.http.post('api/rules/savediagram', {
             Xml: x.xml,
-            Biz: JSON.stringify(this.activity),
+            Biz: JSON.stringify(this.activity)
           });
-        }),
+        })
       )
       .subscribe();
   }
 
   getexcutors() {
     this.http.get('api/rules/getexecutors').subscribe(
-      (next) => {
+      next => {
         this.executors = next.data;
       },
-      (error) => {},
-      () => {},
+      error => {},
+      () => {}
     );
   }
 
@@ -177,7 +192,8 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy 
     private render: Renderer2,
     private nzConfigService: NzConfigService,
     private element: ElementRef,
-    @Inject(DOCUMENT) document: any, private renderer: Renderer2
+    @Inject(DOCUMENT) document: any,
+    private renderer: Renderer2
   ) {
     this.document = document;
     this.activity = new Activity();
@@ -194,8 +210,8 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy 
     this.bpmnJS = new BpmnJS({
       bpmnRenderer: {
         defaultFillColor: '#e6f7ff',
-        defaultStrokeColor: '#1890ff',
-      },
+        defaultStrokeColor: '#1890ff'
+      }
     });
 
     this.bpmnJS.on('import.done', ({ error }) => {
@@ -204,12 +220,12 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy 
       }
     });
 
-    this.bpmnJS.on('element.click', (event) => {
+    this.bpmnJS.on('element.click', event => {
       //  this.form.patchValue({ Flowid: event.element.id, flowname: event.element.businessObject.name });
       this.hiddentools();
       switch (event.element.type) {
         case 'bpmn:Task':
-          var task = this.activity.tasks.find((x) => x.id == event.element.id);
+          var task = this.activity.tasks.find(x => x.id == event.element.id);
           if (task) {
             if (task.bizObject == null) {
               task.bizObject = {
@@ -226,7 +242,7 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy 
                 flowscriptVisable: true,
                 flowscripttypeVisable: true,
                 flowscripttype: '',
-                nodeProcessParams: '',
+                nodeProcessParams: ''
               };
             }
             task.bizObject.conditionexpressionVisable = false;
@@ -244,7 +260,7 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy 
 
           break;
         case 'bpmn:EndEvent':
-          var endevent = this.activity.endEvents.find((x) => x.id == event.element.id);
+          var endevent = this.activity.endEvents.find(x => x.id == event.element.id);
           if (endevent) {
             if (endevent.bizObject === null) {
               endevent.bizObject = {
@@ -261,7 +277,7 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy 
                 flowscriptVisable: false,
                 flowscripttypeVisable: false,
                 flowscripttype: '',
-                nodeProcessParams: '',
+                nodeProcessParams: ''
               };
             }
 
@@ -271,7 +287,7 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy 
 
           break;
         case 'bpmn:StartEvent':
-          var startevent = this.activity.startEvents.find((x) => x.id == event.element.id);
+          var startevent = this.activity.startEvents.find(x => x.id == event.element.id);
           if (startevent) {
             if (startevent.bizObject === null) {
               startevent.bizObject = {
@@ -288,7 +304,7 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy 
                 flowscriptVisable: false,
                 flowscripttypeVisable: false,
                 flowscripttype: '',
-                nodeProcessParams: '',
+                nodeProcessParams: ''
               };
             }
 
@@ -298,7 +314,7 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy 
 
           break;
         case 'bpmn:IntermediateThrowEvent':
-          var intermediatethrowevent = this.activity.endEvents.find((x) => x.id == event.element.id);
+          var intermediatethrowevent = this.activity.endEvents.find(x => x.id == event.element.id);
           if (intermediatethrowevent) {
             if (intermediatethrowevent.bizObject == null) {
               intermediatethrowevent.bizObject = {
@@ -315,7 +331,7 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy 
                 flowscriptVisable: false,
                 flowscripttypeVisable: false,
                 flowscripttype: '',
-                nodeProcessParams: '',
+                nodeProcessParams: ''
               };
             }
 
@@ -325,7 +341,7 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy 
 
           break;
         case 'bpmn:ComplexGateway':
-          var complexgateway = this.activity.gateWays.find((x) => x.id == event.element.id);
+          var complexgateway = this.activity.gateWays.find(x => x.id == event.element.id);
           if (complexgateway) {
             if (complexgateway.bizObject == null) {
               complexgateway.bizObject = {
@@ -342,7 +358,7 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy 
                 flowscriptVisable: false,
                 flowscripttypeVisable: false,
                 flowscripttype: '',
-                nodeProcessParams: '',
+                nodeProcessParams: ''
               };
             }
 
@@ -352,7 +368,7 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy 
 
           break;
         case 'bpmn:ParallelGateway':
-          var parallelgteway = this.activity.gateWays.find((x) => x.id == event.element.id);
+          var parallelgteway = this.activity.gateWays.find(x => x.id == event.element.id);
           if (parallelgteway) {
             if (parallelgteway.bizObject == null) {
               parallelgteway.bizObject = {
@@ -369,7 +385,7 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy 
                 flowscriptVisable: false,
                 flowscripttypeVisable: false,
                 flowscripttype: '',
-                nodeProcessParams: '',
+                nodeProcessParams: ''
               };
             }
 
@@ -379,7 +395,7 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy 
 
           break;
         case 'bpmn:ExclusiveGateway':
-          var exclusivegateway = this.activity.gateWays.find((x) => x.id == event.element.id);
+          var exclusivegateway = this.activity.gateWays.find(x => x.id == event.element.id);
           if (exclusivegateway) {
             if (exclusivegateway.bizObject == null) {
               exclusivegateway.bizObject = {
@@ -396,7 +412,7 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy 
                 flowscriptVisable: false,
                 flowscripttypeVisable: false,
                 flowscripttype: '',
-                nodeProcessParams: '',
+                nodeProcessParams: ''
               };
             }
 
@@ -406,7 +422,7 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy 
 
           break;
         case 'bpmn:InclusiveGateway':
-          var inclusivegateway = this.activity.gateWays.find((x) => x.id == event.element.id);
+          var inclusivegateway = this.activity.gateWays.find(x => x.id == event.element.id);
           if (inclusivegateway) {
             if (inclusivegateway.bizObject == null) {
               inclusivegateway.bizObject = {
@@ -423,7 +439,7 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy 
                 flowscriptVisable: false,
                 flowscripttypeVisable: false,
                 flowscripttype: '',
-                nodeProcessParams: '',
+                nodeProcessParams: ''
               };
             }
 
@@ -433,7 +449,7 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy 
 
           break;
         case 'bpmn:BusinessRuleTask':
-          var businessruletask = this.activity.tasks.find((x) => x.id == event.element.id);
+          var businessruletask = this.activity.tasks.find(x => x.id == event.element.id);
           if (businessruletask) {
             if (businessruletask.bizObject == null) {
               businessruletask.bizObject = {
@@ -450,7 +466,7 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy 
                 flowscriptVisable: true,
                 flowscripttypeVisable: true,
                 flowscripttype: '',
-                nodeProcessParams: '',
+                nodeProcessParams: ''
               };
             }
 
@@ -462,7 +478,7 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy 
 
           break;
         case 'bpmn:EventBasedGateway':
-          var eventbasedgateway = this.activity.gateWays.find((x) => x.id == event.element.id);
+          var eventbasedgateway = this.activity.gateWays.find(x => x.id == event.element.id);
           if (eventbasedgateway) {
             if (eventbasedgateway.bizObject == null) {
               eventbasedgateway.bizObject = {
@@ -479,7 +495,7 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy 
                 flowscriptVisable: false,
                 flowscripttypeVisable: false,
                 flowscripttype: '',
-                nodeProcessParams: '',
+                nodeProcessParams: ''
               };
             }
 
@@ -489,7 +505,7 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy 
 
           break;
         case 'bpmn:ReceiveTask':
-          var receivetask = this.activity.tasks.find((x) => x.id == event.element.id);
+          var receivetask = this.activity.tasks.find(x => x.id == event.element.id);
           if (receivetask) {
             if (receivetask.bizObject == null) {
               receivetask.bizObject = {
@@ -506,7 +522,7 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy 
                 flowscriptVisable: true,
                 flowscripttypeVisable: true,
                 flowscripttype: '',
-                nodeProcessParams: '',
+                nodeProcessParams: ''
               };
             }
 
@@ -518,7 +534,7 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy 
 
           break;
         case 'bpmn:UserTask':
-          var usertask = this.activity.tasks.find((x) => x.id == event.element.id);
+          var usertask = this.activity.tasks.find(x => x.id == event.element.id);
           if (usertask) {
             if (usertask.bizObject == null) {
               usertask.bizObject = {
@@ -535,7 +551,7 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy 
                 flowscriptVisable: true,
                 flowscripttypeVisable: true,
                 flowscripttype: '',
-                nodeProcessParams: '',
+                nodeProcessParams: ''
               };
             }
             this.form.flowscript = '';
@@ -548,7 +564,7 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy 
 
           break;
         case 'bpmn:IntermediateCatchEvent':
-          var intermediatecatchevent = this.activity.endEvents.find((x) => x.id == event.element.id);
+          var intermediatecatchevent = this.activity.endEvents.find(x => x.id == event.element.id);
           if (intermediatecatchevent) {
             if (intermediatecatchevent.bizObject == null) {
               intermediatecatchevent.bizObject = {
@@ -565,7 +581,7 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy 
                 flowscriptVisable: false,
                 flowscripttypeVisable: false,
                 flowscripttype: '',
-                nodeProcessParams: '',
+                nodeProcessParams: ''
               };
             }
 
@@ -575,7 +591,7 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy 
 
           break;
         case 'bpmn:ServiceTask':
-          var servicetask = this.activity.tasks.find((x) => x.id == event.element.id);
+          var servicetask = this.activity.tasks.find(x => x.id == event.element.id);
           if (servicetask) {
             if (servicetask.bizObject == null) {
               servicetask.bizObject = {
@@ -592,7 +608,7 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy 
                 flowscriptVisable: true,
                 flowscripttypeVisable: true,
                 flowscripttype: '',
-                nodeProcessParams: '',
+                nodeProcessParams: ''
               };
             }
 
@@ -604,7 +620,7 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy 
 
           break;
         case 'bpmn:ManualTask':
-          var manualtask = this.activity.tasks.find((x) => x.id == event.element.id);
+          var manualtask = this.activity.tasks.find(x => x.id == event.element.id);
           if (manualtask) {
             if (manualtask.bizObject == null) {
               manualtask.bizObject = {
@@ -621,7 +637,7 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy 
                 flowscriptVisable: true,
                 flowscripttypeVisable: true,
                 flowscripttype: '',
-                nodeProcessParams: '',
+                nodeProcessParams: ''
               };
             }
 
@@ -633,7 +649,7 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy 
 
           break;
         case 'bpmn:SendTask':
-          var sendtask = this.activity.tasks.find((x) => x.id == event.element.id);
+          var sendtask = this.activity.tasks.find(x => x.id == event.element.id);
           if (sendtask) {
             if (sendtask.bizObject == null) {
               sendtask.bizObject = {
@@ -650,7 +666,7 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy 
                 flowscriptVisable: true,
                 flowscripttypeVisable: true,
                 flowscripttype: '',
-                nodeProcessParams: '',
+                nodeProcessParams: ''
               };
             }
 
@@ -662,7 +678,7 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy 
 
           break;
         case 'bpmn:CallActivity':
-          var callactivity = this.activity.tasks.find((x) => x.id == event.element.id);
+          var callactivity = this.activity.tasks.find(x => x.id == event.element.id);
           if (callactivity) {
             if (callactivity.bizObject == null) {
               callactivity.bizObject = {
@@ -679,7 +695,7 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy 
                 flowscriptVisable: true,
                 flowscripttypeVisable: true,
                 flowscripttype: '',
-                nodeProcessParams: '',
+                nodeProcessParams: ''
               };
             }
             callactivity.bizObject.flowscriptVisable = true;
@@ -690,7 +706,7 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy 
 
           break;
         case 'bpmn:SequenceFlow':
-          var sequenceflow = this.activity.sequenceFlows.find((x) => x.id == event.element.id);
+          var sequenceflow = this.activity.sequenceFlows.find(x => x.id == event.element.id);
           if (sequenceflow) {
             if (!sequenceflow.bizObject) {
               sequenceflow.bizObject = {
@@ -707,7 +723,7 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy 
                 flowscriptVisable: false,
                 flowscripttypeVisable: false,
                 flowscripttype: '',
-                nodeProcessParams: '',
+                nodeProcessParams: ''
               };
             }
 
@@ -718,7 +734,7 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy 
 
           break;
         case 'bpmn:Participant':
-          var participant = this.activity.containers.find((x) => x.id == event.element.id);
+          var participant = this.activity.containers.find(x => x.id == event.element.id);
           if (participant) {
             if (participant.bizObject == null) {
               participant.bizObject = {
@@ -735,7 +751,7 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy 
                 flowscriptVisable: false,
                 flowscripttypeVisable: false,
                 flowscripttype: '',
-                nodeProcessParams: '',
+                nodeProcessParams: ''
               };
             }
             participant.bizObject.nodeProcessClassVisable = false;
@@ -744,7 +760,7 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy 
 
           break;
         case 'bpmn:SubProcess':
-          var subprocess = this.activity.tasks.find((x) => x.id == event.element.id);
+          var subprocess = this.activity.tasks.find(x => x.id == event.element.id);
           if (subprocess) {
             if (subprocess.bizObject == null) {
               subprocess.bizObject = {
@@ -761,7 +777,7 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy 
                 flowscriptVisable: false,
                 flowscripttypeVisable: false,
                 flowscripttype: '',
-                nodeProcessParams: '',
+                nodeProcessParams: ''
               };
             }
 
@@ -771,7 +787,7 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy 
 
           break;
         case 'bpmn:Collaboration':
-          var collaboration = this.activity.containers.find((x) => x.id == event.element.id);
+          var collaboration = this.activity.containers.find(x => x.id == event.element.id);
           if (collaboration) {
             if (collaboration.bizObject == null) {
               collaboration.bizObject = {
@@ -788,7 +804,7 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy 
                 flowscriptVisable: false,
                 flowscripttypeVisable: false,
                 flowscripttype: '',
-                nodeProcessParams: '',
+                nodeProcessParams: ''
               };
             }
             collaboration.bizObject.nodeProcessClassVisable = false;
@@ -798,13 +814,13 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy 
       }
       this.cd.detectChanges();
     });
-    this.bpmnJS.on('element.changed', (event) => {
+    this.bpmnJS.on('element.changed', event => {
       if (event.element.type.indexOf('bpmn') !== -1) {
       }
 
       switch (event.element.type) {
         case 'bpmn:Task':
-          this.doTask(event); 
+          this.doTask(event);
           break;
         case 'bpmn:EndEvent':
           this.doEndEvent(event);
@@ -843,7 +859,7 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy 
           this.doGateWay(event);
           break;
         case 'bpmn:ServiceTask':
-          this.doTask(event);     
+          this.doTask(event);
           break;
         case 'bpmn:ManualTask':
           this.doTask(event);
@@ -878,17 +894,12 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy 
           this.DoBaseBpmnObject(event);
           break;
       }
-      setTimeout(()=>{
+      setTimeout(() => {
         this.hiddentools();
-      },100)
-
-
-      
-  
-
+      }, 100);
     });
- 
-    this.getexcutors();     
+
+    this.getexcutors();
   }
   ngAfterContentInit(): void {
     this.bpmnJS.attachTo(this.el.nativeElement);
@@ -899,7 +910,7 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy 
 
   // hide some elements
   private hiddentools() {
-    this.el.nativeElement.querySelectorAll('.group').forEach((element) => {
+    this.el.nativeElement.querySelectorAll('.group').forEach(element => {
       if (element.getAttribute('data-group') == 'data-store') {
         element.style.display = 'none';
       }
@@ -923,28 +934,27 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy 
       }
 
       if (element.getAttribute('data-group') == 'edit') {
-        element.querySelectorAll('.bpmn-icon-screw-wrench').forEach((e) => {
+        element.querySelectorAll('.bpmn-icon-screw-wrench').forEach(e => {
           if (e.getAttribute('data-action') == 'replace') {
             e.style.display = 'none';
-
           }
         });
       }
     });
-    this.el.nativeElement.querySelectorAll('.bpmn-icon-gateway-none').forEach((element) => {
+    this.el.nativeElement.querySelectorAll('.bpmn-icon-gateway-none').forEach(element => {
       element.style.display = 'none';
     });
-    this.el.nativeElement.querySelectorAll('.bpmn-icon-subprocess-expanded').forEach((element) => {
+    this.el.nativeElement.querySelectorAll('.bpmn-icon-subprocess-expanded').forEach(element => {
       element.style.display = 'none';
     });
-    this.el.nativeElement.querySelectorAll('.bpmn-icon-intermediate-event-none').forEach((element) => {
+    this.el.nativeElement.querySelectorAll('.bpmn-icon-intermediate-event-none').forEach(element => {
       element.style.display = 'none';
     });
-    this.el.nativeElement.querySelectorAll('.bpmn-icon-lasso-tool').forEach((element) => {
+    this.el.nativeElement.querySelectorAll('.bpmn-icon-lasso-tool').forEach(element => {
       element.style.display = 'none';
     });
 
-    this.el.nativeElement.querySelectorAll('.bpmn-icon-text-annotation').forEach((element) => {
+    this.el.nativeElement.querySelectorAll('.bpmn-icon-text-annotation').forEach(element => {
       element.style.display = 'none';
     });
   }
@@ -957,7 +967,7 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy 
 
   doTextAnnotation(e: any) {
     if (e.gfx) {
-      var baseBpmnObject = this.activity.textAnnotations.find((x) => x.id === e.element.businessObject.id);
+      var baseBpmnObject = this.activity.textAnnotations.find(x => x.id === e.element.businessObject.id);
 
       if (baseBpmnObject) {
         baseBpmnObject.id = e.element.id;
@@ -983,7 +993,7 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy 
           flowscriptVisable: false,
           flowscripttypeVisable: false,
           flowscripttype: '',
-          nodeProcessParams: '',
+          nodeProcessParams: ''
         };
         baseBpmnObject.outgoing = [];
         baseBpmnObject.incoming = [];
@@ -994,18 +1004,18 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy 
       //TextAnnotation只有incoming
       baseBpmnObject.incoming = [
         ...baseBpmnObject.incoming,
-        ...e.element.incoming.map((x) => {
+        ...e.element.incoming.map(x => {
           return { id: x.id, name: x.name, sourceId: e.element.businessObject.targetRef.id };
-        }),
+        })
       ];
     } else {
-      this.activity.textAnnotations = this.activity.textAnnotations.filter((x) => x.id != e.element.id) ?? [];
+      this.activity.textAnnotations = this.activity.textAnnotations.filter(x => x.id != e.element.id) ?? [];
     }
   }
 
   DoBaseBpmnObject(e: any): void {
     if (e.gfx) {
-      var baseBpmnObject = this.activity.baseBpmnObjects.find((x) => x.id === e.element.businessObject.id);
+      var baseBpmnObject = this.activity.baseBpmnObjects.find(x => x.id === e.element.businessObject.id);
 
       if (baseBpmnObject) {
         baseBpmnObject.id = e.element.id;
@@ -1030,7 +1040,7 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy 
           flowscriptVisable: false,
           flowscripttypeVisable: false,
           flowscripttype: '',
-          nodeProcessParams: '',
+          nodeProcessParams: ''
         };
         baseBpmnObject.outgoing = [];
         baseBpmnObject.incoming = [];
@@ -1041,24 +1051,24 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy 
       console.log('baseBpmnObject');
       baseBpmnObject.incoming = [
         ...baseBpmnObject.incoming,
-        ...e.element.incoming.map((x) => {
+        ...e.element.incoming.map(x => {
           return { id: x.id, name: x.name, sourceId: e.element.businessObject.targetRef.id };
-        }),
+        })
       ];
 
       baseBpmnObject.outgoing = [
         ...baseBpmnObject.outgoing,
-        ...e.element.outgoing.map((x) => {
+        ...e.element.outgoing.map(x => {
           return { id: x.id, name: x.name };
-        }),
+        })
       ];
     } else {
-      this.activity.baseBpmnObjects = this.activity.baseBpmnObjects.filter((x) => x.id != e.element.id) ?? [];
+      this.activity.baseBpmnObjects = this.activity.baseBpmnObjects.filter(x => x.id != e.element.id) ?? [];
     }
   }
   DoDataStoreReference(e: any): void {
     if (e.gfx) {
-      var dataStoreReference = this.activity.dataStoreReferences.find((x) => x.id === e.element.businessObject.id);
+      var dataStoreReference = this.activity.dataStoreReferences.find(x => x.id === e.element.businessObject.id);
 
       if (dataStoreReference) {
         dataStoreReference.id = e.element.id;
@@ -1083,7 +1093,7 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy 
           flowscriptVisable: false,
           flowscripttypeVisable: false,
           flowscripttype: '',
-          nodeProcessParams: '',
+          nodeProcessParams: ''
         };
         dataStoreReference.outgoing = [];
         dataStoreReference.incoming = [];
@@ -1093,23 +1103,23 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy 
       }
       dataStoreReference.incoming = [
         ...dataStoreReference.incoming,
-        ...e.element.incoming.map((x) => {
+        ...e.element.incoming.map(x => {
           return { id: x.id, name: x.name, sourceId: e.element.businessObject.targetRef.id };
-        }),
+        })
       ];
       dataStoreReference.outgoing = [
         ...dataStoreReference.outgoing,
-        ...e.element.outgoing.map((x) => {
+        ...e.element.outgoing.map(x => {
           return { id: x.id, name: x.name };
-        }),
+        })
       ];
     } else {
-      this.activity.dataStoreReferences = this.activity.dataStoreReferences.filter((x) => x.id != e.element.id) ?? [];
+      this.activity.dataStoreReferences = this.activity.dataStoreReferences.filter(x => x.id != e.element.id) ?? [];
     }
   }
   DoContainer(e: any): void {
     if (e.gfx) {
-      var container = this.activity.containers.find((x) => x.id === e.element.businessObject.id);
+      var container = this.activity.containers.find(x => x.id === e.element.businessObject.id);
 
       if (container) {
         container.id = e.element.id;
@@ -1134,7 +1144,7 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy 
           flowscriptVisable: false,
           flowscripttypeVisable: false,
           flowscripttype: '',
-          nodeProcessParams: '',
+          nodeProcessParams: ''
         };
         container.outgoing = [];
         container.incoming = [];
@@ -1145,24 +1155,24 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy 
 
       container.incoming = [
         ...container.incoming,
-        ...e.element.incoming.map((x) => {
+        ...e.element.incoming.map(x => {
           return { id: x.id, name: x.name, sourceId: e.element.businessObject.targetRef.id };
-        }),
+        })
       ];
 
       container.outgoing = [
         ...container.outgoing,
-        ...e.element.outgoing.map((x) => {
+        ...e.element.outgoing.map(x => {
           return { id: x.id, name: x.name };
-        }),
+        })
       ];
     } else {
-      this.activity.containers = this.activity.containers.filter((x) => x.id != e.element.id) ?? [];
+      this.activity.containers = this.activity.containers.filter(x => x.id != e.element.id) ?? [];
     }
   }
   DoSubProcess(e: any): void {
     if (e.gfx) {
-      let subProcess = this.activity.subProcesses.find((x) => x.id === e.element.businessObject.id);
+      let subProcess = this.activity.subProcesses.find(x => x.id === e.element.businessObject.id);
 
       if (subProcess) {
         subProcess.id = e.element.id;
@@ -1187,7 +1197,7 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy 
           flowscriptVisable: false,
           flowscripttypeVisable: false,
           flowscripttype: '',
-          nodeProcessParams: '',
+          nodeProcessParams: ''
         };
         subProcess.outgoing = [];
         subProcess.incoming = [];
@@ -1198,26 +1208,25 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy 
 
       subProcess.incoming = [
         ...subProcess.incoming,
-        ...e.element.incoming.map((x) => {
+        ...e.element.incoming.map(x => {
           return { id: x.id, name: x.name, sourceId: e.element.businessObject.targetRef.id };
-        }),
+        })
       ];
 
       subProcess.outgoing = [
         ...subProcess.outgoing,
-        ...e.element.outgoing.map((x) => {
+        ...e.element.outgoing.map(x => {
           return { id: x.id, name: x.name };
-        }),
+        })
       ];
     } else {
-      this.activity.subProcesses = this.activity.subProcesses.filter((x) => x.id != e.element.id) ?? [];
+      this.activity.subProcesses = this.activity.subProcesses.filter(x => x.id != e.element.id) ?? [];
     }
   }
 
   doSequenceFlow(e: any): void {
-
     if (e.gfx) {
-      let sequenceflow = this.activity.sequenceFlows.find((x) => x.id === e.element.businessObject.id);
+      let sequenceflow = this.activity.sequenceFlows.find(x => x.id === e.element.businessObject.id);
 
       if (sequenceflow) {
         sequenceflow.id = e.element.id;
@@ -1242,7 +1251,7 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy 
           flowscriptVisable: false,
           flowscripttypeVisable: false,
           flowscripttype: '',
-          nodeProcessParams: '',
+          nodeProcessParams: ''
         };
         sequenceflow.outgoing = [];
         sequenceflow.incoming = [];
@@ -1255,27 +1264,25 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy 
 
       sequenceflow.incoming = [
         ...sequenceflow.incoming,
-        ...e.element.incoming.map((x) => {
+        ...e.element.incoming.map(x => {
           return { id: x.id, name: x.name, sourceId: e.element.businessObject.targetRef.id };
-        }),
+        })
       ];
 
       sequenceflow.outgoing = [
         ...sequenceflow.outgoing,
-        ...e.element.outgoing.map((x) => {
+        ...e.element.outgoing.map(x => {
           return { id: x.id, name: x.name };
-        }),
+        })
       ];
     } else {
-      this.activity.sequenceFlows = this.activity.sequenceFlows.filter((x) => x.id != e.element.id) ?? [];
+      this.activity.sequenceFlows = this.activity.sequenceFlows.filter(x => x.id != e.element.id) ?? [];
     }
-
-
   }
 
   doTask(e: any): void {
     if (e.gfx) {
-      var task = this.activity.tasks.find((x) => x.id === e.element.businessObject.id);
+      var task = this.activity.tasks.find(x => x.id === e.element.businessObject.id);
 
       if (task) {
         task.id = e.element.id;
@@ -1300,7 +1307,7 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy 
           flowscriptVisable: true,
           flowscripttypeVisable: true,
           flowscripttype: '',
-          nodeProcessParams: '',
+          nodeProcessParams: ''
         };
         task.id = e.element.businessObject.id;
         task.bizObject.flowname = e.element.businessObject.name;
@@ -1310,25 +1317,25 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy 
       task.incoming = [];
       task.incoming = [
         ...task.incoming,
-        ...e.element.incoming.map((x) => {
+        ...e.element.incoming.map(x => {
           return { id: x.id, name: x.name };
-        }),
+        })
       ];
       task.outgoing = [];
       task.outgoing = [
         ...task.outgoing,
-        ...e.element.outgoing.map((x) => {
+        ...e.element.outgoing.map(x => {
           return { id: x.id, name: x.name };
-        }),
+        })
       ];
     } else {
-      this.activity.tasks = this.activity.tasks.filter((x) => x.id != e.element.id) ?? [];
+      this.activity.tasks = this.activity.tasks.filter(x => x.id != e.element.id) ?? [];
     }
   }
 
   doGateWay(e: any): void {
     if (e.gfx) {
-      var gateway = this.activity.gateWays.find((x) => x.id === e.element.businessObject.id);
+      var gateway = this.activity.gateWays.find(x => x.id === e.element.businessObject.id);
 
       if (gateway) {
         gateway.id = e.element.id;
@@ -1353,7 +1360,7 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy 
           flowscriptVisable: false,
           flowscripttypeVisable: false,
           flowscripttype: '',
-          nodeProcessParams: '',
+          nodeProcessParams: ''
         };
         gateway.id = e.element.businessObject.id;
         gateway.outgoing = [];
@@ -1364,23 +1371,23 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy 
       }
       gateway.incoming = [
         ...gateway.incoming,
-        ...e.element.incoming.map((x) => {
+        ...e.element.incoming.map(x => {
           return { id: x.id, name: x.name };
-        }),
+        })
       ];
       gateway.outgoing = [
         ...gateway.outgoing,
-        ...e.element.outgoing.map((x) => {
+        ...e.element.outgoing.map(x => {
           return { id: x.id, name: x.name };
-        }),
+        })
       ];
     } else {
-      this.activity.gateWays = this.activity.gateWays.filter((x) => x.id != e.element.id) ?? [];
+      this.activity.gateWays = this.activity.gateWays.filter(x => x.id != e.element.id) ?? [];
     }
   }
 
   doStartEvent(e: any): void {
-    var startevent = this.activity.startEvents.find((x) => x.id === e.element.businessObject.id);
+    var startevent = this.activity.startEvents.find(x => x.id === e.element.businessObject.id);
     if (e.gfx) {
       if (startevent) {
         startevent.bpmntype = e.element.type;
@@ -1404,7 +1411,7 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy 
           flowscriptVisable: false,
           flowscripttypeVisable: false,
           flowscripttype: '',
-          nodeProcessParams: '',
+          nodeProcessParams: ''
         };
         startevent.id = e.element.businessObject.id;
         startevent.outgoing = [];
@@ -1415,22 +1422,22 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy 
       }
       startevent.incoming = [
         ...startevent.incoming,
-        ...e.element.incoming.map((x) => {
+        ...e.element.incoming.map(x => {
           return { id: x.id, name: x.name };
-        }),
+        })
       ];
       startevent.outgoing = [
         ...startevent.outgoing,
-        ...e.element.outgoing.map((x) => {
+        ...e.element.outgoing.map(x => {
           return { id: x.id, name: x.name };
-        }),
+        })
       ];
     } else {
-      this.activity.startEvents = this.activity.startEvents.filter((x) => x.id != e.element.id) ?? [];
+      this.activity.startEvents = this.activity.startEvents.filter(x => x.id != e.element.id) ?? [];
     }
   }
   doEndEvent(e: any): void {
-    var endevent = this.activity.endEvents.find((x) => x.id === e.element.businessObject.id);
+    var endevent = this.activity.endEvents.find(x => x.id === e.element.businessObject.id);
     if (e.gfx) {
       if (endevent) {
         endevent.id = e.element.id;
@@ -1454,7 +1461,7 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy 
           flowscriptVisable: false,
           flowscripttypeVisable: false,
           flowscripttype: '',
-          nodeProcessParams: '',
+          nodeProcessParams: ''
         };
         endevent.id = e.element.businessObject.id;
         endevent.outgoing = [];
@@ -1467,16 +1474,16 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy 
         ...endevent.incoming,
         ...e.element.incoming.map((x: { id: any; name: any }) => {
           return { id: x.id, name: x.name };
-        }),
+        })
       ];
       endevent.outgoing = [
         ...endevent.outgoing,
-        ...e.element.outgoing.map((x) => {
+        ...e.element.outgoing.map(x => {
           return { id: x.id, name: x.name };
-        }),
+        })
       ];
     } else {
-      this.activity.endEvents = this.activity.endEvents.filter((x) => x.id != e.element.id) ?? [];
+      this.activity.endEvents = this.activity.endEvents.filter(x => x.id != e.element.id) ?? [];
     }
   }
 
@@ -1512,7 +1519,7 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy 
       this.activity.ruleId = 0;
     } else {
       this.http.get<appmessage<DesignerResult>>(url).subscribe(
-        async (data) => {
+        async data => {
           this.activity = new Activity();
           this.activity.sequenceFlows = [];
           this.activity.tasks = [];
@@ -1547,15 +1554,15 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy 
           //   data
           // });
         },
-        (err) => {
+        err => {
           this.importDone.emit({
             type: 'error',
-            error: err,
+            error: err
           });
         },
         () => {
           //finally
-        },
+        }
       );
     }
   }
@@ -1579,7 +1586,7 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy 
           flowscriptVisable: false,
           flowscripttypeVisable: false,
           flowscripttype: '',
-          nodeProcessParams: '',
+          nodeProcessParams: ''
         };
         gateWay.incoming = element.incoming ?? [];
         gateWay.outgoing == element.incoming ?? [];
@@ -1606,7 +1613,7 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy 
           flowscriptVisable: false,
           flowscripttypeVisable: false,
           flowscripttype: '',
-          nodeProcessParams: '',
+          nodeProcessParams: ''
         };
         sequenceflows.sourceId = element.sourceId;
         sequenceflows.targetId = element.targetId;
@@ -1635,7 +1642,7 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy 
           nodeProcessClassVisable: false,
           flowscriptVisable: false,
           flowscripttypeVisable: false,
-          flowscripttype: element.bizObject.flowscripttype ?? '',
+          flowscripttype: element.bizObject.flowscripttype ?? ''
         };
 
         task.incoming = element.incoming ?? [];
@@ -1663,7 +1670,7 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy 
           flowscriptVisable: false,
           flowscripttypeVisable: false,
           flowscripttype: '',
-          nodeProcessParams: '',
+          nodeProcessParams: ''
         };
         laneset.incoming = element.incoming ?? [];
         laneset.outgoing = element.incoming ?? [];
@@ -1689,7 +1696,7 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy 
           flowscriptVisable: false,
           flowscripttypeVisable: false,
           flowscripttype: '',
-          nodeProcessParams: '',
+          nodeProcessParams: ''
         };
         endevent.incoming = element.incoming ?? [];
         endevent.outgoing = element.incoming ?? [];
@@ -1716,7 +1723,7 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy 
           flowscriptVisable: false,
           flowscripttypeVisable: false,
           flowscripttype: '',
-          nodeProcessParams: '',
+          nodeProcessParams: ''
         };
         startevent.incoming = [];
         startevent.outgoing = [];
@@ -1743,7 +1750,7 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy 
           flowscriptVisable: false,
           flowscripttypeVisable: false,
           flowscripttype: '',
-          nodeProcessParams: '',
+          nodeProcessParams: ''
         };
         container.incoming = element.incoming ?? [];
         container.outgoing = element.incoming ?? [];
@@ -1770,7 +1777,7 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy 
           flowscriptVisable: false,
           flowscripttypeVisable: false,
           flowscripttype: '',
-          nodeProcessParams: '',
+          nodeProcessParams: ''
         };
         baseBpmnObject.incoming = element.incoming ?? [];
         baseBpmnObject.outgoing = element.incoming ?? [];
@@ -1797,7 +1804,7 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy 
           flowscriptVisable: false,
           flowscripttypeVisable: false,
           flowscripttype: '',
-          nodeProcessParams: '',
+          nodeProcessParams: ''
         };
         datastorereference.incoming = element.incoming ?? [];
         datastorereference.outgoing = element.incoming ?? [];
@@ -1823,7 +1830,7 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy 
           flowscriptVisable: false,
           flowscripttypeVisable: false,
           flowscripttype: '',
-          nodeProcessParams: '',
+          nodeProcessParams: ''
         };
         subprocess.incoming = element.incoming ?? [];
         subprocess.outgoing = element.incoming ?? [];
@@ -1850,7 +1857,7 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy 
           flowscriptVisable: false,
           flowscripttypeVisable: false,
           flowscripttype: '',
-          nodeProcessParams: '',
+          nodeProcessParams: ''
         };
         dataOutputAssociation.incoming = element.incoming ?? [];
         dataOutputAssociation.outgoing = element.incoming ?? [];
@@ -1877,7 +1884,7 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy 
           flowscriptVisable: false,
           flowscripttypeVisable: false,
           flowscripttype: '',
-          nodeProcessParams: '',
+          nodeProcessParams: ''
         };
         dataInputAssociations.incoming = element.incoming ?? [];
         dataInputAssociations.outgoing = element.incoming ?? [];
@@ -1904,7 +1911,7 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy 
           flowscriptVisable: false,
           flowscripttypeVisable: false,
           flowscripttype: '',
-          nodeProcessParams: '',
+          nodeProcessParams: ''
         };
         lane.incoming = element.incoming ?? [];
         lane.outgoing = element.incoming ?? [];
@@ -1944,7 +1951,7 @@ export class BpmnBaseObject {
     flowscriptVisable: false,
     flowscripttypeVisable: false,
     flowscripttype: '',
-    nodeProcessParams: '',
+    nodeProcessParams: ''
   };
 }
 
@@ -2007,7 +2014,7 @@ export class DataInputAssociation extends BpmnBaseObject {
 export class Collaboration extends BpmnBaseObject {}
 
 export const importDiagram = (bpmnJS: any) => (source: Observable<any>) =>
-  new Observable<any>((observer) => {
+  new Observable<any>(observer => {
     const subscription = source.subscribe({
       next(xml: any) {
         // canceling the subscription as we are interested
@@ -2030,7 +2037,7 @@ export const importDiagram = (bpmnJS: any) => (source: Observable<any>) =>
       },
       complete() {
         observer.complete();
-      },
+      }
     });
   });
 

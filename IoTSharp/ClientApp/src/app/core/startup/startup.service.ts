@@ -8,7 +8,7 @@ import { NzSafeAny } from 'ng-zorro-antd/core/types';
 import { NzIconService } from 'ng-zorro-antd/icon';
 import { concat, Observable, zip } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
-import { TranslateService } from '@ngx-translate/core';
+
 import { ICONS } from '../../../style-icons';
 import { ICONS_AUTO } from '../../../style-icons-auto';
 import { I18NService } from '../i18n/i18n.service';
@@ -24,7 +24,7 @@ export class StartupService {
     private menuService: MenuService,
 
     @Inject(ALAIN_I18N_TOKEN) private i18n: I18NService,
-    private translate: TranslateService,
+
     private settingService: SettingsService,
     private aclService: ACLService,
     private titleService: TitleService,
@@ -42,15 +42,14 @@ export class StartupService {
       return concat(
         this.httpClient.get(`api/i18n/current?_allow_anonymous=true&lang=${this.i18n.defaultLang}`).pipe(
           map((langData: any) => {
-            this.translate.setTranslation(this.i18n.defaultLang, langData.data);
-            this.translate.setDefaultLang(this.i18n.defaultLang);
+            this.i18n.use(defaultLang, langData.data);
           })
         ),
         this.httpClient.get('api/Menu/GetProfile').pipe(
           map(appData => {
             const res = appData as NzSafeAny;
 
-            this.settingService.setApp({ name: 'IoTSharp', description: 'IoTSharp' });
+           this.settingService.setApp({ name: 'IoTSharp', description: 'IoTSharp' });
             this.settingService.setData('drawerconfig', { width: 720, nzMaskClosable: false });
             this.settingService.setUser({
               name: res.data.username,
@@ -84,8 +83,8 @@ export class StartupService {
       return concat(
         this.httpClient.get(`api/i18n/current?_allow_anonymous=true&lang=${this.i18n.defaultLang}`).pipe(
           map((langData: any) => {
-            this.translate.setTranslation(this.i18n.defaultLang, langData.data);
-            this.translate.setDefaultLang(this.i18n.defaultLang);
+            this.i18n.use(defaultLang, langData.data);
+           
           })
         )
       );
