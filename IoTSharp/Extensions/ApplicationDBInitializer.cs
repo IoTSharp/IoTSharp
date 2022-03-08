@@ -432,6 +432,8 @@ namespace IoTSharp.Data
 
             this._context.BaseI18Ns.Add(new BaseI18N() { KeyName = "validation.customerEMail.required", ValueENUS = "Incorrect customer email", ValueFRFR = "La boîte aux lettres du client est incorrecte", ValueHRHR = "", ValueKOKR = "고객 메일박스가 잘못되었습니다", ValuePLPL = "", ValueSLSL = "", ValueTRTR = "", ValueZHCN = "客户邮箱不正确", ValueZHTW = "客戶郵箱不正確", });
             this._context.BaseI18Ns.Add(new BaseI18N() { KeyName = "validation.signin.invalidusername", ValueENUS = "The user name does not exist or the password is incorrect", ValueFRFR = "Le nom d'utilisateur n'existe pas ou le mot de passe est incorrect", ValueHRHR = "", ValueKOKR = "사용자 이름이 없거나 암호가 잘못되었습니다.", ValuePLPL = "", ValueSLSL = "", ValueTRTR = "", ValueZHCN = "用户名不存在或者密码错误", ValueZHTW = "用戶名不存在或者密碼錯誤", });
+            this._context.BaseI18Ns.Add(new BaseI18N() { KeyName = "validation.signin.captchatitle", ValueENUS = "Slide right to fill the puzzle", ValueFRFR = "Glissez à droite pour remplir le puzzle", ValueHRHR = "", ValueKOKR = "퍼즐을 채우기 위해 오른쪽으로 슬라이딩.", ValuePLPL = "", ValueSLSL = "", ValueTRTR = "", ValueZHCN = "向右滑动填充拼图", ValueZHTW = "向右滑動填充拼圖", });
+            this._context.BaseI18Ns.Add(new BaseI18N() { KeyName = "validation.signin.captchatryagain", ValueENUS = "Try again", ValueFRFR = "Réessayez.", ValueHRHR = "", ValueKOKR = "다시 시도.", ValuePLPL = "", ValueSLSL = "", ValueTRTR = "", ValueZHCN = "重试一次", ValueZHTW = "重試一次", });
 
 
             await this._context.SaveChangesAsync();

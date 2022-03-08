@@ -16,7 +16,12 @@
         </nz-form-control>
       </nz-form-item>
 
-  
+      <nz-form-item>
+        <nz-form-control nzErrorTip="">
+          <app-slidecontrol [controlInput]="controlInput" (successMatch)="successMatch($event)" style="width:100%" sliderText="aaa"  puzzleMask="aaa">
+          </app-slidecontrol>
+        </nz-form-control>
+      </nz-form-item>
   <nz-form-item>
     <nz-col [nzSpan]="12">
       <label nz-checkbox formControlName="remember">{{ 'app.login.remember-me' | i18n }}</label>
@@ -24,17 +29,12 @@
     <nz-col [nzSpan]="12" class="text-right">
       <a class="forgot" (click)="msg.error('can\'t help you')">{{ 'app.login.forgot-password' | i18n }}</a> |
       <a class="forgot" routerLink="/passport/register"  [queryParams]="{'type': 'register'}" >{{ 'app.register.register' | i18n }}</a>
-
     </nz-col>
-
-
   </nz-form-item>
   <nz-form-item>
-    <button nz-button type="submit" nzType="primary" nzSize="large" [nzLoading]="http.loading" nzBlock>
+    <button nz-button type="submit" nzType="primary" nzSize="large" [nzLoading]="http.loading" nzBlock *ngIf="isVertify">
       {{ 'app.login.login' | i18n }}
     </button>
-
-
   </nz-form-item>
 </form>
 

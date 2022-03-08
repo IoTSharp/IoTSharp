@@ -1,24 +1,36 @@
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, Inject, OnDestroy, Optional } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, Inject, OnDestroy, OnInit, Optional, ViewChild } from '@angular/core';
 import { AbstractControl, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
-import { StartupService } from '@core';
+import { I18NService, StartupService } from '@core';
 import { ReuseTabService } from '@delon/abc/reuse-tab';
 import { DA_SERVICE_TOKEN, ITokenService, SocialOpenType, SocialService } from '@delon/auth';
-import { SettingsService, _HttpClient } from '@delon/theme';
+import { ALAIN_I18N_TOKEN, SettingsService, _HttpClient } from '@delon/theme';
 import { environment } from '@env/environment';
+
 import { NzMessageService } from 'ng-zorro-antd/message';
 import { NzNotificationService } from 'ng-zorro-antd/notification';
 import { NzTabChangeEvent } from 'ng-zorro-antd/tabs';
 import { finalize } from 'rxjs/operators';
 
+import { Guid } from 'guid-typescript';
+import { SlidecontrolComponent } from '../../util/slidecontrol/slidecontrol.component';
+import { ControlInput, VertifyQuery } from '../../util/slidecontrol/control';
 @Component({
   selector: 'passport-login',
   templateUrl: './login.component.html',
   styleUrls: ['./login.component.less'],
   providers: [SocialService],
-  changeDetection: ChangeDetectionStrategy.OnPush
+  
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class UserLoginComponent implements OnDestroy {
+export class UserLoginComponent implements OnDestroy,OnInit {
+
+   isVertify:boolean=false;
+   clientid= Guid.create();
+  private query: VertifyQuery;
+  public controlInput: ControlInput;
+  @ViewChild(SlidecontrolComponent, {static: true})
+  slide: SlidecontrolComponent;
   constructor(
     fb: FormBuilder,
     private cdr: ChangeDetectorRef, 
@@ -32,7 +44,8 @@ export class UserLoginComponent implements OnDestroy {
     private startupSrv: StartupService,
     public http: _HttpClient,
     public msg: NzMessageService,
-    public notification: NzNotificationService
+    public notification: NzNotificationService,
+   
   ) {
     this.form = fb.group({
       userName: ['iotmaster@iotsharp.net', [Validators.required]],
@@ -41,6 +54,13 @@ export class UserLoginComponent implements OnDestroy {
       captcha: [null, [Validators.required]],
       remember: [true]
     });
+  }
+  ngOnInit(): void {
+    this.controlInput = new ControlInput(
+      'api/Captcha/Index?clientid='+this.clientid,
+      'api/Captcha/Vertify?clientid='+this.clientid,
+      false,
+    );
   }
   ngAfterViewInit(): void {
     localStorage.clear();
@@ -91,7 +111,11 @@ export class UserLoginComponent implements OnDestroy {
   switch({ index }: NzTabChangeEvent): void {
     this.type = index!;
   }
+  successMatch($event){
+    
+    this.isVertify=true;
 
+  }
   getCaptcha(): void {
     if (this.mobile.invalid) {
       this.mobile.markAsDirty({ onlySelf: true });

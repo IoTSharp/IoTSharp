@@ -76,13 +76,15 @@ import { GatewayshapeComponent } from './device/devicegraph/panels/gatewayshape/
 import { PortshapeComponent } from './device/devicegraph/panels/portshape/portshape.component';
 import { toolpaneldirective } from './device/devicegraph/panels/toolpaneldirective';
 
+
+
 const COMPONENTS: Array<Type<null>> = [];
 const Directive: Type<void>[] = [
   fielddirective, 
   controldirective,
   toolpaneldirective];
 @NgModule({
-  imports: [SharedModule, RouteRoutingModule, G2BarModule, G2GaugeModule, NzIconModule, WidgetsModule, ClipboardModule],
+  imports: [SharedModule, RouteRoutingModule, G2BarModule, G2GaugeModule, NzIconModule, WidgetsModule, ClipboardModule ],
   declarations: [
     ...COMPONENTS,
 
@@ -151,7 +153,8 @@ const Directive: Type<void>[] = [
     ConnectionedgeComponent,
     DevivceshapeComponent,
     GatewayshapeComponent,
-    PortshapeComponent
+    PortshapeComponent,
+    
   ]
 })
 export class RoutesModule {}
