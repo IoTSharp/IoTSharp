@@ -1,5 +1,5 @@
 <nz-tabset>
-    <nz-tab nzTitle="设备属性"></nz-tab>
+    <nz-tab nzTitle="网关属性"></nz-tab>
     <nz-tab nzTitle="端口配置">
       <button nz-button [nzType]="'primary'"  acl [acl-ability]="37">
         <i nz-icon nzType="plus"></i>
@@ -28,5 +28,24 @@
         </ng-template>
       </st>
     </nz-tab>
-    <nz-tab nzTitle="杂项"> </nz-tab>
+    <nz-tab nzTitle="杂项"> 
+      <form nz-form #f="ngForm" se-container="1">
+        <se label="X">
+          <input type="number" nz-input [(ngModel)]="BizData.x" name="x" >
+        </se>
+        <se label="Y">
+          <input type="number" nz-input [(ngModel)]="BizData.y" name="y"  >
+        </se>
+        <se label="宽度">
+          <input type="number" nz-input [(ngModel)]="BizData.width" name="width"  >
+        </se>
+        <se label="高度">
+          <input type="number" nz-input [(ngModel)]="BizData.height" name="height"  >
+        </se>
+      </form>
+
+
+
+
+    </nz-tab>
   </nz-tabset>

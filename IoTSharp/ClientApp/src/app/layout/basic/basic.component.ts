@@ -24,7 +24,7 @@ import { environment } from '@env/environment';
       </layout-default-header-item>
       <layout-default-header-item direction="middle">
         <header-search class="alain-default__search" [(toggleChange)]="searchToggleStatus"></header-search>
-      </layout-default-header-item> -->
+      </layout-default-header-item>
       <layout-default-header-item direction="right">
         <header-notify></header-notify>
       </layout-default-header-item>
@@ -33,7 +33,7 @@ import { environment } from '@env/environment';
       </layout-default-header-item>
       <layout-default-header-item direction="right" hidden="mobile">
         <header-icon></header-icon>
-      </layout-default-header-item>
+      </layout-default-header-item> -->
       <layout-default-header-item direction="right" hidden="mobile">
         <div layout-default-header-item-trigger nz-dropdown [nzDropdownMenu]="settingsMenu" nzTrigger="click" nzPlacement="bottomRight">
           <i nz-icon nzType="setting"></i>

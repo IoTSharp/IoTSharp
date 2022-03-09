@@ -1,223 +1,225 @@
-
-
-
-
-
 import { Graph, Edge, Shape, NodeView, Cell, Color } from '@antv/x6';
-export class Device extends Shape.Rect {
-    getInPorts() {
-      return this.getPortsByGroup('in');
-    }
-  
-    getOutPorts() {
-      return this.getPortsByGroup('out');
-    }
-  
-    getUsedInPorts(graph: Graph) {
-      const incomingEdges = graph.getIncomingEdges(this) || [];
-      return incomingEdges.map((edge: Edge) => {
-        const portId = edge.getTargetPortId();
-        return this.getPort(portId!);
+
+export class Device extends Shape.Image {
+  getInPorts() {
+    return this.getPortsByGroup('in');
+  }
+
+  getOutPorts() {
+    return this.getPortsByGroup('out');
+  }
+
+  getUsedInPorts(graph: Graph) {
+    const incomingEdges = graph.getIncomingEdges(this) || [];
+    return incomingEdges.map((edge: Edge) => {
+      const portId = edge.getTargetPortId();
+      return this.getPort(portId!);
+    });
+  }
+
+  getNewInPorts(length: number) {
+    return Array.from(
+      {
+        length
+      },
+      () => {
+        return {
+          group: 'in'
+        };
+      }
+    );
+  }
+
+  updateInPorts(graph: Graph) {
+    const minNumberOfPorts = 1;
+    const ports = this.getInPorts();
+    const usedPorts = this.getUsedInPorts(graph);
+    const newPorts = this.getNewInPorts(Math.max(minNumberOfPorts - usedPorts.length, 1));
+
+    if (ports.length === minNumberOfPorts && ports.length - usedPorts.length > 0) {
+      // noop
+    } else if (ports.length === usedPorts.length) {
+      //  this.addPorts(newPorts);
+    } else if (ports.length + 1 > usedPorts.length) {
+      this.prop(['ports', 'items'], this.getOutPorts().concat(usedPorts).concat(newPorts), {
+        rewrite: true
       });
     }
-  
-    getNewInPorts(length: number) {
-      return Array.from(
-        {
-          length,
-        },
-        () => {
-          return {
-            group: 'in',
-          };
-        },
-      );
-    }
-  
-    updateInPorts(graph: Graph) {
-      const minNumberOfPorts = 1;
-      const ports = this.getInPorts();
-      const usedPorts = this.getUsedInPorts(graph);
-      const newPorts = this.getNewInPorts(Math.max(minNumberOfPorts - usedPorts.length, 1));
-  
-      if (ports.length === minNumberOfPorts && ports.length - usedPorts.length > 0) {
-        // noop
-      } else if (ports.length === usedPorts.length) {
-        //  this.addPorts(newPorts);
-      } else if (ports.length + 1 > usedPorts.length) {
-        this.prop(['ports', 'items'], this.getOutPorts().concat(usedPorts).concat(newPorts), {
-          rewrite: true,
-        });
-      }
-  
-      return this;
-    }
+
+    return this;
   }
-  Device.config({
-    label: '',
-    attrs: {
-      root: {
-        magnet: false,
-      },
-      body: {
-        fill: '#eeffee',
-        stroke: '#d9d9d9',
-        strokeWidth: 1,
-      },
+}
+Device.config({
+  style: {
+    padding: 20
+  },
+  label: '',
+  attrs: {
+    root: {
+      magnet: false
     },
-    ports: {
-      groups: {
-        in: {
-          position: {
-            name: 'right',
-          },
-          attrs: {
-            portBody: {
-              magnet: 'passive',
-              r: 6,
-              stroke: '#ff0000',
-              fill: '#fff',
-              strokeWidth: 2,
-            },
-          },
+    body: {
+      fill: '#eeffee',
+      stroke: '#d9d9d9',
+      strokeWidth: 1
+    }
+  },
+  ports: {
+    groups: {
+      in: {
+        position: {
+          name: 'right'
         },
-        out: {
-          position: {
-            name: 'left',
-          },
-          attrs: {
-            portBody: {
-              magnet: true,
-              r: 6,
-              fill: '#fff',
-              stroke: '#3199FF',
-              strokeWidth: 2,
-            },
-          },
+        attrs: {
+          portBody: {
+            magnet: 'passive',
+            r: 6,
+            stroke: '#ff0000',
+            fill: '#fff',
+            strokeWidth: 2
+          }
+        }
+      },
+      out: {
+        position: {
+          name: 'left'
         },
-      },
-    },
-    portMarkup: [
-      {
-        tagName: 'circle',
-        selector: 'portBody',
-      },
-    ],
-  });
-  
-  export class GateWay extends Shape.Rect {
-    initports(data: any) {
-      const ports = this.getInPorts();
-   
-      for (var item of data.ports) {
-        this.addPort(item);
+        attrs: {
+          portBody: {
+            magnet: true,
+            r: 6,
+            fill: '#fff',
+            stroke: '#3199FF',
+            strokeWidth: 2
+          }
+        }
       }
-      return this;
     }
-  
-    getInPorts() {
-      return this.getPortsByGroup('in');
+  },
+  portMarkup: [
+    {
+      tagName: 'circle',
+      selector: 'portBody'
     }
-  
-    getOutPorts() {
-      return this.getPortsByGroup('out');
+  ]
+});
+
+export class GateWay extends Shape.Image {
+  initports(data: any) {
+    const ports = this.getInPorts();
+
+    for (var item of data.ports) {
+      this.addPort(item);
     }
-  
-    getUsedInPorts(graph: Graph) {
-      const incomingEdges = graph.getIncomingEdges(this) || [];
-      return incomingEdges.map((edge: Edge) => {
-        const portId = edge.getTargetPortId();
-        return this.getPort(portId!);
-      });
-    }
-  
-    getNewInPorts(length: number) {
-      return Array.from(
-        {
-          length,
-        },
-        () => {
-          return {
-            group: 'in',
-          };
-        },
-      );
-    }
-  
-    // updateInPorts(graph: Graph) {
-    //   const minNumberOfPorts = 8;
-    //   const ports = this.getInPorts();
-    //   const usedPorts = this.getUsedInPorts(graph);
-    //   const newPorts = this.getNewInPorts(Math.max(minNumberOfPorts - usedPorts.length, 1));
-  
-    //   if (ports.length === minNumberOfPorts && ports.length - usedPorts.length > 0) {
-    //     // noop
-    //   } else if (ports.length === usedPorts.length) {
-    //     this.addPorts(newPorts);
-    //   } else if (ports.length + 1 > usedPorts.length) {
-    //     this.prop(['ports', 'items'], this.getOutPorts().concat(usedPorts).concat(newPorts), {
-    //       rewrite: true,
-    //     });
-    //   }
-  
-    //   return this;
-    // }
+    return this;
   }
-  
-  GateWay.config({
-    attrs: {
-      image:{'xlink:href':'https://gw.alipayobjects.com/zos/bmw-prod/2010ac9f-40e7-49d4-8c4a-4fcf2f83033b.svg'},
-      root: {
-        magnet: false,
-      },
-      body: {
-        // fill: '#ffa940',
-        // stroke: '#d9d9d9',
-        // strokeWidth: 1,
-      },
-    },
-    ports: {
-      groups: {
-        in: {
-          label: {
-            position: 'left',
-          },
-          position: {
-            name: 'right',
-          },
-          attrs: {
-            portBody: {
-              magnet: 'passive',
-              r: 6,
-              stroke: '#ff0000',
-              fill: '#fff',
-              strokeWidth: 2,
-            },
-          },
-        },
-        out: {
-          position: {
-            name: 'left',
-          },
-          label: {
-            position: 'right',
-          },
-          attrs: {
-            portBody: {
-              magnet: true,
-              r: 6,
-              fill: '#fff',
-              stroke: '#3199FF',
-              strokeWidth: 2,
-            },
-          },
-        },
-      },
-    },
-    portMarkup: [
+
+  getInPorts() {
+    return this.getPortsByGroup('in');
+  }
+
+  getOutPorts() {
+    return this.getPortsByGroup('out');
+  }
+
+  getUsedInPorts(graph: Graph) {
+    const incomingEdges = graph.getIncomingEdges(this) || [];
+    return incomingEdges.map((edge: Edge) => {
+      const portId = edge.getTargetPortId();
+      return this.getPort(portId!);
+    });
+  }
+
+  getNewInPorts(length: number) {
+    return Array.from(
       {
-        tagName: 'circle',
-        selector: 'portBody',
+        length
       },
-    ],
-  });
+      () => {
+        return {
+          group: 'in'
+        };
+      }
+    );
+  }
+
+  // updateInPorts(graph: Graph) {
+  //   const minNumberOfPorts = 8;
+  //   const ports = this.getInPorts();
+  //   const usedPorts = this.getUsedInPorts(graph);
+  //   const newPorts = this.getNewInPorts(Math.max(minNumberOfPorts - usedPorts.length, 1));
+
+  //   if (ports.length === minNumberOfPorts && ports.length - usedPorts.length > 0) {
+  //     // noop
+  //   } else if (ports.length === usedPorts.length) {
+  //     this.addPorts(newPorts);
+  //   } else if (ports.length + 1 > usedPorts.length) {
+  //     this.prop(['ports', 'items'], this.getOutPorts().concat(usedPorts).concat(newPorts), {
+  //       rewrite: true,
+  //     });
+  //   }
+
+  //   return this;
+  // }
+}
+
+GateWay.config({
+  style: {
+    padding: 40
+  },
+  attrs: {
+    
+    root: {
+      magnet: false
+    },
+    body: {
+      fill: '#ffa940',
+      stroke: '#d9d9d9',
+      strokeWidth: 1
+    }
+  },
+  ports: {
+    groups: {
+      in: {
+        label: {
+          position: 'left'
+        },
+        position: {
+          name: 'right'
+        },
+        attrs: {
+          portBody: {
+            magnet: 'passive',
+            r: 6,
+            stroke: '#ff0000',
+            fill: '#fff',
+            strokeWidth: 2
+          }
+        }
+      },
+      out: {
+        position: {
+          name: 'left'
+        },
+        label: {
+          position: 'right'
+        },
+        attrs: {
+          portBody: {
+            magnet: true,
+            r: 6,
+            fill: '#fff',
+            stroke: '#3199FF',
+            strokeWidth: 2
+          }
+        }
+      }
+    }
+  },
+  portMarkup: [
+    {
+      tagName: 'circle',
+      selector: 'portBody'
+    }
+  ]
+});

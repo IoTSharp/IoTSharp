@@ -1,4 +1,5 @@
-import { Component, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
+import { DeviceItem } from '../../models/data';
 import { IBizData, IShapeData, IToolsPanel } from '../toolspanel';
 
 @Component({
@@ -8,11 +9,12 @@ import { IBizData, IShapeData, IToolsPanel } from '../toolspanel';
 })
 export class GatewayshapeComponent implements OnInit,IToolsPanel {
 
-  constructor() { }
-  BizData: IBizData;
+  constructor(private cdr: ChangeDetectorRef ) { }
+  BizData: DeviceItem={ id:'-1' ,x:11};
   ShapeData: IShapeData;
-
   ngOnInit(): void {
+    console.log(this.BizData)
+    this.cdr.detectChanges();
   }
 
 }

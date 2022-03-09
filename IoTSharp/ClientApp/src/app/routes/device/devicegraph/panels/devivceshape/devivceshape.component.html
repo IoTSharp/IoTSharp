@@ -1,1 +1,37 @@
-<p>devivceshape works!</p>
+<nz-tabset>
+  <nz-tab nzTitle="设备属性"></nz-tab>
+  <nz-tab nzTitle="设备遥测"></nz-tab>
+  <nz-tab nzTitle="杂项">
+    <form nz-form #f="ngForm" se-container="1">
+      <se label="X">
+        <input type="number" nz-input [(ngModel)]="BizData.x" name="x" />
+      </se>
+      <se label="Y">
+        <input type="number" nz-input [(ngModel)]="BizData.y" name="y" />
+      </se>
+      <se label="宽度">
+        <input type="number" nz-input [(ngModel)]="BizData.width" name="width" />
+      </se>
+      <se label="高度">
+        <input type="number" nz-input [(ngModel)]="BizData.height" name="height" />
+      </se>
+
+
+      <nz-upload
+      class="avatar-uploader"
+      nzAction="https://www.mocky.io/v2/5cc8019d300000980a055e76"
+      nzName="avatar"
+      nzListType="picture-card"
+      [nzShowUploadList]="false"
+      [nzBeforeUpload]="beforeUpload"
+      (nzChange)="handleChange($event)"
+    >
+      <ng-container *ngIf="!avatarUrl">
+        <i class="upload-icon" nz-icon [nzType]="loading ? 'loading' : 'plus'"></i>
+        <div class="ant-upload-text">Upload</div>
+      </ng-container>
+      <img *ngIf="avatarUrl" [src]="avatarUrl" style="width: 100%" />
+    </nz-upload>
+    </form>
+  </nz-tab>
+</nz-tabset>

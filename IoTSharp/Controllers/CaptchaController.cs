@@ -29,7 +29,7 @@ namespace IoTSharp.Controllers
         }
 
         [HttpGet, AllowAnonymous]
-        public dynamic Index(string clientid)
+        public ApiResult<ModelCaptcha> Index(string clientid)
         {
          //   string clientid = Guid.NewGuid().ToString();
 
@@ -81,8 +81,6 @@ namespace IoTSharp.Controllers
            {
                return new ApiResult<bool>(ApiCode.InValidData, "incorrect move", false);
             }
-
-      
          
         }
 
@@ -218,6 +216,11 @@ namespace IoTSharp.Controllers
 
 
         }
+
+
+         
+
+
 
     }
 }

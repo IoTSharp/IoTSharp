@@ -9,7 +9,7 @@ import { IBizData, IShapeData, IToolsPanel } from '../toolspanel';
 export class PortshapeComponent implements OnInit ,IToolsPanel{
 
   constructor() { }
-  BizData: IBizData;
+  BizData: any;
   ShapeData: IShapeData;
 
   ngOnInit(): void {
