@@ -118,11 +118,41 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <assembly alias="System.Windows.Forms" name="System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" />
+  <data name="buzzle_template_png" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\buzzle-template.png.dat;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
   <data name="Logo" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\Logo.ico;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
   <data name="ShowHelp" xml:space="preserve">
     <value>显示帮助</value>
+  </data>
+  <data name="slide1_jpg" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\slide1.jpg.dat;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="slide2_jpg" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\slide2.jpg.dat;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="slide3_jpg" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\slide3.jpg.dat;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="slide4_jpg" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\slide4.jpg.dat;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="slide5_jpg" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\slide5.jpg.dat;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="slide6_jpg" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\slide6.jpg.dat;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="slide7_jpg" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\slide7.jpg.dat;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="slide8_jpg" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\slide8.jpg.dat;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="slide9_jpg" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\slide9.jpg.dat;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
   <data name="TheCertificateIsInstalled" xml:space="preserve">
     <value>The certificate is installed</value>
