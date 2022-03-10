@@ -38,11 +38,11 @@
 		<GenerateDocumentationFile>True</GenerateDocumentationFile>
 	</PropertyGroup>
 
-	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+	<PropertyGroup >
 		<GenerateSerializationAssemblies>Off</GenerateSerializationAssemblies>
 		<DocumentationFile>IoTSharp.xml</DocumentationFile>
 		<NoWarn>1701;1702;1591</NoWarn>
-		<OutputPath></OutputPath>
+		<DocumentationFile>IoTSharp.xml</DocumentationFile>
 	</PropertyGroup>
 	<ItemGroup>
 
@@ -157,7 +157,6 @@
 		<None Remove="healthchecksdb-shm" />
 		<None Remove="health_checks.db" />
 		<None Remove="IoTSharp.db" />
-		<None Remove="IoTSharp.xml" />
 		<None Remove="server.crt" />
 		<None Remove="server.key" />
 		<None Remove="TelemetryStorage.db" />
@@ -208,12 +207,6 @@
 			</ResolvedFileToPublish>
 		</ItemGroup>
 	</Target>
-
-	<ItemGroup>
-	  <Content Include="IoTSharp.xml">
-	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-	  </Content>
-	</ItemGroup>
 	<ItemGroup>
 		<ProjectReference Include="..\IoTSharp.Data.InMemory\IoTSharp.Data.InMemory.csproj" />
 		<ProjectReference Include="..\IoTSharp.Data.MySQL\IoTSharp.Data.MySQL.csproj" />
@@ -227,6 +220,11 @@
 	</ItemGroup>
 	<ItemGroup>
 		<Folder Include="ClientApp\" />
+	</ItemGroup>
+	<ItemGroup>
+	  <None Update="IoTSharp.xml">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </None>
 	</ItemGroup>
 	<ProjectExtensions>
 		<VisualStudio>
