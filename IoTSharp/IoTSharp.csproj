@@ -143,11 +143,19 @@
 
 		<Compile Remove="Migrations\**" />
 
+		<Compile Remove="Resources\images\**" />
+
 		<Content Remove="Migrations\**" />
+
+		<Content Remove="Resources\images\**" />
 
 		<EmbeddedResource Remove="Migrations\**" />
 
+		<EmbeddedResource Remove="Resources\images\**" />
+
 		<None Remove="Migrations\**" />
+
+		<None Remove="Resources\images\**" />
 		<Content Remove="wwwroot\lib\jquery-validation-unobtrusive\LICENSE.txt" />
 		<Content Remove="wwwroot\lib\jquery\LICENSE.txt" />
 		<None Remove=".gitignore" />
@@ -209,36 +217,6 @@
 	  <Content Include="IoTSharp.xml">
 	    <CopyToOutputDirectory>Never</CopyToOutputDirectory>
 	  </Content>
-	  <Content Include="Resources\images\slide\1.jpg">
-	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-	  </Content>
-	  <Content Include="Resources\images\slide\2.jpg">
-	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-	  </Content>
-	  <Content Include="Resources\images\slide\3.jpg">
-	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-	  </Content>
-	  <Content Include="Resources\images\slide\4.jpg">
-	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-	  </Content>
-	  <Content Include="Resources\images\slide\5.jpg">
-	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-	  </Content>
-	  <Content Include="Resources\images\slide\6.jpg">
-	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-	  </Content>
-	  <Content Include="Resources\images\slide\7.jpg">
-	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-	  </Content>
-	  <Content Include="Resources\images\slide\8.jpg">
-	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-	  </Content>
-	  <Content Include="Resources\images\slide\9.jpg">
-	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-	  </Content>
-	  <Content Include="Resources\images\slide\buzzle-template.png">
-	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-	  </Content>
 	</ItemGroup>
 	<ItemGroup>
 		<ProjectReference Include="..\IoTSharp.Data.InMemory\IoTSharp.Data.InMemory.csproj" />
@@ -253,6 +231,19 @@
 	</ItemGroup>
 	<ItemGroup>
 		<Folder Include="ClientApp\" />
+	</ItemGroup>
+	<ItemGroup>
+	  <Compile Update="Properties\Resources.Designer.cs">
+	    <DesignTime>True</DesignTime>
+	    <AutoGen>True</AutoGen>
+	    <DependentUpon>Resources.resx</DependentUpon>
+	  </Compile>
+	</ItemGroup>
+	<ItemGroup>
+	  <EmbeddedResource Update="Properties\Resources.resx">
+	    <Generator>ResXFileCodeGenerator</Generator>
+	    <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+	  </EmbeddedResource>
 	</ItemGroup>
 	<ProjectExtensions>
 		<VisualStudio>
