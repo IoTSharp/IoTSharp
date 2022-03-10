@@ -29,20 +29,20 @@
 		<DockerComposeProjectPath>..\docker-compose.dcproj</DockerComposeProjectPath>
 		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
 		<IsPackable>true</IsPackable>
-		<PackageLicenseExpression></PackageLicenseExpression>
+		<PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
 		<Copyright>Copyright 2018-2022  Yanhong Ma</Copyright>
 		<AssemblyVersion>2.0.1.0</AssemblyVersion>
 		<FileVersion>2.0.1.0</FileVersion>
-		<PackageLicenseFile>LICENSE.txt</PackageLicenseFile>
 		<PackageIcon>96x96.png</PackageIcon>
 		<GenerateDocumentationFile>True</GenerateDocumentationFile>
 	</PropertyGroup>
 
-	<PropertyGroup >
+	<PropertyGroup>
 		<GenerateSerializationAssemblies>Off</GenerateSerializationAssemblies>
 		<DocumentationFile>IoTSharp.xml</DocumentationFile>
 		<NoWarn>1701;1702;1591</NoWarn>
 		<DocumentationFile>IoTSharp.xml</DocumentationFile>
+		<EnforceCodeStyleInBuild>True</EnforceCodeStyleInBuild>
 	</PropertyGroup>
 	<ItemGroup>
 
@@ -157,15 +157,12 @@
 		<None Remove="healthchecksdb-shm" />
 		<None Remove="health_checks.db" />
 		<None Remove="IoTSharp.db" />
+		<None Remove="IoTSharp.xml" />
 		<None Remove="server.crt" />
 		<None Remove="server.key" />
 		<None Remove="TelemetryStorage.db" />
 		<_WebToolingArtifacts Remove="Properties\PublishProfiles\registry.hub.docker.com_iotsharp.pubxml" />
 		<None Include="..\docs\images\96x96.png">
-			<Pack>True</Pack>
-			<PackagePath></PackagePath>
-		</None>
-		<None Include="..\LICENSE.txt">
 			<Pack>True</Pack>
 			<PackagePath></PackagePath>
 		</None>
@@ -207,6 +204,12 @@
 			</ResolvedFileToPublish>
 		</ItemGroup>
 	</Target>
+
+	<ItemGroup>
+	  <Content Include="IoTSharp.xml">
+	    <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+	  </Content>
+	</ItemGroup>
 	<ItemGroup>
 		<ProjectReference Include="..\IoTSharp.Data.InMemory\IoTSharp.Data.InMemory.csproj" />
 		<ProjectReference Include="..\IoTSharp.Data.MySQL\IoTSharp.Data.MySQL.csproj" />
@@ -220,11 +223,6 @@
 	</ItemGroup>
 	<ItemGroup>
 		<Folder Include="ClientApp\" />
-	</ItemGroup>
-	<ItemGroup>
-	  <None Update="IoTSharp.xml">
-	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-	  </None>
 	</ItemGroup>
 	<ProjectExtensions>
 		<VisualStudio>
