@@ -1,6 +1,15 @@
 import { Graph, Edge, Shape, NodeView, Cell, Color } from '@antv/x6';
 
 export class Device extends Shape.Image {
+
+  initports(data: any) {
+    const ports = this.getInPorts();
+
+    for (var item of data.ports) {
+      this.addPort(item);
+    }
+    return this;
+  }
   getInPorts() {
     return this.getPortsByGroup('in');
   }

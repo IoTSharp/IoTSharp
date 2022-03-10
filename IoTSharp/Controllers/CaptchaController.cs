@@ -89,13 +89,10 @@ namespace IoTSharp.Controllers
 
         private ModelCaptcha CreateImage()
         {
-            if (string.IsNullOrWhiteSpace(_hostingEnvironment.WebRootPath))
-            {
-                _hostingEnvironment.WebRootPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot");
-            }
-            string webRootPath = _hostingEnvironment.WebRootPath;
-            using var buzzlefile = System.IO.File.OpenRead(webRootPath + "\\images\\slide\\buzzle-template.png");
-            using var orginfile = System.IO.File.OpenRead(webRootPath + "\\images\\slide\\" + random.Next(1, 9) + ".jpg");
+
+            string contentRootPath = _hostingEnvironment.ContentRootPath;
+            using var buzzlefile = System.IO.File.OpenRead(contentRootPath + "\\Resources\\images\\slide\\buzzle-template.png");
+            using var orginfile = System.IO.File.OpenRead(contentRootPath + "\\Resources\\images\\slide\\" + random.Next(1, 9) + ".jpg");
             using var buzzlefilestream = new SKManagedStream(buzzlefile);
             using var orginfilestream = new SKManagedStream(orginfile);
             using var buzzle = SKBitmap.Decode(buzzlefilestream);

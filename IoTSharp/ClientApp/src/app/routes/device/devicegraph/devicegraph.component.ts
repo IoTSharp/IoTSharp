@@ -109,7 +109,7 @@ export class DevicegraphComponent implements OnInit {
         GraphShape: ''
       },
       ports: {
-        in: [{ portname: '温度', id: '1', type: 1, iotype: 1 }]
+    
       }
     },
 
@@ -142,24 +142,7 @@ export class DevicegraphComponent implements OnInit {
         GraphShape: ''
       },
       ports: {
-        in: [
-          { portname: 'port11', id: '4', type: 1, iotype: 1 },
-          { portname: 'port2', id: '5', type: 1, iotype: 1 },
-          { portname: 'port3', id: '6', type: 1, iotype: 1 },
-          { portname: 'port4', id: '7', type: 1, iotype: 1 },
-          { portname: 'port5', id: '8', type: 1, iotype: 1 },
-          { portname: 'port6', id: '9', type: 1, iotype: 1 },
-          { portname: 'port7', id: '10', type: 1, iotype: 1 }
-        ],
-        out: [
-          { portname: 'port11', id: '11', type: 1, iotype: 1 },
-          { portname: 'port2', id: '12', type: 1, iotype: 1 },
-          { portname: 'port3', id: '13', type: 1, iotype: 1 },
-          { portname: 'port4', id: '14', type: 1, iotype: 1 },
-          { portname: 'port5', id: '15', type: 1, iotype: 1 },
-          { portname: 'port6', id: '16', type: 1, iotype: 1 },
-          { portname: 'port7', id: '17', type: 1, iotype: 1 }
-        ]
+    
       }
     },
     {
@@ -191,24 +174,7 @@ export class DevicegraphComponent implements OnInit {
         GraphShape: ''
       },
       ports: {
-        in: [
-          { portname: 'port1', id: '18', type: 1, iotype: 1 },
-          { portname: 'port2', id: '19', type: 1, iotype: 1 },
-          { portname: 'port3', id: '20', type: 1, iotype: 1 },
-          { portname: 'port4', id: '21', type: 1, iotype: 1 },
-          { portname: 'port5', id: '22', type: 1, iotype: 1 },
-          { portname: 'port6', id: '23', type: 1, iotype: 1 },
-          { portname: 'port7', id: '24', type: 1, iotype: 1 }
-        ],
-        out: [
-          { portname: 'port1', id: '25', type: 1, iotype: 1 },
-          { portname: 'port2', id: '26', type: 1, iotype: 1 },
-          { portname: 'port3', id: '27', type: 1, iotype: 1 },
-          { portname: 'port4', id: '28', type: 1, iotype: 1 },
-          { portname: 'port5', id: '29', type: 1, iotype: 1 },
-          { portname: 'port6', id: '30', type: 1, iotype: 1 },
-          { portname: 'port7', id: '31', type: 1, iotype: 1 }
-        ]
+    
       }
     },
 
@@ -240,7 +206,7 @@ export class DevicegraphComponent implements OnInit {
         GraphWidth: '',
         GraphShape: ''
       },
-      ports: { in: [{ portname: '湿度', id: '35', type: 1, iotype: 1 }] }
+      ports: { }
     }
   ];
 
@@ -444,8 +410,8 @@ export class DevicegraphComponent implements OnInit {
     this.graph.on('node:resized', ({ e, x, y, node, view }) => {
       var d = node.getProp('Biz') as DeviceItem;
       d.width = x;
-      d.height = y;   
-      d.mateData=node;
+      d.height = y;
+      d.mateData = node;
       node.setProp('Biz', d);
       this.createpanel(d.type, d);
     });
@@ -453,14 +419,14 @@ export class DevicegraphComponent implements OnInit {
     this.graph.on('node:moved', ({ e, x, y, node, view }) => {
       var d = node.getProp('Biz') as DeviceItem;
       d.x = x;
-      d.y = y;    
-      d.mateData=node;
+      d.y = y;
+      d.mateData = node;
       node.setProp('Biz', d);
       this.createpanel(d.type, d);
     });
 
     this.graph.on('edge:click', ({ e, x, y, edge, view }) => {
-      var _edge:EdgeItem={ id:edge.id, mateData:edge }
+      var _edge: EdgeItem = { id: edge.id, mateData: edge };
       this.createpanel('edge', _edge);
       // console.log(edge.getTargetNode());
       // console.log(edge.getSourceNode());
@@ -601,8 +567,8 @@ export class DevicegraphComponent implements OnInit {
 
       if (matadata) {
         if (!this.portiseselected) {
-          matadata.devicename
-          matadata.mateData=e.node
+          matadata.devicename;
+          matadata.mateData = e.node;
           this.createpanel(matadata.type, matadata);
         }
         this.graph.getNodes;
@@ -643,92 +609,97 @@ export class DevicegraphComponent implements OnInit {
   onDrop($event) {
     switch ($event.dropData.type) {
       case 'device':
-        var ports = [];
-        if ($event.dropData.ports.in) {
-          for (var item of $event.dropData.ports.in) {
-            var port = {
-              id: item.id,
-              group: 'in',
+        {
+          var ports = [];
+          if ($event.dropData.ports?.in) {
+            for (var item of $event.dropData.ports?.in) {
+              var port = {
+                id: item.id,
+                group: 'in',
 
-              zIndex: 'auto',
-              attrs: {
-                text: {
-                  // 标签选择器
-                  text: item.portname // 标签文本
-                }
-              }
-            };
-            ports = [...ports, port];
-          }
-        }
-        if ($event.dropData.ports.out) {
-          for (var item of $event.dropData.ports.out) {
-            var port = {
-              id: item.id,
-              group: 'out',
-              zIndex: 'auto',
-              attrs: {
-                text: {
-                  // 标签选择器
-                  text: item.portname // 标签文本
-                }
-              }
-            };
-            ports = [...ports, port];
-          }
-        }
-
-        var data = {
-          label: $event.dropData.devicename,
-          height: 80,
-          width: 160,
-          tools: this.tools,
-          offsetX: this.dragEndlocation.offsetX,
-          offsetY: this.dragEndlocation.offsetY,
-          Biz: $event.dropData,
-
-          portdata: {
-            group: {
-              in: {
-                label: {
-                  position: 'left'
-                },
-                position: {
-                  name: 'right'
-                },
+                zIndex: 'auto',
                 attrs: {
-                  portBody: {
-                    magnet: 'passive',
-                    r: 6,
-                    stroke: '#ff0000',
-                    fill: '#fff',
-                    strokeWidth: 2
+                  text: {
+                    // 标签选择器
+                    text: item.portname // 标签文本
+                  }
+                }
+              };
+              ports = [...ports, port];
+            }
+          }
+          if ($event.dropData.ports?.out) {
+            for (var item of $event.dropData.ports?.out) {
+              var port = {
+                id: item.id,
+                group: 'out',
+                zIndex: 'auto',
+                attrs: {
+                  text: {
+                    // 标签选择器
+                    text: item.portname // 标签文本
+                  }
+                }
+              };
+              ports = [...ports, port];
+            }
+          }
+          $event.dropData.width = 160;
+          $event.dropData.height = 80;
+
+          $event.dropData.x = this.dragEndlocation.offsetX;
+          $event.dropData.y = this.dragEndlocation.offsetY;
+          var data = {
+            label: $event.dropData.devicename,
+            height: $event.dropData.height,
+            width: $event.dropData.width,
+            tools: this.tools,
+            offsetX: $event.dropData.x,
+            offsetY: $event.dropData.y,
+            Biz: $event.dropData,
+
+            portdata: {
+              group: {
+                in: {
+                  label: {
+                    position: 'left'
+                  },
+                  position: {
+                    name: 'right'
+                  },
+                  attrs: {
+                    portBody: {
+                      magnet: 'passive',
+                      r: 6,
+                      stroke: '#ff0000',
+                      fill: '#fff',
+                      strokeWidth: 2
+                    }
+                  }
+                },
+                out: {
+                  position: {
+                    name: 'left'
+                  },
+                  label: {
+                    position: 'right'
+                  },
+                  attrs: {
+                    portBody: {
+                      magnet: true,
+                      r: 6,
+                      fill: '#fff',
+                      stroke: '#3199FF',
+                      strokeWidth: 2
+                    }
                   }
                 }
               },
-              out: {
-                position: {
-                  name: 'left'
-                },
-                label: {
-                  position: 'right'
-                },
-                attrs: {
-                  portBody: {
-                    magnet: true,
-                    r: 6,
-                    fill: '#fff',
-                    stroke: '#3199FF',
-                    strokeWidth: 2
-                  }
-                }
-              }
-            },
-            ports: ports
-          }
-        };
-        this.createshape(data, 'device');
-
+              ports: ports
+            }
+          };
+          this.createshape(data, 'device');
+        }
         break;
 
       case 'gateway':
@@ -745,125 +716,161 @@ export class DevicegraphComponent implements OnInit {
         // node.setPortLabelMarkup;
 
         // this.data.splice(this.data.indexOf($event.dropData), 1);
+        {
+          var ports = [];
+if($event.dropData.ports?.in){
 
-        var ports = [];
+  for (var item of $event.dropData.ports?.in) {
+    var port = {
+      id: item.id,
+      group: 'in',
 
-        for (var item of $event.dropData.ports.in) {
-          var port = {
-            id: item.id,
-            group: 'in',
-
-            zIndex: 'auto',
-            attrs: {
-              text: {
-                // 标签选择器
-                text: item.portname // 标签文本
-              }
-            }
-          };
-          ports = [...ports, port];
+      zIndex: 'auto',
+      attrs: {
+        text: {
+          // 标签选择器
+          text: item.portname // 标签文本
         }
+      }
+    };
+    ports = [...ports, port];
+  }
 
-        for (var item of $event.dropData.ports.out) {
-          var port = {
-            id: item.id,
-            group: 'out',
 
-            zIndex: 'auto',
-            attrs: {
-              text: {
-                // 标签选择器
-                text: item.portname // 标签文本
+}
+if($event.dropData.ports?.out){
+          for (var item of $event.dropData.ports?.out) {
+            var port = {
+              id: item.id,
+              group: 'out',
+
+              zIndex: 'auto',
+              attrs: {
+                text: {
+                  // 标签选择器
+                  text: item.portname // 标签文本
+                }
               }
-            }
-          };
-          ports = [...ports, port];
+            };
+            ports = [...ports, port];
+          }
         }
-        console.log(ports);
-        var data = {
-          label: $event.dropData.devicename,
-          height: 200,
-          width: 160,
-          tools: this.tools,
-          offsetX: this.dragEndlocation.offsetX,
-          offsetY: this.dragEndlocation.offsetY,
-          Biz: $event.dropData,
-          portdata: {
-            group: {
-              in: {
-                label: {
-                  position: 'left'
+          $event.dropData.width = 240;
+          $event.dropData.height = 200;
+
+          $event.dropData.x = this.dragEndlocation.offsetX;
+          $event.dropData.y = this.dragEndlocation.offsetY;
+          var data = {
+            label: $event.dropData.devicename,
+            height: $event.dropData.height,
+            width: $event.dropData.width,
+            tools: this.tools,
+            offsetX: $event.dropData.x,
+            offsetY: $event.dropData.y,
+            Biz: $event.dropData,
+            portdata: {
+              group: {
+                in: {
+                  label: {
+                    position: 'left'
+                  },
+                  position: {
+                    name: 'right'
+                  },
+                  attrs: {
+                    portBody: {
+                      magnet: 'passive',
+                      r: 6,
+                      stroke: '#ff0000',
+                      fill: '#fff',
+                      strokeWidth: 2
+                    }
+                  }
                 },
-                position: {
-                  name: 'right'
-                },
-                attrs: {
-                  portBody: {
-                    magnet: 'passive',
-                    r: 6,
-                    stroke: '#ff0000',
-                    fill: '#fff',
-                    strokeWidth: 2
+                out: {
+                  position: {
+                    name: 'left'
+                  },
+                  label: {
+                    position: 'right'
+                  },
+                  attrs: {
+                    portBody: {
+                      magnet: true,
+                      r: 6,
+                      fill: '#fff',
+                      stroke: '#3199FF',
+                      strokeWidth: 2
+                    }
                   }
                 }
               },
-              out: {
-                position: {
-                  name: 'left'
-                },
-                label: {
-                  position: 'right'
-                },
-                attrs: {
-                  portBody: {
-                    magnet: true,
-                    r: 6,
-                    fill: '#fff',
-                    stroke: '#3199FF',
-                    strokeWidth: 2
-                  }
-                }
-              }
-            },
-            ports: ports
-          }
-        };
-        this.createshape(data, 'gateway');
+              ports: ports
+            }
+          };
+          this.createshape(data, 'gateway');
+        }
         break;
     }
   }
 
   createshape(data: any, type: string) {
-    var node = this.graph.addNode(
-      new GateWay({
-        label: data.label,
-        tools: data.tools,
-        imageUrl: data.Biz.image
-      })
-        .setProp('Biz', data.Biz)
-        .resize(data.width, data.height)
-        .position(this.dragEndlocation.offsetX, this.dragEndlocation.offsetY)
-        .initports(data.portdata)
-        .setAttrs({
-          root: {
-            magnet: false
-          },
-          body: {
-            fill: '#3199FF',
-            stroke: data.Biz.prop.GraphStroke,
-            strokeWidth: data.Biz.prop.GraphStrokeWidth
-          }
-        })
-      //   .updateInPorts(this.graph),
-    );
-    node.setPortLabelMarkup;
-    this.data.splice(this.data.indexOf(data.Biz), 1);
+    switch (type) {
+      case 'gateway':
+        var node = this.graph.addNode(
+          new GateWay({
+            label: data.label,
+            tools: data.tools,
+            imageUrl: data.Biz.image
+          })
+            .setProp('Biz', data.Biz)
+            .resize(data.width, data.height)
+            .position(this.dragEndlocation.offsetX, this.dragEndlocation.offsetY)
+            .initports(data.portdata)
+            .setAttrs({
+              root: {
+                magnet: false
+              },
+              body: {
+                fill: '#3199FF',
+                stroke: data.Biz.prop.GraphStroke,
+                strokeWidth: data.Biz.prop.GraphStrokeWidth
+              }
+            })
+          //   .updateInPorts(this.graph),
+        );
+        node.setPortLabelMarkup;
+        this.data.splice(this.data.indexOf(data.Biz), 1);
+        node.setAttrs({});
 
-    node.setAttrs({
-      // image: {
-      //   'xlink:href': 'https://gw.alipayobjects.com/mdn/rms_43231b/afts/img/A*f6hhT75YjkIAAAAAAAAAAAAAARQnAQ',
-      // },
-    });
+        break;
+      case 'device':
+        var node = this.graph.addNode(
+          new Device({
+            label: data.label,
+            tools: data.tools,
+            imageUrl: data.Biz.image
+          })
+            .setProp('Biz', data.Biz)
+            .resize(data.width, data.height)
+            .position(this.dragEndlocation.offsetX, this.dragEndlocation.offsetY)
+            .initports(data.portdata)
+            .setAttrs({
+              root: {
+                magnet: false
+              },
+              body: {
+                fill: '#3199FF',
+                stroke: data.Biz.prop.GraphStroke,
+                strokeWidth: data.Biz.prop.GraphStrokeWidth
+              }
+            })
+        );
+        node.setPortLabelMarkup;
+        this.data.splice(this.data.indexOf(data.Biz), 1);
+        node.setAttrs({});
+        break;
+    }
   }
 
   dragEnd(event) {}

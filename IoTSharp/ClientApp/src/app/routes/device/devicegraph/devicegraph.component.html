@@ -1,7 +1,6 @@
 <nz-header nzTheme="light" style="background-color: yellowgreen">
   <button nz-button nzType="primary" nzShape="round" (click)="savesense()">保存<i nz-icon nzType="download"></i></button>
 </nz-header>
-
 <nz-layout class="inner-layout" style="padding: 10px">
   <nz-sider nzWidth="200px" nzTheme="light">
     <nz-list nzItemLayout="horizontal" style="float: left; width: 200px; padding: 3px">
@@ -27,46 +26,8 @@
          (document:mousemove)="onmove($event)"
          style="float: left; width: 100%"></div>
   </nz-content>
-  <nz-sider nzTheme="light" nzWidth="400px" style="padding: 1rem">
+  <nz-sider nzTheme="light" nzWidth="500px" style="padding: 1rem">
     <ng-template  toolpanelcontainer>
-
-
-
     </ng-template>
-
-
-    
-    <!-- <nz-tabset>
-      <nz-tab nzTitle="设备属性"></nz-tab>
-      <nz-tab nzTitle="端口配置">
-        <button nz-button [nzType]="'primary'" (click)="newport(-1)" acl [acl-ability]="37">
-          <i nz-icon nzType="plus"></i>
-          <span>{{ 'button.new' | translate }}</span>
-        </button>
-        <st #st [data]="selcetedDevice.ports.in" [columns]="columns" [page]="{ show: false }">
-          <ng-template st-row="portNameTpl" let-item let-index="index">
-            <input *ngIf="item.edit" nz-input [ngModel]="item.portname" (ngModelChange)="st.setRow(index, { portname: $event })" />
-            <ng-container *ngIf="!item.edit">{{ item.portname }}</ng-container>
-          </ng-template>
-          <ng-template st-row="portTypeTpl" let-item let-index="index">
-            <nz-select ngModel="item.iotype" *ngIf="item.edit" (ngModelChange)="st.setRow(index, { iotype: $event })">
-              <nz-option nzValue="1" nzLabel="输入"></nz-option>
-              <nz-option nzValue="2" nzLabel="输出"></nz-option>
-            </nz-select>
-
-            <ng-container *ngIf="!item.edit">{{ item.iotype }}</ng-container>
-          </ng-template>
-          <ng-template st-row="portPhyTypeTpl" let-item let-index="index">
-            <nz-select ngModel="item.type" *ngIf="item.edit" (ngModelChange)="st.setRow(index, { type: $event })">
-              <nz-option nzValue="1" nzLabel="以太网"></nz-option>
-              <nz-option nzValue="2" nzLabel="RS232"></nz-option>
-              <nz-option nzValue="3" nzLabel="RS485"></nz-option>
-            </nz-select>
-            <ng-container *ngIf="!item.edit">{{ item.type }}</ng-container>
-          </ng-template>
-        </st>
-      </nz-tab>
-      <nz-tab nzTitle="杂项"> </nz-tab>
-    </nz-tabset> -->
   </nz-sider>
 </nz-layout>
