@@ -1,3 +1,4 @@
+import { Node } from "@antv/x6";
 import { PortManager } from "@antv/x6/lib/model/port";
 import { IBizData } from "../panels/toolspanel";
 
@@ -31,6 +32,9 @@ export interface DeviceItem extends IBizData {
     portType?: number;
     portPhyType?: number;
     mateData: PortManager.PortMetadata
+    parentRef:Node;
+    addr?: string;
+    matadata?: any;
 
   }
   export interface EdgeItem extends IBizData  {
