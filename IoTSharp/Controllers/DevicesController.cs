@@ -848,6 +848,7 @@ namespace IoTSharp.Controllers
         /// <param name="access_token">Device 's access token </param>
         /// <param name="format"></param>
         /// <returns></returns>
+        /// <remarks>需要在body里面填充数据</remarks>
         [AllowAnonymous]
         [HttpPost("{access_token}/PushDataToMap/{format}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
@@ -954,9 +955,9 @@ namespace IoTSharp.Controllers
         /// 上传原始Json或者xml 通过规则链进行解析。 
         /// </summary>
         /// <param name="access_token">Device 's access token </param>
-        /// <param name="body">原始数据， Post 在Body里面。 </param>
         /// <param name="format">只支持json和 xml， XML会转换为 Json。</param>
         /// <returns></returns>
+        /// <remarks>需要在body里面填充数据</remarks>
         [AllowAnonymous]
         [HttpPost("{access_token}/PushDataToRuleChains/{fromat}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
