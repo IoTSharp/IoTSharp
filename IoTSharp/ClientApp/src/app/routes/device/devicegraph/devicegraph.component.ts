@@ -108,9 +108,7 @@ export class DevicegraphComponent implements OnInit {
         GraphWidth: '',
         GraphShape: ''
       },
-      ports: {
-    
-      }
+      ports: {}
     },
 
     {
@@ -141,9 +139,7 @@ export class DevicegraphComponent implements OnInit {
         GraphWidth: '',
         GraphShape: ''
       },
-      ports: {
-    
-      }
+      ports: {}
     },
     {
       devicename: '网关2',
@@ -173,9 +169,7 @@ export class DevicegraphComponent implements OnInit {
         GraphWidth: '',
         GraphShape: ''
       },
-      ports: {
-    
-      }
+      ports: {}
     },
 
     {
@@ -206,7 +200,7 @@ export class DevicegraphComponent implements OnInit {
         GraphWidth: '',
         GraphShape: ''
       },
-      ports: { }
+      ports: {}
     }
   ];
 
@@ -312,9 +306,9 @@ export class DevicegraphComponent implements OnInit {
         maxScale: 10
       },
       resizing: true,
+      rotating: true,
       autoResize: true,
       grid: true,
-
       height: 800,
       highlighting: {
         magnetAvailable: this.magnetAvailabilityHighlighter,
@@ -526,7 +520,8 @@ export class DevicegraphComponent implements OnInit {
                 timer(50).subscribe(next => {
                   var _port: PortItem = {
                     id: port.id,
-                    mateData: port
+                    mateData: port,
+                    parentRef:device,
                   };
                   this.createpanel('port', _port);
                 });
@@ -545,7 +540,10 @@ export class DevicegraphComponent implements OnInit {
                 };
                 gateway.setPortProp(port.id, 'attrs/circle', this.selectedstyle.body);
                 timer(50).subscribe(next => {
-                  var _port: PortItem = { id: port.id, mateData: port };
+                  var _port: PortItem = {
+                     id: port.id,
+                     mateData: port,
+                     parentRef:gateway, };
                   this.createpanel('port', _port);
                 });
               }
@@ -562,7 +560,7 @@ export class DevicegraphComponent implements OnInit {
     });
 
     this.graph.on('node:click', (e, x, y, node, view) => {
-      console.log(e.node);
+     
       var matadata = e.node.getProp('Biz') as DeviceItem;
 
       if (matadata) {
@@ -621,7 +619,7 @@ export class DevicegraphComponent implements OnInit {
                 attrs: {
                   text: {
                     // 标签选择器
-                    text: item.portname // 标签文本
+                    text: item.portname 
                   }
                 }
               };
@@ -636,8 +634,8 @@ export class DevicegraphComponent implements OnInit {
                 zIndex: 'auto',
                 attrs: {
                   text: {
-                    // 标签选择器
-                    text: item.portname // 标签文本
+              
+                    text: item.portname 
                   }
                 }
               };
@@ -703,58 +701,41 @@ export class DevicegraphComponent implements OnInit {
         break;
 
       case 'gateway':
-        // var node = this.graph.addNode(
-        //   new GateWay({
-        //     label: $event.dropData.devicename,
-        //     tools: this.tools,
-        //   })
-        //     .setProp('Biz', $event.dropData)
-        //     .resize(160, 200)
-        //     .position(this.dragEndlocation.offsetX, this.dragEndlocation.offsetY)
-        //     .updateInPorts(this.graph),
-        // );
-        // node.setPortLabelMarkup;
-
-        // this.data.splice(this.data.indexOf($event.dropData), 1);
         {
           var ports = [];
-if($event.dropData.ports?.in){
+          if ($event.dropData.ports?.in) {
+            for (var item of $event.dropData.ports?.in) {
+              var port = {
+                id: item.id,
+                group: 'in',
 
-  for (var item of $event.dropData.ports?.in) {
-    var port = {
-      id: item.id,
-      group: 'in',
-
-      zIndex: 'auto',
-      attrs: {
-        text: {
-          // 标签选择器
-          text: item.portname // 标签文本
-        }
-      }
-    };
-    ports = [...ports, port];
-  }
-
-
-}
-if($event.dropData.ports?.out){
-          for (var item of $event.dropData.ports?.out) {
-            var port = {
-              id: item.id,
-              group: 'out',
-
-              zIndex: 'auto',
-              attrs: {
-                text: {
-                  // 标签选择器
-                  text: item.portname // 标签文本
+                zIndex: 'auto',
+                attrs: {
+                  text: {
+                    text: item.portname 
+                  }
                 }
-              }
-            };
-            ports = [...ports, port];
+              };
+              ports = [...ports, port];
+            }
           }
-        }
+          if ($event.dropData.ports?.out) {
+            for (var item of $event.dropData.ports?.out) {
+              var port = {
+                id: item.id,
+                group: 'out',
+
+                zIndex: 'auto',
+                attrs: {
+                  text: {
+                 
+                    text: item.portname
+                  }
+                }
+              };
+              ports = [...ports, port];
+            }
+          }
           $event.dropData.width = 240;
           $event.dropData.height = 200;
 

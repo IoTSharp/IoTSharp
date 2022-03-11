@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { PortItem } from '../../models/data';
 import { IBizData, IShapeData, IToolsPanel } from '../toolspanel';
 
 @Component({
@@ -9,10 +10,13 @@ import { IBizData, IShapeData, IToolsPanel } from '../toolspanel';
 export class PortshapeComponent implements OnInit ,IToolsPanel{
 
   constructor() { }
-  BizData: any;
+  BizData: PortItem;
   ShapeData: IShapeData;
 
   ngOnInit(): void {
+
+    
+
   }
 
 }
