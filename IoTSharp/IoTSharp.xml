@@ -155,6 +155,26 @@
             <param name="id"></param>
             <returns></returns>
         </member>
+        <member name="T:IoTSharp.Controllers.CaptchaController">
+            <summary>
+            登录验证码
+            </summary>
+        </member>
+        <member name="M:IoTSharp.Controllers.CaptchaController.Index(System.String)">
+            <summary>
+            生成一个图形认证
+            </summary>
+            <param name="clientid"></param>
+            <returns></returns>
+        </member>
+        <member name="M:IoTSharp.Controllers.CaptchaController.Vertify(System.String,IoTSharp.Models.ModelCaptchaVertify)">
+            <summary>
+            校验图形认证
+            </summary>
+            <param name="clientid"></param>
+            <param name="m"></param>
+            <returns></returns>
+        </member>
         <member name="T:IoTSharp.Controllers.CustomersController">
             <summary>
             客户管理
@@ -200,6 +220,11 @@
             </summary>
             <param name="id"></param>
             <returns></returns>
+        </member>
+        <member name="T:IoTSharp.Controllers.DeviceModelController">
+            <summary>
+            设备模型
+            </summary>
         </member>
         <member name="T:IoTSharp.Controllers.DevicesController">
             <summary>
