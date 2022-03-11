@@ -58,19 +58,7 @@ namespace IoTSharp.Controllers
         public async Task<ApiResult<PagedData<Customer>>> GetCustomers([FromBody] CustomerParam m)
         {
             var profile = this.GetUserProfile();
-
             Expression<Func<Customer, bool>> condition = x => x.Tenant.Id == profile.Tenant;
-
-            //var f = from c in _context.Customer where c.Tenant.Id == select c;
-            //if (!f.Any())
-            //{
-            //    return NotFound(new ApiResult(ApiCode.NotFoundCustomer, "This tenant does not have any customers"));
-            //}
-            //else
-            //{
-            //    return await f.ToArrayAsync();
-            //}
-
             return new ApiResult<PagedData<Customer>>(ApiCode.Success, "OK", new PagedData<Customer>
             {
                 total = await _context.Customer.CountAsync(condition),
@@ -186,16 +174,6 @@ namespace IoTSharp.Controllers
             _context.Customer.Remove(customer);
             await _context.SaveChangesAsync();
             return new ApiResult<Customer>(ApiCode.Success, "Ok", customer);
-        }
-
-        private bool CustomerExists(Guid id)
-        {
-            return _context.Customer.Any(e => e.Id == id);
-        }
-
-        public class TenantDto
-        {
-            public Guid Id { get; set; }
         }
     }
 }

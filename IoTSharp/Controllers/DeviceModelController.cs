@@ -13,6 +13,9 @@ using System.Linq.Expressions;
 
 namespace IoTSharp.Controllers
 {
+    /// <summary>
+    /// 设备模型
+    /// </summary>
     [Route("api/[controller]")]
     [Authorize]
     [ApiController]

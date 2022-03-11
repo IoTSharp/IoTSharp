@@ -796,13 +796,68 @@
         </member>
         <member name="P:IoTSharp.Properties.Resources.Culture">
             <summary>
-              重写当前线程的 CurrentUICulture 属性
-              重写当前线程的 CurrentUICulture 属性。
+              重写当前线程的 CurrentUICulture 属性，对
+              使用此强类型资源类的所有资源查找执行重写。
+            </summary>
+        </member>
+        <member name="P:IoTSharp.Properties.Resources.buzzle_template_png">
+            <summary>
+              查找 System.Byte[] 类型的本地化资源。
+            </summary>
+        </member>
+        <member name="P:IoTSharp.Properties.Resources.Logo">
+            <summary>
+              查找 System.Byte[] 类型的本地化资源。
             </summary>
         </member>
         <member name="P:IoTSharp.Properties.Resources.ShowHelp">
             <summary>
               查找类似 显示帮助 的本地化字符串。
+            </summary>
+        </member>
+        <member name="P:IoTSharp.Properties.Resources.slide1_jpg">
+            <summary>
+              查找 System.Byte[] 类型的本地化资源。
+            </summary>
+        </member>
+        <member name="P:IoTSharp.Properties.Resources.slide2_jpg">
+            <summary>
+              查找 System.Byte[] 类型的本地化资源。
+            </summary>
+        </member>
+        <member name="P:IoTSharp.Properties.Resources.slide3_jpg">
+            <summary>
+              查找 System.Byte[] 类型的本地化资源。
+            </summary>
+        </member>
+        <member name="P:IoTSharp.Properties.Resources.slide4_jpg">
+            <summary>
+              查找 System.Byte[] 类型的本地化资源。
+            </summary>
+        </member>
+        <member name="P:IoTSharp.Properties.Resources.slide5_jpg">
+            <summary>
+              查找 System.Byte[] 类型的本地化资源。
+            </summary>
+        </member>
+        <member name="P:IoTSharp.Properties.Resources.slide6_jpg">
+            <summary>
+              查找 System.Byte[] 类型的本地化资源。
+            </summary>
+        </member>
+        <member name="P:IoTSharp.Properties.Resources.slide7_jpg">
+            <summary>
+              查找 System.Byte[] 类型的本地化资源。
+            </summary>
+        </member>
+        <member name="P:IoTSharp.Properties.Resources.slide8_jpg">
+            <summary>
+              查找 System.Byte[] 类型的本地化资源。
+            </summary>
+        </member>
+        <member name="P:IoTSharp.Properties.Resources.slide9_jpg">
+            <summary>
+              查找 System.Byte[] 类型的本地化资源。
             </summary>
         </member>
         <member name="P:IoTSharp.Properties.Resources.TheCertificateIsInstalled">
