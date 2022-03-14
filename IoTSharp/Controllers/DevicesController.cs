@@ -65,6 +65,7 @@ namespace IoTSharp.Controllers
         private readonly FlowRuleProcessor _flowRuleProcessor;
         private readonly IEasyCachingProvider _caching;
         private readonly IServiceScopeFactory _scopeFactor;
+   
 
         public DevicesController(UserManager<IdentityUser> userManager,
             SignInManager<IdentityUser> signInManager, ILogger<DevicesController> logger, MqttServer serverEx, ApplicationDbContext context, MqttClientOptions mqtt, IStorage storage, IOptions<AppSettings> options, ICapPublisher queue
@@ -83,6 +84,7 @@ namespace IoTSharp.Controllers
             _flowRuleProcessor = flowRuleProcessor;
             _caching = factory.GetCachingProvider("iotsharp");
             _scopeFactor = scopeFactor;
+           
         }
 
         /// <summary>
@@ -930,6 +932,8 @@ namespace IoTSharp.Controllers
                                     {
                                         _queue.PublishAttributeData(new RawMsg() { DeviceId = device.Id, MsgBody = pairs_tel, DataSide = DataSide.ClientSide, DataCatalog = DataCatalog.AttributeData });
                                     }
+                                    _queue.PublishDeviceStatus(device.Id, true);
+                                    _queue.PublishDeviceStatus(_dev.Id, true);
                                 }
                             }
                             else
@@ -937,6 +941,7 @@ namespace IoTSharp.Controllers
                                 _logger.LogInformation($"数据");
                             }
                         }
+                        
                         return Ok(new ApiResult(ApiCode.Success, "OK"));
                     }
                     catch (Exception ex)
