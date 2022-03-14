@@ -99,15 +99,10 @@ namespace IoTSharp.Controllers
         {
             try
             {
-
-
                 var result = await _signInManager.PasswordSignInAsync(model.UserName, model.Password, false, false);
                 if (result.Succeeded)
                 {
-
-
                     var SignInResult = await CreateToken(model.UserName);
-
                     return new ApiResult<LoginResult>(ApiCode.Success, "Ok", new LoginResult()
                     {
                         Code = ApiCode.Success,
@@ -127,7 +122,6 @@ namespace IoTSharp.Controllers
                 }
                 else
                 {
-
                     return new ApiResult<LoginResult>(ApiCode.LoginError, "Unauthorized", null);
                 }
             }

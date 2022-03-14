@@ -24,7 +24,7 @@ import { ControlInput, VertifyQuery } from '../../util/slidecontrol/control';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class UserLoginComponent implements OnDestroy,OnInit {
-
+   isVisible:boolean=false;
    isVertify:boolean=false;
    clientid= Guid.create();
   private query: VertifyQuery;
@@ -50,8 +50,8 @@ export class UserLoginComponent implements OnDestroy,OnInit {
     this.form = fb.group({
       userName: ['iotmaster@iotsharp.net', [Validators.required]],
       password: ['', [Validators.required]],
-      mobile: [null, [Validators.required, Validators.pattern(/^1\d{10}$/)]],
-      captcha: [null, [Validators.required]],
+      // mobile: [null, [Validators.required, Validators.pattern(/^1\d{10}$/)]],
+      // captcha: [null, [Validators.required]],
       remember: [true]
     });
   }
@@ -114,6 +114,10 @@ export class UserLoginComponent implements OnDestroy,OnInit {
   successMatch($event){
     
     this.isVertify=true;
+    this.isVisible=!this.isVertify
+
+  
+       this.signIn($event.move);
 
   }
   getCaptcha(): void {
@@ -133,7 +137,8 @@ export class UserLoginComponent implements OnDestroy,OnInit {
 
   // #endregion
 
-  submit(): void {
+
+  signIn(move:number){
     this.error = false;
     if (this.type === 0) {
       this.userName.markAsDirty();
@@ -159,7 +164,9 @@ export class UserLoginComponent implements OnDestroy,OnInit {
       .post('api/Account/Login?_allow_anonymous=true', {
         type: this.type,
         userName: this.userName.value,
-        password: this.password.value
+        password: this.password.value,
+        move:move
+
       })
       .subscribe(
         x => {
@@ -203,6 +210,11 @@ export class UserLoginComponent implements OnDestroy,OnInit {
         },
         () => {}
       );
+
+  }
+
+  submit(): void {
+   this.isVisible=true;
   }
 
   // #region social

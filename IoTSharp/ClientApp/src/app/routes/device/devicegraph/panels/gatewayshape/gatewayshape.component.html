@@ -25,7 +25,7 @@
             <nz-option nzValue="3" nzLabel="RS485"></nz-option>
             <nz-option nzValue="4" nzLabel="RJ11"></nz-option>
           </nz-select>
-          <ng-container *ngIf="!item.edit">{{ item.type }}</ng-container>
+          <ng-container *ngIf="!item.edit">{{  TAG[item.type]?.text }}</ng-container>
         </ng-template>
       </st>
     </nz-tab>

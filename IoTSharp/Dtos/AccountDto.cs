@@ -64,6 +64,14 @@ namespace IoTSharp.Dtos
         /// </summary>
         [Required]
         public string UserName { get; set; }
+        ///// <summary>
+        ///// 滑动验证
+        ///// </summary>
+
+        //[Required]
+        //public string Move { get; set; }
+
+
     }
 
     public class RegisterDto

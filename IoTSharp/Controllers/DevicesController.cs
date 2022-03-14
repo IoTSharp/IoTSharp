@@ -32,6 +32,7 @@ using System.Linq.Expressions;
 using System.Security.Cryptography.X509Certificates;
 using System.Threading.Tasks;
 using System.Xml;
+using MongoDB.Bson.IO;
 using Dic = System.Collections.Generic.Dictionary<string, string>;
 using DicKV = System.Collections.Generic.KeyValuePair<string, string>;
 
@@ -997,7 +998,8 @@ namespace IoTSharp.Controllers
                         rules.Value.ToList().ForEach(async g =>
                         {
                             _logger.LogInformation($"{_dev.Id}的数据通过规则链{g}进行处理。");
-                            var result = await _flowRuleProcessor.RunFlowRules(g, body, _dev.Id, EventType.Normal, null);
+                       
+                            var result = await _flowRuleProcessor.RunFlowRules(g, Newtonsoft.Json.JsonConvert.DeserializeObject(body), _dev.Id, EventType.Normal, null);
 
                         });
                         return Ok(new ApiResult(ApiCode.Success, "OK"));

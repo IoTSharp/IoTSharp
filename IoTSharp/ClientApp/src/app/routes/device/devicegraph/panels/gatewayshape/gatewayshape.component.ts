@@ -19,7 +19,8 @@ export class GatewayshapeComponent implements OnInit, IToolsPanel {
   TAG: STColumnTag = {
     1: { text: '以太网', color: 'green' },
     2: { text: 'RS232', color: 'blue' },
-    3: { text: 'RS485', color: 'orange' }
+    3: { text: 'RS485', color: 'orange' },
+    4: { text: 'RJ11', color: 'orange' },
   };
 
   IOType: STColumnTag = {
