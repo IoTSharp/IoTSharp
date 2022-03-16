@@ -905,7 +905,7 @@ namespace IoTSharp.Controllers
                                 var _devname = (devnameformatkey ?? _map_var_devname).Replace(_map_var_devname, devname);
                                 if (!string.IsNullOrEmpty(_devname))
                                 {
-                                    var device = _dev.JudgeOrCreateNewDevice(devname, _scopeFactor, _logger);
+                                    var device = _dev.JudgeOrCreateNewDevice(_devname, _scopeFactor, _logger);
 
                                     var pairs_att = new Dictionary<string, object>();
                                     var pairs_tel = new Dictionary<string, object>();
