@@ -50,7 +50,10 @@ namespace IoTSharp.Controllers
         private const string _map_to_attribute_ = "_map_to_attribute_";
         private const string _map_to_devname = "_map_to_devname";
         private const string _map_to_jsontext_in_json = "_map_to_jsontext_in_json";
+        private const string _map_to_data_in_array = "_map_to_data_in_array";
+        private const string _map_to_subdevname = "_map_to_subdevname";
         private const string _map_var_devname = "$devname";
+        private const string _map_var_subdevname = "$subdevname";
         private const string _map_to_devname_format = "_map_to_devname_format";
         private const string _map_to_ = "_map_to_";
         private readonly ApplicationDbContext _context;
@@ -878,70 +881,44 @@ namespace IoTSharp.Controllers
                     doc.LoadXml(body);
                     json = Newtonsoft.Json.JsonConvert.SerializeXmlNode(doc);
                 }
-                var atts = await _caching.GetAsync($"_map_{_dev.Id}", async () =>
+                var atts_cach = await _caching.GetAsync($"_map_{_dev.Id}", async () =>
                 {
                     var guids =  from al in _context.AttributeLatest where al.DeviceId == _dev.Id  &&    al.KeyName.StartsWith(_map_to_)  select al;
                     return await guids.ToArrayAsync();
                 }
              , TimeSpan.FromSeconds(_setting.RuleCachingExpiration));
-                if (atts.HasValue)
+                if (atts_cach.HasValue)
                 {
                     try
                     {
-                       
-                        var jt = JToken.Parse(json);
-                        var pathx = atts.Value.FirstOrDefault(al => al.KeyName == _map_to_jsontext_in_json)?.Value_String;
+                        var jroot = JToken.Parse(json);
+                        JToken jt = null;
+                        var atts = atts_cach.Value;
+                        var pathx = atts.FirstOrDefault(al => al.KeyName == _map_to_jsontext_in_json)?.Value_String;
                         if (pathx != null)
                         {
-                            jt = JToken.Parse(jt.SelectToken(pathx).ToObject<string>());
+                            jt = JToken.Parse(jroot.SelectToken(pathx).ToObject<string>());
                         }
-                        var devnamekey = atts.Value.FirstOrDefault(g => g.KeyName == _map_to_devname);
-                        if (devnamekey != null)
+                        else
                         {
-                            var devnameformatkey = atts.Value.FirstOrDefault(g => g.KeyName == _map_to_devname_format)?.Value_String;
-                            var devname = (jt.SelectToken(devnamekey.Value_String) as JValue)?.ToObject<string>() ;
-                            if (devname != null && !string.IsNullOrEmpty(devname))
-                            {
-                                var _devname = (devnameformatkey ?? _map_var_devname).Replace(_map_var_devname, devname);
-                                if (!string.IsNullOrEmpty(_devname))
-                                {
-                                    var device = _dev.JudgeOrCreateNewDevice(_devname, _scopeFactor, _logger);
-
-                                    var pairs_att = new Dictionary<string, object>();
-                                    var pairs_tel = new Dictionary<string, object>();
-                                    atts.Value?.ToList().ForEach(g =>
-                                    {
-                                        var value =( jt.SelectToken(g.Value_String) as JValue)?.JValueToObject();
-                                        if (value != null && g.KeyName?.Length>0)
-                                        {
-                                            if (g.KeyName.StartsWith(_map_to_attribute_) && g.KeyName.Length> _map_to_attribute_.Length)
-                                            {
-                                                pairs_att.Add(g.KeyName.Substring(_map_to_attribute_.Length), value);
-                                            }
-                                            else if (g.KeyName.StartsWith(_map_to_telemety_) && g.KeyName.Length > _map_to_telemety_.Length )
-                                            {
-                                                pairs_tel.Add(g.KeyName.Substring(_map_to_telemety_.Length), value);
-                                            }
-                                        }
-                                    });
-                                    if (pairs_tel.Any())
-                                    {
-                                        _queue.PublishTelemetryData(new RawMsg() { DeviceId = device.Id, MsgBody = pairs_tel, DataSide = DataSide.ClientSide, DataCatalog = DataCatalog.TelemetryData });
-                                    }
-                                    if (pairs_att.Any())
-                                    {
-                                        _queue.PublishAttributeData(new RawMsg() { DeviceId = device.Id, MsgBody = pairs_att, DataSide = DataSide.ClientSide, DataCatalog = DataCatalog.AttributeData });
-                                    }
-                                    _queue.PublishDeviceStatus(device.Id, true);
-                                    _queue.PublishDeviceStatus(_dev.Id, true);
-                                }
-                            }
-                            else
-                            {
-                                _logger.LogInformation($"数据");
-                            }
+                            jt = jroot;
                         }
-                        
+                        var data_in_array = atts.FirstOrDefault(al => al.KeyName == _map_to_data_in_array)?.Value_String;
+                        if (!string.IsNullOrEmpty(data_in_array))
+                        {
+                            var subdevname = atts.FirstOrDefault(al => al.KeyName == _map_to_subdevname)?.Value_String;
+                            var jary = jt.SelectToken(data_in_array) as JArray;
+                            jary.Children().ForEach(jo =>
+                            {
+                                string _devname = buid_dev_name(atts, jt,jo);
+                                push_one_device_data_with_json(jo,jt, _dev, _devname, atts);
+                            });
+                        }
+                        else
+                        {
+                            string _devname = buid_dev_name(atts, jt,null);
+                            push_one_device_data_with_json(jt,jroot, _dev, _devname, atts);
+                        }
                         return Ok(new ApiResult(ApiCode.Success, "OK"));
                     }
                     catch (Exception ex)
@@ -955,6 +932,76 @@ namespace IoTSharp.Controllers
                     return BadRequest(new ApiResult(ApiCode.InValidData, $"{_dev}的数据不符合规范， 也无相关规则链处理。"));
                 }
             }
+        }
+
+        private string buid_dev_name(AttributeLatest[] atts, JToken jt, JToken jc)
+        {
+            string _result = string.Empty;
+            var devnamekey = atts.FirstOrDefault(g => g.KeyName == _map_to_devname);
+            var subdevnamekey = atts.FirstOrDefault(g => g.KeyName == _map_to_subdevname);
+            if (devnamekey != null)
+            {
+                var devnameformatkey = atts.FirstOrDefault(g => g.KeyName == _map_to_devname_format)?.Value_String ?? _map_var_devname;
+                var devname = (jt.SelectToken(devnamekey.Value_String) as JValue)?.ToObject<string>();
+                var subdevname = (jc!=null)?(jc.SelectToken(subdevnamekey.Value_String) as JValue)?.ToObject<string>():string.Empty;
+                if (!string.IsNullOrEmpty(devnameformatkey))
+                {
+                    _result = devnameformatkey;
+                    if (!string.IsNullOrEmpty(devname)) _result = _result.Replace(_map_var_devname, devname);
+                    if (!string.IsNullOrEmpty( subdevname)) _result = _result.Replace(_map_var_subdevname, subdevname);
+                }
+                else
+                {
+                    _result = $"{devname}{subdevname}";
+                }
+            }
+            return _result;
+        }
+
+        private void push_one_device_data_with_json(JToken jt, JToken jroot, Device _dev,string _devname, AttributeLatest[] atts)
+        {
+            
+
+            var device = _dev.JudgeOrCreateNewDevice(_devname, _scopeFactor, _logger);
+
+            var pairs_att = new Dictionary<string, object>();
+            var pairs_tel = new Dictionary<string, object>();
+            atts?.ToList().ForEach(g =>
+            {
+                JValue jv = null;
+                if (g.Value_String.StartsWith("@"))//如果是@开头， 则从父节点取
+                {
+                    jv = jroot.SelectToken(g.Value_String.Substring(1)) as JValue;
+                }
+                else
+                {
+                    jv = jt.SelectToken(g.Value_String) as JValue;
+                }
+                var value = (jv)?.JValueToObject();
+                if (value != null && g.KeyName?.Length > 0)
+                {
+                    if (g.KeyName.StartsWith(_map_to_attribute_) && g.KeyName.Length > _map_to_attribute_.Length)
+                    {
+                        pairs_att.Add(g.KeyName.Substring(_map_to_attribute_.Length), value);
+                    }
+                    else if (g.KeyName.StartsWith(_map_to_telemety_) && g.KeyName.Length > _map_to_telemety_.Length)
+                    {
+                        pairs_tel.Add(g.KeyName.Substring(_map_to_telemety_.Length), value);
+                    }
+                }
+            });
+            if (pairs_tel.Any())
+            {
+                _queue.PublishTelemetryData(new RawMsg() { DeviceId = device.Id, MsgBody = pairs_tel, DataSide = DataSide.ClientSide, DataCatalog = DataCatalog.TelemetryData });
+            }
+            if (pairs_att.Any())
+            {
+                _queue.PublishAttributeData(new RawMsg() { DeviceId = device.Id, MsgBody = pairs_att, DataSide = DataSide.ClientSide, DataCatalog = DataCatalog.AttributeData });
+            }
+            _queue.PublishDeviceStatus(device.Id, true);
+            _queue.PublishDeviceStatus(_dev.Id, true);
+
+
         }
 
         /// <summary>
