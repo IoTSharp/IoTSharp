@@ -930,7 +930,7 @@ namespace IoTSharp.Controllers
                                     }
                                     if (pairs_att.Any())
                                     {
-                                        _queue.PublishAttributeData(new RawMsg() { DeviceId = device.Id, MsgBody = pairs_tel, DataSide = DataSide.ClientSide, DataCatalog = DataCatalog.AttributeData });
+                                        _queue.PublishAttributeData(new RawMsg() { DeviceId = device.Id, MsgBody = pairs_att, DataSide = DataSide.ClientSide, DataCatalog = DataCatalog.AttributeData });
                                     }
                                     _queue.PublishDeviceStatus(device.Id, true);
                                     _queue.PublishDeviceStatus(_dev.Id, true);
