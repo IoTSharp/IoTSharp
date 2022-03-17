@@ -6,7 +6,7 @@ RUN echo "deb https://mirrors.tuna.tsinghua.edu.cn/debian/ bullseye main contrib
 	echo "deb https://mirrors.tuna.tsinghua.edu.cn/debian/ bullseye-updates main contrib non-free" >> /etc/apt/sources.list && \
 	echo "deb https://mirrors.tuna.tsinghua.edu.cn/debian/ bullseye-backports main contrib non-free" >> /etc/apt/sources.list && \
 	echo "deb https://mirrors.tuna.tsinghua.edu.cn/debian-security jessie/updates main contrib non-free" >> /etc/apt/sources.list && \
-    apt-get  -y   -q update   && apt-get install  -y   -q  apt-utils libgdiplus libc6-dev lsof net-tools wget sqlite3 python3      iputils-ping inetutils-tools  libssl-dev  libssl1.0.0 curl libfontconfig1 && \
+    apt-get  -y   -q update   && apt-get install  -y   -q  apt-utils libgdiplus libc6-dev lsof net-tools wget sqlite3 python3      iputils-ping inetutils-tools   curl libfontconfig1 && \
 	apt-get autoremove -y &&  apt-get clean  &&  apt-get autoclean && rm  /var/cache/apt/* -rf &&  \
 	ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime
 #RUN curl -o TDengine-client.tar.gz "https://www.taosdata.com/download/download-gettingStarted.php?pkg=tdengine_linux&pkgName=TDengine-client-2.0.12.0-Linux-x64.tar.gz" && \
@@ -31,7 +31,7 @@ FROM mcr.microsoft.com/dotnet/sdk:6.0-bullseye-slim AS build
 RUN echo "deb https://mirrors.tuna.tsinghua.edu.cn/debian/ bullseye main contrib non-free" > /etc/apt/sources.list && \
 	echo "deb https://mirrors.tuna.tsinghua.edu.cn/debian/ bullseye-updates main contrib non-free" >> /etc/apt/sources.list && \
 	echo "deb https://mirrors.tuna.tsinghua.edu.cn/debian/ bullseye-backports main contrib non-free" >> /etc/apt/sources.list && \
-    apt-get  -y   -q update   && apt-get install  -y   -q  git  libssl-dev  curl gnupg libcurl4  gcc g++ make  gnupg2 build-essential wget &&  \
+    apt-get  -y   -q update   && apt-get install  -y   -q  git   curl gnupg libcurl4  gcc g++ make  gnupg2 build-essential wget &&  \
     apt-get autoremove -y &&  apt-get clean  &&  apt-get autoclean && rm  /var/cache/apt/* -rf 	
 
 

@@ -30,15 +30,15 @@ IoTSharp is an open-source IoT platform for data collection, processing, visuali
  *  [SQLServer](IoTSharp/appsettings.SQLServer.json)  Microsoft SQL Server 2016 (RTM-GDR) (KB4019088) - 13.0.1742.0 (X64)   ,Support for  sharding
  *  [Sqlite](IoTSharp/appsettings.Sqlite.json) Support for  sharding
 
-## Demo 
-  http://139.9.232.10:2927
+##  IoTSharp online  
+  https://cloud.iotsharp.net/
 
 ## doc
   https://docs.iotsharp.net/
 
 ## How to install IoTSharp using docker ?
 
-  -  docker pull maikebing/iotsharp
+  -  docker pull iotsharp/iotsharp
 
 
 ## How to install  using Linux daemon ?
