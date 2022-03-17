@@ -88,7 +88,7 @@
 		<PackageReference Include="Microsoft.CodeAnalysis.Workspaces.Common" Version="4.1.0" />
 		<PackageReference Include="Microsoft.CodeAnalysis.Workspaces.MSBuild" Version="4.1.0" />
 		<PackageReference Include="Microsoft.Extensions.Options" Version="6.0.0" />
-		<PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.14.0" />
+		<PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.15.0" />
 		<PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="6.0.2" />
 		<PackageReference Include="MQTTnet" Version="4.0.0-preview5" />
 		<PackageReference Include="MQTTnet.AspNetCore" Version="4.0.0-preview5" />
