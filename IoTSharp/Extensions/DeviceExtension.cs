@@ -20,7 +20,7 @@ namespace IoTSharp.Extensions
         {
             if (device.Customer == null || device.Tenant == null || string.IsNullOrEmpty(device.Name))
             {
-                throw new Exception("Customer or  Tenant or  Name is null or empty!");
+                throw new Exception($"Customer({device.Customer?.Id}) or  Tenant({device.Tenant?.Id}) or  Name({device.Name}) is null or empty!");
             }
             else
             {
@@ -39,7 +39,7 @@ namespace IoTSharp.Extensions
         {
             if (device.Customer == null || device.Tenant == null || string.IsNullOrEmpty(device.Name))
             {
-                throw new Exception("Customer or  Tenant or  Name is null or empty!");
+                throw new Exception($"Customer({device.Customer?.Id}) or  Tenant({device.Tenant?.Id}) or  Name({device.Name}) is null or empty!");
             }
             else
             {
