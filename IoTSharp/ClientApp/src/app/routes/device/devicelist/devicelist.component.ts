@@ -157,9 +157,16 @@ export class DevicelistComponent implements OnInit, OnDestroy {
         },
         {
           acl: 110,
-          text: '删除',
+          text: '删除', pop: {
+            title: '确认删除设备?',
+            okType: 'danger',
+            icon: 'warning',
+          },
           click: (item: any) => {
-            this.delete(item.id);
+
+
+
+         this.delete(item.id);
           }
         }
       ]
