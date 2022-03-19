@@ -1,6 +1,8 @@
 ﻿using DotNetCore.CAP;
+using HealthChecks.UI.Configuration;
 using IoTSharp.Data;
 using IoTSharp.Extensions;
+using IoTSharp.HealthChecks.Taos;
 using IoTSharp.Services;
 using IoTSharp.X509Extensions;
 using Microsoft.AspNetCore.Builder;
@@ -182,7 +184,7 @@ namespace IoTSharp
 
      
 
-        internal static HealthChecks.UI.Configuration.Settings AddIoTSharpHealthCheckEndpoint(this HealthChecks.UI.Configuration.Settings setup)
+        internal static  Settings AddIoTSharpHealthCheckEndpoint(this Settings setup)
         {
             var urls = Environment.GetEnvironmentVariable("ASPNETCORE_URLS")?.Split(';');
             var uris = urls?.Select(url => Regex.Replace(url, @"^(?<scheme>https?):\/\/((\+)|(\*)|(0.0.0.0))(?=[\:\/]|$)", "${scheme}://localhost"))

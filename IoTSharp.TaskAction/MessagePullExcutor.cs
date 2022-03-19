@@ -62,15 +62,16 @@ namespace IoTSharp.TaskAction
                     JObject o = JsonConvert.DeserializeObject(input.Input) as JObject;
                     var config = JsonConvert.DeserializeObject<ModelExecutorConfig>(input.ExecutorConfig);
                     var dd = o.Properties().Select(c => new ParamObject { keyName = c.Name, value = JPropertyToObject(c.Value.First as JProperty) }).ToList();
-                    string contentType = "application/json";
                     var restclient = new RestClient(config.BaseUrl);
-                    var request = new RestRequest(config.Url + (input.DeviceId == Guid.Empty ? "" : "/" + input.DeviceId), Method.POST);
+                    restclient.AddDefaultHeader(KnownHeaders.Accept, "*/*");
+                    var request = new RestRequest(config.Url + (input.DeviceId == Guid.Empty ? "" : "/" + input.DeviceId));
                     request.AddHeader("X-Access-Token",
                         config.Token);
                     request.RequestFormat = DataFormat.Json;
                     request.AddHeader("cache-control", "no-cache");
+                    request.AddHeader("Content-Type", "application/json");
                     request.AddJsonBody(JsonConvert.SerializeObject(dd));
-                    var response = await restclient.ExecuteAsync(request);
+                    var response = await restclient.ExecutePostAsync(request);
                     if (response.StatusCode == HttpStatusCode.OK)
                     {
                         var result = JsonConvert.DeserializeObject<MessagePullResult>(response.Content);
@@ -96,15 +97,16 @@ namespace IoTSharp.TaskAction
                     JObject o = JsonConvert.DeserializeObject(input.Input) as JObject;
                     var config = JsonConvert.DeserializeObject<ModelExecutorConfig>(input.ExecutorConfig);
                     var dd = o.Properties().Select(c => new ParamObject { keyName = c.Name, value = JPropertyToObject(c) }).ToList();
-                    string contentType = "application/json";
                     var restclient = new RestClient(config.BaseUrl);
-                    var request = new RestRequest(config.Url + (input.DeviceId == Guid.Empty ? "" : "/" + input.DeviceId), Method.POST);
+                    restclient.AddDefaultHeader(KnownHeaders.Accept, "*/*");
+                    var request = new RestRequest(config.Url + (input.DeviceId == Guid.Empty ? "" : "/" + input.DeviceId));
                     request.AddHeader("X-Access-Token",
                         config.Token);
                     request.RequestFormat = DataFormat.Json;
                     request.AddHeader("cache-control", "no-cache");
+                    request.AddHeader("Content-Type", "application/json");
                     request.AddJsonBody(JsonConvert.SerializeObject(dd));
-                    var response = await restclient.ExecuteAsync(request);
+                    var response = await restclient.ExecutePostAsync(request);
                     if (response.StatusCode == HttpStatusCode.OK)
                     {
                         var result = JsonConvert.DeserializeObject<MessagePullResult>(response.Content);

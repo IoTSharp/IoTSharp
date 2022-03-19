@@ -905,7 +905,7 @@
             更多内容可以参考<seealso cref="!:https://github.com/Coldairarrow/EFCore.Sharding/issues/52"/>
             </summary>
         </member>
-        <member name="M:IoTSharp.Storage.TaosStorage.SqlToTDD(Maikebing.Data.Taos.TaosConnection,System.String,System.String,System.String,System.String)">
+        <member name="M:IoTSharp.Storage.TaosStorage.SqlToTDD(IoTSharp.Data.Taos.TaosConnection,System.String,System.String,System.String,System.String)">
             <summary>
             转换获取到的值
             </summary>

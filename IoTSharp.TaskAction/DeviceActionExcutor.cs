@@ -25,15 +25,15 @@ namespace IoTSharp.TaskAction
             var config = JsonConvert.DeserializeObject<ModelExecutorConfig>(input.ExecutorConfig);
             string contentType = "application/json";
             var restclient = new RestClient(config.BaseUrl);
-            
-            var request = new RestRequest(config.Url + (input.DeviceId == Guid.Empty ? "" : "/" + input.DeviceId), Method.POST);
+            restclient.AddDefaultHeader(KnownHeaders.Accept, "*/*");
+            var request = new RestRequest(config.Url + (input.DeviceId == Guid.Empty ? "" : "/" + input.DeviceId));
             request.AddHeader("X-Access-Token",
                 config.Token);
             request.RequestFormat = DataFormat.Json;
             request.AddHeader("Content-Type", contentType);
             request.AddHeader("cache-control", "no-cache");
             request.AddJsonBody(JsonConvert.SerializeObject(new{ sosType="1", sosContent= input.Input, usingUserId= "" }));
-            var response = await restclient.ExecuteAsync(request);
+            var response = await restclient.ExecutePostAsync(request);
             if (response.StatusCode == HttpStatusCode.OK)
             {
                 var result = JsonConvert.DeserializeObject<DeviceActionResult>(response.Content);
