@@ -14,25 +14,52 @@ using IronPython.Runtime;
 using Newtonsoft.Json.Converters;
 using Newtonsoft.Json.Linq;
 using System.Dynamic;
+using Microsoft.Extensions.Caching.Memory;
+using System.Text;
+
 namespace IoTSharp.Interpreter
 {
     public class CSharpScriptEngine : ScriptEngineBase, IDisposable
     {
          
         private bool disposedValue;
+        private IMemoryCache _cache;
 
-
-        public CSharpScriptEngine(ILogger<CSharpScriptEngine> logger, IOptions<EngineSetting> _opt):base(logger,_opt.Value, Task.Factory.CancellationToken)
+        public CSharpScriptEngine(ILogger<CSharpScriptEngine> logger, IOptions<EngineSetting> _opt, IMemoryCache cache) :base(logger,_opt.Value, Task.Factory.CancellationToken)
         {
-            //CSScript.EvaluatorConfig
-
+            _cache = cache;
         }
-
 
         public  override string    Do(string _source,string input)
         {
-            ICSAction csa = CSScript.Evaluator.LoadCode<ICSAction>(_source);
-            dynamic result = csa.Run(input);
+            var runscript = _cache.GetOrCreate(_source, c =>
+            {
+                 var  src = _source.Split(Environment.NewLine.ToCharArray(), StringSplitOptions.TrimEntries);
+                StringBuilder _using = new StringBuilder();
+                StringBuilder _body = new StringBuilder();
+                src.ToList().ForEach(l =>
+               {
+                   if (l.StartsWith("using "))
+                   {
+                       _using.AppendLine(l);
+                   }
+                   else
+                   {
+                       _body.AppendLine(l);
+                   }
+
+               });
+               return  CSScript.Evaluator
+                      .CreateDelegate(@$"
+                                    {_using}    
+                                    dynamic  runscript(dynamic   input)
+                                    {{
+                                      {_body}
+                                    }}");
+            });
+            var expConverter = new ExpandoObjectConverter();
+            dynamic obj = JsonConvert.DeserializeObject<ExpandoObject>(input, expConverter);
+            dynamic result =    runscript(obj);
             var json= System.Text.Json.JsonSerializer.Serialize(result);
             _logger.LogDebug($"source:{Environment.NewLine}{ _source}{Environment.NewLine}{Environment.NewLine}input:{Environment.NewLine}{ input}{Environment.NewLine}{Environment.NewLine} ouput:{Environment.NewLine}{ json}{Environment.NewLine}{Environment.NewLine}");
             return json;
@@ -64,19 +91,5 @@ namespace IoTSharp.Interpreter
             GC.SuppressFinalize(this);
         }
     }
-
-
-    public interface ICSAction
-    {
-        dynamic Run(string input);
-
-   
-          
-
-
-    } 
-
-
-
 }
 

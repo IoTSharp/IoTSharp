@@ -3,6 +3,12 @@
   <PropertyGroup>
     <TargetFramework>net6.0</TargetFramework>
   </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="Migrations\**" />
+    <EmbeddedResource Remove="Migrations\**" />
+    <None Remove="Migrations\**" />
+  </ItemGroup>
 	<ItemGroup>
 		<PackageReference Include="AspNetCore.HealthChecks.UI.InMemory.Storage" Version="6.0.4" />
 		<PackageReference Include="AspNetCore.HealthChecks.UI.Core" Version="6.0.4" />
@@ -16,9 +22,6 @@
 	</ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\IoTSharp.Data\IoTSharp.Data.csproj" />
-  </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Migrations\" />
   </ItemGroup>
 
 </Project>
