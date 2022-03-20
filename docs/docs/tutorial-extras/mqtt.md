@@ -2,28 +2,28 @@
 sidebar_position: 1
 ---
 
-#  MQTTÐ­Òé
+#  MQTTåè®®
 
-±¾ÎÄÕÂ½éÉÜÈçºÎÍ¨¹ýMQTT½øÐÐÒ£²âºÍÊôÐÔÊý¾ÝÉÏ´«ÒÔ¼°RPC¿ØÖÆµÄÊµÏÖ¡£ 
+æœ¬æ–‡ç« ä»‹ç»å¦‚ä½•é€šè¿‡MQTTè¿›è¡Œé¥æµ‹å’Œå±žæ€§æ•°æ®ä¸Šä¼ ä»¥åŠRPCæŽ§åˆ¶çš„å®žçŽ°ã€‚ 
 
-##  ·¢ËÍÊôÐÔºÍÒ£²âÊý¾Ý
+##  å‘é€å±žæ€§å’Œé¥æµ‹æ•°æ®
 
-Éè±¸·ÖÖ±Á¬Éè±¸ºÍÍø¹ØÉè±¸£¬ ·¢ËÍÊý¾Ý·½Ê½Ò²ÓÐËù²»Í¬¡£ telemetry Îª Ò£²â£¬ attributes±íÊ¾ÊôÐÔ£¬¿Í»§¶ËÉÏ´«µÄÊôÐÔÔÚ·þÎñÆ÷¶ËÓÀÔ¶Îª ClientSide £¬ ¼´¿Í»§¶Ë²àÊôÐÔ¡£ ²»ÍÆ¼öÔÚ·þÎñ¶ËÐÞ¸Ä¡£ 
+è®¾å¤‡åˆ†ç›´è¿žè®¾å¤‡å’Œç½‘å…³è®¾å¤‡ï¼Œ å‘é€æ•°æ®æ–¹å¼ä¹Ÿæœ‰æ‰€ä¸åŒã€‚ telemetry ä¸º é¥æµ‹ï¼Œ attributesè¡¨ç¤ºå±žæ€§ï¼Œå®¢æˆ·ç«¯ä¸Šä¼ çš„å±žæ€§åœ¨æœåŠ¡å™¨ç«¯æ°¸è¿œä¸º ClientSide ï¼Œ å³å®¢æˆ·ç«¯ä¾§å±žæ€§ã€‚ ä¸æŽ¨èåœ¨æœåŠ¡ç«¯ä¿®æ”¹ã€‚ 
 
-### Ö±Á¬Éè±¸·¢ËÍÒ£²âÊý¾Ý
+### ç›´è¿žè®¾å¤‡å‘é€é¥æµ‹æ•°æ®
 
 ``` 
 devices/me/telemetry
 devices/me/attributes
 ```
  
-### Íø¹ØÉè±¸·¢ËÍÒ£²âÊý¾Ý
+### ç½‘å…³è®¾å¤‡å‘é€é¥æµ‹æ•°æ®
 ```
-devices/{Éè±¸Ãû³Æ}/telemetry
-devices/{Éè±¸Ãû³Æ}/attributes
+devices/{è®¾å¤‡åç§°}/telemetry
+devices/{è®¾å¤‡åç§°}/attributes
 ```
- {Éè±¸Ãû³Æ} ÔòÊÇÁ¥Êôµ±Ç°Íø¹ØÉè±¸´¦ÀíµÄÉè±¸Ãû³Æ¡£ 
- MQTTµÄ¸ºÔØÎªÈçÏÂ¸ñÊ½
+ {è®¾å¤‡åç§°} åˆ™æ˜¯éš¶å±žå½“å‰ç½‘å…³è®¾å¤‡å¤„ç†çš„è®¾å¤‡åç§°ã€‚ 
+ MQTTçš„è´Ÿè½½ä¸ºå¦‚ä¸‹æ ¼å¼
 
  ```json
  {
@@ -33,13 +33,13 @@ devices/{Éè±¸Ãû³Æ}/attributes
  ```
 
 
-### Íø¹ØÉè±¸ÅúÁ¿·¢ËÍÉè±¸Ò£²âÊý¾ÝºÍÊôÐÔÊý¾Ý
+### ç½‘å…³è®¾å¤‡æ‰¹é‡å‘é€è®¾å¤‡é¥æµ‹æ•°æ®å’Œå±žæ€§æ•°æ®
 
 ``` 
 gateway/telemetry
 gateway/attributes
 ```
-ÅúÁ¿·¢ËÍÊý¾Ý¸ñÊ½ÈçÏÂ£º
+æ‰¹é‡å‘é€æ•°æ®æ ¼å¼å¦‚ä¸‹ï¼š
 ```json
 {
     "subdevice1": [
@@ -64,7 +64,7 @@ gateway/attributes
 }
 
 ```
-ÕâÀïÊÇÒ»¸öC#ºÏ³ÉÅúÁ¿ÉÏ´«µÄÀý×Ó
+è¿™é‡Œæ˜¯ä¸€ä¸ªC#åˆæˆæ‰¹é‡ä¸Šä¼ çš„ä¾‹å­
 ```cs
  Dictionary<string, List<Playload>> pairs = new Dictionary<string, List<Playload>>();
             var plst = new List<Playload>();
@@ -81,59 +81,59 @@ gateway/attributes
 ```
 
  
- ##  ¶©ÔÄÊôÐÔ
+ ##  è®¢é˜…å±žæ€§
 
- ###  Ö±Á¬Éè±¸ÇëÇóÊôÐÔ
+ ###  ç›´è¿žè®¾å¤‡è¯·æ±‚å±žæ€§
 
-·¢²¼ÇëÇó
+å‘å¸ƒè¯·æ±‚
 ```
-  devices/me/attributes/request/{ÇëÇóÎ¨Ò»±êÊ¶}
+  devices/me/attributes/request/{è¯·æ±‚å”¯ä¸€æ ‡è¯†}
 ```
-¶©ÔÄ½á¹û
+è®¢é˜…ç»“æžœ
 ```
- devices/me/attributes/response/{ÇëÇóÎ¨Ò»±êÊ¶}
-```
-
-
- ###  Íø¹ØÉè±¸ÇëÇóÊôÐÔ
-
-·¢²¼ÇëÇó
-```
-  devices/{Éè±¸Ãû³Æ}/attributes/request/{ÇëÇóÎ¨Ò»±êÊ¶}
-```
-¶©ÔÄ½á¹û
-```
- devices/{Éè±¸Ãû³Æ}/attributes/response/{ÇëÇóÎ¨Ò»±êÊ¶}
+ devices/me/attributes/response/{è¯·æ±‚å”¯ä¸€æ ‡è¯†}
 ```
 
-## ·¢ÆðÉÏÐÐRPCÔ¶³Ì¿ØÖÆ
 
-ÉÏÐÐRPC¿ØÖÆÊÇÖ¸ ÖÕ¶ËÉè±¸Ô¶³Ìµ÷ÓÃ·þÎñ¶ËµÄÄÚÈÝ£¬ IoTSharp ÊÕµ½´ËÇëÇóÔòµ÷ÓÃ¹æÔòÁ´£¬ Äã¿ÉÒÔÔÚ¹æÔòÁ´ÖÐ´¦Àí´ËÇëÇó£¬ ¹ØÓÚ¹æÔòÁ´Çë²é¿´Ïà¹ØÕÂ½Ú¡£ 
+ ###  ç½‘å…³è®¾å¤‡è¯·æ±‚å±žæ€§
 
+å‘å¸ƒè¯·æ±‚
 ```
-  devices/{Éè±¸Ãû³Æ}/rpc/request/{·½·¨Ãû³Æ}
+  devices/{è®¾å¤‡åç§°}/attributes/request/{è¯·æ±‚å”¯ä¸€æ ‡è¯†}
 ```
-
-Éè±¸Ãû³ÆÕâÀïÈç¹ûÊÇÖ±Á¬Éè±¸£¬ ÔòÎªme£¬ Èç¹ûÊÇÍø¹ØÉè±¸£¬ ÔòÊÇÉè±¸Ãû³Æ£¬ {·½·¨Ãû³Æ}ÓÃÓÚÇø±ðµ÷ÓÃÁËºÎÖÖ·½·¨£¬ ÕâÀï½»ÓÉ¹æÔòÁ´´¦Àí¡£ Í¨¹ý¹æÔòÁ´£¬ Äã¿ÉÒÔµ÷ÓÃ ÄÚ²¿·þÎñ£¬ Ò²¿ÉÒÔµ÷ÓÃÍâ²¿·þÎñµÈ£¬ ·¢»ÓÄãµÄÏëÏó¾ÍºÃ¡£ 
-
-
-##  ·¢ÆðÏÂÐÐRPCÔ¶³Ì¿ØÖÆ
-
-ÏÂÐÐRPCÊÇÖ¸Æ½Ì¨¶Ë»òÕßµÚÈý·½·þÎñµ÷ÓÃIoTSharp½øÐÐÔ¶³Ì¿ØÖÆÖÕ¶ËÉè±¸µÄ·½·¨¡£ 
-
-Í¨¹ýMQTT·¢ÆðÊ±£¬ ÏÈ¶©ÔÄresponse£¬ È»ºó·¢²¼request¡£ 
+è®¢é˜…ç»“æžœ
 ```
- devices/{Éè±¸Ãû³Æ}/rpc/request/{·½·¨Ãû³Æ}/{ÇëÇóÎ¨Ò»±êÊ¶}
- devices/{Éè±¸Ãû³Æ}/rpc/response/{·½·¨Ãû³Æ}/{ÇëÇóÎ¨Ò»±êÊ¶}
+ devices/{è®¾å¤‡åç§°}/attributes/response/{è¯·æ±‚å”¯ä¸€æ ‡è¯†}
 ```
 
-µÚÈý·½·þÎñµ÷ÓÃÊ±ÎÒÃÇ½¨ÒéÍ¨¹ýÍ¨¹ý Web Api ·¢Æð£¬ Ê¾ÀýÈçÏÂ
+## å‘èµ·ä¸Šè¡ŒRPCè¿œç¨‹æŽ§åˆ¶
+
+ä¸Šè¡ŒRPCæŽ§åˆ¶æ˜¯æŒ‡ ç»ˆç«¯è®¾å¤‡è¿œç¨‹è°ƒç”¨æœåŠ¡ç«¯çš„å†…å®¹ï¼Œ IoTSharp æ”¶åˆ°æ­¤è¯·æ±‚åˆ™è°ƒç”¨è§„åˆ™é“¾ï¼Œ ä½ å¯ä»¥åœ¨è§„åˆ™é“¾ä¸­å¤„ç†æ­¤è¯·æ±‚ï¼Œ å…³äºŽè§„åˆ™é“¾è¯·æŸ¥çœ‹ç›¸å…³ç« èŠ‚ã€‚ 
+
+```
+  devices/{è®¾å¤‡åç§°}/rpc/request/{æ–¹æ³•åç§°}
+```
+
+è®¾å¤‡åç§°è¿™é‡Œå¦‚æžœæ˜¯ç›´è¿žè®¾å¤‡ï¼Œ åˆ™ä¸ºmeï¼Œ å¦‚æžœæ˜¯ç½‘å…³è®¾å¤‡ï¼Œ åˆ™æ˜¯è®¾å¤‡åç§°ï¼Œ {æ–¹æ³•åç§°}ç”¨äºŽåŒºåˆ«è°ƒç”¨äº†ä½•ç§æ–¹æ³•ï¼Œ è¿™é‡Œäº¤ç”±è§„åˆ™é“¾å¤„ç†ã€‚ é€šè¿‡è§„åˆ™é“¾ï¼Œ ä½ å¯ä»¥è°ƒç”¨ å†…éƒ¨æœåŠ¡ï¼Œ ä¹Ÿå¯ä»¥è°ƒç”¨å¤–éƒ¨æœåŠ¡ç­‰ï¼Œ å‘æŒ¥ä½ çš„æƒ³è±¡å°±å¥½ã€‚ 
+
+
+##  å‘èµ·ä¸‹è¡ŒRPCè¿œç¨‹æŽ§åˆ¶
+
+ä¸‹è¡ŒRPCæ˜¯æŒ‡å¹³å°ç«¯æˆ–è€…ç¬¬ä¸‰æ–¹æœåŠ¡è°ƒç”¨IoTSharpè¿›è¡Œè¿œç¨‹æŽ§åˆ¶ç»ˆç«¯è®¾å¤‡çš„æ–¹æ³•ã€‚ 
+
+é€šè¿‡MQTTå‘èµ·æ—¶ï¼Œ å…ˆè®¢é˜…responseï¼Œ ç„¶åŽå‘å¸ƒrequestã€‚ 
+```
+ devices/{è®¾å¤‡åç§°}/rpc/request/{æ–¹æ³•åç§°}/{è¯·æ±‚å”¯ä¸€æ ‡è¯†}
+ devices/{è®¾å¤‡åç§°}/rpc/response/{æ–¹æ³•åç§°}/{è¯·æ±‚å”¯ä¸€æ ‡è¯†}
+```
+
+ç¬¬ä¸‰æ–¹æœåŠ¡è°ƒç”¨æ—¶æˆ‘ä»¬å»ºè®®é€šè¿‡é€šè¿‡ Web Api å‘èµ·ï¼Œ ç¤ºä¾‹å¦‚ä¸‹
 
 ```sh
 curl -X 'POST' \
-  'https://cloud.iotsharp.net/api/Devices/{Éè±¸µÄTOKEN}/Rpc/{·½·¨Ãû³Æ}?timeout={³¬Ê±Ê±¼ä}' \
+  'https://cloud.iotsharp.net/api/Devices/{è®¾å¤‡çš„TOKEN}/Rpc/{æ–¹æ³•åç§°}?timeout={è¶…æ—¶æ—¶é—´}' \
   -H 'accept: application/json' \
   -H 'Content-Type: application/json' \
-  -d '"{²ÎÊý£¬ ¿ÉÒÔÊÇjson}"'
+  -d '"{å‚æ•°ï¼Œ å¯ä»¥æ˜¯json}"'
 
 ```

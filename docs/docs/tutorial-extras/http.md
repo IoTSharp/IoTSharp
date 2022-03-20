@@ -2,19 +2,19 @@
 sidebar_position: 2
 ---
 
-# HttpĞ­Òé
+# Httpåè®®
 
- IoTSharpÖ§³ÖHttpĞ­ÒéÉÏ´«Ò£²âÊı¾İ£¬ ¿ÉÒÔÍ¨¹ı±ê×¼½Ó¿Ú£¬ Ò²¿ÉÒÔÍ¨¹ıÔÚÊôĞÔÀïÉèÖÃ Ó³Éä·½Ê½ ½ÓÊÕÊı¾İ£¬ Ò²¿ÉÒÔÍ¨¹ı¹æÔòÁ´½øĞĞ½âÎöÊı¾İÈ»ºóÔÙÍÆËÍµÄÖ¸¶¨Êı¾İ¡£ 
+ IoTSharpæ”¯æŒHttpåè®®ä¸Šä¼ é¥æµ‹æ•°æ®ï¼Œ å¯ä»¥é€šè¿‡æ ‡å‡†æ¥å£ï¼Œ ä¹Ÿå¯ä»¥é€šè¿‡åœ¨å±æ€§é‡Œè®¾ç½® æ˜ å°„æ–¹å¼ æ¥æ”¶æ•°æ®ï¼Œ ä¹Ÿå¯ä»¥é€šè¿‡è§„åˆ™é“¾è¿›è¡Œè§£ææ•°æ®ç„¶åå†æ¨é€çš„æŒ‡å®šæ•°æ®ã€‚ 
 
-##  IoTSharpÖ±Á¬Éè±¸ºÍ³£¹æÍø¹ØÉè±¸µÄÊı¾İÉÏ´«
+##  IoTSharpç›´è¿è®¾å¤‡å’Œå¸¸è§„ç½‘å…³è®¾å¤‡çš„æ•°æ®ä¸Šä¼ 
 
 
 
 ##  PushDataToMap
-PushDataToMap  ÊÇ¸öÌØ¶¨Íø¹Ø½Ó¿Ú£¬Í¨¹ıÉèÖÃÍø¹ØµÄÊôĞÔÖµÈÃ½Ó¿Ú×Ô¶¯½âÎöÏÂÃæµÄÊı¾İ£¬ Èç¹ûÊÇÎÄ±¾°üº¬×Ö·û´®jsonÒ²¿ÉÒÔÍ¨¹ıÅäÖÃ½øĞĞ´¦Àí¡£ 
-http ÇëÇó 
+PushDataToMap  æ˜¯ä¸ªç‰¹å®šç½‘å…³æ¥å£ï¼Œé€šè¿‡è®¾ç½®ç½‘å…³çš„å±æ€§å€¼è®©æ¥å£è‡ªåŠ¨è§£æä¸‹é¢çš„æ•°æ®ï¼Œ å¦‚æœæ˜¯æ–‡æœ¬åŒ…å«å­—ç¬¦ä¸²jsonä¹Ÿå¯ä»¥é€šè¿‡é…ç½®è¿›è¡Œå¤„ç†ã€‚ 
+http è¯·æ±‚ 
 ```shell
-curl --location --request POST  'http://iot.qhse.cn:2927/api/Devices/{Íø¹ØToken}/PushDataToMap/json' \
+curl --location --request POST  'http://iot.qhse.cn:2927/api/Devices/{ç½‘å…³Token}/PushDataToMap/json' \
 --header 'Content-Type: application/json' \
 --data-raw '{
   "dev_id": "2021082640",
@@ -32,32 +32,32 @@ curl --location --request POST  'http://iot.qhse.cn:2927/api/Devices/{Íø¹ØToken}
 }'
 ```
 
-ÑùÀıÊı¾İ ÈçÏÂ£º
+æ ·ä¾‹æ•°æ® å¦‚ä¸‹ï¼š
 ```json
 {"dataType":"1","dataJson":"{\"serialNumber\":\"12003378\",\"uploadDate\":\"2022-03-20 22:22:19\",\"pm25\":21,\"pm10\":26,\"windSpeed\":25,\"windDirection\":14,\"noise\":46,\"temperature\":60,\"humidity\":900,\"sprayStatus\":0,\"warnReason\":64}"}
 ```
  
- ÊôĞÔÅäÖÃ²Î¿¼
- 1. _map_to_attribute_{Ó³Éäµ½×ÓÉè±¸µÄÊôĞÔÃû³Æ}   ÊôĞÔÖµÎªÔÚµ±Ç°jsonÖĞµÄÂ·¾¶¡£ 
- ÀıÈç: 
+ å±æ€§é…ç½®å‚è€ƒ
+ 1. _map_to_attribute_{æ˜ å°„åˆ°å­è®¾å¤‡çš„å±æ€§åç§°}   å±æ€§å€¼ä¸ºåœ¨å½“å‰jsonä¸­çš„è·¯å¾„ã€‚ 
+ ä¾‹å¦‚: 
  ```
 _map_to_attribute_currentAllowWeight	currentAllowWeight	 
 _map_to_attribute_driverCardNo	driverCardNo	 
 _map_to_attribute_version	version	
 ``` 
 
-2. _map_to_devname  Ö¸¶¨Éè±¸µÄÃû³ÆÊ¹ÓÃÄÄ¸ö×Ö¶Î 
-3. _map_to_devname_format Ö¸¶¨Éè±¸Ãû³ÆµÄ¸ñÊ½£¬¿ÉÓÃµÄ±äÁ¿ÓĞ $devname  ºÍ $subdevname£¬ ¸ñÊ½ÄÚÈİÎª	hf_crane_$devname 
-4. _map_to_jsontext_in_json	Ö¸¶¨Èç¹ûÊÇÎÄ±¾ÀàĞÍµÄ½«×Ô¶¯½«×Ö·û´®×ªÎªjson£¬Ê¾ÀıÖĞÎª£º dataJson	 
-5. _map_to_telemetry_{Ó³Éäµ½×ÓÉè±¸ÖĞµÄÒ£²âÃû³Æ}	   
+2. _map_to_devname  æŒ‡å®šè®¾å¤‡çš„åç§°ä½¿ç”¨å“ªä¸ªå­—æ®µ 
+3. _map_to_devname_format æŒ‡å®šè®¾å¤‡åç§°çš„æ ¼å¼ï¼Œå¯ç”¨çš„å˜é‡æœ‰ $devname  å’Œ $subdevnameï¼Œ æ ¼å¼å†…å®¹ä¸º	hf_crane_$devname 
+4. _map_to_jsontext_in_json	æŒ‡å®šå¦‚æœæ˜¯æ–‡æœ¬ç±»å‹çš„å°†è‡ªåŠ¨å°†å­—ç¬¦ä¸²è½¬ä¸ºjsonï¼Œç¤ºä¾‹ä¸­ä¸ºï¼š dataJson	 
+5. _map_to_telemetry_{æ˜ å°„åˆ°å­è®¾å¤‡ä¸­çš„é¥æµ‹åç§°}	   
 ```
 _map_to_telemetry_windSpeed	windSpeed	 
 ```
- 6. _map_to_subdevname ¶ş¼¶¹ØÁª
- 7. _map_to_data_in_array Èç¹û×ÓÉè±¸Êı¾İÔÚÄ³¸öÊı×éÕ¼ÓÃ£¬ ÔòÕâÀïÖ¸¶¨¡£ 
+ 6. _map_to_subdevname äºŒçº§å…³è”
+ 7. _map_to_data_in_array å¦‚æœå­è®¾å¤‡æ•°æ®åœ¨æŸä¸ªæ•°ç»„å ç”¨ï¼Œ åˆ™è¿™é‡ŒæŒ‡å®šã€‚ 
 
- ×¢Òâ£¬ µ±_map_to_data_in_array Ö¸¶¨ÁË×Ö¶ÎÊ± £¬ Ê¹ÓÃ  '@' µÄ×Ö¶ÎÖ¸¶¨µÄÊÇ ¸ùjsonÂ·¾¶£¬ ²»Ê¹ÓÃ Ôò±íÊ¾µ±Ç°Êı×éÔªËØÖĞµÄÂ·¾¶¡£ 
- _map_to_data_in_arrayºÍ_map_to_jsontext_in_jsonÖ»ÄÜÊ¹ÓÃÆäÖĞÒ»ÖÖ£¬ ²»ÄÜÖØºÏ¡£ 
+ æ³¨æ„ï¼Œ å½“_map_to_data_in_array æŒ‡å®šäº†å­—æ®µæ—¶ ï¼Œ ä½¿ç”¨  '@' çš„å­—æ®µæŒ‡å®šçš„æ˜¯ æ ¹jsonè·¯å¾„ï¼Œ ä¸ä½¿ç”¨ åˆ™è¡¨ç¤ºå½“å‰æ•°ç»„å…ƒç´ ä¸­çš„è·¯å¾„ã€‚ 
+ _map_to_data_in_arrayå’Œ_map_to_jsontext_in_jsonåªèƒ½ä½¿ç”¨å…¶ä¸­ä¸€ç§ï¼Œ ä¸èƒ½é‡åˆã€‚ 
 
 
 
