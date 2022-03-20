@@ -90,7 +90,6 @@ namespace IoTSharp.Handlers
                         if (device != null)
                         {
                             bool statushavevalue = false;
-                            bool isplayload = false;
                             Dictionary<string, object> keyValues = new Dictionary<string, object>();
                             if (tpary.Length >= 4)
                             {
@@ -112,11 +111,6 @@ namespace IoTSharp.Handlers
                                 {
                                     keyValues.Add(keyname, e.ApplicationMessage.Payload);
                                 }
-                                else if (tpary[3].ToLower() == "playload")
-                                {
-                                 
-                                    isplayload = true;
-                                }
                             }
                             else
                             {
@@ -129,20 +123,9 @@ namespace IoTSharp.Handlers
                                     _logger.LogWarning(ex, $"转换为字典格式失败 {topic},{ex.Message}");
                                 }
                             }
-                           if (tpary[2] == "telemetry")
+                            if (tpary[2] == "telemetry")
                             {
-                                if (isplayload)
-                                {
-                                    var lst = Newtonsoft.Json.JsonConvert.DeserializeObject<List<Playload>>(e.ApplicationMessage.ConvertPayloadToString());
-                                    lst?.ForEach(p =>
-                                    {
-                                        _queue.PublishTelemetryData(new RawMsg() { DeviceId = device.Id, DeviceStatus= p.DeviceStatus, ts=p.Ts, MsgBody = p.Values, DataSide = DataSide.ClientSide, DataCatalog = DataCatalog.TelemetryData });
-                                    });
-                                }
-                                else
-                                {
-                                    _queue.PublishTelemetryData(new RawMsg() { DeviceId = device.Id, MsgBody = keyValues, DataSide = DataSide.ClientSide, DataCatalog = DataCatalog.TelemetryData });
-                                }
+                                _queue.PublishTelemetryData(new RawMsg() { DeviceId = device.Id, MsgBody = keyValues, DataSide = DataSide.ClientSide, DataCatalog = DataCatalog.TelemetryData });
                             }
                             else if (tpary[2] == "attributes")
                             {
@@ -182,6 +165,31 @@ namespace IoTSharp.Handlers
                             _logger.LogInformation($"{e.SenderClientId}的数据{e.ApplicationMessage.Topic}未能匹配到设备");
                         }
                     }
+                    else if (tpary.Length >= 3 && tpary[0] == "gateway" && _dev != null  )
+                    {
+                        var lst = Newtonsoft.Json.JsonConvert.DeserializeObject<Dictionary<string, List<Playload>>>(e.ApplicationMessage.ConvertPayloadToString());
+                        _logger.LogInformation($"{e.SenderClientId}的数据{e.ApplicationMessage.Topic}是网关数据， 解析到{lst?.Count}个设备");
+                        bool istelemetry =tpary[2] == "telemetry";
+                        lst?.Keys.ToList().ForEach(dev =>
+                        {
+
+                            var plst = lst[dev];
+                            var device = _dev.JudgeOrCreateNewDevice(dev, _scopeFactor, _logger);
+                            _logger.LogInformation($"{e.SenderClientId}的网关数据正在处理设备{dev}， 设备ID为{device?.Id}");
+                            plst.ForEach(p =>
+                            {
+                                if (istelemetry)
+                                {
+                                    _queue.PublishTelemetryData(new RawMsg() { DeviceId = device.Id, DeviceStatus = p.DeviceStatus, ts = p.Ticks, MsgBody = p.Values, DataSide = DataSide.ClientSide, DataCatalog = DataCatalog.TelemetryData });
+                                }
+                                else
+                                {
+                                    _queue.PublishAttributeData(new RawMsg() { DeviceId = device.Id, DeviceStatus = p.DeviceStatus, ts = p.Ticks, MsgBody = p.Values, DataSide = DataSide.ClientSide, DataCatalog = DataCatalog.TelemetryData });
+                                }
+                            });
+                            _logger.LogInformation($"{e.SenderClientId}的网关数据处理完成，设备{dev}ID为{device?.Id}共计{plst.Count}条");
+                        });
+                    }    
                     else
                     {
                         //tpary.Length >= 3 && tpary[0] == "devices" && _dev != null

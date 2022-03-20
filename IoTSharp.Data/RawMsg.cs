@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -7,8 +8,11 @@ namespace IoTSharp.Data
 {
     public class Playload
     {
-        public long Ts { get; set; } = DateTime.Now.Ticks;
+        [JsonProperty(PropertyName = "ts")]
+        public long Ticks { get; set; } = DateTime.Now.Ticks;
+        [JsonProperty(PropertyName = "devicestatus")]
         public DeviceStatus DeviceStatus { get; set; } = DeviceStatus.Good;
+        [JsonProperty(PropertyName = "values")]
         public Dictionary<string, object> Values { get; set; } = new();
     }
     public enum DeviceStatus
