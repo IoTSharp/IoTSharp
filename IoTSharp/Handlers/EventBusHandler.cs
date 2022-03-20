@@ -134,7 +134,7 @@ namespace IoTSharp.Handlers
             }
         } 
         [CapSubscribe("iotsharp.services.datastream.devicestatus")]
-        public void DeviceStatus(DeviceStatus status)
+        public void DeviceStatus( RawMsg status)
         {
             try
             {
@@ -145,14 +145,14 @@ namespace IoTSharp.Handlers
                         var dev = _dbContext.Device.FirstOrDefault(d=>d.Id==status.DeviceId);
                         if (dev != null)
                         {
-                            if (dev.Online == true && status.Status == false)
+                            if (dev.Online == true && status.DeviceStatus != Data.DeviceStatus.Good)
                             {
                                 dev.Online = false;
                                 dev.LastActive = DateTime.Now;
                                 Task.Run(() => RunRules(dev.Id, status, MountType.Online));
                                 //真正掉线
                             }
-                            else if (dev.Online == false && status.Status == true)
+                            else if (dev.Online == false && status.DeviceStatus== Data.DeviceStatus.Good)
                             {
                                 dev.Online = true;
                                 dev.LastActive = DateTime.Now;
@@ -170,7 +170,7 @@ namespace IoTSharp.Handlers
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, $"处理{status.DeviceId} 的状态{status.Status} 时遇到异常:{ex.Message}");
+                _logger.LogError(ex, $"处理{status.DeviceId} 的状态{status.DeviceStatus} 时遇到异常:{ex.Message}");
             
             }
         }

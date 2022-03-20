@@ -183,13 +183,12 @@ from(bucket: ""{_bucket}"")
             List<TelemetryData> telemetries = new List<TelemetryData>(); ;
             try
             {
-               
                 List<PointData> lst = new List<PointData>();
                 msg.MsgBody.ToList().ForEach(kp =>
                     {
                         if (kp.Value != null)
                         {
-                            TelemetryData tdata = new TelemetryData() { DateTime = DateTime.Now, DeviceId = msg.DeviceId, KeyName = kp.Key, Value_DateTime = new DateTime(1970, 1, 1) };
+                            TelemetryData tdata = new TelemetryData() { DateTime = new DateTime(msg.ts), DeviceId = msg.DeviceId, KeyName = kp.Key, Value_DateTime = new DateTime(1970, 1, 1) };
                             tdata.FillKVToMe(kp);
                             var point = PointData.Measurement(nameof(TelemetryData))
                 .Tag("DeviceId", tdata.DeviceId.ToString());

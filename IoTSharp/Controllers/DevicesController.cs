@@ -998,8 +998,8 @@ namespace IoTSharp.Controllers
             {
                 _queue.PublishAttributeData(new RawMsg() { DeviceId = device.Id, MsgBody = pairs_att, DataSide = DataSide.ClientSide, DataCatalog = DataCatalog.AttributeData });
             }
-            _queue.PublishDeviceStatus(device.Id, true);
-            _queue.PublishDeviceStatus(_dev.Id, true);
+            _queue.PublishDeviceStatus(device.Id,  DeviceStatus.Good);
+            _queue.PublishDeviceStatus(_dev.Id, DeviceStatus.Good);
 
 
         }

@@ -19,9 +19,9 @@ namespace IoTSharp.Extensions
         {
             cap.Publish("iotsharp.services.datastream.telemetrydata", msg);
         }
-        public static void PublishDeviceStatus(this ICapPublisher cap,  Guid  devid , bool  status)
+        public static void PublishDeviceStatus(this ICapPublisher cap,  Guid  devid , DeviceStatus devicestatus)
         {
-            cap.Publish("iotsharp.services.datastream.devicestatus",  new  DeviceStatus {  DeviceId=devid, Status=status }  );
+            cap.Publish("iotsharp.services.datastream.devicestatus",  new  RawMsg {  DeviceId=devid,  DeviceStatus= devicestatus }  );
         }
     }
 }

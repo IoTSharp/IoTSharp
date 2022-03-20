@@ -83,13 +83,14 @@ namespace IoTSharp.Handlers
                     string topic = e.ApplicationMessage.Topic;
                     var tpary = topic.Split('/', StringSplitOptions.RemoveEmptyEntries);
                     var _dev = await FoundDevice(e.SenderClientId);
-                 
+               
                     if (tpary.Length >= 3 && tpary[0] == "devices" && _dev != null)
                     {
                         var device = _dev.JudgeOrCreateNewDevice( tpary[1], _scopeFactor, _logger);
                         if (device != null)
                         {
                             bool statushavevalue = false;
+                            bool isplayload = false;
                             Dictionary<string, object> keyValues = new Dictionary<string, object>();
                             if (tpary.Length >= 4)
                             {
@@ -111,6 +112,11 @@ namespace IoTSharp.Handlers
                                 {
                                     keyValues.Add(keyname, e.ApplicationMessage.Payload);
                                 }
+                                else if (tpary[3].ToLower() == "playload")
+                                {
+                                 
+                                    isplayload = true;
+                                }
                             }
                             else
                             {
@@ -123,9 +129,20 @@ namespace IoTSharp.Handlers
                                     _logger.LogWarning(ex, $"转换为字典格式失败 {topic},{ex.Message}");
                                 }
                             }
-                            if (tpary[2] == "telemetry")
+                           if (tpary[2] == "telemetry")
                             {
-                                _queue.PublishTelemetryData(new RawMsg() { DeviceId = device.Id, MsgBody = keyValues, DataSide = DataSide.ClientSide, DataCatalog = DataCatalog.TelemetryData });
+                                if (isplayload)
+                                {
+                                    var lst = Newtonsoft.Json.JsonConvert.DeserializeObject<List<Playload>>(e.ApplicationMessage.ConvertPayloadToString());
+                                    lst?.ForEach(p =>
+                                    {
+                                        _queue.PublishTelemetryData(new RawMsg() { DeviceId = device.Id, DeviceStatus= p.DeviceStatus, ts=p.Ts, MsgBody = p.Values, DataSide = DataSide.ClientSide, DataCatalog = DataCatalog.TelemetryData });
+                                    });
+                                }
+                                else
+                                {
+                                    _queue.PublishTelemetryData(new RawMsg() { DeviceId = device.Id, MsgBody = keyValues, DataSide = DataSide.ClientSide, DataCatalog = DataCatalog.TelemetryData });
+                                }
                             }
                             else if (tpary[2] == "attributes")
                             {
@@ -135,12 +152,13 @@ namespace IoTSharp.Handlers
                                 }
                                 else
                                 {
-                                    _queue.PublishAttributeData(new RawMsg() { DeviceId = device.Id, MsgBody = keyValues, DataSide = DataSide.ClientSide, DataCatalog = DataCatalog.AttributeData });
+                                    _queue.PublishAttributeData(new RawMsg() { DeviceId =  device.Id, MsgBody = keyValues, DataSide = DataSide.ClientSide, DataCatalog = DataCatalog.AttributeData });
                                 }
                             }
                             else if (tpary[2] == "status" )
                             {
-                                ResetDeviceStatus(device, tpary[3] == "online");
+                                var ds = Enum.TryParse(tpary[3], true, out DeviceStatus status) ? status : (tpary[3] == "online" ? DeviceStatus.Good : DeviceStatus.Bad);
+                                ResetDeviceStatus(device, ds);
                                 statushavevalue = true;
                             }
                             else if (tpary[2] == "rpc")
@@ -179,13 +197,13 @@ namespace IoTSharp.Handlers
             }
         }
 
-        private void ResetDeviceStatus(Device device,bool status=true)
+        private void ResetDeviceStatus(Device device, DeviceStatus status = DeviceStatus.Good)
         {
             _logger.LogInformation($"重置状态{device.Id} {device.Name}");
             if (device.DeviceType == DeviceType.Device && device.Owner != null && device.Owner?.Id != null && device.Owner?.Id !=Guid.Empty)//虚拟设备上线
             {
                 _queue.PublishDeviceStatus(device.Id, status);
-                _queue.PublishDeviceStatus(device.Owner.Id, status);
+                _queue.PublishDeviceStatus(device.Owner.Id, status!= DeviceStatus.Good ? DeviceStatus.PartGood: status);
                 _logger.LogInformation($"重置网关状态{device.Owner.Id} {device.Owner.Name}");
             }
             else
