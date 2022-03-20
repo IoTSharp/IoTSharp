@@ -46,8 +46,8 @@ namespace IoTSharp.EdgeSdk.MQTT
                         .Build();
                 Client.ApplicationMessageReceivedAsync +=  Client_ApplicationMessageReceived;
                 Client.ConnectedAsync += e => {
-                    Client.SubscribeAsync($"/devices/{DeviceId}/rpc/request/+/+");
-                    Client.SubscribeAsync($"/devices/{DeviceId}/attributes/update/", MqttQualityOfServiceLevel.ExactlyOnce);
+                    Client.SubscribeAsync($"devices/{DeviceId}/rpc/request/+/+");
+                    Client.SubscribeAsync($"devices/{DeviceId}/attributes/update/", MqttQualityOfServiceLevel.ExactlyOnce);
                     LogInformation?.Invoke($"CONNECTED WITH SERVER ");
                     return Task.CompletedTask;
                 };
@@ -90,11 +90,11 @@ namespace IoTSharp.EdgeSdk.MQTT
            LogDebug?.Invoke($"ApplicationMessageReceived Topic {e.ApplicationMessage.Topic}  QualityOfServiceLevel:{e.ApplicationMessage.QualityOfServiceLevel} Retain:{e.ApplicationMessage.Retain} ");
             try
             {
-                if (e.ApplicationMessage.Topic.StartsWith($"/devices/") && e.ApplicationMessage.Topic.Contains("/response/"))
+                if (e.ApplicationMessage.Topic.StartsWith($"devices/") && e.ApplicationMessage.Topic.Contains("/response/"))
                 {
                     ReceiveAttributes(e);
                 }
-                else if (e.ApplicationMessage.Topic.StartsWith($"/devices/") && e.ApplicationMessage.Topic.Contains("/rpc/request/"))
+                else if (e.ApplicationMessage.Topic.StartsWith($"devices/") && e.ApplicationMessage.Topic.Contains("/rpc/request/"))
                 {
                     var tps = e.ApplicationMessage.Topic.Split(new char[] { '/' }, StringSplitOptions.RemoveEmptyEntries);
                     var rpcmethodname = tps[4];
@@ -165,7 +165,7 @@ namespace IoTSharp.EdgeSdk.MQTT
         public Task ResponseExecommand(RpcResponse rpcResult)
         {
             ///IoTSharp/Clients/RpcClient.cs#L65     var responseTopic = $"/devices/{deviceid}/rpc/response/{methodName}/{rpcid}";
-            string topic = $"/devices/{rpcResult.DeviceId}/rpc/response/{rpcResult.Method.ToString()}/{rpcResult.ResponseId}";
+            string topic = $"devices/{rpcResult.DeviceId}/rpc/response/{rpcResult.Method.ToString()}/{rpcResult.ResponseId}";
             return Client.PublishAsync(new MqttApplicationMessageBuilder().WithTopic( topic).WithPayload( rpcResult.Data.ToString()).WithQualityOfServiceLevel( MqttQualityOfServiceLevel.ExactlyOnce).Build());
         }
         public Task RequestAttributes(params string[] args) => RequestAttributes("me", false, args);
@@ -178,7 +178,7 @@ namespace IoTSharp.EdgeSdk.MQTT
             string topic = $"devices/{_device}/attributes/request/{id}";
             Dictionary<string, string> keys = new Dictionary<string, string>();
             keys.Add(anySide ? "anySide" : "server", string.Join(",", args));
-            Client.SubscribeAsync($"/devices/{_device}/attributes/response/{id}", MqttQualityOfServiceLevel.ExactlyOnce);
+            Client.SubscribeAsync($"devices/{_device}/attributes/response/{id}", MqttQualityOfServiceLevel.ExactlyOnce);
             return Client.PublishStringAsync(topic, Newtonsoft.Json.JsonConvert.SerializeObject(keys), MqttQualityOfServiceLevel.ExactlyOnce);
         }
     }

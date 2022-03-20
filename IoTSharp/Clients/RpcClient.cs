@@ -64,8 +64,8 @@ namespace IoTSharp.Extensions
                 throw new ArgumentException("The method name cannot contain /, + or #.");
             }
             string rpcid = $"{Guid.NewGuid():N}";
-            var requestTopic = $"/devices/{deviceid}/rpc/request/{methodName}/{rpcid}";
-            var responseTopic = $"/devices/{deviceid}/rpc/response/{methodName}/{rpcid}";
+            var requestTopic = $"devices/{deviceid}/rpc/request/{methodName}/{rpcid}";
+            var responseTopic = $"devices/{deviceid}/rpc/response/{methodName}/{rpcid}";
 
             var requestMessage = new MqttApplicationMessageBuilder()
                 .WithTopic(requestTopic)

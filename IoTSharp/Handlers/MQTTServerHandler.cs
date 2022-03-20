@@ -296,13 +296,13 @@ namespace IoTSharp.Handlers
                 {
                     var qf = from at in _dbContext.AttributeLatest where at.Type == DataType.XML && at.KeyName == tpary[5] select at;
                     await qf.LoadAsync();
-                    await _serverEx.PublishAsync(senderClientId,  $"/devices/me/attributes/response/{tpary[5]}", qf.FirstOrDefault()?.Value_XML);
+                    await _serverEx.PublishAsync(senderClientId,  $"devices/me/attributes/response/{tpary[5]}", qf.FirstOrDefault()?.Value_XML);
                 }
                 else if (tpary.Length > 5 && tpary[4] == "binary")
                 {
                     var qf = from at in _dbContext.AttributeLatest where at.Type == DataType.Binary && at.KeyName == tpary[5] select at;
                     await qf.LoadAsync();
-                    await _serverEx.PublishAsync(senderClientId, $"/devices/me/attributes/response/{tpary[5]}", qf.FirstOrDefault()?.Value_Binary );
+                    await _serverEx.PublishAsync(senderClientId, $"devices/me/attributes/response/{tpary[5]}", qf.FirstOrDefault()?.Value_Binary );
                 }
                 else
                 {
@@ -365,6 +365,8 @@ namespace IoTSharp.Handlers
                                 break;
                         }
                     }
+
+                    await _serverEx.PublishAsync(senderClientId, $"devices/me/attributes/response/{tpary[4]}", reps);
                 }
             }
 
@@ -413,7 +415,7 @@ namespace IoTSharp.Handlers
                
              
             }
-            if (e.TopicFilter.Topic.ToLower().StartsWith("/devices/telemetry"))
+            if (e.TopicFilter.Topic.ToLower().StartsWith("devices/telemetry"))
             {
               
 
