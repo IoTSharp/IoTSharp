@@ -65,7 +65,11 @@ export class UserlistComponent implements OnInit {
         },
         {
           acl: 10,
-          text: '删除',
+          text: '删除',pop: {
+            title: '确认删除用户?',
+            okType: 'danger',
+            icon: 'warning',
+          },
           click: (item: any) => {
             this.delete(item.id);
           },
@@ -131,12 +135,17 @@ export class UserlistComponent implements OnInit {
 
   reset() {}
   delete(id: string) {
-    this.http.delete('/api/Tenants/' + id, {}).subscribe(
-      () => {
-        this.msg.info('租户已删除');
+    this.http.delete('api/Account/' + id, {}).subscribe(
+      next => {
+        this.msg.info('用户已删除');
         this.getData();
       },
-      () => {},
+      error=> {
+
+        this.msg.warning('用户删除失败');
+        this.getData();
+
+      },
       () => {},
     );
   }

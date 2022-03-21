@@ -195,10 +195,14 @@ export class CustomerlistComponent implements OnInit {
 
   delete(id: string) {
     this.http.delete('api/Customers/' + id, {}).subscribe(
-      () => {
+      next => {
+        this.msg.info('用户已删除')
         this.getData();
       },
-      () => {},
+      error => {
+        this.msg.warning('用户删除失败')
+
+      },
       () => {},
     );
   }

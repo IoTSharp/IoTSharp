@@ -107,7 +107,7 @@ namespace IoTSharp.Handlers
                             {
                                 obj.TryAdd(kv.Key, kv.Value);
                             });
-                            await RunRules(msg.DeviceId, obj, MountType.Telemetry);
+                            await RunRules(msg.DeviceId, obj, MountType.Attribute);
                         }
                     }
                 }

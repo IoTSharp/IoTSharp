@@ -193,11 +193,14 @@ namespace IoTSharp.Controllers
                 newrule.ExecutableCode = rule.ExecutableCode;
                 newrule.RuleDesc = flowRule.RuleDesc;
                 newrule.RuleStatus = 1;
-                newrule.MountType = flowRule.MountType;
+                newrule.MountType = rule.MountType;
                 newrule.ParentRuleId = rule.RuleId;
                 newrule.CreateId = new Guid();
                 newrule.SubVersion = rule.SubVersion + 0.01;
-                newrule.Runner = rule.Runner;
+            
+                newrule.Customer = await _context.Customer.SingleOrDefaultAsync(c => c.Id == profile.Comstomer);
+                newrule.Tenant = await _context.Tenant.SingleOrDefaultAsync(c => c.Id == profile.Tenant);
+                newrule.Creator = profile.Id.ToString();
                 _context.FlowRules.Add(newrule);
                 await _context.SaveChangesAsync();
 
