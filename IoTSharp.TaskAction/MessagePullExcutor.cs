@@ -70,7 +70,7 @@ namespace IoTSharp.TaskAction
                     request.RequestFormat = DataFormat.Json;
                     request.AddHeader("cache-control", "no-cache");
                     request.AddHeader("Content-Type", "application/json");
-                    request.AddJsonBody(JsonConvert.SerializeObject(dd));
+                    request.AddJsonBody(dd);
                     var response = await restclient.ExecutePostAsync(request);
                     if (response.StatusCode == HttpStatusCode.OK)
                     {
@@ -105,8 +105,9 @@ namespace IoTSharp.TaskAction
                     request.RequestFormat = DataFormat.Json;
                     request.AddHeader("cache-control", "no-cache");
                     request.AddHeader("Content-Type", "application/json");
-                    request.AddJsonBody(JsonConvert.SerializeObject(dd));
-                    var response = await restclient.ExecutePostAsync(request);
+                    request.AddJsonBody(dd);
+               
+                      var response = await restclient.ExecutePostAsync(request);
                     if (response.StatusCode == HttpStatusCode.OK)
                     {
                         var result = JsonConvert.DeserializeObject<MessagePullResult>(response.Content);
