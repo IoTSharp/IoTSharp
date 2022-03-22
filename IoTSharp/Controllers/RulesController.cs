@@ -184,6 +184,10 @@ namespace IoTSharp.Controllers
             var rule = await _context.FlowRules.SingleOrDefaultAsync(c => c.RuleId == flowRule.RuleId && c.Tenant.Id == profile.Tenant);
             if (rule != null)
             {
+
+
+                var _customer = await _context.Customer.SingleOrDefaultAsync(c => c.Id == profile.Comstomer);
+                var _tenant = await _context.Tenant.SingleOrDefaultAsync(c => c.Id == profile.Tenant);
                 var newrule = new FlowRule();
                 newrule.DefinitionsXml = rule.DefinitionsXml;
                 newrule.Describes = flowRule.Describes;
@@ -197,9 +201,9 @@ namespace IoTSharp.Controllers
                 newrule.ParentRuleId = rule.RuleId;
                 newrule.CreateId = new Guid();
                 newrule.SubVersion = rule.SubVersion + 0.01;
-            
-                newrule.Customer = await _context.Customer.SingleOrDefaultAsync(c => c.Id == profile.Comstomer);
-                newrule.Tenant = await _context.Tenant.SingleOrDefaultAsync(c => c.Id == profile.Tenant);
+
+                newrule.Customer = _customer;
+                newrule.Tenant = _tenant;
                 newrule.Creator = profile.Id.ToString();
                 _context.FlowRules.Add(newrule);
                 await _context.SaveChangesAsync();
@@ -225,7 +229,8 @@ namespace IoTSharp.Controllers
                     Outgoing = c.Outgoing,
                     SourceId = c.SourceId,
                     TargetId = c.TargetId,
-
+                    Customer = _customer,
+                    Tenant = _tenant,
                     bpmnid = c.bpmnid,
                     CreateId = newrule.CreateId
                 }).ToList();
@@ -332,7 +337,7 @@ namespace IoTSharp.Controllers
             var activity = JsonConvert.DeserializeObject<Activity>(m.Biz);
             var CreatorId = Guid.NewGuid();
             var CreateDate = DateTime.Now;
-            var rule = _context.FlowRules.Include(c=>c.Customer).Include(c=>c.Tenant).FirstOrDefault(c => c.RuleId == activity.RuleId);
+            var rule = _context.FlowRules.Include(c => c.Customer).Include(c => c.Tenant).FirstOrDefault(c => c.RuleId == activity.RuleId);
             rule.DefinitionsXml = m.Xml;
             rule.Creator = profile.Id.ToString();
             rule.CreateId = CreatorId;
@@ -359,7 +364,7 @@ namespace IoTSharp.Controllers
                     Customer = rule.Customer,
                     Tenant = rule.Tenant
                 });
-      
+
                 _context.Flows.AddRange(fw);
                 _context.SaveChanges();
             }
@@ -379,7 +384,7 @@ namespace IoTSharp.Controllers
                     Customer = rule.Customer,
                     Tenant = rule.Tenant
                 });
-               
+
                 _context.Flows.AddRange(fw);
                 _context.SaveChanges();
             }
@@ -399,7 +404,7 @@ namespace IoTSharp.Controllers
                     Customer = rule.Customer,
                     Tenant = rule.Tenant
                 });
-           
+
                 _context.Flows.AddRange(fw);
                 _context.SaveChanges();
             }
@@ -423,7 +428,7 @@ namespace IoTSharp.Controllers
                     Customer = rule.Customer,
                     Tenant = rule.Tenant
                 });
-         
+
                 _context.Flows.AddRange(fw);
                 _context.SaveChanges();
             }
@@ -447,7 +452,7 @@ namespace IoTSharp.Controllers
                     Customer = rule.Customer,
                     Tenant = rule.Tenant
                 });
-           
+
                 _context.Flows.AddRange(fw);
                 _context.SaveChanges();
             }
@@ -467,7 +472,7 @@ namespace IoTSharp.Controllers
                     Customer = rule.Customer,
                     Tenant = rule.Tenant
                 });
-      
+
                 _context.Flows.AddRange(fw);
                 _context.SaveChanges();
             }
@@ -487,7 +492,7 @@ namespace IoTSharp.Controllers
                     Customer = rule.Customer,
                     Tenant = rule.Tenant
                 });
-            
+
                 _context.Flows.AddRange(fw);
                 _context.SaveChanges();
             }
@@ -507,7 +512,7 @@ namespace IoTSharp.Controllers
                     Customer = rule.Customer,
                     Tenant = rule.Tenant
                 });
-            
+
                 _context.Flows.AddRange(fw);
                 _context.SaveChanges();
             }
@@ -527,7 +532,7 @@ namespace IoTSharp.Controllers
                     Customer = rule.Customer,
                     Tenant = rule.Tenant
                 });
-           
+
                 _context.Flows.AddRange(fw);
                 _context.SaveChanges();
             }
@@ -565,7 +570,7 @@ namespace IoTSharp.Controllers
                     Customer = rule.Customer,
                     Tenant = rule.Tenant
                 });
-         
+
                 _context.Flows.AddRange(fw);
                 _context.SaveChanges();
             }
@@ -585,7 +590,7 @@ namespace IoTSharp.Controllers
                     Customer = rule.Customer,
                     Tenant = rule.Tenant
                 });
-             
+
                 _context.Flows.AddRange(fw);
                 _context.SaveChanges();
             }
@@ -601,11 +606,11 @@ namespace IoTSharp.Controllers
                     FlowStatus = 1,
                     CreateId = CreatorId,
                     Createor = profile.Id,
-                    CreateDate = CreateDate  ,    
+                    CreateDate = CreateDate,
                     Customer = rule.Customer,
                     Tenant = rule.Tenant
                 });
-             
+
                 _context.Flows.AddRange(fws);
                 _context.SaveChanges();
             }
@@ -1112,8 +1117,8 @@ namespace IoTSharp.Controllers
             var result = await _flowRuleProcessor.RunFlowRules(ruleid, d, Guid.Empty, EventType.TestPurpose, testabizId);
 
 
-        
-            var flowRule=_context.FlowRules.SingleOrDefault(c => c.RuleId == ruleid);
+
+            var flowRule = _context.FlowRules.SingleOrDefault(c => c.RuleId == ruleid);
 
             var flows = _context.Flows.Where(c => c.FlowRule == flowRule).ToList();
 
@@ -1131,8 +1136,9 @@ namespace IoTSharp.Controllers
                     {
                         AddDate = c.AddDate,
                         BizId = c.BizId,
-                        Data = c.Data, BaseEvent = operevent,
-                        Flow = flows.SingleOrDefault(x=>x.FlowId==c.Flow.FlowId
+                        Data = c.Data,
+                        BaseEvent = operevent,
+                        Flow = flows.SingleOrDefault(x => x.FlowId == c.Flow.FlowId
                         ),
                         FlowRule = flowRule,
                         NodeStatus = c.NodeStatus,
