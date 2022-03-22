@@ -524,7 +524,7 @@ namespace IoTSharp.FlowRuleEngine
         public async Task<List<Flow>> ProcessCondition(Guid flowId, dynamic data)
         {
             var flow = _allFlows.FirstOrDefault(c => c.FlowId == flowId);
-            var flows = _allFlows.Where(c => c.SourceId == flow.bpmnid).ToList();
+            var flows = _allFlows.Where(c => c.SourceId == flow?.bpmnid).ToList();
             var emptyflow = flows.Where(c => c.Conditionexpression == string.Empty).ToList() ?? new List<Flow>();
             var tasks = new BaseRuleTask()
             {
