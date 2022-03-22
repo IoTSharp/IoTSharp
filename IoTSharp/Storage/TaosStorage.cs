@@ -174,39 +174,40 @@ namespace IoTSharp.Storage
             }
             return dt;
         }
-        public Task<List<TelemetryDataDto>> LoadTelemetryAsync(Guid deviceId, string keys, DateTime begin)
-        {
-            return LoadTelemetryAsync(deviceId, keys, begin, DateTime.Now);
-        }
+        
 
-
-        public Task<List<TelemetryDataDto>> LoadTelemetryAsync(Guid deviceId, string keys, DateTime begin, DateTime end)
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="deviceId"></param>
+        /// <param name="keys"></param>
+        /// <param name="begin"></param>
+        /// <param name="end"></param>
+        /// <param name="every">未能支持</param>
+        /// <param name="aggregate">未能支持</param>
+        /// <returns></returns>
+        public Task<List<TelemetryDataDto>> LoadTelemetryAsync(Guid deviceId, string keys, DateTime begin, DateTime end ,TimeSpan every, Aggregate aggregate)
         {
             TaosConnection _taos = _taospool.Get();
             if (_taos.State != System.Data.ConnectionState.Open) _taos.Open();
-            IEnumerable<string> kvs = from k in keys
+            string sql = string.Empty;
+
+            if (!string.IsNullOrEmpty(keys))
+            {
+                IEnumerable<string> kvs = from k in keys
                                           select $" keyname = '{k}' ";
-                string sql = $"select  tbname,keyname  from telemetrydata where deviceid='{deviceId:N}'  and ({string.Join("or", kvs) })  ";
+                  sql = $"select  tbname,keyname  from telemetrydata where deviceid='{deviceId:N}'  and ({string.Join("or", kvs) })  ";
+            }
+            else
+            {
+                sql = $"select  tbname,keyname  from telemetrydata where deviceid='{deviceId:N}'  ";
+            }
                 List<TelemetryDataDto> dt = SQLToDTByDate(begin, end, _taos, sql);
             _taospool.Return(_taos);
             return Task.FromResult(dt);
             
         }
-
-        public Task<List<TelemetryDataDto>> LoadTelemetryAsync(Guid deviceId, DateTime begin)
-        {
-            return LoadTelemetryAsync(deviceId, begin, DateTime.Now);
-        }
-
-        public Task<List<TelemetryDataDto>> LoadTelemetryAsync(Guid deviceId, DateTime begin, DateTime end)
-        {
-            TaosConnection _taos = _taospool.Get();
-            if (_taos.State != System.Data.ConnectionState.Open) _taos.Open();
-            string sql = $"select  tbname,keyname  from telemetrydata where deviceid='{deviceId:N}'";
-                List<TelemetryDataDto> dt = SQLToDTByDate(begin, end, _taos, sql);
-            _taospool.Return(_taos);
-            return Task.FromResult(dt);
-        }
+        
 
         public async   Task<(bool result, List<TelemetryData> telemetries)> StoreTelemetryAsync(RawMsg msg)
         {

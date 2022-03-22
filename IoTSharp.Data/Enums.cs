@@ -162,10 +162,26 @@ namespace IoTSharp.Data
         Attribute=2,
         RPC=3,
         Online = 4,
-        Offline=5
+        Offline = 5
+    }
+    /// <summary>
+    /// 折叠数据
+    /// </summary>
+    public enum Aggregate
+    {
+        /// <summary>
+        /// 不使用
+        /// </summary>
+        None,
+        Mean,
+        Median,
+        Last,
+        First,
+        Max,
+        Min,
+        Sum
     }
 
-    
 
 
 }

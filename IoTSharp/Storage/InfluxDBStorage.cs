@@ -17,6 +17,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 using System.Web;
 
@@ -89,30 +90,8 @@ from(bucket: ""{_bucket}"")
             return FluxToDtoAsync(v);
 
         }
-    
-        public Task<List<TelemetryDataDto>> LoadTelemetryAsync(Guid deviceId, string keys, DateTime begin)
-        {
-            return LoadTelemetryAsync(deviceId, keys, begin, DateTime.Now);
-        }
 
-
-        public Task<List<TelemetryDataDto>> LoadTelemetryAsync(Guid deviceId, string keys, DateTime begin, DateTime end)
-        {
-            InfluxDBClient _taos = _taospool.Get();
-            var query = _taos.GetQueryApi();
-            var  kvs = from k in keys.Split(';',',')
-                                      select $"r[\"_field\"] == \"{k}\"";
-            var v = query.QueryAsync(@$"	
-from(bucket: ""{_bucket}"")
-|> range(start: {begin:o},stop:{end:o})
-|> filter(fn: (r) => r[""_measurement""] == ""TelemetryData"")
-|> filter(fn: (r) => r[""DeviceId""] == ""{deviceId}"")
-|> filter(fn: (r) => {string.Join(" or ", kvs)})
-|> group(columns: [""_field""])
-|> yield()");
-            _taospool.Return(_taos);
-            return FluxToDtoAsync(v);
-        }
+         
 
         private async Task<List<TelemetryDataDto>> FluxToDtoAsync(Task< List<FluxTable>> v)
         {
@@ -158,21 +137,44 @@ from(bucket: ""{_bucket}"")
             return data;
         }
 
-        public Task<List<TelemetryDataDto>> LoadTelemetryAsync(Guid deviceId, DateTime begin)
-        {
-            return LoadTelemetryAsync(deviceId, begin, DateTime.Now);
-        }
-
-        public Task<List<TelemetryDataDto>> LoadTelemetryAsync(Guid deviceId, DateTime begin, DateTime end)
+  
+        /// <summary>
+        /// 加载遥测数据
+        /// </summary>
+        /// <param name="deviceId">设备ID</param>
+        /// <param name="keys">如果为空则全部 ， 否则都好分隔</param>
+        /// <param name="begin">时间开始</param>
+        /// <param name="end">结束</param>
+        /// <param name="every">数据堆叠断面时间</param>
+        /// <param name="aggregate">聚合方式</param>
+        /// <returns></returns>
+        public Task<List<TelemetryDataDto>> LoadTelemetryAsync(Guid deviceId, string keys, DateTime begin, DateTime end,TimeSpan every, Aggregate aggregate)
         {
             InfluxDBClient _taos = _taospool.Get();
             var query = _taos.GetQueryApi();
-            var v = query.QueryAsync(@$"	
-from(bucket: ""{_bucket}"")
-|> range(start: {begin:o},stop:{end:o})
-|> filter(fn: (r) => r[""_measurement""] == ""TelemetryData"")
-|> filter(fn: (r) => r[""DeviceId""] == ""{deviceId}"")
-|> yield()");
+            var sb = new StringBuilder();
+            sb.AppendLine(@$"from(bucket: ""{_bucket}"")");
+            sb.AppendLine($"|> range(start: {begin:o},stop:{end:o})");
+            sb.AppendLine(@$"|> filter(fn: (r) => r[""_measurement""] == ""TelemetryData"")");
+            sb.AppendLine(@$"|> filter(fn: (r) => r[""DeviceId""] == ""{deviceId}"")");
+            if (!string.IsNullOrEmpty(keys))
+            {
+                var kvs = from k in keys.Split(';', ',')
+                          select $"r[\"_field\"] == \"{k}\"";
+                sb.AppendLine(@$"|> filter(fn: (r) => {string.Join(" or ", kvs)})");
+                sb.AppendLine(@$"|> group(columns: [""_field""])");
+            }
+            if (every > TimeSpan.Zero)
+            {
+                sb.AppendLine($@"|> aggregateWindow(every: {every.TotalMinutes}m, fn: {Enum.GetName(aggregate).ToLower()}, createEmpty: false)");
+                sb.AppendLine(@$"|> yield(name: ""{Enum.GetName( aggregate).ToLower()}"")");
+            }
+            else
+            {
+                sb.AppendLine(@$"|> yield()");
+            }
+           
+            var v = query.QueryAsync(sb.ToString());
             _taospool.Return(_taos);
             return FluxToDtoAsync(v);
         }
@@ -245,5 +247,9 @@ from(bucket: ""{_bucket}"")
             }
             return (result, telemetries);
         }
+
+      
+
+        
     }
 }

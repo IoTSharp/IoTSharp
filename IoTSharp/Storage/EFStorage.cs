@@ -53,48 +53,24 @@ namespace IoTSharp.Storage
             return devid.AsNoTracking().ToListAsync();
         }
 
-        public Task<List<TelemetryDataDto>> LoadTelemetryAsync(Guid deviceId, string keys, DateTime begin)
+        public async Task<List<TelemetryDataDto>> LoadTelemetryAsync(Guid deviceId, string keys, DateTime begin, DateTime end, TimeSpan every, Aggregate aggregate)
         {
             using var scope = _scopeFactor.CreateScope();
             using var context = scope.ServiceProvider.GetService<ApplicationDbContext>();
-
+            var lst = new List<TelemetryDataDto>();
             var kv = from t in context.TelemetryData
-                     where t.DeviceId == deviceId && keys.Split(',', ' ', ';').Contains(t.KeyName) && t.DateTime >= begin
+                     where t.DeviceId == deviceId &&  t.DateTime >= begin && t.DateTime < end
                      select new TelemetryDataDto() { DateTime = t.DateTime, KeyName = t.KeyName, Value = t.ToObject() };
-            return kv.AsNoTracking().ToListAsync();
-        }
-
-        public Task<List<TelemetryDataDto>> LoadTelemetryAsync(Guid deviceId, string keys, DateTime begin, DateTime end)
-        {
-            using var scope = _scopeFactor.CreateScope();
-            using var context = scope.ServiceProvider.GetService<ApplicationDbContext>();
-
-            var kv = from t in context.TelemetryData
-                     where t.DeviceId == deviceId && keys.Split(',', ' ', ';').Contains(t.KeyName) && t.DateTime >= begin && t.DateTime < end
-                     select new TelemetryDataDto() { DateTime = t.DateTime, KeyName = t.KeyName, Value = t.ToObject() };
-            return kv.AsNoTracking().ToListAsync();
-        }
-
-        public Task<List<TelemetryDataDto>> LoadTelemetryAsync(Guid deviceId, DateTime begin)
-        {
-            using var scope = _scopeFactor.CreateScope();
-            using var context = scope.ServiceProvider.GetService<ApplicationDbContext>();
-
-            var kv = from t in context.TelemetryData
-                     where t.DeviceId == deviceId && t.DateTime >= begin
-                     select new TelemetryDataDto() { DateTime = t.DateTime, KeyName = t.KeyName, Value = t.ToObject() };
-            return kv.AsNoTracking().ToListAsync();
-        }
-
-        public Task<List<TelemetryDataDto>> LoadTelemetryAsync(Guid deviceId, DateTime begin, DateTime end)
-        {
-            using var scope = _scopeFactor.CreateScope();
-            using var context = scope.ServiceProvider.GetService<ApplicationDbContext>();
-
-            var kv = from t in context.TelemetryData
-                     where t.DeviceId == deviceId && t.DateTime >= begin && t.DateTime < end
-                     select new TelemetryDataDto() { DateTime = t.DateTime, KeyName = t.KeyName, Value = t.ToObject() };
-            return kv.AsNoTracking().ToListAsync();
+            if (!string.IsNullOrEmpty(keys) )
+            {
+                var kfk = from t in kv where keys.Split(',', ' ', ';').Contains(t.KeyName) select t;
+                lst=await kfk.AsNoTracking().ToListAsync();
+            }
+            else
+            {
+                lst = await kv.AsNoTracking().ToListAsync();
+            }
+            return lst;
         }
 
         public virtual async Task<(bool result, List<TelemetryData> telemetries)>  StoreTelemetryAsync(RawMsg msg)

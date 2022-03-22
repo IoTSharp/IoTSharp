@@ -94,14 +94,9 @@ namespace IoTSharp.Storage
             return Task.FromResult(dt);
 
         }
+         
 
-        public Task<List<TelemetryDataDto>> LoadTelemetryAsync(Guid deviceId, string keys, DateTime begin)
-        {
-            return LoadTelemetryAsync(deviceId, keys, begin, DateTime.Now);
-        }
-
-
-        public Task<List<TelemetryDataDto>> LoadTelemetryAsync(Guid deviceId, string keys, DateTime begin, DateTime end)
+        public Task<List<TelemetryDataDto>> LoadTelemetryAsync(Guid deviceId, string keys, DateTime begin, DateTime end, TimeSpan every, Aggregate aggregate)
         {
             PinusConnection _pinus = _pinuspool.Get();
             List<TelemetryDataDto> dt = null;
@@ -122,31 +117,7 @@ namespace IoTSharp.Storage
             return Task.FromResult(dt);
 
         }
-
-        public Task<List<TelemetryDataDto>> LoadTelemetryAsync(Guid deviceId, DateTime begin)
-        {
-            return LoadTelemetryAsync(deviceId, begin, DateTime.Now);
-        }
-
-        public Task<List<TelemetryDataDto>> LoadTelemetryAsync(Guid deviceId, DateTime begin, DateTime end)
-        {
-            PinusConnection _pinus = _pinuspool.Get();
-            List<TelemetryDataDto> dt = null;
-            try
-            {
-                string sql = $"select  tbname,keyname  from telemetrydata where deviceid='{deviceId:N}'";
-                dt = SQLToDTByDate(begin, end, _pinus, sql, deviceId);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, $"LoadTelemetryAsync({deviceId}, {begin},{end}){ex.Message}");
-            }
-            finally
-            {
-                _pinuspool.Return(_pinus);
-            }
-            return Task.FromResult(dt);
-        }
+ 
         private List<TelemetryDataDto> SQLToDTByDate(DateTime begin, DateTime end, PinusConnection db, string sql, Guid devid)
         {
             List<TelemetryDataDto> dt = new List<TelemetryDataDto>();

@@ -314,6 +314,18 @@
             <param name="end">For example: 2019-06-06 12:24</param>
             <returns></returns>
         </member>
+        <member name="M:IoTSharp.Controllers.DevicesController.GetTelemetryData(System.Guid,System.String,System.DateTime,System.DateTime,System.TimeSpan,IoTSharp.Data.Aggregate)">
+            <summary>
+            返回指定设备的的遥测数据， 按照keyname 和指定时间范围获取，如果keyname 为 all  , 则返回全部key 的数据
+            </summary>
+            <param name="deviceId">Which device do you read?</param>
+            <param name="keys">Specify key name list , use , or space or  ; to split </param>
+            <param name="begin">For example: 2019-06-06 12:24</param>
+            <param name="end">For example: 2019-06-06 12:24</param>
+            <param name="every">数据聚合断面时间间隔， (InfluxDB Only)</param>
+            <param name="aggregate">聚合方法(InfluxDB Only)</param>
+            <returns></returns>
+        </member>
         <member name="M:IoTSharp.Controllers.DevicesController.GetDevice(System.Guid)">
             <summary>
             获取设备详情
@@ -890,6 +902,18 @@
               查找类似 The certificate is installed 的本地化字符串。
             </summary>
         </member>
+        <member name="M:IoTSharp.Storage.InfluxDBStorage.LoadTelemetryAsync(System.Guid,System.String,System.DateTime,System.DateTime,System.TimeSpan,IoTSharp.Data.Aggregate)">
+            <summary>
+            加载遥测数据
+            </summary>
+            <param name="deviceId">设备ID</param>
+            <param name="keys">如果为空则全部 ， 否则都好分隔</param>
+            <param name="begin">时间开始</param>
+            <param name="end">结束</param>
+            <param name="every">数据堆叠断面时间</param>
+            <param name="aggregate">聚合方式</param>
+            <returns></returns>
+        </member>
         <member name="M:IoTSharp.Storage.PinusDBStorage.SqlToTDD(PinusDB.Data.PinusConnection,System.String,System.Guid)">
             <summary>
             转换获取到的值
@@ -916,6 +940,18 @@
             <param name="keyname"></param>
             <returns></returns>
             <exception cref="!:https://github.com/taosdata/TDengine/issues/4269">务必注意此bug</exception>
+        </member>
+        <member name="M:IoTSharp.Storage.TaosStorage.LoadTelemetryAsync(System.Guid,System.String,System.DateTime,System.DateTime,System.TimeSpan,IoTSharp.Data.Aggregate)">
+            <summary>
+            
+            </summary>
+            <param name="deviceId"></param>
+            <param name="keys"></param>
+            <param name="begin"></param>
+            <param name="end"></param>
+            <param name="every">未能支持</param>
+            <param name="aggregate">未能支持</param>
+            <returns></returns>
         </member>
         <member name="F:IoTSharp.Storage.TimescaleDBStorage._scopeFactor">
             <summary>

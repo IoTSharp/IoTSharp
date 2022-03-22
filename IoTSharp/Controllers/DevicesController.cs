@@ -494,9 +494,7 @@ namespace IoTSharp.Controllers
             else
             {
                 return new ApiResult<List<TelemetryDataDto>>(ApiCode.Success, "Ok",
-                    keys == "all"
-                        ? await _storage.LoadTelemetryAsync(deviceId, begin)
-                        : await _storage.LoadTelemetryAsync(deviceId, keys, begin));
+                    await _storage.LoadTelemetryAsync(deviceId, keys == "all" ? string.Empty : keys, begin, DateTime.Now, TimeSpan.Zero, Aggregate.None));
             }
         }
 
@@ -523,10 +521,37 @@ namespace IoTSharp.Controllers
             else
             {
                 return new ApiResult<List<TelemetryDataDto>>(ApiCode.Success, "Ok",
-                    keys == "all" ? await _storage.LoadTelemetryAsync(deviceId, begin, end) : await _storage.LoadTelemetryAsync(deviceId, keys, begin, end));
+                  await _storage.LoadTelemetryAsync(deviceId, keys == "all" ? string.Empty:keys,  begin, end,  TimeSpan.Zero, Aggregate.None) );
             }
         }
-
+        /// <summary>
+        /// 返回指定设备的的遥测数据， 按照keyname 和指定时间范围获取，如果keyname 为 all  , 则返回全部key 的数据
+        /// </summary>
+        /// <param name="deviceId">Which device do you read?</param>
+        /// <param name="keys">Specify key name list , use , or space or  ; to split </param>
+        /// <param name="begin">For example: 2019-06-06 12:24</param>
+        /// <param name="end">For example: 2019-06-06 12:24</param>
+        /// <param name="every">数据聚合断面时间间隔， (InfluxDB Only)</param>
+        /// <param name="aggregate">聚合方法(InfluxDB Only)</param>
+        /// <returns></returns>
+        [Authorize(Roles = nameof(UserRole.NormalUser))]
+        [HttpGet("{deviceId}/TelemetryData/{keys}/{begin}/{end}/{every}/{aggregate}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ApiResult), StatusCodes.Status404NotFound)]
+        [ProducesDefaultResponseType]
+        public async Task<ApiResult<List<TelemetryDataDto>>> GetTelemetryData(Guid deviceId, string keys, DateTime begin, DateTime end,TimeSpan every, Aggregate aggregate)
+        {
+            Device dev = Found(deviceId);
+            if (dev == null)
+            {
+                return new ApiResult<List<TelemetryDataDto>>(ApiCode.NotFoundDeviceIdentity, "Device's Identity not found", null);
+            }
+            else
+            {
+                return new ApiResult<List<TelemetryDataDto>>(ApiCode.Success, "Ok",
+                         await _storage.LoadTelemetryAsync(deviceId, keys == "all" ? string.Empty : keys, begin, end, every, aggregate));
+            }
+        }
         /// <summary>
         /// 获取设备详情
         /// </summary>

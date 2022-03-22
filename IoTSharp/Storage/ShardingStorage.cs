@@ -83,12 +83,9 @@ namespace IoTSharp.Storage
             }
         }
 
-        public Task<List<TelemetryDataDto>> LoadTelemetryAsync(Guid deviceId, string keys, DateTime begin)
-        {
-            return LoadTelemetryAsync(deviceId, keys, begin, DateTime.Now);
-        }
+         
 
-        public Task<List<TelemetryDataDto>> LoadTelemetryAsync(Guid deviceId, string keys, DateTime begin, DateTime end)
+        public Task<List<TelemetryDataDto>> LoadTelemetryAsync(Guid deviceId, string keys, DateTime begin, DateTime end, TimeSpan every, Aggregate aggregate)
         {
             return Task.Run(() =>
             {
@@ -100,9 +97,17 @@ namespace IoTSharp.Storage
                         {
                             var lst = new List<TelemetryDataDto>();
                             var kv = context.GetIShardingQueryable<TelemetryData>()
-                                .Where(t => t.DeviceId == deviceId && keys.Split(',', ' ', ';').Contains(t.KeyName) && t.DateTime >= begin && t.DateTime < end)
+                                .Where(t => t.DeviceId == deviceId && t.DateTime >= begin && t.DateTime < end)
                                 .ToList().Select(t => new TelemetryDataDto() { DateTime = t.DateTime, KeyName = t.KeyName, Value = t.ToObject() });
-                            return kv.ToList();
+                            if (!string.IsNullOrEmpty(keys))
+                            {
+                                lst = kv.Where(t => keys.Split(',', ' ', ';').Contains(t.KeyName)).ToList();
+                            }
+                            else
+                            {
+                                lst = kv.ToList();
+                            }
+                            return lst;
                         }
                     }
                 }
@@ -113,28 +118,7 @@ namespace IoTSharp.Storage
                 }
             });
         }
-
-        public Task<List<TelemetryDataDto>> LoadTelemetryAsync(Guid deviceId, DateTime begin)
-        {
-            return LoadTelemetryAsync(deviceId, begin, DateTime.Now);
-        }
-
-        public Task<List<TelemetryDataDto>> LoadTelemetryAsync(Guid deviceId, DateTime begin, DateTime end)
-        {
-            return Task.Run(() =>
-            {
-                using var scope = _scopeFactor.CreateScope();
-
-                using (var context = scope.ServiceProvider.GetService<IShardingDbAccessor>())
-                {
-                    var lst = new List<TelemetryDataDto>();
-                    var kv = context.GetIShardingQueryable<TelemetryData>()
-                        .Where(t => t.DeviceId == deviceId && t.DateTime >= begin && t.DateTime < end)
-                        .ToList().Select(t => new TelemetryDataDto() { DateTime = t.DateTime, KeyName = t.KeyName, Value = t.ToObject() });
-                    return kv.ToList();
-                }
-            });
-        }
+ 
         
         public async Task<(bool result, List<TelemetryData> telemetries)> StoreTelemetryAsync(RawMsg msg)
         {
