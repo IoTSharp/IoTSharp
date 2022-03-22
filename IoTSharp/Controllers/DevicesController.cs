@@ -528,18 +528,14 @@ namespace IoTSharp.Controllers
         /// 返回指定设备的的遥测数据， 按照keyname 和指定时间范围获取，如果keyname 为 all  , 则返回全部key 的数据
         /// </summary>
         /// <param name="deviceId">Which device do you read?</param>
-        /// <param name="keys">Specify key name list , use , or space or  ; to split </param>
-        /// <param name="begin">For example: 2019-06-06 12:24</param>
-        /// <param name="end">For example: 2019-06-06 12:24</param>
-        /// <param name="every">数据聚合断面时间间隔， (InfluxDB Only)</param>
-        /// <param name="aggregate">聚合方法(InfluxDB Only)</param>
+        /// <param name="queryDto">查询条件</param>
         /// <returns></returns>
         [Authorize(Roles = nameof(UserRole.NormalUser))]
-        [HttpGet("{deviceId}/TelemetryData/{keys}/{begin}/{end}/{every}/{aggregate}")]
+        [HttpPost("{deviceId}/TelemetryData")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ApiResult), StatusCodes.Status404NotFound)]
         [ProducesDefaultResponseType]
-        public async Task<ApiResult<List<TelemetryDataDto>>> GetTelemetryData(Guid deviceId, string keys, DateTime begin, DateTime end,TimeSpan every, Aggregate aggregate)
+        public async Task<ApiResult<List<TelemetryDataDto>>> GetTelemetryData(Guid deviceId,TelemetryDataQueryDto queryDto)
         {
             Device dev = Found(deviceId);
             if (dev == null)
@@ -549,7 +545,7 @@ namespace IoTSharp.Controllers
             else
             {
                 return new ApiResult<List<TelemetryDataDto>>(ApiCode.Success, "Ok",
-                         await _storage.LoadTelemetryAsync(deviceId, keys == "all" ? string.Empty : keys, begin, end, every, aggregate));
+                         await _storage.LoadTelemetryAsync(deviceId, queryDto.keys, queryDto.begin, queryDto.end, queryDto.every, queryDto.aggregate));
             }
         }
         /// <summary>

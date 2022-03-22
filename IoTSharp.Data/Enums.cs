@@ -138,8 +138,6 @@ namespace IoTSharp.Data
         TestPurpose=2
     }
 
-
-
     public enum NodeStatus
     {
         Abort = -1,
@@ -167,6 +165,8 @@ namespace IoTSharp.Data
     /// <summary>
     /// 折叠数据
     /// </summary>
+    [System.Text.Json.Serialization.JsonConverter(typeof(System.Text.Json.Serialization.JsonStringEnumConverter))]
+    [JsonConverter(typeof(StringEnumConverter))]
     public enum Aggregate
     {
         /// <summary>

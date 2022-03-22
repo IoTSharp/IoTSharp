@@ -314,16 +314,12 @@
             <param name="end">For example: 2019-06-06 12:24</param>
             <returns></returns>
         </member>
-        <member name="M:IoTSharp.Controllers.DevicesController.GetTelemetryData(System.Guid,System.String,System.DateTime,System.DateTime,System.TimeSpan,IoTSharp.Data.Aggregate)">
+        <member name="M:IoTSharp.Controllers.DevicesController.GetTelemetryData(System.Guid,IoTSharp.Dtos.TelemetryDataQueryDto)">
             <summary>
             返回指定设备的的遥测数据， 按照keyname 和指定时间范围获取，如果keyname 为 all  , 则返回全部key 的数据
             </summary>
             <param name="deviceId">Which device do you read?</param>
-            <param name="keys">Specify key name list , use , or space or  ; to split </param>
-            <param name="begin">For example: 2019-06-06 12:24</param>
-            <param name="end">For example: 2019-06-06 12:24</param>
-            <param name="every">数据聚合断面时间间隔， (InfluxDB Only)</param>
-            <param name="aggregate">聚合方法(InfluxDB Only)</param>
+            <param name="queryDto">查询条件</param>
             <returns></returns>
         </member>
         <member name="M:IoTSharp.Controllers.DevicesController.GetDevice(System.Guid)">
@@ -703,6 +699,36 @@
         <member name="P:IoTSharp.Dtos.InstanceDto.Installed">
             <summary>
             是否被安装
+            </summary>
+        </member>
+        <member name="T:IoTSharp.Dtos.TelemetryDataQueryDto">
+            <summary>
+            查询历史遥测数据请求结构体
+            </summary>
+        </member>
+        <member name="P:IoTSharp.Dtos.TelemetryDataQueryDto.keys">
+            <summary>
+            要获取的键值， 如果为空， 则为全部
+            </summary>
+        </member>
+        <member name="P:IoTSharp.Dtos.TelemetryDataQueryDto.begin">
+            <summary>
+            开始时间
+            </summary>
+        </member>
+        <member name="P:IoTSharp.Dtos.TelemetryDataQueryDto.end">
+            <summary>
+            截止时间， 默认为现在。 
+            </summary>
+        </member>
+        <member name="P:IoTSharp.Dtos.TelemetryDataQueryDto.every">
+            <summary>
+            数据截面聚合间隔
+            </summary>
+        </member>
+        <member name="P:IoTSharp.Dtos.TelemetryDataQueryDto.aggregate">
+            <summary>
+            数据截面计算方式， 
             </summary>
         </member>
         <member name="M:IoTSharp.IoTSharpExtension.JustFill``1(IoTSharp.Data.ApplicationDbContext,Microsoft.AspNetCore.Mvc.ControllerBase,``0)">
