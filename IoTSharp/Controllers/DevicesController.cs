@@ -527,8 +527,15 @@ namespace IoTSharp.Controllers
         /// <summary>
         /// 返回指定设备的的遥测数据， 按照keyname 和指定时间范围获取，如果keyname 为 all  , 则返回全部key 的数据
         /// </summary>
-        /// <param name="deviceId">Which device do you read?</param>
-        /// <param name="queryDto">查询条件</param>
+        /// <param name="deviceId">指定设备ID</param>
+        /// <param name="queryDto">查询条件例子:
+        ///{
+        /// "keys": "",
+        /// "begin": "2022-03-23T11:44:56.488Z",
+        /// "every": "1.03:14:56:166",
+        /// "aggregate": "Mean"
+        /// }
+        /// </param>
         /// <returns></returns>
         [Authorize(Roles = nameof(UserRole.NormalUser))]
         [HttpPost("{deviceId}/TelemetryData")]

@@ -173,12 +173,33 @@ namespace IoTSharp.Data
         /// 不使用
         /// </summary>
         None,
+        /// <summary>
+        /// 平均数
+        /// </summary>
         Mean,
+        /// <summary>
+        /// 中值
+        /// </summary>
         Median,
+        /// <summary>
+        /// 最后一个值
+        /// </summary>
         Last,
+        /// <summary>
+        /// 第一个值
+        /// </summary>
         First,
+        /// <summary>
+        /// 最大
+        /// </summary>
         Max,
+        /// <summary>
+        /// 最小
+        /// </summary>
         Min,
+        /// <summary>
+        /// 合计
+        /// </summary>
         Sum
     }
 

@@ -701,6 +701,11 @@
             是否被安装
             </summary>
         </member>
+        <member name="F:IoTSharp.Dtos.TimespanConverterNewtonsoft.TimeSpanFormatString">
+            <summary>
+            Format: Days.Hours:Minutes:Seconds:Milliseconds
+            </summary>
+        </member>
         <member name="T:IoTSharp.Dtos.TelemetryDataQueryDto">
             <summary>
             查询历史遥测数据请求结构体
