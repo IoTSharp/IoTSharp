@@ -523,41 +523,48 @@ namespace IoTSharp.FlowRuleEngine
 
         public async Task<List<Flow>> ProcessCondition(Guid flowId, dynamic data)
         {
+            var emptyflow = new List<Flow>();
             var flow = _allFlows.FirstOrDefault(c => c.FlowId == flowId);
-            var flows = _allFlows.Where(c => c.SourceId == flow?.bpmnid).ToList();
-            var emptyflow = flows.Where(c => c.Conditionexpression == string.Empty).ToList() ?? new List<Flow>();
-            var tasks = new BaseRuleTask()
+            if (flow != null)
             {
-                Name = flow.Flowname,
-                Eventid = flow.bpmnid,
-                id = flow.bpmnid,
-                outgoing = new EditableList<BaseRuleFlow>()
-            };
-            foreach (var item in flows.Except(emptyflow))
-            {
-                var rule = new BaseRuleFlow();
-                rule.id = item.bpmnid;
-                rule.Name = item.bpmnid;
-                rule.Eventid = item.bpmnid;
-                rule.Expression = item.Conditionexpression;
-                tasks.outgoing.Add(rule);
-            }
-            if (tasks.outgoing.Count > 0)
-            {
-                SimpleFlowExcutor flowExcutor = new SimpleFlowExcutor();
-                var result = await flowExcutor.Excute(new FlowExcuteEntity()
+                var flows = _allFlows.Where(c => c.SourceId == flow?.bpmnid).ToList();
+                emptyflow = flows.Where(c => c.Conditionexpression == string.Empty).ToList() ?? new List<Flow>();
+                var tasks = new BaseRuleTask()
                 {
-                    Params = data,
-                    Task = tasks,
-                });
-                var next = result.Where(c => c.IsSuccess).ToList();
-                foreach (var item in next)
+                    Name = flow.Flowname,
+                    Eventid = flow.bpmnid,
+                    id = flow.bpmnid,
+                    outgoing = new EditableList<BaseRuleFlow>()
+                };
+                foreach (var item in flows.Except(emptyflow))
                 {
-                    var nextflow = flows.FirstOrDefault(a => a.bpmnid == item.Rule.SuccessEvent);
-                    emptyflow.Add(nextflow);
+                    var rule = new BaseRuleFlow();
+                    rule.id = item.bpmnid;
+                    rule.Name = item.bpmnid;
+                    rule.Eventid = item.bpmnid;
+                    rule.Expression = item.Conditionexpression;
+                    tasks.outgoing.Add(rule);
+                }
+                if (tasks.outgoing.Count > 0)
+                {
+                    SimpleFlowExcutor flowExcutor = new SimpleFlowExcutor();
+                    var result = await flowExcutor.Excute(new FlowExcuteEntity()
+                    {
+                        Params = data,
+                        Task = tasks,
+                    });
+                    var next = result.Where(c => c.IsSuccess).ToList();
+                    foreach (var item in next)
+                    {
+                        var nextflow = flows.FirstOrDefault(a => a.bpmnid == item.Rule.SuccessEvent);
+                        emptyflow.Add(nextflow);
+                    }
                 }
             }
-
+            else
+            {
+                _logger.LogWarning($"ProcessCondition flowId={flowId}");
+            }
             return emptyflow;
         }
 
