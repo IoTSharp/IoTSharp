@@ -315,12 +315,19 @@
             <returns></returns>
         </member>
         <member name="M:IoTSharp.Controllers.DevicesController.GetTelemetryData(System.Guid,IoTSharp.Dtos.TelemetryDataQueryDto)">
-            <summary>
-            返回指定设备的的遥测数据， 按照keyname 和指定时间范围获取，如果keyname 为 all  , 则返回全部key 的数据
-            </summary>
-            <param name="deviceId">Which device do you read?</param>
-            <param name="queryDto">查询条件</param>
-            <returns></returns>
+             <summary>
+             返回指定设备的的遥测数据， 按照keyname 和指定时间范围获取，如果keyname 为 all  , 则返回全部key 的数据
+             </summary>
+             <param name="deviceId">指定设备ID</param>
+             <param name="queryDto">查询条件例子:
+            {
+             "keys": "",
+             "begin": "2022-03-23T11:44:56.488Z",
+             "every": "1.03:14:56:166",
+             "aggregate": "Mean"
+             }
+             </param>
+             <returns></returns>
         </member>
         <member name="M:IoTSharp.Controllers.DevicesController.GetDevice(System.Guid)">
             <summary>
@@ -730,6 +737,8 @@
             <summary>
             数据截面聚合间隔
             </summary>
+            <example>1.03:14:56:166</example>
+            <remarks>d.hh:mm:ss:FFF</remarks>
         </member>
         <member name="P:IoTSharp.Dtos.TelemetryDataQueryDto.aggregate">
             <summary>

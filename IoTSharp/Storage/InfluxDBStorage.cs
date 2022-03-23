@@ -166,14 +166,14 @@ from(bucket: ""{_bucket}"")
             }
             if (every > TimeSpan.Zero)
             {
-                sb.AppendLine($@"|> aggregateWindow(every: {every.TotalMinutes}m, fn: {Enum.GetName(aggregate).ToLower()}, createEmpty: false)");
+                sb.AppendLine($@"|> aggregateWindow(every: {(long)every.TotalMilliseconds}ms, fn: {Enum.GetName(aggregate).ToLower()}, createEmpty: false)");
                 sb.AppendLine(@$"|> yield(name: ""{Enum.GetName( aggregate).ToLower()}"")");
             }
             else
             {
                 sb.AppendLine(@$"|> yield()");
             }
-           
+           _logger.LogInformation(sb.ToString());
             var v = query.QueryAsync(sb.ToString());
             _taospool.Return(_taos);
             return FluxToDtoAsync(v);
