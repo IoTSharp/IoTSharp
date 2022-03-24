@@ -1,13 +1,11 @@
-<div nz-row style="height: 480px">
+<div nz-row >
     <div nz-col nzSpan="24">
       <nz-card nzTitle="FLows" [nzBordered]="false"> <app-flowviewer #flowview></app-flowviewer></nz-card>
     </div>
   </div>
-  
   <div nz-row>
-    <div nz-col nzSpan="12">
-      <nz-card [nzBordered]="false" class="mb-0" nzTitle="Time Line">
-        <nz-steps [nzCurrent]="current" nzDirection="vertical">
+      <nz-tabset nz-col nzSpan="24">
+        <nz-tab nzTitle="Time Line">  <nz-steps [nzCurrent]="current" nzDirection="vertical">
           <nz-step
             *ngFor="let step of this.steps"
             [nzStatus]="step.nzStatus"
@@ -15,8 +13,11 @@
             [nzSubtitle]="step.addDate"
             [nzDescription]="step.data"
           ></nz-step>
-        </nz-steps>
-      </nz-card>
-    </div>
+        </nz-steps></nz-tab>
+        <nz-tab nzTitle="Charts">
+          <div echarts [options]="option"   ></div>
+        </nz-tab>
+        <nz-tab nzTitle="Result"></nz-tab>
+      </nz-tabset>
   </div>
   

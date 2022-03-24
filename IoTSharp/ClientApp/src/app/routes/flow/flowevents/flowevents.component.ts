@@ -95,7 +95,7 @@ export class FloweventsComponent implements OnInit {
     const drawerRef = this.drawerService.create<FloweventviewComponent, { event: baseevent }, string>({
       nzTitle: title,
       nzContent: FloweventviewComponent,
-      nzWidth: width,
+      nzWidth: 1080,
       nzMaskClosable: nzMaskClosable,
       nzContentParams: {
         event: event,

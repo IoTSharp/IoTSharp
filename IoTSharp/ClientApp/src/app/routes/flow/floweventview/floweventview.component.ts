@@ -1,5 +1,6 @@
 import { Component, Input, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { _HttpClient } from '@delon/theme';
+import { EChartsOption } from 'echarts';
 import { interval, Subscription } from 'rxjs';
 import { concat, } from 'rxjs'; import { map } from 'rxjs/operators';
 import { appmessage } from '../../common/AppMessage';
@@ -22,6 +23,7 @@ export class FloweventviewComponent implements OnInit, OnDestroy {
   @ViewChild('flowview', { static: true })
   flowview: FlowviewerComponent;
   current: 0;
+  option: EChartsOption;
   constructor(private http: _HttpClient,) { }
 
   ngOnDestroy(): void {
@@ -39,8 +41,31 @@ export class FloweventviewComponent implements OnInit, OnDestroy {
     ), this.http.get('api/rules/GetFlowOperations?eventId=' + this.event.eventId).pipe(
       map((x) => {
 
-        if(x.data.length>0){
-          this.nodes = x.data;
+        if(x.data&&x.data.steps.length>0){
+          this.nodes = x.data.steps;
+          this.option = {
+            // title: {
+            //   text: ''
+            // },
+            tooltip: {
+              trigger: 'item',
+              triggerOn: 'mousemove'
+            },
+            series: [
+              {
+                type: 'sankey',
+                data: x.data.charts.sankey.nodes,
+                links: x.data.charts.sankey.links,
+                emphasis: {
+                  focus: 'adjacency'
+                },
+                lineStyle: {
+                  color: 'gradient',
+                  curveness: 0.5
+                }
+              }
+            ]
+          };
           this.play();
         }
     
@@ -53,7 +78,7 @@ export class FloweventviewComponent implements OnInit, OnDestroy {
     if (this.obs) {
       this.obs.unsubscribe();
     }
-    this.obs = interval(1000).subscribe(async (x) => {
+    this.obs = interval(1500).subscribe(async (x) => {
       var index = x % this.nodes.length;
       if (index == 0) {
         await this.flowview.redraw();

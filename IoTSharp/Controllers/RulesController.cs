@@ -1235,13 +1235,50 @@ namespace IoTSharp.Controllers
         public ApiResult<dynamic> GetFlowOperations(Guid eventId)
         {
             var profile = this.GetUserProfile();
-            return new ApiResult<dynamic>(ApiCode.Success, "OK", _context.FlowOperations.Where(c => c.BaseEvent.EventId == eventId).ToList().OrderBy(c => c.Step).
-              ToList()
+            var _event = _context.BaseEvents.Include(c=>c.FlowRule).SingleOrDefault(c => c.EventId == eventId);
+            var _operations = _context.FlowOperations.Include(c=>c.Flow).Where(c => c.BaseEvent == _event).ToList();
+
+
+
+            var flows = _context.Flows.Where(c => c.FlowRule.RuleId == _event.FlowRule.RuleId);
+            var sf = flows.Where(c => c.FlowType == "bpmn:SequenceFlow").ToArray();
+            var links = new List<dynamic>();
+            var nodes = new List<string>();
+            foreach (var item in sf)
+            {
+                var target = _operations.FirstOrDefault(c => c.Flow.bpmnid == item.TargetId);
+                var source = _operations.FirstOrDefault(c => c.Flow.bpmnid == item.SourceId);
+                if (target != null && source != null)
+                {
+               
+                    links.Add(new {source= source.Flow.Flowname?? source.bpmnid, target=target.Flow.Flowname ??  target.bpmnid, value= (target.AddDate - source.AddDate).Value.TotalMilliseconds });
+                    var _sourcename = source.Flow.Flowname ?? source.bpmnid;
+                    var _targetname = target.Flow.Flowname ?? target.bpmnid;
+                    if (nodes.All(c => c != _sourcename))
+                    {
+                        nodes.Add(_sourcename);
+                    }
+                    if (nodes.All(c => c != _targetname))
+                    {
+                        nodes.Add(_targetname);
+                    }
+                }
+            }
+            var steps = _operations.OrderBy(c => c.Step).
+                ToList()
                 .GroupBy(c => c.Step).Select(c => new
                 {
                     Step = c.Key,
                     Nodes = c
-                }).ToList());
+                }).ToList();
+            return new ApiResult<dynamic>(ApiCode.Success, "OK", new
+            {
+                steps,
+                charts=new
+                {
+                    sankey=new { links, nodes= nodes.Select(c=>new { name=c}).ToList() }
+                }
+            });
         }
 
         [HttpGet("[action]")]

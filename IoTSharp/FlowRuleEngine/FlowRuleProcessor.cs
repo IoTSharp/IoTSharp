@@ -180,7 +180,7 @@ namespace IoTSharp.FlowRuleEngine
                     return;
                 }
 
-                var flow = _allFlows.FirstOrDefault(c => c.bpmnid == peroperation.Flow.TargetId);
+                var flow = _allFlows.FirstOrDefault(c => c.bpmnid == peroperation.Flow.TargetId && c.FlowType != "label");
                 switch (flow.FlowType)
                 {
                     case "bpmn:SequenceFlow":
@@ -456,25 +456,8 @@ namespace IoTSharp.FlowRuleEngine
 
                     case "bpmn:EndEvent":
 
-                        var end = _allflowoperation.FirstOrDefault(c => c.bpmnid == flow.bpmnid);
-
-                        if (end != null)
-                        {
-                            end.BuildFlowOperation(peroperation, flow);
-                            end.bpmnid = flow.bpmnid;
-                            end.AddDate = DateTime.Now;
-                            end.FlowRule = peroperation.BaseEvent.FlowRule;
-                            end.Flow = flow;
-
-                            end.Data = JsonConvert.SerializeObject(data);
-                            end.NodeStatus = 1;
-                            end.OperationDesc = "处理完成";
-                            end.Step = 1 + _allflowoperation.Max(c => c.Step);
-                            end.BaseEvent = peroperation.BaseEvent;
-                        }
-                        else
-                        {
-                            end = new FlowOperation();
+                    
+                           var    end = new FlowOperation();
                             end.BuildFlowOperation(peroperation, flow);
                             end.OperationId = Guid.NewGuid();
                             end.bpmnid = flow.bpmnid;
@@ -487,7 +470,7 @@ namespace IoTSharp.FlowRuleEngine
                             end.Step = 1 + _allflowoperation.Max(c => c.Step);
                             end.BaseEvent = peroperation.BaseEvent;
                             _allflowoperation.Add(end);
-                        }
+                      
                         _logger.Log(LogLevel.Warning, "规则链执行完成");
 
                         break;

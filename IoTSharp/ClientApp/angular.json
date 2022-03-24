@@ -37,12 +37,12 @@
               "output": "/assets/vs/"
             }],
             "styles": [
-              "node_modules/grapesjs/dist/css/grapes.min.css",
+           
               "node_modules/bpmn-js/dist/assets/diagram-js.css",
               "node_modules/bpmn-js/dist/assets/bpmn-font/css/bpmn.css",
               "src/styles.less"],
-            "scripts": ["node_modules/grapesjs/dist/grapes.min.js"],
-            "allowedCommonJsDependencies": ["@antv/g2", "file-saver", "ajv", "ajv-formats", "date-fns", "jquery", "mousetrap","grapesjs-blocks-basic"]
+            "scripts": [],
+            "allowedCommonJsDependencies": ["@antv/g2", "file-saver", "ajv", "ajv-formats", "date-fns", "jquery", "mousetrap"]
           },
           "configurations": {
             "production": {
