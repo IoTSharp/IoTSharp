@@ -165,7 +165,7 @@ namespace IoTSharp.Storage
                     if (kp.Value != null)
                     {
                         List<PinusParameter> parameters = new List<PinusParameter>();
-                        TelemetryData tdata = new TelemetryData() { DateTime = new DateTime(msg.ts), DeviceId = msg.DeviceId, KeyName = kp.Key, Value_DateTime = new DateTime(1970, 1, 1) };
+                        TelemetryData tdata = new TelemetryData() { DateTime =msg.ts, DeviceId = msg.DeviceId, KeyName = kp.Key, Value_DateTime = new DateTime(1970, 1, 1) };
                         tdata.FillKVToMe(kp);
                         string _type = "";
                         var cmd = _pinus.CreateCommand();

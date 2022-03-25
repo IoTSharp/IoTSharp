@@ -180,11 +180,11 @@ namespace IoTSharp.Handlers
                             {
                                 if (istelemetry)
                                 {
-                                    _queue.PublishTelemetryData(new RawMsg() { DeviceId = device.Id, DeviceStatus = p.DeviceStatus, ts = p.Ticks, MsgBody = p.Values, DataSide = DataSide.ClientSide, DataCatalog = DataCatalog.TelemetryData });
+                                    _queue.PublishTelemetryData(new RawMsg() { DeviceId = device.Id, DeviceStatus = p.DeviceStatus, ts = new DateTime( p.Ticks), MsgBody = p.Values, DataSide = DataSide.ClientSide, DataCatalog = DataCatalog.TelemetryData });
                                 }
                                 else
                                 {
-                                    _queue.PublishAttributeData(new RawMsg() { DeviceId = device.Id, DeviceStatus = p.DeviceStatus, ts = p.Ticks, MsgBody = p.Values, DataSide = DataSide.ClientSide, DataCatalog = DataCatalog.TelemetryData });
+                                    _queue.PublishAttributeData(new RawMsg() { DeviceId = device.Id, DeviceStatus = p.DeviceStatus, ts = new DateTime(p.Ticks), MsgBody = p.Values, DataSide = DataSide.ClientSide, DataCatalog = DataCatalog.TelemetryData });
                                 }
                             });
                             _logger.LogInformation($"{e.SenderClientId}的网关数据处理完成，设备{dev}ID为{device?.Id}共计{plst.Count}条");

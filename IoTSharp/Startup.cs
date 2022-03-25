@@ -147,8 +147,8 @@ namespace IoTSharp
             services.AddCors();
             services.AddLogging(loggingBuilder =>
             {
-                loggingBuilder.AddConsole();
                 loggingBuilder.AddRinLogger();
+                loggingBuilder.AddSimpleConsole();
             }
             );
             services.AddRin();

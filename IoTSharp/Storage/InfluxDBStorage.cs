@@ -190,7 +190,7 @@ from(bucket: ""{_bucket}"")
                     {
                         if (kp.Value != null)
                         {
-                            TelemetryData tdata = new TelemetryData() { DateTime = new DateTime(msg.ts), DeviceId = msg.DeviceId, KeyName = kp.Key, Value_DateTime = new DateTime(1970, 1, 1) };
+                            TelemetryData tdata = new TelemetryData() { DateTime = msg.ts, DeviceId = msg.DeviceId, KeyName = kp.Key, Value_DateTime = new DateTime(1970, 1, 1) };
                             tdata.FillKVToMe(kp);
                             var point = PointData.Measurement(nameof(TelemetryData))
                 .Tag("DeviceId", tdata.DeviceId.ToString());
@@ -227,7 +227,7 @@ from(bucket: ""{_bucket}"")
                             }
                             if (point.HasFields())
                             {
-                                point = point.Timestamp(msg.ts, WritePrecision.Ns);
+                                point = point.Timestamp(msg.ts , WritePrecision.Ns);
                                 lst.Add(point);
                                 telemetries.Add(tdata);
                             }
