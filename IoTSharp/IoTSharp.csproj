@@ -79,7 +79,7 @@
 		<PackageReference Include="MaiKeBing.CAP.ZeroMQ" Version="1.0.35" />
 		<PackageReference Include="MaiKeBing.CAP.LiteDB" Version="1.0.35" />
 		<PackageReference Include="IoTSharp.Data.Taos" Version="2.0.447" />
-		<PackageReference Include="IoTSharp.HealthChecks.Taos" Version="2.0.447" />
+		<PackageReference Include="IoTSharp.HealthChecks.Taos" Version="2.0.448" />
 		<PackageReference Include="MaiKeBing.HostedService.ZeroMQ" Version="1.0.35" />
 		<PackageReference Include="Microsoft.CodeAnalysis.Common" Version="4.1.0" />
 		<PackageReference Include="Microsoft.CodeAnalysis.CSharp.Features" Version="4.1.0" />
