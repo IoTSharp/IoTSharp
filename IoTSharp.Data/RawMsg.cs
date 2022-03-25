@@ -26,7 +26,7 @@ namespace IoTSharp.Data
     public class RawMsg
     {
         public MsgType MsgType { get; set; }
-        public DateTime ts { get; set; } 
+        public DateTime ts { get; set; } = DateTime.Now;
         public DeviceStatus DeviceStatus { get; set; } = DeviceStatus.Good;
         public Guid DeviceId { get;   set; }
         public Dictionary<string, object> MsgBody { get;  set; }
