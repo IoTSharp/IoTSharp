@@ -227,7 +227,7 @@ from(bucket: ""{_bucket}"")
                             }
                             if (point.HasFields())
                             {
-                                point = point.Timestamp(DateTime.UtcNow, WritePrecision.Ns);
+                                point = point.Timestamp(msg.ts, WritePrecision.Ns);
                                 lst.Add(point);
                                 telemetries.Add(tdata);
                             }
