@@ -184,7 +184,7 @@ namespace IoTSharp.Handlers
         {
             var result = await _storage.StoreTelemetryAsync(msg);
             var data = from t in result.telemetries
-                     select new TelemetryDataDto() { DateTime = t.DateTime, KeyName = t.KeyName, Value = t.ToObject() };
+                     select new TelemetryDataDto() { DateTime = t.DateTime, DataType=t.Type, KeyName = t.KeyName, Value = t.ToObject() };
             var array = data.ToList();
             ExpandoObject exps = new();
             array.ForEach(td =>
