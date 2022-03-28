@@ -3,7 +3,6 @@
 [![Build status](https://ci.appveyor.com/api/projects/status/5o23f5vss89ct2lw/branch/master?svg=true)](https://ci.appveyor.com/project/MaiKeBing/iotsharp/branch/master)
 ![GitHub](https://img.shields.io/github/license/iotsharp/iotsharp.svg)
 ![.NET Core](https://github.com/IoTSharp/IoTSharp/workflows/.NET%20Core/badge.svg?branch=master)
-[Join to Discord](https://discord.gg/wa9FntDsbr)
 
 IoTSharp is an open-source IoT platform for data collection, processing, visualization, and device management.
 
@@ -89,9 +88,9 @@ https://github.com/IoTSharp/IoTSharp.Edge.RT-Thread
 
  <img src="docs/images/20190615010003.jpg" alt="20190615010003.jpg" style="zoom: 70%;" /> 
 
- <img src="docs/images/InfluxDB2.PNG" alt="InfluxDB2.PNG" style="zoom: 100%;" />
+ <img src="docs/images/InfluxDB2.PNG" alt="InfluxDB2.PNG" style="zoom: 59%;" />
 
- <img src="docs/images/20190615010115.jpg" alt="20190615010115.jpg" style="zoom: 40%;" />
+ <img src="docs/images/20190615010115.jpg" alt="20190615010115.jpg" style="zoom: 96%;" />
 
 IoTSharp's ecosystem
 
@@ -104,24 +103,60 @@ IoTSharp's ecosystem
 - Silkier.EFCore   [![Silkier.EFCore](https://img.shields.io/nuget/v/Silkier.EFCore.svg)](https://www.nuget.org/packages/Silkier.EFCore/)
 - Silkier.AspNetCore  [![Silkier.AspNetCore](https://img.shields.io/nuget/v/Silkier.AspNetCore.svg)](https://www.nuget.org/packages/Silkier.AspNetCore/)
 - SilkierQuartz   [![SilkierQuartz](https://img.shields.io/nuget/v/SilkierQuartz.svg)](https://www.nuget.org/packages/SilkierQuartz/)
-- Maikebing.EntityFrameworkCore.Taos   [![Maikebing.EntityFrameworkCore.Taos](https://img.shields.io/nuget/v/Maikebing.EntityFrameworkCore.Taos.svg)](https://www.nuget.org/packages/Maikebing.EntityFrameworkCore.Taos/)
+- IoTSharp.EntityFrameworkCore.Taos   [![IoTSharp.EntityFrameworkCore.Taos](https://img.shields.io/nuget/v/IoTSharp.EntityFrameworkCore.Taos.svg)](https://www.nuget.org/packages/IoTSharp.EntityFrameworkCore.Taos/)
 - IoTSharp.Sdk.Http   [![IoTSharp.Sdk.Http](https://img.shields.io/nuget/v/IoTSharp.Sdk.Http.svg)](https://www.nuget.org/packages/IoTSharp.Sdk.Http/)
 - IoTSharp.Sdk.MQTT   [![IoTSharp.Sdk.MQTT](https://img.shields.io/nuget/v/IoTSharp.Sdk.MQTT.svg)](https://www.nuget.org/packages/IoTSharp.Sdk.MQTT/)
 
-## Support
+
+
+## Contributing
+
+[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square)](https://github.com/IoTSharp/IoTSharp/pulls)
+
+If you would like to contribute, feel free to create a [Pull Request](https://github.com/IoTSharp/IoTSharp/pulls), or give us [Bug Report](https://github.com/IoTSharp/IoTSharp/issues/new).
+
+### Contributors
+
+This project exists thanks to all the people who contribute.
+
+<a href="https://github.com/IoTSharp/IoTSharp/graphs/contributors">
+  <img src="https://contrib.rocks/image?repo=IoTSharp/IoTSharp" />
+</a>
+
+## Donation
+
+This project is an  Apache 2.0 licensed open source project. In order to achieve better and sustainable development of the project, we expect to gain more backers. We will use the proceeds for community operations and promotion. You can support us in any of the following ways:
+
+- [OpenCollective](https://opencollective.com/IoTSharp)
+
+We will put the detailed donation records on the below!
+
+
+
+|                                                        | Name                                  | Stars | Donations | Message |
+| ------------------------------------------------------------ | ------------------ | -------- | -------- | -------- |
+| [![@iioter](https://avatars.githubusercontent.com/u/29589505?s=80&v=4)](https://github.com/iioter) | whd | ![GitHub User's stars](https://img.shields.io/github/stars/iioter?affiliations=OWNER%2CCOLLABORATOR%2CORGANIZATION_MEMBER&style=for-the-badge) | ￥512 =120+100+292(码云共计三次) |  |
+| [![@nnhy](https://avatars.githubusercontent.com/u/506367?s=80&v=4)](https://github.com/nnhy) | 大石头 | ![GitHub User's stars](https://img.shields.io/github/stars/nnhy?affiliations=OWNER%2CCOLLABORATOR%2CORGANIZATION_MEMBER&style=for-the-badge) |     ￥672=666+5（码云+公众号）     |            |
+|  | 无敌飞行家 | ![GitHub User's stars](https://img.shields.io/github/stars/hehaoyu_2014?affiliations=OWNER%2CCOLLABORATOR%2CORGANIZATION_MEMBER&style=for-the-badge) | ￥5=5(公众号) |  |
+
+
+
+
+## Community Support
+
+If you encounter any problems in the process, feel free to ask for help via following channels. We also encourage experienced users to help newcomers.
+
+- [![Discord Server](https://img.shields.io/discord/895689311612178442?color=%237289DA&label=IoTSharp&logo=discord&logoColor=white&style=flat-square)](https://discord.gg/My6PaTmUvu)
 
 | 公众号 |    [QQ群63631741](https://jq.qq.com/?_wv=1027&k=HJ7h3gbO)  |
 | ------ | ---- |
 | ![](docs/images/qrcode.jpg) | ![](docs/images/IoTSharpQQGruop.png) |
 
 
+
+
+
 ## dotNET China
 
 [![DotNetChina](https://images.gitee.com/uploads/images/2021/0309/134044_9c191d7b_974299.png)](https://gitee.com/dotnetchina/IoTSharp)
-
-## Contributing
-
- - If you'd like to contribute to IoTSharp, please take a look at our [Contributing Guide](contributing.md).
- - If you have a question or have found a bug,[ file an issue.](https://github.com/IoTSharp/IoTSharp/issues)
- - To learn about project priorities as well as status and ship dates see the [IoTShap roadmap](roadmap.md).
 
