@@ -1112,7 +1112,10 @@ namespace IoTSharp.Controllers
             var __ruleid = obj.Value<string>();
             var ruleid = Guid.Parse(__ruleid);
 
-            var d = formdata.Value<JToken>().ToObject(typeof(ExpandoObject));
+            var d = formdata.Value<JToken>().ToObject<object>();
+
+
+
             var testabizId = Guid.NewGuid().ToString(); //根据业务保存起来，用来查询执行事件和步骤
             var result = await _flowRuleProcessor.RunFlowRules(ruleid, d, Guid.Empty, EventType.TestPurpose, testabizId);
 
