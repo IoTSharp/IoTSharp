@@ -155,12 +155,34 @@ namespace IoTSharp.Data
     }
     public enum MountType
     {
+        /// <summary>
+        /// 原始数据
+        /// </summary>
         RAW = 0,
+        /// <summary>
+        /// 遥测数据对象
+        /// </summary>
         Telemetry =1,
+        /// <summary>
+        /// 属性数据对象  
+        /// </summary>
         Attribute=2,
+        /// <summary>
+        /// 远程控制
+        /// </summary>
         RPC=3,
+        /// <summary>
+        /// 在线
+        /// </summary>
         Online = 4,
-        Offline = 5
+        /// <summary>
+        /// 离线
+        /// </summary>
+        Offline = 5,
+        /// <summary>
+        /// 遥测数据， key value type datetime 
+        /// </summary>
+        TelemetryArray = 6,
     }
     /// <summary>
     /// 折叠数据

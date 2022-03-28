@@ -1,6 +1,7 @@
 ﻿using DotNetCore.CAP;
 using EasyCaching.Core;
 using IoTSharp.Data;
+using IoTSharp.Dtos;
 using IoTSharp.Extensions;
 using IoTSharp.FlowRuleEngine;
 using IoTSharp.Storage;
@@ -182,12 +183,16 @@ namespace IoTSharp.Handlers
         public async void StoreTelemetryData(RawMsg msg)
         {
             var result = await _storage.StoreTelemetryAsync(msg);
-            ExpandoObject exps = new ExpandoObject();
-            result.telemetries.ForEach(td =>
+            var data = from t in result.telemetries
+                     select new TelemetryDataDto() { DateTime = t.DateTime, KeyName = t.KeyName, Value = t.ToObject() };
+            var array = data.ToList();
+            ExpandoObject exps = new();
+            array.ForEach(td =>
             {
-                exps.TryAdd(td.KeyName, td.ToObject());
+                exps.TryAdd(td.KeyName, td.Value);
             });
             await RunRules(msg.DeviceId, (dynamic)exps, MountType.Telemetry);
+            await RunRules(msg.DeviceId, array, MountType.TelemetryArray);
         }
 
         private async Task RunRules(Guid devid, object obj, MountType mountType)
