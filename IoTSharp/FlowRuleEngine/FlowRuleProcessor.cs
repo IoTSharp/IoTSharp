@@ -10,7 +10,6 @@ using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
-using System.Dynamic;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -288,7 +287,7 @@ namespace IoTSharp.FlowRuleEngine
                                                 try
                                                 {
                                                     string result = pse.Do(scriptsrc, taskoperation.Data);
-                                                obj = JsonConvert.DeserializeObject<ExpandoObject>(result);
+                                                obj = JsonConvert.DeserializeObject<object>(result);
                                             }
                                             catch (Exception ex)
                                             {
@@ -307,7 +306,7 @@ namespace IoTSharp.FlowRuleEngine
                                             {
                                                 try{
                                                 string result = pse.Do(scriptsrc, taskoperation.Data);
-                                                obj = JsonConvert.DeserializeObject<ExpandoObject>(result);
+                                                obj = JsonConvert.DeserializeObject<object>(result);
                                             }
                                             catch (Exception ex)
                                             {
@@ -329,7 +328,7 @@ namespace IoTSharp.FlowRuleEngine
                                                 try
                                                 {
                                                     string result = lua.Do(scriptsrc, taskoperation.Data);
-                                                    obj = JsonConvert.DeserializeObject<ExpandoObject>(result);
+                                                    obj = JsonConvert.DeserializeObject<object>(result);
                                                 }
                                                 catch (Exception ex)
                                                 {
@@ -351,7 +350,7 @@ namespace IoTSharp.FlowRuleEngine
                                                 try
                                                 {
                                                     string result = js.Do(scriptsrc, taskoperation.Data);
-                                                    obj = JsonConvert.DeserializeObject<ExpandoObject>(result);
+                                                    obj = JsonConvert.DeserializeObject<object>(result);
 
                                                 }
                                                 catch (Exception ex)
@@ -375,7 +374,7 @@ namespace IoTSharp.FlowRuleEngine
                                                 {
 
                                                     string result = js.Do(scriptsrc, taskoperation.Data);
-                                                    obj = JsonConvert.DeserializeObject<ExpandoObject>(result);
+                                                    obj = JsonConvert.DeserializeObject<object>(result);
                                                 }
                                                 catch (Exception ex)
                                                 {
@@ -611,7 +610,7 @@ namespace IoTSharp.FlowRuleEngine
                                 using (var pse = _sp.GetRequiredService<PythonScriptEngine>())
                                 {
                                     string result = pse.Do(scriptsrc, data);
-                                    obj = JsonConvert.DeserializeObject<ExpandoObject>(result);
+                                    obj = JsonConvert.DeserializeObject<object>(result);
                                 }
                             }
                             break;
@@ -621,7 +620,7 @@ namespace IoTSharp.FlowRuleEngine
                                 using (var pse = _sp.GetRequiredService<SQLEngine>())
                                 {
                                     string result = pse.Do(scriptsrc, data);
-                                    obj = JsonConvert.DeserializeObject<ExpandoObject>(result);
+                                    obj = JsonConvert.DeserializeObject<object>(result);
                                 }
                             }
 
@@ -632,7 +631,7 @@ namespace IoTSharp.FlowRuleEngine
                                 using (var lua = _sp.GetRequiredService<LuaScriptEngine>())
                                 {
                                     string result = lua.Do(scriptsrc, data);
-                                    obj = JsonConvert.DeserializeObject<ExpandoObject>(result);
+                                    obj = JsonConvert.DeserializeObject<object>(result);
                                 }
                             }
                             break;
@@ -642,7 +641,7 @@ namespace IoTSharp.FlowRuleEngine
                                 using (var js = _sp.GetRequiredService<JavaScriptEngine>())
                                 {
                                     string result = js.Do(scriptsrc, data);
-                                    obj = JsonConvert.DeserializeObject<ExpandoObject>(result);
+                                    obj = JsonConvert.DeserializeObject<object>(result);
                                 }
                             }
                             break;
@@ -652,7 +651,7 @@ namespace IoTSharp.FlowRuleEngine
                                 using (var js = _sp.GetRequiredService<CSharpScriptEngine>())
                                 {
                                     string result = js.Do(scriptsrc, data);
-                                    obj = JsonConvert.DeserializeObject<ExpandoObject>(result);
+                                    obj = JsonConvert.DeserializeObject<object>(result);
                                 }
                             }
                             break;

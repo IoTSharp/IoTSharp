@@ -78,7 +78,7 @@ namespace IoTSharp.TaskAction
             set
             {
                 _value = value;
-                _DynamicOutput = JsonConvert.DeserializeObject<ExpandoObject>(_value, expConverter);
+                _DynamicOutput = JsonConvert.DeserializeObject<object>(_value, expConverter);
             }
         }
     }
