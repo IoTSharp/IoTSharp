@@ -78,8 +78,8 @@
 		<PackageReference Include="LiteDB" Version="5.0.11" />
 		<PackageReference Include="MaiKeBing.CAP.ZeroMQ" Version="1.0.35" />
 		<PackageReference Include="MaiKeBing.CAP.LiteDB" Version="1.0.35" />
-		<PackageReference Include="IoTSharp.Data.Taos" Version="2.0.447" />
-		<PackageReference Include="IoTSharp.HealthChecks.Taos" Version="2.0.447" />
+		<PackageReference Include="IoTSharp.Data.Taos" Version="2.0.450" />
+		<PackageReference Include="IoTSharp.HealthChecks.Taos" Version="2.0.450" />
 		<PackageReference Include="MaiKeBing.HostedService.ZeroMQ" Version="1.0.35" />
 		<PackageReference Include="Microsoft.CodeAnalysis.Common" Version="4.1.0" />
 		<PackageReference Include="Microsoft.CodeAnalysis.CSharp.Features" Version="4.1.0" />
@@ -100,7 +100,7 @@
 		<PackageReference Include="NSwag.AspNetCore" Version="13.15.10" />
 		<PackageReference Include="PinusDB" Version="1.0.10" />
 		<PackageReference Include="PinusDB.HealthChecks" Version="1.0.10" />
-		<PackageReference Include="Quartz.Serialization.Json" Version="3.3.3" />
+		<PackageReference Include="Quartz.Serialization.Json" Version="3.4.0" />
 		<PackageReference Include="RestSharp" Version="107.3.0" />
 		<PackageReference Include="Rin" Version="2.6.0" />
 		<PackageReference Include="Rin.Mvc" Version="2.6.0" />
