@@ -28,7 +28,7 @@ namespace IoTSharp.Handlers
             var result = new TaskActionOutput() { DynamicOutput = new { code =  ApiCode.Success,msg="OK" } };
             try
             {
-                var msg = new RawMsg() { MsgType = MsgType.CoAP, MsgBody = JToken.Parse(param.Input)?.JsonToDictionary(), DataCatalog = DataCatalog.TelemetryData, DataSide = DataSide.ClientSide, DeviceId = param.DeviceId };
+                var msg = new RawMsg() { MsgType = MsgType.HTTP, MsgBody = JToken.Parse(param.Input)?.JsonToDictionary(), DataCatalog = DataCatalog.TelemetryData, DataSide = DataSide.ClientSide, DeviceId = param.DeviceId };
                 if (msg.DeviceId != Guid.Empty && msg.MsgBody?.Count > 0)
                 {
                     _queue.PublishTelemetryData(msg);
