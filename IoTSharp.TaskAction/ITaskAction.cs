@@ -8,8 +8,7 @@ namespace IoTSharp.TaskAction
 {
     public abstract class ITaskAction
     {
-        public abstract Task<TaskActionOutput>  ExecuteAsync(TaskActionInput _input);
-
+        public abstract Task<TaskActionOutput> ExecuteAsync(TaskActionInput _input);
 
         public IServiceProvider ServiceProvider { get; set; }
     }
@@ -22,6 +21,7 @@ namespace IoTSharp.TaskAction
         public Guid DeviceId { get; set; }
         public bool ExecutionStatus { get; set; }
         public string ExecutionInfo { get; set; }
+
         public dynamic DynamicOutput
         {
             get
@@ -54,8 +54,9 @@ namespace IoTSharp.TaskAction
         private dynamic _DynamicOutput;
         private string _value;
         private readonly ExpandoObjectConverter expConverter = new();
-        public Guid  DeviceId { get; set; }
+        public Guid DeviceId { get; set; }
         public String ExecutorConfig { get; set; }
+
         public dynamic DynamicInput
         {
             get
