@@ -1,9 +1,12 @@
 ﻿using Newtonsoft.Json;
 using RestSharp;
 using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Net;
 using System.Threading.Tasks;
+using Newtonsoft.Json.Linq;
+using Newtonsoft.Json.Serialization;
 
 namespace IoTSharp.TaskAction
 {
@@ -31,7 +34,6 @@ namespace IoTSharp.TaskAction
             try
             {
                 var config = JsonConvert.DeserializeObject<ModelExecutorConfig>(input.ExecutorConfig);
-
                 var restclient = new RestClient(config.BaseUrl);
                 restclient.AddDefaultHeader(KnownHeaders.Accept, "*/*");
                 var request =
@@ -41,9 +43,11 @@ namespace IoTSharp.TaskAction
                 request.RequestFormat = DataFormat.Json;
                 request.AddHeader("cache-control", "no-cache");
                 request.AddHeader("Content-Type", "application/json");
-                request.AddJsonBody(JsonConvert.DeserializeObject(input.Input));
-
-                var response = await restclient.ExecutePostAsync(request);
+                request.AddJsonBody(JsonConvert.DeserializeObject<List<TelemetryData>>(input.Input, new JsonSerializerSettings
+                {
+                    ContractResolver = new CamelCasePropertyNamesContractResolver()
+                }) ??new object() );
+                 var response = await restclient.ExecutePostAsync(request);
                 if (response.StatusCode == HttpStatusCode.OK)
                 {
                     var result = JsonConvert.DeserializeObject<MessagePullResult>(response.Content);
@@ -55,12 +59,10 @@ namespace IoTSharp.TaskAction
                             ExecutionStatus = result.success,
                             DynamicOutput = input.DynamicInput
                         };
-                        ;
                     }
                     else
                     {
                         return new TaskActionOutput() { ExecutionInfo = response.Content, ExecutionStatus = false };
-                        ;
                     }
                 }
                 else
@@ -78,6 +80,23 @@ namespace IoTSharp.TaskAction
                 return new TaskActionOutput() { ExecutionInfo = ex.Message, ExecutionStatus = false };
                 ;
             }
+        }
+
+
+
+
+
+        public class TelemetryData
+        {
+            [JsonProperty("keyName")]
+            public string keyName { get; set; }
+            [JsonProperty("dateTime")]
+            public DateTime dateTime { get; set; }
+            [JsonProperty("dataType")]
+            public Data.DataType dataType { get; set; }
+            [JsonProperty("value")]
+            public object value { get; set; }
+
         }
 
         private class MessagePullResult
