@@ -249,13 +249,13 @@ namespace IoTSharp
 
         public static X509Certificate2 CreateCA(this string Domain, string capubfile, string capivfile)
         {
-            var ca = new X509Certificate2().CreateCA($"C=CN,CN={Domain},ST=IoTSharp,O={Dns.GetHostName()},OU=CA_{MethodBase.GetCurrentMethod().Module.Assembly.GetName().Name}");
+            var ca = X509Self.CreateCA($"C=CN,CN={Domain},ST=IoTSharp,O={Dns.GetHostName()},OU=CA_{MethodBase.GetCurrentMethod().Module.Assembly.GetName().Name}");
             ca.SavePem(capubfile, capivfile);
             return ca;
         }
         public static X509Certificate2 CreateCA(this IPAddress ip, string capubfile, string capivfile)
         {
-            var ca = new X509Certificate2().CreateCA($"C=CN,CN={ip},ST=IoTSharp,O={Dns.GetHostName()},OU=CA_{MethodBase.GetCurrentMethod().Module.Assembly.GetName().Name}");
+            var ca = X509Self.CreateCA($"C=CN,CN={ip},ST=IoTSharp,O={Dns.GetHostName()},OU=CA_{MethodBase.GetCurrentMethod().Module.Assembly.GetName().Name}");
             ca.SavePem(capubfile, capivfile);
             return ca;
         }

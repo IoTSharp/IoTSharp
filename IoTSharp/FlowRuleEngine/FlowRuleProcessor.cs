@@ -595,12 +595,16 @@ namespace IoTSharp.FlowRuleEngine
                                             ExecutorConfig = flow.NodeProcessParams,
                                             DeviceId = Guid.Empty
                                         });
-
                                         obj = result.DynamicOutput;
                                     }
                                     catch (Exception ex)
                                     {
+                                        _logger.LogWarning($"执行{flow.NodeProcessClass}失败， {ex.Message}");
                                     }
+                                }
+                                else
+                                {
+                                    _logger.LogWarning($"{flow.NodeProcessClass},未找到类型 ");
                                 }
                             }
                             break;
