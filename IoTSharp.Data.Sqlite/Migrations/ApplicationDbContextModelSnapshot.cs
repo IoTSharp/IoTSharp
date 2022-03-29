@@ -15,7 +15,61 @@ namespace IoTSharp.Data.Sqlite.Migrations
         protected override void BuildModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
-            modelBuilder.HasAnnotation("ProductVersion", "6.0.2");
+            modelBuilder.HasAnnotation("ProductVersion", "6.0.3");
+
+            modelBuilder.Entity("IoTSharp.Data.Alarm", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime>("AckDateTime")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("AlarmDetail")
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("AlarmStatus")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("AlarmType")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime>("ClearDateTime")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid?>("CustomerId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime>("EndDateTime")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid>("OriginatorId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("OriginatorType")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<bool>("Propagate")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("Serverity")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<DateTime>("StartDateTime")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid?>("TenantId")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CustomerId");
+
+                    b.HasIndex("TenantId");
+
+                    b.ToTable("Alarms");
+                });
 
             modelBuilder.Entity("IoTSharp.Data.AuditLog", b =>
                 {
@@ -1815,6 +1869,21 @@ namespace IoTSharp.Data.Sqlite.Migrations
                     b.HasBaseType("IoTSharp.Data.DataStorage");
 
                     b.HasDiscriminator().HasValue(4);
+                });
+
+            modelBuilder.Entity("IoTSharp.Data.Alarm", b =>
+                {
+                    b.HasOne("IoTSharp.Data.Customer", "Customer")
+                        .WithMany()
+                        .HasForeignKey("CustomerId");
+
+                    b.HasOne("IoTSharp.Data.Tenant", "Tenant")
+                        .WithMany()
+                        .HasForeignKey("TenantId");
+
+                    b.Navigation("Customer");
+
+                    b.Navigation("Tenant");
                 });
 
             modelBuilder.Entity("IoTSharp.Data.AuditLog", b =>

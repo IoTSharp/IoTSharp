@@ -17,10 +17,64 @@ namespace IoTSharp.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "6.0.2")
+                .HasAnnotation("ProductVersion", "6.0.3")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
+
+            modelBuilder.Entity("IoTSharp.Data.Alarm", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("AckDateTime")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("AlarmDetail")
+                        .HasColumnType("text");
+
+                    b.Property<int>("AlarmStatus")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("AlarmType")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("ClearDateTime")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid?>("CustomerId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("EndDateTime")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("OriginatorId")
+                        .HasColumnType("uuid");
+
+                    b.Property<int>("OriginatorType")
+                        .HasColumnType("integer");
+
+                    b.Property<bool>("Propagate")
+                        .HasColumnType("boolean");
+
+                    b.Property<int>("Serverity")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime>("StartDateTime")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid?>("TenantId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CustomerId");
+
+                    b.HasIndex("TenantId");
+
+                    b.ToTable("Alarms");
+                });
 
             modelBuilder.Entity("IoTSharp.Data.AuditLog", b =>
                 {
@@ -1836,6 +1890,21 @@ namespace IoTSharp.Migrations
                     b.HasBaseType("IoTSharp.Data.DataStorage");
 
                     b.HasDiscriminator().HasValue(4);
+                });
+
+            modelBuilder.Entity("IoTSharp.Data.Alarm", b =>
+                {
+                    b.HasOne("IoTSharp.Data.Customer", "Customer")
+                        .WithMany()
+                        .HasForeignKey("CustomerId");
+
+                    b.HasOne("IoTSharp.Data.Tenant", "Tenant")
+                        .WithMany()
+                        .HasForeignKey("TenantId");
+
+                    b.Navigation("Customer");
+
+                    b.Navigation("Tenant");
                 });
 
             modelBuilder.Entity("IoTSharp.Data.AuditLog", b =>

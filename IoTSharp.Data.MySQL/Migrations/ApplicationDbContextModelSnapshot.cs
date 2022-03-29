@@ -16,8 +16,62 @@ namespace IoTSharp.Data.MySql.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "6.0.2")
+                .HasAnnotation("ProductVersion", "6.0.3")
                 .HasAnnotation("Relational:MaxIdentifierLength", 64);
+
+            modelBuilder.Entity("IoTSharp.Data.Alarm", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("char(36)");
+
+                    b.Property<DateTime>("AckDateTime")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<string>("AlarmDetail")
+                        .HasColumnType("longtext");
+
+                    b.Property<int>("AlarmStatus")
+                        .HasColumnType("int");
+
+                    b.Property<string>("AlarmType")
+                        .HasColumnType("longtext");
+
+                    b.Property<DateTime>("ClearDateTime")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<Guid?>("CustomerId")
+                        .HasColumnType("char(36)");
+
+                    b.Property<DateTime>("EndDateTime")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<Guid>("OriginatorId")
+                        .HasColumnType("char(36)");
+
+                    b.Property<int>("OriginatorType")
+                        .HasColumnType("int");
+
+                    b.Property<bool>("Propagate")
+                        .HasColumnType("tinyint(1)");
+
+                    b.Property<int>("Serverity")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("StartDateTime")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<Guid?>("TenantId")
+                        .HasColumnType("char(36)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CustomerId");
+
+                    b.HasIndex("TenantId");
+
+                    b.ToTable("Alarms");
+                });
 
             modelBuilder.Entity("IoTSharp.Data.AuditLog", b =>
                 {
@@ -1817,6 +1871,21 @@ namespace IoTSharp.Data.MySql.Migrations
                     b.HasBaseType("IoTSharp.Data.DataStorage");
 
                     b.HasDiscriminator().HasValue(4);
+                });
+
+            modelBuilder.Entity("IoTSharp.Data.Alarm", b =>
+                {
+                    b.HasOne("IoTSharp.Data.Customer", "Customer")
+                        .WithMany()
+                        .HasForeignKey("CustomerId");
+
+                    b.HasOne("IoTSharp.Data.Tenant", "Tenant")
+                        .WithMany()
+                        .HasForeignKey("TenantId");
+
+                    b.Navigation("Customer");
+
+                    b.Navigation("Tenant");
                 });
 
             modelBuilder.Entity("IoTSharp.Data.AuditLog", b =>
