@@ -1,4 +1,5 @@
 ﻿using System;
+using System.ComponentModel.DataAnnotations;
 
 namespace IoTSharp.Data
 {
@@ -71,6 +72,7 @@ namespace IoTSharp.Data
         /// <summary>
         /// 告警ID
         /// </summary>
+        [Key]
         public Guid Id { get; set; }
 
         /// <summary>

@@ -3,6 +3,7 @@ using System;
 using IoTSharp.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -10,9 +11,10 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace IoTSharp.Data.MySql.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20220329045201_AddAsset")]
+    partial class AddAsset
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -115,16 +117,10 @@ namespace IoTSharp.Data.MySql.Migrations
                     b.Property<int>("DataCatalog")
                         .HasColumnType("int");
 
-                    b.Property<string>("Description")
-                        .HasColumnType("longtext");
-
                     b.Property<Guid>("DeviceId")
                         .HasColumnType("char(36)");
 
                     b.Property<string>("KeyName")
-                        .HasColumnType("longtext");
-
-                    b.Property<string>("Name")
                         .HasColumnType("longtext");
 
                     b.HasKey("Id");
