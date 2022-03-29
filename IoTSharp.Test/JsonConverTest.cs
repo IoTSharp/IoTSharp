@@ -18,14 +18,7 @@ namespace IoTSharp.Test
             Assert.AreEqual<string>("bbb", keyValues["aaa"].ToString());
         }
 
-        [TestMethod]
-        public void TestJsonArray()
-        {
-            var jojb = JToken.Parse("[{\"aaa\":\"bbb\"},{\"ccc\":\"ddd\"}]");
-            Dictionary<string, object> keyValues = Newtonsoft.Json.JsonConvert.DeserializeObject<Dictionary<string, object>>(jojb.ToString());
-            Assert.AreEqual<string>("bbb", keyValues["aaa"].ToString());
-            Assert.AreEqual<string>("ddd", keyValues["ccc"].ToString());
-        }
+     
 
         [TestMethod]
         public void TestDic()

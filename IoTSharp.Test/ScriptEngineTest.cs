@@ -74,31 +74,9 @@ output= {'fever': fever, 'fat': fat}
             var outpuobj = System.Text.Json.JsonSerializer.Deserialize(output, t.GetType());
             Assert.AreEqual(outpuobj, t);
         }
+     
         [TestMethod]
         public void TestLua()
-        {
-            var intput = System.Text.Json.JsonSerializer.Serialize(new { temperature = 39, height = 192, weight = 121 });
-
-            string output = _lua_engine.Do(@"
-fff = {fever = false, fat = false}
-
-function fff:new()
- local  o =  {}
-  setmetatable(o, self)
-  self.__index = self
-  self.fever = true
-  self.fat =  true
-  return o
-end
-
-return    fff:new()
-", intput);
-            var t = new { fever = true, fat = true };
-            var outpuobj = System.Text.Json.JsonSerializer.Deserialize(output, t.GetType());
-            Assert.AreEqual(outpuobj, t);
-        }
-        [TestMethod]
-        public void TestLua1()
         {
             var intput = System.Text.Json.JsonSerializer.Serialize(new { temperature = 39, height = 192, weight = 121 });
             string output = _lua_engine.Do( Properties.Resources.luatest, intput);
@@ -106,14 +84,7 @@ return    fff:new()
             var outpuobj = System.Text.Json.JsonSerializer.Deserialize(output, t.GetType());
             Assert.AreEqual(outpuobj, t);
         }
-        [TestMethod]
-        public void TestC()
-        {
-            var input = "38";
-            string output = _c_engine.Do("atoi(input)>38?1:0;", input);
-            
-            Assert.AreEqual(int.Parse(input) > 38 ? 1 : 0, output);
-        }
+    
         [TestMethod]
         public void TestSQL()
         {
