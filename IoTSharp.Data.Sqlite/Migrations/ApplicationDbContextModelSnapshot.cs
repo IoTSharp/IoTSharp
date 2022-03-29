@@ -113,10 +113,16 @@ namespace IoTSharp.Data.Sqlite.Migrations
                     b.Property<int>("DataCatalog")
                         .HasColumnType("INTEGER");
 
+                    b.Property<string>("Description")
+                        .HasColumnType("TEXT");
+
                     b.Property<Guid>("DeviceId")
                         .HasColumnType("TEXT");
 
                     b.Property<string>("KeyName")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Name")
                         .HasColumnType("TEXT");
 
                     b.HasKey("Id");

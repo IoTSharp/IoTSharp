@@ -118,10 +118,16 @@ namespace IoTSharp.Migrations
                     b.Property<int>("DataCatalog")
                         .HasColumnType("integer");
 
+                    b.Property<string>("Description")
+                        .HasColumnType("text");
+
                     b.Property<Guid>("DeviceId")
                         .HasColumnType("uuid");
 
                     b.Property<string>("KeyName")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Name")
                         .HasColumnType("text");
 
                     b.HasKey("Id");

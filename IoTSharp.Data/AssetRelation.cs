@@ -12,6 +12,15 @@ namespace IoTSharp.Data
         [Key]
         public Guid Id { get; set; }
         /// <summary>
+        /// 列名
+        /// </summary>
+        public string Name { get; set; }
+        /// <summary>
+        /// 描述
+        /// </summary>
+        public string Description { get; set; }
+
+        /// <summary>
         /// 设备Id
         /// </summary>
         public Guid DeviceId { get; set; }
