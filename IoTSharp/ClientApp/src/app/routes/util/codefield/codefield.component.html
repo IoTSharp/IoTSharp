@@ -2,9 +2,10 @@
   <nz-code-editor
     class="editor"
     [ngModel]="value"
-    [nzEditorOption]="config"
+    (ngModelChange)="change($event)"
+    [nzEditorOption]="config" 
     nzEditorMode="normal"
-    style="width: 100%; height: 200px"
+    style="width: 100%; height: 200px" 
   ></nz-code-editor>
 </sf-item-wrap>
 <!-- <nz-code-editor

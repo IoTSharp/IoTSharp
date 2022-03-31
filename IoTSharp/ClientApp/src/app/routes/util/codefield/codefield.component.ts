@@ -22,6 +22,7 @@ export class CodefieldComponent extends ControlWidget implements OnInit {
   }
   change(value: string) {
     this.setValue(value);
-    if (this.ui.change) this.ui.change(value);
+    if (this.ui.change) 
+    this.ui.change(value);
   }
 }

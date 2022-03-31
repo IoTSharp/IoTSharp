@@ -13,7 +13,7 @@ import { appmessage } from '../../common/AppMessage';
 @Component({
   selector: 'app-propform',
   templateUrl: './propform.component.html',
-  styleUrls: ['./propform.component.less'],
+  styleUrls: ['./propform.component.less']
 })
 export class PropformComponent implements OnInit {
   @ViewChild('sfserver', { static: false })
@@ -21,17 +21,25 @@ export class PropformComponent implements OnInit {
 
   @ViewChild('sfany', { static: false })
   sfany!: SFComponent;
+
+  @ViewChild('sfdevice', { static: false })
+  sfdevice!: SFComponent;
+
   @Input() params: any = {
     id: Guid.EMPTY,
-    customerId: Guid.EMPTY,
+    customerId: Guid.EMPTY
   };
   constructor(
     private http: _HttpClient,
 
     private drawerRef: NzDrawerRef<string>,
     private msg: NzMessageService,
-    private cd: ChangeDetectorRef,
+    private cd: ChangeDetectorRef
   ) {}
+  schemadevice: SFSchema = {
+    properties: {}
+  };
+
   schemaserver: SFSchema = {
     properties: {
       // "field1": {
@@ -39,7 +47,7 @@ export class PropformComponent implements OnInit {
       //     "title": "参12222数5",
       //     "maxlength": 20
       // },
-    },
+    }
   };
 
   schemaany: SFSchema = {
@@ -49,16 +57,18 @@ export class PropformComponent implements OnInit {
       //     "title": "参12222数5",
       //     "maxlength": 20
       // },
-    },
+    }
   };
 
   ngOnInit(): void {
     this.http.get<appmessage<deviceattributeitem[]>>('api/Devices/' + this.params.id + '/AttributeLatest').subscribe(
-      (next) => {
+      next => {
         var propertiesserver: any = {};
         var propertiesany: any = {};
-        var serverSide = next.data.filter((x) => x.dataSide == 'ServerSide');
-        var anySide = next.data.filter((x) => x.dataSide == 'AnySide');
+        var propertiesdevice: any = {};
+        var serverSide = next.data.filter(x => x.dataSide == 'ServerSide');
+        var anySide = next.data.filter(x => x.dataSide == 'AnySide');
+        var devicveSide = next.data.filter(x => x.dataSide == 'ClientSide');
         for (var item of serverSide) {
           switch (item.dataType) {
             case 'XML':
@@ -71,9 +81,9 @@ export class PropformComponent implements OnInit {
                   widget: 'codefield',
                   loadingTip: 'loading...',
                   config: { theme: 'vs-dark', language: 'xml' },
-                  value: item.value,
+                  value: item.value
                 },
-                default: item.value,
+                default: item.value
               };
 
               break;
@@ -86,9 +96,9 @@ export class PropformComponent implements OnInit {
                 //  pattern: item.pattern,
                 ui: {
                   checkedChildren: 'True',
-                  unCheckedChildren: 'False',
+                  unCheckedChildren: 'False'
                 },
-                default: item.value,
+                default: item.value
               };
 
               break;
@@ -100,7 +110,7 @@ export class PropformComponent implements OnInit {
                 // maxLength: item.maxLength,
                 //  pattern: item.pattern,
 
-                default: item.value,
+                default: item.value
               };
 
               break;
@@ -112,9 +122,9 @@ export class PropformComponent implements OnInit {
                 // maxLength: item.maxLength,
                 //  pattern: item.pattern,
                 ui: {
-                  hideStep: true,
+                  hideStep: true
                 } as SFNumberWidgetSchema,
-                default: item.value,
+                default: item.value
               };
 
               break;
@@ -126,9 +136,9 @@ export class PropformComponent implements OnInit {
                 // maxLength: item.maxLength,
                 //  pattern: item.pattern,
                 ui: {
-                  hideStep: true,
+                  hideStep: true
                 } as SFNumberWidgetSchema,
-                default: item.value,
+                default: item.value
               };
 
               break;
@@ -143,9 +153,9 @@ export class PropformComponent implements OnInit {
                   widget: 'codefield',
                   loadingTip: 'loading...',
                   config: { theme: 'vs-dark', language: 'json' },
-                  value: item.value,
+                  value: item.value
                 },
-                default: item.value,
+                default: item.value
               };
 
               break;
@@ -158,9 +168,9 @@ export class PropformComponent implements OnInit {
                 //  pattern: item.pattern,
                 ui: {
                   widget: 'textarea',
-                  autosize: { minRows: 2, maxRows: 10 },
+                  autosize: { minRows: 2, maxRows: 10 }
                 } as SFTextareaWidgetSchema,
-                default: item.value,
+                default: item.value
               };
 
               break;
@@ -171,7 +181,7 @@ export class PropformComponent implements OnInit {
                 format: 'date-time',
                 displayFormat: 'yyyy-MM-dd HH:mm:ss',
                 ui: {},
-                default: item.value,
+                default: item.value
               };
 
               break;
@@ -190,9 +200,9 @@ export class PropformComponent implements OnInit {
                   widget: 'codefield',
                   loadingTip: 'loading...',
                   config: { theme: 'vs-dark', language: 'xml' },
-                  value: item.value,
+                  value: item.value
                 },
-                default: item.value,
+                default: item.value
               };
 
               break;
@@ -205,9 +215,9 @@ export class PropformComponent implements OnInit {
                 //  pattern: item.pattern,
                 ui: {
                   checkedChildren: 'True',
-                  unCheckedChildren: 'False',
+                  unCheckedChildren: 'False'
                 },
-                default: item.value,
+                default: item.value
               };
 
               break;
@@ -219,7 +229,7 @@ export class PropformComponent implements OnInit {
                 // maxLength: item.maxLength,
                 //  pattern: item.pattern,
 
-                default: item.value,
+                default: item.value
               };
 
               break;
@@ -231,9 +241,9 @@ export class PropformComponent implements OnInit {
                 // maxLength: item.maxLength,
                 //  pattern: item.pattern,
                 ui: {
-                  hideStep: true,
+                  hideStep: true
                 } as SFNumberWidgetSchema,
-                default: item.value,
+                default: item.value
               };
 
               break;
@@ -245,9 +255,9 @@ export class PropformComponent implements OnInit {
                 // maxLength: item.maxLength,
                 //  pattern: item.pattern,
                 ui: {
-                  hideStep: true,
+                  hideStep: true
                 } as SFNumberWidgetSchema,
-                default: item.value,
+                default: item.value
               };
 
               break;
@@ -262,9 +272,9 @@ export class PropformComponent implements OnInit {
                   widget: 'codefield',
                   loadingTip: 'loading...',
                   config: { theme: 'vs-dark', language: 'json' },
-                  value: item.value,
+                  value: item.value
                 },
-                default: item.value,
+                default: item.value
               };
 
               break;
@@ -277,9 +287,9 @@ export class PropformComponent implements OnInit {
                 //  pattern: item.pattern,
                 ui: {
                   widget: 'textarea',
-                  autosize: { minRows: 2, maxRows: 10 },
+                  autosize: { minRows: 2, maxRows: 10 }
                 } as SFTextareaWidgetSchema,
-                default: item.value,
+                default: item.value
               };
 
               break;
@@ -290,7 +300,126 @@ export class PropformComponent implements OnInit {
                 format: 'date-time',
                 displayFormat: 'yyyy-MM-dd HH:mm:ss',
                 ui: {},
-                default: item.value,
+                default: item.value
+              };
+
+              break;
+          }
+        }
+
+        for (var item of devicveSide) {
+          switch (item.dataType) {
+            case 'XML':
+              propertiesdevice[item.keyName] = {
+                type: 'string',
+                title: item.keyName,
+                // maxLength: item.maxLength,
+                //  pattern: item.pattern,
+                ui: {
+                  widget: 'codefield',
+                  loadingTip: 'loading...',
+                  config: { theme: 'vs-dark', language: 'xml' },
+                  value: item.value
+                },
+                default: item.value
+              };
+
+              break;
+
+            case 'Boolean':
+              propertiesdevice[item.keyName] = {
+                type: 'boolean',
+                title: item.keyName,
+                // maxLength: item.maxLength,
+                //  pattern: item.pattern,
+                ui: {
+                  checkedChildren: 'True',
+                  unCheckedChildren: 'False'
+                },
+                default: item.value
+              };
+
+              break;
+
+            case 'String':
+              propertiesdevice[item.keyName] = {
+                type: 'string',
+                title: item.keyName,
+                // maxLength: item.maxLength,
+                //  pattern: item.pattern,
+
+                default: item.value
+              };
+
+              break;
+
+            case 'Long':
+              propertiesdevice[item.keyName] = {
+                type: 'number',
+                title: item.keyName,
+                // maxLength: item.maxLength,
+                //  pattern: item.pattern,
+                ui: {
+                  hideStep: true
+                } as SFNumberWidgetSchema,
+                default: item.value
+              };
+
+              break;
+
+            case 'Double':
+              propertiesdevice[item.keyName] = {
+                type: 'number',
+                title: item.keyName,
+                // maxLength: item.maxLength,
+                //  pattern: item.pattern,
+                ui: {
+                  hideStep: true
+                } as SFNumberWidgetSchema,
+                default: item.value
+              };
+
+              break;
+
+            case 'Json':
+              propertiesdevice[item.keyName] = {
+                type: 'string',
+                title: item.keyName,
+                // maxLength: item.maxLength,
+                //  pattern: item.pattern,
+                ui: {
+                  widget: 'codefield',
+                  loadingTip: 'loading...',
+                  config: { theme: 'vs-dark', language: 'json' },
+                  value: item.value
+                },
+                default: item.value
+              };
+
+              break;
+
+            case 'Binary':
+              propertiesdevice[item.keyName] = {
+                type: 'string',
+                title: item.keyName,
+                // maxLength: item.maxLength,
+                //  pattern: item.pattern,
+                ui: {
+                  widget: 'textarea',
+                  autosize: { minRows: 2, maxRows: 10 }
+                } as SFTextareaWidgetSchema,
+                default: item.value
+              };
+
+              break;
+            case 'DateTime':
+              propertiesdevice[item.keyName] = {
+                type: 'string',
+                title: item.keyName,
+                format: 'date-time',
+                displayFormat: 'yyyy-MM-dd HH:mm:ss',
+                ui: {},
+                default: item.value
               };
 
               break;
@@ -299,12 +428,14 @@ export class PropformComponent implements OnInit {
 
         this.schemaserver.properties = propertiesserver;
         this.schemaany.properties = propertiesany;
+        this.schemadevice.properties = propertiesdevice;
         this.sfserver.refreshSchema();
         this.sfany.refreshSchema();
+        this.sfdevice.refreshSchema();
         this.cd.detectChanges();
       },
-      (error) => {},
-      () => {},
+      error => {},
+      () => {}
     );
   }
 
@@ -312,9 +443,10 @@ export class PropformComponent implements OnInit {
     var val = {
       serverside: this.sfserver.value,
       anyside: this.sfany.value,
+      clientside:this.sfdevice.value
     };
     this.http.post<appmessage<any>>('api/Devices/' + this.params.id + '/EditAttribute', val).subscribe(
-      (next) => {
+      next => {
         if (next.code === 10000) {
           this.msg.success('属性修改成功');
           this.drawerRef.close(this.params);
@@ -322,15 +454,15 @@ export class PropformComponent implements OnInit {
           this.msg.error(next.msg);
         }
       },
-      (error) => {},
-      () => {},
+      error => {},
+      () => {}
     );
   }
 
   submit(value: any) {
     console.log(value);
     this.http.post<appmessage<any>>('api/Devices/' + this.params.id + '/EditAttribute', value).subscribe(
-      (next) => {
+      next => {
         if (next.code === 10000) {
           this.msg.success('属性修改成功');
           this.drawerRef.close(this.params);
@@ -338,8 +470,8 @@ export class PropformComponent implements OnInit {
           this.msg.error(next.msg);
         }
       },
-      (error) => {},
-      () => {},
+      error => {},
+      () => {}
     );
 
     // this.http

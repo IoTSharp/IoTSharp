@@ -18,6 +18,10 @@ namespace IoTSharp.Data
         public Customer Customer { get; set; }
         public Tenant Tenant { get; set; }
 
+        public string path { get; set; }
+
+
+      
 
     }
 }

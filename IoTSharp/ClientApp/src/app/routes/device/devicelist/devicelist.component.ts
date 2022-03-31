@@ -492,6 +492,17 @@ export class DevicelistComponent implements OnInit, OnDestroy {
       () => {}
     );
   }
+
+  removeruleprop(device:deviceitem,prop:attributeitem){
+    this.http.delete('api/device/removeAttribute?deviceId=' + device.id + '&KeyName=' + prop.keyName+'&dataSide='+prop.dataSide).subscribe(
+      () => {
+        this.cead = this.cead.filter(x => x.keyName != prop.keyName);
+      },
+      () => {},
+      () => {}
+    );
+
+  }
 }
 
 export interface deviceitem {

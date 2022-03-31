@@ -7,6 +7,8 @@ import { environment } from '@env/environment';
 // layout
 import { LayoutBasicComponent } from '../layout/basic/basic.component';
 import { LayoutBlankComponent } from '../layout/blank/blank.component';
+import { AlarmlistComponent } from './device/alarmlist/alarmlist.component';
+import { AssetlistComponent } from './device/assetlist/assetlist.component';
 import { DevicegraphComponent } from './device/devicegraph/devicegraph.component';
 import { DevicelistComponent } from './device/devicelist/devicelist.component';
 import { DevicesceneComponent } from './device/devicescene/devicescene.component';
@@ -75,6 +77,8 @@ const routes: Routes = [
       { path: 'resouce/i18nlist', component: I18nlistComponent },
       { path: 'util/dynamicformlist', component: DynamicformlistComponent },
       { path: 'code/codeview', component: CodeviewComponent },
+      { path: 'device/alarmlist', component: AlarmlistComponent },
+      { path: 'device/assetlist', component: AssetlistComponent },
       { path: 'settings/certmgr', component: CertmgrComponent }
     ]
   },

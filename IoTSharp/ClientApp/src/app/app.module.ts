@@ -87,6 +87,8 @@ import { RoutesModule } from './routes/routes.module';
 import { SharedModule } from './shared/shared.module';
 import { STWidgetModule } from './shared/st-widget/st-widget.module';
 import { Observable } from 'rxjs';
+import { WidgetRegistry } from '@delon/form';
+import { CodefieldComponent } from './routes/util/codefield/codefield.component';
 
 @NgModule({
   declarations: [AppComponent],
@@ -108,4 +110,10 @@ import { Observable } from 'rxjs';
   providers: [...LANG_PROVIDES, ...INTERCEPTOR_PROVIDES, ...I18NSERVICE_PROVIDES, ...APPINIT_PROVIDES],
   bootstrap: [AppComponent]
 })
-export class AppModule {}
+export class AppModule {
+
+  constructor(widgetRegistry: WidgetRegistry) {
+    widgetRegistry.register(CodefieldComponent.KEY, CodefieldComponent);
+  }
+
+}

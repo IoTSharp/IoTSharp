@@ -1,4 +1,5 @@
 ﻿using System;
+using IoTSharp.Data;
 
 namespace IoTSharp.Controllers.Models
 {
@@ -10,6 +11,29 @@ namespace IoTSharp.Controllers.Models
         public string where { get; set; } = "";
     }
 
+
+    
+
+    public class AssetParam : IPageParam
+    {
+      
+        public string Name { get; set; }
+    }
+    public class AlarmParam : IPageParam
+    {
+        public Guid OriginatorId { get; set; }
+        public int Serverity { get; set; }
+        public int AlarmStatus { get; set; }
+        public DateTime[] ClearDateTime { get; set; }
+        public DateTime[] StartDateTime { get; set; }
+
+
+        
+        public DateTime[] EndDateTime { get; set; }
+        public DateTime[] AckDateTime { get; set; }
+     
+        public string AlarmType { get; set; }
+    }
     public class DeviceParam : IPageParam
     {
     

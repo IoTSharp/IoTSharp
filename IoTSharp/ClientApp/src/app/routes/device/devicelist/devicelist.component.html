@@ -25,11 +25,7 @@
     </form>
 
     <div nz-col nzMd="8" nzSm="24">
-      <button nz-button [nzType]="'primary'" (click)="edit('00000000-0000-0000-0000-000000000000')" acl [acl-ability]="137">
-        <i nz-icon nzType="plus"></i>
-        <span>{{ 'button.new' | i18n }}</span>
-      </button>
-
+     
       <button nz-button [nzType]="'primary'" (click)="downlink([])" acl [acl-ability]="137">
         <i nz-icon nzType="plus"></i>
         <span>设置规则</span>
@@ -54,19 +50,35 @@
       <nz-card nzTitle="设备属性">
         <nz-table [nzNoResult]="null">
           <thead>
-          <tr>
-            <td>属性名称</td>
-            <td>属性值</td>
-            <td>数据侧</td>
-            <td>时间</td>
-          </tr></thead>  <tbody>
-          <tr *ngFor="let _item of cead; let i = index; let odd = odd">
-            <td>{{ _item.keyName }}</td>
-            <td>{{ _item.value }}</td>
-            <td>{{ _item.dataSide }}</td>
+            <tr>
+              <td>属性名称</td>
+              <td>属性值</td>
+              <td>数据侧</td>
+              <td>时间</td>      <td>操作</td>
+            </tr></thead
+          >
+          <tbody>
+            <tr *ngFor="let _item of cead; let i = index; let odd = odd">
+              <td>{{ _item.keyName }}</td>
+              <td>{{ _item.value }}</td>
+              <td>{{ _item.dataSide }}</td>
+              <td>{{ _item.dateTime }}</td>
+              <td>
+                <button
+                  nz-button
+                  nzType="text"
+                  nzDanger
+                  nz-popconfirm
+                  nzPopconfirmTitle="确认删除属性?"
+                  (nzOnConfirm)="removeruleprop(item,_item)"
+                  nzPopconfirmPlacement="topLeft"
+                >
+                  删除
+                </button>
+              </td>
 
-            <td>{{ _item.dateTime }}</td>
-          </tr>   </tbody>
+            </tr>
+          </tbody>
         </nz-table>
       </nz-card>
 
@@ -93,49 +105,54 @@
 
             <nz-table [nzNoResult]="null">
               <thead>
-              <tr>
-                <td>属性名称</td>
-                <td>属性值</td>
-                <td>时间</td>
-              </tr></thead>  <tbody>
-              <tr *ngFor="let _item of cetd; let i = index; let odd = odd">
-                <td>{{ _item.keyName }}</td>
-                <td>{{ _item.value }}</td>
-                <td>{{ _item.dateTime }}</td>
-              </tr> </tbody>
+                <tr>
+                  <td>遥测名称</td>
+                  <td>遥测值</td>
+                  <td>时间</td>
+                </tr></thead
+              >
+              <tbody>
+                <tr *ngFor="let _item of cetd; let i = index; let odd = odd">
+                  <td>{{ _item.keyName }}</td>
+                  <td>{{ _item.value }}</td>
+                  <td>{{ _item.dateTime }}</td>
+                </tr>
+              </tbody>
             </nz-table>
           </nz-tab>
         </nz-tabset>
       </nz-card>
 
       <nz-card nzTitle="规则">
-        <nz-table [nzNoResult]="null">   
-                <thead>
-          <tr>
-            <td>规则名称</td>
-            <td>备注</td>
-            <td>操作</td>
-          </tr></thead>  <tbody>
-          <tr *ngFor="let _item of cerd; let i = index; let odd = odd">
-            <td>{{ _item.name }}</td>
-            <td>{{ _item.ruleDesc }}</td>
-            <td>
-              <button
-                nz-button
-                nzType="text"
-                nzDanger
-                nz-popconfirm
-                nzPopconfirmTitle="确认删除规则?"
-                (nzOnConfirm)="removerule(item, _item)"
-                nzPopconfirmPlacement="topLeft"
-              >
-                删除
-              </button>
-            </td>
-          </tr></tbody>
+        <nz-table [nzNoResult]="null">
+          <thead>
+            <tr>
+              <td>规则名称</td>
+              <td>备注</td>
+              <td>操作</td>
+            </tr></thead
+          >
+          <tbody>
+            <tr *ngFor="let _item of cerd; let i = index; let odd = odd">
+              <td>{{ _item.name }}</td>
+              <td>{{ _item.ruleDesc }}</td>
+              <td>
+                <button
+                  nz-button
+                  nzType="text"
+                  nzDanger
+                  nz-popconfirm
+                  nzPopconfirmTitle="确认删除规则?"
+                  (nzOnConfirm)="removerule(item, _item)"
+                  nzPopconfirmPlacement="topLeft"
+                >
+                  删除
+                </button>
+              </td>
+            </tr></tbody
+          >
         </nz-table>
       </nz-card>
-
 
       <!-- <nz-card nzTitle="操作">
 

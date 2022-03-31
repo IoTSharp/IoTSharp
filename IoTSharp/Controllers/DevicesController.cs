@@ -70,13 +70,13 @@ namespace IoTSharp.Controllers
         private readonly FlowRuleProcessor _flowRuleProcessor;
         private readonly IEasyCachingProvider _caching;
         private readonly IServiceScopeFactory _scopeFactor;
-   
+
 
         public DevicesController(UserManager<IdentityUser> userManager,
             SignInManager<IdentityUser> signInManager, ILogger<DevicesController> logger, MqttServer serverEx, ApplicationDbContext context, MqttClientOptions mqtt, IStorage storage, IOptions<AppSettings> options, ICapPublisher queue
             , IEasyCachingProviderFactory factory, FlowRuleProcessor flowRuleProcessor, IServiceScopeFactory scopeFactor)
         {
-          
+
             _context = context;
             _mqtt = mqtt;
             _userManager = userManager;
@@ -89,7 +89,7 @@ namespace IoTSharp.Controllers
             _flowRuleProcessor = flowRuleProcessor;
             _caching = factory.GetCachingProvider("iotsharp");
             _scopeFactor = scopeFactor;
-           
+
         }
 
         /// <summary>
@@ -523,7 +523,7 @@ namespace IoTSharp.Controllers
             else
             {
                 return new ApiResult<List<TelemetryDataDto>>(ApiCode.Success, "Ok",
-                  await _storage.LoadTelemetryAsync(deviceId, keys == "all" ? string.Empty:keys,  begin, end,  TimeSpan.Zero, Aggregate.None) );
+                  await _storage.LoadTelemetryAsync(deviceId, keys == "all" ? string.Empty : keys, begin, end, TimeSpan.Zero, Aggregate.None));
             }
         }
         /// <summary>
@@ -544,7 +544,7 @@ namespace IoTSharp.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ApiResult), StatusCodes.Status404NotFound)]
         [ProducesDefaultResponseType]
-        public async Task<ApiResult<List<TelemetryDataDto>>> GetTelemetryData(Guid deviceId,TelemetryDataQueryDto queryDto)
+        public async Task<ApiResult<List<TelemetryDataDto>>> GetTelemetryData(Guid deviceId, TelemetryDataQueryDto queryDto)
         {
             Device dev = Found(deviceId);
             if (dev == null)
@@ -806,13 +806,13 @@ namespace IoTSharp.Controllers
             }
             else
             {
-                
+
                 var result = await _context.SaveAsync<TelemetryLatest>(telemetrys, device.Id, DataSide.ClientSide);
                 return Ok(new ApiResult<Dic>(result.ret > 0 ? ApiCode.Success : ApiCode.NothingToDo, result.ret > 0 ? "OK" : "No Telemetry save", new Dic(result.exceptions?.Select(f => new DicKV(f.Key, f.Value.Message)))));
             }
         }
 
-    
+
 
 
         /// <summary>
@@ -890,12 +890,12 @@ namespace IoTSharp.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ApiResult), StatusCodes.Status404NotFound)]
         [ProducesDefaultResponseType]
-        public async Task<ActionResult<ApiResult>> PushDataToMap(string access_token,[FromRoute] string format="json")
+        public async Task<ActionResult<ApiResult>> PushDataToMap(string access_token, [FromRoute] string format = "json")
         {
             var body = string.Empty;
             using (StreamReader reader = new StreamReader(Request.Body))
             {
-                body= await reader.ReadToEndAsync();
+                body = await reader.ReadToEndAsync();
             }
             var (ok, _dev) = _context.GetDeviceByToken(access_token);
             if (ok)
@@ -913,7 +913,7 @@ namespace IoTSharp.Controllers
                 }
                 var atts_cach = await _caching.GetAsync($"_map_{_dev.Id}", async () =>
                 {
-                    var guids =  from al in _context.AttributeLatest where al.DeviceId == _dev.Id  &&    al.KeyName.StartsWith(_map_to_)  select al;
+                    var guids = from al in _context.AttributeLatest where al.DeviceId == _dev.Id && al.KeyName.StartsWith(_map_to_) select al;
                     return await guids.ToArrayAsync();
                 }
              , TimeSpan.FromSeconds(_setting.RuleCachingExpiration));
@@ -934,7 +934,7 @@ namespace IoTSharp.Controllers
                             jt = jroot;
                         }
                         var data_in_array = atts.FirstOrDefault(al => al.KeyName == _map_to_data_in_array)?.Value_String;
-                        var ts_format = atts.FirstOrDefault(g => g.KeyName ==_map_var_ts_format)?.Value_String ?? string.Empty;
+                        var ts_format = atts.FirstOrDefault(g => g.KeyName == _map_var_ts_format)?.Value_String ?? string.Empty;
                         var ts_field = atts.FirstOrDefault(g => g.KeyName == _map_var_ts_field)?.Value_String ?? string.Empty;
                         if (!string.IsNullOrEmpty(data_in_array))
                         {
@@ -942,14 +942,14 @@ namespace IoTSharp.Controllers
                             var jary = jt.SelectToken(data_in_array) as JArray;
                             jary.Children().ForEach(jo =>
                             {
-                                string _devname = buid_dev_name(atts, jt,jo);
-                                push_one_device_data_with_json(jo,jt, _dev, _devname, atts, ts_field, ts_format);
+                                string _devname = buid_dev_name(atts, jt, jo);
+                                push_one_device_data_with_json(jo, jt, _dev, _devname, atts, ts_field, ts_format);
                             });
                         }
                         else
                         {
-                            string _devname = buid_dev_name(atts, jt,null);
-                            push_one_device_data_with_json(jt,jroot, _dev, _devname, atts, ts_field, ts_format);
+                            string _devname = buid_dev_name(atts, jt, null);
+                            push_one_device_data_with_json(jt, jroot, _dev, _devname, atts, ts_field, ts_format);
                         }
                         return Ok(new ApiResult(ApiCode.Success, "OK"));
                     }
@@ -975,12 +975,12 @@ namespace IoTSharp.Controllers
             {
                 var devnameformatkey = atts.FirstOrDefault(g => g.KeyName == _map_to_devname_format)?.Value_String ?? _map_var_devname;
                 var devname = (jt.SelectToken(devnamekey.Value_String) as JValue)?.ToObject<string>();
-                var subdevname = (subdevnamekey!=null &&  (jc!=null))?(jc.SelectToken(subdevnamekey.Value_String) as JValue)?.ToObject<string>():string.Empty;
+                var subdevname = (subdevnamekey != null && (jc != null)) ? (jc.SelectToken(subdevnamekey.Value_String) as JValue)?.ToObject<string>() : string.Empty;
                 if (!string.IsNullOrEmpty(devnameformatkey))
                 {
                     _result = devnameformatkey;
                     if (!string.IsNullOrEmpty(devname)) _result = _result.Replace(_map_var_devname, devname);
-                    if (!string.IsNullOrEmpty( subdevname)) _result = _result.Replace(_map_var_subdevname, subdevname);
+                    if (!string.IsNullOrEmpty(subdevname)) _result = _result.Replace(_map_var_subdevname, subdevname);
                 }
                 else
                 {
@@ -990,13 +990,13 @@ namespace IoTSharp.Controllers
             return _result;
         }
 
-        private void push_one_device_data_with_json(JToken jt, JToken jroot, Device _dev,string _devname, AttributeLatest[] atts, string ts_field,string ts_format)
+        private void push_one_device_data_with_json(JToken jt, JToken jroot, Device _dev, string _devname, AttributeLatest[] atts, string ts_field, string ts_format)
         {
             var device = _dev.JudgeOrCreateNewDevice(_devname, _scopeFactor, _logger);
             var pairs_att = new Dictionary<string, object>();
             var pairs_tel = new Dictionary<string, object>();
             DateTime ts = DateTime.Now;
-          
+
             atts?.ToList().ForEach(g =>
             {
                 JValue jv = null;
@@ -1011,7 +1011,7 @@ namespace IoTSharp.Controllers
                 var value = (jv)?.JValueToObject();
                 if (value != null && g.KeyName?.Length > 0)
                 {
-                    if (!string.IsNullOrEmpty(ts_field) )
+                    if (!string.IsNullOrEmpty(ts_field))
                     {
                         if (g.KeyName == $"{_map_to_attribute_}{ts_field}" || g.KeyName == $"{_map_to_telemety_}{ts_field}")
                         {
@@ -1041,16 +1041,16 @@ namespace IoTSharp.Controllers
                     }
                 }
             });
-         
+
             if (pairs_tel.Any())
             {
-                _queue.PublishTelemetryData(new RawMsg() {  ts =ts, DeviceId = device.Id, MsgBody = pairs_tel, DataSide = DataSide.ClientSide, DataCatalog = DataCatalog.TelemetryData });
+                _queue.PublishTelemetryData(new RawMsg() { ts = ts, DeviceId = device.Id, MsgBody = pairs_tel, DataSide = DataSide.ClientSide, DataCatalog = DataCatalog.TelemetryData });
             }
             if (pairs_att.Any())
             {
                 _queue.PublishAttributeData(new RawMsg() { ts = ts, DeviceId = device.Id, MsgBody = pairs_att, DataSide = DataSide.ClientSide, DataCatalog = DataCatalog.AttributeData });
             }
-            _queue.PublishDeviceStatus(device.Id,  DeviceStatus.Good);
+            _queue.PublishDeviceStatus(device.Id, DeviceStatus.Good);
             _queue.PublishDeviceStatus(_dev.Id, DeviceStatus.Good);
 
 
@@ -1068,7 +1068,7 @@ namespace IoTSharp.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ApiResult), StatusCodes.Status404NotFound)]
         [ProducesDefaultResponseType]
-        public async Task<ActionResult<ApiResult>> PushDataToRuleChains(string access_token, string format="json")
+        public async Task<ActionResult<ApiResult>> PushDataToRuleChains(string access_token, string format = "json")
         {
             var body = string.Empty;
             using (StreamReader reader = new StreamReader(Request.Body))
@@ -1083,7 +1083,7 @@ namespace IoTSharp.Controllers
             else
             {
                 string json = body;
-                if (format=="xml")
+                if (format == "xml")
                 {
                     XmlDocument doc = new XmlDocument();
                     doc.LoadXml(body);
@@ -1102,7 +1102,7 @@ namespace IoTSharp.Controllers
                         rules.Value.ToList().ForEach(async g =>
                         {
                             _logger.LogInformation($"{_dev.Id}的数据通过规则链{g}进行处理。");
-                       
+
                             var result = await _flowRuleProcessor.RunFlowRules(g, Newtonsoft.Json.JsonConvert.DeserializeObject(body), _dev.Id, EventType.Normal, null);
 
                         });
@@ -1110,7 +1110,7 @@ namespace IoTSharp.Controllers
                     }
                     catch (Exception ex)
                     {
-                        return BadRequest(new ApiResult(ApiCode.Exception,ex.Message ));
+                        return BadRequest(new ApiResult(ApiCode.Exception, ex.Message));
                     }
                 }
                 else
@@ -1165,8 +1165,8 @@ namespace IoTSharp.Controllers
         {
             var result = await _context.SaveAsync<AttributeLatest>(attributes.anyside, devid, DataSide.AnySide);
             var result1 = await _context.SaveAsync<AttributeLatest>(attributes.serverside, devid, DataSide.ServerSide);
-
-            if (result.ret > 0 && result1.ret > 0)
+            var result2 = await _context.SaveAsync<AttributeLatest>(attributes.clientside, devid, DataSide.ClientSide);
+            if (result.ret > 0 && result1.ret > 0&& result2.ret>0)
             {
                 return new ApiResult<Dic>(ApiCode.Success, "Ok", null);
             }
@@ -1178,8 +1178,38 @@ namespace IoTSharp.Controllers
             {
                 return new ApiResult<Dic>(ApiCode.AlreadyExists, "serverside attribute update failed", new Dic(result1.exceptions?.Select(f => new DicKV(f.Key, f.Value.Message)) ?? Array.Empty<DicKV>()));
             }
+            if (result2.ret == 0)
+            {
+                return new ApiResult<Dic>(ApiCode.AlreadyExists, "clientside attribute update failed", new Dic(result2.exceptions?.Select(f => new DicKV(f.Key, f.Value.Message)) ?? Array.Empty<DicKV>()));
+            }
 
             return new ApiResult<Dic>(ApiCode.InValidData, " attributes update failed", null);
+        }
+
+
+        /// <summary>
+        /// 属性删除
+        /// </summary>
+        /// <param name="deviceId"></param>
+        /// <param name="keyName"></param>
+        /// <param name="dataSide"></param>
+        /// <returns></returns>
+
+        [HttpDelete("[action]")]
+        public async Task<ApiResult<bool>> RemoveAttribute(Guid deviceId, string keyName, DataSide dataSide)
+        {
+            var attribute = await _context.DataStorage.FirstOrDefaultAsync(c => c.DeviceId == deviceId && c.KeyName == keyName && c.DataSide == dataSide);
+            if (attribute != null)
+            {
+                _context.DataStorage.Remove(attribute);
+                await _context.SaveChangesAsync();
+                return new ApiResult<bool>(ApiCode.Success, "attribute has being removed", true);
+            }
+            else
+            {
+                return new ApiResult<bool>(ApiCode.CantFindObject, $"this attribute '{keyName}' does not exist", false);
+            }
+
         }
 
         /// <summary>

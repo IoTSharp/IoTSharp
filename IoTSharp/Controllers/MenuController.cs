@@ -95,6 +95,8 @@ namespace IoTSharp.Controllers
                                         {   /*  new { text = "型号管理", i18n = "",link="/iot/devicemodel/devicemodellist" },*/
                                         new { text = "设备管理", i18n = "", link = "/iot/device/devicelist" },
                                         new { text = "网关配置器", i18n = "", link = "/iot/device/devicegraph" },
+                                        new { text = "资产", i18n = "", link = "/iot/device/assetlist" },
+                                        new { text = "告警", i18n = "", link = "/iot/device/alarmlist" },
                                     },
                                 },
                                 new
@@ -210,6 +212,8 @@ namespace IoTSharp.Controllers
                                         {   /*  new { text = "型号管理", i18n = "",link="/iot/devicemodel/devicemodellist" },*/
                                             new { text = "设备管理", i18n = "",link="/iot/device/devicelist" },
                                             new { text = "网关配置器", i18n = "", link = "/iot/device/devicegraph" },
+                                            new { text = "资产", i18n = "", link = "/iot/device/assetlist" },
+                                            new { text = "告警", i18n = "", link = "/iot/device/alarmlist" },
                                         },
                                     },
                                     new

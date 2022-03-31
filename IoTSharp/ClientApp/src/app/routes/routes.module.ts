@@ -76,6 +76,10 @@ import { GatewayshapeComponent } from './device/devicegraph/panels/gatewayshape/
 import { PortshapeComponent } from './device/devicegraph/panels/portshape/portshape.component';
 import { toolpaneldirective } from './device/devicegraph/panels/toolpaneldirective';
 import { NgxEchartsModule } from 'ngx-echarts';
+import { AlarmlistComponent } from './device/alarmlist/alarmlist.component';
+import { AssetlistComponent } from './device/assetlist/assetlist.component';
+import { AssetformComponent } from './device/assetform/assetform.component';
+import { AlarmdetailComponent } from './device/alarmdetail/alarmdetail.component';
 
 const COMPONENTS: Array<Type<null>> = [];
 const Directive: Type<void>[] = [fielddirective, controldirective, toolpaneldirective];
@@ -151,7 +155,11 @@ const Directive: Type<void>[] = [fielddirective, controldirective, toolpaneldire
     ConnectionedgeComponent,
     DevivceshapeComponent,
     GatewayshapeComponent,
-    PortshapeComponent
+    PortshapeComponent,
+    AlarmlistComponent,
+    AssetlistComponent,
+    AssetformComponent,
+    AlarmdetailComponent
   ]
 })
 export class RoutesModule {}
