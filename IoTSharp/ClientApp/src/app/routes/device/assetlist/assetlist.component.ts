@@ -1,11 +1,11 @@
 import { ChangeDetectorRef, Component, OnInit, TemplateRef, ViewChild } from '@angular/core';
 import { Router } from '@angular/router';
-import { STColumn, STColumnBadge, STColumnTag, STComponent, STData, STPage, STReq, STRes } from '@delon/abc/st';
+import { STChange, STColumn, STColumnBadge, STColumnTag, STComponent, STData, STPage, STReq, STRes } from '@delon/abc/st';
 import { _HttpClient, ModalHelper, SettingsService } from '@delon/theme';
 import { Guid } from 'guid-typescript';
 import { NzDrawerService } from 'ng-zorro-antd/drawer';
 import { NzMessageService } from 'ng-zorro-antd/message';
-import { title } from 'process';
+import { nextTick, title } from 'process';
 import { AppMessage } from '../../common/AppMessage';
 import { AssetformComponent } from '../assetform/assetform.component';
 
@@ -15,16 +15,6 @@ import { AssetformComponent } from '../assetform/assetform.component';
   styleUrls: ['./assetlist.component.less']
 })
 export class AssetlistComponent implements OnInit {
-
-
-
-  
-
-
-
-
-
-
   constructor(
     private http: _HttpClient,
     public msg: NzMessageService,
@@ -32,13 +22,16 @@ export class AssetlistComponent implements OnInit {
     private cdr: ChangeDetectorRef,
     private _router: Router,
     private drawerService: NzDrawerService,
-    private settingService: SettingsService,
+    private settingService: SettingsService
   ) {}
+  @ViewChild('expand')
+  tpl: TemplateRef<any>;
+  relations = [];
 
   page: STPage = {
     front: false,
     total: true,
-    zeroIndexed: true,
+    zeroIndexed: true
   };
   q: {
     pi: number;
@@ -52,7 +45,7 @@ export class AssetlistComponent implements OnInit {
     ps: 10,
     Name: '',
     sorter: '',
-    status: null,
+    status: null
   };
 
   total = 0;
@@ -65,15 +58,15 @@ export class AssetlistComponent implements OnInit {
       text: '已禁用',
       value: false,
       type: 'processing',
-      checked: false,
+      checked: false
     },
     {
       index: -1,
       text: '已删除',
       value: false,
       type: 'processing',
-      checked: false,
-    },
+      checked: false
+    }
   ];
 
   url = 'api/asset/list';
@@ -83,8 +76,8 @@ export class AssetlistComponent implements OnInit {
   res: STRes = {
     reName: {
       total: 'data.total',
-      list: 'data.rows',
-    },
+      list: 'data.rows'
+    }
   };
 
   @ViewChild('st', { static: true })
@@ -92,28 +85,49 @@ export class AssetlistComponent implements OnInit {
 
   TAG: STColumnTag = {
     1: { text: '成功', color: 'red' },
-    2: { text: '进行中', color: 'blue' },
+    2: { text: '进行中', color: 'blue' }
   };
 
   columnsChildren: STColumn[] = [
     { title: 'id', index: 'id' },
-    { title: '字典名', index: 'name' },
-    { title: '字典值', index: 'description' },
-    { title: '备注', index: 'assetType' },
-    { title: '类型', index: 'dictionaryValueTypeName' },
+    { title: '名称', index: 'name' },
+    { title: '描述', index: 'description' },
+    { title: '类型', index: 'assetType' },
+    { title: '键名称', index: 'keyName' },
+    { title: '数据类型', index: 'dataCatalog' },{
+      title: 'OP',
+      buttons: [
+        {
+          text: `Edit`,
+          iif: i => !i.edit,
+          click: i => this.updateEdit(i, true),
+        },
+        {
+          text: `Save`,
+          iif: i => i.edit,
+          click: i => {
+            this.submit(i);
+          },
+        },
+        {
+          text: `Cancel`,
+          iif: i => i.edit,
+          click: i => this.updateEdit(i, false),
+        },
+      ],
+    },
   ];
 
   columns: STColumn[] = [
     { title: '', index: 'id', type: 'checkbox' },
-    { title: 'id', index: 'id', },
+    { title: 'id', index: 'id' },
     {
       title: '资产名称(数量)',
-      index: 'name',
+      index: 'name'
     },
     { title: '类型', index: 'assetType' },
     { title: '描述', index: 'description' },
 
-   
     {
       title: { i18n: 'table.operation' },
       buttons: [
@@ -122,32 +136,8 @@ export class AssetlistComponent implements OnInit {
           i18n: 'common.edit',
           acl: 60,
           click: (item: any) => {
-            this.openComponent(item.dictionaryGroupId);
-            //this._router.navigate(['manage/role/roleform'],
-            //  {
-            //    queryParams: {
-            //      UserId: item.UserId,
-            //      type: 'clone'
-            //    }
-            //  });
-          },
-        },
-        {
-          text: (record) => (record.dictionaryGroupStatus == 1 ? '禁用' : '启用'),
-          pop: {
-            title: '确认修改字典组状态?',
-            okType: 'danger',
-            icon: 'warning',
-          },
-          click: (item: any) => {
-            this.http.get('api/dictionarygroup/setstatus?id=' + item.DictionaryGroupId).subscribe(
-              (x) => {
-                this.getData();
-              },
-              (y) => {},
-              () => {},
-            );
-          },
+            this.openComponent(item.id);
+          }
         },
 
         {
@@ -155,21 +145,21 @@ export class AssetlistComponent implements OnInit {
           pop: {
             title: '确认删除字典组?',
             okType: 'danger',
-            icon: 'warning',
+            icon: 'warning'
           },
           acl: 61,
           click: (item: any) => {
-            this.http.get('api/dictionarygroup/delete?id=' + item.DdictionaryGroupId).subscribe(
-              (x) => {
+            this.http.delete('api/asset/delete?id=' + item.id).subscribe(
+              x => {
                 this.getData();
               },
-              (y) => {},
-              () => {},
+              y => {},
+              () => {}
             );
-          },
-        },
-      ],
-    },
+          }
+        }
+      ]
+    }
   ];
   selectedRows: STData[] = [];
   description = '';
@@ -177,8 +167,14 @@ export class AssetlistComponent implements OnInit {
   expandForm = false;
 
   ngOnInit() {}
+  submit(i){}
+  updateEdit(i,edit){
+    console.log(this.tpl);
+    this.st.setRow(i, { edit }, { refreshSchema: true });
+  }
 
- 
+
+
   openComponent(id: string): void {
     var { nzMaskClosable, width } = this.settingService.getData('drawerconfig');
     var title = id == Guid.EMPTY ? '新增资产' : '修改资产';
@@ -188,13 +184,13 @@ export class AssetlistComponent implements OnInit {
       nzWidth: width,
       nzMaskClosable: nzMaskClosable,
       nzContentParams: {
-        id: id,
-      },
+        id: id
+      }
     });
 
     drawerRef.afterOpen.subscribe(() => {});
 
-    drawerRef.afterClose.subscribe((data) => {
+    drawerRef.afterClose.subscribe(data => {
       if (typeof data === 'string') {
       }
 
@@ -202,7 +198,24 @@ export class AssetlistComponent implements OnInit {
     });
   }
 
-  r;
+  onchange($events: STChange) {
+
+    console.log($events)
+    switch ($events.type) {
+      case 'expand':
+        if ($events.expand.expand) {
+          this.http.get('api/asset/relations?assetid=' + $events.expand.id).subscribe(
+            next => {
+              this.relations = next.data;
+            },
+            error => {},
+            () => {}
+          );
+        }
+
+        break;
+    }
+  }
   getData() {
     this.st.req = this.req;
     this.st.load(this.st.pi);

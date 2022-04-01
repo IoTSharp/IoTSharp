@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
@@ -46,6 +47,22 @@ namespace IoTSharp.Controllers
             });
 
         }
+
+        [HttpGet]
+        public async Task<ApiResult<List<AssetRelation>>> Relations(Guid assetid)
+        {
+
+            var profile = this.GetUserProfile();
+
+            var result= await _context.Assets.Include(c => c.OwnedAssets)
+                .SingleOrDefaultAsync(c => c.Id == assetid && c.Customer.Id == profile.Comstomer && c.Tenant.Id == profile.Tenant);
+            return new ApiResult<List<AssetRelation>>(ApiCode.Success, "OK",
+                new List<AssetRelation>(result?.OwnedAssets??new List<AssetRelation>()));
+
+        }
+
+
+
         [HttpGet]
         public async Task<ApiResult<AssetDto>> Get(Guid id)
         {
@@ -59,7 +76,7 @@ namespace IoTSharp.Controllers
 
         }
 
-        [HttpPost]
+        [HttpPut]
         public async Task<ApiResult<bool>> Update([FromBody] AssetDto dto)
         {
 

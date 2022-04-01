@@ -80,6 +80,7 @@ import { AlarmlistComponent } from './device/alarmlist/alarmlist.component';
 import { AssetlistComponent } from './device/assetlist/assetlist.component';
 import { AssetformComponent } from './device/assetform/assetform.component';
 import { AlarmdetailComponent } from './device/alarmdetail/alarmdetail.component';
+import { ExporttoassetComponent } from './device/exporttoasset/exporttoasset.component';
 
 const COMPONENTS: Array<Type<null>> = [];
 const Directive: Type<void>[] = [fielddirective, controldirective, toolpaneldirective];
@@ -159,7 +160,8 @@ const Directive: Type<void>[] = [fielddirective, controldirective, toolpaneldire
     AlarmlistComponent,
     AssetlistComponent,
     AssetformComponent,
-    AlarmdetailComponent
+    AlarmdetailComponent,
+    ExporttoassetComponent
   ]
 })
 export class RoutesModule {}

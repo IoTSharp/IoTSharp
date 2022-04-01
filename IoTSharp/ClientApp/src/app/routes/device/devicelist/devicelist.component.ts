@@ -21,6 +21,7 @@ import { DevicetokendialogComponent } from '../devicetokendialog/devicetokendial
 import { fork } from 'child_process';
 import { ProppartComponent } from '../deviceprop/proppart/proppart.component';
 import { devicemodelcommand } from '../../devicemodel/devicemodelcommandparam';
+import { ExporttoassetComponent } from '../exporttoasset/exporttoasset.component';
 @Component({
   selector: 'app-devicelist',
   templateUrl: './devicelist.component.html',
@@ -64,7 +65,9 @@ export class DevicelistComponent implements OnInit, OnDestroy {
   page: STPage = {
     front: false,
     total: true,
-    zeroIndexed: true
+    zeroIndexed: true,
+    showSize:true,
+    pageSizes:[10,20,50,100,500]
   };
   q: {
     pi: number;
@@ -226,8 +229,41 @@ export class DevicelistComponent implements OnInit, OnDestroy {
     );
   }
 
-  downlink(dev: any[]) {
+  exporttoasset(dev: any[]) {
     console.log(dev);
+    if (dev.length == 0) {
+      dev = this.st.list.filter(c => c.checked);
+    }
+    var { nzMaskClosable, width } = this.settingService.getData('drawerconfig');
+    let title = '属性修改';
+    const drawerRef = this.drawerService.create<
+    ExporttoassetComponent,
+      {
+        params: {
+          id: string;
+          customerId: string;
+        };
+      },
+      any
+    >({
+      nzTitle: title,
+      nzContent: ExporttoassetComponent,
+      nzWidth: width,
+      nzMaskClosable: nzMaskClosable,
+      nzContentParams: {
+        params: {
+          dev: dev
+        }
+      }
+    });
+    drawerRef.afterOpen.subscribe(() => {
+      this.getData();
+    });
+    drawerRef.afterClose.subscribe(() => {});
+  }
+
+
+  downlink(dev: any[]) {
     if (dev.length == 0) {
       dev = this.st.list.filter(c => c.checked);
     }

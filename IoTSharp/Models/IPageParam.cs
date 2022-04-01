@@ -19,16 +19,20 @@ namespace IoTSharp.Controllers.Models
       
         public string Name { get; set; }
     }
+
+
+
+
     public class AlarmParam : IPageParam
     {
-        public Guid OriginatorId { get; set; }
+        public Guid? OriginatorId { get; set; }
         public int Serverity { get; set; }
         public int AlarmStatus { get; set; }
         public DateTime[] ClearDateTime { get; set; }
         public DateTime[] StartDateTime { get; set; }
-
-
+        public int OriginatorType { get; set; }
         
+
         public DateTime[] EndDateTime { get; set; }
         public DateTime[] AckDateTime { get; set; }
      

@@ -7,7 +7,6 @@ import { NzMessageService } from 'ng-zorro-antd/message';
 import { debounceTime } from 'rxjs/operators';
 import { FloweventviewComponent } from '../floweventview/floweventview.component';
 
-
 @Component({
   selector: 'app-flowevents',
   templateUrl: './flowevents.component.html',
@@ -15,16 +14,15 @@ import { FloweventviewComponent } from '../floweventview/floweventview.component
 })
 export class FloweventsComponent implements OnInit {
   devices: creator[] = [{ id: Guid.EMPTY, name: '测试' }];
-  dateFormat = 'yyyy/MM/dd'
+  dateFormat = 'yyyy/MM/dd';
   TAG: STColumnTag = {
-    'Normal': { text: '设备', color: 'green' },
-    'TestPurpose': { text: '测试', color: 'orange' },
-
+    Normal: { text: '设备', color: 'green' },
+    TestPurpose: { text: '测试', color: 'orange' }
   };
   page: STPage = {
     front: false,
     total: true,
-    zeroIndexed: true,
+    zeroIndexed: true
   };
   q: {
     pi: number;
@@ -37,16 +35,16 @@ export class FloweventsComponent implements OnInit {
     sorter: string;
     status: number | null;
   } = {
-      pi: 0,
-      ps: 10,
-      Name: '',
-      Creator: '',
-      RuleId: '',
-      CreatorName: '',
-      CreatTime: [],
-      sorter: '',
-      status: null,
-    };
+    pi: 0,
+    ps: 10,
+    Name: '',
+    Creator: '',
+    RuleId: '',
+    CreatorName: '',
+    CreatTime: [],
+    sorter: '',
+    status: null
+  };
   total = 0;
 
   loading = false;
@@ -58,8 +56,8 @@ export class FloweventsComponent implements OnInit {
   res: STRes = {
     reName: {
       total: 'data.total',
-      list: 'data.rows',
-    },
+      list: 'data.rows'
+    }
   };
 
   @ViewChild('st', { static: true })
@@ -79,11 +77,10 @@ export class FloweventsComponent implements OnInit {
           text: '回放',
           click: (item: baseevent) => {
             this.openComponent(item);
-          },
-        },
-
-      ],
-    },
+          }
+        }
+      ]
+    }
   ];
   selectedRows: STData[] = [];
   description = '';
@@ -98,33 +95,45 @@ export class FloweventsComponent implements OnInit {
       nzWidth: 1080,
       nzMaskClosable: nzMaskClosable,
       nzContentParams: {
-        event: event,
-      },
+        event: event
+      }
     });
 
-    drawerRef.afterOpen.subscribe(() => { });
+    drawerRef.afterOpen.subscribe(() => {});
 
-    drawerRef.afterClose.subscribe((data) => {
+    drawerRef.afterClose.subscribe(data => {
       this.st.load(this.st.pi);
       if (typeof data === 'string') {
       }
     });
   }
   onInput($event: Event) {
-    var element = $event.target as HTMLInputElement
+    var element = $event.target as HTMLInputElement;
 
-    this.http.get('api/Devices/Customers', {
-      limit: 20,
-      offset: 0,
-      customerId: this.settingService.user.comstomer, name: element?.value ?? ''
-    }).pipe(debounceTime(500)).subscribe(next => {
-      this.devices = [...next.data.rows.map(x => { return { id: x.id, name: x.name } }), { id: Guid.EMPTY, name: '测试' }]
-    }, error => { }, () => { })
-
+    this.http
+      .get('api/Devices/Customers', {
+        limit: 20,
+        offset: 0,
+        customerId: this.settingService.user.comstomer,
+        name: element?.value ?? ''
+      })
+      .pipe(debounceTime(500))
+      .subscribe(
+        next => {
+          this.devices = [
+            ...next.data.rows.map(x => {
+              return { id: x.id, name: x.name };
+            }),
+            { id: Guid.EMPTY, name: '测试' }
+          ];
+        },
+        error => {},
+        () => {}
+      );
   }
 
-  onChange($event){
-this.q.Creator=this.devices.find(c=>c.name==$event)?.id
+  onChange($event) {
+    this.q.Creator = this.devices.find(c => c.name == $event)?.id;
   }
   getData() {
     this.st.req = this.req;
@@ -132,8 +141,7 @@ this.q.Creator=this.devices.find(c=>c.name==$event)?.id
   }
 
   reset() {
-    this.q =
-    {
+    this.q = {
       pi: 0,
       ps: 10,
       Name: '',
@@ -142,25 +150,25 @@ this.q.Creator=this.devices.find(c=>c.name==$event)?.id
       RuleId: '',
       CreatTime: [],
       sorter: '',
-      status: null,
+      status: null
     };
   }
   constructor(
     private http: _HttpClient,
     public msg: NzMessageService,
     private drawerService: NzDrawerService,
-    private settingService: SettingsService,
-
-  ) {
-
-  }
+    private settingService: SettingsService
+  ) {}
 
   ngOnInit(): void {
-    this.http.post('api/rules/index', { offset: 0, limit: 100 }).subscribe(next => {
-      this.rules = next.data.rows;
-    }, error => { }, () => { })
+    this.http.post('api/rules/index', { offset: 0, limit: 100 }).subscribe(
+      next => {
+        this.rules = next.data.rows;
+      },
+      error => {},
+      () => {}
+    );
   }
-
 }
 
 export interface baseevent {
@@ -175,9 +183,7 @@ export interface baseevent {
   ruleId: string;
   createrDateTime: string;
   creatorName: string;
-
 }
-
 
 export interface creator {
   id: string;

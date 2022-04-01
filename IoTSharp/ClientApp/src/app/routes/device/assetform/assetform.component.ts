@@ -13,10 +13,7 @@ import { appmessage } from '../../common/AppMessage';
   styleUrls: ['./assetform.component.less']
 })
 export class AssetformComponent implements OnInit {
-  @Input() params: any = {
-    id: Guid.EMPTY,
-    customerId: '-1',
-  };
+  @Input() id: any = Guid.EMPTY;
   config:any={ language: 'zh_CN', height: 250,}
   title: string = '';
   loading = false;
@@ -38,9 +35,9 @@ export class AssetformComponent implements OnInit {
       id: [Guid.EMPTY, []],
 
     });
-    if (this.params.id !== Guid.EMPTY) {
+    if (this.id !== Guid.EMPTY) {
       concat(
-        this._httpClient.get<appmessage<any>>('api/asset/get/' + this.params.id).pipe(
+        this._httpClient.get<appmessage<any>>('api/asset/get?id=' + this.id).pipe(
           map((x) => {
             this.form.patchValue(x.data)
           }),
@@ -51,7 +48,7 @@ export class AssetformComponent implements OnInit {
 
   submit() {
     this.submitting = true;
-    if (this.params.id == Guid.EMPTY) {
+    if (this.id == Guid.EMPTY) {
       this._httpClient.post('api/asset/save', this.form.value).subscribe(
         () => {
           this.submitting = false;
@@ -65,7 +62,7 @@ export class AssetformComponent implements OnInit {
         () => {},
       );
     } else {
-      this._httpClient.put('api/asset/update' + this.params.id, this.form.value).subscribe(
+      this._httpClient.put('api/asset/update', this.form.value).subscribe(
         () => {
           this.submitting = false;
           this.msg.create('success', '设备修改成功');
@@ -80,6 +77,6 @@ export class AssetformComponent implements OnInit {
     }
   }
   close(): void {
-    this.drawerRef.close(this.params);
+    this.drawerRef.close(this.id);
   }
 }

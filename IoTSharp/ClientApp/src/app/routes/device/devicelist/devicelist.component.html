@@ -25,10 +25,20 @@
     </form>
 
     <div nz-col nzMd="8" nzSm="24">
-     
+      <button nz-button [nzType]="'primary'" (click)="edit('00000000-0000-0000-0000-000000000000')" acl [acl-ability]="137">
+        <i nz-icon nzType="plus"></i>
+        <span>{{ 'button.new' | i18n }}</span>
+      </button>
       <button nz-button [nzType]="'primary'" (click)="downlink([])" acl [acl-ability]="137">
         <i nz-icon nzType="plus"></i>
         <span>设置规则</span>
+      </button>
+
+
+           
+      <button nz-button [nzType]="'primary'" (click)="exporttoasset([])" acl [acl-ability]="137">
+        <i nz-icon nzType="plus"></i>
+        <span>导出到资产</span>
       </button>
     </div>
   </nz-card>
