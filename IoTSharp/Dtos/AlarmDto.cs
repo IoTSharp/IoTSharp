@@ -3,6 +3,31 @@ using IoTSharp.Data;
 
 namespace IoTSharp.Dtos
 {
+    public class CreateAlarmDto
+    {
+        /// <summary>
+        /// 警告类型
+        /// </summary>
+        public string AlarmType { get; set; }
+
+        /// <summary>
+        /// 警告细节描述
+        /// </summary>
+        public string AlarmDetail { get; set; }
+
+        /// <summary>
+        /// 严重成都
+        /// </summary>
+        public ServerityLevel Serverity { get; set; } = ServerityLevel.Indeterminate;
+        /// <summary>
+        /// 起因设备类型
+        /// </summary>
+        public OriginatorType OriginatorType { get;  set; }
+        /// <summary>
+        /// 起因设备的名称或者GUID
+        /// </summary>
+        public string OriginatorName { get;  set; }
+    }
     public class AlarmDto
     {
         public Guid Id { get; set; }

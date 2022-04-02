@@ -224,7 +224,73 @@ namespace IoTSharp.Data
         /// </summary>
         Sum
     }
-
+    [System.Text.Json.Serialization.JsonConverter(typeof(System.Text.Json.Serialization.JsonStringEnumConverter))]
+    [JsonConverter(typeof(StringEnumConverter))]
+    public enum AlarmStatus
+    {
+        /// <summary>
+        /// 激活未应答
+        /// </summary>
+        Active_UnAck = 0,
+        /// <summary>
+        /// 激活已应答
+        /// </summary>
+        Active_Ack,
+        /// <summary>
+        /// 清除未应答
+        /// </summary>
+        Cleared_UnAck,
+        /// <summary>
+        /// 清除已应答
+        /// </summary>
+        Cleared_Act
+    }
+    [System.Text.Json.Serialization.JsonConverter(typeof(System.Text.Json.Serialization.JsonStringEnumConverter))]
+    [JsonConverter(typeof(StringEnumConverter))]
+    public enum ServerityLevel
+    {
+        /// <summary>
+        /// 不确定
+        /// </summary>
+        Indeterminate = 0,
+        /// <summary>
+        /// 警告
+        /// </summary>
+        Warning,
+        /// <summary>
+        /// 次要
+        /// </summary>
+        Minor,
+        /// <summary>
+        /// 重要
+        /// </summary>
+        Major,
+        /// <summary>
+        /// 错误
+        /// </summary>
+        Critical
+    }
+    [System.Text.Json.Serialization.JsonConverter(typeof(System.Text.Json.Serialization.JsonStringEnumConverter))]
+    [JsonConverter(typeof(StringEnumConverter))]
+    public enum OriginatorType
+    {
+        /// <summary>
+        /// 未知
+        /// </summary>
+        Unknow,
+        /// <summary>
+        /// 设备
+        /// </summary>
+        Device,
+        /// <summary>
+        /// 网关
+        /// </summary>
+        Gateway,
+        /// <summary>
+        /// 资产
+        /// </summary>
+        Asset
+    }
 
 
 }

@@ -24,10 +24,66 @@ namespace IoTSharp.Controllers
     {
 
         private readonly ApplicationDbContext _context;
+        private readonly UserProfile profile;
 
         public AlarmController(ApplicationDbContext context)
         {
             _context = context;
+             profile = this.GetUserProfile();
+        }
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="dto"></param>
+        /// <returns></returns>
+        [HttpPost]
+        public async Task<ApiResult> Occurred([FromBody] CreateAlarmDto dto)
+        {
+            var result = new ApiResult();
+            try
+            {
+                var alarm = new Alarm
+                {
+                    Id = Guid.NewGuid(),
+                    AckDateTime = DateTime.Now,
+                    AlarmDetail = dto.AlarmDetail,
+                    AlarmStatus = AlarmStatus.Active_UnAck,
+                    AlarmType = dto.AlarmType,
+                    ClearDateTime = new DateTime(1970, 1, 1),
+                    EndDateTime = new DateTime(1970, 1, 1),
+                    Propagate = true,
+                    Serverity = dto.Serverity,
+                    StartDateTime = DateTime.Now,
+                    OriginatorType = dto.OriginatorType
+                };
+                var oname = dto.OriginatorName;
+                Guid originator = Guid.Empty;
+                switch (dto.OriginatorType)
+                {
+                    case OriginatorType.Device:
+                        originator = _context.Device.FirstOrDefault(d => d.Id.ToString() == oname || d.Name == oname)?.Id ?? Guid.Empty;
+                        break;
+                    case OriginatorType.Gateway:
+                        originator = _context.Gateway.FirstOrDefault(d => d.Id.ToString() == oname || d.Name == oname)?.Id ?? Guid.Empty;
+                        break;
+                    case OriginatorType.Asset:
+                        originator = _context.Assets.FirstOrDefault(d => d.Id.ToString() == oname || d.Name == oname)?.Id ?? Guid.Empty;
+                        break;
+                    case OriginatorType.Unknow:
+                    default:
+                        break;
+                }
+                alarm.OriginatorId = originator;
+                _context.JustFill(this, alarm);
+                _context.Alarms.Add(alarm);
+                int ret = await _context.SaveChangesAsync();
+                result = new ApiResult(ret > 0 ? ApiCode.Success : ApiCode.NothingToDo, ret > 0 ? "OK" : "No data");
+            }
+            catch (Exception ex)
+            {
+                result = new ApiResult(ApiCode.Exception, ex.Message);
+            }
+            return result;
         }
 
         [HttpPost]
@@ -35,7 +91,7 @@ namespace IoTSharp.Controllers
         {
 
 
-            var profile = this.GetUserProfile();
+       
 
             Expression<Func<Alarm, bool>> condition = x =>
                 x.Customer.Id == profile.Comstomer && x.Tenant.Id == profile.Tenant;
