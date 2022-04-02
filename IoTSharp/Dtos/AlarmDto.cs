@@ -1,13 +1,20 @@
-﻿using System;
-using IoTSharp.Data;
+﻿using IoTSharp.Data;
+using System;
 
 namespace IoTSharp.Dtos
 {
-    public class CreateAlarmDto
+    public class DeviceAlarmDto
     {
+        /// <summary>
+        /// 起因设备的名称或者GUID
+        /// </summary>
+        [Newtonsoft.Json.JsonRequired]
+        public string OriginatorName { get; set; }
+
         /// <summary>
         /// 警告类型
         /// </summary>
+        [Newtonsoft.Json.JsonRequired]
         public string AlarmType { get; set; }
 
         /// <summary>
@@ -19,15 +26,16 @@ namespace IoTSharp.Dtos
         /// 严重成都
         /// </summary>
         public ServerityLevel Serverity { get; set; } = ServerityLevel.Indeterminate;
+    }
+
+    public class CreateAlarmDto : DeviceAlarmDto
+    {
         /// <summary>
         /// 起因设备类型
         /// </summary>
-        public OriginatorType OriginatorType { get;  set; }
-        /// <summary>
-        /// 起因设备的名称或者GUID
-        /// </summary>
-        public string OriginatorName { get;  set; }
+        public OriginatorType OriginatorType { get; set; }
     }
+
     public class AlarmDto
     {
         public Guid Id { get; set; }
@@ -86,8 +94,6 @@ namespace IoTSharp.Dtos
         /// 起因设备类型
         /// </summary>
         public OriginatorType OriginatorType { get; set; }
-
-        /// <summary>
     }
 
     public class AssetDto
@@ -101,10 +107,12 @@ namespace IoTSharp.Dtos
     public class AssetRelationDto
     {
         public Guid Id { get; set; }
+
         /// <summary>
         /// 列名
         /// </summary>
         public string Name { get; set; }
+
         /// <summary>
         /// 描述
         /// </summary>
@@ -114,14 +122,15 @@ namespace IoTSharp.Dtos
         /// 设备Id
         /// </summary>
         public Guid DeviceId { get; set; }
+
         /// <summary>
         /// 数据类型， 是遥测， 还是属性
         /// </summary>
         public DataCatalog DataCatalog { get; set; }
+
         /// <summary>
         /// 对应的键名称
         /// </summary>
         public string KeyName { get; set; }
-
     }
 }

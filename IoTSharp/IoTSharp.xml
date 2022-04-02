@@ -137,6 +137,13 @@
             </summary>
             <returns></returns>
         </member>
+        <member name="M:IoTSharp.Controllers.AlarmController.Occurred(IoTSharp.Dtos.CreateAlarmDto)">
+             <summary>
+            
+             </summary>
+             <param name="dto"></param>
+             <returns></returns>
+        </member>
         <member name="T:IoTSharp.Controllers.AuthorizedKeysController">
             <summary>
             全局设备认证KEY管理
@@ -393,6 +400,15 @@
             <param name="attributes">attributes</param>
             <returns></returns>
         </member>
+        <member name="M:IoTSharp.Controllers.DevicesController.Alarm(System.String,IoTSharp.Dtos.DeviceAlarmDto)">
+            <summary>
+            为网关的子设备或者普通设备上传告警信息
+            </summary>
+            <param name="access_token">token</param>
+            <param name="alarm">警告内容</param>
+            <returns></returns>
+            <remarks>如果是网关设备，当OriginatorName为网关的名称或者ID时，则我们认为他是网关本身的警告，否则我们认为是设备的警告</remarks>
+        </member>
         <member name="M:IoTSharp.Controllers.DevicesController.PushDataToMap(System.String,System.String)">
             <summary>
             上传原始Json或者xml 通过规则链进行解析。 
@@ -625,6 +641,31 @@
         <member name="P:IoTSharp.Dtos.RegisterDto.Password">
             <summary>
             用户名密码
+            </summary>
+        </member>
+        <member name="P:IoTSharp.Dtos.DeviceAlarmDto.OriginatorName">
+            <summary>
+            起因设备的名称或者GUID
+            </summary>
+        </member>
+        <member name="P:IoTSharp.Dtos.DeviceAlarmDto.AlarmType">
+            <summary>
+            警告类型
+            </summary>
+        </member>
+        <member name="P:IoTSharp.Dtos.DeviceAlarmDto.AlarmDetail">
+            <summary>
+            警告细节描述
+            </summary>
+        </member>
+        <member name="P:IoTSharp.Dtos.DeviceAlarmDto.Serverity">
+            <summary>
+            严重成都
+            </summary>
+        </member>
+        <member name="P:IoTSharp.Dtos.CreateAlarmDto.OriginatorType">
+            <summary>
+            起因设备类型
             </summary>
         </member>
         <member name="P:IoTSharp.Dtos.AlarmDto.AlarmType">

@@ -17,6 +17,13 @@ namespace IoTSharp.Extensions
 {
     public static class DataExtension
     {
+        internal static (bool ok, Device device) GetDeviceByTokenWithTenantCustomer(this ApplicationDbContext _context, string access_token)
+        {
+            var deviceIdentity = from id in _context.DeviceIdentities.Include(di => di.Device) where id.IdentityId == access_token && id.IdentityType == IdentityType.AccessToken select id;
+            var devices = from dev in _context.Device.Include(g=>g.Customer).Include(g=>g.Tenant)  where deviceIdentity.Any() && dev.Id == deviceIdentity.FirstOrDefault().Device.Id select dev;
+            bool ok = deviceIdentity == null || !devices.Any();
+            return (ok, devices.FirstOrDefault());
+        }
         internal static (bool ok, Device device) GetDeviceByToken(this ApplicationDbContext _context, string access_token)
         {
             var deviceIdentity = from id in _context.DeviceIdentities.Include(di => di.Device) where id.IdentityId == access_token && id.IdentityType == IdentityType.AccessToken select id;

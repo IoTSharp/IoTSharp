@@ -666,10 +666,6 @@ namespace IoTSharp.Controllers
                 Timeout = device.Timeout,
                 LastActive = DateTime.Now,
                 Status = 1,
-                //   DeviceModel = _context.DeviceModels.FirstOrDefault(c => c.DeviceModelId == device.DeviceModelId),
-                //CreateDate = DateTime.Today,
-                //CreateMonth =DateTime.Now.ToString("yyyy-MM"),
-                //CreateDateTime = DateTime.Now
             };
             devvalue.Tenant = _context.Tenant.Find(new Guid(tid.Value));
             devvalue.Customer = _context.Customer.Find(new Guid(cid.Value));
@@ -710,8 +706,8 @@ namespace IoTSharp.Controllers
             {
                 return new ApiResult<Device>(ApiCode.NotFoundTenantOrCustomer, "Device {id} not found", null);
             }
-
             device.Status = -1;
+            device.Name = $"DELETED_{device.Name}";
             _context.Device.Update(device);
             await _context.SaveChangesAsync();
             return new ApiResult<Device>(ApiCode.Success, "Ok", device);
@@ -877,7 +873,70 @@ namespace IoTSharp.Controllers
                 return Ok(new ApiResult<Dic>(result.ret > 0 ? ApiCode.Success : ApiCode.NothingToDo, result.ret > 0 ? "OK" : "No Attribute save", new Dic(result.exceptions?.Select(f => new DicKV(f.Key, f.Value.Message)))));
             }
         }
+        /// <summary>
+        /// 为网关的子设备或者普通设备上传告警信息
+        /// </summary>
+        /// <param name="access_token">token</param>
+        /// <param name="alarm">警告内容</param>
+        /// <returns></returns>
+        /// <remarks>如果是网关设备，当OriginatorName为网关的名称或者ID时，则我们认为他是网关本身的警告，否则我们认为是设备的警告</remarks>
+        [AllowAnonymous]
+        [HttpPost("{access_token}/Alarm")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ApiResult<Dic>), StatusCodes.Status404NotFound)]
+        [ProducesDefaultResponseType]
+        public async Task<ActionResult<ApiResult>> Alarm(string access_token, DeviceAlarmDto alarm)
+        {
+            var (ok, dev) = _context.GetDeviceByTokenWithTenantCustomer(access_token);
+            
+            if (ok)
+            {
+                return Ok(new ApiResult<Dic>(ApiCode.NotFoundDevice, $"{access_token} not a device's access token", new Dic(new DicKV[] { new DicKV("access_token", access_token) })));
+            }
+            else
+            {
+                try
+                {
+                    var cad = new CreateAlarmDto() { AlarmDetail = alarm.AlarmDetail, AlarmType = alarm.AlarmType, Serverity = alarm.Serverity, OriginatorName = alarm.OriginatorName };
+                    Guid OriginatorId = Guid.Empty;
+                    OriginatorType originatorType = OriginatorType.Unknow;
+                    if (dev.DeviceType == DeviceType.Gateway)
+                    {
+                        if (dev.Id.ToString() != alarm.OriginatorName && dev.Name != alarm.OriginatorName)
+                        {
+                            var subdev = from g in _context.Device.Include(g => g.Owner) where g.Owner == dev && g.Name == alarm.OriginatorName select g;
+                            var orig = await subdev.FirstOrDefaultAsync();
+                            OriginatorId = orig.Id;
+                            originatorType = OriginatorType.Device;
+                        }
+                        else
+                        {
+                            originatorType = OriginatorType.Gateway;
+                            OriginatorId = dev.Id;
+                        }
+                    }
+                    else if (dev.DeviceType == DeviceType.Device)
+                    {
+                        originatorType = OriginatorType.Device;
+                        OriginatorId = dev.Id;
+                    }
+                    var result = await this.OccurredAlarm(_context, cad, _alarm =>
+                    {
+                        _alarm.OriginatorType = originatorType;
+                        _alarm.OriginatorId = OriginatorId;
+                        _alarm.Tenant = dev.Tenant;
+                        _alarm.Customer = dev.Customer;
+                    });
+                    return Ok(result);
+                }
+                catch (Exception ex)
+                {
 
+                    return Ok(new ApiResult(ApiCode.Exception, $"检查参数是否为空{ex.Message}"));
+                }
+           
+            }
+        }
         /// <summary>
         /// 上传原始Json或者xml 通过规则链进行解析。 
         /// </summary>
