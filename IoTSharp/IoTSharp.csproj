@@ -115,7 +115,7 @@
 		<PackageReference Include="SkiaSharp.NativeAssets.Linux.NoDependencies" Version="2.80.3" />
 		<PackageReference Include="System.CodeDom" Version="6.0.0" />
 		<PackageReference Include="System.Collections" Version="4.3.0" />
-		<PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="6.16.0" />
+		<PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="6.17.0" />
 		<PackageReference Include="System.ServiceModel.Primitives" Version="4.9.0" />
 		<PackageReference Include="System.Text.Encoding.CodePages" Version="6.0.0" />
 		<PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="6.0.3" />
