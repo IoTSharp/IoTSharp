@@ -167,8 +167,6 @@
 		<None Remove="Migrations\**" />
 
 		<None Remove="Resources\images\**" />
-		<Content Remove="wwwroot\lib\jquery-validation-unobtrusive\LICENSE.txt" />
-		<Content Remove="wwwroot\lib\jquery\LICENSE.txt" />
 		<None Remove=".gitignore" />
 		<None Remove="ca.crt" />
 		<None Remove="ca.key" />
@@ -185,8 +183,6 @@
 			<Pack>True</Pack>
 			<PackagePath></PackagePath>
 		</None>
-		<None Include="wwwroot\fonts\fontawesome-webfont.svg" />
-		<None Include="wwwroot\fonts\glyphicons-halflings-regular.woff2" />
 	</ItemGroup>
 
 
