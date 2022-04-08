@@ -43,7 +43,7 @@ namespace IoTSharp.Handlers
             _flowRuleProcessor = flowRuleProcessor;
             _caching = factory.GetCachingProvider("iotsharp");
         }
-        Dictionary<Guid, DateTime> _check_device_status = new();
+
         [CapSubscribe("iotsharp.services.datastream.attributedata")]
         public async void StoreAttributeData(RawMsg msg)
         {
@@ -122,18 +122,28 @@ namespace IoTSharp.Handlers
       
         }
 
-        [CapSubscribe("iotsharp.services.platform.addnewdevice")]
-        public void AddedNewDevice(Device msg)
+        [CapSubscribe("iotsharp.services.datastream.alarm")]
+        public async void OccurredAlarm(CreateAlarmDto alarmDto)
         {
-
-            using (var _scope = _scopeFactor.CreateScope())
+            try
             {
-                using (var _dbContext = _scope.ServiceProvider.GetRequiredService<ApplicationDbContext>())
+                using (var _scope = _scopeFactor.CreateScope())
                 {
-
+                    using (var _dbContext = _scope.ServiceProvider.GetRequiredService<ApplicationDbContext>())
+                    {
+                        var alm = await _dbContext.OccurredAlarm(alarmDto);
+                        await RunRules(alm.Data.OriginatorId, alarmDto, MountType.Alarm);
+                    }
                 }
             }
-        } 
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"处理{alarmDto.OriginatorName} 的告警{alarmDto.AlarmType} 时遇到异常:{ex.Message}");
+
+            }
+        }
+
+
         [CapSubscribe("iotsharp.services.datastream.devicestatus")]
         public void DeviceStatus( RawMsg status)
         {

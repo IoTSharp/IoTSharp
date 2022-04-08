@@ -151,6 +151,11 @@ namespace IoTSharp.Handlers
                                     await ExecFlowRules(e, _dev.DeviceType == DeviceType.Gateway ? device : _dev, tpary[4], MountType.RPC);//完善后改成 RPC 
                                 }
                             }
+                            else if (tpary[2] == "alarm")
+                            {
+                               var dto=  Newtonsoft.Json.JsonConvert.DeserializeObject<Dtos.CreateAlarmDto>(e.ApplicationMessage.ConvertPayloadToString());
+                                _queue.PublishDeviceAlarm(dto);
+                            }
                             else
                             {
                                 await ExecFlowRules(e, _dev.DeviceType == DeviceType.Gateway ? device : _dev, MountType.RAW);//如果是网关

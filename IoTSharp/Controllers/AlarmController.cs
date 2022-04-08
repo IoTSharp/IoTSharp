@@ -14,6 +14,9 @@ using System.Threading.Tasks;
 
 namespace IoTSharp.Controllers
 {
+    /// <summary>
+    /// 告警管理
+    /// </summary>
     [Route("api/[controller]/[action]")]
     [ApiController]
     public class AlarmController : ControllerBase
@@ -26,40 +29,45 @@ namespace IoTSharp.Controllers
         }
 
         /// <summary>
-        ///
+        /// 创建告警， 但不触发规则链。要触发规则链， 请使用设备相关的API
         /// </summary>
-        /// <param name="dto"></param>
+        /// <param name="dto">告警内容</param>
         /// <returns></returns>
         [HttpPost]
         public async Task<ApiResult> Occurred([FromBody] CreateAlarmDto dto)
         {
             var oname = dto.OriginatorName;
-            return await this.OccurredAlarm(_context, dto, _alarm =>
-            {
-                Guid originator = Guid.Empty;
-                switch (dto.OriginatorType)
-                {
-                    case OriginatorType.Device:
-                        originator = _context.Device.FirstOrDefault(d => d.Id.ToString() == oname || d.Name == oname)?.Id ?? Guid.Empty;
-                        break;
+            return await _context.OccurredAlarm(dto, _alarm =>
+           {
+               Guid originator = Guid.Empty;
+               switch (dto.OriginatorType)
+               {
+                   case OriginatorType.Device:
+                       originator = _context.Device.FirstOrDefault(d => d.Id.ToString() == oname || d.Name == oname)?.Id ?? Guid.Empty;
+                       break;
 
-                    case OriginatorType.Gateway:
-                        originator = _context.Gateway.FirstOrDefault(d => d.Id.ToString() == oname || d.Name == oname)?.Id ?? Guid.Empty;
-                        break;
+                   case OriginatorType.Gateway:
+                       originator = _context.Gateway.FirstOrDefault(d => d.Id.ToString() == oname || d.Name == oname)?.Id ?? Guid.Empty;
+                       break;
 
-                    case OriginatorType.Asset:
-                        originator = _context.Assets.FirstOrDefault(d => d.Id.ToString() == oname || d.Name == oname)?.Id ?? Guid.Empty;
-                        break;
+                   case OriginatorType.Asset:
+                       originator = _context.Assets.FirstOrDefault(d => d.Id.ToString() == oname || d.Name == oname)?.Id ?? Guid.Empty;
+                       break;
 
-                    case OriginatorType.Unknow:
-                    default:
-                        break;
-                }
-                _alarm.OriginatorId = originator;
-                _context.JustFill(this, _alarm);
-            });
+                   case OriginatorType.Unknow:
+                   default:
+                       break;
+               }
+               _alarm.OriginatorId = originator;
+               _context.JustFill(this, _alarm);
+           });
         }
 
+        /// <summary>
+        /// 查询告警信息
+        /// </summary>
+        /// <param name="m"></param>
+        /// <returns></returns>
         [HttpPost]
         public async Task<ApiResult<PagedData<AlarmDto>>> List([FromBody] AlarmParam m)
         {
@@ -139,6 +147,11 @@ namespace IoTSharp.Controllers
             });
         }
 
+        /// <summary>
+        /// 搜索告警信息
+        /// </summary>
+        /// <param name="m"></param>
+        /// <returns></returns>
         [HttpPost]
         public async Task<ApiResult<List<ModelOriginatorItem>>> Originators([FromBody] ModelOriginatorSearch m)
         {
@@ -148,14 +161,14 @@ namespace IoTSharp.Controllers
                 case OriginatorType.Unknow:
                 default:
                 case OriginatorType.Device:
-                    return new ApiResult<List<ModelOriginatorItem>>(ApiCode.Success, "OK", await _context.Device.Where(c =>  c.Name.Contains(m.OriginatorName) && c.DeviceType == DeviceType.Device && c.Customer.Id == profile.Comstomer && c.Tenant.Id == profile.Tenant)
+                    return new ApiResult<List<ModelOriginatorItem>>(ApiCode.Success, "OK", await _context.Device.Where(c => c.Name.Contains(m.OriginatorName) && c.DeviceType == DeviceType.Device && c.Customer.Id == profile.Comstomer && c.Tenant.Id == profile.Tenant)
                         .Select(c => new ModelOriginatorItem { Id = c.Id, Name = c.Name }).ToListAsync());
 
                 case OriginatorType.Gateway:
-                    return new ApiResult<List<ModelOriginatorItem>>(ApiCode.Success, "OK", await _context.Device.Where(c =>  c.Name.Contains(m.OriginatorName) && c.DeviceType == DeviceType.Gateway && c.DeviceType == DeviceType.Device && c.Customer.Id == profile.Comstomer && c.Tenant.Id == profile.Tenant)
+                    return new ApiResult<List<ModelOriginatorItem>>(ApiCode.Success, "OK", await _context.Device.Where(c => c.Name.Contains(m.OriginatorName) && c.DeviceType == DeviceType.Gateway && c.DeviceType == DeviceType.Device && c.Customer.Id == profile.Comstomer && c.Tenant.Id == profile.Tenant)
                         .Select(c => new ModelOriginatorItem { Id = c.Id, Name = c.Name }).ToListAsync()); ;
                 case OriginatorType.Asset:
-                    return new ApiResult<List<ModelOriginatorItem>>(ApiCode.Success, "OK", await _context.Assets.Where(c =>  c.Name.Contains(m.OriginatorName) && c.Customer.Id == profile.Comstomer && c.Tenant.Id == profile.Tenant).Select(c => new ModelOriginatorItem { Id = c.Id, Name = c.Name }).ToListAsync());
+                    return new ApiResult<List<ModelOriginatorItem>>(ApiCode.Success, "OK", await _context.Assets.Where(c => c.Name.Contains(m.OriginatorName) && c.Customer.Id == profile.Comstomer && c.Tenant.Id == profile.Tenant).Select(c => new ModelOriginatorItem { Id = c.Id, Name = c.Name }).ToListAsync());
             }
         }
     }

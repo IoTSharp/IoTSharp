@@ -121,6 +121,7 @@ namespace IoTSharp.Data
     {
         Attributes,
         Telemetry,
+        Alarm
     }
     [System.Text.Json.Serialization.JsonConverter(typeof(System.Text.Json.Serialization.JsonStringEnumConverter))]
     [JsonConverter(typeof(StringEnumConverter))]
@@ -183,6 +184,10 @@ namespace IoTSharp.Data
         /// 遥测数据， key value type datetime 
         /// </summary>
         TelemetryArray = 6,
+        /// <summary>
+        /// 告警挂载点
+        /// </summary>
+        Alarm = 7,
     }
     /// <summary>
     /// 折叠数据

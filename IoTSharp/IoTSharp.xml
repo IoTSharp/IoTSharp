@@ -137,12 +137,31 @@
             </summary>
             <returns></returns>
         </member>
+        <member name="T:IoTSharp.Controllers.AlarmController">
+            <summary>
+            告警管理
+            </summary>
+        </member>
         <member name="M:IoTSharp.Controllers.AlarmController.Occurred(IoTSharp.Dtos.CreateAlarmDto)">
-             <summary>
-            
-             </summary>
-             <param name="dto"></param>
-             <returns></returns>
+            <summary>
+            创建告警， 但不触发规则链。要触发规则链， 请使用设备相关的API
+            </summary>
+            <param name="dto">告警内容</param>
+            <returns></returns>
+        </member>
+        <member name="M:IoTSharp.Controllers.AlarmController.List(IoTSharp.Controllers.Models.AlarmParam)">
+            <summary>
+            查询告警信息
+            </summary>
+            <param name="m"></param>
+            <returns></returns>
+        </member>
+        <member name="M:IoTSharp.Controllers.AlarmController.Originators(IoTSharp.Models.ModelOriginatorSearch)">
+            <summary>
+            搜索告警信息
+            </summary>
+            <param name="m"></param>
+            <returns></returns>
         </member>
         <member name="T:IoTSharp.Controllers.AuthorizedKeysController">
             <summary>

@@ -885,10 +885,10 @@ namespace IoTSharp.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ApiResult<Dic>), StatusCodes.Status404NotFound)]
         [ProducesDefaultResponseType]
-        public async Task<ActionResult<ApiResult>> Alarm(string access_token, DeviceAlarmDto alarm)
+        public ActionResult<ApiResult> Alarm(string access_token, DeviceAlarmDto alarm)
         {
             var (ok, dev) = _context.GetDeviceByTokenWithTenantCustomer(access_token);
-            
+
             if (ok)
             {
                 return Ok(new ApiResult<Dic>(ApiCode.NotFoundDevice, $"{access_token} not a device's access token", new Dic(new DicKV[] { new DicKV("access_token", access_token) })));
@@ -897,44 +897,22 @@ namespace IoTSharp.Controllers
             {
                 try
                 {
-                    var cad = new CreateAlarmDto() { AlarmDetail = alarm.AlarmDetail, AlarmType = alarm.AlarmType, Serverity = alarm.Serverity, OriginatorName = alarm.OriginatorName };
-                    Guid OriginatorId = Guid.Empty;
-                    OriginatorType originatorType = OriginatorType.Unknow;
-                    if (dev.DeviceType == DeviceType.Gateway)
+                    var cad = new CreateAlarmDto()
                     {
-                        if (dev.Id.ToString() != alarm.OriginatorName && dev.Name != alarm.OriginatorName)
-                        {
-                            var subdev = from g in _context.Device.Include(g => g.Owner) where g.Owner == dev && g.Name == alarm.OriginatorName select g;
-                            var orig = await subdev.FirstOrDefaultAsync();
-                            OriginatorId = orig.Id;
-                            originatorType = OriginatorType.Device;
-                        }
-                        else
-                        {
-                            originatorType = OriginatorType.Gateway;
-                            OriginatorId = dev.Id;
-                        }
-                    }
-                    else if (dev.DeviceType == DeviceType.Device)
-                    {
-                        originatorType = OriginatorType.Device;
-                        OriginatorId = dev.Id;
-                    }
-                    var result = await this.OccurredAlarm(_context, cad, _alarm =>
-                    {
-                        _alarm.OriginatorType = originatorType;
-                        _alarm.OriginatorId = OriginatorId;
-                        _alarm.Tenant = dev.Tenant;
-                        _alarm.Customer = dev.Customer;
-                    });
-                    return Ok(result);
+                        AlarmDetail = alarm.AlarmDetail,
+                        AlarmType = alarm.AlarmType,
+                        OriginatorName = alarm.OriginatorName,
+                        OriginatorType = dev.DeviceType == DeviceType.Gateway ? OriginatorType.Gateway : OriginatorType.Device,
+                        Serverity = alarm.Serverity
+                    };
+                    _queue.PublishDeviceAlarm(cad);
+                    return Ok(new ApiResult());
                 }
                 catch (Exception ex)
                 {
-
                     return Ok(new ApiResult(ApiCode.Exception, $"检查参数是否为空{ex.Message}"));
                 }
-           
+
             }
         }
         /// <summary>
