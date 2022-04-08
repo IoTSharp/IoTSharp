@@ -16,7 +16,7 @@
 		<PackageReference Include="Microsoft.Extensions.Diagnostics.HealthChecks" Version="6.0.3" />
 		<PackageReference Include="Npgsql" Version="6.0.3" />
 		<PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="6.0.3" />
-		<PackageReference Include="EFCore.Sharding.PostgreSql" Version="6.0.2" />
+		<PackageReference Include="EFCore.Sharding.PostgreSql" Version="6.0.3" />
 		<PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL.NetTopologySuite" Version="6.0.3" />
 		<PackageReference Include="Npgsql.Json.NET" Version="6.0.3" />
 		<PackageReference Include="Npgsql.NodaTime" Version="6.0.3" />

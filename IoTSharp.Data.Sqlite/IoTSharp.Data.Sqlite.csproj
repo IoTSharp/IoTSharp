@@ -14,7 +14,7 @@
 		</PackageReference>
 		<PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="6.0.3" />
 		<PackageReference Include="Microsoft.Extensions.Diagnostics.HealthChecks" Version="6.0.3" />
-		<PackageReference Include="EFCore.Sharding.SQLite" Version="6.0.2" />
+		<PackageReference Include="EFCore.Sharding.SQLite" Version="6.0.3" />
 	</ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\IoTSharp.Data\IoTSharp.Data.csproj" />
