@@ -1,37 +1,32 @@
-/**
- * For more configuration, please refer to https://angular.io/guide/build#proxying-to-a-backend-server
- *
- * 更多配置描述请参考 https://angular.cn/guide/build#proxying-to-a-backend-server
- *
- * Note: The proxy is only valid for real requests, Mock does not actually generate requests, so the priority of Mock will be higher than the proxy
- */
-module.exports = {
-  /**
-   * The following means that all requests are directed to the backend `https://localhost:9000/`
-   */
-  // '/': {
-  //   target: 'https://localhost:9000/',
-  //   secure: false, // Ignore invalid SSL certificates
-  //   changeOrigin: true
-  // }
+const { env } = require('process');
 
-  "/api/*": {
-    "target": "http://localhost:5000",
-    "secure": false,
-    "logLevel": "debug",
-    "changeOrigin": true
-  },
-  "/healthchecks-api": {
-    "target": "http://localhost:5000",
-    "secure": false,
-    "logLevel": "debug",
-    "changeOrigin": true
-  },
-  "/cap/api/*": {
-    "target": "http://localhost:5000",
-    "secure": false,
-    "logLevel": "debug",
-    "changeOrigin": true
+const target = env.ASPNETCORE_HTTP_PORT ? `http://localhost:${env.ASPNETCORE_HTTP_PORT}` :
+  env.ASPNETCORE_URLS ? env.ASPNETCORE_URLS.split(';')[0] : 'http://localhost:5000';
+
+const PROXY_CONFIG = [
+  {
+    context: [
+      "/_configuration",
+      "/.well-known",
+      "/Identity",
+      "/connect",
+      "/ApplyDatabaseMigrations",
+      "/_framework",
+      "/swagger",
+      "/quartz",
+      "/cap",
+      "/rin",
+      "/healthchecks-ui",
+      "/api"
+    ],
+    target: target,
+    secure: false,
+    headers: {
+      Connection: 'Keep-Alive'
+    }
   }
+]
 
-};
+module.exports = PROXY_CONFIG;
+
+
