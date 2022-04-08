@@ -31,7 +31,9 @@ namespace IoTSharp
         PostgreSql,
         MongoDB,
         InMemory,
-        LiteDB
+        LiteDB,
+        MySql,
+        SqlServer
     }
     [JsonConverter(typeof(StringEnumConverter))]
     public enum EventBusMQ
@@ -39,7 +41,12 @@ namespace IoTSharp
         RabbitMQ,
         Kafka,
         InMemory,
-        ZeroMQ
+        ZeroMQ,
+        NATS,
+        Pulsar,
+        RedisStreams,
+        AmazonSQS,
+        AzureServiceBus
     }
     [JsonConverter(typeof(StringEnumConverter))]
     public enum CachingUseIn

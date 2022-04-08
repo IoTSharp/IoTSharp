@@ -43,7 +43,7 @@ using System.Reflection;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using Jdenticon;
-
+using static Amazon.Internal.RegionEndpointProviderV2;
 
 namespace IoTSharp
 {
@@ -320,7 +320,12 @@ namespace IoTSharp
                     case EventBusStore.LiteDB:
                         x.UseLiteDBStorage(Configuration.GetConnectionString("EventBusStore"));
                         break;
-
+                    case EventBusStore.MySql:
+                        x.UseMySql(Configuration.GetConnectionString("EventBusStore"));
+                        break;
+                    case EventBusStore.SqlServer:
+                        x.UseSqlServer(Configuration.GetConnectionString("EventBusStore"));
+                        break;
                     case EventBusStore.InMemory:
                     default:
                         x.UseInMemoryStorage();
@@ -366,7 +371,30 @@ namespace IoTSharp
                             cfg.Pattern = MaiKeBing.CAP.NetMQPattern.PushPull;
                         });
                         break;
-
+                    case EventBusMQ.AzureServiceBus:
+                        x.UseAzureServiceBus(Configuration.GetConnectionString("EventBusMQ"));
+                        break;
+                    case EventBusMQ.AmazonSQS:
+                        x.UseAmazonSQS(opts =>
+                        {
+                            var uri = new Uri(Configuration.GetConnectionString("EventBusMQ"));
+                            if (!string.IsNullOrEmpty(uri.UserInfo) && uri.UserInfo?.Split(':').Length==2)
+                            {
+                                var userinfo = uri.UserInfo.Split(':');
+                                opts.Credentials = new Amazon.Runtime.BasicAWSCredentials(userinfo[0], userinfo[1]);
+                            }
+                            opts.Region = Amazon.RegionEndpoint.GetBySystemName(uri.Host);
+                        });
+                        break;
+                    case EventBusMQ.RedisStreams:
+                        x.UseRedis(Configuration.GetConnectionString("EventBusMQ"));
+                        break;
+                    case EventBusMQ.NATS:
+                        x.UseNATS(Configuration.GetConnectionString("EventBusMQ"));
+                        break;
+                    case EventBusMQ.Pulsar:
+                        x.UsePulsar(Configuration.GetConnectionString("EventBusMQ"));
+                        break;
                     case EventBusMQ.InMemory:
                     default:
                         x.UseInMemoryMessageQueue();

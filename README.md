@@ -29,6 +29,27 @@ IoTSharp is an open-source IoT platform for data collection, processing, visuali
  *  [SQLServer](IoTSharp/appsettings.SQLServer.json)  Microsoft SQL Server 2016 (RTM-GDR) (KB4019088) - 13.0.1742.0 (X64)   ,Support for  sharding
  *  [Sqlite](IoTSharp/appsettings.Sqlite.json) Support for  sharding
 
+## What EventBus Message Queue  are supported?
+
+ *  RabbitMQ
+ *  Kafka 
+ *	InMemory 
+ *	ZeroMQ 
+ *	NATS 
+ *	Pulsar 
+ *	RedisStreams 
+ *	AmazonSQS 
+ *	AzureServiceBus 
+
+## What EventBus Store are supported?
+* PostgreSql,
+* MongoDB,
+* InMemory,
+* LiteDB,
+* MySql,
+* SqlServer
+
+
 ##  IoTSharp online  
   https://cloud.iotsharp.net/
 
@@ -98,7 +119,6 @@ IoTSharp's ecosystem
 - MaiKeBing.CAP.LiteDB  [![MaiKeBing.CAP.LiteDB](https://img.shields.io/nuget/v/MaiKeBing.CAP.LiteDB.svg)](https://www.nuget.org/packages/MaiKeBing.CAP.LiteDB/)
 - MaiKeBing.HostedService.ZeroMQ  [![MaiKeBing.HostedService.ZeroMQ](https://img.shields.io/nuget/v/MaiKeBing.HostedService.ZeroMQ.svg)](https://www.nuget.org/packages/MaiKeBing.HostedService.ZeroMQ/)
 - IoTSharp.X509Extensions  [![IoTSharp.X509Extensions](https://img.shields.io/nuget/v/IoTSharp.X509Extensions.svg)](https://www.nuget.org/packages/IoTSharp.X509Extensions/)
-- MQTTnet.AspNetCoreEx  [![MQTTnet.AspNetCoreEx](https://img.shields.io/nuget/v/MQTTnet.AspNetCoreEx.svg)](https://www.nuget.org/packages/MQTTnet.AspNetCoreEx/)
 - Silkier    [![Silkier](https://img.shields.io/nuget/v/Silkier.svg)](https://www.nuget.org/packages/Silkier/) 
 - Silkier.EFCore   [![Silkier.EFCore](https://img.shields.io/nuget/v/Silkier.EFCore.svg)](https://www.nuget.org/packages/Silkier.EFCore/)
 - Silkier.AspNetCore  [![Silkier.AspNetCore](https://img.shields.io/nuget/v/Silkier.AspNetCore.svg)](https://www.nuget.org/packages/Silkier.AspNetCore/)
