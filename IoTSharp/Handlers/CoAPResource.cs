@@ -114,12 +114,12 @@ namespace IoTSharp.Handlers
                             switch (_res)
                             {
                                 case CoApRes.Attributes:
-                                    _eventBus.PublishAttributeData(new RawMsg() { MsgType = MsgType.CoAP, MsgBody = keyValues, DataCatalog = DataCatalog.AttributeData, DataSide = DataSide.ClientSide, DeviceId = dev.Id });
+                                    _eventBus.PublishAttributeData(new PlayloadData() {  MsgBody = keyValues, DataCatalog = DataCatalog.AttributeData, DataSide = DataSide.ClientSide, DeviceId = dev.Id });
                                     exchange.Respond(StatusCode.Changed, $"OK");
                                     break;
 
                                 case CoApRes.Telemetry:
-                                    _eventBus.PublishTelemetryData(new RawMsg() { MsgType = MsgType.CoAP, MsgBody = keyValues, DataCatalog = DataCatalog.AttributeData, DataSide = DataSide.ClientSide, DeviceId = dev.Id });
+                                    _eventBus.PublishTelemetryData(new PlayloadData() {  MsgBody = keyValues, DataCatalog = DataCatalog.AttributeData, DataSide = DataSide.ClientSide, DeviceId = dev.Id });
                                     exchange.Respond(StatusCode.Created, $"OK");
                                     break;
 
