@@ -45,9 +45,9 @@
 
           <div nz-col nzMd="8" nzSm="24">
             <nz-form-item>
-              <nz-form-label nzFor="DeviceName">告警状态</nz-form-label>
+              <nz-form-label nzFor="AlarmStatus">告警状态</nz-form-label>
               <nz-form-control>
-                <nz-select  [(ngModel)]="q.AlarmStatus"> 
+                <nz-select  [(ngModel)]="q.alarmStatus" [ngModelOptions]="{ standalone: true }"  > 
                   <nz-option nzValue="-1" nzLabel="全部"></nz-option>
                   <nz-option nzValue="0" nzLabel="激活未应答"></nz-option>
                   <nz-option nzValue="1" nzLabel="激活已应答"></nz-option>
@@ -59,9 +59,9 @@
           </div>
           <div nz-col nzMd="8" nzSm="24">
             <nz-form-item>
-              <nz-form-label nzFor="DeviceName">告警级别</nz-form-label>
+              <nz-form-label nzFor="Serverity">告警级别</nz-form-label>
               <nz-form-control>
-                <nz-select  [(ngModel)]="q.Serverity"> 
+                <nz-select  [(ngModel)]="q.serverity" [ngModelOptions]="{ standalone: true }" > 
                   <nz-option nzValue="-1" nzLabel="全部"></nz-option>
                   <nz-option nzValue="0" nzLabel="不确定"></nz-option>
                   <nz-option nzValue="1" nzLabel="警告"></nz-option>
@@ -76,7 +76,7 @@
             <nz-form-item>
               <nz-form-label nzFor="OriginatorType">起因来源</nz-form-label>
               <nz-form-control>
-                <nz-select  [(ngModel)]="q.OriginatorType" (ngModelChange)="onOriginatorTypeChange($event)"> 
+                <nz-select  [(ngModel)]="q.originatorType" (ngModelChange)="onOriginatorTypeChange($event)" [ngModelOptions]="{ standalone: true }" > 
                   <nz-option nzValue="-1" nzLabel="全部"></nz-option>
                   <nz-option nzValue="0" nzLabel="未知"></nz-option>
                   <nz-option nzValue="1" nzLabel="设备"></nz-option>
@@ -154,4 +154,3 @@
       </nz-form-item>
     </ng-template>
   </page-header>
-  
