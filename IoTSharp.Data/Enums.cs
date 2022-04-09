@@ -37,6 +37,19 @@ namespace IoTSharp.Data
         InValidData = 10016,
     }
 
+    [System.Text.Json.Serialization.JsonConverter(typeof(System.Text.Json.Serialization.JsonStringEnumConverter))]
+    [JsonConverter(typeof(StringEnumConverter))]
+    public enum DeviceStatus
+    {
+        Good = 0,
+        PartGood = 1,
+        Bad = 2,
+        UnKnow = 3
+    }
+
+
+    [System.Text.Json.Serialization.JsonConverter(typeof(System.Text.Json.Serialization.JsonStringEnumConverter))]
+    [JsonConverter(typeof(StringEnumConverter))]
     public enum DataCatalog
     {
         None,
@@ -139,21 +152,9 @@ namespace IoTSharp.Data
         TestPurpose=2
     }
 
-    public enum NodeStatus
-    {
-        Abort = -1,
-        Created = 0,
-        Processing =1,
-        Suspend = 2,
-        Complete = 1,
-    }
-
-    public enum MsgType
-    {
-        MQTT,
-        CoAP,
-        HTTP
-    }
+    
+    [System.Text.Json.Serialization.JsonConverter(typeof(System.Text.Json.Serialization.JsonStringEnumConverter))]
+    [JsonConverter(typeof(StringEnumConverter))]
     public enum MountType
     {
         /// <summary>

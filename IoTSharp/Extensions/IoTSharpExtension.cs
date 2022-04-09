@@ -146,7 +146,7 @@ namespace IoTSharp
         {
             hostBuilder.ConfigureServices(services =>
             {
-                services.AddHostedService<CoAPService>();
+              services.AddHostedService<CoAPService>();
             });
             return hostBuilder;
         }

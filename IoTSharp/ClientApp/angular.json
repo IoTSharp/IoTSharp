@@ -23,26 +23,29 @@
         "build": {
           "builder": "@angular-devkit/build-angular:browser",
           "options": {
+            "progress": false,
             "outputPath": "dist",
             "index": "src/index.html",
             "main": "src/main.ts",
             "tsConfig": "tsconfig.app.json",
             "polyfills": "src/polyfills.ts",
             "assets": [
-              "src/assets", 
-              "src/favicon.ico", 
+              "src/assets",
+              "src/favicon.ico",
               {
-              "glob": "**/*",
-              "input": "./node_modules/monaco-editor/min/vs",
-              "output": "/assets/vs/"
-            }],
+                "glob": "**/*",
+                "input": "./node_modules/monaco-editor/min/vs",
+                "output": "/assets/vs/"
+              }
+            ],
             "styles": [
-           
+
               "node_modules/bpmn-js/dist/assets/diagram-js.css",
               "node_modules/bpmn-js/dist/assets/bpmn-font/css/bpmn.css",
-              "src/styles.less"],
+              "src/styles.less"
+            ],
             "scripts": [],
-            "allowedCommonJsDependencies": ["@antv/g2", "file-saver", "ajv", "ajv-formats", "date-fns", "jquery", "mousetrap"]
+            "allowedCommonJsDependencies": [ "@antv/g2", "file-saver", "ajv", "ajv-formats", "date-fns", "jquery", "mousetrap" ]
           },
           "configurations": {
             "production": {
@@ -52,7 +55,6 @@
                   "with": "src/environments/environment.prod.ts"
                 }
               ],
-              "outputHashing": "all",
               "budgets": [
                 {
                   "type": "initial",
@@ -67,12 +69,11 @@
               ]
             },
             "development": {
-              "buildOptimizer": true,
-              "optimization": true,
+              "buildOptimizer": false,
+              "optimization": false,
               "outputHashing": "all",
               "vendorChunk": false,
-              "aot": true,
-              "extractLicenses": true,
+              "extractLicenses": false,
               "sourceMap": false,
               "namedChunks": false
             }
@@ -81,16 +82,14 @@
         },
         "serve": {
           "builder": "@angular-devkit/build-angular:dev-server",
-          "options": {
-            "browserTarget": "ng-alain:build",
-            "proxyConfig": "proxy.conf.js"
-          },
+          
           "configurations": {
             "production": {
               "browserTarget": "ng-alain:build:production"
             },
             "development": {
-              "browserTarget": "ng-alain:build:development"
+              "browserTarget": "ng-alain:build:development",
+              "proxyConfig": "proxy.conf.js"
             }
           },
           "defaultConfiguration": "development"

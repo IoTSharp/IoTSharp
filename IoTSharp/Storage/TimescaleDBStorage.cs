@@ -26,7 +26,7 @@ namespace IoTSharp.Storage
 
         private volatile bool _needcrtate = false;
 
-        public override Task<(bool result, List<TelemetryData> telemetries)> StoreTelemetryAsync(RawMsg msg)
+        public override Task<(bool result, List<TelemetryData> telemetries)> StoreTelemetryAsync(PlayloadData msg)
         {
             if (!_needcrtate)
             {

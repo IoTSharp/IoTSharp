@@ -179,7 +179,7 @@ from(bucket: ""{_bucket}"")
             return FluxToDtoAsync(v);
         }
 
-        public async Task<(bool result, List<TelemetryData> telemetries)> StoreTelemetryAsync(RawMsg msg  )
+        public async Task<(bool result, List<TelemetryData> telemetries)> StoreTelemetryAsync(PlayloadData msg  )
         {
             bool result = false;
             List<TelemetryData> telemetries = new List<TelemetryData>(); ;

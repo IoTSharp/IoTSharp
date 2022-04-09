@@ -146,7 +146,7 @@ namespace IoTSharp.Storage
             });
             return dt;
         }
-        public Task<(bool result, List<TelemetryData> telemetries)> StoreTelemetryAsync(RawMsg msg)
+        public Task<(bool result, List<TelemetryData> telemetries)> StoreTelemetryAsync(PlayloadData msg)
         {
             bool result = false;
             List<TelemetryData> telemetries = new List<TelemetryData>();
@@ -242,7 +242,7 @@ namespace IoTSharp.Storage
             return Task.FromResult((result, telemetries));
         }
 
-        private static string GetDevTableName(RawMsg msg) => $"telemetrydata_{msg.DeviceId:N}";
+        private static string GetDevTableName(PlayloadData msg) => $"telemetrydata_{msg.DeviceId:N}";
         private static string GetDevTableName(Guid devid) => $"telemetrydata_{devid:N}";
 
         private long? GetKeyId(Guid devid, string keyname, PinusConnection _pinus)

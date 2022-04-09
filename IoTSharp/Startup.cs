@@ -21,7 +21,6 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.SpaServices.AngularCli;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -108,7 +107,7 @@ namespace IoTSharp
                     services.ConfigureNpgsql(Configuration.GetConnectionString("IoTSharp"), settings.DbContextPoolSize, healthChecks, healthChecksUI);
                     break;
             }
-
+            services.AddDatabaseDeveloperPageExceptionFilter();
             services.AddIdentity<IdentityUser, IdentityRole>()
                 .AddRoles<IdentityRole>()
                 .AddRoleManager<RoleManager<IdentityRole>>()
@@ -414,11 +413,7 @@ namespace IoTSharp
             });
             services.AddRazorPages();
 
-            // In production, the Angular files will be served from this directory
-            services.AddSpaStaticFiles(configuration =>
-            {
-                configuration.RootPath = "ClientApp/dist";
-            });
+        
             services.AddScriptEngines(Configuration.GetSection("EngineSetting"));
             services.AddTransient<FlowRuleProcessor>();
             services.AddSingleton<TaskExecutorHelper>();
@@ -439,9 +434,9 @@ namespace IoTSharp
                     app.UseRinMvcSupport();
 
                     app.UseDeveloperExceptionPage();
-
-                    // Add: Enable Exception recorder. this handler must be after `UseDeveloperExceptionPage`.
-                    app.UseRinDiagnosticsHandler();
+                app.UseMigrationsEndPoint();
+                // Add: Enable Exception recorder. this handler must be after `UseDeveloperExceptionPage`.
+                app.UseRinDiagnosticsHandler();
             }
             else
             {
@@ -449,7 +444,6 @@ namespace IoTSharp
                 // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
                 app.UseHsts();
             }
-
             app.UseRouting();
             app.UseCors(option => option
                 .AllowAnyOrigin()
@@ -458,14 +452,8 @@ namespace IoTSharp
             app.UseAuthentication();
             app.UseAuthorization();
             app.UseDefaultFiles();
-            if (env.IsDevelopment() || !env.IsEnvironment("Production"))
-            {
                 app.UseStaticFiles();
-            }
-            else
-            {
-                app.UseSpaStaticFiles();
-            }
+         
       
             app.UseIotSharpMqttServer();
 
@@ -487,16 +475,7 @@ namespace IoTSharp
                 endpoints.MapDefaultControllerRoute();
                 endpoints.MapRazorPages();
             });
-            app.UseSpa(spa =>
-            {
-                // To learn more about options for serving an Angular SPA from ASP.NET Core,
-                // see https://go.microsoft.com/fwlink/?linkid=864501
-                spa.Options.SourcePath = "ClientApp";
-                if (env.IsDevelopment() || !env.IsEnvironment("Production"))
-                {
-                    spa.UseAngularCliServer(npmScript: "start");
-                }
-            });
+          
             app.UseJdenticon(defaultStyle =>
             {
                 // Custom identicon style

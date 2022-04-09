@@ -1104,11 +1104,11 @@ namespace IoTSharp.Controllers
 
             if (pairs_tel.Any())
             {
-                _queue.PublishTelemetryData(new RawMsg() { ts = ts, DeviceId = device.Id, MsgBody = pairs_tel, DataSide = DataSide.ClientSide, DataCatalog = DataCatalog.TelemetryData });
+                _queue.PublishTelemetryData(new PlayloadData() { ts = ts, DeviceId = device.Id, MsgBody = pairs_tel, DataSide = DataSide.ClientSide, DataCatalog = DataCatalog.TelemetryData });
             }
             if (pairs_att.Any())
             {
-                _queue.PublishAttributeData(new RawMsg() { ts = ts, DeviceId = device.Id, MsgBody = pairs_att, DataSide = DataSide.ClientSide, DataCatalog = DataCatalog.AttributeData });
+                _queue.PublishAttributeData(new PlayloadData() { ts = ts, DeviceId = device.Id, MsgBody = pairs_att, DataSide = DataSide.ClientSide, DataCatalog = DataCatalog.AttributeData });
             }
             _queue.PublishDeviceStatus(device.Id, DeviceStatus.Good);
             _queue.PublishDeviceStatus(_dev.Id, DeviceStatus.Good);

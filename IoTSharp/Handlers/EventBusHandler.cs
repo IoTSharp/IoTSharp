@@ -18,9 +18,9 @@ namespace IoTSharp.Handlers
 {
     public interface IEventBusHandler
     {
-        public void StoreAttributeData(RawMsg msg);
+        public void StoreAttributeData(PlayloadData msg);
 
-        public void StoreTelemetryData(RawMsg msg);
+        public void StoreTelemetryData(PlayloadData msg);
     }
 
     public class EventBusHandler : IEventBusHandler, ICapSubscribe
@@ -45,7 +45,7 @@ namespace IoTSharp.Handlers
         }
 
         [CapSubscribe("iotsharp.services.datastream.attributedata")]
-        public async void StoreAttributeData(RawMsg msg)
+        public async void StoreAttributeData(PlayloadData msg)
         {
             try
             {
@@ -145,7 +145,7 @@ namespace IoTSharp.Handlers
 
 
         [CapSubscribe("iotsharp.services.datastream.devicestatus")]
-        public void DeviceStatus( RawMsg status)
+        public void DeviceStatus( PlayloadData status)
         {
             try
             {
@@ -191,7 +191,7 @@ namespace IoTSharp.Handlers
 
 
         [CapSubscribe("iotsharp.services.datastream.telemetrydata")]
-        public async void StoreTelemetryData(RawMsg msg)
+        public async void StoreTelemetryData(PlayloadData msg)
         {
             var result = await _storage.StoreTelemetryAsync(msg);
             var data = from t in result.telemetries

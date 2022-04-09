@@ -35,6 +35,9 @@
 		<FileVersion>2.0.1.0</FileVersion>
 		<PackageIcon>96x96.png</PackageIcon>
 		<GenerateDocumentationFile>True</GenerateDocumentationFile>
+		<SpaRoot>ClientApp\</SpaRoot>
+		<SpaProxyServerUrl>http://localhost:44412</SpaProxyServerUrl>
+		<SpaProxyLaunchCommand>npm start</SpaProxyLaunchCommand>
 	</PropertyGroup>
 
 	<PropertyGroup>
@@ -134,7 +137,6 @@
 		<PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="6.0.0" />
 		<PackageReference Include="Microsoft.Extensions.Hosting.WindowsServices" Version="6.0.0" />
 		<PackageReference Include="MQTTnet.Extensions.ManagedClient" Version="4.0.0-preview5" />
-		<PackageReference Include="Microsoft.AspNetCore.SpaServices.Extensions" Version="6.0.3" />
 		<PackageReference Include="Microsoft.AspNetCore.ApiAuthorization.IdentityServer" Version="6.0.3" />
 		<PackageReference Include="Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore" Version="6.0.3" />
 		<PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="6.0.3" />
@@ -146,7 +148,7 @@
 			<PrivateAssets>all</PrivateAssets>
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
-
+		<PackageReference Include="Microsoft.AspNetCore.SpaProxy" Version="6.0.3" />
 	</ItemGroup>
 	<ItemGroup>
 
@@ -165,8 +167,6 @@
 		<None Remove="Migrations\**" />
 
 		<None Remove="Resources\images\**" />
-		<Content Remove="wwwroot\lib\jquery-validation-unobtrusive\LICENSE.txt" />
-		<Content Remove="wwwroot\lib\jquery\LICENSE.txt" />
 		<None Remove=".gitignore" />
 		<None Remove="ca.crt" />
 		<None Remove="ca.key" />
@@ -183,9 +183,8 @@
 			<Pack>True</Pack>
 			<PackagePath></PackagePath>
 		</None>
-		<None Include="wwwroot\fonts\fontawesome-webfont.svg" />
-		<None Include="wwwroot\fonts\glyphicons-halflings-regular.woff2" />
 	</ItemGroup>
+
 
 	<ItemGroup>
 		<!-- Don't publish the SPA source files, but do show them in the project files list -->
@@ -207,15 +206,13 @@
 	<Target Name="PublishRunWebpack" AfterTargets="ComputeFilesToPublish">
 		<!-- As part of publishing, ensure the JS resources are freshly built in production mode -->
 		<Exec WorkingDirectory="$(SpaRoot)" Command="npm install" />
-		<Exec WorkingDirectory="$(SpaRoot)" Command="npm run build -- --prod " />
-		<Exec WorkingDirectory="$(SpaRoot)" Command="npm run build:ssr -- --prod" Condition=" '$(BuildServerSideRenderer)' == 'true' " />
+		<Exec WorkingDirectory="$(SpaRoot)" Command="npm run build -- --prod" />
 
 		<!-- Include the newly-built files in the publish output -->
 		<ItemGroup>
 			<DistFiles Include="$(SpaRoot)dist\**; $(SpaRoot)dist-server\**" />
-			<DistFiles Include="$(SpaRoot)node_modules\**" Condition="'$(BuildServerSideRenderer)' == 'true'" />
 			<ResolvedFileToPublish Include="@(DistFiles->'%(FullPath)')" Exclude="@(ResolvedFileToPublish)">
-				<RelativePath>%(DistFiles.Identity)</RelativePath>
+				<RelativePath>wwwroot\%(RecursiveDir)%(FileName)%(Extension)</RelativePath>
 				<CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
 				<ExcludeFromSingleFile>true</ExcludeFromSingleFile>
 			</ResolvedFileToPublish>
@@ -223,9 +220,9 @@
 	</Target>
 
 	<ItemGroup>
-	  <Content Include="IoTSharp.xml">
-	    <CopyToOutputDirectory>Never</CopyToOutputDirectory>
-	  </Content>
+		<Content Include="IoTSharp.xml">
+			<CopyToOutputDirectory>Never</CopyToOutputDirectory>
+		</Content>
 	</ItemGroup>
 	<ItemGroup>
 		<ProjectReference Include="..\IoTSharp.Data.InMemory\IoTSharp.Data.InMemory.csproj" />
@@ -242,21 +239,19 @@
 		<Folder Include="ClientApp\" />
 	</ItemGroup>
 	<ItemGroup>
-	  <Compile Update="Properties\Resources.Designer.cs">
-	    <DesignTime>True</DesignTime>
-	    <AutoGen>True</AutoGen>
-	    <DependentUpon>Resources.resx</DependentUpon>
-	  </Compile>
+		<Compile Update="Properties\Resources.Designer.cs">
+			<DesignTime>True</DesignTime>
+			<AutoGen>True</AutoGen>
+			<DependentUpon>Resources.resx</DependentUpon>
+		</Compile>
 	</ItemGroup>
 	<ItemGroup>
-	  <EmbeddedResource Update="Properties\Resources.resx">
-	    <Generator>ResXFileCodeGenerator</Generator>
-	    <LastGenOutput>Resources.Designer.cs</LastGenOutput>
-	  </EmbeddedResource>
+		<EmbeddedResource Update="Properties\Resources.resx">
+			<Generator>ResXFileCodeGenerator</Generator>
+			<LastGenOutput>Resources.Designer.cs</LastGenOutput>
+		</EmbeddedResource>
 	</ItemGroup>
 	<ProjectExtensions>
-		<VisualStudio>
-			<UserProperties clientapp_4package_1json__JsonSchema="" />
-		</VisualStudio>
+		<VisualStudio><UserProperties clientapp_4package_1json__JsonSchema="" clientapp_4tsconfig_1json__JsonSchema="" /></VisualStudio>
 	</ProjectExtensions>
 </Project>
