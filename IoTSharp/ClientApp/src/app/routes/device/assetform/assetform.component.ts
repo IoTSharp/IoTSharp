@@ -19,6 +19,9 @@ export class AssetformComponent implements OnInit {
   loading = false;
   form!: FormGroup;
   submitting = false;
+
+  cetd: any[] = [];
+  cead: any[] = [];
   constructor(
     private _httpClient: _HttpClient,
     private fb: FormBuilder,
@@ -52,11 +55,11 @@ export class AssetformComponent implements OnInit {
       this._httpClient.post('api/asset/save', this.form.value).subscribe(
         () => {
           this.submitting = false;
-          this.msg.create('success', '设备新增成功');
+          this.msg.create('success', '资产新增成功');
           this.close();
         },
         () => {
-          this.msg.create('error', '设备新增失败');
+          this.msg.create('error', '资产新增失败');
           this.close();
         },
         () => {},
@@ -65,11 +68,11 @@ export class AssetformComponent implements OnInit {
       this._httpClient.put('api/asset/update', this.form.value).subscribe(
         () => {
           this.submitting = false;
-          this.msg.create('success', '设备修改成功');
+          this.msg.create('success', '资产修改成功');
           this.close();
         },
         () => {
-          this.msg.create('error', '设备修改失败');
+          this.msg.create('error', '资产修改失败');
           this.close();
         },
         () => {},

@@ -99,6 +99,30 @@ namespace IoTSharp.Controllers
                                         new { text = "告警", i18n = "", link = "/iot/device/alarmlist" },
                                     },
                                 },
+
+                                new
+                                {
+                                    text = "资产管理",
+                                    i18n = "",
+                                    icon = "anticon-database",
+                                    children = new[]
+                                    {   /*  new { text = "型号管理", i18n = "",link="/iot/devicemodel/devicemodellist" },*/
+                                    
+                                        new { text = "资产列表", i18n = "", link = "/iot/device/assetlist" },
+
+                                    },
+                                }, new
+                                {
+                                    text = "告警管理",
+                                    i18n = "",
+                                    icon = "anticon-database",
+                                    children = new[]
+                                    {   /*  new { text = "型号管理", i18n = "",link="/iot/devicemodel/devicemodellist" },*/
+                             
+                                        new { text = "告警列表", i18n = "", link = "/iot/device/alarmlist" },
+                                    },
+                                },
+
                                 new
                                 {
                                     text = "规则链 ",
@@ -214,6 +238,27 @@ namespace IoTSharp.Controllers
                                             new { text = "网关配置器", i18n = "", link = "/iot/device/devicegraph" },
                                             new { text = "资产", i18n = "", link = "/iot/device/assetlist" },
                                             new { text = "告警", i18n = "", link = "/iot/device/alarmlist" },
+                                        },
+                                    },  new
+                                    {
+                                        text = "资产管理",
+                                        i18n = "",
+                                        icon = "anticon-database",
+                                        children = new[]
+                                        {   /*  new { text = "型号管理", i18n = "",link="/iot/devicemodel/devicemodellist" },*/
+                                    
+                                            new { text = "资产列表", i18n = "", link = "/iot/device/assetlist" },
+
+                                        },
+                                    }, new
+                                    {
+                                        text = "告警管理",
+                                        i18n = "",
+                                        icon = "anticon-database",
+                                        children = new[]
+                                        {   /*  new { text = "型号管理", i18n = "",link="/iot/devicemodel/devicemodellist" },*/
+                             
+                                            new { text = "告警列表", i18n = "", link = "/iot/device/alarmlist" },
                                         },
                                     },
                                     new

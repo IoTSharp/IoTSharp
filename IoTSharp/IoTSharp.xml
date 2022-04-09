@@ -158,7 +158,7 @@
         </member>
         <member name="M:IoTSharp.Controllers.AlarmController.Originators(IoTSharp.Models.ModelOriginatorSearch)">
             <summary>
-            搜索告警信息
+            搜索告警发起对象
             </summary>
             <param name="m"></param>
             <returns></returns>

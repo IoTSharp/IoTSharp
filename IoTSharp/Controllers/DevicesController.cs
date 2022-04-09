@@ -137,7 +137,16 @@ namespace IoTSharp.Controllers
                     Expression<Func<Device, bool>> condition = x => x.Customer.Id == m.customerId && x.Status > -1 && x.Tenant.Id == profile.Tenant;
                     if (!string.IsNullOrEmpty(m.Name))
                     {
-                        condition = condition.And(x => x.Name.Contains(m.Name));
+                        if (System.Text.RegularExpressions.Regex.IsMatch(m.Name, @"(?im)^[{(]?[0-9A-F]{8}[-]?(?:[0-9A-F]{4}[-]?){3}[0-9A-F]{12}[)}]?$"))
+                        {
+                            condition = condition.And(x => x.Id==Guid.Parse(m.Name));
+                        }
+                        else
+                        {
+                            condition = condition.And(x => x.Name.Contains(m.Name));
+                        }
+
+                  
                     }
 
                     return new ApiResult<PagedData<DeviceDetailDto>>(ApiCode.Success, "OK", new PagedData<DeviceDetailDto>
@@ -170,6 +179,20 @@ namespace IoTSharp.Controllers
                 try
                 {
                     Expression<Func<Device, bool>> condition = x => x.Customer.Id == m.customerId && x.Status > -1;
+                    if (!string.IsNullOrEmpty(m.Name))
+                    {
+                        if (System.Text.RegularExpressions.Regex.IsMatch(m.Name, @"(?im)^[{(]?[0-9A-F]{8}[-]?(?:[0-9A-F]{4}[-]?){3}[0-9A-F]{12}[)}]?$"))
+                        {
+                            condition = condition.And(x => x.Id == Guid.Parse(m.Name));
+                        }
+                        else
+                        {
+                            condition = condition.And(x => x.Name.Contains(m.Name));
+                        }
+
+
+                    }
+
                     return new ApiResult<PagedData<DeviceDetailDto>>(ApiCode.Success, "OK", new PagedData<DeviceDetailDto>
                     {
                         total = await _context.Device.CountAsync(condition),

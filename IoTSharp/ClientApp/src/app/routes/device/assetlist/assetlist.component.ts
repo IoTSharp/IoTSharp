@@ -131,6 +131,16 @@ export class AssetlistComponent implements OnInit {
     {
       title: { i18n: 'table.operation' },
       buttons: [
+
+
+        {
+          text: '资产管理',
+          i18n: 'common.asset',
+          acl: 60,
+          click: (item: any) => {
+            this._router.navigateByUrl('iot/device/assetentitylist?id='+item.id);
+          }
+        },
         {
           text: '修改',
           i18n: 'common.edit',

@@ -81,6 +81,10 @@ import { AssetlistComponent } from './device/assetlist/assetlist.component';
 import { AssetformComponent } from './device/assetform/assetform.component';
 import { AlarmdetailComponent } from './device/alarmdetail/alarmdetail.component';
 import { ExporttoassetComponent } from './device/exporttoasset/exporttoasset.component';
+import { AssetentitylistComponent } from './device/assetentitylist/assetentitylist.component';
+import { FlowdevicelistComponent } from './flow/flowdevicelist/flowdevicelist.component';
+import { DevicedetailviewComponent } from './common/components/devicedetailview/devicedetailview.component';
+import { AssetentityformComponent } from './device/assetentityform/assetentityform.component';
 
 const COMPONENTS: Array<Type<null>> = [];
 const Directive: Type<void>[] = [fielddirective, controldirective, toolpaneldirective];
@@ -161,7 +165,11 @@ const Directive: Type<void>[] = [fielddirective, controldirective, toolpaneldire
     AssetlistComponent,
     AssetformComponent,
     AlarmdetailComponent,
-    ExporttoassetComponent
+    ExporttoassetComponent,
+    AssetentitylistComponent,
+    FlowdevicelistComponent,
+    DevicedetailviewComponent,
+    AssetentityformComponent
   ]
 })
 export class RoutesModule {}

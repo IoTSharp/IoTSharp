@@ -8,6 +8,7 @@ import { environment } from '@env/environment';
 import { LayoutBasicComponent } from '../layout/basic/basic.component';
 import { LayoutBlankComponent } from '../layout/blank/blank.component';
 import { AlarmlistComponent } from './device/alarmlist/alarmlist.component';
+import { AssetentitylistComponent } from './device/assetentitylist/assetentitylist.component';
 import { AssetlistComponent } from './device/assetlist/assetlist.component';
 import { DevicegraphComponent } from './device/devicegraph/devicegraph.component';
 import { DevicelistComponent } from './device/devicelist/devicelist.component';
@@ -79,6 +80,8 @@ const routes: Routes = [
       { path: 'code/codeview', component: CodeviewComponent },
       { path: 'device/alarmlist', component: AlarmlistComponent },
       { path: 'device/assetlist', component: AssetlistComponent },
+      { path: 'device/assetentitylist', component: AssetentitylistComponent },
+      { path: 'device/certmgr', component: CertmgrComponent },
       { path: 'settings/certmgr', component: CertmgrComponent }
     ]
   },

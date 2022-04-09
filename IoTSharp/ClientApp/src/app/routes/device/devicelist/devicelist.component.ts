@@ -1,24 +1,18 @@
-import { ChangeDetectorRef, Component, EventEmitter, OnDestroy, OnInit, TemplateRef, ViewChild } from '@angular/core';
+import { Component, OnDestroy, OnInit, TemplateRef, ViewChild } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { STChange, STColumn, STColumnBadge, STColumnTag, STComponent, STData, STPage, STReq, STRes } from '@delon/abc/st';
-import { ModalHelper, SettingsService, _HttpClient } from '@delon/theme';
+import {  SettingsService, _HttpClient } from '@delon/theme';
 import { NzMessageService } from 'ng-zorro-antd/message';
-import { map, tap } from 'rxjs/operators';
-import { Validators, FormBuilder, FormGroup } from '@angular/forms/forms';
-import { NzDrawerRef, NzDrawerService } from 'ng-zorro-antd/drawer';
-
+import { NzDrawerService } from 'ng-zorro-antd/drawer';
 import { ACLService } from '@delon/acl';
-
 import { DeviceformComponent } from '../deviceform/deviceform.component';
 import { PropformComponent } from '../propform/propform.component';
 import { interval, Subscription, zip } from 'rxjs';
 import { RulesdownlinkComponent } from '../rulesdownlink/rulesdownlink.component';
-import { appmessage, AppMessage } from '../../common/AppMessage';
-import { HttpHeaders, HttpResponse } from '@angular/common/http';
-import { saveAs, fileSaver } from 'file-saver';
-import { ClipboardService } from 'ngx-clipboard';
+import { appmessage } from '../../common/AppMessage';
+
 import { DevicetokendialogComponent } from '../devicetokendialog/devicetokendialog.component';
-import { fork } from 'child_process';
+
 import { ProppartComponent } from '../deviceprop/proppart/proppart.component';
 import { devicemodelcommand } from '../../devicemodel/devicemodelcommandparam';
 import { ExporttoassetComponent } from '../exporttoasset/exporttoasset.component';
@@ -61,13 +55,13 @@ export class DevicelistComponent implements OnInit, OnDestroy {
   cetd: telemetryitem[] = [];
   cead: attributeitem[] = [];
   cerd: ruleitem[] = [];
- // cett: devicemodelcommand[] = [];
+  // cett: devicemodelcommand[] = [];
   page: STPage = {
     front: false,
     total: true,
     zeroIndexed: true,
-    showSize:true,
-    pageSizes:[10,20,50,100,500]
+    showSize: true,
+    pageSizes: [10, 20, 50, 100, 500]
   };
   q: {
     pi: number;
@@ -98,7 +92,6 @@ export class DevicelistComponent implements OnInit, OnDestroy {
   ctype = {};
   columns: STColumn[] = [
     { title: '', index: 'id', type: 'checkbox' },
-    { title: 'id', index: 'id', render: 'id' },
     { title: '名称', index: 'name', render: 'name' },
     { title: '设备类型', index: 'deviceType', type: 'tag', tag: this.DeviceTAG },
     { title: '在线状态', index: 'online', type: 'badge', badge: this.BADGE },
@@ -160,16 +153,14 @@ export class DevicelistComponent implements OnInit, OnDestroy {
         },
         {
           acl: 110,
-          text: '删除', pop: {
+          text: '删除',
+          pop: {
             title: '确认删除设备?',
             okType: 'danger',
-            icon: 'warning',
+            icon: 'warning'
           },
           click: (item: any) => {
-
-
-
-         this.delete(item.id);
+            this.delete(item.id);
           }
         }
       ]
@@ -237,7 +228,7 @@ export class DevicelistComponent implements OnInit, OnDestroy {
     var { nzMaskClosable, width } = this.settingService.getData('drawerconfig');
     let title = '属性修改';
     const drawerRef = this.drawerService.create<
-    ExporttoassetComponent,
+      ExporttoassetComponent,
       {
         params: {
           id: string;
@@ -261,7 +252,6 @@ export class DevicelistComponent implements OnInit, OnDestroy {
     });
     drawerRef.afterClose.subscribe(() => {});
   }
-
 
   downlink(dev: any[]) {
     if (dev.length == 0) {
@@ -529,15 +519,16 @@ export class DevicelistComponent implements OnInit, OnDestroy {
     );
   }
 
-  removeruleprop(device:deviceitem,prop:attributeitem){
-    this.http.delete('api/device/removeAttribute?deviceId=' + device.id + '&KeyName=' + prop.keyName+'&dataSide='+prop.dataSide).subscribe(
-      () => {
-        this.cead = this.cead.filter(x => x.keyName != prop.keyName);
-      },
-      () => {},
-      () => {}
-    );
-
+  removeruleprop(device: deviceitem, prop: attributeitem) {
+    this.http
+      .delete('api/devices/removeAttribute?deviceId=' + device.id + '&KeyName=' + prop.keyName + '&dataSide=' + prop.dataSide)
+      .subscribe(
+        () => {
+          this.cead = this.cead.filter(x => x.keyName != prop.keyName);
+        },
+        () => {},
+        () => {}
+      );
   }
 }
 

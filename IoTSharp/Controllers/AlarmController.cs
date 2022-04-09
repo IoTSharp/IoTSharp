@@ -78,11 +78,13 @@ namespace IoTSharp.Controllers
 
             if (m.AckDateTime != null && m.AckDateTime.Length == 2)
             {
+
                 condition = condition.And(x => x.AckDateTime > m.AckDateTime[0] && x.AckDateTime < m.AckDateTime[1]);
             }
 
             if (m.ClearDateTime != null && m.ClearDateTime.Length == 2)
             {
+
                 condition = condition.And(x =>
                     x.ClearDateTime > m.ClearDateTime[0] && x.ClearDateTime < m.ClearDateTime[1]);
             }
@@ -113,12 +115,11 @@ namespace IoTSharp.Controllers
                 condition = condition.And(x => x.Serverity == (ServerityLevel)m.Serverity);
             }
 
+
             if (m.OriginatorType != -1)
             {
                 condition = condition.And(x => x.OriginatorType == (OriginatorType)m.OriginatorType);
-            }
-            else
-            {
+
                 if (m.OriginatorId != Guid.Empty)
                 {
                     condition = condition.And(x => x.OriginatorId == m.OriginatorId);
@@ -128,7 +129,7 @@ namespace IoTSharp.Controllers
             return new ApiResult<PagedData<AlarmDto>>(ApiCode.Success, "OK", new PagedData<AlarmDto>
             {
                 total = await _context.Alarms.CountAsync(condition),
-                rows = _context.Alarms.Where(condition).Where(condition).Skip((m.offset) * m.limit).Take(m.limit)
+                rows = _context.Alarms.OrderByDescending(c=>c.AckDateTime).Where(condition).Skip((m.offset) * m.limit).Take(m.limit)
                     .ToList().Select(c => new AlarmDto
                     {
                         ClearDateTime = c.ClearDateTime,
@@ -142,13 +143,38 @@ namespace IoTSharp.Controllers
                         OriginatorType = c.OriginatorType,
                         Propagate = c.Propagate,
                         Serverity = c.Serverity,
-                        StartDateTime = c.StartDateTime
+                        StartDateTime = c.StartDateTime,
+                        Originator = GetOriginator(c)
                     }).ToList()
+
             });
         }
 
+
+
+        private object GetOriginator(Alarm Alarm)
+        {
+            switch (Alarm.OriginatorType)
+            {
+                case OriginatorType.Unknow:
+
+                    break;
+                case OriginatorType.Device:
+                    return _context.Device.SingleOrDefault(c => c.Id == Alarm.OriginatorId);
+
+                case OriginatorType.Gateway:
+                    return _context.Device.SingleOrDefault(c => c.Id == Alarm.OriginatorId);
+
+                case OriginatorType.Asset:
+                    return _context.Assets.SingleOrDefault(c => c.Id == Alarm.OriginatorId);
+
+            }
+
+            return null;
+        }
+
         /// <summary>
-        /// 搜索告警信息
+        /// 搜索告警发起对象
         /// </summary>
         /// <param name="m"></param>
         /// <returns></returns>

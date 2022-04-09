@@ -38,6 +38,7 @@ import { NzTreeViewModule } from 'ng-zorro-antd/tree-view';
 import { NzResizableModule } from 'ng-zorro-antd/resizable';
 import { NzCollapseModule } from 'ng-zorro-antd/collapse';
 import { NzAutocompleteModule } from 'ng-zorro-antd/auto-complete';
+import { NzTransferModule } from 'ng-zorro-antd/transfer';
 export const SHARED_ZORRO_MODULES = [
   NzButtonModule,
   NzMessageModule,
@@ -76,5 +77,5 @@ export const SHARED_ZORRO_MODULES = [
   NzStepsModule,
   NzCodeEditorModule,
   NzTreeViewModule,
-  NzResizableModule,NzCollapseModule,NzAutocompleteModule
+  NzResizableModule,NzCollapseModule,NzAutocompleteModule,NzTransferModule
 ];

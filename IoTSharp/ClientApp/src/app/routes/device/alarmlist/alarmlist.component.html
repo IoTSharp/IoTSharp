@@ -126,12 +126,22 @@
         [expand]="expand"
         expandRowByClick
         expandAccordion
-        (change)="rowchange($event)"
+     
       >
         <ng-template #expand let-item let-index="index" let-column="column">
-          <div>
+          <nz-card nzTitle="告警详情">
             {{item.alarmDetail}}
-          </div>
+          </nz-card>
+
+          <nz-card nzTitle="起因对象">
+            <sv-container col="2">
+              <sv label="id" type="primary">  {{item?.originator?.id}}</sv>
+              <sv label="名称" type="success">  {{item?.originator?.name}}</sv>
+            </sv-container>
+          </nz-card>
+
+
+          
         </ng-template>
       </st>
     </nz-card>

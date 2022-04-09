@@ -1,0 +1,238 @@
+import { Component, Input, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { ActivatedRoute, Router } from '@angular/router';
+import { STChange, STColumn, STColumnBadge, STColumnTag, STComponent, STPage, STReq, STRes } from '@delon/abc/st';
+import { _HttpClient, SettingsService } from '@delon/theme';
+import { Guid } from 'guid-typescript';
+import { map, mergeMap } from 'rxjs/operators';
+import { NzDrawerService } from 'ng-zorro-antd/drawer';
+import { AssetentityformComponent } from '../assetentityform/assetentityform.component';
+import { interval, Subscription, zip } from 'rxjs';
+import { appmessage } from '../../common/AppMessage';
+import { number } from 'echarts';
+import { $ } from 'protractor';
+@Component({
+  selector: 'app-assetentitylist',
+  templateUrl: './assetentitylist.component.html',
+  styleUrls: ['./assetentitylist.component.less']
+})
+export class AssetentitylistComponent implements OnInit, OnDestroy {
+  @Input() id: any = Guid.EMPTY;
+
+  BADGE: STColumnBadge = {
+    true: { text: '在线', color: 'success' },
+    false: { text: '离线', color: 'error' }
+  };
+  TAG: STColumnTag = {
+    AccessToken: { text: 'AccessToken', color: 'green' },
+    X509Certificate: { text: 'X509Certificate', color: 'blue' }
+  };
+
+  DeviceTAG: STColumnTag = {
+    Device: { text: '设备', color: 'green' },
+    Gateway: { text: '网关', color: 'blue' }
+  };
+
+  url = '';
+  obs: Subscription;
+  q: {
+    pi: number;
+    ps: number;
+    Name: string;
+
+    sorter: string;
+    status: number | null;
+  } = {
+    pi: 0,
+    ps: 10,
+    Name: '',
+    sorter: '',
+    status: null
+  };
+  req: STReq = { method: 'GET', allInBody: true, reName: { pi: 'offset', ps: 'limit' }, params: this.q };
+
+  // 定义返回的参数
+  res: STRes = {
+    reName: {
+      total: 'data.total',
+      list: 'data.rows'
+    }
+  };
+  expandForm = false;
+  page: STPage = {
+    front: false,
+    total: true,
+    show: false,
+    zeroIndexed: true
+  };
+
+  cetd: any[] = [];
+  cead: any[] = [];
+  @ViewChild('st', { static: true })
+  st!: STComponent;
+  columns: STColumn[] = [
+    { title: '', index: 'device', type: 'checkbox' },
+    { title: '名称', index: 'name', render: 'name' },
+    { title: '设备类型', index: 'deviceType', type: 'tag', tag: this.DeviceTAG },
+    { title: '最后活动时间', index: 'lastActive', type: 'date' },
+    { title: '在线状态', index: 'online', type: 'badge', badge: this.BADGE }
+  ];
+  constructor(
+    private _router: ActivatedRoute,
+    private http: _HttpClient,
+    private drawerService: NzDrawerService,
+    private settingService: SettingsService
+  ) {}
+
+  ngOnInit(): void {
+    this._router.queryParams
+      .pipe(
+        map(x => {
+          this.id = x.id;
+          this.url = 'api/asset/relations?assetid=' + this.id;
+        })
+      )
+      .subscribe();
+  }
+
+  ngOnDestroy(): void {
+    if (this.obs) {
+      this.obs.unsubscribe();
+    }
+  }
+  onchange($events: STChange) {
+    if (this.obs) {
+      this.obs.unsubscribe();
+      this.obs = null;
+    }
+    switch ($events.type) {
+      case 'expand':
+        if ($events.expand.expand) {
+          this.cead = [];
+          this.cetd = [];
+          this.cead = $events.expand?.attrs;
+          this.cetd = $events.expand?.temps;
+
+          this.obs = interval(6000).subscribe(async () => {
+            zip(
+              this.http.get<appmessage<any[]>>('api/Devices/' + $events.expand?.id + '/AttributeLatest'),
+              this.http.get<appmessage<any[]>>('api/Devices/' + $events.expand?.id + '/TelemetryLatest')
+              //   this.http.get<appmessage<devicemodelcommand[]>>('api/deviceModel/getCommandsByDevice?id=' + $events.expand?.id ),
+            ).subscribe(
+              ([
+                attributes,
+                telemetries
+
+                //  commands
+              ]) => {
+                // console.log(this.cead);
+                // console.log(telemetries);
+                for (var i = 0; i < this.cead.length; i++) {
+                  for (var j = 0; j < attributes.data.length; j++) {
+                    if (this.cead[i]['keyName'] === attributes.data[j].keyName) {
+                      switch (typeof attributes.data[j]['value']) {
+                        case 'number':
+                          if (this.cead[i]['value']) {
+                            if (this.cead[i]['value'] > attributes.data[j]['value']) {
+                              this.cead[i]['class'] = 'valdown';
+                            } else if (this.cead[i]['value'] < attributes.data[j]['value']) {
+                              this.cead[i]['class'] = 'valup';
+                            } else {
+                              this.cead[i]['class'] = 'valnom';
+                            }
+                          } else {
+                            this.cead[i]['class'] = 'valnom';
+                          }
+                          break;
+                        default:
+                          if (this.cead[i]['value']) {
+                            if (this.cead[i]['value'] === attributes.data[j]['value']) {
+                              this.cead[i]['class'] = 'valnom';
+                            } else {
+                              this.cead[i]['class'] = 'valchange';
+                            }
+                          }else{
+                            this.cead[i]['class'] = 'valnom';
+                          }
+               
+                          break;
+                      }
+                      this.cead[i]['value'] = attributes.data[j]['value'];
+                    }
+                  }
+                }
+
+             
+                for (var i = 0; i < this.cetd.length; i++) {
+                  for (var j = 0; j < telemetries.data.length; j++) {
+                    if (this.cetd[i]['keyName'] === telemetries.data[j]['keyName']) {
+                      this.cetd[i]['value'] = telemetries.data[j]['value'];
+                    }
+                  }
+                }
+              }
+            );
+          });
+        } else {
+          this.cead = [];
+          this.cetd = [];
+          if (this.obs) {
+            this.obs.unsubscribe();
+          }
+        }
+        break;
+    }
+  }
+
+  removeattrs(attr) {
+
+
+
+
+  }
+
+
+  removetemps(temp) {
+
+
+
+    
+  }
+
+  openComponent() {
+    var { nzMaskClosable, width } = this.settingService.getData('drawerconfig');
+    var title = '导入资产';
+    const drawerRef = this.drawerService.create<AssetentityformComponent, { id: string }, string>({
+      nzTitle: title,
+      nzContent: AssetentityformComponent,
+      nzWidth: width,
+      nzMaskClosable: nzMaskClosable,
+      nzContentParams: {
+        id: this.id
+      }
+    });
+
+    drawerRef.afterOpen.subscribe(() => {});
+
+    drawerRef.afterClose.subscribe(data => {
+      if (typeof data === 'string') {
+      }
+
+      this.getData();
+    });
+  }
+  submit(i) {}
+  updateEdit(i, edit) {
+    this.st.setRow(i, { edit }, { refreshSchema: true });
+  }
+
+  reset() {
+    this.q = {
+      pi: 0,
+      ps: 10,
+      Name: '',
+      sorter: '',
+      status: null
+    };
+  }
+  getData() {}
+}
