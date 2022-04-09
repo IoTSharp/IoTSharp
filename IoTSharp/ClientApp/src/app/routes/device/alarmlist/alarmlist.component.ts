@@ -32,28 +32,28 @@ export class AlarmlistComponent implements OnInit {
     EndDateTime: any;
     StartDateTime: any;
     AlarmType: any;
-    AlarmStatus: Number;
+    alarmStatus: any;
     OriginatorId: any;
     OriginatorName: string;
-    Serverity: Number;
-    OriginatorType: Number;
+    serverity: any;
+    originatorType: any;
   } = {
-    pi: 0,
-    ps: 10,
-    Name: '',
-    sorter: '',
-    status: null,
-    AckDateTime: null,
-    ClearDateTime: null,
-    StartDateTime: null,
-    EndDateTime: null,
-    AlarmType: '',
-    OriginatorName: '',
-    AlarmStatus: -1,
-    OriginatorId: Guid.EMPTY,
-    Serverity: -1,
-    OriginatorType: -1
-  };
+      pi: 0,
+      ps: 10,
+      Name: '',
+      sorter: '',
+      status: null,
+      AckDateTime: null,
+      ClearDateTime: null,
+      StartDateTime: null,
+      EndDateTime: null,
+      AlarmType: '',
+      OriginatorName: '',
+      alarmStatus: '-1',
+      OriginatorId: Guid.EMPTY,
+      serverity: '-1',
+      originatorType: '-1'
+    };
 
   total = 0;
   data: any[] = [];
@@ -131,9 +131,9 @@ export class AlarmlistComponent implements OnInit {
     { title: '告警状态', index: 'alarmStatus', type: 'tag', tag: this.alarmstatusTAG },
     { title: '严重程度', index: 'serverity', type: 'tag', tag: this.serveritybadge },
 
-    { title: '设备类型', index: 'originatorType',type: 'tag', tag: this.originatorTypeTAG },
+    { title: '设备类型', index: 'originatorType', type: 'tag', tag: this.originatorTypeTAG },
 
-    
+
   ];
   selectedRows: STData[] = [];
   description = '';
@@ -147,14 +147,14 @@ export class AlarmlistComponent implements OnInit {
     private _router: Router,
     private drawerService: NzDrawerService,
     private settingService: SettingsService
-  ) {}
+  ) { }
 
-  ngOnInit() {}
+  ngOnInit() { }
 
   onOriginatorTypeChange($event) {
     this.q.OriginatorName = '';
     this.q.OriginatorId = Guid.EMPTY;
-    this.originators=[];
+    this.originators = [];
   }
 
   onOriginatorInput($event) {
@@ -163,7 +163,7 @@ export class AlarmlistComponent implements OnInit {
     this.http
       .post('api/alarm/originators', {
         originatorName: element?.value ?? '',
-        OriginatorType: this.q.OriginatorType
+        OriginatorType: this.q.originatorType
       })
       .pipe(debounceTime(500))
       .subscribe(
@@ -174,8 +174,8 @@ export class AlarmlistComponent implements OnInit {
             })
           ];
         },
-        error => {},
-        () => {}
+        error => { },
+        () => { }
       );
   }
 
@@ -184,20 +184,21 @@ export class AlarmlistComponent implements OnInit {
   }
 
 
- 
+
 
 
   getData() {
+    console.log(this.q);
     this.st.req = this.req;
     this.st.load(this.st.pi);
   }
 
-  add(tpl: TemplateRef<{}>) {}
+  add(tpl: TemplateRef<{}>) { }
 
   reset() {
-    setTimeout(() => {}, 1000);
+    setTimeout(() => { }, 1000);
   }
-  setstatus(number: number, status: number) {}
+  setstatus(number: number, status: number) { }
 }
 
 export interface originator {
