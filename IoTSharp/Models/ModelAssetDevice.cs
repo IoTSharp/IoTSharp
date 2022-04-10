@@ -18,9 +18,10 @@ namespace IoTSharp.Models
         public ModelAssetAttrItem[] Temps { get; set; }
     }
 
-    public class ModelAssetAttrItem    
+    public class ModelAssetAttrItem
     {
-        public string dataType { get; set; }
+        public Guid Id { get; set; }
+        public string Description { get; set; }
         public string keyName { get; set; }
         public DataCatalog dataSide { get; set; }
         public string Name { get; set; }

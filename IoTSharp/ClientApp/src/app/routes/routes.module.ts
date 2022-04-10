@@ -85,6 +85,7 @@ import { AssetentitylistComponent } from './device/assetentitylist/assetentityli
 import { FlowdevicelistComponent } from './flow/flowdevicelist/flowdevicelist.component';
 import { DevicedetailviewComponent } from './common/components/devicedetailview/devicedetailview.component';
 import { AssetentityformComponent } from './device/assetentityform/assetentityform.component';
+import { AssetrelationformComponent } from './device/assetrelationform/assetrelationform.component';
 
 const COMPONENTS: Array<Type<null>> = [];
 const Directive: Type<void>[] = [fielddirective, controldirective, toolpaneldirective];
@@ -169,7 +170,8 @@ const Directive: Type<void>[] = [fielddirective, controldirective, toolpaneldire
     AssetentitylistComponent,
     FlowdevicelistComponent,
     DevicedetailviewComponent,
-    AssetentityformComponent
+    AssetentityformComponent,
+    AssetrelationformComponent
   ]
 })
 export class RoutesModule {}

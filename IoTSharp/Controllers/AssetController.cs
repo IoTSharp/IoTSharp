@@ -48,7 +48,7 @@ namespace IoTSharp.Controllers
                 total = await _context.Assets.CountAsync(condition),
                 rows = _context.Assets.Where(condition).Where(condition).Skip((m.offset) * m.limit).Take(m.limit)
                     .ToList().Select(c => new AssetDto
-                    { Id = c.Id, AssetType = c.AssetType, Description = c.Description, Name = c.Name }).ToList()
+                        {Id = c.Id, AssetType = c.AssetType, Description = c.Description, Name = c.Name}).ToList()
 
             });
 
@@ -64,11 +64,11 @@ namespace IoTSharp.Controllers
                 .SingleOrDefault(x =>
                     x.Id == assetid && x.Customer.Id == profile.Comstomer && x.Tenant.Id == profile.Tenant)?.OwnedAssets
                 .ToList().GroupBy(c => c.DeviceId).Select(c => new
-                {
-                    Device = c.Key,
-                    Attrs = c.Where(c => c.DataCatalog == DataCatalog.AttributeLatest).ToList(),
-                    Temps = c.Where(c => c.DataCatalog == DataCatalog.TelemetryLatest).ToList()
-                }
+                    {
+                        Device = c.Key,
+                        Attrs = c.Where(c => c.DataCatalog == DataCatalog.AttributeLatest).ToList(),
+                        Temps = c.Where(c => c.DataCatalog == DataCatalog.TelemetryLatest).ToList()
+                    }
                 ).ToList().Join(_context.Device, x => x.Device, y => y.Id, (x, y) => new AssetDeviceItem
                 {
                     Id = x.Device,
@@ -80,12 +80,18 @@ namespace IoTSharp.Controllers
                     Status = y.Status,
                     Timeout = y.Timeout,
                     Attrs = x.Attrs.Select(c => new ModelAssetAttrItem
-                    { dataSide = c.DataCatalog, keyName = c.KeyName, Name = c.Name, }).ToArray(),
+                    {
+                        dataSide = c.DataCatalog, keyName = c.KeyName, Name = c.Name, Description = c.Description,
+                        Id = c.Id
+                    }).ToArray(),
                     Temps = x.Temps.Select(c => new ModelAssetAttrItem
-                    { dataSide = c.DataCatalog, keyName = c.KeyName, Name = c.Name }).ToArray(),
+                    {
+                        dataSide = c.DataCatalog, keyName = c.KeyName, Name = c.Name, Description = c.Description,
+                        Id = c.Id
+                    }).ToArray(),
                 }).ToList();
             return new ApiResult<PagedData<AssetDeviceItem>>(ApiCode.Success, "OK",
-                new PagedData<AssetDeviceItem>() { total = result?.Count ?? 0, rows = result }
+                new PagedData<AssetDeviceItem>() {total = result?.Count ?? 0, rows = result}
             );
 
         }
@@ -287,24 +293,20 @@ namespace IoTSharp.Controllers
 
         [HttpDelete]
 
-        public async Task<ApiResult<bool>> RemoveAssetAttr(Guid assetId, Guid deviceid, string Keyname)
+        public async Task<ApiResult<bool>> RemoveAssetRaletions(Guid relationId)
         {
             var profile = this.GetUserProfile();
             try
             {
-                var asset = await _context.Assets.Include(c => c.Customer).Include(c => c.Tenant)
-                     .Include(c => c.OwnedAssets).SingleOrDefaultAsync(c =>
-                         c.Id == assetId && c.Customer.Id == profile.Comstomer && c.Tenant.Id == profile.Tenant);
-
-                var attr = asset.OwnedAssets.FirstOrDefault(c =>
-                      c.DeviceId == deviceid && c.DataCatalog == DataCatalog.AttributeLatest && c.KeyName == Keyname);
+                var attr = _context.AssetRelations.SingleOrDefault(c => c.Id == relationId);
                 if (attr != null)
                 {
-                    asset.OwnedAssets.Remove(attr);
-                    await _context.SaveChangesAsync(); return new ApiResult<bool>(ApiCode.Success, "Ok", true);
+                    _context.AssetRelations.Remove(attr);
+                    await _context.SaveChangesAsync();
+                    return new ApiResult<bool>(ApiCode.Success, "Ok", true);
                 }
 
-                return new ApiResult<bool>(ApiCode.Success, "can't find this attribute", false);
+                return new ApiResult<bool>(ApiCode.Success, "can't find this raletion", false);
             }
             catch (Exception ex)
             {
@@ -315,33 +317,30 @@ namespace IoTSharp.Controllers
 
 
 
+        [HttpPost]
 
-        [HttpDelete]
-
-        public async Task<ApiResult<bool>> RemoveAssetTemp(Guid assetId, Guid deviceid, string Keyname)
+        public async Task<ApiResult<bool>> EditRelation(ModelAssetAttrItem m)
         {
             var profile = this.GetUserProfile();
             try
             {
-                var asset = await _context.Assets.Include(c => c.Customer).Include(c => c.Tenant)
-                    .Include(c => c.OwnedAssets).SingleOrDefaultAsync(c =>
-                        c.Id == assetId && c.Customer.Id == profile.Comstomer && c.Tenant.Id == profile.Tenant);
-
-                var attr = asset.OwnedAssets.FirstOrDefault(c =>
-                    c.DeviceId == deviceid && c.DataCatalog == DataCatalog.AttributeLatest && c.KeyName == Keyname);
+                var attr = _context.AssetRelations.SingleOrDefault(c => c.Id == m.Id);
                 if (attr != null)
                 {
-                    asset.OwnedAssets.Remove(attr);
-                    await _context.SaveChangesAsync(); return new ApiResult<bool>(ApiCode.Success, "Ok", true);
+                    attr.Description = m.Description;
+                    attr.Name = m.Name;
+                    _context.AssetRelations.Update(attr);
+                    await _context.SaveChangesAsync();
+                    return new ApiResult<bool>(ApiCode.Success, "Ok", true);
                 }
-
-                return new ApiResult<bool>(ApiCode.Success, "can't find this attribute", false);
+                return new ApiResult<bool>(ApiCode.Success, "can't find this raletion", false);
             }
             catch (Exception ex)
             {
                 _logger.Log(LogLevel.Error, ex.Message);
                 return new ApiResult<bool>(ApiCode.Exception, "error", false);
             }
+
         }
     }
 } 

@@ -8,6 +8,9 @@ import { NzDrawerService } from 'ng-zorro-antd/drawer';
 import { AssetentityformComponent } from '../assetentityform/assetentityform.component';
 import { interval, Subscription, zip } from 'rxjs';
 import { appmessage } from '../../common/AppMessage';
+import { AssetrelationformComponent } from '../assetrelationform/assetrelationform.component';
+
+
 
 @Component({
   selector: 'app-assetentitylist',
@@ -230,9 +233,9 @@ export class AssetentitylistComponent implements OnInit, OnDestroy {
   }
 
   removeattrs(attr,device) {
-    this.http.delete<appmessage<Boolean>>('api/asset/removeAssetAttr',
+    this.http.delete<appmessage<Boolean>>('api/asset/removeAssetRaletions',
       {
-        keyName: attr.keyName, deviceid: device.id,assetid:this.id
+        relationId: attr.id
       }).subscribe(next => {
       if (next?.data) {
       this.cead.splice(this.cead.indexOf(attr), 1);
@@ -242,9 +245,9 @@ export class AssetentitylistComponent implements OnInit, OnDestroy {
 
 
   removetemps(temp, device) {
-    this.http.delete<appmessage<Boolean>>('api/asset/removeAssetAttr',
+    this.http.delete<appmessage<Boolean>>('api/asset/removeAssetRaletions',
       {
-        keyName: temp.keyName, deviceid: device.id, assetid: this.id
+        relationId: temp.id
       }).subscribe(next => {
       if (next?.data) {
 
@@ -274,6 +277,34 @@ export class AssetentitylistComponent implements OnInit, OnDestroy {
       this.getData();
     });
   }
+
+  editrelation(params) {
+    var { nzMaskClosable, width } = this.settingService.getData('drawerconfig');
+    var title = '修改映射';
+    const drawerRef = this.drawerService.create<AssetrelationformComponent, { params: any }, any>({
+      nzTitle: title,
+      nzContent: AssetrelationformComponent,
+      nzWidth: width,
+      nzMaskClosable: nzMaskClosable,
+      nzContentParams: {
+        params: params
+      }
+    });
+
+
+    drawerRef.afterOpen.subscribe(() => { });
+
+    drawerRef.afterClose.subscribe(data => {
+
+      // data is edited assetralation
+  
+      this.getData();
+    });
+
+
+  }
+
+
   submit(i) {}
   updateEdit(i, edit) {
     this.st.setRow(i, { edit }, { refreshSchema: true });
@@ -288,5 +319,10 @@ export class AssetentitylistComponent implements OnInit, OnDestroy {
       status: null
     };
   }
-  getData() {}
+  getData() {
+
+    this.st.req = this.req;
+    this.st.load(1);
+
+  }
 }

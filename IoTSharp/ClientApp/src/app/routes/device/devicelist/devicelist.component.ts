@@ -397,6 +397,7 @@ export class DevicelistComponent implements OnInit, OnDestroy {
     switch ($events.type) {
       case 'expand':
         if ($events.expand.expand) {
+          this.getdevicedata($events.expand?.id);
           if (this.obs) {
             this.obs.unsubscribe();
           }
@@ -404,148 +405,8 @@ export class DevicelistComponent implements OnInit, OnDestroy {
           this.cetd = [];
           this.cerd = [];
           // this.cett = [];
-          this.obs = interval(20000).subscribe(async () => {
-            zip(
-              this.http.get<appmessage<attributeitem[]>>('api/Devices/' + $events.expand?.id + '/AttributeLatest'),
-              this.http.get<appmessage<ruleitem[]>>('api/Rules/GetDeviceRules?deviceId=' + $events.expand?.id),
-              this.http.get<appmessage<telemetryitem[]>>('api/Devices/' + $events.expand?.id + '/TelemetryLatest')
-              //   this.http.get<appmessage<devicemodelcommand[]>>('api/deviceModel/getCommandsByDevice?id=' + $events.expand?.id ),
-            ).subscribe(
-              ([
-                attributes,
-                rules,
-                telemetries
-                //  commands
-              ]) => {
-                // $events.expand.attributes = attributes.data;
-                // $events.expand.rules = rules.data;
-                // $events.expand.telemetries = telemetries.data;
-
-                if (rules.data.length == 0) {
-                  this.cerd = [];
-                } else {
-                  for (var i = 0; i < rules.data.length; i++) {
-                    var index = this.cerd.findIndex(c => c.ruleId == rules.data[i].ruleId);
-                    if (index === -1) {
-                      this.cerd.push(rules.data[i]);
-                    }
-                  }
-
-                  var removed: ruleitem[] = [];
-
-                  for (var i = 0; i < this.cerd.length; i++) {
-                    if (!rules.data.some(c => c.ruleId == this.cerd[i].ruleId)) {
-                      removed = [...removed, this.cerd[i]];
-                    }
-                  }
-
-                  for (var item of removed) {
-                    this.cerd.slice(
-                      this.cerd.findIndex(c => c.ruleId == item.ruleId),
-                      1
-                    );
-                  }
-                }
-
-
-
-                if (this.cetd.length === 0) {
-                  this.cetd = telemetries.data;
-                } else {
-                  for (var i = 0; i < telemetries.data.length; i++) {
-                    var flag = false;
-                    for (var j = 0; j < this.cetd.length; j++) {
-                      if (telemetries.data[i].keyName === this.cetd[j].keyName) {
-
-
-
-                        switch (typeof telemetries.data[i].value) {
-                        case 'number':
-                          if (this.cetd[i]['value']) {
-                            if (this.cetd[i]['value'] > telemetries.data[j]['value']) {
-                              this.cetd[i]['class'] = 'valdown';
-                            } else if (this.cetd[i]['value'] < telemetries.data[j]['value']) {
-                              this.cetd[i]['class'] = 'valup';
-                            } else {
-                              this.cetd[i]['class'] = 'valnom';
-                            }
-                          } else {
-                            this.cetd[i]['class'] = 'valnom';
-                          }
-
-                          break;
-                        default:
-                          if (this.cetd[i]['value']) {
-                            if (this.cetd[i]['value'] === telemetries.data[j]['value']) {
-                              this.cetd[i]['class'] = 'valnom';
-                            } else {
-                              this.cetd[i]['class'] = 'valchange';
-                            }
-                          } else {
-                            this.cetd[i]['class'] = 'valnom';
-                          } break;
-                        }
-                        this.cetd[j].value = telemetries.data[i].value;
-                        flag = true;
-                      }
-                    }
-                    if (!flag) {
-                      telemetries.data[i].class = 'valnew';
-                      this.cetd.push(telemetries.data[i]);
-                    }
-                  }
-                }
-
-                if (this.cead.length === 0) {
-                  this.cead = attributes.data;
-                } else {
-                  for (var i = 0; i < attributes.data.length; i++) {
-                    var flag = false;
-                    for (var j = 0; j < this.cead.length; j++) {
-                      if (attributes.data[i].keyName === this.cead[j].keyName) {
-                        switch (typeof attributes.data[i].value) {
-                          case 'number':
-                            if (this.cead[i]['value']) {
-                              if (this.cead[i]['value'] > attributes.data[j]['value']) {
-                                this.cead[i]['class'] = 'valdown';
-                              } else if (this.cead[i]['value'] < attributes.data[j]['value']) {
-                                this.cead[i]['class'] = 'valup';
-                              } else {
-                                this.cead[i]['class'] = 'valnom';
-                              }
-                            } else {
-                              this.cead[i]['class'] = 'valnom';
-                            }
-
-                          break;
-                          default:
-                            if (this.cead[i]['value']) {
-                              if (this.cead[i]['value'] === attributes.data[j]['value']) {
-                                this.cead[i]['class'] = 'valnom';
-                              } else {
-                                this.cead[i]['class'] = 'valchange';
-                              }
-                            } else {
-                              this.cead[i]['class'] = 'valnom';
-                            } break;
-                        }
-
-                        this.cead[j].value = attributes.data[i].value;
-                        flag = true;
-                      }
-                    }
-                    if (!flag) {
-                      attributes.data[i].class = 'valnew';
-                      this.cead.push(attributes.data[i]);
-                    }
-                  }
-                }
-
-                // if(this.cett.length==0){
-                //   this.cett=commands.data;
-                // }
-              }
-            );
+          this.obs = interval(1000).subscribe(async () => {
+            this.getdevicedata($events.expand?.id);
           });
         } else {
           this.cead = [];
@@ -560,6 +421,152 @@ export class DevicelistComponent implements OnInit, OnDestroy {
         break;
     }
   }
+
+
+
+  getdevicedata(deviceid) {
+
+    zip(
+      this.http.get<appmessage<attributeitem[]>>('api/Devices/' + deviceid + '/AttributeLatest'),
+      this.http.get<appmessage<ruleitem[]>>('api/Rules/GetDeviceRules?deviceId=' + deviceid),
+      this.http.get<appmessage<telemetryitem[]>>('api/Devices/' + deviceid + '/TelemetryLatest')
+      //   this.http.get<appmessage<devicemodelcommand[]>>('api/deviceModel/getCommandsByDevice?id=' + $events.expand?.id ),
+    ).subscribe(
+      ([
+        attributes,
+        rules,
+        telemetries
+        //  commands
+      ]) => {
+        // $events.expand.attributes = attributes.data;
+        // $events.expand.rules = rules.data;
+        // $events.expand.telemetries = telemetries.data;
+
+        if (rules.data.length == 0) {
+          this.cerd = [];
+        } else {
+          for (var i = 0; i < rules.data.length; i++) {
+            var index = this.cerd.findIndex(c => c.ruleId == rules.data[i].ruleId);
+            if (index === -1) {
+              this.cerd.push(rules.data[i]);
+            }
+          }
+
+          var removed: ruleitem[] = [];
+
+          for (var i = 0; i < this.cerd.length; i++) {
+            if (!rules.data.some(c => c.ruleId == this.cerd[i].ruleId)) {
+              removed = [...removed, this.cerd[i]];
+            }
+          }
+
+          for (var item of removed) {
+            this.cerd.slice(
+              this.cerd.findIndex(c => c.ruleId == item.ruleId),
+              1
+            );
+          }
+        }
+
+        if (this.cetd.length === 0) {
+          this.cetd = telemetries.data;
+        } else {
+          for (var i = 0; i < telemetries.data.length; i++) {
+            var flag = false;
+            for (var j = 0; j < this.cetd.length; j++) {
+              if (telemetries.data[i].keyName === this.cetd[j].keyName) {
+                switch (typeof telemetries.data[i].value) {
+                  case 'number':
+                    if (this.cetd[i]['value']) {
+                      if (this.cetd[i]['value'] > telemetries.data[j]['value']) {
+                        this.cetd[i]['class'] = 'valdown';
+                      } else if (this.cetd[i]['value'] < telemetries.data[j]['value']) {
+                        this.cetd[i]['class'] = 'valup';
+                      } else {
+                        this.cetd[i]['class'] = 'valnom';
+                      }
+                    } else {
+                      this.cetd[i]['class'] = 'valnom';
+                    }
+                    break;
+                  default:
+                    if (this.cetd[i]['value']) {
+                      if (this.cetd[i]['value'] === telemetries.data[j]['value']) {
+                        this.cetd[i]['class'] = 'valnom';
+                      } else {
+                        this.cetd[i]['class'] = 'valchange';
+                      }
+                    } else {
+                      this.cetd[i]['class'] = 'valnom';
+                    } break;
+                }
+                this.cetd[j].value = telemetries.data[i].value;
+                flag = true;
+              }
+            }
+            if (!flag) {
+              telemetries.data[i].class = 'valnew';
+              this.cetd.push(telemetries.data[i]);
+            }
+          }
+        }
+
+        if (this.cead.length === 0) {
+          this.cead = attributes.data;
+        } else {
+          for (var i = 0; i < attributes.data.length; i++) {
+            var flag = false;
+            for (var j = 0; j < this.cead.length; j++) {
+              if (attributes.data[i].keyName === this.cead[j].keyName) {
+                switch (typeof attributes.data[i].value) {
+                  case 'number':
+                    if (this.cead[i]['value']) {
+                      if (this.cead[i]['value'] > attributes.data[j]['value']) {
+                        this.cead[i]['class'] = 'valdown';
+                      } else if (this.cead[i]['value'] < attributes.data[j]['value']) {
+                        this.cead[i]['class'] = 'valup';
+                      } else {
+                        this.cead[i]['class'] = 'valnom';
+                      }
+                    } else {
+                      this.cead[i]['class'] = 'valnom';
+                    }
+
+                    break;
+                  default:
+                    if (this.cead[i]['value']) {
+                      if (this.cead[i]['value'] === attributes.data[j]['value']) {
+                        this.cead[i]['class'] = 'valnom';
+                      } else {
+                        this.cead[i]['class'] = 'valchange';
+                      }
+                    } else {
+                      this.cead[i]['class'] = 'valnom';
+                    } break;
+                }
+
+                this.cead[j].value = attributes.data[i].value;
+                flag = true;
+              }
+            }
+            if (!flag) {
+              attributes.data[i].class = 'valnew';
+              this.cead.push(attributes.data[i]);
+            }
+          }
+        }
+
+        // if(this.cett.length==0){
+        //   this.cett=commands.data;
+        // }
+      }
+    );
+
+
+
+
+  }
+
 
   executeCommand(item: deviceitem, command: devicemodelcommand) {
     this.http.post('api/Devices/' + item.identityId + '/Rpc/' + command.commandName + '?timeout=300', {}).subscribe(
