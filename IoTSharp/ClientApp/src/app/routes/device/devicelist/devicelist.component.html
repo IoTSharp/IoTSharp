@@ -6,7 +6,7 @@
           <nz-form-item>
             <nz-form-label nzFor="name">设备名称</nz-form-label>
             <nz-form-control>
-              <input nz-input [(ngModel)]="q.name" placeholder="请输入设备名称" [ngModelOptions]="{ standalone: true }" />
+              <input nz-input [(ngModel)]="q.name" placeholder="请输入设备名称或者Id" [ngModelOptions]="{ standalone: true }" />
             </nz-form-control>
           </nz-form-item>
         </div>
@@ -61,7 +61,7 @@
             </tr></thead
           >
           <tbody>
-            <tr *ngFor="let _item of cead; let i = index; let odd = odd">
+            <tr *ngFor="let _item of cead; let i = index; let odd = odd" [ngClass]="_item.class">
               <td>{{ _item.keyName }}</td>
               <td>{{ _item.value }}</td>
               <td>{{ _item.dataSide }}</td>
@@ -115,7 +115,7 @@
                 </tr></thead
               >
               <tbody>
-                <tr *ngFor="let _item of cetd; let i = index; let odd = odd">
+                <tr *ngFor="let _item of cetd; let i = index; let odd = odd" [ngClass]="_item.class">
                   <td>{{ _item.keyName }}</td>
                   <td>{{ _item.value }}</td>
                   <td>{{ _item.dateTime }}</td>
@@ -136,7 +136,7 @@
             </tr></thead
           >
           <tbody>
-            <tr *ngFor="let _item of cerd; let i = index; let odd = odd">
+            <tr *ngFor="let _item of cerd; let i = index; let odd = odd" >
               <td>{{ _item.name }}</td>
               <td>{{ _item.ruleDesc }}</td>
               <td>

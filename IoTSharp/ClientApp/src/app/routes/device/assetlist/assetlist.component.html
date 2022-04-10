@@ -36,26 +36,12 @@
         [page]="page"
         [req]="req"
         [res]="res"
-        [expand]="expand"
-        expandRowByClick
-        expandAccordion
-        (change)="onchange($event)"
       >
      
       </st>
     </nz-card>
 
-    <ng-template #expand let-item let-index="index" let-column="column">
-      <st [data]="relations" [columns]="columnsChildren" [page]="{ show: false }">
-        <ng-template st-row="nameTpl" let-item let-index="index">
-          <input *ngIf="item.edit" nz-input [ngModel]="item.name" (ngModelChange)="st.setRow(index, { name: $event })" />
-          <ng-container *ngIf="!item.edit">{{ item.name }}</ng-container>
-        </ng-template>
-
-
-
-      </st>
-    </ng-template>
+   
     <ng-template #modalContent>
       <nz-form-item>
         <nz-form-label nzFor="no">描述</nz-form-label>
@@ -65,4 +51,3 @@
       </nz-form-item>
     </ng-template>
   </page-header>
-  

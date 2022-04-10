@@ -8,8 +8,7 @@ import { NzDrawerService } from 'ng-zorro-antd/drawer';
 import { AssetentityformComponent } from '../assetentityform/assetentityform.component';
 import { interval, Subscription, zip } from 'rxjs';
 import { appmessage } from '../../common/AppMessage';
-import { number } from 'echarts';
-import { $ } from 'protractor';
+
 @Component({
   selector: 'app-assetentitylist',
   templateUrl: './assetentitylist.component.html',
@@ -76,6 +75,18 @@ export class AssetentitylistComponent implements OnInit, OnDestroy {
     { title: '最后活动时间', index: 'lastActive', type: 'date' },
     { title: '在线状态', index: 'online', type: 'badge', badge: this.BADGE }
   ];
+
+  childrencolumns: STColumn[] = [
+
+    { title: '属性名称', index: 'keyName', render: 'name' },
+    { title: '设备类型', index: 'dataSide',  },
+    { title: '设备类型', index: 'value',  },
+    { title: '最后活动时间', index: 'dateTime', type: 'date' },
+    { title: '在线状态', index: 'keyName', type: 'badge', },
+    { title: '操作', index: 'keyName',  },
+  ];
+
+
   constructor(
     private _router: ActivatedRoute,
     private http: _HttpClient,
@@ -111,8 +122,7 @@ export class AssetentitylistComponent implements OnInit, OnDestroy {
           this.cetd = [];
           this.cead = $events.expand?.attrs;
           this.cetd = $events.expand?.temps;
-
-          this.obs = interval(6000).subscribe(async () => {
+          this.obs = interval(2000).subscribe(async () => {
             zip(
               this.http.get<appmessage<any[]>>('api/Devices/' + $events.expand?.id + '/AttributeLatest'),
               this.http.get<appmessage<any[]>>('api/Devices/' + $events.expand?.id + '/TelemetryLatest')
@@ -133,25 +143,25 @@ export class AssetentitylistComponent implements OnInit, OnDestroy {
                         case 'number':
                           if (this.cead[i]['value']) {
                             if (this.cead[i]['value'] > attributes.data[j]['value']) {
-                              this.cead[i]['class'] = 'valdown';
+                              this.cead[i]['className'] = 'valdown';
                             } else if (this.cead[i]['value'] < attributes.data[j]['value']) {
-                              this.cead[i]['class'] = 'valup';
+                              this.cead[i]['className'] = 'valup';
                             } else {
-                              this.cead[i]['class'] = 'valnom';
+                              this.cead[i]['className'] = 'valnom';
                             }
                           } else {
-                            this.cead[i]['class'] = 'valnom';
+                            this.cead[i]['className'] = 'valnom';
                           }
                           break;
                         default:
                           if (this.cead[i]['value']) {
                             if (this.cead[i]['value'] === attributes.data[j]['value']) {
-                              this.cead[i]['class'] = 'valnom';
+                              this.cead[i]['className'] = 'valnom';
                             } else {
-                              this.cead[i]['class'] = 'valchange';
+                              this.cead[i]['className'] = 'valchange';
                             }
                           }else{
-                            this.cead[i]['class'] = 'valnom';
+                            this.cead[i]['className'] = 'valnom';
                           }
                
                           break;
@@ -160,8 +170,42 @@ export class AssetentitylistComponent implements OnInit, OnDestroy {
                     }
                   }
                 }
+                
 
-             
+                for (var i = 0; i < this.cetd.length; i++) {
+                  for (var j = 0; j < telemetries.data.length; j++) {
+                    if (this.cetd[i]['keyName'] === telemetries.data[j].keyName) {
+                      switch (typeof telemetries.data[j]['value']) {
+                        case 'number':
+                          if (this.cetd[i]['value']) {
+                            if (this.cetd[i]['value'] > telemetries.data[j]['value']) {
+                              this.cetd[i]['class'] = 'valdown';
+                            } else if (this.cetd[i]['value'] < telemetries.data[j]['value']) {
+                              this.cetd[i]['className'] = 'valup';
+                            } else {
+                              this.cetd[i]['className'] = 'valnom';
+                            }
+                          } else {
+                            this.cetd[i]['className'] = 'valnom';
+                          }
+                          break;
+                        default:
+                          if (this.cetd[i]['value']) {
+                            if (this.cetd[i]['value'] === telemetries.data[j]['value']) {
+                              this.cetd[i]['className'] = 'valnom';
+                            } else {
+                              this.cetd[i]['className'] = 'valchange';
+                            }
+                          } else {
+                            this.cetd[i]['className'] = 'valnom';
+                          }
+
+                          break;
+                      }
+                      this.cetd[i]['value'] = telemetries.data[j]['value'];
+                    }
+                  }
+                }
                 for (var i = 0; i < this.cetd.length; i++) {
                   for (var j = 0; j < telemetries.data.length; j++) {
                     if (this.cetd[i]['keyName'] === telemetries.data[j]['keyName']) {
@@ -169,6 +213,8 @@ export class AssetentitylistComponent implements OnInit, OnDestroy {
                     }
                   }
                 }
+
+
               }
             );
           });
@@ -183,19 +229,26 @@ export class AssetentitylistComponent implements OnInit, OnDestroy {
     }
   }
 
-  removeattrs(attr) {
-
-
-
-
+  removeattrs(attr,device) {
+    this.http.delete<appmessage<Boolean>>('api/asset/removeAssetAttr',
+      {
+        keyName: attr.keyName, deviceid: device.id,assetid:this.id
+      }).subscribe(next => {
+      if (next?.data) {
+      this.cead.splice(this.cead.indexOf(attr), 1);
+      }
+    }, error => {}, () => {});
   }
 
 
-  removetemps(temp) {
+  removetemps(temp, device) {
+    this.http.delete<appmessage<Boolean>>('api/asset/removeAssetAttr',
+      {
+        keyName: temp.keyName, deviceid: device.id, assetid: this.id
+      }).subscribe(next => {
+      if (next?.data) {
 
-
-
-    
+      } }, error => { }, () => { });
   }
 
   openComponent() {
@@ -210,6 +263,7 @@ export class AssetentitylistComponent implements OnInit, OnDestroy {
         id: this.id
       }
     });
+
 
     drawerRef.afterOpen.subscribe(() => {});
 

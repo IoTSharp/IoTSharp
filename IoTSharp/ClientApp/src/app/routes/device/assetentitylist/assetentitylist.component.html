@@ -48,31 +48,31 @@
   </nz-card>
   <ng-template #expand let-item let-index="index" let-column="column">
     <nz-card nzTitle="设备属性">
+
       <nz-table [nzNoResult]="null">
         <thead>
           <tr>
             <td>属性名称</td>
             <td>属性值</td>
             <td>数据侧</td>
-            <td>时间</td> <td>操作</td>
-          </tr></thead
-        >
+            <td>时间</td>
+            <td>操作</td>
+          </tr>
+        </thead>
         <tbody>
-          <tr *ngFor="let _item of cead; let i = index; let odd = odd" [ngClass]="_item.class">
+          <tr *ngFor="let _item of cead; let i = index; let odd = odd" [ngClass]="_item.className">
             <td>{{ _item.keyName }}</td>
             <td>{{ _item.value }}</td>
             <td>{{ _item.dataSide }}</td>
             <td>{{ _item.dateTime }}</td>
             <td>
-              <button
-                nz-button
-                nzType="text"
-                nzDanger
-                nz-popconfirm
-                nzPopconfirmTitle="确认删除属性?"
-                (nzOnConfirm)="removeattrs(_item)"
-                nzPopconfirmPlacement="topLeft"
-              >
+              <button nz-button
+                      nzType="text"
+                      nzDanger
+                      nz-popconfirm
+                      nzPopconfirmTitle="确认删除属性?"
+                      (nzOnConfirm)="removeattrs(_item,item)"
+                      nzPopconfirmPlacement="topLeft">
                 删除
               </button>
             </td>
@@ -123,7 +123,7 @@
                     nzDanger
                     nz-popconfirm
                     nzPopconfirmTitle="确认删除属性?"
-                    (nzOnConfirm)="removetemps(_item)"
+                    (nzOnConfirm)="removetemps(_item,item)"
                     nzPopconfirmPlacement="topLeft"
                   >
                     删除

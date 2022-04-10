@@ -5,8 +5,6 @@ import { _HttpClient, ModalHelper, SettingsService } from '@delon/theme';
 import { Guid } from 'guid-typescript';
 import { NzDrawerService } from 'ng-zorro-antd/drawer';
 import { NzMessageService } from 'ng-zorro-antd/message';
-import { nextTick, title } from 'process';
-import { AppMessage } from '../../common/AppMessage';
 import { AssetformComponent } from '../assetform/assetform.component';
 
 @Component({
@@ -88,35 +86,7 @@ export class AssetlistComponent implements OnInit {
     2: { text: '进行中', color: 'blue' }
   };
 
-  columnsChildren: STColumn[] = [
-    { title: 'id', index: 'id' },
-    { title: '名称', index: 'name' },
-    { title: '描述', index: 'description' },
-    { title: '类型', index: 'assetType' },
-    { title: '键名称', index: 'keyName' },
-    { title: '数据类型', index: 'dataCatalog' },{
-      title: 'OP',
-      buttons: [
-        {
-          text: `Edit`,
-          iif: i => !i.edit,
-          click: i => this.updateEdit(i, true),
-        },
-        {
-          text: `Save`,
-          iif: i => i.edit,
-          click: i => {
-            this.submit(i);
-          },
-        },
-        {
-          text: `Cancel`,
-          iif: i => i.edit,
-          click: i => this.updateEdit(i, false),
-        },
-      ],
-    },
-  ];
+ 
 
   columns: STColumn[] = [
     { title: '', index: 'id', type: 'checkbox' },
@@ -131,11 +101,9 @@ export class AssetlistComponent implements OnInit {
     {
       title: { i18n: 'table.operation' },
       buttons: [
-
-
         {
           text: '资产管理',
-          i18n: 'common.asset',
+         /* i18n: 'common.asset',*/
           acl: 60,
           click: (item: any) => {
             this._router.navigateByUrl('iot/device/assetentitylist?id='+item.id);

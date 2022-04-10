@@ -404,7 +404,7 @@ export class DevicelistComponent implements OnInit, OnDestroy {
           this.cetd = [];
           this.cerd = [];
           // this.cett = [];
-          this.obs = interval(1000).subscribe(async () => {
+          this.obs = interval(20000).subscribe(async () => {
             zip(
               this.http.get<appmessage<attributeitem[]>>('api/Devices/' + $events.expand?.id + '/AttributeLatest'),
               this.http.get<appmessage<ruleitem[]>>('api/Rules/GetDeviceRules?deviceId=' + $events.expand?.id),
@@ -447,18 +447,50 @@ export class DevicelistComponent implements OnInit, OnDestroy {
                   }
                 }
 
+
+
                 if (this.cetd.length === 0) {
                   this.cetd = telemetries.data;
                 } else {
                   for (var i = 0; i < telemetries.data.length; i++) {
                     var flag = false;
                     for (var j = 0; j < this.cetd.length; j++) {
-                      if (telemetries.data[i].keyName == this.cetd[j].keyName) {
+                      if (telemetries.data[i].keyName === this.cetd[j].keyName) {
+
+
+
+                        switch (typeof telemetries.data[i].value) {
+                        case 'number':
+                          if (this.cetd[i]['value']) {
+                            if (this.cetd[i]['value'] > telemetries.data[j]['value']) {
+                              this.cetd[i]['class'] = 'valdown';
+                            } else if (this.cetd[i]['value'] < telemetries.data[j]['value']) {
+                              this.cetd[i]['class'] = 'valup';
+                            } else {
+                              this.cetd[i]['class'] = 'valnom';
+                            }
+                          } else {
+                            this.cetd[i]['class'] = 'valnom';
+                          }
+
+                          break;
+                        default:
+                          if (this.cetd[i]['value']) {
+                            if (this.cetd[i]['value'] === telemetries.data[j]['value']) {
+                              this.cetd[i]['class'] = 'valnom';
+                            } else {
+                              this.cetd[i]['class'] = 'valchange';
+                            }
+                          } else {
+                            this.cetd[i]['class'] = 'valnom';
+                          } break;
+                        }
                         this.cetd[j].value = telemetries.data[i].value;
                         flag = true;
                       }
                     }
                     if (!flag) {
+                      telemetries.data[i].class = 'valnew';
                       this.cetd.push(telemetries.data[i]);
                     }
                   }
@@ -470,12 +502,40 @@ export class DevicelistComponent implements OnInit, OnDestroy {
                   for (var i = 0; i < attributes.data.length; i++) {
                     var flag = false;
                     for (var j = 0; j < this.cead.length; j++) {
-                      if (attributes.data[i].keyName == this.cead[j].keyName) {
+                      if (attributes.data[i].keyName === this.cead[j].keyName) {
+                        switch (typeof attributes.data[i].value) {
+                          case 'number':
+                            if (this.cead[i]['value']) {
+                              if (this.cead[i]['value'] > attributes.data[j]['value']) {
+                                this.cead[i]['class'] = 'valdown';
+                              } else if (this.cead[i]['value'] < attributes.data[j]['value']) {
+                                this.cead[i]['class'] = 'valup';
+                              } else {
+                                this.cead[i]['class'] = 'valnom';
+                              }
+                            } else {
+                              this.cead[i]['class'] = 'valnom';
+                            }
+
+                          break;
+                          default:
+                            if (this.cead[i]['value']) {
+                              if (this.cead[i]['value'] === attributes.data[j]['value']) {
+                                this.cead[i]['class'] = 'valnom';
+                              } else {
+                                this.cead[i]['class'] = 'valchange';
+                              }
+                            } else {
+                              this.cead[i]['class'] = 'valnom';
+                            } break;
+                        }
+
                         this.cead[j].value = attributes.data[i].value;
                         flag = true;
                       }
                     }
                     if (!flag) {
+                      attributes.data[i].class = 'valnew';
                       this.cead.push(attributes.data[i]);
                     }
                   }
@@ -554,13 +614,15 @@ export interface deviceitem {
 export interface telemetryitem {
   keyName: string;
   dateTime: string;
-  value: string;
+  value: any;
+  class?:string;
 }
 export interface attributeitem {
   keyName: string;
   dataSide: string;
   dateTime: string;
-  value: string;
+  value: any;
+  class?: string;
 }
 
 export interface ruleitem {
