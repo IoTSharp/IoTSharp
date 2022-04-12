@@ -9,7 +9,7 @@
     <PackageReference Include="AspNetCore.HealthChecks.UI.Core" Version="6.0.4" />
     <PackageReference Include="AspNetCore.HealthChecks.UI.SqlServer.Storage" Version="6.0.4" />
     <PackageReference Include="EFCore.Sharding.SqlServer" Version="6.0.3" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="6.0.3" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="6.0.4" />
   </ItemGroup>
 
   <ItemGroup>
