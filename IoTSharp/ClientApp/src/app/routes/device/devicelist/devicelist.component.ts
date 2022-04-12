@@ -17,6 +17,7 @@ import { ProppartComponent } from '../deviceprop/proppart/proppart.component';
 import { devicemodelcommand } from '../../devicemodel/devicemodelcommandparam';
 import { ExporttoassetComponent } from '../exporttoasset/exporttoasset.component';
 import { attributeitem, deviceitem, ruleitem, telemetryitem } from '../devicemodel';
+import { WidgetdeviceComponent } from '../../widgets/widgetdevice/widgetdevice.component';
 @Component({
   selector: 'app-devicelist',
   templateUrl: './devicelist.component.html',
@@ -93,7 +94,10 @@ export class DevicelistComponent implements OnInit, OnDestroy {
   ctype = {};
   columns: STColumn[] = [
     { title: '', index: 'id', type: 'checkbox' },
-    { title: '名称', index: 'name', render: 'name' },
+    {
+      title: '名称', index: 'name', render: 'name', type: 'link', click: (item: any) => {
+        this.showdeviceDetail(item.id)
+    }},
     { title: '设备类型', index: 'deviceType', type: 'tag', tag: this.DeviceTAG },
     { title: '在线状态', index: 'online', type: 'badge', badge: this.BADGE },
     { title: '最后活动时间', index: 'lastActive', type: 'date' },
@@ -597,6 +601,33 @@ export class DevicelistComponent implements OnInit, OnDestroy {
         () => {},
         () => {}
       );
+  }
+
+
+  showdeviceDetail(id) {
+    var { nzMaskClosable, width } = this.settingService.getData('drawerconfig');
+    let title = '设备详情';
+    const drawerRef = this.drawerService.create<
+      WidgetdeviceComponent,
+      {
+        id: string;
+      },
+      string
+    >({
+      nzTitle: title,
+      nzContent: WidgetdeviceComponent,
+      nzWidth: window.innerWidth*0.8,
+      nzMaskClosable: nzMaskClosable,
+      nzContentParams: {
+        id: id
+      }
+    });
+    drawerRef.afterOpen.subscribe(() => {
+    
+    });
+    drawerRef.afterClose.subscribe(() => { });
+
+
   }
 }
 

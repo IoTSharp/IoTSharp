@@ -90,7 +90,6 @@ export class AssetlistComponent implements OnInit {
 
   columns: STColumn[] = [
     { title: '', index: 'id', type: 'checkbox' },
-    { title: 'id', index: 'id' },
     {
       title: '资产名称(数量)',
       index: 'name'
