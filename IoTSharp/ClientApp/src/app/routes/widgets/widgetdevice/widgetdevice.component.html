@@ -1,6 +1,6 @@
 <page-header  >
 
-  <nz-card [nzBordered]="false" class="mb-lg" nzTitle="设备详情">
+  <nz-card [nzBordered]="false" class="mb-lg" nzTitle="基本信息">
     <sv-container size="small" col="2">
       <sv label="设备名称">{{device?.name}}</sv>
       <sv label="类型">{{device?.deviceType}}</sv>
@@ -16,7 +16,7 @@
       <nz-tabset nzSize="large">
         <nz-tab nzTitle="告警">
           <st
-          #st
+          #stalarm
           [columns]="columns"
           [data]="alarmapi"
           ps="20"
@@ -25,7 +25,7 @@
             total: true,
             zeroIndexed: true
           }"
-          [req]="{ method: 'POST', allInBody: true, reName: { pi: 'offset', ps: 'limit' }, params: this.qal }"
+          [req]="alarmerq"
           [res]="res"
           [expand]="expand"
           expandRowByClick
@@ -38,19 +38,125 @@
           </ng-template>
         </st>
         </nz-tab>
-        <nz-tab nzTitle="实时">
+      
+        <nz-tab nzTitle="属性">
+          <nz-table [nzNoResult]="null">
+            <thead>
+              <tr>
+                <td>属性名称</td>
+                <td>属性值</td>
+                <td>数据侧</td>
+                <td>时间</td>
+                <td>操作</td>
+              </tr></thead
+            >
+            <tbody>
+              <tr *ngFor="let _item of cead; let i = index; let odd = odd" [ngClass]="_item.class">
+                <td>{{ _item.keyName }}</td>
+                <td>{{ _item.value }}</td>
+                <td>{{ _item.dataSide }}</td>
+                <td>{{ _item.dateTime }}</td>
+                <td>
+                  <button
+                    nz-button
+                    nzType="text"
+                    nzDanger
+                    nz-popconfirm
+                    nzPopconfirmTitle="确认删除属性?"
+                    (nzOnConfirm)="removeprop(_item)"
+                    nzPopconfirmPlacement="topLeft"
+                  >
+                    删除
+                  </button>
+                </td>
+  
+              </tr>
+            </tbody>
+          </nz-table>
+      
 
-          2
         </nz-tab>
-        <nz-tab nzTitle="历史">
+        <nz-tab nzTitle="遥测">
+     
+            <nz-tabset nzSize="large">
+              <nz-tab nzTitle="数据">
+                <nz-table [nzNoResult]="null">
+                  <thead>
+                    <tr>
+                      <td>遥测名称</td>
+                      <td>遥测值</td>
+                      <td>时间</td>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr *ngFor="let _item of cetd; let i = index; let odd = odd" [ngClass]="_item.class">
+                      <td>{{ _item.keyName }}</td>
+                      <td>{{ _item.value }}</td>
+                      <td>{{ _item.dateTime }}</td>
+                    </tr>
+                  </tbody>
+                </nz-table>
+              </nz-tab>
 
-          3
+              <nz-tab nzTitle="图表">
+                <div *ngFor="let _item of cetd; let i = index; let odd = odd">
+                  <g2-gauge [title]="_item.keyName" [height]="180" [percent]="_item.value" style="width: 200px"></g2-gauge>
+                </div>
+              </nz-tab>
+
+              <nz-tab nzTitle="历史">
+                <div>
+
+
+              </div></nz-tab>
+            </nz-tabset>
+     
+      
 
         </nz-tab>
-
         <nz-tab nzTitle="规则">
-
-          3
+          <nz-table [nzNoResult]="null">
+            <thead>
+            <tr>
+              <td>规则名称</td>
+              <td>备注</td>
+              <td>操作</td>
+            </tr>
+            </thead>
+            <tbody>
+            <tr *ngFor="let _item of cerd;s let i = index; let odd = odd">
+              <td>{{ _item.name }}</td>
+              <td>{{ _item.ruleDesc }}</td>
+              <td>
+                <button nz-button
+                        nzType="text"
+                        nzDanger
+                        nz-popconfirm
+                        nzPopconfirmTitle="确认删除规则?"
+                        (nzOnConfirm)="removerule( _item)"
+                        nzPopconfirmPlacement="topLeft">
+                  删除
+                </button>
+              </td>
+            </tr>
+            </tbody>
+          </nz-table>
+        </nz-tab>
+        <nz-tab nzTitle="事件">
+          <st #stevent [columns]="eventcolumns" [data]="eventsurl" ps="10" [page]="{
+            front: false,
+            total: true,
+            zeroIndexed: true
+          }" [req]="eventreq" [res]="res"   [expand]="expandevent" expandAccordion>
+            <ng-template #expandevent let-item let-index="index" let-column="column">
+              <nz-card nzTitle="描述">
+                {{ item.eventDesc }}
+              </nz-card>
+              <nz-card nzTitle="输入值">
+                {{ item.mataData }}
+              </nz-card>
+            </ng-template>
+          </st>
 
         </nz-tab>
 

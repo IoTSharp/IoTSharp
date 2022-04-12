@@ -320,7 +320,7 @@ namespace IoTSharp.Controllers
 
 
             var profile = this.GetUserProfile();
-            Expression<Func<DeviceRule, bool>> condition = x => x.Device.Customer.Id == profile.Comstomer && x.Device.Status > -1 && x.Device.Tenant.Id == profile.Tenant;
+            Expression<Func<DeviceRule, bool>> condition = x => x.Device.Customer.Id == profile.Comstomer && x.Device.Status > -1 && x.Device.Tenant.Id == profile.Tenant&&x.FlowRule.RuleId==m.ruleId;
             if (!string.IsNullOrEmpty(m.Name))
             {
                 if (System.Text.RegularExpressions.Regex.IsMatch(m.Name, @"(?im)^[{(]?[0-9A-F]{8}[-]?(?:[0-9A-F]{4}[-]?){3}[0-9A-F]{12}[)}]?$"))

@@ -10,7 +10,8 @@ import { map } from 'rxjs/operators';
 import { appmessage, AppMessage } from '../../common/AppMessage';
 import { MyValidators } from '../../common/validators/MyValidators';
 import { devicemodel } from '../../devicemodel/devicemodelcommandparam';
-import { deviceitem } from '../devicelist/devicelist.component';
+import { deviceitem } from '../devicemodel';
+
 
 @Component({
   selector: 'app-deviceform',
