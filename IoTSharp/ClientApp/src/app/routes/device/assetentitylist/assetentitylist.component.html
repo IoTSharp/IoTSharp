@@ -1,4 +1,5 @@
-<page-header [title]="'资产管理'">
+<page-header [title]="'资产管理'" [logo]="logo">
+  <ng-template #logo><div class="logo">  <a routerLink="/iot/device/assetlist"><i nz-icon nzType="left"></i></a> </div></ng-template>
   <nz-card [nzBordered]="false" class>
     <form nz-form class="search__form" action="search">
       <div nz-row [nzGutter]="{ xs: 8, sm: 8, md: 8, lg: 24, xl: 48, xxl: 48 }">
@@ -31,19 +32,18 @@
             <span>{{ 'button.new' | translate }}</span>
           </button>-->
 
-    <st
-      #st
-      [columns]="columns"
-      [data]="url"
-      [expandAccordion]="true"
-      [page]="page"
-      [req]="req"
-      [res]="res"
-      [expand]="expand"
-      [res]="res"
-      expandAccordion
-      (change)="onchange($event)"
-    >
+
+    <st #st
+        [columns]="columns"
+        [data]="url"
+        [expandAccordion]="true"
+        [page]="page"
+        [req]="req"
+        [res]="res"
+        [expand]="expand"
+        [res]="res"
+        expandAccordion
+        (change)="onchange($event)">
     </st>
   </nz-card>
   <ng-template #expand let-item let-index="index" let-column="column">
@@ -70,7 +70,7 @@
             <td>{{ _item.description }}</td>
             <td>{{ _item.dateTime }}</td>
             <td>
-              <button nz-button (click)="editrelation(_item)" 
+              <button nz-button (click)="editrelation(_item)"
                       nzType="text">
                 修改
               </button>
@@ -100,7 +100,7 @@
             </ng-template>
 
             <div nz-row>
-              不要直接绑定,会导致界面重绘 
+              不要直接绑定,会导致界面重绘
               <div *ngFor="let _item of cetd; let i = index; let odd = odd">
                 <g2-gauge [title]="_item.keyName" [height]="180" [percent]="_item.value" style="width: 200px"></g2-gauge>
               </div>
@@ -118,8 +118,8 @@
                 <td>遥测名称</td>
                 <td>遥测值</td>
                 <td>时间</td>
-              </tr></thead
-            >
+              </tr>
+            </thead>
             <tbody>
               <tr *ngFor="let _item of cetd; let i = index; let odd = odd">
                 <td>{{ _item.keyName }}</td>
@@ -127,15 +127,13 @@
                 <td>{{ _item.dateTime }}</td>
 
                 <td>
-                  <button
-                    nz-button
-                    nzType="text"
-                    nzDanger
-                    nz-popconfirm
-                    nzPopconfirmTitle="确认删除属性?"
-                    (nzOnConfirm)="removetemps(_item,item)"
-                    nzPopconfirmPlacement="topLeft"
-                  >
+                  <button nz-button
+                          nzType="text"
+                          nzDanger
+                          nz-popconfirm
+                          nzPopconfirmTitle="确认删除属性?"
+                          (nzOnConfirm)="removetemps(_item,item)"
+                          nzPopconfirmPlacement="topLeft">
                     删除
                   </button>
                 </td>

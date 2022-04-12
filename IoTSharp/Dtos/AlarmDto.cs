@@ -98,6 +98,15 @@ namespace IoTSharp.Dtos
         public object Originator { get; set; }
     }
 
+
+    public class AlarmStatusDto
+    {
+        public Guid Id { get; set; }
+
+        public AlarmStatus AlarmStatus { get; set; }
+
+    }
+
     public class AssetDto
     {
         public Guid Id { get; set; }

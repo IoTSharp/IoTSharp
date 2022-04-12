@@ -315,10 +315,30 @@ namespace IoTSharp.Controllers
         }
 
         [HttpGet("[action]")]
-        public ApiResult<List<Device>> GetRuleDevices(Guid ruleId)
+        public async Task<ApiResult<PagedData<Device>>> GetRuleDevices([FromQuery] DeviceParam m)
         {
+
+
             var profile = this.GetUserProfile();
-            return new ApiResult<List<Device>>(ApiCode.Success, "Ok", _context.DeviceRules.Include(c => c.FlowRule).Where(c => c.FlowRule.RuleId == ruleId && c.FlowRule.Tenant.Id == profile.Tenant).Select(c => c.Device).ToList());
+            Expression<Func<DeviceRule, bool>> condition = x => x.Device.Customer.Id == profile.Comstomer && x.Device.Status > -1 && x.Device.Tenant.Id == profile.Tenant;
+            if (!string.IsNullOrEmpty(m.Name))
+            {
+                if (System.Text.RegularExpressions.Regex.IsMatch(m.Name, @"(?im)^[{(]?[0-9A-F]{8}[-]?(?:[0-9A-F]{4}[-]?){3}[0-9A-F]{12}[)}]?$"))
+                {
+                    condition = condition.And(x => x.Device.Id == Guid.Parse(m.Name));
+                }
+                else
+                {
+                    condition = condition.And(x => x.Device.Name.Contains(m.Name));
+                }
+
+            }
+
+
+            var rows =await _context.DeviceRules.Include(c => c.FlowRule).Include(c => c.Device).Where(condition)
+                .Select(c => c.Device).Skip(m.offset * m.limit).Take(m.limit).ToListAsync();
+            var total =await _context.DeviceRules.Include(c => c.FlowRule).Include(c => c.Device).Where(condition).Select(c=>c.Device).CountAsync();
+            return new ApiResult<PagedData<Device>>(ApiCode.Success, "Ok",  new PagedData<Device> { rows=rows,total= total });
         }
 
         [HttpGet("[action]")]

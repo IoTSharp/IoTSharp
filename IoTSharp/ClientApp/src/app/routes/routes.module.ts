@@ -86,13 +86,14 @@ import { FlowdevicelistComponent } from './flow/flowdevicelist/flowdevicelist.co
 import { DevicedetailviewComponent } from './common/components/devicedetailview/devicedetailview.component';
 import { AssetentityformComponent } from './device/assetentityform/assetentityform.component';
 import { AssetrelationformComponent } from './device/assetrelationform/assetrelationform.component';
+import { RuledeviceComponent } from './flow/ruledevice/ruledevice.component';
 
 const COMPONENTS: Array<Type<null>> = [];
 const Directive: Type<void>[] = [fielddirective, controldirective, toolpaneldirective];
 @NgModule({
   imports: [SharedModule, RouteRoutingModule, G2BarModule, G2GaugeModule, NzIconModule, WidgetsModule, ClipboardModule, NgxEchartsModule.forRoot({
     echarts: () => import('echarts'),
-  }),],
+  }),WidgetsModule],
   declarations: [
     ...COMPONENTS,
 
@@ -171,7 +172,8 @@ const Directive: Type<void>[] = [fielddirective, controldirective, toolpaneldire
     FlowdevicelistComponent,
     DevicedetailviewComponent,
     AssetentityformComponent,
-    AssetrelationformComponent
+    AssetrelationformComponent,
+    RuledeviceComponent
   ]
 })
 export class RoutesModule {}

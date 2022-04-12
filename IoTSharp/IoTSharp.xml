@@ -163,6 +163,20 @@
             <param name="m"></param>
             <returns></returns>
         </member>
+        <member name="M:IoTSharp.Controllers.AlarmController.AckAlarm(IoTSharp.Dtos.AlarmStatusDto)">
+            <summary>
+            确认告警
+            </summary>
+            <param name="m"></param>
+            <returns></returns>
+        </member>
+        <member name="M:IoTSharp.Controllers.AlarmController.ClearAlarm(IoTSharp.Dtos.AlarmStatusDto)">
+            <summary>
+            清除告警信息
+            </summary>
+            <param name="id">告警Id</param>
+            <returns></returns>
+        </member>
         <member name="T:IoTSharp.Controllers.AuthorizedKeysController">
             <summary>
             全局设备认证KEY管理

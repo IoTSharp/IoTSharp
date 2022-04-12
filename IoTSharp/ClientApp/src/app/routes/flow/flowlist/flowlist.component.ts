@@ -146,7 +146,14 @@ export class FlowlistComponent implements OnInit {
             this.testthisflow(item);
           },
         },
-
+        {
+          text: '设备管理',
+          /* i18n: 'common.asset',*/
+          acl: 60,
+          click: (item: any) => {
+            this._router.navigateByUrl('iot/flow/ruledevice?id=' + item.ruleId);
+          }
+        },
         {
           text: '删除',
           //    acl: 104,

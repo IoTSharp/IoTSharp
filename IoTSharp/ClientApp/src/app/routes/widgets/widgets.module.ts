@@ -5,11 +5,14 @@ import { DelonFormModule } from '@delon/form';
 import { SharedModule } from '@shared';
 import { NzCarouselModule } from 'ng-zorro-antd/carousel';
 import { FlowviewerComponent } from './flowviewer/flowviewer.component';
+import { WidgetdeviceComponent } from './widgetdevice/widgetdevice.component';
 
 import { WidgetsRoutingModule } from './widgets-routing.module';
 import { WidgetsComponent } from './widgets/widgets.component';
 
-const COMPONENTS: Type<void>[] = [WidgetsComponent, FlowviewerComponent];
+
+
+const COMPONENTS: Type<void>[] = [WidgetsComponent, FlowviewerComponent,WidgetdeviceComponent];
 
 @NgModule({
   imports: [SharedModule, WidgetsRoutingModule, NzCarouselModule, G2MiniBarModule, G2MiniAreaModule, DelonFormModule],

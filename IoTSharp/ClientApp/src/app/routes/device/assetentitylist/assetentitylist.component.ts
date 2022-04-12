@@ -63,7 +63,7 @@ export class AssetentitylistComponent implements OnInit, OnDestroy {
   page: STPage = {
     front: false,
     total: true,
-    show: false,
+    show: true,
     zeroIndexed: true
   };
 

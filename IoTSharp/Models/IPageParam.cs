@@ -48,7 +48,7 @@ namespace IoTSharp.Controllers.Models
     
         public Guid customerId { get; set; }
 
-
+        public Guid ruleId { get; set; }
 
         public DateTime[] LastActive { get; set; }
         public bool Online { get; set; }

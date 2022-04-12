@@ -221,7 +221,7 @@ export class DevicelistComponent implements OnInit, OnDestroy {
   }
 
   exporttoasset(dev: any[]) {
-    console.log(dev);
+  
     if (dev.length == 0) {
       dev = this.st.list.filter(c => c.checked);
     }
@@ -586,7 +586,7 @@ export class DevicelistComponent implements OnInit, OnDestroy {
     );
   }
 
-  removeruleprop(device: deviceitem, prop: attributeitem) {
+  removeprop(device: deviceitem, prop: attributeitem) {
     this.http
       .delete('api/devices/removeAttribute?deviceId=' + device.id + '&KeyName=' + prop.keyName + '&dataSide=' + prop.dataSide)
       .subscribe(

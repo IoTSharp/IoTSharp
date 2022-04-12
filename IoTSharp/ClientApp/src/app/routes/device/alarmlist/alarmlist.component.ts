@@ -133,7 +133,38 @@ export class AlarmlistComponent implements OnInit {
 
     { title: '设备类型', index: 'originatorType', type: 'tag', tag: this.originatorTypeTAG },
 
+    {
+      title: '操作', index: 'Id', buttons: [
 
+        {
+          text: '确认告警',
+          pop: {
+            title: '确认告警?',
+            okType: 'primary',
+            icon: 'warning'
+          },
+          click: (item: any) => {
+
+            this.acquireAlarm(item);
+
+          
+          }, iif: record => record.alarmStatus === 'Active_UnAck' || record.alarmStatus === 'Cleared_UnAck',
+        }, {
+          text: '清除告警',
+          pop: {
+            title: '清除告警?',
+            okType: 'dashed',
+            icon: 'warning'
+          },
+          iif: record => record.alarmStatus === 'Active_Ack' || record.alarmStatus === 'Active_UnAck',
+          click: (item: any) => {
+
+            this.clearAlarm(item);
+          }
+        },
+
+        ]
+    },
   ];
   selectedRows: STData[] = [];
   description = '';
@@ -178,6 +209,32 @@ export class AlarmlistComponent implements OnInit {
         () => { }
       );
   }
+
+  clearAlarm(item) {
+    this.http.post('api/alarm/clearAlarm',
+      {
+        id:item.id,
+      }).subscribe(next => {
+
+      if (next?.data) {
+        this.getData();
+      }
+    }, error => {},()=>{});
+  }
+
+  acquireAlarm(item) {
+    this.http.post('api/alarm/ackAlarm',
+      {
+        id: item.id,
+      }).subscribe(next => {
+
+      if (next?.data) {
+        this.getData();
+      }
+    }, error => { }, () => { });
+  }
+
+
 
   onOriginatorChange($event) {
     this.q.OriginatorId = this.originators.find(c => c.name == $event)?.id;
