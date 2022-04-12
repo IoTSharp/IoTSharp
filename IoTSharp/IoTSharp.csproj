@@ -49,7 +49,7 @@
 	</PropertyGroup>
 	<ItemGroup>
 
-		<PackageReference Include="AlterNats" Version="0.0.2" />
+		<PackageReference Include="AlterNats" Version="0.0.3" />
 
 		<PackageReference Include="AspNetCore.HealthChecks.Kafka" Version="6.0.2" />
 		<PackageReference Include="AspNetCore.HealthChecks.MongoDb" Version="6.0.2" />
