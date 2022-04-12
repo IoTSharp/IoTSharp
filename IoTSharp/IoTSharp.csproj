@@ -138,7 +138,7 @@
 		<PackageReference Include="Microsoft.Extensions.Hosting.WindowsServices" Version="6.0.0" />
 		<PackageReference Include="MQTTnet.Extensions.ManagedClient" Version="4.0.0-preview5" />
 		<PackageReference Include="Microsoft.AspNetCore.ApiAuthorization.IdentityServer" Version="6.0.3" />
-		<PackageReference Include="Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore" Version="6.0.3" />
+		<PackageReference Include="Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore" Version="6.0.4" />
 		<PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="6.0.3" />
 		<PackageReference Include="Microsoft.AspNetCore.Identity.UI" Version="6.0.3" />
 		<PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="6.0.3" />
