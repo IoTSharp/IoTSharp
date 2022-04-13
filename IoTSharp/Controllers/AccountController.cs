@@ -58,8 +58,20 @@ namespace IoTSharp.Controllers
         [HttpGet, AllowAnonymous]
         public async Task<IActionResult> Avatar()
         {
-            var user = await _userManager.GetUserAsync(User);
-            return IdenticonResult.FromValue(user.Email + user.Id, 64);
+            IdenticonResult result = IdenticonResult.FromValue("IoTSharp", 64);
+            try
+            {
+                if (_signInManager.IsSignedIn(this.User))
+                {
+                    var user = await _userManager.GetUserAsync(User);
+                    result = IdenticonResult.FromValue($"iotsharp_{user?.Email}_{user?.Id}", 64);
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogWarning(ex, $"生成头像失败:{ex.Message}");
+            }
+            return result;
         }
         /// <summary>
         /// 获取当前登录用户信息

@@ -53,7 +53,7 @@ export class StartupService {
             this.settingService.setData('drawerconfig', { width: 720, nzMaskClosable: false });
             this.settingService.setUser({
               name: res.data.username,
-              avatar: '',
+              avatar: "/api/Account/Avatar",
               email: res.data.email,
               modules: res.data.modules,
               comstomer: res.data.comstomer,
