@@ -1,10 +1,13 @@
-import { Component, Input, OnInit, ViewChild } from '@angular/core';
+import { Component, Input, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { STColumn, STColumnTag, STRes, STComponent } from '@delon/abc/st';
+import { G2TimelineMap } from '@delon/chart/timeline';
 import { _HttpClient, SettingsService } from '@delon/theme';
+import { getTimeDistance, toDate } from '@delon/util';
 import { Guid } from 'guid-typescript';
 import { NzDrawerService } from 'ng-zorro-antd/drawer';
-import { zip } from 'rxjs';
+import { forkJoin, interval, Subscription, zip } from 'rxjs';
+import { mergeMap } from 'rxjs/operators';
 import { appmessage } from '../../common/AppMessage';
 import { attributeitem, deviceitem, ruleitem, telemetryitem } from '../../device/devicemodel';
 @Component({
@@ -12,7 +15,7 @@ import { attributeitem, deviceitem, ruleitem, telemetryitem } from '../../device
   templateUrl: './widgetdevice.component.html',
   styleUrls: ['./widgetdevice.component.less']
 })
-export class WidgetdeviceComponent implements OnInit {
+export class WidgetdeviceComponent implements OnInit, OnDestroy {
   @Input() id: string = Guid.EMPTY;
   device: any;
 
@@ -149,17 +152,137 @@ export class WidgetdeviceComponent implements OnInit {
     { title: '事件源', index: 'creatorName' },
     { title: '创建时间', type: 'date', index: 'createrDateTime' }
   ];
+
+  obs: Subscription;
+  averagetempdata: attributeitem[] = [];
+  tempcharts: tempchartitem[] = [];
   constructor(
     private _router: ActivatedRoute,
     private http: _HttpClient,
     private settingService: SettingsService,
     private drawerService: NzDrawerService
   ) {}
+  ngOnDestroy(): void {
+    if (this.obs) {
+      this.obs.unsubscribe();
+    }
+  }
+
+  tempchartschecked() {
+    this.gettemphistory();
+  }
+
+  gettemphistory() {
+    var keys = this.tempcharts
+      .filter(c => c.checked)
+      .map(c => c.label)
+      .join(',');
+    var date = getTimeDistance(-3);
+    this.http
+      .post<appmessage<telemetryitem[]>>('api/devices/' + this.id + '/TelemetryData', {
+        keys: keys,
+        begin: date[0].toISOString(),
+        end: date[1].toISOString(),
+        every: '0.06:00:00:000',
+        aggregate: 'Mean'
+      })
+      .subscribe(
+        next => {
+          this.tempcharts
+            .filter(c => c.checked)
+            .forEach(element => {
+              element.titleMap = { y1: element.label, y2: element.label };
+              element.chartdata = next.data
+                .filter(d => d.keyName == element.label)
+                .map(d => {
+                  return { time: toDate(d.dateTime), y1: d.value };
+                });
+            });
+        },
+        error => {},
+        () => {}
+      );
+  }
 
   ngOnInit(): void {
     this.getdevice();
-    this.getdevicedata(this.id);
     this.getattrs(this.id);
+    this.gettemps(this.id)
+      .pipe(
+        mergeMap(x => {
+          this.settemps(x);
+          x.data.forEach(element => {
+            if (typeof element.value === 'number') {
+              this.averagetempdata.push(element);
+            }
+          });
+          var keys = this.averagetempdata.map(c => c.keyName).join(',');
+          this.tempcharts = this.averagetempdata.map(c => {
+            return { label: c.keyName, value: c.keyName, checked: false, chartdata: [], titleMap: { y1: 'y1', y2: 'y1' } } as tempchartitem;
+          });
+          var date = getTimeDistance(-3);
+          var average = this.http.post('api/devices/' + this.id + '/TelemetryData', {
+            keys: keys,
+            begin: date[0].toISOString(),
+            end: date[1].toISOString(),
+            every: '3.00:00:00:000',
+            aggregate: 'Mean'
+          });
+
+          var max = this.http.post('api/devices/' + this.id + '/TelemetryData', {
+            keys: keys,
+            begin: date[0].toISOString(),
+            end: date[1].toISOString(),
+            every: '3.00:00:00:000',
+            aggregate: 'Max'
+          });
+
+          var min = this.http.post('api/devices/' + this.id + '/TelemetryData', {
+            keys: keys,
+            begin: date[0].toISOString(),
+            end: date[1].toISOString(),
+            every: '3.00:00:00:000',
+            aggregate: 'Min'
+          });
+          return forkJoin([average, max, min]);
+        })
+      )
+      .subscribe(
+        ([average, max, min]) => {
+          average.data.forEach(element => {
+            var cell = this.cetd.find(c => c.keyName === element['keyName']);
+            if (cell) {
+              cell.average = element['value'];
+            }
+          });
+
+          max.data.forEach(element => {
+            var cell = this.cetd.find(c => c.keyName === element['keyName']);
+            if (cell) {
+              cell.max = element['value'];
+            }
+          });
+
+          min.data.forEach(element => {
+            var cell = this.cetd.find(c => c.keyName === element['keyName']);
+            if (cell) {
+              cell.min = element['value'];
+            }
+          });
+        },
+        error => {},
+        () => {}
+      );
+    this.getrules(this.id);
+    this.obs = interval(6000).subscribe(async () => {
+      this.gettemps(this.id).subscribe(
+        next => {
+          this.settemps(next);
+        },
+        error => {},
+        () => {}
+      );
+    });
   }
 
   getdevice() {
@@ -191,32 +314,31 @@ export class WidgetdeviceComponent implements OnInit {
               if (next.data[i].keyName === this.cead[j].keyName) {
                 switch (typeof next.data[i].value) {
                   case 'number':
-                    if (this.cead[i]['value']) {
-                      if (this.cead[i]['value'] > next.data[j]['value']) {
-                        this.cead[i]['class'] = 'valdown';
-                      } else if (this.cead[i]['value'] < next.data[j]['value']) {
-                        this.cead[i]['class'] = 'valup';
+                    if (this.cead[j]['value']) {
+                      if (this.cead[j]['value'] > next.data[i]['value']) {
+                        this.cead[j]['class'] = 'valdown';
+                      } else if (this.cead[j]['value'] < next.data[i]['value']) {
+                        this.cead[j]['class'] = 'valup';
                       } else {
-                        this.cead[i]['class'] = 'valnom';
+                        this.cead[j]['class'] = 'valnom';
                       }
                     } else {
-                      this.cead[i]['class'] = 'valnom';
+                      this.cead[j]['class'] = 'valnom';
                     }
 
                     break;
                   default:
-                    if (this.cead[i]['value']) {
-                      if (this.cead[i]['value'] === next.data[j]['value']) {
-                        this.cead[i]['class'] = 'valnom';
+                    if (this.cead[j]['value']) {
+                      if (this.cead[j]['value'] === next.data[i]['value']) {
+                        this.cead[j]['class'] = 'valnom';
                       } else {
-                        this.cead[i]['class'] = 'valchange';
+                        this.cead[j]['class'] = 'valchange';
                       }
                     } else {
-                      this.cead[i]['class'] = 'valnom';
+                      this.cead[j]['class'] = 'valnom';
                     }
                     break;
                 }
-
                 this.cead[j].value = next.data[i].value;
                 flag = true;
               }
@@ -233,56 +355,62 @@ export class WidgetdeviceComponent implements OnInit {
     );
   }
 
-  gettemps(deviceid) {
-    this.http.get<appmessage<attributeitem[]>>('api/Devices/' + deviceid + '/AttributeLatest').subscribe(
-      next => {
-        if (this.cetd.length === 0) {
-          this.cetd = next.data;
-        } else {
-          for (var i = 0; i < next.data.length; i++) {
-            var flag = false;
-            for (var j = 0; j < this.cetd.length; j++) {
-              if (next.data[i].keyName === this.cetd[j].keyName) {
-                switch (typeof next.data[i].value) {
-                  case 'number':
-                    if (this.cetd[i]['value']) {
-                      if (this.cetd[i]['value'] > next.data[j]['value']) {
-                        this.cetd[i]['class'] = 'valdown';
-                      } else if (this.cetd[i]['value'] < next.data[j]['value']) {
-                        this.cetd[i]['class'] = 'valup';
-                      } else {
-                        this.cetd[i]['class'] = 'valnom';
-                      }
-                    } else {
-                      this.cetd[i]['class'] = 'valnom';
-                    }
-                    break;
-                  default:
-                    if (this.cetd[i]['value']) {
-                      if (this.cetd[i]['value'] === next.data[j]['value']) {
-                        this.cetd[i]['class'] = 'valnom';
-                      } else {
-                        this.cetd[i]['class'] = 'valchange';
-                      }
-                    } else {
-                      this.cetd[i]['class'] = 'valnom';
-                    }
-                    break;
+  settemps(next) {
+    if (this.cetd.length === 0) {
+      this.cetd = next.data;
+    } else {
+      for (var i = 0; i < next.data.length; i++) {
+        var flag = false;
+        for (var j = 0; j < this.cetd.length; j++) {
+          if (next.data[i].keyName === this.cetd[j].keyName) {
+            switch (typeof next.data[i].value) {
+              case 'number':
+                if (this.cetd[j]['value']) {
+                  if (this.cetd[j]['value'] > next.data[i]['value']) {
+                    this.cetd[j].variation = '-' + (this.cetd[j]['value'] - next.data[i]['value']);
+                    this.cetd[j]['class'] = 'valdown';
+                  } else if (this.cetd[j]['value'] < next.data[i]['value']) {
+                    this.cetd[j].variation = '+' + (next.data[i]['value'] - this.cetd[j]['value']);
+                    this.cetd[j]['class'] = 'valup';
+                  } else {
+                    this.cetd[j]['class'] = 'valnom';
+                    this.cetd[j].variation = '';
+                  }
+                } else {
+                  this.cetd[j]['class'] = 'valnom';
+                  this.cetd[j].variation = '';
                 }
-                this.cetd[j].value = next.data[i].value;
-                flag = true;
-              }
+
+                break;
+              default:
+                if (this.cetd[j]['value']) {
+                  if (this.cetd[j]['value'] === next.data[i]['value']) {
+                    this.cetd[j]['class'] = 'valnom';
+                    this.cetd[j].variation = '';
+                  } else {
+                    this.cetd[j]['class'] = 'valchange';
+                    this.cetd[j].variation = next.data[i].value;
+                  }
+                } else {
+                  this.cetd[j]['class'] = 'valnom';
+                  this.cetd[j].variation = '';
+                }
+                break;
             }
-            if (!flag) {
-              next.data[i].class = 'valnew';
-              this.cetd.push(next.data[i]);
-            }
+            this.cetd[j].value = next.data[i].value;
+            flag = true;
           }
         }
-      },
-      error => {},
-      () => {}
-    );
+        if (!flag) {
+          next.data[i].class = 'valnew';
+          this.cetd.push(next.data[i]);
+        }
+      }
+    }
+  }
+
+  gettemps(deviceid) {
+    return this.http.get<appmessage<attributeitem[]>>('api/Devices/' + deviceid + '/TelemetryLatest');
   }
 
   getrules(deviceid) {
@@ -321,146 +449,6 @@ export class WidgetdeviceComponent implements OnInit {
 
   getevetts() {}
 
-  getdevicedata(deviceid) {
-    zip(
-      this.http.get<appmessage<attributeitem[]>>('api/Devices/' + deviceid + '/AttributeLatest'),
-      this.http.get<appmessage<ruleitem[]>>('api/Rules/GetDeviceRules?deviceId=' + deviceid),
-      this.http.get<appmessage<telemetryitem[]>>('api/Devices/' + deviceid + '/TelemetryLatest')
-      //   this.http.get<appmessage<devicemodelcommand[]>>('api/deviceModel/getCommandsByDevice?id=' + $events.expand?.id ),
-    ).subscribe(
-      ([
-        attributes,
-        rules,
-        telemetries
-        //  commands
-      ]) => {
-        // $events.expand.attributes = attributes.data;
-        // $events.expand.rules = rules.data;
-        // $events.expand.telemetries = telemetries.data;
-
-        if (rules.data.length == 0) {
-          this.cerd = [];
-        } else {
-          for (var i = 0; i < rules.data.length; i++) {
-            var index = this.cerd.findIndex(c => c.ruleId == rules.data[i].ruleId);
-            if (index === -1) {
-              this.cerd.push(rules.data[i]);
-            }
-          }
-
-          var removed: ruleitem[] = [];
-
-          for (var i = 0; i < this.cerd.length; i++) {
-            if (!rules.data.some(c => c.ruleId == this.cerd[i].ruleId)) {
-              removed = [...removed, this.cerd[i]];
-            }
-          }
-
-          for (var item of removed) {
-            this.cerd.slice(
-              this.cerd.findIndex(c => c.ruleId == item.ruleId),
-              1
-            );
-          }
-        }
-
-        if (this.cetd.length === 0) {
-          this.cetd = telemetries.data;
-        } else {
-          for (var i = 0; i < telemetries.data.length; i++) {
-            var flag = false;
-            for (var j = 0; j < this.cetd.length; j++) {
-              if (telemetries.data[i].keyName === this.cetd[j].keyName) {
-                switch (typeof telemetries.data[i].value) {
-                  case 'number':
-                    if (this.cetd[i]['value']) {
-                      if (this.cetd[i]['value'] > telemetries.data[j]['value']) {
-                        this.cetd[i]['class'] = 'valdown';
-                      } else if (this.cetd[i]['value'] < telemetries.data[j]['value']) {
-                        this.cetd[i]['class'] = 'valup';
-                      } else {
-                        this.cetd[i]['class'] = 'valnom';
-                      }
-                    } else {
-                      this.cetd[i]['class'] = 'valnom';
-                    }
-                    break;
-                  default:
-                    if (this.cetd[i]['value']) {
-                      if (this.cetd[i]['value'] === telemetries.data[j]['value']) {
-                        this.cetd[i]['class'] = 'valnom';
-                      } else {
-                        this.cetd[i]['class'] = 'valchange';
-                      }
-                    } else {
-                      this.cetd[i]['class'] = 'valnom';
-                    }
-                    break;
-                }
-                this.cetd[j].value = telemetries.data[i].value;
-                flag = true;
-              }
-            }
-            if (!flag) {
-              telemetries.data[i].class = 'valnew';
-              this.cetd.push(telemetries.data[i]);
-            }
-          }
-        }
-
-        if (this.cead.length === 0) {
-          this.cead = attributes.data;
-        } else {
-          for (var i = 0; i < attributes.data.length; i++) {
-            var flag = false;
-            for (var j = 0; j < this.cead.length; j++) {
-              if (attributes.data[i].keyName === this.cead[j].keyName) {
-                switch (typeof attributes.data[i].value) {
-                  case 'number':
-                    if (this.cead[i]['value']) {
-                      if (this.cead[i]['value'] > attributes.data[j]['value']) {
-                        this.cead[i]['class'] = 'valdown';
-                      } else if (this.cead[i]['value'] < attributes.data[j]['value']) {
-                        this.cead[i]['class'] = 'valup';
-                      } else {
-                        this.cead[i]['class'] = 'valnom';
-                      }
-                    } else {
-                      this.cead[i]['class'] = 'valnom';
-                    }
-
-                    break;
-                  default:
-                    if (this.cead[i]['value']) {
-                      if (this.cead[i]['value'] === attributes.data[j]['value']) {
-                        this.cead[i]['class'] = 'valnom';
-                      } else {
-                        this.cead[i]['class'] = 'valchange';
-                      }
-                    } else {
-                      this.cead[i]['class'] = 'valnom';
-                    }
-                    break;
-                }
-
-                this.cead[j].value = attributes.data[i].value;
-                flag = true;
-              }
-            }
-            if (!flag) {
-              attributes.data[i].class = 'valnew';
-              this.cead.push(attributes.data[i]);
-            }
-          }
-        }
-
-        // if(this.cett.length==0){
-        //   this.cett=commands.data;
-        // }
-      }
-    );
-  }
-
   removeprop(prop: attributeitem) {
     this.http
       .delete('api/devices/removeAttribute?deviceId=' + this.id + '&KeyName=' + prop.keyName + '&dataSide=' + prop.dataSide)
@@ -482,4 +470,12 @@ export class WidgetdeviceComponent implements OnInit {
       () => {}
     );
   }
+}
+
+class tempchartitem {
+  label: string;
+  value: string;
+  checked: boolean;
+  titleMap: G2TimelineMap;
+  chartdata: any[] = [];
 }

@@ -1,3 +1,5 @@
+import { number } from "echarts";
+
 export interface deviceitem {
     deviceType?: string;
     id?: string;
@@ -22,6 +24,12 @@ export interface deviceitem {
     dateTime: string;
     value: any;
     class?:string;
+    variation:any;
+    average:any|number
+    sum:any|number
+    min:any|number
+    max:any|number
+
   }
   export interface attributeitem {
     keyName: string;

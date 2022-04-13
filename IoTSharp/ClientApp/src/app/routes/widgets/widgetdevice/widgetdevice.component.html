@@ -40,7 +40,7 @@
         </nz-tab>
       
         <nz-tab nzTitle="属性">
-          <nz-table [nzNoResult]="null">
+          <nz-table [nzNoResult]="null" nzSize="small">
             <thead>
               <tr>
                 <td>属性名称</td>
@@ -80,11 +80,12 @@
      
             <nz-tabset nzSize="large">
               <nz-tab nzTitle="数据">
-                <nz-table [nzNoResult]="null">
+                <nz-table [nzNoResult]="null" nzSize="small">
                   <thead>
                     <tr>
                       <td>遥测名称</td>
                       <td>遥测值</td>
+                      <td>变量</td>
                       <td>时间</td>
                     </tr>
                   </thead>
@@ -92,27 +93,27 @@
                     <tr *ngFor="let _item of cetd; let i = index; let odd = odd" [ngClass]="_item.class">
                       <td>{{ _item.keyName }}</td>
                       <td>{{ _item.value }}</td>
+                      <td>{{ _item.variation }}</td>
                       <td>{{ _item.dateTime }}</td>
                     </tr>
                   </tbody>
                 </nz-table>
               </nz-tab>
-
               <nz-tab nzTitle="图表">
-                <div *ngFor="let _item of cetd; let i = index; let odd = odd">
-                  <g2-gauge [title]="_item.keyName" [height]="180" [percent]="_item.value" style="width: 200px"></g2-gauge>
-                </div>
+                <nz-checkbox-group [(ngModel)]="tempcharts" (ngModelChange)="tempchartschecked()"></nz-checkbox-group>
+                <!-- 
+                  <g2-gauge [title]="_item.keyName" [height]="180" [percent]="_item.value" style="width: 200px;height:200px;display: flexbox;"></g2-gauge>
+                -->
+                <div *ngFor="let _item of tempcharts; let i = index; let odd = odd"  >
+                  <g2-timeline maxAxis="1" [data]="_item.chartdata" [titleMap]="_item.titleMap" [height]="220" mask="MM月DD日" maskSlider="MM月dd日" *ngIf="_item.checked"
+              ></g2-timeline>  
+              </div>
               </nz-tab>
-
               <nz-tab nzTitle="历史">
                 <div>
-
-
-              </div></nz-tab>
+              </div>
+            </nz-tab>
             </nz-tabset>
-     
-      
-
         </nz-tab>
         <nz-tab nzTitle="规则">
           <nz-table [nzNoResult]="null">

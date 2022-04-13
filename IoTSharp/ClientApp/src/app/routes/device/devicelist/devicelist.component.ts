@@ -410,7 +410,7 @@ export class DevicelistComponent implements OnInit, OnDestroy {
           this.cetd = [];
           this.cerd = [];
           // this.cett = [];
-          this.obs = interval(1000).subscribe(async () => {
+          this.obs = interval(6000).subscribe(async () => {
             this.getdevicedata($events.expand?.id);
           });
         } else {
@@ -482,27 +482,27 @@ export class DevicelistComponent implements OnInit, OnDestroy {
               if (telemetries.data[i].keyName === this.cetd[j].keyName) {
                 switch (typeof telemetries.data[i].value) {
                   case 'number':
-                    if (this.cetd[i]['value']) {
-                      if (this.cetd[i]['value'] > telemetries.data[j]['value']) {
-                        this.cetd[i]['class'] = 'valdown';
-                      } else if (this.cetd[i]['value'] < telemetries.data[j]['value']) {
-                        this.cetd[i]['class'] = 'valup';
+                    if (this.cetd[j]['value']) {
+                      if (this.cetd[j]['value'] > telemetries.data[i]['value']) {
+                        this.cetd[j]['class'] = 'valdown';
+                      } else if (this.cetd[j]['value'] < telemetries.data[i]['value']) {
+                        this.cetd[j]['class'] = 'valup';
                       } else {
-                        this.cetd[i]['class'] = 'valnom';
+                        this.cetd[j]['class'] = 'valnom';
                       }
                     } else {
-                      this.cetd[i]['class'] = 'valnom';
+                      this.cetd[j]['class'] = 'valnom';
                     }
                     break;
                   default:
-                    if (this.cetd[i]['value']) {
-                      if (this.cetd[i]['value'] === telemetries.data[j]['value']) {
-                        this.cetd[i]['class'] = 'valnom';
+                    if (this.cetd[j]['value']) {
+                      if (this.cetd[j]['value'] === telemetries.data[i]['value']) {
+                        this.cetd[j]['class'] = 'valnom';
                       } else {
-                        this.cetd[i]['class'] = 'valchange';
+                        this.cetd[j]['class'] = 'valchange';
                       }
                     } else {
-                      this.cetd[i]['class'] = 'valnom';
+                      this.cetd[j]['class'] = 'valnom';
                     } break;
                 }
                 this.cetd[j].value = telemetries.data[i].value;
@@ -525,28 +525,28 @@ export class DevicelistComponent implements OnInit, OnDestroy {
               if (attributes.data[i].keyName === this.cead[j].keyName) {
                 switch (typeof attributes.data[i].value) {
                   case 'number':
-                    if (this.cead[i]['value']) {
-                      if (this.cead[i]['value'] > attributes.data[j]['value']) {
-                        this.cead[i]['class'] = 'valdown';
-                      } else if (this.cead[i]['value'] < attributes.data[j]['value']) {
-                        this.cead[i]['class'] = 'valup';
+                    if (this.cead[j]['value']) {
+                      if (this.cead[j]['value'] > attributes.data[i]['value']) {
+                        this.cead[j]['class'] = 'valdown';
+                      } else if (this.cead[j]['value'] < attributes.data[i]['value']) {
+                        this.cead[j]['class'] = 'valup';
                       } else {
-                        this.cead[i]['class'] = 'valnom';
+                        this.cead[j]['class'] = 'valnom';
                       }
                     } else {
-                      this.cead[i]['class'] = 'valnom';
+                      this.cead[j]['class'] = 'valnom';
                     }
 
                     break;
                   default:
-                    if (this.cead[i]['value']) {
-                      if (this.cead[i]['value'] === attributes.data[j]['value']) {
-                        this.cead[i]['class'] = 'valnom';
+                    if (this.cead[j]['value']) {
+                      if (this.cead[j]['value'] === attributes.data[i]['value']) {
+                        this.cead[j]['class'] = 'valnom';
                       } else {
-                        this.cead[i]['class'] = 'valchange';
+                        this.cead[j]['class'] = 'valchange';
                       }
                     } else {
-                      this.cead[i]['class'] = 'valnom';
+                      this.cead[j]['class'] = 'valnom';
                     } break;
                 }
 
