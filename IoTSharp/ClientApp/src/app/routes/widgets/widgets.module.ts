@@ -12,11 +12,11 @@ import { WidgetsComponent } from './widgets/widgets.component';
 import { G2BarModule } from '@delon/chart/bar';
 import { G2GaugeModule } from '@delon/chart/gauge';
 import { G2TimelineModule } from '@delon/chart/timeline';
-
+import { TagSelectModule } from '@delon/abc/tag-select';
 const COMPONENTS: Type<void>[] = [WidgetsComponent, FlowviewerComponent,WidgetdeviceComponent];
 
 @NgModule({
-  imports: [SharedModule, WidgetsRoutingModule, NzCarouselModule, G2BarModule, G2GaugeModule, G2MiniBarModule, G2MiniAreaModule, DelonFormModule,G2TimelineModule],
+  imports: [SharedModule, WidgetsRoutingModule, NzCarouselModule, G2BarModule, G2GaugeModule, G2MiniBarModule, G2MiniAreaModule, DelonFormModule,G2TimelineModule,TagSelectModule],
   declarations: COMPONENTS,
   exports: COMPONENTS
 })

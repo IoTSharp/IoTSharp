@@ -25,11 +25,11 @@ export interface deviceitem {
     value: any;
     class?:string;
     variation:any;
-    average:any|number
-    sum:any|number
-    min:any|number
-    max:any|number
-
+    average:any|number;
+    sum:any|number;
+    min:any|number;
+    max:any|number;
+    checked?:any|boolean;
   }
   export interface attributeitem {
     keyName: string;

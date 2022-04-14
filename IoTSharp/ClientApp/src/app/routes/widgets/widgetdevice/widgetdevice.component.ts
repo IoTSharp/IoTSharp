@@ -1,13 +1,16 @@
-import { Component, Input, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { ChangeDetectorRef, Component, Input, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { STColumn, STColumnTag, STRes, STComponent } from '@delon/abc/st';
 import { G2TimelineMap } from '@delon/chart/timeline';
 import { _HttpClient, SettingsService } from '@delon/theme';
 import { getTimeDistance, toDate } from '@delon/util';
 import { Guid } from 'guid-typescript';
+
 import { NzDrawerService } from 'ng-zorro-antd/drawer';
-import { forkJoin, interval, Subscription, zip } from 'rxjs';
-import { mergeMap } from 'rxjs/operators';
+import { forkJoin, interval, Subscription, zip, pipe, from } from 'rxjs';
+import { groupBy, map, mergeMap, reduce } from 'rxjs/operators';
+import { element } from 'screenfull';
+
 import { appmessage } from '../../common/AppMessage';
 import { attributeitem, deviceitem, ruleitem, telemetryitem } from '../../device/devicemodel';
 @Component({
@@ -18,10 +21,14 @@ import { attributeitem, deviceitem, ruleitem, telemetryitem } from '../../device
 export class WidgetdeviceComponent implements OnInit, OnDestroy {
   @Input() id: string = Guid.EMPTY;
   device: any;
-
+  initaldatarange = getTimeDistance(-1);
   cetd: telemetryitem[] = [];
   cead: attributeitem[] = [];
   cerd: ruleitem[] = [];
+  singlechartdata: any[] = [];
+  singletitlemap:any={y1:'y1'};
+  singlechartAxis:number=1;
+  singlechart=true;
   // alarm
 
   @ViewChild('stalarm', { static: true })
@@ -153,6 +160,47 @@ export class WidgetdeviceComponent implements OnInit, OnDestroy {
     { title: '创建时间', type: 'date', index: 'createrDateTime' }
   ];
 
+  //temphistory
+
+  @ViewChild('sttemps', { static: true })
+  sttemps!: STComponent;
+  apitemps = '';
+
+  qtemps: {
+    pi: number;
+    ps: number;
+    deviceId: string;
+    keys: string | any;
+    end: string | Date;
+
+    begin: string | Date;
+    sorter: string;
+    status: number | null;
+  } = {
+    pi: 0,
+    deviceId: this.id,
+    ps: 10,
+    keys: '',
+    begin: this.initaldatarange[0].toISOString(),
+    end: this.initaldatarange[1].toISOString(),
+    sorter: '',
+    status: null
+  };
+  rqtemps = { method: 'GET', allInBody: true, reName: { pi: 'offset', ps: 'limit' }, params: this.qtemps };
+
+  tempscolumns: STColumn[] = [
+    { title: '名称', index: 'keyName', render: 'name' },
+    { title: '值', index: 'value' },
+    { title: '类型', index: 'dataType' },
+    { title: '时间', type: 'date', index: 'dateTime' }
+  ];
+
+  restemps: STRes = {
+    reName: {
+      list: 'data'
+    }
+  };
+
   obs: Subscription;
   averagetempdata: attributeitem[] = [];
   tempcharts: tempchartitem[] = [];
@@ -160,7 +208,7 @@ export class WidgetdeviceComponent implements OnInit, OnDestroy {
     private _router: ActivatedRoute,
     private http: _HttpClient,
     private settingService: SettingsService,
-    private drawerService: NzDrawerService
+    private drawerService: NzDrawerService,private cdr: ChangeDetectorRef,
   ) {}
   ngOnDestroy(): void {
     if (this.obs) {
@@ -171,6 +219,35 @@ export class WidgetdeviceComponent implements OnInit, OnDestroy {
   tempchartschecked() {
     this.gettemphistory();
   }
+
+  ontempsnztagchange(i) {
+    this.qtemps.keys = this.cetd
+      .filter(c => c.checked)
+      .map(c => c.keyName)
+      .join(',');
+  }
+
+  ontempsdatetimeOk(result: Date | Date[] | null) {
+    this.qtemps.begin = result[0].toISOString();
+    this.qtemps.end = result[1].toISOString();
+  }
+
+  gettempslist() {
+    this.apitemps = 'api/Devices/' + this.id + '/TelemetryData/' + this.qtemps.keys + '/' + this.qtemps.begin + '/' + this.qtemps.end;
+    this.sttemps.req = this.rqtemps;
+    this.sttemps.load(1);
+  }
+
+  resettemps() {
+    this.cetd.forEach(element => {
+      element.checked = false;
+    });
+
+    this.qtemps.begin = this.initaldatarange[0].toISOString();
+    this.qtemps.end = this.initaldatarange[1].toISOString();
+  }
+
+  gettempsData() {}
 
   gettemphistory() {
     var keys = this.tempcharts
@@ -188,16 +265,65 @@ export class WidgetdeviceComponent implements OnInit, OnDestroy {
       })
       .subscribe(
         next => {
-          this.tempcharts
-            .filter(c => c.checked)
-            .forEach(element => {
-              element.titleMap = { y1: element.label, y2: element.label };
-              element.chartdata = next.data
-                .filter(d => d.keyName == element.label)
-                .map(d => {
-                  return { time: toDate(d.dateTime), y1: d.value };
+     
+          if (this.singlechart) {
+            var titleMap = {};
+            this.tempcharts
+              .filter(c => c.checked)
+              .forEach((element, index) => {
+                titleMap['y' + (index + 1)] = element.label;
+              });
+
+            var chartdata = [];
+
+            from(next.data)
+              .pipe(
+                groupBy(c => c.dateTime),
+                mergeMap(c => c.pipe(reduce((x, y) => [...x, y], [c.key]))),
+                map(d => ({ time: d[0], values: d.slice(1) }))
+              )
+              .subscribe(x => {
+                var chartitem = {};
+                chartitem['time'] = toDate(x.time.toString());
+                x.values.forEach(ele => {
+                  for (var key in titleMap) {
+                    if (titleMap[key] === ele['keyName']) {
+                      chartitem[key] = ele['value'];
+                    }
+                  }
                 });
-            });
+                chartdata.push(chartitem);
+              });
+              console.log(titleMap);
+            console.log(chartdata);
+            console.log(this.tempcharts
+              .filter(c => c.checked).length);
+this.singlechartAxis=  this.tempcharts
+.filter(c => c.checked).length;
+
+
+
+            this.singlechartdata=chartdata;
+            this.singletitlemap=titleMap;
+            this.cdr.detectChanges();
+            // this.tempcharts[0].titleMap = titleMap;
+            // this.tempcharts[0].chartdata = chartdata;
+
+
+
+            // this.tempcharts[0].checked=true;
+          } else {
+            this.tempcharts
+              .filter(c => c.checked)
+              .forEach(element => {
+                element.titleMap = { y1: element.label, y2: element.label };
+                element.chartdata = next.data
+                  .filter(d => d.keyName == element.label)
+                  .map(d => {
+                    return { time: toDate(d.dateTime), y1: d.value };
+                  });
+              });
+          }
         },
         error => {},
         () => {}
@@ -205,6 +331,7 @@ export class WidgetdeviceComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
+    this.apitemps = 'api/Devices/' + this.id + '/TelemetryData/' + this.qtemps.keys + '/' + this.qtemps.begin + '/' + this.qtemps.end;
     this.getdevice();
     this.getattrs(this.id);
     this.gettemps(this.id)
@@ -476,6 +603,6 @@ class tempchartitem {
   label: string;
   value: string;
   checked: boolean;
-  titleMap: G2TimelineMap;
+  titleMap: any;
   chartdata: any[] = [];
 }

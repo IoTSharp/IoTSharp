@@ -28,12 +28,15 @@ export class FlowlistComponent implements OnInit {
 
   ) {}
   TAG: STColumnTag = {
-    1: { text: '遥测', color: 'geekblue' },
-    2: { text: '属性', color: 'orange' },
-    0: { text: 'RAW', color: 'blue' },
-    3: { text: 'RPC', color: 'cyan' },
-    4: { text: 'Online', color: 'green' },
-    5: { text: 'Offline', color: 'red' },
+    'Telemetry': { text: '遥测', color: 'geekblue' },
+    'Attribute': { text: '属性', color: 'orange' },
+    'RAW': { text: 'RAW', color: 'blue' },
+    'RPC': { text: 'RPC', color: 'cyan' },
+    'Online': { text: 'Online', color: 'green' },
+    'Offline': { text: 'Offline', color: 'red' },
+    'TelemetryArray': { text: '遥测数组', color: 'purple' },
+    'Alarm': { text: '告警', color: 'magenta' },
+    
   };
   page: STPage = {
     front: false,
@@ -76,7 +79,7 @@ export class FlowlistComponent implements OnInit {
   st!: STComponent;
   columns: STColumn[] = [
     { title: '', index: 'ruleId', type: 'checkbox' },
-    { title: 'id', index: 'ruleId' },
+    // { title: 'id', index: 'ruleId' },
     { title: '规则名称', index: 'name', render: 'name' },
     { title: '备注', index: 'ruledesc' },
     { title: '创建时间', type: 'date', index: 'creatTime' },

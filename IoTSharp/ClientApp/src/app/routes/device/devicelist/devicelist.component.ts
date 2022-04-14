@@ -1,18 +1,15 @@
-import { Component, OnDestroy, OnInit, TemplateRef, ViewChild } from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router';
+import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { ActivatedRoute } from '@angular/router';
 import { STChange, STColumn, STColumnBadge, STColumnTag, STComponent, STData, STPage, STReq, STRes } from '@delon/abc/st';
 import {  SettingsService, _HttpClient } from '@delon/theme';
 import { NzMessageService } from 'ng-zorro-antd/message';
 import { NzDrawerService } from 'ng-zorro-antd/drawer';
-import { ACLService } from '@delon/acl';
 import { DeviceformComponent } from '../deviceform/deviceform.component';
 import { PropformComponent } from '../propform/propform.component';
 import { interval, Subscription, zip } from 'rxjs';
 import { RulesdownlinkComponent } from '../rulesdownlink/rulesdownlink.component';
 import { appmessage } from '../../common/AppMessage';
-
 import { DevicetokendialogComponent } from '../devicetokendialog/devicetokendialog.component';
-
 import { ProppartComponent } from '../deviceprop/proppart/proppart.component';
 import { devicemodelcommand } from '../../devicemodel/devicemodelcommandparam';
 import { ExporttoassetComponent } from '../exporttoasset/exporttoasset.component';
