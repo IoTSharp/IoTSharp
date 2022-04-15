@@ -30,6 +30,8 @@ export class WidgetdeviceComponent implements OnInit, OnDestroy {
   singlechartAxis: number = 1;
   singlechart = true;
   templistdata: any[] = [];
+  samppleday=3;
+
 
   // alarm
 
@@ -178,7 +180,7 @@ export class WidgetdeviceComponent implements OnInit, OnDestroy {
     begin: string | Date;
     sorter: string;
     aggregate: string;
-    status: string | null;
+    status: any;
   } = {
     pi: 0,
     deviceId: this.id,
@@ -189,7 +191,7 @@ export class WidgetdeviceComponent implements OnInit, OnDestroy {
     begin: this.initaldatarange[0].toISOString(),
     end: this.initaldatarange[1].toISOString(),
     sorter: '',
-    status: '01:00:00'
+    status: null
   };
   rqtemps = { method: 'GET', allInBody: true, reName: { pi: 'offset', ps: 'limit' }, params: this.qtemps };
 
@@ -210,10 +212,7 @@ export class WidgetdeviceComponent implements OnInit, OnDestroy {
   averagetempdata: attributeitem[] = [];
   tempcharts: tempchartitem[] = [];
   constructor(
-    private _router: ActivatedRoute,
     private http: _HttpClient,
-    private settingService: SettingsService,
-    private drawerService: NzDrawerService,
     private cdr: ChangeDetectorRef
   ) {}
   ngOnDestroy(): void {
@@ -299,7 +298,7 @@ export class WidgetdeviceComponent implements OnInit, OnDestroy {
                 });
                 chartdata.push(chartitem);
               });
-            this.singlechartAxis = this.tempcharts.filter(c => c.checked).length;
+            this.singlechartAxis = this.tempcharts.filter(c => c.checked).length; //chartAxis 一定要与分组数量一致，不一致会导致页面直接崩溃
             this.singlechartdata = chartdata;
             this.singletitlemap = titleMap;
             this.cdr.detectChanges();
@@ -338,12 +337,12 @@ export class WidgetdeviceComponent implements OnInit, OnDestroy {
           this.tempcharts = this.averagetempdata.map(c => {
             return { label: c.keyName, value: c.keyName, checked: false, chartdata: [], titleMap: { y1: 'y1', y2: 'y1' } } as tempchartitem;
           });
-          var date = getTimeDistance(-3);
+          var date = getTimeDistance(-this.samppleday);
           var average = this.http.post('api/devices/' + this.id + '/TelemetryData', {
             keys: keys,
             begin: date[0].toISOString(),
             end: date[1].toISOString(),
-            every: '3.00:00:00:000',
+            every: this.samppleday+'.00:00:00:000',
             aggregate: 'Mean'
           });
 
@@ -351,7 +350,7 @@ export class WidgetdeviceComponent implements OnInit, OnDestroy {
             keys: keys,
             begin: date[0].toISOString(),
             end: date[1].toISOString(),
-            every: '3.00:00:00:000',
+            every: this.samppleday+'.00:00:00:000',
             aggregate: 'Max'
           });
 
@@ -359,7 +358,7 @@ export class WidgetdeviceComponent implements OnInit, OnDestroy {
             keys: keys,
             begin: date[0].toISOString(),
             end: date[1].toISOString(),
-            every: '3.00:00:00:000',
+            every: this.samppleday+'.00:00:00:000',
             aggregate: 'Min'
           });
           return forkJoin([average, max, min]);

@@ -4,6 +4,10 @@ import { G2GaugeModule } from '@delon/chart/gauge';
 import { SharedModule } from '@shared';
 import { NzIconModule } from 'ng-zorro-antd/icon';
 import { ClipboardModule } from 'ngx-clipboard';
+import { WidgetsModule } from './widgets/widgets.module';
+import { NgxEchartsModule } from 'ngx-echarts';
+
+
 import { DevicecertificateComponent } from './device/devicecertificate/devicecertificate.component';
 import { DeviceformComponent } from './device/deviceform/deviceform.component';
 import { DevicegraphComponent } from './device/devicegraph/devicegraph.component';
@@ -37,13 +41,35 @@ import { TaskexecutorlistComponent } from './flow/taskexecutorlist/taskexecutorl
 import { TasktesterComponent } from './flow/tasktester/tasktester.component';
 import { I18nformComponent } from './resource/i18nform/i18nform.component';
 import { I18nlistComponent } from './resource/i18nlist/i18nlist.component';
-
 import { RouteRoutingModule } from './routes-routing.module';
 import { CertmgrComponent } from './setttings/certmgr/certmgr.component';
 import { TenantformComponent } from './tenant/tenantform/tenantform.component';
 import { TenantlistComponent } from './tenant/tenantlist/tenantlist.component';
 import { UserformComponent } from './user/userform/userform.component';
 import { UserlistComponent } from './user/userlist/userlist.component';
+import { DevicemodellistComponent } from './devicemodel/devicemodellist/devicemodellist.component';
+import { DevicemodelformComponent } from './devicemodel/devicemodelform/devicemodelform.component';
+import { DevicemodelcommandComponent } from './devicemodel/devicemodelcommand/devicemodelcommand.component';
+import { ConnectionedgeComponent } from './device/devicegraph/panels/connectionedge/connectionedge.component';
+import { DevivceshapeComponent } from './device/devicegraph/panels/devivceshape/devivceshape.component';
+import { GatewayshapeComponent } from './device/devicegraph/panels/gatewayshape/gatewayshape.component';
+import { PortshapeComponent } from './device/devicegraph/panels/portshape/portshape.component';
+import { toolpaneldirective } from './device/devicegraph/panels/toolpaneldirective';
+import { AlarmlistComponent } from './device/alarmlist/alarmlist.component';
+import { AssetlistComponent } from './device/assetlist/assetlist.component';
+import { AssetformComponent } from './device/assetform/assetform.component';
+import { AlarmdetailComponent } from './device/alarmdetail/alarmdetail.component';
+import { ExporttoassetComponent } from './device/exporttoasset/exporttoasset.component';
+import { AssetentitylistComponent } from './device/assetentitylist/assetentitylist.component';
+import { FlowdevicelistComponent } from './flow/flowdevicelist/flowdevicelist.component';
+import { DevicedetailviewComponent } from './common/components/devicedetailview/devicedetailview.component';
+import { AssetentityformComponent } from './device/assetentityform/assetentityform.component';
+import { AssetrelationformComponent } from './device/assetrelationform/assetrelationform.component';
+import { RuledeviceComponent } from './flow/ruledevice/ruledevice.component';
+
+
+//util
+import { CommonDialogSevice } from './util/dialogutil';
 import { CodeviewComponent } from './util/code/codeview/codeview.component';
 import { CodefieldComponent } from './util/codefield/codefield.component';
 import { ConditionbuilderComponent } from './util/dynamicform/conditionbuilder/conditionbuilder.component';
@@ -66,27 +92,8 @@ import { DynamictablelistComponent } from './util/dynamictable/dynamictablelist/
 import { DynamictabletesterComponent } from './util/dynamictable/dynamictabletester/dynamictabletester.component';
 import { DynamictableviewComponent } from './util/dynamictable/dynamictableview/dynamictableview.component';
 import { FlowsimulatorComponent } from './util/flow/flowsimulator/flowsimulator.component';
-import { WidgetsModule } from './widgets/widgets.module';
-import { DevicemodellistComponent } from './devicemodel/devicemodellist/devicemodellist.component';
-import { DevicemodelformComponent } from './devicemodel/devicemodelform/devicemodelform.component';
-import { DevicemodelcommandComponent } from './devicemodel/devicemodelcommand/devicemodelcommand.component';
-import { ConnectionedgeComponent } from './device/devicegraph/panels/connectionedge/connectionedge.component';
-import { DevivceshapeComponent } from './device/devicegraph/panels/devivceshape/devivceshape.component';
-import { GatewayshapeComponent } from './device/devicegraph/panels/gatewayshape/gatewayshape.component';
-import { PortshapeComponent } from './device/devicegraph/panels/portshape/portshape.component';
-import { toolpaneldirective } from './device/devicegraph/panels/toolpaneldirective';
-import { NgxEchartsModule } from 'ngx-echarts';
-import { AlarmlistComponent } from './device/alarmlist/alarmlist.component';
-import { AssetlistComponent } from './device/assetlist/assetlist.component';
-import { AssetformComponent } from './device/assetform/assetform.component';
-import { AlarmdetailComponent } from './device/alarmdetail/alarmdetail.component';
-import { ExporttoassetComponent } from './device/exporttoasset/exporttoasset.component';
-import { AssetentitylistComponent } from './device/assetentitylist/assetentitylist.component';
-import { FlowdevicelistComponent } from './flow/flowdevicelist/flowdevicelist.component';
-import { DevicedetailviewComponent } from './common/components/devicedetailview/devicedetailview.component';
-import { AssetentityformComponent } from './device/assetentityform/assetentityform.component';
-import { AssetrelationformComponent } from './device/assetrelationform/assetrelationform.component';
-import { RuledeviceComponent } from './flow/ruledevice/ruledevice.component';
+
+//util
 
 const COMPONENTS: Array<Type<null>> = [];
 const Directive: Type<void>[] = [fielddirective, controldirective, toolpaneldirective];
@@ -94,6 +101,7 @@ const Directive: Type<void>[] = [fielddirective, controldirective, toolpaneldire
   imports: [SharedModule, RouteRoutingModule, G2BarModule, G2GaugeModule, NzIconModule, WidgetsModule, ClipboardModule, NgxEchartsModule.forRoot({
     echarts: () => import('echarts'),
   }),WidgetsModule],
+  providers:[CommonDialogSevice],
   declarations: [
     ...COMPONENTS,
 

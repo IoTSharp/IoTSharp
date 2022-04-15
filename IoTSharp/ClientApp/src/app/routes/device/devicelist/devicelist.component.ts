@@ -1,7 +1,7 @@
 import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { STChange, STColumn, STColumnBadge, STColumnTag, STComponent, STData, STPage, STReq, STRes } from '@delon/abc/st';
-import {  SettingsService, _HttpClient } from '@delon/theme';
+import { SettingsService, _HttpClient } from '@delon/theme';
 import { NzMessageService } from 'ng-zorro-antd/message';
 import { NzDrawerService } from 'ng-zorro-antd/drawer';
 import { DeviceformComponent } from '../deviceform/deviceform.component';
@@ -15,6 +15,7 @@ import { devicemodelcommand } from '../../devicemodel/devicemodelcommandparam';
 import { ExporttoassetComponent } from '../exporttoasset/exporttoasset.component';
 import { attributeitem, deviceitem, ruleitem, telemetryitem } from '../devicemodel';
 import { WidgetdeviceComponent } from '../../widgets/widgetdevice/widgetdevice.component';
+import { CommonDialogSevice } from '../../util/dialogutil';
 @Component({
   selector: 'app-devicelist',
   templateUrl: './devicelist.component.html',
@@ -43,8 +44,11 @@ export class DevicelistComponent implements OnInit, OnDestroy {
     public msg: NzMessageService,
     private router: ActivatedRoute,
     private drawerService: NzDrawerService,
-    private settingService: SettingsService
-  ) {}
+    private settingService: SettingsService,
+    private commonDialogSevice: CommonDialogSevice
+  ) {
+    //console.log(commonDialogSevice)
+  }
   ngOnDestroy(): void {
     if (this.obs) {
       this.obs.unsubscribe();
@@ -92,9 +96,14 @@ export class DevicelistComponent implements OnInit, OnDestroy {
   columns: STColumn[] = [
     { title: '', index: 'id', type: 'checkbox' },
     {
-      title: '名称', index: 'name', render: 'name', type: 'link', click: (item: any) => {
-        this.showdeviceDetail(item.id)
-    }},
+      title: '名称',
+      index: 'name',
+      render: 'name',
+      type: 'link',
+      click: (item: any) => {
+        this.showdeviceDetail(item.id);
+      }
+    },
     { title: '设备类型', index: 'deviceType', type: 'tag', tag: this.DeviceTAG },
     { title: '在线状态', index: 'online', type: 'badge', badge: this.BADGE },
     { title: '最后活动时间', index: 'lastActive', type: 'date' },
@@ -223,7 +232,6 @@ export class DevicelistComponent implements OnInit, OnDestroy {
   }
 
   exporttoasset(dev: any[]) {
-  
     if (dev.length == 0) {
       dev = this.st.list.filter(c => c.checked);
     }
@@ -424,10 +432,7 @@ export class DevicelistComponent implements OnInit, OnDestroy {
     }
   }
 
-
-
   getdevicedata(deviceid) {
-
     zip(
       this.http.get<appmessage<attributeitem[]>>('api/Devices/' + deviceid + '/AttributeLatest'),
       this.http.get<appmessage<ruleitem[]>>('api/Rules/GetDeviceRules?deviceId=' + deviceid),
@@ -500,7 +505,8 @@ export class DevicelistComponent implements OnInit, OnDestroy {
                       }
                     } else {
                       this.cetd[j]['class'] = 'valnom';
-                    } break;
+                    }
+                    break;
                 }
                 this.cetd[j].value = telemetries.data[i].value;
                 flag = true;
@@ -544,7 +550,8 @@ export class DevicelistComponent implements OnInit, OnDestroy {
                       }
                     } else {
                       this.cead[j]['class'] = 'valnom';
-                    } break;
+                    }
+                    break;
                 }
 
                 this.cead[j].value = attributes.data[i].value;
@@ -563,12 +570,7 @@ export class DevicelistComponent implements OnInit, OnDestroy {
         // }
       }
     );
-
-
-
-
   }
-
 
   executeCommand(item: deviceitem, command: devicemodelcommand) {
     this.http.post('api/Devices/' + item.identityId + '/Rpc/' + command.commandName + '?timeout=300', {}).subscribe(
@@ -600,31 +602,29 @@ export class DevicelistComponent implements OnInit, OnDestroy {
       );
   }
 
-
   showdeviceDetail(id) {
-    var { nzMaskClosable, width } = this.settingService.getData('drawerconfig');
-    let title = '设备详情';
-    const drawerRef = this.drawerService.create<
-      WidgetdeviceComponent,
-      {
-        id: string;
-      },
-      string
-    >({
-      nzTitle: title,
-      nzContent: WidgetdeviceComponent,
-      nzWidth: window.innerWidth*0.8,
-      nzMaskClosable: nzMaskClosable,
-      nzContentParams: {
-        id: id
-      }
-    });
-    drawerRef.afterOpen.subscribe(() => {
-    
-    });
-    drawerRef.afterClose.subscribe(() => { });
+    this.commonDialogSevice.showDeviceDialog(id);
 
+    //   var { nzMaskClosable, width } = this.settingService.getData('drawerconfig');
+    //   let title = '设备详情';
+    //   const drawerRef = this.drawerService.create<
+    //     WidgetdeviceComponent,
+    //     {
+    //       id: string;
+    //     },
+    //     string
+    //   >({
+    //     nzTitle: title,
+    //     nzContent: WidgetdeviceComponent,
+    //     nzWidth: window.innerWidth*0.8,
+    //     nzMaskClosable: nzMaskClosable,
+    //     nzContentParams: {
+    //       id: id
+    //     }
+    //   });
+    //   drawerRef.afterOpen.subscribe(() => {
 
+    //   });
+    //   drawerRef.afterClose.subscribe(() => { });
   }
 }
-

@@ -6,6 +6,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { map, mergeMap } from 'rxjs/operators';
 import { NzDrawerService } from 'ng-zorro-antd/drawer';
 import { WidgetdeviceComponent } from '../../widgets/widgetdevice/widgetdevice.component';
+import { CommonDialogSevice } from '../../util/dialogutil';
 
 
 @Component({
@@ -99,7 +100,10 @@ export class RuledeviceComponent implements OnInit {
   ];
 
   constructor(private _router: ActivatedRoute,
-    private http: _HttpClient, private settingService: SettingsService, private drawerService: NzDrawerService,) { }
+    private http: _HttpClient,
+     private settingService: SettingsService,
+      private drawerService: NzDrawerService,
+      private commonDialogSevice: CommonDialogSevice) { }
 
   ngOnInit(): void {
 
@@ -126,9 +130,7 @@ export class RuledeviceComponent implements OnInit {
     );
   }
 
-
   reset() {
-
     this.q = {
       pi: 0,
       ps: 10,
@@ -141,34 +143,11 @@ export class RuledeviceComponent implements OnInit {
   getData() {
     this.st.req = this.req;
     this.st.load(1);
-
   }
-
 
   showdeviceDetail(id) {
-    var { nzMaskClosable, width } = this.settingService.getData('drawerconfig');
-    let title = '设备详情';
-    const drawerRef = this.drawerService.create<
-      WidgetdeviceComponent,
-      {
-        id: string;
-      },
-      string
-    >({
-      nzTitle: title,
-      nzContent: WidgetdeviceComponent,
-      nzWidth: window.innerWidth*0.8,
-      nzMaskClosable: nzMaskClosable,
-      nzContentParams: {
-        id: id
-      }
-    });
-    drawerRef.afterOpen.subscribe(() => {
-    
-    });
-    drawerRef.afterClose.subscribe(() => { });
-
-
+    this.commonDialogSevice.showDeviceDialog(id);
   }
+   
 
 }
