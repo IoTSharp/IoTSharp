@@ -1,14 +1,12 @@
-<page-header  >
-
+<page-header>
   <nz-card [nzBordered]="false" class="mb-lg" nzTitle="基本信息">
     <sv-container size="small" col="2">
-      <sv label="设备名称">{{device?.name}}</sv>
-      <sv label="类型">{{device?.deviceType}}</sv>
-      <sv label="最后活动时间">{{device?.lastActive}}</sv>
+      <sv label="设备名称">{{ device?.name }}</sv>
+      <sv label="类型">{{ device?.deviceType }}</sv>
+      <sv label="最后活动时间">{{ device?.lastActive }}</sv>
       <sv label="在线状态">
-        <a >{{device?.online}}</a>
+        <a>{{ device?.online }}</a>
       </sv>
-   
     </sv-container>
   </nz-card>
   <nz-card [nzBordered]="false">
@@ -16,29 +14,29 @@
       <nz-tabset nzSize="large">
         <nz-tab nzTitle="告警">
           <st
-          #stalarm
-          [columns]="columns"
-          [data]="alarmapi"
-          ps="20"
-          [page]="{
-            front: false,
-            total: true,
-            zeroIndexed: true
-          }"
-          [req]="alarmerq"
-          [res]="res"
-          [expand]="expand"
-          expandRowByClick
-          expandAccordion
-        >
-          <ng-template #expand let-item let-index="index" let-column="column">
-            <nz-card nzTitle="告警详情">
-              {{item.alarmDetail}}
-            </nz-card>
-          </ng-template>
-        </st>
+            #stalarm
+            [columns]="columns"
+            [data]="alarmapi"
+            ps="20"
+            [page]="{
+              front: false,
+              total: true,
+              zeroIndexed: true
+            }"
+            [req]="alarmerq"
+            [res]="res"
+            [expand]="expand"
+            expandRowByClick
+            expandAccordion
+          >
+            <ng-template #expand let-item let-index="index" let-column="column">
+              <nz-card nzTitle="告警详情">
+                {{ item.alarmDetail }}
+              </nz-card>
+            </ng-template>
+          </st>
         </nz-tab>
-      
+
         <nz-tab nzTitle="属性">
           <nz-table [nzNoResult]="null" nzSize="small">
             <thead>
@@ -69,52 +67,117 @@
                     删除
                   </button>
                 </td>
-  
               </tr>
             </tbody>
           </nz-table>
-      
-
         </nz-tab>
         <nz-tab nzTitle="遥测">
-     
-            <nz-tabset nzSize="large">
-              <nz-tab nzTitle="数据">
-                <nz-table [nzNoResult]="null" nzSize="small" nzTableLayout="fixed">
-                  <thead>
-                    <tr>
-                      <td>遥测名称</td>
-                      <td nzEllipsis>遥测值</td>
-                      <td>变量</td>
-                      <td>最大值</td>
-                      <td>最小值</td>
-                      <td>平均值</td>
-                      <td>时间</td>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr *ngFor="let _item of cetd; let i = index; let odd = odd" [ngClass]="_item.class">
-                      <td>{{ _item.keyName }}</td>
-                      <td nzBreakWord  >{{ _item.value }}</td>
-                      <td>{{ _item.variation }}</td>
-                      <td>{{ _item.max }}</td>
-                      <td>{{ _item.min }}</td>
-                      <td>{{ _item.average }}</td>
-                      <td>{{ _item.dateTime }}</td>
-                    </tr>
-                  </tbody>
-                </nz-table>
-              </nz-tab>
-              <nz-tab nzTitle="图表">
-                <nz-checkbox-group [(ngModel)]="tempcharts" (ngModelChange)="tempchartschecked()"></nz-checkbox-group>
-  <!-- 
+          <nz-tabset nzSize="large">
+            <nz-tab nzTitle="实时">
+              <nz-table [nzNoResult]="null" nzSize="small">
+                <thead>
+                  <tr>
+                    <td nzLeft="true">遥测名称</td>
+                    <td nzEllipsis>遥测值</td>
+                    <td>变量</td>
+                    <td>最大值</td>
+                    <td>最小值</td>
+                    <td>平均值</td>
+                    <td nzLeft="true">时间</td>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr *ngFor="let _item of cetd; let i = index; let odd = odd" [ngClass]="_item.class">
+                    <td>{{ _item.keyName }}</td>
+                    <td nzBreakWord>{{ _item.value }}</td>
+                    <td>{{ _item.variation }}</td>
+                    <td>{{ _item.max }}</td>
+                    <td>{{ _item.min }}</td>
+                    <td>{{ _item.average }}</td>
+                    <td>{{ _item.dateTime  | date:"yyyy-MM-dd hh:mm:ss"}}</td>
+                  </tr>
+                </tbody>
+              </nz-table>
+            </nz-tab>
+            <nz-tab nzTitle="历史">
+              <!-- <nz-checkbox-group [(ngModel)]="tempcharts" (ngModelChange)="tempchartschecked()"></nz-checkbox-group> -->
+
+              <form nz-form class="search__form" action="search">
+                <div nz-row>
+                  <div nz-col nzSm="24">
+                    <nz-form-item>
+                      <nz-form-label nzFor="name">遥测属性</nz-form-label>
+                      <nz-form-control>
+                        <tag-select>
+                          <nz-tag
+                            *ngFor="let i of tempcharts; let idx = index"
+                            nzMode="checkable"
+                            [(nzChecked)]="i.checked"
+                            (nzCheckedChange)="ontempsnztagchange(i)"
+                          >
+                            {{ i.label }}
+                          </nz-tag>
+                        </tag-select>
+                      </nz-form-control>
+                    </nz-form-item>
+                  </div>
+
+                  <div nz-col nzSm="24">
+                    <nz-form-item>
+                      <nz-form-label nzFor="name">区间</nz-form-label>
+                      <nz-form-control>
+                        <nz-range-picker
+                          [nzShowTime]="{ nzFormat: 'HH:mm' }"
+                          nzFormat="yyyy-MM-dd HH:mm"
+                          (nzOnOk)="ontempsdatetimeOk($event)"
+                        ></nz-range-picker>
+                      </nz-form-control>
+                    </nz-form-item>
+                  </div>
+
+                  <div nz-col nzSm="24">
+                    <nz-form-item>
+                      <nz-form-label nzFor="name">间隔</nz-form-label>
+                      <nz-form-control>
+                        <nz-time-picker [ngModelOptions]="{standalone: true}" (ngModelChange)="samplingPeriodChanged($event)" [(ngModel)]="qtemps.status"></nz-time-picker>
+                      </nz-form-control>
+                    </nz-form-item>
+                  </div>
+
+
+                  <div nz-col nzSm="24">
+                    <nz-form-item>
+                      <nz-form-label nzFor="name">取值方式</nz-form-label>
+                      <nz-form-control> 
+                        <nz-radio-group  nzButtonStyle="solid" [(ngModel)]="qtemps.aggregate" [ngModelOptions]="{standalone: true}"  (ngModelChange)="aggregateChanged($event)">
+                          <label nz-radio-button nzValue="Mean">平均值</label>
+                          <label nz-radio-button nzValue="Median">中值</label>
+                          <label nz-radio-button nzValue="Max">最大值</label>
+                          <label nz-radio-button nzValue="Min">最小值</label>
+                        </nz-radio-group>
+                      </nz-form-control>
+                    </nz-form-item>
+                  </div>
+
+
+                  <div nz-col [nzSpan]="24" style="text-align: right">
+                    <button nz-button type="submit" [nzType]="'primary'" (click)="gettemphistory()">搜索</button>
+                    <button nz-button type="reset" (click)="resettemps()" class="mx-sm">重置</button>
+                  </div>
+                </div>
+              </form>
+
+              <nz-tabset nzSize="large">
+                <nz-tab nzTitle="图表">
+
+                                  <!-- 
     仪表板的形式展示遥测
     <div  *ngFor="let _item of tempcharts; let i = index; let odd = odd"   >
                   <g2-gauge [title]="_item.keyName" [height]="180" [percent]="_item.value" style="width: 200px;height:200px;display: flexbox;"></g2-gauge>
              </div>   -->
 
-           <!-- 控制每个遥测单独显示或者集合显示的开关-->      
- <!-- <label nz-checkbox [(ngModel)]="singlechart">是否集合显示</label> 
+                  <!-- 控制每个遥测单独显示或者集合显示的开关-->
+                  <!-- <label nz-checkbox [(ngModel)]="singlechart">是否集合显示</label> 
 
               
 
@@ -123,127 +186,89 @@
                    ></g2-timeline>  
                  </div></div>
                     -->
+                  <div *ngIf="singlechart">
+                    <g2-timeline
+                      [maxAxis]="singlechartAxis"
+                      [data]="singlechartdata"
+                      [titleMap]="singletitlemap"
+                      [height]="400"
+                      mask="MM月DD日"
+                      maskSlider="MM月dd日"
+                    ></g2-timeline>
+                  </div>
+                </nz-tab>
 
-            <div *ngIf="singlechart">
-              <g2-timeline [maxAxis]="singlechartAxis" [data]="singlechartdata" [titleMap]="singletitlemap" [height]="400" mask="MM月DD日" maskSlider="MM月dd日" 
-              ></g2-timeline>  
-
-            </div>
-           
-
-             
-              </nz-tab>
-              <nz-tab nzTitle="历史">
-             
-                  <form nz-form class="search__form" action="search">
-                    <div nz-row>
-                      <div nz-col >
-                        <nz-form-item>
-                          <nz-form-label nzFor="name">遥测属性</nz-form-label>
-                          <nz-form-control> <tag-select>
-                            <nz-tag
-                              *ngFor="let i of cetd; let idx = index"
-                              nzMode="checkable"
-                              [(nzChecked)]="i.checked"
-                              (nzCheckedChange)="ontempsnztagchange(i)"
-                            >
-                              {{ i.keyName }}
-                            </nz-tag>
-                          </tag-select> 
-                             </nz-form-control>
-                        </nz-form-item>
-                      </div>
-              
-
-
-                      <div nz-col >
-                        <nz-form-item>
-                          <nz-form-label nzFor="name">时间</nz-form-label>
-                          <nz-form-control>   
-                            <nz-range-picker 
-                            [nzShowTime]="{ nzFormat: 'HH:mm' }"
-                            nzFormat="yyyy-MM-dd HH:mm"
-                            (nzOnOk)="ontempsdatetimeOk($event)"
-                          ></nz-range-picker>
-                    
-                             </nz-form-control>
-                        </nz-form-item>
-                      </div>
-                      <div nz-col [nzSpan]="24" style="text-align: right">
-                        <button nz-button type="submit" [nzType]="'primary'" (click)="gettempslist()">搜索</button>
-                        <!--<button nz-button type="submit" (click)="getData()" [nzType]="'primary'" [nzLoading]="loading">查询</button>-->
-                        <button nz-button type="reset" (click)="resettemps()" class="mx-sm">重置</button>
-                      </div>
-                    </div>
-              
-                    <!--<button nz-button [nzType]="'primary'" [routerLink]="['/manage/authority/roleform']" [queryParams]="{Id:-1}">
-                    <i nz-icon nzType="plus"></i>
-                    <span>{{ 'button.new' | translate }}</span>
-                  </button>-->
-                  </form>
-
-                  
+                <nz-tab nzTitle="数据">
+  
                   <st
-                  #sttemps
-                  [columns]="tempscolumns"
-                  [data]="apitemps"
-                  ps="20"
-                  [page]="{
-                    front: false,
-                    total: true,
-                    zeroIndexed: true
-                  }"
-                  [req]="rqtemps"
-                  [res]="restemps"
-               
-                >
-                  <ng-template #expand let-item let-index="index" let-column="column">
-                    <nz-card nzTitle="告警详情">
-                      {{item.alarmDetail}}
-                    </nz-card>
-                  </ng-template>
-                </st>
-
-
-
-           
+                    #sttemps
+                    [columns]="tempscolumns"
+                    [data]="templistdata"
+                    [page]="{
+                      front: true,
+                      total: false,
+                      zeroIndexed: true
+                    }"
+                    
+                  >
+                    <ng-template #expand let-item let-index="index" let-column="column">
+                      <nz-card nzTitle="告警详情">
+                        {{ item.alarmDetail }}
+                      </nz-card>
+                    </ng-template>
+                  </st>
+                </nz-tab>
+              </nz-tabset>
             </nz-tab>
-            </nz-tabset>
+        
+          </nz-tabset>
         </nz-tab>
         <nz-tab nzTitle="规则">
           <nz-table [nzNoResult]="null">
             <thead>
-            <tr>
-              <td>规则名称</td>
-              <td>备注</td>
-              <td>操作</td>
-            </tr>
+              <tr>
+                <td>规则名称</td>
+                <td>备注</td>
+                <td>操作</td>
+              </tr>
             </thead>
             <tbody>
-            <tr *ngFor="let _item of cerd;s let i = index; let odd = odd">
-              <td>{{ _item.name }}</td>
-              <td>{{ _item.ruleDesc }}</td>
-              <td>
-                <button nz-button
-                        nzType="text"
-                        nzDanger
-                        nz-popconfirm
-                        nzPopconfirmTitle="确认删除规则?"
-                        (nzOnConfirm)="removerule( _item)"
-                        nzPopconfirmPlacement="topLeft">
-                  删除
-                </button>
-              </td>
-            </tr>
+              <tr *ngFor="let _item of cerd;  let i = index; let odd = odd">
+                <td>{{ _item.name }}</td>
+                <td>{{ _item.ruleDesc }}</td>
+                <td>
+                  <button
+                    nz-button
+                    nzType="text"
+                    nzDanger
+                    nz-popconfirm
+                    nzPopconfirmTitle="确认删除规则?"
+                    (nzOnConfirm)="removerule(_item)"
+                    nzPopconfirmPlacement="topLeft"
+                  >
+                    删除
+                  </button>
+                </td>
+              </tr>
             </tbody>
           </nz-table>
         </nz-tab>
         <nz-tab nzTitle="事件">
-          <st #stevent [columns]="eventcolumns" [data]="eventsurl" ps="10" [page]="{
-            front: false,
-            total: true,
-            zeroIndexed: true
-          }" [req]="eventreq" [res]="res"   [expand]="expandevent" expandAccordion>
+          <st
+            #stevent
+            [columns]="eventcolumns"
+            [data]="eventsurl"
+            ps="10"
+            [page]="{
+              front: false,
+              total: true,
+              zeroIndexed: true
+            }"
+            [req]="eventreq"
+            [res]="res"
+            [expand]="expandevent"
+            expandAccordion
+          >
             <ng-template #expandevent let-item let-index="index" let-column="column">
               <nz-card nzTitle="描述">
                 {{ item.eventDesc }}
@@ -253,13 +278,8 @@
               </nz-card>
             </ng-template>
           </st>
-
         </nz-tab>
-
       </nz-tabset>
     </nz-card-tab>
- 
   </nz-card>
-
-
 </page-header>
