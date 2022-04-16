@@ -102,7 +102,7 @@ export class AlarmlistComponent implements OnInit {
     'Active_UnAck': { text: '激活未应答', color: '#ffa39e' },
     'Active_Ack': { text: '激活已应答', color: '#f759ab' },
     'Cleared_UnAck': { text: '清除未应答', color: '#87e8de' },
-    'Cleared_Act': { text: '清除已应答', color: '#d3f261' }
+    'Cleared_Act': { text: '清除已应答', color: '#7cb305' }
   };
   originatorTypeTAG: STColumnTag = {
     'Unknow': { text: '未知', color: '#ffa39e' },
@@ -190,7 +190,6 @@ export class AlarmlistComponent implements OnInit {
 
   onOriginatorInput($event) {
     var element = $event.target as HTMLInputElement;
-
     this.http
       .post('api/alarm/originators', {
         originatorName: element?.value ?? '',
@@ -234,18 +233,11 @@ export class AlarmlistComponent implements OnInit {
     }, error => { }, () => { });
   }
 
-
-
   onOriginatorChange($event) {
     this.q.OriginatorId = this.originators.find(c => c.name == $event)?.id;
   }
 
-
-
-
-
   getData() {
-    console.log(this.q);
     this.st.req = this.req;
     this.st.load(this.st.pi);
   }

@@ -290,9 +290,9 @@ export class DevicelistComponent implements OnInit, OnDestroy {
       }
     });
     drawerRef.afterOpen.subscribe(() => {
-      this.getData();
+    
     });
-    drawerRef.afterClose.subscribe(() => {});
+    drawerRef.afterClose.subscribe(() => {  this.getData();});
   }
   edit(id: string): void {
     var { nzMaskClosable, width } = this.settingService.getData('drawerconfig');
@@ -396,7 +396,7 @@ export class DevicelistComponent implements OnInit, OnDestroy {
 
   getData() {
     this.st.req = this.req;
-    this.st.load(1);
+    this.st.load(this.st.pi);
   }
 
   onchange($events: STChange): void {

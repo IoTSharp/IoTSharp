@@ -13,6 +13,87 @@
     <nz-card-tab>
       <nz-tabset nzSize="large">
         <nz-tab nzTitle="告警">
+          <form nz-form class="search__form" action="search">
+            <div nz-row [nzGutter]="{ xs: 8, sm: 8, md: 8, lg: 24, xl: 48, xxl: 48 }">
+              <div nz-col nzMd="8" nzSm="24">
+                <nz-form-item>
+                  <nz-form-label nzFor="CreateDate">警告创建时间</nz-form-label>
+                  <nz-form-control>
+                    <nz-range-picker [(ngModel)]="qal.AckDateTime" [ngModelOptions]="{ standalone: true }"></nz-range-picker>
+                  </nz-form-control>
+                </nz-form-item>
+              </div>
+              <div nz-col nzMd="8" nzSm="24">
+                <nz-form-item>
+                  <nz-form-label nzFor="CreateDate">清除时间</nz-form-label>
+                  <nz-form-control>
+                    <nz-range-picker [(ngModel)]="qal.ClearDateTime" [ngModelOptions]="{ standalone: true }"></nz-range-picker>
+                  </nz-form-control>
+                </nz-form-item>
+              </div>
+              <div nz-col nzMd="8" nzSm="24">
+                <nz-form-item>
+                  <nz-form-label nzFor="CreateDate">警告持续开始时间</nz-form-label>
+                  <nz-form-control>
+                    <nz-range-picker [(ngModel)]="qal.StartDateTime" [ngModelOptions]="{ standalone: true }"></nz-range-picker>
+                  </nz-form-control>
+                </nz-form-item>
+              </div>
+              <div nz-col nzMd="8" nzSm="24">
+                <nz-form-item>
+                  <nz-form-label nzFor="EndDateTime">警告结束时间</nz-form-label>
+                  <nz-form-control>
+                    <nz-range-picker [(ngModel)]="qal.EndDateTime" [ngModelOptions]="{ standalone: true }"></nz-range-picker>
+                  </nz-form-control>
+                </nz-form-item>
+              </div>
+              <div nz-col nzMd="8" nzSm="24">
+                <nz-form-item>
+                  <nz-form-label nzFor="DeviceName">告警类型</nz-form-label>
+                  <nz-form-control>
+                    <input nz-input [(ngModel)]="qal.AlarmType" placeholder="请输入告警类型" [ngModelOptions]="{ standalone: true }" />
+                  </nz-form-control>
+                </nz-form-item>
+              </div>
+
+              <div nz-col nzMd="8" nzSm="24">
+                <nz-form-item>
+                  <nz-form-label nzFor="AlarmStatus">告警状态</nz-form-label>
+                  <nz-form-control>
+                    <nz-select [(ngModel)]="qal.alarmStatus" [ngModelOptions]="{ standalone: true }">
+                      <nz-option nzValue="-1" nzLabel="全部"></nz-option>
+                      <nz-option nzValue="0" nzLabel="激活未应答"></nz-option>
+                      <nz-option nzValue="1" nzLabel="激活已应答"></nz-option>
+                      <nz-option nzValue="2" nzLabel="清除未应答"></nz-option>
+                      <nz-option nzValue="3" nzLabel="清除已应答"></nz-option>
+                    </nz-select>
+                  </nz-form-control>
+                </nz-form-item>
+              </div>
+              <div nz-col nzMd="8" nzSm="24">
+                <nz-form-item>
+                  <nz-form-label nzFor="Serverity">告警级别</nz-form-label>
+                  <nz-form-control>
+                    <nz-select [(ngModel)]="qal.serverity" [ngModelOptions]="{ standalone: true }">
+                      <nz-option nzValue="-1" nzLabel="全部"></nz-option>
+                      <nz-option nzValue="0" nzLabel="不确定"></nz-option>
+                      <nz-option nzValue="1" nzLabel="警告"></nz-option>
+                      <nz-option nzValue="2" nzLabel="次要"></nz-option>
+                      <nz-option nzValue="3" nzLabel="重要"></nz-option>
+                      <nz-option nzValue="4" nzLabel="错误"></nz-option>
+                    </nz-select>
+                  </nz-form-control>
+                </nz-form-item>
+              </div>
+
+              <div nz-col [nzSpan]="24" style="text-align: right">
+                <button nz-button type="submit" [nzType]="'primary'" (click)="getAlarmData()">搜索</button>
+                <!--<button nz-button type="submit" (click)="getData()" [nzType]="'primary'" [nzLoading]="loading">查询</button>-->
+                <button nz-button type="reset" (click)="resetAlarm()" class="mx-sm">重置</button>
+              </div>
+            </div>
+          </form>
+
           <st
             #stalarm
             [columns]="columns"
@@ -80,9 +161,9 @@
                     <td nzLeft="true">遥测名称</td>
                     <td nzEllipsis>遥测值</td>
                     <td>变量</td>
-                    <td>({{samppleday}}天)最大值</td>
-                    <td>({{samppleday}}天)最小值</td>
-                    <td>({{samppleday}}天)平均值</td>
+                    <td>({{ samppleday }}天)最大值</td>
+                    <td>({{ samppleday }}天)最小值</td>
+                    <td>({{ samppleday }}天)平均值</td>
                     <td nzLeft="true">时间</td>
                   </tr>
                 </thead>
@@ -94,7 +175,7 @@
                     <td>{{ _item.max }}</td>
                     <td>{{ _item.min }}</td>
                     <td>{{ _item.average }}</td>
-                    <td>{{ _item.dateTime  | date:"yyyy-MM-dd hh:mm:ss"}}</td>
+                    <td>{{ _item.dateTime | date: 'yyyy-MM-dd hh:mm:ss' }}</td>
                   </tr>
                 </tbody>
               </nz-table>
@@ -139,17 +220,25 @@
                     <nz-form-item>
                       <nz-form-label nzFor="name">间隔</nz-form-label>
                       <nz-form-control>
-                        <nz-time-picker [ngModelOptions]="{standalone: true}" (ngModelChange)="samplingPeriodChanged($event)" [(ngModel)]="qtemps.status"></nz-time-picker>
+                        <nz-time-picker
+                          [ngModelOptions]="{ standalone: true }"
+                          (ngModelChange)="samplingPeriodChanged($event)"
+                          [(ngModel)]="qtemps.status"
+                        ></nz-time-picker>
                       </nz-form-control>
                     </nz-form-item>
                   </div>
 
-
                   <div nz-col nzSm="24">
                     <nz-form-item>
                       <nz-form-label nzFor="name">取值方式</nz-form-label>
-                      <nz-form-control> 
-                        <nz-radio-group  nzButtonStyle="solid" [(ngModel)]="qtemps.aggregate" [ngModelOptions]="{standalone: true}"  (ngModelChange)="aggregateChanged($event)">
+                      <nz-form-control>
+                        <nz-radio-group
+                          nzButtonStyle="solid"
+                          [(ngModel)]="qtemps.aggregate"
+                          [ngModelOptions]="{ standalone: true }"
+                          (ngModelChange)="aggregateChanged($event)"
+                        >
                           <label nz-radio-button nzValue="Mean">平均值</label>
                           <label nz-radio-button nzValue="Median">中值</label>
                           <label nz-radio-button nzValue="Max">最大值</label>
@@ -158,7 +247,6 @@
                       </nz-form-control>
                     </nz-form-item>
                   </div>
-
 
                   <div nz-col [nzSpan]="24" style="text-align: right">
                     <button nz-button type="submit" [nzType]="'primary'" (click)="gettemphistory()">搜索</button>
@@ -169,8 +257,7 @@
 
               <nz-tabset nzSize="large">
                 <nz-tab nzTitle="图表">
-
-                                  <!-- 
+                  <!-- 
     仪表板的形式展示遥测
     <div  *ngFor="let _item of tempcharts; let i = index; let odd = odd"   >
                   <g2-gauge [title]="_item.keyName" [height]="180" [percent]="_item.value" style="width: 200px;height:200px;display: flexbox;"></g2-gauge>
@@ -199,7 +286,6 @@
                 </nz-tab>
 
                 <nz-tab nzTitle="数据">
-  
                   <st
                     #sttemps
                     [columns]="tempscolumns"
@@ -209,18 +295,11 @@
                       total: false,
                       zeroIndexed: true
                     }"
-                    
                   >
-                    <ng-template #expand let-item let-index="index" let-column="column">
-                      <nz-card nzTitle="告警详情">
-                        {{ item.alarmDetail }}
-                      </nz-card>
-                    </ng-template>
                   </st>
                 </nz-tab>
               </nz-tabset>
             </nz-tab>
-        
           </nz-tabset>
         </nz-tab>
         <nz-tab nzTitle="规则">
@@ -233,7 +312,7 @@
               </tr>
             </thead>
             <tbody>
-              <tr *ngFor="let _item of cerd;  let i = index; let odd = odd">
+              <tr *ngFor="let _item of cerd; let i = index; let odd = odd">
                 <td>{{ _item.name }}</td>
                 <td>{{ _item.ruleDesc }}</td>
                 <td>
@@ -254,6 +333,50 @@
           </nz-table>
         </nz-tab>
         <nz-tab nzTitle="事件">
+          <form nz-form [nzLayout]="'inline'" class="search__form" action="search">
+            <div nz-row [nzGutter]="{ xs: 8, sm: 8, md: 8, lg: 24, xl: 48, xxl: 48 }">
+              <div nz-col nzMd="8" nzSm="24">
+                <nz-form-item>
+                  <nz-form-label nzFor="Name">事件名称</nz-form-label>
+                  <nz-form-control>
+                    <input nz-input [(ngModel)]="qevent.Name" name="Name" #UserName placeholder="请输入" />
+                  </nz-form-control>
+                </nz-form-item>
+              </div>
+
+              <div nz-col nzMd="8" nzSm="24">
+                <nz-form-item>
+                  <nz-form-label nzFor="Name">规则</nz-form-label>
+                  <nz-form-control>
+                    <nz-select nzShowSearch nzAllowClear nzPlaceHolder="选择规则" [(ngModel)]="qevent.RuleId" name="RuleId">
+                      <ng-container *ngFor="let o of rules">
+                        <nz-option [nzValue]="o.ruleId" [nzLabel]="o.name"></nz-option>
+                      </ng-container>
+                    </nz-select>
+                  </nz-form-control>
+                </nz-form-item>
+              </div>
+
+              <div nz-col nzMd="8" nzSm="24">
+                <nz-form-item>
+                  <nz-form-label nzFor="CreatTime">创建时间</nz-form-label>
+                  <nz-form-control>
+                    <nz-range-picker
+                      [nzFormat]="dateFormat"
+                      [(ngModel)]="qevent.CreatTime"
+                      name="CreatTime"
+                      placeholder="请输入"
+                    ></nz-range-picker>
+                  </nz-form-control>
+                </nz-form-item>
+              </div>
+
+              <div nz-col [nzSpan]="24" style="text-align: right">
+                <button nz-button type="submit" [nzType]="'primary'" (click)="getEventData()">搜索</button>
+                <button nz-button type="reset" (click)="resetEvent()" class="mx-sm">重置</button>
+              </div>
+            </div>
+          </form>
           <st
             #stevent
             [columns]="eventcolumns"

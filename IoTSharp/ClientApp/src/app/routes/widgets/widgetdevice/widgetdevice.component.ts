@@ -30,9 +30,9 @@ export class WidgetdeviceComponent implements OnInit, OnDestroy {
   singlechartAxis: number = 1;
   singlechart = true;
   templistdata: any[] = [];
-  samppleday=3;
-
-
+  samppleday = 3;
+  dateFormat = 'yyyy/MM/dd';
+  rules = [];
   // alarm
 
   @ViewChild('stalarm', { static: true })
@@ -140,7 +140,7 @@ export class WidgetdeviceComponent implements OnInit, OnDestroy {
     pi: 0,
     ps: 10,
     Name: '',
-    Creator: '',
+    Creator: this.id,
     RuleId: '',
     CreatorName: '',
     CreatTime: [],
@@ -211,10 +211,7 @@ export class WidgetdeviceComponent implements OnInit, OnDestroy {
   obs: Subscription;
   averagetempdata: attributeitem[] = [];
   tempcharts: tempchartitem[] = [];
-  constructor(
-    private http: _HttpClient,
-    private cdr: ChangeDetectorRef
-  ) {}
+  constructor(private http: _HttpClient, private cdr: ChangeDetectorRef) {}
   ngOnDestroy(): void {
     if (this.obs) {
       this.obs.unsubscribe();
@@ -235,7 +232,6 @@ export class WidgetdeviceComponent implements OnInit, OnDestroy {
   ontempsdatetimeOk(result: Date | Date[] | null) {
     this.qtemps.begin = result[0].toISOString();
     this.qtemps.end = result[1].toISOString();
-  
   }
 
   gettempslist() {
@@ -321,6 +317,14 @@ export class WidgetdeviceComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
+    this.http.post('api/rules/index', { offset: 0, limit: 100 }).subscribe(
+      next => {
+        this.rules = next.data.rows;
+      },
+      error => {},
+      () => {}
+    );
+
     this.apitemps = 'api/Devices/' + this.id + '/TelemetryData/' + this.qtemps.keys + '/' + this.qtemps.begin + '/' + this.qtemps.end;
     this.getdevice();
     this.getattrs(this.id);
@@ -342,7 +346,7 @@ export class WidgetdeviceComponent implements OnInit, OnDestroy {
             keys: keys,
             begin: date[0].toISOString(),
             end: date[1].toISOString(),
-            every: this.samppleday+'.00:00:00:000',
+            every: this.samppleday + '.00:00:00:000',
             aggregate: 'Mean'
           });
 
@@ -350,7 +354,7 @@ export class WidgetdeviceComponent implements OnInit, OnDestroy {
             keys: keys,
             begin: date[0].toISOString(),
             end: date[1].toISOString(),
-            every: this.samppleday+'.00:00:00:000',
+            every: this.samppleday + '.00:00:00:000',
             aggregate: 'Max'
           });
 
@@ -358,7 +362,7 @@ export class WidgetdeviceComponent implements OnInit, OnDestroy {
             keys: keys,
             begin: date[0].toISOString(),
             end: date[1].toISOString(),
-            every: this.samppleday+'.00:00:00:000',
+            every: this.samppleday + '.00:00:00:000',
             aggregate: 'Min'
           });
           return forkJoin([average, max, min]);
@@ -517,8 +521,6 @@ export class WidgetdeviceComponent implements OnInit, OnDestroy {
             this.cetd[j].value = next.data[i].value;
             flag = true;
           }
-
-         
         }
         if (!flag) {
           next.data[i].class = 'valnew';
@@ -588,6 +590,80 @@ export class WidgetdeviceComponent implements OnInit, OnDestroy {
       () => {},
       () => {}
     );
+  }
+
+  getAlarmData() {
+    this.stalarm.req = this.alarmerq;
+    this.stalarm.load(this.stalarm.pi);
+  }
+
+  resetAlarm(
+    qal = {
+      pi: 0,
+      ps: 10,
+      Name: '',
+      sorter: '',
+      status: null,
+      AckDateTime: null,
+      ClearDateTime: null,
+      StartDateTime: null,
+      EndDateTime: null,
+      AlarmType: '',
+      OriginatorName: '',
+      alarmStatus: '-1',
+      OriginatorId: this.id,
+      serverity: '-1',
+      originatorType: '1'
+    }
+  ) {}
+  clearAlarm(item) {
+    this.http
+      .post('api/alarm/clearAlarm', {
+        id: item.id
+      })
+      .subscribe(
+        next => {
+          if (next?.data) {
+            this.getAlarmData();
+          }
+        },
+        error => {},
+        () => {}
+      );
+  }
+
+  acquireAlarm(item) {
+    this.http
+      .post('api/alarm/ackAlarm', {
+        id: item.id
+      })
+      .subscribe(
+        next => {
+          if (next?.data) {
+            this.getAlarmData();
+          }
+        },
+        error => {},
+        () => {}
+      );
+  }
+
+  getEventData() {
+    this.stevent.req = this.eventreq;
+    this.stevent.load(this.stevent.pi);
+  }
+  resetEvent() {
+    this.qevent = {
+      pi: 0,
+      ps: 10,
+      Name: '',
+      Creator: this.id,
+      RuleId: '',
+      CreatorName: '',
+      CreatTime: [],
+      sorter: '',
+      status: null
+    };
   }
 }
 
