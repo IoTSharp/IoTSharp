@@ -76,6 +76,11 @@ export class StartupService {
             this.menuService.add(res.data.menu);
             this.titleService.default = '';
             this.titleService.suffix = res.data.appName;
+          }),
+          catchError(res => {
+            console.warn(`StartupService.load: Network request failed`, res);
+            setTimeout(() => this.router.navigateByUrl(`/passport/login`));
+            return [];
           })
         )
       );
