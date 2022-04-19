@@ -61,7 +61,7 @@ namespace IoTSharp
                     server.ClientConnectedAsync +=  mqttEvents.Server_ClientConnectedAsync;
                     server.StartedAsync += mqttEvents.Server_Started ;
                     server.StoppedAsync +=  mqttEvents.Server_Stopped ;
-                    server.ApplicationMessageNotConsumedAsync +=  mqttEvents.Server_ApplicationMessageReceived ;
+                    server.ApplicationMessageNotConsumedAsync  +=mqttEvents.Server_ApplicationMessageReceived ;
                     server .ClientSubscribedTopicAsync    += mqttEvents.Server_ClientSubscribedTopic;
                     server.ClientUnsubscribedTopicAsync += mqttEvents.Server_ClientUnsubscribedTopic;
                     server.ValidatingConnectionAsync += mqttEvents.Server_ClientConnectionValidator;

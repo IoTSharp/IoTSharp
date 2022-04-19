@@ -19,12 +19,12 @@ namespace IoTSharp.Extensions
     public class  RpcClient : IDisposable
     {
         private readonly ConcurrentDictionary<string, TaskCompletionSource<byte[]>> _waitingCalls = new ConcurrentDictionary<string, TaskCompletionSource<byte[]>>();
-        private readonly MqttClient _mqttClient;
+        private readonly IMqttClient _mqttClient;
         private readonly ILogger _logger;
         private MqttClientOptions _mqtt;
         private bool disposedValue;
 
-        public RpcClient(MqttClient mqttClient,  ILogger logger)
+        public RpcClient(IMqttClient mqttClient,  ILogger logger)
         {
             _mqttClient = mqttClient ?? throw new ArgumentNullException(nameof(mqttClient));
             _logger = logger;
