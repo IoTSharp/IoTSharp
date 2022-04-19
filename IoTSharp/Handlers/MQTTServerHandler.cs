@@ -71,7 +71,7 @@ namespace IoTSharp.Handlers
         }
         internal async Task Server_ApplicationMessageReceived(ApplicationMessageNotConsumedEventArgs e)
         {
-            if (string.IsNullOrEmpty(e.SenderClientId))
+            if (string.IsNullOrEmpty(e.SenderId))
             {
                 _logger.LogInformation($"ClientId为空,无法进一步获取设备信息 Topic=[{e.ApplicationMessage.Topic }]");
             }
@@ -79,10 +79,10 @@ namespace IoTSharp.Handlers
             {
                 try
                 {
-                    _logger.LogInformation($"Server received {e.SenderClientId}'s message: Topic=[{e.ApplicationMessage.Topic }],Retain=[{e.ApplicationMessage.Retain}],QualityOfServiceLevel=[{e.ApplicationMessage.QualityOfServiceLevel}]");
+                    _logger.LogInformation($"Server received {e.SenderId}'s message: Topic=[{e.ApplicationMessage.Topic }],Retain=[{e.ApplicationMessage.Retain}],QualityOfServiceLevel=[{e.ApplicationMessage.QualityOfServiceLevel}]");
                     string topic = e.ApplicationMessage.Topic;
                     var tpary = topic.Split('/', StringSplitOptions.RemoveEmptyEntries);
-                    var _dev = await FoundDevice(e.SenderClientId);
+                    var _dev = await FoundDevice(e.SenderId);
                
                     if (tpary.Length >= 3 && tpary[0] == "devices" && _dev != null)
                     {
@@ -131,7 +131,7 @@ namespace IoTSharp.Handlers
                             {
                                 if (tpary.Length > 3 && tpary[3] == "request")
                                 {
-                                    await RequestAttributes(tpary,e.SenderClientId, e.ApplicationMessage.ConvertPayloadToDictionary(), device);
+                                    await RequestAttributes(tpary,e.SenderId, e.ApplicationMessage.ConvertPayloadToDictionary(), device);
                                 }
                                 else
                                 {
@@ -167,20 +167,20 @@ namespace IoTSharp.Handlers
                         }
                         else
                         {
-                            _logger.LogInformation($"{e.SenderClientId}的数据{e.ApplicationMessage.Topic}未能匹配到设备");
+                            _logger.LogInformation($"{e.SenderId}的数据{e.ApplicationMessage.Topic}未能匹配到设备");
                         }
                     }
                     else if (tpary.Length >= 3 && tpary[0] == "gateway" && _dev != null  )
                     {
                         var lst = Newtonsoft.Json.JsonConvert.DeserializeObject<Dictionary<string, List<GatewayPlayload>>>(e.ApplicationMessage.ConvertPayloadToString());
-                        _logger.LogInformation($"{e.SenderClientId}的数据{e.ApplicationMessage.Topic}是网关数据， 解析到{lst?.Count}个设备");
+                        _logger.LogInformation($"{e.SenderId}的数据{e.ApplicationMessage.Topic}是网关数据， 解析到{lst?.Count}个设备");
                         bool istelemetry =tpary[2] == "telemetry";
                         lst?.Keys.ToList().ForEach(dev =>
                         {
 
                             var plst = lst[dev];
                             var device = _dev.JudgeOrCreateNewDevice(dev, _scopeFactor, _logger);
-                            _logger.LogInformation($"{e.SenderClientId}的网关数据正在处理设备{dev}， 设备ID为{device?.Id}");
+                            _logger.LogInformation($"{e.SenderId}的网关数据正在处理设备{dev}， 设备ID为{device?.Id}");
                             plst.ForEach(p =>
                             {
                                 if (istelemetry)
@@ -192,13 +192,13 @@ namespace IoTSharp.Handlers
                                     _queue.PublishAttributeData(new PlayloadData() { DeviceId = device.Id, DeviceStatus = p.DeviceStatus, ts = new DateTime(p.Ticks), MsgBody = p.Values, DataSide = DataSide.ClientSide, DataCatalog = DataCatalog.TelemetryData });
                                 }
                             });
-                            _logger.LogInformation($"{e.SenderClientId}的网关数据处理完成，设备{dev}ID为{device?.Id}共计{plst.Count}条");
+                            _logger.LogInformation($"{e.SenderId}的网关数据处理完成，设备{dev}ID为{device?.Id}共计{plst.Count}条");
                         });
                     }    
                     else
                     {
                         //tpary.Length >= 3 && tpary[0] == "devices" && _dev != null
-                        _logger.LogWarning($"不支持{e.SenderClientId}的{e.ApplicationMessage.Topic}格式,Length:{tpary.Length },{tpary[0] },{ _dev != null}");
+                        _logger.LogWarning($"不支持{e.SenderId}的{e.ApplicationMessage.Topic}格式,Length:{tpary.Length },{tpary[0] },{ _dev != null}");
                     }
                 }
                 catch (Exception ex)
@@ -239,14 +239,14 @@ namespace IoTSharp.Handlers
             , TimeSpan.FromSeconds(_settings.RuleCachingExpiration));
             if (rules.HasValue)
             {
-                var obj = new { e.ApplicationMessage.Topic, Payload = Convert.ToBase64String(e.ApplicationMessage.Payload), e.SenderClientId };
+                var obj = new { e.ApplicationMessage.Topic, Payload = Convert.ToBase64String(e.ApplicationMessage.Payload), e.SenderId };
             
-                    _logger.LogInformation($"{e.SenderClientId}的rpc调用{e.ApplicationMessage.Topic} 方法 {method}通过规则链{rules.Value}进行处理。");
+                    _logger.LogInformation($"{e.SenderId}的rpc调用{e.ApplicationMessage.Topic} 方法 {method}通过规则链{rules.Value}进行处理。");
                     await _flowRuleProcessor.RunFlowRules(rules.Value, obj, _dev.Id, EventType.Normal, null);
             }
             else
             {
-                _logger.LogInformation($"{e.SenderClientId}的数据{e.ApplicationMessage.Topic}不符合规范， 也无相关规则链处理。");
+                _logger.LogInformation($"{e.SenderId}的数据{e.ApplicationMessage.Topic}不符合规范， 也无相关规则链处理。");
             }
         }
         private async Task ExecFlowRules(ApplicationMessageNotConsumedEventArgs e, Device _dev, MountType mount)
@@ -263,16 +263,16 @@ namespace IoTSharp.Handlers
             , TimeSpan.FromSeconds(_settings.RuleCachingExpiration));
             if (rules.HasValue)
             {
-                var obj = new { e.ApplicationMessage.Topic, Payload = Convert.ToBase64String(e.ApplicationMessage.Payload), e.SenderClientId };
+                var obj = new { e.ApplicationMessage.Topic, Payload = Convert.ToBase64String(e.ApplicationMessage.Payload), e.SenderId };
                 rules.Value.ToList().ForEach(async g =>
                 {
-                    _logger.LogInformation($"{e.SenderClientId}的数据{e.ApplicationMessage.Topic}通过规则链{g}进行处理。");
+                    _logger.LogInformation($"{e.SenderId}的数据{e.ApplicationMessage.Topic}通过规则链{g}进行处理。");
                     await _flowRuleProcessor.RunFlowRules(g, obj, _dev.Id, EventType.Normal, null);
                 });
             }
             else
             {
-                _logger.LogInformation($"{e.SenderClientId}的数据{e.ApplicationMessage.Topic}不符合规范， 也无相关规则链处理。");
+                _logger.LogInformation($"{e.SenderId}的数据{e.ApplicationMessage.Topic}不符合规范， 也无相关规则链处理。");
             }
         }
 

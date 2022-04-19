@@ -258,6 +258,7 @@ namespace IoTSharp.Controllers
         /// <summary>
         /// 清除告警信息
         /// </summary>
+        /// <param name="m"></param>
         /// <param name="id">告警Id</param>
         /// <returns></returns>
         [HttpPost]
