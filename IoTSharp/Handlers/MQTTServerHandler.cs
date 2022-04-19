@@ -1,6 +1,7 @@
 ﻿using DotNetCore.CAP;
 using EasyCaching.Core;
 using IoTSharp.Data;
+using IoTSharp.Dtos;
 using IoTSharp.Extensions;
 using IoTSharp.FlowRuleEngine;
 using IoTSharp.Handlers;
@@ -171,31 +172,14 @@ namespace IoTSharp.Handlers
                             _logger.LogInformation($"{clientid}的数据{e.ApplicationMessage.Topic}未能匹配到设备");
                         }
                     }
-                    else if (tpary.Length >= 3 && tpary[0] == "gateway" && _dev != null  )
+                    else if (tpary.Length >= 2 && tpary[0] == "gateway" && _dev != null  )
                     {
-                        var lst = Newtonsoft.Json.JsonConvert.DeserializeObject<Dictionary<string, List<GatewayPlayload>>>(e.ApplicationMessage.ConvertPayloadToString());
-                        _logger.LogInformation($"{clientid}的数据{e.ApplicationMessage.Topic}是网关数据， 解析到{lst?.Count}个设备");
-                        bool istelemetry =tpary[2] == "telemetry";
-                        lst?.Keys.ToList().ForEach(dev =>
-                        {
-
-                            var plst = lst[dev];
-                            var device = _dev.JudgeOrCreateNewDevice(dev, _scopeFactor, _logger);
-                            _logger.LogInformation($"{clientid}的网关数据正在处理设备{dev}， 设备ID为{device?.Id}");
-                            plst.ForEach(p =>
-                            {
-                                if (istelemetry)
-                                {
-                                    _queue.PublishTelemetryData(new PlayloadData() { DeviceId = device.Id, DeviceStatus = p.DeviceStatus, ts = new DateTime( p.Ticks), MsgBody = p.Values, DataSide = DataSide.ClientSide, DataCatalog = DataCatalog.TelemetryData });
-                                }
-                                else
-                                {
-                                    _queue.PublishAttributeData(new PlayloadData() { DeviceId = device.Id, DeviceStatus = p.DeviceStatus, ts = new DateTime(p.Ticks), MsgBody = p.Values, DataSide = DataSide.ClientSide, DataCatalog = DataCatalog.TelemetryData });
-                                }
-                            });
-                            _logger.LogInformation($"{clientid}的网关数据处理完成，设备{dev}ID为{device?.Id}共计{plst.Count}条");
-                        });
-                    }    
+                        GatewayReceived(e, clientid, tpary[1], _dev);
+                    }
+                    else if (tpary.Length >= 3 && tpary[0] == "v1" && tpary[1] == "gateway" && _dev != null)
+                    {
+                        GatewayReceived(e, clientid, tpary[2], _dev);
+                    }
                     else
                     {
                         //tpary.Length >= 3 && tpary[0] == "devices" && _dev != null
@@ -208,6 +192,55 @@ namespace IoTSharp.Handlers
                     _logger.LogWarning(ex, $"ApplicationMessageReceived {ex.Message} {ex.InnerException?.Message}");
                 }
 
+            }
+        }
+
+        private void GatewayReceived(InterceptingPublishEventArgs e, string clientid, string tpname, Device _dev)
+        {
+            if (tpname == "telemetry")
+            {
+                var lst = Newtonsoft.Json.JsonConvert.DeserializeObject<Dictionary<string, List<GatewayPlayload>>>(e.ApplicationMessage.ConvertPayloadToString());
+                _logger.LogInformation($"{clientid}的数据{e.ApplicationMessage.Topic}是网关数据， 解析到{lst?.Count}个设备");
+                bool istelemetry = tpname == "telemetry";
+                lst?.Keys.ToList().ForEach(dev =>
+                {
+
+                    var plst = lst[dev];
+                    var device = _dev.JudgeOrCreateNewDevice(dev, _scopeFactor, _logger);
+                    _logger.LogInformation($"{clientid}的网关数据正在处理设备{dev}， 设备ID为{device?.Id}");
+                    plst.ForEach(p =>
+                    {
+                        if (istelemetry)
+                        {
+                            _queue.PublishTelemetryData(new PlayloadData() { DeviceId = device.Id, DeviceStatus = p.DeviceStatus, ts = new DateTime(p.Ticks), MsgBody = p.Values, DataSide = DataSide.ClientSide, DataCatalog = DataCatalog.TelemetryData });
+                        }
+                        else
+                        {
+                            _queue.PublishAttributeData(new PlayloadData() { DeviceId = device.Id, DeviceStatus = p.DeviceStatus, ts = new DateTime(p.Ticks), MsgBody = p.Values, DataSide = DataSide.ClientSide, DataCatalog = DataCatalog.TelemetryData });
+                        }
+                    });
+                    _logger.LogInformation($"{clientid}的网关数据处理完成，设备{dev}ID为{device?.Id}共计{plst.Count}条");
+                });
+            }
+            else if (tpname == "connect" || tpname == "disconnect")
+            {
+                var ds = Newtonsoft.Json.JsonConvert.DeserializeObject<GatewayDeviceStatus>(e.ApplicationMessage.ConvertPayloadToString());
+                if (ds != null)
+                {
+                    var device = _dev.JudgeOrCreateNewDevice(ds.Device, _scopeFactor, _logger);
+                    if (device != null)
+                    {
+                        _queue.PublishDeviceStatus(device.Id, tpname == "connect" ? DeviceStatus.Good : (tpname == "disconnect" ? DeviceStatus.Bad : DeviceStatus.UnKnow));
+                    }
+                    else
+                    {
+                        _logger.LogWarning("未能创建或者找到网关的设备。");
+                    }
+                }
+                else
+                {
+                    _logger.LogWarning("无法获取网关的子设备。");
+                }
             }
         }
 
