@@ -383,12 +383,20 @@ export class DevicelistComponent implements OnInit, OnDestroy {
   reset() {}
   delete(id: string) {
     this.http.delete('api/Devices/' + id, {}).subscribe(
-      () => {
-        this.msg.create('success', '设备删除成功');
-        this.getData();
+      next=> {
+
+        if (next?.data) {
+          this.msg.create('success', '设备删除成功');
+          this.getData();
+        } else {
+          this.msg.create('error', '错误：'+next?.msg,{ nzDuration:3000});
+    
+        }
+
       },
-      () => {
-        this.msg.create('error', '设备删除失败');
+      error => {
+        this.msg.create('error', '设备删除失败:' + error, { nzDuration: 3000 });
+
       },
       () => {}
     );

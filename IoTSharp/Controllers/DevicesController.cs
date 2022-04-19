@@ -139,14 +139,14 @@ namespace IoTSharp.Controllers
                     {
                         if (System.Text.RegularExpressions.Regex.IsMatch(m.Name, @"(?im)^[{(]?[0-9A-F]{8}[-]?(?:[0-9A-F]{4}[-]?){3}[0-9A-F]{12}[)}]?$"))
                         {
-                            condition = condition.And(x => x.Id==Guid.Parse(m.Name));
+                            condition = condition.And(x => x.Id == Guid.Parse(m.Name));
                         }
                         else
                         {
                             condition = condition.And(x => x.Name.Contains(m.Name));
                         }
 
-                  
+
                     }
 
                     return new ApiResult<PagedData<DeviceDetailDto>>(ApiCode.Success, "OK", new PagedData<DeviceDetailDto>
@@ -722,18 +722,115 @@ namespace IoTSharp.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ApiResult<Guid>), StatusCodes.Status404NotFound)]
         [ProducesDefaultResponseType]
-        public async Task<ApiResult<Device>> DeleteDevice(Guid id)
+        public async Task<ApiResult<bool>> DeleteDevice(Guid id)
         {
             Device device = Found(id);
+
+
+
+
             if (device == null)
             {
-                return new ApiResult<Device>(ApiCode.NotFoundTenantOrCustomer, "Device {id} not found", null);
+                return new ApiResult<bool>(ApiCode.NotFoundTenantOrCustomer, "Device {id} not found", false);
             }
-            device.Status = -1;
-            device.Name = $"DELETED_{device.Name}";
-            _context.Device.Update(device);
-            await _context.SaveChangesAsync();
-            return new ApiResult<Device>(ApiCode.Success, "Ok", device);
+
+            try
+            {
+                if (device.DeviceType == DeviceType.Device)
+                {
+                    var assets = await _context.Assets.Where(c => c.OwnedAssets.Any(d => d.DeviceId == device.Id))
+                        .ToListAsync();
+
+                    if (assets.Count > 0)
+                    {
+                        
+                        return new ApiResult<bool>(ApiCode.NotFoundTenantOrCustomer,
+                            "Please remove the current device from the following known assets " +
+                            assets.Aggregate("", (x, y) => x + "," + y.Name), false);
+                    }
+
+
+                    var cert = _context.DeviceIdentities.FirstOrDefault(c => c.DeviceId == device.Id);
+                    if (cert != null)
+                    {
+                        _context.DeviceIdentities.RemoveRange(cert);
+                        await _context.SaveChangesAsync();
+                    }
+
+
+
+                    var attrs = await _context.DataStorage.Where(c => c.DeviceId == device.Id).ToArrayAsync();
+                    if (attrs.Length > 0)
+                    {
+                        _context.DataStorage.RemoveRange(attrs);
+                        await _context.SaveChangesAsync();
+                    }
+
+                    var devicerules = await _context.DeviceRules.Where(c => c.Device.Id == device.Id).ToArrayAsync();
+
+                    if (devicerules.Length > 0)
+                    {
+                        _context.DeviceRules.RemoveRange(devicerules);
+                        await _context.SaveChangesAsync();
+                    }
+                    _context.Device.Remove(device);
+                    await _context.SaveChangesAsync();
+                    return new ApiResult<bool>(ApiCode.Success, "Ok", true);
+                }
+
+                if (device.DeviceType == DeviceType.Gateway)
+                {
+
+                    var devices = await _context.Device.Where(c => c.Owner.Id == device.Id).ToArrayAsync();
+                    if (devices.Length > 0)
+                    {
+                        return new ApiResult<bool>(ApiCode.NotFoundTenantOrCustomer,
+                            "Please remove the following devices from the current gateway: " +
+                            devices.Aggregate("", (x, y) => x + "," + y.Name), false);
+
+                    }
+                    var assets = await _context.Assets.Where(c => c.OwnedAssets.Any(d => d.DeviceId == device.Id))
+                        .ToArrayAsync();
+
+                    if (assets.Length > 0)
+                    {
+
+                        return new ApiResult<bool>(ApiCode.NotFoundTenantOrCustomer,
+                            "Please remove the current gateway from the following known assets " +
+                            assets.Aggregate("", (x, y) => x + "," + y.Name), false);
+                    }
+
+                    var cert = _context.DeviceIdentities.FirstOrDefault(c => c.DeviceId == device.Id);
+                    if (cert != null)
+                    {
+                        _context.DeviceIdentities.RemoveRange(cert);
+                        await _context.SaveChangesAsync();
+                    }
+
+                    var attrs = await _context.DataStorage.Where(c => c.DeviceId == device.Id).ToArrayAsync();
+                    if (attrs.Length > 0)
+                    {
+                        _context.DataStorage.RemoveRange(attrs);
+                        await _context.SaveChangesAsync();
+                    }
+                    var devicerules = await _context.DeviceRules.Where(c => c.Device.Id == device.Id).ToArrayAsync();
+                    if (devicerules.Length > 0)
+                    {
+                        _context.DeviceRules.RemoveRange(devicerules);
+                        await _context.SaveChangesAsync();
+                    }
+                    _context.Device.Remove(device);
+                    await _context.SaveChangesAsync();
+                    return new ApiResult<bool>(ApiCode.Success, "Ok", true);
+                }
+
+            }
+            catch (Exception ex)
+            {
+                return new ApiResult<bool>(ApiCode.Exception, ex.Message, false);
+            }
+            return new ApiResult<bool>(ApiCode.NotFoundTenantOrCustomer, "Device or Gateway {id} not found", false);
+
         }
 
         private bool DeviceExists(Guid id)
@@ -1226,7 +1323,7 @@ namespace IoTSharp.Controllers
             var result = await _context.SaveAsync<AttributeLatest>(attributes.anyside, devid, DataSide.AnySide);
             var result1 = await _context.SaveAsync<AttributeLatest>(attributes.serverside, devid, DataSide.ServerSide);
             var result2 = await _context.SaveAsync<AttributeLatest>(attributes.clientside, devid, DataSide.ClientSide);
-            if (result.ret > 0 && result1.ret > 0&& result2.ret>0)
+            if (result.ret > 0 && result1.ret > 0 && result2.ret > 0)
             {
                 return new ApiResult<Dic>(ApiCode.Success, "Ok", null);
             }
