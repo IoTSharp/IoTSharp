@@ -1,5 +1,7 @@
-﻿using EasyCaching.Core;
+﻿using DotNetCore.CAP;
+using EasyCaching.Core;
 using IoTSharp.Data;
+using IoTSharp.Extensions;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -21,14 +23,16 @@ namespace IoTSharp.Jobs
         private readonly ILogger<CheckDevices> _logger;
         private readonly IServiceScopeFactory _scopeFactor;
         private readonly MqttServer _serverEx;
+        private readonly ICapPublisher _queue;
 
         public CheckDevices(ILogger<CheckDevices> logger, IServiceScopeFactory scopeFactor, MqttServer serverEx
-           , IOptions<AppSettings> options)
+           , IOptions<AppSettings> options, ICapPublisher queue)
         {
             _mcsetting = options.Value.MqttClient;
             _logger = logger;
             _scopeFactor = scopeFactor;
             _serverEx = serverEx;
+            _queue = queue;
         }
         public Task Execute(IJobExecutionContext context)
         {
@@ -69,7 +73,7 @@ namespace IoTSharp.Jobs
                     {
                          if  (d.Online  &&   DateTime.Now.Subtract(d.LastActive).TotalSeconds > d.Timeout)
                         {
-                            d.Online = false;
+                            _queue.PublishDeviceStatus(d.Id,  DeviceStatus.Bad);
                         }
                     });
                     var saveresult = await _dbContext.SaveChangesAsync();

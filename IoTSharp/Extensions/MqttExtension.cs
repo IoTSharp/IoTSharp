@@ -61,13 +61,15 @@ namespace IoTSharp
                     server.ClientConnectedAsync +=  mqttEvents.Server_ClientConnectedAsync;
                     server.StartedAsync += mqttEvents.Server_Started ;
                     server.StoppedAsync +=  mqttEvents.Server_Stopped ;
-                    server.ApplicationMessageNotConsumedAsync  +=mqttEvents.Server_ApplicationMessageReceived ;
+                    server.InterceptingPublishAsync += mqttEvents.Server_ApplicationMessageReceived;
                     server .ClientSubscribedTopicAsync    += mqttEvents.Server_ClientSubscribedTopic;
                     server.ClientUnsubscribedTopicAsync += mqttEvents.Server_ClientUnsubscribedTopic;
                     server.ValidatingConnectionAsync += mqttEvents.Server_ClientConnectionValidator;
                     server.ClientDisconnectedAsync    +=mqttEvents.Server_ClientDisconnected;
                 });
         }
+  
+
         public static async Task PublishAsync<T>(this MqttServer mqtt, string SenderClientId, string topic, T _payload) where T : class
         {
             await mqtt.PublishAsync(SenderClientId, new MqttApplicationMessage() { Topic = topic, Payload = System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(_payload) });
