@@ -93,21 +93,32 @@ export class DevicelistComponent implements OnInit, OnDestroy {
   @ViewChild('st', { static: true })
   st!: STComponent;
   ctype = {};
+
+
+  customColumns = [
+    { label: 'id', value: 'id', checked: false },
+    { label: '设备名称', value: 'name', checked: true },
+    { label: '设备类型', value: 'deviceType', checked: true },
+    { label: '在线状态', value: 'online', checked: true },
+    { label: '最后活动时间', value: 'lastActive', checked: true },
+    { label: '认证方式', value: 'identityType', checked: true},
+  ];
   columns: STColumn[] = [
     { title: '', index: 'id', type: 'checkbox' },
+    { title: 'id', index: 'id',iif: () => this.isChoose('id')},
     {
       title: '名称',
       index: 'name',
       render: 'name',
-      type: 'link',
+      type: 'link',iif: () => this.isChoose('name'),
       click: (item: any) => {
         this.showdeviceDetail(item.id);
       }
     },
-    { title: '设备类型', index: 'deviceType', type: 'tag', tag: this.DeviceTAG },
-    { title: '在线状态', index: 'online', type: 'badge', badge: this.BADGE },
-    { title: '最后活动时间', index: 'lastActive', type: 'date' },
-    { title: '认证方式', index: 'identityType', type: 'tag', tag: this.TAG },
+    { title: '设备类型', index: 'deviceType', type: 'tag', tag: this.DeviceTAG ,iif: () => this.isChoose('deviceType')},
+    { title: '在线状态', index: 'online', type: 'badge', badge: this.BADGE,iif: () => this.isChoose('online') },
+    { title: '最后活动时间', index: 'lastActive', type: 'date',iif: () => this.isChoose('lastActive') },
+    { title: '认证方式', index: 'identityType', type: 'tag', tag: this.TAG  ,iif: () => this.isChoose('identityType')},
     {
       title: '操作',
       type: 'link',
@@ -184,7 +195,9 @@ export class DevicelistComponent implements OnInit, OnDestroy {
     return [];
   }
   couponFormat() {}
-
+  isChoose(key: string): boolean {
+    return !!this.customColumns.find(w => w.value === key && w.checked);
+  }
   private download(record) {
     this.http
       .get(

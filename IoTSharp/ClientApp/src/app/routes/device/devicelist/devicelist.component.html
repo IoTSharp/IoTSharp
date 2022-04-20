@@ -11,11 +11,16 @@
           </nz-form-item>
         </div>
 
-        <div nz-col [nzSpan]="24" style="text-align: right">
+        <div nz-col [nzSpan]="24" >
+
+
+
+        
+<div style="text-align: right">
           <button nz-button type="submit" [nzType]="'primary'" (click)="getData()">搜索</button>
           <!--<button nz-button type="submit" (click)="getData()" [nzType]="'primary'" [nzLoading]="loading">查询</button>-->
           <button nz-button type="reset" (click)="reset()" class="mx-sm">重置</button>
-        </div>
+        </div>  </div>
       </div>
 
       <!--<button nz-button [nzType]="'primary'" [routerLink]="['/manage/authority/roleform']" [queryParams]="{Id:-1}">
@@ -24,7 +29,7 @@
     </button>-->
     </form>
 
-    <div nz-col nzMd="8" nzSm="24">
+    <div nz-col >
       <button nz-button [nzType]="'primary'" (click)="edit('00000000-0000-0000-0000-000000000000')" acl [acl-ability]="137">
         <i nz-icon nzType="plus"></i>
         <span>{{ 'button.new' | i18n }}</span>
@@ -33,6 +38,19 @@
         <i nz-icon nzType="plus"></i>
         <span>设置规则</span>
       </button>
+
+<div  style="float: right; margin-top: 1rem;">
+显示的列:
+  <nz-checkbox-group 
+          [(ngModel)]="customColumns"
+          name="customColumns"
+          (ngModelChange)="st.resetColumns({ emitReload: true })"
+        ></nz-checkbox-group>
+</div>
+
+
+
+      
     </div>
   </nz-card>
 
