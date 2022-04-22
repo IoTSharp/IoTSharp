@@ -32,7 +32,7 @@ namespace IoTSharp.TaskAction
                 {
                     JObject o = JsonConvert.DeserializeObject(input.Input) as JObject;
                     var config = JsonConvert.DeserializeObject<ModelExecutorConfig>(input.ExecutorConfig);
-                    var dd = o.Properties().Select(c => new ParamObject { keyName = c.Name, value = JPropertyToObject(c.Value.First as JProperty) }).ToList();
+                    var dd = o.Properties().Select(c => new ParamObject { keyName = c.Name.ToLower(), value = JPropertyToObject(c.Value.First as JProperty) }).ToList();
                     var restclient = new RestClient(config.BaseUrl);
                     restclient.AddDefaultHeader(KnownHeaders.Accept, "*/*");
                     var request = new RestRequest(config.Url + (input.DeviceId == Guid.Empty ? "" : "/" + input.DeviceId));
@@ -64,7 +64,7 @@ namespace IoTSharp.TaskAction
                 {
                     JObject o = JsonConvert.DeserializeObject(input.Input) as JObject;
                     var config = JsonConvert.DeserializeObject<ModelExecutorConfig>(input.ExecutorConfig);
-                    var dd = o.Properties().Select(c => new ParamObject { keyName = c.Name, value = JPropertyToObject(c) }).ToList();
+                    var dd = o.Properties().Select(c => new ParamObject { keyName = c.Name.ToLower(), value = JPropertyToObject(c) }).ToList();
                     var restclient = new RestClient(config.BaseUrl);
                     restclient.AddDefaultHeader(KnownHeaders.Accept, "*/*");
                     var request = new RestRequest(config.Url + (input.DeviceId == Guid.Empty ? "" : "/" + input.DeviceId));
