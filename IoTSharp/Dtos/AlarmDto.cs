@@ -26,6 +26,9 @@ namespace IoTSharp.Dtos
         /// 严重成都
         /// </summary>
         public ServerityLevel Serverity { get; set; } = ServerityLevel.Indeterminate;
+
+
+        public Guid warnDataId { get; set; }
     }
 
     public class CreateAlarmDto : DeviceAlarmDto
