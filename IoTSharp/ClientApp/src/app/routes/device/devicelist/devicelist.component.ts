@@ -35,8 +35,8 @@ export class DevicelistComponent implements OnInit, OnDestroy {
     Device: { text: '设备', color: 'green' },
     Gateway: { text: '网关', color: 'blue' }
   };
-
   obs: Subscription;
+  obsdevice: Subscription;
   customerId: string = '';
   expand: any;
   constructor(
@@ -52,6 +52,9 @@ export class DevicelistComponent implements OnInit, OnDestroy {
   ngOnDestroy(): void {
     if (this.obs) {
       this.obs.unsubscribe();
+    }
+    if (this.obsdevice) {
+      this.obsdevice.unsubscribe();
     }
   }
   url = 'api/Devices/Customers';
@@ -75,7 +78,7 @@ export class DevicelistComponent implements OnInit, OnDestroy {
     // anothor query field:The type you expect
   } = {
     pi: 0,
-    ps: 10,
+    ps: 20,
     sorter: '',
     customerId: '',
     name: ''
@@ -94,31 +97,31 @@ export class DevicelistComponent implements OnInit, OnDestroy {
   st!: STComponent;
   ctype = {};
 
-
   customColumns = [
     { label: 'id', value: 'id', checked: false },
     { label: '设备名称', value: 'name', checked: true },
     { label: '设备类型', value: 'deviceType', checked: true },
     { label: '在线状态', value: 'online', checked: true },
     { label: '最后活动时间', value: 'lastActive', checked: true },
-    { label: '认证方式', value: 'identityType', checked: true},
+    { label: '认证方式', value: 'identityType', checked: true }
   ];
   columns: STColumn[] = [
     { title: '', index: 'id', type: 'checkbox' },
-    { title: 'id', index: 'id',iif: () => this.isChoose('id')},
+    { title: 'id', index: 'id', iif: () => this.isChoose('id') },
     {
       title: '名称',
       index: 'name',
       render: 'name',
-      type: 'link',iif: () => this.isChoose('name'),
+      type: 'link',
+      iif: () => this.isChoose('name'),
       click: (item: any) => {
         this.showdeviceDetail(item.id);
       }
     },
-    { title: '设备类型', index: 'deviceType', type: 'tag', tag: this.DeviceTAG ,iif: () => this.isChoose('deviceType')},
-    { title: '在线状态', index: 'online', type: 'badge', badge: this.BADGE,iif: () => this.isChoose('online') },
-    { title: '最后活动时间', index: 'lastActive', type: 'date',iif: () => this.isChoose('lastActive') },
-    { title: '认证方式', index: 'identityType', type: 'tag', tag: this.TAG  ,iif: () => this.isChoose('identityType')},
+    { title: '设备类型', index: 'deviceType', type: 'tag', tag: this.DeviceTAG, iif: () => this.isChoose('deviceType') },
+    { title: '在线状态', index: 'online', type: 'badge', badge: this.BADGE, iif: () => this.isChoose('online'), sort: true },
+    { title: '最后活动时间', index: 'lastActive', type: 'date', iif: () => this.isChoose('lastActive'), sort: true },
+    { title: '认证方式', index: 'identityType', type: 'tag', tag: this.TAG, iif: () => this.isChoose('identityType') },
     {
       title: '操作',
       type: 'link',
@@ -134,17 +137,24 @@ export class DevicelistComponent implements OnInit, OnDestroy {
         {
           acl: 111,
           text: '属性修改',
-          click: (item: any) => {
-            this.setAttribute(item.id);
-          }
+          children: [
+            {
+              acl: 111,
+              text: '属性修改',
+              click: (item: any) => {
+                this.setAttribute(item.id);
+              }
+            },
+            {
+              acl: 111,
+              text: '新增属性',
+              click: (item: any) => {
+                this.addAttribute(item.id);
+              }
+            }
+          ]
         },
-        {
-          acl: 111,
-          text: '新增属性',
-          click: (item: any) => {
-            this.addAttribute(item.id);
-          }
-        },
+
         {
           acl: 111,
           text: '设置规则',
@@ -242,6 +252,10 @@ export class DevicelistComponent implements OnInit, OnDestroy {
       () => {},
       () => {}
     );
+
+    // this.obsdevice = interval(6000).subscribe(async () => {
+    //   this.refreshData();
+    // });
   }
 
   exporttoasset(dev: any[]) {
@@ -302,10 +316,10 @@ export class DevicelistComponent implements OnInit, OnDestroy {
         }
       }
     });
-    drawerRef.afterOpen.subscribe(() => {
-    
+    drawerRef.afterOpen.subscribe(() => {});
+    drawerRef.afterClose.subscribe(() => {
+      this.getData();
     });
-    drawerRef.afterClose.subscribe(() => {  this.getData();});
   }
   edit(id: string): void {
     var { nzMaskClosable, width } = this.settingService.getData('drawerconfig');
@@ -396,20 +410,16 @@ export class DevicelistComponent implements OnInit, OnDestroy {
   reset() {}
   delete(id: string) {
     this.http.delete('api/Devices/' + id, {}).subscribe(
-      next=> {
-
+      next => {
         if (next?.data) {
           this.msg.create('success', '设备删除成功');
           this.getData();
         } else {
-          this.msg.create('error', '错误：'+next?.msg,{ nzDuration:3000});
-    
+          this.msg.create('error', '错误：' + next?.msg, { nzDuration: 3000 });
         }
-
       },
       error => {
         this.msg.create('error', '设备删除失败:' + error, { nzDuration: 3000 });
-
       },
       () => {}
     );
@@ -420,6 +430,23 @@ export class DevicelistComponent implements OnInit, OnDestroy {
     this.st.load(this.st.pi);
   }
 
+  refreshData() {
+    this.http
+      .get(this.url, {
+        offset: this.st.pi - 1,
+        limit: this.st.ps,
+        sorter: '',
+        customerId: this.q.customerId,
+        name: this.q.name
+      })
+      .subscribe(next => {
+        for (var item of next.data.rows) {
+          var data = this.st.list.findIndex(c => c['Id'] == item.Id);
+          this.st.setRow(data, { online: item.online, name: item.name });
+        }
+      });
+  }
+
   onchange($events: STChange): void {
     if (this.obs) {
       this.obs.unsubscribe();
@@ -428,21 +455,25 @@ export class DevicelistComponent implements OnInit, OnDestroy {
     switch ($events.type) {
       case 'expand':
         if ($events.expand.expand) {
-          this.getdevicedata($events.expand?.id);
+          //   this.getdevicedata($events.expand?.id);
+
+          this.getattrs($events.expand?.id);
+          this.gettemps($events.expand?.id);
+          this.getrules($events.expand?.id);
           if (this.obs) {
             this.obs.unsubscribe();
           }
-          this.cead = [];
+          // this.cead = [];
           this.cetd = [];
-          this.cerd = [];
-          // this.cett = [];
+          // this.cerd = [];
+          // this.cett =                                      [];
           this.obs = interval(6000).subscribe(async () => {
-            this.getdevicedata($events.expand?.id);
+            this.gettemps($events.expand?.id);
           });
         } else {
-          this.cead = [];
+          // this.cead = [];
           this.cetd = [];
-          this.cerd = [];
+          // this.cerd = [];
           // this.cett = [];
           if (this.obs) {
             this.obs.unsubscribe();
@@ -451,6 +482,197 @@ export class DevicelistComponent implements OnInit, OnDestroy {
 
         break;
     }
+  }
+
+  getrules(deviceid) {
+    this.http.get<appmessage<ruleitem[]>>('api/Rules/GetDeviceRules?deviceId=' + deviceid).subscribe(
+      rules => {
+        if (rules.data.length == 0) {
+          this.cerd = [];
+        } else {
+          for (var i = 0; i < rules.data.length; i++) {
+            var index = this.cerd.findIndex(c => c.ruleId == rules.data[i].ruleId);
+            if (index === -1) {
+              this.cerd.push(rules.data[i]);
+            }
+          }
+          var removed: ruleitem[] = [];
+          for (var i = 0; i < this.cerd.length; i++) {
+            if (!rules.data.some(c => c.ruleId == this.cerd[i].ruleId)) {
+              removed = [...removed, this.cerd[i]];
+            }
+          }
+          for (var item of removed) {
+            this.cerd.slice(
+              this.cerd.findIndex(c => c.ruleId == item.ruleId),
+              1
+            );
+          }
+        }
+      },
+      error => {},
+      () => {}
+    );
+  }
+
+  gettemps(deviceid) {
+    this.http.get<appmessage<telemetryitem[]>>('api/Devices/' + deviceid + '/TelemetryLatest').subscribe(
+      telemetries => {
+        if (this.cetd.length === 0) {
+          this.cetd = telemetries.data;
+        } else {
+          for (var i = 0; i < telemetries.data.length; i++) {
+            var flag = false;
+            for (var j = 0; j < this.cetd.length; j++) {
+              if (telemetries.data[i].keyName === this.cetd[j].keyName) {
+                switch (typeof telemetries.data[i].value) {
+                  case 'number':
+                    if (this.cetd[j]['value']) {
+                      if (this.cetd[j]['value'] > telemetries.data[i]['value']) {
+                        this.cetd[j]['class'] = 'valdown';
+                      } else if (this.cetd[j]['value'] < telemetries.data[i]['value']) {
+                        this.cetd[j]['class'] = 'valup';
+                      } else {
+                        this.cetd[j]['class'] = 'valnom';
+                      }
+                    } else {
+                      this.cetd[j]['class'] = 'valnom';
+                    }
+                    break;
+                  default:
+                    if (this.cetd[j]['value']) {
+                      if (this.cetd[j]['value'] === telemetries.data[i]['value']) {
+                        this.cetd[j]['class'] = 'valnom';
+                      } else {
+                        this.cetd[j]['class'] = 'valchange';
+                      }
+                    } else {
+                      this.cetd[j]['class'] = 'valnom';
+                    }
+                    break;
+                }
+                this.cetd[j].value = telemetries.data[i].value;
+                flag = true;
+              }
+            }
+            if (!flag) {
+              telemetries.data[i].class = 'valnew';
+              this.cetd.push(telemetries.data[i]);
+            }
+          }
+        }
+      },
+      error => {},
+      () => {}
+    );
+  }
+  getattrs(deviceid) {
+    this.http.get<appmessage<attributeitem[]>>('api/Devices/' + deviceid + '/AttributeLatest').subscribe(
+      attributes => {
+        if (this.cead.length === 0) {
+          this.cead = attributes.data;
+        } else {
+          for (var i = 0; i < attributes.data.length; i++) {
+            var flag = false;
+            for (var j = 0; j < this.cead.length; j++) {
+              if (attributes.data[i].keyName === this.cead[j].keyName) {
+                // switch (typeof attributes.data[i].value) {
+                //   case 'number':
+                //     if (this.cead[j]['value']) {
+                //       if (this.cead[j]['value'] > attributes.data[i]['value']) {
+                //         this.cead[j]['class'] = 'valdown';
+                //       } else if (this.cead[j]['value'] < attributes.data[i]['value']) {
+                //         this.cead[j]['class'] = 'valup';
+                //       } else {
+                //         this.cead[j]['class'] = 'valnom';
+                //       }
+                //     } else {
+                //       this.cead[j]['class'] = 'valnom';
+                //     }
+
+                //     break;
+                //   default:
+                //     if (this.cead[j]['value']) {
+                //       if (this.cead[j]['value'] === attributes.data[i]['value']) {
+                //         this.cead[j]['class'] = 'valnom';
+                //       } else {
+                //         this.cead[j]['class'] = 'valchange';
+                //       }
+                //     } else {
+                //       this.cead[j]['class'] = 'valnom';
+                //     }
+                //     break;
+                // }
+
+                this.cead[j].value = attributes.data[i].value;
+                flag = true;
+              }
+            }
+            if (!flag) {
+              // attributes.data[i].class = 'valnew';
+              this.cead.push(attributes.data[i]);
+            }
+          }
+        }
+      },
+      error => {},
+      () => {}
+    );
+  }
+  executeCommand(item: deviceitem, command: devicemodelcommand) {
+    this.http.post('api/Devices/' + item.identityId + '/Rpc/' + command.commandName + '?timeout=300', {}).subscribe(
+      next => {},
+      error => {},
+      () => {}
+    );
+  }
+
+  removerule(item: deviceitem, rule: ruleitem) {
+    this.http.get('api/Rules/DeleteDeviceRules?deviceId=' + item.id + '&ruleId=' + rule.ruleId).subscribe(
+      () => {
+        this.cerd = this.cerd.filter(x => x.ruleId != rule.ruleId);
+      },
+      () => {},
+      () => {}
+    );
+  }
+
+  removeprop(device: deviceitem, prop: attributeitem) {
+    this.http
+      .delete('api/devices/removeAttribute?deviceId=' + device.id + '&KeyName=' + prop.keyName + '&dataSide=' + prop.dataSide)
+      .subscribe(
+        () => {
+          this.cead = this.cead.filter(x => x.keyName != prop.keyName);
+        },
+        () => {},
+        () => {}
+      );
+  }
+
+  showdeviceDetail(id) {
+    this.commonDialogSevice.showDeviceDialog(id);
+
+    //   var { nzMaskClosable, width } = this.settingService.getData('drawerconfig');
+    //   let title = '设备详情';
+    //   const drawerRef = this.drawerService.create<
+    //     WidgetdeviceComponent,
+    //     {
+    //       id: string;
+    //     },
+    //     string
+    //   >({
+    //     nzTitle: title,
+    //     nzContent: WidgetdeviceComponent,
+    //     nzWidth: window.innerWidth*0.8,
+    //     nzMaskClosable: nzMaskClosable,
+    //     nzContentParams: {
+    //       id: id
+    //     }
+    //   });
+    //   drawerRef.afterOpen.subscribe(() => {
+
+    //   });
+    //   drawerRef.afterClose.subscribe(() => { });
   }
 
   getdevicedata(deviceid) {
@@ -591,61 +813,5 @@ export class DevicelistComponent implements OnInit, OnDestroy {
         // }
       }
     );
-  }
-
-  executeCommand(item: deviceitem, command: devicemodelcommand) {
-    this.http.post('api/Devices/' + item.identityId + '/Rpc/' + command.commandName + '?timeout=300', {}).subscribe(
-      next => {},
-      error => {},
-      () => {}
-    );
-  }
-
-  removerule(item: deviceitem, rule: ruleitem) {
-    this.http.get('api/Rules/DeleteDeviceRules?deviceId=' + item.id + '&ruleId=' + rule.ruleId).subscribe(
-      () => {
-        this.cerd = this.cerd.filter(x => x.ruleId != rule.ruleId);
-      },
-      () => {},
-      () => {}
-    );
-  }
-
-  removeprop(device: deviceitem, prop: attributeitem) {
-    this.http
-      .delete('api/devices/removeAttribute?deviceId=' + device.id + '&KeyName=' + prop.keyName + '&dataSide=' + prop.dataSide)
-      .subscribe(
-        () => {
-          this.cead = this.cead.filter(x => x.keyName != prop.keyName);
-        },
-        () => {},
-        () => {}
-      );
-  }
-
-  showdeviceDetail(id) {
-    this.commonDialogSevice.showDeviceDialog(id);
-
-    //   var { nzMaskClosable, width } = this.settingService.getData('drawerconfig');
-    //   let title = '设备详情';
-    //   const drawerRef = this.drawerService.create<
-    //     WidgetdeviceComponent,
-    //     {
-    //       id: string;
-    //     },
-    //     string
-    //   >({
-    //     nzTitle: title,
-    //     nzContent: WidgetdeviceComponent,
-    //     nzWidth: window.innerWidth*0.8,
-    //     nzMaskClosable: nzMaskClosable,
-    //     nzContentParams: {
-    //       id: id
-    //     }
-    //   });
-    //   drawerRef.afterOpen.subscribe(() => {
-
-    //   });
-    //   drawerRef.afterClose.subscribe(() => { });
   }
 }

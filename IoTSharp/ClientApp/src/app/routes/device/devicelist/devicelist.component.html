@@ -54,7 +54,7 @@
     </div>
   </nz-card>
 
-  <st
+  <st multiSort
     [expandAccordion]="true"
     #st
     [columns]="columns"
@@ -83,7 +83,7 @@
               <td>{{ _item.keyName }}</td>
               <td>{{ _item.value }}</td>
               <td>{{ _item.dataSide }}</td>
-              <td>{{ _item.dateTime }}</td>
+              <td>{{ _item.dateTime | date: 'yyyy-MM-dd hh:mm:ss'  }}</td>
               <td>
                 <button
                   nz-button
@@ -104,7 +104,7 @@
       </nz-card>
 
       <nz-card nzTitle="遥测数据">
-        <nz-tabset>
+        <!-- <nz-tabset> -->
           <!-- <nz-tab [nzTitle]="titleTemplate">
             <ng-template #titleTemplate>
               <i nz-icon nzType="area-chart" nzTheme="outline"></i>
@@ -118,11 +118,11 @@
               </div>
             </div>
           </nz-tab> -->
-          <nz-tab [nzTitle]="titleTemplate">
+          <!-- <nz-tab [nzTitle]="titleTemplate">
             <ng-template #titleTemplate>
               <i nz-icon ></i>
               数据
-            </ng-template>
+            </ng-template> -->
 
             <nz-table [nzNoResult]="null">
               <thead>
@@ -136,12 +136,12 @@
                 <tr *ngFor="let _item of cetd; let i = index; let odd = odd" [ngClass]="_item.class">
                   <td>{{ _item.keyName }}</td>
                   <td>{{ _item.value }}</td>
-                  <td>{{ _item.dateTime }}</td>
+                  <td>{{ _item.dateTime | date: 'yyyy-MM-dd hh:mm:ss'  }}</td>
                 </tr>
               </tbody>
             </nz-table>
-          </nz-tab>
-        </nz-tabset>
+          <!-- </nz-tab>
+        </nz-tabset> -->
       </nz-card>
 
       <nz-card nzTitle="规则">

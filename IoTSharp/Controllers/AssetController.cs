@@ -53,6 +53,17 @@ namespace IoTSharp.Controllers
             });
 
         }
+        [HttpGet]
+        public async Task<ApiResult<List<AssetRelation>>> AssetRelations(Guid assetid)
+        {
+            var result = await _context.Assets.Include(c => c.OwnedAssets).SingleOrDefaultAsync(c => c.Id == assetid);
+            return new ApiResult<List<AssetRelation>>(ApiCode.Success, "OK", result?.OwnedAssets);
+
+
+        }
+
+
+
 
         [HttpGet]
         public ApiResult<PagedData<AssetDeviceItem>> Relations(Guid assetid)
