@@ -59,8 +59,8 @@
 		<PackageReference Include="AspNetCore.HealthChecks.MongoDb" Version="6.0.2" />
 		<PackageReference Include="AspNetCore.HealthChecks.Network" Version="6.0.1" />
 		<PackageReference Include="AspNetCore.HealthChecks.Rabbitmq" Version="6.0.2" />
-		<PackageReference Include="AspNetCore.HealthChecks.Redis" Version="6.0.3" />
-		<PackageReference Include="AspNetCore.HealthChecks.System" Version="6.0.4" />
+		<PackageReference Include="AspNetCore.HealthChecks.Redis" Version="6.0.4" />
+		<PackageReference Include="AspNetCore.HealthChecks.System" Version="6.0.5" />
 		<PackageReference Include="AspNetCore.HealthChecks.UI" Version="6.0.4" />
 		<PackageReference Include="AspNetCore.HealthChecks.UI.Client" Version="6.0.4" />
 		<PackageReference Include="AspNetCore.HealthChecks.Uris" Version="6.0.3" />
@@ -85,7 +85,7 @@
 		<PackageReference Include="EasyCaching.LiteDB" Version="1.5.1" />
 		<PackageReference Include="EasyCaching.Redis" Version="1.5.1" />
 		<PackageReference Include="hyjiacan.pinyin4net" Version="4.1.1" />
-		<PackageReference Include="InfluxDB.Client" Version="4.0.0" />
+		<PackageReference Include="InfluxDB.Client" Version="4.1.0" />
 		<PackageReference Include="IoTSharp.CoAP.NET" Version="2.0.8" />
 		<PackageReference Include="IoTSharp.X509Extensions" Version="2.0.36" />
 		<PackageReference Include="Jdenticon-net" Version="3.1.2" />
@@ -110,9 +110,9 @@
 		<PackageReference Include="MQTTnet.AspNetCore" Version="4.0.0-preview5" />
 		<PackageReference Include="MQTTnet.Extensions.Rpc" Version="4.0.0-preview5" />
 		<PackageReference Include="NetMQ" Version="4.0.1.8" />
-		<PackageReference Include="Npgsql" Version="6.0.3" />
-		<PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="6.0.3" />
-		<PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL.NetTopologySuite" Version="6.0.3" />
+		<PackageReference Include="Npgsql" Version="6.0.4" />
+		<PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="6.0.4" />
+		<PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL.NetTopologySuite" Version="6.0.4" />
 		<PackageReference Include="NSwag.AspNetCore" Version="13.15.10" />
 		<PackageReference Include="PinusDB" Version="1.0.10" />
 		<PackageReference Include="PinusDB.HealthChecks" Version="1.0.10" />
@@ -125,8 +125,8 @@
 		<PackageReference Include="Silkier" Version="1.0.424" />
 		<PackageReference Include="Silkier.AspNetCore" Version="1.0.424" />
 		<PackageReference Include="Silkier.EFCore" Version="1.0.424" />
-		<PackageReference Include="SilkierQuartz" Version="5.0.309" />
-		<PackageReference Include="SilkierQuartz.Plugins.RecentHistory" Version="5.0.309" />
+		<PackageReference Include="SilkierQuartz" Version="5.0.356" />
+		<PackageReference Include="SilkierQuartz.Plugins.RecentHistory" Version="5.0.356" />
 		<PackageReference Include="SkiaSharp" Version="2.80.3" />
 		<PackageReference Include="SkiaSharp.NativeAssets.Linux.NoDependencies" Version="2.80.3" />
 		<PackageReference Include="System.CodeDom" Version="6.0.0" />

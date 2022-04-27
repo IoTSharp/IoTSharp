@@ -176,11 +176,6 @@ namespace IoTSharp
                 };
             }, authenticationOptions =>
             {
-                authenticationOptions.AuthScheme = CookieAuthenticationDefaults.AuthenticationScheme;
-                authenticationOptions.SilkierQuartzClaim = "Silkier";
-                authenticationOptions.SilkierQuartzClaimValue = "Quartz";
-                authenticationOptions.UserName = settings.SilkierUsername;
-                authenticationOptions.UserPassword = settings.SilkierPassword;  
                 authenticationOptions.AccessRequirement = SilkierQuartzAuthenticationOptions.SimpleAccessRequirement.AllowAnonymous;//登录认证有问题
             }, stdSchedulerFactoryOption =>
              {
