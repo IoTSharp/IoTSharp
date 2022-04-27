@@ -95,6 +95,7 @@ namespace IoTSharp.TaskAction
             public string serverity { get; set; }
       
             public string warnDataId { get; set; }
+            public DateTime createDateTime { get; set; }
          
         }
 

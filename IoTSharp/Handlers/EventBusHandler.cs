@@ -132,8 +132,9 @@ namespace IoTSharp.Handlers
                     using (var _dbContext = _scope.ServiceProvider.GetRequiredService<ApplicationDbContext>())
                     {
                         var alm = await _dbContext.OccurredAlarm(alarmDto);
-                        alarmDto.warnDataId = alm.Data.Id;
-                        await RunRules(alm.Data.OriginatorId, alarmDto, MountType.Alarm);
+                        alarmDto.warnDataId = alm.Data.Id; 
+                        alarmDto.CreateDateTime = alm.Data.AckDateTime;
+                         await RunRules(alm.Data.OriginatorId, alarmDto, MountType.Alarm);
                     }
                 }
             }

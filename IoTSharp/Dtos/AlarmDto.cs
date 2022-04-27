@@ -1,5 +1,6 @@
 ﻿using IoTSharp.Data;
 using System;
+using Avro.Util;
 
 namespace IoTSharp.Dtos
 {
@@ -33,6 +34,8 @@ namespace IoTSharp.Dtos
 
     public class CreateAlarmDto : DeviceAlarmDto
     {
+
+        public DateTime CreateDateTime { get; set; }
         /// <summary>
         /// 起因设备类型
         /// </summary>
