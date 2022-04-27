@@ -5,7 +5,9 @@ import { _HttpClient, ModalHelper, SettingsService } from '@delon/theme';
 import { Guid } from 'guid-typescript';
 import { NzDrawerService } from 'ng-zorro-antd/drawer';
 import { NzMessageService } from 'ng-zorro-antd/message';
+import { threadId } from 'worker_threads';
 import { AssetformComponent } from '../assetform/assetform.component';
+import { attributeitem, telemetryitem } from '../devicemodel';
 
 @Component({
   selector: 'app-assetlist',
@@ -24,7 +26,12 @@ export class AssetlistComponent implements OnInit {
   ) {}
   @ViewChild('expand')
   tpl: TemplateRef<any>;
-  relations = [];
+
+  cetd: telemetryitem[] = [];
+  cead: attributeitem[] = [];
+  cetdl: telemetryitem[] = [];
+  ceadl: attributeitem[] = [];
+  none: attributeitem[] = [];
 
   page: STPage = {
     front: false,
@@ -40,7 +47,7 @@ export class AssetlistComponent implements OnInit {
     status: number | null;
   } = {
     pi: 0,
-    ps: 10,
+    ps: 20,
     Name: '',
     sorter: '',
     status: null
@@ -86,8 +93,6 @@ export class AssetlistComponent implements OnInit {
     2: { text: '进行中', color: 'blue' }
   };
 
- 
-
   columns: STColumn[] = [
     { title: '', index: 'id', type: 'checkbox' },
     {
@@ -102,10 +107,10 @@ export class AssetlistComponent implements OnInit {
       buttons: [
         {
           text: '资产管理',
-         /* i18n: 'common.asset',*/
+          /* i18n: 'common.asset',*/
           acl: 60,
           click: (item: any) => {
-            this._router.navigateByUrl('iot/device/assetentitylist?id='+item.id);
+            this._router.navigateByUrl('iot/device/assetentitylist?id=' + item.id);
           }
         },
         {
@@ -144,13 +149,11 @@ export class AssetlistComponent implements OnInit {
   expandForm = false;
 
   ngOnInit() {}
-  submit(i){}
-  updateEdit(i,edit){
+  submit(i) {}
+  updateEdit(i, edit) {
     console.log(this.tpl);
     this.st.setRow(i, { edit }, { refreshSchema: true });
   }
-
-
 
   openComponent(id: string): void {
     var { nzMaskClosable, width } = this.settingService.getData('drawerconfig');
@@ -176,14 +179,16 @@ export class AssetlistComponent implements OnInit {
   }
 
   onchange($events: STChange) {
-
-    console.log($events)
     switch ($events.type) {
       case 'expand':
         if ($events.expand.expand) {
-          this.http.get('api/asset/relations?assetid=' + $events.expand.id).subscribe(
+          this.http.get('api/asset/assetRelations?assetid=' + $events.expand.id).subscribe(
             next => {
-              this.relations = next.data;
+              this.ceadl = next.data.filter(c => c.dataCatalog === 'TelemetryLatest');
+              this.cetdl = next.data.filter(c => c.dataCatalog === 'AttributeLatest');
+              this.cead = next.data.filter(c => c.dataCatalog === 'AttributeData');
+              this.cetd = next.data.filter(c => c.dataCatalog === 'TelemetryData');
+              this.none = next.data.filter(c => c.dataCatalog === 'None');
             },
             error => {},
             () => {}

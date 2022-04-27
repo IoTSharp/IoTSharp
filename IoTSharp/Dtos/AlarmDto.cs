@@ -1,5 +1,6 @@
 ﻿using IoTSharp.Data;
 using System;
+using Avro.Util;
 
 namespace IoTSharp.Dtos
 {
@@ -26,10 +27,15 @@ namespace IoTSharp.Dtos
         /// 严重成都
         /// </summary>
         public ServerityLevel Serverity { get; set; } = ServerityLevel.Indeterminate;
+
+
+        public Guid warnDataId { get; set; }
     }
 
     public class CreateAlarmDto : DeviceAlarmDto
     {
+
+        public DateTime CreateDateTime { get; set; }
         /// <summary>
         /// 起因设备类型
         /// </summary>

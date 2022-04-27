@@ -92,6 +92,9 @@ import { DynamictablelistComponent } from './util/dynamictable/dynamictablelist/
 import { DynamictabletesterComponent } from './util/dynamictable/dynamictabletester/dynamictabletester.component';
 import { DynamictableviewComponent } from './util/dynamictable/dynamictableview/dynamictableview.component';
 import { FlowsimulatorComponent } from './util/flow/flowsimulator/flowsimulator.component';
+import { MqtttesterComponent } from './device/mqtttester/mqtttester.component';
+import { IMqttServiceOptions, MqttModule } from 'ngx-mqtt';
+
 
 //util
 
@@ -100,7 +103,7 @@ const Directive: Type<void>[] = [fielddirective, controldirective, toolpaneldire
 @NgModule({
   imports: [SharedModule, RouteRoutingModule, G2BarModule, G2GaugeModule, NzIconModule, WidgetsModule, ClipboardModule, NgxEchartsModule.forRoot({
     echarts: () => import('echarts'),
-  }),WidgetsModule],
+  }),WidgetsModule,MqttModule],
   providers:[CommonDialogSevice],
   declarations: [
     ...COMPONENTS,
@@ -181,7 +184,8 @@ const Directive: Type<void>[] = [fielddirective, controldirective, toolpaneldire
     DevicedetailviewComponent,
     AssetentityformComponent,
     AssetrelationformComponent,
-    RuledeviceComponent
+    RuledeviceComponent,
+    MqtttesterComponent
   ]
 })
 export class RoutesModule {}

@@ -30,6 +30,8 @@ import { UserlistComponent } from './user/userlist/userlist.component';
 import { CodeviewComponent } from './util/code/codeview/codeview.component';
 import { DynamicformlistComponent } from './util/dynamicform/dynamicformlist/dynamicformlist.component';
 import { RuledeviceComponent } from './flow/ruledevice/ruledevice.component';
+import { MqtttesterComponent } from './device/mqtttester/mqtttester.component';
+import { IMqttServiceOptions, MqttModule } from 'ngx-mqtt';
 
 
 const routes: Routes = [
@@ -84,10 +86,10 @@ const routes: Routes = [
       { path: 'device/alarmlist', component: AlarmlistComponent },
       { path: 'device/assetlist', component: AssetlistComponent },
       { path: 'device/assetentitylist', component: AssetentitylistComponent },
-      { path: 'device/certmgr', component: CertmgrComponent },
+      { path: 'device/certmgr', component: CertmgrComponent }, 
+      { path: 'device/mqtttester', component:  MqtttesterComponent},
       { path: 'settings/certmgr', component: CertmgrComponent }
-
-
+    
     
     ]
   },
@@ -102,7 +104,11 @@ const routes: Routes = [
   { path: 'exception', loadChildren: () => import('./exception/exception.module').then(m => m.ExceptionModule) },
   { path: '**', redirectTo: 'exception/404' }
 ];
-
+export const MQTT_SERVICE_OPTIONS: IMqttServiceOptions = {
+  hostname: 'broker.emqx.io',  // mqtt 服务器ip
+  port: 8083,  // mqtt 服务器端口
+  path: '/mqtt'
+};
 @NgModule({
   providers: [PreloadOptionalModules],
   imports: [
@@ -112,7 +118,8 @@ const routes: Routes = [
       // Pls refer to https://ng-alain.com/components/reuse-tab
       scrollPositionRestoration: 'top',
       preloadingStrategy: PreloadOptionalModules
-    })
+    }), 
+    MqttModule.forRoot(MQTT_SERVICE_OPTIONS)
   ],
   exports: [RouterModule]
 })
