@@ -17,7 +17,7 @@ namespace IoTSharp.EdgeSdk.MQTT
         public string DeviceId { get; set; } = string.Empty;
         public Uri BrokerUri { get; set; }
         public bool IsConnected => (Client?.IsConnected).GetValueOrDefault();
-        private MqttClient Client { get; set; }
+        private IMqttClient Client { get; set; }
         public delegate void DLogError(string message,Exception exception );
         public event DLogError LogError;
         public delegate void DLogInformation(string message);

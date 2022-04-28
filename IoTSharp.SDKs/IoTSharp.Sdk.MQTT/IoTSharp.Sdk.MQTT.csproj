@@ -1,30 +1,34 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <TargetFrameworks>net462;netstandard2.0;netstandard2.1;net5.0;net6.0</TargetFrameworks>
-    <Version>1.0.1</Version>
-    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <PackageLicenseExpression>MIT</PackageLicenseExpression>
-    <Authors>Maikebing</Authors>
-    <Product>IoTSharp</Product>
-    <PackageProjectUrl>https://github.com/IoTSharp/IoTSharp/tree/master/IoTSharp.SDKs</PackageProjectUrl>
-    <RepositoryUrl>https://github.com/IoTSharp/IoTSharp</RepositoryUrl>
-    <Copyright>Copyright 2018-2020</Copyright>
-    <PackageIcon>200x200.png</PackageIcon>
-	  <IsPackable>true</IsPackable>
-  </PropertyGroup>
+	<PropertyGroup>
+		<TargetFrameworks>net462;netstandard2.0;netstandard2.1;net5.0;net6.0</TargetFrameworks>
+		<Version>1.0.1</Version>
+		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+		<PackageLicenseExpression>MIT</PackageLicenseExpression>
+		<Authors>Maikebing</Authors>
+		<Product>IoTSharp</Product>
+		<PackageProjectUrl>https://github.com/IoTSharp/IoTSharp/tree/master/IoTSharp.SDKs</PackageProjectUrl>
+		<RepositoryUrl>https://github.com/IoTSharp/IoTSharp</RepositoryUrl>
+		<Copyright>Copyright 2018-2020</Copyright>
+		<PackageIcon>200x200.png</PackageIcon>
+		<IsPackable>true</IsPackable>
+		<RestoreAdditionalProjectSources>
+			https://api.nuget.org/v3/index.json;
+			https://www.myget.org/F/mqttnet/api/v3/index.json;
+		</RestoreAdditionalProjectSources>
+	</PropertyGroup>
 
-  <ItemGroup>
-    <PackageReference Include="MQTTnet" Version="4.0.0-preview5" />
-    <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
-  </ItemGroup>
+	<ItemGroup>
+		<PackageReference Include="MQTTnet" Version="4.0.0.159" />
+		<PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
+	</ItemGroup>
 
-  <ItemGroup>
-    <None Include="..\docs\200x200.png">
-      <Pack>True</Pack>
-      <PackagePath></PackagePath>
-    </None>
-  </ItemGroup>
+	<ItemGroup>
+		<None Include="..\docs\200x200.png">
+			<Pack>True</Pack>
+			<PackagePath></PackagePath>
+		</None>
+	</ItemGroup>
 
 
 </Project>
