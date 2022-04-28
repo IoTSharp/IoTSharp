@@ -461,6 +461,7 @@ export class WidgetdeviceComponent implements OnInit, OnDestroy {
                     break;
                 }
                 this.cead[j].value = next.data[i].value;
+                this.cead[j].dateTime = next.data[i].dateTime;
                 flag = true;
               }
             }
@@ -519,6 +520,7 @@ export class WidgetdeviceComponent implements OnInit, OnDestroy {
                 break;
             }
             this.cetd[j].value = next.data[i].value;
+            this.cetd[j].dateTime = next.data[i].dateTime;
             flag = true;
           }
         }

@@ -552,6 +552,7 @@ export class DevicelistComponent implements OnInit, OnDestroy {
                     break;
                 }
                 this.cetd[j].value = telemetries.data[i].value;
+                this.cetd[j].dateTime = telemetries.data[i].dateTime;
                 flag = true;
               }
             }
@@ -605,6 +606,7 @@ export class DevicelistComponent implements OnInit, OnDestroy {
                 // }
 
                 this.cead[j].value = attributes.data[i].value;
+                this.cead[j].dateTime = attributes.data[i].dateTime;
                 flag = true;
               }
             }
