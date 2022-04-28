@@ -132,9 +132,17 @@ namespace IoTSharp.Handlers
                     using (var _dbContext = _scope.ServiceProvider.GetRequiredService<ApplicationDbContext>())
                     {
                         var alm = await _dbContext.OccurredAlarm(alarmDto);
-                        alarmDto.warnDataId = alm.Data.Id; 
-                        alarmDto.CreateDateTime = alm.Data.AckDateTime;
-                         await RunRules(alm.Data.OriginatorId, alarmDto, MountType.Alarm);
+                        if (alm.Code ==(int) ApiCode.Success)
+                        {
+                            alarmDto.warnDataId = alm.Data.Id;
+                            alarmDto.CreateDateTime = alm.Data.AckDateTime;
+                            await RunRules(alm.Data.OriginatorId, alarmDto, MountType.Alarm);
+                        }
+                        else
+                        {
+                            //如果设备通过网关创建， 当警告先来， 设备创建再后会出现此问题。
+                            _logger.LogWarning( $"处理{alarmDto.OriginatorName} 的告警{alarmDto.AlarmType} 错误:{alm.Code}-{alm.Msg}");
+                        }
                     }
                 }
             }

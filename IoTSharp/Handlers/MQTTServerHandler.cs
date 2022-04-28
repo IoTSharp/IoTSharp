@@ -4,6 +4,7 @@ using IoTSharp.Data;
 using IoTSharp.Dtos;
 using IoTSharp.Extensions;
 using IoTSharp.FlowRuleEngine;
+using IoTSharp.Gateways;
 using IoTSharp.Handlers;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
@@ -241,6 +242,42 @@ namespace IoTSharp.Handlers
                 {
                     _logger.LogWarning("无法获取网关的子设备。");
                 }
+            }
+            else if (tpname =="xml")
+            {
+                    Task.Run(async () =>
+                    {
+                        try
+                        {
+                            using var sc = _scopeFactor.CreateScope();
+                            var hg = sc.ServiceProvider.GetService<RawDataGateway>();
+                            var result = await hg.ExecuteAsync(_dev, "xml", e.ApplicationMessage.ConvertPayloadToString());
+                            _logger.LogInformation($"调用XML网关处理语句返回:{result.Code}-{result.Msg}");
+                        }
+                        catch (Exception ex)
+                        {
+                            _logger.LogError(ex, $"调用XML网关失败:{ex.Message}");
+
+                        }
+                    });
+            }
+            else if (tpname == "json")
+            {
+                Task.Run(async () =>
+                {
+                    try
+                    {
+                        using var sc = _scopeFactor.CreateScope();
+                        var hg = sc.ServiceProvider.GetService<RawDataGateway>();
+                        var result = await hg.ExecuteAsync(_dev, "json", e.ApplicationMessage.ConvertPayloadToString());
+                        _logger.LogInformation($"调用Json网关处理语句返回:{result.Code}-{result.Msg}");
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger.LogError(ex,$"调用Json网关失败:{ex.Message}");
+
+                    }
+                });
             }
         }
 

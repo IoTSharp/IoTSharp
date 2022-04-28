@@ -43,6 +43,7 @@ using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using Jdenticon;
 using static Amazon.Internal.RegionEndpointProviderV2;
+using IoTSharp.Gateways;
 
 namespace IoTSharp
 {
@@ -414,6 +415,7 @@ namespace IoTSharp
             services.AddSingleton<TaskExecutorHelper>();
             services.AddTransient<PublishAttributeDataTask>();
             services.AddTransient<PublishTelemetryDataTask>();
+            services.AddTransient<RawDataGateway>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
