@@ -54,6 +54,7 @@ namespace IoTSharp.Gateways
  
         public async Task<ApiResult> ExecuteAsync(Device _dev, string format, string body)
         {
+            var result=new ApiResult();
             string json = body;
             if (format == "xml")
             {
@@ -77,6 +78,7 @@ namespace IoTSharp.Gateways
                     var pathx = atts.FirstOrDefault(al => al.KeyName == _map_to_jsontext_in_json)?.Value_String;
                     if (pathx != null)
                     {
+                        _logger.LogWarning($"数据在{pathx}中以文本格式存放，在这里选中并转换为json格式");
                         jt = JToken.Parse(jroot.SelectToken(pathx).ToObject<string>());
                     }
                     else
@@ -90,29 +92,63 @@ namespace IoTSharp.Gateways
                     {
                         var subdevname = atts.FirstOrDefault(al => al.KeyName == _map_to_subdevname)?.Value_String;
                         var jary = jt.SelectToken(data_in_array) as JArray;
-                        jary.Children().ForEach(jo =>
+                        if (jary == null)
                         {
-                            string _devname = buid_dev_name(atts, jt, jo);
-                            push_one_device_data_with_json(jo, jt, _dev, _devname, atts, ts_field, ts_format);
-                        });
+                            _logger.LogWarning($"指定了数据在{data_in_array}中，但它为空或者不是数组。");
+                            result = new ApiResult(ApiCode.CantFindObject, $"Can't found a arryay   by {data_in_array} ");
+                        }
+                        else
+                        {
+                            int errortimes = 0;
+                            jary.Children().ForEach(jo =>
+                            {
+                                string _devname = buid_dev_name(atts, jt, jo);
+                                if (!string.IsNullOrEmpty(_devname))
+                                {
+                                    push_one_device_data_with_json(jo, jt, _dev, _devname, atts, ts_field, ts_format);
+                                }
+                                else
+                                {
+                                    errortimes++;
+                                }
+                              
+                            });
+                            if (errortimes>0)
+                            {
+                                result = new ApiResult(ApiCode.InValidData, $"can't found device name(times:{errortimes})");
+                            }
+                            else
+                            {
+                                result = new ApiResult(ApiCode.Success, "OK");
+                            }
+                        }
                     }
                     else
                     {
                         string _devname = buid_dev_name(atts, jt, null);
-                        push_one_device_data_with_json(jt, jroot, _dev, _devname, atts, ts_field, ts_format);
+                        if (!string.IsNullOrEmpty(_devname))
+                        {
+                            push_one_device_data_with_json(jt, jroot, _dev, _devname, atts, ts_field, ts_format);
+                            result = new ApiResult(ApiCode.Success, "OK");
+                        }
+                        else
+                        {
+                            result = new ApiResult(ApiCode.InValidData, "can't found device name");
+                        }
                     }
-                    return new ApiResult(ApiCode.Success, "OK");
+                    
                 }
                 catch (Exception ex)
                 {
-                    return new ApiResult(ApiCode.Exception, ex.Message);
+                    result= new ApiResult(ApiCode.Exception, ex.Message);
                 }
             }
             else
             {
                 _logger.LogInformation($"{_dev}的数据不符合规范， 也无相关规则链处理。");
-                return new ApiResult(ApiCode.InValidData, $"{_dev}的数据不符合规范， 也无相关规则链处理。");
+                result = new ApiResult(ApiCode.InValidData, $"{_dev}的数据不符合规范， 也无相关规则链处理。");
             }
+            return result;
         }
 
         private string buid_dev_name(AttributeLatest[] atts, JToken jt, JToken jc)
@@ -129,9 +165,13 @@ namespace IoTSharp.Gateways
                 {
                     devname = jt.SelectToken(devnamekey.Value_String[1..])?.ToObject<string>();
                 }
-                else
+                else if (jc!=null)
                 {
                     devname = jc.SelectToken(devnamekey.Value_String)?.ToObject<string>();
+                }
+                else
+                {
+                    devname = jt.SelectToken(devnamekey.Value_String)?.ToObject<string>();
                 }
                 var subdevname = (subdevnamekey != null && (jc != null)) ? (jc.SelectToken(subdevnamekey.Value_String) as JValue)?.ToObject<string>() : string.Empty;
                 if (!string.IsNullOrEmpty(devnameformatkey))
