@@ -67,7 +67,7 @@ namespace IoTSharp.Storage
             if (_taos.State != System.Data.ConnectionState.Open) _taos.Open();
             //https://github.com/taosdata/TDengine/issues/4269
             string sql = $"select last_row(*) from telemetrydata where deviceid='{deviceId:N}' group by deviceid,keyname";
-            List<TelemetryDataDto> dt = SqlToTDD(_taos, sql, "last_row(", ")", string.Empty);
+            List<TelemetryDataDto> dt = SqlToTDD(_taos, sql, string.Empty);
             _taospool.Return(_taos);
             return Task.FromResult(dt);
 
@@ -83,8 +83,9 @@ namespace IoTSharp.Storage
         /// <param name="keyname"></param>
         /// <returns></returns>
         /// <exception cref="https://github.com/taosdata/TDengine/issues/4269">务必注意此bug</exception>
-        private List<TelemetryDataDto> SqlToTDD(TaosConnection db, string sql, string prefix, string suffix, string keyname)
+        private List<TelemetryDataDto> SqlToTDD(TaosConnection db, string sql, string keyname)
         {
+            Console.WriteLine(sql);
             List<TelemetryDataDto> dt = new List<TelemetryDataDto>();
             TaosDataReader dataReader = db.CreateCommand(sql).ExecuteReader();
             while (dataReader.Read())
@@ -92,17 +93,9 @@ namespace IoTSharp.Storage
                 TelemetryDataDto telemetry = new TelemetryDataDto();
                 try
                 {
-                    int idx = dataReader.GetOrdinal($"{prefix}value_type{suffix}");
-                    byte  datatype;
-                    if (dataReader.FieldCount > idx && idx >= 0)
-                    {
-                        datatype =dataReader.GetByte(idx);
-                    }
-                    else
-                    {
-                        throw new Exception($"字段{prefix}value_type{suffix}的Index={idx}小于0或者大于FieldCount{dataReader.FieldCount},更多信息请访问 HelpLink") { HelpLink= "https://github.com/taosdata/TDengine/issues/4269" };
-                    }
-
+                    int idx = dataReader.GetOrdinal($"value_type");
+                    byte datatype = dataReader.GetByte(idx);
+                    telemetry.DataType = (DataType)datatype;
                     if (string.IsNullOrEmpty(keyname))
                     {
                         telemetry.KeyName = dataReader.GetString(dataReader.GetOrdinal("keyname"));
@@ -111,28 +104,28 @@ namespace IoTSharp.Storage
                     {
                         telemetry.KeyName = keyname;
                     }
-                    telemetry.DateTime = dataReader.GetDateTime(dataReader.GetOrdinal($"{prefix}ts{suffix}"));
+                    telemetry.DateTime = dataReader.GetDateTime(dataReader.GetOrdinal("ts"));
                     switch ((DataType)datatype)
                     {
                         case DataType.Boolean:
-                            telemetry.Value = dataReader.GetBoolean(dataReader.GetOrdinal($"{prefix}value_boolean{suffix}"));
+                            telemetry.Value = dataReader.GetBoolean(dataReader.GetOrdinal($"value_boolean"));
                             break;
                         case DataType.String:
-                            telemetry.Value = dataReader.GetString(dataReader.GetOrdinal($"{prefix}value_string{suffix}"));
+                            telemetry.Value = dataReader.GetString(dataReader.GetOrdinal($"value_string"));
                             break;
                         case DataType.Long:
-                            telemetry.Value = dataReader.GetInt64(dataReader.GetOrdinal($"{prefix}value_long{suffix}"));
+                            telemetry.Value = dataReader.GetInt64(dataReader.GetOrdinal($"value_long"));
                             break;
                         case DataType.Double:
-                            telemetry.Value = dataReader.GetDouble(dataReader.GetOrdinal($"{prefix}value_double{suffix}"));
+                            telemetry.Value = dataReader.GetDouble(dataReader.GetOrdinal($"value_double"));
                             break;
                         case DataType.Json:
                         case DataType.XML:
                         case DataType.Binary:
-                            telemetry.Value = dataReader.GetString(dataReader.GetOrdinal($"{prefix}value_string{suffix}"));
+                            telemetry.Value = dataReader.GetString(dataReader.GetOrdinal($"value_string"));
                             break;
                         case DataType.DateTime:
-                            telemetry.Value = dataReader.GetDateTime(dataReader.GetOrdinal($"{prefix}value_datetime{suffix}"));
+                            telemetry.Value = dataReader.GetDateTime(dataReader.GetOrdinal($"value_datetime"));
                             break;
                         default:
                             break;
@@ -140,7 +133,7 @@ namespace IoTSharp.Storage
                 }
                 catch (Exception ex)
                 {
-                    _logger.LogError(ex, $"{telemetry.KeyName}遇到{ex.Message}, sql:{sql}");
+                    Console.WriteLine(ex.ToString(), $"{telemetry.KeyName}遇到{ex.Message}, sql:{sql}");
                 }
                 if (!string.IsNullOrEmpty(telemetry.KeyName))
                 {
@@ -157,25 +150,11 @@ namespace IoTSharp.Storage
             IEnumerable<string> kvs = from k in keys
                                       select $" keyname = '{k}' ";
             string sql = $"select last_row(*) from telemetrydata where deviceid='{deviceId:N}' and ({string.Join("or", kvs) }) group by deviceid,keyname";
-            List<TelemetryDataDto> dt = SqlToTDD(_taos, sql, "last_row(", ")", string.Empty);
+            List<TelemetryDataDto> dt = SqlToTDD(_taos, sql, string.Empty);
             _taospool.Return(_taos);
             return Task.FromResult(dt);
 
         }
-        private List<TelemetryDataDto> SQLToDTByDate(DateTime begin, DateTime end, TaosConnection db, string sql)
-        {
-            List<TelemetryDataDto> dt = new List<TelemetryDataDto>();
-            List<(string tbname, string keyname)> list = db.CreateCommand(sql).ExecuteReader().ToList<(string tbname, string keyname)>();
-            foreach ((string tbname, string keyname) item in list)
-            {
-                string susql = $" select * from {item.tbname} where ts >={begin:yyyy-MM-dd HH:mm:ss.fff} and ts <={end:yyyy-MM-dd HH:mm:ss.fff}";
-                List<TelemetryDataDto> dtx = SqlToTDD(db, susql, "", "", item.keyname);
-                dt.AddRange(dtx);
-            }
-            return dt;
-        }
-        
-
         /// <summary>
         /// 
         /// </summary>
@@ -194,18 +173,17 @@ namespace IoTSharp.Storage
 
             if (!string.IsNullOrEmpty(keys))
             {
-                IEnumerable<string> kvs = from k in keys
+                IEnumerable<string> kvs = from k in keys.Split(';', ',')
                                           select $" keyname = '{k}' ";
-                  sql = $"select  tbname,keyname  from telemetrydata where deviceid='{deviceId:N}'  and ({string.Join("or", kvs) })  ";
+                sql = $"select * from telemetrydata where ts >='{begin:yyyy-MM-dd HH:mm:ss.fff}' and ts <='{end:yyyy-MM-dd HH:mm:ss.fff}' and deviceid='{deviceId:N}'  and ({string.Join("or", kvs) })  ";
             }
             else
             {
-                sql = $"select  tbname,keyname  from telemetrydata where deviceid='{deviceId:N}'  ";
+                sql = $"select  * from telemetrydata where ts >='{begin:yyyy-MM-dd HH:mm:ss.fff}' and ts <='{end:yyyy-MM-dd HH:mm:ss.fff}' and deviceid='{deviceId:N}'  ";
             }
-                List<TelemetryDataDto> dt = SQLToDTByDate(begin, end, _taos, sql);
+            List<TelemetryDataDto> dtx = SqlToTDD(_taos, sql, string.Empty);
             _taospool.Return(_taos);
-            return Task.FromResult(dt);
-            
+            return Task.FromResult(dtx);
         }
         
 
