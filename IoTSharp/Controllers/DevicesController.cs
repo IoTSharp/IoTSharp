@@ -902,7 +902,7 @@ namespace IoTSharp.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ApiResult<Dic>), StatusCodes.Status404NotFound)]
         [ProducesDefaultResponseType]
-        public async Task<ActionResult<ApiResult<Dic>>> Telemetry(string access_token, Dictionary<string, object> telemetrys)
+        public  ActionResult<ApiResult<Dic>>  Telemetry(string access_token, Dictionary<string, object> telemetrys)
         {
             Dic exceptions = new Dic();
             var (ok, device) = _context.GetDeviceByToken(access_token);
@@ -912,9 +912,12 @@ namespace IoTSharp.Controllers
             }
             else
             {
-
-                var result = await _context.SaveAsync<TelemetryLatest>(telemetrys, device.Id, DataSide.ClientSide);
-                return Ok(new ApiResult<Dic>(result.ret > 0 ? ApiCode.Success : ApiCode.NothingToDo, result.ret > 0 ? "OK" : "No Telemetry save", new Dic(result.exceptions?.Select(f => new DicKV(f.Key, f.Value.Message)))));
+                if (device.Online == false)
+                {
+                    _queue.PublishDeviceStatus(device.Id, DeviceStatus.Good);
+                }
+                _queue.PublishTelemetryData(new PlayloadData() { DeviceId = device.Id, MsgBody = telemetrys, DataSide = DataSide.ClientSide, DataCatalog = DataCatalog.TelemetryData });
+                return Ok(new ApiResult<Dic>( ApiCode.Success,"OK",null));
             }
         }
 
@@ -967,20 +970,22 @@ namespace IoTSharp.Controllers
         [AllowAnonymous]
         [HttpPost("{access_token}/Attributes")]
         [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(typeof(ApiResult<Dic>), StatusCodes.Status404NotFound)]
         [ProducesDefaultResponseType]
-        public async Task<ActionResult<ApiResult<Dic>>> Attributes(string access_token, Dictionary<string, object> attributes)
+        public ActionResult<ApiResult> Attributes(string access_token, Dictionary<string, object> attributes)
         {
-            Dic exceptions = new Dic();
             var (ok, dev) = _context.GetDeviceByToken(access_token);
             if (ok)
             {
-                return Ok(new ApiResult<Dic>(ApiCode.NotFoundDevice, $"{access_token} not a device's access token", new Dic(new DicKV[] { new DicKV("access_token", access_token) })));
+                return Ok(new ApiResult(ApiCode.NotFoundDevice, $"{access_token} not a device's access token"));
             }
             else
             {
-                var result = await _context.SaveAsync<AttributeLatest>(attributes, dev.Id, DataSide.ClientSide);
-                return Ok(new ApiResult<Dic>(result.ret > 0 ? ApiCode.Success : ApiCode.NothingToDo, result.ret > 0 ? "OK" : "No Attribute save", new Dic(result.exceptions?.Select(f => new DicKV(f.Key, f.Value.Message)))));
+                if (dev.Online == false)
+                {
+                    _queue.PublishDeviceStatus(dev.Id, DeviceStatus.Good);
+                }
+                _queue.PublishAttributeData(new PlayloadData() { DeviceId = dev.Id, MsgBody = attributes, DataSide = DataSide.ClientSide, DataCatalog = DataCatalog.AttributeData });
+                return Ok(new ApiResult(ApiCode.Success, "OK"));
             }
         }
         /// <summary>
@@ -1007,6 +1012,10 @@ namespace IoTSharp.Controllers
             {
                 try
                 {
+                    if (dev.Online == false)
+                    {
+                        _queue.PublishDeviceStatus(dev.Id, DeviceStatus.Good);
+                    }
                     var cad = new CreateAlarmDto()
                     {
                         AlarmDetail = alarm.AlarmDetail,
@@ -1026,7 +1035,7 @@ namespace IoTSharp.Controllers
             }
         }
         /// <summary>
-        /// 上传原始Json或者xml 通过规则链进行解析。 
+        /// Http方式调用RawDataGateway网关上传原始Json或者xml并通过规则链进行解析。 
         /// </summary>
         /// <param name="access_token">Device 's access token </param>
         /// <param name="format"></param>
