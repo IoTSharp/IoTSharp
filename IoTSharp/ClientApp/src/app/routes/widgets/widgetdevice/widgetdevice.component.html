@@ -143,7 +143,7 @@
                 </div>
               </form>
 
-              <nz-tabset nzSize="large">
+              <nz-tabset nzSize="large"  style="margin-bottom:40px;">
                 <nz-tab nzTitle="图表">
                   <!--
             仪表板的形式展示遥测
@@ -160,7 +160,7 @@
               ></g2-timeline>
             </div></div>
             -->
-                  <div *ngIf="singlechart">
+                  <!-- <div *ngIf="singlechart">
                     <g2-timeline [maxAxis]="singlechartAxis"
                                  [data]="singlechartdata"
                                  [titleMap]="singletitlemap"
@@ -168,7 +168,10 @@
                                  mask="MM月DD日"
                                  maskSlider="MM月dd日" 
                                  style="margin-bottom:20px;"></g2-timeline>
-                  </div>
+                  </div> -->
+
+
+                  <div echarts [options]="option"       ></div>
                 </nz-tab>
 
                 <nz-tab nzTitle="数据">

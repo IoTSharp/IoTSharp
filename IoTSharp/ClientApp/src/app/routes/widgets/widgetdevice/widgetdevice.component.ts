@@ -1,3 +1,4 @@
+import { formatDate } from '@angular/common';
 import { ChangeDetectorRef, Component, Input, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { STColumn, STColumnTag, STRes, STComponent } from '@delon/abc/st';
@@ -211,6 +212,8 @@ export class WidgetdeviceComponent implements OnInit, OnDestroy {
   obs: Subscription;
   averagetempdata: attributeitem[] = [];
   tempcharts: tempchartitem[] = [];
+
+  option: echarts.EChartsOption = {};
   constructor(private http: _HttpClient, private cdr: ChangeDetectorRef) {}
   ngOnDestroy(): void {
     if (this.obs) {
@@ -230,8 +233,8 @@ export class WidgetdeviceComponent implements OnInit, OnDestroy {
   }
 
   ontempsdatetimeOk(result: Date | Date[] | null) {
-    this.qtemps.begin = result[0].toISOString();
-    this.qtemps.end = result[1].toISOString();
+    this.qtemps.begin = result[0]?.toISOString();
+    this.qtemps.end = result[1]?.toISOString();
   }
 
   gettempslist() {
@@ -244,8 +247,8 @@ export class WidgetdeviceComponent implements OnInit, OnDestroy {
     this.tempcharts.forEach(element => {
       element.checked = false;
     });
-    this.qtemps.begin = this.initaldatarange[0].toISOString();
-    this.qtemps.end = this.initaldatarange[1].toISOString();
+    this.qtemps.begin = this.initaldatarange[0]?.toISOString();
+    this.qtemps.end = this.initaldatarange[1]?.toISOString();
   }
 
   samplingPeriodChanged($event) {
@@ -269,13 +272,18 @@ export class WidgetdeviceComponent implements OnInit, OnDestroy {
         next => {
           this.templistdata = next?.data;
           if (this.singlechart) {
-            var titleMap = {};
+            var data=[];
+            var date=[];
+            // var titleMap = {};
             this.tempcharts
               .filter(c => c.checked)
               .forEach((element, index) => {
-                titleMap['y' + (index + 1)] = element.label;
+                // titleMap['y' + (index + 1)] = element.label;
+                data.push({ name: element.label, data: [], type: 'line', symbol: 'none', sampling: 'lttb' });
               });
             var chartdata = [];
+        
+
             from(next.data)
               .pipe(
                 groupBy(c => c.dateTime),
@@ -286,17 +294,74 @@ export class WidgetdeviceComponent implements OnInit, OnDestroy {
                 var chartitem = {};
                 chartitem['time'] = toDate(x.time.toString());
                 x.values.forEach(ele => {
-                  for (var key in titleMap) {
-                    if (titleMap[key] === ele['keyName']) {
-                      chartitem[key] = ele['value'];
+                  var _date = formatDate(x.time.toString(), 'yyyy-MM-dd HH:mm:ss', 'zh-Hans');
+                  if (!date.find(x => x == _date)) {
+                    date.push(_date);
+                  }
+
+                  for (var serie of data) {
+                    if (serie.name === ele['keyName']) {
+                      serie.data.push(ele['value']);
                     }
                   }
+
+                  // for (var key in titleMap) {
+                  //   if (titleMap[key] === ele['keyName']) {
+                  //     chartitem[key] = ele['value'];
+                  //   }
+                  // }
                 });
                 chartdata.push(chartitem);
               });
-            this.singlechartAxis = this.tempcharts.filter(c => c.checked).length; //chartAxis 一定要与分组数量一致，不一致会导致页面直接崩溃
-            this.singlechartdata = chartdata;
-            this.singletitlemap = titleMap;
+
+
+
+
+              this.option = {
+                tooltip: {
+                  trigger: 'axis',
+                  position: function (pt) {
+                    return [pt[0], '10%'];
+                  }
+                },
+                title: {
+                  left: 'center',
+                  text: '遥测'
+                },
+                toolbox: {
+                  feature: {
+                    dataZoom: {
+                      yAxisIndex: 'none'
+                    },
+                    restore: {},
+                    saveAsImage: {}
+                  }
+                },
+                xAxis: {
+                  type: 'category',
+                  boundaryGap: false,
+                  data: date
+                },
+                yAxis: {
+                  type: 'value'
+                },
+                dataZoom: [
+                  {
+                    type: 'inside',
+                    start: 0,
+                    end: 20
+                  },
+                  {
+                    start: 0,
+                    end: 20
+                  }
+                ],
+                series: data
+              };
+
+            // this.singlechartAxis = this.tempcharts.filter(c => c.checked).length; //chartAxis 一定要与分组数量一致，不一致会导致页面直接崩溃
+            // this.singlechartdata = chartdata;
+            // this.singletitlemap = titleMap;
             this.cdr.detectChanges();
           } else {
             this.tempcharts
