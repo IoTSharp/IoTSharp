@@ -13,10 +13,14 @@ import { G2BarModule } from '@delon/chart/bar';
 import { G2GaugeModule } from '@delon/chart/gauge';
 import { G2TimelineModule } from '@delon/chart/timeline';
 import { TagSelectModule } from '@delon/abc/tag-select';
+import { NgxEchartsModule } from 'ngx-echarts';
 const COMPONENTS: Type<void>[] = [WidgetsComponent, FlowviewerComponent,WidgetdeviceComponent];
 
 @NgModule({
-  imports: [SharedModule, WidgetsRoutingModule, NzCarouselModule, G2BarModule, G2GaugeModule, G2MiniBarModule, G2MiniAreaModule, DelonFormModule,G2TimelineModule,TagSelectModule],
+  imports: [SharedModule, WidgetsRoutingModule, NzCarouselModule, G2BarModule, G2GaugeModule, G2MiniBarModule, G2MiniAreaModule, DelonFormModule,G2TimelineModule,TagSelectModule,
+    NgxEchartsModule.forRoot({
+    echarts: () => import('echarts'),
+  })],
   declarations: COMPONENTS,
   exports: COMPONENTS
 })
