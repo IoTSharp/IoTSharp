@@ -103,7 +103,7 @@ from(bucket: ""{_bucket}"")
                     dt.Add(new TelemetryDataDto()
                     {
                         KeyName = fr.GetField(),
-                        DateTime = fr.GetTimeInDateTime().GetValueOrDefault(DateTime.MinValue).ToLocalTime(),
+                        DateTime = fr.GetTimeInDateTime().GetValueOrDefault(),
                         Value = fr.GetValue() ,
                          DataType= InfluxTypeToIoTSharpType(ft.Columns.Find(fv=>fv.Label=="_value")?.DataType)
                     });
