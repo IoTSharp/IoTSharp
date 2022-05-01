@@ -411,7 +411,7 @@ namespace IoTSharp
 
         
             services.AddScriptEngines(Configuration.GetSection("EngineSetting"));
-            services.AddTransient<FlowRuleProcessor>();
+            services.AddTransient<FlowRuleProcessor>(); services.AddTransient<CustomeAlarmPullExcutor>();
             services.AddSingleton<TaskExecutorHelper>();
             services.AddTransient<PublishAttributeDataTask>();
             services.AddTransient<PublishTelemetryDataTask>();

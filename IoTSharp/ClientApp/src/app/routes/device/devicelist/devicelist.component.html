@@ -83,7 +83,7 @@
               <td>{{ _item.keyName }}</td>
               <td>{{ _item.value }}</td>
               <td>{{ _item.dataSide }}</td>
-              <td>{{ _item.dateTime | date: 'yyyy-MM-dd hh:mm:ss'  }}</td>
+              <td>{{ _item.dateTime | date: 'yyyy-MM-dd HH:mm:ss'  }}</td>
               <td>
                 <button
                   nz-button
@@ -136,7 +136,7 @@
                 <tr *ngFor="let _item of cetd; let i = index; let odd = odd" [ngClass]="_item.class">
                   <td>{{ _item.keyName }}</td>
                   <td>{{ _item.value }}</td>
-                  <td>{{ _item.dateTime | date: 'yyyy-MM-dd hh:mm:ss'  }}</td>
+                  <td>{{ _item.dateTime | date: 'yyyy-MM-dd HH:mm:ss'  }}</td>
                 </tr>
               </tbody>
             </nz-table>

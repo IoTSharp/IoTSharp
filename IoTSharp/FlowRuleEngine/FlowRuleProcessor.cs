@@ -10,8 +10,10 @@ using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.Dynamic;
 using System.Linq;
 using System.Threading.Tasks;
+using Newtonsoft.Json.Linq;
 
 namespace IoTSharp.FlowRuleEngine
 {
@@ -505,6 +507,12 @@ namespace IoTSharp.FlowRuleEngine
 
         public async Task<List<Flow>> ProcessCondition(Guid flowId, dynamic data)
         {
+            var t = data  as JObject;
+
+
+          var d=  t.ToObject<ExpandoObject>();
+
+
             var emptyflow = new List<Flow>();
             var flow = _allFlows.FirstOrDefault(c => c.FlowId == flowId);
             if (flow != null)
@@ -532,7 +540,7 @@ namespace IoTSharp.FlowRuleEngine
                     SimpleFlowExcutor flowExcutor = new SimpleFlowExcutor();
                     var result = await flowExcutor.Excute(new FlowExcuteEntity()
                     {
-                        Params = data,
+                        Params = d,
                         Task = tasks,
                     });
                     var next = result.Where(c => c.IsSuccess).ToList();
