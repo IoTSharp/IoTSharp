@@ -2,8 +2,9 @@
 
 This IoTSharp.docs is built using [Docusaurus 2](https://docusaurus.io/), It is IoTSharp's documents.
  
- ## ÈçºÎ¹±Ï×£¿
+ ## å¦‚ä½•è´¡çŒ®ï¼Ÿ
    
-   * Ê×ÏÈ fork£¬ È»ºóĞŞ¸Ä£¬ Ìá½»PR¼´¿É¡£ 
-   * Ä¿Ç°½öÏŞÖĞÎÄ
+   * é¦–å…ˆ forkï¼Œ ç„¶åä¿®æ”¹ï¼Œ æäº¤PRå³å¯ã€‚ 
+   * ç›®å‰ä»…é™ä¸­æ–‡
+   * æ³¨æ„ï¼Œ ç›®å½•åœ¨docsä¸‹é¢ï¼Œ 
    
