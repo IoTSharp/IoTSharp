@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<rss version="2.0" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:content="http://purl.org/rss/1.0/modules/content/">
+    <channel>
+        <title>IoTSharp 在线文档 Blog</title>
+        <link>https://docs.iotsharp.io/blog</link>
+        <description>IoTSharp 在线文档 Blog</description>
+        <lastBuildDate>Mon, 14 Feb 2022 00:00:00 GMT</lastBuildDate>
+        <docs>https://validator.w3.org/feed/docs/rss2.html</docs>
+        <generator>https://github.com/jpmonette/feed</generator>
+        <language>en</language>
+        <item>
+            <title><![CDATA[第一版文档发布]]></title>
+            <link>https://docs.iotsharp.io/blog/first-version-doc</link>
+            <guid>first-version-doc</guid>
+            <pubDate>Mon, 14 Feb 2022 00:00:00 GMT</pubDate>
+            <description><![CDATA[2022年2月14日情人节， 我们发布了第一版文档， 在这里特别感谢王海东先生(535915157@qq.com)， 推荐了博客平台， 也实现了第一个教程。]]></description>
+            <content:encoded><![CDATA[<p>2022年2月14日情人节， 我们发布了第一版文档， 在这里特别感谢王海东先生(<a href="mailto:535915157@qq.com" target="_blank" rel="noopener noreferrer">535915157@qq.com</a>)， 推荐了博客平台， 也实现了第一个教程。</p>]]></content:encoded>
+            <category>iotsharp</category>
+        </item>
+    </channel>
+</rss>
