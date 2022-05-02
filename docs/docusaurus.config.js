@@ -14,7 +14,7 @@ const config = {
   onBrokenMarkdownLinks: 'warn',
   favicon: 'img/favicon.ico',
   organizationName: 'IoTSharp', // Usually your GitHub org/user name.
-  projectName: 'docs', // Usually your repo name.
+  projectName: 'IoTSharp', // Usually your repo name.
 
   presets: [
     [
@@ -24,13 +24,13 @@ const config = {
         docs: {
           sidebarPath: require.resolve('./sidebars.js'),
           // Please change this to your repo.
-          editUrl: 'https://github.com/IoTSharp/docs/',
+          editUrl: 'https://github.com/IoTSharp/IoTSharp/',
         },
         blog: {
           showReadingTime: true,
           // Please change this to your repo.
           editUrl:
-            'https://github.com/IoTSharp/docs/blob/main/',
+            'https://github.com/IoTSharp/IoTSharp/blob/main/',
         },
         theme: {
           customCss: require.resolve('./src/css/custom.css'),
