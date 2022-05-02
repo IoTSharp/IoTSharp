@@ -445,7 +445,7 @@
         </member>
         <member name="M:IoTSharp.Controllers.DevicesController.PushDataToMap(System.String,System.String)">
             <summary>
-            Http方式调用RawDataGateway网关上传原始Json或者xml并通过规则链进行解析。 
+            Http方式调用RawDataGateway网关上传原始Json或者xml并通过规则链进行解析。
             </summary>
             <param name="access_token">Device 's access token </param>
             <param name="format"></param>
@@ -454,7 +454,7 @@
         </member>
         <member name="M:IoTSharp.Controllers.DevicesController.PushDataToRuleChains(System.String,System.String)">
             <summary>
-            上传原始Json或者xml 通过规则链进行解析。 
+            上传原始Json或者xml 通过规则链进行解析。
             </summary>
             <param name="access_token">Device 's access token </param>
             <param name="format">只支持json和 xml， XML会转换为 Json。</param>
