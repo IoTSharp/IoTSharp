@@ -507,12 +507,6 @@ namespace IoTSharp.FlowRuleEngine
 
         public async Task<List<Flow>> ProcessCondition(Guid flowId, dynamic data)
         {
-            var t = data  as JObject;
-
-
-          var d=  t.ToObject<ExpandoObject>();
-
-
             var emptyflow = new List<Flow>();
             var flow = _allFlows.FirstOrDefault(c => c.FlowId == flowId);
             if (flow != null)
@@ -538,16 +532,25 @@ namespace IoTSharp.FlowRuleEngine
                 if (tasks.outgoing.Count > 0)
                 {
                     SimpleFlowExcutor flowExcutor = new SimpleFlowExcutor();
-                    var result = await flowExcutor.Excute(new FlowExcuteEntity()
+                    var t = data as JObject;
+                    var d = t?.ToObject<ExpandoObject>();
+                    if (d != null)
                     {
-                        Params = d,
-                        Task = tasks,
-                    });
-                    var next = result.Where(c => c.IsSuccess).ToList();
-                    foreach (var item in next)
+                        var result = await flowExcutor.Excute(new FlowExcuteEntity()
+                        {
+                            Params = d,
+                            Task = tasks,
+                        });
+                        var next = result.Where(c => c.IsSuccess).ToList();
+                        foreach (var item in next)
+                        {
+                            var nextflow = flows.FirstOrDefault(a => a.bpmnid == item.Rule.SuccessEvent);
+                            emptyflow.Add(nextflow);
+                        }
+                    }
+                    else
                     {
-                        var nextflow = flows.FirstOrDefault(a => a.bpmnid == item.Rule.SuccessEvent);
-                        emptyflow.Add(nextflow);
+                        _logger.LogWarning($"执行 {flowId}的规则链时遇到data为空。");
                     }
                 }
             }

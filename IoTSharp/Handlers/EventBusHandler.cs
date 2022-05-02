@@ -233,7 +233,14 @@ namespace IoTSharp.Handlers
                 {
                     rules.Value.ToList().ForEach(async g =>
                     {
-                        await _flowRuleProcessor.RunFlowRules(g, obj, devid, EventType.Normal, null);
+                        try
+                        {
+                            await _flowRuleProcessor.RunFlowRules(g, obj, devid, EventType.Normal, null);
+                        }
+                        catch (Exception ex)
+                        {
+                            _logger.LogError(ex,$"为设备{devid}执行规则链{g}时遇到错误{ex.Message}");
+                        }
                     });
                 }
                 else
