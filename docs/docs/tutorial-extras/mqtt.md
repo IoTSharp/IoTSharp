@@ -33,12 +33,32 @@ devices/{设备名称}/attributes
  ```
 
 
+### 网关子设备的上线与已下线
+``` 
+gateway/connect
+gateway/disconnect
+
+```
+
+注意， 这里直接兼容 
+
+``` 
+v1/gateway/connect
+v1/gateway/disconnect
+``` 
+
 ### 网关设备批量发送设备遥测数据和属性数据
 
 ``` 
 gateway/telemetry
 gateway/attributes
 ```
+注意， 这里直接兼容 
+``` 
+v1/gateway/telemetry
+v1/gateway/attributes
+``` 
+
 批量发送数据格式如下：
 ```json
 {
@@ -126,6 +146,13 @@ gateway/attributes
  devices/{设备名称}/rpc/request/{方法名称}/{请求唯一标识}
  devices/{设备名称}/rpc/response/{方法名称}/{请求唯一标识}
 ```
+
+
+##  RawDataGateway
+
+在Mqtt中我们通过topic   gateway/json 和 gateway/xml  来支持 RawDataGateway 解析。 
+
+
 
 第三方服务调用时我们建议通过通过 Web Api 发起， 示例如下
 
