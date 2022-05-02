@@ -15,12 +15,11 @@ jobs:
         with:
           node-version: 14.x
           cache: yarn
-          cache-dependency-path: docs/package-lock.json
       - name: Build website
         working-directory: ./docs/
         run: |
-          yarn install --frozen-lockfile  --use-yarnrc ./docs/yarn.lock 
-          yarn build
+          yarn --cwd ./docs/ install --frozen-lockfile
+          yarn --cwd  build
 
       # Popular action to deploy to GitHub Pages:
       # Docs: https://github.com/peaceiris/actions-gh-pages#%EF%B8%8F-docusaurus
