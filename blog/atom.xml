@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+    <id>https://docs.iotsharp.io/blog</id>
+    <title>IoTSharp 在线文档 Blog</title>
+    <updated>2022-02-14T00:00:00.000Z</updated>
+    <generator>https://github.com/jpmonette/feed</generator>
+    <link rel="alternate" href="https://docs.iotsharp.io/blog"/>
+    <subtitle>IoTSharp 在线文档 Blog</subtitle>
+    <icon>https://docs.iotsharp.io/img/favicon.ico</icon>
+    <entry>
+        <title type="html"><![CDATA[第一版文档发布]]></title>
+        <id>first-version-doc</id>
+        <link href="https://docs.iotsharp.io/blog/first-version-doc"/>
+        <updated>2022-02-14T00:00:00.000Z</updated>
+        <summary type="html"><![CDATA[2022年2月14日情人节， 我们发布了第一版文档， 在这里特别感谢王海东先生(535915157@qq.com)， 推荐了博客平台， 也实现了第一个教程。]]></summary>
+        <content type="html"><![CDATA[<p>2022年2月14日情人节， 我们发布了第一版文档， 在这里特别感谢王海东先生(<a href="mailto:535915157@qq.com" target="_blank" rel="noopener noreferrer">535915157@qq.com</a>)， 推荐了博客平台， 也实现了第一个教程。</p>]]></content>
+        <author>
+            <name>maikebing</name>
+            <uri>https://github.com/maikebing</uri>
+        </author>
+        <category label="iotsharp" term="iotsharp"/>
+    </entry>
+</feed>

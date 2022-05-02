@@ -1,0 +1,1 @@
+"use strict";(self.webpackChunkiotsharp=self.webpackChunkiotsharp||[]).push([[713],{3457:function(a){a.exports=JSON.parse('{"iotsharp":{"allTagsPath":"/blog/tags","name":"iotsharp","count":1,"permalink":"/blog/tags/iotsharp"}}')}}]);
