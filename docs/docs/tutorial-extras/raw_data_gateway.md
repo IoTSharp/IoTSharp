@@ -1,9 +1,11 @@
 ---
 sidebar_position: 3
 ---
+#  原生数据推送网关
 
-##  PushDataToMap
-PushDataToMap  是个特定网关接口，通过设置网关的属性值让接口自动解析下面的数据， 如果是文本包含字符串json也可以通过配置进行处理。 
+
+##  http 协议
+在Http协议中使用 接口 PushDataToMap  来实现， 并通过设置网关的属性值让接口自动解析下面的数据， 如果是文本包含字符串json也可以通过配置进行处理。 
 http 请求 
 ```shell
 curl --location --request POST  'http://iot.qhse.cn:2927/api/Devices/{网关Token}/PushDataToMap/json' \

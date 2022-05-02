@@ -16,9 +16,9 @@ jobs:
           node-version: 14.x
           cache: yarn
       - name: Build website
-        working-directory: ./docs/
+        working-directory: ./
         run: |
-          yarn --cwd ./docs/ install --frozen-lockfile
+          yarn --cwd ./docs/ install --frozen-lockfile  --use-yarnrc ./docs/yarn.lock 
           yarn --cwd  build
 
       # Popular action to deploy to GitHub Pages:

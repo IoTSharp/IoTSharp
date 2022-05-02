@@ -32,7 +32,6 @@ devices/{设备名称}/attributes
  }
  ```
 
-
 ### 网关子设备的上线与已下线
 ``` 
 gateway/connect
