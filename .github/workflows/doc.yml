@@ -3,7 +3,7 @@ name: Deploy to GitHub Pages
 on:
   push:
     branches: [master]
-    paths: [docs/**]
+    paths: [./**]
 
 jobs:
   deploy:
@@ -16,10 +16,10 @@ jobs:
           node-version: 14.x
           cache: yarn
       - name: Build website
-        working-directory: ./
+        working-directory: ./docs/
         run: |
-          yarn --cwd ./docs/ install --frozen-lockfile  --use-yarnrc ./docs/yarn.lock 
-          yarn --cwd  build
+          yarn --cwd ./docs/ install --frozen-lockfile 
+          yarn --cwd  ./docs/  build
 
       # Popular action to deploy to GitHub Pages:
       # Docs: https://github.com/peaceiris/actions-gh-pages#%EF%B8%8F-docusaurus
