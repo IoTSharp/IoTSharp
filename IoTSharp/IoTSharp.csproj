@@ -21,7 +21,7 @@
 		<Description>Open-source IoT Platform - Device management, data collection, processing and visualization.</Description>
 		<PackageId>IoTSharp</PackageId>
 		<UserSecretsId>18970590-05bf-4a1f-a70b-3c8a120d12cb</UserSecretsId>
-		<Version>2.0.1</Version>
+		<Version>2.5.0</Version>
 		<RepositoryType>git</RepositoryType>
 		<PackageTags>IoT</PackageTags>
 		<ApplicationIcon>Resources\Logo.ico</ApplicationIcon>
@@ -184,7 +184,7 @@
 		<None Remove="server.key" />
 		<None Remove="TelemetryStorage.db" />
 		<_WebToolingArtifacts Remove="Properties\PublishProfiles\registry.hub.docker.com_iotsharp.pubxml" />
-		<None Include="..\docs\images\96x96.png">
+		<None Include="..\docs\static\img\96x96.png">
 			<Pack>True</Pack>
 			<PackagePath></PackagePath>
 		</None>
