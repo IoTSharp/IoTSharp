@@ -575,6 +575,21 @@ namespace IoTSharp.FlowRuleEngine
                             }
                         }
                         else
+                        if (data is ExpandoObject)
+                        {
+                            var result = await flowExcutor.Excute(new FlowExcuteEntity()
+                            {
+                                Params = data,
+                                Task = tasks,
+                            });
+                            var next = result.Where(c => c.IsSuccess).ToList();
+                            foreach (var item in next)
+                            {
+                                var nextflow = flows.FirstOrDefault(a => a.bpmnid == item.Rule.SuccessEvent);
+                                emptyflow.Add(nextflow);
+                            }
+                        }
+                        else
                         {
                             _logger.LogWarning($"执行 {flowId}的规则链时遇到未预期的数据类型:{data.GetType()}");
                         }
