@@ -258,8 +258,8 @@ namespace IoTSharp.FlowRuleEngine
                                                     if (!result.ExecutionStatus)
                                                     {
                                                         taskoperation.NodeStatus = 2;
-
-                                                        _logger.Log(LogLevel.Information, "执行器" + flow.NodeProcessClass + "未能正确处理:" + result.ExecutionInfo);
+                                                        string info = JsonConvert.SerializeObject(result.DynamicOutput);
+                                                        _logger.Log(LogLevel.Information, "执行器执行失败："+ result.ExecutionInfo +"\r\n"+ flow.NodeProcessClass + "未能正确处理:" + info);
                                                         return;
                                                     }
                                                 }
