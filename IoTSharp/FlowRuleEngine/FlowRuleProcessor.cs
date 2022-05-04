@@ -258,8 +258,8 @@ namespace IoTSharp.FlowRuleEngine
                                                     if (!result.ExecutionStatus)
                                                     {
                                                         taskoperation.NodeStatus = 2;
-
-                                                        _logger.Log(LogLevel.Information, "执行器" + flow.NodeProcessClass + "未能正确处理:" + result.ExecutionInfo);
+                                                        string info = JsonConvert.SerializeObject(result.DynamicOutput);
+                                                        _logger.Log(LogLevel.Information, "执行器执行失败："+ result.ExecutionInfo +"\r\n"+ flow.NodeProcessClass + "未能正确处理:" + info);
                                                         return;
                                                     }
                                                 }
@@ -561,6 +561,21 @@ namespace IoTSharp.FlowRuleEngine
                             }
                         } else 
                         if (data.GetType() == typeof(JArray))
+                        {
+                            var result = await flowExcutor.Excute(new FlowExcuteEntity()
+                            {
+                                Params = data,
+                                Task = tasks,
+                            });
+                            var next = result.Where(c => c.IsSuccess).ToList();
+                            foreach (var item in next)
+                            {
+                                var nextflow = flows.FirstOrDefault(a => a.bpmnid == item.Rule.SuccessEvent);
+                                emptyflow.Add(nextflow);
+                            }
+                        }
+                        else
+                        if (data is ExpandoObject)
                         {
                             var result = await flowExcutor.Excute(new FlowExcuteEntity()
                             {
