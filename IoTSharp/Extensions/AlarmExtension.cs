@@ -95,7 +95,28 @@ namespace IoTSharp.Extensions
                 {
                     var old = isone.First();
                     old.AlarmDetail = alarm.AlarmDetail;
-                    old.EndDateTime = DateTime.Now;
+                    if ( old.Serverity != dto.Serverity)
+                    {
+                        if (old.Serverity== ServerityLevel.Indeterminate && dto.Serverity!= ServerityLevel.Indeterminate)
+                        {
+                            old.StartDateTime = DateTime.Now;
+                            alarm.Propagate = true;
+                        }
+                        else if (old.Serverity != ServerityLevel.Indeterminate && dto.Serverity == ServerityLevel.Indeterminate)
+                        {
+                            old.EndDateTime = DateTime.Now;
+                            if (old.ClearDateTime.Year == 1970)
+                            {
+                                old.ClearDateTime = DateTime.Now;
+                            }
+                            alarm.Propagate = true;
+                        }
+                        else
+                        {
+                            alarm.Propagate = false;
+                        }
+                        old.Serverity = dto.Serverity;
+                    }
                 }
                 else
                 {

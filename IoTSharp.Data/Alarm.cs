@@ -54,7 +54,7 @@ namespace IoTSharp.Data
         public ServerityLevel Serverity { get; set; }
 
         /// <summary>
-        /// 传播
+        /// 如果严重等级变化了， 那么就触发传播， 否则不触发传播， 传播意思就是执行规则链， 通过规则链往后传播状态
         /// </summary>
         public bool Propagate { get; set; }
 

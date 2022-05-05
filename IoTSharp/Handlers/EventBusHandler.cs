@@ -136,7 +136,10 @@ namespace IoTSharp.Handlers
                         {
                             alarmDto.warnDataId = alm.Data.Id;
                             alarmDto.CreateDateTime = alm.Data.AckDateTime;
-                            await RunRules(alm.Data.OriginatorId, alarmDto, MountType.Alarm);
+                            if (alm.Data.Propagate)
+                            {
+                                await RunRules(alm.Data.OriginatorId, alarmDto, MountType.Alarm);
+                            }
                         }
                         else
                         {
