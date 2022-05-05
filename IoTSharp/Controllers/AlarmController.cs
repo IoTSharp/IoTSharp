@@ -190,9 +190,6 @@ namespace IoTSharp.Controllers
         public async Task<ApiResult<List<ModelOriginatorItem>>> Originators([FromBody] ModelOriginatorSearch m)
         {
             var profile = this.GetUserProfile();
-
-
-
             switch ((OriginatorType)m.OriginatorType)
             {
                 case OriginatorType.Unknow:
