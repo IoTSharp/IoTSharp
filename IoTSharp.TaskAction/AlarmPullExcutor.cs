@@ -40,10 +40,13 @@ namespace IoTSharp.TaskAction
                 request.RequestFormat = DataFormat.Json;
                 request.AddHeader("cache-control", "no-cache");
                 request.AddHeader("Content-Type", "application/json");
-                request.AddJsonBody(JsonConvert.DeserializeObject<Alarm>(input.Input, new JsonSerializerSettings
+
+                var alarm = JsonConvert.DeserializeObject<Alarm>(input.Input, new JsonSerializerSettings
                 {
                     ContractResolver = new CamelCasePropertyNamesContractResolver()
-                }) ?? new object());
+                }) ?? new object();
+
+                request.AddJsonBody(alarm);
                 var response = await restclient.ExecutePostAsync(request);
                 if (response.StatusCode == HttpStatusCode.OK)
                 {

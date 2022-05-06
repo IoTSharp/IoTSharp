@@ -3,6 +3,7 @@ using System.ComponentModel;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
+using DotNetCore.CAP;
 using IoTSharp.Data;
 using IoTSharp.Dtos;
 using IoTSharp.Extensions;
@@ -18,11 +19,11 @@ namespace IoTSharp.Handlers
     public class CustomeAlarmPullExcutor : ITaskAction
     {
 
-
-        private ApplicationDbContext _context;
-        public CustomeAlarmPullExcutor(ApplicationDbContext context)
+        private readonly ICapPublisher _queue;
+        private readonly ApplicationDbContext _context;
+        public CustomeAlarmPullExcutor(ApplicationDbContext context, ICapPublisher queue)
         {
-            this._context = context;
+            this._context = context; _queue = queue;
         }
 
 
@@ -30,7 +31,7 @@ namespace IoTSharp.Handlers
         {
             try
             {
-                return SendData(input);
+                return Task.FromResult(SendData(input));
             }
             catch (Exception ex)
             {
@@ -38,11 +39,10 @@ namespace IoTSharp.Handlers
             }
         }
 
-        private async Task<TaskActionOutput> SendData(TaskActionInput input)
+        private  TaskActionOutput SendData(TaskActionInput input)
         {
             try
             {
-             
                 JObject o = JsonConvert.DeserializeObject(input.Input) as JObject;
                 var config = JsonConvert.DeserializeObject<CustomeAlarmPullExcutor.ModelExecutorConfig>(input.ExecutorConfig);
                 var dd = o.Properties().Select(c => new MessagePullExecutor.ParamObject { keyName = c.Name.ToLower(), value = JPropertyToObject(c) }).ToList();
@@ -51,63 +51,18 @@ namespace IoTSharp.Handlers
                     input.DeviceId = config.DeviceId;
                 }
                 var alarmdto = new CreateAlarmDto();
+                alarmdto.OriginatorType = OriginatorType.Device;
                 alarmdto.OriginatorName = input.DeviceId.ToString();
                 alarmdto.CreateDateTime = DateTime.Now;
                 alarmdto.Serverity = (ServerityLevel)config.serverity;
                 alarmdto.AlarmType = config.alarmType;
                 alarmdto.AlarmDetail = config.AlarmDetail ?? JsonConvert.SerializeObject(dd) ;
-                var alarm = await _context.OccurredAlarm(alarmdto);
-                Alarm body = new Alarm();
-                body.alarmType = alarm.Data.AlarmType;
-                body.originatorType = Enum.GetName(typeof(OriginatorType), alarm.Data.OriginatorType);
-                body.serverity = Enum.GetName(typeof(ServerityLevel), alarm.Data.Serverity);
-                body.alarmDetail = alarm.Data.AlarmDetail;
-                body.warnDataId = alarm.Data.Id.ToString();
-                body.originatorName = alarm.Data.OriginatorId.ToString();
-                body.createDateTime = alarm.Data.AckDateTime;
-
-                var restclient = new RestClient(config.BaseUrl);
-                restclient.AddDefaultHeader(KnownHeaders.Accept, "*/*");
-                var request =
-                    new RestRequest(config.Url + (input.DeviceId == Guid.Empty ? "" : "/" + input.DeviceId));
-                request.AddHeader("X-Access-Token",
-                    config.Token);
-                request.RequestFormat = DataFormat.Json;
-                request.AddHeader("cache-control", "no-cache");
-                request.AddHeader("Content-Type", "application/json");
-                request.AddJsonBody(body);
-                var response = await restclient.ExecutePostAsync(request);
-                if (response.StatusCode == HttpStatusCode.OK)
-                {
-                    var result = JsonConvert.DeserializeObject<CustomeAlarmPullExcutor.MessagePullResult>(response.Content);
-                    if (result is { success: true })
-                    {
-                        return new TaskActionOutput()
-                        {
-                            ExecutionInfo = response.Content,
-                            ExecutionStatus = result.success,
-                            DynamicOutput = input.DynamicInput
-                        };
-                    }
-                    else
-                    {
-                        return new TaskActionOutput() { ExecutionInfo = response.Content, ExecutionStatus = false };
-                    }
-                }
-                else
-                {
-                    return new TaskActionOutput()
-                    {
-                        ExecutionInfo =
-                            $"StatusCode:{response.StatusCode} StatusDescription:{response.StatusDescription}  {response.ErrorMessage}",
-                        ExecutionStatus = false
-                    };
-                }
+                return new TaskActionOutput() { ExecutionInfo = JsonConvert.SerializeObject(alarmdto), ExecutionStatus = true, DynamicOutput = alarmdto };
+             
             }
             catch (Exception ex)
             {
                 return new TaskActionOutput() { ExecutionInfo = ex.Message, ExecutionStatus = false };
-                ;
             }
         }
 
