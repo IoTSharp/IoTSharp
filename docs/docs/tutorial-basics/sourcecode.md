@@ -6,7 +6,7 @@ sidebar_position: 2
 根据你的网络环境， 可以通过多个渠道下载。 
 
 * [GitHub](https://github.com/IoTSharp/IoTSharp) 
-* [Gitee](https://gitee.com/dotnetchina/IoTSharp)
+* [Gitee](https://gitee.com/IoTSharp/IoTSharp)
 
  
 ## 使用Git拉取源码

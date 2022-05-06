@@ -60,7 +60,7 @@ namespace IoTSharp.Handlers
                             Dictionary<string, object> dc = new Dictionary<string, object>();
                             mb.ToList().ForEach(kp =>
                             {
-                                if (kp.Value.GetType() == typeof(System.Text.Json.JsonElement))
+                                if (kp.Value?.GetType() == typeof(System.Text.Json.JsonElement))
                                 {
                                     var je = (System.Text.Json.JsonElement)kp.Value;
                                     switch (je.ValueKind)
@@ -91,7 +91,7 @@ namespace IoTSharp.Handlers
                                             break;
                                     }
                                 }
-                                else
+                                else if (kp.Value != null)
                                 {
                                     dc.Add(kp.Key, kp.Value);
                                 }
