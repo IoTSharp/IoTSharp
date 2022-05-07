@@ -25,21 +25,13 @@ import { NzCodeEditorComponent } from 'ng-zorro-antd/code-editor';
 
 import { DOCUMENT } from '@angular/common';
 import { NzTooltipDirective } from 'ng-zorro-antd/tooltip';
-
+import customModule from './custom/custom';
 @Component({
   selector: 'app-diagram',
   templateUrl: './diagram.component.html',
   styleUrls: ['./diagram.component.less']
 })
 
-//gfx 属性消失代表元素被删除，不用去遍历整个SVG DOM判断，已知增加的钩子还有以下
-// 'element.hover',
-//'element.out',
-// 'element.click',
-// 'element.dblclick',
-// 'element.mousedown',
-// 'element.mouseup'
-// 来自 https://github.com/bpmn-io/bpmn-js-examples/tree/master/interaction
 export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy {
   nzEditorOption: { theme: 'vs'; language: 'json' };
   paramnzEditorOption: { theme: 'vs'; language: 'json' };
@@ -132,7 +124,7 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy 
         }
         break;
       default:
-   
+
         break;
     }
 
@@ -180,8 +172,8 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy 
       next => {
         this.executors = next.data;
       },
-      error => {},
-      () => {}
+      error => { },
+      () => { }
     );
   }
 
@@ -208,9 +200,17 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy 
     this.activity.startEvents = [];
     this.activity.textAnnotations = [];
     this.bpmnJS = new BpmnJS({
+
       bpmnRenderer: {
         defaultFillColor: '#e6f7ff',
         defaultStrokeColor: '#1890ff'
+      },
+      additionalModules: [
+        customModule
+      ],
+      moddleExtensions: {
+       
+
       }
     });
 
@@ -911,10 +911,6 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy 
   // hide some elements
   private hiddentools() {
     this.el.nativeElement.querySelectorAll('.group').forEach(element => {
-      if (element.getAttribute('data-group') == 'data-store') {
-        element.style.display = 'none';
-      }
-
       if (element.getAttribute('data-group') == 'data-store') {
         element.style.display = 'none';
       }
@@ -2011,7 +2007,7 @@ export class DataInputAssociation extends BpmnBaseObject {
   public targetId!: String;
 }
 
-export class Collaboration extends BpmnBaseObject {}
+export class Collaboration extends BpmnBaseObject { }
 
 export const importDiagram = (bpmnJS: any) => (source: Observable<any>) =>
   new Observable<any>(observer => {

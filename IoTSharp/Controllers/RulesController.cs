@@ -144,8 +144,15 @@ namespace IoTSharp.Controllers
             {
                 try
                 {
-                    rule.RuleStatus = -1;
-                    _context.FlowRules.Update(rule);
+                    _context.FlowOperations.RemoveRange(_context.FlowOperations.Where(c=>c.FlowRule.RuleId==id).ToList()); 
+                    await _context.SaveChangesAsync();
+                    _context.BaseEvents.RemoveRange(_context.BaseEvents.Where(c=>c.FlowRule.RuleId==id).ToList()); 
+                    await _context.SaveChangesAsync();
+                    _context.Flows.RemoveRange(_context.Flows.Where(c=>c.FlowRule.RuleId==id).ToList());
+                    await _context.SaveChangesAsync();
+                    _context.DeviceRules.RemoveRange(_context.DeviceRules.Where(c => c.FlowRule.RuleId == id).ToList());
+                    await _context.SaveChangesAsync();
+                    _context.FlowRules.Remove(rule);
                     await _context.SaveChangesAsync();
                     return new ApiResult<bool>(ApiCode.Success, "OK", true);
                 }
