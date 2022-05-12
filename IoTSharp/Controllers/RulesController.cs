@@ -322,7 +322,7 @@ namespace IoTSharp.Controllers
         }
 
         [HttpGet("[action]")]
-        public async Task<ApiResult<PagedData<Device>>> GetRuleDevices([FromQuery] DeviceParam m)
+        public async Task<ApiResult<PagedData<DeviceRuleDto>>> GetRuleDevices([FromQuery] DeviceParam m)
         {
 
 
@@ -343,9 +343,14 @@ namespace IoTSharp.Controllers
 
 
             var rows =await _context.DeviceRules.Include(c => c.FlowRule).Include(c => c.Device).Where(condition)
-                .Select(c => c.Device).Skip(m.offset * m.limit).Take(m.limit).ToListAsync();
+                .Select(c => new DeviceRuleDto()
+                {
+                    Id = c.Device.Id, DeviceType = c.Device.DeviceType, EnableTrace = c.EnableTrace, LastActive = c.Device.LastActive, Name = c.Device.Name, Online = c.Device.Online, Status = c.Device.Status, Timeout = c.Device.Timeout
+
+
+                }).Skip(m.offset * m.limit).Take(m.limit).ToListAsync();
             var total =await _context.DeviceRules.Include(c => c.FlowRule).Include(c => c.Device).Where(condition).Select(c=>c.Device).CountAsync();
-            return new ApiResult<PagedData<Device>>(ApiCode.Success, "Ok",  new PagedData<Device> { rows=rows,total= total });
+            return new ApiResult<PagedData<DeviceRuleDto>>(ApiCode.Success, "Ok",  new PagedData<DeviceRuleDto> { rows=rows,total= total });
         }
 
         [HttpGet("[action]")]
@@ -477,7 +482,7 @@ namespace IoTSharp.Controllers
                     Createor = profile.Id,
                     CreateDate = CreateDate,
                     Customer = rule.Customer,
-                    Tenant = rule.Tenant
+                    Tenant = rule.Tenant, Flowdesc = JsonConvert.SerializeObject(c.BizObject.profile??new object())
                 });
 
                 _context.Flows.AddRange(fw);
@@ -1145,43 +1150,7 @@ namespace IoTSharp.Controllers
 
             var testabizId = Guid.NewGuid().ToString(); //根据业务保存起来，用来查询执行事件和步骤
             var result = await _flowRuleProcessor.RunFlowRules(ruleid, d, Guid.Empty, EventType.TestPurpose, testabizId);
-
-
-
-            var flowRule = _context.FlowRules.SingleOrDefault(c => c.RuleId == ruleid);
-
-            var flows = _context.Flows.Where(c => c.FlowRule == flowRule).ToList();
-
-
-            if (result.Count > 0)
-            {
-                await Task.Run(() =>
-                {
-
-                    var operevent =
-                        _context.BaseEvents.SingleOrDefault(
-                            c => c.EventId == result.FirstOrDefault().BaseEvent.EventId);
-
-                    var list = result.Select(c => new FlowOperation
-                    {
-                        AddDate = c.AddDate,
-                        BizId = c.BizId,
-                        Data = c.Data,
-                        BaseEvent = operevent,
-                        Flow = flows.SingleOrDefault(x => x.FlowId == c.Flow.FlowId
-                        ),
-                        FlowRule = flowRule,
-                        NodeStatus = c.NodeStatus,
-                        OperationDesc = c.OperationDesc,
-                        OperationId = new Guid(),
-                        Step = c.Step,
-                        Tag = c.Tag,
-                        bpmnid = c.bpmnid
-                    }).ToArray();
-                    _context.FlowOperations.AddRange(list);
-                    _context.SaveChanges();
-                });
-            }
+           _context.SaveFlowResult(Guid.Empty, ruleid,result);
             return new ApiResult<dynamic>(ApiCode.Success, "test complete", result.OrderBy(c => c.Step).
                 Where(c => c.BaseEvent.Bizid == testabizId).ToList()
                 .GroupBy(c => c.Step).Select(c => new

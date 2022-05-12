@@ -13,6 +13,8 @@ import {
   Renderer2,
   Inject
 } from '@angular/core';
+
+
 import { _HttpClient } from '@delon/theme'; //test
 import { delay, mergeMap } from 'rxjs/operators';
 import * as BpmnJS from 'bpmn-js/dist/bpmn-modeler.production.min.js';
@@ -25,7 +27,7 @@ import { NzCodeEditorComponent } from 'ng-zorro-antd/code-editor';
 
 import { DOCUMENT } from '@angular/common';
 import { NzTooltipDirective } from 'ng-zorro-antd/tooltip';
-import customModule from './custom/custom';
+// import customModule from './custom/custom';
 @Component({
   selector: 'app-diagram',
   templateUrl: './diagram.component.html',
@@ -144,9 +146,9 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy 
       return;
     }
 
-    var elementRegistry = this.bpmnJS.get('elementRegistry');
 
-    var modeling = this.bpmnJS.get('modeling');
+
+   // var modeling = this.bpmnJS.get('modeling');
 
     // modeling.updateProperties(x.id, {
     //   name: 'ssss', //名称设置无效，如需双向绑定仍旧需要直接改Dom
@@ -205,11 +207,11 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy 
         defaultFillColor: '#e6f7ff',
         defaultStrokeColor: '#1890ff'
       },
-      additionalModules: [
-        customModule
-      ],
+      // additionalModules: [
+      //   customModule
+      // ],
       moddleExtensions: {
-       
+
 
       }
     });
@@ -254,7 +256,9 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy 
               task.bizObject.nodeProcessClassVisable = false;
               task.bizObject.flowscriptVisable = true;
             }
-
+            if (event.element.businessObject.profile) {
+              usertask.bizObject.profile = event.element.businessObject.profile;
+            }
             this.form = task.bizObject;
           }
 
@@ -535,6 +539,8 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy 
           break;
         case 'bpmn:UserTask':
           var usertask = this.activity.tasks.find(x => x.id == event.element.id);
+
+
           if (usertask) {
             if (usertask.bizObject == null) {
               usertask.bizObject = {
@@ -556,6 +562,12 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy 
             }
             this.form.flowscript = '';
             this.form.flowscripttype = '';
+
+            if (event.element.businessObject.profile) {
+              usertask.bizObject.profile = event.element.businessObject.profile;
+            }
+
+
             usertask.bizObject.flowscriptVisable = true;
             usertask.bizObject.flowscripttypeVisable = true;
             usertask.bizObject.nodeProcessClassVisable = false;
@@ -611,7 +623,9 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy 
                 nodeProcessParams: ''
               };
             }
-
+            if (event.element.businessObject.profile) {
+              usertask.bizObject.profile = event.element.businessObject.profile;
+            }
             servicetask.bizObject.flowscriptVisable = true;
             servicetask.bizObject.flowscripttypeVisable = true;
             servicetask.bizObject.nodeProcessClassVisable = false;
@@ -640,7 +654,9 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy 
                 nodeProcessParams: ''
               };
             }
-
+            if (event.element.businessObject.profile) {
+              usertask.bizObject.profile = event.element.businessObject.profile;
+            }
             manualtask.bizObject.flowscriptVisable = true;
             manualtask.bizObject.flowscripttypeVisable = true;
             manualtask.bizObject.nodeProcessClassVisable = false;
@@ -669,7 +685,9 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy 
                 nodeProcessParams: ''
               };
             }
-
+            if (event.element.businessObject.profile) {
+              usertask.bizObject.profile = event.element.businessObject.profile;
+            }
             sendtask.bizObject.flowscriptVisable = true;
             sendtask.bizObject.flowscripttypeVisable = true;
             sendtask.bizObject.nodeProcessClassVisable = false;
@@ -1044,7 +1062,7 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy 
         baseBpmnObject.bizObject.flowid = e.element.id;
         this.activity.baseBpmnObjects = [...this.activity.baseBpmnObjects, baseBpmnObject];
       }
-      console.log('baseBpmnObject');
+     
       baseBpmnObject.incoming = [
         ...baseBpmnObject.incoming,
         ...e.element.incoming.map(x => {
@@ -1304,7 +1322,9 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy 
           flowscripttypeVisable: true,
           flowscripttype: '',
           nodeProcessParams: ''
-        };
+        }; if (e.element.businessObject.profile) {
+          task.bizObject.profile = e.element.businessObject.profile;
+        }
         task.id = e.element.businessObject.id;
         task.bizObject.flowname = e.element.businessObject.name;
         task.bizObject.flowid = e.element.id;
@@ -1638,9 +1658,14 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy 
           nodeProcessClassVisable: false,
           flowscriptVisable: false,
           flowscripttypeVisable: false,
-          flowscripttype: element.bizObject.flowscripttype ?? ''
-        };
-
+          flowscripttype: element.bizObject.flowscripttype ?? '',
+          profile: element.bizObject.flowdesc ? JSON.parse(element.bizObject.flowdesc) : {}
+        };  
+        // var elementRegistry = this.bpmnJS.get('elementRegistry');
+        // var modeling = this.bpmnJS.get('modeling');
+        // var node = elementRegistry.get(element.id);
+        // node.businessObject['profile'] = task.bizObject.profile
+        // modeling.updateProperties(node, { profile: task.bizObject.profile });
         task.incoming = element.incoming ?? [];
         task.outgoing = element.incoming ?? [];
         task.id = element.id;
@@ -1746,7 +1771,7 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy 
           flowscriptVisable: false,
           flowscripttypeVisable: false,
           flowscripttype: '',
-          nodeProcessParams: ''
+          nodeProcessParams: '',
         };
         container.incoming = element.incoming ?? [];
         container.outgoing = element.incoming ?? [];
@@ -1916,7 +1941,12 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy 
         this.activity.lane.push(lane);
       }
     }
+
   }
+
+
+
+
 }
 
 export class BasebizObject {
@@ -1947,7 +1977,8 @@ export class BpmnBaseObject {
     flowscriptVisable: false,
     flowscripttypeVisable: false,
     flowscripttype: '',
-    nodeProcessParams: ''
+    nodeProcessParams: '',
+    profile: {}
   };
 }
 
@@ -2016,7 +2047,7 @@ export const importDiagram = (bpmnJS: any) => (source: Observable<any>) =>
         // canceling the subscription as we are interested
         // in the first diagram to display only
         subscription.unsubscribe();
-        console.log(xml);
+     
         bpmnJS.importXML(xml.xml, (err: any, warnings: string | undefined) => {
           if (err) {
             observer.error(err);
@@ -2052,4 +2083,5 @@ export interface FormBpmnObject {
   flowscripttype: string;
   flowscripttypeVisable: boolean;
   nodeProcessParams: string;
+  profile?: any
 }

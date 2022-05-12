@@ -27,7 +27,6 @@ export default class CustomPalette {
           type: task.shape,
           businessObject: businessObject
         });
-        console.log(shape)
         create.start(event, shape);
       };
     }

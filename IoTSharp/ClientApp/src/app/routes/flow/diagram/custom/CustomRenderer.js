@@ -36,6 +36,8 @@ export default class CustomRenderer extends BaseRenderer {
   drawShape(parentNode, element) {
     const shape = this.bpmnRenderer.drawShape(parentNode, element);
     const profile = this.getSuitabilityProfile(element);
+
+ 
     if (!isNil(profile)) {
       const color = profile.color;
       const rect = drawRect(parentNode, 120, 20, TASK_BORDER_RADIUS, color);

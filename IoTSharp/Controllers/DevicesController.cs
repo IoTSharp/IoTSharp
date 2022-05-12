@@ -1090,6 +1090,9 @@ namespace IoTSharp.Controllers
                             _logger.LogInformation($"{_dev.Id}的数据通过规则链{g}进行处理。");
 
                             var result = await _flowRuleProcessor.RunFlowRules(g, Newtonsoft.Json.JsonConvert.DeserializeObject(body), _dev.Id, EventType.Normal, null);
+                     
+                       //     _context.SaveFlowResult(_dev.Id,g, result);
+
                         });
                         return Ok(new ApiResult(ApiCode.Success, "OK"));
                     }

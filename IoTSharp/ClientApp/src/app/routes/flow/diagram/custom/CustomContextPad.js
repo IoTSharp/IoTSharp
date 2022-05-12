@@ -1,6 +1,7 @@
 import {
     TASKS,
 } from './Parts'
+
 export default class CustomContextPad {
     constructor(bpmnFactory, config, contextPad, create, elementFactory, injector, translate) {
         this.bpmnFactory = bpmnFactory;
@@ -30,8 +31,7 @@ export default class CustomContextPad {
                     const shape = elementFactory.createShape({
                         type: task.shape,
                         businessObject: businessObject,
-                    });     
-                 
+                    });
                     autoPlace.append(element, shape);
                 } else {
                     appendBuiltinShapeStart(event, element);
@@ -43,12 +43,12 @@ export default class CustomContextPad {
                 const businessObject = bpmnFactory.create(task.shape);
                 businessObject.suitable = task.title; 
                 businessObject.profile = task;
-     
                 const shape = elementFactory.createShape({
                     type: task.shape,
                     businessObject: businessObject,
-                });
-       console.log(shape)
+                });   
+       
+        
                 create.start(event, shape, element);
             };
         }
