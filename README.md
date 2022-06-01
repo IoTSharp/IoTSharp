@@ -84,14 +84,14 @@ IoTSharp is an open-source IoT platform for data collection, processing, visuali
 
 IoTSharp-C-client-Sdk is mqttt client, write by   c;
 
- https://github.com/IoTSharp/IoTSharp-C-Client-Sdk
+ [https://github.com/IoTSharp/IoTSharp.Sdks.MQTT-C](https://github.com/IoTSharp/IoTSharp.Sdks.MQTT-C)
 
 ## paho.mqtt.c's demo 
 
 It' like IoTSharp-C-Client-Sdk, but is use paho.mqtt.c
  https://github.com/IoTSharp/IoTSharp.Edge.paho.mqtt.c
 
-## IoTSharp.Edge.nanoFramework
+## IoTSharp for nanoFramework
 
 IoTSharp.Edge.nanoFramework is a nanoFramework's mqtt client , it run on STM32 ！
 
@@ -100,18 +100,11 @@ IoTSharp.Edge.nanoFramework is a nanoFramework's mqtt client , it run on STM32 �
 more info read https://www.cnblogs.com/MysticBoy/p/13159648.html
 or click  https://www.nanoframework.net/
 
-##  IoTSharp.Edge.RT-Thread
+# IoTSharp for RTthread Package
 
-IoTSharp.Edge.RT-Thread (STM32L4 + Wi-Fi, sensor, lcd, audio etc)
-
-https://github.com/IoTSharp/IoTSharp.Edge.RT-Thread
+https://github.com/IoTSharp/iotsharp-rtthread-package
 
 
- <img src="docs/static/img/20190615010003.jpg" alt="20190615010003.jpg" style="zoom: 70%;" /> 
-
- <img src="docs/static/img/InfluxDB2.PNG" alt="InfluxDB2.PNG" style="zoom: 59%;" />
-
- <img src="docs/static/img/20190615010115.jpg" alt="20190615010115.jpg" style="zoom: 96%;" />
 
 IoTSharp's ecosystem
 
@@ -153,15 +146,13 @@ This project is an  Apache 2.0 licensed open source project. In order to achieve
 We will put the detailed donation records on the below!
 
 
-
 |                                                        | Name                                  | Stars | Donations | Message |
 | ------------------------------------------------------------ | ------------------ | -------- | -------- | -------- |
 | [![@iioter](https://avatars.githubusercontent.com/u/29589505?s=80&v=4)](https://github.com/iioter) | whd | ![GitHub User's stars](https://img.shields.io/github/stars/iioter?affiliations=OWNER%2CCOLLABORATOR%2CORGANIZATION_MEMBER&style=for-the-badge) | ￥512 =120+100+292(码云共计三次) |  |
 | [![@nnhy](https://avatars.githubusercontent.com/u/506367?s=80&v=4)](https://github.com/nnhy) | 大石头 | ![GitHub User's stars](https://img.shields.io/github/stars/nnhy?affiliations=OWNER%2CCOLLABORATOR%2CORGANIZATION_MEMBER&style=for-the-badge) |     ￥672=666+5（码云+公众号）     |            |
 |  | 无敌飞行家 | ![GitHub User's stars](https://img.shields.io/github/stars/hehaoyu_2014?affiliations=OWNER%2CCOLLABORATOR%2CORGANIZATION_MEMBER&style=for-the-badge) | ￥5=5(公众号) |  |
 |  | 匿名公司 |  | ￥1000=1000(微信转账) |  |
-| | 农民也很疯狂 | | ￥200 微信转账 | |
-
+| [![@davidzhu001](https://avatars.githubusercontent.com/u/9436230?s=80&v=4)](https://github.com/davidzhu001)   | 农民也很疯狂 |  ![GitHub User's stars](https://img.shields.io/github/stars/davidzhu001?affiliations=OWNER%2CCOLLABORATOR%2CORGANIZATION_MEMBER&style=for-the-badge)| ￥200 微信转账 | |
 
 
 ## Community Support
@@ -170,13 +161,9 @@ If you encounter any problems in the process, feel free to ask for help via foll
 
 - [![Discord Server](https://img.shields.io/discord/895689311612178442?color=%237289DA&label=IoTSharp&logo=discord&logoColor=white&style=flat-square)](https://discord.gg/My6PaTmUvu)
 
-| 公众号 |    [QQ群63631741](https://jq.qq.com/?_wv=1027&k=HJ7h3gbO)  |
-| ------ | ---- |
-| ![](docs/static/img/qrcode.jpg) | ![](docs/static/img/IoTSharpQQGruop.png) |
-
-
-
-
+| 公众号 |    [QQ群63631741](https://jq.qq.com/?_wv=1027&k=HJ7h3gbO)  |  微信群  |
+| ------ | ---- | ---- |
+| ![](docs/static/img/qrcode.jpg) | ![](docs/static/img/IoTSharpQQGruop.png) | ![企业微信群](docs/static/img/qyqun.jpg) |
 
 ## dotNET China
 

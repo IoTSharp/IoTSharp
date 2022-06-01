@@ -52,7 +52,8 @@ IoTSharp 是一个 基于.Net Core 开源的物联网基础平台， 支持 HTTP
 
 ##  IoTSharp.SDKs
 
-IoTSharp.SDKs  包括了 IoTSharp.Sdk.MQTT  IoTSharp.Sdk.Http  
+- IoTSharp.Sdk.Http   [![IoTSharp.Sdk.Http](https://img.shields.io/nuget/v/IoTSharp.Sdk.Http.svg)](https://www.nuget.org/packages/IoTSharp.Sdk.Http/)
+- IoTSharp.Sdk.MQTT   [![IoTSharp.Sdk.MQTT](https://img.shields.io/nuget/v/IoTSharp.Sdk.MQTT.svg)](https://www.nuget.org/packages/IoTSharp.Sdk.MQTT/)
 
  
 
@@ -60,14 +61,14 @@ IoTSharp.SDKs  包括了 IoTSharp.Sdk.MQTT  IoTSharp.Sdk.Http
 
 IoTSharp-C-client-Sdk 是mqtt客户端， c语言编写的例子。 
 
- https://github.com/IoTSharp/IoTSharp-C-Client-Sdk
+ [https://github.com/IoTSharp/IoTSharp.Sdks.MQTT-C](https://github.com/IoTSharp/IoTSharp.Sdks.MQTT-C)
 
 ## paho.mqtt.c 的例子
 
 这个跟 IoTSharp-C-Client-Sdk 一样， 但是使用了 paho.mqtt.c
  https://github.com/IoTSharp/IoTSharp.Edge.paho.mqtt.c
 
-## IoTSharp.Edge.nanoFramework
+## IoTSharp 的 nanoFramework 例子
 
 IoTSharp.Edge.nanoFramework 是一个 nanoFramework's mqtt 客户端， 它允许在STM32 ！
 
@@ -76,26 +77,22 @@ IoTSharp.Edge.nanoFramework 是一个 nanoFramework's mqtt 客户端， 它允�
 更多信息请读这里 https://www.cnblogs.com/MysticBoy/p/13159648.html
 官方网站为：  https://www.nanoframework.net/ 
 
-##  IoTSharp.Edge.RT-Thread
+##  IoTSharp 的RT-Thread 开发包
 
-IoTSharp.Edge.RT-Thread (STM32L4 + Wi-Fi, sensor, lcd, audio etc) 是一个国产实时操作系统RT-Thread的示例， 同时我们提供了两个图片， 供你参考。 项目链接如下 https://github.com/IoTSharp/IoTSharp.Edge.RT-Thread
+https://github.com/IoTSharp/iotsharp-rtthread-package
 
-|                                                              |                                                              |
-| ------------------------------------------------------------ | ------------------------------------------------------------ |
-| <img src="docs/static/img/20190615010003.jpg" alt="20190615010003.jpg" style="zoom: 67%;" /> | <img src="docs/static/img/20190615010115.jpg" alt="20190615010115.jpg" style="zoom: 50%;" /> |
-
+|  
 IoTSharp 的软件生态
 
 - MaiKeBing.CAP.ZeroMQ [![MaiKeBing.CAP.ZeroMQ](https://img.shields.io/nuget/v/MaiKeBing.CAP.ZeroMQ.svg)](https://www.nuget.org/packages/MaiKeBing.CAP.ZeroMQ/)
 - MaiKeBing.CAP.LiteDB  [![MaiKeBing.CAP.LiteDB](https://img.shields.io/nuget/v/MaiKeBing.CAP.LiteDB.svg)](https://www.nuget.org/packages/MaiKeBing.CAP.LiteDB/)
 - MaiKeBing.HostedService.ZeroMQ  [![MaiKeBing.HostedService.ZeroMQ](https://img.shields.io/nuget/v/MaiKeBing.HostedService.ZeroMQ.svg)](https://www.nuget.org/packages/MaiKeBing.HostedService.ZeroMQ/)
 - IoTSharp.X509Extensions  [![IoTSharp.X509Extensions](https://img.shields.io/nuget/v/IoTSharp.X509Extensions.svg)](https://www.nuget.org/packages/IoTSharp.X509Extensions/)
-- MQTTnet.AspNetCoreEx  [![MQTTnet.AspNetCoreEx](https://img.shields.io/nuget/v/MQTTnet.AspNetCoreEx.svg)](https://www.nuget.org/packages/MQTTnet.AspNetCoreEx/)
 - Silkier    [![Silkier](https://img.shields.io/nuget/v/Silkier.svg)](https://www.nuget.org/packages/Silkier/) 
 - Silkier.EFCore   [![Silkier.EFCore](https://img.shields.io/nuget/v/Silkier.EFCore.svg)](https://www.nuget.org/packages/Silkier.EFCore/)
 - Silkier.AspNetCore  [![Silkier.AspNetCore](https://img.shields.io/nuget/v/Silkier.AspNetCore.svg)](https://www.nuget.org/packages/Silkier.AspNetCore/)
 - SilkierQuartz   [![SilkierQuartz](https://img.shields.io/nuget/v/SilkierQuartz.svg)](https://www.nuget.org/packages/SilkierQuartz/)
-- Maikebing.EntityFrameworkCore.Taos   [![Maikebing.EntityFrameworkCore.Taos](https://img.shields.io/nuget/v/Maikebing.EntityFrameworkCore.Taos.svg)](https://www.nuget.org/packages/Maikebing.EntityFrameworkCore.Taos/)
+- IoTSharp.EntityFrameworkCore.Taos   [![IoTSharp.EntityFrameworkCore.Taos](https://img.shields.io/nuget/v/IoTSharp.EntityFrameworkCore.Taos.svg)](https://www.nuget.org/packages/IoTSharp.EntityFrameworkCore.Taos/)
 - IoTSharp.Sdk.Http   [![IoTSharp.Sdk.Http](https://img.shields.io/nuget/v/IoTSharp.Sdk.Http.svg)](https://www.nuget.org/packages/IoTSharp.Sdk.Http/)
 - IoTSharp.Sdk.MQTT   [![IoTSharp.Sdk.MQTT](https://img.shields.io/nuget/v/IoTSharp.Sdk.MQTT.svg)](https://www.nuget.org/packages/IoTSharp.Sdk.MQTT/)
 
@@ -120,6 +117,7 @@ This project exists thanks to all the people who contribute.
 This project is an  Apache 2.0 licensed open source project. In order to achieve better and sustainable development of the project, we expect to gain more backers. We will use the proceeds for community operations and promotion. You can support us in any of the following ways:
 
 - [OpenCollective](https://opencollective.com/IoTSharp)
+- 微信![二维码](docs/static/img/maikebing_wxpay.png)
 
 We will put the detailed donation records on the below!
 
@@ -130,6 +128,8 @@ We will put the detailed donation records on the below!
 | [![@iioter](https://avatars.githubusercontent.com/u/29589505?s=80&v=4)](https://github.com/iioter) | whd | ![GitHub User's stars](https://img.shields.io/github/stars/iioter?affiliations=OWNER%2CCOLLABORATOR%2CORGANIZATION_MEMBER&style=for-the-badge) | ￥512 =120+100+292(码云共计三次) |  |
 | [![@nnhy](https://avatars.githubusercontent.com/u/506367?s=80&v=4)](https://github.com/nnhy) | 大石头 | ![GitHub User's stars](https://img.shields.io/github/stars/nnhy?affiliations=OWNER%2CCOLLABORATOR%2CORGANIZATION_MEMBER&style=for-the-badge) |     ￥672=666+5（码云+公众号）     |            |
 |  | 无敌飞行家 | ![GitHub User's stars](https://img.shields.io/github/stars/hehaoyu_2014?affiliations=OWNER%2CCOLLABORATOR%2CORGANIZATION_MEMBER&style=for-the-badge) | ￥5=5(公众号) |  |
+|  | 匿名公司 |  | ￥1000=1000(微信转账) |  |
+| [![@davidzhu001](https://avatars.githubusercontent.com/u/9436230?s=80&v=4)](https://github.com/davidzhu001)   | 农民也很疯狂 |  ![GitHub User's stars](https://img.shields.io/github/stars/davidzhu001?affiliations=OWNER%2CCOLLABORATOR%2CORGANIZATION_MEMBER&style=for-the-badge)| ￥200 微信转账 | |
 
 
 
@@ -140,9 +140,9 @@ If you encounter any problems in the process, feel free to ask for help via foll
 
 - [![Discord Server](https://img.shields.io/discord/895689311612178442?color=%237289DA&label=IoTSharp&logo=discord&logoColor=white&style=flat-square)](https://discord.gg/My6PaTmUvu)
 
-| 公众号 |    [QQ群63631741](https://jq.qq.com/?_wv=1027&k=HJ7h3gbO)  |
-| ------ | ---- |
-| ![](docs/static/img/qrcode.jpg) | ![](docs/static/img/IoTSharpQQGruop.png) |
+| 公众号 |    [QQ群63631741](https://jq.qq.com/?_wv=1027&k=HJ7h3gbO)  |  微信群  |
+| ------ | ---- | ---- |
+| ![](docs/static/img/qrcode.jpg) | ![](docs/static/img/IoTSharpQQGruop.png) | ![企业微信群](docs/static/img/qyqun.jpg) |
 
 
 

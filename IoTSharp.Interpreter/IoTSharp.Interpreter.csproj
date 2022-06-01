@@ -5,13 +5,13 @@
   </PropertyGroup>
 	<ItemGroup>
 		<PackageReference Include="CLanguage" Version="0.17.40" />
-		<PackageReference Include="CS-Script" Version="4.4.2" />
+		<PackageReference Include="CS-Script" Version="4.4.5" />
 		<PackageReference Include="Jint" Version="3.0.0-beta-2037" />
 		<PackageReference Include="Microsoft.AspNetCore.Http.Abstractions" Version="2.2.0" />
-		<PackageReference Include="Microsoft.CodeAnalysis.Common" Version="4.1.0" />
-		<PackageReference Include="Microsoft.CodeAnalysis.CSharp.Scripting" Version="4.1.0" />
-		<PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.1.0" />
-		<PackageReference Include="Microsoft.CodeAnalysis.Scripting.Common" Version="4.1.0" />
+		<PackageReference Include="Microsoft.CodeAnalysis.Common" Version="4.2.0" />
+		<PackageReference Include="Microsoft.CodeAnalysis.CSharp.Scripting" Version="4.2.0" />
+		<PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.2.0" />
+		<PackageReference Include="Microsoft.CodeAnalysis.Scripting.Common" Version="4.2.0" />
 		<PackageReference Include="Microsoft.Extensions.Caching.Abstractions" Version="6.0.0" />
 		<PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" Version="6.0.0" />
 		<PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="6.0.0" />
