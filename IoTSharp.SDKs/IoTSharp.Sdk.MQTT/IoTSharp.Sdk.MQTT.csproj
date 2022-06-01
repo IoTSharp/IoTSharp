@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
-		<TargetFrameworks>net48;netstandard2.0;netstandard2.1;net5.0;net6.0</TargetFrameworks>
+		<TargetFrameworks>netstandard2.0;</TargetFrameworks>
 		<Version>1.0.1</Version>
 		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
 		<PackageLicenseExpression>MIT</PackageLicenseExpression>
@@ -9,7 +9,7 @@
 		<Product>IoTSharp</Product>
 		<PackageProjectUrl>https://github.com/IoTSharp/IoTSharp/tree/master/IoTSharp.SDKs</PackageProjectUrl>
 		<RepositoryUrl>https://github.com/IoTSharp/IoTSharp</RepositoryUrl>
-		<Copyright>Copyright 2018-2020</Copyright>
+		<Copyright>Copyright 2018-2022</Copyright>
 		<PackageIcon>200x200.png</PackageIcon>
 		<IsPackable>true</IsPackable>
 		<RestoreAdditionalProjectSources>
