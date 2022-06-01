@@ -822,6 +822,31 @@
             客户
             </summary>
         </member>
+        <member name="P:IoTSharp.Dtos.DeviceRuleDto.Name">
+            <summary>
+            设备名称
+            </summary>
+        </member>
+        <member name="P:IoTSharp.Dtos.DeviceRuleDto.DeviceType">
+            <summary>
+            设备类型
+            </summary>
+        </member>
+        <member name="P:IoTSharp.Dtos.DeviceRuleDto.Online">
+            <summary>
+            在线
+            </summary>
+        </member>
+        <member name="P:IoTSharp.Dtos.DeviceRuleDto.LastActive">
+            <summary>
+            最后一次活跃时间
+            </summary>
+        </member>
+        <member name="P:IoTSharp.Dtos.DeviceRuleDto.Timeout">
+            <summary>
+            超时时间 秒数
+            </summary>
+        </member>
         <member name="P:IoTSharp.Dtos.FlowOperationDto.NodeStatus">
             <summary>
             节点处理状态，0 创建完

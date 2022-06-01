@@ -414,7 +414,8 @@ namespace IoTSharp
             services.AddTransient<FlowRuleProcessor>(); services.AddTransient<CustomeAlarmPullExcutor>();
             services.AddSingleton<TaskExecutorHelper>();
             services.AddTransient<PublishAttributeDataTask>();
-            services.AddTransient<PublishTelemetryDataTask>();
+            services.AddTransient<PublishTelemetryDataTask>(); 
+            services.AddTransient<PublishAlarmDataTask>();
             services.AddTransient<RawDataGateway>();
         }
 

@@ -22,7 +22,7 @@ namespace IoTSharp.Handlers
 
         public override Task<TaskActionOutput> ExecuteAsync(TaskActionInput param)
         {
-            var result = new TaskActionOutput() { DynamicOutput = new { code =  ApiCode.Success,msg="OK" } };
+            var result = new TaskActionOutput() { DynamicOutput = param.DynamicInput, ExecutionStatus = true, ExecutionInfo = ""};
             try
             {
                 var dto = JsonConvert.DeserializeObject<Dtos.CreateAlarmDto>(param.Input);
@@ -30,7 +30,7 @@ namespace IoTSharp.Handlers
             }
             catch (Exception ex)
             {
-                result.DynamicOutput = new { code = ApiCode.Exception, msg = ex.Message };
+                result.DynamicOutput = new { DynamicOutput = param.DynamicInput, ExecutionStatus = false, ExecutionInfo = ex.Message };
             }
             return Task.FromResult(result);
         }

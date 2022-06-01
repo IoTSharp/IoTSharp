@@ -116,9 +116,9 @@ namespace IoTSharp.Dtos
     public class AssetDto
     {
         public Guid Id { get; set; }
-        public string? Name { get; set; }
-        public string? Description { get; set; }
-        public string? AssetType { get; set; }
+        public string Name { get; set; }
+        public string Description { get; set; }
+        public string AssetType { get; set; }
     }
 
     public class AssetRelationDto

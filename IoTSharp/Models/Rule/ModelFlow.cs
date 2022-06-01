@@ -63,5 +63,32 @@ namespace IoTSharp.Models.Rule
         public string NodeProcessParams { get; set; }
         public string flowscript { get; set; }
         public string flowscripttype { get; set; }
+
+        public BpmnObjectProfile profile { get; set; }
+
     }
+
+
+    //from Parts.js
+    public class BpmnObjectProfile
+    {
+        public string title { get; set; }
+        public string desc { get; set; }
+        public string @namespace { get; set; }
+        public string color { get; set; }
+        public string shape { get; set; }
+        public dynamic action { get; set; }
+        public dynamic config { get; set; }
+        public string classname { get; set; }
+        public string group { get; set; }
+
+    }
+
+
+
+
+
+
+
+
 }

@@ -90,7 +90,7 @@ namespace IoTSharp.Extensions
                     StartDateTime = DateTime.Now,
                 };
                 action?.Invoke(alarm);
-                var isone = from a in _context.Alarms where a.OriginatorId == alarm.OriginatorId && a.AlarmType == alarm.AlarmType select a;
+                var isone = from a in _context.Alarms where a.OriginatorId == alarm.OriginatorId && a.AlarmType == alarm.AlarmType && (a.AlarmStatus == AlarmStatus.Cleared_UnAck|| a.AlarmStatus == AlarmStatus.Active_UnAck) select a;
                 if (isone.Any())
                 {
                     var old = isone.First();
