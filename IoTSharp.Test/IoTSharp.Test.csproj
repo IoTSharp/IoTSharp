@@ -11,7 +11,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Ductus.FluentDocker" Version="2.10.48" />
+    <PackageReference Include="Ductus.FluentDocker" Version="2.10.51" />
     <PackageReference Include="Ductus.FluentDocker.MsTest" Version="2.10.48" />
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Workspaces" Version="4.2.0" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.2.0" />
