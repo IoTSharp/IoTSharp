@@ -44,6 +44,7 @@ using System.Text;
 using Jdenticon;
 using static Amazon.Internal.RegionEndpointProviderV2;
 using IoTSharp.Gateways;
+using System.Collections.Specialized;
 
 namespace IoTSharp
 {
@@ -283,7 +284,24 @@ namespace IoTSharp
                 case TelemetryStorage.TimescaleDB:
                     services.AddSingleton<IStorage, TimescaleDBStorage>();
                     break;
-
+                case TelemetryStorage.IoTDB:
+                    services.AddSingleton<IStorage, IoTDBStorage>();
+                    services.AddSingleton<Salvini.IoTDB.Session>(s =>
+                    {
+                        var str = Configuration.GetConnectionString("TelemetryStorage");
+                        Dictionary<string, string> pairs = new Dictionary<string, string>();
+                        str.Split(';', StringSplitOptions.RemoveEmptyEntries).ForEach(f =>
+                        {
+                            var kv = f.Split('=');
+                            pairs.TryAdd(key: kv[0], value: kv[1]);
+                        });
+                        string host = pairs.GetValueOrDefault("Server")??"127.0.0.1";
+                        int port = int.Parse(pairs.GetValueOrDefault("Port")??"6667");
+                        string username = pairs.GetValueOrDefault("User") ?? "root";  
+                        string password = pairs.GetValueOrDefault("Password") ?? "root";  
+                        return new Salvini.IoTDB.Session(host, port, username, password);
+                    });
+                    break;
                 case TelemetryStorage.SingleTable:
                 default:
                     services.AddSingleton<IStorage, EFStorage>();
