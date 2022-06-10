@@ -16,7 +16,9 @@ docker stop iotsharp
 ```
 
 :::danger 注意
-另外前端使用angular，需要安装node、npm或yarn才可以进行前端编译
+另外前端使用angular，需要安装node、npm或yarn才可以进行前端编译，如果项目启动时无法跳转至前端界面， 那么在VS启动项目之前需要先
+```npm install -g @angular/cli@13.3.7```
+
 :::
 我的node版本`v16.13.1`，npm版本`8.1.2`，yarn版本`1.22.17`，可用
 
