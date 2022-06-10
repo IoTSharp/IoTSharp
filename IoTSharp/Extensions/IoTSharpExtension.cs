@@ -321,18 +321,26 @@ namespace IoTSharp
                 {
                     var ch = from g in _dbContext.Gateway.Include(g => g.Tenant).Include(g => g.Customer).Include(c => c.Children) where g.Id == device.Id select g;
                     var gw = ch.FirstOrDefault();
-                    var subdev = from cd in gw.Children where cd.Name == devname select cd;
-                    if (!subdev.Any())
+                    if(gw == null)
+                    {//未处理null的情况
+
+                        devicedatato = _dbContext.Device.Find(device.Id);
+                    }else
                     {
-                        devicedatato = new Device() { Id = Guid.NewGuid(), Name = devname, DeviceType = DeviceType.Device, Tenant = gw.Tenant, Customer = gw.Customer, Owner = gw, LastActive = DateTime.Now, Timeout = 300 };
-                        gw.Children.Add(devicedatato);
-                        _dbContext.AfterCreateDevice(devicedatato);
-                        _logger.LogInformation($"网关 {gw.Id}-{gw.Name}在线.最后活动时间{gw.LastActive},添加了子设备{devicedatato.Name}");
-                    }
-                    else
-                    {
-                        devicedatato = subdev.FirstOrDefault();
-                        _logger.LogInformation($"网关子设备 {devicedatato.Id}-{devicedatato.Name}在线.最后活动时间{devicedatato.LastActive}");
+
+                        var subdev = from cd in gw.Children where cd.Name == devname select cd;
+                        if (!subdev.Any())
+                        {
+                            devicedatato = new Device() { Id = Guid.NewGuid(), Name = devname, DeviceType = DeviceType.Device, Tenant = gw.Tenant, Customer = gw.Customer, Owner = gw, LastActive = DateTime.Now, Timeout = 300 };
+                            gw.Children.Add(devicedatato);
+                            _dbContext.AfterCreateDevice(devicedatato);
+                            _logger.LogInformation($"网关 {gw.Id}-{gw.Name}在线.最后活动时间{gw.LastActive},添加了子设备{devicedatato.Name}");
+                        }
+                        else
+                        {
+                            devicedatato = subdev.FirstOrDefault();
+                            _logger.LogInformation($"网关子设备 {devicedatato.Id}-{devicedatato.Name}在线.最后活动时间{devicedatato.LastActive}");
+                        }
                     }
                 }
                 else

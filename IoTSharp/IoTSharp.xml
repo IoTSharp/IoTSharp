@@ -1143,6 +1143,13 @@
             <param name="aggregate">聚合方式</param>
             <returns></returns>
         </member>
+        <member name="M:IoTSharp.Storage.IoTDBStorage.SharpAggregate2IotDBAggregate(IoTSharp.Data.Aggregate)">
+            <summary>
+            将IotSharp中的聚合转换为IotDB中的聚合函数名称
+            </summary>
+            <param name="aggregate"></param>
+            <returns></returns>
+        </member>
         <member name="M:IoTSharp.Storage.PinusDBStorage.SqlToTDD(PinusDB.Data.PinusConnection,System.String,System.Guid)">
             <summary>
             转换获取到的值

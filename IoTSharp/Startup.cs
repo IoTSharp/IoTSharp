@@ -298,8 +298,11 @@ namespace IoTSharp
                         string host = pairs.GetValueOrDefault("Server")??"127.0.0.1";
                         int port = int.Parse(pairs.GetValueOrDefault("Port")??"6667");
                         string username = pairs.GetValueOrDefault("User") ?? "root";  
-                        string password = pairs.GetValueOrDefault("Password") ?? "root";  
-                        return new Salvini.IoTDB.Session(host, port, username, password);
+                        string password = pairs.GetValueOrDefault("Password") ?? "root";
+                        int fetchSize = int.Parse(pairs.GetValueOrDefault("fetchSize") ?? "1800");
+                        bool enableRpcCompression = bool.Parse(pairs.GetValueOrDefault("enableRpcCompression")??"false");
+                        int? poolSize = pairs.GetValueOrDefault("poolSize") != null ? int.Parse(pairs.GetValueOrDefault("poolSize")) : null;
+                        return new Salvini.IoTDB.Session(host, port, username, password, fetchSize,poolSize,enableRpcCompression);
                     });
                     break;
                 case TelemetryStorage.SingleTable:
