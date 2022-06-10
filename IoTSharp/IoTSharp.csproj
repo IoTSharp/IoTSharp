@@ -72,7 +72,7 @@
 		<PackageReference Include="DotNetCore.CAP.Kafka" Version="6.0.1" />
 		<PackageReference Include="DotNetCore.CAP.MongoDB" Version="6.0.1" />
 		<PackageReference Include="DotNetCore.CAP.MySql" Version="6.0.1" />
-		<PackageReference Include="DotNetCore.CAP.RabbitMQ" Version="6.0.1" />
+		<PackageReference Include="DotNetCore.CAP.RabbitMQ" Version="6.1.0" />
 		<PackageReference Include="DotNetCore.CAP.PostgreSql" Version="6.0.1" />
 		<PackageReference Include="DotNetCore.CAP.SqlServer" Version="6.0.1" />
 		<PackageReference Include="DotNetCore.CAP.AzureServiceBus" Version="6.0.1" />
@@ -233,6 +233,7 @@
 		</Content>
 	</ItemGroup>
 	<ItemGroup>
+		<ProjectReference Include="..\IoTSharp.Data.Cassandra\IoTSharp.Data.Cassandra.csproj" />
 		<ProjectReference Include="..\IoTSharp.Data.InMemory\IoTSharp.Data.InMemory.csproj" />
 		<ProjectReference Include="..\IoTSharp.Data.MySQL\IoTSharp.Data.MySQL.csproj" />
 		<ProjectReference Include="..\IoTSharp.Data.Oracle\IoTSharp.Data.Oracle.csproj" />
