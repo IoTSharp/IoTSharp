@@ -102,7 +102,14 @@ namespace IoTSharp
                     break;
                 case DataBaseType.InMemory:
                     services.ConfigureInMemory(settings.DbContextPoolSize,  healthChecksUI);
-
+                    break;
+                case DataBaseType.Cassandra:
+                    services.ConfigureCassandra(Configuration.GetConnectionString("IoTSharp"), settings.DbContextPoolSize, healthChecks, healthChecksUI);
+                    if  (settings.TelemetryStorage== TelemetryStorage.Sharding)
+                    {
+                        settings.TelemetryStorage = TelemetryStorage.SingleTable;
+                        //使用Cassandra时候不支持分表
+                    }
                     break;
                 case DataBaseType.PostgreSql:
                 default:
@@ -213,12 +220,12 @@ namespace IoTSharp
                         break;
 
                     case CachingUseIn.LiteDB:
-                        options.UseLiteDB(cfg => cfg.DBConfig = new EasyCaching.LiteDB.LiteDBDBOptions() { }, name: "iotsharp");
+                        options.UseLiteDB(cfg => cfg.DBConfig = new EasyCaching.LiteDB.LiteDBDBOptions() { }, name: _hc_Caching);
                         break;
 
                     case CachingUseIn.InMemory:
                     default:
-                        options.UseInMemory("iotsharp");
+                        options.UseInMemory(_hc_Caching);
                         break;
                 }
             });
