@@ -40,7 +40,16 @@ namespace IoTSharp.Storage
                 pairs.TryAdd(key: kv[0], value: kv[1]);
             });
             _StorageGroupName = pairs.GetValueOrDefault("DefaultGroupName") ?? "iotsharp";
-            _session.CreateStorageGroup($"root.{_StorageGroupName}");
+            var groupName = $"root.{_StorageGroupName}";
+            using var query =  _session.ExecuteQueryStatementAsync($"show storage group {groupName}");//判断存储组是否已经存在
+            if(query.Result.HasNext())
+            {
+                //存储组已经存在，无需处理
+            }
+            else
+            {
+                _session.CreateStorageGroup(groupName);
+            }
         }
 
         private bool CheckDataBase()
@@ -59,10 +68,10 @@ namespace IoTSharp.Storage
             return dbisok;
         }
 
-        private async Task<List<(string key, string type)>> GetIotDbMeasurementPointInfor(string device)
+        private async Task<List<(string key, string type)>> GetIotDbMeasurementPointInfor(string device,string measureKeys="*")
         {
             //show timeseries root.iotsharp.8984003f7016487db7f26528b246198f.**\
-
+            var keylist = measureKeys.Split(';', ',').ToList();
             var sql = $"show timeseries  {device}.**";
             List<(string key, string type)> dt = new List<(string key, string type)>();
             using var query = await _session.ExecuteQueryStatementAsync(sql);
@@ -70,12 +79,40 @@ namespace IoTSharp.Storage
             {
                 var next = query.Next();
                 var values = next.Values;
-
-                dt.Add((values[0].ToString().Replace(@$"{device}.", ""), values[3]));
+                var measurePointName = values[0].ToString().Replace(@$"{device}.", "");
+                if(measureKeys=="*"|| keylist.Contains(measurePointName))
+                    dt.Add((measurePointName, values[3]));
             }
             return dt;
         }
+        private dynamic GetIotSharpValue(object v,string iotDataType)
+        {
+            if (v.ToString().ToUpper() == "NULL")
+                return null;
+            switch (iotDataType.ToUpper())
+            {
+                case "DOUBLE":
+                    return double.Parse(v.ToString());
+                    break;
+                case "FLOAT":
+                    return float.Parse(v.ToString());
+                    break;
+                case "TEXT":
+                    return v.ToString();
+                    break;
+                case "INT64":
+                    return Int64.Parse(v.ToString());
+                    break;
+                case "IN32":
+                    return Int32.Parse(v.ToString());
+                    break;
+                case "BOOLEAN":
+                    return bool.Parse(v.ToString());
+                    break;
+            }
 
+            throw new Exception($"不支持的IotDB数据类型：{iotDataType}");
+        }
         private IoTSharp.Data.DataType GetIoTSharpDataType(string iotDataType)
         {
             if (iotDataType.ToUpper() == "DOUBLE")
@@ -108,31 +145,7 @@ namespace IoTSharp.Storage
 
         public async Task<List<TelemetryDataDto>> GetTelemetryLatest(Guid deviceId)
         {
-
-            string device = $"root.{_StorageGroupName}.{deviceId:N}";
-
-            var sql = $"select last * from {device}";
-
-            List<TelemetryDataDto> dt = new List<TelemetryDataDto>();
-            using var query = await _session.ExecuteQueryStatementAsync(sql);
-
-            while (query.HasNext())
-            {
-
-                var next = query.Next();
-                var values = next.Values;
-                var time = next.GetDateTime();
-
-                TelemetryDataDto telemetry = new TelemetryDataDto()
-                {
-                    DateTime = next.GetDateTime(),
-                    KeyName = values[0].ToString().Replace(@$"{device}.", ""),
-                    Value = values[1].ToString(),
-                    DataType = GetIoTSharpDataType(values[2].ToString()),
-                };
-                dt.Add(telemetry);
-            }
-            return dt;
+            return await GetTelemetryLatest(deviceId,"*");
         }
 
 
@@ -173,34 +186,23 @@ namespace IoTSharp.Storage
         {
             //select count(status), max_value(temperature) from root.ln.wf01.wt01 group by ([2017-11-01T00:00:00, 2017-11-07T23:00:00),1d);
             //select avg(v2) from root.iotsharp.8984003f7016487db7f26528b246198f group by ([2022-06-10 00:00:00, 2022-06-10 23:00:00),1000ms);
-
+            //2022-06-08T00:56:04.452+08:00
             List<TelemetryDataDto> dt = new List<TelemetryDataDto>();
             var aggStr = SharpAggregate2IotDBAggregate(aggregate);
             if (!string.IsNullOrEmpty(aggStr))//
             {
+                if (string.IsNullOrEmpty(keys))
+                    keys = "*";
 
                 string device = $"root.{_StorageGroupName}.{deviceId:N}";
                 var sb = new StringBuilder();
-                var MeasurementPointList = await this.GetIotDbMeasurementPointInfor(device);
-
+                var MeasurementPointList = await this.GetIotDbMeasurementPointInfor(device, keys);
                 var selectItemStr = string.Join(",", from m in MeasurementPointList select $"{aggStr}({m.key})");
+                sb.AppendLine($@"select {selectItemStr} from {device} where Time >= {begin:yyyy-MM-ddTHH:mm:ss.fff+00:00} and Time < {end:yyyy-MM-ddTHH:mm:ss.fff+00:00}  ");
 
-                if (!string.IsNullOrEmpty(keys))
-                {
-                    //待测试！！
-                    IEnumerable<string> kvs = from k in keys.Split(';', ',') select $" keyname = '{k}' ";
-                    sb.AppendLine($@"select {selectItemStr} from {device} where Time >={begin:yyyy-MM-dd HH:mm:ss.fff} and Time <={end:yyyy-MM-dd HH:mm:ss.fff}  and ({string.Join("or", kvs)})  ");
-
-
-                }
-                else
-                {
-                    sb.AppendLine($@"select {selectItemStr} from {device} where Time >= {begin:yyyy-MM-dd HH:mm:ss.fff} and Time < {end:yyyy-MM-dd HH:mm:ss.fff}  ");
-
-                }
                 if (every > TimeSpan.Zero)
                 {
-                    sb.AppendLine($@" group by ([{begin:yyyy-MM-dd HH:mm:ss.fff}, {end:yyyy-MM-dd HH:mm:ss.fff}),{(long)every.TotalMilliseconds}ms)");
+                    sb.AppendLine($@" group by ([{begin:yyyy-MM-ddTHH:mm:ss.fff+00:00}, {end:yyyy-MM-ddTHH:mm:ss.fff+00:00}),{(long)every.TotalMilliseconds}ms)");
                 }
 
                 _logger.LogInformation(sb.ToString());
@@ -214,9 +216,9 @@ namespace IoTSharp.Storage
                     {
                         TelemetryDataDto telemetry = new TelemetryDataDto()
                         {
-                            DateTime = time,
+                            DateTime = time, //传入的时间为UTC+0,推给web，转为UTC+8
                             KeyName = MeasurementPointList[i].key,
-                            Value = values[i],
+                            Value = GetIotSharpValue(values[i], MeasurementPointList[i].type),
                             DataType = GetIoTSharpDataType(MeasurementPointList[i].type),
                         };
                         dt.Add(telemetry);
@@ -231,10 +233,37 @@ namespace IoTSharp.Storage
 
 
 
-        public Task<List<TelemetryDataDto>> GetTelemetryLatest(Guid deviceId, string keys)
+        public async Task<List<TelemetryDataDto>> GetTelemetryLatest(Guid deviceId, string keys)
         {
-            //keys目前不确定格式，先直接返回GetTelemetryLatest；
-            return GetTelemetryLatest(deviceId);
+
+            string device = $"root.{_StorageGroupName}.{deviceId:N}";
+            if (string.IsNullOrEmpty(keys))
+                keys = "*";
+            var selectItemStr = string.Join(",", from m in keys.Split(',') select $"last({m})");
+
+            var sql = $"select {selectItemStr} from {device}";
+            
+            List<TelemetryDataDto> dt = new List<TelemetryDataDto>();
+            using var query = await _session.ExecuteQueryStatementAsync(sql);
+
+            while (query.HasNext())
+            {
+
+                var next = query.Next();
+                var values = next.Values;
+                var time = next.GetDateTime();
+
+                TelemetryDataDto telemetry = new TelemetryDataDto()
+                {
+                    DateTime = next.GetDateTime(),
+                    KeyName = values[0].ToString().Replace(@$"{device}.", ""),
+                    Value = GetIotSharpValue(values[1], values[2].ToString()),
+                    DataType = GetIoTSharpDataType(values[2].ToString()),
+                };
+                dt.Add(telemetry);
+            }
+            return dt;
+
         }
 
         public async Task<(bool result, List<TelemetryData> telemetries)> StoreTelemetryAsync(PlayloadData msg)
