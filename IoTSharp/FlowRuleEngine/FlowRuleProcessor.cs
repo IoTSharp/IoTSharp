@@ -32,13 +32,15 @@ namespace IoTSharp.FlowRuleEngine
 
         public FlowRuleProcessor(ILogger<FlowRuleProcessor> logger, IServiceScopeFactory scopeFactor, IOptions<AppSettings> options, TaskExecutorHelper helper, IEasyCachingProviderFactory factory)
         {
+           
+            string _hc_Caching = $"{nameof(CachingUseIn)}-{Enum.GetName(options.Value.CachingUseIn)}";
             _scopeFactor = scopeFactor;
             _logger = logger;
             _setting = options.Value;
             _allFlows = new List<Flow>();
             _allflowoperation = new List<FlowOperation>();
             _helper = helper;
-            _caching = factory.GetCachingProvider("iotsharp");
+            _caching = factory.GetCachingProvider(_hc_Caching);
             _sp = _scopeFactor.CreateScope().ServiceProvider;
         }
 

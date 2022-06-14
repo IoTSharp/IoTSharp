@@ -40,6 +40,7 @@ namespace IoTSharp.Handlers
            , IOptions<AppSettings> options, ICapPublisher queue, IEasyCachingProviderFactory factory, FlowRuleProcessor flowRuleProcessor
             )
         {
+            string _hc_Caching = $"{nameof(CachingUseIn)}-{Enum.GetName(options.Value.CachingUseIn)}";
             _mcsetting = options.Value.MqttClient;
             _settings = options.Value;
             _logger = logger;
@@ -48,7 +49,7 @@ namespace IoTSharp.Handlers
             _serverEx = serverEx;
             _queue = queue;
             _flowRuleProcessor = flowRuleProcessor;
-            _caching = factory.GetCachingProvider("iotsharp");
+            _caching = factory.GetCachingProvider(_hc_Caching);
         }
 
         static long clients = 0;

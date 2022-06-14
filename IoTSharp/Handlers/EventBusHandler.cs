@@ -36,12 +36,13 @@ namespace IoTSharp.Handlers
            , IOptions<AppSettings> options, IStorage storage, FlowRuleProcessor flowRuleProcessor, IEasyCachingProviderFactory factory
             )
         {
+            string _hc_Caching = $"{nameof(CachingUseIn)}-{Enum.GetName(options.Value.CachingUseIn)}";
             _appSettings = options.Value;
             _logger = logger;
             _scopeFactor = scopeFactor;
             _storage = storage;
             _flowRuleProcessor = flowRuleProcessor;
-            _caching = factory.GetCachingProvider("iotsharp");
+            _caching = factory.GetCachingProvider(_hc_Caching);
         }
 
         [CapSubscribe("iotsharp.services.datastream.attributedata")]

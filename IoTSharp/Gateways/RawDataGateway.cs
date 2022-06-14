@@ -43,11 +43,12 @@ namespace IoTSharp.Gateways
             , ApplicationDbContext context
             )
         {
+            string _hc_Caching = $"{nameof(CachingUseIn)}-{Enum.GetName(options.Value.CachingUseIn)}";
             _setting = options.Value;
             _logger = logger;
             _queue = queue;
             _scopeFactor = scopeFactor;
-            _caching = factory.GetCachingProvider("iotsharp");
+            _caching = factory.GetCachingProvider(_hc_Caching);
             _context = context;
 
         }

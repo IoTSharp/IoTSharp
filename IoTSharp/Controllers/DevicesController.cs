@@ -62,6 +62,7 @@ namespace IoTSharp.Controllers
             SignInManager<IdentityUser> signInManager, ILogger<DevicesController> logger, MqttServer serverEx, ApplicationDbContext context, MqttClientOptions mqtt, IStorage storage, IOptions<AppSettings> options, ICapPublisher queue
             , IEasyCachingProviderFactory factory, FlowRuleProcessor flowRuleProcessor, IServiceScopeFactory scopeFactor)
         {
+            string _hc_Caching = $"{nameof(CachingUseIn)}-{Enum.GetName(options.Value.CachingUseIn)}";
             _context = context;
             _mqtt = mqtt;
             _userManager = userManager;
@@ -72,7 +73,7 @@ namespace IoTSharp.Controllers
             _setting = options.Value;
             _queue = queue;
             _flowRuleProcessor = flowRuleProcessor;
-            _caching = factory.GetCachingProvider("iotsharp");
+            _caching = factory.GetCachingProvider(_hc_Caching);
             _scopeFactor = scopeFactor;
         }
 
