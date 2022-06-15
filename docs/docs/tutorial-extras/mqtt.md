@@ -10,12 +10,25 @@ sidebar_position: 1
 
 设备分直连设备和网关设备， 发送数据方式也有所不同。 telemetry 为 遥测， attributes表示属性，客户端上传的属性在服务器端永远为 ClientSide ， 即客户端侧属性。 不推荐在服务端修改。 
 
+### 连接直连设备或者网关 
+
+通过 mqtt客户端连接mqtt服务器，用户名填写 token， 密码可以为空。 
+
+
 ### 直连设备发送遥测数据
 
 ``` 
 devices/me/telemetry
 devices/me/attributes
 ```
+ MQTT的负载为如下格式
+
+ ```json
+ {
+   "stringvalue":"here is strvalue",
+   "intvalue":234
+ }
+ ```
  
 ### 网关设备发送遥测数据
 ```
