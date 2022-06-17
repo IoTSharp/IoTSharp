@@ -17,21 +17,31 @@ import { G2TimelineModule } from '@delon/chart/timeline';
 import { TrendModule } from '@delon/chart/trend';
 import { G2WaterWaveModule } from '@delon/chart/water-wave';
 import { SharedModule } from '@shared';
+import { AbmModule } from 'angular-baidu-maps';
 import { CountdownModule } from 'ngx-countdown';
+import { CommonDialogSevice } from '../util/commonDialogSevice';
 
 import { DashboardAnalysisComponent } from './analysis/analysis.component';
 import { DashboardRoutingModule } from './dashboard-routing.module';
 import { DashboardMonitorComponent } from './monitor/monitor.component';
 import { DashboardV1Component } from './v1/v1.component';
-import { DashboardWorkplaceComponent } from './workplace/workplace.component';
-
 import { HeaderkanbanComponent } from './wedgits/headerkanban/headerkanban.component';
-import { WarningboardComponent } from './wedgits/warningboard/warningboard.component';
 import { NewdeviceComponent } from './wedgits/newdevice/newdevice.component';
 import { StatisticsComponent } from './wedgits/statistics/statistics.component';
-import { AbmModule } from 'angular-baidu-maps';
+import { WarningboardComponent } from './wedgits/warningboard/warningboard.component';
 import { widgetdirective } from './wedgits/widgetdirective';
-const COMPONENTS = [DashboardV1Component, DashboardAnalysisComponent, DashboardMonitorComponent, DashboardWorkplaceComponent];
+import { DashboardWorkplaceComponent } from './workplace/workplace.component';
+
+const COMPONENTS = [
+  DashboardV1Component,
+  DashboardAnalysisComponent,
+  DashboardMonitorComponent,
+  DashboardWorkplaceComponent,
+  HeaderkanbanComponent,
+  NewdeviceComponent,
+  StatisticsComponent,
+  WarningboardComponent
+];
 var Directives = [widgetdirective];
 @NgModule({
   imports: [
@@ -59,6 +69,8 @@ var Directives = [widgetdirective];
       apiKey: 'Xgk3DdnaP9KNZdiKROD5Ad14BQGb3kYS' // app key为必选项
     })
   ],
-  declarations: [...COMPONENTS, HeaderkanbanComponent, WarningboardComponent, NewdeviceComponent, StatisticsComponent, Directives]
+
+  providers: [CommonDialogSevice],
+  declarations: [...COMPONENTS, Directives]
 })
 export class DashboardModule {}

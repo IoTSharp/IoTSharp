@@ -5,6 +5,8 @@
     "outDir": "./dist/out-tsc",
     "forceConsistentCasingInFileNames": true,
     "strict": false,
+    "noImplicitOverride": true,
+    "noPropertyAccessFromIndexSignature": true,
     "noImplicitReturns": true,
     "noFallthroughCasesInSwitch": true,
     "sourceMap": true,
@@ -15,14 +17,11 @@
     "importHelpers": true,
     "target": "es2017",
     "module": "es2020",
-    "lib": [
-      "es2018",
-      "dom"
-    ],
+    "lib": ["es2020", "dom"],
     "paths": {
-      "@shared": [ "src/app/shared/index" ],
-      "@core": [ "src/app/core/index" ],
-      "@env/*": [ "src/environments/*" ]
+      "@shared": ["src/app/shared/index"],
+      "@core": ["src/app/core/index"],
+      "@env/*": ["src/environments/*"]
     }
   },
   "angularCompilerOptions": {

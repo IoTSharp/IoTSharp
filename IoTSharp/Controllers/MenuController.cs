@@ -63,7 +63,7 @@ namespace IoTSharp.Controllers
                                     icon = "anticon-cloud",
                                     children = new[]
                                {
-                                        new { text = "租户列表", i18n = "", link = "/iot/tenant/tenantlist" }
+                                        new { text = "租户列表", i18n = "", link = "/iot/settings/tenantlist" }
                                     }
                                 },
 
@@ -74,7 +74,7 @@ namespace IoTSharp.Controllers
                                     icon = "anticon-appstore",
                                     children = new[]
                                         {
-                                        new { text = "客户列表", i18n = "", link = "/iot/customer/customerlist" }
+                                        new { text = "客户列表", i18n = "", link = "/iot/settings/customerlist" }
                                     }
                                 },
                                 new
@@ -84,7 +84,7 @@ namespace IoTSharp.Controllers
                                     icon = "anticon-user",
                                     children = new[]
                                         {
-                                        new { text = "用户列表", i18n = "", link = "/iot/user/userlist" }
+                                        new { text = "用户列表", i18n = "", link = "/iot/settings/userlist" }
                                     }
                                 }, new
                                 {
@@ -93,9 +93,9 @@ namespace IoTSharp.Controllers
                                     icon = "anticon-database",
                                     children = new[]
                                         {   /*  new { text = "型号管理", i18n = "",link="/iot/devicemodel/devicemodellist" },*/
-                                        new { text = "设备管理", i18n = "", link = "/iot/device/devicelist" },
-                                        new { text = "网关配置器", i18n = "", link = "/iot/device/devicegraph" },
-                               
+                                        new { text = "设备管理", i18n = "", link = "/iot/devices/devicelist" },
+                                        new { text = "网关配置器", i18n = "", link = "/iot/devices/devicegraph" },
+
                                     },
                                 },
 
@@ -107,7 +107,7 @@ namespace IoTSharp.Controllers
                                     children = new[]
                                     {   /*  new { text = "型号管理", i18n = "",link="/iot/devicemodel/devicemodellist" },*/
                                     
-                                        new { text = "资产列表", i18n = "", link = "/iot/device/assetlist" },
+                                        new { text = "资产列表", i18n = "", link = "/iot/assets/assetlist" },
 
                                     },
                                 }, new
@@ -118,7 +118,7 @@ namespace IoTSharp.Controllers
                                     children = new[]
                                     {   /*  new { text = "型号管理", i18n = "",link="/iot/devicemodel/devicemodellist" },*/
                              
-                                        new { text = "告警列表", i18n = "", link = "/iot/device/alarmlist" },
+                                        new { text = "告警列表", i18n = "", link = "/iot/alarms/alarmlist" },
                                     },
                                 },
 
@@ -130,12 +130,12 @@ namespace IoTSharp.Controllers
                                     children = new[]
                                    {
                                         //new { text = "设备列表", i18n = "", link = "/iot/device/devicelist" },
-                                        new { text = "设计器", i18n = "", link = "/iot/flow/flowlist" },
-                                        new { text = "脚本管理", i18n = "", link = "/iot/flow/scriptlist" },
-                                        new { text = "组件管理", i18n = "", link = "/iot/flow/componentlist" },
-                                        new { text = "事件", i18n = "", link = "/iot/flow/flowevents" },
-                                        new { text = "执行器", i18n = "", link = "/iot/flow/taskexecutorlist" },
-                                        new { text = "订阅", i18n = "", link = "/iot/flow/subscriptionlist" },
+                                        new { text = "设计器", i18n = "", link = "/iot/rules/flowlist" },
+                                        //new { text = "脚本管理", i18n = "", link = "/iot/rules/scriptlist" },
+                                        //new { text = "组件管理", i18n = "", link = "/iot/rules/componentlist" },
+                                        new { text = "事件", i18n = "", link = "/iot/rules/flowevents" },
+                                        //new { text = "执行器", i18n = "", link = "/iot/rules/taskexecutorlist" },
+                                        //new { text = "订阅", i18n = "", link = "/iot/rules/subscriptionlist" },
                                     }
                                 },
 
@@ -147,10 +147,10 @@ namespace IoTSharp.Controllers
                                     icon = "anticon-setting",
                                     children = new[]
                                    {
-                                        new { text = "字典分组", i18n = "", link = "/iot/dictionary/dictionarygrouplist" },
-                                        new { text = "字典", i18n = "", link = "/iot/dictionary/dictionarylist" },
-                                        new { text = "国际化", i18n = "", link = "/iot/resouce/i18nlist" },
-                                        new { text = "表单", i18n = "", link = "/iot/util/dynamicformlist" },
+                                        new { text = "字典分组", i18n = "", link = "/iot/settings/dictionarygrouplist" },
+                                        new { text = "字典", i18n = "", link = "/iot/settings/dictionarylist" },
+                                        new { text = "国际化", i18n = "", link = "/iot/settings/i18nlist" },
+                                        //new { text = "表单", i18n = "", link = "/iot/settings/dynamicformlist" },
                                         new { text = "证书管理", i18n = "", link = "/iot/settings/certmgr" },
                                     }
                                 },
@@ -203,7 +203,7 @@ namespace IoTSharp.Controllers
                                         icon = "anticon-cloud",
                                         children = new[]
                                {
-                                            new { text = "租户列表", i18n = "", link = "/iot/tenant/tenantlist" }
+                                            new { text = "租户列表", i18n = "", link = "/iot/settings/tenantlist" }
                                         }
                                     },
 
@@ -214,7 +214,7 @@ namespace IoTSharp.Controllers
                                         icon="anticon-appstore",
                                         children=new[]
                                         {
-                                            new { text = "客户列表", i18n = "",link="/iot/customer/customerlist" }
+                                            new { text = "客户列表", i18n = "",link="/iot/settings/customerlist" }
                                         }
                                     },
                                     new
@@ -224,7 +224,7 @@ namespace IoTSharp.Controllers
                                         icon="anticon-user",
                                         children=new[]
                                         {
-                                            new { text = "用户列表", i18n = "",link="/iot/user/userlist" }
+                                            new { text = "用户列表", i18n = "",link="/iot/settings/userlist" }
                                         }
                                     },   new
                                     {
@@ -233,9 +233,9 @@ namespace IoTSharp.Controllers
                                         icon="anticon-database",
                                         children=new[]
                                         {   /*  new { text = "型号管理", i18n = "",link="/iot/devicemodel/devicemodellist" },*/
-                                            new { text = "设备管理", i18n = "",link="/iot/device/devicelist" },
-                                            new { text = "网关配置器", i18n = "", link = "/iot/device/devicegraph" },
-                                    
+                                            new { text = "设备管理", i18n = "",link="/iot/devices/devicelist" },
+                                            new { text = "网关配置器", i18n = "", link = "/iot/devices/devicegraph" },
+
                                         },
                                     },  new
                                     {
@@ -245,7 +245,7 @@ namespace IoTSharp.Controllers
                                         children = new[]
                                         {   /*  new { text = "型号管理", i18n = "",link="/iot/devicemodel/devicemodellist" },*/
                                     
-                                            new { text = "资产列表", i18n = "", link = "/iot/device/assetlist" },
+                                            new { text = "资产列表", i18n = "", link = "/iot/assets/assetlist" },
 
                                         },
                                     }, new
@@ -256,7 +256,7 @@ namespace IoTSharp.Controllers
                                         children = new[]
                                         {   /*  new { text = "型号管理", i18n = "",link="/iot/devicemodel/devicemodellist" },*/
                              
-                                            new { text = "告警列表", i18n = "", link = "/iot/device/alarmlist" },
+                                            new { text = "告警列表", i18n = "", link = "/iot/alarms/alarmlist" },
                                         },
                                     },
                                     new
@@ -267,12 +267,12 @@ namespace IoTSharp.Controllers
                                         children = new[]
                                    {
                                             //new { text = "设备列表", i18n = "", link = "/iot/device/devicelist" },
-                                            new { text = "设计器", i18n = "", link = "/iot/flow/flowlist" },
-                                            new { text = "脚本管理", i18n = "", link = "/iot/flow/scriptlist" },
-                                            new { text = "组件管理", i18n = "", link = "/iot/flow/componentlist" },
-                                            new { text = "事件", i18n = "", link = "/iot/flow/flowevents" },
-                                            new { text = "执行器", i18n = "", link = "/iot/flow/taskexecutorlist" },
-                                            new { text = "订阅", i18n = "", link = "/iot/flow/subscriptionlist" },
+                                            new { text = "设计器", i18n = "", link = "/iot/rules/flowlist" },
+                                            //new { text = "脚本管理", i18n = "", link = "/iot/flow/scriptlist" },
+                                            //new { text = "组件管理", i18n = "", link = "/iot/flow/componentlist" },
+                                            new { text = "事件", i18n = "", link = "/iot/rules/flowevents" },
+                                            //new { text = "执行器", i18n = "", link = "/iot/flow/taskexecutorlist" },
+                                            //new { text = "订阅", i18n = "", link = "/iot/flow/subscriptionlist" },
                                         }
                                     },
                                 }

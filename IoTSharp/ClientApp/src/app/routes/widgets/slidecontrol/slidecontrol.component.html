@@ -1,0 +1,17 @@
+<div class="puzzleMask" (mouseup)="touchEnd($event)" (mousemove)="touchMove($event)" (touchmove)="touchMove($event)" (touchend)="touchEnd($event)"></div>
+<div class="slideWhole" style="position:relative">
+    <div class="puzzleBox">
+        <div class="puzzleBase"><img width="310" height="155" src=""></div>
+        <div class="refreshIcon" (click)="reset()"></div>
+        <div class="puzzleBefore"><img width="62" height="62" src=""></div>
+    </div>
+    <div class="sliderContainer">
+        <div class="sliderMask">
+            <div class="slider" (touchstart)="touchStart($event)" (touchmove)="touchMove($event)" (touchend)="touchEnd($event)"
+                (mousedown)="touchStart($event)" (mouseup)="touchEnd($event)" (mousemove)="touchMove($event)"> 
+                <span class="sliderIcon"></span>
+            </div>
+        </div> 
+        <span class="sliderText"> {{ 'validation.signin.captchatitle' | i18n }}</span>
+    </div>
+</div>

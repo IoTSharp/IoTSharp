@@ -1,25 +1,20 @@
 import { formatDate } from '@angular/common';
-import { ChangeDetectorRef, Component, Input, OnDestroy, OnInit, ViewChild } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
-import { STColumn, STColumnTag, STRes, STComponent } from '@delon/abc/st';
-import { G2TimelineMap } from '@delon/chart/timeline';
-import { _HttpClient, SettingsService } from '@delon/theme';
-import { dateTimePickerUtil, getTimeDistance, toDate } from '@delon/util';
+import { ChangeDetectorRef, Component, Input, OnInit, ViewChild } from '@angular/core';
+import { STComponent, STColumnTag, STColumn, STRes } from '@delon/abc/st';
+import { _HttpClient } from '@delon/theme';
+import { getTimeDistance, toDate } from '@delon/util';
 import { Guid } from 'guid-typescript';
+import { Subscription, from, groupBy, mergeMap, reduce, map, forkJoin, interval } from 'rxjs';
+import { appmessage } from 'src/app/models/appmessage';
+import { attributeitem, ruleitem, telemetryitem } from 'src/app/models/deviceitem';
+import { tempchartitem } from 'src/app/models/widgets/device/tempchartitem';
 
-import { NzDrawerService } from 'ng-zorro-antd/drawer';
-import { forkJoin, interval, Subscription, zip, pipe, from } from 'rxjs';
-import { groupBy, map, mergeMap, reduce } from 'rxjs/operators';
-import { element } from 'screenfull';
-
-import { appmessage } from '../../common/AppMessage';
-import { attributeitem, deviceitem, ruleitem, telemetryitem } from '../../device/devicemodel';
 @Component({
   selector: 'app-widgetdevice',
   templateUrl: './widgetdevice.component.html',
   styleUrls: ['./widgetdevice.component.less']
 })
-export class WidgetdeviceComponent implements OnInit, OnDestroy {
+export class WidgetdeviceComponent implements OnInit {
   @Input() id: string = Guid.EMPTY;
   device: any;
   initaldatarange = getTimeDistance(-1);
@@ -272,8 +267,8 @@ export class WidgetdeviceComponent implements OnInit, OnDestroy {
         next => {
           this.templistdata = next?.data;
           if (this.singlechart) {
-            var data=[];
-            var date=[];
+            var data = [];
+            var date = [];
             // var titleMap = {};
             this.tempcharts
               .filter(c => c.checked)
@@ -282,7 +277,6 @@ export class WidgetdeviceComponent implements OnInit, OnDestroy {
                 data.push({ name: element.label, data: [], type: 'line', symbol: 'none', sampling: 'lttb' });
               });
             var chartdata = [];
-        
 
             from(next.data)
               .pipe(
@@ -314,50 +308,47 @@ export class WidgetdeviceComponent implements OnInit, OnDestroy {
                 chartdata.push(chartitem);
               });
 
-
-
-
-              this.option = {
-                tooltip: {
-                  trigger: 'axis',
-                  position: function (pt) {
-                    return [pt[0], '10%'];
-                  }
-                },
-                title: {
-                  left: 'center',
-                  text: '遥测'
-                },
-                toolbox: {
-                  feature: {
-                    dataZoom: {
-                      yAxisIndex: 'none'
-                    },
-                    restore: {},
-                    saveAsImage: {}
-                  }
-                },
-                xAxis: {
-                  type: 'category',
-                  boundaryGap: false,
-                  data: date
-                },
-                yAxis: {
-                  type: 'value'
-                },
-                dataZoom: [
-                  {
-                    type: 'inside',
-                    start: 0,
-                    end: 20
+            this.option = {
+              tooltip: {
+                trigger: 'axis',
+                position: function (pt) {
+                  return [pt[0], '10%'];
+                }
+              },
+              title: {
+                left: 'center',
+                text: '遥测'
+              },
+              toolbox: {
+                feature: {
+                  dataZoom: {
+                    yAxisIndex: 'none'
                   },
-                  {
-                    start: 0,
-                    end: 20
-                  }
-                ],
-                series: data
-              };
+                  restore: {},
+                  saveAsImage: {}
+                }
+              },
+              xAxis: {
+                type: 'category',
+                boundaryGap: false,
+                data: date
+              },
+              yAxis: {
+                type: 'value'
+              },
+              dataZoom: [
+                {
+                  type: 'inside',
+                  start: 0,
+                  end: 20
+                },
+                {
+                  start: 0,
+                  end: 20
+                }
+              ],
+              series: data
+            };
 
             // this.singlechartAxis = this.tempcharts.filter(c => c.checked).length; //chartAxis 一定要与分组数量一致，不一致会导致页面直接崩溃
             // this.singlechartdata = chartdata;
@@ -732,12 +723,4 @@ export class WidgetdeviceComponent implements OnInit, OnDestroy {
       status: null
     };
   }
-}
-
-class tempchartitem {
-  label: string;
-  value: string;
-  checked: boolean;
-  titleMap: any;
-  chartdata: any[] = [];
 }

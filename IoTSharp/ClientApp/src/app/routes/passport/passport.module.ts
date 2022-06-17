@@ -1,9 +1,6 @@
 import { NgModule } from '@angular/core';
 import { SharedModule } from '@shared';
-import { SlidecontrolComponent } from '../util/slidecontrol/slidecontrol.component';
-
-
-
+import { WidgetsModule } from '../widgets/widgets.module';
 
 import { CallbackComponent } from './callback.component';
 import { UserLockComponent } from './lock/lock.component';
@@ -12,11 +9,10 @@ import { PassportRoutingModule } from './passport-routing.module';
 import { UserRegisterResultComponent } from './register-result/register-result.component';
 import { UserRegisterComponent } from './register/register.component';
 
-const COMPONENTS = [UserLoginComponent, UserRegisterResultComponent, UserRegisterComponent, UserLockComponent, CallbackComponent,SlidecontrolComponent];
+const COMPONENTS = [UserLoginComponent, UserRegisterResultComponent, UserRegisterComponent, UserLockComponent, CallbackComponent];
 
 @NgModule({
-  imports: [SharedModule, PassportRoutingModule],
-  declarations: [...COMPONENTS],
-
+  imports: [SharedModule, PassportRoutingModule, WidgetsModule],
+  declarations: [...COMPONENTS]
 })
 export class PassportModule {}

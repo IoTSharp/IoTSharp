@@ -1,6 +1,6 @@
 /* eslint-disable import/order */
 /* eslint-disable import/no-duplicates */
-import { HttpClientModule, HttpClient } from '@angular/common/http';
+import { HttpClientModule } from '@angular/common/http';
 import { default as ngLang } from '@angular/common/locales/zh';
 import { APP_INITIALIZER, LOCALE_ID, NgModule, Type } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
@@ -30,10 +30,9 @@ const LANG_PROVIDES = [
   { provide: NZ_I18N, useValue: LANG.zorro },
   { provide: NZ_DATE_LOCALE, useValue: LANG.date },
   { provide: DELON_LOCALE, useValue: LANG.delon }
-
-
-
 ];
+// #endregion
+
 // #region i18n services
 
 const I18NSERVICE_PROVIDES = [{ provide: ALAIN_I18N_TOKEN, useClass: I18NService, multi: false }];
@@ -88,7 +87,7 @@ import { SharedModule } from './shared/shared.module';
 import { STWidgetModule } from './shared/st-widget/st-widget.module';
 import { Observable } from 'rxjs';
 import { WidgetRegistry } from '@delon/form';
-import { CodefieldComponent } from './routes/util/codefield/codefield.component';
+import { CodeFieldComponent } from './routes/widgets/parts/code-field/code-field.component';
 
 @NgModule({
   declarations: [AppComponent],
@@ -103,7 +102,6 @@ import { CodefieldComponent } from './routes/util/codefield/codefield.component'
     RoutesModule,
     STWidgetModule,
     NzNotificationModule,
-
     ...GLOBAL_THIRD_MODULES,
     ...FORM_MODULES
   ],
@@ -111,9 +109,7 @@ import { CodefieldComponent } from './routes/util/codefield/codefield.component'
   bootstrap: [AppComponent]
 })
 export class AppModule {
-
   constructor(widgetRegistry: WidgetRegistry) {
-    widgetRegistry.register(CodefieldComponent.KEY, CodefieldComponent);
+    widgetRegistry.register(CodeFieldComponent.KEY, CodeFieldComponent);
   }
-
 }

@@ -5,6 +5,7 @@ import { RouterModule } from '@angular/router';
 import { DelonACLModule } from '@delon/acl';
 import { DelonFormModule } from '@delon/form';
 import { AlainThemeModule } from '@delon/theme';
+
 import { SHARED_DELON_MODULES } from './shared-delon.module';
 import { SHARED_ZORRO_MODULES } from './shared-zorro.module';
 import { DragDropModule } from '@angular/cdk/drag-drop';
@@ -15,7 +16,7 @@ import { NzCodeEditorModule } from 'ng-zorro-antd/code-editor';
 // import { NgxTinymceModule } from 'ngx-tinymce';
 // import { UEditorModule } from 'ngx-ueditor';
 
-const THIRDMODULES: Type<any>[] = [DragDropModule, DragAndDropModule, NgxJsonViewModule, NzCodeEditorModule];
+const THIRDMODULES: Array<Type<any>> = [DragDropModule, DragAndDropModule, NgxJsonViewModule, NzCodeEditorModule];
 // #endregion
 
 // #region your componets & directives
@@ -50,7 +51,6 @@ const DIRECTIVES: Array<Type<any>> = [];
     AlainThemeModule,
     DelonACLModule,
     DelonFormModule,
-   
     ...SHARED_DELON_MODULES,
     ...SHARED_ZORRO_MODULES,
     // third libs

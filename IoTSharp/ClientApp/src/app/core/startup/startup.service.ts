@@ -6,8 +6,7 @@ import { DA_SERVICE_TOKEN, ITokenService } from '@delon/auth';
 import { ALAIN_I18N_TOKEN, MenuService, SettingsService, TitleService } from '@delon/theme';
 import { NzSafeAny } from 'ng-zorro-antd/core/types';
 import { NzIconService } from 'ng-zorro-antd/icon';
-import { concat, Observable, zip } from 'rxjs';
-import { catchError, map } from 'rxjs/operators';
+import { Observable, zip, catchError, map, concat } from 'rxjs';
 
 import { ICONS } from '../../../style-icons';
 import { ICONS_AUTO } from '../../../style-icons-auto';
@@ -22,9 +21,7 @@ export class StartupService {
   constructor(
     iconSrv: NzIconService,
     private menuService: MenuService,
-
     @Inject(ALAIN_I18N_TOKEN) private i18n: I18NService,
-
     private settingService: SettingsService,
     private aclService: ACLService,
     private titleService: TitleService,
@@ -48,12 +45,11 @@ export class StartupService {
         this.httpClient.get('api/Menu/GetProfile').pipe(
           map(appData => {
             const res = appData as NzSafeAny;
-
-           this.settingService.setApp({ name: 'IoTSharp', description: 'IoTSharp' });
+            this.settingService.setApp({ name: 'IoTSharp', description: 'IoTSharp' });
             this.settingService.setData('drawerconfig', { width: 720, nzMaskClosable: false });
             this.settingService.setUser({
               name: res.data.username,
-              avatar: "api/Account/Avatar",
+              avatar: 'api/Account/Avatar',
               email: res.data.email,
               modules: res.data.modules,
               comstomer: res.data.comstomer,
@@ -89,7 +85,6 @@ export class StartupService {
         this.httpClient.get(`api/i18n/current?_allow_anonymous=true&lang=${this.i18n.defaultLang}`).pipe(
           map((langData: any) => {
             this.i18n.use(defaultLang, langData.data);
-           
           })
         )
       );

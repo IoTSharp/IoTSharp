@@ -14,8 +14,6 @@
   <nz-card [nzBordered]="false">
     <nz-card-tab>
       <nz-tabset nzSize="large">
-
-
         <nz-tab nzTitle="属性">
           <nz-table [nzNoResult]="null" nzSize="small">
             <thead>
@@ -34,13 +32,15 @@
                 <td>{{ _item.dataSide }}</td>
                 <td>{{ _item.dateTime }}</td>
                 <td>
-                  <button nz-button
-                          nzType="text"
-                          nzDanger
-                          nz-popconfirm
-                          nzPopconfirmTitle="确认删除属性?"
-                          (nzOnConfirm)="removeprop(_item)"
-                          nzPopconfirmPlacement="topLeft">
+                  <button
+                    nz-button
+                    nzType="text"
+                    nzDanger
+                    nz-popconfirm
+                    nzPopconfirmTitle="确认删除属性?"
+                    (nzOnConfirm)="removeprop(_item)"
+                    nzPopconfirmPlacement="topLeft"
+                  >
                     删除
                   </button>
                 </td>
@@ -86,10 +86,12 @@
                       <nz-form-label nzFor="name">遥测属性</nz-form-label>
                       <nz-form-control>
                         <tag-select>
-                          <nz-tag *ngFor="let i of tempcharts; let idx = index"
-                                  nzMode="checkable"
-                                  [(nzChecked)]="i.checked"
-                                  (nzCheckedChange)="ontempsnztagchange(i)">
+                          <nz-tag
+                            *ngFor="let i of tempcharts; let idx = index"
+                            nzMode="checkable"
+                            [(nzChecked)]="i.checked"
+                            (nzCheckedChange)="ontempsnztagchange(i)"
+                          >
                             {{ i.label }}
                           </nz-tag>
                         </tag-select>
@@ -101,9 +103,11 @@
                     <nz-form-item>
                       <nz-form-label nzFor="name">区间</nz-form-label>
                       <nz-form-control>
-                        <nz-range-picker [nzShowTime]="{ nzFormat: 'HH:mm' }"
-                                         nzFormat="yyyy-MM-dd HH:mm"
-                                         (nzOnOk)="ontempsdatetimeOk($event)"></nz-range-picker>
+                        <nz-range-picker
+                          [nzShowTime]="{ nzFormat: 'HH:mm' }"
+                          nzFormat="yyyy-MM-dd HH:mm"
+                          (nzOnOk)="ontempsdatetimeOk($event)"
+                        ></nz-range-picker>
                       </nz-form-control>
                     </nz-form-item>
                   </div>
@@ -112,9 +116,11 @@
                     <nz-form-item>
                       <nz-form-label nzFor="name">间隔</nz-form-label>
                       <nz-form-control>
-                        <nz-time-picker [ngModelOptions]="{ standalone: true }"
-                                        (ngModelChange)="samplingPeriodChanged($event)"
-                                        [(ngModel)]="qtemps.status"></nz-time-picker>
+                        <nz-time-picker
+                          [ngModelOptions]="{ standalone: true }"
+                          (ngModelChange)="samplingPeriodChanged($event)"
+                          [(ngModel)]="qtemps.status"
+                        ></nz-time-picker>
                       </nz-form-control>
                     </nz-form-item>
                   </div>
@@ -123,10 +129,12 @@
                     <nz-form-item>
                       <nz-form-label nzFor="name">取值方式</nz-form-label>
                       <nz-form-control>
-                        <nz-radio-group nzButtonStyle="solid"
-                                        [(ngModel)]="qtemps.aggregate"
-                                        [ngModelOptions]="{ standalone: true }"
-                                        (ngModelChange)="aggregateChanged($event)">
+                        <nz-radio-group
+                          nzButtonStyle="solid"
+                          [(ngModel)]="qtemps.aggregate"
+                          [ngModelOptions]="{ standalone: true }"
+                          (ngModelChange)="aggregateChanged($event)"
+                        >
                           <label nz-radio-button nzValue="Mean">平均值</label>
                           <label nz-radio-button nzValue="Median">中值</label>
                           <label nz-radio-button nzValue="Max">最大值</label>
@@ -143,54 +151,53 @@
                 </div>
               </form>
 
-              <nz-tabset nzSize="large"  style="margin-bottom:40px;">
+              <nz-tabset nzSize="large" style="margin-bottom: 40px">
                 <nz-tab nzTitle="图表">
                   <!--
-            仪表板的形式展示遥测
-            <div  *ngFor="let _item of tempcharts; let i = index; let odd = odd"   >
-              <g2-gauge [title]="_item.keyName" [height]="180" [percent]="_item.value" style="width: 200px;height:200px;display: flexbox;"></g2-gauge>
-            </div>   -->
+              仪表板的形式展示遥测
+              <div  *ngFor="let _item of tempcharts; let i = index; let odd = odd"   >
+                <g2-gauge [title]="_item.keyName" [height]="180" [percent]="_item.value" style="width: 200px;height:200px;display: flexbox;"></g2-gauge>
+              </div>   -->
                   <!-- 控制每个遥测单独显示或者集合显示的开关-->
                   <!-- <label nz-checkbox [(ngModel)]="singlechart">是否集合显示</label>
-
-
-
-            <div *ngIf="!singlechart"> <div  *ngFor="let _item of tempcharts; let i = index; let odd = odd"   >
-              <g2-timeline maxAxis="1" [data]="_item.chartdata" [titleMap]="_item.titleMap" [height]="220" mask="MM月DD日" maskSlider="MM月dd日" *ngIf="_item.checked"
-              ></g2-timeline>
-            </div></div>
-            -->
+  
+  
+  
+              <div *ngIf="!singlechart"> <div  *ngFor="let _item of tempcharts; let i = index; let odd = odd"   >
+                <g2-timeline maxAxis="1" [data]="_item.chartdata" [titleMap]="_item.titleMap" [height]="220" mask="MM月DD日" maskSlider="MM月dd日" *ngIf="_item.checked"
+                ></g2-timeline>
+              </div></div>
+              -->
                   <!-- <div *ngIf="singlechart">
-                    <g2-timeline [maxAxis]="singlechartAxis"
-                                 [data]="singlechartdata"
-                                 [titleMap]="singletitlemap"
-                                 [height]="400"
-                                 mask="MM月DD日"
-                                 maskSlider="MM月dd日" 
-                                 style="margin-bottom:20px;"></g2-timeline>
-                  </div> -->
+                      <g2-timeline [maxAxis]="singlechartAxis"
+                                   [data]="singlechartdata"
+                                   [titleMap]="singletitlemap"
+                                   [height]="400"
+                                   mask="MM月DD日"
+                                   maskSlider="MM月dd日" 
+                                   style="margin-bottom:20px;"></g2-timeline>
+                    </div> -->
 
-
-                  <div echarts [options]="option"       ></div>
+                  <div echarts [options]="option"></div>
                 </nz-tab>
 
                 <nz-tab nzTitle="数据">
-                  <st #sttemps
-                      [columns]="tempscolumns"
-                      [data]="templistdata"
-                      [page]="{
+                  <st
+                    #sttemps
+                    [columns]="tempscolumns"
+                    [data]="templistdata"
+                    [page]="{
                       front: true,
                       total: false,
                       zeroIndexed: true
-                    }">
+                    }"
+                  >
                   </st>
                 </nz-tab>
               </nz-tabset>
             </nz-tab>
           </nz-tabset>
         </nz-tab>
-
-
 
         <nz-tab nzTitle="告警">
           <form nz-form class="search__form" action="search">
@@ -274,20 +281,22 @@
             </div>
           </form>
 
-          <st #stalarm
-              [columns]="columns"
-              [data]="alarmapi"
-              ps="20"
-              [page]="{
+          <st
+            #stalarm
+            [columns]="columns"
+            [data]="alarmapi"
+            ps="20"
+            [page]="{
               front: false,
               total: true,
               zeroIndexed: true
             }"
-              [req]="alarmerq"
-              [res]="res"
-              [expand]="expand"
-              expandRowByClick
-              expandAccordion>
+            [req]="alarmerq"
+            [res]="res"
+            [expand]="expand"
+            expandRowByClick
+            expandAccordion
+          >
             <ng-template #expand let-item let-index="index" let-column="column">
               <nz-card nzTitle="告警详情">
                 {{ item.alarmDetail }}
@@ -309,13 +318,15 @@
                 <td>{{ _item.name }}</td>
                 <td>{{ _item.ruleDesc }}</td>
                 <td>
-                  <button nz-button
-                          nzType="text"
-                          nzDanger
-                          nz-popconfirm
-                          nzPopconfirmTitle="确认删除规则?"
-                          (nzOnConfirm)="removerule(_item)"
-                          nzPopconfirmPlacement="topLeft">
+                  <button
+                    nz-button
+                    nzType="text"
+                    nzDanger
+                    nz-popconfirm
+                    nzPopconfirmTitle="确认删除规则?"
+                    (nzOnConfirm)="removerule(_item)"
+                    nzPopconfirmPlacement="topLeft"
+                  >
                     删除
                   </button>
                 </td>
@@ -352,10 +363,12 @@
                 <nz-form-item>
                   <nz-form-label nzFor="CreatTime">创建时间</nz-form-label>
                   <nz-form-control>
-                    <nz-range-picker [nzFormat]="dateFormat"
-                                     [(ngModel)]="qevent.CreatTime"
-                                     name="CreatTime"
-                                     placeholder="请输入"></nz-range-picker>
+                    <nz-range-picker
+                      [nzFormat]="dateFormat"
+                      [(ngModel)]="qevent.CreatTime"
+                      name="CreatTime"
+                      placeholder="请输入"
+                    ></nz-range-picker>
                   </nz-form-control>
                 </nz-form-item>
               </div>
@@ -366,19 +379,21 @@
               </div>
             </div>
           </form>
-          <st #stevent
-              [columns]="eventcolumns"
-              [data]="eventsurl"
-              ps="10"
-              [page]="{
+          <st
+            #stevent
+            [columns]="eventcolumns"
+            [data]="eventsurl"
+            ps="10"
+            [page]="{
               front: false,
               total: true,
               zeroIndexed: true
             }"
-              [req]="eventreq"
-              [res]="res"
-              [expand]="expandevent"
-              expandAccordion>
+            [req]="eventreq"
+            [res]="res"
+            [expand]="expandevent"
+            expandAccordion
+          >
             <ng-template #expandevent let-item let-index="index" let-column="column">
               <nz-card nzTitle="描述">
                 {{ item.eventDesc }}

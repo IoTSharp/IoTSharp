@@ -8,8 +8,9 @@ describe('WidgetcustomerComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [WidgetcustomerComponent],
-    }).compileComponents();
+      declarations: [ WidgetcustomerComponent ]
+    })
+    .compileComponents();
   });
 
   beforeEach(() => {

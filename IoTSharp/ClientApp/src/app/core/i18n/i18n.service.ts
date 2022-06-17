@@ -59,7 +59,7 @@ const LANGS: { [key: string]: LangConfigData } = {
 
 @Injectable({ providedIn: 'root' })
 export class I18NService extends AlainI18nBaseService {
-  protected _defaultLang = DEFAULT;
+  protected override _defaultLang = DEFAULT;
   private _langs = Object.keys(LANGS).map(code => {
     const item = LANGS[code];
     return { code, text: item.text, abbr: item.abbr };
@@ -92,7 +92,6 @@ export class I18NService extends AlainI18nBaseService {
   }
 
   loadLangData(lang: string): Observable<NzSafeAny> {
-    console.log('lang'+lang)
     return this.http.get(`api/i18n/current?_allow_anonymous=true&lang=${lang}`);
   }
 

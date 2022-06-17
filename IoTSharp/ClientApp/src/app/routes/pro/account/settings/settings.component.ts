@@ -2,14 +2,13 @@ import { AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, E
 import { ActivationEnd, Router } from '@angular/router';
 import { _HttpClient } from '@delon/theme';
 import { NzMenuModeType } from 'ng-zorro-antd/menu';
-import { fromEvent, Subscription } from 'rxjs';
-import { debounceTime, filter } from 'rxjs/operators';
+import { fromEvent, Subscription, debounceTime, filter } from 'rxjs';
 
 @Component({
   selector: 'app-account-settings',
   templateUrl: './settings.component.html',
   styleUrls: ['./settings.component.less'],
-  changeDetection: ChangeDetectionStrategy.OnPush,
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ProAccountSettingsComponent implements AfterViewInit, OnDestroy {
   private resize$!: Subscription;
@@ -19,25 +18,31 @@ export class ProAccountSettingsComponent implements AfterViewInit, OnDestroy {
   menus: Array<{ key: string; title: string; selected?: boolean }> = [
     {
       key: 'base',
-      title: '基本设置',
+      title: '基本设置'
     },
     {
       key: 'security',
-      title: '密码修改',
+      title: '安全设置'
     },
-  
-  
+    {
+      key: 'binding',
+      title: '账号绑定'
+    },
+    {
+      key: 'notification',
+      title: '新消息通知'
+    }
   ];
   constructor(private router: Router, private cdr: ChangeDetectorRef, private el: ElementRef<HTMLElement>) {
-    this.router$ = this.router.events.pipe(filter((e) => e instanceof ActivationEnd)).subscribe(() => this.setActive());
+    this.router$ = this.router.events.pipe(filter(e => e instanceof ActivationEnd)).subscribe(() => this.setActive());
   }
 
   private setActive(): void {
     const key = this.router.url.substr(this.router.url.lastIndexOf('/') + 1);
-    this.menus.forEach((i) => {
+    this.menus.forEach(i => {
       i.selected = i.key === key;
     });
-    this.title = this.menus.find((w) => w.selected)!.title;
+    this.title = this.menus.find(w => w.selected)!.title;
   }
 
   to(item: { key: string }): void {

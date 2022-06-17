@@ -8,8 +8,9 @@ describe('FlowviewerComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [FlowviewerComponent],
-    }).compileComponents();
+      declarations: [ FlowviewerComponent ]
+    })
+    .compileComponents();
   });
 
   beforeEach(() => {

@@ -1,4 +1,4 @@
 export interface IWidgetComponent {
-  //  someneedtransferdata:any  
-    //  someproperties:any  
+  //  someneedtransferdata:any
+  //  someproperties:any
 }

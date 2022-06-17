@@ -1,8 +1,5 @@
 {
   "$schema": "./node_modules/@angular/cli/lib/config/schema.json",
-  "cli": {
-    "analytics": "6e2f945d-ecff-452b-8910-4c9b55eda917"
-  },
   "version": 1,
   "newProjectRoot": "projects",
   "projects": {
@@ -23,7 +20,6 @@
         "build": {
           "builder": "@angular-devkit/build-angular:browser",
           "options": {
-            "progress": false,
             "outputPath": "dist",
             "index": "src/index.html",
             "main": "src/main.ts",
@@ -39,13 +35,16 @@
               }
             ],
             "styles": [
-
               "node_modules/bpmn-js/dist/assets/diagram-js.css",
               "node_modules/bpmn-js/dist/assets/bpmn-font/css/bpmn.css",
-              "src/styles.less"
-            ],
+              "src/styles.less"],
             "scripts": [],
-            "allowedCommonJsDependencies": [ "@antv/g2", "file-saver", "ajv", "ajv-formats", "date-fns", "jquery", "mousetrap" ]
+            "allowedCommonJsDependencies": [ "@antv/g2", "file-saver", "ajv", "ajv-formats", "date-fns", "jquery", "mousetrap" ],
+            "stylePreprocessorOptions": {
+              "includePaths": [
+                "node_modules/"
+              ]
+            }
           },
           "configurations": {
             "production": {
@@ -55,11 +54,12 @@
                   "with": "src/environments/environment.prod.ts"
                 }
               ],
+              "outputHashing": "all",
               "budgets": [
                 {
                   "type": "initial",
-                  "maximumWarning": "7mb",
-                  "maximumError": "8mb"
+                  "maximumWarning": "2mb",
+                  "maximumError": "6mb"
                 },
                 {
                   "type": "anyComponentStyle",
@@ -71,25 +71,26 @@
             "development": {
               "buildOptimizer": false,
               "optimization": false,
-              "outputHashing": "all",
-              "vendorChunk": false,
+              "vendorChunk": true,
               "extractLicenses": false,
-              "sourceMap": false,
-              "namedChunks": false
+              "sourceMap": true,
+              "namedChunks": true
             }
           },
           "defaultConfiguration": "production"
         },
         "serve": {
           "builder": "@angular-devkit/build-angular:dev-server",
-          
+          "options": {
+            "browserTarget": "ng-alain:build",
+            "proxyConfig": "proxy.conf.js"
+          },
           "configurations": {
             "production": {
               "browserTarget": "ng-alain:build:production"
             },
             "development": {
-              "browserTarget": "ng-alain:build:development",
-              "proxyConfig": "proxy.conf.js"
+              "browserTarget": "ng-alain:build:development"
             }
           },
           "defaultConfiguration": "development"
@@ -133,5 +134,9 @@
       }
     }
   },
-  "defaultProject": "ng-alain"
+  "defaultProject": "ng-alain",
+  "cli": {
+    "analytics": "1ef3a847-ef13-44e6-ba45-6108e32a1a3e",
+    "packageManager": "yarn"
+  }
 }

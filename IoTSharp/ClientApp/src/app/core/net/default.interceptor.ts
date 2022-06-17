@@ -13,8 +13,7 @@ import { DA_SERVICE_TOKEN, ITokenService } from '@delon/auth';
 import { ALAIN_I18N_TOKEN, _HttpClient } from '@delon/theme';
 import { environment } from '@env/environment';
 import { NzNotificationService } from 'ng-zorro-antd/notification';
-import { BehaviorSubject, Observable, of, throwError } from 'rxjs';
-import { catchError, filter, mergeMap, switchMap, take } from 'rxjs/operators';
+import { BehaviorSubject, Observable, of, throwError, catchError, filter, mergeMap, switchMap, take } from 'rxjs';
 
 const CODEMESSAGE: { [key: number]: string } = {
   200: '服务器成功返回请求的数据。',
@@ -80,11 +79,15 @@ export class DefaultInterceptor implements HttpInterceptor {
    */
   private refreshTokenRequest(): Observable<any> {
     const model = this.tokenSrv.get();
-    return this.http.post(`api/account/refreshtoken`, {
-      Token:model.token,
-      RefreshToken:model.refreshtoken,
-
-    }, null, { headers: { refresh_token: model?.refresh_token || '' } });
+    return this.http.post(
+      `api/account/refreshtoken`,
+      {
+        Token: model.token,
+        RefreshToken: model['refreshtoken']
+      },
+      null,
+      { headers: { refresh_token: model['refreshtoken'] || '' } }
+    );
   }
 
   // #region 刷新Token方式一：使用 401 重新刷新 Token
@@ -109,13 +112,11 @@ export class DefaultInterceptor implements HttpInterceptor {
 
     return this.refreshTokenRequest().pipe(
       switchMap(res => {
-        console.log(res)   
-          console.log(res)
         // 通知后续请求继续执行
         this.refreshToking = false;
         this.refreshToken$.next(res);
         // 重新保存新 token
-        this.tokenSrv.set(res)
+        this.tokenSrv.set(res);
         // 重新发起请求
         return next.handle(this.reAttachToken(req));
       }),
@@ -154,7 +155,7 @@ export class DefaultInterceptor implements HttpInterceptor {
       .pipe(
         filter(() => !this.refreshToking),
         switchMap(res => {
-         
+          console.log(res);
           this.refreshToking = true;
           return this.refreshTokenRequest();
         })
@@ -162,14 +163,14 @@ export class DefaultInterceptor implements HttpInterceptor {
       .subscribe(
         res => {
           // TODO: Mock expired value
-          var  expired = +new Date() + 1000 *res.data.token.expires_in
+          var expired = +new Date() + 1000 * res.data.token.expires_in;
           this.refreshToking = false;
           this.tokenSrv.set({
             token: res.data.token.access_token,
             Authorization: res.data.token.access_token,
-            expired:   expired,
+            expired: expired,
             refreshtoken: res.data.token.refresh_token
-          }); 
+          });
         },
         () => this.toLogin()
       );
@@ -179,11 +180,11 @@ export class DefaultInterceptor implements HttpInterceptor {
 
   private toLogin(): void {
     this.notification.error(`未登录或登录已过期，请重新登录。`, ``);
-    this.goTo('/passport/login');
+    this.goTo(this.tokenSrv.login_url!);
   }
 
   private handleData(ev: HttpResponseBase, req: HttpRequest<any>, next: HttpHandler): Observable<any> {
-    //  this.checkStatus(ev);
+    this.checkStatus(ev);
     // 业务处理：一些通用操作
     switch (ev.status) {
       case 200:
@@ -200,14 +201,16 @@ export class DefaultInterceptor implements HttpInterceptor {
         //     // 如果你希望外部实现，需要手动移除行254
         //     return throwError({});
         //   } else {
+        //     // 忽略 Blob 文件体
+        //     if (ev.body instanceof Blob) {
+        //        return of(ev);
+        //     }
         //     // 重新修改 `body` 内容为 `response` 内容，对于绝大多数场景已经无须再关心业务状态码
         //     return of(new HttpResponse(Object.assign(ev, { body: body.response })));
         //     // 或者依然保持完整的格式
         //     return of(ev);
         //   }
         // }
-
-        return of(ev);
         break;
       case 401:
         this.tokenSrv.clear();
@@ -215,17 +218,16 @@ export class DefaultInterceptor implements HttpInterceptor {
         if (this.refreshTokenEnabled && this.refreshTokenType === 're-request') {
           return this.tryRefreshToken(ev, req, next);
         }
-
+        this.toLogin();
         break;
       case 403:
       case 404:
       case 500:
-        // this.goTo(`/exception/${ev.status}`);
+        // this.goTo(`/exception/${ev.status}?url=${req.urlWithParams}`);
         if (req.url.endsWith('api/Account/MyInfo')) {
           this.tokenSrv.clear();
           this.goTo('/passport/login');
         }
-
         break;
       default:
         if (ev instanceof HttpErrorResponse) {
@@ -260,11 +262,11 @@ export class DefaultInterceptor implements HttpInterceptor {
     // 统一加上服务端前缀
     let url = req.url;
     if (!url.startsWith('https://') && !url.startsWith('http://')) {
-      url = environment.api.baseUrl + url;
+      const { baseUrl } = environment.api;
+      url = baseUrl + (baseUrl.endsWith('/') && url.startsWith('/') ? url.substring(1) : url);
     }
 
     const newReq = req.clone({ url, setHeaders: this.getAdditionalHeaders(req.headers) });
-
     return next.handle(newReq).pipe(
       mergeMap(ev => {
         // 允许统一对请求错误处理

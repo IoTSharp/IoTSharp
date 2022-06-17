@@ -7,32 +7,6 @@ import { environment } from '@env/environment';
 // layout
 import { LayoutBasicComponent } from '../layout/basic/basic.component';
 import { LayoutBlankComponent } from '../layout/blank/blank.component';
-import { AlarmlistComponent } from './device/alarmlist/alarmlist.component';
-import { AssetentitylistComponent } from './device/assetentitylist/assetentitylist.component';
-import { AssetlistComponent } from './device/assetlist/assetlist.component';
-import { DevicegraphComponent } from './device/devicegraph/devicegraph.component';
-import { DevicelistComponent } from './device/devicelist/devicelist.component';
-import { DevicesceneComponent } from './device/devicescene/devicescene.component';
-import { DevicemodellistComponent } from './devicemodel/devicemodellist/devicemodellist.component';
-import { DictionarygrouplistComponent } from './dictionary/dictionarygrouplist/dictionarygrouplist.component';
-import { DictionarylistComponent } from './dictionary/dictionarylist/dictionarylist.component';
-import { ComponentlistComponent } from './flow/componentlist/componentlist.component';
-import { DesignerComponent } from './flow/designer/designer.component';
-import { FloweventsComponent } from './flow/flowevents/flowevents.component';
-import { FlowlistComponent } from './flow/flowlist/flowlist.component';
-import { ScriptlistComponent } from './flow/scriptlist/scriptlist.component';
-import { SubscriptionlistComponent } from './flow/subscriptionlist/subscriptionlist.component';
-import { TaskexecutorlistComponent } from './flow/taskexecutorlist/taskexecutorlist.component';
-import { I18nlistComponent } from './resource/i18nlist/i18nlist.component';
-import { CertmgrComponent } from './setttings/certmgr/certmgr.component';
-import { TenantlistComponent } from './tenant/tenantlist/tenantlist.component';
-import { UserlistComponent } from './user/userlist/userlist.component';
-import { CodeviewComponent } from './util/code/codeview/codeview.component';
-import { DynamicformlistComponent } from './util/dynamicform/dynamicformlist/dynamicformlist.component';
-import { RuledeviceComponent } from './flow/ruledevice/ruledevice.component';
-import { MqtttesterComponent } from './device/mqtttester/mqtttester.component';
-import { IMqttServiceOptions, MqttModule } from 'ngx-mqtt';
-
 
 const routes: Routes = [
   {
@@ -63,34 +37,11 @@ const routes: Routes = [
     path: 'iot',
     component: LayoutBasicComponent,
     children: [
-      { path: 'tenant/tenantlist', component: TenantlistComponent },
-      { path: 'user/userlist', component: UserlistComponent },
-      { path: 'customer', loadChildren: () => import('./customer/customer.module').then(m => m.CustomerModule) },
-      { path: 'device/devicelist', component: DevicelistComponent },
-      { path: 'devicemodel/devicemodellist', component: DevicemodellistComponent },
-      { path: 'device/devicegraph', component: DevicegraphComponent },
-      { path: 'device/devicescene', component: DevicesceneComponent },
-      { path: 'flow/designer', component: DesignerComponent },
-      { path: 'flow/flowlist', component: FlowlistComponent },
-      { path: 'flow/scriptlist', component: ScriptlistComponent },
-      { path: 'flow/ruledevice', component: RuledeviceComponent },
-      { path: 'flow/subscriptionlist', component: SubscriptionlistComponent },
-      { path: 'flow/flowevents', component: FloweventsComponent },
-      { path: 'flow/componentlist', component: ComponentlistComponent },
-      { path: 'flow/taskexecutorlist', component: TaskexecutorlistComponent },
-      { path: 'dictionary/dictionarylist', component: DictionarylistComponent },
-      { path: 'dictionary/dictionarygrouplist', component: DictionarygrouplistComponent },
-      { path: 'resouce/i18nlist', component: I18nlistComponent },
-      { path: 'util/dynamicformlist', component: DynamicformlistComponent },
-      { path: 'code/codeview', component: CodeviewComponent },
-      { path: 'device/alarmlist', component: AlarmlistComponent },
-      { path: 'device/assetlist', component: AssetlistComponent },
-      { path: 'device/assetentitylist', component: AssetentitylistComponent },
-      { path: 'device/certmgr', component: CertmgrComponent }, 
-      { path: 'device/mqtttester', component:  MqtttesterComponent},
-      { path: 'settings/certmgr', component: CertmgrComponent }
-    
-    
+      { path: 'assets', loadChildren: () => import('./assets/assets.module').then(m => m.AssetsModule) },
+      { path: 'devices', loadChildren: () => import('./devices/devices.module').then(m => m.DevicesModule) },
+      { path: 'settings', loadChildren: () => import('./settings/settings.module').then(m => m.SettingsModule) },
+      { path: 'alarms', loadChildren: () => import('./alarms/alarms.module').then(m => m.AlarmsModule) },
+      { path: 'rules', loadChildren: () => import('./rules/rules.module').then(m => m.RulesModule) }
     ]
   },
   // Blak Layout 空白布局
@@ -104,11 +55,7 @@ const routes: Routes = [
   { path: 'exception', loadChildren: () => import('./exception/exception.module').then(m => m.ExceptionModule) },
   { path: '**', redirectTo: 'exception/404' }
 ];
-export const MQTT_SERVICE_OPTIONS: IMqttServiceOptions = {
-  hostname: 'broker.emqx.io',  // mqtt 服务器ip
-  port: 8083,  // mqtt 服务器端口
-  path: '/mqtt'
-};
+
 @NgModule({
   providers: [PreloadOptionalModules],
   imports: [
@@ -118,8 +65,7 @@ export const MQTT_SERVICE_OPTIONS: IMqttServiceOptions = {
       // Pls refer to https://ng-alain.com/components/reuse-tab
       scrollPositionRestoration: 'top',
       preloadingStrategy: PreloadOptionalModules
-    }), 
-    MqttModule.forRoot(MQTT_SERVICE_OPTIONS)
+    })
   ],
   exports: [RouterModule]
 })
