@@ -22,15 +22,7 @@ export class ProAccountSettingsComponent implements AfterViewInit, OnDestroy {
     },
     {
       key: 'security',
-      title: '安全设置'
-    },
-    {
-      key: 'binding',
-      title: '账号绑定'
-    },
-    {
-      key: 'notification',
-      title: '新消息通知'
+      title: '密码修改'
     }
   ];
   constructor(private router: Router, private cdr: ChangeDetectorRef, private el: ElementRef<HTMLElement>) {

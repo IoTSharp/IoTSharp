@@ -35,14 +35,14 @@ export class AssetrelationformComponent implements OnInit {
   }
 
   submit() {
-    this._httpClient.post('api/asset/editRelation', this.form.value).subscribe(
-      next => {
+    this._httpClient.post('api/asset/editRelation', this.form.value).subscribe({
+      next: next => {
         if (next?.data) {
           this.close();
         }
       },
-      error => {},
-      () => {}
-    );
+      error: error => {},
+      complete: () => {}
+    });
   }
 }

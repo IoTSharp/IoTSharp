@@ -9,7 +9,7 @@ import { ThisReceiver } from '@angular/compiler';
   styleUrls: ['./headerkanban.component.less']
 })
 export class HeaderkanbanComponent implements OnInit, IWidgetComponent {
-  data:any= {
+  data: any = {
     device: {
       count: 11,
       data: [
@@ -55,20 +55,19 @@ export class HeaderkanbanComponent implements OnInit, IWidgetComponent {
       ]
     }
   };
-  constructor(private http: _HttpClient , private cdr: ChangeDetectorRef, ) {}
+  constructor(private http: _HttpClient, private cdr: ChangeDetectorRef) {}
 
   ngOnInit(): void {
-    this.http.get('api/home/kanban').subscribe(
-      next => {
-
-        this.data.device.count=next.data.deviceCount
-        this.data.onlinedevice.count=next.data.onlineDeviceCount
-        this.data.telemetrydata.count=next.data.telemetryDataCount
-        this.data.events.count=next.data.eventCount
+    this.http.get('api/home/kanban').subscribe({
+      next: next => {
+        this.data.device.count = next.data.deviceCount;
+        this.data.onlinedevice.count = next.data.onlineDeviceCount;
+        this.data.telemetrydata.count = next.data.telemetryDataCount;
+        this.data.events.count = next.data.eventCount;
         this.cdr.detectChanges();
       },
-      error => {},
-      () => {}
-    );
+      error: error => {},
+      complete: () => {}
+    });
   }
 }

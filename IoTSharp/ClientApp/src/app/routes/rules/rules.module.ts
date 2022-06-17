@@ -26,7 +26,7 @@ const COMPONENTS = [
   SequenceflowtesterComponent,
   TasktesterComponent,
   RuledeviceComponent,
-  FlowlistComponent
+  
 ];
 
 @NgModule({

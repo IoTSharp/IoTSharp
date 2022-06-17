@@ -20,28 +20,15 @@ import { SharedModule } from '@shared';
 import { AbmModule } from 'angular-baidu-maps';
 import { CountdownModule } from 'ngx-countdown';
 import { CommonDialogSevice } from '../util/commonDialogSevice';
-
-import { DashboardAnalysisComponent } from './analysis/analysis.component';
 import { DashboardRoutingModule } from './dashboard-routing.module';
-import { DashboardMonitorComponent } from './monitor/monitor.component';
 import { DashboardV1Component } from './v1/v1.component';
 import { HeaderkanbanComponent } from './wedgits/headerkanban/headerkanban.component';
 import { NewdeviceComponent } from './wedgits/newdevice/newdevice.component';
 import { StatisticsComponent } from './wedgits/statistics/statistics.component';
 import { WarningboardComponent } from './wedgits/warningboard/warningboard.component';
 import { widgetdirective } from './wedgits/widgetdirective';
-import { DashboardWorkplaceComponent } from './workplace/workplace.component';
 
-const COMPONENTS = [
-  DashboardV1Component,
-  DashboardAnalysisComponent,
-  DashboardMonitorComponent,
-  DashboardWorkplaceComponent,
-  HeaderkanbanComponent,
-  NewdeviceComponent,
-  StatisticsComponent,
-  WarningboardComponent
-];
+const COMPONENTS = [DashboardV1Component, HeaderkanbanComponent, NewdeviceComponent, StatisticsComponent, WarningboardComponent];
 var Directives = [widgetdirective];
 @NgModule({
   imports: [

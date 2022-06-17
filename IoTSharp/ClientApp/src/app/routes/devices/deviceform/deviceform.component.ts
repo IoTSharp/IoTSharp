@@ -53,13 +53,13 @@ export class DeviceformComponent implements OnInit {
       identityType: [Guid.EMPTY, []]
     });
 
-    this._httpClient.post('api/deviceModel/index', { offset: 0, limit: 100 }).subscribe(
-      next => {
+    this._httpClient.post('api/deviceModel/index', { offset: 0, limit: 100 }).subscribe({
+      next: next => {
         this.devicemodel = next.data.rows;
       },
-      error => {},
-      () => {}
-    );
+      error: error => {},
+      complete: () => {}
+    });
 
     if (this.params.id !== Guid.EMPTY) {
       concat(
@@ -71,7 +71,6 @@ export class DeviceformComponent implements OnInit {
         this._httpClient.get('api/Devices/' + this.params.id + '/Identity').pipe(
           map(x => {
             this.data.identityType = x.data.identityType;
-
             this.form.patchValue(this.data);
           })
         )

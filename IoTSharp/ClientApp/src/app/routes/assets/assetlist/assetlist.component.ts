@@ -181,17 +181,17 @@ export class AssetlistComponent implements OnInit {
     switch ($events.type) {
       case 'expand':
         if ($events.expand.expand) {
-          this.http.get('api/asset/assetRelations?assetid=' + $events.expand.id).subscribe(
-            next => {
+          this.http.get('api/asset/assetRelations?assetid=' + $events.expand.id).subscribe({
+            next: next => {
               this.ceadl = next.data.filter(c => c.dataCatalog === 'TelemetryLatest');
               this.cetdl = next.data.filter(c => c.dataCatalog === 'AttributeLatest');
               this.cead = next.data.filter(c => c.dataCatalog === 'AttributeData');
               this.cetd = next.data.filter(c => c.dataCatalog === 'TelemetryData');
               this.none = next.data.filter(c => c.dataCatalog === 'None');
             },
-            error => {},
-            () => {}
-          );
+            error: error => {},
+            complete: () => {}
+          });
         }
 
         break;

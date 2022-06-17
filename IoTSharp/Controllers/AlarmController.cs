@@ -242,7 +242,7 @@ namespace IoTSharp.Controllers
                 }
                 _context.Alarms.Update(alarm);
                 await _context.SaveChangesAsync();
-                return new ApiResult<bool>(ApiCode.CantFindObject, "Alarm acknowledged", true);
+                return new ApiResult<bool>(ApiCode.Success, "Alarm acknowledged", true);
 
             }
 
@@ -279,7 +279,7 @@ namespace IoTSharp.Controllers
                 }
                 _context.Alarms.Update(alarm);
                 await _context.SaveChangesAsync();
-                return new ApiResult<bool>(ApiCode.CantFindObject, "Alarm cleared", true);
+                return new ApiResult<bool>(ApiCode.Success, "Alarm cleared", true);
 
             }
             return new ApiResult<bool>(ApiCode.CantFindObject, "Not found alarm", false);

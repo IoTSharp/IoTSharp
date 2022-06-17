@@ -59,17 +59,17 @@ export class AssetentityformComponent implements OnInit {
         customerId: this.settingService.user['comstomer']
       })
       .pipe(debounceTime(500))
-      .subscribe(
-        next => {
+      .subscribe({
+        next: next => {
           this.devices = [
             ...next.data.rows.map(x => {
               return { id: x.id, name: x.name };
             })
           ];
         },
-        error => {},
-        () => {}
-      );
+        error: error => {},
+        complete: () => {}
+      });
   }
   onchange($event) {
     this.deviceid = this.devices.find(c => c.name == $event)?.id;
@@ -104,7 +104,7 @@ export class AssetentityformComponent implements OnInit {
     value['temps'] = this.listtemp.filter(c => c.direction == 'right').map(c => c['tag']);
     value['assetid'] = this.id;
 
-    this.http.post('api/asset/adddevice', value).subscribe(
+    this.http.post<appmessage<any>>('api/asset/adddevice', value).subscribe(
       x => {
         this.submitting = false;
 

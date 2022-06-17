@@ -229,15 +229,15 @@ export class AssetentitylistComponent implements OnInit {
       .delete<appmessage<Boolean>>('api/asset/removeAssetRaletions', {
         relationId: attr.id
       })
-      .subscribe(
-        next => {
+      .subscribe({
+        next: next => {
           if (next?.data) {
             this.cead.splice(this.cead.indexOf(attr), 1);
           }
         },
-        error => {},
-        () => {}
-      );
+        error: error => {},
+        complete: () => {}
+      });
   }
 
   removetemps(temp, device) {
@@ -245,14 +245,14 @@ export class AssetentitylistComponent implements OnInit {
       .delete<appmessage<Boolean>>('api/asset/removeAssetRaletions', {
         relationId: temp.id
       })
-      .subscribe(
-        next => {
+      .subscribe({
+        next: next => {
           if (next?.data) {
           }
         },
-        error => {},
-        () => {}
-      );
+        error: error => {},
+        complete: () => {}
+      });
   }
 
   openComponent() {

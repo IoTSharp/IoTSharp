@@ -6,6 +6,7 @@ import { Guid } from 'guid-typescript';
 import { NzDrawerService } from 'ng-zorro-antd/drawer';
 import { NzMessageService } from 'ng-zorro-antd/message';
 import { debounceTime } from 'rxjs';
+import { appmessage } from 'src/app/models/appmessage';
 
 @Component({
   selector: 'app-alarmlist',
@@ -186,54 +187,64 @@ export class AlarmlistComponent implements OnInit {
   onOriginatorInput($event) {
     var element = $event.target as HTMLInputElement;
     this.http
-      .post('api/alarm/originators', {
+      .post<appmessage<any>>('api/alarm/originators', {
         originatorName: element?.value ?? '',
         OriginatorType: this.q.originatorType
       })
       .pipe(debounceTime(500))
-      .subscribe(
-        next => {
+      .subscribe({
+        next: next => {
           this.originators = [
             ...next.data.map(x => {
               return { id: x.id, name: x.name };
             })
           ];
         },
-        error => {},
-        () => {}
-      );
+        error: error => {},
+        complete: () => {}
+      });
   }
-
+  //
   clearAlarm(item) {
     this.http
-      .post('api/alarm/clearAlarm', {
+      .post<appmessage<Boolean>>('api/alarm/clearAlarm', {
         id: item.id
       })
-      .subscribe(
-        next => {
+      .subscribe({
+        next: next => {
           if (next?.data) {
+            this.msg.create('success', '警告清除成功');
             this.getData();
+          } else {
+            this.msg.create('error', '警告清除异常:' + next.msg);
           }
         },
-        error => {},
-        () => {}
-      );
+        error: error => {
+          this.msg.create('error', '警告清除异常');
+        },
+        complete: () => {}
+      });
   }
 
   acquireAlarm(item) {
     this.http
-      .post('api/alarm/ackAlarm', {
+      .post<appmessage<Boolean>>('api/alarm/ackAlarm', {
         id: item.id
       })
-      .subscribe(
-        next => {
+      .subscribe({
+        next: next => {
           if (next?.data) {
+            this.msg.create('success', '警告确认成功');
             this.getData();
+          } else {
+            this.msg.create('error', '警告确认异常:' + next.msg);
           }
         },
-        error => {},
-        () => {}
-      );
+        error: error => {
+          this.msg.create('error', '警告确认异常');
+        },
+        complete: () => {}
+      });
   }
 
   onOriginatorChange($event) {
