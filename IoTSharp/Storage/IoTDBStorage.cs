@@ -87,31 +87,34 @@ namespace IoTSharp.Storage
         }
         private dynamic GetIotSharpValue(object v,string iotDataType)
         {
+            dynamic result=null;
             if (v.ToString().ToUpper() == "NULL")
-                return null;
+                result= null;
             switch (iotDataType.ToUpper())
             {
                 case "DOUBLE":
-                    return double.Parse(v.ToString());
+                    result= double.Parse(v.ToString());
                     break;
                 case "FLOAT":
-                    return float.Parse(v.ToString());
+                    result= float.Parse(v.ToString());
                     break;
                 case "TEXT":
-                    return v.ToString();
+                    result= v.ToString();
                     break;
                 case "INT64":
-                    return Int64.Parse(v.ToString());
+                    result= Int64.Parse(v.ToString());
                     break;
                 case "IN32":
-                    return Int32.Parse(v.ToString());
+                    result= Int32.Parse(v.ToString());
                     break;
                 case "BOOLEAN":
-                    return bool.Parse(v.ToString());
+                    result= bool.Parse(v.ToString());
                     break;
+                default:
+                    throw new Exception($"不支持的IotDB数据类型：{iotDataType}");
             }
-
-            throw new Exception($"不支持的IotDB数据类型：{iotDataType}");
+            return result;
+   
         }
         private IoTSharp.Data.DataType GetIoTSharpDataType(string iotDataType)
         {
@@ -157,30 +160,32 @@ namespace IoTSharp.Storage
         /// <returns></returns>
         private string SharpAggregate2IotDBAggregate(Aggregate aggregate)
         {
+            var result = "";
             switch (aggregate)
             {
                 case Aggregate.Mean:
-                    return "AVG";
+                    result= "AVG";
                     break;
                 case Aggregate.Last:
-                    return "LAST_VALUE";
+                    result= "LAST_VALUE";
                     break;
                 case Aggregate.First:
-                    return "FIRST_VALUE";
+                    result= "FIRST_VALUE";
                     break;
                 case Aggregate.Max:
-                    return "MAX_VALUE";
+                    result= "MAX_VALUE";
                     break;
                 case Aggregate.Min:
-                    return "MIN_VALUE";
+                    result= "MIN_VALUE";
                     break;
                 case Aggregate.Sum:
-                    return "SUM";
+                    result= "SUM";
                     break;
                 default:
+                    result = "";
                     break;
             }
-            return "";
+            return result;
         }
         public async Task<List<TelemetryDataDto>> LoadTelemetryAsync(Guid deviceId, string keys, DateTime begin, DateTime end, TimeSpan every, Aggregate aggregate)
         {

@@ -256,7 +256,6 @@ namespace IoTSharp.Controllers
         /// 清除告警信息
         /// </summary>
         /// <param name="m"></param>
-        /// <param name="id">告警Id</param>
         /// <returns></returns>
         [HttpPost]
         public async Task<ApiResult<bool>> ClearAlarm([FromBody] AlarmStatusDto m)

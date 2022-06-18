@@ -78,8 +78,6 @@ namespace IoTSharp.Storage
         /// </summary>
         /// <param name="db"></param>
         /// <param name="sql"></param>
-        /// <param name="prefix"></param>
-        /// <param name="suffix"></param>
         /// <param name="keyname"></param>
         /// <returns></returns>
         /// <exception cref="https://github.com/taosdata/TDengine/issues/4269">务必注意此bug</exception>
