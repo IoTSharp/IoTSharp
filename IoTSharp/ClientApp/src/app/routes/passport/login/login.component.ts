@@ -63,20 +63,23 @@ export class UserLoginComponent implements OnDestroy {
     localStorage.clear();
 
     this.http.get('api/installer/instance?_allow_anonymous=true').subscribe(
-      x => {
-        if (x.code === 10000) {
-          if (x.data.installed) {
+      {
+
+        next: next => {
+          if (next.code === 10000) {
+            if (next.data.installed) {
+            } else {
+              this.router.navigateByUrl('/passport/register?type=install');
+            }
           } else {
-            this.router.navigateByUrl('/passport/register?type=install');
+            this.notification.error('请求错误', 'Api请求不正确');
           }
-        } else {
-          this.notification.error('请求错误', 'Api请求不正确');
-        }
-      },
-      error => {
-        this.notification.error('请求错误', '系统异常');
-      },
-      () => {}
+        },
+        error: error => {
+          this.notification.error('请求错误', '系统异常');
+        },
+        complete: () => { }
+      }
     );
   }
 
@@ -161,45 +164,48 @@ export class UserLoginComponent implements OnDestroy {
         move: move
       })
       .subscribe(
-        x => {
-          if (x.code !== 10000) {
-            this.error = true;
-            this.cdr.detectChanges();
+        {
 
-            return;
-          }
-          // 清空路由复用信息
-          this.reuseTabService.clear();
-          // 设置用户Token信息
-          // TODO: Mock expired value
-          var expired = +new Date() + 1000 * x.data.token.expires_in;
-          this.tokenService.set({
-            token: x.data.token.access_token,
-            Authorization: x.data.token.access_token,
-            expired: expired,
-            name: x.data.userName,
-            refreshtoken: x.data.token.refresh_token
-          });
+          next: next => {
+            if (next.code !== 10000) {
+              this.error = true;
+              this.cdr.detectChanges();
 
-          this.settingsService.setUser({
-            token: x.data.token.access_token,
-            name: x.data.userName,
-            avatar: './assets/logo.png',
-            email: 'iotmaster@iotsharp.net'
-          });
-          // 重新获取 StartupService 内容，我们始终认为应用信息一般都会受当前用户授权范围而影响
-          this.startupSrv.load().subscribe(() => {
-            let url = this.tokenService.referrer!.url || '/';
-            if (url.includes('/passport')) {
-              url = '/';
+              return;
             }
-            this.router.navigateByUrl(url);
-          });
-        },
-        error => {
-          this.error = error.message;
-        },
-        () => {}
+            // 清空路由复用信息
+            this.reuseTabService.clear();
+            // 设置用户Token信息
+            // TODO: Mock expired value
+            var expired = +new Date() + 1000 * next.data.token.expires_in;
+            this.tokenService.set({
+              token: next.data.token.access_token,
+              Authorization: next.data.token.access_token,
+              expired: expired,
+              name: next.data.userName,
+              refreshtoken: next.data.token.refresh_token
+            });
+
+            this.settingsService.setUser({
+              token: next.data.token.access_token,
+              name: next.data.userName,
+              avatar: './assets/logo.png',
+              email: 'iotmaster@iotsharp.net'
+            });
+            // 重新获取 StartupService 内容，我们始终认为应用信息一般都会受当前用户授权范围而影响
+            this.startupSrv.load().subscribe(() => {
+              let url = this.tokenService.referrer!.url || '/';
+              if (url.includes('/passport')) {
+                url = '/';
+              }
+              this.router.navigateByUrl(url);
+            });
+          },
+          error: error => {
+            this.error = error.message;
+          },
+          complete: () => { }
+        }
       );
   }
 

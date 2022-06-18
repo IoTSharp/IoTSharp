@@ -26,6 +26,8 @@ import { NzCodeEditorComponent } from 'ng-zorro-antd/code-editor';
 import { DOCUMENT } from '@angular/common';
 import { NzTooltipDirective } from 'ng-zorro-antd/tooltip';
 import { appmessage } from 'src/app/models/appmessage';
+
+import { FormBpmnObject, Activity, TextAnnotation, SequenceFlow, Task, BpmnBaseObject, DesignerResult, DataOutputAssociation, GateWay } from 'src/app/models/rules/basebizobject';
 @Component({
   selector: 'app-diagram',
   templateUrl: './diagram.component.html',
@@ -168,8 +170,8 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy 
       next => {
         this.executors = next.data;
       },
-      error => {},
-      () => {}
+      error => { },
+      () => { }
     );
   }
 
@@ -1524,49 +1526,52 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy 
       this.activity.ruleId = 0;
     } else {
       this.http.get<appmessage<DesignerResult>>(url).subscribe(
-        async data => {
-          this.activity = new Activity();
-          this.activity.sequenceFlows = [];
-          this.activity.tasks = [];
-          this.activity.gateWays = [];
-          this.activity.lane = [];
-          this.activity.laneSet = [];
-          this.activity.endEvents = [];
-          this.activity.startEvents = [];
-          this.activity.baseBpmnObjects = [];
-          this.activity.dataStoreReferences = [];
-          this.activity.subProcesses = [];
-          this.activity.dataOutputAssociations = [];
-          this.activity.dataInputAssociations = [];
-          this.activity.ruleId = 0;
+        {
 
-          await this.bpmnJS.importXML(data.data.xml);
-          this.InitData(data.data);
-          this.bpmnJS.get('canvas').zoom('fit-viewport');
+          next: async data => {
+            this.activity = new Activity();
+            this.activity.sequenceFlows = [];
+            this.activity.tasks = [];
+            this.activity.gateWays = [];
+            this.activity.lane = [];
+            this.activity.laneSet = [];
+            this.activity.endEvents = [];
+            this.activity.startEvents = [];
+            this.activity.baseBpmnObjects = [];
+            this.activity.dataStoreReferences = [];
+            this.activity.subProcesses = [];
+            this.activity.dataOutputAssociations = [];
+            this.activity.dataInputAssociations = [];
+            this.activity.ruleId = 0;
 
-          //  before bpmn 7.x
-          // this.bpmnJS.importXML(data.Xml,
-          //   (err: any, warnings: string | undefined) => {
+            await this.bpmnJS.importXML(data.data.xml);
+            this.InitData(data.data);
+            this.bpmnJS.get('canvas').zoom('fit-viewport');
 
-          //     if (err) {
+            //  before bpmn 7.x
+            // this.bpmnJS.importXML(data.Xml,
+            //   (err: any, warnings: string | undefined) => {
 
-          //     } else {
+            //     if (err) {
 
-          //     }
-          //   });
-          // this.importDone.emit({
-          //   type: 'success',
-          //   data
-          // });
-        },
-        err => {
-          this.importDone.emit({
-            type: 'error',
-            error: err
-          });
-        },
-        () => {
-          //finally
+            //     } else {
+
+            //     }
+            //   });
+            // this.importDone.emit({
+            //   type: 'success',
+            //   data
+            // });
+          },
+          error: err => {
+            this.importDone.emit({
+              type: 'error',
+              error: err
+            });
+          },
+          complete: () => {
+            //finally
+          }
         }
       );
     }
@@ -1933,96 +1938,7 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy 
   }
 }
 
-export class BasebizObject {
-  flowid!: String;
-  flowname!: String;
-}
 
-export class DesignerResult {
-  public biz!: Activity;
-  public xml!: String;
-}
-export class BpmnBaseObject {
-  public id!: String;
-  public bpmntype!: String;
-  public incoming!: BpmnBaseObject[];
-  public outgoing!: BpmnBaseObject[];
-  public bizObject: FormBpmnObject = {
-    id: '',
-    flowid: '',
-    flowname: '',
-    flowdesc: '',
-    flowtype: '',
-    flowscript: '',
-    conditionexpressionVisable: false,
-    nodeProcessClass: '',
-    nodeProcessClassVisable: true,
-    conditionexpression: '',
-    flowscriptVisable: false,
-    flowscripttypeVisable: false,
-    flowscripttype: '',
-    nodeProcessParams: '',
-    profile: {}
-  };
-}
-
-export class Activity {
-  public sequenceFlows!: SequenceFlow[];
-  public tasks!: Task[];
-  public gateWays!: GateWay[];
-  public lane!: BpmnBaseObject[];
-  public laneSet!: BpmnBaseObject[];
-  public endEvents!: BpmnBaseObject[];
-  public startEvents!: BpmnBaseObject[];
-  public textAnnotations!: TextAnnotation[];
-
-  public containers!: BpmnBaseObject[];
-  public baseBpmnObjects!: BpmnBaseObject[];
-  public dataStoreReferences!: BpmnBaseObject[];
-  public subProcesses!: BpmnBaseObject[];
-  public dataOutputAssociations!: DataOutputAssociation[];
-  public dataInputAssociations!: DataOutputAssociation[];
-
-  public ruleId!: Number;
-
-  public definitionsStatus!: Number;
-}
-export class TextAnnotation extends BpmnBaseObject {
-  public text!: String;
-}
-
-export class Task extends BpmnBaseObject {
-  public flowtype!: String;
-  public flowId!: Number;
-}
-export class GateWay extends BpmnBaseObject {
-  public nodeProcessClass!: String;
-  public sourceId!: String;
-  public targetId!: String;
-}
-
-export class DataStoreReference extends BpmnBaseObject {
-  public nodeProcessClass!: String;
-  public sourceId!: String;
-  public targetId!: String;
-}
-
-export class SequenceFlow extends BpmnBaseObject {
-  public sourceId!: String;
-  public targetId!: String;
-}
-
-export class DataOutputAssociation extends BpmnBaseObject {
-  public sourceId!: String;
-  public targetId!: String;
-}
-
-export class DataInputAssociation extends BpmnBaseObject {
-  public sourceId!: String;
-  public targetId!: String;
-}
-
-export class Collaboration extends BpmnBaseObject {}
 
 export const importDiagram = (bpmnJS: any) => (source: Observable<any>) =>
   new Observable<any>(observer => {
@@ -2052,20 +1968,3 @@ export const importDiagram = (bpmnJS: any) => (source: Observable<any>) =>
     });
   });
 
-export interface FormBpmnObject {
-  id: string;
-  flowid: string;
-  flowname: string;
-  flowdesc: string;
-  flowtype: string;
-  nodeProcessClass: string;
-  nodeProcessClassVisable: boolean;
-  conditionexpression: string;
-  conditionexpressionVisable: boolean;
-  flowscript: string;
-  flowscriptVisable: boolean;
-  flowscripttype: string;
-  flowscripttypeVisable: boolean;
-  nodeProcessParams: string;
-  profile?: any;
-}

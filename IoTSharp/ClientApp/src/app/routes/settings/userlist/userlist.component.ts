@@ -27,12 +27,12 @@ export class UserlistComponent implements OnInit {
     name: string;
     // anothor query field:The type you expect
   } = {
-    pi: 0,
-    ps: 10,
-    sorter: '',
-    name: '',
-    customerId: ''
-  };
+      pi: 0,
+      ps: 10,
+      sorter: '',
+      name: '',
+      customerId: ''
+    };
   req: STReq = { method: 'Get', allInBody: true, reName: { pi: 'offset', ps: 'limit' }, params: this.q };
 
   // 定义返回的参数
@@ -85,30 +85,34 @@ export class UserlistComponent implements OnInit {
     private router: ActivatedRoute,
     private drawerService: NzDrawerService,
     private settingService: SettingsService
-  ) {}
+  ) { }
 
   ngOnInit(): void {
     this.router.queryParams.subscribe(
-      x => {
-        if (!x['id']) {
-          this.q.customerId = this.settingService.user['comstomer'];
-          this.customerId = this.settingService.user['comstomer'];
-        } else {
-          this.q.customerId = x['id'] as unknown as string;
-          this.customerId = x['id'] as unknown as string;
-        }
-        this.url = 'api/Account/All/' + this.customerId;
-        // this.q.customerId = x.id as unknown as string;
-        // this.customerId = x.id as unknown as string;
+      {
 
-        // if (x.id) {
-        //   this.url = 'api/Account/All/' + this.customerId;
-        // } else {
-        //   this.url = 'api/Account/All';
-        // }
-      },
-      () => {},
-      () => {}
+
+        next: x => {
+          if (!x['id']) {
+            this.q.customerId = this.settingService.user['comstomer'];
+            this.customerId = this.settingService.user['comstomer'];
+          } else {
+            this.q.customerId = x['id'] as unknown as string;
+            this.customerId = x['id'] as unknown as string;
+          }
+          this.url = 'api/Account/All/' + this.customerId;
+          // this.q.customerId = x.id as unknown as string;
+          // this.customerId = x.id as unknown as string;
+
+          // if (x.id) {
+          //   this.url = 'api/Account/All/' + this.customerId;
+          // } else {
+          //   this.url = 'api/Account/All';
+          // }
+        },
+        error: error => { },
+        complete: () => { }
+      }
     );
   }
 
@@ -124,24 +128,26 @@ export class UserlistComponent implements OnInit {
         id: id
       }
     });
-    drawerRef.afterOpen.subscribe(() => {});
+    drawerRef.afterOpen.subscribe(() => { });
     drawerRef.afterClose.subscribe(() => {
       this.getData();
     });
   }
 
-  reset() {}
+  reset() { }
   delete(id: string) {
     this.http.delete('api/Account/' + id, {}).subscribe(
-      next => {
-        this.msg.info('用户已删除');
-        this.getData();
-      },
-      error => {
-        this.msg.warning('用户删除失败');
-        this.getData();
-      },
-      () => {}
+      {
+        next: next => {
+          this.msg.info('用户已删除');
+          this.getData();
+        },
+        error: error => {
+          this.msg.warning('用户删除失败');
+          this.getData();
+        },
+        complete: () => { }
+      }
     );
   }
 

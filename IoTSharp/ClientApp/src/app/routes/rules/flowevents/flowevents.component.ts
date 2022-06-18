@@ -5,6 +5,7 @@ import { Guid } from 'guid-typescript';
 import { NzDrawerService } from 'ng-zorro-antd/drawer';
 import { NzMessageService } from 'ng-zorro-antd/message';
 import { debounceTime } from 'rxjs/operators';
+import { appmessage } from 'src/app/models/appmessage';
 import { baseevent, creator } from 'src/app/models/baseevent';
 import { FloweventviewComponent } from '../floweventview/floweventview.component';
 
@@ -36,16 +37,16 @@ export class FloweventsComponent implements OnInit {
     sorter: string;
     status: number | null;
   } = {
-    pi: 0,
-    ps: 10,
-    Name: '',
-    Creator: '',
-    RuleId: '',
-    CreatorName: '',
-    CreatTime: [],
-    sorter: '',
-    status: null
-  };
+      pi: 0,
+      ps: 10,
+      Name: '',
+      Creator: '',
+      RuleId: '',
+      CreatorName: '',
+      CreatTime: [],
+      sorter: '',
+      status: null
+    };
   total = 0;
 
   loading = false;
@@ -100,7 +101,7 @@ export class FloweventsComponent implements OnInit {
       }
     });
 
-    drawerRef.afterOpen.subscribe(() => {});
+    drawerRef.afterOpen.subscribe(() => { });
 
     drawerRef.afterClose.subscribe(data => {
       this.st.load(this.st.pi);
@@ -112,7 +113,7 @@ export class FloweventsComponent implements OnInit {
     var element = $event.target as HTMLInputElement;
 
     this.http
-      .get('api/Devices/Customers', {
+      .get<appmessage<any>>('api/Devices/Customers', {
         limit: 20,
         offset: 0,
         customerId: this.settingService.user['comstomer'],
@@ -120,16 +121,19 @@ export class FloweventsComponent implements OnInit {
       })
       .pipe(debounceTime(500))
       .subscribe(
-        next => {
-          this.devices = [
-            ...next.data.rows.map(x => {
-              return { id: x.id, name: x.name };
-            }),
-            { id: Guid.EMPTY, name: '测试' }
-          ];
-        },
-        error => {},
-        () => {}
+        {
+
+          next: next => {
+            this.devices = [
+              ...next.data.rows.map(x => {
+                return { id: x.id, name: x.name };
+              }),
+              { id: Guid.EMPTY, name: '测试' }
+            ];
+          },
+          error: error => { },
+          complete: () => { }
+        }
       );
   }
 
@@ -159,15 +163,17 @@ export class FloweventsComponent implements OnInit {
     public msg: NzMessageService,
     private drawerService: NzDrawerService,
     private settingService: SettingsService
-  ) {}
+  ) { }
 
   ngOnInit(): void {
-    this.http.post('api/rules/index', { offset: 0, limit: 100 }).subscribe(
-      next => {
-        this.rules = next.data.rows;
-      },
-      error => {},
-      () => {}
+    this.http.post<appmessage<any>>('api/rules/index', { offset: 0, limit: 100 }).subscribe(
+      {
+        next: next => {
+          this.rules = next.data.rows;
+        },
+        error: error => { },
+        complete: () => { }
+      }
     );
   }
 }

@@ -15,7 +15,7 @@ export class DictionarygroupformComponent implements OnInit {
   title: string = '';
 
   avatarUrl?: string;
-  constructor(private _httpClient: _HttpClient, private fb: FormBuilder, private drawerRef: NzDrawerRef<string>) {}
+  constructor(private _httpClient: _HttpClient, private fb: FormBuilder, private drawerRef: NzDrawerRef<string>) { }
   form!: FormGroup;
 
   submitting = false;
@@ -29,11 +29,13 @@ export class DictionarygroupformComponent implements OnInit {
 
     if (this.id !== -1) {
       this._httpClient.get<appmessage<any>>('api/dictionarygroup/get?id=' + this.id).subscribe(
-        x => {
-          this.form.patchValue(x.data);
-        },
-        () => {},
-        () => {}
+        {
+          next: next => {
+            this.form.patchValue(next.data);
+          },
+          error: error => { },
+          complete: () => { }
+        }
       );
     }
   }
@@ -42,14 +44,17 @@ export class DictionarygroupformComponent implements OnInit {
     this.submitting = true;
     var uri = this.id > 0 ? 'api/dictionarygroup/update' : 'api/dictionarygroup/save';
     this._httpClient.post(uri, this.form.value).subscribe(
-      () => {
-        this.submitting = false;
-        //   this.router.navigateByUrl('manage/uri/userlist');
-      },
-      () => {
-        this.submitting = false;
-      },
-      () => {}
+      {
+
+        next: next => {
+          this.submitting = false;
+          //   this.router.navigateByUrl('manage/uri/userlist');
+        },
+        error: error => {
+          this.submitting = false;
+        },
+        complete: () => { }
+      }
     );
   }
   close(): void {

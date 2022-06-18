@@ -4,6 +4,7 @@ import { _HttpClient } from '@delon/theme';
 import { Guid } from 'guid-typescript';
 import { NzDrawerRef } from 'ng-zorro-antd/drawer';
 import { NzMessageService } from 'ng-zorro-antd/message';
+import { appmessage } from 'src/app/models/appmessage';
 import { MyValidators } from '../../util/myvalidators';
 
 @Component({
@@ -30,7 +31,7 @@ export class CustomerformComponent implements OnInit {
     private fb: FormBuilder,
     private msg: NzMessageService,
     private drawerRef: NzDrawerRef<string>
-  ) {}
+  ) { }
   form!: FormGroup;
 
   submitting = false;
@@ -53,11 +54,13 @@ export class CustomerformComponent implements OnInit {
 
     if (this.params.id !== '-1') {
       this._httpClient.get('api/Customers/' + this.params.id).subscribe(
-        x => {
-          this.form.patchValue(x.data);
-        },
-        () => {},
-        () => {}
+        {
+          next: x => {
+            this.form.patchValue(x.data);
+          },
+          error: () => { },
+          complete: () => { }
+        }
       );
     }
   }
@@ -66,31 +69,36 @@ export class CustomerformComponent implements OnInit {
     this.submitting = true;
 
     if (this.params.id !== Guid.EMPTY) {
-      this._httpClient.put('api/Customers/' + this.form.value.id, this.form.value).subscribe(
-        () => {
-          this.submitting = false;
-          this.msg.create('success', '客户保存成功');
-          this.close();
-        },
-        () => {
-          this.submitting = false;
-          this.msg.create('error', '客户保存失败');
-        },
-        () => {
-          this.submitting = false;
+      this._httpClient.put<appmessage<any>>('api/Customers/' + this.form.value.id, this.form.value).subscribe(
+        {
+          next: next => {
+            this.submitting = false;
+            this.msg.create('success', '客户保存成功');
+            this.close();
+          },
+          error: error => {
+            this.submitting = false;
+            this.msg.create('error', '客户保存失败');
+          },
+          complete: () => {
+            this.submitting = false;
+          }
+
         }
       );
     } else {
-      this._httpClient.post('api/Customers', this.form.value).subscribe(
-        () => {
-          this.submitting = false;
-        },
-        () => {},
-        () => {
-          this.submitting = false;
+      this._httpClient.post<appmessage<any>>('api/Customers', this.form.value).subscribe(
+        {
+          next: next => {
+            this.submitting = false;
+          },
+          error: error => { },
+          complete: () => {
+            this.submitting = false;
 
-          this.msg.create('success', '客户保存成功');
-          this.close();
+            this.msg.create('success', '客户保存成功');
+            this.close();
+          }
         }
       );
     }

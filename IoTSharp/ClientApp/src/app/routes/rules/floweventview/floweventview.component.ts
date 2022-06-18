@@ -40,7 +40,7 @@ export class FloweventviewComponent implements OnInit {
           this.flowview.loadXml();
         })
       ),
-      this.http.get('api/rules/GetFlowOperations?eventId=' + this.event.eventId).pipe(
+      this.http.get<appmessage<any>>('api/rules/GetFlowOperations?eventId=' + this.event.eventId).pipe(
         map(x => {
           if (x.data && x.data.steps.length > 0) {
             this.nodes = x.data.steps;

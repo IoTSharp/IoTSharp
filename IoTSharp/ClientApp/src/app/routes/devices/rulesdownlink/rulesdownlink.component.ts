@@ -22,7 +22,7 @@ export class RulesdownlinkComponent implements OnInit {
     { title: '租户', index: 'country' },
     { title: '客户', index: 'province' }
   ];
-  constructor(private http: _HttpClient, private msg: NzMessageService, private drawerRef: NzDrawerRef<string>) {}
+  constructor(private http: _HttpClient, private msg: NzMessageService, private drawerRef: NzDrawerRef<string>) { }
   @Input()
   params: any = {
     dev: []
@@ -36,15 +36,18 @@ export class RulesdownlinkComponent implements OnInit {
         limit: 100
       })
       .subscribe(
-        x => {
-          this.rules = x.data.rows;
-        },
-        y => {},
-        () => {}
+        {
+
+          next: next => {
+            this.rules = next.data.rows;
+          },
+          error: y => { },
+          complete: () => { }
+        }
       );
   }
 
-  selectchanged($event) {}
+  selectchanged($event) { }
 
   downlink() {
     if (this.rule === Guid.EMPTY) {
@@ -57,15 +60,18 @@ export class RulesdownlinkComponent implements OnInit {
         dev: this.params.dev.map(x => x.id)
       })
       .subscribe(
-        next => {
-          this.msg.create('success', '规则下发成功');
-          this.drawerRef.close(this.params);
-        },
-        error => {
-          this.msg.create('error', '规则下发失败');
-          this.drawerRef.close(this.params);
-        },
-        () => {}
+        {
+
+          next: next => {
+            this.msg.create('success', '规则下发成功');
+            this.drawerRef.close(this.params);
+          },
+          error: error => {
+            this.msg.create('error', '规则下发失败');
+            this.drawerRef.close(this.params);
+          },
+          complete: () => { }
+        }
       );
   }
 }

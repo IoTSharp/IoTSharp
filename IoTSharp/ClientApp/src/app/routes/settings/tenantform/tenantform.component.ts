@@ -28,7 +28,7 @@ export class TenantformComponent implements OnInit {
     private fb: FormBuilder,
     private msg: NzMessageService,
     private drawerRef: NzDrawerRef<string>
-  ) {}
+  ) { }
   form!: FormGroup;
   submitting = false;
   ngOnInit() {
@@ -48,11 +48,13 @@ export class TenantformComponent implements OnInit {
 
     if (this.id !== Guid.EMPTY) {
       this._httpClient.get('api/Tenants/' + this.id).subscribe(
-        x => {
-          this.form.patchValue(x.data);
-        },
-        () => {},
-        () => {}
+        {
+          next: x => {
+            this.form.patchValue(x.data);
+          },
+          error: error => { },
+          complete: () => { }
+        }
       );
     }
   }
@@ -61,26 +63,31 @@ export class TenantformComponent implements OnInit {
     this.submitting = true;
     if (this.id !== Guid.EMPTY) {
       this._httpClient.put('api/Tenants/' + this.form.value.id, this.form.value).subscribe(
-        () => {
-          this.submitting = false;
-          this.msg.create('success', '租户保存成功');
-          this.close();
-        },
-        () => {
-          this.submitting = false;
-          this.msg.create('error', '租户保存失败');
-        },
-        () => {}
+        {
+          next: next => {
+            this.submitting = false;
+            this.msg.create('success', '租户保存成功');
+            this.close();
+          },
+          error: error => {
+            this.submitting = false;
+            this.msg.create('error', '租户保存失败');
+          },
+          complete: () => { }
+        }
       );
     } else {
       this._httpClient.post('api/Tenants', this.form.value).subscribe(
-        () => {
-          this.submitting = false;
-          this.msg.create('success', '租户保存成功');
-          this.close();
-        },
-        () => {},
-        () => {}
+        {
+
+          next: next => {
+            this.submitting = false;
+            this.msg.create('success', '租户保存成功');
+            this.close();
+          },
+          error: error => { },
+          complete: () => { }
+        }
       );
     }
   }

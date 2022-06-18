@@ -22,7 +22,7 @@ export class ExporttoassetComponent implements OnInit {
     { title: '租户', index: 'country' },
     { title: '客户', index: 'province' }
   ];
-  constructor(private http: _HttpClient, private msg: NzMessageService, private drawerRef: NzDrawerRef<string>) {}
+  constructor(private http: _HttpClient, private msg: NzMessageService, private drawerRef: NzDrawerRef<string>) { }
   @Input()
   params: any = {
     dev: []
@@ -36,15 +36,17 @@ export class ExporttoassetComponent implements OnInit {
         limit: 1000
       })
       .subscribe(
-        x => {
-          this.assets = x.data.rows;
-        },
-        y => {},
-        () => {}
+        {
+          next: next => {
+            this.assets = next.data.rows;
+          },
+          error: error => { },
+          complete: () => { }
+        }
       );
   }
 
-  selectchanged($event) {}
+  selectchanged($event) { }
 
   expert() {
     if (this.rule === Guid.EMPTY) {
@@ -52,22 +54,24 @@ export class ExporttoassetComponent implements OnInit {
       return;
     }
     this.http
-      .post('api/asset/adddevice', {
+      .post<appmessage<any>>('api/asset/adddevice', {
         assetid: this.rule,
         relations: this.params.dev.map(x => {
           return { DeviceId: x.id, name: x.name };
         })
       })
       .subscribe(
-        next => {
-          this.msg.create('success', '设备导出成功');
-          this.drawerRef.close(this.params);
-        },
-        error => {
-          this.msg.create('error', '设备导出失败');
-          this.drawerRef.close(this.params);
-        },
-        () => {}
+        {
+          next: next => {
+            this.msg.create('success', '设备导出成功');
+            this.drawerRef.close(this.params);
+          },
+          error: error => {
+            this.msg.create('error', '设备导出失败');
+            this.drawerRef.close(this.params);
+          },
+          complete: () => { }
+        }
       );
   }
 }

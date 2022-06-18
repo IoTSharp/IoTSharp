@@ -4,6 +4,7 @@ import { STPage, STReq, STRes, STComponent, STColumn, STData } from '@delon/abc/
 import { _HttpClient, ModalHelper, SettingsService } from '@delon/theme';
 import { NzDrawerService } from 'ng-zorro-antd/drawer';
 import { NzMessageService } from 'ng-zorro-antd/message';
+import { appmessage } from 'src/app/models/appmessage';
 import { DictionaryformComponent } from '../dictionaryform/dictionaryform.component';
 
 @Component({
@@ -20,7 +21,7 @@ export class DictionarylistComponent implements OnInit {
     private _router: Router,
     private drawerService: NzDrawerService,
     private settingService: SettingsService
-  ) {}
+  ) { }
 
   page: STPage = {
     front: false,
@@ -35,13 +36,13 @@ export class DictionarylistComponent implements OnInit {
     sorter: string;
     status: number | null;
   } = {
-    pi: 0,
-    ps: 20,
-    DictionaryName: '',
-    DictionaryGroupId: 0,
-    sorter: '',
-    status: null
-  };
+      pi: 0,
+      ps: 20,
+      DictionaryName: '',
+      DictionaryGroupId: 0,
+      sorter: '',
+      status: null
+    };
 
   total = 0;
   data: any[] = [];
@@ -114,12 +115,14 @@ export class DictionarylistComponent implements OnInit {
             icon: 'warning'
           },
           click: (item: any) => {
-            this.http.get('api/dictionary/setstatus?id=' + item.dictionaryId).subscribe(
-              x => {
-                this.getData();
-              },
-              y => {},
-              () => {}
+            this.http.get<appmessage<any>>('api/dictionary/setstatus?id=' + item.dictionaryId).subscribe(
+              {
+                next: next => {
+                  this.getData();
+                },
+                error: error => { },
+                complete: () => { }
+              }
             );
           }
         },
@@ -144,12 +147,14 @@ export class DictionarylistComponent implements OnInit {
   expandForm = false;
   optionList: any = [];
   ngOnInit() {
-    this.http.post('api/dictionarygroup/index', { limit: 20, offset: 0, pi: 0, ps: 20 }).subscribe(
-      x => {
-        this.optionList = x.data.rows;
-      },
-      y => {},
-      () => {}
+    this.http.post<appmessage<any>>('api/dictionarygroup/index', { limit: 20, offset: 0, pi: 0, ps: 20 }).subscribe(
+      {
+        next: x => {
+          this.optionList = x.data.rows;
+        },
+        error: y => { },
+        complete: () => { }
+      }
     );
   }
   openComponent(id: Number): void {
@@ -165,7 +170,7 @@ export class DictionarylistComponent implements OnInit {
       }
     });
 
-    drawerRef.afterOpen.subscribe(() => {});
+    drawerRef.afterOpen.subscribe(() => { });
 
     drawerRef.afterClose.subscribe(data => {
       if (typeof data === 'string') {
@@ -193,9 +198,9 @@ export class DictionarylistComponent implements OnInit {
     });
   }
 
-  add(tpl: TemplateRef<{}>) {}
+  add(tpl: TemplateRef<{}>) { }
 
   reset() {
-    setTimeout(() => {}, 1000);
+    setTimeout(() => { }, 1000);
   }
 }

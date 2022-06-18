@@ -19,24 +19,27 @@ export class CustomerlistComponent implements OnInit {
     private router: ActivatedRoute,
     private drawerService: NzDrawerService,
     private settingService: SettingsService
-  ) {}
+  ) { }
 
   ngOnInit(): void {
     console.log();
 
     this.router.queryParams.subscribe(
-      x => {
-        if (!x['id']) {
-          this.q.tenantId = this.settingService.user['tenant'];
-          this.tenantId = this.settingService.user['tenant'];
-        } else {
-          this.q.tenantId = x['id'] as unknown as string;
-          this.tenantId = x['id'] as unknown as string;
-        }
-        this.url = 'api/Customers/Tenant/' + this.tenantId;
-      },
-      () => {},
-      () => {}
+      {
+
+        next: x => {
+          if (!x['id']) {
+            this.q.tenantId = this.settingService.user['tenant'];
+            this.tenantId = this.settingService.user['tenant'];
+          } else {
+            this.q.tenantId = x['id'] as unknown as string;
+            this.tenantId = x['id'] as unknown as string;
+          }
+          this.url = 'api/Customers/Tenant/' + this.tenantId;
+        },
+        error: error => { },
+        complete: () => { }
+      }
     );
   }
   tenantId: string = '';
@@ -53,13 +56,13 @@ export class CustomerlistComponent implements OnInit {
     name: string;
     status: number | null;
   } = {
-    tenantId: '',
-    pi: 0,
-    ps: 10,
-    name: '',
-    sorter: '',
-    status: null
-  };
+      tenantId: '',
+      pi: 0,
+      ps: 10,
+      name: '',
+      sorter: '',
+      status: null
+    };
   total = 0;
   data: any[] = [];
   loading = false;
@@ -160,7 +163,7 @@ export class CustomerlistComponent implements OnInit {
       }
     });
 
-    drawerRef.afterOpen.subscribe(() => {});
+    drawerRef.afterOpen.subscribe(() => { });
 
     drawerRef.afterClose.subscribe(() => {
       this.getData();
@@ -171,7 +174,7 @@ export class CustomerlistComponent implements OnInit {
     this.st.load(1);
   }
 
-  reset() {}
+  reset() { }
 
   delete(id: string) {
     this.http.delete('api/Customers/' + id, {}).subscribe(
@@ -182,7 +185,7 @@ export class CustomerlistComponent implements OnInit {
       error => {
         this.msg.warning('用户删除失败');
       },
-      () => {}
+      () => { }
     );
   }
 }

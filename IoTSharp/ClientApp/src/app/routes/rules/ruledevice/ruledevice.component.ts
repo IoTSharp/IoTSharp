@@ -6,6 +6,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { map, mergeMap } from 'rxjs/operators';
 import { NzDrawerService } from 'ng-zorro-antd/drawer';
 import { CommonDialogSevice } from '../../util/commonDialogSevice';
+import { appmessage } from 'src/app/models/appmessage';
 
 @Component({
   selector: 'app-ruledevice',
@@ -20,7 +21,7 @@ export class RuledeviceComponent implements OnInit {
   st!: STComponent;
 
   url = '';
- 
+
   q: {
     pi: number;
     ps: number;
@@ -29,12 +30,12 @@ export class RuledeviceComponent implements OnInit {
     sorter: string;
     status: number | null;
   } = {
-    pi: 0,
-    ps: 10,
-    Name: '',
-    sorter: '',
-    status: null
-  };
+      pi: 0,
+      ps: 10,
+      Name: '',
+      sorter: '',
+      status: null
+    };
   req: STReq = { method: 'GET', allInBody: true, reName: { pi: 'offset', ps: 'limit' }, params: this.q };
 
   // 定义返回的参数
@@ -73,7 +74,8 @@ export class RuledeviceComponent implements OnInit {
     {
       title: '名称', index: 'name', render: 'name', type: 'link', click: (item: any) => {
         this.showdeviceDetail(item.id)
-    }},
+      }
+    },
     { title: '设备类型', index: 'deviceType', type: 'tag', tag: this.DeviceTAG },
     { title: '最后活动时间', index: 'lastActive', type: 'date' },
     { title: '在线状态', index: 'online', type: 'badge', badge: this.BADGE },
@@ -100,9 +102,9 @@ export class RuledeviceComponent implements OnInit {
 
   constructor(private _router: ActivatedRoute,
     private http: _HttpClient,
-     private settingService: SettingsService,
-      private drawerService: NzDrawerService,
-      private commonDialogSevice: CommonDialogSevice) { }
+    private settingService: SettingsService,
+    private drawerService: NzDrawerService,
+    private commonDialogSevice: CommonDialogSevice) { }
 
   ngOnInit(): void {
 
@@ -119,13 +121,14 @@ export class RuledeviceComponent implements OnInit {
 
 
   remove(deviceid) {
-
-    this.http.get('api/Rules/DeleteDeviceRules?deviceId=' + deviceid + '&ruleId=' + this.id).subscribe(
-      () => {
-  this.getData();
-      },
-      () => { },
-      () => { }
+    this.http.get<appmessage<any>>('api/Rules/DeleteDeviceRules?deviceId=' + deviceid + '&ruleId=' + this.id).subscribe(
+      {
+        next: next => {
+          this.getData();
+        },
+        error: error => { },
+        complete: () => { }
+      }
     );
   }
 
@@ -147,6 +150,6 @@ export class RuledeviceComponent implements OnInit {
   showdeviceDetail(id) {
     this.commonDialogSevice.showDeviceDialog(id);
   }
-   
+
 
 }

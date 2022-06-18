@@ -5,6 +5,7 @@ import { _HttpClient } from '@delon/theme';
 import { Guid } from 'guid-typescript';
 import { NzDrawerRef } from 'ng-zorro-antd/drawer';
 import { NzMessageService } from 'ng-zorro-antd/message';
+import { appmessage } from 'src/app/models/appmessage';
 import { MyValidators } from '../../util/myvalidators';
 
 @Component({
@@ -33,26 +34,28 @@ export class UserformComponent implements OnInit {
     private fb: FormBuilder,
     private msg: NzMessageService,
     private drawerRef: NzDrawerRef<string>,
-  ) {}
+  ) { }
   form!: FormGroup;
   submitting = false;
   ngOnInit() {
-   
-    const { nullbigintid ,zip,email,mobile} = MyValidators;
-  
+
+    const { nullbigintid, zip, email, mobile } = MyValidators;
+
     this.form = this.fb.group({
-      email: [null, [Validators.required,email]],
+      email: [null, [Validators.required, email]],
       id: [Guid.EMPTY, []],
       phoneNumber: ['', [mobile]],
     });
 
     if (this.id !== '-1') {
-      this._httpClient.get('api/Account/Get?Id=' + this.id).subscribe(
-        (x) => {
-          this.form.patchValue(x.data);
-        },
-        (y) => {},
-        () => {},
+      this._httpClient.get<appmessage<any>>('api/Account/Get?Id=' + this.id).subscribe(
+        {
+          next: (x) => {
+            this.form.patchValue(x.data);
+          },
+          error: (y) => { },
+          complete: () => { },
+        }
       );
     }
   }
@@ -61,20 +64,22 @@ export class UserformComponent implements OnInit {
     this.submitting = true;
 
     if (this.id !== Guid.EMPTY) {
-      this._httpClient.put('api/Account/Modify' , this.form.value).subscribe(
-        (x) => {
-          this.submitting = false;
-          this.msg.create('success', '用户信息保存成功');
-          this.close();
-        },
-        (y) => {},
-        () => {},
+      this._httpClient.put<appmessage<any>>('api/Account/Modify', this.form.value).subscribe(
+        {
+          next: (x) => {
+            this.submitting = false;
+            this.msg.create('success', '用户信息保存成功');
+            this.close();
+          },
+          error: (y) => { },
+          complete: () => { },
+        }
       );
-   
-    }else{
+
+    } else {
 
 
-      
+
     }
   }
   close(): void {

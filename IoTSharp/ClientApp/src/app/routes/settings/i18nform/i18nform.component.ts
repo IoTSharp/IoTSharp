@@ -21,7 +21,7 @@ export class I18nformComponent implements OnInit {
     private _httpClient: HttpClient,
     private fb: FormBuilder,
     private notification: NzNotificationService
-  ) {}
+  ) { }
 
   ngOnInit(): void {
     this.form = this.fb.group({
@@ -60,11 +60,13 @@ export class I18nformComponent implements OnInit {
     });
     if (this.id !== -1) {
       this._httpClient.get<appmessage<any>>('api/i18n/get?id=' + this.id).subscribe(
-        x => {
-          this.form.patchValue(x.data);
-        },
-        y => {},
-        () => {}
+        {
+          next: x => {
+            this.form.patchValue(x.data);
+          },
+          error: y => { },
+          complete: () => { }
+        }
       );
     }
   }
@@ -72,17 +74,20 @@ export class I18nformComponent implements OnInit {
   submit() {
     this.submitting = true;
     var uri = this.id > 0 ? 'api/i18n/update' : 'api/i18n/save';
-    this._httpClient.post(uri, this.form.value).subscribe(
-      x => {
-        this.submitting = false;
-        this.notification.blank(this.i18n.fanyi('message.save.success'), this.i18n.fanyi('message.save.success'), { nzDuration: 0 });
-        this.form.reset();
-        this.form.patchValue({ Id: 0, ResourceType: 1 });
-      },
-      y => {
-        this.submitting = false;
-      },
-      () => {}
+    this._httpClient.post<appmessage<any>>(uri, this.form.value).subscribe(
+      {
+        next: x => {
+          this.submitting = false;
+          this.notification.blank(this.i18n.fanyi('message.save.success'), this.i18n.fanyi('message.save.success'), { nzDuration: 0 });
+          this.form.reset();
+          this.form.patchValue({ Id: 0, ResourceType: 1 });
+        },
+        error: y => {
+          this.submitting = false;
+        },
+        complete: () => { }
+
+      }
     );
   }
 
@@ -90,7 +95,7 @@ export class I18nformComponent implements OnInit {
     return this._httpClient.get<appmessage<any>>('api/i18n/checkexist?key=' + control.value).pipe(map(x => (x.data ? '1111' : null)));
   };
 
-  close() {}
+  close() { }
 
   autotrans(): void {
     //let AppKey = '百度的Key';
@@ -102,92 +107,94 @@ export class I18nformComponent implements OnInit {
     let Url = 'api/i18n/translate?Words=' + this.form.value.valueZHCN;
 
     this._httpClient.get<appmessage<any>>(Url).subscribe(
-      x => {
-        for (var i = 0; i < x.data.length; i++) {
-          switch (x.data[i].to) {
-            case 'en':
-              console.log(x.data[i].trans_result[0].dst);
-              this.form.patchValue({ valueENUS: x.data[i].trans_result[0].dst });
-              this.form.patchValue({ valueENGR: x.data[i].trans_result[0].dst });
-              break;
-            case 'kor':
-              this.form.patchValue({ valueKOKR: x.data[i].trans_result[0].dst });
-              break;
-            case 'spa':
-              this.form.patchValue({ valueESES: x.data[i].trans_result[0].dst });
-              break;
-            case 'de':
-              this.form.patchValue({ valueDEDE: x.data[i].trans_result[0].dst });
-              break;
-            case 'fra':
-              this.form.patchValue({ valueFRFR: x.data[i].trans_result[0].dst });
-              break;
-            case 'jp':
-              this.form.patchValue({ valueJAJP: x.data[i].trans_result[0].dst });
-              break;
-            case 'it':
-              this.form.patchValue({ valueITIT: x.data[i].trans_result[0].dst });
-              break;
-            case 'tr':
-              this.form.patchValue({ valueTRTR: x.data[i].trans_result[0].dst });
-              break;
-            case 'hrv':
-              this.form.patchValue({ valueHRHR: x.data[i].trans_result[0].dst });
-              break;
-            case 'slo':
-              this.form.patchValue({ valueSLSL: x.data[i].trans_result[0].dst });
-              break;
-            case 'pl':
-              this.form.patchValue({ valuePLPL: x.data[i].trans_result[0].dst });
-              break;
-            case 'cht':
-              this.form.patchValue({ valueZHTW: x.data[i].trans_result[0].dst });
-              break;
-            case 'el':
-              this.form.patchValue({ valueELGR: x.data[i].trans_result[0].dst });
-              break;
-            case 'bul':
-              this.form.patchValue({ valueBG: x.data[i].trans_result[0].dst });
-              break;
-            case 'cs':
-              this.form.patchValue({ valueCS: x.data[i].trans_result[0].dst });
-              break;
-            case 'dan':
-              this.form.patchValue({ valueDA: x.data[i].trans_result[0].dst });
-              break;
-            case 'fin':
-              this.form.patchValue({ valueFI: x.data[i].trans_result[0].dst });
-              break;
-            case 'heb':
-              this.form.patchValue({ valueHE: x.data[i].trans_result[0].dst });
-              break;
-            case 'hu':
-              this.form.patchValue({ valueHU: x.data[i].trans_result[0].dst });
-              break;
-            case 'nl':
-              this.form.patchValue({ valueNL: x.data[i].trans_result[0].dst });
-              break;
-            case 'srp':
-              this.form.patchValue({ valueSR: x.data[i].trans_result[0].dst });
-              break;
-            case 'swe':
-              this.form.patchValue({ valueSV: x.data[i].trans_result[0].dst });
-              break;
-            case 'ukr':
-              this.form.patchValue({ valueUK: x.data[i].trans_result[0].dst });
-              break;
-            case 'vie':
-              this.form.patchValue({ valueVI: x.data[i].trans_result[0].dst });
-              break;
-            case 'pt':
-              this.form.patchValue({ valuePT: x.data[i].trans_result[0].dst });
-              break;
-            default:
+      {
+        next: x => {
+          for (var i = 0; i < x.data.length; i++) {
+            switch (x.data[i].to) {
+              case 'en':
+                console.log(x.data[i].trans_result[0].dst);
+                this.form.patchValue({ valueENUS: x.data[i].trans_result[0].dst });
+                this.form.patchValue({ valueENGR: x.data[i].trans_result[0].dst });
+                break;
+              case 'kor':
+                this.form.patchValue({ valueKOKR: x.data[i].trans_result[0].dst });
+                break;
+              case 'spa':
+                this.form.patchValue({ valueESES: x.data[i].trans_result[0].dst });
+                break;
+              case 'de':
+                this.form.patchValue({ valueDEDE: x.data[i].trans_result[0].dst });
+                break;
+              case 'fra':
+                this.form.patchValue({ valueFRFR: x.data[i].trans_result[0].dst });
+                break;
+              case 'jp':
+                this.form.patchValue({ valueJAJP: x.data[i].trans_result[0].dst });
+                break;
+              case 'it':
+                this.form.patchValue({ valueITIT: x.data[i].trans_result[0].dst });
+                break;
+              case 'tr':
+                this.form.patchValue({ valueTRTR: x.data[i].trans_result[0].dst });
+                break;
+              case 'hrv':
+                this.form.patchValue({ valueHRHR: x.data[i].trans_result[0].dst });
+                break;
+              case 'slo':
+                this.form.patchValue({ valueSLSL: x.data[i].trans_result[0].dst });
+                break;
+              case 'pl':
+                this.form.patchValue({ valuePLPL: x.data[i].trans_result[0].dst });
+                break;
+              case 'cht':
+                this.form.patchValue({ valueZHTW: x.data[i].trans_result[0].dst });
+                break;
+              case 'el':
+                this.form.patchValue({ valueELGR: x.data[i].trans_result[0].dst });
+                break;
+              case 'bul':
+                this.form.patchValue({ valueBG: x.data[i].trans_result[0].dst });
+                break;
+              case 'cs':
+                this.form.patchValue({ valueCS: x.data[i].trans_result[0].dst });
+                break;
+              case 'dan':
+                this.form.patchValue({ valueDA: x.data[i].trans_result[0].dst });
+                break;
+              case 'fin':
+                this.form.patchValue({ valueFI: x.data[i].trans_result[0].dst });
+                break;
+              case 'heb':
+                this.form.patchValue({ valueHE: x.data[i].trans_result[0].dst });
+                break;
+              case 'hu':
+                this.form.patchValue({ valueHU: x.data[i].trans_result[0].dst });
+                break;
+              case 'nl':
+                this.form.patchValue({ valueNL: x.data[i].trans_result[0].dst });
+                break;
+              case 'srp':
+                this.form.patchValue({ valueSR: x.data[i].trans_result[0].dst });
+                break;
+              case 'swe':
+                this.form.patchValue({ valueSV: x.data[i].trans_result[0].dst });
+                break;
+              case 'ukr':
+                this.form.patchValue({ valueUK: x.data[i].trans_result[0].dst });
+                break;
+              case 'vie':
+                this.form.patchValue({ valueVI: x.data[i].trans_result[0].dst });
+                break;
+              case 'pt':
+                this.form.patchValue({ valuePT: x.data[i].trans_result[0].dst });
+                break;
+              default:
+            }
           }
-        }
-      },
-      y => {},
-      () => {}
+        },
+        error: y => { },
+        complete: () => { }
+      }
     );
   }
 }

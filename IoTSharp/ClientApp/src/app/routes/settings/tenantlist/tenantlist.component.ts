@@ -27,11 +27,11 @@ export class TenantlistComponent implements OnInit {
     name: string;
     // anothor query field:The type you expect
   } = {
-    pi: 0,
-    ps: 100,
-    sorter: '',
-    name: ''
-  };
+      pi: 0,
+      ps: 100,
+      sorter: '',
+      name: ''
+    };
   req: STReq = { method: 'Get', allInBody: true, reName: { pi: 'offset', ps: 'limit' }, params: this.q };
 
   // 定义返回的参数
@@ -100,9 +100,9 @@ export class TenantlistComponent implements OnInit {
 
     private drawerService: NzDrawerService,
     private settingService: SettingsService
-  ) {}
+  ) { }
 
-  ngOnInit(): void {}
+  ngOnInit(): void { }
 
   edit(id: string): void {
     let title = id == '-1' ? '新建租户' : '修改租户';
@@ -116,21 +116,23 @@ export class TenantlistComponent implements OnInit {
         id: id
       }
     });
-    drawerRef.afterOpen.subscribe(() => {});
+    drawerRef.afterOpen.subscribe(() => { });
     drawerRef.afterClose.subscribe(() => {
       this.getData();
     });
   }
 
-  reset() {}
+  reset() { }
   delete(id: string) {
     this.http.delete('api/Tenants/' + id, {}).subscribe(
-      () => {
-        this.msg.info('租户已删除');
-        this.getData();
-      },
-      () => {},
-      () => {}
+      {
+        next: next => {
+          this.msg.info('租户已删除');
+          this.getData();
+        },
+        error: error => { },
+        complete: () => { }
+      }
     );
   }
 

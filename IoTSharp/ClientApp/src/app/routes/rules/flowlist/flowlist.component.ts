@@ -26,7 +26,7 @@ export class FlowlistComponent implements OnInit {
     private _router: Router,
     private drawerService: NzDrawerService,
     private settingService: SettingsService
-  ) {}
+  ) { }
   TAG: STColumnTag = {
     Telemetry: { text: '遥测', color: 'geekblue' },
     Attribute: { text: '属性', color: 'orange' },
@@ -51,14 +51,14 @@ export class FlowlistComponent implements OnInit {
     sorter: string;
     status: number | null;
   } = {
-    pi: 0,
-    ps: 10,
-    Name: '',
-    Creator: '',
-    CreatTime: [],
-    sorter: '',
-    status: null
-  };
+      pi: 0,
+      ps: 10,
+      Name: '',
+      Creator: '',
+      CreatTime: [],
+      sorter: '',
+      status: null
+    };
   total = 0;
 
   loading = false;
@@ -165,16 +165,19 @@ export class FlowlistComponent implements OnInit {
             icon: 'warning'
           },
           click: (item: flowrule) => {
-            this.http.get('api/rules/delete?id=' + item.ruleId).subscribe(
-              () => {
-                this.msg.create('success', '规则删除成功');
-                this.getData();
-              },
-              () => {
-                this.msg.create('error', '规则删除失败');
-                this.getData();
-              },
-              () => {}
+            this.http.get<appmessage<any>>('api/rules/delete?id=' + item.ruleId).subscribe(
+              {
+
+                next: next => {
+                  this.msg.create('success', '规则删除成功');
+                  this.getData();
+                },
+                error: error => {
+                  this.msg.create('error', '规则删除失败');
+                  this.getData();
+                },
+                complete: () => { }
+              }
             );
           }
         }
@@ -186,7 +189,7 @@ export class FlowlistComponent implements OnInit {
   totalCallNo = 0;
   expandForm = false;
 
-  ngOnInit() {}
+  ngOnInit() { }
   openComponent(id: string): void {
     var { nzMaskClosable, width } = this.settingService.getData('drawerconfig');
     var title = id === Guid.EMPTY ? '新建规则' : '修改规则';
@@ -200,7 +203,7 @@ export class FlowlistComponent implements OnInit {
       }
     });
 
-    drawerRef.afterOpen.subscribe(() => {});
+    drawerRef.afterOpen.subscribe(() => { });
 
     drawerRef.afterClose.subscribe(data => {
       this.st.load(this.st.pi);
@@ -218,8 +221,8 @@ export class FlowlistComponent implements OnInit {
               console.log(next);
               $event.expand.flows = next.data;
             },
-            () => {},
-            () => {}
+            () => { },
+            () => { }
           );
         }
         break;
@@ -238,7 +241,7 @@ export class FlowlistComponent implements OnInit {
         id: ruleflow.ruleId
       }
     });
-    drawerRef.afterOpen.subscribe(() => {});
+    drawerRef.afterOpen.subscribe(() => { });
     drawerRef.afterClose.subscribe(data => {
       this.st.load(this.st.pi);
       if (typeof data === 'string') {
@@ -261,7 +264,7 @@ export class FlowlistComponent implements OnInit {
               flow: flow
             }
           });
-          drawerRef.afterOpen.subscribe(() => {});
+          drawerRef.afterOpen.subscribe(() => { });
           drawerRef.afterClose.subscribe(data => {
             if (typeof data === 'string') {
             }
@@ -281,7 +284,7 @@ export class FlowlistComponent implements OnInit {
               flow: flow
             }
           });
-          drawerRef.afterOpen.subscribe(() => {});
+          drawerRef.afterOpen.subscribe(() => { });
           drawerRef.afterClose.subscribe(data => {
             if (typeof data === 'string') {
             }
@@ -306,7 +309,7 @@ export class FlowlistComponent implements OnInit {
             flow: flow
           }
         });
-        drawerRef.afterOpen.subscribe(() => {});
+        drawerRef.afterOpen.subscribe(() => { });
         drawerRef.afterClose.subscribe(data => {
           if (typeof data === 'string') {
           }
@@ -332,5 +335,5 @@ export class FlowlistComponent implements OnInit {
       status: null
     };
   }
-  setstatus() {}
+  setstatus() { }
 }

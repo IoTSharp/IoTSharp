@@ -20,7 +20,7 @@ export class DevicepropComponent implements OnInit {
   };
   submitting: boolean;
   avatarUrl?: string;
-  constructor(private http: _HttpClient, private fb: FormBuilder, private msg: NzMessageService, private drawerRef: NzDrawerRef<string>) {}
+  constructor(private http: _HttpClient, private fb: FormBuilder, private msg: NzMessageService, private drawerRef: NzDrawerRef<string>) { }
   form!: FormGroup;
   ngOnInit(): void {
     const { ValidField } = MyValidators;
@@ -38,19 +38,22 @@ export class DevicepropComponent implements OnInit {
   }
   submit() {
     this.http.post<appmessage<any>>('api/Devices/' + this.params.id + '/AddAttribute', this.form.value).subscribe(
-      next => {
-        if (next.code === 10000) {
-          this.msg.create('success', '新增属性成功');
+      {
+
+        next: next => {
+          if (next.code === 10000) {
+            this.msg.create('success', '新增属性成功');
+            this.drawerRef.close(this.params);
+          } else {
+            this.msg.create('error', next.msg);
+          }
+        },
+        error: error => {
+          this.msg.create('error', '新增属性失败');
           this.drawerRef.close(this.params);
-        } else {
-          this.msg.create('error', next.msg);
-        }
-      },
-      error => {
-        this.msg.create('error', '新增属性失败');
-        this.drawerRef.close(this.params);
-      },
-      () => {}
+        },
+        complete: () => { }
+      }
     );
   }
 }

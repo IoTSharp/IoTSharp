@@ -22,7 +22,7 @@ export class DictionaryformComponent implements OnInit {
     private msg: NzMessageService,
     private fb: FormBuilder,
     private drawerRef: NzDrawerRef<string>
-  ) {}
+  ) { }
   form!: FormGroup;
 
   submitting = false;
@@ -31,8 +31,8 @@ export class DictionaryformComponent implements OnInit {
       x => {
         this.optionList = x.Result;
       },
-      y => {},
-      () => {}
+      y => { },
+      () => { }
     );
     this.form = this.fb.group({
       DictionaryId: [0, []],
@@ -47,11 +47,13 @@ export class DictionaryformComponent implements OnInit {
 
     if (this.id !== -1) {
       this._httpClient.get<appmessage<any>>('api/dictionary/get?id=' + this.id).subscribe(
-        x => {
-          this.form.patchValue(x.data);
-        },
-        y => {},
-        () => {}
+        {
+          next: next => {
+            this.form.patchValue(next.data);
+          },
+          error: error => { },
+          complete: () => { }
+        }
       );
     }
   }
@@ -59,15 +61,18 @@ export class DictionaryformComponent implements OnInit {
   submit() {
     this.submitting = true;
     var uri = this.id > 0 ? 'api/dictionary/update' : 'api/dictionary/save';
-    this._httpClient.post(uri, this.form.value).subscribe(
-      x => {
-        this.submitting = false;
-        //   this.router.navigateByUrl('manage/uri/userlist');
-      },
-      y => {
-        this.submitting = false;
-      },
-      () => {}
+    this._httpClient.post<appmessage<any>>(uri, this.form.value).subscribe(
+      {
+
+        next: next => {
+          this.submitting = false;
+          //   this.router.navigateByUrl('manage/uri/userlist');
+        },
+        error: error => {
+          this.submitting = false;
+        },
+        complete: () => { }
+      }
     );
   }
   close(): void {

@@ -76,12 +76,12 @@ export class DevicelistComponent implements OnInit, OnDestroy {
     name: string;
     // anothor query field:The type you expect
   } = {
-    pi: 0,
-    ps: 20,
-    sorter: '',
-    customerId: '',
-    name: ''
-  };
+      pi: 0,
+      ps: 20,
+      sorter: '',
+      customerId: '',
+      name: ''
+    };
   req: STReq = { method: 'GET', allInBody: true, reName: { pi: 'offset', ps: 'limit' }, params: this.q };
 
   // 定义返回的参数
@@ -170,7 +170,7 @@ export class DevicelistComponent implements OnInit, OnDestroy {
           modal: {
             component: DevicetokendialogComponent
           },
-          click: () => {}
+          click: () => { }
         },
 
         {
@@ -203,7 +203,7 @@ export class DevicelistComponent implements OnInit, OnDestroy {
   getbuttons() {
     return [];
   }
-  couponFormat() {}
+  couponFormat() { }
   isChoose(key: string): boolean {
     return !!this.customColumns.find(w => w.value === key && w.checked);
   }
@@ -217,39 +217,44 @@ export class DevicelistComponent implements OnInit, OnDestroy {
         }
       )
       .subscribe(
-        res => {
-          let url = window.URL.createObjectURL(res);
-          let a = document.createElement('a');
-          document.body.appendChild(a);
-          a.setAttribute('style', 'display: none');
-          a.href = url;
-          a.download = record.id + '.zip';
-          a.click();
-          window.URL.revokeObjectURL(url);
-          a.remove();
-        },
-        error => {
-          console.log(error);
-          this.msg.create('error', '证书下载失败,请检查是否未生成');
+        {
+          next: next => {
+            let url = window.URL.createObjectURL(next);
+            let a = document.createElement('a');
+            document.body.appendChild(a);
+            a.setAttribute('style', 'display: none');
+            a.href = url;
+            a.download = record.id + '.zip';
+            a.click();
+            window.URL.revokeObjectURL(url);
+            a.remove();
+          },
+          error: error => {
+            console.log(error);
+            this.msg.create('error', '证书下载失败,请检查是否未生成');
+          }, complete: () => { }
         }
       );
   }
 
   ngOnInit(): void {
     this.router.queryParams.subscribe(
-      x => {
-        if (!x['id']) {
-          this.q.customerId = this.settingService.user['comstomer'];
-          this.customerId = this.settingService.user['comstomer'];
-          this.url = 'api/Devices/Customers';
-        } else {
-          this.q.customerId = x['id'] as unknown as string;
-          this.customerId = x['id'] as unknown as string;
-          this.url = 'api/Devices/Customers';
-        }
-      },
-      () => {},
-      () => {}
+      {
+
+        next: x => {
+          if (!x['id']) {
+            this.q.customerId = this.settingService.user['comstomer'];
+            this.customerId = this.settingService.user['comstomer'];
+            this.url = 'api/Devices/Customers';
+          } else {
+            this.q.customerId = x['id'] as unknown as string;
+            this.customerId = x['id'] as unknown as string;
+            this.url = 'api/Devices/Customers';
+          }
+        },
+        error: error => { },
+        complete: () => { }
+      }
     );
 
     // this.obsdevice = interval(6000).subscribe(async () => {
@@ -286,7 +291,7 @@ export class DevicelistComponent implements OnInit, OnDestroy {
     drawerRef.afterOpen.subscribe(() => {
       this.getData();
     });
-    drawerRef.afterClose.subscribe(() => {});
+    drawerRef.afterClose.subscribe(() => { });
   }
 
   downlink(dev: any[]) {
@@ -315,7 +320,7 @@ export class DevicelistComponent implements OnInit, OnDestroy {
         }
       }
     });
-    drawerRef.afterOpen.subscribe(() => {});
+    drawerRef.afterOpen.subscribe(() => { });
     drawerRef.afterClose.subscribe(() => {
       this.getData();
     });
@@ -344,7 +349,7 @@ export class DevicelistComponent implements OnInit, OnDestroy {
         }
       }
     });
-    drawerRef.afterOpen.subscribe(() => {});
+    drawerRef.afterOpen.subscribe(() => { });
     drawerRef.afterClose.subscribe(() => {
       this.getData();
     });
@@ -375,7 +380,7 @@ export class DevicelistComponent implements OnInit, OnDestroy {
       }
     });
 
-    drawerRef.afterClose.subscribe(() => {});
+    drawerRef.afterClose.subscribe(() => { });
   }
 
   setAttribute(id: string): void {
@@ -402,25 +407,27 @@ export class DevicelistComponent implements OnInit, OnDestroy {
         }
       }
     });
-    drawerRef.afterOpen.subscribe(() => {});
-    drawerRef.afterClose.subscribe(() => {});
+    drawerRef.afterOpen.subscribe(() => { });
+    drawerRef.afterClose.subscribe(() => { });
   }
 
-  reset() {}
+  reset() { }
   delete(id: string) {
     this.http.delete('api/Devices/' + id, {}).subscribe(
-      next => {
-        if (next?.data) {
-          this.msg.create('success', '设备删除成功');
-          this.getData();
-        } else {
-          this.msg.create('error', '错误：' + next?.msg, { nzDuration: 3000 });
-        }
-      },
-      error => {
-        this.msg.create('error', '设备删除失败:' + error, { nzDuration: 3000 });
-      },
-      () => {}
+      {
+        next: next => {
+          if (next?.data) {
+            this.msg.create('success', '设备删除成功');
+            this.getData();
+          } else {
+            this.msg.create('error', '错误：' + next?.msg, { nzDuration: 3000 });
+          }
+        },
+        error: error => {
+          this.msg.create('error', '设备删除失败:' + error, { nzDuration: 3000 });
+        },
+        complete: () => { }
+      }
     );
   }
 
@@ -431,18 +438,22 @@ export class DevicelistComponent implements OnInit, OnDestroy {
 
   refreshData() {
     this.http
-      .get(this.url, {
+      .get<appmessage<any>>(this.url, {
         offset: this.st.pi - 1,
         limit: this.st.ps,
         sorter: '',
         customerId: this.q.customerId,
         name: this.q.name
       })
-      .subscribe(next => {
-        for (var item of next.data.rows) {
-          var data = this.st.list.findIndex(c => c['Id'] == item.Id);
-          this.st.setRow(data, { online: item.online, name: item.name });
-        }
+      .subscribe({
+
+        next: next => {
+          for (var item of next.data.rows) {
+            var data = this.st.list.findIndex(c => c['Id'] == item.Id);
+            this.st.setRow(data, { online: item.online, name: item.name });
+          }
+        },
+        error: error => { }, complete: () => { }
       });
   }
 
@@ -465,7 +476,7 @@ export class DevicelistComponent implements OnInit, OnDestroy {
           // this.cead = [];
           this.cetd = [];
           // this.cerd = [];
-          // this.cett =                                      [];
+          // this.cett =  [];
           this.obs = interval(6000).subscribe(async () => {
             this.gettemps($events.expand?.id);
           });
@@ -509,132 +520,142 @@ export class DevicelistComponent implements OnInit, OnDestroy {
           }
         }
       },
-      error => {},
-      () => {}
+      error => { },
+      () => { }
     );
   }
 
   gettemps(deviceid) {
     this.http.get<appmessage<telemetryitem[]>>('api/Devices/' + deviceid + '/TelemetryLatest').subscribe(
-      telemetries => {
-        if (this.cetd.length === 0) {
-          this.cetd = telemetries.data;
-        } else {
-          for (var i = 0; i < telemetries.data.length; i++) {
-            var flag = false;
-            for (var j = 0; j < this.cetd.length; j++) {
-              if (telemetries.data[i].keyName === this.cetd[j].keyName) {
-                switch (typeof telemetries.data[i].value) {
-                  case 'number':
-                    if (this.cetd[j]['value']) {
-                      if (this.cetd[j]['value'] > telemetries.data[i]['value']) {
-                        this.cetd[j]['class'] = 'valdown';
-                      } else if (this.cetd[j]['value'] < telemetries.data[i]['value']) {
-                        this.cetd[j]['class'] = 'valup';
+      {
+        next: telemetries => {
+          if (this.cetd.length === 0) {
+            this.cetd = telemetries.data;
+          } else {
+            for (var i = 0; i < telemetries.data.length; i++) {
+              var flag = false;
+              for (var j = 0; j < this.cetd.length; j++) {
+                if (telemetries.data[i].keyName === this.cetd[j].keyName) {
+                  switch (typeof telemetries.data[i].value) {
+                    case 'number':
+                      if (this.cetd[j]['value']) {
+                        if (this.cetd[j]['value'] > telemetries.data[i]['value']) {
+                          this.cetd[j]['class'] = 'valdown';
+                        } else if (this.cetd[j]['value'] < telemetries.data[i]['value']) {
+                          this.cetd[j]['class'] = 'valup';
+                        } else {
+                          this.cetd[j]['class'] = 'valnom';
+                        }
                       } else {
                         this.cetd[j]['class'] = 'valnom';
                       }
-                    } else {
-                      this.cetd[j]['class'] = 'valnom';
-                    }
-                    break;
-                  default:
-                    if (this.cetd[j]['value']) {
-                      if (this.cetd[j]['value'] === telemetries.data[i]['value']) {
-                        this.cetd[j]['class'] = 'valnom';
+                      break;
+                    default:
+                      if (this.cetd[j]['value']) {
+                        if (this.cetd[j]['value'] === telemetries.data[i]['value']) {
+                          this.cetd[j]['class'] = 'valnom';
+                        } else {
+                          this.cetd[j]['class'] = 'valchange';
+                        }
                       } else {
-                        this.cetd[j]['class'] = 'valchange';
+                        this.cetd[j]['class'] = 'valnom';
                       }
-                    } else {
-                      this.cetd[j]['class'] = 'valnom';
-                    }
-                    break;
+                      break;
+                  }
+                  this.cetd[j].value = telemetries.data[i].value;
+                  this.cetd[j].dateTime = telemetries.data[i].dateTime;
+                  flag = true;
                 }
-                this.cetd[j].value = telemetries.data[i].value;
-                this.cetd[j].dateTime = telemetries.data[i].dateTime;
-                flag = true;
+              }
+              if (!flag) {
+                telemetries.data[i].class = 'valnew';
+                this.cetd.push(telemetries.data[i]);
               }
             }
-            if (!flag) {
-              telemetries.data[i].class = 'valnew';
-              this.cetd.push(telemetries.data[i]);
-            }
           }
-        }
-      },
-      error => {},
-      () => {}
+        },
+        error: error => { },
+        complete: () => { }
+      }
     );
   }
   getattrs(deviceid) {
     this.http.get<appmessage<attributeitem[]>>('api/Devices/' + deviceid + '/AttributeLatest').subscribe(
-      attributes => {
-        if (this.cead.length === 0) {
-          this.cead = attributes.data;
-        } else {
-          for (var i = 0; i < attributes.data.length; i++) {
-            var flag = false;
-            for (var j = 0; j < this.cead.length; j++) {
-              if (attributes.data[i].keyName === this.cead[j].keyName) {
-                // switch (typeof attributes.data[i].value) {
-                //   case 'number':
-                //     if (this.cead[j]['value']) {
-                //       if (this.cead[j]['value'] > attributes.data[i]['value']) {
-                //         this.cead[j]['class'] = 'valdown';
-                //       } else if (this.cead[j]['value'] < attributes.data[i]['value']) {
-                //         this.cead[j]['class'] = 'valup';
-                //       } else {
-                //         this.cead[j]['class'] = 'valnom';
-                //       }
-                //     } else {
-                //       this.cead[j]['class'] = 'valnom';
-                //     }
+      {
 
-                //     break;
-                //   default:
-                //     if (this.cead[j]['value']) {
-                //       if (this.cead[j]['value'] === attributes.data[i]['value']) {
-                //         this.cead[j]['class'] = 'valnom';
-                //       } else {
-                //         this.cead[j]['class'] = 'valchange';
-                //       }
-                //     } else {
-                //       this.cead[j]['class'] = 'valnom';
-                //     }
-                //     break;
-                // }
 
-                this.cead[j].value = attributes.data[i].value;
-                this.cead[j].dateTime = attributes.data[i].dateTime;
-                flag = true;
+        next: attributes => {
+          if (this.cead.length === 0) {
+            this.cead = attributes.data;
+          } else {
+            for (var i = 0; i < attributes.data.length; i++) {
+              var flag = false;
+              for (var j = 0; j < this.cead.length; j++) {
+                if (attributes.data[i].keyName === this.cead[j].keyName) {
+                  // switch (typeof attributes.data[i].value) {
+                  //   case 'number':
+                  //     if (this.cead[j]['value']) {
+                  //       if (this.cead[j]['value'] > attributes.data[i]['value']) {
+                  //         this.cead[j]['class'] = 'valdown';
+                  //       } else if (this.cead[j]['value'] < attributes.data[i]['value']) {
+                  //         this.cead[j]['class'] = 'valup';
+                  //       } else {
+                  //         this.cead[j]['class'] = 'valnom';
+                  //       }
+                  //     } else {
+                  //       this.cead[j]['class'] = 'valnom';
+                  //     }
+
+                  //     break;
+                  //   default:
+                  //     if (this.cead[j]['value']) {
+                  //       if (this.cead[j]['value'] === attributes.data[i]['value']) {
+                  //         this.cead[j]['class'] = 'valnom';
+                  //       } else {
+                  //         this.cead[j]['class'] = 'valchange';
+                  //       }
+                  //     } else {
+                  //       this.cead[j]['class'] = 'valnom';
+                  //     }
+                  //     break;
+                  // }
+
+                  this.cead[j].value = attributes.data[i].value;
+                  this.cead[j].dateTime = attributes.data[i].dateTime;
+                  flag = true;
+                }
+              }
+              if (!flag) {
+                // attributes.data[i].class = 'valnew';
+                this.cead.push(attributes.data[i]);
               }
             }
-            if (!flag) {
-              // attributes.data[i].class = 'valnew';
-              this.cead.push(attributes.data[i]);
-            }
           }
-        }
-      },
-      error => {},
-      () => {}
+        },
+        error: error => { },
+        complete: () => { }
+      }
     );
   }
   executeCommand(item: deviceitem, command: devicemodelcommand) {
-    this.http.post('api/Devices/' + item.identityId + '/Rpc/' + command.commandName + '?timeout=300', {}).subscribe(
-      next => {},
-      error => {},
-      () => {}
+    this.http.post<appmessage<any>>('api/Devices/' + item.identityId + '/Rpc/' + command.commandName + '?timeout=300', {}).subscribe(
+      {
+        next: next => { },
+        error: error => { },
+        complete: () => { }
+      }
     );
   }
 
   removerule(item: deviceitem, rule: ruleitem) {
-    this.http.get('api/Rules/DeleteDeviceRules?deviceId=' + item.id + '&ruleId=' + rule.ruleId).subscribe(
-      () => {
-        this.cerd = this.cerd.filter(x => x.ruleId != rule.ruleId);
-      },
-      () => {},
-      () => {}
+    this.http.get<appmessage<any>>('api/Rules/DeleteDeviceRules?deviceId=' + item.id + '&ruleId=' + rule.ruleId).subscribe(
+      {
+        next: next => {
+          this.cerd = this.cerd.filter(x => x.ruleId != rule.ruleId);
+        },
+        error: error => { },
+        complete: () => { }
+      }
     );
   }
 
@@ -642,11 +663,13 @@ export class DevicelistComponent implements OnInit, OnDestroy {
     this.http
       .delete('api/devices/removeAttribute?deviceId=' + device.id + '&KeyName=' + prop.keyName + '&dataSide=' + prop.dataSide)
       .subscribe(
-        () => {
-          this.cead = this.cead.filter(x => x.keyName != prop.keyName);
-        },
-        () => {},
-        () => {}
+        {
+          next: next => {
+            this.cead = this.cead.filter(x => x.keyName != prop.keyName);
+          },
+          error: error => { },
+          complete: () => { }
+        }
       );
   }
 

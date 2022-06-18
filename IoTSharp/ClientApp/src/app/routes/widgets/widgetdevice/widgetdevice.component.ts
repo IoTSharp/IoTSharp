@@ -101,22 +101,22 @@ export class WidgetdeviceComponent implements OnInit {
     serverity: any;
     originatorType: any;
   } = {
-    pi: 0,
-    ps: 10,
-    Name: '',
-    sorter: '',
-    status: null,
-    AckDateTime: null,
-    ClearDateTime: null,
-    StartDateTime: null,
-    EndDateTime: null,
-    AlarmType: '',
-    OriginatorName: '',
-    alarmStatus: '-1',
-    OriginatorId: this.id,
-    serverity: '-1',
-    originatorType: '1'
-  };
+      pi: 0,
+      ps: 10,
+      Name: '',
+      sorter: '',
+      status: null,
+      AckDateTime: null,
+      ClearDateTime: null,
+      StartDateTime: null,
+      EndDateTime: null,
+      AlarmType: '',
+      OriginatorName: '',
+      alarmStatus: '-1',
+      OriginatorId: this.id,
+      serverity: '-1',
+      originatorType: '1'
+    };
   alarmerq = { method: 'POST', allInBody: true, reName: { pi: 'offset', ps: 'limit' }, params: this.qal };
 
   //events
@@ -133,16 +133,16 @@ export class WidgetdeviceComponent implements OnInit {
     sorter: string;
     status: number | null;
   } = {
-    pi: 0,
-    ps: 10,
-    Name: '',
-    Creator: this.id,
-    RuleId: '',
-    CreatorName: '',
-    CreatTime: [],
-    sorter: '',
-    status: null
-  };
+      pi: 0,
+      ps: 10,
+      Name: '',
+      Creator: this.id,
+      RuleId: '',
+      CreatorName: '',
+      CreatTime: [],
+      sorter: '',
+      status: null
+    };
   eventreq = { method: 'POST', allInBody: true, reName: { pi: 'offset', ps: 'limit' }, params: this.qevent };
   eventtag: STColumnTag = {
     Normal: { text: '设备', color: 'green' },
@@ -178,17 +178,17 @@ export class WidgetdeviceComponent implements OnInit {
     aggregate: string;
     status: any;
   } = {
-    pi: 0,
-    deviceId: this.id,
-    ps: 10,
-    keys: '',
-    every: '',
-    aggregate: 'Mean',
-    begin: this.initaldatarange[0].toISOString(),
-    end: this.initaldatarange[1].toISOString(),
-    sorter: '',
-    status: null
-  };
+      pi: 0,
+      deviceId: this.id,
+      ps: 10,
+      keys: '',
+      every: '',
+      aggregate: 'Mean',
+      begin: this.initaldatarange[0].toISOString(),
+      end: this.initaldatarange[1].toISOString(),
+      sorter: '',
+      status: null
+    };
   rqtemps = { method: 'GET', allInBody: true, reName: { pi: 'offset', ps: 'limit' }, params: this.qtemps };
 
   tempscolumns: STColumn[] = [
@@ -209,7 +209,7 @@ export class WidgetdeviceComponent implements OnInit {
   tempcharts: tempchartitem[] = [];
 
   option: echarts.EChartsOption = {};
-  constructor(private http: _HttpClient, private cdr: ChangeDetectorRef) {}
+  constructor(private http: _HttpClient, private cdr: ChangeDetectorRef) { }
   ngOnDestroy(): void {
     if (this.obs) {
       this.obs.unsubscribe();
@@ -264,111 +264,115 @@ export class WidgetdeviceComponent implements OnInit {
         aggregate: this.qtemps.aggregate
       })
       .subscribe(
-        next => {
-          this.templistdata = next?.data;
-          if (this.singlechart) {
-            var data = [];
-            var date = [];
-            // var titleMap = {};
-            this.tempcharts
-              .filter(c => c.checked)
-              .forEach((element, index) => {
-                // titleMap['y' + (index + 1)] = element.label;
-                data.push({ name: element.label, data: [], type: 'line', symbol: 'none', sampling: 'lttb' });
-              });
-            var chartdata = [];
+        {
 
-            from(next.data)
-              .pipe(
-                groupBy(c => c.dateTime),
-                mergeMap(c => c.pipe(reduce((x, y) => [...x, y], [c.key]))),
-                map(d => ({ time: d[0], values: d.slice(1) }))
-              )
-              .subscribe(x => {
-                var chartitem = {};
-                chartitem['time'] = toDate(x.time.toString());
-                x.values.forEach(ele => {
-                  var _date = formatDate(x.time.toString(), 'yyyy-MM-dd HH:mm:ss', 'zh-Hans');
-                  if (!date.find(x => x == _date)) {
-                    date.push(_date);
-                  }
 
-                  for (var serie of data) {
-                    if (serie.name === ele['keyName']) {
-                      serie.data.push(ele['value']);
-                    }
-                  }
-
-                  // for (var key in titleMap) {
-                  //   if (titleMap[key] === ele['keyName']) {
-                  //     chartitem[key] = ele['value'];
-                  //   }
-                  // }
+          next: next => {
+            this.templistdata = next?.data;
+            if (this.singlechart) {
+              var data = [];
+              var date = [];
+              // var titleMap = {};
+              this.tempcharts
+                .filter(c => c.checked)
+                .forEach((element, index) => {
+                  // titleMap['y' + (index + 1)] = element.label;
+                  data.push({ name: element.label, data: [], type: 'line', symbol: 'none', sampling: 'lttb' });
                 });
-                chartdata.push(chartitem);
-              });
+              var chartdata = [];
 
-            this.option = {
-              tooltip: {
-                trigger: 'axis',
-                position: function (pt) {
-                  return [pt[0], '10%'];
-                }
-              },
-              title: {
-                left: 'center',
-                text: '遥测'
-              },
-              toolbox: {
-                feature: {
-                  dataZoom: {
-                    yAxisIndex: 'none'
-                  },
-                  restore: {},
-                  saveAsImage: {}
-                }
-              },
-              xAxis: {
-                type: 'category',
-                boundaryGap: false,
-                data: date
-              },
-              yAxis: {
-                type: 'value'
-              },
-              dataZoom: [
-                {
-                  type: 'inside',
-                  start: 0,
-                  end: 20
-                },
-                {
-                  start: 0,
-                  end: 20
-                }
-              ],
-              series: data
-            };
+              from(next.data)
+                .pipe(
+                  groupBy(c => c.dateTime),
+                  mergeMap(c => c.pipe(reduce((x, y) => [...x, y], [c.key]))),
+                  map(d => ({ time: d[0], values: d.slice(1) }))
+                )
+                .subscribe(x => {
+                  var chartitem = {};
+                  chartitem['time'] = toDate(x.time.toString());
+                  x.values.forEach(ele => {
+                    var _date = formatDate(x.time.toString(), 'yyyy-MM-dd HH:mm:ss', 'zh-Hans');
+                    if (!date.find(x => x == _date)) {
+                      date.push(_date);
+                    }
 
-            // this.singlechartAxis = this.tempcharts.filter(c => c.checked).length; //chartAxis 一定要与分组数量一致，不一致会导致页面直接崩溃
-            // this.singlechartdata = chartdata;
-            // this.singletitlemap = titleMap;
-            this.cdr.detectChanges();
-          } else {
-            this.tempcharts
-              .filter(c => c.checked)
-              .forEach(element => {
-                element.titleMap = { y1: element.label, y2: element.label };
-                element.chartdata = next.data
-                  .filter(d => d.keyName == element.label)
-                  .map(d => {
-                    return { time: toDate(d.dateTime), y1: d.value };
+                    for (var serie of data) {
+                      if (serie.name === ele['keyName']) {
+                        serie.data.push(ele['value']);
+                      }
+                    }
+
+                    // for (var key in titleMap) {
+                    //   if (titleMap[key] === ele['keyName']) {
+                    //     chartitem[key] = ele['value'];
+                    //   }
+                    // }
                   });
-              });
-          }
-        },
-        error => {},
-        () => {}
+                  chartdata.push(chartitem);
+                });
+
+              this.option = {
+                tooltip: {
+                  trigger: 'axis',
+                  position: function (pt) {
+                    return [pt[0], '10%'];
+                  }
+                },
+                title: {
+                  left: 'center',
+                  text: '遥测'
+                },
+                toolbox: {
+                  feature: {
+                    dataZoom: {
+                      yAxisIndex: 'none'
+                    },
+                    restore: {},
+                    saveAsImage: {}
+                  }
+                },
+                xAxis: {
+                  type: 'category',
+                  boundaryGap: false,
+                  data: date
+                },
+                yAxis: {
+                  type: 'value'
+                },
+                dataZoom: [
+                  {
+                    type: 'inside',
+                    start: 0,
+                    end: 20
+                  },
+                  {
+                    start: 0,
+                    end: 20
+                  }
+                ],
+                series: data
+              };
+
+              // this.singlechartAxis = this.tempcharts.filter(c => c.checked).length; //chartAxis 一定要与分组数量一致，不一致会导致页面直接崩溃
+              // this.singlechartdata = chartdata;
+              // this.singletitlemap = titleMap;
+              this.cdr.detectChanges();
+            } else {
+              this.tempcharts
+                .filter(c => c.checked)
+                .forEach(element => {
+                  element.titleMap = { y1: element.label, y2: element.label };
+                  element.chartdata = next.data
+                    .filter(d => d.keyName == element.label)
+                    .map(d => {
+                      return { time: toDate(d.dateTime), y1: d.value };
+                    });
+                });
+            }
+          },
+          error: error => { },
+          complete: () => { }
+        }
       );
   }
 
@@ -377,8 +381,8 @@ export class WidgetdeviceComponent implements OnInit {
       next => {
         this.rules = next.data.rows;
       },
-      error => {},
-      () => {}
+      error => { },
+      () => { }
     );
 
     this.apitemps = 'api/Devices/' + this.id + '/TelemetryData/' + this.qtemps.keys + '/' + this.qtemps.begin + '/' + this.qtemps.end;
@@ -425,111 +429,124 @@ export class WidgetdeviceComponent implements OnInit {
         })
       )
       .subscribe(
-        ([average, max, min]) => {
-          average.data.forEach(element => {
-            var cell = this.cetd.find(c => c.keyName === element['keyName']);
-            if (cell) {
-              cell.average = element['value'];
-            }
-          });
+        {
 
-          max.data.forEach(element => {
-            var cell = this.cetd.find(c => c.keyName === element['keyName']);
-            if (cell) {
-              cell.max = element['value'];
-            }
-          });
+          next: ([average, max, min]) => {
+            average.data.forEach(element => {
+              var cell = this.cetd.find(c => c.keyName === element['keyName']);
+              if (cell) {
+                cell.average = element['value'];
+              }
+            });
 
-          min.data.forEach(element => {
-            var cell = this.cetd.find(c => c.keyName === element['keyName']);
-            if (cell) {
-              cell.min = element['value'];
-            }
-          });
-        },
-        error => {},
-        () => {}
+            max.data.forEach(element => {
+              var cell = this.cetd.find(c => c.keyName === element['keyName']);
+              if (cell) {
+                cell.max = element['value'];
+              }
+            });
+
+            min.data.forEach(element => {
+              var cell = this.cetd.find(c => c.keyName === element['keyName']);
+              if (cell) {
+                cell.min = element['value'];
+              }
+            });
+          },
+          error: error => { },
+          complete: () => { }
+
+        }
       );
     this.getrules(this.id);
     this.obs = interval(6000).subscribe(async () => {
       this.gettemps(this.id).subscribe(
-        next => {
-          this.settemps(next);
-        },
-        error => {},
-        () => {}
+        {
+
+          next: next => {
+            this.settemps(next);
+          },
+          error: error => { },
+          complete: () => { }
+        }
       );
     });
   }
 
   getdevice() {
-    this.http.get('api/Devices/' + this.id).subscribe(
-      next => {
-        this.device = next.data;
-        this.qal.originatorType = this.device.deviceType == 'Gateway' ? '2' : '1';
-        this.qal.OriginatorId = this.id;
-        this.stalarm.req = this.alarmerq;
-        this.stalarm.load(1);
-        this.qevent.Creator = this.id;
-        this.stevent.req = this.eventreq;
-        this.stevent.load(1);
-      },
-      error => {},
-      () => {}
+    this.http.get<appmessage<any>>('api/Devices/' + this.id).subscribe(
+      {
+        next: next => {
+          this.device = next.data;
+          this.qal.originatorType = this.device.deviceType == 'Gateway' ? '2' : '1';
+          this.qal.OriginatorId = this.id;
+          this.stalarm.req = this.alarmerq;
+          this.stalarm.load(1);
+          this.qevent.Creator = this.id;
+          this.stevent.req = this.eventreq;
+          this.stevent.load(1);
+        },
+        error: error => { },
+        complete: () => { }
+      }
     );
   }
 
   getattrs(deviceid) {
     this.http.get<appmessage<attributeitem[]>>('api/Devices/' + deviceid + '/AttributeLatest').subscribe(
-      next => {
-        if (this.cead.length === 0) {
-          this.cead = next.data;
-        } else {
-          for (var i = 0; i < next.data.length; i++) {
-            var flag = false;
-            for (var j = 0; j < this.cead.length; j++) {
-              if (next.data[i].keyName === this.cead[j].keyName) {
-                switch (typeof next.data[i].value) {
-                  case 'number':
-                    if (this.cead[j]['value']) {
-                      if (this.cead[j]['value'] > next.data[i]['value']) {
-                        this.cead[j]['class'] = 'valdown';
-                      } else if (this.cead[j]['value'] < next.data[i]['value']) {
-                        this.cead[j]['class'] = 'valup';
-                      } else {
-                        this.cead[j]['class'] = 'valnom';
-                      }
-                    } else {
-                      this.cead[j]['class'] = 'valnom';
-                    }
+      {
 
-                    break;
-                  default:
-                    if (this.cead[j]['value']) {
-                      if (this.cead[j]['value'] === next.data[i]['value']) {
-                        this.cead[j]['class'] = 'valnom';
+
+        next: next => {
+          if (this.cead.length === 0) {
+            this.cead = next.data;
+          } else {
+            for (var i = 0; i < next.data.length; i++) {
+              var flag = false;
+              for (var j = 0; j < this.cead.length; j++) {
+                if (next.data[i].keyName === this.cead[j].keyName) {
+                  switch (typeof next.data[i].value) {
+                    case 'number':
+                      if (this.cead[j]['value']) {
+                        if (this.cead[j]['value'] > next.data[i]['value']) {
+                          this.cead[j]['class'] = 'valdown';
+                        } else if (this.cead[j]['value'] < next.data[i]['value']) {
+                          this.cead[j]['class'] = 'valup';
+                        } else {
+                          this.cead[j]['class'] = 'valnom';
+                        }
                       } else {
-                        this.cead[j]['class'] = 'valchange';
+                        this.cead[j]['class'] = 'valnom';
                       }
-                    } else {
-                      this.cead[j]['class'] = 'valnom';
-                    }
-                    break;
+
+                      break;
+                    default:
+                      if (this.cead[j]['value']) {
+                        if (this.cead[j]['value'] === next.data[i]['value']) {
+                          this.cead[j]['class'] = 'valnom';
+                        } else {
+                          this.cead[j]['class'] = 'valchange';
+                        }
+                      } else {
+                        this.cead[j]['class'] = 'valnom';
+                      }
+                      break;
+                  }
+                  this.cead[j].value = next.data[i].value;
+                  this.cead[j].dateTime = next.data[i].dateTime;
+                  flag = true;
                 }
-                this.cead[j].value = next.data[i].value;
-                this.cead[j].dateTime = next.data[i].dateTime;
-                flag = true;
+              }
+              if (!flag) {
+                next.data[i].class = 'valnew';
+                this.cead.push(next.data[i]);
               }
             }
-            if (!flag) {
-              next.data[i].class = 'valnew';
-              this.cead.push(next.data[i]);
-            }
           }
-        }
-      },
-      error => {},
-      () => {}
+        },
+        error: error => { },
+        complete: () => { }
+      }
     );
   }
 
@@ -594,59 +611,70 @@ export class WidgetdeviceComponent implements OnInit {
 
   getrules(deviceid) {
     this.http.get<appmessage<ruleitem[]>>('api/Rules/GetDeviceRules?deviceId=' + deviceid).subscribe(
-      next => {
-        if (next.data.length == 0) {
-          this.cerd = [];
-        } else {
-          for (var i = 0; i < next.data.length; i++) {
-            var index = this.cerd.findIndex(c => c.ruleId == next.data[i].ruleId);
-            if (index === -1) {
-              this.cerd.push(next.data[i]);
+      {
+
+        next: next => {
+          if (next.data.length == 0) {
+            this.cerd = [];
+          } else {
+            for (var i = 0; i < next.data.length; i++) {
+              var index = this.cerd.findIndex(c => c.ruleId == next.data[i].ruleId);
+              if (index === -1) {
+                this.cerd.push(next.data[i]);
+              }
+            }
+
+            var removed: ruleitem[] = [];
+
+            for (var i = 0; i < this.cerd.length; i++) {
+              if (!next.data.some(c => c.ruleId == this.cerd[i].ruleId)) {
+                removed = [...removed, this.cerd[i]];
+              }
+            }
+
+            for (var item of removed) {
+              this.cerd.slice(
+                this.cerd.findIndex(c => c.ruleId == item.ruleId),
+                1
+              );
             }
           }
+        },
+        error: error => { },
+        complete: () => { }
 
-          var removed: ruleitem[] = [];
-
-          for (var i = 0; i < this.cerd.length; i++) {
-            if (!next.data.some(c => c.ruleId == this.cerd[i].ruleId)) {
-              removed = [...removed, this.cerd[i]];
-            }
-          }
-
-          for (var item of removed) {
-            this.cerd.slice(
-              this.cerd.findIndex(c => c.ruleId == item.ruleId),
-              1
-            );
-          }
-        }
-      },
-      error => {},
-      () => {}
+      }
     );
   }
 
-  getevetts() {}
+  getevetts() { }
 
   removeprop(prop: attributeitem) {
     this.http
-      .delete('api/devices/removeAttribute?deviceId=' + this.id + '&KeyName=' + prop.keyName + '&dataSide=' + prop.dataSide)
+      .delete<appmessage<any>>('api/devices/removeAttribute?deviceId=' + this.id + '&KeyName=' + prop.keyName + '&dataSide=' + prop.dataSide)
       .subscribe(
-        () => {
-          this.cead = this.cead.filter(x => x.keyName != prop.keyName);
-        },
-        () => {},
-        () => {}
+        {
+          next: next => {
+            this.cead = this.cead.filter(x => x.keyName != prop.keyName);
+          },
+          error: error => { },
+          complete: () => { }
+
+
+        }
       );
   }
 
   removerule(item) {
-    this.http.get('api/Rules/DeleteDeviceRules?deviceId=' + this.id + '&ruleId=' + item.ruleId).subscribe(
-      () => {
-        this.cerd = this.cerd.filter(x => x.ruleId != item.ruleId);
-      },
-      () => {},
-      () => {}
+    this.http.get<appmessage<any>>('api/Rules/DeleteDeviceRules?deviceId=' + this.id + '&ruleId=' + item.ruleId).subscribe(
+      {
+        next: next => {
+          this.cerd = this.cerd.filter(x => x.ruleId != item.ruleId);
+        },
+        error: error => { },
+        complete: () => { }
+
+      }
     );
   }
 
@@ -673,36 +701,42 @@ export class WidgetdeviceComponent implements OnInit {
       serverity: '-1',
       originatorType: '1'
     }
-  ) {}
+  ) { }
   clearAlarm(item) {
     this.http
-      .post('api/alarm/clearAlarm', {
+      .post<appmessage<any>>('api/alarm/clearAlarm', {
         id: item.id
       })
       .subscribe(
-        next => {
-          if (next?.data) {
-            this.getAlarmData();
-          }
-        },
-        error => {},
-        () => {}
+        {
+
+          next: next => {
+            if (next?.data) {
+              this.getAlarmData();
+            }
+          },
+          error: error => { },
+          complete: () => { }
+        }
       );
   }
 
   acquireAlarm(item) {
     this.http
-      .post('api/alarm/ackAlarm', {
+      .post<appmessage<any>>('api/alarm/ackAlarm', {
         id: item.id
       })
       .subscribe(
-        next => {
-          if (next?.data) {
-            this.getAlarmData();
-          }
-        },
-        error => {},
-        () => {}
+        {
+
+          next: next => {
+            if (next?.data) {
+              this.getAlarmData();
+            }
+          },
+          error: error => { },
+          complete: () => { }
+        }
       );
   }
 

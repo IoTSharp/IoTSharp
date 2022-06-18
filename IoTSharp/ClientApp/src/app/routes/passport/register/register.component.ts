@@ -1,6 +1,7 @@
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnDestroy } from '@angular/core';
 import { AbstractControl, FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
+import { er } from '@antv/x6/lib/registry/router/er';
 import { _HttpClient } from '@delon/theme';
 import { MatchControl } from '@delon/util/form';
 import { NzSafeAny } from 'ng-zorro-antd/core/types';
@@ -157,19 +158,30 @@ export class UserRegisterComponent implements OnDestroy {
       return;
     }
     if (this.registertype === 'install') {
-      this.http.post('api/Installer/Install?_allow_anonymous=true', data).subscribe(x => {
-        if (x.code === 10000) {
-          if (x.data.installed) {
-            this.router.navigateByUrl('/passport/login?_allow_anonymous=true');
-          } else {
-            this.router.navigateByUrl('/passport/login?_allow_anonymous=true');
-          }
-        } else {
-          this.notification.error('错误', x.msg);
+      this.http.post<appmessage<any>>('api/Installer/Install?_allow_anonymous=true', data).subscribe(
+
+        {
+          next: x => {
+            if (x.code === 10000) {
+              if (x.data.installed) {
+                this.router.navigateByUrl('/passport/login?_allow_anonymous=true');
+              } else {
+                this.router.navigateByUrl('/passport/login?_allow_anonymous=true');
+              }
+            } else {
+              this.notification.error('错误', x.msg);
+            }
+          },
+           error: error => {
+
+          },
+          complete: () => { }
+
         }
-      });
+
+      );
     } else {
-      this.http.post('api/account/create?_allow_anonymous=true', data).subscribe(x => {
+      this.http.post<appmessage<any>>('api/account/create?_allow_anonymous=true', data).subscribe(x => {
         if (x.code === 10000) {
           if (x.data.installed) {
             this.router.navigateByUrl('/passport/login?_allow_anonymous=true');

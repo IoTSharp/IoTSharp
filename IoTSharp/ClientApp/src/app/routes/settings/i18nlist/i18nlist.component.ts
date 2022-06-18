@@ -5,6 +5,7 @@ import { STPage, STReq, STRes, STComponent, STColumn, STData } from '@delon/abc/
 import { _HttpClient, ModalHelper, SettingsService } from '@delon/theme';
 import { NzDrawerService } from 'ng-zorro-antd/drawer';
 import { NzMessageService } from 'ng-zorro-antd/message';
+import { appmessage } from 'src/app/models/appmessage';
 import { I18nformComponent } from '../i18nform/i18nform.component';
 
 @Component({
@@ -29,12 +30,12 @@ export class I18nlistComponent implements OnInit {
     sorter: string;
     Status: number | null;
   } = {
-    pi: 0,
-    ps: 10,
-    KeyName: '',
-    sorter: '',
-    Status: null
-  };
+      pi: 0,
+      ps: 10,
+      KeyName: '',
+      sorter: '',
+      Status: null
+    };
 
   status = [
     { index: 1, text: '正常', value: false, type: 'default', checked: false },
@@ -70,7 +71,7 @@ export class I18nlistComponent implements OnInit {
     private drawerService: NzDrawerService,
     private i18n: I18NService,
     private settingService: SettingsService
-  ) {}
+  ) { }
   @ViewChild('st', { static: true })
   st!: STComponent;
   columns: STColumn[] = [
@@ -135,12 +136,14 @@ export class I18nlistComponent implements OnInit {
             icon: 'warning'
           },
           click: (item: any) => {
-            this.http.get('api/manage/i18n/setstatus?id=' + item.id).subscribe(
-              x => {
-                this.getData();
-              },
-              y => {},
-              () => {}
+            this.http.get<appmessage<any>>('api/manage/i18n/setstatus?id=' + item.id).subscribe(
+              {
+                next: x => {
+                  this.getData();
+                },
+                error: y => { },
+                complete: () => { }
+              }
             );
           }
         },
@@ -154,12 +157,14 @@ export class I18nlistComponent implements OnInit {
           },
           acl: 65,
           click: (item: any) => {
-            this.http.get('api/manage/i18n/delete?id=' + item.id).subscribe(
-              x => {
-                this.getData();
-              },
-              y => {},
-              () => {}
+            this.http.get<appmessage<any>>('api/manage/i18n/delete?id=' + item.id).subscribe(
+              {
+                next: x => {
+                  this.getData();
+                },
+                error: y => { },
+                complete: () => { }
+              }
             );
           }
         }
@@ -170,7 +175,7 @@ export class I18nlistComponent implements OnInit {
   description = '';
   totalCallNo = 0;
   expandForm = false;
-  ngOnInit(): void {}
+  ngOnInit(): void { }
 
   getData() {
     this.st.req = this.req;
@@ -189,7 +194,7 @@ export class I18nlistComponent implements OnInit {
       }
     });
 
-    drawerRef.afterOpen.subscribe(() => {});
+    drawerRef.afterOpen.subscribe(() => { });
 
     drawerRef.afterClose.subscribe(data => {
       this.getData();

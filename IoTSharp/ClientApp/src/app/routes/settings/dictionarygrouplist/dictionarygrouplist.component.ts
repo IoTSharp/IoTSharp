@@ -21,7 +21,7 @@ export class DictionarygrouplistComponent implements OnInit {
     private _router: Router,
     private drawerService: NzDrawerService,
     private settingService: SettingsService
-  ) {}
+  ) { }
 
   page: STPage = {
     front: false,
@@ -35,12 +35,12 @@ export class DictionarygrouplistComponent implements OnInit {
     sorter: string;
     status: number | null;
   } = {
-    pi: 0,
-    ps: 10,
-    DictionaryGroupName: '',
-    sorter: '',
-    status: null
-  };
+      pi: 0,
+      ps: 10,
+      DictionaryGroupName: '',
+      sorter: '',
+      status: null
+    };
 
   total = 0;
   data: any[] = [];
@@ -136,12 +136,14 @@ export class DictionarygrouplistComponent implements OnInit {
             icon: 'warning'
           },
           click: (item: any) => {
-            this.http.get('api/dictionarygroup/setstatus?id=' + item.DictionaryGroupId).subscribe(
-              x => {
-                this.getData();
-              },
-              y => {},
-              () => {}
+            this.http.get<appmessage<any>>('api/dictionarygroup/setstatus?id=' + item.DictionaryGroupId).subscribe(
+              {
+                next: next => {
+                  this.getData();
+                },
+                error: error => { },
+                complete: () => { }
+              }
             );
           }
         },
@@ -155,12 +157,14 @@ export class DictionarygrouplistComponent implements OnInit {
           },
           acl: 61,
           click: (item: any) => {
-            this.http.get('api/dictionarygroup/delete?id=' + item.DdictionaryGroupId).subscribe(
-              x => {
-                this.getData();
-              },
-              y => {},
-              () => {}
+            this.http.get<appmessage<any>>('api/dictionarygroup/delete?id=' + item.DdictionaryGroupId).subscribe(
+              {
+                next: next => {
+                  this.getData();
+                },
+                error: error => { },
+                complete: () => { }
+              }
             );
           }
         }
@@ -172,7 +176,7 @@ export class DictionarygrouplistComponent implements OnInit {
   totalCallNo = 0;
   expandForm = false;
 
-  ngOnInit() {}
+  ngOnInit() { }
 
   rowchange(event) {
     console.log(event);
@@ -185,11 +189,13 @@ export class DictionarygrouplistComponent implements OnInit {
             limit: 100
           })
           .subscribe(
-            x => {
-              event.expand.Children = x.data.rows;
-            },
-            y => {},
-            () => {}
+            {
+              next: x => {
+                event.expand.Children = x.data.rows;
+              },
+              error: y => { },
+              complete: () => { }
+            }
           );
         break;
     }
@@ -207,7 +213,7 @@ export class DictionarygrouplistComponent implements OnInit {
       }
     });
 
-    drawerRef.afterOpen.subscribe(() => {});
+    drawerRef.afterOpen.subscribe(() => { });
 
     drawerRef.afterClose.subscribe(data => {
       if (typeof data === 'string') {
@@ -223,10 +229,10 @@ export class DictionarygrouplistComponent implements OnInit {
     this.st.load(this.st.pi);
   }
 
-  add(tpl: TemplateRef<{}>) {}
+  add(tpl: TemplateRef<{}>) { }
 
   reset() {
-    setTimeout(() => {}, 1000);
+    setTimeout(() => { }, 1000);
   }
-  setstatus(number: number, status: number) {}
+  setstatus(number: number, status: number) { }
 }

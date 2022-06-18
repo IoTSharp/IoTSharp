@@ -33,7 +33,7 @@ export class PropformComponent implements OnInit {
     private drawerRef: NzDrawerRef<string>,
     private msg: NzMessageService,
     private cd: ChangeDetectorRef
-  ) {}
+  ) { }
   schemadevice: SFSchema = {
     properties: {}
   };
@@ -60,380 +60,382 @@ export class PropformComponent implements OnInit {
 
   ngOnInit(): void {
     this.http.get<appmessage<deviceattributeitem[]>>('api/Devices/' + this.params.id + '/AttributeLatest').subscribe(
-      next => {
-        var propertiesserver: any = {};
-        var propertiesany: any = {};
-        var propertiesdevice: any = {};
-        var serverSide = next.data.filter(x => x.dataSide == 'ServerSide');
-        var anySide = next.data.filter(x => x.dataSide == 'AnySide');
-        var devicveSide = next.data.filter(x => x.dataSide == 'ClientSide');
-        for (var item of serverSide) {
-          switch (item.dataType) {
-            case 'XML':
-              propertiesserver[item.keyName] = {
-                type: 'string',
-                title: item.keyName,
-                // maxLength: item.maxLength,
-                //  pattern: item.pattern,
-                ui: {
-                  widget: 'codefield',
-                  loadingTip: 'loading...',
-                  config: { theme: 'vs-dark', language: 'xml' },
-                  value: item.value
-                },
-                default: item.value
-              };
+      {
+        next: next => {
+          var propertiesserver: any = {};
+          var propertiesany: any = {};
+          var propertiesdevice: any = {};
+          var serverSide = next.data.filter(x => x.dataSide == 'ServerSide');
+          var anySide = next.data.filter(x => x.dataSide == 'AnySide');
+          var devicveSide = next.data.filter(x => x.dataSide == 'ClientSide');
+          for (var item of serverSide) {
+            switch (item.dataType) {
+              case 'XML':
+                propertiesserver[item.keyName] = {
+                  type: 'string',
+                  title: item.keyName,
+                  // maxLength: item.maxLength,
+                  //  pattern: item.pattern,
+                  ui: {
+                    widget: 'codefield',
+                    loadingTip: 'loading...',
+                    config: { theme: 'vs-dark', language: 'xml' },
+                    value: item.value
+                  },
+                  default: item.value
+                };
 
-              break;
+                break;
 
-            case 'Boolean':
-              propertiesserver[item.keyName] = {
-                type: 'boolean',
-                title: item.keyName,
-                // maxLength: item.maxLength,
-                //  pattern: item.pattern,
-                ui: {
-                  checkedChildren: 'True',
-                  unCheckedChildren: 'False'
-                },
-                default: item.value
-              };
+              case 'Boolean':
+                propertiesserver[item.keyName] = {
+                  type: 'boolean',
+                  title: item.keyName,
+                  // maxLength: item.maxLength,
+                  //  pattern: item.pattern,
+                  ui: {
+                    checkedChildren: 'True',
+                    unCheckedChildren: 'False'
+                  },
+                  default: item.value
+                };
 
-              break;
+                break;
 
-            case 'String':
-              propertiesserver[item.keyName] = {
-                type: 'string',
-                title: item.keyName,
-                // maxLength: item.maxLength,
-                //  pattern: item.pattern,
+              case 'String':
+                propertiesserver[item.keyName] = {
+                  type: 'string',
+                  title: item.keyName,
+                  // maxLength: item.maxLength,
+                  //  pattern: item.pattern,
 
-                default: item.value
-              };
+                  default: item.value
+                };
 
-              break;
+                break;
 
-            case 'Long':
-              propertiesserver[item.keyName] = {
-                type: 'number',
-                title: item.keyName,
-                // maxLength: item.maxLength,
-                //  pattern: item.pattern,
-                ui: {
-                  hideStep: true
-                } as SFNumberWidgetSchema,
-                default: item.value
-              };
+              case 'Long':
+                propertiesserver[item.keyName] = {
+                  type: 'number',
+                  title: item.keyName,
+                  // maxLength: item.maxLength,
+                  //  pattern: item.pattern,
+                  ui: {
+                    hideStep: true
+                  } as SFNumberWidgetSchema,
+                  default: item.value
+                };
 
-              break;
+                break;
 
-            case 'Double':
-              propertiesserver[item.keyName] = {
-                type: 'number',
-                title: item.keyName,
-                // maxLength: item.maxLength,
-                //  pattern: item.pattern,
-                ui: {
-                  hideStep: true
-                } as SFNumberWidgetSchema,
-                default: item.value
-              };
+              case 'Double':
+                propertiesserver[item.keyName] = {
+                  type: 'number',
+                  title: item.keyName,
+                  // maxLength: item.maxLength,
+                  //  pattern: item.pattern,
+                  ui: {
+                    hideStep: true
+                  } as SFNumberWidgetSchema,
+                  default: item.value
+                };
 
-              break;
+                break;
 
-            case 'Json':
-              propertiesserver[item.keyName] = {
-                type: 'string',
-                title: item.keyName,
-                // maxLength: item.maxLength,
-                //  pattern: item.pattern,
-                ui: {
-                  widget: 'codefield',
-                  loadingTip: 'loading...',
-                  config: { theme: 'vs-dark', language: 'json' },
-                  value: item.value
-                },
-                default: item.value
-              };
+              case 'Json':
+                propertiesserver[item.keyName] = {
+                  type: 'string',
+                  title: item.keyName,
+                  // maxLength: item.maxLength,
+                  //  pattern: item.pattern,
+                  ui: {
+                    widget: 'codefield',
+                    loadingTip: 'loading...',
+                    config: { theme: 'vs-dark', language: 'json' },
+                    value: item.value
+                  },
+                  default: item.value
+                };
 
-              break;
+                break;
 
-            case 'Binary':
-              propertiesserver[item.keyName] = {
-                type: 'string',
-                title: item.keyName,
-                // maxLength: item.maxLength,
-                //  pattern: item.pattern,
-                ui: {
-                  widget: 'textarea',
-                  autosize: { minRows: 2, maxRows: 10 }
-                } as SFTextareaWidgetSchema,
-                default: item.value
-              };
+              case 'Binary':
+                propertiesserver[item.keyName] = {
+                  type: 'string',
+                  title: item.keyName,
+                  // maxLength: item.maxLength,
+                  //  pattern: item.pattern,
+                  ui: {
+                    widget: 'textarea',
+                    autosize: { minRows: 2, maxRows: 10 }
+                  } as SFTextareaWidgetSchema,
+                  default: item.value
+                };
 
-              break;
-            case 'DateTime':
-              propertiesserver[item.keyName] = {
-                type: 'string',
-                title: item.keyName,
-                format: 'date-time',
-                displayFormat: 'yyyy-MM-dd HH:mm:ss',
-                ui: {},
-                default: item.value
-              };
+                break;
+              case 'DateTime':
+                propertiesserver[item.keyName] = {
+                  type: 'string',
+                  title: item.keyName,
+                  format: 'date-time',
+                  displayFormat: 'yyyy-MM-dd HH:mm:ss',
+                  ui: {},
+                  default: item.value
+                };
 
-              break;
+                break;
+            }
           }
-        }
 
-        for (var item of anySide) {
-          switch (item.dataType) {
-            case 'XML':
-              propertiesany[item.keyName] = {
-                type: 'string',
-                title: item.keyName,
-                // maxLength: item.maxLength,
-                //  pattern: item.pattern,
-                ui: {
-                  widget: 'codefield',
-                  loadingTip: 'loading...',
-                  config: { theme: 'vs-dark', language: 'xml' },
-                  value: item.value
-                },
-                default: item.value
-              };
+          for (var item of anySide) {
+            switch (item.dataType) {
+              case 'XML':
+                propertiesany[item.keyName] = {
+                  type: 'string',
+                  title: item.keyName,
+                  // maxLength: item.maxLength,
+                  //  pattern: item.pattern,
+                  ui: {
+                    widget: 'codefield',
+                    loadingTip: 'loading...',
+                    config: { theme: 'vs-dark', language: 'xml' },
+                    value: item.value
+                  },
+                  default: item.value
+                };
 
-              break;
+                break;
 
-            case 'Boolean':
-              propertiesany[item.keyName] = {
-                type: 'boolean',
-                title: item.keyName,
-                // maxLength: item.maxLength,
-                //  pattern: item.pattern,
-                ui: {
-                  checkedChildren: 'True',
-                  unCheckedChildren: 'False'
-                },
-                default: item.value
-              };
+              case 'Boolean':
+                propertiesany[item.keyName] = {
+                  type: 'boolean',
+                  title: item.keyName,
+                  // maxLength: item.maxLength,
+                  //  pattern: item.pattern,
+                  ui: {
+                    checkedChildren: 'True',
+                    unCheckedChildren: 'False'
+                  },
+                  default: item.value
+                };
 
-              break;
+                break;
 
-            case 'String':
-              propertiesany[item.keyName] = {
-                type: 'string',
-                title: item.keyName,
-                // maxLength: item.maxLength,
-                //  pattern: item.pattern,
+              case 'String':
+                propertiesany[item.keyName] = {
+                  type: 'string',
+                  title: item.keyName,
+                  // maxLength: item.maxLength,
+                  //  pattern: item.pattern,
 
-                default: item.value
-              };
+                  default: item.value
+                };
 
-              break;
+                break;
 
-            case 'Long':
-              propertiesany[item.keyName] = {
-                type: 'number',
-                title: item.keyName,
-                // maxLength: item.maxLength,
-                //  pattern: item.pattern,
-                ui: {
-                  hideStep: true
-                } as SFNumberWidgetSchema,
-                default: item.value
-              };
+              case 'Long':
+                propertiesany[item.keyName] = {
+                  type: 'number',
+                  title: item.keyName,
+                  // maxLength: item.maxLength,
+                  //  pattern: item.pattern,
+                  ui: {
+                    hideStep: true
+                  } as SFNumberWidgetSchema,
+                  default: item.value
+                };
 
-              break;
+                break;
 
-            case 'Double':
-              propertiesany[item.keyName] = {
-                type: 'number',
-                title: item.keyName,
-                // maxLength: item.maxLength,
-                //  pattern: item.pattern,
-                ui: {
-                  hideStep: true
-                } as SFNumberWidgetSchema,
-                default: item.value
-              };
+              case 'Double':
+                propertiesany[item.keyName] = {
+                  type: 'number',
+                  title: item.keyName,
+                  // maxLength: item.maxLength,
+                  //  pattern: item.pattern,
+                  ui: {
+                    hideStep: true
+                  } as SFNumberWidgetSchema,
+                  default: item.value
+                };
 
-              break;
+                break;
 
-            case 'Json':
-              propertiesany[item.keyName] = {
-                type: 'string',
-                title: item.keyName,
-                // maxLength: item.maxLength,
-                //  pattern: item.pattern,
-                ui: {
-                  widget: 'codefield',
-                  loadingTip: 'loading...',
-                  config: { theme: 'vs-dark', language: 'json' },
-                  value: item.value
-                },
-                default: item.value
-              };
+              case 'Json':
+                propertiesany[item.keyName] = {
+                  type: 'string',
+                  title: item.keyName,
+                  // maxLength: item.maxLength,
+                  //  pattern: item.pattern,
+                  ui: {
+                    widget: 'codefield',
+                    loadingTip: 'loading...',
+                    config: { theme: 'vs-dark', language: 'json' },
+                    value: item.value
+                  },
+                  default: item.value
+                };
 
-              break;
+                break;
 
-            case 'Binary':
-              propertiesany[item.keyName] = {
-                type: 'string',
-                title: item.keyName,
-                // maxLength: item.maxLength,
-                //  pattern: item.pattern,
-                ui: {
-                  widget: 'textarea',
-                  autosize: { minRows: 2, maxRows: 10 }
-                } as SFTextareaWidgetSchema,
-                default: item.value
-              };
+              case 'Binary':
+                propertiesany[item.keyName] = {
+                  type: 'string',
+                  title: item.keyName,
+                  // maxLength: item.maxLength,
+                  //  pattern: item.pattern,
+                  ui: {
+                    widget: 'textarea',
+                    autosize: { minRows: 2, maxRows: 10 }
+                  } as SFTextareaWidgetSchema,
+                  default: item.value
+                };
 
-              break;
-            case 'DateTime':
-              propertiesany[item.keyName] = {
-                type: 'string',
-                title: item.keyName,
-                format: 'date-time',
-                displayFormat: 'yyyy-MM-dd HH:mm:ss',
-                ui: {},
-                default: item.value
-              };
+                break;
+              case 'DateTime':
+                propertiesany[item.keyName] = {
+                  type: 'string',
+                  title: item.keyName,
+                  format: 'date-time',
+                  displayFormat: 'yyyy-MM-dd HH:mm:ss',
+                  ui: {},
+                  default: item.value
+                };
 
-              break;
+                break;
+            }
           }
-        }
 
-        for (var item of devicveSide) {
-          switch (item.dataType) {
-            case 'XML':
-              propertiesdevice[item.keyName] = {
-                type: 'string',
-                title: item.keyName,
-                // maxLength: item.maxLength,
-                //  pattern: item.pattern,
-                ui: {
-                  widget: 'codefield',
-                  loadingTip: 'loading...',
-                  config: { theme: 'vs-dark', language: 'xml' },
-                  value: item.value
-                },
-                default: item.value
-              };
+          for (var item of devicveSide) {
+            switch (item.dataType) {
+              case 'XML':
+                propertiesdevice[item.keyName] = {
+                  type: 'string',
+                  title: item.keyName,
+                  // maxLength: item.maxLength,
+                  //  pattern: item.pattern,
+                  ui: {
+                    widget: 'codefield',
+                    loadingTip: 'loading...',
+                    config: { theme: 'vs-dark', language: 'xml' },
+                    value: item.value
+                  },
+                  default: item.value
+                };
 
-              break;
+                break;
 
-            case 'Boolean':
-              propertiesdevice[item.keyName] = {
-                type: 'boolean',
-                title: item.keyName,
-                // maxLength: item.maxLength,
-                //  pattern: item.pattern,
-                ui: {
-                  checkedChildren: 'True',
-                  unCheckedChildren: 'False'
-                },
-                default: item.value
-              };
+              case 'Boolean':
+                propertiesdevice[item.keyName] = {
+                  type: 'boolean',
+                  title: item.keyName,
+                  // maxLength: item.maxLength,
+                  //  pattern: item.pattern,
+                  ui: {
+                    checkedChildren: 'True',
+                    unCheckedChildren: 'False'
+                  },
+                  default: item.value
+                };
 
-              break;
+                break;
 
-            case 'String':
-              propertiesdevice[item.keyName] = {
-                type: 'string',
-                title: item.keyName,
-                // maxLength: item.maxLength,
-                //  pattern: item.pattern,
+              case 'String':
+                propertiesdevice[item.keyName] = {
+                  type: 'string',
+                  title: item.keyName,
+                  // maxLength: item.maxLength,
+                  //  pattern: item.pattern,
 
-                default: item.value
-              };
+                  default: item.value
+                };
 
-              break;
+                break;
 
-            case 'Long':
-              propertiesdevice[item.keyName] = {
-                type: 'number',
-                title: item.keyName,
-                // maxLength: item.maxLength,
-                //  pattern: item.pattern,
-                ui: {
-                  hideStep: true
-                } as SFNumberWidgetSchema,
-                default: item.value
-              };
+              case 'Long':
+                propertiesdevice[item.keyName] = {
+                  type: 'number',
+                  title: item.keyName,
+                  // maxLength: item.maxLength,
+                  //  pattern: item.pattern,
+                  ui: {
+                    hideStep: true
+                  } as SFNumberWidgetSchema,
+                  default: item.value
+                };
 
-              break;
+                break;
 
-            case 'Double':
-              propertiesdevice[item.keyName] = {
-                type: 'number',
-                title: item.keyName,
-                // maxLength: item.maxLength,
-                //  pattern: item.pattern,
-                ui: {
-                  hideStep: true
-                } as SFNumberWidgetSchema,
-                default: item.value
-              };
+              case 'Double':
+                propertiesdevice[item.keyName] = {
+                  type: 'number',
+                  title: item.keyName,
+                  // maxLength: item.maxLength,
+                  //  pattern: item.pattern,
+                  ui: {
+                    hideStep: true
+                  } as SFNumberWidgetSchema,
+                  default: item.value
+                };
 
-              break;
+                break;
 
-            case 'Json':
-              propertiesdevice[item.keyName] = {
-                type: 'string',
-                title: item.keyName,
-                // maxLength: item.maxLength,
-                //  pattern: item.pattern,
-                ui: {
-                  widget: 'codefield',
-                  loadingTip: 'loading...',
-                  config: { theme: 'vs-dark', language: 'json' },
-                  value: item.value
-                },
-                default: item.value
-              };
+              case 'Json':
+                propertiesdevice[item.keyName] = {
+                  type: 'string',
+                  title: item.keyName,
+                  // maxLength: item.maxLength,
+                  //  pattern: item.pattern,
+                  ui: {
+                    widget: 'codefield',
+                    loadingTip: 'loading...',
+                    config: { theme: 'vs-dark', language: 'json' },
+                    value: item.value
+                  },
+                  default: item.value
+                };
 
-              break;
+                break;
 
-            case 'Binary':
-              propertiesdevice[item.keyName] = {
-                type: 'string',
-                title: item.keyName,
-                // maxLength: item.maxLength,
-                //  pattern: item.pattern,
-                ui: {
-                  widget: 'textarea',
-                  autosize: { minRows: 2, maxRows: 10 }
-                } as SFTextareaWidgetSchema,
-                default: item.value
-              };
+              case 'Binary':
+                propertiesdevice[item.keyName] = {
+                  type: 'string',
+                  title: item.keyName,
+                  // maxLength: item.maxLength,
+                  //  pattern: item.pattern,
+                  ui: {
+                    widget: 'textarea',
+                    autosize: { minRows: 2, maxRows: 10 }
+                  } as SFTextareaWidgetSchema,
+                  default: item.value
+                };
 
-              break;
-            case 'DateTime':
-              propertiesdevice[item.keyName] = {
-                type: 'string',
-                title: item.keyName,
-                format: 'date-time',
-                displayFormat: 'yyyy-MM-dd HH:mm:ss',
-                ui: {},
-                default: item.value
-              };
+                break;
+              case 'DateTime':
+                propertiesdevice[item.keyName] = {
+                  type: 'string',
+                  title: item.keyName,
+                  format: 'date-time',
+                  displayFormat: 'yyyy-MM-dd HH:mm:ss',
+                  ui: {},
+                  default: item.value
+                };
 
-              break;
+                break;
+            }
           }
-        }
 
-        this.schemaserver.properties = propertiesserver;
-        this.schemaany.properties = propertiesany;
-        this.schemadevice.properties = propertiesdevice;
-        this.sfserver.refreshSchema();
-        this.sfany.refreshSchema();
-        this.sfdevice.refreshSchema();
-        this.cd.detectChanges();
-      },
-      error => {},
-      () => {}
+          this.schemaserver.properties = propertiesserver;
+          this.schemaany.properties = propertiesany;
+          this.schemadevice.properties = propertiesdevice;
+          this.sfserver.refreshSchema();
+          this.sfany.refreshSchema();
+          this.sfdevice.refreshSchema();
+          this.cd.detectChanges();
+        },
+        error: error => { },
+        complete: () => { }
+      }
     );
   }
 
@@ -441,35 +443,40 @@ export class PropformComponent implements OnInit {
     var val = {
       serverside: this.sfserver.value,
       anyside: this.sfany.value,
-      clientside:this.sfdevice.value
+      clientside: this.sfdevice.value
     };
     this.http.post<appmessage<any>>('api/Devices/' + this.params.id + '/EditAttribute', val).subscribe(
-      next => {
-        if (next.code === 10000) {
-          this.msg.success('属性修改成功');
-          this.drawerRef.close(this.params);
-        } else {
-          this.msg.error(next.msg);
-        }
-      },
-      error => {},
-      () => {}
+      {
+        next: next => {
+          if (next.code === 10000) {
+            this.msg.success('属性修改成功');
+            this.drawerRef.close(this.params);
+          } else {
+            this.msg.error(next.msg);
+          }
+        },
+        error: error => { },
+        complete: () => { }
+      }
     );
   }
 
   submit(value: any) {
     console.log(value);
     this.http.post<appmessage<any>>('api/Devices/' + this.params.id + '/EditAttribute', value).subscribe(
-      next => {
-        if (next.code === 10000) {
-          this.msg.success('属性修改成功');
-          this.drawerRef.close(this.params);
-        } else {
-          this.msg.error(next.msg);
-        }
-      },
-      error => {},
-      () => {}
+      {
+
+        next: next => {
+          if (next.code === 10000) {
+            this.msg.success('属性修改成功');
+            this.drawerRef.close(this.params);
+          } else {
+            this.msg.error(next.msg);
+          }
+        },
+        error: error => { },
+        complete: () => { }
+      }
     );
 
     // this.http

@@ -14,7 +14,7 @@ export class FlowformComponent implements OnInit {
   loading = false;
   @Input() id: string;
   form!: FormGroup;
-  constructor(private _httpClient: _HttpClient, private fb: FormBuilder, private drawerRef: NzDrawerRef<string>) {}
+  constructor(private _httpClient: _HttpClient, private fb: FormBuilder, private drawerRef: NzDrawerRef<string>) { }
 
   submitting = false;
   ngOnInit() {
@@ -31,8 +31,8 @@ export class FlowformComponent implements OnInit {
           x.data.mountType = x.data.mountType + '';
           this.form.patchValue(x.data);
         },
-        () => {},
-        () => {}
+        () => { },
+        () => { }
       );
     }
   }
@@ -42,15 +42,19 @@ export class FlowformComponent implements OnInit {
     var uri = this.id !== Guid.EMPTY ? 'api/rules/update' : 'api/rules/save';
     if (this.form.value.id === '') {
     }
-    this._httpClient.post(uri, this.form.value).subscribe(
-      () => {
-        this.submitting = false;
-      },
-      () => {
-        this.submitting = false;
-      },
-      () => {
-        this.drawerRef.close(this.id);
+    this._httpClient.post<appmessage<any>>(uri, this.form.value).subscribe(
+      {
+        next: next => {
+          this.submitting = false;
+        },
+        error: error => {
+          this.submitting = false;
+        },
+        complete: () => {
+          this.drawerRef.close(this.id);
+        }
+
+
       }
     );
   }
