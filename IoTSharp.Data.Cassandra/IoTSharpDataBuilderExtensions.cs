@@ -24,7 +24,7 @@ namespace Microsoft.Extensions.DependencyInjection
                 builder.UseInternalServiceProvider(services.BuildServiceProvider());
             }
      , poolSize);
-            //     checksBuilder. AddSqlite(connectionString, name: "IoTSharp.Data.Sqlite");
+              checksBuilder.AddCassandra(connectionString, name: "IoTSharp.Data.Cassandra");
             //   healthChecksUI.AddSqliteStorage("Data Source=health_checks.db");
 
         }

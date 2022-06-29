@@ -175,7 +175,6 @@
             清除告警信息
             </summary>
             <param name="m"></param>
-            <param name="id">告警Id</param>
             <returns></returns>
         </member>
         <member name="T:IoTSharp.Controllers.AuthorizedKeysController">
@@ -1171,8 +1170,6 @@
             </summary>
             <param name="db"></param>
             <param name="sql"></param>
-            <param name="prefix"></param>
-            <param name="suffix"></param>
             <param name="keyname"></param>
             <returns></returns>
             <exception cref="!:https://github.com/taosdata/TDengine/issues/4269">务必注意此bug</exception>
