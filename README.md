@@ -1,5 +1,5 @@
 <p align="left">
-  <a href="https://strapi.io/#gh-light-mode-only">
+  <a href="https://iotsharp.io/">
     <img src="docs/static/img/logo_white.svg" width="360px" alt="IoTSharp logo" />
   </a>
 </p>
