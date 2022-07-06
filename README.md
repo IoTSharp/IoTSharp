@@ -1,8 +1,13 @@
-![IOTSharp LOGO](docs/static/img/350x100.png)  
+<p align="left">
+  <a href="https://strapi.io/#gh-light-mode-only">
+    <img src="docs/static/img/logo_white.svg" width="360px" alt="IoTSharp logo" />
+  </a>
+</p>
 
 [![Build status](https://ci.appveyor.com/api/projects/status/5o23f5vss89ct2lw/branch/master?svg=true)](https://ci.appveyor.com/project/MaiKeBing/iotsharp/branch/master)
 ![GitHub](https://img.shields.io/github/license/iotsharp/iotsharp.svg)
 ![.NET Core](https://github.com/IoTSharp/IoTSharp/workflows/.NET%20Core/badge.svg?branch=master)
+
 
 IoTSharp is an open-source IoT platform for data collection, processing, visualization, and device management.
 
