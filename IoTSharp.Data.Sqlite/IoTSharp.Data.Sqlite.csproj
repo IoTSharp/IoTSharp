@@ -12,7 +12,7 @@
 			<PrivateAssets>all</PrivateAssets>
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
-		<PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="6.0.5" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="6.0.6" />
 		<PackageReference Include="Microsoft.Extensions.Diagnostics.HealthChecks" Version="6.0.5" />
 		<PackageReference Include="EFCore.Sharding.SQLite" Version="6.0.7" />
 	</ItemGroup>
