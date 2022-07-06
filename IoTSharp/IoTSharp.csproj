@@ -113,7 +113,7 @@
 		<PackageReference Include="MQTTnet.Extensions.Rpc" Version="4.0.0.167" />
 		<PackageReference Include="NetMQ" Version="4.0.1.8" />
 		<PackageReference Include="Npgsql" Version="6.0.4" />
-		<PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="6.0.4" />
+		<PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="6.0.5" />
 		<PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL.NetTopologySuite" Version="6.0.4" />
 		<PackageReference Include="NSwag.AspNetCore" Version="13.16.0" />
 		<PackageReference Include="PinusDB" Version="1.0.10" />
