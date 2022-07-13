@@ -98,7 +98,7 @@
 		<PackageReference Include="IoTSharp.Data.Taos" Version="2.0.478" />
 		<PackageReference Include="IoTSharp.HealthChecks.Taos" Version="2.0.478" />
 		<PackageReference Include="MaiKeBing.HostedService.ZeroMQ" Version="1.0.35" />
-		<PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="6.0.5" />
+		<PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="6.0.7" />
 		<PackageReference Include="Microsoft.CodeAnalysis.Common" Version="4.2.0" />
 		<PackageReference Include="Microsoft.CodeAnalysis.CSharp.Features" Version="4.2.0" />
 		<PackageReference Include="Microsoft.CodeAnalysis.CSharp.Workspaces" Version="4.2.0" />
