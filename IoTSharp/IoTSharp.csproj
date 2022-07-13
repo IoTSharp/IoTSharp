@@ -151,7 +151,7 @@
 		<PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="6.0.5" />
 		<PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="6.0.5" />
 		<PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.2.0" />
-		<PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="6.0.5">
+		<PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="6.0.7">
 			<PrivateAssets>all</PrivateAssets>
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
