@@ -108,7 +108,7 @@
 		<PackageReference Include="Microsoft.Extensions.Options" Version="6.0.0" />
 		<PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.15.1" />
 		<PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="6.0.5" />
-		<PackageReference Include="MQTTnet" Version="4.0.0.167" />
+		<PackageReference Include="MQTTnet" Version="4.0.2.221" />
 		<PackageReference Include="MQTTnet.AspNetCore" Version="4.0.0.167" />
 		<PackageReference Include="MQTTnet.Extensions.Rpc" Version="4.0.0.167" />
 		<PackageReference Include="NetMQ" Version="4.0.1.8" />
