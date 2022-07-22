@@ -5,7 +5,7 @@
           <input nz-input formControlName="name" placeholder="规则名称" />
         </se>
         <se label="挂载点" error="请选择挂载点" required>
-          <nz-select formControlName="mountType" placeholder="设备类型">
+          <nz-select nz-input  formControlName="mountType" placeholder="挂载点" >
             <nz-option nzValue="Telemetry" nzLabel="遥测"></nz-option>
              <nz-option nzValue="Attribute" nzLabel="属性"></nz-option>
              <nz-option nzValue="RAW" nzLabel="RAW"></nz-option>
