@@ -92,13 +92,24 @@ namespace IoTSharp.Controllers
             }
             else
             {
-                var ip = IPAddress.Parse(m.Domain);
-                var ten = _context.GetTenant(User.GetTenantId());
-                var option = _setting.MqttBroker;
-                var ca = ip.CreateCA(option.CACertificateFile, option.CAPrivateKeyFile);
-                ca.CreateBrokerTlsCert(_setting.MqttBroker.DomainName?? Dns.GetHostName(), ip, option.CertificateFile, option.PrivateKeyFile, ten.EMail);
-                ca.LoadCAToRoot();
-                result = new ApiResult(ApiCode.Success, ca.Thumbprint);
+                try
+                {
+                    var ip = IPAddress.Parse(m.Domain);
+                    var ten = _context.GetTenant(User.GetTenantId());
+                    var option = _setting.MqttBroker;
+                    var ca = ip.CreateCA(option.CACertificateFile, option.CAPrivateKeyFile);
+                    ca.CreateBrokerTlsCert(_setting.MqttBroker.DomainName ?? Dns.GetHostName(), ip,
+                        option.CertificateFile, option.PrivateKeyFile, ten.EMail);
+                    ca.LoadCAToRoot();
+                    result = new ApiResult(ApiCode.Success, ca.Thumbprint);
+                }
+                catch (Exception exception)
+                {
+
+                    result = new ApiResult(ApiCode.Exception, exception.Message );
+                }
+
+
 
             }
             return result;
