@@ -22,7 +22,7 @@ export class StatisticsComponent implements OnInit, IWidgetComponent {
   constructor(private http: _HttpClient, private cdr: ChangeDetectorRef) {}
   ngOnInit(): void {
     let date: Date = new Date();
-    this.http.get('http://localhost:5000/cap/api/metrics').subscribe({
+    this.http.get('cap/api/metrics').subscribe({
       next: next => {
         for (var i = 0; i < next.dayHour.length; i++) {
           this.chartdata.push({
@@ -39,7 +39,7 @@ export class StatisticsComponent implements OnInit, IWidgetComponent {
       complete: () => {}
     });
 
-    this.http.get('http://localhost:5000/healthchecks-api').subscribe({
+    this.http.get('healthchecks-api').subscribe({
       next: next => {
         this.data = next[0].entries;
         this.cdr.detectChanges();
