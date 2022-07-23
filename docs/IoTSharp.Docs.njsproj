@@ -93,7 +93,6 @@
     <Folder Include="docs" />
     <Folder Include="docs\tutorial-basics" />
     <Folder Include="docs\tutorial-extras" />
-    <Folder Include="IoTSharp.Docs" />
     <Folder Include="src" />
     <Folder Include="src\components" />
     <Folder Include="src\css" />
