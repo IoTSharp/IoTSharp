@@ -1,11 +1,11 @@
-﻿using IoTSharp.Data;
+﻿using Apache.IoTDB.Data;
+using Apache.IoTDB.DataStructure;
+using IoTSharp.Data;
 using IoTSharp.Dtos;
 using IoTSharp.Extensions;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using Salvini.IoTDB;
-using Salvini.IoTDB.Data;
 using Silkier;
 using Silkier.Extensions;
 using System;
@@ -20,17 +20,19 @@ namespace IoTSharp.Storage
     {
         private readonly AppSettings _appSettings;
         private readonly ILogger _logger;
-        private readonly Session _session;
+        private readonly  Apache.IoTDB.SessionPool   _session;
+        private readonly IoTDBConnection _ioTDB;
         private string _StorageGroupName;
         private bool dbisok = false;
 
         public IoTDBStorage(ILogger<IoTDBStorage> logger, IServiceScopeFactory scopeFactor
-           , IOptions<AppSettings> options, Salvini.IoTDB.Session session
+           , IOptions<AppSettings> options, Apache.IoTDB.Data.IoTDBConnection ioTDB
             )
         {
             _appSettings = options.Value;
             _logger = logger;
-            _session = session;
+            _session = ioTDB.SessionPool;
+            _ioTDB = ioTDB;
             CheckDataBase();
             var str = options.Value.ConnectionStrings["TelemetryStorage"];
             Dictionary<string, string> pairs = new Dictionary<string, string>();
@@ -48,17 +50,17 @@ namespace IoTSharp.Storage
             }
             else
             {
-                _session.CreateStorageGroup(groupName);
+                _session.SetStorageGroup(groupName);
             }
         }
 
         private bool CheckDataBase()
         {
-            if (!_session.IsOpen)
+            if (!_session.IsOpen())
             {
                 dbisok = Retry.RetryOnAny(10, f =>
                 {
-                    _session.OpenAsync().Wait(TimeSpan.FromMilliseconds(100));
+                    _session.Open().Wait(TimeSpan.FromMilliseconds(100));
                     return true;
                 }, ef =>
                 {
@@ -74,14 +76,14 @@ namespace IoTSharp.Storage
             var keylist = measureKeys.Split(';', ',').ToList();
             var sql = $"show timeseries  {device}.**";
             List<(string key, string type)> dt = new List<(string key, string type)>();
-            using var query = await _session.ExecuteQueryStatementAsync(sql);
+              var query = await _session.ExecuteQueryStatementAsync(sql);
             while (query.HasNext())
             {
                 var next = query.Next();
                 var values = next.Values;
                 var measurePointName = values[0].ToString().Replace(@$"{device}.", "");
                 if(measureKeys=="*"|| keylist.Contains(measurePointName))
-                    dt.Add((measurePointName, values[3]));
+                    dt.Add((measurePointName, Convert.ToString( values[3])));
             }
             return dt;
         }
@@ -211,7 +213,7 @@ namespace IoTSharp.Storage
                 }
 
                 _logger.LogInformation(sb.ToString());
-                using var query = await _session.ExecuteQueryStatementAsync(sb.ToString());
+                 var query = await _session.ExecuteQueryStatementAsync(sb.ToString());
                 while (query.HasNext())
                 {
                     var next = query.Next();
@@ -249,7 +251,7 @@ namespace IoTSharp.Storage
             var sql = $"select {selectItemStr} from {device}";
             
             List<TelemetryDataDto> dt = new List<TelemetryDataDto>();
-            using var query = await _session.ExecuteQueryStatementAsync(sql);
+             var query = await _session.ExecuteQueryStatementAsync(sql);
 
             while (query.HasNext())
             {
@@ -287,31 +289,25 @@ namespace IoTSharp.Storage
                     {
                         TelemetryData tdata = new TelemetryData() { DateTime = msg.ts, DeviceId = msg.DeviceId, KeyName = kp.Key, Value_DateTime = new DateTime(1970, 1, 1) };
                         tdata.FillKVToMe(kp);
-                        string _type = "";
                         object _value = null;
                         bool _hasvalue = true; switch (tdata.Type)
                         {
                             case IoTSharp.Data.DataType.Boolean:
-                                _type = "value_boolean";
                                 _value = tdata.Value_Boolean;
                                 _hasvalue = tdata.Value_Boolean.HasValue;
                                 break;
                             case IoTSharp.Data.DataType.String:
-                                _type = "value_string";
                                 _value = tdata.Value_String;
                                 break;
                             case IoTSharp.Data.DataType.Long:
-                                _type = "value_long";
                                 _value = tdata.Value_Long;
                                 _hasvalue = tdata.Value_Long.HasValue;
                                 break;
                             case IoTSharp.Data.DataType.Double:
-                                _type = "value_double";
                                 _value = tdata.Value_Double;
                                 _hasvalue = tdata.Value_Double.HasValue;
                                 break;
                             case IoTSharp.Data.DataType.DateTime:
-                                _type = "value_datetime";
                                 _value = tdata.Value_DateTime;
                                 _hasvalue = tdata.Value_DateTime.HasValue;
                                 break;
@@ -326,7 +322,7 @@ namespace IoTSharp.Storage
                     }
                 });
                 var record = new RowRecord(msg.ts, values, msg.MsgBody.Keys.ToList());
-                var okCount = await _session.InsertRecordAsync(device, record, false);
+                var okCount = await _session.InsertRecordAsync(device, record);
                 _logger.LogInformation($"数据入库完成，准备写入{values.Count}条数据，实际写入{okCount}条");
                 result = true;
             }

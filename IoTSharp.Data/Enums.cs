@@ -99,7 +99,7 @@ namespace IoTSharp.Data
         Oracle ,
         Sqlite,
         InMemory,
-        Cassandra
+        Cassandra,
     }
     [System.Text.Json.Serialization.JsonConverter(typeof(System.Text.Json.Serialization.JsonStringEnumConverter))]
     [JsonConverter(typeof(StringEnumConverter))]

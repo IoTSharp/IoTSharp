@@ -252,11 +252,11 @@ namespace IoTSharp
                             case DataBaseType.Sqlite:
                                 config.UseSQLiteToSharding(Configuration.GetConnectionString("TelemetryStorage"), settings.Sharding.ExpandByDateMode);
                                 break;
-
                             case DataBaseType.PostgreSql:
                             default:
                                 config.UseNpgsqlToSharding(Configuration.GetConnectionString("TelemetryStorage"), settings.Sharding.ExpandByDateMode);
                                 break;
+
                         }
                         config.SetEntityAssemblies(new Assembly[] { typeof(TelemetryData).Assembly });
                     });
@@ -292,25 +292,13 @@ namespace IoTSharp
                     services.AddSingleton<IStorage, TimescaleDBStorage>();
                     break;
                 case TelemetryStorage.IoTDB:
+                    var str = Configuration.GetConnectionString("TelemetryStorage");
                     services.AddSingleton<IStorage, IoTDBStorage>();
-                    services.AddSingleton<Salvini.IoTDB.Session>(s =>
+                    services.AddSingleton(s =>
                     {
-                        var str = Configuration.GetConnectionString("TelemetryStorage");
-                        Dictionary<string, string> pairs = new Dictionary<string, string>();
-                        str.Split(';', StringSplitOptions.RemoveEmptyEntries).ForEach(f =>
-                        {
-                            var kv = f.Split('=');
-                            pairs.TryAdd(key: kv[0], value: kv[1]);
-                        });
-                        string host = pairs.GetValueOrDefault("Server")??"127.0.0.1";
-                        int port = int.Parse(pairs.GetValueOrDefault("Port")??"6667");
-                        string username = pairs.GetValueOrDefault("User") ?? "root";  
-                        string password = pairs.GetValueOrDefault("Password") ?? "root";
-                        int fetchSize = int.Parse(pairs.GetValueOrDefault("fetchSize") ?? "1800");
-                        bool enableRpcCompression = bool.Parse(pairs.GetValueOrDefault("enableRpcCompression")??"false");
-                        int? poolSize = pairs.GetValueOrDefault("poolSize") != null ? int.Parse(pairs.GetValueOrDefault("poolSize")) : null;
-                        return new Salvini.IoTDB.Session(host, port, username, password, fetchSize,poolSize,enableRpcCompression);
+                         return new Apache.IoTDB.Data.IoTDBConnection (str);
                     });
+                    healthChecks.AddIoTDB(str);
                     break;
                 case TelemetryStorage.SingleTable:
                 default:
