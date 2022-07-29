@@ -37,6 +37,7 @@ IoTSharp is an open-source IoT platform for data collection, processing, visuali
  *  [Oracle](IoTSharp/appsettings.Oracle.json)  The test environment is  Oracle Standard Edition 12c Release 2 on CentOS , Support for  sharding.  See also: https://github.com/MaksymBilenko/docker-oracle-12c
  *  [SQLServer](IoTSharp/appsettings.SQLServer.json)  Microsoft SQL Server 2016 (RTM-GDR) (KB4019088) - 13.0.1742.0 (X64)   ,Support for  sharding
  *  [Sqlite](IoTSharp/appsettings.Sqlite.json) Support for  sharding
+ *  [Cassandra](IoTSharp/appsettings.Cassandra.json)  
 
 ## What EventBus Message Queue  are supported?
 
@@ -58,7 +59,8 @@ IoTSharp is an open-source IoT platform for data collection, processing, visuali
 * MySql,
 * SqlServer
 
-
+## IoTShar Demo 
+    http://139.9.232.10:2927    
 ##  IoTSharp online  
   https://cloud.iotsharp.net/
 
@@ -162,6 +164,7 @@ We will put the detailed donation records on the below!
 |  | 无敌飞行家 | ![GitHub User's stars](https://img.shields.io/github/stars/hehaoyu_2014?affiliations=OWNER%2CCOLLABORATOR%2CORGANIZATION_MEMBER&style=for-the-badge) | ￥5=5(公众号) |  |
 |  | 匿名公司 |  | ￥1000=1000(微信转账) |  |
 | [![@davidzhu001](https://avatars.githubusercontent.com/u/9436230?s=80&v=4)](https://github.com/davidzhu001)   | 农民也很疯狂 |  ![GitHub User's stars](https://img.shields.io/github/stars/davidzhu001?affiliations=OWNER%2CCOLLABORATOR%2CORGANIZATION_MEMBER&style=for-the-badge)| ￥400=200+200 微信转账 | |
+| [![@280780363](https://avatars.githubusercontent.com/u/20083278?s=80&v=4)](https://github.com/280780363)   | 谷草 |  ![GitHub User's stars](https://img.shields.io/github/stars/280780363?affiliations=OWNER%2CCOLLABORATOR%2CORGANIZATION_MEMBER&style=for-the-badge)| ￥88 微信转账 | |
 
 
 ## Community Support
