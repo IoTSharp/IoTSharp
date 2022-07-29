@@ -7,6 +7,7 @@
 [![Build status](https://ci.appveyor.com/api/projects/status/5o23f5vss89ct2lw/branch/master?svg=true)](https://ci.appveyor.com/project/MaiKeBing/iotsharp/branch/master)
 ![GitHub](https://img.shields.io/github/license/iotsharp/iotsharp.svg)
 ![.NET Core](https://github.com/IoTSharp/IoTSharp/workflows/.NET%20Core/badge.svg?branch=master)
+[![Quality gate](https://sonarcloud.io/api/project_badges/quality_gate?project=IoTSharp_IoTSharp)](https://sonarcloud.io/summary/new_code?id=IoTSharp_IoTSharp)
 
 
 IoTSharp is an open-source IoT platform for data collection, processing, visualization, and device management.
