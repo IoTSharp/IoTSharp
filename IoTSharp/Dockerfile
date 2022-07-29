@@ -12,7 +12,7 @@ EXPOSE 8883
 
 
 FROM mcr.microsoft.com/dotnet/sdk:6.0-bullseye-slim AS build
-RUN  apt-get  -y update   && apt-get install  -y curl libcurl4  wget &&   apt-get autoclean  
+RUN  apt-get  -y update   && apt-get install  -y curl libcurl4  wget && gnupg2 gnupg gnupg1   apt-get autoclean  
 RUN KEYRING=/usr/share/keyrings/nodesource.gpg && curl -fsSL https://deb.nodesource.com/gpgkey/nodesource.gpg.key | gpg --dearmor |  tee "$KEYRING" >/dev/null && \
 	gpg --no-default-keyring --keyring "$KEYRING" --list-keys && \
 	VERSION=node_16.x &&  DISTRO=bullseye  && \
@@ -22,7 +22,7 @@ RUN KEYRING=/usr/share/keyrings/nodesource.gpg && curl -fsSL https://deb.nodesou
 	ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime && \
 	npm config set registry https://registry.npmmirror.com && \
 	export NODE_OPTIONS=--openssl-legacy-provider && \
-	apt-get autoremove -y &&  apt-get clean  &&  apt-get autoclean && rm  /var/cache/apt/* -rf 
+	apt-get autoclean 
 
     
 WORKDIR /src
