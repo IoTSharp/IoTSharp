@@ -13,7 +13,7 @@ EXPOSE 8883
 
 FROM 	mcr.microsoft.com/dotnet/sdk:6.0-bullseye-slim AS build
 RUN  	apt-get  -y update   && \
-	apt-get install  -y  apt-utils libgdiplus libc6-dev lsof net-tools wget sqlite3 iputils-ping inetutils-tools    libfontconfig1 curl libcurl3 gnupg2 gnupg    && \
+	apt-get install  -y  apt-utils libgdiplus libc6-dev lsof net-tools wget sqlite3 iputils-ping inetutils-tools    libfontconfig1 curl   gnupg2 gnupg    && \
 	apt-get autoclean  
 RUN KEYRING=/usr/share/keyrings/nodesource.gpg && curl -fsSL https://deb.nodesource.com/gpgkey/nodesource.gpg.key | gpg --dearmor |  tee "$KEYRING" >/dev/null && \
 	gpg --no-default-keyring --keyring "$KEYRING" --list-keys && \
