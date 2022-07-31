@@ -22,6 +22,7 @@ sidebar_position: 1
   - Sqlite  程序内置，均验证。 小项目推荐。 
   - SQLServer  验证过的版本为 Microsoft SQL Server 2016 (RTM-GDR) (KB4019088) - 13.0.1742.0 (X64)  
   - InMemory 通过EF 的内存数据库，一般用于测试 。 
+  - Cassandra 现在开始我们通过 [EFCore.Cassandra](https://github.com/simpleidserver/EFCore.Cassandra) 支持了Cassandra。 
 - 时序数据库    用来存储遥测数据并提供遥测数据的查询统计等等。 
   - 通过EFCore 使用关系型数据库来存储带有时间戳的数据，虽然不推荐，但不妨是一种小型项目的最佳选择。 
   - InfluxDB 2.x 我们致力于推荐的时序数据库， InfluxDB集成非常好用的可视化工具， 除了不符合信创没有任何可挑剔的。
