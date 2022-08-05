@@ -20,7 +20,7 @@
               [ngModelOptions]="{ standalone: true }" (ngModelChange)="ngModelChange($event)" />
           </se>
   
-          <se label="对象名称" error="对象名称" required>
+          <se label="对象名称" error="对象名称" *ngIf="false">
             <input nz-input placeholder="" [(ngModel)]="form.flowname" readonly="readonly"
               [ngModelOptions]="{ standalone: true }" (ngModelChange)="ngModelChange($event)" />
           </se>
@@ -30,19 +30,17 @@
               [ngModelOptions]="{ standalone: true }" (ngModelChange)="ngModelChange($event)" />
           </se>
   
-          <!-- <se label="网关处理器" error="网关处理器" *ngIf="form.nodeProcessClassVisable">
-              <input
-                nz-input
-                [(ngModel)]="form.nodeProcessClass"
-                placeholder="网关处理器"
-                [ngModelOptions]="{ standalone: true }"
-                (ngModelChange)="ngModelChange($event)"
-              />
-            </se> -->
+   
   
-          <se label="条件表达式" error="条件表达式" *ngIf="form.conditionexpressionVisable">
+          <se label="条件表达式" error="条件表达式" *ngIf="form.conditionexpressionVisable"> 
+            <nz-input-group [nzSuffix]="suffixTemplateInfo" class="exgroup" >
             <textarea nz-input [(ngModel)]="form.conditionexpression" placeholder="条件表达式"
               [ngModelOptions]="{ standalone: true }" (ngModelChange)="ngModelChange($event)"></textarea>
+
+            </nz-input-group>
+              <ng-template #suffixTemplateInfo>
+                <i nz-icon nz-tooltip nzTooltipTitle="" nzType="info-circle" (click)="showce()" ></i>
+              </ng-template>
           </se>
   
           <se label="脚本类型" error="脚本类型" *ngIf="form.flowscripttypeVisable">
