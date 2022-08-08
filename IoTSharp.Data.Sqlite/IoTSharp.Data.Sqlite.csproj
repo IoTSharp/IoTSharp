@@ -13,5 +13,8 @@
   <ItemGroup>
     <ProjectReference Include="..\IoTSharp.Data\IoTSharp.Data.csproj" />
   </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Migrations\" />
+  </ItemGroup>
 
 </Project>
