@@ -60,6 +60,7 @@ namespace IoTSharp
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            System.Text.Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
             var settings = Configuration.Get<AppSettings>();
             services.Configure((Action<AppSettings>)(setting =>
             {

@@ -9,13 +9,6 @@
 		<PackageReference Include="AspNetCore.HealthChecks.UI.Core" Version="6.0.5" />
 		<PackageReference Include="EFCore.Cassandra" Version="2.0.5" />
 		<PackageReference Include="IoTSharp.HealthChecks.Cassandra" Version="1.0.16" />
-		<PackageReference Include="Microsoft.EntityFrameworkCore" Version="6.0.7" />
-		<PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="6.0.7">
-			<PrivateAssets>all</PrivateAssets>
-			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-		</PackageReference>
-	 
-		<PackageReference Include="Microsoft.Extensions.Diagnostics.HealthChecks" Version="6.0.7" />
  
 	</ItemGroup>
   <ItemGroup>

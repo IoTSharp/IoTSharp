@@ -1,5 +1,4 @@
 ﻿
-using EFCore.Sharding;
 using IoTSharp.Data;
 
 using Microsoft.EntityFrameworkCore;

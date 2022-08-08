@@ -8,7 +8,6 @@ using Microsoft.Extensions.ObjectPool;
 using Microsoft.Extensions.Options;
 using Org.BouncyCastle.Utilities.Encoders;
 using PinusDB.Data;
-using Silkier;
 using Silkier.EFCore;
 using System;
 using System.Collections.Generic;

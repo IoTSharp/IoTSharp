@@ -545,16 +545,16 @@ namespace IoTSharp.Handlers
                         Uri uri = new Uri("mqtt://" + obj.Endpoint);
                         isLoopback = uri.IsLoopback;
                     }
-                    if (isLoopback && !string.IsNullOrEmpty(e.ClientId) && e.ClientId == _mcsetting.MqttBroker && !string.IsNullOrEmpty(e.Username) )
+                    if (isLoopback && !string.IsNullOrEmpty(e.ClientId) && e.ClientId == _mcsetting.MqttBroker && !string.IsNullOrEmpty(e.UserName) )
                     {
                         e.ReasonCode   = MQTTnet.Protocol.MqttConnectReasonCode.Success;
                     }
                     else
                     {
-                        _logger.LogInformation($"ClientId={obj.ClientId},Endpoint={obj.Endpoint},Username={obj.Username}，Password={obj.Password}");
+                        _logger.LogInformation($"ClientId={obj.ClientId},Endpoint={obj.Endpoint},Username={obj.UserName}，Password={obj.Password}");
                         var mcr = _dbContextcv.DeviceIdentities.Include(d => d.Device).FirstOrDefault(mc =>
-                                              (mc.IdentityType == IdentityType.AccessToken && mc.IdentityId == obj.Username) ||
-                                              (mc.IdentityType == IdentityType.DevicePassword && mc.IdentityId == obj.Username && mc.IdentityValue == obj.Password));
+                                              (mc.IdentityType == IdentityType.AccessToken && mc.IdentityId == obj.UserName) ||
+                                              (mc.IdentityType == IdentityType.DevicePassword && mc.IdentityId == obj.UserName && mc.IdentityValue == obj.Password));
                         if (mcr != null)
                         {
                             try
@@ -563,7 +563,7 @@ namespace IoTSharp.Handlers
                               
                                 e.SessionItems.Add(nameof(Device), device);
                                 e.ReasonCode = MQTTnet.Protocol.MqttConnectReasonCode.Success;
-                                _logger.LogInformation($"Device {device.Name}({device.Id}) is online !username is {obj.Username} and  is endpoint{obj.Endpoint}");
+                                _logger.LogInformation($"Device {device.Name}({device.Id}) is online !username is {obj.UserName} and  is endpoint{obj.Endpoint}");
                             }
                             catch (Exception ex)
                             {
@@ -574,35 +574,35 @@ namespace IoTSharp.Handlers
                         else if (_dbContextcv.AuthorizedKeys.Any(ak => ak.AuthToken == obj.Password))
                         {
                             var ak = _dbContextcv.AuthorizedKeys.Include(ak => ak.Customer).Include(ak => ak.Tenant).Include(ak => ak.Devices).FirstOrDefault(ak => ak.AuthToken == obj.Password);
-                            if (ak != null && !ak.Devices.Any(dev => dev.Name == obj.Username))
+                            if (ak != null && !ak.Devices.Any(dev => dev.Name == obj.UserName))
                             {
 
-                                var devvalue = new Device() { Name = obj.Username, DeviceType = DeviceType.Device, Timeout = 300, LastActive = DateTime.Now };
+                                var devvalue = new Device() { Name = obj.UserName, DeviceType = DeviceType.Device, Timeout = 300, LastActive = DateTime.Now };
                                 devvalue.Tenant = ak.Tenant;
                                 devvalue.Customer = ak.Customer;
                                 _dbContextcv.Device.Add(devvalue);
                                 ak.Devices.Add(devvalue);
-                                _dbContextcv.AfterCreateDevice(devvalue, obj.Username, obj.Password);
+                                _dbContextcv.AfterCreateDevice(devvalue, obj.UserName, obj.Password);
                                 _dbContextcv.SaveChanges();
                             }
-                            var mcp = _dbContextcv.DeviceIdentities.Include(d => d.Device).FirstOrDefault(mc => mc.IdentityType == IdentityType.DevicePassword && mc.IdentityId == obj.Username && mc.IdentityValue == obj.Password);
+                            var mcp = _dbContextcv.DeviceIdentities.Include(d => d.Device).FirstOrDefault(mc => mc.IdentityType == IdentityType.DevicePassword && mc.IdentityId == obj.UserName && mc.IdentityValue == obj.Password);
                             if (mcp != null)
                             {
                                 e.SessionItems.Add(nameof(Device), mcp.Device);
                                 e.ReasonCode = MQTTnet.Protocol.MqttConnectReasonCode.Success;
-                                _logger.LogInformation($"Device {mcp.Device.Name}({mcp.Device.Id}) is online !username is {obj.Username} and  is endpoint{obj.Endpoint}");
+                                _logger.LogInformation($"Device {mcp.Device.Name}({mcp.Device.Id}) is online !username is {obj.UserName} and  is endpoint{obj.Endpoint}");
                             }
                             else
                             {
                                 e.ReasonCode = MQTTnet.Protocol.MqttConnectReasonCode.BadUserNameOrPassword;
-                                _logger.LogInformation($"Bad username or  password/AuthToken {obj.Username},connection {obj.Endpoint} refused");
+                                _logger.LogInformation($"Bad username or  password/AuthToken {obj.UserName},connection {obj.Endpoint} refused");
                             }
                         }
                         else
                         {
 
                             e.ReasonCode = MQTTnet.Protocol.MqttConnectReasonCode.BadUserNameOrPassword;
-                            _logger.LogInformation($"Bad username or password {obj.Username},connection {obj.Endpoint} refused");
+                            _logger.LogInformation($"Bad username or password {obj.UserName},connection {obj.Endpoint} refused");
                         }
                     }
 
