@@ -24,13 +24,13 @@ const config = {
         docs: {
           sidebarPath: require.resolve('./sidebars.js'),
           // Please change this to your repo.
-          editUrl: 'https://github.com/IoTSharp/IoTSharp/',
+          editUrl: 'https://github.com/IoTSharp/IoTSharp/edit/master/docs',
         },
         blog: {
           showReadingTime: true,
           // Please change this to your repo.
           editUrl:
-            'https://github.com/IoTSharp/IoTSharp/blob/main/',
+            'https://github.com/IoTSharp/IoTSharp/edit/master/docs/',
         },
         theme: {
           customCss: require.resolve('./src/css/custom.css'),
@@ -62,7 +62,7 @@ const config = {
             position: 'right',
           },
           {
-            href: 'https://gitee.com/dotnetchina/IoTSharp',
+            href: 'https://gitee.com/IoTSharp/IoTSharp',
             label: 'Gitee',
             position: 'right',
           },

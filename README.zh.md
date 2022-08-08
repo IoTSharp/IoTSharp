@@ -26,6 +26,27 @@ IoTSharp 是一个 基于.Net Core 开源的物联网基础平台， 支持 HTTP
  *  [Oracle](IoTSharp/appsettings.Oracle.json)  测试环境是 Oracle Standard Edition 12c Release 2, 支持分表.请参见: https://github.com/MaksymBilenko/docker-oracle-12c
  *  [SQLServer](IoTSharp/appsettings.SQLServer.json) 测试环境是  Microsoft SQL Server 2016 (RTM-GDR) (KB4019088) - 13.0.1742.0 (X64),支持分表
  *  [Sqlite](IoTSharp/appsettings.Sqlite.json)  支持分表。
+ *  [Cassandra](IoTSharp/appsettings.Cassandra.json)  
+
+## 支持的消息队列中间件?
+
+ *  RabbitMQ
+ *  Kafka 
+ *	InMemory 
+ *	ZeroMQ 
+ *	NATS 
+ *	Pulsar 
+ *	RedisStreams 
+ *	AmazonSQS 
+ *	AzureServiceBus 
+
+## 持的事件存储支中间件。
+* PostgreSql,
+* MongoDB,
+* InMemory,
+* LiteDB,
+* MySql,
+* SqlServer
 
 ## 演示：
   http://139.9.232.10:2927
@@ -102,11 +123,11 @@ IoTSharp 的软件生态
 
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square)](https://github.com/IoTSharp/IoTSharp/pulls)
 
-If you would like to contribute, feel free to create a [Pull Request](https://github.com/IoTSharp/IoTSharp/pulls), or give us [Bug Report](https://github.com/IoTSharp/IoTSharp/issues/new).
+如果你有兴趣贡献代码，可以创建[Pull Request](https://github.com/IoTSharp/IoTSharp/pulls), 或者[Bug Report](https://github.com/IoTSharp/IoTSharp/issues/new).
 
 ### 贡献者
 
-This project exists thanks to all the people who contribute.
+这个项目的存在得益于所有的贡献者， 感谢他们。
 
 <a href="https://github.com/IoTSharp/IoTSharp/graphs/contributors">
   <img src="https://contrib.rocks/image?repo=IoTSharp/IoTSharp" />
@@ -123,13 +144,15 @@ We will put the detailed donation records on the below!
 
 
 
-|                                                        | Name                                  | Stars | Donations | Message |
+|                                                        | 姓名                                  | Stars | 捐赠 | 留言 |
 | ------------------------------------------------------------ | ------------------ | -------- | -------- | -------- |
-| [![@iioter](https://avatars.githubusercontent.com/u/29589505?s=80&v=4)](https://github.com/iioter) | whd | ![GitHub User's stars](https://img.shields.io/github/stars/iioter?affiliations=OWNER%2CCOLLABORATOR%2CORGANIZATION_MEMBER&style=for-the-badge) | ￥512 =120+100+292(码云共计三次) |  |
+| [![@iioter](https://avatars.githubusercontent.com/u/29589505?s=80&v=4)](https://github.com/iioter) | whd | ![GitHub User's stars](https://img.shields.io/github/stars/iioter?affiliations=OWNER%2CCOLLABORATOR%2CORGANIZATION_MEMBER&style=for-the-badge) | ￥1024 =120+100+292+512(码云共计四次) |  |
 | [![@nnhy](https://avatars.githubusercontent.com/u/506367?s=80&v=4)](https://github.com/nnhy) | 大石头 | ![GitHub User's stars](https://img.shields.io/github/stars/nnhy?affiliations=OWNER%2CCOLLABORATOR%2CORGANIZATION_MEMBER&style=for-the-badge) |     ￥672=666+5（码云+公众号）     |            |
 |  | 无敌飞行家 | ![GitHub User's stars](https://img.shields.io/github/stars/hehaoyu_2014?affiliations=OWNER%2CCOLLABORATOR%2CORGANIZATION_MEMBER&style=for-the-badge) | ￥5=5(公众号) |  |
 |  | 匿名公司 |  | ￥1000=1000(微信转账) |  |
-| [![@davidzhu001](https://avatars.githubusercontent.com/u/9436230?s=80&v=4)](https://github.com/davidzhu001)   | 农民也很疯狂 |  ![GitHub User's stars](https://img.shields.io/github/stars/davidzhu001?affiliations=OWNER%2CCOLLABORATOR%2CORGANIZATION_MEMBER&style=for-the-badge)| ￥200 微信转账 | |
+| [![@davidzhu001](https://avatars.githubusercontent.com/u/9436230?s=80&v=4)](https://github.com/davidzhu001)   | 农民也很疯狂 |  ![GitHub User's stars](https://img.shields.io/github/stars/davidzhu001?affiliations=OWNER%2CCOLLABORATOR%2CORGANIZATION_MEMBER&style=for-the-badge)| ￥400=200+200 微信转账 | |
+| [![@280780363](https://avatars.githubusercontent.com/u/20083278?s=80&v=4)](https://github.com/280780363)   | 谷草 |  ![GitHub User's stars](https://img.shields.io/github/stars/280780363?affiliations=OWNER%2CCOLLABORATOR%2CORGANIZATION_MEMBER&style=for-the-badge)| ￥88 微信转账 | |
+
 
 
 

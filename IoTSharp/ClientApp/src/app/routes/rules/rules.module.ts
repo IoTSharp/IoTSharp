@@ -3,6 +3,7 @@ import { SharedModule } from '@shared';
 import { NgxEchartsModule } from 'ngx-echarts';
 import { CommonDialogSevice } from '../util/commonDialogSevice';
 import { WidgetsModule } from '../widgets/widgets.module';
+import { ConditionbuilderComponent } from './conditionbuilder/conditionbuilder.component';
 import { DesignerComponent } from './designer/designer.component';
 import { DiagramComponent } from './diagram/diagram.component';
 import { FloweventsComponent } from './flowevents/flowevents.component';
@@ -25,7 +26,7 @@ const COMPONENTS = [
   ForkdialogComponent,
   SequenceflowtesterComponent,
   TasktesterComponent,
-  RuledeviceComponent,
+  RuledeviceComponent,ConditionbuilderComponent
   
 ];
 

@@ -154,7 +154,7 @@ from(bucket: ""{_bucket}"")
             var query = _taos.GetQueryApi();
             var sb = new StringBuilder();
             sb.AppendLine(@$"from(bucket: ""{_bucket}"")");
-            sb.AppendLine($"|> range(start: {begin:o},stop:{end:o})");
+            sb.AppendLine($"|> range(start: {begin.ToLocalTime():o},stop:{end.ToLocalTime():o})");
             sb.AppendLine(@$"|> filter(fn: (r) => r[""_measurement""] == ""TelemetryData"")");
             sb.AppendLine(@$"|> filter(fn: (r) => r[""DeviceId""] == ""{deviceId}"")");
             if (!string.IsNullOrEmpty(keys))
@@ -164,7 +164,7 @@ from(bucket: ""{_bucket}"")
                 sb.AppendLine(@$"|> filter(fn: (r) => {string.Join(" or ", kvs)})");
                 sb.AppendLine(@$"|> group(columns: [""_field""])");
             }
-            if (every > TimeSpan.Zero)
+            if (every > TimeSpan.Zero && aggregate != Aggregate.None)
             {
                 sb.AppendLine($@"|> aggregateWindow(every: {(long)every.TotalMilliseconds}ms, fn: {Enum.GetName(aggregate).ToLower()}, createEmpty: false)");
                 sb.AppendLine(@$"|> yield(name: ""{Enum.GetName( aggregate).ToLower()}"")");

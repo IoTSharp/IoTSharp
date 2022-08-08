@@ -186,7 +186,7 @@ namespace IoTSharp
 
         internal static  Settings AddIoTSharpHealthCheckEndpoint(this Settings setup)
         {
-            var urls = Environment.GetEnvironmentVariable("ASPNETCORE_URLS")?.Split(';');
+            var urls = Environment.GetEnvironmentVariable("ASPNETCORE_URLS")?.Split(';',StringSplitOptions.RemoveEmptyEntries);
             var uris = urls?.Select(url => Regex.Replace(url, @"^(?<scheme>https?):\/\/((\+)|(\*)|(0.0.0.0))(?=[\:\/]|$)", "${scheme}://localhost"))
                             .Select(uri => new Uri(uri, UriKind.Absolute)).ToArray();
             var httpEndpoint = uris?.FirstOrDefault(uri => uri.Scheme == "http");

@@ -14,7 +14,7 @@ import {
   Inject,
   OnInit
 } from '@angular/core';
-import { _HttpClient } from '@delon/theme'; //test
+import { SettingsService, _HttpClient } from '@delon/theme'; //test
 import { delay, mergeMap } from 'rxjs/operators';
 import * as BpmnJS from 'bpmn-js/dist/bpmn-modeler.production.min.js';
 
@@ -28,6 +28,11 @@ import { NzTooltipDirective } from 'ng-zorro-antd/tooltip';
 import { appmessage } from 'src/app/models/appmessage';
 
 import { FormBpmnObject, Activity, TextAnnotation, SequenceFlow, Task, BpmnBaseObject, DesignerResult, DataOutputAssociation, GateWay } from 'src/app/models/rules/basebizobject';
+import { NzDrawerService } from 'ng-zorro-antd/drawer';
+import { ConditionbuilderComponent } from '../conditionbuilder/conditionbuilder.component';
+
+//  import customModule from 'src/assets/custom/gh/custom.js';// 导入自定义渲染
+
 @Component({
   selector: 'app-diagram',
   templateUrl: './diagram.component.html',
@@ -165,6 +170,29 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy 
       .subscribe();
   }
 
+
+  showce(){
+    var { nzMaskClosable, width } = this.settingService.getData('drawerconfig');
+    var title = '条件生成' ;
+    const drawerRef = this.drawerService.create<ConditionbuilderComponent, { id: string }, string>({
+      nzTitle: title,
+      nzContent: ConditionbuilderComponent,
+      nzWidth: width < 1280 ? 1280 : width,
+      nzMaskClosable: nzMaskClosable,
+      nzContentParams: {
+
+      }
+    });
+    drawerRef.afterOpen.subscribe(() => { });
+    drawerRef.afterClose.subscribe(data => {
+    this.form.conditionexpression=data['expression'];
+   var orgin=data['orgin']; //用于服务端条件解析的原始JSON对象
+
+
+   
+    });
+
+  }
   getexcutors() {
     this.http.get('api/rules/getexecutors').subscribe(
       next => {
@@ -183,7 +211,9 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy 
     private nzConfigService: NzConfigService,
     private element: ElementRef,
     @Inject(DOCUMENT) document: any,
-    private renderer: Renderer2
+    private renderer: Renderer2,
+    private drawerService: NzDrawerService,
+    private settingService: SettingsService
   ) {
     this.document = document;
     this.activity = new Activity();
@@ -203,7 +233,7 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy 
         defaultStrokeColor: '#1890ff'
       },
       // additionalModules: [
-      //   customModule
+      //   customModule  
       // ],
       moddleExtensions: {}
     });
@@ -1658,8 +1688,8 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy 
         // var elementRegistry = this.bpmnJS.get('elementRegistry');
         // var modeling = this.bpmnJS.get('modeling');
         // var node = elementRegistry.get(element.id);
-        // node.businessObject['profile'] = task.bizObject.profile
-        // modeling.updateProperties(node, { profile: task.bizObject.profile });
+        // node.businessObject['profile'] = task.bizObject.profile //附加自定义图形内置数据属性
+        // modeling.updateProperties(node, { profile: task.bizObject.profile });  //触发任意一次change事件,通知事件总线发起一次重绘
         task.incoming = element.incoming ?? [];
         task.outgoing = element.incoming ?? [];
         task.id = element.id;

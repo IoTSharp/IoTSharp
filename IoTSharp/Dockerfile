@@ -2,39 +2,19 @@
 
 FROM mcr.microsoft.com/dotnet/aspnet:6.0-bullseye-slim AS base
 MAINTAINER Yanhong Ma 2022 <mysticboy@live.com>
-RUN echo "deb https://mirrors.tuna.tsinghua.edu.cn/debian/ bullseye main contrib non-free" > /etc/apt/sources.list && \
-	echo "deb https://mirrors.tuna.tsinghua.edu.cn/debian/ bullseye-updates main contrib non-free" >> /etc/apt/sources.list && \
-	echo "deb https://mirrors.tuna.tsinghua.edu.cn/debian/ bullseye-backports main contrib non-free" >> /etc/apt/sources.list && \
-	echo "deb https://mirrors.tuna.tsinghua.edu.cn/debian-security jessie/updates main contrib non-free" >> /etc/apt/sources.list && \
-    apt-get  -y   -q update   && apt-get install  -y   -q  apt-utils libgdiplus libc6-dev lsof net-tools wget sqlite3 python3      iputils-ping inetutils-tools   curl libfontconfig1 && \
-	apt-get autoremove -y &&  apt-get clean  &&  apt-get autoclean && rm  /var/cache/apt/* -rf &&  \
-	ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime
-#RUN curl -o TDengine-client.tar.gz "https://www.taosdata.com/download/download-gettingStarted.php?pkg=tdengine_linux&pkgName=TDengine-client-2.0.12.0-Linux-x64.tar.gz" && \
-   #tar -xzvf TDengine-client.tar.gz && rm TDengine-client.tar.gz -f  && cd  $(ls TDengine-client*  -d) && ./install_client.sh && \
-    #rm $(pwd) -rf
-RUN echo "fs.file-max=6553500" >> /etc/sysctl.conf && \
-    echo "* soft nofile 65535" >> /etc/security/limits.conf && \
-    echo "* hard nofile 65535" >> /etc/security/limits.conf && \
-    echo "session    required   pam_limits.so" >> /etc/security/limits.conf
+RUN  apt-get  -y update   && \
+     apt-get install  -y apt-utils libgdiplus libc6-dev lsof net-tools wget sqlite3 iputils-ping inetutils-tools   curl libfontconfig1 && \
+     apt-get autoclean 
 WORKDIR /app
 EXPOSE 80  
 EXPOSE 1883 
 EXPOSE 8883 
-EXPOSE 502 
-EXPOSE 5683
-EXPOSE 5684 
-EXPOSE 8080
 
 
-FROM mcr.microsoft.com/dotnet/sdk:6.0-bullseye-slim AS build
-
-RUN echo "deb https://mirrors.tuna.tsinghua.edu.cn/debian/ bullseye main contrib non-free" > /etc/apt/sources.list && \
-	echo "deb https://mirrors.tuna.tsinghua.edu.cn/debian/ bullseye-updates main contrib non-free" >> /etc/apt/sources.list && \
-	echo "deb https://mirrors.tuna.tsinghua.edu.cn/debian/ bullseye-backports main contrib non-free" >> /etc/apt/sources.list && \
-    apt-get  -y   -q update   && apt-get install  -y   -q  git   curl gnupg libcurl4  gcc g++ make  gnupg2 build-essential wget &&  \
-    apt-get autoremove -y &&  apt-get clean  &&  apt-get autoclean && rm  /var/cache/apt/* -rf 	
-
-
+FROM 	mcr.microsoft.com/dotnet/sdk:6.0-bullseye-slim AS build
+RUN  	apt-get  -y update   && \
+	apt-get install  -y  apt-utils libgdiplus libc6-dev lsof net-tools wget sqlite3 iputils-ping inetutils-tools    libfontconfig1 curl   gnupg2 gnupg    && \
+	apt-get autoclean  
 RUN KEYRING=/usr/share/keyrings/nodesource.gpg && curl -fsSL https://deb.nodesource.com/gpgkey/nodesource.gpg.key | gpg --dearmor |  tee "$KEYRING" >/dev/null && \
 	gpg --no-default-keyring --keyring "$KEYRING" --list-keys && \
 	VERSION=node_16.x &&  DISTRO=bullseye  && \
@@ -44,7 +24,7 @@ RUN KEYRING=/usr/share/keyrings/nodesource.gpg && curl -fsSL https://deb.nodesou
 	ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime && \
 	npm config set registry https://registry.npmmirror.com && \
 	export NODE_OPTIONS=--openssl-legacy-provider && \
-	apt-get autoremove -y &&  apt-get clean  &&  apt-get autoclean && rm  /var/cache/apt/* -rf 
+	apt-get autoclean 
 
     
 WORKDIR /src
