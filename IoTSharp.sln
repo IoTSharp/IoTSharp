@@ -59,6 +59,8 @@ Project("{9092AA53-FB77-4645-B42D-1CCCA6BD08BD}") = "IoTSharp.Docs", "docs\IoTSh
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IoTSharp.Data.Cassandra", "IoTSharp.Data.Cassandra\IoTSharp.Data.Cassandra.csproj", "{9C6FA709-3334-4C39-922D-6FF5ADB8C683}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IoTSharp.EasyUse", "IoTSharp.EasyUse\IoTSharp.EasyUse.csproj", "{4258C2A5-2651-460D-8192-086BB89E8AD1}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -125,6 +127,10 @@ Global
 		{9C6FA709-3334-4C39-922D-6FF5ADB8C683}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9C6FA709-3334-4C39-922D-6FF5ADB8C683}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{9C6FA709-3334-4C39-922D-6FF5ADB8C683}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4258C2A5-2651-460D-8192-086BB89E8AD1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4258C2A5-2651-460D-8192-086BB89E8AD1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4258C2A5-2651-460D-8192-086BB89E8AD1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4258C2A5-2651-460D-8192-086BB89E8AD1}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
