@@ -560,9 +560,9 @@ namespace IoTSharp.Handlers
                             try
                             {
                                 var device = mcr.Device;
-                              
                                 e.SessionItems.Add(nameof(Device), device);
                                 e.ReasonCode = MQTTnet.Protocol.MqttConnectReasonCode.Success;
+                                _queue.PublishDeviceStatus(device.Id, DeviceStatus.Good);
                                 _logger.LogInformation($"Device {device.Name}({device.Id}) is online !username is {obj.UserName} and  is endpoint{obj.Endpoint}");
                             }
                             catch (Exception ex)
@@ -584,12 +584,14 @@ namespace IoTSharp.Handlers
                                 ak.Devices.Add(devvalue);
                                 _dbContextcv.AfterCreateDevice(devvalue, obj.UserName, obj.Password);
                                 _dbContextcv.SaveChanges();
+                                _queue.PublishDeviceStatus(devvalue.Id, DeviceStatus.Good);
                             }
                             var mcp = _dbContextcv.DeviceIdentities.Include(d => d.Device).FirstOrDefault(mc => mc.IdentityType == IdentityType.DevicePassword && mc.IdentityId == obj.UserName && mc.IdentityValue == obj.Password);
                             if (mcp != null)
                             {
                                 e.SessionItems.Add(nameof(Device), mcp.Device);
                                 e.ReasonCode = MQTTnet.Protocol.MqttConnectReasonCode.Success;
+                                _queue.PublishDeviceStatus(mcp.Device.Id, DeviceStatus.Good);
                                 _logger.LogInformation($"Device {mcp.Device.Name}({mcp.Device.Id}) is online !username is {obj.UserName} and  is endpoint{obj.Endpoint}");
                             }
                             else
@@ -600,7 +602,6 @@ namespace IoTSharp.Handlers
                         }
                         else
                         {
-
                             e.ReasonCode = MQTTnet.Protocol.MqttConnectReasonCode.BadUserNameOrPassword;
                             _logger.LogInformation($"Bad username or password {obj.UserName},connection {obj.Endpoint} refused");
                         }
@@ -612,7 +613,7 @@ namespace IoTSharp.Handlers
             {
                 e.ReasonCode = MQTTnet.Protocol.MqttConnectReasonCode.ImplementationSpecificError;
                 e.ReasonString = ex.Message;
-                _logger.LogError(ex, "ConnectionRefusedServerUnavailable {0}", ex.Message);
+                _logger.LogError(ex, "ImplementationSpecificError {0}", ex.Message);
             }
             return Task.CompletedTask;
 
