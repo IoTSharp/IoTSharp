@@ -26,7 +26,7 @@ const FeatureList = [
     Svg: require('../../static/img/undraw_docusaurus_react.svg').default,
     description: (
       <>
-        IoTSharp 重复考虑到物联网架构的重要性，因此我们具有丰富的中间件支持，比如消息中间件(RabbitMQ、RabbitMQ、Kafka、ZeroMQ)进行处理、也支持多种时序数据库（InfluxDB、Taos、TimescaleDB）存储和处理遥测数据。基础数据我们支持多种关系型数据库(MySQl、PostgreSQL、Oracle、Sql Server、Sqlite)
+        IoTSharp 重复考虑到物联网架构的重要性，因此我们具有丰富的中间件支持，比如消息中间件(RabbitMQ、AmazonSQS、Kafka、ZeroMQ、AzureServiceBus、Pulsar、NATS)进行处理、也支持多种时序数据库（InfluxDB、TDengine、TimescaleDB、IoTDB）存储和处理遥测数据。基础数据我们支持多种关系型数据库(PostgreSQL、Cassandra、Oracle、Sql Server、Sqlite、MySQl)
       </>
     ),
   },
