@@ -34,7 +34,7 @@ export default class CustomContextPad {
 
                     autoPlace.append(element, shape);
                 } else {
-                    appendBuiltinShapeStart(event, element);
+                    appendBuiltinShapeStart(event);
                 }
             };
         }
