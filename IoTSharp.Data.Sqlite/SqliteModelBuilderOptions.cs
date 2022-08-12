@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using System;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace IoTSharp.Data.Sqlite
 {
@@ -14,7 +15,7 @@ namespace IoTSharp.Data.Sqlite
 
         public void OnModelCreating(ModelBuilder modelBuilder)
         {
-           
+            modelBuilder.SetCaseInsensitiveSearchesForSQLite();
         }
     }
 }

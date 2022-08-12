@@ -13,10 +13,10 @@ namespace IoTSharp.Data.Sqlite.Migrations
                 name: "AspNetRoles",
                 columns: table => new
                 {
-                    Id = table.Column<string>(type: "TEXT", nullable: false),
-                    Name = table.Column<string>(type: "TEXT", maxLength: 256, nullable: true),
-                    NormalizedName = table.Column<string>(type: "TEXT", maxLength: 256, nullable: true),
-                    ConcurrencyStamp = table.Column<string>(type: "TEXT", nullable: true)
+                    Id = table.Column<string>(type: "TEXT", nullable: false, collation: "NOCASE"),
+                    Name = table.Column<string>(type: "TEXT", maxLength: 256, nullable: true, collation: "NOCASE"),
+                    NormalizedName = table.Column<string>(type: "TEXT", maxLength: 256, nullable: true, collation: "NOCASE"),
+                    ConcurrencyStamp = table.Column<string>(type: "TEXT", nullable: true, collation: "NOCASE")
                 },
                 constraints: table =>
                 {
@@ -27,16 +27,16 @@ namespace IoTSharp.Data.Sqlite.Migrations
                 name: "AspNetUsers",
                 columns: table => new
                 {
-                    Id = table.Column<string>(type: "TEXT", nullable: false),
-                    UserName = table.Column<string>(type: "TEXT", maxLength: 256, nullable: true),
-                    NormalizedUserName = table.Column<string>(type: "TEXT", maxLength: 256, nullable: true),
-                    Email = table.Column<string>(type: "TEXT", maxLength: 256, nullable: true),
-                    NormalizedEmail = table.Column<string>(type: "TEXT", maxLength: 256, nullable: true),
+                    Id = table.Column<string>(type: "TEXT", nullable: false, collation: "NOCASE"),
+                    UserName = table.Column<string>(type: "TEXT", maxLength: 256, nullable: true, collation: "NOCASE"),
+                    NormalizedUserName = table.Column<string>(type: "TEXT", maxLength: 256, nullable: true, collation: "NOCASE"),
+                    Email = table.Column<string>(type: "TEXT", maxLength: 256, nullable: true, collation: "NOCASE"),
+                    NormalizedEmail = table.Column<string>(type: "TEXT", maxLength: 256, nullable: true, collation: "NOCASE"),
                     EmailConfirmed = table.Column<bool>(type: "INTEGER", nullable: false),
-                    PasswordHash = table.Column<string>(type: "TEXT", nullable: true),
-                    SecurityStamp = table.Column<string>(type: "TEXT", nullable: true),
-                    ConcurrencyStamp = table.Column<string>(type: "TEXT", nullable: true),
-                    PhoneNumber = table.Column<string>(type: "TEXT", nullable: true),
+                    PasswordHash = table.Column<string>(type: "TEXT", nullable: true, collation: "NOCASE"),
+                    SecurityStamp = table.Column<string>(type: "TEXT", nullable: true, collation: "NOCASE"),
+                    ConcurrencyStamp = table.Column<string>(type: "TEXT", nullable: true, collation: "NOCASE"),
+                    PhoneNumber = table.Column<string>(type: "TEXT", nullable: true, collation: "NOCASE"),
                     PhoneNumberConfirmed = table.Column<bool>(type: "INTEGER", nullable: false),
                     TwoFactorEnabled = table.Column<bool>(type: "INTEGER", nullable: false),
                     LockoutEnd = table.Column<DateTimeOffset>(type: "TEXT", nullable: true),
@@ -54,18 +54,18 @@ namespace IoTSharp.Data.Sqlite.Migrations
                 {
                     DictionaryId = table.Column<long>(type: "INTEGER", nullable: false)
                         .Annotation("Sqlite:Autoincrement", true),
-                    DictionaryName = table.Column<string>(type: "TEXT", nullable: true),
-                    DictionaryValue = table.Column<string>(type: "TEXT", nullable: true),
-                    Dictionary18NKeyName = table.Column<string>(type: "TEXT", nullable: true),
+                    DictionaryName = table.Column<string>(type: "TEXT", nullable: true, collation: "NOCASE"),
+                    DictionaryValue = table.Column<string>(type: "TEXT", nullable: true, collation: "NOCASE"),
+                    Dictionary18NKeyName = table.Column<string>(type: "TEXT", nullable: true, collation: "NOCASE"),
                     DictionaryStatus = table.Column<int>(type: "INTEGER", nullable: true),
                     DictionaryValueType = table.Column<int>(type: "INTEGER", nullable: true),
-                    DictionaryValueTypeName = table.Column<string>(type: "TEXT", nullable: true),
+                    DictionaryValueTypeName = table.Column<string>(type: "TEXT", nullable: true, collation: "NOCASE"),
                     DictionaryGroupId = table.Column<long>(type: "INTEGER", nullable: true),
-                    DictionaryPattern = table.Column<string>(type: "TEXT", nullable: true),
-                    DictionaryDesc = table.Column<string>(type: "TEXT", nullable: true),
-                    DictionaryColor = table.Column<string>(type: "TEXT", nullable: true),
-                    DictionaryIcon = table.Column<string>(type: "TEXT", nullable: true),
-                    DictionaryTag = table.Column<string>(type: "TEXT", nullable: true)
+                    DictionaryPattern = table.Column<string>(type: "TEXT", nullable: true, collation: "NOCASE"),
+                    DictionaryDesc = table.Column<string>(type: "TEXT", nullable: true, collation: "NOCASE"),
+                    DictionaryColor = table.Column<string>(type: "TEXT", nullable: true, collation: "NOCASE"),
+                    DictionaryIcon = table.Column<string>(type: "TEXT", nullable: true, collation: "NOCASE"),
+                    DictionaryTag = table.Column<string>(type: "TEXT", nullable: true, collation: "NOCASE")
                 },
                 constraints: table =>
                 {
@@ -78,13 +78,13 @@ namespace IoTSharp.Data.Sqlite.Migrations
                 {
                     DictionaryGroupId = table.Column<long>(type: "INTEGER", nullable: false)
                         .Annotation("Sqlite:Autoincrement", true),
-                    DictionaryGroupName = table.Column<string>(type: "TEXT", nullable: true),
-                    DictionaryGroupKey = table.Column<string>(type: "TEXT", nullable: true),
+                    DictionaryGroupName = table.Column<string>(type: "TEXT", nullable: true, collation: "NOCASE"),
+                    DictionaryGroupKey = table.Column<string>(type: "TEXT", nullable: true, collation: "NOCASE"),
                     DictionaryGroupValueType = table.Column<int>(type: "INTEGER", nullable: true),
                     DictionaryGroupStatus = table.Column<int>(type: "INTEGER", nullable: true),
-                    DictionaryGroupValueTypeName = table.Column<string>(type: "TEXT", nullable: true),
-                    DictionaryGroupDesc = table.Column<string>(type: "TEXT", nullable: true),
-                    DictionaryGroup18NKeyName = table.Column<string>(type: "TEXT", nullable: true)
+                    DictionaryGroupValueTypeName = table.Column<string>(type: "TEXT", nullable: true, collation: "NOCASE"),
+                    DictionaryGroupDesc = table.Column<string>(type: "TEXT", nullable: true, collation: "NOCASE"),
+                    DictionaryGroup18NKeyName = table.Column<string>(type: "TEXT", nullable: true, collation: "NOCASE")
                 },
                 constraints: table =>
                 {
@@ -99,39 +99,39 @@ namespace IoTSharp.Data.Sqlite.Migrations
                         .Annotation("Sqlite:Autoincrement", true),
                     UserId = table.Column<Guid>(type: "TEXT", nullable: false),
                     Status = table.Column<int>(type: "INTEGER", nullable: false),
-                    KeyName = table.Column<string>(type: "TEXT", nullable: true),
-                    ValueBG = table.Column<string>(type: "TEXT", nullable: true),
-                    ValueCS = table.Column<string>(type: "TEXT", nullable: true),
-                    ValueDA = table.Column<string>(type: "TEXT", nullable: true),
-                    ValueDEDE = table.Column<string>(type: "TEXT", nullable: true),
-                    ValueESES = table.Column<string>(type: "TEXT", nullable: true),
-                    ValueENUS = table.Column<string>(type: "TEXT", nullable: true),
-                    ValueENGR = table.Column<string>(type: "TEXT", nullable: true),
-                    ValueELGR = table.Column<string>(type: "TEXT", nullable: true),
-                    ValueFI = table.Column<string>(type: "TEXT", nullable: true),
-                    ValueFRFR = table.Column<string>(type: "TEXT", nullable: true),
-                    ValueHE = table.Column<string>(type: "TEXT", nullable: true),
-                    ValueHRHR = table.Column<string>(type: "TEXT", nullable: true),
-                    ValueHU = table.Column<string>(type: "TEXT", nullable: true),
-                    ValueITIT = table.Column<string>(type: "TEXT", nullable: true),
-                    ValueJAJP = table.Column<string>(type: "TEXT", nullable: true),
-                    ValueKOKR = table.Column<string>(type: "TEXT", nullable: true),
-                    ValueNL = table.Column<string>(type: "TEXT", nullable: true),
-                    ValuePLPL = table.Column<string>(type: "TEXT", nullable: true),
-                    ValuePT = table.Column<string>(type: "TEXT", nullable: true),
-                    ValueSLSL = table.Column<string>(type: "TEXT", nullable: true),
-                    ValueTRTR = table.Column<string>(type: "TEXT", nullable: true),
-                    ValueSR = table.Column<string>(type: "TEXT", nullable: true),
-                    ValueSV = table.Column<string>(type: "TEXT", nullable: true),
-                    ValueUK = table.Column<string>(type: "TEXT", nullable: true),
-                    ValueVI = table.Column<string>(type: "TEXT", nullable: true),
-                    ValueZHCN = table.Column<string>(type: "TEXT", nullable: true),
-                    ValueZHTW = table.Column<string>(type: "TEXT", nullable: true),
+                    KeyName = table.Column<string>(type: "TEXT", nullable: true, collation: "NOCASE"),
+                    ValueBG = table.Column<string>(type: "TEXT", nullable: true, collation: "NOCASE"),
+                    ValueCS = table.Column<string>(type: "TEXT", nullable: true, collation: "NOCASE"),
+                    ValueDA = table.Column<string>(type: "TEXT", nullable: true, collation: "NOCASE"),
+                    ValueDEDE = table.Column<string>(type: "TEXT", nullable: true, collation: "NOCASE"),
+                    ValueESES = table.Column<string>(type: "TEXT", nullable: true, collation: "NOCASE"),
+                    ValueENUS = table.Column<string>(type: "TEXT", nullable: true, collation: "NOCASE"),
+                    ValueENGR = table.Column<string>(type: "TEXT", nullable: true, collation: "NOCASE"),
+                    ValueELGR = table.Column<string>(type: "TEXT", nullable: true, collation: "NOCASE"),
+                    ValueFI = table.Column<string>(type: "TEXT", nullable: true, collation: "NOCASE"),
+                    ValueFRFR = table.Column<string>(type: "TEXT", nullable: true, collation: "NOCASE"),
+                    ValueHE = table.Column<string>(type: "TEXT", nullable: true, collation: "NOCASE"),
+                    ValueHRHR = table.Column<string>(type: "TEXT", nullable: true, collation: "NOCASE"),
+                    ValueHU = table.Column<string>(type: "TEXT", nullable: true, collation: "NOCASE"),
+                    ValueITIT = table.Column<string>(type: "TEXT", nullable: true, collation: "NOCASE"),
+                    ValueJAJP = table.Column<string>(type: "TEXT", nullable: true, collation: "NOCASE"),
+                    ValueKOKR = table.Column<string>(type: "TEXT", nullable: true, collation: "NOCASE"),
+                    ValueNL = table.Column<string>(type: "TEXT", nullable: true, collation: "NOCASE"),
+                    ValuePLPL = table.Column<string>(type: "TEXT", nullable: true, collation: "NOCASE"),
+                    ValuePT = table.Column<string>(type: "TEXT", nullable: true, collation: "NOCASE"),
+                    ValueSLSL = table.Column<string>(type: "TEXT", nullable: true, collation: "NOCASE"),
+                    ValueTRTR = table.Column<string>(type: "TEXT", nullable: true, collation: "NOCASE"),
+                    ValueSR = table.Column<string>(type: "TEXT", nullable: true, collation: "NOCASE"),
+                    ValueSV = table.Column<string>(type: "TEXT", nullable: true, collation: "NOCASE"),
+                    ValueUK = table.Column<string>(type: "TEXT", nullable: true, collation: "NOCASE"),
+                    ValueVI = table.Column<string>(type: "TEXT", nullable: true, collation: "NOCASE"),
+                    ValueZHCN = table.Column<string>(type: "TEXT", nullable: true, collation: "NOCASE"),
+                    ValueZHTW = table.Column<string>(type: "TEXT", nullable: true, collation: "NOCASE"),
                     ResourceType = table.Column<int>(type: "INTEGER", nullable: true),
                     ResourceId = table.Column<long>(type: "INTEGER", nullable: true),
-                    ResourceKey = table.Column<string>(type: "TEXT", nullable: true),
-                    ResourceTag = table.Column<string>(type: "TEXT", nullable: true),
-                    ResouceDesc = table.Column<string>(type: "TEXT", nullable: true),
+                    ResourceKey = table.Column<string>(type: "TEXT", nullable: true, collation: "NOCASE"),
+                    ResourceTag = table.Column<string>(type: "TEXT", nullable: true, collation: "NOCASE"),
+                    ResouceDesc = table.Column<string>(type: "TEXT", nullable: true, collation: "NOCASE"),
                     ResouceGroupId = table.Column<int>(type: "INTEGER", nullable: true),
                     AddDate = table.Column<DateTime>(type: "TEXT", nullable: true)
                 },
@@ -146,17 +146,17 @@ namespace IoTSharp.Data.Sqlite.Migrations
                 {
                     Catalog = table.Column<int>(type: "INTEGER", nullable: false),
                     DeviceId = table.Column<Guid>(type: "TEXT", nullable: false),
-                    KeyName = table.Column<string>(type: "TEXT", nullable: false),
+                    KeyName = table.Column<string>(type: "TEXT", nullable: false, collation: "NOCASE"),
                     DateTime = table.Column<DateTime>(type: "TEXT", nullable: false),
                     DataSide = table.Column<int>(type: "INTEGER", nullable: false),
                     Type = table.Column<int>(type: "INTEGER", nullable: false),
                     Value_Boolean = table.Column<bool>(type: "INTEGER", nullable: true),
-                    Value_String = table.Column<string>(type: "TEXT", nullable: true),
+                    Value_String = table.Column<string>(type: "TEXT", nullable: true, collation: "NOCASE"),
                     Value_Long = table.Column<long>(type: "INTEGER", nullable: true),
                     Value_DateTime = table.Column<DateTime>(type: "TEXT", nullable: true),
                     Value_Double = table.Column<double>(type: "REAL", nullable: true),
-                    Value_Json = table.Column<string>(type: "TEXT", nullable: true),
-                    Value_XML = table.Column<string>(type: "TEXT", nullable: true),
+                    Value_Json = table.Column<string>(type: "TEXT", nullable: true, collation: "NOCASE"),
+                    Value_XML = table.Column<string>(type: "TEXT", nullable: true, collation: "NOCASE"),
                     Value_Binary = table.Column<byte[]>(type: "BLOB", nullable: true)
                 },
                 constraints: table =>
@@ -169,8 +169,8 @@ namespace IoTSharp.Data.Sqlite.Migrations
                 columns: table => new
                 {
                     DeviceModelId = table.Column<Guid>(type: "TEXT", nullable: false),
-                    ModelName = table.Column<string>(type: "TEXT", nullable: true),
-                    ModelDesc = table.Column<string>(type: "TEXT", nullable: true),
+                    ModelName = table.Column<string>(type: "TEXT", nullable: true, collation: "NOCASE"),
+                    ModelDesc = table.Column<string>(type: "TEXT", nullable: true, collation: "NOCASE"),
                     ModelStatus = table.Column<int>(type: "INTEGER", nullable: false),
                     CreateDateTime = table.Column<DateTime>(type: "TEXT", nullable: false),
                     Creator = table.Column<Guid>(type: "TEXT", nullable: false)
@@ -185,10 +185,10 @@ namespace IoTSharp.Data.Sqlite.Migrations
                 columns: table => new
                 {
                     MappingId = table.Column<Guid>(type: "TEXT", nullable: false),
-                    SourceId = table.Column<string>(type: "TEXT", nullable: true),
-                    TargeId = table.Column<string>(type: "TEXT", nullable: true),
-                    SourceElementId = table.Column<string>(type: "TEXT", nullable: true),
-                    TargetElementId = table.Column<string>(type: "TEXT", nullable: true),
+                    SourceId = table.Column<string>(type: "TEXT", nullable: true, collation: "NOCASE"),
+                    TargeId = table.Column<string>(type: "TEXT", nullable: true, collation: "NOCASE"),
+                    SourceElementId = table.Column<string>(type: "TEXT", nullable: true, collation: "NOCASE"),
+                    TargetElementId = table.Column<string>(type: "TEXT", nullable: true, collation: "NOCASE"),
                     CreateDate = table.Column<DateTime>(type: "TEXT", nullable: true),
                     Creator = table.Column<Guid>(type: "TEXT", nullable: false),
                     MappingStatus = table.Column<int>(type: "INTEGER", nullable: false),
@@ -206,16 +206,16 @@ namespace IoTSharp.Data.Sqlite.Migrations
                 columns: table => new
                 {
                     PortId = table.Column<Guid>(type: "TEXT", nullable: false),
-                    PortName = table.Column<string>(type: "TEXT", nullable: true),
-                    PortDesc = table.Column<string>(type: "TEXT", nullable: true),
-                    PortPic = table.Column<string>(type: "TEXT", nullable: true),
+                    PortName = table.Column<string>(type: "TEXT", nullable: true, collation: "NOCASE"),
+                    PortDesc = table.Column<string>(type: "TEXT", nullable: true, collation: "NOCASE"),
+                    PortPic = table.Column<string>(type: "TEXT", nullable: true, collation: "NOCASE"),
                     PortType = table.Column<int>(type: "INTEGER", nullable: false),
                     PortPhyType = table.Column<int>(type: "INTEGER", nullable: false),
                     PortStatus = table.Column<int>(type: "INTEGER", nullable: false),
                     DeviceId = table.Column<Guid>(type: "TEXT", nullable: false),
                     CreateDate = table.Column<DateTime>(type: "TEXT", nullable: true),
                     Creator = table.Column<long>(type: "INTEGER", nullable: false),
-                    PortElementId = table.Column<string>(type: "TEXT", nullable: true)
+                    PortElementId = table.Column<string>(type: "TEXT", nullable: true, collation: "NOCASE")
                 },
                 constraints: table =>
                 {
@@ -227,17 +227,17 @@ namespace IoTSharp.Data.Sqlite.Migrations
                 columns: table => new
                 {
                     DeviceId = table.Column<Guid>(type: "TEXT", nullable: false),
-                    KeyName = table.Column<string>(type: "TEXT", nullable: false),
+                    KeyName = table.Column<string>(type: "TEXT", nullable: false, collation: "NOCASE"),
                     DateTime = table.Column<DateTime>(type: "TEXT", nullable: false),
                     DataSide = table.Column<int>(type: "INTEGER", nullable: false),
                     Type = table.Column<int>(type: "INTEGER", nullable: false),
                     Value_Boolean = table.Column<bool>(type: "INTEGER", nullable: true),
-                    Value_String = table.Column<string>(type: "TEXT", nullable: true),
+                    Value_String = table.Column<string>(type: "TEXT", nullable: true, collation: "NOCASE"),
                     Value_Long = table.Column<long>(type: "INTEGER", nullable: true),
                     Value_DateTime = table.Column<DateTime>(type: "TEXT", nullable: true),
                     Value_Double = table.Column<double>(type: "REAL", nullable: true),
-                    Value_Json = table.Column<string>(type: "TEXT", nullable: true),
-                    Value_XML = table.Column<string>(type: "TEXT", nullable: true),
+                    Value_Json = table.Column<string>(type: "TEXT", nullable: true, collation: "NOCASE"),
+                    Value_XML = table.Column<string>(type: "TEXT", nullable: true, collation: "NOCASE"),
                     Value_Binary = table.Column<byte[]>(type: "BLOB", nullable: true)
                 },
                 constraints: table =>
@@ -250,14 +250,14 @@ namespace IoTSharp.Data.Sqlite.Migrations
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "TEXT", nullable: false),
-                    Name = table.Column<string>(type: "TEXT", nullable: true),
-                    EMail = table.Column<string>(type: "TEXT", nullable: true),
-                    Phone = table.Column<string>(type: "TEXT", nullable: true),
-                    Country = table.Column<string>(type: "TEXT", nullable: true),
-                    Province = table.Column<string>(type: "TEXT", nullable: true),
-                    City = table.Column<string>(type: "TEXT", nullable: true),
-                    Street = table.Column<string>(type: "TEXT", nullable: true),
-                    Address = table.Column<string>(type: "TEXT", nullable: true),
+                    Name = table.Column<string>(type: "TEXT", nullable: true, collation: "NOCASE"),
+                    EMail = table.Column<string>(type: "TEXT", nullable: true, collation: "NOCASE"),
+                    Phone = table.Column<string>(type: "TEXT", nullable: true, collation: "NOCASE"),
+                    Country = table.Column<string>(type: "TEXT", nullable: true, collation: "NOCASE"),
+                    Province = table.Column<string>(type: "TEXT", nullable: true, collation: "NOCASE"),
+                    City = table.Column<string>(type: "TEXT", nullable: true, collation: "NOCASE"),
+                    Street = table.Column<string>(type: "TEXT", nullable: true, collation: "NOCASE"),
+                    Address = table.Column<string>(type: "TEXT", nullable: true, collation: "NOCASE"),
                     ZipCode = table.Column<int>(type: "INTEGER", nullable: false)
                 },
                 constraints: table =>
@@ -271,9 +271,9 @@ namespace IoTSharp.Data.Sqlite.Migrations
                 {
                     Id = table.Column<int>(type: "INTEGER", nullable: false)
                         .Annotation("Sqlite:Autoincrement", true),
-                    RoleId = table.Column<string>(type: "TEXT", nullable: false),
-                    ClaimType = table.Column<string>(type: "TEXT", nullable: true),
-                    ClaimValue = table.Column<string>(type: "TEXT", nullable: true)
+                    RoleId = table.Column<string>(type: "TEXT", nullable: false, collation: "NOCASE"),
+                    ClaimType = table.Column<string>(type: "TEXT", nullable: true, collation: "NOCASE"),
+                    ClaimValue = table.Column<string>(type: "TEXT", nullable: true, collation: "NOCASE")
                 },
                 constraints: table =>
                 {
@@ -292,9 +292,9 @@ namespace IoTSharp.Data.Sqlite.Migrations
                 {
                     Id = table.Column<int>(type: "INTEGER", nullable: false)
                         .Annotation("Sqlite:Autoincrement", true),
-                    UserId = table.Column<string>(type: "TEXT", nullable: false),
-                    ClaimType = table.Column<string>(type: "TEXT", nullable: true),
-                    ClaimValue = table.Column<string>(type: "TEXT", nullable: true)
+                    UserId = table.Column<string>(type: "TEXT", nullable: false, collation: "NOCASE"),
+                    ClaimType = table.Column<string>(type: "TEXT", nullable: true, collation: "NOCASE"),
+                    ClaimValue = table.Column<string>(type: "TEXT", nullable: true, collation: "NOCASE")
                 },
                 constraints: table =>
                 {
@@ -311,10 +311,10 @@ namespace IoTSharp.Data.Sqlite.Migrations
                 name: "AspNetUserLogins",
                 columns: table => new
                 {
-                    LoginProvider = table.Column<string>(type: "TEXT", nullable: false),
-                    ProviderKey = table.Column<string>(type: "TEXT", nullable: false),
-                    ProviderDisplayName = table.Column<string>(type: "TEXT", nullable: true),
-                    UserId = table.Column<string>(type: "TEXT", nullable: false)
+                    LoginProvider = table.Column<string>(type: "TEXT", nullable: false, collation: "NOCASE"),
+                    ProviderKey = table.Column<string>(type: "TEXT", nullable: false, collation: "NOCASE"),
+                    ProviderDisplayName = table.Column<string>(type: "TEXT", nullable: true, collation: "NOCASE"),
+                    UserId = table.Column<string>(type: "TEXT", nullable: false, collation: "NOCASE")
                 },
                 constraints: table =>
                 {
@@ -331,8 +331,8 @@ namespace IoTSharp.Data.Sqlite.Migrations
                 name: "AspNetUserRoles",
                 columns: table => new
                 {
-                    UserId = table.Column<string>(type: "TEXT", nullable: false),
-                    RoleId = table.Column<string>(type: "TEXT", nullable: false)
+                    UserId = table.Column<string>(type: "TEXT", nullable: false, collation: "NOCASE"),
+                    RoleId = table.Column<string>(type: "TEXT", nullable: false, collation: "NOCASE")
                 },
                 constraints: table =>
                 {
@@ -355,10 +355,10 @@ namespace IoTSharp.Data.Sqlite.Migrations
                 name: "AspNetUserTokens",
                 columns: table => new
                 {
-                    UserId = table.Column<string>(type: "TEXT", nullable: false),
-                    LoginProvider = table.Column<string>(type: "TEXT", nullable: false),
-                    Name = table.Column<string>(type: "TEXT", nullable: false),
-                    Value = table.Column<string>(type: "TEXT", nullable: true)
+                    UserId = table.Column<string>(type: "TEXT", nullable: false, collation: "NOCASE"),
+                    LoginProvider = table.Column<string>(type: "TEXT", nullable: false, collation: "NOCASE"),
+                    Name = table.Column<string>(type: "TEXT", nullable: false, collation: "NOCASE"),
+                    Value = table.Column<string>(type: "TEXT", nullable: true, collation: "NOCASE")
                 },
                 constraints: table =>
                 {
@@ -376,9 +376,9 @@ namespace IoTSharp.Data.Sqlite.Migrations
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "TEXT", nullable: false),
-                    UserId = table.Column<string>(type: "TEXT", nullable: true),
-                    Token = table.Column<string>(type: "TEXT", nullable: true),
-                    JwtId = table.Column<string>(type: "TEXT", nullable: true),
+                    UserId = table.Column<string>(type: "TEXT", nullable: true, collation: "NOCASE"),
+                    Token = table.Column<string>(type: "TEXT", nullable: true, collation: "NOCASE"),
+                    JwtId = table.Column<string>(type: "TEXT", nullable: true, collation: "NOCASE"),
                     IsUsed = table.Column<bool>(type: "INTEGER", nullable: false),
                     IsRevorked = table.Column<bool>(type: "INTEGER", nullable: false),
                     AddedDate = table.Column<DateTime>(type: "TEXT", nullable: false),
@@ -399,12 +399,12 @@ namespace IoTSharp.Data.Sqlite.Migrations
                 columns: table => new
                 {
                     CommandId = table.Column<Guid>(type: "TEXT", nullable: false),
-                    CommandTitle = table.Column<string>(type: "TEXT", nullable: true),
-                    CommandI18N = table.Column<string>(type: "TEXT", nullable: true),
+                    CommandTitle = table.Column<string>(type: "TEXT", nullable: true, collation: "NOCASE"),
+                    CommandI18N = table.Column<string>(type: "TEXT", nullable: true, collation: "NOCASE"),
                     CommandType = table.Column<int>(type: "INTEGER", nullable: false),
-                    CommandParams = table.Column<string>(type: "TEXT", nullable: true),
-                    CommandName = table.Column<string>(type: "TEXT", nullable: true),
-                    CommandTemplate = table.Column<string>(type: "TEXT", nullable: true),
+                    CommandParams = table.Column<string>(type: "TEXT", nullable: true, collation: "NOCASE"),
+                    CommandName = table.Column<string>(type: "TEXT", nullable: true, collation: "NOCASE"),
+                    CommandTemplate = table.Column<string>(type: "TEXT", nullable: true, collation: "NOCASE"),
                     DeviceModelId = table.Column<Guid>(type: "TEXT", nullable: false),
                     CreateDateTime = table.Column<DateTime>(type: "TEXT", nullable: false),
                     Creator = table.Column<Guid>(type: "TEXT", nullable: false),
@@ -426,14 +426,14 @@ namespace IoTSharp.Data.Sqlite.Migrations
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "TEXT", nullable: false),
-                    Name = table.Column<string>(type: "TEXT", nullable: true),
-                    Email = table.Column<string>(type: "TEXT", nullable: true),
-                    Phone = table.Column<string>(type: "TEXT", nullable: true),
-                    Country = table.Column<string>(type: "TEXT", nullable: true),
-                    Province = table.Column<string>(type: "TEXT", nullable: true),
-                    City = table.Column<string>(type: "TEXT", nullable: true),
-                    Street = table.Column<string>(type: "TEXT", nullable: true),
-                    Address = table.Column<string>(type: "TEXT", nullable: true),
+                    Name = table.Column<string>(type: "TEXT", nullable: true, collation: "NOCASE"),
+                    Email = table.Column<string>(type: "TEXT", nullable: true, collation: "NOCASE"),
+                    Phone = table.Column<string>(type: "TEXT", nullable: true, collation: "NOCASE"),
+                    Country = table.Column<string>(type: "TEXT", nullable: true, collation: "NOCASE"),
+                    Province = table.Column<string>(type: "TEXT", nullable: true, collation: "NOCASE"),
+                    City = table.Column<string>(type: "TEXT", nullable: true, collation: "NOCASE"),
+                    Street = table.Column<string>(type: "TEXT", nullable: true, collation: "NOCASE"),
+                    Address = table.Column<string>(type: "TEXT", nullable: true, collation: "NOCASE"),
                     ZipCode = table.Column<int>(type: "INTEGER", nullable: false),
                     TenantId = table.Column<Guid>(type: "TEXT", nullable: true)
                 },
@@ -452,8 +452,8 @@ namespace IoTSharp.Data.Sqlite.Migrations
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "TEXT", nullable: false),
-                    AlarmType = table.Column<string>(type: "TEXT", nullable: true),
-                    AlarmDetail = table.Column<string>(type: "TEXT", nullable: true),
+                    AlarmType = table.Column<string>(type: "TEXT", nullable: true, collation: "NOCASE"),
+                    AlarmDetail = table.Column<string>(type: "TEXT", nullable: true, collation: "NOCASE"),
                     AckDateTime = table.Column<DateTime>(type: "TEXT", nullable: false),
                     ClearDateTime = table.Column<DateTime>(type: "TEXT", nullable: false),
                     StartDateTime = table.Column<DateTime>(type: "TEXT", nullable: false),
@@ -486,9 +486,9 @@ namespace IoTSharp.Data.Sqlite.Migrations
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "TEXT", nullable: false),
-                    Name = table.Column<string>(type: "TEXT", nullable: true),
-                    Description = table.Column<string>(type: "TEXT", nullable: true),
-                    AssetType = table.Column<string>(type: "TEXT", nullable: true),
+                    Name = table.Column<string>(type: "TEXT", nullable: true, collation: "NOCASE"),
+                    Description = table.Column<string>(type: "TEXT", nullable: true, collation: "NOCASE"),
+                    AssetType = table.Column<string>(type: "TEXT", nullable: true, collation: "NOCASE"),
                     CustomerId = table.Column<Guid>(type: "TEXT", nullable: true),
                     TenantId = table.Column<Guid>(type: "TEXT", nullable: true)
                 },
@@ -514,14 +514,14 @@ namespace IoTSharp.Data.Sqlite.Migrations
                     Id = table.Column<Guid>(type: "TEXT", nullable: false),
                     TenantId = table.Column<Guid>(type: "TEXT", nullable: true),
                     CustomerId = table.Column<Guid>(type: "TEXT", nullable: true),
-                    UserId = table.Column<string>(type: "TEXT", nullable: true),
-                    UserName = table.Column<string>(type: "TEXT", nullable: true),
+                    UserId = table.Column<string>(type: "TEXT", nullable: true, collation: "NOCASE"),
+                    UserName = table.Column<string>(type: "TEXT", nullable: true, collation: "NOCASE"),
                     ObjectID = table.Column<Guid>(type: "TEXT", nullable: false),
-                    ObjectName = table.Column<string>(type: "TEXT", nullable: true),
+                    ObjectName = table.Column<string>(type: "TEXT", nullable: true, collation: "NOCASE"),
                     ObjectType = table.Column<int>(type: "INTEGER", nullable: false),
-                    ActionName = table.Column<string>(type: "TEXT", nullable: true),
-                    ActionData = table.Column<string>(type: "TEXT", nullable: true),
-                    ActionResult = table.Column<string>(type: "TEXT", nullable: true),
+                    ActionName = table.Column<string>(type: "TEXT", nullable: true, collation: "NOCASE"),
+                    ActionData = table.Column<string>(type: "TEXT", nullable: true, collation: "NOCASE"),
+                    ActionResult = table.Column<string>(type: "TEXT", nullable: true, collation: "NOCASE"),
                     ActiveDateTime = table.Column<DateTime>(type: "TEXT", nullable: false)
                 },
                 constraints: table =>
@@ -544,8 +544,8 @@ namespace IoTSharp.Data.Sqlite.Migrations
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "TEXT", nullable: false),
-                    Name = table.Column<string>(type: "TEXT", nullable: true),
-                    AuthToken = table.Column<string>(type: "TEXT", nullable: true),
+                    Name = table.Column<string>(type: "TEXT", nullable: true, collation: "NOCASE"),
+                    AuthToken = table.Column<string>(type: "TEXT", nullable: true, collation: "NOCASE"),
                     TenantId = table.Column<Guid>(type: "TEXT", nullable: true),
                     CustomerId = table.Column<Guid>(type: "TEXT", nullable: true)
                 },
@@ -569,12 +569,12 @@ namespace IoTSharp.Data.Sqlite.Migrations
                 columns: table => new
                 {
                     DiagramId = table.Column<Guid>(type: "TEXT", nullable: false),
-                    DiagramName = table.Column<string>(type: "TEXT", nullable: true),
-                    DiagramDesc = table.Column<string>(type: "TEXT", nullable: true),
+                    DiagramName = table.Column<string>(type: "TEXT", nullable: true, collation: "NOCASE"),
+                    DiagramDesc = table.Column<string>(type: "TEXT", nullable: true, collation: "NOCASE"),
                     DiagramStatus = table.Column<int>(type: "INTEGER", nullable: false),
                     Creator = table.Column<Guid>(type: "TEXT", nullable: false),
                     CreateDate = table.Column<DateTimeOffset>(type: "TEXT", nullable: true),
-                    DiagramImage = table.Column<string>(type: "TEXT", nullable: true),
+                    DiagramImage = table.Column<string>(type: "TEXT", nullable: true, collation: "NOCASE"),
                     IsDefault = table.Column<bool>(type: "INTEGER", nullable: false),
                     TenantId = table.Column<Guid>(type: "TEXT", nullable: true),
                     CustomerId = table.Column<Guid>(type: "TEXT", nullable: true)
@@ -599,11 +599,11 @@ namespace IoTSharp.Data.Sqlite.Migrations
                 columns: table => new
                 {
                     ToolBoxId = table.Column<Guid>(type: "TEXT", nullable: false),
-                    ToolBoxName = table.Column<string>(type: "TEXT", nullable: true),
-                    ToolBoxIcon = table.Column<string>(type: "TEXT", nullable: true),
+                    ToolBoxName = table.Column<string>(type: "TEXT", nullable: true, collation: "NOCASE"),
+                    ToolBoxIcon = table.Column<string>(type: "TEXT", nullable: true, collation: "NOCASE"),
                     ToolBoxStatus = table.Column<int>(type: "INTEGER", nullable: false),
-                    ToolBoxRequestUri = table.Column<string>(type: "TEXT", nullable: true),
-                    ToolBoxType = table.Column<string>(type: "TEXT", nullable: true),
+                    ToolBoxRequestUri = table.Column<string>(type: "TEXT", nullable: true, collation: "NOCASE"),
+                    ToolBoxType = table.Column<string>(type: "TEXT", nullable: true, collation: "NOCASE"),
                     DeviceId = table.Column<long>(type: "INTEGER", nullable: false),
                     ToolBoxOffsetX = table.Column<int>(type: "INTEGER", nullable: false),
                     ToolBoxOffsetY = table.Column<int>(type: "INTEGER", nullable: false),
@@ -611,8 +611,8 @@ namespace IoTSharp.Data.Sqlite.Migrations
                     ToolBoxOffsetLeftPer = table.Column<int>(type: "INTEGER", nullable: false),
                     CreateDate = table.Column<DateTime>(type: "TEXT", nullable: true),
                     Creator = table.Column<Guid>(type: "TEXT", nullable: false),
-                    CommondParam = table.Column<string>(type: "TEXT", nullable: true),
-                    CommondType = table.Column<string>(type: "TEXT", nullable: true),
+                    CommondParam = table.Column<string>(type: "TEXT", nullable: true, collation: "NOCASE"),
+                    CommondType = table.Column<string>(type: "TEXT", nullable: true, collation: "NOCASE"),
                     TenantId = table.Column<Guid>(type: "TEXT", nullable: true),
                     CustomerId = table.Column<Guid>(type: "TEXT", nullable: true)
                 },
@@ -637,27 +637,27 @@ namespace IoTSharp.Data.Sqlite.Migrations
                 {
                     FieldId = table.Column<long>(type: "INTEGER", nullable: false)
                         .Annotation("Sqlite:Autoincrement", true),
-                    FieldName = table.Column<string>(type: "TEXT", nullable: true),
-                    FieldValue = table.Column<string>(type: "TEXT", nullable: true),
+                    FieldName = table.Column<string>(type: "TEXT", nullable: true, collation: "NOCASE"),
+                    FieldValue = table.Column<string>(type: "TEXT", nullable: true, collation: "NOCASE"),
                     FieldValueType = table.Column<int>(type: "INTEGER", nullable: false),
                     FormId = table.Column<long>(type: "INTEGER", nullable: false),
                     Creator = table.Column<Guid>(type: "TEXT", nullable: false),
                     FieldCreateDate = table.Column<DateTime>(type: "TEXT", nullable: true),
                     FieldEditDate = table.Column<DateTime>(type: "TEXT", nullable: true),
-                    FieldCode = table.Column<string>(type: "TEXT", nullable: true),
-                    FieldUnit = table.Column<string>(type: "TEXT", nullable: true),
+                    FieldCode = table.Column<string>(type: "TEXT", nullable: true, collation: "NOCASE"),
+                    FieldUnit = table.Column<string>(type: "TEXT", nullable: true, collation: "NOCASE"),
                     IsRequired = table.Column<bool>(type: "INTEGER", nullable: false),
                     IsEnabled = table.Column<bool>(type: "INTEGER", nullable: false),
                     FieldStatus = table.Column<int>(type: "INTEGER", nullable: false),
-                    FieldI18nKey = table.Column<string>(type: "TEXT", nullable: true),
-                    FieldValueDataSource = table.Column<string>(type: "TEXT", nullable: true),
-                    FieldValueLocalDataSource = table.Column<string>(type: "TEXT", nullable: true),
-                    FieldPattern = table.Column<string>(type: "TEXT", nullable: true),
+                    FieldI18nKey = table.Column<string>(type: "TEXT", nullable: true, collation: "NOCASE"),
+                    FieldValueDataSource = table.Column<string>(type: "TEXT", nullable: true, collation: "NOCASE"),
+                    FieldValueLocalDataSource = table.Column<string>(type: "TEXT", nullable: true, collation: "NOCASE"),
+                    FieldPattern = table.Column<string>(type: "TEXT", nullable: true, collation: "NOCASE"),
                     FieldMaxLength = table.Column<int>(type: "INTEGER", nullable: false),
-                    FieldValueTypeName = table.Column<string>(type: "TEXT", nullable: true),
+                    FieldValueTypeName = table.Column<string>(type: "TEXT", nullable: true, collation: "NOCASE"),
                     FieldUIElement = table.Column<long>(type: "INTEGER", nullable: false),
-                    FieldUIElementSchema = table.Column<string>(type: "TEXT", nullable: true),
-                    FieldPocoTypeName = table.Column<string>(type: "TEXT", nullable: true),
+                    FieldUIElementSchema = table.Column<string>(type: "TEXT", nullable: true, collation: "NOCASE"),
+                    FieldPocoTypeName = table.Column<string>(type: "TEXT", nullable: true, collation: "NOCASE"),
                     TenantId = table.Column<Guid>(type: "TEXT", nullable: true),
                     CustomerId = table.Column<Guid>(type: "TEXT", nullable: true)
                 },
@@ -683,13 +683,13 @@ namespace IoTSharp.Data.Sqlite.Migrations
                     FieldValueId = table.Column<long>(type: "INTEGER", nullable: false)
                         .Annotation("Sqlite:Autoincrement", true),
                     FieldId = table.Column<long>(type: "INTEGER", nullable: false),
-                    FieldName = table.Column<string>(type: "TEXT", nullable: true),
-                    FieldValue = table.Column<string>(type: "TEXT", nullable: true),
+                    FieldName = table.Column<string>(type: "TEXT", nullable: true, collation: "NOCASE"),
+                    FieldValue = table.Column<string>(type: "TEXT", nullable: true, collation: "NOCASE"),
                     FromId = table.Column<long>(type: "INTEGER", nullable: false),
                     Creator = table.Column<Guid>(type: "TEXT", nullable: false),
                     FieldCreateDate = table.Column<DateTime>(type: "TEXT", nullable: true),
-                    FieldCode = table.Column<string>(type: "TEXT", nullable: true),
-                    FieldUnit = table.Column<string>(type: "TEXT", nullable: true),
+                    FieldCode = table.Column<string>(type: "TEXT", nullable: true, collation: "NOCASE"),
+                    FieldUnit = table.Column<string>(type: "TEXT", nullable: true, collation: "NOCASE"),
                     FieldValueType = table.Column<long>(type: "INTEGER", nullable: false),
                     BizId = table.Column<long>(type: "INTEGER", nullable: false),
                     TenantId = table.Column<Guid>(type: "TEXT", nullable: true),
@@ -718,15 +718,15 @@ namespace IoTSharp.Data.Sqlite.Migrations
                         .Annotation("Sqlite:Autoincrement", true),
                     BizId = table.Column<long>(type: "INTEGER", nullable: false),
                     FormCreator = table.Column<long>(type: "INTEGER", nullable: false),
-                    FormName = table.Column<string>(type: "TEXT", nullable: true),
-                    FormDesc = table.Column<string>(type: "TEXT", nullable: true),
+                    FormName = table.Column<string>(type: "TEXT", nullable: true, collation: "NOCASE"),
+                    FormDesc = table.Column<string>(type: "TEXT", nullable: true, collation: "NOCASE"),
                     FormStatus = table.Column<int>(type: "INTEGER", nullable: false),
-                    FormSchame = table.Column<string>(type: "TEXT", nullable: true),
-                    ModelClass = table.Column<string>(type: "TEXT", nullable: true),
-                    Url = table.Column<string>(type: "TEXT", nullable: true),
+                    FormSchame = table.Column<string>(type: "TEXT", nullable: true, collation: "NOCASE"),
+                    ModelClass = table.Column<string>(type: "TEXT", nullable: true, collation: "NOCASE"),
+                    Url = table.Column<string>(type: "TEXT", nullable: true, collation: "NOCASE"),
                     Creator = table.Column<Guid>(type: "TEXT", nullable: false),
                     FromCreateDate = table.Column<DateTime>(type: "TEXT", nullable: true),
-                    FormLayout = table.Column<string>(type: "TEXT", nullable: true),
+                    FormLayout = table.Column<string>(type: "TEXT", nullable: true, collation: "NOCASE"),
                     IsCompact = table.Column<bool>(type: "INTEGER", nullable: false),
                     TenantId = table.Column<Guid>(type: "TEXT", nullable: true),
                     CustomerId = table.Column<Guid>(type: "TEXT", nullable: true)
@@ -752,15 +752,15 @@ namespace IoTSharp.Data.Sqlite.Migrations
                 {
                     RuleId = table.Column<Guid>(type: "TEXT", nullable: false),
                     RuleType = table.Column<int>(type: "INTEGER", nullable: false),
-                    Name = table.Column<string>(type: "TEXT", nullable: false),
-                    Describes = table.Column<string>(type: "TEXT", nullable: true),
-                    Runner = table.Column<string>(type: "TEXT", nullable: true),
-                    ExecutableCode = table.Column<string>(type: "TEXT", nullable: true),
-                    Creator = table.Column<string>(type: "TEXT", nullable: true),
-                    RuleDesc = table.Column<string>(type: "TEXT", nullable: true),
+                    Name = table.Column<string>(type: "TEXT", nullable: false, collation: "NOCASE"),
+                    Describes = table.Column<string>(type: "TEXT", nullable: true, collation: "NOCASE"),
+                    Runner = table.Column<string>(type: "TEXT", nullable: true, collation: "NOCASE"),
+                    ExecutableCode = table.Column<string>(type: "TEXT", nullable: true, collation: "NOCASE"),
+                    Creator = table.Column<string>(type: "TEXT", nullable: true, collation: "NOCASE"),
+                    RuleDesc = table.Column<string>(type: "TEXT", nullable: true, collation: "NOCASE"),
                     RuleStatus = table.Column<int>(type: "INTEGER", nullable: true),
                     CreatTime = table.Column<DateTime>(type: "TEXT", nullable: true),
-                    DefinitionsXml = table.Column<string>(type: "TEXT", nullable: true),
+                    DefinitionsXml = table.Column<string>(type: "TEXT", nullable: true, collation: "NOCASE"),
                     ParentRuleId = table.Column<Guid>(type: "TEXT", nullable: false),
                     SubVersion = table.Column<double>(type: "REAL", nullable: false),
                     Version = table.Column<double>(type: "REAL", nullable: false),
@@ -789,7 +789,7 @@ namespace IoTSharp.Data.Sqlite.Migrations
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "TEXT", nullable: false),
-                    IdentityUserId = table.Column<string>(type: "TEXT", nullable: true),
+                    IdentityUserId = table.Column<string>(type: "TEXT", nullable: true, collation: "NOCASE"),
                     TenantId = table.Column<Guid>(type: "TEXT", nullable: true),
                     CustomerId = table.Column<Guid>(type: "TEXT", nullable: true)
                 },
@@ -818,13 +818,13 @@ namespace IoTSharp.Data.Sqlite.Migrations
                 columns: table => new
                 {
                     ExecutorId = table.Column<Guid>(type: "TEXT", nullable: false),
-                    ExecutorName = table.Column<string>(type: "TEXT", nullable: true),
-                    ExecutorDesc = table.Column<string>(type: "TEXT", nullable: true),
-                    Path = table.Column<string>(type: "TEXT", nullable: true),
-                    TypeName = table.Column<string>(type: "TEXT", nullable: true),
-                    DefaultConfig = table.Column<string>(type: "TEXT", nullable: true),
-                    MataData = table.Column<string>(type: "TEXT", nullable: true),
-                    Tag = table.Column<string>(type: "TEXT", nullable: true),
+                    ExecutorName = table.Column<string>(type: "TEXT", nullable: true, collation: "NOCASE"),
+                    ExecutorDesc = table.Column<string>(type: "TEXT", nullable: true, collation: "NOCASE"),
+                    Path = table.Column<string>(type: "TEXT", nullable: true, collation: "NOCASE"),
+                    TypeName = table.Column<string>(type: "TEXT", nullable: true, collation: "NOCASE"),
+                    DefaultConfig = table.Column<string>(type: "TEXT", nullable: true, collation: "NOCASE"),
+                    MataData = table.Column<string>(type: "TEXT", nullable: true, collation: "NOCASE"),
+                    Tag = table.Column<string>(type: "TEXT", nullable: true, collation: "NOCASE"),
                     ExecutorStatus = table.Column<int>(type: "INTEGER", nullable: false),
                     AddDateTime = table.Column<DateTime>(type: "TEXT", nullable: false),
                     Creator = table.Column<Guid>(type: "TEXT", nullable: false),
@@ -854,13 +854,13 @@ namespace IoTSharp.Data.Sqlite.Migrations
                 columns: table => new
                 {
                     EventId = table.Column<Guid>(type: "TEXT", nullable: false),
-                    EventName = table.Column<string>(type: "TEXT", nullable: true),
-                    EventDesc = table.Column<string>(type: "TEXT", nullable: true),
-                    EventNameSpace = table.Column<string>(type: "TEXT", nullable: true),
+                    EventName = table.Column<string>(type: "TEXT", nullable: true, collation: "NOCASE"),
+                    EventDesc = table.Column<string>(type: "TEXT", nullable: true, collation: "NOCASE"),
+                    EventNameSpace = table.Column<string>(type: "TEXT", nullable: true, collation: "NOCASE"),
                     EventStatus = table.Column<int>(type: "INTEGER", nullable: false),
                     Type = table.Column<int>(type: "INTEGER", nullable: false),
-                    EventParam = table.Column<string>(type: "TEXT", nullable: true),
-                    EventTag = table.Column<string>(type: "TEXT", nullable: true),
+                    EventParam = table.Column<string>(type: "TEXT", nullable: true, collation: "NOCASE"),
+                    EventTag = table.Column<string>(type: "TEXT", nullable: true, collation: "NOCASE"),
                     CreateDateTime = table.Column<DateTime>(type: "TEXT", nullable: false),
                     Creator = table.Column<Guid>(type: "TEXT", nullable: false),
                     TenantId = table.Column<Guid>(type: "TEXT", nullable: true),
@@ -886,11 +886,11 @@ namespace IoTSharp.Data.Sqlite.Migrations
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "TEXT", nullable: false),
-                    Name = table.Column<string>(type: "TEXT", nullable: true),
-                    Description = table.Column<string>(type: "TEXT", nullable: true),
+                    Name = table.Column<string>(type: "TEXT", nullable: true, collation: "NOCASE"),
+                    Description = table.Column<string>(type: "TEXT", nullable: true, collation: "NOCASE"),
                     DeviceId = table.Column<Guid>(type: "TEXT", nullable: false),
                     DataCatalog = table.Column<int>(type: "INTEGER", nullable: false),
-                    KeyName = table.Column<string>(type: "TEXT", nullable: true),
+                    KeyName = table.Column<string>(type: "TEXT", nullable: true, collation: "NOCASE"),
                     AssetId = table.Column<Guid>(type: "TEXT", nullable: true)
                 },
                 constraints: table =>
@@ -908,7 +908,7 @@ namespace IoTSharp.Data.Sqlite.Migrations
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "TEXT", nullable: false),
-                    Name = table.Column<string>(type: "TEXT", nullable: true),
+                    Name = table.Column<string>(type: "TEXT", nullable: true, collation: "NOCASE"),
                     DeviceType = table.Column<int>(type: "INTEGER", nullable: false),
                     Online = table.Column<bool>(type: "INTEGER", nullable: false),
                     LastActive = table.Column<DateTime>(type: "TEXT", nullable: false),
@@ -956,24 +956,24 @@ namespace IoTSharp.Data.Sqlite.Migrations
                 {
                     GraphId = table.Column<Guid>(type: "TEXT", nullable: false),
                     DeviceId = table.Column<Guid>(type: "TEXT", nullable: false),
-                    GraphShape = table.Column<string>(type: "TEXT", nullable: true),
+                    GraphShape = table.Column<string>(type: "TEXT", nullable: true, collation: "NOCASE"),
                     GraphWidth = table.Column<int>(type: "INTEGER", nullable: false),
                     GraphHeight = table.Column<int>(type: "INTEGER", nullable: false),
                     GraphPostionX = table.Column<int>(type: "INTEGER", nullable: false),
                     GraphPostionY = table.Column<int>(type: "INTEGER", nullable: false),
-                    GraphElementId = table.Column<string>(type: "TEXT", nullable: true),
+                    GraphElementId = table.Column<string>(type: "TEXT", nullable: true, collation: "NOCASE"),
                     CreateDate = table.Column<DateTime>(type: "TEXT", nullable: true),
                     Creator = table.Column<Guid>(type: "TEXT", nullable: false),
                     DeviceDiagramDiagramId = table.Column<Guid>(type: "TEXT", nullable: true),
-                    GraphFill = table.Column<string>(type: "TEXT", nullable: true),
-                    GraphStroke = table.Column<string>(type: "TEXT", nullable: true),
+                    GraphFill = table.Column<string>(type: "TEXT", nullable: true, collation: "NOCASE"),
+                    GraphStroke = table.Column<string>(type: "TEXT", nullable: true, collation: "NOCASE"),
                     GraphStrokeWidth = table.Column<int>(type: "INTEGER", nullable: false),
-                    GraphTextFill = table.Column<string>(type: "TEXT", nullable: true),
+                    GraphTextFill = table.Column<string>(type: "TEXT", nullable: true, collation: "NOCASE"),
                     GraphTextFontSize = table.Column<int>(type: "INTEGER", nullable: false),
                     GraphTextRefX = table.Column<int>(type: "INTEGER", nullable: false),
-                    GraphTextAnchor = table.Column<string>(type: "TEXT", nullable: true),
-                    GraphTextVerticalAnchor = table.Column<string>(type: "TEXT", nullable: true),
-                    GraphTextFontFamily = table.Column<string>(type: "TEXT", nullable: true),
+                    GraphTextAnchor = table.Column<string>(type: "TEXT", nullable: true, collation: "NOCASE"),
+                    GraphTextVerticalAnchor = table.Column<string>(type: "TEXT", nullable: true, collation: "NOCASE"),
+                    GraphTextFontFamily = table.Column<string>(type: "TEXT", nullable: true, collation: "NOCASE"),
                     GraphTextRefY = table.Column<int>(type: "INTEGER", nullable: false),
                     TenantId = table.Column<Guid>(type: "TEXT", nullable: true),
                     CustomerId = table.Column<Guid>(type: "TEXT", nullable: true)
@@ -1003,16 +1003,16 @@ namespace IoTSharp.Data.Sqlite.Migrations
                 columns: table => new
                 {
                     EventId = table.Column<Guid>(type: "TEXT", nullable: false),
-                    EventName = table.Column<string>(type: "TEXT", nullable: true),
-                    EventDesc = table.Column<string>(type: "TEXT", nullable: true),
+                    EventName = table.Column<string>(type: "TEXT", nullable: true, collation: "NOCASE"),
+                    EventDesc = table.Column<string>(type: "TEXT", nullable: true, collation: "NOCASE"),
                     EventStaus = table.Column<int>(type: "INTEGER", nullable: false),
                     Type = table.Column<int>(type: "INTEGER", nullable: false),
-                    MataData = table.Column<string>(type: "TEXT", nullable: true),
+                    MataData = table.Column<string>(type: "TEXT", nullable: true, collation: "NOCASE"),
                     Creator = table.Column<Guid>(type: "TEXT", nullable: false),
                     FlowRuleRuleId = table.Column<Guid>(type: "TEXT", nullable: true),
-                    Bizid = table.Column<string>(type: "TEXT", nullable: true),
+                    Bizid = table.Column<string>(type: "TEXT", nullable: true, collation: "NOCASE"),
                     CreaterDateTime = table.Column<DateTime>(type: "TEXT", nullable: false),
-                    BizData = table.Column<string>(type: "TEXT", nullable: true),
+                    BizData = table.Column<string>(type: "TEXT", nullable: true, collation: "NOCASE"),
                     TenantId = table.Column<Guid>(type: "TEXT", nullable: true),
                     CustomerId = table.Column<Guid>(type: "TEXT", nullable: true)
                 },
@@ -1041,23 +1041,23 @@ namespace IoTSharp.Data.Sqlite.Migrations
                 columns: table => new
                 {
                     FlowId = table.Column<Guid>(type: "TEXT", nullable: false),
-                    bpmnid = table.Column<string>(type: "TEXT", nullable: true),
-                    Flowname = table.Column<string>(type: "TEXT", nullable: true),
+                    bpmnid = table.Column<string>(type: "TEXT", nullable: true, collation: "NOCASE"),
+                    Flowname = table.Column<string>(type: "TEXT", nullable: true, collation: "NOCASE"),
                     FlowRuleRuleId = table.Column<Guid>(type: "TEXT", nullable: true),
-                    Flowdesc = table.Column<string>(type: "TEXT", nullable: true),
-                    ObjectId = table.Column<string>(type: "TEXT", nullable: true),
-                    FlowType = table.Column<string>(type: "TEXT", nullable: true),
-                    SourceId = table.Column<string>(type: "TEXT", nullable: true),
-                    TargetId = table.Column<string>(type: "TEXT", nullable: true),
-                    NodeProcessClass = table.Column<string>(type: "TEXT", nullable: true),
-                    Conditionexpression = table.Column<string>(type: "TEXT", nullable: true),
-                    NodeProcessMethod = table.Column<string>(type: "TEXT", nullable: true),
-                    NodeProcessParams = table.Column<string>(type: "TEXT", nullable: true),
-                    NodeProcessType = table.Column<string>(type: "TEXT", nullable: true),
-                    NodeProcessScriptType = table.Column<string>(type: "TEXT", nullable: true),
-                    NodeProcessScript = table.Column<string>(type: "TEXT", nullable: true),
-                    Incoming = table.Column<string>(type: "TEXT", nullable: true),
-                    Outgoing = table.Column<string>(type: "TEXT", nullable: true),
+                    Flowdesc = table.Column<string>(type: "TEXT", nullable: true, collation: "NOCASE"),
+                    ObjectId = table.Column<string>(type: "TEXT", nullable: true, collation: "NOCASE"),
+                    FlowType = table.Column<string>(type: "TEXT", nullable: true, collation: "NOCASE"),
+                    SourceId = table.Column<string>(type: "TEXT", nullable: true, collation: "NOCASE"),
+                    TargetId = table.Column<string>(type: "TEXT", nullable: true, collation: "NOCASE"),
+                    NodeProcessClass = table.Column<string>(type: "TEXT", nullable: true, collation: "NOCASE"),
+                    Conditionexpression = table.Column<string>(type: "TEXT", nullable: true, collation: "NOCASE"),
+                    NodeProcessMethod = table.Column<string>(type: "TEXT", nullable: true, collation: "NOCASE"),
+                    NodeProcessParams = table.Column<string>(type: "TEXT", nullable: true, collation: "NOCASE"),
+                    NodeProcessType = table.Column<string>(type: "TEXT", nullable: true, collation: "NOCASE"),
+                    NodeProcessScriptType = table.Column<string>(type: "TEXT", nullable: true, collation: "NOCASE"),
+                    NodeProcessScript = table.Column<string>(type: "TEXT", nullable: true, collation: "NOCASE"),
+                    Incoming = table.Column<string>(type: "TEXT", nullable: true, collation: "NOCASE"),
+                    Outgoing = table.Column<string>(type: "TEXT", nullable: true, collation: "NOCASE"),
                     FlowStatus = table.Column<int>(type: "INTEGER", nullable: false),
                     TestStatus = table.Column<int>(type: "INTEGER", nullable: false),
                     Tester = table.Column<Guid>(type: "TEXT", nullable: false),
@@ -1103,7 +1103,7 @@ namespace IoTSharp.Data.Sqlite.Migrations
                     SubscriptionEventId = table.Column<Guid>(type: "TEXT", nullable: true),
                     RuleTaskExecutorExecutorId = table.Column<Guid>(type: "TEXT", nullable: true),
                     Status = table.Column<int>(type: "INTEGER", nullable: false),
-                    TaskConfig = table.Column<string>(type: "TEXT", nullable: true)
+                    TaskConfig = table.Column<string>(type: "TEXT", nullable: true, collation: "NOCASE")
                 },
                 constraints: table =>
                 {
@@ -1126,8 +1126,8 @@ namespace IoTSharp.Data.Sqlite.Migrations
                 {
                     Id = table.Column<Guid>(type: "TEXT", nullable: false),
                     IdentityType = table.Column<int>(type: "INTEGER", nullable: false),
-                    IdentityId = table.Column<string>(type: "TEXT", nullable: false),
-                    IdentityValue = table.Column<string>(type: "TEXT", nullable: true),
+                    IdentityId = table.Column<string>(type: "TEXT", nullable: false, collation: "NOCASE"),
+                    IdentityValue = table.Column<string>(type: "TEXT", nullable: true, collation: "NOCASE"),
                     DeviceId = table.Column<Guid>(type: "TEXT", nullable: false)
                 },
                 constraints: table =>
@@ -1174,15 +1174,15 @@ namespace IoTSharp.Data.Sqlite.Migrations
                     OperationId = table.Column<Guid>(type: "TEXT", nullable: false),
                     AddDate = table.Column<DateTime>(type: "TEXT", nullable: true),
                     NodeStatus = table.Column<int>(type: "INTEGER", nullable: false),
-                    OperationDesc = table.Column<string>(type: "TEXT", nullable: true),
-                    Data = table.Column<string>(type: "TEXT", nullable: true),
-                    BizId = table.Column<string>(type: "TEXT", nullable: true),
-                    bpmnid = table.Column<string>(type: "TEXT", nullable: true),
+                    OperationDesc = table.Column<string>(type: "TEXT", nullable: true, collation: "NOCASE"),
+                    Data = table.Column<string>(type: "TEXT", nullable: true, collation: "NOCASE"),
+                    BizId = table.Column<string>(type: "TEXT", nullable: true, collation: "NOCASE"),
+                    bpmnid = table.Column<string>(type: "TEXT", nullable: true, collation: "NOCASE"),
                     FlowId = table.Column<Guid>(type: "TEXT", nullable: true),
                     FlowRuleRuleId = table.Column<Guid>(type: "TEXT", nullable: true),
                     BaseEventEventId = table.Column<Guid>(type: "TEXT", nullable: true),
                     Step = table.Column<int>(type: "INTEGER", nullable: false),
-                    Tag = table.Column<string>(type: "TEXT", nullable: true)
+                    Tag = table.Column<string>(type: "TEXT", nullable: true, collation: "NOCASE")
                 },
                 constraints: table =>
                 {
