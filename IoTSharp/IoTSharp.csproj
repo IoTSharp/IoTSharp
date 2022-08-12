@@ -92,6 +92,7 @@
 		<PackageReference Include="IoTSharp.HealthChecks.Taos" Version="2.0.478" />
 		<PackageReference Include="MaiKeBing.HostedService.ZeroMQ" Version="1.0.35" />
 		<PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="6.0.7" />
+		<PackageReference Include="Microsoft.AspNetCore.SpaProxy" Version="6.0.8" />
 		<PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.16.1" />
 		<PackageReference Include="MQTTnet" Version="4.1.0.247" />
 		<PackageReference Include="MQTTnet.AspNetCore" Version="4.1.0.247" />
