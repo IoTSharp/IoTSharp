@@ -7,7 +7,7 @@
 		<PackageReference Include="AspNetCore.HealthChecks.Sqlite" Version="6.0.2" />
 		<PackageReference Include="AspNetCore.HealthChecks.UI.Sqlite.Storage" Version="6.0.5" />
 		<PackageReference Include="AspNetCore.HealthChecks.UI.Core" Version="6.0.5" />
-		<PackageReference Include="Microsoft.Extensions.Diagnostics.HealthChecks" Version="6.0.7" />
+		<PackageReference Include="Microsoft.Extensions.Diagnostics.HealthChecks" Version="6.0.8" />
 		<PackageReference Include="EFCore.Sharding.SQLite" Version="6.0.7" />
 	</ItemGroup>
   <ItemGroup>
