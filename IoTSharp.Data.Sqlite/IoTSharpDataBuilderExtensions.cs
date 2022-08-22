@@ -5,6 +5,7 @@ using IoTSharp.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using System;
+using System.Linq;
 
 namespace Microsoft.Extensions.DependencyInjection
 {
@@ -31,6 +32,18 @@ namespace Microsoft.Extensions.DependencyInjection
         {
             builder.AddDataSource(connectionString, ReadWriteType.Read | ReadWriteType.Write, DatabaseType.SQLite);
             builder.SetDateSharding<TelemetryData>(nameof(TelemetryData.DateTime), expandBy, DateTime.Now);
+        }
+
+        public static void SetCaseInsensitiveSearchesForSQLite(this ModelBuilder modelBuilder)
+        {
+            modelBuilder.UseCollation("NOCASE");
+
+            foreach (var property in modelBuilder.Model.GetEntityTypes()
+                         .SelectMany(t => t.GetProperties())
+                         .Where(p => p.ClrType == typeof(string)))
+            {
+                property.SetCollation("NOCASE");
+            }
         }
     }
 }

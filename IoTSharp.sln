@@ -29,6 +29,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tools", "Tools", "{3048484A
 		tools\ef_mg_add.cmd = tools\ef_mg_add.cmd
 		tools\ef_mg_remove.cmd = tools\ef_mg_remove.cmd
 		tools\upgrade_ef.cmd = tools\upgrade_ef.cmd
+		setnpm.cmd = setnpm.cmd
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "IoTSharp.SDKs", "IoTSharp.SDKs", "{86E9E4E0-24A0-4C89-A98B-B0D41C75B4F1}"
