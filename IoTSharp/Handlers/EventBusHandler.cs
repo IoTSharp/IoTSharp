@@ -249,12 +249,12 @@ namespace IoTSharp.Handlers
                 }
                 else
                 {
-                    _logger.LogInformation($"{devid}的数据无相关规则链处理。");
+                    _logger.LogDebug($"{devid}的数据无相关规则链处理。");
                 }
             }
             catch (Exception ex)
             {
-                _logger.LogError ( ex,$"{devid}的数据无相关规则链处理。");
+                _logger.LogError ( ex,$"{devid}处理规则链时遇到异常:{ex.Message}");
 
             }
         }
