@@ -94,8 +94,5 @@ jobs:
     - name: Upload build artifacts
       uses: actions/upload-artifact@v3
       with:
-        name: MSIX Package
-        path: IoTSharp\IoTSharp\bin\$env:Configuration\publish\$env:PublishProfile
-      env:
-        Configuration: ${{ matrix.configuration }}
-        PublishProfile: ${{ matrix.publish_profile }}  
+        name: Zip Package
+        path: IoTSharp\IoTSharp\bin\publish
