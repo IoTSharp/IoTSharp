@@ -145,6 +145,7 @@
 		<None Remove="server.key" />
 		<None Remove="TelemetryStorage.db" />
 		<_WebToolingArtifacts Remove="Properties\PublishProfiles\registry.hub.docker.com_iotsharp.pubxml" />
+		<_WebToolingArtifacts Remove="Properties\PublishProfiles\win7-x64.pubxml" />
 		<None Include="..\docs\static\img\96x96.png">
 			<Pack>True</Pack>
 			<PackagePath></PackagePath>
