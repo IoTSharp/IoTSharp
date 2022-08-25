@@ -56,8 +56,5 @@ jobs:
     - name: Upload build artifacts
       uses: actions/upload-artifact@v3
       with:
-        name: IoTSharp_${{ $env:Configuration }}_${{ $env:PublishProfile }}
+        name: IoTSharp ${{ matrix.configuration }} ${{ matrix.publish_profile }}
         path: IoTSharp\bin\publish
-      env:
-        Configuration: ${{ matrix.configuration }}
-        PublishProfile: ${{ matrix.publish_profile }}  
