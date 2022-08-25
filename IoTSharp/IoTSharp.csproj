@@ -50,7 +50,6 @@
 		<NoWarn>1701;1702;1591</NoWarn>
 		<DocumentationFile>IoTSharp.xml</DocumentationFile>
 		<EnforceCodeStyleInBuild>True</EnforceCodeStyleInBuild>
-		<SonarQubeExclude>True</SonarQubeExclude>
 	</PropertyGroup>
 	<ItemGroup>
 
