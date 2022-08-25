@@ -15,7 +15,12 @@
     <PackageIcon>200x200.png</PackageIcon>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
 	  <IsPackable>true</IsPackable>
+	  <CodeAnalysisRuleSet>..\..\.sonarlint\iotsharp_iotsharpcsharp.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
+
+  <ItemGroup>
+    <AdditionalFiles Include="..\..\.sonarlint\iotsharp_iotsharp\CSharp\SonarLint.xml" Link="SonarLint.xml" />
+  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />

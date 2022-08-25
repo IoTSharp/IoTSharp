@@ -16,7 +16,12 @@
 			https://api.nuget.org/v3/index.json;
 			https://www.myget.org/F/mqttnet/api/v3/index.json;
 		</RestoreAdditionalProjectSources>
+		<CodeAnalysisRuleSet>..\..\.sonarlint\iotsharp_iotsharpcsharp.ruleset</CodeAnalysisRuleSet>
 	</PropertyGroup>
+
+	<ItemGroup>
+	  <AdditionalFiles Include="..\..\.sonarlint\iotsharp_iotsharp\CSharp\SonarLint.xml" Link="SonarLint.xml" />
+	</ItemGroup>
 
 	<ItemGroup>
 		<PackageReference Include="MQTTnet" Version="4.1.0.247" />

@@ -10,6 +10,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		buildimage.cmd = buildimage.cmd
 		buildimageqhse.cmd = buildimageqhse.cmd
 		buildimageuixe.cmd = buildimageuixe.cmd
+		.github\FUNDING.yml = .github\FUNDING.yml
 		LICENSE = LICENSE
 		README.md = README.md
 		README.zh.md = README.zh.md
@@ -28,8 +29,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tools", "Tools", "{3048484A
 		tools\ef_db_drop.cmd = tools\ef_db_drop.cmd
 		tools\ef_mg_add.cmd = tools\ef_mg_add.cmd
 		tools\ef_mg_remove.cmd = tools\ef_mg_remove.cmd
-		tools\upgrade_ef.cmd = tools\upgrade_ef.cmd
 		setnpm.cmd = setnpm.cmd
+		tools\upgrade_ef.cmd = tools\upgrade_ef.cmd
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "IoTSharp.SDKs", "IoTSharp.SDKs", "{86E9E4E0-24A0-4C89-A98B-B0D41C75B4F1}"
@@ -59,6 +60,15 @@ EndProject
 Project("{9092AA53-FB77-4645-B42D-1CCCA6BD08BD}") = "IoTSharp.Docs", "docs\IoTSharp.Docs.njsproj", "{F5644BA6-2A0C-49A5-9C9B-3CECD6DB2D1F}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IoTSharp.Data.Cassandra", "IoTSharp.Data.Cassandra\IoTSharp.Data.Cassandra.csproj", "{9C6FA709-3334-4C39-922D-6FF5ADB8C683}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Github Workflows", "Github Workflows", "{59A51D63-F292-46F0-A4BF-975C98966DAA}"
+	ProjectSection(SolutionItems) = preProject
+		.github\workflows\dotnet-publish.yml = .github\workflows\dotnet-publish.yml
+		.github\workflows\docs-deploy.yml = .github\workflows\docs-deploy.yml
+		.github\workflows\dotnet-build.yml = .github\workflows\dotnet-build.yml
+		.github\FUNDING.yml = .github\FUNDING.yml
+		.github\workflows\sonar_analyze.yml = .github\workflows\sonar_analyze.yml
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
