@@ -95,4 +95,4 @@ jobs:
       uses: actions/upload-artifact@v3
       with:
         name: Zip Package
-        path: IoTSharp\IoTSharp\bin\publish
+        path: IoTSharp\bin\publish
