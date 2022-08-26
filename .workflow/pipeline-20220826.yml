@@ -19,11 +19,11 @@ stages:
         displayName: 镜像构建
         type: cert
         certificate: 96fb71d0-0722-013b-7822-629375221dec
-        tag: ${GITEE_PIPELINE_BUILD_NUMBER}
+        tag: latest
         dockerfile: ./IoTSharp/Dockerfile
         context: ''
         artifacts: []
-        isCache: true
+        isCache: false
         notify: []
         strategy:
           retry: '0'
