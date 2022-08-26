@@ -20,7 +20,7 @@ stages:
         type: cert
         certificate: 96fb71d0-0722-013b-7822-629375221dec
         tag: ${GITEE_PIPELINE_BUILD_NUMBER}
-        dockerfile: ./Dockerfile
+        dockerfile: ./IoTSharp/Dockerfile
         context: ''
         artifacts: []
         isCache: true
