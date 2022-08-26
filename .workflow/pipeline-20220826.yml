@@ -1,0 +1,29 @@
+version: '1.0'
+name: pipeline-20220826
+displayName: pipeline-20220826
+triggers:
+  trigger: auto
+  push:
+    branches:
+      prefix:
+        - ''
+stages:
+  - name: stage-d3dd84ca
+    displayName: 未命名
+    strategy: naturally
+    trigger: auto
+    executor: []
+    steps:
+      - step: build@docker
+        name: build_docker
+        displayName: 镜像构建
+        type: cert
+        certificate: 96fb71d0-0722-013b-7822-629375221dec
+        tag: ${GITEE_PIPELINE_BUILD_NUMBER}
+        dockerfile: ./Dockerfile
+        context: ''
+        artifacts: []
+        isCache: true
+        notify: []
+        strategy:
+          retry: '0'
