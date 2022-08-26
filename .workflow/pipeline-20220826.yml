@@ -1,0 +1,42 @@
+version: '1.0'
+name: pipeline-20220826
+displayName: pipeline-20220826
+triggers:
+  trigger: auto
+  push:
+    branches:
+      prefix:
+        - ''
+stages:
+  - name: stage-d3dd84ca
+    displayName: 检查
+    strategy: naturally
+    trigger: auto
+    executor: []
+    steps:
+      - step: sc@opensca
+        name: open_sca
+        displayName: OpenSCA 开源组件检测
+        detectPath: ./
+        notify: []
+        strategy:
+          retry: '0'
+  - name: stage-d12a9f05
+    displayName: 构建
+    strategy: naturally
+    trigger: auto
+    executor: []
+    steps:
+      - step: build@docker
+        name: build_iotsharp
+        displayName: 构建IoTSharp
+        type: cert
+        certificate: 96fb71d0-0722-013b-7822-629375221dec
+        tag: iotsharp/iotsharp
+        dockerfile: IoTSharp/Dockerfile
+        context: ''
+        artifacts: []
+        isCache: true
+        notify: []
+        strategy:
+          retry: '2'
