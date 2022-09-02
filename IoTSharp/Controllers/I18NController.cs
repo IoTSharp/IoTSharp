@@ -254,7 +254,7 @@ namespace IoTSharp.Controllers
             string q = Words;
             string from = _profile.Value.DefaultLang ?? "zh";
             string appId = _profile.Value.AppKey;
-            Random rd = new Random();
+            Random rd =  new Random (DateTime.Now.Millisecond);
             string secretKey = _profile.Value.AppSecret;
             int _wait = _profile.Value.ApiInterval ?? 80;
             List<BaiduTranslateResult> l = new List<BaiduTranslateResult>();
