@@ -9,7 +9,7 @@
     <AdditionalFiles Include="..\.sonarlint\iotsharp_iotsharp\CSharp\SonarLint.xml" Link="SonarLint.xml" />
   </ItemGroup>
 	<ItemGroup>
-		<PackageReference Include="CLanguage" Version="0.18.42" />
+		<PackageReference Include="CLanguage" Version="0.18.47" />
 		<PackageReference Include="CS-Script" Version="4.4.6" />
 		<PackageReference Include="Jint" Version="3.0.0-beta-2037" />
 		<PackageReference Include="Microsoft.Extensions.Caching.Abstractions" Version="6.0.0" />

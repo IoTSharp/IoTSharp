@@ -53,7 +53,7 @@
 	</PropertyGroup>
 	<ItemGroup>
 
-		<PackageReference Include="Apache.IoTDB.Data" Version="0.13.0.9-alpha" />
+		<PackageReference Include="Apache.IoTDB.Data" Version="0.13.0.8" />
 
 		<PackageReference Include="AspNetCore.HealthChecks.Kafka" Version="6.0.2" />
 		<PackageReference Include="AspNetCore.HealthChecks.MongoDb" Version="6.0.2" />
