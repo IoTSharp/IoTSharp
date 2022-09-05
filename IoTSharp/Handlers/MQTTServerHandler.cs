@@ -120,7 +120,10 @@ namespace IoTSharp.Handlers
                             {
                                 try
                                 {
-                                    keyValues = e.ApplicationMessage.ConvertPayloadToDictionary();
+                                    if (e.ApplicationMessage.Payload?.Length > 0)
+                                    {
+                                        keyValues = e.ApplicationMessage.ConvertPayloadToDictionary();
+                                    }
                                 }
                                 catch (Exception ex)
                                 {
@@ -129,17 +132,31 @@ namespace IoTSharp.Handlers
                             }
                             if (tpary[2] == "telemetry")
                             {
-                                _queue.PublishTelemetryData(new PlayloadData() { DeviceId = device.Id, MsgBody = keyValues, DataSide = DataSide.ClientSide, DataCatalog = DataCatalog.TelemetryData });
-                            }
-                            else if (tpary[2] == "attributes")
-                            {
-                                if (tpary.Length > 3 && tpary[3] == "request")
+                                if (keyValues.Count > 0)
                                 {
-                                    await RequestAttributes(tpary, clientid, e.ApplicationMessage.ConvertPayloadToDictionary(), device);
+                                    _queue.PublishTelemetryData(new PlayloadData() { DeviceId = device.Id, MsgBody = keyValues, DataSide = DataSide.ClientSide, DataCatalog = DataCatalog.TelemetryData });
                                 }
                                 else
                                 {
-                                    _queue.PublishAttributeData(new PlayloadData() { DeviceId =  device.Id, MsgBody = keyValues, DataSide = DataSide.ClientSide, DataCatalog = DataCatalog.AttributeData });
+                                    _logger.LogWarning( $"空的遥测数据 {topic}, ClientId:{e.ClientId}");
+                                }
+                            }
+                            else if (tpary[2] == "attributes")
+                            {
+                                if (keyValues.Count > 0)
+                                {
+                                    if (tpary.Length > 3 && tpary[3] == "request")
+                                    {
+                                        await RequestAttributes(tpary, clientid, e.ApplicationMessage.ConvertPayloadToDictionary(), device);
+                                    }
+                                    else
+                                    {
+                                        _queue.PublishAttributeData(new PlayloadData() { DeviceId = device.Id, MsgBody = keyValues, DataSide = DataSide.ClientSide, DataCatalog = DataCatalog.AttributeData });
+                                    }
+                                }
+                                else
+                                {
+                                    _logger.LogWarning($"空的属性数据 {topic}, ClientId:{e.ClientId}");
                                 }
                             }
                             else if (tpary[2] == "status" )
