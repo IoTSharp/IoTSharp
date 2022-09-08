@@ -2,6 +2,7 @@
 using DotNetCore.CAP;
 using IoTSharp.Data;
 using IoTSharp.Handlers;
+using IoTSharp.Services.CoApResources;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;

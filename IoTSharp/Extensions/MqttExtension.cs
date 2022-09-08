@@ -8,7 +8,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.AspNetCore.Builder;
 using MQTTnet.AspNetCore;
 using MQTTnet.Diagnostics;
-using IoTSharp.Handlers;
 using IoTSharp.Services;
 using MQTTnet.Server;
 using System.Diagnostics;
@@ -51,11 +50,11 @@ namespace IoTSharp
             }).AddMqttConnectionHandler()
                     .AddConnections(); 
             services.AddMqttWebSocketServerAdapter();
-            services.AddSingleton<MQTTServerHandler>();
+            services.AddSingleton<MQTTService>();
         }
         public static void UseIotSharpMqttServer(this IApplicationBuilder app)
         {
-            var mqttEvents = app.ApplicationServices.CreateScope().ServiceProvider.GetService<MQTTServerHandler>();
+            var mqttEvents = app.ApplicationServices.CreateScope().ServiceProvider.GetService<MQTTService>();
             app.UseMqttServer(server =>
                 {
                     server.ClientConnectedAsync +=  mqttEvents.Server_ClientConnectedAsync;

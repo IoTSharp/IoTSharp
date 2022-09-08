@@ -211,6 +211,7 @@
 	</ItemGroup>
 	<ItemGroup>
 		<Folder Include="ClientApp\" />
+		<Folder Include="Services\MQTTControllers\" />
 	</ItemGroup>
 	<ItemGroup>
 		<Compile Update="Properties\Resources.Designer.cs">
