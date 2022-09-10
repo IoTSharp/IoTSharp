@@ -15,6 +15,8 @@ using System.Runtime.InteropServices;
 using System.Threading;
 using System.Security.Cryptography.X509Certificates;
 using MQTTnet;
+using MQTTnet.AspNetCore.AttributeRouting;
+using IoTSharp.Data;
 
 namespace IoTSharp
 {
@@ -23,8 +25,11 @@ namespace IoTSharp
         //static private IMqttServer _mqttServer;
         public static void AddIoTSharpMqttServer(this IServiceCollection services, MqttBrokerSetting broker)
         {
+            services.AddMqttControllers();
+            services.AddSingleton<MqttServer>();
+            services.AddSingleton<MQTTService>();
             services.AddMqttTcpServerAdapter();
-            services.AddHostedMqttServer(options =>
+            services.AddHostedMqttServerWithServices(options =>
             {
                 options.WithDefaultEndpointPort(broker.Port).WithDefaultEndpoint();
                 if (broker.EnableTls)
@@ -50,24 +55,29 @@ namespace IoTSharp
             }).AddMqttConnectionHandler()
                     .AddConnections(); 
             services.AddMqttWebSocketServerAdapter();
-            services.AddSingleton<MQTTService>();
         }
+
         public static void UseIotSharpMqttServer(this IApplicationBuilder app)
         {
             var mqttEvents = app.ApplicationServices.CreateScope().ServiceProvider.GetService<MQTTService>();
+            
             app.UseMqttServer(server =>
                 {
-                    server.ClientConnectedAsync +=  mqttEvents.Server_ClientConnectedAsync;
-                    server.StartedAsync += mqttEvents.Server_Started ;
-                    server.StoppedAsync +=  mqttEvents.Server_Stopped ;
-                    server.InterceptingPublishAsync += mqttEvents.Server_ApplicationMessageReceived;
-                    server .ClientSubscribedTopicAsync    += mqttEvents.Server_ClientSubscribedTopic;
+                    server.WithAttributeRouting(app.ApplicationServices, true);
+                    server.ClientConnectedAsync += mqttEvents.Server_ClientConnectedAsync;
+                    server.StartedAsync += mqttEvents.Server_Started;
+                    server.StoppedAsync += mqttEvents.Server_Stopped;
+             //       server.InterceptingPublishAsync += mqttEvents.Server_ApplicationMessageReceived;
+                    server.ClientSubscribedTopicAsync += mqttEvents.Server_ClientSubscribedTopic;
                     server.ClientUnsubscribedTopicAsync += mqttEvents.Server_ClientUnsubscribedTopic;
                     server.ValidatingConnectionAsync += mqttEvents.Server_ClientConnectionValidator;
-                    server.ClientDisconnectedAsync    +=mqttEvents.Server_ClientDisconnected;
+                    server.ClientDisconnectedAsync += mqttEvents.Server_ClientDisconnected;
                 });
         }
-  
+
+    
+
+
 
         public static async Task PublishAsync<T>(this MqttServer mqtt, string SenderClientId, string topic, T _payload) where T : class
         {

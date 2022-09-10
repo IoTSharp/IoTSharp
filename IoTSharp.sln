@@ -64,12 +64,20 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Github Workflows", "Github Workflows", "{59A51D63-F292-46F0-A4BF-975C98966DAA}"
 	ProjectSection(SolutionItems) = preProject
 		appveyor.yml = appveyor.yml
-		.github\workflows\dotnet-publish.yml = .github\workflows\dotnet-publish.yml
 		.github\workflows\docs-deploy.yml = .github\workflows\docs-deploy.yml
 		.github\workflows\dotnet-build.yml = .github\workflows\dotnet-build.yml
+		.github\workflows\dotnet-publish.yml = .github\workflows\dotnet-publish.yml
 		.github\FUNDING.yml = .github\FUNDING.yml
 		.github\workflows\sonar_analyze.yml = .github\workflows\sonar_analyze.yml
 	EndProjectSection
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MQTTnet.AspNetCore.Routing", "MQTTnet.AspNetCore.Routing\Source\MQTTnet.AspNetCore.Routing.csproj", "{EA5E09EC-3490-4CB8-85F7-2F5D3A3B7BD5}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ExampleServer", "MQTTnet.AspNetCore.Routing\ExampleServer\ExampleServer.csproj", "{459AFEA0-78A0-471F-B43A-CCBF0B640131}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ExampleClient", "MQTTnet.AspNetCore.Routing\ExampleClient\ExampleClient.csproj", "{5A80EC19-D6AC-4CE0-9DA0-026C7C7C5282}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "MQTTRouting", "MQTTRouting", "{3931E58B-9E76-45DB-9DBF-2B1495C26BA1}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -137,6 +145,18 @@ Global
 		{9C6FA709-3334-4C39-922D-6FF5ADB8C683}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9C6FA709-3334-4C39-922D-6FF5ADB8C683}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{9C6FA709-3334-4C39-922D-6FF5ADB8C683}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EA5E09EC-3490-4CB8-85F7-2F5D3A3B7BD5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EA5E09EC-3490-4CB8-85F7-2F5D3A3B7BD5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EA5E09EC-3490-4CB8-85F7-2F5D3A3B7BD5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EA5E09EC-3490-4CB8-85F7-2F5D3A3B7BD5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{459AFEA0-78A0-471F-B43A-CCBF0B640131}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{459AFEA0-78A0-471F-B43A-CCBF0B640131}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{459AFEA0-78A0-471F-B43A-CCBF0B640131}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{459AFEA0-78A0-471F-B43A-CCBF0B640131}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5A80EC19-D6AC-4CE0-9DA0-026C7C7C5282}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5A80EC19-D6AC-4CE0-9DA0-026C7C7C5282}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5A80EC19-D6AC-4CE0-9DA0-026C7C7C5282}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5A80EC19-D6AC-4CE0-9DA0-026C7C7C5282}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -144,6 +164,9 @@ Global
 	GlobalSection(NestedProjects) = preSolution
 		{D099C28B-1CB9-4F2B-829C-EADCC69BA095} = {86E9E4E0-24A0-4C89-A98B-B0D41C75B4F1}
 		{A2A1191C-32ED-482B-AACE-4091EE518CEC} = {86E9E4E0-24A0-4C89-A98B-B0D41C75B4F1}
+		{EA5E09EC-3490-4CB8-85F7-2F5D3A3B7BD5} = {3931E58B-9E76-45DB-9DBF-2B1495C26BA1}
+		{459AFEA0-78A0-471F-B43A-CCBF0B640131} = {3931E58B-9E76-45DB-9DBF-2B1495C26BA1}
+		{5A80EC19-D6AC-4CE0-9DA0-026C7C7C5282} = {3931E58B-9E76-45DB-9DBF-2B1495C26BA1}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {CD7ADD62-E3BD-453A-B653-BC70DB9FF817}

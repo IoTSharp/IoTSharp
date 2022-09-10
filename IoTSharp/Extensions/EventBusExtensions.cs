@@ -16,10 +16,23 @@ namespace IoTSharp.Extensions
         {
             cap.Publish("iotsharp.services.datastream.attributedata", msg);
         }
+
+        public static void PublishAttributeData(this ICapPublisher cap, Device device, Dictionary<string, object> keyValues)
+        {
+            cap.PublishTelemetryData(new PlayloadData() { DeviceId = device.Id, MsgBody = keyValues, DataSide = DataSide.ClientSide, DataCatalog = DataCatalog.AttributeData });
+        }
+
+
+
         public static void PublishTelemetryData(this ICapPublisher cap, PlayloadData msg)
         {
             cap.Publish("iotsharp.services.datastream.telemetrydata", msg);
         }
+        public static void PublishTelemetryData(this ICapPublisher cap,  Device device, Dictionary<string, object> keyValues)
+        {
+            cap.PublishTelemetryData(new PlayloadData() { DeviceId = device.Id, MsgBody = keyValues, DataSide = DataSide.ClientSide, DataCatalog = DataCatalog.TelemetryData });
+        }
+
         public static void PublishDeviceStatus(this ICapPublisher cap,  Guid  devid , DeviceStatus devicestatus)
         {
             cap.Publish("iotsharp.services.datastream.devicestatus",  new  PlayloadData {  DeviceId=devid,  DeviceStatus= devicestatus }  );

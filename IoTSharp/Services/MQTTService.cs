@@ -388,7 +388,7 @@ namespace IoTSharp.Services
             return device;
         }
 
-        private async Task RequestAttributes(string[] tpary, string senderClientId, Dictionary<string, object> keyValues, Device device)
+        internal async Task RequestAttributes(string[] tpary, string senderClientId, Dictionary<string, object> keyValues, Device device)
         {
             using (var scope = _scopeFactor.CreateScope())
             using (var _dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>())
