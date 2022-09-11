@@ -24,13 +24,12 @@ using Microsoft.EntityFrameworkCore;
 namespace IoTSharp.Services.MQTTControllers
 {
     [MqttController]
-    [MqttRoute("[controller]")]
-    public class DevicesController : MqttBaseController
+    [MqttRoute("devices/{devname}/[controller]")]
+    public class AttributesController : MqttBaseController
     {
         readonly ILogger _logger;
         private readonly IServiceScopeFactory _scopeFactor;
         private readonly IEasyCachingProviderFactory _factory;
-        readonly MqttServer _serverEx;
         private readonly ICapPublisher _queue;
         private readonly FlowRuleProcessor _flowRuleProcessor;
         private readonly IEasyCachingProvider _caching;
@@ -38,8 +37,10 @@ namespace IoTSharp.Services.MQTTControllers
         private readonly MQTTService _service;
         readonly MqttClientSetting _mcsetting;
         private readonly AppSettings _settings;
+        private string _devname;
+        private Device device;
 
-        public DevicesController(ILogger<DevicesController> logger, IServiceScopeFactory scopeFactor, MQTTService mqttService,
+        public AttributesController(ILogger<TelemetryController> logger, IServiceScopeFactory scopeFactor, MQTTService mqttService,
             IOptions<AppSettings> options, ICapPublisher queue, IEasyCachingProviderFactory factory, FlowRuleProcessor flowRuleProcessor
             )
         {
@@ -56,47 +57,23 @@ namespace IoTSharp.Services.MQTTControllers
             _service = mqttService;
         }
 
-        [MqttRoute("{devname}/telemetry/xml/{keyname}")]
-        public Task telemetry_xml(string devname,string keyname)
+        public string devname
         {
-            var device = _dev.JudgeOrCreateNewDevice(devname, _scopeFactor, _logger);
-            Dictionary<string, object> keyValues = new Dictionary<string, object>();
-            try
+            get
             {
-                var xml = new System.Xml.XmlDocument();
-                xml.LoadXml(Message.ConvertPayloadToString());
-                keyValues.Add(keyname, xml);
-                _queue.PublishTelemetryData(device, keyValues);
+                return _devname;
             }
-            catch (Exception ex)
+            set
             {
-                _logger.LogWarning(ex, $"{ex.Message}");
+                _devname = value;
+                device = _dev.JudgeOrCreateNewDevice(devname, _scopeFactor, _logger);
             }
-            return Ok();
-        }
-        [MqttRoute("{devname}/telemetry/binary/{keyname}")]
-        public Task telemetry_binary(string devname, string keyname)
-        {
-            var device = _dev.JudgeOrCreateNewDevice(devname, _scopeFactor, _logger);
-            Dictionary<string, object> keyValues = new Dictionary<string, object>();
-            try
-            {
-              
-                keyValues.Add(keyname, Message.Payload);
-                _queue.PublishTelemetryData(device, keyValues);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogWarning(ex, $"{ex.Message}");
-            }
-            return Ok();
         }
 
 
-        [MqttRoute("{devname}/attributes/xml/{keyname}")]
-        public Task attributes_xml(string devname, string keyname)
+        [MqttRoute("xml/{keyname}")]
+        public Task attributes_xml(string keyname)
         {
-            var device = _dev.JudgeOrCreateNewDevice(devname, _scopeFactor, _logger);
             Dictionary<string, object> keyValues = new Dictionary<string, object>();
             try
             {
@@ -113,10 +90,9 @@ namespace IoTSharp.Services.MQTTControllers
         }
 
 
-        [MqttRoute("{devname}/attributes/binary/{keyname}")]
-        public Task attributes_binary(string devname, string keyname)
+        [MqttRoute("binary/{keyname}")]
+        public Task attributes_binary( string keyname)
         {
-            var device = _dev.JudgeOrCreateNewDevice(devname, _scopeFactor, _logger);
             Dictionary<string, object> keyValues = new Dictionary<string, object>();
             try
             {
@@ -132,10 +108,9 @@ namespace IoTSharp.Services.MQTTControllers
         }
 
         // Supports template routing with typed constraints
-        [MqttRoute("{devname}/attributes")]
-        public Task attributes(string devname)
+        [MqttRoute()]
+        public Task attributes()
         {
-            var device = _dev.JudgeOrCreateNewDevice(devname, _scopeFactor, _logger);
             Dictionary<string, object> keyValues = new Dictionary<string, object>();
             try
             {
@@ -151,29 +126,10 @@ namespace IoTSharp.Services.MQTTControllers
             }
             return Ok();
         }
-        [MqttRoute("{devname}/telemetry")]
-        public Task telemetry(string devname)
+       
+        [MqttRoute("request/{keyname}/{requestid}/xml")]
+        public async Task RequestXML(string keyname, string requestid)
         {
-            var device = _dev.JudgeOrCreateNewDevice(devname, _scopeFactor, _logger);
-            Dictionary<string, object> keyValues = new Dictionary<string, object>();
-            try
-            {
-                if (Message.Payload?.Length > 0)
-                {
-                    keyValues = Message.ConvertPayloadToDictionary();
-                    _queue.PublishAttributeData(device, keyValues);
-                }
-            }
-            catch (Exception ex)
-            {
-                _logger.LogWarning(ex, $"{ex.Message}");
-            }
-            return Ok();
-        }
-        [MqttRoute("{devname}/attributes/request/{keyname}/{requestid}/xml")]
-        public async Task RequestAttributes(string devname, string keyname, string requestid)
-        {
-            var device = _dev.JudgeOrCreateNewDevice(devname, _scopeFactor, _logger);
             Dictionary<string, object> keyValues = new Dictionary<string, object>();
             try
             {
@@ -191,8 +147,8 @@ namespace IoTSharp.Services.MQTTControllers
             }
         }
 
-        [MqttRoute("{devname}/attributes/request/{keyname}/{requestid}/binary")]
-        public async Task RequestAttributes_binary(string devname, string keyname, string requestid)
+        [MqttRoute("request/{keyname}/{requestid}/binary")]
+        public async Task RequestBinary( string keyname, string requestid)
         {
             var device = _dev.JudgeOrCreateNewDevice(devname, _scopeFactor, _logger);
             Dictionary<string, object> keyValues = new Dictionary<string, object>();
@@ -212,10 +168,9 @@ namespace IoTSharp.Services.MQTTControllers
             }
         }
 
-        [MqttRoute("{devname}/attributes/request/{requestid}")]
-        public async Task RequestAttributes(string devname,string requestid)
+        [MqttRoute("request/{requestid}")]
+        public async Task RequestAttributes(string requestid)
         {
-            var device = _dev.JudgeOrCreateNewDevice(devname, _scopeFactor, _logger);
             Dictionary<string, object> keyValues = new Dictionary<string, object>();
             try
             {

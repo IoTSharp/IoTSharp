@@ -44,7 +44,11 @@ namespace IoTSharp.Data
         Good = 0,
         PartGood = 1,
         Bad = 2,
-        UnKnow = 3
+        UnKnow = 3,
+        [Obsolete]
+        Online = 4,
+        [Obsolete]
+        Offline =5
     }
 
 
