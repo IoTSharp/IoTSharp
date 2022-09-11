@@ -1,25 +1,17 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
-using System.Threading.Tasks;
-using System;
-using MQTTnet.AspNetCore.AttributeRouting;
-using DotNetCore.CAP;
+﻿using DotNetCore.CAP;
+using Dynamitey.DynamicObjects;
 using EasyCaching.Core;
+using IoTSharp.Data;
+using IoTSharp.Extensions;
 using IoTSharp.FlowRuleEngine;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using MQTTnet.Server;
-using IoTSharp.Data;
-using Dynamitey.DynamicObjects;
-using Amazon.SimpleNotificationService.Model;
-using System.Collections.Generic;
 using MQTTnet;
-using IoTSharp.Extensions;
-using NATS.Client;
-using static IronPython.Modules._ast;
-using System.Linq;
-using Microsoft.EntityFrameworkCore;
+using MQTTnet.AspNetCore.AttributeRouting;
+using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace IoTSharp.Services.MQTTControllers
 {
@@ -27,7 +19,7 @@ namespace IoTSharp.Services.MQTTControllers
     [MqttRoute("devices/{devname}/[controller]")]
     public class TelemetryController : MqttBaseController
     {
-        readonly ILogger _logger;
+        private readonly ILogger _logger;
         private readonly IServiceScopeFactory _scopeFactor;
         private readonly IEasyCachingProviderFactory _factory;
         private readonly ICapPublisher _queue;
@@ -35,7 +27,7 @@ namespace IoTSharp.Services.MQTTControllers
         private readonly IEasyCachingProvider _caching;
         private readonly Device _dev;
         private readonly MQTTService _service;
-        readonly MqttClientSetting _mcsetting;
+        private readonly MqttClientSetting _mcsetting;
         private readonly AppSettings _settings;
         private string _devname;
         private Device device;
@@ -53,10 +45,10 @@ namespace IoTSharp.Services.MQTTControllers
             _queue = queue;
             _flowRuleProcessor = flowRuleProcessor;
             _caching = factory.GetCachingProvider(_hc_Caching);
-              _dev = Lazy.Create(async () => await GetSessionDataAsync<Device>(nameof(Device)));
+            _dev = Lazy.Create(async () => await GetSessionDataAsync<Device>(nameof(Device)));
             _service = mqttService;
         }
-    
+
         public string devname
         {
             get
@@ -69,6 +61,7 @@ namespace IoTSharp.Services.MQTTControllers
                 device = _dev.JudgeOrCreateNewDevice(devname, _scopeFactor, _logger);
             }
         }
+
         [MqttRoute("xml/{keyname}")]
         public Task telemetry_xml(string keyname)
         {
@@ -86,13 +79,13 @@ namespace IoTSharp.Services.MQTTControllers
             }
             return Ok();
         }
+
         [MqttRoute("binary/{keyname}")]
-        public Task telemetry_binary( string keyname)
+        public Task telemetry_binary(string keyname)
         {
             Dictionary<string, object> keyValues = new Dictionary<string, object>();
             try
             {
-              
                 keyValues.Add(keyname, Message.Payload);
                 _queue.PublishTelemetryData(device, keyValues);
             }
@@ -103,7 +96,6 @@ namespace IoTSharp.Services.MQTTControllers
             return Ok();
         }
 
- 
         [MqttRoute()]
         public Task telemetry(string devname)
         {

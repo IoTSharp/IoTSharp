@@ -9,13 +9,14 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using MQTTnet.AspNetCore.AttributeRouting;
 using System;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace IoTSharp.Services.MQTTControllers
 {
     [MqttController]
     [MqttRoute("devices/{devname}/[controller]")]
-    public class StatusController : MqttBaseController
+    public class DataController : MqttBaseController
     {
         private readonly ILogger _logger;
         private readonly IServiceScopeFactory _scopeFactor;
@@ -30,7 +31,7 @@ namespace IoTSharp.Services.MQTTControllers
         private string _devname;
         private Device device;
 
-        public StatusController(ILogger<TelemetryController> logger, IServiceScopeFactory scopeFactor, MQTTService mqttService,
+        public DataController(ILogger<DataController> logger, IServiceScopeFactory scopeFactor, MQTTService mqttService,
             IOptions<AppSettings> options, ICapPublisher queue, IEasyCachingProviderFactory factory, FlowRuleProcessor flowRuleProcessor
             )
         {
@@ -60,21 +61,33 @@ namespace IoTSharp.Services.MQTTControllers
             }
         }
 
-        [MqttRoute("{status}")]
-        public Task UpdateStatus(DeviceStatus status)
+        [MqttRoute()]
+        public async Task DataProcessing()
         {
-            _logger.LogInformation($"重置状态{device.Id} {device.Name}");
-            if (device.DeviceType == DeviceType.Device && device.Owner != null && device.Owner?.Id != null && device.Owner?.Id != Guid.Empty)//虚拟设备上线
+            var p_dev = _dev.DeviceType == DeviceType.Gateway ? device : _dev;
+            var rules = await _caching.GetAsync($"ruleid_{p_dev.Id}_raw", async () =>
             {
-                _queue.PublishDeviceStatus(device.Id, status);
-                _queue.PublishDeviceStatus(device.Owner.Id, status != DeviceStatus.Good ? DeviceStatus.PartGood : status);
-                _logger.LogInformation($"重置网关状态{device.Owner.Id} {device.Owner.Name}");
+                using (var scope = _scopeFactor.CreateScope())
+                using (var _dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>())
+                {
+                    var guids = await _dbContext.GerDeviceRulesIdList(p_dev.Id, MountType.RAW);
+                    return guids;
+                }
+            }
+            , TimeSpan.FromSeconds(_settings.RuleCachingExpiration));
+            if (rules.HasValue)
+            {
+                var obj = new { Message.Topic, Payload = Convert.ToBase64String(Message.Payload), ClientId };
+                rules.Value.ToList().ForEach(async g =>
+                {
+                    _logger.LogInformation($"{ClientId}的数据{Message.Topic}通过规则链{g}进行处理。");
+                    await _flowRuleProcessor.RunFlowRules(g, obj, p_dev.Id, EventType.Normal, null);
+                });
             }
             else
             {
-                _queue.PublishDeviceStatus(device.Id, status);
+                _logger.LogInformation($"{ClientId}的数据{Message.Topic}不符合规范， 也无相关规则链处理。");
             }
-            return Ok();
         }
     }
 }

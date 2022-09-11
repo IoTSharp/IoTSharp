@@ -1,25 +1,14 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
-using System.Threading.Tasks;
-using System;
-using MQTTnet.AspNetCore.AttributeRouting;
-using DotNetCore.CAP;
+﻿using DotNetCore.CAP;
 using EasyCaching.Core;
+using IoTSharp.Data;
+using IoTSharp.Extensions;
 using IoTSharp.FlowRuleEngine;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using MQTTnet.Server;
-using IoTSharp.Data;
-using Dynamitey.DynamicObjects;
-using Amazon.SimpleNotificationService.Model;
-using System.Collections.Generic;
-using MQTTnet;
-using IoTSharp.Extensions;
-using NATS.Client;
-using static IronPython.Modules._ast;
-using System.Linq;
-using Microsoft.EntityFrameworkCore;
+using MQTTnet.AspNetCore.AttributeRouting;
+using System;
+using System.Threading.Tasks;
 
 namespace IoTSharp.Services.MQTTControllers
 {
@@ -27,7 +16,7 @@ namespace IoTSharp.Services.MQTTControllers
     [MqttRoute("devices/{devname}/[controller]")]
     public class RpcController : MqttBaseController
     {
-        readonly ILogger _logger;
+        private readonly ILogger _logger;
         private readonly IServiceScopeFactory _scopeFactor;
         private readonly IEasyCachingProviderFactory _factory;
         private readonly ICapPublisher _queue;
@@ -35,7 +24,7 @@ namespace IoTSharp.Services.MQTTControllers
         private readonly IEasyCachingProvider _caching;
         private readonly Device _dev;
         private readonly MQTTService _service;
-        readonly MqttClientSetting _mcsetting;
+        private readonly MqttClientSetting _mcsetting;
         private readonly AppSettings _settings;
         private string _devname;
         private Device device;
@@ -53,10 +42,10 @@ namespace IoTSharp.Services.MQTTControllers
             _queue = queue;
             _flowRuleProcessor = flowRuleProcessor;
             _caching = factory.GetCachingProvider(_hc_Caching);
-              _dev = Lazy.Create(async () => await GetSessionDataAsync<Device>(nameof(Device)));
+            _dev = Lazy.Create(async () => await GetSessionDataAsync<Device>(nameof(Device)));
             _service = mqttService;
         }
-    
+
         public string devname
         {
             get
@@ -69,8 +58,9 @@ namespace IoTSharp.Services.MQTTControllers
                 device = _dev.JudgeOrCreateNewDevice(devname, _scopeFactor, _logger);
             }
         }
+
         [MqttRoute("request/{method}")]
-        public async Task request(string  method)
+        public async Task request(string method)
         {
             var p_dev = _dev.DeviceType == DeviceType.Gateway ? device : _dev;
             var rules = await _caching.GetAsync($"ruleid_{p_dev.Id}_rpc_{method}", async () =>
@@ -86,12 +76,12 @@ namespace IoTSharp.Services.MQTTControllers
             if (rules.HasValue)
             {
                 var obj = new { Message.Topic, Payload = Convert.ToBase64String(Message.Payload), ClientId };
-                _logger.LogInformation($"{  ClientId}的rpc调用{Message.Topic} 方法 {method}通过规则链{rules.Value}进行处理。");
+                _logger.LogInformation($"{ClientId}的rpc调用{Message.Topic} 方法 {method}通过规则链{rules.Value}进行处理。");
                 await _flowRuleProcessor.RunFlowRules(rules.Value, obj, p_dev.Id, EventType.Normal, null);
             }
             else
             {
-                _logger.LogInformation($"{ ClientId}的数据{Message.Topic}不符合规范， 也无相关规则链处理。");
+                _logger.LogInformation($"{ClientId}的数据{Message.Topic}不符合规范， 也无相关规则链处理。");
             }
         }
     }
