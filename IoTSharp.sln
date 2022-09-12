@@ -29,7 +29,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "4.Tools", "4.Tools", "{3048
 		tools\ef_db_drop.cmd = tools\ef_db_drop.cmd
 		tools\ef_mg_add.cmd = tools\ef_mg_add.cmd
 		tools\ef_mg_remove.cmd = tools\ef_mg_remove.cmd
-		setnpm.cmd = setnpm.cmd
+		tools\setnpm.cmd = tools\setnpm.cmd
 		tools\upgrade_ef.cmd = tools\upgrade_ef.cmd
 	EndProjectSection
 EndProject
@@ -81,9 +81,9 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "MQTTRouting", "MQTTRouting"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "DataStorage", "DataStorage", "{2FC499CB-B5FB-4F71-A396-7B85A3FA3115}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IoTSharp.Data.TimeSeries", "IoTSharp.Data.TimeSeries\IoTSharp.Data.TimeSeries.csproj", "{C28D5462-79CE-4772-AAFA-58C4F059625A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IoTSharp.Data.TimeSeries", "IoTSharp.Data.TimeSeries\IoTSharp.Data.TimeSeries.csproj", "{C28D5462-79CE-4772-AAFA-58C4F059625A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IoTSharp.Contracts", "IoTSharp.Contracts\IoTSharp.Contracts.csproj", "{46CF0B8D-87AC-45FE-A05A-2F80B163349B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IoTSharp.Contracts", "IoTSharp.Contracts\IoTSharp.Contracts.csproj", "{46CF0B8D-87AC-45FE-A05A-2F80B163349B}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IoTSharp.Extensions", "IoTSharp.Extensions\IoTSharp.Extensions.csproj", "{759B6A90-E00E-494F-A563-3D4549C9769B}"
 EndProject
