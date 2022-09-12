@@ -59,6 +59,7 @@ namespace IoTSharp.Services.MQTTControllers
             {
                 var plst = lst[dev];
                 var device = _dev.JudgeOrCreateNewDevice(dev, _scopeFactor, _logger);
+                _queue.PublishSubDeviceOnline(_dev.Id, device);
                 _logger.LogInformation($"{ClientId}的网关数据正在处理设备{dev}， 设备ID为{_dev?.Id}");
                 plst.ForEach(p =>
                 {
@@ -79,6 +80,7 @@ namespace IoTSharp.Services.MQTTControllers
             {
                 var plst = lst[dev];
                 var device = _dev.JudgeOrCreateNewDevice(dev, _scopeFactor, _logger);
+                _queue.PublishSubDeviceOnline(_dev.Id, device);
                 _logger.LogInformation($"{ClientId}的网关数据正在处理设备{dev}， 设备ID为{device?.Id}");
                 plst.ForEach(p =>
                 {
@@ -158,7 +160,6 @@ namespace IoTSharp.Services.MQTTControllers
             try
             {
                 var _dev = GetSessionItem<Device>();
-         
                 var result = await _rawData.ExecuteAsync(_dev, "json", Message.ConvertPayloadToString());
                 _logger.LogInformation($"调用Json网关处理语句返回:{result.Code}-{result.Msg}");
             }

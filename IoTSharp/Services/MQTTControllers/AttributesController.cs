@@ -61,6 +61,7 @@ namespace IoTSharp.Services.MQTTControllers
                 _devname = value;
                 var _dev = GetSessionItem<Device>();
                 device = _dev.JudgeOrCreateNewDevice(devname, _scopeFactor, _logger);
+                _queue.PublishSubDeviceOnline(_dev.Id, device);
             }
         }
 
@@ -141,7 +142,7 @@ namespace IoTSharp.Services.MQTTControllers
         [MqttRoute("request/{keyname}/{requestid}/binary")]
         public async Task RequestBinary(string keyname, string requestid)
         {
-         
+
             Dictionary<string, object> keyValues = new Dictionary<string, object>();
             try
             {

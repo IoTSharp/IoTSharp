@@ -3,6 +3,7 @@ using Dynamitey;
 using IoTSharp.Data;
 using IoTSharp.Dtos;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -35,7 +36,14 @@ namespace IoTSharp.Extensions
         {
             cap.Publish("iotsharp.services.datastream.devicestatus",  new  PlayloadData {  DeviceId=devid,  DeviceStatus= devicestatus }  );
         }
-
+        public static void PublishSubDeviceOnline(this ICapPublisher _queue, Guid _gatewaydevid,  Device subdev)
+        {
+            //如果是_dev的子设备， 则更新状态。
+            if (!subdev.Online &&  subdev.DeviceType == DeviceType.Device && subdev.Id != _gatewaydevid)
+            {
+                _queue.PublishDeviceStatus(subdev.Id, DeviceStatus.Good);
+            }
+        }
         public static void PublishDeviceAlarm(this ICapPublisher cap, CreateAlarmDto alarmDto)
         {
             cap.Publish("iotsharp.services.datastream.alarm", alarmDto);
