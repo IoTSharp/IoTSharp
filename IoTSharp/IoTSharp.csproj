@@ -105,7 +105,7 @@
 		<PackageReference Include="Silkier.AspNetCore" Version="1.0.592" />
 		<PackageReference Include="Silkier.EFCore" Version="1.0.592" />
 		<PackageReference Include="SilkierQuartz" Version="5.0.356" />
-		<PackageReference Include="SkiaSharp.NativeAssets.Linux.NoDependencies" Version="2.88.1" />
+		<PackageReference Include="SkiaSharp.NativeAssets.Linux.NoDependencies" Version="2.88.2" />
 		<PackageReference Include="System.Text.Encoding.CodePages" Version="6.0.0">
 		  <TreatAsUsed>true</TreatAsUsed>
 		</PackageReference>
