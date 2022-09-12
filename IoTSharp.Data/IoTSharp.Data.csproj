@@ -3,6 +3,7 @@
   <PropertyGroup>
     <TargetFramework>net6.0</TargetFramework>
     <CodeAnalysisRuleSet>..\.sonarlint\iotsharp_iotsharpcsharp.ruleset</CodeAnalysisRuleSet>
+    <Nullable>disable</Nullable>
   </PropertyGroup>
 
   <ItemGroup>
@@ -27,6 +28,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\IoTSharp.Contracts\IoTSharp.Contracts.csproj" />
+    <ProjectReference Include="..\IoTSharp.Extensions\IoTSharp.Extensions.csproj" />
   </ItemGroup>
 
 </Project>

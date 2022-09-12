@@ -1,6 +1,6 @@
 ﻿using IoTSharp.Contracts;
 using IoTSharp.Data;
-
+using IoTSharp.Extensions;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json.Linq;
 using System;

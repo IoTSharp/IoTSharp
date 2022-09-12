@@ -6,7 +6,7 @@ using System.Numerics;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace IoTSharp.Data
+namespace IoTSharp.Extensions
 {
     //Org.BouncyCastle.Utilities.Encoders
     public sealed class Hex
