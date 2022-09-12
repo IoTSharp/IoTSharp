@@ -7,7 +7,7 @@ using IoTSharp.FlowRuleEngine;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using MQTTnet.AspNetCore.AttributeRouting;
+using MQTTnet.AspNetCore.Routing;
 using System;
 using System.Threading.Tasks;
 

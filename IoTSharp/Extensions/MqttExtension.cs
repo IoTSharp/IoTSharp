@@ -15,7 +15,7 @@ using System.Runtime.InteropServices;
 using System.Threading;
 using System.Security.Cryptography.X509Certificates;
 using MQTTnet;
-using MQTTnet.AspNetCore.AttributeRouting;
+using MQTTnet.AspNetCore.Routing;
 using IoTSharp.Data;
 
 namespace IoTSharp
