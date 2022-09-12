@@ -33,8 +33,7 @@ using PinusDB.Data;
 using Quartz;
 using RabbitMQ.Client;
 using Savorboard.CAP.InMemoryMessageQueue;
-using Silkier.Extensions;
-using SilkierQuartz;
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -45,6 +44,8 @@ using Jdenticon;
 using static Amazon.Internal.RegionEndpointProviderV2;
 using IoTSharp.Gateways;
 using System.Collections.Specialized;
+using Microsoft.Extensions.ObjectPool;
+using MaiKeBing.HostedService.ZeroMQ;
 
 namespace IoTSharp
 {
@@ -186,7 +187,7 @@ namespace IoTSharp
                 };
             }, authenticationOptions =>
             {
-                authenticationOptions.AccessRequirement = SilkierQuartzAuthenticationOptions.SimpleAccessRequirement.AllowAnonymous;//登录认证有问题
+                authenticationOptions.AccessRequirement = SilkierQuartz.SilkierQuartzAuthenticationOptions.SimpleAccessRequirement.AllowAnonymous ;//登录认证有问题
             }, stdSchedulerFactoryOption =>
              {
                 //opt.Add("quartz.serializer.type", "json");
@@ -234,28 +235,29 @@ namespace IoTSharp
             switch (settings.TelemetryStorage)
             {
                 case TelemetryStorage.Sharding:
+                     var sharding = Configuration.GetSection("Sharding").Get<ShardingSetting>();
                     services.AddEFCoreSharding(config =>
                     {
                         switch (settings.DataBase)
                         {
                             case DataBaseType.MySql:
-                                config.UseMySqlToSharding(Configuration.GetConnectionString("TelemetryStorage"), settings.Sharding.ExpandByDateMode);
+                                config.UseMySqlToSharding(Configuration.GetConnectionString("TelemetryStorage"), sharding.ExpandByDateMode);
                                 break;
 
                             case DataBaseType.SqlServer:
-                                config.UseSqlServerToSharding(Configuration.GetConnectionString("TelemetryStorage"), settings.Sharding.ExpandByDateMode);
+                                config.UseSqlServerToSharding(Configuration.GetConnectionString("TelemetryStorage"), sharding.ExpandByDateMode);
                                 break;
 
                             case DataBaseType.Oracle:
-                                config.UseOracleToSharding(Configuration.GetConnectionString("TelemetryStorage"), settings.Sharding.ExpandByDateMode);
+                                config.UseOracleToSharding(Configuration.GetConnectionString("TelemetryStorage"), sharding.ExpandByDateMode);
                                 break;
 
                             case DataBaseType.Sqlite:
-                                config.UseSQLiteToSharding(Configuration.GetConnectionString("TelemetryStorage"), settings.Sharding.ExpandByDateMode);
+                                config.UseSQLiteToSharding(Configuration.GetConnectionString("TelemetryStorage"), sharding.ExpandByDateMode);
                                 break;
                             case DataBaseType.PostgreSql:
                             default:
-                                config.UseNpgsqlToSharding(Configuration.GetConnectionString("TelemetryStorage"), settings.Sharding.ExpandByDateMode);
+                                config.UseNpgsqlToSharding(Configuration.GetConnectionString("TelemetryStorage"), sharding.ExpandByDateMode);
                                 break;
 
                         }
@@ -308,9 +310,11 @@ namespace IoTSharp
             }
 
             services.AddTransient<IEventBusHandler, EventBusHandler>();
-            if (settings.ZMQOption != null)
+
+            var _ZMQOption = Configuration.GetSection(nameof(ZMQOption)).Get<ZMQOption>();
+            if (_ZMQOption != null)
             {
-                services.AddHostedZeroMQ(cfg => cfg = settings.ZMQOption);
+                services.AddHostedZeroMQ(cfg => cfg = _ZMQOption);
             }
             services.AddCap(x =>
             {
@@ -413,9 +417,10 @@ namespace IoTSharp
                         break;
                 }
                 x.UseDashboard();
-                if (settings.Discovery != null)
+                var _discovery = Configuration.GetSection("Discovery").Get<DiscoveryOptions>();
+                if (_discovery != null)
                 {
-                    x.UseDiscovery(cfg => cfg = settings.Discovery);
+                    x.UseDiscovery(cfg => cfg = _discovery);
                 }
             });
 
@@ -475,7 +480,7 @@ namespace IoTSharp
             app.UseSwaggerUi3();
             app.UseOpenApi();
 
-            app.UseSilkierQuartz();//必须要在UseEndpoints之前调用
+            app.UseSilkierQuartz();
             app.UseCapDashboard();
 
             app.UseEndpoints(endpoints =>

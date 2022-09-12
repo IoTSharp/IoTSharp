@@ -373,7 +373,7 @@ namespace IoTSharp.Controllers
             rule.DefinitionsXml = m.Xml;
             rule.Creator = profile.Id.ToString();
             rule.CreateId = CreatorId;
-            _context.Flows.Where(c => c.FlowRule.RuleId == rule.RuleId).ForEach(c =>
+            _context.Flows.Where(c => c.FlowRule.RuleId == rule.RuleId).ToList().ForEach(c =>
             {
                 c.FlowStatus = -1;
             });

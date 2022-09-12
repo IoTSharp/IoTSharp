@@ -18,8 +18,7 @@ using System.Threading.Tasks;
 using IoTSharp.Controllers.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Options;
-using Silkier.AspNetCore;
-using Silkier.Extensions;
+
 using Jdenticon.AspNetCore;
 
 namespace IoTSharp.Controllers

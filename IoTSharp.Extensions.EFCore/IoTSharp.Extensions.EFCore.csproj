@@ -1,0 +1,21 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+	<PropertyGroup>
+		<TargetFramework>net6.0</TargetFramework>
+		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+		<Version>1.0.1</Version>
+		<Product>IoTSharp</Product>
+		<Authors>MaikeBing</Authors>
+		<RepositoryUrl>https://github.com/IoTSharp/IoTSharp</RepositoryUrl>
+		<PackageProjectUrl>https://github.com/IoTSharp/IoTSharp</PackageProjectUrl>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<PackageReference Include="Microsoft.EntityFrameworkCore" Version="6.0.8" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="6.0.8" />
+		<PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <ProjectReference Include="..\IoTSharp.Extensions\IoTSharp.Extensions.csproj" />
+	</ItemGroup>
+</Project>

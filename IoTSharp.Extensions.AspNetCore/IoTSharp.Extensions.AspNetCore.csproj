@@ -1,0 +1,18 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<TargetFramework>net6.0</TargetFramework>
+		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+		<Version>1.0.1</Version>
+		<Product>IoTSharp.Extensions.AspNetCore</Product>
+		<Authors>MaikeBing</Authors>
+		<PackageIconUrl />
+		<RepositoryUrl>https://github.com/IoTSharp/IoTSharp</RepositoryUrl>
+		<PackageProjectUrl>https://github.com/IoTSharp/IoTSharp</PackageProjectUrl>
+	</PropertyGroup>
+	<ItemGroup>
+		<FrameworkReference Include="Microsoft.AspNetCore.App" />
+		<PackageReference Include="Microsoft.Extensions.Hosting.WindowsServices" Version="6.0.0" />
+		<PackageReference Include="System.Text.Encoding.CodePages" Version="6.0.0" />
+	</ItemGroup>
+</Project>
