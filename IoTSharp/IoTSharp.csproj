@@ -196,13 +196,13 @@
 		</Content>
 	</ItemGroup>
 	<ItemGroup>
-		<ProjectReference Include="..\IoTSharp.Data.Cassandra\IoTSharp.Data.Cassandra.csproj" />
-		<ProjectReference Include="..\IoTSharp.Data.InMemory\IoTSharp.Data.InMemory.csproj" />
-		<ProjectReference Include="..\IoTSharp.Data.MySQL\IoTSharp.Data.MySQL.csproj" />
-		<ProjectReference Include="..\IoTSharp.Data.Oracle\IoTSharp.Data.Oracle.csproj" />
-		<ProjectReference Include="..\IoTSharp.Data.PostgreSQL\IoTSharp.Data.PostgreSQL.csproj" />
-		<ProjectReference Include="..\IoTSharp.Data.Sqlite\IoTSharp.Data.Sqlite.csproj" />
-		<ProjectReference Include="..\IoTSharp.Data.SqlServer\IoTSharp.Data.SqlServer.csproj" />
+		<ProjectReference Include="..\IoTSharp.Data.Storage\IoTSharp.Data.Cassandra\IoTSharp.Data.Cassandra.csproj" />
+		<ProjectReference Include="..\IoTSharp.Data.Storage\IoTSharp.Data.InMemory\IoTSharp.Data.InMemory.csproj" />
+		<ProjectReference Include="..\IoTSharp.Data.Storage\IoTSharp.Data.MySQL\IoTSharp.Data.MySQL.csproj" />
+		<ProjectReference Include="..\IoTSharp.Data.Storage\IoTSharp.Data.Oracle\IoTSharp.Data.Oracle.csproj" />
+		<ProjectReference Include="..\IoTSharp.Data.Storage\IoTSharp.Data.PostgreSQL\IoTSharp.Data.PostgreSQL.csproj" />
+		<ProjectReference Include="..\IoTSharp.Data.Storage\IoTSharp.Data.Sqlite\IoTSharp.Data.Sqlite.csproj" />
+		<ProjectReference Include="..\IoTSharp.Data.Storage\IoTSharp.Data.SqlServer\IoTSharp.Data.SqlServer.csproj" />
 		<ProjectReference Include="..\IoTSharp.Data\IoTSharp.Data.csproj" />
 		<ProjectReference Include="..\IoTSharp.Interpreter\IoTSharp.Interpreter.csproj" />
 		<ProjectReference Include="..\IoTSharp.TaskAction\IoTSharp.TaskAction.csproj" />

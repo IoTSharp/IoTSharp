@@ -2,11 +2,11 @@
 
   <PropertyGroup>
     <TargetFramework>net6.0</TargetFramework>
-    <CodeAnalysisRuleSet>..\.sonarlint\iotsharp_iotsharpcsharp.ruleset</CodeAnalysisRuleSet>
+    <CodeAnalysisRuleSet>..\..\.sonarlint\iotsharp_iotsharpcsharp.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
 
   <ItemGroup>
-    <AdditionalFiles Include="..\.sonarlint\iotsharp_iotsharp\CSharp\SonarLint.xml" Link="SonarLint.xml" />
+    <AdditionalFiles Include="..\..\.sonarlint\iotsharp_iotsharp\CSharp\SonarLint.xml" Link="SonarLint.xml" />
   </ItemGroup>
 	<ItemGroup>
 		<PackageReference Include="AspNetCore.HealthChecks.Sqlite" Version="6.0.2" />
@@ -16,7 +16,7 @@
 		<PackageReference Include="EFCore.Sharding.SQLite" Version="6.0.7" />
 	</ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\IoTSharp.Data\IoTSharp.Data.csproj" />
+    <ProjectReference Include="..\..\IoTSharp.Data\IoTSharp.Data.csproj" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Migrations\" />
