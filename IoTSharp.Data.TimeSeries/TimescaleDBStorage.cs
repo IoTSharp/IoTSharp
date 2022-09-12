@@ -1,8 +1,8 @@
 ﻿using IoTSharp.Data;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using Silkier.EFCore;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 

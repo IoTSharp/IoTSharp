@@ -1,30 +1,26 @@
-﻿using IoTSharp.Data;
-using IoTSharp.Dtos;
-using Microsoft.AspNetCore.Routing.Matching;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
+﻿using IoTSharp.Contracts;
+using IoTSharp.Data;
+
 using Microsoft.EntityFrameworkCore;
-using MQTTnet;
 using Newtonsoft.Json.Linq;
-using Org.BouncyCastle.Crypto.Modes.Gcm;
-using Org.BouncyCastle.Utilities.Encoders;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Dic = System.Collections.Generic.Dictionary<string, System.Exception>;
 
-namespace IoTSharp.Extensions
+namespace IoTSharp.Data
 {
     public static class DataExtension
     {
-        internal static (bool ok, Device device) GetDeviceByTokenWithTenantCustomer(this ApplicationDbContext _context, string access_token)
+        public static (bool ok, Device device) GetDeviceByTokenWithTenantCustomer(this ApplicationDbContext _context, string access_token)
         {
             var deviceIdentity = from id in _context.DeviceIdentities.Include(di => di.Device) where id.IdentityId == access_token && id.IdentityType == IdentityType.AccessToken select id;
             var devices = from dev in _context.Device.Include(g=>g.Customer).Include(g=>g.Tenant)  where deviceIdentity.Any() && dev.Id == deviceIdentity.FirstOrDefault().Device.Id select dev;
             bool ok = deviceIdentity == null || !devices.Any();
             return (ok, devices.FirstOrDefault());
         }
-        internal static (bool ok, Device device) GetDeviceByToken(this ApplicationDbContext _context, string access_token)
+        public static (bool ok, Device device) GetDeviceByToken(this ApplicationDbContext _context, string access_token)
         {
             var deviceIdentity = from id in _context.DeviceIdentities.Include(di => di.Device) where id.IdentityId == access_token && id.IdentityType == IdentityType.AccessToken select id;
             var devices = from dev in _context.Device where deviceIdentity.Any() && dev.Id == deviceIdentity.FirstOrDefault().Device.Id select dev;
@@ -40,7 +36,7 @@ namespace IoTSharp.Extensions
         /// <param name="deviceId"></param>
         /// <param name="_context"></param>
         /// <returns></returns>
-        internal static async Task<(int ret, Dic exceptions)> SaveAsync<L>(this ApplicationDbContext _context, Dictionary<string, object> data, Guid deviceId, DataSide dataSide) where L : DataStorage, new()
+        public static async Task<(int ret, Dic exceptions)> SaveAsync<L>(this ApplicationDbContext _context, Dictionary<string, object> data, Guid deviceId, DataSide dataSide) where L : DataStorage, new()
         {
             Dic exceptions = _context.PreparingData<L>(data, deviceId, dataSide);
             int ret = await _context.SaveChangesAsync();
@@ -55,7 +51,7 @@ namespace IoTSharp.Extensions
         /// <param name="deviceId"></param>
         /// <param name="dataSide"></param>
         /// <returns></returns>
-        internal static Dic PreparingData<L>(this ApplicationDbContext _context, Dictionary<string, object> data, Guid deviceId, DataSide dataSide)
+        public static Dic PreparingData<L>(this ApplicationDbContext _context, Dictionary<string, object> data, Guid deviceId, DataSide dataSide)
             where L : DataStorage, new()
         {
 
@@ -176,7 +172,7 @@ namespace IoTSharp.Extensions
             }
             return obj;
         }
-        internal static void FillKVToMe<T>(this T tdata, KeyValuePair<string, object> kp) where T : IDataStorage
+        public static void FillKVToMe<T>(this T tdata, KeyValuePair<string, object> kp) where T : IDataStorage
         {
             var tc = Type.GetTypeCode(kp.Value.GetType());
          
@@ -271,10 +267,7 @@ namespace IoTSharp.Extensions
                     break;
             }
         }
-        public static Dictionary<string, object> ConvertPayloadToDictionary(this MqttApplicationMessage msg)
-        {
-            return JToken.Parse(msg.ConvertPayloadToString()??"{}")?.JsonToDictionary();
-        }
+    
 
         public static Dictionary<string, object> JsonToDictionary(this JToken jojb)
         {

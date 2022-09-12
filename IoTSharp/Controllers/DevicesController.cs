@@ -1,5 +1,6 @@
 ﻿using DotNetCore.CAP;
 using EasyCaching.Core;
+using IoTSharp.Contracts;
 using IoTSharp.Controllers.Models;
 using IoTSharp.Data;
 using IoTSharp.Dtos;

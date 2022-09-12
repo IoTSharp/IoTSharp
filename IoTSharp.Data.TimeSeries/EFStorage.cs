@@ -1,16 +1,15 @@
-﻿using IoTSharp.Data;
-using IoTSharp.Dtos;
-using IoTSharp.Extensions;
+﻿using IoTSharp.Contracts;
+using IoTSharp.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using  Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
-using Dic = System.Collections.Generic.Dictionary<string, System.Exception>;
-
+using Microsoft.EntityFrameworkCore.Infrastructure;
 
 namespace IoTSharp.Storage
 {

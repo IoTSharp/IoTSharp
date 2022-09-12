@@ -42,16 +42,13 @@
 			https://api.nuget.org/v3/index.json;
 			https://www.myget.org/F/iotsharp/api/v3/index.json;
 		</RestoreAdditionalProjectSources>
-	</PropertyGroup>
-
-	<PropertyGroup>
 		<GenerateSerializationAssemblies>Off</GenerateSerializationAssemblies>
 		<DocumentationFile>IoTSharp.xml</DocumentationFile>
 		<NoWarn>1701;1702;1591</NoWarn>
 		<EnforceCodeStyleInBuild>True</EnforceCodeStyleInBuild>
 	</PropertyGroup>
-	<ItemGroup>
 
+	<ItemGroup>
 		<PackageReference Include="Apache.IoTDB.Data" Version="0.13.0.8" />
 		<PackageReference Include="AspNetCore.HealthChecks.Kafka" Version="6.0.2" />
 		<PackageReference Include="AspNetCore.HealthChecks.MongoDb" Version="6.0.2" />
@@ -101,9 +98,6 @@
 		<PackageReference Include="Rin.Mvc" Version="2.6.0" />
 		<PackageReference Include="RulesEngine" Version="3.5.0" />
 		<PackageReference Include="Savorboard.CAP.InMemoryMessageQueue" Version="6.0.0" />
-		<PackageReference Include="Silkier" Version="1.0.592" />
-		<PackageReference Include="Silkier.AspNetCore" Version="1.0.592" />
-		<PackageReference Include="Silkier.EFCore" Version="1.0.592" />
 		<PackageReference Include="SilkierQuartz" Version="5.0.356" />
 		<PackageReference Include="SkiaSharp.NativeAssets.Linux.NoDependencies" Version="2.88.2" />
 		<PackageReference Include="System.Text.Encoding.CodePages" Version="6.0.0">
@@ -196,6 +190,7 @@
 		</Content>
 	</ItemGroup>
 	<ItemGroup>
+		<ProjectReference Include="..\IoTSharp.Contracts\IoTSharp.Contracts.csproj" />
 		<ProjectReference Include="..\IoTSharp.Data.Storage\IoTSharp.Data.Cassandra\IoTSharp.Data.Cassandra.csproj" />
 		<ProjectReference Include="..\IoTSharp.Data.Storage\IoTSharp.Data.InMemory\IoTSharp.Data.InMemory.csproj" />
 		<ProjectReference Include="..\IoTSharp.Data.Storage\IoTSharp.Data.MySQL\IoTSharp.Data.MySQL.csproj" />
@@ -203,7 +198,11 @@
 		<ProjectReference Include="..\IoTSharp.Data.Storage\IoTSharp.Data.PostgreSQL\IoTSharp.Data.PostgreSQL.csproj" />
 		<ProjectReference Include="..\IoTSharp.Data.Storage\IoTSharp.Data.Sqlite\IoTSharp.Data.Sqlite.csproj" />
 		<ProjectReference Include="..\IoTSharp.Data.Storage\IoTSharp.Data.SqlServer\IoTSharp.Data.SqlServer.csproj" />
+		<ProjectReference Include="..\IoTSharp.Data.TimeSeries\IoTSharp.Data.TimeSeries.csproj" />
 		<ProjectReference Include="..\IoTSharp.Data\IoTSharp.Data.csproj" />
+		<ProjectReference Include="..\IoTSharp.Extensions.AspNetCore\IoTSharp.Extensions.AspNetCore.csproj" />
+		<ProjectReference Include="..\IoTSharp.Extensions.EFCore\IoTSharp.Extensions.EFCore.csproj" />
+		<ProjectReference Include="..\IoTSharp.Extensions\IoTSharp.Extensions.csproj" />
 		<ProjectReference Include="..\IoTSharp.Interpreter\IoTSharp.Interpreter.csproj" />
 		<ProjectReference Include="..\IoTSharp.TaskAction\IoTSharp.TaskAction.csproj" />
 		<ProjectReference Include="..\MQTTnet.AspNetCore.Routing\Source\MQTTnet.AspNetCore.Routing.csproj" />

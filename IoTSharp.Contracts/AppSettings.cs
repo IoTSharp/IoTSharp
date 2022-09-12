@@ -1,9 +1,5 @@
-﻿using CoAP;
-using DotNetCore.CAP.Dashboard.NodeDiscovery;
-using EFCore.Sharding;
+﻿
 using IoTSharp.Data;
-using IoTSharp.X509Extensions;
-using MaiKeBing.HostedService.ZeroMQ;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 using System;
@@ -72,32 +68,24 @@ namespace IoTSharp
         /// </summary>
         public MqttClientSetting MqttClient { get; set; } = new MqttClientSetting() { MqttBroker = "built-in", UserName = Guid.NewGuid().ToString(), Password = Guid.NewGuid().ToString(), Port = 1883 };
         public Dictionary<string, string> ConnectionStrings { get; set; }
-        public CoapConfig CoapServer { get; set; } = new CoapConfig();
 
         public ModBusServerSetting ModBusServer { get; set; } = new ModBusServerSetting();
 
         public TelemetryStorage TelemetryStorage { get; set; } = TelemetryStorage.SingleTable;
 
-        public ShardingSetting Sharding { get; set; } = new ShardingSetting();
+
         public  EventBusStore EventBusStore { get; set; } = EventBusStore.InMemory;
         public   EventBusMQ EventBusMQ { get; set; } = EventBusMQ.InMemory;
         public int ConsumerThreadCount { get; set; } = Environment.ProcessorCount;
         public int DbContextPoolSize { get; set; } = 128;
         public CachingUseIn CachingUseIn { get; set; } = CachingUseIn.InMemory;
         public string CachingUseRedisHosts { get; set; }
-        public DiscoveryOptions Discovery { get; set; } = null;
-        public ZMQOption ZMQOption { get; set; } = null;
+        //public DiscoveryOptions Discovery { get; set; } = null;
+        //public ZMQOption ZMQOption { get; set; } = null;
         public int SucceedMessageExpiredAfter { get; set; } = 3600 * 6;
         public DataBaseType DataBase { get; set; } = DataBaseType.PostgreSql;
         public int RuleCachingExpiration { get; set; } = 60;
-        public string SilkierUsername { get; set; }
-        public string SilkierPassword { get; set; }
-    }
-
-    public class ShardingSetting
-    {
-        public DatabaseType DatabaseType { get; set; } = DatabaseType.PostgreSql;
-        public ExpandByDateMode ExpandByDateMode { get; set; } = ExpandByDateMode.PerMonth;
+ 
     }
     public class ModBusServerSetting
     {

@@ -1,0 +1,18 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <Version>1.0.1</Version>
+    <Authors>MaikeBing</Authors>
+    <PackageIconUrl />
+    <PackageProjectUrl>https://github.com/IoTSharp/IoTSharp</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/IoTSharp/IoTSharp</RepositoryUrl>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
+    <PackageReference Include="RestSharp" Version="108.0.1" />
+  </ItemGroup>
+
+</Project>

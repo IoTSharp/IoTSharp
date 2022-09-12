@@ -17,11 +17,13 @@ using System.Security.Cryptography.X509Certificates;
 using MQTTnet;
 using MQTTnet.AspNetCore.Routing;
 using IoTSharp.Data;
+using Newtonsoft.Json.Linq;
 
 namespace IoTSharp
 {
     public static class MqttExtension
     {
+
         //static private IMqttServer _mqttServer;
         public static void AddIoTSharpMqttServer(this IServiceCollection services, MqttBrokerSetting broker)
         {
@@ -75,9 +77,12 @@ namespace IoTSharp
                 });
         }
 
-    
 
 
+        public static Dictionary<string, object> ConvertPayloadToDictionary(this MqttApplicationMessage msg)
+        {
+            return JToken.Parse(msg.ConvertPayloadToString() ?? "{}")?.JsonToDictionary();
+        }
 
         public static async Task PublishAsync<T>(this MqttServer mqtt, string SenderClientId, string topic, T _payload) where T : class
         {

@@ -19,7 +19,6 @@ using MQTTnet.Diagnostics;
 using NSwag;
 using NSwag.Generation.AspNetCore;
 using NSwag.Generation.Processors.Security;
-using Silkier.Extensions;
 using System;
 using System.Collections.Generic;
 using System.IO;

@@ -1,7 +1,6 @@
 ﻿using EFCore.Sharding;
+using IoTSharp.Contracts;
 using IoTSharp.Data;
-using IoTSharp.Dtos;
-using IoTSharp.Extensions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
