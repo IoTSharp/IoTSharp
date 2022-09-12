@@ -75,15 +75,7 @@ output= {'fever': fever, 'fat': fat}
             Assert.AreEqual(outpuobj, t);
         }
      
-        [TestMethod]
-        public void TestLua()
-        {
-            var intput = System.Text.Json.JsonSerializer.Serialize(new { temperature = 39, height = 192, weight = 121 });
-            string output = _lua_engine.Do( Properties.Resources.luatest, intput);
-            var t = new { fever = true, fat = true };
-            var outpuobj = System.Text.Json.JsonSerializer.Deserialize(output, t.GetType());
-            Assert.AreEqual(outpuobj, t);
-        }
+      
     
         [TestMethod]
         public void TestSQL()
