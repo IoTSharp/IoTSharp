@@ -19,10 +19,8 @@ namespace IoTSharp.Extensions
 
         public static void PublishAttributeData(this ICapPublisher cap, Device device, Dictionary<string, object> keyValues)
         {
-            cap.PublishTelemetryData(new PlayloadData() { DeviceId = device.Id, MsgBody = keyValues, DataSide = DataSide.ClientSide, DataCatalog = DataCatalog.AttributeData });
+            cap.PublishAttributeData(new PlayloadData() { DeviceId = device.Id, MsgBody = keyValues, DataSide = DataSide.ClientSide, DataCatalog = DataCatalog.AttributeData });
         }
-
-
 
         public static void PublishTelemetryData(this ICapPublisher cap, PlayloadData msg)
         {

@@ -4,6 +4,7 @@ using EasyCaching.Core;
 using IoTSharp.Data;
 using IoTSharp.Extensions;
 using IoTSharp.FlowRuleEngine;
+using k8s.KubeConfigModels;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -27,7 +28,6 @@ namespace IoTSharp.Services.MQTTControllers
         private readonly ICapPublisher _queue;
         private readonly FlowRuleProcessor _flowRuleProcessor;
         private readonly IEasyCachingProvider _caching;
-        private readonly Device _dev;
         private readonly MQTTService _service;
         private readonly MqttClientSetting _mcsetting;
         private readonly AppSettings _settings;
@@ -47,7 +47,6 @@ namespace IoTSharp.Services.MQTTControllers
             _queue = queue;
             _flowRuleProcessor = flowRuleProcessor;
             _caching = factory.GetCachingProvider(_hc_Caching);
-            _dev = Lazy.Create(async () => await GetSessionDataAsync<Device>(nameof(Device)));
             _service = mqttService;
         }
 
@@ -60,6 +59,7 @@ namespace IoTSharp.Services.MQTTControllers
             set
             {
                 _devname = value;
+                var _dev = GetSessionItem<Device>();
                 device = _dev.JudgeOrCreateNewDevice(devname, _scopeFactor, _logger);
             }
         }
@@ -141,7 +141,7 @@ namespace IoTSharp.Services.MQTTControllers
         [MqttRoute("request/{keyname}/{requestid}/binary")]
         public async Task RequestBinary(string keyname, string requestid)
         {
-            var device = _dev.JudgeOrCreateNewDevice(devname, _scopeFactor, _logger);
+         
             Dictionary<string, object> keyValues = new Dictionary<string, object>();
             try
             {

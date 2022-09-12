@@ -24,8 +24,8 @@ namespace IoTSharp.Services.MQTTControllers
     public class V1GatewayController : GatewayController
     {
         public V1GatewayController(ILogger<GatewayController> logger, IServiceScopeFactory scopeFactor,
-         IOptions<AppSettings> options, ICapPublisher queue
-         ) : base(logger, scopeFactor, options, queue)
+         IOptions<AppSettings> options, ICapPublisher queue, RawDataGateway rawDataGateway
+         ) : base(logger, scopeFactor, options, queue, rawDataGateway)
         {
         }
     }
@@ -37,21 +37,22 @@ namespace IoTSharp.Services.MQTTControllers
         private readonly ILogger _logger;
         private readonly IServiceScopeFactory _scopeFactor;
         private readonly ICapPublisher _queue;
-        private readonly Device _dev;
+        private readonly RawDataGateway _rawData;
 
         public GatewayController(ILogger<GatewayController> logger, IServiceScopeFactory scopeFactor,
-            IOptions<AppSettings> options, ICapPublisher queue
+            IOptions<AppSettings> options, ICapPublisher queue, RawDataGateway rawDataGateway
             )
         {
             _logger = logger;
             _scopeFactor = scopeFactor;
             _queue = queue;
-            _dev = Lazy.Create(async () => await GetSessionDataAsync<Device>(nameof(Device)));
+            _rawData = rawDataGateway;
         }
 
         [MqttRoute("telemetry")]
         public Task telemetry()
         {
+            var _dev = GetSessionItem<Device>();
             var lst = Newtonsoft.Json.JsonConvert.DeserializeObject<Dictionary<string, List<GatewayPlayload>>>(Message.ConvertPayloadToString());
             _logger.LogInformation($"{ClientId}的数据{Message.Topic}是网关数据， 解析到{lst?.Count}个设备");
             lst?.Keys.ToList().ForEach(dev =>
@@ -71,6 +72,7 @@ namespace IoTSharp.Services.MQTTControllers
         [MqttRoute("attributes")]
         public Task Attributes()
         {
+            var _dev = GetSessionItem<Device>();
             var lst = Newtonsoft.Json.JsonConvert.DeserializeObject<Dictionary<string, List<GatewayPlayload>>>(Message.ConvertPayloadToString());
             _logger.LogInformation($"{ClientId}的数据{Message.Topic}是网关数据， 解析到{lst?.Count}个设备");
             lst?.Keys.ToList().ForEach(dev =>
@@ -90,6 +92,7 @@ namespace IoTSharp.Services.MQTTControllers
         [MqttRoute("connect")]
         public Task on_connect()
         {
+            var _dev = GetSessionItem<Device>();
             var ds = Newtonsoft.Json.JsonConvert.DeserializeObject<GatewayDeviceStatus>(Message.ConvertPayloadToString());
             if (ds != null)
             {
@@ -113,6 +116,7 @@ namespace IoTSharp.Services.MQTTControllers
         [MqttRoute("disconnect")]
         public Task Disconnect()
         {
+            var _dev = GetSessionItem<Device>();
             var ds = Newtonsoft.Json.JsonConvert.DeserializeObject<GatewayDeviceStatus>(Message.ConvertPayloadToString());
             if (ds != null)
             {
@@ -138,9 +142,8 @@ namespace IoTSharp.Services.MQTTControllers
         {
             try
             {
-                using var sc = _scopeFactor.CreateScope();
-                var hg = sc.ServiceProvider.GetService<RawDataGateway>();
-                var result = await hg.ExecuteAsync(_dev, "xml", Message.ConvertPayloadToString());
+                var _dev = GetSessionItem<Device>();
+                var result = await _rawData.ExecuteAsync(_dev, "xml", Message.ConvertPayloadToString());
                 _logger.LogInformation($"调用XML网关处理语句返回:{result.Code}-{result.Msg}");
             }
             catch (Exception ex)
@@ -154,9 +157,9 @@ namespace IoTSharp.Services.MQTTControllers
         {
             try
             {
-                using var sc = _scopeFactor.CreateScope();
-                var hg = sc.ServiceProvider.GetService<RawDataGateway>();
-                var result = await hg.ExecuteAsync(_dev, "json", Message.ConvertPayloadToString());
+                var _dev = GetSessionItem<Device>();
+         
+                var result = await _rawData.ExecuteAsync(_dev, "json", Message.ConvertPayloadToString());
                 _logger.LogInformation($"调用Json网关处理语句返回:{result.Code}-{result.Msg}");
             }
             catch (Exception ex)

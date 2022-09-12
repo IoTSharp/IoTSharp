@@ -22,7 +22,7 @@ namespace IoTSharp.Services.MQTTControllers
         private readonly ILogger _logger;
         private readonly IServiceScopeFactory _scopeFactor;
         private readonly ICapPublisher _queue;
-        private readonly Device _dev;
+ 
         private string _devname;
         private Device device;
 
@@ -31,7 +31,7 @@ namespace IoTSharp.Services.MQTTControllers
             _logger = logger;
             _scopeFactor = scopeFactor;
             _queue = queue;
-            _dev = Lazy.Create(async () => await GetSessionDataAsync<Device>(nameof(Device)));
+   
         }
 
         public string devname
@@ -43,6 +43,7 @@ namespace IoTSharp.Services.MQTTControllers
             set
             {
                 _devname = value;
+                var _dev = GetSessionItem<Device>();
                 device = _dev.JudgeOrCreateNewDevice(devname, _scopeFactor, _logger);
             }
         }

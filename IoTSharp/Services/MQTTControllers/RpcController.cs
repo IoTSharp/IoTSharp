@@ -23,11 +23,11 @@ namespace IoTSharp.Services.MQTTControllers
         private readonly ICapPublisher _queue;
         private readonly FlowRuleProcessor _flowRuleProcessor;
         private readonly IEasyCachingProvider _caching;
-        private readonly Device _dev;
         private readonly MQTTService _service;
         private readonly MqttClientSetting _mcsetting;
         private readonly AppSettings _settings;
         private string _devname;
+        private Device _dev;
         private Device device;
 
         public RpcController(ILogger<RpcController> logger, IServiceScopeFactory scopeFactor, MQTTService mqttService,
@@ -43,7 +43,6 @@ namespace IoTSharp.Services.MQTTControllers
             _queue = queue;
             _flowRuleProcessor = flowRuleProcessor;
             _caching = factory.GetCachingProvider(_hc_Caching);
-            _dev = Lazy.Create(async () => await GetSessionDataAsync<Device>(nameof(Device)));
             _service = mqttService;
         }
 
@@ -56,6 +55,7 @@ namespace IoTSharp.Services.MQTTControllers
             set
             {
                 _devname = value;
+                _dev = GetSessionItem<Device>();
                 device = _dev.JudgeOrCreateNewDevice(devname, _scopeFactor, _logger);
             }
         }
@@ -63,6 +63,7 @@ namespace IoTSharp.Services.MQTTControllers
         [MqttRoute("request/{method}")]
         public async Task request(string method)
         {
+
             var p_dev = _dev.DeviceType == DeviceType.Gateway ? device : _dev;
             var rules = await _caching.GetAsync($"ruleid_{p_dev.Id}_rpc_{method}", async () =>
             {

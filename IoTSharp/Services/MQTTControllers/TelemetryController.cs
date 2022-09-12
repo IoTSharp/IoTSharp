@@ -21,32 +21,17 @@ namespace IoTSharp.Services.MQTTControllers
     {
         private readonly ILogger _logger;
         private readonly IServiceScopeFactory _scopeFactor;
-        private readonly IEasyCachingProviderFactory _factory;
         private readonly ICapPublisher _queue;
-        private readonly FlowRuleProcessor _flowRuleProcessor;
-        private readonly IEasyCachingProvider _caching;
-        private readonly Device _dev;
-        private readonly MQTTService _service;
-        private readonly MqttClientSetting _mcsetting;
-        private readonly AppSettings _settings;
         private string _devname;
         private Device device;
 
-        public TelemetryController(ILogger<TelemetryController> logger, IServiceScopeFactory scopeFactor, MQTTService mqttService,
-            IOptions<AppSettings> options, ICapPublisher queue, IEasyCachingProviderFactory factory, FlowRuleProcessor flowRuleProcessor
-            )
+        public TelemetryController(ILogger<TelemetryController> logger, IServiceScopeFactory scopeFactor, ICapPublisher queue)
         {
-            string _hc_Caching = $"{nameof(CachingUseIn)}-{Enum.GetName(options.Value.CachingUseIn)}";
-            _mcsetting = options.Value.MqttClient;
-            _settings = options.Value;
+
             _logger = logger;
             _scopeFactor = scopeFactor;
-            _factory = factory;
             _queue = queue;
-            _flowRuleProcessor = flowRuleProcessor;
-            _caching = factory.GetCachingProvider(_hc_Caching);
-            _dev = Lazy.Create(async () => await GetSessionDataAsync<Device>(nameof(Device)));
-            _service = mqttService;
+
         }
 
         public string devname
@@ -58,6 +43,7 @@ namespace IoTSharp.Services.MQTTControllers
             set
             {
                 _devname = value;
+                var _dev = GetSessionItem<Device>();
                 device = _dev.JudgeOrCreateNewDevice(devname, _scopeFactor, _logger);
             }
         }
@@ -97,15 +83,13 @@ namespace IoTSharp.Services.MQTTControllers
         }
 
         [MqttRoute()]
-        public Task telemetry(string devname)
+        public Task telemetry()
         {
-            var device = _dev.JudgeOrCreateNewDevice(devname, _scopeFactor, _logger);
-            Dictionary<string, object> keyValues = new Dictionary<string, object>();
             try
             {
                 if (Message.Payload?.Length > 0)
                 {
-                    keyValues = Message.ConvertPayloadToDictionary();
+                    var keyValues = Message.ConvertPayloadToDictionary();
                     _queue.PublishAttributeData(device, keyValues);
                 }
             }
