@@ -90,7 +90,7 @@ namespace IoTSharp.Services.MQTTControllers
                 if (Message.Payload?.Length > 0)
                 {
                     var keyValues = Message.ConvertPayloadToDictionary();
-                    _queue.PublishAttributeData(device, keyValues);
+                    _queue.PublishTelemetryData(device, keyValues);
                 }
             }
             catch (Exception ex)
