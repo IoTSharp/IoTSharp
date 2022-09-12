@@ -1130,6 +1130,11 @@
               查找类似 The certificate is installed 的本地化字符串。
             </summary>
         </member>
+        <member name="T:IoTSharp.Services.MQTTControllers.V1GatewayController">
+            <summary>
+            兼容thingsboard协议
+            </summary>
+        </member>
         <member name="M:IoTSharp.Storage.InfluxDBStorage.LoadTelemetryAsync(System.Guid,System.String,System.DateTime,System.DateTime,System.TimeSpan,IoTSharp.Data.Aggregate)">
             <summary>
             加载遥测数据

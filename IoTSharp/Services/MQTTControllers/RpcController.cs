@@ -1,4 +1,5 @@
 ﻿using DotNetCore.CAP;
+using Dynamitey.DynamicObjects;
 using EasyCaching.Core;
 using IoTSharp.Data;
 using IoTSharp.Extensions;

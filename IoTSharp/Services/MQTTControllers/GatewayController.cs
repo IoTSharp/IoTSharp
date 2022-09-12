@@ -1,10 +1,8 @@
 ﻿using DotNetCore.CAP;
 using Dynamitey.DynamicObjects;
-using EasyCaching.Core;
 using IoTSharp.Data;
 using IoTSharp.Dtos;
 using IoTSharp.Extensions;
-using IoTSharp.FlowRuleEngine;
 using IoTSharp.Gateways;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -18,52 +16,37 @@ using System.Threading.Tasks;
 
 namespace IoTSharp.Services.MQTTControllers
 {
+    /// <summary>
+    /// 兼容thingsboard协议
+    /// </summary>
+    [MqttController]
+    [MqttRoute("v1/gateway")]
+    public class V1GatewayController : GatewayController
+    {
+        public V1GatewayController(ILogger<GatewayController> logger, IServiceScopeFactory scopeFactor,
+         IOptions<AppSettings> options, ICapPublisher queue
+         ) : base(logger, scopeFactor, options, queue)
+        {
+        }
+    }
+
     [MqttController]
     [MqttRoute("[controller]")]
-    [MqttRoute("v1/[controller]")]
     public class GatewayController : MqttBaseController
     {
         private readonly ILogger _logger;
         private readonly IServiceScopeFactory _scopeFactor;
-        private readonly IEasyCachingProviderFactory _factory;
         private readonly ICapPublisher _queue;
-        private readonly FlowRuleProcessor _flowRuleProcessor;
-        private readonly IEasyCachingProvider _caching;
         private readonly Device _dev;
-        private readonly MQTTService _service;
-        private readonly MqttClientSetting _mcsetting;
-        private readonly AppSettings _settings;
-        private string _devname;
-        private Device device;
 
-        public GatewayController(ILogger<GatewayController> logger, IServiceScopeFactory scopeFactor, MQTTService mqttService,
-            IOptions<AppSettings> options, ICapPublisher queue, IEasyCachingProviderFactory factory, FlowRuleProcessor flowRuleProcessor
+        public GatewayController(ILogger<GatewayController> logger, IServiceScopeFactory scopeFactor,
+            IOptions<AppSettings> options, ICapPublisher queue
             )
         {
-            string _hc_Caching = $"{nameof(CachingUseIn)}-{Enum.GetName(options.Value.CachingUseIn)}";
-            _mcsetting = options.Value.MqttClient;
-            _settings = options.Value;
             _logger = logger;
             _scopeFactor = scopeFactor;
-            _factory = factory;
             _queue = queue;
-            _flowRuleProcessor = flowRuleProcessor;
-            _caching = factory.GetCachingProvider(_hc_Caching);
             _dev = Lazy.Create(async () => await GetSessionDataAsync<Device>(nameof(Device)));
-            _service = mqttService;
-        }
-
-        public string devname
-        {
-            get
-            {
-                return _devname;
-            }
-            set
-            {
-                _devname = value;
-                device = _dev.JudgeOrCreateNewDevice(devname, _scopeFactor, _logger);
-            }
         }
 
         [MqttRoute("telemetry")]
@@ -74,7 +57,8 @@ namespace IoTSharp.Services.MQTTControllers
             lst?.Keys.ToList().ForEach(dev =>
             {
                 var plst = lst[dev];
-                _logger.LogInformation($"{ClientId}的网关数据正在处理设备{dev}， 设备ID为{device?.Id}");
+                var device = _dev.JudgeOrCreateNewDevice(dev, _scopeFactor, _logger);
+                _logger.LogInformation($"{ClientId}的网关数据正在处理设备{dev}， 设备ID为{_dev?.Id}");
                 plst.ForEach(p =>
                 {
                     _queue.PublishTelemetryData(new PlayloadData() { DeviceId = device.Id, DeviceStatus = p.DeviceStatus, ts = new DateTime(p.Ticks), MsgBody = p.Values, DataSide = DataSide.ClientSide, DataCatalog = DataCatalog.TelemetryData });
@@ -92,6 +76,7 @@ namespace IoTSharp.Services.MQTTControllers
             lst?.Keys.ToList().ForEach(dev =>
             {
                 var plst = lst[dev];
+                var device = _dev.JudgeOrCreateNewDevice(dev, _scopeFactor, _logger);
                 _logger.LogInformation($"{ClientId}的网关数据正在处理设备{dev}， 设备ID为{device?.Id}");
                 plst.ForEach(p =>
                 {
