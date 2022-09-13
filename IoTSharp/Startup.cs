@@ -190,13 +190,6 @@ namespace IoTSharp
                 authenticationOptions.AccessRequirement = SilkierQuartz.SilkierQuartzAuthenticationOptions.SimpleAccessRequirement.AllowAnonymous ;//登录认证有问题
             }, stdSchedulerFactoryOption =>
              {
-                //opt.Add("quartz.serializer.type", "json");
-                //opt.Add("quartz.jobStore.type", "Quartz.Impl.AdoJobStore.JobStoreTX, Quartz");
-                //opt.Add("quartz.jobStore.driverDelegateType", "Quartz.Impl.AdoJobStore.StdAdoDelegate, Quartz");
-                //opt.Add("quartz.jobStore.tablePrefix", "qrtz_");
-                //opt.Add("quartz.jobStore.dataSource", "myDS");
-                //opt.Add("quartz.dataSource.myDS.provider", "Npgsql");
-                //opt.Add("quartz.dataSource.myDS.connectionString", Configuration.GetConnectionString("IoTSharp"));
                 stdSchedulerFactoryOption.Add("quartz.plugin.recentHistory.type", "Quartz.Plugins.RecentHistory.ExecutionHistoryPlugin, Quartz.Plugins.RecentHistory");
                  stdSchedulerFactoryOption.Add("quartz.plugin.recentHistory.storeType", "Quartz.Plugins.RecentHistory.Impl.InProcExecutionHistoryStore, Quartz.Plugins.RecentHistory");
              }
@@ -235,29 +228,29 @@ namespace IoTSharp
             switch (settings.TelemetryStorage)
             {
                 case TelemetryStorage.Sharding:
-                     var sharding = Configuration.GetSection("Sharding").Get<ShardingSetting>();
+                 
                     services.AddEFCoreSharding(config =>
                     {
                         switch (settings.DataBase)
                         {
                             case DataBaseType.MySql:
-                                config.UseMySqlToSharding(Configuration.GetConnectionString("TelemetryStorage"), sharding.ExpandByDateMode);
+                                config.UseMySqlToSharding(Configuration.GetConnectionString("TelemetryStorage"), settings.ShardingByDateMode);
                                 break;
 
                             case DataBaseType.SqlServer:
-                                config.UseSqlServerToSharding(Configuration.GetConnectionString("TelemetryStorage"), sharding.ExpandByDateMode);
+                                config.UseSqlServerToSharding(Configuration.GetConnectionString("TelemetryStorage"), settings.ShardingByDateMode);
                                 break;
 
                             case DataBaseType.Oracle:
-                                config.UseOracleToSharding(Configuration.GetConnectionString("TelemetryStorage"), sharding.ExpandByDateMode);
+                                config.UseOracleToSharding(Configuration.GetConnectionString("TelemetryStorage"), settings.ShardingByDateMode);
                                 break;
 
                             case DataBaseType.Sqlite:
-                                config.UseSQLiteToSharding(Configuration.GetConnectionString("TelemetryStorage"), sharding.ExpandByDateMode);
+                                config.UseSQLiteToSharding(Configuration.GetConnectionString("TelemetryStorage"), settings.ShardingByDateMode);
                                 break;
                             case DataBaseType.PostgreSql:
                             default:
-                                config.UseNpgsqlToSharding(Configuration.GetConnectionString("TelemetryStorage"), sharding.ExpandByDateMode);
+                                config.UseNpgsqlToSharding(Configuration.GetConnectionString("TelemetryStorage"), settings.ShardingByDateMode);
                                 break;
 
                         }

@@ -74,8 +74,8 @@ namespace IoTSharp
         public TelemetryStorage TelemetryStorage { get; set; } = TelemetryStorage.SingleTable;
 
 
-        public  EventBusStore EventBusStore { get; set; } = EventBusStore.InMemory;
-        public   EventBusMQ EventBusMQ { get; set; } = EventBusMQ.InMemory;
+        public EventBusStore EventBusStore { get; set; } = EventBusStore.InMemory;
+        public EventBusMQ EventBusMQ { get; set; } = EventBusMQ.InMemory;
         public int ConsumerThreadCount { get; set; } = Environment.ProcessorCount;
         public int DbContextPoolSize { get; set; } = 128;
         public CachingUseIn CachingUseIn { get; set; } = CachingUseIn.InMemory;
@@ -85,7 +85,30 @@ namespace IoTSharp
         public int SucceedMessageExpiredAfter { get; set; } = 3600 * 6;
         public DataBaseType DataBase { get; set; } = DataBaseType.PostgreSql;
         public int RuleCachingExpiration { get; set; } = 60;
- 
+        public ShardingByDateMode ShardingByDateMode { get; set; } = ShardingByDateMode.PerMonth;
+    }
+    public enum ShardingByDateMode
+    {
+        //
+        // 摘要:
+        //     每分钟
+        PerMinute,
+        //
+        // 摘要:
+        //     每小时
+        PerHour,
+        //
+        // 摘要:
+        //     每天
+        PerDay,
+        //
+        // 摘要:
+        //     每月
+        PerMonth,
+        //
+        // 摘要:
+        //     每年
+        PerYear
     }
     public class ModBusServerSetting
     {
@@ -121,7 +144,7 @@ namespace IoTSharp
                 {
                     if (System.IO.File.Exists(CACertificateFile) && System.IO.File.Exists(CAPrivateKeyFile))
                     {
-                        _CACertificate =   X509Certificate2.CreateFromPemFile(CACertificateFile, CAPrivateKeyFile);
+                        _CACertificate = X509Certificate2.CreateFromPemFile(CACertificateFile, CAPrivateKeyFile);
                     }
                 }
                 return _CACertificate;
@@ -139,7 +162,7 @@ namespace IoTSharp
                 {
                     if (System.IO.File.Exists(CertificateFile) && System.IO.File.Exists(PrivateKeyFile))
                     {
-                        _BrokerCertificate =   X509Certificate2.CreateFromPemFile(CertificateFile, PrivateKeyFile);
+                        _BrokerCertificate = X509Certificate2.CreateFromPemFile(CertificateFile, PrivateKeyFile);
                     }
                 }
                 return _BrokerCertificate;
@@ -147,9 +170,9 @@ namespace IoTSharp
         }
         public string CACertificateFile { get; set; } = "ca.crt";
         public string CAPrivateKeyFile { get; set; } = "ca.key";
-        public string CertificateFile { get; set; } ="server.crt";
+        public string CertificateFile { get; set; } = "server.crt";
         public string PrivateKeyFile { get; set; } = "server.key";
-        public string ServerIPAddress { get;  set; }
-        public string DomainName { get;   set; }
+        public string ServerIPAddress { get; set; }
+        public string DomainName { get; set; }
     }
 }

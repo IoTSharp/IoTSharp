@@ -61,6 +61,7 @@ namespace IoTSharp.Data
         AttributeLatest,
         TelemetryData,
         TelemetryLatest,
+        ProduceData
     }
     [System.Text.Json.Serialization.JsonConverter(typeof(System.Text.Json.Serialization.JsonStringEnumConverter))]
     [JsonConverter(typeof(StringEnumConverter))]
