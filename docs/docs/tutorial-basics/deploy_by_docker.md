@@ -2,9 +2,9 @@
 sidebar_position: 4
 ---
 
-# 如何部署IoTSharp?
+# 使用Dcoker部署
 
-本教程使用**rabbit_mongo_influx** 方式进行部署
+本教程使用 RabbitMQ作为消息中间件， 使用MongoDB作为消息存储， 使用InfluxDB 作为时序数据存储， 使用Postgresql 作为关系型数据库。 ,
 
 ## 修改docker-compose.yml文件
 
@@ -26,7 +26,7 @@ influxdb_cli:
 
 ## 启动容器
 
-进入`/IoTSharp/Deployments/rabbit_mongo_influx`，执行
+进入`/IoTSharp/Deployments/rabbit_mongo_influx`，把里面的docker-compose.yml 等文件拷贝到你的目标目录中， 确保docker和docker-compose 都已经安装， 然后直接在执行up命令。 
 ```bash docker-compose
 docker-compose up -d
 ```

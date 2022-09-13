@@ -2,7 +2,7 @@
 sidebar_position: 3
 ---
 
-# 如何调试IoTSharp?
+# 调试IoTSharp
 
 本教程使用**rabbit_mongo_influx** 方式进行源码运行
 
