@@ -1,5 +1,6 @@
 ﻿
 using EFCore.Sharding;
+using IoTSharp;
 using IoTSharp.Data;
 using IoTSharp.Data.SqlServer;
 using Microsoft.EntityFrameworkCore;
@@ -27,10 +28,10 @@ namespace Microsoft.Extensions.DependencyInjection
 
         }
 
-        public static void UseSqlServerToSharding(this IShardingBuilder builder, string connectionString, ExpandByDateMode expandBy)
+        public static void UseSqlServerToSharding(this IShardingBuilder builder, string connectionString, ShardingByDateMode expandBy)
         {
             builder.AddDataSource(connectionString, ReadWriteType.Read | ReadWriteType.Write, DatabaseType.SqlServer);
-            builder.SetDateSharding<TelemetryData>(nameof(TelemetryData.DateTime), expandBy, DateTime.Now);
+            builder.SetDateSharding<TelemetryData>(nameof(TelemetryData.DateTime), (ExpandByDateMode)(int)expandBy, DateTime.Now);
         }
     }
 }

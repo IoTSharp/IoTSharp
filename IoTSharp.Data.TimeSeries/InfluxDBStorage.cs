@@ -4,6 +4,7 @@ using InfluxDB.Client.Core.Flux.Domain;
 using InfluxDB.Client.Writes;
 using IoTSharp.Contracts;
 using IoTSharp.Data;
+using IoTSharp.Extensions;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.ObjectPool;

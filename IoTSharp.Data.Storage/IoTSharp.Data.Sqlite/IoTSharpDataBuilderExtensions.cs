@@ -1,5 +1,6 @@
 ﻿
 using EFCore.Sharding;
+using IoTSharp;
 using IoTSharp.Data;
 using IoTSharp.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
@@ -28,10 +29,10 @@ namespace Microsoft.Extensions.DependencyInjection
 
         }
 
-        public static void UseSQLiteToSharding(this IShardingBuilder builder, string connectionString, ExpandByDateMode expandBy)
+        public static void UseSQLiteToSharding(this IShardingBuilder builder, string connectionString, ShardingByDateMode expandBy)
         {
             builder.AddDataSource(connectionString, ReadWriteType.Read | ReadWriteType.Write, DatabaseType.SQLite);
-            builder.SetDateSharding<TelemetryData>(nameof(TelemetryData.DateTime), expandBy, DateTime.Now);
+            builder.SetDateSharding<TelemetryData>(nameof(TelemetryData.DateTime), (ExpandByDateMode)(int)expandBy, DateTime.Now);
         }
 
         public static void SetCaseInsensitiveSearchesForSQLite(this ModelBuilder modelBuilder)

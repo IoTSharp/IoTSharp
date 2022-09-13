@@ -17,7 +17,7 @@ namespace IoTSharp.Data.Sqlite.Migrations
 #pragma warning disable 612, 618
             modelBuilder
                 .UseCollation("NOCASE")
-                .HasAnnotation("ProductVersion", "6.0.7");
+                .HasAnnotation("ProductVersion", "6.0.8");
 
             modelBuilder.Entity("IoTSharp.Data.Alarm", b =>
                 {
@@ -676,6 +676,9 @@ namespace IoTSharp.Data.Sqlite.Migrations
                     b.Property<Guid?>("OwnerId")
                         .HasColumnType("TEXT");
 
+                    b.Property<Guid?>("ProduceId")
+                        .HasColumnType("TEXT");
+
                     b.Property<int>("Status")
                         .HasColumnType("INTEGER");
 
@@ -694,6 +697,8 @@ namespace IoTSharp.Data.Sqlite.Migrations
                     b.HasIndex("DeviceModelId");
 
                     b.HasIndex("OwnerId");
+
+                    b.HasIndex("ProduceId");
 
                     b.HasIndex("TenantId");
 
@@ -1590,6 +1595,41 @@ namespace IoTSharp.Data.Sqlite.Migrations
                     b.ToTable("FlowRules");
                 });
 
+            modelBuilder.Entity("IoTSharp.Data.Produce", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid?>("CustomerId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("DefaultIdentityType")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("DefaultTimeout")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("TEXT")
+                        .UseCollation("NOCASE");
+
+                    b.Property<string>("Name")
+                        .HasColumnType("TEXT")
+                        .UseCollation("NOCASE");
+
+                    b.Property<Guid?>("TenantId")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CustomerId");
+
+                    b.HasIndex("TenantId");
+
+                    b.ToTable("Produce");
+                });
+
             modelBuilder.Entity("IoTSharp.Data.RefreshToken", b =>
                 {
                     b.Property<Guid>("Id")
@@ -2147,6 +2187,15 @@ namespace IoTSharp.Data.Sqlite.Migrations
                     b.HasDiscriminator().HasValue(1);
                 });
 
+            modelBuilder.Entity("IoTSharp.Data.ProduceData", b =>
+                {
+                    b.HasBaseType("IoTSharp.Data.DataStorage");
+
+                    b.HasIndex("DeviceId");
+
+                    b.HasDiscriminator().HasValue(5);
+                });
+
             modelBuilder.Entity("IoTSharp.Data.TelemetryLatest", b =>
                 {
                     b.HasBaseType("IoTSharp.Data.DataStorage");
@@ -2268,6 +2317,10 @@ namespace IoTSharp.Data.Sqlite.Migrations
                     b.HasOne("IoTSharp.Data.Gateway", "Owner")
                         .WithMany("Children")
                         .HasForeignKey("OwnerId");
+
+                    b.HasOne("IoTSharp.Data.Produce", null)
+                        .WithMany("Devices")
+                        .HasForeignKey("ProduceId");
 
                     b.HasOne("IoTSharp.Data.Tenant", "Tenant")
                         .WithMany("Devices")
@@ -2478,6 +2531,21 @@ namespace IoTSharp.Data.Sqlite.Migrations
                     b.Navigation("Tenant");
                 });
 
+            modelBuilder.Entity("IoTSharp.Data.Produce", b =>
+                {
+                    b.HasOne("IoTSharp.Data.Customer", "Customer")
+                        .WithMany()
+                        .HasForeignKey("CustomerId");
+
+                    b.HasOne("IoTSharp.Data.Tenant", "Tenant")
+                        .WithMany()
+                        .HasForeignKey("TenantId");
+
+                    b.Navigation("Customer");
+
+                    b.Navigation("Tenant");
+                });
+
             modelBuilder.Entity("IoTSharp.Data.RefreshToken", b =>
                 {
                     b.HasOne("Microsoft.AspNetCore.Identity.IdentityUser", "User")
@@ -2604,6 +2672,17 @@ namespace IoTSharp.Data.Sqlite.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("IoTSharp.Data.ProduceData", b =>
+                {
+                    b.HasOne("IoTSharp.Data.Produce", "Owner")
+                        .WithMany("DefaultAttributes")
+                        .HasForeignKey("DeviceId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Owner");
+                });
+
             modelBuilder.Entity("IoTSharp.Data.Asset", b =>
                 {
                     b.Navigation("OwnedAssets");
@@ -2627,6 +2706,13 @@ namespace IoTSharp.Data.Sqlite.Migrations
             modelBuilder.Entity("IoTSharp.Data.DeviceModel", b =>
                 {
                     b.Navigation("DeviceModelCommands");
+                });
+
+            modelBuilder.Entity("IoTSharp.Data.Produce", b =>
+                {
+                    b.Navigation("DefaultAttributes");
+
+                    b.Navigation("Devices");
                 });
 
             modelBuilder.Entity("IoTSharp.Data.Tenant", b =>

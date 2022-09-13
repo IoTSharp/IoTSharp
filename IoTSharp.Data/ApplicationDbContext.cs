@@ -6,42 +6,40 @@ using System.Collections.Generic;
 using System.Linq;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.Extensions.DependencyInjection;
+using IoTSharp.Data.Configurations;
 
 namespace IoTSharp.Data
 {
     public class ApplicationDbContext : IdentityDbContext
     {
-     
+
 
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
             : base(options)
         {
-            if (Database.IsRelational()  && Database.GetPendingMigrations().Any())
+            if (Database.IsRelational() && Database.GetPendingMigrations().Any())
             {
                 Database.Migrate();
             }
-         
+
         }
 
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<Device>().HasOne(c => c.DeviceIdentity).WithOne(c => c.Device).HasForeignKey<DeviceIdentity>(c => c.DeviceId);
-            modelBuilder.Entity<DataStorage>().HasKey(c => new { c.Catalog, c.DeviceId, c.KeyName });
-            modelBuilder.Entity<DataStorage>().HasIndex(c => c.Catalog);
-            modelBuilder.Entity<DataStorage>().HasIndex(c => new { c.Catalog, c.DeviceId });
-            modelBuilder.Entity<DataStorage>()
-           .HasDiscriminator<DataCatalog>(nameof(Data.DataStorage.Catalog))
-           .HasValue<DataStorage>(DataCatalog.None)
-                  .HasValue<AttributeLatest>(DataCatalog.AttributeLatest)
-           .HasValue<TelemetryLatest>(DataCatalog.TelemetryLatest);
-
+        
+            modelBuilder.ApplyConfiguration(new DataStorageConfiguration());
             modelBuilder.Entity<AttributeLatest>().HasDiscriminator<DataCatalog>(nameof(Data.DataStorage.Catalog));
             modelBuilder.Entity<TelemetryLatest>().HasDiscriminator<DataCatalog>(nameof(Data.DataStorage.Catalog));
+            modelBuilder.Entity<ProduceData>().HasDiscriminator<DataCatalog>(nameof(Data.DataStorage.Catalog));
+
+            modelBuilder.Entity<Device>().HasOne(c => c.DeviceIdentity).WithOne(c => c.Device).HasForeignKey<DeviceIdentity>(c => c.DeviceId);
             modelBuilder.Entity<Device>().HasDiscriminator<DeviceType>(nameof(Data.Device.DeviceType)).HasValue<Gateway>(DeviceType.Gateway).HasValue<Device>(DeviceType.Device);
             modelBuilder.Entity<Gateway>().HasDiscriminator<DeviceType>(nameof(Data.Device.DeviceType));
-       
-            var builder_options= this.GetService<IDataBaseModelBuilderOptions>();
+
+            modelBuilder.Entity<Produce>().HasMany(c=>c.DefaultAttributes).WithOne(c=>c.Owner).HasForeignKey(c=>c.DeviceId);
+
+            var builder_options = this.GetService<IDataBaseModelBuilderOptions>();
             builder_options.Infrastructure = this;
             builder_options.OnModelCreating(modelBuilder);
             modelBuilder.ApplyConfiguration(new TelemetryDataConfiguration());
@@ -62,7 +60,7 @@ namespace IoTSharp.Data
         public DbSet<TelemetryLatest> TelemetryLatest { get; set; }
         public DbSet<DeviceIdentity> DeviceIdentities { get; set; }
         public DbSet<AuditLog> AuditLog { get; set; }
-     
+
         public DbSet<BaseDictionaryGroup> BaseDictionaryGroups { get; set; }
         public DbSet<BaseDictionary> BaseDictionaries { get; set; }
         public DbSet<DynamicFormFieldInfo> DynamicFormFieldInfos { get; set; }
@@ -101,5 +99,5 @@ namespace IoTSharp.Data
         public DbSet<AssetRelation> AssetRelations { get; set; }
 
     }
-    
+
 }
