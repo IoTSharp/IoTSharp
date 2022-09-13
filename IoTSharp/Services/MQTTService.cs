@@ -94,7 +94,7 @@ namespace IoTSharp.Services
         {
             try
             {
-                var dev = await FoundDevice(args.ClientId);
+                var dev = args.SessionItems[nameof(Device)] as Device;  
                 if (dev != null)
                 {
                     using (var scope = _scopeFactor.CreateScope())
