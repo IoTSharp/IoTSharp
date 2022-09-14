@@ -75,8 +75,8 @@
 		<PackageReference Include="EasyCaching.Redis" Version="1.6.1" />
 		<PackageReference Include="hyjiacan.pinyin4net" Version="4.1.1" />
 		<PackageReference Include="IoTSharp.CoAP.NET" Version="2.0.8" />
-		<PackageReference Include="IoTSharp.HealthChecks.InfluxDB" Version="1.0.18" />
-		<PackageReference Include="IoTSharp.HealthChecks.IoTDB" Version="1.0.18" />
+		<PackageReference Include="IoTSharp.HealthChecks.InfluxDB" Version="1.0.22" />
+		<PackageReference Include="IoTSharp.HealthChecks.IoTDB" Version="1.0.22" />
 		<PackageReference Include="IoTSharp.X509Extensions" Version="2.0.36" />
 		<PackageReference Include="Jdenticon-net" Version="3.1.2" />
 		<PackageReference Include="Jdenticon.AspNetCore" Version="3.1.2" />
@@ -86,11 +86,12 @@
 		<PackageReference Include="IoTSharp.Data.Taos" Version="2.6.2" />
 		<PackageReference Include="IoTSharp.HealthChecks.Taos" Version="2.6.2" />
 		<PackageReference Include="MaiKeBing.HostedService.ZeroMQ" Version="1.0.35" />
-		<PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="6.0.8" />
-		<PackageReference Include="Microsoft.AspNetCore.SpaProxy" Version="6.0.8" />
+		<PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="6.0.9" />
+		<PackageReference Include="Microsoft.AspNetCore.SpaProxy" Version="6.0.9" />
 		<PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.17.0" />
 		<PackageReference Include="MQTTnet" Version="4.1.0.247" />
 		<PackageReference Include="MQTTnet.AspNetCore" Version="4.1.0.247" />
+		<PackageReference Include="MQTTnet.AspNetCore.Routing" Version="0.4.11" />
 		<PackageReference Include="NetMQ" Version="4.0.1.9" />
 		<PackageReference Include="NSwag.AspNetCore" Version="13.16.1" />
 		<PackageReference Include="PinusDB.HealthChecks" Version="1.0.10" />
@@ -103,10 +104,10 @@
 		<PackageReference Include="System.Text.Encoding.CodePages" Version="6.0.0">
 		  <TreatAsUsed>true</TreatAsUsed>
 		</PackageReference>
-		<PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="6.0.8" />
+		<PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="6.0.9" />
 		<PackageReference Include="Microsoft.Extensions.Hosting.WindowsServices" Version="6.0.0" />
-		<PackageReference Include="Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore" Version="6.0.8" />
-		<PackageReference Include="Microsoft.AspNetCore.Identity.UI" Version="6.0.8" />
+		<PackageReference Include="Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore" Version="6.0.9" />
+		<PackageReference Include="Microsoft.AspNetCore.Identity.UI" Version="6.0.9" />
 	</ItemGroup>
 	<ItemGroup>
 
@@ -205,7 +206,6 @@
 		<ProjectReference Include="..\IoTSharp.Extensions\IoTSharp.Extensions.csproj" />
 		<ProjectReference Include="..\IoTSharp.Interpreter\IoTSharp.Interpreter.csproj" />
 		<ProjectReference Include="..\IoTSharp.TaskActions\IoTSharp.TaskActions.csproj" />
-		<ProjectReference Include="..\MQTTnet.AspNetCore.Routing\Source\MQTTnet.AspNetCore.Routing.csproj" />
 	</ItemGroup>
 	<ItemGroup>
 		<Folder Include="ClientApp\" />
