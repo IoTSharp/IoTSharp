@@ -38,42 +38,24 @@ namespace IoTSharp.Jobs
         {
             return Task.Run(async () =>
             {
-                //如果中断在mqtt服务器列表中， 则取得最后一次收到消息的时间戳， 
-                using (var scope = _scopeFactor.CreateScope())
-                using (var _dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>())
-                {
-                    var clientstatus = await _serverEx.GetClientsAsync();
-                    clientstatus.ToList().ForEach(cs =>
-                   {
-                       try
-                       {
-                           var _device = cs.Session.Items[ nameof(Device)] as Device;
-                           if (_device != null)
-                           {
-                               var d = _dbContext.Device.FirstOrDefault(d => d.Id == _device.Id);
-                               if (d != null)
-                               {
-                                   if (!d.Online && DateTime.Now.Subtract(d.LastActive).TotalSeconds > d.Timeout)
-                                   {
-                                       Task.Run(cs.DisconnectAsync);
-                                   }
-                               }
-                           }
-                       }
-                       catch (Exception ex)
-                       {
-                           _logger.LogInformation($"检查设备{cs.Id}-{cs.Endpoint}) 时遇到异常{ex.Message}{ex.InnerException?.Message}  发送消息:{cs.SentApplicationMessagesCount}({cs.BytesSent}kb)  收到{cs.ReceivedApplicationMessagesCount}({cs.BytesReceived / 1024}KB )  ");
+            //如果中断在mqtt服务器列表中， 则取得最后一次收到消息的时间戳， 
+            using (var scope = _scopeFactor.CreateScope())
+            using (var _dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>())
+            {
+                var clientstatus = await _serverEx.GetClientsAsync();
+                var onlinedev = from client in clientstatus select client.Session.Items[nameof(Device)] as Device;
+                //把超时时间小于1的都设置为300秒
+                var tfx = from d in _dbContext.Device where d.Timeout < 1 select d;
+                tfx.ToList().ForEach(d => d.Timeout = 300);
 
-                       }
-                   });
-                    var tfx = from d in _dbContext.Device where d.Timeout < 1 select d;
-                    tfx.ToList().ForEach(d => d.Timeout = 300);
-                    //当前时间减去最后活跃时间如果小于超时时间， 则为在线， 否则就是离线
-                    _dbContext.Device.ToList().ForEach(d =>
+                //所有在线且活跃时间超时的设备如果不在已连接客户端内， 则认为是离线。 
+                //这里的自身我们认为是 有链接的设备， 而不是无连接的。 
+                _dbContext.Device.Where(d =>  d.Owner==null   && d.Online && DateTime.Now.Subtract(d.LastActive).TotalSeconds > d.Timeout)
+                    .Select(d => d.Id).ToList().ForEach(id =>
                     {
-                         if  (d.Online  &&   DateTime.Now.Subtract(d.LastActive).TotalSeconds > d.Timeout)
+                        if (!onlinedev.Any(dev => dev.Id != id))
                         {
-                            _queue.PublishDeviceStatus(d.Id,  DeviceStatus.Bad);
+                            _queue.PublishDeviceStatus(id, DeviceStatus.Bad);
                         }
                     });
                     var saveresult = await _dbContext.SaveChangesAsync();
