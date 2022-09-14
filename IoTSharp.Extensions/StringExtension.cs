@@ -328,6 +328,17 @@ namespace IoTSharp.Extensions
 
         #endregion https://github.com/LazyMode/StringEx/blob/master/StringEx.cs
 
+
+        /// <summary>
+        /// 把 \0 也剔除掉。 
+        /// </summary>
+        /// <param name="buffer"></param>
+        /// <returns></returns>
+        public static string TrimNull(this string buffer)
+        {
+            return buffer.Trim('\0', '\r', '\n', ' ');
+        }
+
         public static string ToTitleCase(this string str)
         {
             return System.Threading.Thread.CurrentThread.CurrentCulture.TextInfo.ToTitleCase(str.ToLower());

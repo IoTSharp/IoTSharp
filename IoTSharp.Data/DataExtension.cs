@@ -339,7 +339,7 @@ namespace IoTSharp.Data
                     telemetry.Value = (string)_value;
                     break;
                 case DataType.Binary:
-                    telemetry.Value = Hex.Decode((string)_value);
+                    telemetry.Value = Hex.HexToBytes((string)_value);
                     break;
                 case DataType.DateTime:
                     telemetry.Value = (DateTime)_value;
