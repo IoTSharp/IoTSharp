@@ -95,6 +95,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IoTSharp.Extensions.RESTful
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IoTSharp.TaskActions", "IoTSharp.TaskActions\IoTSharp.TaskActions.csproj", "{42973CFA-055C-45B8-AC8E-752F34ED314B}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IoTSharp.Data.ClickHouse", "IoTSharp.Data.Storage\IoTSharp.Data.ClickHouse\IoTSharp.Data.ClickHouse.csproj", "{C7FA91C2-1629-4D94-BB38-3EBF1CAB5BDA}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -201,6 +203,10 @@ Global
 		{42973CFA-055C-45B8-AC8E-752F34ED314B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{42973CFA-055C-45B8-AC8E-752F34ED314B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{42973CFA-055C-45B8-AC8E-752F34ED314B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C7FA91C2-1629-4D94-BB38-3EBF1CAB5BDA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C7FA91C2-1629-4D94-BB38-3EBF1CAB5BDA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C7FA91C2-1629-4D94-BB38-3EBF1CAB5BDA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C7FA91C2-1629-4D94-BB38-3EBF1CAB5BDA}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -218,6 +224,7 @@ Global
 		{EA5E09EC-3490-4CB8-85F7-2F5D3A3B7BD5} = {3931E58B-9E76-45DB-9DBF-2B1495C26BA1}
 		{459AFEA0-78A0-471F-B43A-CCBF0B640131} = {3931E58B-9E76-45DB-9DBF-2B1495C26BA1}
 		{5A80EC19-D6AC-4CE0-9DA0-026C7C7C5282} = {3931E58B-9E76-45DB-9DBF-2B1495C26BA1}
+		{C7FA91C2-1629-4D94-BB38-3EBF1CAB5BDA} = {2FC499CB-B5FB-4F71-A396-7B85A3FA3115}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {CD7ADD62-E3BD-453A-B653-BC70DB9FF817}
