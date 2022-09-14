@@ -105,7 +105,7 @@
             告警管理
             </summary>
         </member>
-        <member name="M:IoTSharp.Controllers.AlarmController.Occurred(IoTSharp.Dtos.CreateAlarmDto)">
+        <member name="M:IoTSharp.Controllers.AlarmController.Occurred(IoTSharp.Contracts.CreateAlarmDto)">
             <summary>
             创建告警， 但不触发规则链。要触发规则链， 请使用设备相关的API
             </summary>
@@ -126,14 +126,14 @@
             <param name="m"></param>
             <returns></returns>
         </member>
-        <member name="M:IoTSharp.Controllers.AlarmController.AckAlarm(IoTSharp.Dtos.AlarmStatusDto)">
+        <member name="M:IoTSharp.Controllers.AlarmController.AckAlarm(IoTSharp.Contracts.AlarmStatusDto)">
             <summary>
             确认告警
             </summary>
             <param name="m"></param>
             <returns></returns>
         </member>
-        <member name="M:IoTSharp.Controllers.AlarmController.ClearAlarm(IoTSharp.Dtos.AlarmStatusDto)">
+        <member name="M:IoTSharp.Controllers.AlarmController.ClearAlarm(IoTSharp.Contracts.AlarmStatusDto)">
             <summary>
             清除告警信息
             </summary>
@@ -396,7 +396,7 @@
             <param name="attributes">attributes</param>
             <returns></returns>
         </member>
-        <member name="M:IoTSharp.Controllers.DevicesController.Alarm(System.String,IoTSharp.Dtos.DeviceAlarmDto)">
+        <member name="M:IoTSharp.Controllers.DevicesController.Alarm(System.String,IoTSharp.Contracts.DeviceAlarmDto)">
             <summary>
             为网关的子设备或者普通设备上传告警信息
             </summary>
@@ -637,111 +637,6 @@
         <member name="P:IoTSharp.Dtos.RegisterDto.Password">
             <summary>
             用户名密码
-            </summary>
-        </member>
-        <member name="P:IoTSharp.Dtos.DeviceAlarmDto.OriginatorName">
-            <summary>
-            起因设备的名称或者GUID
-            </summary>
-        </member>
-        <member name="P:IoTSharp.Dtos.DeviceAlarmDto.AlarmType">
-            <summary>
-            警告类型
-            </summary>
-        </member>
-        <member name="P:IoTSharp.Dtos.DeviceAlarmDto.AlarmDetail">
-            <summary>
-            警告细节描述
-            </summary>
-        </member>
-        <member name="P:IoTSharp.Dtos.DeviceAlarmDto.Serverity">
-            <summary>
-            严重成都
-            </summary>
-        </member>
-        <member name="P:IoTSharp.Dtos.CreateAlarmDto.OriginatorType">
-            <summary>
-            起因设备类型
-            </summary>
-        </member>
-        <member name="P:IoTSharp.Dtos.AlarmDto.AlarmType">
-            <summary>
-            警告类型
-            </summary>
-        </member>
-        <member name="P:IoTSharp.Dtos.AlarmDto.AlarmDetail">
-            <summary>
-            警告细节描述
-            </summary>
-        </member>
-        <member name="P:IoTSharp.Dtos.AlarmDto.AckDateTime">
-            <summary>
-            警告创建时间
-            </summary>
-        </member>
-        <member name="P:IoTSharp.Dtos.AlarmDto.ClearDateTime">
-            <summary>
-            手动清除时间
-            </summary>
-        </member>
-        <member name="P:IoTSharp.Dtos.AlarmDto.StartDateTime">
-            <summary>
-            警告持续的开始时间
-            </summary>
-        </member>
-        <member name="P:IoTSharp.Dtos.AlarmDto.EndDateTime">
-            <summary>
-            结束时间， 当警告自动或者手动确实得到处理的时间
-            </summary>
-        </member>
-        <member name="P:IoTSharp.Dtos.AlarmDto.AlarmStatus">
-            <summary>
-            告警状态
-            </summary>
-        </member>
-        <member name="P:IoTSharp.Dtos.AlarmDto.Serverity">
-            <summary>
-            严重成都
-            </summary>
-        </member>
-        <member name="P:IoTSharp.Dtos.AlarmDto.Propagate">
-            <summary>
-            传播
-            </summary>
-        </member>
-        <member name="P:IoTSharp.Dtos.AlarmDto.OriginatorId">
-            <summary>
-            起因对象的Id
-            </summary>
-        </member>
-        <member name="P:IoTSharp.Dtos.AlarmDto.OriginatorType">
-            <summary>
-            起因设备类型
-            </summary>
-        </member>
-        <member name="P:IoTSharp.Dtos.AssetRelationDto.Name">
-            <summary>
-            列名
-            </summary>
-        </member>
-        <member name="P:IoTSharp.Dtos.AssetRelationDto.Description">
-            <summary>
-            描述
-            </summary>
-        </member>
-        <member name="P:IoTSharp.Dtos.AssetRelationDto.DeviceId">
-            <summary>
-            设备Id
-            </summary>
-        </member>
-        <member name="P:IoTSharp.Dtos.AssetRelationDto.DataCatalog">
-            <summary>
-            数据类型， 是遥测， 还是属性
-            </summary>
-        </member>
-        <member name="P:IoTSharp.Dtos.AssetRelationDto.KeyName">
-            <summary>
-            对应的键名称
             </summary>
         </member>
         <member name="P:IoTSharp.Dtos.DeviceDetailDto.Name">

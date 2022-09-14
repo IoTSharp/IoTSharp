@@ -1,5 +1,6 @@
 ﻿using DotNetCore.CAP;
 using Dynamitey;
+using IoTSharp.Contracts;
 using IoTSharp.Data;
 using IoTSharp.Dtos;
 using System;

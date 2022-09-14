@@ -1,6 +1,7 @@
 ﻿using DotNetCore.CAP;
 using Dynamitey.DynamicObjects;
 using EasyCaching.Core;
+using IoTSharp.Contracts;
 using IoTSharp.Data;
 using IoTSharp.Dtos;
 using IoTSharp.Extensions;

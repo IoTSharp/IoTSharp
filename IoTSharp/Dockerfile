@@ -33,7 +33,7 @@ RUN   npm install --prefix ./IoTSharp/ClientApp/
 COPY ["IoTSharp/IoTSharp.csproj", "IoTSharp/"]
 COPY ["IoTSharp.Data/IoTSharp.Data.csproj", "IoTSharp.Data/"]
 COPY ["IoTSharp.Interpreter/IoTSharp.Interpreter.csproj", "IoTSharp.Interpreter/"]
-COPY ["IoTSharp.TaskAction/IoTSharp.TaskAction.csproj", "IoTSharp.TaskAction/"]
+COPY ["IoTSharp.TaskActions/IoTSharp.TaskActions.csproj", "IoTSharp.TaskActions/"]
 COPY ["IoTSharp.Data.SqlServer/IoTSharp.Data.SqlServer.csproj", "IoTSharp.Data.SqlServer/"]
 COPY ["IoTSharp.Data.InMemory/IoTSharp.Data.InMemory.csproj", "IoTSharp.Data.InMemory/"]
 COPY ["IoTSharp.Data.Sqlite/IoTSharp.Data.Sqlite.csproj", "IoTSharp.Data.Sqlite/"]

@@ -233,7 +233,7 @@ namespace IoTSharp.Storage
                                     break;
                                 case DataType.Binary:
                                     _type = "value_string";
-                                    _value = $"\"{Hex.ToHexString(tdata.Value_Binary)}\"";
+                                    _value = $"\"{Hex.BytesToHex(tdata.Value_Binary)}\"";
                                     break;
                                 case DataType.DateTime:
                                     _type = "value_datetime";

@@ -195,7 +195,7 @@ namespace IoTSharp.Storage
                                 break;
                             case DataType.Binary:
                                 _type = "value_string";
-                                cmd.Parameters.Add(new PinusParameter(_type, Hex.ToHexString(tdata.Value_Binary)));
+                                cmd.Parameters.Add(new PinusParameter(_type, Hex.BytesToHex(tdata.Value_Binary)));
                                 break;
                             case DataType.DateTime:
                                 _type = "value_datetime";

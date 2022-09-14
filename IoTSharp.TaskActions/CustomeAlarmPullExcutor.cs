@@ -4,19 +4,19 @@ using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 using DotNetCore.CAP;
+using IoTSharp.Contracts;
 using IoTSharp.Data;
-using IoTSharp.Dtos;
 using IoTSharp.Extensions;
-using IoTSharp.TaskAction;
+using IoTSharp.TaskActions;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using RestSharp;
 
-namespace IoTSharp.Handlers
+namespace IoTSharp.TaskActions
 {
 
     [DisplayName("用于自定义的告警推送的执行器")]
-    public class CustomeAlarmPullExcutor : ITaskAction
+    public class CustomeAlarmPullExcutor : TaskAction
     {
 
         private readonly ICapPublisher _queue;

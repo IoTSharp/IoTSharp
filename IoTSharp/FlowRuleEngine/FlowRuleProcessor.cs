@@ -2,7 +2,7 @@
 using EasyCaching.Core;
 using IoTSharp.Data;
 using IoTSharp.Interpreter;
-using IoTSharp.TaskAction;
+using IoTSharp.TaskActions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -241,7 +241,7 @@ namespace IoTSharp.FlowRuleEngine
 
                                         if (!string.IsNullOrEmpty(flow.NodeProcessClass))
                                         {
-                                            ITaskAction executor = _helper.CreateInstanceByTypeName(flow.NodeProcessClass);
+                                            TaskAction executor = _helper.CreateInstanceByTypeName(flow.NodeProcessClass);
                                             if (executor != null)
                                             {
                                                 try
@@ -657,7 +657,7 @@ namespace IoTSharp.FlowRuleEngine
 
                             if (!string.IsNullOrEmpty(flow.NodeProcessClass))
                             {
-                                ITaskAction executor = _helper.CreateInstanceByTypeName(flow.NodeProcessClass);
+                                TaskAction executor = _helper.CreateInstanceByTypeName(flow.NodeProcessClass);
                                 if (executor != null)
                                 {
                                     try

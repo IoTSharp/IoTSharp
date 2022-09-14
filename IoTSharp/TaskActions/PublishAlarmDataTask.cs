@@ -1,17 +1,18 @@
 ﻿using DotNetCore.CAP;
+using IoTSharp.Contracts;
 using IoTSharp.Data;
 using IoTSharp.Extensions;
-using IoTSharp.TaskAction;
+using IoTSharp.TaskActions;
 using Newtonsoft.Json;
 using System;
 using System.ComponentModel;
 using System.Threading.Tasks;
 
-namespace IoTSharp.Handlers
+namespace IoTSharp.TaskActions
 {
     [DisplayName("告警数据发布器")]
     [Description("告警数据发布器")]
-    public class PublishAlarmDataTask : ITaskAction
+    public class PublishAlarmDataTask : TaskAction
     {
         private readonly ICapPublisher _queue;
 
@@ -25,7 +26,7 @@ namespace IoTSharp.Handlers
             var result = new TaskActionOutput() { DynamicOutput = param.DynamicInput, ExecutionStatus = true, ExecutionInfo = ""};
             try
             {
-                var dto = JsonConvert.DeserializeObject<Dtos.CreateAlarmDto>(param.Input);
+                var dto = JsonConvert.DeserializeObject<CreateAlarmDto>(param.Input);
                 _queue.PublishDeviceAlarm(dto);
             }
             catch (Exception ex)

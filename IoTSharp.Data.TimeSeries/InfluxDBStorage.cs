@@ -213,7 +213,7 @@ from(bucket: ""{_bucket}"")
                                     point = point.Field(tdata.KeyName, tdata.Value_XML);
                                     break;
                                 case DataType.Binary:
-                                    point = point.Field(tdata.KeyName, Hex.ToHexString(tdata.Value_Binary));
+                                    point = point.Field(tdata.KeyName, Hex.BytesToHex(tdata.Value_Binary));
                                     break;
                                 case DataType.DateTime:
                                     point = point.Field(tdata.KeyName, tdata.Value_DateTime.GetValueOrDefault().Subtract(new DateTime(1970, 1, 1, 0, 0, 0, 0)).TotalMilliseconds);

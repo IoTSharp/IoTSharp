@@ -1,6 +1,7 @@
 ﻿using CoAP;
 using CoAP.Server.Resources;
 using DotNetCore.CAP;
+using IoTSharp.Contracts;
 using IoTSharp.Data;
 using IoTSharp.Extensions;
 using Microsoft.EntityFrameworkCore;
@@ -124,7 +125,7 @@ namespace IoTSharp.Services.CoApResources
                                     break;
 
                                 case CoApRes.Alarm:
-                                    var dto = Newtonsoft.Json.JsonConvert.DeserializeObject<Dtos.CreateAlarmDto>(exchange.Request.PayloadString);
+                                    var dto = Newtonsoft.Json.JsonConvert.DeserializeObject<CreateAlarmDto>(exchange.Request.PayloadString);
                                     _eventBus.PublishDeviceAlarm(dto);
                                     break;
 

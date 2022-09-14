@@ -1,5 +1,5 @@
 ﻿using IoTSharp.Data;
-using IoTSharp.TaskAction;
+using IoTSharp.TaskActions;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -33,16 +33,16 @@ namespace IoTSharp.FlowRuleEngine
             }
             return pairs;
         }
-        public ITaskAction CreateInstance(string name)
+        public TaskAction CreateInstance(string name)
         {
             if (pairs == null)
             {
                 LoadTypesInfo();
             }
-            ITaskAction obj = null;
+            TaskAction obj = null;
             if (pairs.TryGetValue(name, out var t))
             {
-                obj = CreateInstance(t) as ITaskAction;
+                obj = CreateInstance(t) as TaskAction;
                 if (obj != null) {
                     obj.ServiceProvider = this._sp;
                 }
@@ -51,13 +51,13 @@ namespace IoTSharp.FlowRuleEngine
             return obj;
        
         }
-        public ITaskAction CreateInstanceByTypeName(string typename)
+        public TaskAction CreateInstanceByTypeName(string typename)
         {
             if (pairs == null)
             {
                 LoadTypesInfo();
             }
-            ITaskAction obj = null;
+            TaskAction obj = null;
             if (pairstypename.TryGetValue(typename, out var t))
             {
                 obj = CreateInstance(t);
@@ -69,17 +69,17 @@ namespace IoTSharp.FlowRuleEngine
             return obj;
         }
 
-        public ITaskAction CreateInstance(Type t)
+        public TaskAction CreateInstance(Type t)
         {
             var cnst = t.GetConstructors();
-            ITaskAction obj;
+            TaskAction obj;
             if (cnst.FirstOrDefault()?.GetParameters().Any()==true)
             {
-                obj = _sp.GetRequiredService(t) as ITaskAction;
+                obj = _sp.GetRequiredService(t) as TaskAction;
             }
             else
             {
-                obj = Activator.CreateInstance(t) as ITaskAction;
+                obj = Activator.CreateInstance(t) as TaskAction;
             }
             if (obj != null)
             {
@@ -91,7 +91,7 @@ namespace IoTSharp.FlowRuleEngine
         private void LoadTypesInfo()
         {
             pairs = new Dictionary<string, Type>();
-            Assembly.GetEntryAssembly().GetTypes().Where(c => c.BaseType== typeof(ITaskAction)).ToList().ForEach(c =>
+            Assembly.GetEntryAssembly().GetTypes().Where(c => c.BaseType== typeof(TaskAction)).ToList().ForEach(c =>
             {
                 var key = c.GetCustomAttribute<DisplayNameAttribute>()?.DisplayName ?? c.FullName;
                 if (!pairs.ContainsKey(key))
@@ -99,7 +99,7 @@ namespace IoTSharp.FlowRuleEngine
                     pairs.Add(key, c);
                 }
             });
-            typeof(ITaskAction).Assembly.GetTypes().Where(c => c.BaseType == typeof(ITaskAction)).ToList().ForEach(c =>
+            typeof(TaskAction).Assembly.GetTypes().Where(c => c.BaseType == typeof(TaskAction)).ToList().ForEach(c =>
             {
                 var key = c.GetCustomAttribute<DisplayNameAttribute>()?.DisplayName ?? c.FullName;
                 if (!pairs.ContainsKey(key))

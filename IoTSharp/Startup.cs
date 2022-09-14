@@ -46,6 +46,7 @@ using IoTSharp.Gateways;
 using System.Collections.Specialized;
 using Microsoft.Extensions.ObjectPool;
 using MaiKeBing.HostedService.ZeroMQ;
+using IoTSharp.TaskActions;
 
 namespace IoTSharp
 {

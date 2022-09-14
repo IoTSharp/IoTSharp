@@ -204,7 +204,7 @@
 		<ProjectReference Include="..\IoTSharp.Extensions.EFCore\IoTSharp.Extensions.EFCore.csproj" />
 		<ProjectReference Include="..\IoTSharp.Extensions\IoTSharp.Extensions.csproj" />
 		<ProjectReference Include="..\IoTSharp.Interpreter\IoTSharp.Interpreter.csproj" />
-		<ProjectReference Include="..\IoTSharp.TaskAction\IoTSharp.TaskAction.csproj" />
+		<ProjectReference Include="..\IoTSharp.TaskActions\IoTSharp.TaskActions.csproj" />
 		<ProjectReference Include="..\MQTTnet.AspNetCore.Routing\Source\MQTTnet.AspNetCore.Routing.csproj" />
 	</ItemGroup>
 	<ItemGroup>

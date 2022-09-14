@@ -1,7 +1,7 @@
 ﻿using DotNetCore.CAP;
 using IoTSharp.Data;
 using IoTSharp.Extensions;
-using IoTSharp.TaskAction;
+using IoTSharp.TaskActions;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
@@ -10,11 +10,11 @@ using System.ComponentModel;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace IoTSharp.Handlers
+namespace IoTSharp.TaskActions
 {
     [DisplayName("属性发布器")]
     [Description("发布属性至队列")]
-    public class PublishAttributeDataTask : ITaskAction
+    public class PublishAttributeDataTask : TaskAction
     {
         private readonly ICapPublisher _queue;
 

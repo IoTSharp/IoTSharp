@@ -1,8 +1,7 @@
 ﻿using IoTSharp.Data;
 using System;
-using Avro.Util;
 
-namespace IoTSharp.Dtos
+namespace IoTSharp.Contracts
 {
     public class DeviceAlarmDto
     {
