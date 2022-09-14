@@ -332,6 +332,7 @@ namespace IoTSharp.Extensions
         {
             return System.Threading.Thread.CurrentThread.CurrentCulture.TextInfo.ToTitleCase(str.ToLower());
         }
+        public static string MD5Sum(this string text) => BitConverter.ToString(MD5.Create().ComputeHash(Encoding.UTF8.GetBytes(text))).Replace("-", "");
         public static string Left(this string str, int length)
         {
             str = (str ?? string.Empty);

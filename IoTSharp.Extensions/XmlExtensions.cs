@@ -13,7 +13,6 @@ namespace IoTSharp.Extensions
     public static class XmlExtensions
     {
 
-
         public static bool XML2Json(System.IO.MemoryStream xml, out object obj)
         {
             bool ok = false;
