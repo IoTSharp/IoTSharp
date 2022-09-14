@@ -70,7 +70,7 @@ namespace IoTSharp.Controllers
         private InstanceDto GetInstanceDto()
         {
 
-            return new InstanceDto() { Installed = _context.Relationship.Any(), Domain = this.Request.Host.Value, Version = System.Reflection.Assembly.GetExecutingAssembly().GetName().Version.ToString(), CACertificate= _setting.MqttBroker.CACertificate != null };
+            return new InstanceDto() { Installed = _context.Relationship.Any(), Domain = this.Request.Host.Host, Version = System.Reflection.Assembly.GetExecutingAssembly().GetName().Version.ToString(), CACertificate= _setting.MqttBroker.CACertificate != null };
         }
 
         /// <summary>
@@ -94,11 +94,11 @@ namespace IoTSharp.Controllers
             {
                 try
                 {
-                    var ip = IPAddress.Parse(m.Domain);
+                  
                     var ten = _context.GetTenant(User.GetTenantId());
                     var option = _setting.MqttBroker;
-                    var ca = ip.CreateCA(option.CACertificateFile, option.CAPrivateKeyFile);
-                    ca.CreateBrokerTlsCert(_setting.MqttBroker.DomainName ?? Dns.GetHostName(), ip,
+                    var ca = m.Domain.CreateCA(option.CACertificateFile, option.CAPrivateKeyFile);
+                    ca.CreateBrokerTlsCert(m.Domain,Dns.GetHostAddresses(m.Domain).FirstOrDefault(),
                         option.CertificateFile, option.PrivateKeyFile, ten.EMail);
                     ca.LoadCAToRoot();
                     result = new ApiResult(ApiCode.Success, ca.Thumbprint);
