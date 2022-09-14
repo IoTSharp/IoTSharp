@@ -1988,7 +1988,10 @@ namespace IoTSharp.Migrations
                 {
                     b.HasBaseType("IoTSharp.Data.DataStorage");
 
-                    b.HasIndex("DeviceId");
+                    b.Property<Guid?>("OwnerId")
+                        .HasColumnType("uuid");
+
+                    b.HasIndex("OwnerId");
 
                     b.HasDiscriminator().HasValue(5);
                 });
@@ -2473,9 +2476,7 @@ namespace IoTSharp.Migrations
                 {
                     b.HasOne("IoTSharp.Data.Produce", "Owner")
                         .WithMany("DefaultAttributes")
-                        .HasForeignKey("DeviceId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("OwnerId");
 
                     b.Navigation("Owner");
                 });

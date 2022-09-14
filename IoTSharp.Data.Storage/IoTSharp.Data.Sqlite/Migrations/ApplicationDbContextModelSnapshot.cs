@@ -2191,7 +2191,10 @@ namespace IoTSharp.Data.Sqlite.Migrations
                 {
                     b.HasBaseType("IoTSharp.Data.DataStorage");
 
-                    b.HasIndex("DeviceId");
+                    b.Property<Guid?>("OwnerId")
+                        .HasColumnType("TEXT");
+
+                    b.HasIndex("OwnerId");
 
                     b.HasDiscriminator().HasValue(5);
                 });
@@ -2676,9 +2679,7 @@ namespace IoTSharp.Data.Sqlite.Migrations
                 {
                     b.HasOne("IoTSharp.Data.Produce", "Owner")
                         .WithMany("DefaultAttributes")
-                        .HasForeignKey("DeviceId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("OwnerId");
 
                     b.Navigation("Owner");
                 });

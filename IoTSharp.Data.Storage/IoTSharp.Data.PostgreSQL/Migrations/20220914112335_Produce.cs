@@ -15,6 +15,12 @@ namespace IoTSharp.Migrations
                 type: "uuid",
                 nullable: true);
 
+            migrationBuilder.AddColumn<Guid>(
+                name: "OwnerId",
+                table: "DataStorage",
+                type: "uuid",
+                nullable: true);
+
             migrationBuilder.CreateTable(
                 name: "Produce",
                 columns: table => new
@@ -48,9 +54,9 @@ namespace IoTSharp.Migrations
                 column: "ProduceId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_DataStorage_DeviceId",
+                name: "IX_DataStorage_OwnerId",
                 table: "DataStorage",
-                column: "DeviceId");
+                column: "OwnerId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Produce_CustomerId",
@@ -63,12 +69,11 @@ namespace IoTSharp.Migrations
                 column: "TenantId");
 
             migrationBuilder.AddForeignKey(
-                name: "FK_DataStorage_Produce_DeviceId",
+                name: "FK_DataStorage_Produce_OwnerId",
                 table: "DataStorage",
-                column: "DeviceId",
+                column: "OwnerId",
                 principalTable: "Produce",
-                principalColumn: "Id",
-                onDelete: ReferentialAction.Cascade);
+                principalColumn: "Id");
 
             migrationBuilder.AddForeignKey(
                 name: "FK_Device_Produce_ProduceId",
@@ -81,7 +86,7 @@ namespace IoTSharp.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropForeignKey(
-                name: "FK_DataStorage_Produce_DeviceId",
+                name: "FK_DataStorage_Produce_OwnerId",
                 table: "DataStorage");
 
             migrationBuilder.DropForeignKey(
@@ -96,12 +101,16 @@ namespace IoTSharp.Migrations
                 table: "Device");
 
             migrationBuilder.DropIndex(
-                name: "IX_DataStorage_DeviceId",
+                name: "IX_DataStorage_OwnerId",
                 table: "DataStorage");
 
             migrationBuilder.DropColumn(
                 name: "ProduceId",
                 table: "Device");
+
+            migrationBuilder.DropColumn(
+                name: "OwnerId",
+                table: "DataStorage");
         }
     }
 }
