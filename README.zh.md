@@ -7,28 +7,26 @@
 IoTSharp 是一个 基于.Net Core 开源的物联网基础平台， 支持 HTTP、MQTT 、CoAp 协议， 属性数据和遥测数据协议简单类型丰富，简单设置即可将数据存储在PostgreSql、MySql、Oracle、SQLServer、Sqlite，是一个用于数据收集、处理、可视化与设备管理的 IoT 平台.
 
 
+## 支持的数据库:
 
-## 如何使用docker-compose  安装IoTSharp ?
-
- * [ZPT](https://github.com/IoTSharp/IoTSharp/tree/master/Deployments/zeromq_taos) 使用ZeroMQ 作为 EventBus, PostgreSQL 作为消息存储， 遥测数据使用  TDengine  
-
- * [ZPS](https://github.com/IoTSharp/IoTSharp/tree/master/Deployments/zeromq_sharding)  默认开发配置，  IoTSharp 和 PostgreSql, 遥测数据可以通过单表或者分表。 
-
- * [RMI](https://github.com/IoTSharp/IoTSharp/tree/master/Deployments/rabbit_mongo_influx) 使用Rabbitmq 作为 EventBus, Mongodb 作为消息存储， 遥测数据使用Influx 2.0 ，这个方案中遥测数据也可以使用TDengine
-
- 更多的 [部署方案请点这里访问](https://github.com/IoTSharp/IoTSharp/tree/master/Deployments)
-
-
-## 支持哪些数据库?
-
- *  [PostgreSql](IoTSharp/appsettings.PostgreSql.json) 测试环境是   PostgreSQL 11.3,支持分表.
- *  [MySql](IoTSharp/appsettings.MySql.json)  测试环境是MySQL 8.0.17,支持分表.
- *  [Oracle](IoTSharp/appsettings.Oracle.json)  测试环境是 Oracle Standard Edition 12c Release 2, 支持分表.请参见: https://github.com/MaksymBilenko/docker-oracle-12c
- *  [SQLServer](IoTSharp/appsettings.SQLServer.json) 测试环境是  Microsoft SQL Server 2016 (RTM-GDR) (KB4019088) - 13.0.1742.0 (X64),支持分表
- *  [Sqlite](IoTSharp/appsettings.Sqlite.json)  支持分表。
+ *  [PostgreSql](IoTSharp/appsettings.PostgreSql.json) 测试环境 PostgreSQL 11.3 支持分表
+ *  [MySql](IoTSharp/appsettings.MySql.json) 测试环境 MySQL 8.0.17,支持分表.
+ *  [Oracle](IoTSharp/appsettings.Oracle.json)  测试环境  Oracle Standard Edition 12c Release 2 on CentOS ,支持分表.  See also: https://github.com/MaksymBilenko/docker-oracle-12c
+ *  [SQLServer](IoTSharp/appsettings.SQLServer.json)  Microsoft SQL Server 2016 (RTM-GDR) (KB4019088) - 13.0.1742.0 (X64)   ,Support for  sharding
+ *  [Sqlite](IoTSharp/appsettings.Sqlite.json) 支持分表
  *  [Cassandra](IoTSharp/appsettings.Cassandra.json)  
 
-## 支持的消息队列中间件?
+## 支持的时序数据库:
+
+ *  InfluxDB   
+ *  IoTDB
+ *  TDengine
+ *  TimescaleDB
+ *  PinusDB  
+ *  同时也支持关系型数据库，并且可以单表或者分表.  
+
+
+## 支持的消息中间件：
 
  *  RabbitMQ
  *  Kafka 
@@ -40,7 +38,7 @@ IoTSharp 是一个 基于.Net Core 开源的物联网基础平台， 支持 HTTP
  *	AmazonSQS 
  *	AzureServiceBus 
 
-## 持的事件存储支中间件。
+## 支持的事件消息存储方式:
 * PostgreSql,
 * MongoDB,
 * InMemory,
@@ -48,26 +46,25 @@ IoTSharp 是一个 基于.Net Core 开源的物联网基础平台， 支持 HTTP
 * MySql,
 * SqlServer
 
-## 演示：
-  http://139.9.232.10:2927
+## IoTShar 演示
+    http://139.9.232.10:2927    
+ 密码请加微信或者QQ群询问
 
-## 文档：
+##  IoTSharp 云服务  
+  https://cloud.iotsharp.net/
+
+## 在线文档
   https://docs.iotsharp.net/
 
-## 如何使用 docker 安装IoTSharp?
+## 如何部署?
 
-  -  docker pull maikebing/iotsharp
+- [使用Docker部署](https://docs.iotsharp.net/docs/tutorial-basics/deploy_by_docker)
+- [部署到Linux服务器或者树莓派](https://docs.iotsharp.net/docs/tutorial-basics/deploy_linux)
+- [部署到Windows](https://docs.iotsharp.net/docs/tutorial-basics/deploy_win)
 
+## 如何配置?
 
-## 如何使用Linux 安装?
-
- -  mkdir  /var/lib/iotsharp/
- -	cp ./*  /var/lib/iotsharp/
- -	chmod 777 /var/lib/iotsharp/IoTSharp
- -	cp  iotsharp.service   /etc/systemd/system/iotsharp.service
- -	sudo systemctl enable  /etc/systemd/system/iotsharp.service 
- -	sudo systemctl start  iotsharp.service 
- -	sudo journalctl -fu  iotsharp.service 
+- [应用基本配置](https://docs.iotsharp.net/docs/tutorial-basics/appsettings) 
 
 
 
@@ -109,10 +106,6 @@ IoTSharp 的软件生态
 - MaiKeBing.CAP.LiteDB  [![MaiKeBing.CAP.LiteDB](https://img.shields.io/nuget/v/MaiKeBing.CAP.LiteDB.svg)](https://www.nuget.org/packages/MaiKeBing.CAP.LiteDB/)
 - MaiKeBing.HostedService.ZeroMQ  [![MaiKeBing.HostedService.ZeroMQ](https://img.shields.io/nuget/v/MaiKeBing.HostedService.ZeroMQ.svg)](https://www.nuget.org/packages/MaiKeBing.HostedService.ZeroMQ/)
 - IoTSharp.X509Extensions  [![IoTSharp.X509Extensions](https://img.shields.io/nuget/v/IoTSharp.X509Extensions.svg)](https://www.nuget.org/packages/IoTSharp.X509Extensions/)
-- IoTSharp.Extensions    [![IoTSharp.Extensions](https://img.shields.io/nuget/v/IoTSharp.Extensions.svg)](https://www.nuget.org/packages/IoTSharp.Extensions/) 
-- IoTSharp.Extensions.EFCore   [![IoTSharp.Extensions.EFCore](https://img.shields.io/nuget/v/IoTSharp.Extensions.EFCore.svg)](https://www.nuget.org/packages/IoTSharp.Extensions.EFCore/)
-- IoTSharp.Extensions.AspNetCore  [![IoTSharp.Extensions.AspNetCore](https://img.shields.io/nuget/v/IoTSharp.Extensions.AspNetCore.svg)](https://www.nuget.org/packages/IoTSharp.Extensions.AspNetCore/)
-- IoTSharp.ExtensionsQuartz   [![IoTSharp.ExtensionsQuartz](https://img.shields.io/nuget/v/IoTSharp.ExtensionsQuartz.svg)](https://www.nuget.org/packages/IoTSharp.ExtensionsQuartz/)
 - IoTSharp.EntityFrameworkCore.Taos   [![IoTSharp.EntityFrameworkCore.Taos](https://img.shields.io/nuget/v/IoTSharp.EntityFrameworkCore.Taos.svg)](https://www.nuget.org/packages/IoTSharp.EntityFrameworkCore.Taos/)
 - IoTSharp.Sdk.Http   [![IoTSharp.Sdk.Http](https://img.shields.io/nuget/v/IoTSharp.Sdk.Http.svg)](https://www.nuget.org/packages/IoTSharp.Sdk.Http/)
 - IoTSharp.Sdk.MQTT   [![IoTSharp.Sdk.MQTT](https://img.shields.io/nuget/v/IoTSharp.Sdk.MQTT.svg)](https://www.nuget.org/packages/IoTSharp.Sdk.MQTT/)
@@ -166,8 +159,6 @@ If you encounter any problems in the process, feel free to ask for help via foll
 | 公众号 |    [QQ群63631741](https://jq.qq.com/?_wv=1027&k=HJ7h3gbO)  |  微信群  |
 | ------ | ---- | ---- |
 | ![](docs/static/img/qrcode.jpg) | ![](docs/static/img/IoTSharpQQGruop.png) | ![企业微信群](docs/static/img/qyqun.jpg) |
-
-
 
 
 

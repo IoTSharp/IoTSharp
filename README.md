@@ -26,15 +26,6 @@ IoTSharp is an open-source IoT platform for data collection, processing, visuali
  * May you find forgiveness for yourself and forgive others.
  * May you share freely, never taking more than you give.
 
-## How to  install  IoTSharp using docker-compose  ?
-
- * [ZPT](Deployments/zeromq_taos) Using ZeroMQ as EventBus, PostgreSQL as message storage, telemetry data stored through TDengine  
-
- * [ZPS](Deployments/zeromq_sharding) The default deployment configuration, IoTSharp and PostgreSql, telemetry data is stored through a single table or shading. 
-
- * [RMI](Deployments/rabbit_mongo_influx) Using Rabbitmq as EventBus, mongodb as message storage, telemetry data stored through influx  
-
- more [Deployments](https://github.com/IoTSharp/IoTSharp/tree/master/Deployments)
 
 ## What databases are supported?
 
@@ -44,6 +35,16 @@ IoTSharp is an open-source IoT platform for data collection, processing, visuali
  *  [SQLServer](IoTSharp/appsettings.SQLServer.json)  Microsoft SQL Server 2016 (RTM-GDR) (KB4019088) - 13.0.1742.0 (X64)   ,Support for  sharding
  *  [Sqlite](IoTSharp/appsettings.Sqlite.json) Support for  sharding
  *  [Cassandra](IoTSharp/appsettings.Cassandra.json)  
+
+## What time series databases are supported??
+
+ *  InfluxDB   
+ *  IoTDB
+ *  TDengine
+ *  TimescaleDB
+ *  PinusDB  
+ *  Relational databases are also supported, either single tables or sharding.  
+
 
 ## What EventBus Message Queue  are supported?
 
@@ -73,22 +74,15 @@ IoTSharp is an open-source IoT platform for data collection, processing, visuali
 ## doc
   https://docs.iotsharp.net/
 
-## How to install IoTSharp using docker ?
+## How to deploy?
 
-  -  docker pull iotsharp/iotsharp
+- [Deploy by Docker](https://docs.iotsharp.net/docs/tutorial-basics/deploy_by_docker)
+- [Deploy to Linux](https://docs.iotsharp.net/docs/tutorial-basics/deploy_linux)
+- [Deployed to Windows](https://docs.iotsharp.net/docs/tutorial-basics/deploy_win)
 
+## How to configure?
 
-## How to install  using Linux daemon ?
-
- -  mkdir  /var/lib/iotsharp/
- -	cp ./*  /var/lib/iotsharp/
- -	chmod 777 /var/lib/iotsharp/IoTSharp
- -	cp  iotsharp.service   /etc/systemd/system/iotsharp.service
- -	sudo systemctl enable  /etc/systemd/system/iotsharp.service 
- -	sudo systemctl start  iotsharp.service 
- -	sudo journalctl -fu  iotsharp.service 
-
-
+- [AppSettings](https://docs.iotsharp.net/docs/tutorial-basics/appsettings) 
 
 ##  IoTSharp.SDKs
 
@@ -129,16 +123,10 @@ IoTSharp's ecosystem
 - MaiKeBing.CAP.LiteDB  [![MaiKeBing.CAP.LiteDB](https://img.shields.io/nuget/v/MaiKeBing.CAP.LiteDB.svg)](https://www.nuget.org/packages/MaiKeBing.CAP.LiteDB/)
 - MaiKeBing.HostedService.ZeroMQ  [![MaiKeBing.HostedService.ZeroMQ](https://img.shields.io/nuget/v/MaiKeBing.HostedService.ZeroMQ.svg)](https://www.nuget.org/packages/MaiKeBing.HostedService.ZeroMQ/)
 - IoTSharp.X509Extensions  [![IoTSharp.X509Extensions](https://img.shields.io/nuget/v/IoTSharp.X509Extensions.svg)](https://www.nuget.org/packages/IoTSharp.X509Extensions/)
-- IoTSharp.Extensions    [![IoTSharp.Extensions](https://img.shields.io/nuget/v/IoTSharp.Extensions.svg)](https://www.nuget.org/packages/IoTSharp.Extensions/) 
-- IoTSharp.Extensions.EFCore   [![IoTSharp.Extensions.EFCore](https://img.shields.io/nuget/v/IoTSharp.Extensions.EFCore.svg)](https://www.nuget.org/packages/IoTSharp.Extensions.EFCore/)
-- IoTSharp.Extensions.AspNetCore  [![IoTSharp.Extensions.AspNetCore](https://img.shields.io/nuget/v/IoTSharp.Extensions.AspNetCore.svg)](https://www.nuget.org/packages/IoTSharp.Extensions.AspNetCore/)
-- IoTSharp.ExtensionsQuartz   [![IoTSharp.ExtensionsQuartz](https://img.shields.io/nuget/v/IoTSharp.ExtensionsQuartz.svg)](https://www.nuget.org/packages/IoTSharp.ExtensionsQuartz/)
 - IoTSharp.EntityFrameworkCore.Taos   [![IoTSharp.EntityFrameworkCore.Taos](https://img.shields.io/nuget/v/IoTSharp.EntityFrameworkCore.Taos.svg)](https://www.nuget.org/packages/IoTSharp.EntityFrameworkCore.Taos/)
 - IoTSharp.Sdk.Http   [![IoTSharp.Sdk.Http](https://img.shields.io/nuget/v/IoTSharp.Sdk.Http.svg)](https://www.nuget.org/packages/IoTSharp.Sdk.Http/)
 - IoTSharp.Sdk.MQTT   [![IoTSharp.Sdk.MQTT](https://img.shields.io/nuget/v/IoTSharp.Sdk.MQTT.svg)](https://www.nuget.org/packages/IoTSharp.Sdk.MQTT/)
-
-
-
+ 
 ## Contributing
 
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square)](https://github.com/IoTSharp/IoTSharp/pulls)

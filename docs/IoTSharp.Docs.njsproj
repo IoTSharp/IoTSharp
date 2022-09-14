@@ -5,7 +5,7 @@
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>{f5644ba6-2a0c-49a5-9c9b-3cecd6db2d1f}</ProjectGuid>
     <ProjectHome>.</ProjectHome>
-    <ProjectView>ProjectFiles</ProjectView>
+    <ProjectView>ShowAllFiles</ProjectView>
     <StartupFile>docusaurus.config.js</StartupFile>
     <WorkingDirectory>.</WorkingDirectory>
     <OutputPath>.</OutputPath>
@@ -23,6 +23,9 @@
       <SubType>Code</SubType>
     </Content>
     <Content Include="docs\tutorial-basics\appsettings.md" />
+    <Content Include="docs\tutorial-basics\deploy_by_docker.md" />
+    <Content Include="docs\tutorial-basics\deploy_linux.md" />
+    <Content Include="docs\tutorial-basics\deploy_win.md" />
     <Content Include="package.json" />
     <Content Include="README.md" />
     <Content Include="babel.config.js" />
@@ -32,7 +35,6 @@
     <Content Include="docs\intro.md" />
     <Content Include="docs\tutorial-basics\_category_.json" />
     <Content Include="docs\tutorial-basics\debug.md" />
-    <Content Include="docs\tutorial-basics\deploy.md" />
     <Content Include="docs\tutorial-basics\gateway.md" />
     <Content Include="docs\tutorial-basics\influxdb.md" />
     <Content Include="docs\tutorial-basics\iotsharp.md" />
