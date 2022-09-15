@@ -23,6 +23,7 @@ export class CertmgrComponent implements OnInit {
         next: next => {
           if (next.data.caCertificate) {
             this.installed = true;
+            this.Domain = next.data.domain;
           } else {
             this.installed = false;
             this.Domain = next.data.domain;

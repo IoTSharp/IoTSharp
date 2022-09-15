@@ -8,6 +8,7 @@ import { interval, Subscription, zip } from 'rxjs';
 import { appmessage } from 'src/app/models/appmessage';
 import { attributeitem, deviceitem, devicemodelcommand, ruleitem, telemetryitem } from 'src/app/models/deviceitem';
 import { CommonDialogSevice } from '../../util/commonDialogSevice';
+import { DevicecertdialogComponent } from '../devicecertdialog/devicecertdialog.component';
 import { DeviceformComponent } from '../deviceform/deviceform.component';
 import { DevicepropComponent } from '../deviceprop/deviceprop.component';
 import { DevicetokendialogComponent } from '../devicetokendialog/devicetokendialog.component';
@@ -175,12 +176,14 @@ export class DevicelistComponent implements OnInit, OnDestroy {
 
         {
           acl: 111,
-          text: '下载证书',
+          text: '下载证书', type: 'modal',
           iif: record => record.identityType === 'X509Certificate',
-
-          click: record => {
-            this.download(record);
-          }
+          modal: {
+            component: DevicecertdialogComponent
+          },    click: () => { }
+         // click: record => {
+         //   this.download(record);
+        //  }
         },
         {
           acl: 110,
@@ -207,35 +210,7 @@ export class DevicelistComponent implements OnInit, OnDestroy {
   isChoose(key: string): boolean {
     return !!this.customColumns.find(w => w.value === key && w.checked);
   }
-  private download(record) {
-    this.http
-      .get(
-        'api/Devices/' + record.id + '/DownloadCertificates',
-        {},
-        {
-          responseType: 'blob'
-        }
-      )
-      .subscribe(
-        {
-          next: next => {
-            let url = window.URL.createObjectURL(next);
-            let a = document.createElement('a');
-            document.body.appendChild(a);
-            a.setAttribute('style', 'display: none');
-            a.href = url;
-            a.download = record.id + '.zip';
-            a.click();
-            window.URL.revokeObjectURL(url);
-            a.remove();
-          },
-          error: error => {
-            console.log(error);
-            this.msg.create('error', '证书下载失败,请检查是否未生成');
-          }, complete: () => { }
-        }
-      );
-  }
+
 
   ngOnInit(): void {
     this.router.queryParams.subscribe(

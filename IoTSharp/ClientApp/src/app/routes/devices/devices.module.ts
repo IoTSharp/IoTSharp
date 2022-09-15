@@ -19,6 +19,7 @@ import { DevicegraphComponent } from './devicegraph/devicegraph.component';
 import { ClipboardModule } from 'ngx-clipboard';
 import { WidgetsModule } from '../widgets/widgets.module';
 import { NzIconModule } from 'ng-zorro-antd/icon';
+import { DevicecertdialogComponent } from './devicecertdialog/devicecertdialog.component';
 const COMPONENTS = [
   DeviceformComponent,
   DevicelistComponent,
@@ -31,7 +32,8 @@ const COMPONENTS = [
   DevivceshapeComponent,
   GatewayshapeComponent,
   PortshapeComponent,
-  DevicegraphComponent
+  DevicegraphComponent,
+  DevicecertdialogComponent
 ];
 
 @NgModule({
