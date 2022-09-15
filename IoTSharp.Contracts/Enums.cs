@@ -105,6 +105,7 @@ namespace IoTSharp.Data
         Sqlite,
         InMemory,
         Cassandra,
+        ClickHouse
     }
     [System.Text.Json.Serialization.JsonConverter(typeof(System.Text.Json.Serialization.JsonStringEnumConverter))]
     [JsonConverter(typeof(StringEnumConverter))]

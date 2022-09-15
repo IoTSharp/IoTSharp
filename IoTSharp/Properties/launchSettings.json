@@ -78,6 +78,24 @@
       },
       "applicationUrl": ";http://localhost:5000"
     },
+    "Cassandra": {
+      "commandName": "Project",
+      "launchBrowser": true,
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Cassandra",
+        "ASPNETCORE_HOSTINGSTARTUPASSEMBLIES": "Microsoft.AspNetCore.SpaProxy"
+      },
+      "applicationUrl": ";http://localhost:5000"
+    },
+    "ClickHouse": {
+      "commandName": "Project",
+      "launchBrowser": true,
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "ClickHouse",
+        "ASPNETCORE_HOSTINGSTARTUPASSEMBLIES": "Microsoft.AspNetCore.SpaProxy"
+      },
+      "applicationUrl": ";http://localhost:5000"
+    },
     "InMemory": {
       "commandName": "Project",
       "launchBrowser": true,

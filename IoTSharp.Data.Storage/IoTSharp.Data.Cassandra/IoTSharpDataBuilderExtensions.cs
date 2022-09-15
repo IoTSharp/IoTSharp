@@ -11,8 +11,7 @@ namespace Microsoft.Extensions.DependencyInjection
 {
     public static class IoTSharpDataBuilderExtensions
     {
-
-        //https://cdn.cdata.com/help/RCG/ado/pg_efCoreASPApp.htm
+        
         public static void ConfigureCassandra(this IServiceCollection services, string connectionString, int poolSize, IHealthChecksBuilder checksBuilder, HealthChecksUIBuilder healthChecksUI)
         {
             services.AddEntityFrameworkCassandra();
