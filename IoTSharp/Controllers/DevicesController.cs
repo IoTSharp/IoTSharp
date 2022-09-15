@@ -287,7 +287,7 @@ namespace IoTSharp.Controllers
                 var dt = _context.DeviceIdentities.Include(d => d.Device).FirstOrDefault(c => c.Device.Id == deviceId);
                 if (dt == null || dt.IdentityType != IdentityType.X509Certificate || string.IsNullOrEmpty(dt.IdentityValue))
                 {
-                    return BadRequest(new ApiResult(ApiCode.NotFoundDevice, "未找到设备或设备公钥、秘钥为空"));
+                    return Ok(new ApiResult(ApiCode.NotFoundDevice, "未找到设备或设备公钥、秘钥为空"));
                 }
                 else
                 {
@@ -298,7 +298,7 @@ namespace IoTSharp.Controllers
                     });
                     if (tsl == null || string.IsNullOrEmpty(tsl.PrivateKey) || string.IsNullOrEmpty(tsl.PublicKey))
                     {
-                        return BadRequest(new ApiResult(ApiCode.NotFoundDevice, "秘钥格式未能解析。可能是版本不通。 "));
+                        return Ok(new ApiResult(ApiCode.NotFoundDevice, "秘钥格式未能解析。可能是版本不通。 "));
                     }
                     else
                     {
@@ -338,7 +338,7 @@ namespace IoTSharp.Controllers
             }
             catch (Exception ex)
             {
-                return BadRequest(new ApiResult(ApiCode.NotFoundDevice, ex.Message));
+                return Ok(new ApiResult(ApiCode.NotFoundDevice, ex.Message));
             }
         }
 
@@ -399,7 +399,7 @@ namespace IoTSharp.Controllers
             }
             else
             {
-                var kv = from t in _context.AttributeLatest where t.DeviceId == t.DeviceId && keys.Split(',', ' ', ';').Contains(t.KeyName) select new AttributeDataDto() { DataSide = t.DataSide, DateTime = t.DateTime, KeyName = t.KeyName, DataType = t.Type, Value = t.ToObject() };
+                var kv = from t in _context.AttributeLatest where t.DeviceId == deviceId && keys.Split(',', ' ', ';').Contains(t.KeyName) select new AttributeDataDto() { DataSide = t.DataSide, DateTime = t.DateTime, KeyName = t.KeyName, DataType = t.Type, Value = t.ToObject() };
 
                 return new ApiResult<List<AttributeDataDto>>(ApiCode.Success, "Ok", await kv.ToListAsync());
             }

@@ -3,6 +3,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Newtonsoft.Json.Linq;
 using System.Collections.Generic;
 using System.Linq;
+using IoTSharp.Data;
 
 namespace IoTSharp.Test
 {
