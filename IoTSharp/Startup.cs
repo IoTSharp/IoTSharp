@@ -33,7 +33,6 @@ using PinusDB.Data;
 using Quartz;
 using RabbitMQ.Client;
 using Savorboard.CAP.InMemoryMessageQueue;
-
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -105,14 +104,15 @@ namespace IoTSharp
                     break;
                 case DataBaseType.InMemory:
                     services.ConfigureInMemory(settings.DbContextPoolSize,  healthChecksUI);
+                    settings.TelemetryStorage = TelemetryStorage.SingleTable;
                     break;
                 case DataBaseType.Cassandra:
                     services.ConfigureCassandra(Configuration.GetConnectionString("IoTSharp"), settings.DbContextPoolSize, healthChecks, healthChecksUI);
-                    if  (settings.TelemetryStorage== TelemetryStorage.Sharding)
-                    {
-                        settings.TelemetryStorage = TelemetryStorage.SingleTable;
-                        //使用Cassandra时候不支持分表
-                    }
+                    settings.TelemetryStorage = TelemetryStorage.SingleTable;
+                    break;
+                case DataBaseType.ClickHouse:
+                    services.ConfigureClickHouse(Configuration.GetConnectionString("IoTSharp"), settings.DbContextPoolSize, healthChecks, healthChecksUI);
+                    settings.TelemetryStorage = TelemetryStorage.SingleTable;
                     break;
                 case DataBaseType.PostgreSql:
                 default:

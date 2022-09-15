@@ -193,6 +193,7 @@
 	<ItemGroup>
 		<ProjectReference Include="..\IoTSharp.Contracts\IoTSharp.Contracts.csproj" />
 		<ProjectReference Include="..\IoTSharp.Data.Storage\IoTSharp.Data.Cassandra\IoTSharp.Data.Cassandra.csproj" />
+		<ProjectReference Include="..\IoTSharp.Data.Storage\IoTSharp.Data.ClickHouse\IoTSharp.Data.ClickHouse.csproj" />
 		<ProjectReference Include="..\IoTSharp.Data.Storage\IoTSharp.Data.InMemory\IoTSharp.Data.InMemory.csproj" />
 		<ProjectReference Include="..\IoTSharp.Data.Storage\IoTSharp.Data.MySQL\IoTSharp.Data.MySQL.csproj" />
 		<ProjectReference Include="..\IoTSharp.Data.Storage\IoTSharp.Data.Oracle\IoTSharp.Data.Oracle.csproj" />

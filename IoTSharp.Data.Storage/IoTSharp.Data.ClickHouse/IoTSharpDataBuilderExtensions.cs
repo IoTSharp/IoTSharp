@@ -1,5 +1,4 @@
-﻿
-using System;
+﻿using System;
 using ClickHouse.EntityFrameworkCore.Extensions;
 using HealthChecks.Clickhouse.DependencyInjection;
 using IoTSharp.Data;
@@ -9,9 +8,7 @@ namespace Microsoft.Extensions.DependencyInjection
 {
     public static class IoTSharpDataBuilderExtensions
     {
-
-
-        public static void ConfigureCassandra(this IServiceCollection services, string connectionString, int poolSize, IHealthChecksBuilder checksBuilder, HealthChecksUIBuilder healthChecksUI)
+        public static void ConfigureClickHouse(this IServiceCollection services, string connectionString, int poolSize, IHealthChecksBuilder checksBuilder, HealthChecksUIBuilder healthChecksUI)
         {
             services.AddEntityFrameworkClickHouse();
             services.AddSingleton<IDataBaseModelBuilderOptions>(c => new ClickHouseModelBuilderOptions());
@@ -22,7 +19,5 @@ namespace Microsoft.Extensions.DependencyInjection
             }, poolSize);
             checksBuilder.AddClickHouseHealthCheck(connectionString, name: "IoTSharp.Data.ClickHouse");
         }
-
-
     }
 }
