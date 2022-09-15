@@ -16,7 +16,7 @@ namespace IoTSharp.Data.MySql.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "6.0.8")
+                .HasAnnotation("ProductVersion", "6.0.9")
                 .HasAnnotation("Relational:MaxIdentifierLength", 64);
 
             modelBuilder.Entity("IoTSharp.Data.Alarm", b =>
@@ -1442,6 +1442,9 @@ namespace IoTSharp.Data.MySql.Migrations
                     b.Property<Guid?>("CustomerId")
                         .HasColumnType("char(36)");
 
+                    b.Property<int>("DefaultDeviceType")
+                        .HasColumnType("int");
+
                     b.Property<int>("DefaultIdentityType")
                         .HasColumnType("int");
 
@@ -1463,7 +1466,7 @@ namespace IoTSharp.Data.MySql.Migrations
 
                     b.HasIndex("TenantId");
 
-                    b.ToTable("Produce");
+                    b.ToTable("Produces");
                 });
 
             modelBuilder.Entity("IoTSharp.Data.RefreshToken", b =>

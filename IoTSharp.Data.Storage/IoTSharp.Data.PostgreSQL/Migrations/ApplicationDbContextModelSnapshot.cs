@@ -17,7 +17,7 @@ namespace IoTSharp.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "6.0.8")
+                .HasAnnotation("ProductVersion", "6.0.9")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
@@ -1457,6 +1457,9 @@ namespace IoTSharp.Migrations
                     b.Property<Guid?>("CustomerId")
                         .HasColumnType("uuid");
 
+                    b.Property<int>("DefaultDeviceType")
+                        .HasColumnType("integer");
+
                     b.Property<int>("DefaultIdentityType")
                         .HasColumnType("integer");
 
@@ -1478,7 +1481,7 @@ namespace IoTSharp.Migrations
 
                     b.HasIndex("TenantId");
 
-                    b.ToTable("Produce");
+                    b.ToTable("Produces");
                 });
 
             modelBuilder.Entity("IoTSharp.Data.RefreshToken", b =>
