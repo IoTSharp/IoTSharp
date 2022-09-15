@@ -12,7 +12,12 @@ namespace IoTSharp.Controllers.Models
     }
 
 
-    
+    public class ProduceParam : IPageParam
+    {
+
+        public string Name { get; set; }
+    }
+
 
     public class AssetParam : IPageParam
     {

@@ -5,8 +5,6 @@ using Newtonsoft.Json.Converters;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Security.Authentication;
-using System.Security.Cryptography.X509Certificates;
 using System.Threading.Tasks;
 
 namespace IoTSharp
@@ -124,55 +122,5 @@ namespace IoTSharp
         public string UserName { get; set; }
         public string Password { get; set; }
         public int Port { get; set; }
-    }
-    public class MqttBrokerSetting
-    {
-        public int Port { get; set; } = 1883;
-        public int TlsPort { get; set; } = 8883;
-        public bool EnableTls { get; set; } = false;
-        public string Certificate { get; set; }
-        public SslProtocols SslProtocol { get; set; } = SslProtocols.None;
-        public bool PersistRetainedMessages { get; set; }
-
-
-        X509Certificate2 _CACertificate;
-        public X509Certificate2 CACertificate
-        {
-            get
-            {
-                if (_CACertificate == null)
-                {
-                    if (System.IO.File.Exists(CACertificateFile) && System.IO.File.Exists(CAPrivateKeyFile))
-                    {
-                        _CACertificate = X509Certificate2.CreateFromPemFile(CACertificateFile, CAPrivateKeyFile);
-                    }
-                }
-                return _CACertificate;
-
-
-            }
-        }
-
-        X509Certificate2 _BrokerCertificate;
-        public X509Certificate2 BrokerCertificate
-        {
-            get
-            {
-                if (_BrokerCertificate == null)
-                {
-                    if (System.IO.File.Exists(CertificateFile) && System.IO.File.Exists(PrivateKeyFile))
-                    {
-                        _BrokerCertificate = X509Certificate2.CreateFromPemFile(CertificateFile, PrivateKeyFile);
-                    }
-                }
-                return _BrokerCertificate;
-            }
-        }
-        public string CACertificateFile { get; set; } = "ca.crt";
-        public string CAPrivateKeyFile { get; set; } = "ca.key";
-        public string CertificateFile { get; set; } = "server.crt";
-        public string PrivateKeyFile { get; set; } = "server.key";
-        public string ServerIPAddress { get; set; }
-        public string DomainName { get; set; }
     }
 }

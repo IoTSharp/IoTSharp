@@ -534,9 +534,9 @@ namespace IoTSharp.Extensions
         /// <param name="obj">对象</param>
         /// <param name="propertyName">属性名</param>
         /// <returns></returns>
-        public static object GetPropertyValue(this object obj, string propertyName)
+        public static V GetPropertyValue<T,V>(this T obj, string propertyName) where T:class
         {
-            return obj.GetType().GetProperty(propertyName, _bindingFlags).GetValue(obj);
+            return (V)obj.GetType().GetProperty(propertyName, _bindingFlags).GetValue(obj);
         }
 
         /// <summary>

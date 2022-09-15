@@ -40,5 +40,6 @@ namespace IoTSharp.Data
         public List<ProduceData> DefaultAttributes { get; set; }
 
         public List<Device> Devices { get; set; }
+        public DeviceType DefaultDeviceType { get; set; }
     }
 }

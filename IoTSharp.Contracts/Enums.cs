@@ -35,6 +35,7 @@ namespace IoTSharp.Data
 
         CantFindObject = 10015,
         InValidData = 10016,
+        NotFoundProduce = 10017,
     }
 
     [System.Text.Json.Serialization.JsonConverter(typeof(System.Text.Json.Serialization.JsonStringEnumConverter))]

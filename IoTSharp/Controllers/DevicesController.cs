@@ -1,5 +1,6 @@
 ﻿using DotNetCore.CAP;
 using EasyCaching.Core;
+using Esprima.Ast;
 using IoTSharp.Contracts;
 using IoTSharp.Controllers.Models;
 using IoTSharp.Data;
@@ -23,6 +24,7 @@ using MQTTnet.Client;
 using MQTTnet.Exceptions;
 using MQTTnet.Protocol;
 using MQTTnet.Server;
+using Org.BouncyCastle.Asn1.Cms;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -648,13 +650,49 @@ namespace IoTSharp.Controllers
             }
         }
 
-        /// <summary>
-        /// 创建设备， 客户ID和租户ID均为当前登录用户所属
-        /// </summary>
-        /// <param name="device"></param>
-        /// <returns></returns>
-        // POST: api/Devices
+
+     
         [Authorize(Roles = nameof(UserRole.CustomerAdmin))]
+        [HttpPost("produce/{id}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ApiResult<DevicePostDto>), StatusCodes.Status404NotFound)]
+        [ProducesDefaultResponseType]
+        public async Task<ApiResult<Device>> PostDevice(Guid id, DevicePostProduceDto  device)
+        {
+            var produce = await _context.Produces.Include(p=>p.DefaultAttributes).FirstOrDefaultAsync( p=>p.Id==id);
+            if (produce== null)
+            {
+                return new ApiResult<Device>(ApiCode.NotFoundProduce, "Not found Produce", null);
+            }
+            var dto = new DevicePostDto() { Name = device.Name, DeviceType = produce.DefaultDeviceType, IdentityType = produce.DefaultIdentityType, Timeout = produce.DefaultTimeout };
+            var dev = await PostDevice(dto);
+            if (dev.Code==(int) ApiCode.Success)
+            {
+                var atts = produce.DefaultAttributes.Select(c =>
+                {
+                    var atx = (AttributeLatest)(DataStorage)c;
+                    atx.Catalog = DataCatalog.AttributeLatest;
+                    atx.DeviceId = dev.Data.Id;
+                    atx.DataSide = DataSide.ServerSide;
+                    atx.DateTime = DateTime.Now;
+                    return atx;
+                });
+                _context.AttributeLatest.AddRange(atts);
+                 await _context.SaveChangesAsync();
+                return new ApiResult<Device>(ApiCode.Success, "Ok", dev.Data);
+            }
+            else
+            {
+                return dev;
+            }
+        }
+            /// <summary>
+            /// 创建设备， 客户ID和租户ID均为当前登录用户所属
+            /// </summary>
+            /// <param name="device"></param>
+            /// <returns></returns>
+            // POST: api/Devices
+            [Authorize(Roles = nameof(UserRole.CustomerAdmin))]
         [HttpPost]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ApiResult<DevicePostDto>), StatusCodes.Status404NotFound)]

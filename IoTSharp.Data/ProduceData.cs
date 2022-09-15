@@ -10,6 +10,8 @@ namespace IoTSharp.Data
 
     public class ProduceData : DataStorage
     {
-      public  Produce Owner { get; set; }
+        [System.Text.Json.Serialization.JsonIgnore]
+        [Newtonsoft.Json.JsonIgnore]
+        public  Produce Owner { get; set; }
     }
 }
