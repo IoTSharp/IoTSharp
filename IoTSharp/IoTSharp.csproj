@@ -73,6 +73,7 @@
 		<PackageReference Include="EasyCaching.InMemory" Version="1.6.1" />
 		<PackageReference Include="EasyCaching.LiteDB" Version="1.6.1" />
 		<PackageReference Include="EasyCaching.Redis" Version="1.6.1" />
+		<PackageReference Include="Figgle" Version="0.4.0" />
 		<PackageReference Include="hyjiacan.pinyin4net" Version="4.1.1" />
 		<PackageReference Include="IoTSharp.CoAP.NET" Version="2.0.8" />
 		<PackageReference Include="IoTSharp.HealthChecks.InfluxDB" Version="1.0.22" />

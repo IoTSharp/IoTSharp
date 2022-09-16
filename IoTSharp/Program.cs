@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Hosting;
 using SilkierQuartz;
 using Rin;
+using Figgle;
 
 namespace IoTSharp
 {
@@ -16,6 +17,7 @@ namespace IoTSharp
 
         public static void Main(string[] args)
         {
+            Console.WriteLine(FiggleFonts.Ogre.Render($"IoTSharp {typeof(Startup).Assembly.GetName().Version}"));
             CreateHostBuilder(args).Build().Run();
         }
 
@@ -28,6 +30,7 @@ namespace IoTSharp
                 })
                .ConfigureSilkierQuartzHost()
                .ConfigureIoTSharpHost();
+        
         
 
     }
