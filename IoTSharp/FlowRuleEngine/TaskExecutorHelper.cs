@@ -1,4 +1,5 @@
-﻿using IoTSharp.Data;
+﻿using IoTSharp.Contracts;
+using IoTSharp.Data;
 using IoTSharp.TaskActions;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;

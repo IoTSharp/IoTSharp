@@ -12,6 +12,7 @@ using IoTSharp.Dtos;
 using IoTSharp.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Authorization;
+using IoTSharp.Contracts;
 
 namespace IoTSharp.Controllers
 {

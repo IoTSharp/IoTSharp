@@ -1,4 +1,5 @@
-﻿using IoTSharp.Data;
+﻿using IoTSharp.Contracts;
+using IoTSharp.Data;
 using IoTSharp.Dtos;
 using IoTSharp.Models.FormFieldTypes;
 using Microsoft.AspNetCore.Authorization;

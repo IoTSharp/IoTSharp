@@ -18,6 +18,7 @@ using MQTTnet;
 using MQTTnet.AspNetCore.Routing;
 using IoTSharp.Data;
 using Newtonsoft.Json.Linq;
+using IoTSharp.Contracts;
 
 namespace IoTSharp
 {

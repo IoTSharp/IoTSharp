@@ -14,6 +14,9 @@ using System.Dynamic;
 using System.Linq;
 using System.Threading.Tasks;
 using Newtonsoft.Json.Linq;
+using IoTSharp.Extensions;
+using IoTSharp.Contracts;
+using IoTSharp.Data.Extensions;
 
 namespace IoTSharp.FlowRuleEngine
 {
@@ -42,6 +45,45 @@ namespace IoTSharp.FlowRuleEngine
             _helper = helper;
             _caching = factory.GetCachingProvider(_hc_Caching);
             _sp = _scopeFactor.CreateScope().ServiceProvider;
+        }
+
+        public async Task RunRules(Guid devid, object obj, MountType mountType)
+        {
+            try
+            {
+                var rules = await _caching.GetAsync($"ruleid_{devid}_{Enum.GetName(mountType)}", async () =>
+                {
+                    using (var scope = _scopeFactor.CreateScope())
+                    using (var _dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>())
+                    {
+                        var guids = await _dbContext.GerDeviceRulesIdList(devid, mountType);
+                        return guids;
+                    }
+                }, TimeSpan.FromSeconds(_setting.RuleCachingExpiration));
+                if (rules.HasValue)
+                {
+                    rules.Value.ToList().ForEach(async g =>
+                    {
+                        try
+                        {
+                          await RunFlowRules(g, obj, devid, EventType.Normal, null);
+                        }
+                        catch (Exception ex)
+                        {
+                            _logger.LogError(ex, $"为设备{devid}执行规则链{g}时遇到错误{ex.Message}");
+                        }
+                    });
+                }
+                else
+                {
+                    _logger.LogDebug($"{devid}的数据无相关规则链处理。");
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"{devid}处理规则链时遇到异常:{ex.Message}");
+
+            }
         }
 
         /// <summary>

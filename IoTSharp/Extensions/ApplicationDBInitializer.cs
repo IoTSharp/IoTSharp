@@ -9,6 +9,7 @@ using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using IoTSharp.Models.FormFieldTypes;
+using IoTSharp.Contracts;
 
 namespace IoTSharp.Data
 {

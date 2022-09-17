@@ -9,13 +9,6 @@
             https://github.com/chkr1011/MQTTnet/blob/master/Source/MQTTnet.Extensions.Rpc/MqttRpcClient.cs
             </summary>
         </member>
-        <member name="M:IoTSharp.Extensions.DeviceExtension.AfterCreateDevice(IoTSharp.Data.ApplicationDbContext,IoTSharp.Data.Device)">
-            <summary>
-            When creating a device, all the things that need to be done here are done
-            </summary>
-            <param name="_context"></param>
-            <param name="device"></param>
-        </member>
         <member name="T:IoTSharp.Controllers.AccountController">
             <summary>
             用户管理
@@ -379,7 +372,7 @@
             <param name="telemetrys"></param>
             <returns></returns>
         </member>
-        <member name="M:IoTSharp.Controllers.DevicesController.Attributes(System.String,IoTSharp.Data.DataSide,System.String)">
+        <member name="M:IoTSharp.Controllers.DevicesController.Attributes(System.String,IoTSharp.Contracts.DataSide,System.String)">
              <summary>
              获取服务测的设备熟悉
              </summary>
@@ -437,7 +430,7 @@
             <param name="attributes"></param>
             <returns></returns>
         </member>
-        <member name="M:IoTSharp.Controllers.DevicesController.RemoveAttribute(System.Guid,System.String,IoTSharp.Data.DataSide)">
+        <member name="M:IoTSharp.Controllers.DevicesController.RemoveAttribute(System.Guid,System.String,IoTSharp.Contracts.DataSide)">
             <summary>
             属性删除
             </summary>
@@ -896,7 +889,7 @@
             <param name="_logger"></param>
             <returns></returns>
         </member>
-        <member name="M:IoTSharp.FlowRuleEngine.FlowRuleProcessor.RunFlowRules(System.Guid,System.Object,System.Guid,IoTSharp.Data.EventType,System.String)">
+        <member name="M:IoTSharp.FlowRuleEngine.FlowRuleProcessor.RunFlowRules(System.Guid,System.Object,System.Guid,IoTSharp.Contracts.EventType,System.String)">
              <summary>
             
              </summary>

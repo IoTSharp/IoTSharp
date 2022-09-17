@@ -1,4 +1,5 @@
 ﻿using System;
+using IoTSharp.Contracts;
 using IoTSharp.Data;
 using IoTSharp.Dtos;
 

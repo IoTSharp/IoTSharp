@@ -5,7 +5,7 @@
         public string KeyName { get; set; }
 
         public DateTime DateTime { get; set; }
-        public Data.DataType DataType { get; set; }
+        public  DataType DataType { get; set; }
         public object Value { get; set; }
     }
 }

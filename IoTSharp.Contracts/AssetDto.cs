@@ -1,5 +1,4 @@
-﻿using IoTSharp.Data;
-
+﻿ 
 namespace IoTSharp.Contracts
 {
     public class AssetDto

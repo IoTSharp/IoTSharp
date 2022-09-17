@@ -4,6 +4,7 @@ using Esprima.Ast;
 using IoTSharp.Contracts;
 using IoTSharp.Controllers.Models;
 using IoTSharp.Data;
+using IoTSharp.Data.Extensions;
 using IoTSharp.Dtos;
 using IoTSharp.Extensions;
 using IoTSharp.FlowRuleEngine;
@@ -280,6 +281,7 @@ namespace IoTSharp.Controllers
         [HttpGet("{deviceId}/DownloadCertificates")]
         [ProducesResponseType(typeof(ApiResult), StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(ApiResult), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(ApiResult), StatusCodes.Status200OK)]
         public ActionResult DownloadCertificates(Guid deviceId)
         {
             try

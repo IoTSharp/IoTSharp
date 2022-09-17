@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using IoTSharp.Contracts;
 using IoTSharp.Data;
 
 namespace IoTSharp.Controllers

@@ -72,7 +72,7 @@ namespace IoTSharp.Extensions
 
       
 
-        internal static async Task<ApiResult<Alarm>> OccurredAlarm(this ApplicationDbContext _context, CreateAlarmDto dto, Action<Alarm> action)
+        public static async Task<ApiResult<Alarm>> OccurredAlarm(this ApplicationDbContext _context, CreateAlarmDto dto, Action<Alarm> action)
         {
             var result = new ApiResult<Alarm>(ApiCode.InValidData,"",null);
             try

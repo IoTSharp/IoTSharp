@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using IoTSharp.Data;
 using IoTSharp.Dtos;
 using Microsoft.AspNetCore.Authorization;
+using IoTSharp.Contracts;
 
 namespace IoTSharp.Controllers
 {

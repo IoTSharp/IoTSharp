@@ -8,7 +8,6 @@ using IoTSharp.Controllers.Models;
 using IoTSharp.Data;
 using IoTSharp.Data.Sqlite;
 using IoTSharp.FlowRuleEngine;
-using IoTSharp.Handlers;
 using IoTSharp.Interpreter;
 using IoTSharp.Storage;
 using IoTSharp.X509Extensions;
@@ -46,6 +45,9 @@ using System.Collections.Specialized;
 using Microsoft.Extensions.ObjectPool;
 using MaiKeBing.HostedService.ZeroMQ;
 using IoTSharp.TaskActions;
+using Dynamitey;
+using IoTSharp.EventBus;
+using IoTSharp.Contracts;
 
 namespace IoTSharp
 {
@@ -80,7 +82,7 @@ namespace IoTSharp
                 .AddDiskStorageHealthCheck(dso =>
                 {
                     System.IO.DriveInfo.GetDrives()
-                        .Where(d => d.DriveType== System.IO.DriveType.Fixed)
+                        .Where(d => d.DriveType == System.IO.DriveType.Fixed)
                         .Select(f => f.Name).Distinct().ToList()
                         .ForEach(f => dso.AddDrive(f));
                 }, name: "Disk Storage");
@@ -103,7 +105,7 @@ namespace IoTSharp
                     services.ConfigureSqlite(Configuration.GetConnectionString("IoTSharp"), settings.DbContextPoolSize, healthChecks, healthChecksUI);
                     break;
                 case DataBaseType.InMemory:
-                    services.ConfigureInMemory(settings.DbContextPoolSize,  healthChecksUI);
+                    services.ConfigureInMemory(settings.DbContextPoolSize, healthChecksUI);
                     settings.TelemetryStorage = TelemetryStorage.SingleTable;
                     break;
                 case DataBaseType.Cassandra:
@@ -128,7 +130,7 @@ namespace IoTSharp
 
 
 
-       
+
 
             services.AddAuthentication(option =>
             {
@@ -186,12 +188,12 @@ namespace IoTSharp
                 };
             }, authenticationOptions =>
             {
-                authenticationOptions.AccessRequirement = SilkierQuartz.SilkierQuartzAuthenticationOptions.SimpleAccessRequirement.AllowAnonymous ;//登录认证有问题
+                authenticationOptions.AccessRequirement = SilkierQuartz.SilkierQuartzAuthenticationOptions.SimpleAccessRequirement.AllowAnonymous;//登录认证有问题
             }, stdSchedulerFactoryOption =>
-             {
+            {
                 stdSchedulerFactoryOption.Add("quartz.plugin.recentHistory.type", "Quartz.Plugins.RecentHistory.ExecutionHistoryPlugin, Quartz.Plugins.RecentHistory");
-                 stdSchedulerFactoryOption.Add("quartz.plugin.recentHistory.storeType", "Quartz.Plugins.RecentHistory.Impl.InProcExecutionHistoryStore, Quartz.Plugins.RecentHistory");
-             }
+                stdSchedulerFactoryOption.Add("quartz.plugin.recentHistory.storeType", "Quartz.Plugins.RecentHistory.Impl.InProcExecutionHistoryStore, Quartz.Plugins.RecentHistory");
+            }
         );
             services.AddControllers();
 
@@ -227,7 +229,7 @@ namespace IoTSharp
             switch (settings.TelemetryStorage)
             {
                 case TelemetryStorage.Sharding:
-                 
+
                     services.AddEFCoreSharding(config =>
                     {
                         switch (settings.DataBase)
@@ -269,7 +271,7 @@ namespace IoTSharp
                     services.AddSingleton<IStorage, InfluxDBStorage>();
                     //"TelemetryStorage": "http://localhost:8086/?org=iotsharp&bucket=iotsharp-bucket&token=iotsharp-token"
                     services.AddObjectPool(() => InfluxDBClientFactory.Create(Configuration.GetConnectionString("TelemetryStorage")));
-                    healthChecks.AddInfluxDB(Configuration.GetConnectionString("TelemetryStorage"),name: _hc_telemetryStorage);
+                    healthChecks.AddInfluxDB(Configuration.GetConnectionString("TelemetryStorage"), name: _hc_telemetryStorage);
                     break;
 
                 case TelemetryStorage.PinusDB:
@@ -291,7 +293,7 @@ namespace IoTSharp
                     services.AddSingleton<IStorage, IoTDBStorage>();
                     services.AddSingleton(s =>
                     {
-                         return new Apache.IoTDB.Data.IoTDBConnection (str);
+                        return new Apache.IoTDB.Data.IoTDBConnection(str);
                     });
                     healthChecks.AddIoTDB(str);
                     break;
@@ -301,120 +303,16 @@ namespace IoTSharp
                     break;
             }
 
-            services.AddTransient<IEventBusHandler, EventBusHandler>();
-
-            var _ZMQOption = Configuration.GetSection(nameof(ZMQOption)).Get<ZMQOption>();
-            if (_ZMQOption != null)
+            services.AddEventBus( opt =>
             {
-                services.AddHostedZeroMQ(cfg => cfg = _ZMQOption);
-            }
-            services.AddCap(x =>
-            {
-                string _hc_EventBusStore = $"{nameof(EventBusStore)}-{Enum.GetName(settings.EventBusStore)}";
-                x.SucceedMessageExpiredAfter = settings.SucceedMessageExpiredAfter;
-                x.ConsumerThreadCount = settings.ConsumerThreadCount;
-                switch (settings.EventBusStore)
-                {
-                    case EventBusStore.PostgreSql:
-                        x.UsePostgreSql(Configuration.GetConnectionString("EventBusStore"));
-                        healthChecks.AddNpgSql(Configuration.GetConnectionString("EventBusStore"), name: _hc_EventBusStore);
-                        break;
+                opt.AppSettings = settings;
+                opt.ZMQOption = Configuration.GetSection(nameof(ZMQOption)).Get<ZMQOption>();
+                opt.DiscoveryOptions = Configuration.GetSection("Discovery").Get<DiscoveryOptions>();
+                opt.EventBusStore = settings.ConnectionStrings["EventBusStore"];
+                opt .EventBusMQ= settings.ConnectionStrings["EventBusMQ"];
+                opt.HealthChecks = healthChecks;
 
-                    case EventBusStore.MongoDB:
-                        x.UseMongoDB(Configuration.GetConnectionString("EventBusStore"));  //注意，仅支持MongoDB 4.0+集群
-                        healthChecks.AddMongoDb(Configuration.GetConnectionString("EventBusStore"), name: _hc_EventBusStore);
-                        break;
-
-                    case EventBusStore.LiteDB:
-                        x.UseLiteDBStorage(Configuration.GetConnectionString("EventBusStore"));
-                        break;
-                    case EventBusStore.MySql:
-                        x.UseMySql(Configuration.GetConnectionString("EventBusStore"));
-                        break;
-                    case EventBusStore.SqlServer:
-                        x.UseSqlServer(Configuration.GetConnectionString("EventBusStore"));
-                        break;
-                    case EventBusStore.InMemory:
-                    default:
-                        x.UseInMemoryStorage();
-                        break;
-                }
-                string _hc_EventBusMQ = $"{nameof(EventBusMQ)}-{Enum.GetName(settings.EventBusMQ)}";
-                switch (settings.EventBusMQ)
-                {
-                    case EventBusMQ.RabbitMQ:
-                        var url = new Uri(Configuration.GetConnectionString("EventBusMQ"));
-                        x.UseRabbitMQ(cfg =>
-                        {
-                            cfg.ConnectionFactoryOptions = cf =>
-                            {
-                                cf.AutomaticRecoveryEnabled = true;
-                                cf.Uri = new Uri(Configuration.GetConnectionString("EventBusMQ"));
-                            };
-                        });
-                        //amqp://guest:guest@localhost:5672
-                        healthChecks.AddRabbitMQ(connectionFactory =>
-                       {
-                           var factory = new ConnectionFactory()
-                           {
-                               Uri = new Uri(Configuration.GetConnectionString("EventBusMQ")),
-                               AutomaticRecoveryEnabled = true
-                           };
-                           return factory.CreateConnection();
-                       }, _hc_EventBusMQ);
-                        break;
-
-                    case EventBusMQ.Kafka:
-                        x.UseKafka(Configuration.GetConnectionString("EventBusMQ"));
-                        healthChecks.AddKafka(cfg =>
-                       {
-                           cfg.BootstrapServers = Configuration.GetConnectionString("EventBusMQ");
-                       }, name: _hc_EventBusMQ);
-                        break;
-
-                    case EventBusMQ.ZeroMQ:
-                        x.UseZeroMQ(cfg =>
-                        {
-                            cfg.HostName = Configuration.GetConnectionString("EventBusMQ") ?? "127.0.0.1";
-                            cfg.Pattern = MaiKeBing.CAP.NetMQPattern.PushPull;
-                        });
-                        break;
-                    case EventBusMQ.AzureServiceBus:
-                        x.UseAzureServiceBus(Configuration.GetConnectionString("EventBusMQ"));
-                        break;
-                    case EventBusMQ.AmazonSQS:
-                        x.UseAmazonSQS(opts =>
-                        {
-                            var uri = new Uri(Configuration.GetConnectionString("EventBusMQ"));
-                            if (!string.IsNullOrEmpty(uri.UserInfo) && uri.UserInfo?.Split(':').Length==2)
-                            {
-                                var userinfo = uri.UserInfo.Split(':');
-                                opts.Credentials = new Amazon.Runtime.BasicAWSCredentials(userinfo[0], userinfo[1]);
-                            }
-                            opts.Region = Amazon.RegionEndpoint.GetBySystemName(uri.Host);
-                        });
-                        break;
-                    case EventBusMQ.RedisStreams:
-                        x.UseRedis(Configuration.GetConnectionString("EventBusMQ"));
-                        break;
-                    case EventBusMQ.NATS:
-                        x.UseNATS(Configuration.GetConnectionString("EventBusMQ"));
-                        break;
-                    case EventBusMQ.Pulsar:
-                        x.UsePulsar(Configuration.GetConnectionString("EventBusMQ"));
-                        break;
-                    case EventBusMQ.InMemory:
-                    default:
-                        x.UseInMemoryMessageQueue();
-                        break;
-                }
-                x.UseDashboard();
-                var _discovery = Configuration.GetSection("Discovery").Get<DiscoveryOptions>();
-                if (_discovery != null)
-                {
-                    x.UseDiscovery(cfg => cfg = _discovery);
-                }
-            });
+            }); 
 
             services.Configure<BaiduTranslateProfile>(Configuration.GetSection("BaiduTranslateProfile"));
             services.AddControllers().AddNewtonsoftJson(options =>
@@ -422,16 +320,19 @@ namespace IoTSharp
                 options.SerializerSettings.ContractResolver = new CamelCasePropertyNamesContractResolver();
             });
             services.AddRazorPages();
+            
 
-        
             services.AddScriptEngines(Configuration.GetSection("EngineSetting"));
-            services.AddTransient<FlowRuleProcessor>(); services.AddTransient<CustomeAlarmPullExcutor>();
+            services.AddTransient<FlowRuleProcessor>();
+            services.AddTransient<CustomeAlarmPullExcutor>();
             services.AddSingleton<TaskExecutorHelper>();
             services.AddTransient<PublishAttributeDataTask>();
-            services.AddTransient<PublishTelemetryDataTask>(); 
+            services.AddTransient<PublishTelemetryDataTask>();
             services.AddTransient<PublishAlarmDataTask>();
             services.AddTransient<RawDataGateway>();
         }
+
+    
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env, ISchedulerFactory factory)
@@ -473,7 +374,12 @@ namespace IoTSharp
             app.UseOpenApi();
 
             app.UseSilkierQuartz();
-            app.UseCapDashboard();
+
+            app.UseEventBus(opt =>
+            {
+                var frp = app.ApplicationServices.GetService<FlowRuleProcessor>();
+                return frp.RunRules;
+            });
 
             app.UseEndpoints(endpoints =>
             {

@@ -20,6 +20,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Options;
 
 using Jdenticon.AspNetCore;
+using IoTSharp.Contracts;
 
 namespace IoTSharp.Controllers
 {

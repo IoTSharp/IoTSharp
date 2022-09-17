@@ -7,7 +7,7 @@ using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
 
-namespace IoTSharp.Data
+namespace IoTSharp.Contracts
 {
     public static class IoTSharpClaimTypes
     {

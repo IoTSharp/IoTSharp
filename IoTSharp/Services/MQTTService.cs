@@ -1,6 +1,8 @@
 ﻿using DotNetCore.CAP;
 using EasyCaching.Core;
+using IoTSharp.Contracts;
 using IoTSharp.Data;
+using IoTSharp.Data.Extensions;
 using IoTSharp.Extensions;
 using IoTSharp.FlowRuleEngine;
 using Microsoft.EntityFrameworkCore;

@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿using IoTSharp.Contracts;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 

@@ -1,7 +1,7 @@
 ﻿using CoAP.Server;
 using DotNetCore.CAP;
+using IoTSharp.Contracts;
 using IoTSharp.Data;
-using IoTSharp.Handlers;
 using IoTSharp.Services.CoApResources;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;

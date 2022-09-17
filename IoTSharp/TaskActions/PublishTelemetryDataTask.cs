@@ -1,4 +1,5 @@
 ﻿using DotNetCore.CAP;
+using IoTSharp.Contracts;
 using IoTSharp.Data;
 using IoTSharp.Extensions;
 using IoTSharp.TaskActions;

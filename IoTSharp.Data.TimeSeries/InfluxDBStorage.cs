@@ -107,9 +107,9 @@ from(bucket: ""{_bucket}"")
             });
             return dt;
         }
-        Data.DataType InfluxTypeToIoTSharpType(string _itype)
+       Contracts.DataType InfluxTypeToIoTSharpType(string _itype)
         {
-            Data.DataType data = DataType.String;
+            Contracts.DataType data = DataType.String;
             switch (_itype)
             {
                 case "long":

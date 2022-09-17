@@ -93,7 +93,7 @@ namespace IoTSharp.TaskActions
             [JsonProperty("dateTime")]
             public DateTime dateTime { get; set; }
             [JsonProperty("dataType")]
-            public Data.DataType dataType { get; set; }
+            public Contracts.DataType dataType { get; set; }
             [JsonProperty("value")]
             public object value { get; set; }
 

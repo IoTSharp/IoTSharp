@@ -1,6 +1,8 @@
 ﻿using DotNetCore.CAP;
 using HealthChecks.UI.Configuration;
+using IoTSharp.Contracts;
 using IoTSharp.Data;
+using IoTSharp.Data.Extensions;
 using IoTSharp.Extensions;
 using IoTSharp.HealthChecks.Taos;
 using IoTSharp.Services;

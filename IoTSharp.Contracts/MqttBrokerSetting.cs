@@ -1,7 +1,7 @@
 ﻿using System.Security.Authentication;
 using System.Security.Cryptography.X509Certificates;
 
-namespace IoTSharp
+namespace IoTSharp.Contracts
 {
     public class MqttBrokerSetting
     {

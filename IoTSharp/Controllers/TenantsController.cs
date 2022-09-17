@@ -16,6 +16,7 @@ using Microsoft.Extensions.Logging;
 using IoTSharp.Dtos;
 using IoTSharp.Models;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
+using IoTSharp.Contracts;
 
 namespace IoTSharp.Controllers
 {

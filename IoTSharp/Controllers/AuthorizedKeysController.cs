@@ -1,4 +1,5 @@
-﻿using IoTSharp.Data;
+﻿using IoTSharp.Contracts;
+using IoTSharp.Data;
 using IoTSharp.Dtos;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;

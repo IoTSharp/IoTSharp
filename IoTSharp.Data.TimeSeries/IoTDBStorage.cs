@@ -116,29 +116,29 @@ namespace IoTSharp.Storage
             return result;
    
         }
-        private IoTSharp.Data.DataType GetIoTSharpDataType(string iotDataType)
+        private  DataType GetIoTSharpDataType(string iotDataType)
         {
             if (iotDataType.ToUpper() == "DOUBLE")
-                return Data.DataType.Double;
+                return  DataType.Double;
             else if (iotDataType.ToUpper() == "FLOAT")
             {
-                return Data.DataType.Double;
+                return  DataType.Double;
             }
             else if (iotDataType.ToUpper() == "TEXT")
             {
-                return Data.DataType.String;
+                return  DataType.String;
             }
             else if (iotDataType.ToUpper() == "INT64")
             {
-                return Data.DataType.Long;
+                return  DataType.Long;
             }
             else if (iotDataType.ToUpper() == "INT32")
             {
-                return Data.DataType.Long;
+                return  DataType.Long;
             }
             else if (iotDataType.ToUpper() == "BOOLEAN")
             {
-                return Data.DataType.Boolean;
+                return  DataType.Boolean;
             }
             else
                 throw new Exception($"不支持的IotDB数据类型：{iotDataType}");
@@ -290,22 +290,22 @@ namespace IoTSharp.Storage
                         object _value = null;
                         bool _hasvalue = true; switch (tdata.Type)
                         {
-                            case IoTSharp.Data.DataType.Boolean:
+                            case  DataType.Boolean:
                                 _value = tdata.Value_Boolean;
                                 _hasvalue = tdata.Value_Boolean.HasValue;
                                 break;
-                            case IoTSharp.Data.DataType.String:
+                            case  DataType.String:
                                 _value = tdata.Value_String;
                                 break;
-                            case IoTSharp.Data.DataType.Long:
+                            case DataType.Long:
                                 _value = tdata.Value_Long;
                                 _hasvalue = tdata.Value_Long.HasValue;
                                 break;
-                            case IoTSharp.Data.DataType.Double:
+                            case DataType.Double:
                                 _value = tdata.Value_Double;
                                 _hasvalue = tdata.Value_Double.HasValue;
                                 break;
-                            case IoTSharp.Data.DataType.DateTime:
+                            case DataType.DateTime:
                                 _value = tdata.Value_DateTime;
                                 _hasvalue = tdata.Value_DateTime.HasValue;
                                 break;

@@ -1,6 +1,7 @@
 ﻿
 using EFCore.Sharding;
 using IoTSharp;
+using IoTSharp.Contracts;
 using IoTSharp.Data;
 using IoTSharp.Data.SqlServer;
 using Microsoft.EntityFrameworkCore;

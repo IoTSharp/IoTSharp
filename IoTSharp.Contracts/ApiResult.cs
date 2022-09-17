@@ -1,10 +1,9 @@
-﻿using IoTSharp.Data;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace IoTSharp.Dtos
+namespace IoTSharp.Contracts
 {
     public class ApiResult
     {

@@ -1,10 +1,11 @@
-﻿using IoTSharp.Data;
+﻿using IoTSharp.Contracts;
+using IoTSharp.Data;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading.Tasks;
-using DataType = IoTSharp.Data.DataType;
+using DataType = IoTSharp.Contracts.DataType;
 
 namespace IoTSharp.Dtos
 {

@@ -1,4 +1,5 @@
-﻿using IoTSharp.Data;
+﻿using IoTSharp.Contracts;
+using IoTSharp.Data;
 using System;
 using System.Collections.Generic;
 using System.Linq;
