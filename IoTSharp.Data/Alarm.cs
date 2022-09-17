@@ -1,4 +1,5 @@
-﻿using System;
+﻿using IoTSharp.Contracts;
+using System;
 using System.ComponentModel.DataAnnotations;
 
 namespace IoTSharp.Data

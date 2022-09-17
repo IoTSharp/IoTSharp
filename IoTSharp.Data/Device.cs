@@ -1,4 +1,5 @@
-﻿using System;
+﻿using IoTSharp.Contracts;
+using System;
 
 namespace IoTSharp.Data
 {

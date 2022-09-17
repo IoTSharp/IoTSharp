@@ -1,6 +1,8 @@
-﻿using System;
+﻿using IoTSharp.Contracts;
+using System;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using DataType = IoTSharp.Contracts.DataType;
 
 namespace IoTSharp.Data
 {
@@ -44,8 +46,8 @@ namespace IoTSharp.Data
         public DataSide DataSide { get; set; } = DataSide.AnySide;
 
         [Column(Order = 5)]
-        [EnumDataType(typeof(DataType))]
-        public DataType Type { get; set; }
+        [EnumDataType(typeof(Contracts.DataType))]
+        public Contracts.DataType Type { get; set; }
 
         public bool? Value_Boolean { get; set; }
         public string Value_String { get; set; }

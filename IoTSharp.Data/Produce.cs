@@ -1,4 +1,5 @@
-﻿using System;
+﻿using IoTSharp.Contracts;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;

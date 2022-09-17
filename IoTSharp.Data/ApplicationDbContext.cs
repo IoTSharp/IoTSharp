@@ -7,6 +7,7 @@ using System.Linq;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.Extensions.DependencyInjection;
 using IoTSharp.Data.Configurations;
+using IoTSharp.Contracts;
 
 namespace IoTSharp.Data
 {
