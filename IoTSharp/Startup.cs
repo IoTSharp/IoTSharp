@@ -1,5 +1,4 @@
-﻿using DotNetCore.CAP;
-using DotNetCore.CAP.Dashboard.NodeDiscovery;
+﻿using IoTSharp.EventBus;
 using EasyCaching.Core.Configurations;
 using EFCore.Sharding;
 using HealthChecks.UI.Client;

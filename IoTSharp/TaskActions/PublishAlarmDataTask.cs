@@ -1,6 +1,7 @@
-﻿using DotNetCore.CAP;
+﻿using IoTSharp.EventBus;
 using IoTSharp.Contracts;
 using IoTSharp.Data;
+using IoTSharp.EventBus;
 using IoTSharp.Extensions;
 using IoTSharp.TaskActions;
 using Newtonsoft.Json;
@@ -14,9 +15,9 @@ namespace IoTSharp.TaskActions
     [Description("告警数据发布器")]
     public class PublishAlarmDataTask : TaskAction
     {
-        private readonly ICapPublisher _queue;
+        private readonly IPublisher _queue;
 
-        public PublishAlarmDataTask(ICapPublisher queue)
+        public PublishAlarmDataTask(IPublisher queue)
         {
             _queue = queue;
         }

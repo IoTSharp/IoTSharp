@@ -1,4 +1,4 @@
-﻿using DotNetCore.CAP;
+﻿using IoTSharp.EventBus;
 using Dynamitey.DynamicObjects;
 using IoTSharp.Contracts;
 using IoTSharp.Data;
@@ -25,7 +25,7 @@ namespace IoTSharp.Services.MQTTControllers
     public class V1GatewayController : GatewayController
     {
         public V1GatewayController(ILogger<GatewayController> logger, IServiceScopeFactory scopeFactor,
-         IOptions<AppSettings> options, ICapPublisher queue, RawDataGateway rawDataGateway
+         IOptions<AppSettings> options, IPublisher queue, RawDataGateway rawDataGateway
          ) : base(logger, scopeFactor, options, queue, rawDataGateway)
         {
         }
@@ -37,11 +37,11 @@ namespace IoTSharp.Services.MQTTControllers
     {
         private readonly ILogger _logger;
         private readonly IServiceScopeFactory _scopeFactor;
-        private readonly ICapPublisher _queue;
+        private readonly IPublisher _queue;
         private readonly RawDataGateway _rawData;
 
         public GatewayController(ILogger<GatewayController> logger, IServiceScopeFactory scopeFactor,
-            IOptions<AppSettings> options, ICapPublisher queue, RawDataGateway rawDataGateway
+            IOptions<AppSettings> options, IPublisher queue, RawDataGateway rawDataGateway
             )
         {
             _logger = logger;

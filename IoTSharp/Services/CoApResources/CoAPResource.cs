@@ -1,6 +1,6 @@
 ﻿using CoAP;
 using CoAP.Server.Resources;
-using DotNetCore.CAP;
+using IoTSharp.EventBus;
 using IoTSharp.Contracts;
 using IoTSharp.Data;
 using IoTSharp.Extensions;
@@ -26,9 +26,9 @@ namespace IoTSharp.Services.CoApResources
         };
 
         private readonly ILogger _logger;
-        private readonly ICapPublisher _eventBus;
+        private readonly IPublisher _eventBus;
 
-        public CoApResource(string name, ApplicationDbContext dbContext, ILogger logger, ICapPublisher eventBus)
+        public CoApResource(string name, ApplicationDbContext dbContext, ILogger logger, IPublisher eventBus)
        : base(name)
         {
             Attributes.Title = name;

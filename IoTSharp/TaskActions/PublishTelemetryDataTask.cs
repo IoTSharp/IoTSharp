@@ -1,4 +1,4 @@
-﻿using DotNetCore.CAP;
+﻿using IoTSharp.EventBus;
 using IoTSharp.Contracts;
 using IoTSharp.Data;
 using IoTSharp.Extensions;
@@ -17,9 +17,9 @@ namespace IoTSharp.TaskActions
     [Description("遥测数据发布器")]
     public class PublishTelemetryDataTask : TaskAction
     {
-        private readonly ICapPublisher _queue;
+        private readonly IPublisher _queue;
 
-        public PublishTelemetryDataTask(ICapPublisher queue)
+        public PublishTelemetryDataTask(IPublisher queue)
         {
             _queue = queue;
         }

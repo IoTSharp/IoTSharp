@@ -1,4 +1,4 @@
-﻿using DotNetCore.CAP;
+﻿using IoTSharp.EventBus;
 using EasyCaching.Core;
 using IoTSharp.Contracts;
 using IoTSharp.Data;
@@ -24,10 +24,10 @@ namespace IoTSharp.Jobs
         private readonly ILogger<CheckDevices> _logger;
         private readonly IServiceScopeFactory _scopeFactor;
         private readonly MqttServer _serverEx;
-        private readonly ICapPublisher _queue;
+        private readonly IPublisher _queue;
 
         public CheckDevices(ILogger<CheckDevices> logger, IServiceScopeFactory scopeFactor, MqttServer serverEx
-           , IOptions<AppSettings> options, ICapPublisher queue)
+           , IOptions<AppSettings> options, IPublisher queue)
         {
             _mcsetting = options.Value.MqttClient;
             _logger = logger;

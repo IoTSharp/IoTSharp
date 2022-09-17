@@ -1,4 +1,4 @@
-﻿using DotNetCore.CAP;
+﻿using IoTSharp.EventBus;
 using Dynamitey.DynamicObjects;
 using EasyCaching.Core;
 using IoTSharp.Data;
@@ -21,11 +21,11 @@ namespace IoTSharp.Services.MQTTControllers
     {
         private readonly ILogger _logger;
         private readonly IServiceScopeFactory _scopeFactor;
-        private readonly ICapPublisher _queue;
+        private readonly IPublisher _queue;
         private string _devname;
         private Device device;
 
-        public TelemetryController(ILogger<TelemetryController> logger, IServiceScopeFactory scopeFactor, ICapPublisher queue)
+        public TelemetryController(ILogger<TelemetryController> logger, IServiceScopeFactory scopeFactor, IPublisher queue)
         {
 
             _logger = logger;

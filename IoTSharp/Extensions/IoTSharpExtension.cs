@@ -1,4 +1,4 @@
-﻿using DotNetCore.CAP;
+﻿using IoTSharp.EventBus;
 using HealthChecks.UI.Configuration;
 using IoTSharp.Contracts;
 using IoTSharp.Data;

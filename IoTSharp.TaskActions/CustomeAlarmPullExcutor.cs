@@ -3,7 +3,7 @@ using System.ComponentModel;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
-using DotNetCore.CAP;
+using IoTSharp.EventBus;
 using IoTSharp.Contracts;
 using IoTSharp.Data;
 using IoTSharp.Extensions;
@@ -19,9 +19,9 @@ namespace IoTSharp.TaskActions
     public class CustomeAlarmPullExcutor : TaskAction
     {
 
-        private readonly ICapPublisher _queue;
+        private readonly IPublisher _queue;
         private readonly ApplicationDbContext _context;
-        public CustomeAlarmPullExcutor(ApplicationDbContext context, ICapPublisher queue)
+        public CustomeAlarmPullExcutor(ApplicationDbContext context, IPublisher queue)
         {
             this._context = context; _queue = queue;
         }

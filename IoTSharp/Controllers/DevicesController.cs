@@ -1,4 +1,4 @@
-﻿using DotNetCore.CAP;
+﻿using IoTSharp.EventBus;
 using EasyCaching.Core;
 using Esprima.Ast;
 using IoTSharp.Contracts;
@@ -57,13 +57,13 @@ namespace IoTSharp.Controllers
         private readonly IStorage _storage;
         private readonly MqttServer _serverEx;
         private readonly AppSettings _setting;
-        private readonly ICapPublisher _queue;
+        private readonly IPublisher _queue;
         private readonly FlowRuleProcessor _flowRuleProcessor;
         private readonly IEasyCachingProvider _caching;
         private readonly IServiceScopeFactory _scopeFactor;
 
         public DevicesController(UserManager<IdentityUser> userManager,
-            SignInManager<IdentityUser> signInManager, ILogger<DevicesController> logger, MqttServer serverEx, ApplicationDbContext context, MqttClientOptions mqtt, IStorage storage, IOptions<AppSettings> options, ICapPublisher queue
+            SignInManager<IdentityUser> signInManager, ILogger<DevicesController> logger, MqttServer serverEx, ApplicationDbContext context, MqttClientOptions mqtt, IStorage storage, IOptions<AppSettings> options, IPublisher queue
             , IEasyCachingProviderFactory factory, FlowRuleProcessor flowRuleProcessor, IServiceScopeFactory scopeFactor)
         {
             string _hc_Caching = $"{nameof(CachingUseIn)}-{Enum.GetName(options.Value.CachingUseIn)}";
@@ -728,8 +728,7 @@ namespace IoTSharp.Controllers
                 _context.DeviceIdentities.Update(identity);
                 await _context.SaveChangesAsync();
             }
-
-            await this._queue.PublishAsync("iotsharp.services.platform.addnewdevice", devvalue);
+            _queue.PublishCreateDevice(devvalue.Id) ;
             return new ApiResult<Device>(ApiCode.Success, "Ok", await FoundAsync(devvalue.Id));
         }
 

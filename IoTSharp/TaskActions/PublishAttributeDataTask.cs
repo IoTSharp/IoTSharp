@@ -1,4 +1,4 @@
-﻿using DotNetCore.CAP;
+﻿using IoTSharp.EventBus;
 using IoTSharp.Contracts;
 using IoTSharp.Data;
 using IoTSharp.Extensions;
@@ -17,9 +17,9 @@ namespace IoTSharp.TaskActions
     [Description("发布属性至队列")]
     public class PublishAttributeDataTask : TaskAction
     {
-        private readonly ICapPublisher _queue;
+        private readonly IPublisher _queue;
 
-        public PublishAttributeDataTask(ICapPublisher queue)
+        public PublishAttributeDataTask(IPublisher queue)
         {
             _queue = queue;
         }

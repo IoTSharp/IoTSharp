@@ -23,7 +23,6 @@ namespace IoTSharp.EventBus
             _queue.Publish("iotsharp.services.datastream.attributedata", msg);
         }
 
-
         public void PublishTelemetryData( PlayloadData msg)
         {
             _queue.Publish("iotsharp.services.datastream.telemetrydata", msg);
@@ -39,6 +38,14 @@ namespace IoTSharp.EventBus
             _queue.Publish("iotsharp.services.datastream.alarm", alarmDto);
         }
 
-      
+        public void PublishCreateDevice(Guid  devid)
+        {
+            _queue.Publish("iotsharp.services.platform.createdevice", devid);
+        }
+
+        public void PublishDeleteDevice(Guid devid)
+        {
+            _queue.Publish("iotsharp.services.platform.deleteDevice", devid);
+        }
     }
 }

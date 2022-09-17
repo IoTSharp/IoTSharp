@@ -445,7 +445,7 @@ namespace IoTSharp.Extensions
         /// </summary>
         /// <param name="obj">需要序列化的对象</param>
         /// <returns></returns>
-        public static string ToJson(this object obj)
+        public static string ToJson<T>(this T obj)  where T:class
         {
             return JsonConvert.SerializeObject(obj);
         }
@@ -492,9 +492,9 @@ namespace IoTSharp.Extensions
         /// <typeparam name="T">对象类型</typeparam>
         /// <param name="obj">对象</param>
         /// <returns></returns>
-        public static string ToXmlStr<T>(this T obj)
+        public static string ToXmlStr<T>(this T obj) where T:class
         {
-            var jsonStr = obj.ToJson();
+            var jsonStr = obj.ToJson<T>();
             var xmlDoc = JsonConvert.DeserializeXmlNode(jsonStr);
             string xmlDocStr = xmlDoc.InnerXml;
 
@@ -508,7 +508,7 @@ namespace IoTSharp.Extensions
         /// <param name="obj">对象</param>
         /// <param name="rootNodeName">根节点名(建议设为xml)</param>
         /// <returns></returns>
-        public static string ToXmlStr<T>(this T obj, string rootNodeName)
+        public static string ToXmlStr<T>(this T obj, string rootNodeName) where T:class
         {
             var jsonStr = obj.ToJson();
             var xmlDoc = JsonConvert.DeserializeXmlNode(jsonStr, rootNodeName);

@@ -8,6 +8,10 @@ namespace IoTSharp.EventBus
 {
     public interface IPublisher
     {
+
+        public void PublishCreateDevice(Guid devid);
+        public void PublishDeleteDevice(Guid devid);
+
         public void PublishAttributeData(PlayloadData msg);
         public void PublishTelemetryData(PlayloadData msg);
         public void PublishDeviceStatus(Guid devid, DeviceStatus devicestatus);

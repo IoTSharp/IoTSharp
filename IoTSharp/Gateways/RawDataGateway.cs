@@ -1,4 +1,4 @@
-﻿using DotNetCore.CAP;
+﻿using IoTSharp.EventBus;
 using EasyCaching.Core;
 using IoTSharp.Contracts;
 using IoTSharp.Data;
@@ -33,13 +33,13 @@ namespace IoTSharp.Gateways
         private const string _map_var_ts_field = "_map_var_ts_field";
         private readonly AppSettings _setting;
         private readonly ILogger _logger;
-        private readonly ICapPublisher _queue;
+        private readonly IPublisher _queue;
         private readonly IServiceScopeFactory _scopeFactor;
         private readonly IEasyCachingProvider _caching;
         private readonly ApplicationDbContext _context;
 
         public RawDataGateway(ILogger<RawDataGateway> logger, IServiceScopeFactory scopeFactor
-           , IOptions<AppSettings> options, ICapPublisher queue, IEasyCachingProviderFactory factory
+           , IOptions<AppSettings> options, IPublisher queue, IEasyCachingProviderFactory factory
             , ApplicationDbContext context
             )
         {
