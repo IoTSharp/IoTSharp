@@ -55,7 +55,7 @@ namespace IoTSharp.Gateways
  
         public async Task<ApiResult> ExecuteAsync(Device _dev, string format, string body)
         {
-            _queue.PublishDeviceStatus(_dev.Id, DeviceStatus.Good);
+            await _queue.PublishDeviceStatus(_dev.Id, DeviceStatus.Good);
             var result=new ApiResult();
             string json = body;
             if (format == "xml")

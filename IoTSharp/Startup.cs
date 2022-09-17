@@ -38,15 +38,15 @@ using System.Reflection;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using Jdenticon;
-using static Amazon.Internal.RegionEndpointProviderV2;
 using IoTSharp.Gateways;
 using System.Collections.Specialized;
 using Microsoft.Extensions.ObjectPool;
 using MaiKeBing.HostedService.ZeroMQ;
 using IoTSharp.TaskActions;
 using Dynamitey;
-using IoTSharp.EventBus;
 using IoTSharp.Contracts;
+using IoTSharp.EventBus.CAP;
+using IoTSharp.EventBus.Shashlik;
 
 namespace IoTSharp
 {
@@ -301,15 +301,29 @@ namespace IoTSharp
                     services.AddSingleton<IStorage, EFStorage>();
                     break;
             }
-
+           var zmq=  Configuration.GetSection(nameof(ZMQOption)).Get<ZMQOption>();
+            if (zmq != null)
+            {
+                services.AddHostedZeroMQ(cfg => cfg = zmq);
+            }
             services.AddEventBus( opt =>
             {
                 opt.AppSettings = settings;
-                opt.ZMQOption = Configuration.GetSection(nameof(ZMQOption)).Get<ZMQOption>();
                 opt.EventBusStore = Configuration.GetConnectionString("EventBusStore");
-                opt .EventBusMQ = Configuration.GetConnectionString("EventBusMQ");
+                opt.EventBusMQ = Configuration.GetConnectionString("EventBusMQ");
                 opt.HealthChecks = healthChecks;
-            }); 
+                switch (settings.EventBus)
+                {
+                    case EventBusFramework.Shashlik:
+                        opt.UserShashlik();
+                        break;
+                    case EventBusFramework.CAP:
+                    default:
+                        opt.UserCAP();
+                        break;
+                }
+            });
+
 
             services.Configure<BaiduTranslateProfile>(Configuration.GetSection("BaiduTranslateProfile"));
             services.AddControllers().AddNewtonsoftJson(options =>

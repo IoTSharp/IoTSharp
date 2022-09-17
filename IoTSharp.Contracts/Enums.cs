@@ -197,6 +197,8 @@ namespace IoTSharp.Contracts
         /// 告警挂载点
         /// </summary>
         Alarm = 7,
+        DeleteDevice = 8,
+        CreateDevice = 9,
     }
     /// <summary>
     /// 折叠数据

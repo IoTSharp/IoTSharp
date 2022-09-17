@@ -1,7 +1,6 @@
 ﻿using IoTSharp.EventBus;
 using IoTSharp.Contracts;
 using IoTSharp.Data;
-using IoTSharp.EventBus;
 using IoTSharp.Extensions;
 using IoTSharp.TaskActions;
 using Newtonsoft.Json;

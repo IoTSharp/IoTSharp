@@ -1,5 +1,4 @@
-﻿using DotNetCore.CAP;
-using IoTSharp.Contracts;
+﻿using IoTSharp.Contracts;
 using IoTSharp.Data;
 using IoTSharp.Data.Extensions;
 using System.Dynamic;
@@ -9,12 +8,12 @@ namespace IoTSharp.EventBus
     public interface IPublisher
     {
 
-        public void PublishCreateDevice(Guid devid);
-        public void PublishDeleteDevice(Guid devid);
+        public Task PublishCreateDevice(Guid devid);
+        public Task PublishDeleteDevice(Guid devid);
 
-        public void PublishAttributeData(PlayloadData msg);
-        public void PublishTelemetryData(PlayloadData msg);
-        public void PublishDeviceStatus(Guid devid, DeviceStatus devicestatus);
-        public void PublishDeviceAlarm(CreateAlarmDto alarmDto);
+        public Task PublishAttributeData(PlayloadData msg);
+        public Task PublishTelemetryData(PlayloadData msg);
+        public Task PublishDeviceStatus(Guid devid, DeviceStatus devicestatus);
+        public Task PublishDeviceAlarm(CreateAlarmDto alarmDto);
     }
 }

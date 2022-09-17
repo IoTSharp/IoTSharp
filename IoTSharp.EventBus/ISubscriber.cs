@@ -1,5 +1,4 @@
-﻿using DotNetCore.CAP;
-using IoTSharp.Contracts;
+﻿using IoTSharp.Contracts;
 using IoTSharp.Data;
 using IoTSharp.Data.Extensions;
 using System.Dynamic;
@@ -10,9 +9,9 @@ namespace IoTSharp.EventBus
     {
         public Task StoreAttributeData(PlayloadData msg);
         public Task OccurredAlarm(CreateAlarmDto alarmDto);
-
-        public void DeviceStatusEvent(PlayloadData status);
+        public Task DeviceStatusEvent(PlayloadData status);
         public Task StoreTelemetryData(PlayloadData msg);
-    
+        public Task DeleteDevice(Guid deviceId);
+        public Task CreateDevice(Guid deviceId);
     }
 }

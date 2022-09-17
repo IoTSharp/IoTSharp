@@ -728,7 +728,7 @@ namespace IoTSharp.Controllers
                 _context.DeviceIdentities.Update(identity);
                 await _context.SaveChangesAsync();
             }
-            _queue.PublishCreateDevice(devvalue.Id) ;
+            await   _queue.PublishCreateDevice(devvalue.Id) ;
             return new ApiResult<Device>(ApiCode.Success, "Ok", await FoundAsync(devvalue.Id));
         }
 

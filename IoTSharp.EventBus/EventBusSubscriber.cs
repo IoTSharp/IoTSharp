@@ -1,5 +1,4 @@
-﻿using DotNetCore.CAP;
-using EasyCaching.Core;
+﻿using EasyCaching.Core;
 using IoTSharp.Contracts;
 using IoTSharp.Data;
 using IoTSharp.Data.Extensions;
@@ -8,13 +7,14 @@ using IoTSharp.Storage;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Dynamic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace IoTSharp.EventBus.CAP
+namespace IoTSharp.EventBus
 {
 
     public class EventBusSubscriber
@@ -107,7 +107,7 @@ namespace IoTSharp.EventBus.CAP
         }
 
 
-        public void DeviceStatusEvent(PlayloadData status)
+        public async Task DeviceStatusEvent(PlayloadData status)
         {
             try
             {
@@ -122,14 +122,14 @@ namespace IoTSharp.EventBus.CAP
                             {
                                 dev.Online = false;
                                 dev.LastActive = DateTime.Now;
-                                Task.Run(() => RunRules(dev.Id, status, MountType.Offline));
+                              await RunRules(dev.Id, status, MountType.Offline);
                                 //真正离线
                             }
                             else if (dev.Online == false && status.DeviceStatus == DeviceStatus.Good)
                             {
                                 dev.Online = true;
                                 dev.LastActive = DateTime.Now;
-                                Task.Run(() => RunRules(dev.Id, status, MountType.Online));
+                             await  RunRules(dev.Id, status, MountType.Online);
                                 //真正掉线
 
                             }
@@ -158,6 +158,15 @@ namespace IoTSharp.EventBus.CAP
             ExpandoObject exps = array.ToDynamic();
             await RunRules(msg.DeviceId, (dynamic)exps, MountType.Telemetry);
             await RunRules(msg.DeviceId, array, MountType.TelemetryArray);
+        }
+
+        public async Task DeleteDevice(Guid deviceId)
+        {
+            await RunRules(deviceId, new object(), MountType.DeleteDevice);
+        }
+        public async Task CreateDevice(Guid deviceId)
+        {
+            await RunRules(deviceId, new object(), MountType.CreateDevice);
         }
 
     }

@@ -115,18 +115,18 @@ namespace IoTSharp.Services.CoApResources
                             switch (_res)
                             {
                                 case CoApRes.Attributes:
-                                    _eventBus.PublishAttributeData(new PlayloadData() { MsgBody = keyValues, DataCatalog = DataCatalog.AttributeData, DataSide = DataSide.ClientSide, DeviceId = dev.Id });
+                                    await   _eventBus.PublishAttributeData(new PlayloadData() { MsgBody = keyValues, DataCatalog = DataCatalog.AttributeData, DataSide = DataSide.ClientSide, DeviceId = dev.Id });
                                     exchange.Respond(StatusCode.Changed, $"OK");
                                     break;
 
                                 case CoApRes.Telemetry:
-                                    _eventBus.PublishTelemetryData(new PlayloadData() { MsgBody = keyValues, DataCatalog = DataCatalog.AttributeData, DataSide = DataSide.ClientSide, DeviceId = dev.Id });
+                                    await _eventBus.PublishTelemetryData(new PlayloadData() { MsgBody = keyValues, DataCatalog = DataCatalog.AttributeData, DataSide = DataSide.ClientSide, DeviceId = dev.Id });
                                     exchange.Respond(StatusCode.Created, $"OK");
                                     break;
 
                                 case CoApRes.Alarm:
                                     var dto = Newtonsoft.Json.JsonConvert.DeserializeObject<CreateAlarmDto>(exchange.Request.PayloadString);
-                                    _eventBus.PublishDeviceAlarm(dto);
+                                     await _eventBus.PublishDeviceAlarm(dto);
                                     break;
 
                                 default:

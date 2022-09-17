@@ -191,6 +191,8 @@
 		<ProjectReference Include="..\IoTSharp.Data.Storage\IoTSharp.Data.SqlServer\IoTSharp.Data.SqlServer.csproj" />
 		<ProjectReference Include="..\IoTSharp.Data.TimeSeries\IoTSharp.Data.TimeSeries.csproj" />
 		<ProjectReference Include="..\IoTSharp.Data\IoTSharp.Data.csproj" />
+		<ProjectReference Include="..\IoTSharp.EventBus.CAP\IoTSharp.EventBus.CAP.csproj" />
+		<ProjectReference Include="..\IoTSharp.EventBus.Shashlik\IoTSharp.EventBus.Shashlik.csproj" />
 		<ProjectReference Include="..\IoTSharp.EventBus\IoTSharp.EventBus.csproj" />
 		<ProjectReference Include="..\IoTSharp.Extensions.AspNetCore\IoTSharp.Extensions.AspNetCore.csproj" />
 		<ProjectReference Include="..\IoTSharp.Extensions.EFCore\IoTSharp.Extensions.EFCore.csproj" />

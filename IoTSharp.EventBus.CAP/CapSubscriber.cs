@@ -41,9 +41,9 @@ namespace IoTSharp.EventBus.CAP
 
 
         [CapSubscribe("iotsharp.services.datastream.devicestatus")]
-        public void devicestatus(PlayloadData status)
+        public async Task devicestatus(PlayloadData status)
         {
-            DeviceStatusEvent(status);
+            await DeviceStatusEvent(status);
         }
 
         [CapSubscribe("iotsharp.services.datastream.telemetrydata")]
@@ -51,6 +51,15 @@ namespace IoTSharp.EventBus.CAP
         {
             await StoreTelemetryData(msg);
         }
-
+        [CapSubscribe("iotsharp.services.datastream.deletedevice")]
+        public async Task deletedevice(Guid deviceId)
+        {
+            await DeleteDevice(deviceId);
+        }
+        [CapSubscribe("iotsharp.services.datastream.createdevice")]
+        public async Task createdevice(Guid deviceId)
+        {
+            await CreateDevice(deviceId);
+        }
     }
 }
