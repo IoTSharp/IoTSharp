@@ -2,14 +2,17 @@
 using MaiKeBing.HostedService.ZeroMQ;
 using Microsoft.Extensions.DependencyInjection;
 using IoTSharp.Contracts;
+using Namotion.Reflection;
 
 namespace IoTSharp.EventBus
 {
     public class EventBusOption
     {
         public AppSettings AppSettings { get; set; }
+
+        public EventBusFramework EventBus => AppSettings.EventBus;
+
         public ZMQOption ZMQOption { get; set; }
-        public DiscoveryOptions DiscoveryOptions { get; set; }
         public string EventBusStore { get; set; }
         public string EventBusMQ { get; set; }
         public IHealthChecksBuilder HealthChecks { get; set; }

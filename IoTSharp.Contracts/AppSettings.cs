@@ -3,6 +3,7 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -50,12 +51,22 @@ namespace IoTSharp.Contracts
         LiteDB,
         SQlite
     }
+
+    [JsonConverter(typeof(StringEnumConverter))]
+    public enum EventBusFramework
+    {
+        CAP,
+        Shashlik,
+    }
     public class AppSettings
     {
         public string JwtKey { get; set; }
         public string JwtIssuer { get; set; }
         public string JwtAudience { get; set; }
         public double JwtExpireHours { get; set; }
+
+        [DefaultValue(EventBusFramework.CAP)]
+        public EventBusFramework EventBus { get; set; } = EventBusFramework.CAP;
         /// <summary>
         /// Broker settings
         /// </summary>

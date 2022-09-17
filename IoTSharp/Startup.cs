@@ -307,11 +307,9 @@ namespace IoTSharp
             {
                 opt.AppSettings = settings;
                 opt.ZMQOption = Configuration.GetSection(nameof(ZMQOption)).Get<ZMQOption>();
-                opt.DiscoveryOptions = Configuration.GetSection("Discovery").Get<DiscoveryOptions>();
-                opt.EventBusStore = settings.ConnectionStrings["EventBusStore"];
-                opt .EventBusMQ= settings.ConnectionStrings["EventBusMQ"];
+                opt.EventBusStore = Configuration.GetConnectionString("EventBusStore");
+                opt .EventBusMQ = Configuration.GetConnectionString("EventBusMQ");
                 opt.HealthChecks = healthChecks;
-
             }); 
 
             services.Configure<BaiduTranslateProfile>(Configuration.GetSection("BaiduTranslateProfile"));

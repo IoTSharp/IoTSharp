@@ -3,7 +3,6 @@ using EasyCaching.Core;
 using IoTSharp.Contracts;
 using IoTSharp.Data;
 using IoTSharp.Data.Extensions;
-using IoTSharp.EventBus;
 using IoTSharp.Extensions;
 using IoTSharp.Storage;
 using Microsoft.Extensions.DependencyInjection;
@@ -15,16 +14,10 @@ using System.Dynamic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace IoTSharp.EventBus
+namespace IoTSharp.EventBus.CAP
 {
-    public interface IEventBusHandler
-    {
-        public void StoreAttributeData(PlayloadData msg);
 
-        public void StoreTelemetryData(PlayloadData msg);
-    }
-
-    public class EventBusHandler : IEventBusHandler, ICapSubscribe
+    public class CapSubscriber : ISubscriber, ICapSubscribe
     {
         private readonly ILogger _logger;
         private readonly IServiceScopeFactory _scopeFactor;
@@ -32,7 +25,7 @@ namespace IoTSharp.EventBus
         private readonly IEasyCachingProvider _caching;
         private readonly EventBusOption _eventBusOption;
 
-        public EventBusHandler(ILogger<EventBusHandler> logger, IServiceScopeFactory scopeFactor
+        public CapSubscriber(ILogger<CapSubscriber> logger, IServiceScopeFactory scopeFactor
            , IStorage storage, IEasyCachingProviderFactory factory, EventBusOption eventBusOption
             )
         {
@@ -45,7 +38,7 @@ namespace IoTSharp.EventBus
         }
 
         [CapSubscribe("iotsharp.services.datastream.attributedata")]
-        public async void StoreAttributeData(PlayloadData msg)
+        public async Task StoreAttributeData(PlayloadData msg)
         {
             try
             {
@@ -82,7 +75,7 @@ namespace IoTSharp.EventBus
         }
 
         [CapSubscribe("iotsharp.services.datastream.alarm")]
-        public async void OccurredAlarm(CreateAlarmDto alarmDto)
+        public async Task OccurredAlarm(CreateAlarmDto alarmDto)
         {
             try
             {
@@ -160,7 +153,7 @@ namespace IoTSharp.EventBus
         }
 
         [CapSubscribe("iotsharp.services.datastream.telemetrydata")]
-        public async void StoreTelemetryData(PlayloadData msg)
+        public async Task StoreTelemetryData(PlayloadData msg)
         {
             var result = await _storage.StoreTelemetryAsync(msg);
             var data = from t in result.telemetries
@@ -170,5 +163,6 @@ namespace IoTSharp.EventBus
             await RunRules(msg.DeviceId, (dynamic)exps, MountType.Telemetry);
             await RunRules(msg.DeviceId, array, MountType.TelemetryArray);
         }
+
     }
 }

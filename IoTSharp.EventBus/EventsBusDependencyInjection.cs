@@ -12,6 +12,7 @@ using System.Text;
 using System.Threading.Tasks;
 using IoTSharp.Contracts;
 using static IoTSharp.EventBus.EventBusOption;
+using IoTSharp.EventBus.CAP;
 
 namespace IoTSharp.EventBus
 {
@@ -20,33 +21,51 @@ namespace IoTSharp.EventBus
 
         public static IApplicationBuilder UseEventBus(this IApplicationBuilder app, Func<EventBusOption, RunRulesEventHander>  action)
         {
-            app.UseCapDashboard();
             var provider = app.ApplicationServices;
             var options = provider.GetService<EventBusOption>();
+            switch (options.EventBus)
+            {
+                case EventBusFramework.Shashlik:
+                    break;
+                case EventBusFramework.CAP:
+                default:
+                    app.UseCapDashboard();
+                    break;
+            }
             var hander=   action.Invoke(options);
             options.RunRules += hander; 
             return app;
 
         }
 
-    
-
         public static void AddEventBus(this IServiceCollection services, Action<EventBusOption> opt)
         {
-            var opts = new EventBusOption();
-            opt.Invoke(opts);
-            var settings = opts.AppSettings;
-            DiscoveryOptions _discovery = opts.DiscoveryOptions;
-            var healthChecks = opts.HealthChecks;
-            services.AddTransient<IEventBusHandler, EventBusHandler>();
-            var _EventBusStore = opts.EventBusStore;
-            var _EventBusMQ = opts.EventBusMQ;
-            if (opts.ZMQOption != null)
+            var options = new EventBusOption();
+            opt.Invoke(options);
+            var settings = options.AppSettings;
+            var healthChecks = options.HealthChecks;
+            var _EventBusStore = options.EventBusStore;
+            var _EventBusMQ = options.EventBusMQ;
+            services.AddSingleton(options);
+            if (options.ZMQOption != null)
             {
-                services.AddHostedZeroMQ(cfg => cfg = opts.ZMQOption);
+                services.AddHostedZeroMQ(cfg => cfg = options.ZMQOption);
             }
-            services.AddSingleton(opts );
-            services.AddTransient<IEventBusHandler, EventBusHandler>();
+            switch (options.EventBus)
+            {
+                case EventBusFramework.Shashlik:
+                    break;
+                case EventBusFramework.CAP:
+                default:
+                    services.AddCAPEventBus(settings, healthChecks, _EventBusStore, _EventBusMQ);
+                    break;
+            }
+        }
+
+        private static void AddCAPEventBus(this IServiceCollection services, AppSettings settings, IHealthChecksBuilder healthChecks, string _EventBusStore, string _EventBusMQ)
+        {
+            services.AddTransient<ISubscriber, CapSubscriber>();
+            services.AddTransient<IPublisher, CapPublisher>();
             services.AddCap(x =>
             {
                 string _hc_EventBusStore = $"{nameof(EventBusStore)}-{Enum.GetName(settings.EventBusStore)}";
@@ -148,11 +167,7 @@ namespace IoTSharp.EventBus
                         break;
                 }
                 x.UseDashboard();
-
-                if (_discovery != null)
-                {
-                    x.UseDiscovery(cfg => cfg = _discovery);
-                }
+                //x.UseDiscovery();
             });
         }
     }
