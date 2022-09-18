@@ -250,23 +250,35 @@ namespace System.Data
         public static async Task<T> FirstOrDefaultAsync<T>(this DbDataReader dr)
         {
             var colMapping = dr.GetSchema<T>();
+            T result = default(T);
             if (dr.HasRows)
+            {
                 while (await dr.ReadAsync())
-                    return dr.MapObject<T>(colMapping);
+                {
+                    result= dr.MapObject<T>(colMapping);
+                    break;
+                }
+            }
             dr.Close();
-            return default(T);
+            return result;
         }
 
         public static T FirstOrDefault<T>(this IDataReader dr) => FirstOrDefault<T>((DbDataReader)dr);
 
         public static T FirstOrDefault<T>(this DbDataReader dr)
         {
+            T result = default(T);
             var colMapping = dr.GetSchema<T>();
             if (dr.HasRows)
-                while (dr.Read())
-                    return dr.MapObject<T>(colMapping);
+            {
+                while ( dr.Read())
+                {
+                    result = dr.MapObject<T>(colMapping);
+                    break;
+                }
+            }
             dr.Close();
-            return default(T);
+            return result;
         }
 
         public static async Task<T> SingleOrDefaultAsync<T>(this IDataReader dr) => await SingleOrDefaultAsync<T>((DbDataReader)dr);
