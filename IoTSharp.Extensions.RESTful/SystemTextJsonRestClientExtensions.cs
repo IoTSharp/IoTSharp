@@ -38,7 +38,7 @@ namespace System.Text.Json
         {
             return await GetDataBy<T>(uri, action, false);
         }
-        public static async Task<T> GetDataBy<T>(this Uri uri, Action<RestRequest> action, bool checktype = false)
+        public static async Task<T> GetDataBy<T>(this Uri uri, Action<RestRequest> action, bool checktype )
         {
             var result1 = default(T);
             var client = Create(uri);
