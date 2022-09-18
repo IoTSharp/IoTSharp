@@ -27,7 +27,7 @@ namespace Microsoft.AspNetCore.Identity
             {
                 sBuilder.Append(data[i].ToString("x2"));
             }
-            return string.Format("http://www.gravatar.com/avatar/{0}", sBuilder.ToString()); ;  // Return the hexadecimal string. 
+            return string.Format("https://www.gravatar.com/avatar/{0}", sBuilder.ToString()); ;  // Return the hexadecimal string. 
         }
     }
 }
