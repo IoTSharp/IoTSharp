@@ -256,7 +256,10 @@ namespace System.Data
                 while (await dr.ReadAsync())
                 {
                     result= dr.MapObject<T>(colMapping);
-                    break;
+                    if (result != null)
+                    {
+                        break;
+                    }
                 }
             }
             dr.Close();
@@ -274,7 +277,10 @@ namespace System.Data
                 while ( dr.Read())
                 {
                     result = dr.MapObject<T>(colMapping);
-                    break;
+                    if (result != null)
+                    {
+                        break;
+                    }
                 }
             }
             dr.Close();
