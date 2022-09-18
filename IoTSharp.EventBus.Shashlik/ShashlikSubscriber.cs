@@ -23,7 +23,7 @@ namespace IoTSharp.EventBus.Shashlik
         }
     }
 
-    public class EventAttributeDataHandler : IEventHandler<EventAttributeData>
+    public class EventAttributeDataHandler : IEventHandler<AttributeDataEvent>
     {
         private readonly ISubscriber _subscriber;
 
@@ -31,9 +31,9 @@ namespace IoTSharp.EventBus.Shashlik
         {
             _subscriber = subscriber;
         }
-        public async Task Execute(EventAttributeData @event, IDictionary<string, string> items)
+        public async Task Execute(AttributeDataEvent @event, IDictionary<string, string> items)
         {
-            await _subscriber.StoreAttributeData(@event);
+            await _subscriber.StoreAttributeData((PlayloadData)@event);
         }
     }
 
@@ -47,7 +47,7 @@ namespace IoTSharp.EventBus.Shashlik
         }
         public async Task Execute(TelemetryDataEvent @event, IDictionary<string, string> items)
         {
-            await _subscriber.StoreTelemetryData(@event);
+            await _subscriber.StoreTelemetryData((PlayloadData)@event);
         }
     }
 
@@ -61,7 +61,7 @@ namespace IoTSharp.EventBus.Shashlik
         }
         public async Task Execute(AlarmEvent @event, IDictionary<string, string> items)
         {
-            await _subscriber.OccurredAlarm(@event);
+            await _subscriber.OccurredAlarm((CreateAlarmDto)@event);
         }
     }
 
@@ -76,6 +76,7 @@ namespace IoTSharp.EventBus.Shashlik
         public async Task Execute(DeviceStatusEvent @event, IDictionary<string, string> items)
         {
             await _subscriber.DeviceStatusEvent(new PlayloadData() { DeviceId = @event.DeviceId, DeviceStatus = @event.DeviceStatus });
+            Console.WriteLine(Newtonsoft.Json.JsonConvert.SerializeObject(items));
         }
     }
 

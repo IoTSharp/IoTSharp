@@ -22,12 +22,13 @@ namespace IoTSharp.EventBus.Shashlik
         }
         public async Task PublishAttributeData(PlayloadData msg)
         {
-          await  _queue.PublishAsync((EventAttributeData)msg   ,null);
+          await  _queue.PublishAsync((AttributeDataEvent)msg   ,null);
         }
 
         public async Task PublishTelemetryData( PlayloadData msg)
         {
             await _queue.PublishAsync((TelemetryDataEvent)msg, null);
+            msg = (PlayloadData)(TelemetryDataEvent)msg;
         }
 
         public async Task PublishDeviceStatus( Guid devid, DeviceStatus devicestatus)
