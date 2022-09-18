@@ -9,7 +9,7 @@ using System.Text;
 namespace IoTSharp.Extensions.BouncyCastle
 {
     /************************************************************
-   * 关于hashAlgorithm参数值有：MD5、SHA1、SHA256、SHA384、SHA512
+   * 关于hashAlgorithm参数值有： SHA1、SHA256、SHA384、SHA512
    * 重要的事情说三遍，不懂的自己恶补去。
    * RSA加密解密：私钥解密，公钥加密。
    * RSA数字签名-俗称加签验签：私钥加签，公钥验签。 
@@ -41,16 +41,7 @@ namespace IoTSharp.Extensions.BouncyCastle
             RSACryptoServiceProvider rsa = new RSACryptoServiceProvider();
             byte[] cipherbytes;
             rsa.FromPublicKeyJavaString(publicKeyJava);
-
-            //☆☆☆☆.NET 4.6以后特有☆☆☆☆
-            //HashAlgorithmName hashName = new System.Security.Cryptography.HashAlgorithmName(hashAlgorithm);
-            //RSAEncryptionPadding padding = RSAEncryptionPadding.OaepSHA512;//RSAEncryptionPadding.CreateOaep(hashName);//.NET 4.6以后特有
-            //cipherbytes = rsa.Encrypt(Encoding.GetEncoding(encoding).GetBytes(data), padding);
-            //☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆
-
-            //☆☆☆☆.NET 4.6以前请用此段代码☆☆☆☆
             cipherbytes = rsa.Encrypt(Encoding.GetEncoding(encoding).GetBytes(data), false);
-
             return Convert.ToBase64String(cipherbytes);
         }
 
@@ -65,16 +56,7 @@ namespace IoTSharp.Extensions.BouncyCastle
             RSACryptoServiceProvider rsa = new RSACryptoServiceProvider();
             byte[] cipherbytes;
             rsa.FromXmlString(publicKeyCSharp);
-
-            //☆☆☆☆.NET 4.6以后特有☆☆☆☆
-            //HashAlgorithmName hashName = new System.Security.Cryptography.HashAlgorithmName(hashAlgorithm);
-            //RSAEncryptionPadding padding = RSAEncryptionPadding.OaepSHA512;//RSAEncryptionPadding.CreateOaep(hashName);//.NET 4.6以后特有
-            //cipherbytes = rsa.Encrypt(Encoding.GetEncoding(encoding).GetBytes(data), padding);
-            //☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆
-
-            //☆☆☆☆.NET 4.6以前请用此段代码☆☆☆☆
             cipherbytes = rsa.Encrypt(Encoding.GetEncoding(encoding).GetBytes(data), false);
-
             return Convert.ToBase64String(cipherbytes);
         }
 
@@ -89,16 +71,7 @@ namespace IoTSharp.Extensions.BouncyCastle
             RSACryptoServiceProvider rsa = new RSACryptoServiceProvider();
             byte[] cipherbytes;
             rsa.LoadPublicKeyPEM(publicKeyPEM);
-
-            //☆☆☆☆.NET 4.6以后特有☆☆☆☆
-            //HashAlgorithmName hashName = new System.Security.Cryptography.HashAlgorithmName(hashAlgorithm);
-            //RSAEncryptionPadding padding = RSAEncryptionPadding.OaepSHA512;//RSAEncryptionPadding.CreateOaep(hashName);//.NET 4.6以后特有
-            //cipherbytes = rsa.Encrypt(Encoding.GetEncoding(encoding).GetBytes(data), padding);
-            //☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆
-
-            //☆☆☆☆.NET 4.6以前请用此段代码☆☆☆☆
             cipherbytes = rsa.Encrypt(Encoding.GetEncoding(encoding).GetBytes(data), false);
-
             return Convert.ToBase64String(cipherbytes);
         }
 
@@ -117,14 +90,7 @@ namespace IoTSharp.Extensions.BouncyCastle
             RSACryptoServiceProvider rsa = new RSACryptoServiceProvider();
             byte[] cipherbytes;
             rsa.FromPrivateKeyJavaString(privateKeyJava);
-            //☆☆☆☆.NET 4.6以后特有☆☆☆☆
-            //RSAEncryptionPadding padding = RSAEncryptionPadding.CreateOaep(new System.Security.Cryptography.HashAlgorithmName(hashAlgorithm));//.NET 4.6以后特有
-            //cipherbytes = rsa.Decrypt(Encoding.GetEncoding(encoding).GetBytes(data), padding);
-            //☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆
-
-            //☆☆☆☆.NET 4.6以前请用此段代码☆☆☆☆
             cipherbytes = rsa.Decrypt(Convert.FromBase64String(data), false);
-
             return Encoding.GetEncoding(encoding).GetString(cipherbytes);
         }
 
@@ -139,14 +105,7 @@ namespace IoTSharp.Extensions.BouncyCastle
             RSACryptoServiceProvider rsa = new RSACryptoServiceProvider();
             byte[] cipherbytes;
             rsa.FromXmlString(privateKeyCSharp);
-            //☆☆☆☆.NET 4.6以后特有☆☆☆☆
-            //RSAEncryptionPadding padding = RSAEncryptionPadding.CreateOaep(new System.Security.Cryptography.HashAlgorithmName(hashAlgorithm));//.NET 4.6以后特有
-            //cipherbytes = rsa.Decrypt(Encoding.GetEncoding(encoding).GetBytes(data), padding);
-            //☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆
-
-            //☆☆☆☆.NET 4.6以前请用此段代码☆☆☆☆
             cipherbytes = rsa.Decrypt(Convert.FromBase64String(data), false);
-
             return Encoding.GetEncoding(encoding).GetString(cipherbytes);
         }
 
@@ -161,14 +120,7 @@ namespace IoTSharp.Extensions.BouncyCastle
             RSACryptoServiceProvider rsa = new RSACryptoServiceProvider();
             byte[] cipherbytes;
             rsa.LoadPrivateKeyPEM(privateKeyPEM);
-            //☆☆☆☆.NET 4.6以后特有☆☆☆☆
-            //RSAEncryptionPadding padding = RSAEncryptionPadding.CreateOaep(new System.Security.Cryptography.HashAlgorithmName(hashAlgorithm));//.NET 4.6以后特有
-            //cipherbytes = rsa.Decrypt(Encoding.GetEncoding(encoding).GetBytes(data), padding);
-            //☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆
-
-            //☆☆☆☆.NET 4.6以前请用此段代码☆☆☆☆
             cipherbytes = rsa.Decrypt(Convert.FromBase64String(data), false);
-
             return Encoding.GetEncoding(encoding).GetString(cipherbytes);
         }
 
@@ -186,23 +138,9 @@ namespace IoTSharp.Extensions.BouncyCastle
         {
             RSACryptoServiceProvider rsa = new RSACryptoServiceProvider();
             rsa.FromPrivateKeyJavaString(privateKeyJava);//加载私钥
-            //RSAPKCS1SignatureFormatter RSAFormatter = new RSAPKCS1SignatureFormatter(rsa);
-            ////设置签名的算法为MD5 MD5withRSA 签名
-            //RSAFormatter.SetHashAlgorithm(hashAlgorithm);
-
             var dataBytes = Encoding.GetEncoding(encoding).GetBytes(data);
             var HashbyteSignature = rsa.SignData(dataBytes, hashAlgorithm);
             return Convert.ToBase64String(HashbyteSignature);
-
-            //byte[] HashbyteSignature = ConvertToRgbHash(data, encoding);
-
-            //byte[] dataBytes =Encoding.GetEncoding(encoding).GetBytes(data);
-            //HashbyteSignature = rsa.SignData(dataBytes, hashAlgorithm);
-            //return Convert.ToBase64String(HashbyteSignature);
-            //执行签名
-            //EncryptedSignatureData = RSAFormatter.CreateSignature(HashbyteSignature);
-            //return Convert.ToBase64String(RSAFormatter.CreateSignature(HashbyteSignature));
-            //return result.Replace("=", String.Empty).Replace('+', '-').Replace('/', '_');
         }
 
         /// <summary>
@@ -256,12 +194,6 @@ namespace IoTSharp.Extensions.BouncyCastle
             byte[] rgbSignature = Convert.FromBase64String(signature);
 
             return rsa.VerifyData(Data, hashAlgorithm, rgbSignature);
-
-            //return SignatureDeformatter(publicKeyJava, data, signature);
-
-            //return CheckSign(publicKeyJava, data, signature);
-
-            //return rsa.VerifyData(Encoding.GetEncoding(encoding).GetBytes(data), "MD5", Encoding.GetEncoding(encoding).GetBytes(signature));
         }
 
         /// <summary>
@@ -302,95 +234,11 @@ namespace IoTSharp.Extensions.BouncyCastle
             return rsa.VerifyData(Data, hashAlgorithm, rgbSignature);
         }
 
-        #region 签名验证-方法二
-
-        /// <summary>
-        /// 签名验证
-        /// </summary>
-        /// <param name="publicKey">公钥</param>
-        /// <param name="p_strHashbyteDeformatter">待验证的用户名</param>
-        /// <param name="signature">注册码</param>
-        /// <returns>签名是否符合</returns>
-        public static bool SignatureDeformatter(string publicKey, string data, string signature, string hashAlgorithm = "MD5")
-        {
-            try
-            {
-                byte[] rgbHash = ConvertToRgbHash(data);
-                RSACryptoServiceProvider rsa = new RSACryptoServiceProvider();
-                //导入公钥，准备验证签名
-                rsa.FromPublicKeyJavaString(publicKey);
-
-                RSAPKCS1SignatureDeformatter deformatter = new RSAPKCS1SignatureDeformatter(rsa);
-                deformatter.SetHashAlgorithm("MD5");
-                byte[] rgbSignature = Convert.FromBase64String(signature);
-                if (deformatter.VerifySignature(rgbHash, rgbSignature))
-                {
-                    return true;
-                }
-                return false;
-            }
-            catch
-            {
-                return false;
-            }
-        }
-
-        /// <summary>
-        /// 签名数据转化为RgbHash
-        /// </summary>
-        /// <param name="data"></param>
-        /// <param name="encoding"></param>
-        /// <returns></returns>
-        public static byte[] ConvertToRgbHash(string data, string encoding = "UTF-8")
-        {
-            using (MD5 md5 = MD5.Create())
-            {
-                byte[] bytes_md5_in = Encoding.GetEncoding(encoding).GetBytes(data);
-                return md5.ComputeHash(bytes_md5_in);
-            }
-        }
-
-        #endregion 签名验证-方法二
-
-        #region 签名验证-方法三
-
-        /// <summary>
-        /// 验证签名
-        /// </summary>
-        /// <param name="data">原始数据</param>
-        /// <param name="sign">签名</param>
-        /// <returns></returns>
-        public static bool CheckSign(string publicKey, string data, string sign, string encoding = "UTF-8")
-        {
-            RSACryptoServiceProvider rsa = new RSACryptoServiceProvider();
-            rsa.FromPublicKeyJavaString(publicKey);
-            MD5 md5 = MD5.Create();
-
-            byte[] Data = Encoding.GetEncoding(encoding).GetBytes(data);
-            byte[] rgbSignature = Convert.FromBase64String(sign);
-            if (rsa.VerifyData(Data, md5, rgbSignature))
-            {
-                return true;
-            }
-            return false;
-        }
-
-        #endregion 签名验证-方法三
+        
 
         #endregion 验签
 
-        /*******************************************************
-  * 关于：此段代码专门针对“私钥加密,公钥解密。”
-  * 私钥加密,公钥解密。
-  * 私钥加密,公钥解密。
-  * 私钥加密,公钥解密。
-  * 公钥加密解密C#先天不支持。有些java的代码不按常理出牌。     *
-  * C#为什么不支持，问微软。（个人认为是安全性，公钥是谁都可以持有，私钥只有自己有）
-  * 这里使用BouncyCastle第三方开源库从java移植过来的，兼容性不是问题。
-  *
-  * gzy整理
-  */
-
+ 
         #region 私钥加密
 
         /// <summary>
@@ -449,7 +297,6 @@ namespace IoTSharp.Extensions.BouncyCastle
             signer.Init(true, privateKeyParam);//参数为true验签，参数为false加签
             var dataByte = Encoding.GetEncoding(encoding).GetBytes(data);
             signer.BlockUpdate(dataByte, 0, dataByte.Length);
-            //return Encoding.GetEncoding(encoding).GetString(signer.GenerateSignature()); //签名结果 非Base64String
             return Convert.ToBase64String(signer.GenerateSignature());
         }
 
@@ -473,11 +320,9 @@ namespace IoTSharp.Extensions.BouncyCastle
             signer.Init(false, publicKeyParam);
             byte[] dataByte = Encoding.GetEncoding(encoding).GetBytes(data);
             signer.BlockUpdate(dataByte, 0, dataByte.Length);
-            //byte[] signatureByte = Encoding.GetEncoding(encoding).GetBytes(signature);// 非Base64String
             byte[] signatureByte = Convert.FromBase64String(signature);
             return signer.VerifySignature(signatureByte);
         }
-
         #endregion 验签
     }
 }

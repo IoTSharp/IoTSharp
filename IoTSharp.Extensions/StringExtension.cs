@@ -343,7 +343,6 @@ namespace IoTSharp.Extensions
         {
             return System.Threading.Thread.CurrentThread.CurrentCulture.TextInfo.ToTitleCase(str.ToLower());
         }
-        public static string MD5Sum(this string text) => BitConverter.ToString(MD5.Create().ComputeHash(Encoding.UTF8.GetBytes(text))).Replace("-", "");
         public static string Left(this string str, int length)
         {
             str = (str ?? string.Empty);
@@ -377,7 +376,6 @@ namespace IoTSharp.Extensions
         {
             return str.Take(length).ToArray();
         }
-        static readonly MD5 md5 = MD5.Create();
         public static byte[] ToBytes(this string s)
         {
             return System.Text.Encoding.Default.GetBytes(s);
@@ -386,33 +384,6 @@ namespace IoTSharp.Extensions
         {
             return encoding?.GetBytes(s);
         }
-        public static string GetMd5Sum(this string s, Encoding encoding)
-        {
-            string t2 = BitConverter.ToString(md5.ComputeHash(s.ToBytes(encoding)));
-            t2 = t2.Replace("-", "");
-            return t2;
-        }
-        public static string GetMd5Sum(this string s)
-        {
-            string t2 = BitConverter.ToString(md5.ComputeHash(s.ToBytes()));
-            t2 = t2.Replace("-", "");
-            return t2;
-        }
-        public static string GetMd5Sum(this byte[] s)
-        {
-            string t2 = BitConverter.ToString(md5.ComputeHash(s));
-            t2 = t2.Replace("-", "");
-            return t2;
-        }
-        public static string GetMd5Sum(this Stream s)
-        {
-            if (s.Position != 0 && s.CanSeek) s.Seek(0, SeekOrigin.Begin);
-            string t2 = BitConverter.ToString(md5.ComputeHash(s));
-            t2 = t2.Replace("-", "");
-            if (s.Position != 0 && s.CanSeek) s.Seek(0, SeekOrigin.Begin);
-            return t2;
-        }
-
 
 
         #region https://github.com/Coldairarrow/EFCore.Sharding/tree/master/src/EFCore.Sharding.Tests/Util
