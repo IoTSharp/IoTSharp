@@ -47,6 +47,8 @@ using Dynamitey;
 using IoTSharp.Contracts;
 using IoTSharp.EventBus.CAP;
 using IoTSharp.EventBus.Shashlik;
+using Storage.Net.Blobs;
+using Storage.Net;
 
 namespace IoTSharp
 {
@@ -322,6 +324,11 @@ namespace IoTSharp
                         opt.UserCAP();
                         break;
                 }
+            });
+
+            services.AddTransient(opts =>
+            {
+                return StorageFactory.Blobs.FromConnectionString(Configuration.GetConnectionString("BlobStorage") ?? $"disk://path={Environment.GetFolderPath(Environment.SpecialFolder.UserProfile, Environment.SpecialFolderOption.Create)}/IoTSharp/");
             });
 
 

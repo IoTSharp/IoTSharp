@@ -36,6 +36,8 @@ namespace IoTSharp.Contracts
         CantFindObject = 10015,
         InValidData = 10016,
         NotFoundProduce = 10017,
+        NotFile = 10018,
+        Empty = 10019,
     }
 
     [System.Text.Json.Serialization.JsonConverter(typeof(System.Text.Json.Serialization.JsonStringEnumConverter))]

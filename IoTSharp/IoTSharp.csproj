@@ -74,22 +74,24 @@
 		
 		<PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="6.0.9" />
 		<PackageReference Include="Microsoft.AspNetCore.SpaProxy" Version="6.0.9" />
-		<PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="6.0.8">
+		<PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="6.0.9">
 		  <PrivateAssets>all</PrivateAssets>
 		  <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
 		<PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.17.0" />
+		<PackageReference Include="MimeMapping" Version="1.0.1.37" />
 		<PackageReference Include="MQTTnet" Version="4.1.0.247" />
 		<PackageReference Include="MQTTnet.AspNetCore" Version="4.1.0.247" />
 		<PackageReference Include="MQTTnet.AspNetCore.Routing" Version="0.4.11" />
 		<PackageReference Include="NetMQ" Version="4.0.1.9" />
-		<PackageReference Include="NSwag.AspNetCore" Version="13.16.1" />
+		<PackageReference Include="NSwag.AspNetCore" Version="13.17.0" />
 		<PackageReference Include="PinusDB.HealthChecks" Version="1.0.10" />
 		<PackageReference Include="Rin" Version="2.6.0" />
 		<PackageReference Include="Rin.Mvc" Version="2.6.0" />
 		<PackageReference Include="RulesEngine" Version="3.5.0" />
 		<PackageReference Include="SilkierQuartz" Version="5.0.356" />
 		<PackageReference Include="SkiaSharp.NativeAssets.Linux.NoDependencies" Version="2.88.2" />
+		<PackageReference Include="Storage.Net" Version="9.3.0" />
 		<PackageReference Include="System.Text.Encoding.CodePages" Version="6.0.0">
 		  <TreatAsUsed>true</TreatAsUsed>
 		</PackageReference>
