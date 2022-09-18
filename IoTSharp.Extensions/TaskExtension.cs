@@ -159,7 +159,7 @@ namespace IoTSharp.Extensions
         {
             int rangeSize = parallelOptions.MaxDegreeOfParallelism ==1? source.Count() : (source.Count() + parallelOptions.MaxDegreeOfParallelism - 1) / parallelOptions.MaxDegreeOfParallelism;
             
-            return Parallel.ForEach(Partitioner.Create(0, source.Count(), Math.Min(source.Count(), rangeSize)), parallelOptions ?? new ParallelOptions(), (range, loopState) =>
+            return Parallel.ForEach(Partitioner.Create(0, source.Count(), Math.Min(source.Count(), rangeSize)), parallelOptions, (range, loopState) =>
             {
             
                     List<object> list = new List<object>();
