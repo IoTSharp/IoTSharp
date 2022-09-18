@@ -48,30 +48,8 @@ namespace IoTSharp.Extensions
         {
             return new DriveInfo(file.Directory.Root.FullName);
         }
-        /// <summary>
-        /// 获取文件的SHA1
-        /// </summary>
-        /// <param name="s"></param>
-        /// <returns></returns>
-        public static string GetSHA1(this FileInfo s)
-        {
-            SHA1 sha1 = SHA1.Create() ;
-            byte[] retval = sha1.ComputeHash(s.ReadAllBytes());
-            string result = BitConverter.ToString(retval).Replace("-", "");
-            return result;
-        }
-        /// <summary>
-        /// 获取文件的MD5
-        /// </summary>
-        /// <param name="s"></param>
-        /// <returns></returns>
-        public static string GetMd5Sum(this FileInfo s)
-        {
-            MD5 md5 = MD5.Create();
-            string t2 = BitConverter.ToString(md5.ComputeHash(s.ReadAllBytes()));
-            t2 = t2.Replace("-", "");
-            return t2;
-        }
+   
+       
 
         public static byte[] ReadAllBytes(this FileInfo fi) => File.ReadAllBytes(fi.FullName);
         public static byte[] ReadBytes(this FileInfo fi, int count) => ReadBytes(fi, 0, count);
