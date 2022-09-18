@@ -32,6 +32,7 @@ namespace IoTSharp.EdgeSdk.MQTT
 
         public async Task<bool> ConnectAsync(Uri uri, string username, string password)
         {
+            if (uri == null) throw new ArgumentNullException("url");
             if (BrokerUri == null && uri != null) BrokerUri = uri;
             if (BrokerUri != null && uri == null) uri = BrokerUri;
             bool initok = false;
