@@ -56,26 +56,21 @@ namespace IoTSharp.Extensions
         /// <returns></returns>
         public static T RetryOnException<T, E>(int times, Func<int, T> action, Action<(int current, Exception ex)> efunc) where E : Exception
         {
-            Exception exception = null;
+            T result=default(T);
             for (int i = 0; i < times; i++)
             {
                 try
                 {
-                    try
-                    {
-                        return action.Invoke(i + 1);
-                    }
-                    catch (E)
-                    {
-                    }
+                    result = action.Invoke(i + 1);
+
                 }
-                catch (Exception ex)
+                catch (E)
                 {
-                    exception = ex;
-                    break;
+
                 }
             }
-            throw exception;
+            return result;
+         
         }
         /// <summary>
         /// 重试指定任务，除非遇到异常<typeparamref name="E"/>就不再重试
@@ -88,62 +83,57 @@ namespace IoTSharp.Extensions
         /// <returns></returns>
         public static T RetryUnlessException<T, E>(int times, Func<int, T> action) where E : Exception
         {
-            Exception exception = null;
+            T result=default;
             for (int i = 0; i < times; i++)
             {
+
                 try
                 {
-                    try
-                    {
-                        return action.Invoke(i + 1);
-                    }
-                    catch (E ex)
-                    {
-                        exception = ex;
-                        break;
-                    }
+                    result = action.Invoke(i + 1);
+                }
+                catch (E ex)
+                {
+                    throw ex;
                 }
                 catch (Exception)
                 {
 
                 }
             }
-            throw exception;
+            return result;
         }
        
         public static T RetryOnAny<T>(int times, Func<int, T> action, Action<(int current, Exception ex)> efunc)
         {
-            Exception exception = null;
+            T result = default;
             for (int i = 0; i < times; i++)
             {
                 try
                 {
-                    return action.Invoke(i + 1);
+                    result= action.Invoke(i + 1);
                 }
                 catch (Exception ex)
                 {
-                    exception = ex;
                     efunc?.Invoke((i + 1, ex));
                 }
             }
-            throw exception;
+            return result;
         }
         public static T RetryOnAny<T>(int times, Func<T> action, Action<(int current, Exception ex)> efunc)
         {
-            Exception exception = null;
+            T result=default(T);
             for (int i = 0; i < times; i++)
             {
                 try
                 {
-                    return action.Invoke();
+                    result= action.Invoke();
                 }
                 catch (Exception ex)
                 {
-                    exception = ex;
                     efunc?.Invoke((i + 1, ex));
                 }
             }
-            throw exception;
+            return (T)result;
         }
     }
 }
