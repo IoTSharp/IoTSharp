@@ -76,7 +76,6 @@ namespace IoTSharp.EventBus.Shashlik
         public async Task Execute(DeviceStatusEvent @event, IDictionary<string, string> items)
         {
             await _subscriber.DeviceStatusEvent(new PlayloadData() { DeviceId = @event.DeviceId, DeviceStatus = @event.DeviceStatus });
-            Console.WriteLine(Newtonsoft.Json.JsonConvert.SerializeObject(items));
         }
     }
 

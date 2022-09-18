@@ -11,8 +11,8 @@ namespace IoTSharp.Contracts
 {
     public static class IoTSharpClaimTypes
     {
-        public const string Customer = "http://schemas.iotsharp.net/ws/2019/01/identity/claims/customer";
-        public const string Tenant = "http://schemas.iotsharp.net/ws/2019/01/identity/claims/tenant";
+        public const string Customer = "https://schemas.iotsharp.net/ws/2019/01/identity/claims/customer";
+        public const string Tenant = "https://schemas.iotsharp.net/ws/2019/01/identity/claims/tenant";
     }
 
     public enum ApiCode : int
