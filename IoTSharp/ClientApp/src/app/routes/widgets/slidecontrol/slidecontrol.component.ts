@@ -130,7 +130,7 @@ export class SlidecontrolComponent implements OnInit {
         }, 1000);
       }
     );
-    return false;
+    return true;
   }
 
   reset() {

@@ -131,7 +131,7 @@ namespace IoTSharp
         /// <returns></returns>
         public static Guid GetTenantId(this ClaimsPrincipal _user)
         {
-            return  Guid.Parse( _user.FindFirstValue(IoTSharpClaimTypes.Tenant));
+            return  Guid.Parse( _user.FindFirstValue(IoTSharpClaimTypes.Tenant)??Guid.Empty.ToString());
         }
         /// <summary>
         /// 获取当前用户的客户ID
