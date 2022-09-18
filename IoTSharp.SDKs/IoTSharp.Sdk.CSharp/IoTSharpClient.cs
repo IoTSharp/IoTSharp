@@ -81,7 +81,7 @@ namespace IoTSharp.Sdk.Http
             }
             return (bool)(_result?.SignIn.Succeeded);
         }
-        public async void LogoutAsync()
+        public async Task LogoutAsync()
         {
             await _act_client.LogoutAsync();
         }
