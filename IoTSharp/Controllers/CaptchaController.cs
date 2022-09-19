@@ -93,8 +93,8 @@ namespace IoTSharp.Controllers
             int buzzleHeight = buzzle.Height;
             int oriImageWidth = original.Width;
             int oriImageHeight = original.Height;
-            int randomlocaltionx = random.Next(oriImageWidth - 2 * buzzleWidth) + buzzleWidth;
-            int randomlocaltiony = random.Next(oriImageHeight - buzzleHeight);
+            int randomlocaltionx = RandomNumberGenerator.GetInt32(oriImageWidth - 2 * buzzleWidth) + buzzleWidth;
+            int randomlocaltiony = RandomNumberGenerator.GetInt32(oriImageHeight - buzzleHeight);
             return Cut(original, buzzle, randomlocaltionx, randomlocaltiony, buzzleWidth, buzzleHeight);
         }
 

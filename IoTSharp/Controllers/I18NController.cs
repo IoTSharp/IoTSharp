@@ -255,7 +255,6 @@ namespace IoTSharp.Controllers
             string q = Words;
             string from = _profile.Value.DefaultLang ?? "zh";
             string appId = _profile.Value.AppKey;
-            Random rd =  new Random (DateTime.Now.Millisecond);
             string secretKey = _profile.Value.AppSecret;
             int _wait = _profile.Value.ApiInterval ?? 80;
             List<BaiduTranslateResult> l = new List<BaiduTranslateResult>();
@@ -265,9 +264,9 @@ namespace IoTSharp.Controllers
                 string to = item.Target;
                 using (HttpClient client = new HttpClient())
                 {
-                    string salt = rd.Next(100000).ToString();
+                    string salt = RandomNumberGenerator.GetInt32(100000).ToString();
                     string sign = EncryptString(appId + q + salt + secretKey);
-                    string url = "http://api.fanyi.baidu.com/api/trans/vip/translate?";
+                    string url = "https://api.fanyi.baidu.com/api/trans/vip/translate?";
                     url += "q=" + HttpUtility.UrlEncode(q);
                     url += "&from=" + from;
                     url += "&to=" + to;
