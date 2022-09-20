@@ -11,7 +11,7 @@
 	<ItemGroup>
 		<PackageReference Include="AspNetCore.HealthChecks.UI.Core" Version="6.0.5" />
 		<PackageReference Include="EFCore.Cassandra" Version="2.0.5" />
-		<PackageReference Include="IoTSharp.HealthChecks.Cassandra" Version="1.0.18" />
+		<PackageReference Include="IoTSharp.HealthChecks.Cassandra" Version="1.0.22" />
 	</ItemGroup>
 	<ItemGroup>
 		<ProjectReference Include="..\..\IoTSharp.Data\IoTSharp.Data.csproj" />
