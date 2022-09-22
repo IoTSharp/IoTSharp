@@ -1469,6 +1469,15 @@ namespace IoTSharp.Data.SqlServer.Migrations
                     b.Property<string>("Description")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("GatewayConfiguration")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("GatewayType")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Icon")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("Name")
                         .HasColumnType("nvarchar(max)");
 
@@ -1482,6 +1491,91 @@ namespace IoTSharp.Data.SqlServer.Migrations
                     b.HasIndex("TenantId");
 
                     b.ToTable("Produces");
+                });
+
+            modelBuilder.Entity("IoTSharp.Data.ProduceDictionary", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid?>("Customer")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int>("DataType")
+                        .HasColumnType("int");
+
+                    b.Property<string>("DefaultValue")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("Display")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("DisplayName")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("KeyDesc")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("KeyName")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Place0")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Place1")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Place2")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Place3")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Place4")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Place5")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("PlaceOrder0")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("PlaceOrder1")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("PlaceOrder2")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("PlaceOrder3")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("PlaceOrder4")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("PlaceOrder5")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<Guid?>("ProduceId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Tag")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Unit")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("UnitConvert")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("UnitExpression")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ProduceId");
+
+                    b.ToTable("ProduceDictionaries");
                 });
 
             modelBuilder.Entity("IoTSharp.Data.RefreshToken", b =>
@@ -2351,6 +2445,13 @@ namespace IoTSharp.Data.SqlServer.Migrations
                     b.Navigation("Tenant");
                 });
 
+            modelBuilder.Entity("IoTSharp.Data.ProduceDictionary", b =>
+                {
+                    b.HasOne("IoTSharp.Data.Produce", null)
+                        .WithMany("Dictionaries")
+                        .HasForeignKey("ProduceId");
+                });
+
             modelBuilder.Entity("IoTSharp.Data.RefreshToken", b =>
                 {
                     b.HasOne("Microsoft.AspNetCore.Identity.IdentityUser", "User")
@@ -2516,6 +2617,8 @@ namespace IoTSharp.Data.SqlServer.Migrations
                     b.Navigation("DefaultAttributes");
 
                     b.Navigation("Devices");
+
+                    b.Navigation("Dictionaries");
                 });
 
             modelBuilder.Entity("IoTSharp.Data.Tenant", b =>

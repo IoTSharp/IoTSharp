@@ -1617,6 +1617,17 @@ namespace IoTSharp.Data.Sqlite.Migrations
                         .HasColumnType("TEXT")
                         .UseCollation("NOCASE");
 
+                    b.Property<string>("GatewayConfiguration")
+                        .HasColumnType("TEXT")
+                        .UseCollation("NOCASE");
+
+                    b.Property<int>("GatewayType")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Icon")
+                        .HasColumnType("TEXT")
+                        .UseCollation("NOCASE");
+
                     b.Property<string>("Name")
                         .HasColumnType("TEXT")
                         .UseCollation("NOCASE");
@@ -1631,6 +1642,110 @@ namespace IoTSharp.Data.Sqlite.Migrations
                     b.HasIndex("TenantId");
 
                     b.ToTable("Produces");
+                });
+
+            modelBuilder.Entity("IoTSharp.Data.ProduceDictionary", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid?>("Customer")
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("DataType")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("DefaultValue")
+                        .HasColumnType("TEXT")
+                        .UseCollation("NOCASE");
+
+                    b.Property<bool>("Display")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("DisplayName")
+                        .HasColumnType("TEXT")
+                        .UseCollation("NOCASE");
+
+                    b.Property<string>("KeyDesc")
+                        .HasColumnType("TEXT")
+                        .UseCollation("NOCASE");
+
+                    b.Property<string>("KeyName")
+                        .HasColumnType("TEXT")
+                        .UseCollation("NOCASE");
+
+                    b.Property<string>("Place0")
+                        .HasColumnType("TEXT")
+                        .UseCollation("NOCASE");
+
+                    b.Property<string>("Place1")
+                        .HasColumnType("TEXT")
+                        .UseCollation("NOCASE");
+
+                    b.Property<string>("Place2")
+                        .HasColumnType("TEXT")
+                        .UseCollation("NOCASE");
+
+                    b.Property<string>("Place3")
+                        .HasColumnType("TEXT")
+                        .UseCollation("NOCASE");
+
+                    b.Property<string>("Place4")
+                        .HasColumnType("TEXT")
+                        .UseCollation("NOCASE");
+
+                    b.Property<string>("Place5")
+                        .HasColumnType("TEXT")
+                        .UseCollation("NOCASE");
+
+                    b.Property<string>("PlaceOrder0")
+                        .HasColumnType("TEXT")
+                        .UseCollation("NOCASE");
+
+                    b.Property<string>("PlaceOrder1")
+                        .HasColumnType("TEXT")
+                        .UseCollation("NOCASE");
+
+                    b.Property<string>("PlaceOrder2")
+                        .HasColumnType("TEXT")
+                        .UseCollation("NOCASE");
+
+                    b.Property<string>("PlaceOrder3")
+                        .HasColumnType("TEXT")
+                        .UseCollation("NOCASE");
+
+                    b.Property<string>("PlaceOrder4")
+                        .HasColumnType("TEXT")
+                        .UseCollation("NOCASE");
+
+                    b.Property<string>("PlaceOrder5")
+                        .HasColumnType("TEXT")
+                        .UseCollation("NOCASE");
+
+                    b.Property<Guid?>("ProduceId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Tag")
+                        .HasColumnType("TEXT")
+                        .UseCollation("NOCASE");
+
+                    b.Property<string>("Unit")
+                        .HasColumnType("TEXT")
+                        .UseCollation("NOCASE");
+
+                    b.Property<bool>("UnitConvert")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("UnitExpression")
+                        .HasColumnType("TEXT")
+                        .UseCollation("NOCASE");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ProduceId");
+
+                    b.ToTable("ProduceDictionaries");
                 });
 
             modelBuilder.Entity("IoTSharp.Data.RefreshToken", b =>
@@ -2552,6 +2667,13 @@ namespace IoTSharp.Data.Sqlite.Migrations
                     b.Navigation("Tenant");
                 });
 
+            modelBuilder.Entity("IoTSharp.Data.ProduceDictionary", b =>
+                {
+                    b.HasOne("IoTSharp.Data.Produce", null)
+                        .WithMany("Dictionaries")
+                        .HasForeignKey("ProduceId");
+                });
+
             modelBuilder.Entity("IoTSharp.Data.RefreshToken", b =>
                 {
                     b.HasOne("Microsoft.AspNetCore.Identity.IdentityUser", "User")
@@ -2717,6 +2839,8 @@ namespace IoTSharp.Data.Sqlite.Migrations
                     b.Navigation("DefaultAttributes");
 
                     b.Navigation("Devices");
+
+                    b.Navigation("Dictionaries");
                 });
 
             modelBuilder.Entity("IoTSharp.Data.Tenant", b =>

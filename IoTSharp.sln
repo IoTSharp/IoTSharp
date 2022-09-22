@@ -10,6 +10,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "1.Solution Items", "1.Solut
 		buildimage.cmd = buildimage.cmd
 		buildimageqhse.cmd = buildimageqhse.cmd
 		buildimageuixe.cmd = buildimageuixe.cmd
+		.config\dotnet-tools.json = .config\dotnet-tools.json
 		.github\FUNDING.yml = .github\FUNDING.yml
 		LICENSE = LICENSE
 		README.md = README.md
@@ -91,9 +92,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IoTSharp.Data.ClickHouse", 
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IoTSharp.EventBus", "IoTSharp.EventBus\IoTSharp.EventBus.csproj", "{03819A42-0429-497A-AF9F-0A63333AB0BC}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IoTSharp.EventBus.CAP", "IoTSharp.EventBus.CAP\IoTSharp.EventBus.CAP.csproj", "{5707AC04-7B81-4001-AAFE-03008CD86497}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IoTSharp.EventBus.CAP", "IoTSharp.EventBus.CAP\IoTSharp.EventBus.CAP.csproj", "{5707AC04-7B81-4001-AAFE-03008CD86497}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IoTSharp.EventBus.Shashlik", "IoTSharp.EventBus.Shashlik\IoTSharp.EventBus.Shashlik.csproj", "{76F25FB1-F4D4-4C06-B288-BCFE39CFB567}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IoTSharp.EventBus.Shashlik", "IoTSharp.EventBus.Shashlik\IoTSharp.EventBus.Shashlik.csproj", "{76F25FB1-F4D4-4C06-B288-BCFE39CFB567}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

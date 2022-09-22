@@ -1469,6 +1469,15 @@ namespace IoTSharp.Migrations
                     b.Property<string>("Description")
                         .HasColumnType("text");
 
+                    b.Property<string>("GatewayConfiguration")
+                        .HasColumnType("text");
+
+                    b.Property<int>("GatewayType")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Icon")
+                        .HasColumnType("text");
+
                     b.Property<string>("Name")
                         .HasColumnType("text");
 
@@ -1482,6 +1491,91 @@ namespace IoTSharp.Migrations
                     b.HasIndex("TenantId");
 
                     b.ToTable("Produces");
+                });
+
+            modelBuilder.Entity("IoTSharp.Data.ProduceDictionary", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid?>("Customer")
+                        .HasColumnType("uuid");
+
+                    b.Property<int>("DataType")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("DefaultValue")
+                        .HasColumnType("text");
+
+                    b.Property<bool>("Display")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("DisplayName")
+                        .HasColumnType("text");
+
+                    b.Property<string>("KeyDesc")
+                        .HasColumnType("text");
+
+                    b.Property<string>("KeyName")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Place0")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Place1")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Place2")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Place3")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Place4")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Place5")
+                        .HasColumnType("text");
+
+                    b.Property<string>("PlaceOrder0")
+                        .HasColumnType("text");
+
+                    b.Property<string>("PlaceOrder1")
+                        .HasColumnType("text");
+
+                    b.Property<string>("PlaceOrder2")
+                        .HasColumnType("text");
+
+                    b.Property<string>("PlaceOrder3")
+                        .HasColumnType("text");
+
+                    b.Property<string>("PlaceOrder4")
+                        .HasColumnType("text");
+
+                    b.Property<string>("PlaceOrder5")
+                        .HasColumnType("text");
+
+                    b.Property<Guid?>("ProduceId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Tag")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Unit")
+                        .HasColumnType("text");
+
+                    b.Property<bool>("UnitConvert")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("UnitExpression")
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ProduceId");
+
+                    b.ToTable("ProduceDictionaries");
                 });
 
             modelBuilder.Entity("IoTSharp.Data.RefreshToken", b =>
@@ -2349,6 +2443,13 @@ namespace IoTSharp.Migrations
                     b.Navigation("Tenant");
                 });
 
+            modelBuilder.Entity("IoTSharp.Data.ProduceDictionary", b =>
+                {
+                    b.HasOne("IoTSharp.Data.Produce", null)
+                        .WithMany("Dictionaries")
+                        .HasForeignKey("ProduceId");
+                });
+
             modelBuilder.Entity("IoTSharp.Data.RefreshToken", b =>
                 {
                     b.HasOne("Microsoft.AspNetCore.Identity.IdentityUser", "User")
@@ -2514,6 +2615,8 @@ namespace IoTSharp.Migrations
                     b.Navigation("DefaultAttributes");
 
                     b.Navigation("Devices");
+
+                    b.Navigation("Dictionaries");
                 });
 
             modelBuilder.Entity("IoTSharp.Data.Tenant", b =>
