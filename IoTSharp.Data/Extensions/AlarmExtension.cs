@@ -95,7 +95,7 @@ namespace IoTSharp.Data.Extensions
                 {
                     var old = isone.First();
                     old.AlarmDetail = alarm.AlarmDetail;
-                    if ( old.Serverity != dto.Serverity)
+                    if ( old.Serverity != dto.Serverity && dto.Serverity== ServerityLevel.NoChange)
                     {
                         if (old.Serverity== ServerityLevel.Indeterminate && dto.Serverity!= ServerityLevel.Indeterminate)
                         {

@@ -267,6 +267,7 @@ namespace IoTSharp.Contracts
     [JsonConverter(typeof(StringEnumConverter))]
     public enum ServerityLevel
     {
+        NoChange=-1,
         /// <summary>
         /// 不确定
         /// </summary>
