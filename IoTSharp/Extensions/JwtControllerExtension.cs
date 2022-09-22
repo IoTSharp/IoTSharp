@@ -31,5 +31,21 @@ namespace IoTSharp.Extensions
                 Comstomer =@this.User.GetCustomerId()
             };
         }
+        public static string GetStorageRoot(this ControllerBase @this)
+        {
+            return $"/{@this.User.GetTenantId()}/{@this.User.GetCustomerId()}/";
+        }
+        public static string GetStorageRoot(this ControllerBase @this,Produce produce)
+        {
+            return $"/{@this.User.GetTenantId()}/{@this.User.GetCustomerId()}/{produce.Id}";
+        }
+        public static string GetStorageRoot(this ControllerBase @this, Device device)
+        {
+            return $"/{@this.User.GetTenantId()}/{@this.User.GetCustomerId()}/{device.Id}";
+        }
+        public static string GetStorageRoot(this ControllerBase @this, Gateway device)
+        {
+            return $"/{@this.User.GetTenantId()}/{@this.User.GetCustomerId()}/{device.Id}";
+        }
     }
 }

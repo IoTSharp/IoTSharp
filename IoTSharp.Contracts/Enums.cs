@@ -138,6 +138,16 @@ namespace IoTSharp.Contracts
         Device = 0,
         Gateway = 1
     }
+    public enum GatewayType
+    {
+        Unknow=0,
+        Customize,
+        Modbus,
+        Bacnet,
+        OPC_UA,
+        CanOpen,
+    }
+
     [System.Text.Json.Serialization.JsonConverter(typeof(System.Text.Json.Serialization.JsonStringEnumConverter))]
     [JsonConverter(typeof(StringEnumConverter))]
     public enum CoApRes

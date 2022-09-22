@@ -19,13 +19,13 @@ namespace IoTSharp.Controllers
 {
     [Route("api/[controller]/[action]")]
     [ApiController]
-    public class PrducesController : ControllerBase
+    public class ProducesController : ControllerBase
     {
 
         private readonly ApplicationDbContext _context;
         private readonly ILogger _logger;
 
-        public PrducesController(ApplicationDbContext context, ILogger<PrducesController> logger)
+        public ProducesController(ApplicationDbContext context, ILogger<ProducesController> logger)
         {
             _context = context;
             _logger = logger;

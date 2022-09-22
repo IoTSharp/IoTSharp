@@ -100,6 +100,8 @@ namespace IoTSharp.Data
         public DbSet<Produce>  Produces { get; set; }
 
         public DbSet<ProduceData>  ProduceDatas { get; set; }
+
+        public DbSet<ProduceDictionary> ProduceDictionaries { get; set; }
     }
 
 }
