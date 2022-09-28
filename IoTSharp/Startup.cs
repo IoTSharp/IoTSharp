@@ -40,6 +40,8 @@ using IoTSharp.EventBus.Shashlik;
 using Microsoft.EntityFrameworkCore;
 using ShardingCore;
 using Storage.Net;
+using ShardingCore.TableExists.Abstractions;
+using ShardingCore.TableExists;
 
 namespace IoTSharp
 {
@@ -223,7 +225,8 @@ namespace IoTSharp
                 case TelemetryStorage.Sharding:
                     ShardingByDateMode settingsShardingByDateMode = settings.ShardingByDateMode;
                      var   sbt =  DateTime.Now.Subtract( settings.ShardingBeginTime);
-                    services.AddShardingDbContext<ShardingDbContext>().UseRouteConfig(o =>
+                    var _sharding = services.AddShardingDbContext<ShardingDbContext>();
+                    _sharding.UseRouteConfig(o =>
                     {
                         switch (settingsShardingByDateMode)
                         {
@@ -237,7 +240,7 @@ namespace IoTSharp
                                 break;
                             case ShardingByDateMode.PerDay:
                                 if (sbt.TotalDays < 1) throw new ArgumentException($"按日分表时间至少大于当前时间一天。");
-                                o.AddShardingTableRoute<TelemetryDataDayRoute>(); 
+                                o.AddShardingTableRoute<TelemetryDataDayRoute>();
                                 break;
                             case ShardingByDateMode.PerMonth:
                                 if (sbt.TotalDays < DateTime.Now.Subtract(DateTime.Now.Date.AddDays(-DateTime.Now.Day)).TotalDays) throw new ArgumentException($"按月分表时间至少大于当前时间一个月。");
@@ -249,11 +252,12 @@ namespace IoTSharp
                                 break;
                             default: throw new InvalidOperationException($"unknown sharding mode:{settingsShardingByDateMode}");
                         }
-                    }).UseConfig(o =>
+                    });
+                    _sharding.UseConfig(o =>
                     {
                         o.ThrowIfQueryRouteNotMatch = false;
-                        o.UseShellDbContextConfigure(builder=>builder.UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking));
-                        o.AddDefaultDataSource("ds0",Configuration.GetConnectionString("TelemetryStorage"));
+                        o.UseShellDbContextConfigure(builder => builder.UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking));
+                        o.AddDefaultDataSource("ds0", Configuration.GetConnectionString("TelemetryStorage"));
                         switch (settings.DataBase)
                         {
                             case DataBaseType.MySql:
@@ -277,7 +281,29 @@ namespace IoTSharp
                                 break;
 
                         }
-                    }).AddShardingCore();
+                    });
+                    _sharding.AddShardingCore();
+                    switch (settings.DataBase)
+                    {
+                        case DataBaseType.MySql:
+                            _sharding.ReplaceService<ITableEnsureManager, MySqlTableEnsureManager>();
+                            break;
+
+                        case DataBaseType.SqlServer:
+                            _sharding.ReplaceService<ITableEnsureManager, SqlServerTableEnsureManager>();
+                            break;
+                        case DataBaseType.Oracle:
+                            break;
+                        case DataBaseType.Sqlite:
+                            _sharding.ReplaceService<ITableEnsureManager, SqliteTableEnsureManager>();
+                            break;
+                        case DataBaseType.PostgreSql:
+                            _sharding.ReplaceService<ITableEnsureManager, GuessTableEnsureManager>();
+                            break;
+                        default:
+                            break;
+
+                    }
                     services.AddSingleton<IStorage, ShardingStorage>();
                     break;
 
