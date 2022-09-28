@@ -379,6 +379,12 @@ namespace IoTSharp
                 // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
                 app.UseHsts();
             }
+            //添加定时任务创建表
+            var settings = Configuration.Get<AppSettings>();
+            if (settings.TelemetryStorage == TelemetryStorage.Sharding)
+            {
+                app.ApplicationServices.UseAutoShardingCreate();
+            }
             app.UseRouting();
             app.UseCors(option => option
                 .AllowAnyOrigin()
