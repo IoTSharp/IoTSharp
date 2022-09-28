@@ -4,7 +4,6 @@ using IoTSharp.Contracts;
 using IoTSharp.Data;
 using IoTSharp.Data.Extensions;
 using IoTSharp.Extensions;
-using IoTSharp.HealthChecks.Taos;
 using IoTSharp.Services;
 using IoTSharp.X509Extensions;
 using Microsoft.AspNetCore.Builder;

@@ -22,7 +22,6 @@ using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
 using MQTTnet.AspNetCore;
 using Newtonsoft.Json.Serialization;
-using PinusDB.Data;
 using Quartz;
 using System;
 using System.Linq;
@@ -42,6 +41,7 @@ using ShardingCore;
 using Storage.Net;
 using ShardingCore.TableExists.Abstractions;
 using ShardingCore.TableExists;
+using IoTSharp.Data.TimeSeries;
 
 namespace IoTSharp
 {
@@ -219,142 +219,38 @@ namespace IoTSharp
                         break;
                 }
             });
-            string _hc_telemetryStorage = $"{nameof(TelemetryStorage)}-{Enum.GetName(settings.TelemetryStorage)}";
-            switch (settings.TelemetryStorage)
+            services.AddTelemetryStorage( settings, healthChecks,o=>
             {
-                case TelemetryStorage.Sharding:
-                    ShardingByDateMode settingsShardingByDateMode = settings.ShardingByDateMode;
-                     var   sbt =  DateTime.Now.Subtract( settings.ShardingBeginTime);
-                    var _sharding = services.AddShardingDbContext<ShardingDbContext>();
-                    _sharding.UseRouteConfig(o =>
-                    {
-                        switch (settingsShardingByDateMode)
-                        {
-                            case ShardingByDateMode.PerMinute:
-                                if (sbt.TotalMinutes < 5) throw new ArgumentException($"按分钟分表时间至少大于当前时间五分钟。");
-                                o.AddShardingTableRoute<TelemetryDataMinuteRoute>();
-                                break;
-                            case ShardingByDateMode.PerHour:
-                                if (sbt.TotalHours < 1) throw new ArgumentException($"按小时分表时间至少大于当前时间一小时。");
-                                o.AddShardingTableRoute<TelemetryDataHourRoute>();
-                                break;
-                            case ShardingByDateMode.PerDay:
-                                if (sbt.TotalDays < 1) throw new ArgumentException($"按日分表时间至少大于当前时间一天。");
-                                o.AddShardingTableRoute<TelemetryDataDayRoute>();
-                                break;
-                            case ShardingByDateMode.PerMonth:
-                                if (sbt.TotalDays < DateTime.Now.Subtract(DateTime.Now.Date.AddDays(-DateTime.Now.Day)).TotalDays) throw new ArgumentException($"按月分表时间至少大于当前时间一个月。");
-                                o.AddShardingTableRoute<TelemetryDataMonthRoute>();
-                                break;
-                            case ShardingByDateMode.PerYear:
-                                if (sbt.TotalDays < DateTime.Now.Subtract(DateTime.Now.Date.AddMonths(-DateTime.Now.Month)).TotalDays) throw new ArgumentException($"按月分表时间至少大于当前时间一个月。");
-                                o.AddShardingTableRoute<TelemetryDataYearRoute>();
-                                break;
-                            default: throw new InvalidOperationException($"unknown sharding mode:{settingsShardingByDateMode}");
-                        }
-                    });
-                    _sharding.UseConfig(o =>
-                    {
-                        o.ThrowIfQueryRouteNotMatch = false;
-                        o.UseShellDbContextConfigure(builder => builder.UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking));
-                        o.AddDefaultDataSource("ds0", Configuration.GetConnectionString("TelemetryStorage"));
-                        switch (settings.DataBase)
-                        {
-                            case DataBaseType.MySql:
-                                o.UseMySqlToSharding();
-                                break;
+                switch (settings.DataBase)
+                {
+                    case DataBaseType.MySql:
+                        o.UseMySqlToSharding();
+                        break;
 
-                            case DataBaseType.SqlServer:
-                                o.UseSqlServerToSharding();
-                                break;
+                    case DataBaseType.SqlServer:
+                        o.UseSqlServerToSharding();
+                        break;
 
-                            case DataBaseType.Oracle:
-                                o.UseOracleToSharding();
-                                break;
+                    case DataBaseType.Oracle:
+                        o.UseOracleToSharding();
+                        break;
 
-                            case DataBaseType.Sqlite:
-                                o.UseSQLiteToSharding();
-                                break;
-                            case DataBaseType.PostgreSql:
-                            default:
-                                o.UseNpgsqlToSharding();
-                                break;
+                    case DataBaseType.Sqlite:
+                        o.UseSQLiteToSharding();
+                        break;
+                    case DataBaseType.PostgreSql:
+                    default:
+                        o.UseNpgsqlToSharding();
+                        break;
 
-                        }
-                    });
-                    _sharding.AddShardingCore();
-                    switch (settings.DataBase)
-                    {
-                        case DataBaseType.MySql:
-                            _sharding.ReplaceService<ITableEnsureManager, MySqlTableEnsureManager>();
-                            break;
-
-                        case DataBaseType.SqlServer:
-                            _sharding.ReplaceService<ITableEnsureManager, SqlServerTableEnsureManager>();
-                            break;
-                        case DataBaseType.Oracle:
-                            break;
-                        case DataBaseType.Sqlite:
-                            _sharding.ReplaceService<ITableEnsureManager, SqliteTableEnsureManager>();
-                            break;
-                        case DataBaseType.PostgreSql:
-                            _sharding.ReplaceService<ITableEnsureManager, GuessTableEnsureManager>();
-                            break;
-                        default:
-                            break;
-
-                    }
-                    services.AddSingleton<IStorage, ShardingStorage>();
-                    break;
-
-                case TelemetryStorage.Taos:
-                    services.AddSingleton<IStorage, TaosStorage>();
-                    services.AddObjectPool(() => new TaosConnection(settings.ConnectionStrings["TelemetryStorage"]));
-                    healthChecks.AddTDengine(Configuration.GetConnectionString("TelemetryStorage"), name: _hc_telemetryStorage);
-                    break;
-
-                case TelemetryStorage.InfluxDB:
-                    //https://github.com/julian-fh/influxdb-setup
-                    services.AddSingleton<IStorage, InfluxDBStorage>();
-                    //"TelemetryStorage": "http://localhost:8086/?org=iotsharp&bucket=iotsharp-bucket&token=iotsharp-token"
-                    services.AddObjectPool(() => InfluxDBClientFactory.Create(Configuration.GetConnectionString("TelemetryStorage")));
-                    healthChecks.AddInfluxDB(Configuration.GetConnectionString("TelemetryStorage"), name: _hc_telemetryStorage);
-                    break;
-
-                case TelemetryStorage.PinusDB:
-                    services.AddSingleton<IStorage, PinusDBStorage>();
-                    services.AddObjectPool(() =>
-                    {
-                        var cnt = new PinusConnection(settings.ConnectionStrings["TelemetryStorage"]);
-                        cnt.Open();
-                        return cnt;
-                    });
-                    healthChecks.AddPinusDB(Configuration.GetConnectionString("TelemetryStorage"), name: _hc_telemetryStorage);
-                    break;
-
-                case TelemetryStorage.TimescaleDB:
-                    services.AddSingleton<IStorage, TimescaleDBStorage>();
-                    break;
-                case TelemetryStorage.IoTDB:
-                    var str = Configuration.GetConnectionString("TelemetryStorage");
-                    services.AddSingleton<IStorage, IoTDBStorage>();
-                    services.AddSingleton(s =>
-                    {
-                        return new Apache.IoTDB.Data.IoTDBConnection(str);
-                    });
-                    healthChecks.AddIoTDB(str);
-                    break;
-                case TelemetryStorage.SingleTable:
-                default:
-                    services.AddSingleton<IStorage, EFStorage>();
-                    break;
-            }
-           var zmq=  Configuration.GetSection(nameof(ZMQOption)).Get<ZMQOption>();
+                }
+            });
+            var zmq = Configuration.GetSection(nameof(ZMQOption)).Get<ZMQOption>();
             if (zmq != null)
             {
                 services.AddHostedZeroMQ(cfg => cfg = zmq);
             }
-            services.AddEventBus( opt =>
+            services.AddEventBus(opt =>
             {
                 opt.AppSettings = settings;
                 opt.EventBusStore = Configuration.GetConnectionString("EventBusStore");
@@ -384,7 +280,7 @@ namespace IoTSharp
                 options.SerializerSettings.ContractResolver = new CamelCasePropertyNamesContractResolver();
             });
             services.AddRazorPages();
-            
+
 
             services.AddScriptEngines(Configuration.GetSection("EngineSetting"));
             services.AddTransient<FlowRuleProcessor>();
@@ -396,7 +292,9 @@ namespace IoTSharp
             services.AddTransient<RawDataGateway>();
         }
 
-    
+      
+
+
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env, ISchedulerFactory factory)

@@ -96,6 +96,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IoTSharp.EventBus.CAP", "Io
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IoTSharp.EventBus.Shashlik", "IoTSharp.EventBus.Shashlik\IoTSharp.EventBus.Shashlik.csproj", "{76F25FB1-F4D4-4C06-B288-BCFE39CFB567}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IoTSharp.Extensions.DependencyInjection", "IoTSharp.Extensions.DependencyInjection\IoTSharp.Extensions.DependencyInjection.csproj", "{A8C6D097-3EAD-475A-9E65-F0904C44425B}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -206,6 +208,10 @@ Global
 		{76F25FB1-F4D4-4C06-B288-BCFE39CFB567}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{76F25FB1-F4D4-4C06-B288-BCFE39CFB567}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{76F25FB1-F4D4-4C06-B288-BCFE39CFB567}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A8C6D097-3EAD-475A-9E65-F0904C44425B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A8C6D097-3EAD-475A-9E65-F0904C44425B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A8C6D097-3EAD-475A-9E65-F0904C44425B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A8C6D097-3EAD-475A-9E65-F0904C44425B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
