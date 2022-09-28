@@ -12,7 +12,6 @@
 	<ItemGroup>
 		<PackageReference Include="AspNetCore.HealthChecks.Oracle" Version="6.0.3" />
 		<PackageReference Include="AspNetCore.HealthChecks.UI.InMemory.Storage" Version="6.0.5" />
-		<PackageReference Include="EFCore.Sharding.Oracle" Version="6.0.7" />
 		<PackageReference Include="Oracle.EntityFrameworkCore" Version="6.21.61" />
 	</ItemGroup>
 

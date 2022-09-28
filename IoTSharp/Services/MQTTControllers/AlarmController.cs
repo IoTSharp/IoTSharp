@@ -1,5 +1,4 @@
 ﻿using IoTSharp.EventBus;
-using Dynamitey.DynamicObjects;
 using EasyCaching.Core;
 using IoTSharp.Contracts;
 using IoTSharp.Data;

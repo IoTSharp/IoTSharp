@@ -6,7 +6,6 @@ using IoTSharp.Extensions;
 using IoTSharp.FlowRuleEngine;
 using IoTSharp.Models;
 using IoTSharp.Models.Rule;
-using LinqKit;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -21,6 +20,7 @@ using System.Linq;
 using System.Linq.Dynamic.Core;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
+using ShardingCore.Extensions;
 
 namespace IoTSharp.Controllers
 {

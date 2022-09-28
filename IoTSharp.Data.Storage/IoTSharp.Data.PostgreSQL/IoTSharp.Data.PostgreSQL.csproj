@@ -12,7 +12,6 @@
 	<ItemGroup>
 		<PackageReference Include="AspNetCore.HealthChecks.NpgSql" Version="6.0.2" />
 		<PackageReference Include="AspNetCore.HealthChecks.UI.PostgreSQL.Storage" Version="6.0.4" />
-		<PackageReference Include="EFCore.Sharding.PostgreSql" Version="6.0.7" />
 	</ItemGroup>
 
 	<ItemGroup>

@@ -1,5 +1,4 @@
-﻿using Dynamitey;
-using IoTSharp.Contracts;
+﻿using IoTSharp.Contracts;
 using IoTSharp.Data;
 using System;
 using System.Collections;
