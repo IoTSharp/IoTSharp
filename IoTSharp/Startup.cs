@@ -1,25 +1,20 @@
 ﻿using IoTSharp.EventBus;
 using EasyCaching.Core.Configurations;
-using EFCore.Sharding;
 using HealthChecks.UI.Client;
 using InfluxDB.Client;
 using IoTSharp.Controllers.Models;
 using IoTSharp.Data;
-using IoTSharp.Data.Sqlite;
 using IoTSharp.FlowRuleEngine;
 using IoTSharp.Interpreter;
 using IoTSharp.Storage;
-using IoTSharp.X509Extensions;
 using Jdenticon.AspNetCore;
 using Jdenticon.Rendering;
 using IoTSharp.Data.Taos;
-using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -29,25 +24,21 @@ using MQTTnet.AspNetCore;
 using Newtonsoft.Json.Serialization;
 using PinusDB.Data;
 using Quartz;
-using RabbitMQ.Client;
-using Savorboard.CAP.InMemoryMessageQueue;
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using System.Security.Cryptography.X509Certificates;
 using System.Text;
-using Jdenticon;
 using IoTSharp.Gateways;
-using System.Collections.Specialized;
 using Microsoft.Extensions.ObjectPool;
 using MaiKeBing.HostedService.ZeroMQ;
 using IoTSharp.TaskActions;
-using Dynamitey;
 using IoTSharp.Contracts;
+using IoTSharp.Data.Shardings;
+using IoTSharp.Data.Shardings.Routes;
 using IoTSharp.EventBus.CAP;
 using IoTSharp.EventBus.Shashlik;
-using Storage.Net.Blobs;
+using Microsoft.EntityFrameworkCore;
+using ShardingCore;
 using Storage.Net;
 
 namespace IoTSharp
@@ -230,34 +221,47 @@ namespace IoTSharp
             switch (settings.TelemetryStorage)
             {
                 case TelemetryStorage.Sharding:
-
-                    services.AddEFCoreSharding(config =>
+                    ShardingByDateMode settingsShardingByDateMode = settings.ShardingByDateMode;
+                    services.AddShardingDbContext<ShardingDbContext>().UseRouteConfig(o =>
                     {
+                        switch (settingsShardingByDateMode)
+                        {
+                            case ShardingByDateMode.PerMinute : o.AddShardingTableRoute<TelemetryDataMinuteRoute>();break;
+                            case ShardingByDateMode.PerHour : o.AddShardingTableRoute<TelemetryDataHourRoute>();break;
+                            case ShardingByDateMode.PerDay : o.AddShardingTableRoute<TelemetryDataDayRoute>();break;
+                            case ShardingByDateMode.PerMonth : o.AddShardingTableRoute<TelemetryDataMonthRoute>();break;
+                            case ShardingByDateMode.PerYear : o.AddShardingTableRoute<TelemetryDataYearRoute>();break;
+                            default: throw new InvalidOperationException($"unknown sharding mode:{settingsShardingByDateMode}");
+                        }
+                    }).UseConfig(o =>
+                    {
+                        o.ThrowIfQueryRouteNotMatch = false;
+                        o.UseShellDbContextConfigure(builder=>builder.UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking));
+                        o.AddDefaultDataSource("ds0",Configuration.GetConnectionString("TelemetryStorage"));
                         switch (settings.DataBase)
                         {
                             case DataBaseType.MySql:
-                                config.UseMySqlToSharding(Configuration.GetConnectionString("TelemetryStorage"), settings.ShardingByDateMode);
+                                o.UseMySqlToSharding();
                                 break;
 
                             case DataBaseType.SqlServer:
-                                config.UseSqlServerToSharding(Configuration.GetConnectionString("TelemetryStorage"), settings.ShardingByDateMode);
+                                o.UseSqlServerToSharding();
                                 break;
 
                             case DataBaseType.Oracle:
-                                config.UseOracleToSharding(Configuration.GetConnectionString("TelemetryStorage"), settings.ShardingByDateMode);
+                                o.UseOracleToSharding();
                                 break;
 
                             case DataBaseType.Sqlite:
-                                config.UseSQLiteToSharding(Configuration.GetConnectionString("TelemetryStorage"), settings.ShardingByDateMode);
+                                o.UseSQLiteToSharding();
                                 break;
                             case DataBaseType.PostgreSql:
                             default:
-                                config.UseNpgsqlToSharding(Configuration.GetConnectionString("TelemetryStorage"), settings.ShardingByDateMode);
+                                o.UseNpgsqlToSharding();
                                 break;
 
                         }
-                        config.SetEntityAssemblies(new Assembly[] { typeof(TelemetryData).Assembly });
-                    });
+                    }).AddShardingCore();
                     services.AddSingleton<IStorage, ShardingStorage>();
                     break;
 

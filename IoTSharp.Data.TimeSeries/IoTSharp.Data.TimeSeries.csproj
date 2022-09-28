@@ -9,7 +9,7 @@
 
 		<PackageReference Include="Apache.IoTDB.Data" Version="0.13.0.8" />
 
-		<PackageReference Include="EFCore.Sharding" Version="6.0.7" />
+<!--		<PackageReference Include="EFCore.Sharding" Version="6.0.7" />-->
 
 		<PackageReference Include="hyjiacan.pinyin4net" Version="4.1.1" />
 

@@ -1,5 +1,4 @@
-﻿using EFCore.Sharding;
-using IoTSharp.Contracts;
+﻿using IoTSharp.Contracts;
 using IoTSharp.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
@@ -10,6 +9,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using IoTSharp.Data.Shardings;
 
 namespace IoTSharp.Storage
 {
@@ -92,10 +92,10 @@ namespace IoTSharp.Storage
                 {
                     using (var scope = _scopeFactor.CreateScope())
                     {
-                        using (var context = scope.ServiceProvider.GetService<IShardingDbAccessor>())
+                        using (var context = scope.ServiceProvider.GetRequiredService<ShardingDbContext>())
                         {
                             var lst = new List<TelemetryDataDto>();
-                            var kv = context.GetIShardingQueryable<TelemetryData>()
+                            var kv = context.Set<TelemetryData>()
                                 .Where(t => t.DeviceId == deviceId && t.DateTime >= begin && t.DateTime < end)
                                 .ToList().Select(t => new TelemetryDataDto() { DateTime = t.DateTime, KeyName = t.KeyName, Value = t.ToObject() });
                             if (!string.IsNullOrEmpty(keys))
@@ -128,7 +128,7 @@ namespace IoTSharp.Storage
             {
                 using var scope = _scopeFactor.CreateScope();
 
-                using (var db = scope.ServiceProvider.GetService<IShardingDbAccessor>())
+                using (var db = scope.ServiceProvider.GetRequiredService<ShardingDbContext>())
                 {
                     var lst = new List<TelemetryData>();
                     msg.MsgBody.ToList().ForEach(kp =>
@@ -141,8 +141,8 @@ namespace IoTSharp.Storage
                                              telemetries.Add(tdata);
                                          }
                                      });
-                    int ret = await db.InsertAsync(lst);
-                    _logger.LogInformation($"新增({msg.DeviceId})遥测数据{ret}");
+                    await db.AddAsync(lst);
+                    _logger.LogInformation($"新增({msg.DeviceId})遥测数据1");
                 }
             }
             catch (Exception ex)

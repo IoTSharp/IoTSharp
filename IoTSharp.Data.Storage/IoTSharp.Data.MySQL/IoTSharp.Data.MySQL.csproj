@@ -15,7 +15,6 @@
     <PackageReference Include="AspNetCore.HealthChecks.UI.MySql.Storage" Version="6.0.5" />
     <PackageReference Include="Microsoft.Extensions.Diagnostics.HealthChecks" Version="6.0.9" />
     <PackageReference Include="Pomelo.EntityFrameworkCore.MySql" Version="6.0.2" />
-	  <PackageReference Include="EFCore.Sharding.MySql" Version="6.0.7" />
   </ItemGroup>
 
   <ItemGroup>
