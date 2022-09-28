@@ -1,6 +1,10 @@
 using System;
 using System.Collections.Generic;
+using IoTSharp.Contracts;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 using ShardingCore.Core.EntityMetadatas;
+using ShardingCore.Core.ServiceProviders;
 using ShardingCore.Core.VirtualRoutes;
 using ShardingCore.VirtualRoutes.Abstractions;
 
@@ -8,6 +12,13 @@ namespace IoTSharp.Data.Shardings.Routes
 {
     public class TelemetryDataMinuteRoute:AbstractShardingTimeKeyDateTimeVirtualTableRoute<TelemetryData>
     {
+        private readonly AppSettings _setting;
+
+        public TelemetryDataMinuteRoute(IShardingProvider provider)
+        {
+            var options = provider.ApplicationServiceProvider.GetService<IOptions<AppSettings>>();
+            _setting = options.Value;
+        }
         public override void Configure(EntityMetadataTableBuilder<TelemetryData> builder)
         {
             builder.ShardingProperty(o => o.DateTime);
@@ -63,9 +74,7 @@ namespace IoTSharp.Data.Shardings.Routes
 
         public DateTime GetBeginTime()
         {
-            //原则上不应该使用datetime.now但是我看你之前的程序是这么写的如果是now那么每次启动都算是开始时间之前的表可能会访问不到
-            //因为访问只会访问begintime之后的时间
-            return DateTime.Now;
+            return _setting.ShardingBeginTime;
         }
 
         public override bool AutoCreateTableByTime()
