@@ -8,6 +8,8 @@ using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Linq;
 using ShardingCore.Core.ShardingConfigurations;
+using Microsoft.Data.Sqlite;
+using System.IO;
 
 namespace Microsoft.Extensions.DependencyInjection
 {
@@ -17,6 +19,10 @@ namespace Microsoft.Extensions.DependencyInjection
 
         public static void ConfigureSqlite(this IServiceCollection services, string connectionString, int poolSize, IHealthChecksBuilder checksBuilder, HealthChecksUIBuilder healthChecksUI)
         {
+            SqliteConnectionStringBuilder builder = new SqliteConnectionStringBuilder(connectionString);
+            var fi = new FileInfo(builder.DataSource);
+            if (!fi.Directory.Exists) fi.Directory.Create();
+
             services.AddEntityFrameworkSqlite();
             services.AddSingleton<IDataBaseModelBuilderOptions>( c=> new SqliteModelBuilderOptions());
             services.AddDbContextPool<ApplicationDbContext>(builder =>
@@ -26,7 +32,7 @@ namespace Microsoft.Extensions.DependencyInjection
             }
      , poolSize);
             checksBuilder.AddSqlite(connectionString, name: "IoTSharp.Data.Sqlite");
-            healthChecksUI.AddSqliteStorage("Data Source=health_checks.db");
+            healthChecksUI.AddSqliteStorage($"Data Source={fi.DirectoryName}{Path.DirectorySeparatorChar}health_checks.db");
 
         }
 

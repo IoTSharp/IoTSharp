@@ -356,7 +356,7 @@ namespace IoTSharp.Controllers
         [ProducesDefaultResponseType]
         public async Task<ApiResult<List<AttributeDataDto>>> GetAttributeLatest(Guid deviceId)
         {
-            Device dev = Found(deviceId);
+            Device dev =await FoundAsync(deviceId);
             if (dev == null)
             {
                 return new ApiResult<List<AttributeDataDto>>(ApiCode.CantFindObject, "Device's Identity not found", null);
@@ -394,7 +394,7 @@ namespace IoTSharp.Controllers
         [ProducesDefaultResponseType]
         public async Task<ApiResult<List<AttributeDataDto>>> GetAttributeLatest(Guid deviceId, string keys)
         {
-            Device dev = Found(deviceId);
+            Device dev = await FoundAsync(deviceId);
             if (dev == null)
             {
                 return new ApiResult<List<AttributeDataDto>>(ApiCode.NotFoundDevice, "Device's  not found", null);
@@ -407,23 +407,20 @@ namespace IoTSharp.Controllers
             }
         }
 
-        private Device Found(Guid deviceId)
-        {
-            return FoundAsync(deviceId).GetAwaiter().GetResult();
-        }
+      
 
         private async Task<Device> FoundAsync(Guid deviceId)
         {
             Device dev = null;
             if (User.IsInRole(nameof(UserRole.TenantAdmin)))
             {
-                var tid = User.Claims.First(c => c.Type == IoTSharpClaimTypes.Tenant);
-                dev = await _context.Device.Include(d => d.Tenant).FirstOrDefaultAsync(d => d.Id == deviceId && d.Tenant.Id.ToString() == tid.Value && d.Status > -1);
+                var tid =Guid.Parse( User.Claims.First(c => c.Type == IoTSharpClaimTypes.Tenant).Value);
+                dev = await _context.Device.Include(d => d.Tenant).FirstOrDefaultAsync(d => d.Id == deviceId && d.Tenant.Id == tid && d.Status > -1);
             }
             else if (User.IsInRole(nameof(UserRole.NormalUser)))
             {
-                var cid = User.Claims.First(c => c.Type == IoTSharpClaimTypes.Customer);
-                dev = await _context.Device.Include(d => d.Customer).FirstOrDefaultAsync(d => d.Id == deviceId && d.Customer.Id.ToString() == cid.Value && d.Status > -1);
+                var cid = Guid.Parse( User.Claims.First(c => c.Type == IoTSharpClaimTypes.Customer).Value);
+                dev = await _context.Device.Include(d => d.Customer).FirstOrDefaultAsync(d => d.Id == deviceId && d.Customer.Id == cid && d.Status > -1);
             }
             return dev;
         }
@@ -440,7 +437,7 @@ namespace IoTSharp.Controllers
         [ProducesDefaultResponseType]
         public async Task<ApiResult<List<TelemetryDataDto>>> GetTelemetryLatest(Guid deviceId)
         {
-            Device dev = Found(deviceId);
+            Device dev = await FoundAsync(deviceId);
             if (dev == null)
             {
                 return new ApiResult<List<TelemetryDataDto>>(ApiCode.NotFoundDeviceIdentity, "Device's Identity not found", null);
@@ -472,7 +469,7 @@ namespace IoTSharp.Controllers
         [ProducesDefaultResponseType]
         public async Task<ApiResult<List<TelemetryDataDto>>> GetTelemetryLatest(Guid deviceId, string keys)
         {
-            Device dev = Found(deviceId);
+            Device dev = await FoundAsync(deviceId);
             if (dev == null)
             {
                 return new ApiResult<List<TelemetryDataDto>>(ApiCode.NotFoundDeviceIdentity, "Device's Identity not found", null);
@@ -497,7 +494,7 @@ namespace IoTSharp.Controllers
         [ProducesDefaultResponseType]
         public async Task<ApiResult<List<TelemetryDataDto>>> GetTelemetryData(Guid deviceId, string keys, DateTime begin)
         {
-            Device dev = Found(deviceId);
+            Device dev = await FoundAsync(deviceId);
             if (dev == null)
             {
                 return new ApiResult<List<TelemetryDataDto>>(ApiCode.NotFoundDeviceIdentity, "Device's Identity not found", null);
@@ -524,7 +521,7 @@ namespace IoTSharp.Controllers
         [ProducesDefaultResponseType]
         public async Task<ApiResult<List<TelemetryDataDto>>> GetTelemetryData(Guid deviceId, string keys, DateTime begin, DateTime end)
         {
-            Device dev = Found(deviceId);
+            Device dev = await FoundAsync(deviceId);
             if (dev == null)
             {
                 return new ApiResult<List<TelemetryDataDto>>(ApiCode.NotFoundDeviceIdentity, "Device's Identity not found", null);
@@ -556,7 +553,7 @@ namespace IoTSharp.Controllers
         [ProducesDefaultResponseType]
         public async Task<ApiResult<List<TelemetryDataDto>>> GetTelemetryData(Guid deviceId, TelemetryDataQueryDto queryDto)
         {
-            Device dev = Found(deviceId);
+            Device dev = await FoundAsync(deviceId);
             if (dev == null)
             {
                 return new ApiResult<List<TelemetryDataDto>>(ApiCode.NotFoundDeviceIdentity, "Device's Identity not found", null);
@@ -744,7 +741,7 @@ namespace IoTSharp.Controllers
         [ProducesDefaultResponseType]
         public async Task<ApiResult<bool>> DeleteDevice(Guid id)
         {
-            Device device = Found(id);
+            Device device = await FoundAsync(id);
 
             if (device == null)
             {
