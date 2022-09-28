@@ -18,7 +18,7 @@ namespace Microsoft.Extensions.DependencyInjection
             services.AddSingleton<IDataBaseModelBuilderOptions>(c => new CassandraModelBuilderOptions());
             services.AddDbContextPool<ApplicationDbContext>(builder =>
             {
-                builder.UseCassandra(connectionString, "", s => s.MigrationsAssembly("IoTSharp.Data.Cassandra"));
+                builder.UseCassandra(connectionString, "", s => s.MigrationsAssembly("IoTSharp.Data.Cassandra").UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery));
                 builder.UseInternalServiceProvider(services.BuildServiceProvider());
             }
      , poolSize);

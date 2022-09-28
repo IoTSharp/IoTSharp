@@ -20,7 +20,7 @@ namespace Microsoft.Extensions.DependencyInjection
             services.AddSingleton<IDataBaseModelBuilderOptions>( c=> new NpgsqlModelBuilderOptions());
             services.AddDbContextPool<ApplicationDbContext>(builder =>
             {
-                builder.UseNpgsql(connectionString, s =>  s.MigrationsAssembly("IoTSharp.Data.PostgreSQL"));
+                builder.UseNpgsql(connectionString, s =>  s.MigrationsAssembly("IoTSharp.Data.PostgreSQL").UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery));
                 builder.UseInternalServiceProvider(services.BuildServiceProvider());
             }
      , poolSize);

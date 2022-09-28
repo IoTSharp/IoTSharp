@@ -3,6 +3,7 @@ using ClickHouse.EntityFrameworkCore.Extensions;
 using HealthChecks.Clickhouse.DependencyInjection;
 using IoTSharp.Data;
 using IoTSharp.Data.ClickHouse;
+using Microsoft.EntityFrameworkCore;
 
 namespace Microsoft.Extensions.DependencyInjection
 {
@@ -14,7 +15,7 @@ namespace Microsoft.Extensions.DependencyInjection
             services.AddSingleton<IDataBaseModelBuilderOptions>(c => new ClickHouseModelBuilderOptions());
             services.AddDbContextPool<ApplicationDbContext>(builder =>
             {
-                builder.UseClickHouse(connectionString, s => s.MigrationsAssembly("IoTSharp.Data.ClickHouse"));
+                builder.UseClickHouse(connectionString, s => s.MigrationsAssembly("IoTSharp.Data.ClickHouse").UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery));
                 builder.UseInternalServiceProvider(services.BuildServiceProvider());
             }, poolSize);
             checksBuilder.AddClickHouseHealthCheck(connectionString, name: "IoTSharp.Data.ClickHouse");

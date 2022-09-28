@@ -30,7 +30,7 @@ namespace Microsoft.Extensions.DependencyInjection
             services.AddDbContextPool<ApplicationDbContext>(builder =>
             {
                 builder.UseInternalServiceProvider(services.BuildServiceProvider());
-                builder.UseMySql(connectionString, serverVersion, s => s.MigrationsAssembly("IoTSharp.Data.MySQL"));
+                builder.UseMySql(connectionString, serverVersion, s => s.MigrationsAssembly("IoTSharp.Data.MySQL").UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery));
             }
           , poolSize );
            

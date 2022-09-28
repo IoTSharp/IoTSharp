@@ -20,7 +20,7 @@ namespace Microsoft.Extensions.DependencyInjection
             services.AddSingleton<IDataBaseModelBuilderOptions>( c=> new OracleModelBuilderOptions());
             services.AddDbContextPool<ApplicationDbContext>(builder =>
             {
-                builder.UseOracle(connectionString, s =>   s.MigrationsAssembly("IoTSharp.Data.Oracle"));
+                builder.UseOracle(connectionString, s =>   s.MigrationsAssembly("IoTSharp.Data.Oracle").UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery));
                 builder.UseInternalServiceProvider(services.BuildServiceProvider());
             }
      , poolSize);

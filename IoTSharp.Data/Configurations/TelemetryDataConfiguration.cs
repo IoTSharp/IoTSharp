@@ -8,9 +8,7 @@ using System.Threading.Tasks;
 namespace IoTSharp.Data.Configurations
 {
 
-    /// <summary>
-    /// https://github.com/Coldairarrow/EFCore.Sharding/issues/60
-    /// </summary>
+ 
     public class TelemetryDataConfiguration : IEntityTypeConfiguration<TelemetryData>
     {
         public void Configure(EntityTypeBuilder<TelemetryData> builder)
