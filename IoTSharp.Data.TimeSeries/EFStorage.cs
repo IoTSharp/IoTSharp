@@ -69,7 +69,8 @@ namespace IoTSharp.Storage
             {
                 lst = await kv.AsNoTracking().ToListAsync();
             }
-            return lst;
+           var   result = AggregateDataHelpers.AggregateData(lst, begin, end, every, aggregate);
+            return result;
         }
 
         public virtual async Task<(bool result, List<TelemetryData> telemetries)>  StoreTelemetryAsync(PlayloadData msg)
