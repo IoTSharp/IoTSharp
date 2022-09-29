@@ -257,15 +257,18 @@ namespace IoTSharp.Storage
                 var next = query.Next();
                 var values = next.Values;
                 var time = next.GetDateTime();
-
-                TelemetryDataDto telemetry = new TelemetryDataDto()
+                if (values != null && values.Count>=3)
                 {
-                    DateTime = next.GetDateTime(),
-                    KeyName = values[0].ToString().Replace(@$"{device}.", ""),
-                    Value = GetIotSharpValue(values[1], values[2].ToString()),
-                    DataType = GetIoTSharpDataType(values[2].ToString()),
-                };
-                dt.Add(telemetry);
+                    TelemetryDataDto telemetry = new TelemetryDataDto()
+                    {
+                        DateTime = next.GetDateTime(),
+                        KeyName = values[0].ToString().Replace(@$"{device}.", ""),
+                        Value = GetIotSharpValue(values[1], values[2].ToString()),
+                        DataType = GetIoTSharpDataType(values[2].ToString()),
+                    };
+                    dt.Add(telemetry);
+                }
+         
             }
             return dt;
 

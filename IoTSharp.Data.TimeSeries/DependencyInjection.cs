@@ -68,33 +68,12 @@ namespace IoTSharp.Data.TimeSeries
                        
                     });
                     _sharding.AddShardingCore();
-                    switch (settings.DataBase)
-                    {
-                        case DataBaseType.MySql:
-                            _sharding.ReplaceService<ITableEnsureManager, MySqlTableEnsureManager>();
-                            break;
-
-                        case DataBaseType.SqlServer:
-                            _sharding.ReplaceService<ITableEnsureManager, SqlServerTableEnsureManager>();
-                            break;
-                        case DataBaseType.Oracle:
-                            break;
-                        case DataBaseType.Sqlite:
-                            _sharding.ReplaceService<ITableEnsureManager, SqliteTableEnsureManager>();
-                            break;
-                        case DataBaseType.PostgreSql:
-                            _sharding.ReplaceService<ITableEnsureManager, GuessTableEnsureManager>();
-                            break;
-                        default:
-                            break;
-
-                    }
                     services.AddSingleton<IStorage, ShardingStorage>();
                     break;
 
                 case TelemetryStorage.Taos:
                     services.AddSingleton<IStorage, TaosStorage>();
-                    services.AddObjectPool(() => new TaosConnection(settings.ConnectionStrings["TelemetryStorage"]));
+                    services.AddObjectPool(() => new TaosConnection(_connectionString));
                     healthChecks.AddTDengine(_connectionString, name: _hc_telemetryStorage);
                     break;
 
@@ -110,7 +89,7 @@ namespace IoTSharp.Data.TimeSeries
                     services.AddSingleton<IStorage, PinusDBStorage>();
                     services.AddObjectPool(() =>
                     {
-                        var cnt = new PinusConnection(settings.ConnectionStrings["TelemetryStorage"]);
+                        var cnt = new PinusConnection(_connectionString);
                         cnt.Open();
                         return cnt;
                     });
