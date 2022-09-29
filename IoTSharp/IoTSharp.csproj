@@ -83,7 +83,9 @@
 		<PackageReference Include="SilkierQuartz" Version="5.0.356" />
 		<PackageReference Include="SkiaSharp.NativeAssets.Linux.NoDependencies" Version="2.88.2" />
 		<PackageReference Include="Storage.Net" Version="9.3.0" />
+		<PackageReference Include="ShardingCore" Version="6.7.0.1" />
 		<PackageReference Include="System.Text.Encoding.CodePages" Version="6.0.0">
+			
 		  <TreatAsUsed>true</TreatAsUsed>
 		</PackageReference>
 		<PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="6.0.9" />

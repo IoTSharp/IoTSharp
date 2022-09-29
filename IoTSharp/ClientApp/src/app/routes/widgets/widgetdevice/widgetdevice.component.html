@@ -129,16 +129,18 @@
                     <nz-form-item>
                       <nz-form-label nzFor="name">取值方式</nz-form-label>
                       <nz-form-control>
-                        <nz-radio-group
-                          nzButtonStyle="solid"
-                          [(ngModel)]="qtemps.aggregate"
-                          [ngModelOptions]="{ standalone: true }"
-                          (ngModelChange)="aggregateChanged($event)"
-                        >
+                        <nz-radio-group nzButtonStyle="solid"
+                                        [(ngModel)]="qtemps.aggregate"
+                                        [ngModelOptions]="{ standalone: true }"
+                                        (ngModelChange)="aggregateChanged($event)">
+                          <label nz-radio-button nzValue="None">所有值</label>
                           <label nz-radio-button nzValue="Mean">平均值</label>
                           <label nz-radio-button nzValue="Median">中值</label>
+                          <label nz-radio-button nzValue="Last">末值</label>
+                          <label nz-radio-button nzValue="First">首值</label>
                           <label nz-radio-button nzValue="Max">最大值</label>
                           <label nz-radio-button nzValue="Min">最小值</label>
+                          <label nz-radio-button nzValue="Sum">合计</label>
                         </nz-radio-group>
                       </nz-form-control>
                     </nz-form-item>

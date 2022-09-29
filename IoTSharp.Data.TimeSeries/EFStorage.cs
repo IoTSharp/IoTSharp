@@ -59,7 +59,7 @@ namespace IoTSharp.Storage
             var lst = new List<TelemetryDataDto>();
             var kv = from t in context.TelemetryData
                      where t.DeviceId == deviceId &&  t.DateTime >= begin && t.DateTime < end
-                     select new TelemetryDataDto() { DateTime = t.DateTime, KeyName = t.KeyName, Value = t.ToObject() };
+                     select new TelemetryDataDto() { DateTime = t.DateTime, KeyName = t.KeyName, DataType=t.Type,  Value = t.ToObject() };
             if (!string.IsNullOrEmpty(keys) )
             {
                 var kfk = from t in kv where keys.Split(',', ' ', ';').Contains(t.KeyName) select t;

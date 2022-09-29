@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using System.Collections.Generic;
 
 namespace IoTSharp.Storage
 {
@@ -70,38 +71,150 @@ namespace IoTSharp.Storage
             }
         }
 
-        public Task<List<TelemetryDataDto>> LoadTelemetryAsync(Guid deviceId, string keys, DateTime begin, DateTime end, TimeSpan every, Aggregate aggregate)
+        public async Task<List<TelemetryDataDto>> LoadTelemetryAsync(Guid deviceId, string keys, DateTime begin, DateTime end, TimeSpan every, Aggregate aggregate)
         {
-            return Task.Run(() =>
+            List<TelemetryDataDto> result = new List<TelemetryDataDto>();
+            try
             {
-                try
+                using (var scope = _scopeFactor.CreateScope())
                 {
-                    using (var scope = _scopeFactor.CreateScope())
+                    using (var context = scope.ServiceProvider.GetRequiredService<ShardingDbContext>())
                     {
-                        using (var context = scope.ServiceProvider.GetRequiredService<ShardingDbContext>())
+                        var lst = new List<TelemetryDataDto>();
+                        var kv = await context.Set<TelemetryData>()
+                            .Where(t => t.DeviceId == deviceId && t.DateTime >= begin && t.DateTime < end)
+                            .Select(t => new TelemetryDataDto() { DateTime = t.DateTime, KeyName = t.KeyName, Value = t.ToObject(), DataType= t.Type }).ToListAsync();
+                        if (!string.IsNullOrEmpty(keys))
                         {
-                            var lst = new List<TelemetryDataDto>();
-                            var kv = context.Set<TelemetryData>()
-                                .Where(t => t.DeviceId == deviceId && t.DateTime >= begin && t.DateTime < end)
-                                .ToList().Select(t => new TelemetryDataDto() { DateTime = t.DateTime, KeyName = t.KeyName, Value = t.ToObject() });
-                            if (!string.IsNullOrEmpty(keys))
+                            lst = kv.Where(t => keys.Split(',', ' ', ';').Contains(t.KeyName)).ToList();
+                        }
+                        else
+                        {
+                            lst = kv.ToList();
+                        }
+                        if (aggregate == Aggregate.None )
+                        {
+                            result = lst;
+                        }
+                        else
+                        {
+                            if (every.TotalMilliseconds == 0) every=every.Add(TimeSpan.FromMinutes(1));
+                            var ts = end.Subtract(begin) / every;
+                            for (int i = 0; i < ts; i++)
                             {
-                                lst = kv.Where(t => keys.Split(',', ' ', ';').Contains(t.KeyName)).ToList();
+                                var xb = begin + (i * every);
+                                var xe = begin + ((i + 1) * every);
+                                var dt = from x in lst where (x.DataType == DataType.Double || x.DataType == DataType.Long) && x.DateTime >= xb && x.DateTime < xe select x;
+                                if (dt.Any())
+                                {
+                                    dt.GroupBy<TelemetryDataDto, string>(d => d.KeyName).ToList().ForEach(d =>
+                                    {
+                                        if (d.Count() == 1)
+                                        {
+                                            result.Add(d.First());
+                                        }
+                                        else
+                                        {
+                                            var dxx = d.FirstOrDefault();
+                                            var tdd = new TelemetryDataDto()
+                                            {
+                                                KeyName = dxx.KeyName,
+                                                DataType = dxx.DataType,
+                                                DateTime = xe
+                                            };
+                                            switch (aggregate)
+                                            {
+                                                case Aggregate.Mean:
+                                                    if (tdd.DataType == DataType.Long)
+                                                    {
+                                                        tdd.Value = (long)d.Average(f => (long)f.Value);
+                                                    }
+                                                    else if (tdd.DataType == DataType.Double)
+                                                    {
+                                                        tdd.Value = (double)d.Average(f => (double)f.Value);
+                                                    }
+                                                    break;
+                                                case Aggregate.Median:
+                                                    if (tdd.DataType == DataType.Long)
+                                                    {
+                                                        var _vxx = d.OrderBy(f =>   (long) f.Value ).ToList();
+                                                        var indx = _vxx.Count / 2;
+                                                        tdd.Value = _vxx[indx].Value;
+                                                    }
+                                                    else if (tdd.DataType == DataType.Double)
+                                                    {
+                                                        var _vxx = d.OrderBy(f => (double)f.Value ).ToList();
+                                                        var indx = _vxx.Count / 2;
+                                                        tdd.Value = _vxx[indx].Value;
+                                                    }
+                                                    break;
+                                                case Aggregate.Last:
+                                                    tdd.Value = d.Last().Value;
+                                                    break;
+                                                case Aggregate.First:
+                                                    tdd.Value = d.First().Value;
+                                                    break;
+                                                case Aggregate.Max:
+                                                    if (tdd.DataType == DataType.Long)
+                                                    {
+                                                        tdd.Value = (long)d.Max(f => (long)f.Value);
+                                                    }
+                                                    else if (tdd.DataType == DataType.Double)
+                                                    {
+                                                        tdd.Value = (double)d.Max(f => (double)f.Value);
+                                                    }
+                                                    break;
+                                                case Aggregate.Min:
+                                                    if (tdd.DataType == DataType.Long)
+                                                    {
+                                                        tdd.Value = (long)d.Min(f => (long)f.Value);
+                                                    }
+                                                    else if (tdd.DataType == DataType.Double)
+                                                    {
+                                                        tdd.Value = (double)d.Min(f => (double)f.Value);
+                                                    }
+                                                    break;
+                                                case Aggregate.Sum:
+                                                    if (tdd.DataType == DataType.Long)
+                                                    {
+                                                        tdd.Value = (long)d.Sum(f => (long)f.Value);
+                                                    }
+                                                    else if (tdd.DataType == DataType.Double)
+                                                    {
+                                                        tdd.Value = (double)d.Sum(f => (double)f.Value);
+                                                    }
+                                                    break;
+                                                case Aggregate.None:
+                                                default:
+                                                    break;
+                                            }
+                                            result.Add(tdd);
+                                        }
+                                    });
+                                }
                             }
-                            else
-                            {
-                                lst = kv.ToList();
-                            }
-                            return lst;
                         }
                     }
                 }
-                catch (Exception ex)
-                {
-                    _logger.LogError(ex, $"{deviceId}数据处理失败{ex.Message} {ex.InnerException?.Message} ");
-                    throw;
-                }
-            });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"{deviceId}数据处理失败{ex.Message} {ex.InnerException?.Message} ");
+                throw;
+            }
+            return result;
+        }
+
+        private static void DecToTelemtryDataDto<T>(TelemetryDataDto tdd, T _vmx) where T:struct 
+        {
+            if (tdd.DataType == DataType.Long)
+            {
+                tdd.Value = _vmx;
+            }
+            else if (tdd.DataType == DataType.Double)
+            {
+                tdd.Value =  _vmx;
+            }
         }
 
         public async Task<(bool result, List<TelemetryData> telemetries)> StoreTelemetryAsync(PlayloadData msg)
@@ -115,6 +228,7 @@ namespace IoTSharp.Storage
 
                 using (var db = scope.ServiceProvider.GetRequiredService<ShardingDbContext>())
                 {
+              
                     var lst = new List<TelemetryData>();
                     msg.MsgBody.ToList().ForEach(kp =>
                                      {
@@ -126,7 +240,8 @@ namespace IoTSharp.Storage
                                              telemetries.Add(tdata);
                                          }
                                      });
-                    await db.AddAsync(lst);
+                    await db.Set<TelemetryData>().AddRangeAsync(lst);
+                    await db.SaveChangesAsync();
                     _logger.LogInformation($"新增({msg.DeviceId})遥测数据1");
                 }
             }
