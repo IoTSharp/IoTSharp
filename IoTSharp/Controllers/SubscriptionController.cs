@@ -15,7 +15,7 @@ using ShardingCore.Extensions;
 
 namespace IoTSharp.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/[controller]/[action]")]
     [Authorize]
     [ApiController]
     public class SubscriptionEventController : Controller
@@ -30,7 +30,7 @@ namespace IoTSharp.Controllers
             this._context = context;
         }
 
-        [HttpPost("[action]")]
+        [HttpPost]
         public ApiResult<PagedData<SubscriptionEvent>> Index([FromBody] SubscriptionParam m)
         {
             var profile = this.GetUserProfile();
@@ -46,7 +46,7 @@ namespace IoTSharp.Controllers
             });
         }
 
-        [HttpGet("[action]")]
+        [HttpGet]
         public async Task<ApiResult<SubscriptionEvent>> Get(Guid id)
         {
             var profile = this.GetUserProfile();
@@ -58,7 +58,7 @@ namespace IoTSharp.Controllers
             return new ApiResult<SubscriptionEvent>(ApiCode.CantFindObject, "can't find this object", null);
         }
 
-        [HttpPut("[action]")]
+        [HttpPut]
         public async Task<ApiResult<bool>> Update(SubscriptionEvent m)
         {
             var profile = this.GetUserProfile();
@@ -82,7 +82,7 @@ namespace IoTSharp.Controllers
             }
         }
 
-        [HttpPost("[action]")]
+        [HttpPost]
         public async Task<ApiResult<bool>> Save(SubscriptionEvent m)
         {
             try
@@ -110,7 +110,7 @@ namespace IoTSharp.Controllers
             }
         }
 
-        [HttpGet("[action]")]
+        [HttpGet]
         public async Task<ApiResult<bool>> Delete(Guid id)
         {
             var se = _context.SubscriptionEvents.SingleOrDefault(c => c.EventId == id);

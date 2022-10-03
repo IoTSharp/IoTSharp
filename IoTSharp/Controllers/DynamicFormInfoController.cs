@@ -14,7 +14,7 @@ using System.Text;
 
 namespace IoTSharp.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/[controller]/[action]")]
     [ApiController]
     [Authorize]
     public class DynamicFormInfoController : ControllerBase
@@ -28,7 +28,7 @@ namespace IoTSharp.Controllers
             this._context = context;
         }
 
-        [HttpPost("[action]")]
+        [HttpPost]
         public ApiResult<PagedData<DynamicFormInfo>> Index([FromBody] IPageParam m)
         {
             Expression<Func<DynamicFormInfo, bool>> condition = x => x.FormStatus > -1;
@@ -42,7 +42,7 @@ namespace IoTSharp.Controllers
             });
         }
 
-        [HttpGet("[action]")]
+        [HttpGet]
         public ApiResult<DynamicFormInfo> Get(int id)
         {
             var dynamicFormInfo = _context.DynamicFormInfos.SingleOrDefault(c => c.FormId == id);
@@ -56,7 +56,7 @@ namespace IoTSharp.Controllers
             }
         }
 
-        [HttpGet("[action]")]
+        [HttpGet]
         public ApiResult<List<DynamicFormInfo>> GetFields(int id)
         {
             var dynamicFormInfo = _context.DynamicFormInfos.Where(c => c.FormId == id).ToList();
@@ -68,7 +68,7 @@ namespace IoTSharp.Controllers
         /// </summary>
         /// <param name="m"></param>
         /// <returns></returns>
-        [HttpPost("[action]")]
+        [HttpPost]
         public ApiResult<bool> Save(DynamicFormInfo m)
         {
             var route = new DynamicFormInfo()
@@ -86,7 +86,7 @@ namespace IoTSharp.Controllers
             return new ApiResult<bool>(ApiCode.Success, "OK", true);
         }
 
-        [HttpPost("[action]")]
+        [HttpPost]
         public ApiResult<bool> Update(DynamicFormInfo m)
         {
             var route = _context.DynamicFormInfos.FirstOrDefault(c => c.FormId == m.FormId);
@@ -101,7 +101,7 @@ namespace IoTSharp.Controllers
             return new ApiResult<bool>(ApiCode.CantFindObject, "can't find this object", false);
         }
 
-        [HttpGet("[action]")]
+        [HttpGet]
         public ApiResult<bool> Delete(int id)
         {
             var route = _context.DynamicFormInfos.FirstOrDefault(c => c.FormId == id);
@@ -115,7 +115,7 @@ namespace IoTSharp.Controllers
             return new ApiResult<bool>(ApiCode.CantFindObject, "can't find this object", false);
         }
 
-        [HttpGet("[action]")]
+        [HttpGet]
         public ApiResult<bool> SetStatus(int id)
         {
             var obj = _context.DynamicFormInfos.FirstOrDefault(c => c.FormId == id);
@@ -129,7 +129,7 @@ namespace IoTSharp.Controllers
             return new ApiResult<bool>(ApiCode.CantFindObject, "can't find this object", false);
         }
 
-        [HttpPost("[action]")]
+        [HttpPost]
         public ApiResult<bool> SaveParams(FormFieldData model)
         {
             var fields = _context.DynamicFormFieldInfos.
@@ -266,7 +266,7 @@ namespace IoTSharp.Controllers
             return new ApiResult<bool>(ApiCode.CantFindObject, "can't find any fields", false);
         }
 
-        [HttpGet("[action]")]
+        [HttpGet]
         public ApiResult<dynamic> GetParams(int id)
         {
             var deviceTypefields = _context.DynamicFormFieldInfos.Where(c => c.FormId == id && c.FieldStatus > -1).ToList();
@@ -295,7 +295,7 @@ namespace IoTSharp.Controllers
             });
         }
 
-        [HttpGet("[action]")]
+        [HttpGet]
         public ApiResult<List<DynamicFormFieldInfo>> GetFormFieldValue(int BizId, int FormId)
         {
             var Fields = _context.DynamicFormFieldInfos.Where(c => c.FormId == FormId && c.FieldStatus > 0)

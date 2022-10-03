@@ -12,7 +12,7 @@ namespace IoTSharp.Controllers
     /// <summary>
     /// this is test purpose
     /// </summary>
-    [Route("api/[controller]")]
+    [Route("api/[controller]/[action]")]
     [ApiController]
     [Authorize]
     public class MenuController : ControllerBase
@@ -31,7 +31,7 @@ namespace IoTSharp.Controllers
             return new ApiResult<dynamic>(ApiCode.Success, "OK", null);
         }
 
-        [HttpGet("[action]")]
+        [HttpGet]
         public ApiResult<dynamic> GetProfile()
         {
             var profile = this.GetUserProfile();

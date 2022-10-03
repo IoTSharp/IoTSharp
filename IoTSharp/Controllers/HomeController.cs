@@ -10,7 +10,7 @@ using IoTSharp.Contracts;
 
 namespace IoTSharp.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/[controller]/[action]")]
     [Authorize]
     [ApiController]
     public class HomeController :  ControllerBase
@@ -20,7 +20,7 @@ namespace IoTSharp.Controllers
         {
             _context = context;
         }
-        [HttpGet("[action]")]
+        [HttpGet]
         public  ApiResult<HomeKanbanDto> KanBan()
         {
             HomeKanbanDto m = new HomeKanbanDto();
@@ -34,12 +34,12 @@ namespace IoTSharp.Controllers
             return new ApiResult<HomeKanbanDto>(ApiCode.Success, "OK", m);
         }
 
-        [HttpGet("[action]")]
+        [HttpGet]
         public ApiResult<List<Device>> TopTenDevice()
         {
             return new ApiResult<List<Device>>(ApiCode.Success, "OK", _context.Device.OrderByDescending(c => c.LastActive).Skip(0).Take(10).ToList());
         }
-        [HttpGet("[action]")]
+        [HttpGet]
         public ApiResult<List<BaseEvent>> TopTenEvents()
         {
             return new ApiResult<List<BaseEvent>>(ApiCode.Success, "OK", _context.BaseEvents.OrderByDescending(c => c.CreaterDateTime).Skip(0).Take(10).ToList());

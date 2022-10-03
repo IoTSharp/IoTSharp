@@ -13,7 +13,7 @@ using ShardingCore.Extensions;
 
 namespace IoTSharp.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/[controller]/[action]")]
     [ApiController]
     [Authorize]
     public class DictionaryController : ControllerBase
@@ -25,7 +25,7 @@ namespace IoTSharp.Controllers
             this._context = context;
         }
 
-        [HttpPost("[action]")]
+        [HttpPost]
         public ApiResult<PagedData<BaseDictionary>> Index([FromBody] DictionaryParam m)
         {
             Expression<Func<BaseDictionary, bool>> condition = x => x.DictionaryStatus > -1;
@@ -49,7 +49,7 @@ namespace IoTSharp.Controllers
             });
         }
 
-        [HttpGet("[action]")]
+        [HttpGet]
         public ApiResult<BaseDictionary> Get(int id)
         {
             var Dictionary = _context.BaseDictionaries.FirstOrDefault(c => c.DictionaryId == id);
@@ -60,7 +60,7 @@ namespace IoTSharp.Controllers
             return new ApiResult<BaseDictionary>(ApiCode.CantFindObject, "can't find this object", null);
         }
 
-        [HttpPost("[action]")]
+        [HttpPost]
         public ApiResult<bool> Save(BaseDictionary m)
         {
             var dict = new BaseDictionary()
@@ -83,7 +83,7 @@ namespace IoTSharp.Controllers
             return new ApiResult<bool>(ApiCode.Success, "OK", true);
         }
 
-        [HttpPost("[action]")]
+        [HttpPost]
         public ApiResult<bool> Update(BaseDictionary m)
         {
             var dictionary = _context.BaseDictionaries.FirstOrDefault(c => c.DictionaryId == m.DictionaryId);
@@ -106,7 +106,7 @@ namespace IoTSharp.Controllers
             return new ApiResult<bool>(ApiCode.Success, "can't find this object", false);
         }
 
-        [HttpGet("[action]")]
+        [HttpGet]
         public ApiResult<bool> SetStatus(int id)
         {
             var obj = _context.BaseDictionaries.FirstOrDefault(c => c.DictionaryId == id);
@@ -125,7 +125,7 @@ namespace IoTSharp.Controllers
         /// </summary>
         /// <param name="id"></param>
         /// <returns></returns>
-        [HttpGet("[action]")]
+        [HttpGet]
         public ApiResult<bool> Delete(int id)
         {
             var Dictionary = _context.BaseDictionaries.FirstOrDefault(c => c.DictionaryId == id);

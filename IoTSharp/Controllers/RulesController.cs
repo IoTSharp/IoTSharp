@@ -24,7 +24,7 @@ using ShardingCore.Extensions;
 
 namespace IoTSharp.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/[controller]/[action]")]
     [Authorize]
     [ApiController]
     public class RulesController : ControllerBase
@@ -48,7 +48,7 @@ namespace IoTSharp.Controllers
         /// <returns> </returns>
         ///
 
-        [HttpPost("[action]")]
+        [HttpPost]
         public async Task<ApiResult<bool>> UpdateFlowExpression(UpdateFlowExpression m)
         {
             var profile = this.GetUserProfile();
@@ -64,7 +64,7 @@ namespace IoTSharp.Controllers
             return new ApiResult<bool>(ApiCode.InValidData, "can't find this object", false);
         }
 
-        [HttpPost("[action]")]
+        [HttpPost]
         public ApiResult<PagedData<FlowRule>> Index([FromBody] RulePageParam m)
         {
             var profile = this.GetUserProfile();
@@ -92,7 +92,7 @@ namespace IoTSharp.Controllers
             });
         }
 
-        [HttpPost("[action]")]
+        [HttpPost]
         public async Task<ApiResult<bool>> Save(FlowRule m)
         {
             var profile = this.GetUserProfile();
@@ -112,7 +112,7 @@ namespace IoTSharp.Controllers
             }
         }
 
-        [HttpPost("[action]")]
+        [HttpPost]
         public async Task<ApiResult<bool>> Update(FlowRule m)
         {
             var profile = this.GetUserProfile();
@@ -136,7 +136,7 @@ namespace IoTSharp.Controllers
             return new ApiResult<bool>(ApiCode.Success, "can't find this object", false);
         }
 
-        [HttpGet("[action]")]
+        [HttpGet]
         public async Task<ApiResult<bool>> Delete(Guid id)
         {
             var profile = this.GetUserProfile();
@@ -166,7 +166,7 @@ namespace IoTSharp.Controllers
             return new ApiResult<bool>(ApiCode.Success, "can't find this object", false);
         }
 
-        [HttpGet("[action]")]
+        [HttpGet]
         public ApiResult<FlowRule> Get(Guid id)
         {
             var profile = this.GetUserProfile();
@@ -185,7 +185,7 @@ namespace IoTSharp.Controllers
         /// <param name="flowRule"></param>
         /// <returns></returns>
 
-        [HttpPost("[action]")]
+        [HttpPost]
         public async Task<ApiResult<bool>> Fork(FlowRule flowRule)
         {
             var profile = this.GetUserProfile();
@@ -257,7 +257,7 @@ namespace IoTSharp.Controllers
             return new ApiResult<bool>(ApiCode.CantFindObject, "can't find this object", false);
         }
 
-        [HttpPost("[action]")]
+        [HttpPost]
         public ApiResult<bool> BindDevice(ModelRuleBind m)
         {
             var profile = this.GetUserProfile();
@@ -300,7 +300,7 @@ namespace IoTSharp.Controllers
             return new ApiResult<bool>(ApiCode.CantFindObject, "No device found", false);
         }
 
-        [HttpGet("[action]")]
+        [HttpGet]
         public async Task<ApiResult<bool>> DeleteDeviceRules(Guid deviceId, Guid ruleId)
         {
             var profile = this.GetUserProfile();
@@ -315,14 +315,14 @@ namespace IoTSharp.Controllers
             return new ApiResult<bool>(ApiCode.CantFindObject, "this mapping was not found", true);
         }
 
-        [HttpGet("[action]")]
+        [HttpGet]
         public ApiResult<List<FlowRule>> GetDeviceRules(Guid deviceId)
         {
             var profile = this.GetUserProfile();
             return new ApiResult<List<FlowRule>>(ApiCode.Success, "Ok", _context.DeviceRules.Include(c => c.Device).Where(c => c.Device.Id == deviceId && c.Device.Tenant.Id == profile.Tenant).Select(c => c.FlowRule).Select(c => new FlowRule() { RuleId = c.RuleId, CreatTime = c.CreatTime, Name = c.Name, RuleDesc = c.RuleDesc }).AsSplitQuery().ToList());
         }
 
-        [HttpGet("[action]")]
+        [HttpGet]
         public async Task<ApiResult<PagedData<DeviceRuleDto>>> GetRuleDevices([FromQuery] DeviceParam m)
         {
 
@@ -354,7 +354,7 @@ namespace IoTSharp.Controllers
             return new ApiResult<PagedData<DeviceRuleDto>>(ApiCode.Success, "Ok",  new PagedData<DeviceRuleDto> { rows=rows,total= total });
         }
 
-        [HttpGet("[action]")]
+        [HttpGet]
         public ApiResult<List<Flow>> GetFlows(Guid ruleId)
         {
             var tid = User.GetTenantId();
@@ -363,7 +363,7 @@ namespace IoTSharp.Controllers
                 .Where(c => c.FlowRule.RuleId == ruleId && c.FlowStatus > 0 && c.Tenant.Id == tid).ToList());
         }
 
-        [HttpPost("[action]")]
+        [HttpPost]
         public ApiResult<bool> SaveDiagram(ModelWorkFlow m)
         {
             var profile = this.GetUserProfile();
@@ -650,7 +650,7 @@ namespace IoTSharp.Controllers
             return new ApiResult<bool>(ApiCode.Success, "Ok", true);
         }
 
-        [HttpGet("[action]")]
+        [HttpGet]
         public async Task<ApiResult<Activity>> GetDiagram(Guid id)
         {
             var profile = this.GetUserProfile();
@@ -1135,7 +1135,7 @@ namespace IoTSharp.Controllers
             return new ApiResult<IoTSharp.Models.Rule.Activity>(ApiCode.Success, "rule has been removed", activity);
         }
 
-        [HttpPost("[action]")]
+        [HttpPost]
         public async Task<ApiResult<dynamic>> Active([FromBody] JObject form)
         {
             var profile = this.GetUserProfile();
@@ -1167,7 +1167,7 @@ namespace IoTSharp.Controllers
         /// <param name="m"></param>
         /// <returns></returns>
 
-        [HttpPost("[action]")]
+        [HttpPost]
         public async Task<ApiResult<PagedData<BaseEventDto>>> FlowEvents([FromBody] EventParam m)
         {
             var profile = this.GetUserProfile();
@@ -1231,7 +1231,7 @@ namespace IoTSharp.Controllers
             }
         }
 
-        [HttpGet("[action]")]
+        [HttpGet]
         public ApiResult<dynamic> GetFlowOperations(Guid eventId)
         {
             var profile = this.GetUserProfile();
@@ -1281,13 +1281,13 @@ namespace IoTSharp.Controllers
             });
         }
 
-        [HttpGet("[action]")]
+        [HttpGet]
         public ApiResult<dynamic> GetExecutors()
         {
             return new ApiResult<dynamic>(ApiCode.Success, "OK", _helper.GetTaskExecutorList().Select(c => new { label = c.Key, value = c.Value.FullName }).ToList());
         }
 
-        [HttpPost("[action]")]
+        [HttpPost]
         public async Task<ApiResult<PagedData<RuleTaskExecutor>>> Executors(ExecutorParam m)
         {
             var profile = this.GetUserProfile();
@@ -1300,7 +1300,7 @@ namespace IoTSharp.Controllers
             return new ApiResult<PagedData<RuleTaskExecutor>>(ApiCode.Success, "OK", pd);
         }
 
-        [HttpGet("[action]")]
+        [HttpGet]
         public async Task<ApiResult<RuleTaskExecutor>> GetExecutor(Guid Id)
         {
             var profile = this.GetUserProfile();
@@ -1313,7 +1313,7 @@ namespace IoTSharp.Controllers
             return new ApiResult<RuleTaskExecutor>(ApiCode.CantFindObject, "cant't find that object", null);
         }
 
-        [HttpGet("[action]")]
+        [HttpGet]
         public async Task<ApiResult<bool>> DeleteExecutor(Guid Id)
         {
             var profile = this.GetUserProfile();
@@ -1329,7 +1329,7 @@ namespace IoTSharp.Controllers
             return new ApiResult<bool>(ApiCode.CantFindObject, "cant't find that object", false);
         }
 
-        [HttpPost("[action]")]
+        [HttpPost]
         public async Task<ApiResult<bool>> UpdateExecutor(RuleTaskExecutor m)
         {
             var profile = this.GetUserProfile();
@@ -1349,7 +1349,7 @@ namespace IoTSharp.Controllers
             return new ApiResult<bool>(ApiCode.CantFindObject, "cant't find that object", false);
         }
 
-        [HttpPost("[action]")]
+        [HttpPost]
         public async Task<ApiResult<bool>> AddExecutor(RuleTaskExecutor m)
         {
             var profile = this.GetUserProfile();
@@ -1369,7 +1369,7 @@ namespace IoTSharp.Controllers
             return new ApiResult<bool>(ApiCode.Success, "Ok", rest > 0);
         }
 
-        [HttpPost("[action]")]
+        [HttpPost]
         public async Task<ApiResult<RuleTaskExecutorTestResultDto>> TestTask(RuleTaskExecutorTestDto m)
         {
             var profile = this.GetUserProfile();
