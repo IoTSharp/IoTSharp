@@ -58,8 +58,6 @@ namespace IoTSharp.Controllers
         {
             try
             {
-               // return await _context.Tenant.ToListAsync();
-             
                 return Ok(new ApiResult<PagedData<Tenant>>(ApiCode.Exception, "Ok", new PagedData<Tenant>() { rows = await _context.Tenant.ToListAsync(), total = await _context.Tenant.CountAsync() }));
             }
             catch (Exception ex)
@@ -125,13 +123,11 @@ namespace IoTSharp.Controllers
                 {
 
                     return new ApiResult<Tenant>(ApiCode.InValidData, ex.Message, tenant);
-                 //  return BadRequest(new ApiResult<EntityEntry[]>(ApiCode.Exception, ex.Message, ex.Entries.ToArray()));
                 }
             }
             catch (Exception ex)
             {
                 return new ApiResult<Tenant>(ApiCode.InValidData, ex.Message, tenant);
-             //   return BadRequest(new ApiResult<Tenant>(ApiCode.Exception, ex.Message, tenant));
             }
 
             return new ApiResult<Tenant>(ApiCode.Success, "Ok", tenant);
@@ -154,13 +150,11 @@ namespace IoTSharp.Controllers
                 _context.Tenant.Add(tenant);
                 await _context.SaveChangesAsync();
                 return new ApiResult<Tenant>(ApiCode.Success, "Ok", tenant);
-             //   return CreatedAtAction("GetTenant", new { id = tenant.Id }, tenant);
             }
             catch (Exception ex)
             {
 
                 return new ApiResult<Tenant>(ApiCode.InValidData, ex.Message, tenant);
-            //    return BadRequest(new ApiResult<Tenant>(ApiCode.Exception, ex.Message, tenant));
             }
         }
         /// <summary>
@@ -181,14 +175,11 @@ namespace IoTSharp.Controllers
             if (tenant == null)
             {
                 return new ApiResult<Tenant>(ApiCode.CantFindObject, "Not found tenant", tenant);
-             //   return NotFound(new ApiResult<Tenant>(ApiCode.NotFoundTenant, "Not found tenant", tenant));
             }
             try
             {
                 _context.Tenant.Remove(tenant);
                 await _context.SaveChangesAsync();
-              //  return tenant;
-
                 return new ApiResult<Tenant>(ApiCode.Success, "Ok", tenant);
             }
             catch (Exception ex)

@@ -44,14 +44,12 @@ namespace IoTSharp.Contracts
     [JsonConverter(typeof(StringEnumConverter))]
     public enum DeviceStatus
     {
-        Good = 0,
-        PartGood = 1,
-        Bad = 2,
-        UnKnow = 3,
-        [Obsolete]
-        Online = 4,
-        [Obsolete]
-        Offline =5
+        Deleted=-1,
+        UnKnow = 0,
+        Good = 1,
+        PartGood = 2,
+        Bad = 3
+  
     }
 
 

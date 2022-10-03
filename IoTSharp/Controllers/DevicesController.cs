@@ -123,7 +123,7 @@ namespace IoTSharp.Controllers
             {
                 try
                 {
-                    Expression<Func<Device, bool>> condition = x => x.Customer.Id == m.customerId && !x.Deleted   && x.Tenant.Id == profile.Tenant;
+                    Expression<Func<Device, bool>> condition = x => x.Customer.Id == m.customerId && x.Status!= DeviceStatus.Deleted   && x.Tenant.Id == profile.Tenant;
                     if (!string.IsNullOrEmpty(m.Name))
                     {
                         if (System.Text.RegularExpressions.Regex.IsMatch(m.Name, @"(?im)^[{(]?[0-9A-F]{8}[-]?(?:[0-9A-F]{4}[-]?){3}[0-9A-F]{12}[)}]?$"))
@@ -165,7 +165,7 @@ namespace IoTSharp.Controllers
             {
                 try
                 {
-                    Expression<Func<Device, bool>> condition = x => x.Customer.Id == m.customerId && !x.Deleted;
+                    Expression<Func<Device, bool>> condition = x => x.Customer.Id == m.customerId && x.Status != DeviceStatus.Deleted;
                     if (!string.IsNullOrEmpty(m.Name))
                     {
                         if (System.Text.RegularExpressions.Regex.IsMatch(m.Name, @"(?im)^[{(]?[0-9A-F]{8}[-]?(?:[0-9A-F]{4}[-]?){3}[0-9A-F]{12}[)}]?$"))
@@ -415,12 +415,12 @@ namespace IoTSharp.Controllers
             if (User.IsInRole(nameof(UserRole.TenantAdmin)))
             {
                 var tid =Guid.Parse( User.Claims.First(c => c.Type == IoTSharpClaimTypes.Tenant).Value);
-                dev = await _context.Device.Include(d => d.Tenant).AsSingleQuery().FirstOrDefaultAsync(d => d.Id == deviceId && d.Tenant.Id == tid && !d.Deleted);
+                dev = await _context.Device.Include(d => d.Tenant).AsSingleQuery().FirstOrDefaultAsync(d => d.Id == deviceId && d.Tenant.Id == tid && d.Status != DeviceStatus.Deleted);
             }
             else if (User.IsInRole(nameof(UserRole.NormalUser)))
             {
                 var cid = Guid.Parse( User.Claims.First(c => c.Type == IoTSharpClaimTypes.Customer).Value);
-                dev = await _context.Device.Include(d => d.Customer).AsSingleQuery().FirstOrDefaultAsync(d => d.Id == deviceId && d.Customer.Id == cid && !d.Deleted);
+                dev = await _context.Device.Include(d => d.Customer).AsSingleQuery().FirstOrDefaultAsync(d => d.Id == deviceId && d.Customer.Id == cid && d.Status != DeviceStatus.Deleted);
             }
             return dev;
         }
@@ -706,7 +706,7 @@ namespace IoTSharp.Controllers
                 DeviceType = device.DeviceType,
                 Timeout = device.Timeout,
                 LastActive = DateTime.Now,
-                Deleted = false,
+                Status= DeviceStatus.UnKnow,
             };
             devvalue.Tenant = _context.Tenant.Find(new Guid(tid.Value));
             devvalue.Customer = _context.Customer.Find(new Guid(cid.Value));
