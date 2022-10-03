@@ -24,13 +24,12 @@ namespace IoTSharp.Controllers
         public  ApiResult<HomeKanbanDto> KanBan()
         {
             HomeKanbanDto m = new HomeKanbanDto();
-            m.DeviceCount= _context.Device.Count(c => c.Status > -1);
+            m.DeviceCount= _context.Device.Count(c => !c.Deleted);
 
-            //m.DeviceCountData = _context.Device.Where(c => c.CreateDate > DateTime.Today.AddMonths(-12))
-            //    .GroupBy(c => c.CreateMonth).Select(c => c.Count()).ToArray();
+      
 
             m.EventCount = _context.BaseEvents.Count(c => c.EventStaus > -1);
-            m.OnlineDeviceCount = _context.Device.Count(c => c.Online && c.Status > -1);
+            m.OnlineDeviceCount = _context.Device.Count(c => c.Online && !c.Deleted);
             m.TelemetryDataCount = _context.TelemetryData.Count(c=>c.DateTime>DateTime.Today);
             return new ApiResult<HomeKanbanDto>(ApiCode.Success, "OK", m);
         }

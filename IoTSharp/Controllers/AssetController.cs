@@ -89,7 +89,6 @@ namespace IoTSharp.Controllers
                     LastActive = y.LastActive,
                     DeviceIdentity = y.DeviceIdentity,
                     DeviceType = y.DeviceType,
-                    Status = y.Status,
                     Timeout = y.Timeout,
                     Attrs = x.Attrs.Select(c => new ModelAssetAttrItem
                     {

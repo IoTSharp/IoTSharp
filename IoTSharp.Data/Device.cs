@@ -53,11 +53,13 @@ namespace IoTSharp.Data
         /// </summary>
         public Customer Customer { get; set; }
 
+        [Obsolete("使用Deleted替换")]
         public int Status { get; set; }
-
-        public DeviceModel? DeviceModel { get; set; }
+ 
         public Guid? DeviceModelId { get; set; }
 
         public DeviceIdentity DeviceIdentity { get; set; }
+
+        public bool Deleted { get; set; } = false;
     }
 }
