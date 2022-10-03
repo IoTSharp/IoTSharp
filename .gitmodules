@@ -1,0 +1,4 @@
+[submodule "IoTSharp/ClientAppVue"]
+	path = IoTSharp/ClientAppVue
+	url = https://github.com/IoTSharp/ClientAppWithVue.git
+	branch = feature/V1.0.0
