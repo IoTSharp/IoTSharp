@@ -250,28 +250,48 @@ namespace IoTSharp.Controllers
 
                 SubjectAlternativeNameBuilder altNames = new SubjectAlternativeNameBuilder();
                 altNames.AddUserPrincipalName(did.Device.Id.ToString());
-                altNames.AddDnsName(_setting.MqttBroker.DomainName);
-                altNames.AddUri(new Uri($"mqtt://{_setting.MqttBroker.ServerIPAddress}:{_setting.MqttBroker.TlsPort}"));
-                string name = $"CN={dev.Name},C=CN,L={dev.Customer.Province ?? "IoTSharp"},ST={dev.Customer.City ?? "IoTSharp"},O={dev.Customer.Name},OU={dev.Tenant.Name}";
-                var tlsclient = option.CACertificate.CreateTlsClientRSA(name, altNames);
-                string x509CRT, x509Key;
-                tlsclient.SavePem(out x509CRT, out x509Key);
-                did.IdentityType = IdentityType.X509Certificate;
-                did.IdentityId = tlsclient.Thumbprint;
-                var pem = new
+                if (!string.IsNullOrEmpty(_setting.MqttBroker.DomainName))
                 {
-                    PrivateKey = x509Key,
-                    PublicKey = x509CRT
-                };
-                did.IdentityValue = Newtonsoft.Json.JsonConvert.SerializeObject(pem);
-                await _context.SaveChangesAsync();
-                return new ApiResult<DeviceIdentity>(ApiCode.Success, "OK", new DeviceIdentity() { Id = did.Id, IdentityType = did.IdentityType, IdentityId = did.IdentityId });
+                    altNames.AddDnsName(_setting.MqttBroker.DomainName);
+                    if (!string.IsNullOrEmpty(_setting.MqttBroker.ServerIPAddress))
+                    {
+
+                        if (_setting.MqttBroker.TlsPort > 0 && _setting.MqttBroker.TlsPort < 65535)
+                        {
+
+                            altNames.AddUri(new Uri($"mqtt://{_setting.MqttBroker.ServerIPAddress}:{_setting.MqttBroker.TlsPort}"));
+                            string name = $"CN={dev.Name},C=CN,L={dev.Customer.Province ?? "IoTSharp"},ST={dev.Customer.City ?? "IoTSharp"},O={dev.Customer.Name},OU={dev.Tenant.Name}";
+                            var tlsclient = option.CACertificate.CreateTlsClientRSA(name, altNames);
+                            string x509CRT, x509Key;
+                            tlsclient.SavePem(out x509CRT, out x509Key);
+                            did.IdentityType = IdentityType.X509Certificate;
+                            did.IdentityId = tlsclient.Thumbprint;
+                            var pem = new
+                            {
+                                PrivateKey = x509Key,
+                                PublicKey = x509CRT
+                            };
+                            did.IdentityValue = Newtonsoft.Json.JsonConvert.SerializeObject(pem);
+                            await _context.SaveChangesAsync();
+                            return new ApiResult<DeviceIdentity>(ApiCode.Success, "OK", new DeviceIdentity() { Id = did.Id, IdentityType = did.IdentityType, IdentityId = did.IdentityId });
+                        }
+                        else
+                        {
+                            return new ApiResult<DeviceIdentity>(ApiCode.NotFoundDeviceIdentity, "Please set valid MqttBroker TlsPort", null);
+                        }
+                    }
+                    return new ApiResult<DeviceIdentity>(ApiCode.NotFoundDeviceIdentity, "Please set MqttBroker ServerIPAddress", null);
+
+                }
+                return new ApiResult<DeviceIdentity>(ApiCode.NotFoundDeviceIdentity, "Please set MqttBroker domain name", null);
+
             }
             else
             {
                 return new ApiResult<DeviceIdentity>(ApiCode.NotFoundDeviceIdentity, "Not found device identity", null);
             }
         }
+
 
         /// <summary>
         /// 下载证书
