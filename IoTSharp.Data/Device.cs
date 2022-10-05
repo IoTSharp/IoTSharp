@@ -22,16 +22,7 @@ namespace IoTSharp.Data
         /// 设备类型
         /// </summary>
         public DeviceType DeviceType { get; set; }
-
-        /// <summary>
-        /// 在线
-        /// </summary>
-        public bool Online { get; set; }
-
-        /// <summary>
-        /// 最后一次活跃时间
-        /// </summary>
-        public DateTime LastActive { get; set; }
+ 
 
         /// <summary>
         /// 超时时间 秒数
@@ -54,11 +45,11 @@ namespace IoTSharp.Data
         public Customer Customer { get; set; }
 
         public DeviceStatus Status { get; set; }
- 
+
         public Guid? DeviceModelId { get; set; }
 
         public DeviceIdentity DeviceIdentity { get; set; }
 
- 
+        public bool Deleted { get; set; }
     }
 }

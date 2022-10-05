@@ -118,21 +118,17 @@ namespace IoTSharp.EventBus
                         var dev = _dbContext.Device.FirstOrDefault(d => d.Id == status.DeviceId);
                         if (dev != null)
                         {
-                            if (dev.Online == true && status.DeviceStatus != DeviceStatus.Good)
+                            if (status.DeviceStatus != DeviceStatus.Good)
                             {
-                                dev.Online = false;
-                                dev.LastActive = DateTime.Now;
-                              await RunRules(dev.Id, status, MountType.Offline);
+                                await RunRules(dev.Id, status, MountType.Offline);
                                 //真正离线
                             }
-                            else if (dev.Online == false && status.DeviceStatus == DeviceStatus.Good)
+                            else if (status.DeviceStatus == DeviceStatus.Good)
                             {
-                                dev.Online = true;
-                                dev.LastActive = DateTime.Now;
-                             await  RunRules(dev.Id, status, MountType.Online);
+                                await RunRules(dev.Id, status, MountType.Online);
                                 //真正掉线
-
                             }
+                            var result2 = await _dbContext.SaveAsync<AttributeLatest>(status.ToDictionary(), dev.Id, DataSide.ServerSide);
                             _dbContext.SaveChanges();
                         }
                         else

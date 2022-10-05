@@ -40,14 +40,14 @@ namespace IoTSharp.Services
 
         public Task StartAsync(CancellationToken cancellationToken)
         {
-            server.Start();
+           // server.Start();
             return Task.CompletedTask;
         }
 
         public Task StopAsync(CancellationToken cancellationToken)
         {
 
-            server.Stop();
+            //server.Stop();
             return Task.CompletedTask;
         }
     }

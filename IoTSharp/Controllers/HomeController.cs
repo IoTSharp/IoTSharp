@@ -24,12 +24,9 @@ namespace IoTSharp.Controllers
         public  ApiResult<HomeKanbanDto> KanBan()
         {
             HomeKanbanDto m = new HomeKanbanDto();
-            m.DeviceCount= _context.Device.Count(c => c.Status != DeviceStatus.Deleted);
-
-      
-
+            m.DeviceCount= _context.Device.Count(c => !c.Deleted);
             m.EventCount = _context.BaseEvents.Count(c => c.EventStaus > -1);
-            m.OnlineDeviceCount = _context.Device.Count(c => c.Online && c.Status != DeviceStatus.Deleted);
+            m.OnlineDeviceCount = -1;
             m.TelemetryDataCount = _context.TelemetryData.Count(c=>c.DateTime>DateTime.Today);
             return new ApiResult<HomeKanbanDto>(ApiCode.Success, "OK", m);
         }
@@ -37,7 +34,7 @@ namespace IoTSharp.Controllers
         [HttpGet]
         public ApiResult<List<Device>> TopTenDevice()
         {
-            return new ApiResult<List<Device>>(ApiCode.Success, "OK", _context.Device.OrderByDescending(c => c.LastActive).Skip(0).Take(10).ToList());
+            return new ApiResult<List<Device>>(ApiCode.Success, "OK", _context.Device.Skip(0).Take(10).ToList());
         }
         [HttpGet]
         public ApiResult<List<BaseEvent>> TopTenEvents()

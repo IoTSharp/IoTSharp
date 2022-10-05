@@ -26,7 +26,7 @@ namespace IoTSharp.Controllers
         public ApiResult<List<NzOption>> GetDeviceListForComboxDataSouce(string q)
         {
             return new ApiResult<List<NzOption>>(ApiCode.Success, "Ok",
-                _context.Device.OrderByDescending(c => c.LastActive).Skip(0).Take(10).ToList()
+                _context.Device.Skip(0).Take(10).ToList()
                     .Select(c => new NzOption { value = c.Id.ToString(), label = c.Name, title = c.Name }).ToList());
         }
     }

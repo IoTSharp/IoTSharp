@@ -24,7 +24,7 @@ namespace IoTSharp.EventBus
         public static void PublishSubDeviceOnline(this IPublisher _queue, Guid _gatewaydevid, Device subdev)
         {
             //如果是_dev的子设备， 则更新状态。
-            if (!subdev.Online && subdev.DeviceType == DeviceType.Device && subdev.Id != _gatewaydevid)
+            if (subdev.DeviceType == DeviceType.Device && subdev.Id != _gatewaydevid)
             {
                 _queue.PublishDeviceStatus(subdev.Id, DeviceStatus.Good);
             }

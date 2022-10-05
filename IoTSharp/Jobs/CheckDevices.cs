@@ -52,15 +52,14 @@ namespace IoTSharp.Jobs
                 //这里的自身我们认为是 有链接的设备， 而不是无连接的。 
                 try
                 {
-                    var sf = from d in _dbContext.Device.Include(d=>d.Owner) where d.Owner == null && d.Online && d.Status != DeviceStatus.Deleted select d;
+                    var sf = from d in _dbContext.Device.Include(d=>d.Owner) where d.Owner == null && !d.Deleted select d;
                     await sf.LoadAsync();
                         sf.ToList().ForEach(d =>
                   {
-                      if (!onlinedev.Any(dev => dev.Id != d.Id) && DateTime.Now.Subtract(d.LastActive).TotalSeconds >d.Timeout  )
-                      {
-                          d.Online = false;
-                          d.Status = DeviceStatus.Bad;
-                      }
+                      //if (!onlinedev.Any(dev => dev.Id != d.Id) && DateTime.Now.Subtract(d.LastActive).TotalSeconds >d.Timeout  )
+                      //{
+                       
+                      //}
                   });
                     var saveresult = await _dbContext.SaveChangesAsync();
                     _logger.LogInformation($"设备检查程序已经处理{saveresult}调数据");

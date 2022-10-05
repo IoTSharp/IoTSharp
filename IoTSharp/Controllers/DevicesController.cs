@@ -125,7 +125,7 @@ namespace IoTSharp.Controllers
             {
                 try
                 {
-                    Expression<Func<Device, bool>> condition = x => x.Customer.Id == m.customerId && x.Status!= DeviceStatus.Deleted   && x.Tenant.Id == profile.Tenant;
+                    Expression<Func<Device, bool>> condition = x => x.Customer.Id == m.customerId && !x.Deleted  && x.Tenant.Id == profile.Tenant;
                     if (!string.IsNullOrEmpty(m.Name))
                     {
                         if (System.Text.RegularExpressions.Regex.IsMatch(m.Name, @"(?im)^[{(]?[0-9A-F]{8}[-]?(?:[0-9A-F]{4}[-]?){3}[0-9A-F]{12}[)}]?$"))
@@ -141,20 +141,17 @@ namespace IoTSharp.Controllers
                     return new ApiResult<PagedData<DeviceDetailDto>>(ApiCode.Success, "OK", new PagedData<DeviceDetailDto>
                     {
                         total = await _context.Device.CountAsync(condition),
-                        rows = _context.Device.Include(c => c.DeviceIdentity).OrderByDescending(c => c.LastActive).Where(condition).Skip((m.offset) * m.limit).Take(m.limit).AsSingleQuery().ToList().Select(x => new DeviceDetailDto()
+                        rows = _context.Device.Include(c => c.DeviceIdentity).Where(condition).Skip((m.offset) * m.limit).Take(m.limit).AsSingleQuery().ToList().Select(x => new DeviceDetailDto()
                         {
                             Id = x.Id,
                             Name = x.Name,
-                            LastActive = x.LastActive,
                             IdentityId = x.DeviceIdentity?.IdentityId,
                             IdentityValue = x.DeviceIdentity?.IdentityType == IdentityType.X509Certificate ? "" : x.DeviceIdentity?.IdentityValue,
                             Tenant = x.Tenant,
                             Customer = x.Customer,
                             DeviceType = x.DeviceType,
-                            Online = x.Online,
                             Owner = x.Owner,
                             Timeout = x.Timeout,
-                            Status= x.Status,
                             IdentityType = x.DeviceIdentity?.IdentityType ?? IdentityType.AccessToken
                         }).ToList()
                     });
@@ -168,7 +165,7 @@ namespace IoTSharp.Controllers
             {
                 try
                 {
-                    Expression<Func<Device, bool>> condition = x => x.Customer.Id == m.customerId && x.Status != DeviceStatus.Deleted;
+                    Expression<Func<Device, bool>> condition = x => x.Customer.Id == m.customerId && !x.Deleted;
                     if (!string.IsNullOrEmpty(m.Name))
                     {
                         if (System.Text.RegularExpressions.Regex.IsMatch(m.Name, @"(?im)^[{(]?[0-9A-F]{8}[-]?(?:[0-9A-F]{4}[-]?){3}[0-9A-F]{12}[)}]?$"))
@@ -184,18 +181,15 @@ namespace IoTSharp.Controllers
                     return new ApiResult<PagedData<DeviceDetailDto>>(ApiCode.Success, "OK", new PagedData<DeviceDetailDto>
                     {
                         total = await _context.Device.CountAsync(condition),
-                        rows = await _context.Device.OrderByDescending(c => c.LastActive).Where(condition).Select(x => new DeviceDetailDto()
+                        rows = await _context.Device.Where(condition).Select(x => new DeviceDetailDto()
                         {
                             Id = x.Id,
                             Name = x.Name,
-                            LastActive = x.LastActive,
                             Tenant = x.Tenant,
                             Customer = x.Customer,
                             DeviceType = x.DeviceType,
-                            Online = x.Online,
                             Owner = x.Owner,
                             Timeout = x.Timeout,
-                            Status = x.Status
                         }).ToListAsync()
                     });
                 }
@@ -439,12 +433,12 @@ namespace IoTSharp.Controllers
             if (User.IsInRole(nameof(UserRole.TenantAdmin)))
             {
                 var tid =Guid.Parse( User.Claims.First(c => c.Type == IoTSharpClaimTypes.Tenant).Value);
-                dev = await _context.Device.Include(d => d.Tenant).AsSingleQuery().FirstOrDefaultAsync(d => d.Id == deviceId && d.Tenant.Id == tid && d.Status != DeviceStatus.Deleted);
+                dev = await _context.Device.Include(d => d.Tenant).AsSingleQuery().FirstOrDefaultAsync(d => d.Id == deviceId && d.Tenant.Id == tid && !d.Deleted);
             }
             else if (User.IsInRole(nameof(UserRole.NormalUser)))
             {
                 var cid = Guid.Parse( User.Claims.First(c => c.Type == IoTSharpClaimTypes.Customer).Value);
-                dev = await _context.Device.Include(d => d.Customer).AsSingleQuery().FirstOrDefaultAsync(d => d.Id == deviceId && d.Customer.Id == cid && d.Status != DeviceStatus.Deleted);
+                dev = await _context.Device.Include(d => d.Customer).AsSingleQuery().FirstOrDefaultAsync(d => d.Id == deviceId && d.Customer.Id == cid && !d.Deleted);
             }
             return dev;
         }
@@ -729,7 +723,7 @@ namespace IoTSharp.Controllers
                 Name = device.Name,
                 DeviceType = device.DeviceType,
                 Timeout = device.Timeout,
-                LastActive = DateTime.Now,
+                Deleted =false,
                 Status= DeviceStatus.UnKnow,
             };
             devvalue.Tenant = _context.Tenant.Find(new Guid(tid.Value));
@@ -951,10 +945,7 @@ namespace IoTSharp.Controllers
             }
             else
             {
-                if (DateTime.Now.Subtract( device.LastActive).TotalSeconds>device.Timeout/3)
-                {
-                    _queue.PublishDeviceStatus(device.Id, DeviceStatus.Good);
-                }
+                _queue.PublishDeviceStatus(device.Id, DeviceStatus.Good);
                 _queue.PublishTelemetryData(new PlayloadData() { DeviceId = device.Id, MsgBody = telemetrys, DataSide = DataSide.ClientSide, DataCatalog = DataCatalog.TelemetryData });
                 return Ok(new ApiResult<Dic>(ApiCode.Success, "OK", null));
             }
@@ -1016,10 +1007,7 @@ namespace IoTSharp.Controllers
             }
             else
             {
-                if (DateTime.Now.Subtract(dev.LastActive).TotalSeconds > dev.Timeout / 3)
-                {
                     _queue.PublishDeviceStatus(dev.Id, DeviceStatus.Good);
-                }
                 _queue.PublishAttributeData(new PlayloadData() { DeviceId = dev.Id, MsgBody = attributes, DataSide = DataSide.ClientSide, DataCatalog = DataCatalog.AttributeData });
                 return Ok(new ApiResult(ApiCode.Success, "OK"));
             }
@@ -1049,10 +1037,7 @@ namespace IoTSharp.Controllers
             {
                 try
                 {
-                    if (dev.Online == false)
-                    {
-                        _queue.PublishDeviceStatus(dev.Id, DeviceStatus.PartGood);
-                    }
+                     _queue.PublishDeviceStatus(dev.Id, DeviceStatus.PartGood);
                     var cad = new CreateAlarmDto()
                     {
                         AlarmDetail = alarm.AlarmDetail,

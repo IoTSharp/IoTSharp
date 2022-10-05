@@ -96,15 +96,14 @@ namespace IoTSharp.Services
         {
             try
             {
-                var dev = args.SessionItems[nameof(Device)] as Device;  
+                var dev = args.SessionItems[nameof(Device)] as Device;
                 if (dev != null)
                 {
                     using (var scope = _scopeFactor.CreateScope())
                     using (var _dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>())
                     {
                         var devtmp = _dbContext.Device.FirstOrDefault(d => d.Id == dev.Id);
-                        devtmp.LastActive = DateTime.Now;
-                        devtmp.Online = false;
+                        await _queue.PublishDeviceStatus(devtmp.Id, DeviceStatus.Bad);
                         await _dbContext.SaveChangesAsync();
                         _logger.LogInformation($"Server_ClientDisconnected   ClientId:{args.ClientId} DisconnectType:{args.DisconnectType}  Device is {devtmp.Name}({devtmp.Id}) ");
                     }
@@ -200,7 +199,7 @@ namespace IoTSharp.Services
                             var ak = _dbContextcv.AuthorizedKeys.Include(ak => ak.Customer).Include(ak => ak.Tenant).Include(ak => ak.Devices).AsSplitQuery().FirstOrDefault(ak => ak.AuthToken == obj.Password);
                             if (ak != null && !ak.Devices.Any(dev => dev.Name == obj.UserName))
                             {
-                                var devvalue = new Device() { Name = obj.UserName, DeviceType = DeviceType.Device, Timeout = 300, LastActive = DateTime.Now };
+                                var devvalue = new Device() { Name = obj.UserName, DeviceType = DeviceType.Device, Timeout = 300 };
                                 devvalue.Tenant = ak.Tenant;
                                 devvalue.Customer = ak.Customer;
                                 _dbContextcv.Device.Add(devvalue);

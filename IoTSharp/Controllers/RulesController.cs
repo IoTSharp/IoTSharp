@@ -328,7 +328,7 @@ namespace IoTSharp.Controllers
 
 
             var profile = this.GetUserProfile();
-            Expression<Func<DeviceRule, bool>> condition = x => x.Device.Customer.Id == profile.Comstomer &&  x.Device.Status!= DeviceStatus.Deleted   && x.Device.Tenant.Id == profile.Tenant&&x.FlowRule.RuleId==m.ruleId;
+            Expression<Func<DeviceRule, bool>> condition = x => x.Device.Customer.Id == profile.Comstomer &&  !x.Device.Deleted   && x.Device.Tenant.Id == profile.Tenant&&x.FlowRule.RuleId==m.ruleId;
             if (!string.IsNullOrEmpty(m.Name))
             {
                 if (System.Text.RegularExpressions.Regex.IsMatch(m.Name, @"(?im)^[{(]?[0-9A-F]{8}[-]?(?:[0-9A-F]{4}[-]?){3}[0-9A-F]{12}[)}]?$"))
@@ -346,9 +346,7 @@ namespace IoTSharp.Controllers
             var rows =await _context.DeviceRules.Include(c => c.FlowRule).Include(c => c.Device).Where(condition)
                 .Select(c => new DeviceRuleDto()
                 {
-                    Id = c.Device.Id, DeviceType = c.Device.DeviceType, EnableTrace = c.EnableTrace, LastActive = c.Device.LastActive, Name = c.Device.Name, Online = c.Device.Online, Timeout = c.Device.Timeout
-
-
+                    Id = c.Device.Id, DeviceType = c.Device.DeviceType, EnableTrace = c.EnableTrace, Name = c.Device.Name, Timeout = c.Device.Timeout
                 }).Skip(m.offset * m.limit).Take(m.limit).ToListAsync();
             var total =await _context.DeviceRules.Include(c => c.FlowRule).Include(c => c.Device).Where(condition).Select(c=>c.Device).AsSplitQuery().CountAsync();
             return new ApiResult<PagedData<DeviceRuleDto>>(ApiCode.Success, "Ok",  new PagedData<DeviceRuleDto> { rows=rows,total= total });

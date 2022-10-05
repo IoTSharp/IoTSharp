@@ -642,16 +642,6 @@
             设备类型
             </summary>
         </member>
-        <member name="P:IoTSharp.Dtos.DeviceDetailDto.Online">
-            <summary>
-            在线
-            </summary>
-        </member>
-        <member name="P:IoTSharp.Dtos.DeviceDetailDto.LastActive">
-            <summary>
-            最后一次活跃时间
-            </summary>
-        </member>
         <member name="P:IoTSharp.Dtos.DeviceDetailDto.Timeout">
             <summary>
             超时时间 秒数 
@@ -680,16 +670,6 @@
         <member name="P:IoTSharp.Dtos.DeviceRuleDto.DeviceType">
             <summary>
             设备类型
-            </summary>
-        </member>
-        <member name="P:IoTSharp.Dtos.DeviceRuleDto.Online">
-            <summary>
-            在线
-            </summary>
-        </member>
-        <member name="P:IoTSharp.Dtos.DeviceRuleDto.LastActive">
-            <summary>
-            最后一次活跃时间
             </summary>
         </member>
         <member name="P:IoTSharp.Dtos.DeviceRuleDto.Timeout">

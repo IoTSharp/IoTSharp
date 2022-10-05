@@ -46,9 +46,7 @@ namespace IoTSharp.Data.MySQL
             modelBuilder.Entity<AuditLog>()
             .Property(b => b.ActiveDateTime)
             .HasColumnType("timestamp");
-            modelBuilder.Entity<Device>()
-            .Property(b => b.LastActive)
-            .HasColumnType("timestamp");
+
             if (sv.Supports.Json)
             {
                     modelBuilder.Entity<TelemetryData>()
