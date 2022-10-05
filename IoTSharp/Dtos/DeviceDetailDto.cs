@@ -51,6 +51,7 @@ namespace IoTSharp.Dtos
 
 #nullable enable
         public DeviceModel? Model { get; set; }
+        public DeviceStatus Status { get;  set; }
 
 #nullable disable
     }

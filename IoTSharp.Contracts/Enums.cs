@@ -27,7 +27,7 @@ namespace IoTSharp.Contracts
         NothingToDo = 10007,
         DoNotAllow = 10008,
         NotFoundTenant = 10009,
-        NotFoundDeviceIdentity = 10010,
+        ExceptionDeviceIdentity = 10010,
         RPCFailed = 10011,
         RPCTimeout = 10012,
         CustomerDoesNotHaveDevice = 10013,

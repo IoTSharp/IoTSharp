@@ -46,5 +46,6 @@ namespace IoTSharp.Models
         public ModelAssetAttrItem[] Attrs { get; set; }
 
         public ModelAssetAttrItem[] Temps { get; set; }
+        public DeviceStatus Status { get;  set; }
     }
 }

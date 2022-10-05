@@ -38,6 +38,8 @@ using System.Xml;
 using ShardingCore.Extensions;
 using Dic = System.Collections.Generic.Dictionary<string, string>;
 using DicKV = System.Collections.Generic.KeyValuePair<string, string>;
+using Consul;
+using LogLevel = Microsoft.Extensions.Logging.LogLevel;
 
 namespace IoTSharp.Controllers
 {
@@ -152,6 +154,7 @@ namespace IoTSharp.Controllers
                             Online = x.Online,
                             Owner = x.Owner,
                             Timeout = x.Timeout,
+                            Status= x.Status,
                             IdentityType = x.DeviceIdentity?.IdentityType ?? IdentityType.AccessToken
                         }).ToList()
                     });
@@ -192,6 +195,7 @@ namespace IoTSharp.Controllers
                             Online = x.Online,
                             Owner = x.Owner,
                             Timeout = x.Timeout,
+                            Status = x.Status
                         }).ToListAsync()
                     });
                 }
@@ -277,18 +281,18 @@ namespace IoTSharp.Controllers
                         }
                         else
                         {
-                            return new ApiResult<DeviceIdentity>(ApiCode.NotFoundDeviceIdentity, "Please set valid MqttBroker TlsPort", null);
+                            return new ApiResult<DeviceIdentity>(ApiCode.ExceptionDeviceIdentity, "Please set valid MqttBroker TlsPort", null);
                         }
                     }
-                    return new ApiResult<DeviceIdentity>(ApiCode.NotFoundDeviceIdentity, "Please set MqttBroker ServerIPAddress", null);
+                    return new ApiResult<DeviceIdentity>(ApiCode.ExceptionDeviceIdentity, "Please set MqttBroker ServerIPAddress", null);
 
                 }
-                return new ApiResult<DeviceIdentity>(ApiCode.NotFoundDeviceIdentity, "Please set MqttBroker domain name", null);
+                return new ApiResult<DeviceIdentity>(ApiCode.ExceptionDeviceIdentity, "Please set MqttBroker domain name", null);
 
             }
             else
             {
-                return new ApiResult<DeviceIdentity>(ApiCode.NotFoundDeviceIdentity, "Not found device identity", null);
+                return new ApiResult<DeviceIdentity>(ApiCode.ExceptionDeviceIdentity, "Not found device identity", null);
             }
         }
 
@@ -460,7 +464,7 @@ namespace IoTSharp.Controllers
             Device dev = await FoundAsync(deviceId);
             if (dev == null)
             {
-                return new ApiResult<List<TelemetryDataDto>>(ApiCode.NotFoundDeviceIdentity, "Device's Identity not found", null);
+                return new ApiResult<List<TelemetryDataDto>>(ApiCode.ExceptionDeviceIdentity, "Device's Identity not found", null);
             }
 
             try
@@ -492,7 +496,7 @@ namespace IoTSharp.Controllers
             Device dev = await FoundAsync(deviceId);
             if (dev == null)
             {
-                return new ApiResult<List<TelemetryDataDto>>(ApiCode.NotFoundDeviceIdentity, "Device's Identity not found", null);
+                return new ApiResult<List<TelemetryDataDto>>(ApiCode.ExceptionDeviceIdentity, "Device's Identity not found", null);
             }
             else
             {
@@ -517,7 +521,7 @@ namespace IoTSharp.Controllers
             Device dev = await FoundAsync(deviceId);
             if (dev == null)
             {
-                return new ApiResult<List<TelemetryDataDto>>(ApiCode.NotFoundDeviceIdentity, "Device's Identity not found", null);
+                return new ApiResult<List<TelemetryDataDto>>(ApiCode.ExceptionDeviceIdentity, "Device's Identity not found", null);
             }
             else
             {
@@ -544,7 +548,7 @@ namespace IoTSharp.Controllers
             Device dev = await FoundAsync(deviceId);
             if (dev == null)
             {
-                return new ApiResult<List<TelemetryDataDto>>(ApiCode.NotFoundDeviceIdentity, "Device's Identity not found", null);
+                return new ApiResult<List<TelemetryDataDto>>(ApiCode.ExceptionDeviceIdentity, "Device's Identity not found", null);
             }
             else
             {
@@ -576,7 +580,7 @@ namespace IoTSharp.Controllers
             Device dev = await FoundAsync(deviceId);
             if (dev == null)
             {
-                return new ApiResult<List<TelemetryDataDto>>(ApiCode.NotFoundDeviceIdentity, "Device's Identity not found", null);
+                return new ApiResult<List<TelemetryDataDto>>(ApiCode.ExceptionDeviceIdentity, "Device's Identity not found", null);
             }
             else
             {
@@ -601,7 +605,7 @@ namespace IoTSharp.Controllers
             Device device = await FoundAsync(id);
             if (device == null)
             {
-                return new ApiResult<Device>(ApiCode.NotFoundDeviceIdentity, "Device's Identity not found", null);
+                return new ApiResult<Device>(ApiCode.ExceptionDeviceIdentity, "Device's Identity not found", null);
             }
             return new ApiResult<Device>(ApiCode.Success, "Ok", device);
         }
@@ -635,7 +639,7 @@ namespace IoTSharp.Controllers
 
             if (dev == null)
             {
-                return new ApiResult<bool>(ApiCode.NotFoundDeviceIdentity, "Device's Identity not found", false);
+                return new ApiResult<bool>(ApiCode.ExceptionDeviceIdentity, "Device's Identity not found", false);
             }
             else if (dev.Tenant?.Id.ToString() != tid.Value || dev.Customer?.Id.ToString() != cid.Value)
             {
@@ -1047,7 +1051,7 @@ namespace IoTSharp.Controllers
                 {
                     if (dev.Online == false)
                     {
-                        _queue.PublishDeviceStatus(dev.Id, DeviceStatus.Good);
+                        _queue.PublishDeviceStatus(dev.Id, DeviceStatus.PartGood);
                     }
                     var cad = new CreateAlarmDto()
                     {
