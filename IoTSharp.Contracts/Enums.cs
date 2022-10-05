@@ -52,6 +52,32 @@ namespace IoTSharp.Contracts
   
     }
 
+    [System.Text.Json.Serialization.JsonConverter(typeof(System.Text.Json.Serialization.JsonStringEnumConverter))]
+    [JsonConverter(typeof(StringEnumConverter))]
+    public enum ConnectStatus
+    {
+        /// <summary>
+        /// 已断开
+        /// </summary>
+        Disconnected = 0,
+        /// <summary>
+        /// 已连接
+        /// </summary>
+        Connected =1
+    }
+    [System.Text.Json.Serialization.JsonConverter(typeof(System.Text.Json.Serialization.JsonStringEnumConverter))]
+    [JsonConverter(typeof(StringEnumConverter))]
+    public enum ActivityStatus
+    {
+        /// <summary>
+        /// 非活动
+        /// </summary>
+        Inactivity = 0,
+        /// <summary>
+        /// 活跃
+        /// </summary>
+        Activity = 1
+    }
 
     [System.Text.Json.Serialization.JsonConverter(typeof(System.Text.Json.Serialization.JsonStringEnumConverter))]
     [JsonConverter(typeof(StringEnumConverter))]

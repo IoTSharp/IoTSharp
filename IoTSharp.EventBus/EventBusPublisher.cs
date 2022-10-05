@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace IoTSharp.EventBus
 {
-    public static class EventBusExtensions
+    public static class EventBusPublisher
     {
 
         public static void PublishAttributeData(this IPublisher cap, Device device, Dictionary<string, object> keyValues)
