@@ -588,29 +588,23 @@ namespace IoTSharp.Migrations
                     b.Property<Guid?>("CustomerId")
                         .HasColumnType("uuid");
 
+                    b.Property<bool>("Deleted")
+                        .HasColumnType("boolean");
+
                     b.Property<Guid?>("DeviceModelId")
                         .HasColumnType("uuid");
 
                     b.Property<int>("DeviceType")
                         .HasColumnType("integer");
 
-                    b.Property<DateTime>("LastActive")
-                        .HasColumnType("timestamp with time zone");
-
                     b.Property<string>("Name")
                         .HasColumnType("text");
-
-                    b.Property<bool>("Online")
-                        .HasColumnType("boolean");
 
                     b.Property<Guid?>("OwnerId")
                         .HasColumnType("uuid");
 
                     b.Property<Guid?>("ProduceId")
                         .HasColumnType("uuid");
-
-                    b.Property<int>("Status")
-                        .HasColumnType("integer");
 
                     b.Property<Guid?>("TenantId")
                         .HasColumnType("uuid");
@@ -623,8 +617,6 @@ namespace IoTSharp.Migrations
                     b.HasIndex("AuthorizedKeyId");
 
                     b.HasIndex("CustomerId");
-
-                    b.HasIndex("DeviceModelId");
 
                     b.HasIndex("OwnerId");
 
@@ -2207,10 +2199,6 @@ namespace IoTSharp.Migrations
                         .WithMany("Devices")
                         .HasForeignKey("CustomerId");
 
-                    b.HasOne("IoTSharp.Data.DeviceModel", "DeviceModel")
-                        .WithMany()
-                        .HasForeignKey("DeviceModelId");
-
                     b.HasOne("IoTSharp.Data.Gateway", "Owner")
                         .WithMany("Children")
                         .HasForeignKey("OwnerId");
@@ -2224,8 +2212,6 @@ namespace IoTSharp.Migrations
                         .HasForeignKey("TenantId");
 
                     b.Navigation("Customer");
-
-                    b.Navigation("DeviceModel");
 
                     b.Navigation("Owner");
 

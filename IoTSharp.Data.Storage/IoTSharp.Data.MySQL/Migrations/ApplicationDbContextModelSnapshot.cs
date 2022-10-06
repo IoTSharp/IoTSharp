@@ -579,29 +579,23 @@ namespace IoTSharp.Data.MySql.Migrations
                     b.Property<Guid?>("CustomerId")
                         .HasColumnType("char(36)");
 
+                    b.Property<bool>("Deleted")
+                        .HasColumnType("tinyint(1)");
+
                     b.Property<Guid?>("DeviceModelId")
                         .HasColumnType("char(36)");
 
                     b.Property<int>("DeviceType")
                         .HasColumnType("int");
 
-                    b.Property<DateTime>("LastActive")
-                        .HasColumnType("timestamp");
-
                     b.Property<string>("Name")
                         .HasColumnType("longtext");
-
-                    b.Property<bool>("Online")
-                        .HasColumnType("tinyint(1)");
 
                     b.Property<Guid?>("OwnerId")
                         .HasColumnType("char(36)");
 
                     b.Property<Guid?>("ProduceId")
                         .HasColumnType("char(36)");
-
-                    b.Property<int>("Status")
-                        .HasColumnType("int");
 
                     b.Property<Guid?>("TenantId")
                         .HasColumnType("char(36)");
@@ -614,8 +608,6 @@ namespace IoTSharp.Data.MySql.Migrations
                     b.HasIndex("AuthorizedKeyId");
 
                     b.HasIndex("CustomerId");
-
-                    b.HasIndex("DeviceModelId");
 
                     b.HasIndex("OwnerId");
 
@@ -2188,10 +2180,6 @@ namespace IoTSharp.Data.MySql.Migrations
                         .WithMany("Devices")
                         .HasForeignKey("CustomerId");
 
-                    b.HasOne("IoTSharp.Data.DeviceModel", "DeviceModel")
-                        .WithMany()
-                        .HasForeignKey("DeviceModelId");
-
                     b.HasOne("IoTSharp.Data.Gateway", "Owner")
                         .WithMany("Children")
                         .HasForeignKey("OwnerId");
@@ -2205,8 +2193,6 @@ namespace IoTSharp.Data.MySql.Migrations
                         .HasForeignKey("TenantId");
 
                     b.Navigation("Customer");
-
-                    b.Navigation("DeviceModel");
 
                     b.Navigation("Owner");
 

@@ -657,30 +657,24 @@ namespace IoTSharp.Data.Sqlite.Migrations
                     b.Property<Guid?>("CustomerId")
                         .HasColumnType("TEXT");
 
+                    b.Property<bool>("Deleted")
+                        .HasColumnType("INTEGER");
+
                     b.Property<Guid?>("DeviceModelId")
                         .HasColumnType("TEXT");
 
                     b.Property<int>("DeviceType")
                         .HasColumnType("INTEGER");
 
-                    b.Property<DateTime>("LastActive")
-                        .HasColumnType("TEXT");
-
                     b.Property<string>("Name")
                         .HasColumnType("TEXT")
                         .UseCollation("NOCASE");
-
-                    b.Property<bool>("Online")
-                        .HasColumnType("INTEGER");
 
                     b.Property<Guid?>("OwnerId")
                         .HasColumnType("TEXT");
 
                     b.Property<Guid?>("ProduceId")
                         .HasColumnType("TEXT");
-
-                    b.Property<int>("Status")
-                        .HasColumnType("INTEGER");
 
                     b.Property<Guid?>("TenantId")
                         .HasColumnType("TEXT");
@@ -693,8 +687,6 @@ namespace IoTSharp.Data.Sqlite.Migrations
                     b.HasIndex("AuthorizedKeyId");
 
                     b.HasIndex("CustomerId");
-
-                    b.HasIndex("DeviceModelId");
 
                     b.HasIndex("OwnerId");
 
@@ -2431,10 +2423,6 @@ namespace IoTSharp.Data.Sqlite.Migrations
                         .WithMany("Devices")
                         .HasForeignKey("CustomerId");
 
-                    b.HasOne("IoTSharp.Data.DeviceModel", "DeviceModel")
-                        .WithMany()
-                        .HasForeignKey("DeviceModelId");
-
                     b.HasOne("IoTSharp.Data.Gateway", "Owner")
                         .WithMany("Children")
                         .HasForeignKey("OwnerId");
@@ -2448,8 +2436,6 @@ namespace IoTSharp.Data.Sqlite.Migrations
                         .HasForeignKey("TenantId");
 
                     b.Navigation("Customer");
-
-                    b.Navigation("DeviceModel");
 
                     b.Navigation("Owner");
 
