@@ -55,7 +55,7 @@ namespace IoTSharp.Gateways
  
         public async Task<ApiResult> ExecuteAsync(Device _dev, string format, string body)
         {
-            await _queue.PublishDeviceStatus(_dev.Id, DeviceStatus.Good);
+           await _queue.PublishActive(_dev.Id, ActivityStatus.Activity);
             var result=new ApiResult();
             string json = body;
             if (format == "xml")
@@ -113,7 +113,7 @@ namespace IoTSharp.Gateways
                                 {
                                     errortimes++;
                                 }
-                              
+
                             });
                             if (errortimes>0)
                             {
@@ -190,7 +190,7 @@ namespace IoTSharp.Gateways
             return _result;
         }
 
-        private void push_one_device_data_with_json(JToken jt, JToken jroot, Device _dev, string _devname, AttributeLatest[] atts, string ts_field, string ts_format)
+        private async void push_one_device_data_with_json(JToken jt, JToken jroot, Device _dev, string _devname, AttributeLatest[] atts, string ts_field, string ts_format)
         {
             var device = _dev.JudgeOrCreateNewDevice(_devname, _scopeFactor, _logger);
             var pairs_att = new Dictionary<string, object>();
@@ -244,14 +244,14 @@ namespace IoTSharp.Gateways
 
             if (pairs_tel.Any())
             {
-                _queue.PublishTelemetryData(new PlayloadData() { ts = ts, DeviceId = device.Id, MsgBody = pairs_tel, DataSide = DataSide.ClientSide, DataCatalog = DataCatalog.TelemetryData });
+                await _queue.PublishTelemetryData(new PlayloadData() { ts = ts, DeviceId = device.Id, MsgBody = pairs_tel, DataSide = DataSide.ClientSide, DataCatalog = DataCatalog.TelemetryData });
             }
             if (pairs_att.Any())
             {
-                _queue.PublishAttributeData(new PlayloadData() { ts = ts, DeviceId = device.Id, MsgBody = pairs_att, DataSide = DataSide.ClientSide, DataCatalog = DataCatalog.AttributeData });
+                await _queue.PublishAttributeData(new PlayloadData() { ts = ts, DeviceId = device.Id, MsgBody = pairs_att, DataSide = DataSide.ClientSide, DataCatalog = DataCatalog.AttributeData });
             }
-            _queue.PublishDeviceStatus(device.Id, DeviceStatus.Good);
-        
+            await _queue.PublishActive(device.Id, ActivityStatus.Activity);
+
 
 
         }

@@ -945,7 +945,7 @@ namespace IoTSharp.Controllers
             }
             else
             {
-                _queue.PublishDeviceStatus(device.Id, DeviceStatus.Good);
+                _queue.PublishActive(device.Id, ActivityStatus.Activity);
                 _queue.PublishTelemetryData(new PlayloadData() { DeviceId = device.Id, MsgBody = telemetrys, DataSide = DataSide.ClientSide, DataCatalog = DataCatalog.TelemetryData });
                 return Ok(new ApiResult<Dic>(ApiCode.Success, "OK", null));
             }
@@ -1007,7 +1007,7 @@ namespace IoTSharp.Controllers
             }
             else
             {
-                    _queue.PublishDeviceStatus(dev.Id, DeviceStatus.Good);
+                _queue.PublishActive(dev.Id, ActivityStatus.Activity);
                 _queue.PublishAttributeData(new PlayloadData() { DeviceId = dev.Id, MsgBody = attributes, DataSide = DataSide.ClientSide, DataCatalog = DataCatalog.AttributeData });
                 return Ok(new ApiResult(ApiCode.Success, "OK"));
             }
@@ -1037,7 +1037,7 @@ namespace IoTSharp.Controllers
             {
                 try
                 {
-                     _queue.PublishDeviceStatus(dev.Id, DeviceStatus.PartGood);
+                    _queue.PublishActive(dev.Id, ActivityStatus.Activity);
                     var cad = new CreateAlarmDto()
                     {
                         AlarmDetail = alarm.AlarmDetail,

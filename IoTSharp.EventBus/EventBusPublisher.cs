@@ -20,7 +20,7 @@ namespace IoTSharp.EventBus
         {
             cap.PublishTelemetryData(new PlayloadData() { DeviceId = device.Id, MsgBody = keyValues, DataSide = DataSide.ClientSide, DataCatalog = DataCatalog.TelemetryData });
         }
-
+        [Obsolete]
         public static void PublishSubDeviceOnline(this IPublisher _queue, Guid _gatewaydevid, Device subdev)
         {
             //如果是_dev的子设备， 则更新状态。

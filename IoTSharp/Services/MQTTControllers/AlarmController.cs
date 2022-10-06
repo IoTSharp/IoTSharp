@@ -45,7 +45,7 @@ namespace IoTSharp.Services.MQTTControllers
                 _devname = value;
                 var _dev = GetSessionItem<Device>();
                 device = _dev.JudgeOrCreateNewDevice(devname, _scopeFactor, _logger);
-                _queue.PublishSubDeviceOnline(_dev.Id, device);
+                _queue.PublishActive(_dev.Id,  ActivityStatus.Activity);
             }
         }
 
