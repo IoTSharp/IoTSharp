@@ -21,6 +21,8 @@ namespace IoTSharp.EventBus.Shashlik
         {
 
         }
+
+      
     }
 
     public class EventAttributeDataHandler : IEventHandler<AttributeDataEvent>

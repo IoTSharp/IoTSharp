@@ -6,8 +6,6 @@ using IoTSharp.Extensions;
 using IoTSharp.Storage;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
-using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Dynamic;
@@ -36,8 +34,11 @@ namespace IoTSharp.EventBus
             _caching = factory.GetCachingProvider(_hc_Caching);
             _eventBusOption = eventBusOption;
         }
-
         public async Task StoreAttributeData(PlayloadData msg)
+        {
+            await StoreAttributeData(msg, MountType.Attribute);
+        }
+        public async Task StoreAttributeData(PlayloadData msg, MountType _event)
         {
             try
             {
@@ -55,7 +56,10 @@ namespace IoTSharp.EventBus
                                 _logger.LogError($"{ex.Key} {ex.Value} {Newtonsoft.Json.JsonConvert.SerializeObject(msg.MsgBody[ex.Key])}");
                             });
                             _logger.LogInformation($"更新{device.Name}({device.Id})属性数据结果{result2.ret}");
-                            await RunRules(msg.DeviceId, dc.ToDynamic(), MountType.Attribute);
+                            if (_event!= MountType.None)
+                            {
+                                await RunRules(msg.DeviceId, dc.ToDynamic(), _event);
+                            }
                         }
                     }
                 }
@@ -68,7 +72,7 @@ namespace IoTSharp.EventBus
         }
 
 
-        private async Task RunRules(Guid deviceId, object obj, MountType attribute)
+        public async Task RunRules(Guid deviceId, object obj, MountType attribute)
         {
             await _eventBusOption.RunRules(deviceId, obj, attribute);
         }
@@ -120,12 +124,12 @@ namespace IoTSharp.EventBus
                         {
                             if (status.DeviceStatus != DeviceStatus.Good)
                             {
-                                await RunRules(dev.Id, status, MountType.Offline);
+                                await RunRules(dev.Id, status, MountType.Disconnected);
                                 //真正离线
                             }
                             else if (status.DeviceStatus == DeviceStatus.Good)
                             {
-                                await RunRules(dev.Id, status, MountType.Online);
+                                await RunRules(dev.Id, status, MountType.Connected);
                                 //真正掉线
                             }
                             var result2 = await _dbContext.SaveAsync<AttributeLatest>(status.ToDictionary(), dev.Id, DataSide.ServerSide);
@@ -164,6 +168,29 @@ namespace IoTSharp.EventBus
         {
             await RunRules(deviceId, new object(), MountType.CreateDevice);
         }
+
+        public async Task Active(Guid devid, ActivityStatus activity)
+        {
+            var msg = new PlayloadData();
+            msg.DeviceId = devid;
+            msg.DataCatalog = DataCatalog.AttributeData;
+            msg.DataSide = DataSide.ServerSide;
+            msg.MsgBody.Add(activity == ActivityStatus.Activity ? "LastActivityDateTime" : "InactivityAlarmDateTime ", DateTime.Now);
+            msg.MsgBody.Add("Active", activity == ActivityStatus.Activity);
+            await StoreAttributeData(msg, activity == ActivityStatus.Activity ? MountType.Activity : MountType.Inactivity);
+        }
+
+        public async Task Connect(Guid devid, ConnectStatus devicestatus)
+        {
+            var msg = new PlayloadData();
+            msg.DeviceId = devid;
+            msg.DataCatalog = DataCatalog.AttributeData;
+            msg.DataSide = DataSide.ServerSide;
+            msg.MsgBody.Add(devicestatus == ConnectStatus.Connected ? "LastConnectDateTime" : "LastDisconnectDateTime", DateTime.Now);
+            await StoreAttributeData(msg, devicestatus == ConnectStatus.Connected ? MountType.Connected : MountType.Disconnected);
+        }
+       
+ 
 
     }
 }

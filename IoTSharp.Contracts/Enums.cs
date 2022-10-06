@@ -201,6 +201,7 @@ namespace IoTSharp.Contracts
     [JsonConverter(typeof(StringEnumConverter))]
     public enum MountType
     {
+        None=-1,
         /// <summary>
         /// 原始数据
         /// </summary>
@@ -220,11 +221,11 @@ namespace IoTSharp.Contracts
         /// <summary>
         /// 在线
         /// </summary>
-        Online = 4,
+        Connected = 4,
         /// <summary>
         /// 离线
         /// </summary>
-        Offline = 5,
+        Disconnected = 5,
         /// <summary>
         /// 遥测数据， key value type datetime 
         /// </summary>
@@ -235,6 +236,14 @@ namespace IoTSharp.Contracts
         Alarm = 7,
         DeleteDevice = 8,
         CreateDevice = 9,
+        /// <summary>
+        /// 活动事件
+        /// </summary>
+        Activity = 10,
+        /// <summary>
+        /// 非活跃状态
+        /// </summary>
+        Inactivity = 11
     }
     /// <summary>
     /// 折叠数据

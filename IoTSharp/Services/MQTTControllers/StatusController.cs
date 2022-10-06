@@ -48,20 +48,20 @@ namespace IoTSharp.Services.MQTTControllers
         public Task UpdateStatus(DeviceStatus status)
         {
             _logger.LogInformation($"重置状态{device.Id} {device.Name}");
+            _queue.PublishStatus(device, status);
             if (device.DeviceType == DeviceType.Device && device.Owner != null && device.Owner?.Id != null && device.Owner?.Id != Guid.Empty)//虚拟设备上线
             {
                 _queue.PublishActive(device.Id, ActivityStatus.Activity);
                 _queue.PublishActive(device.Owner.Id, ActivityStatus.Activity);
-                _queue.PublishDeviceStatus(device.Id, status);
-                _queue.PublishDeviceStatus(device.Owner.Id, status != DeviceStatus.Good ? DeviceStatus.PartGood : status);
                 _logger.LogInformation($"重置网关状态{device.Owner.Id} {device.Owner.Name}");
             }
             else
             {
-                _queue.PublishDeviceStatus(device.Id, status);
                 _queue.PublishActive(device.Id, ActivityStatus.Activity);
             }
             return Ok();
         }
+
+      
     }
 }

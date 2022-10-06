@@ -8,26 +8,52 @@ using System.Threading.Tasks;
 
 namespace IoTSharp.EventBus
 {
+    /// <summary>
+    /// 消息发布扩展类
+    /// </summary>
     public static class EventBusPublisher
     {
-
-        public static void PublishAttributeData(this IPublisher cap, Device device, Dictionary<string, object> keyValues)
+        /// <summary>
+        /// 将指定字典发布到指定设备中
+        /// </summary>
+        /// <param name="_queue"></param>
+        /// <param name="device"></param>
+        /// <param name="keyValues"></param>
+        public static void PublishAttributeData(this IPublisher _queue, Device device, Dictionary<string, object> keyValues)
         {
-            cap.PublishAttributeData(new PlayloadData() { DeviceId = device.Id, MsgBody = keyValues, DataSide = DataSide.ClientSide, DataCatalog = DataCatalog.AttributeData });
+            _queue.PublishAttributeData(new PlayloadData() { DeviceId = device.Id, MsgBody = keyValues, DataSide = DataSide.ClientSide, DataCatalog = DataCatalog.AttributeData });
         }
-
-        public static void PublishTelemetryData(this IPublisher cap, Device device, Dictionary<string, object> keyValues)
+        /// <summary>
+        /// 发布属性数据
+        /// </summary>
+        /// <param name="_queue"></param>
+        /// <param name="device"></param>
+        /// <param name="_data"></param>
+        public static void PublishAttributeData(this IPublisher _queue, Device device, Action<PlayloadData> _data)
         {
-            cap.PublishTelemetryData(new PlayloadData() { DeviceId = device.Id, MsgBody = keyValues, DataSide = DataSide.ClientSide, DataCatalog = DataCatalog.TelemetryData });
+            var dat = new PlayloadData() { DeviceId = device.Id, MsgBody = new Dictionary<string, object>(), DataSide = DataSide.ClientSide, DataCatalog = DataCatalog.AttributeData };
+            _data?.Invoke(dat);
+            _queue.PublishAttributeData(dat);
         }
-        [Obsolete]
-        public static void PublishSubDeviceOnline(this IPublisher _queue, Guid _gatewaydevid, Device subdev)
+        /// <summary>
+        /// 发布字典到遥测数据
+        /// </summary>
+        /// <param name="_queue"></param>
+        /// <param name="device"></param>
+        /// <param name="keyValues"></param>
+        public static void PublishTelemetryData(this IPublisher _queue, Device device, Dictionary<string, object> keyValues)
         {
-            //如果是_dev的子设备， 则更新状态。
-            if (subdev.DeviceType == DeviceType.Device && subdev.Id != _gatewaydevid)
-            {
-                _queue.PublishDeviceStatus(subdev.Id, DeviceStatus.Good);
-            }
+            _queue.PublishTelemetryData(new PlayloadData() { DeviceId = device.Id, MsgBody = keyValues, DataSide = DataSide.ClientSide, DataCatalog = DataCatalog.TelemetryData });
+        }
+        /// <summary>
+        /// 发布设备状态到属性当中。 
+        /// </summary>
+        /// <param name="_queue"></param>
+        /// <param name="device"></param>
+        /// <param name="status"></param>
+        public static void PublishStatus(this IPublisher _queue, Device device, DeviceStatus status)
+        {
+            _queue.PublishAttributeData(device, msg => msg.MsgBody.Add("Status", status));
         }
 
     }
