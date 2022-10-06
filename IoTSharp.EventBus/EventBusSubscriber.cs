@@ -17,6 +17,7 @@ namespace IoTSharp.EventBus
 
     public class EventBusSubscriber
     {
+       
         private readonly ILogger _logger;
         private readonly IServiceScopeFactory _scopeFactor;
         private readonly IStorage _storage;
@@ -176,8 +177,8 @@ namespace IoTSharp.EventBus
             msg.DataCatalog = DataCatalog.AttributeData;
             msg.DataSide = DataSide.ServerSide;
             msg.MsgBody = new Dictionary<string, object>();
-            msg.MsgBody.Add(activity == ActivityStatus.Activity ? "LastActivityDateTime" : "InactivityAlarmDateTime ", DateTime.Now);
-            msg.MsgBody.Add("Active", activity == ActivityStatus.Activity);
+            msg.MsgBody.Add(activity == ActivityStatus.Activity ? Constants._LastActivityDateTime : Constants._InactivityAlarmDateTime, DateTime.Now);
+            msg.MsgBody.Add(Constants._Active, activity == ActivityStatus.Activity);
             await StoreAttributeData(msg, activity == ActivityStatus.Activity ? MountType.Activity : MountType.Inactivity);
         }
 
@@ -188,7 +189,7 @@ namespace IoTSharp.EventBus
             msg.DataCatalog = DataCatalog.AttributeData;
             msg.DataSide = DataSide.ServerSide;
             msg.MsgBody = new Dictionary<string, object>();
-            msg.MsgBody.Add(devicestatus == ConnectStatus.Connected ? "LastConnectDateTime" : "LastDisconnectDateTime", DateTime.Now);
+            msg.MsgBody.Add(devicestatus == ConnectStatus.Connected ? Constants._LastConnectDateTime : Constants._LastDisconnectDateTime, DateTime.Now);
             await StoreAttributeData(msg, devicestatus == ConnectStatus.Connected ? MountType.Connected : MountType.Disconnected);
         }
        

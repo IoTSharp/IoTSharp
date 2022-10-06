@@ -42,27 +42,28 @@ namespace IoTSharp.Jobs
             using (var scope = _scopeFactor.CreateScope())
             using (var _dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>())
             {
-                var clientstatus = await _serverEx.GetClientsAsync();
-                var onlinedev = from client in clientstatus select client.Session.Items[nameof(Device)] as Device;
-                //把超时时间小于1的都设置为300秒
-                var tfx = from d in _dbContext.Device where d.Timeout < 1 select d;
-                tfx.ToList().ForEach(d => d.Timeout = 300);
-
-                //所有在线且活跃时间超时的设备如果不在已连接客户端内， 则认为是离线。 
-                //这里的自身我们认为是 有链接的设备， 而不是无连接的。 
                 try
                 {
-                    var sf = from d in _dbContext.Device.Include(d=>d.Owner) where d.Owner == null && !d.Deleted select d;
-                    await sf.LoadAsync();
-                        sf.ToList().ForEach(d =>
-                  {
-                      //if (!onlinedev.Any(dev => dev.Id != d.Id) && DateTime.Now.Subtract(d.LastActive).TotalSeconds >d.Timeout  )
-                      //{
-                       
-                      //}
-                  });
-                    var saveresult = await _dbContext.SaveChangesAsync();
-                    _logger.LogInformation($"设备检查程序已经处理{saveresult}调数据");
+                    var sf = from d in _dbContext.AttributeLatest where (d.KeyName == Constants._Active && d.Value_Boolean == true) select d.DeviceId;
+                    if (sf.Any())
+                    {
+                        var devids = await sf.ToListAsync();
+                        foreach (var id in devids)
+                        {
+                            var dev = await _dbContext.Device.FirstOrDefaultAsync(d=>d.Id== id);
+                            var ladt = from d in _dbContext.AttributeLatest where d.DeviceId == id && d.DataSide == DataSide.ServerSide && d.KeyName == Constants._LastActivityDateTime select d.Value_DateTime;
+                            var __LastActivityDateTime = await ladt.FirstOrDefaultAsync();
+                            if (dev != null && __LastActivityDateTime!=null)
+                            {
+                             
+                                if (DateTime.Now.Subtract(__LastActivityDateTime.GetValueOrDefault()).TotalSeconds > dev.Timeout)
+                                {
+                                    _logger.LogInformation($"设备{dev.Name}({dev.Id})现在置非活跃状态，上次活跃时间为{__LastActivityDateTime},超时时间{dev.Timeout}秒");
+                                    await _queue.PublishActive(id, ActivityStatus.Inactivity);
+                                }
+                            }
+                        }
+                    }
                 }
                 catch (Exception ex)
                 {
