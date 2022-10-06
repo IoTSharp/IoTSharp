@@ -44,7 +44,6 @@ namespace IoTSharp.Data
         /// </summary>
         public Customer Customer { get; set; }
 
-        public DeviceStatus Status { get; set; }
 
         public Guid? DeviceModelId { get; set; }
 

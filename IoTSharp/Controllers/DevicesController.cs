@@ -723,8 +723,7 @@ namespace IoTSharp.Controllers
                 Name = device.Name,
                 DeviceType = device.DeviceType,
                 Timeout = device.Timeout,
-                Deleted =false,
-                Status= DeviceStatus.UnKnow,
+                Deleted =false
             };
             devvalue.Tenant = _context.Tenant.Find(new Guid(tid.Value));
             devvalue.Customer = _context.Customer.Find(new Guid(cid.Value));
