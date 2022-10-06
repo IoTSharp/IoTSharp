@@ -187,19 +187,22 @@ namespace IoTSharp.Contracts
         RuleNode,
         RuleSwitcher
     }
-
+    /// <summary>
+    /// 原来的事件 ， 现在改为 流程规则运行类型。 
+    /// </summary>
     [System.Text.Json.Serialization.JsonConverter(typeof(System.Text.Json.Serialization.JsonStringEnumConverter))]
     [JsonConverter(typeof(StringEnumConverter))]
-    public enum EventType
+    public enum FlowRuleRunType
     {
         Normal=1,
         TestPurpose=2
     }
-
-    
+    /// <summary>
+    /// 原来的挂载点， 现在叫事件类型
+    /// </summary>
     [System.Text.Json.Serialization.JsonConverter(typeof(System.Text.Json.Serialization.JsonStringEnumConverter))]
     [JsonConverter(typeof(StringEnumConverter))]
-    public enum MountType
+    public enum EventType
     {
         None=-1,
         /// <summary>
@@ -246,7 +249,7 @@ namespace IoTSharp.Contracts
         Inactivity = 11
     }
     /// <summary>
-    /// 折叠数据
+    /// 聚合数据
     /// </summary>
     [System.Text.Json.Serialization.JsonConverter(typeof(System.Text.Json.Serialization.JsonStringEnumConverter))]
     [JsonConverter(typeof(StringEnumConverter))]
@@ -285,6 +288,9 @@ namespace IoTSharp.Contracts
         /// </summary>
         Sum
     }
+    /// <summary>
+    /// 告警状态
+    /// </summary>
     [System.Text.Json.Serialization.JsonConverter(typeof(System.Text.Json.Serialization.JsonStringEnumConverter))]
     [JsonConverter(typeof(StringEnumConverter))]
     public enum AlarmStatus

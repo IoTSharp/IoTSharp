@@ -1123,7 +1123,7 @@ namespace IoTSharp.Controllers
                 }
                 var rules = await _caching.GetAsync($"ruleid_{_dev.Id}_raw", async () =>
                 {
-                    var guids = await _context.GerDeviceRulesIdList(_dev.Id, MountType.RAW);
+                    var guids = await _context.GerDeviceRulesIdList(_dev.Id, EventType.RAW);
                     return guids;
                 }
              , TimeSpan.FromSeconds(_setting.RuleCachingExpiration));
@@ -1135,7 +1135,7 @@ namespace IoTSharp.Controllers
                         {
                             _logger.LogInformation($"{_dev.Id}的数据通过规则链{g}进行处理。");
 
-                            var result = await _flowRuleProcessor.RunFlowRules(g, Newtonsoft.Json.JsonConvert.DeserializeObject(body), _dev.Id, EventType.Normal, null);
+                            var result = await _flowRuleProcessor.RunFlowRules(g, Newtonsoft.Json.JsonConvert.DeserializeObject(body), _dev.Id, FlowRuleRunType.Normal, null);
                      
                        //     _context.SaveFlowResult(_dev.Id,g, result);
 

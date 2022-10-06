@@ -47,7 +47,7 @@ namespace IoTSharp.FlowRuleEngine
             _sp = _scopeFactor.CreateScope().ServiceProvider;
         }
 
-        public async Task RunRules(Guid devid, object obj, MountType mountType)
+        public async Task RunRules(Guid devid, object obj, EventType mountType)
         {
             try
             {
@@ -66,7 +66,7 @@ namespace IoTSharp.FlowRuleEngine
                     {
                         try
                         {
-                          await RunFlowRules(g, obj, devid, EventType.Normal, null);
+                          await RunFlowRules(g, obj, devid, FlowRuleRunType.Normal, null);
                         }
                         catch (Exception ex)
                         {
@@ -96,7 +96,7 @@ namespace IoTSharp.FlowRuleEngine
         /// <param name="bizId">业务Id(第三方唯一Id，用于取回事件以及记录的标识)</param>
         /// <returns> 返回所有节点的记录信息，需要保存则保存</returns>
 
-        public async Task<List<FlowOperation>> RunFlowRules(Guid ruleid, object data, Guid deviceId, EventType type, string bizId)
+        public async Task<List<FlowOperation>> RunFlowRules(Guid ruleid, object data, Guid deviceId, FlowRuleRunType type, string bizId)
         {
             var cacheRule = await _caching.GetAsync($"RunFlowRules_{ruleid}", async () =>
             {

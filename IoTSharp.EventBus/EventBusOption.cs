@@ -15,7 +15,7 @@ namespace IoTSharp.EventBus
         public IHealthChecksBuilder HealthChecks { get; set; }
         public IServiceCollection services { get; internal set; }
 
-        public delegate Task RunRulesEventHander(Guid devid, object obj, MountType mountType);
+        public delegate Task RunRulesEventHander(Guid devid, object obj, EventType mountType);
 
         public  RunRulesEventHander RunRules;
     }

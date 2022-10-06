@@ -29,7 +29,7 @@ namespace IoTSharp.Data
 
         public double Version { get; set; }
         public Guid CreateId { get; set; }
-        public MountType MountType { get; set; }
+        public EventType MountType { get; set; }
         public Tenant Tenant { get; set; }
 
         public Customer Customer { get; set; }

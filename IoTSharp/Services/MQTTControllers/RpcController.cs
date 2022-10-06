@@ -76,7 +76,7 @@ namespace IoTSharp.Services.MQTTControllers
                 using (var scope = _scopeFactor.CreateScope())
                 using (var _dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>())
                 {
-                    var guids = await _dbContext.GerDeviceRpcRulesList(p_dev.Id, MountType.RPC, method);
+                    var guids = await _dbContext.GerDeviceRpcRulesList(p_dev.Id, EventType.RPC, method);
                     return guids;
                 }
             }
@@ -85,7 +85,7 @@ namespace IoTSharp.Services.MQTTControllers
             {
                 var obj = new { Message.Topic, Payload = Convert.ToBase64String(Message.Payload), ClientId };
                 _logger.LogInformation($"{ClientId}的rpc调用{Message.Topic} 方法 {method}通过规则链{rules.Value}进行处理。");
-                await _flowRuleProcessor.RunFlowRules(rules.Value, obj, p_dev.Id, EventType.Normal, null);
+                await _flowRuleProcessor.RunFlowRules(rules.Value, obj, p_dev.Id, FlowRuleRunType.Normal, null);
             }
             else
             {

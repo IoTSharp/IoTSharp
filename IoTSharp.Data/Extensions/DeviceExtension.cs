@@ -55,7 +55,7 @@ namespace IoTSharp.Data.Extensions
                 _context.PreparingData<AttributeLatest>(pairs, device.Id, DataSide.ServerSide);
             }
         }
-        public static async Task<DeviceRule[]> GerDeviceRulesList(this ApplicationDbContext _dbContext, Guid devid, MountType mountType)
+        public static async Task<DeviceRule[]> GerDeviceRulesList(this ApplicationDbContext _dbContext, Guid devid, EventType mountType)
         {
             DeviceRule[] lst = null;
             var r = from dr in _dbContext.DeviceRules.Include(d => d.Device).Include(d => d.FlowRule).AsSplitQuery() where dr.Device.Id == devid && dr.FlowRule.MountType == mountType select dr ;
@@ -65,13 +65,13 @@ namespace IoTSharp.Data.Extensions
             }
             return lst;
         }
-        public static async Task<Guid> GerDeviceRpcRulesList(this ApplicationDbContext _dbContext, Guid devid, MountType mountType,string method)
+        public static async Task<Guid> GerDeviceRpcRulesList(this ApplicationDbContext _dbContext, Guid devid, EventType mountType,string method)
         {
             var rules = await GerDeviceRulesList(_dbContext, devid, mountType);
             var g = (rules.FirstOrDefault(r => r.FlowRule.Name == method)?.FlowRule.RuleId);
             return g.GetValueOrDefault();
         }
-        public static async Task<Guid[]> GerDeviceRulesIdList(this ApplicationDbContext _dbContext, Guid devid, MountType mountType)
+        public static async Task<Guid[]> GerDeviceRulesIdList(this ApplicationDbContext _dbContext, Guid devid, EventType mountType)
         {
             var rules =await  GerDeviceRulesList(_dbContext, devid, mountType);
             return rules?.Select(xc => xc.FlowRule.RuleId).ToArray();

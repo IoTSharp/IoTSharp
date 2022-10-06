@@ -76,7 +76,7 @@ namespace IoTSharp.Services.MQTTControllers
                 using (var scope = _scopeFactor.CreateScope())
                 using (var _dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>())
                 {
-                    var guids = await _dbContext.GerDeviceRulesIdList(p_dev.Id, MountType.RAW);
+                    var guids = await _dbContext.GerDeviceRulesIdList(p_dev.Id, EventType.RAW);
                     return guids;
                 }
             }
@@ -87,7 +87,7 @@ namespace IoTSharp.Services.MQTTControllers
                 rules.Value.ToList().ForEach(async g =>
                 {
                     _logger.LogInformation($"{ClientId}的数据{Message.Topic}通过规则链{g}进行处理。");
-                    await _flowRuleProcessor.RunFlowRules(g, obj, p_dev.Id, EventType.Normal, null);
+                    await _flowRuleProcessor.RunFlowRules(g, obj, p_dev.Id, FlowRuleRunType.Normal, null);
                 });
             }
             else

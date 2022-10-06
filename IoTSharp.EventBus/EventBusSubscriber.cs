@@ -37,9 +37,9 @@ namespace IoTSharp.EventBus
         }
         public async Task StoreAttributeData(PlayloadData msg)
         {
-            await StoreAttributeData(msg, MountType.Attribute);
+            await StoreAttributeData(msg, EventType.Attribute);
         }
-        public async Task StoreAttributeData(PlayloadData msg, MountType _event)
+        public async Task StoreAttributeData(PlayloadData msg, EventType _event)
         {
             try
             {
@@ -57,7 +57,7 @@ namespace IoTSharp.EventBus
                                 _logger.LogError($"{ex.Key} {ex.Value} {Newtonsoft.Json.JsonConvert.SerializeObject(msg.MsgBody[ex.Key])}");
                             });
                             _logger.LogInformation($"更新{device.Name}({device.Id})属性数据结果{result2.ret}");
-                            if (_event!= MountType.None)
+                            if (_event!= EventType.None)
                             {
                                 await RunRules(msg.DeviceId, dc.ToDynamic(), _event);
                             }
@@ -73,7 +73,7 @@ namespace IoTSharp.EventBus
         }
 
 
-        public async Task RunRules(Guid deviceId, object obj, MountType attribute)
+        public async Task RunRules(Guid deviceId, object obj, EventType attribute)
         {
             await _eventBusOption.RunRules(deviceId, obj, attribute);
         }
@@ -93,7 +93,7 @@ namespace IoTSharp.EventBus
                             alarmDto.CreateDateTime = alm.Data.AckDateTime;
                             if (alm.Data.Propagate)
                             {
-                                await RunRules(alm.Data.OriginatorId, alarmDto, MountType.Alarm);
+                                await RunRules(alm.Data.OriginatorId, alarmDto, EventType.Alarm);
                             }
                         }
                         else
@@ -125,12 +125,12 @@ namespace IoTSharp.EventBus
                         {
                             if (status.DeviceStatus != DeviceStatus.Good)
                             {
-                                await RunRules(dev.Id, status, MountType.Disconnected);
+                                await RunRules(dev.Id, status, EventType.Disconnected);
                                 //真正离线
                             }
                             else if (status.DeviceStatus == DeviceStatus.Good)
                             {
-                                await RunRules(dev.Id, status, MountType.Connected);
+                                await RunRules(dev.Id, status, EventType.Connected);
                                 //真正掉线
                             }
                             var result2 = await _dbContext.SaveAsync<AttributeLatest>(status.ToDictionary(), dev.Id, DataSide.ServerSide);
@@ -157,17 +157,17 @@ namespace IoTSharp.EventBus
                        select new TelemetryDataDto() { DateTime = t.DateTime, DataType = t.Type, KeyName = t.KeyName, Value = t.ToObject() };
             var array = data.ToList();
             ExpandoObject exps = array.ToDynamic();
-            await RunRules(msg.DeviceId, (dynamic)exps, MountType.Telemetry);
-            await RunRules(msg.DeviceId, array, MountType.TelemetryArray);
+            await RunRules(msg.DeviceId, (dynamic)exps, EventType.Telemetry);
+            await RunRules(msg.DeviceId, array, EventType.TelemetryArray);
         }
 
         public async Task DeleteDevice(Guid deviceId)
         {
-            await RunRules(deviceId, new object(), MountType.DeleteDevice);
+            await RunRules(deviceId, new object(), EventType.DeleteDevice);
         }
         public async Task CreateDevice(Guid deviceId)
         {
-            await RunRules(deviceId, new object(), MountType.CreateDevice);
+            await RunRules(deviceId, new object(), EventType.CreateDevice);
         }
 
         public async Task Active(Guid devid, ActivityStatus activity)
@@ -179,7 +179,7 @@ namespace IoTSharp.EventBus
             msg.MsgBody = new Dictionary<string, object>();
             msg.MsgBody.Add(activity == ActivityStatus.Activity ? Constants._LastActivityDateTime : Constants._InactivityAlarmDateTime, DateTime.Now);
             msg.MsgBody.Add(Constants._Active, activity == ActivityStatus.Activity);
-            await StoreAttributeData(msg, activity == ActivityStatus.Activity ? MountType.Activity : MountType.Inactivity);
+            await StoreAttributeData(msg, activity == ActivityStatus.Activity ? EventType.Activity : EventType.Inactivity);
         }
 
         public async Task Connect(Guid devid, ConnectStatus devicestatus)
@@ -190,7 +190,7 @@ namespace IoTSharp.EventBus
             msg.DataSide = DataSide.ServerSide;
             msg.MsgBody = new Dictionary<string, object>();
             msg.MsgBody.Add(devicestatus == ConnectStatus.Connected ? Constants._LastConnectDateTime : Constants._LastDisconnectDateTime, DateTime.Now);
-            await StoreAttributeData(msg, devicestatus == ConnectStatus.Connected ? MountType.Connected : MountType.Disconnected);
+            await StoreAttributeData(msg, devicestatus == ConnectStatus.Connected ? EventType.Connected : EventType.Disconnected);
         }
        
  

@@ -1148,7 +1148,7 @@ namespace IoTSharp.Controllers
 
 
             var testabizId = Guid.NewGuid().ToString(); //根据业务保存起来，用来查询执行事件和步骤
-            var result = await _flowRuleProcessor.RunFlowRules(ruleid, d, Guid.Empty, EventType.TestPurpose, testabizId);
+            var result = await _flowRuleProcessor.RunFlowRules(ruleid, d, Guid.Empty, FlowRuleRunType.TestPurpose, testabizId);
            _context.SaveFlowResult(Guid.Empty, ruleid,result);
             return new ApiResult<dynamic>(ApiCode.Success, "test complete", result.OrderBy(c => c.Step).
                 Where(c => c.BaseEvent.Bizid == testabizId).ToList()
@@ -1219,7 +1219,7 @@ namespace IoTSharp.Controllers
 
         private async Task<string> GetCreatorName(BaseEventDto dto)
         {
-            if (dto.Type == EventType.Normal)
+            if (dto.Type == FlowRuleRunType.Normal)
             {
                 return _context.Device.SingleOrDefault(c => c.Id == dto.Creator)?.Name;
             }
