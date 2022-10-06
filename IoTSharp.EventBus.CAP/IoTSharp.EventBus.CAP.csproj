@@ -7,7 +7,7 @@
   </PropertyGroup>
 	<ItemGroup>
 		<PackageReference Include="AspNetCore.HealthChecks.NpgSql" Version="6.0.2" />
-		<PackageReference Include="CAP.Extensions" Version="1.0.35" />
+		<PackageReference Include="CAP.Extensions" Version="1.0.37" />
 		<PackageReference Include="DotNetCore.CAP.Dashboard" Version="6.2.0" />
 		<PackageReference Include="DotNetCore.CAP.InMemoryStorage" Version="6.2.0" />
 		<PackageReference Include="DotNetCore.CAP.Kafka" Version="6.2.0" />
@@ -25,9 +25,9 @@
 		<PackageReference Include="AspNetCore.HealthChecks.MongoDb" Version="6.0.2" />
 		<PackageReference Include="AspNetCore.HealthChecks.Rabbitmq" Version="6.0.2" />
 		<PackageReference Include="AspNetCore.HealthChecks.Redis" Version="6.0.4" />
-		<PackageReference Include="MaiKeBing.CAP.ZeroMQ" Version="1.0.35" />
-		<PackageReference Include="MaiKeBing.CAP.LiteDB" Version="1.0.35" />
-		<PackageReference Include="MaiKeBing.HostedService.ZeroMQ" Version="1.0.35" />
+		<PackageReference Include="MaiKeBing.CAP.ZeroMQ" Version="1.0.37" />
+		<PackageReference Include="MaiKeBing.CAP.LiteDB" Version="1.0.37" />
+		<PackageReference Include="MaiKeBing.HostedService.ZeroMQ" Version="1.0.37" />
 		<PackageReference Include="Savorboard.CAP.InMemoryMessageQueue" Version="6.0.0" />
 
 	</ItemGroup>

@@ -14,7 +14,7 @@
 		<PackageReference Include="IoTSharp.Data.Taos" Version="2.6.2" />
 		<PackageReference Include="IoTSharp.HealthChecks.Taos" Version="2.6.2" />
 		<PackageReference Include="PinusDB.HealthChecks" Version="1.0.10" />
-		<PackageReference Include="InfluxDB.Client" Version="4.5.0" />
+		<PackageReference Include="InfluxDB.Client" Version="4.6.0" />
 		<PackageReference Include="PinusDB" Version="1.0.10" />
 	</ItemGroup>
   <ItemGroup>
