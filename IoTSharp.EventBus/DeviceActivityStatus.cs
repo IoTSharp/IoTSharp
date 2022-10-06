@@ -1,12 +1,16 @@
-﻿using IoTSharp.Contracts;
+﻿
+using IoTSharp.Contracts;
 
 namespace IoTSharp.EventBus
 {
     public class DeviceActivityStatus
     {
-        public Guid DeviceId { get; }
-        public ActivityStatus Activity { get; }
-
+        public Guid DeviceId { get; set; }
+        public ActivityStatus Activity { get; set; }
+        public DeviceActivityStatus()
+        {
+            DeviceId = Guid.Empty;
+        }
         public DeviceActivityStatus(Guid deviceId, ActivityStatus activity)
         {
             DeviceId = deviceId;

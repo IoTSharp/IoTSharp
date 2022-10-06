@@ -63,15 +63,15 @@ namespace IoTSharp.EventBus.CAP
             await CreateDevice(deviceId);
         }
         [CapSubscribe("iotsharp.services.platform.connect")]
-        public async Task connect(Guid devid, ConnectStatus devicestatus)
+        public async Task connect( DeviceConnectStatus status)
         {
-            await Connect(devid, devicestatus);
+            await Connect(status.DeviceId, status.ConnectStatus);
         }
 
         [CapSubscribe("iotsharp.services.platform.active")]
-        public async Task active(Guid devid, ActivityStatus activity)
+        public async Task active(DeviceActivityStatus status)
         {
-            await base.Active(devid, activity);
+            await base.Active(status.DeviceId, status.Activity);
         }
     }
 }

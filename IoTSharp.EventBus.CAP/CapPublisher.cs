@@ -54,7 +54,7 @@ namespace IoTSharp.EventBus
 
         public async Task PublishActive(Guid devid, ActivityStatus activity)
         {
-            await _queue.PublishAsync("iotsharp.services.platform.connect", new DeviceActivityStatus(devid, activity));
+            await _queue.PublishAsync("iotsharp.services.platform.active", new DeviceActivityStatus(devid, activity));
         }
     }
 }

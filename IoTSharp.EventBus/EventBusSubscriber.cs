@@ -175,6 +175,7 @@ namespace IoTSharp.EventBus
             msg.DeviceId = devid;
             msg.DataCatalog = DataCatalog.AttributeData;
             msg.DataSide = DataSide.ServerSide;
+            msg.MsgBody = new Dictionary<string, object>();
             msg.MsgBody.Add(activity == ActivityStatus.Activity ? "LastActivityDateTime" : "InactivityAlarmDateTime ", DateTime.Now);
             msg.MsgBody.Add("Active", activity == ActivityStatus.Activity);
             await StoreAttributeData(msg, activity == ActivityStatus.Activity ? MountType.Activity : MountType.Inactivity);
@@ -186,6 +187,7 @@ namespace IoTSharp.EventBus
             msg.DeviceId = devid;
             msg.DataCatalog = DataCatalog.AttributeData;
             msg.DataSide = DataSide.ServerSide;
+            msg.MsgBody = new Dictionary<string, object>();
             msg.MsgBody.Add(devicestatus == ConnectStatus.Connected ? "LastConnectDateTime" : "LastDisconnectDateTime", DateTime.Now);
             await StoreAttributeData(msg, devicestatus == ConnectStatus.Connected ? MountType.Connected : MountType.Disconnected);
         }
