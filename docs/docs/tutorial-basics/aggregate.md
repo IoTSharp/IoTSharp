@@ -18,5 +18,5 @@ keys  指定了要查询那些遥测， begin 和 end决定了时间范围， en
 ##  支持情况
 
 :::danger 注意
-` 目前只支持了InfluxDB 和IoTDB  其他数据库根据我们内部或者其他贡献者的项目需求而定。 
+` 目前 InfluxDB 和IoTDB 支持原生的数据聚合，分表和EFCore 关系数据库是通过IoTSharp 本地运算得到的结果， Taos 和 PinusDB 目前不支持 任何形式的聚合，TimescaleDB在后期逐步实现。 
 :::

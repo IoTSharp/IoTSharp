@@ -5,7 +5,7 @@
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>{f5644ba6-2a0c-49a5-9c9b-3cecd6db2d1f}</ProjectGuid>
     <ProjectHome>.</ProjectHome>
-    <ProjectView>ShowAllFiles</ProjectView>
+    <ProjectView>ProjectFiles</ProjectView>
     <StartupFile>docusaurus.config.js</StartupFile>
     <WorkingDirectory>.</WorkingDirectory>
     <OutputPath>.</OutputPath>
@@ -19,6 +19,7 @@
   <PropertyGroup Condition="'$(Configuration)' == 'Release'" />
   <ItemGroup>
     <Content Include="blog\authors.yml" />
+    <Content Include="docs\tutorial-basics\connectivity.md" />
     <Content Include="docs\tutorial-basics\aggregate.md">
       <SubType>Code</SubType>
     </Content>

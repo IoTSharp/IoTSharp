@@ -869,7 +869,7 @@
             <param name="_logger"></param>
             <returns></returns>
         </member>
-        <member name="M:IoTSharp.FlowRuleEngine.FlowRuleProcessor.RunFlowRules(System.Guid,System.Object,System.Guid,IoTSharp.Contracts.EventType,System.String)">
+        <member name="M:IoTSharp.FlowRuleEngine.FlowRuleProcessor.RunFlowRules(System.Guid,System.Object,System.Guid,IoTSharp.Contracts.FlowRuleRunType,System.String)">
              <summary>
             
              </summary>
