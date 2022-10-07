@@ -501,6 +501,12 @@
             this is test purpose
             </summary>
         </member>
+        <member name="M:IoTSharp.Controllers.MetricsController.EventBus">
+            <summary>
+            返回事件总线的统计信息
+            </summary>
+            <returns></returns>
+        </member>
         <member name="M:IoTSharp.Controllers.RulesController.UpdateFlowExpression(IoTSharp.Dtos.UpdateFlowExpression)">
              <summary>
              更新节点的条件表达式

@@ -7,7 +7,7 @@ namespace IoTSharp.EventBus
 {
     public interface IPublisher
     {
-
+        public Task<EventBusMetrics> GetMetrics();
         public Task PublishCreateDevice(Guid devid);
         public Task PublishDeleteDevice(Guid devid);
 

@@ -14,10 +14,12 @@ namespace IoTSharp.EventBus.Shashlik
     public class ShashlikPublisher : IPublisher
     {
         private IEventPublisher _queue;
+        private IMessageStorage _storage;
 
-        public ShashlikPublisher(IEventPublisher queue)
+        public ShashlikPublisher(IEventPublisher queue, IMessageStorage storage)
         {
             _queue = queue;
+            _storage = storage;
         }
         public async Task PublishAttributeData(PlayloadData msg)
         {
@@ -57,6 +59,12 @@ namespace IoTSharp.EventBus.Shashlik
         public async Task PublishActive(Guid devid, ActivityStatus activity)
         {
             await _queue.PublishAsync((DeviceActivityEvent)new DeviceActivityStatus(  devid, activity),null);
+        }
+
+        public async Task<EventBusMetrics> GetMetrics()
+        {
+            var stat = await _storage.GetReceivedMessageStatusCountAsync(CancellationToken.None);
+            return  new EventBusMetrics();
         }
     }
 }

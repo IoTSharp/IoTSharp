@@ -24,7 +24,7 @@ using System.Threading.Tasks;
 
 namespace IoTSharp.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/[controller]/[action]")]
     [ApiController]
     public class BlobStorageController : ControllerBase
     {
@@ -63,7 +63,7 @@ namespace IoTSharp.Controllers
         }
 
         [HttpGet]
-        public async Task<ApiResult<List<Blob>>> Get()
+        public async Task<ApiResult<List<Blob>>> List()
         {
             var lst = await _blob.ListAsync();
             return new ApiResult<List<Blob>>(ApiCode.Success, "OK", lst.ToList());
@@ -72,7 +72,7 @@ namespace IoTSharp.Controllers
         [HttpGet()]
         [ProducesResponseType(typeof(ApiResult), StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(FileResult), StatusCodes.Status200OK)]
-        public async Task<ActionResult<ApiResult>> Get([FromQuery] string fullpath)
+        public async Task<ActionResult<ApiResult>> Download([FromQuery] string fullpath)
         {
             var blob = await _blob.GetBlobAsync(fullpath);
             if (blob.IsFile)
@@ -93,7 +93,7 @@ namespace IoTSharp.Controllers
         }
 
         [HttpPost()]
-        public async Task<ApiResult<Dictionary<string, string>>> Post([FromQuery] string path, List<IFormFile> files)
+        public async Task<ApiResult<Dictionary<string, string>>> Upload([FromQuery] string path, List<IFormFile> files)
         {
             long size = files.Sum(f => f.Length);
             var result = new ApiResult<Dictionary<string, string>>(ApiCode.Success, "OK", new Dictionary<string, string>());
@@ -130,7 +130,7 @@ namespace IoTSharp.Controllers
         }
 
         [HttpPut()]
-        public async Task<ApiResult> Put([FromQuery] string path, IFormFile file)
+        public async Task<ApiResult> Modify([FromQuery] string path, IFormFile file)
         {
             var result = new ApiResult(ApiCode.Success, "OK");
             if (file.Length > 0)
