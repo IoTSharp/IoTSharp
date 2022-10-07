@@ -37,10 +37,6 @@ export class DashboardV1Component implements OnInit {
     new WidgetItem('statistics', StatisticsComponent, {
       //  someneedtransferdata: "yourdata,don't forget declara a @Input someneedtransferdata Property ",
     }),
-    new WidgetItem('lists', NewdeviceComponent, {
-      //  someneedtransferdata: "yourdata,don't forget declara a @Input someneedtransferdata Property ",
-    }),
-
     new WidgetItem('warning', WarningboardComponent, {
       //  someneedtransferdata: "yourdata,don't forget declara a @Input someneedtransferdata Property ",
     })
