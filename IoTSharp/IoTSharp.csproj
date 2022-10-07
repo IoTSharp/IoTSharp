@@ -103,13 +103,13 @@
 		<PackageReference Include="Microsoft.AspNetCore.Identity.UI" Version="6.0.9" />
 	</ItemGroup>
 
-	<ItemGroup Condition="'$(Configuration)' == 'Debug_VUE'">
+	<ItemGroup Condition="'$(Configuration)' == 'Debug_VUE'  OR '$(Configuration)' == 'Release_VUE'">
 		<Compile Remove="ClientApp\**" />
 		<Content Remove="ClientApp\**" />
 		<EmbeddedResource Remove="ClientApp\**" />
 		<None Remove="ClientApp\**" />
 	</ItemGroup>
-	<ItemGroup Condition="'$(Configuration)' == 'Debug'">
+	<ItemGroup Condition="'$(Configuration)' == 'Debug' OR '$(Configuration)' == 'Release'">
 		<Folder Include="ClientApp\" />
 		<Compile Remove="ClientAppVue\**" />
 		<Content Remove="ClientAppVue\**" />
