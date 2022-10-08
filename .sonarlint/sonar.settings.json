@@ -1,1 +1,0 @@
-{"sonar.exclusions":["IoTSharp.Data.*/Migrations/*.cs"],"sonar.global.exclusions":["**/build-wrapper-dump.json"],"sonar.inclusions":[]}
