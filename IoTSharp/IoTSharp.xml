@@ -268,6 +268,14 @@
              <param name="deviceId"></param>
              <returns></returns>
         </member>
+        <member name="M:IoTSharp.Controllers.DevicesController.GetAttributeLatestByKeyNameAndDeviceId(IoTSharp.Dtos.AttributeLatestByKeyNameAndDeviceIdDto)">
+             <summary>
+            获取指定Key和设备Id列表的最新属性
+             </summary>
+             <param name="deviceIds">设备Id列表</param>
+             <param name="keyNames">属性KeyName列表</param>
+             <returns></returns>
+        </member>
         <member name="M:IoTSharp.Controllers.DevicesController.GetAttributeLatest(System.Guid,System.String)">
             <summary>
             获取指定设备指定keys的最新属性

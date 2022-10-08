@@ -11,6 +11,7 @@ namespace IoTSharp.Dtos
 {
     public class AttributeDataDto
     {
+        public Guid DeviceId { get; set; }
         public string KeyName { get; set; }
 
         public DataSide DataSide { get; set; }

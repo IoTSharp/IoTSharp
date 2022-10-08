@@ -387,6 +387,7 @@ export class WidgetdeviceComponent implements OnInit {
 
     this.apitemps = 'api/Devices/' + this.id + '/TelemetryData/' + this.qtemps.keys + '/' + this.qtemps.begin + '/' + this.qtemps.end;
     this.getdevice();
+    this.getOnlineStatus();
     this.getattrs(this.id);
     this.gettemps(this.id)
       .pipe(
@@ -757,4 +758,33 @@ export class WidgetdeviceComponent implements OnInit {
       status: null
     };
   }
+
+
+
+  getOnlineStatus() {
+      this.http
+        .post<appmessage<any>>('api/Devices/AttributeLatestByKeyNameAndDeviceId', {
+          deviceIds: [this.id] ,
+          keyNames: ['Active','LastActivityDateTime'],
+        })
+        .subscribe({
+          next: next => {
+            for (var item of next.data) {
+              if(item['keyName']==='Active'){
+                this.device.online=item.value
+              }
+              if(item['keyName']==='LastActivityDateTime'){
+                this.device.lastActive=item.value
+              }
+            }
+    
+          }, error: error => { }, complete: () => { }
+
+        });
+
+  
+
+  }
+
+
 }
