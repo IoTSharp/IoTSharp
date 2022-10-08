@@ -23,12 +23,12 @@ import { CommonDialogSevice } from '../util/commonDialogSevice';
 import { DashboardRoutingModule } from './dashboard-routing.module';
 import { DashboardV1Component } from './v1/v1.component';
 import { HeaderkanbanComponent } from './wedgits/headerkanban/headerkanban.component';
-import { NewdeviceComponent } from './wedgits/newdevice/newdevice.component';
+
 import { StatisticsComponent } from './wedgits/statistics/statistics.component';
 import { WarningboardComponent } from './wedgits/warningboard/warningboard.component';
 import { widgetdirective } from './wedgits/widgetdirective';
 
-const COMPONENTS = [DashboardV1Component, HeaderkanbanComponent, NewdeviceComponent, StatisticsComponent, WarningboardComponent];
+const COMPONENTS = [DashboardV1Component, HeaderkanbanComponent, StatisticsComponent, WarningboardComponent];
 var Directives = [widgetdirective];
 @NgModule({
   imports: [

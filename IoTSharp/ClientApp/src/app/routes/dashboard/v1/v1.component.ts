@@ -16,7 +16,7 @@ import { SettingsService, _HttpClient } from '@delon/theme';
 import { NzSafeAny } from 'ng-zorro-antd/core/types';
 import { WidgetItem } from 'src/app/models/widgetItem';
 import { HeaderkanbanComponent } from '../wedgits/headerkanban/headerkanban.component';
-import { NewdeviceComponent } from '../wedgits/newdevice/newdevice.component';
+
 import { StatisticsComponent } from '../wedgits/statistics/statistics.component';
 import { WarningboardComponent } from '../wedgits/warningboard/warningboard.component';
 import { widgetdirective } from '../wedgits/widgetdirective';
