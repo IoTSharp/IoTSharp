@@ -39,7 +39,7 @@
 		<DocumentationFile>IoTSharp.xml</DocumentationFile>
 		<NoWarn>1701;1702;1591</NoWarn>
 		<EnforceCodeStyleInBuild>True</EnforceCodeStyleInBuild>
-		<Configurations>Debug;Release;Debug_VUE</Configurations>
+		<Configurations>Debug;Release;Release_VUE;Debug_VUE</Configurations>
 	</PropertyGroup>
 	<PropertyGroup Condition="'$(Configuration)' == 'Debug' OR '$(Configuration)' == 'Release'">
 		<SpaRoot>ClientApp\</SpaRoot>
@@ -155,7 +155,7 @@
 		<None Include="$(SpaRoot)**" Exclude="$(SpaRoot)node_modules\**" />
 	</ItemGroup>
 
-	<Target Name="DebugEnsureNodeEnv" BeforeTargets="Build" Condition=" '$(Configuration)' == 'Debug' And !Exists('$(SpaRoot)node_modules') ">
+	<Target Name="DebugEnsureNodeEnv_angular" BeforeTargets="Build" Condition=" '$(Configuration)' == 'Debug' And !Exists('$(SpaRoot)node_modules') ">
 		<!-- Ensure Node.js is installed -->
 		<Exec Command="node --version" ContinueOnError="true">
 			<Output TaskParameter="ExitCode" PropertyName="ErrorCode" />
@@ -167,7 +167,7 @@
 		<Exec WorkingDirectory="$(SpaRoot)" Command="yarn install  " />
 	</Target>
 
-	<Target Name="PublishRunWebpack" AfterTargets="ComputeFilesToPublish" Condition=" '$(Configuration)' == 'Release'">
+	<Target Name="PublishRunWebpack_angular" AfterTargets="ComputeFilesToPublish" Condition="'$(Configuration)' == 'Release'">
 		<!-- As part of publishing, ensure the JS resources are freshly built in production mode -->
 		<Exec WorkingDirectory="$(SpaRoot)" Command="npm install -g yarn " />
 		<Exec WorkingDirectory="$(SpaRoot)" Command="yarn global add @angular/cli" />
@@ -185,7 +185,7 @@
 	</Target>
 
 
-	<Target Name="DebugEnsureNodeEnv" BeforeTargets="Build" Condition=" '$(Configuration)' == 'Debug_VUE' And !Exists('$(SpaRoot)node_modules') ">
+	<Target Name="DebugEnsureNodeEnv_vue" BeforeTargets="Build" Condition=" '$(Configuration)' == 'Debug_VUE' And !Exists('$(SpaRoot)node_modules') ">
 		<!-- Ensure Node.js is installed -->
 		<Exec Command="node --version" ContinueOnError="true">
 			<Output TaskParameter="ExitCode" PropertyName="ErrorCode" />
@@ -195,7 +195,7 @@
 		<Exec WorkingDirectory="$(SpaRoot)" Command="npm install -g yarn " />
 		<Exec WorkingDirectory="$(SpaRoot)" Command="yarn install  " />
 	</Target>
-	<Target Name="PublishRunWebpack" AfterTargets="ComputeFilesToPublish" Condition=" '$(Configuration)' == 'Release_VUE'">
+	<Target Name="PublishRunWebpack_vue" AfterTargets="ComputeFilesToPublish" Condition=" '$(Configuration)' == 'Release_VUE'">
 		<!-- As part of publishing, ensure the JS resources are freshly built in production mode -->
 		<Exec WorkingDirectory="$(SpaRoot)" Command="npm install -g yarn " />
 		<Exec WorkingDirectory="$(SpaRoot)" Command="yarn install  " />
