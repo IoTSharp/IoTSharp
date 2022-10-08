@@ -498,7 +498,7 @@
             </summary>
             <returns></returns>
         </member>
-        <member name="M:IoTSharp.Controllers.InstallerController.CreateRootCertificate(IoTSharp.Dtos.CreateRootCertificateDto)">
+        <member name="M:IoTSharp.Controllers.InstallerController.CreateRootCertificate">
             <summary>
             域名可以不配置， 默认会使用机器名  
             </summary>
@@ -739,6 +739,11 @@
         <member name="P:IoTSharp.Dtos.InstanceDto.Installed">
             <summary>
             是否被安装
+            </summary>
+        </member>
+        <member name="P:IoTSharp.Dtos.InstanceDto.Domain">
+            <summary>
+            http://localhost/  
             </summary>
         </member>
         <member name="T:IoTSharp.Dtos.TelemetryDataQueryDto">

@@ -229,7 +229,7 @@ namespace IoTSharp
             build.AddDnsName(domainname);
             build.AddIpAddress(iP);
             build.AddEmailAddress(email??"mysticboy@live.com");
-            string name = $"C=CN,CN={iP.ToString()},ST=IoTSharp,O={Dns.GetHostName()},OU= CA_{MethodBase.GetCurrentMethod().Module.Assembly.GetName().Name}";
+            string name = $"C=CN,CN={domainname},ST=IoTSharp,O={Dns.GetHostName()},OU= CA_{MethodBase.GetCurrentMethod().Module.Assembly.GetName().Name}";
             var broker = CACertificate.CreateTlsClientRSA(name, build);
             broker.SavePem(pubfile, pivfile);
         }
@@ -247,9 +247,9 @@ namespace IoTSharp
         }
 
 
-        public static X509Certificate2 CreateCA(this string Domain, string capubfile, string capivfile)
+        public static X509Certificate2 CreateCA(this Uri Domain, string capubfile, string capivfile)
         {
-            var ca = X509Self.CreateCA($"C=CN,CN={Domain},ST=IoTSharp,O={Dns.GetHostName()},OU=CA_{MethodBase.GetCurrentMethod().Module.Assembly.GetName().Name}");
+            var ca = X509Self.CreateCA($"C=CN,CN={Domain.Host},ST=IoTSharp,O={Dns.GetHostName()},OU=CA_{MethodBase.GetCurrentMethod().Module.Assembly.GetName().Name}");
             ca.SavePem(capubfile, capivfile);
             return ca;
         }

@@ -50,7 +50,6 @@ namespace IoTSharp.Contracts
         public string CAPrivateKeyFile { get; set; } = "ca.key";
         public string CertificateFile { get; set; } = "server.crt";
         public string PrivateKeyFile { get; set; } = "server.key";
-        public string ServerIPAddress { get; set; }
-        public string DomainName { get; set; }
+        public string DomainName { get; set; } = "http://localhost/";
     }
 }

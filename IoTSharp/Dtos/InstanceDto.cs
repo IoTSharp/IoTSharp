@@ -13,8 +13,12 @@
         public bool Installed { get;  set; }
         public bool CACertificate { get;  set; }
 
-
+        /// <summary>
+        /// http://localhost/  
+        /// </summary>
         public string Domain { get; set; }
+        public string BrokerThumbprint { get;   set; }
+        public string CAThumbprint { get;  set; }
     }
 
 }

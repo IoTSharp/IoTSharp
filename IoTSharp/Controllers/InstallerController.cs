@@ -70,8 +70,7 @@ namespace IoTSharp.Controllers
 
         private InstanceDto GetInstanceDto()
         {
-
-            return new InstanceDto() { Installed = _context.Relationship.Any(), Domain = this.Request.Host.Host, Version = System.Reflection.Assembly.GetExecutingAssembly().GetName().Version.ToString(), CACertificate= _setting.MqttBroker.CACertificate != null };
+            return new InstanceDto() { Installed = _context.Relationship.Any(), Domain =_setting.MqttBroker.DomainName?? this.Request.Host.ToString(), Version = System.Reflection.Assembly.GetExecutingAssembly().GetName().Version.ToString(), CACertificate= _setting.MqttBroker.CACertificate != null , CAThumbprint = _setting.MqttBroker.CACertificate?.Thumbprint, BrokerThumbprint = _setting.MqttBroker.BrokerCertificate.Thumbprint};
         }
 
         /// <summary>
@@ -80,26 +79,27 @@ namespace IoTSharp.Controllers
         /// <returns></returns>
         [Authorize(Roles = nameof(UserRole.SystemAdmin))]
         [HttpPost]
-        public ApiResult CreateRootCertificate(CreateRootCertificateDto m)
+        public ApiResult CreateRootCertificate()
         {
+            var domain  =_setting.MqttBroker.DomainName ?? this.Request.Host.ToString();
             ApiResult result = new ApiResult(ApiCode.Success, "OK");
             if (_setting.MqttBroker.CACertificate != null)
             {
                 result = new ApiResult(ApiCode.AlreadyExists, "CACertificate already exists.");
             }
-            else if (string.IsNullOrEmpty(m.Domain))
+            else if (string.IsNullOrEmpty(domain))
             {
                 result = new ApiResult(ApiCode.AlreadyExists, "ServerIPAddress     is required.");
             }
-            else
+            else if ( Uri.TryCreate(domain, UriKind.Absolute, out  Uri _uri))
             {
                 try
                 {
                   
                     var ten = _context.GetTenant(User.GetTenantId());
                     var option = _setting.MqttBroker;
-                    var ca = m.Domain.CreateCA(option.CACertificateFile, option.CAPrivateKeyFile);
-                    ca.CreateBrokerTlsCert(m.Domain,Dns.GetHostAddresses(m.Domain).FirstOrDefault(),
+                    var ca = _uri.CreateCA(option.CACertificateFile, option.CAPrivateKeyFile);
+                    ca.CreateBrokerTlsCert(_uri.Host, Dns.GetHostAddresses(_uri.Host).FirstOrDefault(),
                         option.CertificateFile, option.PrivateKeyFile, ten.EMail);
                     ca.LoadCAToRoot();
                     result = new ApiResult(ApiCode.Success, ca.Thumbprint);
@@ -112,6 +112,10 @@ namespace IoTSharp.Controllers
 
 
 
+            }
+            else  
+            {
+                result = new ApiResult(ApiCode.Exception, "Url error.");
             }
             return result;
         }
