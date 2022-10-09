@@ -397,8 +397,6 @@ namespace IoTSharp.Controllers
         /// <summary>
         ///获取指定Key和设备Id列表的最新属性
         /// </summary>
-        /// <param name="deviceIds">设备Id列表</param>
-        /// <param name="keyNames">属性KeyName列表</param>
         /// <returns></returns>
         [Authorize(Roles = nameof(UserRole.NormalUser))]
         [HttpPost("AttributeLatestByKeyNameAndDeviceId")]
