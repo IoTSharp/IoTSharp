@@ -40,17 +40,7 @@ namespace IoTSharp.Contracts
         Empty = 10019,
     }
 
-    [System.Text.Json.Serialization.JsonConverter(typeof(System.Text.Json.Serialization.JsonStringEnumConverter))]
-    [JsonConverter(typeof(StringEnumConverter))]
-    public enum DeviceStatus
-    {
-        Deleted=-1,
-        UnKnow = 0,
-        Good = 1,
-        PartGood = 2,
-        Bad = 3
-  
-    }
+ 
 
     [System.Text.Json.Serialization.JsonConverter(typeof(System.Text.Json.Serialization.JsonStringEnumConverter))]
     [JsonConverter(typeof(StringEnumConverter))]

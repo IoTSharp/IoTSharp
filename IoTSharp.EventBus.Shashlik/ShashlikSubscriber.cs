@@ -67,20 +67,7 @@ namespace IoTSharp.EventBus.Shashlik
         }
     }
 
-    public class DeviceStatusEventHandler : IEventHandler<DeviceStatusEvent>
-    {
-        private readonly ISubscriber _subscriber;
-
-        public DeviceStatusEventHandler(ISubscriber subscriber)
-        {
-            _subscriber = subscriber;
-        }
-        public async Task Execute(DeviceStatusEvent @event, IDictionary<string, string> items)
-        {
-            await _subscriber.DeviceStatusEvent(new PlayloadData() { DeviceId = @event.DeviceId, DeviceStatus = @event.DeviceStatus });
-        }
-    }
-
+   
     public class CreateDeviceEventHandler : IEventHandler<CreateDeviceEvent>
     {
         private readonly ISubscriber _subscriber;

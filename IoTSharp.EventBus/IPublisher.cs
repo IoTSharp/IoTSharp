@@ -13,8 +13,7 @@ namespace IoTSharp.EventBus
 
         public Task PublishAttributeData(PlayloadData msg);
         public Task PublishTelemetryData(PlayloadData msg);
-        [Obsolete]
-        public Task PublishDeviceStatus(Guid devid, DeviceStatus devicestatus);
+   
         public Task PublishConnect(Guid devid, ConnectStatus devicestatus);
         public Task PublishActive(Guid devid, ActivityStatus  activity);
         public Task PublishDeviceAlarm(CreateAlarmDto alarmDto);

@@ -45,16 +45,6 @@ namespace IoTSharp.EventBus
         {
             _queue.PublishTelemetryData(new PlayloadData() { DeviceId = device.Id, MsgBody = keyValues, DataSide = DataSide.ClientSide, DataCatalog = DataCatalog.TelemetryData });
         }
-        /// <summary>
-        /// 发布设备状态到属性当中。 
-        /// </summary>
-        /// <param name="_queue"></param>
-        /// <param name="device"></param>
-        /// <param name="status"></param>
-        public static void PublishStatus(this IPublisher _queue, Device device, DeviceStatus status)
-        {
-            _queue.PublishAttributeData(device, msg => msg.MsgBody.Add("Status", status));
-        }
 
     }
 }

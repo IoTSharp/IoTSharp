@@ -57,11 +57,7 @@ sf.Values.ToList()
         {
             await _queue.PublishAsync("iotsharp.services.datastream.telemetrydata", msg);
         }
-
-        public  async Task PublishDeviceStatus( Guid devid, DeviceStatus devicestatus)
-        {
-            await _queue.PublishAsync("iotsharp.services.datastream.devicestatus", new PlayloadData { DeviceId = devid, DeviceStatus = devicestatus });
-        }
+ 
 
         public  async Task PublishDeviceAlarm( CreateAlarmDto alarmDto)
         {

@@ -16,11 +16,7 @@ namespace IoTSharp.EventBus.Shashlik
     {
 
     }
-    public class DeviceStatusEvent : IEvent
-    {
-        public Guid DeviceId { get; set; }
-        public DeviceStatus DeviceStatus { get; set; }
-    }
+ 
     public class CreateDeviceEvent : IEvent
     {
         public Guid DeviceId { get; set; }

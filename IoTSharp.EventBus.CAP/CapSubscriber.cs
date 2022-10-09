@@ -41,11 +41,7 @@ namespace IoTSharp.EventBus.CAP
         }
 
 
-        [CapSubscribe("iotsharp.services.datastream.devicestatus")]
-        public async Task devicestatus(PlayloadData status)
-        {
-            await DeviceStatusEvent(status);
-        }
+  
 
         [CapSubscribe("iotsharp.services.datastream.telemetrydata")]
         public async Task telemetrydata(PlayloadData msg)

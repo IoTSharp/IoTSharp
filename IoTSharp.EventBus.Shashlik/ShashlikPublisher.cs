@@ -31,10 +31,7 @@ namespace IoTSharp.EventBus.Shashlik
             await _queue.PublishAsync((TelemetryDataEvent)msg, null);
         }
 
-        public async Task PublishDeviceStatus( Guid devid, DeviceStatus devicestatus)
-        {
-            await _queue.PublishAsync(new DeviceStatusEvent() { DeviceId = devid, DeviceStatus = devicestatus },null);
-        }
+     
 
         public async Task PublishDeviceAlarm( CreateAlarmDto alarmDto)
         {

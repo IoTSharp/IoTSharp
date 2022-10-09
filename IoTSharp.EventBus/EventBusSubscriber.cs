@@ -111,45 +111,6 @@ namespace IoTSharp.EventBus
             }
         }
 
-
-        public async Task DeviceStatusEvent(PlayloadData status)
-        {
-            try
-            {
-                using (var _scope = _scopeFactor.CreateScope())
-                {
-                    using (var _dbContext = _scope.ServiceProvider.GetRequiredService<ApplicationDbContext>())
-                    {
-                        var dev = _dbContext.Device.FirstOrDefault(d => d.Id == status.DeviceId);
-                        if (dev != null)
-                        {
-                            if (status.DeviceStatus != DeviceStatus.Good)
-                            {
-                                await RunRules(dev.Id, status, EventType.Disconnected);
-                                //真正离线
-                            }
-                            else if (status.DeviceStatus == DeviceStatus.Good)
-                            {
-                                await RunRules(dev.Id, status, EventType.Connected);
-                                //真正掉线
-                            }
-                            var result2 = await _dbContext.SaveAsync<AttributeLatest>(status.ToDictionary(), dev.Id, DataSide.ServerSide);
-                            _dbContext.SaveChanges();
-                        }
-                        else
-                        {
-                            _logger.LogWarning($"未找到设备{status.DeviceId} ，因此无法处理设备状态");
-                        }
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, $"处理{status.DeviceId} 的状态{status.DeviceStatus} 时遇到异常:{ex.Message}");
-
-            }
-        }
-
         public async Task StoreTelemetryData(PlayloadData msg)
         {
             var result = await _storage.StoreTelemetryAsync(msg);
