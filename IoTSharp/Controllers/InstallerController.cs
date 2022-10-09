@@ -70,7 +70,15 @@ namespace IoTSharp.Controllers
 
         private InstanceDto GetInstanceDto()
         {
-            return new InstanceDto() { Installed = _context.Relationship.Any(), Domain =_setting.MqttBroker.DomainName?? this.Request.Host.ToString(), Version = System.Reflection.Assembly.GetExecutingAssembly().GetName().Version.ToString(), CACertificate= _setting.MqttBroker.CACertificate != null , CAThumbprint = _setting.MqttBroker.CACertificate?.Thumbprint, BrokerThumbprint = _setting.MqttBroker.BrokerCertificate.Thumbprint};
+            return new InstanceDto()
+            {
+                Installed = _context.Relationship.Any(),
+                Domain = _setting.MqttBroker.DomainName ?? this.Request.Host.ToString(),
+                Version = System.Reflection.Assembly.GetExecutingAssembly().GetName().Version.ToString(),
+                CACertificate = _setting.MqttBroker.CACertificate != null,
+                CAThumbprint = _setting.MqttBroker.CACertificate?.Thumbprint,
+                BrokerThumbprint = _setting.MqttBroker.BrokerCertificate?.Thumbprint
+            };
         }
 
         /// <summary>
