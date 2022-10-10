@@ -171,7 +171,26 @@ namespace IoTSharp.Controllers
             }
 
         }
-
+        private async Task QueryActivityInfo(DeviceDetailDto dev)
+        {
+            var id = dev.Id;
+            var al = from a in _context.AttributeLatest where id == a.DeviceId && (a.KeyName == Constants._Active || a.KeyName == Constants._LastActivityDateTime) select a;
+            var alx = await al.ToListAsync();
+            if (alx != null)
+            {
+                alx.ForEach(a =>
+                {
+                    if (a.KeyName == Constants._Active)
+                    {
+                        dev.Active = (bool)a.Value_Boolean;
+                    }
+                    else if (a.KeyName == Constants._LastActivityDateTime)
+                    {
+                        dev.LastActivityDateTime = a.Value_DateTime;
+                    }
+                });
+            }
+        }
         private async Task QueryActivityInfo(List<DeviceDetailDto> lst)
         {
             var devlst = lst.Select(c => c.Id).ToList();
@@ -610,14 +629,31 @@ namespace IoTSharp.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ApiResult<Guid>), StatusCodes.Status404NotFound)]
         [ProducesDefaultResponseType]
-        public async Task<ApiResult<Device>> GetDevice(Guid id)
+        public async Task<ApiResult<DeviceDetailDto>> GetDevice(Guid id)
         {
-            Device device = await FoundAsync(id);
-            if (device == null)
+            Device x = await FoundAsync(id);
+            if (x == null)
             {
-                return new ApiResult<Device>(ApiCode.ExceptionDeviceIdentity, "Device's Identity not found", null);
+                return new ApiResult<DeviceDetailDto>(ApiCode.ExceptionDeviceIdentity, "Device's Identity not found", null);
             }
-            return new ApiResult<Device>(ApiCode.Success, "Ok", device);
+            else
+            {
+                var device = new DeviceDetailDto()
+                {
+                    Id = x.Id,
+                    Name = x.Name,
+                    IdentityId = x.DeviceIdentity.IdentityId,
+                    IdentityValue = x.DeviceIdentity.IdentityType == IdentityType.X509Certificate ? "" : x.DeviceIdentity.IdentityValue,
+                    Tenant = x.Tenant,
+                    Customer = x.Customer,
+                    DeviceType = x.DeviceType,
+                    Owner = x.Owner,
+                    Timeout = x.Timeout,
+                    IdentityType = x.DeviceIdentity.IdentityType
+                };
+                await QueryActivityInfo(device);
+                return new ApiResult<DeviceDetailDto>(ApiCode.Success, "Ok", device);
+            }
         }
 
         /// <summary>
