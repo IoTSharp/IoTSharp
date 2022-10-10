@@ -49,10 +49,7 @@ e
     this.http
       .get(
         'api/Devices/' + this.record.id + '/DownloadCertificates',
-        // {},
-        // {
-        //   responseType: 'blob'
-        // }
+        {},{ responseType:'blob'}
       )
       .subscribe(
         {
@@ -71,6 +68,7 @@ e
           error: error => {
 
             this.msg.create('error', '证书下载失败:' + error.error);
+            console.log(error);
           }, complete: () => { }
         }
       );

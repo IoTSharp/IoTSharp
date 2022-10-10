@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { FormBuilder, FormGroup } from '@angular/forms';
 import { _HttpClient } from '@delon/theme';
 import { NzMessageService } from 'ng-zorro-antd/message';
 import { appmessage } from 'src/app/models/appmessage';
@@ -9,24 +10,31 @@ import { appmessage } from 'src/app/models/appmessage';
   styleUrls: ['./certmgr.component.less']
 })
 export class CertmgrComponent implements OnInit {
-  Domain: string = '';
-  installed = false;
-  constructor(private http: _HttpClient, private msg: NzMessageService) { }
+  form!: FormGroup;
+  installed = true;
+  constructor(private http: _HttpClient, private msg: NzMessageService,  private fb: FormBuilder,) { }
 
   ngOnInit(): void {
     this.checkcert();
   }
 
   checkcert() {
+
+
+    this.form = this.fb.group({
+      domain: ['', []],
+      caThumbprint: ['', []],
+      brokerThumbprint: ['', []],
+    });
     this.http.get<appmessage<any>>('api/Installer/Instance').subscribe(
       {
         next: next => {
-          if (next.data.caCertificate) {
+          if (next.data.installed) {
             this.installed = true;
-            this.Domain = next.data.domain;
+            this.form.patchValue(next.data);
           } else {
             this.installed = false;
-            this.Domain = next.data.domain;
+            this.form.patchValue(next.data);
           }
         },
         error: error => { },
@@ -36,7 +44,7 @@ export class CertmgrComponent implements OnInit {
   }
 
   createcert($event) {
-    this.http.post<appmessage<any>>('api/Installer/CreateRootCertificate', { Domain: this.Domain }).subscribe(
+    this.http.post<appmessage<any>>('api/Installer/CreateRootCertificate', {  }).subscribe(
       {
 
         next: next => {
