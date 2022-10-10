@@ -17,7 +17,9 @@ const PROXY_CONFIG = [
       "/cap",
       "/rin",
       "/healthchecks-ui",
-      "/api"
+      "/api",
+      "/healthz",
+      "/api/healthchecks"
     ],
     target: target,
     secure: false,

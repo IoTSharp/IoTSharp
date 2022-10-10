@@ -101,8 +101,8 @@ export class DevicelistComponent implements OnInit, OnDestroy {
     { label: 'id', value: 'id', checked: false },
     { label: '设备名称', value: 'name', checked: true },
     { label: '设备类型', value: 'deviceType', checked: true },
-    { label: '在线状态', value: 'online', checked: true },
-    { label: '最后活动时间', value: 'lastActive', checked: true },
+    { label: '在线状态', value: 'active', checked: true },
+    { label: '最后活动时间', value: 'lastActivityDateTime', checked: true },
     { label: '认证方式', value: 'identityType', checked: true }
   ];
   columns: STColumn[] = [
@@ -119,8 +119,8 @@ export class DevicelistComponent implements OnInit, OnDestroy {
       }
     },
     { title: '设备类型', index: 'deviceType', type: 'tag', tag: this.DeviceTAG, iif: () => this.isChoose('deviceType') },
-    { title: '在线状态', index: 'online', type: 'badge', badge: this.BADGE, iif: () => this.isChoose('online'), sort: true },
-    { title: '最后活动时间', index: 'lastActive', type: 'date', iif: () => this.isChoose('lastActive'), sort: true },
+    { title: '在线状态', index: 'active', type: 'badge', badge: this.BADGE, iif: () => this.isChoose('active'), sort: true },
+    { title: '最后活动时间', index: 'lastActivityDateTime', type: 'date', iif: () => this.isChoose('lastActivityDateTime'), sort: true },
     { title: '认证方式', index: 'identityType', type: 'tag', tag: this.TAG, iif: () => this.isChoose('identityType') },
     {
       title: '操作',
@@ -509,7 +509,7 @@ export class DevicelistComponent implements OnInit, OnDestroy {
 
 
         case 'loaded':
-this.getOnlineStatus();
+//this.getOnlineStatus();
         break;
     }
   }
