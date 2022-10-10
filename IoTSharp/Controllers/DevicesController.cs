@@ -151,10 +151,12 @@ namespace IoTSharp.Controllers
                     Name = x.Name,
                     IdentityId = x.DeviceIdentity.IdentityId,
                     IdentityValue = x.DeviceIdentity.IdentityType == IdentityType.X509Certificate ? "" : x.DeviceIdentity.IdentityValue,
-                    Tenant = x.Tenant,
-                    Customer = x.Customer,
                     DeviceType = x.DeviceType,
                     Owner = x.Owner,
+                    TenantId=x.Tenant.Id,
+                    TenantName=x.Tenant.Name,
+                    CustomerId=x.Customer.Id,
+                    CustomerName=x.Customer.Name,
                     Timeout = x.Timeout,
                     IdentityType = x.DeviceIdentity.IdentityType
                 }).ToListAsync();
@@ -464,12 +466,12 @@ namespace IoTSharp.Controllers
             if (User.IsInRole(nameof(UserRole.TenantAdmin)))
             {
                 var tid = Guid.Parse(User.Claims.First(c => c.Type == IoTSharpClaimTypes.Tenant).Value);
-                dev = await _context.Device.Include(d => d.Tenant).AsSingleQuery().FirstOrDefaultAsync(d => d.Id == deviceId && d.Tenant.Id == tid && !d.Deleted);
+                dev = await _context.Device.Include(d => d.Tenant).Include(d=>d.Customer).Include(d=>d.DeviceIdentity).AsSplitQuery().FirstOrDefaultAsync(d => d.Id == deviceId && d.Tenant.Id == tid && !d.Deleted);
             }
             else if (User.IsInRole(nameof(UserRole.NormalUser)))
             {
                 var cid = Guid.Parse(User.Claims.First(c => c.Type == IoTSharpClaimTypes.Customer).Value);
-                dev = await _context.Device.Include(d => d.Customer).AsSingleQuery().FirstOrDefaultAsync(d => d.Id == deviceId && d.Customer.Id == cid && !d.Deleted);
+                dev = await _context.Device.Include(d => d.Customer).Include(d => d.Customer).Include(d => d.DeviceIdentity).AsSplitQuery().FirstOrDefaultAsync(d => d.Id == deviceId && d.Customer.Id == cid && !d.Deleted);
             }
             return dev;
         }
@@ -644,8 +646,10 @@ namespace IoTSharp.Controllers
                     Name = x.Name,
                     IdentityId = x.DeviceIdentity.IdentityId,
                     IdentityValue = x.DeviceIdentity.IdentityType == IdentityType.X509Certificate ? "" : x.DeviceIdentity.IdentityValue,
-                    Tenant = x.Tenant,
-                    Customer = x.Customer,
+                    TenantName = x.Tenant.Name,
+                    CustomerName = x.Customer.Name,
+                    TenantId = x.Tenant.Id,
+                    CustomerId= x.Customer.Id,
                     DeviceType = x.DeviceType,
                     Owner = x.Owner,
                     Timeout = x.Timeout,

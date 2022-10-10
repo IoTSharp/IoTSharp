@@ -664,16 +664,6 @@
             所有者
             </summary>
         </member>
-        <member name="P:IoTSharp.Dtos.DeviceDetailDto.Tenant">
-            <summary>
-            租户
-            </summary>
-        </member>
-        <member name="P:IoTSharp.Dtos.DeviceDetailDto.Customer">
-            <summary>
-            客户
-            </summary>
-        </member>
         <member name="P:IoTSharp.Dtos.DeviceDetailDto.Active">
             <summary>
             是否活动
