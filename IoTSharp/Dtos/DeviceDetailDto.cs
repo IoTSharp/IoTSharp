@@ -41,10 +41,14 @@ namespace IoTSharp.Dtos
 
         public string IdentityValue { get; set; }
         public string IdentityId { get; set; }
+        /// <summary>
+        /// 是否活动
+        /// </summary>
+        public bool Active { get;  set; }
+        /// <summary>
+        /// 最后活动
+        /// </summary>
+        public DateTime? LastActivityDateTime { get;  set; }
 
-#nullable enable
-        public DeviceModel? Model { get; set; }
-
-#nullable disable
     }
 }

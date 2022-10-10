@@ -42,6 +42,7 @@ using Consul;
 using LogLevel = Microsoft.Extensions.Logging.LogLevel;
 using Shashlik.EventBus.Utils;
 using static CoAP.Net.Exchange;
+using System.Runtime.Intrinsics.X86;
 
 namespace IoTSharp.Controllers
 {
@@ -122,84 +123,75 @@ namespace IoTSharp.Controllers
         public async Task<ApiResult<PagedData<DeviceDetailDto>>> GetDevices([FromQuery] DeviceParam m)
         {
             var profile = this.GetUserProfile();
-
-            if (m.limit > 0)
+            m.limit = m.limit < 5 ? 5 : m.limit;
+            try
             {
-                try
+            
+                var query=from  c in _context.Device.Include(c => c.DeviceIdentity) where c.Customer.Id == m.customerId && !c.Deleted && c.Tenant.Id == profile.Tenant select c;
+                if (m.OnlyActive)
                 {
-                    Expression<Func<Device, bool>> condition = x => x.Customer.Id == m.customerId && !x.Deleted && x.Tenant.Id == profile.Tenant;
-                    if (!string.IsNullOrEmpty(m.Name))
+                    var al = from a in _context.AttributeLatest where   a.KeyName == Constants._Active   select a.DeviceId;
+                    query = from x in query where al.Contains( x.Id)   select x;
+                }
+                if (!string.IsNullOrEmpty(m.Name))
+                {
+                    if (System.Text.RegularExpressions.Regex.IsMatch(m.Name, @"(?im)^[{(]?[0-9A-F]{8}[-]?(?:[0-9A-F]{4}[-]?){3}[0-9A-F]{12}[)}]?$"))
                     {
-                        if (System.Text.RegularExpressions.Regex.IsMatch(m.Name, @"(?im)^[{(]?[0-9A-F]{8}[-]?(?:[0-9A-F]{4}[-]?){3}[0-9A-F]{12}[)}]?$"))
-                        {
-                            condition = condition.And(x => x.Id == Guid.Parse(m.Name));
-                        }
-                        else
-                        {
-                            condition = condition.And(x => x.Name.Contains(m.Name));
-                        }
+                        var id = Guid.Parse(m.Name);
+                        query = from  x in query  where   x.Id == id select x ;
                     }
-
-                    return new ApiResult<PagedData<DeviceDetailDto>>(ApiCode.Success, "OK", new PagedData<DeviceDetailDto>
+                    else
                     {
-                        total = await _context.Device.CountAsync(condition),
-                        rows = _context.Device.Include(c => c.DeviceIdentity).Where(condition).Skip((m.offset) * m.limit).Take(m.limit).AsSingleQuery().ToList().Select(x => new DeviceDetailDto()
-                        {
-                            Id = x.Id,
-                            Name = x.Name,
-                            IdentityId = x.DeviceIdentity?.IdentityId,
-                            IdentityValue = x.DeviceIdentity?.IdentityType == IdentityType.X509Certificate ? "" : x.DeviceIdentity?.IdentityValue,
-                            Tenant = x.Tenant,
-                            Customer = x.Customer,
-                            DeviceType = x.DeviceType,
-                            Owner = x.Owner,
-                            Timeout = x.Timeout,
-                            IdentityType = x.DeviceIdentity?.IdentityType ?? IdentityType.AccessToken
-                        }).ToList()
-                    });
+                        query = from x in query where x.Name.Contains(m.Name) select x;
+                    }
                 }
-                catch (Exception e)
+                var lst = await query.Skip((m.offset) * m.limit).Take(m.limit).AsSplitQuery().Select(x => new DeviceDetailDto()
                 {
-                    return new ApiResult<PagedData<DeviceDetailDto>>(ApiCode.Exception, e.Message, null);
-                }
+                    Id = x.Id,
+                    Name = x.Name,
+                    IdentityId = x.DeviceIdentity.IdentityId,
+                    IdentityValue = x.DeviceIdentity.IdentityType == IdentityType.X509Certificate ? "" : x.DeviceIdentity.IdentityValue,
+                    Tenant = x.Tenant,
+                    Customer = x.Customer,
+                    DeviceType = x.DeviceType,
+                    Owner = x.Owner,
+                    Timeout = x.Timeout,
+                    IdentityType = x.DeviceIdentity.IdentityType
+                }).ToListAsync();
+                await QueryActivityInfo(lst);
+                return new ApiResult<PagedData<DeviceDetailDto>>(ApiCode.Success, "OK", new PagedData<DeviceDetailDto>
+                {
+                    total = await query.CountAsync(),
+                    rows = lst
+                });
             }
-            else
+            catch (Exception e)
             {
-                try
-                {
-                    Expression<Func<Device, bool>> condition = x => x.Customer.Id == m.customerId && !x.Deleted;
-                    if (!string.IsNullOrEmpty(m.Name))
-                    {
-                        if (System.Text.RegularExpressions.Regex.IsMatch(m.Name, @"(?im)^[{(]?[0-9A-F]{8}[-]?(?:[0-9A-F]{4}[-]?){3}[0-9A-F]{12}[)}]?$"))
-                        {
-                            condition = condition.And(x => x.Id == Guid.Parse(m.Name));
-                        }
-                        else
-                        {
-                            condition = condition.And(x => x.Name.Contains(m.Name));
-                        }
-                    }
-
-                    return new ApiResult<PagedData<DeviceDetailDto>>(ApiCode.Success, "OK", new PagedData<DeviceDetailDto>
-                    {
-                        total = await _context.Device.CountAsync(condition),
-                        rows = await _context.Device.Where(condition).Select(x => new DeviceDetailDto()
-                        {
-                            Id = x.Id,
-                            Name = x.Name,
-                            Tenant = x.Tenant,
-                            Customer = x.Customer,
-                            DeviceType = x.DeviceType,
-                            Owner = x.Owner,
-                            Timeout = x.Timeout,
-                        }).ToListAsync()
-                    });
-                }
-                catch (Exception e)
-                {
-                    return new ApiResult<PagedData<DeviceDetailDto>>(ApiCode.Exception, e.Message, null);
-                }
+                return new ApiResult<PagedData<DeviceDetailDto>>(ApiCode.Exception, e.Message, null);
             }
+
+        }
+
+        private async Task QueryActivityInfo(List<DeviceDetailDto> lst)
+        {
+            var devlst = lst.Select(c => c.Id).ToList();
+            var al = from a in _context.AttributeLatest where devlst.Contains(a.DeviceId) && (a.KeyName == Constants._Active || a.KeyName == Constants._LastActivityDateTime) select a;
+            var allist = await al.ToListAsync();
+            allist.ForEach(a =>
+            {
+                var dev = lst.FirstOrDefault(d => d.Id == a.DeviceId);
+                if (dev != null)
+                {
+                    if (a.KeyName == Constants._Active)
+                    {
+                        dev.Active = (bool)a.Value_Boolean;
+                    }
+                    else if (a.KeyName == Constants._LastActivityDateTime)
+                    {
+                        dev.LastActivityDateTime = a.Value_DateTime;
+                    }
+                }
+            });
         }
 
         /// <summary>

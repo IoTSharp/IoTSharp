@@ -674,6 +674,16 @@
             客户
             </summary>
         </member>
+        <member name="P:IoTSharp.Dtos.DeviceDetailDto.Active">
+            <summary>
+            是否活动
+            </summary>
+        </member>
+        <member name="P:IoTSharp.Dtos.DeviceDetailDto.LastActivityDateTime">
+            <summary>
+            最后活动
+            </summary>
+        </member>
         <member name="P:IoTSharp.Dtos.DeviceRuleDto.Name">
             <summary>
             设备名称
