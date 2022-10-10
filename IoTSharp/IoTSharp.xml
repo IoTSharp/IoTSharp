@@ -485,6 +485,7 @@
              <param name="m"></param>
              <returns></returns>
         </member>
+        <!-- Badly formed XML comment ignored for member "M:IoTSharp.Controllers.HealthChecksController.Get" -->
         <member name="T:IoTSharp.Controllers.InstallerController">
             <summary>
             安装
