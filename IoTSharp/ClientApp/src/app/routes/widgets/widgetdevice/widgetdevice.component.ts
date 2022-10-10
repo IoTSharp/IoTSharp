@@ -15,6 +15,9 @@ import { tempchartitem } from 'src/app/models/widgets/device/tempchartitem';
   styleUrls: ['./widgetdevice.component.less']
 })
 export class WidgetdeviceComponent implements OnInit {
+
+
+
   @Input() id: string = Guid.EMPTY;
   device: any;
   initaldatarange = getTimeDistance(-1);

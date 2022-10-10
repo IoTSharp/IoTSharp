@@ -39,7 +39,7 @@ export class StatisticsComponent implements OnInit, IWidgetComponent {
       complete: () => {}
     });
 
-    this.http.get('healthchecks-api').subscribe({
+    this.http.get('api/healthchecks').subscribe({
       next: next => {
         this.data = next[0].entries;
         this.cdr.detectChanges();
