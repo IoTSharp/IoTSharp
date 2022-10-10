@@ -17,7 +17,7 @@ RUN  	apt-get  -y update   && \
 	apt-get autoclean  
 RUN KEYRING=/usr/share/keyrings/nodesource.gpg && curl -fsSL https://deb.nodesource.com/gpgkey/nodesource.gpg.key | gpg --dearmor |  tee "$KEYRING" >/dev/null && \
 	gpg --no-default-keyring --keyring "$KEYRING" --list-keys && \
-	VERSION=node_16.x &&  DISTRO=bullseye  && \
+	VERSION=node_14.x &&  DISTRO=bullseye  && \
 	echo "deb [signed-by=$KEYRING] https://deb.nodesource.com/$VERSION $DISTRO main" |  tee /etc/apt/sources.list.d/nodesource.list && \
 	apt-get  -y   -q update  && \
     apt-get install -y nodejs && \
@@ -31,7 +31,7 @@ WORKDIR /src
 COPY ["IoTSharp/ClientAppVue/package.json", "IoTSharp/ClientAppVue/package.json"]
 RUN   npm install -g yarn && yarn config set sass_binary_site http://cdn.npm.taobao.org/dist/node-sass -g && \
 	  yarn config set registry https://registry.npm.taobao.org -g  &&  \
-	  yarn add node-sass --cwd  ./IoTSharp/ClientAppVue/   &&   yarn install   --cwd  ./IoTSharp/ClientAppVue/
+	  yarn add sass@1.26.5 --cwd  ./IoTSharp/ClientAppVue/   &&   yarn install   --cwd  ./IoTSharp/ClientAppVue/
 COPY ["IoTSharp/IoTSharp.csproj", "IoTSharp/"]
 COPY ["IoTSharp.Contracts/IoTSharp.Contracts.csproj", "IoTSharp.Contracts/"]
 COPY ["IoTSharp.Data.Storage/IoTSharp.Data.Cassandra/IoTSharp.Data.Cassandra.csproj", "IoTSharp.Data.Storage/IoTSharp.Data.Cassandra/"]
