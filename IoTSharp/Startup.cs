@@ -358,10 +358,7 @@ namespace IoTSharp
                     Predicate = _ => true,
                     ResponseWriter = UIResponseWriter.WriteHealthCheckUIResponse
                 });
-                endpoints.MapHealthChecksUI(opt=>
-                {
-
-                });
+                endpoints.MapHealthChecksUI();
                 endpoints.MapDefaultControllerRoute();
                 endpoints.MapRazorPages();
             });
