@@ -16,6 +16,7 @@ export class CommonDialogSevice {
       string
     >({
       nzTitle: title,
+      
       nzContent: WidgetdeviceComponent,
       nzWidth: window.innerWidth * 0.8,
       nzMaskClosable: nzMaskClosable,
@@ -23,6 +24,8 @@ export class CommonDialogSevice {
         id: deviceId
       }
     });
+
+    drawerRef.nzBodyStyle={ padding:'10px' };
     drawerRef.afterOpen.subscribe(() => {});
     drawerRef.afterClose.subscribe(() => {});
   }
