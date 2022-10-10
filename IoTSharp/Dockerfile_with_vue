@@ -13,7 +13,7 @@ EXPOSE 8883
 
 FROM 	mcr.microsoft.com/dotnet/sdk:6.0-bullseye-slim AS build
 RUN  	apt-get  -y update   && \
-	apt-get install  -y  apt-utils libgdiplus libc6-dev lsof net-tools wget sqlite3 iputils-ping inetutils-tools    libfontconfig1 curl   gnupg2 gnupg    && \
+	apt-get install  -y  apt-utils libgdiplus libc6-dev lsof net-tools wget sqlite3 iputils-ping inetutils-tools  build-essential  libfontconfig1 curl   gnupg2 gnupg    && \
 	apt-get autoclean  
 RUN KEYRING=/usr/share/keyrings/nodesource.gpg && curl -fsSL https://deb.nodesource.com/gpgkey/nodesource.gpg.key | gpg --dearmor |  tee "$KEYRING" >/dev/null && \
 	gpg --no-default-keyring --keyring "$KEYRING" --list-keys && \
@@ -23,15 +23,13 @@ RUN KEYRING=/usr/share/keyrings/nodesource.gpg && curl -fsSL https://deb.nodesou
     apt-get install -y nodejs && \
 	ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime && \
 	npm config set registry https://registry.npmmirror.com && \
-	npm install -g  yarn && \
-	yarn config set registry https://registry.npmmirror.com  && \
 	export NODE_OPTIONS=--openssl-legacy-provider && \
 	apt-get autoclean 
 
     
 WORKDIR /src
 COPY ["IoTSharp/ClientAppVue/package.json", "IoTSharp/ClientAppVue/package.json"]
-RUN  yarn install   --cwd  ./IoTSharp/ClientAppVue/
+RUN   npm install -g yarn &&   yarn add node-sass@4.14.1 --cwd  ./IoTSharp/ClientAppVue/   &&   yarn install   --cwd  ./IoTSharp/ClientAppVue/
 COPY ["IoTSharp/IoTSharp.csproj", "IoTSharp/"]
 COPY ["IoTSharp.Contracts/IoTSharp.Contracts.csproj", "IoTSharp.Contracts/"]
 COPY ["IoTSharp.Data.Storage/IoTSharp.Data.Cassandra/IoTSharp.Data.Cassandra.csproj", "IoTSharp.Data.Storage/IoTSharp.Data.Cassandra/"]
