@@ -6,6 +6,7 @@
 **/.settings
 **/.toolstarget
 **/*.lock
+**/package-lock.json
 **/.vs
 **/.vscode
 **/*.*proj.user

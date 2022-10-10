@@ -193,13 +193,13 @@
 		<Error Condition="'$(ErrorCode)' != '0'" Text="Node.js is required to build and run this project. To continue, please install Node.js from https://nodejs.org/, and then restart your command prompt or IDE." />
 		<Message Importance="high" Text="Restoring dependencies using 'npm'. This may take several minutes..." />
 		<Exec WorkingDirectory="$(SpaRoot)" Command="npm install -g yarn " />
-		<Exec WorkingDirectory="$(SpaRoot)" Command="yarn add sass@1.26.5" />
+			<Exec WorkingDirectory="$(SpaRoot)" Command=" yarn add   node-sass@4.12.0 " />
 		<Exec WorkingDirectory="$(SpaRoot)" Command="yarn install  " />
 	</Target>
 	<Target Name="PublishRunWebpack_vue" AfterTargets="ComputeFilesToPublish" Condition=" '$(Configuration)' == 'Release_VUE'">
 		<!-- As part of publishing, ensure the JS resources are freshly built in production mode -->
 		<Exec WorkingDirectory="$(SpaRoot)" Command="npm install -g yarn " />
-		<Exec WorkingDirectory="$(SpaRoot)" Command="yarn add sass@1.26.5" />
+		<Exec WorkingDirectory="$(SpaRoot)" Command="yarn add  node-sass " />
 		<Exec WorkingDirectory="$(SpaRoot)" Command="yarn install  " />
 		<Exec WorkingDirectory="$(SpaRoot)" Command="yarn build" />
 		<!-- Include the newly-built files in the publish output -->
