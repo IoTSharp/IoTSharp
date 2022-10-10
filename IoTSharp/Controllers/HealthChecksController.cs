@@ -10,9 +10,14 @@ using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
 using System.Linq;
 using IoTSharp.Contracts;
+using Newtonsoft.Json.Serialization;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
+using Microsoft.AspNetCore.Mvc.Filters;
 
 namespace IoTSharp.Controllers
 {
+    
     [Route("api/[controller]")]
     [ApiController]
     public class HealthChecksController : ControllerBase
@@ -30,9 +35,14 @@ namespace IoTSharp.Controllers
         /// <returns></returns>
         [HttpGet()]
         [ProducesResponseType(StatusCodes.Status200OK)]
-        public async Task<ApiResult<List<HealthCheckExecution>>> Get()
+        public async Task<ActionResult> Get()
         {
-
+             var _jsonSerializationSettings = new JsonSerializerSettings
+            {
+                ContractResolver = new CamelCasePropertyNamesContractResolver(),
+                Converters = new[] { new StringEnumConverter() },
+                DateTimeZoneHandling = DateTimeZoneHandling.Local
+            };
             using (var scope = __serviceScopeFactory.CreateScope())
             using (var db = scope.ServiceProvider.GetRequiredService<HealthChecksDb>())
             {
@@ -58,7 +68,8 @@ namespace IoTSharp.Controllers
                         healthChecksExecutions.Add(execution);
                     }
                 }
-                return new ApiResult<List<HealthCheckExecution>>(ApiCode.Success, "OK", healthChecksExecutions);
+                var responseContent = JsonConvert.SerializeObject(healthChecksExecutions, _jsonSerializationSettings);
+              return   new JsonResult( healthChecksExecutions,_jsonSerializationSettings);
             }
         }
     }
