@@ -116,7 +116,7 @@ export class FloweventsComponent implements OnInit {
       .get<appmessage<any>>('api/Devices/Customers', {
         limit: 20,
         offset: 0,
-        customerId: this.settingService.user['comstomer'],
+        customerId: this.settingService.user['customer'],
         name: element?.value ?? ''
       })
       .pipe(debounceTime(500))

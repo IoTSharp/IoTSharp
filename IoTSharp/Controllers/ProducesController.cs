@@ -36,7 +36,7 @@ namespace IoTSharp.Controllers
         {
             var profile = this.GetUserProfile();
             Expression<Func<Produce, bool>> condition = x =>
-                x.Customer.Id == profile.Comstomer && x.Tenant.Id == profile.Tenant;
+                x.Customer.Id == profile.Customer && x.Tenant.Id == profile.Tenant;
 
 
             if (!string.IsNullOrEmpty(m.Name))

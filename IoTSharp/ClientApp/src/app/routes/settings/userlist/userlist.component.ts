@@ -94,8 +94,8 @@ export class UserlistComponent implements OnInit {
 
         next: x => {
           if (!x['id']) {
-            this.q.customerId = this.settingService.user['comstomer'];
-            this.customerId = this.settingService.user['comstomer'];
+            this.q.customerId = this.settingService.user['customer'];
+            this.customerId = this.settingService.user['customer'];
           } else {
             this.q.customerId = x['id'] as unknown as string;
             this.customerId = x['id'] as unknown as string;

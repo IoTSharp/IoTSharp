@@ -52,7 +52,7 @@ export class StartupService {
               avatar: 'api/Account/Avatar',
               email: res.data.email,
               modules: res.data.modules,
-              comstomer: res.data.comstomer,
+              customer: res.data.customer,
               tenant: res.data.tenant
             });
             var ACL = [];

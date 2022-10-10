@@ -28,7 +28,7 @@ namespace IoTSharp.Extensions
                 Roles = @this.User.Claims.Where(c => c.Type == ClaimTypes.Role).Select(x => x.Value).ToArray(),
                 Email = @this.User.GetEmail(),
                 Tenant = @this.User.GetTenantId(),
-                Comstomer =@this.User.GetCustomerId()
+                Customer =@this.User.GetCustomerId()
             };
         }
         public static string GetStorageRoot(this ControllerBase @this)

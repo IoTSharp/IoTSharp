@@ -194,7 +194,7 @@ namespace IoTSharp.Controllers
             {
 
 
-                var _customer = await _context.Customer.SingleOrDefaultAsync(c => c.Id == profile.Comstomer);
+                var _customer = await _context.Customer.SingleOrDefaultAsync(c => c.Id == profile.Customer);
                 var _tenant = await _context.Tenant.SingleOrDefaultAsync(c => c.Id == profile.Tenant);
                 var newrule = new FlowRule();
                 newrule.DefinitionsXml = rule.DefinitionsXml;
@@ -328,7 +328,7 @@ namespace IoTSharp.Controllers
 
 
             var profile = this.GetUserProfile();
-            Expression<Func<DeviceRule, bool>> condition = x => x.Device.Customer.Id == profile.Comstomer &&  !x.Device.Deleted   && x.Device.Tenant.Id == profile.Tenant&&x.FlowRule.RuleId==m.ruleId;
+            Expression<Func<DeviceRule, bool>> condition = x => x.Device.Customer.Id == profile.Customer &&  !x.Device.Deleted   && x.Device.Tenant.Id == profile.Tenant&&x.FlowRule.RuleId==m.ruleId;
             if (!string.IsNullOrEmpty(m.Name))
             {
                 if (System.Text.RegularExpressions.Regex.IsMatch(m.Name, @"(?im)^[{(]?[0-9A-F]{8}[-]?(?:[0-9A-F]{4}[-]?){3}[0-9A-F]{12}[)}]?$"))

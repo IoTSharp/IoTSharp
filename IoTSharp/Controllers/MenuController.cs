@@ -169,7 +169,7 @@ namespace IoTSharp.Controllers
                         //"warning"
                     }, // 用户首页模块
                     Email = this.User.GetEmail(),
-                    Comstomer = User.GetCustomerId(),
+                    Customer = User.GetCustomerId(),
                     Tenant = User.GetTenantId(),
                     Logo = ""
                 };
@@ -290,7 +290,7 @@ namespace IoTSharp.Controllers
                         //"warning"
                     }, // 用户首页模块
                     Email = profile.Email.FirstOrDefault(),
-                    Comstomer = profile.Comstomer,
+                    Customer = profile.Customer,
                     Tenant = profile.Tenant,
                     Logo = ""
                 }

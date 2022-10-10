@@ -56,7 +56,7 @@ export class AssetentityformComponent implements OnInit {
         limit: -1,
         pi: 0,
         ps: 10,
-        customerId: this.settingService.user['comstomer']
+        customerId: this.settingService.user['customer']
       })
       .pipe(debounceTime(500))
       .subscribe({
