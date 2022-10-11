@@ -131,7 +131,7 @@ namespace IoTSharp.Controllers
                 var query=from  c in _context.Device.Include(c => c.DeviceIdentity) where c.Customer.Id == m.customerId && !c.Deleted && c.Tenant.Id == profile.Tenant select c;
                 if (m.OnlyActive)
                 {
-                    var al = from a in _context.AttributeLatest where   a.KeyName == Constants._Active   select a.DeviceId;
+                    var al = from a in _context.AttributeLatest where   a.KeyName == Constants._Active &&a.Value_Boolean==true   select a.DeviceId;
                     query = from x in query where al.Contains( x.Id)   select x;
                 }
                 if (!string.IsNullOrEmpty(m.Name))

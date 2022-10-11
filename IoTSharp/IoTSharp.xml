@@ -514,6 +514,48 @@
             </summary>
             <returns></returns>
         </member>
+        <member name="M:IoTSharp.Controllers.ProducesController.List(IoTSharp.Controllers.Models.ProduceParam)">
+            <summary>
+            产品列表
+            </summary>
+            <param name="m"></param>
+            <returns></returns>
+        </member>
+        <member name="M:IoTSharp.Controllers.ProducesController.ProduceDatas(System.Guid)">
+            <summary>
+            
+            </summary>
+            <param name="produceid"></param>
+            <returns></returns>
+        </member>
+        <member name="M:IoTSharp.Controllers.ProducesController.Get(System.Guid)">
+            <summary>
+            获取产品
+            </summary>
+            <param name="id"></param>
+            <returns></returns>
+        </member>
+        <member name="M:IoTSharp.Controllers.ProducesController.Delete(System.Guid)">
+            <summary>
+            删除产品
+            </summary>
+            <param name="produceid"></param>
+            <returns></returns>
+        </member>
+        <member name="M:IoTSharp.Controllers.ProducesController.Save(IoTSharp.Dtos.ProduceAddDto)">
+            <summary>
+            新增产品
+            </summary>
+            <param name="dto"></param>
+            <returns></returns>
+        </member>
+        <member name="M:IoTSharp.Controllers.ProducesController.Update(IoTSharp.Dtos.ProduceAddDto)">
+            <summary>
+            修改产品
+            </summary>
+            <param name="dto"></param>
+            <returns></returns>
+        </member>
         <member name="M:IoTSharp.Controllers.RulesController.UpdateFlowExpression(IoTSharp.Dtos.UpdateFlowExpression)">
              <summary>
              更新节点的条件表达式
@@ -743,6 +785,57 @@
         <member name="P:IoTSharp.Dtos.InstanceDto.Domain">
             <summary>
             http://localhost/  
+            </summary>
+        </member>
+        <member name="P:IoTSharp.Dtos.ProduceAddDto.Name">
+            <summary>
+            设备名称
+            </summary>
+        </member>
+        <member name="P:IoTSharp.Dtos.ProduceAddDto.Icon">
+            <summary>
+            ICON file full path 
+            </summary>
+        </member>
+        <member name="P:IoTSharp.Dtos.ProduceAddDto.GatewayType">
+            <summary>
+            网关类型  根据不通网关来处理相关配置
+            </summary>
+        </member>
+        <member name="P:IoTSharp.Dtos.ProduceAddDto.GatewayConfiguration">
+            <summary>
+            网关配置信息， 如果是Unknow 则不使用， 如果是自定义 ，则这里是json字符串。 
+            如果是其他对应的网关， 则这里是 对应的配置文件名。 
+            </summary>
+        </member>
+        <member name="P:IoTSharp.Dtos.ProduceAddDto.DefaultTimeout">
+            <summary>
+            超时时间 秒数
+            </summary>
+        </member>
+        <member name="P:IoTSharp.Dtos.ProduceAddDto.Tenant">
+            <summary>
+            租户
+            </summary>
+        </member>
+        <member name="P:IoTSharp.Dtos.ProduceAddDto.Customer">
+            <summary>
+            客户
+            </summary>
+        </member>
+        <member name="P:IoTSharp.Dtos.ProduceAddDto.DefaultIdentityType">
+            <summary>
+            默认认证类型
+            </summary>
+        </member>
+        <member name="P:IoTSharp.Dtos.ProduceAddDto.Description">
+            <summary>
+            描述
+            </summary>
+        </member>
+        <member name="P:IoTSharp.Dtos.ProduceAddDto.DefaultDeviceType">
+            <summary>
+            默认设备类型
             </summary>
         </member>
         <member name="T:IoTSharp.Dtos.TelemetryDataQueryDto">

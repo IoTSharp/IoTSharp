@@ -12,6 +12,7 @@ import { appmessage } from 'src/app/models/appmessage';
 export class CertmgrComponent implements OnInit {
   form!: FormGroup;
   installed = true;
+  caCertificate=false;
   constructor(private http: _HttpClient, private msg: NzMessageService,  private fb: FormBuilder,) { }
 
   ngOnInit(): void {
@@ -31,9 +32,11 @@ export class CertmgrComponent implements OnInit {
         next: next => {
           if (next.data.installed) {
             this.installed = true;
+            this.caCertificate=next.data.caCertificate;
             this.form.patchValue(next.data);
           } else {
             this.installed = false;
+            this.caCertificate=next.data.caCertificate;
             this.form.patchValue(next.data);
           }
         },

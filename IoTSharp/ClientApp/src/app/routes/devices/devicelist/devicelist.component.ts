@@ -73,6 +73,7 @@ export class DevicelistComponent implements OnInit, OnDestroy {
     pi: number;
     ps: number;
     sorter: string;
+    onlyActive:boolean;
     customerId: string;
     name: string;
     // anothor query field:The type you expect
@@ -80,6 +81,7 @@ export class DevicelistComponent implements OnInit, OnDestroy {
       pi: 0,
       ps: 20,
       sorter: '',
+      onlyActive:false,
       customerId: '',
       name: ''
     };
