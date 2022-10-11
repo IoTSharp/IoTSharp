@@ -43,6 +43,7 @@ using LogLevel = Microsoft.Extensions.Logging.LogLevel;
 using Shashlik.EventBus.Utils;
 using static CoAP.Net.Exchange;
 using System.Runtime.Intrinsics.X86;
+using CoAP;
 
 namespace IoTSharp.Controllers
 {
@@ -254,47 +255,55 @@ namespace IoTSharp.Controllers
         [ProducesDefaultResponseType]
         public async Task<ApiResult<DeviceIdentity>> CreateX509Identity(Guid deviceId)
         {
-            var did = await _context.DeviceIdentities.Include(d => d.Device).AsSingleQuery().FirstOrDefaultAsync(c => c.Device.Id == deviceId);
-            var cust = from c in _context.Device.Include(d => d.Customer).Include(d => d.Tenant).AsSplitQuery() where c.Id == deviceId select c;
-            var dev = cust.FirstOrDefault();
-            if (did != null && dev != null)
+            var option = _setting.MqttBroker;
+            if (option.CACertificate == null)
             {
-                var option = _setting.MqttBroker;
-                if (Uri.TryCreate(_setting.MqttBroker.DomainName, UriKind.Absolute, out Uri _uri))
-                {
-                    SubjectAlternativeNameBuilder altNames = new SubjectAlternativeNameBuilder();
-                    altNames.AddUserPrincipalName(did.Device.Id.ToString());
-                    altNames.AddDnsName(_uri.Host);
-                    if (_setting.MqttBroker.TlsPort > 0 && _setting.MqttBroker.TlsPort < 65535)
-                    {
-                        altNames.AddUri(new Uri($"mqtt://{_uri.Host}:{_setting.MqttBroker.TlsPort}"));
-                        string name = $"CN={dev.Name},C=CN,L={dev.Customer.Province ?? "IoTSharp"},ST={dev.Customer.City ?? "IoTSharp"},O={dev.Customer.Name},OU={dev.Tenant.Name}";
-                        var tlsclient = option.CACertificate.CreateTlsClientRSA(name, altNames);
-                        string x509CRT, x509Key;
-                        tlsclient.SavePem(out x509CRT, out x509Key);
-                        did.IdentityType = IdentityType.X509Certificate;
-                        did.IdentityId = tlsclient.Thumbprint;
-                        var pem = new
-                        {
-                            PrivateKey = x509Key,
-                            PublicKey = x509CRT
-                        };
-                        did.IdentityValue = Newtonsoft.Json.JsonConvert.SerializeObject(pem);
-                        await _context.SaveChangesAsync();
-                        return new ApiResult<DeviceIdentity>(ApiCode.Success, "OK", new DeviceIdentity() { Id = did.Id, IdentityType = did.IdentityType, IdentityId = did.IdentityId });
-                    }
-                    else
-                    {
-                        return new ApiResult<DeviceIdentity>(ApiCode.ExceptionDeviceIdentity, "Please set valid MqttBroker TlsPort", null);
-                    }
-                }
-
-                return new ApiResult<DeviceIdentity>(ApiCode.ExceptionDeviceIdentity, "Please set MqttBroker domain name", null);
-
+                return new ApiResult<DeviceIdentity>(ApiCode.ExceptionDeviceIdentity, "Not found CACertificate", null);
             }
             else
             {
-                return new ApiResult<DeviceIdentity>(ApiCode.ExceptionDeviceIdentity, "Not found device identity", null);
+                var did = await _context.DeviceIdentities.Include(d => d.Device).AsSingleQuery().FirstOrDefaultAsync(c => c.Device.Id == deviceId);
+                var cust = from c in _context.Device.Include(d => d.Customer).Include(d => d.Tenant).AsSplitQuery() where c.Id == deviceId select c;
+                var dev = cust.FirstOrDefault();
+                if (did != null && dev != null)
+                {
+               
+                    if (Uri.TryCreate(_setting.MqttBroker.DomainName, UriKind.Absolute, out Uri _uri))
+                    {
+                        SubjectAlternativeNameBuilder altNames = new SubjectAlternativeNameBuilder();
+                        altNames.AddUserPrincipalName(did.Device.Id.ToString());
+                        altNames.AddDnsName(_uri.Host);
+                        if (_setting.MqttBroker.TlsPort > 0 && _setting.MqttBroker.TlsPort < 65535)
+                        {
+                            altNames.AddUri(new Uri($"mqtt://{_uri.Host}:{_setting.MqttBroker.TlsPort}"));
+                            string name = $"CN={dev.Name},C=CN,L={dev.Customer.Province ?? "IoTSharp"},ST={dev.Customer.City ?? "IoTSharp"},O={dev.Customer.Name},OU={dev.Tenant.Name}";
+                            var tlsclient = option.CACertificate.CreateTlsClientRSA(name, altNames);
+                            string x509CRT, x509Key;
+                            tlsclient.SavePem(out x509CRT, out x509Key);
+                            did.IdentityType = IdentityType.X509Certificate;
+                            did.IdentityId = tlsclient.Thumbprint;
+                            var pem = new
+                            {
+                                PrivateKey = x509Key,
+                                PublicKey = x509CRT
+                            };
+                            did.IdentityValue = Newtonsoft.Json.JsonConvert.SerializeObject(pem);
+                            await _context.SaveChangesAsync();
+                            return new ApiResult<DeviceIdentity>(ApiCode.Success, "OK", new DeviceIdentity() { Id = did.Id, IdentityType = did.IdentityType, IdentityId = did.IdentityId });
+                        }
+                        else
+                        {
+                            return new ApiResult<DeviceIdentity>(ApiCode.ExceptionDeviceIdentity, "Please set valid MqttBroker TlsPort", null);
+                        }
+                    }
+
+                    return new ApiResult<DeviceIdentity>(ApiCode.ExceptionDeviceIdentity, "Please set MqttBroker domain name", null);
+
+                }
+                else
+                {
+                    return new ApiResult<DeviceIdentity>(ApiCode.ExceptionDeviceIdentity, "Not found device identity", null);
+                }
             }
         }
 
