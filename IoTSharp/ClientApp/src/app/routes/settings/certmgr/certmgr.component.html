@@ -11,12 +11,12 @@
         <se label="Broker指纹">
           <input nz-input nz-input formControlName="brokerThumbprint" placeholder="域名" />
         </se>
-        <button nz-button nzType="primary" type="submit" *ngIf="!installed&&caCertificate">生成根证书</button>
+        <button nz-button nzType="primary" type="submit" *ngIf="!installed">生成根证书</button>
       </form>
     </div>
   </div>
-  <nz-divider nzOrientation="left" *ngIf="!caCertificate"></nz-divider>
-  <div nz-row *ngIf="!caCertificate">
+  <nz-divider nzOrientation="left" *ngIf="!installed"></nz-divider>
+  <div nz-row *ngIf="!installed">
     <div nz-col class="gutter-row" [nzSpan]="24">
       <nz-alert nzType="success" nzDescription="证书尚未配置." nzShowIcon></nz-alert>
     </div>

@@ -20,8 +20,6 @@ export class CertmgrComponent implements OnInit {
   }
 
   checkcert() {
-
-
     this.form = this.fb.group({
       domain: ['', []],
       caThumbprint: ['', []],
@@ -49,7 +47,6 @@ export class CertmgrComponent implements OnInit {
   createcert($event) {
     this.http.post<appmessage<any>>('api/Installer/CreateRootCertificate', {  }).subscribe(
       {
-
         next: next => {
           if (next.code === 10000) {
             this.msg.create('success', '证书生成成功');

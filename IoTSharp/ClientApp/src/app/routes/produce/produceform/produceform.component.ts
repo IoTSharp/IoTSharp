@@ -42,7 +42,7 @@ export class ProduceformComponent implements OnInit {
   };
   ngOnInit() {
     this.form = this.fb.group({
-      name: [null, [Validators.required, Validators.pattern(/^(\s+\S+\s*)*(?!\s).*$/)]],
+      name: [null, [Validators.required ]],
       description: ['', []],
       defaultTimeout: [300, []],
       id: [Guid.EMPTY, []],
