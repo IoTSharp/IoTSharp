@@ -30,9 +30,11 @@ artifacts:
 - path: IoTSharp\bin\Release\*.nupkg
 - path: IoTSharp.SDKs\IoTSharp.Sdk.MQTT\bin\Release\*.nupkg
 - path: IoTSharp.SDKs\IoTSharp.Sdk.CSharp\bin\Release\*.nupkg
-- path: IoTSharp.Extensions.BouncyCastle\bin\Release\*.nupkg
-- path: IoTSharp.Extensions.RESTful\bin\Release\*.nupkg
 - path: IoTSharp.Extensions\bin\Release\*.nupkg
 - path: IoTSharp.Extensions.AspNetCore\bin\Release\*.nupkg
+- path: IoTSharp.Extensions.BouncyCastle\bin\Release\*.nupkg
+- path: IoTSharp.Extensions.DependencyInjection\bin\Release\*.nupkg
 - path: IoTSharp.Extensions.EFCore\bin\Release\*.nupkg
+- path: IoTSharp.Extensions.RESTful\bin\Release\*.nupkg
+- path: IoTSharp.Extensions.X509\bin\Release\*.nupkg
 deploy: "off"
