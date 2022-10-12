@@ -1,0 +1,31 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <RootNamespace>IoTSharp.Extensions.X509</RootNamespace>
+    <TargetFrameworks>net5.0;net6.0</TargetFrameworks>
+    <PackageId>IoTSharp.X509Extensions</PackageId>
+    <Authors>Konrad Mattheis und Martin Berthold &amp;  MaiKeBing</Authors>
+    <Copyright>Copyright (c) 2018-2020</Copyright>
+    <Company>IoT#</Company>
+    <RepositoryUrl>https://github.com/IoTSharp/IoTSharp.X509Extensions</RepositoryUrl>
+    <PackageLicenseUrl></PackageLicenseUrl>
+    <PackageProjectUrl>https://www.nuget.org/packages/IoTSharp.X509Extensions/</PackageProjectUrl>
+    <PackageTags>qlik, PEM, certificates</PackageTags>
+    <Description>Includes extensions for the class X509Certificate2, a signer, and the certificate creation.</Description>
+    <PublishRepositoryUrl>true</PublishRepositoryUrl>
+    <EmbedUntrackedSources>true</EmbedUntrackedSources>
+    <AllowedOutputExtensionsInPackageBuildOutputFolder>$(AllowedOutputExtensionsInPackageBuildOutputFolder);.pdb</AllowedOutputExtensionsInPackageBuildOutputFolder>
+    <AssemblyName>IoTSharp.Extensions.X509</AssemblyName>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <AssemblyVersion>1.0.1.0</AssemblyVersion>
+    <FileVersion>1.0.1.0</FileVersion>
+    <Version>6.0.0</Version>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+  </PropertyGroup>
+  
+
+  <ItemGroup>
+    <PackageReference Include="Portable.BouncyCastle" Version="1.9.0" />
+  </ItemGroup>
+ 
+ 
+</Project>
