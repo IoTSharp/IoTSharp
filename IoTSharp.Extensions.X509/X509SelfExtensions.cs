@@ -153,9 +153,19 @@ namespace IoTSharp.Extensions.X509
             {
                 request.CertificateExtensions.Add(extension);
             }
-
             // Send this to the CA you're requesting to sign your certificate.
             return request.CreateSigningRequest();
+        }
+        /// <summary>
+        ///  如果遇到 “安全包中没有可用的凭证” ， 使用 这个转换一次。 
+        /// </summary>
+        /// <param name="sslCert"></param>
+        /// <seealso cref="https://github.com/dotnet/runtime/issues/23749#issuecomment-747407051"/>
+        /// <returns></returns>
+        public static X509Certificate2 ToPkcs12(this X509Certificate2 sslCert)
+        {
+            // work around for Windows (WinApi) problems with PEMS, still in .NET 5
+            return new X509Certificate2(sslCert.Export(X509ContentType.Pkcs12));
         }
     }
 }

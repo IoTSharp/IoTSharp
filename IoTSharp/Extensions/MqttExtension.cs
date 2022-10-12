@@ -55,13 +55,13 @@ namespace IoTSharp
                         bool result = false;
                         try
                         {
-                       //如果CA跟证书是受信任， 这里就是None。
+                            //如果CA跟证书是受信任， 这里就是None。
                             if (sslPolicyErrors == SslPolicyErrors.None)
                             {
-                                result= true;
+                                result = true;
                             }
-                            else if (sslPolicyErrors == SslPolicyErrors.RemoteCertificateChainErrors 
-                                && chain.ChainStatus.Count()==1 &&  chain.ChainStatus.First().Status==X509ChainStatusFlags.UntrustedRoot)
+                            else if (sslPolicyErrors == SslPolicyErrors.RemoteCertificateChainErrors
+                                && chain.ChainStatus.Count() == 1 && chain.ChainStatus.First().Status == X509ChainStatusFlags.UntrustedRoot)
                             {
                                 //如果有是远程证书链有问题， 并且只有 UntrustedRoot 时，内部开始验证客户端是不是由本机CA证书颁发的
                                 chain.ChainPolicy.RevocationMode = X509RevocationMode.NoCheck;
@@ -103,7 +103,6 @@ namespace IoTSharp
                     server.ClientConnectedAsync += mqttEvents.Server_ClientConnectedAsync;
                     server.StartedAsync += mqttEvents.Server_Started;
                     server.StoppedAsync += mqttEvents.Server_Stopped;
-             //       server.InterceptingPublishAsync += mqttEvents.Server_ApplicationMessageReceived;
                     server.ClientSubscribedTopicAsync += mqttEvents.Server_ClientSubscribedTopic;
                     server.ClientUnsubscribedTopicAsync += mqttEvents.Server_ClientUnsubscribedTopic;
                     server.ValidatingConnectionAsync += mqttEvents.Server_ClientConnectionValidator;

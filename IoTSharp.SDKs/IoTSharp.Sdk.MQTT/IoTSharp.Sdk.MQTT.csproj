@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
-		<TargetFrameworks>netstandard2.0;</TargetFrameworks>
+		<TargetFramework>net6.0</TargetFramework>
 		<Version>1.0.1</Version>
 		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
 		<PackageLicenseExpression>MIT</PackageLicenseExpression>
@@ -20,10 +20,6 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-	  <AdditionalFiles Include="..\..\.sonarlint\iotsharp_iotsharp\CSharp\SonarLint.xml" Link="SonarLint.xml" />
-	</ItemGroup>
-
-	<ItemGroup>
 		<PackageReference Include="MQTTnet" Version="4.1.1.318" />
 		<PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
 	</ItemGroup>
@@ -33,6 +29,10 @@
 			<Pack>True</Pack>
 			<PackagePath></PackagePath>
 		</None>
+	</ItemGroup>
+
+	<ItemGroup>
+	  <ProjectReference Include="..\..\IoTSharp.Extensions.X509\IoTSharp.Extensions.X509.csproj" />
 	</ItemGroup>
 
 

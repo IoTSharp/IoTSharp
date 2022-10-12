@@ -1,21 +1,23 @@
-﻿using MQTTnet;
+﻿using IoTSharp.Extensions.X509;
+using MQTTnet;
 using MQTTnet.Client;
 using MQTTnet.Diagnostics;
 using MQTTnet.Protocol;
 using System;
 using System.Collections.Generic;
+using System.IO;
+using System.Net.Security;
+using System.Security.Cryptography.X509Certificates;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace IoTSharp.EdgeSdk.MQTT
 {
     public class MQTTClient
     {
-        public MQTTClient(Uri  uri)
-        {
-            BrokerUri = uri;
-        }
+ 
         public string DeviceId { get; set; } = string.Empty;
-        public Uri BrokerUri { get; set; }
+ 
         public bool IsConnected => (Client?.IsConnected).GetValueOrDefault();
         private IMqttClient Client { get; set; }
         public delegate void DLogError(string message,Exception exception );
@@ -28,23 +30,125 @@ namespace IoTSharp.EdgeSdk.MQTT
         public event EventHandler<RpcRequest> OnExcRpc;
       
         public event EventHandler<AttributeResponse> OnReceiveAttributes;
+
+        public async Task<bool> ConnectAsync(FileInfo x509_zipfile)
+        {
+            if (x509_zipfile.Exists)
+            {
+                var file = System.IO.Compression.ZipFile.OpenRead(x509_zipfile.FullName);
+                byte[] getzipfile(string filename)
+                {
+                    byte[] unzippedArray = null;
+                    using (var unzippedEntryStream = file.GetEntry(filename).Open())
+                    {
+                        using (var ms = new MemoryStream())
+                        {
+                            unzippedEntryStream.CopyTo(ms);
+                            unzippedArray = ms.ToArray();
+                        }
+                    }
+                    return unzippedArray;
+                };
+                X509Certificate2 ca ;
+                X509Certificate2 client;
+                try
+                {
+                    ca = X509Certificate2.CreateFromPem(System.Text.Encoding.Default.GetChars(getzipfile("ca.crt")));
+                    var pemx509 = X509Certificate2.CreateFromPem(System.Text.Encoding.Default.GetChars(getzipfile("client.crt")), System.Text.Encoding.Default.GetChars(getzipfile("client.key")));
+                    client = pemx509.ToPkcs12();
+                }
+                catch (Exception ex)
+                {
+                    throw new Exception("从Zip中加载证书文件错误", ex);
+                }
+                if (ca!=null && client!=null)
+                {
+                    return await ConnectAsync(ca, client);
+                }
+                else
+                {
+                    throw new Exception("证书无效");
+                }
+            }
+            else
+            {
+                throw new Exception("指定的ZIP文件不存在");
+            }
+        }
+
+
+
+        public async Task<bool> ConnectAsync(X509Certificate2 ca, X509Certificate2 client, Uri uri=null)
+        {
+            var options = new MqttClientOptionsBuilder()
+                .WithTls(
+                    new MqttClientOptionsBuilderTlsParameters()
+                    {
+                        UseTls = true,
+                        SslProtocol = System.Security.Authentication.SslProtocols.Tls12,
+                         AllowUntrustedCertificates = true,
+                          
+                        CertificateValidationHandler = (certContext) =>
+                        {
+                            var chain = certContext.Chain;
+                            chain.ChainPolicy.RevocationMode = X509RevocationMode.NoCheck;
+                            chain.ChainPolicy.RevocationFlag = X509RevocationFlag.ExcludeRoot;
+                            chain.ChainPolicy.VerificationFlags = X509VerificationFlags.NoFlag;
+                            chain.ChainPolicy.VerificationTime = DateTime.Now;
+                            chain.ChainPolicy.UrlRetrievalTimeout = new TimeSpan(0, 0, 0);
+                            chain.ChainPolicy.CustomTrustStore.Add(ca);
+                            chain.ChainPolicy.TrustMode = X509ChainTrustMode.CustomRootTrust;
+                            var x5092 = new X509Certificate2(certContext.Certificate);
+                            return chain.Build(x5092);
+                        },
+                        Certificates = new List<X509Certificate>()
+                        {
+                            client, ca
+                        }
+                    });
+            if (uri != null)
+            {
+                options.WithTcpServer(uri.Host, uri.Port);
+            }
+            else
+            {
+                if (Uri.TryCreate(client.GetNameInfo(X509NameType.UrlName, false), UriKind.RelativeOrAbsolute, out Uri _uri))
+                {
+                    options.WithTcpServer(_uri.Host, _uri.Port);
+                }
+                else
+                {
+                    var host = client.GetNameInfo(X509NameType.DnsName, false);
+                    options.WithTcpServer(host, 8883);
+                }
+            }
+       
+            return await ConnectAsync(options.Build());
+        }
+     
+ 
         public Task<bool> ConnectAsync(Uri uri, string accesstoken) => ConnectAsync(uri, accesstoken, null);
 
+       
         public async Task<bool> ConnectAsync(Uri uri, string username, string password)
         {
             if (uri == null) throw new ArgumentNullException("url");
-            if (BrokerUri == null && uri != null) BrokerUri = uri;
-            if (BrokerUri != null && uri == null) uri = BrokerUri;
+            var clientOptions = new MqttClientOptionsBuilder()
+                   .WithClientId(uri.ToString() + Guid.NewGuid().ToString())
+                      .WithTcpServer(uri.Host, uri.Port)
+                    .WithCredentials(username, password)
+                    .Build();
+           return  await  ConnectAsync(clientOptions);
+        }
+
+   
+        public async Task<bool> ConnectAsync(MqttClientOptions clientOptions, System.Threading.CancellationToken cancellationToken=default)
+        {
             bool initok = false;
             try
             {
                 var factory = new MqttFactory();
                 Client = factory.CreateMqttClient( );
-                var clientOptions = new MqttClientOptionsBuilder()
-                       .WithClientId(uri.ToString() + Guid.NewGuid().ToString())
-                          .WithTcpServer(uri.Host, uri.Port)
-                        .WithCredentials(username, password)
-                        .Build();
                 Client.ApplicationMessageReceivedAsync +=  Client_ApplicationMessageReceived;
                 Client.ConnectedAsync += e => {
                     Client.SubscribeAsync($"devices/{DeviceId}/rpc/request/+/+");
@@ -52,21 +156,10 @@ namespace IoTSharp.EdgeSdk.MQTT
                     LogInformation?.Invoke($"CONNECTED WITH SERVER ");
                     return Task.CompletedTask;
                 };
-                Client.DisconnectedAsync+=async e =>
-                {
-                    try
-                    {
-                        await Client.ConnectAsync(clientOptions);
-                    }
-                    catch (Exception exception)
-                    {
-                        LogError?.Invoke("CONNECTING FAILED", exception);
-                    }
-                };
-
+         
                 try
                 {
-                    var result = await Client.ConnectAsync(clientOptions);
+                    var result = await Client.ConnectAsync(clientOptions, cancellationToken);
                     initok = result.ResultCode == MqttClientConnectResultCode.Success;
                 }
                 catch (Exception exception)
