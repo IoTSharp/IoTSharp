@@ -19,6 +19,8 @@ using MQTTnet.AspNetCore.Routing;
 using IoTSharp.Data;
 using Newtonsoft.Json.Linq;
 using IoTSharp.Contracts;
+using System.Net.Security;
+using System.Runtime.ConstrainedExecution;
 
 namespace IoTSharp
 {
@@ -40,13 +42,45 @@ namespace IoTSharp
                     if (broker.CACertificate!=null)
                     {
                         broker.CACertificate.LoadCAToRoot();
+                   
                     }
                     options.WithEncryptedEndpoint();
                     options.WithEncryptedEndpointPort(broker.TlsPort);
                     if (broker.BrokerCertificate!=null)
                     {
-                        options.WithEncryptionCertificate(broker.BrokerCertificate.Export(X509ContentType.Pfx)).WithEncryptionSslProtocol(broker.SslProtocol);
+                        options.WithEncryptionCertificate(broker.CACertificate.Export(X509ContentType.Pfx)).WithEncryptionSslProtocol(broker.SslProtocol);
                     }
+                    options.WithClientCertificate((object sender, X509Certificate? certificate, X509Chain? chain, SslPolicyErrors sslPolicyErrors) =>
+                    {
+                        bool result = false;
+                        try
+                        {
+                       //如果CA跟证书是受信任， 这里就是None。
+                            if (sslPolicyErrors == SslPolicyErrors.None)
+                            {
+                                result= true;
+                            }
+                            else if (sslPolicyErrors == SslPolicyErrors.RemoteCertificateChainErrors 
+                                && chain.ChainStatus.Count()==1 &&  chain.ChainStatus.First().Status==X509ChainStatusFlags.UntrustedRoot)
+                            {
+                                //如果有是远程证书链有问题， 并且只有 UntrustedRoot 时，内部开始验证客户端是不是由本机CA证书颁发的
+                                chain.ChainPolicy.RevocationMode = X509RevocationMode.NoCheck;
+                                chain.ChainPolicy.VerificationFlags = X509VerificationFlags.NoFlag;
+                                chain.ChainPolicy.TrustMode = X509ChainTrustMode.CustomRootTrust;
+                                chain.ChainPolicy.CustomTrustStore.Add(broker.CACertificate);
+                                if (chain.Build((X509Certificate2)certificate))//如果是本CA办法， 则能构建成功， 如果是其他CA办法，则失败。 
+                                {
+                                    //确认跟证书在当前
+                                    result = chain.ChainElements.Cast<X509ChainElement>().Any(a => a.Certificate.Thumbprint == broker.CACertificate.Thumbprint);
+                                }
+                            }
+                        }
+                        catch { }
+
+                        return result;
+                    });
+
+
                 }
                 else
                 {

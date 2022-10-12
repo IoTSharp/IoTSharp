@@ -167,10 +167,17 @@ namespace IoTSharp.Services
                     }
                     else
                     {
-                        _logger.LogInformation($"ClientId={obj.ClientId},Endpoint={obj.Endpoint},Username={obj.UserName}，Password={obj.Password}");
+                        string _thumbprint = string.Empty ;
+                        if (_settings.MqttBroker.EnableTls)
+                        {
+                            _thumbprint = e.ClientCertificate?.Thumbprint;
+                        }
+                            _logger.LogInformation($"ClientId={obj.ClientId},Endpoint={obj.Endpoint},Username={obj.UserName}，Password={obj.Password}");
                         var mcr = _dbContextcv.DeviceIdentities.Include(d => d.Device).AsSplitQuery().FirstOrDefault(mc =>
-                                              mc.IdentityType == IdentityType.AccessToken && mc.IdentityId == obj.UserName ||
-                                              mc.IdentityType == IdentityType.DevicePassword && mc.IdentityId == obj.UserName && mc.IdentityValue == obj.Password);
+                                              (mc.IdentityType == IdentityType.AccessToken && mc.IdentityId == obj.UserName) ||
+                                             ( mc.IdentityType == IdentityType.X509Certificate &&  mc.IdentityId == _thumbprint ) ||
+                                             ( mc.IdentityType == IdentityType.DevicePassword && mc.IdentityId == obj.UserName && mc.IdentityValue == obj.Password)
+                                             );
                         if (mcr != null)
                         {
                             try
