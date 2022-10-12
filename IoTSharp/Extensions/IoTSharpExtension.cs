@@ -5,7 +5,6 @@ using IoTSharp.Data;
 using IoTSharp.Data.Extensions;
 using IoTSharp.Extensions;
 using IoTSharp.Services;
-using IoTSharp.X509Extensions;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity;
@@ -32,6 +31,7 @@ using System.Security.Claims;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Text.RegularExpressions;
+using IoTSharp.Extensions.X509;
 
 namespace IoTSharp
 {

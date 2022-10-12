@@ -11,7 +11,6 @@ using IoTSharp.FlowRuleEngine;
 using IoTSharp.Gateways;
 using IoTSharp.Models;
 using IoTSharp.Storage;
-using IoTSharp.X509Extensions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
@@ -44,6 +43,7 @@ using Shashlik.EventBus.Utils;
 using static CoAP.Net.Exchange;
 using System.Runtime.Intrinsics.X86;
 using CoAP;
+using IoTSharp.Extensions.X509;
 
 namespace IoTSharp.Controllers
 {
