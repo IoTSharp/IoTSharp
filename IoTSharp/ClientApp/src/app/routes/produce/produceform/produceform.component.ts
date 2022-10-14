@@ -14,10 +14,10 @@ import { devicemodel, deviceitem } from 'src/app/models/deviceitem';
   styleUrls: ['./produceform.component.less']
 })
 export class ProduceformComponent implements OnInit {
+  fullScreen = false;
 
-  isManufactorLoading: Boolean = false;
-  optionList: any;
-  @Input() id=Guid.EMPTY;
+
+  @Input() id = Guid.EMPTY;
   nodes = [];
   title: string = '';
   loading = false;
@@ -27,67 +27,98 @@ export class ProduceformComponent implements OnInit {
     private fb: FormBuilder,
     private msg: NzMessageService,
     private drawerRef: NzDrawerRef<string>
-  ) {}
+  ) { }
   form!: FormGroup;
   submitting = false;
 
-  devicemodel: devicemodel[] = [];
 
-  data: deviceitem = {
-    name: '',
-    deviceType: '',
-    customerId: '',
-    id: Guid.EMPTY,
-    identityType: ''
-  };
+
   ngOnInit() {
     this.form = this.fb.group({
-      name: [null, [Validators.required ]],
-      description: ['', []],
-      defaultTimeout: [300, []],
       id: [Guid.EMPTY, []],
-      defaultIdentityType: ['', []]
+      name: [null, [Validators.required]],
+      icon: ['', []],
+      gatewayType: ['Unknow', []],
+      defaultTimeout: [300, []],
+      gatewayConfigurationJson: ['', []],
+      gatewayConfigurationName: ['', []],
+      gatewayConfiguration: ['', []],
+      defaultIdentityType: ['', []],
+      defaultDeviceType: ['', []],
+      description: ['', []],
     });
 
-    this._httpClient.get('api/produce/get/' + this.id).pipe(
-      map(x => {
-        this.form.patchValue(this.data);
-      })
-    ).subscribe();
+
+    if (this.id != Guid.EMPTY) {
+      this._httpClient.get('api/produces/get?id=' + this.id).pipe(
+        map(x => {
+          this.form.patchValue(x.data);
+
+          if (x.data.gatewayType === 'Customize') {
+            this.form.patchValue({ gatewayConfigurationJson: this.form.value.gatewayConfiguration });
+          } else if (x.data.gatewayType === 'Unknow') {
+            this.form.patchValue({ gatewayConfigurationName: '' });
+            this.form.patchValue({ gatewayConfigurationJson: '' });
+
+          } else {
+            this.form.patchValue({ gatewayConfigurationName: this.form.value.gatewayConfiguration });
+          }
 
 
-     
-    
+        })
+      ).subscribe();
+    }
   }
 
   submit() {
     this.submitting = true;
-
+    if (this.form.value.gatewayType === 'Customize') {
+      this.form.patchValue({ gatewayConfiguration: this.form.value.gatewayConfigurationJson });
+    } else if (this.form.value.gatewayType === 'Unknow') {
+      this.form.patchValue({ gatewayConfiguration: '' });
+    } else {
+      this.form.patchValue({ gatewayConfiguration: this.form.value.gatewayConfigurationName });
+    }
     if (this.id == Guid.EMPTY) {
-      this._httpClient.post('api/produce', this.form.value).subscribe(
-        () => {
-          this.submitting = false;
-          this.msg.create('success', '产品新增成功');
-          this.close();
-        },
-        () => {
-          this.msg.create('error', '产品新增失败');
-          this.close();
-        },
-        () => {}
+      this._httpClient.post('api/produces/save', this.form.value).subscribe(
+        {
+
+          next: next => {
+            this.submitting = false;
+
+            if (next.code === 10000) {
+              this.msg.create('success', '产品新增成功');
+              this.close();
+            }
+
+          },
+          error: error => {
+            this.msg.create('error', '产品新增失败');
+            this.close();
+          },
+          complete: () => { }
+
+        }
       );
     } else {
-      this._httpClient.put('api/produce/' + this.id, this.form.value).subscribe(
-        () => {
-          this.submitting = false;
-          this.msg.create('success', '产品修改成功');
-          this.close();
-        },
-        () => {
-          this.msg.create('error', '产品修改失败');
-          this.close();
-        },
-        () => {}
+      this._httpClient.put('api/produces/update', this.form.value).subscribe(
+
+        {
+          next: next => {
+            this.submitting = false;
+            if (next.code === 10000) {
+              this.msg.create('success', '产品修改成功');
+              this.close();
+            }
+          },
+          error: error => {
+            this.msg.create('error', '产品修改失败');
+            this.close();
+          },
+          complete: () => { }
+
+        }
+
       );
     }
   }

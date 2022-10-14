@@ -12,7 +12,9 @@ import {
   AlertOutline,
   GoldFill,
   GoldTwoTone,
-  GoldOutline
+  GoldOutline,
+  SaveOutline,
+  MedicineBoxOutline
 } from '@ant-design/icons-angular/icons';
 
 export const ICONS = [
@@ -27,5 +29,7 @@ export const ICONS = [
   AlertOutline,
   GoldFill,
   GoldTwoTone,
-  GoldOutline
+  GoldOutline,
+  SaveOutline,
+  MedicineBoxOutline
 ];

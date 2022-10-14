@@ -35,8 +35,14 @@
             <span>{{ 'button.new' | translate }}</span>
           </button>-->
   
-      <st #st [columns]="columns" [data]="url" ps="20" [page]="page" [req]="req" [res]="res">
-      
+      <st #st [columns]="columns" [data]="url" ps="20" [page]="page" [req]="req" [res]="res"   [expand]="expand" expandAccordion (change)="onchange($event)">
+        <ng-template #expand let-item let-index="index" let-column="column"> 
+          <st [data]="item.devices" [columns]="devicecolumns"  >
+
+
+          </st>
+        
+        </ng-template>
       </st>
     </nz-card>
   </page-header>

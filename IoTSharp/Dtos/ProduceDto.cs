@@ -21,5 +21,8 @@ namespace IoTSharp.Dtos
         public IdentityType DefaultIdentityType { get; set; } = IdentityType.AccessToken;
         public string Description { get; set; }
 
+
+        public List<Device> Devices { get; set; }
+
     }
 }

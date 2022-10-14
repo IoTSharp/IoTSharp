@@ -24,6 +24,7 @@ namespace IoTSharp.Dtos
         /// <summary>
         /// 网关类型  根据不通网关来处理相关配置
         /// </summary>
+           [EnumDataType(typeof(GatewayType))]
         public GatewayType GatewayType { get; set; } = GatewayType.Unknow;
 
         /// <summary>

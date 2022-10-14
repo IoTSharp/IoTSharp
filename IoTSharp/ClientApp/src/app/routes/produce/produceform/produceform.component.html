@@ -5,19 +5,45 @@
         <se label="名称" error="名称不能为空或者空白字符" required>
           <input nz-input formControlName="name" placeholder="名称" />
         </se>
-        <se label="设备类型" error="设备类型" required>
-          <nz-select formControlName="deviceType" placeholder="设备类型">
-            <nz-option nzValue="Device" nzLabel="设备"></nz-option>
-            <nz-option nzValue="Gateway" nzLabel="网关"></nz-option>
+
+        <se label="名称" error="图标" required>
+          <input nz-input formControlName="icon" placeholder="图标" />
+        </se>
+        <se label="默认网关类型" error="默认网关类型" required>
+          <nz-select formControlName="gatewayType" placeholder="默认网关类型">
+            <nz-option nzValue="Unknow" nzLabel="Unknow"></nz-option>
+            <nz-option nzValue="Customize" nzLabel="Customize"></nz-option>
+            <nz-option nzValue="Modbus" nzLabel="Modbus"></nz-option>
+            <nz-option nzValue="Bacnet" nzLabel="Bacnet"></nz-option>
+            <nz-option nzValue="OPC_UA" nzLabel="OPC_UA"></nz-option>
+            <nz-option nzValue="CanOpen" nzLabel="CanOpen"></nz-option>
           </nz-select>
         </se>
-  
-        <se label="超时" error="超时" required>
-          <nz-input-number formControlName="timeout" [nzMin]="0"  [nzStep]="1"></nz-input-number>
+
+        <se label="默认网关类型" error="默认网关类型" *ngIf="this.form.value.gatewayType==='Customize'">
+          <nz-code-editor formControlName="gatewayConfigurationJson" [class.full-screen]="fullScreen" 
+          style="width: 100%; height: 500px; padding-top: 1rem" class="editor" 
+          [nzEditorOption]="{ theme: 'vs',language: 'json' }">
+        </nz-code-editor>
         </se>
-      
-        <se label="认证方式" error="认证方式" required>
-          <nz-select formControlName="identityType" placeholder="设备类型">
+        <se label="默认网关类型" error="默认网关类型" *ngIf="this.form.value.gatewayType!=='Unknow'&&this.form.value.gatewayType!=='Customize'">
+          <input nz-input formControlName="gatewayConfigurationName" placeholder="名称" />
+        </se>
+     
+
+
+    
+        <se label="默认超时" error="默认超时" required>
+          <nz-select formControlName="defaultDeviceType" placeholder="默认网关类型">
+            <nz-option nzValue="Device" nzLabel="Device"></nz-option>
+            <nz-option nzValue="Gateway" nzLabel="Gateway"></nz-option>
+          </nz-select>
+        </se>
+        <se label="默认超时" error="默认超时" required>
+          <nz-input-number formControlName="defaultTimeout" [nzMin]="0"  [nzStep]="1"></nz-input-number>
+        </se>
+        <se label="默认认证方式" error="认证方式" required>
+          <nz-select formControlName="defaultIdentityType" placeholder="默认认证方式">
             <nz-option nzValue="AccessToken" nzLabel="AccessToken"></nz-option>
             <nz-option nzValue="X509Certificate" nzLabel="X509Certificate"></nz-option>
           </nz-select>
@@ -28,6 +54,9 @@
           <button nz-button nzType="primary" [disabled]="form.invalid" type="submit" [nzLoading]="submitting">保存</button>
         </se>
       </form>
+
+
+ 
     </nz-card>
   </page-header>
   

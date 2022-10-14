@@ -152,6 +152,9 @@ namespace IoTSharp.Contracts
         Device = 0,
         Gateway = 1
     }
+
+    [System.Text.Json.Serialization.JsonConverter(typeof(System.Text.Json.Serialization.JsonStringEnumConverter))]
+    [JsonConverter(typeof(StringEnumConverter))]
     public enum GatewayType
     {
         Unknow=0,
