@@ -6,6 +6,7 @@ import { Guid } from 'guid-typescript';
 import { NzDrawerService } from 'ng-zorro-antd/drawer';
 import { NzMessageService } from 'ng-zorro-antd/message';
 import { appmessage } from 'src/app/models/appmessage';
+import { CreatedeviceformComponent } from '../createdeviceform/createdeviceform.component';
 import { ProducedatadictionaryformComponent } from '../producedatadictionaryform/producedatadictionaryform.component';
 import { ProducedataformComponent } from '../producedataform/producedataform.component';
 import { ProduceformComponent } from '../produceform/produceform.component';
@@ -92,21 +93,16 @@ export class ProducelistComponent implements OnInit {
     Gateway: { text: '网关', color: 'blue' }
   };
   devicecolumns:STColumn[] = [
-
     { title: 'id', index: 'id',  },
     {title: '名称',
     index: 'name',
     render: 'name',
     type: 'link',
-
- 
   },
   { title: '设备类型', index: 'deviceType', type: 'tag', tag: this.DeviceTAG },
   { title: '在线状态', index: 'active', type: 'badge', badge: this.BADGE, sort: true },
   { title: '最后活动时间', index: 'lastActivityDateTime', type: 'date' },
   { title: '认证方式', index: 'identityType', type: 'tag', tag: this.TAG},
-
-
   ]
 
   @ViewChild('st', { static: true })
@@ -154,6 +150,13 @@ export class ProducelistComponent implements OnInit {
           }
         },
         {
+          text: '创建设备',
+          acl: 56,
+          click: (item: any) => {
+            this.createdevice(item.id);
+          }
+        },
+        {
           text: '删除',
           pop: {
             title: '确认修改产品项状态?',
@@ -173,6 +176,24 @@ export class ProducelistComponent implements OnInit {
   ngOnInit() {
 
   }
+
+
+  createdevice( id:string){
+
+    this.modal.create(CreatedeviceformComponent, { id }).subscribe(res => {
+
+      if(res&&res.code===10000){
+        this.msg.success('保存成功')
+      }else{
+        this.msg.warning('保存失败:'+res.msg)
+      }
+   
+
+    });
+
+
+  }
+
   openComponent(id: string): void {
     var { nzMaskClosable, width } = this.settingService.getData('drawerconfig');
     var title = id == Guid.EMPTY ? '新增产品' : '修改产品';
@@ -203,7 +224,7 @@ export class ProducelistComponent implements OnInit {
     const drawerRef = this.drawerService.create<ProducedataformComponent, { id: string }, string>({
       nzTitle: title,
       nzContent: ProducedataformComponent,
-      nzWidth: width,
+      nzWidth: '80%',
       nzMaskClosable: nzMaskClosable,
       nzContentParams: {
         id: id

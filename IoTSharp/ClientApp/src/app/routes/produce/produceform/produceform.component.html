@@ -20,21 +20,17 @@
           </nz-select>
         </se>
 
-        <se label="默认网关类型" error="默认网关类型" *ngIf="this.form.value.gatewayType==='Customize'">
+        <se label="默认网关配置" error="默认网关配置" *ngIf="this.form.value.gatewayType==='Customize'">
           <nz-code-editor formControlName="gatewayConfigurationJson" [class.full-screen]="fullScreen" 
           style="width: 100%; height: 500px; padding-top: 1rem" class="editor" 
           [nzEditorOption]="{ theme: 'vs',language: 'json' }">
         </nz-code-editor>
         </se>
-        <se label="默认网关类型" error="默认网关类型" *ngIf="this.form.value.gatewayType!=='Unknow'&&this.form.value.gatewayType!=='Customize'">
-          <input nz-input formControlName="gatewayConfigurationName" placeholder="名称" />
+        <se label="默认网关配置名称" error="默认网关配置名称" *ngIf="this.form.value.gatewayType!=='Unknow'&&this.form.value.gatewayType!=='Customize'">
+          <input nz-input formControlName="gatewayConfigurationName" placeholder="默认网关配置名称" />
         </se>
-     
-
-
-    
-        <se label="默认超时" error="默认超时" required>
-          <nz-select formControlName="defaultDeviceType" placeholder="默认网关类型">
+        <se label="默认设备类型" error="默认设备类型" required>
+          <nz-select formControlName="defaultDeviceType" placeholder="默认设备类型">
             <nz-option nzValue="Device" nzLabel="Device"></nz-option>
             <nz-option nzValue="Gateway" nzLabel="Gateway"></nz-option>
           </nz-select>

@@ -11,13 +11,13 @@
             <nz-option nzValue="Gateway" nzLabel="网关"></nz-option>
           </nz-select>
         </se>
-
+<!-- 
         <se label="所属产品" error="所属产品" >
           <nz-select formControlName="produceId" placeholder="所属产品"  >
             <nz-option *ngFor="let o of deviceproduce" [nzValue]="o.id" [nzLabel]="o.name"></nz-option>
           </nz-select>
         </se>
-     
+      -->
         <se label="超时" error="超时" required>
           <nz-input-number formControlName="timeout" [nzMin]="0"  [nzStep]="1"></nz-input-number>
         </se>
