@@ -81,29 +81,44 @@ export class ProduceformComponent implements OnInit {
     }
     if (this.id == Guid.EMPTY) {
       this._httpClient.post('api/produces/save', this.form.value).subscribe(
-        () => {
-          this.submitting = false;
-          this.msg.create('success', '产品新增成功');
-          this.close();
-        },
-        () => {
-          this.msg.create('error', '产品新增失败');
-          this.close();
-        },
-        () => { }
+        {
+
+          next: next => {
+            this.submitting = false;
+
+            if (next.code === 10000) {
+              this.msg.create('success', '产品新增成功');
+              this.close();
+            }
+
+          },
+          error: error => {
+            this.msg.create('error', '产品新增失败');
+            this.close();
+          },
+          complete: () => { }
+
+        }
       );
     } else {
       this._httpClient.put('api/produces/update', this.form.value).subscribe(
-        () => {
-          this.submitting = false;
-          this.msg.create('success', '产品修改成功');
-          this.close();
-        },
-        () => {
-          this.msg.create('error', '产品修改失败');
-          this.close();
-        },
-        () => { }
+
+        {
+          next: next => {
+            this.submitting = false;
+            if (next.code === 10000) {
+              this.msg.create('success', '产品修改成功');
+              this.close();
+            }
+          },
+          error: error => {
+            this.msg.create('error', '产品修改失败');
+            this.close();
+          },
+          complete: () => { }
+
+        }
+
       );
     }
   }

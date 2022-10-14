@@ -32,7 +32,7 @@ export class DeviceformComponent implements OnInit {
   ) {}
   form!: FormGroup;
   submitting = false;
-
+  deviceproduce = [];
   devicemodel: devicemodel[] = [];
 
   data: deviceitem = {
@@ -47,20 +47,26 @@ export class DeviceformComponent implements OnInit {
       name: [null, [Validators.required, Validators.pattern(/^(\s+\S+\s*)*(?!\s).*$/)]],
       deviceType: [null, [Validators.required]],
       customerId: [null, []],
-      // deviceModelId: [null, []],
+      produceId: [null, []],
       timeout: [300, []],
       id: [Guid.EMPTY, []],
       identityType: [Guid.EMPTY, []]
     });
 
-    this._httpClient.post('api/deviceModel/index', { offset: 0, limit: 100 }).subscribe({
+    // this._httpClient.post('api/deviceModel/index', { offset: 0, limit: 100 }).subscribe({
+    //   next: next => {
+    //     this.devicemodel = next.data.rows;
+    //   },
+    //   error: error => {},
+    //   complete: () => {}
+    // });
+  this._httpClient.get('api/produces/list', { offset: 0, limit: -1 }).subscribe({
       next: next => {
-        this.devicemodel = next.data.rows;
+        this.deviceproduce = next.data.rows;
       },
       error: error => {},
       complete: () => {}
     });
-
     if (this.params.id !== Guid.EMPTY) {
       concat(
         this._httpClient.get<appmessage<deviceitem>>('api/Devices/' + this.params.id).pipe(

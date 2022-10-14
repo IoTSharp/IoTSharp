@@ -12,13 +12,13 @@ import { appmessage } from 'src/app/models/appmessage';
 })
 export class ProducedatadictionaryformComponent implements OnInit {
 
-  
+
   @Input() id: string = Guid.EMPTY;
   @ViewChild('st') private st!: STComponent;
   dictionaryData: STData[] = []
 
   columns: STColumn[] = [
-    { title: 'id', index: 'id' },
+
     { title: '字段名称', index: 'keyName', render: 'keyNameTpl' },
     { title: '字段显示名称', index: 'displayName', render: 'displayNameTpl' },
     { title: '单位', index: 'unit', render: 'unitTpl' },
@@ -72,11 +72,19 @@ export class ProducedatadictionaryformComponent implements OnInit {
 
   ngOnInit(): void {
 
-    this.http.get<appmessage<any>>('api/produces/getProduceDictionary?produceId=' + this.id).subscribe(next => {
-      this.dictionaryData = next.data;
-    }, error => {
+    this.http.get<appmessage<any>>('api/produces/getProduceDictionary?produceId=' + this.id)
+      .subscribe({
+        next: next => {
+          this.dictionaryData = next.data;
+        },
 
-    }, () => { });
+        error: error => {
+
+        },
+
+        complete: () => { }
+
+      });
   }
 
   private submit(i: STData): void {
@@ -99,7 +107,21 @@ export class ProducedatadictionaryformComponent implements OnInit {
   }
 
   saveRow() {
-   this.http.post('api/produces/editProduceDictionary', { produceId: this.id, dictionProduceDictionaryDataaryData: this.dictionaryData }).subscribe(next => { }, error => { }, () => { });
+    this.http.post('api/produces/editProduceDictionary', { produceId: this.id, produceDictionaryData: this.dictionaryData }).subscribe(
+      {
+        next: next => { 
+
+          if (next.code === 10000) {
+            this.msg.success('保存成功')
+          }else{
+            this.msg.warning('保存失败:'+next.msg)
+          }
+
+        },
+        error: error => { },
+        complete: () => { }
+      }
+    );
   }
 
 }

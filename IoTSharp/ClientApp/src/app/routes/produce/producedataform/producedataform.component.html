@@ -27,8 +27,8 @@
     </ng-template>
 
     <ng-template st-row="ColumnDataTypeTpl" let-item let-index="index">
-      <nz-select *ngIf="item.edit" [ngModel]="item.dataType"
-        (ngModelChange)="st.setRow(index, { dataType: $event })">
+      <nz-select *ngIf="item.edit" [ngModel]="item.type"
+        (ngModelChange)="st.setRow(index, { type: $event })">
         <nz-option nzValue="Boolean" nzLabel="Boolean"></nz-option>
         <nz-option nzValue="String" nzLabel="String"></nz-option>
         <nz-option nzValue="Long" nzLabel="Long"></nz-option>
@@ -39,7 +39,7 @@
         <nz-option nzValue="DateTime" nzLabel="DateTime"></nz-option>
       </nz-select>
 
-      <ng-container *ngIf="!item.edit">{{ item.dataType}}</ng-container>
+      <ng-container *ngIf="!item.edit">{{ item.type}}</ng-container>
     </ng-template>
 
 

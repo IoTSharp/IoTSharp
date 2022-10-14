@@ -57,6 +57,7 @@ namespace IoTSharp.Controllers.Models
  
         public bool OnlyActive { get; set; }
         public string Name { get; set; }
+
     }
 
     public class RulePageParam : IPageParam

@@ -19,7 +19,7 @@ export class ProducedataformComponent implements OnInit {
   columns: STColumn[] = [
     { title: 'KeyName', index: 'keyName', render: 'ColumnTitleTpl' },
     { title: '数据侧', index: 'dataSide', render: 'ColumnTypeTpl' },
-    { title: '数据类型', index: 'dataType', render: 'ColumnDataTypeTpl' },
+    { title: '数据类型', index: 'type', render: 'ColumnDataTypeTpl' },
     {
       title: '操作',
       buttons: [
@@ -88,7 +88,12 @@ export class ProducedataformComponent implements OnInit {
   }
 
   saveRow() {
-   this.http.post('api/produces/editProduceData', { produceId: this.id, produceData: this.produceData }).subscribe(next => { }, error => { }, () => { });
+   this.http.post('api/produces/editProduceData', { produceId: this.id, produceData: this.produceData }).subscribe(next => { 
+    if (next.code === 10000) {
+      this.msg.success('保存成功')
+    }else{
+      this.msg.warning('保存失败:'+next.msg)
+    }}, error => { }, () => { });
   }
   
 
