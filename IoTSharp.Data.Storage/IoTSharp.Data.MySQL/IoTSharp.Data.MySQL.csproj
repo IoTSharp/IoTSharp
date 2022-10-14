@@ -6,10 +6,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <AdditionalFiles Include="..\..\.sonarlint\iotsharp_iotsharp\CSharp\SonarLint.xml" Link="SonarLint.xml" />
-  </ItemGroup>
-
-  <ItemGroup>
     <PackageReference Include="AspNetCore.HealthChecks.MySql" Version="6.0.2" />
     <PackageReference Include="AspNetCore.HealthChecks.UI.Core" Version="6.0.5" />
     <PackageReference Include="AspNetCore.HealthChecks.UI.MySql.Storage" Version="6.0.5" />

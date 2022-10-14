@@ -10,10 +10,6 @@
     <EmbeddedResource Remove="Migrations\**" />
     <None Remove="Migrations\**" />
   </ItemGroup>
-
-  <ItemGroup>
-    <AdditionalFiles Include="..\..\.sonarlint\iotsharp_iotsharp\CSharp\SonarLint.xml" Link="SonarLint.xml" />
-  </ItemGroup>
 	<ItemGroup>
 		<PackageReference Include="AspNetCore.HealthChecks.UI.InMemory.Storage" Version="6.0.5" />
 	</ItemGroup>
