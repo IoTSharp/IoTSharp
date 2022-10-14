@@ -87,7 +87,19 @@ namespace IoTSharp.Controllers
                                         {
                                         new { text = "用户列表", i18n = "", link = "/iot/settings/userlist" }
                                     }
-                                }, new
+                                },
+
+                                new
+                                {
+                                    text = "产品管理",
+                                    i18n = "",
+                                    icon = "medicinebox",
+                                    children = new[]
+                                    {
+                                        new { text = "产品列表", i18n = "", link = "/iot/produce/producelist" }
+                                    }
+                                },
+                                new
                                 {
                                     text = "设备管理",
                                     i18n = "",

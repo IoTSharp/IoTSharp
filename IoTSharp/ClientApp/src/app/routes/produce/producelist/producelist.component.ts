@@ -6,6 +6,8 @@ import { Guid } from 'guid-typescript';
 import { NzDrawerService } from 'ng-zorro-antd/drawer';
 import { NzMessageService } from 'ng-zorro-antd/message';
 import { appmessage } from 'src/app/models/appmessage';
+import { ProducedatadictionaryformComponent } from '../producedatadictionaryform/producedatadictionaryform.component';
+import { ProducedataformComponent } from '../producedataform/producedataform.component';
 import { ProduceformComponent } from '../produceform/produceform.component';
 
 @Component({
@@ -66,8 +68,8 @@ export class ProducelistComponent implements OnInit {
     }
   ];
 
-  url = 'api/produce/list';
-  req: STReq = { method: 'POST', allInBody: true, reName: { pi: 'offset', ps: 'limit' }, params: this.q };
+  url = 'api/produces/list';
+  req: STReq = { method: 'GET', allInBody: true, reName: { pi: 'offset', ps: 'limit' }, params: this.q };
 
   // 定义返回的参数
   res: STRes = {
@@ -106,7 +108,21 @@ export class ProducelistComponent implements OnInit {
             this.openComponent(item.id);
           }
         },
-       
+        {
+          text: '属性',
+       //   i18n: 'common.edit',
+          acl: 56,
+          click: (item: any) => {
+            this.editattr(item.id);
+          }
+        },   {
+          text: '字典',
+       //   i18n: 'common.edit',
+          acl: 56,
+          click: (item: any) => {
+            this.editdic(item.id);
+          }
+        },
         {
           text: '删除',
           pop: {
@@ -145,28 +161,73 @@ export class ProducelistComponent implements OnInit {
     drawerRef.afterClose.subscribe(data => {
       if (typeof data === 'string') {
       }
+      this.getData();
+    });
+  }
+
+
+
+  editattr(id: string): void {
+    var { nzMaskClosable, width } = this.settingService.getData('drawerconfig');
+    var title = '属性编辑' ;
+    const drawerRef = this.drawerService.create<ProducedataformComponent, { id: string }, string>({
+      nzTitle: title,
+      nzContent: ProducedataformComponent,
+      nzWidth: width,
+      nzMaskClosable: nzMaskClosable,
+      nzContentParams: {
+        id: id
+      }
+    });
+
+    drawerRef.afterOpen.subscribe(() => { });
+
+    drawerRef.afterClose.subscribe(data => {
+      if (typeof data === 'string') {
+      }
 
       this.getData();
     });
   }
 
-  r;
+
+
+
+
+  editdic(id: string): void {
+    var { nzMaskClosable, width } = this.settingService.getData('drawerconfig');
+    var title ='字典编辑';
+    const drawerRef = this.drawerService.create<ProducedatadictionaryformComponent, { id: string }, string>({
+      nzTitle: title,
+      nzContent: ProducedatadictionaryformComponent,
+      nzWidth: "100%",
+      nzMaskClosable: nzMaskClosable,
+      nzContentParams: {
+        id: id
+      }
+    });
+
+    drawerRef.afterOpen.subscribe(() => { });
+
+    drawerRef.afterClose.subscribe(data => {
+      if (typeof data === 'string') {
+      }
+
+      this.getData();
+    });
+  }
+
   getData() {
     this.st.req = this.req;
     this.st.load(1);
   }
 
   delete(id: number) {
-    this.http.get('api/produce/delete?id=' + id).subscribe(() => {
+    this.http.get('api/produces/delete?id=' + id).subscribe(() => {
       this.st.load(this.st.pi);
     });
   }
 
-  setstatus(id: number) {
-    this.http.get('api/produce/setstatus?id=' + id).subscribe(() => {
-      this.st.load(this.st.pi);
-    });
-  }
 
   add(tpl: TemplateRef<{}>) { }
 

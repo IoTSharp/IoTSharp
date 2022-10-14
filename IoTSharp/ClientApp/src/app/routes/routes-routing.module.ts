@@ -39,6 +39,7 @@ const routes: Routes = [
     children: [
       { path: 'assets', loadChildren: () => import('./assets/assets.module').then(m => m.AssetsModule) },
       { path: 'devices', loadChildren: () => import('./devices/devices.module').then(m => m.DevicesModule) },
+      { path: 'produce', loadChildren: () => import('./produce/produce.module').then(m => m.ProduceModule) },
       { path: 'settings', loadChildren: () => import('./settings/settings.module').then(m => m.SettingsModule) },
       { path: 'alarms', loadChildren: () => import('./alarms/alarms.module').then(m => m.AlarmsModule) },
       { path: 'rules', loadChildren: () => import('./rules/rules.module').then(m => m.RulesModule) }

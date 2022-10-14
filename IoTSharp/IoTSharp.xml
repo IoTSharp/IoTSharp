@@ -556,6 +556,34 @@
             <param name="dto"></param>
             <returns></returns>
         </member>
+        <member name="M:IoTSharp.Controllers.ProducesController.GetProduceData(System.Guid)">
+            <summary>
+            获取产品属性
+            </summary>
+            <param name="dto"></param>
+            <returns></returns>
+        </member>
+        <member name="M:IoTSharp.Controllers.ProducesController.EditProduceData(IoTSharp.Dtos.ProduceDataEditDto)">
+            <summary>
+            修改属性
+            </summary>
+            <param name="dto"></param>
+            <returns></returns>
+        </member>
+        <member name="M:IoTSharp.Controllers.ProducesController.GetProduceDictionary(System.Guid)">
+            <summary>
+            获取产品字典
+            </summary>
+            <param name="dto"></param>
+            <returns></returns>
+        </member>
+        <member name="M:IoTSharp.Controllers.ProducesController.EditProduceDictionary(IoTSharp.Dtos.ProduceDictionaryEditDto)">
+            <summary>
+            修改字典
+            </summary>
+            <param name="dto"></param>
+            <returns></returns>
+        </member>
         <member name="M:IoTSharp.Controllers.RulesController.UpdateFlowExpression(IoTSharp.Dtos.UpdateFlowExpression)">
              <summary>
              更新节点的条件表达式
@@ -836,6 +864,61 @@
         <member name="P:IoTSharp.Dtos.ProduceAddDto.DefaultDeviceType">
             <summary>
             默认设备类型
+            </summary>
+        </member>
+        <member name="P:IoTSharp.Dtos.ProduceDictionaryItemDto.KeyName">
+            <summary>
+            字段名称
+            </summary>
+        </member>
+        <member name="P:IoTSharp.Dtos.ProduceDictionaryItemDto.DisplayName">
+            <summary>
+            字段显示名称
+            </summary>
+        </member>
+        <member name="P:IoTSharp.Dtos.ProduceDictionaryItemDto.Unit">
+            <summary>
+            单位
+            </summary>
+        </member>
+        <member name="P:IoTSharp.Dtos.ProduceDictionaryItemDto.UnitExpression">
+            <summary>
+            单位转换表达式
+            </summary>
+        </member>
+        <member name="P:IoTSharp.Dtos.ProduceDictionaryItemDto.UnitConvert">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="P:IoTSharp.Dtos.ProduceDictionaryItemDto.KeyDesc">
+            <summary>
+            字段备注
+            </summary>
+        </member>
+        <member name="P:IoTSharp.Dtos.ProduceDictionaryItemDto.DefaultValue">
+            <summary>
+            默认值
+            </summary>
+        </member>
+        <member name="P:IoTSharp.Dtos.ProduceDictionaryItemDto.Display">
+            <summary>
+            是否显示
+            </summary>
+        </member>
+        <member name="P:IoTSharp.Dtos.ProduceDictionaryItemDto.Place0">
+            <summary>
+            位置名称
+            </summary>
+        </member>
+        <member name="P:IoTSharp.Dtos.ProduceDictionaryItemDto.PlaceOrder0">
+            <summary>
+            此位置顺序
+            </summary>
+        </member>
+        <member name="P:IoTSharp.Dtos.ProduceDictionaryItemDto.DataType">
+            <summary>
+            数据类型 
             </summary>
         </member>
         <member name="T:IoTSharp.Dtos.TelemetryDataQueryDto">
