@@ -219,6 +219,7 @@ export class DevicelistComponent implements OnInit, OnDestroy {
       {
 
         next: x => {
+
           if (!x['id']) {
             this.q.customerId = this.settingService.user['customer'];
             this.customerId = this.settingService.user['customer'];
@@ -228,6 +229,12 @@ export class DevicelistComponent implements OnInit, OnDestroy {
             this.customerId = x['id'] as unknown as string;
             this.url = 'api/Devices/Customers';
           }
+      
+          if(x['deviceid']){
+            var deviceid= x['deviceid'];
+            this.q.name=   deviceid
+
+          }    console.log(     this.q.name)
         },
         error: error => { },
         complete: () => { }

@@ -57,7 +57,7 @@ namespace IoTSharp.Controllers
                 return new ApiResult<PagedData<ProduceDto>>(ApiCode.Success, "OK", new PagedData<ProduceDto>
                 {
                     total = await _context.Produces.CountAsync(condition),
-                    rows = _context.Produces.Include(c => c.Devices).Where(condition).Skip((m.offset) * m.limit)
+                    rows = _context.Produces.Include(c => c.Devices.Where(c=>c.Deleted==false)).Where(condition).Skip((m.offset) * m.limit)
                         .Take(m.limit)
                         .ToList().Select(c => new ProduceDto
                         {

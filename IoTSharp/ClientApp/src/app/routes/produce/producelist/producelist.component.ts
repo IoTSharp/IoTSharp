@@ -1,5 +1,5 @@
 import { ChangeDetectorRef, Component, OnInit, TemplateRef, ViewChild } from '@angular/core';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { STPage, STReq, STRes, STComponent, STColumn, STData, STChange, STColumnTag, STColumnBadge } from '@delon/abc/st';
 import { ModalHelper, SettingsService, _HttpClient } from '@delon/theme';
 import { Guid } from 'guid-typescript';
@@ -22,11 +22,15 @@ export class ProducelistComponent implements OnInit {
     private http: _HttpClient,
     public msg: NzMessageService,
     private modal: ModalHelper,
-    private cdr: ChangeDetectorRef,
+
     private _router: Router,
     private drawerService: NzDrawerService,
-    private settingService: SettingsService
-  ) { }
+    private settingService: SettingsService,
+
+  ) {
+
+
+  }
 
   page: STPage = {
     front: false,
@@ -92,17 +96,30 @@ export class ProducelistComponent implements OnInit {
     Device: { text: '设备', color: 'green' },
     Gateway: { text: '网关', color: 'blue' }
   };
-  devicecolumns:STColumn[] = [
-    { title: 'id', index: 'id',  },
-    {title: '名称',
-    index: 'name',
-    render: 'name',
-    type: 'link',
-  },
-  { title: '设备类型', index: 'deviceType', type: 'tag', tag: this.DeviceTAG },
-  { title: '在线状态', index: 'active', type: 'badge', badge: this.BADGE, sort: true },
-  { title: '最后活动时间', index: 'lastActivityDateTime', type: 'date' },
-  { title: '认证方式', index: 'identityType', type: 'tag', tag: this.TAG},
+  devicecolumns: STColumn[] = [
+    { title: 'id', index: 'id', },
+    {
+      title: '名称',
+      index: 'name',
+      render: 'name',
+      type: 'link',
+    },
+    { title: '设备类型', index: 'deviceType', type: 'tag', tag: this.DeviceTAG },
+    // { title: '在线状态', index: 'active', type: 'badge', badge: this.BADGE, sort: true },
+    // { title: '最后活动时间', index: 'lastActivityDateTime', type: 'date' },
+    { title: '认证方式', index: 'identityType', type: 'tag', tag: this.TAG },
+
+    {
+      title: { i18n: 'table.operation' }, buttons: [
+        {
+          text: '管理设备',
+          acl: 56,
+          click: (item: any) => {
+            this._router.navigate(['iot/devices/devicelist'],{ queryParams:{ deviceid:item.id}});
+          }
+        }],
+
+    }
   ]
 
   @ViewChild('st', { static: true })
@@ -157,6 +174,14 @@ export class ProducelistComponent implements OnInit {
           }
         },
         {
+          text: '管理设备',
+          acl: 56,
+          click: (item: any) => {
+
+            this._router.navigateByUrl('iot/devices/devicelist');
+          }
+        },
+        {
           text: '删除',
           pop: {
             title: '确认修改产品项状态?',
@@ -178,16 +203,16 @@ export class ProducelistComponent implements OnInit {
   }
 
 
-  createdevice( id:string){
+  createdevice(id: string) {
 
     this.modal.create(CreatedeviceformComponent, { id }).subscribe(res => {
 
-      if(res&&res.code===10000){
+      if (res && res.code === 10000) {
         this.msg.success('保存成功')
-      }else{
-        this.msg.warning('保存失败:'+res.msg)
+      } else {
+        this.msg.warning('保存失败:' + res.msg)
       }
-   
+
 
     });
 
