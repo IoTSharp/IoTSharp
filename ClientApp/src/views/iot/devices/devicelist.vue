@@ -74,12 +74,9 @@
       >
       </el-pagination>
     </el-card>
-    <el-drawer v-model="drawer" :title="dialogtitle" size="50%">
-      <div>
-        <addDevice  :deviceid="deviceid" />
-      </div>
-    </el-drawer>
+    <addDevice ref="addDeviceRef" />
   </div>
+
 </template>
 
 <script lang="ts">
@@ -108,9 +105,7 @@ interface TableDataRow {
   children?: TableDataRow[];
 }
 interface TableDataState {
-  deviceid:string,
-  drawer:boolean,
-  dialogtitle:string,
+
   tableData: {
     rows: Array<TableDataRow>;
     total: number;
@@ -126,11 +121,11 @@ export default defineComponent({
   name: 'devicelist',
   components: { addDevice },
   setup() {
+
+    const addDeviceRef = ref();
     const userInfos = Session.get('userInfo');
     const state = reactive<TableDataState>({
-      drawer:false,
-      deviceid:'0000000-0000-0000-0000-000000000000',
-      dialogtitle:'新增设备',
+
       tableData: {
         rows: [],
         total: 0,
@@ -160,9 +155,7 @@ export default defineComponent({
     };
 
     const createdevice = (id: string) => {
-      state.deviceid = id;   
-      state.drawer=true;  
-      console.log(  state.deviceid)
+      addDeviceRef.value.openDialog(id)
 
     };
 
@@ -194,7 +187,7 @@ export default defineComponent({
     onMounted(() => {
       initTableData();
     });
-    return {
+    return {addDeviceRef,
       createdevice,
       onHandleSizeChange,
       onHandleCurrentChange,

@@ -1,3 +1,4 @@
+import { staticRoutes } from './../../router/route';
 import { IListQueryParam } from '../iapiresult';
 import request from '/@/utils/request';
 
@@ -25,7 +26,7 @@ export function deviceApi() {
 			});
 		},
 
-		postdevcie: (params: object) => {
+		postdevcie: (params: any) => {
 			return request({
 				url: '/api/Devices',
 				method: 'post',
@@ -33,18 +34,18 @@ export function deviceApi() {
 			});
 		},
 
-        putdevcie: (params: object) => {
+        putdevcie: (params: any) => {
 			return request({
-				url: '/api/Devices',
+				url: '/api/Devices/'+params.id,
 				method: 'put',
 				data: params,
 			});
 		},
-        deletedevcie: (params: object) => {
+        deletedevcie: (id: string) => {
 			return request({
 				url: '/api/Devices',
 				method: 'delete',
-				data: params,
+				data: {},
 			});
 		},
 	};
