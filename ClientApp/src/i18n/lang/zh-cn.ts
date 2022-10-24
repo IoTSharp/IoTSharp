@@ -177,4 +177,30 @@ export default {
 		copyTextSuccess: '复制成功！',
 		copyTextError: '复制失败！',
 	},
+
+
+	iot:{
+		home:'主导航',
+		dashboardmnt:'仪表盘',
+		dashboard:'仪表盘',
+		tenantmnt:'租户管理',
+		customermnt:'客户管理',
+		usermnt:'用户管理',
+		producemnt:'产品管理',
+		devicemnt:'设备管理',
+		devicelist:'设备管理',
+		devicegraph:'网关配置器',
+		assetsmnt:'资产管理',
+		assetlist:'资产列表',
+		alarmmnt:'告警管理',
+		alarmlist:'告警列表',
+		rulesmnt:'规则链',
+		flowlist:'设计器',
+		flowevents:'事件',
+		settingsmnt:'设置',
+		dicgroupmnt:'字典分组',
+		dicmnt:'字典',
+		i18nlist:'国际化',
+		certmnt:'证书管理',
+	}
 };

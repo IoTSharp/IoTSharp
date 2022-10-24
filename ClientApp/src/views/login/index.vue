@@ -10,21 +10,8 @@
 		<div class="login-content">
 			<div class="login-content-main">
 				<h4 class="login-content-title ml15">{{ getThemeConfig.globalTitle }}后台模板</h4>
-				<div v-if="!isScan">
-					<el-tabs v-model="tabsActiveName">
-						<el-tab-pane :label="$t('message.label.one1')" name="account">
 							<Account />
-						</el-tab-pane>
-						<el-tab-pane :label="$t('message.label.two2')" name="mobile">
-							<Mobile />
-						</el-tab-pane>
-					</el-tabs>
-				</div>
-				<Scan v-if="isScan" />
-				<div class="login-content-main-sacn" @click="isScan = !isScan">
-					<i class="iconfont" :class="isScan ? 'icon-diannao1' : 'icon-barcode-qr'"></i>
-					<div class="login-content-main-sacn-delta"></div>
-				</div>
+			
 			</div>
 		</div>
 	</div>
@@ -38,24 +25,23 @@ import logoMini from '/@/assets/logo-mini.svg';
 import loginIconTwo from '/@/assets/login-icon-two.svg';
 import { NextLoading } from '/@/utils/loading';
 import Account from '/@/views/login/component/account.vue';
-import Mobile from '/@/views/login/component/mobile.vue';
-import Scan from '/@/views/login/component/scan.vue';
+
 
 // 定义接口来定义对象的类型
 interface LoginState {
 	tabsActiveName: string;
-	isScan: boolean;
+
 }
 
 export default defineComponent({
 	name: 'loginIndex',
-	components: { Account, Mobile, Scan },
+	components: { Account,},
 	setup() {
 		const storesThemeConfig = useThemeConfig();
 		const { themeConfig } = storeToRefs(storesThemeConfig);
 		const state = reactive<LoginState>({
 			tabsActiveName: 'account',
-			isScan: false,
+			
 		});
 		// 获取布局配置信息
 		const getThemeConfig = computed(() => {

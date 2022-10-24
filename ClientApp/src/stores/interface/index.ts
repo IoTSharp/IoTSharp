@@ -10,6 +10,8 @@ export interface UserInfosState {
 	roles: string[];
 	time: number;
 	userName: string;
+	customer?: any;
+	tenant?: any;
 }
 export interface UserInfosStates {
 	userInfos: UserInfosState;

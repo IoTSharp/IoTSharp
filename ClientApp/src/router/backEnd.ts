@@ -43,10 +43,16 @@ export async function initBackEndControlRoutes() {
 	await useUserInfo().setUserInfos();
 	// 获取路由菜单数据
 	const res = await getBackEndControlRoutes();
+  var routes:any[]=[];
+
+// var routes:any[]=_dynamicRoutes;
+
+transformitem(res.data.menu,routes)
+ console.log(routes)
 	// 存储接口原始路由（未处理component），根据需求选择使用
-	useRequestOldRoutes().setRequestOldRoutes(JSON.parse(JSON.stringify(res.data)));
+	useRequestOldRoutes().setRequestOldRoutes(JSON.parse(JSON.stringify(routes)));
 	// 处理路由（component），替换 dynamicRoutes（/@/router/route）第一个顶级 children 的路由
-	dynamicRoutes[0].children = await backEndComponent(res.data);
+	dynamicRoutes[0].children = await backEndComponent(routes);
 	// 添加动态路由
 	await setAddRoute();
 	// 设置路由到 vuex routesList 中（已处理成多级嵌套路由）及缓存多级嵌套数组处理后的一维数组
@@ -107,9 +113,17 @@ export function getBackEndControlRoutes() {
 	const { userInfos } = storeToRefs(stores);
 	const auth = userInfos.value.roles[0];
 	// 管理员 admin
-	if (auth === 'admin') return menuApi.getMenuAdmin();
+	if (auth === 'admin') 
+	{
+		return menuApi.getMenuAdmin();
+	
+	}else{
+		return menuApi.getMenuTest();
+	}
+	
+
 	// 其它用户 test
-	else return menuApi.getMenuTest();
+
 }
 
 /**
@@ -127,6 +141,7 @@ export function setBackEndControlRefreshRoutes() {
  * @returns 返回处理成函数后的 component
  */
 export function backEndComponent(routes: any) {
+
 	if (!routes) return;
 	return routes.map((item: any) => {
 		if (item.component) item.component = dynamicImport(dynamicViewsModules, item.component as string);
@@ -154,4 +169,37 @@ export function dynamicImport(dynamicViewsModules: Record<string, Function>, com
 	if (matchKeys?.length > 1) {
 		return false;
 	}
+}
+
+ 
+function transformitem(source:any[],target:any[]){
+
+for(var item of source){
+
+  var newitem:any={
+    "path": item.vpath,
+    "name": item.routename,
+    "component": item.vpath,
+    "meta": {
+      "title":'message.'+ item.vi18n,
+      "isLink": "",
+      "isHide": false,
+      "isKeepAlive": true,
+      "isAffix": false,
+      "isIframe": false,
+      "roles": ["admin", "common"],
+      "icon": "iconfont icon-shouye"
+    },"children":[]
+  
+  };
+	target.push(newitem);
+    if(item.children&&item.children.length>0){
+      transformitem(item.children,newitem.children);
+    }
+
+}
+
+
+
+
 }
