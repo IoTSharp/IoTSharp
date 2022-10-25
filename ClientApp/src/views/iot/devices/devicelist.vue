@@ -1,5 +1,5 @@
 <template>
-  <div class="system-dept-container">
+  <div class="system-list-container">
     <el-card shadow="hover">
       <div class="system-dept-search mb15">
         <el-input size="default" placeholder="请输入设备名称" style="max-width: 180px">
@@ -10,7 +10,12 @@
           </el-icon>
           查询
         </el-button>
-        <el-button size="default" type="success" @click="createdevice('0000000-0000-0000-0000-000000000000')" class="ml10">
+        <el-button
+          size="default"
+          type="success"
+          @click="create('0000000-0000-0000-0000-000000000000')"
+          class="ml10"
+        >
           <el-icon>
             <ele-FolderAdd />
           </el-icon>
@@ -32,29 +37,34 @@
 					</template>
 				</el-table-column> -->
         <el-table-column
-          prop="describe"
-          label="设备描述"
+          prop="deviceType"
+          label="设备类型"
+          show-overflow-tooltip
+        ></el-table-column>
+
+        <el-table-column
+          prop="active"
+          label="在线状态"
           show-overflow-tooltip
         ></el-table-column>
         <el-table-column
-          prop="createTime"
-          label="创建时间"
+          prop="lastActivityDateTime"
+          label="最后活动时间"
           show-overflow-tooltip
         ></el-table-column>
+
+        <el-table-column
+          prop="active"
+          label="认证方式"
+          show-overflow-tooltip
+        ></el-table-column>
+
         <el-table-column label="操作" show-overflow-tooltip width="140">
           <template #default="scope">
-            <el-button
-              size="small"
-              text
-              type="primary"
-              @click="createdevice(scope.row.id)"
+            <el-button size="small" text type="primary" @click="create(scope.row.id)"
               >修改</el-button
             >
-            <el-button
-              size="small"
-              text
-              type="primary"
-              @click="onTabelRowDel(scope.row.id)"
+            <el-button size="small" text type="primary" @click="onTabelRowDel(scope.row)"
               >删除</el-button
             >
           </template>
@@ -74,18 +84,18 @@
       >
       </el-pagination>
     </el-card>
-    <addDevice ref="addDeviceRef" />
+    <adddevice ref="addformRef" />
   </div>
-
 </template>
 
 <script lang="ts">
 import { ElMessageBox, ElMessage, getPositionDataWithUnit } from "element-plus";
 import { ref, toRefs, reactive, onMounted, defineComponent } from "vue";
-import addDevice from "/@/views/iot/devices/addDevice.vue";
+import adddevice from "./adddevice.vue";
 import { deviceApi } from "/@/api/devices";
 import { Session } from "/@/utils/storage";
 import { treeEmits } from "element-plus/es/components/tree-v2/src/virtual-tree";
+import { appmessage } from "/@/api/iapiresult";
 
 // 定义接口来定义对象的类型
 interface TableDataRow {
@@ -105,7 +115,6 @@ interface TableDataRow {
   children?: TableDataRow[];
 }
 interface TableDataState {
-
   tableData: {
     rows: Array<TableDataRow>;
     total: number;
@@ -118,14 +127,12 @@ interface TableDataState {
 }
 
 export default defineComponent({
-  name: 'devicelist',
-  components: { addDevice },
+  name: "devicelist",
+  components: { adddevice },
   setup() {
-
-    const addDeviceRef = ref();
-    const userInfos = Session.get('userInfo');
+    const addformRef = ref();
+    const userInfos = Session.get("userInfo");
     const state = reactive<TableDataState>({
-
       tableData: {
         rows: [],
         total: 0,
@@ -143,20 +150,28 @@ export default defineComponent({
 
     // 删除当前行
     const onTabelRowDel = (row: TableDataRow) => {
-      ElMessageBox.confirm(`此操作将永久删除设备：${row.name}, 是否继续?`, '提示', {
-        confirmButtonText: '删除',
-				cancelButtonText: '取消',
-				type: 'warning',
+      ElMessageBox.confirm(`此操作将永久删除设备：${row.name}, 是否继续?`, "提示", {
+        confirmButtonText: "删除",
+        cancelButtonText: "取消",
+        type: "warning",
       })
         .then(() => {
-          ElMessage.success('删除成功');
+          return deviceApi().deletedevcie(row.id!);
+        })
+        .then((res:appmessage<boolean>) => {
+     
+          if (res.code === 10000&&res.data) {
+            ElMessage.success("删除成功");
+            getData();
+          } else {
+            ElMessage.warning("删除失败:"+res.msg);
+          }
         })
         .catch(() => {});
     };
 
-    const createdevice = (id: string) => {
-      addDeviceRef.value.openDialog(id)
-
+    const create = (id: string) => {
+      addformRef.value.openDialog(id);
     };
 
     const onHandleSizeChange = (val: number) => {
@@ -176,6 +191,7 @@ export default defineComponent({
           limit: state.tableData.param.pageSize,
           onlyActive: false,
           customerId: userInfos.customerId.id,
+          name: "",
         })
         .then((res) => {
           console.log(res);
@@ -187,8 +203,9 @@ export default defineComponent({
     onMounted(() => {
       initTableData();
     });
-    return {addDeviceRef,
-      createdevice,
+    return {
+      addformRef,
+      create,
       onHandleSizeChange,
       onHandleCurrentChange,
       onTabelRowDel,

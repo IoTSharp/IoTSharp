@@ -1,9 +1,9 @@
-import { staticRoutes } from './../../router/route';
+
 import { IListQueryParam } from '../iapiresult';
 import request from '/@/utils/request';
 
 /**
- * 登录api接口集合
+ * 设备api接口集合
  * @method devcieList 设备列表
  * @method getdevcie 获取设备
  * @method postdevcie 新增设备
@@ -14,7 +14,7 @@ export function deviceApi() {
 	return {
 		devcieList: (params: QueryParam) => {
 			return request({
-				url: '/api/Devices/Customers?offset='+params.offset+'&limit='+params.limit+'&sorter=&onlyActive=false&customerId=81a02fb6-914e-41dc-a1b6-98ffb8d31fc0&name=&sort=',
+				url: '/api/Devices/Customers?offset='+params.offset+'&limit='+params.limit+'&sorter=&onlyActive=false&customerId='+params.customerId+'&name='+params.name+'&sort=',
 				method: 'get',
 				data: params,
 			});
@@ -43,9 +43,8 @@ export function deviceApi() {
 		},
         deletedevcie: (id: string) => {
 			return request({
-				url: '/api/Devices',
+				url: '/api/Devices/'+id,
 				method: 'delete',
-				data: {},
 			});
 		},
 	};
