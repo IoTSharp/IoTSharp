@@ -91,7 +91,7 @@
 <script lang="ts">
 import { ElMessageBox, ElMessage, getPositionDataWithUnit } from "element-plus";
 import { ref, toRefs, reactive, onMounted, defineComponent } from "vue";
-import adddevice from "./adddevice.vue";
+import adddevice from "./addDevice.vue";
 import { deviceApi } from "/@/api/devices";
 import { Session } from "/@/utils/storage";
 import { treeEmits } from "element-plus/es/components/tree-v2/src/virtual-tree";
