@@ -45,6 +45,12 @@
                   />
                 </el-select>
               </el-form-item>
+            
+            </el-col>
+
+
+            <el-col :xs="24" :sm="24" :md="24" :lg="24" :xl="24" class="mb20">
+             
               <el-form-item>
                 <el-button type="primary" @click="onSubmit">保存</el-button>
                 <el-button @click="closeDialog">取消</el-button>
@@ -61,6 +67,7 @@
 import { ref, toRefs, reactive, onMounted, defineComponent, watchEffect } from "vue";
 import { ElMessageBox, ElMessage } from "element-plus";
 import { deviceApi } from "/@/api/devices";
+import { appmessage } from "/@/api/iapiresult";
 
 interface deviceform {
   drawer: boolean;
@@ -112,15 +119,28 @@ export default defineComponent({
     const closeDialog = () => {
       state.drawer = false;
     };
+    
     watchEffect(() => {});
 
     onMounted(() => {});
-
     const onSubmit = () => {
       if(state.dataForm.id==='0000000-0000-0000-0000-000000000000'){
-        deviceApi().postdevcie(state.dataForm);
+        deviceApi().postdevcie(state.dataForm).then((res:appmessage<boolean>)=>{
+          if (res.code === 10000&&res.data) {
+            ElMessage.success("新增成功");
+          } else {
+            ElMessage.warning("新增失败:"+res.msg);
+          }
+
+        });
       }else{
-        deviceApi().putdevcie(state.dataForm);
+        deviceApi().putdevcie(state.dataForm).then((res:appmessage<boolean>)=>{
+          if (res.code === 10000&&res.data) {
+            ElMessage.success("修改成功");
+          } else {
+            ElMessage.warning("修改失败:"+res.msg);
+          }
+        });
       }
 
     };
