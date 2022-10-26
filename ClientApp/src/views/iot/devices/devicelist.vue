@@ -2,9 +2,21 @@
   <div class="system-list-container">
     <el-card shadow="hover">
       <div class="system-dept-search mb15">
-        <el-input size="default" placeholder="请输入设备名称" style="max-width: 180px">
+        <el-input
+          size="default"
+          placeholder="请输入设备名称"
+          style="max-width: 180px"
+          v-model="name"
+        >
         </el-input>
-        <el-button size="default" type="primary" class="ml10">
+
+        <el-switch
+          v-model="onlyActive"
+          size="large"
+          active-text="仅显示在线"
+          inactive-text="全部"
+        />
+        <el-button size="default" type="primary" class="ml10" @click="getData()">
           <el-icon>
             <ele-Search />
           </el-icon>
@@ -13,7 +25,7 @@
         <el-button
           size="default"
           type="success"
-          @click="create('0000000-0000-0000-0000-000000000000')"
+          @click="create('00000000-0000-0000-0000-000000000000')"
           class="ml10"
         >
           <el-icon>
@@ -25,17 +37,7 @@
       <el-table :data="tableData.rows" style="width: 100%" row-key="id">
         <el-table-column prop="name" label="设备名称" show-overflow-tooltip>
         </el-table-column>
-        <!-- <el-table-column label="排序" show-overflow-tooltip width="80">
-					<template #default="scope">
-						{{ scope.$index }}
-					</template>
-				</el-table-column> -->
-        <!-- <el-table-column prop="status" label="设备状态" show-overflow-tooltip>
-					<template #default="scope">
-						<el-tag type="success" v-if="scope.row.status">启用</el-tag>
-						<el-tag type="info" v-else>禁用</el-tag>
-					</template>
-				</el-table-column> -->
+      
         <el-table-column
           prop="deviceType"
           label="设备类型"
@@ -132,6 +134,7 @@ export default defineComponent({
   setup() {
     const addformRef = ref();
     const userInfos = Session.get("userInfo");
+
     const state = reactive<TableDataState>({
       tableData: {
         rows: [],
@@ -143,6 +146,15 @@ export default defineComponent({
         },
       },
     });
+
+    const query = reactive({
+      offset: state.tableData.param.pageNum - 1,
+      limit: state.tableData.param.pageSize,
+      onlyActive: false,
+      customerId: userInfos.customerId.id,
+      name: "",
+    });
+
     // 初始化表格数据
     const initTableData = () => {
       getData();
@@ -158,13 +170,12 @@ export default defineComponent({
         .then(() => {
           return deviceApi().deletedevcie(row.id!);
         })
-        .then((res:appmessage<boolean>) => {
-     
-          if (res.code === 10000&&res.data) {
+        .then((res: appmessage<boolean>) => {
+          if (res.code === 10000 && res.data) {
             ElMessage.success("删除成功");
             getData();
           } else {
-            ElMessage.warning("删除失败:"+res.msg);
+            ElMessage.warning("删除失败:" + res.msg);
           }
         })
         .catch(() => {});
@@ -186,13 +197,7 @@ export default defineComponent({
 
     const getData = () => {
       deviceApi()
-        .devcieList({
-          offset: state.tableData.param.pageNum - 1,
-          limit: state.tableData.param.pageSize,
-          onlyActive: false,
-          customerId: userInfos.customerId.id,
-          name: "",
-        })
+        .devcieList(query)
         .then((res) => {
           console.log(res);
           state.tableData.rows = res.data.rows;
@@ -210,6 +215,8 @@ export default defineComponent({
       onHandleCurrentChange,
       onTabelRowDel,
       ...toRefs(state),
+      ...toRefs(query),
+      getData,
     };
   },
 });

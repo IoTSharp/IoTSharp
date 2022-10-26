@@ -47,24 +47,12 @@ export const dynamicRoutes: Array<RouteRecordRaw> = [
 				},
 			},
 
-			{
-				path: '/iot/settings/tenantlist',
-				name: 'home',
-				component: () => import('/@/views/iot/settings/tenantlist.vue'),
-				meta: {
-					title: 'message.router.home',
-					isLink: '',
-					isHide: false,
-					isKeepAlive: true,
-					isAffix: true,
-					isIframe: false,
-					roles: ['admin', 'common'],
-					icon: 'iconfont icon-shouye',
-				},
-			},
 		
 		],
 	},
+
+
+
 ];
 
 /**
@@ -87,6 +75,16 @@ export const notFoundAndNoPower = [
 		component: () => import('/@/views/error/401.vue'),
 		meta: {
 			title: 'message.staticRoutes.noPower',
+			isHide: true,
+		},
+	},
+
+	{
+		path: '/iot/rules/flowdesigner',
+		name: 'flowdesigner',
+		component: () => import('/@/views/iot/rules/flowdesigner.vue'),
+		meta: {
+			title: 'message.router.home',
 			isHide: true,
 		},
 	},

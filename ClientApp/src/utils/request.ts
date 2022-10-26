@@ -52,8 +52,14 @@ service.interceptors.response.use(
 		} else if (error.message == 'Network Error') {
 			ElMessage.error('网络连接错误');
 		} else {
+			if(error.response.status===401){
+				Session.clear(); 
+				window.location.href = '/'; // 去登录页	
+			}
 			if (error.response.data) ElMessage.error(error.response.statusText);
-			else ElMessage.error('接口路径找不到');
+			else ElMessage.error(error.response.status);
+
+			console.log(error)
 		}
 		return Promise.reject(error);
 	}

@@ -1,3 +1,4 @@
+import { authDirective } from '/@/utils/authDirective';
 
 import { IListQueryParam } from '../iapiresult';
 import request from '/@/utils/request';
@@ -14,7 +15,7 @@ export function deviceApi() {
 	return {
 		devcieList: (params: QueryParam) => {
 			return request({
-				url: '/api/Devices/Customers?offset='+params.offset+'&limit='+params.limit+'&sorter=&onlyActive=false&customerId='+params.customerId+'&name='+params.name+'&sort=',
+				url: '/api/Devices/Customers?offset='+params.offset+'&limit='+params.limit+'&sorter=&onlyActive='+params.onlyActive+'&customerId='+params.customerId+'&name='+params.name+'&sort=',
 				method: 'get',
 				data: params,
 			});
