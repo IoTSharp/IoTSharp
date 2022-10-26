@@ -44,10 +44,10 @@ namespace IoTSharp.Contracts
                 return _BrokerCertificate;
             }
         }
-        public string CACertificateFile { get; set; } = "ca.crt";
-        public string CAPrivateKeyFile { get; set; } = "ca.key";
-        public string CertificateFile { get; set; } = "server.crt";
-        public string PrivateKeyFile { get; set; } = "server.key";
+        public string CACertificateFile { get; set; } = "security/ca.crt";
+        public string CAPrivateKeyFile { get; set; } = "security/ca.key";
+        public string CertificateFile { get; set; } = "security/server.crt";
+        public string PrivateKeyFile { get; set; } = "security/server.key";
         public string DomainName { get; set; } = "http://localhost/";
     }
 }

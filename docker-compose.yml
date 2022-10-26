@@ -56,6 +56,7 @@ services:
       - influx
     volumes:
       - "./appsettings.Development.json:/app/appsettings.Production.json"
+      - "./data/security:/app/security"
     ports:
       - 2927:80
       - 1883:1883

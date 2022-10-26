@@ -30,9 +30,7 @@ RUN KEYRING=/usr/share/keyrings/nodesource.gpg && curl -fsSL https://deb.nodesou
 WORKDIR /src
 COPY ["IoTSharp/ClientAppVue/package.json", "IoTSharp/ClientAppVue/package.json"]
 WORKDIR /src/IoTSharp/ClientApp/
-RUN  npm install yarn -g 
-RUN   yarn add   node-sass@4.12.0  
-RUN   yarn install
+RUN  npm install
 WORKDIR /src
 COPY ["IoTSharp/IoTSharp.csproj", "IoTSharp/"]
 COPY ["IoTSharp.Contracts/IoTSharp.Contracts.csproj", "IoTSharp.Contracts/"]
