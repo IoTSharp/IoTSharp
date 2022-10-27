@@ -36,9 +36,9 @@ export const useThemeConfig = defineStore('themeConfig', {
 			// 是否开启顶栏背景颜色渐变
 			isTopBarColorGradual: false,
 			// 默认菜单导航背景颜色
-			menuBar: '#545c64',
+			menuBar: '#ffffff',
 			// 默认菜单导航字体颜色
-			menuBarColor: '#eaeaea',
+			menuBarColor: '#666687',
 			// 是否开启菜单背景颜色渐变
 			isMenuBarColorGradual: false,
 			// 默认分栏菜单背景颜色

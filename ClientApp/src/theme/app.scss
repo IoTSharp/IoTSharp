@@ -10,6 +10,7 @@
 }
 
 :root {
+	--el-color-primary-rgb: 73,69, 255;
 	--next-color-white: #ffffff;
 	--next-bg-main-color: #f8f8f8;
 	--next-bg-color: #f5f5ff;
@@ -19,7 +20,7 @@
 	--next-color-warning-lighter: #fdf6ec;
 	--next-color-danger-lighter: #fef0f0;
 	--next-color-dark-hover: #0000001a;
-	--next-color-menu-hover: rgba(0, 0, 0, 0.2);
+	--next-color-menu-hover: rgba(var(--el-color-primary-rgb), 0.07);
 	--next-color-user-hover: rgba(0, 0, 0, 0.04);
 	--next-color-seting-main: #e9eef3;
 	--next-color-seting-aside: #d3dce6;
