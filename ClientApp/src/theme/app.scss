@@ -5,6 +5,8 @@
 	padding: 0;
 	box-sizing: border-box;
 	outline: none !important;
+	//outline: 1px dashed #bac3ff;
+
 }
 
 :root {
@@ -22,6 +24,7 @@
 	--next-color-seting-main: #e9eef3;
 	--next-color-seting-aside: #d3dce6;
 	--next-color-seting-header: #b3c0d1;
+	--z-page-color: #F6F6F9
 }
 
 html,
