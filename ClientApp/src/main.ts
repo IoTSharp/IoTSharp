@@ -11,6 +11,7 @@ import 'element-plus/dist/index.css';
 import '/@/theme/index.scss';
 import mitt from 'mitt';
 import VueGridLayout from 'vue-grid-layout';
+import 'virtual:windi.css'
 
 const app = createApp(App);
 

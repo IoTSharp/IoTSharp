@@ -1,6 +1,7 @@
 import vue from '@vitejs/plugin-vue';
 import { resolve } from 'path';
 import { defineConfig, loadEnv, ConfigEnv } from 'vite';
+import WindiCSS from 'vite-plugin-windicss'
 
 const pathResolve = (dir: string): any => {
 	return resolve(__dirname, '.', dir);
@@ -14,7 +15,7 @@ const alias: Record<string, string> = {
 const viteConfig = defineConfig((mode: ConfigEnv) => {
 	const env = loadEnv(mode.mode, process.cwd());
 	return {
-		plugins: [vue()],
+		plugins: [vue(), WindiCSS(),],
 		root: process.cwd(),
 		resolve: { alias },
 		base: mode.command === 'serve' ? './' : env.VITE_PUBLIC_PATH,
