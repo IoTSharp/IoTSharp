@@ -29,7 +29,7 @@
 		"screenfull": "^6.0.2",
 		"sortablejs": "^1.15.0",
 		"splitpanes": "^3.1.1",
-		"vue": "^3.2.37",
+		"vue": "^3.2.38",
 		"vue-clipboard3": "^2.0.0",
 		"vue-grid-layout": "^3.0.0-beta1",
 		"vue-i18n": "^9.1.10",
@@ -50,8 +50,10 @@
 		"sass": "^1.53.0",
 		"sass-loader": "^13.0.2",
 		"typescript": "^4.7.4",
-		"vite": "^2.9.14",
-		"vue-eslint-parser": "^9.0.3"
+		"vite": "^2.9.15",
+		"vite-plugin-windicss": "^1.8.8",
+		"vue-eslint-parser": "^9.0.3",
+		"windicss": "^3.5.6"
 	},
 	"browserslist": [
 		"> 1%",
