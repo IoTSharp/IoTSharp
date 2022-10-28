@@ -47,7 +47,7 @@ export const dynamicRoutes: Array<RouteRecordRaw> = [
 				},
 			},
 
-		
+
 		],
 	},
 
@@ -103,6 +103,14 @@ export const staticRoutes: Array<RouteRecordRaw> = [
 		component: () => import('/@/views/login/index.vue'),
 		meta: {
 			title: '登录',
+		},
+	},
+	{
+		path: '/setup',
+		name: 'setup',
+		component: () => import('/@/views/setup/index.vue'),
+		meta: {
+			title: '初始化系统',
 		},
 	},
 	/**

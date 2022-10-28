@@ -1,0 +1,22 @@
+{
+  "form": {
+    "labelPosition": "top",
+    "labelWidth": null,
+    "hideRequiredMark": true,
+    "showMessage": true,
+    "inlineMessage": false,
+    "inline": false
+  },
+  "submitBtn": {
+    "type":"primary",
+    "size":"large",
+    "disabled":true,
+    "innerText":"提交",
+    "loading":false,
+    "show":true,
+    "block": true
+  },
+  "wrap": {
+  },
+  "resetBtn": false
+}

@@ -4,7 +4,7 @@
       <img :src="logoIcon">
     </div>
     <div>
-      <img :src="logoText">
+      <img :src="logoText" style="position: relative;top: 4px">
     </div>
 
   </div>

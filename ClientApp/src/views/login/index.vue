@@ -5,7 +5,7 @@
         <div class="flex justify-center pt-40px pb-10px">
           <AppLogo></AppLogo>
         </div>
-        <div class="flex justify-center text-gray-600 pb-30px">Log in to your IoT Sharp account</div>
+        <div class="flex justify-center text-gray-600 pb-30px text-16px pt-8px">Log in to your IoT Sharp account</div>
 							<Account />
 			</div>
 		</div>

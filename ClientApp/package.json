@@ -11,6 +11,7 @@
 	},
 	"dependencies": {
 		"@element-plus/icons-vue": "^2.0.6",
+		"@form-create/element-ui": "^3.1.15",
 		"@wangeditor/editor": "^5.1.11",
 		"axios": "^0.27.2",
 		"countup.js": "^2.3.2",
