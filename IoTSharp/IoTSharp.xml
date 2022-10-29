@@ -539,7 +539,7 @@
             <summary>
             删除产品
             </summary>
-            <param name="produceid"></param>
+            <param name="produceid">产品ID</param>
             <returns></returns>
         </member>
         <member name="M:IoTSharp.Controllers.ProducesController.Save(IoTSharp.Dtos.ProduceAddDto)">
@@ -560,7 +560,7 @@
             <summary>
             获取产品属性
             </summary>
-            <param name="dto"></param>
+            <param name="produceId">产品ID</param>
             <returns></returns>
         </member>
         <member name="M:IoTSharp.Controllers.ProducesController.EditProduceData(IoTSharp.Dtos.ProduceDataEditDto)">
@@ -574,7 +574,7 @@
             <summary>
             获取产品字典
             </summary>
-            <param name="dto"></param>
+            <param name="produceId">产品ID</param>
             <returns></returns>
         </member>
         <member name="M:IoTSharp.Controllers.ProducesController.EditProduceDictionary(IoTSharp.Dtos.ProduceDictionaryEditDto)">

@@ -27,7 +27,6 @@ namespace IoTSharp
     public static class MqttExtension
     {
 
-        //static private IMqttServer _mqttServer;
         public static void AddIoTSharpMqttServer(this IServiceCollection services, MqttBrokerSetting broker)
         {
             services.AddMqttControllers();

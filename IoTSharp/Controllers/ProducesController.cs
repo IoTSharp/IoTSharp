@@ -142,7 +142,7 @@ namespace IoTSharp.Controllers
         /// <summary>
         /// 删除产品
         /// </summary>
-        /// <param name="produceid"></param>
+        /// <param name="produceid">产品ID</param>
         /// <returns></returns>
 
         [HttpGet]
@@ -245,7 +245,7 @@ namespace IoTSharp.Controllers
         /// <summary>
         /// 获取产品属性
         /// </summary>
-        /// <param name="dto"></param>
+        /// <param name="produceId">产品ID</param>
         /// <returns></returns>
         [HttpGet]
         public async Task<ApiResult<List<ProduceDataItemDto>>> GetProduceData(Guid produceId)
@@ -342,7 +342,7 @@ namespace IoTSharp.Controllers
         /// <summary>
         /// 获取产品字典
         /// </summary>
-        /// <param name="dto"></param>
+        /// <param name="produceId">产品ID</param>
         /// <returns></returns>
         [HttpGet]
         public async Task<ApiResult<List<ProduceDictionary>>> GetProduceDictionary(Guid produceId)

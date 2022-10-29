@@ -323,7 +323,6 @@ namespace IoTSharp
             var settings = Configuration.Get<AppSettings>();
             if (settings.TelemetryStorage == TelemetryStorage.Sharding)
             {
-                app.ApplicationServices.UseAutoShardingCreate();
                 app.ApplicationServices.UseAutoTryCompensateTable();
             }
             app.UseRouting();
