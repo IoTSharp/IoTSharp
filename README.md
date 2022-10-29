@@ -9,12 +9,10 @@
 [![.NET Core build](https://github.com/IoTSharp/IoTSharp/actions/workflows/dotnet-build.yml/badge.svg)](https://github.com/IoTSharp/IoTSharp/actions/workflows/dotnet-build.yml)
 [![pages-build-deployment](https://github.com/IoTSharp/IoTSharp/actions/workflows/pages/pages-build-deployment/badge.svg)](https://github.com/IoTSharp/IoTSharp/actions/workflows/pages/pages-build-deployment)
 [![Building and Packaging](https://github.com/IoTSharp/IoTSharp/actions/workflows/dotnet-publish.yml/badge.svg)](https://github.com/IoTSharp/IoTSharp/actions/workflows/dotnet-publish.yml)
-[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=IoTSharp_IoTSharp&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=IoTSharp_IoTSharp)
-[![Technical Debt](https://sonarcloud.io/api/project_badges/measure?project=IoTSharp_IoTSharp&metric=sqale_index)](https://sonarcloud.io/summary/new_code?id=IoTSharp_IoTSharp)
-[![Reliability Rating](https://sonarcloud.io/api/project_badges/measure?project=IoTSharp_IoTSharp&metric=reliability_rating)](https://sonarcloud.io/summary/new_code?id=IoTSharp_IoTSharp)
-[![Code Smells](https://sonarcloud.io/api/project_badges/measure?project=IoTSharp_IoTSharp&metric=code_smells)](https://sonarcloud.io/summary/new_code?id=IoTSharp_IoTSharp)
+![Docker Cloud Build Status](https://img.shields.io/docker/cloud/build/maikebing/iotsharp?style=flat-square)
+![Docker Pulls](https://img.shields.io/docker/pulls/maikebing/iotsharp)
+![GitHub all releases](https://img.shields.io/github/downloads/iotsharp/iotsharp/total)
 [![Total alerts](https://img.shields.io/lgtm/alerts/g/IoTSharp/IoTSharp.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/IoTSharp/IoTSharp/alerts/)
-[![Language grade: csharp](https://img.shields.io/lgtm/grade/csharp/g/IoTSharp/IoTSharp.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/IoTSharp/IoTSharp/context:csharp)
 [![Language grade: JavaScript](https://img.shields.io/lgtm/grade/javascript/g/IoTSharp/IoTSharp.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/IoTSharp/IoTSharp/context:javascript)
 [![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2FIoTSharp%2FIoTSharp.svg?type=shield)](https://app.fossa.com/projects/git%2Bgithub.com%2FIoTSharp%2FIoTSharp?ref=badge_shield)
 
@@ -67,8 +65,12 @@ IoTSharp is an open-source IoT platform for data collection, processing, visuali
 * SqlServer
 
 ## IoTShar Demo 
-    http://139.9.232.10:2927    
-##  IoTSharp online  
+      
+ - [IoTSharp front-end implemented using Angular](http://139.9.232.10:2927)
+ - [IoTSharp front-end implemented using Vue3](http://demo.iotsharp.net)
+
+
+##  IoTSharp cloud  
   https://cloud.iotsharp.net/
 
 ## doc

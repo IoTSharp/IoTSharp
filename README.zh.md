@@ -1,11 +1,34 @@
-![IOTSharp LOGO](docs/static/img/350x100.png)  
+<p align="left">
+  <a href="https://iotsharp.io/">
+    <img src="docs/static/img/logo_white.svg" width="360px" alt="IoTSharp logo" />
+  </a>
+</p>
 
 [![Build status](https://ci.appveyor.com/api/projects/status/5o23f5vss89ct2lw/branch/master?svg=true)](https://ci.appveyor.com/project/MaiKeBing/iotsharp/branch/master)
 ![GitHub](https://img.shields.io/github/license/iotsharp/iotsharp.svg)
-![.NET Core](https://github.com/IoTSharp/IoTSharp/workflows/.NET%20Core/badge.svg?branch=master)
+[![.NET Core build](https://github.com/IoTSharp/IoTSharp/actions/workflows/dotnet-build.yml/badge.svg)](https://github.com/IoTSharp/IoTSharp/actions/workflows/dotnet-build.yml)
+[![pages-build-deployment](https://github.com/IoTSharp/IoTSharp/actions/workflows/pages/pages-build-deployment/badge.svg)](https://github.com/IoTSharp/IoTSharp/actions/workflows/pages/pages-build-deployment)
+[![Building and Packaging](https://github.com/IoTSharp/IoTSharp/actions/workflows/dotnet-publish.yml/badge.svg)](https://github.com/IoTSharp/IoTSharp/actions/workflows/dotnet-publish.yml)
+![Docker Cloud Build Status](https://img.shields.io/docker/cloud/build/maikebing/iotsharp?style=flat-square)
+![Docker Pulls](https://img.shields.io/docker/pulls/maikebing/iotsharp)
+![GitHub all releases](https://img.shields.io/github/downloads/iotsharp/iotsharp/total)
+[![Total alerts](https://img.shields.io/lgtm/alerts/g/IoTSharp/IoTSharp.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/IoTSharp/IoTSharp/alerts/)
+[![Language grade: JavaScript](https://img.shields.io/lgtm/grade/javascript/g/IoTSharp/IoTSharp.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/IoTSharp/IoTSharp/context:javascript)
+[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2FIoTSharp%2FIoTSharp.svg?type=shield)](https://app.fossa.com/projects/git%2Bgithub.com%2FIoTSharp%2FIoTSharp?ref=badge_shield)
 
 IoTSharp 是一个 基于.Net Core 开源的物联网基础平台， 支持 HTTP、MQTT 、CoAp 协议， 属性数据和遥测数据协议简单类型丰富，简单设置即可将数据存储在PostgreSql、MySql、Oracle、SQLServer、Sqlite，是一个用于数据收集、处理、可视化与设备管理的 IoT 平台.
 
+
+
+ * ## 愿项目用户:
+
+   * 愿您行善，不作恶。
+
+    * 愿您原谅自己，原谅别人。
+
+    * 愿您自由分享，永远不要拿走超过您给予的。
+
+       
 
 ## 支持的数据库:
 
@@ -46,9 +69,10 @@ IoTSharp 是一个 基于.Net Core 开源的物联网基础平台， 支持 HTTP
 * MySql,
 * SqlServer
 
-## IoTShar 演示
-    http://139.9.232.10:2927    
- 密码请加微信或者QQ群询问
+## IoTSharp 演示 
+
+ - [使用Angular实现的IoTSharp前端](http://139.9.232.10:2927)
+ - [使用Vue3实现的IoTSharp前端](http://demo.iotsharp.net)
 
 ##  IoTSharp 云服务  
   https://cloud.iotsharp.net/
