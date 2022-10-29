@@ -65,10 +65,24 @@
       </el-button>
     </el-form-item>
   </el-form>
+
+
+  <el-dialog v-model="dialogVisible" title="" width="400px"  >
+    <slide-verify
+      ref="block"
+      :imgs="imgs"
+      slider-text="向右滑动->"
+      :accuracy="accuracy"
+      @again="onAgain"
+      @success="onSuccess"
+      @fail="onFail"
+      @refresh="onRefresh"
+    ></slide-verify>
+  </el-dialog>
 </template>
 
 <script lang="ts">
-import { toRefs, reactive, defineComponent, computed } from "vue";
+import { toRefs, reactive, defineComponent, computed ,ref} from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { ElMessage } from "element-plus";
 import { useI18n } from "vue-i18n";
@@ -81,16 +95,24 @@ import { Session } from "/@/utils/storage";
 import { formatAxis } from "/@/utils/formatTime";
 import { NextLoading } from "/@/utils/loading";
 import { useLoginApi } from "/@/api/login";
+import SlideVerify, { SlideVerifyInstance } from "vue3-slide-verify";
+import "vue3-slide-verify/dist/style.css";
 export default defineComponent({
+  components: { SlideVerify },
   name: "loginAccount",
   setup() {
+    const block = ref<SlideVerifyInstance>();
     const { t } = useI18n();
     const storesThemeConfig = useThemeConfig();
     const { themeConfig } = storeToRefs(storesThemeConfig);
     const route = useRoute();
     const router = useRouter();
     const state = reactive({
+      dialogVisible: false,
       isShowPassword: false,
+      accuracy: 3,
+      msg: "",
+      imgs: {},
       ruleForm: {
         userName: "iotmaster@iotsharp.net",
         password: "Iotmaster@iotsharp.net123",
@@ -106,13 +128,21 @@ export default defineComponent({
     });
     // 登录
     const onSignIn = async () => {
-      state.loading.signIn = true;
+      state.dialogVisible = true;
+      // 存储 token 到浏览器缓存
+    };
+    const onAgain = () => {
+      state.msg = "检测到非人为操作的哦！ try again";
+      // 刷新
+      block.value?.refresh();
+    };
 
+    const onSuccess = (times: number) => {
+      state.msg = `login success, 耗时${(times / 1000).toFixed(1)}s`;
+      state.loading.signIn = true;
       useLoginApi()
         .signIn({ password: state.ruleForm.password, userName: state.ruleForm.userName })
         .then(async (res: any) => {
-
-
           if (res && res.code === 10000) {
             Session.set("token", res.data.token.access_token);
             // 模拟数据，对接接口时，记得删除多余代码及对应依赖的引入。用于 `/src/stores/userInfo.ts` 中不同用户登录判断（模拟数据）
@@ -134,8 +164,20 @@ export default defineComponent({
           }
         })
         .finally(() => {});
+    };
 
-      // 存储 token 到浏览器缓存
+    const onFail = () => {
+      state.msg = "验证不通过";
+    };
+
+    const onRefresh = () => {
+      state.msg = "点击了刷新小图标";
+    };
+
+    const handleClick = () => {
+      // 刷新
+      block.value?.refresh();
+      state.msg = "";
     };
     // 登录成功后的跳转
     const signInSuccess = () => {
@@ -164,6 +206,10 @@ export default defineComponent({
     };
     return {
       onSignIn,
+      onAgain,
+      onSuccess,
+      onFail,
+      onRefresh,
       ...toRefs(state),
     };
   },

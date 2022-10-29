@@ -47,6 +47,22 @@ import request from '/@/utils/request';
 				data: {},
 			});
 		},
+		getexecutors: () => {
+			return request({
+				url: '/api/rules/getexecutors',
+				method: 'get',
+				data: {},
+			});
+		},
+
+
+		getDiagram: (id: string) => {
+			return request({
+				url: '/api/rules/GetDiagram?id'+id,
+				method: 'get',
+				data: {},
+			});
+		},
 	};
 }
 

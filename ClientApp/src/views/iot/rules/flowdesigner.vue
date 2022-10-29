@@ -118,6 +118,7 @@ import {
   jsplumbConnect,
 } from "./js/config";
 import { useRouter, useRoute } from "vue-router";
+import { ruleApi } from "/@/api/flows";
 // 定义接口来定义对象的类型
 interface NodeListState {
   id: string | number;
@@ -137,7 +138,8 @@ interface XyState {
   x: string | number;
   y: string | number;
 }
-interface WorkflowState {
+interface FlowState {
+  flowid?: string | any;
   workflowRightRef: HTMLDivElement | null;
   leftNavRefs: any[];
   leftNavList: any[];
@@ -161,6 +163,7 @@ export default defineComponent({
   components: { Tool, Contextmenu, Drawer, Help },
   setup() {
     const route = useRoute();
+    const router = useRouter();
     const contextmenuNodeRef = ref();
     const contextmenuLineRef = ref();
     const drawerRef = ref();
@@ -170,7 +173,9 @@ export default defineComponent({
     const { themeConfig } = storeToRefs(storesThemeConfig);
     const { isTagsViewCurrenFull } = storeToRefs(stores);
     const { copyText } = commonFunction();
-    const state = reactive<WorkflowState>({
+
+    const state = reactive<FlowState>({
+      flowid: route.query.id,
       workflowRightRef: null as HTMLDivElement | null,
       leftNavRefs: [],
       leftNavList: [],
@@ -205,7 +210,30 @@ export default defineComponent({
     };
     // 左侧导航-数据初始化
     const initLeftNavList = () => {
-      state.leftNavList = leftNavList;
+      state.leftNavList=[];
+      state.leftNavList = [
+        {
+          title: "执行器",
+          icon: "iconfont icon-shouye",
+          isOpen: true,
+          id: "1",
+          children: [],
+        },
+      ];
+
+      ruleApi()
+        .getexecutors()
+        .then((res) => {
+          res.data.forEach((item: any) => {
+            state.leftNavList[0].children.push({
+              icon: "iconfont icon-gongju",
+              name: item.label,
+              id: "11",
+            });
+          });
+        });
+
+    
       state.jsplumbData = {
         nodeList: [
           {
@@ -507,8 +535,18 @@ export default defineComponent({
         case "fullscreen":
           onToolFullscreen();
           break;
+        case "return":
+          onReturnToList();
+          break;
       }
     };
+
+    const onReturnToList = () => {
+      router.push({
+        path: "/iot/rules/flowlist",
+      });
+    };
+
     // 顶部工具栏-帮助
     const onToolHelp = () => {
       nextTick(() => {
@@ -530,7 +568,6 @@ export default defineComponent({
     };
     // 顶部工具栏-提交
     const onToolSubmit = () => {
-      // console.log(state.jsplumbData);
       ElMessage.success("数据提交成功");
     };
     // 顶部工具栏-复制

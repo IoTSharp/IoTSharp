@@ -88,6 +88,15 @@ export const notFoundAndNoPower = [
 			isHide: true,
 		},
 	},
+	{
+		path: '/iot/forms/edit',
+		name: 'edit',
+		component: () => import('/@/views/iot/forms/edit.vue'),
+		meta: {
+			title: 'message.router.home',
+			isHide: true,
+		},
+	},
 ];
 
 /**
