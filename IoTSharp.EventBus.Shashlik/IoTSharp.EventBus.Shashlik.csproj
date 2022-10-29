@@ -7,17 +7,17 @@
   </PropertyGroup>
 	<ItemGroup>
 		<PackageReference Include="AspNetCore.HealthChecks.NpgSql" Version="6.0.2" />
-		<PackageReference Include="EasyCaching.Core" Version="1.6.1" />
+		<PackageReference Include="EasyCaching.Core" Version="1.7.0" />
 		<PackageReference Include="AspNetCore.HealthChecks.Kafka" Version="6.0.3" />
 		<PackageReference Include="AspNetCore.HealthChecks.Rabbitmq" Version="6.0.2" />
-		<PackageReference Include="Shashlik.EventBus" Version="2.1.0" />
-		<PackageReference Include="Shashlik.EventBus.Kafka" Version="2.1.0" />
-		<PackageReference Include="Shashlik.EventBus.MemoryQueue" Version="2.1.0" />
-		<PackageReference Include="Shashlik.EventBus.MemoryStorage" Version="2.1.0" />
-		<PackageReference Include="Shashlik.EventBus.MySql" Version="2.1.0" />
-		<PackageReference Include="Shashlik.EventBus.PostgreSQL" Version="2.1.0" />
-		<PackageReference Include="Shashlik.EventBus.RabbitMQ" Version="2.1.0" />
-		<PackageReference Include="Shashlik.EventBus.SqlServer" Version="2.1.0" />
+		<PackageReference Include="Shashlik.EventBus" Version="2.2.0" />
+		<PackageReference Include="Shashlik.EventBus.Kafka" Version="2.2.0" />
+		<PackageReference Include="Shashlik.EventBus.MemoryQueue" Version="2.2.0" />
+		<PackageReference Include="Shashlik.EventBus.MemoryStorage" Version="2.2.0" />
+		<PackageReference Include="Shashlik.EventBus.MySql" Version="2.2.0" />
+		<PackageReference Include="Shashlik.EventBus.PostgreSQL" Version="2.2.0" />
+		<PackageReference Include="Shashlik.EventBus.RabbitMQ" Version="2.2.0" />
+		<PackageReference Include="Shashlik.EventBus.SqlServer" Version="2.2.0" />
 	</ItemGroup>
 
 	<ItemGroup>

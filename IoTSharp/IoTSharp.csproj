@@ -63,9 +63,9 @@
 		<PackageReference Include="AspNetCore.HealthChecks.UI" Version="6.0.5" />
 		<PackageReference Include="AspNetCore.HealthChecks.UI.Client" Version="6.0.5" />
 
-		<PackageReference Include="EasyCaching.InMemory" Version="1.6.1" />
-		<PackageReference Include="EasyCaching.LiteDB" Version="1.6.1" />
-		<PackageReference Include="EasyCaching.Redis" Version="1.6.1" />
+		<PackageReference Include="EasyCaching.InMemory" Version="1.7.0" />
+		<PackageReference Include="EasyCaching.LiteDB" Version="1.7.0" />
+		<PackageReference Include="EasyCaching.Redis" Version="1.7.0" />
 		<PackageReference Include="Figgle" Version="0.4.0" />
 		<PackageReference Include="hyjiacan.pinyin4net" Version="4.1.1" />
 		<PackageReference Include="IoTSharp.CoAP.NET" Version="2.0.8" />
@@ -73,16 +73,16 @@
 		<PackageReference Include="Jdenticon.AspNetCore" Version="3.1.2" />
 		<PackageReference Include="LiteDB" Version="5.0.12" />
 
-		<PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="6.0.9" />
-		<PackageReference Include="Microsoft.AspNetCore.SpaProxy" Version="6.0.9" />
-		<PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="6.0.9">
+		<PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="6.0.10" />
+		<PackageReference Include="Microsoft.AspNetCore.SpaProxy" Version="6.0.10" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="6.0.10">
 			<PrivateAssets>all</PrivateAssets>
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
 		<PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.17.0" />
 		<PackageReference Include="MimeMapping" Version="1.0.1.37" />
-		<PackageReference Include="MQTTnet" Version="4.1.1.318" />
-		<PackageReference Include="MQTTnet.AspNetCore" Version="4.1.1.318" />
+		<PackageReference Include="MQTTnet" Version="4.1.2.350" />
+		<PackageReference Include="MQTTnet.AspNetCore" Version="4.1.2.350" />
 		<PackageReference Include="MQTTnet.AspNetCore.Routing" Version="0.4.11" />
 		<PackageReference Include="NSwag.AspNetCore" Version="13.17.0" />
 		<PackageReference Include="Rin" Version="2.6.0" />
@@ -91,15 +91,15 @@
 		<PackageReference Include="SilkierQuartz" Version="5.0.356" />
 		<PackageReference Include="SkiaSharp.NativeAssets.Linux.NoDependencies" Version="2.88.3" />
 		<PackageReference Include="Storage.Net" Version="9.3.0" />
-		<PackageReference Include="ShardingCore" Version="6.7.0.2" />
+		<PackageReference Include="ShardingCore" Version="6.8.0.2" />
 		<PackageReference Include="System.Text.Encoding.CodePages" Version="6.0.0">
 
 			<TreatAsUsed>true</TreatAsUsed>
 		</PackageReference>
-		<PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="6.0.9" />
-		<PackageReference Include="Microsoft.Extensions.Hosting.WindowsServices" Version="6.0.0" />
-		<PackageReference Include="Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore" Version="6.0.9" />
-		<PackageReference Include="Microsoft.AspNetCore.Identity.UI" Version="6.0.9" />
+		<PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="6.0.10" />
+		<PackageReference Include="Microsoft.Extensions.Hosting.WindowsServices" Version="6.0.1" />
+		<PackageReference Include="Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore" Version="6.0.10" />
+		<PackageReference Include="Microsoft.AspNetCore.Identity.UI" Version="6.0.10" />
 	</ItemGroup>
 
 	<ItemGroup Condition="'$(Configuration)' == 'Debug_VUE'  OR '$(Configuration)' == 'Release_VUE'">

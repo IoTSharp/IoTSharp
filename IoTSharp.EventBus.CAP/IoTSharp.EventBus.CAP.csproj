@@ -8,19 +8,19 @@
 	<ItemGroup>
 		<PackageReference Include="AspNetCore.HealthChecks.NpgSql" Version="6.0.2" />
 		<PackageReference Include="CAP.Extensions" Version="1.0.37" />
-		<PackageReference Include="DotNetCore.CAP.Dashboard" Version="6.2.0" />
-		<PackageReference Include="DotNetCore.CAP.InMemoryStorage" Version="6.2.0" />
-		<PackageReference Include="DotNetCore.CAP.Kafka" Version="6.2.0" />
-		<PackageReference Include="DotNetCore.CAP.MongoDB" Version="6.2.0" />
-		<PackageReference Include="DotNetCore.CAP.MySql" Version="6.2.0" />
-		<PackageReference Include="DotNetCore.CAP.PostgreSql" Version="6.2.0" />
-		<PackageReference Include="DotNetCore.CAP.SqlServer" Version="6.2.0" />
-		<PackageReference Include="DotNetCore.CAP.AzureServiceBus" Version="6.2.0" />
-		<PackageReference Include="DotNetCore.CAP.AmazonSQS" Version="6.2.0" />
-		<PackageReference Include="DotNetCore.CAP.NATS" Version="6.2.0" />
-		<PackageReference Include="DotNetCore.CAP.RedisStreams" Version="6.2.0" />
-		<PackageReference Include="DotNetCore.CAP.Pulsar" Version="6.2.0" />
-		<PackageReference Include="EasyCaching.Core" Version="1.6.1" />
+		<PackageReference Include="DotNetCore.CAP.Dashboard" Version="6.2.1" />
+		<PackageReference Include="DotNetCore.CAP.InMemoryStorage" Version="6.2.1" />
+		<PackageReference Include="DotNetCore.CAP.Kafka" Version="6.2.1" />
+		<PackageReference Include="DotNetCore.CAP.MongoDB" Version="6.2.1" />
+		<PackageReference Include="DotNetCore.CAP.MySql" Version="6.2.1" />
+		<PackageReference Include="DotNetCore.CAP.PostgreSql" Version="6.2.1" />
+		<PackageReference Include="DotNetCore.CAP.SqlServer" Version="6.2.1" />
+		<PackageReference Include="DotNetCore.CAP.AzureServiceBus" Version="6.2.1" />
+		<PackageReference Include="DotNetCore.CAP.AmazonSQS" Version="6.2.1" />
+		<PackageReference Include="DotNetCore.CAP.NATS" Version="6.2.1" />
+		<PackageReference Include="DotNetCore.CAP.RedisStreams" Version="6.2.1" />
+		<PackageReference Include="DotNetCore.CAP.Pulsar" Version="6.2.1" />
+		<PackageReference Include="EasyCaching.Core" Version="1.7.0" />
 		<PackageReference Include="AspNetCore.HealthChecks.Kafka" Version="6.0.3" />
 		<PackageReference Include="AspNetCore.HealthChecks.MongoDb" Version="6.0.2" />
 		<PackageReference Include="AspNetCore.HealthChecks.Rabbitmq" Version="6.0.2" />
