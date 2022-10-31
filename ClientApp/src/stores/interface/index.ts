@@ -11,7 +11,7 @@ export interface UserInfosState {
 	time: number;
 	userName: string;
 	customer?: any;
-	tenant?: any;
+	tenantId?: any;
 }
 export interface UserInfosStates {
 	userInfos: UserInfosState;

@@ -27,27 +27,27 @@ export const useUserInfo = defineStore('userInfo', {
 			} else {
 				const userInfos: any = await this.getApiUserInfo();
 				this.userInfos = userInfos;
-				Session.set('userInfo',userInfos);
+				Session.set('userInfo', userInfos);
 			}
 		},
 		// 模拟接口数据
 		// https://gitee.com/lyt-top/vue-next-admin/issues/I5F1HP
 		async getApiUserInfo() {
-			
-		return	useLoginApi().GetUserInfo({}).then(res => {
-				const userInfos = {
-					userName: res.data.name,
-					photo: res.data.avatar,
-					time: new Date().getTime(),
-					roles: [res.data.roles],
-					authBtnList: ['btn.add', 'btn.del', 'btn.edit', 'btn.link'],
-					customerId: res.data.customer,
-					tenantId: res.data.tenant,
-				};
-				return userInfos;
-			}).catch();
-
-		
+			return useLoginApi()
+				.GetUserInfo({})
+				.then((res) => {
+					const userInfos = {
+						userName: res.data.name,
+						photo: res.data.avatar,
+						time: new Date().getTime(),
+						roles: [res.data.roles],
+						authBtnList: ['btn.add', 'btn.del', 'btn.edit', 'btn.link'],
+						customerId: res.data.customer,
+						tenantId: res.data.tenant,
+					};
+					return userInfos;
+				})
+				.catch();
 		},
 	},
 });

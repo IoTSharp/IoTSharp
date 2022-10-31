@@ -9,7 +9,7 @@ import request from '/@/utils/request';
  * @method puttenant 修改租户
  * @method deletetenant 删除租户
  */
- export function tenantApi() {
+export function tenantApi() {
 	return {
 		tenantList: (params: QueryParam) => {
 			return request({
@@ -18,9 +18,9 @@ import request from '/@/utils/request';
 				data: params,
 			});
 		},
-		gettenant: (tenantId:string) => {
+		gettenant: (tenantId: string) => {
 			return request({
-				url: '/api/tenants/'+tenantId,
+				url: '/api/tenants/' + tenantId,
 				method: 'get',
 			});
 		},
@@ -33,16 +33,16 @@ import request from '/@/utils/request';
 			});
 		},
 
-        puttenant: (params: any) => {
+		puttenant: (params: any) => {
 			return request({
-				url: '/api/tenants/'+params.id,
+				url: '/api/tenants/' + params.id,
 				method: 'put',
 				data: params,
 			});
 		},
-        deletetenant: (id: string) => {
+		deletetenant: (id: string) => {
 			return request({
-				url: '/api/tenants/'+id,
+				url: '/api/tenants/' + id,
 				method: 'delete',
 				data: {},
 			});
@@ -50,6 +50,6 @@ import request from '/@/utils/request';
 	};
 }
 
-interface QueryParam extends IListQueryParam{
-	name?:string
+interface QueryParam extends IListQueryParam {
+	name?: string;
 }
