@@ -12,7 +12,7 @@
 <script lang="ts">
 import { defineComponent, reactive, toRefs, ref, nextTick } from 'vue';
 import Line from './line.vue';
-import Node from './node.vue';
+import Node from './executor.vue';
 
 // 定义接口来定义对象的类型
 interface WorkflowDrawerState {

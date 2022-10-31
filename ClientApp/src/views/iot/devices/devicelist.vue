@@ -25,7 +25,7 @@
         <el-button
           size="default"
           type="success"
-          @click="create('00000000-0000-0000-0000-000000000000')"
+          @click="create('0000000-0000-0000-0000-000000000000')"
           class="ml10"
         >
           <el-icon>

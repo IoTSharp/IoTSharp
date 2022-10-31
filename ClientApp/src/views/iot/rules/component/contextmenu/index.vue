@@ -55,6 +55,8 @@ export default defineComponent({
 		});
 		// 当前项菜单点击
 		const onCurrentClick = (contextMenuClickId: number) => {
+
+			console.log(state.item)
 			emit('current', Object.assign({}, { contextMenuClickId }, state.item), state.conn);
 		};
 		// 打开右键菜单：判断是否固定，固定则不显示关闭按钮
