@@ -19,7 +19,7 @@
                 <div class="workflow-left-item" v-for="(v, k) in val.children" :key="k" :data-name="v.name"
                   :data-icon="v.icon" :data-id="v.id" :nodetype="v.nodetag.nodetype">
                   <div class="workflow-left-item-icon">
-                    <SvgIcon :name="v.icon" class="workflow-icon-drag"  />
+                    <SvgIcon :name="v.icon" class="workflow-icon-drag" />
                     <div class="font10 pl5 name">{{ v.name }}</div>
                   </div>
                 </div>
@@ -96,7 +96,7 @@ interface NodeListState {
   top: number | string;
   icon: string;
   name: string;
-  nodetag?:any;
+  nodetag?: any;
 }
 interface LineListState {
   sourceId: string;
@@ -190,11 +190,11 @@ export default defineComponent({
           children: [{
             icon: "iconfont icon-gongju",
             name: '开始',
-            nodetag: {nodetype:'basic'},
+            nodetag: { nodetype: 'basic' },
             id: 'begin',
           }, {
             icon: "iconfont icon-gongju",
-            nodetag: {nodetype:'basic'},
+            nodetag: { nodetype: 'basic' },
             name: '结束',
             id: 'end',
           },],
@@ -216,26 +216,26 @@ export default defineComponent({
               icon: "iconfont icon-gongju",
               name: 'javascript',
               id: 'javascript',
-              nodetag:{nodetype:'script'},
+              nodetag: { nodetype: 'script' },
             },
             {
               icon: "iconfont icon-gongju",
               name: 'python',
-              id: 'python', nodetag: {nodetype:'script'},
+              id: 'python', nodetag: { nodetype: 'script' },
             },
             {
               icon: "iconfont icon-gongju",
               name: 'sql',
-              id: 'sql', nodetag: {nodetype:'script'},
+              id: 'sql', nodetag: { nodetype: 'script' },
             },
             {
               icon: "iconfont icon-gongju",
               name: 'lua',
-              id: 'lua', nodetag: {nodetype:'script'},
+              id: 'lua', nodetag: { nodetype: 'script' },
             }, {
               icon: "iconfont icon-gongju",
               name: 'csharp',
-              id: 'csharp', nodetag: {nodetype:'script'},
+              id: 'csharp', nodetag: { nodetype: 'script' },
             },
           ],
         },
@@ -249,7 +249,7 @@ export default defineComponent({
               icon: "iconfont icon-gongju",
               name: item.label,
               id: item.label,
-              nodetag: {nodetype:'executor'},
+              nodetag: { nodetype: 'executor' },
 
             });
           });
@@ -286,17 +286,17 @@ export default defineComponent({
           sort: false,
           draggable: ".workflow-left-item",
           forceFallback: true,
-          onEnd: function (evt: any) {    
-      
+          onEnd: function (evt: any) {
 
-            const { name, icon, id ,nodetag} = evt.clone.dataset;
 
-            const { nodetype} = evt.clone.attributes;
+            const { name, icon, id, nodetag } = evt.clone.dataset;
+
+            const { nodetype } = evt.clone.attributes;
             const { layerX, layerY, clientX, clientY } = evt.originalEvent;
             const el = state.workflowRightRef!;
             const { x, y, width, height } = el.getBoundingClientRect();
 
-       
+
             if (clientX < x || clientX > width + x || clientY < y || y > y + height) {
               ElMessage.warning("请把节点拖入到画布中");
             } else {
@@ -308,7 +308,7 @@ export default defineComponent({
                 left: `${layerX - 40}px`,
                 top: `${layerY - 15}px`,
                 class: "workflow-right-clone",
-                nodetype:  nodetype.value,
+                nodetype: nodetype.value,
                 name,
                 icon,
                 id,
@@ -466,17 +466,61 @@ export default defineComponent({
     };
     // 右侧内容区-当前项右键菜单点击回调(节点)
     const onCurrentNodeClick = (item: any) => {
-      const { contextMenuClickId, nodeId } = item;
-      if (contextMenuClickId === 0) {
-        const nodeIndex = state.jsplumbData.nodeList.findIndex(
-          (item) => item.nodeId === nodeId
-        );
-        state.jsplumbData.nodeList.splice(nodeIndex, 1);
-        state.jsPlumb.removeAllEndpoints(nodeId);
-        state.jsPlumbNodeIndex = null;
-      } else if (contextMenuClickId === 1) {
-        drawerRef.value.open(item);
+      switch (item.nodetype) {
+        case 'script':
+          {
+            const { contextMenuClickId, nodeId } = item;
+            if (contextMenuClickId === 0) {
+              const nodeIndex = state.jsplumbData.nodeList.findIndex(
+                (item) => item.nodeId === nodeId
+              );
+              state.jsplumbData.nodeList.splice(nodeIndex, 1);
+              state.jsPlumb.removeAllEndpoints(nodeId);
+              state.jsPlumbNodeIndex = null;
+            } else if (contextMenuClickId === 1) {
+              drawerRef.value.open(item);
+            }
+          }
+
+          break
+        case 'basic':
+          {
+            const { contextMenuClickId, nodeId } = item;
+            if (contextMenuClickId === 0) {
+              const nodeIndex = state.jsplumbData.nodeList.findIndex(
+                (item) => item.nodeId === nodeId
+              );
+              state.jsplumbData.nodeList.splice(nodeIndex, 1);
+              state.jsPlumb.removeAllEndpoints(nodeId);
+              state.jsPlumbNodeIndex = null;
+            } else if (contextMenuClickId === 1) {
+              drawerRef.value.open(item);
+            }
+          }
+
+          break
+        case 'executor':
+          {
+            const { contextMenuClickId, nodeId } = item;
+            if (contextMenuClickId === 0) {
+              const nodeIndex = state.jsplumbData.nodeList.findIndex(
+                (item) => item.nodeId === nodeId
+              );
+              state.jsplumbData.nodeList.splice(nodeIndex, 1);
+              state.jsPlumb.removeAllEndpoints(nodeId);
+              state.jsPlumbNodeIndex = null;
+            } else if (contextMenuClickId === 1) {
+              drawerRef.value.open(item);
+            }
+          }
+
+          break
+
+
       }
+
+
+
     };
     // 右侧内容区-当前项右键菜单点击回调(线)
     const onCurrentLineClick = (item: any, conn: any) => {
