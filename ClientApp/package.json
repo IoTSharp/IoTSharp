@@ -1,9 +1,9 @@
 {
-	"name": "vue-next-admin",
-	"version": "2.2.0",
-	"description": "vue3 vite next admin template",
-	"author": "lyt_20201208",
-	"license": "MIT",
+	"name": "iotsharp",
+	"version": "3.0.0",
+	"description": "IoTSharp is an open-source IoT platform for data collection, processing, visualization, and device management.",
+	"author": "IoTSharp Authors ",
+	"license": "Apache-2.0 license",
 	"scripts": {
 		"dev": "vite --force",
 		"build": "vite build",
@@ -23,6 +23,7 @@
 		"js-cookie": "^3.0.1",
 		"jsplumb": "^2.15.6",
 		"mitt": "^3.0.0",
+		"monaco-editor": "^0.34.1",
 		"nprogress": "^0.2.0",
 		"pinia": "^2.0.16",
 		"print-js": "^1.6.0",
@@ -34,7 +35,8 @@
 		"vue-clipboard3": "^2.0.0",
 		"vue-grid-layout": "^3.0.0-beta1",
 		"vue-i18n": "^9.1.10",
-		"vue-router": "^4.1.2"
+		"vue-router": "^4.1.2",
+		"vue3-slide-verify": "^1.1.4"
 	},
 	"devDependencies": {
 		"@types/node": "^18.0.6",
@@ -62,7 +64,7 @@
 		"not dead"
 	],
 	"bugs": {
-		"url": "https://gitee.com/lyt-top/vue-next-admin/issues"
+		"url": "https://github.com/IoTSharp/ClientAppWithVue3/issues"
 	},
 	"engines": {
 		"node": ">=12.0.0",
@@ -75,10 +77,20 @@
 		"element-ui",
 		"element-plus",
 		"vue-next-admin",
-		"next-admin"
+		"next-admin",
+		"iotsharp",
+		"visualization",
+		"docker",
+		"mqtt",
+		"iot-platform",
+		"mqtt",
+		"broker",
+		"coap-server",
+		"iot-cloud",
+		"iotsharp"
 	],
 	"repository": {
 		"type": "git",
-		"url": "https://gitee.com/lyt-top/vue-next-admin.git"
+		"url": "https://github.com/IoTSharp/ClientAppWithVue3.git"
 	}
 }

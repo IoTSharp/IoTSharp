@@ -3,7 +3,7 @@ import pinia from '/@/stores/index';
 import App from './App.vue';
 import router from './router';
 import { directive } from '/@/utils/directive';
-import { i18n } from '/@/i18n/index';
+import { i18n } from '/@/i18n';
 import other from '/@/utils/other';
 
 import ElementPlus from 'element-plus';

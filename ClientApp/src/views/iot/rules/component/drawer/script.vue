@@ -109,7 +109,7 @@ interface WorkflowDrawerNodeState {
 }
 
 export default defineComponent({
-	name: 'pagesWorkflowDrawerNode',
+	name: 'scriptpanel',
 	setup(props, { emit }) {
 		const { proxy } = <any>getCurrentInstance();
 		const nodeFormRef = ref();

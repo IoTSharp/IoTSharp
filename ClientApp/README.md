@@ -7,7 +7,10 @@
 
 #### 🌈 介绍
 
-模板为 vue-next-admin 的 IoTSharp前端项目，基于 vue3.x + CompositionAPI + typescript + vite + element plus + vue-router-next + next.vuex，适配手机、平板、pc 。
+这是一个基于模板vue-next-admin 的 IoTSharp前端项目, IoTSharp 是一个 基于.Net Core 开源的物联网基础平台， 支持 HTTP、MQTT 、CoAp 协议， 属性数据和遥测数据协议简单类型丰富，简单设置即可将数据存储在PostgreSql、MySql、Oracle、SQLServer、Sqlite，是一个用于数据收集、处理、可视化与设备管理的 IoT 平台.
+
+[![NodeJS with build](https://github.com/IoTSharp/ClientAppWithVue3/actions/workflows/nodejsbuild.yml/badge.svg)](https://github.com/IoTSharp/ClientAppWithVue3/actions/workflows/nodejsbuild.yml) [![Submodule Updates](https://github.com/IoTSharp/ClientAppWithVue3/actions/workflows/submodule-update.yml/badge.svg)](https://github.com/IoTSharp/ClientAppWithVue3/actions/workflows/submodule-update.yml)
+
 
 #### ⛱️ 线上预览
 
@@ -59,29 +62,8 @@ npm run build
 
 #### ❤️ 鸣谢列表
 
-- <a href="https://github.com/vuejs/vue" target="_blank">vue</a>
-- <a href="https://github.com/vuejs/vue-next" target="_blank">vue-next</a>
-- <a href="https://github.com/ElemeFE/element" target="_blank">element-ui</a>
-- <a href="https://github.com/element-plus/element-plus" target="_blank">element-plus</a>
-- <a href="https://github.com/vuejs/vue-router-next" target="_blank">vue-router-next</a>
-- <a href="https://github.com/vuejs/vuex" target="_blank">vuex</a>
-- <a href="https://github.com/apache/echarts" target="_blank">echarts</a>
-- <a href="https://github.com/axios/axios" target="_blank">axios</a>
-- <a href="https://github.com/zenorocha/clipboard.js" target="_blank">clipboard</a>
-- <a href="https://github.com/inorganik/countUp.js" target="_blank">countUp</a>
-- <a href="https://github.com/developit/mitt" target="_blank">mitt</a>
-- <a href="https://github.com/rstacruz/nprogress" target="_blank">nprogress</a>
-- <a href="https://github.com/sindresorhus/screenfull.js" target="_blank">screenfull</a>
-- <a href="https://github.com/SortableJS/Sortable" target="_blank">sortablejs</a>
-- <a href="https://github.com/sass/sass" target="_blank">sass</a>
-- <a href="https://github.com/microsoft/TypeScript" target="_blank">typescript</a>
-- <a href="https://github.com/vitejs/vite" target="_blank">vite</a>
-- <a href="https://github.com/wangeditor-team/wangEditor" target="_blank">wangeditor</a>
-- <a href="https://github.com/fengyuanchen/cropperjs" target="_blank">cropperjs</a>
-- <a href="https://github.com/davidshimjs/qrcodejs" target="_blank">qrcodejs</a>
-- <a href="https://github.com/crabbly/Print.js" target="_blank">print-js</a>
-- <a href="https://github.com/jbaysolutions/vue-grid-layout" target="_blank">vue-grid-layout</a>
-- <a href="https://github.com/antoniandre/splitpanes" target="_blank">splitpanes</a>
-- <a href="https://github.com/jsplumb/jsplumb" target="_blank">jsplumb</a>
+- <a href="https://github.com/lyt-Top/vue-next-admin" target="_blank">vue-next-admin</a>
+
+
 
  

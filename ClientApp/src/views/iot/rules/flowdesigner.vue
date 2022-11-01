@@ -1,10 +1,7 @@
 <template>
   <div class="workflow-container">
     <div class="workflow-mask" v-if="isShow"></div>
-    <div
-      class="layout-view-bg-white flex"
-      :style="{ height: `calc(100vh - ${setViewHeight}` }"
-    >
+    <div class="layout-view-bg-white flex" :style="{ height: `calc(100vh - ${setViewHeight}` }">
       <div class="workflow">
         <!-- 顶部工具栏 -->
         <Tool @tool="onToolClick" />
@@ -13,25 +10,14 @@
         <div class="workflow-content">
           <div class="workflow-left">
             <el-scrollbar>
-              <div
-                ref="leftNavRefs"
-                v-for="(val, key) in leftNavList"
-                :key="val.id"
-                :style="{ height: val.isOpen ? 'auto' : '50px', overflow: 'hidden' }"
-                class="workflow-left-id"
-              >
+              <div ref="leftNavRefs" v-for="(val, key) in leftNavList" :key="val.id"
+                :style="{ height: val.isOpen ? 'auto' : '50px', overflow: 'hidden' }" class="workflow-left-id">
                 <div class="workflow-left-title" @click="onTitleClick(val)">
                   <span>{{ val.title }}</span>
                   <SvgIcon :name="val.isOpen ? 'ele-ArrowDown' : 'ele-ArrowRight'" />
                 </div>
-                <div
-                  class="workflow-left-item"
-                  v-for="(v, k) in val.children"
-                  :key="k"
-                  :data-name="v.name"
-                  :data-icon="v.icon"
-                  :data-id="v.id"
-                >
+                <div class="workflow-left-item" v-for="(v, k) in val.children" :key="k" :data-name="v.name"
+                  :data-icon="v.icon" :data-id="v.id" :nodetype="v.nodetag.nodetype">
                   <div class="workflow-left-item-icon">
                     <SvgIcon :name="v.icon" class="workflow-icon-drag" />
                     <div class="font10 pl5 name">{{ v.name }}</div>
@@ -43,20 +29,10 @@
 
           <!-- 右侧绘画区 -->
           <div class="workflow-right" ref="workflowRightRef">
-            <div
-              v-for="(v, k) in jsplumbData.nodeList"
-              :key="v.nodeId"
-              :id="v.nodeId"
-              :data-node-id="v.nodeId"
-              :class="v.class"
-              :style="{ left: v.left, top: v.top }"
-              @click="onItemCloneClick(k)"
-              @contextmenu.prevent="onContextmenu(v, k, $event)"
-            >
-              <div
-                class="workflow-right-box"
-                :class="{ 'workflow-right-active': jsPlumbNodeIndex === k }"
-              >
+            <div v-for="(v, k) in jsplumbData.nodeList" :key="v.nodeId" :id="v.nodeId" :data-node-id="v.nodeId"
+              :class="v.class" :style="{ left: v.left, top: v.top }" @click="onItemCloneClick(k)"
+              @contextmenu.prevent="onContextmenu(v, k, $event)">
+              <div class="workflow-right-box" :class="{ 'workflow-right-active': jsPlumbNodeIndex === k }">
                 <div class="workflow-left-item-icon">
                   <SvgIcon :name="v.icon" class="workflow-icon-drag" />
                   <div class="font10 pl5 name">{{ v.name }}</div>
@@ -69,17 +45,9 @@
     </div>
 
     <!-- 节点右键菜单 -->
-    <Contextmenu
-      :dropdown="dropdownNode"
-      ref="contextmenuNodeRef"
-      @current="onCurrentNodeClick"
-    />
+    <Contextmenu :dropdown="dropdownNode" ref="contextmenuNodeRef" @current="onCurrentNodeClick" />
     <!-- 线右键菜单 -->
-    <Contextmenu
-      :dropdown="dropdownLine"
-      ref="contextmenuLineRef"
-      @current="onCurrentLineClick"
-    />
+    <Contextmenu :dropdown="dropdownLine" ref="contextmenuLineRef" @current="onCurrentLineClick" />
     <!-- 抽屉表单、线 -->
     <Drawer ref="drawerRef" @label="setLineLabel" @node="setNodeContent" />
 
@@ -118,6 +86,7 @@ import {
   jsplumbConnect,
 } from "./js/config";
 import { useRouter, useRoute } from "vue-router";
+import { ruleApi } from "/@/api/flows";
 // 定义接口来定义对象的类型
 interface NodeListState {
   id: string | number;
@@ -127,6 +96,7 @@ interface NodeListState {
   top: number | string;
   icon: string;
   name: string;
+  nodetag?: any;
 }
 interface LineListState {
   sourceId: string;
@@ -137,7 +107,8 @@ interface XyState {
   x: string | number;
   y: string | number;
 }
-interface WorkflowState {
+interface FlowState {
+  flowid?: string | any;
   workflowRightRef: HTMLDivElement | null;
   leftNavRefs: any[];
   leftNavList: any[];
@@ -161,6 +132,7 @@ export default defineComponent({
   components: { Tool, Contextmenu, Drawer, Help },
   setup() {
     const route = useRoute();
+    const router = useRouter();
     const contextmenuNodeRef = ref();
     const contextmenuLineRef = ref();
     const drawerRef = ref();
@@ -170,7 +142,9 @@ export default defineComponent({
     const { themeConfig } = storeToRefs(storesThemeConfig);
     const { isTagsViewCurrenFull } = storeToRefs(stores);
     const { copyText } = commonFunction();
-    const state = reactive<WorkflowState>({
+
+    const state = reactive<FlowState>({
+      flowid: route.query.id,
       workflowRightRef: null as HTMLDivElement | null,
       leftNavRefs: [],
       leftNavList: [],
@@ -205,46 +179,103 @@ export default defineComponent({
     };
     // 左侧导航-数据初始化
     const initLeftNavList = () => {
-      state.leftNavList = leftNavList;
+
+      state.leftNavList = [
+
+        {
+          title: "基本",
+          icon: "iconfont icon-shouye",
+          isOpen: true,
+          id: "1",
+          children: [{
+            icon: "iconfont icon-gongju",
+            name: '开始',
+            nodetag: { nodetype: 'basic' },
+            id: 'begin',
+          }, {
+            icon: "iconfont icon-gongju",
+            nodetag: { nodetype: 'basic' },
+            name: '结束',
+            id: 'end',
+          },],
+        },
+        {
+          title: "执行器",
+          icon: "iconfont icon-shouye",
+          isOpen: true,
+          id: "1",
+          children: [],
+        }, {
+          title: "脚本",
+          icon: "iconfont icon-shouye",
+          isOpen: true,
+          id: "1",
+          children: [
+
+            {
+              icon: "iconfont icon-gongju",
+              name: 'javascript',
+              id: 'javascript',
+              nodetag: { nodetype: 'script' },
+            },
+            {
+              icon: "iconfont icon-gongju",
+              name: 'python',
+              id: 'python', nodetag: { nodetype: 'script' },
+            },
+            {
+              icon: "iconfont icon-gongju",
+              name: 'sql',
+              id: 'sql', nodetag: { nodetype: 'script' },
+            },
+            {
+              icon: "iconfont icon-gongju",
+              name: 'lua',
+              id: 'lua', nodetag: { nodetype: 'script' },
+            }, {
+              icon: "iconfont icon-gongju",
+              name: 'csharp',
+              id: 'csharp', nodetag: { nodetype: 'script' },
+            },
+          ],
+        },
+      ];
+
+      ruleApi()
+        .getexecutors()
+        .then((res) => {
+          res.data.forEach((item: any) => {
+            state.leftNavList[1].children.push({
+              icon: "iconfont icon-gongju",
+              name: item.label,
+              id: item.label,
+              nodetag: { nodetype: 'executor' },
+
+            });
+          });
+        });
+
+
+
+
+
+
       state.jsplumbData = {
         nodeList: [
-          {
-            nodeId: "huej738hbji",
-            left: "148px",
-            top: "93px",
-            class: "workflow-right-clone",
-            icon: "iconfont icon-gongju",
-            name: "引擎",
-            id: "11",
-          },
-          {
-            nodeId: "52kcszzyxrd",
-            left: "458px",
-            top: "203px",
-            class: "workflow-right-clone",
-            icon: "iconfont icon-shouye_dongtaihui",
-            name: "模版",
-            id: "12",
-          },
-          {
-            nodeId: "nltskl6k4me",
-            left: "164px",
-            top: "350px",
-            class: "workflow-right-clone",
-            icon: "iconfont icon-zhongduancanshuchaxun",
-            name: "名称",
-            id: "13",
-          },
+
         ],
         lineList: [
-          { sourceId: "huej738hbji", targetId: "52kcszzyxrd", label: "传送" },
-          { sourceId: "huej738hbji", targetId: "nltskl6k4me", label: "" },
+
         ],
       };
     };
     // 左侧导航-初始化拖动
     const initSortable = () => {
+
+
+
       state.leftNavRefs.forEach((v) => {
+
         Sortable.create(v as HTMLDivElement, {
           group: {
             name: "vue-next-admin-1",
@@ -256,10 +287,16 @@ export default defineComponent({
           draggable: ".workflow-left-item",
           forceFallback: true,
           onEnd: function (evt: any) {
-            const { name, icon, id } = evt.clone.dataset;
+
+
+            const { name, icon, id, nodetag } = evt.clone.dataset;
+
+            const { nodetype } = evt.clone.attributes;
             const { layerX, layerY, clientX, clientY } = evt.originalEvent;
             const el = state.workflowRightRef!;
             const { x, y, width, height } = el.getBoundingClientRect();
+
+
             if (clientX < x || clientX > width + x || clientY < y || y > y + height) {
               ElMessage.warning("请把节点拖入到画布中");
             } else {
@@ -271,10 +308,13 @@ export default defineComponent({
                 left: `${layerX - 40}px`,
                 top: `${layerY - 15}px`,
                 class: "workflow-right-clone",
+                nodetype: nodetype.value,
                 name,
                 icon,
                 id,
               };
+
+              console.log(node)
               // 右侧视图内容数组
               state.jsplumbData.nodeList.push(node);
               // 元素加载完毕时
@@ -426,17 +466,61 @@ export default defineComponent({
     };
     // 右侧内容区-当前项右键菜单点击回调(节点)
     const onCurrentNodeClick = (item: any) => {
-      const { contextMenuClickId, nodeId } = item;
-      if (contextMenuClickId === 0) {
-        const nodeIndex = state.jsplumbData.nodeList.findIndex(
-          (item) => item.nodeId === nodeId
-        );
-        state.jsplumbData.nodeList.splice(nodeIndex, 1);
-        state.jsPlumb.removeAllEndpoints(nodeId);
-        state.jsPlumbNodeIndex = null;
-      } else if (contextMenuClickId === 1) {
-        drawerRef.value.open(item);
+      switch (item.nodetype) {
+        case 'script':
+          {
+            const { contextMenuClickId, nodeId } = item;
+            if (contextMenuClickId === 0) {
+              const nodeIndex = state.jsplumbData.nodeList.findIndex(
+                (item) => item.nodeId === nodeId
+              );
+              state.jsplumbData.nodeList.splice(nodeIndex, 1);
+              state.jsPlumb.removeAllEndpoints(nodeId);
+              state.jsPlumbNodeIndex = null;
+            } else if (contextMenuClickId === 1) {
+              drawerRef.value.open(item);
+            }
+          }
+
+          break
+        case 'basic':
+          {
+            const { contextMenuClickId, nodeId } = item;
+            if (contextMenuClickId === 0) {
+              const nodeIndex = state.jsplumbData.nodeList.findIndex(
+                (item) => item.nodeId === nodeId
+              );
+              state.jsplumbData.nodeList.splice(nodeIndex, 1);
+              state.jsPlumb.removeAllEndpoints(nodeId);
+              state.jsPlumbNodeIndex = null;
+            } else if (contextMenuClickId === 1) {
+              drawerRef.value.open(item);
+            }
+          }
+
+          break
+        case 'executor':
+          {
+            const { contextMenuClickId, nodeId } = item;
+            if (contextMenuClickId === 0) {
+              const nodeIndex = state.jsplumbData.nodeList.findIndex(
+                (item) => item.nodeId === nodeId
+              );
+              state.jsplumbData.nodeList.splice(nodeIndex, 1);
+              state.jsPlumb.removeAllEndpoints(nodeId);
+              state.jsPlumbNodeIndex = null;
+            } else if (contextMenuClickId === 1) {
+              drawerRef.value.open(item);
+            }
+          }
+
+          break
+
+
       }
+
+
+
     };
     // 右侧内容区-当前项右键菜单点击回调(线)
     const onCurrentLineClick = (item: any, conn: any) => {
@@ -479,6 +563,7 @@ export default defineComponent({
         if (v.nodeId === nodeId) {
           v.name = name;
           v.icon = icon;
+
         }
       });
       // 重绘
@@ -507,8 +592,18 @@ export default defineComponent({
         case "fullscreen":
           onToolFullscreen();
           break;
+        case "return":
+          onReturnToList();
+          break;
       }
     };
+
+    const onReturnToList = () => {
+      router.push({
+        path: "/iot/rules/flowlist",
+      });
+    };
+
     // 顶部工具栏-帮助
     const onToolHelp = () => {
       nextTick(() => {
@@ -530,7 +625,6 @@ export default defineComponent({
     };
     // 顶部工具栏-提交
     const onToolSubmit = () => {
-      // console.log(state.jsplumbData);
       ElMessage.success("数据提交成功");
     };
     // 顶部工具栏-复制
@@ -555,7 +649,7 @@ export default defineComponent({
             ElMessage.success("清空画布成功");
           });
         })
-        .catch(() => {});
+        .catch(() => { });
     };
     // 顶部工具栏-全屏
     const onToolFullscreen = () => {
@@ -597,21 +691,26 @@ export default defineComponent({
 <style scoped lang="scss">
 .workflow-container {
   position: relative;
+
   .workflow {
     display: flex;
     height: 100%;
     width: 100%;
     flex-direction: column;
+
     .workflow-content {
       display: flex;
       height: calc(100% - 35px);
+
       .workflow-left {
         width: 220px;
         height: 100%;
         border-right: 1px solid var(--el-border-color-light, #ebeef5);
+
         :deep(.el-collapse-item__content) {
           padding-bottom: 0;
         }
+
         .workflow-left-title {
           height: 50px;
           display: flex;
@@ -620,16 +719,19 @@ export default defineComponent({
           border-top: 1px solid var(--el-border-color-light, #ebeef5);
           color: var(--el-text-color-primary);
           cursor: default;
+
           span {
             flex: 1;
           }
         }
+
         .workflow-left-item {
           display: inline-block;
-          width: calc(50% - 15px);
+          width: calc(100% - 15px);
           position: relative;
           cursor: move;
           margin: 0 0 10px 10px;
+
           .workflow-left-item-icon {
             height: 35px;
             display: flex;
@@ -639,6 +741,7 @@ export default defineComponent({
             border: 1px dashed transparent;
             background: var(--next-bg-color);
             border-radius: 3px;
+
             i,
             .name {
               color: var(--el-text-color-secondary);
@@ -647,11 +750,13 @@ export default defineComponent({
               text-overflow: ellipsis;
               overflow: hidden;
             }
+
             &:hover {
               transition: all 0.3s ease;
               border: 1px dashed var(--el-color-primary);
               background: var(--el-color-primary-light-9);
               border-radius: 5px;
+
               i,
               .name {
                 transition: all 0.3s ease;
@@ -660,26 +765,28 @@ export default defineComponent({
             }
           }
         }
+
         & .workflow-left-id:first-of-type {
           .workflow-left-title {
             border-top: none;
           }
         }
       }
+
       .workflow-right {
         flex: 1;
         position: relative;
         overflow: hidden;
         height: 100%;
-        background-image: linear-gradient(
-            90deg,
+        background-image: linear-gradient(90deg,
             rgb(156 214 255 / 15%) 10%,
-            rgba(0, 0, 0, 0) 10%
-          ),
+            rgba(0, 0, 0, 0) 10%),
           linear-gradient(rgb(156 214 255 / 15%) 10%, rgba(0, 0, 0, 0) 10%);
         background-size: 10px 10px;
+
         .workflow-right-clone {
           position: absolute;
+
           .workflow-right-box {
             height: 35px;
             align-items: center;
@@ -691,27 +798,32 @@ export default defineComponent({
             min-width: 94.5px;
             background: var(--el-color-white);
             border: 1px solid var(--el-border-color-light, #ebeef5);
+
             .workflow-left-item-icon {
               display: flex;
               align-items: center;
               height: 35px;
             }
+
             &:hover {
               border: 1px dashed var(--el-color-primary);
               background: var(--el-color-primary-light-9);
               transition: all 0.3s ease;
               color: var(--el-color-primary);
+
               i {
                 cursor: Crosshair;
               }
             }
           }
+
           .workflow-right-active {
             border: 1px dashed var(--el-color-primary);
             background: var(--el-color-primary-light-9);
             color: var(--el-color-primary);
           }
         }
+
         :deep(.jtk-overlay):not(.aLabel) {
           padding: 4px 10px;
           border: 1px solid var(--el-border-color-light, #ebeef5) !important;
@@ -720,18 +832,21 @@ export default defineComponent({
           border-radius: 3px;
           font-size: 10px;
         }
+
         :deep(.jtk-overlay.workflow-right-empty-label) {
           display: none;
         }
       }
     }
   }
+
   .workflow-mask {
     position: absolute;
     top: 0;
     right: 0;
     bottom: 0;
     left: 0;
+
     &::after {
       content: "手机版不支持 jsPlumb 操作";
       position: absolute;
