@@ -63,16 +63,6 @@ namespace IoTSharp.Properties {
         /// <summary>
         ///   查找 System.Byte[] 类型的本地化资源。
         /// </summary>
-        internal static byte[] buzzle_template_png {
-            get {
-                object obj = ResourceManager.GetObject("buzzle_template_png", resourceCulture);
-                return ((byte[])(obj));
-            }
-        }
-        
-        /// <summary>
-        ///   查找 System.Byte[] 类型的本地化资源。
-        /// </summary>
         internal static byte[] Logo {
             get {
                 object obj = ResourceManager.GetObject("Logo", resourceCulture);
@@ -86,96 +76,6 @@ namespace IoTSharp.Properties {
         internal static string ShowHelp {
             get {
                 return ResourceManager.GetString("ShowHelp", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   查找 System.Byte[] 类型的本地化资源。
-        /// </summary>
-        internal static byte[] slide1_jpg {
-            get {
-                object obj = ResourceManager.GetObject("slide1_jpg", resourceCulture);
-                return ((byte[])(obj));
-            }
-        }
-        
-        /// <summary>
-        ///   查找 System.Byte[] 类型的本地化资源。
-        /// </summary>
-        internal static byte[] slide2_jpg {
-            get {
-                object obj = ResourceManager.GetObject("slide2_jpg", resourceCulture);
-                return ((byte[])(obj));
-            }
-        }
-        
-        /// <summary>
-        ///   查找 System.Byte[] 类型的本地化资源。
-        /// </summary>
-        internal static byte[] slide3_jpg {
-            get {
-                object obj = ResourceManager.GetObject("slide3_jpg", resourceCulture);
-                return ((byte[])(obj));
-            }
-        }
-        
-        /// <summary>
-        ///   查找 System.Byte[] 类型的本地化资源。
-        /// </summary>
-        internal static byte[] slide4_jpg {
-            get {
-                object obj = ResourceManager.GetObject("slide4_jpg", resourceCulture);
-                return ((byte[])(obj));
-            }
-        }
-        
-        /// <summary>
-        ///   查找 System.Byte[] 类型的本地化资源。
-        /// </summary>
-        internal static byte[] slide5_jpg {
-            get {
-                object obj = ResourceManager.GetObject("slide5_jpg", resourceCulture);
-                return ((byte[])(obj));
-            }
-        }
-        
-        /// <summary>
-        ///   查找 System.Byte[] 类型的本地化资源。
-        /// </summary>
-        internal static byte[] slide6_jpg {
-            get {
-                object obj = ResourceManager.GetObject("slide6_jpg", resourceCulture);
-                return ((byte[])(obj));
-            }
-        }
-        
-        /// <summary>
-        ///   查找 System.Byte[] 类型的本地化资源。
-        /// </summary>
-        internal static byte[] slide7_jpg {
-            get {
-                object obj = ResourceManager.GetObject("slide7_jpg", resourceCulture);
-                return ((byte[])(obj));
-            }
-        }
-        
-        /// <summary>
-        ///   查找 System.Byte[] 类型的本地化资源。
-        /// </summary>
-        internal static byte[] slide8_jpg {
-            get {
-                object obj = ResourceManager.GetObject("slide8_jpg", resourceCulture);
-                return ((byte[])(obj));
-            }
-        }
-        
-        /// <summary>
-        ///   查找 System.Byte[] 类型的本地化资源。
-        /// </summary>
-        internal static byte[] slide9_jpg {
-            get {
-                object obj = ResourceManager.GetObject("slide9_jpg", resourceCulture);
-                return ((byte[])(obj));
             }
         }
         

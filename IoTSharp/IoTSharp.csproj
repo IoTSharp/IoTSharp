@@ -92,6 +92,7 @@
 		<PackageReference Include="SkiaSharp.NativeAssets.Linux.NoDependencies" Version="2.88.3" />
 		<PackageReference Include="Storage.Net" Version="9.3.0" />
 		<PackageReference Include="ShardingCore" Version="6.8.0.2" />
+		<PackageReference Include="System.Resources.Extensions" Version="6.0.0" />
 		<PackageReference Include="System.Text.Encoding.CodePages" Version="6.0.0">
 
 			<TreatAsUsed>true</TreatAsUsed>
@@ -132,6 +133,25 @@
 		<None Remove="health_checks.db" />
 		<None Remove="IoTSharp.db" />
 		<None Remove="IoTSharp.xml" />
+		<None Remove="Resources\buzzle-template.png" />
+		<None Remove="Resources\slide1.jpg" />
+		<None Remove="Resources\slide10.jpg" />
+		<None Remove="Resources\slide11.jpg" />
+		<None Remove="Resources\slide12.jpg" />
+		<None Remove="Resources\slide13.jpg" />
+		<None Remove="Resources\slide14.jpg" />
+		<None Remove="Resources\slide15.jpg" />
+		<None Remove="Resources\slide16.jpg" />
+		<None Remove="Resources\slide2.jpg" />
+		<None Remove="Resources\slide3.jpg" />
+		<None Remove="Resources\slide4.jpg" />
+		<None Remove="Resources\slide5.jpg" />
+		<None Remove="Resources\slide6.jpg" />
+		<None Remove="Resources\slide7.jpg" />
+		<None Remove="Resources\slide8.jpg" />
+		<None Remove="Resources\slide9.jpg" />
+	 
+
 		<None Remove="server.crt" />
 		<None Remove="server.key" />
 		<None Remove="TelemetryStorage.db" />
@@ -215,6 +235,28 @@
 			<CopyToOutputDirectory>Never</CopyToOutputDirectory>
 		</Content>
 	</ItemGroup>
+
+
+
+	<ItemGroup>
+	  <EmbeddedResource Include="Resources\buzzle-template.png" />
+	  <EmbeddedResource Include="Resources\slide1.jpg" />
+	  <EmbeddedResource Include="Resources\slide10.jpg" />
+	  <EmbeddedResource Include="Resources\slide11.jpg" />
+	  <EmbeddedResource Include="Resources\slide12.jpg" />
+	  <EmbeddedResource Include="Resources\slide13.jpg" />
+	  <EmbeddedResource Include="Resources\slide14.jpg" />
+	  <EmbeddedResource Include="Resources\slide15.jpg" />
+	  <EmbeddedResource Include="Resources\slide16.jpg" />
+	  <EmbeddedResource Include="Resources\slide2.jpg" />
+	  <EmbeddedResource Include="Resources\slide3.jpg" />
+	  <EmbeddedResource Include="Resources\slide4.jpg" />
+	  <EmbeddedResource Include="Resources\slide5.jpg" />
+	  <EmbeddedResource Include="Resources\slide6.jpg" />
+	  <EmbeddedResource Include="Resources\slide7.jpg" />
+	  <EmbeddedResource Include="Resources\slide8.jpg" />
+	  <EmbeddedResource Include="Resources\slide9.jpg" />
+	</ItemGroup>
 	<ItemGroup>
 		<ProjectReference Include="..\IoTSharp.Contracts\IoTSharp.Contracts.csproj" />
 		<ProjectReference Include="..\IoTSharp.Data.Storage\IoTSharp.Data.Cassandra\IoTSharp.Data.Cassandra.csproj" />
@@ -236,6 +278,26 @@
 		<ProjectReference Include="..\IoTSharp.Extensions\IoTSharp.Extensions.csproj" />
 		<ProjectReference Include="..\IoTSharp.Interpreter\IoTSharp.Interpreter.csproj" />
 		<ProjectReference Include="..\IoTSharp.TaskActions\IoTSharp.TaskActions.csproj" />
+	</ItemGroup>
+	<ItemGroup>
+	  <Resource Include="Resources\buzzle-template.png" />
+	  <Resource Include="Resources\Logo.ico" />
+	  <Resource Include="Resources\slide1.jpg" />
+	  <Resource Include="Resources\slide10.jpg" />
+	  <Resource Include="Resources\slide11.jpg" />
+	  <Resource Include="Resources\slide12.jpg" />
+	  <Resource Include="Resources\slide13.jpg" />
+	  <Resource Include="Resources\slide14.jpg" />
+	  <Resource Include="Resources\slide15.jpg" />
+	  <Resource Include="Resources\slide16.jpg" />
+	  <Resource Include="Resources\slide2.jpg" />
+	  <Resource Include="Resources\slide3.jpg" />
+	  <Resource Include="Resources\slide4.jpg" />
+	  <Resource Include="Resources\slide5.jpg" />
+	  <Resource Include="Resources\slide6.jpg" />
+	  <Resource Include="Resources\slide7.jpg" />
+	  <Resource Include="Resources\slide8.jpg" />
+	  <Resource Include="Resources\slide9.jpg" />
 	</ItemGroup>
 
 	<ItemGroup>

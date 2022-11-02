@@ -83,8 +83,8 @@ namespace IoTSharp.Controllers
 
         private ModelCaptcha CreateImage()
         {
-            using var buzzlefile = new MemoryStream(Properties.Resources.ResourceManager.GetObject("buzzle_template_png") as byte[]);
-            using var orginfile = new MemoryStream(Properties.Resources.ResourceManager.GetObject($"slide{RandomNumberGenerator.GetInt32(1,9)}_jpg") as byte[]);
+            using var buzzlefile = typeof(CaptchaController).Assembly.GetManifestResourceStream("IoTSharp.Resources.buzzle-template.png");
+            using var orginfile =  typeof(CaptchaController).Assembly.GetManifestResourceStream($"IoTSharp.Resources.slide{RandomNumberGenerator.GetInt32(1, 15)}.jpg");
             using var buzzlefilestream = new SKManagedStream(buzzlefile);
             using var orginfilestream = new SKManagedStream(orginfile);
             using var buzzle = SKBitmap.Decode(buzzlefilestream);
