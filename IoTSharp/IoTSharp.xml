@@ -163,6 +163,13 @@
             <param name="clientid"></param>
             <returns></returns>
         </member>
+        <member name="M:IoTSharp.Controllers.CaptchaController.Imgs">
+            <summary>
+            生成一个图形认证
+            </summary>
+            <param name="clientid"></param>
+            <returns></returns>
+        </member>
         <member name="M:IoTSharp.Controllers.CaptchaController.Vertify(System.String,IoTSharp.Models.ModelCaptchaVertify)">
             <summary>
             校验图形认证
