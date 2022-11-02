@@ -90,3 +90,12 @@ export interface ThemeConfigState {
 export interface ThemeConfigStates {
 	themeConfig: ThemeConfigState;
 }
+export interface AppInfo {
+	version: string; // 用户信息
+	installed: boolean; // 路由缓存列表
+	caCertificate: boolean; // 后端返回原始路由(未处理时)
+	domain: string; // TagsView 路由列表
+	brokerThumbprint?: any; // 路由列表
+	caThumbprint?: any; // 布局配置
+}
+

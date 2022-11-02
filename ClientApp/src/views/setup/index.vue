@@ -1,12 +1,12 @@
 <template>
   <div class="z-install">
-    <div class="content " :style="{height: installed ? '240px': '580px'}">
+    <div class="content " :style="{height: storesAppInfo.appInfo.installed ? '240px': '580px'}">
       <div class="login-wrap">
         <div class="logo flex justify-center">
           <AppLogo></AppLogo>
 
         </div>
-        <div v-if="installed" class="installed">
+        <div v-if="storesAppInfo.appInfo.installed" class="installed">
           系统已初始化， 请直接登录
           <Button type="primary" style="margin-top: 10px" @click="$router.replace({name: 'login'})">跳转至登录页面
           </Button>
@@ -25,7 +25,7 @@
     </div>
     <div class="copyright-wrap">
       <p>系统版本</p>
-      <p>{{ version }}</p>
+      <p>{{ storesAppInfo.appInfo.version }}</p>
     </div>
   </div>
 
@@ -34,24 +34,21 @@
 import AppLogo from "/@/components/AppLogo.vue";
 import setup_form_rules from './setup_form_rules.json'
 import setup_form_option from './setup_form_option.json'
-import {getSysInfo, initSysAdmin} from "/@/api/installer";
-import {onMounted, reactive, ref} from "vue";
+import {initSysAdmin} from "/@/api/installer";
+import {reactive, ref} from "vue";
 import formCreate from "@form-create/element-ui";
 import {ElButton as Button, ElMessage} from 'element-plus'
+import {useAppInfo} from "/@/stores/appInfo";
 
 import {useRouter} from "vue-router";
 
 const FormCreate = formCreate.$form()
 const router = useRouter()
+const storesAppInfo = useAppInfo()
 //实例对象
 const fApi = ref({})
 //表单数据
 const value = ref({})
-// 系统版本
-const version = ref('')
-// 是否已经初始化系统
-const installed = ref(false)
-
 // const options = ref(setup_form_option)
 const options = reactive(setup_form_option)
 
@@ -71,16 +68,6 @@ setup_form_rules[3].validate.push({
 })
 JSON.parse(JSON.stringify(setup_form_rules))
 const rules = ref(setup_form_rules)
-onMounted(async () => {
-  {
-    try {
-      const res = await getSysInfo()
-      version.value = res.data.version
-      installed.value = res.data.installed // todo 改回去
-    } catch (e) {
-    }
-  }
-})
 
 function onSubmit(data) {
   try {
