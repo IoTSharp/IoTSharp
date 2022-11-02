@@ -52,6 +52,7 @@
 		"prettier": "^2.7.1",
 		"sass": "^1.53.0",
 		"sass-loader": "^13.0.2",
+		"ts-node": "^10.9.1",
 		"typescript": "^4.7.4",
 		"vite": "^2.9.15",
 		"vite-plugin-windicss": "^1.8.8",

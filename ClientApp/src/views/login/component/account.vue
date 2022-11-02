@@ -3,7 +3,7 @@
     <el-form-item class="login-animation1">
       <el-input
         type="text"
-        :placeholder="$t('message.account.accountPlaceholder1')"
+        placeholder="请输入用户名"
         v-model="ruleForm.userName"
         clearable
         autocomplete="off"
@@ -16,7 +16,7 @@
     <el-form-item class="login-animation2">
       <el-input
         :type="isShowPassword ? 'text' : 'password'"
-        :placeholder="$t('message.account.accountPlaceholder2')"
+        placeholder="请输入密码"
         v-model="ruleForm.password"
         autocomplete="off"
       >
@@ -115,7 +115,7 @@ export default defineComponent({
       imgs: {},
       ruleForm: {
         userName: "iotmaster@iotsharp.net",
-        password: "Iotmaster@iotsharp.net123",
+        password: "",
         code: "1234",
       },
       loading: {
