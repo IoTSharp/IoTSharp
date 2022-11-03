@@ -13,14 +13,10 @@ import mitt from 'mitt';
 import VueGridLayout from 'vue-grid-layout';
 import 'virtual:windi.css'
 import formCreate from '@form-create/element-ui'
-import * as ElementPlusIconsVue from '@element-plus/icons-vue'
 const app = createApp(App);
 
 directive(app);
 other.elSvg(app);
 
 app.use(pinia).use(router).use(ElementPlus, { i18n: i18n.global.t }).use(i18n).use(VueGridLayout).use(formCreate).mount('#app');
-for (const [key, component] of Object.entries(ElementPlusIconsVue)) {
-    app.component(key, component)
-}
 app.config.globalProperties.mittBus = mitt();
