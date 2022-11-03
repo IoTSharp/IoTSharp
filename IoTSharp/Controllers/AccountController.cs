@@ -86,7 +86,7 @@ namespace IoTSharp.Controllers
             var uidto = new UserInfoDto()
             {
                 Code = ApiCode.Success,
-                Roles = string.Join(',', rooles).ToLower().Contains("admin") ? "admin" : "admin",//TODO: Permission control
+                Roles = string.Join(',', rooles).ToLower(),
                 Name = user.UserName,
                 Email = user.Email,
                 Avatar = user.Gravatar(),
