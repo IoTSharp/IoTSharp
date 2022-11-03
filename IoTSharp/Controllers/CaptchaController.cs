@@ -52,6 +52,23 @@ namespace IoTSharp.Controllers
             _caching.Set("Captcha", list, expiration: TimeSpan.FromMinutes(20));
             return new ApiResult<ModelCaptcha>(ApiCode.Success, "OK", data);
         }
+
+
+
+        /// <summary>
+        /// 生成一个图形认证
+        /// </summary>
+        /// <param name="clientid"></param>
+        /// <returns></returns>
+        [HttpGet, AllowAnonymous]
+        public FileStreamResult Imgs()
+        {
+             var orginfile = typeof(CaptchaController).Assembly.GetManifestResourceStream($"IoTSharp.Resources.slide{RandomNumberGenerator.GetInt32(1, 15)}.jpg");
+            return File(orginfile, "image/jpeg");
+        }
+
+
+
         /// <summary>
         /// 校验图形认证
         /// </summary>
