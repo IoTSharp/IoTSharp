@@ -10,8 +10,16 @@ import mitt from 'mitt';
 import VueGridLayout from 'vue-grid-layout';
 import 'virtual:windi.css'
 import formCreate from '@form-create/element-ui'
-const app = createApp(App);
+// @ts-ignore formCreate auto-import element-plus 部分所需要的依赖
+import install from '@form-create/element-ui/auto-import'
+import * as ElementPlusIconsVue from '@element-plus/icons-vue'
 
+
+formCreate.use(install)
+const app = createApp(App);
+for (const [key, component] of Object.entries(ElementPlusIconsVue)) {
+    app.component(key, component)
+}
 directive(app);
 other.elSvg(app);
 

@@ -24,20 +24,29 @@ const viteConfig = defineConfig((mode: ConfigEnv) => {
 			vue(),
 			WindiCSS(),
 			AutoImport({
+				imports:['vue', 'vue-router', 'pinia'],
+				dirs: ['./stores'],
+				eslintrc: {
+					enabled: true, // Default `false`
+					filepath: './.eslintrc-auto-import.json', // Default `./.eslintrc-auto-import.json`
+					globalsPropValue: true, // Default `true`, (true | false | 'readonly' | 'readable' | 'writable' | 'writeable')
+				},
 				resolvers: [ElementPlusResolver(),
+
 					// Auto import icon components
 					// 自动导入图标组件
 					IconsResolver({
 						prefix: 'Icon',
 					}),
 				],
+				dts: path.resolve(pathSrc, 'auto-imports.d.ts'),
 			}),
 			Components({
 				resolvers: [
 					// Auto register icon components
 					// 自动注册图标组件
 					IconsResolver({
-						prefix: 'icon',
+						// prefix: 'icon',
 					}),
 					ElementPlusResolver()],
 				dts: path.resolve(pathSrc, 'components.d.ts'),

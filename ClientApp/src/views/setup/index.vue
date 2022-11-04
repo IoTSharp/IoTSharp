@@ -30,7 +30,7 @@
   </div>
 
 </template>
-<script setup>
+<script setup lang="ts">
 import AppLogo from "/@/components/AppLogo.vue";
 import setup_form_rules from './setup_form_rules.json'
 import setup_form_option from './setup_form_option.json'
@@ -38,7 +38,7 @@ import {initSysAdmin} from "/@/api/installer";
 import {reactive, ref} from "vue";
 import formCreate from "@form-create/element-ui";
 import {ElButton as Button, ElMessage} from 'element-plus'
-import {useAppInfo} from "/@/stores/appInfo";
+import { useAppInfo } from "/@/stores/appInfo";
 
 import {useRouter} from "vue-router";
 
@@ -52,7 +52,7 @@ const value = ref({})
 // const options = ref(setup_form_option)
 const options = reactive(setup_form_option)
 
-const validatePassCheck = (rule, value, callback) => {
+const validatePassCheck = (rule:any, value:any, callback:any) => {
   if (value === '') {
     callback(new Error('请再次输入密码'));
   } else if (value !== fApi.value.form.password) {

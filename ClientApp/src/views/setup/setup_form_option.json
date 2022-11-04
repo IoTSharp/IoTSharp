@@ -10,7 +10,7 @@
   "submitBtn": {
     "type":"primary",
     "size":"large",
-    "disabled":true,
+    "disabled":false,
     "innerText":"提交",
     "loading":false,
     "show":true,
