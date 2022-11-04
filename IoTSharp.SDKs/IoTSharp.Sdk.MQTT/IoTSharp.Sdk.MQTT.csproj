@@ -16,7 +16,6 @@
 			https://api.nuget.org/v3/index.json;
 			https://www.myget.org/F/mqttnet/api/v3/index.json;
 		</RestoreAdditionalProjectSources>
-		<CodeAnalysisRuleSet>..\..\.sonarlint\iotsharp_iotsharpcsharp.ruleset</CodeAnalysisRuleSet>
 	</PropertyGroup>
 
 	<ItemGroup>
