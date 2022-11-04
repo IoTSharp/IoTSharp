@@ -2,17 +2,15 @@
 	<div class="workflow-drawer-node">
 		<el-tabs type="border-card" v-model="tabsActive">
 
-			<!-- 扩展表单 -->
-			<el-tab-pane label="配置" name="1">
-				<el-scrollbar>
-					<div id="codeEditBox" style="height: 300px; padding: 10px;"></div>
-				</el-scrollbar>
+
+				<!-- 扩展表单 -->
+				<el-tab-pane label="扩展表单" name="1">
+				
 			</el-tab-pane>
 			<!-- 节点编辑 -->
-			<el-tab-pane label="杂项" name="2">
+			<el-tab-pane label="节点编辑" name="2">
 				<el-scrollbar>
-					<el-form :model="node" :rules="nodeRules" ref="nodeFormRef" size="default" label-width="80px"
-						class="pt15 pr15 pb15 pl15">
+					<el-form :model="node" :rules="nodeRules" ref="nodeFormRef" size="default" label-width="80px" class="pt15 pr15 pb15 pl15">
 						<el-form-item label="数据id" prop="id">
 							<el-input v-model="node.id" placeholder="请输入数据id" clearable disabled></el-input>
 						</el-form-item>
@@ -48,8 +46,9 @@
 				</el-scrollbar>
 			</el-tab-pane>
 
+		
 
-
+			
 		</el-tabs>
 	</div>
 </template>
@@ -57,7 +56,8 @@
 <script lang="ts">
 import { defineComponent, reactive, toRefs, ref, nextTick, getCurrentInstance } from 'vue';
 import { ElMessage } from 'element-plus';
-import * as monaco from 'monaco-editor';
+
+
 // 定义接口来定义对象的类型
 interface WorkflowDrawerNodeState {
 	node: { [key: string]: any };
@@ -70,13 +70,8 @@ interface WorkflowDrawerNodeState {
 }
 
 export default defineComponent({
-	name: 'excutorpanel',
+	name: 'basicpanel',
 	setup(props, { emit }) {
-		const text = ref('')
-		const language = ref('json')
-		const msg = ref()
-		const loading = ref(false)
-		let editor: monaco.editor.IStandaloneCodeEditor;
 		const { proxy } = <any>getCurrentInstance();
 		const nodeFormRef = ref();
 		const extendFormRef = ref();
@@ -104,7 +99,7 @@ export default defineComponent({
 		const getParentData = (data: object) => {
 			state.tabsActive = '1';
 			state.node = data;
-			editorInit();
+
 		};
 		// 节点编辑-重置
 		const onNodeRefresh = () => {
@@ -141,45 +136,6 @@ export default defineComponent({
 				}
 			});
 		};
-
-		const editorInit = () => {
-    nextTick(()=>{
-        monaco.languages.typescript.javascriptDefaults.setDiagnosticsOptions({
-            noSemanticValidation: true,
-            noSyntaxValidation: false
-        });
-        monaco.languages.typescript.javascriptDefaults.setCompilerOptions({
-            target: monaco.languages.typescript.ScriptTarget.ES2016,
-            allowNonTsExtensions: true
-        });
-        
-        !editor ? editor = monaco.editor.create(document.getElementById('codeEditBox') as HTMLElement, {
-            value:text.value, // 编辑器初始显示文字
-            language: 'json', // 语言支持自行查阅demo
-            automaticLayout: true, // 自适应布局  
-            theme: 'vs-dark', // 官方自带三种主题vs, hc-black, or vs-dark
-            foldingStrategy: 'indentation',
-            renderLineHighlight: 'all', // 行亮
-            selectOnLineNumbers: true, // 显示行号
-            minimap:{
-                enabled: false,
-            },
-            readOnly: false, // 只读
-            fontSize: 16, // 字体大小
-            scrollBeyondLastLine: false, // 取消代码后面一大段空白 
-            overviewRulerBorder: false, // 不要滚动条的边框  
-        }) : 
-        editor.setValue("");
-        // console.log(editor)
-        // 监听值的变化
-        editor.onDidChangeModelContent((val:any) => {
-            text.value = editor.getValue();
-             
-        })
-    })
-}
-
-
 		// 图表可视化-初始化
 	
 		return {
@@ -203,30 +159,24 @@ export default defineComponent({
 		.el-tabs {
 			box-shadow: unset;
 			border: unset;
-
 			.el-tabs__nav {
 				display: flex;
 				width: 100%;
-
 				.el-tabs__item {
 					flex: 1;
 					padding: unset;
 					text-align: center;
-
 					&:first-of-type.is-active {
 						border-left-color: transparent;
 					}
-
 					&:last-of-type.is-active {
 						border-right-color: transparent;
 					}
 				}
 			}
-
 			.el-tabs__content {
 				padding: 0;
 				height: calc(100vh - 90px);
-
 				.el-tab-pane {
 					height: 100%;
 				}
