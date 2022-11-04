@@ -49,6 +49,7 @@ COPY ["IoTSharp.EventBus.CAP/IoTSharp.EventBus.CAP.csproj", "IoTSharp.EventBus.C
 COPY ["IoTSharp.EventBus/IoTSharp.EventBus.csproj", "IoTSharp.EventBus/"]
 COPY ["IoTSharp.EventBus.Shashlik/IoTSharp.EventBus.Shashlik.csproj", "IoTSharp.EventBus.Shashlik/"]
 COPY ["IoTSharp.Extensions.AspNetCore/IoTSharp.Extensions.AspNetCore.csproj", "IoTSharp.Extensions.AspNetCore/"]
+COPY ["IoTSharp.Extensions.X509/IoTSharp.Extensions.X509.csproj", "IoTSharp.Extensions.X509/"]
 COPY ["IoTSharp.Interpreter/IoTSharp.Interpreter.csproj", "IoTSharp.Interpreter/"]
 COPY ["IoTSharp.TaskActions/IoTSharp.TaskActions.csproj", "IoTSharp.TaskActions/"]
 RUN dotnet restore "IoTSharp/IoTSharp.csproj"
