@@ -34,7 +34,7 @@ export const dynamicRoutes: Array<RouteRecordRaw> = [
 			{
 				path: '/dashboard/v1',
 				name: 'dashboard',
-				component: () => import('/@/views/dashboard/v1.vue'),
+				component: () => import('/@/views/dashboard/index.vue'),
 				meta: {
 					title: 'message.router.home',
 					isLink: '',

@@ -43,11 +43,19 @@ export async function initBackEndControlRoutes() {
 	await useUserInfo().setUserInfos();
 	// 获取路由菜单数据
 	const res = await getBackEndControlRoutes();
-  var routes:any[]=[];
-
-// var routes:any[]=_dynamicRoutes;
-
-transformItem(res.data.menu,routes)
+	let routes: any[] = [];
+	//  var routes:any[]=_dynamicRoutes;
+	transformItem(res.data.menu, routes);
+	// * 修改服务端返回过来的 menu
+	routes = [...routes[0].children] // 移除顶层菜单
+	// 移除dashboard 套层
+	routes = routes.map(route=>{
+		if (route.name === 'dashboard') {
+			route.children[0].component = '/dashboard/index'
+			route = JSON.parse(JSON.stringify(route.children[0]))
+		}
+		return route;
+	})
 	// 存储接口原始路由（未处理component），根据需求选择使用
 	useRequestOldRoutes().setRequestOldRoutes(JSON.parse(JSON.stringify(routes)));
 	// 处理路由（component），替换 dynamicRoutes（/@/router/route）第一个顶级 children 的路由
@@ -112,17 +120,13 @@ export function getBackEndControlRoutes() {
 	const { userInfos } = storeToRefs(stores);
 	const auth = userInfos.value.roles[0];
 	// 管理员 admin
-	if (auth === 'admin')
-	{
+	if (auth === 'admin') {
 		return menuApi.getMenuAdmin();
-
-	}else{
+	} else {
 		return menuApi.getMenuTest();
 	}
 
-
 	// 其它用户 test
-
 }
 
 /**
@@ -140,7 +144,6 @@ export function setBackEndControlRefreshRoutes() {
  * @returns 返回处理成函数后的 component
  */
 export function backEndComponent(routes: any) {
-
 	if (!routes) return;
 	return routes.map((item: any) => {
 		if (item.component) item.component = dynamicImport(dynamicViewsModules, item.component as string);
@@ -170,35 +173,27 @@ export function dynamicImport(dynamicViewsModules: Record<string, Function>, com
 	}
 }
 
-
-function transformItem(source:any[],target:any[]){
-
-for(let item of source){
-
-  let newItem:any={
-    "path": item.vpath,
-    "name": item.routename,
-    "component": item.vpath,
-    "meta": {
-      "title":item.text,
-      "isLink": "",
-      "isHide": false,
-      "isKeepAlive": true,
-      "isAffix": false,
-      "isIframe": false,
-      "roles": ["admin", "common"],
-      "icon": "iconfont icon-shouye"
-    },"children":[]
-
-  };
-	target.push(newItem);
-    if(item.children&&item.children.length>0){
-      transformItem(item.children,newItem.children);
-    }
-
-}
-
-
-
-
+function transformItem(source: any[], target: any[]) {
+	for (let item of source) {
+		let newItem: any = {
+			path: item.vpath,
+			name: item.routename,
+			component: item.vpath,
+			meta: {
+				title: item.text,
+				isLink: '',
+				isHide: false,
+				isKeepAlive: true,
+				isAffix: false,
+				isIframe: false,
+				roles: ['admin', 'common'],
+				icon: '',
+			},
+			children: [],
+		};
+		target.push(newItem);
+		if (item.children && item.children.length > 0) {
+			transformItem(item.children, newItem.children);
+		}
+	}
 }

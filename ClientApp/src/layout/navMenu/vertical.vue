@@ -10,14 +10,16 @@
 		<template v-for="val in menuLists">
 			<el-sub-menu :index="val.path" v-if="val.children && val.children.length > 0" :key="val.path">
 				<template #title>
-					<SvgIcon :name="val.meta.icon" />
+<!--					<SvgIcon :name="val.meta.icon" />-->
+          <component class="z-menu-icon" :is="menuIconList[val.name]"></component>
 					<span>{{ $t(val.meta.title) }}</span>
 				</template>
 				<SubItem :chil="val.children" />
 			</el-sub-menu>
 			<template v-else>
 				<el-menu-item :index="val.path" :key="val.path">
-					<SvgIcon :name="val.meta.icon" />
+<!--					<SvgIcon :name="val.meta.icon" />-->
+          <component class="z-menu-icon" :is="menuIconList[val.name]"></component>
 					<template #title v-if="!val.meta.isLink || (val.meta.isLink && val.meta.isIframe)">
 						<span>{{ $t(val.meta.title) }}</span>
 					</template>
@@ -36,7 +38,7 @@ import { useRoute, onBeforeRouteUpdate } from 'vue-router';
 import { storeToRefs } from 'pinia';
 import { useThemeConfig } from '/@/stores/themeConfig';
 import SubItem from '/@/layout/navMenu/subItem.vue';
-
+import {menuIconList} from "/@/layout/navMenu/menu-icons-config.js";
 export default defineComponent({
 	name: 'navMenuVertical',
 	components: { SubItem },
@@ -92,6 +94,7 @@ export default defineComponent({
 			if (clientWidth < 1000) themeConfig.value.isCollapse = false;
 		});
 		return {
+      menuIconList,
 			menuLists,
 			getThemeConfig,
 			...toRefs(state),
@@ -99,3 +102,10 @@ export default defineComponent({
 	},
 });
 </script>
+<style>
+.z-menu-icon {
+  margin-right: 16px;
+  scale: 1.4;
+  color: #8E8EA9;
+}
+</style>
