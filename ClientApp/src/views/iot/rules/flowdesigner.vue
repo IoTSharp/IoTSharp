@@ -190,11 +190,11 @@ export default defineComponent({
           children: [{
             icon: "iconfont icon-gongju",
             name: '开始',
-            nodetag: { nodetype: 'basic' },
+            nodetag: { nodetype: 'basic',namespace:'begin' },
             id: 'begin',
           }, {
             icon: "iconfont icon-gongju",
-            nodetag: { nodetype: 'basic' },
+            nodetag: { nodetype: 'basic',namespace:'end' },
             name: '结束',
             id: 'end',
           },],
@@ -216,26 +216,26 @@ export default defineComponent({
               icon: "iconfont icon-gongju",
               name: 'javascript',
               id: 'javascript',
-              nodetag: { nodetype: 'script' },
+              nodetag: { nodetype: 'script', namespace:'javascript' },
             },
             {
               icon: "iconfont icon-gongju",
               name: 'python',
-              id: 'python', nodetag: { nodetype: 'script' },
+              id: 'python', nodetag: { nodetype: 'script' , namespace:'python' },
             },
             {
               icon: "iconfont icon-gongju",
               name: 'sql',
-              id: 'sql', nodetag: { nodetype: 'script' },
+              id: 'sql', nodetag: { nodetype: 'script' , namespace:'sql' },
             },
             {
               icon: "iconfont icon-gongju",
               name: 'lua',
-              id: 'lua', nodetag: { nodetype: 'script' },
+              id: 'lua', nodetag: { nodetype: 'script', namespace:'lua'  },
             }, {
               icon: "iconfont icon-gongju",
               name: 'csharp',
-              id: 'csharp', nodetag: { nodetype: 'script' },
+              id: 'csharp', nodetag: { nodetype: 'script', namespace:'csharp'  },
             },
           ],
         },
@@ -249,7 +249,7 @@ export default defineComponent({
               icon: "iconfont icon-gongju",
               name: item.label,
               id: item.label,
-              nodetag: { nodetype: 'executor' },
+              nodetag: { nodetype: 'executor' , namespace:'javascript'},
 
             });
           });
@@ -625,6 +625,10 @@ export default defineComponent({
     };
     // 顶部工具栏-提交
     const onToolSubmit = () => {
+
+
+console.log(state.jsplumbData);
+
       ElMessage.success("数据提交成功");
     };
     // 顶部工具栏-复制

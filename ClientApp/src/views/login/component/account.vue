@@ -112,7 +112,7 @@ export default defineComponent({
       isShowPassword: false,
       accuracy: 3,
       msg: "",
-      imgs: {},
+      imgs: [import.meta.env.VITE_API_URL+'/api/Captcha/Imgs'],
       ruleForm: {
         userName: "iotmaster@iotsharp.net",
         password: "",

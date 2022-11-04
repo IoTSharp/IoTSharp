@@ -1,11 +1,12 @@
 <template>
 	<div>
-		<el-drawer :title="`${nodeData.type === 'line' ? '线' : '节点'}操作`" v-model="isOpen" size="320px">
+	
+		<el-drawer :title="`${nodeData.type === 'line' ? '线' : nodeData.name}操作`" v-model="isOpen" size="320px">
 			<el-scrollbar>
 				<Line v-if="nodeData.type === 'line'" @change="onLineChange" @close="close" ref="lineRef" />
-				<ExecutorPanel v-if="nodeData.type === 'script'" @submit="onexecutorSubmit" @close="close"
+				<ExecutorPanel v-if="nodeData.nodetype === 'executor'" @submit="onexecutorSubmit" @close="close"
 					ref="executorRef" />
-				<ScriptPanel v-if="nodeData.type === 'executor'" @submit="onscriptSubmit" @close="close"
+				<ScriptPanel v-if="nodeData.nodetype === 'script'" @submit="onscriptSubmit" @close="close"
 					ref="scriptRef" />
 
 
@@ -23,14 +24,16 @@ import ScriptPanel from './script.vue';
 interface WorkflowDrawerState {
 	isOpen: boolean;
 	nodeData: {
+		name:string;
 		type: string;
+		nodetype: string;
 	};
 	jsplumbConn: any;
 }
 
 export default defineComponent({
 	name: 'pagesWorkflowDrawer',
-	components: { Line, Node },
+	components: { Line, ExecutorPanel,ScriptPanel },
 	setup(props, { emit }) {
 		const lineRef = ref();
 		const executorRef = ref();
@@ -39,6 +42,8 @@ export default defineComponent({
 			isOpen: false,
 			nodeData: {
 				type: 'node',
+				nodetype: 'executor',
+				name:''
 			},
 			jsplumbConn: {},
 		});
@@ -46,7 +51,10 @@ export default defineComponent({
 		const open = (item: any, conn: any) => {
 			state.isOpen = true;
 			state.jsplumbConn = conn;
+
+
 			state.nodeData = item;
+
 
 
 			nextTick(() => {
@@ -57,11 +65,17 @@ export default defineComponent({
 					switch (item.nodetype) {
 
 						case 'executor':
-							{ executorRef.value.getParentData(item); }
+							{
+								console.log(state.nodeData)
+								executorRef.value.getParentData(item);
+							}
 							break;
 
 						case 'script':
-							{ scriptRef.value.getParentData(item); }
+							{
+								console.log(state.nodeData)
+								scriptRef.value.getParentData(item);
+							}
 							break;
 					}
 
