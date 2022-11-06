@@ -9,7 +9,7 @@
 					</el-icon>
 					查询
 				</el-button>
-				<el-button size="default" type="success" @click="create('0000000-0000-0000-0000-000000000000')" class="ml10">
+				<el-button size="default" type="success" @click="create('00000000-0000-0000-0000-000000000000')" class="ml10">
 					<el-icon>
 						<ele-FolderAdd />
 					</el-icon>
@@ -50,7 +50,7 @@
 			>
 			</el-pagination>
 		</el-card>
-		<addtenant ref="addformRef" />
+		<addtenant ref="addformRef" @getData="initTableData" />
 	</div>
 </template>
 
@@ -61,6 +61,7 @@ import addtenant from './addtenant.vue';
 import { deviceApi } from '/@/api/devices';
 import { tenantApi } from '/@/api/tenants';
 import { Session } from '/@/utils/storage';
+import { appmessage } from '/@/api/iapiresult';
 
 // 定义接口来定义对象的类型
 interface TableDataRow {
@@ -118,6 +119,16 @@ export default defineComponent({
 				type: 'warning',
 			})
 				.then(() => {
+					tenantApi()
+						.deletetenant(row.id as string)
+						.then((res: appmessage<boolean>) => {
+							if (res.code === 10000 && res.data) {
+								ElMessage.success('删除成功');
+								initTableData();
+							} else {
+								ElMessage.warning('删除失败:' + res.msg);
+							}
+						});
 					ElMessage.success('删除成功');
 				})
 				.catch(() => {});
@@ -144,7 +155,6 @@ export default defineComponent({
 					limit: state.tableData.param.pageSize,
 				})
 				.then((res) => {
-					console.log(res);
 					state.tableData.rows = res.data.rows;
 					state.tableData.total = res.data.total;
 				});
@@ -153,7 +163,7 @@ export default defineComponent({
 		onMounted(() => {
 			initTableData();
 		});
-		return { addformRef, create, onHandleSizeChange, onHandleCurrentChange, onTabelRowDel, ...toRefs(state) };
+		return { addformRef, create, initTableData, onHandleSizeChange, onHandleCurrentChange, onTabelRowDel, ...toRefs(state) };
 	},
 });
 </script>

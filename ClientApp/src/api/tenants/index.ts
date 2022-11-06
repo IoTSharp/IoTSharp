@@ -20,14 +20,14 @@ export function tenantApi() {
 		},
 		gettenant: (tenantId: string) => {
 			return request({
-				url: '/api/tenants/' + tenantId,
+				url: '/api/Tenants/' + tenantId,
 				method: 'get',
 			});
 		},
 
 		posttenant: (params: any) => {
 			return request({
-				url: '/api/tenants',
+				url: '/api/Tenants',
 				method: 'post',
 				data: params,
 			});
@@ -35,14 +35,14 @@ export function tenantApi() {
 
 		puttenant: (params: any) => {
 			return request({
-				url: '/api/tenants/' + params.id,
+				url: '/api/Tenants/' + params.id,
 				method: 'put',
 				data: params,
 			});
 		},
 		deletetenant: (id: string) => {
 			return request({
-				url: '/api/tenants/' + id,
+				url: '/api/Tenants/' + id,
 				method: 'delete',
 				data: {},
 			});
