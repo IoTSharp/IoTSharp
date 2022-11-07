@@ -33,26 +33,7 @@
         </template>
       </el-input>
     </el-form-item>
-    <el-form-item class="login-animation3">
-      <el-col :span="15">
-        <el-input
-          type="text"
-          maxlength="4"
-          :placeholder="$t('message.account.accountPlaceholder3')"
-          v-model="ruleForm.code"
-          clearable
-          autocomplete="off"
-        >
-          <template #prefix>
-            <el-icon class="el-input__icon"><ele-Position /></el-icon>
-          </template>
-        </el-input>
-      </el-col>
-      <el-col :span="1"></el-col>
-      <el-col :span="8">
-        <el-button class="login-content-code">1234</el-button>
-      </el-col>
-    </el-form-item>
+  
     <el-form-item class="login-animation4">
       <el-button
         type="primary"
