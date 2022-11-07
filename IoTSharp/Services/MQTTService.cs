@@ -194,9 +194,9 @@ namespace IoTSharp.Services
                                 e.ReasonCode = MQTTnet.Protocol.MqttConnectReasonCode.ServerUnavailable;
                             }
                         }
-                        else if (_dbContextcv.AuthorizedKeys.Any(ak => ak.AuthToken == obj.Password))
+                        else if (_dbContextcv.AuthorizedKeys.Any(ak => ak.AuthToken == obj.Password && ak.Deleted==false))
                         {
-                            var ak = _dbContextcv.AuthorizedKeys.Include(ak => ak.Customer).Include(ak => ak.Tenant).Include(ak => ak.Devices).AsSplitQuery().FirstOrDefault(ak => ak.AuthToken == obj.Password);
+                            var ak = _dbContextcv.AuthorizedKeys.Include(ak => ak.Customer).Include(ak => ak.Tenant).Include(ak => ak.Devices).AsSplitQuery().FirstOrDefault(ak => ak.AuthToken == obj.Password && ak.Deleted==false);
                             if (ak != null && !ak.Devices.Any(dev => dev.Name == obj.UserName))
                             {
                                 var devvalue = new Device() { Name = obj.UserName, DeviceType = DeviceType.Device, Timeout = 300 };

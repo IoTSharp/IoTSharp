@@ -41,7 +41,7 @@ namespace IoTSharp.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<AuthorizedKey>>> GetAuthorizedKeys()
         {
-            return await _context.AuthorizedKeys.JustCustomer(User.GetCustomerId()).ToListAsync();
+            return await _context.AuthorizedKeys.JustCustomer(User.GetCustomerId()).Where(ak => ak.Deleted == false).ToListAsync();
         }
 
         /// <summary>
@@ -136,8 +136,8 @@ namespace IoTSharp.Controllers
             {
                 return new ApiResult<AuthorizedKey>(ApiCode.CantFindObject, "can't find this object", null);
             }
-
-            _context.AuthorizedKeys.Remove(authorizedKey);
+            authorizedKey.Deleted = false;
+            _context.AuthorizedKeys.Update(authorizedKey);
             await _context.SaveChangesAsync();
 
             return new ApiResult<AuthorizedKey>(ApiCode.Success, "Ok", authorizedKey); ;
@@ -145,7 +145,7 @@ namespace IoTSharp.Controllers
 
         private bool AuthorizedKeyExists(Guid id)
         {
-            return _context.AuthorizedKeys.JustCustomer(User.GetCustomerId()).Any(e => e.Id == id);
+            return _context.AuthorizedKeys.JustCustomer(User.GetCustomerId()).Any(e => e.Id == id  &&  e.Deleted==false);
         }
     }
 }

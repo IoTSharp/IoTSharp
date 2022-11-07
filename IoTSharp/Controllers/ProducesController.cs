@@ -43,7 +43,7 @@ namespace IoTSharp.Controllers
         {
             var profile = this.GetUserProfile();
             Expression<Func<Produce, bool>> condition = x =>
-                x.Customer.Id == profile.Customer && x.Tenant.Id == profile.Tenant;
+                x.Customer.Id == profile.Customer && x.Tenant.Id == profile.Tenant &&  x.Deleted==false;
 
 
             if (!string.IsNullOrEmpty(m.Name))
@@ -75,7 +75,7 @@ namespace IoTSharp.Controllers
             {
                 return new ApiResult<PagedData<ProduceDto>>(ApiCode.Success, "OK", new PagedData<ProduceDto>
                 {
-                    total = await _context.Produces.CountAsync(),
+                    total = await _context.Produces.CountAsync(c=>c.Deleted==false),
                     rows = _context.Produces.Where(condition)
                         .ToList().Select(c => new ProduceDto
                         {
@@ -115,7 +115,7 @@ namespace IoTSharp.Controllers
         [HttpGet]
         public async Task<ApiResult<ProduceAddDto>> Get(Guid id)
         {
-            var result = await _context.Produces.SingleOrDefaultAsync(c => c.Id == id);
+            var result = await _context.Produces.SingleOrDefaultAsync(c => c.Id == id && c.Deleted == false);
             if (result != null)
             {
                 return new ApiResult<ProduceAddDto>(ApiCode.Success, "OK", new ProduceAddDto
@@ -151,12 +151,11 @@ namespace IoTSharp.Controllers
 
             try
             {
-                var produce = await _context.Produces.SingleOrDefaultAsync(c => c.Id == produceid);
+                var produce = await _context.Produces.FindAsync( produceid);
                 if (produce != null)
                 {
-                    _context.ProduceDatas.RemoveRange(_context.ProduceDatas.Where(c => c.Owner == produce));
-                    await _context.SaveChangesAsync();
-                    _context.Produces.Remove(produce);
+                    produce.Deleted = false;
+                    _context.Produces.Update(produce);
                     await _context.SaveChangesAsync();
                     return new ApiResult<bool>(ApiCode.Success, "OK", true);
                 }
@@ -216,7 +215,7 @@ namespace IoTSharp.Controllers
 
             try
             {
-                var produce = await _context.Produces.SingleOrDefaultAsync(c => c.Id == dto.Id);
+                var produce = await _context.Produces.SingleOrDefaultAsync(c => c.Id == dto.Id && c.Deleted == false);
                 if (produce != null)
                 {
                     produce.DefaultIdentityType = dto.DefaultIdentityType;
@@ -251,7 +250,7 @@ namespace IoTSharp.Controllers
         public async Task<ApiResult<List<ProduceDataItemDto>>> GetProduceData(Guid produceId)
         {
             var produce = await _context.Produces.Include(c=>c.DefaultAttributes)
-                .SingleOrDefaultAsync(c => c.Id == produceId);
+                .SingleOrDefaultAsync(c => c.Id == produceId && c.Deleted == false );
             if (produce != null)
             {
 
@@ -282,7 +281,7 @@ namespace IoTSharp.Controllers
             try
             {
                 var produce = await _context.Produces.Include(c => c.DefaultAttributes)
-                    .SingleOrDefaultAsync(c => c.Id == dto.produceId);
+                    .SingleOrDefaultAsync(c => c.Id == dto.produceId && c.Deleted == false);
                 if (produce != null)
                 {
                     var pds = _context.ProduceDatas.Include(c=>c.Owner).Where(c => c.Owner.Id==dto.produceId).ToList();
@@ -348,7 +347,7 @@ namespace IoTSharp.Controllers
         public async Task<ApiResult<List<ProduceDictionary>>> GetProduceDictionary(Guid produceId)
         {
             var produce = await _context.Produces.Include(c => c.Dictionaries)
-                .SingleOrDefaultAsync(c => c.Id == produceId);
+                .SingleOrDefaultAsync(c => c.Id == produceId && c.Deleted == false);
             if (produce != null)
             {
                 return new ApiResult<List<ProduceDictionary>>(ApiCode.Success, "Ok", produce.Dictionaries);
@@ -372,7 +371,7 @@ namespace IoTSharp.Controllers
             try
             {
                 var produce = await _context.Produces.Include(c => c.Dictionaries)
-                    .SingleOrDefaultAsync(c => c.Id == dto.produceId);
+                    .SingleOrDefaultAsync(c => c.Id == dto.produceId && c.Deleted == false);
                 if (produce != null)
                 {
 

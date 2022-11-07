@@ -22,5 +22,7 @@ namespace IoTSharp.Data
         [System.Text.Json.Serialization.JsonIgnore]
         [Newtonsoft.Json.JsonIgnore]
         public List<Device> Devices { get; set; }
+
+        public bool Deleted { get; set; }
     }
 }

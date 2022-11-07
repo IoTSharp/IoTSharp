@@ -741,7 +741,7 @@ namespace IoTSharp.Controllers
         [ProducesDefaultResponseType]
         public async Task<ApiResult<Device>> PostDevice(Guid id, DevicePostProduceDto device)
         {
-            var produce = await _context.Produces.Include(p => p.DefaultAttributes).AsSplitQuery().FirstOrDefaultAsync(p => p.Id == id);
+            var produce = await _context.Produces.Include(p => p.DefaultAttributes).AsSplitQuery().FirstOrDefaultAsync(p => p.Id == id && p.Deleted==false);
             if (produce == null)
             {
                 return new ApiResult<Device>(ApiCode.NotFoundProduce, "Not found Produce", null);
@@ -834,7 +834,7 @@ namespace IoTSharp.Controllers
             {
                 if (device.DeviceType == DeviceType.Device)
                 {
-                    var assets = await _context.Assets.Where(c => c.OwnedAssets.Any(d => d.DeviceId == device.Id))
+                    var assets = await _context.Assets.Where(c => c.OwnedAssets.Any(d => d.DeviceId == device.Id) && c.Deleted==false)
                         .ToListAsync();
 
                     if (assets.Count > 0)
@@ -879,7 +879,7 @@ namespace IoTSharp.Controllers
                             "Please remove the following devices from the current gateway: " +
                             devices.Aggregate("", (x, y) => x + "," + y.Name), false);
                     }
-                    var assets = await _context.Assets.Where(c => c.OwnedAssets.Any(d => d.DeviceId == device.Id))
+                    var assets = await _context.Assets.Where(c => c.OwnedAssets.Any(d => d.DeviceId == device.Id)   && c.Deleted==false)
                         .ToArrayAsync();
 
                     if (assets.Length > 0)

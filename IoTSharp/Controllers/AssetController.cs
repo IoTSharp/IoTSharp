@@ -36,7 +36,7 @@ namespace IoTSharp.Controllers
         {
             var profile = this.GetUserProfile();
             Expression<Func<Asset, bool>> condition = x =>
-                x.Customer.Id == profile.Customer && x.Tenant.Id == profile.Tenant;
+                x.Customer.Id == profile.Customer && x.Tenant.Id == profile.Tenant && x.Deleted==false;
 
 
             if (!string.IsNullOrEmpty(m.Name))
@@ -74,7 +74,7 @@ namespace IoTSharp.Controllers
 
             var result = _context.Assets.Include(c => c.OwnedAssets).AsSingleQuery()
                 .SingleOrDefault(x =>
-                    x.Id == assetid && x.Customer.Id == profile.Customer && x.Tenant.Id == profile.Tenant)?.OwnedAssets
+                    x.Id == assetid && x.Customer.Id == profile.Customer && x.Tenant.Id == profile.Tenant && x.Deleted==false)?.OwnedAssets
                 .ToList().GroupBy(c => c.DeviceId).Select(c => new
                     {
                         Device = c.Key,
@@ -112,7 +112,7 @@ namespace IoTSharp.Controllers
         {
             var profile = this.GetUserProfile();
             var asset = await _context.Assets.Include(c => c.Customer).Include(c => c.Tenant).AsSingleQuery().SingleOrDefaultAsync(c =>
-                c.Id == id && c.Customer.Id == profile.Customer && c.Tenant.Id == profile.Tenant);
+                c.Id == id && c.Customer.Id == profile.Customer && c.Tenant.Id == profile.Tenant && c.Deleted==false);
             if (asset != null)
             {
                 return new ApiResult<AssetDto>(ApiCode.Success, "OK",
@@ -135,7 +135,7 @@ namespace IoTSharp.Controllers
 
             var profile = this.GetUserProfile();
             var asset = await _context.Assets.Include(c => c.Customer).Include(c => c.Tenant).AsSingleQuery().SingleOrDefaultAsync(c =>
-                c.Id == dto.Id && c.Customer.Id == profile.Customer && c.Tenant.Id == profile.Tenant);
+                c.Id == dto.Id && c.Customer.Id == profile.Customer && c.Tenant.Id == profile.Tenant && c.Deleted==false);
             if (asset == null)
             {
 
@@ -196,14 +196,14 @@ namespace IoTSharp.Controllers
             {
                 var asset = await _context.Assets.Include(c => c.Customer).Include(c => c.Tenant)
                     .Include(c => c.OwnedAssets).AsSingleQuery().SingleOrDefaultAsync(c =>
-                        c.Id == id && c.Customer.Id == profile.Customer && c.Tenant.Id == profile.Tenant);
+                        c.Id == id && c.Customer.Id == profile.Customer && c.Tenant.Id == profile.Tenant && c.Deleted==false);
                 if (asset == null)
                 {
 
                     return new ApiResult<bool>(ApiCode.CantFindObject, "Not found asset", false);
                 }
-
-                _context.Assets.Remove(asset);
+                asset.Deleted = true;
+                _context.Assets.Update(asset);
                 await _context.SaveChangesAsync();
                 return new ApiResult<bool>(ApiCode.Success, "Ok", true);
             }
@@ -225,7 +225,7 @@ namespace IoTSharp.Controllers
             {
                 var asset = await _context.Assets.Include(c => c.Customer).Include(c => c.Tenant)
                     .Include(c => c.OwnedAssets).AsSingleQuery().SingleOrDefaultAsync(c =>
-                        c.Id == m.AssetId && c.Customer.Id == profile.Customer && c.Tenant.Id == profile.Tenant);
+                        c.Id == m.AssetId && c.Customer.Id == profile.Customer && c.Tenant.Id == profile.Tenant && c.Deleted==false);
                 if (asset == null)
                 {
 
@@ -287,7 +287,7 @@ namespace IoTSharp.Controllers
             {
                 var asset = await _context.Assets.Include(c => c.Customer).Include(c => c.Tenant)
                     .Include(c => c.OwnedAssets).AsSingleQuery().SingleOrDefaultAsync(c =>
-                        c.Id == m.AssetId && c.Customer.Id == profile.Customer && c.Tenant.Id == profile.Tenant);
+                        c.Id == m.AssetId && c.Customer.Id == profile.Customer && c.Tenant.Id == profile.Tenant && c.Deleted==false);
 
                 await _context.SaveChangesAsync();
                 return new ApiResult<bool>(ApiCode.Success, "Ok", true);

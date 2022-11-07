@@ -44,7 +44,7 @@ namespace IoTSharp.Controllers
         [ProducesDefaultResponseType]
         public async Task<ApiResult<List<Customer>>> GetAllCustomers([FromRoute] Guid tenantId)
         {
-            return new ApiResult<List<Customer>>(ApiCode.Success, "OK", await _context.Customer.Where(c => c.Tenant.Id == tenantId).ToListAsync());
+            return new ApiResult<List<Customer>>(ApiCode.Success, "OK", await _context.Customer.Where(c => c.Tenant.Id == tenantId && c.Deleted==false).ToListAsync());
         }
 
         /// <summary>
@@ -59,7 +59,7 @@ namespace IoTSharp.Controllers
         public async Task<ApiResult<PagedData<Customer>>> GetCustomers([FromBody] CustomerParam m)
         {
             var profile = this.GetUserProfile();
-            Expression<Func<Customer, bool>> condition = x => x.Tenant.Id == profile.Tenant;
+            Expression<Func<Customer, bool>> condition = x => x.Tenant.Id == profile.Tenant  && x.Deleted==false;
             return new ApiResult<PagedData<Customer>>(ApiCode.Success, "OK", new PagedData<Customer>
             {
                 total = await _context.Customer.CountAsync(condition),
@@ -172,7 +172,8 @@ namespace IoTSharp.Controllers
             {
                 return new ApiResult<Customer>(ApiCode.NotFoundCustomer, "This customer was not found", null);
             }
-            _context.Customer.Remove(customer);
+            customer.Deleted = true;
+            _context.Customer.Update(customer);
             await _context.SaveChangesAsync();
             return new ApiResult<Customer>(ApiCode.Success, "Ok", customer);
         }

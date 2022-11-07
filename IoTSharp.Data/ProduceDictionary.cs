@@ -82,5 +82,9 @@ namespace IoTSharp.Data
  
 
         public Guid? Customer { get; set; }
+
+        public bool Deleted { get; set; }
+
+
     }
 }

@@ -491,8 +491,8 @@ namespace IoTSharp.Data
 
         public async Task SeedUserAsync(InstallDto model)
         {
-            var tenant = _context.Tenant.FirstOrDefault(t => t.EMail == model.TenantEMail);
-            var customer = _context.Customer.FirstOrDefault(t => t.Email == model.CustomerEMail);
+            var tenant = _context.Tenant.FirstOrDefault(t => t.EMail == model.TenantEMail && t.Deleted==false);
+            var customer = _context.Customer.FirstOrDefault(t => t.Email == model.CustomerEMail && t.Deleted==false);
             if (tenant == null && customer == null)
             {
                 tenant = new Tenant() { Id = Guid.NewGuid(), Name = model.TenantName, EMail = model.TenantEMail };

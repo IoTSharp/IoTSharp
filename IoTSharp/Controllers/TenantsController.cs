@@ -58,7 +58,7 @@ namespace IoTSharp.Controllers
         {
             try
             {
-                return Ok(new ApiResult<PagedData<Tenant>>(ApiCode.Exception, "Ok", new PagedData<Tenant>() { rows = await _context.Tenant.ToListAsync(), total = await _context.Tenant.CountAsync() }));
+                return Ok(new ApiResult<PagedData<Tenant>>(ApiCode.Exception, "Ok", new PagedData<Tenant>() { rows = await _context.Tenant.Where(t=>t.Deleted==false).ToListAsync(), total = await _context.Tenant.CountAsync(c=>c.Deleted==false) }));
             }
             catch (Exception ex)
             {
@@ -115,7 +115,7 @@ namespace IoTSharp.Controllers
             }
             catch (DbUpdateConcurrencyException ex)
             {
-                if (!_context.Tenant.Any(c=>c.Id==id))
+                if (!_context.Tenant.Any(c=>c.Id==id && c.Deleted==false))
                 {
                     return new ApiResult<Tenant>(ApiCode.CantFindObject, "cant't find this object", tenant);
                 }
@@ -178,7 +178,8 @@ namespace IoTSharp.Controllers
             }
             try
             {
-                _context.Tenant.Remove(tenant);
+                tenant.Deleted = true;
+                _context.Tenant.Update(tenant);
                 await _context.SaveChangesAsync();
                 return new ApiResult<Tenant>(ApiCode.Success, "Ok", tenant);
             }
@@ -187,13 +188,6 @@ namespace IoTSharp.Controllers
                 return new ApiResult<Tenant>(ApiCode.InValidData, ex.Message, tenant);
             
             }
-        }
-
-        private ApiResult<bool> TenantExists(Guid id)
-        {
-            return new ApiResult<bool>(ApiCode.InValidData, "Ok", _context.Tenant.Any(e => e.Id == id));
-
-
         }
     }
 }

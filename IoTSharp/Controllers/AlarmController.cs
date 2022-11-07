@@ -45,19 +45,19 @@ namespace IoTSharp.Controllers
                 {
                     case OriginatorType.Device:
                         originator =
-                            _context.Device.FirstOrDefault(d => d.Id.ToString() == oname || d.Name == oname)?.Id ??
+                            _context.Device.FirstOrDefault(d => (d.Id.ToString() == oname || d.Name == oname) && d.Deleted == false)?.Id ??
                             Guid.Empty;
                         break;
 
                     case OriginatorType.Gateway:
                         originator =
-                            _context.Gateway.FirstOrDefault(d => d.Id.ToString() == oname || d.Name == oname)?.Id ??
+                            _context.Gateway.FirstOrDefault(d =>( d.Id.ToString() == oname || d.Name == oname) && d.Deleted == false)?.Id ??
                             Guid.Empty;
                         break;
 
                     case OriginatorType.Asset:
                         originator =
-                            _context.Assets.FirstOrDefault(d => d.Id.ToString() == oname || d.Name == oname)?.Id ??
+                            _context.Assets.FirstOrDefault(d => (d.Id.ToString() == oname || d.Name == oname) && d.Deleted==false)?.Id ??
                             Guid.Empty;
                         break;
 

@@ -51,7 +51,7 @@ namespace IoTSharp.Data.Extensions
             }
             else if (cad.OriginatorType == OriginatorType.Asset)
             {
-                var ass = _context.Assets.Include(a => a.Tenant).Include(a => a.Customer).AsSplitQuery().FirstOrDefault(d => d.Id.ToString() == cad.OriginatorName || d.Name == cad.OriginatorName);
+                var ass = _context.Assets.Include(a => a.Tenant).Include(a => a.Customer).AsSplitQuery().FirstOrDefault(d => (d.Id.ToString() == cad.OriginatorName || d.Name == cad.OriginatorName) && d.Deleted==false);
                 if (ass != null)
                 {
                     originatorType = OriginatorType.Asset;

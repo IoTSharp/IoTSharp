@@ -17,6 +17,6 @@ namespace IoTSharp.Data
         public List<AssetRelation> OwnedAssets { get; set; }
         public Customer Customer { get; set; }
         public Tenant Tenant { get; set; }
-
+        public bool Deleted { get; set; }
     }
 }
