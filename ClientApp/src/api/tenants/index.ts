@@ -15,7 +15,7 @@ export function tenantApi() {
 			return request({
 				url: '/api/Tenants',
 				method: 'get',
-				data: params,
+				params,
 			});
 		},
 		gettenant: (tenantId: string) => {
@@ -50,6 +50,6 @@ export function tenantApi() {
 	};
 }
 
-interface QueryParam extends IListQueryParam {
+export interface QueryParam extends IListQueryParam {
 	name?: string;
 }
