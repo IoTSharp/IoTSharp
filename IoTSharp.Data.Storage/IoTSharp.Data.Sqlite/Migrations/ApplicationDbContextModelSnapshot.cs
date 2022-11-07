@@ -17,7 +17,7 @@ namespace IoTSharp.Data.Sqlite.Migrations
 #pragma warning disable 612, 618
             modelBuilder
                 .UseCollation("NOCASE")
-                .HasAnnotation("ProductVersion", "6.0.9");
+                .HasAnnotation("ProductVersion", "6.0.10");
 
             modelBuilder.Entity("IoTSharp.Data.Alarm", b =>
                 {
@@ -87,6 +87,9 @@ namespace IoTSharp.Data.Sqlite.Migrations
 
                     b.Property<Guid?>("CustomerId")
                         .HasColumnType("TEXT");
+
+                    b.Property<bool>("Deleted")
+                        .HasColumnType("INTEGER");
 
                     b.Property<string>("Description")
                         .HasColumnType("TEXT")
@@ -208,6 +211,9 @@ namespace IoTSharp.Data.Sqlite.Migrations
 
                     b.Property<Guid?>("CustomerId")
                         .HasColumnType("TEXT");
+
+                    b.Property<bool>("Deleted")
+                        .HasColumnType("INTEGER");
 
                     b.Property<string>("Name")
                         .HasColumnType("TEXT")
@@ -546,6 +552,9 @@ namespace IoTSharp.Data.Sqlite.Migrations
                     b.Property<string>("Country")
                         .HasColumnType("TEXT")
                         .UseCollation("NOCASE");
+
+                    b.Property<bool>("Deleted")
+                        .HasColumnType("INTEGER");
 
                     b.Property<string>("Email")
                         .HasColumnType("TEXT")
@@ -1605,6 +1614,9 @@ namespace IoTSharp.Data.Sqlite.Migrations
                     b.Property<int>("DefaultTimeout")
                         .HasColumnType("INTEGER");
 
+                    b.Property<bool>("Deleted")
+                        .HasColumnType("INTEGER");
+
                     b.Property<string>("Description")
                         .HasColumnType("TEXT")
                         .UseCollation("NOCASE");
@@ -1651,6 +1663,9 @@ namespace IoTSharp.Data.Sqlite.Migrations
                     b.Property<string>("DefaultValue")
                         .HasColumnType("TEXT")
                         .UseCollation("NOCASE");
+
+                    b.Property<bool>("Deleted")
+                        .HasColumnType("INTEGER");
 
                     b.Property<bool>("Display")
                         .HasColumnType("INTEGER");
@@ -2033,6 +2048,9 @@ namespace IoTSharp.Data.Sqlite.Migrations
                     b.Property<string>("Country")
                         .HasColumnType("TEXT")
                         .UseCollation("NOCASE");
+
+                    b.Property<bool>("Deleted")
+                        .HasColumnType("INTEGER");
 
                     b.Property<string>("EMail")
                         .HasColumnType("TEXT")

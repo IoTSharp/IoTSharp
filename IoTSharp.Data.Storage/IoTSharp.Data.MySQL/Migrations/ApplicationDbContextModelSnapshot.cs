@@ -16,7 +16,7 @@ namespace IoTSharp.Data.MySql.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "6.0.9")
+                .HasAnnotation("ProductVersion", "6.0.10")
                 .HasAnnotation("Relational:MaxIdentifierLength", 64);
 
             modelBuilder.Entity("IoTSharp.Data.Alarm", b =>
@@ -84,6 +84,9 @@ namespace IoTSharp.Data.MySql.Migrations
 
                     b.Property<Guid?>("CustomerId")
                         .HasColumnType("char(36)");
+
+                    b.Property<bool>("Deleted")
+                        .HasColumnType("tinyint(1)");
 
                     b.Property<string>("Description")
                         .HasColumnType("longtext");
@@ -193,6 +196,9 @@ namespace IoTSharp.Data.MySql.Migrations
 
                     b.Property<Guid?>("CustomerId")
                         .HasColumnType("char(36)");
+
+                    b.Property<bool>("Deleted")
+                        .HasColumnType("tinyint(1)");
 
                     b.Property<string>("Name")
                         .HasColumnType("longtext");
@@ -477,6 +483,9 @@ namespace IoTSharp.Data.MySql.Migrations
 
                     b.Property<string>("Country")
                         .HasColumnType("longtext");
+
+                    b.Property<bool>("Deleted")
+                        .HasColumnType("tinyint(1)");
 
                     b.Property<string>("Email")
                         .HasColumnType("longtext");
@@ -1443,6 +1452,9 @@ namespace IoTSharp.Data.MySql.Migrations
                     b.Property<int>("DefaultTimeout")
                         .HasColumnType("int");
 
+                    b.Property<bool>("Deleted")
+                        .HasColumnType("tinyint(1)");
+
                     b.Property<string>("Description")
                         .HasColumnType("longtext");
 
@@ -1484,6 +1496,9 @@ namespace IoTSharp.Data.MySql.Migrations
 
                     b.Property<string>("DefaultValue")
                         .HasColumnType("longtext");
+
+                    b.Property<bool>("Deleted")
+                        .HasColumnType("tinyint(1)");
 
                     b.Property<bool>("Display")
                         .HasColumnType("tinyint(1)");
@@ -1824,6 +1839,9 @@ namespace IoTSharp.Data.MySql.Migrations
 
                     b.Property<string>("Country")
                         .HasColumnType("longtext");
+
+                    b.Property<bool>("Deleted")
+                        .HasColumnType("tinyint(1)");
 
                     b.Property<string>("EMail")
                         .HasColumnType("longtext");
