@@ -15,6 +15,8 @@
 [![Total alerts](https://img.shields.io/lgtm/alerts/g/IoTSharp/IoTSharp.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/IoTSharp/IoTSharp/alerts/)
 [![Language grade: JavaScript](https://img.shields.io/lgtm/grade/javascript/g/IoTSharp/IoTSharp.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/IoTSharp/IoTSharp/context:javascript)
 [![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2FIoTSharp%2FIoTSharp.svg?type=shield)](https://app.fossa.com/projects/git%2Bgithub.com%2FIoTSharp%2FIoTSharp?ref=badge_shield)
+[![star](https://gitee.com/IoTSharp/IoTSharp/badge/star.svg?theme=gvp)](https://gitee.com/IoTSharp/IoTSharp/stargazers)
+[![fork](https://gitee.com/IoTSharp/IoTSharp/badge/fork.svg?theme=gvp)](https://gitee.com/IoTSharp/IoTSharp/members)
 
 
 IoTSharp is an open-source IoT platform for data collection, processing, visualization, and device management.
