@@ -253,10 +253,6 @@ namespace IoTSharp.Controllers
                 .SingleOrDefaultAsync(c => c.Id == produceId && c.Deleted == false );
             if (produce != null)
             {
-
-
-                //var result = _context.ProduceDatas.Include(c=>c.Owner).Where(c => c.Owner.Id == produceId).Select(c => new ProduceDataItemDto
-                //{ KeyName = c.KeyName, DataSide = c.DataSide, Type = c.Type }).ToList();
                 var result = _context.DataStorage.Where(c => c.DeviceId == produceId).Select(c =>
                     new ProduceDataItemDto
                     { KeyName = c.KeyName, DataSide = c.DataSide, Type = c.Type }).ToList();
@@ -350,7 +346,8 @@ namespace IoTSharp.Controllers
                 .SingleOrDefaultAsync(c => c.Id == produceId && c.Deleted == false);
             if (produce != null)
             {
-                return new ApiResult<List<ProduceDictionary>>(ApiCode.Success, "Ok", produce.Dictionaries);
+                var dic = produce.Dictionaries.Where(d => d.Deleted == false).ToList();
+                return new ApiResult<List<ProduceDictionary>>(ApiCode.Success, "Ok", dic);
             }
 
             return new ApiResult<List<ProduceDictionary>>(ApiCode.CantFindObject, "Produce is  not found", null);
@@ -420,11 +417,11 @@ namespace IoTSharp.Controllers
 
                         }
                     }
-
                     var deletedic = produce.Dictionaries.Select(c => c.Id)
                         .Except(dto.ProduceDictionaryData.Select(c => c.Id)).ToList();
-                    _context.ProduceDictionaries.RemoveRange(produce.Dictionaries
-                        .Where(c => deletedic.Any(p => p == c.Id)).ToList());
+                    var sc = produce.Dictionaries.Where(c => deletedic.Any(p => p == c.Id));
+                    sc.ForEach(c => c.Deleted = true);
+                    _context.ProduceDictionaries.UpdateRange(sc);
                     await _context.SaveChangesAsync();
 
                     return new ApiResult<bool>(ApiCode.Success, "Ok", true);
