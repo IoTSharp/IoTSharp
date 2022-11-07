@@ -66,7 +66,7 @@
 		<PackageReference Include="EasyCaching.InMemory" Version="1.7.0" />
 		<PackageReference Include="EasyCaching.LiteDB" Version="1.7.0" />
 		<PackageReference Include="EasyCaching.Redis" Version="1.7.0" />
-		<PackageReference Include="Figgle" Version="0.4.0" />
+		<PackageReference Include="Figgle" Version="0.4.1" />
 		<PackageReference Include="hyjiacan.pinyin4net" Version="4.1.1" />
 		<PackageReference Include="IoTSharp.CoAP.NET" Version="2.0.8" />
 		<PackageReference Include="Jdenticon-net" Version="3.1.2" />
@@ -91,7 +91,7 @@
 		<PackageReference Include="SilkierQuartz" Version="5.0.356" />
 		<PackageReference Include="SkiaSharp.NativeAssets.Linux.NoDependencies" Version="2.88.3" />
 		<PackageReference Include="Storage.Net" Version="9.3.0" />
-		<PackageReference Include="ShardingCore" Version="6.8.0.2" />
+		<PackageReference Include="ShardingCore" Version="6.8.0.5" />
 		<PackageReference Include="System.Resources.Extensions" Version="6.0.0" />
 		<PackageReference Include="System.Text.Encoding.CodePages" Version="6.0.0">
 
