@@ -12,7 +12,7 @@
 <script lang="ts" setup>
 import logoIcon from '/@/assets/logo-icon.svg'
 import logoText from '/@/assets/logo-text.svg'
-const props = defineProps({
+defineProps({
   hideIcon: {
     type: Boolean,
     default: false
