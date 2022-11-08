@@ -5,15 +5,21 @@
           <input nz-input formControlName="name" placeholder="规则名称" />
         </se>
         <se label="挂载点" error="请选择挂载点" required>
-          <nz-select nz-input  formControlName="mountType" placeholder="挂载点" >
+          <nz-select nz-input formControlName="mountType" placeholder="挂载点">
+            <nz-option nzValue="None" nzLabel="无"></nz-option>
             <nz-option nzValue="Telemetry" nzLabel="遥测"></nz-option>
-             <nz-option nzValue="Attribute" nzLabel="属性"></nz-option>
-             <nz-option nzValue="RAW" nzLabel="RAW"></nz-option>
-             <nz-option nzValue="RPC" nzLabel="RPC"></nz-option>
-             <nz-option nzValue="Online" nzLabel="Online"></nz-option>
-             <nz-option nzValue="Offline" nzLabel="Offline"></nz-option>
-             <nz-option nzValue="TelemetryArray" nzLabel="遥测数组"></nz-option>
-             <nz-option nzValue="Alarm" nzLabel="告警"></nz-option>
+            <nz-option nzValue="Attribute" nzLabel="属性"></nz-option>
+            <nz-option nzValue="RAW" nzLabel="RAW"></nz-option>
+            <nz-option nzValue="RPC" nzLabel="RPC"></nz-option>
+            <nz-option nzValue="Connected" nzLabel="在线"></nz-option>
+            <nz-option nzValue="Disconnected" nzLabel="离线"></nz-option>
+            <nz-option nzValue="TelemetryArray" nzLabel="遥测数组"></nz-option>
+            <nz-option nzValue="Alarm" nzLabel="告警"></nz-option>
+            <nz-option nzValue="DeleteDevice" nzLabel="删除设备"></nz-option>
+            <nz-option nzValue="CreateDevice" nzLabel="创建设备"></nz-option>
+            <nz-option nzValue="Activity" nzLabel="活动事件"></nz-option>
+            <nz-option nzValue="Inactivity" nzLabel="非活跃状态"></nz-option>
+
           </nz-select>
   
   
@@ -34,4 +40,3 @@
       </form>
     </nz-card>
   </page-header>
-  
