@@ -140,7 +140,7 @@ export default defineComponent({
 				.customerList({
 					offset: state.tableData.param.pageNum - 1,
 					limit: state.tableData.param.pageSize,
-					tenantId: userInfos.value.tenantId.id,
+					tenantId: userInfos.value.tenant.id,
 				})
 				.then((res) => {
 					state.tableData.rows = res.data.rows;
