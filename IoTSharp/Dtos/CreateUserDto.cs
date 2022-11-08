@@ -6,7 +6,7 @@ namespace IoTSharp.Dtos
     public class CreateUserDto
     {
         /// <summary>
-        /// 系统管理员用户名
+        /// 用户邮箱
         /// </summary>
         [Required]
         [EmailAddress]
@@ -24,7 +24,9 @@ namespace IoTSharp.Dtos
         /// </summary>
         [Phone]
         public string PhoneNumber { get; set; }
-
+        /// <summary>
+        /// 客户的ID
+        /// </summary>
         public Guid Customer { get; set; }
 
     }

@@ -731,7 +731,7 @@
         </member>
         <member name="P:IoTSharp.Dtos.CreateUserDto.Email">
             <summary>
-            系统管理员用户名
+            用户邮箱
             </summary>
         </member>
         <member name="P:IoTSharp.Dtos.CreateUserDto.Password">
@@ -742,6 +742,11 @@
         <member name="P:IoTSharp.Dtos.CreateUserDto.PhoneNumber">
             <summary>
             电话号码
+            </summary>
+        </member>
+        <member name="P:IoTSharp.Dtos.CreateUserDto.Customer">
+            <summary>
+            客户的ID
             </summary>
         </member>
         <member name="P:IoTSharp.Dtos.DeviceDetailDto.Name">
