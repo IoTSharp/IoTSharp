@@ -154,7 +154,7 @@ export default defineComponent({
         });
         
         !editor ? editor = monaco.editor.create(document.getElementById('codeEditBox') as HTMLElement, {
-            value:text.value, // 编辑器初始显示文字
+            value:state.node.content, // 编辑器初始显示文字
             language: 'json', // 语言支持自行查阅demo
             automaticLayout: true, // 自适应布局  
             theme: 'vs-dark', // 官方自带三种主题vs, hc-black, or vs-dark
@@ -173,7 +173,7 @@ export default defineComponent({
         // console.log(editor)
         // 监听值的变化
         editor.onDidChangeModelContent((val:any) => {
-            text.value = editor.getValue();
+            state.node.value = editor.getValue();
              
         })
     })
