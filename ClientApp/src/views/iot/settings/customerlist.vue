@@ -157,7 +157,7 @@ export default defineComponent({
 			let params: QueryParam = {
 				offset: state.tableData.param.pageNum - 1,
 				limit: state.tableData.param.pageSize,
-				tenantId: userInfos.value.tenantId.id,
+				tenantId: userInfos.value.tenant.id,
 			};
 			if (name) {
 				params.name = name.value;

@@ -1,6 +1,5 @@
 import axios from 'axios';
-import type { AxiosRequestConfig, AxiosInstance, AxiosResponse, AxiosError } from 'axios';
-import { ElMessage, ElMessageBox } from 'element-plus';
+import { ElMessage, ElMessageBox, ElNotification } from 'element-plus';
 import { Session } from '/@/utils/storage';
 
 // 配置新建一个 axios 实例
@@ -39,7 +38,14 @@ service.interceptors.response.use(
 					.then(() => {})
 					.catch(() => {});
 			}
-			return Promise.reject(service.interceptors.response);
+			else {
+				ElNotification({
+					title: `错误代码: ${res.code}`,
+					type: 'error',
+					message: res.msg
+				})
+				return Promise.reject(service.interceptors.response);
+			}
 		} else {
 			return response.data;
 		}
