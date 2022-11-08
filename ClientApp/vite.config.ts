@@ -46,7 +46,7 @@ const viteConfig = defineConfig((mode: ConfigEnv) => {
 					// Auto register icon components
 					// 自动注册图标组件
 					IconsResolver({
-						// prefix: 'icon',
+						prefix: 'icon',
 					}),
 					ElementPlusResolver()],
 				dts: path.resolve(pathSrc, 'components.d.ts'),
