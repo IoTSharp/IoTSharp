@@ -77,6 +77,9 @@
 .el-menu-item {
 	height: 56px !important;
 	line-height: 56px !important;
+	&:hover {
+		background-color: var(--next-color-menu-hover) !important;
+	}
 }
 .el-menu-item,
 .el-sub-menu__title {
@@ -109,6 +112,10 @@
 }
 .el-sub-menu.is-active.is-opened .el-sub-menu__title {
 	background-color: unset !important;
+
+}
+.el-menu-item.is-active {
+	font-weight: bold;
 }
 // 子级菜单背景颜色
 // .el-menu--inline {
