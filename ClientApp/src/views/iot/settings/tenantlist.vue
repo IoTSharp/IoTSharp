@@ -55,10 +55,9 @@
 </template>
 
 <script lang="ts">
-import { ElMessageBox, ElMessage, getPositionDataWithUnit } from 'element-plus';
+import { ElMessageBox, ElMessage } from 'element-plus';
 import { ref, toRefs, reactive, onMounted, defineComponent } from 'vue';
 import addtenant from './addtenant.vue';
-import { deviceApi } from '/@/api/devices';
 import { QueryParam, tenantApi } from '/@/api/tenants';
 import { Session } from '/@/utils/storage';
 import { appmessage } from '/@/api/iapiresult';

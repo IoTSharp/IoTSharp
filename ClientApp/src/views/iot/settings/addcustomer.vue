@@ -73,6 +73,9 @@ import { ref, toRefs, reactive, onMounted, defineComponent, watchEffect } from '
 import { ElMessageBox, ElMessage } from 'element-plus';
 import { tenantApi } from '/@/api/tenants';
 import { appmessage } from '/@/api/iapiresult';
+import { customerApi } from '/@/api/customer';
+import { useUserInfo } from '/@/stores/userInfo';
+import { storeToRefs } from 'pinia';
 
 interface tenantform {
 	drawer: boolean;
@@ -83,13 +86,14 @@ interface tenantform {
 export default defineComponent({
 	name: 'addcustomer',
 	components: {},
-	setup(props) {
+	setup(props, context) {
+		const stores = useUserInfo();
+		const { userInfos } = storeToRefs(stores);
 		const state = reactive<tenantform>({
 			dialogtitle: '',
 			drawer: false,
 			dataForm: {
-				id: '0000000-0000-0000-0000-000000000000',
-
+				id: '00000000-0000-0000-0000-000000000000',
 				name: '',
 				eMail: '',
 				phone: '',
@@ -102,10 +106,10 @@ export default defineComponent({
 			},
 		});
 
-		const openDialog = (tenantid: string) => {
-			if (tenantid === '0000000-0000-0000-0000-000000000000') {
+		const openDialog = (customerId: string) => {
+			if (customerId === '00000000-0000-0000-0000-000000000000') {
 				state.dataForm = {
-					id: '0000000-0000-0000-0000-000000000000',
+					id: '00000000-0000-0000-0000-000000000000',
 					name: '',
 					eMail: '',
 					phone: '',
@@ -119,8 +123,8 @@ export default defineComponent({
 				state.dialogtitle = '新增客户';
 			} else {
 				state.dialogtitle = '修改客户';
-				tenantApi()
-					.gettenant(tenantid)
+				customerApi()
+					.getCustomer(customerId)
 					.then((res) => {
 						state.dataForm = res.data;
 					});
@@ -136,22 +140,31 @@ export default defineComponent({
 
 		onMounted(() => {});
 		const onSubmit = () => {
-			if (state.dataForm.id === '0000000-0000-0000-0000-000000000000') {
-				tenantApi()
-					.posttenant(state.dataForm)
+			const tenantId = userInfos.value.tenantId.id;
+			const data = {
+				...state.dataForm,
+				tenantId,
+			};
+			if (state.dataForm.id === '00000000-0000-0000-0000-000000000000') {
+				customerApi()
+					.postCustomer(data)
 					.then((res: appmessage<boolean>) => {
 						if (res.code === 10000 && res.data) {
 							ElMessage.success('新增成功');
+							closeDialog();
+							context.emit('getData');
 						} else {
 							ElMessage.warning('新增失败:' + res.msg);
 						}
 					});
 			} else {
-				tenantApi()
-					.puttenant(state.dataForm)
+				customerApi()
+					.putCustomer(data)
 					.then((res: appmessage<boolean>) => {
 						if (res.code === 10000 && res.data) {
 							ElMessage.success('修改成功');
+							closeDialog();
+							context.emit('getData');
 						} else {
 							ElMessage.warning('修改失败:' + res.msg);
 						}
