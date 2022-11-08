@@ -1,4 +1,5 @@
 import axios from 'axios';
+import type { AxiosRequestConfig, AxiosInstance, AxiosResponse, AxiosError } from 'axios';
 import { ElMessage, ElMessageBox } from 'element-plus';
 import { Session } from '/@/utils/storage';
 
@@ -28,9 +29,7 @@ service.interceptors.response.use(
 	(response) => {
 		// 对响应数据做点什么
 		const res = response.data;
-		return response.data;
 
-		
 		if (res.code && res.code !== 10000) {
 			// `token` 过期或者账号已在别处登录
 			if (res.code === 401 || res.code === 4001) {
@@ -53,8 +52,8 @@ service.interceptors.response.use(
 			ElMessage.error('网络连接错误');
 		} else {
 			if(error.response.status===401){
-				Session.clear(); 
-				window.location.href = '/'; // 去登录页	
+				Session.clear();
+				window.location.href = '/'; // 去登录页
 			}
 			if (error.response.data) ElMessage.error(error.response.statusText);
 			else ElMessage.error(error.response.status);

@@ -5,16 +5,16 @@
 @media screen and (max-width: $sm) {
 	.home-media,
 	.home-media-sm {
-		margin-top: 15px;
+		//margin-top: 15px;
 	}
 }
 
 /* 页面宽度小于1200px
 ------------------------------- */
 @media screen and (max-width: $lg) {
-	.home-media-lg {
-		margin-top: 15px;
-	}
+	//.home-media-lg {
+	//	margin-top: 15px;
+	//}
 	.home-monitor {
 		.flex-warp-item {
 			width: 33.33% !important;
