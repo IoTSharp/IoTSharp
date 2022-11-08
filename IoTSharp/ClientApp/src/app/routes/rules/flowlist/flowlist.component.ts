@@ -32,10 +32,14 @@ export class FlowlistComponent implements OnInit {
     Attribute: { text: '属性', color: 'orange' },
     RAW: { text: 'RAW', color: 'blue' },
     RPC: { text: 'RPC', color: 'cyan' },
-    Online: { text: 'Online', color: 'green' },
-    Offline: { text: 'Offline', color: 'red' },
+    Connected: { text: '在线', color: 'green' },
+    Disconnected: { text: '离线', color: 'red' },
     TelemetryArray: { text: '遥测数组', color: 'purple' },
-    Alarm: { text: '告警', color: 'magenta' }
+    Alarm: { text: '告警', color: 'magenta' },
+    DeleteDevice: { text: '删除设备', color: 'magenta' },
+    CreateDevice: { text: '创建设备', color: 'gold' },
+    Activity: { text: '活动', color: 'lime' },
+    Inactivity: { text: '非活动', color: 'volcano' }
   };
   page: STPage = {
     front: false,

@@ -58,7 +58,7 @@ namespace IoTSharp.Controllers
         {
             try
             {
-                return Ok(new ApiResult<PagedData<Tenant>>(ApiCode.Exception, "Ok", new PagedData<Tenant>() { rows = await _context.Tenant.Where(t=>t.Deleted==false).ToListAsync(), total = await _context.Tenant.CountAsync(c=>c.Deleted==false) }));
+                return Ok(new ApiResult<PagedData<Tenant>>(ApiCode.Success, "Ok", new PagedData<Tenant>() { rows = await _context.Tenant.Where(t=>t.Deleted==false).ToListAsync(), total = await _context.Tenant.CountAsync(c=>c.Deleted==false) }));
             }
             catch (Exception ex)
             {
@@ -81,7 +81,7 @@ namespace IoTSharp.Controllers
             var tenant = await _context.Tenant.FindAsync(id);
             if (tenant == null)
             {
-                return new ApiResult<Tenant>(ApiCode.Success, "can't find this object", null);
+                return new ApiResult<Tenant>(ApiCode.CantFindObject, "can't find this object", null);
             }
 
             return new ApiResult<Tenant>(ApiCode.Success, "OK", tenant);
@@ -122,12 +122,12 @@ namespace IoTSharp.Controllers
                 else
                 {
 
-                    return new ApiResult<Tenant>(ApiCode.InValidData, ex.Message, tenant);
+                    return new ApiResult<Tenant>(ApiCode.Exception, ex.Message, tenant);
                 }
             }
             catch (Exception ex)
             {
-                return new ApiResult<Tenant>(ApiCode.InValidData, ex.Message, tenant);
+                return new ApiResult<Tenant>(ApiCode.Exception, ex.Message, tenant);
             }
 
             return new ApiResult<Tenant>(ApiCode.Success, "Ok", tenant);
@@ -154,7 +154,7 @@ namespace IoTSharp.Controllers
             catch (Exception ex)
             {
 
-                return new ApiResult<Tenant>(ApiCode.InValidData, ex.Message, tenant);
+                return new ApiResult<Tenant>(ApiCode.Exception, ex.Message, tenant);
             }
         }
         /// <summary>
@@ -185,7 +185,7 @@ namespace IoTSharp.Controllers
             }
             catch (Exception ex)
             {
-                return new ApiResult<Tenant>(ApiCode.InValidData, ex.Message, tenant);
+                return new ApiResult<Tenant>(ApiCode.Exception, ex.Message, tenant);
             
             }
         }
