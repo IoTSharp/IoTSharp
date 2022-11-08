@@ -2,14 +2,14 @@
 	<div class="system-list-container">
 		<el-card shadow="hover">
 			<div class="system-dept-search mb15">
-				<el-input size="default" placeholder="请输入客户名称" style="max-width: 180px"> </el-input>
-				<el-button size="default" type="primary" class="ml10">
+				<el-input size="default" v-model="name" placeholder="请输入客户名称" style="max-width: 180px"> </el-input>
+				<el-button size="default" type="primary" class="ml10" @click="handleSearch">
 					<el-icon>
 						<ele-Search />
 					</el-icon>
 					查询
 				</el-button>
-				<el-button size="default" type="success" @click="create('0000000-0000-0000-0000-000000000000')" class="ml10">
+				<el-button size="default" type="success" @click="create('00000000-0000-0000-0000-000000000000')" class="ml10">
 					<el-icon>
 						<ele-FolderAdd />
 					</el-icon>
@@ -47,17 +47,19 @@
 			>
 			</el-pagination>
 		</el-card>
-		<addcustomer ref="addformRef" />
+		<addcustomer ref="addformRef" @getData="initTableData" />
 	</div>
 </template>
 
 <script lang="ts">
-import { ElMessageBox, ElMessage, getPositionDataWithUnit } from 'element-plus';
+import { ElMessageBox, ElMessage } from 'element-plus';
 import { ref, toRefs, reactive, onMounted, defineComponent } from 'vue';
 import { customerApi } from '/@/api/customer';
 import { useUserInfo } from '/@/stores/userInfo';
 import { storeToRefs } from 'pinia';
 import addcustomer from './addcustomer.vue';
+import { QueryParam } from '/@/api/customer';
+import { appmessage } from '/@/api/iapiresult';
 
 // 定义接口来定义对象的类型
 interface TableDataRow {
@@ -92,6 +94,7 @@ export default defineComponent({
 		const stores = useUserInfo();
 		const { userInfos } = storeToRefs(stores);
 		const addformRef = ref();
+		const name = ref<string>('');
 		const state = reactive<TableDataState>({
 			tableData: {
 				rows: [],
@@ -103,6 +106,11 @@ export default defineComponent({
 				},
 			},
 		});
+		const handleSearch = () => {
+			state.tableData.param.pageNum = 1;
+			state.tableData.param.pageSize = 10;
+			getData();
+		};
 		// 初始化表格数据
 		const initTableData = () => {
 			getData();
@@ -116,6 +124,16 @@ export default defineComponent({
 				type: 'warning',
 			})
 				.then(() => {
+					customerApi()
+						.deleteCustomer(row.id as string)
+						.then((res: appmessage<boolean>) => {
+							if (res.code === 10000 && res.data) {
+								ElMessage.success('删除成功');
+								initTableData();
+							} else {
+								ElMessage.warning('删除失败:' + res.msg);
+							}
+						});
 					ElMessage.success('删除成功');
 				})
 				.catch(() => {});
@@ -136,12 +154,16 @@ export default defineComponent({
 		};
 
 		const getData = () => {
+			let params: QueryParam = {
+				offset: state.tableData.param.pageNum - 1,
+				limit: state.tableData.param.pageSize,
+				tenantId: userInfos.value.tenantId.id,
+			};
+			if (name) {
+				params.name = name.value;
+			}
 			customerApi()
-				.customerList({
-					offset: state.tableData.param.pageNum - 1,
-					limit: state.tableData.param.pageSize,
-					tenantId: userInfos.value.tenant.id,
-				})
+				.customerList(params)
 				.then((res) => {
 					state.tableData.rows = res.data.rows;
 					state.tableData.total = res.data.total;
@@ -151,7 +173,7 @@ export default defineComponent({
 		onMounted(() => {
 			initTableData();
 		});
-		return { addformRef, create, onHandleSizeChange, onHandleCurrentChange, onTabelRowDel, ...toRefs(state) };
+		return { name, initTableData, handleSearch, addformRef, create, onHandleSizeChange, onHandleCurrentChange, onTabelRowDel, ...toRefs(state) };
 	},
 });
 </script>

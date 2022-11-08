@@ -18,16 +18,16 @@ export function customerApi() {
 				data: params,
 			});
 		},
-		getCustomer: (tenantId: string) => {
+		getCustomer: (customerId: string) => {
 			return request({
-				url: '/api/tenants/' + tenantId,
+				url: '/api/Customers/' + customerId,
 				method: 'get',
 			});
 		},
 
 		postCustomer: (params: any) => {
 			return request({
-				url: '/api/tenants',
+				url: '/api/Customers',
 				method: 'post',
 				data: params,
 			});
@@ -35,14 +35,14 @@ export function customerApi() {
 
 		putCustomer: (params: any) => {
 			return request({
-				url: '/api/tenants/' + params.id,
+				url: '/api/Customers/' + params.id,
 				method: 'put',
 				data: params,
 			});
 		},
 		deleteCustomer: (id: string) => {
 			return request({
-				url: '/api/tenants/' + id,
+				url: '/api/Customers/' + id,
 				method: 'delete',
 				data: {},
 			});
@@ -50,7 +50,7 @@ export function customerApi() {
 	};
 }
 
-interface QueryParam extends IListQueryParam {
+export interface QueryParam extends IListQueryParam {
 	name?: string;
 	tenantId?: string;
 }
