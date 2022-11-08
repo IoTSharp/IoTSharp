@@ -61,6 +61,13 @@
             <param name="model"></param>
             <returns >返回登录结果</returns>
         </member>
+        <member name="M:IoTSharp.Controllers.AccountController.CreateUser(IoTSharp.Dtos.CreateUserDto)">
+            <summary>
+            注册新的租户，客户，以及用户
+            </summary>
+            <param name="model"></param>
+            <returns >返回登录结果</returns>
+        </member>
         <member name="M:IoTSharp.Controllers.AccountController.All(System.Guid)">
             <summary>
             返回客户所属用户列表
@@ -720,6 +727,21 @@
         <member name="P:IoTSharp.Dtos.RegisterDto.Password">
             <summary>
             用户名密码
+            </summary>
+        </member>
+        <member name="P:IoTSharp.Dtos.CreateUserDto.Email">
+            <summary>
+            系统管理员用户名
+            </summary>
+        </member>
+        <member name="P:IoTSharp.Dtos.CreateUserDto.Password">
+            <summary>
+            系统管理员密码
+            </summary>
+        </member>
+        <member name="P:IoTSharp.Dtos.CreateUserDto.PhoneNumber">
+            <summary>
+            电话号码
             </summary>
         </member>
         <member name="P:IoTSharp.Dtos.DeviceDetailDto.Name">

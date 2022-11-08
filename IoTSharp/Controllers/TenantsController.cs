@@ -58,7 +58,7 @@ namespace IoTSharp.Controllers
         {
             try
             {
-                return Ok(new ApiResult<PagedData<Tenant>>(ApiCode.Exception, "Ok", new PagedData<Tenant>() { rows = await _context.Tenant.Where(t=>t.Deleted==false).ToListAsync(), total = await _context.Tenant.CountAsync(c=>c.Deleted==false) }));
+                return Ok(new ApiResult<PagedData<Tenant>>(ApiCode.Success, "Ok", new PagedData<Tenant>() { rows = await _context.Tenant.Where(t=>t.Deleted==false).ToListAsync(), total = await _context.Tenant.CountAsync(c=>c.Deleted==false) }));
             }
             catch (Exception ex)
             {

@@ -21,6 +21,7 @@ using Microsoft.Extensions.Options;
 
 using Jdenticon.AspNetCore;
 using IoTSharp.Contracts;
+using InfluxDB.Client.Api.Domain;
 
 namespace IoTSharp.Controllers
 {
@@ -387,22 +388,84 @@ namespace IoTSharp.Controllers
                     await _signInManager.UserManager.AddToRoleAsync(user, nameof(UserRole.NormalUser));
                     await _signInManager.UserManager.AddToRoleAsync(user, nameof(UserRole.CustomerAdmin));
                     await _signInManager.UserManager.AddToRoleAsync(user, nameof(UserRole.TenantAdmin));
-                    return new ApiResult<LoginResult>(ApiCode.Success, "注册成功", null);
+                    _context.Relationship.Add(new Relationship
+                    {
+                        IdentityUser = _context.Users.Find(user.Id),
+                        Customer = _context.Customer.Find(customer.Id),
+                        Tenant = _context.Tenant.Find(tenant.Id)
+                    });
+                    await _context.SaveChangesAsync();
+                    return new ApiResult<LoginResult>(ApiCode.Success, "OK", null);
                 }
                 else
                 {
                     throw new Exception(string.Join(',', result.Errors.ToList().Select(ie => $"code={ie.Code},msg={ie.Description}")));
                 }
             }
-            var rship = new Relationship
+            else
             {
-                IdentityUser = _context.Users.Find(user.Id),
-                Customer = _context.Customer.Find(customer.Id),
-                Tenant = _context.Tenant.Find(tenant.Id)
-            };
-            _context.Add(rship);
-            await _context.SaveChangesAsync();
-            return new ApiResult<LoginResult>(ApiCode.InValidData, "", null);
+                return new ApiResult<LoginResult>(ApiCode.UserAlreadyExists, "The user already exists", null);
+            }
+           
+            
+        }
+        /// <summary>
+        /// 注册新的租户，客户，以及用户
+        /// </summary>
+        /// <param name="model"></param>
+        /// <returns >返回登录结果</returns>
+        [AllowAnonymous]
+        [HttpPost]
+        public async Task<ApiResult<LoginResult>> CreateUser([FromBody] CreateUserDto model)
+        {
+            var customer = await _context.Customer.Include(c => c.Tenant).FirstOrDefaultAsync(c => c.Id == model.Customer);
+            if (customer != null && customer.Tenant!=null)
+            {
+                var tid = customer.Tenant.Id;
+                IdentityUser user = await _userManager.FindByEmailAsync(model.Email);
+                if (user == null)
+                {
+                    user = new IdentityUser
+                    {
+                        Email = model.Email,
+                        UserName = model.Email,
+                        PhoneNumber = model.PhoneNumber
+                    };
+                    var result = await _userManager.CreateAsync(user, model.Password);
+                    if (result.Succeeded)
+                    {
+                        await _signInManager.SignInAsync(user, false);
+                        await _signInManager.UserManager.AddClaimAsync(user, new Claim(ClaimTypes.Email, model.Email));
+                        await _signInManager.UserManager.AddClaimAsync(user, new Claim(IoTSharpClaimTypes.Customer, model.Customer.ToString()));
+                        await _signInManager.UserManager.AddClaimAsync(user, new Claim(IoTSharpClaimTypes.Tenant, tid.ToString()));
+                        await _signInManager.UserManager.AddToRoleAsync(user, nameof(UserRole.Anonymous));
+                        await _signInManager.UserManager.AddToRoleAsync(user, nameof(UserRole.NormalUser));
+                        await _signInManager.UserManager.AddToRoleAsync(user, nameof(UserRole.CustomerAdmin));
+                        await _signInManager.UserManager.AddToRoleAsync(user, nameof(UserRole.TenantAdmin));
+                        var rship = new Relationship
+                        {
+                            IdentityUser = _context.Users.Find(user.Id),
+                            Customer = _context.Customer.Find(model.Customer),
+                            Tenant = _context.Tenant.Find(tid)
+                        };
+                        _context.Add(rship);
+                        await _context.SaveChangesAsync();
+                        return new ApiResult<LoginResult>(ApiCode.Success, "OK", null);
+                    }
+                    else
+                    {
+                        throw new Exception(string.Join(',', result.Errors.ToList().Select(ie => $"code={ie.Code},msg={ie.Description}")));
+                    }
+                }
+                else
+                {
+                    return new ApiResult<LoginResult>(ApiCode.UserAlreadyExists, "用户已存在", null);
+                }
+            }
+            else
+            {
+                return new ApiResult<LoginResult>(ApiCode.NotFoundCustomer, "未找到客户", null);
+            }
         }
         /// <summary>
         /// 返回客户所属用户列表
@@ -440,8 +503,6 @@ namespace IoTSharp.Controllers
         [HttpGet]
         public async Task<ApiResult<UserItemDto>> Get(String Id)
         {
-
-
             var user = await _userManager.FindByIdAsync(Id);
             if (user != null)
             {
@@ -511,8 +572,6 @@ namespace IoTSharp.Controllers
                     return new ApiResult<bool>(ApiCode.InValidData, result.Errors.Aggregate("", (x, y) => x + y.Description + "\n\r"), false);
                 }
                 return new ApiResult<bool>(ApiCode.InValidData, "Repeat password must be equal new password", false);
-
-
             }
             return new ApiResult<bool>(ApiCode.InValidData, "password length must great than six character", false);
         }

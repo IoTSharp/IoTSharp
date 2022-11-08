@@ -32,12 +32,12 @@ namespace IoTSharp.Contracts
         RPCTimeout = 10012,
         CustomerDoesNotHaveDevice = 10013,
         CreateUserFailed = 10014,
-
         CantFindObject = 10015,
         InValidData = 10016,
         NotFoundProduce = 10017,
         NotFile = 10018,
         Empty = 10019,
+        UserAlreadyExists = 10020,
     }
 
  

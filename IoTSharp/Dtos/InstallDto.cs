@@ -43,5 +43,4 @@ namespace IoTSharp.Dtos
         [Phone]
         public string PhoneNumber { get; set; }
     }
-
 }
