@@ -21,6 +21,10 @@ using System.Linq.Dynamic.Core;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
 using ShardingCore.Extensions;
+using Esprima.Ast;
+using InfluxDB.Client.Api.Domain;
+using System.CodeDom.Compiler;
+using Humanizer;
 
 namespace IoTSharp.Controllers
 {
@@ -145,11 +149,11 @@ namespace IoTSharp.Controllers
             {
                 try
                 {
-                    _context.FlowOperations.RemoveRange(_context.FlowOperations.Where(c=>c.FlowRule.RuleId==id).ToList()); 
+                    _context.FlowOperations.RemoveRange(_context.FlowOperations.Where(c => c.FlowRule.RuleId == id).ToList());
                     await _context.SaveChangesAsync();
-                    _context.BaseEvents.RemoveRange(_context.BaseEvents.Where(c=>c.FlowRule.RuleId==id).ToList()); 
+                    _context.BaseEvents.RemoveRange(_context.BaseEvents.Where(c => c.FlowRule.RuleId == id).ToList());
                     await _context.SaveChangesAsync();
-                    _context.Flows.RemoveRange(_context.Flows.Where(c=>c.FlowRule.RuleId==id).ToList());
+                    _context.Flows.RemoveRange(_context.Flows.Where(c => c.FlowRule.RuleId == id).ToList());
                     await _context.SaveChangesAsync();
                     _context.DeviceRules.RemoveRange(_context.DeviceRules.Where(c => c.FlowRule.RuleId == id).ToList());
                     await _context.SaveChangesAsync();
@@ -328,7 +332,7 @@ namespace IoTSharp.Controllers
 
 
             var profile = this.GetUserProfile();
-            Expression<Func<DeviceRule, bool>> condition = x => x.Device.Customer.Id == profile.Customer &&  !x.Device.Deleted   && x.Device.Tenant.Id == profile.Tenant&&x.FlowRule.RuleId==m.ruleId;
+            Expression<Func<DeviceRule, bool>> condition = x => x.Device.Customer.Id == profile.Customer && !x.Device.Deleted && x.Device.Tenant.Id == profile.Tenant && x.FlowRule.RuleId == m.ruleId;
             if (!string.IsNullOrEmpty(m.Name))
             {
                 if (System.Text.RegularExpressions.Regex.IsMatch(m.Name, @"(?im)^[{(]?[0-9A-F]{8}[-]?(?:[0-9A-F]{4}[-]?){3}[0-9A-F]{12}[)}]?$"))
@@ -343,13 +347,17 @@ namespace IoTSharp.Controllers
             }
 
 
-            var rows =await _context.DeviceRules.Include(c => c.FlowRule).Include(c => c.Device).Where(condition)
+            var rows = await _context.DeviceRules.Include(c => c.FlowRule).Include(c => c.Device).Where(condition)
                 .Select(c => new DeviceRuleDto()
                 {
-                    Id = c.Device.Id, DeviceType = c.Device.DeviceType, EnableTrace = c.EnableTrace, Name = c.Device.Name, Timeout = c.Device.Timeout
+                    Id = c.Device.Id,
+                    DeviceType = c.Device.DeviceType,
+                    EnableTrace = c.EnableTrace,
+                    Name = c.Device.Name,
+                    Timeout = c.Device.Timeout
                 }).Skip(m.offset * m.limit).Take(m.limit).ToListAsync();
-            var total =await _context.DeviceRules.Include(c => c.FlowRule).Include(c => c.Device).Where(condition).Select(c=>c.Device).AsSplitQuery().CountAsync();
-            return new ApiResult<PagedData<DeviceRuleDto>>(ApiCode.Success, "Ok",  new PagedData<DeviceRuleDto> { rows=rows,total= total });
+            var total = await _context.DeviceRules.Include(c => c.FlowRule).Include(c => c.Device).Where(condition).Select(c => c.Device).AsSplitQuery().CountAsync();
+            return new ApiResult<PagedData<DeviceRuleDto>>(ApiCode.Success, "Ok", new PagedData<DeviceRuleDto> { rows = rows, total = total });
         }
 
         [HttpGet]
@@ -481,7 +489,8 @@ namespace IoTSharp.Controllers
                     Createor = profile.Id,
                     CreateDate = CreateDate,
                     Customer = rule.Customer,
-                    Tenant = rule.Tenant, Flowdesc = JsonConvert.SerializeObject(c.BizObject.profile??new object())
+                    Tenant = rule.Tenant,
+                    Flowdesc = JsonConvert.SerializeObject(c.BizObject.profile ?? new object())
                 });
 
                 _context.Flows.AddRange(fw);
@@ -647,6 +656,232 @@ namespace IoTSharp.Controllers
             }
             return new ApiResult<bool>(ApiCode.Success, "Ok", true);
         }
+
+
+        [HttpPost]
+
+        public ApiResult<bool> SaveDiagramV(ModelDiagram m)
+        {
+            var profile = this.GetUserProfile();
+            var CreatorId = Guid.NewGuid();
+            var CreateDate = DateTime.Now;
+            var rule = _context.FlowRules.Include(c => c.Customer).Include(c => c.Tenant).AsSplitQuery().FirstOrDefault(c => c.RuleId == m.RuleId);
+            rule.Creator = profile.Id.ToString();
+            rule.CreateId = CreatorId;
+            _context.Flows.Where(c => c.FlowRule.RuleId == rule.RuleId).ToList().ForEach(c =>
+            {
+                c.FlowStatus = -1;
+            });
+            _context.FlowRules.Update(rule);
+            _context.SaveChanges();
+            foreach (var item in m.nodes)
+            {
+                switch (item.nodetype)
+                {
+
+                    case "basic":
+                        {
+
+                            var node = new Flow
+                            {
+                                FlowRule = rule,
+                                Flowname = item.name,
+                                bpmnid = item.nodeId,
+                                FlowType = item.nodetype,
+                                FlowStatus = 1,
+                                CreateId = CreatorId,
+                                Createor = profile.Id,
+                                CreateDate = CreateDate,
+                                Customer = rule.Customer,
+                                Tenant = rule.Tenant,
+
+                                FlowClass = item.@class,
+                                FlowNameSpace = item.@namespace,
+                                FlowIcon = item.icon,
+                                Top = item.top,
+                                Left = item.left
+                            };
+                            _context.Flows.AddRange(node);
+                            _context.SaveChanges();
+                        }
+                        break;
+                    case "executor":
+                        {
+                            var node = new Flow
+                            {
+                                FlowRule = rule,
+                                Flowname = item.name,
+                                bpmnid = item.nodeId,
+                                FlowType = item.nodetype,
+                                NodeProcessParams = item.content,
+              
+                                NodeProcessClass = item.mata,
+                                FlowStatus = 1,
+                                CreateId = CreatorId,
+                                Createor = profile.Id,
+                                CreateDate = CreateDate,
+                                Customer = rule.Customer,
+                                Tenant = rule.Tenant,
+
+                                FlowClass = item.@class,
+                                FlowNameSpace = item.@namespace,
+                                FlowIcon = item.icon,
+                                Top=item.top,
+                                Left = item.left
+                            };
+                            _context.Flows.AddRange(node);
+                            _context.SaveChanges();
+                        }
+                        break;
+                    case "script":
+                        {
+                            var node = new Flow
+                            {
+                                FlowRule = rule,
+                                Flowname = item.name,
+                                bpmnid = item.nodeId,
+                                FlowType = item.nodetype,
+                                NodeProcessScript = item.content,
+                                NodeProcessScriptType = item.mata,
+                                FlowStatus = 1,
+                                CreateId = CreatorId,
+                                Createor = profile.Id,
+                                CreateDate = CreateDate,
+                                Customer = rule.Customer,
+                                Tenant = rule.Tenant,
+
+                                FlowClass = item.@class,
+                                FlowNameSpace = item.@namespace,
+                                FlowIcon = item.icon,
+                                Top = item.top,
+                                Left = item.left
+                            };
+                            _context.Flows.AddRange(node);
+                            _context.SaveChanges();
+                        }
+                        break;
+
+                }
+
+            }
+
+
+            foreach (var item in m.lines)
+            {
+
+                var node = new Flow
+                {
+                    FlowRule = rule,
+                    Flowname = item.linename,
+                    bpmnid = item.lineId,
+                    FlowType = "line",
+                    TargetId = item.targetId,
+                    SourceId = item.sourceId,
+                    Conditionexpression = item.condition,
+                    FlowStatus = 1,
+                    CreateId = CreatorId,
+                    Createor = profile.Id,
+                    CreateDate = CreateDate,
+                    Customer = rule.Customer,
+                    Tenant = rule.Tenant
+                };
+                _context.Flows.AddRange(node);
+                _context.SaveChanges();
+
+            }
+
+
+
+            return new ApiResult<bool>(ApiCode.Success, "Ok", true);
+        }
+
+        [HttpGet]
+        public async Task<ApiResult<ModelDiagram>> GetDiagramV(Guid id)
+        {
+            var profile = this.GetUserProfile();
+            var ruleflow = await _context.FlowRules.FirstOrDefaultAsync(c => c.RuleId == id && c.Tenant.Id == profile.Tenant);
+            var flows = _context.Flows.Where(c => c.FlowRule.RuleId == id && c.FlowStatus > 0 && c.Tenant.Id == profile.Tenant).ToList();
+            ModelDiagram m = new ModelDiagram();
+            m.lines = new List<LineObject>();
+            m.nodes = new List<NodeObject>();
+            foreach (var item in flows)
+            {
+                switch (item.FlowType)
+                {
+                    case "line":
+                        {
+                            m.lines.Add(new LineObject()
+                            {
+                                sourceId = item.SourceId,
+                                linename = item.Flowname,
+                                targetId = item.TargetId,
+                                condition = item.Conditionexpression,
+                                lineId = item.bpmnid
+                            });
+                        }
+                        break;
+                    case "basic":
+                        {
+                            m.nodes.Add(new NodeObject()
+                            {
+
+                                nodeId = item.bpmnid,
+                                nodetype = item.FlowType,
+                                name = item.Flowname,
+                                @class = item.FlowClass,
+                                @namespace = item.FlowNameSpace,
+                                icon = item.FlowIcon,
+                                top = item.Top,
+                                left = item.Left
+                            });
+                        }
+                        break;
+                    case "script":
+                        {
+                            m.nodes.Add(new NodeObject()
+                            {
+
+                                nodeId = item.bpmnid,
+                                nodetype = item.FlowType,
+                                name = item.Flowname,
+                                content = item.NodeProcessScript,
+                                mata = item.NodeProcessScriptType,
+                                @class = item.FlowClass,
+                                @namespace = item.FlowNameSpace,
+                                icon = item.FlowIcon,
+                                top = item.Top,
+                                left = item.Left
+                            });
+                        }
+                        break;
+                    case "executor":
+                        {
+                            m.nodes.Add(new NodeObject()
+                            {
+
+                                nodeId = item.bpmnid,
+                                nodetype = item.FlowType,
+                                name = item.Flowname,
+                                content = item.NodeProcessParams,
+                                mata = item.NodeProcessClass,
+                                @class = item.FlowClass,
+                                @namespace = item.FlowNameSpace,
+                                icon = item.FlowIcon,
+                                top = item.Top,
+                                left = item.Left
+
+                            });
+                        }
+                        break;
+
+
+
+                }
+            }
+
+            return new ApiResult<ModelDiagram>(ApiCode.Success, "Ok", m);
+        }
+
 
         [HttpGet]
         public async Task<ApiResult<Activity>> GetDiagram(Guid id)
@@ -1130,7 +1365,7 @@ namespace IoTSharp.Controllers
                         break;
                 }
             }
-            return new ApiResult<IoTSharp.Models.Rule.Activity>(ApiCode.Success, "rule has been removed", activity);
+            return new ApiResult<IoTSharp.Models.Rule.Activity>(ApiCode.Success, "Ok", activity);
         }
 
         [HttpPost]
@@ -1149,7 +1384,7 @@ namespace IoTSharp.Controllers
 
             var testabizId = Guid.NewGuid().ToString(); //根据业务保存起来，用来查询执行事件和步骤
             var result = await _flowRuleProcessor.RunFlowRules(ruleid, d, Guid.Empty, FlowRuleRunType.TestPurpose, testabizId);
-           _context.SaveFlowResult(Guid.Empty, ruleid,result);
+            _context.SaveFlowResult(Guid.Empty, ruleid, result);
             return new ApiResult<dynamic>(ApiCode.Success, "test complete", result.OrderBy(c => c.Step).
                 Where(c => c.BaseEvent.Bizid == testabizId).ToList()
                 .GroupBy(c => c.Step).Select(c => new
@@ -1233,8 +1468,8 @@ namespace IoTSharp.Controllers
         public ApiResult<dynamic> GetFlowOperations(Guid eventId)
         {
             var profile = this.GetUserProfile();
-            var _event = _context.BaseEvents.Include(c=>c.FlowRule).AsSplitQuery().SingleOrDefault(c => c.EventId == eventId);
-            var _operations = _context.FlowOperations.Include(c=>c.Flow).Where(c => c.BaseEvent == _event).AsSplitQuery().ToList();
+            var _event = _context.BaseEvents.Include(c => c.FlowRule).AsSplitQuery().SingleOrDefault(c => c.EventId == eventId);
+            var _operations = _context.FlowOperations.Include(c => c.Flow).Where(c => c.BaseEvent == _event).AsSplitQuery().ToList();
 
 
 
@@ -1248,8 +1483,8 @@ namespace IoTSharp.Controllers
                 var source = _operations.FirstOrDefault(c => c.Flow.bpmnid == item.SourceId);
                 if (target != null && source != null)
                 {
-               
-                    links.Add(new {source= source.Flow.Flowname?? source.bpmnid, target=target.Flow.Flowname ??  target.bpmnid, value= (target.AddDate - source.AddDate).Value.TotalMilliseconds });
+
+                    links.Add(new { source = source.Flow.Flowname ?? source.bpmnid, target = target.Flow.Flowname ?? target.bpmnid, value = (target.AddDate - source.AddDate).Value.TotalMilliseconds });
                     var _sourcename = source.Flow.Flowname ?? source.bpmnid;
                     var _targetname = target.Flow.Flowname ?? target.bpmnid;
                     if (nodes.All(c => c != _sourcename))
@@ -1272,9 +1507,9 @@ namespace IoTSharp.Controllers
             return new ApiResult<dynamic>(ApiCode.Success, "OK", new
             {
                 steps,
-                charts=new
+                charts = new
                 {
-                    sankey=new { links, nodes= nodes.Select(c=>new { name=c}).ToList() }
+                    sankey = new { links, nodes = nodes.Select(c => new { name = c }).ToList() }
                 }
             });
         }
