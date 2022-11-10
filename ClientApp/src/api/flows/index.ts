@@ -55,12 +55,18 @@ import request from '/@/utils/request';
 			});
 		},
 
-
 		getDiagram: (id: string) => {
 			return request({
-				url: '/api/rules/GetDiagram?id'+id,
+				url: '/api/rules/GetDiagramV?id='+id,
 				method: 'get',
 				data: {},
+			});
+		},
+		saveDiagramV: (data: any) => {
+			return request({
+				url: '/api/rules/SaveDiagramV',
+				method: 'post',
+				data: data,
 			});
 		},
 	};

@@ -55,7 +55,6 @@ declare module '@vue/runtime-core' {
     ElTableColumn: typeof import('element-plus/es')['ElTableColumn']
     ElTabPane: typeof import('element-plus/es')['ElTabPane']
     ElTabs: typeof import('element-plus/es')['ElTabs']
-    IconMdiCarSettings: typeof import('~icons/mdi/car-settings')['default']
     IconSelector: typeof import('./components/iconSelector/index.vue')['default']
     NoticeBar: typeof import('./components/noticeBar/index.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']

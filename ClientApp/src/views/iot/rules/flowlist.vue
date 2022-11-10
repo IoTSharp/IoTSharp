@@ -129,7 +129,7 @@ export default defineComponent({
   name: "flowlist",
   components: { addflow, flowdesigner },
   setup() {
-    const addformRef = ref();
+    const addformRef = ref();   
     const userInfos = Session.get("userInfo");
     const router=useRouter();
     const state = reactive<TableDataState>({
@@ -148,7 +148,7 @@ export default defineComponent({
       offset: state.tableData.param.pageNum - 1,
       limit: state.tableData.param.pageSize,
       onlyActive: false,
-      customerId: userInfos.customer.id,
+      customerId: userInfos.customerId.id,
       name: "",
     });
 
@@ -178,8 +178,8 @@ export default defineComponent({
         .catch(() => {});
     };
 
-
-
+    
+   
     const design = (id: string) => {
       router.push({
 

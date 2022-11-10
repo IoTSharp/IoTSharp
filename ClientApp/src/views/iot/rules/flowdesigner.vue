@@ -129,6 +129,7 @@ import {
 } from "./js/config";
 import { useRouter, useRoute } from "vue-router";
 import { ruleApi } from "/@/api/flows";
+import { stat } from "fs";
 // 定义接口来定义对象的类型
 interface NodeListState {
   id: string | number;
@@ -147,6 +148,9 @@ interface LineListState {
   sourceId: string;
   targetId: string;
   label: string;
+  condition?: string;
+  linename?: string;
+  lineId: string;
 }
 interface XyState {
   x: string | number;
@@ -223,7 +227,7 @@ export default defineComponent({
       clientWidth < 768 ? (state.isShow = true) : (state.isShow = false);
     };
     // 左侧导航-数据初始化
-    const initLeftNavList = () => {
+    const initLeftNavList = async () => {
       state.leftNavList = [
         {
           title: "基本",
@@ -307,7 +311,7 @@ export default defineComponent({
         },
       ];
 
-      ruleApi()
+     await ruleApi()
         .getexecutors()
         .then((res) => {
           res.data.forEach((item: any) => {
@@ -321,11 +325,14 @@ export default defineComponent({
             });
           });
         });
-
-      state.jsplumbData = {
-        nodeList: [],
-        lineList: [],
-      };
+        await ruleApi()
+        .getDiagram(state.flowid)
+        .then((res) => {
+          state.jsplumbData = {
+            nodeList: res.data.nodes,
+            lineList: res.data.lines,
+          };
+        });
     };
     // 左侧导航-初始化拖动
     const initSortable = () => {
@@ -420,7 +427,7 @@ export default defineComponent({
           );
           v.type = "line";
           v.label = line.label;
-   
+
           contextmenuLineRef.value.openContextmenu(v, conn);
         });
         // 连线之前
@@ -438,8 +445,10 @@ export default defineComponent({
         });
         // 连线时
         state.jsPlumb.bind("connection", (conn: any) => {
+          const lineId = Math.random().toString(36).substr(2, 12);
           const { sourceId, targetId } = conn;
           state.jsplumbData.lineList.push({
+            lineId,
             sourceId,
             targetId,
             label: "",
@@ -459,8 +468,8 @@ export default defineComponent({
     };
     // 初始化节点、线的链接
     const initJsPlumbConnection = () => {
-      // 节点
       state.jsplumbData.nodeList.forEach((v) => {
+        console.log(v);
         // 整个节点作为source或者target
         state.jsPlumb.makeSource(v.nodeId, state.jsplumbMakeSource);
         // 整个节点作为source或者target
@@ -479,17 +488,21 @@ export default defineComponent({
           },
         });
       });
+
+
       // 线
       state.jsplumbData.lineList.forEach((v) => {
+        console.log(v);
         state.jsPlumb.connect(
           {
             source: v.sourceId,
             target: v.targetId,
-            label: v.label,
+            label: v.linename,
           },
           state.jsplumbConnect
         );
       });
+      // 节点
     };
     // 左侧导航-菜单标题点击
     const onTitleClick = (val: any) => {
@@ -498,9 +511,7 @@ export default defineComponent({
 
     const onexecutorSubmit = (data: object) => {};
 
-    const onscriptSubmit = (data: any) => {
- 
-    };
+    const onscriptSubmit = (data: any) => {};
 
     // 右侧内容区-当前项点击
     const onItemCloneClick = (k: number) => {
@@ -520,13 +531,11 @@ export default defineComponent({
           if (l.children.find((c: any) => c.id === v.id))
             item = l.children.find((c: any) => c.id === v.id);
       });
-      v.from = item.form;      
+      v.from = item.form;
       contextmenuNodeRef.value.openContextmenu(v);
     };
     // 右侧内容区-当前项右键菜单点击回调(节点)
-    const onCurrentNodeClick = (item: any,conn:any) => {
-
-
+    const onCurrentNodeClick = (item: any, conn: any) => {
       switch (item.nodetype) {
         case "script":
           {
@@ -539,7 +548,7 @@ export default defineComponent({
               state.jsPlumb.removeAllEndpoints(nodeId);
               state.jsPlumbNodeIndex = null;
             } else if (contextMenuClickId === 1) {
-              item.value=item.result
+              item.value = item.result;
               drawerRef.value.open(item);
             }
           }
@@ -596,20 +605,25 @@ export default defineComponent({
     };
     // 设置线的 label
     const setLineLabel = (obj: any) => {
-      const { sourceId, targetId, label } = obj;
+      console.log(obj);
+      const { sourceId, targetId, label, linename, condition } = obj;
       const conn = state.jsPlumb.getConnections({
         source: sourceId,
         target: targetId,
       })[0];
-      conn.setLabel(label);
-      if (!label || label === "") {
+      conn.setLabel(linename);
+      if (!linename || linename === "") {
         conn.addClass("workflow-right-empty-label");
       } else {
         conn.removeClass("workflow-right-empty-label");
         conn.addClass("workflow-right-label");
       }
       state.jsplumbData.lineList.forEach((v) => {
-        if (v.sourceId === sourceId && v.targetId === targetId) v.label = label;
+        if (v.sourceId === sourceId && v.targetId === targetId) {
+          v.label = label;
+          v.linename = linename;
+          v.condition = condition;
+        }
       });
     };
     // 设置节点内容
@@ -690,7 +704,7 @@ export default defineComponent({
               v.icon = data.icon;
               v.nodetype = data.nodetype;
               v.namespace = data.namespace;
-              v.mata = data.mata; 
+              v.mata = data.mata;
               v.content = data.content;
             }
           });
@@ -703,7 +717,7 @@ export default defineComponent({
               v.icon = data.icon;
               v.nodetype = data.nodetype;
               v.namespace = data.namespace;
-              v.mata = data.mata;        
+              v.mata = data.mata;
               v.content = data.content;
             }
           });
@@ -711,12 +725,20 @@ export default defineComponent({
         case "basic":
           break;
       }
-
-
     };
 
     // 顶部工具栏-提交
     const onToolSubmit = () => {
+    
+
+      ruleApi()
+        .saveDiagramV({
+          RuleId: state.flowid,
+          nodes: state.jsplumbData.nodeList,
+          lines: state.jsplumbData.lineList,
+        })
+        .then((res) => {});
+
       ElMessage.success("数据提交成功");
     };
     // 顶部工具栏-复制
@@ -750,7 +772,7 @@ export default defineComponent({
     // 页面加载时
     onMounted(async () => {
       await initLeftNavList();
-      initSortable();
+      await initSortable();
       initJsPlumb();
       setClientWidth();
       window.addEventListener("resize", setClientWidth);

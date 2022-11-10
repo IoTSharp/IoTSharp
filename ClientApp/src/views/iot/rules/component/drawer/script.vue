@@ -248,7 +248,7 @@ export default defineComponent({
           ? (editor = monaco.editor.create(
               document.getElementById("codeEditBox") as HTMLElement,
               {
-                value: state.node.content, // 编辑器初始显示文字
+                value: state.node.content??'', // 编辑器初始显示文字
                 language: scripttype, // 语言支持自行查阅demo
                 automaticLayout: true, // 自适应布局
                 theme: "vs-dark", // 官方自带三种主题vs, hc-black, or vs-dark
@@ -264,12 +264,12 @@ export default defineComponent({
                 overviewRulerBorder: false, // 不要滚动条的边框
               }
             ))
-          : editor.setValue(state.node.value);
+          : editor.setValue(state.node.content??'');
 
         // console.log(editor)
         // 监听值的变化
         editor.onDidChangeModelContent((val: any) => {
-			state.node.value = editor.getValue();
+			state.node.content = editor.getValue();
         });
       });
     };

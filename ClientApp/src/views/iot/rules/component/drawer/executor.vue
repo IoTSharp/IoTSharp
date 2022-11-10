@@ -169,11 +169,11 @@ export default defineComponent({
             scrollBeyondLastLine: false, // 取消代码后面一大段空白 
             overviewRulerBorder: false, // 不要滚动条的边框  
         }) : 
-        editor.setValue("");
+        editor.setValue(state.node.content);
         // console.log(editor)
         // 监听值的变化
         editor.onDidChangeModelContent((val:any) => {
-            state.node.value = editor.getValue();
+            state.node.content = editor.getValue();
              
         })
     })
