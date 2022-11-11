@@ -70,6 +70,7 @@ export default defineComponent({
       nextTick(() => {
         if (item.type === "line") {
          // 当前line的数据不存储在node当中，而是在conn副本当中
+
           lineRef.value.getParentData(conn);
         } else {
           switch (item.nodetype) {

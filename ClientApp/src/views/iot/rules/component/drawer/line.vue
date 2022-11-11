@@ -7,18 +7,18 @@
       <el-form-item label="类型">
         <el-input v-model="line.type" placeholder="类型" clearable disabled></el-input>
       </el-form-item>
-      <el-form-item label="label">
+      <el-form-item label="名称">
         <el-input
           v-model="line.linename"
-          placeholder="请输入label内容"
+          placeholder="请输入名称"
           clearable
         ></el-input>
       </el-form-item>
 
-      <el-form-item label="condition">
+      <el-form-item label="条件">
         <el-input
           v-model="line.condition"
-          placeholder="请输入label内容"
+          placeholder="请输入条件"
           clearable
         ></el-input>
       </el-form-item>

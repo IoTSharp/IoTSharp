@@ -72,16 +72,16 @@
     </div>
 
     <!-- 节点右键菜单 -->
-    <Contextmenu
+    <ContextmenuNode
       :dropdown="dropdownNode"
       ref="contextmenuNodeRef"
-      @current="onCurrentNodeClick"
+      @currentnode="onCurrentNodeClick"
     />
     <!-- 线右键菜单 -->
-    <Contextmenu
+    <ContextmenuLine
       :dropdown="dropdownLine"
       ref="contextmenuLineRef"
-      @current="onCurrentLineClick"
+      @currentline="onCurrentLineClick"
     />
     <!-- 抽屉表单、线 -->
     <Drawer
@@ -117,7 +117,8 @@ import { useThemeConfig } from "/@/stores/themeConfig";
 import { useTagsViewRoutes } from "/@/stores/tagsViewRoutes";
 import Tool from "./component/tool/index.vue";
 import Help from "./component/tool/help.vue";
-import Contextmenu from "./component/contextmenu/index.vue";
+import ContextmenuNode from "./component/contextmenu/node.vue";
+import ContextmenuLine from "./component/contextmenu/line.vue";
 import Drawer from "./component/drawer/index.vue";
 import commonFunction from "/@/utils/commonFunction";
 import { leftNavList } from "./js/mock";
@@ -178,7 +179,7 @@ interface FlowState {
 
 export default defineComponent({
   name: "pagesWorkflow",
-  components: { Tool, Contextmenu, Drawer, Help },
+  components: { Tool, ContextmenuNode, ContextmenuLine, Drawer, Help },
   setup() {
     const route = useRoute();
     const router = useRouter();
@@ -311,7 +312,7 @@ export default defineComponent({
         },
       ];
 
-     await ruleApi()
+      await ruleApi()
         .getexecutors()
         .then((res) => {
           res.data.forEach((item: any) => {
@@ -325,7 +326,7 @@ export default defineComponent({
             });
           });
         });
-        await ruleApi()
+      await ruleApi()
         .getDiagram(state.flowid)
         .then((res) => {
           state.jsplumbData = {
@@ -427,6 +428,8 @@ export default defineComponent({
           );
           v.type = "line";
           v.label = line.label;
+          conn.linename = line.linename;
+          conn.condition = line.condition;
 
           contextmenuLineRef.value.openContextmenu(v, conn);
         });
@@ -469,7 +472,6 @@ export default defineComponent({
     // 初始化节点、线的链接
     const initJsPlumbConnection = () => {
       state.jsplumbData.nodeList.forEach((v) => {
-        console.log(v);
         // 整个节点作为source或者target
         state.jsPlumb.makeSource(v.nodeId, state.jsplumbMakeSource);
         // 整个节点作为source或者target
@@ -489,15 +491,15 @@ export default defineComponent({
         });
       });
 
-
       // 线
       state.jsplumbData.lineList.forEach((v) => {
-        console.log(v);
         state.jsPlumb.connect(
           {
             source: v.sourceId,
             target: v.targetId,
             label: v.linename,
+            linename: v.linename,
+            condition: v.condition,
           },
           state.jsplumbConnect
         );
@@ -601,11 +603,14 @@ export default defineComponent({
       });
       item.contact = `${intercourse[0].innerText}(${intercourse[0].id}) => ${intercourse[1].innerText}(${intercourse[1].id})`;
       if (contextMenuClickId === 0) state.jsPlumb.deleteConnection(conn);
-      else if (contextMenuClickId === 1) drawerRef.value.open(item, conn);
+      else if (contextMenuClickId === 1) {
+        console.log(conn);
+        console.log(item);
+        drawerRef.value.open(item, conn);
+      }
     };
     // 设置线的 label
     const setLineLabel = (obj: any) => {
-      console.log(obj);
       const { sourceId, targetId, label, linename, condition } = obj;
       const conn = state.jsPlumb.getConnections({
         source: sourceId,
@@ -729,8 +734,6 @@ export default defineComponent({
 
     // 顶部工具栏-提交
     const onToolSubmit = () => {
-    
-
       ruleApi()
         .saveDiagramV({
           RuleId: state.flowid,
