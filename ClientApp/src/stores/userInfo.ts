@@ -17,6 +17,8 @@ export const useUserInfo = defineStore('userInfo', {
 			time: 0,
 			roles: [],
 			authBtnList: [],
+			customer: {},
+			tenant: {}
 		},
 	}),
 	actions: {
@@ -42,8 +44,8 @@ export const useUserInfo = defineStore('userInfo', {
 						time: new Date().getTime(),
 						roles: [res.data.roles],
 						authBtnList: ['btn.add', 'btn.del', 'btn.edit', 'btn.link'],
-						customerId: res.data.customer,
-						tenantId: res.data.tenant,
+						customer: res.data.customer,
+						tenant: res.data.tenant,
 					};
 					return userInfos;
 				})

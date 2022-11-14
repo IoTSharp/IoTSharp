@@ -1,7 +1,10 @@
 <template>
   <div class="workflow-container">
     <div class="workflow-mask" v-if="isShow"></div>
-    <div class="layout-view-bg-white flex" :style="{ height: `calc(100vh - ${setViewHeight}` }">
+    <div
+      class="layout-view-bg-white flex"
+      :style="{ height: `calc(100vh - ${setViewHeight}` }"
+    >
       <div class="workflow">
         <!-- 顶部工具栏 -->
         <Tool @tool="onToolClick" />
@@ -10,14 +13,28 @@
         <div class="workflow-content">
           <div class="workflow-left">
             <el-scrollbar>
-              <div ref="leftNavRefs" v-for="(val, key) in leftNavList" :key="val.id"
-                :style="{ height: val.isOpen ? 'auto' : '50px', overflow: 'hidden' }" class="workflow-left-id">
+              <div
+                ref="leftNavRefs"
+                v-for="(val, key) in leftNavList"
+                :key="val.id"
+                :style="{ height: val.isOpen ? 'auto' : '50px', overflow: 'hidden' }"
+                class="workflow-left-id"
+              >
                 <div class="workflow-left-title" @click="onTitleClick(val)">
                   <span>{{ val.title }}</span>
                   <SvgIcon :name="val.isOpen ? 'ele-ArrowDown' : 'ele-ArrowRight'" />
                 </div>
-                <div class="workflow-left-item" v-for="(v, k) in val.children" :key="k" :data-name="v.name"
-                  :data-icon="v.icon" :data-id="v.id" :nodetype="v.nodetag.nodetype">
+                <div
+                  class="workflow-left-item"
+                  v-for="(v, k) in val.children"
+                  :key="k"
+                  :data-name="v.name"
+                  :data-icon="v.icon"
+                  :data-id="v.id"
+                  :nodetype="v.nodetype"
+                  :namespace="v.namespace"
+                  :mata="v.mata"
+                >
                   <div class="workflow-left-item-icon">
                     <SvgIcon :name="v.icon" class="workflow-icon-drag" />
                     <div class="font10 pl5 name">{{ v.name }}</div>
@@ -29,10 +46,20 @@
 
           <!-- 右侧绘画区 -->
           <div class="workflow-right" ref="workflowRightRef">
-            <div v-for="(v, k) in jsplumbData.nodeList" :key="v.nodeId" :id="v.nodeId" :data-node-id="v.nodeId"
-              :class="v.class" :style="{ left: v.left, top: v.top }" @click="onItemCloneClick(k)"
-              @contextmenu.prevent="onContextmenu(v, k, $event)">
-              <div class="workflow-right-box" :class="{ 'workflow-right-active': jsPlumbNodeIndex === k }">
+            <div
+              v-for="(v, k) in jsplumbData.nodeList"
+              :key="v.nodeId"
+              :id="v.nodeId"
+              :data-node-id="v.nodeId"
+              :class="v.class"
+              :style="{ left: v.left, top: v.top }"
+              @click="onItemCloneClick(k)"
+              @contextmenu.prevent="onContextmenu(v, k, $event)"
+            >
+              <div
+                class="workflow-right-box"
+                :class="{ 'workflow-right-active': jsPlumbNodeIndex === k }"
+              >
                 <div class="workflow-left-item-icon">
                   <SvgIcon :name="v.icon" class="workflow-icon-drag" />
                   <div class="font10 pl5 name">{{ v.name }}</div>
@@ -45,11 +72,26 @@
     </div>
 
     <!-- 节点右键菜单 -->
-    <Contextmenu :dropdown="dropdownNode" ref="contextmenuNodeRef" @current="onCurrentNodeClick" />
+    <ContextmenuNode
+      :dropdown="dropdownNode"
+      ref="contextmenuNodeRef"
+      @currentnode="onCurrentNodeClick"
+    />
     <!-- 线右键菜单 -->
-    <Contextmenu :dropdown="dropdownLine" ref="contextmenuLineRef" @current="onCurrentLineClick" />
+    <ContextmenuLine
+      :dropdown="dropdownLine"
+      ref="contextmenuLineRef"
+      @currentline="onCurrentLineClick"
+    />
     <!-- 抽屉表单、线 -->
-    <Drawer ref="drawerRef" @label="setLineLabel" @node="setNodeContent" />
+    <Drawer
+      ref="drawerRef"
+      @label="setLineLabel"
+      @node="setNodeContent"
+      @executor="onexecutorSubmit"
+      @script="onscriptSubmit"
+      @panelclose="panelclose"
+    />
 
     <!-- 顶部工具栏-帮助弹窗 -->
     <Help ref="helpRef" />
@@ -75,7 +117,8 @@ import { useThemeConfig } from "/@/stores/themeConfig";
 import { useTagsViewRoutes } from "/@/stores/tagsViewRoutes";
 import Tool from "./component/tool/index.vue";
 import Help from "./component/tool/help.vue";
-import Contextmenu from "./component/contextmenu/index.vue";
+import ContextmenuNode from "./component/contextmenu/node.vue";
+import ContextmenuLine from "./component/contextmenu/line.vue";
 import Drawer from "./component/drawer/index.vue";
 import commonFunction from "/@/utils/commonFunction";
 import { leftNavList } from "./js/mock";
@@ -87,6 +130,7 @@ import {
 } from "./js/config";
 import { useRouter, useRoute } from "vue-router";
 import { ruleApi } from "/@/api/flows";
+import { stat } from "fs";
 // 定义接口来定义对象的类型
 interface NodeListState {
   id: string | number;
@@ -96,12 +140,18 @@ interface NodeListState {
   top: number | string;
   icon: string;
   name: string;
-  nodetag?: any;
+  nodetype?: string;
+  namespace?: string;
+  mata?: string;
+  content?: string;
 }
 interface LineListState {
   sourceId: string;
   targetId: string;
   label: string;
+  condition?: string;
+  linename?: string;
+  lineId: string;
 }
 interface XyState {
   x: string | number;
@@ -129,7 +179,7 @@ interface FlowState {
 
 export default defineComponent({
   name: "pagesWorkflow",
-  components: { Tool, Contextmenu, Drawer, Help },
+  components: { Tool, ContextmenuNode, ContextmenuLine, Drawer, Help },
   setup() {
     const route = useRoute();
     const router = useRouter();
@@ -178,26 +228,31 @@ export default defineComponent({
       clientWidth < 768 ? (state.isShow = true) : (state.isShow = false);
     };
     // 左侧导航-数据初始化
-    const initLeftNavList = () => {
-
+    const initLeftNavList = async () => {
       state.leftNavList = [
-
         {
           title: "基本",
           icon: "iconfont icon-shouye",
           isOpen: true,
           id: "1",
-          children: [{
-            icon: "iconfont icon-gongju",
-            name: '开始',
-            nodetag: { nodetype: 'basic',namespace:'begin' },
-            id: 'begin',
-          }, {
-            icon: "iconfont icon-gongju",
-            nodetag: { nodetype: 'basic',namespace:'end' },
-            name: '结束',
-            id: 'end',
-          },],
+          children: [
+            {
+              icon: "iconfont icon-gongju",
+              name: "开始",
+              nodetype: "basic",
+              namespace: "rule.begin",
+              mata: "begin",
+              id: "begin",
+            },
+            {
+              icon: "iconfont icon-gongju",
+              nodetype: "basic",
+              namespace: "rule.end",
+              mata: "end",
+              name: "结束",
+              id: "end",
+            },
+          ],
         },
         {
           title: "执行器",
@@ -205,43 +260,59 @@ export default defineComponent({
           isOpen: true,
           id: "1",
           children: [],
-        }, {
+        },
+        {
           title: "脚本",
           icon: "iconfont icon-shouye",
           isOpen: true,
           id: "1",
           children: [
+            {
+              icon: "iconfont icon-gongju",
+              name: "javascript",
+              id: "javascript",
 
-            {
-              icon: "iconfont icon-gongju",
-              name: 'javascript',
-              id: 'javascript',
-              nodetag: { nodetype: 'script', namespace:'javascript' },
+              nodetype: "script",
+              namespace: "rule:javascript",
+              mata: "javascript",
             },
             {
               icon: "iconfont icon-gongju",
-              name: 'python',
-              id: 'python', nodetag: { nodetype: 'script' , namespace:'python' },
+              name: "python",
+              id: "python",
+              nodetype: "script",
+              namespace: "rule:python",
+              mata: "python",
             },
             {
               icon: "iconfont icon-gongju",
-              name: 'sql',
-              id: 'sql', nodetag: { nodetype: 'script' , namespace:'sql' },
+              name: "sql",
+              id: "sql",
+              nodetype: "script",
+              namespace: "rule:sql",
+              mata: "sql",
             },
             {
               icon: "iconfont icon-gongju",
-              name: 'lua',
-              id: 'lua', nodetag: { nodetype: 'script', namespace:'lua'  },
-            }, {
+              name: "lua",
+              id: "lua",
+              nodetype: "script",
+              namespace: "rule:lua",
+              mata: "lua",
+            },
+            {
               icon: "iconfont icon-gongju",
-              name: 'csharp',
-              id: 'csharp', nodetag: { nodetype: 'script', namespace:'csharp'  },
+              name: "csharp",
+              id: "csharp",
+              nodetype: "script",
+              namespace: "rule:csharp",
+              mata: "csharp",
             },
           ],
         },
       ];
 
-      ruleApi()
+      await ruleApi()
         .getexecutors()
         .then((res) => {
           res.data.forEach((item: any) => {
@@ -249,33 +320,24 @@ export default defineComponent({
               icon: "iconfont icon-gongju",
               name: item.label,
               id: item.label,
-              nodetag: { nodetype: 'executor' , namespace:'javascript'},
-
+              nodetype: "executor",
+              namespace: item.value,
+              mata: item.value,
             });
           });
         });
-
-
-
-
-
-
-      state.jsplumbData = {
-        nodeList: [
-
-        ],
-        lineList: [
-
-        ],
-      };
+      await ruleApi()
+        .getDiagram(state.flowid)
+        .then((res) => {
+          state.jsplumbData = {
+            nodeList: res.data.nodes,
+            lineList: res.data.lines,
+          };
+        });
     };
     // 左侧导航-初始化拖动
     const initSortable = () => {
-
-
-
       state.leftNavRefs.forEach((v) => {
-
         Sortable.create(v as HTMLDivElement, {
           group: {
             name: "vue-next-admin-1",
@@ -287,15 +349,11 @@ export default defineComponent({
           draggable: ".workflow-left-item",
           forceFallback: true,
           onEnd: function (evt: any) {
-
-
-            const { name, icon, id, nodetag } = evt.clone.dataset;
-
-            const { nodetype } = evt.clone.attributes;
+            const { name, icon, id } = evt.clone.dataset;
+            const { nodetype, namespace, mata } = evt.clone.attributes;
             const { layerX, layerY, clientX, clientY } = evt.originalEvent;
             const el = state.workflowRightRef!;
             const { x, y, width, height } = el.getBoundingClientRect();
-
 
             if (clientX < x || clientX > width + x || clientY < y || y > y + height) {
               ElMessage.warning("请把节点拖入到画布中");
@@ -309,12 +367,13 @@ export default defineComponent({
                 top: `${layerY - 15}px`,
                 class: "workflow-right-clone",
                 nodetype: nodetype.value,
+                namespace: namespace.value,
+                mata: mata.value,
                 name,
                 icon,
                 id,
               };
 
-              console.log(node)
               // 右侧视图内容数组
               state.jsplumbData.nodeList.push(node);
               // 元素加载完毕时
@@ -369,6 +428,9 @@ export default defineComponent({
           );
           v.type = "line";
           v.label = line.label;
+          conn.linename = line.linename;
+          conn.condition = line.condition;
+
           contextmenuLineRef.value.openContextmenu(v, conn);
         });
         // 连线之前
@@ -386,8 +448,10 @@ export default defineComponent({
         });
         // 连线时
         state.jsPlumb.bind("connection", (conn: any) => {
+          const lineId = Math.random().toString(36).substr(2, 12);
           const { sourceId, targetId } = conn;
           state.jsplumbData.lineList.push({
+            lineId,
             sourceId,
             targetId,
             label: "",
@@ -407,7 +471,6 @@ export default defineComponent({
     };
     // 初始化节点、线的链接
     const initJsPlumbConnection = () => {
-      // 节点
       state.jsplumbData.nodeList.forEach((v) => {
         // 整个节点作为source或者target
         state.jsPlumb.makeSource(v.nodeId, state.jsplumbMakeSource);
@@ -427,22 +490,31 @@ export default defineComponent({
           },
         });
       });
+
       // 线
       state.jsplumbData.lineList.forEach((v) => {
         state.jsPlumb.connect(
           {
             source: v.sourceId,
             target: v.targetId,
-            label: v.label,
+            label: v.linename,
+            linename: v.linename,
+            condition: v.condition,
           },
           state.jsplumbConnect
         );
       });
+      // 节点
     };
     // 左侧导航-菜单标题点击
     const onTitleClick = (val: any) => {
       val.isOpen = !val.isOpen;
     };
+
+    const onexecutorSubmit = (data: object) => {};
+
+    const onscriptSubmit = (data: any) => {};
+
     // 右侧内容区-当前项点击
     const onItemCloneClick = (k: number) => {
       state.jsPlumbNodeIndex = k;
@@ -465,9 +537,26 @@ export default defineComponent({
       contextmenuNodeRef.value.openContextmenu(v);
     };
     // 右侧内容区-当前项右键菜单点击回调(节点)
-    const onCurrentNodeClick = (item: any) => {
+    const onCurrentNodeClick = (item: any, conn: any) => {
       switch (item.nodetype) {
-        case 'script':
+        case "script":
+          {
+            const { contextMenuClickId, nodeId } = item;
+            if (contextMenuClickId === 0) {
+              const nodeIndex = state.jsplumbData.nodeList.findIndex(
+                (item) => item.nodeId === nodeId
+              );
+              state.jsplumbData.nodeList.splice(nodeIndex, 1);
+              state.jsPlumb.removeAllEndpoints(nodeId);
+              state.jsPlumbNodeIndex = null;
+            } else if (contextMenuClickId === 1) {
+              item.value = item.result;
+              drawerRef.value.open(item);
+            }
+          }
+
+          break;
+        case "basic":
           {
             const { contextMenuClickId, nodeId } = item;
             if (contextMenuClickId === 0) {
@@ -482,8 +571,8 @@ export default defineComponent({
             }
           }
 
-          break
-        case 'basic':
+          break;
+        case "executor":
           {
             const { contextMenuClickId, nodeId } = item;
             if (contextMenuClickId === 0) {
@@ -498,29 +587,8 @@ export default defineComponent({
             }
           }
 
-          break
-        case 'executor':
-          {
-            const { contextMenuClickId, nodeId } = item;
-            if (contextMenuClickId === 0) {
-              const nodeIndex = state.jsplumbData.nodeList.findIndex(
-                (item) => item.nodeId === nodeId
-              );
-              state.jsplumbData.nodeList.splice(nodeIndex, 1);
-              state.jsPlumb.removeAllEndpoints(nodeId);
-              state.jsPlumbNodeIndex = null;
-            } else if (contextMenuClickId === 1) {
-              drawerRef.value.open(item);
-            }
-          }
-
-          break
-
-
+          break;
       }
-
-
-
     };
     // 右侧内容区-当前项右键菜单点击回调(线)
     const onCurrentLineClick = (item: any, conn: any) => {
@@ -535,35 +603,43 @@ export default defineComponent({
       });
       item.contact = `${intercourse[0].innerText}(${intercourse[0].id}) => ${intercourse[1].innerText}(${intercourse[1].id})`;
       if (contextMenuClickId === 0) state.jsPlumb.deleteConnection(conn);
-      else if (contextMenuClickId === 1) drawerRef.value.open(item, conn);
+      else if (contextMenuClickId === 1) {
+        console.log(conn);
+        console.log(item);
+        drawerRef.value.open(item, conn);
+      }
     };
     // 设置线的 label
     const setLineLabel = (obj: any) => {
-      const { sourceId, targetId, label } = obj;
+      const { sourceId, targetId, label, linename, condition } = obj;
       const conn = state.jsPlumb.getConnections({
         source: sourceId,
         target: targetId,
       })[0];
-      conn.setLabel(label);
-      if (!label || label === "") {
+      conn.setLabel(linename);
+      if (!linename || linename === "") {
         conn.addClass("workflow-right-empty-label");
       } else {
         conn.removeClass("workflow-right-empty-label");
         conn.addClass("workflow-right-label");
       }
       state.jsplumbData.lineList.forEach((v) => {
-        if (v.sourceId === sourceId && v.targetId === targetId) v.label = label;
+        if (v.sourceId === sourceId && v.targetId === targetId) {
+          v.label = label;
+          v.linename = linename;
+          v.condition = condition;
+        }
       });
     };
     // 设置节点内容
     const setNodeContent = (obj: any) => {
       const { nodeId, name, icon } = obj;
+
       // 设置节点 name 与 icon
       state.jsplumbData.nodeList.forEach((v) => {
         if (v.nodeId === nodeId) {
           v.name = name;
           v.icon = icon;
-
         }
       });
       // 重绘
@@ -623,11 +699,48 @@ export default defineComponent({
       aLink.remove();
       ElMessage.success("下载成功");
     };
+
+    const panelclose = (data: any) => {
+      switch (data.nodetype) {
+        case "script":
+          state.jsplumbData.nodeList.forEach((v) => {
+            if (v.nodeId === data.nodeId) {
+              v.name = data.name;
+              v.icon = data.icon;
+              v.nodetype = data.nodetype;
+              v.namespace = data.namespace;
+              v.mata = data.mata;
+              v.content = data.content;
+            }
+          });
+
+          break;
+        case "executor":
+          state.jsplumbData.nodeList.forEach((v) => {
+            if (v.nodeId === data.nodeId) {
+              v.name = data.name;
+              v.icon = data.icon;
+              v.nodetype = data.nodetype;
+              v.namespace = data.namespace;
+              v.mata = data.mata;
+              v.content = data.content;
+            }
+          });
+          break;
+        case "basic":
+          break;
+      }
+    };
+
     // 顶部工具栏-提交
     const onToolSubmit = () => {
-
-
-console.log(state.jsplumbData);
+      ruleApi()
+        .saveDiagramV({
+          RuleId: state.flowid,
+          nodes: state.jsplumbData.nodeList,
+          lines: state.jsplumbData.lineList,
+        })
+        .then((res) => {});
 
       ElMessage.success("数据提交成功");
     };
@@ -653,7 +766,7 @@ console.log(state.jsplumbData);
             ElMessage.success("清空画布成功");
           });
         })
-        .catch(() => { });
+        .catch(() => {});
     };
     // 顶部工具栏-全屏
     const onToolFullscreen = () => {
@@ -662,7 +775,7 @@ console.log(state.jsplumbData);
     // 页面加载时
     onMounted(async () => {
       await initLeftNavList();
-      initSortable();
+      await initSortable();
       initJsPlumb();
       setClientWidth();
       window.addEventListener("resize", setClientWidth);
@@ -684,8 +797,11 @@ console.log(state.jsplumbData);
       contextmenuNodeRef,
       contextmenuLineRef,
       drawerRef,
+      panelclose,
       helpRef,
       onToolClick,
+      onexecutorSubmit,
+      onscriptSubmit,
       ...toRefs(state),
     };
   },
@@ -782,9 +898,11 @@ console.log(state.jsplumbData);
         position: relative;
         overflow: hidden;
         height: 100%;
-        background-image: linear-gradient(90deg,
+        background-image: linear-gradient(
+            90deg,
             rgb(156 214 255 / 15%) 10%,
-            rgba(0, 0, 0, 0) 10%),
+            rgba(0, 0, 0, 0) 10%
+          ),
           linear-gradient(rgb(156 214 255 / 15%) 10%, rgba(0, 0, 0, 0) 10%);
         background-size: 10px 10px;
 

@@ -147,8 +147,6 @@ export default defineComponent({
     const query = reactive({
       offset: state.tableData.param.pageNum - 1,
       limit: state.tableData.param.pageSize,
-      onlyActive: false,
-      customerId: userInfos.customerId.id,
       name: "",
     });
 

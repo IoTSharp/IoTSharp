@@ -37,7 +37,7 @@
       <el-table :data="tableData.rows" style="width: 100%" row-key="id">
         <el-table-column prop="name" label="设备名称" show-overflow-tooltip>
         </el-table-column>
-      
+
         <el-table-column
           prop="deviceType"
           label="设备类型"
@@ -151,7 +151,7 @@ export default defineComponent({
       offset: state.tableData.param.pageNum - 1,
       limit: state.tableData.param.pageSize,
       onlyActive: false,
-      customerId: userInfos.customerId.id,
+      customerId: userInfos.customer.id,
       name: "",
     });
 
