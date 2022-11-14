@@ -28,7 +28,7 @@ namespace IoTSharp.Controllers
         {
             __serviceScopeFactory = scopeFactor;
         }
-
+        ///<summary>
         /// 返回指定id的客户
         /// </summary>
         /// <param name="id"></param>

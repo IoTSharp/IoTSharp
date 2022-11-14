@@ -58,7 +58,6 @@ namespace IoTSharp.Controllers
         /// <summary>
         /// 生成一个图形认证
         /// </summary>
-        /// <param name="clientid"></param>
         /// <returns></returns>
         [HttpGet, AllowAnonymous]
         public FileStreamResult Imgs()
