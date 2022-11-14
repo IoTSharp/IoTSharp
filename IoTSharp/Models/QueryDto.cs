@@ -3,37 +3,20 @@ using IoTSharp.Data;
 
 namespace IoTSharp.Controllers.Models
 {
-    public class IPageParam
+    public class QueryDto
     {
-        public int offset { get; set; } = 0;
-        public int limit { get; set; } = 10;
-        public string order { get; set; } = "desc";
-        public string where { get; set; } = "";
-    }
-
-
-    public class ProduceParam : IPageParam
-    {
-
+        public int Offset { get; set; } = 0;
+        public int Limit { get; set; } = 10;
         public string Name { get; set; }
     }
 
-
-    public class AssetParam : IPageParam
-    {
-      
-        public string Name { get; set; }
-    }
-
-
-    public class AssetEntityParam : IPageParam
+    public class AssetEntityParam : QueryDto
     {
         public Guid Id { get; set; }
-        public string Name { get; set; }
     }
 
 
-    public class AlarmParam : IPageParam
+    public class AlarmParam : QueryDto
     {
         public Guid? OriginatorId { get; set; }
         public int Serverity { get; set; }
@@ -41,36 +24,33 @@ namespace IoTSharp.Controllers.Models
         public DateTime[] ClearDateTime { get; set; }
         public DateTime[] StartDateTime { get; set; }
         public int OriginatorType { get; set; }
-        
+
 
         public DateTime[] EndDateTime { get; set; }
         public DateTime[] AckDateTime { get; set; }
-     
+
         public string AlarmType { get; set; }
     }
-    public class DeviceParam : IPageParam
+    public class DeviceParam : QueryDto
     {
-    
+
         public Guid customerId { get; set; }
 
         public Guid ruleId { get; set; }
- 
+
         public bool OnlyActive { get; set; }
-        public string Name { get; set; }
 
     }
 
-    public class RulePageParam : IPageParam
+    public class RulePageParam : QueryDto
     {
-        public string Name { get; set; }
 
         public string Creator { get; set; }
         public DateTime[] CreatTime { get; set; }
     }
 
-    public class EventParam : IPageParam
+    public class EventParam : QueryDto
     {
-        public string Name { get; set; }
         public Guid? RuleId { get; set; }
         public string CreatorName { get; set; }
 
@@ -78,42 +58,25 @@ namespace IoTSharp.Controllers.Models
         public DateTime[] CreatTime { get; set; }
     }
 
-    public class DictionaryParam : IPageParam
+    public class DictionaryParam : QueryDto
     {
         public string DictionaryName { get; set; }
         public int DictionaryGroupId { get; set; }
     }
 
-    public class I18NParam : IPageParam
+    public class I18NParam : QueryDto
     {
         public string KeyName { get; set; }
     }
 
-    public class CustomerParam : IPageParam
+    public class CustomerParam : QueryDto
     {
         public Guid tenantId { get; set; }
     }
 
 
-    public class ExecutorParam : IPageParam
-    {
-     
-    }
 
 
-    public class SubscriptionParam : IPageParam
-    {
-        public string Name { get; set; }
-    }
-    public class DeviceModelParam : IPageParam
-    {
-        public string Name { get; set; }
-
-
-
-
-
-
-    }
+ 
 
 }
