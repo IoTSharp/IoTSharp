@@ -9,6 +9,67 @@
             https://github.com/chkr1011/MQTTnet/blob/master/Source/MQTTnet.Extensions.Rpc/MqttRpcClient.cs
             </summary>
         </member>
+        <member name="M:IoTSharp.Extensions.QueryExtensions.Query``1(IoTSharp.Controllers.Models.QueryDto,System.Linq.IQueryable{``0},System.Threading.CancellationToken)">
+            <summary>
+            分页查询
+            </summary>
+            <typeparam name="T">原表类型</typeparam>
+            <param name="_dto">基础查询条件</param>
+            <param name="src">查询源</param>
+            <param name="cancellationToken"></param>
+            <returns></returns>
+        </member>
+        <member name="M:IoTSharp.Extensions.QueryExtensions.Query``1(IoTSharp.Controllers.Models.QueryDto,System.Linq.IQueryable{``0},System.Linq.Expressions.Expression{System.Func{``0,System.Boolean}},System.Threading.CancellationToken)">
+            <summary>
+            分页查询
+            </summary>
+            <typeparam name="T">原表类型</typeparam>
+            <param name="_dto">基础查询条件</param>
+            <param name="src">查询源</param>
+            <param name="_where">额外的查询条件</param>
+            <param name="cancellationToken"></param>
+            <returns></returns>
+        </member>
+        <member name="M:IoTSharp.Extensions.QueryExtensions.Query``2(IoTSharp.Controllers.Models.QueryDto,System.Linq.IQueryable{``0},System.Linq.Expressions.Expression{System.Func{``0,``1}},System.Threading.CancellationToken)">
+            <summary>
+            分页查询
+            </summary>
+            <typeparam name="T">原表类型</typeparam>
+            <typeparam name="P">查询名称的字段类型</typeparam>
+            <param name="_dto">基础查询条件</param>
+            <param name="src">查询源</param>
+            <param name="func">指定查询条件里面的Name查询对应的字段</param>
+            <param name="cancellationToken"></param>
+            <returns></returns>
+        </member>
+        <member name="M:IoTSharp.Extensions.QueryExtensions.Query``2(IoTSharp.Controllers.Models.QueryDto,System.Linq.IQueryable{``0},System.Linq.Expressions.Expression{System.Func{``0,System.Boolean}},System.Linq.Expressions.Expression{System.Func{``0,``1}},System.Threading.CancellationToken)">
+            <summary>
+            分页查询
+            </summary>
+            <typeparam name="T">原表类型</typeparam>
+            <typeparam name="P">查询名称的字段类型</typeparam>
+            <param name="_dto">基础查询条件</param>
+            <param name="src">查询源</param>
+            <param name="func">指定查询条件里面的Name查询对应的字段</param>
+            <param name="_where">额外的查询条件</param>
+            <param name="cancellationToken"></param>
+            <returns></returns>
+        </member>
+        <member name="M:IoTSharp.Extensions.QueryExtensions.Query``3(IoTSharp.Controllers.Models.QueryDto,System.Linq.IQueryable{``0},System.Linq.Expressions.Expression{System.Func{``0,System.Boolean}},System.Linq.Expressions.Expression{System.Func{``0,``2}},System.Linq.Expressions.Expression{System.Func{``0,``1}},System.Threading.CancellationToken)">
+            <summary>
+            分页查询
+            </summary>
+            <typeparam name="T">原表类型</typeparam>
+            <typeparam name="P">查询名称的字段类型</typeparam>
+            <typeparam name="R">查询到的数据转换为指定的类型</typeparam>
+            <param name="_dto">基础查询条件</param>
+            <param name="src">查询源</param>
+            <param name="func">指定查询条件里面的Name查询对应的字段</param>
+            <param name="_where">额外的查询条件</param>
+            <param name="conver">查询到的数据转换为指定的表达式</param>
+            <param name="cancellationToken"></param>
+            <returns></returns>
+        </member>
         <member name="T:IoTSharp.Controllers.AccountController">
             <summary>
             用户管理
@@ -628,6 +689,13 @@
             <summary>
             系统管理员用来获取全部租户列表
             </summary>
+            <returns></returns>
+        </member>
+        <member name="M:IoTSharp.Controllers.TenantsController.Query(IoTSharp.Controllers.Models.QueryDto)">
+            <summary>
+            产品列表
+            </summary>
+            <param name="m"></param>
             <returns></returns>
         </member>
         <member name="M:IoTSharp.Controllers.TenantsController.GetTenant(System.Guid)">
