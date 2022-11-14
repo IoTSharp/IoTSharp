@@ -103,7 +103,7 @@ namespace IoTSharp.EasyEFQuery
             Expression arg2 = new ReplaceExpressionVisitor(expr2.Parameters[0], parameterExpression).Visit(expr2.Body);
             return Expression.Lambda<Func<T, bool>>(func(arg, arg2), new ParameterExpression[1] { parameterExpression });
         }
-        private static Expression<Func<T, bool>> AsExpression<T>(this QueryCollection queries, Condition? condition = Condition.OrElse) where T : class
+        public static Expression<Func<T, bool>> AsExpression<T>(this QueryCollection queries, Condition? condition = Condition.OrElse) where T : class
         {
             Type targetType = typeof(T);
             TypeInfo typeInfo = targetType.GetTypeInfo();

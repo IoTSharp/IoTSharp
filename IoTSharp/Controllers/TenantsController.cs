@@ -17,6 +17,8 @@ using IoTSharp.Dtos;
 using IoTSharp.Models;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using IoTSharp.Contracts;
+using IoTSharp.Extensions;
+using System.Linq.Expressions;
 
 namespace IoTSharp.Controllers
 {
@@ -64,6 +66,20 @@ namespace IoTSharp.Controllers
             {
                 return Ok(new ApiResult(ApiCode.Exception, ex.Message));
             }
+        }
+
+        /// <summary>
+        /// 产品列表
+        /// </summary>
+        /// <param name="m"></param>
+        /// <returns></returns>
+        [HttpGet]
+        public async Task<ApiResult<PagedData<Tenant>>> Query([FromQuery] QueryDto m)
+        {
+            var profile = this.GetUserProfile();
+            var querym = _context.Tenant.Where(c=>c.Deleted==false);
+            var data = await m.Query(querym, c => c.Name);
+            return new ApiResult<PagedData<Tenant>>(ApiCode.Success, "OK", data);
         }
 
         /// <summary>
