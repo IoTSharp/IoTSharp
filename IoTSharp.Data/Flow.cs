@@ -42,5 +42,13 @@ namespace IoTSharp.Data
 
         public Customer Customer { get; set; }
 
+        public string Top { get; set; }
+        public string Left { get; set; }
+
+        public string FlowClass { get; set; }
+        public string FlowNameSpace { get; set; }
+        public string FlowIcon{ get; set; }
+        public string FlowTag { get; set; }
+        public string FlowShapeType { get; set; }
     }
 }

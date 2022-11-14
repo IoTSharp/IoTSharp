@@ -1108,6 +1108,21 @@
              <param name="bizId">业务Id(第三方唯一Id，用于取回事件以及记录的标识)</param>
              <returns> 返回所有节点的记录信息，需要保存则保存</returns>
         </member>
+        <member name="P:IoTSharp.Models.Rule.NodeObject.nodetype">
+            <summary>
+            节点分组类型 （脚本，执行器）
+            </summary>
+        </member>
+        <member name="P:IoTSharp.Models.Rule.NodeObject.content">
+            <summary>
+            节点内容（脚本时为脚本内容，执行器时为配置）
+            </summary>
+        </member>
+        <member name="P:IoTSharp.Models.Rule.NodeObject.mata">
+            <summary>
+            
+            </summary>
+        </member>
         <member name="T:IoTSharp.Properties.Resources">
             <summary>
               一个强类型的资源类，用于查找本地化的字符串等。
