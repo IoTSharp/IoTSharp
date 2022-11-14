@@ -528,7 +528,7 @@
             </summary>
             <returns></returns>
         </member>
-        <member name="M:IoTSharp.Controllers.ProducesController.List(IoTSharp.Controllers.Models.ProduceParam)">
+        <member name="M:IoTSharp.Controllers.ProducesController.List(IoTSharp.Controllers.Models.QueryDto)">
             <summary>
             产品列表
             </summary>

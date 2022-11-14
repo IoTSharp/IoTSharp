@@ -3,7 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Security.Cryptography;
+using System.Threading;
 using System.Threading.Tasks;
+using Esprima.Ast;
 using IoTSharp.Contracts;
 using IoTSharp.Controllers.Models;
 using IoTSharp.Data;
@@ -13,6 +15,7 @@ using IoTSharp.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.Extensions.Logging;
 using Microsoft.Scripting.Utils;
 using ShardingCore.Extensions;
@@ -39,59 +42,25 @@ namespace IoTSharp.Controllers
         /// <param name="m"></param>
         /// <returns></returns>
         [HttpGet]
-        public async Task<ApiResult<PagedData<ProduceDto>>> List([FromQuery] ProduceParam m)
+        public async Task<ApiResult<PagedData<ProduceDto>>> List([FromQuery] QueryDto m)
         {
             var profile = this.GetUserProfile();
             Expression<Func<Produce, bool>> condition = x =>
-                x.Customer.Id == profile.Customer && x.Tenant.Id == profile.Tenant &&  x.Deleted==false;
-
-
-            if (!string.IsNullOrEmpty(m.Name))
+                x.Customer.Id == profile.Customer && x.Tenant.Id == profile.Tenant && x.Deleted == false;
+            var querym = _context.Produces.Include(c => c.Devices.Where(c => c.Deleted == false));
+            var  data = await m.Query(querym, condition,c=>c.Name, c => new ProduceDto
             {
-                condition = condition.And(x => x.Name.Contains(m.Name));
-            }
-
-
-            if (m.limit > 1)
-            {
-                return new ApiResult<PagedData<ProduceDto>>(ApiCode.Success, "OK", new PagedData<ProduceDto>
-                {
-                    total = await _context.Produces.CountAsync(condition),
-                    rows = _context.Produces.Include(c => c.Devices.Where(c=>c.Deleted==false)).Where(condition).Skip((m.offset) * m.limit)
-                        .Take(m.limit)
-                        .ToList().Select(c => new ProduceDto
-                        {
-                            Id = c.Id,
-                            DefaultIdentityType = c.DefaultIdentityType,
-                            DefaultTimeout = c.DefaultTimeout,
-                            Description = c.Description,
-                            Name = c.Name, Devices = c.Devices
-                        }).ToList()
-
-                });
-
-            }
-            else
-            {
-                return new ApiResult<PagedData<ProduceDto>>(ApiCode.Success, "OK", new PagedData<ProduceDto>
-                {
-                    total = await _context.Produces.CountAsync(c=>c.Deleted==false),
-                    rows = _context.Produces.Where(condition)
-                        .ToList().Select(c => new ProduceDto
-                        {
-                            Id = c.Id,
-                            DefaultIdentityType = c.DefaultIdentityType,
-                            DefaultTimeout = c.DefaultTimeout,
-                            Description = c.Description,
-                            Name = c.Name
-                        }).ToList()
-
-                });
-            }
-
-
-
+                Id = c.Id,
+                DefaultIdentityType = c.DefaultIdentityType,
+                DefaultTimeout = c.DefaultTimeout,
+                Description = c.Description,
+                Name = c.Name,
+                Devices = c.Devices
+            }  );
+            return new ApiResult<PagedData<ProduceDto>>(ApiCode.Success, "OK", data);
         }
+
+      
 
         /// <summary>
         /// 

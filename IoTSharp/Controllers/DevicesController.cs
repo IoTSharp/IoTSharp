@@ -124,7 +124,7 @@ namespace IoTSharp.Controllers
         public async Task<ApiResult<PagedData<DeviceDetailDto>>> GetDevices([FromQuery] DeviceParam m)
         {
             var profile = this.GetUserProfile();
-            m.limit = m.limit < 5 ? 5 : m.limit;
+            m.Limit = m.Limit < 5 ? 5 : m.Limit;
             try
             {
             
@@ -146,7 +146,7 @@ namespace IoTSharp.Controllers
                         query = from x in query where x.Name.Contains(m.Name) select x;
                     }
                 }
-                var lst = await query.Skip((m.offset) * m.limit).Take(m.limit).AsSplitQuery().Select(x => new DeviceDetailDto()
+                var lst = await query.Skip((m.Offset) * m.Limit).Take(m.Limit).AsSplitQuery().Select(x => new DeviceDetailDto()
                 {
                     Id = x.Id,
                     Name = x.Name,

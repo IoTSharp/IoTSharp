@@ -29,16 +29,16 @@ namespace IoTSharp.Controllers
         }
 
         [HttpPost]
-        public ApiResult<PagedData<DynamicFormInfo>> Index([FromBody] IPageParam m)
+        public ApiResult<PagedData<DynamicFormInfo>> Index([FromBody] QueryDto m)
         {
             Expression<Func<DynamicFormInfo, bool>> condition = x => x.FormStatus > -1;
             var result = _context
-                .DynamicFormInfos.OrderByDescending(c => c.FormId).Where(condition).Skip((m.offset) * m.limit).Take(m.limit).ToList();
+                .DynamicFormInfos.OrderByDescending(c => c.FormId).Where(condition).Skip((m.Offset) * m.Limit).Take(m.Limit).ToList();
 
             return new ApiResult<PagedData<DynamicFormInfo>>(ApiCode.Success, "OK", new PagedData<DynamicFormInfo>
             {
                 total = _context.DynamicFormInfos.Count(condition),
-                rows = _context.DynamicFormInfos.OrderByDescending(c => c.FormId).Where(condition).Skip((m.offset) * m.limit).Take(m.limit).ToList()
+                rows = _context.DynamicFormInfos.OrderByDescending(c => c.FormId).Where(condition).Skip((m.Offset) * m.Limit).Take(m.Limit).ToList()
             });
         }
 

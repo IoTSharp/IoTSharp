@@ -32,9 +32,10 @@ namespace IoTSharp.Controllers
         }
 
         [HttpGet]
-        public async Task<ApiResult<PagedData<AssetDto>>> List([FromQuery] AssetParam m)
+        public async Task<ApiResult<PagedData<AssetDto>>> List([FromQuery] QueryDto m)
         {
             var profile = this.GetUserProfile();
+
             Expression<Func<Asset, bool>> condition = x =>
                 x.Customer.Id == profile.Customer && x.Tenant.Id == profile.Tenant && x.Deleted==false;
 
@@ -47,7 +48,7 @@ namespace IoTSharp.Controllers
             return new ApiResult<PagedData<AssetDto>>(ApiCode.Success, "OK", new PagedData<AssetDto>
             {
                 total = await _context.Assets.CountAsync(condition),
-                rows = _context.Assets.Where(condition).Where(condition).Skip((m.offset) * m.limit).Take(m.limit)
+                rows = _context.Assets.Where(condition).Where(condition).Skip((m.Offset) * m.Limit).Take(m.Limit)
                     .ToList().Select(c => new AssetDto
                         {Id = c.Id, AssetType = c.AssetType, Description = c.Description, Name = c.Name}).ToList()
 

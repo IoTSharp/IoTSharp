@@ -33,12 +33,12 @@ namespace IoTSharp.Controllers
 
 
         [HttpPost]
-        public ApiResult<PagedData<BaseDictionaryGroup>> Index([FromBody] IPageParam m)
+        public ApiResult<PagedData<BaseDictionaryGroup>> Index([FromBody] QueryDto m)
         {
 
             Expression<Func<BaseDictionaryGroup, bool>> condition = x => x.DictionaryGroupStatus > -1;
             var result = _context.BaseDictionaryGroups.Where(condition)
-                .OrderByDescending(c => c.DictionaryGroupId).Skip((m.offset) * m.limit).Take(m.limit).ToList();
+                .OrderByDescending(c => c.DictionaryGroupId).Skip((m.Offset) * m.Limit).Take(m.Limit).ToList();
 
             return new ApiResult<PagedData<BaseDictionaryGroup>>(ApiCode.Success, "OK", new PagedData<BaseDictionaryGroup>
             {

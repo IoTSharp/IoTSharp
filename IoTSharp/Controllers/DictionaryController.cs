@@ -39,7 +39,7 @@ namespace IoTSharp.Controllers
                 condition = condition.And(x => x.DictionaryGroupId == m.DictionaryGroupId);
             }
 
-            var rows = _context.BaseDictionaries.OrderByDescending(c => c.DictionaryId).Where(condition).Skip((m.offset) * m.limit).Take(m.limit).ToList();
+            var rows = _context.BaseDictionaries.OrderByDescending(c => c.DictionaryId).Where(condition).Skip((m.Offset) * m.Limit).Take(m.Limit).ToList();
             var total = _context.BaseDictionaries.Count(condition);
 
             return new ApiResult<PagedData<BaseDictionary>>(ApiCode.Success, "OK", new PagedData<BaseDictionary>

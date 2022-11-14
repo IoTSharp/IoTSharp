@@ -137,8 +137,8 @@ namespace IoTSharp.Controllers
             return new ApiResult<PagedData<AlarmDto>>(ApiCode.Success, "OK", new PagedData<AlarmDto>
             {
                 total = await _context.Alarms.CountAsync(condition),
-                rows = _context.Alarms.OrderByDescending(c => c.AckDateTime).Where(condition).Skip((m.offset) * m.limit)
-                    .Take(m.limit)
+                rows = _context.Alarms.OrderByDescending(c => c.AckDateTime).Where(condition).Skip((m.Offset) * m.Limit)
+                    .Take(m.Limit)
                     .ToList().Select(c => new AlarmDto
                     {
                         ClearDateTime = c.ClearDateTime,

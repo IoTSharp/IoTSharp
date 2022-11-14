@@ -103,7 +103,7 @@ namespace IoTSharp.Controllers
             return new ApiResult<PagedData<BaseI18N>>(ApiCode.Success, "OK", new PagedData<BaseI18N>
             {
                 total = _context.BaseI18Ns.Count(condition),
-                rows = _context.BaseI18Ns.OrderByDescending(c => c.Id).Where(condition).Skip((m.offset) * m.limit).Take(m.limit).ToList()
+                rows = _context.BaseI18Ns.OrderByDescending(c => c.Id).Where(condition).Skip((m.Offset) * m.Limit).Take(m.Limit).ToList()
             });
         }
 

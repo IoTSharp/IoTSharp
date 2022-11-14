@@ -63,7 +63,7 @@ namespace IoTSharp.Controllers
             return new ApiResult<PagedData<Customer>>(ApiCode.Success, "OK", new PagedData<Customer>
             {
                 total = await _context.Customer.CountAsync(condition),
-                rows = await _context.Customer.OrderByDescending(c => c.Id).Where(condition).Skip((m.offset) * m.limit).Take(m.limit).ToListAsync()
+                rows = await _context.Customer.OrderByDescending(c => c.Id).Where(condition).Skip((m.Offset) * m.Limit).Take(m.Limit).ToListAsync()
             });
         }
 

@@ -88,7 +88,7 @@ namespace IoTSharp.Controllers
             return new ApiResult<PagedData<FlowRule>>(ApiCode.Success, "OK", new PagedData<FlowRule>
             {
                 total = _context.FlowRules.Count(condition),
-                rows = _context.FlowRules.OrderByDescending(c => c.CreatTime).Where(condition).Skip((m.offset) * m.limit).Take(m.limit).ToList()
+                rows = _context.FlowRules.OrderByDescending(c => c.CreatTime).Where(condition).Skip((m.Offset) * m.Limit).Take(m.Limit).ToList()
             });
         }
 
@@ -347,7 +347,7 @@ namespace IoTSharp.Controllers
                 .Select(c => new DeviceRuleDto()
                 {
                     Id = c.Device.Id, DeviceType = c.Device.DeviceType, EnableTrace = c.EnableTrace, Name = c.Device.Name, Timeout = c.Device.Timeout
-                }).Skip(m.offset * m.limit).Take(m.limit).ToListAsync();
+                }).Skip(m.Offset * m.Limit).Take(m.Limit).ToListAsync();
             var total =await _context.DeviceRules.Include(c => c.FlowRule).Include(c => c.Device).Where(condition).Select(c=>c.Device).AsSplitQuery().CountAsync();
             return new ApiResult<PagedData<DeviceRuleDto>>(ApiCode.Success, "Ok",  new PagedData<DeviceRuleDto> { rows=rows,total= total });
         }
@@ -1191,7 +1191,7 @@ namespace IoTSharp.Controllers
             }
 
             var result = _context.BaseEvents.OrderByDescending(c => c.CreaterDateTime).Where(condition)
-                .Skip((m.offset) * m.limit).Take(m.limit).Select(c => new BaseEventDto
+                .Skip((m.Offset) * m.Limit).Take(m.Limit).Select(c => new BaseEventDto
                 {
                     Name = c.FlowRule.Name,
                     Bizid = c.Bizid,
@@ -1286,14 +1286,14 @@ namespace IoTSharp.Controllers
         }
 
         [HttpPost]
-        public async Task<ApiResult<PagedData<RuleTaskExecutor>>> Executors(ExecutorParam m)
+        public async Task<ApiResult<PagedData<RuleTaskExecutor>>> Executors(QueryDto m)
         {
             var profile = this.GetUserProfile();
             var rte = from x in _context.RuleTaskExecutors where x.ExecutorStatus > -1 && x.Tenant.Id == profile.Tenant orderby x.AddDateTime descending select x;
             var pd = new PagedData<RuleTaskExecutor>
             {
                 total = await rte.CountAsync(),
-                rows = await rte.Skip((m.offset) * m.limit).Take(m.limit).ToListAsync()
+                rows = await rte.Skip((m.Offset) * m.Limit).Take(m.Limit).ToListAsync()
             };
             return new ApiResult<PagedData<RuleTaskExecutor>>(ApiCode.Success, "OK", pd);
         }

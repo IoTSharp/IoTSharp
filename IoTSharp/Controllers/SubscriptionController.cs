@@ -31,7 +31,7 @@ namespace IoTSharp.Controllers
         }
 
         [HttpPost]
-        public ApiResult<PagedData<SubscriptionEvent>> Index([FromBody] SubscriptionParam m)
+        public ApiResult<PagedData<SubscriptionEvent>> Index([FromBody] QueryDto m)
         {
             var profile = this.GetUserProfile();
             Expression<Func<SubscriptionEvent, bool>> condition = x => x.EventStatus > -1 && x.Tenant.Id == profile.Tenant;
@@ -42,7 +42,7 @@ namespace IoTSharp.Controllers
             return new ApiResult<PagedData<SubscriptionEvent>>(ApiCode.Success, "OK", new PagedData<SubscriptionEvent>
             {
                 total = _context.SubscriptionEvents.Count(condition),
-                rows = _context.SubscriptionEvents.OrderByDescending(c => c.CreateDateTime).Where(condition).Skip((m.offset) * m.limit).Take(m.limit).ToList()
+                rows = _context.SubscriptionEvents.OrderByDescending(c => c.CreateDateTime).Where(condition).Skip((m.Offset) * m.Limit).Take(m.Limit).ToList()
             });
         }
 
