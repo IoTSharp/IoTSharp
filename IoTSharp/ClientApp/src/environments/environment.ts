@@ -11,7 +11,8 @@ export const environment = {
   production: false,
   useHash: true,
   api: {
-    baseUrl: './',
+    // baseUrl: './',
+    baseUrl: 'http://iot.qhse.cn:2927/',
     refreshTokenEnabled: true,
     refreshTokenType: 'auth-refresh'
   },
