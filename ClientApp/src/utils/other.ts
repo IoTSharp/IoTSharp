@@ -47,7 +47,7 @@ export function useTitle() {
  * @param params 路由 query、params 中的 tagsViewName
  * @returns 返回当前 tagsViewName 名称
  */
-export function setTagsViewNameI18n(item: any) {
+export function setTagsViewNameI18n(item:any) {
 	let tagsViewName: any = '';
 	const { query, params, meta } = item;
 	if (query?.tagsViewName || params?.tagsViewName) {
@@ -198,3 +198,7 @@ const other = {
 
 // 统一批量导出
 export default other;
+// 延迟函数
+export function sleep(ms: number) {
+	return new Promise( resolve => setTimeout(resolve, ms) );
+}

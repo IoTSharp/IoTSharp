@@ -31,8 +31,8 @@ export const jsplumbDefaults = {
 	LogEnabled: true,
 	// 连接器的默认外观
 	PaintStyle: {
-		stroke: '#E0E3E7',
-		strokeWidth: 1,
+		stroke: '#BFB6DC',
+		strokeWidth: 2,
 		outlineStroke: 'transparent',
 		outlineWidth: 10,
 	},

@@ -70,7 +70,7 @@ import { useThemeConfig } from '/@/stores/themeConfig';
 import { useKeepALiveNames } from '/@/stores/keepAliveNames';
 import { Session } from '/@/utils/storage';
 import { isObjectValueEqual } from '/@/utils/arrayOperation';
-import other from '/@/utils/other';
+import other from '/@/utils/other.ts';
 import Contextmenu from '/@/layout/navBars/tagsView/contextmenu.vue';
 
 // 定义接口来定义对象的类型

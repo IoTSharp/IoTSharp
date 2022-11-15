@@ -52,6 +52,7 @@ import warning from "~icons/ic/round-warning"
 import message from "~icons/ic/baseline-message"
 import monitor from "~icons/ic/round-monitor-heart"
 import iconChart from '~icons/mdi/chart-bar-stacked'
+import Card from '/@/components/card/index.vue'
 
 let global: any = {
   homeChartOne: null,

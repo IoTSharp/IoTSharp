@@ -12,7 +12,7 @@
         <!-- 左侧导航区 -->
         <div class="workflow-content">
           <div class="workflow-left">
-            <el-scrollbar>
+            <el-scrollbar view-style="padding: 10px">
               <div
                 ref="leftNavRefs"
                 v-for="(val, key) in leftNavList"
@@ -28,6 +28,7 @@
                   class="workflow-left-item"
                   v-for="(v, k) in val.children"
                   :key="k"
+                  :data-color="val.color"
                   :data-name="v.name"
                   :data-icon="v.icon"
                   :data-id="v.id"
@@ -35,9 +36,9 @@
                   :namespace="v.namespace"
                   :mata="v.mata"
                 >
-                  <div class="workflow-left-item-icon">
-                    <SvgIcon :name="v.icon" class="workflow-icon-drag" />
-                    <div class="font10 pl5 name">{{ v.name }}</div>
+                  <div class="workflow-left-item-icon" :style="{backgroundColor: val.color}">
+                    <component :is="{...customIcons[v.icon]}" class="workflow-icon-drag"></component>
+                    <div class="text-sm pl5 name">{{ v.name }}</div>
                   </div>
                 </div>
               </div>
@@ -57,12 +58,16 @@
               @contextmenu.prevent="onContextmenu(v, k, $event)"
             >
               <div
+                  :style="{backgroundColor: v.color}"
                 class="workflow-right-box"
                 :class="{ 'workflow-right-active': jsPlumbNodeIndex === k }"
               >
-                <div class="workflow-left-item-icon">
-                  <SvgIcon :name="v.icon" class="workflow-icon-drag" />
-                  <div class="font10 pl5 name">{{ v.name }}</div>
+                <div class="workflow-left-item-icon" >
+<!--                  <SvgIcon :name="v.icon" class="workflow-icon-drag" />-->
+                  <div class="workflow-icon-drag">
+                    <component :is="{...customIcons[v.icon]}" ></component>
+                  </div>
+                  <div class="text-sm pl5 name">{{ v.name }}</div>
                 </div>
               </div>
             </div>
@@ -121,16 +126,19 @@ import ContextmenuNode from "./component/contextmenu/node.vue";
 import ContextmenuLine from "./component/contextmenu/line.vue";
 import Drawer from "./component/drawer/index.vue";
 import commonFunction from "/@/utils/commonFunction";
-import { leftNavList } from "./js/mock";
+import {getGetLeftNavList} from "./js/leftNavList.ts";
+import {sleep} from "/@/utils/other.ts";
+import { customIcons } from './js/leftNavList.ts'
 import {
   jsplumbDefaults,
   jsplumbMakeSource,
   jsplumbMakeTarget,
   jsplumbConnect,
-} from "./js/config";
+} from "./js/config.ts";
 import { useRouter, useRoute } from "vue-router";
 import { ruleApi } from "/@/api/flows";
 import { stat } from "fs";
+import {jsplumbSetting} from "/@/views/iot/rules/js/commonConfig";
 // 定义接口来定义对象的类型
 interface NodeListState {
   id: string | number;
@@ -229,111 +237,12 @@ export default defineComponent({
     };
     // 左侧导航-数据初始化
     const initLeftNavList = async () => {
-      state.leftNavList = [
-        {
-          title: "基本",
-          icon: "iconfont icon-shouye",
-          isOpen: true,
-          id: "1",
-          children: [
-            {
-              icon: "iconfont icon-gongju",
-              name: "开始",
-              nodetype: "basic",
-              namespace: "rule.begin",
-              mata: "begin",
-              id: "begin",
-            },
-            {
-              icon: "iconfont icon-gongju",
-              nodetype: "basic",
-              namespace: "rule.end",
-              mata: "end",
-              name: "结束",
-              id: "end",
-            },
-          ],
-        },
-        {
-          title: "执行器",
-          icon: "iconfont icon-shouye",
-          isOpen: true,
-          id: "1",
-          children: [],
-        },
-        {
-          title: "脚本",
-          icon: "iconfont icon-shouye",
-          isOpen: true,
-          id: "1",
-          children: [
-            {
-              icon: "iconfont icon-gongju",
-              name: "javascript",
-              id: "javascript",
-
-              nodetype: "script",
-              namespace: "rule:javascript",
-              mata: "javascript",
-            },
-            {
-              icon: "iconfont icon-gongju",
-              name: "python",
-              id: "python",
-              nodetype: "script",
-              namespace: "rule:python",
-              mata: "python",
-            },
-            {
-              icon: "iconfont icon-gongju",
-              name: "sql",
-              id: "sql",
-              nodetype: "script",
-              namespace: "rule:sql",
-              mata: "sql",
-            },
-            {
-              icon: "iconfont icon-gongju",
-              name: "lua",
-              id: "lua",
-              nodetype: "script",
-              namespace: "rule:lua",
-              mata: "lua",
-            },
-            {
-              icon: "iconfont icon-gongju",
-              name: "csharp",
-              id: "csharp",
-              nodetype: "script",
-              namespace: "rule:csharp",
-              mata: "csharp",
-            },
-          ],
-        },
-      ];
-
-      await ruleApi()
-        .getexecutors()
-        .then((res) => {
-          res.data.forEach((item: any) => {
-            state.leftNavList[1].children.push({
-              icon: "iconfont icon-gongju",
-              name: item.label,
-              id: item.label,
-              nodetype: "executor",
-              namespace: item.value,
-              mata: item.value,
-            });
-          });
-        });
-      await ruleApi()
-        .getDiagram(state.flowid)
-        .then((res) => {
-          state.jsplumbData = {
-            nodeList: res.data.nodes,
-            lineList: res.data.lines,
-          };
-        });
+      const nav = await getGetLeftNavList()
+      state.leftNavList = nav!
+      state.jsplumbData = {
+        nodeList: [],
+        lineList: [],
+      };
     };
     // 左侧导航-初始化拖动
     const initSortable = () => {
@@ -349,7 +258,8 @@ export default defineComponent({
           draggable: ".workflow-left-item",
           forceFallback: true,
           onEnd: function (evt: any) {
-            const { name, icon, id } = evt.clone.dataset;
+            console.log(`%c-onEnd@flowdesigner:285`, 'color:white;font-size:16px;background:blue;font-weight: bold;', evt)
+            const { name, icon, id, color } = evt.clone.dataset;
             const { nodetype, namespace, mata } = evt.clone.attributes;
             const { layerX, layerY, clientX, clientY } = evt.originalEvent;
             const el = state.workflowRightRef!;
@@ -363,6 +273,7 @@ export default defineComponent({
               // 处理节点数据
               const node = {
                 nodeId,
+                color,
                 left: `${layerX - 40}px`,
                 top: `${layerY - 15}px`,
                 class: "workflow-right-clone",
@@ -373,7 +284,6 @@ export default defineComponent({
                 icon,
                 id,
               };
-
               // 右侧视图内容数组
               state.jsplumbData.nodeList.push(node);
               // 元素加载完毕时
@@ -411,6 +321,7 @@ export default defineComponent({
         state.jsPlumb.fire("jsPlumbDemoLoaded", state.jsPlumb);
         // 导入默认配置
         state.jsPlumb.importDefaults(state.jsplumbDefaults);
+        // state.jsPlumb.importDefaults(jsplumbSetting);
         // 会使整个jsPlumb立即重绘。
         state.jsPlumb.setSuspendDrawing(false, true);
         // 初始化节点、线的链接
@@ -471,6 +382,7 @@ export default defineComponent({
     };
     // 初始化节点、线的链接
     const initJsPlumbConnection = () => {
+      // 节点
       state.jsplumbData.nodeList.forEach((v) => {
         // 整个节点作为source或者target
         state.jsPlumb.makeSource(v.nodeId, state.jsplumbMakeSource);
@@ -490,7 +402,6 @@ export default defineComponent({
           },
         });
       });
-
       // 线
       state.jsplumbData.lineList.forEach((v) => {
         state.jsPlumb.connect(
@@ -513,11 +424,22 @@ export default defineComponent({
 
     const onexecutorSubmit = (data: object) => {};
 
-    const onscriptSubmit = (data: any) => {};
+    const onscriptSubmit = (data: any) => {
+
+    };
 
     // 右侧内容区-当前项点击
     const onItemCloneClick = (k: number) => {
       state.jsPlumbNodeIndex = k;
+      let lines = state.jsPlumb.getAllConnections()
+      let {nodeId} = state.jsplumbData.nodeList[k]
+      console.log(`%c-onItemCloneClick@flowdesigner:435`, 'color:white;font-size:16px;background:blue;font-weight: bold;', lines, nodeId)
+      lines.forEach((line:any) => {
+        if(line.targetId === nodeId || line.sourceId === nodeId) {
+          line.canvas.classList.add('active')
+          console.log(`%c-@flowdesigner:440`, 'color:white;font-size:16px;background:blue;font-weight: bold;', line)
+        }
+      })
     };
     // 右侧内容区-当前项右键菜单点击
     const onContextmenu = (v: any, k: number, e: MouseEvent) => {
@@ -785,6 +707,7 @@ export default defineComponent({
       window.removeEventListener("resize", setClientWidth);
     });
     return {
+      customIcons,
       setViewHeight,
       setClientWidth,
       setLineLabel,
@@ -823,6 +746,7 @@ export default defineComponent({
       height: calc(100% - 35px);
 
       .workflow-left {
+        box-sizing: border-box;
         width: 220px;
         height: 100%;
         border-right: 1px solid var(--el-border-color-light, #ebeef5);
@@ -846,11 +770,34 @@ export default defineComponent({
         }
 
         .workflow-left-item {
+          box-sizing: border-box;
           display: inline-block;
-          width: calc(100% - 15px);
+          width: 100%;
           position: relative;
           cursor: move;
-          margin: 0 0 10px 10px;
+          //margin: 0 0 10px 10px;
+          //padding-right: 10px;
+          //border: 2px solid #9E9DAD;
+          border: 2px solid transparent;
+          border-radius: 6px;
+          margin-bottom: 10px;
+          outline: 1px solid #9E9DAD;
+          outline-offset: -2px;
+
+
+          &:hover {
+            outline: none;
+            //transition: all 0.3s ease;
+            border: 2px dashed var(--el-color-primary);
+            background: var(--el-color-primary-light-9);
+            border-radius: 6px;
+
+            i,
+            .name {
+              transition: all 0.3s ease;
+              color: var(--el-color-primary);
+            }
+          }
 
           .workflow-left-item-icon {
             height: 35px;
@@ -860,29 +807,18 @@ export default defineComponent({
             padding: 5px 10px;
             border: 1px dashed transparent;
             background: var(--next-bg-color);
-            border-radius: 3px;
+            border-radius: 6px;
 
             i,
             .name {
-              color: var(--el-text-color-secondary);
+              color: black;
               transition: all 0.3s ease;
               white-space: nowrap;
               text-overflow: ellipsis;
               overflow: hidden;
             }
 
-            &:hover {
-              transition: all 0.3s ease;
-              border: 1px dashed var(--el-color-primary);
-              background: var(--el-color-primary-light-9);
-              border-radius: 5px;
 
-              i,
-              .name {
-                transition: all 0.3s ease;
-                color: var(--el-color-primary);
-              }
-            }
           }
         }
 
@@ -912,11 +848,11 @@ export default defineComponent({
           .workflow-right-box {
             height: 35px;
             align-items: center;
-            color: var(--el-text-color-secondary);
+            color: black;
             padding: 0 10px;
             border-radius: 3px;
             cursor: move;
-            transition: all 0.3s ease;
+            transition: all 0.1s ease;
             min-width: 94.5px;
             background: var(--el-color-white);
             border: 1px solid var(--el-border-color-light, #ebeef5);
@@ -928,9 +864,9 @@ export default defineComponent({
             }
 
             &:hover {
-              border: 1px dashed var(--el-color-primary);
+              outline: 2px dashed var(--el-color-primary);
               background: var(--el-color-primary-light-9);
-              transition: all 0.3s ease;
+              //transition: all 0.3s ease;
               color: var(--el-color-primary);
 
               i {
@@ -940,7 +876,8 @@ export default defineComponent({
           }
 
           .workflow-right-active {
-            border: 1px dashed var(--el-color-primary);
+            //border: 1px dashed var(--el-color-primary);
+            outline: 2px solid var(--el-color-primary);
             background: var(--el-color-primary-light-9);
             color: var(--el-color-primary);
           }
@@ -983,6 +920,46 @@ export default defineComponent({
       align-items: center;
       justify-content: center;
     }
+  }
+}
+
+.workflow-icon-drag {
+  position: relative;
+  &:after {
+    content: ' ';
+    width: 32px;
+    height: 32px;
+    left: 0;
+    top: 0;
+    z-index: 1000;
+    position: absolute;
+    cursor: default;
+    background: transparent;
+  }
+
+}
+
+</style>
+<style lang="scss">
+.jtk-connector.active{
+  z-index: 9999;
+  path {
+    stroke: #150042;
+    stroke-width: 1.5;
+    animation: ring;
+    animation-duration: 3s;
+    animation-timing-function: linear;
+    animation-iteration-count: infinite;
+    stroke-dasharray: 5;
+  }
+
+}
+@keyframes ring {
+  from {
+    stroke-dashoffset: 50;
+  }
+  to {
+    stroke-dashoffset: 0;
   }
 }
 </style>
