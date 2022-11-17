@@ -30,6 +30,7 @@ namespace IoTSharp.Models.Rule
         public string linename { get; set; }
         public string condition { get; set; }
         public string lineId { get; set; }
+        public string @namespace { get; set; }
     }
 
 

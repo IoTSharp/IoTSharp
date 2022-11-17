@@ -687,7 +687,7 @@ namespace IoTSharp.Controllers
                                 FlowRule = rule,
                                 Flowname = item.name,
                                 bpmnid = item.nodeId,
-                                FlowType = item.nodetype,
+                                FlowType = item.@namespace,
                                 FlowStatus = 1,
                                 CreateId = CreatorId,
                                 Createor = profile.Id,
@@ -696,7 +696,7 @@ namespace IoTSharp.Controllers
                                 Tenant = rule.Tenant,
 
                                 FlowClass = item.@class,
-                                FlowNameSpace = item.@namespace,
+                                FlowNameSpace = item.nodetype,
                                 FlowIcon = item.icon,
                                 Top = item.top,
                                 Left = item.left
@@ -712,9 +712,9 @@ namespace IoTSharp.Controllers
                                 FlowRule = rule,
                                 Flowname = item.name,
                                 bpmnid = item.nodeId,
-                                FlowType = item.nodetype,
+                                FlowType = item.@namespace,
                                 NodeProcessParams = item.content,
-              
+
                                 NodeProcessClass = item.mata,
                                 FlowStatus = 1,
                                 CreateId = CreatorId,
@@ -724,9 +724,9 @@ namespace IoTSharp.Controllers
                                 Tenant = rule.Tenant,
 
                                 FlowClass = item.@class,
-                                FlowNameSpace = item.@namespace,
+                                FlowNameSpace = item.nodetype,
                                 FlowIcon = item.icon,
-                                Top=item.top,
+                                Top = item.top,
                                 Left = item.left
                             };
                             _context.Flows.AddRange(node);
@@ -740,7 +740,7 @@ namespace IoTSharp.Controllers
                                 FlowRule = rule,
                                 Flowname = item.name,
                                 bpmnid = item.nodeId,
-                                FlowType = item.nodetype,
+                                FlowType = item.@namespace,
                                 NodeProcessScript = item.content,
                                 NodeProcessScriptType = item.mata,
                                 FlowStatus = 1,
@@ -751,7 +751,7 @@ namespace IoTSharp.Controllers
                                 Tenant = rule.Tenant,
 
                                 FlowClass = item.@class,
-                                FlowNameSpace = item.@namespace,
+                                FlowNameSpace = item.nodetype,
                                 FlowIcon = item.icon,
                                 Top = item.top,
                                 Left = item.left
@@ -774,10 +774,11 @@ namespace IoTSharp.Controllers
                     FlowRule = rule,
                     Flowname = item.linename,
                     bpmnid = item.lineId,
-                    FlowType = "line",
+                    FlowType = item.@namespace,
                     TargetId = item.targetId,
                     SourceId = item.sourceId,
                     Conditionexpression = item.condition,
+                    FlowNameSpace = "line",
                     FlowStatus = 1,
                     CreateId = CreatorId,
                     Createor = profile.Id,
@@ -806,7 +807,7 @@ namespace IoTSharp.Controllers
             m.nodes = new List<NodeObject>();
             foreach (var item in flows)
             {
-                switch (item.FlowType)
+                switch (item.FlowNameSpace)
                 {
                     case "line":
                         {
@@ -881,6 +882,7 @@ namespace IoTSharp.Controllers
 
             return new ApiResult<ModelDiagram>(ApiCode.Success, "Ok", m);
         }
+
 
 
         [HttpGet]

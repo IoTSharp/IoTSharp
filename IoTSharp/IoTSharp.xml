@@ -235,7 +235,6 @@
             <summary>
             生成一个图形认证
             </summary>
-            <param name="clientid"></param>
             <returns></returns>
         </member>
         <member name="M:IoTSharp.Controllers.CaptchaController.Vertify(System.String,IoTSharp.Models.ModelCaptchaVertify)">
@@ -560,7 +559,13 @@
              <param name="m"></param>
              <returns></returns>
         </member>
-        <!-- Badly formed XML comment ignored for member "M:IoTSharp.Controllers.HealthChecksController.Get" -->
+        <member name="M:IoTSharp.Controllers.HealthChecksController.Get">
+            <summary>
+             返回指定id的客户
+             </summary>
+             <param name="id"></param>
+             <returns></returns>
+        </member>
         <member name="T:IoTSharp.Controllers.InstallerController">
             <summary>
             安装
