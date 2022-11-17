@@ -55,6 +55,28 @@ export const dynamicRoutes: Array<RouteRecordRaw> = [
 
 ];
 
+// 部分前端管理的路由
+export const frontEndRoutes = [
+	{
+		path: '/iot/rules/flowdesigner',
+		name: 'flowdesigner',
+		component: () => import('/@/views/iot/rules/flowdesigner.vue'),
+		meta: {
+			title: 'true',
+			isHide: false,
+		},
+	},
+	{
+		path: '/iot/forms/edit',
+		name: 'edit',
+		component: () => import('/@/views/iot/forms/edit.vue'),
+		meta: {
+			title: '编辑',
+			isHide: true,
+		},
+	}
+]
+
 /**
  * 定义404、401界面
  * @link 参考：https://next.router.vuejs.org/zh/guide/essentials/history-mode.html#netlify
@@ -79,24 +101,7 @@ export const notFoundAndNoPower = [
 		},
 	},
 
-	{
-		path: '/iot/rules/flowdesigner',
-		name: 'flowdesigner',
-		component: () => import('/@/views/iot/rules/flowdesigner.vue'),
-		meta: {
-			title: 'message.router.home',
-			isHide: true,
-		},
-	},
-	{
-		path: '/iot/forms/edit',
-		name: 'edit',
-		component: () => import('/@/views/iot/forms/edit.vue'),
-		meta: {
-			title: 'message.router.home',
-			isHide: true,
-		},
-	},
+
 ];
 
 /**
