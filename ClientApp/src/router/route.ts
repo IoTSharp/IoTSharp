@@ -87,6 +87,14 @@ export const notFoundAndNoPower = [
 			title: 'message.router.home',
 			isHide: true,
 		},
+	},{
+		path: '/iot/rules/flowsimulator',
+		name: 'flowsimulator',
+		component: () => import('/@/views/iot/rules/flowsimulator.vue'),
+		meta: {
+			title: 'message.router.home',
+			isHide: true,
+		},
 	},
 	{
 		path: '/iot/forms/edit',

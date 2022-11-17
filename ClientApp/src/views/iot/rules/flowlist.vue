@@ -55,7 +55,7 @@
           show-overflow-tooltip
         ></el-table-column>
 
-        <el-table-column label="操作" show-overflow-tooltip width="140">
+        <el-table-column label="操作" show-overflow-tooltip width="200">
           <template #default="scope">
             <el-button size="small" text type="primary" @click="create(scope.row.ruleId)"
               >修改</el-button
@@ -63,6 +63,9 @@
 
             <el-button size="small" text type="primary" @click="design(scope.row.ruleId)"
               >设计</el-button
+            >
+            <el-button size="small" text type="primary" @click="simulator(scope.row.ruleId)"
+              >测试</el-button
             >
 
             <el-button size="small" text type="primary" @click="onTabelRowDel(scope.row)"
@@ -188,6 +191,18 @@ export default defineComponent({
       })
     };
 
+    const simulator = (id: string) => {
+      router.push({
+
+        path:'/iot/rules/flowsimulator',
+        query:{
+          id:id
+        }
+      })
+    };
+
+    
+
     const create = (id: string) => {
       addformRef.value.openDialog(id);
     };
@@ -218,7 +233,7 @@ export default defineComponent({
     return {
       addformRef,
       create,
-      design,
+      design,simulator,
       onHandleSizeChange,
       onHandleCurrentChange,
       onTabelRowDel,

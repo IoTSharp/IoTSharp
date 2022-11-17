@@ -69,6 +69,15 @@ import request from '/@/utils/request';
 				data: data,
 			});
 		},
+
+
+		active: (data: any) => {
+			return request({
+				url: '/api/rules/active',
+				method: 'post',
+				data: data,
+			});
+		},
 	};
 }
 

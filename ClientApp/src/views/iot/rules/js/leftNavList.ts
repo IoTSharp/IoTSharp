@@ -71,14 +71,14 @@ const leftNavList: LeftNavItem[] = [
                 icon: 'importIcon',
                 name: "开始",
                 nodetype: "basic",
-                namespace: "rule.begin",
+                namespace: "bpmn:StartEvent",
                 mata: "begin",
                 id: "begin",
             },
             {
                 icon: 'stopIcon',
                 nodetype: "basic",
-                namespace: "rule.end",
+                namespace: "bpmn:EndEvent",    
                 mata: "end",
                 name: "结束",
                 id: "end",
@@ -105,7 +105,7 @@ const leftNavList: LeftNavItem[] = [
                 name: "javascript",
                 id: "javascript",
                 nodetype: "script",
-                namespace: "rule:javascript",
+                namespace: 'bpmn:Task',
                 mata: "javascript",
             },
             {
@@ -113,7 +113,7 @@ const leftNavList: LeftNavItem[] = [
                 name: "python",
                 id: "python",
                 nodetype: "script",
-                namespace: "rule:python",
+                namespace: 'bpmn:Task',
                 mata: "python",
             },
             {
@@ -121,7 +121,7 @@ const leftNavList: LeftNavItem[] = [
                 name: "sql",
                 id: "sql",
                 nodetype: "script",
-                namespace: "rule:sql",
+                namespace: 'bpmn:Task',
                 mata: "sql",
             },
             {
@@ -129,7 +129,7 @@ const leftNavList: LeftNavItem[] = [
                 name: "lua",
                 id: "lua",
                 nodetype: "script",
-                namespace: "rule:lua",
+                namespace: 'bpmn:Task',
                 mata: "lua",
             },
             {
@@ -137,7 +137,7 @@ const leftNavList: LeftNavItem[] = [
                 name: "csharp",
                 id: "csharp",
                 nodetype: "script",
-                namespace: "rule:csharp",
+                namespace: 'bpmn:Task',
                 mata: "csharp",
             },
         ],
@@ -157,6 +157,7 @@ function getIcon (name:string) {
 }
 export const getGetLeftNavList = async () => {
     try {
+        leftNavList[1].children=[];
         const res = await ruleApi().getexecutors()
         res.data.forEach((item: any) => {
             leftNavList[1].children.push({
@@ -164,7 +165,7 @@ export const getGetLeftNavList = async () => {
                 name: item.label,
                 id: item.label,
                 nodetype: "executor",
-                namespace: item.value,
+                namespace: 'bpmn:Task',
                 mata: item.value,
             });
         });
