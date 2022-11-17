@@ -194,6 +194,15 @@ const initLeftNavList = async () => {
     nodeList: [],
     lineList: [],
   };
+  await ruleApi()
+        .getDiagram(state.flowid)
+        .then((res) => {
+          state.jsplumbData = {
+            nodeList: res.data.nodes,
+            lineList: res.data.lines,
+          };
+        });
+
 };
 // 左侧导航-初始化拖动
 const initSortable = () => {
@@ -316,7 +325,8 @@ const initJsPlumb = () => {
         lineId,
         sourceId,
         targetId,
-        label: "",
+        label: '',
+        namespace:'bpmn:SequenceFlow'
       });
     });
     // 删除连线时回调函数

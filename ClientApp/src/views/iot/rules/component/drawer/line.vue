@@ -45,6 +45,7 @@ export default defineComponent({
     const getParentData = (linedata: any) => {
       state.line.linename = linedata.linename ?? "";
       state.line.condition = linedata.condition ?? "";
+      state.line.namespace = linedata.namespace ?? "";
     };
     // 重置
     const onLineTextReset = () => {

@@ -62,7 +62,7 @@ export const frontEndRoutes = [
 		name: 'flowdesigner',
 		component: () => import('/@/views/iot/rules/flowdesigner.vue'),
 		meta: {
-			title: 'true',
+			title: '设计器',
 			isHide: false,
 		},
 	},
@@ -74,7 +74,16 @@ export const frontEndRoutes = [
 			title: '编辑',
 			isHide: true,
 		},
-	}
+	},
+	{
+		path: '/iot/rules/flowsimulator',
+		name: 'flowsimulator',
+		component: () => import('/@/views/iot/rules/flowsimulator.vue'),
+		meta: {
+			title: 'message.router.home',
+			isHide: true,
+		},
+	},
 ]
 
 /**

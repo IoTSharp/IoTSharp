@@ -19,7 +19,7 @@
 					@click="onCurrentClick(v.contextMenuClickId)"
 				>
 					<SvgIcon :name="v.icon" />
-					<span>{{ v.txt }}{{ item.type === 'line' ? '线' : '节点' }}</span>
+					<span>{{ v.txt }}{{ item.name  }}</span>
 				</li>
 			</ul>
 			<div class="el-popper__arrow" style="left: 10px"></div>
@@ -46,7 +46,8 @@ export default defineComponent({
 			],
 			item: {
 				type: 'node',
-				value:''
+				value:'',
+				name:''
 			},
 			conn: {},
 		});
@@ -56,6 +57,8 @@ export default defineComponent({
 		});
 		// 当前项菜单点击
 		const onCurrentClick = (contextMenuClickId: number) => {
+
+			console.log(state.item)
 			emit('currentnode', { contextMenuClickId, ...state.item,result:state.item.value}, state.conn);
 		};
 		// 打开右键菜单：判断是否固定，固定则不显示关闭按钮

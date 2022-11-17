@@ -19,7 +19,7 @@
           @click="onCurrentClick(v.contextMenuClickId)"
         >
           <SvgIcon :name="v.icon" />
-          <span>{{ v.txt }}{{ item.type === "line" ? "线" : "节点" }}</span>
+          <span>{{ v.txt }}{{ "条件" }}</span>
         </li>
       </ul>
       <div class="el-popper__arrow" style="left: 10px"></div>

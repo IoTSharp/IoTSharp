@@ -19,7 +19,8 @@ export interface LineListState {
     label: string;
     condition?: string;
     linename?: string;
-    lineId: string;
+    lineId: string;  
+    namespace:string;
 }
 export interface XyState {
     x: string | number;
