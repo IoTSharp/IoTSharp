@@ -1,7 +1,10 @@
 <template>
 	<div class="h100" v-show="!isTagsViewCurrenFull">
 		<el-aside class="layout-aside" :class="setCollapseStyle">
-			<Logo v-if="setShowLogo" />
+<!--			<Logo v-if="setShowLogo" />-->
+      <div class="z-menu-logo" v-if="setShowLogo">
+        <AppLogo style="width:160px"></AppLogo>
+      </div>
 			<el-scrollbar class="flex-auto" ref="layoutAsideScrollbarRef" @mouseenter="onAsideEnterLeave(true)" @mouseleave="onAsideEnterLeave(false)">
 				<Vertical :menuList="menuList" />
 			</el-scrollbar>
@@ -18,10 +21,10 @@ import { useThemeConfig } from '/@/stores/themeConfig';
 import { useTagsViewRoutes } from '/@/stores/tagsViewRoutes';
 import Logo from '/@/layout/logo/index.vue';
 import Vertical from '/@/layout/navMenu/vertical.vue';
-
+import AppLogo from "/@/components/AppLogo.vue";
 export default defineComponent({
 	name: 'layoutAside',
-	components: { Logo, Vertical },
+	components: { Logo, Vertical, AppLogo },
 	setup() {
 		const { proxy } = <any>getCurrentInstance();
 		const stores = useRoutesList();
@@ -161,3 +164,12 @@ export default defineComponent({
 	},
 });
 </script>
+<style lang="scss" scoped>
+.z-menu-logo {
+  display: flex;
+  box-sizing: border-box;
+  padding-left: 20px;
+  height: 92px;
+  border-bottom: 1px solid #f1f2f3;
+}
+</style>
