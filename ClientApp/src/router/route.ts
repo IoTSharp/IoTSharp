@@ -58,12 +58,21 @@ export const dynamicRoutes: Array<RouteRecordRaw> = [
 // 部分前端管理的路由
 export const frontEndRoutes = [
 	{
+		path: '/profile',
+		name: 'profile',
+		component: () => import('/@/views/profile/index.vue'),
+		meta: {
+			title: '个人中心',
+			isHide: true,
+		},
+	},
+	{
 		path: '/iot/rules/flowdesigner',
 		name: 'flowdesigner',
 		component: () => import('/@/views/iot/rules/flowdesigner.vue'),
 		meta: {
-			title: '设计器',
-			isHide: false,
+			title: '规则设计器',
+			isHide: true,
 		},
 	},
 	{
