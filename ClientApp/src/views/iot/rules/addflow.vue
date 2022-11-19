@@ -5,18 +5,18 @@
         <el-form :model="dataForm" size="default" label-width="90px">
           <el-row :gutter="35">
             <el-col :xs="24" :sm="24" :md="24" :lg="24" :xl="24" class="mb20">
-              <el-form-item label="规则名称">
+              <el-form-item label="规则链名称">
                 <el-input
                   v-model="dataForm.name"
-                  placeholder="请输入规则名称"
+                  placeholder="请输入规则链名称"
                   clearable
                 ></el-input>
               </el-form-item>
             </el-col>
 
             <el-col :xs="24" :sm="24" :md="24" :lg="24" :xl="24" class="mb20">
-              <el-form-item label="规则名称">
-                <el-select v-model="dataForm.mountType" placeholder="请选择认证方式">
+              <el-form-item label="事件类型">
+                <el-select v-model="dataForm.mountType" placeholder="请选择事件类型">
                   <el-option
                     v-for="item in mountTypes"
                     :key="item.value"
@@ -27,10 +27,10 @@
               </el-form-item>
             </el-col>
             <el-col :xs="24" :sm="24" :md="24" :lg="24" :xl="24" class="mb20">
-              <el-form-item label="规则名称">
+              <el-form-item label="规则链描述">
                 <el-input
                   v-model="dataForm.ruleDesc"
-                  placeholder="请输入规则名称"
+                  placeholder="请输入规则链描述信息"
                   clearable
                 ></el-input>
               </el-form-item>
@@ -120,9 +120,9 @@ export default defineComponent({
           ruleDesc: '',
           mountType: '',
         };
-        state.dialogtitle = '新增规则';
+        state.dialogtitle = '新增规则链';
       } else {
-        state.dialogtitle = '修改规则';
+        state.dialogtitle = '修改规则链';
         ruleApi()
           .getrule(ruleid)
           .then((res) => {
