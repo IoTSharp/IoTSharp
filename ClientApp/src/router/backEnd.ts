@@ -5,7 +5,7 @@ import { useUserInfo } from '/@/stores/userInfo';
 import { useRequestOldRoutes } from '/@/stores/requestOldRoutes';
 import { Session } from '/@/utils/storage';
 import { NextLoading } from '/@/utils/loading';
-import { dynamicRoutes, notFoundAndNoPower } from '/@/router/route';
+import {dynamicRoutes, frontEndRoutes, notFoundAndNoPower} from '/@/router/route';
 import { formatTwoStageRoutes, formatFlatteningRoutes, router } from '/@/router/index';
 import { useRoutesList } from '/@/stores/routesList';
 import { useTagsViewRoutes } from '/@/stores/tagsViewRoutes';
@@ -15,7 +15,7 @@ const menuApi = useMenuApi();
 
 const layouModules: any = import.meta.glob('../layout/routerView/*.{vue,tsx}');
 const viewsModules: any = import.meta.glob('../views/**/*.{vue,tsx}');
-
+console.log(`%c-@backEnd:18`, 'color:white;font-size:16px;background:blue;font-weight: bold;', viewsModules)
 // 后端控制路由
 
 /**
@@ -73,6 +73,7 @@ export async function initBackEndControlRoutes() {
  */
 export function setFilterMenuAndCacheTagsViewRoutes() {
 	const storesRoutesList = useRoutesList(pinia);
+	// storesRoutesList.setRoutesList(dynamicRoutes[0].children as any);
 	storesRoutesList.setRoutesList(dynamicRoutes[0].children as any);
 	setCacheTagsViewRoutes();
 }
@@ -92,6 +93,7 @@ export function setCacheTagsViewRoutes() {
  * @returns 返回替换后的路由数组
  */
 export function setFilterRouteEnd() {
+	dynamicRoutes[0].children?.push(...frontEndRoutes)
 	let filterRouteEnd: any = formatTwoStageRoutes(formatFlatteningRoutes(dynamicRoutes));
 	filterRouteEnd[0].children = [...filterRouteEnd[0].children, ...notFoundAndNoPower];
 	return filterRouteEnd;

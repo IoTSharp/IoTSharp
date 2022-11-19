@@ -201,7 +201,9 @@ const initLeftNavList = async () => {
             nodeList: res.data.nodes,
             lineList: res.data.lines,
           };
-        });
+        }).catch(e=>{
+        console.log(` @flowdesigner:205`, e)
+      });
 
 };
 // 左侧导航-初始化拖动

@@ -35,8 +35,8 @@ import AppLogo from "/@/components/AppLogo.vue";
 import setup_form_rules from './setup_form_rules.json'
 import setup_form_option from './setup_form_option.json'
 import {initSysAdmin} from "/@/api/installer";
-import {reactive, ref} from "vue";
-import formCreate from "@form-create/element-ui";
+import {reactive, Ref, ref} from "vue";
+import formCreate, {Api} from "@form-create/element-ui";
 import {ElButton as Button, ElMessage} from 'element-plus'
 import { useAppInfo } from "/@/stores/appInfo";
 
@@ -46,7 +46,7 @@ const FormCreate = formCreate.$form()
 const router = useRouter()
 const storesAppInfo = useAppInfo()
 //实例对象
-const fApi = ref({})
+const fApi: Ref<Api | null> = ref(null)
 //表单数据
 const value = ref({})
 // const options = ref(setup_form_option)
@@ -55,7 +55,7 @@ const options = reactive(setup_form_option)
 const validatePassCheck = (rule:any, value:any, callback:any) => {
   if (value === '') {
     callback(new Error('请再次输入密码'));
-  } else if (value !== fApi.value.form.password) {
+  } else if (value !== fApi.value!.form.password) {
     callback(new Error('两次输入的密码不一致!'));
   } else {
     callback();
@@ -69,9 +69,9 @@ setup_form_rules[3].validate.push({
 JSON.parse(JSON.stringify(setup_form_rules))
 const rules = ref(setup_form_rules)
 
-function onSubmit(data) {
+function onSubmit(data:any) {
   try {
-    fApi.value.validate(async (valid) => {
+    fApi.value!.validate(async (valid) => {
       if (valid) {
         try {
           await initSysAdmin(data)

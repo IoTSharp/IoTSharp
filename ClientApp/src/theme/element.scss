@@ -32,7 +32,7 @@
 .el-form {
 	// 用于修改弹窗时表单内容间隔太大问题，如系统设置的新增菜单弹窗里的表单内容
 	.el-form-item:last-of-type {
-		margin-bottom: 0 !important;
+		//margin-bottom: 0 !important;
 	}
 	// 修复行内表单最后一个 el-form-item 位置下移问题
 	&.el-form--inline {
