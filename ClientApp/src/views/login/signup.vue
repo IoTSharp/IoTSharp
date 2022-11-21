@@ -41,7 +41,6 @@ const fApi: Ref<Api | null> = ref(null)
 const FormCreate = formCreate.$form()
 
 const validatePassCheck = (rule:any, value:any, callback:any) => {
-  console.log(`%c-validatePassCheck@signup:44`, 'color:white;font-size:16px;background:blue;font-weight: bold;', value, fApi.value!.form.password)
   if (value === '') {
     callback(new Error('请再次输入密码'));
   } else if (value !== fApi.value!.form.password) {
@@ -58,6 +57,7 @@ signUpRule[3].validate.push({
 const rules = ref(signUpRule)
 
 onMounted(async ()=>{
+
 })
 function onSubmit(data:any){
   try {
@@ -66,8 +66,11 @@ function onSubmit(data:any){
         try {
           await signup(data)
           ElMessage.success('修改成功')
-        } catch (e) {
+        } catch (e:any) {
           ElMessage.error('注册失败')
+          for (const error of Object.values(e.response.data.errors)) {
+            ElMessage.error(`${JSON.stringify(error)}`)
+          }
         }
       } else {
         ElMessage.error('请正确填写信息')
