@@ -9,15 +9,7 @@ using System.IO;
 
 namespace System.Text.Json
 {
-    public class ApiResult
-    {
-        public int code { get; set; }
-        public string? msg { get; set; }
-    }
-    public class ApiResult<T> : ApiResult
-    {
-        public T? data { get; set; }
-    }
+   
     public static class SystemTextJsonRestClientExtensions
     {
         public static async Task<T> GetDataBy<T>(this Uri uri, params object[] objparam)

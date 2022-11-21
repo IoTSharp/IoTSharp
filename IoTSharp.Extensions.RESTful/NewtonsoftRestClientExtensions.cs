@@ -9,15 +9,7 @@ using System.IO;
 
 namespace Newtonsoft.Json
 {
-    public class ApiResult
-    {
-        public int code { get; set; }
-        public string? msg { get; set; }
-    }
-    public class ApiResult<T> : ApiResult
-    {
-        public T? data { get; set; }
-    }
+
     public static class NewtonsoftRestClientExtensions
     {
         public static async Task<T> GetDataBy<T>(this Uri uri, params object[] objparam)
@@ -108,7 +100,7 @@ namespace Newtonsoft.Json
 
         private static RestClient Create(Uri uri)
         {
-            var client = new RestClient(new RestClientOptions(uri) { Timeout = -1, FollowRedirects = false });
+            var client = new RestClient(new RestClientOptions(uri) {  MaxTimeout = -1, FollowRedirects = false });
             client.AddDefaultHeader(KnownHeaders.Accept, "*/*");
             return client;
         }
