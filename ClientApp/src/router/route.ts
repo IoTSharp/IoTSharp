@@ -145,6 +145,14 @@ export const staticRoutes: Array<RouteRecordRaw> = [
 			title: '初始化系统',
 		},
 	},
+	{
+		path: '/signup',
+		name: 'signup',
+		component: () => import('/@/views/login/signup.vue'),
+		meta: {
+			title: '初始化系统',
+		},
+	},
 	/**
 	 * 提示：写在这里的为全屏界面，不建议写在这里
 	 * 请写在 `dynamicRoutes` 路由数组中

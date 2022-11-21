@@ -33,7 +33,7 @@
         </template>
       </el-input>
     </el-form-item>
-  
+
     <el-form-item class="login-animation4">
       <el-button
         type="primary"
@@ -45,7 +45,15 @@
         <span>{{ $t("message.account.accountBtnText") }}</span>
       </el-button>
     </el-form-item>
+
+
+    <div class="mt10-40px login-animation5 text-center">
+      没有账号?
+      <router-link to="/signup"> <el-link type="primary" :underline="false" >立即注册 </el-link></router-link>
+    </div>
   </el-form>
+
+
 
 
   <el-dialog v-model="dialogVisible" title="" width="400px"  >
@@ -200,7 +208,7 @@ export default defineComponent({
 <style scoped lang="scss">
 .login-content-form {
   margin-top: 20px;
-  @for $i from 1 through 4 {
+  @for $i from 1 through 5 {
     .login-animation#{$i} {
       opacity: 0;
       animation-name: error-num;
