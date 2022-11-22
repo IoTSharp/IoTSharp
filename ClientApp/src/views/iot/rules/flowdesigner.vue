@@ -36,8 +36,14 @@
                   :namespace="v.namespace"
                   :mata="v.mata"
                 >
-                  <div class="workflow-left-item-icon" :style="{backgroundColor: val.color}">
-                    <component :is="{...customIcons[v.icon]}" class="workflow-icon-drag"></component>
+                  <div
+                    class="workflow-left-item-icon"
+                    :style="{ backgroundColor: val.color }"
+                  >
+                    <component
+                      :is="{ ...customIcons[v.icon] }"
+                      class="workflow-icon-drag"
+                    ></component>
                     <div class="text-sm pl5 name">{{ v.name }}</div>
                   </div>
                 </div>
@@ -53,21 +59,25 @@
               :key="v.nodeId"
               :id="v.nodeId"
               :data-node-id="v.nodeId"
-              :class="v.class"
+              :class="v.nodeclass"
               :style="{ left: v.left, top: v.top }"
               @click="onItemCloneClick(k)"
               @contextmenu.prevent="onContextmenu(v, k, $event)"
-              v-on-click-outside="()=>{onItemCloneClickOutside(k)}"
+              v-on-click-outside="
+                () => {
+                  onItemCloneClickOutside(k);
+                }
+              "
             >
               <div
-                  :style="{backgroundColor: v.color}"
-                  class="workflow-right-box"
-                  :class="{ 'workflow-right-active': state.jsPlumbNodeIndex === k }"
+                :style="{ backgroundColor: v.color }"
+                class="workflow-right-box"
+                :class="{ 'workflow-right-active': state.jsPlumbNodeIndex === k }"
               >
                 <div class="workflow-left-item-icon">
                   <!--                  <SvgIcon :name="v.icon" class="workflow-icon-drag" />-->
                   <div class="workflow-icon-drag">
-                    <component :is="{...customIcons[v.icon]}"></component>
+                    <component :is="{ ...customIcons[v.icon] }"></component>
                   </div>
                   <div class="text-sm pl5 name">{{ v.name }}</div>
                 </div>
@@ -106,15 +116,8 @@
 </template>
 
 <script lang="ts" setup>
-import {
-  reactive,
-  computed,
-  onMounted,
-  onUnmounted,
-  nextTick,
-  ref,
-} from "vue";
-import { vOnClickOutside } from '@vueuse/components'
+import { reactive, computed, onMounted, onUnmounted, nextTick, ref } from "vue";
+import { vOnClickOutside } from "@vueuse/components";
 import { ElMessage, ElMessageBox } from "element-plus";
 import { jsPlumb } from "jsplumb";
 import Sortable from "sortablejs";
@@ -127,8 +130,8 @@ import ContextmenuNode from "./component/contextmenu/node.vue";
 import ContextmenuLine from "./component/contextmenu/line.vue";
 import Drawer from "./component/drawer/index.vue";
 import commonFunction from "/@/utils/commonFunction";
-import {getGetLeftNavList} from "./js/leftNavList.ts";
-import { customIcons } from './js/leftNavList.ts'
+import { getGetLeftNavList } from "./js/leftNavList.ts";
+import { customIcons } from "./js/leftNavList.ts";
 import {
   jsplumbDefaults,
   jsplumbMakeSource,
@@ -137,9 +140,9 @@ import {
 } from "./js/config.ts";
 import { useRouter, useRoute } from "vue-router";
 import { ruleApi } from "/@/api/flows";
-import {FlowState} from "/@/views/iot/rules/models";
+import { FlowState } from "/@/views/iot/rules/models";
 
-const modal = ref(false)
+const modal = ref(false);
 const route = useRoute();
 const router = useRouter();
 const contextmenuNodeRef = ref();
@@ -152,8 +155,8 @@ const { themeConfig } = storeToRefs(storesThemeConfig);
 const { isTagsViewCurrenFull } = storeToRefs(stores);
 const { copyText } = commonFunction();
 
-const workflowRightRef= ref<HTMLDivElement | null>(null)
-const leftNavRefs = ref([])
+const workflowRightRef = ref<HTMLDivElement | null>(null);
+const leftNavRefs = ref([]);
 const state = reactive<FlowState>({
   flowid: route.query.id,
   leftNavList: [],
@@ -188,23 +191,20 @@ const setClientWidth = () => {
 };
 // 左侧导航-数据初始化
 const initLeftNavList = async () => {
-  const nav = await getGetLeftNavList()
-  state.leftNavList = nav!
+  const nav = await getGetLeftNavList();
+  state.leftNavList = nav!;
   state.jsplumbData = {
     nodeList: [],
     lineList: [],
   };
   await ruleApi()
-        .getDiagram(state.flowid)
-        .then((res) => {
-          state.jsplumbData = {
-            nodeList: res.data.nodes,
-            lineList: res.data.lines,
-          };
-        }).catch(e=>{
-        console.log(` @flowdesigner:205`, e)
-      });
-
+    .getDiagram(state.flowid)
+    .then((res) => {
+      state.jsplumbData = {
+        nodeList: res.data.nodes,
+        lineList: res.data.lines,
+      };
+    });
 };
 // 左侧导航-初始化拖动
 const initSortable = () => {
@@ -221,10 +221,14 @@ const initSortable = () => {
       forceFallback: true,
       onEnd: function (evt: any) {
         const { name, icon, id, color } = evt.clone.dataset;
-        const { nodetype, namespace, mata } = evt.clone.attributes;
+        const { nodetype, nodenamespace, mata } = evt.clone.attributes;
         const { layerX, layerY, clientX, clientY } = evt.originalEvent;
         const el = workflowRightRef.value!;
-        console.log(`%conEnd@flowdesigner:217`, 'color:black;font-size:16px;background:yellow;font-weight: bold;', el)
+        console.log(
+          `%conEnd@flowdesigner:217`,
+          "color:black;font-size:16px;background:yellow;font-weight: bold;",
+          el
+        );
         const { x, y, width, height } = el.getBoundingClientRect();
 
         if (clientX < x || clientX > width + x || clientY < y || y > y + height) {
@@ -238,9 +242,9 @@ const initSortable = () => {
             color,
             left: `${layerX - 40}px`,
             top: `${layerY - 15}px`,
-            class: "workflow-right-clone",
+            nodeclass: "workflow-right-clone",
             nodetype: nodetype.value,
-            namespace: namespace.value,
+            nodenamespace: nodenamespace.value,
             mata: mata.value,
             name,
             icon,
@@ -297,7 +301,7 @@ const initJsPlumb = () => {
       state.dropdownLine.y = clientY;
       const v: any = state.jsplumbData.nodeList.find((v) => v.nodeId === targetId);
       const line: any = state.jsplumbData.lineList.find(
-          (v) => v.sourceId === sourceId && v.targetId === targetId
+        (v) => v.sourceId === sourceId && v.targetId === targetId
       );
       v.type = "line";
       v.label = line.label;
@@ -309,8 +313,13 @@ const initJsPlumb = () => {
     // 连线之前
     state.jsPlumb.bind("beforeDrop", (conn: any) => {
       const { sourceId, targetId } = conn;
+      if (conn.targetId == conn.sourceId) {
+        ElMessage.warning("连接目标不能为本身");
+        return false;
+      }
+
       const item = state.jsplumbData.lineList.find(
-          (v) => v.sourceId === sourceId && v.targetId === targetId
+        (v) => v.sourceId === sourceId && v.targetId === targetId
       );
       if (item) {
         ElMessage.warning("关系已存在，不可重复连接");
@@ -327,8 +336,8 @@ const initJsPlumb = () => {
         lineId,
         sourceId,
         targetId,
-        label: '',
-        namespace:'bpmn:SequenceFlow'
+        label: "",
+        linenamespace: "bpmn:SequenceFlow",
       });
     });
     // 删除连线时回调函数
@@ -368,14 +377,14 @@ const initJsPlumbConnection = () => {
   // 线
   state.jsplumbData.lineList.forEach((v) => {
     state.jsPlumb.connect(
-        {
-          source: v.sourceId,
-          target: v.targetId,
-          label: v.linename,
-          linename: v.linename,
-          condition: v.condition,
-        },
-        state.jsplumbConnect
+      {
+        source: v.sourceId,
+        target: v.targetId,
+        label: v.linename,
+        linename: v.linename,
+        condition: v.condition,
+      },
+      state.jsplumbConnect
     );
   });
   // 节点
@@ -387,37 +396,34 @@ const onTitleClick = (val: any) => {
 
 const onexecutorSubmit = (data: object) => {};
 
-const onscriptSubmit = (data: any) => {
-
-};
+const onscriptSubmit = (data: any) => {};
 
 // 右侧内容区-当前项点击
 const onItemCloneClick = (k: number) => {
   state.jsPlumbNodeIndex = k;
-  let {nodeId} = state.jsplumbData.nodeList[k]
-  changeLineState(nodeId!, true)
+  let { nodeId } = state.jsplumbData.nodeList[k];
+  changeLineState(nodeId!, true);
 };
 
 // 右侧内容区-当前项外侧点击
 const onItemCloneClickOutside = (k: number) => {
   state.jsPlumbNodeIndex = null;
-  let {nodeId} = state.jsplumbData.nodeList[k]
-  changeLineState(nodeId!, false)
-}
+  let { nodeId } = state.jsplumbData.nodeList[k];
+  changeLineState(nodeId!, false);
+};
 // 右侧内容区-激活时，改变线条颜色
-const changeLineState = (nodeId:string, isInsideOfNode:boolean)=>{
-  let lines = state.jsPlumb.getAllConnections()
-  lines.forEach((line:any) => {
-    if(line.targetId === nodeId || line.sourceId === nodeId) {
+const changeLineState = (nodeId: string, isInsideOfNode: boolean) => {
+  let lines = state.jsPlumb.getAllConnections();
+  lines.forEach((line: any) => {
+    if (line.targetId === nodeId || line.sourceId === nodeId) {
       if (isInsideOfNode) {
-        line.canvas.classList.add('active')
-
+        line.canvas.classList.add("active");
       } else {
-        line.canvas.classList.remove('active')
+        line.canvas.classList.remove("active");
       }
     }
-  })
-}
+  });
+};
 // 右侧内容区-当前项右键菜单点击
 const onContextmenu = (v: any, k: number, e: MouseEvent) => {
   state.jsPlumbNodeIndex = k;
@@ -439,52 +445,52 @@ const onContextmenu = (v: any, k: number, e: MouseEvent) => {
 const onCurrentNodeClick = (item: any, conn: any) => {
   switch (item.nodetype) {
     case "script":
-    {
-      const { contextMenuClickId, nodeId } = item;
-      if (contextMenuClickId === 0) {
-        const nodeIndex = state.jsplumbData.nodeList.findIndex(
+      {
+        const { contextMenuClickId, nodeId } = item;
+        if (contextMenuClickId === 0) {
+          const nodeIndex = state.jsplumbData.nodeList.findIndex(
             (item) => item.nodeId === nodeId
-        );
-        state.jsplumbData.nodeList.splice(nodeIndex, 1);
-        state.jsPlumb.removeAllEndpoints(nodeId);
-        state.jsPlumbNodeIndex = null;
-      } else if (contextMenuClickId === 1) {
-        item.value = item.result;
-        drawerRef.value.open(item);
+          );
+          state.jsplumbData.nodeList.splice(nodeIndex, 1);
+          state.jsPlumb.removeAllEndpoints(nodeId);
+          state.jsPlumbNodeIndex = null;
+        } else if (contextMenuClickId === 1) {
+          item.value = item.result;
+          drawerRef.value.open(item);
+        }
       }
-    }
 
       break;
     case "basic":
-    {
-      const { contextMenuClickId, nodeId } = item;
-      if (contextMenuClickId === 0) {
-        const nodeIndex = state.jsplumbData.nodeList.findIndex(
+      {
+        const { contextMenuClickId, nodeId } = item;
+        if (contextMenuClickId === 0) {
+          const nodeIndex = state.jsplumbData.nodeList.findIndex(
             (item) => item.nodeId === nodeId
-        );
-        state.jsplumbData.nodeList.splice(nodeIndex, 1);
-        state.jsPlumb.removeAllEndpoints(nodeId);
-        state.jsPlumbNodeIndex = null;
-      } else if (contextMenuClickId === 1) {
-        drawerRef.value.open(item);
+          );
+          state.jsplumbData.nodeList.splice(nodeIndex, 1);
+          state.jsPlumb.removeAllEndpoints(nodeId);
+          state.jsPlumbNodeIndex = null;
+        } else if (contextMenuClickId === 1) {
+          drawerRef.value.open(item);
+        }
       }
-    }
 
       break;
     case "executor":
-    {
-      const { contextMenuClickId, nodeId } = item;
-      if (contextMenuClickId === 0) {
-        const nodeIndex = state.jsplumbData.nodeList.findIndex(
+      {
+        const { contextMenuClickId, nodeId } = item;
+        if (contextMenuClickId === 0) {
+          const nodeIndex = state.jsplumbData.nodeList.findIndex(
             (item) => item.nodeId === nodeId
-        );
-        state.jsplumbData.nodeList.splice(nodeIndex, 1);
-        state.jsPlumb.removeAllEndpoints(nodeId);
-        state.jsPlumbNodeIndex = null;
-      } else if (contextMenuClickId === 1) {
-        drawerRef.value.open(item);
+          );
+          state.jsplumbData.nodeList.splice(nodeIndex, 1);
+          state.jsPlumb.removeAllEndpoints(nodeId);
+          state.jsPlumbNodeIndex = null;
+        } else if (contextMenuClickId === 1) {
+          drawerRef.value.open(item);
+        }
       }
-    }
 
       break;
   }
@@ -587,8 +593,8 @@ const onToolHelp = () => {
 const onToolDownload = () => {
   const { globalTitle } = themeConfig.value;
   const href =
-      "data:text/json;charset=utf-8," +
-      encodeURIComponent(JSON.stringify(state.jsplumbData, null, "\t"));
+    "data:text/json;charset=utf-8," +
+    encodeURIComponent(JSON.stringify(state.jsplumbData, null, "\t"));
   const aLink = document.createElement("a");
   aLink.setAttribute("href", href);
   aLink.setAttribute("download", `${globalTitle}设计.json`);
@@ -605,7 +611,7 @@ const panelClose = (data: any) => {
           v.name = data.name;
           v.icon = data.icon;
           v.nodetype = data.nodetype;
-          v.namespace = data.namespace;
+          v.nodenamespace = data.namespace;
           v.mata = data.mata;
           v.content = data.content;
         }
@@ -618,7 +624,7 @@ const panelClose = (data: any) => {
           v.name = data.name;
           v.icon = data.icon;
           v.nodetype = data.nodetype;
-          v.namespace = data.namespace;
+          v.nodenamespace = data.namespace;
           v.mata = data.mata;
           v.content = data.content;
         }
@@ -632,14 +638,12 @@ const panelClose = (data: any) => {
 // 顶部工具栏-提交
 const onToolSubmit = () => {
   ruleApi()
-      .saveDiagramV({
-        RuleId: state.flowid,
-        nodes: state.jsplumbData.nodeList,
-        lines: state.jsplumbData.lineList,
-      })
-      .then((res) => {
-
-      });
+    .saveDiagramV({
+      RuleId: state.flowid,
+      nodes: state.jsplumbData.nodeList,
+      lines: state.jsplumbData.lineList,
+    })
+    .then((res) => {});
 
   ElMessage.success("数据提交成功");
 };
@@ -653,19 +657,19 @@ const onToolDel = () => {
     confirmButtonText: "清空",
     cancelButtonText: "取消",
   })
-      .then(() => {
-        state.jsplumbData.nodeList.forEach((v) => {
-          state.jsPlumb.removeAllEndpoints(v.nodeId);
-        });
-        nextTick(() => {
-          state.jsplumbData = {
-            nodeList: [],
-            lineList: [],
-          };
-          ElMessage.success("清空画布成功");
-        });
-      })
-      .catch(() => {});
+    .then(() => {
+      state.jsplumbData.nodeList.forEach((v) => {
+        state.jsPlumb.removeAllEndpoints(v.nodeId);
+      });
+      nextTick(() => {
+        state.jsplumbData = {
+          nodeList: [],
+          lineList: [],
+        };
+        ElMessage.success("清空画布成功");
+      });
+    })
+    .catch(() => {});
 };
 // 顶部工具栏-全屏
 const onToolFullscreen = () => {
@@ -735,9 +739,8 @@ onUnmounted(() => {
           border: 2px solid transparent;
           border-radius: 6px;
           margin-bottom: 10px;
-          outline: 1px solid #9E9DAD;
+          outline: 1px solid #9e9dad;
           outline-offset: -2px;
-
 
           &:hover {
             outline: none;
@@ -771,8 +774,6 @@ onUnmounted(() => {
               text-overflow: ellipsis;
               overflow: hidden;
             }
-
-
           }
         }
 
@@ -800,7 +801,7 @@ onUnmounted(() => {
           position: absolute;
 
           .workflow-right-box {
-            height: 35px;
+            height: 50px;
             align-items: center;
             color: black;
             padding: 0 10px;
@@ -809,12 +810,12 @@ onUnmounted(() => {
             transition: all 0.1s ease;
             min-width: 94.5px;
             background: var(--el-color-white);
-            border: 1px solid var(--el-border-color-light, #ebeef5);
+            border: 2px solid var(--el-border-color-light, #1d59e6);
 
             .workflow-left-item-icon {
               display: flex;
               align-items: center;
-              height: 35px;
+              height: 50px;
             }
 
             &:hover {
@@ -880,7 +881,7 @@ onUnmounted(() => {
 .workflow-icon-drag {
   position: relative;
   &:after {
-    content: ' ';
+    content: " ";
     width: 32px;
     height: 32px;
     left: 0;
@@ -890,14 +891,12 @@ onUnmounted(() => {
     cursor: default;
     background: transparent;
   }
-
 }
-
 </style>
 
 <style lang="scss">
 // 连线动画，节点点击时被激活
-.jtk-connector.active{
+.jtk-connector.active {
   z-index: 9999;
   path {
     stroke: #150042;
@@ -908,7 +907,6 @@ onUnmounted(() => {
     animation-iteration-count: infinite;
     stroke-dasharray: 5;
   }
-
 }
 @keyframes ring {
   from {

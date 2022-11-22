@@ -16,11 +16,13 @@
               :key="v.nodeId"
               :id="v.nodeId"
               :data-node-id="v.nodeId"
-              :class="v.class"
+              :class="v.nodeclass"
               :style="{ left: v.left, top: v.top }"
               @click="onItemCloneClick(k)"
             >
-              <div
+              <div            
+              
+                :style="{ backgroundColor: v.color }"
                 class="workflow-right-box"
                 :class="{ 'workflow-right-active': jsPlumbNodeIndex === k }"
               >
@@ -67,6 +69,19 @@
         </div>
       </el-scrollbar>
     </div>
+
+    <el-dialog v-model="dataFormVisible" title="测试数据">
+      <div>
+        <div id="codeEditBox" style="height: 300px; padding: 10px"></div>
+      </div>
+
+      <template #footer>
+        <span class="dialog-footer">
+          <el-button @click="dataFormVisible = false">取消</el-button>
+          <el-button type="primary" @click="submitData"> 确认 </el-button>
+        </span>
+      </template>
+    </el-dialog>
   </div>
 </template>
 
@@ -80,6 +95,7 @@ import {
   onUnmounted,
   nextTick,
   ref,
+  getCurrentInstance,
 } from "vue";
 import { ElMessage, ElMessageBox } from "element-plus";
 import { jsPlumb } from "jsplumb";
@@ -87,7 +103,7 @@ import Sortable from "sortablejs";
 import { storeToRefs } from "pinia";
 import { useThemeConfig } from "/@/stores/themeConfig";
 import { useTagsViewRoutes } from "/@/stores/tagsViewRoutes";
-import Tool from "./component/tool/index.vue";
+import Tool from "./component/tool/simulator.vue";
 import Help from "./component/tool/help.vue";
 import ContextmenuNode from "./component/contextmenu/node.vue";
 import ContextmenuLine from "./component/contextmenu/line.vue";
@@ -102,30 +118,11 @@ import {
 } from "./js/config";
 import { useRouter, useRoute } from "vue-router";
 import { ruleApi } from "/@/api/flows";
-import { stat } from "fs";
+import * as monaco from "monaco-editor";
+import { LineListState, NodeListState } from "./models";
+
 // 定义接口来定义对象的类型
-interface NodeListState {
-  id: string | number;
-  nodeId: string | undefined;
-  class: HTMLElement | string;
-  left: number | string;
-  top: number | string;
-  icon: string;
-  name: string;
-  nodetype?: string;
-  namespace?: string;
-  mata?: string;
-  content?: string;
-}
-interface LineListState {
-  sourceId: string;
-  targetId: string;
-  label: string;
-  condition?: string;
-  linename?: string;
-  lineId: string;
-  namespace: string;
-}
+
 interface XyState {
   x: string | number;
   y: string | number;
@@ -133,6 +130,7 @@ interface XyState {
 interface FlowState {
   index: number;
   flowid?: string | any;
+  content?: string | any;
   workflowRightRef: HTMLDivElement | null;
   leftNavRefs: any[];
   leftNavList: any[];
@@ -145,6 +143,7 @@ interface FlowState {
   jsplumbMakeSource: any;
   jsplumbMakeTarget: any;
   jsplumbConnect: any;
+  dataFormVisible: boolean;
   jsplumbData: {
     nodeList: Array<NodeListState>;
     lineList: Array<LineListState>;
@@ -157,6 +156,8 @@ export default defineComponent({
   setup() {
     const route = useRoute();
     const router = useRouter();
+    const language = ref("json");
+    let editor: monaco.editor.IStandaloneCodeEditor;
     const contextmenuNodeRef = ref();
     const contextmenuLineRef = ref();
     const drawerRef = ref();
@@ -181,6 +182,7 @@ export default defineComponent({
       jsplumbMakeSource,
       jsplumbMakeTarget,
       jsplumbConnect,
+      dataFormVisible: false,
       jsplumbData: {
         nodeList: [],
         lineList: [],
@@ -317,8 +319,8 @@ export default defineComponent({
           draggable: ".workflow-left-item",
           forceFallback: true,
           onEnd: function (evt: any) {
-            const { name, icon, id } = evt.clone.dataset;
-            const { nodetype, namespace, mata } = evt.clone.attributes;
+            const { name, icon, id ,color} = evt.clone.dataset;
+            const { nodetype, nodenamespace, mata } = evt.clone.attributes;
             const { layerX, layerY, clientX, clientY } = evt.originalEvent;
             const el = state.workflowRightRef!;
             const { x, y, width, height } = el.getBoundingClientRect();
@@ -330,12 +332,13 @@ export default defineComponent({
               const nodeId = Math.random().toString(36).substr(2, 12);
               // 处理节点数据
               const node = {
-                nodeId,
+                nodeId,     
+                color,
                 left: `${layerX - 40}px`,
                 top: `${layerY - 15}px`,
-                class: "workflow-right-highlight",
+                nodeclass: "workflow-right-highlight",
                 nodetype: nodetype.value,
-                namespace: namespace.value,
+                nodenamespace: nodenamespace.value,
                 mata: mata.value,
                 name,
                 icon,
@@ -459,7 +462,7 @@ export default defineComponent({
           v.label = label;
           v.linename = linename;
           v.condition = condition;
-          v.namespace = namespace;
+      
         }
       });
     };
@@ -540,7 +543,7 @@ export default defineComponent({
               v.name = data.name;
               v.icon = data.icon;
               v.nodetype = data.nodetype;
-              v.namespace = data.namespace;
+              v.nodenamespace = data.namespace;
               v.mata = data.mata;
               v.content = data.content;
             }
@@ -553,7 +556,7 @@ export default defineComponent({
               v.name = data.name;
               v.icon = data.icon;
               v.nodetype = data.nodetype;
-              v.namespace = data.namespace;
+              v.nodenamespace = data.namespace;
               v.mata = data.mata;
               v.content = data.content;
             }
@@ -566,29 +569,81 @@ export default defineComponent({
 
     // 顶部工具栏-提交
     const onToolSubmit = () => {
-      ruleApi()
-        .active({
-          form: { a: 1 },
-          extradata: { ruleflowid: state.flowid },
-        })
-        .then( (res) => {
-          for (var item of res.data) {
-            for (var _item of item.nodes) {
-              var node = state.jsplumbData.nodeList.find((c) => c.nodeId == _item.bpmnid);
-              if (node) {
-                  node.class = "workflow-right-highlight";
-              }
-            }
-          }
+      openRunDialog();
+    };
 
-          // window.setInterval(() => {
-          //   var index = state.index % state.jsplumbData.nodeList.length;
-          //   state.jsplumbData.nodeList[index].class = "workflow-right-highlight";
-          //   state.index++;
-          // }, 1000);
+    const setclass = (item: any) => {
+      for (var _item of item.nodes) {
+        var node = state.jsplumbData.nodeList.find((c) => c.nodeId == _item.bpmnid);
+        if (node) {
+          node.nodeclass = "workflow-right-highlight";
+        }
+      }
+    };
+
+    const submitData = () => {
+      state.dataFormVisible = false;
+      var data = JSON.parse(state.content);
+      if (data) {
+        ruleApi()
+          .active({
+            form: data,
+            extradata: { ruleflowid: state.flowid },
+          })
+          .then((res) => {
+            for (let index = 0; index < res.data.length; index++) {
+              var item = res.data[index];
+              setTimeout(setclass, index * 500, item);
+            }
+          });
+        ElMessage.success("数据提交成功");
+      }
+    };
+
+    const openRunDialog = () => {
+      state.dataFormVisible = true;
+      state.content = "";
+      editorInit();
+    };
+
+    const editorInit = () => {
+      nextTick(() => {
+        monaco.languages.typescript.javascriptDefaults.setDiagnosticsOptions({
+          noSemanticValidation: true,
+          noSyntaxValidation: false,
+        });
+        monaco.languages.typescript.javascriptDefaults.setCompilerOptions({
+          target: monaco.languages.typescript.ScriptTarget.ES2016,
+          allowNonTsExtensions: true,
         });
 
-      ElMessage.success("数据提交成功");
+        !editor
+          ? (editor = monaco.editor.create(
+              document.getElementById("codeEditBox") as HTMLElement,
+              {
+                value: state.content ?? "", // 编辑器初始显示文字
+                language: "json", // 语言支持自行查阅demo
+                automaticLayout: true, // 自适应布局
+                theme: "vs-dark", // 官方自带三种主题vs, hc-black, or vs-dark
+                foldingStrategy: "indentation",
+                renderLineHighlight: "all", // 行亮
+                selectOnLineNumbers: true, // 显示行号
+                minimap: {
+                  enabled: false,
+                },
+                readOnly: false, // 只读
+                fontSize: 16, // 字体大小
+                scrollBeyondLastLine: false, // 取消代码后面一大段空白
+                overviewRulerBorder: false, // 不要滚动条的边框
+              }
+            ))
+          : editor.setValue(state.content ?? "");
+        // console.log(editor)
+        // 监听值的变化
+        editor.onDidChangeModelContent((val: any) => {
+          state.content = editor.getValue();
+        });
+      });
     };
     // 顶部工具栏-复制
     const onToolCopy = () => {
@@ -637,7 +692,7 @@ export default defineComponent({
       setNodeContent,
       onTitleClick,
       onItemCloneClick,
-
+      submitData,
       onCurrentLineClick,
       contextmenuNodeRef,
       contextmenuLineRef,
@@ -755,13 +810,13 @@ export default defineComponent({
           position: absolute;
 
           .workflow-right-box {
-            height: 50px;
+            height: 35px;
             align-items: center;
-            color: var(--el-text-color-secondary);
+            color: black;
             padding: 0 10px;
             border-radius: 3px;
             cursor: move;
-            transition: all 0.3s ease;
+            transition: all 0.1s ease;
             min-width: 94.5px;
             background: var(--el-color-white);
             border: 1px solid var(--el-border-color-light, #ebeef5);
@@ -769,13 +824,13 @@ export default defineComponent({
             .workflow-left-item-icon {
               display: flex;
               align-items: center;
-              height: 50px;
+              height: 35px;
             }
 
             &:hover {
-              border: 1px dashed var(--el-color-primary);
+              outline: 2px dashed var(--el-color-primary);
               background: var(--el-color-primary-light-9);
-              transition: all 0.3s ease;
+              //transition: all 0.3s ease;
               color: var(--el-color-primary);
 
               i {
@@ -785,7 +840,8 @@ export default defineComponent({
           }
 
           .workflow-right-active {
-            border: 1px dashed var(--el-color-primary);
+            //border: 1px dashed var(--el-color-primary);
+            outline: 2px solid var(--el-color-primary);
             background: var(--el-color-primary-light-9);
             color: var(--el-color-primary);
           }
@@ -846,7 +902,6 @@ export default defineComponent({
       }
     }
   }
-
   .workflow-mask {
     position: absolute;
     top: 0;
@@ -868,6 +923,40 @@ export default defineComponent({
       align-items: center;
       justify-content: center;
     }
+  }
+}
+.workflow-icon-drag {
+  position: relative;
+  &:after {
+    content: " ";
+    width: 32px;
+    height: 32px;
+    left: 0;
+    top: 0;
+    z-index: 1000;
+    position: absolute;
+    cursor: default;
+    background: transparent;
+  }
+}
+.jtk-connector.active {
+  z-index: 9999;
+  path {
+    stroke: #150042;
+    stroke-width: 1.5;
+    animation: ring;
+    animation-duration: 3s;
+    animation-timing-function: linear;
+    animation-iteration-count: infinite;
+    stroke-dasharray: 5;
+  }
+}
+@keyframes ring {
+  from {
+    stroke-dashoffset: 50;
+  }
+  to {
+    stroke-dashoffset: 0;
   }
 }
 </style>
