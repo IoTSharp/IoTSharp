@@ -30,7 +30,7 @@ namespace IoTSharp.Models.Rule
         public string linename { get; set; }
         public string condition { get; set; }
         public string lineId { get; set; }
-        public string @namespace { get; set; }
+        public string linenamespace { get; set; }
     }
 
 
@@ -53,11 +53,11 @@ namespace IoTSharp.Models.Rule
         public string mata { get; set; }
 
         public string name { get; set; }
-        public string @namespace { get; set; }
+        public string nodenamespace { get; set; }
         public string top { get; set; }
         public string left { get; set; }
 
         public string icon { get; set; }
-        public string @class { get; set; }
+        public string nodeclass { get; set; }
     }
 }
