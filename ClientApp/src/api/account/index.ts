@@ -19,3 +19,10 @@ export function ModifyMyInfo(params:any){
 export function signup(params:signUpForm) {
     return request.post(`/api/account/create`, params)
 }
+export function ModifyMyPassword(params:any){
+    return request({
+        url: '/api/account/ModifyMyPassword',
+        method: 'put',
+        data: params
+    });
+}
