@@ -687,7 +687,7 @@ namespace IoTSharp.Controllers
                                 FlowRule = rule,
                                 Flowname = item.name,
                                 bpmnid = item.nodeId,
-                                FlowType = item.@namespace,
+                                FlowType = item.nodenamespace,
                                 FlowStatus = 1,
                                 CreateId = CreatorId,
                                 Createor = profile.Id,
@@ -695,7 +695,7 @@ namespace IoTSharp.Controllers
                                 Customer = rule.Customer,
                                 Tenant = rule.Tenant,
 
-                                FlowClass = item.@class,
+                                FlowClass = item.nodeclass,
                                 FlowNameSpace = item.nodetype,
                                 FlowIcon = item.icon,
                                 Top = item.top,
@@ -712,7 +712,7 @@ namespace IoTSharp.Controllers
                                 FlowRule = rule,
                                 Flowname = item.name,
                                 bpmnid = item.nodeId,
-                                FlowType = item.@namespace,
+                                FlowType = item.nodenamespace,
                                 NodeProcessParams = item.content,
 
                                 NodeProcessClass = item.mata,
@@ -723,7 +723,7 @@ namespace IoTSharp.Controllers
                                 Customer = rule.Customer,
                                 Tenant = rule.Tenant,
 
-                                FlowClass = item.@class,
+                                FlowClass = item.nodeclass,
                                 FlowNameSpace = item.nodetype,
                                 FlowIcon = item.icon,
                                 Top = item.top,
@@ -740,7 +740,7 @@ namespace IoTSharp.Controllers
                                 FlowRule = rule,
                                 Flowname = item.name,
                                 bpmnid = item.nodeId,
-                                FlowType = item.@namespace,
+                                FlowType = item.nodenamespace,
                                 NodeProcessScript = item.content,
                                 NodeProcessScriptType = item.mata,
                                 FlowStatus = 1,
@@ -750,7 +750,7 @@ namespace IoTSharp.Controllers
                                 Customer = rule.Customer,
                                 Tenant = rule.Tenant,
 
-                                FlowClass = item.@class,
+                                FlowClass = item.nodeclass,
                                 FlowNameSpace = item.nodetype,
                                 FlowIcon = item.icon,
                                 Top = item.top,
@@ -774,7 +774,7 @@ namespace IoTSharp.Controllers
                     FlowRule = rule,
                     Flowname = item.linename,
                     bpmnid = item.lineId,
-                    FlowType = item.@namespace,
+                    FlowType = item.linenamespace,
                     TargetId = item.targetId,
                     SourceId = item.sourceId,
                     Conditionexpression = item.condition,
@@ -817,7 +817,7 @@ namespace IoTSharp.Controllers
                                 linename = item.Flowname,
                                 targetId = item.TargetId,
                                 condition = item.Conditionexpression,
-                                lineId = item.bpmnid
+                                lineId = item.bpmnid,
                             });
                         }
                         break;
@@ -827,10 +827,10 @@ namespace IoTSharp.Controllers
                             {
 
                                 nodeId = item.bpmnid,
-                                nodetype = item.FlowType,
+                                nodetype = item.FlowNameSpace,
                                 name = item.Flowname,
-                                @class = item.FlowClass,
-                                @namespace = item.FlowNameSpace,
+                                nodeclass = item.FlowClass,
+                                nodenamespace = item.FlowType,
                                 icon = item.FlowIcon,
                                 top = item.Top,
                                 left = item.Left
@@ -843,12 +843,12 @@ namespace IoTSharp.Controllers
                             {
 
                                 nodeId = item.bpmnid,
-                                nodetype = item.FlowType,
+                                nodetype = item.FlowNameSpace,
                                 name = item.Flowname,
                                 content = item.NodeProcessScript,
                                 mata = item.NodeProcessScriptType,
-                                @class = item.FlowClass,
-                                @namespace = item.FlowNameSpace,
+                                nodeclass = item.FlowClass,
+                                nodenamespace = item.FlowType,
                                 icon = item.FlowIcon,
                                 top = item.Top,
                                 left = item.Left
@@ -861,12 +861,12 @@ namespace IoTSharp.Controllers
                             {
 
                                 nodeId = item.bpmnid,
-                                nodetype = item.FlowType,
+                                nodetype = item.FlowNameSpace,
                                 name = item.Flowname,
                                 content = item.NodeProcessParams,
                                 mata = item.NodeProcessClass,
-                                @class = item.FlowClass,
-                                @namespace = item.FlowNameSpace,
+                                nodeclass = item.FlowClass,
+                                nodenamespace = item.FlowType,
                                 icon = item.FlowIcon,
                                 top = item.Top,
                                 left = item.Left
