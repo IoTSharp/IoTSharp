@@ -65,13 +65,6 @@ namespace IoTSharp.Dtos
         /// </summary>
         [Required]
         public string UserName { get; set; }
-        ///// <summary>
-        ///// 滑动验证
-        ///// </summary>
-
-        //[Required]
-        //public string Move { get; set; }
-
 
     }
 
@@ -96,23 +89,55 @@ namespace IoTSharp.Dtos
         /// 用户名密码
         /// </summary>
         [Required]
-        [StringLength(100, ErrorMessage = "PASSWORD_MIN_LENGTH", MinimumLength = 6)]
+        [StringLength(100,  MinimumLength = 6)]
         public string Password { get; set; }
     }
 
     public class UserItemDto
     {
+        /// <summary>
+        /// 用户邮箱地址
+        /// </summary>
         public string Email { get; set; }
+        /// <summary>
+        /// 权限标识
+        /// </summary>
         public List<string> Roles { get; set; } = new List<string>();
-        public string PhoneNumber { get;  set; }
-        public int AccessFailedCount { get;  set; }
-        public string Id { get;  set; }
+        /// <summary>
+        /// 电话号码
+        /// </summary>
+        public string PhoneNumber { get; set; }
+        /// <summary>
+        /// 登录失败次数
+        /// </summary>
+        public int AccessFailedCount { get; set; }
+        /// <summary>
+        /// 标识
+        /// </summary>
+        public string Id { get; set; }
+        /// <summary>
+        /// 是否被锁定
+        /// </summary>
+        public bool LockoutEnabled { get; set; }
+        /// <summary>
+        /// 锁定时长
+        /// </summary>
+        public DateTimeOffset? LockoutEnd { get; set; }
     }
 
     public class UserPassword
     {
+        /// <summary>
+        /// 旧密码
+        /// </summary>
         public string Pass { get; set; }
+        /// <summary>
+        /// 新密码
+        /// </summary>
         public string PassNew { get; set; }
+        /// <summary>
+        /// 第二次验证密码
+        /// </summary>
         public string PassNewSecond { get; set; }
     }
 

@@ -47,34 +47,14 @@ namespace IoTSharp.Controllers
             _context = context;
         }
 
-        /// <summary>
-        /// 系统管理员用来获取全部租户列表
-        /// </summary>
-        /// <returns></returns>
         [Authorize(Roles = nameof(UserRole.SystemAdmin))]
-        [HttpGet]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(typeof(ApiResult), StatusCodes.Status400BadRequest)]
-        [ProducesDefaultResponseType]
-        public async Task<ActionResult<List<Tenant>>> GetTenant()
-        {
-            try
-            {
-                return Ok(new ApiResult<PagedData<Tenant>>(ApiCode.Success, "Ok", new PagedData<Tenant>() { rows = await _context.Tenant.Where(t=>t.Deleted==false).ToListAsync(), total = await _context.Tenant.CountAsync(c=>c.Deleted==false) }));
-            }
-            catch (Exception ex)
-            {
-                return Ok(new ApiResult(ApiCode.Exception, ex.Message));
-            }
-        }
-
         /// <summary>
         /// 产品列表
         /// </summary>
         /// <param name="m"></param>
         /// <returns></returns>
         [HttpGet]
-        public async Task<ApiResult<PagedData<Tenant>>> Query([FromQuery] QueryDto m)
+        public async Task<ApiResult<PagedData<Tenant>>> GetTenant([FromQuery] QueryDto m)
         {
             var profile = this.GetUserProfile();
             var querym = _context.Tenant.Where(c=>c.Deleted==false);

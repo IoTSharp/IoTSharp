@@ -5,8 +5,17 @@ namespace IoTSharp.Controllers.Models
 {
     public class QueryDto
     {
+        /// <summary>
+        /// 当前页开始行
+        /// </summary>
         public int Offset { get; set; } = 0;
+        /// <summary>
+        /// 页行数
+        /// </summary>
         public int Limit { get; set; } = 10;
+        /// <summary>
+        /// 名称 用于模糊查询
+        /// </summary>
         public string Name { get; set; }
     }
 
@@ -68,15 +77,28 @@ namespace IoTSharp.Controllers.Models
     {
         public string KeyName { get; set; }
     }
-
+    /// <summary>
+    /// 租户的客户查询
+    /// </summary>
     public class CustomerParam : QueryDto
     {
+        /// <summary>
+        /// 租户ID
+        /// </summary>
         public Guid tenantId { get; set; }
+    }
+    /// <summary>
+    /// 客户的用户查询
+    /// </summary>
+    public class UserQueryDto : QueryDto
+    {
+        /// <summary>
+        /// 客户ID
+        /// </summary>
+        public Guid CustomerId { get; set; }
     }
 
 
 
-
- 
 
 }

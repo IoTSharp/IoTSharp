@@ -129,11 +129,11 @@
             <param name="model"></param>
             <returns >返回登录结果</returns>
         </member>
-        <member name="M:IoTSharp.Controllers.AccountController.All(System.Guid)">
+        <member name="M:IoTSharp.Controllers.AccountController.List(IoTSharp.Controllers.Models.UserQueryDto)">
             <summary>
-            返回客户所属用户列表
+            列出指定租户的所有用户。
             </summary>
-            <param name="customerId"></param>
+            <param name="m"></param>
             <returns></returns>
         </member>
         <member name="M:IoTSharp.Controllers.AccountController.Get(System.String)">
@@ -142,6 +142,28 @@
             </summary>
             <param name="Id"></param>
             <returns></returns>
+        </member>
+        <member name="M:IoTSharp.Controllers.AccountController.LockOut(System.String)">
+             <summary>
+             锁定用户 
+             </summary>
+             <param name="Id"></param>
+             <returns>
+             UserAlreadyExists = 10020,
+             NotFoundUser = 10021,
+             CanNotLockUser = 10022,
+            LockUserHaveError = 10023
+            </returns>
+        </member>
+        <member name="M:IoTSharp.Controllers.AccountController.Unlock(System.String)">
+            <summary>
+            解锁用户
+            </summary>
+            <param name="Id"></param>
+            <returns> 
+              CanNotUnLockUser = 10024,
+            UnLockUserHaveError = 10025,
+            </returns>
         </member>
         <member name="M:IoTSharp.Controllers.AccountController.Modify(IoTSharp.Dtos.UserItemDto)">
             <summary>
@@ -690,19 +712,6 @@
             租户管理
             </summary>
         </member>
-        <member name="M:IoTSharp.Controllers.TenantsController.GetTenant">
-            <summary>
-            系统管理员用来获取全部租户列表
-            </summary>
-            <returns></returns>
-        </member>
-        <member name="M:IoTSharp.Controllers.TenantsController.Query(IoTSharp.Controllers.Models.QueryDto)">
-            <summary>
-            产品列表
-            </summary>
-            <param name="m"></param>
-            <returns></returns>
-        </member>
         <member name="M:IoTSharp.Controllers.TenantsController.GetTenant(System.Guid)">
             <summary>
             普通用户用于活的自身的租户信息
@@ -731,6 +740,41 @@
             </summary>
             <param name="id"></param>
             <returns></returns>
+        </member>
+        <member name="P:IoTSharp.Controllers.Models.QueryDto.Offset">
+            <summary>
+            当前页开始行
+            </summary>
+        </member>
+        <member name="P:IoTSharp.Controllers.Models.QueryDto.Limit">
+            <summary>
+            页行数
+            </summary>
+        </member>
+        <member name="P:IoTSharp.Controllers.Models.QueryDto.Name">
+            <summary>
+            名称 用于模糊查询
+            </summary>
+        </member>
+        <member name="T:IoTSharp.Controllers.Models.CustomerParam">
+            <summary>
+            租户的客户查询
+            </summary>
+        </member>
+        <member name="P:IoTSharp.Controllers.Models.CustomerParam.tenantId">
+            <summary>
+            租户ID
+            </summary>
+        </member>
+        <member name="T:IoTSharp.Controllers.Models.UserQueryDto">
+            <summary>
+            客户的用户查询
+            </summary>
+        </member>
+        <member name="P:IoTSharp.Controllers.Models.UserQueryDto.CustomerId">
+            <summary>
+            客户ID
+            </summary>
         </member>
         <member name="P:IoTSharp.Dtos.TokenEntity.access_token">
             <summary>
@@ -800,6 +844,56 @@
         <member name="P:IoTSharp.Dtos.RegisterDto.Password">
             <summary>
             用户名密码
+            </summary>
+        </member>
+        <member name="P:IoTSharp.Dtos.UserItemDto.Email">
+            <summary>
+            用户邮箱地址
+            </summary>
+        </member>
+        <member name="P:IoTSharp.Dtos.UserItemDto.Roles">
+            <summary>
+            权限标识
+            </summary>
+        </member>
+        <member name="P:IoTSharp.Dtos.UserItemDto.PhoneNumber">
+            <summary>
+            电话号码
+            </summary>
+        </member>
+        <member name="P:IoTSharp.Dtos.UserItemDto.AccessFailedCount">
+            <summary>
+            登录失败次数
+            </summary>
+        </member>
+        <member name="P:IoTSharp.Dtos.UserItemDto.Id">
+            <summary>
+            标识
+            </summary>
+        </member>
+        <member name="P:IoTSharp.Dtos.UserItemDto.LockoutEnabled">
+            <summary>
+            是否被锁定
+            </summary>
+        </member>
+        <member name="P:IoTSharp.Dtos.UserItemDto.LockoutEnd">
+            <summary>
+            锁定时长
+            </summary>
+        </member>
+        <member name="P:IoTSharp.Dtos.UserPassword.Pass">
+            <summary>
+            旧密码
+            </summary>
+        </member>
+        <member name="P:IoTSharp.Dtos.UserPassword.PassNew">
+            <summary>
+            新密码
+            </summary>
+        </member>
+        <member name="P:IoTSharp.Dtos.UserPassword.PassNewSecond">
+            <summary>
+            第二次验证密码
             </summary>
         </member>
         <member name="P:IoTSharp.Dtos.CreateUserDto.Email">

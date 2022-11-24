@@ -38,6 +38,11 @@ namespace IoTSharp.Contracts
         NotFile = 10018,
         Empty = 10019,
         UserAlreadyExists = 10020,
+        NotFoundUser = 10021,
+        CanNotLockUser = 10022,
+        LockUserHaveError = 10023,
+        CanNotUnLockUser = 10024,
+        UnLockUserHaveError = 10025,
     }
 
  

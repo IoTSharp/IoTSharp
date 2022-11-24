@@ -22,6 +22,7 @@ using Microsoft.Extensions.Options;
 using Jdenticon.AspNetCore;
 using IoTSharp.Contracts;
 using InfluxDB.Client.Api.Domain;
+using IoTSharp.Models;
 
 namespace IoTSharp.Controllers
 {
@@ -464,31 +465,27 @@ namespace IoTSharp.Controllers
                 return new ApiResult<LoginResult>(ApiCode.NotFoundCustomer, "未找到客户", null);
             }
         }
+
         /// <summary>
-        /// 返回客户所属用户列表
+        /// 列出指定租户的所有用户。
         /// </summary>
-        /// <param name="customerId"></param>
+        /// <param name="m"></param>
         /// <returns></returns>
-        [HttpGet("{customerId}")]
-        public async Task<ApiResult<List<UserItemDto>>> All(Guid customerId)
+        public async Task<ApiResult<PagedData<UserItemDto>>> List([FromQuery] UserQueryDto m)
         {
-            List<UserItemDto> dtos = new List<UserItemDto>();
-            var users = await _userManager.GetUsersForClaimAsync(_signInManager.Context.User.FindFirst(m => m.Type == IoTSharpClaimTypes.Customer && m.Value == customerId.ToString()));
-            users.ToList().ForEach(c =>
+            var mx = m.CustomerId.ToString();
+            var users = await _userManager.GetUsersForClaimAsync(_signInManager.Context.User.FindFirst(m => m.Type == IoTSharpClaimTypes.Customer && m.Value == mx));
+            var data = await m.Query(users.AsQueryable(), c => string.IsNullOrEmpty(c.UserName), c => c.UserName, c => new UserItemDto()
             {
-                var uid = new UserItemDto()
-                {
-                    Id = c.Id,
-                    Email = c.Email,
-                    Roles = new List<string>(_userManager.GetRolesAsync(c).Result),
-                    PhoneNumber = c.PhoneNumber,
-                    AccessFailedCount = c.AccessFailedCount
-                };
-                dtos.Add(uid);
+                Id = c.Id,
+                Email = c.Email,
+                Roles = new List<string>(_userManager.GetRolesAsync(c).Result),
+                PhoneNumber = c.PhoneNumber,
+                AccessFailedCount = c.AccessFailedCount,
+                LockoutEnabled= c.LockoutEnabled,
+                LockoutEnd=  c.LockoutEnd
             });
-
-            return new ApiResult<List<UserItemDto>>(ApiCode.InValidData, "", dtos);
-
+            return new ApiResult<PagedData<UserItemDto>>(ApiCode.Success, "OK", data);
         }
 
 
@@ -511,6 +508,87 @@ namespace IoTSharp.Controllers
         }
 
 
+        /// <summary>
+        /// 锁定用户 
+        /// </summary>
+        /// <param name="Id"></param>
+        /// <returns>
+        /// UserAlreadyExists = 10020,
+        /// NotFoundUser = 10021,
+        /// CanNotLockUser = 10022,
+        ///LockUserHaveError = 10023
+        ///</returns>
+        [HttpPut]
+        public async Task<ApiResult> LockOut(string Id)
+        {
+            var user = await _userManager.FindByIdAsync(Id);
+            if (user != null)
+            {
+                var les = await _userManager.GetLockoutEnabledAsync(user);
+                if (!les)
+                {
+                    var lce = await _userManager.SetLockoutEnabledAsync(user, true);
+                    les = lce.Succeeded;
+                }
+                if (les )
+                {
+                    var led = await _userManager.SetLockoutEndDateAsync(user, DateTimeOffset.MaxValue);
+                    if (led.Succeeded)
+                    {
+                        return new ApiResult(ApiCode.Success,"OK");
+                    }
+                    else
+                    {
+                        return new ApiResult(ApiCode.LockUserHaveError, "锁定用户时遇到错误"+string.Join(';', led.Errors.Select(c => $"{c.Code}-{c.Description}")));
+                    }
+                }
+                else
+                {
+                    return new ApiResult(ApiCode.CanNotLockUser, "无法锁定此用户");
+                }
+               
+            }
+
+            return new ApiResult(ApiCode.NotFoundUser, "未找到此用户");
+
+        }
+     
+      
+        /// <summary>
+        /// 解锁用户
+        /// </summary>
+        /// <param name="Id"></param>
+        /// <returns> 
+        ///   CanNotUnLockUser = 10024,
+        /// UnLockUserHaveError = 10025,
+        /// </returns>
+        [HttpPut]
+        public async Task<ApiResult> Unlock(string Id)
+        {
+            var user = await _userManager.FindByIdAsync(Id);
+            if (user != null)
+            {
+                var les = await _userManager.GetLockoutEnabledAsync(user);
+                if (les)
+                {
+                    var led = await _userManager.SetLockoutEnabledAsync(user, false);
+                    if (led.Succeeded)
+                    {
+                        return new ApiResult(ApiCode.Success, "OK");
+                    }
+                    else
+                    {
+                        return new ApiResult(ApiCode.UnLockUserHaveError, "解锁用户时遇到错误" + string.Join(';', led.Errors.Select(c => $"{c.Code}-{c.Description}")));
+                    }
+                }
+                else
+                {
+                    return new ApiResult(ApiCode.CanNotUnLockUser, "无法解锁此用户");
+                }
+
+            }
+            return new ApiResult(ApiCode.NotFoundUser, "未找到此用户");
+        }
 
 
         /// <summary>
@@ -538,7 +616,6 @@ namespace IoTSharp.Controllers
         {
 
             var cuser = await _userManager.GetUserAsync(User);
-
             cuser.PhoneNumber = user.PhoneNumber;
             var result = await _userManager.UpdateAsync(cuser);
             return new ApiResult<bool>(ApiCode.Success, "Ok", result.Succeeded);
