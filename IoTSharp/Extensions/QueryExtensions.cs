@@ -72,7 +72,14 @@ namespace IoTSharp.Extensions
         public static async Task<PagedData<T>> Query<T, P>(this QueryDto _dto, IQueryable<T> src, Expression<Func<T, P>> func, CancellationToken cancellationToken = default(CancellationToken)) where T : class
         {
             var _where = MemberToExpression(_dto, func);
-            return await _dto.Query(src, _where, cancellationToken);
+            if (_where!=null)
+            {
+                return await _dto.Query(src, _where, cancellationToken);
+            }
+            else
+            {
+                return await _dto.Query(src, cancellationToken);
+            }
         }
 
         private static Expression<Func<T, bool>> MemberToExpression<T, P>(QueryDto _dto, Expression<Func<T, P>> func) where T : class
