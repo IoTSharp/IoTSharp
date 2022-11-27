@@ -65,6 +65,7 @@ declare module '@vue/runtime-core' {
     ElTimePicker: typeof import('element-plus/es')['ElTimePicker']
     IconSelector: typeof import('./components/iconSelector/index.vue')['default']
     NoticeBar: typeof import('./components/noticeBar/index.vue')['default']
+    ObjectDetail: typeof import('./components/ObjectDetail.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
     SvgIcon: typeof import('./components/svgIcon/index.vue')['default']

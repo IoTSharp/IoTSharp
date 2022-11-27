@@ -11,6 +11,8 @@
 	},
 	"dependencies": {
 		"@element-plus/icons-vue": "^2.0.6",
+		"@fast-crud/fast-crud": "^1.6.1",
+		"@fast-crud/ui-element": "^1.6.1",
 		"@form-create/element-ui": "^3.1.15",
 		"@vueuse/components": "^9.5.0",
 		"@vueuse/core": "^9.5.0",
@@ -24,6 +26,7 @@
 		"element-plus": "^2.2.9",
 		"js-cookie": "^3.0.1",
 		"jsplumb": "^2.15.6",
+		"lodash-es": "^4.17.21",
 		"mitt": "^3.0.0",
 		"monaco-editor": "^0.34.1",
 		"nprogress": "^0.2.0",
@@ -62,7 +65,7 @@
 		"unplugin-auto-import": "^0.11.4",
 		"unplugin-icons": "^0.14.13",
 		"unplugin-vue-components": "^0.22.9",
-		"vite": "^2.9.15",
+		"vite": "^3.2.4",
 		"vite-plugin-windicss": "^1.8.8",
 		"vue-eslint-parser": "^9.0.3",
 		"windicss": "^3.5.6"

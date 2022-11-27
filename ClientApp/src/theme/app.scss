@@ -292,3 +292,11 @@ body,
 .system-list-container{
 
 }
+
+:deep(.el-scrollbar__view) {
+	height: 100% !important;
+}
+
+:deep(.layout-main) {
+	height: 100% !important;
+}

@@ -31,8 +31,8 @@ const viteConfig = defineConfig((mode: ConfigEnv) => {
 					filepath: './.eslintrc-auto-import.json', // Default `./.eslintrc-auto-import.json`
 					globalsPropValue: true, // Default `true`, (true | false | 'readonly' | 'readable' | 'writable' | 'writeable')
 				},
-				resolvers: [ElementPlusResolver(),
-
+				resolvers: [
+					ElementPlusResolver(),
 					// Auto import icon components
 					// 自动导入图标组件
 					IconsResolver({
@@ -48,7 +48,8 @@ const viteConfig = defineConfig((mode: ConfigEnv) => {
 					IconsResolver({
 						prefix: 'icon',
 					}),
-					ElementPlusResolver()],
+					ElementPlusResolver()
+				],
 				dts: path.resolve(pathSrc, 'components.d.ts'),
 			}),
 			Icons({
