@@ -1,223 +1,268 @@
 <template>
-  <div class="system-list-container">
-    <el-card shadow="hover">
-      <div class="system-dept-search mb15">
-        <el-input
-          size="default"
-          placeholder="请输入设备名称"
-          style="max-width: 180px"
-          v-model="name"
-        >
-        </el-input>
+  <el-card>
+    <div class="z-crud">
+      <fs-crud ref="crudRef" v-bind="crudBinding"/>
+    </div>
+  </el-card>
 
-        <el-switch
-          v-model="onlyActive"
-          size="large"
-          active-text="仅显示在线"
-          inactive-text="全部"
-        />
-        <el-button size="default" type="primary" class="ml10" @click="getData()">
-          <el-icon>
-            <ele-Search />
-          </el-icon>
-          查询
-        </el-button>
-        <el-button
-          size="default"
-          type="success"
-          @click="create('0000000-0000-0000-0000-000000000000')"
-          class="ml10"
-        >
-          <el-icon>
-            <ele-FolderAdd />
-          </el-icon>
-          新增设备
-        </el-button>
-      </div>
-      <el-table :data="tableData.rows" style="width: 100%" row-key="id">
-        <el-table-column prop="name" label="设备名称" show-overflow-tooltip>
-        </el-table-column>
-
-        <el-table-column
-          prop="deviceType"
-          label="设备类型"
-          show-overflow-tooltip
-        ></el-table-column>
-
-        <el-table-column
-          prop="active"
-          label="在线状态"
-          show-overflow-tooltip
-        ></el-table-column>
-        <el-table-column
-          prop="lastActivityDateTime"
-          label="最后活动时间"
-          show-overflow-tooltip
-        ></el-table-column>
-
-        <el-table-column
-          prop="active"
-          label="认证方式"
-          show-overflow-tooltip
-        ></el-table-column>
-
-        <el-table-column label="操作" show-overflow-tooltip width="140">
-          <template #default="scope">
-            <el-button size="small" text type="primary" @click="create(scope.row.id)"
-              >修改</el-button
-            >
-            <el-button size="small" text type="primary" @click="onTabelRowDel(scope.row)"
-              >删除</el-button
-            >
-          </template>
-        </el-table-column>
-      </el-table>
-      <el-pagination
-        @size-change="onHandleSizeChange"
-        @current-change="onHandleCurrentChange"
-        class="mt15"
-        :pager-count="5"
-        :page-sizes="[10, 20, 30]"
-        v-model:current-page="tableData.param.pageNum"
-        background
-        v-model:page-size="tableData.param.pageSize"
-        layout="total, sizes, prev, pager, next, jumper"
-        :total="tableData.total"
-      >
-      </el-pagination>
-    </el-card>
-    <adddevice ref="addformRef" />
-  </div>
 </template>
 
 <script lang="ts">
-import { ElMessageBox, ElMessage, getPositionDataWithUnit } from "element-plus";
-import { ref, toRefs, reactive, onMounted, defineComponent } from "vue";
-import adddevice from "./addDevice.vue";
-import { deviceApi } from "/@/api/devices";
-import { Session } from "/@/utils/storage";
-import { treeEmits } from "element-plus/es/components/tree-v2/src/virtual-tree";
-import { appmessage } from "/@/api/iapiresult";
-
-// 定义接口来定义对象的类型
-interface TableDataRow {
-  active?: boolean;
-  customerId?: string;
-  deviceType?: string;
-  id?: string;
-  identityId?: string;
-  identityType?: string;
-  identityValue?: string;
-  lastActivityDateTime?: string;
-  name?: string;
-  owner?: string;
-  tenantId?: string;
-  tenantName?: string;
-  timeout?: number;
-  children?: TableDataRow[];
-}
-interface TableDataState {
-  tableData: {
-    rows: Array<TableDataRow>;
-    total: number;
-    loading: boolean;
-    param: {
-      pageNum: number;
-      pageSize: number;
-    };
-  };
-}
-
-export default defineComponent({
-  name: "devicelist",
-  components: { adddevice },
-  setup() {
-    const addformRef = ref();
-    const userInfos = Session.get("userInfo");
-
-    const state = reactive<TableDataState>({
-      tableData: {
-        rows: [],
-        total: 0,
-        loading: false,
-        param: {
-          pageNum: 1,
-          pageSize: 10,
-        },
-      },
-    });
-
-    const query = reactive({
-      offset: state.tableData.param.pageNum - 1,
-      limit: state.tableData.param.pageSize,
+import { defineComponent, ref, onMounted } from "vue";
+import { useCrud } from "@fast-crud/fast-crud";
+import { useExpose } from "@fast-crud/fast-crud";
+import _ from 'lodash-es'
+import {deviceApi} from "/@/api/devices";
+import {Session} from "/@/utils/storage";
+const userInfos = Session.get("userInfo");
+import { dict, compute } from "@fast-crud/fast-crud";
+//此处为crudOptions配置
+const createCrudOptions = function ({ expose }) {
+  let records = []
+  const FsButton = {
+    link: true
+  }
+  const customSwitchComponent = {
+    activeColor: 'var(--el-color-primary)',
+    inactiveColor: 'var(el-switch-of-color)'
+  }
+  const pageRequest = async (query) => {
+    const params = reactive({
+      offset: query.page.currentPage - 1,
+      limit: query.page.pageSize,
       onlyActive: false,
       customerId: userInfos.customer.id,
       name: "",
     });
 
-    // 初始化表格数据
-    const initTableData = () => {
-      getData();
-    };
-
-    // 删除当前行
-    const onTabelRowDel = (row: TableDataRow) => {
-      ElMessageBox.confirm(`此操作将永久删除设备：${row.name}, 是否继续?`, "提示", {
-        confirmButtonText: "删除",
-        cancelButtonText: "取消",
-        type: "warning",
-      })
-        .then(() => {
-          return deviceApi().deletedevcie(row.id!);
-        })
-        .then((res: appmessage<boolean>) => {
-          if (res.code === 10000 && res.data) {
-            ElMessage.success("删除成功");
-            getData();
-          } else {
-            ElMessage.warning("删除失败:" + res.msg);
-          }
-        })
-        .catch(() => {});
-    };
-
-    const create = (id: string) => {
-      addformRef.value.openDialog(id);
-    };
-
-    const onHandleSizeChange = (val: number) => {
-      state.tableData.param.pageSize = val;
-      getData();
-    };
-    // 分页改变
-    const onHandleCurrentChange = (val: number) => {
-      state.tableData.param.pageNum = val;
-      getData();
-    };
-
-    const getData = () => {
-      deviceApi()
-        .devcieList(query)
-        .then((res) => {
-          console.log(res);
-          state.tableData.rows = res.data.rows;
-          state.tableData.total = res.data.total;
-        });
-    };
-    // 页面加载时
-    onMounted(() => {
-      initTableData();
-    });
+    const res = await deviceApi().devcieList(params)
+    records = res.data.rows
     return {
-      addformRef,
-      create,
-      onHandleSizeChange,
-      onHandleCurrentChange,
-      onTabelRowDel,
-      ...toRefs(state),
-      ...toRefs(query),
-      getData,
+      records,
+      currentPage:1,
+      pageSize:20,
+      total:res.data.total
+    }
+  };
+  const editRequest = async ({ form, row }) => {
+    const newItem = _.clone(form)
+    newItem.id = row.id
+    const target = _.find(records,item=>{return row.id === item.id})
+    try {
+      const res = await deviceApi().putdevcie(newItem)
+      _.merge(target,form)
+      return target;
+    } catch (e) {
+      ElMessage.error(e.response.msg)
+    }
+  };
+  const delRequest = async ({ row }) => {
+    try {
+      const res = await deviceApi().deletedevcie(row.id)
+      _.remove(records, item => {
+        return item.id === row.id
+      })
+    } catch (e) {
+      ElMessage.error(e.response.msg)
+    }
+  };
+
+  const addRequest = async ({ form }) => {
+    const res = await deviceApi().postdevcie(form)
+    records.push(form)
+    return form
+  };
+  return {
+    crudOptions: {
+      request: {
+        pageRequest,
+        addRequest,
+        editRequest,
+        delRequest
+      },
+      table: {
+        border: false,
+      },
+      form: {
+        labelWidth: "130px", //
+      },
+      rowHandle: {
+        width: 360,
+        dropdown: {
+          more: {
+            //更多按钮配置
+            text: "属性",
+            ...FsButton,
+            icon: 'operation'
+          }
+        },
+
+        buttons: {
+
+          view:{
+            icon:"view", //图标
+            ...FsButton,
+             // FsButton的配置，可以修改文本、颜色，也可以修改成图标按钮、纯文本按钮等
+            order:1, //排序号，越小则排前面，默认值1
+            dropdown:false,//是否折叠此按钮，当配置为true，将会收起到dropdown中
+            //点击事件,点击此按钮会触发此方法
+          },
+          edit:{
+            icon:"editPen",
+            ...FsButton,
+            order:1}, //编辑按钮
+          remove:{
+            icon:"Delete",
+            ...FsButton,
+            order:5},//删除按钮
+          attrNew: {
+            size: "small",
+            dropdown: true,
+            icon:"plus", //图标
+            ...FsButton,
+            text:"新增属性",//按钮文字
+          },
+          attrEdit: {
+            size: "small",
+            dropdown: true,
+            icon:"editPen", //图标
+            ...FsButton,
+            text:"属性修改",//按钮文字
+          },
+          token: {
+            ...FsButton,
+            type: 'primary',
+            text:compute(({row})=>{
+              if (row.identityType === 'AccessToken') return '获取token'
+              else if (row.identityType === 'X509Certificate') return '下载证书 '
+
+            }),//按钮文字
+          }
+        }
+      },
+      columns: {
+        name: {
+          title: "设备名称",
+          // type: "text",
+          type: "button",
+          search: {show: true},
+          column: {
+           component: {
+             ...FsButton,
+             type: 'primary',
+             on:{
+               onClick({row}){
+                 console.log('点击事件',row)
+               }
+             }
+           }
+          }
+        },
+        deviceType: {
+          title: "设备类型",
+          type: "dict-select",
+          search: {show: false},
+          dict: dict({
+            data: [
+              { value: 'Gateway', label: "网关", },
+              { value: 'Device', label: "设备", color: "warning" }
+            ]
+          })
+        },
+        active: {
+          title: "在线状态",
+          type: "dict-switch",
+          search: {show: true},
+          dict: dict({
+            data: [
+              { value: true, label: "在线",  },
+              { value: false, label: "离线", color: "danger" }
+            ]
+          }),
+          column: {
+          },
+          viewForm: {
+            show: true,
+            component: customSwitchComponent
+          },
+          addForm: {
+            show: false,
+            component: customSwitchComponent
+          },
+          editForm: {
+            show: false,
+            component: customSwitchComponent
+          }
+        },
+        lastActivityDateTime: {
+          title: "最后活动时间",
+          type: "text",
+          search: {show: false},
+          addForm: {
+            show: false,
+          },
+          editForm: {
+            show: false,
+          }
+        },
+        identityType: {
+          title: "认证方式",
+          type: "dict-select",
+          search: {show: false},
+          dict: dict({
+            data: [
+              { value: 'AccessToken', label: "AccessToken" },
+              { value: 'X509Certificate', label: "X509Certificate" }
+            ]
+          })
+        },
+        timeout: {
+          column: {
+            show: false
+          },
+          title: "超时",
+          type: "text",
+          search: {show: false},
+        }
+      }
+    }
+  };
+}
+
+//此处为组件定义
+export default defineComponent({
+  name: "HelloWorld",
+  setup() {
+    // crud组件的ref
+    const crudRef = ref();
+    // crud 配置的ref
+    const crudBinding = ref();
+    // 暴露的方法
+    const { expose } = useExpose({ crudRef, crudBinding });
+    // 你的crud配置
+    const { crudOptions } = createCrudOptions({ expose });
+    // 初始化crud配置
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars,no-unused-vars
+    const { resetCrudOptions } = useCrud({ expose, crudOptions });
+    // 你可以调用此方法，重新初始化crud配置
+    // resetCrudOptions(options)
+
+    // 页面打开后获取列表数据
+    onMounted(() => {
+      expose.doRefresh();
+    });
+
+    return {
+      crudBinding,
+      crudRef
     };
-  },
+  }
 });
 </script>
+<style lang="scss"  scoped>
+
+.z-crud {
+  height: calc(100vh - 160px);
+}
+
+</style>
