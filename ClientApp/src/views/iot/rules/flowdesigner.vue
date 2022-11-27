@@ -33,7 +33,7 @@
                   :data-icon="v.icon"
                   :data-id="v.id"
                   :nodetype="v.nodetype"
-                  :namespace="v.namespace"
+                  :nodenamespace="v.nodenamespace"
                   :mata="v.mata"
                 >
                   <div
@@ -208,6 +208,13 @@ const initLeftNavList = async () => {
 };
 // 左侧导航-初始化拖动
 const initSortable = () => {
+
+
+  leftNavRefs.value.forEach((v)=>{
+
+console.log(v)
+})
+
   leftNavRefs.value.forEach((v) => {
     Sortable.create(v as HTMLDivElement, {
       group: {
@@ -234,6 +241,8 @@ const initSortable = () => {
         if (clientX < x || clientX > width + x || clientY < y || y > y + height) {
           ElMessage.warning("请把节点拖入到画布中");
         } else {
+
+   
           // 节点id（唯一）
           const nodeId = Math.random().toString(36).substr(2, 12);
           // 处理节点数据
@@ -244,8 +253,8 @@ const initSortable = () => {
             top: `${layerY - 15}px`,
             nodeclass: "workflow-right-clone",
             nodetype: nodetype.value,
-            nodenamespace: nodenamespace.value,
-            mata: mata.value,
+            nodenamespace: nodenamespace?.value??'',
+            mata: mata.value?.value??'',
             name,
             icon,
             id,
