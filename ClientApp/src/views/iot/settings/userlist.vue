@@ -9,12 +9,6 @@
 					</el-icon>
 					查询
 				</el-button>
-				<el-button size="default" type="success" @click="create('00000000-0000-0000-0000-000000000000')" class="ml10">
-					<el-icon>
-						<ele-FolderAdd />
-					</el-icon>
-					新增用户
-				</el-button>
 			</div>
 			<el-table :data="tableData.rows" style="width: 100%" row-key="id">
 				<el-table-column prop="eMail" label="邮件" show-overflow-tooltip></el-table-column>
@@ -41,7 +35,6 @@
 			>
 			</el-pagination>
 		</el-card>
-		<addcustomer ref="addformRef" @getData="initTableData" />
 	</div>
 </template>
 
@@ -51,7 +44,6 @@ import { ref, toRefs, reactive, onMounted, defineComponent } from 'vue';
 import { accountApi } from '/@/api/user';
 import { useUserInfo } from '/@/stores/userInfo';
 import { storeToRefs } from 'pinia';
-import addcustomer from './addcustomer.vue';
 import { QueryParam } from '/@/api/customer';
 import { appmessage } from '/@/api/iapiresult';
 
@@ -83,11 +75,9 @@ interface TableDataState {
 
 export default defineComponent({
 	name: 'userlist',
-	components: { addcustomer },
 	setup: function () {
 		const stores = useUserInfo();
 		const { userInfos } = storeToRefs(stores);
-		const addformRef = ref();
 		const name = ref<string>('');
 		const state = reactive<TableDataState>({
 			tableData: {
@@ -133,10 +123,6 @@ export default defineComponent({
 				.catch(() => {});
 		};
 
-		const create = (id: string) => {
-			addformRef.value.openDialog(id);
-		};
-
 		const onHandleSizeChange = (val: number) => {
 			state.tableData.param.pageSize = val;
 			getData();
@@ -166,7 +152,7 @@ export default defineComponent({
 		onMounted(() => {
 			initTableData();
 		});
-		return { name, initTableData, handleSearch, addformRef, create, onHandleSizeChange, onHandleCurrentChange, onTabelRowDel, ...toRefs(state) };
+		return { name, initTableData, handleSearch, onHandleSizeChange, onHandleCurrentChange, onTabelRowDel, ...toRefs(state) };
 	},
 });
 </script>
