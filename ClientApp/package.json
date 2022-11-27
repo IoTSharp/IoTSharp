@@ -10,6 +10,8 @@
 		"lint-fix": "eslint --fix --ext .js --ext .jsx --ext .vue src/"
 	},
 	"dependencies": {
+		"@antv/x6": "^2.0.0",
+		"@antv/x6-vue-shape": "^2.0.0",
 		"@element-plus/icons-vue": "^2.0.6",
 		"@fast-crud/fast-crud": "^1.6.1",
 		"@fast-crud/ui-element": "^1.6.1",

@@ -2,13 +2,13 @@
 export interface NodeListState {
     id: string | number;
     nodeId: string | undefined;
-    class: HTMLElement | string;
+    nodeclass: HTMLElement | string;
     left: number | string;
     top: number | string;
     icon: string;
     name: string;
     nodetype?: string;
-    namespace?: string;
+    nodenamespace?: string;
     mata?: string;
     content?: string;
     color: string; // 节点背景颜色
@@ -20,7 +20,7 @@ export interface LineListState {
     condition?: string;
     linename?: string;
     lineId: string;  
-    namespace:string;
+    linenamespace:string;
 }
 export interface XyState {
     x: string | number;

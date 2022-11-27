@@ -78,6 +78,14 @@ import request from '/@/utils/request';
 				data: data,
 			});
 		},
+
+		floweventslist: (data: any) => {
+			return request({
+				url: '/api/rules/flowevents',
+				method: 'post',
+				data: data,
+			});
+		},
 	};
 }
 
