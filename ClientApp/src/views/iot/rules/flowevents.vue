@@ -1,15 +1,203 @@
-<template><div></div></template>
+<template>
+  <div class="system-list-container">
+    <el-card shadow="hover">
+      <div class="system-dept-search mb15">
+        <el-form size="default" label-width="100px" class="mt35 mb35">
+          <el-row :gutter="35">
+            <el-col :xs="24" :sm="12" :md="8" :lg="8" :xl="8" class="mb20">
+              <el-form-item label="事件名称">
+                <el-input v-model="CreatorName" placeholder="请输入告警类型" />
+              </el-form-item>
+            </el-col>
+            <el-col :xs="24" :sm="12" :md="8" :lg="8" :xl="8" class="mb20">
+              <el-form-item label="清除时间">
+                <el-input v-model="RuleId" placeholder="请输入告警类型" />
+              </el-form-item>
+            </el-col>
+            <el-col :xs="24" :sm="12" :md="8" :lg="8" :xl="8" class="mb20">
+              <el-form-item label="警告持续开始时间">
+                <el-input v-model="Name" placeholder="请输入告警类型" />
+              </el-form-item>
+            </el-col>
+          </el-row>
+        </el-form>
+
+        <el-button size="default" type="primary" class="ml10" @click="getData()">
+          <el-icon>
+            <ele-Search />
+          </el-icon>
+          查询
+        </el-button>
+      </div>
+      <el-table :data="tableData.rows" style="width: 100%" row-key="id">
+        <el-table-column
+          prop="eventName"
+          label="事件名称"
+          show-overflow-tooltip
+        ></el-table-column>
+
+        <el-table-column
+          prop="type"
+          label="类型"
+          show-overflow-tooltip
+        ></el-table-column>
+        <el-table-column
+          prop="name"
+          label="触发规则"
+          show-overflow-tooltip
+        ></el-table-column>
+
+        <el-table-column
+          prop="createrDateTime"
+          label="创建时间"
+          show-overflow-tooltip
+        ></el-table-column>
+
+
+
+        <el-table-column label="操作" show-overflow-tooltip width="200">
+          <template #default="scope">
+            <el-button
+              size="small"
+              text
+              type="primary"
+              v-if="
+                scope.row.alarmStatus === 'Active_UnAck' ||
+                scope.row.alarmStatus === 'Cleared_UnAck'
+              "
+              @click="replay(scope.row)"
+              >回放</el-button
+            >
+          </template>
+        </el-table-column>
+      </el-table>
+      <el-pagination
+        @size-change="onHandleSizeChange"
+        @current-change="onHandleCurrentChange"
+        class="mt15"
+        :pager-count="5"
+        :page-sizes="[10, 20, 30]"
+        v-model:current-page="tableData.param.pageNum"
+        background
+        v-model:page-size="tableData.param.pageSize"
+        layout="total, sizes, prev, pager, next, jumper"
+        :total="tableData.total"
+      >
+      </el-pagination>
+    </el-card>
+
+    <!-- <flowdesigner ref="flowdesignerRef" /> -->
+  </div>
+</template>
 
 <script lang="ts">
 import { ref, toRefs, reactive, onMounted, defineComponent } from "vue";
-import { ElMessageBox, ElMessage } from "element-plus";
+import {
+  ElMessageBox,
+  ElMessage,
+  ElButton,
+  ElCard,
+  ElIcon,
+  ElInput,
+  ElPagination,
+  ElTable,
+  ElTableColumn,
+} from "element-plus";
+import { create } from "domain";
+import { Session } from "/@/utils/storage";
+import { getAlarmList, clear, acquire } from "/@/api/alarm";
+import { appmessage } from "/@/api/iapiresult";
+import { ruleApi } from "/@/api/flows";
+// 定义接口来定义对象的类型
 
+interface TableDataRow {
+  bizid?: string;
+  createrDateTime?: string;
+  creator?: string;
+  creatorName?: string;
+  eventDesc?: string;
+  eventId?: string;
+  eventName?: string;
+  eventStaus?: string;
+  mataData?: string;
+  name?: string;
+  ruleId?: string;
+  type?: string;
+}
+interface TableDataState {
+  tableData: {
+    rows: Array<TableDataRow>;
+    total: number;
+    loading: boolean;
+    param: {
+      pageNum: number;
+      pageSize: number;
+    };
+  };
+}
 export default defineComponent({
-  name: 'addDevice',
+  name: "addDevice",
   components: {},
   setup() {
-    onMounted(() => {});
-    return {};
+    const userInfos = Session.get("userInfo");
+    const router = useRouter();
+    const state = reactive<TableDataState>({
+      tableData: {
+        rows: [],
+        total: 0,
+        loading: false,
+        param: {
+          pageNum: 1,
+          pageSize: 10,
+        },
+      },
+    });
+
+    const query = reactive({
+      CreatorName: "",
+      Name: "",
+      RuleId: "",
+    });
+
+    const replay = (val: TableDataRow) => {};
+    const onHandleSizeChange = (val: number) => {
+      state.tableData.param.pageSize = val;
+
+      getData();
+    };
+    // 分页改变
+    const onHandleCurrentChange = (val: number) => {
+      state.tableData.param.pageNum = val;
+      getData();
+    };
+
+    const getData = () => {
+      ruleApi().floweventslist({
+        offset: state.tableData.param.pageNum - 1,
+        limit: state.tableData.param.pageSize,
+        Name: query.Name,
+        RuleId: query.RuleId,
+        CreatorName: query.CreatorName,
+      }).then((res) => {
+        state.tableData.rows = res.data.rows;
+        state.tableData.total = res.data.total;
+      });
+    };
+    // 初始化表格数据
+    const initTableData = () => {
+      getData();
+    };
+    onMounted(() => {
+      initTableData();
+    });
+    return {
+      onHandleSizeChange,
+      onHandleCurrentChange,
+      getData,
+      replay,
+      ...toRefs(state),
+      ...toRefs(query),
+    };
   },
 });
 </script>
