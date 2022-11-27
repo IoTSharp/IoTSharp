@@ -13,7 +13,7 @@ export function accountApi() {
 	return {
 		accountList: (customerId: string, params: QueryParam) => {
 			return request({
-				url: `/api/Account/All/${customerId}`,
+				url: `/api/Account/List/${customerId}`,
 				method: 'get',
 				params,
 			});
