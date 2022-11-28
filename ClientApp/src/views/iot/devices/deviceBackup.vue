@@ -100,7 +100,7 @@
 
 <script lang="ts" setup>
 import {ElMessageBox, ElMessage} from "element-plus";
-import AddDevice from "./AddDevice.vue";
+import addDevice from "./addDevice.vue";
 import {deviceApi} from "/@/api/devices";
 import {Session} from "/@/utils/storage";
 import {appmessage} from "/@/api/iapiresult";
