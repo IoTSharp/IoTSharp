@@ -475,11 +475,12 @@ namespace IoTSharp.Controllers
         {
             var mx = m.CustomerId.ToString();
             var users = await _userManager.GetUsersForClaimAsync(_signInManager.Context.User.FindFirst(m => m.Type == IoTSharpClaimTypes.Customer && m.Value == mx));
-            var data = await m.Query(users.AsQueryable(), c => string.IsNullOrEmpty(c.UserName), c => c.UserName, c => new UserItemDto()
+            var uid = users.Select(u => u.Id).ToList();
+            var data = await m.Query(_context.Users, c => uid.Contains(c.Id), c => c.UserName, c => new UserItemDto()
             {
                 Id = c.Id,
+                UserName = c.UserName,
                 Email = c.Email,
-                Roles = new List<string>(_userManager.GetRolesAsync(c).Result),
                 PhoneNumber = c.PhoneNumber,
                 AccessFailedCount = c.AccessFailedCount,
                 LockoutEnabled= c.LockoutEnabled,

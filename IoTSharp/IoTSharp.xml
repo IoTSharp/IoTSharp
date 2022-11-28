@@ -881,6 +881,11 @@
             锁定时长
             </summary>
         </member>
+        <member name="P:IoTSharp.Dtos.UserItemDto.UserName">
+            <summary>
+            用户名
+            </summary>
+        </member>
         <member name="P:IoTSharp.Dtos.UserPassword.Pass">
             <summary>
             旧密码

@@ -144,6 +144,7 @@ namespace IoTSharp.Extensions
             };
             List<R> rs = new List<R>();
             rs = await query.Select(conver).ToListAsync(cancellationToken);
+            data.rows = rs;
             return data;
         }
 

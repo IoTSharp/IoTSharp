@@ -123,6 +123,10 @@ namespace IoTSharp.Dtos
         /// 锁定时长
         /// </summary>
         public DateTimeOffset? LockoutEnd { get; set; }
+        /// <summary>
+        /// 用户名
+        /// </summary>
+        public string UserName { get;  set; }
     }
 
     public class UserPassword
