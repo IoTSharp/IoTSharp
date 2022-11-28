@@ -11,9 +11,9 @@ import request from '/@/utils/request';
  */
 export function accountApi() {
 	return {
-		accountList: (customerId: string, params: QueryParam) => {
+		accountList: (params: CustomerQueryParam) => {
 			return request({
-				url: `/api/Account/List/${customerId}`,
+				url: `/api/Account/List`,
 				method: 'get',
 				params,
 			});
@@ -43,6 +43,7 @@ export function accountApi() {
 	};
 }
 
-export interface QueryParam extends IListQueryParam {
+export interface CustomerQueryParam extends IListQueryParam {
 	name?: string;
+	customerId?: string
 }

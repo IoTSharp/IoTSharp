@@ -11,13 +11,18 @@
 				</el-button>
 			</div>
 			<el-table :data="tableData.rows" style="width: 100%" row-key="id">
-				<el-table-column prop="eMail" label="邮件" show-overflow-tooltip></el-table-column>
-				<el-table-column prop="phone" label="电话" show-overflow-tooltip></el-table-column>
-				<el-table-column prop="country" label="国家" show-overflow-tooltip></el-table-column>
+				<el-table-column prop="id" label="Id" show-overflow-tooltip></el-table-column>
+				<el-table-column prop="userName" label="邮件" show-overflow-tooltip></el-table-column>
+				<el-table-column prop="email" label="邮件" show-overflow-tooltip></el-table-column>
+				<el-table-column prop="phoneNumber" label="电话" show-overflow-tooltip></el-table-column>
+				<el-table-column prop="accessFailedCount" label="登录失败次数" show-overflow-tooltip></el-table-column>
+				<el-table-column prop="lockoutEnabled" label="锁定" show-overflow-tooltip></el-table-column>
+				<el-table-column prop="lockoutEnd" label="锁定时间" show-overflow-tooltip></el-table-column>
+
 				<el-table-column label="操作" show-overflow-tooltip width="140">
 					<template #default="scope">
 						<el-button size="small" text type="primary" @click="create(scope.row.id)">修改</el-button>
-						<el-button size="small" text type="primary" @click="onTabelRowDel(scope.row)">删除</el-button>
+						<el-button size="small" text type="primary" @click="onTabelRowDel(scope.row)">锁定/禁用</el-button>
 					</template>
 				</el-table-column>
 			</el-table>
@@ -44,23 +49,22 @@ import { ref, toRefs, reactive, onMounted, defineComponent } from 'vue';
 import { accountApi } from '/@/api/user';
 import { useUserInfo } from '/@/stores/userInfo';
 import { storeToRefs } from 'pinia';
-import { QueryParam } from '/@/api/customer';
+import { CustomerQueryParam } from '/@/api/user';
 import { appmessage } from '/@/api/iapiresult';
 
 // 定义接口来定义对象的类型
 interface TableDataRow {
-	address?: string;
-	city?: string;
-	deviceType?: string;
-	country?: string;
-	eMail?: string;
+    email?: string;
 	id?: string;
-	name?: string;
-	phone?: string;
-	province?: string;
-	street?: string;
-	zipCode?: string;
+	userName?: string;
+    phoneNumber?: string;
+    accessFailedCount?: string;
+    lockoutEnabled?: string;
+    lockoutEnd?: string;
 }
+
+
+
 interface TableDataState {
 	tableData: {
 		rows: Array<TableDataRow>;
@@ -102,7 +106,7 @@ export default defineComponent({
 
 		// 删除当前行
 		const onTabelRowDel = (row: TableDataRow) => {
-			ElMessageBox.confirm(`此操作将永久删除用户：${row.name}, 是否继续?`, '提示', {
+			ElMessageBox.confirm(`此操作将永久删除用户：${row.userName}, 是否继续?`, '提示', {
 				confirmButtonText: '删除',
 				cancelButtonText: '取消',
 				type: 'warning',
@@ -133,16 +137,17 @@ export default defineComponent({
 			getData();
 		};
 
-		const getData = () => {
-			let params: QueryParam = {
-				offset: state.tableData.param.pageNum - 1,
-				limit: state.tableData.param.pageSize,
-			};
+        const getData = () => {
+            let params: CustomerQueryParam = {
+                customerId: userInfos.value.customer.id,
+                offset: state.tableData.param.pageNum - 1,
+                limit: state.tableData.param.pageSize,
+            };
 			if (name) {
 				params.name = name.value;
 			}
 			accountApi()
-				.accountList(userInfos.value.customer.id, params)
+				.accountList(params)
 				.then((res) => {
 					state.tableData.rows = res.data.data;
 					state.tableData.total = res.data.total;
