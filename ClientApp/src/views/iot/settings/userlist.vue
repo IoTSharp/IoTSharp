@@ -149,7 +149,7 @@ export default defineComponent({
 			accountApi()
 				.accountList(params)
 				.then((res) => {
-					state.tableData.rows = res.data.data;
+					state.tableData.rows = res.data.rows;
 					state.tableData.total = res.data.total;
 				});
 		};
