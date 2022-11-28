@@ -215,7 +215,7 @@
 	</Target>
 	<Target Name="PublishRunWebpack_vue" AfterTargets="ComputeFilesToPublish" Condition="'$(Configuration)' == 'Release_VUE'">
 		<!-- As part of publishing, ensure the JS resources are freshly built in production mode -->
-		<Exec WorkingDirectory="$(SpaRoot)" Command="npm install " />
+		<Exec WorkingDirectory="$(SpaRoot)" Command="npm install --legacy-peer-deps" />
 		<Exec WorkingDirectory="$(SpaRoot)" Command="npm run build" />
 		<!-- Include the newly-built files in the publish output -->
 		<ItemGroup>

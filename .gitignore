@@ -362,3 +362,4 @@ ASALocalRun/
 /IoTSharp/server.crt
 /buildimageqhse.cmd
 /IoTSharp/.data
+/IoTSharp/ClientAppVue/package-lock.json
