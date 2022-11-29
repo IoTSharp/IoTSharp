@@ -1,17 +1,16 @@
 <template>
   <div class="z-logo-container">
-    <div v-if="!hideIcon">
-      <img :src="logoIcon">
-    </div>
-    <div>
-      <img :src="logoText" style="position: relative;top: 4px">
-    </div>
-
+    <div v-if="!hideIcon" class="z-logo-icon" v-html="logoIcon" ></div>
+    <div class="z-logo-text" v-html="logoText" :style="{fill: themeConfig.isIsDark ? 'white': ''}"></div>
   </div>
 </template>
 <script lang="ts" setup>
-import logoIcon from '/@/assets/logo-icon.svg'
-import logoText from '/@/assets/logo-text.svg'
+import logoIcon from '/@/assets/logo-icon.svg?raw'
+import logoText from '/@/theme/logo-text.svg?raw'
+import { useThemeConfig } from '/@/stores/themeConfig';
+import {storeToRefs} from "pinia";
+const storesThemeConfig = useThemeConfig();
+const { themeConfig } = storeToRefs(storesThemeConfig);
 defineProps({
   hideIcon: {
     type: Boolean,
@@ -29,12 +28,17 @@ defineProps({
   box-sizing: border-box;
   display: flex;
   gap: 12px;
+  align-items: center;
+
+  .z-logo-icon {
+    width:30px;
+
+  }
+  .z-logo-text {
+    width:120px;
+  }
   div {
     display: flex;
-    align-items: center;
-  }
-  img {
-    width: 100%;
   }
 }
 </style>

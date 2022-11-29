@@ -1,8 +1,6 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<svg width="203px" height="41px" viewBox="0 0 203 41" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
-    <title>logo-text</title>
-    <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
-        <g id="login" transform="translate(-652.000000, -257.000000)" fill="#08093A" fill-rule="nonzero">
+<svg width="203px" height="41px"  viewBox="0 0 203 41" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <g id="Page-1" stroke="none" stroke-width="1" fill-rule="evenodd">
+        <g id="login" transform="translate(-652.000000, -257.000000)" fill-rule="nonzero">
             <g id="logo" transform="translate(589.000000, 247.000000)">
                 <g id="logo-text" transform="translate(63.138462, 10.231430)">
                     <path d="M13.0598955,1.2438986 L8.73552654,31.8811663 C8.69485585,32.1693097 8.44825801,32.3835452 8.15725842,32.3835452 L0.672218751,32.3835452 C0.349684457,32.3835452 0.0882187513,32.1220795 0.0882187513,31.7995452 C0.0882187513,31.7722377 0.0901340799,31.7449638 0.093950638,31.7179242 L4.41831962,1.08065658 C4.4589903,0.792513119 4.70558814,0.578277594 4.99658773,0.578277594 L12.4816274,0.578277594 C12.8041617,0.578277594 13.0656274,0.8397433 13.0656274,1.16227759 C13.0656274,1.18958515 13.0637121,1.21685907 13.0598955,1.2438986 Z" id="Path"></path>
