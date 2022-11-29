@@ -32,7 +32,7 @@
 </template>
 <script setup lang="ts">
 import AppLogo from "/@/components/AppLogo.vue";
-import setup_form_rules from './setup_form_rules.json'
+import {setupFormRule} from './setup_form_rules'
 import setup_form_option from './setup_form_option.json'
 import {initSysAdmin} from "/@/api/installer";
 import {reactive, Ref, ref} from "vue";
@@ -49,7 +49,6 @@ const storesAppInfo = useAppInfo()
 const fApi: Ref<Api | null> = ref(null)
 //表单数据
 const value = ref({})
-// const options = ref(setup_form_option)
 const options = reactive(setup_form_option)
 
 const validatePassCheck = (rule:any, value:any, callback:any) => {
@@ -61,13 +60,13 @@ const validatePassCheck = (rule:any, value:any, callback:any) => {
     callback();
   }
 };
-setup_form_rules[3].validate.push({
+setupFormRule[3].validate?.push({
   required: true,
   trigger: "change",
   validator: validatePassCheck
 })
-JSON.parse(JSON.stringify(setup_form_rules))
-const rules = ref(setup_form_rules)
+JSON.parse(JSON.stringify(setupFormRule))
+const rules = ref(setupFormRule)
 
 function onSubmit(data:any) {
   try {
@@ -91,7 +90,7 @@ function onSubmit(data:any) {
 
 
 </script>
-<style lang="scss">
+<style lang="scss" scoped>
 .z-install {
   .el-form-item {
     margin-top: 16px;

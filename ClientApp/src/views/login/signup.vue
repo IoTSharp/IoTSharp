@@ -25,13 +25,12 @@
 </template>
 <script lang="ts" setup>
 import AppLogo from "/@/components/AppLogo.vue";
-import {signUpRule} from './signup_form_rules.ts'
-import {option} from './signup_form_option.ts'
+import {signUpRule} from './signup_form_rules'
+import {option} from './signup_form_option'
 import formCreate, {Api} from "@form-create/element-ui";
 import {ElMessage} from "element-plus";
 import {Ref} from "vue";
 import {signup} from "/@/api/account";
-import setup_form_rules from "/@/views/setup/setup_form_rules.json";
 const formRef = ref(null)
 
 const options = ref(option)
@@ -49,7 +48,7 @@ const validatePassCheck = (rule:any, value:any, callback:any) => {
     callback();
   }
 };
-signUpRule[3].validate.push({
+signUpRule[3].validate?.push({
   required: true,
   trigger: "change",
   validator: validatePassCheck

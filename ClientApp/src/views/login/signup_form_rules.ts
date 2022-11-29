@@ -1,4 +1,4 @@
-export const signUpRule = [
+export const signUpRule:any[] = [
   {
     type: 'input',
     field: 'email',
