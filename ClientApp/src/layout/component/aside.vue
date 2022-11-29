@@ -170,6 +170,6 @@ export default defineComponent({
   box-sizing: border-box;
   padding-left: 20px;
   height: 92px;
-  border-bottom: 1px solid #f1f2f3;
+  border-bottom: 1px solid var(--el-border-color-light);
 }
 </style>
