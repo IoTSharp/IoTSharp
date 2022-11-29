@@ -100,7 +100,6 @@ import addflow from "./addflow.vue";
 import flowdesigner from "./flowdesigner.vue";
 import { ruleApi } from "/@/api/flows";
 import { Session } from "/@/utils/storage";
-import { treeEmits } from "element-plus/es/components/tree-v2/src/virtual-tree";
 import { appmessage } from "/@/api/iapiresult";
 import { useRouter } from "vue-router";
 

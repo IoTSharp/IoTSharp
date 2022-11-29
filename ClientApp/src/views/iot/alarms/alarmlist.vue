@@ -226,7 +226,7 @@ import {
   ElTable,
   ElTableColumn,
 } from "element-plus";
-import { create } from "domain";
+
 import { Session } from "/@/utils/storage";
 import { getAlarmList, clear, acquire } from "/@/api/alarm";
 import { appmessage } from "/@/api/iapiresult";
@@ -258,7 +258,7 @@ interface TableDataState {
   };
 }
 export default defineComponent({
-  name: "addDevice",
+  name: "alarmlist",
   components: {},
   setup() {
     const alarmStatusoptions = [
