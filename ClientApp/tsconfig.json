@@ -22,7 +22,8 @@
 		"useDefineForClassFields": true,
 		"resolveJsonModule": true,
 		"isolatedModules": true,
-		"noEmit": true
+		"noEmit": true,
+		"useUnknownInCatchVariables": false // 异常处理可以不用指定类型
 	},
 	"include": [
 		"src/**/*.ts",
