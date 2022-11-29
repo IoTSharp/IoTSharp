@@ -152,6 +152,11 @@
 	.el-input-number__increase {
 		background: var(--next-color-disabled) !important;
 	}
+	.el-tag {
+		background-color: var(--next-bg-main) !important;
+		border-color: var(--el-color-primary);
+		color: var(--el-color-primary);
+	}
 
 	// tag
 	.el-select .el-select__tags .el-tag {
@@ -233,4 +238,13 @@
 			border-color: var(--el-border-color-lighter) !important;
 		}
 	}
+
+	.el-table--striped .el-table__body tr.el-table__row--striped td.el-table__cell {
+		background-color: var(--next-color-disabled) !important;
+	}
+	.el-table--striped .el-table__body tr.el-table__row--striped:hover td.el-table__cell {
+		background-color: var(--el-table-row-hover-bg-color) !important;
+	}
+
 }
+
