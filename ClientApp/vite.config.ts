@@ -76,7 +76,6 @@ const viteConfig = defineConfig((mode: ConfigEnv) => {
 		server: {
 			host: '0.0.0.0',
 			port: env.VITE_PORT as unknown as number,
-			open: env.VITE_OPEN,
 		},
 		esbuild: {
 			drop: ['console', 'debugger'],
