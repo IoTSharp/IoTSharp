@@ -13,6 +13,9 @@ yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
 
+# auto-generated files
+src/components.d.ts
+src/auto-imports.d.ts
 # Editor directories and files
 .idea
 .vscode
@@ -21,5 +24,5 @@ pnpm-debug.log*
 *.njsproj
 *.sln
 *.sw?
-/package-lock.json
-/package-lock.json
+package-lock.json
+
