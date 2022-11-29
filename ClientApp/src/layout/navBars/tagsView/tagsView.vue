@@ -435,7 +435,7 @@ export default defineComponent({
 				// 最后 li
 				let liLast: any = tagsRefs.value[tagsRefs.value.length - 1];
 				// 当前滚动条的值
-				let scrollRefs = proxy.$refs.scrollbarRef.$refs.wrap$;
+				let scrollRefs = proxy.$refs.scrollbarRef.$refs.wrapRef;
 				// 当前滚动条滚动宽度
 				let scrollS = scrollRefs.scrollWidth;
 				// 当前滚动条偏移宽度

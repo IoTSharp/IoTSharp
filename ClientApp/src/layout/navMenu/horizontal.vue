@@ -71,7 +71,7 @@ export default defineComponent({
 			nextTick(() => {
 				let els: any = document.querySelector('.el-menu.el-menu--horizontal li.is-active');
 				if (!els) return false;
-				proxy.$refs.elMenuHorizontalScrollRef.$refs.wrap$.scrollLeft = els.offsetLeft;
+				proxy.$refs.elMenuHorizontalScrollRef.$refs.wrapRef.scrollLeft = els.offsetLeft;
 			});
 		};
 		// 路由过滤递归函数
