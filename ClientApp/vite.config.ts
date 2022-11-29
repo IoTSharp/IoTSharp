@@ -77,24 +77,10 @@ const viteConfig = defineConfig((mode: ConfigEnv) => {
 			host: '0.0.0.0',
 			port: env.VITE_PORT as unknown as number,
 			open: env.VITE_OPEN,
-			proxy: {
-				'/gitee': {
-					target: 'https://gitee.com',
-					ws: true,
-					changeOrigin: true,
-					rewrite: (path) => path.replace(/^\/gitee/, ''),
-				},
-			},
 		},
 		build: {
-			outDir: 'dist',
-			sourcemap: false,
-			chunkSizeWarningLimit: 1500,
 			rollupOptions: {
 				output: {
-					entryFileNames: `assets/[name].${new Date().getTime()}.js`,
-					chunkFileNames: `assets/[name].${new Date().getTime()}.js`,
-					assetFileNames: `assets/[name].${new Date().getTime()}.[ext]`,
 					compact: true,
 					manualChunks: {
 						vue: ['vue', 'vue-router', 'pinia'],
