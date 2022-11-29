@@ -7,12 +7,14 @@ export {}
 
 declare module '@vue/runtime-core' {
   export interface GlobalComponents {
+    AdvancedKeyValue: typeof import('./components/AdvancedKeyValue/AdvancedKeyValue.vue')['default']
     AppLogo: typeof import('./components/AppLogo.vue')['default']
     Auth: typeof import('./components/auth/auth.vue')['default']
     AuthAll: typeof import('./components/auth/authAll.vue')['default']
     Auths: typeof import('./components/auth/auths.vue')['default']
     Card: typeof import('./components/card/index.vue')['default']
     Cropper: typeof import('./components/cropper/index.vue')['default']
+    DictSwitch: typeof import('./components/AdvancedKeyValue/dict-switch.vue')['default']
     Editor: typeof import('./components/editor/index.vue')['default']
     ElAlert: typeof import('element-plus/es')['ElAlert']
     ElAside: typeof import('element-plus/es')['ElAside']
@@ -64,6 +66,8 @@ declare module '@vue/runtime-core' {
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
     SvgIcon: typeof import('./components/svgIcon/index.vue')['default']
+    ZSelect: typeof import('./components/AdvancedKeyValue/z-select.vue')['default']
+    ZSwitch: typeof import('./components/AdvancedKeyValue/z-switch.vue')['default']
   }
   export interface ComponentCustomProperties {
     vLoading: typeof import('element-plus/es')['ElLoadingDirective']
