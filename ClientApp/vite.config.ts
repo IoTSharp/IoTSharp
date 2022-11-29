@@ -78,6 +78,9 @@ const viteConfig = defineConfig((mode: ConfigEnv) => {
 			port: env.VITE_PORT as unknown as number,
 			open: env.VITE_OPEN,
 		},
+		esbuild: {
+			drop: ['console', 'debugger'],
+		},
 		build: {
 			rollupOptions: {
 				output: {
