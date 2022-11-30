@@ -11,24 +11,30 @@
                 :label-width="160"></AdvancedKeyValue>
           </div>
         </el-tab-pane>
-        <el-tab-pane label="属性" name="second">Config</el-tab-pane>
-        <el-tab-pane label="遥测" name="third">Role</el-tab-pane>
-        <el-tab-pane label="告警" name="fourth">Task</el-tab-pane>
-        <el-tab-pane label="规则" name="fourth">Task</el-tab-pane>
+        <el-tab-pane label="属性" name="props">
+          <div class="z-tab-container">
+            <DeviceDetailProps></DeviceDetailProps>
+          </div>
+
+        </el-tab-pane>
+        <el-tab-pane label="遥测" name="telemetry">Role</el-tab-pane>
+        <el-tab-pane label="告警" name="alarm">Task</el-tab-pane>
+        <el-tab-pane label="规则" name="rules">Task</el-tab-pane>
       </el-tabs>
     </el-drawer>
   </div>
 </template>
 <script lang="ts" setup>
-import {createDeviceCrudOptions} from "/@/views/iot/devices/deviceCrudOptions";
+import { createDeviceCrudOptions } from "/@/views/iot/devices/deviceCrudOptions";
 import AdvancedKeyValue from "/@/components/AdvancedKeyValue/AdvancedKeyValue.vue";
+import DeviceDetailProps from "/@/views/iot/devices/detail/DeviceDetailProps.vue";
 
-const drawer = ref(false);
+const drawer = ref(true);
 const dialogTitle = ref(`设备详情`);
-const activeTabName = ref('detail')
+const activeTabName = ref('props')
 const deviceRef = ref()
-const {crudOptions: { columns }} = createDeviceCrudOptions({expose: null})
-const openDialog = (device:any)=>{
+const {crudOptions: {columns}} = createDeviceCrudOptions({expose: null})
+const openDialog = (device: any) => {
   drawer.value = true
   deviceRef.value = device
   dialogTitle.value = `${deviceRef.value.name}设备详情`
@@ -39,5 +45,7 @@ defineExpose({
 
 </script>
 <style lang="scss" scoped>
-
+.z-tab-container {
+  padding: 16px;
+}
 </style>

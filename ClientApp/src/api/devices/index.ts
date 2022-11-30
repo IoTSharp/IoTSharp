@@ -48,6 +48,19 @@ export function deviceApi() {
 				method: 'delete',
 			});
 		},
+		getDeviceAttributes: (deviceId:string) => {
+			return request({
+				url: '/api/Devices/'+deviceId + '/AttributeLatest',
+				method: 'get',
+			});
+		},
+		addDeviceAttributes: (deviceId:string, params: any) => {
+			return request({
+				url: '/api/Devices/'+deviceId + '/AddAttribute',
+				method: 'post',
+				data: params,
+			});
+		},
 	};
 }
 
