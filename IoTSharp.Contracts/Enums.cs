@@ -43,6 +43,8 @@ namespace IoTSharp.Contracts
         LockUserHaveError = 10023,
         CanNotUnLockUser = 10024,
         UnLockUserHaveError = 10025,
+        NotEnableTls = 10026,
+        NeedServerIPAddress = 10027,
     }
 
  

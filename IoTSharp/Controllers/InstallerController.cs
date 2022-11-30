@@ -93,7 +93,7 @@ namespace IoTSharp.Controllers
             ApiResult result = new ApiResult(ApiCode.Success, "OK");
             if (!_setting.MqttBroker.EnableTls)
             {
-                result = new ApiResult(ApiCode.AlreadyExists, "TLS is not yet used, please enable it in the configuration item. ");
+                result = new ApiResult(ApiCode.NotEnableTls, "TLS is not yet used, please enable it in the configuration item. ");
             }
            else  if (_setting.MqttBroker.CACertificate != null)
             {
@@ -101,7 +101,7 @@ namespace IoTSharp.Controllers
             }
             else if (string.IsNullOrEmpty(domain))
             {
-                result = new ApiResult(ApiCode.AlreadyExists, "ServerIPAddress     is required.");
+                result = new ApiResult(ApiCode.NeedServerIPAddress, "ServerIPAddress     is required.");
             }
             else if ( Uri.TryCreate(domain, UriKind.Absolute, out  Uri _uri))
             {
@@ -125,12 +125,8 @@ namespace IoTSharp.Controllers
                 }
                 catch (Exception exception)
                 {
-
                     result = new ApiResult(ApiCode.Exception, exception.Message );
                 }
-
-
-
             }
             else  
             {
