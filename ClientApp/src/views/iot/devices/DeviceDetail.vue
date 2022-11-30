@@ -2,7 +2,7 @@
   <div>
     <el-drawer v-model="drawer" :title="dialogTitle" size="70%">
       <el-tabs v-model="activeTabName" class="demo-tabs" stretch>
-        <el-tab-pane label="详情" name="detail">
+        <el-tab-pane label="详情" name="basic">
           <div class="z-tab-container">
             <AdvancedKeyValue
                 :obj="deviceRef"
@@ -13,7 +13,7 @@
         </el-tab-pane>
         <el-tab-pane label="属性" name="props">
           <div class="z-tab-container">
-            <DeviceDetailProps></DeviceDetailProps>
+            <DeviceDetailProps :deviceId="deviceRef.id"></DeviceDetailProps>
           </div>
 
         </el-tab-pane>
@@ -29,9 +29,9 @@ import { createDeviceCrudOptions } from "/@/views/iot/devices/deviceCrudOptions"
 import AdvancedKeyValue from "/@/components/AdvancedKeyValue/AdvancedKeyValue.vue";
 import DeviceDetailProps from "/@/views/iot/devices/detail/DeviceDetailProps.vue";
 
-const drawer = ref(true);
+const drawer = ref(false);
 const dialogTitle = ref(`设备详情`);
-const activeTabName = ref('props')
+const activeTabName = ref('basic')
 const deviceRef = ref()
 const {crudOptions: {columns}} = createDeviceCrudOptions({expose: null})
 const openDialog = (device: any) => {

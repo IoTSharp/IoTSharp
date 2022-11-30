@@ -3,9 +3,9 @@ import _ from 'lodash-es';
 import { compute, dict } from '@fast-crud/fast-crud';
 import { TableDataRow } from '/@/views/iot/devices/model';
 // eslint-disable-next-line no-unused-vars
-export const createDevicePropsCrudOptions = function ({ expose }) {
+export const createDevicePropsCrudOptions = function ({ expose }, deviceId) {
+	const deviceId_param = deviceId;
 	let records: any[] = [];
-	const deviceId = '0a3eee17-38fb-4db0-89de-98cde86ca987';
 	const FsButton = {
 		link: true,
 	};
@@ -14,7 +14,8 @@ export const createDevicePropsCrudOptions = function ({ expose }) {
 		inactiveColor: 'var(el-switch-of-color)',
 	};
 	const pageRequest = async (query) => {
-		const res = await deviceApi().getDeviceAttributes(deviceId);
+		console.log(`%c-createDevicePropsCrudOptions@devicePropsCrudOptions:7`, 'color:white;font-size:16px;background:blue;font-weight: bold;', deviceId)
+		const res = await deviceApi().getDeviceAttributes(deviceId_param);
 		records = res.data;
 		return {
 			records,
@@ -46,6 +47,7 @@ export const createDevicePropsCrudOptions = function ({ expose }) {
 		}
 	};
 	return {
+		deviceId,
 		crudOptions: {
 			request: {
 				pageRequest,

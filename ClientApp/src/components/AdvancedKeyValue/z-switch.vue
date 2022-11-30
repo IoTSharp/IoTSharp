@@ -22,7 +22,6 @@ const color = computed(()=>{
 })
 const computedValue = computed(() => {
   const item = props.dict.find((dictItem)=> dictItem.value === props.value)
-  console.log(`%c-@z-switch:19`, 'color:white;font-size:16px;background:blue;font-weight: bold;', item)
   return item.label
 })
 </script>
