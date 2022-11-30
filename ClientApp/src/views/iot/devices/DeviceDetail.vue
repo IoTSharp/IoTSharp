@@ -7,7 +7,7 @@
             <AdvancedKeyValue
                 :obj="deviceRef"
                 :config="columns"
-                :hide-key-list="['owner', 'identityValue', 'tenantName', 'customerName', 'tenantId', 'customerId', 'identityId']"
+                :hide-key-list="['owner', 'identityValue', 'tenantName', 'customerName', 'tenantId', 'customerId']"
                 :label-width="160"></AdvancedKeyValue>
           </div>
         </el-tab-pane>
@@ -20,6 +20,7 @@
         <el-tab-pane label="遥测" name="telemetry">Role</el-tab-pane>
         <el-tab-pane label="告警" name="alarm">Task</el-tab-pane>
         <el-tab-pane label="规则" name="rules">Task</el-tab-pane>
+        <el-tab-pane label="规则历史" name="rules">Task</el-tab-pane>
       </el-tabs>
     </el-drawer>
   </div>

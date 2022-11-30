@@ -184,6 +184,9 @@ export const createDeviceCrudOptions = function ({ expose }, deviceDetailRef?) {
                 lastActivityDateTime: {
                     title: "最后活动时间",
                     type: "text",
+                    column: {
+                        show: false
+                    },
                     search: {show: false},
                     addForm: {
                         show: false,
@@ -202,6 +205,23 @@ export const createDeviceCrudOptions = function ({ expose }, deviceDetailRef?) {
                             { value: 'X509Certificate', label: "X509Certificate" }
                         ]
                     })
+                },
+                identityId: {
+                    title: "Token",
+                    type: "text",
+                    search: {show: false},
+                    column: {
+                        show: false
+                    },
+                    viewForm: {
+                        show: false,
+                    },
+                    addForm: {
+                        show: false,
+                    },
+                    editForm: {
+                        show: false,
+                    }
                 },
                 timeout: {
                     column: {
