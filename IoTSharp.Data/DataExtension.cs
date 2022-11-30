@@ -102,7 +102,7 @@ namespace IoTSharp.Data
             switch (property.Value.Type)
             {
                 case JTokenType.Integer:
-                    obj = property.Value.ToObject<int>();
+                    obj = property.Value.ToObject<long>();
                     break;
                 case JTokenType.Float:
                     obj = property.Value.ToObject<float>();
@@ -129,7 +129,7 @@ namespace IoTSharp.Data
                     obj = property.Value.ToObject<TimeSpan>();
                     break;
                 default:
-                    obj = property.Value;
+                    obj = property.Value.ToString();
                     break;
             }
             return obj;
