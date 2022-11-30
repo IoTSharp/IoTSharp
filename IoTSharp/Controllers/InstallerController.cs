@@ -72,6 +72,7 @@ namespace IoTSharp.Controllers
             return new InstanceDto()
             {
                 Installed = _context.Relationship.Any(),
+                EnableTls = _setting.MqttBroker.EnableTls,
                 Domain = _setting.MqttBroker.DomainName ?? this.Request.Host.ToString(),
                 Version = System.Reflection.Assembly.GetExecutingAssembly().GetName().Version.ToString(),
                 CACertificate = _setting.MqttBroker.CACertificate != null,
@@ -90,7 +91,11 @@ namespace IoTSharp.Controllers
         {
             var domain  =_setting.MqttBroker.DomainName ?? this.Request.Host.ToString();
             ApiResult result = new ApiResult(ApiCode.Success, "OK");
-            if (_setting.MqttBroker.CACertificate != null)
+            if (!_setting.MqttBroker.EnableTls)
+            {
+                result = new ApiResult(ApiCode.AlreadyExists, "TLS is not yet used, please enable it in the configuration item. ");
+            }
+           else  if (_setting.MqttBroker.CACertificate != null)
             {
                 result = new ApiResult(ApiCode.AlreadyExists, "CACertificate already exists.");
             }

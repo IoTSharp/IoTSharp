@@ -19,6 +19,7 @@
         public string Domain { get; set; }
         public string BrokerThumbprint { get;   set; }
         public string CAThumbprint { get;  set; }
+        public bool? EnableTls { get;  set; }
     }
 
 }
