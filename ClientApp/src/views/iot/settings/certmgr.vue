@@ -1,6 +1,6 @@
 <template>
 	<el-card class="box-card">
-		<div class="text item">
+		<div class="text item" v-if="form?.enableTls && !form?.caCertificate">
 			<el-button type="primary" plain @click="initCertificate">初始化根证书</el-button>
 		</div>
 		<div class="text item"><span class="label">域名: </span>{{ form.domain }}</div>
