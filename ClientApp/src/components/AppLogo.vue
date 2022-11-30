@@ -6,7 +6,7 @@
 </template>
 <script lang="ts" setup>
 import logoIcon from '/@/assets/logo-icon.svg?raw'
-import logoText from '/@/theme/logo-text.svg?raw'
+import logoText from '/@/assets/logo-text.svg?raw'
 import { useThemeConfig } from '/@/stores/themeConfig';
 import {storeToRefs} from "pinia";
 const storesThemeConfig = useThemeConfig();

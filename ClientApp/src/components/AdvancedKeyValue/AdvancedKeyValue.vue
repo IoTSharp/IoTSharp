@@ -14,6 +14,8 @@
 <script lang="ts" setup>
 import {onMounted} from "vue";
 import {sleep} from "/@/utils/other";
+import ZSelect from "./z-select.vue";
+import ZSwitch from "./z-switch.vue";
 const props = defineProps({
   obj: Object, //要展示的对象
   labelWidth: Number, // label 宽度
