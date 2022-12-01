@@ -1,17 +1,17 @@
-import path from 'path'
+import path from 'path';
 import vue from '@vitejs/plugin-vue';
 import { resolve } from 'path';
 import { defineConfig, loadEnv, ConfigEnv } from 'vite';
 import WindiCSS from 'vite-plugin-windicss';
-import AutoImport from 'unplugin-auto-import/vite'
-import Components from 'unplugin-vue-components/vite'
-import { ElementPlusResolver } from 'unplugin-vue-components/resolvers'
-import Icons from 'unplugin-icons/vite'
-import IconsResolver from 'unplugin-icons/resolver'
+import AutoImport from 'unplugin-auto-import/vite';
+import Components from 'unplugin-vue-components/vite';
+import { ElementPlusResolver } from 'unplugin-vue-components/resolvers';
+import Icons from 'unplugin-icons/vite';
+import IconsResolver from 'unplugin-icons/resolver';
 const pathResolve = (dir: string): any => {
 	return resolve(__dirname, '.', dir);
 };
-const pathSrc = path.resolve(__dirname, 'src')
+const pathSrc = path.resolve(__dirname, 'src');
 const alias: Record<string, string> = {
 	'/@': pathResolve('./src/'),
 	'vue-i18n': 'vue-i18n/dist/vue-i18n.cjs.js',
@@ -24,7 +24,7 @@ const viteConfig = defineConfig((mode: ConfigEnv) => {
 			vue(),
 			WindiCSS(),
 			AutoImport({
-				imports:['vue', 'vue-router', 'pinia'],
+				imports: ['vue', 'vue-router', 'pinia'],
 				dirs: ['./stores'],
 				eslintrc: {
 					enabled: true, // Default `false`
@@ -48,7 +48,7 @@ const viteConfig = defineConfig((mode: ConfigEnv) => {
 					IconsResolver({
 						prefix: 'icon',
 					}),
-					ElementPlusResolver()
+					ElementPlusResolver(),
 				],
 				dts: path.resolve(pathSrc, 'components.d.ts'),
 			}),
@@ -78,7 +78,7 @@ const viteConfig = defineConfig((mode: ConfigEnv) => {
 			port: env.VITE_PORT as unknown as number,
 		},
 		esbuild: {
-			drop: ['console', 'debugger'],
+			drop: mode.mode === 'production' ? ['console', 'debugger'] : [],
 		},
 		build: {
 			rollupOptions: {
