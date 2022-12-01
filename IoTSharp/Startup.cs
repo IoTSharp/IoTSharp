@@ -290,6 +290,8 @@ namespace IoTSharp
             services.AddTransient<PublishTelemetryDataTask>();
             services.AddTransient<PublishAlarmDataTask>();
             services.AddTransient<RawDataGateway>();
+            services.AddTransient<KepServerEx>();
+            
         }
 
       

@@ -6,6 +6,7 @@ using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.Json;
 using System.Threading.Tasks;
 using Dic = System.Collections.Generic.Dictionary<string, System.Exception>;
 
@@ -267,7 +268,34 @@ namespace IoTSharp.Data
                     break;
             }
         }
-    
+        public static object ToObject(this JsonElement kvx)
+        {
+            object obj = null;
+            switch (kvx.ValueKind)
+            {
+                case System.Text.Json.JsonValueKind.Undefined:
+                case System.Text.Json.JsonValueKind.Object:
+                case System.Text.Json.JsonValueKind.Array:
+                    obj = kvx.ToString();
+                    break;
+                case System.Text.Json.JsonValueKind.String:
+                    obj = kvx.GetString();
+                    break;
+                case System.Text.Json.JsonValueKind.Number:
+                    obj = kvx.GetDouble();
+                    break;
+                case System.Text.Json.JsonValueKind.True:
+                case System.Text.Json.JsonValueKind.False:
+                    obj = kvx.GetBoolean();
+                    break;
+                case System.Text.Json.JsonValueKind.Null:
+                    obj = null;
+                    break;
+                default:
+                    break;
+            }
+            return obj;
+        }
 
         public static Dictionary<string, object> JsonToDictionary(this JToken jojb)
         {

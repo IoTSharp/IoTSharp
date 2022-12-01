@@ -176,3 +176,19 @@ curl -X 'POST' \
   -d '"{参数， 可以是json}"'
 
 ```
+
+## KepServerEx 
+
+在MQTT协议中， 我们提供了接收KepServerEx消息的服务端网关
+
+1. 在KepServerEx的IoT Gateway 新建 一个 MQTT的 客户端
+2. URL 填写 tcp://<iotsharp地址>:1883
+3. Topic 填写 /gateway/kepserverex
+4. ClientId填写设备ID或者随意
+5. UserName填写 网关程序的Token 
+
+配置如下图所示:
+
+![设置](/img/iotsharp/kep_iotgateway.png)
+
+![设置](/img/iotsharp/kep_iotgateway2.png)

@@ -5,7 +5,7 @@
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>{f5644ba6-2a0c-49a5-9c9b-3cecd6db2d1f}</ProjectGuid>
     <ProjectHome>.</ProjectHome>
-    <ProjectView>ProjectFiles</ProjectView>
+    <ProjectView>ShowAllFiles</ProjectView>
     <StartupFile>docusaurus.config.js</StartupFile>
     <WorkingDirectory>.</WorkingDirectory>
     <OutputPath>.</OutputPath>
@@ -60,6 +60,8 @@
     <Content Include="static\img\InfluxDB2.PNG" />
     <Content Include="static\img\iotsharp.png" />
     <Content Include="static\img\IoTSharpQQGruop.png" />
+    <Content Include="static\img\iotsharp\kep_iotgateway.png" />
+    <Content Include="static\img\iotsharp\kep_iotgateway2.png" />
     <Content Include="static\img\iot_sharp_logo.png" />
     <Content Include="static\img\screenshot.png" />
     <Content Include="static\img\tn.png" />

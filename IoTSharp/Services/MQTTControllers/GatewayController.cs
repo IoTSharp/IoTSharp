@@ -13,6 +13,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Collections;
+using IdentityModel.OidcClient;
 
 namespace IoTSharp.Services.MQTTControllers
 {
@@ -24,8 +26,8 @@ namespace IoTSharp.Services.MQTTControllers
     public class V1GatewayController : GatewayController
     {
         public V1GatewayController(ILogger<GatewayController> logger, IServiceScopeFactory scopeFactor,
-         IOptions<AppSettings> options, IPublisher queue, RawDataGateway rawDataGateway
-         ) : base(logger, scopeFactor, options, queue, rawDataGateway)
+         IOptions<AppSettings> options, IPublisher queue
+         ) : base(logger, scopeFactor, options, queue)
         {
         }
     }
@@ -37,16 +39,19 @@ namespace IoTSharp.Services.MQTTControllers
         private readonly ILogger _logger;
         private readonly IServiceScopeFactory _scopeFactor;
         private readonly IPublisher _queue;
+        private readonly IServiceScope _scope;
         private readonly RawDataGateway _rawData;
-
+        private readonly KepServerEx _kep;
         public GatewayController(ILogger<GatewayController> logger, IServiceScopeFactory scopeFactor,
-            IOptions<AppSettings> options, IPublisher queue, RawDataGateway rawDataGateway
+            IOptions<AppSettings> options, IPublisher queue
             )
         {
             _logger = logger;
             _scopeFactor = scopeFactor;
             _queue = queue;
-            _rawData = rawDataGateway;
+            _scope = scopeFactor.CreateScope();
+            _rawData = _scope.ServiceProvider.GetService<RawDataGateway>();
+            _kep = _scope.ServiceProvider.GetService<KepServerEx>();
         }
 
         [MqttRoute("telemetry")]
@@ -55,21 +60,21 @@ namespace IoTSharp.Services.MQTTControllers
             var _dev = GetSessionItem<Device>();
             var lst = Newtonsoft.Json.JsonConvert.DeserializeObject<Dictionary<string, List<GatewayPlayload>>>(Message.ConvertPayloadToString());
             _logger.LogInformation($"{ClientId}的数据{Message.Topic}是网关数据， 解析到{lst?.Count}个设备");
-          await  _queue.PublishActive(_dev.Id, ActivityStatus.Activity);
-          
+            await _queue.PublishActive(_dev.Id, ActivityStatus.Activity);
+
             lst?.Keys.ToList().ForEach(async dev =>
             {
                 var plst = lst[dev];
                 var device = _dev.JudgeOrCreateNewDevice(dev, _scopeFactor, _logger);
-             await   _queue.PublishActive(device.Id, ActivityStatus.Activity);
+                await _queue.PublishActive(device.Id, ActivityStatus.Activity);
                 _logger.LogInformation($"{ClientId}的网关数据正在处理设备{dev}， 设备ID为{_dev?.Id}");
                 plst.ForEach(p =>
                 {
-                    _queue.PublishTelemetryData(new PlayloadData() { DeviceId = device.Id,  ts = new DateTime(p.Ticks), MsgBody = p.Values, DataSide = DataSide.ClientSide, DataCatalog = DataCatalog.TelemetryData });
+                    _queue.PublishTelemetryData(new PlayloadData() { DeviceId = device.Id, ts = new DateTime(p.Ticks), MsgBody = p.Values, DataSide = DataSide.ClientSide, DataCatalog = DataCatalog.TelemetryData });
                 });
                 _logger.LogInformation($"{ClientId}的网关数据处理完成，设备{dev}ID为{device?.Id}共计{plst.Count}条");
             });
-          await   Ok();
+            await Ok();
         }
 
         [MqttRoute("attributes")]
@@ -87,7 +92,7 @@ namespace IoTSharp.Services.MQTTControllers
                 _logger.LogInformation($"{ClientId}的网关数据正在处理设备{dev}， 设备ID为{device?.Id}");
                 plst.ForEach(async p =>
                 {
-                    await _queue.PublishAttributeData(new PlayloadData() { DeviceId = device.Id,   ts = new DateTime(p.Ticks), MsgBody = p.Values, DataSide = DataSide.ClientSide, DataCatalog = DataCatalog.TelemetryData });
+                    await _queue.PublishAttributeData(new PlayloadData() { DeviceId = device.Id, ts = new DateTime(p.Ticks), MsgBody = p.Values, DataSide = DataSide.ClientSide, DataCatalog = DataCatalog.TelemetryData });
                 });
                 _logger.LogInformation($"{ClientId}的网关数据处理完成，设备{dev}ID为{device?.Id}共计{plst.Count}条");
             });
@@ -116,7 +121,7 @@ namespace IoTSharp.Services.MQTTControllers
             {
                 _logger.LogWarning("无法获取网关的子设备。");
             }
-             await Ok();
+            await Ok();
         }
 
         [MqttRoute("disconnect")]
@@ -167,7 +172,7 @@ namespace IoTSharp.Services.MQTTControllers
             try
             {
                 var _dev = GetSessionItem<Device>();
-               await _queue.PublishActive(_dev.Id, ActivityStatus.Activity);
+                await _queue.PublishActive(_dev.Id, ActivityStatus.Activity);
                 var result = await _rawData.ExecuteAsync(_dev, "json", Message.ConvertPayloadToString());
                 _logger.LogInformation($"调用Json网关处理语句返回:{result.Code}-{result.Msg}");
             }
@@ -176,6 +181,33 @@ namespace IoTSharp.Services.MQTTControllers
                 _logger.LogError(ex, $"调用Json网关失败:{ex.Message}");
             }
             await Ok();
+        }
+
+        [MqttRoute("kepserverex")]
+        public async Task KepServerEx()
+        {
+            try
+            {
+                var _dev = GetSessionItem<Device>();
+                if (_dev != null)
+                {
+                    await _queue.PublishActive(_dev.Id, ActivityStatus.Activity);
+                    var result = await _kep.ExecuteAsync(_dev, Message.Payload);
+                    _logger.LogInformation($"调用KepServerEx网关处理语句返回:{result.Code}-{result.Msg}");
+                    await Ok();
+                }
+                else
+                {
+                    await BadMessage();
+                    _logger.LogWarning($"调用KepServerEx网关时未找到设备");
+                }
+
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"调用KepServerEx失败:{ex.Message}");
+            }
+   
         }
     }
 }

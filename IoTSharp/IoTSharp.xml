@@ -1280,6 +1280,26 @@
              <param name="bizId">业务Id(第三方唯一Id，用于取回事件以及记录的标识)</param>
              <returns> 返回所有节点的记录信息，需要保存则保存</returns>
         </member>
+        <member name="P:IoTSharp.Gateways.OPCUATag.TagName">
+            <summary>
+            模拟器示例.函数._System._DemandPoll
+            </summary>
+        </member>
+        <member name="P:IoTSharp.Gateways.OPCUATag.TagValue">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="P:IoTSharp.Gateways.OPCUATag.TagQuality">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="P:IoTSharp.Gateways.OPCUATag.TagTimestamp">
+            <summary>
+            
+            </summary>
+        </member>
         <member name="P:IoTSharp.Models.Rule.NodeObject.nodetype">
             <summary>
             节点分组类型 （脚本，执行器）
