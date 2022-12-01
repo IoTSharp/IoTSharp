@@ -2,6 +2,7 @@ import { deviceApi } from '/@/api/devices';
 import _ from 'lodash-es';
 import { compute, dict } from '@fast-crud/fast-crud';
 import { TableDataRow } from '/@/views/iot/devices/model';
+import { ElMessage } from "element-plus";
 // eslint-disable-next-line no-unused-vars
 export const createDevicePropsCrudOptions = function ({ expose }, deviceId) {
 	const deviceId_param = deviceId;
@@ -136,10 +137,9 @@ export const createDevicePropsCrudOptions = function ({ expose }, deviceId) {
 						component: customSwitchComponent,
 					},
 				},
-				lastActivityDateTime: {
+				dateTime: {
 					title: '时间',
 					type: 'text',
-					search: { show: false },
 					addForm: {
 						show: false,
 					},
@@ -147,7 +147,17 @@ export const createDevicePropsCrudOptions = function ({ expose }, deviceId) {
 						show: false,
 					},
 				},
-			},
+				value: {
+					title: '值',
+                    type: 'text',
+                    addForm: {
+                        show: false,
+					},
+					editForm: {
+						show: false,
+					},
+				}
+			}
 		},
 	};
 };
