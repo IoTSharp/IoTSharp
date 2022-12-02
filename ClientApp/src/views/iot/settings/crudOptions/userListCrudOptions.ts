@@ -14,7 +14,7 @@ export const createUserListCrudOptions = function ({ expose }, customerId) {
 	};
 	const pageRequest = async (query) => {
 		let {
-			form: { name },
+			form: { userName: name },
 			page: { currentPage: offset, pageSize: limit },
 		} = query;
 		offset = offset === 1 ? 0 : offset - 1;
