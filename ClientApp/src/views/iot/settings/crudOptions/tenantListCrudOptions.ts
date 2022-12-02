@@ -17,10 +17,10 @@ export const createTenantListCrudOptions = function ({ expose }) {
 	const pageRequest = async (query) => {
 		let {
 			form: { name },
-			page: { currentPage, pageSize: limit },
+			page: { currentPage: offset, pageSize: limit },
 		} = query;
-		currentPage = currentPage === 1 ? 0 : currentPage - 1;
-		const res = await tenantApi().tenantList({ name, limit: limit, offset: currentPage });
+		offset = offset === 1 ? 0 : offset - 1;
+		const res = await tenantApi().tenantList({ name, limit, offset });
 		return {
 			records: res.data.rows,
 			currentPage: 1,

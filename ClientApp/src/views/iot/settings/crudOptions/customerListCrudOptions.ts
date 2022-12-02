@@ -5,7 +5,6 @@ import { ElMessage } from 'element-plus';
 import { useRouter } from 'vue-router';
 // eslint-disable-next-line no-unused-vars
 export const createCustomerListCrudOptions = function ({ expose }, tenantId) {
-	const tenantId_param = tenantId;
 	const router = useRouter();
 	let records: any[] = [];
 	const FsButton = {
@@ -18,10 +17,10 @@ export const createCustomerListCrudOptions = function ({ expose }, tenantId) {
 	const pageRequest = async (query) => {
 		let {
 			form: { name },
-			page: { currentPage, pageSize: limit },
+			page: { currentPage: offset, pageSize: limit },
 		} = query;
-		currentPage = currentPage === 1 ? 0 : currentPage - 1;
-		const res = await customerApi().customerList({ name, limit: limit, offset: currentPage, tenantId: tenantId_param });
+		offset = offset === 1 ? 0 : offset - 1;
+		const res = await customerApi().customerList({ name, limit, offset, tenantId });
 		return {
 			records: res.data.rows,
 			currentPage: 1,
@@ -53,7 +52,7 @@ export const createCustomerListCrudOptions = function ({ expose }, tenantId) {
 		try {
 			await customerApi().postCustomer({
 				...form,
-				tenantId: tenantId_param,
+				tenantId,
 			});
 			records.push(form);
 			return form;
