@@ -513,6 +513,7 @@ namespace IoTSharp.Controllers
         /// 锁定用户 
         /// </summary>
         /// <param name="Id"></param>
+        /// <param name="opt">Status msg返回状态，Lock 锁定，Unlock 解锁  </param>
         /// <returns>
         /// UserAlreadyExists = 10020,
         /// NotFoundUser = 10021,
@@ -520,78 +521,70 @@ namespace IoTSharp.Controllers
         ///LockUserHaveError = 10023
         ///</returns>
         [HttpPut]
-        public async Task<ApiResult> LockOut(string Id)
+        public async Task<ApiResult> Lock(string Id, LockOpt opt)
         {
+            var result = new ApiResult();
             var user = await _userManager.FindByIdAsync(Id);
             if (user != null)
             {
                 var les = await _userManager.GetLockoutEnabledAsync(user);
-                if (!les)
+                switch (opt)
                 {
-                    var lce = await _userManager.SetLockoutEnabledAsync(user, true);
-                    les = lce.Succeeded;
-                }
-                if (les )
-                {
-                    var led = await _userManager.SetLockoutEndDateAsync(user, DateTimeOffset.MaxValue);
-                    if (led.Succeeded)
-                    {
-                        return new ApiResult(ApiCode.Success,"OK");
-                    }
-                    else
-                    {
-                        return new ApiResult(ApiCode.LockUserHaveError, "锁定用户时遇到错误"+string.Join(';', led.Errors.Select(c => $"{c.Code}-{c.Description}")));
-                    }
-                }
-                else
-                {
-                    return new ApiResult(ApiCode.CanNotLockUser, "无法锁定此用户");
-                }
+                    case LockOpt.Status:
+                        result = new ApiResult(ApiCode.Success, $"{les}");
+                        break;
+                    case LockOpt.Lock:
+                        var   lce = await _userManager.SetLockoutEnabledAsync(user, true);
+                        if (lce.Succeeded)
+                        {
+                            var led = await _userManager.SetLockoutEndDateAsync(user, DateTimeOffset.MaxValue);
+                            if (led.Succeeded)
+                            {
+                                result= new ApiResult(ApiCode.Success, "OK");
+                            }
+                            else
+                            {
+                                result= new ApiResult(ApiCode.LockUserHaveError, "锁定用户时遇到错误" + string.Join(';', led.Errors.Select(c => $"{c.Code}-{c.Description}")));
+                            }
+                        }
+                        else
+                        {
+                            result= new ApiResult(ApiCode.CanNotLockUser, "无法锁定此用户"); 
+                        }
                
+                        break;
+                    case LockOpt.Unlock:
+                        if (les)
+                        {
+                            var led = await _userManager.SetLockoutEnabledAsync(user, false);
+                            if (led.Succeeded)
+                            {
+                                result= new ApiResult(ApiCode.Success, "OK");
+                            }
+                            else
+                            {
+                                result = new ApiResult(ApiCode.UnLockUserHaveError, "解锁用户时遇到错误" + string.Join(';', led.Errors.Select(c => $"{c.Code}-{c.Description}")));
+                            }
+                        }
+                        else
+                        {
+                            result = new ApiResult(ApiCode.CanNotUnLockUser, "无法解锁此用户");
+                        }
+                        break;
+                    default:
+                        break;
+                }
+            }
+            else
+            {
+                result= new ApiResult(ApiCode.NotFoundUser, "未找到此用户"); 
             }
 
-            return new ApiResult(ApiCode.NotFoundUser, "未找到此用户");
+            return result;
 
         }
      
-      
-        /// <summary>
-        /// 解锁用户
-        /// </summary>
-        /// <param name="Id"></param>
-        /// <returns> 
-        ///   CanNotUnLockUser = 10024,
-        /// UnLockUserHaveError = 10025,
-        /// </returns>
-        [HttpPut]
-        public async Task<ApiResult> Unlock(string Id)
-        {
-            var user = await _userManager.FindByIdAsync(Id);
-            if (user != null)
-            {
-                var les = await _userManager.GetLockoutEnabledAsync(user);
-                if (les)
-                {
-                    var led = await _userManager.SetLockoutEnabledAsync(user, false);
-                    if (led.Succeeded)
-                    {
-                        return new ApiResult(ApiCode.Success, "OK");
-                    }
-                    else
-                    {
-                        return new ApiResult(ApiCode.UnLockUserHaveError, "解锁用户时遇到错误" + string.Join(';', led.Errors.Select(c => $"{c.Code}-{c.Description}")));
-                    }
-                }
-                else
-                {
-                    return new ApiResult(ApiCode.CanNotUnLockUser, "无法解锁此用户");
-                }
-
-            }
-            return new ApiResult(ApiCode.NotFoundUser, "未找到此用户");
-        }
-
-
+ 
         /// <summary>
         /// 修改用户信息
         /// </summary>

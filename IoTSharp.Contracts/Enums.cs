@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Runtime.Serialization;
 using System.Security.Claims;
 using System.Threading.Tasks;
 
@@ -46,8 +47,26 @@ namespace IoTSharp.Contracts
         NotEnableTls = 10026,
         NeedServerIPAddress = 10027,
     }
-
- 
+    [System.Text.Json.Serialization.JsonConverter(typeof(System.Text.Json.Serialization.JsonStringEnumConverter))]
+    [JsonConverter(typeof(StringEnumConverter))]
+    public enum LockOpt
+    {
+        /// <summary>
+        /// 获取状态
+        /// </summary>
+        [EnumMember()]
+        Status,
+        /// <summary>
+        /// 锁定用户
+        /// </summary>
+        [EnumMember()]
+        Lock,
+        /// <summary>
+        /// 解锁用户
+        /// </summary>
+        [EnumMember()]
+        Unlock
+    }
 
     [System.Text.Json.Serialization.JsonConverter(typeof(System.Text.Json.Serialization.JsonStringEnumConverter))]
     [JsonConverter(typeof(StringEnumConverter))]

@@ -143,7 +143,7 @@
             <param name="Id"></param>
             <returns></returns>
         </member>
-        <member name="M:IoTSharp.Controllers.AccountController.LockOut(System.String)">
+        <member name="M:IoTSharp.Controllers.AccountController.Lock(System.String,IoTSharp.Contracts.LockOpt)">
              <summary>
              锁定用户 
              </summary>
