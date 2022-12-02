@@ -101,8 +101,8 @@ export const createCustomerListCrudOptions = function ({ expose }, tenantId) {
 						},
 					},
 					custom: {
-						text: '人员管理',
-						title: '人员管理',
+						text: '用户管理',
+						title: '用户管理',
 						icon: 'User',
 						order: 1,
 						type: 'info',
