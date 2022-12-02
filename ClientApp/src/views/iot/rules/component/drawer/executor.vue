@@ -4,7 +4,14 @@
       <!-- 扩展表单 -->
       <el-tab-pane label="配置" name="1">
         <el-scrollbar>
-          <div id="codeEditBox" style="height: 300px; padding: 10px"></div>
+          <monaco
+            :height="configheight"
+            :width="configwidth"
+            theme="vs-dark"
+            v-model="node.content"
+            language="json"
+            selectOnLineNumbers="true"
+          ></monaco>
         </el-scrollbar>
       </el-tab-pane>
       <!-- 节点编辑 -->
@@ -93,12 +100,16 @@ import {
   ref,
   nextTick,
   getCurrentInstance,
+Ref,
 } from "vue";
-import { ElMessage } from "element-plus";
-import * as monaco from "monaco-editor";
+import { ElButton, ElForm, ElFormItem, ElInput, ElMessage, ElScrollbar, ElTabPane, ElTabs } from "element-plus";
+import monaco from "/@/components/monaco/monaco.vue";
+import node from "element-plus/es/components/cascader-panel/src/node";
 // 定义接口来定义对象的类型
 interface WorkflowDrawerNodeState {
-  node: { [key: string]: any };
+  configwidth: string;
+  configheight: string;
+  node: nodedata;
   nodeRules: any;
   form: any;
   tabsActive: string;
@@ -107,20 +118,62 @@ interface WorkflowDrawerNodeState {
   };
 }
 
+interface nodedata {
+  id?: string;
+  contextMenuClickId?: number;
+  content?: string;
+  from?: string;
+  icon?: string;
+  label?: string;
+  left?: string;
+  mata?: string;
+  name?: string;
+  nodeId?: string;
+  nodeclass?: string;
+  nodenamespace?: string;
+  nodetype?: string;
+  result?: string;
+  top?: string;
+  type?: string;
+}
 export default defineComponent({
   name: "excutorpanel",
+
+  props: {
+    modelValue: {
+      type: String,
+      default: "",
+    },
+    
+  },
+
   setup(props, { emit }) {
-    const text = ref("");
-    const language = ref("json");
-    const msg = ref();
-    const loading = ref(false);
-    let editor: monaco.editor.IStandaloneCodeEditor;
+
+  console.log(props.modelValue)
+
     const { proxy } = <any>getCurrentInstance();
     const nodeFormRef = ref();
     const extendFormRef = ref();
     const chartsMonitorRef = ref();
     const state = reactive<WorkflowDrawerNodeState>({
-      node: {},
+      configwidth: "100%",
+      configheight: "300px",
+      node:{
+        content: props.modelValue,
+        contextMenuClickId: 0,
+        from: "",
+        icon: "",
+        label: "",
+        left: "",
+        mata: "",
+        nodeId: "",
+        nodeclass: "",
+        nodenamespace: "",
+        nodetype: "",
+        result: "",
+        top: "",
+        type: "",
+      },
       nodeRules: {
         id: [{ required: true, message: "请输入数据id", trigger: "blur" }],
         nodeId: [{ required: true, message: "请输入节点id", trigger: "blur" }],
@@ -141,9 +194,13 @@ export default defineComponent({
     // 获取父组件数据
     const getParentData = (data: object) => {
       state.tabsActive = "1";
-      state.node = data;
-      editorInit();
+      state.node= data;
     };
+
+    onMounted(() => {
+  
+
+    });
     // 节点编辑-重置
     const onNodeRefresh = () => {
       state.node.icon = "";
@@ -177,46 +234,6 @@ export default defineComponent({
         } else {
           return false;
         }
-      });
-    };
-
-    const editorInit = () => {
-      nextTick(() => {
-        monaco.languages.typescript.javascriptDefaults.setDiagnosticsOptions({
-          noSemanticValidation: true,
-          noSyntaxValidation: false,
-        });
-        monaco.languages.typescript.javascriptDefaults.setCompilerOptions({
-          target: monaco.languages.typescript.ScriptTarget.ES2016,
-          allowNonTsExtensions: true,
-        });
-
-        !editor
-          ? (editor = monaco.editor.create(
-              document.getElementById("codeEditBox") as HTMLElement,
-              {
-                value: state.node.content ?? "", // 编辑器初始显示文字
-                language: "json", // 语言支持自行查阅demo
-                automaticLayout: true, // 自适应布局
-                theme: "vs-dark", // 官方自带三种主题vs, hc-black, or vs-dark
-                foldingStrategy: "indentation",
-                renderLineHighlight: "all", // 行亮
-                selectOnLineNumbers: true, // 显示行号
-                minimap: {
-                  enabled: false,
-                },
-                readOnly: false, // 只读
-                fontSize: 16, // 字体大小
-                scrollBeyondLastLine: false, // 取消代码后面一大段空白
-                overviewRulerBorder: false, // 不要滚动条的边框
-              }
-            ))
-          : editor.setValue(state.node.content ?? "");
-        // console.log(editor)
-        // 监听值的变化
-        editor.onDidChangeModelContent((val: any) => {
-          state.node.content = editor.getValue();
-        });
       });
     };
 

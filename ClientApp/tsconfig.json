@@ -28,7 +28,7 @@
 	"include": [
 		"src/**/*.ts",
 		"src/**/*.tsx",
-		"src/**/*.vue",
+		"src/**/*.vue", "src/views/iot/devices/devicepropOptions.js", "src/views/iot/devices/devicepropOptions.js",
 	],
 	"references": [{ "path": "./tsconfig.node.json" }]
 }

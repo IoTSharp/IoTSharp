@@ -20,7 +20,14 @@
               ></i>
             </div> -->
 
-            <div id="codeEditBox" style="height: 300px; padding: 10px"></div>
+            <monaco
+              height="300px"
+              width="100%"
+              theme="vs-dark"
+              v-model="node.content"
+              :language="language"
+              selectOnLineNumbers="true"
+            ></monaco>
           </div>
         </el-scrollbar>
       </el-tab-pane>
@@ -108,21 +115,14 @@ import {
   reactive,
   toRefs,
   ref,
-  nextTick,
   getCurrentInstance,
 } from "vue";
 import { ElMessage } from "element-plus";
-import jsonWorker from "monaco-editor/esm/vs/language/json/json.worker?worker";
-import cssWorker from "monaco-editor/esm/vs/language/css/css.worker?worker";
-import htmlWorker from "monaco-editor/esm/vs/language/html/html.worker?worker";
-import tsWorker from "monaco-editor/esm/vs/language/typescript/ts.worker?worker";
-import EditorWorker from "monaco-editor/esm/vs/editor/editor.worker?worker";
-import * as monaco from "monaco-editor";
-import { stat } from "fs";
 
 // 定义接口来定义对象的类型
 interface WorkflowDrawerNodeState {
   node: { [key: string]: any };
+  language: string;
   nodeRules: any;
   form: any;
   tabsActive: string;
@@ -134,33 +134,6 @@ interface WorkflowDrawerNodeState {
 export default defineComponent({
   name: "scriptpanel",
   setup(props, { emit }) {
-    self.MonacoEnvironment = {
-      getWorker(_: string, label: string) {
-        // if (label === "json") {
-        //   return new jsonWorker();
-        // }
-        if (label === "json") {
-          return new jsonWorker();
-        }
-        if (label === "css" || label === "scss" || label === "less") {
-          return new cssWorker();
-        }
-        if (label === "html" || label === "handlebars" || label === "razor") {
-          return new htmlWorker();
-        }
-        if (["typescript", "javascript"].includes(label)) {
-          return new tsWorker();
-        }
-        return new EditorWorker();
-      },
-    };
-
-    const text = ref("");
-    const language = ref("");
-    const msg = ref();
-    const loading = ref(false);
-    let editor: monaco.editor.IStandaloneCodeEditor;
-    var IsMax = ref(false);
     const { proxy } = <any>getCurrentInstance();
     const nodeFormRef = ref();
     const extendFormRef = ref();
@@ -169,6 +142,7 @@ export default defineComponent({
 
     const state = reactive<WorkflowDrawerNodeState>({
       node: {},
+      language: "json",
       nodeRules: {
         id: [{ required: true, message: "请输入数据id", trigger: "blur" }],
         nodeId: [{ required: true, message: "请输入节点id", trigger: "blur" }],
@@ -190,7 +164,7 @@ export default defineComponent({
     const getParentData = (data: object) => {
       state.tabsActive = "1";
       state.node = data;
-      editorInit(state.node.mate);
+      state.language = state.node.mate;
     };
     // 节点编辑-重置
     const onNodeRefresh = () => {
@@ -228,61 +202,9 @@ export default defineComponent({
       });
     };
     // 图表可视化-初始化
-    const editorInit = (scripttype: string) => {
-      nextTick(() => {
-        monaco.languages.typescript.javascriptDefaults.setDiagnosticsOptions({
-          noSemanticValidation: true,
-          noSyntaxValidation: false,
-        });
-        monaco.languages.typescript.javascriptDefaults.setCompilerOptions({
-          target: monaco.languages.typescript.ScriptTarget.ES2016,
-          allowNonTsExtensions: true,
-        });
 
-        !editor
-          ? (editor = monaco.editor.create(
-              document.getElementById("codeEditBox") as HTMLElement,
-              {
-                value: state.node.content ?? "", // 编辑器初始显示文字
-                language: scripttype, // 语言支持自行查阅demo
-                automaticLayout: true, // 自适应布局
-                theme: "vs-dark", // 官方自带三种主题vs, hc-black, or vs-dark
-                foldingStrategy: "indentation",
-                renderLineHighlight: "all", // 行亮
-                selectOnLineNumbers: true, // 显示行号
-                minimap: {
-                  enabled: false,
-                },
-                readOnly: false, // 只读
-                fontSize: 16, // 字体大小
-                scrollBeyondLastLine: false, // 取消代码后面一大段空白
-                overviewRulerBorder: false, // 不要滚动条的边框
-              }
-            ))
-          : editor.setValue(state.node.content ?? "");
-
-        // 监听值的变化
-        editor.onDidChangeModelContent((val: any) => {
-          state.node.content = editor.getValue();
-        });
-      });
-    };
-
-    const maxEditor = () => {
-      document.getElementById("codeEditBox") as HTMLElement;
-      editor.layout({
-        height: document.body.clientHeight,
-        width: document.body.clientWidth,
-      });
-    };
-    const minEditor = () => {
-      document.getElementById("codeEditBox") as HTMLElement;
-    };
     return {
       codeContainer,
-      IsMax,
-      maxEditor,
-      minEditor,
       nodeFormRef,
       extendFormRef,
       chartsMonitorRef,
