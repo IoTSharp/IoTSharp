@@ -27,10 +27,10 @@ namespace IoTSharp.Gateways
 
         public List<string> TagPath => TagName?.Split('.').ToList();
 
-        public bool IsSystem => (TagPath?.Contains("_System")).GetValueOrDefault();
+        public bool IsSystem => (TagPath?.Count==4 && TagPath[2]== "_System");
 
         public string DeviceName => TagPath[1];
-        public string TelemetryName => TagPath[2];
+        public string TelemetryName => IsSystem? TagPath[3]:TagPath[2];
 
         public bool CanUse => (TagPath?.Count()).GetValueOrDefault() >= 2;
         /// <summary>
@@ -99,14 +99,15 @@ namespace IoTSharp.Gateways
                 var device = _dev.JudgeOrCreateNewDevice(dev, _scopeFactor, _logger);
                 await _queue.PublishActive(device.Id, ActivityStatus.Activity);
                 _logger.LogInformation($"{_dev.Name}的网关数据正在处理设备{dev}， 设备ID为{_dev?.Id}");
-                var plst = from d in kp.Tags where d.CanUse &&  d.DeviceName == dev select new KeyValuePair<string, object>(d.TagName, d.TagValue.ToObject());
+                var plst = from d in kp.Tags where d.CanUse &&  d.DeviceName == dev select new KeyValuePair<string, object>(d.TelemetryName, d.TagValue.ToObject());
+
                 if (plst.Any())
                 {
                     await _queue.PublishTelemetryData(new PlayloadData()
                     {
                         DeviceId = device.Id,
                         ts = kp.DateTime,
-                        MsgBody = new Dictionary<string, object>(plst),
+                        MsgBody = new Dictionary<string, object>(plst.DistinctBy(k=>k.Key)),
                         DataSide = DataSide.ClientSide,
                         DataCatalog = DataCatalog.TelemetryData
                     });
@@ -120,7 +121,7 @@ namespace IoTSharp.Gateways
                 {
                     DeviceId = _dev.Id,
                     ts = kp.DateTime,
-                    MsgBody = new Dictionary<string, object>(_sys),
+                    MsgBody = new Dictionary<string, object>(_sys.DistinctBy(k=>k.Key)),
                     DataSide = DataSide.ClientSide,
                     DataCatalog = DataCatalog.TelemetryData
                 });
