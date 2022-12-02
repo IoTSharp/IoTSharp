@@ -11,7 +11,7 @@ namespace IoTSharp.Data
         [Key]
         public Guid Id { get; set; } = Guid.NewGuid();
         public string Name { get; set; }
-        public string EMail { get; set; }
+        public string Email { get; set; }
         public string Phone { get; set; }
         public string Country { get; set; }
         public string Province { get; set; }
