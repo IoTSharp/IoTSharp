@@ -33,6 +33,13 @@ export function accountApi() {
 				data: data,
 			});
 		},
+		updateAccountStatus: (data: any) => {
+			return request({
+				url: '/api/Account/Lock',
+				method: 'put',
+				data: data,
+			});
+		},
 		deleteAccount: (id: string) => {
 			return request({
 				url: '/api/Account/' + id,
@@ -45,5 +52,5 @@ export function accountApi() {
 
 export interface CustomerQueryParam extends IListQueryParam {
 	name?: string;
-	customerId?: string
+	customerId?: string;
 }
