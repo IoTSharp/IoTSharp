@@ -32,7 +32,7 @@ namespace IoTSharp.Controllers
     [ApiController]
     [Authorize]
     [Route("api/[controller]/[action]")]
-    public class AccountController : ControllerBase
+    public partial class AccountController : ControllerBase
     {
         private ApplicationDbContext _context;
         private readonly AppSettings _settings;
@@ -512,11 +512,11 @@ namespace IoTSharp.Controllers
         }
 
 
+
         /// <summary>
         /// 锁定用户 
         /// </summary>
-        /// <param name="Id"></param>
-        /// <param name="opt">Status msg返回状态，Lock 锁定，Unlock 解锁  </param>
+        /// <param name="dto"></param>
         /// <returns>
         /// UserAlreadyExists = 10020,
         /// NotFoundUser = 10021,
@@ -524,14 +524,14 @@ namespace IoTSharp.Controllers
         ///LockUserHaveError = 10023
         ///</returns>
         [HttpPut]
-        public async Task<ApiResult> Lock(string Id, LockOpt opt)
+        public async Task<ApiResult> Lock(LockDto dto)
         {
             var result = new ApiResult();
-            var user = await _userManager.FindByIdAsync(Id);
+            var user = await _userManager.FindByIdAsync(dto.Id.ToString());
             if (user != null)
             {
                 var les = await _userManager.GetLockoutEnabledAsync(user);
-                switch (opt)
+                switch (dto.Opt)
                 {
                     case LockOpt.Status:
                         result = new ApiResult(ApiCode.Success, $"{les}");
@@ -540,7 +540,7 @@ namespace IoTSharp.Controllers
                         var   lce = await _userManager.SetLockoutEnabledAsync(user, true);
                         if (lce.Succeeded)
                         {
-                            var led = await _userManager.SetLockoutEndDateAsync(user, DateTimeOffset.MaxValue);
+                            var led = await _userManager.SetLockoutEndDateAsync(user, DateTimeOffset.Now.AddYears(100));
                             if (led.Succeeded)
                             {
                                 result= new ApiResult(ApiCode.Success, "OK");
@@ -562,7 +562,8 @@ namespace IoTSharp.Controllers
                             var led = await _userManager.SetLockoutEnabledAsync(user, false);
                             if (led.Succeeded)
                             {
-                                result= new ApiResult(ApiCode.Success, "OK");
+                                await _userManager.SetLockoutEndDateAsync(user, DateTimeOffset.Now);
+                                result = new ApiResult(ApiCode.Success, "OK");
                             }
                             else
                             {

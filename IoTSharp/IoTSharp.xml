@@ -75,6 +75,12 @@
             用户管理
             </summary>
         </member>
+        <member name="M:IoTSharp.Controllers.AccountController.Avatar">
+            <summary>
+            获取当前用户的头像， 基于邮箱生成
+            </summary>
+            <returns></returns>
+        </member>
         <member name="M:IoTSharp.Controllers.AccountController.MyInfo">
             <summary>
             获取当前登录用户信息
@@ -143,12 +149,11 @@
             <param name="Id"></param>
             <returns></returns>
         </member>
-        <member name="M:IoTSharp.Controllers.AccountController.Lock(System.String,IoTSharp.Contracts.LockOpt)">
+        <member name="M:IoTSharp.Controllers.AccountController.Lock(IoTSharp.Dtos.LockDto)">
              <summary>
              锁定用户 
              </summary>
-             <param name="Id"></param>
-             <param name="opt">Status msg返回状态，Lock 锁定，Unlock 解锁  </param>
+             <param name="dto"></param>
              <returns>
              UserAlreadyExists = 10020,
              NotFoundUser = 10021,
@@ -1010,6 +1015,16 @@
         <member name="P:IoTSharp.Dtos.InstanceDto.Domain">
             <summary>
             http://localhost/  
+            </summary>
+        </member>
+        <member name="P:IoTSharp.Dtos.LockDto.Id">
+            <summary>
+            用户ID
+            </summary>
+        </member>
+        <member name="P:IoTSharp.Dtos.LockDto.Opt">
+            <summary>
+            用户锁定操作
             </summary>
         </member>
         <member name="P:IoTSharp.Dtos.ProduceAddDto.Name">
