@@ -13,7 +13,7 @@ export function customerApi() {
 	return {
 		customerList: (params: QueryParam) => {
 			return request({
-				url: `/api/Customers/Tenant/${params.tenantId}`,
+				url: `/api/Customers/Tenant`,
 				method: 'post',
 				data: params,
 			});
