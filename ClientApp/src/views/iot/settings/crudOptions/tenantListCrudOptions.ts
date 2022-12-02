@@ -3,7 +3,6 @@ import _ from 'lodash-es';
 import { useRouter } from 'vue-router';
 import { TableDataRow } from '../model/tenantListModel';
 import { ElMessage } from 'element-plus';
-// eslint-disable-next-line no-unused-vars
 export const createTenantListCrudOptions = function ({ expose }) {
 	let records: any[] = [];
 	const router = useRouter();
@@ -108,7 +107,7 @@ export const createTenantListCrudOptions = function ({ expose }) {
 						icon: 'Delete',
 						order: 3,
 						...FsButton,
-					}, //删除按钮
+					},
 				},
 			},
 			columns: {
@@ -116,7 +115,7 @@ export const createTenantListCrudOptions = function ({ expose }) {
 					title: '名称',
 					type: 'text',
 					column: { width: 200 },
-					search: { show: true }, //显示查询
+					search: { show: true },
 					addForm: {
 						show: true,
 						component: customSwitchComponent,
