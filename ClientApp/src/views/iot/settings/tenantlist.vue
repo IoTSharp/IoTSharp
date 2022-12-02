@@ -7,7 +7,7 @@
 <script lang="ts">
 import {useCrud} from "@fast-crud/fast-crud";
 import {useExpose} from "@fast-crud/fast-crud";
-import {createTenantListCrudOptions} from "./crudOptions/tenantlistCrudOptions"
+import {createTenantListCrudOptions} from "./crudOptions/tenantListCrudOptions"
 export default defineComponent({
   name: "TenantList", // 实际开发中可以修改一下name
   setup() {
