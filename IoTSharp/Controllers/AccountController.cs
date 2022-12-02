@@ -552,18 +552,27 @@ namespace IoTSharp.Controllers
                         }
                         else
                         {
-                            result= new ApiResult(ApiCode.CanNotLockUser, "无法锁定此用户"); 
+                            result= new ApiResult(ApiCode.CanNotLockUser, "无法锁定此用户" + string.Join(';', lce.Errors.Select(c => $"{c.Code}-{c.Description}"))); 
                         }
                
                         break;
                     case LockOpt.Unlock:
                         if (les)
                         {
-                            var led = await _userManager.SetLockoutEnabledAsync(user, false);
+                            var led = await _userManager.SetLockoutEndDateAsync(user, DateTimeOffset.Now);
+                         
                             if (led.Succeeded)
                             {
-                                await _userManager.SetLockoutEndDateAsync(user, DateTimeOffset.Now);
-                                result = new ApiResult(ApiCode.Success, "OK");
+                                var uld = await _userManager.SetLockoutEnabledAsync(user, false);
+                                if (uld.Succeeded)
+                                {
+
+                                    result = new ApiResult(ApiCode.Success, "OK");
+                                }
+                                else
+                                {
+                                    result = new ApiResult(ApiCode.LockUserHaveError, "解锁用户时遇到错误" + string.Join(';', uld.Errors.Select(c => $"{c.Code}-{c.Description}")));
+                                }
                             }
                             else
                             {
