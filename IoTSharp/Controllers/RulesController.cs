@@ -663,153 +663,165 @@ namespace IoTSharp.Controllers
         public ApiResult<bool> SaveDiagramV(ModelDiagram m)
         {
             var profile = this.GetUserProfile();
-            var CreatorId = Guid.NewGuid();
-            var CreateDate = DateTime.Now;
-            var rule = _context.FlowRules.Include(c => c.Customer).Include(c => c.Tenant).AsSplitQuery().FirstOrDefault(c => c.RuleId == m.RuleId);
-            rule.Creator = profile.Id.ToString();
-            rule.CreateId = CreatorId;
-            _context.Flows.Where(c => c.FlowRule.RuleId == rule.RuleId).ToList().ForEach(c =>
+            try
             {
-                c.FlowStatus = -1;
-            });
-            _context.FlowRules.Update(rule);
-            _context.SaveChanges();
-            foreach (var item in m.nodes)
-            {
-                switch (item.nodetype)
+                var CreatorId = Guid.NewGuid();
+                var CreateDate = DateTime.Now;
+                var rule = _context.FlowRules.Include(c => c.Customer).Include(c => c.Tenant).AsSplitQuery().FirstOrDefault(c => c.RuleId == m.RuleId);
+                rule.Creator = profile.Id.ToString();
+                rule.CreateId = CreatorId;
+                _context.Flows.Where(c => c.FlowRule.RuleId == rule.RuleId).ToList().ForEach(c =>
                 {
+                    c.FlowStatus = -1;
+                });
+                _context.FlowRules.Update(rule);
+                _context.SaveChanges();
+                foreach (var item in m.nodes)
+                {
+                    switch (item.nodetype)
+                    {
 
-                    case "basic":
-                        {
-
-                            var node = new Flow
+                        case "basic":
                             {
-                                FlowRule = rule,
-                                Flowname = item.name,
-                                bpmnid = item.nodeId,
-                                FlowType = item.nodenamespace,
-                                FlowStatus = 1,
-                                CreateId = CreatorId,
-                                Createor = profile.Id,
-                                CreateDate = CreateDate,
-                                Customer = rule.Customer,
-                                Tenant = rule.Tenant,
 
-                                FlowClass = item.nodeclass,
-                                FlowNameSpace = item.nodetype,
-                                FlowIcon = item.icon,
-                                Top = item.top,
-                                Left = item.left
-                            };
-                            _context.Flows.AddRange(node);
-                            _context.SaveChanges();
-                        }
-                        break;
-                    case "executor":
-                        {
-                            var node = new Flow
+                                var node = new Flow
+                                {
+                                    FlowRule = rule,
+                                    Flowname = item.name,
+                                    bpmnid = item.nodeId,
+                                    FlowType = item.nodenamespace,
+                                    FlowStatus = 1,
+                                    CreateId = CreatorId,
+                                    Createor = profile.Id,
+                                    CreateDate = CreateDate,
+                                    Customer = rule.Customer,
+                                    Tenant = rule.Tenant,
+
+                                    FlowClass = item.nodeclass,
+                                    FlowNameSpace = item.nodetype,
+                                    FlowIcon = item.icon,
+                                    Top = item.top,
+                                    Left = item.left
+                                };
+                                _context.Flows.AddRange(node);
+                                _context.SaveChanges();
+                            }
+                            break;
+                        case "executor":
                             {
-                                FlowRule = rule,
-                                Flowname = item.name,
-                                bpmnid = item.nodeId,
-                                FlowType = item.nodenamespace,
-                                NodeProcessParams = item.content,
+                                var node = new Flow
+                                {
+                                    FlowRule = rule,
+                                    Flowname = item.name,
+                                    bpmnid = item.nodeId,
+                                    FlowType = item.nodenamespace,
+                                    NodeProcessParams = item.content,
 
-                                NodeProcessClass = item.mata,
-                                FlowStatus = 1,
-                                CreateId = CreatorId,
-                                Createor = profile.Id,
-                                CreateDate = CreateDate,
-                                Customer = rule.Customer,
-                                Tenant = rule.Tenant,
+                                    NodeProcessClass = item.mata,
+                                    FlowStatus = 1,
+                                    CreateId = CreatorId,
+                                    Createor = profile.Id,
+                                    CreateDate = CreateDate,
+                                    Customer = rule.Customer,
+                                    Tenant = rule.Tenant,
 
-                                FlowClass = item.nodeclass,
-                                FlowNameSpace = item.nodetype,
-                                FlowIcon = item.icon,
-                                Top = item.top,
-                                Left = item.left
-                            };
-                            _context.Flows.AddRange(node);
-                            _context.SaveChanges();
-                        }
-                        break;
-                    case "script":
-                        {
-                            var node = new Flow
+                                    FlowClass = item.nodeclass,
+                                    FlowNameSpace = item.nodetype,
+                                    FlowIcon = item.icon,
+                                    Top = item.top,
+                                    Left = item.left
+                                };
+                                _context.Flows.AddRange(node);
+                                _context.SaveChanges();
+                            }
+                            break;
+                        case "script":
                             {
-                                FlowRule = rule,
-                                Flowname = item.name,
-                                bpmnid = item.nodeId,
-                                FlowType = item.nodenamespace,
-                                NodeProcessScript = item.content,
-                                NodeProcessScriptType = item.mata,
-                                FlowStatus = 1,
-                                CreateId = CreatorId,
-                                Createor = profile.Id,
-                                CreateDate = CreateDate,
-                                Customer = rule.Customer,
-                                Tenant = rule.Tenant,
+                                var node = new Flow
+                                {
+                                    FlowRule = rule,
+                                    Flowname = item.name,
+                                    bpmnid = item.nodeId,
+                                    FlowType = item.nodenamespace,
+                                    NodeProcessScript = item.content,
+                                    NodeProcessScriptType = item.mata,
+                                    FlowStatus = 1,
+                                    CreateId = CreatorId,
+                                    Createor = profile.Id,
+                                    CreateDate = CreateDate,
+                                    Customer = rule.Customer,
+                                    Tenant = rule.Tenant,
 
-                                FlowClass = item.nodeclass,
-                                FlowNameSpace = item.nodetype,
-                                FlowIcon = item.icon,
-                                Top = item.top,
-                                Left = item.left
-                            };
-                            _context.Flows.AddRange(node);
-                            _context.SaveChanges();
-                        }
-                        break;
+                                    FlowClass = item.nodeclass,
+                                    FlowNameSpace = item.nodetype,
+                                    FlowIcon = item.icon,
+                                    Top = item.top,
+                                    Left = item.left
+                                };
+                                _context.Flows.AddRange(node);
+                                _context.SaveChanges();
+                            }
+                            break;
+
+                    }
 
                 }
 
-            }
 
-
-            foreach (var item in m.lines)
-            {
-
-                var node = new Flow
+                foreach (var item in m.lines)
                 {
-                    FlowRule = rule,
-                    Flowname = item.linename,
-                    bpmnid = item.lineId,
-                    FlowType = item.linenamespace,
-                    TargetId = item.targetId,
-                    SourceId = item.sourceId,
-                    Conditionexpression = item.condition,
-                    FlowNameSpace = "line",
-                    FlowStatus = 1,
-                    CreateId = CreatorId,
-                    Createor = profile.Id,
-                    CreateDate = CreateDate,
-                    Customer = rule.Customer,
-                    Tenant = rule.Tenant
-                };
-                _context.Flows.AddRange(node);
-                _context.SaveChanges();
+
+                    var node = new Flow
+                    {
+                        FlowRule = rule,
+                        Flowname = item.linename,
+                        bpmnid = item.lineId,
+                        FlowType = item.linenamespace,
+                        TargetId = item.targetId,
+                        SourceId = item.sourceId,
+                        Conditionexpression = item.condition,
+                        FlowNameSpace = "line",
+                        FlowStatus = 1,
+                        CreateId = CreatorId,
+                        Createor = profile.Id,
+                        CreateDate = CreateDate,
+                        Customer = rule.Customer,
+                        Tenant = rule.Tenant
+                    };
+                    _context.Flows.AddRange(node);
+                    _context.SaveChanges();
+
+                }
+
+                return new ApiResult<bool>(ApiCode.Success, "Ok", true);
 
             }
-
-
-
-            return new ApiResult<bool>(ApiCode.Success, "Ok", true);
+            catch (Exception exception)
+            {
+                return new ApiResult<bool>(ApiCode.Exception, exception.Message, false);
+            }
+        
         }
 
         [HttpGet]
         public async Task<ApiResult<ModelDiagram>> GetDiagramV(Guid id)
         {
             var profile = this.GetUserProfile();
-            var ruleflow = await _context.FlowRules.FirstOrDefaultAsync(c => c.RuleId == id && c.Tenant.Id == profile.Tenant);
-            var flows = _context.Flows.Where(c => c.FlowRule.RuleId == id && c.FlowStatus > 0 && c.Tenant.Id == profile.Tenant).ToList();
-            ModelDiagram m = new ModelDiagram();
-            m.lines = new List<LineObject>();
-            m.nodes = new List<NodeObject>();
-            foreach (var item in flows)
+
+            try
             {
-                switch (item.FlowNameSpace)
+
+                var flows = await _context.Flows
+                    .Where(c => c.FlowRule.RuleId == id && c.FlowStatus > 0 && c.Tenant.Id == profile.Tenant)
+                    .ToListAsync();
+                ModelDiagram m = new ModelDiagram();
+                m.lines = new List<LineObject>();
+                m.nodes = new List<NodeObject>();
+                foreach (var item in flows)
                 {
-                    case "line":
+                    switch (item.FlowNameSpace)
+                    {
+                        case "line":
                         {
                             m.lines.Add(new LineObject()
                             {
@@ -820,8 +832,8 @@ namespace IoTSharp.Controllers
                                 lineId = item.bpmnid,
                             });
                         }
-                        break;
-                    case "basic":
+                            break;
+                        case "basic":
                         {
                             m.nodes.Add(new NodeObject()
                             {
@@ -836,8 +848,8 @@ namespace IoTSharp.Controllers
                                 left = item.Left
                             });
                         }
-                        break;
-                    case "script":
+                            break;
+                        case "script":
                         {
                             m.nodes.Add(new NodeObject()
                             {
@@ -854,8 +866,8 @@ namespace IoTSharp.Controllers
                                 left = item.Left
                             });
                         }
-                        break;
-                    case "executor":
+                            break;
+                        case "executor":
                         {
                             m.nodes.Add(new NodeObject()
                             {
@@ -873,14 +885,22 @@ namespace IoTSharp.Controllers
 
                             });
                         }
-                        break;
+                            break;
 
 
 
+                    }
                 }
+
+                return new ApiResult<ModelDiagram>(ApiCode.Success, "Ok", m);
+
+            }
+            catch (Exception exception)
+            {
+                return new ApiResult<ModelDiagram>(ApiCode.Exception, exception.Message, null);
             }
 
-            return new ApiResult<ModelDiagram>(ApiCode.Success, "Ok", m);
+
         }
 
 
