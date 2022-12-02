@@ -17,7 +17,9 @@ using Microsoft.AspNetCore.Mvc.Filters;
 
 namespace IoTSharp.Controllers
 {
-    
+    /// <summary>
+    /// 健康检查
+    /// </summary>
     [Route("api/[controller]")]
     [ApiController]
     public class HealthChecksController : ControllerBase
@@ -29,9 +31,8 @@ namespace IoTSharp.Controllers
             __serviceScopeFactory = scopeFactor;
         }
         ///<summary>
-        /// 返回指定id的客户
+        /// 获取相关服务的健康检查信息
         /// </summary>
-        /// <param name="id"></param>
         /// <returns></returns>
         [HttpGet()]
         [ProducesResponseType(StatusCodes.Status200OK)]

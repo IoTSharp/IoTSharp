@@ -17,6 +17,9 @@ using System.Threading.Tasks;
 
 namespace IoTSharp.Controllers
 {
+    /// <summary>
+    /// 运行指标信息
+    /// </summary>
     [Route("api/[controller]/[action]")]
     [ApiController]
     public class MetricsController : ControllerBase

@@ -29,14 +29,14 @@ namespace IoTSharp.EventBus
             var pf = _api.HourlyFailedJobs(MessageType.Publish);
             var ss = _api.HourlySucceededJobs(MessageType.Subscribe);
             var sf = _api.HourlyFailedJobs(MessageType.Subscribe);
-            var dayHour = ps.Keys.Select(x => x.ToString("MM-dd HH:00")).ToList();
+            var dayHour = ps.OrderBy(k => k.Key).Select(k => k.Key.ToString("MM-dd HH:00")).ToList();
             var s = _api.GetStatistics();
             var result = new EventBusMetrics(
 dayHour,
-ps.Values.ToList(),
-pf.Values.ToList(),
-ss.Values.ToList(),
-sf.Values.ToList()
+ps.OrderBy(k=>k.Key).Select(k=>k.Value).ToList(),
+pf.OrderBy(k => k.Key).Select(k => k.Value).ToList(),
+ss.OrderBy(k => k.Key).Select(k => k.Value).ToList(),
+sf.OrderBy(k => k.Key).Select(k => k.Value).ToList()
             )
             {
                 Servers = s.Servers,
