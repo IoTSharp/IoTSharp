@@ -2,9 +2,11 @@ import { customerApi } from '/@/api/customer';
 import _ from 'lodash-es';
 import {TableDataRow} from '../model/tenantListModel';
 import {ElMessage} from "element-plus";
+import { useRouter } from 'vue-router';
 // eslint-disable-next-line no-unused-vars
 export const createCustomerListCrudOptions = function ({expose}, tenantId) {
   const tenantId_param = tenantId;
+  const router = useRouter();
   let records: any[] = [];
   const FsButton = {
     link: true,
@@ -79,19 +81,38 @@ export const createCustomerListCrudOptions = function ({expose}, tenantId) {
         show: true,
       },
       rowHandle: {
-        width: 220,
+        width: 250,
         buttons: {
           view: {
             icon: 'View',
             ...FsButton,
+            show: false,
+          },
+          custom: {
+            text: '人员管理',
+            title: '人员管理',
+            icon: 'User',
+            order: 1,
+            type: 'info',
+            ...FsButton,
+            click: (e) => {
+              router.push({
+                path: '/iot/settings/userlist',
+                query: {
+                  id: e.row.id
+                }
+              })
+            }
           },
           edit: {
             icon: 'Edit',
             ...FsButton,
+            order: 2,
           },
           remove: {
             icon: 'Delete',
             ...FsButton,
+            order: 3,
           }, //删除按钮
         },
       },
