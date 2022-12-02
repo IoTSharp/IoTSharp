@@ -189,6 +189,7 @@ namespace IoTSharp
                 stdSchedulerFactoryOption.Add("quartz.plugin.recentHistory.storeType", "Quartz.Plugins.RecentHistory.Impl.InProcExecutionHistoryStore, Quartz.Plugins.RecentHistory");
             }
         );
+            services.AddResponseCompression();
             services.AddControllers();
 
             services.AddMemoryCache();
@@ -335,16 +336,12 @@ namespace IoTSharp
             app.UseAuthentication();
             app.UseAuthorization();
             app.UseDefaultFiles();
-                app.UseStaticFiles();
-         
-      
+            app.UseStaticFiles();
+            app.UseResponseCompression();
             app.UseIotSharpMqttServer();
-
             app.UseSwaggerUi3();
             app.UseOpenApi();
-
             app.UseSilkierQuartz();
-
             app.UseEventBus(opt =>
             {
                 var frp = app.ApplicationServices.GetService<FlowRuleProcessor>();

@@ -75,6 +75,17 @@
             用户管理
             </summary>
         </member>
+        <member name="M:IoTSharp.Controllers.AccountController.#ctor(Microsoft.AspNetCore.Identity.UserManager{Microsoft.AspNetCore.Identity.IdentityUser},Microsoft.AspNetCore.Identity.SignInManager{Microsoft.AspNetCore.Identity.IdentityUser},Microsoft.Extensions.Configuration.IConfiguration,Microsoft.Extensions.Logging.ILogger{IoTSharp.Controllers.AccountController},IoTSharp.Data.ApplicationDbContext,Microsoft.Extensions.Options.IOptions{IoTSharp.Contracts.AppSettings})">
+            <summary>
+            用户管理
+            </summary>
+            <param name="userManager"></param>
+            <param name="signInManager"></param>
+            <param name="configuration"></param>
+            <param name="logger"></param>
+            <param name="context"></param>
+            <param name="options"></param>
+        </member>
         <member name="M:IoTSharp.Controllers.AccountController.Avatar">
             <summary>
             获取当前用户的头像， 基于邮箱生成
