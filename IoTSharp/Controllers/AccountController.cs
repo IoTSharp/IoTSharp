@@ -56,7 +56,10 @@ namespace IoTSharp.Controllers
             _context = context;
             _settings = options.Value;
         }
-
+        /// <summary>
+        /// 获取当前用户的头像， 基于邮箱生成
+        /// </summary>
+        /// <returns></returns>
         [HttpGet, AllowAnonymous]
         public async Task<IActionResult> Avatar()
         {

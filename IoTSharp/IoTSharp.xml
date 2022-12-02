@@ -148,21 +148,12 @@
              锁定用户 
              </summary>
              <param name="Id"></param>
+             <param name="opt">Status msg返回状态，Lock 锁定，Unlock 解锁  </param>
              <returns>
              UserAlreadyExists = 10020,
              NotFoundUser = 10021,
              CanNotLockUser = 10022,
             LockUserHaveError = 10023
-            </returns>
-        </member>
-        <member name="M:IoTSharp.Controllers.AccountController.Unlock(System.String)">
-            <summary>
-            解锁用户
-            </summary>
-            <param name="Id"></param>
-            <returns> 
-              CanNotUnLockUser = 10024,
-            UnLockUserHaveError = 10025,
             </returns>
         </member>
         <member name="M:IoTSharp.Controllers.AccountController.Modify(IoTSharp.Dtos.UserItemDto)">
