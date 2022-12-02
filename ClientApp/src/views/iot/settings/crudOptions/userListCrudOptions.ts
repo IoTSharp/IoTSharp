@@ -87,7 +87,7 @@ export const createUserListCrudOptions = function ({ expose }, customerId) {
 			},
 			columns: {
 				id: {
-					title: 'id',
+					title: 'Id',
 					type: 'text',
 					column: { width: 300 },
 					editForm: {
@@ -153,7 +153,7 @@ export const createUserListCrudOptions = function ({ expose }, customerId) {
 					},
 				},
 				lockoutEnd: {
-					title: '锁定时间',
+					title: '锁定截止时间',
 					column: { width: 150 },
 					type: 'text',
 					editForm: {
