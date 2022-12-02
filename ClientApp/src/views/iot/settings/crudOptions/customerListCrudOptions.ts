@@ -77,16 +77,32 @@ export const createCustomerListCrudOptions = function ({ expose }, tenantId) {
 				show: true,
 			},
 			rowHandle: {
-				width: 250,
+				width: 320,
 				buttons: {
 					view: {
 						icon: 'View',
 						...FsButton,
 						show: false,
 					},
+					device: {
+						text: '设备管理',
+						title: '设备管理',
+						icon: 'Cpu',
+						order: 1,
+						type: 'default',
+						...FsButton,
+						click: (e) => {
+							router.push({
+								path: '/iot/devices/devicelist',
+								query: {
+									id: e.row.id,
+								},
+							});
+						},
+					},
 					custom: {
-						text: '人员管理',
-						title: '人员管理',
+						text: '用户管理',
+						title: '用户管理',
 						icon: 'User',
 						order: 1,
 						type: 'info',
