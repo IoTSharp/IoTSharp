@@ -18,6 +18,12 @@
           </el-icon>
           查询
         </el-button>
+        <el-button size="default" type="success" @click="creatprod()" class="ml10">
+          <el-icon>
+            <ele-FolderAdd />
+          </el-icon>
+          新增产品
+        </el-button>
       </div>
       <el-table :data="tableData.rows" style="width: 100%" row-key="id">
         <el-table-column
@@ -118,7 +124,10 @@
     </el-card>
     <produceform ref="produceformRef" />
     <producedatadictionaryform ref="producedatadictionaryformRef" />
-        <producepropform ref="producepropformRef" />
+    <producepropform ref="producepropformRef" />
+     <propform ref="propformRef"></propform>
+
+
     <!-- <flowdesigner ref="flowdesignerRef" /> -->
   </div>
 </template>
@@ -136,10 +145,13 @@ import {
   ElTable,
   ElTableColumn,
 } from "element-plus";
+
+import propform from "./../devices/propform.vue";
+
 import produceform from "./produceform.vue";
 import producepropform from "./producepropform.vue";
 import producedatadictionaryform from "./producedatadictionaryform.vue";
-
+import { v4 as uuidv4, NIL as NIL_UUID } from "uuid";
 import { Session } from "/@/utils/storage";
 import { getProduceList } from "/@/api/produce";
 import { appmessage } from "/@/api/iapiresult";
@@ -173,12 +185,12 @@ interface TableDataState {
 }
 export default defineComponent({
   name: "producelist",
-  components: { produceform, producedatadictionaryform,producepropform },
+  components: { produceform, producedatadictionaryform, producepropform,propform },
   setup() {
     const produceformRef = ref();
     const producedatadictionaryformRef = ref();
     const producepropformRef = ref();
-    
+    const propformRef = ref();
     const userInfos = Session.get("userInfo");
     const router = useRouter();
     const state = reactive<TableDataState>({
@@ -225,25 +237,27 @@ export default defineComponent({
     });
 
     const creatprod = () => {
-      produceformRef.value.openDialog("0000000-0000-0000-0000-000000000000");
+
+    //    propformRef.value.openDialog();
+    produceformRef.value.openDialog(NIL_UUID);
     };
     const editprod = (row: TableDataRow) => {
-
       produceformRef.value.openDialog(row.id);
     };
     const editprop = (row: TableDataRow) => {
       producepropformRef.value.openDialog(row.id);
-      
-
     };
     const editdict = (row: TableDataRow) => {
-      producedatadictionaryformRef.value.openDialog();
+      producedatadictionaryformRef.value.openDialog(row.id);
     };
     const creatdevice = (row: TableDataRow) => {};
     const navtodevice = (row: TableDataRow) => {};
     const deleteprod = (row: TableDataRow) => {};
     return {
-      produceformRef,producedatadictionaryformRef,producepropformRef,
+      produceformRef,
+      producedatadictionaryformRef,
+      producepropformRef,propformRef,
+      creatprod,
       editprod,
       editprop,
       editdict,

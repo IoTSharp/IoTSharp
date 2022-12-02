@@ -54,7 +54,7 @@ import { ref, toRefs, reactive, onMounted, defineComponent, watchEffect } from "
 import { ElMessageBox, ElMessage } from "element-plus";
 import { ruleApi } from "/@/api/flows";
 import { appmessage } from "/@/api/iapiresult";
-
+import { v4 as uuidv4, NIL as NIL_UUID } from "uuid";
 interface ruleform {
   drawer: boolean;
   dialogtitle: string;
@@ -63,66 +63,86 @@ interface ruleform {
 }
 
 export default defineComponent({
-  name: 'addflow',
+  name: "addflow",
   components: {},
   setup(props) {
     const state = reactive<ruleform>({
       drawer: false,
-      dialogtitle: '',
+      dialogtitle: "",
       mountTypes: [
         {
-          value: 'Telemetry',
-          label: '遥测',
+          value: "None",
+          label: "None",
         },
         {
-          value: 'Attribute',
-          label: '属性',
+          value: "RAW",
+          label: "RAW",
         },
         {
-          value: 'RAW',
-          label: 'RAW',
+          value: "Telemetry",
+          label: "遥测",
         },
         {
-          value: 'RPC',
-          label: 'RPC',
+          value: "Attribute",
+          label: "属性",
         },
         {
-          value: 'Online',
-          label: 'Online',
+          value: "RPC",
+          label: "远程控制",
         },
         {
-          value: 'Offline',
-          label: 'Offline',
+          value: "Connected",
+          label: "在线",
         },
         {
-          value: 'TelemetryArray',
-          label: '遥测数组',
+          value: "Disconnected",
+          label: "离线",
         },
         {
-          value: 'Alarm',
-          label: '告警',
+          value: "TelemetryArray",
+          label: "遥测数组",
+        },
+        {
+          value: "Alarm",
+          label: "告警",
+        },
+        {
+          value: "DeleteDevice",
+          label: "删除设备",
+        },
+        {
+          value: "CreateDevice",
+          label: "创建设备",
+        },
+        {
+          value: "Activity",
+          label: "活动事件",
+        },
+        {
+          value: "Inactivity",
+          label: "非活跃状态",
         },
       ],
       dataForm: {
-        ruleId: '00000000-0000-0000-0000-000000000000',
-        name: '',
-        ruleDesc: '',
-        mountType: '',
+        ruleId: NIL_UUID,
+        name: "",
+        ruleDesc: "",
+        mountType: "",
       },
     });
 
     const openDialog = (ruleid: string) => {
-      console.log(ruleid)
-      if (ruleid === '00000000-0000-0000-0000-000000000000') {
+      console.log(ruleid);
+      if (ruleid === NIL_UUID) {
         state.dataForm = {
-          ruleId: '00000000-0000-0000-0000-000000000000',
-          name: '',
-          ruleDesc: '',
-          mountType: '',
+          ruleId: NIL_UUID,
+          name: "",
+          ruleDesc: "",
+          mountType: "",
         };
-        state.dialogtitle = '新增规则链';
+        state.dialogtitle = "新增规则链";
       } else {
-        state.dialogtitle = '修改规则链';
+        state.dialogtitle = "修改规则链";
         ruleApi()
           .getrule(ruleid)
           .then((res) => {
@@ -140,14 +160,14 @@ export default defineComponent({
 
     onMounted(() => {});
     const onSubmit = () => {
-      if (state.dataForm.ruleId === '00000000-0000-0000-0000-000000000000') {
+      if (state.dataForm.ruleId === "00000000-0000-0000-0000-000000000000") {
         ruleApi()
           .postrule(state.dataForm)
           .then((res: appmessage<boolean>) => {
             if (res.code === 10000 && res.data) {
-              ElMessage.success('新增成功');
+              ElMessage.success("新增成功");
             } else {
-              ElMessage.warning('新增失败:' + res.msg);
+              ElMessage.warning("新增失败:" + res.msg);
             }
           });
       } else {
@@ -155,9 +175,9 @@ export default defineComponent({
           .putrule(state.dataForm)
           .then((res: appmessage<boolean>) => {
             if (res.code === 10000 && res.data) {
-              ElMessage.success('修改成功');
+              ElMessage.success("修改成功");
             } else {
-              ElMessage.warning('修改失败:' + res.msg);
+              ElMessage.warning("修改失败:" + res.msg);
             }
           });
       }

@@ -15,7 +15,7 @@
         />
         <ExecutorPanel
           v-if="nodeData.nodetype === 'executor' && nodeData.type === 'node'"
-          @submit="onexecutorSubmit"
+          @submit="onexecutorSubmit" v-model="nodeData.content"
           @close="close"
           ref="executorRef"
         />
@@ -42,6 +42,7 @@ interface WorkflowDrawerState {
     name: string;
     type: string;
     nodetype: string;
+    content?:string;
   };
   jsplumbConn: any;
 }
@@ -59,6 +60,7 @@ export default defineComponent({
         type: "node",
         nodetype: "executor",
         name: "",
+        content:""
       },
       jsplumbConn: {},
     });

@@ -19,7 +19,7 @@
         <el-button
           size="default"
           type="success"
-          @click="create('00000000-0000-0000-0000-000000000000')"
+          @click="create()"
           class="ml10"
         >
           <el-icon>
@@ -33,31 +33,41 @@
         </el-table-column>
 
         <el-table-column
-          prop="deviceType"
-          label="规则类型"
+          prop="mountType"
+          label="挂载类型"
+          show-overflow-tooltip
+        >
+        
+        <template #default="scope">
+            <el-tag
+              effect="dark"
+              size="small" type="info"      class="mx-1"
+              :color="mountTypes.get(scope.row.mountType)?.color"
+              disable-transitions
+              >{{ mountTypes.get(scope.row.mountType)?.text }}</el-tag
+            >
+          </template>
+        
+        
+        
+        </el-table-column>
+
+    
+        <el-table-column
+          prop="creatTime"
+          label="创建时间"
           show-overflow-tooltip
         ></el-table-column>
 
         <el-table-column
-          prop="active"
-          label="在线状态"
-          show-overflow-tooltip
-        ></el-table-column>
-        <el-table-column
-          prop="lastActivityDateTime"
-          label="最后活动时间"
-          show-overflow-tooltip
-        ></el-table-column>
-
-        <el-table-column
-          prop="active"
-          label="认证方式"
+          prop="ruleDesc"
+          label="备注"
           show-overflow-tooltip
         ></el-table-column>
 
         <el-table-column label="操作" show-overflow-tooltip width="200">
           <template #default="scope">
-            <el-button size="small" text type="primary" @click="create(scope.row.ruleId)"
+            <el-button size="small" text type="primary" @click="edit(scope.row.ruleId)"
               >修改</el-button
             >
 
@@ -102,7 +112,7 @@ import { ruleApi } from "/@/api/flows";
 import { Session } from "/@/utils/storage";
 import { appmessage } from "/@/api/iapiresult";
 import { useRouter } from "vue-router";
-
+import { v4 as uuidv4, NIL as NIL_UUID } from "uuid";
 // 定义接口来定义对象的类型
 interface TableDataRow {
   ruleId?: string;
@@ -131,6 +141,23 @@ export default defineComponent({
   name: "flowlist",
   components: { addflow, flowdesigner },
   setup() {
+
+
+    const mountTypes = new Map([
+      ["None", { text: "None", color: "#b1b3b8" }],
+      ["RAW", { text: "原始数据", color: "#d3adf7" }],
+      ["Telemetry", { text: "遥测", color: "#79bbff" }],
+      ["Attribute", { text: "属性", color: "#b3e19d" }],
+      ["RPC", { text: "远程控制", color: "#1890ff" }],
+      ["Connected", { text: "在线", color: "#79bbff" }],
+      ["Disconnected", { text: "离线", color: "#ffa940" }],
+      ["TelemetryArray", { text: "遥测数组", color: "#2f54eb" }],
+      ["Alarm", { text: "告警", color: "#F56C6C" }],
+      ["DeleteDevice", { text: "删除设备", color: "#fa541c" }],
+      ["CreateDevice", { text: "创建设备", color: "#08979c" }],
+      ["Activity", { text: "活动事件", color: "#7cb305" }],
+      ["Inactivity", { text: "非活跃状态", color: "#ffa940" }],
+    ]);
     const addformRef = ref();   
     const userInfos = Session.get("userInfo");
     const router=useRouter();
@@ -192,7 +219,6 @@ export default defineComponent({
 
     const simulator = (id: string) => {
       router.push({
-
         path:'/iot/rules/flowsimulator',
         query:{
           id:id
@@ -201,9 +227,11 @@ export default defineComponent({
     };
 
     
-
-    const create = (id: string) => {
+    const edit = (id:string) => {
       addformRef.value.openDialog(id);
+    };
+    const create = () => {
+      addformRef.value.openDialog(NIL_UUID);
     };
 
     const onHandleSizeChange = (val: number) => {
@@ -229,9 +257,9 @@ export default defineComponent({
     onMounted(() => {
       initTableData();
     });
-    return {
+    return {mountTypes,
       addformRef,
-      create,
+      create,edit,
       design,simulator,
       onHandleSizeChange,
       onHandleCurrentChange,
