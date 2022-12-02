@@ -51,7 +51,7 @@ namespace IoTSharp.Controllers
         /// 获取指定租户下的所有客户
         /// </summary>
         /// <returns></returns>
-        [HttpPost("Tenant/{tenantId}")]
+        [HttpPost("Tenant")]
         [Authorize(Roles = nameof(UserRole.NormalUser))]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ApiResult), StatusCodes.Status404NotFound)]
@@ -59,12 +59,9 @@ namespace IoTSharp.Controllers
         public async Task<ApiResult<PagedData<Customer>>> GetCustomers([FromBody] CustomerParam m)
         {
             var profile = this.GetUserProfile();
-            Expression<Func<Customer, bool>> condition = x => x.Tenant.Id == profile.Tenant  && x.Deleted==false;
-            return new ApiResult<PagedData<Customer>>(ApiCode.Success, "OK", new PagedData<Customer>
-            {
-                total = await _context.Customer.CountAsync(condition),
-                rows = await _context.Customer.OrderByDescending(c => c.Id).Where(condition).Skip((m.Offset) * m.Limit).Take(m.Limit).ToListAsync()
-            });
+            var querym = _context.Customer.Where(c => c.Deleted == false);
+            var data = await m.Query(querym, c => c.Name);
+            return new ApiResult<PagedData<Customer>>(ApiCode.Success, "OK", data);
         }
 
         /// <summary>

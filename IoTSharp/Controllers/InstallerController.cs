@@ -119,7 +119,7 @@ namespace IoTSharp.Controllers
                     if (!fx.Directory.Exists) fx.Directory.Create();
                     var ca = _uri.CreateCA(option.CACertificateFile, option.CAPrivateKeyFile);
                     ca.CreateBrokerTlsCert(_uri.Host, Dns.GetHostAddresses(_uri.Host).FirstOrDefault(),
-                        option.CertificateFile, option.PrivateKeyFile, ten.EMail);
+                        option.CertificateFile, option.PrivateKeyFile, ten.Email);
                     ca.LoadCAToRoot();
                     result = new ApiResult(ApiCode.Success, ca.Thumbprint);
                 }

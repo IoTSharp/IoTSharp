@@ -1256,11 +1256,26 @@ namespace IoTSharp.Data.SqlServer.Migrations
                     b.Property<Guid?>("ExecutorId")
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<string>("FlowClass")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("FlowIcon")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("FlowNameSpace")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<Guid?>("FlowRuleRuleId")
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<string>("FlowShapeType")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<int>("FlowStatus")
                         .HasColumnType("int");
+
+                    b.Property<string>("FlowTag")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("FlowType")
                         .HasColumnType("nvarchar(max)");
@@ -1272,6 +1287,9 @@ namespace IoTSharp.Data.SqlServer.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Incoming")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Left")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("NodeProcessClass")
@@ -1315,6 +1333,9 @@ namespace IoTSharp.Data.SqlServer.Migrations
 
                     b.Property<DateTime>("TesterDateTime")
                         .HasColumnType("datetime2");
+
+                    b.Property<string>("Top")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("bpmnid")
                         .HasColumnType("nvarchar(max)");
@@ -1858,7 +1879,7 @@ namespace IoTSharp.Data.SqlServer.Migrations
                     b.Property<bool>("Deleted")
                         .HasColumnType("bit");
 
-                    b.Property<string>("EMail")
+                    b.Property<string>("Email")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Name")

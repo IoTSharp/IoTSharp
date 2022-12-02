@@ -356,11 +356,11 @@ namespace IoTSharp.Controllers
         public async Task<ApiResult<LoginResult>> Create([FromBody] InstallDto model)
         {
 
-            var tenant = _context.Tenant.FirstOrDefault(t => t.EMail == model.TenantEMail && t.Deleted==false);
+            var tenant = _context.Tenant.FirstOrDefault(t => t.Email == model.TenantEMail && t.Deleted==false);
             var customer = _context.Customer.FirstOrDefault(t => t.Email == model.CustomerEMail && t.Deleted == false);
             if (tenant == null && customer == null)
             {
-                tenant = new Tenant() { Id = Guid.NewGuid(), Name = model.TenantName, EMail = model.TenantEMail };
+                tenant = new Tenant() { Id = Guid.NewGuid(), Name = model.TenantName, Email = model.TenantEMail };
                 customer = new Customer() { Id = Guid.NewGuid(), Name = model.CustomerName, Email = model.CustomerEMail };
                 customer.Tenant = tenant;
                 tenant.Customers = new List<Customer>();
@@ -664,7 +664,7 @@ namespace IoTSharp.Controllers
                 switch (type)
                 {
                     case 1:
-                        return new ApiResult<bool>(ApiCode.Success, "OK", _context.Tenant.Any(c => c.EMail.ToLower() == email.ToLower() && c.Deleted==false));
+                        return new ApiResult<bool>(ApiCode.Success, "OK", _context.Tenant.Any(c => c.Email.ToLower() == email.ToLower() && c.Deleted==false));
                     case 2:
                         return new ApiResult<bool>(ApiCode.Success, "OK", _context.Customer.Any(c => c.Email.ToLower() == email.ToLower() && c.Deleted==false));
                     case 3:

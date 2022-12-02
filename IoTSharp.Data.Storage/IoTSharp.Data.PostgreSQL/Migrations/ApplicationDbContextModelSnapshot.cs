@@ -1256,11 +1256,26 @@ namespace IoTSharp.Migrations
                     b.Property<Guid?>("ExecutorId")
                         .HasColumnType("uuid");
 
+                    b.Property<string>("FlowClass")
+                        .HasColumnType("text");
+
+                    b.Property<string>("FlowIcon")
+                        .HasColumnType("text");
+
+                    b.Property<string>("FlowNameSpace")
+                        .HasColumnType("text");
+
                     b.Property<Guid?>("FlowRuleRuleId")
                         .HasColumnType("uuid");
 
+                    b.Property<string>("FlowShapeType")
+                        .HasColumnType("text");
+
                     b.Property<int>("FlowStatus")
                         .HasColumnType("integer");
+
+                    b.Property<string>("FlowTag")
+                        .HasColumnType("text");
 
                     b.Property<string>("FlowType")
                         .HasColumnType("text");
@@ -1272,6 +1287,9 @@ namespace IoTSharp.Migrations
                         .HasColumnType("text");
 
                     b.Property<string>("Incoming")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Left")
                         .HasColumnType("text");
 
                     b.Property<string>("NodeProcessClass")
@@ -1315,6 +1333,9 @@ namespace IoTSharp.Migrations
 
                     b.Property<DateTime>("TesterDateTime")
                         .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Top")
+                        .HasColumnType("text");
 
                     b.Property<string>("bpmnid")
                         .HasColumnType("text");
@@ -1858,7 +1879,7 @@ namespace IoTSharp.Migrations
                     b.Property<bool>("Deleted")
                         .HasColumnType("boolean");
 
-                    b.Property<string>("EMail")
+                    b.Property<string>("Email")
                         .HasColumnType("text");
 
                     b.Property<string>("Name")
