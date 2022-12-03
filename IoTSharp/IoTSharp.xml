@@ -588,11 +588,15 @@
              <param name="m"></param>
              <returns></returns>
         </member>
+        <member name="T:IoTSharp.Controllers.HealthChecksController">
+            <summary>
+            健康检查
+            </summary>
+        </member>
         <member name="M:IoTSharp.Controllers.HealthChecksController.Get">
             <summary>
-             返回指定id的客户
+             获取相关服务的健康检查信息
              </summary>
-             <param name="id"></param>
              <returns></returns>
         </member>
         <member name="T:IoTSharp.Controllers.InstallerController">
@@ -615,6 +619,11 @@
         <member name="T:IoTSharp.Controllers.MenuController">
             <summary>
             this is test purpose
+            </summary>
+        </member>
+        <member name="T:IoTSharp.Controllers.MetricsController">
+            <summary>
+            运行指标信息
             </summary>
         </member>
         <member name="M:IoTSharp.Controllers.MetricsController.EventBus">
