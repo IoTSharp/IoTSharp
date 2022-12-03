@@ -12,8 +12,6 @@
                   <el-button @click="formReset">重置表单</el-button>
                 </div>
               </el-card>
-
-
             </el-col>
           </el-row>
         </div>
@@ -36,15 +34,17 @@ export default defineComponent({
     const createServerFormOptions = () => {
       // 自定义表单配置
       const { buildFormOptions } = useColumns();
+
       //使用crudOptions结构来构建自定义表单配置
       return buildFormOptions({
+        form: {
+          display: "flex",
+        },
         columns: {
-         
-          groupField: {
-            title: "分组字段",
-            type: "text",
+          json: {
+            title: "json",
             form: {
-              
+              col: { span: 24 },
               component: {
                 //局部引用子表格，要用shallowRef包裹
                 name: shallowRef(monaco),
@@ -59,42 +59,86 @@ export default defineComponent({
               rules: [{ required: true, message: "此项必填" }],
             },
           },
-        },
-        form: {
-          labelWidth: "120px",
-          group: {
-            groups: {
-              testGroupName: {
-                header: "分组测试",
-                columns: ["groupField"],
+
+          xml: {
+            title: "xml",
+            type: "text",
+            form: {
+              col: { span: 24 },
+              component: {
+                //局部引用子表格，要用shallowRef包裹
+                name: shallowRef(monaco),
+                vModel: "modelValue",
+                on: {
+                  //处理自定义事件
+                  change(context) {
+                    console.log("自定义事件", context);
+                  },
+                },
               },
+
+              rules: [{ required: true, message: "此项必填" }],
             },
           },
 
-          doSubmit({ form }) {
-            console.log("form submit:", form);
-            ElMessage.info("自定义表单提交:" + JSON.stringify(form));
-            ElMessage.success("保存成功");
+          text: {
+            title: "text",
+            type: "text",
+            form: {
+              col: { span: 24 },
+              // component: {
+              //   //局部引用子表格，要用shallowRef包裹
+              //   name: shallowRef(monaco),
+              //   vModel: "modelValue",
+              //   on: {
+              //     //处理自定义事件
+              //     change(context) {
+              //       console.log("自定义事件", context);
+              //     },
+              //   },
+              // },
+
+              rules: [{ required: true, message: "此项必填" }],
+            },
+          },
+          bin: {
+            title: "bin",
+            form: {
+              col: { span: 24 },
+              component: {
+                //局部引用子表格，要用shallowRef包裹
+                name: shallowRef(monaco),
+                vModel: "modelValue",
+                on: {
+                  //处理自定义事件
+                  change(context) {
+                    console.log("自定义事件", context);
+                  },
+                },
+              },
+            },
           },
         },
       });
     };
 
- 
-
-
     const useFormDirect = () => {
       const formserverRef = ref();
       const formServerOptions = ref();
       formServerOptions.value = createServerFormOptions();
-      formServerOptions.value.initialForm = { customField: "初始值" };
- 
-      function formSubmit() {
-        formserverRef.value.submit();
-      }
-      function formReset() {
+      formServerOptions.value.initialForm = {
+        json: '{"a":1}',
+        xml: "<a></a>",
+        bin: "0x00 0x01 0x02",
+        text: "this is text",
+      };
+
+      const formSubmit = () => {
+        console.log(formserverRef.value);
+      };
+      const formReset = () => {
         formserverRef.value.reset();
-      }
+      };
       return {
         formServerOptions,
         formserverRef,

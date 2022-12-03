@@ -1,5 +1,5 @@
 <template>
-  <div id="codeEditBox" :style="{ height: height, width: width }"></div>
+  <div  ref="container" :style="{ height: height, width: width }"></div>
 </template>
 <script lang="ts">
 import {
@@ -27,6 +27,8 @@ interface monacostate {
 
 export default defineComponent({
   name: "monaco",
+
+  emits: ['update:modelValue','change','focus','blur','paste','mouseup','mousedown','contentsizechange','keyup','keydown'],
   props: {
     modelValue: {
       type: String,
@@ -40,6 +42,9 @@ export default defineComponent({
   },
 
   setup(props, { emit }) {
+
+
+    var container=ref();
     var isset = false;
     var newValue = computed({
       get: function () {
@@ -95,7 +100,7 @@ export default defineComponent({
 
     const state = reactive<monacostate>({
       width: props.width??'100%',
-      height: props.height??'300px',
+      height: props.height??'100px',
       theme: props.theme??'vs-dark',
       language: props.language,
       selectOnLineNumbers: props.selectOnLineNumbers,
@@ -116,7 +121,7 @@ export default defineComponent({
 
         !editor
           ? (editor = monaco.editor.create(
-              document.getElementById("codeEditBox") as HTMLElement,
+            container.value as HTMLElement,
               {
                 value: newValue.value ?? "",
                 language: state.language ?? "json",
@@ -172,6 +177,7 @@ export default defineComponent({
       });
     };
     return {
+      container,
       ...toRefs(state),
     };
   },

@@ -60,7 +60,7 @@
           show-overflow-tooltip
         ></el-table-column>
 
-        <el-table-column label="操作" show-overflow-tooltip width="200">
+        <el-table-column label="操作" show-overflow-tooltip width="300">
           <template #default="scope">
             <el-button
               size="small"
@@ -76,35 +76,54 @@
               @click.prevent="editprop(scope.row)"
               >属性
             </el-button>
-            <el-button
-              size="small"
-              text
-              type="primary"
-              @click.prevent="editdict(scope.row)"
-              >字典
-            </el-button>
-            <el-button
-              size="small"
-              text
-              type="primary"
-              @click.prevent="creatdevice(scope.row)"
-              >创建设备
-            </el-button>
+<!--            <el-button-->
+<!--              size="small"-->
+<!--              text-->
+<!--              type="primary"-->
+<!--              @click.prevent="editdict(scope.row)"-->
+<!--              >字典-->
+<!--            </el-button>-->
+<!--            <el-button-->
+<!--              size="small"-->
+<!--              text-->
+<!--              type="primary"-->
+<!--              @click.prevent="creatdevice(scope.row)"-->
+<!--              >创建设备-->
+<!--            </el-button>-->
 
-            <el-button
-              size="small"
-              text
-              type="primary"
-              @click.prevent="navtodevice(scope.row)"
-              >管理设备
-            </el-button>
-            <el-button
-              size="small"
-              text
-              type="primary"
-              @click.prevent="deleteprod(scope.row)"
-              >删除
-            </el-button>
+<!--            <el-button-->
+<!--              size="small"-->
+<!--              text-->
+<!--              type="primary"-->
+<!--              @click.prevent="navtodevice(scope.row)"-->
+<!--              >管理设备-->
+<!--            </el-button>-->
+<!--            <el-button-->
+<!--              size="small"-->
+<!--              text-->
+<!--              type="primary"-->
+<!--              @click.prevent="deleteprod(scope.row)"-->
+<!--              >删除-->
+<!--            </el-button>-->
+
+
+
+            <el-dropdown>
+        <span class="el-dropdown-link">
+          Dropdown List<el-icon class="el-icon--right"><arrow-down /></el-icon>
+        </span>
+              <template #dropdown>
+                <el-dropdown-menu>
+                  <el-dropdown-item :icon="Plus">Action 1</el-dropdown-item>
+                  <el-dropdown-item :icon="CirclePlusFilled">
+                    Action 2
+                  </el-dropdown-item>
+                  <el-dropdown-item :icon="CirclePlus">Action 3</el-dropdown-item>
+                  <el-dropdown-item :icon="Check">Action 4</el-dropdown-item>
+                  <el-dropdown-item :icon="CircleCheck">Action 5</el-dropdown-item>
+                </el-dropdown-menu>
+              </template>
+            </el-dropdown>
           </template>
         </el-table-column>
       </el-table>
@@ -200,7 +219,7 @@ export default defineComponent({
         loading: false,
         param: {
           pageNum: 1,
-          pageSize: 10,
+          pageSize: 20,
         },
       },
     });
@@ -219,10 +238,10 @@ export default defineComponent({
     };
 
     const getData = () => {
-      console.log(query);
       getProduceList({
         offset: state.tableData.param.pageNum - 1,
         limit: state.tableData.param.pageSize,
+        name:''
       }).then((res) => {
         state.tableData.rows = res.data.rows;
         state.tableData.total = res.data.total;
@@ -238,8 +257,8 @@ export default defineComponent({
 
     const creatprod = () => {
 
-    //    propformRef.value.openDialog();
-    produceformRef.value.openDialog(NIL_UUID);
+        propformRef.value.openDialog();
+  //  produceformRef.value.openDialog(NIL_UUID);
     };
     const editprod = (row: TableDataRow) => {
       produceformRef.value.openDialog(row.id);

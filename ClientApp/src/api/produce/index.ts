@@ -5,9 +5,12 @@ interface QueryParam extends IListQueryParam {
     offset: number;
     limit: number;
 
+    name:string;
+
 }
 export function getProduceList(query: QueryParam) {
-    return request.get('api/produces/list?offset=' + query.offset + '&limit=' + query.limit + '&sorter=')
+    // ?offset=0&limit=20&pi=0&ps=20&name=&sorter=&status=null
+    return request.get('api/produces/list?pi=0&ps=20&status=null&offset=' + query.offset + '&limit=' + query.limit + '&sorter=&name='+query.name)
 }
 
 

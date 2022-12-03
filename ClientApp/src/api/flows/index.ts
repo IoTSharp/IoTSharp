@@ -59,7 +59,6 @@ import request from '/@/utils/request';
 			return request({
 				url: '/api/rules/GetDiagramV?id='+id,
 				method: 'get',
-				data: {},
 			});
 		},
 		saveDiagramV: (data: any) => {
