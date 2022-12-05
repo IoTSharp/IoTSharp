@@ -7,6 +7,7 @@
 	"scripts": {
 		"dev": "vite --force",
 		"build": "vite build",
+		"preview": "vite preview",
 		"lint-fix": "eslint --fix --ext .js --ext .jsx --ext .vue src/"
 	},
 	"dependencies": {
@@ -60,7 +61,7 @@
 		"dotenv": "^16.0.1",
 		"eslint": "^8.20.0",
 		"eslint-plugin-vue": "^9.2.0",
-		"prettier": "^2.7.1",
+		"prettier": "2.8.0",
 		"sass": "^1.53.0",
 		"sass-loader": "^13.0.2",
 		"ts-node": "^10.9.1",

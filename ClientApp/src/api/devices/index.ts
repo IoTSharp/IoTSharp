@@ -15,14 +15,25 @@ export function deviceApi() {
 	return {
 		devcieList: (params: QueryParam) => {
 			return request({
-				url: '/api/Devices/Customers?offset='+params.offset+'&limit='+params.limit+'&sorter=&onlyActive='+params.onlyActive+'&customerId='+params.customerId+'&name='+params.name+'&sort=',
+				url:
+					'/api/Devices/Customers?offset=' +
+					params.offset +
+					'&limit=' +
+					params.limit +
+					'&sorter=&onlyActive=' +
+					params.onlyActive +
+					'&customerId=' +
+					params.customerId +
+					'&name=' +
+					params.name +
+					'&sort=',
 				method: 'get',
 				data: params,
 			});
 		},
-		getdevcie: (deviceId:string) => {
+		getdevcie: (deviceId: string) => {
 			return request({
-				url: '/api/Devices/'+deviceId,
+				url: '/api/Devices/' + deviceId,
 				method: 'get',
 			});
 		},
@@ -35,38 +46,65 @@ export function deviceApi() {
 			});
 		},
 
-        putdevcie: (params: any) => {
+		putdevcie: (params: any) => {
 			return request({
-				url: '/api/Devices/'+params.id,
+				url: '/api/Devices/' + params.id,
 				method: 'put',
 				data: params,
 			});
 		},
-        deletedevcie: (id: string) => {
+		deletedevcie: (id: string) => {
 			return request({
-				url: '/api/Devices/'+id,
+				url: '/api/Devices/' + id,
 				method: 'delete',
 			});
 		},
-		getDeviceAttributes: (deviceId:string) => {
+		getDeviceAttributes: (deviceId: string) => {
 			return request({
-				url: '/api/Devices/'+deviceId + '/AttributeLatest',
+				url: '/api/Devices/' + deviceId + '/AttributeLatest',
 				method: 'get',
 			});
 		},
-		addDeviceAttributes: (deviceId:string, params: any) => {
+		addDeviceAttributes: (deviceId: string, params: any) => {
 			return request({
-				url: '/api/Devices/'+deviceId + '/AddAttribute',
+				url: '/api/Devices/' + deviceId + '/AddAttribute',
 				method: 'post',
 				data: params,
+			});
+		},
+		// 获取设备规则
+		getDeviceRules: (deviceId: string) => {
+			return request({
+				url: '/api/rules/getDeviceRules?deviceId=' + deviceId,
+				method: 'get',
+			});
+		},
+		// 设置规则
+		setDeviceRules: (deviceId: string, ruleId: any) => {
+			return request({
+				url: '/api/rules/binddevice',
+				method: 'post',
+				data: {
+					dev: [deviceId],
+					rule: ruleId,
+				},
+			});
+		},
+		deleteDeviceRules: (deviceId: string, ruleId: string) => {
+			return request({
+				url: '/api/rules/DeleteDeviceRules',
+				method: 'get',
+				params: {
+					deviceId,
+					ruleId,
+				},
 			});
 		},
 	};
 }
 
-
-interface QueryParam extends IListQueryParam{
-	onlyActive?:boolean
-	customerId?:string
-	name?:string
+interface QueryParam extends IListQueryParam {
+	onlyActive?: boolean;
+	customerId?: string;
+	name?: string;
 }

@@ -19,8 +19,12 @@
         </el-tab-pane>
         <el-tab-pane label="遥测" name="telemetry">Role</el-tab-pane>
         <el-tab-pane label="告警" name="alarm">Task</el-tab-pane>
-        <el-tab-pane label="规则" name="rules">Task</el-tab-pane>
-        <el-tab-pane label="规则历史" name="rules">Task</el-tab-pane>
+        <el-tab-pane label="规则" name="rules">
+          <div class="z-tab-container">
+            <DeviceDetailRules :deviceId="deviceRef.id"></DeviceDetailRules>
+          </div>
+        </el-tab-pane>
+        <el-tab-pane label="规则历史" name="rulesHistory">Task</el-tab-pane>
       </el-tabs>
     </el-drawer>
   </div>
@@ -29,6 +33,7 @@
 import { createDeviceCrudOptions } from "/@/views/iot/devices/deviceCrudOptions";
 import AdvancedKeyValue from "/@/components/AdvancedKeyValue/AdvancedKeyValue.vue";
 import DeviceDetailProps from "/@/views/iot/devices/detail/DeviceDetailProps.vue";
+import DeviceDetailRules from "/@/views/iot/devices/detail/DeviceDetailRules.vue";
 
 const drawer = ref(false);
 const dialogTitle = ref(`设备详情`);
