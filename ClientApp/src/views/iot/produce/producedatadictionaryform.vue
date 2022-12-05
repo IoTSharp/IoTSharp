@@ -35,45 +35,42 @@
                     },
                   ]"
                 > -->
-                  <el-switch
-                    v-if="item.type === 'switch'"
-                    v-model="scope.row[item.prop]"
-                  />
+                <el-switch v-if="item.type === 'switch'" v-model="scope.row[item.prop]" />
 
-                  <el-select
-                    v-if="item.type === 'select'"
-                    v-model="scope.row[item.prop]"
-                    placeholder="请选择"
-                  >
-                    <el-option
-                      v-for="sel in tableData.datatypes"
-                      :key="sel.id"
-                      :label="sel.label"
-                      :value="sel.value"
-                    />
-                  </el-select>
-                  <el-date-picker
-                    v-else-if="item.type === 'date'"
-                    v-model="scope.row[item.prop]"
-                    type="date"
-                    placeholder="选择日期"
-                    style="width: 100%"
+                <el-select
+                  v-if="item.type === 'select'"
+                  v-model="scope.row[item.prop]"
+                  placeholder="请选择"
+                >
+                  <el-option
+                    v-for="sel in tableData.datatypes"
+                    :key="sel.id"
+                    :label="sel.label"
+                    :value="sel.value"
                   />
-                  <el-input
-                    v-else-if="item.type === 'input'"
-                    v-model="scope.row[item.prop]"
-                    placeholder="请输入内容"
-                  />
-                  <el-input
-                    v-else-if="item.type === 'dialog'"
-                    v-model="scope.row[item.prop]"
-                    readonly
-                    placeholder="请输入内容"
-                  >
-                    <template v-slot:suffix>
-                      <i class="iconfont icon-shouye_dongtaihui" />
-                    </template>
-                  </el-input>
+                </el-select>
+                <el-date-picker
+                  v-else-if="item.type === 'date'"
+                  v-model="scope.row[item.prop]"
+                  type="date"
+                  placeholder="选择日期"
+                  style="width: 100%"
+                />
+                <el-input
+                  v-else-if="item.type === 'input'"
+                  v-model="scope.row[item.prop]"
+                  placeholder="请输入内容"
+                />
+                <el-input
+                  v-else-if="item.type === 'dialog'"
+                  v-model="scope.row[item.prop]"
+                  readonly
+                  placeholder="请输入内容"
+                >
+                  <template v-slot:suffix>
+                    <i class="iconfont icon-shouye_dongtaihui" />
+                  </template>
+                </el-input>
                 <!-- </el-form-item> -->
               </template>
             </el-table-column>
@@ -101,9 +98,10 @@
 
 <script lang="ts">
 import { defineComponent, toRefs, reactive, ref } from "vue";
+import { v4 as uuidv4, NIL as NIL_UUID } from "uuid";
 import { ElMessage } from "element-plus";
-import { fa } from "element-plus/es/locale";
-import { editProduceDictionary } from "/@/api/produce";
+
+import { editProduceDictionary, getProduceDictionary } from "/@/api/produce";
 interface TableHeader {
   prop: string;
   width: string | number;
@@ -113,6 +111,7 @@ interface TableHeader {
   type: string;
 }
 interface TableRulesState {
+  deviceid: string;
   drawer: boolean;
   dialogtitle: string;
   tableData: {
@@ -122,25 +121,26 @@ interface TableRulesState {
   };
 }
 
-interface dictrowitem{
-  id?:string
-  keyName?:string
-  displayName?:string
-  unit?:string
-  unitExpression?:string
-  unitConvert?:boolean
-  keyDesc?:string
-  defaultValue?:string
-  display?:boolean
-  place0?:string
-  tag?:string
-  dataType?:string
+interface dictrowitem {
+  id?: string;
+  keyName?: string;
+  displayName?: string;
+  unit?: string;
+  unitExpression?: string;
+  unitConvert?: boolean;
+  keyDesc?: string;
+  defaultValue?: string;
+  display?: boolean;
+  place0?: string;
+  tag?: string;
+  dataType?: string;
 }
 export default defineComponent({
   name: "producedatadictionaryform",
   setup() {
     const tableRulesRef = ref();
     const state = reactive<TableRulesState>({
+      deviceid: "",
       drawer: false,
       dialogtitle: "",
       tableData: {
@@ -234,6 +234,27 @@ export default defineComponent({
     });
 
     const openDialog = (deviceid: string) => {
+      state.deviceid = deviceid;
+
+      getProduceDictionary(deviceid).then((x) => {
+        state.tableData.data = x.data.map((x) => {
+          return {
+            id: uuidv4(),
+            keyName: x.keyName,
+            displayName: x.displayName,
+            unit: x.unit,
+            unitExpression: x.unitExpression,
+            unitConvert: x.unitConvert,
+            keyDesc: x.keyDesc,
+            defaultValue: x.defaultValue,
+            display: x.display,
+            place0: x.place0,
+            tag: x.tag,
+            dataType: x.dataType,
+          };
+        });
+      });
+
       state.drawer = true;
     };
     // 关闭弹窗
@@ -253,7 +274,7 @@ export default defineComponent({
     // 新增一行
     const onAddRow = () => {
       state.tableData.data.push({
-        id: '2821f0fb-6ae5-44c8-bc53-446baf90b4dd',
+        id: uuidv4(),
         keyName: "",
         displayName: "",
         unit: "",
@@ -265,17 +286,17 @@ export default defineComponent({
         place0: "",
         tag: "",
         dataType: "",
-
       });
     };
-    const deleterow = (row:dictrowitem) => {
+    const deleterow = (row: dictrowitem) => {
       state.tableData.data = state.tableData.data.filter((c) => c.id !== row.id);
     };
     const save = () => {
       editProduceDictionary({
-        produceId:'2821f0fb-6ae5-44c8-bc53-446baf90b4dd',
-        produceDictionaryData:state.tableData.data}).then((x)=>{
-        console.log(x)
+        produceId: state.deviceid,
+        produceDictionaryData: state.tableData.data,
+      }).then((x) => {
+        console.log(x);
       });
     };
     return {

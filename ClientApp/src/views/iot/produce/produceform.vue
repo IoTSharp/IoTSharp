@@ -55,7 +55,15 @@
                   clearable
                 ></el-input> -->
 
-                <monaco height="300px" width="80%" theme="vs-dark" value="sss" language="json" selectOnLineNumbers="true"></monaco>
+                <monaco
+                  height="300px"
+                  @change="oneditorchange"
+                  width="80%"
+                  theme="vs-dark"
+                  v-model="dataForm.gatewayConfigurationJson"
+                  language="json"
+                  selectOnLineNumbers="true"
+                ></monaco>
               </el-form-item>
             </el-col>
 
@@ -129,19 +137,17 @@
         </el-form>
       </div>
     </el-drawer>
-
-
   </div>
 </template>
 
 <script lang="ts">
 import { ref, toRefs, reactive, onMounted, defineComponent, watchEffect } from "vue";
 import { ElMessageBox, ElMessage } from "element-plus";
-import { deviceApi } from "/@/api/devices";
-import { appmessage } from "/@/api/iapiresult";
-import { getProduce } from "/@/api/produce";
 
-import  monaco  from "/@/components/monaco/monaco.vue";
+import { appmessage } from "/@/api/iapiresult";
+import { getProduce, updateProduce,saveProduce } from "/@/api/produce";
+import { v4 as uuidv4, NIL as NIL_UUID } from "uuid";
+import monaco from "/@/components/monaco/monaco.vue";
 
 interface produceformdata {
   drawer: boolean;
@@ -154,7 +160,7 @@ interface produceformdata {
 
 export default defineComponent({
   name: "produceform",
-  components: {monaco},
+  components: { monaco },
   setup(props) {
     const state = reactive<produceformdata>({
       drawer: false,
@@ -163,36 +169,47 @@ export default defineComponent({
       identityTypes: ["AccessToken", "DevicePassword", "X509Certificate"],
       deviceTypes: ["Device", "Gateway"],
       dataForm: {
-        id: "0000000-0000-0000-0000-000000000000",
+        id: NIL_UUID,
         name: "",
         icon: "",
         defaultTimeout: 300,
         gatewayType: "",
+        description: "",
         gatewayConfigurationName: "",
         defaultDeviceType: "",
         gatewayConfigurationJson: "",
+        gatewayConfiguration: "",
         defaultIdentityType: "",
       },
     });
 
     const openDialog = (produceid: string) => {
-      if (produceid === "0000000-0000-0000-0000-000000000000") {
+      if (produceid === NIL_UUID) {
         state.dataForm = {
-          id: "0000000-0000-0000-0000-000000000000",
+          id:NIL_UUID,
           name: "",
           icon: "",
           defaultTimeout: 300,
+          description: "",
           gatewayType: "",
           gatewayConfigurationName: "",
           defaultDeviceType: "",
           gatewayConfigurationJson: "",
+          gatewayConfiguration: "",
           defaultIdentityType: "",
         };
         state.dialogtitle = "新增产品";
       } else {
         state.dialogtitle = "修改产品";
         getProduce(produceid).then((res) => {
-          state.dataForm = res.data;
+          state.dataForm.defaultDeviceType = res.data.defaultDeviceType;
+          state.dataForm.defaultIdentityType = res.data.defaultIdentityType;
+          state.dataForm.defaultTimeout = res.data.defaultTimeout;
+          state.dataForm.description = res.data.description;
+          state.dataForm.gatewayType = res.data.gatewayType;
+          state.dataForm.icon = res.data.icon;
+          state.dataForm.id = res.data.id;
+          state.dataForm.name = res.data.name;
           if (
             state.dataForm.gatewayType !== "Unknow" &&
             state.dataForm.gatewayType !== "Customize"
@@ -209,34 +226,51 @@ export default defineComponent({
     const closeDialog = () => {
       state.drawer = false;
     };
+    const oneditorchange = (content: string) => {};
 
     watchEffect(() => {});
 
     onMounted(() => {});
     const onSubmit = () => {
-      if (state.dataForm.id === "0000000-0000-0000-0000-000000000000") {
-        deviceApi()
-          .postdevcie(state.dataForm)
-          .then((res: appmessage<boolean>) => {
-            if (res.code === 10000 && res.data) {
-              ElMessage.success("新增成功");
-            } else {
-              ElMessage.warning("新增失败:" + res.msg);
-            }
-          });
+      if (state.dataForm.id === NIL_UUID) {
+        // deviceApi()
+        //   .postdevcie(state.dataForm)
+        //   .then((res: appmessage<boolean>) => {
+        //     if (res.code === 10000 && res.data) {
+        //       ElMessage.success("新增成功");
+        //     } else {
+        //       ElMessage.warning("新增失败:" + res.msg);
+        //     }
+        //   });
+        if (state.dataForm.gatewayType === "Customize") {
+          state.dataForm.gatewayConfiguration =
+            state.dataForm.gatewayConfigurationJson ?? "";
+        } else if (
+          state.dataForm.gatewayType !== "Unknow" &&
+          state.dataForm.gatewayType !== "Customize"
+        ) {
+          state.dataForm.gatewayConfiguration =
+            state.dataForm.gatewayConfigurationName ?? "";
+        }
+
+
+        saveProduce(state.dataForm);
       } else {
-        deviceApi()
-          .putdevcie(state.dataForm)
-          .then((res: appmessage<boolean>) => {
-            if (res.code === 10000 && res.data) {
-              ElMessage.success("修改成功");
-            } else {
-              ElMessage.warning("修改失败:" + res.msg);
-            }
-          });
+        if (state.dataForm.gatewayType === "Customize") {
+          state.dataForm.gatewayConfiguration =
+            state.dataForm.gatewayConfigurationJson ?? "";
+        } else if (
+          state.dataForm.gatewayType !== "Unknow" &&
+          state.dataForm.gatewayType !== "Customize"
+        ) {
+          state.dataForm.gatewayConfiguration =
+            state.dataForm.gatewayConfigurationName ?? "";
+        }
+
+        updateProduce(state.dataForm);
       }
     };
-    return { ...toRefs(state), onSubmit, openDialog, closeDialog };
+    return { ...toRefs(state), onSubmit, openDialog, closeDialog, oneditorchange };
   },
 });
 </script>

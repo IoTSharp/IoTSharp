@@ -1,15 +1,35 @@
-<template><div></div></template>
+<template>
+	<div class="z-crud">
+		<fs-crud ref="crudRef" v-bind="crudBinding" />
+	</div>
+</template>
 
 <script lang="ts">
-import { ref, toRefs, reactive, onMounted, defineComponent } from "vue";
-import { ElMessageBox, ElMessage } from "element-plus";
-
+import { useCrud } from '@fast-crud/fast-crud';
+import { useExpose } from '@fast-crud/fast-crud';
+import { createAssetListCrudOptions } from './crudOptions/assetListCrudOptions';
 export default defineComponent({
-  name: 'addDevice',
-  components: {},
-  setup() {
-    onMounted(() => {});
-    return {};
-  },
+	name: 'AssetList',
+	setup() {
+		const crudRef = ref();
+		const crudBinding = ref();
+		const { crudExpose } = useExpose({ crudRef, crudBinding });
+		const { crudOptions } = createAssetListCrudOptions({ expose: crudExpose });
+		// eslint-disable-next-line @typescript-eslint/no-unused-vars,no-unused-vars
+		useCrud({ crudExpose, crudOptions });
+		onMounted(() => {
+			crudExpose.doRefresh();
+		});
+		return {
+			crudBinding,
+			crudRef,
+		};
+	},
 });
 </script>
+
+<style scoped lang="scss">
+.z-crud {
+	height: calc(100vh - 160px);
+}
+</style>

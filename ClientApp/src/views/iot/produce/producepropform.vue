@@ -99,8 +99,9 @@
 <script lang="ts">
 import { defineComponent, toRefs, reactive, ref } from "vue";
 import { ElMessage } from "element-plus";
-import { fa } from "element-plus/es/locale";
-import { editProduceDictionary } from "/@/api/produce";
+
+import { editProduceData, getProduceData } from "/@/api/produce";
+import { v4 as uuidv4, NIL as NIL_UUID } from "uuid";
 interface TableHeader {
   prop: string;
   width: string | number;
@@ -111,6 +112,7 @@ interface TableHeader {
   enmus?: any[];
 }
 interface TableRulesState {
+  deviceid: string;
   drawer: boolean;
   dialogtitle: string;
   tableData: {
@@ -130,6 +132,7 @@ export default defineComponent({
   setup() {
     const tableRulesRef = ref();
     const state = reactive<TableRulesState>({
+      deviceid: "",
       drawer: false,
       dialogtitle: "",
       tableData: {
@@ -176,6 +179,14 @@ export default defineComponent({
     });
 
     const openDialog = (deviceid: string) => {
+      state.deviceid = deviceid;
+      getProduceData(deviceid).then((x) => {
+        console.log(x.data);
+        state.tableData.data = x.data.map((x) => {
+          return { id: uuidv4(), keyName: x.keyName, dataSide: x.dataSide, type: x.type };
+        });
+      });
+
       state.drawer = true;
     };
     // 关闭弹窗
@@ -195,7 +206,7 @@ export default defineComponent({
     // 新增一行
     const onAddRow = () => {
       state.tableData.data.push({
-        id: "2821f0fb-6ae5-44c8-bc53-446baf90b4dd",
+        id: uuidv4(),
         keyName: "",
         dataSide: "",
         type: "",
@@ -205,12 +216,10 @@ export default defineComponent({
       state.tableData.data = state.tableData.data.filter((c) => c.id !== row.id);
     };
     const save = () => {
-      editProduceDictionary({
-        produceId: "2821f0fb-6ae5-44c8-bc53-446baf90b4dd",
-        produceDictionaryData: state.tableData.data,
-      }).then((x) => {
-        console.log(x);
-      });
+      editProduceData({
+        produceId: state.deviceid,
+        produceData: state.tableData.data,
+      }).then((x) => {});
     };
     return {
       save,
