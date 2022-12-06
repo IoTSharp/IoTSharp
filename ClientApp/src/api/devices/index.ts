@@ -100,6 +100,19 @@ export function deviceApi() {
 				},
 			});
 		},
+		getDeviceLatestTelemetry: (deviceId: string) => {
+			return request({
+				url: '/api/devices/' + deviceId + '/telemetryLatest',
+				method: 'get',
+			});
+		},
+		getDeviceTelemetryData: (deviceId: string, params: any) => {
+			return request({
+				url: '/api/devices/' + deviceId + '/telemetryData',
+				method: 'post',
+				data: params,
+			});
+		},
 	};
 }
 

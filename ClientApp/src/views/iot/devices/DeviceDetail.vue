@@ -17,7 +17,11 @@
           </div>
 
         </el-tab-pane>
-        <el-tab-pane label="遥测" name="telemetry">Role</el-tab-pane>
+        <el-tab-pane label="遥测" name="telemetry">
+          <div class="z-tab-container">
+            <DeviceDetailTelemetry :deviceId="deviceRef.id"></DeviceDetailTelemetry>
+          </div>
+        </el-tab-pane>
         <el-tab-pane label="告警" name="alarm">Task</el-tab-pane>
         <el-tab-pane label="规则" name="rules">
           <div class="z-tab-container">
@@ -34,6 +38,7 @@ import { createDeviceCrudOptions } from "/@/views/iot/devices/deviceCrudOptions"
 import AdvancedKeyValue from "/@/components/AdvancedKeyValue/AdvancedKeyValue.vue";
 import DeviceDetailProps from "/@/views/iot/devices/detail/DeviceDetailProps.vue";
 import DeviceDetailRules from "/@/views/iot/devices/detail/DeviceDetailRules.vue";
+import DeviceDetailTelemetry from "/@/views/iot/devices/detail/DeviceDetailTelemetry.vue";
 
 const drawer = ref(false);
 const dialogTitle = ref(`设备详情`);
@@ -52,6 +57,6 @@ defineExpose({
 </script>
 <style lang="scss" scoped>
 .z-tab-container {
-  padding: 16px;
+  padding: 0 16px 16px;
 }
 </style>

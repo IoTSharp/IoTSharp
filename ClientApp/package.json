@@ -23,6 +23,7 @@
 		"axios": "^0.27.2",
 		"countup.js": "^2.3.2",
 		"cropperjs": "^1.5.12",
+		"dayjs": "^1.11.6",
 		"echarts": "^5.3.3",
 		"echarts-gl": "^2.0.9",
 		"echarts-wordcloud": "^2.0.0",
