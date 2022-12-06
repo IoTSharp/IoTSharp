@@ -35,6 +35,15 @@ export function getProduceData(id: string) {
 export function editProduceDictionary(data: any) {
     return request.post(`api/produces/editProduceDictionary`, data)
 }
+
+
 export function getProduceDictionary(id: string) {
     return request.get(`api/produces/getProduceDictionary?produceId=` + id)
+}
+export function createDevice(id:string,data: any) {
+    return request.post<appmessage<any>>(`api/Devices/produce/` + id,data)
+}
+
+export function deleteProduce(id: string) {
+    return request.get(`pi/produces/delete?id==` + id)
 }

@@ -6,17 +6,17 @@
           <el-row :gutter="35">
             <el-col :xs="24" :sm="12" :md="8" :lg="8" :xl="8" class="mb20">
               <el-form-item label="事件名称">
-                <el-input v-model="CreatorName" placeholder="请输入告警类型" />
+                <el-input v-model="query.CreatorName" placeholder="请输入事件名称" />
               </el-form-item>
             </el-col>
             <el-col :xs="24" :sm="12" :md="8" :lg="8" :xl="8" class="mb20">
-              <el-form-item label="清除时间">
-                <el-input v-model="RuleId" placeholder="请输入告警类型" />
+              <el-form-item label="规则">
+                <el-input v-model="query.RuleId" placeholder="请选择规则" />
               </el-form-item>
             </el-col>
             <el-col :xs="24" :sm="12" :md="8" :lg="8" :xl="8" class="mb20">
-              <el-form-item label="警告持续开始时间">
-                <el-input v-model="Name" placeholder="请输入告警类型" />
+              <el-form-item label="创建对象">
+                <el-input v-model="query.Name" placeholder="请输入创建对象" />
               </el-form-item>
             </el-col>
           </el-row>
@@ -29,7 +29,7 @@
           查询
         </el-button>
       </div>
-      <el-table :data="tableData.rows" style="width: 100%" row-key="id">
+      <el-table :data="state.tableData.rows" style="width: 100%" row-key="id">
         <el-table-column
           prop="eventName"
           label="事件名称"
@@ -77,11 +77,11 @@
         class="mt15"
         :pager-count="5"
         :page-sizes="[10, 20, 30]"
-        v-model:current-page="tableData.param.pageNum"
+        v-model:current-page="state.tableData.param.pageNum"
         background
-        v-model:page-size="tableData.param.pageSize"
+        v-model:page-size="state.tableData.param.pageSize"
         layout="total, sizes, prev, pager, next, jumper"
-        :total="tableData.total"
+        :total="state.tableData.total"
       >
       </el-pagination>
     </el-card>
@@ -90,7 +90,7 @@
   </div>
 </template>
 
-<script lang="ts">
+<script lang="ts" setup>
 import { ref, toRefs, reactive, onMounted, defineComponent } from "vue";
 import {
   ElMessageBox,
@@ -103,10 +103,8 @@ import {
   ElTable,
   ElTableColumn,
 } from "element-plus";
-import { create } from "domain";
+
 import { Session } from "/@/utils/storage";
-import { getAlarmList, clear, acquire } from "/@/api/alarm";
-import { appmessage } from "/@/api/iapiresult";
 import { ruleApi } from "/@/api/flows";
 // 定义接口来定义对象的类型
 
@@ -135,10 +133,7 @@ interface TableDataState {
     };
   };
 }
-export default defineComponent({
-  name: "addDevice",
-  components: {},
-  setup() {
+
     const userInfos = Session.get("userInfo");
     const router = useRouter();
     const state = reactive<TableDataState>({
@@ -190,14 +185,6 @@ export default defineComponent({
     onMounted(() => {
       initTableData();
     });
-    return {
-      onHandleSizeChange,
-      onHandleCurrentChange,
-      getData,
-      replay,
-      ...toRefs(state),
-      ...toRefs(query),
-    };
-  },
-});
+
+
 </script>
