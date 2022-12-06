@@ -22,7 +22,7 @@
     <el-row :gutter="15" class="mb15" >
       <el-col :span="16">
         <card title="消息总线" :icon="iconChart" style="height: 400px">
-
+          <div style="height: 310px" ref="messageChartRef"></div>
         </card>
       </el-col>
       <el-col :span="8">
@@ -64,13 +64,14 @@ import HomeCardItem from "/@/views/dashboard/HomeCardItem.vue";
 import {homeCardItemsConfig} from "/@/views/dashboard/homeCardItems";
 import {nextTick, onActivated, onMounted, ref, watch} from "vue";
 import {useThemeConfig} from '/@/stores/themeConfig';
-import {getHealthChecks, getKanban} from "/@/api/dashboard";
+import {getHealthChecks, getKanban, getMessageInfo} from "/@/api/dashboard";
 
 const storesThemeConfig = useThemeConfig();
 const {themeConfig} = storeToRefs(storesThemeConfig);
 
 const onlineChartRef = ref();
 const warningChartRef = ref();
+const messageChartRef = ref();
 const myCharts = reactive([]) // 页面所有图表保存在这里
 const charts = reactive({
   theme: '',
@@ -185,6 +186,76 @@ const warningChartOption = {
     },
   ],
 };
+const messageChartOption = {
+  tooltip: {
+    trigger: 'axis'
+  },
+  legend: {
+    data: ['publishFailed', 'publishSuccessed', 'subscribeFailed', 'subscribeSuccessed']
+  },
+  grid: {
+    left: '3%',
+    right: '4%',
+    bottom: '3%',
+    containLabel: true
+  },
+  xAxis: {
+    type: 'category',
+    boundaryGap: false,
+    data: []
+  },
+  yAxis: {
+    type: 'value',
+    boundaryGap: [0, '100%']
+  },
+  dataZoom: [
+    {
+      type: 'inside',
+      start: 0,
+      end: 10
+    },
+    {
+      start: 0,
+      end: 10,
+      height: 10,//这里可以设置dataZoom的尺寸
+      bottom: 0,
+    }
+  ],
+  series: [
+    {
+      name: 'publishFailed',
+      type: 'line',
+      smooth: true,
+      seriesLayoutBy: 'row',
+      stack: 'Total',
+      data: []
+    },
+    {
+      name: 'publishSuccessed',
+      type: 'line',
+      smooth: true,
+      seriesLayoutBy: 'row',
+      stack: 'Total',
+      data: []
+    },
+    {
+      name: 'subscribeFailed',
+      type: 'line',
+      smooth: true,
+      seriesLayoutBy: 'row',
+      stack: 'Total',
+      data: []
+    },
+    {
+      name: 'subscribeSuccessed',
+      type: 'line',
+      smooth: true,
+      seriesLayoutBy: 'row',
+      stack: 'Total',
+      data: []
+    },
+  ]
+};
 const kanbanData = reactive(homeCardItemsConfig)
 /**
  *
@@ -244,6 +315,19 @@ async function getData(){
   onlineChartOption.series[0].data[0].value = onlineDeviceCount
   onlineChartOption.series[0].data[1].value = deviceCount - onlineDeviceCount
 
+  const messageInfo = await getMessageInfo()
+  const {
+    dayHour,
+    publishFailed,
+    publishSuccessed,
+    subscribeSuccessed,
+    subscribeFailed,
+  } = messageInfo.data;
+  messageChartOption.xAxis.data = dayHour
+  messageChartOption.series[0].data = publishFailed
+  messageChartOption.series[1].data = publishSuccessed
+  messageChartOption.series[2].data = subscribeFailed
+  messageChartOption.series[3].data = subscribeSuccessed
   // 健康数据
   const healthRes: any = await getHealthChecks()
   Object.assign(healthChecks, healthRes[0].entries)
@@ -262,6 +346,7 @@ watch(
         setTimeout(() => {
           initPieChart(onlineChartRef, onlineChartOption as EChartsOption, 'onlineChart');
           initPieChart(warningChartRef, warningChartOption as EChartsOption, 'warningChart');
+          initPieChart(messageChartRef, messageChartOption as EChartsOption, 'messageChart');
         }, 700);
         setTimeout(() => {
           // initBarChart();

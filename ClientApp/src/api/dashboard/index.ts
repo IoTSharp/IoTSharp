@@ -14,3 +14,10 @@ export function getHealthChecks() {
         method: 'get',
     })
 }
+
+export function getMessageInfo() {
+    return request({
+        url: '/api/Metrics/EventBus',
+        method: 'get',
+    })
+}
