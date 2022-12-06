@@ -76,51 +76,60 @@
               @click.prevent="editprop(scope.row)"
               >属性
             </el-button>
-<!--            <el-button-->
-<!--              size="small"-->
-<!--              text-->
-<!--              type="primary"-->
-<!--              @click.prevent="editdict(scope.row)"-->
-<!--              >字典-->
-<!--            </el-button>-->
-<!--            <el-button-->
-<!--              size="small"-->
-<!--              text-->
-<!--              type="primary"-->
-<!--              @click.prevent="creatdevice(scope.row)"-->
-<!--              >创建设备-->
-<!--            </el-button>-->
 
-<!--            <el-button-->
-<!--              size="small"-->
-<!--              text-->
-<!--              type="primary"-->
-<!--              @click.prevent="navtodevice(scope.row)"-->
-<!--              >管理设备-->
-<!--            </el-button>-->
-<!--            <el-button-->
-<!--              size="small"-->
-<!--              text-->
-<!--              type="primary"-->
-<!--              @click.prevent="deleteprod(scope.row)"-->
-<!--              >删除-->
-<!--            </el-button>-->
+            <el-button
+              size="small"
+              text
+              type="primary"
+              @click.prevent="deleteprod(scope.row)"
+              >删除
+            </el-button>
+            <!--            <el-button-->
+            <!--              size="small"-->
+            <!--              text-->
+            <!--              type="primary"-->
+            <!--              @click.prevent="editdict(scope.row)"-->
+            <!--              >字典-->
+            <!--            </el-button>-->
+            <!--            <el-button-->
+            <!--              size="small"-->
+            <!--              text-->
+            <!--              type="primary"-->
+            <!--              @click.prevent="creatdevice(scope.row)"-->
+            <!--              >创建设备-->
+            <!--            </el-button>-->
 
-
-
-            <el-dropdown>
-        <span class="el-dropdown-link">
-          Dropdown List<el-icon class="el-icon--right"><arrow-down /></el-icon>
-        </span>
+            <!--            <el-button-->
+            <!--              size="small"-->
+            <!--              text-->
+            <!--              type="primary"-->
+            <!--              @click.prevent="navtodevice(scope.row)"-->
+            <!--              >管理设备-->
+            <!--            </el-button>-->
+            <!--            <el-button-->
+            <!--              size="small"-->
+            <!--              text-->
+            <!--              type="primary"-->
+            <!--              @click.prevent="deleteprod(scope.row)"-->
+            <!--              >删除-->
+            <!--            </el-button>-->
+            &nbsp;
+            <el-dropdown
+              size="small"
+              @command="
+                (command) => {
+                  dropdownCommand( scope.row,command);
+                }
+              "
+            >
+              <el-button type="primary" size="small" text>
+                更多<el-icon class="el-icon--right"><arrow-down /></el-icon>
+              </el-button>
               <template #dropdown>
                 <el-dropdown-menu>
-                  <el-dropdown-item :icon="Plus">Action 1</el-dropdown-item>
-                  <el-dropdown-item :icon="CirclePlusFilled">
-                    Action 2
-                  </el-dropdown-item>
-                  <el-dropdown-item :icon="CirclePlus">Action 3</el-dropdown-item>
-                  <el-dropdown-item :icon="Check">Action 4</el-dropdown-item>
-                  <el-dropdown-item :icon="CircleCheck">Action 5</el-dropdown-item>
+                  <el-dropdown-item command="dict">字典</el-dropdown-item>
+                  <el-dropdown-item command="createdev">创建设备</el-dropdown-item>
+                  <el-dropdown-item command="managedev">管理设备</el-dropdown-item>
                 </el-dropdown-menu>
               </template>
             </el-dropdown>
@@ -144,8 +153,7 @@
     <produceform ref="produceformRef" />
     <producedatadictionaryform ref="producedatadictionaryformRef" />
     <producepropform ref="producepropformRef" />
-     <propform ref="propformRef"></propform>
-
+    <propform ref="propformRef"></propform>
 
     <!-- <flowdesigner ref="flowdesignerRef" /> -->
   </div>
@@ -166,7 +174,7 @@ import {
 } from "element-plus";
 
 import propform from "./../devices/propform.vue";
-
+import { useRouter } from "vue-router";
 import produceform from "./produceform.vue";
 import producepropform from "./producepropform.vue";
 import producedatadictionaryform from "./producedatadictionaryform.vue";
@@ -204,7 +212,7 @@ interface TableDataState {
 }
 export default defineComponent({
   name: "producelist",
-  components: { produceform, producedatadictionaryform, producepropform,propform },
+  components: { produceform, producedatadictionaryform, producepropform, propform },
   setup() {
     const produceformRef = ref();
     const producedatadictionaryformRef = ref();
@@ -241,7 +249,7 @@ export default defineComponent({
       getProduceList({
         offset: state.tableData.param.pageNum - 1,
         limit: state.tableData.param.pageSize,
-        name:''
+        name: "",
       }).then((res) => {
         state.tableData.rows = res.data.rows;
         state.tableData.total = res.data.total;
@@ -255,10 +263,24 @@ export default defineComponent({
       initTableData();
     });
 
-    const creatprod = () => {
+    const dropdownCommand = (row: any, command: string) => {
+ 
+      switch (command) {
+        case "dict":
+        editdict(row)
+          break;
+        case "createdev":
+          break;
+        case "managedev":
 
-        propformRef.value.openDialog();
-  //  produceformRef.value.openDialog(NIL_UUID);
+          navtodevice(row);
+          break;
+      }
+    };
+
+    const creatprod = () => {
+      propformRef.value.openDialog("11c12dfe-8b37-4ddb-805a-00ba802259eb");
+      //  produceformRef.value.openDialog(NIL_UUID);
     };
     const editprod = (row: TableDataRow) => {
       produceformRef.value.openDialog(row.id);
@@ -270,12 +292,18 @@ export default defineComponent({
       producedatadictionaryformRef.value.openDialog(row.id);
     };
     const creatdevice = (row: TableDataRow) => {};
-    const navtodevice = (row: TableDataRow) => {};
+    const navtodevice = (row: TableDataRow) => {
+      router.push({
+        path: "/iot/devices/devicelist",
+      });
+    };
     const deleteprod = (row: TableDataRow) => {};
     return {
+      dropdownCommand,
       produceformRef,
       producedatadictionaryformRef,
-      producepropformRef,propformRef,
+      producepropformRef,
+      propformRef,
       creatprod,
       editprod,
       editprop,
