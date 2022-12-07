@@ -1,22 +1,19 @@
 import { deviceApi } from '/@/api/devices';
-import _ from 'lodash-es';
-import { compute, dict } from '@fast-crud/fast-crud';
-import { TableDataRow } from '/@/views/iot/devices/model';
-import { ElMessage } from 'element-plus';
-import { dateUtil } from '/@/utils/dateUtil';
+import { dateUtil, formatToDateTime } from '/@/utils/dateUtil';
 // eslint-disable-next-line no-unused-vars
-export const createDeviceTelemetryRealtimeCrudOptions = function ({ expose }, deviceId, currentStateOfTelemetryPage) {
+export const createDeviceTelemetryRealtimeCrudOptions = function ({ expose }, deviceId, state) {
 	const deviceId_param = deviceId;
 	let records: any[] = [];
 	const FsButton = {
 		link: true,
 	};
+	const formatColumnDataTime = (row, column, cellValue, index) => {
+		return formatToDateTime(cellValue);
+	};
 	const pageRequest = async (query) => {
 		const res = await deviceApi().getDeviceLatestTelemetry(deviceId_param);
-		let keys = res.data
-			.filter((x) => typeof x.value === 'number')
-			.map((c) => c.keyName)
-			.join(',');
+		state.telemetryKeys = res.data.filter((x) => typeof x.value === 'number').map((c) => c.keyName); // DeviceDetailTelemetry 组件状态， 要传到遥测历史组件
+		let keys = state.telemetryKeys.join(','); // 在pageRequest 参数中使用的 keys
 		const end = dateUtil();
 		const begin = end.subtract(3, 'day'); // 获取三天前的时间点
 
@@ -72,8 +69,7 @@ export const createDeviceTelemetryRealtimeCrudOptions = function ({ expose }, de
 						show: true, //是否显示此按钮
 						type: 'primary',
 						click() {
-							console.log('test');
-							currentStateOfTelemetryPage.value = 'history';
+							state.currentPageState = 'history';
 						}, //点击事件，默认打开添加对话框
 					},
 				},
@@ -144,6 +140,9 @@ export const createDeviceTelemetryRealtimeCrudOptions = function ({ expose }, de
 				dateTime: {
 					title: '时间',
 					type: 'text',
+					column: {
+						formatter: formatColumnDataTime,
+					},
 					addForm: {
 						show: false,
 					},
@@ -162,15 +161,15 @@ export const createDeviceTelemetryRealtimeCrudOptions = function ({ expose }, de
 					},
 				},
 				average: {
-					title: '平均值',
+					title: '平均值(3天)',
 					type: 'text',
 				},
 				min: {
-					title: '最小值',
+					title: '最小值(3天)',
 					type: 'text',
 				},
 				max: {
-					title: '最大值',
+					title: '最大值(3天)',
 					type: 'text',
 				},
 			},

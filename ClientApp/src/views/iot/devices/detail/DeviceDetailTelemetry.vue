@@ -1,19 +1,25 @@
 <template>
   <div class="z-crud">
-    <fs-crud v-if="currentStateOfTelemetryPage === 'realtime'" ref="crudRef" v-bind="crudBinding"/>
-    <div v-if="currentStateOfTelemetryPage === 'history'">遥测历史</div>
-<!--    <fs-crud v-if="currentStateOfTelemetryPage === 'history'" ref="crudRef" v-bind="crudBinding"/>-->
+    <fs-crud v-if="state.currentPageState === 'realtime'" ref="crudRef" v-bind="crudBinding"/>
+    <div v-if="state.currentPageState === 'history'">
+      <DeviceDetailTelemetryHistory
+          :telemetry-keys="state.telemetryKeys"
+          :deviceId="deviceId"></DeviceDetailTelemetryHistory>
+    </div>
   </div>
 </template>
 
 <script setup lang="ts">
 import {useCrud} from "@fast-crud/fast-crud";
 import {useExpose} from "@fast-crud/fast-crud";
-import {createDeviceRulesCrudOptions} from "/@/views/iot/devices/detail/deviceRulesCrudOptions";
-import {ruleApi} from "/@/api/flows";
 import {createDeviceTelemetryRealtimeCrudOptions} from "/@/views/iot/devices/detail/deviceTelemetryRealtimeCrudOptions";
-
-const currentStateOfTelemetryPage = ref('realtime') // realtime | history
+import DeviceDetailTelemetryHistory from "/@/views/iot/devices/detail/DeviceDetailTelemetryHistory.vue";
+import {getCurrentInstance} from "vue";
+const {proxy} = <any>getCurrentInstance();
+const state = reactive({
+  currentPageState: 'realtime',
+  telemetryKeys: []
+})
 const props = defineProps({
   deviceId: {
     type: String,
@@ -27,7 +33,7 @@ const crudBinding = ref();
 // 暴露的方法
 const {crudExpose} = useExpose({crudRef, crudBinding});
 // 你的crud配置
-let {crudOptions} = createDeviceTelemetryRealtimeCrudOptions({expose: crudExpose}, props.deviceId, currentStateOfTelemetryPage);
+let {crudOptions} = createDeviceTelemetryRealtimeCrudOptions({expose: crudExpose}, props.deviceId, state);
 // 初始化crud配置
 // eslint-disable-next-line @typescript-eslint/no-unused-vars,no-unused-vars
 const {resetCrudOptions} = useCrud({expose: crudExpose, crudOptions});
@@ -35,16 +41,22 @@ const {resetCrudOptions} = useCrud({expose: crudExpose, crudOptions});
 // resetCrudOptions(options)
 watch(() => props.deviceId, () => {
   // watch deviceId , 根据Device id 重新配置 crud， 再进行刷新
-  const res =  createDeviceRulesCrudOptions({expose: crudExpose}, props.deviceId);
+  const res =  createDeviceTelemetryRealtimeCrudOptions({expose: crudExpose}, props.deviceId, state);
   crudOptions = res.crudOptions
-  // console.log(`%c@DeviceDetailProps:32`, 'color:white;font-size:16px;background:green;font-weight: bold;', res)
   resetCrudOptions(crudOptions)
   crudExpose.doRefresh();
 })
 // 页面打开后获取列表数据
-onMounted(async () => {
+onMounted( () => {
   crudExpose.doRefresh();
+  proxy.mittBus.on('updateTelemetryPageSate', (pageSateName) => {
+    state.currentPageState = pageSateName
+  });
 });
+onUnmounted(()=>{
+  proxy.mittBus.off('updateTelemetryPageSate', () => {
+  });
+})
 
 </script>
 

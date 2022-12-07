@@ -1,6 +1,6 @@
 import { deviceApi } from '/@/api/devices';
 import _ from 'lodash-es';
-import { asyncCompute, compute, dict } from '@fast-crud/fast-crud';
+import { dict } from '@fast-crud/fast-crud';
 import { TableDataRow } from '/@/views/iot/devices/model';
 import { ElMessage } from 'element-plus';
 import { ruleApi } from '/@/api/flows';
@@ -15,12 +15,6 @@ export const createDeviceRulesCrudOptions = function ({ expose }, deviceId) {
 
 	const pageRequest = async () => {
 		const res = await deviceApi().getDeviceRules(deviceId);
-		console.log(
-			`%c-createDeviceRulesCrudOptions@deviceRulesCrudOptions:9`,
-			'color:white;font-size:16px;background:blue;font-weight: bold;',
-			records,
-			rulesDict
-		);
 		records = res.data;
 		return {
 			records,
@@ -58,16 +52,6 @@ export const createDeviceRulesCrudOptions = function ({ expose }, deviceId) {
 			ElMessage.error(e.response);
 		}
 	};
-
-	async function getDifference() {
-		await pageRequest();
-		await getRulesDict();
-		const diff = _.differenceWith(rulesDict, records, (a, b) => {
-			return a.ruleId === b.ruleId;
-		});
-		console.log(`%cgetDifference@deviceRulesCrudOptions:63`, 'color:white;font-size:16px;background:green;font-weight: bold;', diff);
-		return [];
-	}
 
 	return {
 		deviceId,
