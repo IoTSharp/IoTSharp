@@ -1,7 +1,9 @@
 <template>
-	<div class="z-crud">
-		<fs-crud ref="crudRef" v-bind="crudBinding" />
-	</div>
+  <el-card>
+    <div class="z-crud">
+      <fs-crud ref="crudRef" v-bind="crudBinding"/>
+    </div>
+  </el-card>
 </template>
 
 <script lang="ts">
