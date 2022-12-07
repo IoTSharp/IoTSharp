@@ -57,7 +57,11 @@ export const createUserListCrudOptions = function ({ expose }, customerId) {
 				border: false,
 			},
 			actionbar: {
-				show: false,
+				buttons: {
+					add: {
+						show: false,
+					},
+				},
 			},
 			form: {
 				labelWidth: '80px', //
