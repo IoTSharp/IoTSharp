@@ -12,7 +12,7 @@
           <!-- 右侧绘画区 -->
           <div class="workflow-right" ref="workflowRightRef">
             <div
-              v-for="(v, k) in jsplumbData.nodeList"
+              v-for="(v, k) in state.jsplumbData.nodeList"
               :key="v.nodeId"
               :id="v.nodeId"
               :data-node-id="v.nodeId"
@@ -20,11 +20,10 @@
               :style="{ left: v.left, top: v.top }"
               @click="onItemCloneClick(k)"
             >
-              <div            
-              
+              <div
                 :style="{ backgroundColor: v.color }"
                 class="workflow-right-box"
-                :class="{ 'workflow-right-active': jsPlumbNodeIndex === k }"
+                :class="{ 'workflow-right-active': state.jsPlumbNodeIndex === k }"
               >
                 <div class="workflow-left-item-icon">
                   <SvgIcon :name="v.icon" class="workflow-icon-drag" />
@@ -41,7 +40,7 @@
       <el-scrollbar>
         <div
           ref="leftNavRefs"
-          v-for="(val, key) in leftNavList"
+          v-for="(val, key) in state.leftNavList"
           :key="val.id"
           :style="{ height: val.isOpen ? 'auto' : '50px', overflow: 'hidden' }"
           class="workflow-left-id"
@@ -70,14 +69,22 @@
       </el-scrollbar>
     </div>
 
-    <el-dialog v-model="dataFormVisible" title="测试数据">
+    <el-dialog v-model="state.dataFormVisible" title="测试数据">
       <div>
-        <div id="codeEditBox" style="height: 300px; padding: 10px"></div>
+        <monaco
+                  height="300px"
+             
+                  width="80%"
+                  theme="vs-dark"
+                  v-model="state.content"
+                  language="json"
+                  selectOnLineNumbers="true"
+                ></monaco>
       </div>
 
       <template #footer>
         <span class="dialog-footer">
-          <el-button @click="dataFormVisible = false">取消</el-button>
+          <el-button @click="state.dataFormVisible = false">取消</el-button>
           <el-button type="primary" @click="submitData"> 确认 </el-button>
         </span>
       </template>
@@ -85,10 +92,8 @@
   </div>
 </template>
 
-<script lang="ts">
+<script lang="ts" setup>
 import {
-  defineComponent,
-  toRefs,
   reactive,
   computed,
   onMounted,
@@ -104,12 +109,9 @@ import { storeToRefs } from "pinia";
 import { useThemeConfig } from "/@/stores/themeConfig";
 import { useTagsViewRoutes } from "/@/stores/tagsViewRoutes";
 import Tool from "./component/tool/simulator.vue";
-import Help from "./component/tool/help.vue";
-import ContextmenuNode from "./component/contextmenu/node.vue";
-import ContextmenuLine from "./component/contextmenu/line.vue";
-import Drawer from "./component/drawer/index.vue";
+import monaco from "/@/components/monaco/monaco.vue";
 import commonFunction from "/@/utils/commonFunction";
-import { leftNavList } from "./js/mock";
+
 import {
   jsplumbDefaults,
   jsplumbMakeSource,
@@ -118,7 +120,7 @@ import {
 } from "./js/config";
 import { useRouter, useRoute } from "vue-router";
 import { ruleApi } from "/@/api/flows";
-import * as monaco from "monaco-editor";
+
 import { LineListState, NodeListState } from "./models";
 
 // 定义接口来定义对象的类型
@@ -150,561 +152,497 @@ interface FlowState {
   };
 }
 
-export default defineComponent({
-  name: "flowsimulator",
-  components: { Tool, ContextmenuNode, ContextmenuLine, Drawer, Help },
-  setup() {
-    const route = useRoute();
-    const router = useRouter();
-    const language = ref("json");
-    let editor: monaco.editor.IStandaloneCodeEditor;
-    const contextmenuNodeRef = ref();
-    const contextmenuLineRef = ref();
-    const drawerRef = ref();
-    const helpRef = ref();
-    const stores = useTagsViewRoutes();
-    const storesThemeConfig = useThemeConfig();
-    const { themeConfig } = storeToRefs(storesThemeConfig);
-    const { isTagsViewCurrenFull } = storeToRefs(stores);
-    const { copyText } = commonFunction();
+const route = useRoute();
+const router = useRouter();
+const language = ref("json");
 
-    const state = reactive<FlowState>({
-      flowid: route.query.id,
-      workflowRightRef: null as HTMLDivElement | null,
-      leftNavRefs: [],
-      leftNavList: [],
-      dropdownNode: { x: "", y: "" },
-      dropdownLine: { x: "", y: "" },
-      isShow: false,
-      jsPlumb: null,
-      jsPlumbNodeIndex: null,
-      jsplumbDefaults,
-      jsplumbMakeSource,
-      jsplumbMakeTarget,
-      jsplumbConnect,
-      dataFormVisible: false,
-      jsplumbData: {
-        nodeList: [],
-        lineList: [],
-      },
+const contextmenuNodeRef = ref();
+const contextmenuLineRef = ref();
+const drawerRef = ref();
+const helpRef = ref();
+const stores = useTagsViewRoutes();
+const storesThemeConfig = useThemeConfig();
+const { themeConfig } = storeToRefs(storesThemeConfig);
+const { isTagsViewCurrenFull } = storeToRefs(stores);
+const { copyText } = commonFunction();
 
-      index: 0,
-    });
-    // 设置 view 的高度
-    const setViewHeight = computed(() => {
-      let { isTagsview } = themeConfig.value;
-      if (isTagsViewCurrenFull.value) {
-        return `30px`;
-      } else {
-        if (isTagsview) return `114px`;
-        else return `80px`;
-      }
-    });
-    // 设置 宽度小于 768，不支持操
-    const setClientWidth = () => {
-      const clientWidth = document.body.clientWidth;
-      clientWidth < 768 ? (state.isShow = true) : (state.isShow = false);
-    };
-    // 左侧导航-数据初始化
-    const initLeftNavList = async () => {
-      state.leftNavList = [
-        {
-          title: "基本",
-          icon: "iconfont icon-shouye",
-          isOpen: true,
-          id: "1",
-          children: [
-            {
-              icon: "iconfont icon-gongju",
-              name: "开始",
-              nodetype: "basic",
-              namespace: "bpmn:StartEvent",
-              mata: "begin",
-              id: "begin",
-            },
-            {
-              icon: "iconfont icon-gongju",
-              nodetype: "basic",
-              namespace: "bpmn:EndEvent",
-              mata: "end",
-              name: "结束",
-              id: "end",
-            },
-          ],
-        },
-        {
-          title: "执行器",
-          icon: "iconfont icon-shouye",
-          isOpen: true,
-          id: "1",
-          children: [],
-        },
-        {
-          title: "脚本",
-          icon: "iconfont icon-shouye",
-          isOpen: true,
-          id: "1",
-          children: [
-            {
-              icon: "iconfont icon-gongju",
-              name: "javascript",
-              id: "javascript",
-
-              nodetype: "script",
-              namespace: "bpmn:Task",
-              mata: "javascript",
-            },
-            {
-              icon: "iconfont icon-gongju",
-              name: "python",
-              id: "python",
-              nodetype: "script",
-              namespace: "bpmn:Task",
-              mata: "python",
-            },
-            {
-              icon: "iconfont icon-gongju",
-              name: "sql",
-              id: "sql",
-              nodetype: "script",
-              namespace: "bpmn:Task",
-              mata: "sql",
-            },
-            {
-              icon: "iconfont icon-gongju",
-              name: "lua",
-              id: "lua",
-              nodetype: "script",
-              namespace: "bpmn:Task",
-              mata: "lua",
-            },
-            {
-              icon: "iconfont icon-gongju",
-              name: "csharp",
-              id: "csharp",
-              nodetype: "script",
-              namespace: "bpmn:Task",
-              mata: "csharp",
-            },
-          ],
-        },
-      ];
-
-      await ruleApi()
-        .getDiagram(state.flowid)
-        .then((res) => {
-          state.jsplumbData = {
-            nodeList: res.data.nodes,
-            lineList: res.data.lines,
-          };
-        });
-
-      // window.setInterval(() => {
-      //   var index = state.index % state.jsplumbData.nodeList.length;
-      //   state.jsplumbData.nodeList[index].class = "workflow-right-highlight";
-      //   state.index++;
-      // }, 1000);
-    };
-    // 左侧导航-初始化拖动
-    const initSortable = () => {
-      state.leftNavRefs.forEach((v) => {
-        Sortable.create(v as HTMLDivElement, {
-          group: {
-            name: "vue-next-admin-1",
-            pull: "clone",
-            put: false,
-          },
-          animation: 0,
-          sort: false,
-          draggable: ".workflow-left-item",
-          forceFallback: true,
-          onEnd: function (evt: any) {
-            const { name, icon, id ,color} = evt.clone.dataset;
-            const { nodetype, nodenamespace, mata } = evt.clone.attributes;
-            const { layerX, layerY, clientX, clientY } = evt.originalEvent;
-            const el = state.workflowRightRef!;
-            const { x, y, width, height } = el.getBoundingClientRect();
-
-            if (clientX < x || clientX > width + x || clientY < y || y > y + height) {
-              ElMessage.warning("请把节点拖入到画布中");
-            } else {
-              // 节点id（唯一）
-              const nodeId = Math.random().toString(36).substr(2, 12);
-              // 处理节点数据
-              const node = {
-                nodeId,     
-                color,
-                left: `${layerX - 40}px`,
-                top: `${layerY - 15}px`,
-                nodeclass: "workflow-right-highlight",
-                nodetype: nodetype.value,
-                nodenamespace: nodenamespace.value,
-                mata: mata.value,
-                name,
-                icon,
-                id,
-              };
-
-              // 右侧视图内容数组
-              state.jsplumbData.nodeList.push(node);
-              // 元素加载完毕时
-              nextTick(() => {
-                // 整个节点作为source或者target
-                state.jsPlumb.makeSource(nodeId, state.jsplumbMakeSource);
-                // // 整个节点作为source或者target
-                state.jsPlumb.makeTarget(nodeId, state.jsplumbMakeTarget, jsplumbConnect);
-                // 设置节点可以拖拽（此处为id值，非class）
-                state.jsPlumb.draggable(nodeId, {
-                  containment: "parent",
-                  stop: (el: any) => {
-                    state.jsplumbData.nodeList.forEach((v) => {
-                      if (v.nodeId === el.el.id) {
-                        // 节点x, y重新赋值，防止再次从左侧导航中拖拽节点时，x, y恢复默认
-                        v.left = `${el.pos[0]}px`;
-                        v.top = `${el.pos[1]}px`;
-                      }
-                    });
-                  },
-                });
-              });
-            }
-          },
-        });
-      });
-    };
-    // 初始化 jsPlumb
-    const initJsPlumb = () => {
-      (<any>jsPlumb).ready(() => {
-        state.jsPlumb = (<any>jsPlumb).getInstance({
-          detachable: false,
-          Container: "workflow-right",
-        });
-        state.jsPlumb.fire("jsPlumbDemoLoaded", state.jsPlumb);
-        // 导入默认配置
-        state.jsPlumb.importDefaults(state.jsplumbDefaults);
-        // 会使整个jsPlumb立即重绘。
-        state.jsPlumb.setSuspendDrawing(false, true);
-        // 初始化节点、线的链接
-        initJsPlumbConnection();
-      });
-    };
-    // 初始化节点、线的链接
-    const initJsPlumbConnection = () => {
-      state.jsplumbData.nodeList.forEach((v) => {
-        // 整个节点作为source或者target
-        state.jsPlumb.makeSource(v.nodeId, state.jsplumbMakeSource);
-        // 整个节点作为source或者target
-        state.jsPlumb.makeTarget(v.nodeId, state.jsplumbMakeTarget, jsplumbConnect);
-      });
-
-      // 线
-      state.jsplumbData.lineList.forEach((v) => {
-        state.jsPlumb.connect(
-          {
-            source: v.sourceId,
-            target: v.targetId,
-            label: v.linename,
-            linename: v.linename,
-            condition: v.condition,
-          },
-          state.jsplumbConnect
-        );
-      });
-      // 节点
-    };
-    // 左侧导航-菜单标题点击
-    const onTitleClick = (val: any) => {
-      val.isOpen = !val.isOpen;
-    };
-
-    const onexecutorSubmit = (data: object) => {};
-
-    const onscriptSubmit = (data: any) => {};
-
-    // 右侧内容区-当前项点击
-    const onItemCloneClick = (k: number) => {
-      state.jsPlumbNodeIndex = k;
-    };
-
-    // 右侧内容区-当前项右键菜单点击回调(线)
-    const onCurrentLineClick = (item: any, conn: any) => {
-      const { contextMenuClickId } = item;
-      const { endpoints } = conn;
-      const intercourse: any = [];
-      endpoints.forEach((v: any) => {
-        intercourse.push({
-          id: v.element.id,
-          innerText: v.element.innerText,
-        });
-      });
-      item.contact = `${intercourse[0].innerText}(${intercourse[0].id}) => ${intercourse[1].innerText}(${intercourse[1].id})`;
-      if (contextMenuClickId === 0) state.jsPlumb.deleteConnection(conn);
-      else if (contextMenuClickId === 1) {
-        drawerRef.value.open(item, conn);
-      }
-    };
-    // 设置线的 label
-    const setLineLabel = (obj: any) => {
-      const { sourceId, targetId, label, linename, condition, namespace } = obj;
-      const conn = state.jsPlumb.getConnections({
-        source: sourceId,
-        target: targetId,
-      })[0];
-      conn.setLabel(linename);
-      if (!linename || linename === "") {
-        conn.addClass("workflow-right-empty-label");
-      } else {
-        conn.removeClass("workflow-right-empty-label");
-        conn.addClass("workflow-right-label");
-      }
-      state.jsplumbData.lineList.forEach((v) => {
-        if (v.sourceId === sourceId && v.targetId === targetId) {
-          v.label = label;
-          v.linename = linename;
-          v.condition = condition;
-      
-        }
-      });
-    };
-    // 设置节点内容
-    const setNodeContent = (obj: any) => {
-      const { nodeId, name, icon } = obj;
-
-      // 设置节点 name 与 icon
-      state.jsplumbData.nodeList.forEach((v) => {
-        if (v.nodeId === nodeId) {
-          v.name = name;
-          v.icon = icon;
-        }
-      });
-      // 重绘
-      nextTick(() => {
-        state.jsPlumb.setSuspendDrawing(false, true);
-      });
-    };
-    // 顶部工具栏-当前项点击
-    const onToolClick = (fnName: String) => {
-      switch (fnName) {
-        case "help":
-          onToolHelp();
-          break;
-        case "download":
-          onToolDownload();
-          break;
-        case "submit":
-          onToolSubmit();
-          break;
-        case "copy":
-          onToolCopy();
-          break;
-        case "del":
-          onToolDel();
-          break;
-        case "fullscreen":
-          onToolFullscreen();
-          break;
-        case "return":
-          onReturnToList();
-          break;
-      }
-    };
-
-    const onReturnToList = () => {
-      router.push({
-        path: "/iot/rules/flowlist",
-      });
-    };
-
-    // 顶部工具栏-帮助
-    const onToolHelp = () => {
-      nextTick(() => {
-        helpRef.value.open();
-      });
-    };
-    // 顶部工具栏-下载
-    const onToolDownload = () => {
-      const { globalTitle } = themeConfig.value;
-      const href =
-        "data:text/json;charset=utf-8," +
-        encodeURIComponent(JSON.stringify(state.jsplumbData, null, "\t"));
-      const aLink = document.createElement("a");
-      aLink.setAttribute("href", href);
-      aLink.setAttribute("download", `${globalTitle}设计.json`);
-      aLink.click();
-      aLink.remove();
-      ElMessage.success("下载成功");
-    };
-
-    const panelclose = (data: any) => {
-      switch (data.nodetype) {
-        case "script":
-          state.jsplumbData.nodeList.forEach((v) => {
-            if (v.nodeId === data.nodeId) {
-              v.name = data.name;
-              v.icon = data.icon;
-              v.nodetype = data.nodetype;
-              v.nodenamespace = data.namespace;
-              v.mata = data.mata;
-              v.content = data.content;
-            }
-          });
-
-          break;
-        case "executor":
-          state.jsplumbData.nodeList.forEach((v) => {
-            if (v.nodeId === data.nodeId) {
-              v.name = data.name;
-              v.icon = data.icon;
-              v.nodetype = data.nodetype;
-              v.nodenamespace = data.namespace;
-              v.mata = data.mata;
-              v.content = data.content;
-            }
-          });
-          break;
-        case "basic":
-          break;
-      }
-    };
-
-    // 顶部工具栏-提交
-    const onToolSubmit = () => {
-      openRunDialog();
-    };
-
-    const setclass = (item: any) => {
-      for (var _item of item.nodes) {
-        var node = state.jsplumbData.nodeList.find((c) => c.nodeId == _item.bpmnid);
-        if (node) {
-          node.nodeclass = "workflow-right-highlight";
-        }
-      }
-    };
-
-    const submitData = () => {
-      state.dataFormVisible = false;
-      var data = JSON.parse(state.content);
-      if (data) {
-        ruleApi()
-          .active({
-            form: data,
-            extradata: { ruleflowid: state.flowid },
-          })
-          .then((res) => {
-            for (let index = 0; index < res.data.length; index++) {
-              var item = res.data[index];
-              setTimeout(setclass, index * 500, item);
-            }
-          });
-        ElMessage.success("数据提交成功");
-      }
-    };
-
-    const openRunDialog = () => {
-      state.dataFormVisible = true;
-      state.content = "";
-      editorInit();
-    };
-
-    const editorInit = () => {
-      nextTick(() => {
-        monaco.languages.typescript.javascriptDefaults.setDiagnosticsOptions({
-          noSemanticValidation: true,
-          noSyntaxValidation: false,
-        });
-        monaco.languages.typescript.javascriptDefaults.setCompilerOptions({
-          target: monaco.languages.typescript.ScriptTarget.ES2016,
-          allowNonTsExtensions: true,
-        });
-
-        !editor
-          ? (editor = monaco.editor.create(
-              document.getElementById("codeEditBox") as HTMLElement,
-              {
-                value: state.content ?? "", // 编辑器初始显示文字
-                language: "json", // 语言支持自行查阅demo
-                automaticLayout: true, // 自适应布局
-                theme: "vs-dark", // 官方自带三种主题vs, hc-black, or vs-dark
-                foldingStrategy: "indentation",
-                renderLineHighlight: "all", // 行亮
-                selectOnLineNumbers: true, // 显示行号
-                minimap: {
-                  enabled: false,
-                },
-                readOnly: false, // 只读
-                fontSize: 16, // 字体大小
-                scrollBeyondLastLine: false, // 取消代码后面一大段空白
-                overviewRulerBorder: false, // 不要滚动条的边框
-              }
-            ))
-          : editor.setValue(state.content ?? "");
-        // console.log(editor)
-        // 监听值的变化
-        editor.onDidChangeModelContent((val: any) => {
-          state.content = editor.getValue();
-        });
-      });
-    };
-    // 顶部工具栏-复制
-    const onToolCopy = () => {
-      copyText(JSON.stringify(state.jsplumbData));
-    };
-    // 顶部工具栏-删除
-    const onToolDel = () => {
-      ElMessageBox.confirm("此操作将清空画布，是否继续？", "提示", {
-        confirmButtonText: "清空",
-        cancelButtonText: "取消",
-      })
-        .then(() => {
-          state.jsplumbData.nodeList.forEach((v) => {
-            state.jsPlumb.removeAllEndpoints(v.nodeId);
-          });
-          nextTick(() => {
-            state.jsplumbData = {
-              nodeList: [],
-              lineList: [],
-            };
-            ElMessage.success("清空画布成功");
-          });
-        })
-        .catch(() => {});
-    };
-    // 顶部工具栏-全屏
-    const onToolFullscreen = () => {
-      stores.setCurrenFullscreen(true);
-    };
-    // 页面加载时
-    onMounted(async () => {
-      await initLeftNavList();
-      await initSortable();
-      initJsPlumb();
-      setClientWidth();
-      window.addEventListener("resize", setClientWidth);
-    });
-    // 页面卸载时
-    onUnmounted(() => {
-      window.removeEventListener("resize", setClientWidth);
-    });
-    return {
-      setViewHeight,
-      setClientWidth,
-      setLineLabel,
-      setNodeContent,
-      onTitleClick,
-      onItemCloneClick,
-      submitData,
-      onCurrentLineClick,
-      contextmenuNodeRef,
-      contextmenuLineRef,
-      drawerRef,
-      panelclose,
-      helpRef,
-      onToolClick,
-      onexecutorSubmit,
-      onscriptSubmit,
-      ...toRefs(state),
-    };
+const state = reactive<FlowState>({
+  flowid: route.query.id,
+  workflowRightRef: null as HTMLDivElement | null,
+  leftNavRefs: [],
+  leftNavList: [],
+  dropdownNode: { x: "", y: "" },
+  dropdownLine: { x: "", y: "" },
+  isShow: false,
+  jsPlumb: null,
+  jsPlumbNodeIndex: null,
+  jsplumbDefaults,
+  jsplumbMakeSource,
+  jsplumbMakeTarget,
+  jsplumbConnect,
+  dataFormVisible: false,
+  jsplumbData: {
+    nodeList: [],
+    lineList: [],
   },
+
+  index: 0,
+});
+// 设置 view 的高度
+const setViewHeight = computed(() => {
+  let { isTagsview } = themeConfig.value;
+  if (isTagsViewCurrenFull.value) {
+    return `30px`;
+  } else {
+    if (isTagsview) return `114px`;
+    else return `80px`;
+  }
+});
+// 设置 宽度小于 768，不支持操
+const setClientWidth = () => {
+  const clientWidth = document.body.clientWidth;
+  clientWidth < 768 ? (state.isShow = true) : (state.isShow = false);
+};
+// 左侧导航-数据初始化
+const initLeftNavList = async () => {
+  state.leftNavList = [
+    {
+      title: "基本",
+      icon: "iconfont icon-shouye",
+      isOpen: true,
+      id: "1",
+      children: [
+        {
+          icon: "iconfont icon-gongju",
+          name: "开始",
+          nodetype: "basic",
+          namespace: "bpmn:StartEvent",
+          mata: "begin",
+          id: "begin",
+        },
+        {
+          icon: "iconfont icon-gongju",
+          nodetype: "basic",
+          namespace: "bpmn:EndEvent",
+          mata: "end",
+          name: "结束",
+          id: "end",
+        },
+      ],
+    },
+    {
+      title: "执行器",
+      icon: "iconfont icon-shouye",
+      isOpen: true,
+      id: "1",
+      children: [],
+    },
+    {
+      title: "脚本",
+      icon: "iconfont icon-shouye",
+      isOpen: true,
+      id: "1",
+      children: [
+        {
+          icon: "iconfont icon-gongju",
+          name: "javascript",
+          id: "javascript",
+
+          nodetype: "script",
+          namespace: "bpmn:Task",
+          mata: "javascript",
+        },
+        {
+          icon: "iconfont icon-gongju",
+          name: "python",
+          id: "python",
+          nodetype: "script",
+          namespace: "bpmn:Task",
+          mata: "python",
+        },
+        {
+          icon: "iconfont icon-gongju",
+          name: "sql",
+          id: "sql",
+          nodetype: "script",
+          namespace: "bpmn:Task",
+          mata: "sql",
+        },
+        {
+          icon: "iconfont icon-gongju",
+          name: "lua",
+          id: "lua",
+          nodetype: "script",
+          namespace: "bpmn:Task",
+          mata: "lua",
+        },
+        {
+          icon: "iconfont icon-gongju",
+          name: "csharp",
+          id: "csharp",
+          nodetype: "script",
+          namespace: "bpmn:Task",
+          mata: "csharp",
+        },
+      ],
+    },
+  ];
+
+  await ruleApi()
+    .getDiagram(state.flowid)
+    .then((res) => {
+      state.jsplumbData = {
+        nodeList: res.data.nodes,
+        lineList: res.data.lines,
+      };
+    });
+
+  // window.setInterval(() => {
+  //   var index = state.index % state.jsplumbData.nodeList.length;
+  //   state.jsplumbData.nodeList[index].class = "workflow-right-highlight";
+  //   state.index++;
+  // }, 1000);
+};
+// 左侧导航-初始化拖动
+const initSortable = () => {
+  state.leftNavRefs.forEach((v) => {
+    Sortable.create(v as HTMLDivElement, {
+      group: {
+        name: "vue-next-admin-1",
+        pull: "clone",
+        put: false,
+      },
+      animation: 0,
+      sort: false,
+      draggable: ".workflow-left-item",
+      forceFallback: true,
+      onEnd: function (evt: any) {
+        const { name, icon, id, color } = evt.clone.dataset;
+        const { nodetype, nodenamespace, mata } = evt.clone.attributes;
+        const { layerX, layerY, clientX, clientY } = evt.originalEvent;
+        const el = state.workflowRightRef!;
+        const { x, y, width, height } = el.getBoundingClientRect();
+
+        if (clientX < x || clientX > width + x || clientY < y || y > y + height) {
+          ElMessage.warning("请把节点拖入到画布中");
+        } else {
+          // 节点id（唯一）
+          const nodeId = Math.random().toString(36).substr(2, 12);
+          // 处理节点数据
+          const node = {
+            nodeId,
+            color,
+            left: `${layerX - 40}px`,
+            top: `${layerY - 15}px`,
+            nodeclass: "workflow-right-highlight",
+            nodetype: nodetype.value,
+            nodenamespace: nodenamespace.value,
+            mata: mata.value,
+            name,
+            icon,
+            id,
+          };
+
+          // 右侧视图内容数组
+          state.jsplumbData.nodeList.push(node);
+          // 元素加载完毕时
+          nextTick(() => {
+            // 整个节点作为source或者target
+            state.jsPlumb.makeSource(nodeId, state.jsplumbMakeSource);
+            // // 整个节点作为source或者target
+            state.jsPlumb.makeTarget(nodeId, state.jsplumbMakeTarget, jsplumbConnect);
+            // 设置节点可以拖拽（此处为id值，非class）
+            state.jsPlumb.draggable(nodeId, {
+              containment: "parent",
+              stop: (el: any) => {
+                state.jsplumbData.nodeList.forEach((v) => {
+                  if (v.nodeId === el.el.id) {
+                    // 节点x, y重新赋值，防止再次从左侧导航中拖拽节点时，x, y恢复默认
+                    v.left = `${el.pos[0]}px`;
+                    v.top = `${el.pos[1]}px`;
+                  }
+                });
+              },
+            });
+          });
+        }
+      },
+    });
+  });
+};
+// 初始化 jsPlumb
+const initJsPlumb = () => {
+  (<any>jsPlumb).ready(() => {
+    state.jsPlumb = (<any>jsPlumb).getInstance({
+      detachable: false,
+      Container: "workflow-right",
+    });
+    state.jsPlumb.fire("jsPlumbDemoLoaded", state.jsPlumb);
+    // 导入默认配置
+    state.jsPlumb.importDefaults(state.jsplumbDefaults);
+    // 会使整个jsPlumb立即重绘。
+    state.jsPlumb.setSuspendDrawing(false, true);
+    // 初始化节点、线的链接
+    initJsPlumbConnection();
+  });
+};
+// 初始化节点、线的链接
+const initJsPlumbConnection = () => {
+  state.jsplumbData.nodeList.forEach((v) => {
+    // 整个节点作为source或者target
+    state.jsPlumb.makeSource(v.nodeId, state.jsplumbMakeSource);
+    // 整个节点作为source或者target
+    state.jsPlumb.makeTarget(v.nodeId, state.jsplumbMakeTarget, jsplumbConnect);
+  });
+
+  // 线
+  state.jsplumbData.lineList.forEach((v) => {
+    state.jsPlumb.connect(
+      {
+        source: v.sourceId,
+        target: v.targetId,
+        label: v.linename,
+        linename: v.linename,
+        condition: v.condition,
+      },
+      state.jsplumbConnect
+    );
+  });
+  // 节点
+};
+// 左侧导航-菜单标题点击
+const onTitleClick = (val: any) => {
+  val.isOpen = !val.isOpen;
+};
+
+const onexecutorSubmit = (data: object) => {};
+
+const onscriptSubmit = (data: any) => {};
+
+// 右侧内容区-当前项点击
+const onItemCloneClick = (k: number) => {
+  state.jsPlumbNodeIndex = k;
+};
+
+// 右侧内容区-当前项右键菜单点击回调(线)
+const onCurrentLineClick = (item: any, conn: any) => {
+  const { contextMenuClickId } = item;
+  const { endpoints } = conn;
+  const intercourse: any = [];
+  endpoints.forEach((v: any) => {
+    intercourse.push({
+      id: v.element.id,
+      innerText: v.element.innerText,
+    });
+  });
+  item.contact = `${intercourse[0].innerText}(${intercourse[0].id}) => ${intercourse[1].innerText}(${intercourse[1].id})`;
+  if (contextMenuClickId === 0) state.jsPlumb.deleteConnection(conn);
+  else if (contextMenuClickId === 1) {
+    drawerRef.value.open(item, conn);
+  }
+};
+// 设置线的 label
+const setLineLabel = (obj: any) => {
+  const { sourceId, targetId, label, linename, condition, namespace } = obj;
+  const conn = state.jsPlumb.getConnections({
+    source: sourceId,
+    target: targetId,
+  })[0];
+  conn.setLabel(linename);
+  if (!linename || linename === "") {
+    conn.addClass("workflow-right-empty-label");
+  } else {
+    conn.removeClass("workflow-right-empty-label");
+    conn.addClass("workflow-right-label");
+  }
+  state.jsplumbData.lineList.forEach((v) => {
+    if (v.sourceId === sourceId && v.targetId === targetId) {
+      v.label = label;
+      v.linename = linename;
+      v.condition = condition;
+    }
+  });
+};
+// 设置节点内容
+const setNodeContent = (obj: any) => {
+  const { nodeId, name, icon } = obj;
+
+  // 设置节点 name 与 icon
+  state.jsplumbData.nodeList.forEach((v) => {
+    if (v.nodeId === nodeId) {
+      v.name = name;
+      v.icon = icon;
+    }
+  });
+  // 重绘
+  nextTick(() => {
+    state.jsPlumb.setSuspendDrawing(false, true);
+  });
+};
+// 顶部工具栏-当前项点击
+const onToolClick = (fnName: String) => {
+  switch (fnName) {
+    case "help":
+      onToolHelp();
+      break;
+    case "download":
+      onToolDownload();
+      break;
+    case "submit":
+      onToolSubmit();
+      break;
+    case "copy":
+      onToolCopy();
+      break;
+    case "del":
+      onToolDel();
+      break;
+    case "fullscreen":
+      onToolFullscreen();
+      break;
+    case "return":
+      onReturnToList();
+      break;
+  }
+};
+
+const onReturnToList = () => {
+  router.push({
+    path: "/iot/rules/flowlist",
+  });
+};
+
+// 顶部工具栏-帮助
+const onToolHelp = () => {
+  nextTick(() => {
+    helpRef.value.open();
+  });
+};
+// 顶部工具栏-下载
+const onToolDownload = () => {
+  const { globalTitle } = themeConfig.value;
+  const href =
+    "data:text/json;charset=utf-8," +
+    encodeURIComponent(JSON.stringify(state.jsplumbData, null, "\t"));
+  const aLink = document.createElement("a");
+  aLink.setAttribute("href", href);
+  aLink.setAttribute("download", `${globalTitle}设计.json`);
+  aLink.click();
+  aLink.remove();
+  ElMessage.success("下载成功");
+};
+
+const panelclose = (data: any) => {
+  switch (data.nodetype) {
+    case "script":
+      state.jsplumbData.nodeList.forEach((v) => {
+        if (v.nodeId === data.nodeId) {
+          v.name = data.name;
+          v.icon = data.icon;
+          v.nodetype = data.nodetype;
+          v.nodenamespace = data.namespace;
+          v.mata = data.mata;
+          v.content = data.content;
+        }
+      });
+
+      break;
+    case "executor":
+      state.jsplumbData.nodeList.forEach((v) => {
+        if (v.nodeId === data.nodeId) {
+          v.name = data.name;
+          v.icon = data.icon;
+          v.nodetype = data.nodetype;
+          v.nodenamespace = data.namespace;
+          v.mata = data.mata;
+          v.content = data.content;
+        }
+      });
+      break;
+    case "basic":
+      break;
+  }
+};
+
+// 顶部工具栏-提交
+const onToolSubmit = () => {
+  openRunDialog();
+};
+
+const setclass = (item: any) => {
+  for (var _item of item.nodes) {
+    var node = state.jsplumbData.nodeList.find((c) => c.nodeId == _item.bpmnid);
+    if (node) {
+      node.nodeclass = "workflow-right-highlight";
+    }
+  }
+};
+
+const submitData = () => {
+  state.dataFormVisible = false;
+  var data = JSON.parse(state.content);
+  if (data) {
+    ruleApi()
+      .active({
+        form: data,
+        extradata: { ruleflowid: state.flowid },
+      })
+      .then((res) => {
+        for (let index = 0; index < res.data.length; index++) {
+          var item = res.data[index];
+          setTimeout(setclass, index * 500, item);
+        }
+      });
+    ElMessage.success("数据提交成功");
+  }
+};
+
+const openRunDialog = () => {
+  state.dataFormVisible = true;
+  state.content = "";
+
+};
+
+
+// 顶部工具栏-复制
+const onToolCopy = () => {
+  copyText(JSON.stringify(state.jsplumbData));
+};
+// 顶部工具栏-删除
+const onToolDel = () => {
+  ElMessageBox.confirm("此操作将清空画布，是否继续？", "提示", {
+    confirmButtonText: "清空",
+    cancelButtonText: "取消",
+  })
+    .then(() => {
+      state.jsplumbData.nodeList.forEach((v) => {
+        state.jsPlumb.removeAllEndpoints(v.nodeId);
+      });
+      nextTick(() => {
+        state.jsplumbData = {
+          nodeList: [],
+          lineList: [],
+        };
+        ElMessage.success("清空画布成功");
+      });
+    })
+    .catch(() => {});
+};
+// 顶部工具栏-全屏
+const onToolFullscreen = () => {
+  stores.setCurrenFullscreen(true);
+};
+// 页面加载时
+onMounted(async () => {
+  await initLeftNavList();
+  await initSortable();
+  initJsPlumb();
+  setClientWidth();
+  window.addEventListener("resize", setClientWidth);
+});
+// 页面卸载时
+onUnmounted(() => {
+  window.removeEventListener("resize", setClientWidth);
 });
 </script>
 

@@ -1,11 +1,11 @@
 <template>
   <div>
-    <el-drawer v-model="drawer" :title="dialogtitle" size="100%">
+    <el-drawer v-model="state.drawer" :title="state.dialogtitle" size="100%">
       <el-card shadow="hover" header="表单表格验证">
-        <el-form ref="tableRulesRef" :model="tableData" size="default">
-          <el-table :data="tableData.data" border class="module-table-uncollected">
+        <el-form ref="tableRulesRef" :model="state.tableData" size="default">
+          <el-table :data="state.tableData.data" border class="module-table-uncollected">
             <el-table-column
-              v-for="(item, index) in tableData.header"
+              v-for="(item, index) in state.tableData.header"
               :key="index"
               show-overflow-tooltip
               :prop="item.prop"
@@ -43,7 +43,7 @@
                   placeholder="请选择"
                 >
                   <el-option
-                    v-for="sel in tableData.datatypes"
+                    v-for="sel in state.tableData.datatypes"
                     :key="sel.id"
                     :label="sel.label"
                     :value="sel.value"
@@ -96,8 +96,8 @@
   </div>
 </template>
 
-<script lang="ts">
-import { defineComponent, toRefs, reactive, ref } from "vue";
+<script lang="ts" setup>
+import { reactive, ref } from "vue";
 import { v4 as uuidv4, NIL as NIL_UUID } from "uuid";
 import { ElMessage } from "element-plus";
 
@@ -135,180 +135,169 @@ interface dictrowitem {
   tag?: string;
   dataType?: string;
 }
-export default defineComponent({
-  name: "producedatadictionaryform",
-  setup() {
-    const tableRulesRef = ref();
-    const state = reactive<TableRulesState>({
-      deviceid: "",
-      drawer: false,
-      dialogtitle: "",
-      tableData: {
-        data: [],
-        header: [
-          {
-            prop: "keyName",
-            width: "",
-            label: "字段名称",
-            isRequired: false,
-            type: "input",
-          },
 
-          {
-            prop: "displayName",
-            width: "",
-            label: "字段显示名称",
-            isRequired: false,
-            type: "input",
-          },
-          {
-            prop: "unit",
-            width: "",
-            label: "单位",
-            isRequired: false,
-            type: "input",
-          },
-
-          {
-            prop: "unitExpression",
-            width: "",
-            label: "单位转换表达式",
-            isRequired: false,
-            type: "input",
-          },
-          {
-            prop: "unitConvert",
-            width: "",
-            label: "UnitConvert",
-            isRequired: false,
-            type: "switch",
-          },
-          {
-            prop: "keyDesc",
-            width: "",
-            label: "字段备注",
-            isRequired: false,
-            type: "input",
-          },
-          {
-            prop: "defaultValue",
-            width: "",
-            label: "默认值",
-            isRequired: false,
-            type: "input",
-          },
-          {
-            prop: "display",
-            width: "",
-            label: "是否显示",
-            isRequired: false,
-            type: "switch",
-          },
-          {
-            prop: "place0",
-            width: "",
-            label: "位置名称",
-            isRequired: false,
-            type: "input",
-          },
-          { prop: "tag", width: "", label: "Tag", isRequired: true, type: "input" },
-          {
-            prop: "dataType",
-            width: "",
-            label: "数据类型",
-            isRequired: false,
-            type: "select",
-          },
-        ],
-        datatypes: [
-          { value: "Boolean", label: "Boolean" },
-          { value: "String", label: "String" },
-          { value: "Long", label: "Long" },
-          { value: "Double", label: "Double" },
-          { value: "Json", label: "Json" },
-          { value: "XML", label: "XML" },
-          { value: "Binary", label: "Binary" },
-          { value: "DateTime", label: "DateTime" },
-        ],
+const tableRulesRef = ref();
+const state = reactive<TableRulesState>({
+  deviceid: "",
+  drawer: false,
+  dialogtitle: "",
+  tableData: {
+    data: [],
+    header: [
+      {
+        prop: "keyName",
+        width: "",
+        label: "字段名称",
+        isRequired: false,
+        type: "input",
       },
-    });
 
-    const openDialog = (deviceid: string) => {
-      state.deviceid = deviceid;
+      {
+        prop: "displayName",
+        width: "",
+        label: "字段显示名称",
+        isRequired: false,
+        type: "input",
+      },
+      {
+        prop: "unit",
+        width: "",
+        label: "单位",
+        isRequired: false,
+        type: "input",
+      },
 
-      getProduceDictionary(deviceid).then((x) => {
-        state.tableData.data = x.data.map((x) => {
-          return {
-            id: uuidv4(),
-            keyName: x.keyName,
-            displayName: x.displayName,
-            unit: x.unit,
-            unitExpression: x.unitExpression,
-            unitConvert: x.unitConvert,
-            keyDesc: x.keyDesc,
-            defaultValue: x.defaultValue,
-            display: x.display,
-            place0: x.place0,
-            tag: x.tag,
-            dataType: x.dataType,
-          };
-        });
-      });
-
-      state.drawer = true;
-    };
-    // 关闭弹窗
-    const closeDialog = () => {
-      state.drawer = false;
-    };
-
-    // 验证
-    const onValidate = () => {
-      if (state.tableData.data.length <= 0) return ElMessage.warning("请先点击增加一行");
-      tableRulesRef.value.validate((valid: any) => {
-        if (!valid) return ElMessage.warning("表格项必填未填");
-        ElMessage.success("全部验证通过");
-      });
-    };
-
-    // 新增一行
-    const onAddRow = () => {
-      state.tableData.data.push({
-        id: uuidv4(),
-        keyName: "",
-        displayName: "",
-        unit: "",
-        unitExpression: "",
-        unitConvert: false,
-        keyDesc: "",
-        defaultValue: "",
-        display: false,
-        place0: "",
-        tag: "",
-        dataType: "",
-      });
-    };
-    const deleterow = (row: dictrowitem) => {
-      state.tableData.data = state.tableData.data.filter((c) => c.id !== row.id);
-    };
-    const save = () => {
-      editProduceDictionary({
-        produceId: state.deviceid,
-        produceDictionaryData: state.tableData.data,
-      }).then((x) => {
-        console.log(x);
-      });
-    };
-    return {
-      save,
-      deleterow,
-      onValidate,
-      onAddRow,
-      openDialog,
-      closeDialog,
-      tableRulesRef,
-      ...toRefs(state),
-    };
+      {
+        prop: "unitExpression",
+        width: "",
+        label: "单位转换表达式",
+        isRequired: false,
+        type: "input",
+      },
+      {
+        prop: "unitConvert",
+        width: "",
+        label: "UnitConvert",
+        isRequired: false,
+        type: "switch",
+      },
+      {
+        prop: "keyDesc",
+        width: "",
+        label: "字段备注",
+        isRequired: false,
+        type: "input",
+      },
+      {
+        prop: "defaultValue",
+        width: "",
+        label: "默认值",
+        isRequired: false,
+        type: "input",
+      },
+      {
+        prop: "display",
+        width: "",
+        label: "是否显示",
+        isRequired: false,
+        type: "switch",
+      },
+      {
+        prop: "place0",
+        width: "",
+        label: "位置名称",
+        isRequired: false,
+        type: "input",
+      },
+      { prop: "tag", width: "", label: "Tag", isRequired: true, type: "input" },
+      {
+        prop: "dataType",
+        width: "",
+        label: "数据类型",
+        isRequired: false,
+        type: "select",
+      },
+    ],
+    datatypes: [
+      { value: "Boolean", label: "Boolean" },
+      { value: "String", label: "String" },
+      { value: "Long", label: "Long" },
+      { value: "Double", label: "Double" },
+      { value: "Json", label: "Json" },
+      { value: "XML", label: "XML" },
+      { value: "Binary", label: "Binary" },
+      { value: "DateTime", label: "DateTime" },
+    ],
   },
+});
+
+const openDialog = (deviceid: string) => {
+  state.deviceid = deviceid;
+  getProduceDictionary(deviceid).then((x) => {
+    state.tableData.data = x.data.map((x) => {
+      return {
+        id: uuidv4(),
+        keyName: x.keyName,
+        displayName: x.displayName,
+        unit: x.unit,
+        unitExpression: x.unitExpression,
+        unitConvert: x.unitConvert,
+        keyDesc: x.keyDesc,
+        defaultValue: x.defaultValue,
+        display: x.display,
+        place0: x.place0,
+        tag: x.tag,
+        dataType: x.dataType,
+      };
+    });
+  });
+
+  state.drawer = true;
+};
+// 关闭弹窗
+const closeDialog = () => {
+  state.drawer = false;
+};
+
+// 验证
+const onValidate = () => {
+  if (state.tableData.data.length <= 0) return ElMessage.warning("请先点击增加一行");
+  tableRulesRef.value.validate((valid: any) => {
+    if (!valid) return ElMessage.warning("表格项必填未填");
+    ElMessage.success("全部验证通过");
+  });
+};
+
+// 新增一行
+const onAddRow = () => {
+  state.tableData.data.push({
+    id: uuidv4(),
+    keyName: "",
+    displayName: "",
+    unit: "",
+    unitExpression: "",
+    unitConvert: false,
+    keyDesc: "",
+    defaultValue: "",
+    display: false,
+    place0: "",
+    tag: "",
+    dataType: "",
+  });
+};
+const deleterow = (row: dictrowitem) => {
+  state.tableData.data = state.tableData.data.filter((c) => c.id !== row.id);
+};
+const save = () => {
+  editProduceDictionary({
+    produceId: state.deviceid,
+    produceDictionaryData: state.tableData.data,
+  }).then((x) => {
+    console.log(x);
+  });
+};
+
+defineExpose({
+  openDialog,
 });
 </script>

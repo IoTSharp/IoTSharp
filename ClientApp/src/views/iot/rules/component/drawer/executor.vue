@@ -1,14 +1,14 @@
 <template>
   <div class="workflow-drawer-node">
-    <el-tabs type="border-card" v-model="tabsActive">
+    <el-tabs type="border-card" v-model="state.tabsActive">
       <!-- 扩展表单 -->
       <el-tab-pane label="配置" name="1">
         <el-scrollbar>
           <monaco
-            :height="configheight"
-            :width="configwidth"
+            :height="state.configheight"
+            :width="state.configwidth"
             theme="vs-dark"
-            v-model="node.content"
+            v-model="state.node.content"
             language="json"
             selectOnLineNumbers="true"
           ></monaco>
@@ -19,7 +19,7 @@
         <el-scrollbar>
           <el-form
             :model="node"
-            :rules="nodeRules"
+            :rules="state.nodeRules"
             ref="nodeFormRef"
             size="default"
             label-width="80px"
@@ -27,7 +27,7 @@
           >
             <el-form-item label="数据id" prop="id">
               <el-input
-                v-model="node.id"
+                v-model="state.node.id"
                 placeholder="请输入数据id"
                 clearable
                 disabled
@@ -35,7 +35,7 @@
             </el-form-item>
             <el-form-item label="节点id" prop="nodeId">
               <el-input
-                v-model="node.nodeId"
+                v-model="state.node.nodeId"
                 placeholder="请输入节点id"
                 clearable
                 disabled
@@ -43,7 +43,7 @@
             </el-form-item>
             <el-form-item label="类型" prop="type">
               <el-input
-                v-model="node.type"
+                v-model="state.node.type"
                 placeholder="请输入类型"
                 clearable
                 disabled
@@ -51,7 +51,7 @@
             </el-form-item>
             <el-form-item label="left坐标" prop="left">
               <el-input
-                v-model="node.left"
+                v-model="state.node.left"
                 placeholder="请输入left坐标"
                 clearable
                 disabled
@@ -59,7 +59,7 @@
             </el-form-item>
             <el-form-item label="top坐标" prop="top">
               <el-input
-                v-model="node.top"
+                v-model="state.node.top"
                 placeholder="请输入top坐标"
                 clearable
                 disabled
@@ -67,13 +67,17 @@
             </el-form-item>
             <el-form-item label="icon图标" prop="icon">
               <el-input
-                v-model="node.icon"
+                v-model="state.node.icon"
                 placeholder="请输入icon图标"
                 clearable
               ></el-input>
             </el-form-item>
             <el-form-item label="名称" prop="name">
-              <el-input v-model="node.name" placeholder="请输入名称" clearable></el-input>
+              <el-input
+                v-model="state.node.name"
+                placeholder="请输入名称"
+                clearable
+              ></el-input>
             </el-form-item>
             <el-form-item>
               <el-button class="mb15" @click="onNodeRefresh">
@@ -92,17 +96,18 @@
   </div>
 </template>
 
-<script lang="ts">
+<script lang="ts" setup>
+import { reactive, toRefs, ref, nextTick, getCurrentInstance, Ref } from "vue";
 import {
-  defineComponent,
-  reactive,
-  toRefs,
-  ref,
-  nextTick,
-  getCurrentInstance,
-Ref,
-} from "vue";
-import { ElButton, ElForm, ElFormItem, ElInput, ElMessage, ElScrollbar, ElTabPane, ElTabs } from "element-plus";
+  ElButton,
+  ElForm,
+  ElFormItem,
+  ElInput,
+  ElMessage,
+  ElScrollbar,
+  ElTabPane,
+  ElTabs,
+} from "element-plus";
 import monaco from "/@/components/monaco/monaco.vue";
 import node from "element-plus/es/components/cascader-panel/src/node";
 // 定义接口来定义对象的类型
@@ -136,122 +141,107 @@ interface nodedata {
   top?: string;
   type?: string;
 }
-export default defineComponent({
-  name: "excutorpanel",
 
-  props: {
-    modelValue: {
-      type: String,
-      default: "",
-    },
-    
-  },
-
-  setup(props, { emit }) {
-
-  console.log(props.modelValue)
-
-    const { proxy } = <any>getCurrentInstance();
-    const nodeFormRef = ref();
-    const extendFormRef = ref();
-    const chartsMonitorRef = ref();
-    const state = reactive<WorkflowDrawerNodeState>({
-      configwidth: "100%",
-      configheight: "300px",
-      node:{
-        content: props.modelValue,
-        contextMenuClickId: 0,
-        from: "",
-        icon: "",
-        label: "",
-        left: "",
-        mata: "",
-        nodeId: "",
-        nodeclass: "",
-        nodenamespace: "",
-        nodetype: "",
-        result: "",
-        top: "",
-        type: "",
-      },
-      nodeRules: {
-        id: [{ required: true, message: "请输入数据id", trigger: "blur" }],
-        nodeId: [{ required: true, message: "请输入节点id", trigger: "blur" }],
-        type: [{ required: true, message: "请输入类型", trigger: "blur" }],
-        left: [{ required: true, message: "请输入left坐标", trigger: "blur" }],
-        top: [{ required: true, message: "请输入top坐标", trigger: "blur" }],
-        icon: [{ required: true, message: "请输入icon图标", trigger: "blur" }],
-        name: [{ required: true, message: "请输入名称", trigger: "blur" }],
-      },
-      form: {
-        module: [],
-      },
-      tabsActive: "1",
-      loading: {
-        extend: false,
-      },
-    });
-    // 获取父组件数据
-    const getParentData = (data: object) => {
-      state.tabsActive = "1";
-      state.node= data;
-    };
-
-    onMounted(() => {
-  
-
-    });
-    // 节点编辑-重置
-    const onNodeRefresh = () => {
-      state.node.icon = "";
-      state.node.name = "";
-    };
-    // 节点编辑-保存
-    const onNodeSubmit = () => {
-      nodeFormRef.value.validate((valid: boolean) => {
-        if (valid) {
-          emit("submit", state.node);
-          emit("close");
-        } else {
-          return false;
-        }
-      });
-    };
-    // 扩展表单-重置
-    const onExtendRefresh = () => {
-      extendFormRef.value.resetFields();
-    };
-    // 扩展表单-保存
-    const onExtendSubmit = () => {
-      extendFormRef.value.validate((valid: boolean) => {
-        if (valid) {
-          state.loading.extend = true;
-          setTimeout(() => {
-            state.loading.extend = false;
-            ElMessage.success("保存成功");
-            emit("close");
-          }, 1000);
-        } else {
-          return false;
-        }
-      });
-    };
-
-    // 图表可视化-初始化
-
-    return {
-      nodeFormRef,
-      extendFormRef,
-      chartsMonitorRef,
-      getParentData,
-      onNodeRefresh,
-      onNodeSubmit,
-      onExtendRefresh,
-      onExtendSubmit,
-      ...toRefs(state),
-    };
+const props = defineProps({
+  modelValue: {
+    type: String,
+    default: "",
   },
 });
+
+const emit = defineEmits(["close", "submit"]);
+
+
+console.log(props.modelValue);
+
+const { proxy } = <any>getCurrentInstance();
+const nodeFormRef = ref();
+const extendFormRef = ref();
+const chartsMonitorRef = ref();
+const state = reactive<WorkflowDrawerNodeState>({
+  configwidth: "100%",
+  configheight: "300px",
+  node: {
+    content: props.modelValue,
+    contextMenuClickId: 0,
+    from: "",
+    icon: "",
+    label: "",
+    left: "",
+    mata: "",
+    nodeId: "",
+    nodeclass: "",
+    nodenamespace: "",
+    nodetype: "",
+    result: "",
+    top: "",
+    type: "",
+  },
+  nodeRules: {
+    id: [{ required: true, message: "请输入数据id", trigger: "blur" }],
+    nodeId: [{ required: true, message: "请输入节点id", trigger: "blur" }],
+    type: [{ required: true, message: "请输入类型", trigger: "blur" }],
+    left: [{ required: true, message: "请输入left坐标", trigger: "blur" }],
+    top: [{ required: true, message: "请输入top坐标", trigger: "blur" }],
+    icon: [{ required: true, message: "请输入icon图标", trigger: "blur" }],
+    name: [{ required: true, message: "请输入名称", trigger: "blur" }],
+  },
+  form: {
+    module: [],
+  },
+  tabsActive: "1",
+  loading: {
+    extend: false,
+  },
+});
+// 获取父组件数据
+const getParentData = (data: object) => {
+  state.tabsActive = "1";
+  state.node = data;
+};
+
+onMounted(() => {});
+// 节点编辑-重置
+const onNodeRefresh = () => {
+  state.node.icon = "";
+  state.node.name = "";
+};
+// 节点编辑-保存
+const onNodeSubmit = () => {
+  nodeFormRef.value.validate((valid: boolean) => {
+    if (valid) {
+      emit("submit", state.node);
+      emit("close");
+    } else {
+      return false;
+    }
+  });
+};
+// 扩展表单-重置
+const onExtendRefresh = () => {
+  extendFormRef.value.resetFields();
+};
+// 扩展表单-保存
+const onExtendSubmit = () => {
+  extendFormRef.value.validate((valid: boolean) => {
+    if (valid) {
+      state.loading.extend = true;
+      setTimeout(() => {
+        state.loading.extend = false;
+        ElMessage.success("保存成功");
+        emit("close");
+      }, 1000);
+    } else {
+      return false;
+    }
+  });
+};
+
+
+defineExpose({
+  getParentData,
+});
+// 图表可视化-初始化
 </script>
 
 <style scoped lang="scss">

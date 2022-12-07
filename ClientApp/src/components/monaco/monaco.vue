@@ -1,15 +1,8 @@
 <template>
-  <div  ref="container" :style="{ height: height, width: width }"></div>
+  <div ref="container" :style="{ height: height, width: width }"></div>
 </template>
 <script lang="ts">
-import {
-  defineComponent,
-  reactive,
-  toRefs,
-  ref,
-  nextTick,
-  getCurrentInstance,
-} from "vue";
+import { defineComponent, reactive, toRefs, ref, nextTick } from "vue";
 
 import * as monaco from "monaco-editor";
 import editorWorker from "monaco-editor/esm/vs/editor/editor.worker?worker";
@@ -28,7 +21,18 @@ interface monacostate {
 export default defineComponent({
   name: "monaco",
 
-  emits: ['update:modelValue','change','focus','blur','paste','mouseup','mousedown','contentsizechange','keyup','keydown'],
+  emits: [
+    "update:modelValue",
+    "change",
+    "focus",
+    "blur",
+    "paste",
+    "mouseup",
+    "mousedown",
+    "contentsizechange",
+    "keyup",
+    "keydown",
+  ],
   props: {
     modelValue: {
       type: String,
@@ -42,15 +46,13 @@ export default defineComponent({
   },
 
   setup(props, { emit }) {
-
-
-    var container=ref();
+    const container = ref();
     var isset = false;
     var newValue = computed({
-      get: function () {
+      get: () => {
         return props.modelValue;
       },
-      set: function (value) {
+      set: (value: string) => {
         isset = true;
         emit("update:modelValue", value);
       },
@@ -66,7 +68,6 @@ export default defineComponent({
     //     }
     //   }
     // );
-
 
     //此处保证计算属性未能触发时能触发赋值，否则请按照明确的属性声明（props中定义）从父组件依次传值，可以保证正确的绑定
     watch(
@@ -99,9 +100,9 @@ export default defineComponent({
     };
 
     const state = reactive<monacostate>({
-      width: props.width??'100%',
-      height: props.height??'100px',
-      theme: props.theme??'vs-dark',
+      width: props.width ?? "100%",
+      height: props.height ?? "100px",
+      theme: props.theme ?? "vs-dark",
       language: props.language,
       selectOnLineNumbers: props.selectOnLineNumbers,
     });
@@ -120,25 +121,22 @@ export default defineComponent({
         });
 
         !editor
-          ? (editor = monaco.editor.create(
-            container.value as HTMLElement,
-              {
-                value: newValue.value ?? "",
-                language: state.language ?? "json",
-                automaticLayout: true,
-                theme: state.theme ?? "vs-dark", // 官方自带三种主题vs, hc-black, or vs-dark
-                foldingStrategy: "indentation",
-                renderLineHighlight: "all", // 行亮
-                selectOnLineNumbers: state.selectOnLineNumbers == "true", // 显示行号
-                minimap: {
-                  enabled: false,
-                },
-                readOnly: false, // 只读
-                fontSize: 16, // 字体大小
-                scrollBeyondLastLine: false, // 取消代码后面一大段空白
-                overviewRulerBorder: false, // 不要滚动条的边框
-              }
-            ))
+          ? (editor = monaco.editor.create(container.value as HTMLElement, {
+              value: newValue.value ?? "",
+              language: state.language ?? "json",
+              automaticLayout: true,
+              theme: state.theme ?? "vs-dark", // 官方自带三种主题vs, hc-black, or vs-dark
+              foldingStrategy: "indentation",
+              renderLineHighlight: "all", // 行亮
+              selectOnLineNumbers: state.selectOnLineNumbers == "true", // 显示行号
+              minimap: {
+                enabled: false,
+              },
+              readOnly: false, // 只读
+              fontSize: 16, // 字体大小
+              scrollBeyondLastLine: false, // 取消代码后面一大段空白
+              overviewRulerBorder: false, // 不要滚动条的边框
+            }))
           : editor.setValue(newValue.value ?? "");
 
         editor.onDidChangeModelContent((val: any) => {

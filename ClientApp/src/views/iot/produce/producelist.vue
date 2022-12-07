@@ -69,13 +69,7 @@
               @click.prevent="editprod(scope.row)"
               >修改
             </el-button>
-            <el-button
-              size="small"
-              text
-              type="primary"
-              @click.prevent="editprop(scope.row)"
-              >属性
-            </el-button>
+          
 
             <el-button
               size="small"
@@ -84,41 +78,13 @@
               @click.prevent="deleteprod(scope.row)"
               >删除
             </el-button>
-            <!--            <el-button-->
-            <!--              size="small"-->
-            <!--              text-->
-            <!--              type="primary"-->
-            <!--              @click.prevent="editdict(scope.row)"-->
-            <!--              >字典-->
-            <!--            </el-button>-->
-            <!--            <el-button-->
-            <!--              size="small"-->
-            <!--              text-->
-            <!--              type="primary"-->
-            <!--              @click.prevent="creatdevice(scope.row)"-->
-            <!--              >创建设备-->
-            <!--            </el-button>-->
 
-            <!--            <el-button-->
-            <!--              size="small"-->
-            <!--              text-->
-            <!--              type="primary"-->
-            <!--              @click.prevent="navtodevice(scope.row)"-->
-            <!--              >管理设备-->
-            <!--            </el-button>-->
-            <!--            <el-button-->
-            <!--              size="small"-->
-            <!--              text-->
-            <!--              type="primary"-->
-            <!--              @click.prevent="deleteprod(scope.row)"-->
-            <!--              >删除-->
-            <!--            </el-button>-->
             &nbsp;
             <el-dropdown
               size="small"
               @command="
                 (command) => {
-                  dropdownCommand( scope.row,command);
+                  dropdownCommand(scope.row, command);
                 }
               "
             >
@@ -127,6 +93,7 @@
               </el-button>
               <template #dropdown>
                 <el-dropdown-menu>
+                  <el-dropdown-item command="prop">属性</el-dropdown-item>
                   <el-dropdown-item command="dict">字典</el-dropdown-item>
                   <el-dropdown-item command="createdev">创建设备</el-dropdown-item>
                   <el-dropdown-item command="managedev">管理设备</el-dropdown-item>
@@ -154,7 +121,7 @@
     <producedatadictionaryform ref="producedatadictionaryformRef" />
     <producepropform ref="producepropformRef" />
     <propform ref="propformRef"></propform>
-
+    <deviceform ref="deviceformRef"></deviceform>
     <!-- <flowdesigner ref="flowdesignerRef" /> -->
   </div>
 </template>
@@ -176,11 +143,12 @@ import {
 import propform from "./../devices/propform.vue";
 import { useRouter } from "vue-router";
 import produceform from "./produceform.vue";
+import deviceform from "./deviceform.vue";
 import producepropform from "./producepropform.vue";
 import producedatadictionaryform from "./producedatadictionaryform.vue";
 import { v4 as uuidv4, NIL as NIL_UUID } from "uuid";
 import { Session } from "/@/utils/storage";
-import { getProduceList } from "/@/api/produce";
+import { getProduceList ,deleteProduce} from "/@/api/produce";
 import { appmessage } from "/@/api/iapiresult";
 // 定义接口来定义对象的类型
 
@@ -212,9 +180,16 @@ interface TableDataState {
 }
 export default defineComponent({
   name: "producelist",
-  components: { produceform, producedatadictionaryform, producepropform, propform },
+  components: {
+    produceform,
+    producedatadictionaryform,
+    producepropform,
+    propform,
+    deviceform,
+  },
   setup() {
     const produceformRef = ref();
+    const deviceformRef = ref();
     const producedatadictionaryformRef = ref();
     const producepropformRef = ref();
     const propformRef = ref();
@@ -264,23 +239,25 @@ export default defineComponent({
     });
 
     const dropdownCommand = (row: any, command: string) => {
- 
       switch (command) {
         case "dict":
-        editdict(row)
+          editdict(row);
           break;
         case "createdev":
+          creatdevice(row);
           break;
         case "managedev":
-
           navtodevice(row);
+          break;
+        case "prop":
+          editprop(row);
           break;
       }
     };
 
     const creatprod = () => {
-      propformRef.value.openDialog("11c12dfe-8b37-4ddb-805a-00ba802259eb");
-      //  produceformRef.value.openDialog(NIL_UUID);
+        //  propformRef.value.openDialog("11c12dfe-8b37-4ddb-805a-00ba802259eb");
+    produceformRef.value.openDialog(NIL_UUID);
     };
     const editprod = (row: TableDataRow) => {
       produceformRef.value.openDialog(row.id);
@@ -291,15 +268,22 @@ export default defineComponent({
     const editdict = (row: TableDataRow) => {
       producedatadictionaryformRef.value.openDialog(row.id);
     };
-    const creatdevice = (row: TableDataRow) => {};
+    const creatdevice = (row: TableDataRow) => {
+      deviceformRef.value.openDialog(row.id);
+    };
     const navtodevice = (row: TableDataRow) => {
       router.push({
         path: "/iot/devices/devicelist",
       });
     };
-    const deleteprod = (row: TableDataRow) => {};
+    const deleteprod = (row: TableDataRow) => {
+
+      
+
+    };
     return {
       dropdownCommand,
+      deviceformRef,
       produceformRef,
       producedatadictionaryformRef,
       producepropformRef,
