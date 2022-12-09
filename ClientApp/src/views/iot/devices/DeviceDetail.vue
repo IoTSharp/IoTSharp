@@ -22,7 +22,11 @@
             <DeviceDetailTelemetry :deviceId="deviceRef.id"></DeviceDetailTelemetry>
           </div>
         </el-tab-pane>
-        <el-tab-pane label="告警" name="alarm">Task</el-tab-pane>
+        <el-tab-pane label="告警" name="alarm">
+          <div class="z-tab-container">
+            <alarmlist :originator-id="deviceRef.id" wrapper="div"></alarmlist>
+          </div>
+        </el-tab-pane>
         <el-tab-pane label="规则" name="rules">
           <div class="z-tab-container">
             <DeviceDetailRules :deviceId="deviceRef.id"></DeviceDetailRules>
@@ -39,6 +43,7 @@ import AdvancedKeyValue from "/@/components/AdvancedKeyValue/AdvancedKeyValue.vu
 import DeviceDetailProps from "/@/views/iot/devices/detail/DeviceDetailProps.vue";
 import DeviceDetailRules from "/@/views/iot/devices/detail/DeviceDetailRules.vue";
 import DeviceDetailTelemetry from "/@/views/iot/devices/detail/DeviceDetailTelemetry.vue";
+import Alarmlist from "/@/views/iot/alarms/alarmlist.vue";
 
 const drawer = ref(false);
 const dialogTitle = ref(`设备详情`);
