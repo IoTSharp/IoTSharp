@@ -90,8 +90,7 @@
       >
       </el-pagination>
     </el-card>
-    <addflow ref="addformRef" />
-
+    <addflow ref="addformRef" @close="close" @submit="submit" />
   </div>
 </template>
 
@@ -169,6 +168,12 @@ const initTableData = () => {
   getData();
 };
 
+const close = () => {
+  getData();
+};
+const submit = () => {
+  getData();
+};
 // 删除当前行
 const onTabelRowDel = (row: TableDataRow) => {
   ElMessageBox.confirm(`此操作将永久删除规则：${row.name}, 是否继续?`, "提示", {

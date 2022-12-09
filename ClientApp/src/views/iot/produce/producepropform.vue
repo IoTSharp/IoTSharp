@@ -1,18 +1,22 @@
 <template>
   <div>
     <el-drawer v-model="state.drawer" :title="state.dialogtitle" size="100%">
-      <el-card shadow="hover" header="表单表格验证">
-        <el-form ref="tableRulesRef" :model="state.tableData" size="default">
-          <el-table :data="state.tableData.data" border class="module-table-uncollected">
-            <el-table-column
-              v-for="(item, index) in state.tableData.header"
-              :key="index"
-              show-overflow-tooltip
-              :prop="item.prop"
-              :width="item.width"
-              :label="item.label"
-            >
-              <template v-slot="scope">
+      <el-form ref="tableRulesRef" :model="state.tableData" size="small">
+        <el-table :data="state.tableData.data" border table-layout="auto">
+          <el-table-column
+            v-for="(item, index) in state.tableData.header"
+            :key="index"
+         
+            :prop="item.prop"
+            :width="item.width"
+            :label="item.label"
+          >
+            <template v-slot="scope">
+              <el-form-item
+                style="margin: 0px"
+                :prop="`data.${scope.$index}.${item.prop}`"
+               
+              >
                 <el-switch v-if="item.type === 'switch'" v-model="scope.row[item.prop]" />
 
                 <el-select
@@ -49,27 +53,26 @@
                     <i class="iconfont icon-shouye_dongtaihui" />
                   </template>
                 </el-input>
-                <!-- </el-form-item> -->
-              </template>
-            </el-table-column>
+              </el-form-item>
+            </template>
+          </el-table-column>
 
-            <el-table-column>
-              <template #default="scope">
-                <el-button text type="primary" @click.prevent="deleterow(scope.row)"
-                  >删除
-                </el-button>
-              </template></el-table-column
-            >
-          </el-table>
-        </el-form>
-        <el-row class="flex mt15">
-          <div class="flex-margin">
-            <!-- <el-button size="default" type="success" @click="onValidate">验证</el-button> -->
-            <el-button size="default" type="primary" @click="onAddRow">新增</el-button>
-            <el-button size="default" type="primary" @click="save">保存</el-button>
-          </div>
-        </el-row>
-      </el-card>
+          <el-table-column>
+            <template #default="scope">
+              <el-button text type="primary" @click.prevent="deleterow(scope.row)"
+                >删除
+              </el-button>
+            </template></el-table-column
+          >
+        </el-table>
+      </el-form>
+      <el-row class="flex mt15">
+        <div class="flex-margin">
+          <!-- <el-button size="default" type="success" @click="onValidate">验证</el-button> -->
+          <el-button size="default" type="primary" @click="onAddRow">新增</el-button>
+          <el-button size="default" type="primary" @click="save">保存</el-button>
+        </div>
+      </el-row>
     </el-drawer>
   </div>
 </template>
@@ -105,12 +108,12 @@ interface dictrowitem {
   dataSide?: string;
   type?: string;
 }
-
+const emit = defineEmits(["close", "submit"]);
 const tableRulesRef = ref();
 const state = reactive<TableRulesState>({
   deviceid: "",
   drawer: false,
-  dialogtitle: "",
+  dialogtitle: "产品属性修改",
   tableData: {
     data: [],
     header: [
@@ -191,11 +194,19 @@ const onAddRow = () => {
 const deleterow = (row: dictrowitem) => {
   state.tableData.data = state.tableData.data.filter((c) => c.id !== row.id);
 };
-const save = () => {
-  editProduceData({
+const save = async () => {
+  var result = await editProduceData({
     produceId: state.deviceid,
     produceData: state.tableData.data,
-  }).then((x) => {});
+  });
+  if (result["code"] === 10000) {
+    ElMessage.success("修改成功");
+    state.drawer = false;
+    emit("close", state.tableData.data);
+  } else {
+    ElMessage.warning("修改失败:" + result["msg"]);
+    emit("close", state.tableData.data);
+  }
 };
 
 defineExpose({

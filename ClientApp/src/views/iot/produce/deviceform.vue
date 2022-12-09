@@ -47,7 +47,7 @@ interface produceformdata {
   dataForm: dataForm;
   produceid: string;
 }
-
+const emit = defineEmits(["close", "submit"]);
 const dataFormRef = ref();
 const rules = reactive<FormRules>({
   name: [
@@ -71,6 +71,7 @@ const openDialog = (produceid: string) => {
 // 关闭弹窗
 const closeDialog = () => {
   state.drawer = false;
+  emit("close", { sender: "", args: state.dataForm });
 };
 
 watchEffect(() => {});
@@ -84,15 +85,15 @@ const onSubmit = async (formEl: FormInstance | undefined) => {
       if (result["code"] === 10000) {
         ElMessage.success("新增成功");
         state.drawer = false;
+        emit("close", { sender: "deviceform", args: state.dataForm });
       } else {
         ElMessage.warning("新增失败:" + result["msg"]);
+        emit("close", state.dataForm);
       }
     } else {
-      console.log("提交失败!", fields);
     }
   });
 };
-
 
 defineExpose({
   openDialog,

@@ -1,6 +1,6 @@
 <template>
   <div>
-    <el-drawer v-model="state.drawer" :title="state.dialogtitle" size="50%">
+    <el-drawer v-model="state.drawer" :title="state.dialogtitle" size="60%">
       <div class="add-form-container">
         <el-form :model="state.dataForm" size="default" label-width="90px">
           <el-row :gutter="35">
@@ -64,7 +64,7 @@ interface ruleform {
   dataForm: ruleaddoreditdto;
   mountTypes: Array<any>;
 }
-
+const emit = defineEmits(["close", "submit"]);
 const state = reactive<ruleform>({
   drawer: false,
   dialogtitle: "",
@@ -153,18 +153,22 @@ const openDialog = (ruleid: string) => {
 // 关闭弹窗
 const closeDialog = () => {
   state.drawer = false;
+  emit("close",state.dataForm);  
 };
 
 watchEffect(() => {});
 
 onMounted(() => {});
 const onSubmit = () => {
-  if (state.dataForm.ruleId === "00000000-0000-0000-0000-000000000000") {
+  if (state.dataForm.ruleId === NIL_UUID) {
     ruleApi()
       .postrule(state.dataForm)
       .then((res: appmessage<boolean>) => {
         if (res.code === 10000 && res.data) {
           ElMessage.success("新增成功");
+          emit("submit",state.dataForm);  
+          emit("close",state.dataForm);  
+          state.drawer = false;
         } else {
           ElMessage.warning("新增失败:" + res.msg);
         }

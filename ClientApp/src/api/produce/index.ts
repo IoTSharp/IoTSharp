@@ -45,5 +45,5 @@ export function createDevice(id:string,data: any) {
 }
 
 export function deleteProduce(id: string) {
-    return request.get(`pi/produces/delete?id==` + id)
+    return request.get(`api/produces/delete?produceid=` + id)
 }

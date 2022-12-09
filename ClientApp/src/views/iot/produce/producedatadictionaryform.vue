@@ -1,9 +1,9 @@
 <template>
   <div>
     <el-drawer v-model="state.drawer" :title="state.dialogtitle" size="100%">
-      <el-card shadow="hover" header="表单表格验证">
-        <el-form ref="tableRulesRef" :model="state.tableData" size="default">
-          <el-table :data="state.tableData.data" border class="module-table-uncollected">
+
+        <el-form ref="tableRulesRef" :model="state.tableData" size="small">
+          <el-table :data="state.tableData.data" border table-layout="auto">
             <el-table-column
               v-for="(item, index) in state.tableData.header"
               :key="index"
@@ -25,7 +25,7 @@
                 </el-tooltip>
               </template> -->
               <template v-slot="scope">
-                <!-- <el-form-item
+                <el-form-item style="margin: 0"
                   :prop="`data.${scope.$index}.${item.prop}`"
                   :rules="[
                     {
@@ -34,7 +34,7 @@
                       trigger: `${item.type}` == 'input' ? 'blur' : 'change',
                     },
                   ]"
-                > -->
+                >
                 <el-switch v-if="item.type === 'switch'" v-model="scope.row[item.prop]" />
 
                 <el-select
@@ -71,7 +71,7 @@
                     <i class="iconfont icon-shouye_dongtaihui" />
                   </template>
                 </el-input>
-                <!-- </el-form-item> -->
+                </el-form-item>
               </template>
             </el-table-column>
 
@@ -91,7 +91,7 @@
             <el-button size="default" type="primary" @click="save">保存</el-button>
           </div>
         </el-row>
-      </el-card>
+ 
     </el-drawer>
   </div>
 </template>
@@ -122,6 +122,7 @@ interface TableRulesState {
 }
 
 interface dictrowitem {
+  _id?: string;
   id?: string;
   keyName?: string;
   displayName?: string;
@@ -135,12 +136,12 @@ interface dictrowitem {
   tag?: string;
   dataType?: string;
 }
-
+const emit = defineEmits(["close", "submit"]);
 const tableRulesRef = ref();
 const state = reactive<TableRulesState>({
   deviceid: "",
   drawer: false,
-  dialogtitle: "",
+  dialogtitle: "产品字典修改",
   tableData: {
     data: [],
     header: [
@@ -197,7 +198,7 @@ const state = reactive<TableRulesState>({
       },
       {
         prop: "display",
-        width: "",
+        width: "90px",
         label: "是否显示",
         isRequired: false,
         type: "switch",
@@ -236,7 +237,8 @@ const openDialog = (deviceid: string) => {
   getProduceDictionary(deviceid).then((x) => {
     state.tableData.data = x.data.map((x) => {
       return {
-        id: uuidv4(),
+        _id: uuidv4(),
+        id: x.id,
         keyName: x.keyName,
         displayName: x.displayName,
         unit: x.unit,
@@ -271,7 +273,8 @@ const onValidate = () => {
 // 新增一行
 const onAddRow = () => {
   state.tableData.data.push({
-    id: uuidv4(),
+    _id: uuidv4(),
+    id:NIL_UUID,
     keyName: "",
     displayName: "",
     unit: "",
@@ -286,15 +289,21 @@ const onAddRow = () => {
   });
 };
 const deleterow = (row: dictrowitem) => {
-  state.tableData.data = state.tableData.data.filter((c) => c.id !== row.id);
+  state.tableData.data = state.tableData.data.filter((c) => c._id !== row._id);
 };
-const save = () => {
-  editProduceDictionary({
+const save = async () => {
+  var result = await editProduceDictionary({
     produceId: state.deviceid,
     produceDictionaryData: state.tableData.data,
-  }).then((x) => {
-    console.log(x);
   });
+  if (result["code"] === 10000) {
+    ElMessage.success("修改成功");
+    state.drawer = false;
+    emit("close", state.tableData.data);
+  } else {
+    ElMessage.warning("修改失败:" + result["msg"]);
+    emit("close", state.tableData.data);
+  }
 };
 
 defineExpose({
