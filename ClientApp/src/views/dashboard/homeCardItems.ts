@@ -22,7 +22,7 @@ export const homeCardItemsConfig = [
     },
     {
         zValue: '653,33',
-        zKey: '今日遥测',
+        zKey: '今日属性',
         icon: telemetry,
         iconBackgroundColor: '#002766',
     },

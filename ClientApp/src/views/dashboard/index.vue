@@ -302,7 +302,7 @@ async function getData(){
     const {
         eventCount,
         onlineDeviceCount,
-        telemetryDataCount,
+        attributesDataCount,
         deviceCount,
         alarmsCount,
         userCount,
@@ -312,7 +312,7 @@ async function getData(){
     kanbanData[3].zValue = eventCount
     kanbanData[1].zValue = onlineDeviceCount
     kanbanData[0].zValue = deviceCount
-    kanbanData[2].zValue = telemetryDataCount
+    kanbanData[2].zValue = attributesDataCount
     kanbanData[4].zValue = alarmsCount
     kanbanData[5].zValue = userCount
     kanbanData[6].zValue = produceCount
