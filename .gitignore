@@ -25,3 +25,4 @@ src/auto-imports.d.ts
 *.sln
 *.sw?
 package-lock.json
+/.eslintrc-auto-import.json

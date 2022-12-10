@@ -1,3 +1,4 @@
+//第一次安装注册页面
 export const setupFormRule: any[] = [
   {
     type: 'input',
@@ -13,6 +14,7 @@ export const setupFormRule: any[] = [
     hidden: false,
     display: true,
     $required: '请输入用户名',
+    value: 'iotmaster@iotsharp.net',
   },
   {
     type: 'input',
