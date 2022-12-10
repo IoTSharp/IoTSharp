@@ -298,18 +298,25 @@ onActivated(() => {
 
 async function getData(){
   // 卡片数据
-  const res= await getKanban()
-  const {
-    eventCount,
-    onlineDeviceCount,
-    telemetryDataCount,
-    deviceCount,
-    deviceCountData,
-  } = res.data
-  kanbanData[3].zValue = eventCount
-  kanbanData[1].zValue = onlineDeviceCount
-  kanbanData[0].zValue = deviceCount
-  kanbanData[2].zValue = telemetryDataCount
+    const res = await getKanban()
+    const {
+        eventCount,
+        onlineDeviceCount,
+        telemetryDataCount,
+        deviceCount,
+        alarmsCount,
+        userCount,
+        produceCount,
+        rulesCount
+    } = res.data
+    kanbanData[3].zValue = eventCount
+    kanbanData[1].zValue = onlineDeviceCount
+    kanbanData[0].zValue = deviceCount
+    kanbanData[2].zValue = telemetryDataCount
+    kanbanData[4].zValue = alarmsCount
+    kanbanData[5].zValue = userCount
+    kanbanData[6].zValue = produceCount
+    kanbanData[7].zValue = rulesCount
 
   // * 配置在线设备图表数据
   onlineChartOption.series[0].data[0].value = onlineDeviceCount
