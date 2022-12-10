@@ -9,49 +9,49 @@ import assets from '~icons/ic/outline-devices-other'
 
 export const homeCardItemsConfig = [
     {
-        zValue: '125,12',
+        zValue: '-1',
         zKey: '所有设备',
         icon: deviceIcon,
         iconBackgroundColor: '#4945FF',
     },
     {
-        zValue: '125,12',
+        zValue: '-1',
         zKey: '在线',
         icon: deviceIcon,
         iconBackgroundColor: '#10b981',
     },
     {
-        zValue: '653,33',
+        zValue: '-1',
         zKey: '今日属性',
         icon: telemetry,
         iconBackgroundColor: '#002766',
     },
     {
-        zValue: '125,65',
+        zValue: '-1',
         zKey: '今日事件',
         icon: event,
         iconBackgroundColor: '#0050B3',
     },
     {
-        zValue: '520,43',
+        zValue: '-1',
         zKey: '告警设备',
         icon: warning,
         iconBackgroundColor: '#FA9D14',
     },
     {
-        zValue: '98',
+        zValue: '-1',
         zKey: '用户',
         icon: userIcon,
         iconBackgroundColor: '#0091FF',
     },
     {
-        zValue: '16',
+        zValue: '-1',
         zKey: '产品',
         icon: product,
         iconBackgroundColor: '#32C5FF',
     },
     {
-        zValue: '9',
+        zValue: '-1',
         zKey: '规则',
         icon: rule,
         iconBackgroundColor: '#6DD400',
