@@ -1,91 +1,81 @@
 <template>
   <div class="system-list-container">
     <el-card shadow="hover">
-      <div class="system-dept-search mb15">
-        <el-form size="default" label-width="100px" class="mt35 mb35">
+      <div class="system-dept-search ">
+        <el-form size="default" label-width="100px">
           <el-row :gutter="35">
-            <el-col :xs="24" :sm="12" :md="8" :lg="8" :xl="8" class="mb20">
+            <el-col :xs="24" :sm="12" :md="8" :lg="8" :xl="8">
               <el-form-item label="事件名称">
                 <el-input v-model="query.CreatorName" placeholder="请输入事件名称" />
               </el-form-item>
             </el-col>
-            <el-col :xs="24" :sm="12" :md="8" :lg="8" :xl="8" class="mb20">
+            <el-col :xs="24" :sm="12" :md="8" :lg="8" :xl="8">
               <el-form-item label="规则">
                 <el-input v-model="query.RuleId" placeholder="请选择规则" />
               </el-form-item>
             </el-col>
-            <el-col :xs="24" :sm="12" :md="8" :lg="8" :xl="8" class="mb20">
+            <el-col :xs="24" :sm="12" :md="8" :lg="8" :xl="8">
               <el-form-item label="创建对象">
                 <el-input v-model="query.Name" placeholder="请输入创建对象" />
               </el-form-item>
             </el-col>
           </el-row>
+
+          <el-form-item>
+
+            <el-button size="default" type="primary" @click="getData()">
+              <el-icon>
+                <ele-Search />
+              </el-icon>
+              查询
+            </el-button>
+          </el-form-item>
         </el-form>
 
-        <el-button size="default" type="primary" class="ml10" @click="getData()">
-          <el-icon>
-            <ele-Search />
-          </el-icon>
-          查询
-        </el-button>
       </div>
-      <el-table :data="state.tableData.rows" style="width: 100%" row-key="id">
-        <el-table-column
-          prop="eventName"
-          label="事件名称"
-          show-overflow-tooltip
-        ></el-table-column>
-
-        <el-table-column
-          prop="type"
-          label="类型"
-          show-overflow-tooltip
-        ></el-table-column>
-        <el-table-column
-          prop="name"
-          label="触发规则"
-          show-overflow-tooltip
-        ></el-table-column>
-
-        <el-table-column
-          prop="createrDateTime"
-          label="创建时间"
-          show-overflow-tooltip
-        ></el-table-column>
 
 
+    <el-table :data="state.tableData.rows" style="width: 100%" row-key="id">
+      <el-table-column type="expand">
+        <template #default="props">
+          <el-card class="box-card" style="margin: 3px;">
+            <template #header>
+              <div class="card-header">
+                <span>描述</span>
+              </div>
+            </template>
+            <p m="t-0 b-2">{{ props.row.eventDesc }}</p>
+          </el-card>
+          <el-card class="box-card" style="margin: 3px;">
+            <template #header>
+              <div class="card-header">
+                <span>输入值</span>
+              </div>
+            </template>
+            <p m="t-0 b-2"> {{ props.row.mataData }}</p>
+          </el-card>
+        </template>
+      </el-table-column>
+      <el-table-column prop="eventName" label="事件名称" show-overflow-tooltip></el-table-column>
+      <el-table-column prop="type" label="类型" show-overflow-tooltip></el-table-column>
+      <el-table-column prop="name" label="触发规则" show-overflow-tooltip></el-table-column>
+      <el-table-column prop="createrDateTime" label="创建时间" show-overflow-tooltip></el-table-column>
+      <el-table-column label="操作" show-overflow-tooltip width="200">
+        <template #default="scope">
+          <el-button size="small" text type="primary" v-if="
+            scope.row.alarmStatus === 'Active_UnAck' ||
+            scope.row.alarmStatus === 'Cleared_UnAck'
+          " @click="replay(scope.row)">回放</el-button>
+        </template>
+      </el-table-column>
+    </el-table>
+    <el-pagination @size-change="onHandleSizeChange" @current-change="onHandleCurrentChange" class="mt15"
+      :pager-count="5" :page-sizes="[10, 20, 30]" v-model:current-page="state.tableData.param.pageNum" background
+      v-model:page-size="state.tableData.param.pageSize" layout="total, sizes, prev, pager, next, jumper"
+      :total="state.tableData.total">
+    </el-pagination>
 
-        <el-table-column label="操作" show-overflow-tooltip width="200">
-          <template #default="scope">
-            <el-button
-              size="small"
-              text
-              type="primary"
-              v-if="
-                scope.row.alarmStatus === 'Active_UnAck' ||
-                scope.row.alarmStatus === 'Cleared_UnAck'
-              "
-              @click="replay(scope.row)"
-              >回放</el-button
-            >
-          </template>
-        </el-table-column>
-      </el-table>
-      <el-pagination
-        @size-change="onHandleSizeChange"
-        @current-change="onHandleCurrentChange"
-        class="mt15"
-        :pager-count="5"
-        :page-sizes="[10, 20, 30]"
-        v-model:current-page="state.tableData.param.pageNum"
-        background
-        v-model:page-size="state.tableData.param.pageSize"
-        layout="total, sizes, prev, pager, next, jumper"
-        :total="state.tableData.total"
-      >
-      </el-pagination>
-    </el-card>
-
+  </el-card>
     <!-- <flowdesigner ref="flowdesignerRef" /> -->
   </div>
 </template>
@@ -134,57 +124,57 @@ interface TableDataState {
   };
 }
 
-    const userInfos = Session.get("userInfo");
-    const router = useRouter();
-    const state = reactive<TableDataState>({
-      tableData: {
-        rows: [],
-        total: 0,
-        loading: false,
-        param: {
-          pageNum: 1,
-          pageSize: 10,
-        },
-      },
-    });
+const userInfos = Session.get("userInfo");
+const router = useRouter();
+const state = reactive<TableDataState>({
+  tableData: {
+    rows: [],
+    total: 0,
+    loading: false,
+    param: {
+      pageNum: 1,
+      pageSize: 10,
+    },
+  },
+});
 
-    const query = reactive({
-      CreatorName: "",
-      Name: "",
-      RuleId: "",
-    });
+const query = reactive({
+  CreatorName: "",
+  Name: "",
+  RuleId: "",
+});
 
-    const replay = (val: TableDataRow) => {};
-    const onHandleSizeChange = (val: number) => {
-      state.tableData.param.pageSize = val;
+const replay = (val: TableDataRow) => { };
+const onHandleSizeChange = (val: number) => {
+  state.tableData.param.pageSize = val;
 
-      getData();
-    };
-    // 分页改变
-    const onHandleCurrentChange = (val: number) => {
-      state.tableData.param.pageNum = val;
-      getData();
-    };
+  getData();
+};
+// 分页改变
+const onHandleCurrentChange = (val: number) => {
+  state.tableData.param.pageNum = val;
+  getData();
+};
 
-    const getData = () => {
-      ruleApi().floweventslist({
-        offset: state.tableData.param.pageNum - 1,
-        limit: state.tableData.param.pageSize,
-        Name: query.Name,
-        RuleId: query.RuleId,
-        CreatorName: query.CreatorName,
-      }).then((res) => {
-        state.tableData.rows = res.data.rows;
-        state.tableData.total = res.data.total;
-      });
-    };
-    // 初始化表格数据
-    const initTableData = () => {
-      getData();
-    };
-    onMounted(() => {
-      initTableData();
-    });
+const getData = () => {
+  ruleApi().floweventslist({
+    offset: state.tableData.param.pageNum - 1,
+    limit: state.tableData.param.pageSize,
+    Name: query.Name,
+    RuleId: query.RuleId,
+    CreatorName: query.CreatorName,
+  }).then((res) => {
+    state.tableData.rows = res.data.rows;
+    state.tableData.total = res.data.total;
+  });
+};
+// 初始化表格数据
+const initTableData = () => {
+  getData();
+};
+onMounted(() => {
+  initTableData();
+});
 
 
 </script>

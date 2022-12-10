@@ -23,7 +23,7 @@
                   <el-option
                     v-for="item in state.mountTypes"
                     :key="item.value"
-                    :label="item.value"
+                    :label="item.label"
                     :value="item.value"
                   />
                 </el-select>
@@ -71,11 +71,11 @@ const state = reactive<ruleform>({
   mountTypes: [
     {
       value: "None",
-      label: "None",
+      label: "无(None)",
     },
     {
       value: "RAW",
-      label: "RAW",
+      label: "原始值(RAW)",
     },
     {
       value: "Telemetry",
@@ -87,7 +87,7 @@ const state = reactive<ruleform>({
     },
     {
       value: "RPC",
-      label: "远程控制",
+      label: "远程控制(RPC)",
     },
     {
       value: "Connected",
@@ -179,6 +179,8 @@ const onSubmit = () => {
       .then((res: appmessage<boolean>) => {
         if (res.code === 10000 && res.data) {
           ElMessage.success("修改成功");
+          emit("close",state.dataForm);  
+          state.drawer = false;
         } else {
           ElMessage.warning("修改失败:" + res.msg);
         }

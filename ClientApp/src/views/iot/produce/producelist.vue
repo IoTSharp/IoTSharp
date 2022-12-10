@@ -1,31 +1,55 @@
 <template>
   <div class="system-list-container">
     <el-card shadow="hover">
-      <div class="system-dept-search mb15">
-        <el-input
-          size="default"
-          placeholder="请输入规则名称"
-          style="max-width: 180px"
-          v-model="query.name"
-        >
-        </el-input>
 
-        <el-button size="default" type="primary" class="ml10" @click="getData()">
-          <el-icon>
-            <ele-Search />
-          </el-icon>
-          查询
-        </el-button>
-        
+
+      <div class="system-dept-search ">
+        <el-form size="default" label-width="100px">
+          <el-row :gutter="35">
+            <el-col :xs="24" :sm="12" :md="8" :lg="8" :xl="8">
+              <el-form-item label="产品名称">
+                <el-input v-model="query.name" placeholder="请输入产品名称" />
+              </el-form-item>
+            </el-col>
+          </el-row>
+          <el-row :gutter="35">
+            <el-col :span="8">
+              <el-button size="default" type="success" style="margin-left: 100px;" @click="creatprod()"
+                icon="FolderAdd">
+                新增产品
+              </el-button>
+            </el-col> <el-col :span="10"></el-col>
+            <el-col :span="6" justify="end" style="text-align: end;">
+              <el-button size="default" type="primary" @click="getData()">
+                <el-icon>
+                  <ele-Search />
+                </el-icon>
+                查询
+              </el-button>
+
+              <el-button size="default" type="primary" @click="getData()">
+                <el-icon>
+                  <ele-Search />
+                </el-icon>
+                重置
+              </el-button>
+
+            </el-col>
+
+
+          </el-row>
+        </el-form>
+
       </div>
 
+      <div class="system-dept-search ">
 
-      <el-button size="default" type="success" @click="creatprod()" class="ml10">
-          <el-icon>
-            <ele-FolderAdd />
-          </el-icon>
-          新增规则
-        </el-button>
+
+
+
+
+      </div>
+
       <el-table :data="state.tableData.rows" style="width: 100%" row-key="id">
         <el-table-column type="expand">
           <template #default="props">
@@ -37,77 +61,49 @@
           </template>
         </el-table-column>
 
-        <el-table-column
-          v-if="false"
-          prop="id"
-          label="id"
-          show-overflow-tooltip
-        ></el-table-column>
+        <el-table-column v-if="false" prop="id" label="id" show-overflow-tooltip></el-table-column>
 
-        <el-table-column
-          prop="name"
-          label="产品名称"
-          show-overflow-tooltip
-        ></el-table-column>
+        <el-table-column prop="name" label="产品名称" show-overflow-tooltip></el-table-column>
 
-        <el-table-column
-          prop="defaultIdentityType"
-          label="认证方式"
-          show-overflow-tooltip
-        ></el-table-column>
-        <el-table-column
-          prop="defaultTimeout"
-          label="超时"
-          show-overflow-tooltip
-        ></el-table-column>
-        <el-table-column
-          prop="description"
-          label="备注"
-          show-overflow-tooltip
-        ></el-table-column>
-        <el-table-column
-          prop="endDateTime"
-          label="状态"
-          show-overflow-tooltip
-        ></el-table-column>
+        <el-table-column prop="defaultIdentityType" label="认证方式" show-overflow-tooltip></el-table-column>
+        <el-table-column prop="defaultTimeout" label="超时" show-overflow-tooltip></el-table-column>
+        <el-table-column prop="description" label="备注" show-overflow-tooltip></el-table-column>
+        <el-table-column prop="endDateTime" label="状态" show-overflow-tooltip></el-table-column>
 
         <el-table-column label="操作" show-overflow-tooltip width="300">
           <template #default="scope">
-            <el-button
-              size="small"
-              text
-              type="primary"
-              @click.prevent="editprod(scope.row)"
-              >
+            <el-button size="small" text type="primary" @click.prevent="editprod(scope.row)">
 
-              <el-icon><Edit /></el-icon>修改
+              <el-icon>
+                <Edit />
+              </el-icon>修改
             </el-button>
 
-            <el-button
-              size="small"
-              text
-              type="primary"
-              @click.prevent="deleteprod(scope.row)"
-              ><el-icon><Delete /></el-icon>删除
+            <el-button size="small" text type="primary" @click.prevent="deleteprod(scope.row)"><el-icon>
+                <Delete />
+              </el-icon>删除
             </el-button>
 
             &nbsp;
-            <el-dropdown
-              size="small"
-              @command="
-                (command) => {
-                  dropdownCommand(scope.row, command);
-                }
-              "
-            >
+            <el-dropdown size="small" @command="
+              (command) => {
+                dropdownCommand(scope.row, command);
+              }
+            ">
               <el-button type="primary" size="small" text>
                 更多<el-icon class="el-icon--right"><arrow-down /></el-icon>
               </el-button>
               <template #dropdown>
                 <el-dropdown-menu>
-                  <el-dropdown-item command="prop"><el-icon><Operation /></el-icon>属性</el-dropdown-item>
-                  <el-dropdown-item command="dict"><el-icon><DocumentCopy /></el-icon>字典</el-dropdown-item>
-                  <el-dropdown-item command="createdev"><el-icon><Plus /></el-icon>创建设备</el-dropdown-item>
+                  <el-dropdown-item command="prop"><el-icon>
+                      <Operation />
+                    </el-icon>属性</el-dropdown-item>
+                  <el-dropdown-item command="dict"><el-icon>
+                      <DocumentCopy />
+                    </el-icon>字典</el-dropdown-item>
+                  <el-dropdown-item command="createdev"><el-icon>
+                      <Plus />
+                    </el-icon>创建设备</el-dropdown-item>
                   <el-dropdown-item command="managedev">管理设备</el-dropdown-item>
                 </el-dropdown-menu>
               </template>
@@ -115,30 +111,17 @@
           </template>
         </el-table-column>
       </el-table>
-      <el-pagination
-        @size-change="onHandleSizeChange"
-        @current-change="onHandleCurrentChange"
-        class="mt15"
-        :pager-count="5"
-        :page-sizes="[10, 20, 30]"
-        v-model:current-page="state.tableData.param.pageNum"
-        background
-        v-model:page-size="state.tableData.param.pageSize"
-        layout="total, sizes, prev, pager, next, jumper"
-        :total="state.tableData.total"
-      >
+      <el-pagination @size-change="onHandleSizeChange" @current-change="onHandleCurrentChange" class="mt15"
+        :pager-count="5" :page-sizes="[10, 20, 30]" v-model:current-page="state.tableData.param.pageNum" background
+        v-model:page-size="state.tableData.param.pageSize" layout="total, sizes, prev, pager, next, jumper"
+        :total="state.tableData.total">
       </el-pagination>
     </el-card>
     <produceform ref="produceformRef" @close="close" @submit="submit" />
-    <producedatadictionaryform
-      ref="producedatadictionaryformRef"
-      @submit="submit"
-      @close="close"
-    />
+    <producedatadictionaryform ref="producedatadictionaryformRef" @submit="submit" @close="close" />
     <producepropform ref="producepropformRef" @close="close" @submit="submit" />
-    <propform ref="propformRef" @close="close" @submit="submit"></propform>
     <deviceform ref="deviceformRef" @close="close" @submit="submit"></deviceform>
-    <!-- <flowdesigner ref="flowdesignerRef" /> -->
+
   </div>
 </template>
 
@@ -156,7 +139,7 @@ import {
   ElTableColumn,
 } from "element-plus";
 
-import propform from "./../devices/propform.vue";
+
 import { useRouter } from "vue-router";
 import produceform from "./produceform.vue";
 import deviceform from "./deviceform.vue";
@@ -304,6 +287,6 @@ const deleteprod = async (row: TableDataRow) => {
         ElMessage.warning("删除失败:" + result["msg"]);
       }
     })
-    .catch(() => {});
+    .catch(() => { });
 };
 </script>

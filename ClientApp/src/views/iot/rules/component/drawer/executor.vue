@@ -152,7 +152,7 @@ const props = defineProps({
 const emit = defineEmits(["close", "submit"]);
 
 
-console.log(props.modelValue);
+
 
 const { proxy } = <any>getCurrentInstance();
 const nodeFormRef = ref();
@@ -212,25 +212,6 @@ const onNodeSubmit = () => {
     if (valid) {
       emit("submit", state.node);
       emit("close");
-    } else {
-      return false;
-    }
-  });
-};
-// 扩展表单-重置
-const onExtendRefresh = () => {
-  extendFormRef.value.resetFields();
-};
-// 扩展表单-保存
-const onExtendSubmit = () => {
-  extendFormRef.value.validate((valid: boolean) => {
-    if (valid) {
-      state.loading.extend = true;
-      setTimeout(() => {
-        state.loading.extend = false;
-        ElMessage.success("保存成功");
-        emit("close");
-      }, 1000);
     } else {
       return false;
     }

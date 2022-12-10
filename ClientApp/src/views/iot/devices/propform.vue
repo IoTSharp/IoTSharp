@@ -45,7 +45,7 @@ interface propformstate {
   devid: string;
 }
 const emit = defineEmits(["close", "submit"]);
-const state = reactive<propformstate>({ drawer: false, dialogtitle: "", devid: "" });
+const state = reactive<propformstate>({ drawer: false, dialogtitle: "设备属性修改", devid: "" });
 const formserverRef = ref();
 const formserverOptions = ref();
 const formclientRef = ref();

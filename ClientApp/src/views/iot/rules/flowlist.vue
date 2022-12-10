@@ -2,12 +2,7 @@
   <div class="system-list-container">
     <el-card shadow="hover">
       <div class="system-dept-search mb15">
-        <el-input
-          size="default"
-          placeholder="请输入规则名称"
-          style="max-width: 180px"
-          v-model="query.name"
-        >
+        <el-input size="default" placeholder="请输入规则名称" style="max-width: 180px" v-model="query.name">
         </el-input>
 
         <el-button size="default" type="primary" class="ml10" @click="getData()">
@@ -23,71 +18,51 @@
           新增规则
         </el-button>
       </div>
-      <el-table :data="state.tableData.rows" style="width: 100%" row-key="id">
+      <el-table :data="state.tableData.rows" style="width: 100%" row-key="ruleId" table-layout="auto" @expand-change="expandchange">
+
+
+        <el-table-column type="expand">
+          <template #default="props">
+            <el-table :data="props.row.flows">
+              <el-table-column label="节点名称" prop="flowname" />
+              <el-table-column label="类型" prop="flowType" />
+              <el-table-column label="执行器" prop="nodeProcessClass" />
+              <el-table-column label="脚本类型" prop="nodeProcessScriptType" />
+           
+            </el-table>
+          </template>
+        </el-table-column>
+
         <el-table-column prop="name" label="规则名称" show-overflow-tooltip>
         </el-table-column>
 
         <el-table-column prop="mountType" label="挂载类型" show-overflow-tooltip>
           <template #default="scope">
-            <el-tag
-              effect="dark"
-              size="small"
-              type="info"
-              class="mx-1"
-              :color="mountTypes.get(scope.row.mountType)?.color"
-              disable-transitions
-              >{{ mountTypes.get(scope.row.mountType)?.text }}</el-tag
-            >
+            <el-tag effect="dark" size="small" type="info" class="mx-1"
+              :color="mountTypes.get(scope.row.mountType)?.color" disable-transitions>{{
+                  mountTypes.get(scope.row.mountType)?.text
+              }}</el-tag>
           </template>
         </el-table-column>
 
-        <el-table-column
-          prop="creatTime"
-          label="创建时间"
-          show-overflow-tooltip
-        ></el-table-column>
+        <el-table-column prop="creatTime" label="创建时间" show-overflow-tooltip></el-table-column>
 
-        <el-table-column
-          prop="ruleDesc"
-          label="备注"
-          show-overflow-tooltip
-        ></el-table-column>
 
-        <el-table-column label="操作" show-overflow-tooltip width="200">
+
+        <el-table-column label="操作" show-overflow-tooltip >
           <template #default="scope">
-            <el-button size="small" text type="primary" @click="edit(scope.row.ruleId)"
-              >修改</el-button
-            >
-
-            <el-button size="small" text type="primary" @click="design(scope.row.ruleId)"
-              >设计</el-button
-            >
-            <el-button
-              size="small"
-              text
-              type="primary"
-              @click="simulator(scope.row.ruleId)"
-              >测试</el-button
-            >
-
-            <el-button size="small" text type="primary" @click="onTabelRowDel(scope.row)"
-              >删除</el-button
-            >
+            <el-button size="small" text type="primary" icon="Edit" @click="edit(scope.row.ruleId)"> 修改</el-button>
+            <el-button size="small" text type="success" icon="Memo" @click="design(scope.row.ruleId)">设计</el-button>
+            <el-button size="small" text icon="DocumentChecked" @click="simulator(scope.row.ruleId)">测试</el-button>
+            <el-button size="small" text type="danger" icon="Delete" @click="onTabelRowDel(scope.row)">删除</el-button>
+       
           </template>
         </el-table-column>
       </el-table>
-      <el-pagination
-        @size-change="onHandleSizeChange"
-        @current-change="onHandleCurrentChange"
-        class="mt15"
-        :pager-count="5"
-        :page-sizes="[10, 20, 30]"
-        v-model:current-page="state.tableData.param.pageNum"
-        background
-        v-model:page-size="state.tableData.param.pageSize"
-        layout="total, sizes, prev, pager, next, jumper"
-        :total="state.tableData.total"
-      >
+      <el-pagination @size-change="onHandleSizeChange" @current-change="onHandleCurrentChange" class="mt15"
+        :pager-count="5" :page-sizes="[10, 20, 30]" v-model:current-page="state.tableData.param.pageNum" background
+        v-model:page-size="state.tableData.param.pageSize" layout="total, sizes, prev, pager, next, jumper"
+        :total="state.tableData.total">
       </el-pagination>
     </el-card>
     <addflow ref="addformRef" @close="close" @submit="submit" />
@@ -114,7 +89,21 @@ interface TableDataRow {
   ruleDesc?: string;
   creator?: string;
   ruleType?: string;
+  flows?: Array<SubTableDataRow>
+
 }
+interface SubTableDataRow {
+  flowId?: string;
+  createDate?: string;
+  flowType?: string;
+  nodeProcessClass?: string;
+  nodeProcessScript?: string;
+  nodeProcessScriptType?: string;
+  nodeProcessType?: string;
+  conditionexpression?: string;
+
+}
+
 interface TableDataState {
   tableData: {
     rows: Array<TableDataRow>;
@@ -192,7 +181,7 @@ const onTabelRowDel = (row: TableDataRow) => {
         ElMessage.warning("删除失败:" + res.msg);
       }
     })
-    .catch(() => {});
+    .catch(() => { });
 };
 
 const design = (id: string) => {
@@ -221,12 +210,12 @@ const create = () => {
 };
 
 const onHandleSizeChange = (val: number) => {
-  state.tableData.param.pageSize = val;
+  query.limit = val;
   getData();
 };
 // 分页改变
 const onHandleCurrentChange = (val: number) => {
-  state.tableData.param.pageNum = val;
+  query.offset= val-1;
   getData();
 };
 
@@ -239,6 +228,19 @@ const getData = () => {
       state.tableData.total = res.data.total;
     });
 };
+
+
+
+const expandchange = async (row: TableDataRow, expanded: Array<TableDataRow>
+
+) => {
+
+  if (expanded.length > 0 && row.ruleId) {
+    var result = await ruleApi().getFlows(row.ruleId)
+    row.flows = result.data;
+  }
+
+}
 // 页面加载时
 onMounted(() => {
   initTableData();
