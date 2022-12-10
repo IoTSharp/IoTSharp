@@ -2,6 +2,7 @@ import { assetApi } from '/@/api/asset';
 import _ from 'lodash-es';
 import { TableDataRow } from '../model/assetList';
 import { ElMessage } from 'element-plus';
+import { dict } from '@fast-crud/fast-crud';
 export const createAssetListCrudOptions = function ({ expose }) {
 	let records: any[] = [];
 	const FsButton = {
@@ -74,21 +75,12 @@ export const createAssetListCrudOptions = function ({ expose }) {
 				show: true,
 			},
 			rowHandle: {
-				width: 320,
+				width: 200,
 				buttons: {
 					view: {
 						icon: 'View',
 						...FsButton,
 						show: false,
-					},
-					custom: {
-						text: '资产管理',
-						title: '资产管理',
-						icon: 'User',
-						order: 1,
-						type: 'info',
-						...FsButton,
-						click: (e) => {},
 					},
 					edit: {
 						icon: 'EditPen',
@@ -104,7 +96,7 @@ export const createAssetListCrudOptions = function ({ expose }) {
 			},
 			columns: {
 				name: {
-					title: '名称',
+					title: '资产名称',
 					type: 'text',
 					search: { show: true },
 					addForm: {
@@ -118,12 +110,18 @@ export const createAssetListCrudOptions = function ({ expose }) {
 				},
 				assetType: {
 					title: '类型',
-					type: 'text',
+					type: 'dict-select',
 					column: { width: 180 },
 					addForm: {
 						show: true,
 						component: customSwitchComponent,
 					},
+					dict: dict({
+						data: [
+							{ value: 'Gateway', label: '网关' },
+							{ value: 'Device', label: '设备', color: 'warning' },
+						],
+					}),
 					editForm: {
 						show: true,
 						component: customSwitchComponent,
@@ -132,7 +130,13 @@ export const createAssetListCrudOptions = function ({ expose }) {
 				description: {
 					title: '描述',
 					column: { width: 150 },
-					type: 'text',
+					type: 'textarea',
+					form: {
+						col: {
+							span: 24,
+							style: { gridColumn: 'span 2' }, // grid 模式控制跨列
+						},
+					},
 					addForm: {
 						show: true,
 						component: customSwitchComponent,
