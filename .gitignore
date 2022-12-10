@@ -25,6 +25,3 @@ src/auto-imports.d.ts
 *.sln
 *.sw?
 package-lock.json
-
-/.env.production
-/.env.production
