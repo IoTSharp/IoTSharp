@@ -2,8 +2,9 @@ import { deviceApi } from '/@/api/devices';
 import _ from 'lodash-es';
 import { compute, dict } from '@fast-crud/fast-crud';
 import { TableDataRow } from '/@/views/iot/devices/model';
+
 // eslint-disable-next-line no-unused-vars
-export const createDeviceCrudOptions = function ({ expose }, customerId, deviceDetailRef?) {
+export const createDeviceCrudOptions = function ({ expose }, customerId, deviceDetailRef?, addRulesRef?,selectedItems?) {
 	let records: any[] = [];
 	const FsButton = {
 		link: true,
@@ -12,6 +13,12 @@ export const createDeviceCrudOptions = function ({ expose }, customerId, deviceD
 		activeColor: 'var(--el-color-primary)',
 		inactiveColor: 'var(el-switch-of-color)',
 	};
+
+
+	const onSelectionChange = (changed) => {
+		console.log("selection", changed);
+		selectedItems.value = changed.map((item) => item);
+	  };
 	const pageRequest = async (query) => {
 		const params = reactive({
 			offset: query.page.currentPage - 1,
@@ -61,6 +68,7 @@ export const createDeviceCrudOptions = function ({ expose }, customerId, deviceD
 		return form;
 	};
 	return {
+	
 		crudOptions: {
 			request: {
 				pageRequest,
@@ -69,7 +77,7 @@ export const createDeviceCrudOptions = function ({ expose }, customerId, deviceD
 				delRequest,
 			},
 			table: {
-				border: false
+				border: false,onSelectionChange
 
 			},
 			form: {
@@ -100,6 +108,19 @@ export const createDeviceCrudOptions = function ({ expose }, customerId, deviceD
 				},
 			},
 			columns: {
+				$checked: {
+					title: "选择",
+					form: { show: false },
+					column: {
+						type: "selection",
+						align: "center",
+						width: "55px",
+						columnSetDisabled: false, //禁止在列设置中选择
+						selectable(row, index) {
+							return true
+						}
+					}
+				},
 				name: {
 					title: '设备名称',
 					type: 'button',

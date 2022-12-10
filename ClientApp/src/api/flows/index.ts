@@ -93,6 +93,16 @@ export function ruleApi() {
 				method: 'get',
 			});
 		},
+		bindDevice: (data: any) => {
+			return request({
+				url: '/api/rules/binddevice',
+				method: 'post', data: data,
+			});
+		},
+
+
+
+
 	};
 }
 

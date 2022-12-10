@@ -35,7 +35,7 @@
       </div>
 
 
-    <el-table :data="state.tableData.rows" style="width: 100%" row-key="id">
+    <el-table :data="state.tableData.rows" style="width: 100%" row-key="eventId" table-layout="auto">
       <el-table-column type="expand">
         <template #default="props">
           <el-card class="box-card" style="margin: 3px;">
@@ -60,7 +60,7 @@
       <el-table-column prop="type" label="类型" show-overflow-tooltip></el-table-column>
       <el-table-column prop="name" label="触发规则" show-overflow-tooltip></el-table-column>
       <el-table-column prop="createrDateTime" label="创建时间" show-overflow-tooltip></el-table-column>
-      <el-table-column label="操作" show-overflow-tooltip width="200">
+      <el-table-column label="操作" show-overflow-tooltip >
         <template #default="scope">
           <el-button size="small" text type="primary" v-if="
             scope.row.alarmStatus === 'Active_UnAck' ||
