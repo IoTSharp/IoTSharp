@@ -86,14 +86,6 @@ export const createDeviceCrudOptions = function ({ expose }, customerId, deviceD
 				},
 
 				buttons: {
-					view: {
-						icon: 'view', //图标
-						...FsButton,
-						// FsButton的配置，可以修改文本、颜色，也可以修改成图标按钮、纯文本按钮等
-						order: 1, //排序号，越小则排前面，默认值1
-						dropdown: false, //是否折叠此按钮，当配置为true，将会收起到dropdown中
-						//点击事件,点击此按钮会触发此方法
-					},
 					edit: {
 						icon: 'editPen',
 						...FsButton,
@@ -103,29 +95,7 @@ export const createDeviceCrudOptions = function ({ expose }, customerId, deviceD
 						icon: 'Delete',
 						...FsButton,
 						order: 5,
-					}, //删除按钮
-					attrNew: {
-						size: 'small',
-						dropdown: true,
-						icon: 'plus', //图标
-						...FsButton,
-						text: '新增属性', //按钮文字
-					},
-					attrEdit: {
-						size: 'small',
-						dropdown: true,
-						icon: 'editPen', //图标
-						...FsButton,
-						text: '属性修改', //按钮文字
-					},
-					token: {
-						...FsButton,
-						type: 'primary',
-						text: compute(({ row }) => {
-							if (row.identityType === 'AccessToken') return '获取token';
-							else if (row.identityType === 'X509Certificate') return '下载证书 ';
-						}), //按钮文字
-					},
+					} //删除按钮
 				},
 			},
 			columns: {
@@ -157,13 +127,13 @@ export const createDeviceCrudOptions = function ({ expose }, customerId, deviceD
 					}),
 				},
 				active: {
-					title: '在线状态',
+					title: '活动状态',
 					type: 'dict-switch',
 					search: { show: false },
 					dict: dict({
 						data: [
-							{ value: true, label: '在线' },
-							{ value: false, label: '离线', color: 'danger' },
+							{ value: true, label: '活动' },
+							{ value: false, label: '静默', color: 'danger' },
 						],
 					}),
 					column: {},
