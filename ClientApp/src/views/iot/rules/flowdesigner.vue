@@ -209,12 +209,6 @@ const initLeftNavList = async () => {
 // 左侧导航-初始化拖动
 const initSortable = () => {
 
-
-  leftNavRefs.value.forEach((v)=>{
-
-console.log(v)
-})
-
   leftNavRefs.value.forEach((v) => {
     Sortable.create(v as HTMLDivElement, {
       group: {
@@ -645,16 +639,20 @@ const panelClose = (data: any) => {
 };
 
 // 顶部工具栏-提交
-const onToolSubmit = () => {
-  ruleApi()
+const onToolSubmit = async () => {
+ var result=await   ruleApi()
     .saveDiagramV({
       RuleId: state.flowid,
       nodes: state.jsplumbData.nodeList,
       lines: state.jsplumbData.lineList,
     })
-    .then((res) => {});
+    if(result.data){
+      ElMessage.success("规则保存成功");
+      onReturnToList();
+    }else{
+      ElMessage.success("规则保存失败："+result['msg']);
+    }
 
-  ElMessage.success("数据提交成功");
 };
 // 顶部工具栏-复制
 const onToolCopy = () => {

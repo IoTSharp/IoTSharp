@@ -47,8 +47,8 @@ export const createDeviceTelemetryRealtimeCrudOptions = function ({ expose }, de
 		records = res.data;
 		records.map((telemetryItem) => {
 			telemetryItem.average = averageRes.data.find((x) => x.keyName === telemetryItem.keyName)?.value;
-			telemetryItem.max = maxRes.data.find((x) => x.keyName === telemetryItem.keyName).value;
-			telemetryItem.min = minRes.data.find((x) => x.keyName === telemetryItem.keyName).value;
+			telemetryItem.max = maxRes.data.find((x) => x.keyName === telemetryItem.keyName)?.value;
+			telemetryItem.min = minRes.data.find((x) => x.keyName === telemetryItem.keyName)?.value;
 			return telemetryItem;
 		});
 		console.log(`%c-pageRequest@deviceTelemetryRealtimeCrudOptions:24`, 'color:white;font-size:16px;background:blue;font-weight: bold;', records);

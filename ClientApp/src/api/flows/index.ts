@@ -9,7 +9,7 @@ import request from '/@/utils/request';
  * @method putrule 修改租户
  * @method deleterule 删除租户
  */
- export function ruleApi() {
+export function ruleApi() {
 	return {
 		ruleList: (params: QueryParam) => {
 			return request({
@@ -18,9 +18,9 @@ import request from '/@/utils/request';
 				data: params,
 			});
 		},
-		getrule: (ruleId:string) => {
+		getrule: (ruleId: string) => {
 			return request({
-				url: '/api/rules/Get?id='+ruleId,
+				url: '/api/rules/Get?id=' + ruleId,
 				method: 'get',
 			});
 		},
@@ -33,16 +33,16 @@ import request from '/@/utils/request';
 			});
 		},
 
-        putrule: (params: any) => {
+		putrule: (params: any) => {
 			return request({
 				url: '/api/rules/Update',
 				method: 'post',
 				data: params,
 			});
 		},
-        deleterule: (id: string) => {
+		deleterule: (id: string) => {
 			return request({
-				url: '/api/rules/Delete?id='+id,
+				url: '/api/rules/Delete?id=' + id,
 				method: 'get',
 				data: {},
 			});
@@ -57,7 +57,7 @@ import request from '/@/utils/request';
 
 		getDiagram: (id: string) => {
 			return request({
-				url: '/api/rules/GetDiagramV?id='+id,
+				url: '/api/rules/GetDiagramV?id=' + id,
 				method: 'get',
 			});
 		},
@@ -85,9 +85,17 @@ import request from '/@/utils/request';
 				data: data,
 			});
 		},
+
+
+		getFlows: (ruleId: string) => {
+			return request({
+				url: '/api/rules/GetFlows?ruleId=' + ruleId,
+				method: 'get',
+			});
+		},
 	};
 }
 
-interface QueryParam extends IListQueryParam{
-	name?:string
+interface QueryParam extends IListQueryParam {
+	name?: string
 }

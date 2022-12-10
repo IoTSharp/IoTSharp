@@ -64,4 +64,8 @@ const onLineTextChange = () => {
   emit("linechange", state.line);
   emit("close");
 };
+defineExpose({
+  getParentData,onLineTextChange
+});
+
 </script>

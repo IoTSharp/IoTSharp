@@ -18,15 +18,15 @@ export const createDeviceCrudOptions = function ({ expose }, customerId, deviceD
 			limit: query.page.pageSize,
 			onlyActive: false,
 			customerId,
-			name: '',
+			name: query.form.name ?? '',
 		});
 
 		const res = await deviceApi().devcieList(params);
 		records = res.data.rows;
 		return {
 			records,
-			currentPage: 1,
-			pageSize: 20,
+			currentPage: params.offset + 1,
+			pageSize: params.limit,
 			total: res.data.total,
 		};
 	};
@@ -69,7 +69,8 @@ export const createDeviceCrudOptions = function ({ expose }, customerId, deviceD
 				delRequest,
 			},
 			table: {
-				border: false,
+				border: false
+
 			},
 			form: {
 				labelWidth: '130px', //
@@ -125,6 +126,8 @@ export const createDeviceCrudOptions = function ({ expose }, customerId, deviceD
 							{ value: 'Device', label: '设备', color: 'warning' },
 						],
 					}),
+
+					column: { width: '80px' }
 				},
 				active: {
 					title: '活动状态',
@@ -136,7 +139,7 @@ export const createDeviceCrudOptions = function ({ expose }, customerId, deviceD
 							{ value: false, label: '静默', color: 'danger' },
 						],
 					}),
-					column: {},
+					column: { width: '80px' },
 					viewForm: {
 						show: true,
 						component: customSwitchComponent,
@@ -149,6 +152,7 @@ export const createDeviceCrudOptions = function ({ expose }, customerId, deviceD
 						show: false,
 						component: customSwitchComponent,
 					},
+
 				},
 				lastActivityDateTime: {
 					title: '最后活动时间',
@@ -168,6 +172,7 @@ export const createDeviceCrudOptions = function ({ expose }, customerId, deviceD
 					title: '认证方式',
 					type: 'dict-select',
 					search: { show: false },
+					column: { width: '100px' },
 					dict: dict({
 						data: [
 							{ value: 'AccessToken', label: 'AccessToken' },
