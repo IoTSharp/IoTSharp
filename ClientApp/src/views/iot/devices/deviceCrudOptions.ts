@@ -13,20 +13,23 @@ export const createDeviceCrudOptions = function ({ expose }, customerId, deviceD
 		inactiveColor: 'var(el-switch-of-color)',
 	};
 	const pageRequest = async (query) => {
+
+
+
 		const params = reactive({
-			offset: query.page.currentPage - 1,
+			offset: query.page.currentPage ,
 			limit: query.page.pageSize,
 			onlyActive: false,
 			customerId,
-			name: '',
+			name: query.form.name??'',
 		});
 
 		const res = await deviceApi().devcieList(params);
 		records = res.data.rows;
 		return {
 			records,
-			currentPage: 1,
-			pageSize: 20,
+			currentPage: params.offset,
+			pageSize: params.limit,
 			total: res.data.total,
 		};
 	};
