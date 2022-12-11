@@ -230,6 +230,27 @@
             <param name="m"></param>
             <returns></returns>
         </member>
+        <member name="M:IoTSharp.Controllers.AssetController.addDevice(IoTSharp.Models.ModelAddAssetDevice)">
+            <summary>
+            增加资产
+            </summary>
+            <param name="m"></param>
+            <returns></returns>
+        </member>
+        <member name="M:IoTSharp.Controllers.AssetController.RemoveAssetRaletions(System.Guid)">
+            <summary>
+            根据Id移除关联关系
+            </summary>
+            <param name="relationId"></param>
+            <returns></returns>
+        </member>
+        <member name="M:IoTSharp.Controllers.AssetController.EditRelation(IoTSharp.Models.ModelEditAssetAttrItem)">
+            <summary>
+             修改资产和设备关联属性或者遥测信息
+            </summary>
+            <param name="m"></param>
+            <returns></returns>
+        </member>
         <member name="T:IoTSharp.Controllers.AuthorizedKeysController">
             <summary>
             全局设备认证KEY管理
@@ -1324,6 +1345,86 @@
         <member name="P:IoTSharp.Gateways.OPCUATag.TagTimestamp">
             <summary>
             
+            </summary>
+        </member>
+        <member name="P:IoTSharp.Models.ModelAddAssetDevice.AssetId">
+            <summary>
+            资产Id
+            </summary>
+        </member>
+        <member name="P:IoTSharp.Models.ModelAddAssetDevice.Deviceid">
+            <summary>
+            要导入的设备Id
+            </summary>
+        </member>
+        <member name="P:IoTSharp.Models.ModelAddAssetDevice.Attrs">
+            <summary>
+            要导入的设备属性数据列表
+            </summary>
+        </member>
+        <member name="P:IoTSharp.Models.ModelAddAssetDevice.Temps">
+            <summary>
+            要导入的设备遥测数据列表
+            </summary>
+        </member>
+        <member name="P:IoTSharp.Models.ModelAddAssetDevice.ModelAddAssetDeviceItem.Description">
+            <summary>
+            属性或者遥测的描述
+            </summary>
+        </member>
+        <member name="P:IoTSharp.Models.ModelAddAssetDevice.ModelAddAssetDeviceItem.keyName">
+             <summary>
+            属性或者遥测的KeyName
+             </summary>
+        </member>
+        <member name="P:IoTSharp.Models.ModelAddAssetDevice.ModelAddAssetDeviceItem.dataSide">
+             <summary>
+            数据侧
+             </summary>
+        </member>
+        <member name="P:IoTSharp.Models.ModelAddAssetDevice.ModelAddAssetDeviceItem.Name">
+            <summary>
+            属性或者遥测的KeyName的别名
+            </summary>
+        </member>
+        <member name="P:IoTSharp.Models.ModelEditAssetAttrItem.Id">
+            <summary>
+             关联关系的id 
+            </summary>
+        </member>
+        <member name="P:IoTSharp.Models.ModelEditAssetAttrItem.Description">
+            <summary>
+             属性或者遥测的描述
+            </summary>
+        </member>
+        <member name="P:IoTSharp.Models.ModelEditAssetAttrItem.Name">
+            <summary>
+             属性或者遥测的KeyName的别名
+            </summary>
+        </member>
+        <member name="P:IoTSharp.Models.ModelAssetAttrItem.Id">
+            <summary>
+             关联关系的id 
+            </summary>
+        </member>
+        <member name="P:IoTSharp.Models.ModelAssetAttrItem.Description">
+            <summary>
+             属性或者遥测的描述
+            </summary>
+        </member>
+        <member name="P:IoTSharp.Models.ModelAssetAttrItem.keyName">
+            <summary>
+             属性或者遥测的KeyName
+            </summary>
+        </member>
+        <member name="P:IoTSharp.Models.ModelAssetAttrItem.dataSide">
+            <summary>
+             属性或者遥测的数据侧
+            </summary>
+        </member>
+        <member name="P:IoTSharp.Models.ModelAssetAttrItem.Name">
+            <summary>
+             属性或者遥测的别名
             </summary>
         </member>
         <member name="P:IoTSharp.Models.Rule.NodeObject.nodetype">
