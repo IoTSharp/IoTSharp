@@ -1,12 +1,18 @@
-﻿using IoTSharp.Data;
+﻿using IoTSharp.Contracts;
+using IoTSharp.Controllers.Models;
+using IoTSharp.Data;
 using IoTSharp.Dtos;
 using IoTSharp.Extensions;
+using IoTSharp.Models;
+using Jdenticon.AspNetCore;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using System;
 using System.Collections.Generic;
@@ -15,14 +21,6 @@ using System.Linq;
 using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
-using IoTSharp.Controllers.Models;
-using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Options;
-
-using Jdenticon.AspNetCore;
-using IoTSharp.Contracts;
-using InfluxDB.Client.Api.Domain;
-using IoTSharp.Models;
 
 namespace IoTSharp.Controllers
 {
@@ -40,6 +38,7 @@ namespace IoTSharp.Controllers
         private readonly UserManager<IdentityUser> _userManager;
         private readonly IConfiguration _configuration;
         private readonly SignInManager<IdentityUser> _signInManager;
+
         /// <summary>
         /// 用户管理
         /// </summary>
@@ -52,18 +51,19 @@ namespace IoTSharp.Controllers
         public AccountController(
             UserManager<IdentityUser> userManager,
             SignInManager<IdentityUser> signInManager,
-            IConfiguration configuration, ILogger<AccountController> logger, ApplicationDbContext context, 
+            IConfiguration configuration, ILogger<AccountController> logger, ApplicationDbContext context,
             IOptions<AppSettings> options
             )
         {
             _userManager = userManager;
             _signInManager = signInManager;
- 
+
             _configuration = configuration;
             _logger = logger;
             _context = context;
             _settings = options.Value;
         }
+
         /// <summary>
         /// 获取当前用户的头像， 基于邮箱生成
         /// </summary>
@@ -86,6 +86,7 @@ namespace IoTSharp.Controllers
             }
             return result;
         }
+
         /// <summary>
         /// 获取当前登录用户信息
         /// </summary>
@@ -110,6 +111,7 @@ namespace IoTSharp.Controllers
             };
             return new ApiResult<UserInfoDto>(ApiCode.Success, "OK", uidto);
         }
+
         /// <summary>
         /// 登录用户
         /// </summary>
@@ -147,19 +149,17 @@ namespace IoTSharp.Controllers
                 }
                 else
                 {
-                    return new ApiResult<LoginResult>(ApiCode.LoginError, "Unauthorized", null);
+                    return new ApiResult<LoginResult>(ApiCode.LoginError, "用户名或密码错误。", new LoginResult() { Code = ApiCode.LoginError, Succeeded = false, SignIn = result });
                 }
             }
             catch (Exception ex)
             {
-
                 return new ApiResult<LoginResult>(ApiCode.InValidData, ex.Message, null);
-                //      return this.ExceptionRequest(ex);
             }
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="name"></param>
         /// <returns></returns>
@@ -174,7 +174,6 @@ namespace IoTSharp.Controllers
                 new(ClaimTypes.Email, appUser.Email),
                 new(ClaimTypes.NameIdentifier, appUser.Id),
                 new(ClaimTypes.Name,  appUser.UserName),
-
             };
             var lstclaims = await _userManager.GetClaimsAsync(appUser);
             claims.AddRange(lstclaims);
@@ -212,22 +211,17 @@ namespace IoTSharp.Controllers
             return new ModelRefreshToken() { RefreshToken = refreshToken.Token, Token = jwtToken, ExpiresIn = (long)(_settings.JwtExpireHours * 3600), AppUser = appUser, Roles = roles, Expires = expires };
         }
 
-
         /// <summary>
         /// 刷新JWT Token
         /// </summary>
         /// <param name="model"></param>
         /// <returns></returns>
         [HttpPost]
-
         public async Task<ApiResult<LoginResult>> RefreshToken([FromBody] RefreshTokenDto model)
         {
-           
             var profile = this.GetUserProfile();
             try
             {
-
-
                 var storedRefreshToken = await _context.RefreshTokens.FirstOrDefaultAsync(x => x.Token == model.RefreshToken);
                 if (storedRefreshToken == null)
                 {
@@ -246,9 +240,9 @@ namespace IoTSharp.Controllers
                 var signInResult = await CreateToken(profile.Name);
                 return new ApiResult<LoginResult>(ApiCode.Success, "Ok", new LoginResult()
                 {
-                    Code = ApiCode.Success, 
+                    Code = ApiCode.Success,
                     Succeeded = true,
-                    UserName = profile.Name, 
+                    UserName = profile.Name,
                     Roles = profile.Roles,
                     Token = new TokenEntity
                     {
@@ -258,21 +252,12 @@ namespace IoTSharp.Controllers
                         expires = signInResult.Expires
                     },
                 });
-
             }
             catch (Exception ex)
             {
                 return new ApiResult<LoginResult>(ApiCode.Exception, ex.Message, null);
             }
-
-
-
-
         }
-
-
-
-
 
         /// <summary>
         /// 退出账号
@@ -288,16 +273,12 @@ namespace IoTSharp.Controllers
             try
             {
                 await _signInManager.SignOutAsync();
-
                 return new ApiResult<bool>(ApiCode.InValidData, "Ok", true);
-                //  return new  OkResult();
             }
             catch (Exception ex)
             {
                 return new ApiResult<bool>(ApiCode.InValidData, ex.Message, true);
-                //    return this.ExceptionRequest(ex);
             }
-
         }
 
         /// <summary>
@@ -309,7 +290,6 @@ namespace IoTSharp.Controllers
         [HttpPost]
         public async Task<ApiResult<LoginResult>> Register([FromBody] RegisterDto model)
         {
-
             try
             {
                 var user = new IdentityUser
@@ -336,9 +316,7 @@ namespace IoTSharp.Controllers
                             Code = ApiCode.Success,
                             Succeeded = result.Succeeded,
                             UserName = model.Email,
-
                         });
-                        //    actionResult = CreatedAtAction(nameof(this.Login), new LoginDto() { UserName = model.Email,  Password = model.Password });
                     }
                 }
                 else
@@ -354,9 +332,6 @@ namespace IoTSharp.Controllers
             return new ApiResult<LoginResult>(ApiCode.InValidData, "", null);
         }
 
-
-
-
         /// <summary>
         /// 注册新的租户，客户，以及用户
         /// </summary>
@@ -366,8 +341,7 @@ namespace IoTSharp.Controllers
         [HttpPost]
         public async Task<ApiResult<LoginResult>> Create([FromBody] InstallDto model)
         {
-
-            var tenant = _context.Tenant.FirstOrDefault(t => t.Email == model.TenantEMail && t.Deleted==false);
+            var tenant = _context.Tenant.FirstOrDefault(t => t.Email == model.TenantEMail && t.Deleted == false);
             var customer = _context.Customer.FirstOrDefault(t => t.Email == model.CustomerEMail && t.Deleted == false);
             if (tenant == null && customer == null)
             {
@@ -418,9 +392,8 @@ namespace IoTSharp.Controllers
             {
                 return new ApiResult<LoginResult>(ApiCode.UserAlreadyExists, "The user already exists", null);
             }
-           
-            
         }
+
         /// <summary>
         /// 注册新的租户，客户，以及用户
         /// </summary>
@@ -431,7 +404,7 @@ namespace IoTSharp.Controllers
         public async Task<ApiResult<LoginResult>> CreateUser([FromBody] CreateUserDto model)
         {
             var customer = await _context.Customer.Include(c => c.Tenant).FirstOrDefaultAsync(c => c.Id == model.Customer);
-            if (customer != null && customer.Tenant!=null)
+            if (customer != null && customer.Tenant != null)
             {
                 var tid = customer.Tenant.Id;
                 IdentityUser user = await _userManager.FindByEmailAsync(model.Email);
@@ -494,12 +467,11 @@ namespace IoTSharp.Controllers
                 Email = c.Email,
                 PhoneNumber = c.PhoneNumber,
                 AccessFailedCount = c.AccessFailedCount,
-                LockoutEnabled= c.LockoutEnabled,
-                LockoutEnd=  c.LockoutEnd
+                LockoutEnabled = c.LockoutEnabled,
+                LockoutEnd = c.LockoutEnd
             });
             return new ApiResult<PagedData<UserItemDto>>(ApiCode.Success, "OK", data);
         }
-
 
         /// <summary>
         /// 返回用户信息
@@ -516,13 +488,10 @@ namespace IoTSharp.Controllers
             }
 
             return new ApiResult<UserItemDto>(ApiCode.CantFindObject, "can't find that user", null);
-
         }
 
-
-
         /// <summary>
-        /// 锁定用户 
+        /// 锁定用户
         /// </summary>
         /// <param name="dto"></param>
         /// <returns>
@@ -544,37 +513,38 @@ namespace IoTSharp.Controllers
                     case LockOpt.Status:
                         result = new ApiResult(ApiCode.Success, $"{les}");
                         break;
+
                     case LockOpt.Lock:
-                        var   lce = await _userManager.SetLockoutEnabledAsync(user, true);
+                        var lce = await _userManager.SetLockoutEnabledAsync(user, true);
                         if (lce.Succeeded)
                         {
                             var led = await _userManager.SetLockoutEndDateAsync(user, DateTimeOffset.Now.AddYears(100));
                             if (led.Succeeded)
                             {
-                                result= new ApiResult(ApiCode.Success, "OK");
+                                result = new ApiResult(ApiCode.Success, "OK");
                             }
                             else
                             {
-                                result= new ApiResult(ApiCode.LockUserHaveError, "锁定用户时遇到错误" + string.Join(';', led.Errors.Select(c => $"{c.Code}-{c.Description}")));
+                                result = new ApiResult(ApiCode.LockUserHaveError, "锁定用户时遇到错误" + string.Join(';', led.Errors.Select(c => $"{c.Code}-{c.Description}")));
                             }
                         }
                         else
                         {
-                            result= new ApiResult(ApiCode.CanNotLockUser, "无法锁定此用户" + string.Join(';', lce.Errors.Select(c => $"{c.Code}-{c.Description}"))); 
+                            result = new ApiResult(ApiCode.CanNotLockUser, "无法锁定此用户" + string.Join(';', lce.Errors.Select(c => $"{c.Code}-{c.Description}")));
                         }
-               
+
                         break;
+
                     case LockOpt.Unlock:
                         if (les)
                         {
                             var led = await _userManager.SetLockoutEndDateAsync(user, DateTimeOffset.Now);
-                         
+
                             if (led.Succeeded)
                             {
                                 var uld = await _userManager.SetLockoutEnabledAsync(user, false);
                                 if (uld.Succeeded)
                                 {
-
                                     result = new ApiResult(ApiCode.Success, "OK");
                                 }
                                 else
@@ -592,20 +562,19 @@ namespace IoTSharp.Controllers
                             result = new ApiResult(ApiCode.CanNotUnLockUser, "无法解锁此用户");
                         }
                         break;
+
                     default:
                         break;
                 }
             }
             else
             {
-                result= new ApiResult(ApiCode.NotFoundUser, "未找到此用户"); 
+                result = new ApiResult(ApiCode.NotFoundUser, "未找到此用户");
             }
 
             return result;
-
         }
-     
- 
+
         /// <summary>
         /// 修改用户信息
         /// </summary>
@@ -617,10 +586,7 @@ namespace IoTSharp.Controllers
             idu.PhoneNumber = user.PhoneNumber;
             var result = await _userManager.UpdateAsync(idu);
             return new ApiResult<bool>(ApiCode.Success, "Ok", result.Succeeded);
-
         }
-
-
 
         /// <summary>
         /// 修改当前用户信息
@@ -629,15 +595,11 @@ namespace IoTSharp.Controllers
         [HttpPut]
         public async Task<ApiResult<bool>> ModifyMyInfo(UserItemDto user)
         {
-
             var cuser = await _userManager.GetUserAsync(User);
             cuser.PhoneNumber = user.PhoneNumber;
             var result = await _userManager.UpdateAsync(cuser);
             return new ApiResult<bool>(ApiCode.Success, "Ok", result.Succeeded);
-
         }
-
-
 
         /// <summary>
         /// 修改当前用户信息
@@ -646,10 +608,8 @@ namespace IoTSharp.Controllers
         [HttpPut]
         public async Task<ApiResult<bool>> ModifyMyPassword(UserPassword password)
         {
-
             if (password.PassNew.Length > 6)
             {
-
                 if (password.PassNew == password.PassNewSecond)
                 {
                     var cuser = await _userManager.GetUserAsync(User);
@@ -678,17 +638,16 @@ namespace IoTSharp.Controllers
                 switch (type)
                 {
                     case 1:
-                        return new ApiResult<bool>(ApiCode.Success, "OK", _context.Tenant.Any(c => c.Email.ToLower() == email.ToLower() && c.Deleted==false));
-                    case 2:
-                        return new ApiResult<bool>(ApiCode.Success, "OK", _context.Customer.Any(c => c.Email.ToLower() == email.ToLower() && c.Deleted==false));
-                    case 3:
-                        return new ApiResult<bool>(ApiCode.Success, "OK", _context.Users.Any(c => c.Email.ToLower() == email.ToLower() ));
+                        return new ApiResult<bool>(ApiCode.Success, "OK", _context.Tenant.Any(c => c.Email.ToLower() == email.ToLower() && c.Deleted == false));
 
+                    case 2:
+                        return new ApiResult<bool>(ApiCode.Success, "OK", _context.Customer.Any(c => c.Email.ToLower() == email.ToLower() && c.Deleted == false));
+
+                    case 3:
+                        return new ApiResult<bool>(ApiCode.Success, "OK", _context.Users.Any(c => c.Email.ToLower() == email.ToLower()));
                 }
                 return new ApiResult<bool>(ApiCode.Success, "OK", false);
             }
         }
-
-
     }
 }
