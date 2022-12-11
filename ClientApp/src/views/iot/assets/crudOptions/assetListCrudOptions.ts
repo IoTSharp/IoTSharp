@@ -3,7 +3,7 @@ import _ from 'lodash-es';
 import { TableDataRow } from '../model/assetList';
 import { ElMessage } from 'element-plus';
 import { dict } from '@fast-crud/fast-crud';
-export const createAssetListCrudOptions = function ({ expose }) {
+export const createAssetListCrudOptions = function ({ expose }, assetDetailRef) {
 	let records: any[] = [];
 	const FsButton = {
 		link: true,
@@ -97,11 +97,22 @@ export const createAssetListCrudOptions = function ({ expose }) {
 			columns: {
 				name: {
 					title: '资产名称',
-					type: 'text',
+					type: 'button',
 					search: { show: true },
 					addForm: {
 						show: true,
 						component: customSwitchComponent,
+					},
+					column: {
+						component: {
+							...FsButton,
+							type: 'primary',
+							on: {
+								onClick({ row }) {
+									assetDetailRef.value.openDialog(row);
+								},
+							},
+						},
 					},
 					editForm: {
 						show: true,
