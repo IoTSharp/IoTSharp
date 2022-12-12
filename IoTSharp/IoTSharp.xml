@@ -106,11 +106,11 @@
             <returns></returns>
         </member>
         <member name="M:IoTSharp.Controllers.AccountController.CreateToken(System.String)">
-            <summary>
+             <summary>
             
-            </summary>
-            <param name="name"></param>
-            <returns></returns>
+             </summary>
+             <param name="name"></param>
+             <returns></returns>
         </member>
         <member name="M:IoTSharp.Controllers.AccountController.RefreshToken(IoTSharp.Dtos.RefreshTokenDto)">
             <summary>
@@ -162,7 +162,7 @@
         </member>
         <member name="M:IoTSharp.Controllers.AccountController.Lock(IoTSharp.Dtos.LockDto)">
              <summary>
-             锁定用户 
+             锁定用户
              </summary>
              <param name="dto"></param>
              <returns>
