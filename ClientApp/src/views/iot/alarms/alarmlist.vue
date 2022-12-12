@@ -1,6 +1,5 @@
 <template>
   <component :is="wrapper">
-    {{originator}}
     <el-form size="default" label-width="100px" class="mt-10px">
       <el-row :gutter="35">
         <el-col :xs="24" :sm="12" :md="8" :lg="8" :xl="8">
