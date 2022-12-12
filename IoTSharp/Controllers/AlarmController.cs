@@ -74,7 +74,7 @@ namespace IoTSharp.Controllers
         /// <summary>
         /// 查询告警信息
         /// </summary>
-        /// <param name="m"></param>
+        /// <param name="m">指定OriginatorId时需要填写OriginatorType</param>
         /// <returns></returns>
         [HttpPost]
         public async Task<ApiResult<PagedData<AlarmDto>>> List([FromBody] AlarmParam m)
@@ -124,7 +124,7 @@ namespace IoTSharp.Controllers
             }
 
 
-            if (m.OriginatorType != -1)
+            if (m.OriginatorType >0)
             {
                 condition = condition.And(x => x.OriginatorType == (OriginatorType)m.OriginatorType);
 
