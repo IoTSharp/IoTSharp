@@ -24,7 +24,7 @@
         </el-tab-pane>
         <el-tab-pane label="告警" name="alarm">
           <div class="z-tab-container">
-            <alarmlist :originator-id="deviceRef.id" wrapper="div"></alarmlist>
+            <alarmlist :originator="deviceRef.id" wrapper="div"></alarmlist>
           </div>
         </el-tab-pane>
         <el-tab-pane label="规则" name="rules">

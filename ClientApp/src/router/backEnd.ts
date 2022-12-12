@@ -5,7 +5,7 @@ import { useUserInfo } from '/@/stores/userInfo';
 import { useRequestOldRoutes } from '/@/stores/requestOldRoutes';
 import { Session } from '/@/utils/storage';
 import { NextLoading } from '/@/utils/loading';
-import {dynamicRoutes, frontEndRoutes, notFoundAndNoPower} from '/@/router/route';
+import { dynamicRoutes, frontEndRoutes, notFoundAndNoPower } from '/@/router/route';
 import { formatTwoStageRoutes, formatFlatteningRoutes, router } from '/@/router/index';
 import { useRoutesList } from '/@/stores/routesList';
 import { useTagsViewRoutes } from '/@/stores/tagsViewRoutes';
@@ -15,7 +15,6 @@ const menuApi = useMenuApi();
 
 const layouModules: any = import.meta.glob('../layout/routerView/*.{vue,tsx}');
 const viewsModules: any = import.meta.glob('../views/**/*.{vue,tsx}');
-console.log(`%c-@backEnd:18`, 'color:white;font-size:16px;background:blue;font-weight: bold;', viewsModules)
 // 后端控制路由
 
 /**
@@ -47,15 +46,15 @@ export async function initBackEndControlRoutes() {
 	//  var routes:any[]=_dynamicRoutes;
 	transformItem(res.data.menu, routes);
 	// * 修改服务端返回过来的 menu
-	routes = [...routes[0].children] // 移除顶层菜单
+	routes = [...routes[0].children]; // 移除顶层菜单
 	// 移除dashboard 套层
-	routes = routes.map(route=>{
+	routes = routes.map((route) => {
 		if (route.name === 'dashboard') {
-			route.children[0].component = '/dashboard/index'
-			route = JSON.parse(JSON.stringify(route.children[0]))
+			route.children[0].component = '/dashboard/index';
+			route = JSON.parse(JSON.stringify(route.children[0]));
 		}
 		return route;
-	})
+	});
 	// 存储接口原始路由（未处理component），根据需求选择使用
 	useRequestOldRoutes().setRequestOldRoutes(JSON.parse(JSON.stringify(routes)));
 	// 处理路由（component），替换 dynamicRoutes（/@/router/route）第一个顶级 children 的路由
@@ -93,7 +92,7 @@ export function setCacheTagsViewRoutes() {
  * @returns 返回替换后的路由数组
  */
 export function setFilterRouteEnd() {
-	dynamicRoutes[0].children?.push(...frontEndRoutes)
+	dynamicRoutes[0].children?.push(...frontEndRoutes);
 	let filterRouteEnd: any = formatTwoStageRoutes(formatFlatteningRoutes(dynamicRoutes));
 	filterRouteEnd[0].children = [...filterRouteEnd[0].children, ...notFoundAndNoPower];
 	return filterRouteEnd;

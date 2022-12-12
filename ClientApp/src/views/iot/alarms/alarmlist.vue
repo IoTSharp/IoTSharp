@@ -1,5 +1,6 @@
 <template>
   <component :is="wrapper">
+    {{originator}}
     <el-form size="default" label-width="100px" class="mt-10px">
       <el-row :gutter="35">
         <el-col :xs="24" :sm="12" :md="8" :lg="8" :xl="8">
@@ -156,8 +157,7 @@
               :color="serverityBadge.get(scope.row.serverity)?.color"
               disable-transitions
           >{{ serverityBadge.get(scope.row.serverity)?.text }}
-          </el-tag
-          >
+          </el-tag>
         </template>
       </el-table-column>
 
@@ -169,8 +169,7 @@
               :color="originatorTypeTAG.get(scope.row.originatorType)?.color"
               disable-transitions
           >{{ originatorTypeTAG.get(scope.row.originatorType)?.text }}
-          </el-tag
-          >
+          </el-tag>
         </template>
       </el-table-column>
 
@@ -228,7 +227,7 @@ import type {TableDataRow, TableDataState} from "/@/views/iot/alarms/model";
 // 定义接口来定义对象的类型
 
 const props = defineProps({
-  OriginatorId: {
+  originator: {
     type: String,
     default: "00000000-0000-0000-0000-000000000000",
   },
@@ -294,7 +293,7 @@ const getData = () => {
     offset: tableData.param.pageNum - 1,
     limit: tableData.param.pageSize,
     alarmStatus: query.alarmStatus,
-    OriginatorId: props.OriginatorId,
+    OriginatorId: props.originator,
     ClearDateTime: query.ClearDateTime,
     AckDateTime: query.AckDateTime,
     StartDateTime: query.StartDateTime,
@@ -313,6 +312,9 @@ const getData = () => {
 const initTableData = () => {
   getData();
 };
+watch(()=>props.originator, (newValue, oldValue) => {
+  initTableData();
+})
 onMounted(() => {
   initTableData();
 });
