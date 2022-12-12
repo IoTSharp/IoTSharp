@@ -4,7 +4,7 @@ import { compute, dict } from '@fast-crud/fast-crud';
 import { TableDataRow } from '/@/views/iot/devices/model';
 
 // eslint-disable-next-line no-unused-vars
-export const createDeviceCrudOptions = function ({ expose }, customerId, deviceDetailRef?, addRulesRef?,selectedItems?) {
+export const createDeviceCrudOptions = function ({ expose }, customerId, deviceDetailRef?, addRulesRef?, selectedItems?) {
 	let records: any[] = [];
 	const FsButton = {
 		link: true,
@@ -18,12 +18,12 @@ export const createDeviceCrudOptions = function ({ expose }, customerId, deviceD
 	const onSelectionChange = (changed) => {
 		console.log("selection", changed);
 		selectedItems.value = changed.map((item) => item);
-	  };
+	};
 	const pageRequest = async (query) => {
 		const params = reactive({
 			offset: query.page.currentPage - 1,
 			limit: query.page.pageSize,
-			onlyActive: false,
+			onlyActive: query.form.active??false,
 			customerId,
 			name: query.form.name ?? '',
 		});
@@ -68,7 +68,7 @@ export const createDeviceCrudOptions = function ({ expose }, customerId, deviceD
 		return form;
 	};
 	return {
-	
+
 		crudOptions: {
 			request: {
 				pageRequest,
@@ -76,8 +76,16 @@ export const createDeviceCrudOptions = function ({ expose }, customerId, deviceD
 				editRequest,
 				delRequest,
 			},
+
+			// search: {
+			// 	...FsButton,
+			// 	show: true,
+			// 	doSearch(query) {
+                  
+			// 	},
+			// },
 			table: {
-				border: false,onSelectionChange
+				border: false, onSelectionChange
 
 			},
 			form: {
@@ -150,10 +158,13 @@ export const createDeviceCrudOptions = function ({ expose }, customerId, deviceD
 
 					column: { width: '80px' }
 				},
+
+
+
 				active: {
 					title: '活动状态',
 					type: 'dict-switch',
-					search: { show: false },
+					search: { show: true },
 					dict: dict({
 						data: [
 							{ value: true, label: '活动' },
