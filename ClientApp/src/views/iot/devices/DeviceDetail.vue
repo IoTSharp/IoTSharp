@@ -32,7 +32,11 @@
             <DeviceDetailRules :deviceId="deviceRef.id"></DeviceDetailRules>
           </div>
         </el-tab-pane>
-        <el-tab-pane label="规则历史" name="rulesHistory">Task</el-tab-pane>
+        <el-tab-pane label="规则历史" name="rulesHistory">
+          <div class="z-tab-container">
+            <flowevents :creator="deviceRef.id"  wrapper="div"></flowevents>
+          </div>
+        </el-tab-pane>
       </el-tabs>
     </el-drawer>
   </div>
@@ -44,6 +48,7 @@ import DeviceDetailProps from "/@/views/iot/devices/detail/DeviceDetailProps.vue
 import DeviceDetailRules from "/@/views/iot/devices/detail/DeviceDetailRules.vue";
 import DeviceDetailTelemetry from "/@/views/iot/devices/detail/DeviceDetailTelemetry.vue";
 import Alarmlist from "/@/views/iot/alarms/alarmlist.vue";
+import Flowevents from "/@/views/iot/rules/flowevents.vue";
 
 const drawer = ref(false);
 const dialogTitle = ref(`设备详情`);
