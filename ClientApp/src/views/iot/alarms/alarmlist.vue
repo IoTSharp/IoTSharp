@@ -138,8 +138,8 @@
       <el-table-column prop="alarmStatus" label="告警状态" show-overflow-tooltip>
         <template #default="scope">
           <el-tag
-              effect="dark"
               size="small"
+              :style="{color: 'white', borderColor: alarmStatusTAG.get(scope.row.alarmStatus)?.color}"
               :color="alarmStatusTAG.get(scope.row.alarmStatus)?.color"
               disable-transitions
           >{{ alarmStatusTAG.get(scope.row.alarmStatus)?.text }}
@@ -151,7 +151,7 @@
       <el-table-column prop="serverity" label="严重程度" show-overflow-tooltip>
         <template #default="scope">
           <el-tag
-              effect="dark"
+              :style="{color: 'white', borderColor: serverityBadge.get(scope.row.serverity)?.color}"
               size="small"
               :color="serverityBadge.get(scope.row.serverity)?.color"
               disable-transitions
@@ -163,8 +163,8 @@
       <el-table-column prop="originatorType" label="设备类型" show-overflow-tooltip>
         <template #default="scope">
           <el-tag
-              effect="dark"
               size="small"
+              :style="{color: 'white', borderColor: originatorTypeTAG.get(scope.row.originatorType)?.color}"
               :color="originatorTypeTAG.get(scope.row.originatorType)?.color"
               disable-transitions
           >{{ originatorTypeTAG.get(scope.row.originatorType)?.text }}

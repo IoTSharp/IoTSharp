@@ -77,23 +77,23 @@ export const originatorTypeOptions = [
 ];
 
 export const serverityBadge = new Map([
-	['Indeterminate', { text: '不确定', color: '#8c8c8c' }],
-	['Warning', { text: '警告', color: '#faad14' }],
-	['Minor', { text: '次要', color: '#bae637' }],
-	['Major', { text: '主要', color: '#1890ff' }],
-	['Critical', { text: '错误', color: '#f5222d' }],
+	['Indeterminate', { text: '不确定', color: 'var(--el-color-info)' }],
+	['Warning', { text: '警告', color: 'var(--el-color-warning)' }],
+	['Minor', { text: '次要', color: 'var(--el-color-primary)' }],
+	['Major', { text: '主要', color: 'var(--el-color-primary-dark-2)' }],
+	['Critical', { text: '错误', color: 'var(--el-color-error)' }],
 ]);
 
 export const alarmStatusTAG = new Map([
-	['Active_UnAck', { text: '激活未应答', color: '#ffa39e' }],
-	['Active_Ack', { text: '激活已应答', color: '#f759ab' }],
-	['Cleared_UnAck', { text: '清除未应答', color: '#87e8de' }],
-	['Cleared_Act', { text: '清除已应答', color: '#7cb305' }],
+	['Active_UnAck', { text: '激活未应答', color: 'var(--el-color-error)' }],
+	['Active_Ack', { text: '激活已应答', color: 'var(--el-color-primary)' }],
+	['Cleared_UnAck', { text: '清除未应答', color: 'var(--el-color-warning)' }],
+	['Cleared_Act', { text: '清除已应答', color: 'var(--el-color-success)' }],
 ]);
 
 export const originatorTypeTAG = new Map([
-	['Unknow', { text: '未知', color: '#ffa39e' }],
-	['Device', { text: '设备', color: '#f759ab' }],
-	['Gateway', { text: '网关', color: '#87e8de' }],
-	['Asset', { text: '资产', color: '#d3f261' }],
+	['Unknow', { text: '未知', color: 'var(--el-color-info)' }],
+	['Device', { text: '设备', color: 'var(--el-color-primary)' }],
+	['Gateway', { text: '网关', color: 'var(--el-color-warning)' }],
+	['Asset', { text: '资产', color: 'var(--el-color-success)' }],
 ]);
