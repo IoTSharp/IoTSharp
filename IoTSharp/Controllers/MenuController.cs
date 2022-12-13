@@ -59,6 +59,7 @@ namespace IoTSharp.Controllers
                     i18n = "仪表盘",
                     vi18n = "iot.dashboardmnt",
                     routename = "dashboard",
+                    vpath = "/dashboard/v1",
                     icon = "anticon-dashboard",
                     children = new MenuItem[]
                         {
@@ -75,6 +76,7 @@ namespace IoTSharp.Controllers
                     i18n = "",
                     vi18n = "iot.devicemnt",
                     routename = "devicemnt",
+                    vpath = "/iot/devices",
                     icon = "anticon-database",
                     children = new MenuItem[]
                         {
@@ -92,6 +94,7 @@ namespace IoTSharp.Controllers
                     vi18n = "iot.producemnt",
                     routename = "producemnt",
                     icon = "medicinebox",
+                    vpath = "/iot/produce",
                     children = new MenuItem[]
                         {
                             new() { text = "产品列表", i18n = "", vi18n="iot.producelist", routename="producelist", link = "/iot/produce/producelist", vpath="/iot/produce/producelist", }
@@ -103,6 +106,7 @@ namespace IoTSharp.Controllers
                     i18n = "",
                     vi18n = "iot.assetsmnt",
                     routename = "assetsmnt",
+                    vpath = "/iot/assets",
                     icon = "anticon-gold",
                     children = new MenuItem[]
                         {
@@ -116,6 +120,7 @@ namespace IoTSharp.Controllers
                 i18n = "",
                 vi18n = "iot.settingsmnt",
                 routename = "settingsmnt",
+                vpath = "/iot/settings",
                 icon = "anticon-setting",
                 children = sysmenu.ToArray()
             });
