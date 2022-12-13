@@ -66,10 +66,10 @@ namespace IoTSharp.Services.MQTTControllers
             }
         }
 
-        [MqttRoute("request/{method}")]
-        public async Task request(string method)
+        [MqttRoute("request/{method}/{requestId}")]
+        public async Task request(string method,string requestId)
         {
-
+            _logger.LogInformation($"{ClientId}的rpc请求方法是{method}，请求ID{requestId}。");
             var p_dev = _dev.DeviceType == DeviceType.Gateway ? device : _dev;
             var rules = await _caching.GetAsync($"ruleid_{p_dev.Id}_rpc_{method}", async () =>
             {
@@ -83,8 +83,8 @@ namespace IoTSharp.Services.MQTTControllers
             , TimeSpan.FromSeconds(_settings.RuleCachingExpiration));
             if (rules.HasValue)
             {
-                var obj = new { Message.Topic, Payload = Convert.ToBase64String(Message.Payload), ClientId };
-                _logger.LogInformation($"{ClientId}的rpc调用{Message.Topic} 方法 {method}通过规则链{rules.Value}进行处理。");
+                var obj = new { Message.Topic, Payload = Convert.ToBase64String(Message.Payload), ClientId, RPCMethod = method, RequestId = requestId };
+                _logger.LogInformation($"{ClientId}请求ID为{requestId}的RPC方法{method}通过规则链{rules.Value}进行处理。");
                 await _flowRuleProcessor.RunFlowRules(rules.Value, obj, p_dev.Id, FlowRuleRunType.Normal, null);
             }
             else
