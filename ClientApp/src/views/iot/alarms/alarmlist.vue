@@ -105,7 +105,7 @@
     </el-row>
 
 
-    <el-table :data="tableData.rows" style="width: 100%" row-key="id">
+    <el-table :data="tableData.rows" style="width: 100%" row-key="id" v-loading="loading">
       <el-table-column
           prop="alarmType"
           label="告警类型"
@@ -225,10 +225,11 @@ import { alarmStatusOptions, serverityOptions, originatorTypeOptions, serverityB
 import type {TableDataRow, TableDataState} from "/@/views/iot/alarms/model";
 // 定义接口来定义对象的类型
 
+const loading = ref(false)
 const props = defineProps({
   originator: {
-    type: String,
-    default: "00000000-0000-0000-0000-000000000000",
+    type: Object,
+    default: null,
   },
   wrapper: {
     type: String,
@@ -253,7 +254,7 @@ const query = reactive({
   AlarmType: "",
   alarmStatus: "-1",
   serverity: "-1",
-  originatorType: "1",
+  originatorType: "-1",
   Originator: "",
 });
 const onHandleSizeChange = (val: number) => {
@@ -287,12 +288,13 @@ const acquireAlarm = (row: TableDataRow) => {
     }
   });
 };
-const getData = () => {
-  getAlarmList({
+const getData = async () => {
+
+  const params = {
     offset: tableData.param.pageNum - 1,
     limit: tableData.param.pageSize,
     alarmStatus: query.alarmStatus,
-    OriginatorId: props.originator,
+    OriginatorId: "00000000-0000-0000-0000-000000000000",
     ClearDateTime: query.ClearDateTime,
     AckDateTime: query.AckDateTime,
     StartDateTime: query.StartDateTime,
@@ -302,16 +304,29 @@ const getData = () => {
     EndDateTime: query.EndDateTime,
     OriginatorName: "",
     serverity: "-1",
-  }).then((res) => {
+  }
+  if (props.originator) {
+    const {id, deviceType } = props.originator
+    params.OriginatorId = id
+    const originatorType = originatorTypeOptions.find((x)=>x.key === deviceType)
+    query.originatorType = originatorType ?  originatorType.value : '-1'
+    params.originatorType = query.originatorType
+  }
+  try {
+    loading.value = true
+    const res = await getAlarmList(params)
     tableData.rows = res.data.rows;
     tableData.total = res.data.total;
-  });
+  } catch (e) {
+  }
+  loading.value = false
 };
 // 初始化表格数据
 const initTableData = () => {
   getData();
 };
 watch(()=>props.originator, (newValue, oldValue) => {
+  console.log(`%c@alarmlist:329`, 'color:black;font-size:16px;background:yellow;font-weight: bold;', newValue)
   initTableData();
 })
 onMounted(() => {

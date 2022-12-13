@@ -24,7 +24,7 @@
         </el-tab-pane>
         <el-tab-pane label="告警" name="alarm">
           <div class="z-tab-container">
-            <alarmlist :originator="deviceRef.id" wrapper="div"></alarmlist>
+            <alarmlist :originator="deviceRef" wrapper="div"></alarmlist>
           </div>
         </el-tab-pane>
         <el-tab-pane label="规则" name="rules">
@@ -57,7 +57,8 @@ const deviceRef = ref()
 const {crudOptions: {columns}} = createDeviceCrudOptions({expose: null})
 const openDialog = (device: any) => {
   drawer.value = true
-  deviceRef.value = device
+  deviceRef.value = Object.assign({},device )
+  // Object.assign(deviceRef, device)
   dialogTitle.value = `${deviceRef.value.name}设备详情`
 };
 defineExpose({

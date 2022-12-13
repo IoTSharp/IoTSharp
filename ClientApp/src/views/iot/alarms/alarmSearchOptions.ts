@@ -52,22 +52,27 @@ export const originatorTypeOptions = [
 	{
 		value: '-1',
 		label: '全部',
+		key: 'All',
 	},
 	{
 		value: '0',
 		label: '未知',
+		key: 'Unknown',
 	},
 	{
 		value: '1',
 		label: '设备',
+		key: 'Device',
 	},
 	{
 		value: '2',
 		label: '网关',
+		key: 'Gateway',
 	},
 	{
 		value: '3',
 		label: '资产',
+		key: 'Asset',
 	},
 ];
 
