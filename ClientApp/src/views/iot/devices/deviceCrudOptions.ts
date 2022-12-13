@@ -14,16 +14,14 @@ export const createDeviceCrudOptions = function ({ expose }, customerId, deviceD
 		inactiveColor: 'var(el-switch-of-color)',
 	};
 
-
 	const onSelectionChange = (changed) => {
-		console.log("selection", changed);
 		selectedItems.value = changed.map((item) => item);
 	};
 	const pageRequest = async (query) => {
 		const params = reactive({
 			offset: query.page.currentPage - 1,
 			limit: query.page.pageSize,
-			onlyActive: query.form.active??false,
+			onlyActive: query.form.active ?? false,
 			customerId,
 			name: query.form.name ?? '',
 		});
@@ -68,7 +66,6 @@ export const createDeviceCrudOptions = function ({ expose }, customerId, deviceD
 		return form;
 	};
 	return {
-
 		crudOptions: {
 			request: {
 				pageRequest,
@@ -81,18 +78,18 @@ export const createDeviceCrudOptions = function ({ expose }, customerId, deviceD
 			// 	...FsButton,
 			// 	show: true,
 			// 	doSearch(query) {
-                  
+
 			// 	},
 			// },
 			table: {
-				border: false, onSelectionChange
-
+				border: false,
+				onSelectionChange,
 			},
 			form: {
 				labelWidth: '130px', //
 			},
 			rowHandle: {
-				width: 360,
+				width: 180,
 				dropdown: {
 					more: {
 						//更多按钮配置
@@ -103,6 +100,9 @@ export const createDeviceCrudOptions = function ({ expose }, customerId, deviceD
 				},
 
 				buttons: {
+					view: {
+						show: false,
+					},
 					edit: {
 						icon: 'editPen',
 						...FsButton,
@@ -112,22 +112,22 @@ export const createDeviceCrudOptions = function ({ expose }, customerId, deviceD
 						icon: 'Delete',
 						...FsButton,
 						order: 5,
-					} //删除按钮
+					}, //删除按钮
 				},
 			},
 			columns: {
 				$checked: {
-					title: "选择",
+					title: '选择',
 					form: { show: false },
 					column: {
-						type: "selection",
-						align: "center",
-						width: "55px",
+						type: 'selection',
+						align: 'center',
+						width: '55px',
 						columnSetDisabled: false, //禁止在列设置中选择
 						selectable(row, index) {
-							return true
-						}
-					}
+							return true;
+						},
+					},
 				},
 				name: {
 					title: '设备名称',
@@ -156,10 +156,8 @@ export const createDeviceCrudOptions = function ({ expose }, customerId, deviceD
 						],
 					}),
 
-					column: { width: '80px' }
+					column: { width: '80px' },
 				},
-
-
 
 				active: {
 					title: '活动状态',
@@ -184,7 +182,6 @@ export const createDeviceCrudOptions = function ({ expose }, customerId, deviceD
 						show: false,
 						component: customSwitchComponent,
 					},
-
 				},
 				lastActivityDateTime: {
 					title: '最后活动时间',
@@ -204,7 +201,7 @@ export const createDeviceCrudOptions = function ({ expose }, customerId, deviceD
 					title: '认证方式',
 					type: 'dict-select',
 					search: { show: false },
-					column: { width: '100px' },
+					column: { width: '120px' },
 					dict: dict({
 						data: [
 							{ value: 'AccessToken', label: 'AccessToken' },
