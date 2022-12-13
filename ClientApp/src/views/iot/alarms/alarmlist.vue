@@ -253,7 +253,7 @@ const query = reactive({
   AlarmType: "",
   alarmStatus: "-1",
   serverity: "-1",
-  originatorType: "-1",
+  originatorType: "1",
   Originator: "",
 });
 const onHandleSizeChange = (val: number) => {
