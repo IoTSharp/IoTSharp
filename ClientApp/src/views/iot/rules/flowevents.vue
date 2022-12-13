@@ -35,7 +35,7 @@
       </div>
 
 
-      <el-table :data="state.tableData.rows" style="width: 100%" row-key="eventId" table-layout="auto">
+      <el-table :data="state.tableData.rows" style="width: 100%" row-key="eventId" table-layout="auto" v-loading="loading">
         <el-table-column type="expand">
           <template #default="props">
             <el-card class="box-card" style="margin: 3px;">
@@ -109,7 +109,7 @@ const props = defineProps({
     default: "el-card",
   }
 })
-
+const loading = ref(false)
 interface TableDataRow {
   bizid?: string;
   createrDateTime?: string;
@@ -170,7 +170,7 @@ const onHandleCurrentChange = (val: number) => {
   getData();
 };
 
-const getData = () => {
+const getData = async () => {
 
   const params:{
     offset: number
@@ -189,17 +189,22 @@ const getData = () => {
   if (props.creator) {
     params.Creator = props.creator
   }
-  ruleApi().floweventslist(params).then((res) => {
+  try {
+    loading.value = true
+    const res = await ruleApi().floweventslist(params)
     state.tableData.rows = res.data.rows;
     state.tableData.total = res.data.total;
-  });
+  } catch (e) {
+    loading.value = false
+  }
+
 };
 // 初始化表格数据
 const initTableData = () => {
   getData();
 };
 onMounted(() => {
-  initTableData();
+  // initTableData();
 });
 
 
