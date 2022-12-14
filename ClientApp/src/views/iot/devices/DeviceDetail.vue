@@ -8,7 +8,15 @@
                 :obj="deviceRef"
                 :config="columns"
                 :hide-key-list="['owner', 'identityValue', 'tenantName', 'customerName', 'tenantId', 'customerId']"
-                :label-width="160"></AdvancedKeyValue>
+                :label-width="160">
+              <template #footer v-if="deviceRef.identityType==='X509Certificate'">
+                <div class="z-row">
+                  <div class="z-key" style="width: 160px">证书:</div>
+                  <div class="z-value"><ElButton @click="downloadCert">下载证书</ElButton></div>
+                </div>
+              </template>
+            </AdvancedKeyValue>
+
           </div>
         </el-tab-pane>
         <el-tab-pane label="属性" name="props">
@@ -42,25 +50,31 @@
   </div>
 </template>
 <script lang="ts" setup>
-import { createDeviceCrudOptions } from "/@/views/iot/devices/deviceCrudOptions";
+import { deviceDetailBaseInfoColumns } from '/@/views/iot/devices/detail/deviceDetailBaseInfoColumns'
 import AdvancedKeyValue from "/@/components/AdvancedKeyValue/AdvancedKeyValue.vue";
 import DeviceDetailProps from "/@/views/iot/devices/detail/DeviceDetailProps.vue";
 import DeviceDetailRules from "/@/views/iot/devices/detail/DeviceDetailRules.vue";
 import DeviceDetailTelemetry from "/@/views/iot/devices/detail/DeviceDetailTelemetry.vue";
 import Alarmlist from "/@/views/iot/alarms/alarmlist.vue";
 import Flowevents from "/@/views/iot/rules/flowevents.vue";
+import { deviceApi } from "/@/api/devices";
+import { downloadByData } from "/@/utils/download";
 
 const drawer = ref(false);
 const dialogTitle = ref(`设备详情`);
 const activeTabName = ref('basic')
 const deviceRef = ref()
-const {crudOptions: {columns}} = createDeviceCrudOptions({expose: null})
+const columns = deviceDetailBaseInfoColumns
 const openDialog = (device: any) => {
   drawer.value = true
   deviceRef.value = Object.assign({},device )
   // Object.assign(deviceRef, device)
   dialogTitle.value = `${deviceRef.value.name}设备详情`
 };
+const downloadCert = async () =>{
+  const res = await deviceApi().downloadCertificates(deviceRef.value.id)
+  downloadByData(res, `${deviceRef.value.id}.zip`)
+}
 defineExpose({
   openDialog,
 });

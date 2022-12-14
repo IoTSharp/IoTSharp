@@ -101,9 +101,9 @@ export function deviceApi() {
 			});
 		},
 
-		editDeviceAttributes: (deviceId:string, params: any) => {
+		editDeviceAttributes: (deviceId: string, params: any) => {
 			return request({
-				url: '/api/Devices/'+deviceId + '/EditAttribute',
+				url: '/api/Devices/' + deviceId + '/EditAttribute',
 				method: 'post',
 				data: params,
 			});
@@ -119,6 +119,13 @@ export function deviceApi() {
 				url: '/api/devices/' + deviceId + '/telemetryData',
 				method: 'post',
 				data: params,
+			});
+		},
+		downloadCertificates: (deviceId: string) => {
+			return request({
+				url: '/api/devices/' + deviceId + '/downloadCertificates',
+				method: 'get',
+				responseType: 'blob',
 			});
 		},
 	};
