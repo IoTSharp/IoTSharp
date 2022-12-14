@@ -4,7 +4,7 @@ import { compute, dict } from '@fast-crud/fast-crud';
 import { TableDataRow } from '/@/views/iot/devices/model';
 import { ElMessage } from "element-plus";
 // eslint-disable-next-line no-unused-vars
-export const createDevicePropsCrudOptions = function ({ expose }, deviceId) {
+export const createDevicePropsCrudOptions = function ({ expose }, deviceId,state) {
 	const deviceId_param = deviceId;
 	let records: any[] = [];
 	const FsButton = {
@@ -50,6 +50,24 @@ export const createDevicePropsCrudOptions = function ({ expose }, deviceId) {
 	return {
 		deviceId,
 		crudOptions: {
+
+
+			actionbar: {
+				buttons: {
+					add: {
+						show: true,
+					},
+					custom: {
+						text: '属性修改', //fs-button组件的参数
+						show: true, //是否显示此按钮
+						type: 'primary',
+						click() {
+							state.currentPageState = 'editprop';
+							console.log(			state.currentPageState)
+						}, //点击事件，默认打开添加对话框
+					},
+				},
+			},
 			request: {
 				pageRequest,
 				addRequest,

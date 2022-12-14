@@ -1,32 +1,20 @@
 <template>
-  <div>
-    <el-drawer v-model="state.drawer" :title="state.dialogtitle" size="75%"
-      ><fs-page class="fs-page-prop">
-        <div class="m-5">
-          <el-row :gutter="10">
-            <el-col>
-              <el-card header="服务侧属性">
-                <fs-form ref="formserverRef" v-bind="formserverOptions" />
-              </el-card>
 
-              <el-card header="客户侧属性">
-                <fs-form ref="formclientRef" v-bind="formclientOptions" />
-              </el-card>
-
-              <el-card header="任意侧属性">
-                <fs-form ref="formanyRef" v-bind="formanyOptions" />
-              </el-card>
-
-              <div style="margin-top: 10px">
-                <el-button @click="formSubmit">提交表单</el-button>
-                <el-button @click="formReset">重置表单</el-button>
-              </div>
-            </el-col>
-          </el-row>
-        </div>
-      </fs-page>
-    </el-drawer>
+  <el-card header="服务侧属性" class="df-card">
+    <fs-form ref="formserverRef" v-bind="formserverOptions" />
+  </el-card>
+  <el-card header="客户侧属性" class="df-card">
+    <fs-form ref="formclientRef" v-bind="formclientOptions" />
+  </el-card>
+  <el-card header="任意侧属性" class="df-card">
+    <fs-form ref="formanyRef" v-bind="formanyOptions" />
+  </el-card>
+  <div class="df-card">
+    <el-button type="primary" @click="formSubmit">保存属性</el-button>
+    <el-button  @click="formClose">返回</el-button>
   </div>
+
+
 </template>
 
 <script lang="ts" setup>
@@ -38,6 +26,12 @@ import { deviceApi } from "/@/api/devices";
 import { appmessage } from "/@/api/iapiresult";
 import dayjs from "dayjs";
 
+const props = defineProps({
+  deviceId: {
+    type: String,
+    default: ''
+  }
+})
 
 interface propformstate {
   drawer: boolean;
@@ -45,7 +39,7 @@ interface propformstate {
   devid: string;
 }
 const emit = defineEmits(["close", "submit"]);
-const state = reactive<propformstate>({ drawer: false, dialogtitle: "设备属性修改", devid: "" });
+const state = reactive<propformstate>({ drawer: false, dialogtitle: "设备属性修改", devid: props.deviceId });
 const formserverRef = ref();
 const formserverOptions = ref();
 const formclientRef = ref();
@@ -53,7 +47,6 @@ const formclientOptions = ref();
 const formanyRef = ref();
 const formanyOptions = ref();
 const buidForm = async () => {
-  console.log(state);
   var result = await deviceApi().getDeviceAttributes(state.devid);
 
   var serveropt = {
@@ -188,7 +181,7 @@ const buildWegits = (data: any, cfg?: any) => {
             name: shallowRef(monaco),
             vModel: "modelValue",
             on: {
-              change(context) {},
+              change(context) { },
             },
           },
           rules: [{ required: true, message: "此项必填" }],
@@ -204,7 +197,7 @@ const buildWegits = (data: any, cfg?: any) => {
             name: shallowRef(monaco),
             vModel: "modelValue",
             on: {
-              change(context) {},
+              change(context) { },
             },
           },
           rules: [{ required: true, message: "此项必填" }],
@@ -220,7 +213,7 @@ const buildWegits = (data: any, cfg?: any) => {
             name: shallowRef(monaco),
             vModel: "modelValue",
             on: {
-              change(context) {},
+              change(context) { },
             },
           },
           rules: [{ required: true, message: "此项必填" }],
@@ -253,9 +246,9 @@ const formSubmit = async () => {
 
   if (result.data) {
     ElMessage.success("属性数据更新成功");
-    emit('submit',data)    
-    emit('close',data)
-    state.drawer=false;
+    emit('submit', data)
+    emit('close', data)
+    state.drawer = false;
   } else {
     ElMessage.warning("属性数据更新失败:" + result["msg"]);
   }
@@ -265,18 +258,24 @@ const formReset = () => {
   formclientRef.value.reset();
   formanyRef.value.reset();
 };
-const openDialog = (devid: string) => {
-  state.devid = devid;
-  state.drawer = true;
-  buidForm();
-};
 
+const formClose = () => {
+  var data = {
+    anyside: formanyRef.value.getFormData(),
+    clientside: formclientRef.value.getFormData(),
+    serverside: formserverRef.value.getFormData(),
+  };
+  emit('close', data)
+};
+onMounted(() => {
+  buidForm();
+});
 defineExpose({
-  openDialog,
+
 });
 </script>
 <style lang="scss" scoped>
-.fs-page-prop {
-  margin-top: 3rem;
+.df-card {
+  margin-top: 1rem;
 }
 </style>
