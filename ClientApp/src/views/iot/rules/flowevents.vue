@@ -5,8 +5,11 @@
         <el-form size="default" label-width="100px">
           <el-row :gutter="35">
             <el-col :xs="24" :sm="12" :md="8" :lg="8" :xl="8">
-              <el-form-item label="事件名称">
-                <el-input v-model="query.Name" placeholder="请输入事件名称" />
+              <el-form-item label="创建对象">
+                <el-select v-model="query.Creator" filterable remote reserve-keyword placeholder="请输入创建对象名称"
+                  :remote-method="getCreators" :loading="state.creatorloading">
+                  <el-option v-for="item in state.creators" :key="item.value" :label="item.label" :value="item.value" />
+                </el-select>
               </el-form-item>
             </el-col>
             <el-col :xs="24" :sm="12" :md="8" :lg="8" :xl="8">
@@ -15,26 +18,16 @@
                   <el-option v-for="item in state.rules" :key="item.value" :label="item.label" :value="item.value"
                     :disabled="item.disabled" />
                 </el-select>
-
-
               </el-form-item>
             </el-col>
             <el-col :xs="24" :sm="12" :md="8" :lg="8" :xl="8">
-              <el-form-item label="创建对象">
-
-
-
-                <el-select v-model="query.Creator"  filterable remote reserve-keyword placeholder="请输入创建对象名称"
-                  :remote-method="getCreators" :loading="state.creatorloading">
-                  <el-option v-for="item in state.creators" :key="item.value" :label="item.label" :value="item.value" />
-                </el-select>
-
+              <el-form-item label="事件名称">
+                <el-input v-model="query.Name" placeholder="请输入事件名称" />
               </el-form-item>
             </el-col>
           </el-row>
 
           <el-form-item>
-
             <el-button size="default" type="primary" @click="getData()">
               <el-icon>
                 <ele-Search />
@@ -47,7 +40,8 @@
       </div>
 
 
-      <el-table :data="state.tableData.rows" style="width: 100%" row-key="eventId" table-layout="auto" v-loading="loading">
+      <el-table :data="state.tableData.rows" style="width: 100%" row-key="eventId" table-layout="auto"
+        v-loading="loading">
         <el-table-column type="expand">
           <template #default="props">
             <el-card class="box-card" style="margin: 3px;">
@@ -83,7 +77,7 @@
         </el-table-column>
       </el-table>
       <el-pagination @size-change="onHandleSizeChange" @current-change="onHandleCurrentChange" class="mt15"
-        :pager-count="5" :page-sizes="[10, 20, 30]" v-model:current-page="state.tableData.param.pageNum" background
+        :pager-count="5" :page-sizes="[10, 20, 30,50,100]" v-model:current-page="state.tableData.param.pageNum" background
         v-model:page-size="state.tableData.param.pageSize" layout="total, sizes, prev, pager, next, jumper"
         :total="state.tableData.total">
       </el-pagination>
@@ -180,13 +174,18 @@ const query = reactive({
 
 
 const getRules = () => {
+
+  state.creatorloading=true;
   ruleApi()
     .ruleList({
       limit: 100, offset: 0
     })
     .then((res) => {
+      state.creatorloading=false;
       state.rules = [...res.data.rows.map(c => { return { value: c.ruleId, label: c.name } })]
     })
+
+
 }
 
 
@@ -203,7 +202,7 @@ const getCreators = async (creator: string) => {
 
     state.creators = [...res.data?.rows?.map(x => {
       return {
-        label: x.name, value: x.name
+        label: x.name, value: x.id
       }
     })]
   }
@@ -226,19 +225,19 @@ const onHandleCurrentChange = (val: number) => {
 
 const getData = async () => {
 
-  const params:{
+  const params: {
     offset: number
     limit: number
     Name: string
     RuleId: string
-    CreatorName: string
+
     Creator?: string
   } = {
     offset: state.tableData.param.pageNum - 1,
     limit: state.tableData.param.pageSize,
     Name: query.Name,
     RuleId: query.RuleId,
-    CreatorName: query.CreatorName,
+    Creator: query.Creator,
   }
   if (props.creator) {
     params.Creator = props.creator
@@ -248,6 +247,7 @@ const getData = async () => {
     const res = await ruleApi().floweventslist(params)
     state.tableData.rows = res.data.rows;
     state.tableData.total = res.data.total;
+    loading.value = false
   } catch (e) {
     loading.value = false
   }
@@ -259,7 +259,6 @@ const initTableData = () => {
 };
 onMounted(() => {
   initTableData();
-
   getRules();
 });
 
