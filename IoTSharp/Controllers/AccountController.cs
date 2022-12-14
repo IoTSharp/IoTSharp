@@ -662,6 +662,11 @@ namespace IoTSharp.Controllers
             {
                 if (!string.IsNullOrEmpty(rootkey) && rootkey == _settings.RootKey)
                 {
+                    if (user.LockoutEnabled)
+                    {
+                      var ck=  await Lock(new LockDto() { Id = new Guid(user.Id), Opt = LockOpt.Unlock });
+                    }
+                    await _userManager.ResetAccessFailedCountAsync(user);
                     var token = await _userManager.GeneratePasswordResetTokenAsync(user);
                     var rest = await _userManager.ResetPasswordAsync(user, token, newpassword);
                     if (rest.Succeeded)
