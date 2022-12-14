@@ -132,6 +132,8 @@ namespace IoTSharp.Contracts
             }
          
         }
+
+        public string RootKey { get; set; }
     }
     public enum ShardingByDateMode
     {

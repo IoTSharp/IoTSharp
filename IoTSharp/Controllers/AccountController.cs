@@ -649,5 +649,37 @@ namespace IoTSharp.Controllers
                 return new ApiResult<bool>(ApiCode.Success, "OK", false);
             }
         }
+        [AllowAnonymous]
+        [HttpGet]
+        public async Task<ApiResult> ResetPasswordAsync(string email, string  rootkey,string newpassword)
+        {
+            IdentityUser user = await _userManager.FindByEmailAsync(email);
+            if (user==null)
+            {
+                return new ApiResult(ApiCode.NotFoundUser, "用户为空");
+            }
+            else
+            {
+                if (!string.IsNullOrEmpty(rootkey) && rootkey == _settings.RootKey)
+                {
+                    var token = await _userManager.GeneratePasswordResetTokenAsync(user);
+                    var rest = await _userManager.ResetPasswordAsync(user, token, newpassword);
+                    if (rest.Succeeded)
+                    {
+                        return new ApiResult(ApiCode.Success, "OK");
+                    }
+                    else
+                    {
+                        var errinfo = string.Join(',', rest.Errors.Select(c => $"{c.Code}-{c.Description}").ToList());
+                        return new ApiResult(ApiCode.Exception, errinfo);
+                    }
+                }
+                else
+                {
+                    return new ApiResult(ApiCode.InValidData, "根密码不对，请修改服务器配置文件。");
+                }
+           
+            }
+        }
     }
 }
