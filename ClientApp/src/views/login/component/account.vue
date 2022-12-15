@@ -149,9 +149,15 @@ export default defineComponent({
             }
           } else {
             state.loading.signIn = false;
+            state.dialogVisible = false;
             ElMessage.success(`用户名不存在或者密码错误`);
+            block.value?.refresh();
           }
-        })
+        }).catch((error) => {
+        state.loading.signIn = false;
+        state.dialogVisible = false;
+        block.value?.refresh();
+      })
         .finally(() => {});
     };
 
