@@ -13,5 +13,6 @@ namespace IoTSharp.Contracts
         public const string _InactivityAlarmDateTime = "InactivityAlarmDateTime ";
         public const string _LastConnectDateTime = "LastConnectDateTime";
         public const string _LastDisconnectDateTime = "LastDisconnectDateTime";
+        public  const   string _Connected= "Connected";
     }
 }

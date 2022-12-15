@@ -150,6 +150,7 @@ namespace IoTSharp.EventBus
             msg.DataCatalog = DataCatalog.AttributeData;
             msg.DataSide = DataSide.ServerSide;
             msg.MsgBody = new Dictionary<string, object>();
+            msg.MsgBody.Add(Constants._Connected, devicestatus == ConnectStatus.Connected);
             msg.MsgBody.Add(devicestatus == ConnectStatus.Connected ? Constants._LastConnectDateTime : Constants._LastDisconnectDateTime, DateTime.Now);
             await StoreAttributeData(msg, devicestatus == ConnectStatus.Connected ? EventType.Connected : EventType.Disconnected);
         }
