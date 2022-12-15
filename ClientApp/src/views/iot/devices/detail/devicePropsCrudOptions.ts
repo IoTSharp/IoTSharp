@@ -2,9 +2,10 @@ import { deviceApi } from '/@/api/devices';
 import _ from 'lodash-es';
 import { compute, dict } from '@fast-crud/fast-crud';
 import { TableDataRow } from '/@/views/iot/devices/model';
-import { ElMessage } from "element-plus";
+import { ElMessage } from 'element-plus';
+import { formatToDateTime } from '/@/utils/dateUtil';
 // eslint-disable-next-line no-unused-vars
-export const createDevicePropsCrudOptions = function ({ expose }, deviceId,state) {
+export const createDevicePropsCrudOptions = function ({ expose }, deviceId, state) {
 	const deviceId_param = deviceId;
 	let records: any[] = [];
 	const FsButton = {
@@ -15,7 +16,11 @@ export const createDevicePropsCrudOptions = function ({ expose }, deviceId,state
 		inactiveColor: 'var(el-switch-of-color)',
 	};
 	const pageRequest = async (query) => {
-		console.log(`%c-createDevicePropsCrudOptions@devicePropsCrudOptions:7`, 'color:white;font-size:16px;background:blue;font-weight: bold;', deviceId)
+		console.log(
+			`%c-createDevicePropsCrudOptions@devicePropsCrudOptions:7`,
+			'color:white;font-size:16px;background:blue;font-weight: bold;',
+			deviceId
+		);
 		const res = await deviceApi().getDeviceAttributes(deviceId_param);
 		records = res.data;
 		return {
@@ -50,8 +55,6 @@ export const createDevicePropsCrudOptions = function ({ expose }, deviceId,state
 	return {
 		deviceId,
 		crudOptions: {
-
-
 			actionbar: {
 				buttons: {
 					add: {
@@ -63,7 +66,7 @@ export const createDevicePropsCrudOptions = function ({ expose }, deviceId,state
 						type: 'primary',
 						click() {
 							state.currentPageState = 'editprop';
-							console.log(			state.currentPageState)
+							console.log(state.currentPageState);
 						}, //点击事件，默认打开添加对话框
 					},
 				},
@@ -120,6 +123,23 @@ export const createDevicePropsCrudOptions = function ({ expose }, deviceId,state
 						width: 260,
 					},
 				},
+				value: {
+					title: '值',
+					column: {
+						width: 158,
+						formatter(context) {
+							if (context.row.dataType === 'DateTime') {
+								return formatToDateTime(context.value);
+							} else return context.value.toString();
+						},
+					},
+					addForm: {
+						show: false,
+					},
+					editForm: {
+						show: false,
+					},
+				},
 				dataType: {
 					title: '数据类型',
 					type: 'dict-select',
@@ -158,6 +178,12 @@ export const createDevicePropsCrudOptions = function ({ expose }, deviceId,state
 				dateTime: {
 					title: '时间',
 					type: 'text',
+					column: {
+						width: 158,
+						formatter(context) {
+							return formatToDateTime(context.value);
+						},
+					},
 					addForm: {
 						show: false,
 					},
@@ -165,17 +191,7 @@ export const createDevicePropsCrudOptions = function ({ expose }, deviceId,state
 						show: false,
 					},
 				},
-				value: {
-					title: '值',
-                    type: 'text',
-                    addForm: {
-                        show: false,
-					},
-					editForm: {
-						show: false,
-					},
-				}
-			}
+			},
 		},
 	};
 };
