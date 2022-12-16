@@ -61,23 +61,29 @@
       </el-table>
     </div>
     <div v-show="dataDisplayStatus === 'chart'">
-      图表 TODO
+      <div style="height: 330px" ref="messageChartRef" v-loading="loading"></div>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-
 import {dateUtil, ElDateTimePickerShortcuts, formatToDateTime} from "/@/utils/dateUtil";
 import {deviceApi} from "/@/api/devices";
-import {getCurrentInstance} from "vue";
+import { getCurrentInstance, ref } from "vue";
+import { EChartsOption } from "echarts";
+import * as echarts from "echarts";
+import _ from 'lodash-es';
+import { telemetryHistoryChartOptions } from "/@/views/iot/devices/detail/telemetryHistoryChartOptions";
 const {proxy} = <any>getCurrentInstance();
 const formatColumnDataTime = (row, column, cellValue, index) => {
   return formatToDateTime(cellValue)
 }
 const formRef = ref()
 const loading = ref(false)
-const dataDisplayStatus = ref('dataTable')
+// const dataDisplayStatus = ref('dataTable')
+const dataDisplayStatus = ref('chart')
+const messageChartRef = ref();
+let historyChart:any = null
 
 interface IQueryForm {
   pi: number;
@@ -125,6 +131,10 @@ const tableData = ref([])
 
 
 const search = async () => {
+  if (queryForm.keys.length === 0) {
+    ElMessage.warning('请选择遥测属性')
+    return
+  }
   await getData()
 }
 const resetForm = (formEl) => {
@@ -137,20 +147,57 @@ const backToRealtime = ()=>{
 }
 const getData = async () => {
   const params = {...queryForm}
-  params.begin = params.datetimeRange[0]
-  params.end = params.datetimeRange[1]
-  params.keys = params.keys.join(', ')
+  if (params.datetimeRange[0]) params.begin = params.datetimeRange[0]
+  if (params.datetimeRange[1]) params.end = params.datetimeRange[1]
+  console.log(`%cgetData@DeviceDetailTelemetryHistory:148`, 'color:black;font-size:16px;background:yellow;font-weight: bold;', params.keys)
+  params.keys = params.keys.join(',')
   params.every = '0.' + params.every + ':000';
   loading.value = true
   try {
     const res = await deviceApi().getDeviceTelemetryData(props.deviceId, params)
     tableData.value = res.data
+    updateChart(res.data)
   } catch (e) { /* empty */ }
   loading.value = false
 }
+const updateChart = (rawData) => {
+  let series = []
+  let xAxisData = []
+  series = queryForm.keys.map((key)=>{
+    return {
+      name: key,
+      type: 'line',
+      smooth: true,
+      symbol: 'none',
+      data: rawData[key],
+      seriesLayoutBy: 'row',
+      data: []
+    }
+  })
+  Object.entries(_.groupBy(rawData, 'dateTime')).forEach(([dateTime, values])=>{
+    xAxisData.push(dateTime)
+    for (const data of values) {
+      const seriesItem = series.find((x)=>x.name === data.keyName)
+      seriesItem.data.push(data.value)
+
+    }
+  })
+  telemetryHistoryChartOptions.series = series
+  telemetryHistoryChartOptions.xAxis.data = xAxisData
+  historyChart.setOption(telemetryHistoryChartOptions, {
+    replaceMerge: ["series", "yAxis", "xAxis"],
+  });
+}
+const initChart = (target: any, option: EChartsOption) => {
+  historyChart = echarts.init(target.value);
+  historyChart.setOption(option);
+};
+onMounted(()=>{
+  initChart(messageChartRef, telemetryHistoryChartOptions as EChartsOption);
+})
 </script>
 
-<style scoped lang="scss">
+<style lang="scss" scoped>
 .z-table {
   width: 100%;
   height: calc(100vh - 380px);
