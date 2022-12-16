@@ -1,7 +1,7 @@
 <template>
   <div class="system-list-container">
-    <el-card shadow="hover">
-      <div class="system-dept-search mb15">
+    <el-card shadow="hover" v-if="state.viewstate === 'list'">
+      <div class=" system-dept-search mb15">
         <el-input size="default" placeholder="请输入规则名称" style="max-width: 180px" v-model="query.name">
         </el-input>
 
@@ -18,7 +18,8 @@
           新增规则
         </el-button>
       </div>
-      <el-table :data="state.tableData.rows" style="width: 100%" row-key="ruleId" table-layout="auto" @expand-change="expandchange">
+      <el-table :data="state.tableData.rows" style="width: 100%" row-key="ruleId" table-layout="auto"
+        @expand-change="expandchange">
 
 
         <el-table-column type="expand">
@@ -28,7 +29,7 @@
               <el-table-column label="类型" prop="flowType" />
               <el-table-column label="执行器" prop="nodeProcessClass" />
               <el-table-column label="脚本类型" prop="nodeProcessScriptType" />
-           
+
             </el-table>
           </template>
         </el-table-column>
@@ -49,13 +50,13 @@
 
 
 
-        <el-table-column label="操作" show-overflow-tooltip >
+        <el-table-column label="操作" show-overflow-tooltip>
           <template #default="scope">
-            <el-button size="small" text type="primary" icon="Edit" @click="edit(scope.row.ruleId)"> 修改</el-button>
+            <el-button size="small" text type="primary" icon="Edit" @click="edit(scope.row.ruleId)">修改</el-button>
             <el-button size="small" text type="success" icon="Memo" @click="design(scope.row.ruleId)">设计</el-button>
             <el-button size="small" text icon="DocumentChecked" @click="simulator(scope.row.ruleId)">测试</el-button>
             <el-button size="small" text type="danger" icon="Delete" @click="onTabelRowDel(scope.row)">删除</el-button>
-       
+
           </template>
         </el-table-column>
       </el-table>
@@ -65,14 +66,22 @@
         :total="state.tableData.total">
       </el-pagination>
     </el-card>
+
+
     <addflow ref="addformRef" @close="close" @submit="submit" />
+    <flowdesigner v-if="state.viewstate === 'designer'" :ruleId="state.currentruleId" @close="ondesignerclose">
+    </flowdesigner>
+    <flowsimulator v-if="state.viewstate === 'simulator'" :ruleId="state.currentruleId" @close="onsimulatorclose"></flowsimulator>
   </div>
+
 </template>
 
 <script lang="ts" setup>
 import { ElMessageBox, ElMessage, getPositionDataWithUnit } from "element-plus";
 import { ref, reactive, onMounted, defineComponent } from "vue";
 import addflow from "./addflow.vue";
+import flowdesigner from "./flowdesigner.vue";
+import flowsimulator from "./flowsimulator.vue";
 import { ruleApi } from "/@/api/flows";
 import { Session } from "/@/utils/storage";
 import { appmessage } from "/@/api/iapiresult";
@@ -105,6 +114,8 @@ interface SubTableDataRow {
 }
 
 interface TableDataState {
+  currentruleId: string;
+  viewstate: string;
   tableData: {
     rows: Array<TableDataRow>;
     total: number;
@@ -131,10 +142,14 @@ const mountTypes = new Map([
   ["Activity", { text: "活动事件", color: "#7cb305" }],
   ["Inactivity", { text: "非活跃状态", color: "#ffa940" }],
 ]);
+
+
 const addformRef = ref();
 const userInfos = Session.get("userInfo");
 const router = useRouter();
 const state = reactive<TableDataState>({
+  currentruleId: "08dada8f-b042-4163-867c-4e97cccd745e",
+  viewstate: 'list',
   tableData: {
     rows: [],
     total: 0,
@@ -163,6 +178,16 @@ const close = () => {
 const submit = () => {
   getData();
 };
+const ondesignerclose = () => {
+  state.viewstate = 'list'
+};
+const onsimulatorclose = () => {
+  state.viewstate = 'list'
+};
+
+
+
+
 // 删除当前行
 const onTabelRowDel = (row: TableDataRow) => {
   ElMessageBox.confirm(`此操作将永久删除规则：${row.name}, 是否继续?`, "提示", {
@@ -185,21 +210,28 @@ const onTabelRowDel = (row: TableDataRow) => {
 };
 
 const design = (id: string) => {
-  router.push({
-    path: "/iot/rules/flowdesigner",
-    query: {
-      id: id,
-    },
-  });
+  state.viewstate = 'designer';
+  state.currentruleId = id;
+
+  console.log(state)
+  // router.push({
+  //   path: "/iot/rules/flowdesigner",
+  //   query: {
+  //     id: id,
+  //   },
+  // });
 };
 
 const simulator = (id: string) => {
-  router.push({
-    path: "/iot/rules/flowsimulator",
-    query: {
-      id: id,
-    },
-  });
+
+  state.currentruleId = id;
+  state.viewstate = 'simulator';
+  // router.push({
+  //   path: "/iot/rules/flowsimulator",
+  //   query: {
+  //     id: id,
+  //   },
+  // });
 };
 
 const edit = (id: string) => {
@@ -215,7 +247,7 @@ const onHandleSizeChange = (val: number) => {
 };
 // 分页改变
 const onHandleCurrentChange = (val: number) => {
-  query.offset= val-1;
+  query.offset = val - 1;
   getData();
 };
 

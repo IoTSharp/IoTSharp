@@ -13,6 +13,8 @@ export interface TableDataRow {
 	serverity?: string;
 }
 export interface TableDataState {
+	originatorOptions:Array<any>
+	originatorloading:boolean;
 	rows: Array<TableDataRow>;
 	total: number;
 	loading: boolean;
