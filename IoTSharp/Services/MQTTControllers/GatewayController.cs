@@ -98,7 +98,39 @@ namespace IoTSharp.Services.MQTTControllers
             });
             await Ok();
         }
+        [MqttRoute("{devname}/connect")]
+        public async Task on_connect_bydevname(string devname)
+        {
+            var _dev = GetSessionItem<Device>();
+            await _queue.PublishActive(_dev.Id, ActivityStatus.Activity);
 
+            var device = _dev.JudgeOrCreateNewDevice(devname, _scopeFactor, _logger);
+            if (device != null)
+            {
+                await _queue.PublishConnect(device.Id, ConnectStatus.Connected);
+            }
+            else
+            {
+                _logger.LogWarning("未能创建或者找到网关的设备。");
+            }
+            await Ok();
+        }
+        [MqttRoute("{devname}/disconnect")]
+        public async Task on_disconnect_bydevname(string devname)
+        {
+            var _dev = GetSessionItem<Device>();
+            await _queue.PublishActive(_dev.Id, ActivityStatus.Activity);
+            var device = _dev.JudgeOrCreateNewDevice(devname, _scopeFactor, _logger);
+            if (device != null)
+            {
+                await _queue.PublishConnect(device.Id, ConnectStatus.Disconnected);
+            }
+            else
+            {
+                _logger.LogWarning("未能创建或者找到网关的设备。");
+            }
+            await Ok();
+        }
         [MqttRoute("connect")]
         public async Task on_connect()
         {
