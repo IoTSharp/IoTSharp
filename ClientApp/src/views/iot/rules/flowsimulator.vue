@@ -1,9 +1,6 @@
 <template>
   <div class="workflow-container">
-    <div
-      class="layout-view-bg-white flex"
-      :style="{ height: `calc(100vh - ${setViewHeight}` }"
-    >
+    <div class="layout-view-bg-white flex" :style="{ height: `calc(100vh - ${setViewHeight}` }">
       <div class="workflow">
         <!-- 顶部工具栏 -->
         <Tool @tool="onToolClick" />
@@ -11,20 +8,10 @@
         <div class="workflow-content">
           <!-- 右侧绘画区 -->
           <div class="workflow-right" ref="workflowRightRef">
-            <div
-              v-for="(v, k) in state.jsplumbData.nodeList"
-              :key="v.nodeId"
-              :id="v.nodeId"
-              :data-node-id="v.nodeId"
-              :class="v.nodeclass"
-              :style="{ left: v.left, top: v.top }"
-              @click="onItemCloneClick(k)"
-            >
-              <div
-                :style="{ backgroundColor: v.color }"
-                class="workflow-right-box"
-                :class="{ 'workflow-right-active': state.jsPlumbNodeIndex === k }"
-              >
+            <div v-for="(v, k) in state.jsplumbData.nodeList" :key="v.nodeId" :id="v.nodeId" :data-node-id="v.nodeId"
+              :class="v.nodeclass" :style="{ left: v.left, top: v.top }" @click="onItemCloneClick(k)">
+              <div :style="{ backgroundColor: v.color }" class="workflow-right-box"
+                :class="{ 'workflow-right-active': state.jsPlumbNodeIndex === k }">
                 <div class="workflow-left-item-icon">
                   <SvgIcon :name="v.icon" class="workflow-icon-drag" />
                   <div class="font10 pl5 name">{{ v.name }}</div>
@@ -38,28 +25,14 @@
 
     <div class="workflow-left">
       <el-scrollbar>
-        <div
-          ref="leftNavRefs"
-          v-for="(val, key) in state.leftNavList"
-          :key="val.id"
-          :style="{ height: val.isOpen ? 'auto' : '50px', overflow: 'hidden' }"
-          class="workflow-left-id"
-        >
+        <div ref="leftNavRefs" v-for="(val, key) in state.leftNavList" :key="val.id"
+          :style="{ height: val.isOpen ? 'auto' : '50px', overflow: 'hidden' }" class="workflow-left-id">
           <div class="workflow-left-title" @click="onTitleClick(val)">
             <span>{{ val.title }}</span>
             <SvgIcon :name="val.isOpen ? 'ele-ArrowDown' : 'ele-ArrowRight'" />
           </div>
-          <div
-            class="workflow-left-item"
-            v-for="(v, k) in val.children"
-            :key="k"
-            :data-name="v.name"
-            :data-icon="v.icon"
-            :data-id="v.id"
-            :nodetype="v.nodetype"
-            :namespace="v.namespace"
-            :mata="v.mata"
-          >
+          <div class="workflow-left-item" v-for="(v, k) in val.children" :key="k" :data-name="v.name"
+            :data-icon="v.icon" :data-id="v.id" :nodetype="v.nodetype" :namespace="v.namespace" :mata="v.mata">
             <div class="workflow-left-item-icon">
               <SvgIcon :name="v.icon" class="workflow-icon-drag" />
               <div class="font10 pl5 name">{{ v.name }}</div>
@@ -71,15 +44,8 @@
 
     <el-dialog v-model="state.dataFormVisible" title="测试数据">
       <div>
-        <monaco
-                  height="300px"
-             
-                  width="80%"
-                  theme="vs-dark"
-                  v-model="state.content"
-                  language="json"
-                  selectOnLineNumbers="true"
-                ></monaco>
+        <monaco height="300px" width="80%" theme="vs-dark" v-model="state.content" language="json"
+          selectOnLineNumbers="true"></monaco>
       </div>
 
       <template #footer>
@@ -151,7 +117,13 @@ interface FlowState {
     lineList: Array<LineListState>;
   };
 }
-
+const emit = defineEmits(["close", "submit"]);
+const props = defineProps({
+  ruleId: {
+    type: String,
+    default: ''
+  }
+})
 const route = useRoute();
 const router = useRouter();
 const language = ref("json");
@@ -167,7 +139,7 @@ const { isTagsViewCurrenFull } = storeToRefs(stores);
 const { copyText } = commonFunction();
 
 const state = reactive<FlowState>({
-  flowid: route.query.id,
+  flowid: props.ruleId,
   workflowRightRef: null as HTMLDivElement | null,
   leftNavRefs: [],
   leftNavList: [],
@@ -415,9 +387,9 @@ const onTitleClick = (val: any) => {
   val.isOpen = !val.isOpen;
 };
 
-const onexecutorSubmit = (data: object) => {};
+const onexecutorSubmit = (data: object) => { };
 
-const onscriptSubmit = (data: any) => {};
+const onscriptSubmit = (data: any) => { };
 
 // 右侧内容区-当前项点击
 const onItemCloneClick = (k: number) => {
@@ -507,9 +479,10 @@ const onToolClick = (fnName: String) => {
 };
 
 const onReturnToList = () => {
-  router.push({
-    path: "/iot/rules/flowlist",
-  });
+  emit("close", state.jsplumbData);
+  // router.push({
+  //   path: "/iot/rules/flowlist",
+  // });
 };
 
 // 顶部工具栏-帮助
@@ -626,18 +599,32 @@ const onToolDel = () => {
         ElMessage.success("清空画布成功");
       });
     })
-    .catch(() => {});
+    .catch(() => { });
 };
 // 顶部工具栏-全屏
 const onToolFullscreen = () => {
   stores.setCurrenFullscreen(true);
 };
+
+watch(() => props.ruleId, async () => {
+
+  if (props.ruleId && props.ruleId !== "") {
+
+    await initLeftNavList();
+    await initSortable();
+    initJsPlumb();
+    setClientWidth();
+  }
+
+})
 // 页面加载时
 onMounted(async () => {
-  await initLeftNavList();
-  await initSortable();
-  initJsPlumb();
-  setClientWidth();
+  if (props.ruleId && props.ruleId !== "") {
+    await initLeftNavList();
+    await initSortable();
+    initJsPlumb();
+    setClientWidth();
+  }
   window.addEventListener("resize", setClientWidth);
 });
 // 页面卸载时
@@ -736,11 +723,9 @@ onUnmounted(() => {
         position: relative;
         overflow: hidden;
         height: 100%;
-        background-image: linear-gradient(
-            90deg,
+        background-image: linear-gradient(90deg,
             rgb(156 214 255 / 15%) 10%,
-            rgba(0, 0, 0, 0) 10%
-          ),
+            rgba(0, 0, 0, 0) 10%),
           linear-gradient(rgb(156 214 255 / 15%) 10%, rgba(0, 0, 0, 0) 10%);
         background-size: 10px 10px;
 
@@ -840,6 +825,7 @@ onUnmounted(() => {
       }
     }
   }
+
   .workflow-mask {
     position: absolute;
     top: 0;
@@ -863,8 +849,10 @@ onUnmounted(() => {
     }
   }
 }
+
 .workflow-icon-drag {
   position: relative;
+
   &:after {
     content: " ";
     width: 32px;
@@ -877,8 +865,10 @@ onUnmounted(() => {
     background: transparent;
   }
 }
+
 .jtk-connector.active {
   z-index: 9999;
+
   path {
     stroke: #150042;
     stroke-width: 1.5;
@@ -889,10 +879,12 @@ onUnmounted(() => {
     stroke-dasharray: 5;
   }
 }
+
 @keyframes ring {
   from {
     stroke-dashoffset: 50;
   }
+
   to {
     stroke-dashoffset: 0;
   }

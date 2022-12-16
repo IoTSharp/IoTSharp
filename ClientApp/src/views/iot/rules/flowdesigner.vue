@@ -1,10 +1,7 @@
 <template>
   <div class="workflow-container">
     <div class="workflow-mask" v-if="state.isShow"></div>
-    <div
-      class="layout-view-bg-white flex"
-      :style="{ height: `calc(100vh - ${setViewHeight}` }"
-    >
+    <div class="layout-view-bg-white flex" :style="{ height: `calc(100vh - ${setViewHeight}` }">
       <div class="workflow">
         <!-- 顶部工具栏 -->
         <Tool @tool="onToolClick" />
@@ -13,37 +10,17 @@
         <div class="workflow-content">
           <div class="workflow-left">
             <el-scrollbar view-style="padding: 10px">
-              <div
-                ref="leftNavRefs"
-                v-for="val in state.leftNavList"
-                :key="val.id"
-                :style="{ height: val.isOpen ? 'auto' : '50px', overflow: 'hidden' }"
-                class="workflow-left-id"
-              >
+              <div ref="leftNavRefs" v-for="val in state.leftNavList" :key="val.id"
+                :style="{ height: val.isOpen ? 'auto' : '50px', overflow: 'hidden' }" class="workflow-left-id">
                 <div class="workflow-left-title" @click="onTitleClick(val)">
                   <span>{{ val.title }}</span>
                   <SvgIcon :name="val.isOpen ? 'ele-ArrowDown' : 'ele-ArrowRight'" />
                 </div>
-                <div
-                  class="workflow-left-item"
-                  v-for="(v, k) in val.children"
-                  :key="k"
-                  :data-color="val.color"
-                  :data-name="v.name"
-                  :data-icon="v.icon"
-                  :data-id="v.id"
-                  :nodetype="v.nodetype"
-                  :nodenamespace="v.nodenamespace"
-                  :mata="v.mata"
-                >
-                  <div
-                    class="workflow-left-item-icon"
-                    :style="{ backgroundColor: val.color }"
-                  >
-                    <component
-                      :is="{ ...customIcons[v.icon] }"
-                      class="workflow-icon-drag"
-                    ></component>
+                <div class="workflow-left-item" v-for="(v, k) in val.children" :key="k" :data-color="val.color"
+                  :data-name="v.name" :data-icon="v.icon" :data-id="v.id" :nodetype="v.nodetype"
+                  :nodenamespace="v.nodenamespace" :mata="v.mata">
+                  <div class="workflow-left-item-icon" :style="{ backgroundColor: val.color }">
+                    <component :is="{ ...customIcons[v.icon] }" class="workflow-icon-drag"></component>
                     <div class="text-sm pl5 name">{{ v.name }}</div>
                   </div>
                 </div>
@@ -54,26 +31,15 @@
           <!-- 右侧绘画区 -->
           <div class="workflow-right" ref="workflowRightRef">
             <h1 v-if="modal" v-on-click-outside="onItemCloneClickOutside">Test</h1>
-            <div
-              v-for="(v, k) in state.jsplumbData.nodeList"
-              :key="v.nodeId"
-              :id="v.nodeId"
-              :data-node-id="v.nodeId"
-              :class="v.nodeclass"
-              :style="{ left: v.left, top: v.top }"
-              @click="onItemCloneClick(k)"
-              @contextmenu.prevent="onContextmenu(v, k, $event)"
-              v-on-click-outside="
+            <div v-for="(v, k) in state.jsplumbData.nodeList" :key="v.nodeId" :id="v.nodeId" :data-node-id="v.nodeId"
+              :class="v.nodeclass" :style="{ left: v.left, top: v.top }" @click="onItemCloneClick(k)"
+              @contextmenu.prevent="onContextmenu(v, k, $event)" v-on-click-outside="
                 () => {
                   onItemCloneClickOutside(k);
                 }
-              "
-            >
-              <div
-                :style="{ backgroundColor: v.color }"
-                class="workflow-right-box"
-                :class="{ 'workflow-right-active': state.jsPlumbNodeIndex === k }"
-              >
+              ">
+              <div :style="{ backgroundColor: v.color }" class="workflow-right-box"
+                :class="{ 'workflow-right-active': state.jsPlumbNodeIndex === k }">
                 <div class="workflow-left-item-icon">
                   <!--                  <SvgIcon :name="v.icon" class="workflow-icon-drag" />-->
                   <div class="workflow-icon-drag">
@@ -89,26 +55,12 @@
     </div>
 
     <!-- 节点右键菜单 -->
-    <ContextmenuNode
-      :dropdown="state.dropdownNode"
-      ref="contextmenuNodeRef"
-      @currentnode="onCurrentNodeClick"
-    />
+    <ContextmenuNode :dropdown="state.dropdownNode" ref="contextmenuNodeRef" @currentnode="onCurrentNodeClick" />
     <!-- 线右键菜单 -->
-    <ContextmenuLine
-      :dropdown="state.dropdownLine"
-      ref="contextmenuLineRef"
-      @currentline="onCurrentLineClick"
-    />
+    <ContextmenuLine :dropdown="state.dropdownLine" ref="contextmenuLineRef" @currentline="onCurrentLineClick" />
     <!-- 抽屉表单、线 -->
-    <Drawer
-      ref="drawerRef"
-      @label="setLineLabel"
-      @node="setNodeContent"
-      @executor="onexecutorSubmit"
-      @script="onscriptSubmit"
-      @panelclose="panelClose"
-    />
+    <Drawer ref="drawerRef" @label="setLineLabel" @node="setNodeContent" @executor="onexecutorSubmit"
+      @script="onscriptSubmit" @panelclose="panelClose" />
 
     <!-- 顶部工具栏-帮助弹窗 -->
     <Help ref="helpRef" />
@@ -141,7 +93,13 @@ import {
 import { useRouter, useRoute } from "vue-router";
 import { ruleApi } from "/@/api/flows";
 import { FlowState } from "/@/views/iot/rules/models";
-
+const props = defineProps({
+  ruleId: {
+    type: String,
+    default: ''
+  }
+})
+const emit = defineEmits(["close", "submit"]);
 const modal = ref(false);
 const route = useRoute();
 const router = useRouter();
@@ -158,7 +116,7 @@ const { copyText } = commonFunction();
 const workflowRightRef = ref<HTMLDivElement | null>(null);
 const leftNavRefs = ref([]);
 const state = reactive<FlowState>({
-  flowid: route.query.id,
+  flowid: props.ruleId,
   leftNavList: [],
   dropdownNode: { x: "", y: "" },
   dropdownLine: { x: "", y: "" },
@@ -236,7 +194,7 @@ const initSortable = () => {
           ElMessage.warning("请把节点拖入到画布中");
         } else {
 
-   
+
           // 节点id（唯一）
           const nodeId = Math.random().toString(36).substr(2, 12);
           // 处理节点数据
@@ -247,8 +205,8 @@ const initSortable = () => {
             top: `${layerY - 15}px`,
             nodeclass: "workflow-right-clone",
             nodetype: nodetype.value,
-            nodenamespace: nodenamespace?.value??'',
-            mata: mata.value?.value??'',
+            nodenamespace: nodenamespace?.value ?? '',
+            mata: mata.value?.value ?? '',
             name,
             icon,
             id,
@@ -397,9 +355,9 @@ const onTitleClick = (val: any) => {
   val.isOpen = !val.isOpen;
 };
 
-const onexecutorSubmit = (data: object) => {};
+const onexecutorSubmit = (data: object) => { };
 
-const onscriptSubmit = (data: any) => {};
+const onscriptSubmit = (data: any) => { };
 
 // 右侧内容区-当前项点击
 const onItemCloneClick = (k: number) => {
@@ -581,9 +539,12 @@ const onToolClick = (fnName: String) => {
 };
 
 const onReturnToList = () => {
-  router.push({
-    path: "/iot/rules/flowlist",
-  });
+
+
+  emit("close", state.jsplumbData);
+  // router.push({
+  //   path: "/iot/rules/flowlist",
+  // });
 };
 
 // 顶部工具栏-帮助
@@ -614,7 +575,7 @@ const panelClose = (data: any) => {
           v.name = data.name;
           v.icon = data.icon;
           v.nodetype = data.nodetype;
-          v.nodenamespace = data.namespace;
+          v.nodenamespace = data.nodenamespace;
           v.mata = data.mata;
           v.content = data.content;
         }
@@ -627,7 +588,7 @@ const panelClose = (data: any) => {
           v.name = data.name;
           v.icon = data.icon;
           v.nodetype = data.nodetype;
-          v.nodenamespace = data.namespace;
+          v.nodenamespace = data.nodenamespace;
           v.mata = data.mata;
           v.content = data.content;
         }
@@ -640,18 +601,18 @@ const panelClose = (data: any) => {
 
 // 顶部工具栏-提交
 const onToolSubmit = async () => {
- var result=await   ruleApi()
+  var result = await ruleApi()
     .saveDiagramV({
       RuleId: state.flowid,
       nodes: state.jsplumbData.nodeList,
       lines: state.jsplumbData.lineList,
     })
-    if(result.data){
-      ElMessage.success("规则保存成功");
-      onReturnToList();
-    }else{
-      ElMessage.success("规则保存失败："+result['msg']);
-    }
+  if (result.data) {
+    ElMessage.success("规则保存成功");
+    onReturnToList();
+  } else {
+    ElMessage.success("规则保存失败：" + result['msg']);
+  }
 
 };
 // 顶部工具栏-复制
@@ -676,18 +637,36 @@ const onToolDel = () => {
         ElMessage.success("清空画布成功");
       });
     })
-    .catch(() => {});
+    .catch(() => { });
 };
 // 顶部工具栏-全屏
 const onToolFullscreen = () => {
   stores.setCurrenFullscreen(true);
 };
+
+
+
+watch(() => props.ruleId, async () => {
+
+  if (props.ruleId && props.ruleId !== "") {
+
+    await initLeftNavList();
+    await initSortable();
+    initJsPlumb();
+    setClientWidth();
+  }
+
+})
 // 页面加载时
 onMounted(async () => {
-  await initLeftNavList();
-  await initSortable();
-  initJsPlumb();
-  setClientWidth();
+
+  if (props.ruleId && props.ruleId !== "") {
+ 
+    await initLeftNavList();
+    await initSortable();
+    initJsPlumb();
+    setClientWidth();
+  }
   window.addEventListener("resize", setClientWidth);
 });
 // 页面卸载时
@@ -796,11 +775,9 @@ onUnmounted(() => {
         position: relative;
         overflow: hidden;
         height: 100%;
-        background-image: linear-gradient(
-            90deg,
+        background-image: linear-gradient(90deg,
             rgb(156 214 255 / 15%) 10%,
-            rgba(0, 0, 0, 0) 10%
-          ),
+            rgba(0, 0, 0, 0) 10%),
           linear-gradient(rgb(156 214 255 / 15%) 10%, rgba(0, 0, 0, 0) 10%);
         background-size: 10px 10px;
 
@@ -887,6 +864,7 @@ onUnmounted(() => {
 
 .workflow-icon-drag {
   position: relative;
+
   &:after {
     content: " ";
     width: 32px;
@@ -905,6 +883,7 @@ onUnmounted(() => {
 // 连线动画，节点点击时被激活
 .jtk-connector.active {
   z-index: 9999;
+
   path {
     stroke: #150042;
     stroke-width: 1.5;
@@ -915,10 +894,12 @@ onUnmounted(() => {
     stroke-dasharray: 5;
   }
 }
+
 @keyframes ring {
   from {
     stroke-dashoffset: 50;
   }
+
   to {
     stroke-dashoffset: 0;
   }

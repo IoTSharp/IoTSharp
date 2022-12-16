@@ -36,3 +36,6 @@ export function acquire(id: string) {
         id: id
     })
 }
+export function getoriginators(params: any) {
+    return request.post(`api/alarm/originators`, params)
+}

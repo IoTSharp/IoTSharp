@@ -55,7 +55,7 @@ export interface LeftNavItemChild {
     name: string;
     id: string;
     nodetype: string;
-    namespace: string;
+    nodenamespace: string;
     mata: string;
 }
 
@@ -71,14 +71,14 @@ const leftNavList: LeftNavItem[] = [
                 icon: 'importIcon',
                 name: "开始",
                 nodetype: "basic",
-                namespace: "bpmn:StartEvent",
+                nodenamespace: "bpmn:StartEvent",
                 mata: "begin",
                 id: "begin",
             },
             {
                 icon: 'stopIcon',
                 nodetype: "basic",
-                namespace: "bpmn:EndEvent",    
+                nodenamespace: "bpmn:EndEvent",    
                 mata: "end",
                 name: "结束",
                 id: "end",
@@ -108,7 +108,7 @@ const leftNavList: LeftNavItem[] = [
                 name: "javascript",
                 id: "javascript",
                 nodetype: "script",
-                namespace: 'bpmn:Task',
+                nodenamespace: 'bpmn:Task',
                 mata: "javascript",
             },
             {
@@ -116,7 +116,7 @@ const leftNavList: LeftNavItem[] = [
                 name: "python",
                 id: "python",
                 nodetype: "script",
-                namespace: 'bpmn:Task',
+                nodenamespace: 'bpmn:Task',
                 mata: "python",
             },
             {
@@ -124,7 +124,7 @@ const leftNavList: LeftNavItem[] = [
                 name: "sql",
                 id: "sql",
                 nodetype: "script",
-                namespace: 'bpmn:Task',
+                nodenamespace: 'bpmn:Task',
                 mata: "sql",
             },
             {
@@ -132,7 +132,7 @@ const leftNavList: LeftNavItem[] = [
                 name: "lua",
                 id: "lua",
                 nodetype: "script",
-                namespace: 'bpmn:Task',
+                nodenamespace: 'bpmn:Task',
                 mata: "lua",
             },
             {
@@ -140,7 +140,7 @@ const leftNavList: LeftNavItem[] = [
                 name: "csharp",
                 id: "csharp",
                 nodetype: "script",
-                namespace: 'bpmn:Task',
+                nodenamespace: 'bpmn:Task',
                 mata: "csharp",
             },
 
@@ -170,7 +170,7 @@ export const getGetLeftNavList = async () => {
                 name: item.label,
                 id: item.label,
                 nodetype: "executor",
-                namespace: 'bpmn:Task',
+                nodenamespace: 'bpmn:Task',
                 mata: item.value,
             });
         });
