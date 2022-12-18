@@ -829,6 +829,7 @@ namespace IoTSharp.Controllers
                                 linename = item.Flowname,
                                 targetId = item.TargetId,
                                 condition = item.Conditionexpression,
+                                linenamespace=item.FlowType,
                                 lineId = item.bpmnid,
                             });
                         }
