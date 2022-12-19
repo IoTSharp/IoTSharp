@@ -716,8 +716,9 @@ namespace IoTSharp.Controllers
                                     bpmnid = item.nodeId,
                                     FlowType = item.nodenamespace,
                                     NodeProcessParams = item.content,
+									NodeProcessScriptType= "executor",
 
-                                    NodeProcessClass = item.mata,
+									NodeProcessClass = item.mata,
                                     FlowStatus = 1,
                                     CreateId = CreatorId,
                                     Createor = profile.Id,
@@ -751,8 +752,7 @@ namespace IoTSharp.Controllers
                                     CreateDate = CreateDate,
                                     Customer = rule.Customer,
                                     Tenant = rule.Tenant,
-
-                                    FlowClass = item.nodeclass,
+									FlowClass = item.nodeclass,
                                     FlowNameSpace = item.nodetype,
                                     FlowIcon = item.icon,
                                     Top = item.top,
