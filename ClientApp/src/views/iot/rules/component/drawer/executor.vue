@@ -18,7 +18,7 @@
       <el-tab-pane label="杂项" name="2">
         <el-scrollbar>
           <el-form
-            :model="node"
+            :model="state.node"
             :rules="state.nodeRules"
             ref="nodeFormRef"
             size="default"
@@ -144,16 +144,12 @@ interface nodedata {
 
 const props = defineProps({
   modelValue: {
-    type: String,
-    default: "",
+    type: Object,
+    default: {},
   },
 });
 
 const emit = defineEmits(["close", "submit"]);
-
-
-
-
 const { proxy } = <any>getCurrentInstance();
 const nodeFormRef = ref();
 const extendFormRef = ref();
@@ -161,22 +157,7 @@ const chartsMonitorRef = ref();
 const state = reactive<WorkflowDrawerNodeState>({
   configwidth: "100%",
   configheight: "300px",
-  node: {
-    content: props.modelValue,
-    contextMenuClickId: 0,
-    from: "",
-    icon: "",
-    label: "",
-    left: "",
-    mata: "",
-    nodeId: "",
-    nodeclass: "",
-    nodenamespace: "",
-    nodetype: "",
-    result: "",
-    top: "",
-    type: "",
-  },
+  node:props.modelValue,
   nodeRules: {
     id: [{ required: true, message: "请输入数据id", trigger: "blur" }],
     nodeId: [{ required: true, message: "请输入节点id", trigger: "blur" }],
@@ -195,10 +176,10 @@ const state = reactive<WorkflowDrawerNodeState>({
   },
 });
 // 获取父组件数据
-const getParentData = (data: object) => {
-  state.tabsActive = "1";
-  state.node = data;
-};
+// const getParentData = (data: object) => {
+//   state.tabsActive = "1";
+//   state.node = data;
+// };
 
 onMounted(() => {});
 // 节点编辑-重置
@@ -217,10 +198,17 @@ const onNodeSubmit = () => {
     }
   });
 };
+watch(
+  () => props.modelValue,
+  () => {
+    console.log(state)
+    state.node = props.modelValue
+  }
+);
 
 
 defineExpose({
-  getParentData,
+  // getParentData,
 });
 // 图表可视化-初始化
 </script>

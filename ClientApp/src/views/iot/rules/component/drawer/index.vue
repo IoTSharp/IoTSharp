@@ -11,12 +11,13 @@
           v-if="state.nodeData.type === 'line'"
           @linechange="onLineChange"
           @close="close"
-          ref="lineRef"
+          v-model="state.jsplumbConn"
+          ref="lineRef" 
         />
         <ExecutorPanel
           v-if="state.nodeData.nodetype === 'executor' && state.nodeData.type === 'node'"
           @submit="onexecutorSubmit"
-          v-model="state.nodeData.content"
+          v-model="state.nodeData"
           @close="close"
           ref="executorRef"
         />
@@ -24,6 +25,7 @@
           v-if="state.nodeData.nodetype === 'script' && state.nodeData.type === 'node'"
           @submit="onscriptSubmit"
           @close="close"
+          v-model="state.nodeData"
           ref="scriptRef"
         />
       </el-scrollbar>
@@ -79,19 +81,19 @@ const open = (item: any, conn: any) => {
     if (item.type === "line") {
       // 当前line的数据不存储在node当中，而是在conn副本当中
 
-      lineRef.value.getParentData(conn);
+    //  lineRef.value.getParentData(conn);
     } else {
       switch (item.nodetype) {
         case "executor":
           {
-            executorRef.value.getParentData(item);
+       //     executorRef.value.getParentData(item);
           }
           break;
 
         case "script":
-          {
-            scriptRef.value.getParentData(item);
-          }
+          // {
+          //   scriptRef.value.getParentData(item);
+          // }
           break;
       }
     }
@@ -102,7 +104,8 @@ const open = (item: any, conn: any) => {
 const drawerclose = () => {
   //分别触发保存,node的label和line的label同时触发change事件会有名称空间冲突导致label值被覆盖，
   if (state.nodeData.type === "line") {
-    lineRef.value.onLineTextChange();
+    emit("panelclose", state.jsplumbConn);
+
   }
   if (state.nodeData.type === "node") {
     emit("panelclose", state.nodeData);
@@ -118,6 +121,8 @@ const onLineChange = (label: any) => {
   state.jsplumbConn.label = label.label;
   state.jsplumbConn.linename = label.linename;
   state.jsplumbConn.condition = label.condition;
+
+  console.log(state)
   emit("label", state.jsplumbConn);
 };
 // 节点内容改变时

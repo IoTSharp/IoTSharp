@@ -10,6 +10,7 @@ import jsonWorker from "monaco-editor/esm/vs/language/json/json.worker?worker";
 import cssWorker from "monaco-editor/esm/vs/language/css/css.worker?worker";
 import htmlWorker from "monaco-editor/esm/vs/language/html/html.worker?worker";
 import tsWorker from "monaco-editor/esm/vs/language/typescript/ts.worker?worker";
+import { bottom } from "@popperjs/core";
 interface monacostate {
   width?: string;
   height?: string;
@@ -46,35 +47,16 @@ export default defineComponent({
   },
 
   setup(props, { emit }) {
+
+    var isuserinput = false;
     const container = ref();
-    var isset = false;
-    var newValue = computed({
-      get: () => {
-        return props.modelValue;
-      },
-      set: (value: string) => {
-        isset = true;
-        emit("update:modelValue", value);
-      },
-    });
 
-    //   const content = ref(props.modelValue);
-    // watch(
-    //   () => props.modelValue,
-    //   () => {
-    //     content.value = props.modelValue;
-    //     if (editor) {
-    //       editor.setValue(content.value);
-    //     }
-    //   }
-    // );
 
-    //此处保证计算属性未能触发时能触发赋值，否则请按照明确的属性声明（props中定义）从父组件依次传值，可以保证正确的绑定
     watch(
       () => props.modelValue,
       () => {
-        if (editor && !isset) {
-          editor.setValue(newValue.value);
+        if (editor&&!isuserinput ) {
+          editor.setValue(props.modelValue ?? "");
         }
       }
     );
@@ -122,26 +104,27 @@ export default defineComponent({
 
         !editor
           ? (editor = monaco.editor.create(container.value as HTMLElement, {
-              value: newValue.value ?? "",
-              language: state.language ?? "json",
-              automaticLayout: true,
-              theme: state.theme ?? "vs-dark", // 官方自带三种主题vs, hc-black, or vs-dark
-              foldingStrategy: "indentation",
-              renderLineHighlight: "all", // 行亮
-              selectOnLineNumbers: state.selectOnLineNumbers == "true", // 显示行号
-              minimap: {
-                enabled: false,
-              },
-              readOnly: false, // 只读
-              fontSize: 16, // 字体大小
-              scrollBeyondLastLine: false, // 取消代码后面一大段空白
-              overviewRulerBorder: false, // 不要滚动条的边框
-            }))
-          : editor.setValue(newValue.value ?? "");
+            value: props.modelValue ?? "",
+            language: state.language ?? "json",
+            automaticLayout: true,
+            theme: state.theme ?? "vs-dark", // 官方自带三种主题vs, hc-black, or vs-dark
+            foldingStrategy: "indentation",
+            renderLineHighlight: "all", // 行亮
+            selectOnLineNumbers: state.selectOnLineNumbers == "true", // 显示行号
+            minimap: {
+              enabled: false,
+            },
+            readOnly: false, // 只读
+            fontSize: 16, // 字体大小
+            scrollBeyondLastLine: false, // 取消代码后面一大段空白
+            overviewRulerBorder: false, // 不要滚动条的边框
+          }))
+          : editor.setValue(props.modelValue ?? "");
 
         editor.onDidChangeModelContent((val: any) => {
-          newValue.value = editor.getValue();
-          emit("change", editor.getValue());
+          emit("update:modelValue",editor.getValue());
+         // newValue.value = editor.getValue();
+        //  emit("change", editor.getValue());
         });
 
         editor.onDidFocusEditorText(() => {
@@ -157,9 +140,11 @@ export default defineComponent({
         });
 
         editor.onMouseUp((e: any) => {
+          isuserinput = false;
           emit("mouseup", e);
         });
         editor.onMouseDown((e: any) => {
+          isuserinput = true;
           emit("mousedown", e);
         });
         editor.onDidContentSizeChange((e: any) => {
@@ -167,9 +152,11 @@ export default defineComponent({
         });
 
         editor.onKeyUp((e: any) => {
+          isuserinput = false;
           emit("keyup", e);
         });
         editor.onKeyDown((e: any) => {
+          isuserinput = true;
           emit("keydown", e);
         });
       });

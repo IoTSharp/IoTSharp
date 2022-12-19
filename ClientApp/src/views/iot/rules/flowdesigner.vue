@@ -59,8 +59,7 @@
     <!-- 线右键菜单 -->
     <ContextmenuLine :dropdown="state.dropdownLine" ref="contextmenuLineRef" @currentline="onCurrentLineClick" />
     <!-- 抽屉表单、线 -->
-    <Drawer ref="drawerRef" @label="setLineLabel" @node="setNodeContent" @executor="onexecutorSubmit"
-      @script="onscriptSubmit" @panelclose="panelClose" />
+    <Drawer ref="drawerRef" @executor="onexecutorSubmit" @script="onscriptSubmit" @panelclose="panelClose" />
 
     <!-- 顶部工具栏-帮助弹窗 -->
     <Help ref="helpRef" />
@@ -194,7 +193,6 @@ const initSortable = () => {
           ElMessage.warning("请把节点拖入到画布中");
         } else {
 
-
           // 节点id（唯一）
           const nodeId = Math.random().toString(36).substr(2, 12);
           // 处理节点数据
@@ -206,11 +204,12 @@ const initSortable = () => {
             nodeclass: "workflow-right-clone",
             nodetype: nodetype.value,
             nodenamespace: nodenamespace?.value ?? '',
-            mata: mata.value?.value ?? '',
+            mata: mata?.value ?? '',
             name,
             icon,
             id,
-          };
+          };         
+
           // 右侧视图内容数组
           state.jsplumbData.nodeList.push(node);
           // 元素加载完毕时
@@ -344,6 +343,7 @@ const initJsPlumbConnection = () => {
         label: v.linename,
         linename: v.linename,
         condition: v.condition,
+
       },
       state.jsplumbConnect
     );
@@ -355,7 +355,11 @@ const onTitleClick = (val: any) => {
   val.isOpen = !val.isOpen;
 };
 
-const onexecutorSubmit = (data: object) => { };
+const onexecutorSubmit = (data: object) => {
+
+
+
+};
 
 const onscriptSubmit = (data: any) => { };
 
@@ -497,13 +501,17 @@ const setLineLabel = (obj: any) => {
 };
 // 设置节点内容
 const setNodeContent = (obj: any) => {
-  const { nodeId, name, icon } = obj;
+  const { nodeId, name, icon, nodetype, nodenamespace, mata, content } = obj;
 
   // 设置节点 name 与 icon
   state.jsplumbData.nodeList.forEach((v) => {
     if (v.nodeId === nodeId) {
       v.name = name;
       v.icon = icon;
+      v.nodetype = nodetype;
+      v.nodenamespace = nodenamespace;
+      v.mata = mata;
+      v.content = content;
     }
   });
   // 重绘
@@ -570,6 +578,7 @@ const onToolDownload = () => {
 const panelClose = (data: any) => {
   switch (data.nodetype) {
     case "script":
+      setNodeContent(data)
       state.jsplumbData.nodeList.forEach((v) => {
         if (v.nodeId === data.nodeId) {
           v.name = data.name;
@@ -583,6 +592,7 @@ const panelClose = (data: any) => {
 
       break;
     case "executor":
+      setNodeContent(data)
       state.jsplumbData.nodeList.forEach((v) => {
         if (v.nodeId === data.nodeId) {
           v.name = data.name;
@@ -595,6 +605,11 @@ const panelClose = (data: any) => {
       });
       break;
     case "basic":
+      break;
+
+    default:
+      setLineLabel(data);
+
       break;
   }
 };
@@ -661,7 +676,7 @@ watch(() => props.ruleId, async () => {
 onMounted(async () => {
 
   if (props.ruleId && props.ruleId !== "") {
- 
+
     await initLeftNavList();
     await initSortable();
     initJsPlumb();

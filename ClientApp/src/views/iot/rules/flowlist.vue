@@ -213,7 +213,7 @@ const design = (id: string) => {
   state.viewstate = 'designer';
   state.currentruleId = id;
 
-  console.log(state)
+
   // router.push({
   //   path: "/iot/rules/flowdesigner",
   //   query: {
@@ -255,7 +255,6 @@ const getData = () => {
   ruleApi()
     .ruleList(query)
     .then((res) => {
-      console.log(res);
       state.tableData.rows = res.data.rows;
       state.tableData.total = res.data.total;
     });
