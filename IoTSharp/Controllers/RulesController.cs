@@ -716,7 +716,7 @@ namespace IoTSharp.Controllers
                                     bpmnid = item.nodeId,
                                     FlowType = item.nodenamespace,
                                     NodeProcessParams = item.content,
-									NodeProcessScriptType= "executor",
+									NodeProcessScriptType = item.nodetype,
 
 									NodeProcessClass = item.mata,
                                     FlowStatus = 1,
