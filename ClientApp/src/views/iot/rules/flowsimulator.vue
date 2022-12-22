@@ -1,6 +1,6 @@
 <template>
   <div class="workflow-container">
-    <div class="layout-view-bg-white flex" :style="{ height: `calc(100vh - ${setViewHeight}` }">
+    <div class="layout-view-bg-white flex" :style="{ height: `calc(100vh - 400px` }">
       <div class="workflow">
         <!-- 顶部工具栏 -->
         <Tool @tool="onToolClick" />
@@ -24,22 +24,18 @@
     </div>
 
     <div class="workflow-left">
-      <el-scrollbar>
-        <div ref="leftNavRefs" v-for="(val, key) in state.leftNavList" :key="val.id"
-          :style="{ height: val.isOpen ? 'auto' : '50px', overflow: 'hidden' }" class="workflow-left-id">
-          <div class="workflow-left-title" @click="onTitleClick(val)">
-            <span>{{ val.title }}</span>
-            <SvgIcon :name="val.isOpen ? 'ele-ArrowDown' : 'ele-ArrowRight'" />
-          </div>
-          <div class="workflow-left-item" v-for="(v, k) in val.children" :key="k" :data-name="v.name"
-            :data-icon="v.icon" :data-id="v.id" :nodetype="v.nodetype" :namespace="v.namespace" :mata="v.mata">
-            <div class="workflow-left-item-icon">
-              <SvgIcon :name="v.icon" class="workflow-icon-drag" />
-              <div class="font10 pl5 name">{{ v.name }}</div>
-            </div>
-          </div>
-        </div>
-      </el-scrollbar>
+      <el-tabs type="card" class="tabs" v-model="activeName">
+        <el-tab-pane label="timeline" name="timeline"> <el-timeline>
+            <el-timeline-item v-for="(activity, index) in state.activities" :key="index" :type="activity.type"
+              :timestamp="activity.timestamp">
+              <el-card>
+                <h4> {{ activity.content }}</h4>
+                <p> {{ activity.data }}</p>
+              </el-card>
+            </el-timeline-item>
+          </el-timeline></el-tab-pane>
+
+      </el-tabs>
     </div>
 
     <el-dialog v-model="state.dataFormVisible" title="测试数据">
@@ -96,6 +92,7 @@ interface XyState {
   y: string | number;
 }
 interface FlowState {
+  activities: any[];
   index: number;
   flowid?: string | any;
   content?: string | any;
@@ -124,6 +121,8 @@ const props = defineProps({
     default: ''
   }
 })
+
+const activeName = ref('timeline')
 const route = useRoute();
 const router = useRouter();
 const language = ref("json");
@@ -139,6 +138,7 @@ const { isTagsViewCurrenFull } = storeToRefs(stores);
 const { copyText } = commonFunction();
 
 const state = reactive<FlowState>({
+  activities: [],
   flowid: props.ruleId,
   workflowRightRef: null as HTMLDivElement | null,
   leftNavRefs: [],
@@ -170,7 +170,7 @@ const setViewHeight = computed(() => {
     else return `80px`;
   }
 });
-// 设置 宽度小于 768，不支持操
+// 设置 宽度小于 768
 const setClientWidth = () => {
   const clientWidth = document.body.clientWidth;
   clientWidth < 768 ? (state.isShow = true) : (state.isShow = false);
@@ -379,6 +379,7 @@ const initJsPlumbConnection = () => {
       },
       state.jsplumbConnect
     );
+
   });
   // 节点
 };
@@ -546,12 +547,25 @@ const setclass = (item: any) => {
   for (var _item of item.nodes) {
     var node = state.jsplumbData.nodeList.find((c) => c.nodeId == _item.bpmnid);
     if (node) {
+      state.activities = [...state.activities, { timestamp: _item.addDate, content: _item.operationDesc, data: _item.data }]
       node.nodeclass = "workflow-right-highlight";
     }
   }
 };
 
-const submitData = () => {
+
+const clearclass = () => {
+
+
+  for (var node of state.jsplumbData.nodeList) {
+   
+    //  state.activities = []
+      node.nodeclass = "workflow-right-clone";
+   
+  }
+}
+
+const submitData = (node: any) => {
   state.dataFormVisible = false;
   var data = JSON.parse(state.content);
   if (data) {
@@ -561,10 +575,14 @@ const submitData = () => {
         extradata: { ruleflowid: state.flowid },
       })
       .then((res) => {
+        state.activities=[];
         for (let index = 0; index < res.data.length; index++) {
           var item = res.data[index];
           setTimeout(setclass, index * 500, item);
         }
+
+       setTimeout(clearclass, res.data.length * 1000);
+
       });
     ElMessage.success("数据提交成功");
   }
@@ -708,6 +726,26 @@ onUnmounted(() => {
                 color: var(--el-color-primary);
               }
             }
+
+            .workflow-left-item-icon {
+            height: 35px;
+            display: flex;
+            align-items: center;
+            transition: all 0.3s ease;
+            padding: 5px 10px;
+            border: 1px dashed transparent;
+            background: var(--next-bg-color);
+            border-radius: 6px;
+
+            i,
+            .name {
+              color: black;
+              transition: all 0.3s ease;
+              white-space: nowrap;
+              text-overflow: ellipsis;
+              overflow: hidden;
+            }
+          }
           }
         }
 
@@ -733,7 +771,7 @@ onUnmounted(() => {
           position: absolute;
 
           .workflow-right-box {
-            height: 35px;
+            height: 50px;
             align-items: center;
             color: black;
             padding: 0 10px;
@@ -747,7 +785,7 @@ onUnmounted(() => {
             .workflow-left-item-icon {
               display: flex;
               align-items: center;
-              height: 35px;
+              height: 50px;
             }
 
             &:hover {

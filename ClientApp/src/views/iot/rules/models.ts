@@ -27,6 +27,7 @@ export interface XyState {
     y: string | number;
 }
 export interface FlowState {
+    ruleName?: string | any;
     flowid?: string | any;
     // workflowRightRef: HTMLDivElement | null;
     // leftNavRefs: any[];

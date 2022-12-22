@@ -4,7 +4,7 @@
     <div class="layout-view-bg-white flex" :style="{ height: `calc(100vh - ${setViewHeight}` }">
       <div class="workflow">
         <!-- 顶部工具栏 -->
-        <Tool @tool="onToolClick" />
+        <Tool @tool="onToolClick" :ruleName="state.ruleName " />
 
         <!-- 左侧导航区 -->
         <div class="workflow-content">
@@ -100,8 +100,6 @@ const props = defineProps({
 })
 const emit = defineEmits(["close", "submit"]);
 const modal = ref(false);
-const route = useRoute();
-const router = useRouter();
 const contextmenuNodeRef = ref();
 const contextmenuLineRef = ref();
 const drawerRef = ref();
@@ -115,6 +113,8 @@ const { copyText } = commonFunction();
 const workflowRightRef = ref<HTMLDivElement | null>(null);
 const leftNavRefs = ref([]);
 const state = reactive<FlowState>({
+
+  ruleName: '',
   flowid: props.ruleId,
   leftNavList: [],
   dropdownNode: { x: "", y: "" },
@@ -162,7 +162,18 @@ const initLeftNavList = async () => {
         lineList: res.data.lines,
       };
     });
+
+
+  await ruleApi()
+    .getrule(state.flowid)
+    .then((res) => {
+      state.ruleName = res.data.name;
+
+    });
 };
+
+
+
 // 左侧导航-初始化拖动
 const initSortable = () => {
 
@@ -208,7 +219,7 @@ const initSortable = () => {
             name,
             icon,
             id,
-          };         
+          };
 
           // 右侧视图内容数组
           state.jsplumbData.nodeList.push(node);
@@ -343,7 +354,6 @@ const initJsPlumbConnection = () => {
         label: v.linename,
         linename: v.linename,
         condition: v.condition,
-
       },
       state.jsplumbConnect
     );
@@ -662,28 +672,25 @@ const onToolFullscreen = () => {
 
 
 watch(() => props.ruleId, async () => {
-
-  if (props.ruleId && props.ruleId !== "") {
-
-    await initLeftNavList();
-    await initSortable();
-    initJsPlumb();
-    setClientWidth();
-  }
-
+  await initData();
 })
 // 页面加载时
 onMounted(async () => {
+  await initData();
 
+  window.addEventListener("resize", setClientWidth);
+});
+
+const initData = async () => {
   if (props.ruleId && props.ruleId !== "") {
-
     await initLeftNavList();
     await initSortable();
     initJsPlumb();
     setClientWidth();
   }
-  window.addEventListener("resize", setClientWidth);
-});
+
+}
+
 // 页面卸载时
 onUnmounted(() => {
   window.removeEventListener("resize", setClientWidth);

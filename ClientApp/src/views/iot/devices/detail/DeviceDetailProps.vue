@@ -3,7 +3,7 @@
     <fs-crud ref="crudRef" v-bind="crudBinding" v-if="state.currentPageState === 'listprop'" />
 
     <div v-if="state.currentPageState === 'editprop'">
-      
+
       <propform :device-id="props.deviceId" @close="propformclose" @submit="propformsubmit"></propform>
     </div>
   </div>
@@ -56,10 +56,10 @@ onMounted(() => {
 
 
 
-const propformsubmit=()=>{}
-const propformclose=()=>{
+const propformsubmit = () => { }
+const propformclose = () => {
 
-  state.currentPageState='listprop'
+  state.currentPageState = 'listprop'
 }
 </script>
 
