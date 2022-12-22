@@ -12,7 +12,7 @@ export function assetApi() {
 	return {
 		assetList: (params: QueryParam) => {
 			return request({
-				url: `/api/asset/list`,
+				url: `/api/Asset/List`,
 				method: 'get',
 				params,
 			});
