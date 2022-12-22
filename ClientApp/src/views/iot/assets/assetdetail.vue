@@ -33,7 +33,7 @@ const activeTabName = ref('basic');
 const assetRef = ref();
 const {
 	crudOptions: { columns },
-} = createAssetListCrudOptions({ expose: null });
+} = createAssetListCrudOptions({ expose: null }, assetRef);
 const openDialog = (device: any) => {
 	drawer.value = true;
 	assetRef.value = device;

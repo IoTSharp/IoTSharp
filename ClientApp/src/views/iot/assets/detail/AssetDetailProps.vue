@@ -33,7 +33,6 @@ watch(
 		// watch deviceId , 根据Device id 重新配置 crud， 再进行刷新
 		const res = createAssetPropsCrudOptions({ expose: crudExpose }, props.assetId);
 		crudOptions = res.crudOptions;
-		// console.log(`%c@DeviceDetailProps:32`, 'color:white;font-size:16px;background:green;font-weight: bold;', res)
 		resetCrudOptions(crudOptions);
 		crudExpose.doRefresh();
 	}

@@ -35,7 +35,7 @@ const {resetCrudOptions} = useCrud({expose: crudExpose, crudOptions});
 // resetCrudOptions(options)
 watch(() => props.assetId, () => {
   // watch deviceId , 根据Device id 重新配置 crud， 再进行刷新
-  const res =  createDeviceTelemetryRealtimeCrudOptions({expose: crudExpose}, props.deviceId, state);
+  const res =  createDeviceTelemetryRealtimeCrudOptions({expose: crudExpose}, props.assetId, state);
   crudOptions = res.crudOptions
   resetCrudOptions(crudOptions)
   crudExpose.doRefresh();

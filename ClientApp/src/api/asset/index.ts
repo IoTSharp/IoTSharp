@@ -17,7 +17,20 @@ export function assetApi() {
 				params,
 			});
 		},
-
+		assetRelations: (params: {assetId: string} ) => {
+			return request({
+				url: `/api/Asset/AssetRelations`,
+				method: 'get',
+				params,
+			});
+		},
+		relations: (params: {assetId: string} ) => {
+			return request({
+				url: `/api/Asset/Relations`,
+				method: 'get',
+				params,
+			});
+		},
 		postAsset: (params: any) => {
 			return request({
 				url: '/api/Asset/Save',
