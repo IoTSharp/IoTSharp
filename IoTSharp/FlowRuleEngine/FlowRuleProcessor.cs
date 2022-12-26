@@ -559,7 +559,7 @@ namespace IoTSharp.FlowRuleEngine
             if (flow != null)
             {
                 var flows = _allFlows.Where(c => c.SourceId == flow?.bpmnid).ToList();
-                emptyflow = flows.Where(c => c.Conditionexpression == string.Empty).ToList() ?? new List<Flow>();
+                emptyflow = flows.Where(c => c.Conditionexpression == string.Empty||  c.Conditionexpression==null).ToList() ?? new List<Flow>();
                 var tasks = new BaseRuleTask()
                 {
                     Name = flow.Flowname,
