@@ -66,7 +66,7 @@ IoTSharp is an open-source IoT platform for data collection, processing, visuali
 * MySql,
 * SqlServer
 
-## IoTShar Demo 
+## IoTSharp Demo 
       
  - [IoTSharp front-end implemented using Angular](http://139.9.232.10:2927)
  - [IoTSharp front-end implemented using Vue3](http://demo.iotsharp.net)
