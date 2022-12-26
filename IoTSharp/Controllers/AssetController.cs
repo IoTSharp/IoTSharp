@@ -56,12 +56,13 @@ namespace IoTSharp.Controllers
 
         }
         [HttpGet]
-        public async Task<ApiResult<List<AssetRelation>>> AssetRelations(Guid assetid)
+        public async Task<ApiResult<PagedData<AssetRelation>>> AssetRelations(Guid assetid)
         {
-            var result = await _context.Assets.Include(c => c.OwnedAssets).AsSingleQuery().SingleOrDefaultAsync(c => c.Id == assetid);
-            return new ApiResult<List<AssetRelation>>(ApiCode.Success, "OK", result?.OwnedAssets);
-
-
+            var data =new  PagedData<AssetRelation>();
+            var result = await _context.Assets.Include(c => c.OwnedAssets).AsSplitQuery().SingleOrDefaultAsync(c => c.Id == assetid);
+            data.rows = result.OwnedAssets;
+            data.total = result.OwnedAssets.Count;
+            return new ApiResult<PagedData<AssetRelation>>(ApiCode.Success, "OK",  data);
         }
 
         /// <summary>
