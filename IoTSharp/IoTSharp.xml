@@ -1490,6 +1490,22 @@
             遥测数据
             </summary>
         </member>
+        <member name="T:IoTSharp.Models.PagedData`1">
+            <summary>
+            返回一页类型为<typeparamref name="T"/>的数据
+            </summary>
+            <typeparam name="T"></typeparam>
+        </member>
+        <member name="P:IoTSharp.Models.PagedData`1.total">
+            <summary>
+            数据总量
+            </summary>
+        </member>
+        <member name="P:IoTSharp.Models.PagedData`1.rows">
+            <summary>
+            一页数据
+            </summary>
+        </member>
         <member name="P:IoTSharp.Models.Rule.NodeObject.nodetype">
             <summary>
             节点分组类型 （脚本，执行器）

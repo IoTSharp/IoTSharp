@@ -1,12 +1,10 @@
 ﻿using IoTSharp.EventBus;
 using EasyCaching.Core.Configurations;
 using HealthChecks.UI.Client;
-using InfluxDB.Client;
 using IoTSharp.Controllers.Models;
 using IoTSharp.Data;
 using IoTSharp.FlowRuleEngine;
 using IoTSharp.Interpreter;
-using IoTSharp.Storage;
 using Jdenticon.AspNetCore;
 using Jdenticon.Rendering;
 using IoTSharp.Data.Taos;
@@ -22,27 +20,21 @@ using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
 using MQTTnet.AspNetCore;
 using Newtonsoft.Json.Serialization;
-using Quartz;
 using System;
 using System.Linq;
 using System.Reflection;
 using System.Text;
 using IoTSharp.Gateways;
-using Microsoft.Extensions.ObjectPool;
 using MaiKeBing.HostedService.ZeroMQ;
 using IoTSharp.TaskActions;
 using IoTSharp.Contracts;
-using IoTSharp.Data.Shardings;
-using IoTSharp.Data.Shardings.Routes;
 using IoTSharp.EventBus.CAP;
 using IoTSharp.EventBus.Shashlik;
 using Microsoft.EntityFrameworkCore;
 using ShardingCore;
 using Storage.Net;
-using ShardingCore.TableExists.Abstractions;
-using ShardingCore.TableExists;
 using IoTSharp.Data.TimeSeries;
-
+using IoTSharp.Data.Extensions;
 namespace IoTSharp
 {
     public class Startup
@@ -269,10 +261,7 @@ namespace IoTSharp
                 }
             });
 
-            services.AddTransient(opts =>
-            {
-                return StorageFactory.Blobs.FromConnectionString(Configuration.GetConnectionString("BlobStorage") ?? $"disk://path={Environment.GetFolderPath(Environment.SpecialFolder.UserProfile, Environment.SpecialFolderOption.Create)}/IoTSharp/");
-            });
+            services.AddTransient(_ => StorageFactory.Blobs.FromConnectionString(Configuration.GetConnectionString("BlobStorage") ?? $"disk://path={Environment.GetFolderPath(Environment.SpecialFolder.UserProfile, Environment.SpecialFolderOption.Create)}/IoTSharp/"));
 
 
             services.Configure<BaiduTranslateProfile>(Configuration.GetSection("BaiduTranslateProfile"));
@@ -300,20 +289,13 @@ namespace IoTSharp
 
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, ISchedulerFactory factory)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
             if (env.IsDevelopment() || !env.IsEnvironment("Production"))
             {
-                    // Add: Enable request/response recording and serve a inspector frontend.
-                    // Important: `UseRin` (Middlewares) must be top of the HTTP pipeline.
-                    app.UseRin();
-
-                    // Add(option): Enable ASP.NET Core MVC support if the project built with ASP.NET Core MVC
-                    app.UseRinMvcSupport();
-
-                    app.UseDeveloperExceptionPage();
-                app.UseMigrationsEndPoint();
-                // Add: Enable Exception recorder. this handler must be after `UseDeveloperExceptionPage`.
+                app.UseRin();
+                app.UseRinMvcSupport();
+                app.UseDeveloperExceptionPage();
                 app.UseRinDiagnosticsHandler();
             }
             else
@@ -322,6 +304,7 @@ namespace IoTSharp
                 // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
                 app.UseHsts();
             }
+            app.CheckApplicationDBMigrations();
             //添加定时任务创建表
             var settings = Configuration.Get<AppSettings>();
             if (settings.TelemetryStorage == TelemetryStorage.Sharding)
@@ -360,7 +343,7 @@ namespace IoTSharp
                 endpoints.MapDefaultControllerRoute();
                 endpoints.MapRazorPages();
             });
-          
+
             app.UseJdenticon(defaultStyle =>
             {
                 // Custom identicon style
@@ -373,5 +356,7 @@ namespace IoTSharp
                 defaultStyle.GrayscaleSaturation = 0.10f;
             });
         }
+
+       
     }
 }
