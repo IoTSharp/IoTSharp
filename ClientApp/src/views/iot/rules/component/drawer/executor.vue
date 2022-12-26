@@ -156,7 +156,7 @@ const extendFormRef = ref();
 const chartsMonitorRef = ref();
 const state = reactive<WorkflowDrawerNodeState>({
   configwidth: "100%",
-  configheight: "300px",
+  configheight: "100%",
   node:props.modelValue,
   nodeRules: {
     id: [{ required: true, message: "请输入数据id", trigger: "blur" }],

@@ -40,7 +40,7 @@
 
     <el-dialog v-model="state.dataFormVisible" title="测试数据">
       <div>
-        <monaco height="300px" width="80%" theme="vs-dark" v-model="state.content" language="json"
+        <monaco height="100%" width="100%" theme="vs-dark" v-model="state.content" language="json"
           selectOnLineNumbers="true"></monaco>
       </div>
 

@@ -16,11 +16,7 @@ export const createDevicePropsCrudOptions = function ({ expose }, deviceId, stat
 		inactiveColor: 'var(el-switch-of-color)',
 	};
 	const pageRequest = async (query) => {
-		console.log(
-			`%c-createDevicePropsCrudOptions@devicePropsCrudOptions:7`,
-			'color:white;font-size:16px;background:blue;font-weight: bold;',
-			deviceId
-		);
+	
 		const res = await deviceApi().getDeviceAttributes(deviceId_param);
 		records = res.data;
 		return {
@@ -66,7 +62,7 @@ export const createDevicePropsCrudOptions = function ({ expose }, deviceId, stat
 						type: 'primary',
 						click() {
 							state.currentPageState = 'editprop';
-							console.log(state.currentPageState);
+							
 						}, //点击事件，默认打开添加对话框
 					},
 				},

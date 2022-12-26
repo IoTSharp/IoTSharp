@@ -53,6 +53,10 @@ onMounted(() => {
   crudExpose.doRefresh();
 
 });
+onActivated(() => {
+console.log(state)
+
+});
 
 
 

@@ -20,7 +20,7 @@
               ></i>
             </div> -->
 
-            <monaco height="300px" width="100%" theme="vs-dark" v-model="state.node.content" :language="state.language"
+            <monaco height="100%" width="100%" theme="vs-dark" v-model="state.node.content" :language="state.language"
               selectOnLineNumbers="true"></monaco>
           </div>
         </el-scrollbar>
