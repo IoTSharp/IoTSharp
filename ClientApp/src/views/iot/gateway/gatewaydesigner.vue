@@ -91,7 +91,7 @@ onMounted(async () => {
     {
       title: "网关",
       name:'',
-      icon: "iconfont icon-shouye",
+    //  icon: "iconfont icon-shouye",
       color: "#F1F0FF",
       isOpen: true,
       id: "1",
@@ -100,7 +100,7 @@ onMounted(async () => {
     {
       title: "设备",     
        name:'',
-      icon: "iconfont icon-shouye",
+   //   icon: "iconfont icon-shouye",
       color: "#F1F0FF",
       isOpen: true,
       id: "1",
@@ -127,14 +127,14 @@ const initgateways = () => {
     {
       title: "网关1",
       name:'网关1',
-      icon: "iconfont icon-shouye",
+//      icon: "iconfont icon-shouye",
       color: "#F1F0FF",
       isOpen: true,
       id: "1111111",
     },  {
       title: "网关2",
       name:'网关2',
-      icon: "iconfont icon-shouye",
+ //     icon: "iconfont icon-shouye",
       color: "#F1F0FF",
       isOpen: true,
       id: "2222222",
