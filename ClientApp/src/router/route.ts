@@ -95,9 +95,9 @@ export const frontEndRoutes = [
 	},
 
 	{
-		path: '/iot/gateway/gatewaydesigner',
+		path: '/iot/devices/gatewaydesigner',
 		name: 'gatewaydesigner',
-		component: () => import('/@/views/iot/gateway/gatewaydesigner.vue'),
+		component: () => import('/@/views/iot/devices/gatewaydesigner.vue'),
 		meta: {
 			title: 'message.router.home',
 			isHide: true,
