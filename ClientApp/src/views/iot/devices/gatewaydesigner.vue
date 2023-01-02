@@ -36,7 +36,7 @@
 
     <menugateway :dropdown="state.dropdownNode" ref="contextmenugatewayRef" @ongatewaycommand="ongatewaycommand">
     </menugateway>
-    <drawercontainer ref="drawerRef" />
+    <drawercontainer ref="drawerRef" @submit="onsubmit" />
   </div>
 </template>
 <script lang="ts" setup>
@@ -80,11 +80,36 @@ const magnetAvailabilityHighlighter = {
   },
 };
 
+const onsubmit = (param: any) => {
+  console.log(param)
+  var { namespace, data } = param;
+  switch (namespace) {
+    case "modbuslistchanged":
+
+
+      data.node.addPort({
+        group: 'in',
+        id: 'sadadasd',
+
+
+        attrs: {
+          text: {
+            text: 'ssss'
+          }
+        }
+      });
+
+
+
+      break;
+
+  }
+
+}
+
 
 const ongatewaycommand = (command: any) => {
-
   var { command, sender } = command;
-
   switch (command) {
     case "editmodbusmapping":
       drawerRef.value.open(sender)
@@ -153,6 +178,7 @@ const initSortable = () => {
 
           var item = findtoolitem(id, state.leftNavList);
           var gateway = new GateWay({
+            label: item.profile.name,
             bizdata: item.profile,
             attrs: {
               root: {
@@ -166,14 +192,15 @@ const initSortable = () => {
             },
             ports: {
               items: [
-                {
-                  group: "out",
-                },
+
               ],
               groups: {
                 in: {
+                  label: {
+                    position: 'left'
+                  },
                   position: {
-                    name: "top",
+                    name: 'left'
                   },
                   attrs: {
                     portBody: {
@@ -208,9 +235,9 @@ const initSortable = () => {
               },
             ],
           })
-            .resize(100, 100)
+            .resize(160, 160)
             .position(layerX - 40, layerY - 15)
-            .updateInPorts(graph)
+
           gateway.bizdata = item.profile
           graph.addNode(
             gateway

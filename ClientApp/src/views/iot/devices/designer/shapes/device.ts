@@ -1,6 +1,9 @@
 import { Graph, Edge, Shape, NodeView } from '@antv/x6';
 
 export class Device extends Shape.Rect {
+
+  
+  bizdata={};
     getInPorts() {
       return this.getPortsByGroup('in');
     }

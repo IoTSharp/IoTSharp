@@ -84,9 +84,8 @@
 import { reactive, ref } from "vue";
 import { v4 as uuidv4, NIL as NIL_UUID } from "uuid";
 import { ElMessage } from "element-plus";
-
-import { editProduceDictionary, getProduceDictionary } from "/@/api/produce";
 import { datacatalogs, datatypes, funcodes } from "../../models/constants";
+import { modbusmapping } from "../../models/modbusmapping";
 interface TableHeader {
 	prop: string;
 	width: string | number;
@@ -95,12 +94,21 @@ interface TableHeader {
 	isTooltip?: boolean;
 	type: string;
 }
+
+const props = defineProps({
+	modelValue: {
+		type: Object,
+		default: {},
+	},
+
+});
+
 interface TableRulesState {
 	deviceid: string;
 	drawer: boolean;
 	dialogtitle: string;
 	tableData: {
-		data: dictrowitem[];
+		data: Array<modbusmapping>;
 		header: TableHeader[];
 		datatypes: any[];
 		datacatalogs: any[];
@@ -108,27 +116,19 @@ interface TableRulesState {
 	};
 }
 
-interface dictrowitem {
-	_id?: string;
-	id?: string;
-	code?: number;
-	dataName?: string;
-	dataType?: string;
-	dataCatalog?: string;
-	funCode?: string;
-	address?: number;
-	length?: number;
-	dataFormat?: string;
-	codePage?: number;
-}
-const emit = defineEmits(["close", "submit"]);
+
+
+
+const emit = defineEmits(["close", "submit", "change"]);
 const tableRulesRef = ref();
+
+
 const state = reactive<TableRulesState>({
 	deviceid: "",
 	drawer: false,
 	dialogtitle: "ModBus点位修改",
 	tableData: {
-		data: [],
+		data:props.modelValue.node.bizdata.mappings,
 		header: [
 			{
 				prop: "code",
@@ -206,36 +206,19 @@ const state = reactive<TableRulesState>({
 
 
 onMounted(async () => {
-	console.log([...funcodes.values()])
+
 });
 const openDialog = (deviceid: string) => {
-
-
-
-
 	state.deviceid = deviceid;
-	// getProduceDictionary(deviceid).then((x) => {
-	//   state.tableData.data = x.data.map((x) => {
-	// 	return {
-	// 	  _id: uuidv4(),
-	// 	  id: x.id,
-	// 	  keyName: x.keyName,
-	// 	  displayName: x.displayName,
-	// 	  unit: x.unit,
-	// 	  unitExpression: x.unitExpression,
-	// 	  unitConvert: x.unitConvert,
-	// 	  keyDesc: x.keyDesc,
-	// 	  defaultValue: x.defaultValue,
-	// 	  display: x.display,
-	// 	  place0: x.place0,
-	// 	  tag: x.tag,
-	// 	  dataType: x.dataType,
-	// 	};
-	//   });
-	// });
-
 	state.drawer = true;
 };
+
+
+
+watch(state.tableData.data, (data) => {
+
+})
+
 // 关闭弹窗
 const closeDialog = () => {
 	state.drawer = false;
@@ -252,37 +235,29 @@ const onValidate = () => {
 
 // 新增一行
 const onAddRow = () => {
-	state.tableData.data.push({
-		_id: uuidv4(),
-		id: NIL_UUID,
-		code: 0,
-		dataName: "",
-		dataType: "",
-		dataCatalog: "",
-		funCode: "",
-		address: 0,
-		length: 0,
-		dataFormat: "",
-		codePage: 0,
+	props.modelValue.node.bizdata.mappings.push({
+			_id: uuidv4(),
+			id: NIL_UUID,
+			code: 0,
+			dataName: "",
+			dataType: "",
+			dataCatalog: "",
+			funCode: "",
+			address: 0,
+			length: 0,
+			dataFormat: "",
+			codePage: 0,
 
-	});
+		})
 };
-const deleterow = (row: dictrowitem) => {
-	state.tableData.data = state.tableData.data.filter((c) => c._id !== row._id);
+const deleterow = (row: modbusmapping) => {
+	props.modelValue.node.bizdata.mappings =props.modelValue.node.bizdata.mappings.filter((c) => c._id !== row._id)
 };
 const save = async () => {
-	var result = await editProduceDictionary({
-		produceId: state.deviceid,
-		produceDictionaryData: state.tableData.data,
+	emit("submit", {
+		namespace: 'modbuslistchanged',
+		data: props.modelValue,
 	});
-	if (result["code"] === 10000) {
-		ElMessage.success("修改成功");
-		state.drawer = false;
-		emit("close", state.tableData.data);
-	} else {
-		ElMessage.warning("修改失败:" + result["msg"]);
-		emit("close", state.tableData.data);
-	}
 };
 
 defineExpose({

@@ -1,12 +1,13 @@
 export interface modbusmapping{
-    id:string;
-    dataname:string;
-    datatype :number;
-    datacatalog :number;
-    funcode :number;
-    address :string;
-    length :string;
-    dataformat  :string;
-    codepage  :string;
-    owner  :string;
+    _id?: string;
+    id?: string;
+	code?: number;
+	dataName?: string;
+	dataType?: string;
+	dataCatalog?: string;
+	funCode?: string;
+	address?: number;
+	length?: number;
+	dataFormat?: string;
+	codePage?: number;
 }

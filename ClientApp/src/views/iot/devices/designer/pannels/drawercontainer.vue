@@ -1,9 +1,9 @@
 <template>
     <div>
-        <el-drawer :title="state.title" v-model="state.isOpen" size="90%" @closed="drawerclose">
+        <el-drawer :title="state.title" v-model="state.isOpen" size="90%" @closed="drawerclose" >
             <el-scrollbar>
 
-                <modbuspointlist>
+                <modbuspointlist @submit="onsubmit"   v-model="state.sender">
 
 
                 </modbuspointlist>
@@ -18,7 +18,7 @@
 import { reactive, ref, nextTick } from "vue";
 import { drawerparams } from "../models/drawerparams";
 import modbuspointlist from "./modbus/modbuspointlist.vue";
-
+const emit = defineEmits(["close", "submit"]);
 interface DrawerState {
 
     width: string;
@@ -36,9 +36,14 @@ const state = reactive<DrawerState>({
 
 const drawerclose = () => {
 
+  
 
 };
 
+
+const onsubmit=(param:any)=>{
+    emit("submit", param);
+}
 
 
 const open = (sender: any, params: drawerparams) => {
@@ -50,6 +55,8 @@ const open = (sender: any, params: drawerparams) => {
     state.isOpen = true;
     state.sender = sender;
 
+
+    console.log(sender)
 }
 defineExpose({
     open,
