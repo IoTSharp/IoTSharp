@@ -73,7 +73,6 @@ IoTSharp 是一个 基于.Net Core 开源的物联网基础平台， 支持 HTTP
 
 ## IoTSharp 演示 
 
- - [使用Angular实现的IoTSharp前端](http://139.9.232.10:2927)
  - [使用Vue3实现的IoTSharp前端](http://demo.iotsharp.net)
 
 ##  IoTSharp 云服务  
@@ -125,7 +124,7 @@ IoTSharp.Edge.nanoFramework 是一个 nanoFramework's mqtt 客户端， 它允�
 
 https://github.com/IoTSharp/iotsharp-rtthread-package
 
-  
+
 ## IoTSharp 的软件生态
 
 - MaiKeBing.CAP.ZeroMQ [![MaiKeBing.CAP.ZeroMQ](https://img.shields.io/nuget/v/MaiKeBing.CAP.ZeroMQ.svg)](https://www.nuget.org/packages/MaiKeBing.CAP.ZeroMQ/)
@@ -176,6 +175,7 @@ We will put the detailed donation records on the below!
 |  | 匿名公司 |  | ￥1000=1000(微信转账) |  |
 |  | *阵 |  | ￥50(微信转账) |  |
 |  | *守 |  | ￥10(微信转账) | 加油iotsharp! |
+| [![@24008550](https://avatars.githubusercontent.com/u/2004038?s=80&v=4)](https://github.com/24008550) | 马超 | ![GitHub User's stars](https://img.shields.io/github/stars/24008550?affiliations=OWNER%2CCOLLABORATOR%2CORGANIZATION_MEMBER&style=for-the-badge) | ￥200（微信红包） |  |
 
 
 
