@@ -1,4 +1,4 @@
-[submodule "IoTSharp/ClientAppVue"]
-	path = IoTSharp/ClientAppVue
-	url = https://github.com/IoTSharp/ClientAppWithVue3.git
+[submodule "IoTSharp/ClientApp"]
+	path = IoTSharp/ClientApp
+	url = https://github.com/IoTSharp/ClientApp.git
 	branch = master
