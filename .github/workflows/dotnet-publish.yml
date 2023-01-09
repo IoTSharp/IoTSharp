@@ -26,7 +26,7 @@ jobs:
 
     # Install the .NET Core workload
     - name: Install .NET Core
-      uses: actions/setup-dotnet@v2
+      uses: actions/setup-dotnet@v3
       with:
         dotnet-version: 6.0.x
 
@@ -39,7 +39,7 @@ jobs:
       with:
         node-version: 16
         cache: 'npm'
-        cache-dependency-path: IoTSharp/ClientApp/package-lock.json
+
 
     # Restore the application to populate the obj folder with RuntimeIdentifiers
     - name: Restore the application
