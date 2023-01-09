@@ -103,11 +103,10 @@
 		"mqtt",
 		"broker",
 		"coap-server",
-		"iot-cloud",
-		"iotsharp"
+		"iot-cloud"
 	],
 	"repository": {
 		"type": "git",
-		"url": "https://github.com/IoTSharp/ClientAppWithVue3.git"
+		"url": "https://github.com/IoTSharp/ClientApp.git"
 	}
 }

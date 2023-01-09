@@ -1,8 +1,8 @@
 <template>
 	<div class="layout-footer mt15" v-show="isDelayFooter">
 		<div class="layout-footer-warp">
-			<div>vue-next-admin，Made by lyt with ❤️</div>
-			<div class="mt5">深圳市 xxx 公司版权所有</div>
+			<div>IoTSharp，Made by  IoTSharp Core ❤️</div>
+			<div class="mt5">Copyright © 2019-2022 The IoTSharp Authors</div>
 		</div>
 	</div>
 </template>
