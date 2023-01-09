@@ -34,12 +34,15 @@ jobs:
     - name: Setup MSBuild.exe
       uses: microsoft/setup-msbuild@v1.0.2
     # setup nodejs 16 
-    - uses: actions/setup-node@v3
-      name: Setup Node.Js 16 
+    - name: Setup Node.Js 16
+      uses: actions/setup-node@v3
       with:
         node-version: 16
+      env:
+        NODE_OPTIONS: --openssl-legacy-provider
 
-
+    - name: Config NPM Registry
+      run: npm config set registry https://registry.npmmirror.com 
 
     # Restore the application to populate the obj folder with RuntimeIdentifiers
     - name: Restore the application

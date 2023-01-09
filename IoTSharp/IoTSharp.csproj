@@ -106,11 +106,11 @@
 		</Exec>
 		<Error Condition="'$(ErrorCode)' != '0'" Text="Node.js is required to build and run this project. To continue, please install Node.js from https://nodejs.org/, and then restart your command prompt or IDE." />
 		<Message Importance="high" Text="Restoring dependencies using 'npm'. This may take several minutes..." />
-		<Exec WorkingDirectory="$(SpaRoot)" Command="npm config set registry https://registry.npmmirror.com ;export NODE_OPTIONS=--openssl-legacy-provider;npm install  --legacy-peer-deps" />
+		<Exec WorkingDirectory="$(SpaRoot)" Command="npm install  --legacy-peer-deps" />
 	</Target>
 	<Target Name="PublishRunWebpack" AfterTargets="ComputeFilesToPublish" Condition="'$(Configuration)' == 'Release'">
 		<!-- As part of publishing, ensure the JS resources are freshly built in production mode -->
-		<Exec WorkingDirectory="$(SpaRoot)" Command="npm config set registry https://registry.npmmirror.com ;export NODE_OPTIONS=--openssl-legacy-provider;npm install --legacy-peer-deps" />
+		<Exec WorkingDirectory="$(SpaRoot)" Command="npm install --legacy-peer-deps" />
 		<Exec WorkingDirectory="$(SpaRoot)" Command="npm run build" />
 		<!-- Include the newly-built files in the publish output -->
 		<ItemGroup>
