@@ -28,8 +28,8 @@ RUN KEYRING=/usr/share/keyrings/nodesource.gpg && curl -fsSL https://deb.nodesou
 
     
 WORKDIR /src
-COPY ["IoTSharp/ClientAppVue/package.json", "IoTSharp/ClientAppVue/package.json"]
-WORKDIR /src/IoTSharp/ClientAppVue/
+COPY ["IoTSharp/ClientApp/package.json", "IoTSharp/ClientApp/package.json"]
+WORKDIR /src/IoTSharp/ClientApp/
 RUN  npm install  --legacy-peer-deps
 WORKDIR /src
 COPY ["IoTSharp/IoTSharp.csproj", "IoTSharp/"]

@@ -1,5 +1,4 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.Web">
-
 	<PropertyGroup>
 		<TargetFramework>net6.0</TargetFramework>
 		<TypeScriptCompileBlocked>true</TypeScriptCompileBlocked>
@@ -25,12 +24,11 @@
 		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
 		<IsPackable>true</IsPackable>
 		<PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
-		<Copyright>Copyright 2018-2022  Yanhong Ma</Copyright>
+		<Copyright>Copyright 2018-2023  Yanhong Ma</Copyright>
 		<AssemblyVersion>3.0.0.0</AssemblyVersion>
 		<FileVersion>3.0.0.0</FileVersion>
 		<PackageIcon>96x96.png</PackageIcon>
 		<GenerateDocumentationFile>True</GenerateDocumentationFile>
-
 		<RestoreAdditionalProjectSources>
 			https://api.nuget.org/v3/index.json;
 			https://www.myget.org/F/iotsharp/api/v3/index.json;
@@ -39,18 +37,11 @@
 		<DocumentationFile>IoTSharp.xml</DocumentationFile>
 		<NoWarn>1701;1702;1591</NoWarn>
 		<EnforceCodeStyleInBuild>True</EnforceCodeStyleInBuild>
-		<Configurations>Debug;Release;Release_VUE;Debug_VUE</Configurations>
+		<Configurations>Debug;Release;</Configurations>
 	</PropertyGroup>
+
 	<PropertyGroup Condition="'$(Configuration)' == 'Debug' OR '$(Configuration)' == 'Release'">
 		<SpaRoot>ClientApp\</SpaRoot>
-		<SpaProxyServerUrl>http://localhost:44412</SpaProxyServerUrl>
-		<SpaProxyLaunchCommand>npm start</SpaProxyLaunchCommand>
-		<DefaultItemExcludes>$(DefaultItemExcludes);$(SpaRoot)node_modules\**</DefaultItemExcludes>
-		<!-- Set this to true if you enable server-side prerendering -->
-		<BuildServerSideRenderer>false</BuildServerSideRenderer>
-	</PropertyGroup>
-	<PropertyGroup Condition="'$(Configuration)' == 'Debug_VUE' OR '$(Configuration)' == 'Release_VUE'">
-		<SpaRoot>ClientAppVue\</SpaRoot>
 		<SpaProxyServerUrl>http://localhost:8888</SpaProxyServerUrl>
 		<SpaProxyLaunchCommand>npm run dev</SpaProxyLaunchCommand>
 		<DefaultItemExcludes>$(DefaultItemExcludes);$(SpaRoot)node_modules\**</DefaultItemExcludes>
@@ -62,7 +53,6 @@
 		<PackageReference Include="AspNetCore.HealthChecks.System" Version="6.0.5" />
 		<PackageReference Include="AspNetCore.HealthChecks.UI" Version="6.0.5" />
 		<PackageReference Include="AspNetCore.HealthChecks.UI.Client" Version="6.0.5" />
-
 		<PackageReference Include="EasyCaching.InMemory" Version="1.7.0" />
 		<PackageReference Include="EasyCaching.LiteDB" Version="1.7.0" />
 		<PackageReference Include="EasyCaching.Redis" Version="1.7.0" />
@@ -72,7 +62,6 @@
 		<PackageReference Include="Jdenticon-net" Version="3.1.2" />
 		<PackageReference Include="Jdenticon.AspNetCore" Version="3.1.2" />
 		<PackageReference Include="LiteDB" Version="5.0.12" />
-
 		<PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="6.0.10" />
 		<PackageReference Include="Microsoft.AspNetCore.SpaProxy" Version="6.0.10" />
 		<PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="6.0.10">
@@ -94,7 +83,6 @@
 		<PackageReference Include="ShardingCore" Version="6.8.0.5" />
 		<PackageReference Include="System.Resources.Extensions" Version="6.0.0" />
 		<PackageReference Include="System.Text.Encoding.CodePages" Version="6.0.0">
-
 			<TreatAsUsed>true</TreatAsUsed>
 		</PackageReference>
 		<PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="6.0.10" />
@@ -103,19 +91,47 @@
 		<PackageReference Include="Microsoft.AspNetCore.Identity.UI" Version="6.0.10" />
 	</ItemGroup>
 
-	<ItemGroup Condition="'$(Configuration)' == 'Debug_VUE'  OR '$(Configuration)' == 'Release_VUE'">
-		<Compile Remove="ClientApp\**" />
-		<Content Remove="ClientApp\**" />
-		<EmbeddedResource Remove="ClientApp\**" />
-		<None Remove="ClientApp\**" />
+
+	<ItemGroup>
+		<!-- Don't publish the SPA source files, but do show them in the project files list -->
+		<Content Remove="$(SpaRoot)**" />
+		<None Remove="$(SpaRoot)**" />
+		<None Include="$(SpaRoot)**" Exclude="$(SpaRoot)node_modules\**" />
 	</ItemGroup>
-	<ItemGroup Condition="'$(Configuration)' == 'Debug' OR '$(Configuration)' == 'Release'">
-		<Folder Include="ClientApp\" />
-		<Compile Remove="ClientAppVue\**" />
-		<Content Remove="ClientAppVue\**" />
-		<EmbeddedResource Remove="ClientAppVue\**" />
-		<None Remove="ClientAppVue\**" />
+
+	<Target Name="DebugEnsureNodeEnv" BeforeTargets="Build" Condition=" '$(Configuration)' == 'Debug' And !Exists('$(SpaRoot)node_modules') ">
+		<!-- Ensure Node.js is installed -->
+		<Exec Command="node --version" ContinueOnError="true">
+			<Output TaskParameter="ExitCode" PropertyName="ErrorCode" />
+		</Exec>
+		<Error Condition="'$(ErrorCode)' != '0'" Text="Node.js is required to build and run this project. To continue, please install Node.js from https://nodejs.org/, and then restart your command prompt or IDE." />
+		<Message Importance="high" Text="Restoring dependencies using 'npm'. This may take several minutes..." />
+		<Exec WorkingDirectory="$(SpaRoot)" Command="npm install  --legacy-peer-deps" />
+	</Target>
+	<Target Name="PublishRunWebpack" AfterTargets="ComputeFilesToPublish" Condition="'$(Configuration)' == 'Release'">
+		<!-- As part of publishing, ensure the JS resources are freshly built in production mode -->
+		<Exec WorkingDirectory="$(SpaRoot)" Command="npm install --legacy-peer-deps" />
+		<Exec WorkingDirectory="$(SpaRoot)" Command="npm run build" />
+		<!-- Include the newly-built files in the publish output -->
+		<ItemGroup>
+			<DistFiles Include="$(SpaRoot)dist\**; $(SpaRoot)dist-server\**" />
+			<ResolvedFileToPublish Include="@(DistFiles->'%(FullPath)')" Exclude="@(ResolvedFileToPublish)">
+				<RelativePath>wwwroot\%(RecursiveDir)%(FileName)%(Extension)</RelativePath>
+				<CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+				<ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+			</ResolvedFileToPublish>
+		</ItemGroup>
+	</Target>
+
+
+
+	<ItemGroup>
+		<Content Include="IoTSharp.xml">
+			<CopyToOutputDirectory>Never</CopyToOutputDirectory>
+		</Content>
 	</ItemGroup>
+
+
 	<ItemGroup>
 		<Compile Remove="Migrations\**" />
 		<Compile Remove="Resources\images\**" />
@@ -150,8 +166,6 @@
 		<None Remove="Resources\slide7.jpg" />
 		<None Remove="Resources\slide8.jpg" />
 		<None Remove="Resources\slide9.jpg" />
-	 
-
 		<None Remove="server.crt" />
 		<None Remove="server.key" />
 		<None Remove="TelemetryStorage.db" />
@@ -166,97 +180,47 @@
 		</None>
 	</ItemGroup>
 
-
 	<ItemGroup>
-		<!-- Don't publish the SPA source files, but do show them in the project files list -->
-		<Content Remove="$(SpaRoot)**" />
-		<None Remove="$(SpaRoot)**" />
-		<None Include="$(SpaRoot)**" Exclude="$(SpaRoot)node_modules\**" />
+		<EmbeddedResource Include="Resources\buzzle-template.png" />
+		<EmbeddedResource Include="Resources\slide1.jpg" />
+		<EmbeddedResource Include="Resources\slide10.jpg" />
+		<EmbeddedResource Include="Resources\slide11.jpg" />
+		<EmbeddedResource Include="Resources\slide12.jpg" />
+		<EmbeddedResource Include="Resources\slide13.jpg" />
+		<EmbeddedResource Include="Resources\slide14.jpg" />
+		<EmbeddedResource Include="Resources\slide15.jpg" />
+		<EmbeddedResource Include="Resources\slide16.jpg" />
+		<EmbeddedResource Include="Resources\slide2.jpg" />
+		<EmbeddedResource Include="Resources\slide3.jpg" />
+		<EmbeddedResource Include="Resources\slide4.jpg" />
+		<EmbeddedResource Include="Resources\slide5.jpg" />
+		<EmbeddedResource Include="Resources\slide6.jpg" />
+		<EmbeddedResource Include="Resources\slide7.jpg" />
+		<EmbeddedResource Include="Resources\slide8.jpg" />
+		<EmbeddedResource Include="Resources\slide9.jpg" />
+	</ItemGroup>
+	
+	<ItemGroup>
+		<Resource Include="Resources\buzzle-template.png" />
+		<Resource Include="Resources\Logo.ico" />
+		<Resource Include="Resources\slide1.jpg" />
+		<Resource Include="Resources\slide10.jpg" />
+		<Resource Include="Resources\slide11.jpg" />
+		<Resource Include="Resources\slide12.jpg" />
+		<Resource Include="Resources\slide13.jpg" />
+		<Resource Include="Resources\slide14.jpg" />
+		<Resource Include="Resources\slide15.jpg" />
+		<Resource Include="Resources\slide16.jpg" />
+		<Resource Include="Resources\slide2.jpg" />
+		<Resource Include="Resources\slide3.jpg" />
+		<Resource Include="Resources\slide4.jpg" />
+		<Resource Include="Resources\slide5.jpg" />
+		<Resource Include="Resources\slide6.jpg" />
+		<Resource Include="Resources\slide7.jpg" />
+		<Resource Include="Resources\slide8.jpg" />
+		<Resource Include="Resources\slide9.jpg" />
 	</ItemGroup>
 
-	<Target Name="DebugEnsureNodeEnv_angular" BeforeTargets="Build" Condition=" '$(Configuration)' == 'Debug' And !Exists('$(SpaRoot)node_modules') ">
-		<!-- Ensure Node.js is installed -->
-		<Exec Command="node --version" ContinueOnError="true">
-			<Output TaskParameter="ExitCode" PropertyName="ErrorCode" />
-		</Exec>
-		<Error Condition="'$(ErrorCode)' != '0'" Text="Node.js is required to build and run this project. To continue, please install Node.js from https://nodejs.org/, and then restart your command prompt or IDE." />
-		<Message Importance="high" Text="Restoring dependencies using 'npm'. This may take several minutes..." />
-		<Exec WorkingDirectory="$(SpaRoot)" Command="npm install -g yarn " />
-		<Exec WorkingDirectory="$(SpaRoot)" Command="yarn global add @angular/cli" />
-		<Exec WorkingDirectory="$(SpaRoot)" Command="yarn install  " />
-	</Target>
-
-	<Target Name="PublishRunWebpack_angular" AfterTargets="ComputeFilesToPublish" Condition="'$(Configuration)' == 'Release'">
-		<!-- As part of publishing, ensure the JS resources are freshly built in production mode -->
-		<Exec WorkingDirectory="$(SpaRoot)" Command="npm install -g yarn " />
-		<Exec WorkingDirectory="$(SpaRoot)" Command="yarn global add @angular/cli" />
-		<Exec WorkingDirectory="$(SpaRoot)" Command="yarn install  " />
-		<Exec WorkingDirectory="$(SpaRoot)" Command="npm run build -- --aot" />
-		<!-- Include the newly-built files in the publish output -->
-		<ItemGroup>
-			<DistFiles Include="$(SpaRoot)dist\**; $(SpaRoot)dist-server\**" />
-			<ResolvedFileToPublish Include="@(DistFiles->'%(FullPath)')" Exclude="@(ResolvedFileToPublish)">
-				<RelativePath>wwwroot\%(RecursiveDir)%(FileName)%(Extension)</RelativePath>
-				<CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
-				<ExcludeFromSingleFile>true</ExcludeFromSingleFile>
-			</ResolvedFileToPublish>
-		</ItemGroup>
-	</Target>
-
-
-	<Target Name="DebugEnsureNodeEnv_vue" BeforeTargets="Build" Condition=" '$(Configuration)' == 'Debug_VUE' And !Exists('$(SpaRoot)node_modules') ">
-		<!-- Ensure Node.js is installed -->
-		<Exec Command="node --version" ContinueOnError="true">
-			<Output TaskParameter="ExitCode" PropertyName="ErrorCode" />
-		</Exec>
-		<Error Condition="'$(ErrorCode)' != '0'" Text="Node.js is required to build and run this project. To continue, please install Node.js from https://nodejs.org/, and then restart your command prompt or IDE." />
-		<Message Importance="high" Text="Restoring dependencies using 'npm'. This may take several minutes..." />
-		<Exec WorkingDirectory="$(SpaRoot)" Command="npm install  --legacy-peer-deps" />
-	</Target>
-	<Target Name="PublishRunWebpack_vue" AfterTargets="ComputeFilesToPublish" Condition="'$(Configuration)' == 'Release_VUE'">
-		<!-- As part of publishing, ensure the JS resources are freshly built in production mode -->
-		<Exec WorkingDirectory="$(SpaRoot)" Command="npm install --legacy-peer-deps" />
-		<Exec WorkingDirectory="$(SpaRoot)" Command="npm run build" />
-		<!-- Include the newly-built files in the publish output -->
-		<ItemGroup>
-			<DistFiles Include="$(SpaRoot)dist\**; $(SpaRoot)dist-server\**" />
-			<ResolvedFileToPublish Include="@(DistFiles->'%(FullPath)')" Exclude="@(ResolvedFileToPublish)">
-				<RelativePath>wwwroot\%(RecursiveDir)%(FileName)%(Extension)</RelativePath>
-				<CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
-				<ExcludeFromSingleFile>true</ExcludeFromSingleFile>
-			</ResolvedFileToPublish>
-		</ItemGroup>
-	</Target>
-
-
-
-	<ItemGroup>
-		<Content Include="IoTSharp.xml">
-			<CopyToOutputDirectory>Never</CopyToOutputDirectory>
-		</Content>
-	</ItemGroup>
-
-
-
-	<ItemGroup>
-	  <EmbeddedResource Include="Resources\buzzle-template.png" />
-	  <EmbeddedResource Include="Resources\slide1.jpg" />
-	  <EmbeddedResource Include="Resources\slide10.jpg" />
-	  <EmbeddedResource Include="Resources\slide11.jpg" />
-	  <EmbeddedResource Include="Resources\slide12.jpg" />
-	  <EmbeddedResource Include="Resources\slide13.jpg" />
-	  <EmbeddedResource Include="Resources\slide14.jpg" />
-	  <EmbeddedResource Include="Resources\slide15.jpg" />
-	  <EmbeddedResource Include="Resources\slide16.jpg" />
-	  <EmbeddedResource Include="Resources\slide2.jpg" />
-	  <EmbeddedResource Include="Resources\slide3.jpg" />
-	  <EmbeddedResource Include="Resources\slide4.jpg" />
-	  <EmbeddedResource Include="Resources\slide5.jpg" />
-	  <EmbeddedResource Include="Resources\slide6.jpg" />
-	  <EmbeddedResource Include="Resources\slide7.jpg" />
-	  <EmbeddedResource Include="Resources\slide8.jpg" />
-	  <EmbeddedResource Include="Resources\slide9.jpg" />
-	</ItemGroup>
 	<ItemGroup>
 		<ProjectReference Include="..\IoTSharp.Contracts\IoTSharp.Contracts.csproj" />
 		<ProjectReference Include="..\IoTSharp.Data.Storage\IoTSharp.Data.Cassandra\IoTSharp.Data.Cassandra.csproj" />
@@ -279,27 +243,6 @@
 		<ProjectReference Include="..\IoTSharp.Interpreter\IoTSharp.Interpreter.csproj" />
 		<ProjectReference Include="..\IoTSharp.TaskActions\IoTSharp.TaskActions.csproj" />
 	</ItemGroup>
-	<ItemGroup>
-	  <Resource Include="Resources\buzzle-template.png" />
-	  <Resource Include="Resources\Logo.ico" />
-	  <Resource Include="Resources\slide1.jpg" />
-	  <Resource Include="Resources\slide10.jpg" />
-	  <Resource Include="Resources\slide11.jpg" />
-	  <Resource Include="Resources\slide12.jpg" />
-	  <Resource Include="Resources\slide13.jpg" />
-	  <Resource Include="Resources\slide14.jpg" />
-	  <Resource Include="Resources\slide15.jpg" />
-	  <Resource Include="Resources\slide16.jpg" />
-	  <Resource Include="Resources\slide2.jpg" />
-	  <Resource Include="Resources\slide3.jpg" />
-	  <Resource Include="Resources\slide4.jpg" />
-	  <Resource Include="Resources\slide5.jpg" />
-	  <Resource Include="Resources\slide6.jpg" />
-	  <Resource Include="Resources\slide7.jpg" />
-	  <Resource Include="Resources\slide8.jpg" />
-	  <Resource Include="Resources\slide9.jpg" />
-	</ItemGroup>
-
 	<ItemGroup>
 		<Compile Update="Properties\Resources.Designer.cs">
 			<DesignTime>True</DesignTime>
