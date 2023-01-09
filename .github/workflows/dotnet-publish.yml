@@ -38,11 +38,12 @@ jobs:
       uses: actions/setup-node@v3
       with:
         node-version: 16
-      env:
-        NODE_OPTIONS: --openssl-legacy-provider
+
 
     - name: Config NPM Registry
       run: npm config set registry https://registry.npmmirror.com 
+      env:
+        NODE_OPTIONS: --openssl-legacy-provider
 
     # Restore the application to populate the obj folder with RuntimeIdentifiers
     - name: Restore the application
