@@ -20,6 +20,11 @@ jobs:
       uses: actions/setup-dotnet@v1.7.2
       with: 
         dotnet-version: 6.0.x 
+    - uses: actions/setup-node@v3
+      with:
+        node-version: 16
+        cache: 'npm'
+        cache-dependency-path: IoTSharp/ClientApp/package-lock.json
     - name: Build
       run: dotnet build  ./IoTSharp.sln  --configuration Release 
 
