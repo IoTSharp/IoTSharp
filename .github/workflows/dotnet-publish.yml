@@ -33,6 +33,13 @@ jobs:
     # Add  MSBuild to the PATH: https://github.com/microsoft/setup-msbuild
     - name: Setup MSBuild.exe
       uses: microsoft/setup-msbuild@v1.0.2
+    # setup nodejs 16 
+    - uses: actions/setup-node@v3
+      name: Setup Node.Js 16 
+      with:
+        node-version: 16
+        cache: 'npm'
+        cache-dependency-path: IoTSharp/ClientApp/package-lock.json
 
     # Restore the application to populate the obj folder with RuntimeIdentifiers
     - name: Restore the application
