@@ -40,10 +40,7 @@ jobs:
         node-version: 16
 
 
-    - name: Config NPM Registry
-      run: npm config set registry https://registry.npmmirror.com 
-
-
+ 
     # Restore the application to populate the obj folder with RuntimeIdentifiers
     - name: Restore the application
       run: msbuild $env:Solution_Name /t:Restore /p:Configuration=$env:Configuration
@@ -53,7 +50,10 @@ jobs:
 
     # Create the app package by building and packaging the Windows Application Packaging project
     - name: Building and Packaging
-      run: dotnet build IoTSharp.sln  -c $env:Configuration  /p:DeployOnBuild=true /p:PublishProfile=$env:PublishProfile
+      run:  |
+            npm config set registry https://registry.npmmirror.com 
+            export NODE_OPTIONS=--openssl-legacy-provider
+            dotnet build IoTSharp.sln  -c $env:Configuration  /p:DeployOnBuild=true /p:PublishProfile=$env:PublishProfile
       env:
         Configuration: ${{ matrix.configuration }}
         PublishProfile: ${{ matrix.publish_profile }}
