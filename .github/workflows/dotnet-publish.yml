@@ -52,7 +52,6 @@ jobs:
     - name: Building and Packaging
       run:  |
             npm config set registry https://registry.npmmirror.com 
-            export NODE_OPTIONS=--openssl-legacy-provider
             dotnet build IoTSharp.sln  -c $env:Configuration  /p:DeployOnBuild=true /p:PublishProfile=$env:PublishProfile
       env:
         Configuration: ${{ matrix.configuration }}
