@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <RootNamespace>IoTSharp.Extensions.X509</RootNamespace>
-    <TargetFrameworks>net5.0;net6.0</TargetFrameworks>
+    <TargetFrameworks>net6.0</TargetFrameworks>
     <PackageId>IoTSharp.X509Extensions</PackageId>
     <Authors>Konrad Mattheis und Martin Berthold &amp;  MaiKeBing</Authors>
     <Copyright>Copyright (c) 2018-2020</Copyright>
