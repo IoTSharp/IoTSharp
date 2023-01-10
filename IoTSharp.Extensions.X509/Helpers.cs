@@ -28,6 +28,7 @@ namespace IoTSharp.Extensions.X509
     using System;
     using System.Collections.Generic;
     using System.IO;
+    using System.Runtime.InteropServices;
     using System.Security.Cryptography;
     using System.Security.Cryptography.X509Certificates;
     using System.Text;
@@ -465,7 +466,10 @@ namespace IoTSharp.Extensions.X509
                 var newCertificate = new X509Certificate2(certBuffer, Password);
                 var rsaPrivateKey = DecodeRsaPrivateKey(keyBuffer);
                 newCertificate = newCertificate.CopyWithPrivateKey(rsaPrivateKey);
-                newCertificate.FriendlyName = friendlyName;
+                if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+                {
+                    newCertificate.FriendlyName = friendlyName;
+                }
                 return newCertificate;
             }
             catch (Exception ex)
