@@ -16,7 +16,7 @@
 [![star](https://gitee.com/IoTSharp/IoTSharp/badge/star.svg?theme=gvp)](https://gitee.com/IoTSharp/IoTSharp/stargazers)
 [![fork](https://gitee.com/IoTSharp/IoTSharp/badge/fork.svg?theme=gvp)](https://gitee.com/IoTSharp/IoTSharp/members)
 
-IoTSharp 是一个 基于.Net 6 开源的物联网基础平台， 支持 HTTP、MQTT 、CoAp 协议， 属性数据和遥测数据协议简单类型丰富，简单设置即可将数据存储在PostgreSql、MySql、Oracle、SQLServer、Sqlite，是一个用于数据收集、处理、可视化与设备管理的 IoT 平台.
+IoTSharp 是一个开源的物联网基础平台，集设备属性数据管理、遥测数据监测、RPC多模式远程控制、规则链设计引擎等强大能力，依据数字孪生概念将可见与不可见的物理设备统一孪生到数字世界，在落地上IoTSharp结合了资产管理、产品化发展的理念，让平台应用更加贴合复杂的应用场景，在协议支持上支持HTTP、MQTT 、CoAp 等多种标准物联网协议接入和非标协议的转换。  
 
 
 
@@ -193,3 +193,8 @@ If you encounter any problems in the process, feel free to ask for help via foll
 
 [![DotNetChina](https://images.gitee.com/uploads/images/2021/0309/134044_9c191d7b_974299.png)](https://gitee.com/dotnetchina)
 
+## 优秀开源社区
+[LinkWeChat](https://gitee.com/LinkWeChat/link-wechat) LinkWeChat 是基于企业微信的开源 SCRM 系统，是企业私域流量管理与营销的综合解决方案。
+[流之云](https://gitee.com/ntdgg) 信息化、数字化服务提供商
+[translate.js](https://gitee.com/mail_osc/translate) 网页自动翻译，页面无需另行改造，加入两行js即可让你的网页快速具备多国语言切换能力！
+[mybatis-plus](https://gitee.com/dibo_software/diboot) 大多数sql和crud都不用写的低代码开发框架，

@@ -8,7 +8,7 @@ sidebar_position: 1
 
 ##  IoTSharp 是什么？
 
- IoTSharp 是一个基于.Net 6.0 使用C#开发的数据收集、处理、可视化与设备管理的开源物联网(IoT)平台基础平台,支持 HTTP、MQTT 、CoAP等协议实现设备的数字孪生,且属性数据和遥测数据协议简单类型丰富,简易设置即可将数据存储在PostgreSql、MySql、Oracle、SQLServer、Sqlite 或者 InfluxDB 2.0;TDengine;TimescaleDB等时序数据库中。
+IoTSharp 是一个开源的物联网基础平台，集设备属性数据管理、遥测数据监测、RPC多模式远程控制、规则链设计引擎等强大能力，依据数字孪生概念将可见与不可见的物理设备统一孪生到数字世界，在落地上IoTSharp结合了资产管理、产品化发展的理念，让平台应用更加贴合复杂的应用场景，在协议支持上支持HTTP、MQTT 、CoAp 等多种标准物联网协议接入和非标协议的转换。 
 
 
 ### IoTSharp的系统必备有哪些?
