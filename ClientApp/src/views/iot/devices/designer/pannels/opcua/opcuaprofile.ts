@@ -1,19 +1,17 @@
 import { opcuamapping } from "../../models/opcuamapping";
-export const modbusprofile={
-devnamespace:'modbus',    
-name:'ModBus网关',
+export const opcuaprofile={
+devnamespace:'opcua',    
+name:'opcua网关',
+shape:'gateway', 
 baseinfoschema:{},
 command:{
 
   toolbar:[],
   contextmenu:[
     { command: 'deletegateway', txt: "删除", icon: "ele-Delete" },
-    { command: 'editmodbusmapping', txt: "编辑", icon: "ele-Edit" },
+    { command: 'editopcuaprop', txt: "编辑属性", icon: "ele-Edit" },
+    { command: 'editopcuamapping', txt: "编辑映射", icon: "ele-Edit" },
   ]
 },
 mappings:[]
-
-
-
-
 }

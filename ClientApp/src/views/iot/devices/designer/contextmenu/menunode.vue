@@ -7,7 +7,7 @@
         <li v-for="(v, k) in state.menuitems" class="el-dropdown-menu__item" aria-disabled="false" tabindex="-1"
           :key="k" @click="onCurrentClick(v['command'])">
           <SvgIcon :name="v['icon']" />
-          <span>{{ v['txt'] }}{{ state.sender['node']['bizdata']['name'] }}</span>
+          <span>{{ v['txt'] }}</span>
         </li>
       </ul>
       <div class="el-popper__arrow" style="left: 10px"></div>
@@ -23,7 +23,7 @@ const props = defineProps({
     type: Object,
   },
 });
-const emit = defineEmits(["click", "contextmenu", "ongatewaycommand"]);
+const emit = defineEmits(["click", "contextmenu", "ongatewayclickcommand"]);
 
 const state = reactive({
   isShow: false,
@@ -40,7 +40,7 @@ const dropdowns = computed(() => {
 // 当前项菜单点击
 const onCurrentClick = (command: string) => {
   emit(
-    "ongatewaycommand",
+    "ongatewayclickcommand",
     { command, sender:state.sender }
 
   );

@@ -100,6 +100,13 @@ interface TableRulesState {
 	};
 }
 
+const props = defineProps({
+	modelValue: {
+		type: Object,
+		default: {},
+	},
+
+});
 
 const emit = defineEmits(["close", "submit"]);
 const tableRulesRef = ref();
@@ -108,7 +115,7 @@ const state = reactive<TableRulesState>({
 	drawer: false,
 	dialogtitle: "OpcUA点位修改",
 	tableData: {
-		data: [],
+		data: props.modelValue.node.bizdata.mappings,
 		header: [
 			{
 				prop: "dataName",
@@ -166,6 +173,8 @@ const state = reactive<TableRulesState>({
 
 watch(() => state.tableData, async () => {
 
+  console.log(state.tableData)
+
 })
 
 
@@ -192,23 +201,29 @@ const onValidate = () => {
 
 // 新增一行
 const onAddRow = () => {
-	state.tableData.data.push({
+	props.modelValue.node.bizdata.mappings.push({
 		_id: uuidv4(),
 		id: NIL_UUID,
+		code: 0,
 		dataName: "",
 		dataType: "",
 		dataCatalog: "",
-		nodeId: "",
+		funCode: "",
+		address: 0,
+		length: 0,
 		dataFormat: "",
 		codePage: 0,
 
-	});
+	})
 };
 const deleterow = (row: opcuamapping) => {
-	state.tableData.data = state.tableData.data.filter((c) => c._id !== row._id);
+	props.modelValue.node.bizdata.mappings = props.modelValue.node.bizdata.mappings.filter((c) => c._id !== row._id)
 };
 const save = async () => {
-
+	emit("submit", {
+		namespace: 'opcualistchanged',
+		data: props.modelValue,
+	});
 };
 
 defineExpose({

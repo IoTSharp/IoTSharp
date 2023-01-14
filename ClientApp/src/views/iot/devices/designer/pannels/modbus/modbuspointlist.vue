@@ -1,7 +1,7 @@
 <template>
 	<div>
 		<el-form ref="tableRulesRef" :model="state.tableData" size="small">
-			<el-table :data="state.tableData.data" table-layout="auto">
+			<el-table :data="props.modelValue.node.bizdata.mappings" table-layout="auto">
 				<el-table-column v-for="(item, index) in state.tableData.header" :key="index" show-overflow-tooltip
 					:prop="item.prop" :width="item.width" :label="item.label">
 					<!-- <template v-slot:header>
@@ -18,12 +18,12 @@
 				</template> -->
 					<template v-slot="scope">
 						<el-form-item style="margin: 0" :prop="`data.${scope.$index}.${item.prop}`" :rules="[
-	{
-		required: item.isRequired,
-		message: '不能为空',
-		trigger: `${item.type}` == 'input' ? 'blur' : 'change',
-	},
-]">
+							{
+								required: item.isRequired,
+								message: '不能为空',
+								trigger: `${item.type}` == 'input' ? 'blur' : 'change',
+							},
+						]">
 
 
 							<el-input-number v-if="item.type === 'number'" v-model="scope.row[item.prop]" />
@@ -79,7 +79,7 @@
 
 	</div>
 </template>
-  
+
 <script lang="ts" setup>
 import { reactive, ref } from "vue";
 import { v4 as uuidv4, NIL as NIL_UUID } from "uuid";
@@ -215,9 +215,9 @@ const openDialog = (deviceid: string) => {
 
 
 
-watch(state.tableData.data, (data) => {
+// watch(state.tableData.data, (data) => {
 
-})
+// })
 
 // 关闭弹窗
 const closeDialog = () => {
@@ -236,22 +236,22 @@ const onValidate = () => {
 // 新增一行
 const onAddRow = () => {
 	props.modelValue.node.bizdata.mappings.push({
-			_id: uuidv4(),
-			id: NIL_UUID,
-			code: 0,
-			dataName: "",
-			dataType: "",
-			dataCatalog: "",
-			funCode: "",
-			address: 0,
-			length: 0,
-			dataFormat: "",
-			codePage: 0,
+		_id: uuidv4(),
+		id: NIL_UUID,
+		code: 0,
+		dataName: "",
+		dataType: "",
+		dataCatalog: "",
+		funCode: "",
+		address: 0,
+		length: 0,
+		dataFormat: "",
+		codePage: 0,
 
-		})
+	})
 };
 const deleterow = (row: modbusmapping) => {
-	props.modelValue.node.bizdata.mappings =props.modelValue.node.bizdata.mappings.filter((c) => c._id !== row._id)
+	props.modelValue.node.bizdata.mappings=props.modelValue.node.bizdata.mappings.filter((c) => c._id !== row._id)
 };
 const save = async () => {
 	emit("submit", {
@@ -260,8 +260,12 @@ const save = async () => {
 	});
 };
 
+
+const loaddata=()=>{
+
+}
+
 defineExpose({
-	openDialog,
+	openDialog,loaddata,
 });
 </script>
-  

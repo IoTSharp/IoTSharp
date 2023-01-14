@@ -34,8 +34,12 @@
     </div>
 
 
-    <menugateway :dropdown="state.dropdownNode" ref="contextmenugatewayRef" @ongatewaycommand="ongatewaycommand">
-    </menugateway>
+    <menunode :dropdown="state.dropdownNode" ref="contextmenunodeRef" @ongatewayclickcommand="ongatewayclickcommand">
+    </menunode>
+
+    <menuconnector :dropdown="state.dropdownNode" ref="contextmenugatewayRef"
+      @onconnectoropencommand="onconnectoropencommand">
+    </menuconnector>
     <drawercontainer ref="drawerRef" @submit="onsubmit" />
   </div>
 </template>
@@ -45,15 +49,17 @@ import { useTagsViewRoutes } from "/@/stores/tagsViewRoutes";
 import { useThemeConfig } from "/@/stores/themeConfig";
 import { Graph, Edge, Shape, NodeView } from "@antv/x6";
 import { Device } from "./designer/shapes/device";
-import menugateway from "./designer/contextmenu/menugateway.vue";
+import menunode from "./designer/contextmenu/menunode.vue";
+import menuconnector from "./designer/contextmenu/menuconnector.vue";
 import { GateWay } from "./designer/shapes/gateway";
 import Sortable from "sortablejs";
 import { modbusprofile } from "./designer/pannels/modbus/modbusprofile";
 import { datatypes } from "./designer/models/constants";
 
 import drawercontainer from "./designer/pannels/drawercontainer.vue"
+import { opcuaprofile } from "./designer/pannels/opcua/opcuaprofile";
 
-const contextmenugatewayRef = ref();
+const contextmenunodeRef = ref();
 const stores = useTagsViewRoutes();
 const storesThemeConfig = useThemeConfig();
 const { themeConfig } = storeToRefs(storesThemeConfig);
@@ -81,37 +87,69 @@ const magnetAvailabilityHighlighter = {
 };
 
 const onsubmit = (param: any) => {
-  console.log(param)
   var { namespace, data } = param;
+
+
   switch (namespace) {
     case "modbuslistchanged":
-
-
-      data.node.addPort({
-        group: 'in',
-        id: 'sadadasd',
-
-
-        attrs: {
-          text: {
-            text: 'ssss'
+      // sender.node.bizdata.mappings=[...data]
+      for (var item of data.node.bizdata.mappings) {
+        data.node.addPort({
+          group: 'in',
+          id: item._id,
+          attrs: {
+            body: {
+              r: 10,
+              magnet: 'true',
+              stroke: "#31d0c6",
+              fill: "#fff",
+              strokeWidth: 2,
+            },
           }
-        }
-      });
-
-
-
+        });
+      }
       break;
+
+    case "opcualistchanged":
+      for (var item of data.node.bizdata.mappings) {
+        data.node.addPort({
+          group: 'in',
+          id: item._id,
+          attrs: {
+            body: {
+              r: 10,
+              magnet: 'true',
+              stroke: "#31d0c6",
+              fill: "#fff",
+              strokeWidth: 2,
+            },
+            text: {
+              text: item.dataName
+            }
+          }
+        });
+      }
+      break;
+
 
   }
 
 }
 
 
-const ongatewaycommand = (command: any) => {
-  var { command, sender } = command;
+const onconnectoropencommand = (args: any) => {
+  var { command, sender } = args;
+
+}
+
+const ongatewayclickcommand = (args: any) => {
+  var { command, sender } = args;
   switch (command) {
     case "editmodbusmapping":
+      drawerRef.value.open(sender)
+      break;
+
+    case "editopcuamapping":
       drawerRef.value.open(sender)
       break;
 
@@ -126,7 +164,7 @@ onMounted(async () => {
       // icon: "iconfont icon-shouye",
       color: "#F1F0FF",
       isOpen: true,
-      id: "1",
+      id: "t1",
       children: [],
     },
     {
@@ -135,7 +173,7 @@ onMounted(async () => {
       //  icon: "iconfont icon-shouye",
       color: "#F1F0FF",
       isOpen: true,
-      id: "2",
+      id: "t2",
       children: [],
     },
   ];
@@ -169,79 +207,157 @@ const initSortable = () => {
         const { nodetype, nodenamespace, mata } = evt.clone.attributes;
         const { layerX, layerY, clientX, clientY } = evt.originalEvent;
         const el = workflowRightRef.value!;
-
         const { x, y, width, height } = el.getBoundingClientRect();
-
         if (clientX < x || clientX > width + x || clientY < y || y > y + height) {
           ElMessage.warning("请把节点拖入到画布中");
         } else {
+          var target = [];
+          findtoolitem(id, state.leftNavList, target);
+          var item = target[0]
+          if (item) {
 
-          var item = findtoolitem(id, state.leftNavList);
-          var gateway = new GateWay({
-            label: item.profile.name,
-            bizdata: item.profile,
-            attrs: {
-              root: {
-                magnet: false,
-              },
-              body: {
-                fill: "#f5f5f5",
-                stroke: "#d9d9d9",
-                strokeWidth: 1,
-              },
-            },
-            ports: {
-              items: [
+            switch (item['profile']['shape']) {
 
-              ],
-              groups: {
-                in: {
-                  label: {
-                    position: 'left'
-                  },
-                  position: {
-                    name: 'left'
-                  },
+              case 'gateway':
+                var gateway = new GateWay({
+                  label: item['profile']['name'],
+                  bizdata: item['profile'],
                   attrs: {
-                    portBody: {
-                      magnet: "passive",
-                      r: 6,
-                      stroke: "#ffa940",
-                      fill: "#fff",
-                      strokeWidth: 2,
+                    root: {
+                      magnet: false,
+                    },
+                    body: {
+                      stroke: '#237804',
+                      fill: '#73d13d',
+                      rx: 10,
+                      ry: 10,
                     },
                   },
-                },
-                out: {
-                  position: {
-                    name: "bottom",
-                  },
-                  attrs: {
-                    portBody: {
-                      magnet: true,
-                      r: 6,
-                      fill: "#fff",
-                      stroke: "#3199FF",
-                      strokeWidth: 2,
+                  ports: {
+                    items: [
+
+                    ],
+                    groups: {
+                      in: {
+                        label: {
+                          position: 'left'
+                        },
+                        position: {
+                          name: 'left'
+                        },
+                        attrs: {
+                          portBody: {
+                            magnet: "true",
+                            r: 10,
+                            stroke: "#ffa940",
+                            fill: "#fff",
+                            strokeWidth: 2,
+                          },
+                        },
+                        magnet: 'true',
+                      },
+                      out: {
+                        position: {
+                          name: "bottom",
+                        },
+                        attrs: {
+                          portBody: {
+                            magnet: "true",
+                            r: 10,
+                            fill: "#fff",
+                            stroke: "#3199FF",
+                            strokeWidth: 2,
+                          },
+                        },
+                      },
                     },
                   },
-                },
-              },
-            },
-            portMarkup: [
-              {
-                tagName: "circle",
-                selector: "portBody",
-              },
-            ],
-          })
-            .resize(160, 160)
-            .position(layerX - 40, layerY - 15)
+                  portMarkup: [
+                    {
+                      tagName: "circle",
+                      selector: "portBody",
+                    },
+                  ],
+                })
+                  .resize(160, 160)
+                  .position(layerX - 40, layerY - 15)
 
-          gateway.bizdata = item.profile
-          graph.addNode(
-            gateway
-          );
+                gateway.bizdata = item['profile']
+                graph.addNode(
+                  gateway
+                );
+
+                break;
+              case 'device':
+                var gateway = new Device({
+                  label: item['profile']['name'],
+                  bizdata: item['profile'],
+                  attrs: {
+                    root: {
+                      magnet: false,
+                    },
+                    body: {
+                      stroke: '#ffa940',
+                      fill: '#ffd591',
+                      rx: 10,
+                      ry: 10,
+                    },
+                  },
+                  ports: {
+                    items: [
+
+                    ],
+                    groups: {
+                      in: {
+                        label: {
+                          position: 'left'
+                        },
+                        position: {
+                          name: 'left'
+                        },
+                        attrs: {
+                          portBody: {
+                            magnet: "passive",
+                            r: 10,
+                            stroke: "#ffa940",
+                            fill: "#fff",
+                            strokeWidth: 2,
+                          },
+                        },
+                      },
+                      out: {
+                        position: {
+                          name: "bottom",
+                        },
+                        attrs: {
+                          portBody: {
+                            magnet: true,
+                            r: 10,
+                            fill: "#fff",
+                            stroke: "#3199FF",
+                            strokeWidth: 2,
+                          },
+                        },
+                      },
+                    },
+                  },
+                  portMarkup: [
+                    {
+                      tagName: "circle",
+                      selector: "portBody",
+                    },
+                  ],
+                })
+                  .resize(100, 80)
+                  .position(layerX - 40, layerY - 15)
+
+                gateway.bizdata = item['profile']
+                graph.addNode(
+                  gateway
+                );
+                break;
+            }
+          }
         }
       },
     });
@@ -265,7 +381,70 @@ const initgateways = () => {
       color: "#F1F0FF",
       isOpen: true,
       id: "1111111",
-      profile: modbusprofile
+      profile: {
+        devnamespace: 'modbus',
+        name: 'ModBus网关',
+        shape: 'gateway',
+        baseinfoschema: {},
+        command: {
+
+          toolbar: [],
+          contextmenu: [
+            { command: 'deletegateway', txt: "删除", icon: "ele-Delete" },
+            { command: 'editmodbusprop', txt: "属性编辑", icon: "ele-Edit" },
+            { command: 'editmodbusmapping', txt: "映射编辑", icon: "ele-Edit" },
+          ],
+        },
+        mappings: []
+      }
+
+    }, {
+      title: "Modbus",
+      name: 'Modbus',
+      // icon: "iconfont icon-shouye",
+      color: "#F1F0FF",
+      isOpen: true,
+      id: "12222222",
+      profile: {
+        devnamespace: 'modbus',
+        name: 'ModBus网关',
+        shape: 'gateway',
+        baseinfoschema: {},
+        command: {
+
+          toolbar: [],
+          contextmenu: [
+            { command: 'deletegateway', txt: "删除", icon: "ele-Delete" },
+            { command: 'editmodbusprop', txt: "属性编辑", icon: "ele-Edit" },
+            { command: 'editmodbusmapping', txt: "映射编辑", icon: "ele-Edit" },
+          ],
+        },
+        mappings: []
+      }
+
+    }, {
+      title: "Modbus",
+      name: 'Modbus',
+      // icon: "iconfont icon-shouye",
+      color: "#F1F0FF",
+      isOpen: true,
+      id: "13333333",
+      profile: {
+        devnamespace: 'modbus',
+        name: 'ModBus网关',
+        shape: 'gateway',
+        baseinfoschema: {},
+        command: {
+
+          toolbar: [],
+          contextmenu: [
+            { command: 'deletegateway', txt: "删除", icon: "ele-Delete" },
+            { command: 'editmodbusprop', txt: "属性编辑", icon: "ele-Edit" },
+            { command: 'editmodbusmapping', txt: "映射编辑", icon: "ele-Edit" },
+          ],
+        },
+        mappings: []
+      }
 
     }, {
       title: "OPCUA",
@@ -274,6 +453,22 @@ const initgateways = () => {
       color: "#F1F0FF",
       isOpen: true,
       id: "2222222",
+      profile: {
+        devnamespace: 'opcua',
+        name: 'opcua网关',
+        shape: 'gateway',
+        baseinfoschema: {},
+        command: {
+
+          toolbar: [],
+          contextmenu: [
+            { command: 'deletegateway', txt: "删除", icon: "ele-Delete" },
+            { command: 'editopcuaprop', txt: "编辑属性", icon: "ele-Edit" },
+            { command: 'editopcuamapping', txt: "编辑映射", icon: "ele-Edit" },
+          ]
+        },
+        mappings: []
+      }
     },
   ];
 };
@@ -283,20 +478,81 @@ const initdevices = () => {
   state.leftNavList[1].children = [
     {
       icon: "importIcon",
-      name: "网关1",
-      id: "111",
+      name: "测试设备",
+      id: "33333333",
+
+      profile: {
+        devnamespace: 'iot.device.test',
+        shape: 'device',
+        name: '测试设备',
+        baseinfoschema: {},
+        command: {
+
+          toolbar: [],
+          contextmenu: [
+            { command: 'deletegateway', txt: "删除", icon: "ele-Delete" },
+            { command: 'editmodbusmapping', txt: "编辑属性", icon: "ele-Edit" },
+          ]
+        },
+        mappings: []
+      }
+
     }, {
       icon: "importIcon",
-      name: "网关2",
-      id: "222",
+      name: "测试设备1",
+
+      id: "444444444", profile: {
+        devnamespace: 'iot.device.test1',
+        name: '测试设备',
+        shape: 'device',
+        baseinfoschema: {},
+        command: {
+
+          toolbar: [],
+          contextmenu: [
+            { command: 'deletegateway', txt: "删除", icon: "ele-Delete" },
+            { command: 'editmodbusmapping', txt: "编辑属性", icon: "ele-Edit" },
+          ]
+        },
+        mappings: []
+      }
     }, {
       icon: "importIcon",
-      name: "网关3",
-      id: "333",
+      name: "测试设备2",
+
+      id: "55555555555", profile: {
+        devnamespace: 'iot.device.test2',
+        name: '测试设备',
+        shape: 'device',
+        baseinfoschema: {},
+        command: {
+          toolbar: [],
+          contextmenu: [
+            { command: 'deletegateway', txt: "删除", icon: "ele-Delete" },
+            { command: 'editmodbusmapping', txt: "编辑属性", icon: "ele-Edit" },
+          ]
+        },
+        mappings: []
+      }
     }, {
       icon: "importIcon",
-      name: "网关4",
-      id: "4444",
+      name: "测试设备3",
+
+      id: "666666666666", profile: {
+        devnamespace: 'iot.device.test3',
+        name: '测试设备',
+        shape: 'device',
+        baseinfoschema: {},
+        command: {
+
+          toolbar: [],
+          contextmenu: [
+            { command: 'deletegateway', txt: "删除", icon: "ele-Delete" },
+            { command: 'editmodbusmapping', txt: "编辑属性", icon: "ele-Edit" },
+          ]
+        },
+        mappings: []
+      }
     },
   ];
 };
@@ -304,16 +560,31 @@ const initLeftNavbar = () => {
   leftNavRefs.value.forEach((v) => {
 
   })
-
-
-
 };
 const initgraph: () => void = () => {
   graph = new Graph({
-    grid: true,
+
     container: workflowRightRef.value as HTMLDivElement,
     width: 800,
     height: 1024,
+
+    grid: {
+      size: 10,
+      visible: true,
+      type: 'doubleMesh',
+
+      args: [
+        {
+          color: '#eee', // 主网格线颜色
+          thickness: 1,     // 主网格线宽度
+        },
+        {
+          color: '#ddd', // 次网格线颜色
+          thickness: 1,     // 次网格线宽度
+          factor: 4,        // 主次网格线间隔
+        },
+      ],
+    },
     highlighting: {
       magnetAvailable: magnetAvailabilityHighlighter,
       magnetAdsorbed: {
@@ -341,6 +612,24 @@ const initgraph: () => void = () => {
       },
       createEdge() {
         return new Shape.Edge({
+          bizdata: {
+            devnamespace: 'connector',
+            shape: 'connector',
+            name: '',
+            baseinfoschema: {},
+            command: {
+              toolbar: [],
+              contextmenu: [
+                { command: 'deleteconnector', txt: "删除", icon: "ele-Delete" },
+                { command: 'editconnector', txt: "编辑", icon: "ele-Edit" },
+              ]
+            },
+            incomepoint: '',
+            outgoingpoint: '',
+            incomeshape: '',
+            outgoingshape: '',
+
+          },
           attrs: {
             line: {
               stroke: "#a0a0a0",
@@ -379,16 +668,38 @@ const initgraph: () => void = () => {
   });
 
 
+  //update bizdata right here
+  graph.on("edge:connected", ({ isNew, edge }) => {
+    //create mapping
+    if (isNew) {
 
 
-  graph.on("cell:contextmenu", (sender: any) => {
+    } else {
+      //modify mapping
 
+
+    }
+    edge.store.data.bizdata.incomepoint = edge.store.data.target.port
+    edge.store.data.bizdata.outgoingpoint = edge.store.data.source.port
+    edge.store.data.bizdata.incomeshape = edge.store.data.target.cell
+    edge.store.data.bizdata.outgoingshape = edge.store.data.source.cell
   });
+  graph.on("edge:contextmenu", (e) => {
+    var { edge } = e;
+    contextmenunodeRef.value.openContextmenu(edge);
+  });
+
+  graph.on("edge:click", (e) => {
+    // can't get point info
+  });
+
 
   graph.on("node:contextmenu", (sender: any) => {
     state.dropdownNode.y = sender.e.pageY;
     state.dropdownNode.x = sender.e.pageX;
-    contextmenugatewayRef.value.openContextmenu(sender);
+
+    console.log(sender)
+    contextmenunodeRef.value.openContextmenu(sender);
   });
 
 
@@ -461,18 +772,15 @@ const setViewHeight = computed(() => {
 });
 
 
-const findtoolitem = (id: string, leftNavs: any[]) => {
-
+const findtoolitem = (id: string, leftNavs: any[], target: any[]) => {
   for (var item of leftNavs) {
     if (item.id === id) {
-      return item;
+      target.push(item);
     } else {
       if (item.children && item.children.length > 0) {
-        return findtoolitem(id, item.children)
+        findtoolitem(id, item.children, target)
       }
-
     }
-
   }
 }
 
