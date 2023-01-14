@@ -170,8 +170,7 @@ const updateChart = (rawData) => {
       smooth: true,
       symbol: 'none',
       data: rawData[key],
-      seriesLayoutBy: 'row',
-      data: []
+      seriesLayoutBy: 'row'
     }
   })
   Object.entries(_.groupBy(rawData, 'dateTime')).forEach(([dateTime, values])=>{
