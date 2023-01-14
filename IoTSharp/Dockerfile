@@ -61,7 +61,7 @@ RUN dotnet build "IoTSharp.csproj" --no-restore   -c Release -o /app/build
 
      
 FROM build AS publish
-RUN dotnet publish "IoTSharp.csproj" --no-build  --no-restore -c Release -o /app/publish /p:UseAppHost=false
+RUN dotnet publish "IoTSharp.csproj"    --no-restore -c Release -o /app/publish /p:UseAppHost=false
 
 FROM base AS final
 WORKDIR /app
