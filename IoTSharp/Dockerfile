@@ -57,11 +57,11 @@ COPY ["IoTSharp.TaskActions/IoTSharp.TaskActions.csproj", "IoTSharp.TaskActions/
 RUN dotnet restore "IoTSharp/IoTSharp.csproj"
 COPY . .
 WORKDIR "/src/IoTSharp"
-RUN dotnet build "IoTSharp.csproj" -c Release -o /app/build
+RUN dotnet build "IoTSharp.csproj" --no-restore   -c Release -o /app/build
 
      
 FROM build AS publish
-RUN dotnet publish "IoTSharp.csproj" -c Release -o /app/publish /p:UseAppHost=false
+RUN dotnet publish "IoTSharp.csproj" --no-build  --no-restore -c Release -o /app/publish /p:UseAppHost=false
 
 FROM base AS final
 WORKDIR /app
