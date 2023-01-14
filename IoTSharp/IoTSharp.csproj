@@ -169,6 +169,7 @@
 		<None Remove="server.crt" />
 		<None Remove="server.key" />
 		<None Remove="TelemetryStorage.db" />
+		<_WebToolingArtifacts Remove="Properties\PublishProfiles\linux-arm32.pubxml" />
 		<_WebToolingArtifacts Remove="Properties\PublishProfiles\linux-arm64.pubxml" />
 		<_WebToolingArtifacts Remove="Properties\PublishProfiles\linux-x64.pubxml" />
 		<_WebToolingArtifacts Remove="Properties\PublishProfiles\osx-x64.pubxml" />
