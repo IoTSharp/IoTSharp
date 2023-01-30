@@ -68,7 +68,7 @@ namespace IoTSharp
                 .AddDiskStorageHealthCheck(dso =>
                 {
                     System.IO.DriveInfo.GetDrives()
-                        .Where(d => d.DriveType == System.IO.DriveType.Fixed)
+                        .Where(d => d.DriveType == System.IO.DriveType.Fixed && d.DriveFormat != "overlay" && !d.Name.StartsWith("/sys"))
                         .Select(f => f.Name).Distinct().ToList()
                         .ForEach(f => dso.AddDrive(f));
                 }, name: "Disk Storage");

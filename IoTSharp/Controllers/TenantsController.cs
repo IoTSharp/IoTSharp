@@ -47,12 +47,12 @@ namespace IoTSharp.Controllers
             _context = context;
         }
 
-        [Authorize(Roles = nameof(UserRole.SystemAdmin))]
         /// <summary>
         /// 产品列表
         /// </summary>
         /// <param name="m"></param>
         /// <returns></returns>
+        [Authorize(Roles = nameof(UserRole.SystemAdmin))]
         [HttpGet]
         public async Task<ApiResult<PagedData<Tenant>>> GetTenant([FromQuery] QueryDto m)
         {

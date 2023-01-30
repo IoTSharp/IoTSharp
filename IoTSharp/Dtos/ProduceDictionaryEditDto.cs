@@ -43,17 +43,17 @@ namespace IoTSharp.Dtos
         public string UnitExpression { get; set; }
 
         /// <summary>
-        /// 
+        /// 单位转换
         /// </summary>
         public bool UnitConvert { get; set; }
         /// <summary>
         /// 字段备注
         /// </summary>
-        public string? KeyDesc { get; set; }
+        public string KeyDesc { get; set; }
         /// <summary>
         /// 默认值
         /// </summary>
-        public string? DefaultValue { get; set; }
+        public string DefaultValue { get; set; }
 
         /// <summary>
         /// 是否显示
@@ -84,7 +84,7 @@ namespace IoTSharp.Dtos
         public DataType DataType { get; set; }
 
 
-        public string? Tag { get; set; }
+        public string Tag { get; set; }
 
     }
 

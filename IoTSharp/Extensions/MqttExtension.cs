@@ -49,7 +49,7 @@ namespace IoTSharp
                     {
                         options.WithEncryptionCertificate(broker.CACertificate.Export(X509ContentType.Pfx)).WithEncryptionSslProtocol(broker.SslProtocol);
                     }
-                    options.WithClientCertificate((object sender, X509Certificate? certificate, X509Chain? chain, SslPolicyErrors sslPolicyErrors) =>
+                    options.WithClientCertificate((object sender, X509Certificate certificate, X509Chain chain, SslPolicyErrors sslPolicyErrors) =>
                     {
                         bool result = false;
                         try

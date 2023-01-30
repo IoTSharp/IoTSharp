@@ -711,6 +711,13 @@
             租户管理
             </summary>
         </member>
+        <member name="M:IoTSharp.Controllers.TenantsController.GetTenant(IoTSharp.Controllers.Models.QueryDto)">
+            <summary>
+            产品列表
+            </summary>
+            <param name="m"></param>
+            <returns></returns>
+        </member>
         <member name="M:IoTSharp.Controllers.TenantsController.GetTenant(System.Guid)">
             <summary>
             普通用户用于活的自身的租户信息
