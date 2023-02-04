@@ -12,6 +12,9 @@ using MQTTnet.AspNetCore.Routing;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
+using MQTTnet;
+using System.Text.Json.Nodes;
+using Newtonsoft.Json;
 
 namespace IoTSharp.Services.MQTTControllers
 {
@@ -66,12 +69,11 @@ namespace IoTSharp.Services.MQTTControllers
                 }
             }
         }
-
-        [MqttRoute()]
-        public async Task DataProcessing()
+        [MqttRoute("binary")]
+        public async Task BinaryDataProcessing()
         {
             var p_dev = _dev.DeviceType == DeviceType.Gateway ? device : _dev;
-            var rules = await _caching.GetAsync($"ruleid_{p_dev.Id}_raw", async () =>
+            var rules = await _caching.GetAsync($"ruleid_{p_dev.Id}_raw_binary", async () =>
             {
                 using (var scope = _scopeFactor.CreateScope())
                 using (var _dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>())
@@ -83,7 +85,35 @@ namespace IoTSharp.Services.MQTTControllers
             , TimeSpan.FromSeconds(_settings.RuleCachingExpiration));
             if (rules.HasValue)
             {
-                var obj = new { Message.Topic, Payload = Convert.ToBase64String(Message.Payload), ClientId };
+                var obj =   Message.Payload ;
+                rules.Value.ToList().ForEach(async g =>
+                {
+                    _logger.LogInformation($"{ClientId}的数据{Message.Topic}通过规则链{g}进行处理。");
+                    await _flowRuleProcessor.RunFlowRules(g, obj, p_dev.Id, FlowRuleRunType.Normal, null);
+                });
+            }
+            else
+            {
+                _logger.LogInformation($"{ClientId}的数据{Message.Topic}不符合规范， 也无相关规则链处理。");
+            }
+        }
+        [MqttRoute("json")]
+        public async Task JsonDataProcessing()
+        {
+            var p_dev = _dev.DeviceType == DeviceType.Gateway ? device : _dev;
+            var rules = await _caching.GetAsync($"ruleid_{p_dev.Id}_raw_json", async () =>
+            {
+                using (var scope = _scopeFactor.CreateScope())
+                using (var _dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>())
+                {
+                    var guids = await _dbContext.GerDeviceRulesIdList(p_dev.Id, EventType.RAW);
+                    return guids;
+                }
+            }
+            , TimeSpan.FromSeconds(_settings.RuleCachingExpiration));
+            if (rules.HasValue)
+            {
+                var obj = JsonConvert.DeserializeObject(Message.ConvertPayloadToString());
                 rules.Value.ToList().ForEach(async g =>
                 {
                     _logger.LogInformation($"{ClientId}的数据{Message.Topic}通过规则链{g}进行处理。");

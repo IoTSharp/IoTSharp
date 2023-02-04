@@ -1110,7 +1110,7 @@
         </member>
         <member name="P:IoTSharp.Dtos.ProduceDictionaryItemDto.UnitConvert">
             <summary>
-            
+            单位转换
             </summary>
         </member>
         <member name="P:IoTSharp.Dtos.ProduceDictionaryItemDto.KeyDesc">
