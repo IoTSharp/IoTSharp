@@ -159,10 +159,20 @@ v1/gateway/attributes
  devices/{设备名称}/rpc/response/{方法名称}/{请求唯一标识}
 ```
 
-
-##  RawDataGateway
+##  RawData
 
 在Mqtt中我们通过topic   gateway/json 和 gateway/xml  来支持 RawDataGateway 解析。 
+
+
+
+##  设备透传的原始数据
+
+注意， 通常情况下你需要 配合规则链的脚本来解析透传的原始数据， 相关视频请查看 【IoTSharp 教程第二集 规则链使用】 https://www.bilibili.com/video/BV1be4y1N74s/?share_source=copy_web&vd_source=5b4c8cb51c4e0e2e985b5927ecc05d4a  
+目前支持的topic如下 
+
+1.  devices/{设备名称}/data/json  来处理json格式的数据
+2.  devices/{设备名称}/data/binary  用于处理二进制数据 
+
 
 
 

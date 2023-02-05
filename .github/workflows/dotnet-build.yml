@@ -3,6 +3,7 @@ name: .NET Core build
 on:
   push:
     branches: [ master ]
+    paths: [IoTSharp.*/**]
 
 jobs:
   build:
