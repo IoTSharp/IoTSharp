@@ -3,6 +3,7 @@ name: Building and Packaging
 on:
   push:
     branches: [ "master" ]
+    paths: [IoTSharp.*/**]
 
 jobs:
 
