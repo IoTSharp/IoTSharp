@@ -81,6 +81,11 @@ export const createDeviceCrudOptions = function ({ expose }, customerId, deviceD
 
 			// 	},
 			// },
+
+			pagination:{
+			    "page-sizes": 	[10, 20, 30, 40, 100, 250]
+			},
+
 			table: {
 				border: false,
 				onSelectionChange,

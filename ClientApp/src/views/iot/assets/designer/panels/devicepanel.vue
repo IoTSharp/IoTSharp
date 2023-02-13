@@ -10,9 +10,9 @@
      
       </el-tab-pane>
 
-	  <el-tab-pane label="属性" name="2">
+	  <el-tab-pane label="属性" name="3">
      
-	</el-tab-pane>
+	</el-tab-pane> 
     </el-tabs>
   </div>
 
