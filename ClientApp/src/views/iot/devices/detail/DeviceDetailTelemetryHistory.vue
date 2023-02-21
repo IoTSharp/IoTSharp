@@ -169,7 +169,7 @@ const updateChart = (rawData) => {
       type: 'line',
       smooth: true,
       symbol: 'none',
-      data: rawData[key],
+      data: [],
       seriesLayoutBy: 'row'
     }
   })
