@@ -16,14 +16,14 @@ namespace IoTSharp.Data.Extensions
             OriginatorType originatorType = cad.OriginatorType;
             if (cad.OriginatorType == OriginatorType.Device || cad.OriginatorType == OriginatorType.Gateway || cad.OriginatorType == OriginatorType.Unknow)
             {
-                var dev = _context.Device.Include(d=>d.Tenant).Include(d=>d.Customer).AsSplitQuery().FirstOrDefault(d => d.Id.ToString() == cad.OriginatorName || d.Name == cad.OriginatorName);
+                var dev = _context.Device.Include(d=>d.Tenant).Include(d=>d.Customer).FirstOrDefault(d => d.Id.ToString() == cad.OriginatorName || d.Name == cad.OriginatorName);
                 if (dev != null)
                 {
                     if (dev.DeviceType == DeviceType.Gateway)
                     {
                         if (dev.Id.ToString() != cad.OriginatorName && dev.Name != cad.OriginatorName)
                         {
-                            var subdev = from g in _context.Device.Include(d => d.Tenant).Include(d => d.Customer).Include(g => g.Owner).AsSplitQuery() where g.Owner == dev && g.Name == cad.OriginatorName select g;
+                            var subdev = from g in _context.Device.Include(d => d.Tenant).Include(d => d.Customer).Include(g => g.Owner) where g.Owner == dev && g.Name == cad.OriginatorName select g;
                             var orig = await subdev.FirstOrDefaultAsync();
                             OriginatorId = orig.Id;
                             originatorType = OriginatorType.Device;
@@ -51,7 +51,7 @@ namespace IoTSharp.Data.Extensions
             }
             else if (cad.OriginatorType == OriginatorType.Asset)
             {
-                var ass = _context.Assets.Include(a => a.Tenant).Include(a => a.Customer).AsSplitQuery().FirstOrDefault(d => (d.Id.ToString() == cad.OriginatorName || d.Name == cad.OriginatorName) && d.Deleted==false);
+                var ass = _context.Assets.Include(a => a.Tenant).Include(a => a.Customer).FirstOrDefault(d => (d.Id.ToString() == cad.OriginatorName || d.Name == cad.OriginatorName) && d.Deleted==false);
                 if (ass != null)
                 {
                     originatorType = OriginatorType.Asset;

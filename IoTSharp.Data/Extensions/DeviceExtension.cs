@@ -58,7 +58,7 @@ namespace IoTSharp.Data.Extensions
         public static async Task<DeviceRule[]> GerDeviceRulesList(this ApplicationDbContext _dbContext, Guid devid, EventType mountType)
         {
             DeviceRule[] lst = null;
-            var r = from dr in _dbContext.DeviceRules.Include(d => d.Device).Include(d => d.FlowRule).AsSplitQuery() where dr.Device.Id == devid && dr.FlowRule.MountType == mountType select dr ;
+            var r = from dr in _dbContext.DeviceRules.Include(d => d.Device).Include(d => d.FlowRule) where dr.Device.Id == devid && dr.FlowRule.MountType == mountType select dr ;
             if (r.Any())
             {
                 lst = await r.ToArrayAsync();

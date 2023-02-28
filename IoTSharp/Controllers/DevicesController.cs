@@ -146,7 +146,7 @@ namespace IoTSharp.Controllers
                         query = from x in query where x.Name.Contains(m.Name) select x;
                     }
                 }
-                var lst = await query.Skip((m.Offset) * m.Limit).Take(m.Limit).AsSplitQuery().Select(x => new DeviceDetailDto()
+                var lst = await query.Skip((m.Offset) * m.Limit).Take(m.Limit).Select(x => new DeviceDetailDto()
                 {
                     Id = x.Id,
                     Name = x.Name,
@@ -262,8 +262,8 @@ namespace IoTSharp.Controllers
             }
             else
             {
-                var did = await _context.DeviceIdentities.Include(d => d.Device).AsSingleQuery().FirstOrDefaultAsync(c => c.Device.Id == deviceId);
-                var cust = from c in _context.Device.Include(d => d.Customer).Include(d => d.Tenant).AsSplitQuery() where c.Id == deviceId select c;
+                var did = await _context.DeviceIdentities.Include(d => d.Device).FirstOrDefaultAsync(c => c.Device.Id == deviceId);
+                var cust = from c in _context.Device.Include(d => d.Customer).Include(d => d.Tenant) where c.Id == deviceId select c;
                 var dev = cust.FirstOrDefault();
                 if (did != null && dev != null)
                 {
@@ -321,7 +321,7 @@ namespace IoTSharp.Controllers
         {
             try
             {
-                var dt = _context.DeviceIdentities.Include(d => d.Device).AsSingleQuery().FirstOrDefault(c => c.Device.Id == deviceId);
+                var dt = _context.DeviceIdentities.Include(d => d.Device).FirstOrDefault(c => c.Device.Id == deviceId);
                 if (dt == null || dt.IdentityType != IdentityType.X509Certificate || string.IsNullOrEmpty(dt.IdentityValue))
                 {
                     return Ok(new ApiResult(ApiCode.NotFoundDevice, "未找到设备或设备公钥、秘钥为空"));
@@ -475,12 +475,12 @@ namespace IoTSharp.Controllers
             if (User.IsInRole(nameof(UserRole.TenantAdmin)))
             {
                 var tid = Guid.Parse(User.Claims.First(c => c.Type == IoTSharpClaimTypes.Tenant).Value);
-                dev = await _context.Device.Include(d => d.Tenant).Include(d=>d.Customer).Include(d=>d.DeviceIdentity).AsSplitQuery().FirstOrDefaultAsync(d => d.Id == deviceId && d.Tenant.Id == tid && !d.Deleted);
+                dev = await _context.Device.Include(d => d.Tenant).Include(d=>d.Customer).Include(d=>d.DeviceIdentity).FirstOrDefaultAsync(d => d.Id == deviceId && d.Tenant.Id == tid && !d.Deleted);
             }
             else if (User.IsInRole(nameof(UserRole.NormalUser)))
             {
                 var cid = Guid.Parse(User.Claims.First(c => c.Type == IoTSharpClaimTypes.Customer).Value);
-                dev = await _context.Device.Include(d => d.Customer).Include(d => d.Customer).Include(d => d.DeviceIdentity).AsSplitQuery().FirstOrDefaultAsync(d => d.Id == deviceId && d.Customer.Id == cid && !d.Deleted);
+                dev = await _context.Device.Include(d => d.Customer).Include(d => d.Customer).Include(d => d.DeviceIdentity).FirstOrDefaultAsync(d => d.Id == deviceId && d.Customer.Id == cid && !d.Deleted);
             }
             return dev;
         }
@@ -692,7 +692,7 @@ namespace IoTSharp.Controllers
 
             var cid = User.Claims.First(c => c.Type == IoTSharpClaimTypes.Customer);
             var tid = User.Claims.First(c => c.Type == IoTSharpClaimTypes.Tenant);
-            var dev = _context.Device.Include(d => d.Tenant).Include(d => d.Customer).AsSplitQuery().First(d => d.Id == device.Id);
+            var dev = _context.Device.Include(d => d.Tenant).Include(d => d.Customer).First(d => d.Id == device.Id);
             var tenid = dev.Tenant.Id;
             var cusid = dev.Customer.Id;
 
@@ -741,7 +741,7 @@ namespace IoTSharp.Controllers
         [ProducesDefaultResponseType]
         public async Task<ApiResult<Device>> PostDevice(Guid id, DevicePostProduceDto device)
         {
-            var produce = await _context.Produces.Include(p => p.DefaultAttributes).AsSplitQuery().FirstOrDefaultAsync(p => p.Id == id && p.Deleted==false);
+            var produce = await _context.Produces.Include(p => p.DefaultAttributes).FirstOrDefaultAsync(p => p.Id == id && p.Deleted==false);
             if (produce == null)
             {
                 return new ApiResult<Device>(ApiCode.NotFoundProduce, "Not found Produce", null);

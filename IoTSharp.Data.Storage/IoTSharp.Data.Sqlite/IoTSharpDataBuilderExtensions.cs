@@ -10,6 +10,8 @@ using System.Linq;
 using ShardingCore.Core.ShardingConfigurations;
 using Microsoft.Data.Sqlite;
 using System.IO;
+using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.Extensions.Options;
 
 namespace Microsoft.Extensions.DependencyInjection
 {
@@ -23,17 +25,11 @@ namespace Microsoft.Extensions.DependencyInjection
             var fi = new FileInfo(builder.DataSource);
             if (!fi.Directory.Exists) fi.Directory.Create();
 
-            services.AddEntityFrameworkSqlite();
-            services.AddSingleton<IDataBaseModelBuilderOptions>( c=> new SqliteModelBuilderOptions());
-            services.AddDbContextPool<ApplicationDbContext>(builder =>
-            {
-              
-                builder.UseSqlite(connectionString, s =>  s.MigrationsAssembly("IoTSharp.Data.Sqlite").UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery));
-                builder.UseInternalServiceProvider(services.BuildServiceProvider());
-            }
-     , poolSize);
+            services.AddSingleton<IDataBaseModelBuilderOptions>(c => new SqliteModelBuilderOptions());
+            services.AddSqlite<ApplicationDbContext>(connectionString, opt => opt.UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery)
+                                   .MigrationsAssembly("IoTSharp.Data.Sqlite"));
             checksBuilder.AddSqlite(connectionString, name: "IoTSharp.Data.Sqlite");
-            healthChecksUI.AddSqliteStorage($"Data Source={fi.DirectoryName}{Path.DirectorySeparatorChar}health_checks.db");
+            healthChecksUI.AddSqliteStorage($"Data Source={fi.DirectoryName}{Path.DirectorySeparatorChar}health_checks.db",opt => opt.ConfigureWarnings(w => w.Ignore(RelationalEventId.MultipleCollectionIncludeWarning)));
 
         }
 
@@ -41,11 +37,11 @@ namespace Microsoft.Extensions.DependencyInjection
         {
             options.UseShardingQuery((conStr, builder) =>
             {
-                builder.UseSqlite(conStr);
+                builder.UseSqlite(conStr, opt => opt.UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery));
             });
             options.UseShardingTransaction((conn, builder) =>
             {
-                builder.UseSqlite(conn);
+                builder.UseSqlite(conn,opt => opt.UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery));
             });
         }
 

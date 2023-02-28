@@ -173,7 +173,7 @@ namespace IoTSharp.Services
                             _thumbprint = e.ClientCertificate?.Thumbprint;
                         }
                             _logger.LogInformation($"ClientId={obj.ClientId},Endpoint={obj.Endpoint},Username={obj.UserName}，Password={obj.Password}");
-                        var mcr = _dbContextcv.DeviceIdentities.Include(d => d.Device).AsSplitQuery().FirstOrDefault(mc =>
+                        var mcr = _dbContextcv.DeviceIdentities.Include(d => d.Device).FirstOrDefault(mc =>
                                               (mc.IdentityType == IdentityType.AccessToken && mc.IdentityId == obj.UserName) ||
                                              ( mc.IdentityType == IdentityType.X509Certificate &&  mc.IdentityId == _thumbprint ) ||
                                              ( mc.IdentityType == IdentityType.DevicePassword && mc.IdentityId == obj.UserName && mc.IdentityValue == obj.Password)
@@ -196,7 +196,7 @@ namespace IoTSharp.Services
                         }
                         else if (_dbContextcv.AuthorizedKeys.Any(ak => ak.AuthToken == obj.Password && ak.Deleted==false))
                         {
-                            var ak = _dbContextcv.AuthorizedKeys.Include(ak => ak.Customer).Include(ak => ak.Tenant).Include(ak => ak.Devices).AsSplitQuery().FirstOrDefault(ak => ak.AuthToken == obj.Password && ak.Deleted==false);
+                            var ak = _dbContextcv.AuthorizedKeys.Include(ak => ak.Customer).Include(ak => ak.Tenant).Include(ak => ak.Devices).FirstOrDefault(ak => ak.AuthToken == obj.Password && ak.Deleted==false);
                             if (ak != null && !ak.Devices.Any(dev => dev.Name == obj.UserName))
                             {
                                 var devvalue = new Device() { Name = obj.UserName, DeviceType = DeviceType.Device, Timeout = 300 };
@@ -208,7 +208,7 @@ namespace IoTSharp.Services
                                 _dbContextcv.SaveChanges();
                                 _queue.PublishConnect(devvalue.Id,  ConnectStatus.Connected);
                             }
-                            var mcp = _dbContextcv.DeviceIdentities.Include(d => d.Device).AsSingleQuery().FirstOrDefault(mc => mc.IdentityType == IdentityType.DevicePassword && mc.IdentityId == obj.UserName && mc.IdentityValue == obj.Password);
+                            var mcp = _dbContextcv.DeviceIdentities.Include(d => d.Device).FirstOrDefault(mc => mc.IdentityType == IdentityType.DevicePassword && mc.IdentityId == obj.UserName && mc.IdentityValue == obj.Password);
                             if (mcp != null)
                             {
                                 e.SessionItems.Add(nameof(Device), mcp.Device);

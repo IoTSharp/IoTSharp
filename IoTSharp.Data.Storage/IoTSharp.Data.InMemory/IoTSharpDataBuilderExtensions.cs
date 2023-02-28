@@ -2,6 +2,7 @@
 using IoTSharp.Data;
 using IoTSharp.Data.InMemory;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using System;
 
 namespace Microsoft.Extensions.DependencyInjection
@@ -19,7 +20,7 @@ namespace Microsoft.Extensions.DependencyInjection
                 builder.UseInMemoryDatabase("IoTSharp");
                 builder.UseInternalServiceProvider(services.BuildServiceProvider());
             }     , poolSize);
-            healthChecksUI.AddInMemoryStorage();
+            healthChecksUI.AddInMemoryStorage(opt => opt.ConfigureWarnings(w => w.Ignore(RelationalEventId.MultipleCollectionIncludeWarning)));
         }
     }
 }

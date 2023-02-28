@@ -108,7 +108,7 @@ namespace IoTSharp.Services.CoApResources
                             default:
                                 break;
                         }
-                        var mcr = await _dbContext.DeviceIdentities.Include(d => d.Device).AsSingleQuery().FirstOrDefaultAsync(di => di.IdentityType == IdentityType.AccessToken && di.IdentityId == acctoken);
+                        var mcr = await _dbContext.DeviceIdentities.Include(d => d.Device).FirstOrDefaultAsync(di => di.IdentityType == IdentityType.AccessToken && di.IdentityId == acctoken);
                         var dev = mcr?.Device;
                         if (mcr != null && dev != null)
                         {

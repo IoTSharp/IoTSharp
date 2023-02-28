@@ -7,6 +7,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using ShardingCore.Core.ShardingConfigurations;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 
 namespace Microsoft.Extensions.DependencyInjection
 {
@@ -16,16 +17,12 @@ namespace Microsoft.Extensions.DependencyInjection
 
         public static void ConfigureOracle(this IServiceCollection services, string connectionString, int poolSize, IHealthChecksBuilder checksBuilder, HealthChecksUIBuilder healthChecksUI)
         {
-            services.AddEntityFrameworkOracle();
             services.AddSingleton<IDataBaseModelBuilderOptions>( c=> new OracleModelBuilderOptions());
-            services.AddDbContextPool<ApplicationDbContext>(builder =>
-            {
-                builder.UseOracle(connectionString, s =>   s.MigrationsAssembly("IoTSharp.Data.Oracle").UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery));
-                builder.UseInternalServiceProvider(services.BuildServiceProvider());
-            }
-     , poolSize);
+            services.AddOracle<ApplicationDbContext>(connectionString, s =>
+                         s.UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery)
+                            .MigrationsAssembly("IoTSharp.Data.Oracle"));
             checksBuilder.AddOracle(connectionString,name: "IoTSharp.Data.Oracle");
-            healthChecksUI.AddInMemoryStorage();
+            healthChecksUI.AddInMemoryStorage(opt => opt.ConfigureWarnings(w => w.Ignore(RelationalEventId.MultipleCollectionIncludeWarning)));
 
         }
 
@@ -33,11 +30,11 @@ namespace Microsoft.Extensions.DependencyInjection
         {
             options.UseShardingQuery((conStr, builder) =>
             {
-                builder.UseOracle(conStr);
+                builder.UseOracle(conStr, opt => opt.UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery));
             });
             options.UseShardingTransaction((conn, builder) =>
             {
-                builder.UseOracle(conn);
+                builder.UseOracle(conn, opt => opt.UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery));
             });
         }
     }
