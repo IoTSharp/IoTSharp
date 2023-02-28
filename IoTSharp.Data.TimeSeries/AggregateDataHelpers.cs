@@ -44,79 +44,82 @@ namespace IoTSharp.Storage
                             else
                             {
                                 var dxx = d.FirstOrDefault();//用第一个值来取类型和keyname , 
-                                var tdd = new TelemetryDataDto()
+                                if (dxx != null)
                                 {
-                                    KeyName = dxx.KeyName,
-                                    DataType = dxx.DataType,
-                                    DateTime = xe
-                                };
-                                switch (aggregate)
-                                {
-                                    case Aggregate.Mean:
-                                        if (tdd.DataType == DataType.Long)
-                                        {
-                                            tdd.Value = (long)d.Average(f => (long)f.Value);
-                                        }
-                                        else if (tdd.DataType == DataType.Double)
-                                        {
-                                            tdd.Value = (double)d.Average(f => (double)f.Value);
-                                        }
-                                        break;
-                                    case Aggregate.Median:
-                                        if (tdd.DataType == DataType.Long)
-                                        {
-                                            var _vxx = d.OrderBy(f => (long)f.Value).ToList();
-                                            var indx = _vxx.Count / 2;
-                                            tdd.Value = _vxx[indx].Value;
-                                        }
-                                        else if (tdd.DataType == DataType.Double)
-                                        {
-                                            var _vxx = d.OrderBy(f => (double)f.Value).ToList();
-                                            var indx = _vxx.Count / 2;
-                                            tdd.Value = _vxx[indx].Value;
-                                        }
-                                        break;
-                                    case Aggregate.Last:
-                                        tdd.Value = d.Last().Value;
-                                        break;
-                                    case Aggregate.First:
-                                        tdd.Value = d.First().Value;
-                                        break;
-                                    case Aggregate.Max:
-                                        if (tdd.DataType == DataType.Long)
-                                        {
-                                            tdd.Value = (long)d.Max(f => (long)f.Value);
-                                        }
-                                        else if (tdd.DataType == DataType.Double)
-                                        {
-                                            tdd.Value = (double)d.Max(f => (double)f.Value);
-                                        }
-                                        break;
-                                    case Aggregate.Min:
-                                        if (tdd.DataType == DataType.Long)
-                                        {
-                                            tdd.Value = (long)d.Min(f => (long)f.Value);
-                                        }
-                                        else if (tdd.DataType == DataType.Double)
-                                        {
-                                            tdd.Value = (double)d.Min(f => (double)f.Value);
-                                        }
-                                        break;
-                                    case Aggregate.Sum:
-                                        if (tdd.DataType == DataType.Long)
-                                        {
-                                            tdd.Value = (long)d.Sum(f => (long)f.Value);
-                                        }
-                                        else if (tdd.DataType == DataType.Double)
-                                        {
-                                            tdd.Value = (double)d.Sum(f => (double)f.Value);
-                                        }
-                                        break;
-                                    case Aggregate.None:
-                                    default:
-                                        break;
+                                    var tdd = new TelemetryDataDto()
+                                    {
+                                        KeyName = dxx.KeyName,
+                                        DataType = dxx.DataType,
+                                        DateTime = xe
+                                    };
+                                    switch (aggregate)
+                                    {
+                                        case Aggregate.Mean:
+                                            if (tdd.DataType == DataType.Long)
+                                            {
+                                                tdd.Value = (long)d.Average(f => (long)f.Value);
+                                            }
+                                            else if (tdd.DataType == DataType.Double)
+                                            {
+                                                tdd.Value = (double)d.Average(f => (double)f.Value);
+                                            }
+                                            break;
+                                        case Aggregate.Median:
+                                            if (tdd.DataType == DataType.Long)
+                                            {
+                                                var _vxx = d.OrderBy(f => (long)f.Value).ToList();
+                                                var indx = _vxx.Count / 2;
+                                                tdd.Value = _vxx[indx].Value;
+                                            }
+                                            else if (tdd.DataType == DataType.Double)
+                                            {
+                                                var _vxx = d.OrderBy(f => (double)f.Value).ToList();
+                                                var indx = _vxx.Count / 2;
+                                                tdd.Value = _vxx[indx].Value;
+                                            }
+                                            break;
+                                        case Aggregate.Last:
+                                            tdd.Value = d.Last().Value;
+                                            break;
+                                        case Aggregate.First:
+                                            tdd.Value = d.First().Value;
+                                            break;
+                                        case Aggregate.Max:
+                                            if (tdd.DataType == DataType.Long)
+                                            {
+                                                tdd.Value = (long)d.Max(f => (long)f.Value);
+                                            }
+                                            else if (tdd.DataType == DataType.Double)
+                                            {
+                                                tdd.Value = (double)d.Max(f => (double)f.Value);
+                                            }
+                                            break;
+                                        case Aggregate.Min:
+                                            if (tdd.DataType == DataType.Long)
+                                            {
+                                                tdd.Value = (long)d.Min(f => (long)f.Value);
+                                            }
+                                            else if (tdd.DataType == DataType.Double)
+                                            {
+                                                tdd.Value = (double)d.Min(f => (double)f.Value);
+                                            }
+                                            break;
+                                        case Aggregate.Sum:
+                                            if (tdd.DataType == DataType.Long)
+                                            {
+                                                tdd.Value = (long)d.Sum(f => (long)f.Value);
+                                            }
+                                            else if (tdd.DataType == DataType.Double)
+                                            {
+                                                tdd.Value = (double)d.Sum(f => (double)f.Value);
+                                            }
+                                            break;
+                                        case Aggregate.None:
+                                        default:
+                                            break;
+                                    }
+                                    result.Add(tdd);
                                 }
-                                result.Add(tdd);
                             }
                         });
                     }

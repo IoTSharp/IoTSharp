@@ -32,8 +32,7 @@ namespace IoTSharp.Storage
         {
             using var scope = _scopeFactor.CreateScope();
             using var context = scope.ServiceProvider.GetService<ApplicationDbContext>();
-
-            var devid = from t in context.TelemetryLatest
+            var devid = from t in context?.TelemetryLatest
                         where t.DeviceId == deviceId
                         select new TelemetryDataDto() { DateTime = t.DateTime, KeyName = t.KeyName, Value = t.ToObject() };
             return devid.AsNoTracking().ToListAsync();
@@ -43,12 +42,9 @@ namespace IoTSharp.Storage
         {
             using var scope = _scopeFactor.CreateScope();
             using var context = scope.ServiceProvider.GetService<ApplicationDbContext>();
-
-            var devid = from t in context.TelemetryLatest
+            var devid = from t in context?.TelemetryLatest
                         where t.DeviceId == deviceId && keys.Split(',', ' ', ';').Contains(t.KeyName)
-
                         select new TelemetryDataDto() { DateTime = t.DateTime, KeyName = t.KeyName, Value = t.ToObject() };
-
             return devid.AsNoTracking().ToListAsync();
         }
 
@@ -57,7 +53,7 @@ namespace IoTSharp.Storage
             using var scope = _scopeFactor.CreateScope();
             using var context = scope.ServiceProvider.GetService<ApplicationDbContext>();
             var lst = new List<TelemetryDataDto>();
-            var kv = from t in context.TelemetryData
+            var kv = from t in context?.TelemetryData
                      where t.DeviceId == deviceId &&  t.DateTime >= begin && t.DateTime < end
                      select new TelemetryDataDto() { DateTime = t.DateTime, KeyName = t.KeyName, DataType=t.Type,  Value = t.ToObject() };
             if (!string.IsNullOrEmpty(keys) )
@@ -69,8 +65,7 @@ namespace IoTSharp.Storage
             {
                 lst = await kv.AsNoTracking().ToListAsync();
             }
-           var   result = AggregateDataHelpers.AggregateData(lst, begin, end, every, aggregate);
-            return result;
+           return AggregateDataHelpers.AggregateData(lst, begin, end, every, aggregate);
         }
 
         public virtual async Task<(bool result, List<TelemetryData> telemetries)>  StoreTelemetryAsync(PlayloadData msg)

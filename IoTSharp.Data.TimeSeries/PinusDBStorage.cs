@@ -74,7 +74,7 @@ namespace IoTSharp.Storage
         public Task<List<TelemetryDataDto>> GetTelemetryLatest(Guid deviceId, string keys)
         {
             PinusConnection _pinus = _pinuspool.Get();
-            List<TelemetryDataDto> dt=null;
+            List<TelemetryDataDto> dt = new List<TelemetryDataDto>() ;
             try
             {
                 string sql = $"select  devid,devname,expand  from sys_dev  where tabname='telemetrydata_{deviceId:N}' and   in ('{ string.Join("','", keys.Split(';', ','))}')";
@@ -97,7 +97,7 @@ namespace IoTSharp.Storage
         public Task<List<TelemetryDataDto>> LoadTelemetryAsync(Guid deviceId, string keys, DateTime begin, DateTime end, TimeSpan every, Aggregate aggregate)
         {
             PinusConnection _pinus = _pinuspool.Get();
-            List<TelemetryDataDto> dt = null;
+            List<TelemetryDataDto> dt = new List<TelemetryDataDto>();
             try
             {
                 string sql = $"select  devid,devname,expand  from sys_dev  where tabname='telemetrydata_{deviceId:N}' and   in ('{ string.Join("','", keys.Split(';', ','))}')";
@@ -153,7 +153,7 @@ namespace IoTSharp.Storage
             {
                 string tablename = GetDevTableName(msg);
                 var _havedev = _pinus.CreateCommand($"select count(*) from sys_table where tabname =  '{tablename}'").ExecuteScalar() as long?;
-                if ((long)_havedev == 0)
+                if (_havedev == 0)
                 {
                     _pinus.CreateCommand($"CREATE TABLE {tablename} (devid bigint,tstamp datetime,value_type  tinyint,value_boolean bool, value_string string, value_long bigint,value_datetime datetime,value_double double)").ExecuteNonQuery();
                 }

@@ -206,7 +206,7 @@ namespace IoTSharp.Storage
                             {
                                 case DataType.Boolean:
                                     _type = "value_boolean";
-                                    _value = tdata.Value_Boolean.ToString().ToLower();
+                                    _value = tdata.Value_Boolean.GetValueOrDefault().ToString().ToLower();
                                     _hasvalue = tdata.Value_Boolean.HasValue;
                                     break;
                                 case DataType.String:
