@@ -1,7 +1,7 @@
 #See https://aka.ms/containerfastmode to understand how Visual Studio uses this Dockerfile to build your images for faster debugging.
 
 FROM mcr.microsoft.com/dotnet/aspnet:7.0-bullseye-slim AS base
-MAINTAINER Yanhong Ma 2022 <mysticboy@live.com>
+MAINTAINER Yanhong Ma 2023 <mysticboy@live.com>
 RUN  apt-get  -y update   && \
      apt-get install  -y --no-install-recommends apt-utils libgdiplus libc6-dev lsof net-tools wget sqlite3 iputils-ping inetutils-tools   curl libfontconfig1 && \
      apt-get autoclean 
