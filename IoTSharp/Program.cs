@@ -17,7 +17,7 @@ namespace IoTSharp
 
         public static void Main(string[] args)
         {
-            Console.WriteLine(FiggleFonts.Ogre.Render($"IoTSharp {typeof(Startup).Assembly.GetName().Version}"));
+            Console.WriteLine(FiggleFonts.Doom.Render("IoTSharp"));
             CreateHostBuilder(args).Build().Run();
         }
 
