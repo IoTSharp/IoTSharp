@@ -39,7 +39,7 @@ namespace IoTSharp.Controllers
                 {
                     condition.And(x => x.ModelName == m.Name);
                 }
-                return new ApiResult<PagedData<DeviceModel>>(ApiCode.Success, "OK", new PagedData<DeviceModel>() { rows = _context.DeviceModels.Where(condition).Skip((m.Offset) * m.Limit).Take(m.Limit).ToList(), total = _context.DeviceModels.Count(condition) });
+                return new ApiResult<PagedData<DeviceModel>>(ApiCode.Success, "OK", new PagedData<DeviceModel>() { rows = _context.DeviceModels.Where(condition).OrderBy(d=>d.ModelName).Skip((m.Offset) * m.Limit).Take(m.Limit).ToList(), total = _context.DeviceModels.Count(condition) });
             }
             catch (Exception e)
             {

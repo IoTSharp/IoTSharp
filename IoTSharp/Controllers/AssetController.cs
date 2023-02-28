@@ -44,14 +44,13 @@ namespace IoTSharp.Controllers
             {
                 condition = condition.And(x => x.Name.Contains(m.Name));
             }
-
+            var query = _context.Assets.Where(condition).OrderBy(k => k.Name).Skip((m.Offset) * m.Limit).Take(m.Limit)
+                    .Select(c => new AssetDto
+                    { Id = c.Id, AssetType = c.AssetType, Description = c.Description, Name = c.Name });
             return new ApiResult<PagedData<AssetDto>>(ApiCode.Success, "OK", new PagedData<AssetDto>
             {
                 total = await _context.Assets.CountAsync(condition),
-                rows = _context.Assets.Where(condition).Where(condition).Skip((m.Offset) * m.Limit).Take(m.Limit)
-                    .ToList().Select(c => new AssetDto
-                        {Id = c.Id, AssetType = c.AssetType, Description = c.Description, Name = c.Name}).ToList()
-
+                rows = await query.ToListAsync()
             });
 
         }
