@@ -1,13 +1,13 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
-		<TargetFramework>net6.0</TargetFramework>
+		<TargetFramework>net7.0</TargetFramework>
 	</PropertyGroup>
 
 	<ItemGroup>
-		<PackageReference Include="AspNetCore.HealthChecks.Oracle" Version="6.0.3" />
-		<PackageReference Include="AspNetCore.HealthChecks.UI.InMemory.Storage" Version="6.0.5" />
-		<PackageReference Include="Oracle.EntityFrameworkCore" Version="6.21.61" />
+		<PackageReference Include="AspNetCore.HealthChecks.Oracle" Version="7.0.0-rc2.6" />
+		<PackageReference Include="AspNetCore.HealthChecks.UI.InMemory.Storage" Version="7.0.0-rc2.7" />
+		<PackageReference Include="Oracle.EntityFrameworkCore" Version="7.21.9" />
 	</ItemGroup>
 
 	<ItemGroup>

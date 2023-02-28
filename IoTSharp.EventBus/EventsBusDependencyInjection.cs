@@ -19,8 +19,11 @@ namespace IoTSharp.EventBus
         {
             var provider = app.ApplicationServices;
             var options = provider.GetService<EventBusOption>();
-            var hander=   action.Invoke(options);
-            options.RunRules += hander; 
+            var hander=   action.Invoke(options!);
+            if (options != null)
+            {
+                options.RunRules += hander;
+            }
             return app;
 
         }

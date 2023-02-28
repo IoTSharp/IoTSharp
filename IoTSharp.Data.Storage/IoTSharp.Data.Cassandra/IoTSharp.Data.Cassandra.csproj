@@ -1,10 +1,10 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
-		<TargetFramework>net6.0</TargetFramework>
+		<TargetFramework>net7.0</TargetFramework>
 	</PropertyGroup>
 	<ItemGroup>
-		<PackageReference Include="AspNetCore.HealthChecks.UI.Core" Version="6.0.5" />
+		<PackageReference Include="AspNetCore.HealthChecks.UI.Core" Version="7.0.0-rc2.7" />
 		<PackageReference Include="EFCore.Cassandra" Version="2.0.5" />
 		<PackageReference Include="IoTSharp.HealthChecks.Cassandra" Version="1.0.22" />
 	</ItemGroup>

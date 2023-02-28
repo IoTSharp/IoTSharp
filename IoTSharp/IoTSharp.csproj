@@ -1,6 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 	<PropertyGroup>
-		<TargetFramework>net6.0</TargetFramework>
+		<TargetFramework>net7.0</TargetFramework>
 		<TypeScriptCompileBlocked>true</TypeScriptCompileBlocked>
 		<TypeScriptToolsVersion>Latest</TypeScriptToolsVersion>
 		<IsPackable>false</IsPackable>
@@ -50,9 +50,9 @@
 	</PropertyGroup>
 	<ItemGroup>
 
-		<PackageReference Include="AspNetCore.HealthChecks.System" Version="6.0.5" />
-		<PackageReference Include="AspNetCore.HealthChecks.UI" Version="6.0.5" />
-		<PackageReference Include="AspNetCore.HealthChecks.UI.Client" Version="6.0.5" />
+		<PackageReference Include="AspNetCore.HealthChecks.System" Version="7.0.0-rc2.5" />
+		<PackageReference Include="AspNetCore.HealthChecks.UI" Version="7.0.0-rc2.7" />
+		<PackageReference Include="AspNetCore.HealthChecks.UI.Client" Version="7.0.0-rc2.7" />
 		<PackageReference Include="EasyCaching.InMemory" Version="1.9.0" />
 		<PackageReference Include="EasyCaching.LiteDB" Version="1.9.0" />
 		<PackageReference Include="EasyCaching.Redis" Version="1.9.0" />
@@ -62,9 +62,9 @@
 		<PackageReference Include="Jdenticon-net" Version="3.1.2" />
 		<PackageReference Include="Jdenticon.AspNetCore" Version="3.1.2" />
 		<PackageReference Include="LiteDB" Version="5.0.15" />
-		<PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="6.0.10" />
-		<PackageReference Include="Microsoft.AspNetCore.SpaProxy" Version="6.0.10" />
-		<PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="6.0.10">
+		<PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="7.0.3" />
+		<PackageReference Include="Microsoft.AspNetCore.SpaProxy" Version="7.0.3" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="7.0.3">
 			<PrivateAssets>all</PrivateAssets>
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
@@ -80,15 +80,15 @@
 		<PackageReference Include="SilkierQuartz" Version="5.0.356" />
 		<PackageReference Include="SkiaSharp.NativeAssets.Linux.NoDependencies" Version="2.88.3" />
 		<PackageReference Include="Storage.Net" Version="9.3.0" />
-		<PackageReference Include="ShardingCore" Version="6.8.0.5" />
-		<PackageReference Include="System.Resources.Extensions" Version="6.0.0" />
-		<PackageReference Include="System.Text.Encoding.CodePages" Version="6.0.0">
+		<PackageReference Include="ShardingCore" Version="7.7.1.2" />
+		<PackageReference Include="System.Resources.Extensions" Version="7.0.0" />
+		<PackageReference Include="System.Text.Encoding.CodePages" Version="7.0.0">
 			<TreatAsUsed>true</TreatAsUsed>
 		</PackageReference>
-		<PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="6.0.10" />
-		<PackageReference Include="Microsoft.Extensions.Hosting.WindowsServices" Version="6.0.1" />
-		<PackageReference Include="Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore" Version="6.0.10" />
-		<PackageReference Include="Microsoft.AspNetCore.Identity.UI" Version="6.0.10" />
+		<PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="7.0.3" />
+		<PackageReference Include="Microsoft.Extensions.Hosting.WindowsServices" Version="7.0.0" />
+		<PackageReference Include="Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore" Version="7.0.3" />
+		<PackageReference Include="Microsoft.AspNetCore.Identity.UI" Version="7.0.3" />
 	</ItemGroup>
 
 

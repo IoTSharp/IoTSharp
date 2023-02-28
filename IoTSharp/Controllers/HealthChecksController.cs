@@ -3,8 +3,6 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
 using System;
-using HealthChecks.UI.Core.Data;
-using k8s.KubeConfigModels;
 using Microsoft.Extensions.DependencyInjection;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
@@ -13,9 +11,9 @@ using IoTSharp.Contracts;
 using Newtonsoft.Json.Serialization;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
-using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.Extensions.Options;
 using EasyCaching.Core;
+using HealthChecks.UI.Data;
 
 namespace IoTSharp.Controllers
 {

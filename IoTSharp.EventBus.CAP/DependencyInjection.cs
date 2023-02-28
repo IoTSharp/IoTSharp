@@ -1,6 +1,6 @@
 ﻿
 using DotNetCore.CAP;
-using DotNetCore.CAP.Dashboard.NodeDiscovery;
+using DotNetCore.CAP.Dashboard;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
 using RabbitMQ.Client;
@@ -22,7 +22,6 @@ namespace IoTSharp.EventBus.CAP
         {
             var provider = app.ApplicationServices;
             var options = provider.GetService<EventBusOption>();
-            app.UseCapDashboard();
             return app;
         }
 
