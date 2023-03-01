@@ -94,7 +94,7 @@ namespace IoTSharp.EdgeSdk.MQTT
                             chain.ChainPolicy.RevocationMode = X509RevocationMode.NoCheck;
                             chain.ChainPolicy.RevocationFlag = X509RevocationFlag.ExcludeRoot;
                             chain.ChainPolicy.VerificationFlags = X509VerificationFlags.NoFlag;
-                            chain.ChainPolicy.VerificationTime = DateTime.Now;
+                            chain.ChainPolicy.VerificationTime = DateTime.UtcNow;
                             chain.ChainPolicy.UrlRetrievalTimeout = new TimeSpan(0, 0, 0);
                             chain.ChainPolicy.CustomTrustStore.Add(ca);
                             chain.ChainPolicy.TrustMode = X509ChainTrustMode.CustomRootTrust;

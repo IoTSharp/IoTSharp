@@ -79,7 +79,7 @@ namespace IoTSharp.Data.Extensions
                 var alarm = new Alarm
                 {
                     Id = Guid.NewGuid(),
-                    AckDateTime = DateTime.Now,
+                    AckDateTime = DateTime.UtcNow,
                     AlarmDetail = dto.AlarmDetail,
                     AlarmStatus = AlarmStatus.Active_UnAck,
                     AlarmType = dto.AlarmType,
@@ -87,7 +87,7 @@ namespace IoTSharp.Data.Extensions
                     EndDateTime = new DateTime(1970, 1, 1),
                     Propagate = true,
                     Serverity = dto.Serverity,
-                    StartDateTime = DateTime.Now,
+                    StartDateTime = DateTime.UtcNow,
                 };
                 action?.Invoke(alarm);
                 var isone = from a in _context.Alarms where a.OriginatorId == alarm.OriginatorId && a.AlarmType == alarm.AlarmType && (a.AlarmStatus == AlarmStatus.Cleared_UnAck|| a.AlarmStatus == AlarmStatus.Active_UnAck) select a;
@@ -99,15 +99,15 @@ namespace IoTSharp.Data.Extensions
                     {
                         if (old.Serverity== ServerityLevel.Indeterminate && dto.Serverity!= ServerityLevel.Indeterminate)
                         {
-                            old.StartDateTime = DateTime.Now;
+                            old.StartDateTime = DateTime.UtcNow;
                             alarm.Propagate = true;
                         }
                         else if (old.Serverity != ServerityLevel.Indeterminate && dto.Serverity == ServerityLevel.Indeterminate)
                         {
-                            old.EndDateTime = DateTime.Now;
+                            old.EndDateTime = DateTime.UtcNow;
                             if (old.ClearDateTime.Year == 1970)
                             {
-                                old.ClearDateTime = DateTime.Now;
+                                old.ClearDateTime = DateTime.UtcNow;
                             }
                             alarm.Propagate = true;
                         }

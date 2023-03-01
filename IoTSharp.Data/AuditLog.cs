@@ -19,7 +19,7 @@ namespace IoTSharp.Data
         public string ActionName { get; set; }
         public string ActionData { get; set; }
         public string ActionResult { get; set; }
-        public DateTime ActiveDateTime { get; set; } = DateTime.Now;
+        public DateTime ActiveDateTime { get; set; } = DateTime.UtcNow;
 
     }
 }

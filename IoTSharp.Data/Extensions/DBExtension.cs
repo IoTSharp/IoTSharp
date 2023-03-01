@@ -15,7 +15,8 @@ namespace IoTSharp.Data.Extensions
     {
         public static void CheckApplicationDBMigrations(this IApplicationBuilder app)
         {
-            var applicationDb = app.ApplicationServices.GetService<ApplicationDbContext>();
+            using var scope = app.ApplicationServices.CreateScope();
+            using var applicationDb = scope.ServiceProvider.GetService<ApplicationDbContext>();
             if (applicationDb.Database.IsRelational() && applicationDb.Database.GetPendingMigrations().Any())
             {
                 applicationDb.Database.Migrate();

@@ -9,7 +9,7 @@ namespace IoTSharp.Data
 {
     public class PlayloadData
     {
-        public DateTime ts { get; set; } = DateTime.Now;
+        public DateTime ts { get; set; } = DateTime.UtcNow;
         public Guid DeviceId { get;   set; }
         public Dictionary<string, object> MsgBody { get;  set; }
         public DataSide DataSide { get;  set; }
