@@ -120,7 +120,7 @@ namespace IoTSharp.FlowRuleEngine
                 _logger.LogInformation($"开始执行规则链{rule?.Name}({ruleid})");
                 var @event = new BaseEvent()
                 {
-                    CreaterDateTime = DateTime.Now,
+                    CreaterDateTime = DateTime.UtcNow,
                     Creator = deviceId,
                     EventDesc = $"Event Rule:{rule?.Name}({ruleid}) device is {deviceId}",
                     EventName = $"开始执行规则链{rule?.Name}({ruleid})",
@@ -155,7 +155,7 @@ namespace IoTSharp.FlowRuleEngine
                     {
                         OperationId = Guid.NewGuid(),
                         bpmnid = "",
-                        AddDate = DateTime.Now,
+                        AddDate = DateTime.UtcNow,
                         FlowRule = rule,
                         Flow = start,
                         Data = JsonConvert.SerializeObject(data),
@@ -171,7 +171,7 @@ namespace IoTSharp.FlowRuleEngine
                 {
                     OperationId = Guid.NewGuid(),
                     bpmnid = start.bpmnid,
-                    AddDate = DateTime.Now,
+                    AddDate = DateTime.UtcNow,
                     FlowRule = rule,
                     Flow = start,
                     Data = JsonConvert.SerializeObject(data),
@@ -191,7 +191,7 @@ namespace IoTSharp.FlowRuleEngine
                         var flowOperation = new FlowOperation()
                         {
                             OperationId = Guid.NewGuid(),
-                            AddDate = DateTime.Now,
+                            AddDate = DateTime.UtcNow,
                             FlowRule = rule,
                             BaseEvent = @event,
                             Flow = item,
@@ -234,7 +234,7 @@ namespace IoTSharp.FlowRuleEngine
                             var operation = new FlowOperation()
                             {
                                 OperationId = Guid.NewGuid(),
-                                AddDate = DateTime.Now,
+                                AddDate = DateTime.UtcNow,
                                 FlowRule = peroperation.BaseEvent.FlowRule,
                                 Flow = flow,
                                 Data = JsonConvert.SerializeObject(data),
@@ -260,7 +260,7 @@ namespace IoTSharp.FlowRuleEngine
                             {
                                 OperationId = Guid.NewGuid(),
                                 bpmnid = flow.bpmnid,
-                                AddDate = DateTime.Now,
+                                AddDate = DateTime.UtcNow,
                                 FlowRule = peroperation.BaseEvent.FlowRule,
                                 Flow = flow,
                                 Data = JsonConvert.SerializeObject(data),
@@ -447,7 +447,7 @@ namespace IoTSharp.FlowRuleEngine
                                         var flowOperation = new FlowOperation()
                                         {
                                             OperationId = Guid.NewGuid(),
-                                            AddDate = DateTime.Now,
+                                            AddDate = DateTime.UtcNow,
                                             FlowRule = peroperation.BaseEvent.FlowRule,
                                             Flow = item,
                                             Data = JsonConvert.SerializeObject(obj),
@@ -480,7 +480,7 @@ namespace IoTSharp.FlowRuleEngine
                                     var flowOperation = new FlowOperation()
                                     {
                                         OperationId = Guid.NewGuid(),
-                                        AddDate = DateTime.Now,
+                                        AddDate = DateTime.UtcNow,
                                         FlowRule = peroperation.BaseEvent.FlowRule,
                                         Flow = item,
                                         Data = JsonConvert.SerializeObject(data),
@@ -507,7 +507,7 @@ namespace IoTSharp.FlowRuleEngine
                         end.BuildFlowOperation(peroperation, flow);
                         end.OperationId = Guid.NewGuid();
                         end.bpmnid = flow.bpmnid;
-                        end.AddDate = DateTime.Now;
+                        end.AddDate = DateTime.UtcNow;
                         end.FlowRule = peroperation.BaseEvent.FlowRule;
                         end.Flow = flow;
                         end.Data = JsonConvert.SerializeObject(data);
