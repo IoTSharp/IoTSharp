@@ -255,22 +255,21 @@ namespace IoTSharp
                         opt.UserShashlik();
                         break;
                     case EventBusFramework.CAP:
-                    default:
                         opt.UserCAP();
+                        break;
+                    default:
+                        opt.UserShashlik();
                         break;
                 }
             });
 
             services.AddTransient(_ => StorageFactory.Blobs.FromConnectionString(Configuration.GetConnectionString("BlobStorage") ?? $"disk://path={Environment.GetFolderPath(Environment.SpecialFolder.UserProfile, Environment.SpecialFolderOption.Create)}/IoTSharp/"));
 
-
-            services.Configure<BaiduTranslateProfile>(Configuration.GetSection("BaiduTranslateProfile"));
             services.AddControllers().AddNewtonsoftJson(options =>
             {
                 options.SerializerSettings.ContractResolver = new CamelCasePropertyNamesContractResolver();
             });
             services.AddRazorPages();
-
 
             services.AddScriptEngines(Configuration.GetSection("EngineSetting"));
             services.AddTransient<FlowRuleProcessor>();
