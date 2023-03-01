@@ -1,10 +1,11 @@
 version: '3.4'
 services:
   iotsharp:
-    image: ${DOCKER_REGISTRY-}iotsharp
+    image: maikebing/iotsharp
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - ASPNETCORE_URLS=http://+:80
+      - ASPNETCORE_HOSTINGSTARTUPASSEMBLIES=Microsoft.AspNetCore.SpaProxy
     ports:
       - "2927:80"
     volumes:
