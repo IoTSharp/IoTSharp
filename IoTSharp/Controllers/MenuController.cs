@@ -59,11 +59,11 @@ namespace IoTSharp.Controllers
                     i18n = "仪表盘",
                     vi18n = "iot.dashboardmnt",
                     routename = "dashboard",
-                    vpath = "/dashboard/v1",
+                    vpath = "/dashboard",
                     icon = "anticon-dashboard",
                     children = new MenuItem[]
                         {
-                            new() { text = "仪表盘", i18n = "", vi18n="iot.dashboard", routename="dashboard", link = "/dashboard/v1",      vpath="/dashboard/v1", }
+                            new() { text = "仪表盘", i18n = "", vi18n="iot.dashboard", routename="dashboard", link = "/dashboard",      vpath="/dashboard", }
                         }
                 }
             };
@@ -135,7 +135,7 @@ namespace IoTSharp.Controllers
                             routename="home",
                             group = true,
                             hideInBreadcrumb = true,
-                            vpath="/dashboard/v1",
+                            vpath="/dashboard",
                             isAffix=true,
                             isLink=false,
                             children = _user_menu.ToArray()
