@@ -8,7 +8,7 @@ namespace IoTSharp.Data
     public class GatewayPlayload
     {
         [JsonProperty(PropertyName = "ts")]
-        public long Ticks { get; set; } = DateTime.Now.Ticks;
+        public long Ticks { get; set; } = DateTime.UtcNow.Ticks;
 
         [JsonProperty(PropertyName = "values")]
         public Dictionary<string, object> Values { get; set; } = new();

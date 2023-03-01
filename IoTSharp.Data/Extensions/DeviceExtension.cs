@@ -31,7 +31,7 @@ namespace IoTSharp.Data.Extensions
                     IdentityId = Guid.NewGuid().ToString().Replace("-", "")
                 });
                 Dictionary<string, object> pairs = new Dictionary<string, object>();
-                pairs.Add("CreateDateTime", DateTime.Now);
+                pairs.Add("CreateDateTime", DateTime.UtcNow);
                 _context.PreparingData<AttributeLatest>(pairs, device.Id, DataSide.ServerSide);
             }
         }
@@ -51,7 +51,7 @@ namespace IoTSharp.Data.Extensions
                     IdentityValue = password
                 }) ;
                 Dictionary<string, object> pairs = new Dictionary<string, object>();
-                pairs.Add("CreateDateTime", DateTime.Now);
+                pairs.Add("CreateDateTime", DateTime.UtcNow);
                 _context.PreparingData<AttributeLatest>(pairs, device.Id, DataSide.ServerSide);
             }
         }

@@ -5,18 +5,7 @@ using System.Threading.Tasks;
 
 namespace IoTSharp.Controllers.Models
 {
-    public class BaiduTranslateProfile
-    {
-        public string AppKey { get; set; }
-        public string AppSecret { get; set; }
-
-        public int? ApiInterval { get; set; }
-
-        public string DefaultLang { get; set; }
-
-
-        public List<MappingItem> LangFieldMapping { get; set; }
-    }
+  
     public class MappingItem
     {
         public string Source { get; set; }

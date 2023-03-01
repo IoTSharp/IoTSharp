@@ -71,12 +71,12 @@ namespace IoTSharp.Data
                             var tx = tl.First();
                             tx.FillKVToMe(kp);
                             // TODO:jy 待重新设计主键
-                            tx.DateTime = DateTime.Now;
+                            tx.DateTime = DateTime.UtcNow;
                             _context.Set<L>().Update(tx).State = EntityState.Modified;
                         }
                         else
                         {
-                            var t2 = new L() { DateTime = DateTime.Now, DeviceId = deviceId, KeyName = kp.Key, DataSide = dataSide };
+                            var t2 = new L() { DateTime = DateTime.UtcNow, DeviceId = deviceId, KeyName = kp.Key, DataSide = dataSide };
                             t2.Catalog = (typeof(L) == typeof(AttributeLatest) ? DataCatalog.AttributeLatest
                                                        : ((typeof(L) == typeof(TelemetryLatest) ? DataCatalog.TelemetryLatest
                                                        : 0)));

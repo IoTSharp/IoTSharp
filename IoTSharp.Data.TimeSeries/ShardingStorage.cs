@@ -24,6 +24,11 @@ namespace IoTSharp.Storage
             _scopeFactor = scopeFactor;
         }
 
+        public Task<bool> CheckTelemetryStorage()
+        {
+           return Task.FromResult( true );
+        }
+
         public Task<List<TelemetryDataDto>> GetTelemetryLatest(Guid deviceId)
         {
             try

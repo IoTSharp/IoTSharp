@@ -56,7 +56,7 @@ namespace IoTSharp.Jobs
                             if (dev != null && __LastActivityDateTime!=null)
                             {
                              
-                                if (DateTime.Now.Subtract(__LastActivityDateTime.GetValueOrDefault()).TotalSeconds > dev.Timeout)
+                                if (DateTime.UtcNow.Subtract(__LastActivityDateTime.GetValueOrDefault()).TotalSeconds > dev.Timeout)
                                 {
                                     _logger.LogInformation($"设备{dev.Name}({dev.Id})现在置非活跃状态，上次活跃时间为{__LastActivityDateTime},超时时间{dev.Timeout}秒");
                                     await _queue.PublishActive(id, ActivityStatus.Inactivity);

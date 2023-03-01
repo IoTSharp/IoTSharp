@@ -232,13 +232,13 @@ namespace IoTSharp.Controllers
                 if (alarm.AlarmStatus == AlarmStatus.Active_UnAck)
                 {
                     alarm.AlarmStatus = AlarmStatus.Active_Ack;
-                    alarm.AckDateTime = DateTime.Now;
+                    alarm.AckDateTime = DateTime.UtcNow;
                 }
 
                 if (alarm.AlarmStatus == AlarmStatus.Cleared_UnAck)
                 {
                     alarm.AlarmStatus = AlarmStatus.Cleared_Act;
-                    alarm.AckDateTime = DateTime.Now;
+                    alarm.AckDateTime = DateTime.UtcNow;
 
                 }
                 _context.Alarms.Update(alarm);
@@ -268,13 +268,13 @@ namespace IoTSharp.Controllers
                 if (alarm.AlarmStatus == AlarmStatus.Active_Ack)
                 {
                     alarm.AlarmStatus = AlarmStatus.Cleared_Act;
-                    alarm.ClearDateTime = DateTime.Now;
+                    alarm.ClearDateTime = DateTime.UtcNow;
 
                 }
                 if (alarm.AlarmStatus == AlarmStatus.Active_UnAck)
                 {
                     alarm.AlarmStatus = AlarmStatus.Active_Ack;
-                    alarm.ClearDateTime = DateTime.Now;
+                    alarm.ClearDateTime = DateTime.UtcNow;
 
                 }
                 _context.Alarms.Update(alarm);

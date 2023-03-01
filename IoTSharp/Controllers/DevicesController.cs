@@ -566,7 +566,7 @@ namespace IoTSharp.Controllers
             else
             {
                 return new ApiResult<List<TelemetryDataDto>>(ApiCode.Success, "Ok",
-                    await _storage.LoadTelemetryAsync(deviceId, keys == "all" ? string.Empty : keys, begin, DateTime.Now, TimeSpan.Zero, Aggregate.None));
+                    await _storage.LoadTelemetryAsync(deviceId, keys == "all" ? string.Empty : keys, begin, DateTime.UtcNow, TimeSpan.Zero, Aggregate.None));
             }
         }
 
@@ -756,7 +756,7 @@ namespace IoTSharp.Controllers
                     atx.Catalog = DataCatalog.AttributeLatest;
                     atx.DeviceId = dev.Data.Id;
                     atx.DataSide = DataSide.ServerSide;
-                    atx.DateTime = DateTime.Now;
+                    atx.DateTime = DateTime.UtcNow;
                     return atx;
                 });
                 _context.AttributeLatest.AddRange(atts);
@@ -1241,7 +1241,7 @@ namespace IoTSharp.Controllers
                 DataSide = attribute.DataSide,
                 DeviceId = attribute.DeviceId,
                 Type = attribute.Type,
-                DateTime = DateTime.Now,
+                DateTime = DateTime.UtcNow,
                 KeyName = attribute.KeyName,
                 Catalog = DataCatalog.AttributeLatest
             });

@@ -2,10 +2,9 @@ version: '3.4'
 services:
   pgsql:
     image: postgres
-    container_name: pgsql
     restart: always
     volumes:
-      - "./data/postgresql:/var/lib/postgresql/data"
+      - ./data/postgresql:/var/lib/postgresql/data
     environment:
       TZ: "Asia/Shanghai"
       POSTGRES_USER: postgres
@@ -37,28 +36,23 @@ services:
       - iotsharp-network
 
   iotsharp:
-    image: maikebing/iotsharp:latest
+    image: maikebing/iotsharp
     restart: always
-    container_name: iotsharp
     hostname: iotsharp
     environment:
        ASPNETCORE_ENVIRONMENT: Production
        TZ: Asia/Shanghai
     depends_on:
       - pgsql
-      - mongodb
-      - rabbitmq
-      - influx
+      - taos
     links:
       - pgsql
-      - mongodb
-      - rabbitmq
-      - influx
+      - taos
     volumes:
       - "./appsettings.Development.json:/app/appsettings.Production.json"
-      - "./data/security:/app/security"
+      - ./data/security:/app/security
     ports:
-      - 2927:80
+      - 2929:8888
       - 1883:1883
       - 8883:8883 
       - 5683:5683
@@ -67,66 +61,20 @@ services:
     networks:
       - iotsharp-network
        
-
-
-  rabbitmq:
-    image: rabbitmq:management
-    container_name: rabbitmq
+  taos:
+    image: tdengine/tdengine:3.0.2.6
     restart: always
-    hostname: mq
+    hostname: taos
     ports:
-      - 15672:15672
-      - 5672:5672
+      - 6030:6030
+      - 6035:6035
+      - 6041:6041
+      - 6030-6040:6030-6040/udp
     volumes:
-      - ./data/rabbitmq:/var/lib/rabbitmq
-    environment:
-      - TZ=Asia/Shanghai
-      - RABBITMQ_DEFAULT_USER=root
-      - RABBITMQ_DEFAULT_PASS=kissme
+      - ./data/taos:/var/lib/taos/
     networks:
       - iotsharp-network
-
-
-  mongodb:
-    image: mongo:latest
-    restart: always
-    container_name: mongodb
-    volumes:
-      - ./data/mongodb/db:/data/db
-      - ./data/mongodb/log:/var/log/mongodb
-    ports:
-      - 27017:27017
-    environment:
-      TZ: "Asia/Shanghai"
-      MONGO_INITDB_ROOT_USERNAME: root
-      MONGO_INITDB_ROOT_PASSWORD: kissme
-    networks:
-      - iotsharp-network
-
-  influx:
-        image: "quay.io/influxdb/influxdb:v2.0.4"
-        restart: always
-        container_name: influx
-        ports:
-         - "8086:8086"
-        environment:
-          TZ: "Asia/Shanghai"
-        volumes:
-         - ./data/influxdb-data:/var/lib/influxdb2
-        command: influxd run --bolt-path /var/lib/influxdb2/influxd.bolt --engine-path /var/lib/influxdb2/engine --store bolt
-        networks:
-          - iotsharp-network
-
-  #influxdb_cli:
-  #  links:
-  #      - influx
-  #  image: quay.io/influxdb/influxdb:v2.0.4
-  #  entrypoint: influx setup --bucket iotsharp-bucket -t koMHcRQ9PJVPIIb6zFyLt-06EkM_oy1jut08bH7f0BwC85LUO6zxgihKZUayHzyetapJEkxrlO0KwJ278dKpnA== -o iotsharp --username=root --password=1-q2-w3-e4-r5-t --host=http://influx:8086 -f
-  #  restart: on-failure:20
-  #  depends_on:
-  #       - influx
-
+       
 networks: 
   iotsharp-network:
       driver:  bridge
-

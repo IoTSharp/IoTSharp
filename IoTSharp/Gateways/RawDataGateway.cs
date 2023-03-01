@@ -195,7 +195,7 @@ namespace IoTSharp.Gateways
             var device = _dev.JudgeOrCreateNewDevice(_devname, _scopeFactor, _logger);
             var pairs_att = new Dictionary<string, object>();
             var pairs_tel = new Dictionary<string, object>();
-            DateTime ts = DateTime.Now;
+            DateTime ts = DateTime.UtcNow;
 
             atts?.ToList().ForEach(g =>
             {
@@ -219,14 +219,14 @@ namespace IoTSharp.Gateways
                             {
                                 if (!DateTime.TryParseExact(value as string, ts_format, null, System.Globalization.DateTimeStyles.None, out ts))
                                 {
-                                    ts = DateTime.Now;
+                                    ts = DateTime.UtcNow;
                                 }
                             }
                             else
                             {
                                 if (!DateTime.TryParse(value as string, out ts))
                                 {
-                                    ts = DateTime.Now;
+                                    ts = DateTime.UtcNow;
                                 }
                             }
                         }

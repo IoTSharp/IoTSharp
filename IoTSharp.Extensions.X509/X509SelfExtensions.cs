@@ -106,7 +106,7 @@ namespace IoTSharp.Extensions.X509
                 }
                 var notbefor = issuer.NotBefore;
                 var notAfter = issuer.NotAfter;
-                X509Certificate2 signedCert = request.Create(issuer, DateTimeOffset.Now, DateTimeOffset.Now.AddSeconds(notAfter.Subtract(DateTime.Now).TotalSeconds), guid.ToByteArray());
+                X509Certificate2 signedCert = request.Create(issuer, DateTimeOffset.Now, DateTimeOffset.Now.AddSeconds(notAfter.Subtract(DateTime.UtcNow).TotalSeconds), guid.ToByteArray());
                 return signedCert.CopyWithPrivateKey(ecdsa);
             }
         }

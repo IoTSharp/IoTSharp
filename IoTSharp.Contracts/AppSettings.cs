@@ -105,19 +105,19 @@ namespace IoTSharp.Contracts
                     switch (ShardingByDateMode)
                     {
                         case ShardingByDateMode.PerMinute:
-                            shardingBeginTime = DateTime.Now.AddMinutes(-5);
+                            shardingBeginTime = DateTime.UtcNow.AddMinutes(-5);
                             break;
                         case ShardingByDateMode.PerHour:
-                            shardingBeginTime = DateTime.Now.AddHours(-1);
+                            shardingBeginTime = DateTime.UtcNow.AddHours(-1);
                             break;
                         case ShardingByDateMode.PerDay:
-                            shardingBeginTime = DateTime.Now.AddDays(-1).Date;
+                            shardingBeginTime = DateTime.UtcNow.AddDays(-1).Date;
                             break;
                         case ShardingByDateMode.PerMonth:
-                            shardingBeginTime = DateTime.Now.AddMonths(-1).Date;
+                            shardingBeginTime = DateTime.UtcNow.AddMonths(-1).Date;
                             break;
                         case ShardingByDateMode.PerYear:
-                            shardingBeginTime = DateTime.Now.AddYears(-1).Date;
+                            shardingBeginTime = DateTime.UtcNow.AddYears(-1).Date;
                             break;
                         default:
                             shardingBeginTime = value;

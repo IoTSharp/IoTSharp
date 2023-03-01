@@ -53,7 +53,7 @@ namespace IoTSharp.TaskActions
                 var alarmdto = new CreateAlarmDto();
                 alarmdto.OriginatorType = OriginatorType.Device;
                 alarmdto.OriginatorName = input.DeviceId.ToString();
-                alarmdto.CreateDateTime = DateTime.Now;
+                alarmdto.CreateDateTime = DateTime.UtcNow;
                 alarmdto.Serverity = (ServerityLevel)config.serverity;
                 alarmdto.AlarmType = config.alarmType;
                 alarmdto.AlarmDetail = config.AlarmDetail ?? JsonConvert.SerializeObject(dd) ;

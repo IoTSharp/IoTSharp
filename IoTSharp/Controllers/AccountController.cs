@@ -183,7 +183,7 @@ namespace IoTSharp.Controllers
                 claims.AddRange(from role in roles
                                 select new Claim(ClaimTypes.Role, role));
             }
-            var expires = DateTime.Now.AddHours(_settings.JwtExpireHours);
+            var expires = DateTime.UtcNow.AddHours(_settings.JwtExpireHours);
             var jwtSecurityTokenHandler = new JwtSecurityTokenHandler();
 
             var tokenDescriptor = new SecurityTokenDescriptor

@@ -8,8 +8,8 @@ while (true)
 {
     if (client.IsConnected)
     {
-        await client.UploadTelemetryDataAsync(new { DateTime.Now });
-        Console.WriteLine(DateTime.Now);
+        await client.UploadTelemetryDataAsync(new { DateTime.UtcNow });
+        Console.WriteLine(DateTime.UtcNow);
     }
     Thread.Sleep(TimeSpan.FromSeconds(5));
     Console.WriteLine("====");

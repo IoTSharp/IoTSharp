@@ -261,7 +261,7 @@ namespace IoTSharp.Controllers
                             DataSide = c.DataSide,
                             Type = c.Type,
                             Owner = produce,
-                            DateTime = DateTime.Now
+                            DateTime = DateTime.UtcNow
                         }).ToList();
 
                         var delete_keynames = pds.Select(c => c.KeyName.ToLower())

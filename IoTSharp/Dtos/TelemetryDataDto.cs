@@ -25,7 +25,7 @@ namespace IoTSharp.Dtos
         /// <summary>
         /// 截止时间， 默认为现在。 
         /// </summary>
-        public DateTime end { get; set; } = DateTime.Now;
+        public DateTime end { get; set; } = DateTime.UtcNow;
         /// <summary>
         /// 数据截面聚合间隔
         /// </summary>

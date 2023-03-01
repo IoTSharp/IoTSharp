@@ -9,6 +9,7 @@ namespace IoTSharp.Storage
 {
     public interface IStorage
     {
+        Task<bool> CheckTelemetryStorage();
         Task<(bool result, List<TelemetryData> telemetries)> StoreTelemetryAsync(PlayloadData msg);
         Task<List<TelemetryDataDto>> GetTelemetryLatest(Guid deviceId);
         Task<List<TelemetryDataDto>> GetTelemetryLatest(Guid deviceId, string keys);

@@ -35,6 +35,8 @@ using ShardingCore;
 using Storage.Net;
 using IoTSharp.Data.TimeSeries;
 using IoTSharp.Data.Extensions;
+using IoTSharp.Storage;
+
 namespace IoTSharp
 {
     public class Startup
@@ -255,22 +257,21 @@ namespace IoTSharp
                         opt.UserShashlik();
                         break;
                     case EventBusFramework.CAP:
-                    default:
                         opt.UserCAP();
+                        break;
+                    default:
+                        opt.UserShashlik();
                         break;
                 }
             });
 
             services.AddTransient(_ => StorageFactory.Blobs.FromConnectionString(Configuration.GetConnectionString("BlobStorage") ?? $"disk://path={Environment.GetFolderPath(Environment.SpecialFolder.UserProfile, Environment.SpecialFolderOption.Create)}/IoTSharp/"));
 
-
-            services.Configure<BaiduTranslateProfile>(Configuration.GetSection("BaiduTranslateProfile"));
             services.AddControllers().AddNewtonsoftJson(options =>
             {
                 options.SerializerSettings.ContractResolver = new CamelCasePropertyNamesContractResolver();
             });
             services.AddRazorPages();
-
 
             services.AddScriptEngines(Configuration.GetSection("EngineSetting"));
             services.AddTransient<FlowRuleProcessor>();
@@ -289,7 +290,7 @@ namespace IoTSharp
 
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+        public  void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
             if (env.IsDevelopment() || !env.IsEnvironment("Production"))
             {
@@ -355,6 +356,9 @@ namespace IoTSharp
                 defaultStyle.ColorSaturation = 0.51f;
                 defaultStyle.GrayscaleSaturation = 0.10f;
             });
+            using var scope = app.ApplicationServices.CreateScope();
+            var _ts_storage= scope.ServiceProvider.GetService<IStorage>();
+            _ts_storage.CheckTelemetryStorage();
         }
 
        
