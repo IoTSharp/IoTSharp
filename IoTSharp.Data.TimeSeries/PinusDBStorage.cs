@@ -144,6 +144,10 @@ namespace IoTSharp.Storage
             });
             return dt;
         }
+        public Task<bool> CheckTelemetryStorage()
+        {
+            return Task.FromResult(true);
+        }
         public Task<(bool result, List<TelemetryData> telemetries)> StoreTelemetryAsync(PlayloadData msg)
         {
             bool result = false;

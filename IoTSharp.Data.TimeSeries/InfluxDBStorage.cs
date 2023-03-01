@@ -250,8 +250,9 @@ from(bucket: ""{_bucket}"")
             return (result, telemetries);
         }
 
-      
-
-        
+        public Task<bool> CheckTelemetryStorage()
+        {
+            return Task.FromResult(true);
+        }
     }
 }

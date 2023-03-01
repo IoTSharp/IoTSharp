@@ -67,7 +67,7 @@ namespace IoTSharp.Data.TimeSeries
 
                 case TelemetryStorage.Taos:
                     services.AddSingleton<IStorage, TaosStorage>();
-                    services.AddObjectPool(() => new TaosConnection(_connectionString));
+          
                     healthChecks.AddTDengine(_connectionString, name: _hc_telemetryStorage);
                     break;
 

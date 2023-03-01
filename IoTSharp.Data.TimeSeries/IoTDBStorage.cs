@@ -11,6 +11,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using static NodaTime.TimeZones.ZoneEqualityComparer;
 
 namespace IoTSharp.Storage
 {
@@ -20,43 +21,22 @@ namespace IoTSharp.Storage
         private readonly ILogger _logger;
         private readonly  Apache.IoTDB.SessionPool   _session;
         private readonly IoTDBConnection _ioTDB;
-        private string _StorageGroupName;
-        private bool dbisok = false;
-
-        public IoTDBStorage(ILogger<IoTDBStorage> logger, IServiceScopeFactory scopeFactor
-           , IOptions<AppSettings> options, Apache.IoTDB.Data.IoTDBConnection ioTDB
+        private string _StorageGroupName=string.Empty;
+        public IoTDBStorage(ILogger<IoTDBStorage> logger, IOptions<AppSettings> options, IoTDBConnection ioTDB
             )
         {
             _appSettings = options.Value;
             _logger = logger;
             _session = ioTDB.SessionPool;
             _ioTDB = ioTDB;
-            CheckDataBase();
-            var str = options.Value.ConnectionStrings["TelemetryStorage"];
-            Dictionary<string, string> pairs = new Dictionary<string, string>();
-            str.Split(';', StringSplitOptions.RemoveEmptyEntries).ForEach(f =>
-            {
-                var kv = f.Split('=');
-                pairs.TryAdd(key: kv[0], value: kv[1]);
-            });
-            _StorageGroupName = pairs.GetValueOrDefault("DefaultGroupName") ?? "iotsharp";
-            var groupName = $"root.{_StorageGroupName}";
-            using var query =  _session.ExecuteQueryStatementAsync($"show storage group {groupName}");//判断存储组是否已经存在
-            if(query.Result.HasNext())
-            {
-                //存储组已经存在，无需处理
-            }
-            else
-            {
-                _session.SetStorageGroup(groupName);
-            }
+          
         }
-
-        private bool CheckDataBase()
+        public async Task<bool> CheckTelemetryStorage()
         {
+            bool _ok = false;
             if (!_session.IsOpen())
             {
-                dbisok = Retry.RetryOnAny(10, f =>
+                _ok = Retry.RetryOnAny(10, f =>
                 {
                     _session.Open().Wait(TimeSpan.FromMilliseconds(100));
                     return true;
@@ -65,8 +45,38 @@ namespace IoTSharp.Storage
                     _logger.LogError(ef.ex, $" open iotdb error。{ef.current}次失败{ef.ex.Message} {ef.ex.InnerException?.Message} ");
                 });
             }
-            return dbisok;
+            if (_ok)
+            {
+                try
+                {
+                    var str = _appSettings.ConnectionStrings["TelemetryStorage"];
+                    Dictionary<string, string> pairs = new Dictionary<string, string>();
+                    str.Split(';', StringSplitOptions.RemoveEmptyEntries).ForEach(f =>
+                    {
+                        var kv = f.Split('=');
+                        pairs.TryAdd(key: kv[0], value: kv[1]);
+                    });
+                    _StorageGroupName = pairs.GetValueOrDefault("DefaultGroupName") ?? "iotsharp";
+                    var groupName = $"root.{_StorageGroupName}";
+                    using var query = await _session.ExecuteQueryStatementAsync($"show storage group {groupName}");//判断存储组是否已经存在
+                    if (query.HasNext())
+                    {
+                        //存储组已经存在，无需处理
+                    }
+                    else
+                    {
+                        await _session.SetStorageGroup(groupName);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    _ok = false;
+                    _logger.LogWarning(ex, "无法存储时序数据。");
+                }
+            }
+            return _ok;
         }
+      
 
         private async Task<List<MapItem>> GetIotDbMeasurementPointInfor(string device,string measureKeys="*")
         {
@@ -280,12 +290,10 @@ namespace IoTSharp.Storage
 
         public async Task<(bool result, List<TelemetryData> telemetries)> StoreTelemetryAsync(PlayloadData msg)
         {
-
             bool result = false;
             List<TelemetryData> telemetries = new List<TelemetryData>();
             try
             {
-                CheckDataBase();
                 string device = $"root.{_StorageGroupName}.{msg.DeviceId:N}";
                 List<object> values = new List<object>();
                 msg.MsgBody.ToList().ForEach(kp =>
