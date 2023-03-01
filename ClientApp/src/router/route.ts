@@ -26,13 +26,13 @@ export const dynamicRoutes: Array<RouteRecordRaw> = [
 		path: '/',
 		name: '/',
 		component: () => import('/@/layout/index.vue'),
-		redirect: '/dashboard/v1',
+		redirect: '/dashboard',
 		meta: {
 			isKeepAlive: true,
 		},
 		children: [
 			{
-				path: '/dashboard/v1',
+				path: '/dashboard',
 				name: 'dashboard',
 				component: () => import('/@/views/dashboard/index.vue'),
 				meta: {

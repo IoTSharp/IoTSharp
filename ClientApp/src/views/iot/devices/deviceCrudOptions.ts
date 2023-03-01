@@ -236,6 +236,9 @@ export const createDeviceCrudOptions = function ({ expose }, customerId, deviceD
 						show: false,
 					},
 					title: '超时',
+					form:{
+						value:300
+					},
 					type: 'text',
 					search: { show: false },
 				},
