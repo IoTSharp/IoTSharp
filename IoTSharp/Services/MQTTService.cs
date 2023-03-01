@@ -58,7 +58,7 @@ namespace IoTSharp.Services
         internal Task Server_Started(EventArgs e)
         {
             _logger.LogInformation($"MqttServer is  started");
-            uptime = DateTime.Now;
+            uptime = DateTime.UtcNow;
             return Task.CompletedTask;
         }
 

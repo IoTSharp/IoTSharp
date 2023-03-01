@@ -58,7 +58,7 @@ namespace IoTSharp.Data.Shardings.Routes
 
             var tails = new List<string>();
             //提前创建表
-            var nowTimeStamp = DateTime.Now.Date;
+            var nowTimeStamp = DateTime.UtcNow.Date;
             if (beginTime > nowTimeStamp)
                 throw new ArgumentException("begin time error");
             var currentTimeStamp = beginTime;
