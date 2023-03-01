@@ -96,7 +96,7 @@ namespace IoTSharp.Controllers
                     EventParam = m.EventParam,
                     EventTag = m.EventTag,
                     Type = m.Type,
-                    CreateDateTime = DateTime.Now,
+                    CreateDateTime = DateTime.UtcNow,
                     EventStatus = 1
                 };
                 _context.JustFill(this,se);

@@ -75,7 +75,7 @@ namespace IoTSharp.Controllers
             {
                 FormName = m.FormName,
                 FormDesc = m.FormDesc,
-                FromCreateDate = DateTime.Now,
+                FromCreateDate = DateTime.UtcNow,
 
                 FormStatus = 1,
             };
@@ -172,7 +172,7 @@ namespace IoTSharp.Controllers
                         field.FieldUIElement = item.FieldUIElement;
                         field.FieldUnit = item.FieldUnit;
 
-                        field.FieldCreateDate = DateTime.Now;
+                        field.FieldCreateDate = DateTime.UtcNow;
 
                         switch (item.FieldUIElement)
                         {

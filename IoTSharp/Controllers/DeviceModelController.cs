@@ -79,7 +79,7 @@ namespace IoTSharp.Controllers
             try
             {
                 DeviceModel dm = new DeviceModel();
-                dm.CreateDateTime = DateTime.Now;
+                dm.CreateDateTime = DateTime.UtcNow;
                 dm.ModelStatus = 1;
                 dm.ModelName = m.ModelName;
                 dm.ModelDesc = m.ModelDesc;
@@ -150,7 +150,7 @@ namespace IoTSharp.Controllers
                     CommandName = m.CommandName,
                     DeviceModelId = m.DeviceModelId,
                     CommandTemplate = m.CommandTemplate,
-                    CreateDateTime = DateTime.Now
+                    CreateDateTime = DateTime.UtcNow
                 };
 
                 _context.DeviceModelCommands.Add(dmc);

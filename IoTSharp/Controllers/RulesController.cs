@@ -105,7 +105,7 @@ namespace IoTSharp.Controllers
                 m.MountType = m.MountType;
                 m.RuleStatus = 1;
                 _context.JustFill(this, m);
-                m.CreatTime = DateTime.Now;
+                m.CreatTime = DateTime.UtcNow;
                 _context.FlowRules.Add(m);
                 await _context.SaveChangesAsync();
                 return new ApiResult<bool>(ApiCode.Success, "OK", true);
@@ -205,7 +205,7 @@ namespace IoTSharp.Controllers
                 newrule.Describes = flowRule.Describes;
                 //     newrule.Creator = profile.Id.ToString();
                 newrule.Name = flowRule.Name;
-                newrule.CreatTime = DateTime.Now;
+                newrule.CreatTime = DateTime.UtcNow;
                 newrule.ExecutableCode = rule.ExecutableCode;
                 newrule.RuleDesc = flowRule.RuleDesc;
                 newrule.RuleStatus = 1;
@@ -225,7 +225,7 @@ namespace IoTSharp.Controllers
                 {
                     FlowRule = newrule,
                     Conditionexpression = c.Conditionexpression,
-                    CreateDate = DateTime.Now,
+                    CreateDate = DateTime.UtcNow,
                     FlowStatus = 1,
                     FlowType = c.FlowType,
                     Flowdesc = c.Flowdesc,
@@ -282,7 +282,7 @@ namespace IoTSharp.Controllers
                                 var dr = new DeviceRule();
                                 dr.Device = dev;
                                 dr.FlowRule = rule;
-                                dr.ConfigDateTime = DateTime.Now;
+                                dr.ConfigDateTime = DateTime.UtcNow;
                                 dr.ConfigUser = profile.Id;
                                 _context.DeviceRules.Add(dr);
                             }
@@ -375,7 +375,7 @@ namespace IoTSharp.Controllers
             var profile = this.GetUserProfile();
             var activity = JsonConvert.DeserializeObject<Activity>(m.Biz);
             var CreatorId = Guid.NewGuid();
-            var CreateDate = DateTime.Now;
+            var CreateDate = DateTime.UtcNow;
             var rule = _context.FlowRules.Include(c => c.Customer).Include(c => c.Tenant).FirstOrDefault(c => c.RuleId == activity.RuleId);
             rule.DefinitionsXml = m.Xml;
             rule.Creator = profile.Id.ToString();
@@ -666,7 +666,7 @@ namespace IoTSharp.Controllers
             try
             {
                 var CreatorId = Guid.NewGuid();
-                var CreateDate = DateTime.Now;
+                var CreateDate = DateTime.UtcNow;
                 var rule = _context.FlowRules.Include(c => c.Customer).Include(c => c.Tenant).FirstOrDefault(c => c.RuleId == m.RuleId);
                 rule.Creator = profile.Id.ToString();
                 rule.CreateId = CreatorId;
@@ -1616,7 +1616,7 @@ namespace IoTSharp.Controllers
             executor.TypeName = m.ExecutorName;
             executor.Path = m.Path;
             executor.Tag = m.Tag;
-            executor.AddDateTime = DateTime.Now;
+            executor.AddDateTime = DateTime.UtcNow;
             executor.Creator = User.GetUserId();
             executor.ExecutorStatus = 1;
             _context.JustFill(this, executor);
