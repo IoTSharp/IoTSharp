@@ -67,7 +67,7 @@ namespace IoTSharp.Data.TimeSeries
 
                 case TelemetryStorage.Taos:
                     services.AddSingleton<IStorage, TaosStorage>();
-                    healthChecks.AddTDengine(_connectionString, name: _hc_telemetryStorage);
+                    healthChecks.AddTDengine(new TaosConnectionStringBuilder( _connectionString).UseRESTful().ConnectionString, name: _hc_telemetryStorage);
                     break;
                 case TelemetryStorage.InfluxDB:
                     //https://github.com/julian-fh/influxdb-setup
