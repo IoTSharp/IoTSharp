@@ -69,12 +69,11 @@
 <script setup lang="ts">
 import {dateUtil, ElDateTimePickerShortcuts, formatToDateTime} from "/@/utils/dateUtil";
 import {deviceApi} from "/@/api/devices";
-import { getCurrentInstance, ref } from "vue";
+import { ref } from "vue";
 import { EChartsOption } from "echarts";
 import * as echarts from "echarts";
 import _ from 'lodash-es';
 import { telemetryHistoryChartOptions } from "/@/views/iot/devices/detail/telemetryHistoryChartOptions";
-const {proxy} = <any>getCurrentInstance();
 const formatColumnDataTime = (row, column, cellValue, index) => {
   return formatToDateTime(cellValue)
 }
@@ -194,8 +193,8 @@ const getTelemetryKeys = async () => {
   state.telemetryKeys = res.data.filter((x) => typeof x.value === 'number').map((c) => c.keyName);
 }
 
-onMounted(()=>{
-  getTelemetryKeys();
+onMounted(async ()=>{
+  await getTelemetryKeys();
   initChart(messageChartRef, telemetryHistoryChartOptions as EChartsOption);
 })
 </script>
