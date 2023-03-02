@@ -30,6 +30,11 @@
             <DeviceDetailTelemetry :deviceId="deviceRef.id"></DeviceDetailTelemetry>
           </div>
         </el-tab-pane>
+        <el-tab-pane label="遥测历史" name="telemetryHistory">
+          <div class="z-tab-container">
+            <DeviceDetailTelemetryHistory :deviceId="deviceRef.id"></DeviceDetailTelemetryHistory>
+          </div>
+        </el-tab-pane>
         <el-tab-pane label="告警" name="alarm">
           <div class="z-tab-container">
             <alarmlist :originator="deviceRef" wrapper="div"></alarmlist>
@@ -55,6 +60,7 @@ import AdvancedKeyValue from "/@/components/AdvancedKeyValue/AdvancedKeyValue.vu
 import DeviceDetailProps from "/@/views/iot/devices/detail/DeviceDetailProps.vue";
 import DeviceDetailRules from "/@/views/iot/devices/detail/DeviceDetailRules.vue";
 import DeviceDetailTelemetry from "/@/views/iot/devices/detail/DeviceDetailTelemetry.vue";
+import DeviceDetailTelemetryHistory from "/@/views/iot/devices/detail/DeviceDetailTelemetryHistory.vue";
 import Alarmlist from "/@/views/iot/alarms/alarmlist.vue";
 import Flowevents from "/@/views/iot/rules/flowevents.vue";
 import { deviceApi } from "/@/api/devices";

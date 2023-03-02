@@ -64,14 +64,14 @@ export const createDeviceTelemetryRealtimeCrudOptions = function ({ expose }, de
 					add: {
 						show: false,
 					},
-					custom: {
-						text: '遥测历史', //fs-button组件的参数
-						show: true, //是否显示此按钮
-						type: 'primary',
-						click() {
-							state.currentPageState = 'history';
-						}, //点击事件，默认打开添加对话框
-					},
+					// custom: {
+					// 	text: '遥测历史', //fs-button组件的参数
+					// 	show: true, //是否显示此按钮
+					// 	type: 'primary',
+					// 	click() {
+					// 		state.currentPageState = 'history';
+					// 	}, //点击事件，默认打开添加对话框
+					// },
 				},
 			},
 			request: {
@@ -160,18 +160,18 @@ export const createDeviceTelemetryRealtimeCrudOptions = function ({ expose }, de
 						show: false,
 					},
 				},
-				average: {
-					title: '平均值(3天)',
-					type: 'text',
-				},
-				min: {
-					title: '最小值(3天)',
-					type: 'text',
-				},
-				max: {
-					title: '最大值(3天)',
-					type: 'text',
-				},
+				// average: {
+				// 	title: '平均值(3天)',
+				// 	type: 'text',
+				// },
+				// min: {
+				// 	title: '最小值(3天)',
+				// 	type: 'text',
+				// },
+				// max: {
+				// 	title: '最大值(3天)',
+				// 	type: 'text',
+				// },
 			},
 		},
 	};

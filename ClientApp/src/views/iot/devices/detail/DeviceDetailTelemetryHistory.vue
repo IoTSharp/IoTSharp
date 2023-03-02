@@ -5,11 +5,11 @@
         <el-form-item prop="keys" label="遥测属性" class="z-search-keys">
           <div class="z-checkbox-group">
             <el-checkbox-group v-model="queryForm.keys">
-              <el-checkbox v-for="key in telemetryKeys" :label="key" :key="key"/>
+              <el-checkbox v-for="key in state.telemetryKeys" :label="key" :key="key"/>
             </el-checkbox-group>
           </div>
-          <el-button  type="primary" @click="backToRealtime">
-            <el-icon><ArrowLeft /></el-icon>返回实时遥测</el-button>
+<!--          <el-button  type="primary" @click="backToRealtime">-->
+<!--            <el-icon><ArrowLeft /></el-icon>返回实时遥测</el-button>-->
         </el-form-item>
         <el-form-item prop="datetimeRange" label="时间区间">
           <div style="width:100px">
@@ -107,12 +107,7 @@ const props = defineProps({
     type: String,
     default: ''
   },
-  telemetryKeys: {
-    type: Array,
-    default: () => []
-  }
 })
-
 
 const queryForm: IQueryForm = reactive({
   pi: 0,
@@ -141,10 +136,10 @@ const resetForm = (formEl) => {
   if (!formEl) return
   formEl.resetFields()
 }
-const backToRealtime = ()=>{
-  proxy.mittBus.emit('updateTelemetryPageSate', 'realtime')
-
-}
+// const backToRealtime = ()=>{
+//   proxy.mittBus.emit('updateTelemetryPageSate', 'realtime')
+//
+// }
 const getData = async () => {
   const params = {...queryForm}
   if (params.datetimeRange[0]) params.begin = params.datetimeRange[0]
@@ -191,7 +186,16 @@ const initChart = (target: any, option: EChartsOption) => {
   historyChart = echarts.init(target.value);
   historyChart.setOption(option);
 };
+const state = reactive({
+  telemetryKeys: []
+})
+const getTelemetryKeys = async () => {
+  const res = await deviceApi().getDeviceLatestTelemetry(props.deviceId);
+  state.telemetryKeys = res.data.filter((x) => typeof x.value === 'number').map((c) => c.keyName);
+}
+
 onMounted(()=>{
+  getTelemetryKeys();
   initChart(messageChartRef, telemetryHistoryChartOptions as EChartsOption);
 })
 </script>

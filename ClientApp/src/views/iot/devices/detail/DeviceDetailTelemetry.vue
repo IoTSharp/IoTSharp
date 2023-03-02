@@ -1,11 +1,6 @@
 <template>
   <div class="z-crud">
-    <fs-crud v-if="state.currentPageState === 'realtime'" ref="crudRef" v-bind="crudBinding"/>
-    <div v-if="state.currentPageState === 'history'">
-      <DeviceDetailTelemetryHistory
-          :telemetry-keys="state.telemetryKeys"
-          :deviceId="deviceId"></DeviceDetailTelemetryHistory>
-    </div>
+    <fs-crud ref="crudRef" v-bind="crudBinding"/>
   </div>
 </template>
 
@@ -13,7 +8,6 @@
 import {useCrud} from "@fast-crud/fast-crud";
 import {useExpose} from "@fast-crud/fast-crud";
 import {createDeviceTelemetryRealtimeCrudOptions} from "/@/views/iot/devices/detail/deviceTelemetryRealtimeCrudOptions";
-import DeviceDetailTelemetryHistory from "/@/views/iot/devices/detail/DeviceDetailTelemetryHistory.vue";
 import {getCurrentInstance} from "vue";
 const {proxy} = <any>getCurrentInstance();
 const state = reactive({
