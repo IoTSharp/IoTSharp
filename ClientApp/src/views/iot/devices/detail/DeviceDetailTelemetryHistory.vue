@@ -108,8 +108,7 @@ const props = defineProps({
     default: ''
   },
 })
-
-const queryForm: IQueryForm = reactive({
+const queryInitialState = {
   pi: 0,
   deviceId: props.deviceId,
   ps: 10,
@@ -121,7 +120,8 @@ const queryForm: IQueryForm = reactive({
   sorter: '',
   status: null,
   datetimeRange: []
-})
+}
+const queryForm: IQueryForm = reactive({...queryInitialState })
 const tableData = ref([])
 
 
@@ -201,6 +201,7 @@ watch(() => props.deviceId, async () => {
   historyChart.setOption(telemetryHistoryChartOptions, {
     replaceMerge: ["series", "yAxis", "xAxis"],
   });
+  formRef.value.resetFields()
 })
 
 onMounted(async ()=>{
