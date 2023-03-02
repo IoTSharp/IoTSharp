@@ -73,7 +73,7 @@ namespace IoTSharp.Data.TimeSeries
                     //https://github.com/julian-fh/influxdb-setup
                     services.AddSingleton<IStorage, InfluxDBStorage>();
                     //"TelemetryStorage": "http://localhost:8086/?org=iotsharp&bucket=iotsharp-bucket&token=iotsharp-token"
-                    services.AddObjectPool(() => InfluxDBClientOptions.Builder.CreateNew().ConnectionString(_connectionString).Build());
+                    services.AddObjectPool(()=>new InfluxDBClient( InfluxDBClientOptions.Builder.CreateNew().ConnectionString(_connectionString).Build()));
                     healthChecks.AddInfluxDB(_connectionString, name: _hc_telemetryStorage);
                     break;
 

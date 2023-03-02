@@ -32,7 +32,7 @@ namespace IoTSharp.Storage
         private readonly string? _latest;
 
         public InfluxDBStorage(ILogger<InfluxDBStorage> logger, IServiceScopeFactory scopeFactor
-           , IOptions<AppSettings> options,   ObjectPool<InfluxDBClient> taospool
+           , IOptions<AppSettings> options, ObjectPool<InfluxDBClient> taospool
             )
         {
             _appSettings = options.Value;
