@@ -1,4 +1,4 @@
-interface ruleaddoreditdto {
+export interface ruleaddoreditdto {
     mountType: string;
     name: string;
     ruleDesc: string;

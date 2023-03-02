@@ -1,4 +1,4 @@
-interface produceaddoreditdto {
+export interface produceaddoreditdto {
     id?: string;
     name?: string;
     icon?: string;
