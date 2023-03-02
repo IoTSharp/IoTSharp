@@ -30,7 +30,7 @@
             <DeviceDetailTelemetry :deviceId="deviceRef.id"></DeviceDetailTelemetry>
           </div>
         </el-tab-pane>
-        <el-tab-pane label="遥测历史" name="telemetryHistory">
+        <el-tab-pane label="遥测历史" name="telemetryHistory" :lazy="true">
           <div class="z-tab-container">
             <DeviceDetailTelemetryHistory :deviceId="deviceRef.id"></DeviceDetailTelemetryHistory>
           </div>
