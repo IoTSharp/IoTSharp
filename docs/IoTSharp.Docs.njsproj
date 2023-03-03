@@ -27,6 +27,7 @@
     <Content Include="docs\tutorial-basics\deploy_by_docker.md" />
     <Content Include="docs\tutorial-basics\deploy_linux.md" />
     <Content Include="docs\tutorial-basics\deploy_win.md" />
+    <Content Include="docs\tutorial-basics\scriptuse.md" />
     <Content Include="package.json" />
     <Content Include="README.md" />
     <Content Include="babel.config.js" />
