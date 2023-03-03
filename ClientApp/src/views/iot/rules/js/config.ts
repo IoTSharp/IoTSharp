@@ -76,7 +76,7 @@ export const jsplumbMakeSource = {
 	filterExclude: false,
 	anchor: 'Continuous',
 	// 是否允许自己连接自己
-	allowLoopback: true,
+	allowLoopback: false,
 	maxConnections: -1,
 };
 
