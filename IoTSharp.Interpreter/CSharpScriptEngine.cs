@@ -34,6 +34,7 @@ namespace IoTSharp.Interpreter
         {
             var runscript = _cache.GetOrCreate(_source, c =>
             {
+                
                  var  src = _source.Split(Environment.NewLine.ToCharArray(), StringSplitOptions.TrimEntries);
                 StringBuilder _using = new StringBuilder();
                 StringBuilder _body = new StringBuilder();
@@ -49,19 +50,21 @@ namespace IoTSharp.Interpreter
                    }
 
                });
-               return  CSScript.Evaluator
+               var eva=  CSScript.Evaluator
                       .CreateDelegate(@$"
                                     {_using}    
                                     dynamic  runscript(dynamic   input)
                                     {{
                                       {_body}
                                     }}");
+                return eva;
             });
             var expConverter = new ExpandoObjectConverter();
             dynamic obj = JsonConvert.DeserializeObject<ExpandoObject>(input, expConverter);
             dynamic result =    runscript(obj);
             var json= System.Text.Json.JsonSerializer.Serialize(result);
             _logger.LogDebug($"source:{Environment.NewLine}{ _source}{Environment.NewLine}{Environment.NewLine}input:{Environment.NewLine}{ input}{Environment.NewLine}{Environment.NewLine} ouput:{Environment.NewLine}{ json}{Environment.NewLine}{Environment.NewLine}");
+         
             return json;
         }
 

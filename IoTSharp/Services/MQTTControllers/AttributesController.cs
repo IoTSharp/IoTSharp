@@ -15,6 +15,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Esprima.Ast;
 
 namespace IoTSharp.Services.MQTTControllers
 {
@@ -167,7 +168,7 @@ namespace IoTSharp.Services.MQTTControllers
         [MqttRoute("request/{requestid}")]
         public async Task RequestAttributes(string requestid)
         {
-            Dictionary<string, object> keyValues = new Dictionary<string, object>();
+            var reqlist = Message.ConvertPayloadToList<string>();
             try
             {
                 using (var scope = _scopeFactor.CreateScope())
@@ -176,70 +177,14 @@ namespace IoTSharp.Services.MQTTControllers
                     Dictionary<string, object> reps = new Dictionary<string, object>();
                     var reqid = requestid;
                     List<AttributeLatest> datas = new List<AttributeLatest>();
-                    foreach (var kx in keyValues)
-                    {
-                        var keys = kx.Value?.ToString().Split(',');
-                        if (keys != null && keys.Length > 0)
-                        {
-                            if (Enum.TryParse(kx.Key, true, out DataSide ds))
-                            {
-                                var qf = from at in _dbContext.AttributeLatest where at.DeviceId == device.Id && keys.Contains(at.KeyName) select at;
-                                await qf.LoadAsync();
-                                if (ds == DataSide.AnySide)
-                                {
-                                    datas.AddRange(await qf.ToArrayAsync());
-                                }
-                                else
-                                {
-                                    var qx = from at in qf where at.DataSide == ds select at;
-                                    datas.AddRange(await qx.ToArrayAsync());
-                                }
-                            }
-                        }
-                    }
-
+                    var qf = from at in _dbContext.AttributeLatest where at.DeviceId == device.Id && reqlist.Contains(at.KeyName) select at;
+                    datas.AddRange(await qf.ToArrayAsync());
                     foreach (var item in datas)
                     {
-                        switch (item.Type)
-                        {
-                            case DataType.Boolean:
-                                reps.Add(item.KeyName, item.Value_Boolean);
-                                break;
-
-                            case DataType.String:
-                                reps.Add(item.KeyName, item.Value_String);
-                                break;
-
-                            case DataType.Long:
-                                reps.Add(item.KeyName, item.Value_Long);
-                                break;
-
-                            case DataType.Double:
-                                reps.Add(item.KeyName, item.Value_Double);
-                                break;
-
-                            case DataType.Json:
-                                reps.Add(item.KeyName, Newtonsoft.Json.Linq.JToken.Parse(item.Value_Json));
-                                break;
-
-                            case DataType.XML:
-                                reps.Add(item.KeyName, item.Value_XML);
-                                break;
-
-                            case DataType.Binary:
-                                reps.Add(item.KeyName, item.Value_Binary);
-                                break;
-
-                            case DataType.DateTime:
-                                reps.Add(item.KeyName, item.Value_DateTime);
-                                break;
-
-                            default:
-                                reps.Add(item.KeyName, item.Value_Json);
-                                break;
-                        }
-                        await Server.PublishAsync(ClientId, $"devices/me/attributes/response/{requestid}", reps);
+                        var kv= item.AttributeToKeyValue();
+                        reps.Add(kv.Key,kv.Value);
                     }
+                    await Server.PublishAsync(ClientId, $"devices/me/attributes/response/{requestid}", reps);
                 }
             }
             catch (Exception ex)
@@ -247,5 +192,7 @@ namespace IoTSharp.Services.MQTTControllers
                 _logger.LogWarning(ex, $"{ex.Message}");
             }
         }
+
+       
     }
 }

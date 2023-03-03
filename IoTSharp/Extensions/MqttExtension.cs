@@ -116,6 +116,54 @@ namespace IoTSharp
             return JToken.Parse(msg.ConvertPayloadToString() ?? "{}")?.JsonToDictionary();
         }
 
+        public static List<T> ConvertPayloadToList<T>(this MqttApplicationMessage msg)
+        {
+            var str = msg.ConvertPayloadToString() ?? "[]";
+            return System.Text.Json.JsonSerializer.Deserialize<List<T>>(str);
+        }
+
+        public static KeyValuePair<string, object> AttributeToKeyValue(this AttributeLatest item)
+        {
+            KeyValuePair<string, object> kv;
+            switch (item.Type)
+            {
+                case DataType.Boolean:
+                    kv = new(item.KeyName, item.Value_Boolean);
+                    break;
+                case DataType.String:
+                    kv = new(item.KeyName, item.Value_String);
+                    break;
+
+                case DataType.Long:
+                    kv = new(item.KeyName, item.Value_Long);
+                    break;
+
+                case DataType.Double:
+                    kv = new(item.KeyName, item.Value_Double);
+                    break;
+
+                case DataType.Json:
+                    kv = new(item.KeyName, Newtonsoft.Json.Linq.JToken.Parse(item.Value_Json));
+                    break;
+
+                case DataType.XML:
+                    kv = new(item.KeyName, item.Value_XML);
+                    break;
+
+                case DataType.Binary:
+                    kv = new(item.KeyName, item.Value_Binary);
+                    break;
+
+                case DataType.DateTime:
+                    kv = new(item.KeyName, item.Value_DateTime);
+                    break;
+
+                default:
+                    kv = new(item.KeyName, item.Value_Json);
+                    break;
+            }
+            return kv;
+        }
         public static async Task PublishAsync<T>(this MqttServer mqtt, string SenderClientId, string topic, T _payload) where T : class
         {
             await mqtt.PublishAsync(SenderClientId, new MqttApplicationMessage() { Topic = topic, Payload = System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(_payload) });
