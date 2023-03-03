@@ -177,11 +177,10 @@ namespace IoTSharp.Services.MQTTControllers
                     Dictionary<string, object> reps = new Dictionary<string, object>();
                     var reqid = requestid;
                     List<AttributeLatest> datas = new List<AttributeLatest>();
-                    var qf = from at in _dbContext.AttributeLatest where at.DeviceId == device.Id && reqlist.Contains(at.KeyName) select at;
-                    datas.AddRange(await qf.ToArrayAsync());
-                    foreach (var item in datas)
+                    var qf = from at in _dbContext.AttributeLatest where at.DeviceId == device.Id && reqlist.Contains(at.KeyName) select at.AttributeToKeyValue();
+                    var _dts = await qf.ToListAsync();
+                    foreach (var kv in _dts)
                     {
-                        var kv= item.AttributeToKeyValue();
                         reps.Add(kv.Key,kv.Value);
                     }
                     await Server.PublishAsync(ClientId, $"devices/me/attributes/response/{requestid}", reps);
