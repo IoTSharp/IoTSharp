@@ -14,6 +14,7 @@
 		<PackageReference Include="DotNetCore.CAP.MongoDB" Version="7.0.3" />
 		<PackageReference Include="DotNetCore.CAP.MySql" Version="7.0.3" />
 		<PackageReference Include="DotNetCore.CAP.PostgreSql" Version="7.0.3" />
+		<PackageReference Include="DotNetCore.CAP.RabbitMQ" Version="7.0.3" />
 		<PackageReference Include="DotNetCore.CAP.SqlServer" Version="7.0.3" />
 		<PackageReference Include="DotNetCore.CAP.AzureServiceBus" Version="7.0.3" />
 		<PackageReference Include="DotNetCore.CAP.AmazonSQS" Version="7.0.3" />
