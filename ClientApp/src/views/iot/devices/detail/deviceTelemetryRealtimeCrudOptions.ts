@@ -8,7 +8,7 @@ export const createDeviceTelemetryRealtimeCrudOptions = function ({ expose }, de
 		link: true,
 	};
 	const formatColumnDataTime = (row, column, cellValue, index) => {
-		return formatToDateTime(cellValue);
+		return formatToDateTime(row.value);
 	};
 	const pageRequest = async (query) => {
 		const res = await deviceApi().getDeviceLatestTelemetry(deviceId_param);
