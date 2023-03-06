@@ -1629,7 +1629,7 @@ namespace IoTSharp.Controllers
         public async Task<ApiResult<RuleTaskExecutorTestResultDto>> TestTask(RuleTaskExecutorTestDto m)
         {
             var profile = this.GetUserProfile();
-            var result = await this._flowRuleProcessor.TestScript(m.ruleId, m.flowId, m.Data);
+            var result = await  _flowRuleProcessor.TestScript(m.ruleId, m.flowId, m.Data);
             await _context.SaveChangesAsync();
             return new ApiResult<RuleTaskExecutorTestResultDto>(ApiCode.Success, "Ok", new RuleTaskExecutorTestResultDto() { Data = result.Data });
         }
@@ -1640,7 +1640,7 @@ namespace IoTSharp.Controllers
             var profile = this.GetUserProfile();
             var data = JsonConvert.DeserializeObject(m.Data) as JObject;
             var d = data.ToObject(typeof(ExpandoObject));
-            var result = await this._flowRuleProcessor.TestCondition(m.ruleId, m.flowId, d);
+            var result = await  _flowRuleProcessor.TestCondition(m.ruleId, m.flowId, d);
             return new ApiResult<ConditionTestResult>(ApiCode.Success, "Ok", result);
         }
     }

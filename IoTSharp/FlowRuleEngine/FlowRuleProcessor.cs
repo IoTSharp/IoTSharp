@@ -25,26 +25,21 @@ namespace IoTSharp.FlowRuleEngine
         private readonly IServiceScopeFactory _scopeFactor;
         private readonly ILogger<FlowRuleProcessor> _logger;
         private readonly AppSettings _setting;
-        private List<Flow> _allFlows;
-        private List<FlowOperation> _allflowoperation;
-        private TaskExecutorHelper _helper;
         private readonly IEasyCachingProvider _caching;
         private readonly IServiceProvider _sp;
-
+        private readonly TaskExecutorHelper _helper;
         private readonly int _maximumiteration = 1000;
+  
 
         public FlowRuleProcessor(ILogger<FlowRuleProcessor> logger, IServiceScopeFactory scopeFactor, IOptions<AppSettings> options, TaskExecutorHelper helper, IEasyCachingProviderFactory factory)
         {
-           
             string _hc_Caching = $"{nameof(CachingUseIn)}-{Enum.GetName(options.Value.CachingUseIn)}";
             _scopeFactor = scopeFactor;
             _logger = logger;
             _setting = options.Value;
-            _allFlows = new List<Flow>();
-            _allflowoperation = new List<FlowOperation>();
-            _helper = helper;
             _caching = factory.GetCachingProvider(_hc_Caching);
             _sp = _scopeFactor.CreateScope().ServiceProvider;
+            _helper = helper;
         }
 
         public async Task RunRules(Guid devid, object obj, EventType mountType)
@@ -56,8 +51,7 @@ namespace IoTSharp.FlowRuleEngine
                     using (var scope = _scopeFactor.CreateScope())
                     using (var _dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>())
                     {
-                        var guids = await _dbContext.GerDeviceRulesIdList(devid, mountType);
-                        return guids;
+                        return await _dbContext.GerDeviceRulesIdList(devid, mountType);
                     }
                 }, TimeSpan.FromSeconds(_setting.RuleCachingExpiration));
                 if (rules.HasValue)
@@ -87,7 +81,7 @@ namespace IoTSharp.FlowRuleEngine
         }
 
         /// <summary>
-        ///
+        ///运行指定规则链的规则
         /// </summary>
         /// <param name="ruleid"> 规则Id</param>
         /// <param name="data">数据</param>
@@ -98,25 +92,12 @@ namespace IoTSharp.FlowRuleEngine
 
         public async Task<List<FlowOperation>> RunFlowRules(Guid ruleid, object data, Guid deviceId, FlowRuleRunType type, string bizId)
         {
-            var cacheRule = await _caching.GetAsync($"RunFlowRules_{ruleid}", async () =>
-            {
-                FlowRule rule;
-                List<Flow> allFlows;
-                using (var sp = _scopeFactor.CreateScope())
-                {
-                    using (var context = sp.ServiceProvider.GetRequiredService<ApplicationDbContext>())
-                    {
-                        rule = await context.FlowRules.AsNoTracking().FirstOrDefaultAsync(c => c.RuleId == ruleid);
-                        allFlows = await context.Flows.AsNoTracking().Where(c => c.FlowRule == rule && c.FlowStatus > 0).ToListAsync();
-                        _logger.LogInformation($"读取规则链{rule?.Name}({ruleid}),子流程共计:{allFlows.Count}");
-                    }
-                }
-                return (rule, _allFlows: allFlows);
-            }, TimeSpan.FromSeconds(_setting.RuleCachingExpiration));
+            var _allflowoperation = new List<FlowOperation>();
+             var  cacheRule = await GetFlowRule(ruleid);
             if (cacheRule.HasValue)
             {
                 FlowRule rule = cacheRule.Value.rule;
-                _allFlows = cacheRule.Value._allFlows;
+                var _allFlows = cacheRule.Value._allFlows;
                 _logger.LogInformation($"开始执行规则链{rule?.Name}({ruleid})");
                 var @event = new BaseEvent()
                 {
@@ -125,7 +106,6 @@ namespace IoTSharp.FlowRuleEngine
                     EventDesc = $"Event Rule:{rule?.Name}({ruleid}) device is {deviceId}",
                     EventName = $"开始执行规则链{rule?.Name}({ruleid})",
                     MataData = JsonConvert.SerializeObject(data),
-                    //  BizData = JsonConvert.SerializeObject(rule),  //所有规则修改都会让对应的flow数据和设计文件不一致，最终导致回放失败，在此拷贝一份原始数据
                     FlowRule = rule,
                     Bizid = bizId,
                     Type = type,
@@ -182,7 +162,7 @@ namespace IoTSharp.FlowRuleEngine
                 };
 
                 _allflowoperation.Add(startoperation);
-                var nextflows = await ProcessCondition(start.FlowId, data);
+                var nextflows = await ProcessCondition(_allFlows, start.FlowId, data);
                 if (nextflows != null)
                 {
                     var step = startoperation.Step + 1;
@@ -205,7 +185,7 @@ namespace IoTSharp.FlowRuleEngine
                         };
 
                         _allflowoperation.Add(flowOperation);
-                        await Process(flowOperation.OperationId, data, deviceId);
+                        await Process(_allFlows, _allflowoperation, flowOperation.OperationId, data, deviceId);
                     }
                     return _allflowoperation;
                 }
@@ -213,7 +193,26 @@ namespace IoTSharp.FlowRuleEngine
             return null;
         }
 
-        public async Task Process(Guid operationid, object data, Guid deviceId)
+        private async Task<CacheValue<(FlowRule rule, List<Flow> _allFlows)>> GetFlowRule(Guid ruleid)
+        {
+            return await _caching.GetAsync($"RunFlowRules_{ruleid}", async () =>
+            {
+                FlowRule rule;
+                List<Flow> allFlows;
+                using (var sp = _scopeFactor.CreateScope())
+                {
+                    using (var context = sp.ServiceProvider.GetRequiredService<ApplicationDbContext>())
+                    {
+                        rule = await context.FlowRules.AsNoTracking().FirstOrDefaultAsync(c => c.RuleId == ruleid);
+                        allFlows = await context.Flows.AsNoTracking().Where(c => c.FlowRule == rule && c.FlowStatus > 0).ToListAsync();
+                        _logger.LogInformation($"读取规则链{rule?.Name}({ruleid}),子流程共计:{allFlows.Count}");
+                    }
+                }
+                return (rule, _allFlows: allFlows);
+            }, TimeSpan.FromSeconds(_setting.RuleCachingExpiration));
+        }
+
+        public async Task Process(List<Flow> _allFlows, List<FlowOperation> _allflowoperation  , Guid operationid, object data, Guid deviceId)
         {
             var peroperation = _allflowoperation.FirstOrDefault(c => c.OperationId == operationid);
             if (peroperation != null)
@@ -247,7 +246,7 @@ namespace IoTSharp.FlowRuleEngine
                                 BaseEvent = peroperation.BaseEvent
                             };
                             _allflowoperation.Add(operation);
-                            await Process(operation.OperationId, data, deviceId);
+                            await Process(_allFlows, _allflowoperation, operation.OperationId, data, deviceId);
 
                         }
 
@@ -440,7 +439,7 @@ namespace IoTSharp.FlowRuleEngine
 
                                 if (obj != null)
                                 {
-                                    var next = await ProcessCondition(taskoperation.Flow.FlowId, obj);
+                                    var next = await ProcessCondition(_allFlows, taskoperation.Flow.FlowId, obj);
                                     var cstep = taskoperation.Step + 1;
                                     foreach (var item in next)
                                     {
@@ -461,7 +460,7 @@ namespace IoTSharp.FlowRuleEngine
                                             BaseEvent = taskoperation.BaseEvent
                                         };
                                         _allflowoperation.Add(flowOperation);
-                                        await Process(flowOperation.OperationId, obj, deviceId);
+                                        await Process(_allFlows, _allflowoperation, flowOperation.OperationId, obj, deviceId);
                                     }
                                 }
                                 else
@@ -473,7 +472,7 @@ namespace IoTSharp.FlowRuleEngine
                             }
                             else
                             {
-                                var next = await ProcessCondition(taskoperation.Flow.FlowId, data);
+                                var next = await ProcessCondition(_allFlows, taskoperation.Flow.FlowId, data);
                                 var cstep = taskoperation.Step + 1;
                                 foreach (var item in next)
                                 {
@@ -493,7 +492,7 @@ namespace IoTSharp.FlowRuleEngine
                                         BaseEvent = taskoperation.BaseEvent
                                     };
                                     _allflowoperation.Add(flowOperation);
-                                    await Process(flowOperation.OperationId, data, deviceId);
+                                    await Process(_allFlows, _allflowoperation, flowOperation.OperationId, data, deviceId);
                                 }
                             }
                         }
@@ -550,7 +549,7 @@ namespace IoTSharp.FlowRuleEngine
             }
         }
 
-        public async Task<List<Flow>> ProcessCondition(Guid flowId, object data)
+        public async Task<List<Flow>> ProcessCondition(List<Flow> _allFlows, Guid flowId, object data)
         {
 
             var tt = data.GetType();
@@ -646,8 +645,7 @@ namespace IoTSharp.FlowRuleEngine
                             Params = null,
                             Task = tasks,
                         });
-                        var next = result.Where(c => c.IsSuccess).ToList();
-                        foreach (var item in next)
+                        foreach (var item in result.Where(c => c.IsSuccess).ToList())
                         {
                             var nextflow = flows.FirstOrDefault(a => a.bpmnid == item.Rule.SuccessEvent);
                             emptyflow.Add(nextflow);
@@ -667,24 +665,10 @@ namespace IoTSharp.FlowRuleEngine
 
         public async Task<ScriptTestResult> TestScript(Guid ruleid, Guid flowId, string data)
         {
-            var cacheRule = await _caching.GetAsync($"RunFlowRules_{ruleid}", async () =>
-            {
-                FlowRule rule;
-
-                using (var sp = _scopeFactor.CreateScope())
-                {
-                    using (var context = sp.ServiceProvider.GetRequiredService<ApplicationDbContext>())
-                    {
-                        rule = await context.FlowRules.FirstOrDefaultAsync(c => c.RuleId == ruleid);
-                        _allFlows = await context.Flows.Where(c => c.FlowRule == rule && c.FlowStatus > 0).ToListAsync();
-                        _logger.LogInformation($"读取规则链{rule?.Name}({ruleid}),子流程共计:{_allFlows.Count}");
-                    }
-                }
-                return (rule, _allFlows);
-            }, TimeSpan.FromSeconds(_setting.RuleCachingExpiration));
+            var cacheRule =await GetFlowRule(ruleid);
             if (cacheRule.HasValue)
             {
-                var flow = _allFlows.FirstOrDefault(c => c.FlowId == flowId);
+                var flow = cacheRule.Value._allFlows.FirstOrDefault(c => c.FlowId == flowId);
 
                 if (!string.IsNullOrEmpty(flow?.NodeProcessScriptType) &&
                     (!string.IsNullOrEmpty(flow.NodeProcessScript) || !string.IsNullOrEmpty(flow.NodeProcessClass)))
@@ -788,24 +772,10 @@ namespace IoTSharp.FlowRuleEngine
 
         public async Task<ConditionTestResult> TestCondition(Guid ruleid, Guid flowId, dynamic data)
         {
-            var cacheRule = await _caching.GetAsync($"RunFlowRules_{ruleid}", async () =>
-            {
-                FlowRule rule;
-
-                using (var sp = _scopeFactor.CreateScope())
-                {
-                    using (var context = sp.ServiceProvider.GetRequiredService<ApplicationDbContext>())
-                    {
-                        rule = await context.FlowRules.FirstOrDefaultAsync(c => c.RuleId == ruleid);
-                        _allFlows = await context.Flows.Where(c => c.FlowRule == rule && c.FlowStatus > 0).ToListAsync();
-                        _logger.LogInformation($"读取规则链{rule?.Name}({ruleid}),子流程共计:{_allFlows.Count}");
-                    }
-                }
-                return (rule, _allFlows);
-            }, TimeSpan.FromSeconds(_setting.RuleCachingExpiration));
+            var cacheRule = await GetFlowRule(ruleid);
             if (cacheRule.HasValue)
             {
-                _allFlows = cacheRule.Value._allFlows;
+               var  _allFlows = cacheRule.Value._allFlows;
                 var flow = _allFlows.FirstOrDefault(c => c.FlowId == flowId);
                 var flows = _allFlows.Where(c => c.SourceId == flow.bpmnid).ToList();
                 var emptyflow = flows.Where(c => c.Conditionexpression == string.Empty).ToList() ?? new List<Flow>();
