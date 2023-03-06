@@ -42,16 +42,20 @@ services:
     container_name: iotsharp
     hostname: iotsharp
     environment:
-       ASPNETCORE_ENVIRONMENT: Production
-       TZ: Asia/Shanghai
+      ASPNETCORE_ENVIRONMENT: Production
+      TZ: Asia/Shanghai
     depends_on:
       - pgsql
-      - mongodb
+      - mongodb1
+      - mongodb2
+      - mongodb3
       - rabbitmq
       - influx
     links:
       - pgsql
-      - mongodb
+      - mongodb1
+      - mongodb2
+      - mongodb3
       - rabbitmq
       - influx
     volumes:
@@ -86,19 +90,58 @@ services:
       - iotsharp-network
 
 
-  mongodb:
+  mongodb1:
     image: mongo:latest
     restart: always
-    container_name: mongodb
+    container_name: mongodb1
     volumes:
-      - ./data/mongodb/db:/data/db
-      - ./data/mongodb/log:/var/log/mongodb
+      - ./data/mongodb1/db:/data/db
+      - ./data/mongodb1/log:/var/log/mongodb
+      - ./mongodb-init.sh:/scripts/mongodb-init.sh
     ports:
       - 27017:27017
+    links:
+      - mongodb2
+      - mongodb3
     environment:
       TZ: "Asia/Shanghai"
-      MONGO_INITDB_ROOT_USERNAME: root
-      MONGO_INITDB_ROOT_PASSWORD: kissme
+      #MONGO_INITDB_ROOT_USERNAME: root
+      #MONGO_INITDB_ROOT_PASSWORD: kissme
+    entrypoint: [ "/usr/bin/mongod", "--bind_ip_all", "--replSet", "dbrs" ]
+    networks:
+      - iotsharp-network
+      
+  mongodb2:
+    container_name: mongodb2
+    image: mongo:latest
+    volumes:
+      - ./data/mongodb2/db:/data/db
+      - ./data/mongodb2/log:/var/log/mongodb
+    ports:
+      - 27018:27017
+    restart: always
+    environment:
+      TZ: "Asia/Shanghai"
+      #MONGO_INITDB_ROOT_USERNAME: root
+      #MONGO_INITDB_ROOT_PASSWORD: kissme
+    entrypoint: [ "/usr/bin/mongod", "--bind_ip_all", "--replSet", "dbrs" ]
+    networks:
+      - iotsharp-network
+    
+  mongodb3:
+    container_name: mongodb3
+    image: mongo:latest
+    volumes:
+      - ./data/mongodb3/db:/data/db
+      - ./data/mongodb3/log:/var/log/mongodb
+    ports:
+      - 27019:27017
+    restart: always
+    environment:
+      TZ: "Asia/Shanghai"
+      #MONGO_INITDB_ROOT_USERNAME: root
+      #MONGO_INITDB_ROOT_PASSWORD: kissme
+    entrypoint: [ "/usr/bin/mongod", "--bind_ip_all", "--replSet", "dbrs" ]
     networks:
       - iotsharp-network
 

@@ -182,8 +182,9 @@ namespace IoTSharp.Storage
                 case Aggregate.Sum:
                     result= "SUM";
                     break;
+                case Aggregate.None:
                 default:
-                    result = "";
+                    result = "ALL";
                     break;
             }
             return result;
@@ -204,9 +205,11 @@ namespace IoTSharp.Storage
                 var sb = new StringBuilder();
                 var MeasurementPointList = await this.GetIotDbMeasurementPointInfor(device, keys);
                 var selectItemStr = string.Join(",", from m in MeasurementPointList select $"{aggStr}({m.key})");
+                if (aggStr == "ALL")
+                    selectItemStr = string.Join(',', MeasurementPointList.Select(x => x.key));
                 sb.AppendLine($@"select {selectItemStr} from {device} where Time >= {begin:yyyy-MM-ddTHH:mm:ss.fff+00:00} and Time < {end:yyyy-MM-ddTHH:mm:ss.fff+00:00}  ");
 
-                if (every > TimeSpan.Zero)
+                if (every > TimeSpan.Zero && aggStr != "ALL")
                 {
                     sb.AppendLine($@" group by ([{begin:yyyy-MM-ddTHH:mm:ss.fff+00:00}, {end:yyyy-MM-ddTHH:mm:ss.fff+00:00}),{(long)every.TotalMilliseconds}ms)");
                 }
