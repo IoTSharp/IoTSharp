@@ -154,7 +154,7 @@ namespace IoTSharp.Storage
                     {
                         if (kp.Value != null)
                         {
-                            TelemetryData tdata = new TelemetryData() { DateTime = msg.ts, DeviceId = msg.DeviceId, KeyName = kp.Key, Value_DateTime = new DateTime(1970, 1, 1) };
+                            TelemetryData tdata = new TelemetryData() { DateTime = msg.ts, DeviceId = msg.DeviceId, KeyName = kp.Key, Value_DateTime = DateTime.UnixEpoch };
                             tdata.FillKVToMe(kp);
                             string _type = "";
                             string _value = "";
@@ -202,7 +202,7 @@ namespace IoTSharp.Storage
 
                                 case DataType.DateTime:
                                     _type = "value_datetime";
-                                    _value = $"{tdata.Value_DateTime?.Subtract(new DateTime(1970, 1, 1, 0, 0, 0, 0)).TotalMilliseconds}";
+                                    _value = $"{tdata.Value_DateTime?.Subtract(DateTime.UnixEpoch).TotalMilliseconds}";
                                     _hasvalue = tdata.Value_DateTime.HasValue;
                                     break;
 

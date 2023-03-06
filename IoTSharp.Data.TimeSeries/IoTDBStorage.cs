@@ -300,7 +300,7 @@ namespace IoTSharp.Storage
                 {
                     if (kp.Value != null)
                     {
-                        TelemetryData tdata = new TelemetryData() { DateTime = msg.ts, DeviceId = msg.DeviceId, KeyName = kp.Key, Value_DateTime = new DateTime(1970, 1, 1) };
+                        TelemetryData tdata = new TelemetryData() { DateTime = msg.ts, DeviceId = msg.DeviceId, KeyName = kp.Key, Value_DateTime = DateTime.UnixEpoch };
                         tdata.FillKVToMe(kp);
                         object? _value = null;
                         bool _hasvalue = true;
