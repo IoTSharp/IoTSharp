@@ -159,11 +159,6 @@ namespace IoTSharp.Controllers
             }
         }
 
-        /// <summary>
-        ///
-        /// </summary>
-        /// <param name="name"></param>
-        /// <returns></returns>
 
         private async Task<ModelRefreshToken> CreateToken(string name)
         {
