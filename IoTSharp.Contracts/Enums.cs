@@ -46,6 +46,8 @@ namespace IoTSharp.Contracts
         UnLockUserHaveError = 10025,
         NotEnableTls = 10026,
         NeedServerIPAddress = 10027,
+        CanNotLockYourself = 10028,
+        CanNotUnlockYourself = 10029,
     }
     [System.Text.Json.Serialization.JsonConverter(typeof(System.Text.Json.Serialization.JsonStringEnumConverter))]
     [JsonConverter(typeof(StringEnumConverter))]

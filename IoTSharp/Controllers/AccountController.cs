@@ -21,6 +21,7 @@ using System.Linq;
 using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
+using static IronPython.Modules._ast;
 
 namespace IoTSharp.Controllers
 {
@@ -499,6 +500,8 @@ namespace IoTSharp.Controllers
         /// NotFoundUser = 10021,
         /// CanNotLockUser = 10022,
         ///LockUserHaveError = 10023
+        ///CanNotLockYourself =10028 
+        ///CanNotUnlockYourself =10029 
         ///</returns>
         [HttpPut]
         public async Task<ApiResult> Lock(LockDto dto)
@@ -515,51 +518,64 @@ namespace IoTSharp.Controllers
                         break;
 
                     case LockOpt.Lock:
-                        var lce = await _userManager.SetLockoutEnabledAsync(user, true);
-                        if (lce.Succeeded)
+                        if (User.GetUserId() == dto.Id)
                         {
-                            var led = await _userManager.SetLockoutEndDateAsync(user, DateTimeOffset.Now.AddYears(100));
-                            if (led.Succeeded)
-                            {
-                                result = new ApiResult(ApiCode.Success, "OK");
-                            }
-                            else
-                            {
-                                result = new ApiResult(ApiCode.LockUserHaveError, "锁定用户时遇到错误" + string.Join(';', led.Errors.Select(c => $"{c.Code}-{c.Description}")));
-                            }
+                            result = new ApiResult(ApiCode.CanNotLockYourself, "不能自己锁定自己的账号");
                         }
                         else
                         {
-                            result = new ApiResult(ApiCode.CanNotLockUser, "无法锁定此用户" + string.Join(';', lce.Errors.Select(c => $"{c.Code}-{c.Description}")));
-                        }
-
-                        break;
-
-                    case LockOpt.Unlock:
-                        if (les)
-                        {
-                            var led = await _userManager.SetLockoutEndDateAsync(user, DateTimeOffset.Now);
-
-                            if (led.Succeeded)
+                            var lce = await _userManager.SetLockoutEnabledAsync(user, true);
+                            if (lce.Succeeded)
                             {
-                                var uld = await _userManager.SetLockoutEnabledAsync(user, false);
-                                if (uld.Succeeded)
+                                var led = await _userManager.SetLockoutEndDateAsync(user, DateTimeOffset.Now.AddYears(100));
+                                if (led.Succeeded)
                                 {
                                     result = new ApiResult(ApiCode.Success, "OK");
                                 }
                                 else
                                 {
-                                    result = new ApiResult(ApiCode.LockUserHaveError, "解锁用户时遇到错误" + string.Join(';', uld.Errors.Select(c => $"{c.Code}-{c.Description}")));
+                                    result = new ApiResult(ApiCode.LockUserHaveError, "锁定用户时遇到错误" + string.Join(';', led.Errors.Select(c => $"{c.Code}-{c.Description}")));
                                 }
                             }
                             else
                             {
-                                result = new ApiResult(ApiCode.UnLockUserHaveError, "解锁用户时遇到错误" + string.Join(';', led.Errors.Select(c => $"{c.Code}-{c.Description}")));
+                                result = new ApiResult(ApiCode.CanNotLockUser, "无法锁定此用户" + string.Join(';', lce.Errors.Select(c => $"{c.Code}-{c.Description}")));
                             }
+                        }
+                        break;
+
+                    case LockOpt.Unlock:
+                        if (User.GetUserId() == dto.Id)
+                        {
+                            result = new ApiResult(ApiCode.CanNotUnlockYourself, "不能自己解锁自己账号");
                         }
                         else
                         {
-                            result = new ApiResult(ApiCode.CanNotUnLockUser, "无法解锁此用户");
+                            if (les)
+                            {
+                                var led = await _userManager.SetLockoutEndDateAsync(user, DateTimeOffset.Now);
+
+                                if (led.Succeeded)
+                                {
+                                    var uld = await _userManager.SetLockoutEnabledAsync(user, false);
+                                    if (uld.Succeeded)
+                                    {
+                                        result = new ApiResult(ApiCode.Success, "OK");
+                                    }
+                                    else
+                                    {
+                                        result = new ApiResult(ApiCode.LockUserHaveError, "解锁用户时遇到错误" + string.Join(';', uld.Errors.Select(c => $"{c.Code}-{c.Description}")));
+                                    }
+                                }
+                                else
+                                {
+                                    result = new ApiResult(ApiCode.UnLockUserHaveError, "解锁用户时遇到错误" + string.Join(';', led.Errors.Select(c => $"{c.Code}-{c.Description}")));
+                                }
+                            }
+                            else
+                            {
+                                result = new ApiResult(ApiCode.CanNotUnLockUser, "无法解锁此用户");
+                            }
                         }
                         break;
 
