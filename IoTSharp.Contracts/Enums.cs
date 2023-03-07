@@ -18,36 +18,130 @@ namespace IoTSharp.Contracts
 
     public enum ApiCode : int
     {
+        /// <summary>
+        /// 成功
+        /// </summary>
         Success = 10000,
+        /// <summary>
+        /// 登录失败
+        /// </summary>
         LoginError = 10001,
+        /// <summary>
+        /// 异常
+        /// </summary>
         Exception = 10002,
+        /// <summary>
+        /// 已经存在
+        /// </summary>
         AlreadyExists = 10003,
+        /// <summary>
+        /// 无法找到租户或设备
+        /// </summary>
         NotFoundTenantOrCustomer = 10004,
+        /// <summary>
+        /// 无法找到设备
+        /// </summary>
         NotFoundDevice = 10005,
+        /// <summary>
+        /// 无法找到客户
+        /// </summary>
         NotFoundCustomer = 10006,
+        /// <summary>
+        /// 什么也没做
+        /// </summary>
         NothingToDo = 10007,
+        /// <summary>
+        /// 不允许
+        /// </summary>
         DoNotAllow = 10008,
+        /// <summary>
+        /// 没有找到租户
+        /// </summary>
         NotFoundTenant = 10009,
+        /// <summary>
+        /// 设备认证异常
+        /// </summary>
         ExceptionDeviceIdentity = 10010,
+        /// <summary>
+        /// 远程调用失败
+        /// </summary>
         RPCFailed = 10011,
+        /// <summary>
+        /// 远程调用超时
+        /// </summary>
         RPCTimeout = 10012,
+        /// <summary>
+        /// 客户没有设备
+        /// </summary>
         CustomerDoesNotHaveDevice = 10013,
+        /// <summary>
+        /// 创建用户失败
+        /// </summary>
         CreateUserFailed = 10014,
+        /// <summary>
+        /// 无法找到对象
+        /// </summary>
         CantFindObject = 10015,
+        /// <summary>
+        /// 无效数据
+        /// </summary>
         InValidData = 10016,
+        /// <summary>
+        /// 没有找到产品
+        /// </summary>
         NotFoundProduce = 10017,
+        /// <summary>
+        /// 没有文件
+        /// </summary>
         NotFile = 10018,
+        /// <summary>
+        /// 空的信息
+        /// </summary>
         Empty = 10019,
+        /// <summary>
+        /// 用户已存在
+        /// </summary>
         UserAlreadyExists = 10020,
+        /// <summary>
+        /// 未找到用户
+        /// </summary>
         NotFoundUser = 10021,
+        /// <summary>
+        /// 无法锁定用户
+        /// </summary>
         CanNotLockUser = 10022,
+        /// <summary>
+        /// 锁定用户遇到错误
+        /// </summary>
         LockUserHaveError = 10023,
+        /// <summary>
+        /// 无法解锁用户
+        /// </summary>
         CanNotUnLockUser = 10024,
+        /// <summary>
+        /// 解锁用户发现异常
+        /// </summary>
         UnLockUserHaveError = 10025,
+        /// <summary>
+        /// 没有启用TLS 传输加密
+        /// </summary>
         NotEnableTls = 10026,
+        /// <summary>
+        /// 需要在配置文件中配置服务器IP
+        /// </summary>
         NeedServerIPAddress = 10027,
+        /// <summary>
+        /// 不能锁定自己的账号
+        /// </summary>
         CanNotLockYourself = 10028,
+        /// <summary>
+        /// 不能自己解锁自己的账号
+        /// </summary>
         CanNotUnlockYourself = 10029,
+        /// <summary>
+        /// 用户Token失效
+        /// </summary>
+        UserTokenNotAvailable = 10030,
     }
     [System.Text.Json.Serialization.JsonConverter(typeof(System.Text.Json.Serialization.JsonStringEnumConverter))]
     [JsonConverter(typeof(StringEnumConverter))]
@@ -219,7 +313,7 @@ namespace IoTSharp.Contracts
         TestPurpose=2
     }
     /// <summary>
-    /// 原来的挂载点， 现在叫事件类型
+    /// 事件类型
     /// </summary>
     [System.Text.Json.Serialization.JsonConverter(typeof(System.Text.Json.Serialization.JsonStringEnumConverter))]
     [JsonConverter(typeof(StringEnumConverter))]

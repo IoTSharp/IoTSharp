@@ -58,7 +58,6 @@ namespace IoTSharp.Controllers
         {
             _userManager = userManager;
             _signInManager = signInManager;
-
             _configuration = configuration;
             _logger = logger;
             _context = context;
@@ -95,22 +94,29 @@ namespace IoTSharp.Controllers
         [HttpGet, Authorize(Roles = nameof(UserRole.NormalUser))]
         public async Task<ActionResult<ApiResult<UserInfoDto>>> MyInfo()
         {
-            var user = await _userManager.GetUserAsync(User);
-            var rooles = await _userManager.GetRolesAsync(user);
-            var Customer = _context.GetCustomer(User.GetCustomerId());
-            var uidto = new UserInfoDto()
+             var user = await _userManager.GetUserAsync(User);
+            if (user == null)
             {
-                Code = ApiCode.Success,
-                Roles = string.Join(',', rooles).ToLower(),
-                Name = user.UserName,
-                Email = user.Email,
-                Avatar = user.Gravatar(),
-                PhoneNumber = user.PhoneNumber,
-                Introduction = user.NormalizedUserName,
-                Customer = Customer,
-                Tenant = Customer?.Tenant
-            };
-            return new ApiResult<UserInfoDto>(ApiCode.Success, "OK", uidto);
+                return new ApiResult<UserInfoDto>(ApiCode.UserTokenNotAvailable, "用户的登录信息已经不可用", new UserInfoDto() {  Code= ApiCode.UserTokenNotAvailable } );
+            }
+            else
+            {
+                var rooles = await _userManager.GetRolesAsync(user);
+                var Customer = _context.GetCustomer(User.GetCustomerId());
+                var uidto = new UserInfoDto()
+                {
+                    Code = ApiCode.Success,
+                    Roles = string.Join(',', rooles).ToLower(),
+                    Name = user.UserName,
+                    Email = user.Email,
+                    Avatar = user.Gravatar(),
+                    PhoneNumber = user.PhoneNumber,
+                    Introduction = user.NormalizedUserName,
+                    Customer = Customer,
+                    Tenant = Customer?.Tenant
+                };
+                return new ApiResult<UserInfoDto>(ApiCode.Success, "OK", uidto);
+            }
         }
 
         /// <summary>
@@ -269,11 +275,11 @@ namespace IoTSharp.Controllers
             try
             {
                 await _signInManager.SignOutAsync();
-                return new ApiResult<bool>(ApiCode.InValidData, "Ok", true);
+                return new ApiResult<bool>(ApiCode.Success, "Ok", true);
             }
             catch (Exception ex)
             {
-                return new ApiResult<bool>(ApiCode.InValidData, ex.Message, true);
+                return new ApiResult<bool>(ApiCode.Exception, ex.Message, true);
             }
         }
 
