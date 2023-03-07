@@ -90,33 +90,42 @@ namespace IoTSharp.Controllers
         /// <summary>
         /// 获取当前登录用户信息
         /// </summary>
-        /// <returns></returns>
         [HttpGet, Authorize(Roles = nameof(UserRole.NormalUser))]
         public async Task<ActionResult<ApiResult<UserInfoDto>>> MyInfo()
         {
+            ApiResult<UserInfoDto> result;
              var user = await _userManager.GetUserAsync(User);
-            if (user == null)
+            var custid = User.GetCustomerId();
+            if (user == null || custid==Guid.Empty)
             {
-                return new ApiResult<UserInfoDto>(ApiCode.UserTokenNotAvailable, "用户的登录信息已经不可用", new UserInfoDto() {  Code= ApiCode.UserTokenNotAvailable } );
+                result= new ApiResult<UserInfoDto>(ApiCode.UserTokenNotAvailable, "用户的登录信息已经不可用", new UserInfoDto() {  Code= ApiCode.UserTokenNotAvailable } );
             }
             else
             {
-                var rooles = await _userManager.GetRolesAsync(user);
-                var Customer = _context.GetCustomer(User.GetCustomerId());
-                var uidto = new UserInfoDto()
+                try
                 {
-                    Code = ApiCode.Success,
-                    Roles = string.Join(',', rooles).ToLower(),
-                    Name = user.UserName,
-                    Email = user.Email,
-                    Avatar = user.Gravatar(),
-                    PhoneNumber = user.PhoneNumber,
-                    Introduction = user.NormalizedUserName,
-                    Customer = Customer,
-                    Tenant = Customer?.Tenant
-                };
-                return new ApiResult<UserInfoDto>(ApiCode.Success, "OK", uidto);
+                    var rooles = await _userManager.GetRolesAsync(user);
+                    var Customer = _context.GetCustomer(custid);
+                    var uidto = new UserInfoDto()
+                    {
+                        Code = ApiCode.Success,
+                        Roles = string.Join(',', rooles).ToLower(),
+                        Name = user.UserName,
+                        Email = user.Email,
+                        Avatar = user.Gravatar(),
+                        PhoneNumber = user.PhoneNumber,
+                        Introduction = user.NormalizedUserName,
+                        Customer = Customer,
+                        Tenant = Customer?.Tenant
+                    };
+                    result= new ApiResult<UserInfoDto>(ApiCode.Success, "OK", uidto);
+                }
+                catch (Exception ex)
+                {
+                    result = new ApiResult<UserInfoDto>(ApiCode.UserTokenNotAvailable, ex.Message, new UserInfoDto() { Code = ApiCode.UserTokenNotAvailable });
+                }
             }
+            return result;
         }
 
         /// <summary>

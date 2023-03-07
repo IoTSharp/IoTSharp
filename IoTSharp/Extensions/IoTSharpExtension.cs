@@ -121,7 +121,7 @@ namespace IoTSharp
         /// <returns></returns>
         public static Guid  GetUserId(this ClaimsPrincipal _user)
         {
-            return  Guid.Parse( _user.FindFirstValue(ClaimTypes.NameIdentifier));
+            return  Guid.Parse( _user.FindFirstValue(ClaimTypes.NameIdentifier) ?? Guid.Empty.ToString());
         }
         /// <summary>
         /// 获取当前用户的ID
@@ -139,7 +139,7 @@ namespace IoTSharp
         /// <returns></returns>
         public static Guid GetCustomerId(this ClaimsPrincipal _user)
         {
-            return Guid.Parse(_user.FindFirstValue(IoTSharpClaimTypes.Customer));
+            return Guid.Parse(_user.FindFirstValue(IoTSharpClaimTypes.Customer) ?? Guid.Empty.ToString());
         }
         
         public static IHostBuilder ConfigureIoTSharpHost(this IHostBuilder hostBuilder)
