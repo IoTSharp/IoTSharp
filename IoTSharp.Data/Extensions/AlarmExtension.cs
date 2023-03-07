@@ -69,8 +69,6 @@ namespace IoTSharp.Data.Extensions
             else return new ApiResult<Alarm>(ApiCode.NotFoundDevice, "Originator name not a asset",null);
         }
 
-      
-
         public static async Task<ApiResult<Alarm>> OccurredAlarm(this ApplicationDbContext _context, CreateAlarmDto dto, Action<Alarm> action)
         {
             var result = new ApiResult<Alarm>(ApiCode.InValidData,"",null);
@@ -78,7 +76,6 @@ namespace IoTSharp.Data.Extensions
             {
                 var alarm = new Alarm
                 {
-                    Id = Guid.NewGuid(),
                     AckDateTime = DateTime.UtcNow,
                     AlarmDetail = dto.AlarmDetail,
                     AlarmStatus = AlarmStatus.Active_UnAck,
@@ -117,10 +114,11 @@ namespace IoTSharp.Data.Extensions
                         }
                         old.Serverity = dto.Serverity;
                     }
+                    alarm =old;
                 }
                 else
                 {
-
+                    alarm.Id = Guid.NewGuid();
                     _context.Alarms.Add(alarm);
                 }
                 int ret = await _context.SaveChangesAsync();
