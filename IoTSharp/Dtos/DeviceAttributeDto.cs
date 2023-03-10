@@ -13,12 +13,14 @@ namespace IoTSharp.Controllers
         public string KeyName { get; set; }
 
         public DateTime DateTime { get; set; }
-
+        /// <summary>
+        /// 数据侧
+        /// </summary>
         public DataSide DataSide { get; set; }
-
-        public DataType Type { get; set; }
-
-
+        /// <summary>
+        /// 数据类型
+        /// </summary>
+        public DataType DataType { get; set; }
 
         public bool? Value_Boolean { get; set; }
         public string Value_String { get; set; }

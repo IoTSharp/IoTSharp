@@ -73,6 +73,13 @@
             <param name="model"></param>
             <returns >返回登录结果</returns>
         </member>
+        <member name="M:IoTSharp.Controllers.AccountController.PostAccount(IoTSharp.Dtos.CreateUserInput)">
+            <summary>
+            为当前客户所在的租户新增用户  zhangjie 20230308
+            </summary>
+            <param name="model">前端传参</param>
+            <returns></returns>
+        </member>
         <member name="M:IoTSharp.Controllers.AccountController.List(IoTSharp.Controllers.Models.UserQueryDto)">
             <summary>
             列出指定租户的所有用户。
@@ -461,7 +468,7 @@
         </member>
         <member name="M:IoTSharp.Controllers.DevicesController.Attributes(System.String,IoTSharp.Contracts.DataSide,System.String)">
              <summary>
-             获取服务测的设备熟悉
+             获取服务侧的设备属性
              </summary>
              <param name="access_token">Device 's access token </param>
             <param name="dataSide">Specifying data side.</param>
@@ -517,7 +524,7 @@
             <param name="attributes"></param>
             <returns></returns>
         </member>
-        <member name="M:IoTSharp.Controllers.DevicesController.RemoveAttribute(System.Guid,System.String,IoTSharp.Contracts.DataSide)">
+        <member name="M:IoTSharp.Controllers.DevicesController.RemoveAttribute(IoTSharp.Dtos.RemoveDeviceAttributeInput)">
             <summary>
             属性删除
             </summary>
@@ -742,6 +749,16 @@
             <param name="id"></param>
             <returns></returns>
         </member>
+        <member name="P:IoTSharp.Controllers.DeviceAttributeDto.DataSide">
+            <summary>
+            数据侧
+            </summary>
+        </member>
+        <member name="P:IoTSharp.Controllers.DeviceAttributeDto.DataType">
+            <summary>
+            数据类型
+            </summary>
+        </member>
         <member name="P:IoTSharp.Controllers.Models.QueryDto.Offset">
             <summary>
             当前页开始行
@@ -920,6 +937,26 @@
         <member name="P:IoTSharp.Dtos.CreateUserDto.Customer">
             <summary>
             客户的ID
+            </summary>
+        </member>
+        <member name="P:IoTSharp.Dtos.CreateUserInput.Email">
+            <summary>
+            邮箱地址， 也是用户名，一个邮箱只能注册平台的一个客户，如果你在平台有两个租户都有账号，则需要两个邮箱地址。 
+            </summary>
+        </member>
+        <member name="P:IoTSharp.Dtos.CreateUserInput.PhoneNumber">
+            <summary>
+            电话号码
+            </summary>
+        </member>
+        <member name="P:IoTSharp.Dtos.CreateUserInput.CustomerId">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="P:IoTSharp.Dtos.CreateUserInput.Password">
+            <summary>
+            用户名密码
             </summary>
         </member>
         <member name="P:IoTSharp.Dtos.DeviceDetailDto.Name">

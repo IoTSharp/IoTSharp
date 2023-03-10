@@ -113,7 +113,10 @@ namespace IoTSharp.Controllers
             {
                 return new ApiResult<Customer>(ApiCode.InValidData, "InValidData", customer);
             }
-            customer.Tenant = _context.Tenant.Find(customer.TenantId);
+            if(customer.TenantId!= Guid.Empty)
+            {
+                customer.Tenant = _context.Tenant.Find(customer.TenantId);
+            }
             _context.Entry(customer).State = EntityState.Modified;
             try
             {

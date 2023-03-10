@@ -17,7 +17,7 @@ namespace IoTSharp.Data
         public static (bool ok, Device device) GetDeviceByTokenWithTenantCustomer(this ApplicationDbContext _context, string access_token)
         {
             var deviceIdentity = from id in _context.DeviceIdentities.Include(di => di.Device) where id.IdentityId == access_token && id.IdentityType == IdentityType.AccessToken select id;
-            var devices = from dev in _context.Device.Include(g=>g.Customer).Include(g=>g.Tenant)  where deviceIdentity.Any() && dev.Id == deviceIdentity.FirstOrDefault().Device.Id select dev;
+            var devices = from dev in _context.Device.Include(g => g.Customer).Include(g => g.Tenant) where deviceIdentity.Any() && dev.Id == deviceIdentity.FirstOrDefault().Device.Id select dev;
             bool ok = deviceIdentity == null || !devices.Any();
             return (ok, devices.FirstOrDefault());
         }
@@ -39,9 +39,21 @@ namespace IoTSharp.Data
         /// <returns></returns>
         public static async Task<(int ret, Dic exceptions)> SaveAsync<L>(this ApplicationDbContext _context, Dictionary<string, object> data, Guid deviceId, DataSide dataSide) where L : DataStorage, new()
         {
-            Dic exceptions = _context.PreparingData<L>(data, deviceId, dataSide);
-            int ret = await _context.SaveChangesAsync();
-            return (ret, exceptions);
+            //保存是会存在为空的数组进行保存的情况，此处做为空判断
+            if (data.Any())
+            {
+                Dic exceptions = _context.PreparingData<L>(data, deviceId, dataSide);
+                int ret = await _context.SaveChangesAsync();
+                return (ret, exceptions);
+            }
+            else
+            {
+                Dic exceptions = new Dic
+                {
+                    { "", new Exception("参数为空") }
+                };
+                return (0, exceptions) ;
+            }
         }
         /// <summary>
         /// Preparing Data to Device's   <typeparamref name="L"/>
@@ -57,15 +69,15 @@ namespace IoTSharp.Data
         {
 
             Dic exceptions = new Dic();
-        
+
             data.ToList().ForEach(kp =>
             {
                 try
                 {
-                    if (kp.Key != null && kp.Value !=null)
+                    if (kp.Key != null && kp.Value != null)
                     {
                         var devdata = from tx in _context.Set<L>() where tx.DeviceId == deviceId select tx;
-                        var tl = from tx in devdata  where  tx.KeyName == kp.Key && tx.DataSide == dataSide select tx;
+                        var tl = from tx in devdata where tx.KeyName == kp.Key && tx.DataSide == dataSide select tx;
                         if (tl.Any())
                         {
                             var tx = tl.First();
@@ -86,7 +98,7 @@ namespace IoTSharp.Data
                     }
                     else
                     {
-                        exceptions.Add($"Key:{ kp.Key}",new Exception( "Key is null or value is null"));
+                        exceptions.Add($"Key:{kp.Key}", new Exception("Key is null or value is null"));
                     }
                 }
                 catch (Exception ex)
@@ -96,7 +108,7 @@ namespace IoTSharp.Data
             });
             return exceptions;
         }
-       
+
         public static object JPropertyToObject(this JProperty property)
         {
             object obj = null;
@@ -176,7 +188,7 @@ namespace IoTSharp.Data
         public static void FillKVToMe<T>(this T tdata, KeyValuePair<string, object> kp) where T : IDataStorage
         {
             var tc = Type.GetTypeCode(kp.Value.GetType());
-         
+
             switch (tc)
             {
                 case TypeCode.Boolean:
@@ -218,7 +230,7 @@ namespace IoTSharp.Data
                     break;
                 case TypeCode.Object:
                 default:
-                   if (kp.Value.GetType() == typeof(byte[]))
+                    if (kp.Value.GetType() == typeof(byte[]))
                     {
                         tdata.Type = DataType.Binary;
                         tdata.Value_Binary = (byte[])kp.Value;
@@ -345,7 +357,7 @@ namespace IoTSharp.Data
             return _fieldname;
         }
 
-        public static void AttachValue(this TelemetryDataDto telemetry, DataType datatype,object _value)
+        public static void AttachValue(this TelemetryDataDto telemetry, DataType datatype, object _value)
         {
             telemetry.DataType = datatype;
             switch (datatype)
@@ -413,6 +425,6 @@ namespace IoTSharp.Data
             }
             return obj;
         }
-      
+
     }
 }

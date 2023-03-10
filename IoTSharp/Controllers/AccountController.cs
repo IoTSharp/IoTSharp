@@ -493,6 +493,12 @@ namespace IoTSharp.Controllers
                             await _signInManager.UserManager.AddClaimAsync(user, new Claim(IoTSharpClaimTypes.Customer, customer.Id.ToString()));
                             await _signInManager.UserManager.AddClaimAsync(user, new Claim(IoTSharpClaimTypes.Tenant, customer.Tenant.Id.ToString()));
                             await _signInManager.UserManager.AddToRolesAsync(user, new[] { nameof(UserRole.NormalUser) });
+
+                            await _signInManager.UserManager.AddToRoleAsync(user, nameof(UserRole.Anonymous));
+                            await _signInManager.UserManager.AddToRoleAsync(user, nameof(UserRole.NormalUser));
+                            await _signInManager.UserManager.AddToRoleAsync(user, nameof(UserRole.CustomerAdmin));
+                            await _signInManager.UserManager.AddToRoleAsync(user, nameof(UserRole.TenantAdmin));
+                            await _signInManager.UserManager.AddToRoleAsync(user, nameof(UserRole.SystemAdmin));
                             var rship = new Relationship
                             {
                                 IdentityUser = _context.Users.Find(user.Id),

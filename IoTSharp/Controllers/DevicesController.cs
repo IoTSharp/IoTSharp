@@ -746,7 +746,7 @@ namespace IoTSharp.Controllers
             {
                 return new ApiResult<Device>(ApiCode.NotFoundProduce, "Not found Produce", null);
             }
-            var dto = new DevicePostDto() { Name = device.Name, DeviceType = produce.DefaultDeviceType, IdentityType = produce.DefaultIdentityType, Timeout = produce.DefaultTimeout };
+            var dto = new DevicePostDto() { ProductId = id, Name = device.Name, DeviceType = produce.DefaultDeviceType, IdentityType = produce.DefaultIdentityType, Timeout = produce.DefaultTimeout };
             var dev = await PostDevice(dto);
             if (dev.Code == (int)ApiCode.Success)
             {
@@ -785,10 +785,12 @@ namespace IoTSharp.Controllers
             var tid = User.Claims.First(c => c.Type == IoTSharpClaimTypes.Tenant);
             var devvalue = new Device()
             {
+                ProduceId = device.ProductId,
                 Name = device.Name,
                 DeviceType = device.DeviceType,
                 Timeout = device.Timeout,
-                Deleted = false
+                Deleted = false,
+                
             };
             devvalue.Tenant = _context.Tenant.Find(new Guid(tid.Value));
             devvalue.Customer = _context.Customer.Find(new Guid(cid.Value));
@@ -1016,7 +1018,7 @@ namespace IoTSharp.Controllers
         }
 
         /// <summary>
-        /// 获取服务测的设备熟悉
+        /// 获取服务侧的设备属性
         /// </summary>
         /// <param name="access_token">Device 's access token </param>
         ///<param name="dataSide">Specifying data side.</param>
@@ -1240,7 +1242,7 @@ namespace IoTSharp.Controllers
             {
                 DataSide = attribute.DataSide,
                 DeviceId = attribute.DeviceId,
-                Type = attribute.Type,
+                Type = attribute.DataType,
                 DateTime = DateTime.UtcNow,
                 KeyName = attribute.KeyName,
                 Catalog = DataCatalog.AttributeLatest
@@ -1265,7 +1267,11 @@ namespace IoTSharp.Controllers
             var result = await _context.SaveAsync<AttributeLatest>(attributes.anyside, devid, DataSide.AnySide);
             var result1 = await _context.SaveAsync<AttributeLatest>(attributes.serverside, devid, DataSide.ServerSide);
             var result2 = await _context.SaveAsync<AttributeLatest>(attributes.clientside, devid, DataSide.ClientSide);
-            if (result.ret > 0 && result1.ret > 0 && result2.ret > 0)
+            //如果保存时数据为空，则也认为保存成功
+            if ((!attributes.anyside.Any()||(attributes.anyside.Any()&&result.ret > 0))
+                && (!attributes.serverside.Any() || (attributes.serverside.Any() && result1.ret > 0))
+                && (!attributes.clientside.Any() || (attributes.clientside.Any() && result2.ret > 0))
+                )
             {
                 return new ApiResult<Dic>(ApiCode.Success, "Ok", null);
             }
@@ -1294,9 +1300,9 @@ namespace IoTSharp.Controllers
         /// <returns></returns>
 
         [HttpDelete("[action]")]
-        public async Task<ApiResult<bool>> RemoveAttribute(Guid deviceId, string keyName, DataSide dataSide)
+        public async Task<ApiResult<bool>> RemoveAttribute(RemoveDeviceAttributeInput input)
         {
-            var attribute = await _context.DataStorage.FirstOrDefaultAsync(c => c.DeviceId == deviceId && c.KeyName == keyName && c.DataSide == dataSide);
+            var attribute = await _context.DataStorage.FirstOrDefaultAsync(c => c.DeviceId == input.DeviceId && c.KeyName == input.KeyName && c.DataSide == input.DataSide);
             if (attribute != null)
             {
                 _context.DataStorage.Remove(attribute);
@@ -1305,7 +1311,7 @@ namespace IoTSharp.Controllers
             }
             else
             {
-                return new ApiResult<bool>(ApiCode.CantFindObject, $"this attribute '{keyName}' does not exist", false);
+                return new ApiResult<bool>(ApiCode.CantFindObject, $"this attribute '{input.KeyName}' does not exist", false);
             }
         }
 
