@@ -44,7 +44,7 @@ namespace IoTSharp.Controllers
         [ProducesDefaultResponseType]
         public async Task<ApiResult<List<Customer>>> GetAllCustomers([FromRoute] Guid tenantId)
         {
-            return new ApiResult<List<Customer>>(ApiCode.Success, "OK", await _context.Customer.Where(c => c.Tenant.Id == tenantId && c.Deleted==false).ToListAsync());
+            return new ApiResult<List<Customer>>(ApiCode.Success, "OK", await _context.Customer.Where(c => c.Tenant.Id == tenantId && c.Deleted == false).ToListAsync());
         }
 
         /// <summary>
@@ -59,9 +59,19 @@ namespace IoTSharp.Controllers
         public async Task<ApiResult<PagedData<Customer>>> GetCustomers([FromBody] CustomerParam m)
         {
             var profile = this.GetUserProfile();
-            var querym = _context.Customer.Where(c => c.Deleted == false);
-            var data = await m.Query(querym, c => c.Name);
-            return new ApiResult<PagedData<Customer>>(ApiCode.Success, "OK", data);
+            if (m.tenantId != Guid.Empty)
+            {
+                var querym = _context.Customer.Where(c => c.Deleted == false && c.TenantId == m.tenantId);
+                var data = await m.Query(querym, c => c.Name);
+                return new ApiResult<PagedData<Customer>>(ApiCode.Success, "OK", data);
+            }
+            else
+            {
+                var querym = _context.Customer.Where(c => c.Deleted == false);
+                var data = await m.Query(querym, c => c.Name);
+                return new ApiResult<PagedData<Customer>>(ApiCode.Success, "OK", data);
+            }
+           
         }
 
         /// <summary>
@@ -103,7 +113,7 @@ namespace IoTSharp.Controllers
             {
                 return new ApiResult<Customer>(ApiCode.InValidData, "InValidData", customer);
             }
-            customer.Tenant = _context.Tenant.Find(customer.TenantID);
+            customer.Tenant = _context.Tenant.Find(customer.TenantId);
             _context.Entry(customer).State = EntityState.Modified;
             try
             {
@@ -113,7 +123,7 @@ namespace IoTSharp.Controllers
             }
             catch (DbUpdateConcurrencyException)
             {
-                if (!_context.Customer.Any(e => e.Id == id && e.Tenant.Id == customer.TenantID))
+                if (!_context.Customer.Any(e => e.Id == id && e.Tenant.Id == customer.TenantId))
                 {
                     return new ApiResult<Customer>(ApiCode.NotFoundCustomer, "This customer was not found", customer);
                 }
@@ -133,9 +143,9 @@ namespace IoTSharp.Controllers
         [HttpPost]
         public async Task<ApiResult<Customer>> PostCustomer(CustomerDto customer)
         {
-            if (customer.TenantID != Guid.Empty && (User.IsInRole(nameof(UserRole.SystemAdmin)) || User.IsInRole(nameof(UserRole.TenantAdmin))))
+            if (customer.TenantId != Guid.Empty && (User.IsInRole(nameof(UserRole.SystemAdmin)) || User.IsInRole(nameof(UserRole.TenantAdmin))))
             {
-                var tent = _context.Tenant.Find(customer.TenantID);
+                var tent = _context.Tenant.Find(customer.TenantId);
                 customer.Tenant = tent;
             }
             else
