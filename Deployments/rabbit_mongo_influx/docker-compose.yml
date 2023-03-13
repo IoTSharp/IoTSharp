@@ -17,58 +17,58 @@ services:
       - iotsharp-network
 
 
-  #pgadmin:
-  #  image: dpage/pgadmin4
-  #  container_name: pgadmin
-  #  restart: always
-  #  volumes:
-  #     - "./data/servers.json:/pgadmin4/servers.json"
-  #  depends_on:
-  #    - pgsql 
-  #  links:
-  #    - pgsql
-  #  ports:
-  #    - 8090:80
-  #  environment:
-  #    TZ: "Asia/Shanghai"
-  #    PGADMIN_DEFAULT_EMAIL: "root@iotsharp.io"
-  #    PGADMIN_DEFAULT_PASSWORD: "1-q2-w3-e4-r5-t"
-  #  networks:
-  #    - iotsharp-network
+  pgadmin:
+    image: dpage/pgadmin4
+    container_name: pgadmin
+    restart: always
+    volumes:
+       - "./data/servers.json:/pgadmin4/servers.json"
+    depends_on:
+      - pgsql 
+    links:
+      - pgsql
+    ports:
+      - 8090:80
+    environment:
+      TZ: "Asia/Shanghai"
+      PGADMIN_DEFAULT_EMAIL: "root@iotsharp.io"
+      PGADMIN_DEFAULT_PASSWORD: "1-q2-w3-e4-r5-t"
+    networks:
+      - iotsharp-network
 
-  #iotsharp:
-  #  image: maikebing/iotsharp:latest
-  #  restart: always
-  #  container_name: iotsharp
-  #  hostname: iotsharp
-  #  environment:
-  #    ASPNETCORE_ENVIRONMENT: Production
-  #    TZ: Asia/Shanghai
-  #  depends_on:
-  #    - pgsql
-  #    - mongodb1
-  #    - mongodb2
-  #    - mongodb3
-  #    - rabbitmq
-  #    - influx
-  #  links:
-  #    - pgsql
-  #    - mongodb1
-  #    - mongodb2
-  #    - mongodb3
-  #    - rabbitmq
-  #    - influx
-  #  volumes:
-  #    - "./appsettings.Production.json:/app/appsettings.Production.json"
-  #  ports:
-  #    - 2927:80
-  #    - 1883:1883
-  #    - 8883:8883 
-  #    - 5683:5683
-  #    - 5684:5684
-  #    - 502:502
-  #  networks:
-  #    - iotsharp-network
+  iotsharp:
+    image: maikebing/iotsharp:latest
+    restart: always
+    container_name: iotsharp
+    hostname: iotsharp
+    environment:
+      ASPNETCORE_ENVIRONMENT: Production
+      TZ: Asia/Shanghai
+    depends_on:
+      - pgsql
+      - mongodb1
+      - mongodb2
+      - mongodb3
+      - rabbitmq
+      - influx
+    links:
+      - pgsql
+      - mongodb1
+      - mongodb2
+      - mongodb3
+      - rabbitmq
+      - influx
+    volumes:
+      - "./appsettings.Production.json:/app/appsettings.Production.json"
+    ports:
+      - 2927:80
+      - 1883:1883
+      - 8883:8883 
+      - 5683:5683
+      - 5684:5684
+      - 502:502
+    networks:
+      - iotsharp-network
        
 
 
@@ -159,14 +159,14 @@ services:
         networks:
           - iotsharp-network
 
-  #influxdb_cli:
-  #  links:
-  #      - influx
-  #  image: quay.io/influxdb/influxdb:v2.0.4
-  #  entrypoint: influx setup --bucket iotsharp-bucket -t iotsharp-token -o iotsharp --username=root --password=1-q2-w3-e4-r5-t --host=http://influx:8086 -f
-  #  restart: on-failure:20
-  #  depends_on:
-  #       - influx
+  influxdb_cli:
+    links:
+        - influx
+    image: quay.io/influxdb/influxdb:v2.0.4
+    entrypoint: influx setup --bucket iotsharp-bucket -t iotsharp-token -o iotsharp --username=root --password=1-q2-w3-e4-r5-t --host=http://influx:8086 -f
+    restart: on-failure:20
+    depends_on:
+         - influx
 
 
  
