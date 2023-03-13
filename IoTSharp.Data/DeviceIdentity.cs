@@ -40,6 +40,5 @@ namespace IoTSharp.Data
         [Required]
         public Device Device { get; set; }
 
-        public Guid DeviceId { get; set; }
     }
 }
