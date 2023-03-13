@@ -7,17 +7,17 @@ var config = {
     "members": [
         {
             "_id": 1,
-            "host": "host.docker.internal:27017",
+            "host": "mongodb1:27017",
             "priority": 3
         },
         {
             "_id": 2,
-            "host": "host.docker.internal:27018",
+            "host": "mongodb2:27017",
             "priority": 2
         },
         {
             "_id": 3,
-            "host": "host.docker.internal:27019",
+            "host": "mongodb3:27017",
             "priority": 1
         }
     ]
