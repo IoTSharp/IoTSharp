@@ -1,6 +1,5 @@
 ﻿using IoTSharp.EventBus;
 using EasyCaching.Core;
-using Esprima.Ast;
 using IoTSharp.Contracts;
 using IoTSharp.Controllers.Models;
 using IoTSharp.Data;
@@ -23,26 +22,18 @@ using MQTTnet.Client;
 using MQTTnet.Exceptions;
 using MQTTnet.Protocol;
 using MQTTnet.Server;
-using Org.BouncyCastle.Asn1.Cms;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
 using System.Linq.Dynamic.Core;
-using System.Linq.Expressions;
 using System.Security.Cryptography.X509Certificates;
 using System.Threading.Tasks;
 using System.Xml;
-using ShardingCore.Extensions;
 using Dic = System.Collections.Generic.Dictionary<string, string>;
 using DicKV = System.Collections.Generic.KeyValuePair<string, string>;
-using Consul;
 using LogLevel = Microsoft.Extensions.Logging.LogLevel;
-using Shashlik.EventBus.Utils;
-using static CoAP.Net.Exchange;
-using System.Runtime.Intrinsics.X86;
-using CoAP;
 using IoTSharp.Extensions.X509;
 
 namespace IoTSharp.Controllers
@@ -1293,6 +1284,7 @@ namespace IoTSharp.Controllers
         /// <summary>
         /// 属性删除
         /// </summary>
+        /// <param name="input">要删除的属性。</param>
         [HttpDelete("[action]")]
         public async Task<ApiResult<bool>> RemoveAttribute(RemoveDeviceAttributeInput input)
         {
