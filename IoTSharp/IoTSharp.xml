@@ -528,6 +528,7 @@
             <summary>
             属性删除
             </summary>
+            <param name="input">要删除的属性。</param>
         </member>
         <member name="M:IoTSharp.Controllers.DevicesController.GetSessionStatus">
             <summary>
