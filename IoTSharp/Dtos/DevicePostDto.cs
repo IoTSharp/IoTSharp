@@ -15,6 +15,8 @@ namespace IoTSharp.Dtos
 
         public int Timeout { get; set; }
         public IdentityType IdentityType { get; set; }
+
+        public Guid? ProductId { get; set; }
     }
     public class DevicePostProduceDto
     {
