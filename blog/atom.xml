@@ -2,11 +2,36 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>https://docs.iotsharp.io/blog</id>
     <title>IoTSharp 在线文档 Blog</title>
-    <updated>2023-01-11T00:00:00.000Z</updated>
+    <updated>2023-02-14T00:00:00.000Z</updated>
     <generator>https://github.com/jpmonette/feed</generator>
     <link rel="alternate" href="https://docs.iotsharp.io/blog"/>
     <subtitle>IoTSharp 在线文档 Blog</subtitle>
     <icon>https://docs.iotsharp.io/img/favicon.ico</icon>
+    <entry>
+        <title type="html"><![CDATA[IoTSharp培训教程第一集  开发环境安装配置、项目克隆、编译、调试、安装、登录]]></title>
+        <id>videos_1</id>
+        <link href="https://docs.iotsharp.io/blog/videos_1"/>
+        <updated>2023-02-14T00:00:00.000Z</updated>
+        <summary type="html"><![CDATA[IoTSharp 是一个 基于.Net Core 开源的物联网基础平台， 支持 HTTP、MQTT 、CoAp 协议， 属性数据和遥测数据协议简单类型丰富，简单设置即可将数据存储在PostgreSql、MySql、Oracle、SQLServer、Sqlite，是一个用于数据收集、处理、可视化与设备管理的 IoT 平台.]]></summary>
+        <content type="html"><![CDATA[<iframe src="//player.bilibili.com/player.html?aid=860913559&amp;bvid=BV1QV4y1A78g&amp;cid=914648074&amp;page=1" scrolling="no" border="0" frameborder="no" framespacing="0" allowfullscreen="true"> </iframe><p>IoTSharp 是一个 基于.Net Core 开源的物联网基础平台， 支持 HTTP、MQTT 、CoAp 协议， 属性数据和遥测数据协议简单类型丰富，简单设置即可将数据存储在PostgreSql、MySql、Oracle、SQLServer、Sqlite，是一个用于数据收集、处理、可视化与设备管理的 IoT 平台.</p>]]></content>
+        <author>
+            <name>maikebing</name>
+            <uri>https://github.com/maikebing</uri>
+        </author>
+        <category label="iotsharp" term="iotsharp"/>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[IoTSharp培训教程第二集  规则链使用]]></title>
+        <id>videos_2</id>
+        <link href="https://docs.iotsharp.io/blog/videos_2"/>
+        <updated>2023-02-14T00:00:00.000Z</updated>
+        <content type="html"><![CDATA[<iframe src="//player.bilibili.com/player.html?aid=651347967&amp;bvid=BV1be4y1N74s&amp;cid=993314593&amp;page=1" scrolling="no" border="0" frameborder="no" framespacing="0" allowfullscreen="true"> </iframe>]]></content>
+        <author>
+            <name>maikebing</name>
+            <uri>https://github.com/maikebing</uri>
+        </author>
+        <category label="iotsharp" term="iotsharp"/>
+    </entry>
     <entry>
         <title type="html"><![CDATA[IoTSharp凭借“热度值”入围《2022年度OSC中国开源项目奖》 和《最具极客精神奖》]]></title>
         <id>osc2022</id>

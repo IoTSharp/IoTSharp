@@ -4,10 +4,27 @@
         <title>IoTSharp 在线文档 Blog</title>
         <link>https://docs.iotsharp.io/blog</link>
         <description>IoTSharp 在线文档 Blog</description>
-        <lastBuildDate>Wed, 11 Jan 2023 00:00:00 GMT</lastBuildDate>
+        <lastBuildDate>Tue, 14 Feb 2023 00:00:00 GMT</lastBuildDate>
         <docs>https://validator.w3.org/feed/docs/rss2.html</docs>
         <generator>https://github.com/jpmonette/feed</generator>
         <language>en</language>
+        <item>
+            <title><![CDATA[IoTSharp培训教程第一集  开发环境安装配置、项目克隆、编译、调试、安装、登录]]></title>
+            <link>https://docs.iotsharp.io/blog/videos_1</link>
+            <guid>videos_1</guid>
+            <pubDate>Tue, 14 Feb 2023 00:00:00 GMT</pubDate>
+            <description><![CDATA[IoTSharp 是一个 基于.Net Core 开源的物联网基础平台， 支持 HTTP、MQTT 、CoAp 协议， 属性数据和遥测数据协议简单类型丰富，简单设置即可将数据存储在PostgreSql、MySql、Oracle、SQLServer、Sqlite，是一个用于数据收集、处理、可视化与设备管理的 IoT 平台.]]></description>
+            <content:encoded><![CDATA[<iframe src="//player.bilibili.com/player.html?aid=860913559&amp;bvid=BV1QV4y1A78g&amp;cid=914648074&amp;page=1" scrolling="no" border="0" frameborder="no" framespacing="0" allowfullscreen="true"> </iframe><p>IoTSharp 是一个 基于.Net Core 开源的物联网基础平台， 支持 HTTP、MQTT 、CoAp 协议， 属性数据和遥测数据协议简单类型丰富，简单设置即可将数据存储在PostgreSql、MySql、Oracle、SQLServer、Sqlite，是一个用于数据收集、处理、可视化与设备管理的 IoT 平台.</p>]]></content:encoded>
+            <category>iotsharp</category>
+        </item>
+        <item>
+            <title><![CDATA[IoTSharp培训教程第二集  规则链使用]]></title>
+            <link>https://docs.iotsharp.io/blog/videos_2</link>
+            <guid>videos_2</guid>
+            <pubDate>Tue, 14 Feb 2023 00:00:00 GMT</pubDate>
+            <content:encoded><![CDATA[<iframe src="//player.bilibili.com/player.html?aid=651347967&amp;bvid=BV1be4y1N74s&amp;cid=993314593&amp;page=1" scrolling="no" border="0" frameborder="no" framespacing="0" allowfullscreen="true"> </iframe>]]></content:encoded>
+            <category>iotsharp</category>
+        </item>
         <item>
             <title><![CDATA[IoTSharp凭借“热度值”入围《2022年度OSC中国开源项目奖》 和《最具极客精神奖》]]></title>
             <link>https://docs.iotsharp.io/blog/osc2022</link>
