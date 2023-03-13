@@ -14,7 +14,7 @@
         </el-checkbox-group>
       </el-form-item>
       <el-form-item>
-        <el-button type="primary" @click="onSubmit">下发</el-button>
+        <el-button type="primary" @click="onSubmit">委托</el-button>
         <el-button @click="closeDialog">取消</el-button>
       </el-form-item>
     </el-form>
@@ -39,7 +39,7 @@ interface addruledto {
 
 const state = reactive<addruleform>({
     drawer: false,
-    dialogtitle: "规则下发",
+    dialogtitle: "规则委托",
     devices: [
     ],
     rules: [],
@@ -64,11 +64,11 @@ const closeDialog = () => {
 const onSubmit = async () => {
     var result = await ruleApi().bindDevice(state.dataForm);
     if (result["code"] === 10000) {
-        ElMessage.success("下发成功");
+        ElMessage.success("委托成功");
         state.drawer = false;
         emit("close", { sender: "deviceform", args: state.dataForm });
     } else {
-        ElMessage.warning("下发失败:" + result["msg"]);
+        ElMessage.warning("委托失败:" + result["msg"]);
         emit("close", state.dataForm);
     }
 }
