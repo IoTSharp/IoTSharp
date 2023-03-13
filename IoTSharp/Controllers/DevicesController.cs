@@ -845,7 +845,7 @@ namespace IoTSharp.Controllers
                             assets.Aggregate("", (x, y) => x + "," + y.Name), false);
                     }
 
-                    var cert = _context.DeviceIdentities.FirstOrDefault(c => c.DeviceId == device.Id);
+                    var cert = _context.DeviceIdentities.Include(d=>d.Device).FirstOrDefault(c => c.Device.Id == device.Id);
                     if (cert != null)
                     {
                         _context.DeviceIdentities.RemoveRange(cert);
@@ -890,7 +890,7 @@ namespace IoTSharp.Controllers
                             assets.Aggregate("", (x, y) => x + "," + y.Name), false);
                     }
 
-                    var cert = _context.DeviceIdentities.FirstOrDefault(c => c.DeviceId == device.Id);
+                    var cert = _context.DeviceIdentities.Include(c=>c.Device).FirstOrDefault(c => c.Device.Id == device.Id);
                     if (cert != null)
                     {
                         _context.DeviceIdentities.RemoveRange(cert);
@@ -1293,11 +1293,6 @@ namespace IoTSharp.Controllers
         /// <summary>
         /// 属性删除
         /// </summary>
-        /// <param name="deviceId"></param>
-        /// <param name="keyName"></param>
-        /// <param name="dataSide"></param>
-        /// <returns></returns>
-
         [HttpDelete("[action]")]
         public async Task<ApiResult<bool>> RemoveAttribute(RemoveDeviceAttributeInput input)
         {
