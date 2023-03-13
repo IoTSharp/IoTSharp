@@ -17,7 +17,7 @@ namespace IoTSharp.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "6.0.10")
+                .HasAnnotation("ProductVersion", "7.0.3")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
@@ -583,6 +583,8 @@ namespace IoTSharp.Migrations
                     b.ToTable("DataStorage");
 
                     b.HasDiscriminator<int>("Catalog").HasValue(0);
+
+                    b.UseTphMappingStrategy();
                 });
 
             modelBuilder.Entity("IoTSharp.Data.Device", b =>
@@ -636,6 +638,8 @@ namespace IoTSharp.Migrations
                     b.ToTable("Device");
 
                     b.HasDiscriminator<int>("DeviceType").HasValue(0);
+
+                    b.UseTphMappingStrategy();
                 });
 
             modelBuilder.Entity("IoTSharp.Data.DeviceDiagram", b =>
@@ -1506,6 +1510,9 @@ namespace IoTSharp.Migrations
                     b.Property<string>("Name")
                         .HasColumnType("text");
 
+                    b.Property<string>("ProduceToken")
+                        .HasColumnType("text");
+
                     b.Property<Guid?>("TenantId")
                         .HasColumnType("uuid");
 
@@ -2105,13 +2112,6 @@ namespace IoTSharp.Migrations
                     b.HasDiscriminator().HasValue(2);
                 });
 
-            modelBuilder.Entity("IoTSharp.Data.Gateway", b =>
-                {
-                    b.HasBaseType("IoTSharp.Data.Device");
-
-                    b.HasDiscriminator().HasValue(1);
-                });
-
             modelBuilder.Entity("IoTSharp.Data.ProduceData", b =>
                 {
                     b.HasBaseType("IoTSharp.Data.DataStorage");
@@ -2129,6 +2129,13 @@ namespace IoTSharp.Migrations
                     b.HasBaseType("IoTSharp.Data.DataStorage");
 
                     b.HasDiscriminator().HasValue(4);
+                });
+
+            modelBuilder.Entity("IoTSharp.Data.Gateway", b =>
+                {
+                    b.HasBaseType("IoTSharp.Data.Device");
+
+                    b.HasDiscriminator().HasValue(1);
                 });
 
             modelBuilder.Entity("IoTSharp.Data.Alarm", b =>
