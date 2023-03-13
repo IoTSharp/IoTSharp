@@ -127,6 +127,8 @@ namespace IoTSharp.Dtos
         /// 用户名
         /// </summary>
         public string UserName { get;  set; }
+        public string CustomerName { get; set; }
+        public string TenantName { get; set; }
     }
 
     public class UserPassword

@@ -90,15 +90,16 @@ namespace IoTSharp.Controllers
         /// <summary>
         /// 获取当前登录用户信息
         /// </summary>
+        /// <returns></returns>
         [HttpGet, Authorize(Roles = nameof(UserRole.NormalUser))]
         public async Task<ActionResult<ApiResult<UserInfoDto>>> MyInfo()
         {
             ApiResult<UserInfoDto> result;
-             var user = await _userManager.GetUserAsync(User);
+            var user = await _userManager.GetUserAsync(User);
             var custid = User.GetCustomerId();
-            if (user == null || custid==Guid.Empty)
+            if (user == null || custid == Guid.Empty)
             {
-                result= new ApiResult<UserInfoDto>(ApiCode.UserTokenNotAvailable, "用户的登录信息已经不可用", new UserInfoDto() {  Code= ApiCode.UserTokenNotAvailable } );
+                result = new ApiResult<UserInfoDto>(ApiCode.UserTokenNotAvailable, "用户的登录信息已经不可用", new UserInfoDto() { Code = ApiCode.UserTokenNotAvailable });
             }
             else
             {
@@ -118,7 +119,7 @@ namespace IoTSharp.Controllers
                         Customer = Customer,
                         Tenant = Customer?.Tenant
                     };
-                    result= new ApiResult<UserInfoDto>(ApiCode.Success, "OK", uidto);
+                    result = new ApiResult<UserInfoDto>(ApiCode.Success, "OK", uidto);
                 }
                 catch (Exception ex)
                 {
@@ -460,6 +461,83 @@ namespace IoTSharp.Controllers
                 return new ApiResult<LoginResult>(ApiCode.NotFoundCustomer, "未找到客户", null);
             }
         }
+        /// <summary>
+        /// 为当前客户所在的租户新增用户  zhangjie 20230308
+        /// </summary>
+        /// <param name="model">前端传参</param>
+        /// <returns></returns>
+        [Authorize(Roles = nameof(UserRole.CustomerAdmin))]
+        [HttpPost]
+        public async Task<ApiResult<LoginResult>> PostAccount(CreateUserInput model)
+        {
+            try
+            {
+                var user = new IdentityUser
+                {
+                    Email = model.Email,
+                    UserName = model.Email,
+                    PhoneNumber = model.PhoneNumber
+                };
+                var result = await _userManager.CreateAsync(user, model.Password);
+
+                if (result.Succeeded)
+                {
+                    await _signInManager.SignInAsync(user, false);
+                    await _signInManager.UserManager.AddClaimAsync(user, new Claim(ClaimTypes.Email, model.Email));
+                    if (model.CustomerId != Guid.Empty)
+                    {
+                        var customer = await _context.Customer.Include(c => c.Tenant).FirstOrDefaultAsync(c => c.Id == model.CustomerId);
+                        if (customer != null)
+                        {
+                            await _signInManager.UserManager.AddClaimAsync(user, new Claim(ClaimTypes.Email, model.Email));
+                            await _signInManager.UserManager.AddClaimAsync(user, new Claim(IoTSharpClaimTypes.Customer, customer.Id.ToString()));
+                            await _signInManager.UserManager.AddClaimAsync(user, new Claim(IoTSharpClaimTypes.Tenant, customer.Tenant.Id.ToString()));
+                            await _signInManager.UserManager.AddToRolesAsync(user, new[] { nameof(UserRole.NormalUser) });
+
+                            await _signInManager.UserManager.AddToRoleAsync(user, nameof(UserRole.Anonymous));
+                            await _signInManager.UserManager.AddToRoleAsync(user, nameof(UserRole.NormalUser));
+                            await _signInManager.UserManager.AddToRoleAsync(user, nameof(UserRole.CustomerAdmin));
+                            await _signInManager.UserManager.AddToRoleAsync(user, nameof(UserRole.TenantAdmin));
+                            await _signInManager.UserManager.AddToRoleAsync(user, nameof(UserRole.SystemAdmin));
+                            var rship = new Relationship
+                            {
+                                IdentityUser = _context.Users.Find(user.Id),
+                                Customer = customer,
+                                Tenant = customer.Tenant
+                            };
+                            _context.Add(rship);
+                            await _context.SaveChangesAsync();
+
+                            return new ApiResult<LoginResult>(ApiCode.Success, "Ok", new LoginResult()
+                            {
+                                Code = ApiCode.Success,
+                                Succeeded = result.Succeeded,
+                                UserName = model.Email,
+                            });
+                        }
+                    }
+                    else
+                    {
+                        return new ApiResult<LoginResult>(ApiCode.Success, "Ok", new LoginResult()
+                        {
+                            Code = ApiCode.Success,
+                            Succeeded = result.Succeeded,
+                            UserName = model.Email,
+                        });
+                    }
+                }
+                else
+                {
+                    var msg = from e in result.Errors select $"{e.Code}:{e.Description}\r\n";
+                    return new ApiResult<LoginResult>(ApiCode.InValidData, string.Join(';', msg.ToArray()), null);
+                }
+            }
+            catch (Exception ex)
+            {
+                return new ApiResult<LoginResult>(ApiCode.InValidData, ex.Message, null);
+            }
+            return new ApiResult<LoginResult>(ApiCode.InValidData, "", null);
+        }
 
         /// <summary>
         /// 列出指定租户的所有用户。
@@ -469,19 +547,57 @@ namespace IoTSharp.Controllers
         public async Task<ApiResult<PagedData<UserItemDto>>> List([FromQuery] UserQueryDto m)
         {
             var mx = m.CustomerId.ToString();
-            var users = await _userManager.GetUsersForClaimAsync(_signInManager.Context.User.FindFirst(m => m.Type == IoTSharpClaimTypes.Customer && m.Value == mx));
-            var uid = users.Select(u => u.Id).ToList();
-            var data = await m.Query(_context.Users, c => uid.Contains(c.Id), c => c.UserName, c => new UserItemDto()
+            //如果前端传参有 客户Id，则查询， 为空暂时查全部
+            var srcDb = _context.Users.Join<IdentityUser, Relationship, string, UserItemDto>(_context.Relationship.Include(p => p.Tenant).ThenInclude(p => p.Customers).Where(x => x.Customer.Id == m.CustomerId).AsEnumerable(),
+                 t => t.Id, s => s.IdentityUser.Id, (t, s) => new UserItemDto
+                 {
+                     Id = t.Id,
+                     UserName = t.UserName,
+                     Email = t.Email,
+                     PhoneNumber = t.PhoneNumber,
+                     AccessFailedCount = t.AccessFailedCount
+                 ,
+                     LockoutEnabled = t.LockoutEnabled,
+                     LockoutEnd = t.LockoutEnd,
+                     CustomerName = s.Customer.Name,
+                     TenantName = s.Tenant.Name
+                 });
+
+
+            if (m.CustomerId != Guid.Empty)
             {
-                Id = c.Id,
-                UserName = c.UserName,
-                Email = c.Email,
-                PhoneNumber = c.PhoneNumber,
-                AccessFailedCount = c.AccessFailedCount,
-                LockoutEnabled = c.LockoutEnabled,
-                LockoutEnd = c.LockoutEnd
-            });
-            return new ApiResult<PagedData<UserItemDto>>(ApiCode.Success, "OK", data);
+                var data = await m.Query(srcDb, c => c.Id != "", c => c.UserName, c => new UserItemDto()
+                {
+                    Id = c.Id,
+                    UserName = c.UserName,
+                    Email = c.Email,
+                    PhoneNumber = c.PhoneNumber,
+                    AccessFailedCount = c.AccessFailedCount,
+                    LockoutEnabled = c.LockoutEnabled,
+                    LockoutEnd = c.LockoutEnd,
+                    CustomerName = c.CustomerName,
+                    TenantName = c.TenantName
+
+                });
+                return new ApiResult<PagedData<UserItemDto>>(ApiCode.Success, "OK", data);
+
+            }
+            else
+            {
+                var data = await m.Query(_context.Users, c => c.Id != "", c => c.UserName, c => new UserItemDto()
+                {
+                    Id = c.Id,
+                    UserName = c.UserName,
+                    Email = c.Email,
+                    PhoneNumber = c.PhoneNumber,
+                    AccessFailedCount = c.AccessFailedCount,
+                    LockoutEnabled = c.LockoutEnabled,
+                    LockoutEnd = c.LockoutEnd,
+
+                });
+                return new ApiResult<PagedData<UserItemDto>>(ApiCode.Success, "OK", data);
+
+            }
         }
 
         /// <summary>
@@ -537,7 +653,13 @@ namespace IoTSharp.Controllers
                             var lce = await _userManager.SetLockoutEnabledAsync(user, true);
                             if (lce.Succeeded)
                             {
-                                var led = await _userManager.SetLockoutEndDateAsync(user, DateTimeOffset.Now.AddYears(100));
+                                /**20230309 zhangjie modify
+                                 * 此处修改Now为UtcNow，否则报错：Cannot write DateTimeOffset with Offset=08:00:00 to PostgreSQL type 'timestamp with time zone'
+                                 * 如果此处不改，网上给出的另一个方式是在Main方法中添加：
+                                 * AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
+                                 * AppContext.SetSwitch("Npgsql.DisableDateTimeInfinityConversions", true);
+                                 */
+                                var led = await _userManager.SetLockoutEndDateAsync(user, DateTimeOffset.UtcNow.AddYears(100));
                                 if (led.Succeeded)
                                 {
                                     result = new ApiResult(ApiCode.Success, "OK");
@@ -563,7 +685,7 @@ namespace IoTSharp.Controllers
                         {
                             if (les)
                             {
-                                var led = await _userManager.SetLockoutEndDateAsync(user, DateTimeOffset.Now);
+                                var led = await _userManager.SetLockoutEndDateAsync(user, DateTimeOffset.UtcNow);
 
                                 if (led.Succeeded)
                                 {
@@ -677,10 +799,10 @@ namespace IoTSharp.Controllers
         }
         [AllowAnonymous]
         [HttpGet]
-        public async Task<ApiResult> ResetPasswordAsync(string email, string  rootkey,string newpassword)
+        public async Task<ApiResult> ResetPasswordAsync(string email, string rootkey, string newpassword)
         {
             IdentityUser user = await _userManager.FindByEmailAsync(email);
-            if (user==null)
+            if (user == null)
             {
                 return new ApiResult(ApiCode.NotFoundUser, "用户为空");
             }
@@ -690,7 +812,7 @@ namespace IoTSharp.Controllers
                 {
                     if (user.LockoutEnabled)
                     {
-                      var ck=  await Lock(new LockDto() { Id = new Guid(user.Id), Opt = LockOpt.Unlock });
+                        var ck = await Lock(new LockDto() { Id = new Guid(user.Id), Opt = LockOpt.Unlock });
                     }
                     await _userManager.ResetAccessFailedCountAsync(user);
                     var token = await _userManager.GeneratePasswordResetTokenAsync(user);
@@ -709,7 +831,7 @@ namespace IoTSharp.Controllers
                 {
                     return new ApiResult(ApiCode.InValidData, "根密码不对，请修改服务器配置文件。");
                 }
-           
+
             }
         }
     }

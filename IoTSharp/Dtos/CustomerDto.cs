@@ -8,6 +8,6 @@ namespace IoTSharp.Dtos
 {
     public class CustomerDto : Customer
     {
-        public Guid TenantID { get; set; }
+        public Guid TenantId { get; set; }
     }
 }
