@@ -135,6 +135,11 @@ namespace IoTSharp.Controllers
             return result;
         }
 
+        /// <summary>
+        /// 安装初始化IoTSharp
+        /// </summary>
+        /// <param name="model"></param>
+        /// <returns></returns>
         [AllowAnonymous]
         [HttpPost]
         public async Task<ApiResult<InstanceDto>> Install([FromBody] InstallDto model)
@@ -146,9 +151,6 @@ namespace IoTSharp.Controllers
                     await _dBInitializer.SeedRoleAsync();
                     await _dBInitializer.SeedUserAsync(model);
                     await _dBInitializer.SeedDictionary();
-                    //     await _dBInitializer.SeedI18N();
-                    //     actionResult = Ok(GetInstanceDto());
-
                     return new ApiResult<InstanceDto>(ApiCode.Success, "Ok", GetInstanceDto());
                 }
                 else
