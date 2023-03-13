@@ -528,10 +528,6 @@
             <summary>
             属性删除
             </summary>
-            <param name="deviceId"></param>
-            <param name="keyName"></param>
-            <param name="dataSide"></param>
-            <returns></returns>
         </member>
         <member name="M:IoTSharp.Controllers.DevicesController.GetSessionStatus">
             <summary>
