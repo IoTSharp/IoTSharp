@@ -59,8 +59,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IoTSharp.Interpreter", "IoT
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IoTSharp.Data.InMemory", "IoTSharp.Data.Storage\IoTSharp.Data.InMemory\IoTSharp.Data.InMemory.csproj", "{A57917E3-6F60-4D0E-8F13-36E5088DEFCE}"
 EndProject
-Project("{9092AA53-FB77-4645-B42D-1CCCA6BD08BD}") = "IoTSharp.Docs", "docs\IoTSharp.Docs.njsproj", "{F5644BA6-2A0C-49A5-9C9B-3CECD6DB2D1F}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IoTSharp.Data.Cassandra", "IoTSharp.Data.Storage\IoTSharp.Data.Cassandra\IoTSharp.Data.Cassandra.csproj", "{9C6FA709-3334-4C39-922D-6FF5ADB8C683}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "2.workflows", "2.workflows", "{59A51D63-F292-46F0-A4BF-975C98966DAA}"
@@ -161,8 +159,6 @@ Global
 		{A57917E3-6F60-4D0E-8F13-36E5088DEFCE}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A57917E3-6F60-4D0E-8F13-36E5088DEFCE}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A57917E3-6F60-4D0E-8F13-36E5088DEFCE}.Release|Any CPU.Build.0 = Release|Any CPU
-		{F5644BA6-2A0C-49A5-9C9B-3CECD6DB2D1F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{F5644BA6-2A0C-49A5-9C9B-3CECD6DB2D1F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{9C6FA709-3334-4C39-922D-6FF5ADB8C683}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{9C6FA709-3334-4C39-922D-6FF5ADB8C683}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9C6FA709-3334-4C39-922D-6FF5ADB8C683}.Release|Any CPU.ActiveCfg = Release|Any CPU
