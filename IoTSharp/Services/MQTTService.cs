@@ -13,6 +13,7 @@ using MQTTnet.Server;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
 
 namespace IoTSharp.Services
 {
@@ -220,6 +221,34 @@ namespace IoTSharp.Services
                             {
                                 e.ReasonCode = MQTTnet.Protocol.MqttConnectReasonCode.BadUserNameOrPassword;
                                 _logger.LogInformation($"Bad username or  password/AuthToken {obj.UserName},connection {obj.Endpoint} refused");
+                            }
+                        }
+                        else if (_dbContextcv.Produces.Any(ak =>  obj.UserName.StartsWith( ak.Name+"_")  &&   ak.ProduceToken == obj.Password && ak.Deleted == false))
+                        {
+                            var ak = _dbContextcv.Produces.Include(ak => ak.Customer).Include(ak => ak.Tenant).Include(ak => ak.Devices).FirstOrDefault(ak =>  ak.ProduceToken == obj.Password && ak.Deleted == false);
+                            if (ak!=null &&   ak.Devices.Any(d => d.Name == obj.UserName && d.Deleted == false))
+                            {
+                                var devvalue = new Device() { Name = obj.UserName, DeviceType = ak.DefaultDeviceType, Timeout = ak.DefaultTimeout };
+                                devvalue.Tenant = ak.Tenant;
+                                devvalue.Customer = ak.Customer;
+                                _dbContextcv.Device.Add(devvalue);
+                                ak.Devices.Add(devvalue);
+                                _dbContextcv.AfterCreateDevice(devvalue,ak.Id);
+                                _dbContextcv.SaveChanges();
+                                _queue.PublishConnect(devvalue.Id, ConnectStatus.Connected);
+                            }
+                            var mcp = ak.Devices.FirstOrDefault(d => d.Name == obj.UserName && d.Deleted == false);
+                            if (mcp != null)
+                            {
+                                e.SessionItems.Add(nameof(Device), mcp);
+                                e.ReasonCode = MQTTnet.Protocol.MqttConnectReasonCode.Success;
+                                _queue.PublishConnect(mcp.Id, ConnectStatus.Disconnected);
+                                _logger.LogInformation($"Produce {ak.Name}'s   device {mcp.Name}({mcp.Id}) is online ! Client name  is {obj.UserName} and  is endpoint{obj.Endpoint}");
+                            }
+                            else
+                            {
+                                e.ReasonCode = MQTTnet.Protocol.MqttConnectReasonCode.BadUserNameOrPassword;
+                                _logger.LogInformation($"Bad device name  or  ProduceToken {obj.UserName},connection {obj.Endpoint} refused");
                             }
                         }
                         else

@@ -785,7 +785,6 @@ namespace IoTSharp.Controllers
             var tid = User.Claims.First(c => c.Type == IoTSharpClaimTypes.Tenant);
             var devvalue = new Device()
             {
-                ProduceId = device.ProductId,
                 Name = device.Name,
                 DeviceType = device.DeviceType,
                 Timeout = device.Timeout,
@@ -800,7 +799,7 @@ namespace IoTSharp.Controllers
                 return new ApiResult<Device>(ApiCode.NotFoundTenantOrCustomer, "Not found Tenant or Customer", null);
             }
             _context.Device.Add(devvalue);
-            _context.AfterCreateDevice(devvalue);
+            _context.AfterCreateDevice(devvalue,device.ProductId);
             await _context.SaveChangesAsync();
             var identity = _context.DeviceIdentities.FirstOrDefault(c => c.Device.Id == devvalue.Id);
             if (identity != null)
