@@ -30,7 +30,10 @@ export const createCustomerListCrudOptions = function ({ expose }, tenantId) {
 	const editRequest = async ({ form, row }) => {
 		form.id = row.id;
 		try {
-			await customerApi().putCustomer(form);
+			await customerApi().putCustomer({
+				...form,
+				tenantId,
+			});
 			return form;
 		} catch (e) {
 			ElMessage.error(e.response.msg);
@@ -63,8 +66,8 @@ export const createCustomerListCrudOptions = function ({ expose }, tenantId) {
 		crudOptions: {
 			request: {
 				pageRequest,
-				addRequest,
 				delRequest,
+				addRequest,
 				editRequest,
 			},
 			table: {

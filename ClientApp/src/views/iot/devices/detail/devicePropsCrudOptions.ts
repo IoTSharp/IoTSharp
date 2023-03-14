@@ -28,7 +28,7 @@ export const createDevicePropsCrudOptions = function ({ expose }, deviceId, stat
 	};
 	const delRequest = async ({ row }) => {
 		try {
-			await deviceApi().deletedevcie(row.id);
+			await deviceApi().removeDeviceAttributes(deviceId, row);
 			_.remove(records, (item: TableDataRow) => {
 				return item.id === row.id;
 			});
@@ -126,7 +126,12 @@ export const createDevicePropsCrudOptions = function ({ expose }, deviceId, stat
 						formatter(context) {
 							if (context.row.dataType === 'DateTime') {
 								return formatToDateTime(context.value);
-							} else return context.value.toString();
+							} else {
+								if (context.value) {
+									return context.value.toString();
+								}
+								return '';
+							}
 						},
 					},
 					addForm: {

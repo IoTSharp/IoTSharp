@@ -44,72 +44,86 @@
 
       <div class="system-dept-search ">
 
-
-
-
-
       </div>
 
       <el-table :data="state.tableData.rows" style="width: 100%" row-key="id">
-        <el-table-column type="expand">
-          <template #default="props">
-            <el-table :data="props.row.devices">
-              <el-table-column label="设备名称" prop="name" />
-              <el-table-column label="设备类型" prop="deviceType" />
-              <el-table-column label="超时" prop="timeout" />
-            </el-table>
-          </template>
-        </el-table-column>
-
-        <el-table-column v-if="false" prop="id" label="id" show-overflow-tooltip></el-table-column>
-
-        <el-table-column prop="name" label="产品名称" show-overflow-tooltip></el-table-column>
-
-        <el-table-column prop="defaultIdentityType" label="认证方式" show-overflow-tooltip></el-table-column>
-        <el-table-column prop="defaultTimeout" label="超时" show-overflow-tooltip></el-table-column>
-        <el-table-column prop="description" label="备注" show-overflow-tooltip></el-table-column>
-        <el-table-column prop="endDateTime" label="状态" show-overflow-tooltip></el-table-column>
-
-        <el-table-column label="操作" show-overflow-tooltip width="300">
-          <template #default="scope">
-            <el-button size="small" text type="primary" @click.prevent="editprod(scope.row)">
-
-              <el-icon>
-                <Edit />
-              </el-icon>修改
-            </el-button>
-
-            <el-button size="small" text type="primary" @click.prevent="deleteprod(scope.row)"><el-icon>
-                <Delete />
-              </el-icon>删除
-            </el-button>
-
-            &nbsp;
-            <el-dropdown size="small" @command="
-              (command) => {
-                dropdownCommand(scope.row, command);
-              }
-            ">
-              <el-button type="primary" size="small" text>
-                更多<el-icon class="el-icon--right"><arrow-down /></el-icon>
-              </el-button>
-              <template #dropdown>
-                <el-dropdown-menu>
-                  <el-dropdown-item command="prop"><el-icon>
-                      <Operation />
-                    </el-icon>属性</el-dropdown-item>
-                  <el-dropdown-item command="dict"><el-icon>
-                      <DocumentCopy />
-                    </el-icon>字典</el-dropdown-item>
-                  <el-dropdown-item command="createdev"><el-icon>
-                      <Plus />
-                    </el-icon>创建设备</el-dropdown-item>
-                  <el-dropdown-item command="managedev">管理设备</el-dropdown-item>
-                </el-dropdown-menu>
+          <el-table-column type="expand">
+              <template #default="props">
+                  <el-table :data="props.row.devices">
+                      <el-table-column label="设备名称" prop="name" />
+                      <el-table-column label="设备类型" prop="deviceType">
+                          <template #default="scope">
+                              <el-tag v-if="scope.row.deviceType==='Gateway'">网关</el-tag>
+                              <el-tag type="warning" v-if="scope.row.deviceType==='Device'">设备</el-tag>
+                          </template>
+                      </el-table-column>
+                      <el-table-column label="超时" prop="timeout" />
+                  </el-table>
               </template>
-            </el-dropdown>
-          </template>
-        </el-table-column>
+          </el-table-column>
+
+          <el-table-column v-if="false" prop="id" label="id" show-overflow-tooltip></el-table-column>
+
+          <el-table-column prop="name" label="产品名称" show-overflow-tooltip></el-table-column>
+          <el-table-column prop="defaultDeviceType" label="产品类型" show-overflow-tooltip key="slot">
+              <template #default="scope">
+                  <el-tag  v-if="scope.row.defaultDeviceType==='Gateway'">网关</el-tag>
+                  <el-tag type="warning" v-if="scope.row.defaultDeviceType==='Device'">设备</el-tag>
+              </template>
+          </el-table-column>
+          <el-table-column prop="defaultIdentityType" label="认证方式" show-overflow-tooltip></el-table-column>
+          <el-table-column prop="defaultTimeout" label="超时" show-overflow-tooltip></el-table-column>
+          <el-table-column prop="description" label="备注" show-overflow-tooltip></el-table-column>
+          <el-table-column prop="endDateTime" label="状态" show-overflow-tooltip></el-table-column>
+
+          <el-table-column label="操作" show-overflow-tooltip width="300">
+              <template #default="scope">
+                  <el-button size="small" text type="primary" @click.prevent="editprod(scope.row)">
+
+                      <el-icon>
+                          <Edit />
+                      </el-icon>修改
+                  </el-button>
+
+                  <el-button size="small" text type="primary" @click.prevent="deleteprod(scope.row)">
+                      <el-icon>
+                          <Delete />
+                      </el-icon>删除
+                  </el-button>
+
+                  &nbsp;
+                  <el-dropdown size="small" @command="
+                               (command)=>
+                      {
+                      dropdownCommand(scope.row, command);
+                      }
+                      ">
+                      <el-button type="primary" size="small" text>
+                          更多<el-icon class="el-icon--right"><arrow-down /></el-icon>
+                      </el-button>
+                      <template #dropdown>
+                          <el-dropdown-menu>
+                              <el-dropdown-item command="prop">
+                                  <el-icon>
+                                      <Operation />
+                                  </el-icon>属性
+                              </el-dropdown-item>
+                              <el-dropdown-item command="dict">
+                                  <el-icon>
+                                      <DocumentCopy />
+                                  </el-icon>字典
+                              </el-dropdown-item>
+                              <el-dropdown-item command="createdev">
+                                  <el-icon>
+                                      <Plus />
+                                  </el-icon>创建设备
+                              </el-dropdown-item>
+                              <el-dropdown-item command="managedev">管理设备</el-dropdown-item>
+                          </el-dropdown-menu>
+                      </template>
+                  </el-dropdown>
+              </template>
+          </el-table-column>
       </el-table>
       <el-pagination @size-change="onHandleSizeChange" @current-change="onHandleCurrentChange" class="mt15"
         :pager-count="5" :page-sizes="[10, 20, 30]" v-model:current-page="state.tableData.param.pageNum" background
@@ -290,3 +304,10 @@ const deleteprod = async (row: TableDataRow) => {
     .catch(() => { });
 };
 </script>
+<style lang="scss" >
+    .system-list-container {
+        .el-table__expanded-cell {
+            padding: 0 5%;
+        }
+    }
+</style>
