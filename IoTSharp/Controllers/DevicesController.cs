@@ -1,6 +1,5 @@
 ﻿using IoTSharp.EventBus;
 using EasyCaching.Core;
-using Esprima.Ast;
 using IoTSharp.Contracts;
 using IoTSharp.Controllers.Models;
 using IoTSharp.Data;
@@ -23,26 +22,18 @@ using MQTTnet.Client;
 using MQTTnet.Exceptions;
 using MQTTnet.Protocol;
 using MQTTnet.Server;
-using Org.BouncyCastle.Asn1.Cms;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
 using System.Linq.Dynamic.Core;
-using System.Linq.Expressions;
 using System.Security.Cryptography.X509Certificates;
 using System.Threading.Tasks;
 using System.Xml;
-using ShardingCore.Extensions;
 using Dic = System.Collections.Generic.Dictionary<string, string>;
 using DicKV = System.Collections.Generic.KeyValuePair<string, string>;
-using Consul;
 using LogLevel = Microsoft.Extensions.Logging.LogLevel;
-using Shashlik.EventBus.Utils;
-using static CoAP.Net.Exchange;
-using System.Runtime.Intrinsics.X86;
-using CoAP;
 using IoTSharp.Extensions.X509;
 
 namespace IoTSharp.Controllers
@@ -785,7 +776,6 @@ namespace IoTSharp.Controllers
             var tid = User.Claims.First(c => c.Type == IoTSharpClaimTypes.Tenant);
             var devvalue = new Device()
             {
-                ProduceId = device.ProductId,
                 Name = device.Name,
                 DeviceType = device.DeviceType,
                 Timeout = device.Timeout,
@@ -800,7 +790,7 @@ namespace IoTSharp.Controllers
                 return new ApiResult<Device>(ApiCode.NotFoundTenantOrCustomer, "Not found Tenant or Customer", null);
             }
             _context.Device.Add(devvalue);
-            _context.AfterCreateDevice(devvalue);
+            _context.AfterCreateDevice(devvalue,device.ProductId);
             await _context.SaveChangesAsync();
             var identity = _context.DeviceIdentities.FirstOrDefault(c => c.Device.Id == devvalue.Id);
             if (identity != null)
@@ -846,7 +836,7 @@ namespace IoTSharp.Controllers
                             assets.Aggregate("", (x, y) => x + "," + y.Name), false);
                     }
 
-                    var cert = _context.DeviceIdentities.FirstOrDefault(c => c.DeviceId == device.Id);
+                    var cert = _context.DeviceIdentities.Include(d=>d.Device).FirstOrDefault(c => c.Device.Id == device.Id);
                     if (cert != null)
                     {
                         _context.DeviceIdentities.RemoveRange(cert);
@@ -891,7 +881,7 @@ namespace IoTSharp.Controllers
                             assets.Aggregate("", (x, y) => x + "," + y.Name), false);
                     }
 
-                    var cert = _context.DeviceIdentities.FirstOrDefault(c => c.DeviceId == device.Id);
+                    var cert = _context.DeviceIdentities.Include(c=>c.Device).FirstOrDefault(c => c.Device.Id == device.Id);
                     if (cert != null)
                     {
                         _context.DeviceIdentities.RemoveRange(cert);
@@ -1294,11 +1284,7 @@ namespace IoTSharp.Controllers
         /// <summary>
         /// 属性删除
         /// </summary>
-        /// <param name="deviceId"></param>
-        /// <param name="keyName"></param>
-        /// <param name="dataSide"></param>
-        /// <returns></returns>
-
+        /// <param name="input">要删除的属性。</param>
         [HttpDelete("[action]")]
         public async Task<ApiResult<bool>> RemoveAttribute(RemoveDeviceAttributeInput input)
         {

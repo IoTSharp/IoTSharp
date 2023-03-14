@@ -109,6 +109,40 @@ namespace IoTSharp.Data
             return exceptions;
         }
 
+        public static Dic PreparingData<L>(this ApplicationDbContext _context, List<ProduceData> attributes, Guid deviceId)
+         where L : DataStorage, new()
+        {
+            Dic exceptions = new Dic();
+            attributes.ToList().ForEach(kp =>
+            {
+                try
+                {
+                    var devdata = from tx in _context.Set<L>() where tx.DeviceId == deviceId select tx;
+                    var tl = from tx in devdata where tx.KeyName == kp.KeyName select tx;
+                    if (tl.Any())
+                    {
+                        var tx = tl.First();
+                        tx.DateTime = DateTime.UtcNow;
+                        _context.Set<L>().Update(tx).State = EntityState.Modified;
+                    }
+                    else
+                    {
+                        var t2 = new L() { DateTime = DateTime.UtcNow, DeviceId = deviceId, KeyName = kp.KeyName };
+                        t2.Catalog = (typeof(L) == typeof(AttributeLatest) ? DataCatalog.AttributeLatest
+                                                   : ((typeof(L) == typeof(TelemetryLatest) ? DataCatalog.TelemetryLatest
+                                                   : 0)));
+                        _context.Set<L>().Add(t2);
+                    }
+
+                }
+                catch (Exception ex)
+                {
+                    exceptions.Add(kp.KeyName, ex);
+                }
+            });
+            return exceptions;
+        }
+
         public static object JPropertyToObject(this JProperty property)
         {
             object obj = null;

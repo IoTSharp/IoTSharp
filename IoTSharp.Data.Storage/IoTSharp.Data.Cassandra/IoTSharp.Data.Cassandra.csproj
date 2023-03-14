@@ -3,6 +3,12 @@
 	<PropertyGroup>
 		<TargetFramework>net7.0</TargetFramework>
 	</PropertyGroup>
+
+	<ItemGroup>
+	  <Compile Remove="Migrations\**" />
+	  <EmbeddedResource Remove="Migrations\**" />
+	  <None Remove="Migrations\**" />
+	</ItemGroup>
 	<ItemGroup>
 		<PackageReference Include="AspNetCore.HealthChecks.UI.Core" Version="7.0.0-rc2.7" />
 		<PackageReference Include="EFCore.Cassandra" Version="2.0.5" />
@@ -10,9 +16,6 @@
 	</ItemGroup>
 	<ItemGroup>
 		<ProjectReference Include="..\..\IoTSharp.Data\IoTSharp.Data.csproj" />
-	</ItemGroup>
-	<ItemGroup>
-		<Folder Include="Migrations\" />
 	</ItemGroup>
 
 </Project>

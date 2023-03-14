@@ -3,6 +3,12 @@
   <PropertyGroup>
     <TargetFramework>net7.0</TargetFramework>
   </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="Migrations\**" />
+    <EmbeddedResource Remove="Migrations\**" />
+    <None Remove="Migrations\**" />
+  </ItemGroup>
 	<ItemGroup>
 	 
  
@@ -13,9 +19,6 @@
 	</ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\IoTSharp.Data\IoTSharp.Data.csproj" />
-  </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Migrations\" />
   </ItemGroup>
 
 </Project>
