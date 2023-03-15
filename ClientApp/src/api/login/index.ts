@@ -29,6 +29,13 @@ export function useLoginApi() {
 				data: params,
 			});
 		},
+
+		auth: (params: object) => {
+			return request({
+				url: 'AuthorizeCodeReceiver/' + params["code"],
+				method: 'get',
+			});
+		}
 	};
 }
 

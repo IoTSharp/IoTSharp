@@ -1,4 +1,4 @@
-import { createRouter, createWebHashHistory } from 'vue-router';
+import { createRouter, createWebHashHistory, createWebHistory } from 'vue-router';
 import NProgress from 'nprogress';
 import 'nprogress/nprogress.css';
 import pinia from '/@/stores/index';
@@ -31,7 +31,7 @@ const { isRequestRoutes } = themeConfig.value;
  * @link 参考：https://next.router.vuejs.org/zh/api/#createrouter
  */
 export const router = createRouter({
-	history: createWebHashHistory(),
+	history: createWebHistory(),
 	routes: staticRoutes,
 });
 
@@ -89,7 +89,7 @@ router.beforeEach(async (to, from, next) => {
 	NProgress.configure({ showSpinner: false });
 	if (to.meta.title) NProgress.start();
 	const token = Session.get('token');
-	if ((to.path === '/login' || to.path === '/setup' || to.path === '/signup') && !token) {
+	if ((to.path === '/login' || to.path === '/setup' || to.path === '/signup' || to.path === '/auth') && !token) {
 		next();
 		NProgress.done();
 	} else {

@@ -47,6 +47,13 @@ export function accountApi() {
 				data: {},
 			});
 		},
+		postAccount: (params: any) => {
+			return request({
+				url: '/api/Account/PostAccount' ,
+				method: 'post',
+				data: params,
+			});
+		},
 	};
 }
 

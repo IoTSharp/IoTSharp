@@ -1,5 +1,5 @@
 <template>
-  <el-form size="large" class="login-content-form">
+  <el-form size="large" class="login-content-form" @submit.native.prevent>
     <el-form-item class="login-animation1">
       <el-input
         type="text"
@@ -40,6 +40,7 @@
         class="login-content-submit"
         size="large"
         @click="onSignIn"
+        native-type="submit"
         :loading="loading.signIn"
       >
         <span>{{ $t("message.account.accountBtnText") }}</span>
@@ -52,9 +53,6 @@
       <router-link to="/signup"> <el-link type="primary" :underline="false" >立即注册 </el-link></router-link>
     </div>
   </el-form>
-
-
-
 
   <el-dialog v-model="dialogVisible" title="" width="400px"  >
     <slide-verify
@@ -116,8 +114,8 @@ export default defineComponent({
       return formatAxis(new Date());
     });
     // 登录
-    const onSignIn = async () => {
-      state.dialogVisible = true;
+      const onSignIn = async () => {
+          state.dialogVisible = true;
       // 存储 token 到浏览器缓存
     };
     const onAgain = () => {
@@ -146,7 +144,8 @@ export default defineComponent({
               await initBackEndControlRoutes();
               // 执行完 initBackEndControlRoutes，再执行 signInSuccess
               signInSuccess();
-            }
+              }
+              block.value?.refresh();
           } else {
             state.loading.signIn = false;
             state.dialogVisible = false;
