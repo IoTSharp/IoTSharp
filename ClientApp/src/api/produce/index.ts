@@ -33,17 +33,17 @@ export function getProduceData(id: string) {
     return request.get('api/produces/GetProduceData?produceId=+' + id)
 }
 export function editProduceDictionary(data: any) {
-    return request.post(`api/produces/editProduceDictionary`, data)
+    return request.post(`/api/produces/editProduceDictionary`, data)
 }
 
 
 export function getProduceDictionary(id: string) {
-    return request.get(`api/produces/getProduceDictionary?produceId=` + id)
+    return request.get(`/api/produces/getProduceDictionary?produceId=` + id)
 }
 export function createDevice(id:string,data: any) {
-    return request.post<appmessage<any>>(`api/Devices/produce/` + id,data)
+    return request.post<appmessage<any>>(`/api/Devices/produce/` + id,data)
 }
 
 export function deleteProduce(id: string) {
-    return request.get(`api/produces/delete?produceid=` + id)
+    return request.get(`/api/produces/delete?produceid=` + id)
 }

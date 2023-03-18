@@ -18,13 +18,13 @@ interface QueryParam extends IListQueryParam {
     originatorType?: string;
 }
 export function getAlarmList(query: QueryParam) {
-    return request.post(`api/alarm/list`, query)
+    return request.post(`/api/alarm/list`, query)
 }
 
 
 
 export function clear(id: string) {
-    return request.post(`api/alarm/clearAlarm`, {
+    return request.post(`/api/alarm/clearAlarm`, {
         id: id
     })
 }
@@ -32,10 +32,10 @@ export function clear(id: string) {
 
 
 export function acquire(id: string) {
-    return request.post(`api/alarm/ackAlarm`, {
+    return request.post(`/api/alarm/ackAlarm`, {
         id: id
     })
 }
 export function getoriginators(params: any) {
-    return request.post(`api/alarm/originators`, params)
+    return request.post(`/api/alarm/originators`, params)
 }

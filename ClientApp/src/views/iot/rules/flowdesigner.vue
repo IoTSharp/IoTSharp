@@ -586,6 +586,9 @@ const onToolDownload = () => {
 };
 
 const panelClose = (data: any) => {
+  if (!data||!data.nodetype) {
+            return;
+  }
   switch (data.nodetype) {
     case "script":
       setNodeContent(data)
