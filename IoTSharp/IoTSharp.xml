@@ -598,6 +598,13 @@
             </summary>
             <returns></returns>
         </member>
+        <member name="M:IoTSharp.Controllers.InstallerController.Install(IoTSharp.Dtos.InstallDto)">
+            <summary>
+            安装初始化IoTSharp
+            </summary>
+            <param name="model"></param>
+            <returns></returns>
+        </member>
         <member name="T:IoTSharp.Controllers.MenuController">
             <summary>
             this is test purpose

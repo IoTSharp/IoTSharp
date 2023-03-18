@@ -1,8 +1,6 @@
 ﻿using IoTSharp.EventBus;
-using EasyCaching.Core;
 using IoTSharp.Contracts;
 using IoTSharp.Data;
-using IoTSharp.Extensions;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
