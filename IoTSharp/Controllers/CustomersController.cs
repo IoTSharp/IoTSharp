@@ -52,7 +52,7 @@ namespace IoTSharp.Controllers
         /// </summary>
         /// <returns></returns>
         [HttpPost("Tenant")]
-        [Authorize(Roles = nameof(UserRole.NormalUser))]
+        [Authorize(Roles = nameof(UserRole.TenantAdmin))]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ApiResult), StatusCodes.Status404NotFound)]
         [ProducesDefaultResponseType]
@@ -61,15 +61,14 @@ namespace IoTSharp.Controllers
             var profile = this.GetUserProfile();
             if (m.tenantId != Guid.Empty)
             {
-                var querym = _context.Customer.Where(c => c.Deleted == false && c.TenantId == m.tenantId);
+                var querym = _context.Customer.Include(c=>c.Tenant).Where(c => !c.Deleted && c.Tenant.Id==m.tenantId);
                 var data = await m.Query(querym, c => c.Name);
                 return new ApiResult<PagedData<Customer>>(ApiCode.Success, "OK", data);
             }
             else
             {
-                var querym = _context.Customer.Where(c => c.Deleted == false);
-                var data = await m.Query(querym, c => c.Name);
-                return new ApiResult<PagedData<Customer>>(ApiCode.Success, "OK", data);
+
+                return new ApiResult<PagedData<Customer>>(ApiCode.NotFoundCustomer, "没有指定客户ID",new PagedData<Customer> ());
             }
            
         }
