@@ -59,12 +59,6 @@ export function deviceApi() {
 				method: 'delete',
 			});
 		},
-		getDeviceAttributes: (deviceId: string) => {
-			return request({
-				url: '/api/Devices/' + deviceId + '/AttributeLatest',
-				method: 'get',
-			});
-		},
 		addDeviceAttributes: (deviceId: string, params: any) => {
 			return request({
 				url: '/api/Devices/' + deviceId + '/AddAttribute',
@@ -72,6 +66,31 @@ export function deviceApi() {
 				data: params,
 			});
 		},
+		removeDeviceAttributes: (deviceId: string,  params: any) => {
+			return request({
+				url: '/api/Devices/RemoveAttribute',
+				method: 'delete',
+				data: {
+					deviceId:deviceId,
+					keyName:params.keyName,
+					dataSide:params.dataSide
+				},
+			});
+		},
+		editDeviceAttributes: (deviceId: string, params: any) => {
+			return request({
+				url: '/api/Devices/' + deviceId + '/EditAttribute',
+				method: 'post',
+				data: params,
+			});
+		},
+		getDeviceAttributes: (deviceId: string) => {
+			return request({
+				url: '/api/Devices/' + deviceId + '/AttributeLatest',
+				method: 'get',
+			});
+		},
+
 		// 获取设备规则
 		getDeviceRules: (deviceId: string) => {
 			return request({
@@ -101,13 +120,7 @@ export function deviceApi() {
 			});
 		},
 
-		editDeviceAttributes: (deviceId: string, params: any) => {
-			return request({
-				url: '/api/Devices/' + deviceId + '/EditAttribute',
-				method: 'post',
-				data: params,
-			});
-		},
+	
 		getDeviceLatestTelemetry: (deviceId: string) => {
 			return request({
 				url: '/api/devices/' + deviceId + '/telemetryLatest',

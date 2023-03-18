@@ -1,8 +1,6 @@
 <template>
   <div class="system-list-container">
     <el-card shadow="hover">
-
-
       <div class="system-dept-search ">
         <el-form size="default" label-width="100px">
           <el-row :gutter="35">
@@ -26,20 +24,15 @@
                 </el-icon>
                 查询
               </el-button>
-
               <el-button size="default" type="primary" @click="getData()">
                 <el-icon>
                   <ele-Search />
                 </el-icon>
                 重置
               </el-button>
-
             </el-col>
-
-
           </el-row>
         </el-form>
-
       </div>
 
       <div class="system-dept-search ">
@@ -55,7 +48,12 @@
           <template #default="props">
             <el-table :data="props.row.devices">
               <el-table-column label="设备名称" prop="name" />
-              <el-table-column label="设备类型" prop="deviceType" />
+              <el-table-column label="设备类型" prop="deviceType">
+                  <template #default="scope">
+                      <el-tag v-if="scope.row.deviceType==='Gateway'">网关</el-tag>
+                      <el-tag type="warning" v-if="scope.row.deviceType==='Device'">设备</el-tag>
+                  </template>
+              </el-table-column>
               <el-table-column label="超时" prop="timeout" />
             </el-table>
           </template>
@@ -63,7 +61,12 @@
 
         <el-table-column v-if="false" prop="id" label="id" show-overflow-tooltip></el-table-column>
 
-        <el-table-column prop="name" label="产品名称" show-overflow-tooltip></el-table-column>
+        <el-table-column prop="name" label="产品名称" show-overflow-tooltip>
+            <template #default="scope">
+                <el-tag v-if="scope.row.defaultDeviceType==='Gateway'">网关</el-tag>
+                <el-tag type="warning" v-if="scope.row.defaultDeviceType==='Device'">设备</el-tag>
+            </template>
+        </el-table-column>
 
         <el-table-column prop="defaultIdentityType" label="认证方式" show-overflow-tooltip></el-table-column>
         <el-table-column prop="defaultTimeout" label="超时" show-overflow-tooltip></el-table-column>
@@ -121,10 +124,8 @@
     <producedatadictionaryform ref="producedatadictionaryformRef" @submit="submit" @close="close" />
     <producepropform ref="producepropformRef" @close="close" @submit="submit" />
     <deviceform ref="deviceformRef" @close="close" @submit="submit"></deviceform>
-
   </div>
 </template>
-
 <script lang="ts" setup>
 import { ref, toRefs, reactive, onMounted, defineComponent } from "vue";
 import {
@@ -138,8 +139,6 @@ import {
   ElTable,
   ElTableColumn,
 } from "element-plus";
-
-
 import { useRouter } from "vue-router";
 import produceform from "./produceform.vue";
 import deviceform from "./deviceform.vue";
@@ -150,7 +149,6 @@ import { Session } from "/@/utils/storage";
 import { getProduceList, deleteProduce } from "/@/api/produce";
 import { appmessage } from "/@/api/iapiresult";
 // 定义接口来定义对象的类型
-
 interface TableDataRow {
   id?: string;
   name?: string;
@@ -165,7 +163,6 @@ interface SubTableDataRow {
   deviceType?: string;
   timeout?: string;
 }
-
 interface TableDataState {
   tableData: {
     rows: Array<TableDataRow>;
@@ -177,7 +174,6 @@ interface TableDataState {
     };
   };
 }
-
 const produceformRef = ref();
 const deviceformRef = ref();
 const producedatadictionaryformRef = ref();
@@ -196,7 +192,6 @@ const state = reactive<TableDataState>({
     },
   },
 });
-
 const query = reactive({
   name: "",
 });
@@ -209,7 +204,6 @@ const onHandleCurrentChange = (val: number) => {
   state.tableData.param.pageNum = val;
   getData();
 };
-
 const getData = () => {
   getProduceList({
     offset: state.tableData.param.pageNum - 1,
@@ -227,7 +221,6 @@ const initTableData = () => {
 onMounted(() => {
   initTableData();
 });
-
 const close = ({ sender: string, args: any }) => {
   getData();
 };
@@ -250,7 +243,6 @@ const dropdownCommand = (row: any, command: string) => {
       break;
   }
 };
-
 const creatprod = () => {
   //  propformRef.value.openDialog("11c12dfe-8b37-4ddb-805a-00ba802259eb");
   produceformRef.value.openDialog(NIL_UUID);
@@ -290,3 +282,10 @@ const deleteprod = async (row: TableDataRow) => {
     .catch(() => { });
 };
 </script>
+<style lang="scss" >
+    .system-list-container {
+        .el-table__expanded-cell {
+            padding: 0 5%;
+        }
+    }
+</style>

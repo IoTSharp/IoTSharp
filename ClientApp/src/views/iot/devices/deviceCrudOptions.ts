@@ -51,6 +51,7 @@ export const createDeviceCrudOptions = function ({ expose }, customerId, deviceD
 	};
 	const delRequest = async ({ row }) => {
 		try {
+			debugger;
 			await deviceApi().deletedevcie(row.id);
 			_.remove(records, (item: TableDataRow) => {
 				return item.id === row.id;

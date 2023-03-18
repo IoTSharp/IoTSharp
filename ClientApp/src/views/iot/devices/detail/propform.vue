@@ -25,14 +25,12 @@ import monaco from "/@/components/monaco/monaco.vue";
 import { deviceApi } from "/@/api/devices";
 import { appmessage } from "/@/api/iapiresult";
 import dayjs from "dayjs";
-
 const props = defineProps({
   deviceId: {
     type: String,
     default: ''
   }
 })
-
 interface propformstate {
   drawer: boolean;
   dialogtitle: string;
@@ -48,7 +46,6 @@ const formanyRef = ref();
 const formanyOptions = ref();
 const buidForm = async () => {
   var result = await deviceApi().getDeviceAttributes(state.devid);
-
   var serveropt = {
     form: {
       labelWidth: "120px",
@@ -56,7 +53,6 @@ const buidForm = async () => {
     },
     columns: {},
   };
-
   var clientopt = {
     form: {
       labelWidth: "120px",
@@ -64,7 +60,6 @@ const buidForm = async () => {
     },
     columns: {},
   };
-
   var anyopt = {
     form: {
       labelWidth: "120px",
@@ -72,11 +67,9 @@ const buidForm = async () => {
     },
     columns: {},
   };
-
   var serverval = {};
   var anyval = {};
   var clientval = {};
-
   for (var item of result.data) {
     switch (item.dataSide) {
       case "AnySide":
@@ -93,7 +86,6 @@ const buidForm = async () => {
         break;
     }
   }
-
   const { buildFormOptions } = useColumns();
   formserverOptions.value = buildFormOptions(serveropt);
   formclientOptions.value = buildFormOptions(clientopt);
@@ -102,7 +94,6 @@ const buidForm = async () => {
   formclientRef.value.setFormData(clientval);
   formanyRef.value.setFormData(anyval);
 };
-
 const buildWegits = (data: any, cfg?: any) => {
   switch (data.dataType) {
     case "Boolean":
@@ -159,7 +150,6 @@ const buildWegits = (data: any, cfg?: any) => {
           },
         },
       };
-
       break;
     case "Double":
       return {
@@ -220,7 +210,6 @@ const buildWegits = (data: any, cfg?: any) => {
         },
       };
       break;
-
     default:
       return {
         title: data.keyName,
@@ -234,17 +223,14 @@ const buildWegits = (data: any, cfg?: any) => {
       };
   }
 };
-
 const formSubmit = async () => {
   var data = {
     anyside: formanyRef.value.getFormData(),
     clientside: formclientRef.value.getFormData(),
     serverside: formserverRef.value.getFormData(),
   };
-
   var result = await deviceApi().editDeviceAttributes(state.devid, data);
-
-  if (result.data) {
+ if (result["code"] === 10000) {
     ElMessage.success("属性数据更新成功");
     emit('submit', data)
     emit('close', data)
@@ -258,7 +244,6 @@ const formReset = () => {
   formclientRef.value.reset();
   formanyRef.value.reset();
 };
-
 const formClose = () => {
   var data = {
     anyside: formanyRef.value.getFormData(),
@@ -271,7 +256,6 @@ onMounted(() => {
   buidForm();
 });
 defineExpose({
-
 });
 </script>
 <style lang="scss" scoped>
