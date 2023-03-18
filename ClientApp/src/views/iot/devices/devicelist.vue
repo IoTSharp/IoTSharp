@@ -5,7 +5,7 @@
         <fs-crud ref="crudRef" v-bind="crudBinding">
           <template #actionbar-right>
             <el-divider direction="vertical"/>
-            <el-button @click="openCustomForm">规则下发</el-button>
+            <el-button @click="openCustomForm">规则委托</el-button>
           </template>
         </fs-crud>
       </div>
@@ -38,7 +38,7 @@ const crudRef = ref();
 // crud 配置的ref
 const crudBinding = ref();
 const customerId = route.query.id || userInfos.value.customer.id;
-// 规则下发 ref
+// 规则委托 ref
 const addRulesRef = ref();
 // 暴露的方法
 const { crudExpose } = useExpose({ crudRef, crudBinding });
