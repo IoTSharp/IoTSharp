@@ -156,14 +156,6 @@ export const staticRoutes: Array<RouteRecordRaw> = [
 		},
 	},
 	{
-		path: '/auth',
-		name: 'auth',
-		component: () => import('/@/views/auth/index.vue'),
-		meta: {
-			title: '跳转登录',
-		},
-	},
-	{
 		path: '/setup',
 		name: 'setup',
 		component: () => import('/@/views/setup/index.vue'),
