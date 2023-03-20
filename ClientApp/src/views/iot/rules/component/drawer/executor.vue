@@ -94,7 +94,7 @@ if(input.temperature>38){
                     <p>将以下信息进行后台组合，产生"告警数据发布器"所能使用的数据，一般作为"告警数据发布器"的上级</p>
                     <pre>
 {
-   "Serverity":"Warning",
+   "Serverity":4,
    "AlarmType":"xxxxx",
    "AlarmDetail":"xxxxxxxxxxx"
 }
@@ -102,11 +102,12 @@ if(input.temperature>38){
                     <p>如：</p>
                     <pre>
 {
-   "Serverity":"Warning",
+   "Serverity":7,
    "AlarmType":"发烧",
    "AlarmDetail":"体温超过38度，请注意"
 }
 </pre>
+                    <p>此处特殊说明：Serverity必须为Int数值</p>
                 </div>
                 <div v-else-if="state.node.mata=='IoTSharp.TaskActions.DeviceActionExcutor'">
                     <p>1、该执行器使用上级数据按照下面的配置信息进行post推送，并返回执行结果供下一节点使用</p>
