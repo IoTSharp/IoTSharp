@@ -22,8 +22,8 @@ export const createDevicePropsCrudOptions = function ({ expose }, deviceId, stat
 		return {
 			records,
 			currentPage: 1,
-			pageSize: 20,
-			total: res.data.total,
+			pageSize: records.length,
+			total: records.length,
 		};
 	};
 	const delRequest = async ({ row }) => {
