@@ -586,8 +586,8 @@ const onToolDownload = () => {
 };
 
 const panelClose = (data: any) => {
-  if (!data||!data.nodetype) {
-            return;
+  if (!data) {
+    return;
   }
   switch (data.nodetype) {
     case "script":
