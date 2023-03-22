@@ -35,6 +35,7 @@ using Dic = System.Collections.Generic.Dictionary<string, string>;
 using DicKV = System.Collections.Generic.KeyValuePair<string, string>;
 using LogLevel = Microsoft.Extensions.Logging.LogLevel;
 using IoTSharp.Extensions.X509;
+using AutoMapper;
 
 namespace IoTSharp.Controllers
 {
@@ -741,9 +742,12 @@ namespace IoTSharp.Controllers
             var dev = await PostDevice(dto);
             if (dev.Code == (int)ApiCode.Success)
             {
+                MapperConfiguration mapperConfiguration = new MapperConfiguration(options => { options.CreateMap<ProduceData, AttributeLatest>(); });
+                IMapper mapper = mapperConfiguration.CreateMapper();
+
                 var atts = produce.DefaultAttributes.Select(c =>
                 {
-                    var atx = (AttributeLatest)(DataStorage)c;
+                    AttributeLatest atx = mapper.Map<ProduceData, AttributeLatest>(c);
                     atx.Catalog = DataCatalog.AttributeLatest;
                     atx.DeviceId = dev.Data.Id;
                     atx.DataSide = DataSide.ServerSide;
