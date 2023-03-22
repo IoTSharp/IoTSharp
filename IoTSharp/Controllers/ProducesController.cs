@@ -55,7 +55,8 @@ namespace IoTSharp.Controllers
                 DefaultTimeout = c.DefaultTimeout,
                 Description = c.Description,
                 Name = c.Name,
-                Devices = c.Devices
+                Devices = c.Devices,
+                DefaultDeviceType = c.DefaultDeviceType
             });
             return new ApiResult<PagedData<ProduceDto>>(ApiCode.Success, "OK", data);
         }

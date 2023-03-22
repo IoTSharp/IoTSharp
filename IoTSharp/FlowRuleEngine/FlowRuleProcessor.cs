@@ -162,7 +162,9 @@ namespace IoTSharp.FlowRuleEngine
                 };
 
                 _allflowoperation.Add(startoperation);
+                //从“开始节点”上链接的线节点对象进行规则判断，通过线对象上的规则才能进行后续逻辑
                 var nextflows = await ProcessCondition(_allFlows, start.FlowId, data);
+                //获取到的通过规则判断的后续节点列表
                 if (nextflows != null)
                 {
                     var step = startoperation.Step + 1;
@@ -185,6 +187,7 @@ namespace IoTSharp.FlowRuleEngine
                         };
 
                         _allflowoperation.Add(flowOperation);
+                        //执行节点逻辑
                         await Process(_allFlows, _allflowoperation, flowOperation.OperationId, data, deviceId);
                     }
                     return _allflowoperation;
@@ -227,6 +230,7 @@ namespace IoTSharp.FlowRuleEngine
                 var flow = _allFlows.FirstOrDefault(c => c.bpmnid == peroperation.Flow.TargetId && c.FlowType != "label");
                 switch (flow.FlowType)
                 {
+                    //线节点对象
                     case "bpmn:SequenceFlow":
                         {
                             var step = peroperation.Step + 1;
@@ -251,7 +255,7 @@ namespace IoTSharp.FlowRuleEngine
                         }
 
                         break;
-
+                    //中间执行器和脚本节点
                     case "bpmn:Task":
                         {
                             var step = peroperation.Step + 1;
@@ -287,6 +291,7 @@ namespace IoTSharp.FlowRuleEngine
                                             {
                                                 try
                                                 {
+                                                    //执行器入口 Input上一个节点向当前节点的传参，DeviceId设备编号，ExecutorConfig当前节点在设计时的配置内容
                                                     var result = await executor.ExecuteAsync(new TaskActionInput()
                                                     {
                                                         Input = taskoperation.Data,
@@ -498,7 +503,7 @@ namespace IoTSharp.FlowRuleEngine
                         }
 
                         break;
-
+                    //结束节点
                     case "bpmn:EndEvent":
 
 
@@ -548,16 +553,25 @@ namespace IoTSharp.FlowRuleEngine
                 }
             }
         }
-
+        /// <summary>
+        /// 调用规则引擎，判断当前节点后的连线中的规则是否通过校验，如果验证为真则返回满足条件的线对应的目标节点
+        /// </summary>
+        /// <param name="_allFlows">所有的节点</param>
+        /// <param name="flowId">当前节点</param>
+        /// <param name="data">进入到当前节点的数据传参</param>
+        /// <returns></returns>
         public async Task<List<Flow>> ProcessCondition(List<Flow> _allFlows, Guid flowId, object data)
         {
 
             var tt = data.GetType();
             var emptyflow = new List<Flow>();
+            //根据节点Id获取节点信息
             var flow = _allFlows.FirstOrDefault(c => c.FlowId == flowId);
             if (flow != null)
             {
+                //根据节点Id获取到当前节点与以后节点的线对象列表（一个节点可以存在很多线对象关联到下一级节点）
                 var flows = _allFlows.Where(c => c.SourceId == flow?.bpmnid).ToList();
+                //没有逻辑的线节点对象
                 emptyflow = flows.Where(c => c.Conditionexpression == string.Empty||  c.Conditionexpression==null).ToList() ?? new List<Flow>();
                 var tasks = new BaseRuleTask()
                 {
@@ -566,7 +580,7 @@ namespace IoTSharp.FlowRuleEngine
                     id = flow.bpmnid,
                     outgoing = new EditableList<BaseRuleFlow>()
                 };
-                foreach (var item in flows.Except(emptyflow))
+                foreach (var item in flows.Except(emptyflow))//排除掉没有逻辑的线节点
                 {
                     var rule = new BaseRuleFlow();
                     rule.id = item.bpmnid;
@@ -586,11 +600,13 @@ namespace IoTSharp.FlowRuleEngine
                             var d = t?.ToObject<ExpandoObject>();
                             if (d != null)
                             {
+                                //执行判断，利用规则引擎执行线对象中的规则
                                 var result = await flowExcutor.Excute(new FlowExcuteEntity()
                                 {
                                     Params = d,
                                     Task = tasks,
                                 });
+                                //筛选规则通过的线对象
                                 var next = result.Where(c => c.IsSuccess).ToList();
                                 foreach (var item in next)
                                 {
