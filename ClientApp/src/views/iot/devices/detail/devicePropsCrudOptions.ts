@@ -127,7 +127,8 @@ export const createDevicePropsCrudOptions = function ({ expose }, deviceId, stat
 							if (context.row.dataType === 'DateTime') {
 								return formatToDateTime(context.value);
 							} else {
-								if (context.value) {
+								//解决数值为false不显示问题
+								if (context.value || context.value==false) {
 									return context.value.toString();
 								}
 								return '';
