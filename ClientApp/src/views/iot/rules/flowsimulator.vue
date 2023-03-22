@@ -12,10 +12,10 @@
               :class="v.nodeclass" :style="{ left: v.left, top: v.top }" @click="onItemCloneClick(k)">
               <div :style="{ backgroundColor: v.color }" class="workflow-right-box"
                 :class="{ 'workflow-right-active': state.jsPlumbNodeIndex === k }">
-                <div class="workflow-left-item-icon">
-                  <SvgIcon :name="v.icon" class="workflow-icon-drag" />
-                  <div class="font10 pl5 name">{{ v.name }}</div>
-                </div>
+                  <div class="workflow-left-item-icon">
+                      <SvgIcon :name="v.icon" class="workflow-icon-drag" />
+                      <div class="font10 pl5 name">{{ v.name }}</div>
+                  </div>
               </div>
             </div>
           </div>
@@ -23,7 +23,7 @@
       </div>
     </div>
 
-    <div class="workflow-left">
+    <div class="workflow-bottom">
       <el-tabs type="card" class="tabs" v-model="activeName">
         <el-tab-pane label="timeline" name="timeline"> <el-timeline>
             <el-timeline-item v-for="(activity, index) in state.activities" :key="index" :type="activity.type"
@@ -97,8 +97,6 @@ interface FlowState {
   flowid?: string | any;
   content?: string | any;
   workflowRightRef: HTMLDivElement | null;
-  leftNavRefs: any[];
-  leftNavList: any[];
   dropdownNode: XyState;
   dropdownLine: XyState;
   isShow: boolean;
@@ -141,8 +139,6 @@ const state = reactive<FlowState>({
   activities: [],
   flowid: props.ruleId,
   workflowRightRef: null as HTMLDivElement | null,
-  leftNavRefs: [],
-  leftNavList: [],
   dropdownNode: { x: "", y: "" },
   dropdownLine: { x: "", y: "" },
   isShow: false,
@@ -175,91 +171,8 @@ const setClientWidth = () => {
   const clientWidth = document.body.clientWidth;
   clientWidth < 768 ? (state.isShow = true) : (state.isShow = false);
 };
-// 左侧导航-数据初始化
-const initLeftNavList = async () => {
-  state.leftNavList = [
-    {
-      title: "基本",
-      icon: "iconfont icon-shouye",
-      isOpen: true,
-      id: "1",
-      children: [
-        {
-          icon: "iconfont icon-gongju",
-          name: "开始",
-          nodetype: "basic",
-          namespace: "bpmn:StartEvent",
-          mata: "begin",
-          id: "begin",
-        },
-        {
-          icon: "iconfont icon-gongju",
-          nodetype: "basic",
-          namespace: "bpmn:EndEvent",
-          mata: "end",
-          name: "结束",
-          id: "end",
-        },
-      ],
-    },
-    {
-      title: "执行器",
-      icon: "iconfont icon-shouye",
-      isOpen: true,
-      id: "1",
-      children: [],
-    },
-    {
-      title: "脚本",
-      icon: "iconfont icon-shouye",
-      isOpen: true,
-      id: "1",
-      children: [
-        {
-          icon: "iconfont icon-gongju",
-          name: "javascript",
-          id: "javascript",
-
-          nodetype: "script",
-          namespace: "bpmn:Task",
-          mata: "javascript",
-        },
-        {
-          icon: "iconfont icon-gongju",
-          name: "python",
-          id: "python",
-          nodetype: "script",
-          namespace: "bpmn:Task",
-          mata: "python",
-        },
-        {
-          icon: "iconfont icon-gongju",
-          name: "sql",
-          id: "sql",
-          nodetype: "script",
-          namespace: "bpmn:Task",
-          mata: "sql",
-        },
-        {
-          icon: "iconfont icon-gongju",
-          name: "lua",
-          id: "lua",
-          nodetype: "script",
-          namespace: "bpmn:Task",
-          mata: "lua",
-        },
-        {
-          icon: "iconfont icon-gongju",
-          name: "csharp",
-          id: "csharp",
-          nodetype: "script",
-          namespace: "bpmn:Task",
-          mata: "csharp",
-        },
-      ],
-    },
-  ];
-
+// 右侧导航-数据初始化
+const initRightNodeList = async () => {
   await ruleApi()
     .getDiagram(state.flowid)
     .then((res) => {
@@ -268,79 +181,11 @@ const initLeftNavList = async () => {
         lineList: res.data.lines,
       };
     });
-
-  // window.setInterval(() => {
-  //   var index = state.index % state.jsplumbData.nodeList.length;
-  //   state.jsplumbData.nodeList[index].class = "workflow-right-highlight";
-  //   state.index++;
-  // }, 1000);
-};
-// 左侧导航-初始化拖动
-const initSortable = () => {
-  state.leftNavRefs.forEach((v) => {
-    Sortable.create(v as HTMLDivElement, {
-      group: {
-        name: "vue-next-admin-1",
-        pull: "clone",
-        put: false,
-      },
-      animation: 0,
-      sort: false,
-      draggable: ".workflow-left-item",
-      forceFallback: true,
-      onEnd: function (evt: any) {
-        const { name, icon, id, color } = evt.clone.dataset;
-        const { nodetype, nodenamespace, mata } = evt.clone.attributes;
-        const { layerX, layerY, clientX, clientY } = evt.originalEvent;
-        const el = state.workflowRightRef!;
-        const { x, y, width, height } = el.getBoundingClientRect();
-
-        if (clientX < x || clientX > width + x || clientY < y || y > y + height) {
-          ElMessage.warning("请把节点拖入到画布中");
-        } else {
-          // 节点id（唯一）
-          const nodeId = Math.random().toString(36).substr(2, 12);
-          // 处理节点数据
-          const node = {
-            nodeId,
-            color,
-            left: `${layerX - 40}px`,
-            top: `${layerY - 15}px`,
-            nodeclass: "workflow-right-highlight",
-            nodetype: nodetype.value,
-            nodenamespace: nodenamespace.value,
-            mata: mata.value,
-            name,
-            icon,
-            id,
-          };
-
-          // 右侧视图内容数组
-          state.jsplumbData.nodeList.push(node);
-          // 元素加载完毕时
-          nextTick(() => {
-            // 整个节点作为source或者target
-            state.jsPlumb.makeSource(nodeId, state.jsplumbMakeSource);
-            // // 整个节点作为source或者target
-            state.jsPlumb.makeTarget(nodeId, state.jsplumbMakeTarget, jsplumbConnect);
-            // 设置节点可以拖拽（此处为id值，非class）
-            state.jsPlumb.draggable(nodeId, {
-              containment: "parent",
-              stop: (el: any) => {
-                state.jsplumbData.nodeList.forEach((v) => {
-                  if (v.nodeId === el.el.id) {
-                    // 节点x, y重新赋值，防止再次从左侧导航中拖拽节点时，x, y恢复默认
-                    v.left = `${el.pos[0]}px`;
-                    v.top = `${el.pos[1]}px`;
-                  }
-                });
-              },
-            });
-          });
-        }
-      },
-    });
-  });
+    window.setInterval(() => {
+     var index = state.index % state.jsplumbData.nodeList.length;
+     state.jsplumbData.nodeList[index].class = "workflow-right-highlight";
+     state.index++;
+   }, 1000);
 };
 // 初始化 jsPlumb
 const initJsPlumb = () => {
@@ -383,11 +228,6 @@ const initJsPlumbConnection = () => {
   });
   // 节点
 };
-// 左侧导航-菜单标题点击
-const onTitleClick = (val: any) => {
-  val.isOpen = !val.isOpen;
-};
-
 const onexecutorSubmit = (data: object) => { };
 
 const onscriptSubmit = (data: any) => { };
@@ -463,12 +303,6 @@ const onToolClick = (fnName: String) => {
       break;
     case "submit":
       onToolSubmit();
-      break;
-    case "copy":
-      onToolCopy();
-      break;
-    case "del":
-      onToolDel();
       break;
     case "fullscreen":
       onToolFullscreen();
@@ -553,15 +387,10 @@ const setclass = (item: any) => {
   }
 };
 
-
 const clearclass = () => {
-
-
   for (var node of state.jsplumbData.nodeList) {
-   
     //  state.activities = []
       node.nodeclass = "workflow-right-clone";
-   
   }
 }
 
@@ -591,45 +420,17 @@ const submitData = (node: any) => {
 const openRunDialog = () => {
   state.dataFormVisible = true;
   state.content = "";
-
 };
 
-
-// 顶部工具栏-复制
-const onToolCopy = () => {
-  copyText(JSON.stringify(state.jsplumbData));
-};
-// 顶部工具栏-删除
-const onToolDel = () => {
-  ElMessageBox.confirm("此操作将清空画布，是否继续？", "提示", {
-    confirmButtonText: "清空",
-    cancelButtonText: "取消",
-  })
-    .then(() => {
-      state.jsplumbData.nodeList.forEach((v) => {
-        state.jsPlumb.removeAllEndpoints(v.nodeId);
-      });
-      nextTick(() => {
-        state.jsplumbData = {
-          nodeList: [],
-          lineList: [],
-        };
-        ElMessage.success("清空画布成功");
-      });
-    })
-    .catch(() => { });
-};
 // 顶部工具栏-全屏
 const onToolFullscreen = () => {
   stores.setCurrenFullscreen(true);
 };
-
 watch(() => props.ruleId, async () => {
 
   if (props.ruleId && props.ruleId !== "") {
 
-    await initLeftNavList();
-    await initSortable();
+    await initRightNodeList();
     initJsPlumb();
     setClientWidth();
   }
@@ -638,8 +439,7 @@ watch(() => props.ruleId, async () => {
 // 页面加载时
 onMounted(async () => {
   if (props.ruleId && props.ruleId !== "") {
-    await initLeftNavList();
-    await initSortable();
+      await initRightNodeList();
     initJsPlumb();
     setClientWidth();
   }
@@ -652,8 +452,30 @@ onUnmounted(() => {
 </script>
 
 <style scoped lang="scss">
+  
+
 .workflow-container {
   position: relative;
+    
+    .workflow-bottom {
+        padding-top:5px;
+        min-height:286px;
+        background-color:#f7fbff;
+        height: 100%;
+        border-right: 1px solid var(--el-border-color-light, #ebeef5);
+          ::v-deep .el-timeline-item__node {
+        background-color: #9dbdfd !important;
+        left:0px;
+    }
+    ::v-deep .el-timeline-item__tail {
+        border-left: 2px solid #e3ebf9 !important;
+        left: 5px;
+    }
+    ::v-deep .el-timeline-item__wrapper{
+        padding-right:15px;
+    }
+    ::v-deep .el-tab-pane .el-timeline li:first{}
+    }
 
   .workflow {
     display: flex;
@@ -664,97 +486,6 @@ onUnmounted(() => {
     .workflow-content {
       display: flex;
       height: calc(100% - 35px);
-
-      .workflow-left {
-        width: 220px;
-        height: 100%;
-        border-right: 1px solid var(--el-border-color-light, #ebeef5);
-
-        :deep(.el-collapse-item__content) {
-          padding-bottom: 0;
-        }
-
-        .workflow-left-title {
-          height: 35px;
-          display: flex;
-          align-items: center;
-          padding: 0 10px;
-          border-top: 1px solid var(--el-border-color-light, #ebeef5);
-          color: var(--el-text-color-primary);
-          cursor: default;
-
-          span {
-            flex: 1;
-          }
-        }
-
-        .workflow-left-item {
-          display: inline-block;
-          width: calc(100% - 15px);
-          position: relative;
-          cursor: move;
-          margin: 0 0 10px 10px;
-
-          .workflow-left-item-icon {
-            height: 50px;
-            display: flex;
-            align-items: center;
-            transition: all 0.3s ease;
-            padding: 5px 10px;
-            border: 1px dashed transparent;
-            background: var(--next-bg-color);
-            border-radius: 3px;
-
-            i,
-            .name {
-              color: var(--el-text-color-secondary);
-              transition: all 0.3s ease;
-              white-space: nowrap;
-              text-overflow: ellipsis;
-              overflow: hidden;
-            }
-
-            &:hover {
-              transition: all 0.3s ease;
-              border: 1px dashed var(--el-color-primary);
-              background: var(--el-color-primary-light-9);
-              border-radius: 5px;
-
-              i,
-              .name {
-                transition: all 0.3s ease;
-                color: var(--el-color-primary);
-              }
-            }
-
-            .workflow-left-item-icon {
-            height: 35px;
-            display: flex;
-            align-items: center;
-            transition: all 0.3s ease;
-            padding: 5px 10px;
-            border: 1px dashed transparent;
-            background: var(--next-bg-color);
-            border-radius: 6px;
-
-            i,
-            .name {
-              color: black;
-              transition: all 0.3s ease;
-              white-space: nowrap;
-              text-overflow: ellipsis;
-              overflow: hidden;
-            }
-          }
-          }
-        }
-
-        & .workflow-left-id:first-of-type {
-          .workflow-left-title {
-            border-top: none;
-          }
-        }
-      }
 
       .workflow-right {
         flex: 1;

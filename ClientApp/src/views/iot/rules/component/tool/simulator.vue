@@ -21,7 +21,7 @@ export default defineComponent({
 		const { themeConfig } = storeToRefs(storesThemeConfig);
 		const state = reactive({
 			toolList: [
-				{ icon: 'ele-Check', title: '提交', fnName: 'submit' },
+                { icon: 'iconfont icon-AIshiyanshi', title: '发起测试', fnName: 'submit' },
 				{ icon: 'ele-FullScreen', title: '全屏', fnName: 'fullscreen' },
 				{ icon: 'ele-Back', title: '返回', fnName: 'return' },
 				
