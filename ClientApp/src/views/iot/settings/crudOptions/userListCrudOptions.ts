@@ -20,14 +20,14 @@ export const createUserListCrudOptions = function ({ expose }, customerId) {
     const pageRequest = async (query) => {
         let {
             form: { userName: name },
-            page: { currentPage: offset, pageSize: limit },
+            page: { currentPage: currentPage, pageSize: limit },
         } = query;
-        offset = offset === 1 ? 0 : offset - 1;
+        let offset = currentPage === 1 ? 0 : currentPage - 1;
         const res = await accountApi().accountList({ name, limit, offset, customerId });
         return {
             records: res.data.rows,
-            currentPage: 1,
-            pageSize: 20,
+            currentPage: currentPage,
+            pageSize: limit,
             total: res.data.total,
         };
     };
