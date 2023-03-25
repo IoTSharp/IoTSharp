@@ -1,6 +1,7 @@
-﻿ 
+﻿
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -60,8 +61,6 @@ namespace IoTSharp.Contracts
     }
     public class AppSettings
     {
-        private DateTime shardingBeginTime;
-
         public string JwtKey { get; set; }
         public string JwtIssuer { get; set; }
         public string JwtAudience { get; set; }
@@ -96,11 +95,14 @@ namespace IoTSharp.Contracts
         public DataBaseType DataBase { get; set; } = DataBaseType.PostgreSql;
         public int RuleCachingExpiration { get; set; } = 60;
         public ShardingByDateMode ShardingByDateMode { get; set; } = ShardingByDateMode.PerMonth;
-        public DateTime ShardingBeginTime {
-            get => shardingBeginTime;
-            set
+
+        private DateTime shardingBeginTime;
+        public DateTime ShardingBeginTime
+        {
+            get
             {
-                if (value == DateTime.MinValue || value.Year <= 1970)
+                //shardingBeginTime没值时给默认值
+                if (shardingBeginTime == DateTime.MinValue || shardingBeginTime.Year <= 1970)
                 {
                     switch (ShardingByDateMode)
                     {
@@ -120,17 +122,17 @@ namespace IoTSharp.Contracts
                             shardingBeginTime = DateTime.UtcNow.AddYears(-1).Date;
                             break;
                         default:
-                            shardingBeginTime = value;
+                            shardingBeginTime = DateTime.UtcNow.Date;
                             break;
                     }
                 }
-                else
-                {
-                    shardingBeginTime = value;
-                }
-                
+                return shardingBeginTime;
             }
-         
+            set
+            {
+                shardingBeginTime = value;
+            }
+
         }
 
         public string RootKey { get; set; }
