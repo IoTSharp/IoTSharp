@@ -15,6 +15,9 @@ export const createDeviceTelemetryRealtimeCrudOptions = function ({ expose }, de
 		state.telemetryKeys = res.data.filter((x) => typeof x.value === 'number').map((c) => c.keyName); // DeviceDetailTelemetry 组件状态， 要传到遥测历史组件
 		records = res.data;
 		return {
+			total:records.length,
+			pageSize:records.length,
+			currentPage:0,
 			records,
 		};
 	};
