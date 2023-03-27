@@ -16,6 +16,7 @@
 		"@element-plus/icons-vue": "^2.0.6",
 		"@fast-crud/fast-crud": "^1.6.1",
 		"@fast-crud/ui-element": "^1.6.1",
+		"@fast-crud/ui-interface": "^1.11.8",
 		"@form-create/element-ui": "^3.1.15",
 		"@vueuse/components": "^9.5.0",
 		"@vueuse/core": "^9.5.0",
