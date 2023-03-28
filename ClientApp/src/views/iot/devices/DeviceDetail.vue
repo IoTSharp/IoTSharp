@@ -47,7 +47,7 @@
         </el-tab-pane>
         <el-tab-pane label="规则历史" name="rulesHistory">
           <div class="z-tab-container">
-            <flowevents :creator="deviceRef.id"  wrapper="div"></flowevents>
+            <flowevents :creator="deviceRef.id" :creatorname="deviceRef.name"  wrapper="div"></flowevents>
           </div>
         </el-tab-pane>
       </el-tabs>

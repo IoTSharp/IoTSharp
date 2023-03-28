@@ -109,6 +109,11 @@ const props = defineProps({
   creator: {
     type: String,
     default: "",
+  }, 
+  
+  creatorname: {
+    type: String,
+    default: "",
   },
   wrapper: {
     type: String,
@@ -166,7 +171,7 @@ const state = reactive<TableDataState>({
 });
 
 const query = reactive({
-  Creator: "",
+  Creator: props.creatorname??'',
   Name: "",
   RuleId: "",
 });
