@@ -4,44 +4,42 @@
       <div class="system-dept-search ">
         <el-form size="default" label-width="100px">
           <el-row :gutter="35">
-            <el-col :xs="24" :sm="12" :md="8" :lg="8" :xl="8">
-              <el-form-item label="创建对象">
-                <el-select v-model="query.Creator" filterable remote reserve-keyword placeholder="请输入创建对象名称"
-                  :remote-method="getCreators" :loading="state.creatorloading">
-                  <el-option v-for="item in state.creators" :key="item.value" :label="item.label" :value="item.value" />
-                </el-select>
-              </el-form-item>
-            </el-col>
-            <el-col :xs="24" :sm="12" :md="8" :lg="8" :xl="8">
-              <el-form-item label="规则">
-                <el-select v-model="query.RuleId" placeholder="请选择规则">
-                  <el-option v-for="item in state.rules" :key="item.value" :label="item.label" :value="item.value"
-                    :disabled="item.disabled" />
-                </el-select>
-              </el-form-item>
-            </el-col>
-            <el-col :xs="24" :sm="12" :md="8" :lg="8" :xl="8">
-              <el-form-item label="事件名称">
-                <el-input v-model="query.Name" placeholder="请输入事件名称" />
-              </el-form-item>
-            </el-col>
+            <el-form-item label="创建对象">
+              <el-select v-model="query.Creator" filterable remote reserve-keyword placeholder="请输入创建对象名称"
+                         :remote-method="getCreators" :loading="state.creatorloading">
+                <el-option v-for="item in state.creators" :key="item.value" :label="item.label" :value="item.value" />
+              </el-select>
+            </el-form-item>
+            <el-form-item label="规则">
+              <el-select v-model="query.RuleId" placeholder="请选择规则">
+                <el-option v-for="item in state.rules" :key="item.value" :label="item.label" :value="item.value"
+                           :disabled="item.disabled" />
+              </el-select>
+            </el-form-item>
+            <el-form-item label="事件名称">
+              <el-input v-model="query.Name" placeholder="请输入事件名称" />
+            </el-form-item>
+            <el-form-item>
+              <el-button size="default" type="primary" @click="getData()">
+                <el-icon>
+                  <ele-Search />
+                </el-icon>
+                查询
+              </el-button>
+              <el-button size="default"  @click="expandAll()">
+                {{ state.expandAll ? '收缩全部' : '展开全部'}}
+              </el-button>
+            </el-form-item>
           </el-row>
-
-          <el-form-item>
-            <el-button size="default" type="primary" @click="getData()">
-              <el-icon>
-                <ele-Search />
-              </el-icon>
-              查询
-            </el-button>
-          </el-form-item>
         </el-form>
 
       </div>
 
-
-      <el-table :data="state.tableData.rows" style="width: 100%" row-key="eventId" table-layout="auto"
-        v-loading="loading">
+      <el-table :data="state.tableData.rows" style="width: 100%"
+                row-key="eventId"
+                table-layout="auto"
+                :expand-row-keys="state.expandRowKeys"
+                v-loading="loading">
         <el-table-column type="expand">
           <template #default="props">
             <el-card class="box-card" style="margin: 3px;">
@@ -77,11 +75,10 @@
         </el-table-column>
       </el-table>
       <el-pagination @size-change="onHandleSizeChange" @current-change="onHandleCurrentChange" class="mt15"
-        :pager-count="5" :page-sizes="[10, 20, 30,50,100]" v-model:current-page="state.tableData.param.pageNum" background
-        v-model:page-size="state.tableData.param.pageSize" layout="total, sizes, prev, pager, next, jumper"
-        :total="state.tableData.total">
+                     :pager-count="5" :page-sizes="[10, 20, 30,50,100]" v-model:current-page="state.tableData.param.pageNum" background
+                     v-model:page-size="state.tableData.param.pageSize" layout="total, sizes, prev, pager, next, jumper"
+                     :total="state.tableData.total">
       </el-pagination>
-
     </component>
   </div>
 </template>
@@ -109,8 +106,8 @@ const props = defineProps({
   creator: {
     type: String,
     default: "",
-  }, 
-  
+  },
+
   creatorname: {
     type: String,
     default: "",
@@ -121,6 +118,15 @@ const props = defineProps({
   }
 })
 const loading = ref(false)
+
+function expandAll() {
+  state.expandAll = !state.expandAll
+  if (state.expandAll) {
+    state.expandRowKeys = state.tableData.rows.map((item: any) => item.eventId)
+  } else {
+    state.expandRowKeys = []
+  }
+}
 interface TableDataRow {
   bizid?: string;
   createrDateTime?: string;
@@ -134,9 +140,12 @@ interface TableDataRow {
   name?: string;
   ruleId?: string;
   type?: string;
+  expandStatus: boolean;
 }
 
 interface TableDataState {
+  expandAll: boolean // 是否展开全部状态
+  expandRowKeys: Array<any>; // 已展开行的 id 合集
   creatorloading: boolean;
   creators: Array<any>;
   rules: Array<any>
@@ -157,6 +166,8 @@ const userInfos = Session.get("userInfo");
 const router = useRouter();
 const state = reactive<TableDataState>({
   creatorloading: false,
+  expandAll: false,
+  expandRowKeys: [],
   creators: [],
   rules: [],
   tableData: {
@@ -182,21 +193,18 @@ const getRules = () => {
 
   state.creatorloading=true;
   ruleApi()
-    .ruleList({
-      limit: 100, offset: 0
-    })
-    .then((res) => {
-      state.creatorloading=false;
-      state.rules = [...res.data.rows.map(c => { return { value: c.ruleId, label: c.name } })]
-    })
-
-
+      .ruleList({
+        limit: 100, offset: 0
+      })
+      .then((res) => {
+        state.creatorloading=false;
+        state.rules = [...res.data.rows.map(c => { return { value: c.ruleId, label: c.name } })]
+      })
 }
 
 
 const getCreators = async (creator: string) => {
   if (creator) {
-
     const res = await deviceApi().devcieList({
       offset: 0,
       limit: 20,
@@ -204,7 +212,6 @@ const getCreators = async (creator: string) => {
       customerId: userInfos.customer.id,
       name: creator
     });
-
     state.creators = [...res.data?.rows?.map(x => {
       return {
         label: x.name, value: x.id
@@ -235,7 +242,6 @@ const getData = async () => {
     limit: number
     Name: string
     RuleId: string
-
     Creator?: string
   } = {
     offset: state.tableData.param.pageNum - 1,
@@ -250,7 +256,10 @@ const getData = async () => {
   try {
     loading.value = true
     const res = await ruleApi().floweventslist(params)
-    state.tableData.rows = res.data.rows;
+    state.tableData.rows = res.data.rows.map((item: any) => {
+      item.expandStatus = false
+      return item
+    });
     state.tableData.total = res.data.total;
     loading.value = false
   } catch (e) {
