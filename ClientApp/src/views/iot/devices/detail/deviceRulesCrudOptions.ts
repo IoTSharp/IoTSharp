@@ -19,8 +19,8 @@ export const createDeviceRulesCrudOptions = function ({ expose }, deviceId) {
 		return {
 			records,
 			currentPage: 1,
-			pageSize: 20,
-			total: res.data.total,
+			pageSize: res.data.length,
+			total: res.data.length,
 		};
 	};
 	const delRequest = async ({ row }) => {
