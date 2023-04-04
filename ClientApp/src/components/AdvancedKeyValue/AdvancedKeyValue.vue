@@ -17,6 +17,7 @@ import { onMounted } from "vue";
 import { sleep } from "/@/utils/other";
 import ZSelect from "./z-select.vue";
 import ZSwitch from "./z-switch.vue";
+import dayjs from "dayjs";
 
 const props = defineProps({
   obj: Object, //要展示的对象
@@ -47,6 +48,14 @@ const list = computed(() => {
       }
       if (key === 'deviceType') {
         // item.value = 'test'
+      } 
+       if (key === 'lastActivityDateTime') {
+      if(value){
+        item.value =dayjs.tz(value, "Asia/Shanghai").add(8, 'hour').format('YYYY-MM-DD HH:mm:ss');
+      }else{
+        item.value =value
+      }
+  
       }
       return item
     })

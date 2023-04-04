@@ -14,22 +14,36 @@ import request from '/@/utils/request';
 export function deviceApi() {
 	return {
 		devcieList: (params: QueryParam) => {
+			var url = '/api/Devices/Customers?offset=' + params.offset + '&limit=' + params.limit + '&sorter=&customerId=' + params.customerId + '&sort=';
+			if (params.name) {
+				url += '&name=' + params.name;
+			}
+			if (params.onlyActive) {
+				url += '&onlyActive=' + params.onlyActive;
+			}
+
 			return request({
-				url:
-					'/api/Devices/Customers?offset=' +
-					params.offset +
-					'&limit=' +
-					params.limit +
-					'&sorter=&onlyActive=' +
-					params.onlyActive +
-					'&customerId=' +
-					params.customerId +
-					'&name=' +
-					params.name +
-					'&sort=',
+				url: url,
 				method: 'get',
 				data: params,
 			});
+
+			// return request({
+			// 	url:
+			// 		'/api/Devices/Customers?offset=' +
+			// 		params.offset +
+			// 		'&limit=' +
+			// 		params.limit +
+			// 		'&sorter=&onlyActive=' +
+			// 		params.onlyActive +
+			// 		'&customerId=' +
+			// 		params.customerId +
+			// 		'&name=' +
+			// 		params.name +
+			// 		'&sort=',
+			// 	method: 'get',
+			// 	data: params,
+			// });
 		},
 		getdevcie: (deviceId: string) => {
 			return request({
@@ -66,14 +80,14 @@ export function deviceApi() {
 				data: params,
 			});
 		},
-		removeDeviceAttributes: (deviceId: string,  params: any) => {
+		removeDeviceAttributes: (deviceId: string, params: any) => {
 			return request({
 				url: '/api/Devices/RemoveAttribute',
 				method: 'delete',
 				data: {
-					deviceId:deviceId,
-					keyName:params.keyName,
-					dataSide:params.dataSide
+					deviceId: deviceId,
+					keyName: params.keyName,
+					dataSide: params.dataSide,
 				},
 			});
 		},
@@ -90,7 +104,7 @@ export function deviceApi() {
 				method: 'get',
 			});
 		},
-
+		
 		// 获取设备规则
 		getDeviceRules: (deviceId: string) => {
 			return request({
@@ -120,10 +134,17 @@ export function deviceApi() {
 			});
 		},
 
-	
 		getDeviceLatestTelemetry: (deviceId: string) => {
 			return request({
 				url: '/api/devices/' + deviceId + '/telemetryLatest',
+				method: 'get',
+			});
+		},
+
+
+		getDeviceTelemetryLatestByKeys: (deviceId: string,keys:string) =>  {
+			return request({
+				url: '/api/devices/' + deviceId + '/telemetryLatest/'+keys,
 				method: 'get',
 			});
 		},

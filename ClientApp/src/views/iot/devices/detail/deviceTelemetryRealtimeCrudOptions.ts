@@ -1,5 +1,6 @@
 import { deviceApi } from '/@/api/devices';
 import { dateUtil, formatToDateTime } from '/@/utils/dateUtil';
+import { compute, dict } from '@fast-crud/fast-crud';
 // eslint-disable-next-line no-unused-vars
 export const createDeviceTelemetryRealtimeCrudOptions = function ({ expose }, deviceId, state) {
 	const deviceId_param = deviceId;
@@ -12,6 +13,9 @@ export const createDeviceTelemetryRealtimeCrudOptions = function ({ expose }, de
 	};
 	const pageRequest = async (query) => {
 		const res = await deviceApi().getDeviceLatestTelemetry(deviceId_param);
+
+
+
 		state.telemetryKeys = res.data.filter((x) => typeof x.value === 'number').map((c) => c.keyName); // DeviceDetailTelemetry 组件状态， 要传到遥测历史组件
 		records = res.data;
 		return {
@@ -77,23 +81,47 @@ export const createDeviceTelemetryRealtimeCrudOptions = function ({ expose }, de
 					column: {
 						width: 260,
 					},
+				},value: {
+					title: '值',
+					type: 'text',
+					column:{
+
+						formatter(context) {
+							if (context.row.dataType === 'DateTime') {
+								return formatToDateTime(context.value);
+							} else {
+								//解决数值为false不显示问题
+								if (context.value || context.value == false) {
+									return context.value.toString();
+								}
+								return '';
+							}
+						},
+
+					},
+					addForm: {
+						show: false,
+					},
+					editForm: {
+						show: false,
+					},
 				},
-				// dataType: {
-				// 	title: '数据类型',
-				// 	type: 'dict-select',
-				// 	dict: dict({
-				// 		data: [
-				// 			{ value: 'Boolean', label: 'Boolean' },
-				// 			{ value: 'String', label: 'String' },
-				// 			{ value: 'Long', label: 'Long' },
-				// 			{ value: 'Double', label: 'Double' },
-				// 			{ value: 'Json', label: 'Json' },
-				// 			{ value: 'XML', label: 'XML' },
-				// 			{ value: 'Binary', label: 'Binary' },
-				// 			{ value: 'DateTime', label: 'DateTime' },
-				// 		],
-				// 	}),
-				// },
+				dataType: {
+					title: '数据类型',
+					type: 'dict-select',
+					dict: dict({
+						data: [
+							{ value: 'Boolean', label: 'Boolean' },
+							{ value: 'String', label: 'String' },
+							{ value: 'Long', label: 'Long' },
+							{ value: 'Double', label: 'Double' },
+							{ value: 'Json', label: 'Json' },
+							{ value: 'XML', label: 'XML' },
+							{ value: 'Binary', label: 'Binary' },
+							{ value: 'DateTime', label: 'DateTime' },
+						],
+					}),
+				},
 				dateTime: {
 					title: '时间',
 					type: 'text',
@@ -107,16 +135,7 @@ export const createDeviceTelemetryRealtimeCrudOptions = function ({ expose }, de
 						show: false,
 					},
 				},
-				value: {
-					title: '值',
-					type: 'text',
-					addForm: {
-						show: false,
-					},
-					editForm: {
-						show: false,
-					},
-				},
+				
 			},
 		},
 	};

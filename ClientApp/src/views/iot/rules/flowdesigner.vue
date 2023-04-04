@@ -193,11 +193,7 @@ const initSortable = () => {
         const { nodetype, nodenamespace, mata } = evt.clone.attributes;
         const { layerX, layerY, clientX, clientY } = evt.originalEvent;
         const el = workflowRightRef.value!;
-        console.log(
-          `%conEnd@flowdesigner:217`,
-          "color:black;font-size:16px;background:yellow;font-weight: bold;",
-          el
-        );
+  
         const { x, y, width, height } = el.getBoundingClientRect();
 
         if (clientX < x || clientX > width + x || clientY < y || y > y + height) {

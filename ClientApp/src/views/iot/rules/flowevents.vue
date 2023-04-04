@@ -163,7 +163,7 @@ interface TableDataState {
 
 const userInfos = Session.get("userInfo");
 
-const router = useRouter();
+
 const state = reactive<TableDataState>({
   creatorloading: false,
   expandAll: false,

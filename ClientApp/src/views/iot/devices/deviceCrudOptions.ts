@@ -2,9 +2,13 @@ import { deviceApi } from '/@/api/devices';
 import _ from 'lodash-es';
 import { compute, dict } from '@fast-crud/fast-crud';
 import { TableDataRow } from '/@/views/iot/devices/model';
+import dayjs from 'dayjs';
 
 // eslint-disable-next-line no-unused-vars
 export const createDeviceCrudOptions = function ({ expose }, customerId, deviceDetailRef?, addRulesRef?, selectedItems?) {
+
+
+
 	let records: any[] = [];
 	const FsButton = {
 		link: true,
@@ -51,7 +55,6 @@ export const createDeviceCrudOptions = function ({ expose }, customerId, deviceD
 	};
 	const delRequest = async ({ row }) => {
 		try {
-			debugger;
 			await deviceApi().deletedevcie(row.id);
 			_.remove(records, (item: TableDataRow) => {
 				return item.id === row.id;
@@ -83,8 +86,8 @@ export const createDeviceCrudOptions = function ({ expose }, customerId, deviceD
 			// 	},
 			// },
 
-			pagination:{
-			    "page-sizes": 	[10, 20, 30, 40, 100, 250]
+			pagination: {
+				'page-sizes': [10, 20, 30, 40, 100, 250],
 			},
 
 			table: {
@@ -191,8 +194,17 @@ export const createDeviceCrudOptions = function ({ expose }, customerId, deviceD
 				},
 				lastActivityDateTime: {
 					title: '最后活动时间',
-					type: 'text',
+					type: 'datetime',
+
 					column: {
+						formatter: (context) => {
+							if(context.value){
+								return	dayjs.tz(context.value, "Asia/Shanghai").add(8, 'hour').format('YYYY-MM-DD HH:mm:ss');
+							}else{
+								return '';
+							}
+				
+						},
 						show: false,
 					},
 					search: { show: false },
@@ -237,8 +249,8 @@ export const createDeviceCrudOptions = function ({ expose }, customerId, deviceD
 						show: false,
 					},
 					title: '超时',
-					form:{
-						value:300
+					form: {
+						value: 300,
 					},
 					type: 'text',
 					search: { show: false },

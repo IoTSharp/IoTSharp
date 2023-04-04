@@ -4,6 +4,7 @@ import { compute, dict } from '@fast-crud/fast-crud';
 import { TableDataRow } from '/@/views/iot/devices/model';
 import { ElMessage } from 'element-plus';
 import { formatToDateTime } from '/@/utils/dateUtil';
+import dayjs from 'dayjs';
 // eslint-disable-next-line no-unused-vars
 export const createDevicePropsCrudOptions = function ({ expose }, deviceId, state) {
 	const deviceId_param = deviceId;
@@ -16,12 +17,34 @@ export const createDevicePropsCrudOptions = function ({ expose }, deviceId, stat
 		inactiveColor: 'var(el-switch-of-color)',
 	};
 	const pageRequest = async (query) => {
-	
 		const res = await deviceApi().getDeviceAttributes(deviceId_param);
-		records = res.data;
+		records = res.data.map((x) => {
+			var _dataTime = '';
+			if (x.dateTime) {
+				_dataTime=dayjs.tz(x.dateTime, 'Asia/Shanghai').add(8, 'hour').format('YYYY-MM-DD HH:mm:ss')
+			} else {
+				_dataTime='';
+			}
+
+			if (x.dataType == 'DateTime') {
+				if (x.value) {
+					return {
+						keyName: x.keyName,
+						dataType: x.dataType,
+						dateTime: _dataTime,
+						value: dayjs.tz(x.value, 'Asia/Shanghai').add(8, 'hour').format('YYYY-MM-DD HH:mm:ss'),
+					};
+				} else {
+					return { keyName: x.keyName, dataType: x.dataType, dateTime: _dataTime, value: x.value };
+				}
+			} else {
+				return { keyName: x.keyName, dataType: x.dataType, dateTime: _dataTime, value: x.value};
+			}
+		});
+
 		return {
 			records,
-			currentPage: 1,
+			currentPage: 0,
 			pageSize: records.length,
 			total: records.length,
 		};
@@ -62,7 +85,6 @@ export const createDevicePropsCrudOptions = function ({ expose }, deviceId, stat
 						type: 'primary',
 						click() {
 							state.currentPageState = 'editprop';
-							
 						}, //点击事件，默认打开添加对话框
 					},
 				},
@@ -128,7 +150,7 @@ export const createDevicePropsCrudOptions = function ({ expose }, deviceId, stat
 								return formatToDateTime(context.value);
 							} else {
 								//解决数值为false不显示问题
-								if (context.value || context.value==false) {
+								if (context.value || context.value == false) {
 									return context.value.toString();
 								}
 								return '';

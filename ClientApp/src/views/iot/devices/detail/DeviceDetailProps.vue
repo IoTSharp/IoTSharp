@@ -54,7 +54,7 @@ onMounted(() => {
 
 });
 onActivated(() => {
-console.log(state)
+
 
 });
 

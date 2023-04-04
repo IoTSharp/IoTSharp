@@ -4,6 +4,9 @@
       <el-tabs v-model="activeTabName" class="demo-tabs" stretch>
         <el-tab-pane label="详情" name="basic">
           <div class="z-tab-container">
+  
+            <el-button :icon="RefreshLeft" circle  class="btn-refresh el-button--primary" @click="reloadbaseinfo" />
+
             <AdvancedKeyValue
                 :obj="deviceRef"
                 :config="columns"
@@ -50,11 +53,18 @@
             <flowevents :creator="deviceRef.id" :creatorname="deviceRef.name"  wrapper="div"></flowevents>
           </div>
         </el-tab-pane>
+
+        <el-tab-pane label="地图" name="map">
+          <div class="z-tab-container">
+        <BMap :deviceId="deviceRef.id"></BMap>
+          </div>
+        </el-tab-pane>
       </el-tabs>
     </el-drawer>
   </div>
 </template>
 <script lang="ts" setup>
+import { RefreshLeft } from '@element-plus/icons-vue'
 import { deviceDetailBaseInfoColumns } from '/@/views/iot/devices/detail/deviceDetailBaseInfoColumns'
 import AdvancedKeyValue from "/@/components/AdvancedKeyValue/AdvancedKeyValue.vue";
 import DeviceDetailProps from "/@/views/iot/devices/detail/DeviceDetailProps.vue";
@@ -65,18 +75,34 @@ import Alarmlist from "/@/views/iot/alarms/alarmlist.vue";
 import Flowevents from "/@/views/iot/rules/flowevents.vue";
 import { deviceApi } from "/@/api/devices";
 import { downloadByData } from "/@/utils/download";
-
+import BMap  from "/@/views/iot/devices/detail/maps/bmap/BMap.vue";
 const drawer = ref(false);
 const dialogTitle = ref(`设备详情`);
 const activeTabName = ref('basic')
 const deviceRef = ref()
 const columns = deviceDetailBaseInfoColumns
+
+
+
 const openDialog = (device: any) => {
+
+
+
+
+
   drawer.value = true
   deviceRef.value = Object.assign({},device )
   // Object.assign(deviceRef, device)
   dialogTitle.value = `${deviceRef.value.name}设备详情`
 };
+
+
+
+const reloadbaseinfo= async () =>{
+ var _dev=await deviceApi().getdevcie(deviceRef.value.id);
+ deviceRef.value = Object.assign({},_dev.data )
+ dialogTitle.value = `${deviceRef.value.name}设备详情`
+}
 const downloadCert = async () =>{
   const res = await deviceApi().downloadCertificates(deviceRef.value.id)
   downloadByData(res, `${deviceRef.value.id}.zip`)
@@ -89,5 +115,7 @@ defineExpose({
 <style lang="scss" scoped>
 .z-tab-container {
   padding: 0 16px 16px;
+}.btn-refresh {
+  float:right;
 }
 </style>
