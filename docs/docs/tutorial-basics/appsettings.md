@@ -43,7 +43,7 @@ sidebar_position: 5
  6. TimescaleDB
  7. IoTDB
 
-# 支持的时间总线
+# 支持的事件总线
  配置项名称为 EventBusMQ
 
  1. RabbitMQ
