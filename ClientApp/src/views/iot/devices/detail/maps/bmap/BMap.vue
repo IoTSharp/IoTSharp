@@ -1,29 +1,30 @@
 <template>
-    <div class=" system-dept-search mb15">
-        <el-input size="default" placeholder="请输入规则名称" style="max-width: 180px" v-model="state.centerX">
+    <el-form :inline="true" class="demo-form-inline">
+        <el-input size="default" placeholder="地图中心点经度" style="max-width: 180px" v-model="state.centerX" v-if="false">
         </el-input>
-        <el-input size="default" placeholder="请输入规则名称" style="max-width: 180px" v-model="state.centerY">
+        <el-input size="default" placeholder="地图中心点维度" style="max-width: 180px" v-model="state.centerY" v-if="false">
         </el-input>
+        <el-form-item label="选择经度字段">
+            <el-select v-model="state.longitudefield"  placeholder="longitude">
+                <el-option v-for="item in state.telemetryKeys" :key="item" :label="item" :value="item" />
+            </el-select>
+        </el-form-item>
+        <el-form-item label="选择纬度字段">
+            <el-select v-model="state.latitudefield" placeholder="latitude">
+                <el-option v-for="item in state.telemetryKeys" :key="item" :label="item" :value="item" />
+            </el-select>
+        </el-form-item>
+        <el-form-item label="">
+            <el-button size="default" type="primary" class="ml10" @click="create()">
+                <el-icon>
+                    <ele-Search />
+                </el-icon>
+                查询
+            </el-button> </el-form-item>
+
+    </el-form>
 
 
-
-        <el-select v-model="state.longitudefield" class="m-2" placeholder="longitude">
-            <el-option v-for="item in state.telemetryKeys" :key="item" :label="item" :value="item" />
-        </el-select>
-
-
-        <el-select v-model="state.latitudefield" class="m-2" placeholder="latitude">
-            <el-option v-for="item in state.telemetryKeys" :key="item" :label="item" :value="item" />
-        </el-select>
-
-        <el-button size="default" type="primary" class="ml10" @click="create()">
-            <el-icon>
-                <ele-Search />
-            </el-icon>
-            查询
-        </el-button>
-
-    </div>
     <div class="layout-padding" style="height: 1000px; ">
         <div class="layout-padding-auto layout-padding-view">
             <div ref="echartsMapRef" style="height: 1000px;"></div>
@@ -100,10 +101,10 @@ interface TelemetryData {
 // ];
 
 
-const x_PI = 3.14159265358979324 * 3000.0 / 180.0
-const PI = 3.1415926535897932384626
+const x_PI = 3.141592653589793 * 3000.0 / 180.0
+const PI = 3.141592653589793
 const a = 6378245.0
-const ee: number = 0.00669342162296594323
+const ee: number = 0.006693421622965943
 const echartsMapRef = ref<HTMLElement>();
 
 const state = reactive<BMapStateObject>({
@@ -115,13 +116,15 @@ const state = reactive<BMapStateObject>({
 
 });
 
-const combinegeodata = (longitudedata: TelemetryData[], latitudedata: TelemetryData[]): Point[] => {
+const combineandtranslategeodata = (longitudedata: TelemetryData[], latitudedata: TelemetryData[]): Point[] => {
+
+
     var geodata: Point[] = [];
     for (let longitude of longitudedata) {
         var latitude = latitudedata.find(x => x.dateTime == longitude.dateTime)
         if (latitude) {
-            var data = wgs84tobd09(longitude.value, latitude.value);
-            geodata.push({ x: longitude.value, y:  latitude.value, d: latitude.dateTime });
+            var data = wgs84tobd09(Number(longitude.value), Number(latitude.value));
+            geodata.push({ x: data[0], y: data[1], d: latitude.dateTime });
         }
     }
     return geodata
@@ -160,6 +163,8 @@ const computercenter = (points: Point[], epsilon: number, maxIterations: number)
 // 初始化 echartsMap
 const initEchartsMap = (centerX: number, centerY: number) => {
     const myChart = echarts.init(echartsMapRef.value!);
+
+
     const option = {
         tooltip: {
             trigger: 'item',
@@ -216,6 +221,7 @@ const initEchartsMap = (centerX: number, centerY: number) => {
         ],
     };
     myChart.setOption(option);
+
     window.addEventListener('resize', () => {
         myChart.resize();
     });
@@ -225,9 +231,38 @@ const initEchartsMap = (centerX: number, centerY: number) => {
 const create = async () => {
     var res = await deviceApi().getDeviceTelemetryLatestByKeys(props.deviceId, state.latitudefield + ',' + state.longitudefield)
     var result = res as unknown as appmessage<TelemetryData[]>
-    var geodata = combinegeodata(result.data?.filter(x => x.keyName === state.longitudefield) ?? [], result.data?.filter(x => x.keyName == state.latitudefield) ?? []);
+    var geodata = combineandtranslategeodata(result.data?.filter(x => x.keyName === state.longitudefield) ?? [], result.data?.filter(x => x.keyName == state.latitudefield) ?? []);
+
+    // var center = computercenter(geodata, 1, geodata.length);
 
     if (geodata.length > 0) {
+
+
+
+        //    var points=[];
+        //     state.lines[0] = [];
+        //     var points = [];
+        //     geodata.forEach(d => {
+        //         points.push(new BMap.Point(d.x, d.y))
+        //     })
+        //     var convertor = new BMap.Convertor();
+        //   百度官方坐标转换,校准坐标偏移
+        //     convertor.translate(points, 1, 5, (x: any) => {
+
+
+        //         x.points.forEach(c => {
+
+        //             state.dots.push({ name: c.lng, value: [c.lng, c.lat] })
+        //             state.lines[0].push([c.lng, c.lat]);
+        //             if (geodata.length == 1) {
+        //                 state.lines[0].push([c.lng, c.lat]);
+        //             }
+
+        //         })
+        //         var center = computercenter(geodata, 1, geodata.length);
+        //         state.centerX = center.x;
+        //         state.centerY = center.y;        initEchartsMap(center.x, center.y);
+        //     })
         state.lines[0] = [];
         geodata.forEach(c => {
             state.dots.push({ name: c.d, value: [c.x, c.y] })
@@ -240,7 +275,8 @@ const create = async () => {
         var center = computercenter(geodata, 1, geodata.length);
         state.centerX = center.x;
         state.centerY = center.y;
-        initEchartsMap(center.x, center.y);
+        initEchartsMap(state.centerX, state.centerY);
+
     } else {
 
         initEchartsMap(state.centerX, state.centerY);
