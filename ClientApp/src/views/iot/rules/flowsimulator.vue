@@ -463,18 +463,18 @@ onUnmounted(() => {
         background-color:#f7fbff;
         height: 100%;
         border-right: 1px solid var(--el-border-color-light, #ebeef5);
-          ::v-deep .el-timeline-item__node {
+          :v-deep(.el-timeline-item__node) {
         background-color: #9dbdfd !important;
         left:0px;
     }
-    ::v-deep .el-timeline-item__tail {
+    :v-deep(.el-timeline-item__tail)   {
         border-left: 2px solid #e3ebf9 !important;
         left: 5px;
     }
-    ::v-deep .el-timeline-item__wrapper{
+    :v-deep(.el-timeline-item__wrapper){
         padding-right:15px;
     }
-    ::v-deep .el-tab-pane .el-timeline li:first{}
+  
     }
 
   .workflow {
