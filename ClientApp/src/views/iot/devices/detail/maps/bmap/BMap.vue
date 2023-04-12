@@ -4,8 +4,15 @@
         </el-input>
         <el-input size="default" placeholder="地图中心点维度" style="max-width: 180px" v-model="state.centerY" v-if="false">
         </el-input>
+
+
+        <el-form-item label="原始坐标系">
+            <el-select v-model="state.geoformat" placeholder="原始坐标系">
+                <el-option v-for="item in state.geoformats" :key="item.value" :label="item.label" :value="item.value" />
+            </el-select>
+        </el-form-item>
         <el-form-item label="选择经度字段">
-            <el-select v-model="state.longitudefield"  placeholder="longitude">
+            <el-select v-model="state.longitudefield" placeholder="longitude">
                 <el-option v-for="item in state.telemetryKeys" :key="item" :label="item" :value="item" />
             </el-select>
         </el-form-item>
@@ -23,8 +30,6 @@
             </el-button> </el-form-item>
 
     </el-form>
-
-
     <div class="layout-padding" style="height: 1000px; ">
         <div class="layout-padding-auto layout-padding-view">
             <div ref="echartsMapRef" style="height: 1000px;"></div>
@@ -38,14 +43,13 @@ import * as echarts from 'echarts';
 import 'echarts/extension/bmap/bmap';
 import { deviceApi } from '/@/api/devices';
 import { appmessage } from '/@/api/iapiresult';
-
-
 const props = defineProps({
     deviceId: {
         type: String,
         default: ''
     }
 })
+
 interface BMapDotData {
     name?: string;
     value?: number[]
@@ -58,12 +62,12 @@ interface BMapStateObject {
     dots: BMapDotData[];
     centerX: number;
     centerY: number;
+    geoformat: string;
     latitudefield: string;
     longitudefield: string;
     telemetryKeys: string[]
+    geoformats: any;
 }
-
-
 
 interface Point {
     x: number;
@@ -71,36 +75,12 @@ interface Point {
     d?: string;
 }
 
-
 interface TelemetryData {
     keyName: string;
     dateTime: string;
     dataType: String;
     value: number;
 }
-
-// const latitudefield = "cell_latitude"
-// const longitudefield = "cell_longitude"
-
-
-// const latitudeSampleData: TelemetryData[] = [
-
-//     { keyName: latitudefield, dateTime: '2018-5-3', dataType: 'string', value: 43.69228888604795 },
-//     { keyName: latitudefield, dateTime: '2018-6-3', dataType: 'string', value: 43.68228888604795 },
-//     { keyName: latitudefield, dateTime: '2018-7-3', dataType: 'string', value: 43.67228888604795 },
-//     { keyName: latitudefield, dateTime: '2018-8-3', dataType: 'string', value: 43.66228888604795 },
-
-
-// ];
-
-// const longitudeSampleData: TelemetryData[] = [
-//     { keyName: longitudefield, dateTime: '2018-5-3', dataType: 'string', value: 87.6503034374998 },
-//     { keyName: longitudefield, dateTime: '2018-6-3', dataType: 'string', value: 87.6403034374998 },
-//     { keyName: longitudefield, dateTime: '2018-7-3', dataType: 'string', value: 87.6303034374998 },
-//     { keyName: longitudefield, dateTime: '2018-8-3', dataType: 'string', value: 87.6203034374998 },
-// ];
-
-
 const x_PI = 3.141592653589793 * 3000.0 / 180.0
 const PI = 3.141592653589793
 const a = 6378245.0
@@ -112,7 +92,23 @@ const state = reactive<BMapStateObject>({
     lines: [],
     dots: [],
     centerX: 87.6403034374998,
-    centerY: 43.68228888604795, latitudefield: 'cell_latitude', longitudefield: 'cell_longitude', telemetryKeys: []
+    centerY: 43.68228888604795, latitudefield: 'cell_latitude', longitudefield: 'cell_longitude', telemetryKeys: [],
+    geoformat: '',
+    geoformats: [
+        {
+            value: 'bd09',
+            label: 'bd09',
+        },
+        {
+            value: 'gcj02',
+            label: 'gcj02',
+        },
+        {
+            value: 'wgs84',
+            label: 'wgs84',
+        },
+
+    ]
 
 });
 
@@ -120,14 +116,51 @@ const combineandtranslategeodata = (longitudedata: TelemetryData[], latitudedata
 
 
     var geodata: Point[] = [];
-    for (let longitude of longitudedata) {
-        var latitude = latitudedata.find(x => x.dateTime == longitude.dateTime)
-        if (latitude) {
-            var data = wgs84tobd09(Number(longitude.value), Number(latitude.value));
-            geodata.push({ x: data[0], y: data[1], d: latitude.dateTime });
+
+    switch (state.geoformat) {
+
+        case "bd09":
+            {      for (let longitude of longitudedata) {
+                    let latitude = latitudedata.find(x => x.dateTime == longitude.dateTime)
+                    if (latitude) {
+                        geodata.push({ x: Number(longitude.value), y: Number(latitude.value), d: latitude.dateTime });
+                    }
+                  
+                }
+                return geodata
+              
+            }
+            break;
+
+        case "gcj02": {
+            for (let longitude of longitudedata) {
+                let latitude = latitudedata.find(x => x.dateTime == longitude.dateTime)
+                if (latitude) {
+                    let data =gcj02tobd09(Number(longitude.value), Number(latitude.value));
+                    geodata.push({ x: data[0], y: data[1], d: latitude.dateTime });
+                }
+            }
+
+            return geodata
+
         }
+        default:
+            {
+                for (let longitude of longitudedata) {
+                    let latitude = latitudedata.find(x => x.dateTime == longitude.dateTime)
+                    if (latitude) {
+
+                        let data = wgs84tobd09(Number(longitude.value), Number(latitude.value));
+                        geodata.push({ x: data[0], y: data[1], d: latitude.dateTime });
+                    }
+                }
+                return geodata
+          
+            }
+
     }
-    return geodata
+
+
 }
 
 const computercenter = (points: Point[], epsilon: number, maxIterations: number): Point => {
@@ -138,7 +171,6 @@ const computercenter = (points: Point[], epsilon: number, maxIterations: number)
         let denominator = 0;
         let numeratorX = 0;
         let numeratorY = 0;
-
         for (let point of points) {
             const distance = Math.sqrt((point.x - center.x) ** 2 + (point.y - center.y) ** 2);
             if (distance < epsilon) {
@@ -148,7 +180,6 @@ const computercenter = (points: Point[], epsilon: number, maxIterations: number)
             numeratorX += point.x / distance;
             numeratorY += point.y / distance;
         }
-
         lastCenter = center;
         center = { x: numeratorX / denominator, y: numeratorY / denominator };
 
@@ -172,7 +203,7 @@ const initEchartsMap = (centerX: number, centerY: number) => {
         color: ['#9a60b4', '#ea7ccc'],
         bmap: {
             center: [centerX, centerY],
-            zoom: 10,
+            zoom: 15,
             roam: true,
             mapStyle: {},
         },
@@ -221,7 +252,6 @@ const initEchartsMap = (centerX: number, centerY: number) => {
         ],
     };
     myChart.setOption(option);
-
     window.addEventListener('resize', () => {
         myChart.resize();
     });
@@ -292,8 +322,6 @@ watch(() => props.deviceId, async () => {
     await getData(props.deviceId)
 })
 
-
-
 const bd09togcj02 = (bd_lon: number, bd_lat: number) => {
 
     var x = bd_lon - 0.0065
@@ -303,10 +331,7 @@ const bd09togcj02 = (bd_lon: number, bd_lat: number) => {
     var gg_lng = z * Math.cos(theta)
     var gg_lat = z * Math.sin(theta)
     return [gg_lng, gg_lat]
-
-
 }
-
 
 const gcj02tobd09 = (lng: number, lat: number) => {
     var z = Math.sqrt(lng * lng + lat * lat) + 0.00002 * Math.sin(lat * x_PI)
@@ -316,7 +341,6 @@ const gcj02tobd09 = (lng: number, lat: number) => {
     return [bd_lng, bd_lat]
 
 }
-
 
 const wgs84togcj02 = (lng: number, lat: number) => {
 
@@ -336,7 +360,6 @@ const wgs84togcj02 = (lng: number, lat: number) => {
         const mglng = lng + dlng
         return [mglng, mglat]
     }
-
 }
 
 const gcj02towgs84 = (lng: number, lat: number) => {
@@ -356,18 +379,13 @@ const gcj02towgs84 = (lng: number, lat: number) => {
         const mglng = lng + dlng
         return [lng * 2 - mglng, lat * 2 - mglat]
     }
-
-
 }
 
-
 const bd09towgs84 = (lng: number, lat: number) => {
-
     const gcj02 = bd09togcj02(lng, lat)
     // 火星坐标系转wgs84坐标系
     const result = gcj02towgs84(gcj02[0], gcj02[1])
     return result
-
 }
 
 const transformlat = (lng: number, lat: number) => {
@@ -379,13 +397,11 @@ const transformlat = (lng: number, lat: number) => {
 }
 
 const transformlng = (lng: number, lat: number) => {
-
     var ret = 300.0 + lng + 2.0 * lat + 0.1 * lng * lng + 0.1 * lng * lat + 0.1 * Math.sqrt(Math.abs(lng))
     ret += (20.0 * Math.sin(6.0 * lng * PI) + 20.0 * Math.sin(2.0 * lng * PI)) * 2.0 / 3.0
     ret += (20.0 * Math.sin(lng * PI) + 40.0 * Math.sin(lng / 3.0 * PI)) * 2.0 / 3.0
     ret += (150.0 * Math.sin(lng / 12.0 * PI) + 300.0 * Math.sin(lng / 30.0 * PI)) * 2.0 / 3.0
     return ret
-
 }
 
 const wgs84tobd09 = (lng: number, lat: number) => {
@@ -393,11 +409,7 @@ const wgs84tobd09 = (lng: number, lat: number) => {
     // 火星坐标系转百度坐标系
     const result = gcj02tobd09(gcj02[0], gcj02[1])
     return result
-
-
-
 }
-
 
 const outOfChina = (lng: number, lat: number): boolean => {
     return (lng < 72.004 || lng > 137.8347) || ((lat < 0.8293 || lat > 55.8271) || false)
@@ -406,8 +418,6 @@ const outOfChina = (lng: number, lat: number): boolean => {
 // 页面加载时
 onMounted(() => {
     getData(props.deviceId)
-
-
 
 
     // var geodata = combinegeodata(longitudeSampleData, latitudeSampleData);
