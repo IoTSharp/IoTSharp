@@ -43,6 +43,8 @@ import * as echarts from 'echarts';
 import 'echarts/extension/bmap/bmap';
 import { deviceApi } from '/@/api/devices';
 import { appmessage } from '/@/api/iapiresult';
+import dayjs from 'dayjs';
+
 const props = defineProps({
     deviceId: {
         type: String,
@@ -115,20 +117,24 @@ const state = reactive<BMapStateObject>({
 const combineandtranslategeodata = (longitudedata: TelemetryData[], latitudedata: TelemetryData[]): Point[] => {
 
 
+
+
+
     var geodata: Point[] = [];
 
     switch (state.geoformat) {
 
         case "bd09":
-            {      for (let longitude of longitudedata) {
+            {
+                for (let longitude of longitudedata) {
                     let latitude = latitudedata.find(x => x.dateTime == longitude.dateTime)
                     if (latitude) {
-                        geodata.push({ x: Number(longitude.value), y: Number(latitude.value), d: latitude.dateTime });
+                        geodata.push({ x: Number(longitude.value), y: Number(latitude.value), d: dayjs.tz(latitude.dateTime, 'Asia/Shanghai').add(8, 'hour').format('YYYY-MM-DD HH:mm:ss') });
                     }
-                  
+
                 }
                 return geodata
-              
+
             }
             break;
 
@@ -136,8 +142,8 @@ const combineandtranslategeodata = (longitudedata: TelemetryData[], latitudedata
             for (let longitude of longitudedata) {
                 let latitude = latitudedata.find(x => x.dateTime == longitude.dateTime)
                 if (latitude) {
-                    let data =gcj02tobd09(Number(longitude.value), Number(latitude.value));
-                    geodata.push({ x: data[0], y: data[1], d: latitude.dateTime });
+                    let data = gcj02tobd09(Number(longitude.value), Number(latitude.value));
+                    geodata.push({ x: data[0], y: data[1], d: dayjs.tz(latitude.dateTime, 'Asia/Shanghai').add(8, 'hour').format('YYYY-MM-DD HH:mm:ss') });
                 }
             }
 
@@ -151,11 +157,11 @@ const combineandtranslategeodata = (longitudedata: TelemetryData[], latitudedata
                     if (latitude) {
 
                         let data = wgs84tobd09(Number(longitude.value), Number(latitude.value));
-                        geodata.push({ x: data[0], y: data[1], d: latitude.dateTime });
+                        geodata.push({ x: data[0], y: data[1], d: dayjs.tz(latitude.dateTime, 'Asia/Shanghai').add(8, 'hour').format('YYYY-MM-DD HH:mm:ss') });
                     }
                 }
                 return geodata
-          
+
             }
 
     }
@@ -233,6 +239,11 @@ const initEchartsMap = (centerX: number, centerY: number) => {
                 showEffectOn: 'render',
                 rippleEffect: {
                     brushType: 'stroke',
+                }, tooltip: {
+                    trigger: 'item',
+                    formatter: (x: any) => {
+                        return "<div>采集时间：" + x.data.name + "<br/> 经度：" + x.data.value[0] + "<br/>纬度：" + x.data.value[1] + "<br/></div> <slot></slot>"
+                    }
                 },
                 hoverAnimation: true,
                 label: {
