@@ -1,0 +1,28 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net7.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+	  <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+	  <Version>1.0.1</Version>
+	  <Product>IoTSharp</Product>
+	  <Authors>MaikeBing</Authors>
+	  <RepositoryUrl>https://github.com/IoTSharp/IoTSharp</RepositoryUrl>
+	  <PackageProjectUrl>https://github.com/IoTSharp/IoTSharp</PackageProjectUrl>
+	  <PackageReadmeFile>readme.md</PackageReadmeFile>
+	  <PackageTags>Quartz;Job;Scheduler</PackageTags>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Quartz.AspNetCore" Version="3.6.2" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="readme.md">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
+  </ItemGroup>
+
+</Project>

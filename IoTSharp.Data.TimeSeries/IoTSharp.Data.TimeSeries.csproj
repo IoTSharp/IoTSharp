@@ -7,7 +7,7 @@
   </PropertyGroup>
 	<ItemGroup>
 
-		<PackageReference Include="Apache.IoTDB.Data" Version="1.0.0.1" />
+		<PackageReference Include="Apache.IoTDB.Data" Version="1.0.0.3" />
 
 		<PackageReference Include="IoTSharp.Data.Taos" Version="3.0.21.90" />
 		<PackageReference Include="IoTSharp.HealthChecks.InfluxDB" Version="1.0.22" />
@@ -15,7 +15,7 @@
 		<PackageReference Include="hyjiacan.pinyin4net" Version="4.1.1" />
 		<PackageReference Include="IoTSharp.HealthChecks.Taos" Version="3.0.21.90" />
 		<PackageReference Include="PinusDB.HealthChecks" Version="1.0.10" />
-		<PackageReference Include="InfluxDB.Client" Version="4.11.0" />
+		<PackageReference Include="InfluxDB.Client" Version="4.12.0" />
 		<PackageReference Include="PinusDB" Version="1.0.10" />
 	</ItemGroup>
   <ItemGroup>

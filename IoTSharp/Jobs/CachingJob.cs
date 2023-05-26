@@ -7,7 +7,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Quartz;
-using SilkierQuartz;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
