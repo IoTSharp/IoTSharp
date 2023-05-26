@@ -146,7 +146,11 @@
 		<None Remove="healthchecksdb" />
 		<None Remove="healthchecksdb-shm" />
 		<None Remove="health_checks.db" />
+		<None Remove="health_checks.db-shm" />
+		<None Remove="health_checks.db-wal" />
 		<None Remove="IoTSharp.db" />
+		<None Remove="IoTSharp.db-shm" />
+		<None Remove="IoTSharp.db-wal" />
 		<None Remove="IoTSharp.xml" />
 		<None Remove="Resources\buzzle-template.png" />
 		<None Remove="Resources\slide1.jpg" />
@@ -168,6 +172,8 @@
 		<None Remove="server.crt" />
 		<None Remove="server.key" />
 		<None Remove="TelemetryStorage.db" />
+		<None Remove="TelemetryStorage.db-shm" />
+		<None Remove="TelemetryStorage.db-wal" />
 		<_WebToolingArtifacts Remove="Properties\PublishProfiles\linux-arm32.pubxml" />
 		<_WebToolingArtifacts Remove="Properties\PublishProfiles\linux-arm64.pubxml" />
 		<_WebToolingArtifacts Remove="Properties\PublishProfiles\linux-x64.pubxml" />
