@@ -1179,6 +1179,11 @@
             数据类型 
             </summary>
         </member>
+        <member name="P:IoTSharp.Dtos.ProduceDto.DefaultDeviceType">
+            <summary>
+            默认设备类型
+            </summary>
+        </member>
         <member name="T:IoTSharp.Dtos.TelemetryDataQueryDto">
             <summary>
             查询历史遥测数据请求结构体
@@ -1397,6 +1402,22 @@
              <param name="type">类型</param>
              <param name="bizId">业务Id(第三方唯一Id，用于取回事件以及记录的标识)</param>
              <returns> 返回所有节点的记录信息，需要保存则保存</returns>
+        </member>
+        <member name="M:IoTSharp.FlowRuleEngine.FlowRuleProcessor.ProcessCondition(System.Collections.Generic.List{IoTSharp.Data.Flow},System.Guid,System.Object)">
+            <summary>
+            调用规则引擎，判断当前节点后的连线中的规则是否通过校验，如果验证为真则返回满足条件的线对应的目标节点
+            </summary>
+            <param name="_allFlows">所有的节点</param>
+            <param name="flowId">当前节点</param>
+            <param name="data">进入到当前节点的数据传参</param>
+            <returns></returns>
+        </member>
+        <member name="M:IoTSharp.FlowRuleEngine.SimpleFlowExcutor.Excute(IoTSharp.FlowRuleEngine.FlowExcuteEntity)">
+            <summary>
+            调用规则引擎处理线上的逻辑，判断是否为True，用来判断是否继续进行下一步节点
+            </summary>
+            <param name="Input"></param>
+            <returns></returns>
         </member>
         <member name="P:IoTSharp.Gateways.OPCUATag.TagName">
             <summary>

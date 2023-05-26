@@ -13,7 +13,7 @@ using System.Threading.Tasks;
 
 namespace IoTSharp.Jobs
 {
-    [SilkierQuartz(1,0)]
+    [QuartzJobScheduler(1,0)]
     public class CachingJob : IJob
     {
         private readonly ILogger<CachingJob> _logger;

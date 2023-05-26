@@ -32,6 +32,7 @@ using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Text.RegularExpressions;
 using IoTSharp.Extensions.X509;
+using IoTSharp.Storage;
 
 namespace IoTSharp
 {
@@ -351,6 +352,15 @@ namespace IoTSharp
                 _dbContext.SaveChanges();
             }
             return devicedatato;
+        }
+
+        internal static void  UseTelemetryStorage(this IApplicationBuilder app)
+        {
+            using (var scope = app.ApplicationServices.CreateScope())
+            {
+                var _ts_storage = scope.ServiceProvider.GetService<IStorage>();
+                 _ts_storage.CheckTelemetryStorage();
+            }
         }
     }
 }

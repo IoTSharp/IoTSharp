@@ -1,13 +1,11 @@
 ﻿using IoTSharp.EventBus;
 using EasyCaching.Core.Configurations;
 using HealthChecks.UI.Client;
-using IoTSharp.Controllers.Models;
 using IoTSharp.Data;
 using IoTSharp.FlowRuleEngine;
 using IoTSharp.Interpreter;
 using Jdenticon.AspNetCore;
 using Jdenticon.Rendering;
-using IoTSharp.Data.Taos;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
@@ -35,7 +33,7 @@ using ShardingCore;
 using Storage.Net;
 using IoTSharp.Data.TimeSeries;
 using IoTSharp.Data.Extensions;
-using IoTSharp.Storage;
+using Quartz;
 
 namespace IoTSharp
 {
@@ -164,25 +162,20 @@ namespace IoTSharp
             services.AddTransient<ApplicationDBInitializer>();
             services.AddIoTSharpMqttServer(settings.MqttBroker);
             services.AddMqttClient(settings.MqttClient);
-            services.AddSilkierQuartz(options =>
+            services.AddQuartz(q =>
             {
-                options.VirtualPathRoot = "/quartz";
-                options.UseLocalTime = true;
-                options.DefaultDateFormat = "yyyy-MM-dd";
-                options.DefaultTimeFormat = "HH:mm:ss";
-                options.CronExpressionOptions = new CronExpressionDescriptor.Options()
-                {
-                    DayOfWeekStartIndexZero = false //Quartz uses 1-7 as the range
-                };
-            }, authenticationOptions =>
+
+                q.UseMicrosoftDependencyInjectionJobFactory();
+                q.DiscoverJobs();
+            });
+
+            // ASP.NET Core hosting
+            services.AddQuartzServer(options =>
             {
-                authenticationOptions.AccessRequirement = SilkierQuartz.SilkierQuartzAuthenticationOptions.SimpleAccessRequirement.AllowAnonymous;//登录认证有问题
-            }, stdSchedulerFactoryOption =>
-            {
-                stdSchedulerFactoryOption.Add("quartz.plugin.recentHistory.type", "Quartz.Plugins.RecentHistory.ExecutionHistoryPlugin, Quartz.Plugins.RecentHistory");
-                stdSchedulerFactoryOption.Add("quartz.plugin.recentHistory.storeType", "Quartz.Plugins.RecentHistory.Impl.InProcExecutionHistoryStore, Quartz.Plugins.RecentHistory");
-            }
-        );
+                options.StartDelay = TimeSpan.FromSeconds(10);
+                // when shutting down we want jobs to complete gracefully
+                options.WaitForJobsToComplete = true;
+            });
             services.AddResponseCompression();
             services.AddControllers();
 
@@ -325,7 +318,6 @@ namespace IoTSharp
             app.UseIotSharpMqttServer();
             app.UseSwaggerUi3();
             app.UseOpenApi();
-            app.UseSilkierQuartz();
             app.UseEventBus(opt =>
             {
                 var frp = app.ApplicationServices.GetService<FlowRuleProcessor>();
@@ -356,11 +348,7 @@ namespace IoTSharp
                 defaultStyle.ColorSaturation = 0.51f;
                 defaultStyle.GrayscaleSaturation = 0.10f;
             });
-            using var scope = app.ApplicationServices.CreateScope();
-            var _ts_storage= scope.ServiceProvider.GetService<IStorage>();
-            _ts_storage.CheckTelemetryStorage();
+            app.UseTelemetryStorage();
         }
-
-       
     }
 }

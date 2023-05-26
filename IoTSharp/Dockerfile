@@ -47,6 +47,7 @@ COPY ["IoTSharp.Data.Storage/IoTSharp.Data.SqlServer/IoTSharp.Data.SqlServer.csp
 COPY ["IoTSharp.Data.TimeSeries/IoTSharp.Data.TimeSeries.csproj", "IoTSharp.Data.TimeSeries/"]
 COPY ["IoTSharp.Extensions.DependencyInjection/IoTSharp.Extensions.DependencyInjection.csproj", "IoTSharp.Extensions.DependencyInjection/"]
 COPY ["IoTSharp.Extensions.EFCore/IoTSharp.Extensions.EFCore.csproj", "IoTSharp.Extensions.EFCore/"]
+COPY ["IoTSharp.Extensions.QuartzJobScheduler/IoTSharp.QuartzJobScheduler.csproj", "IoTSharp.QuartzJobScheduler/"]
 COPY ["IoTSharp.EventBus.CAP/IoTSharp.EventBus.CAP.csproj", "IoTSharp.EventBus.CAP/"]
 COPY ["IoTSharp.EventBus/IoTSharp.EventBus.csproj", "IoTSharp.EventBus/"]
 COPY ["IoTSharp.EventBus.Shashlik/IoTSharp.EventBus.Shashlik.csproj", "IoTSharp.EventBus.Shashlik/"]
@@ -54,6 +55,7 @@ COPY ["IoTSharp.Extensions.AspNetCore/IoTSharp.Extensions.AspNetCore.csproj", "I
 COPY ["IoTSharp.Extensions.X509/IoTSharp.Extensions.X509.csproj", "IoTSharp.Extensions.X509/"]
 COPY ["IoTSharp.Interpreter/IoTSharp.Interpreter.csproj", "IoTSharp.Interpreter/"]
 COPY ["IoTSharp.TaskActions/IoTSharp.TaskActions.csproj", "IoTSharp.TaskActions/"]
+
 RUN dotnet restore "IoTSharp/IoTSharp.csproj"
 COPY . .
 WORKDIR "/src/IoTSharp"

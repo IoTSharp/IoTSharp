@@ -43,7 +43,7 @@ namespace IoTSharp.FlowRuleEngine
             //规则集合，可以参考RulesEngine.RulesEngine程序说明，其中需要的很多参数已经写死，只有Expression前端填写，如Age>18
             /**
              * //定义规则
-    var var rulesStr = @"[{
+        var  rulesStr = @"[{
         ""WorkflowName"":""UserInputworkflow"",
         ""Rules"":[
 .         {

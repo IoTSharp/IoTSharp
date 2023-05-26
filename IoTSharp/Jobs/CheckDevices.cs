@@ -6,7 +6,6 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using MQTTnet.Server;
 using Quartz;
-using SilkierQuartz;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -16,7 +15,7 @@ using Microsoft.EntityFrameworkCore;
 namespace IoTSharp.Jobs
 {
 
-    [SilkierQuartz(60)]
+    [QuartzJobScheduler(60)]
     public class CheckDevices : IJob
     {
         private readonly MqttClientSetting _mcsetting;

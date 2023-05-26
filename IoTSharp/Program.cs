@@ -6,8 +6,6 @@ using System.Text;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Hosting;
-using SilkierQuartz;
-using Rin;
 using Figgle;
 
 namespace IoTSharp
@@ -28,10 +26,6 @@ namespace IoTSharp
                 {
                     webBuilder.UseStartup<Startup>();
                 })
-               .ConfigureSilkierQuartzHost()
                .ConfigureIoTSharpHost();
-        
-        
-
     }
 }
