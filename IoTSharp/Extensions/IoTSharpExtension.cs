@@ -33,6 +33,8 @@ using System.Text;
 using System.Text.RegularExpressions;
 using IoTSharp.Extensions.X509;
 using IoTSharp.Storage;
+using ShardingCore;
+using Microsoft.Extensions.Options;
 
 namespace IoTSharp
 {
@@ -356,10 +358,16 @@ namespace IoTSharp
 
         internal static void  UseTelemetryStorage(this IApplicationBuilder app)
         {
+            var options = app.ApplicationServices.GetRequiredService<IOptions<AppSettings>>();
+            var settings = options.Value;
+            if (settings.TelemetryStorage == TelemetryStorage.Sharding)
+            {
+                app.ApplicationServices.UseAutoTryCompensateTable();
+            }
             using (var scope = app.ApplicationServices.CreateScope())
             {
                 var _ts_storage = scope.ServiceProvider.GetService<IStorage>();
-                 _ts_storage.CheckTelemetryStorage();
+                _ts_storage.CheckTelemetryStorage();
             }
         }
     }

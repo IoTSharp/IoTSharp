@@ -300,11 +300,7 @@ namespace IoTSharp
             }
             app.CheckApplicationDBMigrations();
             //添加定时任务创建表
-            var settings = Configuration.Get<AppSettings>();
-            if (settings.TelemetryStorage == TelemetryStorage.Sharding)
-            {
-                app.ApplicationServices.UseAutoTryCompensateTable();
-            }
+           
             app.UseRouting();
             app.UseCors(option => option
                 .AllowAnyOrigin()
