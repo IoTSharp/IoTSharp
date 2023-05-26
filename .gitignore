@@ -365,3 +365,9 @@ ASALocalRun/
 /IoTSharp/ClientAppVue/package-lock.json
 /package-lock.json
 /yarn.lock
+/IoTSharp/health_checks.db-shm
+/IoTSharp/health_checks.db-wal
+/IoTSharp/IoTSharp.db-shm
+/IoTSharp/IoTSharp.db-wal
+/IoTSharp/TelemetryStorage.db-shm
+/IoTSharp/TelemetryStorage.db-wal
