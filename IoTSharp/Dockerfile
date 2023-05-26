@@ -47,7 +47,7 @@ COPY ["IoTSharp.Data.Storage/IoTSharp.Data.SqlServer/IoTSharp.Data.SqlServer.csp
 COPY ["IoTSharp.Data.TimeSeries/IoTSharp.Data.TimeSeries.csproj", "IoTSharp.Data.TimeSeries/"]
 COPY ["IoTSharp.Extensions.DependencyInjection/IoTSharp.Extensions.DependencyInjection.csproj", "IoTSharp.Extensions.DependencyInjection/"]
 COPY ["IoTSharp.Extensions.EFCore/IoTSharp.Extensions.EFCore.csproj", "IoTSharp.Extensions.EFCore/"]
-COPY ["IoTSharp.Extensions.QuartzJobScheduler/IoTSharp.QuartzJobScheduler.csproj", "IoTSharp.QuartzJobScheduler/"]
+COPY ["IoTSharp.Extensions.QuartzJobScheduler/IoTSharp.Extensions.QuartzJobScheduler.csproj", "IoTSharp.Extensions.QuartzJobScheduler/"]
 COPY ["IoTSharp.EventBus.CAP/IoTSharp.EventBus.CAP.csproj", "IoTSharp.EventBus.CAP/"]
 COPY ["IoTSharp.EventBus/IoTSharp.EventBus.csproj", "IoTSharp.EventBus/"]
 COPY ["IoTSharp.EventBus.Shashlik/IoTSharp.EventBus.Shashlik.csproj", "IoTSharp.EventBus.Shashlik/"]
