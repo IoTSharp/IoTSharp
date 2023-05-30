@@ -46,16 +46,26 @@
         public QuartzJobSchedulerAttribute(double seconds) : this(0, 0, 0, seconds, 0, 0, null, null)
         {
         }
+        public QuartzJobSchedulerAttribute(double minutes, double seconds, bool start_at, double start_at_minutes, double start_at_seconds) : this(0, 0, minutes, seconds, 0, 0, null, null)
+        {
+            if (start_at)
+            {
+                StartAt = DateTimeOffset.Now.AddMinutes(start_at_minutes).AddSeconds(start_at_seconds);
+            }
+        }
+        public QuartzJobSchedulerAttribute(double seconds,bool start_at , double start_at_seconds) : this(0, 0, 0, seconds, 0, 0, null, null)
+        {
+            if (start_at)
+            {
+                StartAt = DateTimeOffset.Now.AddSeconds(start_at_seconds);
+            }
+        }
 
         public QuartzJobSchedulerAttribute(bool Manual) : this(0, 0, 0, 0, 0, 0, null, null)
         {
             this.Manual = true;
         }
-        public QuartzJobSchedulerAttribute(TimeSpan span)
-        {
-
-            WithInterval = span;
-        }
+   
 
         public QuartzJobSchedulerAttribute(double days, double hours, double minutes, double seconds, double milliseconds, long ticks, string? _identity, string? _desciption)
         {
@@ -70,8 +80,8 @@
         }
         public string? Desciption { get; set; } = null;
         public string? Identity { get; set; } = null;
-        public TimeSpan WithInterval { get; set; }
-        public DateTimeOffset StartAt { get; set; } = DateTimeOffset.MinValue;
+        internal TimeSpan WithInterval { get; set; }
+        internal DateTimeOffset StartAt { get; set; } = DateTimeOffset.MinValue;
         public int RepeatCount { get; set; } = 0;
         public string? TriggerName { get; set; } = null;
         public string? TriggerGroup { get; set; } = null;
