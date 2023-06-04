@@ -12,7 +12,7 @@ jobs:
     strategy:
       matrix:
         configuration: [Release]
-        publish_profile: [win7-x64,linux-x64,osx-x64,linux-arm64] # https://docs.microsoft.com/en-us/dotnet/core/rid-catalog
+        publish_profile: [win7-x64,linux-x64,osx-x64,linux-arm64,linux-arm] # https://docs.microsoft.com/en-us/dotnet/core/rid-catalog
 
     runs-on: windows-latest  
 
@@ -43,9 +43,9 @@ jobs:
         Configuration: ${{ matrix.configuration }}
 
     # Create the app package by building and packaging the Windows Application Packaging project
+    # npm config set registry https://registry.npmmirror.com 
     - name: Building and Packaging
       run:  |
-            npm config set registry https://registry.npmmirror.com 
             set NODE_OPTIONS=--openssl-legacy-provider
             dotnet build IoTSharp.sln  -c $env:Configuration  /p:DeployOnBuild=true /p:PublishProfile=$env:PublishProfile
       env:

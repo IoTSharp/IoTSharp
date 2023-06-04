@@ -12,9 +12,9 @@ EXPOSE 8883
 
 
 FROM 	mcr.microsoft.com/dotnet/sdk:7.0-bullseye-slim AS build
-RUN  	apt-get  -y update   && \
-	apt-get install  -y  --no-install-recommends apt-utils libgdiplus libc6-dev lsof net-tools wget sqlite3 iputils-ping inetutils-tools  build-essential  libfontconfig1 curl   gnupg2 gnupg    && \
-	apt-get autoclean  
+RUN  apt-get  -y update   && \
+		apt-get install  -y  --no-install-recommends apt-utils libgdiplus libc6-dev lsof net-tools wget sqlite3 iputils-ping inetutils-tools  build-essential  libfontconfig1 curl   gnupg2 gnupg    && \
+		apt-get autoclean  
 RUN KEYRING=/usr/share/keyrings/nodesource.gpg && curl -fsSL https://deb.nodesource.com/gpgkey/nodesource.gpg.key | gpg --dearmor |  tee "$KEYRING" >/dev/null && \
 	gpg --no-default-keyring --keyring "$KEYRING" --list-keys && \
 	VERSION=node_16.x &&  DISTRO=bullseye  && \
@@ -26,7 +26,6 @@ RUN KEYRING=/usr/share/keyrings/nodesource.gpg && curl -fsSL https://deb.nodesou
 	export NODE_OPTIONS=--openssl-legacy-provider && \
 	apt-get autoclean 
 
-    
 WORKDIR /src
 COPY ["IoTSharp/ClientApp/package.json", "IoTSharp/ClientApp/package.json"]
 WORKDIR /src/IoTSharp/ClientApp/
