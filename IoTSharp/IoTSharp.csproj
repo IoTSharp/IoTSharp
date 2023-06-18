@@ -41,10 +41,9 @@
 	</PropertyGroup>
 
 	<PropertyGroup Condition="'$(Configuration)' == 'Debug' OR '$(Configuration)' == 'Release'">
-		<SpaRoot>ClientApp\</SpaRoot>
+		<SpaRoot>..\ClientApp\</SpaRoot>
 		<SpaProxyServerUrl>http://localhost:8888</SpaProxyServerUrl>
 		<SpaProxyLaunchCommand>npm run dev</SpaProxyLaunchCommand>
-		<DefaultItemExcludes>$(DefaultItemExcludes);$(SpaRoot)node_modules\**</DefaultItemExcludes>
 		<!-- Set this to true if you enable server-side prerendering -->
 		<BuildServerSideRenderer>false</BuildServerSideRenderer>
 	</PropertyGroup>
@@ -91,12 +90,7 @@
 	</ItemGroup>
 
 
-	<ItemGroup>
-		<!-- Don't publish the SPA source files, but do show them in the project files list -->
-		<Content Remove="$(SpaRoot)**" />
-		<None Remove="$(SpaRoot)**" />
-		<None Include="$(SpaRoot)**" Exclude="$(SpaRoot)node_modules\**" />
-	</ItemGroup>
+
 
 	<Target Name="DebugEnsureNodeEnv" BeforeTargets="Build" Condition=" '$(Configuration)' == 'Debug' And !Exists('$(SpaRoot)node_modules') ">
 		<!-- Ensure Node.js is installed -->

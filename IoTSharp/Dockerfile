@@ -17,7 +17,7 @@ RUN  apt-get  -y update   && \
 		apt-get autoclean  
 RUN KEYRING=/usr/share/keyrings/nodesource.gpg && curl -fsSL https://deb.nodesource.com/gpgkey/nodesource.gpg.key | gpg --dearmor |  tee "$KEYRING" >/dev/null && \
 	gpg --no-default-keyring --keyring "$KEYRING" --list-keys && \
-	VERSION=node_16.x &&  DISTRO=bullseye  && \
+	VERSION=node_18.x &&  DISTRO=bullseye  && \
 	echo "deb [signed-by=$KEYRING] https://deb.nodesource.com/$VERSION $DISTRO main" |  tee /etc/apt/sources.list.d/nodesource.list && \
 	apt-get  -y   -q update  && \
     apt-get install -y --no-install-recommends nodejs && \
@@ -27,8 +27,8 @@ RUN KEYRING=/usr/share/keyrings/nodesource.gpg && curl -fsSL https://deb.nodesou
 	apt-get autoclean 
 
 WORKDIR /src
-COPY ["IoTSharp/ClientApp/package.json", "IoTSharp/ClientApp/package.json"]
-WORKDIR /src/IoTSharp/ClientApp/
+COPY ["ClientApp/package.json", "ClientApp/package.json"]
+WORKDIR /src/ClientApp/
 RUN  npm install  --legacy-peer-deps
 WORKDIR /src
 COPY ["IoTSharp/IoTSharp.csproj", "IoTSharp/"]

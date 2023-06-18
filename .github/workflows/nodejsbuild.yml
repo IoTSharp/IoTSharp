@@ -2,9 +2,9 @@ name: NodeJS with build
 
 on:
   push:
-    branches: [ "master" ]
-  pull_request:
-    branches: [ "master" ]
+    branches: [master]
+    paths: [ClientApp/**]
+
 
 jobs:
   build:
