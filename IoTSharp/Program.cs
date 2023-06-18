@@ -25,7 +25,7 @@ namespace IoTSharp
                 .ConfigureWebHostDefaults(webBuilder =>
                 {
                     webBuilder.UseStartup<Startup>();
-                })
-               .ConfigureIoTSharpHost();
+                });
+              
     }
 }

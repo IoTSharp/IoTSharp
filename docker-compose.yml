@@ -3,6 +3,8 @@ services:
   pgsql:
     image: postgres
     restart: always
+    ports:
+      - 5432:5432
     volumes:
       - ./data/postgresql:/var/lib/postgresql/data
     environment:
@@ -10,8 +12,6 @@ services:
       POSTGRES_USER: postgres
       POSTGRES_DB: IoTSharp
       POSTGRES_PASSWORD: future 
-    ports: 
-     - "5432:5432"
     networks:
       - iotsharp-network
 
@@ -38,7 +38,6 @@ services:
   iotsharp:
     image: maikebing/iotsharp
     restart: always
-    hostname: iotsharp
     environment:
        ASPNETCORE_ENVIRONMENT: Production
        TZ: Asia/Shanghai
@@ -62,14 +61,10 @@ services:
       - iotsharp-network
        
   taos:
-    image: tdengine/tdengine:3.0.2.6
+    image: tdengine/tdengine:3.0.4.2
     restart: always
-    hostname: taos
     ports:
-      - 6030:6030
-      - 6035:6035
       - 6041:6041
-      - 6030-6040:6030-6040/udp
     volumes:
       - ./data/taos:/var/lib/taos/
     networks:

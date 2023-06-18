@@ -122,7 +122,7 @@ namespace IoTSharp.Services
             if (e.TopicFilter.Topic.StartsWith("$SYS/"))
             {
             }
-            if (e.TopicFilter.Topic.ToLower().StartsWith("devices/telemetry"))
+            if (e.TopicFilter.Topic.StartsWith("devices/telemetry", StringComparison.OrdinalIgnoreCase))
             {
             }
             else

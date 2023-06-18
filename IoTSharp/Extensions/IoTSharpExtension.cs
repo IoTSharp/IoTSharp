@@ -145,14 +145,7 @@ namespace IoTSharp
             return Guid.Parse(_user.FindFirstValue(IoTSharpClaimTypes.Customer) ?? Guid.Empty.ToString());
         }
         
-        public static IHostBuilder ConfigureIoTSharpHost(this IHostBuilder hostBuilder)
-        {
-            hostBuilder.ConfigureServices(services =>
-            {
-              services.AddHostedService<CoAPService>();
-            });
-            return hostBuilder;
-        }
+      
 
       
 
@@ -358,16 +351,23 @@ namespace IoTSharp
 
         internal static void  UseTelemetryStorage(this IApplicationBuilder app)
         {
-            var options = app.ApplicationServices.GetRequiredService<IOptions<AppSettings>>();
-            var settings = options.Value;
-            if (settings.TelemetryStorage == TelemetryStorage.Sharding)
+            try
             {
-                app.ApplicationServices.UseAutoTryCompensateTable();
+                var options = app.ApplicationServices.GetRequiredService<IOptions<AppSettings>>();
+                var settings = options.Value;
+                if (settings.TelemetryStorage == TelemetryStorage.Sharding)
+                {
+                    app.ApplicationServices.UseAutoTryCompensateTable();
+                }
+                using (var scope = app.ApplicationServices.CreateScope())
+                {
+                    var _ts_storage = scope.ServiceProvider.GetService<IStorage>();
+                    _ts_storage.CheckTelemetryStorage();
+                }
             }
-            using (var scope = app.ApplicationServices.CreateScope())
+            catch (Exception ex) 
             {
-                var _ts_storage = scope.ServiceProvider.GetService<IStorage>();
-                _ts_storage.CheckTelemetryStorage();
+                throw;
             }
         }
     }

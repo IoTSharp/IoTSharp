@@ -34,6 +34,7 @@ using Storage.Net;
 using IoTSharp.Data.TimeSeries;
 using IoTSharp.Data.Extensions;
 using Quartz;
+using IoTSharp.Services;
 
 namespace IoTSharp
 {
@@ -257,7 +258,7 @@ namespace IoTSharp
                         break;
                 }
             });
-
+            services.AddHostedService<CoAPService>();
             services.AddTransient(_ => StorageFactory.Blobs.FromConnectionString(Configuration.GetConnectionString("BlobStorage") ?? $"disk://path={Environment.GetFolderPath(Environment.SpecialFolder.UserProfile, Environment.SpecialFolderOption.Create)}/IoTSharp/"));
 
             services.AddControllers().AddNewtonsoftJson(options =>
@@ -300,7 +301,7 @@ namespace IoTSharp
             }
             app.CheckApplicationDBMigrations();
             //添加定时任务创建表
-           
+     
             app.UseRouting();
             app.UseCors(option => option
                 .AllowAnyOrigin()
@@ -313,6 +314,7 @@ namespace IoTSharp
             app.UseResponseCompression();
             app.UseIotSharpMqttServer();
             app.UseSwaggerUi3();
+            app.UseHealthChecksUI();
             app.UseOpenApi();
             app.UseEventBus(opt =>
             {
