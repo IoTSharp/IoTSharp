@@ -1,0 +1,31 @@
+export const option = {
+  form: {
+    labelPosition: 'top',
+        labelWidth: 100,
+        hideRequiredMark: true,
+        showMessage: true,
+        inlineMessage: false,
+        inline: false,
+  },
+  submitBtn: {
+    type: 'primary',
+        size: 'large',
+        disabled: false,
+        innerText: '更新',
+        loading: false,
+        show: true,
+        block: true,
+  },
+  wrap: {},
+  resetBtn: {
+    type: 'default',
+        plain: false,
+        round: false,
+        circle: false,
+        loading: false,
+        disabled: false,
+        nativeType: 'button',
+        innerText: '重置',
+        show: true,
+  },
+}

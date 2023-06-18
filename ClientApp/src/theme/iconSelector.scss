@@ -1,0 +1,70 @@
+/* Popover 弹出框(图标选择器)
+------------------------------- */
+.icon-selector-popper {
+	padding: 0 !important;
+	.icon-selector-warp {
+		height: 260px;
+		overflow: hidden;
+		.icon-selector-warp-title {
+			height: 40px;
+			line-height: 40px;
+			padding: 0 15px;
+			.icon-selector-warp-title-tab {
+				span {
+					cursor: pointer;
+					&:hover {
+						color: var(--el-color-primary);
+						text-decoration: underline;
+					}
+				}
+				.span-active {
+					color: var(--el-color-primary);
+					text-decoration: underline;
+				}
+			}
+		}
+		.icon-selector-warp-row {
+			height: 230px;
+			overflow: hidden;
+			border-top: 1px solid var(--el-border-color);
+			.el-row {
+				padding: 15px;
+			}
+			.el-scrollbar__bar.is-horizontal {
+				display: none;
+			}
+			.icon-selector-warp-item {
+				display: flex;
+				border: 1px solid var(--el-border-color);
+				padding: 5px;
+				border-radius: 5px;
+				margin-bottom: 10px;
+				.icon-selector-warp-item-value {
+					i {
+						font-size: 20px;
+						color: var(--el-text-color-regular);
+					}
+				}
+				&:hover {
+					cursor: pointer;
+					background-color: var(--el-color-primary-light-9);
+					border: 1px solid var(--el-color-primary-light-5);
+					.icon-selector-warp-item-value {
+						i {
+							color: var(--el-color-primary);
+						}
+					}
+				}
+			}
+			.icon-selector-active {
+				background-color: var(--el-color-primary-light-9);
+				border: 1px solid var(--el-color-primary-light-5);
+				.icon-selector-warp-item-value {
+					i {
+						color: var(--el-color-primary);
+					}
+				}
+			}
+		}
+	}
+}
