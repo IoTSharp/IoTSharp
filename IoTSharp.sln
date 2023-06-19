@@ -106,7 +106,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MQTTDemo", "IoTSharp.SDKs\M
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IoTSharp.Extensions.QuartzJobScheduler", "IoTSharp.Extensions.QuartzJobScheduler\IoTSharp.Extensions.QuartzJobScheduler.csproj", "{B47999A0-BE98-44D5-A98E-D6572F57F20E}"
 EndProject
-Project("{54A90642-561A-4BB1-A94E-469ADEE60C69}") = "IoTSharp.ClientApp", "ClientApp\IoTSharp.ClientApp.esproj", "{1C9D84A1-5B92-4B53-86D6-61613B70257C}"
+Project("{54A90642-561A-4BB1-A94E-469ADEE60C69}") = "ClientApp", "ClientApp\ClientApp.esproj", "{1C9D84A1-5B92-4B53-86D6-61613B70257C}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
