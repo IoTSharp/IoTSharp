@@ -18,7 +18,7 @@ We will put the detailed donation records on the below!
 |  | *阵 |  | ￥50(微信转账) |  |
 |  | *守 |  | ￥10(微信转账) | 加油iotsharp! |
 | [![@24008550](https://avatars.githubusercontent.com/u/122004038?s=80&v=4)](https://github.com/24008550) | 马超 | ![GitHub User's stars](https://img.shields.io/github/stars/24008550?affiliations=OWNER%2CCOLLABORATOR%2CORGANIZATION_MEMBER&style=for-the-badge) | ￥200（微信红包） |  |
-| [![@joyinan](https://foruda.gitee.com/avatar/1676895845500193295/12369_joyinan_1578914838.png!avatar200)](https://gitee.com/joyinan) | joyinan | ![Gitee User's stars](https://img.shields.io/gitee/stars/joyinan?affiliations=OWNER%2CCOLLABORATOR%2CORGANIZATION_MEMBER&style=for-the-badge) | ￥100（微信红包） |  |
+| [![@joyinan](https://foruda.gitee.com/avatar/1676895845500193295/12369_joyinan_1578914838.png!avatar200)](https://gitee.com/joyinan) | joyinan |   | ￥100（微信红包） |  |
 | [![@icefuns](https://avatars.githubusercontent.com/u/78469751?s=80&v=4)](https://github.com/icefuns) | 极寒黄美华 | ![GitHub User's stars](https://img.shields.io/github/stars/icefuns?affiliations=OWNER%2CCOLLABORATOR%2CORGANIZATION_MEMBER&style=for-the-badge) |￥388 微信收款码 （*华）单号7564 |  |
 
 
