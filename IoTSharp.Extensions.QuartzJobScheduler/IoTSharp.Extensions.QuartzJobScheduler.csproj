@@ -15,7 +15,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Quartz.AspNetCore" Version="3.6.2" />
+    <PackageReference Include="Quartz.AspNetCore" Version="3.6.3" />
   </ItemGroup>
 
   <ItemGroup>

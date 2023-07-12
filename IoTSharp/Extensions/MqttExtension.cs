@@ -96,9 +96,9 @@ namespace IoTSharp
         public static void UseIotSharpMqttServer(this IApplicationBuilder app)
         {
             var mqttEvents = app.ApplicationServices.CreateScope().ServiceProvider.GetService<MQTTService>();
+            app.UseAttributeRouting(true);
             app.UseMqttServer(server =>
                 {
-                    server.WithAttributeRouting(app.ApplicationServices, true);
                     server.ClientConnectedAsync += mqttEvents.Server_ClientConnectedAsync;
                     server.StartedAsync += mqttEvents.Server_Started;
                     server.StoppedAsync += mqttEvents.Server_Stopped;

@@ -8,7 +8,7 @@
     <PackageReference Include="AspNetCore.HealthChecks.MySql" Version="7.0.0-rc2.4" />
     <PackageReference Include="AspNetCore.HealthChecks.UI.Core" Version="7.0.0-rc2.7" />
     <PackageReference Include="AspNetCore.HealthChecks.UI.MySql.Storage" Version="7.0.0-rc2.7" />
-    <PackageReference Include="Microsoft.Extensions.Diagnostics.HealthChecks" Version="7.0.5" />
+    <PackageReference Include="Microsoft.Extensions.Diagnostics.HealthChecks" Version="7.0.9" />
     <PackageReference Include="Pomelo.EntityFrameworkCore.MySql" Version="7.0.0" />
   </ItemGroup>
 
