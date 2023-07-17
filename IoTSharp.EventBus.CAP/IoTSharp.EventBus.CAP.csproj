@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>net7.0</TargetFramework>
@@ -24,7 +24,7 @@
 		<PackageReference Include="EasyCaching.Core" Version="1.9.0" />
 		<PackageReference Include="AspNetCore.HealthChecks.Kafka" Version="7.0.0-rc2.7" />
 		<PackageReference Include="AspNetCore.HealthChecks.MongoDb" Version="7.0.0-rc2.5" />
-		<PackageReference Include="AspNetCore.HealthChecks.Rabbitmq" Version="7.0.0-rc2.6" />
+		<PackageReference Include="AspNetCore.HealthChecks.Rabbitmq" Version="7.0.0-rc2.7" />
 		<PackageReference Include="AspNetCore.HealthChecks.Redis" Version="7.0.0-rc2.5" />
 		<PackageReference Include="MaiKeBing.CAP.ZeroMQ" Version="1.0.37" />
 		<PackageReference Include="MaiKeBing.CAP.LiteDB" Version="1.0.37" />
