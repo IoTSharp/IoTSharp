@@ -63,9 +63,8 @@ const viteConfig = defineConfig((mode: ConfigEnv) => {
 		hmr: true,
 		optimizeDeps: {
 			include: [
-				'element-plus/lib/locale/lang/zh-cn',
-				'element-plus/lib/locale/lang/en',
-				'element-plus/lib/locale/lang/zh-tw',
+				'element-plus/dist/locale/zh-cn.mjs',
+				'element-plus/dist/locale/en.mjs',
 				'monaco-editor/esm/vs/language/json/json.worker',
 				'monaco-editor/esm/vs/language/css/css.worker',
 				'monaco-editor/esm/vs/language/html/html.worker',

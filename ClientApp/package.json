@@ -28,7 +28,7 @@
 		"echarts": "^5.4.2",
 		"echarts-gl": "^2.0.9",
 		"echarts-wordcloud": "^2.0.0",
-		"element-plus": "^2.3.3",
+		"element-plus": "^2.3.8",
 		"js-cookie": "^3.0.1",
 		"jsplumb": "^2.15.6",
 		"lodash-es": "^4.17.21",
