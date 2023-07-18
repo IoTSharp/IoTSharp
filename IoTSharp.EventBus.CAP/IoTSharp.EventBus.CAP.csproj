@@ -6,7 +6,7 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 	<ItemGroup>
-		<PackageReference Include="AspNetCore.HealthChecks.NpgSql" Version="7.0.0-rc2.6" />
+		<PackageReference Include="AspNetCore.HealthChecks.NpgSql" Version="7.0.0-rc2.7" />
 		<PackageReference Include="CAP.Extensions" Version="1.0.37" />
 		<PackageReference Include="DotNetCore.CAP.Dashboard" Version="7.1.4" />
 		<PackageReference Include="DotNetCore.CAP.InMemoryStorage" Version="7.1.4" />
