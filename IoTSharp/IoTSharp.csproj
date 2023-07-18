@@ -75,7 +75,7 @@
 		<PackageReference Include="NSwag.AspNetCore" Version="13.19.0" />
 		<PackageReference Include="Rin" Version="2.6.0" />
 		<PackageReference Include="Rin.Mvc" Version="2.6.0" />
-		<PackageReference Include="RulesEngine" Version="5.0.0" />
+		<PackageReference Include="RulesEngine" Version="5.0.1" />
 		<PackageReference Include="SkiaSharp.NativeAssets.Linux.NoDependencies" Version="2.88.3" />
 		<PackageReference Include="Storage.Net" Version="9.3.0" />
 		<PackageReference Include="ShardingCore" Version="7.7.1.11" />
