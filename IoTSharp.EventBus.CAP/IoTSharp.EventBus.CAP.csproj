@@ -22,7 +22,7 @@
 		<PackageReference Include="DotNetCore.CAP.RedisStreams" Version="7.1.4" />
 		<PackageReference Include="DotNetCore.CAP.Pulsar" Version="7.1.4" />
 		<PackageReference Include="EasyCaching.Core" Version="1.9.0" />
-		<PackageReference Include="AspNetCore.HealthChecks.Kafka" Version="7.0.0-rc2.7" />
+		<PackageReference Include="AspNetCore.HealthChecks.Kafka" Version="7.0.0-rc2.8" />
 		<PackageReference Include="AspNetCore.HealthChecks.MongoDb" Version="7.0.0-rc2.5" />
 		<PackageReference Include="AspNetCore.HealthChecks.Rabbitmq" Version="7.0.0-rc2.7" />
 		<PackageReference Include="AspNetCore.HealthChecks.Redis" Version="7.0.0-rc2.5" />
