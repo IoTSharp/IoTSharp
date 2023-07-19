@@ -37,14 +37,6 @@ const messages = {
 			...pagesFormI18nEn,
 		},
 	},
-	[zhtwLocale.name]: {
-		...zhtwLocale,
-		message: {
-			...nextZhtw,
-			...pagesLoginZhtw,
-			...pagesFormI18nZhtw,
-		},
-	},
 };
 
 // 读取 pinia 默认语言
