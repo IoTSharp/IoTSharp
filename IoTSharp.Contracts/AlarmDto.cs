@@ -23,7 +23,7 @@ namespace IoTSharp.Contracts
         public string AlarmDetail { get; set; }
 
         /// <summary>
-        /// 严重成都
+        /// 严重程度
         /// </summary>
         public ServerityLevel Serverity { get; set; } = ServerityLevel.Indeterminate;
 
@@ -81,7 +81,7 @@ namespace IoTSharp.Contracts
         public AlarmStatus AlarmStatus { get; set; }
 
         /// <summary>
-        /// 严重成都
+        /// 严重程度
         /// </summary>
         public ServerityLevel Serverity { get; set; }
 
