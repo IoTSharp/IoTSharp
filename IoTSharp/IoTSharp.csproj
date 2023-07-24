@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+<Project Sdk="Microsoft.NET.Sdk.Web">
 	<PropertyGroup>
 		<TargetFramework>net7.0</TargetFramework>
 		<TypeScriptCompileBlocked>true</TypeScriptCompileBlocked>
@@ -78,7 +78,7 @@
 		<PackageReference Include="RulesEngine" Version="5.0.1" />
 		<PackageReference Include="SkiaSharp.NativeAssets.Linux.NoDependencies" Version="2.88.3" />
 		<PackageReference Include="Storage.Net" Version="9.3.0" />
-		<PackageReference Include="ShardingCore" Version="7.7.1.11" />
+		<PackageReference Include="ShardingCore" Version="7.7.1.12" />
 		<PackageReference Include="System.Resources.Extensions" Version="7.0.0" />
 		<PackageReference Include="System.Text.Encoding.CodePages" Version="7.0.0">
 			<TreatAsUsed>true</TreatAsUsed>
