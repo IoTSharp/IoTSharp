@@ -33,6 +33,7 @@ namespace IoTSharp.Storage
             if (_taos.State != System.Data.ConnectionState.Open) _taos.Open();
             _taos.CreateCommand($"CREATE DATABASE IF NOT EXISTS {_taosBuilder.DataBase}").ExecuteNonQuery();
             _taos.ChangeDatabase(_taosBuilder.DataBase);
+            _taos.CreateCommand($"USE {_taosBuilder.DataBase}").ExecuteNonQuery();
             _taos.CreateCommand($"CREATE TABLE IF NOT EXISTS telemetrydata  (ts timestamp,value_type  tinyint, value_boolean bool, value_string binary(10240), value_long bigint,value_datetime timestamp,value_double double)   TAGS (deviceid binary(32),keyname binary(64));")
                .ExecuteNonQuery();
             return Task.FromResult(true);
