@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+<Project Sdk="Microsoft.NET.Sdk.Web">
 	<PropertyGroup>
 		<TargetFramework>net7.0</TargetFramework>
 		<TypeScriptCompileBlocked>true</TypeScriptCompileBlocked>
@@ -51,7 +51,7 @@
 
 		<PackageReference Include="AspNetCore.HealthChecks.System" Version="7.0.0-rc2.6" />
 		<PackageReference Include="AspNetCore.HealthChecks.UI" Version="7.0.0-rc2.7" />
-		<PackageReference Include="AspNetCore.HealthChecks.UI.Client" Version="7.0.0-rc2.7" />
+		<PackageReference Include="AspNetCore.HealthChecks.UI.Client" Version="7.1.0" />
 		<PackageReference Include="EasyCaching.InMemory" Version="1.9.0" />
 		<PackageReference Include="EasyCaching.LiteDB" Version="1.9.0" />
 		<PackageReference Include="EasyCaching.Redis" Version="1.9.0" />
