@@ -212,7 +212,7 @@ namespace IoTSharp.Storage
                             }
                             if (_hasvalue)
                             {
-                                string vals = $"device_{tdata.DeviceId:N}_{Pinyin4Net.GetPinyin(tdata.KeyName, PinyinFormat.WITHOUT_TONE).Replace(" ", string.Empty).Replace("@", string.Empty)} USING telemetrydata TAGS('{tdata.DeviceId:N}','{tdata.KeyName}')  (ts,value_type,{_type}) values (now,{(int)tdata.Type},{_value})";
+                                string vals = $"device_{tdata.DeviceId:N}_{Pinyin4Net.GetPinyin(tdata.KeyName, PinyinFormat.WITHOUT_TONE).Replace(" ", string.Empty).Replace("@", string.Empty).Replace(":", string.Empty)} USING telemetrydata TAGS('{tdata.DeviceId:N}','{tdata.KeyName}')  (ts,value_type,{_type}) values (now,{(int)tdata.Type},{_value})";
                                 lst.Add(vals);
                                 telemetries.Add(tdata);
                             }
