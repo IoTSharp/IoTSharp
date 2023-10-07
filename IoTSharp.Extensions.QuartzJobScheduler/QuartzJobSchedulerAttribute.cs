@@ -88,6 +88,11 @@
         public string? TriggerDescription { get; set; } =null;
         public int Priority { get; set; } = 0;
         public bool Manual { get; set; } = false;
+        /// <summary>
+        /// Whether or not the job should remain stored after it is orphaned (no Quartz.ITriggers point to it).
+        /// </summary>
+        /// <value> If not explicitly set, the default value is false.</value>
+        public bool StoreDurably { get; set; } = false;
     }
 
 

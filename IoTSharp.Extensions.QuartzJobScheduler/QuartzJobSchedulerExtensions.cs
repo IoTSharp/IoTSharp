@@ -29,6 +29,10 @@ namespace Quartz
                     _scheduler.AddJob(t, jobKey, cfg =>
                     {
                         cfg.WithDescription(so.Desciption);
+                        if (so.StoreDurably)
+                        {
+                            cfg.StoreDurably();
+                        }
 
                     });
                     _scheduler.AddTrigger(opts =>
@@ -39,6 +43,7 @@ namespace Quartz
                             .WithSimpleSchedule(x =>
                             {
                                 x.WithInterval(so.WithInterval);
+                                
                                 if (so.RepeatCount > 0)
                                 {
                                     x.WithRepeatCount(so.RepeatCount);
@@ -58,6 +63,8 @@ namespace Quartz
                             opts.StartAt(so.StartAt);
                         }
                         if (so.Priority > 0) opts.WithPriority(so.Priority);
+                        
+                   
                     });
                 }
             }
