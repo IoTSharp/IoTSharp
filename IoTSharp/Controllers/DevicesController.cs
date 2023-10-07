@@ -956,7 +956,7 @@ namespace IoTSharp.Controllers
                     await rpcClient.ConnectAsync();
                     byte[] response = null;
                     //如果是网关的子设备， 因为客户端无法知道Id，因此发至名称
-                    if (dev.DeviceType == DeviceType.Device && string.IsNullOrEmpty(dev.Owner?.Name))
+                    if (dev.DeviceType == DeviceType.Device && !string.IsNullOrEmpty(dev.Owner?.Name))
                     {
                         _logger.LogInformation($"RPC  设备{dev.Name} 的所有者名称不为空， 因此是子设备。 传入名称 作为topic ");
                         response = await rpcClient.ExecuteAsync(_timeout, dev.Name, method, payload, qos);

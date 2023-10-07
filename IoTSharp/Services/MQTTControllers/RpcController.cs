@@ -66,10 +66,10 @@ namespace IoTSharp.Services.MQTTControllers
             }
         }
 
-        [MqttRoute("request/{method}/{requestId}")]
-        public async Task request(string method,string requestId)
+        [MqttRoute("request/{method}")]
+        public async Task request(string method)
         {
-            _logger.LogInformation($"收到客户端{ClientId}请求ID为{requestId}rpc请求方法{method}。");
+            _logger.LogInformation($"收到客户端{ClientId}rpc请求方法{method}。");
             var p_dev = _dev.DeviceType == DeviceType.Gateway ? device : _dev;
             var rules = await _caching.GetAsync($"ruleid_{p_dev.Id}_rpc_{method}", async () =>
             {
@@ -83,13 +83,13 @@ namespace IoTSharp.Services.MQTTControllers
             , TimeSpan.FromSeconds(_settings.RuleCachingExpiration));
             if (rules.HasValue && rules.Value!=Guid.Empty)
             {
-                var obj = new { Message.Topic, Payload = Convert.ToBase64String(Message.Payload), ClientId, RPCMethod = method, RequestId = requestId };
-                _logger.LogInformation($"客户端{ClientId}请求ID为{requestId}rpc请求方法{method}通过规则链{rules.Value}进行处理。");
+                var obj = new { Message.Topic, Payload = Convert.ToBase64String(Message.Payload), ClientId, RPCMethod = method };
+                _logger.LogInformation($"客户端{ClientId}rpc请求方法{method}通过规则链{rules.Value}进行处理。");
                 await _flowRuleProcessor.RunFlowRules(rules.Value, obj, p_dev.Id, FlowRuleRunType.Normal, null);
             }
             else
             {
-                _logger.LogInformation($"客户端{ClientId}请求ID为{requestId}rpc请求方法{method}尚未委托规则链。");
+                _logger.LogInformation($"客户端{ClientId}rpc请求方法{method}尚未委托规则链。");
             }
         }
     }
