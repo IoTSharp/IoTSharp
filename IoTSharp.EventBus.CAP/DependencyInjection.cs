@@ -79,15 +79,7 @@ namespace IoTSharp.EventBus.CAP
                             };
                         });
                         //amqp://guest:guest@localhost:5672
-                        healthChecks.AddRabbitMQ(connectionFactory =>
-                        {
-                            var factory = new ConnectionFactory()
-                            {
-                                Uri = new Uri(_EventBusMQ),
-                                AutomaticRecoveryEnabled = true
-                            };
-                            return factory.CreateConnection();
-                        }, _hc_EventBusMQ);
+                        healthChecks.AddRabbitMQ(_EventBusMQ,name: _hc_EventBusMQ);
                         break;
 
                     case EventBusMQ.Kafka:
