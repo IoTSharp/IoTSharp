@@ -12,7 +12,7 @@
 	<ItemGroup>
 	 
  
-		<PackageReference Include="AspNetCore.HealthChecks.UI.Core" Version="7.0.0-rc2.7" />
+		<PackageReference Include="AspNetCore.HealthChecks.UI.Core" Version="7.0.0" />
 		<PackageReference Include="EntityFrameworkCore.ClickHouse" Version="0.0.9" />
 		<PackageReference Include="IoTSharp.HealthChecks.ClickHouse" Version="1.0.0" />
  

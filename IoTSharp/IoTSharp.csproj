@@ -49,44 +49,44 @@
 	</PropertyGroup>
 	<ItemGroup>
 
-		<PackageReference Include="AspNetCore.HealthChecks.System" Version="7.0.0-rc2.6" />
-		<PackageReference Include="AspNetCore.HealthChecks.UI" Version="7.0.0-rc2.7" />
-		<PackageReference Include="AspNetCore.HealthChecks.UI.Client" Version="7.0.0-rc2.7" />
-		<PackageReference Include="EasyCaching.InMemory" Version="1.9.0" />
-		<PackageReference Include="EasyCaching.LiteDB" Version="1.9.0" />
-		<PackageReference Include="EasyCaching.Redis" Version="1.9.0" />
+		<PackageReference Include="AspNetCore.HealthChecks.System" Version="7.0.0" />
+		<PackageReference Include="AspNetCore.HealthChecks.UI" Version="7.0.2" />
+		<PackageReference Include="AspNetCore.HealthChecks.UI.Client" Version="7.1.0" />
+		<PackageReference Include="EasyCaching.InMemory" Version="1.9.1" />
+		<PackageReference Include="EasyCaching.LiteDB" Version="1.9.1" />
+		<PackageReference Include="EasyCaching.Redis" Version="1.9.1" />
 		<PackageReference Include="Figgle" Version="0.5.1" />
 		<PackageReference Include="hyjiacan.pinyin4net" Version="4.1.1" />
 		<PackageReference Include="IoTSharp.CoAP.NET" Version="2.0.8" />
 		<PackageReference Include="Jdenticon-net" Version="3.1.2" />
 		<PackageReference Include="Jdenticon.AspNetCore" Version="3.1.2" />
-		<PackageReference Include="LiteDB" Version="5.0.16" />
-		<PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="7.0.9" />
-		<PackageReference Include="Microsoft.AspNetCore.SpaProxy" Version="7.0.9" />
-		<PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="7.0.9">
+		<PackageReference Include="LiteDB" Version="5.0.17" />
+		<PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="7.0.11" />
+		<PackageReference Include="Microsoft.AspNetCore.SpaProxy" Version="7.0.11" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="7.0.11">
 			<PrivateAssets>all</PrivateAssets>
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
-		<PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.18.1" />
+		<PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.19.5" />
 		<PackageReference Include="MimeMapping" Version="2.0.0" />
-		<PackageReference Include="MQTTnet" Version="4.2.1.781" />
-		<PackageReference Include="MQTTnet.AspNetCore" Version="4.2.1.781" />
+		<PackageReference Include="MQTTnet" Version="4.3.1.873" />
+		<PackageReference Include="MQTTnet.AspNetCore" Version="4.3.1.873" />
 		<PackageReference Include="MQTTnet.AspNetCore.Routing" Version="0.4.30" />
-		<PackageReference Include="NSwag.AspNetCore" Version="13.19.0" />
+		<PackageReference Include="NSwag.AspNetCore" Version="13.20.0" />
 		<PackageReference Include="Rin" Version="2.6.0" />
 		<PackageReference Include="Rin.Mvc" Version="2.6.0" />
-		<PackageReference Include="RulesEngine" Version="5.0.1" />
-		<PackageReference Include="SkiaSharp.NativeAssets.Linux.NoDependencies" Version="2.88.3" />
+		<PackageReference Include="RulesEngine" Version="5.0.2" />
+		<PackageReference Include="SkiaSharp.NativeAssets.Linux.NoDependencies" Version="2.88.6" />
 		<PackageReference Include="Storage.Net" Version="9.3.0" />
-		<PackageReference Include="ShardingCore" Version="7.7.1.11" />
+		<PackageReference Include="ShardingCore" Version="7.7.1.16" />
 		<PackageReference Include="System.Resources.Extensions" Version="7.0.0" />
 		<PackageReference Include="System.Text.Encoding.CodePages" Version="7.0.0">
 			<TreatAsUsed>true</TreatAsUsed>
 		</PackageReference>
-		<PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="7.0.9" />
+		<PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="7.0.11" />
 		<PackageReference Include="Microsoft.Extensions.Hosting.WindowsServices" Version="7.0.1" />
-		<PackageReference Include="Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore" Version="7.0.9" />
-		<PackageReference Include="Microsoft.AspNetCore.Identity.UI" Version="7.0.9" />
+		<PackageReference Include="Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore" Version="7.0.11" />
+		<PackageReference Include="Microsoft.AspNetCore.Identity.UI" Version="7.0.11" />
 	</ItemGroup>
 
 

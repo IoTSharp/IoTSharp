@@ -5,9 +5,9 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-		<PackageReference Include="AspNetCore.HealthChecks.Oracle" Version="7.0.0-rc2.7" />
-		<PackageReference Include="AspNetCore.HealthChecks.UI.InMemory.Storage" Version="7.0.0-rc2.7" />
-		<PackageReference Include="Oracle.EntityFrameworkCore" Version="7.21.9" />
+		<PackageReference Include="AspNetCore.HealthChecks.Oracle" Version="7.0.0" />
+		<PackageReference Include="AspNetCore.HealthChecks.UI.InMemory.Storage" Version="7.0.0" />
+		<PackageReference Include="Oracle.EntityFrameworkCore" Version="7.21.11" />
 	</ItemGroup>
 
 	<ItemGroup>
