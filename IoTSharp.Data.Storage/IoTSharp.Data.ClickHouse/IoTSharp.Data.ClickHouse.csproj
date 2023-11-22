@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net7.0</TargetFramework>
+    <TargetFramework>net8.0</TargetFramework>
   </PropertyGroup>
 
   <ItemGroup>
@@ -13,7 +13,7 @@
 	 
  
 		<PackageReference Include="AspNetCore.HealthChecks.UI.Core" Version="7.0.0" />
-		<PackageReference Include="EntityFrameworkCore.ClickHouse" Version="0.0.9" />
+		<PackageReference Include="EntityFrameworkCore.ClickHouse" Version="0.0.10" />
 		<PackageReference Include="IoTSharp.HealthChecks.ClickHouse" Version="1.0.0" />
  
 	</ItemGroup>
