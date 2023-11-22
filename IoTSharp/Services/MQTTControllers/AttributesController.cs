@@ -94,7 +94,7 @@ namespace IoTSharp.Services.MQTTControllers
             Dictionary<string, object> keyValues = new Dictionary<string, object>();
             try
             {
-                keyValues.Add(keyname, Message.Payload);
+                keyValues.Add(keyname, Message.PayloadSegment.ToArray());
                 _queue.PublishAttributeData(device, keyValues);
             }
             catch (Exception ex)
@@ -111,7 +111,7 @@ namespace IoTSharp.Services.MQTTControllers
             Dictionary<string, object> keyValues = new Dictionary<string, object>();
             try
             {
-                if (Message.Payload?.Length > 0)
+                if (Message.PayloadSegment.Count > 0)
                 {
                     keyValues = Message.ConvertPayloadToDictionary();
                     _queue.PublishAttributeData(device, keyValues);

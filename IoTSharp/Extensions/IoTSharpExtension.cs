@@ -160,7 +160,6 @@ namespace IoTSharp
 
         internal static void UseSwagger(this IApplicationBuilder app)
         {
-            app.UseSwaggerUi3();
             app.UseOpenApi(config => config.PostProcess = (document, request) =>
             {
                 if (request.Headers.ContainsKey("X-External-Host"))
@@ -170,7 +169,7 @@ namespace IoTSharp
                     document.BasePath = request.Headers["X-External-Path"].First();
                 }
             });
-            app.UseSwaggerUi3(config => config.TransformToExternalPath = (internalUiRoute, request) =>
+            app.UseSwaggerUi(config => config.TransformToExternalPath = (internalUiRoute, request) =>
             {
                 // The header X-External-Path is set in the nginx.conf file
                 var externalPath = request.Headers.ContainsKey("X-External-Path") ? request.Headers["X-External-Path"].First() : "";
@@ -365,7 +364,7 @@ namespace IoTSharp
                     _ts_storage.CheckTelemetryStorage();
                 }
             }
-            catch (Exception ex) 
+            catch (Exception) 
             {
                 throw;
             }

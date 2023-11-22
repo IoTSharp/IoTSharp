@@ -127,7 +127,7 @@ namespace IoTSharp.Extensions
             {
                 if (!tcs.Task.IsCompleted && !tcs.Task.IsCanceled)
                 {
-                    tcs.TrySetResult(eventArgs.ApplicationMessage.Payload);
+                    tcs.TrySetResult(eventArgs.ApplicationMessage.PayloadSegment.ToArray());
                 }
             }
             return Task.CompletedTask;

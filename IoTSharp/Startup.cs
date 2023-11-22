@@ -165,8 +165,6 @@ namespace IoTSharp
             services.AddMqttClient(settings.MqttClient);
             services.AddQuartz(q =>
             {
-
-                q.UseMicrosoftDependencyInjectionJobFactory();
                 q.DiscoverJobs();
             });
 
@@ -313,7 +311,7 @@ namespace IoTSharp
             app.UseStaticFiles();
             app.UseResponseCompression();
             app.UseIotSharpMqttServer();
-            app.UseSwaggerUi3();
+            app.UseSwaggerUi();
             app.UseHealthChecksUI();
             app.UseOpenApi();
             app.UseEventBus(opt =>
