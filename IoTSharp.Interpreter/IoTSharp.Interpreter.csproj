@@ -1,11 +1,11 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
   </PropertyGroup>
 	<ItemGroup>
 		<PackageReference Include="CLanguage" Version="0.19.67" />
-		<PackageReference Include="CS-Script" Version="4.8.8" />
+		<PackageReference Include="CS-Script" Version="4.8.10" />
 		<PackageReference Include="Jint" Version="3.0.0-beta-2056" />
 		<PackageReference Include="Microsoft.CodeAnalysis.Common" Version="4.5.0" />
 		<PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.5.0" />
