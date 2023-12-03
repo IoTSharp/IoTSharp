@@ -5,11 +5,18 @@
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <Version>1.0.1</Version>
     <Authors>MaikeBing</Authors>
-    <PackageIconUrl />
     <PackageProjectUrl>https://github.com/IoTSharp/IoTSharp</PackageProjectUrl>
     <RepositoryUrl>https://github.com/IoTSharp/IoTSharp</RepositoryUrl>
+    <PackageIcon>iotsharp128.png</PackageIcon>
   </PropertyGroup>
 
+  <ItemGroup>
+    <None Include="..\docs\static\img\iotsharp128.png">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
+  </ItemGroup>
+ 
   <ItemGroup>
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
   </ItemGroup>

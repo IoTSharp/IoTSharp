@@ -7,7 +7,15 @@
 		<Authors>MaikeBing</Authors>
 		<RepositoryUrl>https://github.com/IoTSharp/IoTSharp</RepositoryUrl>
 		<PackageProjectUrl>https://github.com/IoTSharp/IoTSharp</PackageProjectUrl>
+		<PackageIcon>iotsharp128.png</PackageIcon>
 	</PropertyGroup>
+
+	<ItemGroup>
+		<None Include="..\docs\static\img\iotsharp128.png">
+			<Pack>True</Pack>
+			<PackagePath>\</PackagePath>
+		</None>
+	</ItemGroup>
 
 	<ItemGroup>
 		<PackageReference Include="Microsoft.EntityFrameworkCore" Version="8.0.0" />

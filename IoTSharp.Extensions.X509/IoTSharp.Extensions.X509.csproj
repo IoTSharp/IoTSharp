@@ -1,10 +1,10 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <RootNamespace>IoTSharp.Extensions.X509</RootNamespace>
-    <TargetFrameworks>net7.0</TargetFrameworks>
+    <TargetFrameworks>net8.0</TargetFrameworks>
     <PackageId>IoTSharp.X509Extensions</PackageId>
     <Authors>Konrad Mattheis und Martin Berthold &amp;  MaiKeBing</Authors>
-    <Copyright>Copyright (c) 2018-2020</Copyright>
+    <Copyright>Copyright (c) 2018-2024</Copyright>
     <Company>IoT#</Company>
     <RepositoryUrl>https://github.com/IoTSharp/IoTSharp.X509Extensions</RepositoryUrl>
     <PackageLicenseUrl></PackageLicenseUrl>
@@ -20,7 +20,15 @@
     <FileVersion>1.0.1.0</FileVersion>
     <Version>6.0.0</Version>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
+	  <PackageIcon>iotsharp128.png</PackageIcon>
   </PropertyGroup>
+
+  <ItemGroup>
+	  <None Include="..\docs\static\img\iotsharp128.png">
+		  <Pack>True</Pack>
+		  <PackagePath>\</PackagePath>
+	  </None>
+  </ItemGroup>
   
 
   <ItemGroup>

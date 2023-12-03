@@ -12,7 +12,15 @@
 	  <PackageProjectUrl>https://github.com/IoTSharp/IoTSharp</PackageProjectUrl>
 	  <PackageReadmeFile>readme.md</PackageReadmeFile>
 	  <PackageTags>Quartz;Job;Scheduler</PackageTags>
+	  <PackageIcon>iotsharp128.png</PackageIcon>
   </PropertyGroup>
+
+  <ItemGroup>
+	  <None Include="..\docs\static\img\iotsharp128.png">
+		  <Pack>True</Pack>
+		  <PackagePath>\</PackagePath>
+	  </None>
+  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="Quartz.AspNetCore" Version="3.8.0" />
