@@ -79,7 +79,6 @@
 		<PackageReference Include="RulesEngine" Version="5.0.2" />
 		<PackageReference Include="SkiaSharp.NativeAssets.Linux.NoDependencies" Version="2.88.6" />
 		<PackageReference Include="Storage.Net" Version="9.3.0" />
-		<PackageReference Include="ShardingCore" Version="7.7.1.18" />
 		<PackageReference Include="System.Resources.Extensions" Version="8.0.0" />
 		<PackageReference Include="System.Text.Encoding.CodePages" Version="8.0.0">
 			<TreatAsUsed>true</TreatAsUsed>
