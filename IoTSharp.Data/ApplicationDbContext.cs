@@ -8,8 +8,6 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.Extensions.DependencyInjection;
 using IoTSharp.Data.Configurations;
 using IoTSharp.Contracts;
-using ShardingCore.Core.VirtualRoutes.TableRoutes.RouteTails.Abstractions;
-using ShardingCore.Sharding.Abstractions;
 
 namespace IoTSharp.Data
 {

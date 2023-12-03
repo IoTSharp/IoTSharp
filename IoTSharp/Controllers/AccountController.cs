@@ -21,7 +21,6 @@ using System.Linq;
 using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
-using static IronPython.Modules._ast;
 
 namespace IoTSharp.Controllers
 {

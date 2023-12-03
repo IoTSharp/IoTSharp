@@ -3,7 +3,7 @@
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
     <TargetLatestRuntimePatch>true</TargetLatestRuntimePatch>
-    <Configurations>Debug;Release;Debug_VUE;Release_VUE</Configurations>
+    <Configurations>Debug;Release</Configurations>
   </PropertyGroup>
  
   <ItemGroup>
