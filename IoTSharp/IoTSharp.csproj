@@ -72,7 +72,7 @@
 		<PackageReference Include="MimeMapping" Version="2.0.0" />
 		<PackageReference Include="MQTTnet" Version="4.3.2.930" />
 		<PackageReference Include="MQTTnet.AspNetCore" Version="4.3.2.930" />
-		<PackageReference Include="MQTTnet.AspNetCore.Routing" Version="0.4.30" />
+		<PackageReference Include="MQTTnet.AspNetCore.Routing" Version="0.4.35" />
 		<PackageReference Include="NSwag.AspNetCore" Version="14.0.0-preview010" />
 		<PackageReference Include="Rin" Version="2.6.0" />
 		<PackageReference Include="Rin.Mvc" Version="2.6.0" />
