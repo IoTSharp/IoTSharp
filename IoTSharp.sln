@@ -109,6 +109,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IoTSharp.Extensions.QuartzJ
 EndProject
 Project("{54A90642-561A-4BB1-A94E-469ADEE60C69}") = "ClientApp", "ClientApp\ClientApp.esproj", "{1C9D84A1-5B92-4B53-86D6-61613B70257C}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IoTSharp.EventBus.NServiceBus", "IoTSharp.EventBus.NServiceBus\IoTSharp.EventBus.NServiceBus.csproj", "{10E377A8-6060-44AA-9678-9F175BE6E24F}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -238,6 +240,10 @@ Global
 		{1C9D84A1-5B92-4B53-86D6-61613B70257C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{1C9D84A1-5B92-4B53-86D6-61613B70257C}.Release|Any CPU.Build.0 = Release|Any CPU
 		{1C9D84A1-5B92-4B53-86D6-61613B70257C}.Release|Any CPU.Deploy.0 = Release|Any CPU
+		{10E377A8-6060-44AA-9678-9F175BE6E24F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{10E377A8-6060-44AA-9678-9F175BE6E24F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{10E377A8-6060-44AA-9678-9F175BE6E24F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{10E377A8-6060-44AA-9678-9F175BE6E24F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
