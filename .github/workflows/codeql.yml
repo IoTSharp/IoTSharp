@@ -21,6 +21,7 @@ on:
     branches: [ "master" ]
     paths-ignore:
       - '**/*.njsproj'
+      - '**/*.esproj'
   schedule:
     - cron: '36 9 * * 4'
 
