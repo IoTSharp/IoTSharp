@@ -15,9 +15,9 @@ jobs:
     - name: InferSharp
       uses: microsoft/infersharpaction@v0.2
     - name: Setup .NET Core SDK
-      uses: actions/setup-dotnet@v1.7.2
+      uses: actions/setup-dotnet@v3
       with: 
-        dotnet-version: 7.0.x 
+        dotnet-version: 8.0.x 
     - name: Build
       run: dotnet build  ./IoTSharp.sln  --configuration Release 
 
