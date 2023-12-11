@@ -19,7 +19,7 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-		<PackageReference Include="MQTTnet" Version="4.3.2.930" />
+		<PackageReference Include="MQTTnet" Version="4.3.3.952" />
 		<PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
 	</ItemGroup>
 
