@@ -19,7 +19,7 @@
 		<PackageReference Include="DotNetCore.CAP.AzureServiceBus" Version="7.2.2" />
 		<PackageReference Include="DotNetCore.CAP.AmazonSQS" Version="7.2.2" />
 		<PackageReference Include="DotNetCore.CAP.NATS" Version="7.2.2" />
-		<PackageReference Include="DotNetCore.CAP.RedisStreams" Version="7.2.2" />
+		<PackageReference Include="DotNetCore.CAP.RedisStreams" Version="8.0.0" />
 		<PackageReference Include="DotNetCore.CAP.Pulsar" Version="7.2.2" />
 		<PackageReference Include="EasyCaching.Core" Version="1.9.2" />
 		<PackageReference Include="AspNetCore.HealthChecks.Kafka" Version="7.0.0" />
