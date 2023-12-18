@@ -10,7 +10,7 @@
 		<PackageReference Include="CAP.Extensions" Version="1.0.37" />
 		<PackageReference Include="DotNetCore.CAP.Dashboard" Version="7.2.2" />
 		<PackageReference Include="DotNetCore.CAP.InMemoryStorage" Version="7.2.2" />
-		<PackageReference Include="DotNetCore.CAP.Kafka" Version="7.2.2" />
+		<PackageReference Include="DotNetCore.CAP.Kafka" Version="8.0.0" />
 		<PackageReference Include="DotNetCore.CAP.MongoDB" Version="7.2.2" />
 		<PackageReference Include="DotNetCore.CAP.MySql" Version="7.2.2" />
 		<PackageReference Include="DotNetCore.CAP.PostgreSql" Version="7.2.2" />
