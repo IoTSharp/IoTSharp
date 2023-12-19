@@ -5,8 +5,8 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-		<PackageReference Include="AspNetCore.HealthChecks.NpgSql" Version="7.1.0" />
-		<PackageReference Include="AspNetCore.HealthChecks.UI.PostgreSQL.Storage" Version="7.0.0" />
+		<PackageReference Include="AspNetCore.HealthChecks.NpgSql" Version="8.0.0" />
+		<PackageReference Include="AspNetCore.HealthChecks.UI.PostgreSQL.Storage" Version="8.0.0" />
 		<PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="8.0.0" />
 	</ItemGroup>
 
