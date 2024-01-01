@@ -51,7 +51,7 @@ services:
       - "./appsettings.Development.json:/app/appsettings.Production.json"
       - ./data/security:/app/security
     ports:
-      - 2929:8888
+      - 2929:8080
       - 1883:1883
       - 8883:8883 
       - 5683:5683

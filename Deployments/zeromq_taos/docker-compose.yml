@@ -48,7 +48,7 @@ services:
     volumes:
       - "./appsettings.Production.json:/app/appsettings.Production.json"
     ports:
-      - 2927:80
+      - 2927:8080
       - 1883:1883
       - 8883:8883 
       - 8080:8080
