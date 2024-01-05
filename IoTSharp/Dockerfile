@@ -69,6 +69,7 @@ FROM build AS publish
 RUN dotnet publish "./IoTSharp.csproj" --no-restore   -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false
 
 FROM base AS final
+RUN chown -R app:app /app
 USER app
 WORKDIR /app
 COPY --from=publish /app/publish .
