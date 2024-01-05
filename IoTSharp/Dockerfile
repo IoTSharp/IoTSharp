@@ -22,7 +22,7 @@ RUN KEYRING=/usr/share/keyrings/nodesource.gpg && curl -fsSL https://deb.nodesou
 	VERSION=node_18.x &&  DISTRO=bookworm  && \
 	echo "deb [signed-by=$KEYRING] https://deb.nodesource.com/$VERSION $DISTRO main" |  tee /etc/apt/sources.list.d/nodesource.list && \
 	apt-get  -y   -q update  && \
-    apt-get install -y --no-install-recommends nodejs && \
+    apt-get install -y --no-install-recommends nodejs npm && \
 	ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime && \
 	npm config set registry https://registry.npmmirror.com && \
 	export NODE_OPTIONS=--openssl-legacy-provider && \
