@@ -44,7 +44,7 @@ export const createDevicePropsCrudOptions = function ({ expose }, deviceId, stat
 
 		return {
 			records,
-			currentPage: 0,
+			currentPage: 1,
 			pageSize: records.length,
 			total: records.length,
 		};
