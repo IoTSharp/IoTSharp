@@ -7,7 +7,7 @@
 		<PackageReference Include="AspNetCore.HealthChecks.Sqlite" Version="8.0.0" />
 		<PackageReference Include="AspNetCore.HealthChecks.UI.Sqlite.Storage" Version="8.0.0" />
 		<PackageReference Include="AspNetCore.HealthChecks.UI.Core" Version="8.0.0" />
-		<PackageReference Include="Microsoft.Extensions.Diagnostics.HealthChecks" Version="8.0.0" />
+		<PackageReference Include="Microsoft.Extensions.Diagnostics.HealthChecks" Version="8.0.1" />
 	</ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\IoTSharp.Data\IoTSharp.Data.csproj" />
