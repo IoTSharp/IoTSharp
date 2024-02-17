@@ -77,7 +77,7 @@ namespace IoTSharp.Data
                     if (kp.Key != null && kp.Value != null)
                     {
                         var devdata = from tx in _context.Set<L>() where tx.DeviceId == deviceId select tx;
-                        var tl = from tx in devdata where tx.KeyName == kp.Key && tx.DataSide == dataSide select tx;
+                        var tl = from tx in devdata where tx.KeyName == kp.Key  select tx;
                         if (tl.Any())
                         {
                             var tx = tl.First();

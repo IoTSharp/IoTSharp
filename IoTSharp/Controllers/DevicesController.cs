@@ -398,6 +398,7 @@ namespace IoTSharp.Controllers
                                 DateTime = t.DateTime,
                                 KeyName = t.KeyName,
                                 DataType = t.Type,
+                                 DeviceId= t.DeviceId,
                                 Value = t.ToObject()
                             };
                 if (!devid.Any())

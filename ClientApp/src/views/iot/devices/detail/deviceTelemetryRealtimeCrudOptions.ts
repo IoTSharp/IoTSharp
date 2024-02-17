@@ -21,7 +21,7 @@ export const createDeviceTelemetryRealtimeCrudOptions = function ({ expose }, de
 		return {
 			total:records.length,
 			pageSize:records.length,
-			currentPage:0,
+			currentPage:1,
 			records,
 		};
 	};

@@ -4,6 +4,7 @@ using IoTSharp.Data;
 using IoTSharp.Data.Extensions;
 using IoTSharp.Extensions;
 using IoTSharp.Storage;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using System;
@@ -65,10 +66,17 @@ namespace IoTSharp.EventBus
                     }
                 }
             }
+            catch (DbUpdateException due)
+            {
+                var dc = msg.ToDictionary();
+                string json = System.Text.Json.JsonSerializer.Serialize(dc);
+                _logger.LogError(due, "StoreAttributeData DbUpdateException:" + due.InnerException?.Message + Environment.NewLine + json + Environment.NewLine);
+            }
             catch (Exception ex)
             {
-
-                _logger.LogError(ex, "StoreAttributeData:" + ex.Message);
+                var dc = msg.ToDictionary();
+                string json = System.Text.Json.JsonSerializer.Serialize(dc);
+                _logger.LogError(ex, "StoreAttributeData:" + ex.Message+ Environment.NewLine+ json+Environment.NewLine);
             }
         }
 
