@@ -8,19 +8,19 @@
 	<ItemGroup>
 		<PackageReference Include="AspNetCore.HealthChecks.NpgSql" Version="8.0.1" />
 		<PackageReference Include="CAP.Extensions" Version="1.0.37" />
-		<PackageReference Include="DotNetCore.CAP.Dashboard" Version="8.1.0" />
-		<PackageReference Include="DotNetCore.CAP.InMemoryStorage" Version="8.1.0" />
-		<PackageReference Include="DotNetCore.CAP.Kafka" Version="8.1.0" />
-		<PackageReference Include="DotNetCore.CAP.MongoDB" Version="8.1.0" />
-		<PackageReference Include="DotNetCore.CAP.MySql" Version="8.1.0" />
-		<PackageReference Include="DotNetCore.CAP.PostgreSql" Version="8.1.0" />
-		<PackageReference Include="DotNetCore.CAP.RabbitMQ" Version="8.1.0" />
-		<PackageReference Include="DotNetCore.CAP.SqlServer" Version="8.1.0" />
-		<PackageReference Include="DotNetCore.CAP.AzureServiceBus" Version="8.1.0" />
-		<PackageReference Include="DotNetCore.CAP.AmazonSQS" Version="8.1.0" />
-		<PackageReference Include="DotNetCore.CAP.NATS" Version="8.1.0" />
-		<PackageReference Include="DotNetCore.CAP.RedisStreams" Version="8.1.0" />
-		<PackageReference Include="DotNetCore.CAP.Pulsar" Version="8.1.0" />
+		<PackageReference Include="DotNetCore.CAP.Dashboard" Version="8.1.2" />
+		<PackageReference Include="DotNetCore.CAP.InMemoryStorage" Version="8.1.2" />
+		<PackageReference Include="DotNetCore.CAP.Kafka" Version="8.1.2" />
+		<PackageReference Include="DotNetCore.CAP.MongoDB" Version="8.1.2" />
+		<PackageReference Include="DotNetCore.CAP.MySql" Version="8.1.2" />
+		<PackageReference Include="DotNetCore.CAP.PostgreSql" Version="8.1.2" />
+		<PackageReference Include="DotNetCore.CAP.RabbitMQ" Version="8.1.2" />
+		<PackageReference Include="DotNetCore.CAP.SqlServer" Version="8.1.2" />
+		<PackageReference Include="DotNetCore.CAP.AzureServiceBus" Version="8.1.2" />
+		<PackageReference Include="DotNetCore.CAP.AmazonSQS" Version="8.1.2" />
+		<PackageReference Include="DotNetCore.CAP.NATS" Version="8.1.2" />
+		<PackageReference Include="DotNetCore.CAP.RedisStreams" Version="8.1.2" />
+		<PackageReference Include="DotNetCore.CAP.Pulsar" Version="8.1.2" />
 		<PackageReference Include="EasyCaching.Core" Version="1.9.2" />
 		<PackageReference Include="AspNetCore.HealthChecks.Kafka" Version="8.0.1" />
 		<PackageReference Include="AspNetCore.HealthChecks.MongoDb" Version="8.0.1" />
