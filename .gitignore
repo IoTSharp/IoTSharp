@@ -748,3 +748,5 @@ ASALocalRun/
 >>>>>>> .theirs
 /ClientApp/.eslintrc-auto-import.json
 /ClientApp/src/auto-imports.d.ts
+/ClientApp/dist
+/ClientApp/src/components.d.ts
