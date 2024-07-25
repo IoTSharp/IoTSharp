@@ -37,7 +37,7 @@ RUN  apt-get update &&   apt-get install -y ca-certificates curl gnupg && \
 WORKDIR /src
 COPY ["ClientApp/package.json", "ClientApp/package.json"]
 WORKDIR /src/ClientApp/
-RUN  npm install  --legacy-peer-deps
+RUN  npm install 
 WORKDIR /src
 COPY ["nuget.config", "."]
 COPY ["IoTSharp/IoTSharp.csproj", "IoTSharp/"]
