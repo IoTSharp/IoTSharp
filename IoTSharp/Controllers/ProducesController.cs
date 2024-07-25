@@ -5,7 +5,6 @@ using System.Linq.Expressions;
 using System.Security.Cryptography;
 using System.Threading;
 using System.Threading.Tasks;
-using Esprima.Ast;
 using IoTSharp.Contracts;
 using IoTSharp.Controllers.Models;
 using IoTSharp.Data;

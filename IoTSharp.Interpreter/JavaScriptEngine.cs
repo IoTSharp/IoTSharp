@@ -5,7 +5,6 @@ using Microsoft.Extensions.Logging;
 using System;
 using System.Threading;
 using IoTSharp.Interpreter;
-using Esprima;
 using Microsoft.Extensions.Options;
 using System.Threading.Tasks;
 
