@@ -29,7 +29,7 @@
 		<PackageReference Include="MaiKeBing.CAP.ZeroMQ" Version="1.0.37" />
 		<PackageReference Include="MaiKeBing.CAP.LiteDB" Version="1.0.37" />
 		<PackageReference Include="MaiKeBing.HostedService.ZeroMQ" Version="1.0.37" />
-		<PackageReference Include="Savorboard.CAP.InMemoryMessageQueue" Version="8.2.0" />
+		<PackageReference Include="Savorboard.CAP.InMemoryMessageQueue" Version="8.2.1" />
 
 	</ItemGroup>
 

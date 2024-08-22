@@ -62,9 +62,9 @@
 		<PackageReference Include="Jdenticon-net" Version="3.1.2" />
 		<PackageReference Include="Jdenticon.AspNetCore" Version="3.1.2" />
 		<PackageReference Include="LiteDB" Version="5.0.21" />
-		<PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="8.0.7" />
-		<PackageReference Include="Microsoft.AspNetCore.SpaProxy" Version="8.0.7" />
-		<PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="8.0.7">
+		<PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="8.0.8" />
+		<PackageReference Include="Microsoft.AspNetCore.SpaProxy" Version="8.0.8" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="8.0.8">
 			<PrivateAssets>all</PrivateAssets>
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
@@ -83,12 +83,12 @@
 		<PackageReference Include="System.Text.Encoding.CodePages" Version="8.0.0">
 			<TreatAsUsed>true</TreatAsUsed>
 		</PackageReference>
-		<PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.7" />
+		<PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.8" />
 		<PackageReference Include="Microsoft.Extensions.Hosting.WindowsServices" Version="8.0.0" />
-		<PackageReference Include="Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore" Version="8.0.7" />
-		<PackageReference Include="Microsoft.AspNetCore.Identity.UI" Version="8.0.7" />
-		<PackageReference Include="Microsoft.CodeAnalysis.Common" Version="4.10.0" />
-		<PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.10.0" />
+		<PackageReference Include="Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore" Version="8.0.8" />
+		<PackageReference Include="Microsoft.AspNetCore.Identity.UI" Version="8.0.8" />
+		<PackageReference Include="Microsoft.CodeAnalysis.Common" Version="4.11.0" />
+		<PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.11.0" />
 		
 	</ItemGroup>
 

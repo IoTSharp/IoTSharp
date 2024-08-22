@@ -15,7 +15,7 @@
 		<PackageReference Include="hyjiacan.pinyin4net" Version="4.1.1" />
 		<PackageReference Include="IoTSharp.HealthChecks.Taos" Version="3.0.21.90" />
 		<PackageReference Include="PinusDB.HealthChecks" Version="1.0.10" />
-		<PackageReference Include="InfluxDB.Client" Version="4.16.0" />
+		<PackageReference Include="InfluxDB.Client" Version="4.17.0" />
 		<PackageReference Include="PinusDB" Version="1.0.10" />
 	</ItemGroup>
   <ItemGroup>

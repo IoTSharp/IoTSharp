@@ -100,7 +100,7 @@ namespace System.Text.Json
 
         private static RestClient Create(Uri uri)
         {
-            var client = new RestClient(new RestClientOptions(uri) {  MaxTimeout = -1, FollowRedirects = false });
+            var client = new RestClient(new RestClientOptions(uri) {  Timeout  = TimeSpan.FromSeconds(30), FollowRedirects = false });
             client.AddDefaultHeader(KnownHeaders.Accept, "*/*");
             return client;
         }
