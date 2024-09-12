@@ -32,7 +32,7 @@ namespace Microsoft.Extensions.DependencyInjection
                           .MigrationsAssembly("IoTSharp.Data.MySQL"));
    
            
-            checksBuilder.AddMySql(connectionString, "IoTSharp.Data.MySQL");
+            checksBuilder.AddMySql(connectionString, name:"IoTSharp.Data.MySQL");
             healthChecksUI.AddMySqlStorage(connectionString, opt => opt.ConfigureWarnings(w => w.Ignore(RelationalEventId.MultipleCollectionIncludeWarning)));
       
         }
