@@ -1,58 +1,50 @@
 ﻿using Alba;
+using DotNet.Testcontainers.Containers;
 using IoTSharp.Contracts;
-using IoTSharp.Controllers;
 using IoTSharp.Dtos;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.TestHost;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Net.Http;
-using System.Net.Http.Json;
 using System.Text;
-using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
+using System.Net.Http.Json;
 using Testcontainers.PostgreSql;
-
+using Microsoft.AspNetCore.Http;
 namespace IoTSharp.Test
 {
-    [TestClass]
-    public class InstallerTest
+    public class AppInstance
     {
-        IAlbaHost _host;
-        PostgreSqlContainer _postgreSqlContainer;
-        private InstallDto _installdto;
-        private static TestContext _context;
-        private CancellationToken _ct;
-
+        internal IAlbaHost _host;
+        internal InstallDto _installdto;
+        internal static TestContext _context;
+        internal CancellationToken _ct;
         [ClassInitialize]
-        public static void TestFixtureSetup(TestContext context)
+        internal static void  FixtureSetup(TestContext context)
         {
             _context = context;
-
         }
-        [TestInitialize()]
-        public async Task TestServerInitialize()
+        public async Task AppInitialize(string db_main, string db_telemetry, DataBaseType db_type) =>
+                    await AppInitialize(db_main, db_telemetry, db_type, TelemetryStorage.Sharding, EventBusStore.InMemory);
+        public async Task AppInitialize(string db_main, string db_telemetry, DataBaseType db_type, TelemetryStorage telemetry ) =>
+                 await AppInitialize(db_main, db_telemetry, db_type,   telemetry, EventBusStore.InMemory);
+
+        public async Task AppInitialize( string db_main,string db_telemetry, DataBaseType db_type, TelemetryStorage telemetry, EventBusStore eventBus)
         {
             _ct = _context.CancellationTokenSource.Token;
-            _postgreSqlContainer = new PostgreSqlBuilder().Build();
-            await _postgreSqlContainer.StartAsync(_ct);
             _host = await AlbaHost.For<IoTSharp.Program>(x =>
             {
                 x.UseEnvironment("Test");
-                x.UseSetting("DataBase", nameof(DataBaseType.PostgreSql))
-                .UseSetting("EventBusStore", nameof(EventBusStore.InMemory))
-                .UseSetting("TelemetryStorage", nameof(TelemetryStorage.Sharding))
+                x.UseSetting("DataBase", Enum.GetName( db_type))
+                .UseSetting("EventBusStore", Enum.GetName(eventBus))
+                .UseSetting("TelemetryStorage", Enum.GetName(telemetry))
                 .UseSetting("EventBus", "Shashlik")
-                .UseSetting("ConnectionStrings:IoTSharp", _postgreSqlContainer.GetConnectionString())
-                .UseSetting("ConnectionStrings:TelemetryStorage", _postgreSqlContainer.GetConnectionString())
+                .UseSetting("ConnectionStrings:IoTSharp", db_main)
+                .UseSetting("ConnectionStrings:TelemetryStorage", db_telemetry)
                 .ConfigureLogging(cfg => cfg.AddMXLogger(_context.WriteLine));
 
             });
@@ -71,11 +63,10 @@ namespace IoTSharp.Test
             Assert.IsTrue(result.IsSuccessStatusCode);
             var v = await result.Content.ReadFromJsonAsync<ApiResult<InstanceDto>>(_ct);
             Assert.IsTrue(v.Data.Installed);
-
         }
 
         [TestMethod]
-        public async Task IsInstalled()
+        public async Task AppIsInstalled()
         {
             using var _client = _host.GetTestClient();
             var result = await _client.GetFromJsonAsync<ApiResult<InstanceDto>>("/api/Installer/Instance", _ct);
@@ -84,11 +75,9 @@ namespace IoTSharp.Test
         }
 
         [TestMethod]
-        public async Task AccountLogin()
+        public async Task AppAccountLogin()
         {
             using var _client = _host.GetTestClient();
-
-
             var dto = new Dtos.LoginDto() { UserName = _installdto.Email, Password = _installdto.Password };
             var result = await _client.PostAsJsonAsync("/api/Account/Login", dto, _ct);
             Assert.IsTrue(result.IsSuccessStatusCode);
@@ -96,11 +85,10 @@ namespace IoTSharp.Test
             Assert.IsTrue(rdto.Data.Succeeded);
             Assert.AreEqual(rdto.Data.UserName, _installdto.Email);
         }
-        [TestCleanup]
-        public async Task Cleanup()
+        public async Task AppCleanup()
         {
-            await _postgreSqlContainer.DisposeAsync();
             await _host.StopAsync(_ct);
         }
+    
     }
 }
