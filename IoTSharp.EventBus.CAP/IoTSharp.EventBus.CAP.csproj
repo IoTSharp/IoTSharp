@@ -6,7 +6,7 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 	<ItemGroup>
-		<PackageReference Include="AspNetCore.HealthChecks.NpgSql" Version="8.0.1" />
+		<PackageReference Include="AspNetCore.HealthChecks.NpgSql" Version="8.0.2" />
 		<PackageReference Include="CAP.Extensions" Version="1.0.37" />
 		<PackageReference Include="DotNetCore.CAP.Dashboard" Version="8.2.0" />
 		<PackageReference Include="DotNetCore.CAP.InMemoryStorage" Version="8.2.0" />
@@ -23,8 +23,8 @@
 		<PackageReference Include="DotNetCore.CAP.Pulsar" Version="8.2.0" />
 		<PackageReference Include="EasyCaching.Core" Version="1.9.2" />
 		<PackageReference Include="AspNetCore.HealthChecks.Kafka" Version="8.0.1" />
-		<PackageReference Include="AspNetCore.HealthChecks.MongoDb" Version="8.0.1" />
-		<PackageReference Include="AspNetCore.HealthChecks.Rabbitmq" Version="8.0.1" />
+		<PackageReference Include="AspNetCore.HealthChecks.MongoDb" Version="8.1.0" />
+		<PackageReference Include="AspNetCore.HealthChecks.Rabbitmq" Version="8.0.2" />
 		<PackageReference Include="AspNetCore.HealthChecks.Redis" Version="8.0.1" />
 		<PackageReference Include="MaiKeBing.CAP.ZeroMQ" Version="1.0.37" />
 		<PackageReference Include="MaiKeBing.CAP.LiteDB" Version="1.0.37" />

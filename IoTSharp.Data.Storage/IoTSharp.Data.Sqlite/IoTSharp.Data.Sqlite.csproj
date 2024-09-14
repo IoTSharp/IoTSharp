@@ -4,7 +4,7 @@
     <TargetFramework>net8.0</TargetFramework>
   </PropertyGroup>
 	<ItemGroup>
-		<PackageReference Include="AspNetCore.HealthChecks.Sqlite" Version="8.0.1" />
+		<PackageReference Include="AspNetCore.HealthChecks.Sqlite" Version="8.1.0" />
 		<PackageReference Include="AspNetCore.HealthChecks.UI.Sqlite.Storage" Version="8.0.1" />
 		<PackageReference Include="AspNetCore.HealthChecks.UI.Core" Version="8.0.1" />
 		<PackageReference Include="Microsoft.Extensions.Diagnostics.HealthChecks" Version="8.0.8" />

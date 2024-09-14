@@ -23,6 +23,15 @@ namespace IoTSharp.Contracts
 
     public class ApiResult<T> : ApiResult
     {
+        public ApiResult()
+        {
+            Data = default;
+        }
+        public ApiResult(T data)
+        {
+            Data = data;
+        }
+
         public ApiResult(ApiCode _code, string _msg, T data) : base(_code, _msg)
         {
             Data = data;

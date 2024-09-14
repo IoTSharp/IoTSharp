@@ -39,7 +39,9 @@
 		<EnforceCodeStyleInBuild>True</EnforceCodeStyleInBuild>
 		<Configurations>Debug;Release;</Configurations>
 	</PropertyGroup>
-
+	<ItemGroup>
+		<InternalsVisibleTo Include="IoTSharp.Test" />
+	</ItemGroup>
 	<PropertyGroup Condition="'$(Configuration)' == 'Debug' OR '$(Configuration)' == 'Release'">
 		<SpaRoot>..\ClientApp\</SpaRoot>
 		<SpaProxyServerUrl>http://localhost:8888</SpaProxyServerUrl>
@@ -50,7 +52,7 @@
 	<ItemGroup>
 
 		<PackageReference Include="AspNetCore.HealthChecks.System" Version="8.0.1" />
-		<PackageReference Include="AspNetCore.HealthChecks.UI" Version="8.0.1" />
+		<PackageReference Include="AspNetCore.HealthChecks.UI" Version="8.0.2" />
 		<PackageReference Include="AspNetCore.HealthChecks.UI.Client" Version="8.0.1" />
 		<PackageReference Include="AutoMapper" Version="13.0.1" />
 		<PackageReference Include="EasyCaching.InMemory" Version="1.9.2" />
@@ -70,8 +72,8 @@
 		</PackageReference>
 		<PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.21.0" />
 		<PackageReference Include="MimeMapping" Version="3.0.1" />
-		<PackageReference Include="MQTTnet" Version="4.3.6.1152" />
-		<PackageReference Include="MQTTnet.AspNetCore" Version="4.3.6.1152" />
+		<PackageReference Include="MQTTnet" Version="4.3.7.1207" />
+		<PackageReference Include="MQTTnet.AspNetCore" Version="4.3.7.1207" />
 		<PackageReference Include="MQTTnet.AspNetCore.Routing" Version="0.4.37" />
 		<PackageReference Include="NSwag.AspNetCore" Version="14.1.0" />
 		<PackageReference Include="Rin" Version="2.6.0" />

@@ -4,6 +4,10 @@ using Newtonsoft.Json.Linq;
 using System.Collections.Generic;
 using System.Linq;
 using IoTSharp.Data;
+using IoTSharp.Contracts;
+using IoTSharp.Dtos;
+using System.Text.Json;
+using System;
 
 namespace IoTSharp.Test
 {
@@ -29,6 +33,15 @@ namespace IoTSharp.Test
             sss.Add("ggg", "hhh");
             sss.Add("iii", "kkk");
             Assert.IsNotNull(Newtonsoft.Json.JsonConvert.SerializeObject(sss));
+        }
+        [TestMethod]
+        public void JsonSerializer_ApiResult_InstanceDto()
+        {
+            var js = new ApiResult<InstanceDto>(ApiCode.Success, "OK", new InstanceDto() { Installed = true , Version=DateTime.Now.ToString()});
+            var json=  JsonSerializer.Serialize(js);
+            var result= JsonSerializer.Deserialize <ApiResult<InstanceDto>>(json,new JsonSerializerOptions() { IncludeFields=true });
+            Assert.AreEqual(js.Data.Installed, result.Data.Installed);
+            Assert.AreEqual(js.Data.Version, result.Data.Version);
         }
     }
 }
