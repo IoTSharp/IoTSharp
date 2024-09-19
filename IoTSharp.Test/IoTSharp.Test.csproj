@@ -18,7 +18,11 @@
     <PackageReference Include="MSTest.TestFramework" Version="3.6.0" />
     <PackageReference Include="MXLogger" Version="2.0.8" />
     <PackageReference Include="Testcontainers" Version="3.10.0" />
+    <PackageReference Include="Testcontainers.InfluxDb" Version="3.10.0" />
+    <PackageReference Include="Testcontainers.MongoDb" Version="3.10.0" />
+    <PackageReference Include="Testcontainers.MySql" Version="3.10.0" />
     <PackageReference Include="Testcontainers.PostgreSql" Version="3.10.0" />
+    <PackageReference Include="Testcontainers.RabbitMq" Version="3.10.0" />
   </ItemGroup>
 
   <ItemGroup>
