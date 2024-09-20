@@ -89,9 +89,9 @@
 		<PackageReference Include="Microsoft.Extensions.Hosting.WindowsServices" Version="8.0.0" />
 		<PackageReference Include="Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore" Version="8.0.8" />
 		<PackageReference Include="Microsoft.AspNetCore.Identity.UI" Version="8.0.8" />
-		<PackageReference Include="Microsoft.CodeAnalysis.Common" Version="4.11.0" />
-		<PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.11.0" />
-		
+		<PackageReference Include="Microsoft.CodeAnalysis.Common" Version="4.5.0" />
+		<PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.5.0" />
+
 	</ItemGroup>
 
 	

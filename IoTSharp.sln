@@ -111,6 +111,8 @@ Project("{54A90642-561A-4BB1-A94E-469ADEE60C69}") = "ClientApp", "ClientApp\Clie
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IoTSharp.EventBus.NServiceBus", "IoTSharp.EventBus.NServiceBus\IoTSharp.EventBus.NServiceBus.csproj", "{10E377A8-6060-44AA-9678-9F175BE6E24F}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IoTSharp.Interpreter.Test", "IoTSharp.Interpreter.Test\IoTSharp.Interpreter.Test.csproj", "{B358ECE4-94D1-418C-8B3C-9E92156D7FD6}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -240,6 +242,10 @@ Global
 		{10E377A8-6060-44AA-9678-9F175BE6E24F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{10E377A8-6060-44AA-9678-9F175BE6E24F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{10E377A8-6060-44AA-9678-9F175BE6E24F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B358ECE4-94D1-418C-8B3C-9E92156D7FD6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B358ECE4-94D1-418C-8B3C-9E92156D7FD6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B358ECE4-94D1-418C-8B3C-9E92156D7FD6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B358ECE4-94D1-418C-8B3C-9E92156D7FD6}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
