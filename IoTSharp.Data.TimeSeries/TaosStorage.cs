@@ -3,10 +3,13 @@ using IoTSharp.Contracts;
 using IoTSharp.Data;
 using IoTSharp.Data.Taos;
 using IoTSharp.Extensions;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using System;
+using System.Data;
+using System.Text;
 
 namespace IoTSharp.Storage
 {
@@ -124,23 +127,17 @@ namespace IoTSharp.Storage
             return Task.FromResult(dt);
         }
 
-        public Task<List<TelemetryDataDto>> LoadTelemetryAsync(Guid deviceId, string keys, DateTime begin, DateTime end, TimeSpan every, Aggregate aggregate)
+        public async Task<List<TelemetryDataDto>> LoadTelemetryAsync(Guid deviceId, string keys, DateTime begin, DateTime end, TimeSpan every, Aggregate aggregate)
         {
-            if (_taos.State != System.Data.ConnectionState.Open) _taos.Open();
-            string sql = string.Empty;
-
-            if (!string.IsNullOrEmpty(keys))
-            {
-                IEnumerable<string> kvs = from k in keys.Split(';', ',')
-                                          select $" keyname = '{k}' ";
-                sql = $"select * from telemetrydata where ts >='{begin:yyyy-MM-dd HH:mm:ss.fff}' and ts <='{end:yyyy-MM-dd HH:mm:ss.fff}' and deviceid='{deviceId:N}'  and ({string.Join("or", kvs)})  ";
-            }
-            else
-            {
-                sql = $"select  * from telemetrydata where ts >='{begin:yyyy-MM-dd HH:mm:ss.fff}' and ts <='{end:yyyy-MM-dd HH:mm:ss.fff}' and deviceid='{deviceId:N}'  ";
-            }
-            List<TelemetryDataDto> dtx = SqlToTDD(_taos, sql, "*");
-            return Task.FromResult(dtx);
+            var results = new List<TelemetryDataDto>();
+            var keyList = keys.Split(',');
+            // 使用 Task.WhenAll 并行处理多个 key
+            var tasks = keyList.Select(key => AggregateTelemetryAsync(deviceId, key, begin, end, every, aggregate));
+            // 等待所有任务完成
+            var dataResults = await Task.WhenAll(tasks);
+            // 将结果合并
+            results.AddRange(dataResults.SelectMany(data => data));
+            return results;
         }
 
         public async Task<(bool result, List<TelemetryData> telemetries)> StoreTelemetryAsync(PlayloadData msg)
@@ -235,5 +232,90 @@ namespace IoTSharp.Storage
             }
             return (result, telemetries);
         }
+
+        public async Task<DataType?> GetTelemetryDataType(Guid deviceId, string key)
+        {
+            if (_taos.State != System.Data.ConnectionState.Open) _taos.Open();
+            string sql = $"select last_row(value_type) from telemetrydata where deviceid='{deviceId:N}' and keyname='{key}'";
+            var temp =await _taos.CreateCommand(sql).ExecuteScalarAsync();
+            if(temp==null || !int.TryParse(temp.ToString(),out int type)) return null; 
+            return (DataType)type;
+        }
+
+        private async Task<List<TelemetryDataDto>> AggregateTelemetryAsync(Guid deviceId, string key, DateTime begin, DateTime end, TimeSpan every, Aggregate aggregate)
+        {
+            //获取最新的数据
+            var lastTemp = await GetTelemetryDataType(deviceId, key);
+            if (lastTemp == null) return [];
+            if (aggregate.Equals(Aggregate.None))
+            {
+                return await GetAllData(deviceId, key, begin, end);
+            }
+            switch (lastTemp.Value)
+            {
+                case DataType.Double:
+                case DataType.Long:
+                    return await AggregateAsync(deviceId, key, lastTemp.Value, begin, end, every, aggregate);
+                default:
+                    return await GetAllData(deviceId, key, begin, end);
+            }
+
+        }
+
+        private Task<List<TelemetryDataDto>> GetAllData(Guid deviceId, string key, DateTime begin, DateTime end)
+        {
+            if (_taos.State != System.Data.ConnectionState.Open) _taos.Open();
+            string sql = $"select  * from telemetrydata where ts >='{begin:yyyy-MM-dd HH:mm:ss.fff}' and ts <='{end:yyyy-MM-dd HH:mm:ss.fff}' and deviceid='{deviceId:N}' and keyname='{key}' ";
+            List<TelemetryDataDto> dtx = SqlToTDD(_taos, sql, "*");
+            return Task.FromResult(dtx);
+        }
+
+        private async Task<List<TelemetryDataDto>> AggregateAsync(Guid deviceId, string key, DataType dataType, DateTime begin, DateTime end, TimeSpan every, Aggregate aggregate)
+        {
+            var sql = new StringBuilder();
+            sql.AppendLine($"select _wend as Time, ");
+            // 根据聚合类型生成 SQL 聚合函数
+            sql.AppendLine(aggregate switch
+            {
+                Aggregate.Mean => $"avg({GetFiledName(dataType)}) ",
+                Aggregate.Max => $"max({GetFiledName(dataType)}) ",
+                Aggregate.Min => $"min({GetFiledName(dataType)}) ",
+                Aggregate.Sum => $"sum({GetFiledName(dataType)}) ",
+                Aggregate.First => $"first({GetFiledName(dataType)}) ",
+                Aggregate.Last => $"last({GetFiledName(dataType)}) ",
+                Aggregate.Median => $"APERCENTILE({GetFiledName(dataType)},50) ",
+                Aggregate.None => "",
+                _ => throw new ArgumentOutOfRangeException(nameof(aggregate), aggregate, null)
+            });
+            sql.AppendLine($" as v from iotsharp.telemetrydata where ts >='{begin:yyyy-MM-dd HH:mm:ss.fff}' and ts <='{end:yyyy-MM-dd HH:mm:ss.fff}' and deviceid='{deviceId:N}' and keyname='{key}'");
+            sql.AppendLine($"interval ({every.TotalMilliseconds}a)");
+            TaosDataReader dataReader = await _taos.CreateCommand(sql.ToString()).ExecuteReaderAsync();
+            var results = new List<TelemetryDataDto>();
+            while (dataReader.Read())
+            {
+                var time = dataReader.GetDateTime(dataReader.GetOrdinal("time"));
+                var resultValue = dataReader.GetDouble(dataReader.GetOrdinal("v"));
+                results.Add(new TelemetryDataDto
+                {
+                    DateTime = time,
+                    KeyName = key,
+                    DataType = dataType,
+                    Value = resultValue,
+                });
+            }
+            return results;
+        }
+
+
+        private string GetFiledName(DataType dataType)
+        {
+            return dataType switch
+            {
+                DataType.Double => "Value_Double",
+                DataType.Long => "Value_Long",
+                _ => throw new ArgumentOutOfRangeException(nameof(dataType), dataType, null)
+            };
+        }
+
     }
 }
