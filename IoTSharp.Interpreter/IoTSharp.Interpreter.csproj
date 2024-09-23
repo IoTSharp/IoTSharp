@@ -5,7 +5,7 @@
   </PropertyGroup>
 	<ItemGroup>
 		<PackageReference Include="CLanguage" Version="0.20.74" />
-		<PackageReference Include="CS-Script" Version="4.8.9" />
+		<PackageReference Include="CS-Script" Version="4.8.17" />
 		<PackageReference Include="Jint" Version="4.0.2" />
 		<PackageReference Include="Microsoft.Extensions.Caching.Abstractions" Version="8.0.0" />
 		<PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" Version="8.0.0" />
