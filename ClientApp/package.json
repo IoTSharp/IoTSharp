@@ -30,6 +30,7 @@
 		"echarts-gl": "^2.0.9",
 		"echarts-wordcloud": "^2.0.0",
 		"element-plus": "^2.6.1",
+		"iotsharp": "file:",
 		"js-cookie": "^3.0.1",
 		"jsplumb": "^2.15.6",
 		"lodash-es": "^4.17.21",

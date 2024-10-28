@@ -7,7 +7,7 @@
   </PropertyGroup>
 	<ItemGroup>
 
-		<PackageReference Include="Apache.IoTDB.Data" Version="1.0.0.4" />
+		<PackageReference Include="Apache.IoTDB.Data" Version="1.3.3.1" />
 
 		<PackageReference Include="IoTSharp.Data.Taos" Version="3.0.21.90" />
 		<PackageReference Include="IoTSharp.HealthChecks.InfluxDB" Version="1.0.29" />
