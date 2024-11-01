@@ -24,15 +24,11 @@
 		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
 		<IsPackable>true</IsPackable>
 		<PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
-		<Copyright>Copyright 2018-2023  Yanhong Ma</Copyright>
+		<Copyright>Copyright 2018-2025  Yanhong Ma</Copyright>
 		<AssemblyVersion>3.0.0.0</AssemblyVersion>
 		<FileVersion>3.0.0.0</FileVersion>
 		<PackageIcon>96x96.png</PackageIcon>
 		<GenerateDocumentationFile>True</GenerateDocumentationFile>
-		<RestoreAdditionalProjectSources>
-			https://api.nuget.org/v3/index.json;
-			https://www.myget.org/F/iotsharp/api/v3/index.json;
-		</RestoreAdditionalProjectSources>
 		<GenerateSerializationAssemblies>Off</GenerateSerializationAssemblies>
 		<DocumentationFile>IoTSharp.xml</DocumentationFile>
 		<NoWarn>1701;1702;1591</NoWarn>
@@ -63,6 +59,8 @@
 		<PackageReference Include="IoTSharp.CoAP.NET" Version="2.0.8" />
 		<PackageReference Include="Jdenticon-net" Version="3.1.2" />
 		<PackageReference Include="Jdenticon.AspNetCore" Version="3.1.2" />
+		<PackageReference Include="LettuceEncrypt" Version="1.3.3" />
+		<PackageReference Include="LettuceEncrypt.Dns.Ali" Version="1.1.0" />
 		<PackageReference Include="LiteDB" Version="5.0.21" />
 		<PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="8.0.10" />
 		<PackageReference Include="Microsoft.AspNetCore.SpaProxy" Version="8.0.10" />

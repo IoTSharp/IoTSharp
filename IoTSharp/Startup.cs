@@ -35,6 +35,9 @@ using IoTSharp.Data.Extensions;
 using Quartz;
 using IoTSharp.Services;
 using Quartz.AspNetCore;
+using System.IO;
+using LettuceEncrypt;
+using LettuceEncrypt.Dns.Ali;
 
 namespace IoTSharp
 {
@@ -274,7 +277,13 @@ namespace IoTSharp
             services.AddTransient<PublishAlarmDataTask>();
             services.AddTransient<RawDataGateway>();
             services.AddTransient<KepServerEx>();
-            
+    
+            if (Environment.GetEnvironmentVariable("IOTSHARP_ACME") == "true")
+            {
+                    services.AddLettuceEncrypt()
+                            .PersistDataToDirectory(new DirectoryInfo(Path.Combine(AppContext.BaseDirectory, "security")), "kissme")
+                            .Services.AddAliDnsChallengeProvider();
+            }
         }
 
       
@@ -284,6 +293,7 @@ namespace IoTSharp
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public  void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
+
             if (env.IsDevelopment() || !env.IsEnvironment("Production"))
             {
                 app.UseRin();

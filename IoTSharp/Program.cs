@@ -7,6 +7,9 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Hosting;
 using Figgle;
+using Microsoft.AspNetCore.Server.Kestrel.Https;
+using LettuceEncrypt;
+using LettuceEncrypt.Dns.Ali;
 
 namespace IoTSharp
 {
@@ -25,7 +28,19 @@ namespace IoTSharp
                 .ConfigureWebHostDefaults(webBuilder =>
                 {
                     webBuilder.UseStartup<Startup>();
+                    if (Environment.GetEnvironmentVariable("IOTSHARP_ACME") == "true")
+                    {
+                       webBuilder.UseKestrel(options =>
+                        {
+                            var appServices = options.ApplicationServices;
+                            options.ConfigureHttpsDefaults(h =>
+                             {
+                                 h.ClientCertificateMode = ClientCertificateMode.RequireCertificate;
+                                 h.UseLettuceEncrypt(appServices);
+                             });
+                        });
+                    }
                 });
-              
+
     }
 }
