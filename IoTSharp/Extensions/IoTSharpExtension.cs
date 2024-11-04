@@ -35,6 +35,7 @@ using IoTSharp.Extensions.X509;
 using IoTSharp.Storage;
 using ShardingCore;
 using Microsoft.Extensions.Options;
+using Shashlik.EventBus.Utils;
 
 namespace IoTSharp
 {
@@ -181,23 +182,38 @@ namespace IoTSharp
 
         internal static  Settings AddIoTSharpHealthCheckEndpoint(this Settings setup)
         {
-            var urls = Environment.GetEnvironmentVariable("ASPNETCORE_URLS")?.Split(';',StringSplitOptions.RemoveEmptyEntries);
-            var uris = urls?.Select(url => Regex.Replace(url, @"^(?<scheme>https?):\/\/((\+)|(\*)|(0.0.0.0))(?=[\:\/]|$)", "${scheme}://localhost"))
-                            .Select(uri => new Uri(uri, UriKind.Absolute)).ToArray();
-            var httpEndpoint = uris?.FirstOrDefault(uri => uri.Scheme == "http");
-            var httpsEndpoint = uris?.FirstOrDefault(uri => uri.Scheme == "https");
-            if (httpEndpoint != null) // Create an HTTP healthcheck endpoint
+            var _in_docker = Environment.GetEnvironmentVariable("DOTNET_RUNNING_IN_CONTAINER") == "true";
+            if (_in_docker)
             {
-                setup.AddHealthCheckEndpoint("IoTSharp", new UriBuilder(httpEndpoint.Scheme, httpEndpoint.Host, httpEndpoint.Port, "/healthz").ToString());
-            }
-            else if (httpsEndpoint != null) // Create an HTTPS healthcheck endpoint
-            {
-                setup.AddHealthCheckEndpoint("IoTSharp", new UriBuilder(httpsEndpoint.Scheme, httpsEndpoint.Host, httpsEndpoint.Port, "/healthz").ToString());
+                int port = 0 ;
+                if (!int.TryParse(Environment.GetEnvironmentVariable("ASPNETCORE_HTTP_PORTS"),out port))
+                {
+                    port = 8080;
+                }
+                setup.AddHealthCheckEndpoint(typeof(Startup).Assembly.GetName().Name, $"http://{Dns.GetHostName()}:{port}/healthz");
             }
             else
             {
-                //One endpoint is configured in appsettings, let's add another one programatically
-                setup.AddHealthCheckEndpoint("IoTSharp", "/healthz");
+                var urls = Environment.GetEnvironmentVariable("ASPNETCORE_URLS")?.Split(';', StringSplitOptions.RemoveEmptyEntries);
+
+
+                var uris = urls?.Select(url => Regex.Replace(url, @"^(?<scheme>https?):\/\/((\+)|(\*)|(0.0.0.0))(?=[\:\/]|$)", "${scheme}://localhost"))
+                                .Select(uri => new Uri(uri, UriKind.Absolute)).ToArray();
+                var httpEndpoint = uris?.FirstOrDefault(uri => uri.Scheme == "http");
+                var httpsEndpoint = uris?.FirstOrDefault(uri => uri.Scheme == "https");
+                if (httpEndpoint != null) // Create an HTTP healthcheck endpoint
+                {
+                    setup.AddHealthCheckEndpoint("IoTSharp", new UriBuilder(httpEndpoint.Scheme, httpEndpoint.Host, httpEndpoint.Port, "/healthz").ToString());
+                }
+                else if (httpsEndpoint != null) // Create an HTTPS healthcheck endpoint
+                {
+                    setup.AddHealthCheckEndpoint("IoTSharp", new UriBuilder(httpsEndpoint.Scheme, httpsEndpoint.Host, httpsEndpoint.Port, "/healthz").ToString());
+                }
+                else
+                {
+                    //One endpoint is configured in appsettings, let's add another one programatically
+                    setup.AddHealthCheckEndpoint("IoTSharp", "http://localhost:5000/healthz");
+                }
             }
             return setup;
         }
