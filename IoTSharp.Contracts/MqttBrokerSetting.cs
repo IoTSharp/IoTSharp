@@ -1,5 +1,6 @@
 ﻿using System.Security.Authentication;
 using System.Security.Cryptography.X509Certificates;
+using System.Text.Json.Serialization;
 
 namespace IoTSharp.Contracts
 {
@@ -9,7 +10,6 @@ namespace IoTSharp.Contracts
         public int TlsPort { get; set; } = 8883;
         public bool EnableTls { get; set; } = false;
         public SslProtocols SslProtocol { get; set; } = SslProtocols.Tls12;
-        public bool PersistRetainedMessages { get; set; }
 
         X509Certificate2 _CACertificate;
         public X509Certificate2 CACertificate
