@@ -28,18 +28,20 @@ namespace IoTSharp
                 .ConfigureWebHostDefaults(webBuilder =>
                 {
                     webBuilder.UseStartup<Startup>();
-                    if (Environment.GetEnvironmentVariable("IOTSHARP_ACME") == "true")
-                    {
-                       webBuilder.UseKestrel(options =>
-                        {
-                            var appServices = options.ApplicationServices;
-                            options.ConfigureHttpsDefaults(h =>
-                             {
-                                 h.ClientCertificateMode = ClientCertificateMode.RequireCertificate;
-                                 h.UseLettuceEncrypt(appServices);
-                             });
-                        });
-                    }
+
+                    webBuilder.UseKestrel(options =>
+                     {
+                         var appServices = options.ApplicationServices;
+                         if (Environment.GetEnvironmentVariable("IOTSHARP_ACME") == "true")
+                         {
+                             options.ConfigureHttpsDefaults(h =>
+                               {
+                                  h.ClientCertificateMode = ClientCertificateMode.RequireCertificate;
+                                  h.UseLettuceEncrypt(appServices);
+                              });
+                         }
+                     });
+
                 });
 
     }
