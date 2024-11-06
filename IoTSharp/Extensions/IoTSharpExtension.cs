@@ -190,13 +190,19 @@ namespace IoTSharp
                 {
                     port = 8080;
                 }
-                setup.AddHealthCheckEndpoint(typeof(Startup).Assembly.GetName().Name, $"http://{Dns.GetHostName()}:{port}/healthz");
+                int https_port = 0;
+                if (int.TryParse(Environment.GetEnvironmentVariable("ASPNETCORE_HTTPS_PORTS"), out https_port))
+                {
+                    setup.AddHealthCheckEndpoint(typeof(Startup).Assembly.GetName().Name, $"https://{Dns.GetHostName()}:{https_port}/healthz");
+                }
+                else
+                {
+                    setup.AddHealthCheckEndpoint(typeof(Startup).Assembly.GetName().Name, $"http://{Dns.GetHostName()}:{port}/healthz");
+                }
             }
             else
             {
                 var urls = Environment.GetEnvironmentVariable("ASPNETCORE_URLS")?.Split(';', StringSplitOptions.RemoveEmptyEntries);
-
-
                 var uris = urls?.Select(url => Regex.Replace(url, @"^(?<scheme>https?):\/\/((\+)|(\*)|(0.0.0.0))(?=[\:\/]|$)", "${scheme}://localhost"))
                                 .Select(uri => new Uri(uri, UriKind.Absolute)).ToArray();
                 var httpEndpoint = uris?.FirstOrDefault(uri => uri.Scheme == "http");
