@@ -400,6 +400,7 @@ ASALocalRun/
 /IoTSharp/IoTSharp.db-wal
 /IoTSharp/TelemetryStorage.db-shm
 /IoTSharp/TelemetryStorage.db-wal
+package-lock.json
 =======
 
 
@@ -750,3 +751,5 @@ ASALocalRun/
 /ClientApp/src/auto-imports.d.ts
 /ClientApp/dist
 /ClientApp/src/components.d.ts
+docs/yarn.lock
+/docs/yarn.lock

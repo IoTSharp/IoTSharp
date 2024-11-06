@@ -32,10 +32,10 @@ devices/me/attributes
  
 ### 网关设备发送遥测数据
 ```
-devices/{设备名称}/telemetry
-devices/{设备名称}/attributes
+devices/设备名称/telemetry
+devices/{设备名称/attributes
 ```
- {设备名称} 则是隶属当前网关设备处理的设备名称。 
+ 设备名称 则是隶属当前网关设备处理的设备名称。 
  MQTT的负载为如下格式
 
  ```json
@@ -119,11 +119,11 @@ v1/gateway/attributes
 
 发布请求
 ```
-  devices/me/attributes/request/{请求唯一标识}
+  devices/me/attributes/request/请求唯一标识
 ```
 订阅结果
 ```
- devices/me/attributes/response/{请求唯一标识}
+ devices/me/attributes/response/请求唯一标识
 ```
 
 
@@ -131,11 +131,11 @@ v1/gateway/attributes
 
 发布请求
 ```
-  devices/{设备名称}/attributes/request/{请求唯一标识}
+  devices/设备名称/attributes/request/请求唯一标识
 ```
 订阅结果
 ```
- devices/{设备名称}/attributes/response/{请求唯一标识}
+ devices/设备名称/attributes/response/请求唯一标识
 ```
 
 ## 发起上行RPC远程控制
@@ -143,10 +143,10 @@ v1/gateway/attributes
 上行RPC控制是指 终端设备远程调用服务端的内容， IoTSharp 收到此请求则调用规则链， 你可以在规则链中处理此请求， 关于规则链请查看相关章节。 
 
 ```
-  devices/{设备名称}/rpc/request/{方法名称}
+  devices/设备名称/rpc/request/方法名称
 ```
 
-设备名称这里如果是直连设备， 则为me， 如果是网关设备， 则是设备名称， {方法名称}用于区别调用了何种方法， 这里交由规则链处理。 通过规则链， 你可以调用 内部服务， 也可以调用外部服务等， 发挥你的想象就好。 
+设备名称这里如果是直连设备， 则为me， 如果是网关设备， 则是设备名称， 方法名称用于区别调用了何种方法， 这里交由规则链处理。 通过规则链， 你可以调用 内部服务， 也可以调用外部服务等， 发挥你的想象就好。 
 
 
 ##  发起下行RPC远程控制
@@ -155,8 +155,8 @@ v1/gateway/attributes
 
 通过MQTT发起时， 先订阅response， 然后发布request。 
 ```
- devices/{设备名称}/rpc/request/{方法名称}/{请求唯一标识}
- devices/{设备名称}/rpc/response/{方法名称}/{请求唯一标识}
+ devices/设备名称/rpc/request/方法名称/请求唯一标识
+ devices/设备名称/rpc/response/方法名称/请求唯一标识
 ```
 
 ##  RawData
@@ -170,8 +170,8 @@ v1/gateway/attributes
 注意， 通常情况下你需要 配合规则链的脚本来解析透传的原始数据， 相关视频请查看 【IoTSharp 教程第二集 规则链使用】 https://www.bilibili.com/video/BV1be4y1N74s/?share_source=copy_web&vd_source=5b4c8cb51c4e0e2e985b5927ecc05d4a  
 目前支持的topic如下 
 
-1.  devices/{设备名称}/data/json  来处理json格式的数据
-2.  devices/{设备名称}/data/binary  用于处理二进制数据 
+1.  devices/设备名称/data/json  来处理json格式的数据
+2.  devices/设备名称/data/binary  用于处理二进制数据 
 
 
 
@@ -180,7 +180,7 @@ v1/gateway/attributes
 
 ```sh
 curl -X 'POST' \
-  'https://cloud.iotsharp.net/api/Devices/{设备的TOKEN}/Rpc/{方法名称}?timeout={超时时间}' \
+  'https://host.iotsharp.net/api/Devices/{设备的TOKEN}/Rpc/方法名称?timeout={超时时间}' \
   -H 'accept: application/json' \
   -H 'Content-Type: application/json' \
   -d '"{参数， 可以是json}"'
@@ -192,7 +192,7 @@ curl -X 'POST' \
 在MQTT协议中， 我们提供了接收KepServerEx消息的服务端网关
 
 1. 在KepServerEx的IoT Gateway 新建 一个 MQTT的 客户端
-2. URL 填写 tcp://<iotsharp地址>:1883
+2. URL 填写 tcp://ip:1883
 3. Topic 填写 /gateway/kepserverex
 4. ClientId填写设备ID或者随意
 5. UserName填写 网关程序的Token 

@@ -34,7 +34,7 @@ curl --location --request POST  'http://cloud.iotsharp.net/api/Devices/{网关To
 ```
  
  属性配置参考
- 1. _map_to_attribute_{映射到子设备的属性名称}   属性值为在当前json中的路径。 
+ 1. _map_to_attribute_映射到子设备的属性名称  属性值为在当前json中的路径。 
  例如: 
  ```
 _map_to_attribute_currentAllowWeight	currentAllowWeight	 
@@ -45,7 +45,7 @@ _map_to_attribute_version	version
 2. _map_to_devname  指定设备的名称使用哪个字段 
 3. _map_to_devname_format 指定设备名称的格式，可用的变量有 $devname  和 $subdevname， 格式内容为	hf_crane_$devname 
 4. _map_to_jsontext_in_json	指定如果是文本类型的将自动将字符串转为json，示例中为： dataJson	 
-5. _map_to_telemetry_{映射到子设备中的遥测名称}	   
+5. _map_to_telemetry_映射到子设备中的遥测名称	   
 ```
 _map_to_telemetry_windSpeed	windSpeed	 
 ```
