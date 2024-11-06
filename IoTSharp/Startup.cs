@@ -283,9 +283,11 @@ namespace IoTSharp
                     services.AddLettuceEncrypt()
                             .PersistDataToDirectory(new DirectoryInfo(Path.Combine(AppContext.BaseDirectory, "security")), "kissme")
                             .Services.AddAliDnsChallengeProvider();
-                services.AddHttpsRedirection(options =>
+                services.AddHsts(options =>
                 {
-                   // options.HttpsPort = 8443;
+                    options.Preload = true;
+                    options.IncludeSubDomains = true;
+                    options.MaxAge = TimeSpan.FromDays(60);
                 });
             }
         }

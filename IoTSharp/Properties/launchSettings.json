@@ -48,9 +48,10 @@
       "launchBrowser": true,
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "PostgreSql",
-        "ASPNETCORE_HOSTINGSTARTUPASSEMBLIES": "Microsoft.AspNetCore.SpaProxy"
+        "ASPNETCORE_HOSTINGSTARTUPASSEMBLIES": "Microsoft.AspNetCore.SpaProxy",
+        "IOTSHARP_ACME": "true"
       },
-      "applicationUrl": "http://localhost:5000"
+      "applicationUrl": "http://localhost:5000;https://localhost:5001"
     },
     "Production": {
       "commandName": "Project",
