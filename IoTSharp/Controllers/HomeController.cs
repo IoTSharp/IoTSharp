@@ -33,6 +33,7 @@ namespace IoTSharp.Controllers
             var  data = _caching.GetKanBanCache(profile.Tenant, _context);
             return new ApiResult<HomeKanbanDto>(ApiCode.Success, "OK", data);
         }
+        [AllowAnonymous]
         [HttpGet]
         public ApiResult<HomeNowDto> Now()
         {
