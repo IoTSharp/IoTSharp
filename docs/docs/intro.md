@@ -52,6 +52,7 @@ IoTSharp 是一个开源的物联网基础平台，集设备属性数据管理�
 
   * [ZPS](https://github.com/IoTSharp/IoTSharp/tree/master/Deployments/zeromq_sharding)  默认开发配置，  IoTSharp 和 PostgreSql, 遥测数据可以通过单表或者分表。 
 
+  * 更多需求， 请联系我们。 
 
 ## 初次使用
 
