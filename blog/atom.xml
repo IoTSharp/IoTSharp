@@ -9,11 +9,12 @@
     <icon>https://docs.iotsharp.io/img/favicon.ico</icon>
     <entry>
         <title type="html"><![CDATA[IoTSharp培训教程第一集  开发环境安装配置、项目克隆、编译、调试、安装、登录]]></title>
-        <id>videos_1</id>
+        <id>https://docs.iotsharp.io/blog/videos_1</id>
         <link href="https://docs.iotsharp.io/blog/videos_1"/>
         <updated>2023-02-14T00:00:00.000Z</updated>
         <summary type="html"><![CDATA[IoTSharp 是一个 基于.Net Core 开源的物联网基础平台， 支持 HTTP、MQTT 、CoAp 协议， 属性数据和遥测数据协议简单类型丰富，简单设置即可将数据存储在PostgreSql、MySql、Oracle、SQLServer、Sqlite，是一个用于数据收集、处理、可视化与设备管理的 IoT 平台.]]></summary>
-        <content type="html"><![CDATA[<iframe src="//player.bilibili.com/player.html?aid=860913559&amp;bvid=BV1QV4y1A78g&amp;cid=914648074&amp;page=1" scrolling="no" border="0" frameborder="no" framespacing="0" allowfullscreen="true"> </iframe><p>IoTSharp 是一个 基于.Net Core 开源的物联网基础平台， 支持 HTTP、MQTT 、CoAp 协议， 属性数据和遥测数据协议简单类型丰富，简单设置即可将数据存储在PostgreSql、MySql、Oracle、SQLServer、Sqlite，是一个用于数据收集、处理、可视化与设备管理的 IoT 平台.</p>]]></content>
+        <content type="html"><![CDATA[<iframe src="//player.bilibili.com/player.html?aid=860913559&amp;bvid=BV1QV4y1A78g&amp;cid=914648074&amp;page=1" scrolling="no" border="0" frameborder="no" framespacing="0" allowfullscreen="true"></iframe>
+<p>IoTSharp 是一个 基于.Net Core 开源的物联网基础平台， 支持 HTTP、MQTT 、CoAp 协议， 属性数据和遥测数据协议简单类型丰富，简单设置即可将数据存储在PostgreSql、MySql、Oracle、SQLServer、Sqlite，是一个用于数据收集、处理、可视化与设备管理的 IoT 平台.</p>]]></content>
         <author>
             <name>maikebing</name>
             <uri>https://github.com/maikebing</uri>
@@ -22,10 +23,10 @@
     </entry>
     <entry>
         <title type="html"><![CDATA[IoTSharp培训教程第二集  规则链使用]]></title>
-        <id>videos_2</id>
+        <id>https://docs.iotsharp.io/blog/videos_2</id>
         <link href="https://docs.iotsharp.io/blog/videos_2"/>
         <updated>2023-02-14T00:00:00.000Z</updated>
-        <content type="html"><![CDATA[<iframe src="//player.bilibili.com/player.html?aid=651347967&amp;bvid=BV1be4y1N74s&amp;cid=993314593&amp;page=1" scrolling="no" border="0" frameborder="no" framespacing="0" allowfullscreen="true"> </iframe>]]></content>
+        <content type="html"><![CDATA[<iframe src="//player.bilibili.com/player.html?aid=651347967&amp;bvid=BV1be4y1N74s&amp;cid=993314593&amp;page=1" scrolling="no" border="0" frameborder="no" framespacing="0" allowfullscreen="true"></iframe>]]></content>
         <author>
             <name>maikebing</name>
             <uri>https://github.com/maikebing</uri>
@@ -34,11 +35,20 @@
     </entry>
     <entry>
         <title type="html"><![CDATA[IoTSharp凭借“热度值”入围《2022年度OSC中国开源项目奖》 和《最具极客精神奖》]]></title>
-        <id>osc2022</id>
+        <id>https://docs.iotsharp.io/blog/osc2022</id>
         <link href="https://docs.iotsharp.io/blog/osc2022"/>
         <updated>2023-01-11T00:00:00.000Z</updated>
         <summary type="html"><![CDATA[2022年度OSC中国开源项目奖]]></summary>
-        <content type="html"><![CDATA[<p>2022年度OSC中国开源项目奖</p><p><img loading="lazy" alt="图片" src="/assets/images/1-ae629fecbd6eaca429c307d76ad69bce.png" width="1080" height="1528" class="img_E7b_"></p><p>特别奖项：最具极客精神奖</p><p>经组委会讨论决定，2022 年度 OSC 中国开源项目评选「最具极客精神奖」获奖者是开源项目 IoTSharp 创始人 <strong>麦壳饼</strong>。</p><p>今年的年度 OSC 中国开源项目评选新策划了<strong>「最火热中国开源项目社区」</strong>奖项，并且增加了全新的 “极客” 玩法。在此背景下，开发者纷纷施展才华，积极为开源项目贡献 <strong>“热度值”</strong>。</p><p>其中，IoTSharp 项目的作者 @麦壳饼 在了解活动玩法后，很快就用 .NET (C#) 实现了分别支持 Win 64 和 Linux x64 的脚本。</p><p><img loading="lazy" alt="图片" src="/assets/images/2-f40148d1dc7a7e3d25cadf151c63a81c.png" width="1080" height="722" class="img_E7b_"></p><p>不仅如此，在评选活动进行期间他更是直接将贡献热度的工具开源了出来：<strong><a href="https://gitee.com/maikebing/oschina2022" target="_blank" rel="noopener noreferrer">https://gitee.com/maikebing/oschina2022</a></strong>，并在后续积极优化代码。</p><p><img loading="lazy" alt="图片" src="/assets/images/3-98458cf6132263028e3bf5fcd6b60df0.png" width="662" height="362" class="img_E7b_"></p><p>热爱开源，无私分享，追求极致，这正是 “极客精神” 的真实写照。</p>]]></content>
+        <content type="html"><![CDATA[<p>2022年度OSC中国开源项目奖</p>
+<p><img decoding="async" loading="lazy" alt="图片" src="https://docs.iotsharp.io/assets/images/1-ae629fecbd6eaca429c307d76ad69bce.png" width="1080" height="1528" class="img_ev3q"></p>
+<p>特别奖项：最具极客精神奖</p>
+<p>经组委会讨论决定，2022 年度 OSC 中国开源项目评选「最具极客精神奖」获奖者是开源项目 IoTSharp 创始人 <strong>麦壳饼</strong>。</p>
+<p>今年的年度 OSC 中国开源项目评选新策划了**「最火热中国开源项目社区」**奖项，并且增加了全新的 “极客” 玩法。在此背景下，开发者纷纷施展才华，积极为开源项目贡献 <strong>“热度值”</strong>。</p>
+<p>其中，IoTSharp 项目的作者 @麦壳饼 在了解活动玩法后，很快就用 .NET (C#) 实现了分别支持 Win 64 和 Linux x64 的脚本。</p>
+<p><img decoding="async" loading="lazy" alt="图片" src="https://docs.iotsharp.io/assets/images/2-f40148d1dc7a7e3d25cadf151c63a81c.png" width="1080" height="722" class="img_ev3q"></p>
+<p>不仅如此，在评选活动进行期间他更是直接将贡献热度的工具开源了出来：**<a href="https://gitee.com/maikebing/oschina2022**%EF%BC%8C%E5%B9%B6%E5%9C%A8%E5%90%8E%E7%BB%AD%E7%A7%AF%E6%9E%81%E4%BC%98%E5%8C%96%E4%BB%A3%E7%A0%81%E3%80%82" target="_blank" rel="noopener noreferrer">https://gitee.com/maikebing/oschina2022**，并在后续积极优化代码。</a></p>
+<p><img decoding="async" loading="lazy" alt="图片" src="https://docs.iotsharp.io/assets/images/3-98458cf6132263028e3bf5fcd6b60df0.png" width="662" height="362" class="img_ev3q"></p>
+<p>热爱开源，无私分享，追求极致，这正是 “极客精神” 的真实写照。</p>]]></content>
         <author>
             <name>maikebing</name>
             <uri>https://github.com/maikebing</uri>
@@ -47,7 +57,7 @@
     </entry>
     <entry>
         <title type="html"><![CDATA[第一版文档发布]]></title>
-        <id>first-version-doc</id>
+        <id>https://docs.iotsharp.io/blog/first-version-doc</id>
         <link href="https://docs.iotsharp.io/blog/first-version-doc"/>
         <updated>2022-02-14T00:00:00.000Z</updated>
         <summary type="html"><![CDATA[2022年2月14日情人节， 我们发布了第一版文档， 在这里特别感谢王海东先生(535915157@qq.com)， 推荐了博客平台， 也实现了第一个教程。]]></summary>
