@@ -1,5 +1,5 @@
 <p align="left">
-  <a href="https://iotsharp.io/">
+  <a href="https://iotsharp.net/">
     <img src="docs/static/img/logo_white.svg" width="360px" alt="IoTSharp logo" />
   </a>
 </p>
@@ -65,13 +65,11 @@ IoTSharp is an open-source IoT platform for data collection, processing, visuali
 * SqlServer
 
 
-## IoTSharp Demo       
+## IoTSharp  Online        
 
- - [IoTSharp front-end implemented using Vue3](http://demo.iotsharp.net)
+ - [IoTSharp front-end implemented using Vue3](https://host.iotsharp.net)
 
-
-##  IoTSharp cloud  
-  https://cloud.iotsharp.net/
+ 
 
 ## doc
   https://docs.iotsharp.net/
@@ -173,8 +171,7 @@ If you encounter any problems in the process, feel free to ask for help via foll
 [![DotNetChina](https://images.gitee.com/uploads/images/2021/0309/134044_9c191d7b_974299.png)](https://gitee.com/dotnetchina/IoTSharp)
 
 ## 优秀开源社区
-* [LinkWeChat](https://gitee.com/LinkWeChat/link-wechat) LinkWeChat 是基于企业微信的开源 SCRM 系统，是企业私域流量管理与营销的综合解决方案。
-* [IoTSharp](https://gitee.com/IoTSharp) IoTSharp 是一个 基于.Net Core 开源的物联网基础平台， 支持 HTTP、MQTT 、CoAp 协议
+
 * [流之云](https://gitee.com/ntdgg) 信息化、数字化服务提供商
 * [translate.js](https://gitee.com/mail_osc/translate) 网页自动翻译，页面无需另行改造，加入两行js即可让你的网页快速具备多国语言切换能力！
 * [IoTGateway](https://gitee.com/iioter/iotgateway) IoTGateway是一个基于.Net6.0 开源的物联网网关，通过可视化配置，轻松的连接到你的任何设备和物联网平台。
