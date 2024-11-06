@@ -313,10 +313,7 @@ namespace IoTSharp
                 // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
                 app.UseHsts();
             }
-            if (Environment.GetEnvironmentVariable("IOTSHARP_ACME") == "true")
-            {
-               app.UseHttpsRedirection();
-            }
+           
             app.CheckApplicationDBMigrations();
             //添加定时任务创建表
      
