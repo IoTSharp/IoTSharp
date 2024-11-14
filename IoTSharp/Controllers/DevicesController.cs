@@ -454,7 +454,8 @@ namespace IoTSharp.Controllers
             }
             else
             {
-                var kv = from t in _context.AttributeLatest where t.DeviceId == deviceId && keys.Split(',', ' ', ';').Contains(t.KeyName) select new AttributeDataDto() { DataSide = t.DataSide, DateTime = t.DateTime, KeyName = t.KeyName, DataType = t.Type, Value = t.ToObject() };
+                string[] keyarys = keys.Split(',', ' ', ';');
+                var kv = from t in _context.AttributeLatest where t.DeviceId == deviceId && keyarys.Contains(t.KeyName) select new AttributeDataDto() { DataSide = t.DataSide, DateTime = t.DateTime, KeyName = t.KeyName, DataType = t.Type, Value = t.ToObject() };
 
                 return new ApiResult<List<AttributeDataDto>>(ApiCode.Success, "Ok", await kv.ToListAsync());
             }
