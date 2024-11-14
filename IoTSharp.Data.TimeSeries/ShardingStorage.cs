@@ -60,8 +60,9 @@ namespace IoTSharp.Storage
                 {
                     using (var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>())
                     {
+                        var keyary = keys.Split(',', ' ', ';');
                         var devid = from t in context.TelemetryLatest
-                                    where t.DeviceId == deviceId && keys.Split(',', ' ', ';').Contains(t.KeyName)
+                                    where t.DeviceId == deviceId && keyary.Contains(t.KeyName)
 
                                     select new TelemetryDataDto() { DateTime = t.DateTime, KeyName = t.KeyName, DataType = t.Type, Value = t.ToObject() };
 

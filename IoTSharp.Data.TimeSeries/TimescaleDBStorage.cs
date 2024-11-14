@@ -67,8 +67,9 @@ namespace IoTSharp.Storage
         {
             using var scope = _scopeFactor.CreateScope();
             using var context = scope.ServiceProvider.GetService<ApplicationDbContext>();
+            var keyarys = keys.Split(',', ' ', ';');
             var devid = from t in context?.TelemetryLatest
-                        where t.DeviceId == deviceId && keys.Split(',', ' ', ';').Contains(t.KeyName)
+                        where t.DeviceId == deviceId && keyarys.Contains(t.KeyName)
                         select new TelemetryDataDto() { DateTime = t.DateTime, KeyName = t.KeyName, Value = t.ToObject() };
             var temp = devid.AsNoTracking().ToListAsync();
             return temp;
