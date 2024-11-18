@@ -80,7 +80,7 @@
 		<PackageReference Include="RulesEngine" Version="5.0.3" />
 		<PackageReference Include="SkiaSharp.NativeAssets.Linux.NoDependencies" Version="2.88.8" />
 		<PackageReference Include="Storage.Net" Version="9.3.0" />
-		<PackageReference Include="System.Resources.Extensions" Version="8.0.0" />
+		<PackageReference Include="System.Resources.Extensions" Version="9.0.0" />
 		<PackageReference Include="System.Text.Encoding.CodePages" Version="8.0.0">
 			<TreatAsUsed>true</TreatAsUsed>
 		</PackageReference>
