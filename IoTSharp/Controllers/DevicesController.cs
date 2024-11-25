@@ -699,6 +699,7 @@ namespace IoTSharp.Controllers
             }
             dev.Name = device.Name;
             dev.Timeout = device.Timeout;
+            dev.DeviceType = device.DeviceType;
             try
             {
                 await _context.SaveChangesAsync();
