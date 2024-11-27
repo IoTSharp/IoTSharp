@@ -993,6 +993,11 @@
             最后活动
             </summary>
         </member>
+        <member name="P:IoTSharp.Dtos.DevicePutDto.DeviceType">
+            <summary>
+            设备类型
+            </summary>
+        </member>
         <member name="P:IoTSharp.Dtos.DeviceRuleDto.Name">
             <summary>
             设备名称
