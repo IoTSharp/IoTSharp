@@ -13,7 +13,7 @@
 	 
  
 		<PackageReference Include="AspNetCore.HealthChecks.UI.Core" Version="8.0.1" />
-		<PackageReference Include="EntityFrameworkCore.ClickHouse" Version="0.0.20" />
+		<PackageReference Include="EntityFrameworkCore.ClickHouse" Version="0.0.22" />
 		<PackageReference Include="IoTSharp.HealthChecks.ClickHouse" Version="1.0.29" />
  
 	</ItemGroup>
