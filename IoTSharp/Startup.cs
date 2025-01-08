@@ -147,10 +147,10 @@ namespace IoTSharp
 
             services.AddCors();
             services.AddLogging(loggingBuilder =>
-            {
-                loggingBuilder.AddRinLogger();
-                loggingBuilder.AddSimpleConsole();
-            }
+                {
+                    loggingBuilder.AddRinLogger();
+                    loggingBuilder.AddPrettyConsole();
+                }
             );
             services.AddRin();
             services.AddOpenApiDocument(configure =>
