@@ -38,6 +38,7 @@ using Quartz.AspNetCore;
 using System.IO;
 using LettuceEncrypt;
 using LettuceEncrypt.Dns.Ali;
+using Microsoft.AspNetCore.StaticFiles;
 
 namespace IoTSharp
 {
@@ -362,6 +363,16 @@ namespace IoTSharp
                 defaultStyle.GrayscaleSaturation = 0.10f;
             });
             app.UseTelemetryStorage();
+
+
+
+            var provider = new FileExtensionContentTypeProvider();
+            provider.Mappings[".fbx"] = "application/octet-stream";
+            provider.Mappings[".glb"] = "application/octet-stream";
+            app.UseStaticFiles(new StaticFileOptions
+            {
+                ContentTypeProvider = provider,
+            });
         }
     }
 }

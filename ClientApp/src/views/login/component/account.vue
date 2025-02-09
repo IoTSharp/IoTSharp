@@ -130,7 +130,10 @@ export default defineComponent({
       useLoginApi()
         .signIn({ password: state.ruleForm.password, userName: state.ruleForm.userName })
         .then(async (res: any) => {
-          if (res && res.code === 10000) {
+
+
+          console.log(res)
+          if (res.data && res.data.code === 10000) {
             Session.set("token", res.data.token.access_token);
             // 模拟数据，对接接口时，记得删除多余代码及对应依赖的引入。用于 `/src/stores/userInfo.ts` 中不同用户登录判断（模拟数据）
             Cookies.set("userName", state.ruleForm.userName);

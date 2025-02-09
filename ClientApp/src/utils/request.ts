@@ -1,19 +1,26 @@
-import axios from 'axios';
+import axios, { AxiosInstance } from 'axios';
 import { ElMessage, ElMessageBox, ElNotification } from 'element-plus';
 import { Session } from '/@/utils/storage';
+import qs from 'qs';
 
 // 配置新建一个 axios 实例
-const service = axios.create({
-	baseURL: import.meta.env.VITE_API_URL as any,
+const service: AxiosInstance = axios.create({
+	baseURL: import.meta.env.VITE_API_URL,
 	timeout: 50000,
 	headers: { 'Content-Type': 'application/json' },
+	paramsSerializer: {
+		serialize(params) {
+			return qs.stringify(params, { allowDots: true });
+		},
+	},
 });
 
 // 添加请求拦截器
 service.interceptors.request.use(
 	(config) => {
+		// 在发送请求之前做些什么 token
 		if (Session.get('token')) {
-			(<any>config.headers).common['Authorization'] = `Bearer ${Session.get('token')}`;
+			config.headers!['Authorization'] = `Bearer ${Session.get('token')}`;
 		}
 		return config;
 	},
@@ -28,7 +35,6 @@ service.interceptors.response.use(
 	(response) => {
 		// 对响应数据做点什么
 		const res = response.data;
-
 		if (res.code && res.code !== 10000) {
 			// `token` 过期或者账号已在别处登录
 			if (res.code === 401 || res.code === 4001) {
@@ -47,7 +53,7 @@ service.interceptors.response.use(
 				return Promise.reject(service.interceptors.response);
 			}
 		} else {
-			return response.data;
+			return res;
 		}
 	},
 	(error) => {
@@ -56,7 +62,7 @@ service.interceptors.response.use(
 			ElMessage.error('网络超时');
 		} else if (error.message == 'Network Error') {
 			ElMessage.error('网络连接错误');
-		} else {
+		}  else {
 			if(error.response.status===401){
 				Session.clear();
 				window.location.href = '/'; // 去登录页

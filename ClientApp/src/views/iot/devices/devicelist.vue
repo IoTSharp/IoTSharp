@@ -25,7 +25,7 @@ import { createDeviceCrudOptions } from '/@/views/iot/devices/deviceCrudOptions'
 import { useRoute } from 'vue-router';
 import { useUserInfo } from '/@/stores/userInfo';
 import { storeToRefs } from 'pinia';
-
+import { Session } from '/@/utils/storage';
 
 const selectedItems = ref([]);
 const stores = useUserInfo();
@@ -37,6 +37,7 @@ const deviceDetailRef = ref();
 const crudRef = ref();
 // crud 配置的ref
 const crudBinding = ref();
+console.log(Session.get('userInfo'))
 const customerId = route.query.id || userInfos.value.customer.id;
 // 规则委托 ref
 const addRulesRef = ref();
@@ -61,6 +62,8 @@ const openCustomForm = () => {
 
 // 页面打开后获取列表数据
 onMounted(() => {
+
+
   crudExpose.doRefresh();
 });
 </script>
