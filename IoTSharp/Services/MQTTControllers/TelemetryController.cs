@@ -12,6 +12,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using IoTSharp.Contracts;
+using System.Buffers;
 
 namespace IoTSharp.Services.MQTTControllers
 {
@@ -77,7 +78,7 @@ namespace IoTSharp.Services.MQTTControllers
             Dictionary<string, object> keyValues = new Dictionary<string, object>();
             try
             {
-                keyValues.Add(keyname, Message.PayloadSegment.ToArray());
+                keyValues.Add(keyname, Message.Payload.ToArray());
                 _queue.PublishTelemetryData(device, keyValues);
             }
             catch (Exception ex)
@@ -92,7 +93,7 @@ namespace IoTSharp.Services.MQTTControllers
         {
             try
             {
-                if (Message.PayloadSegment.Count> 0)
+                if (Message.Payload.Length> 0)
                 {
                     var keyValues = Message.ConvertPayloadToDictionary();
                     _queue.PublishTelemetryData(device, keyValues);

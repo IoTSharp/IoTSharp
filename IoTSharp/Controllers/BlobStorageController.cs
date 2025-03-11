@@ -11,7 +11,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.Identity.Client.Extensions.Msal;
-using MQTTnet.Client;
+using MQTTnet;
 using MQTTnet.Server;
 using Storage.Net.Blobs;
 using System;

@@ -18,7 +18,6 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using MQTTnet.Client;
 using MQTTnet.Exceptions;
 using MQTTnet.Protocol;
 using MQTTnet.Server;
@@ -36,6 +35,7 @@ using DicKV = System.Collections.Generic.KeyValuePair<string, string>;
 using LogLevel = Microsoft.Extensions.Logging.LogLevel;
 using IoTSharp.Extensions.X509;
 using AutoMapper;
+using MQTTnet;
 
 namespace IoTSharp.Controllers
 {
@@ -454,7 +454,8 @@ namespace IoTSharp.Controllers
             }
             else
             {
-                var kv = from t in _context.AttributeLatest where t.DeviceId == deviceId && keys.Split(',', ' ', ';').Contains(t.KeyName) select new AttributeDataDto() { DataSide = t.DataSide, DateTime = t.DateTime, KeyName = t.KeyName, DataType = t.Type, Value = t.ToObject() };
+                string[] keyarys = keys.Split(',', ' ', ';');
+                var kv = from t in _context.AttributeLatest where t.DeviceId == deviceId && keyarys.Contains(t.KeyName) select new AttributeDataDto() { DataSide = t.DataSide, DateTime = t.DateTime, KeyName = t.KeyName, DataType = t.Type, Value = t.ToObject() };
 
                 return new ApiResult<List<AttributeDataDto>>(ApiCode.Success, "Ok", await kv.ToListAsync());
             }

@@ -15,6 +15,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Collections;
 using IdentityModel.OidcClient;
+using System.Buffers;
 
 namespace IoTSharp.Services.MQTTControllers
 {
@@ -224,7 +225,7 @@ namespace IoTSharp.Services.MQTTControllers
                 if (_dev != null)
                 {
                     await _queue.PublishActive(_dev.Id, ActivityStatus.Activity);
-                    var result = await _kep.ExecuteAsync(_dev, Message.PayloadSegment.ToArray());
+                    var result = await _kep.ExecuteAsync(_dev, Message.Payload.ToArray());
                     _logger.LogInformation($"调用KepServerEx网关处理语句返回:{result.Code}-{result.Msg}");
                     await Ok();
                 }

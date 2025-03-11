@@ -48,7 +48,7 @@ namespace IoTSharp.EventBus.CAP
 
                     case EventBusStore.MongoDB:
                         x.UseMongoDB(_EventBusStore);  //注意，仅支持MongoDB 4.0+集群
-                        healthChecks.AddMongoDb(_EventBusStore, name: _hc_EventBusStore);
+                        healthChecks.AddMongoDb(s=>new  MongoDB.Driver.MongoClient( _EventBusStore), name: _hc_EventBusStore);
                         break;
 
                     case EventBusStore.LiteDB:
@@ -79,7 +79,12 @@ namespace IoTSharp.EventBus.CAP
                             };
                         });
                         //amqp://guest:guest@localhost:5672
-                        healthChecks.AddRabbitMQ(_EventBusMQ,name: _hc_EventBusMQ);
+                      var   connectionFactory = new  ConnectionFactory()
+                        {
+                          Uri = new Uri(_EventBusMQ)
+                      };
+                        
+                        healthChecks.AddRabbitMQ(async s=>await connectionFactory.CreateConnectionAsync(), name: _hc_EventBusMQ);
                         break;
 
                     case EventBusMQ.Kafka:

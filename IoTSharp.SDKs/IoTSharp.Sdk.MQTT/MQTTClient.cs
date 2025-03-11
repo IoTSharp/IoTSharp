@@ -1,7 +1,5 @@
 ﻿using IoTSharp.Extensions.X509;
 using MQTTnet;
-using MQTTnet.Client;
-using MQTTnet.Diagnostics;
 using MQTTnet.Protocol;
 using System;
 using System.Collections.Generic;
@@ -81,8 +79,8 @@ namespace IoTSharp.EdgeSdk.MQTT
         public async Task<bool> ConnectAsync(X509Certificate2 ca, X509Certificate2 client, Uri uri=null)
         {
             var options = new MqttClientOptionsBuilder()
-                .WithTls(
-                    new MqttClientOptionsBuilderTlsParameters()
+                .WithTlsOptions(
+                    new MqttClientTlsOptions ()
                     {
                         UseTls = true,
                         SslProtocol = System.Security.Authentication.SslProtocols.Tls12,
@@ -100,11 +98,13 @@ namespace IoTSharp.EdgeSdk.MQTT
                             chain.ChainPolicy.TrustMode = X509ChainTrustMode.CustomRootTrust;
                             var x5092 = new X509Certificate2(certContext.Certificate);
                             return chain.Build(x5092);
-                        },
-                        Certificates = new List<X509Certificate>()
-                        {
-                            client, ca
-                        }
+                        }, 
+                         CertificateSelectionHandler = (certContext) =>
+                         {
+                             return client;
+                         }
+                        
+                   
                     });
             if (uri != null)
             {
@@ -147,7 +147,7 @@ namespace IoTSharp.EdgeSdk.MQTT
             bool initok = false;
             try
             {
-                var factory = new MqttFactory();
+                var factory = new MqttClientFactory();
                 Client = factory.CreateMqttClient( );
                 Client.ApplicationMessageReceivedAsync +=  Client_ApplicationMessageReceived;
                 Client.ConnectedAsync += e => {

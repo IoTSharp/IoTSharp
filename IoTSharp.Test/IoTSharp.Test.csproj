@@ -1,28 +1,28 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net8.0</TargetFramework>
+    <TargetFramework>net9.0</TargetFramework>
     <TargetLatestRuntimePatch>true</TargetLatestRuntimePatch>
     <Configurations>Debug;Release</Configurations>
   </PropertyGroup>
  
   <ItemGroup>
-    <PackageReference Include="Alba" Version="8.0.0" />
-    <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" Version="8.0.10" />
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.11.1" />
-	      <PackageReference Include="coverlet.collector" Version="6.0.2">
+    <PackageReference Include="Alba" Version="8.1.1" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" Version="9.0.2" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.13.0" />
+	      <PackageReference Include="coverlet.collector" Version="6.0.4">
 	        <PrivateAssets>all</PrivateAssets>
 	        <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 	      </PackageReference>
-	      <PackageReference Include="MSTest.TestAdapter" Version="3.6.2" />
-    <PackageReference Include="MSTest.TestFramework" Version="3.6.2" />
+	      <PackageReference Include="MSTest.TestAdapter" Version="3.8.2" />
+    <PackageReference Include="MSTest.TestFramework" Version="3.8.2" />
     <PackageReference Include="MXLogger" Version="2.0.9" />
-    <PackageReference Include="Testcontainers" Version="4.0.0" />
-    <PackageReference Include="Testcontainers.InfluxDb" Version="4.0.0" />
-    <PackageReference Include="Testcontainers.MongoDb" Version="4.0.0" />
-    <PackageReference Include="Testcontainers.MySql" Version="4.0.0" />
-    <PackageReference Include="Testcontainers.PostgreSql" Version="4.0.0" />
-    <PackageReference Include="Testcontainers.RabbitMq" Version="4.0.0" />
+    <PackageReference Include="Testcontainers" Version="4.3.0" />
+    <PackageReference Include="Testcontainers.InfluxDb" Version="4.3.0" />
+    <PackageReference Include="Testcontainers.MongoDb" Version="4.3.0" />
+    <PackageReference Include="Testcontainers.MySql" Version="4.3.0" />
+    <PackageReference Include="Testcontainers.PostgreSql" Version="4.3.0" />
+    <PackageReference Include="Testcontainers.RabbitMq" Version="4.3.0" />
   </ItemGroup>
 
   <ItemGroup>

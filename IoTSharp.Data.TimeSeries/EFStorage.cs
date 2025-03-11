@@ -47,8 +47,9 @@ namespace IoTSharp.Storage
         {
             using var scope = _scopeFactor.CreateScope();
             using var context = scope.ServiceProvider.GetService<ApplicationDbContext>();
-            var devid = from t in context?.TelemetryLatest
-                        where t.DeviceId == deviceId && keys.Split(',', ' ', ';').Contains(t.KeyName)
+            var keyary = keys.Split(',', ' ', ';');
+             var devid = from t in context?.TelemetryLatest
+                        where t.DeviceId == deviceId && keyary.Contains(t.KeyName)
                         select new TelemetryDataDto() { DateTime = t.DateTime, KeyName = t.KeyName, DataType = t.Type, Value = t.ToObject() };
             return devid.AsNoTracking().ToListAsync();
         }
@@ -63,7 +64,8 @@ namespace IoTSharp.Storage
                      select new TelemetryDataDto() { DateTime = t.DateTime, KeyName = t.KeyName, DataType=t.Type,  Value = t.ToObject() };
             if (!string.IsNullOrEmpty(keys) )
             {
-                var kfk = from t in kv where keys.Split(',', ' ', ';').Contains(t.KeyName) select t;
+                var keyarys = keys.Split(',', ' ', ';');
+                var kfk = from t in kv where keyarys.Contains(t.KeyName) select t;
                 lst=await kfk.AsNoTracking().ToListAsync();
             }
             else
