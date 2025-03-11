@@ -7,7 +7,7 @@ import { useKeepALiveNames } from '/@/stores/keepAliveNames';
 import { useRoutesList } from '/@/stores/routesList';
 import { useThemeConfig } from '/@/stores/themeConfig';
 import { Session } from '/@/utils/storage';
-import { staticRoutes } from '/@/router/route';
+import { staticRoutes, notFoundAndNoPower } from '/@/router/route';
 import { initFrontEndControlRoutes } from '/@/router/frontEnd';
 import { initBackEndControlRoutes } from '/@/router/backEnd';
 
@@ -32,7 +32,13 @@ const { isRequestRoutes } = themeConfig.value;
  */
 export const router = createRouter({
 	history: createWebHashHistory(),
-	routes: staticRoutes,
+	/**
+	 * 说明：
+	 * 1、notFoundAndNoPower 默认添加 404、401 界面，防止一直提示 No match found for location with path 'xxx'
+	 * 2、backEnd.ts(后端控制路由)、frontEnd.ts(前端控制路由) 中也需要加 notFoundAndNoPower 404、401 界面。
+	 *    防止 404、401 不在 layout 布局中，不设置的话，404、401 界面将全屏显示
+	 */
+	routes: [...notFoundAndNoPower, ...staticRoutes],
 });
 
 /**
@@ -98,7 +104,7 @@ router.beforeEach(async (to, from, next) => {
 			Session.clear();
 			NProgress.done();
 		} else if (token && to.path === '/login') {
-			next('/dashboard');
+			next('/home');
 			NProgress.done();
 		} else {
 			const storesRoutesList = useRoutesList(pinia);
@@ -107,13 +113,13 @@ router.beforeEach(async (to, from, next) => {
 				if (isRequestRoutes) {
 					// 后端控制路由：路由数据初始化，防止刷新时丢失
 					await initBackEndControlRoutes();
-					// 动态添加路由：防止非首页刷新时跳转回首页的问题
-					// 确保 addRoute() 时动态添加的路由已经被完全加载上去
-					next({ ...to, replace: true });
+					// 解决刷新时，一直跳 404 页面问题，关联问题 No match found for location with path 'xxx'
+					// to.query 防止页面刷新时，普通路由带参数时，参数丢失。动态路由（xxx/:id/:name"）isDynamic 无需处理
+					next({ path: to.path, query: to.query });
 				} else {
 					// https://gitee.com/lyt-top/vue-next-admin/issues/I5F1HP
 					await initFrontEndControlRoutes();
-					next({ ...to, replace: true });
+					next({ path: to.path, query: to.query });
 				}
 			} else {
 				next();

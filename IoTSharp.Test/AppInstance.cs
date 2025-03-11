@@ -15,6 +15,8 @@ using Microsoft.Extensions.Logging;
 using System.Net.Http.Json;
 using Testcontainers.PostgreSql;
 using Microsoft.AspNetCore.Http;
+using IoTSharp.Data;
+using System.Net.Http;
 namespace IoTSharp.Test
 {
     public class AppInstance
@@ -73,17 +75,44 @@ namespace IoTSharp.Test
             Assert.AreEqual(result.Code, (int)ApiCode.Success);
             Assert.IsTrue(result.Data.Installed);
         }
-
+       
         [TestMethod]
         public async Task AppAccountLogin()
         {
             using var _client = _host.GetTestClient();
-            var dto = new Dtos.LoginDto() { UserName = _installdto.Email, Password = _installdto.Password };
-            var result = await _client.PostAsJsonAsync("/api/Account/Login", dto, _ct);
-            Assert.IsTrue(result.IsSuccessStatusCode);
-            var rdto = await result.Content.ReadFromJsonAsync<ApiResult<LoginResult>>(_ct);
+            var rdto = await _Login(_client);
             Assert.IsTrue(rdto.Data.Succeeded);
             Assert.AreEqual(rdto.Data.UserName, _installdto.Email);
+        }
+        ApiResult<LoginResult> loginResult = null;
+        private async Task<ApiResult<LoginResult>> _Login(HttpClient _client)
+        {
+            if (loginResult == null)
+            {
+                var dto = new Dtos.LoginDto() { UserName = _installdto.Email, Password = _installdto.Password };
+                var result = await _client.PostAsJsonAsync("/api/Account/Login", dto, _ct);
+                Assert.IsTrue(result.IsSuccessStatusCode);
+                var rdto = await result.Content.ReadFromJsonAsync<ApiResult<LoginResult>>(_ct);
+                Assert.IsTrue(rdto?.Data?.Succeeded);
+                Assert.AreEqual(rdto?.Data?.UserName, _installdto.Email);
+                Assert.IsNotNull(rdto?.Data?.Token?.access_token);
+                _client.DefaultRequestHeaders.Add("Authorization", $"Bearer {rdto.Data.Token.access_token}");
+                loginResult = rdto;
+            }
+            return loginResult;
+        }
+
+        [TestMethod]
+        public async Task AppDevicesCreate()
+        {
+            using var _client = _host.GetTestClient();
+            var rdto = await _Login(_client);
+            var dev = new DevicePostDto() { DeviceType = DeviceType.Device, Name = "test", Timeout = 30 };
+            var  devresult = await _client.PostAsJsonAsync("/api/Devices", dev, _ct);
+            var devx = await devresult.Content.ReadFromJsonAsync<ApiResult<Device>>(_ct);
+            Assert.AreEqual(devx.Data.Name, "test");
+            Assert.AreEqual(devx.Code, (int)ApiCode.Success);
+       
         }
         public async Task AppCleanup()
         {

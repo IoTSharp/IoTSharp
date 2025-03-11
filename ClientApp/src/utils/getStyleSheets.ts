@@ -51,7 +51,7 @@ const getAwesomeIconfont = () => {
 			let sheetsList = [];
 			let sheetsIconList = [];
 			for (let i = 0; i < styles.length; i++) {
-				if (styles[i].href && styles[i].href.indexOf('netdna.bootstrapcdn.com') > -1) {
+				if (styles[i].href && styles[i].href.indexOf('https://cdn.jsdelivr.net') > -1) {
 					sheetsList.push(styles[i]);
 				}
 			}

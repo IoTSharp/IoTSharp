@@ -17,7 +17,7 @@ namespace IoTSharp.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "8.0.2")
+                .HasAnnotation("ProductVersion", "8.0.10")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
@@ -608,6 +608,11 @@ namespace IoTSharp.Migrations
                     b.Property<int>("DeviceType")
                         .HasColumnType("integer");
 
+                    b.Property<string>("Discriminator")
+                        .IsRequired()
+                        .HasMaxLength(8)
+                        .HasColumnType("character varying(8)");
+
                     b.Property<string>("Name")
                         .HasColumnType("text");
 
@@ -637,7 +642,7 @@ namespace IoTSharp.Migrations
 
                     b.ToTable("Device");
 
-                    b.HasDiscriminator<int>("DeviceType").HasValue(0);
+                    b.HasDiscriminator().HasValue("Device");
 
                     b.UseTphMappingStrategy();
                 });
@@ -2135,7 +2140,7 @@ namespace IoTSharp.Migrations
                 {
                     b.HasBaseType("IoTSharp.Data.Device");
 
-                    b.HasDiscriminator().HasValue(1);
+                    b.HasDiscriminator().HasValue("Gateway");
                 });
 
             modelBuilder.Entity("IoTSharp.Data.Alarm", b =>
