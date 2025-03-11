@@ -15,6 +15,7 @@ using System.Threading.Tasks;
 using MQTTnet;
 using System.Text.Json.Nodes;
 using Newtonsoft.Json;
+using System.Buffers;
 
 namespace IoTSharp.Services.MQTTControllers
 {
@@ -85,7 +86,7 @@ namespace IoTSharp.Services.MQTTControllers
             , TimeSpan.FromSeconds(_settings.RuleCachingExpiration));
             if (rules.HasValue)
             {
-                var obj =   Message.PayloadSegment.ToArray();
+                var obj =   Message.Payload.ToArray();
                 rules.Value.ToList().ForEach(async g =>
                 {
                     _logger.LogInformation($"{ClientId}的数据{Message.Topic}通过规则链{g}进行处理。");

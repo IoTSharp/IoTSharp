@@ -10,9 +10,9 @@
 	  <None Remove="Migrations\**" />
 	</ItemGroup>
 	<ItemGroup>
-		<PackageReference Include="AspNetCore.HealthChecks.UI.Core" Version="8.0.1" />
+		<PackageReference Include="AspNetCore.HealthChecks.UI.Core" Version="9.0.0" />
 		<PackageReference Include="EFCore.Cassandra" Version="2.0.5" />
-		<PackageReference Include="IoTSharp.HealthChecks.Cassandra" Version="1.0.29" />
+		<PackageReference Include="IoTSharp.HealthChecks.Cassandra" Version="1.0.32" />
 	</ItemGroup>
 	<ItemGroup>
 		<ProjectReference Include="..\..\IoTSharp.Data\IoTSharp.Data.csproj" />

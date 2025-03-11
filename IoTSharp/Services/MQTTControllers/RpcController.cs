@@ -11,6 +11,7 @@ using Microsoft.Extensions.Options;
 using MQTTnet.AspNetCore.Routing;
 using System;
 using System.Threading.Tasks;
+using System.Buffers;
 
 namespace IoTSharp.Services.MQTTControllers
 {
@@ -83,7 +84,7 @@ namespace IoTSharp.Services.MQTTControllers
             , TimeSpan.FromSeconds(_settings.RuleCachingExpiration));
             if (rules.HasValue && rules.Value!=Guid.Empty)
             {
-                var obj = new { Message.Topic, Payload = Convert.ToBase64String(Message.PayloadSegment.ToArray()), ClientId, RPCMethod = method };
+                var obj = new { Message.Topic, Payload = Convert.ToBase64String(Message.Payload.ToArray()), ClientId, RPCMethod = method };
                 _logger.LogInformation($"客户端{ClientId}rpc请求方法{method}通过规则链{rules.Value}进行处理。");
                 await _flowRuleProcessor.RunFlowRules(rules.Value, obj, p_dev.Id, FlowRuleRunType.Normal, null);
             }

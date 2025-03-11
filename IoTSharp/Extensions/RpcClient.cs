@@ -1,9 +1,9 @@
 ﻿using Microsoft.Extensions.Logging;
 using MQTTnet;
-using MQTTnet.Client;
 using MQTTnet.Exceptions;
 using MQTTnet.Protocol;
 using System;
+using System.Buffers;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
@@ -33,7 +33,7 @@ namespace IoTSharp.Extensions
 
       
 
-        public RpcClient(MqttClientOptions mqtt, Microsoft.Extensions.Logging.ILogger _logger) :this (new MQTTnet.MqttFactory().CreateMqttClient(), _logger)
+        public RpcClient(MqttClientOptions mqtt, ILogger _logger) :this (new  MqttClientFactory().CreateMqttClient(), _logger)
         {
             _mqtt = mqtt;
           
@@ -127,7 +127,7 @@ namespace IoTSharp.Extensions
             {
                 if (!tcs.Task.IsCompleted && !tcs.Task.IsCanceled)
                 {
-                    tcs.TrySetResult(eventArgs.ApplicationMessage.PayloadSegment.ToArray());
+                    tcs.TrySetResult(eventArgs.ApplicationMessage.Payload.ToArray());
                 }
             }
             return Task.CompletedTask;

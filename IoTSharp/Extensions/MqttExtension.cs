@@ -1,18 +1,12 @@
-﻿using Microsoft.Extensions.Logging;
-using MQTTnet.Client;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.AspNetCore.Builder;
 using MQTTnet.AspNetCore;
-using MQTTnet.Diagnostics;
 using IoTSharp.Services;
 using MQTTnet.Server;
-using System.Diagnostics;
-using System.Runtime.InteropServices;
-using System.Threading;
 using System.Security.Cryptography.X509Certificates;
 using MQTTnet;
 using MQTTnet.AspNetCore.Routing;
@@ -20,7 +14,6 @@ using IoTSharp.Data;
 using Newtonsoft.Json.Linq;
 using IoTSharp.Contracts;
 using System.Net.Security;
-using System.Runtime.ConstrainedExecution;
 
 namespace IoTSharp
 {

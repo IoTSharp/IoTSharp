@@ -18,7 +18,6 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using MQTTnet.Client;
 using MQTTnet.Exceptions;
 using MQTTnet.Protocol;
 using MQTTnet.Server;
@@ -36,6 +35,7 @@ using DicKV = System.Collections.Generic.KeyValuePair<string, string>;
 using LogLevel = Microsoft.Extensions.Logging.LogLevel;
 using IoTSharp.Extensions.X509;
 using AutoMapper;
+using MQTTnet;
 
 namespace IoTSharp.Controllers
 {

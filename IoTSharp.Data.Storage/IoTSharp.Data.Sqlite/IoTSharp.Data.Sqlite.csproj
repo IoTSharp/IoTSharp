@@ -4,10 +4,10 @@
     <TargetFramework>net9.0</TargetFramework>
   </PropertyGroup>
 	<ItemGroup>
-		<PackageReference Include="AspNetCore.HealthChecks.Sqlite" Version="8.1.0" />
-		<PackageReference Include="AspNetCore.HealthChecks.UI.Sqlite.Storage" Version="8.0.1" />
-		<PackageReference Include="AspNetCore.HealthChecks.UI.Core" Version="8.0.1" />
-		<PackageReference Include="Microsoft.Extensions.Diagnostics.HealthChecks" Version="9.0.0" />
+		<PackageReference Include="AspNetCore.HealthChecks.Sqlite" Version="9.0.0" />
+		<PackageReference Include="AspNetCore.HealthChecks.UI.Sqlite.Storage" Version="9.0.0" />
+		<PackageReference Include="AspNetCore.HealthChecks.UI.Core" Version="9.0.0" />
+		<PackageReference Include="Microsoft.Extensions.Diagnostics.HealthChecks" Version="9.0.2" />
 	</ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\IoTSharp.Data\IoTSharp.Data.csproj" />
