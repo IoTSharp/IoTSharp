@@ -7,7 +7,7 @@
 		<PackageReference Include="CLanguage" Version="0.20.74" />
 		<PackageReference Include="CS-Script" Version="4.8.27" />
 		<PackageReference Include="Jint" Version="4.2.1" />
-		<PackageReference Include="Microsoft.Extensions.Caching.Abstractions" Version="9.0.2" />
+		<PackageReference Include="Microsoft.Extensions.Caching.Abstractions" Version="9.0.3" />
 		<PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" Version="9.0.2" />
 		<PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="9.0.2" />
 		<PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="9.0.2" />
