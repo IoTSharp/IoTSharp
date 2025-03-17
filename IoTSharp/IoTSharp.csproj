@@ -74,7 +74,7 @@
 		<PackageReference Include="MQTTnet.AspNetCore" Version="5.0.1.1416" />
 		<PackageReference Include="MQTTnet.AspNetCore.Routing" Version="0.4.39" />
 		<PackageReference Include="NSwag.AspNetCore" Version="14.2.0" />
-		<PackageReference Include="PrettyLogging.Console" Version="1.0.0" />
+		<PackageReference Include="PrettyLogging.Console" Version="1.0.1" />
 		<PackageReference Include="Rin" Version="2.6.0" />
 		<PackageReference Include="Rin.Mvc" Version="2.6.0" />
 		<PackageReference Include="RulesEngine" Version="5.0.6" />
