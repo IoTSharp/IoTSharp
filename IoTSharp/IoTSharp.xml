@@ -1444,6 +1444,34 @@
             
             </summary>
         </member>
+        <member name="M:IoTSharp.McpTools.DeviceTool.DevicesList">
+            <summary>
+            Get the list of sub-devices.
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:IoTSharp.McpTools.DeviceTool.GetDeviceStatus(System.String)">
+            <summary>
+            Get the current connection status of the sub-device.
+            </summary>
+            <param name="deviceName"></param>
+            <returns></returns>
+        </member>
+        <member name="M:IoTSharp.McpTools.DeviceTool.GetDeviceAttributes(System.String)">
+            <summary>
+            Get the current value of a variable of a sub-device.
+            </summary>
+            <param name="deviceName"></param>
+            <returns></returns>
+        </member>
+        <member name="M:IoTSharp.McpTools.DeviceTool.GetDeviceAttribute(System.String,System.String)">
+            <summary>
+            Get the current value of a variable of a sub-device.
+            </summary>
+            <param name="deviceName"></param>
+            <param name="attributeName"></param>
+            <returns></returns>
+        </member>
         <member name="P:IoTSharp.Models.ModelAddAssetDevice.AssetId">
             <summary>
             资产Id

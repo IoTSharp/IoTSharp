@@ -39,6 +39,7 @@ using System.IO;
 using LettuceEncrypt;
 using LettuceEncrypt.Dns.Ali;
 using Microsoft.AspNetCore.StaticFiles;
+using IoTSharp.McpTools;
 
 namespace IoTSharp
 {
@@ -291,6 +292,8 @@ namespace IoTSharp
                     options.MaxAge = TimeSpan.FromDays(60);
                 });
             }
+            services.AddMcpServer()
+                .WithToolsFromAssembly();
         }
 
       
@@ -349,6 +352,7 @@ namespace IoTSharp
                 endpoints.MapHealthChecksUI();
                 endpoints.MapDefaultControllerRoute();
                 endpoints.MapRazorPages();
+                endpoints.MapMcp();  
             });
 
             app.UseJdenticon(defaultStyle =>
