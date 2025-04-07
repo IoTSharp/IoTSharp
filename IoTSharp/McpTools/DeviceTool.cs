@@ -5,13 +5,15 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Logging;
 using ModelContextProtocol.Server;
 using NJsonSchema.Annotations;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 namespace IoTSharp.McpTools
 {
+    public record  MCPDeviceDto (string Name,Guid Id,  DeviceType DeviceType);
+
     [McpServerToolType]
-    [Authorize()]
     public sealed class DeviceTool
     {
         private readonly ApplicationDbContext _context;
@@ -33,11 +35,14 @@ namespace IoTSharp.McpTools
         /// </summary>
         /// <returns></returns>
         [McpServerTool(Name = "DevicesList"), Description("Get the list of  devices.")]
-        public IEnumerable<string> DevicesList()
+        public  ApiResult<List<MCPDeviceDto>> DevicesList()
         {
-           var _customer= _signInManager.Context.User.GetCustomerId();
-            var f = from c in _context.Device where c.Customer.Id == _customer select c.Name;
-            return f.ToList();
+
+            
+            var data= new ApiResult<List<MCPDeviceDto>>(ApiCode.Success, "OK", new List<MCPDeviceDto>());
+            var f = from c in _context.Device select new MCPDeviceDto(c.Name,c.Id,c.DeviceType) ;
+            data.Data = f.ToList();
+            return data;
         }
 
         /// <summary>
@@ -51,8 +56,7 @@ namespace IoTSharp.McpTools
             )
         {
             bool?  result = false;
-            var _customer = _signInManager.Context.User.GetCustomerId();
-            var f = from c in _context.Device where c.Customer.Id == _customer && c.Name == deviceName select c;
+            var f = from c in _context.Device where  c.Name == deviceName select c;
             var devid = f.FirstOrDefault()?.Id;
             var al = from a in _context.AttributeLatest where devid == a.DeviceId && (a.KeyName == Constants._Active) select a;
 
@@ -72,8 +76,7 @@ namespace IoTSharp.McpTools
             )
         {
            var  result = new Dictionary<string, object>();
-            var _customer = _signInManager.Context.User.GetCustomerId();
-            var f = from c in _context.Device where c.Customer.Id == _customer && c.Name == deviceName select c;
+            var f = from c in _context.Device where c.Name == deviceName select c;
             var devid = f.FirstOrDefault()?.Id;
             var al = from a in _context.AttributeLatest where devid == a.DeviceId select a;// new KeyValuePair<string,object>( a.KeyName,a.ToObject());
             result=al.ToDictionary(x => x.KeyName, x => x.ToObject());
@@ -91,8 +94,7 @@ namespace IoTSharp.McpTools
             [Description("name of device")] string deviceName,
             [Description("name of attribute")] string attributeName)
         {
-            var _customer = _signInManager.Context.User.GetCustomerId();
-            var f = from c in _context.Device where c.Customer.Id == _customer && c.Name == deviceName select c;
+            var f = from c in _context.Device where c.Name == deviceName select c;
             var devid = f.FirstOrDefault()?.Id;
             var al = from a in _context.AttributeLatest where devid == a.DeviceId   && a.KeyName== attributeName  select a;// new KeyValuePair<string,object>( a.KeyName,a.ToObject());
             return al.FirstOrDefault()?.ToObject();
