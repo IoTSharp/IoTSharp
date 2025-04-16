@@ -148,6 +148,10 @@ This project exists thanks to all the people who contribute.
   <img src="https://contrib.rocks/image?repo=IoTSharp/IoTSharp" />
 </a>
 
+## Star History
+
+[![Star History Chart](https://api.star-history.com/svg?repos=IoTSharp/IoTSharp&type=Date)](https://www.star-history.com/#IoTSharp/IoTSharp&Date)
+
 ## Donation
 
 This project is an  Apache 2.0 licensed open source project. In order to achieve better and sustainable development of the project, we expect to gain more backers. We will use the proceeds for community operations and promotion. You can support us in any of the following ways:
