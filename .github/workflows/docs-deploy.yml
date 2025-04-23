@@ -29,9 +29,11 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           # Build output to publish to the `gh-pages` branch:
           publish_dir: docs/build
-          # Assign commit authorship to the official GH-Actions bot for deploys to `gh-pages` branch:
-          # https://github.com/actions/checkout/issues/13#issuecomment-724415212
-          # The GH actions bot is used by default if you didn't specify the two fields.
-          # You can swap them out with your own user credentials.
-          #user_name: github-actions[bot]
-          #user_email: 41898282+github-actions[bot]@users.noreply.github.com
+      - name: syncfile
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+        with:
+         server: wh-nb3if1wq7i6udh1xtsb.my3w.com
+         username: ${{ secrets.FTPUSERNAME }}
+         password: ${{ secrets.FTPPASSWORD }}
+         local-dir:  docs/build
+         server-dir: htdocs/docs
