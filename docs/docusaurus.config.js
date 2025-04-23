@@ -9,7 +9,7 @@
 const config = {
   title: 'IoTSharp 在线文档',
   tagline: 'IoTSharp is an open-source IoT platform for data collection, processing, visualization, and device management.',
-  url: 'https://docs.iotsharp.io',
+  url: 'https://iotsharp.net/docs',
   baseUrl: '/',
   onBrokenLinks: 'throw',
   onBrokenMarkdownLinks: 'warn',
