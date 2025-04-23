@@ -58,6 +58,11 @@ const config = {
           },
           { to: '/blog', label: '博客', position: 'left' },
           {
+            href: 'http://host.iotsharp.net',
+            label: '线上体验',
+            position: 'right',
+          },
+          {
             href: 'https://github.com/IoTSharp/IoTSharp',
             label: 'GitHub',
             position: 'right',
@@ -75,6 +80,11 @@ const config = {
           {
             href: 'https://space.bilibili.com/496905613',
             label: '视频教程',
+            position: 'right',
+          },
+          {
+            label: '联系我',
+            href: 'https://work.weixin.qq.com/ca/cawcde2aa597e1ddf7',
             position: 'right',
           },
           
@@ -101,7 +111,7 @@ const config = {
               },
               {
                 label: 'Discord',
-                href: 'https://discord.gg/My6PaTmUvu',
+                href: 'https://iotsharp.net/img/qyqun.jpg',
               }
             ],
           },
@@ -113,8 +123,8 @@ const config = {
                 href: 'https://github.com/IoTSharp/IoTSharp',
               },
               {
-                label: 'Gitee',
-                href: 'https://gitee.com/IoTSharp/IoTSharp',
+                label: '联系我',
+                href: 'https://work.weixin.qq.com/ca/cawcde2aa597e1ddf7',
               },
               {
                 label: ' 冀ICP备18039206号-2',

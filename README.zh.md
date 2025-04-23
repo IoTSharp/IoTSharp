@@ -73,18 +73,17 @@ IoTSharp 是一个开源的物联网基础平台，集设备属性数据管理�
 
  - [使用Vue3实现的IoTSharp前端](http://host.iotsharp.net)
 
-## 在线文档
-  https://docs.iotsharp.net/
+ 
 
 ## 如何部署?
 
-- [使用Docker部署](https://docs.iotsharp.net/docs/tutorial-basics/deploy_by_docker)
-- [部署到Linux服务器或者树莓派](https://docs.iotsharp.net/docs/tutorial-basics/deploy_linux)
-- [部署到Windows](https://docs.iotsharp.net/docs/tutorial-basics/deploy_win)
+- [使用Docker部署](https://iotsharp.net/docs/tutorial-basics/deploy_by_docker)
+- [部署到Linux服务器或者树莓派](https://iotsharp.net/docs/tutorial-basics/deploy_linux)
+- [部署到Windows](https://iotsharp.net/docs/tutorial-basics/deploy_win)
 
 ## 如何配置?
 
-- [应用基本配置](https://docs.iotsharp.net/docs/tutorial-basics/appsettings) 
+- [应用基本配置](https://iotsharp.net/docs/tutorial-basics/appsettings) 
 
 
 

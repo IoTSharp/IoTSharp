@@ -69,20 +69,16 @@ IoTSharp is an open-source IoT platform for data collection, processing, visuali
 
  - [IoTSharp front-end implemented using Vue3](https://host.iotsharp.net)
 
- 
-
-## doc
-  https://docs.iotsharp.net/
 
 ## How to deploy?
 
-- [Deploy by Docker](https://docs.iotsharp.net/docs/tutorial-basics/deploy_by_docker)
-- [Deploy to Linux](https://docs.iotsharp.net/docs/tutorial-basics/deploy_linux)
-- [Deployed to Windows](https://docs.iotsharp.net/docs/tutorial-basics/deploy_win)
+- [Deploy by Docker](https://iotsharp.net/docs/tutorial-basics/deploy_by_docker)
+- [Deploy to Linux](https://iotsharp.net/docs/tutorial-basics/deploy_linux)
+- [Deployed to Windows](https://iotsharp.net/docs/tutorial-basics/deploy_win)
 
 ## How to configure?
 
-- [AppSettings](https://docs.iotsharp.net/docs/tutorial-basics/appsettings) 
+- [AppSettings](https://iotsharp.net/docs/tutorial-basics/appsettings) 
 
 ##  IoTSharp.SDKs
 
