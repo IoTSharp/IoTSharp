@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>https://iotsharp.net/blog</id>
-    <title>IoTSharp 在线文档 Blog</title>
+    <title>IoTSharp Blog</title>
     <updated>2023-02-14T00:00:00.000Z</updated>
     <generator>https://github.com/jpmonette/feed</generator>
     <link rel="alternate" href="https://iotsharp.net/blog"/>
-    <subtitle>IoTSharp 在线文档 Blog</subtitle>
+    <subtitle>IoTSharp Blog</subtitle>
     <icon>https://iotsharp.net/img/favicon.ico</icon>
     <entry>
         <title type="html"><![CDATA[IoTSharp培训教程第一集  开发环境安装配置、项目克隆、编译、调试、安装、登录]]></title>
