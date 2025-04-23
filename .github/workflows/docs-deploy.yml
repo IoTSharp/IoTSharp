@@ -35,5 +35,5 @@ jobs:
          server: wh-nb3if1wq7i6udh1xtsb.my3w.com
          username: ${{ secrets.FTPUSERNAME }}
          password: ${{ secrets.FTPPASSWORD }}
-         local-dir:  docs/build
-         server-dir: htdocs/docs
+         local-dir:  docs/build/
+         server-dir: htdocs/docs/
