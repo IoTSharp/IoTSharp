@@ -17,7 +17,7 @@ function HomepageHeader() {
           <Link
             className="button button--secondary button--lg"
             to="/docs/intro">
-            IoTSharp 参考手册 - 5min ⏱️
+            IoTSharp 参考手册 
           </Link>
         </div>
       </div>
@@ -30,7 +30,7 @@ export default function Home() {
   return (
     <Layout
       title={` ${siteConfig.title}`}
-      description="IoTSharp 是一个基于.Net 6.0 使用C#开发的数据收集、处理、可视化与设备管理的开源物联网(IoT)平台基础平台,支持 HTTP、MQTT 、CoAP等协议实现设备的数字孪生,且属性数据和遥测数据协议简单类型丰富,简易设置即可将数据存储在PostgreSql、MySql、Oracle、SQLServer、Sqlite 或者 InfluxDB 2.0;TDengine;TimescaleDB等时序数据库中。">
+      description="IoTSharp 是一个基于.Net  使用C#开发的数据收集、处理、可视化与设备管理的开源物联网(IoT)平台基础平台,支持 HTTP、MQTT 、CoAP等协议实现设备的数字孪生,且属性数据和遥测数据协议简单类型丰富,简易设置即可将数据存储在PostgreSql、MySql、Oracle、SQLServer、Sqlite 或者 InfluxDB 2.0;TDengine;TimescaleDB等时序数据库中。">
       <HomepageHeader /> 
       <main>
         <HomepageFeatures />

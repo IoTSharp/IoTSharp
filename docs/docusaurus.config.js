@@ -1,13 +1,13 @@
 // @ts-check
 // Note: type annotations allow type checking and IDEs autocompletion
 
- const {themes} = require('prism-react-renderer');
- const lightTheme = themes.github;
- const darkTheme = themes.dracula;
+const { themes } = require('prism-react-renderer');
+const lightTheme = themes.github;
+const darkTheme = themes.dracula;
 
 /** @type {import('@docusaurus/types').Config} */
 const config = {
-  title: 'IoTSharp 在线文档',
+  title: 'IoTSharp',
   tagline: 'IoTSharp is an open-source IoT platform for data collection, processing, visualization, and device management.',
   url: 'https://iotsharp.net',
   baseUrl: '',
@@ -44,9 +44,9 @@ const config = {
     /** @type {import('@docusaurus/preset-classic').ThemeConfig} */
     ({
       navbar: {
-        title: 'IoTSharp 在线文档',
+        title: 'IoTSharp',
         logo: {
-          alt: 'IoT在线文档',
+          alt: 'IoTSharp',
           src: 'img/iotsharp.png',
         },
         items: [
@@ -56,7 +56,7 @@ const config = {
             position: 'left',
             label: '参考手册',
           },
-          {to: '/blog', label: '博客', position: 'left'},
+          { to: '/blog', label: '博客', position: 'left' },
           {
             href: 'https://github.com/IoTSharp/IoTSharp',
             label: 'GitHub',
@@ -67,6 +67,17 @@ const config = {
             label: 'Gitee',
             position: 'right',
           },
+          {
+            href: 'https://gitcode.com/IoTSharp/IoTSharp',
+            label: 'GitCode',
+            position: 'right',
+          },
+          {
+            href: 'https://space.bilibili.com/496905613',
+            label: '视频教程',
+            position: 'right',
+          },
+          
         ],
       },
       footer: {
@@ -91,11 +102,7 @@ const config = {
               {
                 label: 'Discord',
                 href: 'https://discord.gg/My6PaTmUvu',
-              },
-              {
-                label: '微博',
-                href: 'https://weibo.com/iotsharp',
-              },
+              }
             ],
           },
           {
