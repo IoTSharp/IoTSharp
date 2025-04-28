@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.VisualStudio.JavaScript.Sdk/0.5.83-alpha">
+﻿<Project Sdk="Microsoft.VisualStudio.JavaScript.Sdk/1.0.2888700">
   <PropertyGroup>
     <StartupCommand>npm run serve</StartupCommand>
     <JavaScriptTestRoot>.\</JavaScriptTestRoot>
