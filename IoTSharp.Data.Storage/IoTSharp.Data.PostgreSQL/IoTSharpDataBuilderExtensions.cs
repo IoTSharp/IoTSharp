@@ -1,5 +1,4 @@
-﻿
-using IoTSharp;
+﻿using IoTSharp;
 using IoTSharp.Contracts;
 using IoTSharp.Data;
 using IoTSharp.Data.PostgreSQL;
@@ -20,9 +19,11 @@ namespace Microsoft.Extensions.DependencyInjection
             services.AddSingleton<IDataBaseModelBuilderOptions>( c=> new NpgsqlModelBuilderOptions());
             services.AddNpgsql<ApplicationDbContext>(connectionString, s =>
                             s.UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery)
-                               .MigrationsAssembly("IoTSharp.Data.PostgreSQL"));
+                               .MigrationsAssembly("IoTSharp.Data.PostgreSQL"),
+                               opt => opt.ConfigureWarnings(w => w.Ignore(RelationalEventId.PendingModelChangesWarning)));
             checksBuilder.AddNpgSql(connectionString, name: "IoTSharp.Data.PostgreSQL");
-            healthChecksUI.AddPostgreSqlStorage(connectionString, opt => opt.ConfigureWarnings(w => w.Ignore(RelationalEventId.MultipleCollectionIncludeWarning)));
+            healthChecksUI.AddPostgreSqlStorage(connectionString, 
+                opt => opt.ConfigureWarnings(w => w.Ignore(RelationalEventId.PendingModelChangesWarning)));
 
         }
 
