@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>net9.0</TargetFramework>
@@ -8,21 +8,21 @@
  
   <ItemGroup>
     <PackageReference Include="Alba" Version="8.2.0" />
-    <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" Version="9.0.4" />
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.13.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" Version="9.0.5" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.14.1" />
 	      <PackageReference Include="coverlet.collector" Version="6.0.4">
 	        <PrivateAssets>all</PrivateAssets>
 	        <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 	      </PackageReference>
-	      <PackageReference Include="MSTest.TestAdapter" Version="3.8.3" />
-    <PackageReference Include="MSTest.TestFramework" Version="3.8.3" />
+	      <PackageReference Include="MSTest.TestAdapter" Version="3.9.1" />
+    <PackageReference Include="MSTest.TestFramework" Version="3.9.1" />
     <PackageReference Include="MXLogger" Version="2.0.9" />
-    <PackageReference Include="Testcontainers" Version="4.4.0" />
-    <PackageReference Include="Testcontainers.InfluxDb" Version="4.4.0" />
-    <PackageReference Include="Testcontainers.MongoDb" Version="4.4.0" />
-    <PackageReference Include="Testcontainers.MySql" Version="4.4.0" />
-    <PackageReference Include="Testcontainers.PostgreSql" Version="4.4.0" />
-    <PackageReference Include="Testcontainers.RabbitMq" Version="4.4.0" />
+    <PackageReference Include="Testcontainers" Version="4.5.0" />
+    <PackageReference Include="Testcontainers.InfluxDb" Version="4.5.0" />
+    <PackageReference Include="Testcontainers.MongoDb" Version="4.5.0" />
+    <PackageReference Include="Testcontainers.MySql" Version="4.5.0" />
+    <PackageReference Include="Testcontainers.PostgreSql" Version="4.5.0" />
+    <PackageReference Include="Testcontainers.RabbitMq" Version="4.5.0" />
   </ItemGroup>
 
   <ItemGroup>
