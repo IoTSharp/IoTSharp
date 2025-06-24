@@ -20,6 +20,11 @@
 	</ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\IoTSharp.Contracts\IoTSharp.Contracts.csproj" />
+    <ProjectReference Include="..\IoTSharp.Data.Storage\IoTSharp.Data.MySQL\IoTSharp.Data.MySQL.csproj" />
+    <ProjectReference Include="..\IoTSharp.Data.Storage\IoTSharp.Data.Oracle\IoTSharp.Data.Oracle.csproj" />
+    <ProjectReference Include="..\IoTSharp.Data.Storage\IoTSharp.Data.PostgreSQL\IoTSharp.Data.PostgreSQL.csproj" />
+    <ProjectReference Include="..\IoTSharp.Data.Storage\IoTSharp.Data.Sqlite\IoTSharp.Data.Sqlite.csproj" />
+    <ProjectReference Include="..\IoTSharp.Data.Storage\IoTSharp.Data.SqlServer\IoTSharp.Data.SqlServer.csproj" />
     <ProjectReference Include="..\IoTSharp.Data\IoTSharp.Data.csproj" />
     <ProjectReference Include="..\IoTSharp.Extensions.DependencyInjection\IoTSharp.Extensions.DependencyInjection.csproj" />
     <ProjectReference Include="..\IoTSharp.Extensions.EFCore\IoTSharp.Extensions.EFCore.csproj" />

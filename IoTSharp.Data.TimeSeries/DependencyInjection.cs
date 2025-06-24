@@ -22,7 +22,7 @@ namespace IoTSharp.Data.TimeSeries
 {
     public static class DependencyInjection
     {
-        public  static void AddTelemetryStorage(this IServiceCollection services, AppSettings settings, IHealthChecksBuilder healthChecks, Action<ShardingConfigOptions> shardingConfigure)
+        public  static void AddTelemetryStorage(this IServiceCollection services, AppSettings settings, IHealthChecksBuilder healthChecks)
         {
             string _hc_telemetryStorage = $"{nameof(TelemetryStorage)}-{Enum.GetName(settings.TelemetryStorage)}";
             var _connectionString = settings.ConnectionStrings["TelemetryStorage"];
@@ -58,8 +58,28 @@ namespace IoTSharp.Data.TimeSeries
                         o.ThrowIfQueryRouteNotMatch = false;
                         o.UseShellDbContextConfigure(builder => builder.UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking));
                         o.AddDefaultDataSource("ds0", _connectionString);
-                        shardingConfigure?.Invoke(o);
-                       
+                        switch (settings.DataBase)
+                        {
+                            case DataBaseType.MySql:
+                                o.UseMySqlToSharding();
+                                break;
+
+                            case DataBaseType.SqlServer:
+                                o.UseSqlServerToSharding();
+                                break;
+
+                            case DataBaseType.Oracle:
+                                o.UseOracleToSharding();
+                                break;
+
+                            case DataBaseType.Sqlite:
+                                o.UseSQLiteToSharding();
+                                break;
+                            case DataBaseType.PostgreSql:
+                            default:
+                                o.UseNpgsqlToSharding();
+                                break;
+                        }
                     });
                     _sharding.AddShardingCore();
                     services.AddSingleton<IStorage, ShardingStorage>();

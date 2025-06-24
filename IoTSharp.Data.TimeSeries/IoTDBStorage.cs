@@ -65,7 +65,7 @@ namespace IoTSharp.Storage
                     }
                     else
                     {
-                        await _session.SetStorageGroup(groupName);
+                        await _session.CreateDatabase(groupName);
                     }
                 }
                 catch (Exception ex)

@@ -39,7 +39,6 @@ using System.IO;
 using LettuceEncrypt;
 using LettuceEncrypt.Dns.Ali;
 using Microsoft.AspNetCore.StaticFiles;
-using IoTSharp.McpTools;
 
 namespace IoTSharp
 {
@@ -211,32 +210,7 @@ namespace IoTSharp
                         break;
                 }
             });
-            services.AddTelemetryStorage( settings, healthChecks,o=>
-            {
-                switch (settings.DataBase)
-                {
-                    case DataBaseType.MySql:
-                        o.UseMySqlToSharding();
-                        break;
-
-                    case DataBaseType.SqlServer:
-                        o.UseSqlServerToSharding();
-                        break;
-
-                    case DataBaseType.Oracle:
-                        o.UseOracleToSharding();
-                        break;
-
-                    case DataBaseType.Sqlite:
-                        o.UseSQLiteToSharding();
-                        break;
-                    case DataBaseType.PostgreSql:
-                    default:
-                        o.UseNpgsqlToSharding();
-                        break;
-
-                }
-            });
+            services.AddTelemetryStorage( settings, healthChecks);
             var zmq = Configuration.GetSection(nameof(ZMQOption)).Get<ZMQOption>();
             if (zmq != null)
             {
