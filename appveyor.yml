@@ -23,7 +23,7 @@ dotnet_csproj:
   file_version: '{version}'
   informational_version: '{version}'
 environment:
-  nodejs_version: 11
+  nodejs_version: 22
 build_script:
 - cmd: msbuild  -r -v:m  -t:rebuild -p:Configuration=Release IoTSharp.sln
 artifacts:

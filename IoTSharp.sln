@@ -70,6 +70,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "2.workflows", "2.workflows"
 		.github\workflows\dotnet-build.yml = .github\workflows\dotnet-build.yml
 		.github\workflows\dotnet-publish.yml = .github\workflows\dotnet-publish.yml
 		.github\FUNDING.yml = .github\FUNDING.yml
+		.github\workflows\nodejsbuild.yml = .github\workflows\nodejsbuild.yml
 		.workflow\pipeline-20220826.yml = .workflow\pipeline-20220826.yml
 	EndProjectSection
 EndProject
