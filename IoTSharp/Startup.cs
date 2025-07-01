@@ -267,6 +267,7 @@ namespace IoTSharp
                 });
             }
             services.AddMcpServer()
+                .WithHttpTransport()
                 .WithToolsFromAssembly();
         }
 
