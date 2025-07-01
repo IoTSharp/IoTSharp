@@ -14,6 +14,7 @@ using IoTSharp.Data;
 using Newtonsoft.Json.Linq;
 using IoTSharp.Contracts;
 using System.Net.Security;
+using System.Diagnostics;
 
 namespace IoTSharp
 {
@@ -174,7 +175,10 @@ namespace IoTSharp
         {
             var clients = await mqtt.GetClientsAsync();
             var client= clients.FirstOrDefault(c => c.Id == SenderClientId);
-            await client.Session.EnqueueApplicationMessageAsync(message);
+             if ( client.Session.TryEnqueueApplicationMessage(message,out InjectMqttApplicationMessageResult ijresult))
+            {
+                Debug.WriteLine(ijresult.PacketIdentifier);
+            }
         }
 
 

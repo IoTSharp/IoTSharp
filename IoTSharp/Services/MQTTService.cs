@@ -49,7 +49,7 @@ namespace IoTSharp.Services
 
         internal Task Server_ClientConnectedAsync(ClientConnectedEventArgs e)
         {
-            _logger.LogInformation($"Client [{e.ClientId}] {e.Endpoint} {e.UserName}  connected");
+            _logger.LogInformation($"Client [{e.ClientId}] {e.RemoteEndPoint.ToString()} {e.UserName}  connected");
             clients++;
             return Task.CompletedTask;
         }
@@ -153,13 +153,13 @@ namespace IoTSharp.Services
 
                     // jy 特殊处理 ::1
                     var isLoopback = false;
-                    if (obj.Endpoint?.StartsWith("::1") == true)
+                    if (obj.RemoteEndPoint.ToString().StartsWith("::1") == true)
                     {
                         isLoopback = true;
                     }
                     else
                     {
-                        Uri uri = new Uri("mqtt://" + obj.Endpoint);
+                        Uri uri = new Uri("mqtt://" + obj.RemoteEndPoint.ToString());
                         isLoopback = uri.IsLoopback;
                     }
                     if (isLoopback && !string.IsNullOrEmpty(e.ClientId) && e.ClientId == _mcsetting.MqttBroker && !string.IsNullOrEmpty(e.UserName))
