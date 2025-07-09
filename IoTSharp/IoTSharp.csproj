@@ -50,7 +50,7 @@
 		<PackageReference Include="AspNetCore.HealthChecks.System" Version="9.0.0" />
 		<PackageReference Include="AspNetCore.HealthChecks.UI" Version="9.0.0" />
 		<PackageReference Include="AspNetCore.HealthChecks.UI.Client" Version="9.0.0" />
-		<PackageReference Include="AutoMapper" Version="14.0.0" />
+		<PackageReference Include="AutoMapper" Version="15.0.0" />
 		<PackageReference Include="EasyCaching.InMemory" Version="1.9.2" />
 		<PackageReference Include="EasyCaching.LiteDB" Version="1.9.2" />
 		<PackageReference Include="EasyCaching.Redis" Version="1.9.2" />
