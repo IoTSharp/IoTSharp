@@ -173,7 +173,7 @@ namespace IoTSharp.Services
                         {
                             _thumbprint = e.ClientCertificate?.Thumbprint;
                         }
-                            _logger.LogInformation($"ClientId={obj.ClientId},Endpoint={obj.Endpoint},Username={obj.UserName}，Password={obj.Password}");
+                            _logger.LogInformation($"ClientId={obj.ClientId},Endpoint={obj.RemoteEndPoint.ToString()},Username={obj.UserName}，Password={obj.Password}");
                         var mcr = _dbContextcv.DeviceIdentities.Include(d => d.Device).FirstOrDefault(mc =>
                                               (mc.IdentityType == IdentityType.AccessToken && mc.IdentityId == obj.UserName) ||
                                              ( mc.IdentityType == IdentityType.X509Certificate &&  mc.IdentityId == _thumbprint ) ||
@@ -187,7 +187,7 @@ namespace IoTSharp.Services
                                 e.SessionItems.Add(nameof(Device), device);
                                 e.ReasonCode = MQTTnet.Protocol.MqttConnectReasonCode.Success;
                                 _queue.PublishConnect(device.Id, ConnectStatus.Connected);
-                                _logger.LogInformation($"Device {device.Name}({device.Id}) is online !username is {obj.UserName} and  is endpoint{obj.Endpoint}");
+                                _logger.LogInformation($"Device {device.Name}({device.Id}) is online !username is {obj.UserName} and  is endpoint{obj.RemoteEndPoint.ToString()}");
                             }
                             catch (Exception ex)
                             {
@@ -215,12 +215,12 @@ namespace IoTSharp.Services
                                 e.SessionItems.Add(nameof(Device), mcp.Device);
                                 e.ReasonCode = MQTTnet.Protocol.MqttConnectReasonCode.Success;
                                 _queue.PublishConnect(mcp.Device.Id, ConnectStatus.Disconnected);
-                                _logger.LogInformation($"Device {mcp.Device.Name}({mcp.Device.Id}) is online !username is {obj.UserName} and  is endpoint{obj.Endpoint}");
+                                _logger.LogInformation($"Device {mcp.Device.Name}({mcp.Device.Id}) is online !username is {obj.UserName} and  is endpoint{obj.RemoteEndPoint.ToString()}");
                             }
                             else
                             {
                                 e.ReasonCode = MQTTnet.Protocol.MqttConnectReasonCode.BadUserNameOrPassword;
-                                _logger.LogInformation($"Bad username or  password/AuthToken {obj.UserName},connection {obj.Endpoint} refused");
+                                _logger.LogInformation($"Bad username or  password/AuthToken {obj.UserName},connection {obj.RemoteEndPoint.ToString()} refused");
                             }
                         }
                         else if (_dbContextcv.Produces.Any(ak =>  obj.UserName.StartsWith( ak.Name+"_")  &&   ak.ProduceToken == obj.Password && ak.Deleted == false))
@@ -243,18 +243,18 @@ namespace IoTSharp.Services
                                 e.SessionItems.Add(nameof(Device), mcp);
                                 e.ReasonCode = MQTTnet.Protocol.MqttConnectReasonCode.Success;
                                 _queue.PublishConnect(mcp.Id, ConnectStatus.Disconnected);
-                                _logger.LogInformation($"Produce {ak.Name}'s   device {mcp.Name}({mcp.Id}) is online ! Client name  is {obj.UserName} and  is endpoint{obj.Endpoint}");
+                                _logger.LogInformation($"Produce {ak.Name}'s   device {mcp.Name}({mcp.Id}) is online ! Client name  is {obj.UserName} and  is endpoint{obj.RemoteEndPoint.ToString()}");
                             }
                             else
                             {
                                 e.ReasonCode = MQTTnet.Protocol.MqttConnectReasonCode.BadUserNameOrPassword;
-                                _logger.LogInformation($"Bad device name  or  ProduceToken {obj.UserName},connection {obj.Endpoint} refused");
+                                _logger.LogInformation($"Bad device name  or  ProduceToken {obj.UserName},connection {obj.RemoteEndPoint.ToString()} refused");
                             }
                         }
                         else
                         {
                             e.ReasonCode = MQTTnet.Protocol.MqttConnectReasonCode.BadUserNameOrPassword;
-                            _logger.LogInformation($"Bad username or password {obj.UserName},connection {obj.Endpoint} refused");
+                            _logger.LogInformation($"Bad username or password {obj.UserName},connection {obj.RemoteEndPoint.ToString()} refused");
                         }
                     }
                 }

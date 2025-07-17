@@ -1,22 +1,23 @@
 ﻿using Alba;
 using DotNet.Testcontainers.Containers;
 using IoTSharp.Contracts;
+using IoTSharp.Data;
 using IoTSharp.Dtos;
+using k8s.KubeConfigModels;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.TestHost;
+using Microsoft.Extensions.Logging;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Http;
+using System.Net.Http.Json;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.Extensions.Logging;
-using System.Net.Http.Json;
 using Testcontainers.PostgreSql;
-using Microsoft.AspNetCore.Http;
-using IoTSharp.Data;
-using System.Net.Http;
 namespace IoTSharp.Test
 {
     public class AppInstance
@@ -25,11 +26,13 @@ namespace IoTSharp.Test
         internal InstallDto _installdto;
         internal static TestContext _context;
         internal CancellationToken _ct;
+
         [ClassInitialize]
-        internal static void  FixtureSetup(TestContext context)
+        public static void FixtureSetup(TestContext context)
         {
             _context = context;
         }
+
         public async Task AppInitialize(string db_main, string db_telemetry, DataBaseType db_type) =>
                     await AppInitialize(db_main, db_telemetry, db_type, TelemetryStorage.Sharding, EventBusStore.InMemory);
         public async Task AppInitialize(string db_main, string db_telemetry, DataBaseType db_type, TelemetryStorage telemetry ) =>
