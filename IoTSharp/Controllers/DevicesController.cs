@@ -59,10 +59,11 @@ namespace IoTSharp.Controllers
         private readonly FlowRuleProcessor _flowRuleProcessor;
         private readonly IEasyCachingProvider _caching;
         private readonly IServiceScopeFactory _scopeFactor;
+        private readonly ILoggerFactory _loggerFactory;
 
         public DevicesController(UserManager<IdentityUser> userManager,
             SignInManager<IdentityUser> signInManager, ILogger<DevicesController> logger, MqttServer serverEx, ApplicationDbContext context, MqttClientOptions mqtt, IStorage storage, IOptions<AppSettings> options, IPublisher queue
-            , IEasyCachingProviderFactory factory, FlowRuleProcessor flowRuleProcessor, IServiceScopeFactory scopeFactor)
+            , IEasyCachingProviderFactory factory, FlowRuleProcessor flowRuleProcessor, IServiceScopeFactory scopeFactor, ILoggerFactory loggerFactory)
         {
             string _hc_Caching = $"{nameof(CachingUseIn)}-{Enum.GetName(options.Value.CachingUseIn)}";
             _context = context;
@@ -77,6 +78,7 @@ namespace IoTSharp.Controllers
             _flowRuleProcessor = flowRuleProcessor;
             _caching = factory.GetCachingProvider(_hc_Caching);
             _scopeFactor = scopeFactor;
+            _loggerFactory = loggerFactory;
         }
 
         /// <summary>
@@ -745,7 +747,7 @@ namespace IoTSharp.Controllers
             var dev = await PostDevice(dto);
             if (dev.Code == (int)ApiCode.Success)
             {
-                MapperConfiguration mapperConfiguration = new MapperConfiguration(options => { options.CreateMap<ProduceData, AttributeLatest>(); });
+                MapperConfiguration mapperConfiguration = new MapperConfiguration(options => { options.CreateMap<ProduceData, AttributeLatest>(); },_loggerFactory);
                 IMapper mapper = mapperConfiguration.CreateMapper();
 
                 var atts = produce.DefaultAttributes.Select(c =>

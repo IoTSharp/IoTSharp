@@ -37,7 +37,7 @@
       <el-table :data="state.tableData.rows" style="width: 100%" row-key="id" @row-click="rowOnClick">
         <el-table-column prop="name" label="设备名称" show-overflow-tooltip>
           <template #default="scope">
-            <el-link type="primary" :underline="false">{{ scope.row.name }}</el-link>
+            <el-link type="primary" underline="never">{{ scope.row.name }}</el-link>
           </template>
         </el-table-column>
 

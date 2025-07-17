@@ -50,7 +50,7 @@
 
     <div class="mt10-40px login-animation5 text-center">
       没有账号?
-      <router-link to="/signup"> <el-link type="primary" :underline="false" >立即注册 </el-link></router-link>
+      <router-link to="/signup"> <el-link type="primary" underline="never" >立即注册 </el-link></router-link>
     </div>
   </el-form>
 
