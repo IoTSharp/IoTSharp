@@ -101,7 +101,7 @@ namespace IoTSharp.Controllers
             }
             else
             {
-                return new ApiResult<List<Device>>(ApiCode.Success, $"The customer {customerId} does not have any device", await f.ToListAsync());
+                return new ApiResult<List<Device>>(ApiCode.Success, $"Successfully retrieved devices for customer {customerId}", await f.ToListAsync());
             }
         }
 
