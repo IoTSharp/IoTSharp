@@ -1,4 +1,5 @@
-﻿using Apache.IoTDB.Data;
+﻿using Apache.IoTDB;
+using Apache.IoTDB.Data;
 using Apache.IoTDB.DataStructure;
 using IoTSharp.Contracts;
 using IoTSharp.Data;
@@ -299,6 +300,8 @@ namespace IoTSharp.Storage
             {
                 string device = $"root.{_StorageGroupName}.{msg.DeviceId:N}";
                 List<object> values = new List<object>();
+                List<TSDataType> dataTypes = new List<TSDataType>();
+                List<string> memas = new List<string>();
                 msg.MsgBody.ToList().ForEach(kp =>
                 {
                     if (kp.Value != null)
@@ -307,36 +310,44 @@ namespace IoTSharp.Storage
                         tdata.FillKVToMe(kp);
                         object? _value = null;
                         bool _hasvalue = true;
+                        TSDataType tsdata= TSDataType.NONE;
                         switch (tdata.Type)
                         {
                             case DataType.Boolean:
                                 _value = tdata.Value_Boolean;
+                                tsdata = TSDataType.BOOLEAN;
                                 _hasvalue = tdata.Value_Boolean.HasValue;
                                 break;
                             case DataType.String:
                                 _value = tdata.Value_String;
+                                tsdata = TSDataType.STRING;
                                 break;
                             case DataType.Long:
                                 _value = tdata.Value_Long;
                                 _hasvalue = tdata.Value_Long.HasValue;
+                                tsdata = TSDataType.INT64;
                                 break;
                             case DataType.Double:
                                 _value = tdata.Value_Double;
                                 _hasvalue = tdata.Value_Double.HasValue;
+                                tsdata = TSDataType.DOUBLE;
                                 break;
                             case DataType.DateTime:
                                 _value = tdata.Value_DateTime;
                                 _hasvalue = tdata.Value_DateTime.HasValue;
+                                tsdata = TSDataType.DATE;
                                 break;
                         }
                         if (_hasvalue && _value != null)
                         {
                             values.Add(_value);
                             telemetries.Add(tdata);
+                            dataTypes.Add(tsdata);
+                            memas.Add(kp.Key);
                         }
                     }
                 });
-                var record = new RowRecord(msg.ts, values, msg.MsgBody.Keys.ToList());
+                var record =  new RowRecord(msg.ts, values, memas, dataTypes);
                 var okCount = await _session.InsertRecordAsync(device, record);
                 _logger.LogInformation($"数据入库完成，准备写入{values.Count}条数据，实际写入{okCount}条");
                 result = true;
