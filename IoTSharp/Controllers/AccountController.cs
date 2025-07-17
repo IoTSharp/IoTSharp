@@ -652,7 +652,7 @@ namespace IoTSharp.Controllers
                             var lce = await _userManager.SetLockoutEnabledAsync(user, true);
                             if (lce.Succeeded)
                             {
-                                /**20230309 zhangjie modify
+                                /*20230309 zhangjie modify
                                  * 此处修改Now为UtcNow，否则报错：Cannot write DateTimeOffset with Offset=08:00:00 to PostgreSQL type 'timestamp with time zone'
                                  * 如果此处不改，网上给出的另一个方式是在Main方法中添加：
                                  * AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
