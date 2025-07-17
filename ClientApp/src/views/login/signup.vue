@@ -15,7 +15,7 @@
                 </div>
                 <div class="mt10-40px login-animation5 text-center">
                     已有账号?
-                    <router-link to="/login"> <el-link type="primary" :underline="false">登录 </el-link></router-link>
+                    <router-link to="/login"> <el-link type="primary" underline="never">登录 </el-link></router-link>
                 </div>
             </div>
         </div>
