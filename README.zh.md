@@ -3,7 +3,7 @@
     <img src="docs/static/img/logo_white.svg" width="360px" alt="IoTSharp logo" />
   </a>
 </p>
-
+[![fork](https://gitcode.com/IoTSharp/IoTSharp/star/badge.svg)](https://gitcode.com/IoTSharp/IoTSharp)
 [![Build status](https://ci.appveyor.com/api/projects/status/5o23f5vss89ct2lw/branch/master?svg=true)](https://ci.appveyor.com/project/MaiKeBing/iotsharp/branch/master)
 ![GitHub](https://img.shields.io/github/license/iotsharp/iotsharp.svg)
 [![.NET Core build](https://github.com/IoTSharp/IoTSharp/actions/workflows/dotnet-build.yml/badge.svg)](https://github.com/IoTSharp/IoTSharp/actions/workflows/dotnet-build.yml)
@@ -98,34 +98,49 @@ IoTSharp 是一个开源的物联网基础平台，集设备属性数据管理�
 
 IoTSharp-C-client-Sdk 是mqtt客户端， c语言编写的例子。 
 
- [https://github.com/IoTSharp/IoTSharp.Sdks.MQTT-C](https://github.com/IoTSharp/IoTSharp.Sdks.MQTT-C)
+ - [Github IoTSharp.Sdks.MQTT-C](https://github.com/IoTSharp/IoTSharp.Sdks.MQTT-C)
+ - [Gitee IoTSharp.Sdks.MQTT-C](https://gitee.com/IoTSharp/IoTSharp.Sdks.MQTT-C)
+ - [GitCode IoTSharp.Sdks.MQTT-C](https://gitcode.com/IoTSharp/IoTSharp.Sdks.MQTT-C)
 
 ## paho.mqtt.c 的例子
 
 这个跟 IoTSharp-C-Client-Sdk 一样， 但是使用了 paho.mqtt.c
- https://github.com/IoTSharp/IoTSharp.Edge.paho.mqtt.c
+ - [Github IoTSharp.Edge.paho.mqtt.c](https://github.com/IoTSharp/IoTSharp.Edge.paho.mqtt.c)
+ - [Gitee IoTSharp.Edge.paho.mqtt.c]( https://gitee.com/IoTSharp/IoTSharp.Edge.paho.mqtt.c)
+ - [GitCode IoTSharp.Edge.paho.mqtt.c]( https://gitcode.com/IoTSharp/IoTSharp.Edge.paho.mqtt.c)
 
 ## IoTSharp 的 nanoFramework 例子
 
 IoTSharp.Edge.nanoFramework 是一个 nanoFramework's mqtt 客户端， 它允许在STM32 ！
 
-  https://github.com/IoTSharp/IoTSharp.Edge.nanoFramework
+ - [Github IoTSharp.Edge.nanoFramework](https://github.com/IoTSharp/IoTSharp.Edge.nanoFramework)
+ - [Gitee IoTSharp.Edge.nanoFramework]( https://gitee.com/IoTSharp/IoTSharp.Edge.nanoFramework)
+ - [GitCode IoTSharp.Edge.nanoFramework]( https://gitcode.com/IoTSharp/IoTSharp.Edge.nanoFramework)
 
 更多信息请读这里 https://www.cnblogs.com/MysticBoy/p/13159648.html
 官方网站为：  https://www.nanoframework.net/ 
 
 ##  IoTSharp 的RT-Thread 开发包
 
-https://github.com/IoTSharp/iotsharp-rtthread-package
+ - [Github](https://github.com/IoTSharp/iotsharp-rtthread-package)
+ - [Gitee](https://gitee.com/IoTSharp/iotsharp-rtthread-package)
+ - [GitCode](https://gitcode.com/IoTSharp/iotsharp-rtthread-package)
 
 
 ## IoTSharp 的软件生态
 
 
-- IoTSharp.Sdk.Http   [![IoTSharp.Sdk.Http](https://img.shields.io/nuget/v/IoTSharp.Sdk.Http.svg) ![Nuget](https://img.shields.io/nuget/dt/IoTSharp.Sdk.Http) ](https://www.nuget.org/packages/IoTSharp.Sdk.Http/)
-- IoTSharp.Sdk.MQTT   [![IoTSharp.Sdk.MQTT](https://img.shields.io/nuget/v/IoTSharp.Sdk.MQTT.svg) ![Nuget](https://img.shields.io/nuget/dt/IoTSharp.Sdk.MQTT)  ](https://www.nuget.org/packages/IoTSharp.Sdk.MQTT/)
+- SilkierQuartz   [![SilkierQuartz](https://img.shields.io/nuget/v/SilkierQuartz.svg) ![Nuget](https://img.shields.io/nuget/dt/SilkierQuartz)  ](https://www.nuget.org/packages/SilkierQuartz/)
+- IoTSharp.Numerics   [![IoTSharp.Numerics](https://img.shields.io/nuget/v/IoTSharp.Numerics.svg) ![Nuget](https://img.shields.io/nuget/dt/IoTSharp.Numerics)  ](https://www.nuget.org/packages/IoTSharp.Numerics/)
+- Extensions.Configuration.GitRepository   [![Extensions.Configuration.GitRepository](https://img.shields.io/nuget/v/Extensions.Configuration.GitRepository.svg) ![Nuget](https://img.shields.io/nuget/dt/Extensions.Configuration.GitRepository)  ](https://www.nuget.org/packages/Extensions.Configuration.GitRepository/)
+- IoTSharp.HealthChecks.InfluxDB   [![IoTSharp.HealthChecks.InfluxDB](https://img.shields.io/nuget/v/IoTSharp.HealthChecks.InfluxDB.svg) ![Nuget](https://img.shields.io/nuget/dt/IoTSharp.HealthChecks.InfluxDB)  ](https://www.nuget.org/packages/IoTSharp.HealthChecks.InfluxDB/)
+- IoTSharp.HealthChecks.Cassandra   [![IoTSharp.HealthChecks.Cassandra](https://img.shields.io/nuget/v/IoTSharp.HealthChecks.Cassandra.svg) ![Nuget](https://img.shields.io/nuget/dt/IoTSharp.HealthChecks.Cassandra)  ](https://www.nuget.org/packages/IoTSharp.HealthChecks.Cassandra/)
+- IoTSharp.HealthChecks.Taos   [![IoTSharp.HealthChecks.Taos](https://img.shields.io/nuget/v/IoTSharp.HealthChecks.Taos.svg) ![Nuget](https://img.shields.io/nuget/dt/IoTSharp.HealthChecks.Taos)  ](https://www.nuget.org/packages/IoTSharp.HealthChecks.Taos/)
+- IoTSharp.HealthChecks.IoTDB   [![IoTSharp.HealthChecks.IoTDB](https://img.shields.io/nuget/v/IoTSharp.HealthChecks.IoTDB.svg) ![Nuget](https://img.shields.io/nuget/dt/IoTSharp.HealthChecks.IoTDB)  ](https://www.nuget.org/packages/IoTSharp.HealthChecks.IoTDB/)
 - MQTTnet.AspNetCore.Routing   [![MQTTnet.AspNetCore.Routing](https://img.shields.io/nuget/v/MQTTnet.AspNetCore.Routing.svg) ![Nuget](https://img.shields.io/nuget/dt/MQTTnet.AspNetCore.Routing)  ](https://www.nuget.org/packages/MQTTnet.AspNetCore.Routing/)
 - IoTSharp.EntityFrameworkCore.Taos   [![IoTSharp.EntityFrameworkCore.Taos](https://img.shields.io/nuget/v/IoTSharp.EntityFrameworkCore.Taos.svg) ![Nuget](https://img.shields.io/nuget/dt/IoTSharp.EntityFrameworkCore.Taos)  ](https://www.nuget.org/packages/IoTSharp.EntityFrameworkCore.Taos/)
+- IoTSharp.Sdk.Http   [![IoTSharp.Sdk.Http](https://img.shields.io/nuget/v/IoTSharp.Sdk.Http.svg) ![Nuget](https://img.shields.io/nuget/dt/IoTSharp.Sdk.Http) ](https://www.nuget.org/packages/IoTSharp.Sdk.Http/)
+- IoTSharp.Sdk.MQTT   [![IoTSharp.Sdk.MQTT](https://img.shields.io/nuget/v/IoTSharp.Sdk.MQTT.svg) ![Nuget](https://img.shields.io/nuget/dt/IoTSharp.Sdk.MQTT)  ](https://www.nuget.org/packages/IoTSharp.Sdk.MQTT/)
 - IoTSharp.X509Extensions [![IoTSharp.X509Extensions](https://img.shields.io/nuget/v/IoTSharp.X509Extensions.svg) ![Nuget](https://img.shields.io/nuget/dt/IoTSharp.X509Extensions) ](https://www.nuget.org/packages/IoTSharp.X509Extensions/)
 - IoTSharp.Extensions.RESTful  [![IoTSharp.Extensions.RESTful](https://img.shields.io/nuget/v/IoTSharp.Extensions.RESTful.svg) ![Nuget](https://img.shields.io/nuget/dt/IoTSharp.Extensions.RESTful) ](https://www.nuget.org/packages/IoTSharp.Extensions.RESTful/)
 - IoTSharp.Extensions.QuartzJobScheduler  [![IoTSharp.Extensions.QuartzJobScheduler](https://img.shields.io/nuget/v/IoTSharp.Extensions.QuartzJobScheduler.svg) ![Nuget](https://img.shields.io/nuget/dt/IoTSharp.Extensions.QuartzJobScheduler) ](https://www.nuget.org/packages/IoTSharp.Extensions.QuartzJobScheduler/)
@@ -133,6 +148,7 @@ https://github.com/IoTSharp/iotsharp-rtthread-package
 - IoTSharp.Extensions.BouncyCastle  [![IoTSharp.Extensions.BouncyCastle](https://img.shields.io/nuget/v/IoTSharp.Extensions.BouncyCastle.svg) ![Nuget](https://img.shields.io/nuget/dt/IoTSharp.Extensions.BouncyCastle) ](https://www.nuget.org/packages/IoTSharp.Extensions.BouncyCastle/)
 - IoTSharp.Extensions.AspNetCore  [![IoTSharp.Extensions.AspNetCore](https://img.shields.io/nuget/v/IoTSharp.Extensions.AspNetCore.svg) ![Nuget](https://img.shields.io/nuget/dt/IoTSharp.Extensions.AspNetCore) ](https://www.nuget.org/packages/IoTSharp.Extensions.AspNetCore/)
 - IoTSharp.Extensions  [![IoTSharp.Extensions](https://img.shields.io/nuget/v/IoTSharp.Extensions.svg) ![Nuget](https://img.shields.io/nuget/dt/IoTSharp.Extensions)  ](https://www.nuget.org/packages/IoTSharp.Extensions/)
+
 
 
 ## 贡献
