@@ -23,6 +23,10 @@ namespace IoTSharp.Data
 
         [System.Text.Json.Serialization.JsonIgnore]
         [Newtonsoft.Json.JsonIgnore]
+        public AISettings  AISettings { get; set; }
+
+        [System.Text.Json.Serialization.JsonIgnore]
+        [Newtonsoft.Json.JsonIgnore]
         public Tenant Tenant { get; set; }
 
         [System.Text.Json.Serialization.JsonIgnore]

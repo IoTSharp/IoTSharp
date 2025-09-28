@@ -87,11 +87,13 @@ namespace IoTSharp.Data
         public DbSet<Alarm> Alarms { get; set; }
         public DbSet<Asset> Assets { get; set; }
         public DbSet<AssetRelation> AssetRelations { get; set; }
-        public DbSet<Produce>  Produces { get; set; }
+        public DbSet<Produce> Produces { get; set; }
 
-        public DbSet<ProduceData>  ProduceDatas { get; set; }
+        public DbSet<ProduceData> ProduceDatas { get; set; }
 
         public DbSet<ProduceDictionary> ProduceDictionaries { get; set; }
+
+        public DbSet<AISettings> AISettings { get; set; }
     }
 
 }

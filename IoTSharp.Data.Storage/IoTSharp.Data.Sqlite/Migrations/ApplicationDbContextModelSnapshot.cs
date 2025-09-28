@@ -17,7 +17,32 @@ namespace IoTSharp.Data.Sqlite.Migrations
 #pragma warning disable 612, 618
             modelBuilder
                 .UseCollation("NOCASE")
-                .HasAnnotation("ProductVersion", "7.0.3");
+                .HasAnnotation("ProductVersion", "9.0.9");
+
+            modelBuilder.Entity("IoTSharp.Data.AISettings", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("TEXT");
+
+                    b.Property<bool>("Enable")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("MCP_API_KEY")
+                        .HasColumnType("TEXT")
+                        .UseCollation("NOCASE");
+
+                    b.Property<string>("Name")
+                        .HasColumnType("TEXT")
+                        .UseCollation("NOCASE");
+
+                    b.Property<int>("Role")
+                        .HasColumnType("INTEGER");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("AISettings");
+                });
 
             modelBuilder.Entity("IoTSharp.Data.Alarm", b =>
                 {
@@ -541,6 +566,9 @@ namespace IoTSharp.Data.Sqlite.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("TEXT");
 
+                    b.Property<Guid?>("AISettingsId")
+                        .HasColumnType("TEXT");
+
                     b.Property<string>("Address")
                         .HasColumnType("TEXT")
                         .UseCollation("NOCASE");
@@ -583,6 +611,8 @@ namespace IoTSharp.Data.Sqlite.Migrations
                         .HasColumnType("INTEGER");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("AISettingsId");
 
                     b.HasIndex("TenantId");
 
@@ -2073,6 +2103,9 @@ namespace IoTSharp.Data.Sqlite.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("TEXT");
 
+                    b.Property<Guid?>("AISettingsId")
+                        .HasColumnType("TEXT");
+
                     b.Property<string>("Address")
                         .HasColumnType("TEXT")
                         .UseCollation("NOCASE");
@@ -2112,6 +2145,8 @@ namespace IoTSharp.Data.Sqlite.Migrations
                         .HasColumnType("INTEGER");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("AISettingsId");
 
                     b.ToTable("Tenant");
                 });
@@ -2460,9 +2495,15 @@ namespace IoTSharp.Data.Sqlite.Migrations
 
             modelBuilder.Entity("IoTSharp.Data.Customer", b =>
                 {
+                    b.HasOne("IoTSharp.Data.AISettings", "AISettings")
+                        .WithMany()
+                        .HasForeignKey("AISettingsId");
+
                     b.HasOne("IoTSharp.Data.Tenant", "Tenant")
                         .WithMany("Customers")
                         .HasForeignKey("TenantId");
+
+                    b.Navigation("AISettings");
 
                     b.Navigation("Tenant");
                 });
@@ -2787,6 +2828,15 @@ namespace IoTSharp.Data.Sqlite.Migrations
                     b.Navigation("RuleTaskExecutor");
 
                     b.Navigation("Subscription");
+                });
+
+            modelBuilder.Entity("IoTSharp.Data.Tenant", b =>
+                {
+                    b.HasOne("IoTSharp.Data.AISettings", "AISettings")
+                        .WithMany()
+                        .HasForeignKey("AISettingsId");
+
+                    b.Navigation("AISettings");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>

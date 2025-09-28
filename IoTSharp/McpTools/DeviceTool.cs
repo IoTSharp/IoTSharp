@@ -20,14 +20,16 @@ namespace IoTSharp.McpTools
         private readonly UserManager<IdentityUser> _userManager;
         private readonly SignInManager<IdentityUser> _signInManager;
         private readonly ILogger<DeviceTool> _logger;
+        private readonly IMcpServer _server;
 
-        public DeviceTool(ApplicationDbContext context, UserManager<IdentityUser> userManager, ILogger<DeviceTool> logger,
+        public DeviceTool(ApplicationDbContext context, UserManager<IdentityUser> userManager, ILogger<DeviceTool> logger, IMcpServer server,
             SignInManager<IdentityUser> signInManager)
         {
             _context = context;
             _userManager = userManager;
             _signInManager = signInManager;
             _logger = logger;
+            _server = server;
 
         }
         /// <summary>
@@ -37,8 +39,9 @@ namespace IoTSharp.McpTools
         [McpServerTool(Name = "DevicesList"), Description("Get the list of  devices.")]
         public  ApiResult<List<MCPDeviceDto>> DevicesList()
         {
-
-            
+            var _API_KEY = _server.ServerOptions.Capabilities!.Experimental["API_KEY"].ToString();
+            var ais = _context.AISettings.FirstOrDefault(a => a.MCP_API_KEY == _API_KEY);
+            if (ais == null || !ais.Enable) return new ApiResult<List<MCPDeviceDto>>(ApiCode.Invalid_API_KEY, "Invalid API_KEY", new List<MCPDeviceDto>());
             var data= new ApiResult<List<MCPDeviceDto>>(ApiCode.Success, "OK", new List<MCPDeviceDto>());
             var f = from c in _context.Device select new MCPDeviceDto(c.Name,c.Id,c.DeviceType) ;
             data.Data = f.ToList();

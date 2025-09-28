@@ -52,16 +52,16 @@ namespace IoTSharp.Extensions
        
 
         public static byte[] ReadAllBytes(this FileInfo fi) => File.ReadAllBytes(fi.FullName);
-        public static byte[] ReadBytes(this FileInfo fi, int count) => ReadBytes(fi, 0, count);
+        public static byte[] ReadExactly(this FileInfo fi, int count) => ReadExactly(fi, 0, count);
 
 
-        public static byte[] ReadBytes(this FileInfo fi, int offset, int count)
+        public static byte[] ReadExactly(this FileInfo fi, int offset, int count)
         {
             byte[] buffer = new byte[count];
             using (var fs = fi.OpenRead())
             {
                 fs.Seek(offset, SeekOrigin.Begin);
-                fs.Read(buffer, 0, count);
+                fs.ReadExactly(buffer, 0, count);
             }
             return buffer;
         }

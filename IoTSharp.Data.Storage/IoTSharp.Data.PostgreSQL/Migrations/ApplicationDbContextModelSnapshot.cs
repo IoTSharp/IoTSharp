@@ -17,10 +17,33 @@ namespace IoTSharp.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "8.0.10")
+                .HasAnnotation("ProductVersion", "9.0.9")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
+
+            modelBuilder.Entity("IoTSharp.Data.AISettings", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<bool>("Enable")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("MCP_API_KEY")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Name")
+                        .HasColumnType("text");
+
+                    b.Property<int>("Role")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("AISettings");
+                });
 
             modelBuilder.Entity("IoTSharp.Data.Alarm", b =>
                 {
@@ -484,6 +507,9 @@ namespace IoTSharp.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
+                    b.Property<Guid?>("AISettingsId")
+                        .HasColumnType("uuid");
+
                     b.Property<string>("Address")
                         .HasColumnType("text");
 
@@ -518,6 +544,8 @@ namespace IoTSharp.Migrations
                         .HasColumnType("integer");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("AISettingsId");
 
                     b.HasIndex("TenantId");
 
@@ -608,11 +636,6 @@ namespace IoTSharp.Migrations
                     b.Property<int>("DeviceType")
                         .HasColumnType("integer");
 
-                    b.Property<string>("Discriminator")
-                        .IsRequired()
-                        .HasMaxLength(8)
-                        .HasColumnType("character varying(8)");
-
                     b.Property<string>("Name")
                         .HasColumnType("text");
 
@@ -642,7 +665,7 @@ namespace IoTSharp.Migrations
 
                     b.ToTable("Device");
 
-                    b.HasDiscriminator().HasValue("Device");
+                    b.HasDiscriminator<int>("DeviceType").HasValue(0);
 
                     b.UseTphMappingStrategy();
                 });
@@ -1879,6 +1902,9 @@ namespace IoTSharp.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
+                    b.Property<Guid?>("AISettingsId")
+                        .HasColumnType("uuid");
+
                     b.Property<string>("Address")
                         .HasColumnType("text");
 
@@ -1910,6 +1936,8 @@ namespace IoTSharp.Migrations
                         .HasColumnType("integer");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("AISettingsId");
 
                     b.ToTable("Tenant");
                 });
@@ -2140,7 +2168,7 @@ namespace IoTSharp.Migrations
                 {
                     b.HasBaseType("IoTSharp.Data.Device");
 
-                    b.HasDiscriminator().HasValue("Gateway");
+                    b.HasDiscriminator().HasValue(1);
                 });
 
             modelBuilder.Entity("IoTSharp.Data.Alarm", b =>
@@ -2233,9 +2261,15 @@ namespace IoTSharp.Migrations
 
             modelBuilder.Entity("IoTSharp.Data.Customer", b =>
                 {
+                    b.HasOne("IoTSharp.Data.AISettings", "AISettings")
+                        .WithMany()
+                        .HasForeignKey("AISettingsId");
+
                     b.HasOne("IoTSharp.Data.Tenant", "Tenant")
                         .WithMany("Customers")
                         .HasForeignKey("TenantId");
+
+                    b.Navigation("AISettings");
 
                     b.Navigation("Tenant");
                 });
@@ -2560,6 +2594,15 @@ namespace IoTSharp.Migrations
                     b.Navigation("RuleTaskExecutor");
 
                     b.Navigation("Subscription");
+                });
+
+            modelBuilder.Entity("IoTSharp.Data.Tenant", b =>
+                {
+                    b.HasOne("IoTSharp.Data.AISettings", "AISettings")
+                        .WithMany()
+                        .HasForeignKey("AISettingsId");
+
+                    b.Navigation("AISettings");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>

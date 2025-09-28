@@ -142,6 +142,7 @@ namespace IoTSharp.Contracts
         /// 用户Token失效
         /// </summary>
         UserTokenNotAvailable = 10030,
+        Invalid_API_KEY = 10031,
     }
     [System.Text.Json.Serialization.JsonConverter(typeof(System.Text.Json.Serialization.JsonStringEnumConverter))]
     [JsonConverter(typeof(StringEnumConverter))]

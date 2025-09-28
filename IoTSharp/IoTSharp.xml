@@ -276,6 +276,18 @@
             </summary>
             <returns></returns>
         </member>
+        <member name="M:IoTSharp.Controllers.CustomersController.SetAISettings(System.Guid,IoTSharp.Data.AISettingsSetDto)">
+            <summary>
+            获取指定用户下的AI设置
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:IoTSharp.Controllers.CustomersController.GetAISettings(System.Guid)">
+            <summary>
+            获取指定用户下的AI设置
+            </summary>
+            <returns></returns>
+        </member>
         <member name="M:IoTSharp.Controllers.CustomersController.GetCustomer(System.Guid)">
             <summary>
             返回指定id的客户
@@ -751,6 +763,18 @@
             删除租户，仅限系统用户
             </summary>
             <param name="id"></param>
+            <returns></returns>
+        </member>
+        <member name="M:IoTSharp.Controllers.TenantsController.SetAISettings(System.Guid,IoTSharp.Data.AISettingsSetDto)">
+            <summary>
+            设置指定租户下的AI设置
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:IoTSharp.Controllers.TenantsController.GetAISettings(System.Guid)">
+            <summary>
+            获取指定租户下的AI设置
+            </summary>
             <returns></returns>
         </member>
         <member name="P:IoTSharp.Controllers.DeviceAttributeDto.DataSide">

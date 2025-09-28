@@ -185,5 +185,89 @@ namespace IoTSharp.Controllers
             
             }
         }
+
+
+        /// <summary>
+        /// 设置指定租户下的AI设置
+        /// </summary>
+        /// <returns></returns>
+        [HttpPost("{id}/ai")]
+        [Authorize(Roles = nameof(UserRole.CustomerAdmin))]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ApiResult), StatusCodes.Status404NotFound)]
+        [ProducesDefaultResponseType]
+        public async Task<ApiResult<AISettingsDto>> SetAISettings([FromRoute] Guid id, [FromBody] AISettingsSetDto dto)
+        {
+            var profile = this.GetUserProfile();
+            if (id != Guid.Empty)
+            {
+                var querym = _context.Tenant.Include(s => s.AISettings).Where(c => !c.Deleted && c.Id == profile.Tenant && c.Id == id);
+                if (querym.Any())
+                {
+                    var d = await querym.FirstOrDefaultAsync();
+
+                    if (d.AISettings == null)
+                    {
+                        var dx = new AISettings();
+                        dx.Id= Guid.NewGuid();
+                        dx.Role= UserRole.TenantAdmin;
+                        _context.AISettings.Add(dx);
+                        d.AISettings = dx;
+                    }
+                    d.AISettings.Enable = dto.Enable;
+                    d.AISettings.MCP_API_KEY = Guid.NewGuid().ToString();
+                    d.AISettings.Name = dto.Name;
+                    int ret = await _context.SaveChangesAsync();
+                    var dtor = new AISettingsDto() { Enable = d.AISettings.Enable, MCP_API_KEY = d.AISettings.MCP_API_KEY, Name = d.AISettings.Name };
+                    return new ApiResult<AISettingsDto>(ApiCode.Success, "OK", dtor);
+                }
+                else
+                {
+                    return new ApiResult<AISettingsDto>(ApiCode.NotFoundCustomer, "没有指定客户", new AISettingsDto());
+                }
+            }
+            else
+            {
+
+                return new ApiResult<AISettingsDto>(ApiCode.InValidData, "传入的客户ID为空", new AISettingsDto());
+            }
+
+        }
+
+        /// <summary>
+        /// 获取指定租户下的AI设置
+        /// </summary>
+        /// <returns></returns>
+        [HttpGet("{id}/ai")]
+        [Authorize(Roles = nameof(UserRole.CustomerAdmin))]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ApiResult), StatusCodes.Status404NotFound)]
+        [ProducesDefaultResponseType]
+        public async Task<ApiResult<AISettingsDto>> GetAISettings([FromRoute] Guid id)
+        {
+            var profile = this.GetUserProfile();
+            if (id != Guid.Empty)
+            {
+                var querym = _context.Tenant.Include(s => s.AISettings).Where(c => !c.Deleted && c.Id == profile.Tenant && c.Id == id);
+                if (querym.Any())
+                {
+                    var d = await querym.FirstOrDefaultAsync();
+                    var s = d?.AISettings ?? new AISettings() { Name = "None" };
+                    var data = new AISettingsDto() { Enable = s.Enable, MCP_API_KEY = s.MCP_API_KEY, Name = s.Name };
+                    return new ApiResult<AISettingsDto>(ApiCode.Success, "OK", data);
+                }
+                else
+                {
+                    return new ApiResult<AISettingsDto>(ApiCode.NotFoundCustomer, "没有指定租户", new AISettingsDto());
+                }
+            }
+            else
+            {
+
+                return new ApiResult<AISettingsDto>(ApiCode.InValidData, "传入的租户ID为空", new AISettingsDto());
+            }
+
+        }
+
     }
 }

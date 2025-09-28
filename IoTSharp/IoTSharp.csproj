@@ -15,7 +15,7 @@
 		<Description>Open-source IoT Platform - Device management, data collection, processing and visualization.</Description>
 		<PackageId>IoTSharp</PackageId>
 		<UserSecretsId>18970590-05bf-4a1f-a70b-3c8a120d12cb</UserSecretsId>
-		<Version>3.1.0</Version>
+		<Version>3.5.0</Version>
 		<RepositoryType>git</RepositoryType>
 		<PackageTags>IoT</PackageTags>
 		<ApplicationIcon>Resources\Logo.ico</ApplicationIcon>
@@ -25,8 +25,8 @@
 		<IsPackable>true</IsPackable>
 		<PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
 		<Copyright>Copyright 2018-2025  Yanhong Ma</Copyright>
-		<AssemblyVersion>3.0.0.0</AssemblyVersion>
-		<FileVersion>3.0.0.0</FileVersion>
+		<AssemblyVersion>3.5.0.0</AssemblyVersion>
+		<FileVersion>3.5.0.0</FileVersion>
 		<PackageIcon>96x96.png</PackageIcon>
 		<GenerateDocumentationFile>True</GenerateDocumentationFile>
 		<GenerateSerializationAssemblies>Off</GenerateSerializationAssemblies>
@@ -63,33 +63,33 @@
 		<PackageReference Include="LettuceEncrypt" Version="1.3.3" />
 		<PackageReference Include="LettuceEncrypt.Dns.Ali" Version="1.1.0" />
 		<PackageReference Include="LiteDB" Version="5.0.21" />
-		<PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="9.0.7" />
-		<PackageReference Include="Microsoft.AspNetCore.SpaProxy" Version="9.0.7" />
-		<PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="9.0.7">
+		<PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="9.0.9" />
+		<PackageReference Include="Microsoft.AspNetCore.SpaProxy" Version="9.0.9" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="9.0.9">
 			<PrivateAssets>all</PrivateAssets>
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
-		<PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.21.2" />
+		<PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.22.1" />
 		<PackageReference Include="MimeMapping" Version="3.1.0" />
 		<PackageReference Include="MQTTnet" Version="5.0.1.1416" />
 		<PackageReference Include="MQTTnet.AspNetCore" Version="5.0.1.1416" />
-		<PackageReference Include="MQTTnet.AspNetCore.Routing" Version="0.4.39" />
-		<PackageReference Include="NSwag.AspNetCore" Version="14.4.0" />
+		<PackageReference Include="MQTTnet.AspNetCore.Routing" Version="0.4.43" />
+		<PackageReference Include="NSwag.AspNetCore" Version="14.6.0" />
 		<PackageReference Include="PrettyLogging.Console" Version="1.0.3" />
 		<PackageReference Include="Rin" Version="2.6.0" />
 		<PackageReference Include="Rin.Mvc" Version="2.6.0" />
 		<PackageReference Include="RulesEngine" Version="6.0.0" />
-		<PackageReference Include="SkiaSharp" Version="3.119.0" />
-		<PackageReference Include="SkiaSharp.NativeAssets.Linux.NoDependencies" Version="3.119.0" />
+		<PackageReference Include="SkiaSharp" Version="3.119.1" />
+		<PackageReference Include="SkiaSharp.NativeAssets.Linux.NoDependencies" Version="3.119.1" />
 		<PackageReference Include="Storage.Net" Version="9.3.0" />
-		<PackageReference Include="System.Resources.Extensions" Version="9.0.7" />
-		<PackageReference Include="System.Text.Encoding.CodePages" Version="9.0.7">
+		<PackageReference Include="System.Resources.Extensions" Version="9.0.9" />
+		<PackageReference Include="System.Text.Encoding.CodePages" Version="9.0.9">
 			<TreatAsUsed>true</TreatAsUsed>
 		</PackageReference>
-		<PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="9.0.7" />
-		<PackageReference Include="Microsoft.Extensions.Hosting.WindowsServices" Version="9.0.7" />
-		<PackageReference Include="Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore" Version="9.0.7" />
-		<PackageReference Include="Microsoft.AspNetCore.Identity.UI" Version="9.0.7" />
+		<PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="9.0.9" />
+		<PackageReference Include="Microsoft.Extensions.Hosting.WindowsServices" Version="9.0.9" />
+		<PackageReference Include="Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore" Version="9.0.9" />
+		<PackageReference Include="Microsoft.AspNetCore.Identity.UI" Version="9.0.9" />
 		<PackageReference Include="ModelContextProtocol" Version="0.1.0-preview.14" />
 		<PackageReference Include="ModelContextProtocol.AspNetCore" Version="0.1.0-preview.14" />
 	</ItemGroup>

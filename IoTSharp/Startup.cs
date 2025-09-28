@@ -1,44 +1,48 @@
-﻿using IoTSharp.EventBus;
-using EasyCaching.Core.Configurations;
+﻿using EasyCaching.Core.Configurations;
 using HealthChecks.UI.Client;
+using IoTSharp.Contracts;
 using IoTSharp.Data;
+using IoTSharp.Data.Extensions;
+using IoTSharp.Data.TimeSeries;
+using IoTSharp.EventBus;
+using IoTSharp.EventBus.CAP;
+using IoTSharp.EventBus.Shashlik;
 using IoTSharp.FlowRuleEngine;
+using IoTSharp.Gateways;
 using IoTSharp.Interpreter;
+using IoTSharp.Services;
+using IoTSharp.TaskActions;
 using Jdenticon.AspNetCore;
 using Jdenticon.Rendering;
+using LettuceEncrypt;
+using LettuceEncrypt.Dns.Ali;
+using MaiKeBing.HostedService.ZeroMQ;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.StaticFiles;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
+using ModelContextProtocol.Server;
 using MQTTnet.AspNetCore;
 using Newtonsoft.Json.Serialization;
+using Quartz;
+using Quartz.AspNetCore;
+using Storage.Net;
 using System;
+using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text;
-using IoTSharp.Gateways;
-using MaiKeBing.HostedService.ZeroMQ;
-using IoTSharp.TaskActions;
-using IoTSharp.Contracts;
-using IoTSharp.EventBus.CAP;
-using IoTSharp.EventBus.Shashlik;
-using Microsoft.EntityFrameworkCore;
-using Storage.Net;
-using IoTSharp.Data.TimeSeries;
-using IoTSharp.Data.Extensions;
-using Quartz;
-using IoTSharp.Services;
-using Quartz.AspNetCore;
-using System.IO;
-using LettuceEncrypt;
-using LettuceEncrypt.Dns.Ali;
-using Microsoft.AspNetCore.StaticFiles;
+using System.Threading.Tasks;
 
 namespace IoTSharp
 {
@@ -266,17 +270,33 @@ namespace IoTSharp
                     options.MaxAge = TimeSpan.FromDays(60);
                 });
             }
+
             services.AddMcpServer()
-                .WithHttpTransport()
+             .WithHttpTransport(options =>
+             {
+                 options.ConfigureSessionOptions += async (context, serverOptions, token) =>
+                 {
+                     var api_key = context.Request.RouteValues["api_key"]?.ToString()?.ToLower() ?? "none";
+                     serverOptions.InitializationTimeout = TimeSpan.FromSeconds(600);
+                     serverOptions.Capabilities!.Experimental = new Dictionary<string, object>();
+                     serverOptions.Capabilities.Experimental.Add("API_KEY", api_key);
+                     await Task.CompletedTask;
+                 };
+
+                 options.Stateless = true;
+             })
+
+             .WithPromptsFromAssembly()
+             .WithResourcesFromAssembly()
                 .WithToolsFromAssembly();
         }
 
-      
+
 
 
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public  void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
 
             if (env.IsDevelopment() || !env.IsEnvironment("Production"))
@@ -327,7 +347,7 @@ namespace IoTSharp
                 endpoints.MapHealthChecksUI();
                 endpoints.MapDefaultControllerRoute();
                 endpoints.MapRazorPages();
-                endpoints.MapMcp();  
+                endpoints.MapMcp("/mcp/{api_key}");  
             });
 
             app.UseJdenticon(defaultStyle =>
