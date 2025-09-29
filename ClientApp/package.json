@@ -1,9 +1,9 @@
 {
-	"name": "vue-next-admin",
-	"version": "2.4.33",
-	"description": "vue3 vite next admin template",
-	"author": "lyt_20201208",
-	"license": "MIT",
+	"name": "IoTSharp",
+	"version": "3.5.0",
+	"description": "IoTSharp is an open-source IoT platform for data collection, processing, visualization, and device management.",
+	"author": "IoTSharp Authors ",
+	"license": "Apache-2.0 license",
 	"scripts": {
 		"dev": "vite --force",
 		"build": "vite build",
@@ -92,16 +92,19 @@
 		"npm": ">= 7.0.0"
 	},
 	"keywords": [
-		"vue",
-		"vue3",
-		"vuejs/vue-next",
-		"element-ui",
-		"element-plus",
-		"vue-next-admin",
-		"next-admin"
+		
+		"iotsharp",
+		"visualization",
+		"docker",
+		"mqtt",
+		"iot-platform",
+		"mqtt",
+		"broker",
+		"coap-server",
+		"iot-cloud"
 	],
 	"repository": {
 		"type": "git",
-		"url": "https://gitee.com/lyt-top/vue-next-admin.git"
+		"url": "https://github.com/IoTSharp/IoTSharp.git"
 	}
 }
