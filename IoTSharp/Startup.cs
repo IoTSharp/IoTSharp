@@ -10,6 +10,7 @@ using IoTSharp.EventBus.Shashlik;
 using IoTSharp.FlowRuleEngine;
 using IoTSharp.Gateways;
 using IoTSharp.Interpreter;
+using IoTSharp.McpTools;
 using IoTSharp.Services;
 using IoTSharp.TaskActions;
 using Jdenticon.AspNetCore;
@@ -285,7 +286,6 @@ namespace IoTSharp
 
                  options.Stateless = true;
              })
-
              .WithPromptsFromAssembly()
              .WithResourcesFromAssembly()
                 .WithToolsFromAssembly();
@@ -335,7 +335,7 @@ namespace IoTSharp
                 var frp = app.ApplicationServices.GetService<FlowRuleProcessor>();
                 return frp.RunRules;
             });
-
+          
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapMqtt("/mqtt");

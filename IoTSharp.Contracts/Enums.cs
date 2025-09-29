@@ -143,6 +143,7 @@ namespace IoTSharp.Contracts
         /// </summary>
         UserTokenNotAvailable = 10030,
         Invalid_API_KEY = 10031,
+        NotAuthorized = 10032,
     }
     [System.Text.Json.Serialization.JsonConverter(typeof(System.Text.Json.Serialization.JsonStringEnumConverter))]
     [JsonConverter(typeof(StringEnumConverter))]

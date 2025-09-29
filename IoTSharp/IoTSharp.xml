@@ -1468,32 +1468,35 @@
             
             </summary>
         </member>
-        <member name="M:IoTSharp.McpTools.DeviceTool.DevicesList">
+        <member name="M:IoTSharp.McpTools.DeviceTool.DevicesList(ModelContextProtocol.Server.IMcpServer)">
             <summary>
             Get the list of sub-devices.
             </summary>
             <returns></returns>
         </member>
-        <member name="M:IoTSharp.McpTools.DeviceTool.GetDeviceStatus(System.String)">
+        <member name="M:IoTSharp.McpTools.DeviceTool.GetDeviceStatus(System.String,ModelContextProtocol.Server.IMcpServer)">
             <summary>
             Get the current connection status of the sub-device.
             </summary>
+            <param name="_server"></param>
             <param name="deviceName"></param>
             <returns></returns>
         </member>
-        <member name="M:IoTSharp.McpTools.DeviceTool.GetDeviceAttributes(System.String)">
+        <member name="M:IoTSharp.McpTools.DeviceTool.GetDeviceAttributes(System.String,ModelContextProtocol.Server.IMcpServer)">
             <summary>
             Get the current value of a variable of a sub-device.
             </summary>
             <param name="deviceName"></param>
+            <param name="_server"></param>
             <returns></returns>
         </member>
-        <member name="M:IoTSharp.McpTools.DeviceTool.GetDeviceAttribute(System.String,System.String)">
+        <member name="M:IoTSharp.McpTools.DeviceTool.GetDeviceAttribute(System.String,System.String,ModelContextProtocol.Server.IMcpServer)">
             <summary>
             Get the current value of a variable of a sub-device.
             </summary>
-            <param name="deviceName"></param>
-            <param name="attributeName"></param>
+            <param name="deviceName">设备名称</param>
+            <param name="attributeName">属性名称</param>
+            <param name="_server">MCP名称</param>
             <returns></returns>
         </member>
         <member name="P:IoTSharp.Models.ModelAddAssetDevice.AssetId">
