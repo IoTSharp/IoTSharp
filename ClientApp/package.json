@@ -85,14 +85,13 @@
 		"not dead"
 	],
 	"bugs": {
-		"url": "https://gitee.com/lyt-top/vue-next-admin/issues"
+		"url": "https://github.com/IoTSharp/IoTSharp/issues"
 	},
 	"engines": {
 		"node": ">=16.0.0",
 		"npm": ">= 7.0.0"
 	},
 	"keywords": [
-		
 		"iotsharp",
 		"visualization",
 		"docker",
