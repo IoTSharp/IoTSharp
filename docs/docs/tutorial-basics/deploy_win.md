@@ -8,7 +8,7 @@ sidebar_position: 4
 
 # 下载
 
-首先在 https://github.com/IoTSharp/IoTSharp/releases 或者 https://gitee.com/IoTSharp/IoTSharp/releases 中下载最新版本的安装包， 通畅Windows下的安装包 名为 [IoTSharp.Release.win7-x64.zip](https://github.com/IoTSharp/IoTSharp/releases/download/v2.8/IoTSharp.Release.win7-x64.zip)  下载至本地。 
+首先在 https://github.com/IoTSharp/IoTSharp/releases 或者 https://gitee.com/IoTSharp/IoTSharp/releases 中下载最新版本的安装包， 通常Windows下的安装包 名为 [IoTSharp.Release.win7-x64.zip](https://github.com/IoTSharp/IoTSharp/releases/download/v2.8/IoTSharp.Release.win7-x64.zip)  下载至本地。 
 
 # 直接启动
 
