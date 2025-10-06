@@ -15,7 +15,7 @@
 	        <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 	      </PackageReference>
 	      <PackageReference Include="MSTest.TestAdapter" Version="3.10.4" />
-    <PackageReference Include="MSTest.TestFramework" Version="3.10.4" />
+    <PackageReference Include="MSTest.TestFramework" Version="3.11.0" />
     <PackageReference Include="MXLogger" Version="2.0.10" />
     <PackageReference Include="Testcontainers" Version="4.7.0" />
     <PackageReference Include="Testcontainers.InfluxDb" Version="4.7.0" />
