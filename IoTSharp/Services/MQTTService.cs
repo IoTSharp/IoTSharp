@@ -214,7 +214,7 @@ namespace IoTSharp.Services
                             {
                                 e.SessionItems.Add(nameof(Device), mcp.Device);
                                 e.ReasonCode = MQTTnet.Protocol.MqttConnectReasonCode.Success;
-                                _queue.PublishConnect(mcp.Device.Id, ConnectStatus.Disconnected);
+                                _queue.PublishConnect(mcp.Device.Id, ConnectStatus.Connected);
                                 _logger.LogInformation($"Device {mcp.Device.Name}({mcp.Device.Id}) is online !username is {obj.UserName} and  is endpoint{obj.RemoteEndPoint.ToString()}");
                             }
                             else
@@ -242,7 +242,7 @@ namespace IoTSharp.Services
                             {
                                 e.SessionItems.Add(nameof(Device), mcp);
                                 e.ReasonCode = MQTTnet.Protocol.MqttConnectReasonCode.Success;
-                                _queue.PublishConnect(mcp.Id, ConnectStatus.Disconnected);
+                                _queue.PublishConnect(mcp.Id, ConnectStatus.Connected);
                                 _logger.LogInformation($"Produce {ak.Name}'s   device {mcp.Name}({mcp.Id}) is online ! Client name  is {obj.UserName} and  is endpoint{obj.RemoteEndPoint.ToString()}");
                             }
                             else
