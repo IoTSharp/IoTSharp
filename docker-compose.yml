@@ -1,57 +1,32 @@
-version: '3.4'
+
 services:
   pgsql:
-    image: postgres
-    restart: always
-    ports:
-      - 5432:5432
+    image: timescale/timescaledb-ha:pg17
     volumes:
-      - ./data/postgresql:/var/lib/postgresql/data
+      - "./data/postgresql:/var/lib/postgresql"
     environment:
       TZ: "Asia/Shanghai"
       POSTGRES_USER: postgres
       POSTGRES_DB: IoTSharp
-      POSTGRES_PASSWORD: future 
+      POSTGRES_PASSWORD: BrrveCFVAZ6kM6vhjFMd 
+    ports: 
+     - "5432:5432"
     networks:
       - iotsharp-network
-
-
-  pgadmin:
-    image: dpage/pgadmin4
-    container_name: pgadmin
-    restart: always
-    volumes:
-       - "./data/servers.json:/pgadmin4/servers.json"
-    depends_on:
-      - pgsql 
-    links:
-      - pgsql
-    ports:
-      - 8090:80
-    environment:
-      TZ: "Asia/Shanghai"
-      PGADMIN_DEFAULT_EMAIL: "root@iotsharp.io"
-      PGADMIN_DEFAULT_PASSWORD: "1-q2-w3-e4-r5-t"
-    networks:
-      - iotsharp-network
-
+ 
   iotsharp:
     image: maikebing/iotsharp
-    restart: always
     environment:
-       ASPNETCORE_ENVIRONMENT: Production
-       TZ: Asia/Shanghai
+      TZ: Asia/Shanghai
     depends_on:
       - pgsql
-      - taos
     links:
       - pgsql
-      - taos
     volumes:
-      - "./appsettings.Development.json:/app/appsettings.Production.json"
+      - "./appsettings.Development.json:/app/appsettings.Development.json"
       - ./data/security:/app/security
     ports:
-      - 2929:8080
+      - 2927:8080
       - 1883:1883
       - 8883:8883 
       - 5683:5683
@@ -59,17 +34,9 @@ services:
       - 502:502
     networks:
       - iotsharp-network
-       
-  taos:
-    image: tdengine/tdengine:3.0.4.2
-    restart: always
-    ports:
-      - 6041:6041
-    volumes:
-      - ./data/taos:/var/lib/taos/
-    networks:
-      - iotsharp-network
-       
+        
+      
+
 networks: 
   iotsharp-network:
       driver:  bridge

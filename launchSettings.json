@@ -8,9 +8,7 @@
       "composeLaunchUrl": "{Scheme}://localhost:{ServicePort}",
       "serviceActions": {
         "iotsharp": "StartDebugging",
-        "pgadmin": "DoNotStart",
-        "pgsql": "StartWithoutDebugging",
-        "taos": "StartWithoutDebugging"
+        "pgsql": "StartWithoutDebugging"
       }
     }
   }
