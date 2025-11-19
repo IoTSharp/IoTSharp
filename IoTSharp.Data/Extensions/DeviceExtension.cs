@@ -41,11 +41,12 @@ namespace IoTSharp.Data.Extensions
                     var prod = _context.Produces.Include(p=>p.DefaultAttributes).FirstOrDefault( p=>p.Id==prodId);
                     if (prod != null)
                     {
-                        prod.Devices = [device];
-                        _context.PreparingData<AttributeLatest>(prod.DefaultAttributes, device.Id);
                         di.IdentityType = prod.DefaultIdentityType;
                         device.DeviceType = prod.DefaultDeviceType;
                         device.Timeout=prod.DefaultTimeout;
+                        prod.Devices ??= [];
+                        prod.Devices.Add(device);
+                        _context.PreparingData<AttributeLatest>(prod.DefaultAttributes, device.Id);
                     }
                 }
                 _context.DeviceIdentities.Add(di);
