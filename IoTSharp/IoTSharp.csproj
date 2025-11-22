@@ -178,7 +178,7 @@
 		<_WebToolingArtifacts Remove="Properties\PublishProfiles\linux-x64.pubxml" />
 		<_WebToolingArtifacts Remove="Properties\PublishProfiles\osx-x64.pubxml" />
 		<_WebToolingArtifacts Remove="Properties\PublishProfiles\registry.hub.docker.com_iotsharp.pubxml" />
-		<_WebToolingArtifacts Remove="Properties\PublishProfiles\win7-x64.pubxml" />
+		<_WebToolingArtifacts Remove="Properties\PublishProfiles\win-x64.pubxml" />
 		<None Include="..\docs\static\img\96x96.png">
 			<Pack>True</Pack>
 			<PackagePath></PackagePath>
