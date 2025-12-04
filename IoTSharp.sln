@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 17
-VisualStudioVersion = 17.3.32929.385
+# Visual Studio Version 18
+VisualStudioVersion = 18.0.11222.15 d18.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "1.Solution Items", "1.Solution Items", "{D5C97089-F896-436D-8E99-27B2E43BC65F}"
 	ProjectSection(SolutionItems) = preProject
@@ -9,7 +9,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "1.Solution Items", "1.Solut
 		appveyor.yml = appveyor.yml
 		BACKERS.md = BACKERS.md
 		buildimage.cmd = buildimage.cmd
-		buildimageqhse.cmd = buildimageqhse.cmd
 		buildimageuixe.cmd = buildimageuixe.cmd
 		.config\dotnet-tools.json = .config\dotnet-tools.json
 		.github\FUNDING.yml = .github\FUNDING.yml
