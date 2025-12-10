@@ -8,19 +8,19 @@
 	<ItemGroup>
 		<PackageReference Include="AspNetCore.HealthChecks.NpgSql" Version="9.0.0" />
 		<PackageReference Include="CAP.Extensions" Version="1.0.37" />
-		<PackageReference Include="DotNetCore.CAP.Dashboard" Version="10.0.0" />
-		<PackageReference Include="DotNetCore.CAP.InMemoryStorage" Version="10.0.0" />
-		<PackageReference Include="DotNetCore.CAP.Kafka" Version="10.0.0" />
-		<PackageReference Include="DotNetCore.CAP.MongoDB" Version="10.0.0" />
-		<PackageReference Include="DotNetCore.CAP.MySql" Version="10.0.0" />
-		<PackageReference Include="DotNetCore.CAP.PostgreSql" Version="10.0.0" />
-		<PackageReference Include="DotNetCore.CAP.RabbitMQ" Version="10.0.0" />
-		<PackageReference Include="DotNetCore.CAP.SqlServer" Version="10.0.0" />
-		<PackageReference Include="DotNetCore.CAP.AzureServiceBus" Version="10.0.0" />
-		<PackageReference Include="DotNetCore.CAP.AmazonSQS" Version="10.0.0" />
-		<PackageReference Include="DotNetCore.CAP.NATS" Version="10.0.0" />
-		<PackageReference Include="DotNetCore.CAP.RedisStreams" Version="10.0.0" />
-		<PackageReference Include="DotNetCore.CAP.Pulsar" Version="10.0.0" />
+		<PackageReference Include="DotNetCore.CAP.Dashboard" Version="10.0.*" />
+		<PackageReference Include="DotNetCore.CAP.InMemoryStorage" Version="10.0.*" />
+		<PackageReference Include="DotNetCore.CAP.Kafka" Version="10.0.*" />
+		<PackageReference Include="DotNetCore.CAP.MongoDB" Version="10.0.*" />
+		<PackageReference Include="DotNetCore.CAP.MySql" Version="10.0.*" />
+		<PackageReference Include="DotNetCore.CAP.PostgreSql" Version="10.0.*" />
+		<PackageReference Include="DotNetCore.CAP.RabbitMQ" Version="10.0.*" />
+		<PackageReference Include="DotNetCore.CAP.SqlServer" Version="10.0.*" />
+		<PackageReference Include="DotNetCore.CAP.AzureServiceBus" Version="10.0.*" />
+		<PackageReference Include="DotNetCore.CAP.AmazonSQS" Version="10.0.*" />
+		<PackageReference Include="DotNetCore.CAP.NATS" Version="10.0.*" />
+		<PackageReference Include="DotNetCore.CAP.RedisStreams" Version="10.0.*" />
+		<PackageReference Include="DotNetCore.CAP.Pulsar" Version="10.0.*" />
 		<PackageReference Include="EasyCaching.Core" Version="1.9.2" />
 		<PackageReference Include="AspNetCore.HealthChecks.Kafka" Version="9.0.0" />
 		<PackageReference Include="AspNetCore.HealthChecks.MongoDb" Version="9.0.0" />
@@ -29,7 +29,7 @@
 		<PackageReference Include="MaiKeBing.CAP.ZeroMQ" Version="1.0.37" />
 		<PackageReference Include="MaiKeBing.CAP.LiteDB" Version="1.0.37" />
 		<PackageReference Include="MaiKeBing.HostedService.ZeroMQ" Version="1.0.37" />
-		<PackageReference Include="Savorboard.CAP.InMemoryMessageQueue" Version="10.0.0" />
+		<PackageReference Include="Savorboard.CAP.InMemoryMessageQueue" Version="10.0.*" />
 
 	</ItemGroup>
 

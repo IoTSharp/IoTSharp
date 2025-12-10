@@ -27,7 +27,7 @@
 		<PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="10.0.*" />
 	</ItemGroup>
 	 	<ItemGroup>
-		<PackageReference Include="Newtonsoft.Json" Version="13.0.4" />
+		<PackageReference Include="Newtonsoft.Json" Version="13.0.*" />
 	</ItemGroup>
 	<ItemGroup>
 	  <ProjectReference Include="..\IoTSharp.Extensions\IoTSharp.Extensions.csproj" />

@@ -23,7 +23,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Quartz.AspNetCore" Version="3.15.0" />
+    <PackageReference Include="Quartz.AspNetCore" Version="3.15.1" />
   </ItemGroup>
 
  
