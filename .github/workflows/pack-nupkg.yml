@@ -1,0 +1,67 @@
+name: CI (Linux)
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+
+env:
+  VERSION: 3.1.${{ github.run_number }}
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          global-json-file: global.json
+          # 如果没有 global.json，可改用：dotnet-version: '8.0.x'（或项目所需版本）
+
+      - name: Restore
+        run: dotnet restore IoTSharp.sln
+
+      - name: Build (Release)
+        run: |
+          dotnet build IoTSharp.sln \
+            -c Release \
+            -p:Version=${{ env.VERSION }} \
+            -p:FileVersion=${{ env.VERSION }} \
+            -p:AssemblyVersion=${{ env.VERSION }} \
+            -p:InformationalVersion=${{ env.VERSION }} \
+            --no-restore
+
+      - name: Pack (if not packing during build)
+        run: |
+          dotnet pack IoTSharp.sln \
+            -c Release \
+            -p:PackageVersion=${{ env.VERSION }} \
+            -p:Version=${{ env.VERSION }} \
+            --no-build
+        # 如果项目已在 build 时生成 nupkg，可删除此步骤。
+
+      - name: Upload NuGet artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: nuget-packages
+          path: |
+            IoTSharp/bin/Release/*.nupkg
+            IoTSharp.SDKs/IoTSharp.Sdk.MQTT/bin/Release/*.nupkg
+            IoTSharp.SDKs/IoTSharp.Sdk.CSharp/bin/Release/*.nupkg
+            IoTSharp.Extensions/bin/Release/*.nupkg
+            IoTSharp.Extensions.AspNetCore/bin/Release/*.nupkg
+            IoTSharp.Extensions.BouncyCastle/bin/Release/*.nupkg
+            IoTSharp.Extensions.DependencyInjection/bin/Release/*.nupkg
+            IoTSharp.Extensions.EFCore/bin/Release/*.nupkg
+            IoTSharp.Extensions.RESTful/bin/Release/*.nupkg
+            IoTSharp.Extensions.X509/bin/Release/*.nupkg
+            IoTSharp.Extensions.QuartzJobScheduler/bin/Release/*.nupkg
