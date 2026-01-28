@@ -1,8 +1,9 @@
-name: CI (Linux)
+name: pack nupkg 
 
 on:
   push:
     branches: [ main, master ]
+    tags: [ "*" ]
   pull_request:
     branches: [ main, master ]
   workflow_dispatch:
@@ -11,12 +12,12 @@ permissions:
   contents: read
   packages: write
 
-env:
-  VERSION: 3.2.${{ github.run_number }}
-
 jobs:
   build:
     runs-on: ubuntu-latest
+    env:
+      DEFAULT_BRANCH_VERSION: 3.2.${{ github.run_number }}
+      OTHER_BRANCH_VERSION: 0.0.${{ github.run_number }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -30,6 +31,29 @@ jobs:
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: '10.0.x'
+          # 若仓库有 global.json，可改用:
+          # global-json-file: global.json
+
+      - name: Cache NuGet
+        uses: actions/cache@v4
+        with:
+          path: ~/.nuget/packages
+          key: nuget-${{ runner.os }}-${{ hashFiles('**/*.sln', '**/*.csproj') }}
+          restore-keys: |
+            nuget-${{ runner.os }}-
+
+      - name: Compute version (branch/tag aware)
+        id: version
+        run: |
+          if [[ "${GITHUB_REF_TYPE}" == "tag" ]]; then
+            VERSION="${GITHUB_REF_NAME}"
+          elif [[ "${GITHUB_REF_NAME}" == "main" || "${GITHUB_REF_NAME}" == "master" ]]; then
+            VERSION="${DEFAULT_BRANCH_VERSION}"
+          else
+            VERSION="${OTHER_BRANCH_VERSION}"
+          fi
+          echo "VERSION=${VERSION}" | tee -a "$GITHUB_ENV"
+          echo "version=${VERSION}" >> "$GITHUB_OUTPUT"
 
       - name: Restore
         run: dotnet restore IoTSharp.sln
@@ -42,6 +66,10 @@ jobs:
             -p:FileVersion=${{ env.VERSION }} \
             -p:AssemblyVersion=${{ env.VERSION }} \
             -p:InformationalVersion=${{ env.VERSION }} \
+            -p:ContinuousIntegrationBuild=true \
+            -p:Deterministic=true \
+            -p:PublishRepositoryUrl=true \
+            -p:EmbedUntrackedSources=true \
             --no-restore
 
       - name: Pack (if not packing during build)
@@ -64,29 +92,43 @@ jobs:
         with:
           name: nuget-packages
           path: nupkg-artifacts.zip
+          compression-level: 9
+
+      - name: Prepare temp NuGet config
+        if: ${{ github.event_name == 'push' && (startsWith(github.ref, 'refs/tags/') || github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master') }}
+        run: |
+          cat > ./nuget.config <<'EOF'
+          <configuration>
+            <packageSources>
+              <add key="nuget.org" value="https://api.nuget.org/v3/index.json" />
+              <add key="github" value="https://nuget.pkg.github.com/IoTSharp/index.json" />
+            </packageSources>
+          </configuration>
+          EOF
 
       - name: Publish to GitHub Packages (NuGet)
-        if: github.event_name == 'push'
+        if: ${{ github.event_name == 'push' && (startsWith(github.ref, 'refs/tags/') || github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master') }}
         env:
           NUGET_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          dotnet nuget remove source github || true
+          dotnet nuget remove source github --configfile ./nuget.config || true
           dotnet nuget add source "https://nuget.pkg.github.com/IoTSharp/index.json" \
             --name github \
             --username ${{ github.actor }} \
             --password ${{ env.NUGET_AUTH_TOKEN }} \
-            --store-password-in-clear-text \
+            --configfile ./nuget.config \
             --valid-authentication-types basic
 
           for pkg in ./nupkg/*.nupkg; do
             dotnet nuget push "$pkg" \
               --source github \
               --api-key ${{ env.NUGET_AUTH_TOKEN }} \
+              --configfile ./nuget.config \
               --skip-duplicate
           done
 
       - name: Publish to NuGet.org
-        if: github.event_name == 'push'
+        if: ${{ github.event_name == 'push' && (startsWith(github.ref, 'refs/tags/') || github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master') }}
         env:
           NUGET_API_KEY: ${{ secrets.NUGET_API_KEY }}
         run: |
