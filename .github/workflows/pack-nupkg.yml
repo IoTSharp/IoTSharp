@@ -5,9 +5,14 @@ on:
     branches: [ main, master ]
   pull_request:
     branches: [ main, master ]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  packages: write
 
 env:
-  VERSION: 3.1.${{ github.run_number }}
+  VERSION: 3.2.${{ github.run_number }}
 
 jobs:
   build:
@@ -25,7 +30,7 @@ jobs:
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: '10.0.x'
-          # 如果没有 global.json，可改用：dotnet-version: '8.0.x'（或项目所需版本）
+          # 如果项目实际目标是 8/9，请改为对应版本或使用 global.json。
 
       - name: Restore
         run: dotnet restore IoTSharp.sln
@@ -47,21 +52,44 @@ jobs:
             -p:PackageVersion=${{ env.VERSION }} \
             -p:Version=${{ env.VERSION }} \
             --no-build
-        # 如果项目已在 build 时生成 nupkg，可删除此步骤。
+        # 如果 build 已生成 nupkg，可删除此步骤。
+
+      - name: Collect and zip NuGet artifacts to repo root
+        run: |
+          mkdir -p ./nupkg
+          find . -path '*bin/Release/*.nupkg' -exec cp {} ./nupkg/ \;
+          zip -j ./nupkg-artifacts.zip ./nupkg/*.nupkg
 
       - name: Upload NuGet artifacts
         uses: actions/upload-artifact@v4
         with:
           name: nuget-packages
-          path: |
-            IoTSharp/bin/Release/*.nupkg
-            IoTSharp.SDKs/IoTSharp.Sdk.MQTT/bin/Release/*.nupkg
-            IoTSharp.SDKs/IoTSharp.Sdk.CSharp/bin/Release/*.nupkg
-            IoTSharp.Extensions/bin/Release/*.nupkg
-            IoTSharp.Extensions.AspNetCore/bin/Release/*.nupkg
-            IoTSharp.Extensions.BouncyCastle/bin/Release/*.nupkg
-            IoTSharp.Extensions.DependencyInjection/bin/Release/*.nupkg
-            IoTSharp.Extensions.EFCore/bin/Release/*.nupkg
-            IoTSharp.Extensions.RESTful/bin/Release/*.nupkg
-            IoTSharp.Extensions.X509/bin/Release/*.nupkg
-            IoTSharp.Extensions.QuartzJobScheduler/bin/Release/*.nupkg
+          path: nupkg-artifacts.zip
+
+      - name: Publish to GitHub Packages (NuGet)
+        if: github.event_name == 'push'
+        env:
+          NUGET_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          dotnet nuget remove source github || true
+          dotnet nuget add source "https://nuget.pkg.github.com/IoTSharp/index.json" \
+            --name github \
+            --username ${{ github.actor }} \
+            --password ${{ env.NUGET_AUTH_TOKEN }} \
+            --store-password-in-clear-text
+
+          for pkg in ./nupkg/*.nupkg; do
+            dotnet nuget push "$pkg" --source github --skip-duplicate
+          done
+
+      - name: Publish to NuGet.org
+        if: github.event_name == 'push'
+        env:
+          NUGET_API_KEY: ${{ secrets.NUGET_API_KEY }}
+        run: |
+          for pkg in ./nupkg/*.nupkg; do
+            dotnet nuget push "$pkg" \
+              --source https://api.nuget.org/v3/index.json \
+              --api-key ${{ env.NUGET_API_KEY }} \
+              --skip-duplicate
+          done
