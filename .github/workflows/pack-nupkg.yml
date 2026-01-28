@@ -12,7 +12,7 @@ permissions:
   packages: write
 
 env:
-  VERSION: 3.2.${{ github.run_number }}
+  VERSION: 3.1.${{ github.run_number }}
 
 jobs:
   build:
@@ -30,7 +30,7 @@ jobs:
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: '10.0.x'
-          # 如果项目实际目标是 8/9，请改为对应版本或使用 global.json。
+          # 如项目目标为 8/9，请改为对应版本或使用 global.json
 
       - name: Restore
         run: dotnet restore IoTSharp.sln
@@ -76,10 +76,14 @@ jobs:
             --name github \
             --username ${{ github.actor }} \
             --password ${{ env.NUGET_AUTH_TOKEN }} \
-            --store-password-in-clear-text
+            --store-password-in-clear-text \
+            --valid-authentication-types basic
 
           for pkg in ./nupkg/*.nupkg; do
-            dotnet nuget push "$pkg" --source github --skip-duplicate
+            dotnet nuget push "$pkg" \
+              --source github \
+              --api-key ${{ env.NUGET_AUTH_TOKEN }} \
+              --skip-duplicate
           done
 
       - name: Publish to NuGet.org
