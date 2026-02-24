@@ -111,7 +111,7 @@ const config = {
               },
               {
                 label: '企微群',
-                href: '/docs/static/img/qyqun.jpg',
+                to: '/img/qyqun.jpg',
               }
             ],
           },
