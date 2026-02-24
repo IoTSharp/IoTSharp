@@ -110,8 +110,8 @@ const config = {
                 href: 'https://jq.qq.com/?_wv=1027&k=u1ZzTmVd',
               },
               {
-                label: 'Discord',
-                href: '/img/qyqun.jpg',
+                label: '企微群',
+                href: '/docs/static/img/qyqun.jpg',
               }
             ],
           },
