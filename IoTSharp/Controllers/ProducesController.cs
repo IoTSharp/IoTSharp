@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
@@ -8,9 +8,13 @@ using System.Threading.Tasks;
 using IoTSharp.Contracts;
 using IoTSharp.Controllers.Models;
 using IoTSharp.Data;
+using IoTSharp.Data.Extensions;
 using IoTSharp.Dtos;
+using IoTSharp.EventBus;
 using IoTSharp.Extensions;
 using IoTSharp.Models;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -28,11 +32,13 @@ namespace IoTSharp.Controllers
 
         private readonly ApplicationDbContext _context;
         private readonly ILogger _logger;
+        private readonly IPublisher _queue;
 
-        public ProducesController(ApplicationDbContext context, ILogger<ProducesController> logger)
+        public ProducesController(ApplicationDbContext context, ILogger<ProducesController> logger, IPublisher queue)
         {
             _context = context;
             _logger = logger;
+            _queue = queue;
         }
 
         /// <summary>
@@ -123,7 +129,7 @@ namespace IoTSharp.Controllers
                 var produce = await _context.Produces.FindAsync(produceid);
                 if (produce != null)
                 {
-                    produce.Deleted = false;
+                    produce.Deleted = true;
                     _context.Produces.Update(produce);
                     await _context.SaveChangesAsync();
                     return new ApiResult<bool>(ApiCode.Success, "OK", true);
@@ -163,6 +169,7 @@ namespace IoTSharp.Controllers
                 produce.Icon = dto.Icon;
                 produce.Deleted = false;
                 produce.GatewayType = dto.GatewayType;
+                produce.ProduceToken = Guid.NewGuid().ToString().Replace("-", "");
                 _context.Produces.Add(produce);
                 await _context.SaveChangesAsync();
                 return new ApiResult<bool>(ApiCode.Success, "OK", true);
@@ -411,9 +418,138 @@ namespace IoTSharp.Controllers
 
         }
 
+        /// <summary>
+        /// Find or create a device by name within a produce.
+        /// </summary>
+        private async Task<Device> GetOrCreateProduceDevice(Produce produce, string device_name)
+        {
+            var device = produce.Devices?.FirstOrDefault(d => d.Name == device_name && !d.Deleted);
+            if (device == null)
+            {
+                device = new Device()
+                {
+                    Name = device_name,
+                    DeviceType = produce.DefaultDeviceType,
+                    Timeout = produce.DefaultTimeout,
+                    Deleted = false
+                };
+                device.Tenant = produce.Tenant;
+                device.Customer = produce.Customer;
+                _context.Device.Add(device);
+                produce.Devices ??= new List<Device>();
+                produce.Devices.Add(device);
+                _context.AfterCreateDevice(device, produce.Id);
+                await _context.SaveChangesAsync();
+                await _queue.PublishCreateDevice(device.Id);
+            }
+            return device;
+        }
 
+        /// <summary>
+        /// HTTP方式上传产品下指定设备的遥测数据
+        /// </summary>
+        /// <param name="produce_token">Product's ProduceToken</param>
+        /// <param name="device_name">Device name under this product</param>
+        /// <param name="telemetrys">Telemetry key-value pairs</param>
+        /// <returns></returns>
+        [AllowAnonymous]
+        [HttpPost("/api/Produces/{produce_token}/Devices/{device_name}/Telemetry")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ApiResult), StatusCodes.Status404NotFound)]
+        [ProducesDefaultResponseType]
+        public async Task<ActionResult<ApiResult>> ProduceTelemetry(string produce_token, string device_name, [FromBody] Dictionary<string, object> telemetrys)
+        {
+            var (ok, produce) = _context.GetProduceByToken(produce_token);
+            if (ok)
+            {
+                return Ok(new ApiResult(ApiCode.CantFindObject, $"{produce_token} is not a valid produce token"));
+            }
+            try
+            {
+                var device = await GetOrCreateProduceDevice(produce, device_name);
+                _queue.PublishActive(device.Id, ActivityStatus.Activity);
+                _queue.PublishTelemetryData(new PlayloadData() { DeviceId = device.Id, MsgBody = telemetrys, DataSide = DataSide.ClientSide, DataCatalog = DataCatalog.TelemetryData });
+                return Ok(new ApiResult(ApiCode.Success, "OK"));
+            }
+            catch (Exception ex)
+            {
+                return Ok(new ApiResult(ApiCode.Exception, ex.Message));
+            }
+        }
 
+        /// <summary>
+        /// 获取产品下指定设备的属性数据
+        /// </summary>
+        /// <param name="produce_token">Product's ProduceToken</param>
+        /// <param name="device_name">Device name under this product</param>
+        /// <param name="dataSide">Specifying data side</param>
+        /// <param name="keys">Comma-separated attribute key names</param>
+        /// <returns></returns>
+        [AllowAnonymous]
+        [HttpGet("/api/Produces/{produce_token}/Devices/{device_name}/Attributes/{dataSide}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ApiResult), StatusCodes.Status404NotFound)]
+        [ProducesDefaultResponseType]
+        public async Task<ActionResult<ApiResult>> ProduceAttributes(string produce_token, string device_name, DataSide dataSide, string keys)
+        {
+            var (ok, produce) = _context.GetProduceByToken(produce_token);
+            if (ok)
+            {
+                return Ok(new ApiResult(ApiCode.CantFindObject, $"{produce_token} is not a valid produce token"));
+            }
+            try
+            {
+                var device = produce.Devices?.FirstOrDefault(d => d.Name == device_name && !d.Deleted);
+                if (device == null)
+                {
+                    return Ok(new ApiResult(ApiCode.CantFindObject, $"Device '{device_name}' not found under produce '{produce.Name}'"));
+                }
+                var attributes = from attr in _context.AttributeLatest
+                                 where attr.DeviceId == device.Id
+                                 select attr;
+                var fs = from at in await attributes.ToListAsync()
+                         where at.DataSide == dataSide
+                               && (string.IsNullOrEmpty(keys) || keys.Split(',', System.StringSplitOptions.RemoveEmptyEntries).Contains(at.KeyName))
+                         select at;
+                return Ok(new ApiResult<AttributeLatest[]>(ApiCode.Success, "Ok", fs.ToArray()));
+            }
+            catch (Exception ex)
+            {
+                return Ok(new ApiResult(ApiCode.Exception, ex.Message));
+            }
+        }
 
-
+        /// <summary>
+        /// HTTP方式上传产品下指定设备的属性数据
+        /// </summary>
+        /// <param name="produce_token">Product's ProduceToken</param>
+        /// <param name="device_name">Device name under this product</param>
+        /// <param name="attributes">Attribute key-value pairs</param>
+        /// <returns></returns>
+        [AllowAnonymous]
+        [HttpPost("/api/Produces/{produce_token}/Devices/{device_name}/Attributes")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ApiResult), StatusCodes.Status404NotFound)]
+        [ProducesDefaultResponseType]
+        public async Task<ActionResult<ApiResult>> ProduceAttributesUpload(string produce_token, string device_name, [FromBody] Dictionary<string, object> attributes)
+        {
+            var (ok, produce) = _context.GetProduceByToken(produce_token);
+            if (ok)
+            {
+                return Ok(new ApiResult(ApiCode.CantFindObject, $"{produce_token} is not a valid produce token"));
+            }
+            try
+            {
+                var device = await GetOrCreateProduceDevice(produce, device_name);
+                _queue.PublishActive(device.Id, ActivityStatus.Activity);
+                _queue.PublishAttributeData(new PlayloadData() { DeviceId = device.Id, MsgBody = attributes, DataSide = DataSide.ClientSide, DataCatalog = DataCatalog.AttributeData });
+                return Ok(new ApiResult(ApiCode.Success, "OK"));
+            }
+            catch (Exception ex)
+            {
+                return Ok(new ApiResult(ApiCode.Exception, ex.Message));
+            }
+        }
     }
 }
+

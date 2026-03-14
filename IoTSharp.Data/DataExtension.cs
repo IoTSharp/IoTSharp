@@ -29,6 +29,21 @@ namespace IoTSharp.Data
             bool ok = deviceIdentity == null || !devices.Any();
             return (ok, devices.FirstOrDefault());
         }
+
+        /// <summary>
+        /// Find a product (Produce) by its ProduceToken, including its Customer, Tenant and Devices.
+        /// Returns (ok=true, null) when not found; (ok=false, produce) when found.
+        /// </summary>
+        public static (bool ok, Produce produce) GetProduceByToken(this ApplicationDbContext _context, string produce_token)
+        {
+            var produce = _context.Produces
+                .Include(p => p.Customer)
+                .Include(p => p.Tenant)
+                .Include(p => p.Devices)
+                .FirstOrDefault(p => p.ProduceToken == produce_token && p.Deleted == false);
+            bool ok = produce == null;
+            return (ok, produce);
+        }
         /// <summary>
         /// Save Data to Device's and <typeparamref name="L"/>
         /// </summary>
