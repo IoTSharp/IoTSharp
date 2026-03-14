@@ -419,56 +419,120 @@ namespace IoTSharp.Controllers
         }
 
         /// <summary>
-        /// Find or create a device by name within a produce.
+        /// 获取产品的数据映射关系（产品字段 ↔ 设备字段）
         /// </summary>
-        private async Task<Device> GetOrCreateProduceDevice(Produce produce, string device_name)
+        /// <param name="produceId">产品ID</param>
+        /// <returns></returns>
+        [HttpGet]
+        public async Task<ApiResult<List<ProduceDataMappingDto>>> GetDataMappings(Guid produceId)
         {
-            var device = produce.Devices?.FirstOrDefault(d => d.Name == device_name && !d.Deleted);
-            if (device == null)
-            {
-                device = new Device()
+            var mappings = await _context.ProduceDataMappings
+                .Include(m => m.Produce)
+                .Where(m => m.Produce.Id == produceId && !m.Deleted)
+                .Select(m => new ProduceDataMappingDto
                 {
-                    Name = device_name,
-                    DeviceType = produce.DefaultDeviceType,
-                    Timeout = produce.DefaultTimeout,
-                    Deleted = false
-                };
-                device.Tenant = produce.Tenant;
-                device.Customer = produce.Customer;
-                _context.Device.Add(device);
-                produce.Devices ??= new List<Device>();
-                produce.Devices.Add(device);
-                _context.AfterCreateDevice(device, produce.Id);
-                await _context.SaveChangesAsync();
-                await _queue.PublishCreateDevice(device.Id);
-            }
-            return device;
+                    Id = m.Id,
+                    ProduceKeyName = m.ProduceKeyName,
+                    DataCatalog = m.DataCatalog,
+                    DeviceId = m.DeviceId,
+                    DeviceKeyName = m.DeviceKeyName,
+                    Description = m.Description
+                })
+                .ToListAsync();
+            return new ApiResult<List<ProduceDataMappingDto>>(ApiCode.Success, "Ok", mappings);
         }
 
         /// <summary>
-        /// HTTP方式上传产品下指定设备的遥测数据
+        /// 保存产品的数据映射关系（全量替换）
+        /// </summary>
+        /// <param name="dto"></param>
+        /// <returns></returns>
+        [HttpPost]
+        public async Task<ApiResult<bool>> SaveDataMappings([FromBody] SaveProduceDataMappingsDto dto)
+        {
+            try
+            {
+                var produce = await _context.Produces.Include(p => p.DefaultAttributes)
+                    .SingleOrDefaultAsync(p => p.Id == dto.ProduceId && !p.Deleted);
+                if (produce == null)
+                    return new ApiResult<bool>(ApiCode.CantFindObject, "Produce not found", false);
+
+                // Remove old mappings for this produce
+                var existing = await _context.ProduceDataMappings
+                    .Include(m => m.Produce)
+                    .Where(m => m.Produce.Id == dto.ProduceId)
+                    .ToListAsync();
+                _context.ProduceDataMappings.RemoveRange(existing);
+
+                // Add new mappings
+                if (dto.Mappings != null)
+                {
+                    foreach (var item in dto.Mappings)
+                    {
+                        _context.ProduceDataMappings.Add(new ProduceDataMapping
+                        {
+                            Id = item.Id == Guid.Empty ? Guid.NewGuid() : item.Id,
+                            Produce = produce,
+                            ProduceKeyName = item.ProduceKeyName,
+                            DataCatalog = item.DataCatalog,
+                            DeviceId = item.DeviceId,
+                            DeviceKeyName = item.DeviceKeyName,
+                            Description = item.Description,
+                            Deleted = false
+                        });
+                    }
+                }
+                await _context.SaveChangesAsync();
+                return new ApiResult<bool>(ApiCode.Success, "Ok", true);
+            }
+            catch (Exception e)
+            {
+                return new ApiResult<bool>(ApiCode.Exception, e.Message, false);
+            }
+        }
+
+        /// <summary>
+        /// HTTP方式上传遥测数据到产品。数据将按映射关系路由到对应的设备键。
         /// </summary>
         /// <param name="produce_token">Product's ProduceToken</param>
-        /// <param name="device_name">Device name under this product</param>
-        /// <param name="telemetrys">Telemetry key-value pairs</param>
+        /// <param name="telemetrys">Telemetry key-value pairs using product key names</param>
         /// <returns></returns>
         [AllowAnonymous]
-        [HttpPost("/api/Produces/{produce_token}/Devices/{device_name}/Telemetry")]
+        [HttpPost("/api/Produces/{produce_token}/Telemetry")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ApiResult), StatusCodes.Status404NotFound)]
         [ProducesDefaultResponseType]
-        public async Task<ActionResult<ApiResult>> ProduceTelemetry(string produce_token, string device_name, [FromBody] Dictionary<string, object> telemetrys)
+        public async Task<ActionResult<ApiResult>> ProduceTelemetry(string produce_token, [FromBody] Dictionary<string, object> telemetrys)
         {
             var (ok, produce) = _context.GetProduceByToken(produce_token);
             if (ok)
-            {
                 return Ok(new ApiResult(ApiCode.CantFindObject, $"{produce_token} is not a valid produce token"));
-            }
             try
             {
-                var device = await GetOrCreateProduceDevice(produce, device_name);
-                _queue.PublishActive(device.Id, ActivityStatus.Activity);
-                _queue.PublishTelemetryData(new PlayloadData() { DeviceId = device.Id, MsgBody = telemetrys, DataSide = DataSide.ClientSide, DataCatalog = DataCatalog.TelemetryData });
+                var mappings = await _context.ProduceDataMappings
+                    .Include(m => m.Produce)
+                    .Where(m => m.Produce.Id == produce.Id && !m.Deleted && m.DataCatalog == DataCatalog.TelemetryData)
+                    .ToListAsync();
+
+                // Group by device and route each mapped key
+                var byDevice = mappings
+                    .Where(m => telemetrys.ContainsKey(m.ProduceKeyName))
+                    .GroupBy(m => m.DeviceId);
+
+                foreach (var grp in byDevice)
+                {
+                    var devicePayload = grp.ToDictionary(
+                        m => m.DeviceKeyName,
+                        m => telemetrys[m.ProduceKeyName]);
+                    _queue.PublishActive(grp.Key, ActivityStatus.Activity);
+                    _queue.PublishTelemetryData(new PlayloadData
+                    {
+                        DeviceId = grp.Key,
+                        MsgBody = devicePayload,
+                        DataSide = DataSide.ClientSide,
+                        DataCatalog = DataCatalog.TelemetryData
+                    });
+                }
                 return Ok(new ApiResult(ApiCode.Success, "OK"));
             }
             catch (Exception ex)
@@ -478,40 +542,63 @@ namespace IoTSharp.Controllers
         }
 
         /// <summary>
-        /// 获取产品下指定设备的属性数据
+        /// 获取产品的属性数据（通过映射关系从关联设备聚合）
         /// </summary>
         /// <param name="produce_token">Product's ProduceToken</param>
-        /// <param name="device_name">Device name under this product</param>
         /// <param name="dataSide">Specifying data side</param>
-        /// <param name="keys">Comma-separated attribute key names</param>
+        /// <param name="keys">Comma-separated product key names (optional filter)</param>
         /// <returns></returns>
         [AllowAnonymous]
-        [HttpGet("/api/Produces/{produce_token}/Devices/{device_name}/Attributes/{dataSide}")]
+        [HttpGet("/api/Produces/{produce_token}/Attributes/{dataSide}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ApiResult), StatusCodes.Status404NotFound)]
         [ProducesDefaultResponseType]
-        public async Task<ActionResult<ApiResult>> ProduceAttributes(string produce_token, string device_name, DataSide dataSide, string keys)
+        public async Task<ActionResult<ApiResult>> ProduceAttributes(string produce_token, DataSide dataSide, string keys)
         {
             var (ok, produce) = _context.GetProduceByToken(produce_token);
             if (ok)
-            {
                 return Ok(new ApiResult(ApiCode.CantFindObject, $"{produce_token} is not a valid produce token"));
-            }
             try
             {
-                var device = produce.Devices?.FirstOrDefault(d => d.Name == device_name && !d.Deleted);
-                if (device == null)
-                {
-                    return Ok(new ApiResult(ApiCode.CantFindObject, $"Device '{device_name}' not found under produce '{produce.Name}'"));
-                }
-                var attributes = from attr in _context.AttributeLatest
-                                 where attr.DeviceId == device.Id
-                                 select attr;
-                var fs = from at in await attributes.ToListAsync()
-                         where at.DataSide == dataSide
-                               && (string.IsNullOrEmpty(keys) || keys.Split(',', System.StringSplitOptions.RemoveEmptyEntries).Contains(at.KeyName))
-                         select at;
-                return Ok(new ApiResult<AttributeLatest[]>(ApiCode.Success, "Ok", fs.ToArray()));
+                var mappings = await _context.ProduceDataMappings
+                    .Include(m => m.Produce)
+                    .Where(m => m.Produce.Id == produce.Id && !m.Deleted && m.DataCatalog == DataCatalog.AttributeData)
+                    .ToListAsync();
+
+                string[] keyFilter = string.IsNullOrEmpty(keys)
+                    ? Array.Empty<string>()
+                    : keys.Split(',', StringSplitOptions.RemoveEmptyEntries);
+
+                // Filter by requested keys
+                if (keyFilter.Length > 0)
+                    mappings = mappings.Where(m => keyFilter.Contains(m.ProduceKeyName)).ToList();
+
+                // Collect device keys needed
+                var deviceIds = mappings.Select(m => m.DeviceId).Distinct().ToList();
+                var deviceAttrs = await _context.AttributeLatest
+                    .Where(a => deviceIds.Contains(a.DeviceId) && a.DataSide == dataSide)
+                    .ToListAsync();
+
+                // Build result: map device key values back to produce key names
+                var result = mappings
+                    .Select(m =>
+                    {
+                        var attr = deviceAttrs.FirstOrDefault(a =>
+                            a.DeviceId == m.DeviceId && a.KeyName == m.DeviceKeyName);
+                        return new
+                        {
+                            ProduceKeyName = m.ProduceKeyName,
+                            DeviceId = m.DeviceId,
+                            DeviceKeyName = m.DeviceKeyName,
+                            DataCatalog = m.DataCatalog,
+                            DataSide = attr?.DataSide,
+                            DateTime = attr?.DateTime,
+                            Type = attr?.Type,
+                            Value = attr?.ToObject()
+                        };
+                    })
+                    .ToArray();
+                return Ok(new ApiResult<object[]>(ApiCode.Success, "Ok", result));
             }
             catch (Exception ex)
             {
@@ -520,29 +607,47 @@ namespace IoTSharp.Controllers
         }
 
         /// <summary>
-        /// HTTP方式上传产品下指定设备的属性数据
+        /// HTTP方式上传属性数据到产品。数据将按映射关系路由到对应的设备键。
         /// </summary>
         /// <param name="produce_token">Product's ProduceToken</param>
-        /// <param name="device_name">Device name under this product</param>
-        /// <param name="attributes">Attribute key-value pairs</param>
+        /// <param name="attributes">Attribute key-value pairs using product key names</param>
         /// <returns></returns>
         [AllowAnonymous]
-        [HttpPost("/api/Produces/{produce_token}/Devices/{device_name}/Attributes")]
+        [HttpPost("/api/Produces/{produce_token}/Attributes")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ApiResult), StatusCodes.Status404NotFound)]
         [ProducesDefaultResponseType]
-        public async Task<ActionResult<ApiResult>> ProduceAttributesUpload(string produce_token, string device_name, [FromBody] Dictionary<string, object> attributes)
+        public async Task<ActionResult<ApiResult>> ProduceAttributesUpload(string produce_token, [FromBody] Dictionary<string, object> attributes)
         {
             var (ok, produce) = _context.GetProduceByToken(produce_token);
             if (ok)
-            {
                 return Ok(new ApiResult(ApiCode.CantFindObject, $"{produce_token} is not a valid produce token"));
-            }
             try
             {
-                var device = await GetOrCreateProduceDevice(produce, device_name);
-                _queue.PublishActive(device.Id, ActivityStatus.Activity);
-                _queue.PublishAttributeData(new PlayloadData() { DeviceId = device.Id, MsgBody = attributes, DataSide = DataSide.ClientSide, DataCatalog = DataCatalog.AttributeData });
+                var mappings = await _context.ProduceDataMappings
+                    .Include(m => m.Produce)
+                    .Where(m => m.Produce.Id == produce.Id && !m.Deleted && m.DataCatalog == DataCatalog.AttributeData)
+                    .ToListAsync();
+
+                // Group by device and route each mapped key
+                var byDevice = mappings
+                    .Where(m => attributes.ContainsKey(m.ProduceKeyName))
+                    .GroupBy(m => m.DeviceId);
+
+                foreach (var grp in byDevice)
+                {
+                    var devicePayload = grp.ToDictionary(
+                        m => m.DeviceKeyName,
+                        m => attributes[m.ProduceKeyName]);
+                    _queue.PublishActive(grp.Key, ActivityStatus.Activity);
+                    _queue.PublishAttributeData(new PlayloadData
+                    {
+                        DeviceId = grp.Key,
+                        MsgBody = devicePayload,
+                        DataSide = DataSide.ClientSide,
+                        DataCatalog = DataCatalog.AttributeData
+                    });
+                }
                 return Ok(new ApiResult(ApiCode.Success, "OK"));
             }
             catch (Exception ex)

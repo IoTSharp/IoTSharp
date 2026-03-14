@@ -104,6 +104,9 @@
                   <el-dropdown-item command="dict"><el-icon>
                       <DocumentCopy />
                     </el-icon>字典</el-dropdown-item>
+                  <el-dropdown-item command="mapping"><el-icon>
+                      <Share />
+                    </el-icon>数据映射</el-dropdown-item>
                   <el-dropdown-item command="createdev"><el-icon>
                       <Plus />
                     </el-icon>创建设备</el-dropdown-item>
@@ -123,6 +126,7 @@
     <produceform ref="produceformRef" @close="close" @submit="submit" />
     <producedatadictionaryform ref="producedatadictionaryformRef" @submit="submit" @close="close" />
     <producepropform ref="producepropformRef" @close="close" @submit="submit" />
+    <producedatamappingdesigner ref="producedatamappingdesignerRef" @close="close" @submit="submit" />
     <deviceform ref="deviceformRef" @close="close" @submit="submit"></deviceform>
   </div>
 </template>
@@ -144,6 +148,7 @@ import produceform from "./produceform.vue";
 import deviceform from "./deviceform.vue";
 import producepropform from "./producepropform.vue";
 import producedatadictionaryform from "./producedatadictionaryform.vue";
+import producedatamappingdesigner from "./producedatamappingdesigner.vue";
 import { v4 as uuidv4, NIL as NIL_UUID } from "uuid";
 import { Session } from "/@/utils/storage";
 import { getProduceList, deleteProduce } from "/@/api/produce";
@@ -178,6 +183,7 @@ const produceformRef = ref();
 const deviceformRef = ref();
 const producedatadictionaryformRef = ref();
 const producepropformRef = ref();
+const producedatamappingdesignerRef = ref();
 const propformRef = ref();
 const userInfos = Session.get("userInfo");
 const router = useRouter();
@@ -241,6 +247,9 @@ const dropdownCommand = (row: any, command: string) => {
     case "prop":
       editprop(row);
       break;
+    case "mapping":
+      editMapping(row);
+      break;
   }
 };
 const creatprod = () => {
@@ -263,6 +272,9 @@ const navtodevice = (row: TableDataRow) => {
   router.push({
     path: "/iot/devices/devicelist",
   });
+};
+const editMapping = (row: any) => {
+  producedatamappingdesignerRef.value.openDialog(row.id, row.devices ?? []);
 };
 const deleteprod = async (row: TableDataRow) => {
   ElMessageBox.confirm("确定删除该产品?", "警告", {

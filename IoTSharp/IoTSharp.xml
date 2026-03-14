@@ -703,37 +703,43 @@
             <param name="dto"></param>
             <returns></returns>
         </member>
-        <member name="M:IoTSharp.Controllers.ProducesController.GetOrCreateProduceDevice(IoTSharp.Data.Produce,System.String)">
+        <member name="M:IoTSharp.Controllers.ProducesController.GetDataMappings(System.Guid)">
             <summary>
-            Find or create a device by name within a produce.
+            获取产品的数据映射关系（产品字段 ↔ 设备字段）
             </summary>
-        </member>
-        <member name="M:IoTSharp.Controllers.ProducesController.ProduceTelemetry(System.String,System.String,System.Collections.Generic.Dictionary{System.String,System.Object})">
-            <summary>
-            HTTP方式上传产品下指定设备的遥测数据
-            </summary>
-            <param name="produce_token">Product's ProduceToken</param>
-            <param name="device_name">Device name under this product</param>
-            <param name="telemetrys">Telemetry key-value pairs</param>
+            <param name="produceId">产品ID</param>
             <returns></returns>
         </member>
-        <member name="M:IoTSharp.Controllers.ProducesController.ProduceAttributes(System.String,System.String,IoTSharp.Contracts.DataSide,System.String)">
+        <member name="M:IoTSharp.Controllers.ProducesController.SaveDataMappings(IoTSharp.Dtos.SaveProduceDataMappingsDto)">
             <summary>
-            获取产品下指定设备的属性数据
+            保存产品的数据映射关系（全量替换）
+            </summary>
+            <param name="dto"></param>
+            <returns></returns>
+        </member>
+        <member name="M:IoTSharp.Controllers.ProducesController.ProduceTelemetry(System.String,System.Collections.Generic.Dictionary{System.String,System.Object})">
+            <summary>
+            HTTP方式上传遥测数据到产品。数据将按映射关系路由到对应的设备键。
             </summary>
             <param name="produce_token">Product's ProduceToken</param>
-            <param name="device_name">Device name under this product</param>
+            <param name="telemetrys">Telemetry key-value pairs using product key names</param>
+            <returns></returns>
+        </member>
+        <member name="M:IoTSharp.Controllers.ProducesController.ProduceAttributes(System.String,IoTSharp.Contracts.DataSide,System.String)">
+            <summary>
+            获取产品的属性数据（通过映射关系从关联设备聚合）
+            </summary>
+            <param name="produce_token">Product's ProduceToken</param>
             <param name="dataSide">Specifying data side</param>
-            <param name="keys">Comma-separated attribute key names</param>
+            <param name="keys">Comma-separated product key names (optional filter)</param>
             <returns></returns>
         </member>
-        <member name="M:IoTSharp.Controllers.ProducesController.ProduceAttributesUpload(System.String,System.String,System.Collections.Generic.Dictionary{System.String,System.Object})">
+        <member name="M:IoTSharp.Controllers.ProducesController.ProduceAttributesUpload(System.String,System.Collections.Generic.Dictionary{System.String,System.Object})">
             <summary>
-            HTTP方式上传产品下指定设备的属性数据
+            HTTP方式上传属性数据到产品。数据将按映射关系路由到对应的设备键。
             </summary>
             <param name="produce_token">Product's ProduceToken</param>
-            <param name="device_name">Device name under this product</param>
-            <param name="attributes">Attribute key-value pairs</param>
+            <param name="attributes">Attribute key-value pairs using product key names</param>
             <returns></returns>
         </member>
         <member name="M:IoTSharp.Controllers.RulesController.UpdateFlowExpression(IoTSharp.Dtos.UpdateFlowExpression)">
@@ -1184,6 +1190,41 @@
         <member name="P:IoTSharp.Dtos.ProduceAddDto.DefaultDeviceType">
             <summary>
             默认设备类型
+            </summary>
+        </member>
+        <member name="T:IoTSharp.Dtos.ProduceDataMappingDto">
+            <summary>
+            DTO for a single produce-device data mapping entry.
+            </summary>
+        </member>
+        <member name="P:IoTSharp.Dtos.ProduceDataMappingDto.ProduceKeyName">
+            <summary>
+            The product's abstract key name (from ProduceData.KeyName).
+            </summary>
+        </member>
+        <member name="P:IoTSharp.Dtos.ProduceDataMappingDto.DataCatalog">
+            <summary>
+            Whether this is a telemetry or attribute mapping.
+            </summary>
+        </member>
+        <member name="P:IoTSharp.Dtos.ProduceDataMappingDto.DeviceId">
+            <summary>
+            The real device id.
+            </summary>
+        </member>
+        <member name="P:IoTSharp.Dtos.ProduceDataMappingDto.DeviceKeyName">
+            <summary>
+            The device's actual key name.
+            </summary>
+        </member>
+        <member name="P:IoTSharp.Dtos.ProduceDataMappingDto.Description">
+            <summary>
+            Optional description.
+            </summary>
+        </member>
+        <member name="T:IoTSharp.Dtos.SaveProduceDataMappingsDto">
+            <summary>
+            Request body for saving (bulk-replace) the mappings for a product.
             </summary>
         </member>
         <member name="P:IoTSharp.Dtos.ProduceDictionaryItemDto.KeyName">
