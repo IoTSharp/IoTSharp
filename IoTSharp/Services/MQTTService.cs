@@ -226,7 +226,7 @@ namespace IoTSharp.Services
                         else if (_dbContextcv.Produces.Any(ak =>  obj.UserName.StartsWith( ak.Name+"_")  &&   ak.ProduceToken == obj.Password && ak.Deleted == false))
                         {
                             var ak = _dbContextcv.Produces.Include(ak => ak.Customer).Include(ak => ak.Tenant).Include(ak => ak.Devices).FirstOrDefault(ak =>  ak.ProduceToken == obj.Password && ak.Deleted == false);
-                            if (ak!=null &&   ak.Devices.Any(d => d.Name == obj.UserName && d.Deleted == false))
+                            if (ak!=null &&   !ak.Devices.Any(d => d.Name == obj.UserName && d.Deleted == false))
                             {
                                 var devvalue = new Device() { Name = obj.UserName, DeviceType = ak.DefaultDeviceType, Timeout = ak.DefaultTimeout };
                                 devvalue.Tenant = ak.Tenant;

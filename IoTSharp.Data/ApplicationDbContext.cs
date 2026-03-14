@@ -93,6 +93,8 @@ namespace IoTSharp.Data
 
         public DbSet<ProduceDictionary> ProduceDictionaries { get; set; }
 
+        public DbSet<ProduceDataMapping> ProduceDataMappings { get; set; }
+
         public DbSet<AISettings> AISettings { get; set; }
     }
 

@@ -39,3 +39,26 @@ export function createDevice(id: string, data: any) {
 export function deleteProduce(id: string) {
     return request.get(`/api/produces/delete?produceid=` + id)
 }
+
+/**
+ * 获取产品的数据映射关系
+ */
+export function getProduceDataMappings(produceId: string) {
+    return request.get(`/api/produces/GetDataMappings?produceId=` + produceId)
+}
+
+/**
+ * 保存产品的数据映射关系（全量替换）
+ */
+export function saveProduceDataMappings(data: { produceId: string; mappings: ProduceDataMappingDto[] }) {
+    return request.post(`/api/produces/SaveDataMappings`, data)
+}
+
+export interface ProduceDataMappingDto {
+    id: string;
+    produceKeyName: string;
+    dataCatalog: string; // 'TelemetryData' | 'AttributeData'
+    deviceId: string;
+    deviceKeyName: string;
+    description?: string;
+}
