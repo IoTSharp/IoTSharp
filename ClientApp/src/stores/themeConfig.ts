@@ -84,7 +84,7 @@ export const useThemeConfig = defineStore('themeConfig', {
 			// 是否开启 Breadcrumb，强制经典、横向布局不显示
 			isBreadcrumb: true,
 			// 是否开启 Tagsview
-			isTagsview: true,
+			isTagsview: false,
 			// 是否开启 Breadcrumb 图标
 			isBreadcrumbIcon: false,
 			// 是否开启 Tagsview 图标

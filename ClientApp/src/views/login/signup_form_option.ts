@@ -11,7 +11,7 @@ export const option = {
 		type: 'primary',
 		size: 'large',
 		disabled: false,
-		innerText: '注册',
+		innerText: '注册并创建工作空间',
 		loading: false,
 		width: '100%',
 		show: true,

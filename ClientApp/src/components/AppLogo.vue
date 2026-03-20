@@ -49,6 +49,8 @@ const titleParts = computed(() => {
 
 <style lang="scss" scoped>
 .app-logo {
+  --app-logo-text: #123b6d;
+  --app-logo-subtext: #2563eb;
   display: inline-flex;
   align-items: center;
   gap: 14px;
@@ -68,9 +70,9 @@ const titleParts = computed(() => {
   width: 38px;
   height: 38px;
   border-radius: 11px;
-  background: linear-gradient(180deg, #5864ff 0%, #4a52f0 100%);
+  background: linear-gradient(180deg, #1d4ed8 0%, #2563eb 52%, #0ea5e9 100%);
   box-shadow:
-    0 12px 18px rgba(88, 100, 255, 0.28),
+    0 12px 22px rgba(37, 99, 235, 0.24),
     inset 0 1px 0 rgba(255, 255, 255, 0.3);
   flex-shrink: 0;
 }
@@ -108,12 +110,11 @@ const titleParts = computed(() => {
   align-items: baseline;
   gap: 6px;
   min-width: 0;
-  color: #121417;
-  font-family: 'Arial Black', 'Helvetica Neue', 'Microsoft YaHei', sans-serif;
-  font-size: 28px;
-  font-style: italic;
-  font-weight: 900;
-  letter-spacing: -0.06em;
+  color: var(--app-logo-text);
+  font-family: 'Segoe UI', 'Helvetica Neue', 'Microsoft YaHei', sans-serif;
+  font-size: 27px;
+  font-weight: 800;
+  letter-spacing: -0.05em;
   line-height: 0.95;
   white-space: nowrap;
 }
@@ -124,7 +125,8 @@ const titleParts = computed(() => {
 }
 
 .app-logo__suffix {
-  letter-spacing: -0.08em;
+  color: var(--app-logo-subtext);
+  letter-spacing: -0.07em;
 }
 
 @media (max-width: 767px) {

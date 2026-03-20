@@ -1,21 +1,19 @@
 <template>
 	<div v-if="isShowBreadcrumb" class="layout-navbars-breadcrumb">
-		<SvgIcon
-			class="layout-navbars-breadcrumb-icon"
-			:name="themeConfig.isCollapse ? 'ele-Expand' : 'ele-Fold'"
-			:size="16"
-			@click="onThemeConfigChange"
-		/>
-		<el-breadcrumb class="layout-navbars-breadcrumb-hide">
+		<div class="layout-navbars-breadcrumb__toggle" @click="onThemeConfigChange">
+			<SvgIcon :name="themeConfig.isCollapse ? 'ele-Expand' : 'ele-Fold'" :size="16" />
+		</div>
+		<el-breadcrumb class="layout-navbars-breadcrumb__list">
 			<transition-group name="breadcrumb">
 				<el-breadcrumb-item v-for="(v, k) in breadcrumbList" :key="!v.meta.tagsViewName ? v.meta.title : v.meta.tagsViewName">
-					<span v-if="k === breadcrumbList.length - 1" class="layout-navbars-breadcrumb-span">
-						<SvgIcon :name="v.meta.icon" class="layout-navbars-breadcrumb-iconfont" v-if="themeConfig.isBreadcrumbIcon" />
+					<span v-if="k === breadcrumbList.length - 1" class="layout-navbars-breadcrumb__current">
+						<SvgIcon v-if="themeConfig.isBreadcrumbIcon" :name="v.meta.icon" class="layout-navbars-breadcrumb__icon" />
 						<div v-if="!v.meta.tagsViewName">{{ $t(v.meta.title) }}</div>
 						<div v-else>{{ v.meta.tagsViewName }}</div>
 					</span>
-					<a v-else @click.prevent="onBreadcrumbClick(v)">
-						<SvgIcon :name="v.meta.icon" class="layout-navbars-breadcrumb-iconfont" v-if="themeConfig.isBreadcrumbIcon" />{{ $t(v.meta.title) }}
+					<a v-else class="layout-navbars-breadcrumb__link" @click.prevent="onBreadcrumbClick(v)">
+						<SvgIcon v-if="themeConfig.isBreadcrumbIcon" :name="v.meta.icon" class="layout-navbars-breadcrumb__icon" />
+						{{ $t(v.meta.title) }}
 					</a>
 				</el-breadcrumb-item>
 			</transition-group>
@@ -32,7 +30,6 @@ import { storeToRefs } from 'pinia';
 import { useThemeConfig } from '/@/stores/themeConfig';
 import { useRoutesList } from '/@/stores/routesList';
 
-// 定义接口来定义对象的类型
 interface BreadcrumbState {
 	breadcrumbList: Array<any>;
 	routeSplit: Array<string>;
@@ -55,30 +52,26 @@ export default defineComponent({
 			routeSplitFirst: '',
 			routeSplitIndex: 1,
 		});
-		// 动态设置经典、横向布局不显示
+
 		const isShowBreadcrumb = computed(() => {
 			initRouteSplit(route.path);
 			const { layout, isBreadcrumb } = themeConfig.value;
 			if (layout === 'classic' || layout === 'transverse') return false;
-			else return isBreadcrumb ? true : false;
+			return isBreadcrumb;
 		});
-		// 面包屑点击时
+
 		const onBreadcrumbClick = (v: any) => {
 			const { redirect, path } = v;
 			if (redirect) router.push(redirect);
 			else router.push(path);
 		};
-		// 展开/收起左侧菜单点击
+
 		const onThemeConfigChange = () => {
 			themeConfig.value.isCollapse = !themeConfig.value.isCollapse;
-			setLocalThemeConfig();
-		};
-		// 存储布局配置
-		const setLocalThemeConfig = () => {
 			Local.remove('themeConfig');
 			Local.set('themeConfig', themeConfig.value);
 		};
-		// 处理面包屑数据
+
 		const getBreadcrumbList = (arr: Array<string>) => {
 			arr.forEach((item: any) => {
 				state.routeSplit.forEach((v: any, k: number, arrs: any) => {
@@ -91,26 +84,29 @@ export default defineComponent({
 				});
 			});
 		};
-		// 当前路由字符串切割成数组，并删除第一项空内容
+
 		const initRouteSplit = (path: string) => {
-			if (!themeConfig.value.isBreadcrumb) return false;
+			if (!themeConfig.value.isBreadcrumb || !routesList.value.length) return false;
 			state.breadcrumbList = [routesList.value[0]];
 			state.routeSplit = path.split('/');
 			state.routeSplit.shift();
 			state.routeSplitFirst = `/${state.routeSplit[0]}`;
 			state.routeSplitIndex = 1;
 			getBreadcrumbList(routesList.value);
-			if (route.name === 'home' || (route.name === 'notFound' && state.breadcrumbList.length > 1)) state.breadcrumbList.shift();
-			if (state.breadcrumbList.length > 0) state.breadcrumbList[state.breadcrumbList.length - 1].meta.tagsViewName = other.setTagsViewNameI18n(route);
+			if ((route.name === 'dashboard' || route.name === 'home') && state.breadcrumbList.length > 0) state.breadcrumbList.shift();
+			if (state.breadcrumbList.length > 0) {
+				state.breadcrumbList[state.breadcrumbList.length - 1].meta.tagsViewName = other.setTagsViewNameI18n(route);
+			}
 		};
-		// 页面加载时
+
 		onMounted(() => {
 			initRouteSplit(route.path);
 		});
-		// 路由更新时
+
 		onBeforeRouteUpdate((to) => {
 			initRouteSplit(to.path);
 		});
+
 		return {
 			onThemeConfigChange,
 			isShowBreadcrumb,
@@ -125,39 +121,68 @@ export default defineComponent({
 <style scoped lang="scss">
 .layout-navbars-breadcrumb {
 	flex: 1;
+	min-width: 0;
 	height: inherit;
 	display: flex;
 	align-items: center;
-	.layout-navbars-breadcrumb-icon {
-		cursor: pointer;
-		font-size: 18px;
-		color: var(--next-bg-topBarColor);
-		height: 100%;
-		width: 40px;
-		opacity: 0.8;
-		&:hover {
-			opacity: 1;
-		}
+	gap: 14px;
+}
+
+.layout-navbars-breadcrumb__toggle {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 38px;
+	height: 38px;
+	border-radius: 12px;
+	background: #f5f9ff;
+	color: #335476;
+	cursor: pointer;
+	flex-shrink: 0;
+	transition:
+		background 0.2s ease,
+		color 0.2s ease;
+
+	&:hover {
+		background: #eaf3ff;
+		color: #2563eb;
 	}
-	.layout-navbars-breadcrumb-span {
-		display: flex;
-		opacity: 0.7;
-		color: var(--next-bg-topBarColor);
+}
+
+.layout-navbars-breadcrumb__list {
+	min-width: 0;
+}
+
+.layout-navbars-breadcrumb__current {
+	display: inline-flex;
+	align-items: center;
+	gap: 6px;
+	color: #123b6d;
+	font-weight: 700;
+}
+
+.layout-navbars-breadcrumb__link {
+	color: #6c7f93;
+	font-weight: 500;
+	text-decoration: none;
+	transition: color 0.2s ease;
+
+	&:hover {
+		color: #2563eb;
 	}
-	.layout-navbars-breadcrumb-iconfont {
-		font-size: 14px;
-		margin-right: 5px;
-	}
-	:deep(.el-breadcrumb__separator) {
-		opacity: 0.7;
-		color: var(--next-bg-topBarColor);
-	}
-	:deep(.el-breadcrumb__inner a, .el-breadcrumb__inner.is-link) {
-		font-weight: unset !important;
-		color: var(--next-bg-topBarColor);
-		&:hover {
-			color: var(--el-color-primary) !important;
-		}
+}
+
+.layout-navbars-breadcrumb__icon {
+	font-size: 14px;
+}
+
+:deep(.el-breadcrumb__separator) {
+	color: #9cb2c9;
+}
+
+@media (max-width: 767px) {
+	.layout-navbars-breadcrumb__list {
+		display: none;
 	}
 }
 </style>

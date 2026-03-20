@@ -1,10 +1,11 @@
 <template>
 	<div class="layout-navbars-breadcrumb-index">
 		<div class="layout-navbars-breadcrumb-index__left">
-			<Logo v-if="setIsShowLogo" :alwaysExpanded="isDashboardHome" :disableToggle="isDashboardHome" />
-			<Breadcrumb v-if="!isDashboardHome" />
+			<Logo v-if="setIsShowLogo" alwaysExpanded disableToggle class="layout-navbars-breadcrumb-index__logo" />
+			<div class="layout-navbars-breadcrumb-index__divider"></div>
+			<Breadcrumb />
 		</div>
-		<Horizontal :menuList="menuList" v-if="isLayoutTransverse" />
+		<Horizontal v-if="isLayoutTransverse" :menuList="menuList" />
 		<User />
 	</div>
 </template>
@@ -40,36 +41,13 @@ export default defineComponent({
 
 		const setIsShowLogo = computed(() => {
 			const { isShowLogo, layout } = themeConfig.value;
-			return (isShowLogo && layout === 'classic') || (isShowLogo && layout === 'transverse') || (isShowLogo && layout === 'defaults');
-		});
-
-		const isDashboardHome = computed(() => {
-			const { layout } = themeConfig.value;
-			return layout === 'defaults' && route.path === '/dashboard';
+			return isShowLogo && ['classic', 'transverse', 'defaults'].includes(layout);
 		});
 
 		const isLayoutTransverse = computed(() => {
 			const { layout, isClassicSplitMenu } = themeConfig.value;
-			return layout === 'transverse' || (isClassicSplitMenu && layout === 'classic');
+			return layout === 'transverse' || (layout === 'classic' && isClassicSplitMenu);
 		});
-
-		const setFilterRoutes = () => {
-			const { layout, isClassicSplitMenu } = themeConfig.value;
-			if (layout === 'classic' && isClassicSplitMenu) {
-				state.menuList = delClassicChildren(filterRoutesFun(routesList.value));
-				const resData = setSendClassicChildren(route.path);
-				proxy.mittBus.emit('setSendClassicChildren', resData);
-			} else {
-				state.menuList = filterRoutesFun(routesList.value);
-			}
-		};
-
-		const delClassicChildren = (arr: Array<object>) => {
-			arr.map((v: any) => {
-				if (v.children) delete v.children;
-			});
-			return arr;
-		};
 
 		const filterRoutesFun = (arr: Array<string>) => {
 			return arr
@@ -81,18 +59,35 @@ export default defineComponent({
 				});
 		};
 
+		const delClassicChildren = (arr: Array<object>) => {
+			arr.map((v: any) => {
+				if (v.children) delete v.children;
+			});
+			return arr;
+		};
+
 		const setSendClassicChildren = (path: string) => {
 			const currentPathSplit = path.split('/');
 			const currentData: any = {};
-			filterRoutesFun(routesList.value).map((v, k) => {
+			filterRoutesFun(routesList.value).map((v: any, k: number) => {
 				if (v.path === `/${currentPathSplit[1]}`) {
-					v['k'] = k;
-					currentData['item'] = [{ ...v }];
-					currentData['children'] = [{ ...v }];
-					if (v.children) currentData['children'] = v.children;
+					v.k = k;
+					currentData.item = [{ ...v }];
+					currentData.children = v.children ? v.children : [{ ...v }];
 				}
 			});
 			return currentData;
+		};
+
+		const setFilterRoutes = () => {
+			const { layout, isClassicSplitMenu } = themeConfig.value;
+			if (layout === 'classic' && isClassicSplitMenu) {
+				state.menuList = delClassicChildren(filterRoutesFun(routesList.value));
+				const resData = setSendClassicChildren(route.path);
+				proxy.mittBus.emit('setSendClassicChildren', resData);
+			} else {
+				state.menuList = filterRoutesFun(routesList.value);
+			}
 		};
 
 		onMounted(() => {
@@ -108,9 +103,7 @@ export default defineComponent({
 
 		return {
 			setIsShowLogo,
-			isDashboardHome,
 			isLayoutTransverse,
-			themeConfig,
 			...toRefs(state),
 		};
 	},
@@ -119,16 +112,14 @@ export default defineComponent({
 
 <style scoped lang="scss">
 .layout-navbars-breadcrumb-index {
-	height: 56px;
+	height: 72px;
 	display: flex;
 	align-items: center;
-	gap: 12px;
-	padding: 0 18px;
-	background: rgba(255, 255, 255, 0.98);
-	border: 1px solid rgba(227, 234, 244, 0.96);
-	border-bottom: none;
-	border-radius: 24px 24px 0 0;
-	box-shadow: 0 14px 36px rgba(15, 23, 42, 0.04);
+	gap: 16px;
+	padding: 0 24px;
+	background: rgba(255, 255, 255, 0.95);
+	border-bottom: 1px solid rgba(224, 232, 242, 0.9);
+	box-shadow: 0 10px 30px rgba(15, 23, 42, 0.04);
 }
 
 .layout-navbars-breadcrumb-index__left {
@@ -136,12 +127,28 @@ export default defineComponent({
 	min-width: 0;
 	display: flex;
 	align-items: center;
-	gap: 12px;
+	gap: 18px;
+}
+
+.layout-navbars-breadcrumb-index__logo {
+	flex-shrink: 0;
+}
+
+.layout-navbars-breadcrumb-index__divider {
+	width: 1px;
+	height: 34px;
+	background: linear-gradient(180deg, rgba(191, 219, 254, 0), rgba(191, 219, 254, 0.9), rgba(191, 219, 254, 0));
+	flex-shrink: 0;
 }
 
 @media (max-width: 767px) {
 	.layout-navbars-breadcrumb-index {
-		padding: 0 12px;
+		height: 68px;
+		padding: 0 14px;
+	}
+
+	.layout-navbars-breadcrumb-index__divider {
+		display: none;
 	}
 }
 </style>

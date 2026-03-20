@@ -115,11 +115,10 @@ export default defineComponent({
 
 .iotsharp-main__content {
 	min-width: 0;
-	padding: 14px 24px 28px;
-	border-radius: 0 0 28px 28px;
+	padding: 18px 24px 28px;
+	border-radius: 0;
 	background:
-		linear-gradient(90deg, rgba(210, 232, 255, 0.52) 0, rgba(210, 232, 255, 0.52) 12px, transparent 12px),
-		linear-gradient(180deg, rgba(255, 255, 255, 0.72), rgba(248, 251, 255, 0.78));
+		linear-gradient(180deg, rgba(255, 255, 255, 0.3), rgba(255, 255, 255, 0));
 }
 
 .iotsharp-main__content--immersive {

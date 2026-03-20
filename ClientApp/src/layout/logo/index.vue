@@ -53,12 +53,13 @@ export default defineComponent({
 
 <style scoped lang="scss">
 .layout-logo {
-	width: 100%;
-	height: 78px;
+	width: auto;
+	max-width: 100%;
+	height: 64px;
 	display: flex;
 	align-items: center;
 	justify-content: flex-start;
-	padding: 0 16px 0 14px;
+	padding: 0 6px 0 0;
 	border-radius: 0;
 	border: none;
 	background: transparent;
@@ -72,8 +73,9 @@ export default defineComponent({
 }
 
 .layout-logo-size {
-	width: 100%;
-	height: 78px;
+	width: auto;
+	max-width: 100%;
+	height: 64px;
 	display: flex;
 	align-items: center;
 	justify-content: center;

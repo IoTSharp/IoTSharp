@@ -1,7 +1,7 @@
 <template>
-	<div class="layout-navbars-breadcrumb-user pr15" :style="{ flex: layoutUserFlexNum }">
-		<el-dropdown :show-timeout="70" :hide-timeout="50" trigger="click" @command="onComponentSizeChange">
-			<div class="layout-navbars-breadcrumb-user-icon">
+	<div class="layout-navbars-breadcrumb-user" :style="{ flex: layoutUserFlexNum }">
+		<el-dropdown trigger="click" @command="onComponentSizeChange">
+			<div class="layout-navbars-breadcrumb-user__icon">
 				<i class="iconfont icon-ziti" :title="$t('message.user.title0')"></i>
 			</div>
 			<template #dropdown>
@@ -12,8 +12,9 @@
 				</el-dropdown-menu>
 			</template>
 		</el-dropdown>
-		<el-dropdown :show-timeout="70" :hide-timeout="50" trigger="click" @command="onLanguageChange">
-			<div class="layout-navbars-breadcrumb-user-icon">
+
+		<el-dropdown trigger="click" @command="onLanguageChange">
+			<div class="layout-navbars-breadcrumb-user__icon">
 				<i class="iconfont" :class="disabledI18n === 'en' ? 'icon-fuhao-yingwen' : 'icon-fuhao-zhongwen'" :title="$t('message.user.title1')"></i>
 			</div>
 			<template #dropdown>
@@ -24,15 +25,18 @@
 				</el-dropdown-menu>
 			</template>
 		</el-dropdown>
-		<div class="layout-navbars-breadcrumb-user-icon" @click="onSearchClick">
+
+		<div class="layout-navbars-breadcrumb-user__icon" @click="onSearchClick">
 			<el-icon :title="$t('message.user.title2')">
 				<ele-Search />
 			</el-icon>
 		</div>
-		<div class="layout-navbars-breadcrumb-user-icon" @click="onLayoutSetingClick">
-			<i class="icon-skin iconfont" :title="$t('message.user.title3')"></i>
+
+		<div class="layout-navbars-breadcrumb-user__icon" @click="onLayoutSetingClick">
+			<i class="iconfont icon-skin" :title="$t('message.user.title3')"></i>
 		</div>
-		<div class="layout-navbars-breadcrumb-user-icon">
+
+		<div class="layout-navbars-breadcrumb-user__icon">
 			<el-popover placement="bottom" trigger="click" transition="el-zoom-in-top" :width="300" :persistent="false">
 				<template #reference>
 					<el-badge :is-dot="true">
@@ -41,22 +45,22 @@
 						</el-icon>
 					</el-badge>
 				</template>
-				<template #default>
-					<UserNews />
-				</template>
+				<UserNews />
 			</el-popover>
 		</div>
-		<div class="layout-navbars-breadcrumb-user-icon mr10" @click="onScreenfullClick">
+
+		<div class="layout-navbars-breadcrumb-user__icon" @click="onScreenfullClick">
 			<i
 				class="iconfont"
 				:title="isScreenfull ? $t('message.user.title6') : $t('message.user.title5')"
 				:class="!isScreenfull ? 'icon-fullscreen' : 'icon-tuichuquanping'"
 			></i>
 		</div>
-		<el-dropdown :show-timeout="70" :hide-timeout="50" @command="onHandleCommandClick">
-			<span class="layout-navbars-breadcrumb-user-link">
-				<img :src="userInfos.photo" class="layout-navbars-breadcrumb-user-link-photo mr5" />
-				{{ userInfos.userName === '' ? 'common' : userInfos.userName }}
+
+		<el-dropdown @command="onHandleCommandClick">
+			<span class="layout-navbars-breadcrumb-user__link">
+				<img :src="userInfos.photo" class="layout-navbars-breadcrumb-user__photo" />
+				<span class="layout-navbars-breadcrumb-user__name">{{ userInfos.userName === '' ? 'common' : userInfos.userName }}</span>
 				<el-icon class="el-icon--right">
 					<ele-ArrowDown />
 				</el-icon>
@@ -72,6 +76,7 @@
 				</el-dropdown-menu>
 			</template>
 		</el-dropdown>
+
 		<Search ref="searchRef" />
 	</div>
 </template>
@@ -107,32 +112,29 @@ export default defineComponent({
 			disabledI18n: 'zh-cn',
 			disabledSize: 'large',
 		});
-		// 设置分割样式
+
 		const layoutUserFlexNum = computed(() => {
-			let num: string | number = '';
 			const { layout, isClassicSplitMenu } = themeConfig.value;
 			const layoutArr: string[] = ['defaults', 'columns'];
-			if (layoutArr.includes(layout) || (layout === 'classic' && !isClassicSplitMenu)) num = '1';
-			else num = '';
-			return num;
+			if (layoutArr.includes(layout) || (layout === 'classic' && !isClassicSplitMenu)) return '1';
+			return '';
 		});
-		// 全屏点击时
+
 		const onScreenfullClick = () => {
 			if (!screenfull.isEnabled) {
-				ElMessage.warning('暂不不支持全屏');
-				return false;
+				ElMessage.warning('当前环境暂不支持全屏');
+				return;
 			}
 			screenfull.toggle();
 			screenfull.on('change', () => {
-				if (screenfull.isFullscreen) state.isScreenfull = true;
-				else state.isScreenfull = false;
+				state.isScreenfull = screenfull.isFullscreen;
 			});
 		};
-		// 布局配置 icon 点击时
+
 		const onLayoutSetingClick = () => {
 			proxy.mittBus.emit('openSetingsDrawer');
 		};
-		// 下拉菜单点击时
+
 		const onHandleCommandClick = (path: string) => {
 			if (path === 'logOut') {
 				ElMessageBox({
@@ -159,16 +161,14 @@ export default defineComponent({
 						}
 					},
 				})
-					.then(async () => {
-						// 清除缓存/token等
+					.then(() => {
 						Session.clear();
-						// 使用 reload 时，不需要调用 resetRoute() 重置路由
 						window.location.reload();
 					})
 					.catch(() => {});
 			} else if (path === 'iotsharp') {
 				window.open('https://iotsharp.net/');
-			}  else if (path === 'github') {
+			} else if (path === 'github') {
 				window.open('https://github.com/IoTSharp');
 			} else if (path === 'docs') {
 				window.open('http://docs.iotsharp.net/');
@@ -176,11 +176,11 @@ export default defineComponent({
 				router.push(path);
 			}
 		};
-		// 菜单搜索点击
+
 		const onSearchClick = () => {
 			searchRef.value.openSearch();
 		};
-		// 组件大小改变
+
 		const onComponentSizeChange = (size: string) => {
 			Local.remove('themeConfig');
 			themeConfig.value.globalComponentSize = size;
@@ -188,20 +188,11 @@ export default defineComponent({
 			initComponentSize();
 			window.location.reload();
 		};
-		// 语言切换
-		const onLanguageChange = (lang: string) => {
-			Local.remove('themeConfig');
-			themeConfig.value.globalI18n = lang;
-			Local.set('themeConfig', themeConfig.value);
-			proxy.$i18n.locale = lang;
-			initI18n();
-			other.useTitle();
-		};
-		// 设置 element plus 组件的国际化
+
 		const setI18nConfig = async (locale: string) => {
-			proxy.mittBus.emit('getI18nConfig',messages.value[locale]);
+			proxy.mittBus.emit('getI18nConfig', messages.value[locale]);
 		};
-		// 初始化言语国际化
+
 		const initI18n = () => {
 			switch (Local.get('themeConfig').globalI18n) {
 				case 'zh-cn':
@@ -218,7 +209,16 @@ export default defineComponent({
 					break;
 			}
 		};
-		// 初始化全局组件大小
+
+		const onLanguageChange = (lang: string) => {
+			Local.remove('themeConfig');
+			themeConfig.value.globalI18n = lang;
+			Local.set('themeConfig', themeConfig.value);
+			proxy.$i18n.locale = lang;
+			initI18n();
+			other.useTitle();
+		};
+
 		const initComponentSize = () => {
 			switch (Local.get('themeConfig').globalComponentSize) {
 				case 'large':
@@ -232,13 +232,14 @@ export default defineComponent({
 					break;
 			}
 		};
-		// 页面加载时
+
 		onMounted(() => {
 			if (Local.get('themeConfig')) {
 				initI18n();
 				initComponentSize();
 			}
 		});
+
 		return {
 			userInfos,
 			onLayoutSetingClick,
@@ -260,57 +261,84 @@ export default defineComponent({
 	display: flex;
 	align-items: center;
 	justify-content: flex-end;
-	gap: 4px;
-	&-link {
-		height: 36px;
-		display: flex;
-		align-items: center;
-		white-space: nowrap;
-		padding: 0 10px 0 6px;
-		border-radius: 999px;
-		border: 1px solid rgba(223, 231, 241, 0.96);
-		background: #f9fbff;
-		color: #4b5563;
-		font-size: 13px;
-		font-weight: 600;
-		&-photo {
-			width: 24px;
-			height: 24px;
-			border-radius: 100%;
-		}
+	gap: 8px;
+}
+
+.layout-navbars-breadcrumb-user__icon {
+	width: 38px;
+	height: 38px;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	border-radius: 12px;
+	border: 1px solid transparent;
+	background: #f7fbff;
+	color: #5d728a;
+	cursor: pointer;
+	transition:
+		background 0.2s ease,
+		border-color 0.2s ease,
+		color 0.2s ease;
+
+	&:hover {
+		background: #eef5ff;
+		border-color: #d9e7ff;
+		color: #2563eb;
 	}
-	&-icon {
-		width: 34px;
-		height: 34px;
-		cursor: pointer;
-		color: #66758a;
-		line-height: 34px;
-		display: flex;
-		align-items: center;
-		justify-content: center;
-		border-radius: 10px;
-		border: 1px solid transparent;
-		&:hover {
-			background: #eef4ff;
-			border-color: #dce6ff;
-			color: #4a52f0;
-			i {
-				display: inline-block;
-				animation: logoAnimation 0.3s ease-in-out;
-			}
-		}
+}
+
+.layout-navbars-breadcrumb-user__link {
+	height: 40px;
+	display: inline-flex;
+	align-items: center;
+	gap: 8px;
+	padding: 0 12px 0 6px;
+	border-radius: 999px;
+	border: 1px solid rgba(223, 231, 241, 0.96);
+	background: #f9fbff;
+	color: #3d5269;
+	font-size: 13px;
+	font-weight: 600;
+	white-space: nowrap;
+}
+
+.layout-navbars-breadcrumb-user__photo {
+	width: 28px;
+	height: 28px;
+	border-radius: 50%;
+}
+
+.layout-navbars-breadcrumb-user__name {
+	max-width: 120px;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+:deep(.el-dropdown) {
+	color: inherit;
+}
+
+:deep(.el-badge) {
+	height: 38px;
+	display: inline-flex;
+	align-items: center;
+}
+
+:deep(.el-badge__content.is-fixed) {
+	top: 8px;
+}
+
+@media (max-width: 767px) {
+	.layout-navbars-breadcrumb-user {
+		gap: 6px;
 	}
-	:deep(.el-dropdown) {
-		color: inherit;
+
+	.layout-navbars-breadcrumb-user__link {
+		padding-right: 8px;
 	}
-	:deep(.el-badge) {
-		height: 34px;
-		line-height: 34px;
-		display: flex;
-		align-items: center;
-	}
-	:deep(.el-badge__content.is-fixed) {
-		top: 8px;
+
+	.layout-navbars-breadcrumb-user__name {
+		display: none;
 	}
 }
 </style>

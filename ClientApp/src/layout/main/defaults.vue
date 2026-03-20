@@ -31,19 +31,19 @@ export default defineComponent({
 	position: relative;
 	min-height: 100%;
 	background:
-		radial-gradient(circle at top left, rgba(88, 100, 255, 0.08), transparent 22%),
-		radial-gradient(circle at bottom right, rgba(142, 196, 255, 0.18), transparent 26%),
-		linear-gradient(180deg, #f8fbff 0%, #f1f6fc 100%);
+		radial-gradient(circle at top left, rgba(96, 165, 250, 0.14), transparent 24%),
+		radial-gradient(circle at bottom right, rgba(125, 211, 252, 0.2), transparent 28%),
+		linear-gradient(180deg, #f7fbff 0%, #eef6ff 100%);
 }
 
 .iotsharp-shell__mesh {
 	position: absolute;
 	inset: 0;
 	background-image:
-		linear-gradient(rgba(148, 163, 184, 0.04) 1px, transparent 1px),
-		linear-gradient(90deg, rgba(148, 163, 184, 0.04) 1px, transparent 1px);
-	background-size: 36px 36px;
-	opacity: 0.65;
+		linear-gradient(rgba(148, 163, 184, 0.05) 1px, transparent 1px),
+		linear-gradient(90deg, rgba(148, 163, 184, 0.05) 1px, transparent 1px);
+	background-size: 42px 42px;
+	opacity: 0.55;
 	pointer-events: none;
 }
 

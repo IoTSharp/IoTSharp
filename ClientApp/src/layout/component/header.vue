@@ -22,8 +22,8 @@ export default defineComponent({
 		// 设置 header 的高度
 		const setHeaderHeight = computed(() => {
 			let { isTagsview, layout } = themeConfig.value;
-			if (isTagsview && layout !== 'classic') return '96px';
-			else return '66px';
+			if (isTagsview && layout !== 'classic') return '108px';
+			else return '72px';
 		});
 		return {
 			setHeaderHeight,

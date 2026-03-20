@@ -162,9 +162,10 @@ export default defineComponent({
 	display: flex;
 	flex-direction: column;
 	height: 100%;
-	padding: 0;
+	padding: 12px 0 0;
 	background: #ffffff;
 	border-right: 1px solid rgba(223, 231, 241, 0.92);
+	box-shadow: 16px 0 40px rgba(15, 23, 42, 0.03);
 }
 
 .layout-aside__brand {
@@ -184,7 +185,7 @@ export default defineComponent({
 .layout-aside__scroll {
 	flex: 1 1 auto;
 	min-height: 0;
-	padding: 12px 10px 20px;
+	padding: 10px 10px 20px;
 	background: #ffffff;
 }
 </style>

@@ -2,7 +2,7 @@
 	<div class="account-login">
 		<div class="account-login__tip">
 			<div class="account-login__tip-title">管理员入口</div>
-			<div class="account-login__tip-text">默认管理员账号已预填，输入初始化后的密码并完成拼图验证后即可进入控制台。</div>
+			<div class="account-login__tip-text">默认管理员账号已预填。输入初始化后的密码并完成滑块拼图验证后，即可进入控制台。</div>
 		</div>
 
 		<el-form class="account-login__form" size="large" @submit.prevent="onSignIn">
@@ -47,7 +47,7 @@
 			<el-form-item class="account-login__field account-login__field--3">
 				<div class="account-login__actions">
 					<div class="account-login__meta">
-						<div>登录前需要完成一次滑块拼图验证，验证通过后会自动登录。</div>
+						<div>登录前需要完成一次滑块拼图验证，验证通过后会自动提交登录。</div>
 						<div class="account-login__meta-user">预设账号：{{ ruleForm.userName }}</div>
 					</div>
 					<el-button type="primary" class="account-login__submit" native-type="submit" :loading="loading.signIn">
@@ -76,7 +76,7 @@
 		>
 			<div class="account-login__verify-header">
 				<h3>安全校验</h3>
-				<p>拖动滑块，让拼图块回到缺口位置，系统会在松手后自动验证并尝试登录。</p>
+				<p>拖动滑块，让拼图块回到缺口位置。系统会在松手后自动验证，并尝试完成登录。</p>
 			</div>
 
 			<div class="captcha-shell" v-loading="captcha.loading || loading.signIn">
@@ -96,7 +96,7 @@
 						@change="onCaptchaRelease"
 					/>
 					<div class="captcha-shell__footer">
-						<span>{{ captcha.ready ? '拖动下方滑块完成拼图' : '正在载入拼图资源' }}</span>
+						<span>{{ captcha.ready ? '拖动下方滑块完成拼图' : '正在加载拼图资源' }}</span>
 						<el-button link type="primary" :disabled="captcha.loading || loading.signIn" @click="refreshCaptcha">刷新拼图</el-button>
 					</div>
 				</div>
@@ -279,7 +279,6 @@ const submitSignIn = async (captchaMove: number) => {
 	captcha.error = '';
 
 	try {
-		// Login is submitted only after the puzzle move is captured so the backend can enforce captcha validation.
 		const res: any = await useLoginApi().signIn({
 			password: ruleForm.password,
 			userName: ruleForm.userName,
@@ -340,7 +339,7 @@ const signInSuccess = () => {
 			query: params ? JSON.parse(params) : '',
 		});
 	} else {
-		router.push('/');
+		router.push('/dashboard');
 	}
 
 	ElMessage.success(`${currentTime.value}，${signInText}`);
@@ -357,20 +356,20 @@ const signInSuccess = () => {
 
 .account-login__tip {
 	padding: 16px 18px;
-	border-radius: 20px;
-	border: 1px solid rgba(14, 165, 233, 0.16);
-	background: linear-gradient(135deg, rgba(14, 165, 233, 0.08), rgba(16, 185, 129, 0.08));
+	border-radius: 22px;
+	border: 1px solid rgba(37, 99, 235, 0.12);
+	background: linear-gradient(135deg, rgba(37, 99, 235, 0.08), rgba(14, 165, 233, 0.08));
 }
 
 .account-login__tip-title {
-	color: #0f172a;
+	color: #113b67;
 	font-size: 14px;
 	font-weight: 700;
 }
 
 .account-login__tip-text {
 	margin-top: 6px;
-	color: #64748b;
+	color: #5f7289;
 	font-size: 13px;
 	line-height: 1.7;
 }
@@ -387,7 +386,7 @@ const signInSuccess = () => {
 
 .account-login__label {
 	margin-bottom: 10px;
-	color: #334155;
+	color: #325377;
 	font-size: 13px;
 	font-weight: 600;
 }
@@ -404,7 +403,7 @@ const signInSuccess = () => {
 	align-items: center;
 	justify-content: space-between;
 	gap: 12px;
-	color: #64748b;
+	color: #68819d;
 	font-size: 12px;
 	flex-wrap: wrap;
 }
@@ -418,11 +417,11 @@ const signInSuccess = () => {
 
 .account-login__submit {
 	width: 100%;
-	height: 48px;
-	border-radius: 14px;
+	height: 50px;
+	border-radius: 15px;
 	letter-spacing: 0.08em;
 	font-weight: 600;
-	box-shadow: 0 16px 30px rgba(14, 116, 144, 0.16);
+	box-shadow: 0 18px 32px rgba(37, 99, 235, 0.2);
 }
 
 .account-login__signup {
@@ -431,7 +430,7 @@ const signInSuccess = () => {
 	justify-content: center;
 	gap: 6px;
 	margin-top: 4px;
-	color: #64748b;
+	color: #68819d;
 	font-size: 13px;
 }
 
@@ -439,7 +438,7 @@ const signInSuccess = () => {
 	cursor: pointer;
 
 	&:hover {
-		color: #0f766e;
+		color: #2563eb;
 	}
 }
 
@@ -448,11 +447,12 @@ const signInSuccess = () => {
 
 	h3 {
 		margin: 0 0 8px;
-		color: #0f172a;
+		color: #123b6d;
 		font-size: 20px;
 	}
 
 	p {
+		margin: 0;
 		color: #64748b;
 		font-size: 13px;
 		line-height: 1.7;

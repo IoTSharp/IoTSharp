@@ -1,47 +1,56 @@
 <template>
-	<div class="login-page">
-		<div class="login-page__mesh"></div>
-		<div class="login-shell">
-			<section class="login-showcase">
-				<div class="login-showcase__brand">
-					<AppLogo />
-					<span class="login-showcase__badge">IoT Operations Platform</span>
-				</div>
-				<div class="login-showcase__content">
-					<p class="login-showcase__eyebrow">Unified Device Control</p>
+	<div class="auth-page">
+		<div class="auth-page__aurora"></div>
+		<div class="auth-shell">
+			<section class="auth-showcase">
+				<header class="auth-showcase__header">
+					<RouterLink class="auth-showcase__home" to="/">
+						<AppLogo />
+					</RouterLink>
+					<RouterLink class="auth-showcase__link" to="/">返回首页</RouterLink>
+				</header>
+
+				<div class="auth-showcase__body">
+					<div class="auth-showcase__eyebrow">IoTSharp Console</div>
 					<h1>{{ pageTitle }}</h1>
-					<p class="login-showcase__desc">
-						把设备接入、消息总线、时序数据和规则自动化放到同一套控制台里，让运维和值守有更清晰的全局视角。
+					<p>
+						统一管理设备接入、消息总线、规则引擎和平台健康。登录后直接进入新的蓝白色控制台，查看设备连接率、告警压力和系统状态。
 					</p>
 				</div>
-				<div class="login-showcase__grid">
-					<article v-for="item in featureCards" :key="item.title" class="showcase-card">
-						<div class="showcase-card__label">{{ item.title }}</div>
-						<div class="showcase-card__value">{{ item.value }}</div>
-						<p>{{ item.description }}</p>
-					</article>
-				</div>
-				<div class="login-showcase__footer">
-					<div class="showcase-pill">
-						<span class="showcase-pill__dot"></span>
-						规则引擎与设备遥测统一编排
+
+				<div class="auth-showcase__panel">
+					<div class="auth-showcase__panel-head">
+						<span class="auth-showcase__signal"></span>
+						<span class="auth-showcase__signal"></span>
+						<span class="auth-showcase__signal"></span>
 					</div>
-					<div class="showcase-pill">
-						<span class="showcase-pill__dot"></span>
-						支持自托管与多租户部署
+					<div class="auth-showcase__stats">
+						<article v-for="item in featureCards" :key="item.title" class="auth-stat-card">
+							<div class="auth-stat-card__label">{{ item.title }}</div>
+							<div class="auth-stat-card__value">{{ item.value }}</div>
+							<p>{{ item.description }}</p>
+						</article>
 					</div>
 				</div>
+
+				<footer class="auth-showcase__footer">
+					<div class="auth-showcase__tag">设备接入</div>
+					<div class="auth-showcase__tag">规则编排</div>
+					<div class="auth-showcase__tag">可观测运维</div>
+				</footer>
 			</section>
 
-			<section class="login-panel">
-				<div class="login-panel__header">
-					<div class="login-panel__eyebrow">Secure Sign In</div>
+			<section class="auth-panel">
+				<div class="auth-panel__header">
+					<div class="auth-panel__eyebrow">Secure Sign In</div>
 					<h2>登录到 {{ pageTitle }}</h2>
-					<p>进入控制台，查看设备运行、消息吞吐与平台健康状态。</p>
+					<p>使用管理员账号进入控制台。右上角导航和整体留白参考了你给出的登录页方向，但配色统一收回到更清爽的蓝白体系。</p>
 				</div>
+
 				<Account />
-				<div class="login-panel__footer">
-					<div>建议使用初始化后的管理员账号登录。</div>
+
+				<div class="auth-panel__footer">
+					<div>建议首次登录后立即修改默认密码。</div>
 					<div>{{ currentYear }} {{ pageTitle }}</div>
 				</div>
 			</section>
@@ -51,6 +60,7 @@
 
 <script setup lang="ts">
 import { computed, onMounted } from 'vue';
+import { RouterLink } from 'vue-router';
 import { storeToRefs } from 'pinia';
 import { useThemeConfig } from '/@/stores/themeConfig';
 import { NextLoading } from '/@/utils/loading';
@@ -63,23 +73,23 @@ const { themeConfig } = storeToRefs(storesThemeConfig);
 const pageTitle = computed(() => themeConfig.value.globalTitle || 'IoTSharp');
 const currentYear = new Date().getFullYear();
 
-const featureCards = computed(() => [
+const featureCards = [
 	{
-		title: '设备接入',
+		title: '消息总线',
 		value: 'MQTT / HTTP',
-		description: '统一纳管终端、网关与产品模型。',
+		description: '统一接入网关、设备与应用系统。',
 	},
 	{
-		title: '数据处理',
-		value: 'Telemetry',
-		description: '实时属性、历史时序与告警流转一体化。',
+		title: '规则引擎',
+		value: 'Flow + Rule',
+		description: '事件触发、脚本动作与自动化编排集中管理。',
 	},
 	{
-		title: '自动化',
-		value: 'Rule Engine',
-		description: '规则、脚本和任务动作在一个界面中编排。',
+		title: '控制台',
+		value: 'Live Overview',
+		description: '用更轻的布局查看平台健康、告警与资源趋势。',
 	},
-]);
+];
 
 onMounted(() => {
 	NextLoading.done();
@@ -87,109 +97,89 @@ onMounted(() => {
 </script>
 
 <style scoped lang="scss">
-.login-page {
-	--login-panel-bg: rgba(255, 255, 255, 0.92);
-	--login-border: rgba(148, 163, 184, 0.18);
-	width: 100%;
-	height: 100%;
+.auth-page {
 	position: relative;
 	display: flex;
 	align-items: center;
 	justify-content: center;
+	min-height: 100vh;
 	padding: 24px;
 	background:
-		radial-gradient(circle at top left, rgba(14, 165, 233, 0.16), transparent 28%),
+		radial-gradient(circle at top left, rgba(14, 165, 233, 0.18), transparent 26%),
 		radial-gradient(circle at bottom right, rgba(59, 130, 246, 0.18), transparent 28%),
-		linear-gradient(135deg, #f4f8ff 0%, #eef6fb 42%, #f8fbff 100%);
+		linear-gradient(180deg, #f3f8ff 0%, #edf6ff 44%, #f9fcff 100%);
 	overflow: hidden;
 }
 
-.login-page__mesh {
+.auth-page__aurora {
 	position: absolute;
 	inset: 0;
-	background-image:
+	background:
 		linear-gradient(rgba(148, 163, 184, 0.08) 1px, transparent 1px),
 		linear-gradient(90deg, rgba(148, 163, 184, 0.08) 1px, transparent 1px);
 	background-size: 48px 48px;
-	mask-image: radial-gradient(circle at center, #000 35%, transparent 88%);
+	mask-image: radial-gradient(circle at center, #000 42%, transparent 88%);
 	pointer-events: none;
 }
 
-.login-shell {
+.auth-shell {
 	position: relative;
 	z-index: 1;
 	display: grid;
-	grid-template-columns: 1.2fr minmax(380px, 460px);
-	width: min(1220px, 100%);
-	min-height: min(760px, calc(100vh - 48px));
-	border-radius: 32px;
-	border: 1px solid rgba(255, 255, 255, 0.54);
-	background: rgba(255, 255, 255, 0.36);
-	box-shadow: 0 30px 70px rgba(15, 23, 42, 0.14);
-	backdrop-filter: blur(20px);
+	grid-template-columns: 1.15fr minmax(400px, 468px);
+	width: min(1240px, 100%);
+	min-height: min(780px, calc(100vh - 48px));
+	border-radius: 34px;
+	border: 1px solid rgba(255, 255, 255, 0.72);
+	background: rgba(255, 255, 255, 0.38);
+	box-shadow: 0 30px 80px rgba(15, 23, 42, 0.12);
+	backdrop-filter: blur(18px);
 	overflow: hidden;
 }
 
-.login-showcase,
-.login-panel {
-	padding: 40px;
+.auth-showcase,
+.auth-panel {
+	padding: 36px 40px;
 }
 
-.login-showcase {
-	position: relative;
+.auth-showcase {
 	display: flex;
 	flex-direction: column;
-	justify-content: space-between;
 	gap: 28px;
+	justify-content: space-between;
 	background:
-		radial-gradient(circle at top right, rgba(16, 185, 129, 0.16), transparent 24%),
-		linear-gradient(155deg, #0f172a 0%, #10243a 48%, #0f3b53 100%);
-	color: #f8fafc;
+		radial-gradient(circle at top right, rgba(96, 165, 250, 0.22), transparent 25%),
+		linear-gradient(160deg, #0f3463 0%, #124276 42%, #13538e 100%);
+	color: #eff6ff;
 
-	&::after {
-		position: absolute;
-		right: -80px;
-		top: -60px;
-		width: 240px;
-		height: 240px;
-		content: '';
-		border-radius: 50%;
-		background: radial-gradient(circle, rgba(59, 130, 246, 0.3), transparent 68%);
+	:deep(.app-logo) {
+		--app-logo-text: #ffffff;
+		--app-logo-subtext: #bfdbfe;
 	}
 }
 
-.login-showcase__brand,
-.login-showcase__footer {
-	position: relative;
-	z-index: 1;
+.auth-showcase__header,
+.auth-showcase__footer {
 	display: flex;
 	align-items: center;
-	flex-wrap: wrap;
+	justify-content: space-between;
 	gap: 14px;
+	flex-wrap: wrap;
 }
 
-.login-showcase__badge,
-.showcase-pill {
-	display: inline-flex;
-	align-items: center;
-	gap: 8px;
-	padding: 8px 12px;
-	border-radius: 999px;
-	border: 1px solid rgba(255, 255, 255, 0.12);
-	background: rgba(255, 255, 255, 0.08);
-	color: rgba(248, 250, 252, 0.92);
-	font-size: 12px;
+.auth-showcase__home,
+.auth-showcase__link {
+	text-decoration: none;
+}
+
+.auth-showcase__link {
+	color: rgba(239, 246, 255, 0.9);
+	font-size: 13px;
 	font-weight: 600;
 }
 
-.login-showcase__content {
-	position: relative;
-	z-index: 1;
-	max-width: 640px;
-}
-
-.login-showcase__eyebrow,
-.login-panel__eyebrow {
+.auth-showcase__eyebrow,
+.auth-panel__eyebrow {
 	margin-bottom: 12px;
 	font-size: 12px;
 	font-weight: 700;
@@ -197,38 +187,61 @@ onMounted(() => {
 	text-transform: uppercase;
 }
 
-.login-showcase__eyebrow {
-	color: rgba(125, 211, 252, 0.9);
+.auth-showcase__eyebrow {
+	color: #93c5fd;
 }
 
-.login-showcase h1 {
-	margin: 0 0 18px;
-	font-size: clamp(36px, 5vw, 54px);
-	line-height: 1.02;
-	letter-spacing: -0.05em;
+.auth-showcase__body {
+	max-width: 640px;
+
+	h1 {
+		margin: 0 0 18px;
+		font-size: clamp(38px, 5vw, 56px);
+		line-height: 1;
+		letter-spacing: -0.05em;
+	}
+
+	p {
+		margin: 0;
+		color: rgba(226, 232, 240, 0.88);
+		font-size: 16px;
+		line-height: 1.9;
+	}
 }
 
-.login-showcase__desc {
-	max-width: 620px;
-	color: rgba(226, 232, 240, 0.88);
-	font-size: 16px;
-	line-height: 1.9;
-}
-
-.login-showcase__grid {
-	position: relative;
-	z-index: 1;
-	display: grid;
-	grid-template-columns: repeat(3, minmax(0, 1fr));
-	gap: 16px;
-}
-
-.showcase-card {
-	padding: 20px;
-	border-radius: 24px;
-	border: 1px solid rgba(255, 255, 255, 0.08);
+.auth-showcase__panel {
+	padding: 18px;
+	border-radius: 28px;
+	border: 1px solid rgba(255, 255, 255, 0.12);
 	background: rgba(255, 255, 255, 0.08);
 	box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08);
+}
+
+.auth-showcase__panel-head {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	margin-bottom: 18px;
+}
+
+.auth-showcase__signal {
+	width: 10px;
+	height: 10px;
+	border-radius: 50%;
+	background: rgba(191, 219, 254, 0.85);
+}
+
+.auth-showcase__stats {
+	display: grid;
+	grid-template-columns: repeat(3, minmax(0, 1fr));
+	gap: 14px;
+}
+
+.auth-stat-card {
+	padding: 18px;
+	border-radius: 22px;
+	background: rgba(255, 255, 255, 0.08);
+	border: 1px solid rgba(255, 255, 255, 0.08);
 
 	p {
 		margin: 10px 0 0;
@@ -238,94 +251,98 @@ onMounted(() => {
 	}
 }
 
-.showcase-card__label {
-	color: rgba(191, 219, 254, 0.84);
+.auth-stat-card__label {
+	color: rgba(191, 219, 254, 0.88);
 	font-size: 13px;
 }
 
-.showcase-card__value {
+.auth-stat-card__value {
 	margin-top: 12px;
 	font-size: 26px;
 	font-weight: 700;
 	letter-spacing: -0.04em;
 }
 
-.showcase-pill__dot {
-	width: 8px;
-	height: 8px;
-	border-radius: 50%;
-	background: #34d399;
+.auth-showcase__footer {
+	justify-content: flex-start;
 }
 
-.login-panel {
+.auth-showcase__tag {
+	padding: 8px 12px;
+	border-radius: 999px;
+	border: 1px solid rgba(255, 255, 255, 0.12);
+	background: rgba(255, 255, 255, 0.08);
+	color: rgba(239, 246, 255, 0.92);
+	font-size: 12px;
+	font-weight: 600;
+}
+
+.auth-panel {
 	display: flex;
 	flex-direction: column;
 	justify-content: center;
 	gap: 24px;
-	background: var(--login-panel-bg);
+	background: rgba(255, 255, 255, 0.94);
 }
 
-.login-panel__header {
+.auth-panel__header {
 	h2 {
 		margin: 0 0 12px;
-		color: #0f172a;
+		color: #123b6d;
 		font-size: 32px;
 		letter-spacing: -0.04em;
 	}
 
 	p {
+		margin: 0;
 		color: #64748b;
 		font-size: 14px;
-		line-height: 1.8;
+		line-height: 1.85;
 	}
 }
 
-.login-panel__eyebrow {
-	color: #0f766e;
+.auth-panel__eyebrow {
+	color: #2563eb;
 }
 
-.login-panel__footer {
+.auth-panel__footer {
 	display: flex;
 	align-items: center;
 	justify-content: space-between;
 	gap: 16px;
 	padding-top: 18px;
-	border-top: 1px solid var(--login-border);
+	border-top: 1px solid rgba(226, 232, 240, 0.9);
 	color: #64748b;
 	font-size: 12px;
 }
 
 @media (max-width: 1080px) {
-	.login-shell {
+	.auth-shell {
 		grid-template-columns: 1fr;
-		max-width: 620px;
-	}
-
-	.login-showcase {
-		padding-bottom: 28px;
+		max-width: 640px;
 	}
 }
 
 @media (max-width: 767px) {
-	.login-page {
+	.auth-page {
 		padding: 0;
 	}
 
-	.login-shell {
+	.auth-shell {
 		min-height: 100vh;
 		border-radius: 0;
 	}
 
-	.login-showcase,
-	.login-panel {
+	.auth-showcase,
+	.auth-panel {
 		padding: 24px;
 	}
 
-	.login-showcase__grid {
-		grid-template-columns: repeat(1, minmax(0, 1fr));
+	.auth-showcase__stats {
+		grid-template-columns: 1fr;
 	}
 
-	.login-panel__footer {
+	.auth-panel__footer {
 		flex-direction: column;
 		align-items: flex-start;
 	}
