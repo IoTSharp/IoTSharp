@@ -467,8 +467,7 @@ defineExpose({
 
 <style scoped lang="scss">
 .workflow-drawer-node {
-  :deep {
-    .el-tabs {
+  :deep(.el-tabs) {
       box-shadow: unset;
       border: unset;
 
@@ -513,6 +512,5 @@ defineExpose({
         }
       }
     }
-  }
 }
 </style>

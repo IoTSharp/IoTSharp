@@ -5,7 +5,7 @@
 	"author": "IoTSharp Authors ",
 	"license": "Apache-2.0 license",
 	"scripts": {
-		"dev": "vite --force",
+		"dev": "vite",
 		"build": "vite build",
 		"lint-fix": "eslint --fix --ext .js --ext .jsx --ext .vue src/"
 	},

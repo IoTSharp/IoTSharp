@@ -21,7 +21,6 @@ RUN  apt-get update &&   apt-get install -y ca-certificates curl gnupg && \
 	apt-get update &&  apt-get install nodejs  -y && \
 	ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime && \
 	npm config set registry https://registry.npmmirror.com && \
-	export NODE_OPTIONS=--openssl-legacy-provider && \
 	apt-get autoclean 
 
 WORKDIR /src

@@ -1,7 +1,7 @@
-import path from 'path';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import vue from '@vitejs/plugin-vue';
-import { resolve } from 'path';
-import { defineConfig, loadEnv, ConfigEnv } from 'vite';
+import { defineConfig, loadEnv, type ConfigEnv } from 'vite';
 import vueSetupExtend from 'vite-plugin-vue-setup-extend-plus';
 import viteCompression from 'vite-plugin-compression';
 import { buildConfig } from './src/utils/build';
@@ -10,12 +10,20 @@ import Icons from 'unplugin-icons/vite';
 import { ElementPlusResolver } from 'unplugin-vue-components/resolvers';
 import Components from 'unplugin-vue-components/vite';
 import IconsResolver from 'unplugin-icons/resolver';
-const pathResolve = (dir: string) => {
-	return resolve(__dirname, '.', dir);
+
+const asPluginFactory = <T>(plugin: T) => {
+	let current: any = plugin;
+	while (current && typeof current !== 'function' && 'default' in current) {
+		current = current.default;
+	}
+	return current as T;
 };
-const pathSrc = path.resolve(__dirname, 'src');
+const currentDir = path.dirname(fileURLToPath(import.meta.url));
+const pathResolve = (dir: string) => path.resolve(currentDir, dir);
+const pathSrc = pathResolve('src');
+
 const alias: Record<string, string> = {
-	'/@': pathResolve('./src/'),
+	'/@': pathResolve('src'),
 	'vue-i18n': 'vue-i18n/dist/vue-i18n.cjs.js',
 };
 
@@ -25,38 +33,34 @@ const createBackendProxy = (target: string) => ({
 	changeOrigin: true,
 });
 
-const viteConfig = defineConfig((mode: ConfigEnv) => {
-	const env = loadEnv(mode.mode, process.cwd());
+export default defineConfig(({ mode, command }: ConfigEnv) => {
+	const env = loadEnv(mode, process.cwd());
 	const apiProxyTarget = env.VITE_API_PROXY_TARGET || 'http://localhost:5000';
+
 	return {
 		plugins: [
 			vue(),
-			vueSetupExtend(),
-			viteCompression(),
+			asPluginFactory(vueSetupExtend)(),
+			asPluginFactory(viteCompression)(),
 			JSON.parse(env.VITE_OPEN_CDN) ? buildConfig.cdn() : null,
 			AutoImport({
 				imports: ['vue', 'vue-router', 'pinia'],
 				dirs: ['./stores'],
 				eslintrc: {
-					enabled: true, // Default `false`
-					filepath: './.eslintrc-auto-import.json', // Default `./.eslintrc-auto-import.json`
-					globalsPropValue: true, // Default `true`, (true | false | 'readonly' | 'readable' | 'writable' | 'writeable')
+					enabled: true,
+					filepath: './.eslintrc-auto-import.json',
+					globalsPropValue: true,
 				},
 				resolvers: [
 					ElementPlusResolver(),
-					// Auto import icon components
-					// 自动导入图标组件
 					IconsResolver({
 						prefix: 'Icon',
 					}),
 				],
 				dts: path.resolve(pathSrc, 'auto-imports.d.ts'),
 			}),
-
 			Components({
 				resolvers: [
-					// Auto register icon components
-					// 自动注册图标组件
 					IconsResolver({
 						prefix: 'icon',
 					}),
@@ -71,8 +75,11 @@ const viteConfig = defineConfig((mode: ConfigEnv) => {
 		],
 		root: process.cwd(),
 		resolve: { alias },
-		base: mode.command === 'serve' ? './' : env.VITE_PUBLIC_PATH,
-		optimizeDeps: { exclude: ['vue-demi'] },
+		base: command === 'serve' ? './' : env.VITE_PUBLIC_PATH,
+		optimizeDeps: {
+			exclude: ['vue-demi'],
+			entries: ['src/**/*.vue', 'src/**/*.ts'],
+		},
 		server: {
 			host: '0.0.0.0',
 			port: env.VITE_PORT as unknown as number,
@@ -85,15 +92,15 @@ const viteConfig = defineConfig((mode: ConfigEnv) => {
 					target: 'https://gitee.com',
 					ws: true,
 					changeOrigin: true,
-					rewrite: (path) => path.replace(/^\/gitee/, ''),
+					rewrite: (requestPath) => requestPath.replace(/^\/gitee/, ''),
 				},
 				'/models/gltf': {
 					...createBackendProxy(apiProxyTarget),
-					rewrite: (path) => path.replace(/^\/gitee/, ''),
+					rewrite: (requestPath) => requestPath.replace(/^\/gitee/, ''),
 				},
 				'/textures': {
 					...createBackendProxy(apiProxyTarget),
-					rewrite: (path) => path.replace(/^\/gitee/, ''),
+					rewrite: (requestPath) => requestPath.replace(/^\/gitee/, ''),
 				},
 			},
 		},
@@ -130,5 +137,3 @@ const viteConfig = defineConfig((mode: ConfigEnv) => {
 		},
 	};
 });
-
-export default viteConfig;

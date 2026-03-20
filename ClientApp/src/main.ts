@@ -9,6 +9,7 @@ import formCreate from '@form-create/element-ui';
 import mitt from 'mitt';
 import install from '@form-create/element-ui/auto-import';
 import ElementPlus from 'element-plus';
+import 'element-plus/dist/index.css';
 import '/@/theme/index.scss';
 import VueGridLayout from 'vue-grid-layout';
 import zhCn from 'element-plus/es/locale/lang/zh-cn';

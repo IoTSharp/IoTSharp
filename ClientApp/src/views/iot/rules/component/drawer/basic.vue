@@ -176,8 +176,7 @@ const onExtendSubmit = () => {
 
 <style scoped lang="scss">
 .workflow-drawer-node {
-  :deep {
-    .el-tabs {
+  :deep(.el-tabs) {
       box-shadow: unset;
       border: unset;
       .el-tabs__nav {
@@ -203,6 +202,5 @@ const onExtendSubmit = () => {
         }
       }
     }
-  }
 }
 </style>
