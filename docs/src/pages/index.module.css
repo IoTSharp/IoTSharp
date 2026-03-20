@@ -1,23 +1,321 @@
-/**
- * CSS files with the .module.css suffix will be treated as CSS modules
- * and scoped locally.
- */
-
 .heroBanner {
-  padding: 4rem 0;
-  text-align: center;
   position: relative;
+  overflow: hidden;
+  padding: 4.5rem 0 3rem;
+}
+
+.heroBanner::before,
+.heroBanner::after {
+  content: "";
+  position: absolute;
+  border-radius: 999px;
+  filter: blur(24px);
+  opacity: 0.7;
+  pointer-events: none;
+}
+
+.heroBanner::before {
+  top: 2rem;
+  left: -6rem;
+  width: 18rem;
+  height: 18rem;
+  background: radial-gradient(circle, rgba(70, 213, 255, 0.34), transparent 68%);
+}
+
+.heroBanner::after {
+  right: -4rem;
+  top: 1rem;
+  width: 22rem;
+  height: 22rem;
+  background: radial-gradient(circle, rgba(92, 102, 255, 0.28), transparent 70%);
+}
+
+.heroLayout {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1.2fr) minmax(360px, 0.95fr);
+  gap: 2rem;
+  align-items: center;
+}
+
+.heroCopy {
+  position: relative;
+  z-index: 1;
+}
+
+.kicker {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.4rem 0.85rem;
+  border: 1px solid rgba(103, 224, 255, 0.3);
+  border-radius: 999px;
+  background: rgba(8, 24, 46, 0.72);
+  color: #9eeeff;
+  font-size: 0.8rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+
+.heroTitle {
+  margin: 1.2rem 0 0.8rem;
+  font-size: clamp(3rem, 7vw, 5.6rem);
+  line-height: 0.92;
+  letter-spacing: -0.05em;
+  color: #f2f8ff;
+}
+
+.heroSubtitle {
+  max-width: 760px;
+  margin: 0;
+  color: #95f3ff;
+  font-size: clamp(1.1rem, 2vw, 1.4rem);
+}
+
+.heroDescription {
+  max-width: 760px;
+  margin: 1.25rem 0 0;
+  color: rgba(217, 235, 255, 0.78);
+  font-size: 1rem;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-top: 2rem;
+}
+
+.primaryButton,
+.secondaryButton {
+  min-width: 180px;
+  border-radius: 16px;
+}
+
+.primaryButton {
+  border: none;
+  background: linear-gradient(135deg, #63ebff, #637dff);
+  box-shadow: 0 18px 40px rgba(50, 132, 255, 0.34);
+  color: #08101e;
+  font-weight: 700;
+}
+
+.primaryButton:hover {
+  color: #08101e;
+  transform: translateY(-2px);
+}
+
+.secondaryButton {
+  border: 1px solid rgba(105, 191, 255, 0.32);
+  color: #d8f8ff;
+  background: rgba(8, 20, 38, 0.7);
+}
+
+.secondaryButton:hover {
+  color: #f4fbff;
+  border-color: rgba(130, 212, 255, 0.55);
+  background: rgba(12, 33, 61, 0.88);
+}
+
+.signalGrid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.9rem;
+  margin-top: 2rem;
+}
+
+.signalCard {
+  padding: 1rem;
+  border: 1px solid rgba(108, 146, 255, 0.18);
+  border-radius: 20px;
+  background: rgba(8, 17, 34, 0.72);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05);
+}
+
+.signalCard span {
+  display: block;
+  color: rgba(180, 206, 255, 0.62);
+  font-size: 0.74rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.signalCard strong {
+  display: block;
+  margin-top: 0.45rem;
+  color: #eff7ff;
+  font-size: 1rem;
+}
+
+.heroPanel {
+  position: relative;
+  min-height: 500px;
+  border: 1px solid rgba(101, 131, 255, 0.24);
+  border-radius: 34px;
+  background:
+    linear-gradient(180deg, rgba(10, 17, 34, 0.95), rgba(4, 10, 21, 0.86)),
+    radial-gradient(circle at top left, rgba(95, 230, 255, 0.18), transparent 42%);
+  box-shadow:
+    0 30px 80px rgba(4, 10, 24, 0.46),
+    inset 0 1px 0 rgba(255, 255, 255, 0.06);
   overflow: hidden;
 }
 
-@media screen and (max-width: 966px) {
-  .heroBanner {
-    padding: 2rem;
+.heroPanelGlow {
+  position: absolute;
+  inset: auto -12% -28% auto;
+  width: 72%;
+  height: 72%;
+  background: radial-gradient(circle, rgba(95, 224, 255, 0.3), transparent 68%);
+  filter: blur(24px);
+}
+
+.heroPanelInner {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  min-height: 500px;
+  padding: 1.5rem;
+}
+
+.radarStack {
+  position: relative;
+  width: 220px;
+  height: 220px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.radarCore,
+.radarRing,
+.radarRingWide {
+  position: absolute;
+  inset: 50%;
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.radarCore {
+  width: 60px;
+  height: 60px;
+  background: radial-gradient(circle, rgba(136, 244, 255, 0.94), rgba(69, 137, 255, 0.1));
+  box-shadow:
+    0 0 20px rgba(95, 224, 255, 0.55),
+    0 0 55px rgba(71, 120, 255, 0.28);
+}
+
+.radarRing,
+.radarRingWide {
+  border: 1px solid rgba(119, 223, 255, 0.24);
+}
+
+.radarRing {
+  width: 150px;
+  height: 150px;
+  animation: pulse 6s ease-in-out infinite;
+}
+
+.radarRingWide {
+  width: 220px;
+  height: 220px;
+  animation: pulse 6s ease-in-out infinite 1.5s;
+}
+
+.previewFrame {
+  border: 1px solid rgba(126, 149, 255, 0.2);
+  border-radius: 24px;
+  background: rgba(5, 12, 24, 0.82);
+  overflow: hidden;
+}
+
+.previewToolbar {
+  display: flex;
+  gap: 0.4rem;
+  padding: 0.85rem 1rem;
+  border-bottom: 1px solid rgba(128, 146, 255, 0.12);
+}
+
+.previewToolbar span {
+  width: 0.7rem;
+  height: 0.7rem;
+  border-radius: 999px;
+  background: linear-gradient(135deg, rgba(150, 240, 255, 0.9), rgba(111, 127, 255, 0.92));
+}
+
+.previewCanvas {
+  padding: 1.2rem;
+}
+
+.previewHeadline {
+  color: #edf8ff;
+  font-family: "Space Grotesk", "Segoe UI", sans-serif;
+  font-size: 0.95rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.previewBars {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.8rem;
+  margin-top: 1rem;
+}
+
+.previewBars i {
+  display: block;
+  height: 110px;
+  border-radius: 18px;
+  background:
+    linear-gradient(180deg, rgba(84, 233, 255, 0.2), rgba(96, 113, 255, 0.2)),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.06), transparent);
+}
+
+.previewGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.8rem;
+  margin-top: 0.8rem;
+}
+
+.previewGrid div {
+  min-height: 88px;
+  border-radius: 18px;
+  border: 1px solid rgba(112, 137, 255, 0.16);
+  background: rgba(12, 23, 46, 0.88);
+}
+
+.mainContent {
+  position: relative;
+}
+
+@keyframes pulse {
+  0% {
+    transform: translate(-50%, -50%) scale(0.96);
+    opacity: 0.36;
+  }
+
+  50% {
+    transform: translate(-50%, -50%) scale(1);
+    opacity: 0.82;
+  }
+
+  100% {
+    transform: translate(-50%, -50%) scale(0.96);
+    opacity: 0.36;
   }
 }
 
-.buttons {
-  display: flex;
-  align-items: center;
-  justify-content: center;
+@media (max-width: 996px) {
+  .heroLayout {
+    grid-template-columns: 1fr;
+  }
+
+  .signalGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .heroPanel {
+    min-height: 420px;
+  }
 }

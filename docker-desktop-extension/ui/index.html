@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="color-scheme" content="light dark" />
+    <title>IoTSharp Docker Desktop Extension</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <main class="shell">
+      <section class="hero">
+        <div class="hero-copy">
+          <p class="eyebrow">Docker Desktop Extension Preview</p>
+          <h1>IoTSharp in one install</h1>
+          <p class="lede">
+            这个扩展会在 Docker Desktop 里自动拉起一个 SQLite 版 IoTSharp 体验环境，适合首次试用、演示和文档截图。
+          </p>
+          <div class="actions">
+            <a class="button primary" href="http://localhost:2927" target="_blank" rel="noreferrer">打开 IoTSharp</a>
+            <a class="button" href="http://localhost:2927/installer" target="_blank" rel="noreferrer">打开 Installer</a>
+            <a class="button" href="https://iotsharp.net/docs/intro" target="_blank" rel="noreferrer">阅读文档</a>
+          </div>
+        </div>
+        <div class="status-card">
+          <div class="status-row">
+            <span>Web UI</span>
+            <strong>http://localhost:2927</strong>
+          </div>
+          <div class="status-row">
+            <span>MQTT</span>
+            <strong>localhost:1883 / 8883</strong>
+          </div>
+          <div class="status-row">
+            <span>CoAP</span>
+            <strong>localhost:5683 / 5684</strong>
+          </div>
+          <div class="status-row">
+            <span>Modbus TCP</span>
+            <strong>localhost:1502</strong>
+          </div>
+          <div class="status-row">
+            <span>Database</span>
+            <strong>Embedded SQLite</strong>
+          </div>
+        </div>
+      </section>
+
+      <section class="grid">
+        <article class="panel">
+          <h2>第一次打开</h2>
+          <p>首次访问通常会进入安装引导页，请在浏览器里完成管理员账号与租户的初始化。</p>
+          <ul>
+            <li>默认环境：`Sqlite`</li>
+            <li>持久化卷：`iotsharp-dd-data`、`iotsharp-dd-security`</li>
+            <li>扩展卸载前请先导出重要数据</li>
+          </ul>
+        </article>
+
+        <article class="panel">
+          <h2>适合这版的目标</h2>
+          <ul>
+            <li>给新用户一键体验 IoTSharp 核心界面</li>
+            <li>给演示、培训、文档截图提供固定环境</li>
+            <li>给后续 PostgreSQL / RabbitMQ 扩展版提供分发骨架</li>
+          </ul>
+        </article>
+
+        <article class="panel">
+          <h2>下一轮建议</h2>
+          <ul>
+            <li>增加扩展内状态探测与日志查看</li>
+            <li>支持在扩展 UI 里切换 SQLite / PostgreSQL 体验模板</li>
+            <li>把运行镜像切到 GHCR 与 Docker Hub 双发布通道</li>
+          </ul>
+        </article>
+      </section>
+
+      <section class="footer-panel">
+        <h2>仓库与发布</h2>
+        <p>
+          首版扩展镜像会优先服务 Docker Desktop 安装与本地内测。后续可以把同一镜像推送到 Docker Hub 和 GitHub Container Registry，
+          并在 GitHub Actions 的 Tag 发布阶段自动执行 `docker extension validate` 与镜像推送。
+        </p>
+      </section>
+    </main>
+  </body>
+</html>

@@ -1,11 +1,190 @@
-.features {
-  display: flex;
-  align-items: center;
-  padding: 2rem 0;
-  width: 100%;
+.wrapper {
+  position: relative;
+  padding: 5rem 0 6rem;
 }
 
-.featureSvg {
-  height: 200px;
-  width: 200px;
+.gridBackdrop {
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(61, 208, 255, 0.08) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(61, 208, 255, 0.08) 1px, transparent 1px);
+  background-size: 48px 48px;
+  mask-image: linear-gradient(to bottom, transparent, rgba(0, 0, 0, 0.85) 18%, rgba(0, 0, 0, 0.9));
+  pointer-events: none;
+}
+
+.sectionHeader,
+.featureGrid,
+.quickSection {
+  position: relative;
+  z-index: 1;
+}
+
+.sectionHeader {
+  max-width: 900px;
+  margin: 0 auto 3rem;
+  text-align: center;
+}
+
+.sectionKicker,
+.eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.35rem 0.8rem;
+  border: 1px solid rgba(91, 234, 255, 0.26);
+  border-radius: 999px;
+  background: rgba(7, 22, 42, 0.75);
+  color: #8ce7ff;
+  font-size: 0.78rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+
+.sectionHeader h2,
+.quickHeader h2,
+.featurePanel h2 {
+  margin-top: 1.25rem;
+  margin-bottom: 1rem;
+  color: #ecf8ff;
+  line-height: 1.08;
+  letter-spacing: -0.03em;
+}
+
+.sectionHeader h2 {
+  font-size: clamp(2rem, 4vw, 3.4rem);
+}
+
+.sectionHeader p,
+.featurePanel p,
+.quickCard p {
+  color: rgba(210, 232, 255, 0.78);
+}
+
+.featureGrid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1.5rem;
+}
+
+.featurePanel {
+  min-height: 100%;
+  padding: 1.75rem;
+  border: 1px solid rgba(105, 142, 255, 0.22);
+  border-radius: 28px;
+  background:
+    linear-gradient(180deg, rgba(10, 19, 36, 0.92), rgba(8, 13, 28, 0.82)),
+    radial-gradient(circle at top right, rgba(74, 164, 255, 0.22), transparent 44%);
+  box-shadow:
+    0 20px 60px rgba(1, 8, 20, 0.38),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(14px);
+}
+
+.featureLinks {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.85rem;
+  margin-top: 1.5rem;
+}
+
+.featureLink {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.72rem 1rem;
+  border: 1px solid rgba(131, 229, 255, 0.22);
+  border-radius: 14px;
+  background: rgba(8, 22, 40, 0.66);
+  color: #baf5ff;
+  font-weight: 600;
+  text-decoration: none;
+  transition:
+    transform 180ms ease,
+    border-color 180ms ease,
+    box-shadow 180ms ease,
+    background 180ms ease;
+}
+
+.featureLink:hover {
+  color: #e7fbff;
+  border-color: rgba(123, 235, 255, 0.52);
+  background: rgba(18, 42, 77, 0.88);
+  box-shadow: 0 16px 30px rgba(0, 163, 255, 0.18);
+  text-decoration: none;
+  transform: translateY(-2px);
+}
+
+.quickSection {
+  margin-top: 4rem;
+}
+
+.quickHeader {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.quickGrid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.quickCard {
+  position: relative;
+  display: block;
+  min-height: 100%;
+  padding: 1.4rem;
+  border: 1px solid rgba(92, 109, 255, 0.22);
+  border-radius: 24px;
+  background:
+    linear-gradient(180deg, rgba(11, 16, 32, 0.96), rgba(8, 14, 25, 0.88)),
+    radial-gradient(circle at top left, rgba(143, 86, 255, 0.16), transparent 46%);
+  text-decoration: none;
+  transition:
+    transform 180ms ease,
+    border-color 180ms ease,
+    box-shadow 180ms ease;
+}
+
+.quickCard:hover {
+  text-decoration: none;
+  transform: translateY(-4px);
+  border-color: rgba(130, 176, 255, 0.48);
+  box-shadow: 0 18px 40px rgba(10, 20, 42, 0.4);
+}
+
+.quickCard h3 {
+  margin: 0.7rem 0;
+  color: #f2f7ff;
+}
+
+.quickBadge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.4rem;
+  height: 2.4rem;
+  border-radius: 14px;
+  background: linear-gradient(135deg, rgba(80, 231, 255, 0.22), rgba(124, 98, 255, 0.32));
+  color: #ccf6ff;
+  font-family: "Space Grotesk", "Segoe UI", sans-serif;
+  font-size: 0.85rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+}
+
+@media (max-width: 996px) {
+  .featureGrid,
+  .quickGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .quickHeader {
+    align-items: start;
+    flex-direction: column;
+  }
 }

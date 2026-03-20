@@ -9,7 +9,7 @@
             用户管理
             </summary>
         </member>
-        <member name="M:IoTSharp.Controllers.AccountController.#ctor(Microsoft.AspNetCore.Identity.UserManager{Microsoft.AspNetCore.Identity.IdentityUser},Microsoft.AspNetCore.Identity.SignInManager{Microsoft.AspNetCore.Identity.IdentityUser},Microsoft.Extensions.Configuration.IConfiguration,Microsoft.Extensions.Logging.ILogger{IoTSharp.Controllers.AccountController},IoTSharp.Data.ApplicationDbContext,Microsoft.Extensions.Options.IOptions{IoTSharp.Contracts.AppSettings})">
+        <member name="M:IoTSharp.Controllers.AccountController.#ctor(Microsoft.AspNetCore.Identity.UserManager{Microsoft.AspNetCore.Identity.IdentityUser},Microsoft.AspNetCore.Identity.SignInManager{Microsoft.AspNetCore.Identity.IdentityUser},Microsoft.Extensions.Configuration.IConfiguration,Microsoft.Extensions.Logging.ILogger{IoTSharp.Controllers.AccountController},IoTSharp.Data.ApplicationDbContext,Microsoft.Extensions.Options.IOptions{IoTSharp.Contracts.AppSettings},EasyCaching.Core.IEasyCachingProvider)">
             <summary>
             用户管理
             </summary>
@@ -909,6 +909,16 @@
         <member name="P:IoTSharp.Dtos.LoginDto.UserName">
             <summary>
             用户名
+            </summary>
+        </member>
+        <member name="P:IoTSharp.Dtos.LoginDto.CaptchaClientId">
+            <summary>
+            Captcha session id generated before login.
+            </summary>
+        </member>
+        <member name="P:IoTSharp.Dtos.LoginDto.CaptchaMove">
+            <summary>
+            Slider offset submitted from the puzzle challenge.
             </summary>
         </member>
         <member name="P:IoTSharp.Dtos.RegisterDto.Email">

@@ -26,8 +26,15 @@ namespace Microsoft.Extensions.DependencyInjection
             if (!fi.Directory.Exists) fi.Directory.Create();
 
             services.AddSingleton<IDataBaseModelBuilderOptions>(c => new SqliteModelBuilderOptions());
-            services.AddSqlite<ApplicationDbContext>(connectionString, opt => opt.UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery)
-                                   .MigrationsAssembly("IoTSharp.Data.Sqlite"));
+            services.AddDbContextPool<ApplicationDbContext>(options =>
+            {
+                options.UseSqlite(connectionString, opt =>
+                    opt.UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery)
+                       .MigrationsAssembly("IoTSharp.Data.Sqlite"));
+                // Keep bootstrap environments running even when the current model
+                // has drifted ahead of the checked-in migration snapshot.
+                options.ConfigureWarnings(w => w.Ignore(RelationalEventId.PendingModelChangesWarning));
+            }, poolSize);
             checksBuilder.AddSqlite(connectionString, name: "IoTSharp.Data.Sqlite");
             healthChecksUI.AddSqliteStorage($"Data Source={fi.DirectoryName}{Path.DirectorySeparatorChar}health_checks.db",opt => opt.ConfigureWarnings(w => w.Ignore(RelationalEventId.MultipleCollectionIncludeWarning)));
 

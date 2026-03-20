@@ -3,7 +3,7 @@
 const { themes } = require('prism-react-renderer');
 
 const lightTheme = themes.github;
-const darkTheme = themes.dracula;
+const darkTheme = themes.vsDark;
 
 const siteUrl = process.env.DOCS_SITE_URL || 'https://iotsharp.net';
 const baseUrl = process.env.DOCS_BASE_URL || '/';
@@ -11,7 +11,7 @@ const baseUrl = process.env.DOCS_BASE_URL || '/';
 /** @type {import('@docusaurus/types').Config} */
 const config = {
   title: 'IoTSharp',
-  tagline: '开源物联网平台，覆盖安装、接入、规则链、资产与运维发布。',
+  tagline: '面向工业与企业场景的现代化 IoT 平台文档中心，覆盖安装、接入、规则链、资产与发布运维。',
   url: siteUrl,
   baseUrl,
   onBrokenLinks: 'throw',
@@ -52,8 +52,28 @@ const config = {
   ],
   themeConfig: {
     image: 'img/iotsharp.png',
+    colorMode: {
+      defaultMode: 'dark',
+      disableSwitch: false,
+      respectPrefersColorScheme: false,
+    },
+    docs: {
+      sidebar: {
+        hideable: true,
+        autoCollapseCategories: false,
+      },
+    },
+    announcementBar: {
+      id: 'iotsharp_docs_refresh',
+      content:
+        'IoTSharp 文档站已升级到全新 Docusaurus 框架与科技感界面，欢迎从 Installer、部署与 AI 协作文档开始浏览。',
+      isCloseable: true,
+      backgroundColor: '#081527',
+      textColor: '#bff7ff',
+    },
     navbar: {
       title: 'IoTSharp',
+      hideOnScroll: true,
       logo: {
         alt: 'IoTSharp',
         src: 'img/iotsharp.png',
@@ -65,15 +85,21 @@ const config = {
           position: 'left',
           label: '使用手册',
         },
+        {
+          type: 'doc',
+          docId: 'getting-started/installation-options',
+          position: 'left',
+          label: '快速开始',
+        },
         { to: '/blog', label: '博客', position: 'left' },
         {
-          href: 'http://iotsharp.online',
-          label: '在线体验',
+          href: 'https://iotsharp.net',
+          label: '官网',
           position: 'right',
         },
         {
-          href: 'https://space.bilibili.com/496905613',
-          label: '视频教程',
+          href: 'http://iotsharp.online',
+          label: '在线体验',
           position: 'right',
         },
         {
@@ -87,25 +113,26 @@ const config = {
       style: 'dark',
       links: [
         {
-          title: '文档',
+          title: '文档路径',
           items: [
-            { label: '快速开始', to: '/docs/getting-started/installation-options' },
-            { label: '用户手册', to: '/docs/user-guide/dashboard' },
-            { label: '运维发布', to: '/docs/operations/release-distribution-plan' },
+            { label: '安装方式', to: '/docs/getting-started/installation-options' },
+            { label: 'Installer 初始化', to: '/docs/getting-started/installer' },
+            { label: 'Docker Desktop Extension', to: '/docs/deployment/docker-desktop-extension' },
           ],
         },
         {
-          title: '社区',
+          title: '平台能力',
+          items: [
+            { label: '设备与网关', to: '/docs/user-guide/devices-and-gateways' },
+            { label: '规则链与场景', to: '/docs/user-guide/rules-and-scenarios' },
+            { label: 'OpenClow 运行手册', to: '/docs/operations/openclow-sqlite-runbook' },
+          ],
+        },
+        {
+          title: '社区与资源',
           items: [
             { label: 'GitHub', href: 'https://github.com/IoTSharp/IoTSharp' },
             { label: 'Gitee', href: 'https://gitee.com/IoTSharp/IoTSharp' },
-            { label: 'QQ群', href: 'https://jq.qq.com/?_wv=1027&k=u1ZzTmVd' },
-          ],
-        },
-        {
-          title: '联系',
-          items: [
-            { label: '企业微信', href: 'https://work.weixin.qq.com/ca/cawcde2aa597e1ddf7' },
             { label: '官网', href: 'https://iotsharp.net' },
           ],
         },
@@ -115,7 +142,7 @@ const config = {
     prism: {
       theme: lightTheme,
       darkTheme,
-      additionalLanguages: ['bash', 'diff', 'json', 'powershell'],
+      additionalLanguages: ['bash', 'diff', 'json', 'powershell', 'csharp', 'docker'],
     },
   },
 };

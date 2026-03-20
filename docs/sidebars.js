@@ -23,6 +23,7 @@ const sidebars = {
       label: '部署与配置',
       items: [
         'deployment/docker',
+        'deployment/docker-desktop-extension',
         'deployment/windows-service',
         'deployment/linux-service',
         'configuration/appsettings',
@@ -49,7 +50,7 @@ const sidebars = {
     {
       type: 'category',
       label: '运维发布',
-      items: ['operations/release-distribution-plan', 'operations/troubleshooting'],
+      items: ['operations/release-distribution-plan', 'operations/openclow-sqlite-runbook', 'operations/troubleshooting'],
     },
   ],
 };

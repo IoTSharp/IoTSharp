@@ -57,7 +57,7 @@ npm run dev
 
 Default local development behavior:
 
-- Frontend dev server: `http://localhost:8888`
+- Frontend dev server: `http://localhost:27915`
 - Backend API: `http://localhost:5000`
 - In development, API requests are forwarded through the Vite proxy
 

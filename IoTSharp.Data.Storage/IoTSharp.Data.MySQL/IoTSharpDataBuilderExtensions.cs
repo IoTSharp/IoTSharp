@@ -27,9 +27,13 @@ namespace Microsoft.Extensions.DependencyInjection
                 throw new Exception($"Can't detect MySql server's version ,  {ex.Message} ", ex);
             }
             services.AddSingleton(serverVersion);
-            services.AddMySql<ApplicationDbContext>(connectionString, serverVersion, s =>
-                       s.UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery)
-                          .MigrationsAssembly("IoTSharp.Data.MySQL"));
+            services.AddDbContextPool<ApplicationDbContext>(options =>
+            {
+                options.UseMySql(connectionString, serverVersion, s =>
+                    s.UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery)
+                     .MigrationsAssembly("IoTSharp.Data.MySQL"));
+                options.ConfigureWarnings(w => w.Ignore(RelationalEventId.PendingModelChangesWarning));
+            }, poolSize);
    
            
             checksBuilder.AddMySql(connectionString, name:"IoTSharp.Data.MySQL");

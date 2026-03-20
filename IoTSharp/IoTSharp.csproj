@@ -40,7 +40,7 @@
 	</ItemGroup>
 	<PropertyGroup Condition="'$(Configuration)' == 'Debug' OR '$(Configuration)' == 'Release'">
 		<SpaRoot>..\ClientApp\</SpaRoot>
-		<SpaProxyServerUrl>http://localhost:8888</SpaProxyServerUrl>
+		<SpaProxyServerUrl>http://localhost:27915</SpaProxyServerUrl>
 		<SpaProxyLaunchCommand>npm run dev</SpaProxyLaunchCommand>
 		<!-- Set this to true if you enable server-side prerendering -->
 		<BuildServerSideRenderer>false</BuildServerSideRenderer>

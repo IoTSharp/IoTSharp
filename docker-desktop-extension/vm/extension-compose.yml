@@ -1,0 +1,25 @@
+services:
+  iotsharp:
+    image: ${DESKTOP_PLUGIN_IMAGE}
+    container_name: iotsharp-dd-extension
+    restart: unless-stopped
+    working_dir: /opt/iotsharp
+    command: ["dotnet", "IoTSharp.dll"]
+    environment:
+      ASPNETCORE_ENVIRONMENT: Sqlite
+      ASPNETCORE_URLS: http://0.0.0.0:8080
+      TZ: Asia/Shanghai
+    ports:
+      - "2927:8080"
+      - "1883:1883"
+      - "8883:8883"
+      - "5683:5683/udp"
+      - "5684:5684/udp"
+      - "1502:502"
+    volumes:
+      - iotsharp-dd-data:/opt/iotsharp/.data
+      - iotsharp-dd-security:/opt/iotsharp/security
+
+volumes:
+  iotsharp-dd-data:
+  iotsharp-dd-security:

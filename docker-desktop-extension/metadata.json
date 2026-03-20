@@ -1,0 +1,13 @@
+{
+  "icon": "icon.png",
+  "ui": {
+    "dashboard-tab": {
+      "title": "IoTSharp",
+      "root": "ui",
+      "src": "index.html"
+    }
+  },
+  "vm": {
+    "composefile": "vm/extension-compose.yml"
+  }
+}

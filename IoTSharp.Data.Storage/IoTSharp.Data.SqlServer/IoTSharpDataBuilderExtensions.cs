@@ -4,6 +4,7 @@ using IoTSharp.Contracts;
 using IoTSharp.Data;
 using IoTSharp.Data.SqlServer;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using ShardingCore.Core.ShardingConfigurations;
@@ -21,6 +22,7 @@ namespace Microsoft.Extensions.DependencyInjection
             services.AddDbContextPool<ApplicationDbContext>(builder =>
             {
                 builder.UseSqlServer(connectionString, s =>  s.MigrationsAssembly("IoTSharp.Data.SqlServer").UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery));
+                builder.ConfigureWarnings(w => w.Ignore(RelationalEventId.PendingModelChangesWarning));
                 builder.UseInternalServiceProvider(services.BuildServiceProvider());
             }
      , poolSize);
