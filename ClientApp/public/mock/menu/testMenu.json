@@ -1,0 +1,20 @@
+{
+	"code": 10000,
+	"data": {
+		"menu": [
+			{
+				"text": "IoTSharp",
+				"routename": "root",
+				"vpath": "/",
+				"children": [
+					{
+						"text": "仪表盘",
+						"routename": "dashboard",
+						"vpath": "/dashboard",
+						"children": []
+					}
+				]
+			}
+		]
+	}
+}

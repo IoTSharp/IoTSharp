@@ -53,10 +53,7 @@ export default defineComponent({
 .iotsharp-shell {
 	position: relative;
 	min-height: 100%;
-	background:
-		radial-gradient(circle at top left, rgba(14, 165, 233, 0.12), transparent 26%),
-		radial-gradient(circle at bottom right, rgba(16, 185, 129, 0.12), transparent 24%),
-		linear-gradient(180deg, #f7fbff 0%, #eef5fb 100%);
+	background: var(--iotsharp-shell-bg);
 }
 
 .iotsharp-shell__mesh {
@@ -82,10 +79,10 @@ export default defineComponent({
 
 .iotsharp-shell__scrollbar {
 	flex: 1;
-	border-radius: 30px;
+	border-radius: var(--iotsharp-radius-shell);
 	background: rgba(255, 255, 255, 0.44);
 	backdrop-filter: blur(18px);
-	box-shadow: 0 24px 60px rgba(15, 23, 42, 0.08);
+	box-shadow: var(--iotsharp-shadow-shell);
 }
 
 @media (max-width: 767px) {

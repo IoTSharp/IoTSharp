@@ -187,7 +187,7 @@ const initLeftNavbar = () => {
   //   console.log(v)
   //   Sortable.create(v as HTMLDivElement, {
   //     group: {
-  //       name: "vue-next-admin-1",
+  //       name: "iotsharp-workflow-node-library",
   //       pull: "clone",
   //       put: false,
   //     },

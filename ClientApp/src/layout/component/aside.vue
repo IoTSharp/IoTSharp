@@ -178,9 +178,9 @@ export default defineComponent({
 	height: 100%;
 	padding: 18px 14px 14px;
 	background:
-		linear-gradient(180deg, rgba(255, 255, 255, 0.92), rgba(241, 245, 249, 0.94)),
+		linear-gradient(180deg, var(--iotsharp-surface-panel), var(--iotsharp-surface-panel-alt)),
 		radial-gradient(circle at top, rgba(14, 165, 233, 0.12), transparent 32%);
-	border-right: 1px solid rgba(148, 163, 184, 0.12);
+	border-right: 1px solid var(--iotsharp-border-soft);
 }
 
 .layout-aside__brand {
@@ -196,14 +196,14 @@ export default defineComponent({
 	min-width: 0;
 
 	span {
-		color: #0f172a;
+		color: var(--iotsharp-brand-ink);
 		font-size: 13px;
 		font-weight: 700;
 	}
 
 	small {
 		margin-top: 4px;
-		color: #64748b;
+		color: var(--iotsharp-brand-slate);
 		font-size: 11px;
 		letter-spacing: 0.08em;
 		text-transform: uppercase;
@@ -211,7 +211,7 @@ export default defineComponent({
 }
 
 .layout-aside__scroll {
-	border-radius: 24px;
+	border-radius: var(--iotsharp-radius-card);
 	background: rgba(255, 255, 255, 0.54);
 	box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.5);
 }

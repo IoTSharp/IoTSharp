@@ -58,7 +58,8 @@ const currentSection = computed(() => {
 	return title.startsWith('message.') ? t(title) : title;
 });
 
-const appVersion = computed(() => storesAppInfo.appInfo.version || __NEXT_VERSION__);
+// Fall back to the frontend package version when backend app info is not ready yet.
+const appVersion = computed(() => storesAppInfo.appInfo.version || __IOTSHARP_VERSION__);
 
 const setFilterRoutes = () => {
 	let { layout, isClassicSplitMenu } = themeConfig.value;
@@ -121,10 +122,10 @@ onUnmounted(() => {
 	align-items: center;
 	gap: 18px;
 	padding: 10px 16px;
-	border-radius: 24px;
+	border-radius: var(--iotsharp-radius-card);
 	border: 1px solid rgba(255, 255, 255, 0.66);
-	background: linear-gradient(180deg, rgba(255, 255, 255, 0.95), rgba(248, 250, 252, 0.88));
-	box-shadow: 0 18px 36px rgba(15, 23, 42, 0.08);
+	background: linear-gradient(180deg, var(--iotsharp-surface-base), var(--iotsharp-surface-soft));
+	box-shadow: var(--iotsharp-shadow-card);
 	backdrop-filter: blur(20px);
 }
 
@@ -148,9 +149,9 @@ onUnmounted(() => {
 	height: 34px;
 	padding: 0 14px;
 	border-radius: 999px;
-	border: 1px solid rgba(148, 163, 184, 0.16);
+	border: 1px solid var(--iotsharp-border-strong);
 	background: rgba(248, 250, 252, 0.88);
-	color: #475569;
+	color: var(--iotsharp-brand-slate);
 	font-size: 12px;
 	font-weight: 600;
 	letter-spacing: 0.02em;
@@ -158,12 +159,12 @@ onUnmounted(() => {
 }
 
 .shell-pill--brand {
-	background: linear-gradient(135deg, rgba(14, 165, 233, 0.12), rgba(16, 185, 129, 0.12));
+	background: var(--iotsharp-highlight-bg);
 	color: #0f766e;
 }
 
 .shell-pill--version {
-	color: #0f172a;
+	color: var(--iotsharp-brand-ink);
 }
 
 @media (max-width: 1200px) {

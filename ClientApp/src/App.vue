@@ -47,7 +47,7 @@ const getVersion = computed(() => {
 	let isVersion = false;
 	if (route.path !== '/login') {
 		// @ts-ignore
-		if ((Local.get('version') && Local.get('version') !== __NEXT_VERSION__) || !Local.get('version')) isVersion = true;
+		if ((Local.get('version') && Local.get('version') !== __IOTSHARP_VERSION__) || !Local.get('version')) isVersion = true;
 	}
 	return isVersion;
 });

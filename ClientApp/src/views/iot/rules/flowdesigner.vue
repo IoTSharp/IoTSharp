@@ -180,7 +180,8 @@ const initSortable = () => {
   leftNavRefs.value.forEach((v) => {
     Sortable.create(v as HTMLDivElement, {
       group: {
-        name: "vue-next-admin-1",
+        // Keep drag sources isolated from other Sortable instances in the app shell.
+        name: "iotsharp-workflow-node-library",
         pull: "clone",
         put: false,
       },

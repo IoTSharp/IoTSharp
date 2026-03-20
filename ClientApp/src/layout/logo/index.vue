@@ -51,10 +51,10 @@ export default defineComponent({
 	justify-content: flex-start;
 	padding: 0 18px;
 	gap: 12px;
-	border-radius: 24px;
-	border: 1px solid rgba(148, 163, 184, 0.12);
-	background: linear-gradient(180deg, rgba(255, 255, 255, 0.96), rgba(248, 250, 252, 0.9));
-	box-shadow: 0 18px 36px rgba(15, 23, 42, 0.08);
+	border-radius: var(--iotsharp-radius-card);
+	border: 1px solid var(--iotsharp-border-soft);
+	background: linear-gradient(180deg, var(--iotsharp-surface-base), rgba(248, 250, 252, 0.9));
+	box-shadow: var(--iotsharp-shadow-card);
 	cursor: pointer;
 	animation: logoAnimation 0.3s ease-in-out;
 	overflow: hidden;
@@ -67,7 +67,7 @@ export default defineComponent({
 		min-width: 0;
 	}
 	&__title {
-		color: #0f172a;
+		color: var(--iotsharp-brand-ink);
 		font-size: 15px;
 		font-weight: 700;
 		line-height: 1.1;
@@ -75,7 +75,7 @@ export default defineComponent({
 	}
 	&__subtitle {
 		margin-top: 4px;
-		color: #64748b;
+		color: var(--iotsharp-brand-slate);
 		font-size: 11px;
 		letter-spacing: 0.12em;
 		text-transform: uppercase;
@@ -90,9 +90,9 @@ export default defineComponent({
 	cursor: pointer;
 	animation: logoAnimation 0.3s ease-in-out;
 	border-radius: 20px;
-	border: 1px solid rgba(148, 163, 184, 0.12);
-	background: linear-gradient(180deg, rgba(255, 255, 255, 0.96), rgba(248, 250, 252, 0.9));
-	box-shadow: 0 18px 36px rgba(15, 23, 42, 0.08);
+	border: 1px solid var(--iotsharp-border-soft);
+	background: linear-gradient(180deg, var(--iotsharp-surface-base), rgba(248, 250, 252, 0.9));
+	box-shadow: var(--iotsharp-shadow-card);
 	&__brand {
 		transform: scale(0.96);
 	}

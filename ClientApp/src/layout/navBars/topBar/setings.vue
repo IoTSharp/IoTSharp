@@ -634,7 +634,7 @@ const onResetConfigClick = () => {
 	Local.clear();
 	window.location.reload();
 	// @ts-ignore
-	Local.set('version', __NEXT_VERSION__);
+	Local.set('version', __IOTSHARP_VERSION__);
 };
 // 初始化菜单样式等
 const initSetStyle = () => {

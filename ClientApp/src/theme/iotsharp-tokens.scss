@@ -1,0 +1,29 @@
+:root {
+	/* Brand palette */
+	--iotsharp-brand-cyan: #0ea5e9;
+	--iotsharp-brand-emerald: #10b981;
+	--iotsharp-brand-ink: #0f172a;
+	--iotsharp-brand-slate: #475569;
+	--iotsharp-brand-mist: #94a3b8;
+	/* Shell surfaces */
+	--iotsharp-surface-base: rgba(255, 255, 255, 0.95);
+	--iotsharp-surface-soft: rgba(248, 250, 252, 0.88);
+	--iotsharp-surface-panel: rgba(255, 255, 255, 0.92);
+	--iotsharp-surface-panel-alt: rgba(241, 245, 249, 0.94);
+	--iotsharp-border-soft: rgba(148, 163, 184, 0.12);
+	--iotsharp-border-strong: rgba(148, 163, 184, 0.16);
+	--iotsharp-shadow-card: 0 18px 36px rgba(15, 23, 42, 0.08);
+	--iotsharp-shadow-shell: 0 24px 60px rgba(15, 23, 42, 0.08);
+	--iotsharp-radius-shell: 30px;
+	--iotsharp-radius-card: 24px;
+	--iotsharp-radius-pill: 999px;
+	/* Ambient backgrounds */
+	--iotsharp-shell-bg:
+		radial-gradient(circle at top left, rgba(14, 165, 233, 0.12), transparent 26%),
+		radial-gradient(circle at bottom right, rgba(16, 185, 129, 0.12), transparent 24%),
+		linear-gradient(180deg, #f7fbff 0%, #eef5fb 100%);
+	--iotsharp-highlight-bg: linear-gradient(135deg, rgba(14, 165, 233, 0.12), rgba(16, 185, 129, 0.12));
+	/* Layout rhythm */
+	--iotsharp-content-max-width: 1680px;
+	--iotsharp-page-gutter: 22px;
+}

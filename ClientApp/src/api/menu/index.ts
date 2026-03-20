@@ -1,10 +1,8 @@
 import request from '/@/utils/request';
 
 /**
- * 后端控制菜单模拟json，路径在 https://gitee.com/lyt-top/vue-next-admin-images/tree/master/menu
- * 后端控制路由，isRequestRoutes 为 true，则开启后端控制路由
- * @method getMenuAdmin 获取后端动态路由菜单(admin)
- * @method getMenuTest 获取后端动态路由菜单(test)
+ * Menu API helpers for backend-driven navigation.
+ * `getMenuTest` points to a local mock so the project no longer depends on template assets.
  */
 export function useMenuApi() {
 	return {
@@ -17,7 +15,7 @@ export function useMenuApi() {
 		},
 		getMenuTest: (params?: object) => {
 			return request({
-				url: '/gitee/lyt-top/vue-next-admin-images/raw/master/menu/testMenu.json',
+				url: '/mock/menu/testMenu.json',
 				method: 'get',
 				params,
 			});
