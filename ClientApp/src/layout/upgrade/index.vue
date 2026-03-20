@@ -17,7 +17,7 @@
 			<div class="upgrade-content">
 				{{ getThemeConfig.globalTitle }} {{ $t('message.upgrade.msg') }}
 				<div class="mt5">
-					<el-link type="primary" class="font12" href="https://gitee.com/lyt-top/vue-next-admin/blob/master/CHANGELOG.md" target="_black">
+					<el-link type="primary" class="font12" href="https://github.com/IoTSharp/IoTSharp/blob/master/ClientApp/CHANGELOG.md" target="_black">
 						CHANGELOG.md
 					</el-link>
 				</div>

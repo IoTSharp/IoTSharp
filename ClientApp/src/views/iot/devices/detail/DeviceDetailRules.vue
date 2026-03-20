@@ -46,6 +46,6 @@ onMounted(async () => {
 
 <style scoped lang="scss">
 .z-crud {
-  height: calc(100vh - 160px);
+  min-height: var(--device-detail-pane-height, calc(100vh - 160px));
 }
 </style>

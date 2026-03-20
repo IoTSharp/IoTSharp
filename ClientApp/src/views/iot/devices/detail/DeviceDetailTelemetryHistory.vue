@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="telemetry-history">
     <div class="search">
       <el-form ref="formRef" :model="queryForm" label-width="120px" size="small">
         <el-form-item prop="keys" label="遥测属性" class="z-search-keys">
@@ -207,13 +207,28 @@ watch(() => props.deviceId, async () => {
 onMounted(async ()=>{
   await getTelemetryKeys(props.deviceId)
   initChart(messageChartRef, telemetryHistoryChartOptions as EChartsOption);
+  window.addEventListener('resize', resizeChart)
+})
+
+const resizeChart = () => {
+  historyChart?.resize()
+}
+
+onUnmounted(() => {
+  window.removeEventListener('resize', resizeChart)
+  historyChart?.dispose?.()
+  historyChart = null
 })
 </script>
 
 <style lang="scss" scoped>
+.telemetry-history {
+  min-height: var(--device-detail-pane-height, calc(100vh - 160px));
+}
+
 .z-table {
   width: 100%;
-  height: calc(100vh - 380px);
+  height: calc(var(--device-detail-pane-height, calc(100vh - 160px)) - 180px);
   overflow: auto;
 }
 

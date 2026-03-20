@@ -16,36 +16,34 @@
 			</template>
 			<el-empty :description="$t('message.user.newDesc')" v-else></el-empty>
 		</div>
-		<div class="foot-box" @click="onGoToGiteeClick" v-if="state.newsList.length > 0">{{ $t('message.user.newGo') }}</div>
+		<div class="foot-box" @click="onGoToRepoClick" v-if="state.newsList.length > 0">{{ $t('message.user.newGo') }}</div>
 	</div>
 </template>
 
 <script setup lang="ts" name="layoutBreadcrumbUserNews">
 import { reactive } from 'vue';
 
-// 定义变量内容
 const state = reactive({
 	newsList: [
 		{
-			label: '关于版本发布的通知',
-			value: 'vue-next-admin，基于 vue3 + CompositionAPI + typescript + vite + element plus，正式发布时间：2021年02月28日！',
-			time: '2020-12-08',
+			label: '关于品牌更新的通知',
+			value: '控制台中的模板品牌文案已统一替换为 IoTSharp，当前界面展示与产品名称保持一致。',
+			time: '2026-03-20',
 		},
 		{
-			label: '关于学习交流的通知',
-			value: 'QQ群号码 665452019，欢迎小伙伴入群学习交流探讨！',
-			time: '2020-12-08',
+			label: '关于平台能力的通知',
+			value: 'IoTSharp 提供设备接入、遥测处理、规则引擎和平台健康检查等一体化能力。',
+			time: '2026-03-20',
 		},
 	],
 });
 
-// 全部已读点击
 const onAllReadClick = () => {
 	state.newsList = [];
 };
-// 前往通知中心点击
-const onGoToGiteeClick = () => {
-	window.open('https://gitee.com/lyt-top/vue-next-admin');
+
+const onGoToRepoClick = () => {
+	window.open('https://github.com/IoTSharp/IoTSharp');
 };
 </script>
 

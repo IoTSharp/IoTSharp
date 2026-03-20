@@ -19,8 +19,15 @@ const alias: Record<string, string> = {
 	'vue-i18n': 'vue-i18n/dist/vue-i18n.cjs.js',
 };
 
+const createBackendProxy = (target: string) => ({
+	target,
+	ws: true,
+	changeOrigin: true,
+});
+
 const viteConfig = defineConfig((mode: ConfigEnv) => {
 	const env = loadEnv(mode.mode, process.cwd());
+	const apiProxyTarget = env.VITE_API_PROXY_TARGET || 'http://localhost:5000';
 	return {
 		plugins: [
 			vue(),
@@ -72,6 +79,8 @@ const viteConfig = defineConfig((mode: ConfigEnv) => {
 			open: JSON.parse(env.VITE_OPEN),
 			hmr: true,
 			proxy: {
+				'/api': createBackendProxy(apiProxyTarget),
+				'/healthz': createBackendProxy(apiProxyTarget),
 				'/gitee': {
 					target: 'https://gitee.com',
 					ws: true,
@@ -79,17 +88,11 @@ const viteConfig = defineConfig((mode: ConfigEnv) => {
 					rewrite: (path) => path.replace(/^\/gitee/, ''),
 				},
 				'/models/gltf': {
-					target: 'http://localhost:5000',
-					//target: 'http://192.168.1.42:5248',
-					ws: true,
-					changeOrigin: true,
+					...createBackendProxy(apiProxyTarget),
 					rewrite: (path) => path.replace(/^\/gitee/, ''),
 				},
 				'/textures': {
-					target: 'http://localhost:5000',
-					//target: 'http://192.168.1.42:5248',
-					ws: true,
-					changeOrigin: true,
+					...createBackendProxy(apiProxyTarget),
 					rewrite: (path) => path.replace(/^\/gitee/, ''),
 				},
 			},

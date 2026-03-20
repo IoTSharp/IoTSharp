@@ -15,13 +15,12 @@ export const deviceDetailBaseInfoColumns = {
 			],
 		}),
 	},
-
 	active: {
 		title: '活动状态',
 		type: 'dict-switch',
 		dict: dict({
 			data: [
-				{ value: true, label: '活动' },
+				{ value: true, label: '活动中' },
 				{ value: false, label: '静默', color: 'danger' },
 			],
 		}),
@@ -36,7 +35,7 @@ export const deviceDetailBaseInfoColumns = {
 		dict: dict({
 			data: [
 				{ value: 'AccessToken', label: 'AccessToken' },
-				{ value: 'X509Certificate', label: 'X509Certificate' },
+				{ value: 'X509Certificate', label: 'X509 Certificate' },
 			],
 		}),
 	},
@@ -45,7 +44,7 @@ export const deviceDetailBaseInfoColumns = {
 		type: 'text',
 	},
 	timeout: {
-		title: '超时',
+		title: '超时时间',
 		type: 'text',
 	},
 };
