@@ -1,0 +1,23 @@
+<Application
+    x:Class="IoTSharp.Agent.App"
+    xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    RequestedThemeVariant="Default">
+  <Application.Styles>
+    <FluentTheme />
+  </Application.Styles>
+
+  <TrayIcon.Icons>
+    <TrayIcons>
+      <TrayIcon Icon="/Assets/iotsharp.ico" ToolTipText="IoTSharp Agent">
+        <TrayIcon.Menu>
+          <NativeMenu>
+            <NativeMenuItem Header="Open IoTSharp in Browser" Click="OpenBrowser_Click" />
+            <NativeMenuItemSeparator />
+            <NativeMenuItem Header="Exit" Click="Exit_Click" />
+          </NativeMenu>
+        </TrayIcon.Menu>
+      </TrayIcon>
+    </TrayIcons>
+  </TrayIcon.Icons>
+</Application>

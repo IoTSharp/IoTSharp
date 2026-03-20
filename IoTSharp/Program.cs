@@ -19,12 +19,14 @@ namespace IoTSharp
 
         public static void Main(string[] args)
         {
+            InitializeProcessPaths();
             Console.WriteLine(FiggleFonts.Doom.Render("IoTSharp"));
             CreateHostBuilder(args).Build().Run();
         }
 
         public static IHostBuilder CreateHostBuilder(string[] args) =>
             Host.CreateDefaultBuilder(args)
+                .UseContentRoot(AppContext.BaseDirectory)
                 .ConfigureWindowsServices()
                 .ConfigureWebHostDefaults(webBuilder =>
                 {
@@ -44,6 +46,18 @@ namespace IoTSharp
                      });
 
                 });
+
+        private static void InitializeProcessPaths()
+        {
+            // Services inherit a system working directory on Windows. Pinning it to the
+            // executable location keeps relative SQLite, certificate, and log paths stable.
+            var baseDirectory = AppContext.BaseDirectory;
+
+            if (!string.IsNullOrWhiteSpace(baseDirectory))
+            {
+                Directory.SetCurrentDirectory(baseDirectory);
+            }
+        }
 
     }
 }

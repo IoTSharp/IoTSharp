@@ -1,0 +1,29 @@
+<Wix xmlns="http://wixtoolset.org/schemas/v4/wxs">
+  <Package
+      Name="IoTSharp"
+      Manufacturer="IoTSharp"
+      Version="$(var.ProductVersion)"
+      UpgradeCode="3B483648-C108-439B-918D-348E66A61C9D"
+      Scope="perMachine">
+    <SummaryInformation Description="IoTSharp Windows Installer" Manufacturer="IoTSharp" />
+    <MajorUpgrade DowngradeErrorMessage="A newer version of IoTSharp is already installed." />
+    <MediaTemplate EmbedCab="yes" />
+
+    <Icon Id="ProductIcon" SourceFile="..\IoTSharp\Resources\Logo.ico" />
+    <Property Id="ARPPRODUCTICON" Value="ProductIcon" />
+    <Property Id="ARPURLINFOABOUT" Value="https://github.com/IoTSharp/IoTSharp" />
+    <Property Id="ARPNOMODIFY" Value="1" />
+
+    <Feature Id="MainFeature" Title="IoTSharp" Level="1">
+      <ComponentGroupRef Id="PublishedFiles" />
+    </Feature>
+  </Package>
+
+  <Fragment>
+    <StandardDirectory Id="CommonAppDataFolder">
+      <Directory Id="INSTALLDIR" Name="IoTSharp" />
+    </StandardDirectory>
+  </Fragment>
+
+  <?include $(var.GeneratedWixFragment)?>
+</Wix>
