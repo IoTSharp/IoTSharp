@@ -12,7 +12,7 @@ namespace IoTSharp.Interpreter
     public class BASICScriptEngine : ScriptEngineBase
     {
       
-        public BASICScriptEngine(ILogger<PythonScriptEngine> logger  , IOptions<EngineSetting> _opt) : base(logger, _opt.Value, System.Threading.Tasks.Task.Factory.CancellationToken)
+        public BASICScriptEngine(ILogger<BASICScriptEngine> logger  , IOptions<EngineSetting> _opt) : base(logger, _opt.Value, System.Threading.Tasks.Task.Factory.CancellationToken)
         {
 
         }

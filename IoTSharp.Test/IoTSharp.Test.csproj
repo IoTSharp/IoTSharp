@@ -27,6 +27,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\IoTSharp\IoTSharp.csproj" />
+    <ProjectReference Include="..\IoTSharp.Interpreter\IoTSharp.Interpreter.csproj" />
   </ItemGroup>
 
 </Project>

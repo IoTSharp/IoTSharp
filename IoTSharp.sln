@@ -111,8 +111,6 @@ Project("{54A90642-561A-4BB1-A94E-469ADEE60C69}") = "ClientApp", "ClientApp\Clie
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IoTSharp.EventBus.NServiceBus", "IoTSharp.EventBus.NServiceBus\IoTSharp.EventBus.NServiceBus.csproj", "{10E377A8-6060-44AA-9678-9F175BE6E24F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IoTSharp.Interpreter.Test", "IoTSharp.Interpreter.Test\IoTSharp.Interpreter.Test.csproj", "{B358ECE4-94D1-418C-8B3C-9E92156D7FD6}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IoTSharp.Agent", "IoTSharp.Agent\IoTSharp.Agent.csproj", "{038315B7-B244-4A16-AB7F-2B8023B353D9}"
 EndProject
 Project("{B7DD6F7E-DEF8-4E67-B5B7-07EF123DB6F0}") = "IoTSharp.Installer.Windows", "IoTSharp.Installer.Windows\IoTSharp.Installer.Windows.wixproj", "{76723A4A-E491-4B19-B2AE-7B8F71D3002E}"
@@ -498,18 +496,6 @@ Global
 		{10E377A8-6060-44AA-9678-9F175BE6E24F}.Release|x64.Build.0 = Release|Any CPU
 		{10E377A8-6060-44AA-9678-9F175BE6E24F}.Release|x86.ActiveCfg = Release|Any CPU
 		{10E377A8-6060-44AA-9678-9F175BE6E24F}.Release|x86.Build.0 = Release|Any CPU
-		{B358ECE4-94D1-418C-8B3C-9E92156D7FD6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{B358ECE4-94D1-418C-8B3C-9E92156D7FD6}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{B358ECE4-94D1-418C-8B3C-9E92156D7FD6}.Debug|x64.ActiveCfg = Debug|Any CPU
-		{B358ECE4-94D1-418C-8B3C-9E92156D7FD6}.Debug|x64.Build.0 = Debug|Any CPU
-		{B358ECE4-94D1-418C-8B3C-9E92156D7FD6}.Debug|x86.ActiveCfg = Debug|Any CPU
-		{B358ECE4-94D1-418C-8B3C-9E92156D7FD6}.Debug|x86.Build.0 = Debug|Any CPU
-		{B358ECE4-94D1-418C-8B3C-9E92156D7FD6}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{B358ECE4-94D1-418C-8B3C-9E92156D7FD6}.Release|Any CPU.Build.0 = Release|Any CPU
-		{B358ECE4-94D1-418C-8B3C-9E92156D7FD6}.Release|x64.ActiveCfg = Release|Any CPU
-		{B358ECE4-94D1-418C-8B3C-9E92156D7FD6}.Release|x64.Build.0 = Release|Any CPU
-		{B358ECE4-94D1-418C-8B3C-9E92156D7FD6}.Release|x86.ActiveCfg = Release|Any CPU
-		{B358ECE4-94D1-418C-8B3C-9E92156D7FD6}.Release|x86.Build.0 = Release|Any CPU
 		{038315B7-B244-4A16-AB7F-2B8023B353D9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{038315B7-B244-4A16-AB7F-2B8023B353D9}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{038315B7-B244-4A16-AB7F-2B8023B353D9}.Debug|x64.ActiveCfg = Debug|Any CPU
