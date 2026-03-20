@@ -1,60 +1,117 @@
-name: Building and Packaging
+name: Release Binaries
 
 on:
   push:
-    branches: [ "master" ]
-    paths: [IoTSharp.*/**,IoTSharp/**,ClientApp/**]
+    tags:
+      - '*'
+
+permissions:
+  contents: write
 
 jobs:
-
-  build:
-
+  build-assets:
+    name: Build ${{ matrix.rid }}
+    runs-on: ubuntu-latest
     strategy:
+      fail-fast: false
       matrix:
-        configuration: [Release]
-        publish_profile: [win-x64,linux-x64,osx-x64,linux-arm64,linux-arm,linux-loongarch64] # https://docs.microsoft.com/en-us/dotnet/core/rid-catalog
-
-    runs-on: windows-latest  
-
-    env:
-      Solution_Name: IoTSharp.sln     
+        include:
+          - rid: win-x64
+            archive_format: zip
+          - rid: linux-x64
+            archive_format: tar.gz
+          - rid: linux-arm
+            archive_format: tar.gz
+          - rid: linux-arm64
+            archive_format: tar.gz
+          - rid: linux-loongarch64
+            archive_format: tar.gz
+          - rid: osx-x64
+            archive_format: tar.gz
 
     steps:
-    - name: Checkout
-      uses: actions/checkout@v4
-      with:
-        fetch-depth: 0
-        submodules: 'true'
+      - name: Checkout
+        uses: actions/checkout@v4
 
-    # Install the .NET Core workload
-    - name: Install .NET Core
-      uses: actions/setup-dotnet@v4
-      with:
-        dotnet-version: 10.0.x
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: ClientApp/package-lock.json
 
-    # Add  MSBuild to the PATH: https://github.com/microsoft/setup-msbuild
-    - name: Setup MSBuild.exe
-      uses: microsoft/setup-msbuild@v2
- 
-    # Restore the application to populate the obj folder with RuntimeIdentifiers
-    - name: Restore the application
-      run: msbuild $env:Solution_Name /t:Restore /p:Configuration=$env:Configuration
-      env:
-        Configuration: ${{ matrix.configuration }}
+      - name: Setup .NET SDK
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
 
-    # Create the app package by building and packaging the Windows Application Packaging project
-    # npm config set registry https://registry.npmmirror.com 
-    - name: Building and Packaging
-      run:  |
-            set NODE_OPTIONS=--openssl-legacy-provider
-            dotnet build IoTSharp.sln  -c $env:Configuration  /p:DeployOnBuild=true /p:PublishProfile=$env:PublishProfile
-      env:
-        Configuration: ${{ matrix.configuration }}
-        PublishProfile: ${{ matrix.publish_profile }}
+      - name: Resolve release version
+        id: version
+        shell: bash
+        run: |
+          VERSION="${GITHUB_REF_NAME#v}"
+          echo "release_version=${VERSION}" >> "$GITHUB_OUTPUT"
+          echo "RELEASE_VERSION=${VERSION}" >> "$GITHUB_ENV"
 
-    # Upload the package: https://github.com/marketplace/actions/upload-a-build-artifact
-    - name: Upload build artifacts
-      uses: actions/upload-artifact@v4
-      with:
-        name: IoTSharp ${{ matrix.configuration }} ${{ matrix.publish_profile }}
-        path: IoTSharp\bin\publish
+      - name: Restore solution
+        run: dotnet restore IoTSharp.sln
+
+      # Build self-contained archives for the exact release tag and RID.
+      - name: Publish ${{ matrix.rid }}
+        shell: bash
+        env:
+          NODE_OPTIONS: --openssl-legacy-provider
+        run: |
+          OUTPUT_DIR="${RUNNER_TEMP}/publish/${{ matrix.rid }}"
+          dotnet publish IoTSharp/IoTSharp.csproj \
+            --configuration Release \
+            --runtime "${{ matrix.rid }}" \
+            --self-contained true \
+            --output "${OUTPUT_DIR}" \
+            -p:ContinuousIntegrationBuild=true \
+            -p:Version="${RELEASE_VERSION}" \
+            -p:PackageVersion="${RELEASE_VERSION}" \
+            -p:InformationalVersion="${RELEASE_VERSION}" \
+            -p:UseAppHost=true
+
+      - name: Archive ${{ matrix.rid }}
+        id: archive
+        shell: bash
+        run: |
+          SOURCE_DIR="${RUNNER_TEMP}/publish/${{ matrix.rid }}"
+          ASSET_DIR="${RUNNER_TEMP}/release-assets"
+          BASE_NAME="IoTSharp-${RELEASE_VERSION}-${{ matrix.rid }}"
+          mkdir -p "${ASSET_DIR}"
+
+          if [[ "${{ matrix.archive_format }}" == "zip" ]]; then
+            (cd "${SOURCE_DIR}" && zip -r "${ASSET_DIR}/${BASE_NAME}.zip" .)
+            echo "asset_path=${ASSET_DIR}/${BASE_NAME}.zip" >> "$GITHUB_OUTPUT"
+          else
+            tar -C "${SOURCE_DIR}" -czf "${ASSET_DIR}/${BASE_NAME}.tar.gz" .
+            echo "asset_path=${ASSET_DIR}/${BASE_NAME}.tar.gz" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Upload archived asset
+        uses: actions/upload-artifact@v4
+        with:
+          name: release-${{ matrix.rid }}
+          path: ${{ steps.archive.outputs.asset_path }}
+          if-no-files-found: error
+
+  publish-release:
+    name: Publish GitHub Release
+    runs-on: ubuntu-latest
+    needs: build-assets
+    steps:
+      - name: Download all release assets
+        uses: actions/download-artifact@v4
+        with:
+          path: ${{ runner.temp }}/release-assets
+          merge-multiple: true
+
+      - name: Create or update release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ github.ref_name }}
+          generate_release_notes: true
+          files: ${{ runner.temp }}/release-assets/*

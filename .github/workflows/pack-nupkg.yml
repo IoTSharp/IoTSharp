@@ -1,23 +1,17 @@
-name: pack-nupkg (Linux)
+name: Publish NuGet Packages
 
 on:
   push:
-    branches: [ main, master ]
-    tags: [ "*" ]
-  pull_request:
-    branches: [ main, master ]
-  workflow_dispatch:
+    tags:
+      - '*'
 
 permissions:
   contents: read
   packages: write
 
 jobs:
-  build:
+  pack-and-publish:
     runs-on: ubuntu-latest
-    env:
-      DEFAULT_BRANCH_VERSION: 3.2.${{ github.run_number }}
-      OTHER_BRANCH_VERSION: 0.0.${{ github.run_number }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -26,95 +20,87 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '22'
+          cache: npm
+          cache-dependency-path: ClientApp/package-lock.json
 
-      - name: Setup .NET
+      - name: Setup .NET SDK
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: '10.0.x'
-          # 若仓库有 global.json，可改用 global-json-file: global.json
 
-      - name: Cache NuGet
-        uses: actions/cache@v4
-        with:
-          path: ~/.nuget/packages
-          key: nuget-${{ runner.os }}-${{ hashFiles('**/*.sln', '**/*.csproj') }}
-          restore-keys: |
-            nuget-${{ runner.os }}-
-
-      - name: Compute version (branch/tag aware)
+      - name: Resolve package version
         id: version
+        shell: bash
         run: |
-          if [[ "${GITHUB_REF_TYPE}" == "tag" ]]; then
-            VERSION="${GITHUB_REF_NAME}"
-          elif [[ "${GITHUB_REF_NAME}" == "main" || "${GITHUB_REF_NAME}" == "master" ]]; then
-            VERSION="${DEFAULT_BRANCH_VERSION}"
-          else
-            VERSION="${OTHER_BRANCH_VERSION}"
-          fi
-          echo "VERSION=${VERSION}" | tee -a "$GITHUB_ENV"
-          echo "version=${VERSION}" >> "$GITHUB_OUTPUT"
+          VERSION="${GITHUB_REF_NAME#v}"
+          echo "package_version=${VERSION}" >> "$GITHUB_OUTPUT"
+          echo "PACKAGE_VERSION=${VERSION}" >> "$GITHUB_ENV"
 
-      - name: Restore
+      - name: Validate release secrets
+        shell: bash
+        env:
+          NUGET_API_KEY: ${{ secrets.NUGET_API_KEY }}
+        run: |
+          if [[ -z "${NUGET_API_KEY}" ]]; then
+            echo "NUGET_API_KEY is required for tag releases." >&2
+            exit 1
+          fi
+
+      - name: Restore solution
         run: dotnet restore IoTSharp.sln
 
-      - name: Build (Release)
+      # Only tag pushes can produce publishable NuGet packages.
+      - name: Pack IoTSharp
+        shell: bash
         run: |
-          dotnet build IoTSharp.sln \
-            -c Release \
-            -p:Version=${{ env.VERSION }} \
-            -p:PackageVersion=${{ env.VERSION }} \
-            -p:FileVersion=${{ env.VERSION }} \
-            -p:InformationalVersion=${{ env.VERSION }} \
-            -p:AssemblyVersion=3.2.0.0 \
+          dotnet pack IoTSharp/IoTSharp.csproj \
+            --configuration Release \
+            --output "${RUNNER_TEMP}/nupkg" \
+            --no-restore \
             -p:ContinuousIntegrationBuild=true \
-            -p:Deterministic=true \
-            -p:PublishRepositoryUrl=true \
-            -p:EmbedUntrackedSources=true \
-            --no-restore
+            -p:Version="${PACKAGE_VERSION}" \
+            -p:PackageVersion="${PACKAGE_VERSION}" \
+            -p:InformationalVersion="${PACKAGE_VERSION}"
 
-      - name: Pack (if not packing during build)
-        run: |
-          dotnet pack IoTSharp.sln \
-            -c Release \
-            -p:PackageVersion=${{ env.VERSION }} \
-            -p:Version=${{ env.VERSION }} \
-            --no-build
-        # 如果 build 已生成 nupkg，可删除此步骤。
-
-      - name: Collect and zip NuGet artifacts to repo root
-        run: |
-          mkdir -p ./nupkg
-          find . -path '*bin/Release/*.nupkg' -exec cp {} ./nupkg/ \;
-          zip -j ./nupkg-artifacts.zip ./nupkg/*.nupkg
-
-      - name: Upload NuGet artifacts
+      - name: Upload package artifacts
         uses: actions/upload-artifact@v4
         with:
           name: nuget-packages
-          path: nupkg-artifacts.zip
-          compression-level: 9
+          path: |
+            ${{ runner.temp }}/nupkg/*.nupkg
+            ${{ runner.temp }}/nupkg/*.snupkg
+          if-no-files-found: error
 
-      # 仅在 Tag 或 main/master 推送时发布
-      - name: Publish to GitHub Packages (NuGet)
-        if: ${{ github.event_name == 'push' && (startsWith(github.ref, 'refs/tags/') || github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master') }}
+      - name: Publish to GitHub Packages
+        shell: bash
         env:
-          NUGET_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_PACKAGES_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          for pkg in ./nupkg/*.nupkg; do
-            dotnet nuget push "$pkg" \
-              --source "https://nuget.pkg.github.com/IoTSharp/index.json" \
-              --api-key ${{ env.NUGET_AUTH_TOKEN }} \
+          shopt -s nullglob
+          for pkg in "${RUNNER_TEMP}"/nupkg/*.nupkg; do
+            if [[ "${pkg}" == *.symbols.nupkg ]]; then
+              continue
+            fi
+
+            dotnet nuget push "${pkg}" \
+              --source "https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json" \
+              --api-key "${GITHUB_PACKAGES_TOKEN}" \
               --skip-duplicate
           done
 
       - name: Publish to NuGet.org
-        if: ${{ github.event_name == 'push' && (startsWith(github.ref, 'refs/tags/') || github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master') }}
+        shell: bash
         env:
           NUGET_API_KEY: ${{ secrets.NUGET_API_KEY }}
         run: |
-          for pkg in ./nupkg/*.nupkg; do
-            dotnet nuget push "$pkg" \
-              --source https://api.nuget.org/v3/index.json \
-              --api-key ${{ env.NUGET_API_KEY }} \
+          shopt -s nullglob
+          for pkg in "${RUNNER_TEMP}"/nupkg/*.nupkg; do
+            if [[ "${pkg}" == *.symbols.nupkg ]]; then
+              continue
+            fi
+
+            dotnet nuget push "${pkg}" \
+              --source "https://api.nuget.org/v3/index.json" \
+              --api-key "${NUGET_API_KEY}" \
               --skip-duplicate
           done
