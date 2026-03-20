@@ -11,6 +11,8 @@
 
 # User-specific files (MonoDevelop/Xamarin Studio)
 *.userprefs
+.dotnet-cli/
+.dotnet_cli/
 
 # Build results
 [Dd]ebug/

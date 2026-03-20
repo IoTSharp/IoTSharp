@@ -175,9 +175,9 @@ export const staticRoutes: Array<RouteRecordRaw> = [
 		},
 	},
 	{
-		path: '/setup',
-		name: 'setup',
-		component: () => import('/@/views/setup/index.vue'),
+		path: '/installer',
+		name: 'installer',
+		component: () => import('/@/views/installer/index.vue'),
 		meta: {
 			title: '初始化系统',
 		},

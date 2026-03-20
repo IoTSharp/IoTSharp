@@ -70,7 +70,7 @@ onBeforeMount(async () => {
         storesAppInfo.setAppInfo(data)
         if (!storesAppInfo.appInfo.installed) {
 		
-           router.replace({ path:'/setup'})
+           router.replace({ path:'/installer'})
         }
       } catch (e) {
         ElMessage.error('获取应用信息失败')

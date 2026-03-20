@@ -8,15 +8,14 @@
     "inline": false
   },
   "submitBtn": {
-    "type":"primary",
-    "size":"large",
-    "disabled":false,
-    "innerText":"提交",
-    "loading":false,
-    "show":true,
+    "type": "primary",
+    "size": "large",
+    "disabled": false,
+    "innerText": "开始安装",
+    "loading": false,
+    "show": true,
     "block": true
   },
-  "wrap": {
-  },
+  "wrap": {},
   "resetBtn": false
 }
