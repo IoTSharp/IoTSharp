@@ -31,7 +31,7 @@ namespace IoTSharp.McpTools
 
         }
         [McpServerTool, Description("Echoes the input back to the client.")]
-        public   string echo(IMcpServer _server,string message)
+        public   string echo(McpServer _server,string message)
         {
             return $"hello, you client name is :{_server.ClientInfo.Name}  version is: {_server.ClientInfo.Version}, you input message is \"{message}\".";
         }
@@ -40,7 +40,7 @@ namespace IoTSharp.McpTools
         /// </summary>
         /// <returns></returns>
         [McpServerTool(Name = "DevicesList"), Description("Get the list of  devices.")]
-        public   List<MCPDeviceDto> DevicesList(IMcpServer _server)
+        public   List<MCPDeviceDto> DevicesList(McpServer _server)
         {
             var query = QueryByApiKey(_server);
             var cf = from c in query select new MCPDeviceDto(c.Name, c.Id, c.DeviceType);
@@ -48,7 +48,7 @@ namespace IoTSharp.McpTools
             return data;
         }
 
-        private IQueryable<Device> QueryByApiKey(IMcpServer _server)
+        private IQueryable<Device> QueryByApiKey(McpServer _server)
         {
             IQueryable<Device> query = null;
             var _API_KEY = _server.ServerOptions.Capabilities!.Experimental["API_KEY"].ToString();
@@ -87,7 +87,7 @@ namespace IoTSharp.McpTools
         /// <param name="deviceName"></param>
         /// <returns></returns>
         [McpServerTool, Description("Get the current connection status of the  device.")]
-        public bool? GetDeviceStatus([Description("name of device")] string deviceName, IMcpServer _server)
+        public bool? GetDeviceStatus([Description("name of device")] string deviceName, McpServer _server)
         {
             var query = QueryByApiKey(_server);
             var f = from c in query where c.Name == deviceName select c;
@@ -107,7 +107,7 @@ namespace IoTSharp.McpTools
         [CanBeNull]
         public Dictionary<string, object> GetDeviceAttributes(
             [Description("name of device")] string deviceName
-            , IMcpServer _server)
+            , McpServer _server)
         {
             var query = QueryByApiKey(_server);
             var f = from c in query where c.Name == deviceName select c;
@@ -127,7 +127,7 @@ namespace IoTSharp.McpTools
         [McpServerTool, Description("Get the current value of a Attribute of a device.")]
         public object GetDeviceAttribute(
             [Description("name of device")] string deviceName,
-            [Description("name of attribute")] string attributeName, IMcpServer _server)
+            [Description("name of attribute")] string attributeName, McpServer _server)
         {
             var query = QueryByApiKey(_server);
             var f = from c in _context.Device where c.Name == deviceName select c;

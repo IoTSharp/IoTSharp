@@ -176,7 +176,7 @@ export default defineComponent({
 	display: flex;
 	flex-direction: column;
 	height: 100%;
-	padding: 18px 14px 14px;
+	padding: 18px 14px 8px;
 	background:
 		linear-gradient(180deg, var(--iotsharp-surface-panel), var(--iotsharp-surface-panel-alt)),
 		radial-gradient(circle at top, rgba(14, 165, 233, 0.12), transparent 32%);
@@ -211,6 +211,8 @@ export default defineComponent({
 }
 
 .layout-aside__scroll {
+	flex: 1 1 auto;
+	min-height: 0;
 	border-radius: var(--iotsharp-radius-card);
 	background: rgba(255, 255, 255, 0.54);
 	box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.5);
@@ -220,7 +222,8 @@ export default defineComponent({
 	display: flex;
 	align-items: center;
 	gap: 10px;
-	margin-top: 14px;
+	margin-top: auto;
+	margin-bottom: 2px;
 	padding: 14px 12px;
 	border-radius: 18px;
 	background: rgba(15, 23, 42, 0.92);

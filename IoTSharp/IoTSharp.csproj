@@ -50,12 +50,12 @@
 		<PackageReference Include="AspNetCore.HealthChecks.System" Version="9.0.0" />
 		<PackageReference Include="AspNetCore.HealthChecks.UI" Version="9.0.0" />
 		<PackageReference Include="AspNetCore.HealthChecks.UI.Client" Version="9.0.0" />
-		<PackageReference Include="AutoMapper" Version="16.0.0" />
+		<PackageReference Include="AutoMapper" Version="16.1.1" />
 		<PackageReference Include="EasyCaching.InMemory" Version="1.9.2" />
 		<PackageReference Include="EasyCaching.LiteDB" Version="1.9.2" />
 		<PackageReference Include="EasyCaching.Redis" Version="1.9.2" />
-		<PackageReference Include="Figgle" Version="0.6.5" />
-		<PackageReference Include="Figgle.Fonts" Version="0.6.5" />
+		<PackageReference Include="Figgle" Version="0.6.6" />
+		<PackageReference Include="Figgle.Fonts" Version="0.6.6" />
 		<PackageReference Include="hyjiacan.pinyin4net" Version="4.1.1" />
 		<PackageReference Include="IoTSharp.CoAP.NET" Version="2.0.8" />
 		<PackageReference Include="Jdenticon-net" Version="3.1.2" />
@@ -69,8 +69,8 @@
 			<PrivateAssets>all</PrivateAssets>
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
-		<PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.22.1" />
-		<PackageReference Include="MimeMapping" Version="3.1.0" />
+		<PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.23.0" />
+		<PackageReference Include="MimeMapping" Version="4.0.0" />
 		<PackageReference Include="MQTTnet" Version="5.0.1.1416" />
 		<PackageReference Include="MQTTnet.AspNetCore" Version="5.0.1.1416" />
 		<PackageReference Include="MQTTnet.AspNetCore.Routing" Version="0.4.43" />
@@ -79,16 +79,16 @@
 		<PackageReference Include="Rin" Version="2.6.0" />
 		<PackageReference Include="Rin.Mvc" Version="2.6.0" />
 		<PackageReference Include="RulesEngine" Version="6.0.0" />
-		<PackageReference Include="SkiaSharp" Version="3.119.1" />
-		<PackageReference Include="SkiaSharp.NativeAssets.Linux.NoDependencies" Version="3.119.1" />
+		<PackageReference Include="SkiaSharp" Version="3.119.2" />
+		<PackageReference Include="SkiaSharp.NativeAssets.Linux.NoDependencies" Version="3.119.2" />
 		<PackageReference Include="Storage.Net" Version="9.3.0" />
 		<PackageReference Include="System.Resources.Extensions" Version="10.0.*" />
 		<PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="10.0.*" />
 		<PackageReference Include="Microsoft.Extensions.Hosting.WindowsServices" Version="10.0.*" />
 		<PackageReference Include="Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore" Version="10.0.*" />
 		<PackageReference Include="Microsoft.AspNetCore.Identity.UI" Version="10.0.*" />
-		<PackageReference Include="ModelContextProtocol" Version="0.1.0-preview.14" />
-		<PackageReference Include="ModelContextProtocol.AspNetCore" Version="0.1.0-preview.14" />
+		<PackageReference Include="ModelContextProtocol" Version="1.1.0" />
+		<PackageReference Include="ModelContextProtocol.AspNetCore" Version="1.1.0" />
 	</ItemGroup>
 
 	
