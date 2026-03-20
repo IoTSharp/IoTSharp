@@ -58,7 +58,7 @@ const config = {
           },
           { to: '/blog', label: '博客', position: 'left' },
           {
-            href: 'http://host.iotsharp.net',
+            href: 'http://iotsharp.online',
             label: '线上体验',
             position: 'right',
           },
@@ -110,8 +110,8 @@ const config = {
                 href: 'https://jq.qq.com/?_wv=1027&k=u1ZzTmVd',
               },
               {
-                label: 'Discord',
-                href: 'https://iotsharp.net/img/qyqun.jpg',
+                label: '企微群',
+                to: '/img/qyqun.jpg',
               }
             ],
           },
