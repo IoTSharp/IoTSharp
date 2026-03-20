@@ -1,19 +1,18 @@
 <template>
-	<el-main class="layout-main">
+	<el-main class="layout-main iotsharp-main">
 		<el-scrollbar
 			ref="layoutScrollbarRef"
+			class="iotsharp-main__scrollbar"
 			:class="{
 				'layout-scrollbar':
 					(!isClassicOrTransverse && !currentRouteMeta.isLink && !currentRouteMeta.isIframe) ||
 					(!isClassicOrTransverse && currentRouteMeta.isLink && !currentRouteMeta.isIframe),
 			}"
 		>
-			<LayoutParentView
-				:style="{
-					padding: !isClassicOrTransverse || (currentRouteMeta.isLink && currentRouteMeta.isIframe) ? '0' : '15px',
-					transition: 'padding 0.3s ease-in-out',
-				}"
-			/>
+			<!-- Keep immersive routes edge-to-edge while standard pages inherit the new shell spacing. -->
+			<div class="iotsharp-main__content" :class="{ 'iotsharp-main__content--immersive': currentRouteMeta.isLink && currentRouteMeta.isIframe }">
+				<LayoutParentView />
+			</div>
 			<Footer v-if="themeConfig.isFooter" />
 		</el-scrollbar>
 	</el-main>
@@ -99,3 +98,28 @@ export default defineComponent({
 	},
 });
 </script>
+
+<style scoped lang="scss">
+.iotsharp-main {
+	padding: 0 0 18px;
+	background: transparent;
+}
+
+.iotsharp-main__scrollbar {
+	height: 100%;
+}
+
+.iotsharp-main__content {
+	padding: 10px 22px 28px;
+}
+
+.iotsharp-main__content--immersive {
+	padding: 0;
+}
+
+@media (max-width: 767px) {
+	.iotsharp-main__content {
+		padding: 6px 12px 20px;
+	}
+}
+</style>

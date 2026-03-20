@@ -32,7 +32,6 @@ import { storeToRefs } from 'pinia';
 import { useThemeConfig } from '/@/stores/themeConfig';
 import { useRoutesList } from '/@/stores/routesList';
 
-// 定义变量内容
 const stores = useRoutesList();
 const storesThemeConfig = useThemeConfig();
 const { themeConfig } = storeToRefs(storesThemeConfig);
@@ -46,30 +45,29 @@ const state = reactive<BreadcrumbState>({
 	routeSplitIndex: 1,
 });
 
-// 动态设置经典、横向布局不显示
 const isShowBreadcrumb = computed(() => {
 	initRouteSplit(route.path);
 	const { layout, isBreadcrumb } = themeConfig.value;
 	if (layout === 'classic' || layout === 'transverse') return false;
-	else return isBreadcrumb ? true : false;
+	return !!isBreadcrumb;
 });
-// 面包屑点击时
+
 const onBreadcrumbClick = (v: RouteItem) => {
 	const { redirect, path } = v;
 	if (redirect) router.push(redirect);
 	else router.push(path);
 };
-// 展开/收起左侧菜单点击
+
 const onThemeConfigChange = () => {
 	themeConfig.value.isCollapse = !themeConfig.value.isCollapse;
 	setLocalThemeConfig();
 };
-// 存储布局配置
+
 const setLocalThemeConfig = () => {
 	Local.remove('themeConfig');
 	Local.set('themeConfig', themeConfig.value);
 };
-// 处理面包屑数据
+
 const getBreadcrumbList = (arr: RouteItems) => {
 	arr.forEach((item: RouteItem) => {
 		state.routeSplit.forEach((v: string, k: number, arrs: string[]) => {
@@ -82,7 +80,7 @@ const getBreadcrumbList = (arr: RouteItems) => {
 		});
 	});
 };
-// 当前路由字符串切割成数组，并删除第一项空内容
+
 const initRouteSplit = (path: string) => {
 	if (!themeConfig.value.isBreadcrumb) return false;
 	state.breadcrumbList = [routesList.value[0]];
@@ -92,14 +90,15 @@ const initRouteSplit = (path: string) => {
 	state.routeSplitIndex = 1;
 	getBreadcrumbList(routesList.value);
 	if (route.name === 'home' || (route.name === 'notFound' && state.breadcrumbList.length > 1)) state.breadcrumbList.shift();
-	if (state.breadcrumbList.length > 0)
+	if (state.breadcrumbList.length > 0) {
 		state.breadcrumbList[state.breadcrumbList.length - 1].meta.tagsViewName = other.setTagsViewNameI18n(<RouteToFrom>route);
+	}
 };
-// 页面加载时
+
 onMounted(() => {
 	initRouteSplit(route.path);
 });
-// 路由更新时
+
 onBeforeRouteUpdate((to) => {
 	initRouteSplit(to.path);
 });
@@ -111,35 +110,52 @@ onBeforeRouteUpdate((to) => {
 	height: inherit;
 	display: flex;
 	align-items: center;
+	min-width: 0;
+	gap: 10px;
+
 	.layout-navbars-breadcrumb-icon {
 		cursor: pointer;
 		font-size: 18px;
-		color: var(--next-bg-topBarColor);
-		height: 100%;
-		width: 40px;
-		opacity: 0.8;
+		color: #0f172a;
+		height: 42px;
+		width: 42px;
+		border-radius: 14px;
+		border: 1px solid rgba(148, 163, 184, 0.14);
+		background: rgba(248, 250, 252, 0.9);
+		opacity: 0.92;
+
 		&:hover {
 			opacity: 1;
+			background: rgba(255, 255, 255, 1);
 		}
 	}
+
 	.layout-navbars-breadcrumb-span {
 		display: flex;
-		opacity: 0.7;
-		color: var(--next-bg-topBarColor);
+		opacity: 0.82;
+		color: #0f172a;
 	}
+
 	.layout-navbars-breadcrumb-iconfont {
 		font-size: 14px;
 		margin-right: 5px;
 	}
-	:deep(.el-breadcrumb__separator) {
-		opacity: 0.7;
-		color: var(--next-bg-topBarColor);
+
+	.layout-navbars-breadcrumb-hide {
+		min-width: 0;
 	}
+
+	:deep(.el-breadcrumb__separator) {
+		opacity: 0.5;
+		color: #94a3b8;
+	}
+
 	:deep(.el-breadcrumb__inner a, .el-breadcrumb__inner.is-link) {
 		font-weight: unset !important;
-		color: var(--next-bg-topBarColor);
+		color: #475569;
+
 		&:hover {
-			color: var(--el-color-primary) !important;
+			color: #0f766e !important;
 		}
 	}
 }

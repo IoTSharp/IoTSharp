@@ -1,15 +1,18 @@
 <template>
-	<el-container class="layout-container">
-		<Aside />
-		<el-container class="flex-center" :class="{ 'layout-backtop': !isFixedHeader }">
-			<Header v-if="isFixedHeader" />
-			<el-scrollbar ref="layoutDefaultsScrollbarRef" :class="{ 'layout-backtop': isFixedHeader }">
-				<Header v-if="!isFixedHeader" />
-				<Main />
-			</el-scrollbar>
+	<div class="iotsharp-shell">
+		<div class="iotsharp-shell__mesh"></div>
+		<el-container class="layout-container iotsharp-shell__container">
+			<Aside />
+			<el-container class="flex-center iotsharp-shell__workspace" :class="{ 'layout-backtop': !isFixedHeader }">
+				<Header v-if="isFixedHeader" />
+				<el-scrollbar ref="layoutDefaultsScrollbarRef" class="iotsharp-shell__scrollbar" :class="{ 'layout-backtop': isFixedHeader }">
+					<Header v-if="!isFixedHeader" />
+					<Main />
+				</el-scrollbar>
+			</el-container>
+			<el-backtop target=".layout-backtop .el-scrollbar__wrap"></el-backtop>
 		</el-container>
-		<el-backtop target=".layout-backtop .el-scrollbar__wrap"></el-backtop>
-	</el-container>
+	</div>
 </template>
 
 <script lang="ts">
@@ -45,3 +48,53 @@ export default defineComponent({
 	},
 });
 </script>
+
+<style scoped lang="scss">
+.iotsharp-shell {
+	position: relative;
+	min-height: 100%;
+	background:
+		radial-gradient(circle at top left, rgba(14, 165, 233, 0.12), transparent 26%),
+		radial-gradient(circle at bottom right, rgba(16, 185, 129, 0.12), transparent 24%),
+		linear-gradient(180deg, #f7fbff 0%, #eef5fb 100%);
+}
+
+.iotsharp-shell__mesh {
+	position: absolute;
+	inset: 0;
+	background-image:
+		linear-gradient(rgba(148, 163, 184, 0.05) 1px, transparent 1px),
+		linear-gradient(90deg, rgba(148, 163, 184, 0.05) 1px, transparent 1px);
+	background-size: 40px 40px;
+	mask-image: radial-gradient(circle at center, #000 30%, transparent 88%);
+	pointer-events: none;
+}
+
+.iotsharp-shell__container {
+	position: relative;
+	z-index: 1;
+	min-height: 100vh;
+}
+
+.iotsharp-shell__workspace {
+	padding: 0 18px 18px 12px;
+}
+
+.iotsharp-shell__scrollbar {
+	flex: 1;
+	border-radius: 30px;
+	background: rgba(255, 255, 255, 0.44);
+	backdrop-filter: blur(18px);
+	box-shadow: 0 24px 60px rgba(15, 23, 42, 0.08);
+}
+
+@media (max-width: 767px) {
+	.iotsharp-shell__workspace {
+		padding: 0 10px 10px;
+	}
+
+	.iotsharp-shell__scrollbar {
+		border-radius: 22px;
+	}
+}
+</style>

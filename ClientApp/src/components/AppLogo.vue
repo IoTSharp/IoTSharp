@@ -1,7 +1,7 @@
 <template>
   <div class="z-logo-container">
     <div v-if="!hideIcon" class="z-logo-icon" v-html="logoIcon" ></div>
-    <div class="z-logo-text" v-html="logoText" :style="{fill: themeConfig.isIsDark ? 'white': ''}"></div>
+    <div v-if="!hideText" class="z-logo-text" v-html="logoText" :style="{fill: themeConfig.isIsDark ? 'white': ''}"></div>
   </div>
 </template>
 <script lang="ts" setup>
@@ -29,6 +29,7 @@ defineProps({
   display: flex;
   gap: 12px;
   align-items: center;
+  min-width: 0;
 
   .z-logo-icon {
     width:30px;
@@ -36,6 +37,7 @@ defineProps({
   }
   .z-logo-text {
     width:120px;
+    flex-shrink: 0;
   }
   div {
     display: flex;

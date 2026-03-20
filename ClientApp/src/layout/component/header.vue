@@ -1,5 +1,5 @@
 <template>
-	<el-header class="layout-header" :height="setHeaderHeight" v-show="!isTagsViewCurrenFull">
+	<el-header class="layout-header iotsharp-header" :height="setHeaderHeight" v-show="!isTagsViewCurrenFull">
 		<NavBarsIndex />
 	</el-header>
 </template>
@@ -22,8 +22,8 @@ export default defineComponent({
 		// 设置 header 的高度
 		const setHeaderHeight = computed(() => {
 			let { isTagsview, layout } = themeConfig.value;
-			if (isTagsview && layout !== 'classic') return '84px';
-			else return '50px';
+			if (isTagsview && layout !== 'classic') return '96px';
+			else return '66px';
 		});
 		return {
 			setHeaderHeight,
@@ -32,3 +32,16 @@ export default defineComponent({
 	},
 });
 </script>
+
+<style scoped lang="scss">
+.iotsharp-header {
+	padding: 18px 20px 0;
+	background: transparent;
+}
+
+@media (max-width: 767px) {
+	.iotsharp-header {
+		padding: 14px 14px 0;
+	}
+}
+</style>
