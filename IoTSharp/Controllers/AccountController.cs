@@ -38,6 +38,7 @@ namespace IoTSharp.Controllers
         private readonly UserManager<IdentityUser> _userManager;
         private readonly IConfiguration _configuration;
         private readonly SignInManager<IdentityUser> _signInManager;
+        private readonly EasyCaching.Core.IEasyCachingProvider _caching;
 
         /// <summary>
         /// 用户管理
@@ -52,7 +53,8 @@ namespace IoTSharp.Controllers
             UserManager<IdentityUser> userManager,
             SignInManager<IdentityUser> signInManager,
             IConfiguration configuration, ILogger<AccountController> logger, ApplicationDbContext context,
-            IOptions<AppSettings> options
+            IOptions<AppSettings> options,
+            EasyCaching.Core.IEasyCachingProvider caching
             )
         {
             _userManager = userManager;
@@ -61,6 +63,7 @@ namespace IoTSharp.Controllers
             _logger = logger;
             _context = context;
             _settings = options.Value;
+            _caching = caching;
         }
 
         /// <summary>
@@ -142,6 +145,12 @@ namespace IoTSharp.Controllers
         {
             try
             {
+                var captchaResult = ConsumeCaptcha(model);
+                if (!captchaResult.ok)
+                {
+                    return new ApiResult<LoginResult>(ApiCode.InValidData, captchaResult.message, null);
+                }
+
                 var result = await _signInManager.PasswordSignInAsync(model.UserName, model.Password, false, false);
                 if (result.Succeeded)
                 {
@@ -172,6 +181,32 @@ namespace IoTSharp.Controllers
             {
                 return new ApiResult<LoginResult>(ApiCode.InValidData, ex.Message, null);
             }
+        }
+
+        // Captcha is consumed during login so the final decision stays on the server side.
+        private (bool ok, string message) ConsumeCaptcha(LoginDto model)
+        {
+            if (string.IsNullOrWhiteSpace(model.CaptchaClientId))
+            {
+                return (false, "请先完成滑块验证。");
+            }
+
+            var list = _caching.Get<List<ModelCaptchaVertifyItem>>("Captcha").Value ?? new List<ModelCaptchaVertifyItem>();
+            var item = list.SingleOrDefault(c => c.Clientid == model.CaptchaClientId);
+
+            if (item == null)
+            {
+                return (false, "验证码已过期，请刷新后重试。");
+            }
+
+            if (Math.Abs(item.Move - model.CaptchaMove) >= 3)
+            {
+                return (false, "滑块验证失败，请重新拼图。");
+            }
+
+            list.Remove(item);
+            _caching.Set("Captcha", list, expiration: TimeSpan.FromMinutes(20));
+            return (true, "OK");
         }
 
 

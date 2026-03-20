@@ -36,7 +36,7 @@ namespace IoTSharp.Controllers
         /// <param name="clientid"></param>
         /// <returns></returns>
         [HttpGet, AllowAnonymous]
-        public ApiResult<ModelCaptcha> Index(string clientid)
+        public ApiResult<ModelCaptchaChallenge> Index(string clientid)
         {
             var data = CreateImage();
             var list = _caching.Get<List<ModelCaptchaVertifyItem>>("Captcha").Value ?? new EditableList<ModelCaptchaVertifyItem>();
@@ -50,7 +50,12 @@ namespace IoTSharp.Controllers
             }
             list.Add(new ModelCaptchaVertifyItem { Clientid = clientid, Move = data.Xwidth });
             _caching.Set("Captcha", list, expiration: TimeSpan.FromMinutes(20));
-            return new ApiResult<ModelCaptcha>(ApiCode.Success, "OK", data);
+            return new ApiResult<ModelCaptchaChallenge>(ApiCode.Success, "OK", new ModelCaptchaChallenge
+            {
+                BigImage = data.BigImage,
+                SmallImage = data.SmallImage,
+                Yheight = data.Yheight
+            });
         }
 
 

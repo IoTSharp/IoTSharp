@@ -65,6 +65,15 @@ namespace IoTSharp.Dtos
         /// </summary>
         [Required]
         public string UserName { get; set; }
+        /// <summary>
+        /// Captcha session id generated before login.
+        /// </summary>
+        [Required]
+        public string CaptchaClientId { get; set; }
+        /// <summary>
+        /// Slider offset submitted from the puzzle challenge.
+        /// </summary>
+        public int CaptchaMove { get; set; }
 
     }
 
