@@ -4,6 +4,10 @@
   </a>
 </p>
 
+# IoTSharp
+
+[English](README.md) | [Chinese](README.zh.md)
+
 [![License](https://img.shields.io/github/license/IoTSharp/IoTSharp.svg)](LICENSE)
 [![.NET build](https://github.com/IoTSharp/IoTSharp/actions/workflows/dotnet-build.yml/badge.svg)](https://github.com/IoTSharp/IoTSharp/actions/workflows/dotnet-build.yml)
 [![Docs deploy](https://github.com/IoTSharp/IoTSharp/actions/workflows/docs-deploy.yml/badge.svg)](https://github.com/IoTSharp/IoTSharp/actions/workflows/docs-deploy.yml)
@@ -15,7 +19,7 @@
 
 IoTSharp is an open-source industrial IoT platform for device access, telemetry collection, rule-chain processing, visualization, multi-tenant operations, and product delivery.
 
-## Overview
+## 🚀 Overview
 
 IoTSharp brings together the core building blocks needed to run an IoT platform in production:
 
@@ -27,9 +31,9 @@ IoTSharp brings together the core building blocks needed to run an IoT platform 
 
 The current main application targets `.NET 10`, and the web console is maintained as an IoTSharp-branded Vue 3 application.
 
-## Quick Start
+## 🧭 Quick Start
 
-### Run IoTSharp locally
+### 🖥️ Run IoTSharp locally
 
 The recommended documentation entry points are:
 
@@ -42,7 +46,7 @@ For frontend development, the current local dev server default is:
 
 - Frontend: `http://localhost:27915`
 
-### Use OpenClaw for AI-assisted SQLite setup
+### 🤖 Use OpenClaw for AI-assisted SQLite setup
 
 If you want OpenClaw to guide you through creating a local SQLite-based IoTSharp instance, start with:
 
@@ -51,51 +55,23 @@ If you want OpenClaw to guide you through creating a local SQLite-based IoTSharp
 
 The runbook defines the SQLite bootstrap flow, installer initialization path, Docker Desktop Extension fallback route, and the safe rule for switching databases later through `appsettings.{Environment}.Installer.json`.
 
-## Supported Components
+## 🧩 Supported Components
 
-### Relational and operational databases
+| Area | Summary |
+| --- | --- |
+| Connectivity | Device, gateway, and protocol integration for industrial access scenarios |
+| Platform domain | Telemetry, attributes, alarms, products, assets, tenants, and users |
+| Data foundation | Relational storage, time-series storage, and installer-driven configuration templates |
+| Integration pipeline | Rule chains, scripting, notifications, event delivery, and automation actions |
+| Delivery modes | Docker, services, installer flows, and Docker Desktop Extension experiences |
 
-- PostgreSQL
-- MySQL
-- SQL Server
-- Oracle
-- SQLite
-- Cassandra
-- ClickHouse
+For the detailed database matrix, time-series options, message middleware support, and configuration examples, see the docs:
 
-Configuration templates are kept in the [`IoTSharp`](IoTSharp) project through `appsettings.*.json` files and related installer overlays.
+- <https://iotsharp.net/docs/overview/product-overview>
+- <https://iotsharp.net/docs/configuration/appsettings>
+- <https://iotsharp.net/docs/integrations/protocols>
 
-### Time-series storage
-
-- InfluxDB
-- IoTDB
-- TDengine
-- TimescaleDB
-- PinusDB
-- Relational databases for simpler telemetry scenarios
-
-### Event bus and message transport
-
-- RabbitMQ
-- Kafka
-- InMemory
-- ZeroMQ
-- NATS
-- Pulsar
-- Redis Streams
-- Amazon SQS
-- Azure Service Bus
-
-### Event bus state stores
-
-- PostgreSQL
-- MongoDB
-- InMemory
-- LiteDB
-- MySQL
-- SQL Server
-
-## Deployment Options
+## 📦 Deployment Options
 
 - Docker: <https://iotsharp.net/docs/deployment/docker>
 - Docker Desktop extension: <https://iotsharp.net/docs/deployment/docker-desktop-extension>
@@ -107,7 +83,7 @@ Online demo:
 
 - <https://host.iotsharp.net>
 
-## Repository Structure
+## 🗂️ Repository Structure
 
 Key directories in this repository:
 
@@ -119,7 +95,7 @@ Key directories in this repository:
 - [`IoTSharp.Agent`](IoTSharp.Agent): desktop tray agent project.
 - [`IoTSharp.SDKs`](IoTSharp.SDKs): SDK and related client-facing artifacts.
 
-## Ecosystem and Related Projects
+## 🌐 Ecosystem and Related Projects
 
 NuGet packages and ecosystem libraries include:
 
@@ -139,14 +115,14 @@ Related repositories:
 - IoTSharp Edge nanoFramework
 - IoTSharp RT-Thread package
 
-## Documentation
+## 📚 Documentation
 
 - English docs entry: <https://iotsharp.net/docs/intro>
 - Chinese README: [README.zh.md](README.zh.md)
 - Roadmap: [roadmap.md](roadmap.md)
 - Changelog: [CHANGELOG.md](CHANGELOG.md)
 
-## Contributing
+## 🤝 Contributing
 
 Contributions are welcome through issues and pull requests:
 
@@ -155,7 +131,7 @@ Contributions are welcome through issues and pull requests:
 
 Before contributing, please review the codebase structure, related documentation, and the current release/distribution direction in the docs site.
 
-## Community Support
+## 💬 Community Support
 
 If you need help using or deploying IoTSharp, community channels are available in the docs and community materials:
 
@@ -163,7 +139,7 @@ If you need help using or deploying IoTSharp, community channels are available i
 - Gitee: <https://gitee.com/IoTSharp/IoTSharp>
 - Official site: <https://iotsharp.net>
 
-## Donation
+## ❤️ Donation
 
 IoTSharp is released under the Apache 2.0 license. If you would like to support the project, you can back it through:
 
@@ -171,7 +147,7 @@ IoTSharp is released under the Apache 2.0 license. If you would like to support 
 - Afdian: <https://afdian.net/a/maikebing>
 - Backers list: [BACKERS.md](BACKERS.md)
 
-## Blessing
+## ✨ Blessing
 
 - May you do good and not evil.
 - May you find forgiveness for yourself and forgive others.
