@@ -33,6 +33,18 @@ const createBackendProxy = (target: string) => ({
 	changeOrigin: true,
 });
 
+const vendorChunkGroups: Array<[string, string[]]> = [
+	['vue-vendor', ['/node_modules/vue/', '/node_modules/vue-router/', '/node_modules/pinia/', '/node_modules/vue-i18n/', '/node_modules/@vue/', '/node_modules/@intlify/', '/node_modules/vue-demi/']],
+	['element-plus', ['/node_modules/element-plus/', '/node_modules/@element-plus/', '/node_modules/lodash-unified/']],
+	['fast-crud', ['/node_modules/@fast-crud/']],
+	['form-create', ['/node_modules/@form-create/']],
+	['echarts-vendor', ['/node_modules/echarts/', '/node_modules/zrender/', '/node_modules/echarts-gl/', '/node_modules/echarts-wordcloud/']],
+	['three-vendor', ['/node_modules/three/']],
+	['antv-vendor', ['/node_modules/@antv/']],
+	['diagram-vendor', ['/node_modules/jsplumb/']],
+	['grid-layout', ['/node_modules/vue-grid-layout/']],
+];
+
 export default defineConfig(({ mode, command }: ConfigEnv) => {
 	const env = loadEnv(mode, process.cwd());
 	const apiProxyTarget = env.VITE_API_PROXY_TARGET || 'http://localhost:5000';
@@ -106,15 +118,23 @@ export default defineConfig(({ mode, command }: ConfigEnv) => {
 		},
 		build: {
 			outDir: 'dist',
-			chunkSizeWarningLimit: 1500,
+			// Monaco language workers are isolated into dedicated chunks and remain naturally large.
+			chunkSizeWarningLimit: 5000,
 			rollupOptions: {
 				output: {
 					chunkFileNames: 'assets/js/[name]-[hash].js',
 					entryFileNames: 'assets/js/[name]-[hash].js',
 					assetFileNames: 'assets/[ext]/[name]-[hash].[ext]',
 					manualChunks(id) {
-						if (id.includes('node_modules')) {
-							return id.toString().match(/\/node_modules\/(?!.pnpm)(?<moduleName>[^\/]*)\//)?.groups!.moduleName ?? 'vender';
+						const normalizedId = id.replace(/\\/g, '/');
+						if (normalizedId.includes('/node_modules/')) {
+							// Monaco is loaded through dynamic imports and splits more safely when Rollup
+							// controls its internal graph instead of hard manual chunk boundaries.
+							if (normalizedId.includes('/node_modules/monaco-editor/')) return;
+							for (const [chunkName, patterns] of vendorChunkGroups) {
+								if (patterns.some((pattern) => normalizedId.includes(pattern))) return chunkName;
+							}
+							return normalizedId.match(/\/node_modules\/(?!.pnpm)(?<moduleName>[^\/]*)\//)?.groups?.moduleName ?? 'vendor';
 						}
 					},
 				},

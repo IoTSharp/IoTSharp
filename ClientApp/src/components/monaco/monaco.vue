@@ -11,22 +11,9 @@
 </template>
 <script lang="ts" setup>
 import { ref, nextTick } from "vue";
+import { loadMonacoEditor } from "/@/utils/monacoLoader";
 
-import * as monaco from "monaco-editor";
-import editorWorker from "monaco-editor/esm/vs/editor/editor.worker?worker";
-import jsonWorker from "monaco-editor/esm/vs/language/json/json.worker?worker";
-import cssWorker from "monaco-editor/esm/vs/language/css/css.worker?worker";
-import htmlWorker from "monaco-editor/esm/vs/language/html/html.worker?worker";
-import tsWorker from "monaco-editor/esm/vs/language/typescript/ts.worker?worker";
-
-interface monacostate {
-  width?: string;
-  height?: string;
-  theme?: string;
-  language?: string;
-  selectOnLineNumbers?: string;
-}
-
+type MonacoEditor = import("monaco-editor/esm/vs/editor/editor.api").editor.IStandaloneCodeEditor;
 
 const emit = defineEmits(["update:modelValue", "change", "focus", "blur", "paste", "mouseup", "mousedown", "contentsizechange", "keyup", "keydown"]);
 const props = defineProps({
@@ -41,9 +28,6 @@ const props = defineProps({
   selectOnLineNumbers: String,
 });
 
-
-
-
 var isuserinput = false;
 const container = ref();
 const isfullscreen = ref(false);
@@ -57,67 +41,42 @@ watch(
   }
 );
 
-let editor: monaco.editor.IStandaloneCodeEditor;
-
-self.MonacoEnvironment = {
-  getWorker(_, label) {
-    if (label === "json") {
-      return new jsonWorker();
-    }
-    if (label === "css" || label === "scss" || label === "less") {
-      return new cssWorker();
-    }
-    if (label === "html" || label === "handlebars" || label === "razor") {
-      return new htmlWorker();
-    }
-    if (label === "typescript" || label === "javascript") {
-      return new tsWorker();
-    }
-    return new editorWorker();
-  },
-};
+let editor: MonacoEditor | undefined;
 
 const toggle = () => {
-  isfullscreen.value=!isfullscreen.value;
+  isfullscreen.value = !isfullscreen.value;
 }
 
 onMounted(() => {
-  editorInit();
+  void editorInit();
 });
-const editorInit = () => {
-  nextTick(() => {
-    monaco.languages.typescript.javascriptDefaults.setDiagnosticsOptions({
-      noSemanticValidation: true,
-      noSyntaxValidation: false,
-    });
-    monaco.languages.typescript.javascriptDefaults.setCompilerOptions({
-      target: monaco.languages.typescript.ScriptTarget.ES2016,
-      allowNonTsExtensions: true,
+
+const editorInit = async () => {
+  await nextTick();
+
+  const monaco = await loadMonacoEditor(props.language ?? "json");
+  if (!container.value) return;
+
+  if (!editor) {
+    editor = monaco.editor.create(container.value as HTMLElement, {
+      value: props.modelValue ?? "",
+      language: props.language ?? "json",
+      automaticLayout: true,
+      theme: props.theme ?? "vs-dark", // 瀹樻柟鑷甫涓夌涓婚vs, hc-black, or vs-dark
+      foldingStrategy: "indentation",
+      renderLineHighlight: "all", // 琛屼寒
+      selectOnLineNumbers: props.selectOnLineNumbers == "true", // 鏄剧ず琛屽彿
+      minimap: {
+        enabled: false,
+      },
+      readOnly: false, // 鍙
+      fontSize: 16, // 瀛椾綋澶у皬
+      scrollBeyondLastLine: false, // 鍙栨秷浠ｇ爜鍚庨潰涓€澶ф绌虹櫧
+      overviewRulerBorder: false, // 涓嶈婊氬姩鏉＄殑杈规
     });
 
-    !editor
-      ? (editor = monaco.editor.create(container.value as HTMLElement, {
-        value: props.modelValue ?? "",
-        language: props.language?? "json",
-        automaticLayout: true,
-        theme: props.theme ?? "vs-dark", // 官方自带三种主题vs, hc-black, or vs-dark
-        foldingStrategy: "indentation",
-        renderLineHighlight: "all", // 行亮
-        selectOnLineNumbers: props.selectOnLineNumbers == "true", // 显示行号
-        minimap: {
-          enabled: false,
-        },
-        readOnly: false, // 只读
-        fontSize: 16, // 字体大小
-        scrollBeyondLastLine: false, // 取消代码后面一大段空白
-        overviewRulerBorder: false, // 不要滚动条的边框
-      }))
-      : editor.setValue(props.modelValue ?? "");
-
-    editor.onDidChangeModelContent((val: any) => {
-      emit("update:modelValue", editor.getValue());
-      // newValue.value = editor.getValue();
-      //  emit("change", editor.getValue());
+    editor.onDidChangeModelContent(() => {
+      emit("update:modelValue", editor?.getValue() ?? "");
     });
 
     editor.onDidFocusEditorText(() => {
@@ -152,10 +111,11 @@ const editorInit = () => {
       isuserinput = true;
       emit("keydown", e);
     });
-  });
+    return;
+  }
+
+  editor.setValue(props.modelValue ?? "");
 };
-
-
 </script>
 
 
@@ -168,7 +128,7 @@ const editorInit = () => {
 }
 
 .mnc{
-  width: 100%; 
+  width: 100%;
   float: left;
   height: 100%;
  position: relative;
