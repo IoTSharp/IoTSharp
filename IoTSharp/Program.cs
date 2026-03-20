@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using Figgle;
 using Microsoft.AspNetCore.Server.Kestrel.Https;
@@ -27,6 +28,16 @@ namespace IoTSharp
         public static IHostBuilder CreateHostBuilder(string[] args) =>
             Host.CreateDefaultBuilder(args)
                 .UseContentRoot(AppContext.BaseDirectory)
+                .ConfigureAppConfiguration((hostingContext, configuration) =>
+                {
+                    var environmentName = hostingContext.HostingEnvironment.EnvironmentName;
+
+                    // The Windows installer writes environment-specific overrides so the
+                    // selected database template can stay intact while secrets live in a
+                    // separate file that is easier to rotate or regenerate.
+                    configuration.AddJsonFile("appsettings.Installer.json", optional: true, reloadOnChange: false);
+                    configuration.AddJsonFile($"appsettings.{environmentName}.Installer.json", optional: true, reloadOnChange: false);
+                })
                 .ConfigureWindowsServices()
                 .ConfigureWebHostDefaults(webBuilder =>
                 {

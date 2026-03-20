@@ -93,7 +93,7 @@ foreach ($file in $files) {
     $componentFragments.Add("      <File Id=`"$fileId`" Source=`"$(Escape-Xml $file.FullName)`" KeyPath=`"yes`" />")
 
     if ($file.Name -ieq 'IoTSharp.exe') {
-        $componentFragments.Add('      <ServiceInstall Id="IoTSharpServiceInstaller" Name="IoTSharp" DisplayName="IoTSharp" Description="IoTSharp Windows service" Type="ownProcess" Start="auto" ErrorControl="normal" Arguments="--environment Production" Vital="yes" />')
+        $componentFragments.Add('      <ServiceInstall Id="IoTSharpServiceInstaller" Name="IoTSharp" DisplayName="IoTSharp" Description="IoTSharp Windows service" Type="ownProcess" Start="auto" ErrorControl="normal" Arguments="--environment [IOTSHARP_DB_TEMPLATE]" Vital="yes" />')
         $componentFragments.Add('      <ServiceControl Id="IoTSharpServiceController" Name="IoTSharp" Start="install" Stop="both" Remove="uninstall" Wait="yes" />')
     }
 

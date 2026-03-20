@@ -1,4 +1,6 @@
-<Wix xmlns="http://wixtoolset.org/schemas/v4/wxs">
+<Wix
+    xmlns="http://wixtoolset.org/schemas/v4/wxs"
+    xmlns:util="http://wixtoolset.org/schemas/v4/wxs/util">
   <Package
       Name="IoTSharp"
       Manufacturer="IoTSharp"
@@ -16,6 +18,7 @@
 
     <Feature Id="MainFeature" Title="IoTSharp" Level="1">
       <ComponentGroupRef Id="PublishedFiles" />
+      <ComponentGroupRef Id="InstallerSupportFiles" />
     </Feature>
   </Package>
 
@@ -23,6 +26,56 @@
     <StandardDirectory Id="CommonAppDataFolder">
       <Directory Id="INSTALLDIR" Name="IoTSharp" />
     </StandardDirectory>
+  </Fragment>
+
+  <Fragment>
+    <Property Id="WIXUI_INSTALLDIR" Value="INSTALLDIR" />
+    <Property Id="IOTSHARP_DB_TEMPLATE" Value="Sqlite" Secure="yes" />
+    <Property Id="IOTSHARP_DB_HOST" Value="localhost" Secure="yes" />
+    <Property Id="IOTSHARP_DB_PORT" Secure="yes" />
+    <Property Id="IOTSHARP_DB_NAME" Value="IoTSharp" Secure="yes" />
+    <Property Id="IOTSHARP_DB_USER" Secure="yes" />
+    <Property Id="IOTSHARP_DB_PASSWORD" Secure="yes" Hidden="yes" />
+    <Property Id="IOTSHARP_SQLITE_PATH" Value=".data\IoTSharp.db" Secure="yes" />
+  </Fragment>
+
+  <Fragment>
+    <ComponentGroup Id="InstallerSupportFiles">
+      <ComponentRef Id="InstallerConfigScriptComponent" />
+    </ComponentGroup>
+  </Fragment>
+
+  <Fragment>
+    <DirectoryRef Id="INSTALLDIR">
+      <Component Id="InstallerConfigScriptComponent" Guid="*">
+        <File
+            Id="IoTSharpInstallerConfigScript"
+            Source="Scripts\Write-InstallerConfig.ps1"
+            KeyPath="yes" />
+      </Component>
+    </DirectoryRef>
+  </Fragment>
+
+  <Fragment>
+    <SetProperty
+        Id="WriteInstallerConfig"
+        Value="&quot;[System64Folder]WindowsPowerShell\v1.0\powershell.exe&quot; -NoProfile -ExecutionPolicy Bypass -File &quot;[#IoTSharpInstallerConfigScript]&quot; -InstallDir &quot;[INSTALLDIR]&quot; -Template &quot;[IOTSHARP_DB_TEMPLATE]&quot; -Host &quot;[IOTSHARP_DB_HOST]&quot; -Port &quot;[IOTSHARP_DB_PORT]&quot; -Database &quot;[IOTSHARP_DB_NAME]&quot; -Username &quot;[IOTSHARP_DB_USER]&quot; -Password &quot;[IOTSHARP_DB_PASSWORD]&quot; -SqlitePath &quot;[IOTSHARP_SQLITE_PATH]&quot;"
+        Before="WriteInstallerConfig"
+        Sequence="execute"
+        Condition="NOT Installed AND NOT REMOVE=&quot;ALL&quot;" />
+
+    <CustomAction
+        Id="WriteInstallerConfig"
+        BinaryRef="Wix4UtilCA_$(sys.BUILDARCHSHORT)"
+        DllEntry="WixSilentExec"
+        Execute="deferred"
+        Impersonate="no"
+        Return="check"
+        HideTarget="yes" />
+
+    <InstallExecuteSequence>
+      <Custom Action="WriteInstallerConfig" After="InstallFiles" Condition="NOT Installed AND NOT REMOVE=&quot;ALL&quot;" />
+    </InstallExecuteSequence>
   </Fragment>
 
   <?include $(var.GeneratedWixFragment)?>

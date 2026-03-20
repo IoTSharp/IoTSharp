@@ -10,6 +10,11 @@
     <DefineConstants>ProductVersion=3.5.0;GeneratedWixFragment=$(GeneratedWixFragment)</DefineConstants>
   </PropertyGroup>
 
+  <ItemGroup>
+    <PackageReference Include="WixToolset.UI.wixext" Version="6.0.2" />
+    <PackageReference Include="WixToolset.Util.wixext" Version="6.0.2" />
+  </ItemGroup>
+
   <Target Name="PublishIoTSharp" BeforeTargets="BeforeBuild" Condition="'$(SkipIoTSharpPublish)' != 'true'">
     <ItemGroup>
       <EntityFrameworkMetadataTargets Include="$(MSBuildProjectDirectory)\..\**\obj\*.EntityFrameworkCore.targets" />
