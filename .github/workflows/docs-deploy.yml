@@ -1,39 +1,64 @@
-name: Deploy to GitHub Pages
+name: Deploy Docs to GitHub Pages
 
 on:
   push:
     branches: [master]
-    paths: [docs/**]
+    paths:
+      - 'docs/**'
+      - '.github/workflows/docs-deploy.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: github-pages
+  cancel-in-progress: true
 
 jobs:
-  deploy:
-    name: Deploy to GitHub Pages
+  build:
+    name: Build Docs
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-node@v1
-        with:
-          node-version: 22.x
-          cache: yarn
-      - name: Build website
-        working-directory: docs
-        run: |
-          yarn  install --frozen-lockfile 
-          yarn  build
+      - name: Checkout
+        uses: actions/checkout@v4
 
-      # Popular action to deploy to GitHub Pages:
-      # Docs: https://github.com/peaceiris/actions-gh-pages#%EF%B8%8F-docusaurus
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: docs/package.json
+
+      - name: Configure Pages
+        uses: actions/configure-pages@v5
+
+      - name: Install dependencies
+        working-directory: docs
+        run: npm install
+
+      - name: Build docs site
+        working-directory: docs
+        env:
+          DOCS_SITE_URL: ${{ vars.DOCS_SITE_URL || format('https://{0}.github.io', github.repository_owner) }}
+          DOCS_BASE_URL: ${{ vars.DOCS_BASE_URL || format('/{0}/', github.event.repository.name) }}
+        run: npm run build
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: docs/build
+
+  deploy:
+    name: Deploy Docs
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
       - name: Deploy to GitHub Pages
-        uses: peaceiris/actions-gh-pages@v3
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          # Build output to publish to the `gh-pages` branch:
-          publish_dir: docs/build
-      - name: syncfile
-        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
-        with:
-         server: wh-nb3if1wq7i6udh1xtsb.my3w.com
-         username: ${{ secrets.FTPUSERNAME }}
-         password: ${{ secrets.FTPPASSWORD }}
-         local-dir:  docs/build/
-         server-dir: htdocs/
+        id: deployment
+        uses: actions/deploy-pages@v4

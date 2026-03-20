@@ -1,144 +1,123 @@
 // @ts-check
-// Note: type annotations allow type checking and IDEs autocompletion
 
 const { themes } = require('prism-react-renderer');
+
 const lightTheme = themes.github;
 const darkTheme = themes.dracula;
+
+const siteUrl = process.env.DOCS_SITE_URL || 'https://iotsharp.net';
+const baseUrl = process.env.DOCS_BASE_URL || '/';
 
 /** @type {import('@docusaurus/types').Config} */
 const config = {
   title: 'IoTSharp',
-  tagline: 'IoTSharp is an open-source IoT platform for data collection, processing, visualization, and device management.',
-  url: 'https://iotsharp.net',
-  baseUrl: '',
+  tagline: '开源物联网平台，覆盖安装、接入、规则链、资产与运维发布。',
+  url: siteUrl,
+  baseUrl,
   onBrokenLinks: 'throw',
-  onBrokenMarkdownLinks: 'warn',
   favicon: 'img/favicon.ico',
-  organizationName: 'IoTSharp', // Usually your GitHub org/user name.
-  projectName: 'IoTSharp', // Usually your repo name.
-
+  trailingSlash: false,
+  organizationName: 'IoTSharp',
+  projectName: 'IoTSharp',
+  deploymentBranch: 'gh-pages',
+  i18n: {
+    defaultLocale: 'zh-Hans',
+    locales: ['zh-Hans'],
+  },
+  markdown: {
+    hooks: {
+      onBrokenMarkdownLinks: 'warn',
+    },
+  },
   presets: [
     [
       'classic',
-      /** @type {import('@docusaurus/preset-classic').Options} */
-      ({
+      {
         docs: {
           sidebarPath: require.resolve('./sidebars.js'),
-          // Please change this to your repo.
-          editUrl: 'https://github.com/IoTSharp/IoTSharp/edit/master/docs',
+          editUrl: 'https://github.com/IoTSharp/IoTSharp/tree/master/docs',
+          exclude: ['**/tutorial-basics/**', '**/tutorial-extras/**'],
         },
         blog: {
           showReadingTime: true,
-          // Please change this to your repo.
-          editUrl:
-            'https://github.com/IoTSharp/IoTSharp/edit/master/docs/',
+          editUrl: 'https://github.com/IoTSharp/IoTSharp/tree/master/docs/blog',
+          onInlineAuthors: 'ignore',
+          onUntruncatedBlogPosts: 'ignore',
         },
         theme: {
           customCss: require.resolve('./src/css/custom.css'),
         },
-      }),
+      },
     ],
   ],
-
-  themeConfig:
-    /** @type {import('@docusaurus/preset-classic').ThemeConfig} */
-    ({
-      navbar: {
-        title: 'IoTSharp',
-        logo: {
-          alt: 'IoTSharp',
-          src: 'img/iotsharp.png',
+  themeConfig: {
+    image: 'img/iotsharp.png',
+    navbar: {
+      title: 'IoTSharp',
+      logo: {
+        alt: 'IoTSharp',
+        src: 'img/iotsharp.png',
+      },
+      items: [
+        {
+          type: 'doc',
+          docId: 'intro',
+          position: 'left',
+          label: '使用手册',
         },
-        items: [
-          {
-            type: 'doc',
-            docId: 'intro',
-            position: 'left',
-            label: '参考手册',
-          },
-          { to: '/blog', label: '博客', position: 'left' },
-          {
-            href: 'http://iotsharp.online',
-            label: '线上体验',
-            position: 'right',
-          },
-          {
-            href: 'https://github.com/IoTSharp/IoTSharp',
-            label: 'GitHub',
-            position: 'right',
-          },
-          {
-            href: 'https://gitee.com/IoTSharp/IoTSharp',
-            label: 'Gitee',
-            position: 'right',
-          },
-          {
-            href: 'https://gitcode.com/IoTSharp/IoTSharp',
-            label: 'GitCode',
-            position: 'right',
-          },
-          {
-            href: 'https://space.bilibili.com/496905613',
-            label: '视频教程',
-            position: 'right',
-          },
-          {
-            label: '联系我',
-            href: 'https://work.weixin.qq.com/ca/cawcde2aa597e1ddf7',
-            position: 'right',
-          },
-          
-        ],
-      },
-      footer: {
-        style: 'dark',
-        links: [
-          {
-            title: '文档',
-            items: [
-              {
-                label: '简介',
-                to: '/docs/intro',
-              },
-            ],
-          },
-          {
-            title: '社区',
-            items: [
-              {
-                label: 'QQ群',
-                href: 'https://jq.qq.com/?_wv=1027&k=u1ZzTmVd',
-              },
-              {
-                label: '企微群',
-                to: '/img/qyqun.jpg',
-              }
-            ],
-          },
-          {
-            title: '其他',
-            items: [
-              {
-                label: 'GitHub',
-                href: 'https://github.com/IoTSharp/IoTSharp',
-              },
-              {
-                label: '联系我',
-                href: 'https://work.weixin.qq.com/ca/cawcde2aa597e1ddf7',
-              },
-              {
-                label: ' 冀ICP备18039206号-2',
-                href: 'https://beian.miit.gov.cn/',
-              },
-            ],
-          },
-        ],
-        copyright: `Copyright © ${new Date().getFullYear()} IoTSharp. Built with Docusaurus.`,
-      },
-      prism: {
-        additionalLanguages: ['bash', 'diff', 'json'],
-      },
-    }),
+        { to: '/blog', label: '博客', position: 'left' },
+        {
+          href: 'http://iotsharp.online',
+          label: '在线体验',
+          position: 'right',
+        },
+        {
+          href: 'https://space.bilibili.com/496905613',
+          label: '视频教程',
+          position: 'right',
+        },
+        {
+          href: 'https://github.com/IoTSharp/IoTSharp',
+          label: 'GitHub',
+          position: 'right',
+        },
+      ],
+    },
+    footer: {
+      style: 'dark',
+      links: [
+        {
+          title: '文档',
+          items: [
+            { label: '快速开始', to: '/docs/getting-started/installation-options' },
+            { label: '用户手册', to: '/docs/user-guide/dashboard' },
+            { label: '运维发布', to: '/docs/operations/release-distribution-plan' },
+          ],
+        },
+        {
+          title: '社区',
+          items: [
+            { label: 'GitHub', href: 'https://github.com/IoTSharp/IoTSharp' },
+            { label: 'Gitee', href: 'https://gitee.com/IoTSharp/IoTSharp' },
+            { label: 'QQ群', href: 'https://jq.qq.com/?_wv=1027&k=u1ZzTmVd' },
+          ],
+        },
+        {
+          title: '联系',
+          items: [
+            { label: '企业微信', href: 'https://work.weixin.qq.com/ca/cawcde2aa597e1ddf7' },
+            { label: '官网', href: 'https://iotsharp.net' },
+          ],
+        },
+      ],
+      copyright: `Copyright © ${new Date().getFullYear()} IoTSharp.`,
+    },
+    prism: {
+      theme: lightTheme,
+      darkTheme,
+      additionalLanguages: ['bash', 'diff', 'json', 'powershell'],
+    },
+  },
 };
 
 module.exports = config;
