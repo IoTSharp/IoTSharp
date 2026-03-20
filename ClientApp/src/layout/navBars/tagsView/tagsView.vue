@@ -603,10 +603,13 @@ export default defineComponent({
 
 <style scoped lang="scss">
 .layout-navbars-tagsview {
-	background-color: var(--el-color-white);
-	border-bottom: 1px solid var(--next-border-color-light);
+	background: rgba(255, 255, 255, 0.98);
+	border: 1px solid rgba(227, 234, 244, 0.96);
+	border-top: none;
+	border-radius: 0 0 24px 24px;
 	position: relative;
 	z-index: 4;
+	box-shadow: 0 18px 38px rgba(15, 23, 42, 0.04);
 	:deep(.el-scrollbar__wrap) {
 		overflow-x: auto !important;
 	}
@@ -614,30 +617,31 @@ export default defineComponent({
 		list-style: none;
 		margin: 0;
 		padding: 0;
-		height: 34px;
+		height: 44px;
 		display: flex;
 		align-items: center;
-		color: var(--el-text-color-regular);
+		color: #6b7280;
 		font-size: 12px;
 		white-space: nowrap;
-		padding: 0 15px;
+		padding: 0 18px 0 20px;
 		&-li {
-			height: 26px;
-			line-height: 26px;
+			height: 30px;
+			line-height: 30px;
 			display: flex;
 			align-items: center;
-			border: 1px solid var(--el-border-color-lighter);
-			padding: 0 15px;
-			margin-right: 5px;
-			border-radius: 2px;
+			border: 1px solid transparent;
+			padding: 0 14px;
+			margin-right: 8px;
+			border-radius: 12px 12px 0 0;
 			position: relative;
 			z-index: 0;
 			cursor: pointer;
 			justify-content: space-between;
+			background: transparent;
 			&:hover {
-				background-color: var(--el-color-primary-light-9);
-				color: var(--el-color-primary);
-				border-color: var(--el-color-primary-light-5);
+				background: #f3f7ff;
+				color: #4a52f0;
+				border-color: #dce6ff;
 			}
 			&-iconfont {
 				position: relative;
@@ -665,10 +669,11 @@ export default defineComponent({
 			}
 		}
 		.is-active {
-			color: var(--el-color-white);
-			background: var(--el-color-primary);
-			border-color: var(--el-color-primary);
-			transition: border-color 3s ease;
+			color: #3080f6;
+			background: linear-gradient(180deg, #f5f9ff 0%, #ebf3ff 100%);
+			border-color: #d9e7ff;
+			box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.8);
+			transition: border-color 0.2s ease;
 		}
 	}
 	// 风格4
@@ -729,6 +734,6 @@ export default defineComponent({
 	}
 }
 .layout-navbars-tagsview-shadow {
-	box-shadow: rgb(0 21 41 / 4%) 0px 1px 4px;
+	box-shadow: 0 18px 38px rgba(15, 23, 42, 0.04);
 }
 </style>

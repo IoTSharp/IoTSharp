@@ -116,24 +116,25 @@ onBeforeRouteUpdate((to) => {
 	.layout-navbars-breadcrumb-icon {
 		cursor: pointer;
 		font-size: 18px;
-		color: #0f172a;
-		height: 42px;
-		width: 42px;
-		border-radius: 14px;
-		border: 1px solid rgba(148, 163, 184, 0.14);
-		background: rgba(248, 250, 252, 0.9);
-		opacity: 0.92;
+		color: #526070;
+		height: 34px;
+		width: 34px;
+		border-radius: 10px;
+		border: 1px solid rgba(223, 231, 241, 0.96);
+		background: #f8fbff;
+		opacity: 1;
 
 		&:hover {
-			opacity: 1;
-			background: rgba(255, 255, 255, 1);
+			background: #eef4ff;
+			color: #4a52f0;
 		}
 	}
 
 	.layout-navbars-breadcrumb-span {
 		display: flex;
-		opacity: 0.82;
+		opacity: 1;
 		color: #0f172a;
+		font-weight: 600;
 	}
 
 	.layout-navbars-breadcrumb-iconfont {
@@ -146,16 +147,16 @@ onBeforeRouteUpdate((to) => {
 	}
 
 	:deep(.el-breadcrumb__separator) {
-		opacity: 0.5;
-		color: #94a3b8;
+		opacity: 1;
+		color: #b8c3d2;
 	}
 
 	:deep(.el-breadcrumb__inner a, .el-breadcrumb__inner.is-link) {
 		font-weight: unset !important;
-		color: #475569;
+		color: #7b8794;
 
 		&:hover {
-			color: #0f766e !important;
+			color: #4a52f0 !important;
 		}
 	}
 }

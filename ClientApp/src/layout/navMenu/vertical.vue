@@ -112,12 +112,24 @@ export default defineComponent({
 
 .z-vertical-menu {
   width: 100%;
+  padding-top: 2px;
 
   .z-menu-icon {
-    margin-right: 16px;
+    margin-right: 12px;
     font-size: 18px;
     flex-shrink: 0;
-    color: #8E8EA9;
+    color: #9ba7ba;
+  }
+
+  :deep(.el-menu-item),
+  :deep(.el-sub-menu__title) {
+    margin-bottom: 8px;
+    border-radius: 14px;
+  }
+
+  :deep(.el-menu-item.is-active),
+  :deep(.el-sub-menu.is-active > .el-sub-menu__title) {
+    font-weight: 700;
   }
 
   &.el-menu--collapse {

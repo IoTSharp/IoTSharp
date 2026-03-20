@@ -35,13 +35,13 @@ export default defineComponent({
 
 <style scoped lang="scss">
 .iotsharp-header {
-	padding: 18px 20px 0;
+	padding: 0 18px 0 0;
 	background: transparent;
 }
 
 @media (max-width: 767px) {
 	.iotsharp-header {
-		padding: 14px 14px 0;
+		padding: 0 10px 0 0;
 	}
 }
 </style>

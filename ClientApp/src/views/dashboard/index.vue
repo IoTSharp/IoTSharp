@@ -5,7 +5,7 @@
 				<div class="dashboard-hero__eyebrow">IoT Operations Center</div>
 				<div class="dashboard-hero__heading">
 					<div>
-						<h1>{{ appTitle }}</h1>
+						<Breadcrumb class="dashboard-hero__breadcrumb" />
 						<p>把设备在线、消息吞吐、规则规模和平台健康放到同一个视图里，便于值守与分析。</p>
 					</div>
 					<div class="dashboard-hero__version">{{ versionText }}</div>
@@ -198,6 +198,7 @@ import type { EChartsOption } from 'echarts';
 import CheckIcon from '~icons/ic/round-check';
 import ConnectionIcon from '~icons/mdi/connection';
 import HomeCardItem from '/@/views/dashboard/HomeCardItem.vue';
+import Breadcrumb from '/@/layout/navBars/breadcrumb/breadcrumb.vue';
 import { homeCardItemsConfig, type HomeCardMetricKey } from '/@/views/dashboard/homeCardItems';
 import { useThemeConfig } from '/@/stores/themeConfig';
 import { useAppInfo } from '/@/stores/appInfo';
@@ -281,7 +282,6 @@ const chartInstances: Record<ChartKey, echarts.ECharts | null> = {
 	resource: null,
 };
 
-const appTitle = computed(() => themeConfig.value.globalTitle || 'IoTSharp');
 const versionText = computed(() => (appInfo.value.version ? `Version ${appInfo.value.version}` : 'Self-hosted'));
 const lastUpdatedText = computed(() => (lastUpdated.value ? dayjs(lastUpdated.value).format('YYYY-MM-DD HH:mm:ss') : '未同步'));
 
@@ -325,7 +325,7 @@ const summaryCards = computed(() => {
 		rulesCount: `每产品规则 ${averageText(kanban.value.rulesCount, kanban.value.produceCount)}`,
 	};
 
-	return homeCardItemsConfig.map((item) => ({
+	return homeCardItemsConfig.slice(0, 4).map((item) => ({
 		...item,
 		value: formatCount(values[item.key]),
 		hint: hints[item.key],
@@ -627,37 +627,35 @@ watch(
 	display: flex;
 	flex-direction: column;
 	gap: 18px;
-	padding: 4px;
+	padding: 8px 6px 4px;
 }
 
 .dashboard-hero,
 .dashboard-panel {
 	position: relative;
-	border: 1px solid rgba(148, 163, 184, 0.16);
-	background:
-		radial-gradient(circle at top left, rgba(79, 70, 229, 0.1), transparent 28%),
-		linear-gradient(180deg, rgba(255, 255, 255, 0.96), rgba(248, 250, 252, 0.95));
-	box-shadow: 0 22px 50px rgba(15, 23, 42, 0.08);
-	backdrop-filter: blur(18px);
+	border: 1px solid rgba(224, 232, 242, 0.96);
+	background: linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(248, 251, 255, 0.96));
+	box-shadow: 0 16px 36px rgba(15, 23, 42, 0.05);
+	backdrop-filter: blur(12px);
 }
 
 .dashboard-hero {
 	display: grid;
-	grid-template-columns: 1.8fr 1fr;
+	grid-template-columns: 1fr;
 	gap: 18px;
-	padding: 28px;
+	padding: 28px 28px 24px;
 	border-radius: 28px;
 	overflow: hidden;
 
 	&::after {
 		position: absolute;
-		right: -48px;
-		top: -56px;
-		width: 220px;
-		height: 220px;
+		right: -40px;
+		top: -48px;
+		width: 200px;
+		height: 200px;
 		content: '';
 		border-radius: 50%;
-		background: radial-gradient(circle, rgba(14, 165, 233, 0.18), transparent 68%);
+		background: radial-gradient(circle, rgba(88, 100, 255, 0.12), transparent 68%);
 	}
 }
 
@@ -670,7 +668,7 @@ watch(
 .dashboard-hero__eyebrow,
 .dashboard-panel__eyebrow {
 	margin-bottom: 8px;
-	color: #4f46e5;
+	color: #5b6b80;
 	font-size: 12px;
 	font-weight: 700;
 	letter-spacing: 0.18em;
@@ -692,19 +690,24 @@ watch(
 	}
 
 	p {
-		max-width: 720px;
-		color: #475569;
+		max-width: 760px;
+		color: #67768a;
 		font-size: 15px;
-		line-height: 1.75;
+		line-height: 1.8;
 	}
 }
 
+.dashboard-hero__breadcrumb {
+	min-height: 30px;
+	margin-bottom: 10px;
+}
+
 .dashboard-hero__version {
-	padding: 10px 14px;
+	padding: 8px 14px;
 	border-radius: 999px;
-	background: rgba(79, 70, 229, 0.08);
-	color: #4338ca;
-	font-size: 13px;
+	background: rgba(88, 100, 255, 0.08);
+	color: #5864ff;
+	font-size: 12px;
 	font-weight: 600;
 	white-space: nowrap;
 }
@@ -713,7 +716,7 @@ watch(
 	display: grid;
 	grid-template-columns: repeat(4, minmax(0, 1fr));
 	gap: 14px;
-	margin-top: 24px;
+	margin-top: 20px;
 }
 
 .dashboard-hero__meta-item,
@@ -721,8 +724,8 @@ watch(
 .status-grid__item {
 	padding: 16px 18px;
 	border-radius: 20px;
-	background: rgba(255, 255, 255, 0.72);
-	border: 1px solid rgba(148, 163, 184, 0.12);
+	background: linear-gradient(180deg, rgba(255, 255, 255, 1), rgba(249, 251, 255, 0.98));
+	border: 1px solid rgba(229, 236, 244, 0.98);
 }
 
 .dashboard-hero__meta-item {
@@ -735,16 +738,16 @@ watch(
 		font-size: 13px;
 	}
 
-	strong {
-		color: #0f172a;
-		font-size: 22px;
-		letter-spacing: -0.04em;
-	}
+		strong {
+			color: #0f172a;
+			font-size: 20px;
+			letter-spacing: -0.04em;
+		}
 }
 
 .dashboard-hero__aside {
-	display: flex;
-	flex-direction: column;
+	display: grid;
+	grid-template-columns: repeat(3, minmax(0, 1fr));
 	gap: 14px;
 }
 
@@ -759,7 +762,7 @@ watch(
 	display: block;
 	margin: 10px 0 8px;
 	color: #0f172a;
-	font-size: 28px;
+	font-size: 24px;
 	font-weight: 700;
 	line-height: 1;
 	letter-spacing: -0.05em;
@@ -824,7 +827,7 @@ watch(
 
 	p {
 		margin: 0;
-		color: #64748b;
+		color: #7b8794;
 		font-size: 14px;
 		line-height: 1.7;
 	}
@@ -843,8 +846,8 @@ watch(
 	gap: 8px;
 	padding: 9px 12px;
 	border-radius: 999px;
-	background: rgba(79, 70, 229, 0.08);
-	color: #4338ca;
+	background: rgba(88, 100, 255, 0.08);
+	color: #5864ff;
 	font-size: 13px;
 	font-weight: 600;
 	white-space: nowrap;
@@ -1038,10 +1041,6 @@ watch(
 }
 
 @media (max-width: 1440px) {
-	.dashboard-hero {
-		grid-template-columns: 1fr;
-	}
-
 	.dashboard-hero__meta {
 		grid-template-columns: repeat(2, minmax(0, 1fr));
 	}
@@ -1092,6 +1091,7 @@ watch(
 	}
 
 	.dashboard-hero__meta,
+	.dashboard-hero__aside,
 	.status-grid,
 	.breakdown-list {
 		grid-template-columns: repeat(1, minmax(0, 1fr));

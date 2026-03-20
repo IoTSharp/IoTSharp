@@ -67,8 +67,8 @@ export function formatTwoStageRoutes(arr: any) {
 	if (arr.length <= 0) return false;
 	const newArr: any = [];
 	const cacheList: Array<string> = [];
-	arr.forEach((v: any) => {
-		if (v.path === '/') {
+	arr.forEach((v: any, index: number) => {
+		if (index === 0) {
 			newArr.push({ component: v.component, name: v.name, path: v.path, redirect: v.redirect, meta: v.meta, children: [] });
 		} else {
 			// 判断是否是动态路由（xx/:id/:name），用于 tagsView 等中使用
@@ -95,7 +95,7 @@ router.beforeEach(async (to, from, next) => {
 	NProgress.configure({ showSpinner: false });
 	if (to.meta.title) NProgress.start();
 	const token = Session.get('token');
-	if ((to.path === '/login' || to.path === '/installer' || to.path === '/signup') && !token) {
+	if ((to.path === '/' || to.path === '/login' || to.path === '/installer' || to.path === '/signup') && !token) {
 		next();
 		NProgress.done();
 	} else {

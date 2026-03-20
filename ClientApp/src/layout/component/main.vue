@@ -74,6 +74,7 @@ export default defineComponent({
 				state.currentRouteMeta = route.meta;
 				const bool = state.currentRouteMeta.isLink && state.currentRouteMeta.isIframe;
 				state.headerHeight = bool ? `86px` : `115px`;
+				if (proxy.$refs.layoutScrollbarRef?.wrapRef) proxy.$refs.layoutScrollbarRef.wrapRef.scrollTop = 0;
 				proxy.$refs.layoutScrollbarRef.update();
 			}
 		);
@@ -114,7 +115,11 @@ export default defineComponent({
 
 .iotsharp-main__content {
 	min-width: 0;
-	padding: 10px 22px 28px;
+	padding: 14px 24px 28px;
+	border-radius: 0 0 28px 28px;
+	background:
+		linear-gradient(90deg, rgba(210, 232, 255, 0.52) 0, rgba(210, 232, 255, 0.52) 12px, transparent 12px),
+		linear-gradient(180deg, rgba(255, 255, 255, 0.72), rgba(248, 251, 255, 0.78));
 }
 
 .iotsharp-main__content--immersive {
@@ -123,7 +128,7 @@ export default defineComponent({
 
 @media (max-width: 767px) {
 	.iotsharp-main__content {
-		padding: 6px 12px 20px;
+		padding: 10px 12px 20px;
 	}
 }
 </style>

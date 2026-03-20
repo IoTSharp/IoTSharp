@@ -1,10 +1,6 @@
 <template>
 	<div class="layout-logo" v-if="setShowLogo" @click="onThemeConfigChange">
 		<AppLogo class="layout-logo__brand" />
-		<div class="layout-logo__copy">
-			<span class="layout-logo__title">{{ themeConfig.globalTitle }}</span>
-			<span class="layout-logo__subtitle">Industrial AI Console</span>
-		</div>
 	</div>
 	<div class="layout-logo-size" v-else @click="onThemeConfigChange">
 		<AppLogo hideText class="layout-logo-size__brand" />
@@ -20,19 +16,32 @@ import AppLogo from '/@/components/AppLogo.vue';
 export default defineComponent({
 	name: 'layoutLogo',
 	components: { AppLogo },
-	setup() {
+	props: {
+		alwaysExpanded: {
+			type: Boolean,
+			default: false,
+		},
+		disableToggle: {
+			type: Boolean,
+			default: false,
+		},
+	},
+	setup(props) {
 		const storesThemeConfig = useThemeConfig();
 		const { themeConfig } = storeToRefs(storesThemeConfig);
-		// 设置 logo 的显示。classic 经典布局默认显示 logo
+
 		const setShowLogo = computed(() => {
-			let { isCollapse, layout } = themeConfig.value;
+			if (props.alwaysExpanded) return true;
+			const { isCollapse, layout } = themeConfig.value;
 			return !isCollapse || layout === 'classic' || document.body.clientWidth < 1000;
 		});
-		// logo 点击实现菜单展开/收起
+
 		const onThemeConfigChange = () => {
+			if (props.disableToggle) return false;
 			if (themeConfig.value.layout === 'transverse') return false;
 			themeConfig.value.isCollapse = !themeConfig.value.isCollapse;
 		};
+
 		return {
 			setShowLogo,
 			themeConfig,
@@ -44,55 +53,37 @@ export default defineComponent({
 
 <style scoped lang="scss">
 .layout-logo {
-	width: 220px;
-	height: 72px;
+	width: 100%;
+	height: 78px;
 	display: flex;
 	align-items: center;
 	justify-content: flex-start;
-	padding: 0 18px;
-	gap: 12px;
-	border-radius: var(--iotsharp-radius-card);
-	border: 1px solid var(--iotsharp-border-soft);
-	background: linear-gradient(180deg, var(--iotsharp-surface-base), rgba(248, 250, 252, 0.9));
-	box-shadow: var(--iotsharp-shadow-card);
+	padding: 0 16px 0 14px;
+	border-radius: 0;
+	border: none;
+	background: transparent;
+	box-shadow: none;
 	cursor: pointer;
 	animation: logoAnimation 0.3s ease-in-out;
-	overflow: hidden;
+
 	&__brand {
-		flex-shrink: 0;
-	}
-	&__copy {
-		display: flex;
-		flex-direction: column;
 		min-width: 0;
 	}
-	&__title {
-		color: var(--iotsharp-brand-ink);
-		font-size: 15px;
-		font-weight: 700;
-		line-height: 1.1;
-		white-space: nowrap;
-	}
-	&__subtitle {
-		margin-top: 4px;
-		color: var(--iotsharp-brand-slate);
-		font-size: 11px;
-		letter-spacing: 0.12em;
-		text-transform: uppercase;
-	}
 }
+
 .layout-logo-size {
 	width: 100%;
-	height: 72px;
+	height: 78px;
 	display: flex;
 	align-items: center;
 	justify-content: center;
 	cursor: pointer;
 	animation: logoAnimation 0.3s ease-in-out;
-	border-radius: 20px;
-	border: 1px solid var(--iotsharp-border-soft);
-	background: linear-gradient(180deg, var(--iotsharp-surface-base), rgba(248, 250, 252, 0.9));
-	box-shadow: var(--iotsharp-shadow-card);
+	border-radius: 0;
+	border: none;
+	background: transparent;
+	box-shadow: none;
+
 	&__brand {
 		transform: scale(0.96);
 	}

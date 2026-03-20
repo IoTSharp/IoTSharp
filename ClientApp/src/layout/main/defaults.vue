@@ -1,25 +1,21 @@
 <template>
 	<div class="iotsharp-shell">
 		<div class="iotsharp-shell__mesh"></div>
-		<el-container class="layout-container iotsharp-shell__container">
-			<Aside />
-			<el-container class="flex-center iotsharp-shell__workspace" :class="{ 'layout-backtop': !isFixedHeader }">
-				<Header v-if="isFixedHeader" />
-				<el-scrollbar ref="layoutDefaultsScrollbarRef" class="iotsharp-shell__scrollbar" :class="{ 'layout-backtop': isFixedHeader }">
-					<Header v-if="!isFixedHeader" />
+		<el-container class="layout-container iotsharp-shell__container" direction="vertical">
+			<Header class="iotsharp-shell__header" />
+			<el-container class="iotsharp-shell__body">
+				<Aside />
+				<el-container class="flex-center iotsharp-shell__workspace">
 					<Main />
-				</el-scrollbar>
+				</el-container>
 			</el-container>
-			<el-backtop target=".layout-backtop .el-scrollbar__wrap"></el-backtop>
+			<el-backtop target=".layout-main .el-scrollbar__wrap"></el-backtop>
 		</el-container>
 	</div>
 </template>
 
 <script lang="ts">
-import { computed, getCurrentInstance, watch, defineComponent } from 'vue';
-import { useRoute } from 'vue-router';
-import { storeToRefs } from 'pinia';
-import { useThemeConfig } from '/@/stores/themeConfig';
+import { defineComponent } from 'vue';
 import Aside from '/@/layout/component/aside.vue';
 import Header from '/@/layout/component/header.vue';
 import Main from '/@/layout/component/main.vue';
@@ -27,25 +23,6 @@ import Main from '/@/layout/component/main.vue';
 export default defineComponent({
 	name: 'layoutDefaults',
 	components: { Aside, Header, Main },
-	setup() {
-		const { proxy } = <any>getCurrentInstance();
-		const route = useRoute();
-		const storesThemeConfig = useThemeConfig();
-		const { themeConfig } = storeToRefs(storesThemeConfig);
-		const isFixedHeader = computed(() => {
-			return themeConfig.value.isFixedHeader;
-		});
-		// 监听路由的变化
-		watch(
-			() => route.path,
-			() => {
-				proxy.$refs.layoutDefaultsScrollbarRef.wrapRef.scrollTop = 0;
-			}
-		);
-		return {
-			isFixedHeader,
-		};
-	},
 });
 </script>
 
@@ -53,17 +30,20 @@ export default defineComponent({
 .iotsharp-shell {
 	position: relative;
 	min-height: 100%;
-	background: var(--iotsharp-shell-bg);
+	background:
+		radial-gradient(circle at top left, rgba(88, 100, 255, 0.08), transparent 22%),
+		radial-gradient(circle at bottom right, rgba(142, 196, 255, 0.18), transparent 26%),
+		linear-gradient(180deg, #f8fbff 0%, #f1f6fc 100%);
 }
 
 .iotsharp-shell__mesh {
 	position: absolute;
 	inset: 0;
 	background-image:
-		linear-gradient(rgba(148, 163, 184, 0.05) 1px, transparent 1px),
-		linear-gradient(90deg, rgba(148, 163, 184, 0.05) 1px, transparent 1px);
-	background-size: 40px 40px;
-	mask-image: radial-gradient(circle at center, #000 30%, transparent 88%);
+		linear-gradient(rgba(148, 163, 184, 0.04) 1px, transparent 1px),
+		linear-gradient(90deg, rgba(148, 163, 184, 0.04) 1px, transparent 1px);
+	background-size: 36px 36px;
+	opacity: 0.65;
 	pointer-events: none;
 }
 
@@ -74,30 +54,25 @@ export default defineComponent({
 	min-height: 100vh;
 }
 
+.iotsharp-shell__header {
+	flex: 0 0 auto;
+}
+
+.iotsharp-shell__body {
+	flex: 1 1 auto;
+	min-height: 0;
+}
+
 .iotsharp-shell__workspace {
 	flex: 1 1 auto;
 	min-width: 0;
 	min-height: 0;
-	padding: 0 18px 18px 12px;
-}
-
-.iotsharp-shell__scrollbar {
-	flex: 1;
-	min-width: 0;
-	min-height: 0;
-	border-radius: var(--iotsharp-radius-shell);
-	background: rgba(255, 255, 255, 0.44);
-	backdrop-filter: blur(18px);
-	box-shadow: var(--iotsharp-shadow-shell);
+	padding: 0 18px 18px 0;
 }
 
 @media (max-width: 767px) {
 	.iotsharp-shell__workspace {
-		padding: 0 10px 10px;
-	}
-
-	.iotsharp-shell__scrollbar {
-		border-radius: 22px;
+		padding: 0 10px 10px 0;
 	}
 }
 </style>

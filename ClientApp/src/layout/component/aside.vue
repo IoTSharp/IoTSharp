@@ -2,19 +2,12 @@
 	<div class="h100" v-show="!isTagsViewCurrenFull">
 		<el-aside class="layout-aside" :class="setCollapseStyle">
 			<div class="layout-aside__panel">
+				<div class="layout-aside__brand" v-if="setShowLogo">
+					<Logo class="layout-aside__brand-logo" />
+				</div>
 				<el-scrollbar class="layout-aside__scroll flex-auto" ref="layoutAsideScrollbarRef" @mouseenter="onAsideEnterLeave(true)" @mouseleave="onAsideEnterLeave(false)">
-					<div class="layout-aside__brand" v-if="setShowLogo">
-						<Logo class="layout-aside__brand-logo" />
-					</div>
 					<Vertical :menuList="menuList" />
 				</el-scrollbar>
-				<div class="layout-aside__footer" v-if="clientWidth >= 1000 && !themeConfig.isCollapse">
-					<span class="layout-aside__footer-dot"></span>
-					<div>
-						<div class="layout-aside__footer-title">{{ themeConfig.globalTitle }}</div>
-						<small class="layout-aside__footer-copy">Always-on operations workspace</small>
-					</div>
-				</div>
 			</div>
 		</el-aside>
 	</div>
@@ -82,10 +75,8 @@ export default defineComponent({
 
 		const setShowLogo = computed(() => {
 			let { layout, isShowLogo } = themeConfig.value;
-			return (isShowLogo && layout === 'defaults') || (isShowLogo && layout === 'columns');
+			return isShowLogo && layout === 'columns';
 		});
-
-		const menuSummary = computed(() => `${state.menuList.length} sections online`);
 
 		const setFilterRoutes = () => {
 			if (themeConfig.value.layout === 'columns') return false;
@@ -157,7 +148,6 @@ export default defineComponent({
 		return {
 			setCollapseStyle,
 			setShowLogo,
-			menuSummary,
 			themeConfig,
 			isTagsViewCurrenFull,
 			onAsideEnterLeave,
@@ -172,18 +162,19 @@ export default defineComponent({
 	display: flex;
 	flex-direction: column;
 	height: 100%;
-	padding: 18px 14px 8px;
-	background:
-		linear-gradient(180deg, var(--iotsharp-surface-panel), var(--iotsharp-surface-panel-alt)),
-		radial-gradient(circle at top, rgba(14, 165, 233, 0.12), transparent 32%);
-	border-right: 1px solid var(--iotsharp-border-soft);
+	padding: 0;
+	background: #ffffff;
+	border-right: 1px solid rgba(223, 231, 241, 0.92);
 }
 
 .layout-aside__brand {
 	display: flex;
 	align-items: center;
-	justify-content: center;
-	margin-bottom: 14px;
+	justify-content: flex-start;
+	height: 78px;
+	padding: 0 14px;
+	border-bottom: 1px solid rgba(236, 242, 248, 0.96);
+	background: linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(250, 251, 255, 0.98));
 }
 
 .layout-aside__brand-logo {
@@ -193,43 +184,7 @@ export default defineComponent({
 .layout-aside__scroll {
 	flex: 1 1 auto;
 	min-height: 0;
-	padding: 12px;
-	border-radius: var(--iotsharp-radius-card);
-	background: rgba(255, 255, 255, 0.54);
-	box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.5);
-}
-
-.layout-aside__footer {
-	display: flex;
-	align-items: center;
-	gap: 10px;
-	margin-top: auto;
-	margin-bottom: 2px;
-	padding: 14px 12px;
-	border-radius: 18px;
-	background: rgba(15, 23, 42, 0.92);
-	color: #e2e8f0;
-}
-
-.layout-aside__footer-dot {
-	width: 10px;
-	height: 10px;
-	border-radius: 999px;
-	background: linear-gradient(135deg, #38bdf8, #34d399);
-	box-shadow: 0 0 0 6px rgba(52, 211, 153, 0.12);
-}
-
-.layout-aside__footer-title {
-	font-size: 12px;
-	font-weight: 700;
-	letter-spacing: 0.08em;
-	text-transform: uppercase;
-}
-
-.layout-aside__footer-copy {
-	display: block;
-	margin-top: 3px;
-	color: rgba(226, 232, 240, 0.7);
-	font-size: 11px;
+	padding: 12px 10px 20px;
+	background: #ffffff;
 }
 </style>

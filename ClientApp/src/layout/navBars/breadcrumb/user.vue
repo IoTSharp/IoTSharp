@@ -260,27 +260,40 @@ export default defineComponent({
 	display: flex;
 	align-items: center;
 	justify-content: flex-end;
+	gap: 4px;
 	&-link {
-		height: 100%;
+		height: 36px;
 		display: flex;
 		align-items: center;
 		white-space: nowrap;
+		padding: 0 10px 0 6px;
+		border-radius: 999px;
+		border: 1px solid rgba(223, 231, 241, 0.96);
+		background: #f9fbff;
+		color: #4b5563;
+		font-size: 13px;
+		font-weight: 600;
 		&-photo {
-			width: 25px;
-			height: 25px;
+			width: 24px;
+			height: 24px;
 			border-radius: 100%;
 		}
 	}
 	&-icon {
-		padding: 0 10px;
+		width: 34px;
+		height: 34px;
 		cursor: pointer;
-		color: var(--next-bg-topBarColor);
-		height: 50px;
-		line-height: 50px;
+		color: #66758a;
+		line-height: 34px;
 		display: flex;
 		align-items: center;
+		justify-content: center;
+		border-radius: 10px;
+		border: 1px solid transparent;
 		&:hover {
-			background: var(--next-color-user-hover);
+			background: #eef4ff;
+			border-color: #dce6ff;
+			color: #4a52f0;
 			i {
 				display: inline-block;
 				animation: logoAnimation 0.3s ease-in-out;
@@ -288,16 +301,16 @@ export default defineComponent({
 		}
 	}
 	:deep(.el-dropdown) {
-		color: var(--next-bg-topBarColor);
+		color: inherit;
 	}
 	:deep(.el-badge) {
-		height: 40px;
-		line-height: 40px;
+		height: 34px;
+		line-height: 34px;
 		display: flex;
 		align-items: center;
 	}
 	:deep(.el-badge__content.is-fixed) {
-		top: 12px;
+		top: 8px;
 	}
 }
 </style>

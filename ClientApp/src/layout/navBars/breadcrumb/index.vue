@@ -1,8 +1,8 @@
 <template>
 	<div class="layout-navbars-breadcrumb-index">
 		<div class="layout-navbars-breadcrumb-index__left">
-			<Logo v-if="setIsShowLogo" />
-			<Breadcrumb />
+			<Logo v-if="setIsShowLogo" :alwaysExpanded="isDashboardHome" :disableToggle="isDashboardHome" />
+			<Breadcrumb v-if="!isDashboardHome" />
 		</div>
 		<Horizontal :menuList="menuList" v-if="isLayoutTransverse" />
 		<User />
@@ -40,7 +40,12 @@ export default defineComponent({
 
 		const setIsShowLogo = computed(() => {
 			const { isShowLogo, layout } = themeConfig.value;
-			return (isShowLogo && layout === 'classic') || (isShowLogo && layout === 'transverse');
+			return (isShowLogo && layout === 'classic') || (isShowLogo && layout === 'transverse') || (isShowLogo && layout === 'defaults');
+		});
+
+		const isDashboardHome = computed(() => {
+			const { layout } = themeConfig.value;
+			return layout === 'defaults' && route.path === '/dashboard';
 		});
 
 		const isLayoutTransverse = computed(() => {
@@ -103,6 +108,7 @@ export default defineComponent({
 
 		return {
 			setIsShowLogo,
+			isDashboardHome,
 			isLayoutTransverse,
 			themeConfig,
 			...toRefs(state),
@@ -113,12 +119,16 @@ export default defineComponent({
 
 <style scoped lang="scss">
 .layout-navbars-breadcrumb-index {
-	height: 50px;
+	height: 56px;
 	display: flex;
 	align-items: center;
 	gap: 12px;
-	background: var(--next-bg-topBar);
-	border-bottom: 1px solid var(--next-border-color-light);
+	padding: 0 18px;
+	background: rgba(255, 255, 255, 0.98);
+	border: 1px solid rgba(227, 234, 244, 0.96);
+	border-bottom: none;
+	border-radius: 24px 24px 0 0;
+	box-shadow: 0 14px 36px rgba(15, 23, 42, 0.04);
 }
 
 .layout-navbars-breadcrumb-index__left {
@@ -129,4 +139,9 @@ export default defineComponent({
 	gap: 12px;
 }
 
+@media (max-width: 767px) {
+	.layout-navbars-breadcrumb-index {
+		padding: 0 12px;
+	}
+}
 </style>
