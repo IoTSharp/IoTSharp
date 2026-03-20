@@ -1,63 +1,130 @@
-<p align="left">
-  <a href="https://iotsharp.net/">
-    <img src="public/logo_white.svg" width="360px" alt="IoTSharp logo" />
-  </a>
-</p>
+# IoTSharp ClientApp
 
+IoTSharp ClientApp is the web console for the IoTSharp platform. It is used for device access management, telemetry visualization, rule chain operations, tenant collaboration, and system setup.
 
-#### 🌈 介绍
+This frontend is now maintained as an IoTSharp application, not as a downstream documentation copy of any admin template.
 
-这是一个基于模板vue-next-admin 的 IoTSharp前端项目,IoTSharp 是一个开源的物联网基础平台，集设备属性数据管理、遥测数据监测、RPC多模式远程控制、规则链设计引擎等强大能力，依据数字孪生概念将可见与不可见的物理设备统一孪生到数字世界，在落地上IoTSharp结合了资产管理、产品化发展的理念，让平台应用更加贴合复杂的应用场景，在协议支持上支持HTTP、MQTT 、CoAp 等多种标准物联网协议接入和非标协议的转换。  
+## Overview
 
-[![NodeJS with build](https://github.com/IoTSharp/IoTSharp/actions/workflows/nodejsbuild.yml/badge.svg)](https://github.com/IoTSharp/IoTSharp/actions/workflows/nodejsbuild.yml) 
+IoTSharp is an open-source IoT platform focused on:
 
+- Device connectivity and lifecycle management
+- Telemetry, attributes, alarms, and event visibility
+- Rule engine and automation orchestration
+- Multi-tenant operations and system administration
+- Productized delivery for real-world industrial and enterprise scenarios
 
-#### ⛱️ 线上预览
+## Tech Stack
 
-- Demo <a href="http://host.iotsharp.net" target="_blank">http://host.iotsharp.net</a>
- 
+- Vue 3
+- TypeScript
+- Vite
+- Pinia
+- Vue Router
+- Element Plus
+- ECharts / X6 / Monaco Editor
 
+## Development Goals
 
-#### 🚧 安装 npm
+The current frontend direction is:
 
-- 复制代码(桌面 cmd 运行) `npm install `
+- Keep the engineering base simple and easy to evolve
+- Replace template branding and template-oriented UX with IoTSharp product language
+- Build a more modern, immersive, and AI-friendly frontend structure
+- Preserve compatibility with the existing backend and business modules
 
+## Requirements
 
-#### 🏭 环境支持
+- Node.js 16+
+- npm 7+
 
-| Edge      | Firefox      | Chrome      | Safari      |
-| --------- | ------------ | ----------- | ----------- |
-| Edge ≥ 79 | Firefox ≥ 78 | Chrome ≥ 64 | Safari ≥ 12 |
+Recommended browsers:
 
-> 由于 Vue3 不再支持 IE11，故而 ElementPlus 也不支持 IE11 及之前版本。
+| Browser | Version |
+| --- | --- |
+| Edge | 79+ |
+| Firefox | 78+ |
+| Chrome | 64+ |
+| Safari | 12+ |
 
-#### ⚡ 使用说明
-
-建议使用  npm 
+## Getting Started
 
 ```bash
-# 进入项目
 cd ClientApp
-
-# 安装依赖
-npm install  --legacy-peer-deps
-
-# 运行项目
+npm install --legacy-peer-deps
 npm run dev
+```
 
-# 打包发布
+Default local development behavior:
+
+- Frontend dev server: `http://localhost:8888`
+- Backend API: `http://localhost:5000`
+- In development, API requests are forwarded through the Vite proxy
+
+## Available Scripts
+
+```bash
+npm run dev
+npm run build
+npm run lint-fix
+```
+
+## Environment
+
+Important environment files:
+
+- [`.env`](d:/GitHub/IoTSharp/ClientApp/.env)
+- [`.env.development`](d:/GitHub/IoTSharp/ClientApp/.env.development)
+- [`.env.production`](d:/GitHub/IoTSharp/ClientApp/.env.production)
+
+Development uses same-origin API requests by default, then proxies `/api` traffic to the backend target configured in `.env.development`.
+
+## Project Structure
+
+```text
+ClientApp/
+  public/             Static assets
+  src/
+    api/              API wrappers
+    components/       Shared UI building blocks
+    layout/           App shell and navigation layout
+    router/           Route registration and guards
+    stores/           Pinia stores
+    utils/            Frontend utilities
+    views/            Product pages and feature screens
+  vite.config.ts      Vite config and dev proxy
+```
+
+## Current UX Direction
+
+Recent iterations are focused on:
+
+- Dashboard redesign
+- Login and installer experience redesign
+- Device detail information density and readability improvements
+- Full migration of visible product branding to `IoTSharp`
+
+## Build
+
+```bash
 npm run build
 ```
 
-#### 💯 学习交流加
- 
- 点击这里查看详细连接 https://github.com/IoTSharp/IoTSharp#community-support
+The production output is generated in `ClientApp/dist`.
 
+## Backend Coordination
 
-#### ❤️ 鸣谢列表
+This frontend depends on the IoTSharp backend APIs. For local development, make sure the backend is available before testing login, installer, telemetry, and dashboard data flows.
 
-- <a href="https://github.com/lyt-Top/vue-next-admin" target="_blank">vue-next-admin</a>
+Typical local backend address:
 
+- `http://localhost:5000`
 
+## Repository
 
- 
+- Main repository: <https://github.com/IoTSharp/IoTSharp>
+- Community and support: <https://github.com/IoTSharp/IoTSharp#community-support>
+
+## License
+
+Apache-2.0
