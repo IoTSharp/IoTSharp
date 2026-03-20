@@ -111,10 +111,19 @@ export default defineComponent({
 <style lang="scss">
 
 .z-vertical-menu {
+  width: 100%;
+
   .z-menu-icon {
     margin-right: 16px;
-    scale: 1.4;
+    font-size: 18px;
+    flex-shrink: 0;
     color: #8E8EA9;
+  }
+
+  &.el-menu--collapse {
+    .z-menu-icon {
+      margin-right: 0;
+    }
   }
 }
 

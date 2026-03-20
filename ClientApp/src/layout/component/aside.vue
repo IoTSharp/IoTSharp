@@ -3,11 +3,7 @@
 		<el-aside class="layout-aside" :class="setCollapseStyle">
 			<div class="layout-aside__panel">
 				<div class="layout-aside__brand" v-if="setShowLogo">
-					<Logo />
-					<div class="layout-aside__meta" v-if="!themeConfig.isCollapse || clientWidth < 1000">
-						<span>Mission Control</span>
-						<small>{{ menuSummary }}</small>
-					</div>
+					<Logo class="layout-aside__brand-logo" />
 				</div>
 				<el-scrollbar class="layout-aside__scroll flex-auto" ref="layoutAsideScrollbarRef" @mouseenter="onAsideEnterLeave(true)" @mouseleave="onAsideEnterLeave(false)">
 					<Vertical :menuList="menuList" />
@@ -186,28 +182,12 @@ export default defineComponent({
 .layout-aside__brand {
 	display: flex;
 	align-items: center;
-	gap: 12px;
+	justify-content: center;
 	margin-bottom: 16px;
 }
 
-.layout-aside__meta {
-	display: flex;
-	flex-direction: column;
-	min-width: 0;
-
-	span {
-		color: var(--iotsharp-brand-ink);
-		font-size: 13px;
-		font-weight: 700;
-	}
-
-	small {
-		margin-top: 4px;
-		color: var(--iotsharp-brand-slate);
-		font-size: 11px;
-		letter-spacing: 0.08em;
-		text-transform: uppercase;
-	}
+.layout-aside__brand-logo {
+	width: 100%;
 }
 
 .layout-aside__scroll {

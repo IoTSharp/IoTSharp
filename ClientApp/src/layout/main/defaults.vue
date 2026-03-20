@@ -70,15 +70,21 @@ export default defineComponent({
 .iotsharp-shell__container {
 	position: relative;
 	z-index: 1;
+	height: 100vh;
 	min-height: 100vh;
 }
 
 .iotsharp-shell__workspace {
+	flex: 1 1 auto;
+	min-width: 0;
+	min-height: 0;
 	padding: 0 18px 18px 12px;
 }
 
 .iotsharp-shell__scrollbar {
 	flex: 1;
+	min-width: 0;
+	min-height: 0;
 	border-radius: var(--iotsharp-radius-shell);
 	background: rgba(255, 255, 255, 0.44);
 	backdrop-filter: blur(18px);

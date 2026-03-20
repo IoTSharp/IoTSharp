@@ -101,15 +101,19 @@ export default defineComponent({
 
 <style scoped lang="scss">
 .iotsharp-main {
+	min-width: 0;
+	min-height: 0;
 	padding: 0 0 18px;
 	background: transparent;
 }
 
 .iotsharp-main__scrollbar {
 	height: 100%;
+	min-height: 0;
 }
 
 .iotsharp-main__content {
+	min-width: 0;
 	padding: 10px 22px 28px;
 }
 

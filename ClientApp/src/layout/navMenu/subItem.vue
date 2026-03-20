@@ -14,7 +14,7 @@
       <el-menu-item :index="val.path" :key="val.path">
         <template v-if="!val.meta.isLink || (val.meta.isLink && val.meta.isIframe)">
           <!--					<SvgIcon :name="val.meta.icon" />-->
-          <el-icon class="z-menu-icon" style="margin-right: 10">
+          <el-icon class="z-menu-icon">
             <component :is="menuIconList[val.name]"></component>
           </el-icon>
           <!--         *  // 在这里修改子菜单-->

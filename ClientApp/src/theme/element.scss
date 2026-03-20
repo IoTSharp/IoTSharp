@@ -89,6 +89,27 @@
 .el-menu--collapse {
 	width: 64px !important;
 }
+
+.el-menu--collapse {
+	.el-menu-item,
+	.el-sub-menu__title {
+		justify-content: center;
+		padding: 0 !important;
+	}
+
+	.el-menu-tooltip__trigger {
+		justify-content: center;
+		padding: 0 !important;
+	}
+
+	.el-menu-item .el-icon,
+	.el-sub-menu__title .el-icon,
+	.el-menu-item [class*='el-icon'],
+	.el-sub-menu__title [class*='el-icon'] {
+		width: 20px;
+		margin: 0 !important;
+	}
+}
 // 外部链接时
 .el-menu-item a,
 .el-menu-item a:hover,
