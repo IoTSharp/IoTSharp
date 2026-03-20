@@ -2,13 +2,6 @@
 	<div class="layout-navbars-breadcrumb-index">
 		<div class="layout-navbars-breadcrumb-index__left">
 			<Logo v-if="setIsShowLogo" />
-			<button v-else-if="showCompactBrand" class="layout-navbars-breadcrumb-index__brand" @click="onThemeConfigChange">
-				<AppLogo hideText class="layout-navbars-breadcrumb-index__brand-mark" />
-				<div class="layout-navbars-breadcrumb-index__brand-copy">
-					<span class="layout-navbars-breadcrumb-index__brand-title">{{ themeConfig.globalTitle }}</span>
-					<small class="layout-navbars-breadcrumb-index__brand-subtitle">Industrial AI Console</small>
-				</div>
-			</button>
 			<Breadcrumb />
 		</div>
 		<Horizontal :menuList="menuList" v-if="isLayoutTransverse" />
@@ -22,7 +15,6 @@ import { useRoute } from 'vue-router';
 import { storeToRefs } from 'pinia';
 import { useRoutesList } from '/@/stores/routesList';
 import { useThemeConfig } from '/@/stores/themeConfig';
-import AppLogo from '/@/components/AppLogo.vue';
 import Breadcrumb from '/@/layout/navBars/breadcrumb/breadcrumb.vue';
 import User from '/@/layout/navBars/breadcrumb/user.vue';
 import Logo from '/@/layout/logo/index.vue';
@@ -34,7 +26,7 @@ interface IndexState {
 
 export default defineComponent({
 	name: 'layoutBreadcrumbIndex',
-	components: { AppLogo, Breadcrumb, User, Logo, Horizontal },
+	components: { Breadcrumb, User, Logo, Horizontal },
 	setup() {
 		const { proxy } = <any>getCurrentInstance();
 		const stores = useRoutesList();
@@ -51,22 +43,10 @@ export default defineComponent({
 			return (isShowLogo && layout === 'classic') || (isShowLogo && layout === 'transverse');
 		});
 
-		// Keep a compact IoTSharp brand visible in the top bar for defaults and columns layouts.
-		const showCompactBrand = computed(() => {
-			const { layout } = themeConfig.value;
-			return layout === 'defaults' || layout === 'columns';
-		});
-
 		const isLayoutTransverse = computed(() => {
 			const { layout, isClassicSplitMenu } = themeConfig.value;
 			return layout === 'transverse' || (isClassicSplitMenu && layout === 'classic');
 		});
-
-		const onThemeConfigChange = () => {
-			const { layout } = themeConfig.value;
-			if (layout !== 'defaults' && layout !== 'columns') return;
-			themeConfig.value.isCollapse = !themeConfig.value.isCollapse;
-		};
 
 		const setFilterRoutes = () => {
 			const { layout, isClassicSplitMenu } = themeConfig.value;
@@ -123,9 +103,7 @@ export default defineComponent({
 
 		return {
 			setIsShowLogo,
-			showCompactBrand,
 			isLayoutTransverse,
-			onThemeConfigChange,
 			themeConfig,
 			...toRefs(state),
 		};
@@ -151,57 +129,4 @@ export default defineComponent({
 	gap: 12px;
 }
 
-.layout-navbars-breadcrumb-index__brand {
-	display: inline-flex;
-	align-items: center;
-	gap: 10px;
-	min-width: 0;
-	height: 42px;
-	padding: 0 14px 0 12px;
-	border: 1px solid rgba(59, 130, 246, 0.14);
-	border-radius: 16px;
-	background: linear-gradient(180deg, rgba(255, 255, 255, 0.94), rgba(248, 250, 252, 0.86));
-	box-shadow: 0 10px 24px rgba(15, 23, 42, 0.08);
-	cursor: pointer;
-}
-
-.layout-navbars-breadcrumb-index__brand-mark {
-	flex-shrink: 0;
-}
-
-.layout-navbars-breadcrumb-index__brand-copy {
-	display: flex;
-	flex-direction: column;
-	min-width: 0;
-	text-align: left;
-}
-
-.layout-navbars-breadcrumb-index__brand-title {
-	color: var(--iotsharp-brand-ink, #0f172a);
-	font-size: 14px;
-	font-weight: 700;
-	line-height: 1.1;
-	white-space: nowrap;
-}
-
-.layout-navbars-breadcrumb-index__brand-subtitle {
-	margin-top: 2px;
-	color: var(--iotsharp-brand-slate, #64748b);
-	font-size: 10px;
-	line-height: 1;
-	letter-spacing: 0.1em;
-	text-transform: uppercase;
-	white-space: nowrap;
-}
-
-@media (max-width: 767px) {
-	.layout-navbars-breadcrumb-index__brand {
-		padding: 0 12px 0 10px;
-		border-radius: 14px;
-	}
-
-	.layout-navbars-breadcrumb-index__brand-subtitle {
-		display: none;
-	}
-}
 </style>

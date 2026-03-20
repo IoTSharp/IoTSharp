@@ -2,10 +2,10 @@
 	<div class="h100" v-show="!isTagsViewCurrenFull">
 		<el-aside class="layout-aside" :class="setCollapseStyle">
 			<div class="layout-aside__panel">
-				<div class="layout-aside__brand" v-if="setShowLogo">
-					<Logo class="layout-aside__brand-logo" />
-				</div>
 				<el-scrollbar class="layout-aside__scroll flex-auto" ref="layoutAsideScrollbarRef" @mouseenter="onAsideEnterLeave(true)" @mouseleave="onAsideEnterLeave(false)">
+					<div class="layout-aside__brand" v-if="setShowLogo">
+						<Logo class="layout-aside__brand-logo" />
+					</div>
 					<Vertical :menuList="menuList" />
 				</el-scrollbar>
 				<div class="layout-aside__footer" v-if="clientWidth >= 1000 && !themeConfig.isCollapse">
@@ -183,7 +183,7 @@ export default defineComponent({
 	display: flex;
 	align-items: center;
 	justify-content: center;
-	margin-bottom: 16px;
+	margin-bottom: 14px;
 }
 
 .layout-aside__brand-logo {
@@ -193,6 +193,7 @@ export default defineComponent({
 .layout-aside__scroll {
 	flex: 1 1 auto;
 	min-height: 0;
+	padding: 12px;
 	border-radius: var(--iotsharp-radius-card);
 	background: rgba(255, 255, 255, 0.54);
 	box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.5);
