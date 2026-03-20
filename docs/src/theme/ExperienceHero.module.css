@@ -1,0 +1,227 @@
+.heroShell {
+  position: relative;
+  margin-bottom: 2rem;
+  padding: 1.5rem;
+  border: 1px solid rgba(107, 140, 255, 0.18);
+  border-radius: 28px;
+  background:
+    linear-gradient(180deg, rgba(9, 16, 31, 0.92), rgba(6, 11, 23, 0.86)),
+    radial-gradient(circle at top right, rgba(95, 224, 255, 0.16), transparent 38%);
+  overflow: hidden;
+  box-shadow:
+    0 24px 60px rgba(2, 8, 20, 0.32),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05);
+}
+
+.heroShell::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(99, 235, 255, 0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(99, 235, 255, 0.05) 1px, transparent 1px);
+  background-size: 28px 28px;
+  mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 0.88), transparent 88%);
+  pointer-events: none;
+}
+
+.heroGrid {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  grid-template-columns: minmax(0, 1.4fr) minmax(280px, 0.9fr);
+  gap: 1.25rem;
+  align-items: start;
+}
+
+.eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.34rem 0.78rem;
+  border: 1px solid rgba(113, 224, 255, 0.24);
+  border-radius: 999px;
+  background: rgba(9, 24, 44, 0.76);
+  color: #9feeff;
+  font-size: 0.76rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.title {
+  margin: 1rem 0 0.8rem;
+  color: #eef8ff;
+  font-size: clamp(2rem, 4vw, 3rem);
+  line-height: 1.02;
+  letter-spacing: -0.04em;
+}
+
+.lead {
+  max-width: 820px;
+  color: rgba(214, 230, 255, 0.8);
+  font-size: 1rem;
+  line-height: 1.75;
+}
+
+.badgeRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  margin-top: 1rem;
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.4rem 0.74rem;
+  border: 1px solid rgba(121, 224, 255, 0.2);
+  border-radius: 999px;
+  background: rgba(11, 28, 50, 0.84);
+  color: #c2f4ff;
+  font-size: 0.76rem;
+}
+
+.metrics {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.9rem;
+  margin-top: 1.15rem;
+}
+
+.metricCard {
+  padding: 1rem;
+  border: 1px solid rgba(111, 139, 255, 0.16);
+  border-radius: 20px;
+  background: rgba(8, 18, 37, 0.72);
+}
+
+.metricCard strong {
+  display: block;
+  color: #f2f8ff;
+  font-size: 1.7rem;
+  line-height: 1;
+  letter-spacing: -0.05em;
+}
+
+.metricCard span {
+  display: block;
+  margin-top: 0.45rem;
+  color: #b8efff;
+  font-size: 0.8rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.metricCard p {
+  margin: 0.7rem 0 0;
+  color: rgba(208, 226, 250, 0.74);
+  font-size: 0.84rem;
+  line-height: 1.55;
+}
+
+.sideStack {
+  display: grid;
+  gap: 0.9rem;
+}
+
+.surfaceCard {
+  padding: 1rem;
+  border: 1px solid rgba(111, 137, 255, 0.16);
+  border-radius: 20px;
+  background:
+    linear-gradient(180deg, rgba(13, 26, 48, 0.92), rgba(9, 18, 37, 0.88)),
+    radial-gradient(circle at top right, rgba(102, 225, 255, 0.18), transparent 50%);
+}
+
+.surfaceCard h3 {
+  margin: 0 0 0.75rem;
+  color: #edf6ff;
+  font-size: 0.86rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.surfaceCard ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.surfaceCard li {
+  position: relative;
+  padding-left: 1rem;
+  color: rgba(219, 233, 255, 0.82);
+  font-size: 0.86rem;
+  line-height: 1.8;
+}
+
+.surfaceCard li::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0.72rem;
+  width: 0.36rem;
+  height: 0.36rem;
+  border-radius: 999px;
+  background: linear-gradient(135deg, #66ebff, #7781ff);
+  box-shadow: 0 0 12px rgba(102, 235, 255, 0.42);
+}
+
+.metaLine {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem 1rem;
+  margin-top: 1rem;
+  color: rgba(190, 209, 237, 0.72);
+  font-size: 0.82rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.panelLink {
+  color: #a3f0ff;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.panelLink:hover {
+  color: #d7fbff;
+  text-decoration: none;
+}
+
+.articleCard {
+  padding: 1.4rem;
+  border: 1px solid rgba(111, 139, 255, 0.14);
+  border-radius: 24px;
+  background:
+    linear-gradient(180deg, rgba(9, 17, 33, 0.88), rgba(6, 11, 22, 0.86)),
+    radial-gradient(circle at top right, rgba(102, 225, 255, 0.1), transparent 42%);
+  box-shadow: 0 18px 48px rgba(0, 0, 0, 0.2);
+}
+
+.articleCard + .articleCard {
+  margin-top: 1.5rem;
+}
+
+.tocCard {
+  padding: 1rem;
+  border: 1px solid rgba(111, 139, 255, 0.14);
+  border-radius: 20px;
+  background: rgba(8, 16, 31, 0.82);
+}
+
+.docHeader {
+  margin-bottom: 1.25rem;
+}
+
+.docHeader .title {
+  margin-top: 0.9rem;
+  font-size: clamp(1.9rem, 3.4vw, 2.6rem);
+}
+
+@media (max-width: 996px) {
+  .heroGrid,
+  .metrics {
+    grid-template-columns: 1fr;
+  }
+}

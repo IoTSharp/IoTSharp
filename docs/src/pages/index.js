@@ -9,7 +9,32 @@ import styles from './index.module.css';
 const signalCards = [
   { label: 'Documentation Surface', value: 'Docs + Blog + Pages' },
   { label: 'Deployment Paths', value: 'Docker / Service / Extension' },
-  { label: 'AI Friendly', value: 'Installer + OpenClow Runbook' },
+  { label: 'AI Friendly', value: 'Installer + OpenClaw Runbook' },
+];
+
+const panelBadges = ['Installer', 'Docker', 'Rules Engine', 'Telemetry', 'Multi-Tenant'];
+
+const panelHighlights = [
+  {
+    value: '7+',
+    label: 'Database Templates',
+    detail: 'Sqlite / PostgreSql / MySql / SQLServer / Oracle / ClickHouse / Cassandra',
+  },
+  {
+    value: '3',
+    label: 'Delivery Modes',
+    detail: 'Docker, service install, Docker Desktop Extension',
+  },
+  {
+    value: 'AI',
+    label: 'Operator Friendly',
+    detail: 'OpenClaw runbook and installer-driven onboarding',
+  },
+];
+
+const panelMatrix = [
+  { title: '部署路径', items: ['Docker', 'Windows Service', 'Linux Service'] },
+  { title: '产品能力', items: ['Device Access', 'Rules Chain', 'Alarm Center'] },
 ];
 
 function SignalCard({ label, value }) {
@@ -39,16 +64,40 @@ function HeroPanel() {
           </div>
           <div className={styles.previewCanvas}>
             <div className={styles.previewHeadline}>IoTSharp Docs Control Deck</div>
+            <div className={styles.previewLead}>
+              面向工业场景的 IoT 平台文档中枢，覆盖安装、部署、接入、规则链、资产管理与 AI 辅助配置。
+            </div>
+            <div className={styles.previewBadgeRow}>
+              {panelBadges.map((badge) => (
+                <span key={badge} className={styles.previewBadge}>
+                  {badge}
+                </span>
+              ))}
+            </div>
             <div className={styles.previewBars}>
-              <i />
-              <i />
-              <i />
+              {panelHighlights.map((item) => (
+                <article key={item.label} className={styles.previewStatCard}>
+                  <strong>{item.value}</strong>
+                  <span>{item.label}</span>
+                  <p>{item.detail}</p>
+                </article>
+              ))}
             </div>
             <div className={styles.previewGrid}>
-              <div />
-              <div />
-              <div />
-              <div />
+              {panelMatrix.map((group) => (
+                <section key={group.title} className={styles.previewInfoCard}>
+                  <h3>{group.title}</h3>
+                  <ul>
+                    {group.items.map((item) => (
+                      <li key={item}>{item}</li>
+                    ))}
+                  </ul>
+                </section>
+              ))}
+            </div>
+            <div className={styles.previewFooter}>
+              <span>Docs rebuilt for GitHub Pages</span>
+              <span>Dark tech theme + higher information density</span>
             </div>
           </div>
         </div>

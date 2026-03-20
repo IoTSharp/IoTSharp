@@ -29,9 +29,9 @@ const featureGroups = [
     eyebrow: 'AI 协作',
     title: '让 AI 助手更容易理解 IoTSharp 的安装与配置',
     description:
-      '补充面向 OpenClow 等助手的可执行运行手册、推荐提示词和数据库切换规则，帮助用户把 AI 直接接入到 SQLite 体验安装和后续配置流程中。',
+      '补充面向 OpenClaw 等助手的可执行运行手册、推荐提示词和数据库切换规则，帮助用户把 AI 直接接入到 SQLite 体验安装和后续配置流程中。',
     links: [
-      { label: 'OpenClow 运行手册', to: '/docs/operations/openclow-sqlite-runbook' },
+      { label: 'OpenClaw 运行手册', to: '/docs/operations/openclaw-sqlite-runbook' },
       { label: '应用配置', to: '/docs/configuration/appsettings' },
       { label: '发布分发计划', to: '/docs/operations/release-distribution-plan' },
     ],

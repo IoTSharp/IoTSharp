@@ -125,7 +125,7 @@ const config = {
           items: [
             { label: '设备与网关', to: '/docs/user-guide/devices-and-gateways' },
             { label: '规则链与场景', to: '/docs/user-guide/rules-and-scenarios' },
-            { label: 'OpenClow 运行手册', to: '/docs/operations/openclow-sqlite-runbook' },
+            { label: 'OpenClaw 运行手册', to: '/docs/operations/openclaw-sqlite-runbook' },
           ],
         },
         {

@@ -50,12 +50,12 @@ docker extension install iotsharp/iotsharp-dd-extension:0.1.0
 - CoAP: `localhost:5683` / `5684`
 - Modbus TCP: `localhost:1502`
 
-## 交给 OpenClow 协助安装
+## 交给 OpenClaw 协助安装
 
 如果你希望把本地 SQLite 体验实例的安装过程直接交给 AI 助手，可以把下面两样内容发给它：
 
-- 文档链接：`https://iotsharp.net/docs/operations/openclow-sqlite-runbook`
-- 提示词文件：`tools/prompts/openclow-sqlite-instance.txt`
+- 文档链接：`https://iotsharp.net/docs/operations/openclaw-sqlite-runbook`
+- 提示词文件：`tools/prompts/openclaw-sqlite-instance.txt`
 
 这份运行手册已经明确约束了默认端口、优先路径、验证步骤，以及后续切换数据库时应使用 `appsettings.{Environment}.Installer.json` 覆盖文件，而不是直接修改模板文件。
 

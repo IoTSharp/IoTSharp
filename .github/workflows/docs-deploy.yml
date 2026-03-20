@@ -1,6 +1,11 @@
-name: Deploy Docs to GitHub Pages
+name: Build and Deploy Docs
 
 on:
+  pull_request:
+    branches: [master]
+    paths:
+      - 'docs/**'
+      - '.github/workflows/docs-deploy.yml'
   push:
     branches: [master]
     paths:
@@ -17,47 +22,50 @@ concurrency:
   group: github-pages
   cancel-in-progress: true
 
+defaults:
+  run:
+    working-directory: docs
+
 jobs:
   build:
-    name: Build Docs
+    name: Build Docs Site
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 22
           cache: npm
-          cache-dependency-path: docs/package.json
+          cache-dependency-path: docs/package-lock.json
 
-      - name: Configure Pages
+      - name: Configure GitHub Pages
         uses: actions/configure-pages@v5
 
       - name: Install dependencies
-        working-directory: docs
-        run: npm install
+        run: npm ci
 
-      - name: Build docs site
-        working-directory: docs
+      - name: Build documentation site
         env:
           DOCS_SITE_URL: ${{ vars.DOCS_SITE_URL || format('https://{0}.github.io', github.repository_owner) }}
           DOCS_BASE_URL: ${{ vars.DOCS_BASE_URL || format('/{0}/', github.event.repository.name) }}
         run: npm run build
 
-      - name: Upload Pages artifact
-        uses: actions/upload-pages-artifact@v3
+      - name: Upload GitHub Pages artifact
+        uses: actions/upload-pages-artifact@v4
         with:
           path: docs/build
 
   deploy:
-    name: Deploy Docs
+    name: Deploy Docs to GitHub Pages
+    if: github.event_name == 'push' && github.ref == 'refs/heads/master'
+    needs: build
+    runs-on: ubuntu-latest
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
-    needs: build
-    runs-on: ubuntu-latest
     steps:
       - name: Deploy to GitHub Pages
         id: deployment

@@ -1,32 +1,32 @@
 ---
-title: OpenClow SQLite 运行手册
+title: OpenClaw SQLite 运行手册
 sidebar_position: 3
 ---
 
-# OpenClow SQLite 运行手册
+# OpenClaw SQLite 运行手册
 
-这份文档是给 OpenClow 这类 AI 助手看的。
+这份文档是给 OpenClaw 这类 AI 助手看的。
 目标是让它在拿到一个链接和一段提示词后，帮助用户快速配置一个 **SQLite 数据库版 IoTSharp 实例**，并在后续需要时切换到其他数据库。
 
-## 给 OpenClow 的唯一链接
+## 给 OpenClaw 的唯一链接
 
-把这个链接发给 OpenClow：
+把这个链接发给 OpenClaw：
 
-`https://iotsharp.net/docs/operations/openclow-sqlite-runbook`
+`https://iotsharp.net/docs/operations/openclaw-sqlite-runbook`
 
 如果用户当前看的是仓库源码，也可以直接让它阅读这个文件：
 
-`docs/docs/operations/openclow-sqlite-runbook.md`
+`docs/docs/operations/openclaw-sqlite-runbook.md`
 
-## 给 OpenClow 的推荐提示词
+## 给 OpenClaw 的推荐提示词
 
-把下面这段话直接发给 OpenClow：
+把下面这段话直接发给 OpenClaw：
 
 ```text
 请按这个链接里的规则帮助我在本机启动一个 SQLite 版 IoTSharp 实例，并用中文一步一步带我完成。优先选择最省事、最稳定的路径。先检查我的机器是否已经安装 Docker Desktop、docker compose 和 PowerShell；如果已经具备条件，请优先使用 IoTSharp 的 Docker Desktop Extension / extension-compose 方案启动 SQLite 版实例。启动后帮我确认 http://localhost:2927 可访问，并指导我完成 /installer 首次初始化。如果用户后续想改数据库，请继续帮我把配置从 Sqlite 切换到 PostgreSql、MySql、SQLServer、Oracle、ClickHouse 或 Cassandra，优先使用 appsettings.{Environment}.Installer.json 覆盖文件，不要直接破坏模板文件。
 ```
 
-## OpenClow 应遵守的执行规则
+## OpenClaw 应遵守的执行规则
 
 1. 默认目标是启动 **SQLite** 版 IoTSharp，本地访问地址是 `http://localhost:2927`。
 2. 默认优先使用 Docker 路径，不优先要求用户手工编译源码。
@@ -37,7 +37,7 @@ sidebar_position: 3
 7. 修改数据库时，要同步调整 `ASPNETCORE_ENVIRONMENT`，使其与目标模板一致。
 8. 完成后必须做验证，至少确认容器状态正常，并访问 `http://localhost:2927` 或 `http://localhost:2927/installer`。
 
-## OpenClow 的首选路径
+## OpenClaw 的首选路径
 
 ### 路径 A：Docker Desktop 扩展镜像
 
@@ -77,7 +77,7 @@ docker compose -p iotsharp-ddx -f .\docker-desktop-extension\vm\extension-compos
 2. 如果实例未初始化，前端会自动跳转到 `/installer`
 3. 在 `http://localhost:2927/installer` 完成管理员、租户和客户的首次配置
 
-如果 OpenClow 在协助用户完成初始化，它应该明确告诉用户：
+如果 OpenClaw 在协助用户完成初始化，它应该明确告诉用户：
 
 - 这是首次安装入口
 - 安装完成后，用这里配置的管理员账号登录
@@ -85,7 +85,7 @@ docker compose -p iotsharp-ddx -f .\docker-desktop-extension\vm\extension-compos
 
 ## 运行验证
 
-OpenClow 至少执行下面这些验证之一：
+OpenClaw 至少执行下面这些验证之一：
 
 ```powershell
 docker ps -a --filter "name=iotsharp-dd-extension"
@@ -119,7 +119,7 @@ Invoke-WebRequest -Uri 'http://localhost:2927' -UseBasicParsing
 
 ## 从 SQLite 切换到其他数据库
 
-如果用户后续要切换数据库，OpenClow 应这样做：
+如果用户后续要切换数据库，OpenClaw 应这样做：
 
 1. 把 `ASPNETCORE_ENVIRONMENT` 从 `Sqlite` 改成目标环境名
 2. 在容器工作目录中放置 `appsettings.{Environment}.Installer.json`
@@ -168,18 +168,18 @@ Invoke-WebRequest -Uri 'http://localhost:2927' -UseBasicParsing
 
 `appsettings.MySql.Installer.json`
 
-## OpenClow 修改数据库时应如何提示用户
+## OpenClaw 修改数据库时应如何提示用户
 
-OpenClow 应明确告诉用户以下几点：
+OpenClaw 应明确告诉用户以下几点：
 
 - 当前是 SQLite 体验实例
 - 改数据库不是改模板文件，而是新增覆盖配置
 - 改完数据库后要同步改 `ASPNETCORE_ENVIRONMENT`
 - 改完后必须重启容器并重新验证页面可访问
 
-## 给 OpenClow 的简版结论
+## 给 OpenClaw 的简版结论
 
-如果 OpenClow 只需要一个简短行动清单，它应该按下面顺序做：
+如果 OpenClaw 只需要一个简短行动清单，它应该按下面顺序做：
 
 1. 检查 Docker Desktop、docker compose、PowerShell 是否可用
 2. 构建 `iotsharp/iotsharp-dd-extension:0.1.0`

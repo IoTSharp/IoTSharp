@@ -50,7 +50,7 @@ const sidebars = {
     {
       type: 'category',
       label: '运维发布',
-      items: ['operations/release-distribution-plan', 'operations/openclow-sqlite-runbook', 'operations/troubleshooting'],
+      items: ['operations/release-distribution-plan', 'operations/openclaw-sqlite-runbook', 'operations/troubleshooting'],
     },
   ],
 };

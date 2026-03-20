@@ -45,4 +45,4 @@ title: 使用手册总览
 2. 完成 [Installer 初始化](./getting-started/installer.md)。
 3. 再按业务路径阅读 [仪表盘](./user-guide/dashboard.md)、[设备与网关](./user-guide/devices-and-gateways.md)、[规则链与场景](./user-guide/rules-and-scenarios.md)。
 4. 上线前补看 [Docker 部署](./deployment/docker.md)、[Windows 服务](./deployment/windows-service.md) 和 [发布分发计划](./operations/release-distribution-plan.md)。
-5. 如果你想让 AI 助手帮你拉起一个 SQLite 体验实例，直接把 [OpenClow SQLite 运行手册](./operations/openclow-sqlite-runbook.md) 和对应提示词交给它。
+5. 如果你想让 AI 助手帮你拉起一个 SQLite 体验实例，直接把 [OpenClaw SQLite 运行手册](./operations/openclaw-sqlite-runbook.md) 和对应提示词交给它。

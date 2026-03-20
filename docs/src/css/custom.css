@@ -161,6 +161,57 @@ h4 {
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
 }
 
+.blog-list-page article,
+.blog-post-page article > .theme-doc-markdown,
+.blog-post-page article {
+  color: #d9e7fb;
+}
+
+.blog-list-page article.margin-bottom--xl {
+  padding: 1.35rem;
+  border: 1px solid rgba(110, 137, 255, 0.14);
+  border-radius: 24px;
+  background:
+    linear-gradient(180deg, rgba(9, 16, 32, 0.86), rgba(6, 11, 23, 0.82)),
+    radial-gradient(circle at top right, rgba(100, 224, 255, 0.08), transparent 42%);
+  box-shadow: 0 18px 48px rgba(0, 0, 0, 0.18);
+}
+
+.blog-post-page .pagination-nav,
+.blog-list-page .pagination-nav {
+  margin-top: 1.5rem;
+}
+
+.theme-doc-markdown img,
+.markdown img,
+.blog-post-page article img,
+.blog-list-page article img {
+  display: block;
+  width: auto;
+  max-width: min(100%, 1040px);
+  margin: 1.4rem auto;
+  border: 1px solid rgba(118, 145, 255, 0.16);
+  border-radius: 24px;
+  background: linear-gradient(180deg, rgba(10, 18, 35, 0.86), rgba(6, 11, 22, 0.84));
+  box-shadow:
+    0 26px 52px rgba(1, 5, 12, 0.28),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  overflow: hidden;
+}
+
+.theme-doc-markdown figure,
+.markdown figure {
+  margin: 1.5rem 0;
+}
+
+.theme-doc-markdown figcaption,
+.markdown figcaption {
+  margin-top: -0.4rem;
+  text-align: center;
+  color: rgba(186, 205, 233, 0.72);
+  font-size: 0.84rem;
+}
+
 .pagination-nav__link {
   min-height: 100%;
 }

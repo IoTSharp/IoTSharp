@@ -255,6 +255,33 @@
   text-transform: uppercase;
 }
 
+.previewLead {
+  margin-top: 0.9rem;
+  color: rgba(208, 230, 255, 0.78);
+  font-size: 0.96rem;
+  line-height: 1.65;
+}
+
+.previewBadgeRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.55rem;
+  margin-top: 1rem;
+}
+
+.previewBadge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.34rem 0.72rem;
+  border: 1px solid rgba(115, 226, 255, 0.22);
+  border-radius: 999px;
+  background: rgba(10, 26, 49, 0.84);
+  color: #bff4ff;
+  font-size: 0.72rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
 .previewBars {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -262,13 +289,39 @@
   margin-top: 1rem;
 }
 
-.previewBars i {
-  display: block;
-  height: 110px;
+.previewStatCard {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  min-height: 148px;
+  padding: 1rem;
   border-radius: 18px;
   background:
     linear-gradient(180deg, rgba(84, 233, 255, 0.2), rgba(96, 113, 255, 0.2)),
     linear-gradient(180deg, rgba(255, 255, 255, 0.06), transparent);
+}
+
+.previewStatCard strong {
+  color: #f3f9ff;
+  font-size: 1.9rem;
+  line-height: 1;
+  letter-spacing: -0.04em;
+}
+
+.previewStatCard span {
+  margin-top: 0.35rem;
+  color: #b8efff;
+  font-size: 0.84rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.previewStatCard p {
+  margin: 0.8rem 0 0;
+  color: rgba(221, 236, 255, 0.78);
+  font-size: 0.82rem;
+  line-height: 1.5;
 }
 
 .previewGrid {
@@ -278,11 +331,59 @@
   margin-top: 0.8rem;
 }
 
-.previewGrid div {
-  min-height: 88px;
+.previewInfoCard {
+  min-height: 132px;
+  padding: 1rem;
   border-radius: 18px;
   border: 1px solid rgba(112, 137, 255, 0.16);
   background: rgba(12, 23, 46, 0.88);
+}
+
+.previewInfoCard h3 {
+  margin: 0 0 0.85rem;
+  color: #ebf5ff;
+  font-size: 0.92rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.previewInfoCard ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.previewInfoCard li {
+  position: relative;
+  padding-left: 1rem;
+  color: rgba(216, 232, 252, 0.84);
+  font-size: 0.88rem;
+  line-height: 1.85;
+}
+
+.previewInfoCard li::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0.72rem;
+  width: 0.38rem;
+  height: 0.38rem;
+  border-radius: 999px;
+  background: linear-gradient(135deg, #63ebff, #7a7dff);
+  box-shadow: 0 0 12px rgba(99, 235, 255, 0.42);
+}
+
+.previewFooter {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-top: 1rem;
+  padding-top: 0.95rem;
+  border-top: 1px solid rgba(127, 150, 255, 0.12);
+  color: rgba(183, 206, 239, 0.7);
+  font-size: 0.76rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
 }
 
 .mainContent {
@@ -317,5 +418,12 @@
 
   .heroPanel {
     min-height: 420px;
+  }
+
+  .previewBars,
+  .previewGrid,
+  .previewFooter {
+    grid-template-columns: 1fr;
+    flex-direction: column;
   }
 }
