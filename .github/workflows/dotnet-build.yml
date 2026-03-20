@@ -18,10 +18,22 @@ jobs:
         uses: actions/setup-dotnet@v5
         with:
           dotnet-version: 10.0.x
-      - name: Build
-        run: dotnet build ./IoTSharp.sln --configuration Release
-      - name: Test
-        run: dotnet test ./IoTSharp.sln --configuration Release --no-build --verbosity normal
+      # Build the main application and its referenced projects only.
+      # We intentionally avoid solution-wide build/test here because the solution
+      # now contains the Windows WiX installer project, which is not part of the
+      # Linux CI validation path for normal repository pushes.
+      - name: Restore IoTSharp
+        run: dotnet restore ./IoTSharp/IoTSharp.csproj
+      - name: Build IoTSharp
+        run: dotnet build ./IoTSharp/IoTSharp.csproj --configuration Release --no-restore
+      - name: Restore IoTSharp tests
+        run: dotnet restore ./IoTSharp.Test/IoTSharp.Test.csproj
+      - name: Test IoTSharp
+        run: dotnet test ./IoTSharp.Test/IoTSharp.Test.csproj --configuration Release --no-restore --verbosity normal
+      - name: Restore IoTSharp.Interpreter tests
+        run: dotnet restore ./IoTSharp.Interpreter.Test/IoTSharp.Interpreter.Test.csproj
+      - name: Test IoTSharp.Interpreter
+        run: dotnet test ./IoTSharp.Interpreter.Test/IoTSharp.Interpreter.Test.csproj --configuration Release --no-restore --verbosity normal
 
 
       

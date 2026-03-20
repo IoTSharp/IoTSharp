@@ -4,187 +4,175 @@
   </a>
 </p>
 
-[![fork](https://gitcode.com/IoTSharp/IoTSharp/star/badge.svg)](https://gitcode.com/IoTSharp/IoTSharp)
-![GitHub](https://img.shields.io/github/license/iotsharp/iotsharp.svg)
-[![.NET Core build](https://github.com/IoTSharp/IoTSharp/actions/workflows/dotnet-build.yml/badge.svg)](https://github.com/IoTSharp/IoTSharp/actions/workflows/dotnet-build.yml)
-[![pages-build-deployment](https://github.com/IoTSharp/IoTSharp/actions/workflows/pages/pages-build-deployment/badge.svg)](https://github.com/IoTSharp/IoTSharp/actions/workflows/pages/pages-build-deployment)
-[![Building and Packaging](https://github.com/IoTSharp/IoTSharp/actions/workflows/dotnet-publish.yml/badge.svg)](https://github.com/IoTSharp/IoTSharp/actions/workflows/dotnet-publish.yml)
-![Docker Cloud Build Status](https://img.shields.io/docker/cloud/build/maikebing/iotsharp?style=flat-square)
+[![License](https://img.shields.io/github/license/IoTSharp/IoTSharp.svg)](LICENSE)
+[![.NET build](https://github.com/IoTSharp/IoTSharp/actions/workflows/dotnet-build.yml/badge.svg)](https://github.com/IoTSharp/IoTSharp/actions/workflows/dotnet-build.yml)
+[![Docs deploy](https://github.com/IoTSharp/IoTSharp/actions/workflows/docs-deploy.yml/badge.svg)](https://github.com/IoTSharp/IoTSharp/actions/workflows/docs-deploy.yml)
+[![Release binaries](https://github.com/IoTSharp/IoTSharp/actions/workflows/dotnet-publish.yml/badge.svg)](https://github.com/IoTSharp/IoTSharp/actions/workflows/dotnet-publish.yml)
+[![NuGet packages](https://github.com/IoTSharp/IoTSharp/actions/workflows/pack-nupkg.yml/badge.svg)](https://github.com/IoTSharp/IoTSharp/actions/workflows/pack-nupkg.yml)
+[![Docker images](https://github.com/IoTSharp/IoTSharp/actions/workflows/docker-release.yml/badge.svg)](https://github.com/IoTSharp/IoTSharp/actions/workflows/docker-release.yml)
 ![Docker Pulls](https://img.shields.io/docker/pulls/maikebing/iotsharp)
-![GitHub all releases](https://img.shields.io/github/downloads/iotsharp/iotsharp/total)
-[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2FIoTSharp%2FIoTSharp.svg?type=shield)](https://app.fossa.com/projects/git%2Bgithub.com%2FIoTSharp%2FIoTSharp?ref=badge_shield)
-[![star](https://gitee.com/IoTSharp/IoTSharp/badge/star.svg?theme=gvp)](https://gitee.com/IoTSharp/IoTSharp/stargazers)
-[![fork](https://gitee.com/IoTSharp/IoTSharp/badge/fork.svg?theme=gvp)](https://gitee.com/IoTSharp/IoTSharp/members)
+![GitHub all releases](https://img.shields.io/github/downloads/IoTSharp/IoTSharp/total)
 
-IoTSharp 是一个开源的物联网基础平台，集设备属性数据管理、遥测数据监测、RPC多模式远程控制、规则链设计引擎等强大能力，依据数字孪生概念将可见与不可见的物理设备统一孪生到数字世界，在落地上IoTSharp结合了资产管理、产品化发展的理念，让平台应用更加贴合复杂的应用场景，在协议支持上支持HTTP、MQTT 、CoAp 等多种标准物联网协议接入和非标协议的转换。  
+IoTSharp 是一个面向工业与企业场景的开源 IoT 平台，覆盖设备接入、遥测采集、规则链处理、可视化管理、多租户运营与产品化交付。
 
- * ## 谨颂诸君:
-   * 扬善弃疵，德馨自远；
-   * 宥人宥己，心境双澄；
-   * 惠施无吝，取予衡平。
-      
+## 项目概览
 
-## 支持的数据库:
+IoTSharp 将构建生产级 IoT 平台所需的关键能力组合在一起：
 
- *  [PostgreSql](IoTSharp/appsettings.PostgreSql.json) 测试环境 PostgreSQL 11.3 支持分表
- *  [MySql](IoTSharp/appsettings.MySql.json) 测试环境 MySQL 8.0.17,支持分表.
- *  [Oracle](IoTSharp/appsettings.Oracle.json)  测试环境  Oracle Standard Edition 12c Release 2 on CentOS ,支持分表.  See also: https://github.com/MaksymBilenko/docker-oracle-12c
- *  [SQLServer](IoTSharp/appsettings.SQLServer.json)  Microsoft SQL Server 2016 (RTM-GDR) (KB4019088) - 13.0.1742.0 (X64)   ,Support for  sharding
- *  [Sqlite](IoTSharp/appsettings.Sqlite.json) 支持分表
- *  [Cassandra](IoTSharp/appsettings.Cassandra.json)  
+- 支持 HTTP、MQTT、CoAP 等协议的设备与网关接入能力。
+- 围绕遥测、属性、告警、产品、资产和租户形成统一的数据与管理模型。
+- 通过规则链完成数据转换、通知下发、自动化动作和业务处理。
+- 支持关系型数据库与时序数据库，以适配不同部署和扩展场景。
+- 提供 Docker、Windows Service、Linux Service、Installer 与发布包等多种交付方式。
 
-## 支持的时序数据库:
+当前主应用基于 `.NET 10`，Web 控制台基于 Vue 3，并已全面统一为 IoTSharp 品牌界面。
 
- *  InfluxDB   
- *  IoTDB
- *  TDengine
- *  TimescaleDB
- *  PinusDB  
- *  同时也支持关系型数据库，并且可以单表或者分表.  
+## 快速开始
 
+### 本地运行 IoTSharp
 
-## 支持的消息中间件：
+建议先从以下文档入口开始：
 
- *  RabbitMQ
- *  Kafka 
- *	InMemory 
- *	ZeroMQ 
- *	NATS 
- *	Pulsar 
- *	RedisStreams 
- *	AmazonSQS 
- *	AzureServiceBus 
+- 产品文档首页：<https://iotsharp.net/docs/intro>
+- 安装方式：<https://iotsharp.net/docs/getting-started/installation-options>
+- Installer 初始化：<https://iotsharp.net/docs/getting-started/installer>
+- Docker Desktop Extension：<https://iotsharp.net/docs/deployment/docker-desktop-extension>
 
-## 支持的事件消息存储方式:
-* PostgreSql,
-* MongoDB,
-* InMemory,
-* LiteDB,
-* MySql,
-* SqlServer
+前端本地开发默认端口为：
 
-## IoTSharp 在线 
+- 前端：`http://localhost:27915`
 
- - [使用Vue3实现的IoTSharp前端](http://host.iotsharp.net)
+### 使用 OpenClaw 协助搭建 SQLite 体验实例
 
- 
+如果你希望让 OpenClaw 引导你完成本地 SQLite 版 IoTSharp 的安装，建议直接给它下面这两样内容：
 
-## 如何部署?
+- <https://iotsharp.net/docs/operations/openclaw-sqlite-runbook>
+- 提示词模板：[`tools/prompts/openclaw-sqlite-instance.txt`](tools/prompts/openclaw-sqlite-instance.txt)
 
-- [使用Docker部署](https://iotsharp.net/docs/tutorial-basics/deploy_by_docker)
-- [部署到Linux服务器或者树莓派](https://iotsharp.net/docs/tutorial-basics/deploy_linux)
-- [部署到Windows](https://iotsharp.net/docs/tutorial-basics/deploy_win)
+运行手册里已经定义了 SQLite 引导流程、Installer 初始化路径、Docker Desktop Extension 的回退方案，以及后续通过 `appsettings.{Environment}.Installer.json` 安全切换数据库的规则。
 
-## 如何配置?
+## 支持的组件
 
-- [应用基本配置](https://iotsharp.net/docs/tutorial-basics/appsettings) 
+### 关系型数据库与运行数据库
 
+- PostgreSQL
+- MySQL
+- SQL Server
+- Oracle
+- SQLite
+- Cassandra
+- ClickHouse
 
+相关数据库模板配置位于 [`IoTSharp`](IoTSharp) 项目中的 `appsettings.*.json` 以及 Installer 覆盖配置文件中。
 
-##  IoTSharp.SDKs
+### 时序存储
 
-- IoTSharp.Sdk.Http   [![IoTSharp.Sdk.Http](https://img.shields.io/nuget/v/IoTSharp.Sdk.Http.svg)](https://www.nuget.org/packages/IoTSharp.Sdk.Http/)
-- IoTSharp.Sdk.MQTT   [![IoTSharp.Sdk.MQTT](https://img.shields.io/nuget/v/IoTSharp.Sdk.MQTT.svg)](https://www.nuget.org/packages/IoTSharp.Sdk.MQTT/)
+- InfluxDB
+- IoTDB
+- TDengine
+- TimescaleDB
+- PinusDB
+- 也支持在简化场景下使用关系型数据库承载遥测数据
 
- 
+### 消息总线与消息传输
 
-## IoTSharp-C-Client-Sdk
+- RabbitMQ
+- Kafka
+- InMemory
+- ZeroMQ
+- NATS
+- Pulsar
+- Redis Streams
+- Amazon SQS
+- Azure Service Bus
 
-IoTSharp-C-client-Sdk 是mqtt客户端， c语言编写的例子。 
+### 事件总线存储
 
- - [Github IoTSharp.Sdks.MQTT-C](https://github.com/IoTSharp/IoTSharp.Sdks.MQTT-C)
- - [Gitee IoTSharp.Sdks.MQTT-C](https://gitee.com/IoTSharp/IoTSharp.Sdks.MQTT-C)
- - [GitCode IoTSharp.Sdks.MQTT-C](https://gitcode.com/IoTSharp/IoTSharp.Sdks.MQTT-C)
+- PostgreSQL
+- MongoDB
+- InMemory
+- LiteDB
+- MySQL
+- SQL Server
 
-## paho.mqtt.c 的例子
+## 部署方式
 
-这个跟 IoTSharp-C-Client-Sdk 一样， 但是使用了 paho.mqtt.c
- - [Github IoTSharp.Edge.paho.mqtt.c](https://github.com/IoTSharp/IoTSharp.Edge.paho.mqtt.c)
- - [Gitee IoTSharp.Edge.paho.mqtt.c]( https://gitee.com/IoTSharp/IoTSharp.Edge.paho.mqtt.c)
- - [GitCode IoTSharp.Edge.paho.mqtt.c]( https://gitcode.com/IoTSharp/IoTSharp.Edge.paho.mqtt.c)
+- Docker：<https://iotsharp.net/docs/deployment/docker>
+- Docker Desktop Extension：<https://iotsharp.net/docs/deployment/docker-desktop-extension>
+- Windows Service：<https://iotsharp.net/docs/deployment/windows-service>
+- Linux Service：<https://iotsharp.net/docs/deployment/linux-service>
+- 应用配置：<https://iotsharp.net/docs/configuration/appsettings>
 
-## IoTSharp 的 nanoFramework 例子
+在线演示：
 
-IoTSharp.Edge.nanoFramework 是一个 nanoFramework's mqtt 客户端， 它允许在STM32 ！
+- <https://host.iotsharp.net>
 
- - [Github IoTSharp.Edge.nanoFramework](https://github.com/IoTSharp/IoTSharp.Edge.nanoFramework)
- - [Gitee IoTSharp.Edge.nanoFramework]( https://gitee.com/IoTSharp/IoTSharp.Edge.nanoFramework)
- - [GitCode IoTSharp.Edge.nanoFramework]( https://gitcode.com/IoTSharp/IoTSharp.Edge.nanoFramework)
+## 仓库结构
 
-更多信息请读这里 https://www.cnblogs.com/MysticBoy/p/13159648.html
-官方网站为：  https://www.nanoframework.net/ 
+仓库中的关键目录如下：
 
-##  IoTSharp 的RT-Thread 开发包
+- [`IoTSharp`](IoTSharp)：主 ASP.NET Core 应用。
+- [`ClientApp`](ClientApp)：Vue 3 前端控制台。
+- [`docs`](docs)：Docusaurus 帮助手册站点。
+- [`docker-desktop-extension`](docker-desktop-extension)：Docker Desktop 扩展体验包。
+- [`IoTSharp.Installer.Windows`](IoTSharp.Installer.Windows)：Windows 安装工程。
+- [`IoTSharp.Agent`](IoTSharp.Agent)：桌面托盘代理项目。
+- [`IoTSharp.SDKs`](IoTSharp.SDKs)：SDK 与面向客户端的相关项目。
 
- - [Github](https://github.com/IoTSharp/iotsharp-rtthread-package)
- - [Gitee](https://gitee.com/IoTSharp/iotsharp-rtthread-package)
- - [GitCode](https://gitcode.com/IoTSharp/iotsharp-rtthread-package)
+## 生态与相关项目
 
+NuGet 包与生态库包括：
 
-## IoTSharp 的软件生态
+- `IoTSharp.Sdk.Http`
+- `IoTSharp.Sdk.MQTT`
+- `IoTSharp.Extensions`
+- `IoTSharp.Extensions.AspNetCore`
+- `IoTSharp.Extensions.EFCore`
+- `IoTSharp.Extensions.QuartzJobScheduler`
+- `IoTSharp.HealthChecks.*`
+- `IoTSharp.X509Extensions`
 
+相关仓库包括：
 
-- SilkierQuartz   [![SilkierQuartz](https://img.shields.io/nuget/v/SilkierQuartz.svg) ![Nuget](https://img.shields.io/nuget/dt/SilkierQuartz)  ](https://www.nuget.org/packages/SilkierQuartz/)
-- IoTSharp.Numerics   [![IoTSharp.Numerics](https://img.shields.io/nuget/v/IoTSharp.Numerics.svg) ![Nuget](https://img.shields.io/nuget/dt/IoTSharp.Numerics)  ](https://www.nuget.org/packages/IoTSharp.Numerics/)
-- Extensions.Configuration.GitRepository   [![Extensions.Configuration.GitRepository](https://img.shields.io/nuget/v/Extensions.Configuration.GitRepository.svg) ![Nuget](https://img.shields.io/nuget/dt/Extensions.Configuration.GitRepository)  ](https://www.nuget.org/packages/Extensions.Configuration.GitRepository/)
-- IoTSharp.HealthChecks.InfluxDB   [![IoTSharp.HealthChecks.InfluxDB](https://img.shields.io/nuget/v/IoTSharp.HealthChecks.InfluxDB.svg) ![Nuget](https://img.shields.io/nuget/dt/IoTSharp.HealthChecks.InfluxDB)  ](https://www.nuget.org/packages/IoTSharp.HealthChecks.InfluxDB/)
-- IoTSharp.HealthChecks.Cassandra   [![IoTSharp.HealthChecks.Cassandra](https://img.shields.io/nuget/v/IoTSharp.HealthChecks.Cassandra.svg) ![Nuget](https://img.shields.io/nuget/dt/IoTSharp.HealthChecks.Cassandra)  ](https://www.nuget.org/packages/IoTSharp.HealthChecks.Cassandra/)
-- IoTSharp.HealthChecks.Taos   [![IoTSharp.HealthChecks.Taos](https://img.shields.io/nuget/v/IoTSharp.HealthChecks.Taos.svg) ![Nuget](https://img.shields.io/nuget/dt/IoTSharp.HealthChecks.Taos)  ](https://www.nuget.org/packages/IoTSharp.HealthChecks.Taos/)
-- IoTSharp.HealthChecks.IoTDB   [![IoTSharp.HealthChecks.IoTDB](https://img.shields.io/nuget/v/IoTSharp.HealthChecks.IoTDB.svg) ![Nuget](https://img.shields.io/nuget/dt/IoTSharp.HealthChecks.IoTDB)  ](https://www.nuget.org/packages/IoTSharp.HealthChecks.IoTDB/)
-- MQTTnet.AspNetCore.Routing   [![MQTTnet.AspNetCore.Routing](https://img.shields.io/nuget/v/MQTTnet.AspNetCore.Routing.svg) ![Nuget](https://img.shields.io/nuget/dt/MQTTnet.AspNetCore.Routing)  ](https://www.nuget.org/packages/MQTTnet.AspNetCore.Routing/)
-- IoTSharp.EntityFrameworkCore.Taos   [![IoTSharp.EntityFrameworkCore.Taos](https://img.shields.io/nuget/v/IoTSharp.EntityFrameworkCore.Taos.svg) ![Nuget](https://img.shields.io/nuget/dt/IoTSharp.EntityFrameworkCore.Taos)  ](https://www.nuget.org/packages/IoTSharp.EntityFrameworkCore.Taos/)
-- IoTSharp.Sdk.Http   [![IoTSharp.Sdk.Http](https://img.shields.io/nuget/v/IoTSharp.Sdk.Http.svg) ![Nuget](https://img.shields.io/nuget/dt/IoTSharp.Sdk.Http) ](https://www.nuget.org/packages/IoTSharp.Sdk.Http/)
-- IoTSharp.Sdk.MQTT   [![IoTSharp.Sdk.MQTT](https://img.shields.io/nuget/v/IoTSharp.Sdk.MQTT.svg) ![Nuget](https://img.shields.io/nuget/dt/IoTSharp.Sdk.MQTT)  ](https://www.nuget.org/packages/IoTSharp.Sdk.MQTT/)
-- IoTSharp.X509Extensions [![IoTSharp.X509Extensions](https://img.shields.io/nuget/v/IoTSharp.X509Extensions.svg) ![Nuget](https://img.shields.io/nuget/dt/IoTSharp.X509Extensions) ](https://www.nuget.org/packages/IoTSharp.X509Extensions/)
-- IoTSharp.Extensions.RESTful  [![IoTSharp.Extensions.RESTful](https://img.shields.io/nuget/v/IoTSharp.Extensions.RESTful.svg) ![Nuget](https://img.shields.io/nuget/dt/IoTSharp.Extensions.RESTful) ](https://www.nuget.org/packages/IoTSharp.Extensions.RESTful/)
-- IoTSharp.Extensions.QuartzJobScheduler  [![IoTSharp.Extensions.QuartzJobScheduler](https://img.shields.io/nuget/v/IoTSharp.Extensions.QuartzJobScheduler.svg) ![Nuget](https://img.shields.io/nuget/dt/IoTSharp.Extensions.QuartzJobScheduler) ](https://www.nuget.org/packages/IoTSharp.Extensions.QuartzJobScheduler/)
-- IoTSharp.Extensions.EFCore  [![IoTSharp.Extensions.EFCore](https://img.shields.io/nuget/v/IoTSharp.Extensions.EFCore.svg) ![Nuget](https://img.shields.io/nuget/dt/IoTSharp.Extensions.EFCore)  ](https://www.nuget.org/packages/IoTSharp.Extensions.EFCore/)
-- IoTSharp.Extensions.BouncyCastle  [![IoTSharp.Extensions.BouncyCastle](https://img.shields.io/nuget/v/IoTSharp.Extensions.BouncyCastle.svg) ![Nuget](https://img.shields.io/nuget/dt/IoTSharp.Extensions.BouncyCastle) ](https://www.nuget.org/packages/IoTSharp.Extensions.BouncyCastle/)
-- IoTSharp.Extensions.AspNetCore  [![IoTSharp.Extensions.AspNetCore](https://img.shields.io/nuget/v/IoTSharp.Extensions.AspNetCore.svg) ![Nuget](https://img.shields.io/nuget/dt/IoTSharp.Extensions.AspNetCore) ](https://www.nuget.org/packages/IoTSharp.Extensions.AspNetCore/)
-- IoTSharp.Extensions  [![IoTSharp.Extensions](https://img.shields.io/nuget/v/IoTSharp.Extensions.svg) ![Nuget](https://img.shields.io/nuget/dt/IoTSharp.Extensions)  ](https://www.nuget.org/packages/IoTSharp.Extensions/)
+- IoTSharp MQTT C SDK
+- IoTSharp Edge paho.mqtt.c
+- IoTSharp Edge nanoFramework
+- IoTSharp RT-Thread package
 
+## 文档
 
+- 英文 README： [README.md](README.md)
+- 文档首页：<https://iotsharp.net/docs/intro>
+- 路线图： [roadmap.md](roadmap.md)
+- 变更记录： [CHANGELOG.md](CHANGELOG.md)
 
 ## 贡献
 
-[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square)](https://github.com/IoTSharp/IoTSharp/pulls)
+欢迎通过 Issue 与 Pull Request 参与 IoTSharp：
 
-如果你有兴趣贡献代码，可以创建[Pull Request](https://github.com/IoTSharp/IoTSharp/pulls), 或者[Bug Report](https://github.com/IoTSharp/IoTSharp/issues/new).
+- Pull Requests：<https://github.com/IoTSharp/IoTSharp/pulls>
+- Issues：<https://github.com/IoTSharp/IoTSharp/issues>
 
-### 贡献者
-
-这个项目的存在得益于所有的贡献者， 感谢他们。
-
-<a href="https://github.com/IoTSharp/IoTSharp/graphs/contributors">
-  <img src="https://contrib.rocks/image?repo=IoTSharp/IoTSharp" />
-</a>
-
-## 捐赠
-
-This project is an  Apache 2.0 licensed open source project. In order to achieve better and sustainable development of the project, we expect to gain more backers. We will use the proceeds for community operations and promotion. You can support us in any of the following ways:
-
-- [OpenCollective](https://opencollective.com/IoTSharp)
-- [爱发电](https://afdian.net/a/maikebing)
-- [捐赠者名单](BACKERS.md)
-- 微信![二维码](docs/static/img/maikebing_wxpay.png)
- 
+在提交改动前，建议先阅读当前的文档结构、仓库模块划分以及发布与分发方向。
 
 ## 社区支持
 
-If you encounter any problems in the process, feel free to ask for help via following channels. We also encourage experienced users to help newcomers.
+如果你在使用或部署 IoTSharp 时遇到问题，可以通过以下渠道获取帮助：
 
- 
-| 公众号 |    [QQ群63631741](https://jq.qq.com/?_wv=1027&k=HJ7h3gbO)  |  微信群  |
-| ------ | ---- | ---- |
-| ![](docs/static/img/qrcode.jpg) | ![](docs/static/img/IoTSharpQQGruop.png) | ![企业微信群](docs/static/img/qyqun.jpg) |
+- GitHub：<https://github.com/IoTSharp/IoTSharp>
+- Gitee：<https://gitee.com/IoTSharp/IoTSharp>
+- 官网：<https://iotsharp.net>
 
+## 捐赠
 
+IoTSharp 采用 Apache 2.0 协议发布。如果你希望支持项目持续发展，可以通过以下方式：
 
-## dotNET China
+- OpenCollective：<https://opencollective.com/IoTSharp>
+- 爱发电：<https://afdian.net/a/maikebing>
+- 支持者列表： [BACKERS.md](BACKERS.md)
 
-[![DotNetChina](https://images.gitee.com/uploads/images/2021/0309/134044_9c191d7b_974299.png)](https://gitee.com/dotnetchina)
+## 祝福
 
-## 优秀开源社区
-* [流之云](https://gitee.com/ntdgg) 信息化、数字化服务提供商
-* [translate.js](https://gitee.com/mail_osc/translate) 网页自动翻译，页面无需另行改造，加入两行js即可让你的网页快速具备多国语言切换能力！
-* [IoTGateway](https://gitee.com/iioter/iotgateway) IoTGateway是一个基于.Net6.0 开源的物联网网关，通过可视化配置，轻松的连接到你的任何设备和物联网平台。
+- 愿你行善而不作恶。
+- 愿你学会宽恕自己，也宽恕他人。
+- 愿你乐于分享，不取多于所予。

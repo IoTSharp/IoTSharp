@@ -44,17 +44,12 @@ For frontend development, the current local dev server default is:
 
 ### Use OpenClaw for AI-assisted SQLite setup
 
-If you want OpenClaw to guide you through creating a local SQLite-based IoTSharp instance, send it this runbook link first:
+If you want OpenClaw to guide you through creating a local SQLite-based IoTSharp instance, start with:
 
 - <https://iotsharp.net/docs/operations/openclaw-sqlite-runbook>
+- Prompt template: [`tools/prompts/openclaw-sqlite-instance.txt`](tools/prompts/openclaw-sqlite-instance.txt)
 
-Then send it the following instruction:
-
-```text
-请按这个链接里的规则帮助我在本机启动一个 SQLite 版 IoTSharp 实例，并用中文一步一步带我完成。优先选择最省事、最稳定的路径。先检查我的机器是否已经安装 Docker Desktop、docker compose 和 PowerShell；如果已经具备条件，请优先使用 IoTSharp 的 Docker Desktop Extension / extension-compose 方案启动 SQLite 版实例。启动后帮我确认 http://localhost:2927 可访问，并指导我完成 /installer 首次初始化。如果用户后续想改数据库，请继续帮我把配置从 Sqlite 切换到 PostgreSql、MySql、SQLServer、Oracle、ClickHouse 或 Cassandra，优先使用 appsettings.{Environment}.Installer.json 覆盖文件，不要直接破坏模板文件。
-```
-
-This path is designed for AI-assisted onboarding and follows the documented SQLite bootstrap flow, installer initialization flow, and safe database switching rules.
+The runbook defines the SQLite bootstrap flow, installer initialization path, Docker Desktop Extension fallback route, and the safe rule for switching databases later through `appsettings.{Environment}.Installer.json`.
 
 ## Supported Components
 

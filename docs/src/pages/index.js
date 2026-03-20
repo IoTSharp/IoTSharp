@@ -7,34 +7,34 @@ import HomepageFeatures from '../components/HomepageFeatures';
 import styles from './index.module.css';
 
 const signalCards = [
-  { label: 'Documentation Surface', value: 'Docs + Blog + Pages' },
-  { label: 'Deployment Paths', value: 'Docker / Service / Extension' },
-  { label: 'AI Friendly', value: 'Installer + OpenClaw Runbook' },
+  { label: '设备接入', value: 'HTTP / MQTT / CoAP' },
+  { label: '核心能力', value: 'Telemetry / Rule Chain / Alarm' },
+  { label: '交付方式', value: 'Docker / Service / Installer' },
 ];
 
-const panelBadges = ['Installer', 'Docker', 'Rules Engine', 'Telemetry', 'Multi-Tenant'];
+const panelBadges = ['HTTP', 'MQTT', 'CoAP', 'Multi-Tenant', 'Asset'];
 
 const panelHighlights = [
   {
     value: '7+',
-    label: 'Database Templates',
-    detail: 'Sqlite / PostgreSql / MySql / SQLServer / Oracle / ClickHouse / Cassandra',
+    label: '数据库模板',
+    detail: 'Sqlite、PostgreSql、MySql、SQLServer、Oracle、ClickHouse、Cassandra',
   },
   {
     value: '3',
-    label: 'Delivery Modes',
-    detail: 'Docker, service install, Docker Desktop Extension',
+    label: '主要交付路径',
+    detail: 'Docker、Windows Service、Linux Service',
   },
   {
-    value: 'AI',
-    label: 'Operator Friendly',
-    detail: 'OpenClaw runbook and installer-driven onboarding',
+    value: '.NET 10',
+    label: '平台主应用',
+    detail: 'ASP.NET Core 主站 + Vue 3 控制台 + 文档与安装配套',
   },
 ];
 
 const panelMatrix = [
-  { title: '部署路径', items: ['Docker', 'Windows Service', 'Linux Service'] },
-  { title: '产品能力', items: ['Device Access', 'Rules Chain', 'Alarm Center'] },
+  { title: '平台能力', items: ['设备接入', '遥测与属性', '规则链与告警'] },
+  { title: '交付配套', items: ['Installer', 'Docker Desktop Extension', 'OpenClaw Runbook'] },
 ];
 
 function SignalCard({ label, value }) {
@@ -65,7 +65,7 @@ function HeroPanel() {
           <div className={styles.previewCanvas}>
             <div className={styles.previewHeadline}>IoTSharp Docs Control Deck</div>
             <div className={styles.previewLead}>
-              面向工业场景的 IoT 平台文档中枢，覆盖安装、部署、接入、规则链、资产管理与 AI 辅助配置。
+              IoTSharp 是一个面向工业与企业场景的开源 IoT 平台，聚焦设备接入、遥测处理、规则链编排、可视化管理、多租户运营与产品化交付。
             </div>
             <div className={styles.previewBadgeRow}>
               {panelBadges.map((badge) => (
@@ -96,8 +96,8 @@ function HeroPanel() {
               ))}
             </div>
             <div className={styles.previewFooter}>
-              <span>Docs rebuilt for GitHub Pages</span>
-              <span>Dark tech theme + higher information density</span>
+              <span>开源工业 IoT 平台</span>
+              <span>设备、规则链、资产与交付一体化</span>
             </div>
           </div>
         </div>
@@ -114,12 +114,12 @@ function HomepageHeader() {
       <div className="container">
         <div className={styles.heroLayout}>
           <div className={styles.heroCopy}>
-            <span className={styles.kicker}>Industrial IoT Documentation</span>
+            <span className={styles.kicker}>Open Source Industrial IoT Platform</span>
             <h1 className={styles.heroTitle}>{siteConfig.title}</h1>
             <p className={styles.heroSubtitle}>{siteConfig.tagline}</p>
             <p className={styles.heroDescription}>
-              以科技感更强的界面承载 IoTSharp 的安装、部署、平台使用、AI 协作与发布文档，
-              同时保持清晰的信息结构和稳定的 GitHub Pages 发布能力。
+              文档首页直接围绕 IoTSharp 本身展开，而不是泛化展示模板。这里重点覆盖设备与网关接入、
+              遥测与告警、规则链处理、多租户管理，以及 Docker、服务化与 Installer 等真实交付路径。
             </p>
             <div className={styles.actions}>
               <Link className={clsx('button button--lg', styles.primaryButton)} to="/docs/intro">
