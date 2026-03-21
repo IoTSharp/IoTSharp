@@ -1,206 +1,201 @@
 <template>
-  <div class="workflow-drawer-node">
-    <el-tabs type="border-card" v-model="state.tabsActive">
-      <!-- 扩展表单 -->
-      <el-tab-pane label="扩展表单" name="1"> </el-tab-pane>
-      <!-- 节点编辑 -->
-      <el-tab-pane label="节点编辑" name="2">
-        <el-scrollbar>
-          <el-form
-            :model="state.node"
-            :rules="state.nodeRules"
-            ref="nodeFormRef"
-            size="default"
-            label-width="80px"
-            class="pt15 pr15 pb15 pl15"
-          >
-            <el-form-item label="数据id" prop="id">
-              <el-input
-                v-model="state.node.id"
-                placeholder="请输入数据id"
-                clearable
-                disabled
-              ></el-input>
-            </el-form-item>
-            <el-form-item label="节点id" prop="nodeId">
-              <el-input
-                v-model="state.node.nodeId"
-                placeholder="请输入节点id"
-                clearable
-                disabled
-              ></el-input>
-            </el-form-item>
-            <el-form-item label="类型" prop="type">
-              <el-input
-                v-model="state.node.type"
-                placeholder="请输入类型"
-                clearable
-                disabled
-              ></el-input>
-            </el-form-item>
-            <el-form-item label="left坐标" prop="left">
-              <el-input
-                v-model="state.node.left"
-                placeholder="请输入left坐标"
-                clearable
-                disabled
-              ></el-input>
-            </el-form-item>
-            <el-form-item label="top坐标" prop="top">
-              <el-input
-                v-model="state.node.top"
-                placeholder="请输入top坐标"
-                clearable
-                disabled
-              ></el-input>
-            </el-form-item>
-            <el-form-item label="icon图标" prop="icon">
-              <el-input
-                v-model="state.node.icon"
-                placeholder="请输入icon图标"
-                clearable
-              ></el-input>
-            </el-form-item>
-            <el-form-item label="名称" prop="name">
-              <el-input
-                v-model="state.node.name"
-                placeholder="请输入名称"
-                clearable
-              ></el-input>
-            </el-form-item>
-            <el-form-item>
-              <el-button class="mb15" @click="onNodeRefresh">
-                <SvgIcon name="ele-RefreshRight" />
-                重置
-              </el-button>
-              <el-button type="primary" class="mb15" @click="onNodeSubmit">
-                <SvgIcon name="ele-Check" />
-                保存
-              </el-button>
-            </el-form-item>
-          </el-form>
-        </el-scrollbar>
-      </el-tab-pane>
-    </el-tabs>
-  </div>
+	<div class="drawer-panel">
+		<section class="drawer-panel__grid">
+			<article class="drawer-card drawer-card--main">
+				<div class="drawer-card__header">
+					<div>
+						<h3>基础节点信息</h3>
+						<p>开始和结束节点承担规则流程边界的语义，建议保持名称直接、稳定，方便团队快速理解流程入口与出口。</p>
+					</div>
+				</div>
+
+				<el-form ref="formRef" :model="state.node" :rules="rules" label-position="top">
+					<el-form-item label="节点名称" prop="name">
+						<el-input v-model="state.node.name" placeholder="请输入节点名称" clearable />
+					</el-form-item>
+
+					<el-row :gutter="16">
+						<el-col :xs="24" :md="12">
+							<el-form-item label="节点类型">
+								<el-input :model-value="nodeTypeLabel" disabled />
+							</el-form-item>
+						</el-col>
+						<el-col :xs="24" :md="12">
+							<el-form-item label="BPMN 命名空间">
+								<el-input :model-value="state.node.nodenamespace" disabled />
+							</el-form-item>
+						</el-col>
+					</el-row>
+
+					<el-row :gutter="16">
+						<el-col :xs="24" :md="12">
+							<el-form-item label="节点 ID">
+								<el-input :model-value="state.node.nodeId" disabled />
+							</el-form-item>
+						</el-col>
+						<el-col :xs="24" :md="12">
+							<el-form-item label="内部标识">
+								<el-input :model-value="state.node.id" disabled />
+							</el-form-item>
+						</el-col>
+					</el-row>
+				</el-form>
+			</article>
+
+			<aside class="drawer-card">
+				<div class="drawer-card__header">
+					<div>
+						<h3>节点建议</h3>
+						<p>基础节点没有复杂配置，重点是保持流程语义清楚，避免名称泛化。</p>
+					</div>
+				</div>
+				<ul class="drawer-tips">
+					<li>开始节点建议直接描述入口事件，例如“遥测入口”或“属性同步开始”。</li>
+					<li>结束节点建议描述最终结果，例如“发布成功”或“流程终止”。</li>
+					<li>如果后续会增加分支，优先在连线条件里表达逻辑，不要把节点名写得太长。</li>
+				</ul>
+			</aside>
+		</section>
+
+		<div class="drawer-actions">
+			<el-button @click="$emit('close')">取消</el-button>
+			<el-button type="primary" @click="submitPanel">保存节点</el-button>
+		</div>
+	</div>
 </template>
 
 <script lang="ts" setup>
-import {
-  defineComponent,
-  reactive,
-  toRefs,
-  ref,
-  nextTick,
-  getCurrentInstance,
-} from "vue";
-import { ElMessage } from "element-plus";
+import { computed, reactive, ref, watch } from 'vue';
+import type { FormInstance, FormRules } from 'element-plus';
 
-const emit = defineEmits(["close", "submit"]);
-// 定义接口来定义对象的类型
-interface WorkflowDrawerNodeState {
-  node: { [key: string]: any };
-  nodeRules: any;
-  form: any;
-  tabsActive: string;
-  loading: {
-    extend: boolean;
-  };
-}
-
-const { proxy } = <any>getCurrentInstance();
-const nodeFormRef = ref();
-const extendFormRef = ref();
-const chartsMonitorRef = ref();
-const state = reactive<WorkflowDrawerNodeState>({
-  node: {},
-  nodeRules: {
-    id: [{ required: true, message: "请输入数据id", trigger: "blur" }],
-    nodeId: [{ required: true, message: "请输入节点id", trigger: "blur" }],
-    type: [{ required: true, message: "请输入类型", trigger: "blur" }],
-    left: [{ required: true, message: "请输入left坐标", trigger: "blur" }],
-    top: [{ required: true, message: "请输入top坐标", trigger: "blur" }],
-    icon: [{ required: true, message: "请输入icon图标", trigger: "blur" }],
-    name: [{ required: true, message: "请输入名称", trigger: "blur" }],
-  },
-  form: {
-    module: [],
-  },
-  tabsActive: "1",
-  loading: {
-    extend: false,
-  },
+const props = defineProps({
+	modelValue: {
+		type: Object,
+		default: () => ({}),
+	},
 });
-// 获取父组件数据
-const getParentData = (data: object) => {
-  state.tabsActive = "1";
-  state.node = data;
+
+const emit = defineEmits(['close', 'submit']);
+const formRef = ref<FormInstance>();
+
+const state = reactive({
+	node: { ...(props.modelValue ?? {}) } as Record<string, any>,
+});
+
+const rules = reactive<FormRules>({
+	name: [
+		{ required: true, message: '请输入节点名称', trigger: 'blur' },
+		{ min: 2, message: '节点名称至少 2 个字符', trigger: 'blur' },
+	],
+});
+
+const nodeTypeLabel = computed(() => {
+	if (state.node.mata === 'begin' || state.node.nodenamespace === 'bpmn:StartEvent') return '开始节点';
+	if (state.node.mata === 'end' || state.node.nodenamespace === 'bpmn:EndEvent') return '结束节点';
+	return '基础节点';
+});
+
+watch(
+	() => props.modelValue,
+	(value) => {
+		state.node = { ...(value ?? {}) };
+	},
+	{ deep: true }
+);
+
+const submitPanel = async () => {
+	if (!formRef.value) return;
+
+	await formRef.value.validate((valid) => {
+		if (!valid) return;
+		emit('submit', state.node);
+	});
 };
-// 节点编辑-重置
-const onNodeRefresh = () => {
-  state.node.icon = "";
-  state.node.name = "";
-};
-// 节点编辑-保存
-const onNodeSubmit = () => {
-  nodeFormRef.value.validate((valid: boolean) => {
-    if (valid) {
-      emit("submit", state.node);
-      emit("close");
-    } else {
-      return false;
-    }
-  });
-};
-// 扩展表单-重置
-const onExtendRefresh = () => {
-  extendFormRef.value.resetFields();
-};
-// 扩展表单-保存
-const onExtendSubmit = () => {
-  extendFormRef.value.validate((valid: boolean) => {
-    if (valid) {
-      state.loading.extend = true;
-      setTimeout(() => {
-        state.loading.extend = false;
-        ElMessage.success("保存成功");
-        emit("close");
-      }, 1000);
-    } else {
-      return false;
-    }
-  });
-};
-// 图表可视化-初始化
 </script>
 
 <style scoped lang="scss">
-.workflow-drawer-node {
-  :deep(.el-tabs) {
-      box-shadow: unset;
-      border: unset;
-      .el-tabs__nav {
-        display: flex;
-        width: 100%;
-        .el-tabs__item {
-          flex: 1;
-          padding: unset;
-          text-align: center;
-          &:first-of-type.is-active {
-            border-left-color: transparent;
-          }
-          &:last-of-type.is-active {
-            border-right-color: transparent;
-          }
-        }
-      }
-      .el-tabs__content {
-        padding: 0;
-        height: calc(100vh - 90px);
-        .el-tab-pane {
-          height: 100%;
-        }
-      }
-    }
+.drawer-panel {
+	display: flex;
+	flex-direction: column;
+	gap: 18px;
+}
+
+.drawer-panel__grid {
+	display: grid;
+	grid-template-columns: minmax(0, 1.45fr) 280px;
+	gap: 18px;
+}
+
+.drawer-card {
+	padding: 20px;
+	border-radius: 22px;
+	border: 1px solid rgba(226, 232, 240, 0.92);
+	background:
+		radial-gradient(circle at top right, rgba(59, 130, 246, 0.08), transparent 30%),
+		linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(248, 250, 252, 0.96));
+	box-shadow: 0 18px 42px rgba(15, 23, 42, 0.05);
+}
+
+.drawer-card__header {
+	margin-bottom: 16px;
+
+	h3 {
+		margin: 0 0 8px;
+		color: #123b6d;
+		font-size: 20px;
+		letter-spacing: -0.04em;
+	}
+
+	p {
+		margin: 0;
+		color: #64748b;
+		font-size: 13px;
+		line-height: 1.75;
+	}
+}
+
+.drawer-card :deep(.el-input__wrapper) {
+	border-radius: 16px;
+}
+
+.drawer-tips {
+	margin: 0;
+	padding-left: 18px;
+	color: #475569;
+	font-size: 13px;
+	line-height: 1.8;
+}
+
+.drawer-actions {
+	display: flex;
+	justify-content: flex-end;
+	gap: 10px;
+}
+
+.drawer-actions :deep(.el-button) {
+	min-width: 108px;
+	height: 42px;
+	border-radius: 14px;
+}
+
+@media (max-width: 1080px) {
+	.drawer-panel__grid {
+		grid-template-columns: 1fr;
+	}
+}
+
+@media (max-width: 767px) {
+	.drawer-card {
+		padding: 16px;
+		border-radius: 20px;
+	}
+
+	.drawer-actions {
+		flex-direction: column-reverse;
+	}
+
+	.drawer-actions :deep(.el-button) {
+		width: 100%;
+	}
 }
 </style>

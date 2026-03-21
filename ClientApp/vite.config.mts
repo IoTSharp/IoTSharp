@@ -53,7 +53,9 @@ export default defineConfig(({ mode, command }: ConfigEnv) => {
 		plugins: [
 			vue(),
 			asPluginFactory(vueSetupExtend)(),
-			asPluginFactory(viteCompression)(),
+			asPluginFactory(viteCompression)({
+				verbose: false,
+			}),
 			JSON.parse(env.VITE_OPEN_CDN) ? buildConfig.cdn() : null,
 			AutoImport({
 				imports: ['vue', 'vue-router', 'pinia'],
