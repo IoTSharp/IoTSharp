@@ -19,8 +19,8 @@
 </template>
 
 <script lang="ts">
-import { computed, defineComponent, onMounted, reactive, toRefs } from 'vue';
-import { onBeforeRouteUpdate, useRoute, useRouter } from 'vue-router';
+import { computed, defineComponent, reactive, toRefs, watch } from 'vue';
+import { useRoute, useRouter } from 'vue-router';
 import other from '/@/utils/other';
 import { storeToRefs } from 'pinia';
 import { useThemeConfig } from '/@/stores/themeConfig';
@@ -43,7 +43,6 @@ export default defineComponent({
 		});
 
 		const isShowBreadcrumb = computed(() => {
-			initRouteSplit(route.path);
 			const { layout, isBreadcrumb } = themeConfig.value;
 			if (layout === 'classic' || layout === 'transverse') return false;
 			return isBreadcrumb;
@@ -60,7 +59,10 @@ export default defineComponent({
 				state.routeSplit.forEach((splitItem: string, _index: number, arrs: string[]) => {
 					if (state.routeSplitFirst === item.path) {
 						state.routeSplitFirst += `/${arrs[state.routeSplitIndex]}`;
-						state.breadcrumbList.push(item);
+						state.breadcrumbList.push({
+							...item,
+							meta: { ...item.meta },
+						});
 						state.routeSplitIndex++;
 						if (item.children) getBreadcrumbList(item.children);
 					}
@@ -69,9 +71,17 @@ export default defineComponent({
 		};
 
 		const initRouteSplit = (path: string) => {
-			if (!themeConfig.value.isBreadcrumb || !routesList.value.length) return;
+			if (!themeConfig.value.isBreadcrumb || !routesList.value.length) {
+				state.breadcrumbList = [];
+				return;
+			}
 
-			state.breadcrumbList = [routesList.value[0]];
+			state.breadcrumbList = [
+				{
+					...routesList.value[0],
+					meta: { ...routesList.value[0].meta },
+				},
+			];
 			state.routeSplit = path.split('/');
 			state.routeSplit.shift();
 			state.routeSplitFirst = `/${state.routeSplit[0]}`;
@@ -88,13 +98,13 @@ export default defineComponent({
 			}
 		};
 
-		onMounted(() => {
-			initRouteSplit(route.path);
-		});
-
-		onBeforeRouteUpdate((to) => {
-			initRouteSplit(to.path);
-		});
+		watch(
+			() => [route.path, route.name, themeConfig.value.isBreadcrumb, routesList.value.length],
+			() => {
+				initRouteSplit(route.path);
+			},
+			{ immediate: true }
+		);
 
 		return {
 			themeConfig,
