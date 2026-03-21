@@ -3,7 +3,7 @@ import _ from 'lodash-es';
 import { TableDataRow } from '../model/userListModel';
 import { ElMessage } from 'element-plus';
 import { compute } from '@fast-crud/fast-crud';
-export const createUserListCrudOptions = function ({ expose }, customerId) {
+export const createUserListCrudOptions = function ({ expose }, customerId, overviewState?) {
     let records: any[] = [];
     const FsButton = {
         link: true,
@@ -24,8 +24,17 @@ export const createUserListCrudOptions = function ({ expose }, customerId) {
         } = query;
         let offset = currentPage === 1 ? 0 : currentPage - 1;
         const res = await accountApi().accountList({ name, limit, offset, customerId });
+        records = res.data.rows;
+        if (overviewState) {
+            overviewState.total = res.data.total ?? 0;
+            overviewState.pageCount = records.length;
+            overviewState.lockedCount = records.filter((item: any) => item.lockoutEnabled).length;
+            overviewState.failedCount = records.reduce((sum: number, item: any) => sum + Number(item.accessFailedCount || 0), 0);
+            overviewState.contactCount = records.filter((item: any) => item.phoneNumber).length;
+            overviewState.lastRefresh = new Date().toLocaleTimeString('zh-CN', { hour12: false });
+        }
         return {
-            records: res.data.rows,
+            records,
             currentPage: currentPage,
             pageSize: limit,
             total: res.data.total,

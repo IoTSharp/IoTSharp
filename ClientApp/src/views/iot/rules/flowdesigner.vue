@@ -1,929 +1,991 @@
 <template>
-  <div class="workflow-container">
-    <div class="workflow-mask" v-if="state.isShow"></div>
-    <div class="layout-view-bg-white flex" :style="{ height: `calc(100vh - ${setViewHeight}` }">
-      <div class="workflow">
-        <!-- 顶部工具栏 -->
-        <Tool @tool="onToolClick" :ruleName="state.ruleName " />
+	<div class="rule-designer">
+		<ConsolePageShell
+			eyebrow="Rule Designer"
+			:title="state.ruleName || '规则设计器'"
+			description="继续沿用当前规则编排能力，但把节点库、画布和工具操作重新组织成更清晰的工作台布局，方便持续拖拽建模和回看规则结构。"
+			:badges="designerBadges"
+			:metrics="designerMetrics"
+		>
+			<div class="designer-workspace">
+				<div class="designer-toolbar">
+					<Tool @tool="onToolClick" :ruleName="state.ruleName" />
+				</div>
 
-        <!-- 左侧导航区 -->
-        <div class="workflow-content">
-          <div class="workflow-left">
-            <el-scrollbar view-style="padding: 10px">
-              <div ref="leftNavRefs" v-for="val in state.leftNavList" :key="val.id"
-                :style="{ height: val.isOpen ? 'auto' : '50px', overflow: 'hidden' }" class="workflow-left-id">
-                <div class="workflow-left-title" @click="onTitleClick(val)">
-                  <span>{{ val.title }}</span>
-                  <SvgIcon :name="val.isOpen ? 'ele-ArrowDown' : 'ele-ArrowRight'" />
-                </div>
-                <div class="workflow-left-item" v-for="(v, k) in val.children" :key="k" :data-color="val.color"
-                  :data-name="v.name" :data-icon="v.icon" :data-id="v.id" :nodetype="v.nodetype"
-                  :nodenamespace="v.nodenamespace" :mata="v.mata">
-                  <div class="workflow-left-item-icon" :style="{ backgroundColor: val.color }">
-                    <component :is="{ ...customIcons[v.icon] }" class="workflow-icon-drag"></component>
-                    <div class="text-sm pl5 name">{{ v.name }}</div>
-                  </div>
-                </div>
-              </div>
-            </el-scrollbar>
-          </div>
+				<div class="designer-body">
+					<aside class="designer-panel designer-panel--library">
+						<div class="designer-panel__head">
+							<div>
+								<span>节点库</span>
+								<small>按分类拖拽节点到右侧画布</small>
+							</div>
+							<el-tag effect="plain">{{ libraryNodeCount }} 个节点</el-tag>
+						</div>
 
-          <!-- 右侧绘画区 -->
-          <div class="workflow-right" ref="workflowRightRef">
-            <h1 v-if="modal" v-on-click-outside="onItemCloneClickOutside">Test</h1>
-            <div v-for="(v, k) in state.jsplumbData.nodeList" :key="v.nodeId" :id="v.nodeId" :data-node-id="v.nodeId"
-              :class="v.nodeclass" :style="{ left: v.left, top: v.top }" @click="onItemCloneClick(k)"
-              @contextmenu.prevent="onContextmenu(v, k, $event)" v-on-click-outside="
-                () => {
-                  onItemCloneClickOutside(k);
-                }
-              ">
-              <div :style="{ backgroundColor: v.color }" class="workflow-right-box"
-                :class="{ 'workflow-right-active': state.jsPlumbNodeIndex === k }">
-                <div class="workflow-left-item-icon">
-                  <!--                  <SvgIcon :name="v.icon" class="workflow-icon-drag" />-->
-                  <div class="workflow-icon-drag">
-                    <component :is="{ ...customIcons[v.icon] }"></component>
-                  </div>
-                  <div class="text-sm pl5 name">{{ v.name }}</div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
+						<div class="workflow-left">
+							<el-scrollbar view-style="padding: 12px 12px 16px;">
+								<div
+									ref="leftNavRefs"
+									v-for="val in state.leftNavList"
+									:key="val.id + val.title"
+									class="workflow-left-id"
+									:style="{ height: val.isOpen ? 'auto' : '52px', overflow: 'hidden' }"
+								>
+									<div class="workflow-left-title" @click="onTitleClick(val)">
+										<div>
+											<strong>{{ val.title }}</strong>
+											<small>{{ val.children?.length || 0 }} 个节点</small>
+										</div>
+										<SvgIcon :name="val.isOpen ? 'ele-ArrowDown' : 'ele-ArrowRight'" />
+									</div>
 
-    <!-- 节点右键菜单 -->
-    <ContextmenuNode :dropdown="state.dropdownNode" ref="contextmenuNodeRef" @currentnode="onCurrentNodeClick" />
-    <!-- 线右键菜单 -->
-    <ContextmenuLine :dropdown="state.dropdownLine" ref="contextmenuLineRef" @currentline="onCurrentLineClick" />
-    <!-- 抽屉表单、线 -->
-    <Drawer ref="drawerRef" @executor="onexecutorSubmit" @script="onscriptSubmit" @panelclose="panelClose" />
+									<div
+										v-for="(child, childIndex) in val.children"
+										:key="`${val.title}-${child.id}-${childIndex}`"
+										class="workflow-left-item"
+										:data-color="val.color"
+										:data-name="child.name"
+										:data-icon="child.icon"
+										:data-id="child.id"
+										:nodetype="child.nodetype"
+										:nodenamespace="child.nodenamespace"
+										:mata="child.mata"
+									>
+										<div class="workflow-left-item-icon" :style="{ backgroundColor: val.color }">
+											<component :is="{ ...customIcons[child.icon] }" class="workflow-icon-drag" />
+											<div class="workflow-left-item-copy">
+												<strong>{{ child.name }}</strong>
+												<span>{{ child.nodetype }}</span>
+											</div>
+										</div>
+									</div>
+								</div>
+							</el-scrollbar>
+						</div>
+					</aside>
 
-    <!-- 顶部工具栏-帮助弹窗 -->
-    <Help ref="helpRef" />
-  </div>
+					<section class="designer-panel designer-panel--canvas">
+						<div class="designer-panel__head">
+							<div>
+								<span>规则画布</span>
+								<small>右键节点或连线继续配置，拖拽节点可调整整体编排结构</small>
+							</div>
+							<el-tag effect="plain" type="primary">{{ state.jsplumbData.nodeList.length }} 个节点</el-tag>
+						</div>
+
+						<div class="workflow-stage">
+							<div class="workflow-mask" v-if="state.isShow">
+								<div class="workflow-mask__content">移动端暂不支持规则拖拽设计，请在桌面端继续操作。</div>
+							</div>
+
+							<div class="workflow-right" ref="workflowRightRef">
+								<div
+									v-for="(node, index) in state.jsplumbData.nodeList"
+									:key="node.nodeId"
+									:id="node.nodeId"
+									:data-node-id="node.nodeId"
+									:class="node.nodeclass"
+									:style="{ left: node.left, top: node.top }"
+									@click="onItemCloneClick(index)"
+									@contextmenu.prevent="onContextmenu(node, index, $event)"
+									v-on-click-outside="
+										() => {
+											onItemCloneClickOutside(index);
+										}
+									"
+								>
+									<div
+										class="workflow-right-box"
+										:class="{ 'workflow-right-active': state.jsPlumbNodeIndex === index }"
+									>
+										<div class="workflow-right-box__inner">
+											<div class="workflow-right-box__icon" :style="{ backgroundColor: node.color }">
+												<component :is="{ ...customIcons[node.icon] }"></component>
+											</div>
+											<div class="workflow-right-box__copy">
+												<strong>{{ node.name }}</strong>
+												<span>{{ node.nodetype }}</span>
+											</div>
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+					</section>
+				</div>
+			</div>
+		</ConsolePageShell>
+
+		<ContextmenuNode ref="contextmenuNodeRef" :dropdown="state.dropdownNode" @currentnode="onCurrentNodeClick" />
+		<ContextmenuLine ref="contextmenuLineRef" :dropdown="state.dropdownLine" @currentline="onCurrentLineClick" />
+		<Drawer ref="drawerRef" @executor="onexecutorSubmit" @script="onscriptSubmit" @panelclose="panelClose" />
+		<Help ref="helpRef" />
+	</div>
 </template>
 
 <script lang="ts" setup>
-import { reactive, computed, onMounted, onUnmounted, nextTick, ref } from "vue";
-import { vOnClickOutside } from "@vueuse/components";
-import { ElMessage, ElMessageBox } from "element-plus";
-import { jsPlumb } from "jsplumb";
-import Sortable from "sortablejs";
-import { storeToRefs } from "pinia";
-import { useThemeConfig } from "/@/stores/themeConfig";
-import { useTagsViewRoutes } from "/@/stores/tagsViewRoutes";
-import Tool from "./component/tool/index.vue";
-import Help from "./component/tool/help.vue";
-import ContextmenuNode from "./component/contextmenu/node.vue";
-import ContextmenuLine from "./component/contextmenu/line.vue";
-import Drawer from "./component/drawer/index.vue";
-import commonFunction from "/@/utils/commonFunction";
-import { getGetLeftNavList } from "./js/leftNavList.ts";
-import { customIcons } from "./js/leftNavList.ts";
-import {
-  jsplumbDefaults,
-  jsplumbMakeSource,
-  jsplumbMakeTarget,
-  jsplumbConnect,
-} from "./js/config.ts";
-import { useRouter, useRoute } from "vue-router";
-import { ruleApi } from "/@/api/flows";
-import { FlowState } from "/@/views/iot/rules/models";
+import { computed, nextTick, onMounted, onUnmounted, reactive, ref, watch } from 'vue';
+import { vOnClickOutside } from '@vueuse/components';
+import { ElMessage, ElMessageBox } from 'element-plus';
+import { jsPlumb } from 'jsplumb';
+import Sortable from 'sortablejs';
+import { storeToRefs } from 'pinia';
+import ConsolePageShell from '/@/components/console/ConsolePageShell.vue';
+import { useThemeConfig } from '/@/stores/themeConfig';
+import { useTagsViewRoutes } from '/@/stores/tagsViewRoutes';
+import Tool from './component/tool/index.vue';
+import Help from './component/tool/help.vue';
+import ContextmenuNode from './component/contextmenu/node.vue';
+import ContextmenuLine from './component/contextmenu/line.vue';
+import Drawer from './component/drawer/index.vue';
+import commonFunction from '/@/utils/commonFunction';
+import { customIcons, getGetLeftNavList } from './js/leftNavList';
+import { jsplumbConnect, jsplumbDefaults, jsplumbMakeSource, jsplumbMakeTarget } from './js/config';
+import { ruleApi } from '/@/api/flows';
+import type { FlowState } from '/@/views/iot/rules/models';
+
 const props = defineProps({
-  ruleId: {
-    type: String,
-    default: ''
-  }
-})
-const emit = defineEmits(["close", "submit"]);
-const modal = ref(false);
+	ruleId: {
+		type: String,
+		default: '',
+	},
+});
+
+const emit = defineEmits(['close', 'submit']);
 const contextmenuNodeRef = ref();
 const contextmenuLineRef = ref();
 const drawerRef = ref();
 const helpRef = ref();
+const leftNavRefs = ref<HTMLElement[]>([]);
+const workflowRightRef = ref<HTMLDivElement | null>(null);
+
 const stores = useTagsViewRoutes();
 const storesThemeConfig = useThemeConfig();
 const { themeConfig } = storeToRefs(storesThemeConfig);
-const { isTagsViewCurrenFull } = storeToRefs(stores);
 const { copyText } = commonFunction();
 
-const workflowRightRef = ref<HTMLDivElement | null>(null);
-const leftNavRefs = ref([]);
 const state = reactive<FlowState>({
+	ruleName: '',
+	flowid: props.ruleId,
+	leftNavList: [],
+	dropdownNode: { x: '', y: '' },
+	dropdownLine: { x: '', y: '' },
+	isShow: false,
+	jsPlumb: null,
+	jsPlumbNodeIndex: null,
+	jsplumbDefaults,
+	jsplumbMakeSource,
+	jsplumbMakeTarget,
+	jsplumbConnect,
+	jsplumbData: {
+		nodeList: [],
+		lineList: [],
+	},
+});
 
-  ruleName: '',
-  flowid: props.ruleId,
-  leftNavList: [],
-  dropdownNode: { x: "", y: "" },
-  dropdownLine: { x: "", y: "" },
-  isShow: false,
-  jsPlumb: null,
-  jsPlumbNodeIndex: null,
-  jsplumbDefaults,
-  jsplumbMakeSource,
-  jsplumbMakeTarget,
-  jsplumbConnect,
-  jsplumbData: {
-    nodeList: [],
-    lineList: [],
-  },
+const libraryNodeCount = computed(() => {
+	return state.leftNavList.reduce((count, item) => count + (item.children?.length || 0), 0);
 });
-// 设置 view 的高度
-const setViewHeight = computed(() => {
-  let { isTagsview } = themeConfig.value;
-  if (isTagsViewCurrenFull.value) {
-    return `30px`;
-  } else {
-    if (isTagsview) return `114px`;
-    else return `80px`;
-  }
-});
-// 设置 宽度小于 768，不支持操
+
+const designerBadges = computed(() => [
+	state.ruleName || '未命名规则',
+	`${state.leftNavList.length} 个节点分组`,
+	state.isShow ? '移动端受限' : '桌面拖拽可用',
+]);
+
+const designerMetrics = computed(() => [
+	{
+		label: '画布节点',
+		value: state.jsplumbData.nodeList.length,
+		hint: '当前规则画布中的可执行节点数量。',
+		tone: 'primary' as const,
+	},
+	{
+		label: '连线数量',
+		value: state.jsplumbData.lineList.length,
+		hint: '节点之间的连接关系会直接影响规则执行流向。',
+		tone: 'accent' as const,
+	},
+	{
+		label: '节点库容量',
+		value: libraryNodeCount.value,
+		hint: '包含基础节点、执行器节点和脚本节点。',
+		tone: 'success' as const,
+	},
+	{
+		label: '当前模式',
+		value: state.isShow ? '受限查看' : '可拖拽编辑',
+		hint: state.isShow ? '请切换桌面端完成拖拽设计。' : '支持拖拽、右键菜单和抽屉配置。',
+		tone: 'warning' as const,
+	},
+]);
+
 const setClientWidth = () => {
-  const clientWidth = document.body.clientWidth;
-  clientWidth < 768 ? (state.isShow = true) : (state.isShow = false);
+	state.isShow = document.body.clientWidth < 768;
 };
-// 左侧导航-数据初始化
+
 const initLeftNavList = async () => {
-  const nav = await getGetLeftNavList();
-  state.leftNavList = nav!;
-  state.jsplumbData = {
-    nodeList: [],
-    lineList: [],
-  };
-  await ruleApi()
-    .getDiagram(state.flowid)
-    .then((res) => {
-      state.jsplumbData = {
-        nodeList: res.data.nodes,
-        lineList: res.data.lines,
-      };
-    });
+	const nav = await getGetLeftNavList();
+	state.leftNavList = nav ?? [];
+	state.jsplumbData = {
+		nodeList: [],
+		lineList: [],
+	};
 
+	const [diagramResponse, ruleResponse] = await Promise.all([
+		ruleApi().getDiagram(state.flowid),
+		ruleApi().getrule(state.flowid),
+	]);
 
-  await ruleApi()
-    .getrule(state.flowid)
-    .then((res) => {
-      state.ruleName = res.data.name;
-
-    });
+	state.jsplumbData = {
+		nodeList: diagramResponse.data.nodes,
+		lineList: diagramResponse.data.lines,
+	};
+	state.ruleName = ruleResponse.data.name;
 };
 
-
-
-// 左侧导航-初始化拖动
 const initSortable = () => {
+	leftNavRefs.value.forEach((item) => {
+		Sortable.create(item, {
+			group: {
+				name: 'iotsharp-workflow-node-library',
+				pull: 'clone',
+				put: false,
+			},
+			animation: 0,
+			sort: false,
+			draggable: '.workflow-left-item',
+			forceFallback: true,
+			onEnd: (evt: any) => {
+				const { name, icon, id, color } = evt.clone.dataset;
+				const { nodetype, nodenamespace, mata } = evt.clone.attributes;
+				const { layerX, layerY, clientX, clientY } = evt.originalEvent;
+				const canvasElement = workflowRightRef.value;
+				if (!canvasElement) return;
 
-  leftNavRefs.value.forEach((v) => {
-    Sortable.create(v as HTMLDivElement, {
-      group: {
-        // Keep drag sources isolated from other Sortable instances in the app shell.
-        name: "iotsharp-workflow-node-library",
-        pull: "clone",
-        put: false,
-      },
-      animation: 0,
-      sort: false,
-      draggable: ".workflow-left-item",
-      forceFallback: true,
-      onEnd: function (evt: any) {
-        const { name, icon, id, color } = evt.clone.dataset;
-        const { nodetype, nodenamespace, mata } = evt.clone.attributes;
-        const { layerX, layerY, clientX, clientY } = evt.originalEvent;
-        const el = workflowRightRef.value!;
-  
-        const { x, y, width, height } = el.getBoundingClientRect();
+				const { x, y, width, height } = canvasElement.getBoundingClientRect();
+				if (clientX < x || clientX > x + width || clientY < y || clientY > y + height) {
+					ElMessage.warning('请把节点拖拽到右侧画布内');
+					return;
+				}
 
-        if (clientX < x || clientX > width + x || clientY < y || y > y + height) {
-          ElMessage.warning("请把节点拖入到画布中");
-        } else {
+				const nodeId = Math.random().toString(36).substring(2, 14);
+				const node = {
+					nodeId,
+					color,
+					left: `${layerX - 40}px`,
+					top: `${layerY - 15}px`,
+					nodeclass: 'workflow-right-clone',
+					nodetype: nodetype.value,
+					nodenamespace: nodenamespace?.value ?? '',
+					mata: mata?.value ?? '',
+					name,
+					icon,
+					id,
+				};
 
-          // 节点id（唯一）
-          const nodeId = Math.random().toString(36).substr(2, 12);
-          // 处理节点数据
-          const node = {
-            nodeId,
-            color,
-            left: `${layerX - 40}px`,
-            top: `${layerY - 15}px`,
-            nodeclass: "workflow-right-clone",
-            nodetype: nodetype.value,
-            nodenamespace: nodenamespace?.value ?? '',
-            mata: mata?.value ?? '',
-            name,
-            icon,
-            id,
-          };
-
-          // 右侧视图内容数组
-          state.jsplumbData.nodeList.push(node);
-          // 元素加载完毕时
-          nextTick(() => {
-            // 整个节点作为source或者target
-            state.jsPlumb.makeSource(nodeId, state.jsplumbMakeSource);
-            // // 整个节点作为source或者target
-            state.jsPlumb.makeTarget(nodeId, state.jsplumbMakeTarget, jsplumbConnect);
-            // 设置节点可以拖拽（此处为id值，非class）
-            state.jsPlumb.draggable(nodeId, {
-              containment: "parent",
-              stop: (el: any) => {
-                state.jsplumbData.nodeList.forEach((v) => {
-                  if (v.nodeId === el.el.id) {
-                    // 节点x, y重新赋值，防止再次从左侧导航中拖拽节点时，x, y恢复默认
-                    v.left = `${el.pos[0]}px`;
-                    v.top = `${el.pos[1]}px`;
-                  }
-                });
-              },
-            });
-          });
-        }
-      },
-    });
-  });
+				state.jsplumbData.nodeList.push(node);
+				nextTick(() => {
+					state.jsPlumb.makeSource(nodeId, state.jsplumbMakeSource);
+					state.jsPlumb.makeTarget(nodeId, state.jsplumbMakeTarget, jsplumbConnect);
+					state.jsPlumb.draggable(nodeId, {
+						containment: 'parent',
+						stop: (event: any) => {
+							state.jsplumbData.nodeList.forEach((currentNode) => {
+								if (currentNode.nodeId === event.el.id) {
+									currentNode.left = `${event.pos[0]}px`;
+									currentNode.top = `${event.pos[1]}px`;
+								}
+							});
+						},
+					});
+				});
+			},
+		});
+	});
 };
-// 初始化 jsPlumb
-const initJsPlumb = () => {
-  (<any>jsPlumb).ready(() => {
-    state.jsPlumb = (<any>jsPlumb).getInstance({
-      detachable: false,
-      Container: "workflow-right",
-    });
-    state.jsPlumb.fire("jsPlumbDemoLoaded", state.jsPlumb);
-    // 导入默认配置
-    state.jsPlumb.importDefaults(state.jsplumbDefaults);
-    // state.jsPlumb.importDefaults(jsplumbSetting);
-    // 会使整个jsPlumb立即重绘。
-    state.jsPlumb.setSuspendDrawing(false, true);
-    // 初始化节点、线的链接
-    initJsPlumbConnection();
-    // 点击线弹出右键菜单
-    state.jsPlumb.bind("contextmenu", (conn: any, originalEvent: MouseEvent) => {
-      originalEvent.preventDefault();
-      const { sourceId, targetId } = conn;
-      const { clientX, clientY } = originalEvent;
-      state.dropdownLine.x = clientX;
-      state.dropdownLine.y = clientY;
-      const v: any = state.jsplumbData.nodeList.find((v) => v.nodeId === targetId);
-      const line: any = state.jsplumbData.lineList.find(
-        (v) => v.sourceId === sourceId && v.targetId === targetId
-      );
-      v.type = "line";
-      v.label = line.label;
-      conn.linename = line.linename;
-      conn.condition = line.condition;
 
-      contextmenuLineRef.value.openContextmenu(v, conn);
-    });
-    // 连线之前
-    state.jsPlumb.bind("beforeDrop", (conn: any) => {
-      const { sourceId, targetId } = conn;
-      if (conn.targetId == conn.sourceId) {
-        ElMessage.warning("连接目标不能为本身");
-        return false;
-      }
-
-      const item = state.jsplumbData.lineList.find(
-        (v) => v.sourceId === sourceId && v.targetId === targetId
-      );
-      if (item) {
-        ElMessage.warning("关系已存在，不可重复连接");
-        return false;
-      } else {
-        return true;
-      }
-    });
-    // 连线时
-    state.jsPlumb.bind("connection", (conn: any) => {
-      const lineId = Math.random().toString(36).substr(2, 12);
-      const { sourceId, targetId } = conn;
-      state.jsplumbData.lineList.push({
-        lineId,
-        sourceId,
-        targetId,
-        label: "",
-        linenamespace: "bpmn:SequenceFlow",
-      });
-    });
-    // 删除连线时回调函数
-    state.jsPlumb.bind("connectionDetached", (conn: any) => {
-      const { sourceId, targetId } = conn;
-      state.jsplumbData.lineList = state.jsplumbData.lineList.filter((line) => {
-        if (line.sourceId == sourceId && line.targetId == targetId) {
-          return false;
-        }
-        return true;
-      });
-    });
-  });
-};
-// 初始化节点、线的链接
 const initJsPlumbConnection = () => {
-  // 节点
-  state.jsplumbData.nodeList.forEach((v) => {
-    // 整个节点作为source或者target
-    state.jsPlumb.makeSource(v.nodeId, state.jsplumbMakeSource);
-    // 整个节点作为source或者target
-    state.jsPlumb.makeTarget(v.nodeId, state.jsplumbMakeTarget, jsplumbConnect);
-    // 设置节点可以拖拽（此处为id值，非class）
-    state.jsPlumb.draggable(v.nodeId, {
-      containment: "parent",
-      stop: (el: any) => {
-        state.jsplumbData.nodeList.forEach((v) => {
-          if (v.nodeId === el.el.id) {
-            // 节点x, y重新赋值，防止再次从左侧导航中拖拽节点时，x, y恢复默认
-            v.left = `${el.pos[0]}px`;
-            v.top = `${el.pos[1]}px`;
-          }
-        });
-      },
-    });
-  });
-  // 线
-  state.jsplumbData.lineList.forEach((v) => {
-    state.jsPlumb.connect(
-      {
-        source: v.sourceId,
-        target: v.targetId,
-        label: v.linename,
-        linename: v.linename,
-        condition: v.condition,
-      },
-      state.jsplumbConnect
-    );
-  });
-  // 节点
-};
-// 左侧导航-菜单标题点击
-const onTitleClick = (val: any) => {
-  val.isOpen = !val.isOpen;
+	state.jsplumbData.nodeList.forEach((item) => {
+		state.jsPlumb.makeSource(item.nodeId, state.jsplumbMakeSource);
+		state.jsPlumb.makeTarget(item.nodeId, state.jsplumbMakeTarget, jsplumbConnect);
+		state.jsPlumb.draggable(item.nodeId, {
+			containment: 'parent',
+			stop: (event: any) => {
+				state.jsplumbData.nodeList.forEach((currentNode) => {
+					if (currentNode.nodeId === event.el.id) {
+						currentNode.left = `${event.pos[0]}px`;
+						currentNode.top = `${event.pos[1]}px`;
+					}
+				});
+			},
+		});
+	});
+
+	state.jsplumbData.lineList.forEach((item) => {
+		state.jsPlumb.connect(
+			{
+				source: item.sourceId,
+				target: item.targetId,
+				label: item.linename,
+				linename: item.linename,
+				condition: item.condition,
+			},
+			state.jsplumbConnect
+		);
+	});
 };
 
-const onexecutorSubmit = (data: object) => {
+const initJsPlumb = () => {
+	(jsPlumb as any).ready(() => {
+		state.jsPlumb = (jsPlumb as any).getInstance({
+			detachable: false,
+			Container: 'workflow-right',
+		});
+		state.jsPlumb.fire('jsPlumbDemoLoaded', state.jsPlumb);
+		state.jsPlumb.importDefaults(state.jsplumbDefaults);
+		state.jsPlumb.setSuspendDrawing(false, true);
+		initJsPlumbConnection();
 
+		state.jsPlumb.bind('contextmenu', (connection: any, originalEvent: MouseEvent) => {
+			originalEvent.preventDefault();
+			const { sourceId, targetId } = connection;
+			state.dropdownLine.x = originalEvent.clientX;
+			state.dropdownLine.y = originalEvent.clientY;
+			const currentNode: any = state.jsplumbData.nodeList.find((item) => item.nodeId === targetId);
+			const currentLine: any = state.jsplumbData.lineList.find((item) => item.sourceId === sourceId && item.targetId === targetId);
+			currentNode.type = 'line';
+			currentNode.label = currentLine.label;
+			connection.linename = currentLine.linename;
+			connection.condition = currentLine.condition;
+			contextmenuLineRef.value.openContextmenu(currentNode, connection);
+		});
 
+		state.jsPlumb.bind('beforeDrop', (connection: any) => {
+			const { sourceId, targetId } = connection;
+			if (sourceId === targetId) {
+				ElMessage.warning('连接目标不能是节点本身');
+				return false;
+			}
 
+			const duplicated = state.jsplumbData.lineList.find((item) => item.sourceId === sourceId && item.targetId === targetId);
+			if (duplicated) {
+				ElMessage.warning('该连线已存在，不能重复连接');
+				return false;
+			}
+
+			return true;
+		});
+
+		state.jsPlumb.bind('connection', (connection: any) => {
+			const lineId = Math.random().toString(36).substring(2, 14);
+			state.jsplumbData.lineList.push({
+				lineId,
+				sourceId: connection.sourceId,
+				targetId: connection.targetId,
+				label: '',
+				linename: '',
+				linenamespace: 'bpmn:SequenceFlow',
+			});
+		});
+
+		state.jsPlumb.bind('connectionDetached', (connection: any) => {
+			state.jsplumbData.lineList = state.jsplumbData.lineList.filter(
+				(item) => !(item.sourceId === connection.sourceId && item.targetId === connection.targetId)
+			);
+		});
+	});
 };
 
-const onscriptSubmit = (data: any) => { };
-
-// 右侧内容区-当前项点击
-const onItemCloneClick = (k: number) => {
-  state.jsPlumbNodeIndex = k;
-  let { nodeId } = state.jsplumbData.nodeList[k];
-  changeLineState(nodeId!, true);
+const onTitleClick = (item: any) => {
+	item.isOpen = !item.isOpen;
 };
 
-// 右侧内容区-当前项外侧点击
-const onItemCloneClickOutside = (k: number) => {
-  state.jsPlumbNodeIndex = null;
-  let { nodeId } = state.jsplumbData.nodeList[k];
-  changeLineState(nodeId!, false);
+const onexecutorSubmit = () => {
+	return undefined;
 };
-// 右侧内容区-激活时，改变线条颜色
-const changeLineState = (nodeId: string, isInsideOfNode: boolean) => {
-  let lines = state.jsPlumb.getAllConnections();
-  lines.forEach((line: any) => {
-    if (line.targetId === nodeId || line.sourceId === nodeId) {
-      if (isInsideOfNode) {
-        line.canvas.classList.add("active");
-      } else {
-        line.canvas.classList.remove("active");
-      }
-    }
-  });
-};
-// 右侧内容区-当前项右键菜单点击
-const onContextmenu = (v: any, k: number, e: MouseEvent) => {
-  state.jsPlumbNodeIndex = k;
-  const { clientX, clientY } = e;
-  state.dropdownNode.x = clientX;
-  state.dropdownNode.y = clientY;
-  v.type = "node";
-  v.label = "";
-  let item: any = {};
-  state.leftNavList.forEach((l) => {
-    if (l.children)
-      if (l.children.find((c: any) => c.id === v.id))
-        item = l.children.find((c: any) => c.id === v.id);
-  });
-  v.from = item.form;
-  contextmenuNodeRef.value.openContextmenu(v);
-};
-// 右侧内容区-当前项右键菜单点击回调(节点)
-const onCurrentNodeClick = (item: any, conn: any) => {
-  switch (item.nodetype) {
-    case "script":
-      {
-        const { contextMenuClickId, nodeId } = item;
-        if (contextMenuClickId === 0) {
-          const nodeIndex = state.jsplumbData.nodeList.findIndex(
-            (item) => item.nodeId === nodeId
-          );
-          state.jsplumbData.nodeList.splice(nodeIndex, 1);
-          state.jsPlumb.removeAllEndpoints(nodeId);
-          state.jsPlumbNodeIndex = null;
-        } else if (contextMenuClickId === 1) {
-          item.value = item.result;
-          drawerRef.value.open(item);
-        }
-      }
 
-      break;
-    case "basic":
-      {
-        const { contextMenuClickId, nodeId } = item;
-        if (contextMenuClickId === 0) {
-          const nodeIndex = state.jsplumbData.nodeList.findIndex(
-            (item) => item.nodeId === nodeId
-          );
-          state.jsplumbData.nodeList.splice(nodeIndex, 1);
-          state.jsPlumb.removeAllEndpoints(nodeId);
-          state.jsPlumbNodeIndex = null;
-        } else if (contextMenuClickId === 1) {
-          drawerRef.value.open(item);
-        }
-      }
+const onscriptSubmit = () => {
+	return undefined;
+};
 
-      break;
-    case "executor":
-      {
-        const { contextMenuClickId, nodeId } = item;
-        if (contextMenuClickId === 0) {
-          const nodeIndex = state.jsplumbData.nodeList.findIndex(
-            (item) => item.nodeId === nodeId
-          );
-          state.jsplumbData.nodeList.splice(nodeIndex, 1);
-          state.jsPlumb.removeAllEndpoints(nodeId);
-          state.jsPlumbNodeIndex = null;
-        } else if (contextMenuClickId === 1) {
-          drawerRef.value.open(item);
-        }
-      }
+const changeLineState = (nodeId: string, isActive: boolean) => {
+	const lines = state.jsPlumb.getAllConnections();
+	lines.forEach((line: any) => {
+		if (line.targetId === nodeId || line.sourceId === nodeId) {
+			line.canvas.classList.toggle('active', isActive);
+		}
+	});
+};
 
-      break;
-  }
+const onItemCloneClick = (index: number) => {
+	state.jsPlumbNodeIndex = index;
+	const nodeId = state.jsplumbData.nodeList[index]?.nodeId;
+	if (nodeId) changeLineState(nodeId, true);
 };
-// 右侧内容区-当前项右键菜单点击回调(线)
-const onCurrentLineClick = (item: any, conn: any) => {
-  const { contextMenuClickId } = item;
-  const { endpoints } = conn;
-  const intercourse: any = [];
-  endpoints.forEach((v: any) => {
-    intercourse.push({
-      id: v.element.id,
-      innerText: v.element.innerText,
-    });
-  });
-  item.contact = `${intercourse[0].innerText}(${intercourse[0].id}) => ${intercourse[1].innerText}(${intercourse[1].id})`;
-  if (contextMenuClickId === 0) state.jsPlumb.deleteConnection(conn);
-  else if (contextMenuClickId === 1) {
-    drawerRef.value.open(item, conn);
-  }
-};
-// 设置线的 label
-const setLineLabel = (obj: any) => {
-  const { sourceId, targetId, label, linename, condition } = obj;
-  const conn = state.jsPlumb.getConnections({
-    source: sourceId,
-    target: targetId,
-  })[0];
-  conn.setLabel(linename);
-  if (!linename || linename === "") {
-    conn.addClass("workflow-right-empty-label");
-  } else {
-    conn.removeClass("workflow-right-empty-label");
-    conn.addClass("workflow-right-label");
-  }
-  state.jsplumbData.lineList.forEach((v) => {
-    if (v.sourceId === sourceId && v.targetId === targetId) {
-      v.label = label;
-      v.linename = linename;
-      v.condition = condition;
-    }
-  });
-};
-// 设置节点内容
-const setNodeContent = (obj: any) => {
-  const { nodeId, name, icon, nodetype, nodenamespace, mata, content } = obj;
 
-  // 设置节点 name 与 icon
-  state.jsplumbData.nodeList.forEach((v) => {
-    if (v.nodeId === nodeId) {
-      v.name = name;
-      v.icon = icon;
-      v.nodetype = nodetype;
-      v.nodenamespace = nodenamespace;
-      v.mata = mata;
-      v.content = content;
-    }
-  });
-  // 重绘
-  nextTick(() => {
-    state.jsPlumb.setSuspendDrawing(false, true);
-  });
+const onItemCloneClickOutside = (index: number) => {
+	state.jsPlumbNodeIndex = null;
+	const nodeId = state.jsplumbData.nodeList[index]?.nodeId;
+	if (nodeId) changeLineState(nodeId, false);
 };
-// 顶部工具栏-当前项点击
-const onToolClick = (fnName: String) => {
-  switch (fnName) {
-    case "help":
-      onToolHelp();
-      break;
-    case "download":
-      onToolDownload();
-      break;
-    case "submit":
-      onToolSubmit();
-      break;
-    case "copy":
-      onToolCopy();
-      break;
-    case "del":
-      onToolDel();
-      break;
-    case "fullscreen":
-      onToolFullscreen();
-      break;
-    case "return":
-      onReturnToList();
-      break;
-  }
+
+const onContextmenu = (item: any, index: number, event: MouseEvent) => {
+	state.jsPlumbNodeIndex = index;
+	state.dropdownNode.x = event.clientX;
+	state.dropdownNode.y = event.clientY;
+	item.type = 'node';
+	item.label = '';
+
+	let currentDefinition: any = {};
+	state.leftNavList.forEach((group) => {
+		if (group.children?.find((child: any) => child.id === item.id)) {
+			currentDefinition = group.children.find((child: any) => child.id === item.id);
+		}
+	});
+
+	item.from = currentDefinition.form;
+	contextmenuNodeRef.value.openContextmenu(item);
+};
+
+const onCurrentNodeClick = (item: any) => {
+	const { contextMenuClickId, nodeId } = item;
+	if (contextMenuClickId === 0) {
+		const nodeIndex = state.jsplumbData.nodeList.findIndex((currentNode) => currentNode.nodeId === nodeId);
+		state.jsplumbData.nodeList.splice(nodeIndex, 1);
+		state.jsPlumb.removeAllEndpoints(nodeId);
+		state.jsPlumbNodeIndex = null;
+		return;
+	}
+
+	if (contextMenuClickId === 1) {
+		drawerRef.value.open(item);
+	}
+};
+
+const onCurrentLineClick = (item: any, connection: any) => {
+	const { contextMenuClickId } = item;
+	const contactNodes: any[] = [];
+	connection.endpoints.forEach((endpoint: any) => {
+		contactNodes.push({
+			id: endpoint.element.id,
+			innerText: endpoint.element.innerText,
+		});
+	});
+	item.contact = `${contactNodes[0].innerText}(${contactNodes[0].id}) => ${contactNodes[1].innerText}(${contactNodes[1].id})`;
+
+	if (contextMenuClickId === 0) {
+		state.jsPlumb.deleteConnection(connection);
+	}
+	else if (contextMenuClickId === 1) {
+		drawerRef.value.open(item, connection);
+	}
+};
+
+const setLineLabel = (payload: any) => {
+	const { sourceId, targetId, label, linename, condition } = payload;
+	const connection = state.jsPlumb.getConnections({ source: sourceId, target: targetId })[0];
+	connection.setLabel(linename);
+	if (!linename) {
+		connection.addClass('workflow-right-empty-label');
+	}
+	else {
+		connection.removeClass('workflow-right-empty-label');
+		connection.addClass('workflow-right-label');
+	}
+
+	state.jsplumbData.lineList.forEach((item) => {
+		if (item.sourceId === sourceId && item.targetId === targetId) {
+			item.label = label;
+			item.linename = linename;
+			item.condition = condition;
+		}
+	});
+};
+
+const setNodeContent = (payload: any) => {
+	const { nodeId, name, icon, nodetype, nodenamespace, mata, content } = payload;
+	state.jsplumbData.nodeList.forEach((item) => {
+		if (item.nodeId === nodeId) {
+			item.name = name;
+			item.icon = icon;
+			item.nodetype = nodetype;
+			item.nodenamespace = nodenamespace;
+			item.mata = mata;
+			item.content = content;
+		}
+	});
+
+	nextTick(() => {
+		state.jsPlumb.setSuspendDrawing(false, true);
+	});
+};
+
+const onToolHelp = () => {
+	nextTick(() => {
+		helpRef.value.open();
+	});
+};
+
+const onToolDownload = () => {
+	const { globalTitle } = themeConfig.value;
+	const href = `data:text/json;charset=utf-8,${encodeURIComponent(JSON.stringify(state.jsplumbData, null, '\t'))}`;
+	const link = document.createElement('a');
+	link.setAttribute('href', href);
+	link.setAttribute('download', `${globalTitle}规则设计.json`);
+	link.click();
+	link.remove();
+	ElMessage.success('规则设计文件已下载');
 };
 
 const onReturnToList = () => {
-
-
-  emit("close", state.jsplumbData);
-  // router.push({
-  //   path: "/iot/rules/flowlist",
-  // });
+	emit('close', state.jsplumbData);
 };
 
-// 顶部工具栏-帮助
-const onToolHelp = () => {
-  nextTick(() => {
-    helpRef.value.open();
-  });
-};
-// 顶部工具栏-下载
-const onToolDownload = () => {
-  const { globalTitle } = themeConfig.value;
-  const href =
-    "data:text/json;charset=utf-8," +
-    encodeURIComponent(JSON.stringify(state.jsplumbData, null, "\t"));
-  const aLink = document.createElement("a");
-  aLink.setAttribute("href", href);
-  aLink.setAttribute("download", `${globalTitle}设计.json`);
-  aLink.click();
-  aLink.remove();
-  ElMessage.success("下载成功");
-};
-
-const panelClose = (data: any) => {
-  if (!data) {
-    return;
-  }
-  switch (data.nodetype) {
-    case "script":
-      setNodeContent(data)
-      state.jsplumbData.nodeList.forEach((v) => {
-        if (v.nodeId === data.nodeId) {
-          v.name = data.name;
-          v.icon = data.icon;
-          v.nodetype = data.nodetype;
-          v.nodenamespace = data.nodenamespace;
-          v.mata = data.mata;
-          v.content = data.content;
-        }
-      });
-
-      break;
-    case "executor":
-      setNodeContent(data)
-      state.jsplumbData.nodeList.forEach((v) => {
-        if (v.nodeId === data.nodeId) {
-          v.name = data.name;
-          v.icon = data.icon;
-          v.nodetype = data.nodetype;
-          v.nodenamespace = data.nodenamespace;
-          v.mata = data.mata;
-          v.content = data.content;
-        }
-      });
-      break;
-    case "basic":
-      break;
-
-    default:
-      setLineLabel(data);
-
-      break;
-  }
-};
-
-// 顶部工具栏-提交
 const onToolSubmit = async () => {
-  var result = await ruleApi()
-    .saveDiagramV({
-      RuleId: state.flowid,
-      nodes: state.jsplumbData.nodeList,
-      lines: state.jsplumbData.lineList,
-    })
-  if (result.data) {
-    ElMessage.success("规则保存成功");
-    onReturnToList();
-  } else {
-    ElMessage.success("规则保存失败：" + result['msg']);
-  }
+	const result = await ruleApi().saveDiagramV({
+		RuleId: state.flowid,
+		nodes: state.jsplumbData.nodeList,
+		lines: state.jsplumbData.lineList,
+	});
 
+	if (result.data) {
+		ElMessage.success('规则保存成功');
+		onReturnToList();
+	}
+	else {
+		ElMessage.warning(`规则保存失败: ${result.msg}`);
+	}
 };
-// 顶部工具栏-复制
+
 const onToolCopy = () => {
-  copyText(JSON.stringify(state.jsplumbData));
+	copyText(JSON.stringify(state.jsplumbData));
 };
-// 顶部工具栏-删除
+
 const onToolDel = () => {
-  ElMessageBox.confirm("此操作将清空画布，是否继续？", "提示", {
-    confirmButtonText: "清空",
-    cancelButtonText: "取消",
-  })
-    .then(() => {
-      state.jsplumbData.nodeList.forEach((v) => {
-        state.jsPlumb.removeAllEndpoints(v.nodeId);
-      });
-      nextTick(() => {
-        state.jsplumbData = {
-          nodeList: [],
-          lineList: [],
-        };
-        ElMessage.success("清空画布成功");
-      });
-    })
-    .catch(() => { });
+	ElMessageBox.confirm('此操作将清空当前规则画布，是否继续？', '提示', {
+		confirmButtonText: '清空画布',
+		cancelButtonText: '取消',
+	})
+		.then(() => {
+			state.jsplumbData.nodeList.forEach((item) => {
+				state.jsPlumb.removeAllEndpoints(item.nodeId);
+			});
+			nextTick(() => {
+				state.jsplumbData = {
+					nodeList: [],
+					lineList: [],
+				};
+				ElMessage.success('规则画布已清空');
+			});
+		})
+		.catch(() => undefined);
 };
-// 顶部工具栏-全屏
+
 const onToolFullscreen = () => {
-  stores.setCurrenFullscreen(true);
+	stores.setCurrenFullscreen(true);
 };
 
+const onToolClick = (fnName: string) => {
+	switch (fnName) {
+		case 'help':
+			onToolHelp();
+			break;
+		case 'download':
+			onToolDownload();
+			break;
+		case 'submit':
+			void onToolSubmit();
+			break;
+		case 'copy':
+			onToolCopy();
+			break;
+		case 'del':
+			onToolDel();
+			break;
+		case 'fullscreen':
+			onToolFullscreen();
+			break;
+		case 'return':
+			onReturnToList();
+			break;
+	}
+};
 
+const panelClose = (payload: any) => {
+	if (!payload) return;
 
-watch(() => props.ruleId, async () => {
-  await initData();
-})
-// 页面加载时
-onMounted(async () => {
-  await initData();
-
-  window.addEventListener("resize", setClientWidth);
-});
+	switch (payload.nodetype) {
+		case 'script':
+		case 'executor':
+			setNodeContent(payload);
+			break;
+		case 'basic':
+			break;
+		default:
+			setLineLabel(payload);
+			break;
+	}
+};
 
 const initData = async () => {
-  if (props.ruleId && props.ruleId !== "") {
-    await initLeftNavList();
-    await initSortable();
-    initJsPlumb();
-    setClientWidth();
-  }
+	if (!props.ruleId) return;
 
-}
+	state.flowid = props.ruleId;
+	state.ruleName = '';
+	state.jsPlumb?.reset?.();
+	await initLeftNavList();
+	await nextTick();
+	initSortable();
+	initJsPlumb();
+	setClientWidth();
+};
 
-// 页面卸载时
+watch(
+	() => props.ruleId,
+	async () => {
+		await initData();
+	}
+);
+
+onMounted(async () => {
+	await initData();
+	window.addEventListener('resize', setClientWidth);
+});
+
 onUnmounted(() => {
-  window.removeEventListener("resize", setClientWidth);
+	window.removeEventListener('resize', setClientWidth);
+	state.jsPlumb?.reset?.();
 });
 </script>
 
 <style scoped lang="scss">
-.workflow-container {
-  position: relative;
+.rule-designer {
+	display: flex;
+	flex-direction: column;
+	gap: 18px;
+}
 
-  .workflow {
-    display: flex;
-    height: 100%;
-    width: 100%;
-    flex-direction: column;
+.designer-workspace {
+	padding: 20px 22px;
+	border-radius: 28px;
+	border: 1px solid rgba(226, 232, 240, 0.92);
+	background: linear-gradient(180deg, rgba(248, 251, 255, 0.96), rgba(255, 255, 255, 0.98));
+	box-shadow: 0 18px 42px rgba(15, 23, 42, 0.05);
+}
 
-    .workflow-content {
-      display: flex;
-      height: calc(100% - 35px);
+.designer-toolbar {
+	padding: 4px 0 16px;
+}
 
-      .workflow-left {
-        box-sizing: border-box;
-        width: 220px;
-        height: 100%;
-        border-right: 1px solid var(--el-border-color-light, #ebeef5);
+.designer-body {
+	display: grid;
+	grid-template-columns: 300px minmax(0, 1fr);
+	gap: 18px;
+}
 
-        :deep(.el-collapse-item__content) {
-          padding-bottom: 0;
-        }
+.designer-panel {
+	min-width: 0;
+	padding: 18px;
+	border-radius: 24px;
+	border: 1px solid rgba(226, 232, 240, 0.92);
+	background:
+		radial-gradient(circle at top right, rgba(59, 130, 246, 0.08), transparent 32%),
+		linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(248, 250, 252, 0.96));
+	box-shadow: 0 18px 42px rgba(15, 23, 42, 0.04);
+}
 
-        .workflow-left-title {
-          height: 50px;
-          display: flex;
-          align-items: center;
-          padding: 0 10px;
-          border-top: 1px solid var(--el-border-color-light, #ebeef5);
-          color: var(--el-text-color-primary);
-          cursor: default;
+.designer-panel__head {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 12px;
+	margin-bottom: 14px;
 
-          span {
-            flex: 1;
-          }
-        }
+	span {
+		display: block;
+		color: #123b6d;
+		font-size: 18px;
+		font-weight: 700;
+		letter-spacing: -0.03em;
+	}
 
-        .workflow-left-item {
-          box-sizing: border-box;
-          display: inline-block;
-          width: 100%;
-          position: relative;
-          cursor: move;
-          //margin: 0 0 10px 10px;
-          //padding-right: 10px;
-          //border: 2px solid #9E9DAD;
-          border: 2px solid transparent;
-          border-radius: 6px;
-          margin-bottom: 10px;
-          outline: 1px solid #9e9dad;
-          outline-offset: -2px;
+	small {
+		display: block;
+		margin-top: 4px;
+		color: #64748b;
+		font-size: 12px;
+		line-height: 1.6;
+	}
+}
 
-          &:hover {
-            outline: none;
-            //transition: all 0.3s ease;
-            border: 2px dashed var(--el-color-primary);
-            background: var(--el-color-primary-light-9);
-            border-radius: 6px;
+.workflow-left {
+	height: 720px;
+	border-radius: 20px;
+	background: rgba(255, 255, 255, 0.72);
+}
 
-            i,
-            .name {
-              transition: all 0.3s ease;
-              color: var(--el-color-primary);
-            }
-          }
+.workflow-left-id + .workflow-left-id {
+	margin-top: 12px;
+}
 
-          .workflow-left-item-icon {
-            height: 35px;
-            display: flex;
-            align-items: center;
-            transition: all 0.3s ease;
-            padding: 5px 10px;
-            border: 1px dashed transparent;
-            background: var(--next-bg-color);
-            border-radius: 6px;
+.workflow-left-title {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 12px;
+	padding: 14px 16px;
+	border-radius: 18px;
+	background: rgba(241, 245, 249, 0.82);
+	color: #123b6d;
+	cursor: pointer;
 
-            i,
-            .name {
-              color: black;
-              transition: all 0.3s ease;
-              white-space: nowrap;
-              text-overflow: ellipsis;
-              overflow: hidden;
-            }
-          }
-        }
+	strong {
+		display: block;
+		font-size: 14px;
+	}
 
-        & .workflow-left-id:first-of-type {
-          .workflow-left-title {
-            border-top: none;
-          }
-        }
-      }
+	small {
+		display: block;
+		margin-top: 4px;
+		color: #7c8da1;
+		font-size: 11px;
+	}
+}
 
-      .workflow-right {
-        flex: 1;
-        position: relative;
-        overflow: hidden;
-        height: 100%;
-        background-image: linear-gradient(90deg,
-            rgb(156 214 255 / 15%) 10%,
-            rgba(0, 0, 0, 0) 10%),
-          linear-gradient(rgb(156 214 255 / 15%) 10%, rgba(0, 0, 0, 0) 10%);
-        background-size: 10px 10px;
+.workflow-left-item {
+	margin-top: 10px;
+	cursor: move;
+}
 
-        .workflow-right-clone {
-          position: absolute;
+.workflow-left-item-icon {
+	display: flex;
+	align-items: center;
+	gap: 12px;
+	padding: 12px 14px;
+	border-radius: 18px;
+	border: 1px solid rgba(191, 219, 254, 0.72);
+	background: rgba(255, 255, 255, 0.88);
+	transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
+}
 
-          .workflow-right-box {
-            height: 50px;
-            align-items: center;
-            color: black;
-            padding: 0 10px;
-            border-radius: 3px;
-            cursor: move;
-            transition: all 0.1s ease;
-            min-width: 94.5px;
-            background: var(--el-color-white);
-            border: 2px solid var(--el-border-color-light, #1d59e6);
+.workflow-left-item:hover .workflow-left-item-icon {
+	transform: translateY(-1px);
+	border-color: rgba(96, 165, 250, 0.85);
+	box-shadow: 0 12px 24px rgba(59, 130, 246, 0.12);
+}
 
-            .workflow-left-item-icon {
-              display: flex;
-              align-items: center;
-              height: 50px;
-            }
+.workflow-left-item-copy {
+	display: flex;
+	flex-direction: column;
+	gap: 4px;
+	min-width: 0;
 
-            &:hover {
-              outline: 2px dashed var(--el-color-primary);
-              background: var(--el-color-primary-light-9);
-              //transition: all 0.3s ease;
-              color: var(--el-color-primary);
+	strong {
+		color: #0f172a;
+		font-size: 14px;
+		overflow: hidden;
+		text-overflow: ellipsis;
+		white-space: nowrap;
+	}
 
-              i {
-                cursor: Crosshair;
-              }
-            }
-          }
+	span {
+		color: #64748b;
+		font-size: 12px;
+		text-transform: uppercase;
+	}
+}
 
-          .workflow-right-active {
-            //border: 1px dashed var(--el-color-primary);
-            outline: 2px solid var(--el-color-primary);
-            background: var(--el-color-primary-light-9);
-            color: var(--el-color-primary);
-          }
-        }
+.workflow-stage {
+	position: relative;
+	min-height: 720px;
+	border-radius: 22px;
+	border: 1px solid rgba(226, 232, 240, 0.92);
+	background: rgba(255, 255, 255, 0.76);
+	overflow: hidden;
+}
 
-        :deep(.jtk-overlay):not(.aLabel) {
-          padding: 4px 10px;
-          border: 1px solid var(--el-border-color-light, #ebeef5) !important;
-          color: var(--el-text-color-secondary) !important;
-          background: var(--el-color-white) !important;
-          border-radius: 3px;
-          font-size: 10px;
-        }
+.workflow-right {
+	position: relative;
+	height: 720px;
+	overflow: hidden;
+	background:
+		linear-gradient(90deg, rgba(191, 219, 254, 0.28) 1px, transparent 1px),
+		linear-gradient(rgba(191, 219, 254, 0.28) 1px, transparent 1px),
+		linear-gradient(180deg, rgba(248, 251, 255, 0.96), rgba(240, 247, 255, 0.92));
+	background-size: 24px 24px, 24px 24px, cover;
+}
 
-        :deep(.jtk-overlay.workflow-right-empty-label) {
-          display: none;
-        }
-      }
-    }
-  }
+.workflow-right-clone,
+.workflow-right-highlight {
+	position: absolute;
+}
 
-  .workflow-mask {
-    position: absolute;
-    top: 0;
-    right: 0;
-    bottom: 0;
-    left: 0;
+.workflow-right-box {
+	min-width: 148px;
+	padding: 10px;
+	border-radius: 18px;
+	border: 1px solid rgba(191, 219, 254, 0.88);
+	background: rgba(255, 255, 255, 0.95);
+	box-shadow: 0 12px 28px rgba(15, 23, 42, 0.08);
+	cursor: move;
+	transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
+}
 
-    &::after {
-      content: "手机版不支持 jsPlumb 操作";
-      position: absolute;
-      top: 0;
-      right: 0;
-      bottom: 0;
-      left: 0;
-      z-index: 1;
-      background: rgba(255, 255, 255, 0.9);
-      color: #666666;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-  }
+.workflow-right-box:hover {
+	transform: translateY(-1px);
+	border-color: rgba(59, 130, 246, 0.95);
+	box-shadow: 0 16px 34px rgba(59, 130, 246, 0.14);
+}
+
+.workflow-right-box__inner {
+	display: flex;
+	align-items: center;
+	gap: 12px;
+	min-height: 52px;
+}
+
+.workflow-right-box__icon {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 44px;
+	height: 44px;
+	border-radius: 14px;
+	color: #123b6d;
+	flex-shrink: 0;
+}
+
+.workflow-right-box__copy {
+	display: flex;
+	flex-direction: column;
+	gap: 4px;
+	min-width: 0;
+
+	strong {
+		color: #0f172a;
+		font-size: 14px;
+		overflow: hidden;
+		text-overflow: ellipsis;
+		white-space: nowrap;
+	}
+
+	span {
+		color: #64748b;
+		font-size: 12px;
+		text-transform: uppercase;
+	}
+}
+
+.workflow-right-active {
+	border-color: rgba(37, 99, 235, 0.98);
+	background: linear-gradient(180deg, rgba(239, 246, 255, 0.96), rgba(219, 234, 254, 0.8));
+	box-shadow: 0 18px 36px rgba(37, 99, 235, 0.18);
+}
+
+.workflow-right-highlight .workflow-right-box {
+	border-color: rgba(14, 165, 233, 0.92);
+	background: linear-gradient(180deg, rgba(224, 242, 254, 0.96), rgba(191, 219, 254, 0.88));
+}
+
+:deep(.jtk-overlay):not(.aLabel) {
+	padding: 6px 10px;
+	border: 1px solid rgba(191, 219, 254, 0.72) !important;
+	color: #475569 !important;
+	background: rgba(255, 255, 255, 0.95) !important;
+	border-radius: 999px;
+	font-size: 11px;
+	box-shadow: 0 10px 20px rgba(15, 23, 42, 0.08);
+}
+
+:deep(.jtk-overlay.workflow-right-empty-label) {
+	display: none;
+}
+
+.workflow-mask {
+	position: absolute;
+	inset: 0;
+	z-index: 2;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	background: rgba(255, 255, 255, 0.86);
+	backdrop-filter: blur(4px);
+}
+
+.workflow-mask__content {
+	max-width: 320px;
+	padding: 18px 20px;
+	border-radius: 20px;
+	border: 1px solid rgba(191, 219, 254, 0.88);
+	background: rgba(255, 255, 255, 0.94);
+	color: #475569;
+	font-size: 14px;
+	line-height: 1.8;
+	text-align: center;
 }
 
 .workflow-icon-drag {
-  position: relative;
+	position: relative;
+	flex-shrink: 0;
+}
 
-  &:after {
-    content: " ";
-    width: 32px;
-    height: 32px;
-    left: 0;
-    top: 0;
-    z-index: 1000;
-    position: absolute;
-    cursor: default;
-    background: transparent;
-  }
+.workflow-icon-drag::after {
+	content: ' ';
+	position: absolute;
+	inset: 0;
+	z-index: 1;
+	cursor: default;
+	background: transparent;
+}
+
+@media (max-width: 1080px) {
+	.designer-body {
+		grid-template-columns: 1fr;
+	}
+
+	.workflow-left,
+	.workflow-right {
+		height: 560px;
+	}
+
+	.workflow-stage {
+		min-height: 560px;
+	}
+}
+
+@media (max-width: 767px) {
+	.designer-workspace {
+		padding: 18px;
+		border-radius: 22px;
+	}
+
+	.designer-panel {
+		padding: 16px;
+		border-radius: 20px;
+	}
 }
 </style>
 
 <style lang="scss">
-// 连线动画，节点点击时被激活
 .jtk-connector.active {
-  z-index: 9999;
+	z-index: 9999;
 
-  path {
-    stroke: #150042;
-    stroke-width: 1.5;
-    animation: ring;
-    animation-duration: 3s;
-    animation-timing-function: linear;
-    animation-iteration-count: infinite;
-    stroke-dasharray: 5;
-  }
+	path {
+		stroke: #2563eb;
+		stroke-width: 1.5;
+		animation: ring 3s linear infinite;
+		stroke-dasharray: 5;
+	}
 }
 
 @keyframes ring {
-  from {
-    stroke-dashoffset: 50;
-  }
+	from {
+		stroke-dashoffset: 50;
+	}
 
-  to {
-    stroke-dashoffset: 0;
-  }
+	to {
+		stroke-dashoffset: 0;
+	}
 }
 </style>

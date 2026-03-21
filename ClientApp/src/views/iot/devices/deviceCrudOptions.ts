@@ -5,7 +5,7 @@ import { TableDataRow } from '/@/views/iot/devices/model';
 import dayjs from 'dayjs';
 
 // eslint-disable-next-line no-unused-vars
-export const createDeviceCrudOptions = function ({ expose }, customerId, deviceDetailRef?, addRulesRef?, selectedItems?) {
+export const createDeviceCrudOptions = function ({ expose }, customerId, deviceDetailRef?, addRulesRef?, selectedItems?, overviewState?) {
 
 
 
@@ -32,6 +32,14 @@ export const createDeviceCrudOptions = function ({ expose }, customerId, deviceD
 
 		const res = await deviceApi().devcieList(params);
 		records = res.data.rows;
+		if (overviewState) {
+			const activeCount = records.filter((item: TableDataRow) => item.active).length;
+			overviewState.total = res.data.total ?? 0;
+			overviewState.pageCount = records.length;
+			overviewState.activeCount = activeCount;
+			overviewState.inactiveCount = records.length - activeCount;
+			overviewState.lastRefresh = dayjs().format('HH:mm:ss');
+		}
 		return {
 			records,
 			currentPage: params.offset + 1,

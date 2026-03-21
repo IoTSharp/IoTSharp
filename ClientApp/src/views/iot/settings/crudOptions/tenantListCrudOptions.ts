@@ -3,7 +3,7 @@ import _ from 'lodash-es';
 import { useRouter } from 'vue-router';
 import { TableDataRow } from '../model/tenantListModel';
 import { ElMessage } from 'element-plus';
-export const createTenantListCrudOptions = function ({ expose }) {
+export const createTenantListCrudOptions = function ({ expose }, overviewState?) {
 	let records: any[] = [];
 	const router = useRouter();
 	const FsButton = {
@@ -20,8 +20,16 @@ export const createTenantListCrudOptions = function ({ expose }) {
 		} = query;
 		let offset = currentPage === 1 ? 0 : currentPage - 1;
 		const res = await tenantApi().tenantList({ name, limit, offset });
+		records = res.data.rows;
+		if (overviewState) {
+			overviewState.total = res.data.total ?? 0;
+			overviewState.pageCount = records.length;
+			overviewState.emailCount = records.filter((item: any) => item.email || item.eMail).length;
+			overviewState.phoneCount = records.filter((item: any) => item.phone).length;
+			overviewState.lastRefresh = new Date().toLocaleTimeString('zh-CN', { hour12: false });
+		}
 		return {
-			records: res.data.rows,
+			records,
 			currentPage: currentPage,
 			pageSize: limit,
 			total: res.data.total,

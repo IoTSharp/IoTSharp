@@ -1,216 +1,408 @@
 <template>
-  <div>
-    <el-drawer v-model="state.drawer" :title="state.dialogtitle" size="100%">
-      <el-form ref="tableRulesRef" :model="state.tableData" size="small">
-        <el-table :data="state.tableData.data" border table-layout="auto">
-          <el-table-column
-            v-for="(item, index) in state.tableData.header"
-            :key="index"
-         
-            :prop="item.prop"
-            :width="item.width"
-            :label="item.label"
-          >
-            <template v-slot="scope">
-              <el-form-item
-                style="margin: 0px"
-                :prop="`data.${scope.$index}.${item.prop}`"
-               
-              >
-                <el-switch v-if="item.type === 'switch'" v-model="scope.row[item.prop]" />
+	<div>
+		<el-drawer
+			v-model="state.drawer"
+			size="92%"
+			class="produce-prop-drawer"
+			append-to-body
+			destroy-on-close
+		>
+			<ConsoleDrawerWorkspace
+				eyebrow="Product Model"
+				:title="state.dialogtitle"
+				description="在这里维护产品抽象字段，统一字段名称、数据类型和数据侧，为字典、映射和后续设备接入提供稳定基础。"
+				:badges="badges"
+				:metrics="metrics"
+			>
+				<template #actions>
+					<el-button @click="closeDialog">取消</el-button>
+					<el-button plain :icon="Plus" @click="onAddRow">新增字段</el-button>
+					<el-button type="primary" :icon="Check" :loading="saving" @click="save">保存模型</el-button>
+				</template>
 
-                <el-select
-                  v-if="item.type === 'select'"
-                  v-model="scope.row[item.prop]"
-                  placeholder="请选择"
-                >
-                  <el-option
-                    v-for="sel in item.enmus"
-                    :key="sel.id"
-                    :label="sel.label"
-                    :value="sel.value"
-                  />
-                </el-select>
-                <el-date-picker
-                  v-else-if="item.type === 'date'"
-                  v-model="scope.row[item.prop]"
-                  type="date"
-                  placeholder="选择日期"
-                  style="width: 100%"
-                />
-                <el-input
-                  v-else-if="item.type === 'input'"
-                  v-model="scope.row[item.prop]"
-                  placeholder="请输入内容"
-                />
-                <el-input
-                  v-else-if="item.type === 'dialog'"
-                  v-model="scope.row[item.prop]"
-                  readonly
-                  placeholder="请输入内容"
-                >
-                  <template v-slot:suffix>
-                    <i class="iconfont icon-shouye_dongtaihui" />
-                  </template>
-                </el-input>
-              </el-form-item>
-            </template>
-          </el-table-column>
+				<section class="produce-prop-layout">
+					<article class="editor-card editor-card--main">
+						<div class="editor-card__header">
+							<div>
+								<h3>字段建模工作区</h3>
+								<p>字段名称定义抽象能力，数据类型决定存储方式，数据侧用于约束数据从设备还是平台流动。</p>
+							</div>
+						</div>
 
-          <el-table-column>
-            <template #default="scope">
-              <el-button text type="primary" @click.prevent="deleterow(scope.row)"
-                >删除
-              </el-button>
-            </template></el-table-column
-          >
-        </el-table>
-      </el-form>
-      <el-row class="flex mt15">
-        <div class="flex-margin">
-          <!-- <el-button size="default" type="success" @click="onValidate">验证</el-button> -->
-          <el-button size="default" type="primary" @click="onAddRow">新增</el-button>
-          <el-button size="default" type="primary" @click="save">保存</el-button>
-        </div>
-      </el-row>
-    </el-drawer>
-  </div>
+						<el-table :data="state.rows" class="editor-table" empty-text="暂无字段，点击新增字段开始建模。">
+							<el-table-column label="字段名称" min-width="260">
+								<template #default="{ row }">
+									<el-input v-model="row.keyName" placeholder="例如 temperature" clearable />
+								</template>
+							</el-table-column>
+
+							<el-table-column label="数据类型" min-width="220">
+								<template #default="{ row }">
+									<el-select v-model="row.type" placeholder="选择数据类型">
+										<el-option
+											v-for="item in dataTypeOptions"
+											:key="item.value"
+											:label="item.label"
+											:value="item.value"
+										/>
+									</el-select>
+								</template>
+							</el-table-column>
+
+							<el-table-column label="数据侧" min-width="220">
+								<template #default="{ row }">
+									<el-select v-model="row.dataSide" placeholder="选择数据侧">
+										<el-option
+											v-for="item in dataSideOptions"
+											:key="item.value"
+											:label="item.label"
+											:value="item.value"
+										/>
+									</el-select>
+								</template>
+							</el-table-column>
+
+							<el-table-column label="操作" width="100" fixed="right">
+								<template #default="{ row }">
+									<el-button text type="danger" @click="deleterow(row)">删除</el-button>
+								</template>
+							</el-table-column>
+						</el-table>
+					</article>
+
+					<aside class="produce-prop-side">
+						<article class="editor-card">
+							<div class="editor-card__header">
+								<div>
+									<h3>建模建议</h3>
+									<p>先用统一命名规范定义抽象字段，再进入字典和映射阶段补齐展示与路由逻辑。</p>
+								</div>
+							</div>
+							<ul class="editor-tips">
+								<li><strong>AnySide</strong> 适合需要双向同步的通用字段。</li>
+								<li><strong>ClientSide</strong> 更适合设备上报类数据。</li>
+								<li><strong>ServerSide</strong> 适合平台下发配置和控制类字段。</li>
+							</ul>
+						</article>
+
+						<article class="editor-card">
+							<div class="editor-card__header">
+								<div>
+									<h3>当前摘要</h3>
+									<p>帮助你在编辑时快速确认模型规模和字段分布。</p>
+								</div>
+							</div>
+							<div class="side-summary">
+								<div v-for="item in summaryItems" :key="item.label" class="side-summary__item">
+									<span>{{ item.label }}</span>
+									<strong>{{ item.value }}</strong>
+								</div>
+							</div>
+						</article>
+					</aside>
+				</section>
+			</ConsoleDrawerWorkspace>
+		</el-drawer>
+	</div>
 </template>
 
 <script lang="ts" setup>
-import { defineComponent, toRefs, reactive, ref } from "vue";
-import { ElMessage } from "element-plus";
+import { computed, reactive, ref } from 'vue';
+import { ElMessage } from 'element-plus';
+import { Check, Plus } from '@element-plus/icons-vue';
+import { v4 as uuidv4 } from 'uuid';
+import { editProduceData, getProduceData } from '/@/api/produce';
+import ConsoleDrawerWorkspace from '/@/components/console/ConsoleDrawerWorkspace.vue';
 
-import { editProduceData, getProduceData } from "/@/api/produce";
-import { v4 as uuidv4, NIL as NIL_UUID } from "uuid";
-interface TableHeader {
-  prop: string;
-  width: string | number;
-  label: string;
-  isRequired?: boolean;
-  isTooltip?: boolean;
-  type: string;
-  enmus?: any[];
-}
-interface TableRulesState {
-  deviceid: string;
-  drawer: boolean;
-  dialogtitle: string;
-  tableData: {
-    data: dictrowitem[];
-    header: TableHeader[];
-  };
+interface ProducePropRow {
+	id?: string;
+	_rowId: string;
+	keyName: string;
+	dataSide: string;
+	type: string;
 }
 
-interface dictrowitem {
-  id?: string;
-  keyName?: string;
-  dataSide?: string;
-  type?: string;
+interface ProducePropState {
+	produceid: string;
+	drawer: boolean;
+	dialogtitle: string;
+	rows: ProducePropRow[];
 }
-const emit = defineEmits(["close", "submit"]);
-const tableRulesRef = ref();
-const state = reactive<TableRulesState>({
-  deviceid: "",
-  drawer: false,
-  dialogtitle: "产品属性修改",
-  tableData: {
-    data: [],
-    header: [
-      {
-        prop: "keyName",
-        width: "",
-        label: "字段名称",
-        isRequired: false,
-        type: "input",
-      },
-      {
-        prop: "type",
-        width: "",
-        label: "数据类型",
-        isRequired: false,
-        type: "select",
-        enmus: [
-          { value: "Boolean", label: "Boolean" },
-          { value: "String", label: "String" },
-          { value: "Long", label: "Long" },
-          { value: "Double", label: "Double" },
-          { value: "Json", label: "Json" },
-          { value: "XML", label: "XML" },
-          { value: "Binary", label: "Binary" },
-          { value: "DateTime", label: "DateTime" },
-        ],
-      },
-      {
-        prop: "dataSide",
-        width: "",
-        label: "数据侧",
-        isRequired: false,
-        type: "select",
-        enmus: [
-          { value: "AnySide", label: "AnySide" },
-          { value: "ServerSide", label: "ServerSide" },
-          { value: "ClientSide", label: "ClientSide" },
-        ],
-      },
-    ],
-  },
+
+const dataTypeOptions = [
+	{ value: 'Boolean', label: 'Boolean' },
+	{ value: 'String', label: 'String' },
+	{ value: 'Long', label: 'Long' },
+	{ value: 'Double', label: 'Double' },
+	{ value: 'Json', label: 'Json' },
+	{ value: 'XML', label: 'XML' },
+	{ value: 'Binary', label: 'Binary' },
+	{ value: 'DateTime', label: 'DateTime' },
+];
+
+const dataSideOptions = [
+	{ value: 'AnySide', label: 'AnySide' },
+	{ value: 'ServerSide', label: 'ServerSide' },
+	{ value: 'ClientSide', label: 'ClientSide' },
+];
+
+const emit = defineEmits(['close', 'submit']);
+const saving = ref(false);
+
+const state = reactive<ProducePropState>({
+	produceid: '',
+	drawer: false,
+	dialogtitle: '产品属性模型',
+	rows: [],
 });
 
-const openDialog = (deviceid: string) => {
-  state.deviceid = deviceid;
-  getProduceData(deviceid).then((x) => {
-    console.log(x.data);
-    state.tableData.data = x.data.map((x) => {
-      return { id: uuidv4(), keyName: x.keyName, dataSide: x.dataSide, type: x.type };
-    });
-  });
+const badges = computed(() => [
+	'抽象字段',
+	`${state.rows.length} 个字段`,
+	state.rows.length ? '支持继续扩展' : '等待开始建模',
+]);
 
-  state.drawer = true;
+const metrics = computed(() => [
+	{
+		label: '字段总数',
+		value: state.rows.length,
+		hint: '当前产品模型中的抽象字段数量。',
+		tone: 'primary' as const,
+	},
+	{
+		label: '设备侧字段',
+		value: state.rows.filter((item) => item.dataSide === 'ClientSide').length,
+		hint: '通常用于设备主动上报的数据项。',
+		tone: 'accent' as const,
+	},
+	{
+		label: '平台侧字段',
+		value: state.rows.filter((item) => item.dataSide === 'ServerSide').length,
+		hint: '更适合控制、配置和平台下发场景。',
+		tone: 'success' as const,
+	},
+	{
+		label: '数据类型',
+		value: new Set(state.rows.map((item) => item.type).filter(Boolean)).size,
+		hint: '当前模型涉及的数据类型种类数量。',
+		tone: 'warning' as const,
+	},
+]);
+
+const summaryItems = computed(() => [
+	{ label: '双向字段', value: state.rows.filter((item) => item.dataSide === 'AnySide').length },
+	{ label: '已命名字段', value: state.rows.filter((item) => item.keyName.trim()).length },
+	{ label: '待补充字段', value: state.rows.filter((item) => !item.keyName.trim() || !item.type || !item.dataSide).length },
+	{ label: '时间类型字段', value: state.rows.filter((item) => item.type === 'DateTime').length },
+]);
+
+const openDialog = async (produceid: string) => {
+	state.produceid = produceid;
+	state.rows = [];
+
+	try {
+		const response = await getProduceData(produceid);
+		state.rows = (response.data ?? []).map((item: any) => ({
+			_rowId: uuidv4(),
+			id: item.id,
+			keyName: item.keyName ?? '',
+			dataSide: item.dataSide ?? '',
+			type: item.type ?? '',
+		}));
+	}
+	catch {
+		state.rows = [];
+	}
+
+	state.drawer = true;
 };
-// 关闭弹窗
+
 const closeDialog = () => {
-  state.drawer = false;
+	state.drawer = false;
 };
 
-// 验证
-const onValidate = () => {
-  if (state.tableData.data.length <= 0) return ElMessage.warning("请先点击增加一行");
-  tableRulesRef.value.validate((valid: any) => {
-    if (!valid) return ElMessage.warning("表格项必填未填");
-    ElMessage.success("全部验证通过");
-  });
-};
-
-// 新增一行
 const onAddRow = () => {
-  state.tableData.data.push({
-    id: uuidv4(),
-    keyName: "",
-    dataSide: "",
-    type: "",
-  });
+	state.rows.push({
+		_rowId: uuidv4(),
+		id: '',
+		keyName: '',
+		dataSide: '',
+		type: '',
+	});
 };
-const deleterow = (row: dictrowitem) => {
-  state.tableData.data = state.tableData.data.filter((c) => c.id !== row.id);
+
+const deleterow = (row: ProducePropRow) => {
+	state.rows = state.rows.filter((item) => item._rowId !== row._rowId);
 };
+
+const validateRows = () => {
+	if (!state.rows.length) {
+		ElMessage.warning('请至少新增一个字段后再保存');
+		return false;
+	}
+
+	const invalidRow = state.rows.find((item) => !item.keyName.trim() || !item.dataSide || !item.type);
+	if (invalidRow) {
+		ElMessage.warning('请补全字段名称、数据类型和数据侧');
+		return false;
+	}
+
+	return true;
+};
+
 const save = async () => {
-  var result = await editProduceData({
-    produceId: state.deviceid,
-    produceData: state.tableData.data,
-  });
-  if (result["code"] === 10000) {
-    ElMessage.success("修改成功");
-    state.drawer = false;
-    emit("close", state.tableData.data);
-  } else {
-    ElMessage.warning("修改失败:" + result["msg"]);
-    emit("close", state.tableData.data);
-  }
+	if (saving.value || !validateRows()) return;
+	saving.value = true;
+
+	try {
+		const result = await editProduceData({
+			produceId: state.produceid,
+			produceData: state.rows.map((item) => ({
+				id: item.id,
+				keyName: item.keyName.trim(),
+				dataSide: item.dataSide,
+				type: item.type,
+			})),
+		});
+
+		if (result.code === 10000) {
+			ElMessage.success('产品属性模型已保存');
+			state.drawer = false;
+			emit('close', state.rows);
+		}
+		else {
+			ElMessage.warning(`保存失败: ${result.msg}`);
+			emit('close', state.rows);
+		}
+	}
+	finally {
+		saving.value = false;
+	}
 };
 
 defineExpose({
-  openDialog,
-  closeDialog,
+	openDialog,
+	closeDialog,
 });
 </script>
+
+<style lang="scss" scoped>
+:deep(.produce-prop-drawer .el-drawer__header) {
+	margin-bottom: 0;
+	padding-bottom: 0;
+}
+
+:deep(.produce-prop-drawer .el-drawer__body) {
+	padding: 18px;
+	background: linear-gradient(180deg, #f8fbff 0%, #f3f7fc 100%);
+}
+
+.produce-prop-layout {
+	display: grid;
+	grid-template-columns: minmax(0, 1.7fr) 320px;
+	gap: 18px;
+}
+
+.produce-prop-side {
+	display: flex;
+	flex-direction: column;
+	gap: 18px;
+}
+
+.editor-card {
+	padding: 22px;
+	border-radius: 24px;
+	border: 1px solid rgba(226, 232, 240, 0.92);
+	background:
+		radial-gradient(circle at top right, rgba(59, 130, 246, 0.08), transparent 32%),
+		linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(248, 250, 252, 0.96));
+	box-shadow: 0 18px 42px rgba(15, 23, 42, 0.05);
+}
+
+.editor-card__header {
+	margin-bottom: 16px;
+
+	h3 {
+		margin: 0 0 8px;
+		color: #123b6d;
+		font-size: 20px;
+		letter-spacing: -0.04em;
+	}
+
+	p {
+		margin: 0;
+		color: #64748b;
+		font-size: 13px;
+		line-height: 1.75;
+	}
+}
+
+.editor-table {
+	border-radius: 20px;
+	overflow: hidden;
+}
+
+.editor-card :deep(.el-table th.el-table__cell) {
+	background: #f8fbff;
+}
+
+.editor-card :deep(.el-input__wrapper),
+.editor-card :deep(.el-select__wrapper) {
+	border-radius: 14px;
+}
+
+.editor-tips {
+	margin: 0;
+	padding-left: 18px;
+	color: #475569;
+	font-size: 13px;
+	line-height: 1.8;
+}
+
+.side-summary {
+	display: grid;
+	gap: 12px;
+}
+
+.side-summary__item {
+	padding: 14px 16px;
+	border-radius: 18px;
+	border: 1px solid rgba(191, 219, 254, 0.72);
+	background: rgba(255, 255, 255, 0.78);
+}
+
+.side-summary__item span {
+	display: block;
+	color: #64748b;
+	font-size: 12px;
+}
+
+.side-summary__item strong {
+	display: block;
+	margin-top: 8px;
+	color: #123b6d;
+	font-size: 18px;
+	font-weight: 700;
+}
+
+@media (max-width: 1080px) {
+	.produce-prop-layout {
+		grid-template-columns: 1fr;
+	}
+}
+
+@media (max-width: 767px) {
+	:deep(.produce-prop-drawer) {
+		width: 100% !important;
+	}
+
+	:deep(.produce-prop-drawer .el-drawer__body) {
+		padding: 12px;
+	}
+
+	.editor-card {
+		padding: 16px;
+		border-radius: 20px;
+	}
+}
+</style>

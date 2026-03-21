@@ -1,661 +1,649 @@
 <template>
-  <div class="workflow-container">
-    <div class="layout-view-bg-white flex" :style="{ height: `calc(100vh - 400px` }">
-      <div class="workflow">
-        <!-- 顶部工具栏 -->
-        <Tool @tool="onToolClick" />
-        <!-- 左侧导航区 -->
-        <div class="workflow-content">
-          <!-- 右侧绘画区 -->
-          <div class="workflow-right" ref="workflowRightRef">
-            <div v-for="(v, k) in state.jsplumbData.nodeList" :key="v.nodeId" :id="v.nodeId" :data-node-id="v.nodeId"
-              :class="v.nodeclass" :style="{ left: v.left, top: v.top }" @click="onItemCloneClick(k)">
-              <div :style="{ backgroundColor: v.color }" class="workflow-right-box"
-                :class="{ 'workflow-right-active': state.jsPlumbNodeIndex === k }">
-                  <div class="workflow-left-item-icon">
-                      <SvgIcon :name="v.icon" class="workflow-icon-drag" />
-                      <div class="font10 pl5 name">{{ v.name }}</div>
-                  </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
+	<div class="rule-simulator">
+		<ConsolePageShell
+			eyebrow="Rule Simulator"
+			title="规则模拟器"
+			description="在同一工作台中回看规则画布、提交测试数据并沿时间线查看节点执行轨迹，适合调试规则逻辑和验证执行链路。"
+			:badges="simulatorBadges"
+			:metrics="simulatorMetrics"
+		>
+			<div class="simulator-workspace">
+				<div class="simulator-toolbar">
+					<Tool @tool="onToolClick" />
+				</div>
 
-    <div class="workflow-bottom">
-      <el-tabs type="card" class="tabs" v-model="activeName">
-        <el-tab-pane label="timeline" name="timeline"> <el-timeline>
-            <el-timeline-item v-for="(activity, index) in state.activities" :key="index" :type="activity.type"
-              :timestamp="activity.timestamp">
-              <el-card>
-                <h4> {{ activity.content }}</h4>
-                <p> {{ activity.data }}</p>
-              </el-card>
-            </el-timeline-item>
-          </el-timeline></el-tab-pane>
+				<div class="simulator-layout">
+					<section class="simulator-panel simulator-panel--canvas">
+						<div class="simulator-panel__head">
+							<div>
+								<span>规则画布回放</span>
+								<small>提交测试数据后，命中的节点会在画布上按执行顺序高亮显示。</small>
+							</div>
+							<el-tag effect="plain" type="primary">{{ state.jsplumbData.nodeList.length }} 个节点</el-tag>
+						</div>
 
-      </el-tabs>
-    </div>
+						<div class="workflow-stage">
+							<div class="workflow-mask" v-if="state.isShow">
+								<div class="workflow-mask__content">移动端暂不支持规则模拟画布交互，请在桌面端继续操作。</div>
+							</div>
 
-    <el-dialog v-model="state.dataFormVisible" title="测试数据">
-      <div>
-        <monaco height="100%" width="100%" theme="vs-dark" v-model="state.content" language="json"
-          selectOnLineNumbers="true"></monaco>
-      </div>
+							<div class="workflow-right" ref="workflowRightRef">
+								<div
+									v-for="(node, index) in state.jsplumbData.nodeList"
+									:key="node.nodeId"
+									:id="node.nodeId"
+									:data-node-id="node.nodeId"
+									:class="node.nodeclass"
+									:style="{ left: node.left, top: node.top }"
+									@click="onItemCloneClick(index)"
+								>
+									<div class="workflow-right-box" :class="{ 'workflow-right-active': state.jsPlumbNodeIndex === index }">
+										<div class="workflow-right-box__inner">
+											<div class="workflow-right-box__icon" :style="{ backgroundColor: node.color }">
+												<component :is="{ ...customIcons[node.icon] }" class="workflow-icon-drag" />
+											</div>
+											<div class="workflow-right-box__copy">
+												<strong>{{ node.name }}</strong>
+												<span>{{ node.nodetype }}</span>
+											</div>
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+					</section>
 
-      <template #footer>
-        <span class="dialog-footer">
-          <el-button @click="state.dataFormVisible = false">取消</el-button>
-          <el-button type="primary" @click="submitData"> 确认 </el-button>
-        </span>
-      </template>
-    </el-dialog>
-  </div>
+					<aside class="simulator-panel simulator-panel--timeline">
+						<div class="simulator-panel__head">
+							<div>
+								<span>执行时间线</span>
+								<small>按执行先后展示规则节点的事件记录和返回数据。</small>
+							</div>
+							<el-tag effect="plain">{{ state.activities.length }} 条事件</el-tag>
+						</div>
+
+						<el-tabs v-model="activeName" type="card" class="timeline-tabs">
+							<el-tab-pane label="执行轨迹" name="timeline">
+								<div class="timeline-panel">
+									<el-empty v-if="!state.activities.length" description="尚未执行模拟，请先提交测试数据。" />
+									<el-timeline v-else>
+										<el-timeline-item
+											v-for="(activity, index) in state.activities"
+											:key="index"
+											:type="activity.type"
+											:timestamp="activity.timestamp"
+										>
+											<el-card class="timeline-card">
+												<h4>{{ activity.content }}</h4>
+												<p>{{ activity.data }}</p>
+											</el-card>
+										</el-timeline-item>
+									</el-timeline>
+								</div>
+							</el-tab-pane>
+						</el-tabs>
+					</aside>
+				</div>
+			</div>
+		</ConsolePageShell>
+
+		<el-dialog v-model="state.dataFormVisible" title="测试数据" width="860px" class="simulator-dialog">
+			<div class="simulator-dialog__body">
+				<monaco
+					height="420px"
+					width="100%"
+					theme="vs-dark"
+					v-model="state.content"
+					language="json"
+					selectOnLineNumbers="true"
+				/>
+			</div>
+
+			<template #footer>
+				<span class="dialog-footer">
+					<el-button @click="state.dataFormVisible = false">取消</el-button>
+					<el-button type="primary" @click="submitData">开始模拟</el-button>
+				</span>
+			</template>
+		</el-dialog>
+	</div>
 </template>
 
 <script lang="ts" setup>
-import {
-  reactive,
-  computed,
-  onMounted,
-  onUnmounted,
-  nextTick,
-  ref,
-  getCurrentInstance,
-} from "vue";
-import { ElMessage, ElMessageBox } from "element-plus";
-import { jsPlumb } from "jsplumb";
-import Sortable from "sortablejs";
-import { storeToRefs } from "pinia";
-import { useThemeConfig } from "/@/stores/themeConfig";
-import { useTagsViewRoutes } from "/@/stores/tagsViewRoutes";
-import Tool from "./component/tool/simulator.vue";
-import monaco from "/@/components/monaco/monaco.vue";
-import commonFunction from "/@/utils/commonFunction";
-
-import {
-  jsplumbDefaults,
-  jsplumbMakeSource,
-  jsplumbMakeTarget,
-  jsplumbConnect,
-} from "./js/config";
-import { useRouter, useRoute } from "vue-router";
-import { ruleApi } from "/@/api/flows";
-
-import { LineListState, NodeListState } from "./models";
-
-// 定义接口来定义对象的类型
+import { computed, onMounted, onUnmounted, reactive, ref, watch } from 'vue';
+import { ElMessage } from 'element-plus';
+import { jsPlumb } from 'jsplumb';
+import { useTagsViewRoutes } from '/@/stores/tagsViewRoutes';
+import ConsolePageShell from '/@/components/console/ConsolePageShell.vue';
+import Tool from './component/tool/simulator.vue';
+import monaco from '/@/components/monaco/monaco.vue';
+import { jsplumbConnect, jsplumbDefaults, jsplumbMakeSource, jsplumbMakeTarget } from './js/config';
+import { customIcons } from './js/leftNavList';
+import { ruleApi } from '/@/api/flows';
+import type { LineListState, NodeListState } from './models';
 
 interface XyState {
-  x: string | number;
-  y: string | number;
+	x: string | number;
+	y: string | number;
 }
+
 interface FlowState {
-  activities: any[];
-  index: number;
-  flowid?: string | any;
-  content?: string | any;
-  workflowRightRef: HTMLDivElement | null;
-  dropdownNode: XyState;
-  dropdownLine: XyState;
-  isShow: boolean;
-  jsPlumb: any;
-  jsPlumbNodeIndex: null | number;
-  jsplumbDefaults: any;
-  jsplumbMakeSource: any;
-  jsplumbMakeTarget: any;
-  jsplumbConnect: any;
-  dataFormVisible: boolean;
-  jsplumbData: {
-    nodeList: Array<NodeListState>;
-    lineList: Array<LineListState>;
-  };
+	activities: any[];
+	flowid: string;
+	content: string;
+	dropdownNode: XyState;
+	dropdownLine: XyState;
+	isShow: boolean;
+	jsPlumb: any;
+	jsPlumbNodeIndex: null | number;
+	jsplumbDefaults: any;
+	jsplumbMakeSource: any;
+	jsplumbMakeTarget: any;
+	jsplumbConnect: any;
+	dataFormVisible: boolean;
+	jsplumbData: {
+		nodeList: Array<NodeListState>;
+		lineList: Array<LineListState>;
+	};
 }
-const emit = defineEmits(["close", "submit"]);
+
 const props = defineProps({
-  ruleId: {
-    type: String,
-    default: ''
-  }
-})
+	ruleId: {
+		type: String,
+		default: '',
+	},
+});
 
-const activeName = ref('timeline')
-const route = useRoute();
-const router = useRouter();
-const language = ref("json");
-
-const contextmenuNodeRef = ref();
-const contextmenuLineRef = ref();
-const drawerRef = ref();
-const helpRef = ref();
+const emit = defineEmits(['close', 'submit']);
 const stores = useTagsViewRoutes();
-const storesThemeConfig = useThemeConfig();
-const { themeConfig } = storeToRefs(storesThemeConfig);
-const { isTagsViewCurrenFull } = storeToRefs(stores);
-const { copyText } = commonFunction();
+const activeName = ref('timeline');
+const workflowRightRef = ref<HTMLDivElement | null>(null);
+const playbackTimers: number[] = [];
 
 const state = reactive<FlowState>({
-  activities: [],
-  flowid: props.ruleId,
-  workflowRightRef: null as HTMLDivElement | null,
-  dropdownNode: { x: "", y: "" },
-  dropdownLine: { x: "", y: "" },
-  isShow: false,
-  jsPlumb: null,
-  jsPlumbNodeIndex: null,
-  jsplumbDefaults,
-  jsplumbMakeSource,
-  jsplumbMakeTarget,
-  jsplumbConnect,
-  dataFormVisible: false,
-  jsplumbData: {
-    nodeList: [],
-    lineList: [],
-  },
+	activities: [],
+	flowid: props.ruleId,
+	content: '',
+	dropdownNode: { x: '', y: '' },
+	dropdownLine: { x: '', y: '' },
+	isShow: false,
+	jsPlumb: null,
+	jsPlumbNodeIndex: null,
+	jsplumbDefaults,
+	jsplumbMakeSource,
+	jsplumbMakeTarget,
+	jsplumbConnect,
+	dataFormVisible: false,
+	jsplumbData: {
+		nodeList: [],
+		lineList: [],
+	},
+});
 
-  index: 0,
-});
-// 设置 view 的高度
-const setViewHeight = computed(() => {
-  let { isTagsview } = themeConfig.value;
-  if (isTagsViewCurrenFull.value) {
-    return `30px`;
-  } else {
-    if (isTagsview) return `114px`;
-    else return `80px`;
-  }
-});
-// 设置 宽度小于 768
+const simulatorBadges = computed(() => [
+	props.ruleId ? `规则 ${props.ruleId.slice(0, 8)}` : '未选择规则',
+	state.activities.length ? '已生成执行轨迹' : '等待首次模拟',
+	state.isShow ? '移动端受限' : '桌面交互正常',
+]);
+
+const simulatorMetrics = computed(() => [
+	{
+		label: '画布节点',
+		value: state.jsplumbData.nodeList.length,
+		hint: '当前参与模拟的规则节点数量。',
+		tone: 'primary' as const,
+	},
+	{
+		label: '连线数量',
+		value: state.jsplumbData.lineList.length,
+		hint: '可帮助判断当前规则流的复杂度。',
+		tone: 'accent' as const,
+	},
+	{
+		label: '执行事件',
+		value: state.activities.length,
+		hint: '模拟后会按时间顺序生成执行事件记录。',
+		tone: 'success' as const,
+	},
+	{
+		label: '当前状态',
+		value: state.activities.length ? '回放完成' : '待运行',
+		hint: state.activities.length ? '可以继续修改输入数据再次回放。' : '点击顶部工具栏即可发起测试。',
+		tone: 'warning' as const,
+	},
+]);
+
+const clearPlaybackTimers = () => {
+	while (playbackTimers.length) {
+		const timer = playbackTimers.pop();
+		if (timer) window.clearTimeout(timer);
+	}
+};
+
 const setClientWidth = () => {
-  const clientWidth = document.body.clientWidth;
-  clientWidth < 768 ? (state.isShow = true) : (state.isShow = false);
+	state.isShow = document.body.clientWidth < 768;
 };
-// 右侧导航-数据初始化
+
 const initRightNodeList = async () => {
-  await ruleApi()
-    .getDiagram(state.flowid)
-    .then((res) => {
-      state.jsplumbData = {
-        nodeList: res.data.nodes,
-        lineList: res.data.lines,
-      };
-    });
-    window.setInterval(() => {
-     var index = state.index % state.jsplumbData.nodeList.length;
-     state.jsplumbData.nodeList[index].class = "workflow-right-highlight";
-     state.index++;
-   }, 1000);
+	const response = await ruleApi().getDiagram(state.flowid);
+	state.jsplumbData = {
+		nodeList: response.data.nodes,
+		lineList: response.data.lines,
+	};
 };
-// 初始化 jsPlumb
-const initJsPlumb = () => {
-  (<any>jsPlumb).ready(() => {
-    state.jsPlumb = (<any>jsPlumb).getInstance({
-      detachable: false,
-      Container: "workflow-right",
-    });
-    state.jsPlumb.fire("jsPlumbDemoLoaded", state.jsPlumb);
-    // 导入默认配置
-    state.jsPlumb.importDefaults(state.jsplumbDefaults);
-    // 会使整个jsPlumb立即重绘。
-    state.jsPlumb.setSuspendDrawing(false, true);
-    // 初始化节点、线的链接
-    initJsPlumbConnection();
-  });
-};
-// 初始化节点、线的链接
+
 const initJsPlumbConnection = () => {
-  state.jsplumbData.nodeList.forEach((v) => {
-    // 整个节点作为source或者target
-    state.jsPlumb.makeSource(v.nodeId, state.jsplumbMakeSource);
-    // 整个节点作为source或者target
-    state.jsPlumb.makeTarget(v.nodeId, state.jsplumbMakeTarget, jsplumbConnect);
-  });
+	state.jsplumbData.nodeList.forEach((item) => {
+		state.jsPlumb.makeSource(item.nodeId, state.jsplumbMakeSource);
+		state.jsPlumb.makeTarget(item.nodeId, state.jsplumbMakeTarget, jsplumbConnect);
+	});
 
-  // 线
-  state.jsplumbData.lineList.forEach((v) => {
-    state.jsPlumb.connect(
-      {
-        source: v.sourceId,
-        target: v.targetId,
-        label: v.linename,
-        linename: v.linename,
-        condition: v.condition,
-      },
-      state.jsplumbConnect
-    );
-
-  });
-  // 节点
-};
-const onexecutorSubmit = (data: object) => { };
-
-const onscriptSubmit = (data: any) => { };
-
-// 右侧内容区-当前项点击
-const onItemCloneClick = (k: number) => {
-  state.jsPlumbNodeIndex = k;
+	state.jsplumbData.lineList.forEach((item) => {
+		state.jsPlumb.connect(
+			{
+				source: item.sourceId,
+				target: item.targetId,
+				label: item.linename,
+				linename: item.linename,
+				condition: item.condition,
+			},
+			state.jsplumbConnect
+		);
+	});
 };
 
-// 右侧内容区-当前项右键菜单点击回调(线)
-const onCurrentLineClick = (item: any, conn: any) => {
-  const { contextMenuClickId } = item;
-  const { endpoints } = conn;
-  const intercourse: any = [];
-  endpoints.forEach((v: any) => {
-    intercourse.push({
-      id: v.element.id,
-      innerText: v.element.innerText,
-    });
-  });
-  item.contact = `${intercourse[0].innerText}(${intercourse[0].id}) => ${intercourse[1].innerText}(${intercourse[1].id})`;
-  if (contextMenuClickId === 0) state.jsPlumb.deleteConnection(conn);
-  else if (contextMenuClickId === 1) {
-    drawerRef.value.open(item, conn);
-  }
+const initJsPlumb = () => {
+	(jsPlumb as any).ready(() => {
+		state.jsPlumb = (jsPlumb as any).getInstance({
+			detachable: false,
+			Container: 'workflow-right',
+		});
+		state.jsPlumb.fire('jsPlumbDemoLoaded', state.jsPlumb);
+		state.jsPlumb.importDefaults(state.jsplumbDefaults);
+		state.jsPlumb.setSuspendDrawing(false, true);
+		initJsPlumbConnection();
+	});
 };
-// 设置线的 label
-const setLineLabel = (obj: any) => {
-  const { sourceId, targetId, label, linename, condition, namespace } = obj;
-  const conn = state.jsPlumb.getConnections({
-    source: sourceId,
-    target: targetId,
-  })[0];
-  conn.setLabel(linename);
-  if (!linename || linename === "") {
-    conn.addClass("workflow-right-empty-label");
-  } else {
-    conn.removeClass("workflow-right-empty-label");
-    conn.addClass("workflow-right-label");
-  }
-  state.jsplumbData.lineList.forEach((v) => {
-    if (v.sourceId === sourceId && v.targetId === targetId) {
-      v.label = label;
-      v.linename = linename;
-      v.condition = condition;
-    }
-  });
-};
-// 设置节点内容
-const setNodeContent = (obj: any) => {
-  const { nodeId, name, icon } = obj;
 
-  // 设置节点 name 与 icon
-  state.jsplumbData.nodeList.forEach((v) => {
-    if (v.nodeId === nodeId) {
-      v.name = name;
-      v.icon = icon;
-    }
-  });
-  // 重绘
-  nextTick(() => {
-    state.jsPlumb.setSuspendDrawing(false, true);
-  });
-};
-// 顶部工具栏-当前项点击
-const onToolClick = (fnName: String) => {
-  switch (fnName) {
-    case "help":
-      onToolHelp();
-      break;
-    case "download":
-      onToolDownload();
-      break;
-    case "submit":
-      onToolSubmit();
-      break;
-    case "fullscreen":
-      onToolFullscreen();
-      break;
-    case "return":
-      onReturnToList();
-      break;
-  }
+const onItemCloneClick = (index: number) => {
+	state.jsPlumbNodeIndex = index;
 };
 
 const onReturnToList = () => {
-  emit("close", state.jsplumbData);
-  // router.push({
-  //   path: "/iot/rules/flowlist",
-  // });
-};
-
-// 顶部工具栏-帮助
-const onToolHelp = () => {
-  nextTick(() => {
-    helpRef.value.open();
-  });
-};
-// 顶部工具栏-下载
-const onToolDownload = () => {
-  const { globalTitle } = themeConfig.value;
-  const href =
-    "data:text/json;charset=utf-8," +
-    encodeURIComponent(JSON.stringify(state.jsplumbData, null, "\t"));
-  const aLink = document.createElement("a");
-  aLink.setAttribute("href", href);
-  aLink.setAttribute("download", `${globalTitle}设计.json`);
-  aLink.click();
-  aLink.remove();
-  ElMessage.success("下载成功");
-};
-
-const panelclose = (data: any) => {
-  switch (data.nodetype) {
-    case "script":
-      state.jsplumbData.nodeList.forEach((v) => {
-        if (v.nodeId === data.nodeId) {
-          v.name = data.name;
-          v.icon = data.icon;
-          v.nodetype = data.nodetype;
-          v.nodenamespace = data.namespace;
-          v.mata = data.mata;
-          v.content = data.content;
-        }
-      });
-
-      break;
-    case "executor":
-      state.jsplumbData.nodeList.forEach((v) => {
-        if (v.nodeId === data.nodeId) {
-          v.name = data.name;
-          v.icon = data.icon;
-          v.nodetype = data.nodetype;
-          v.nodenamespace = data.namespace;
-          v.mata = data.mata;
-          v.content = data.content;
-        }
-      });
-      break;
-    case "basic":
-      break;
-  }
-};
-
-// 顶部工具栏-提交
-const onToolSubmit = () => {
-  openRunDialog();
-};
-
-const setclass = (item: any) => {
-  for (var _item of item.nodes) {
-    var node = state.jsplumbData.nodeList.find((c) => c.nodeId == _item.bpmnid);
-    if (node) {
-      state.activities = [...state.activities, { timestamp: _item.addDate, content: _item.operationDesc, data: _item.data }]
-      node.nodeclass = "workflow-right-highlight";
-    }
-  }
-};
-
-const clearclass = () => {
-  for (var node of state.jsplumbData.nodeList) {
-    //  state.activities = []
-      node.nodeclass = "workflow-right-clone";
-  }
-}
-
-const submitData = (node: any) => {
-  state.dataFormVisible = false;
-  var data = JSON.parse(state.content);
-  if (data) {
-    ruleApi()
-      .active({
-        form: data,
-        extradata: { ruleflowid: state.flowid },
-      })
-      .then((res) => {
-        state.activities=[];
-        for (let index = 0; index < res.data.length; index++) {
-          var item = res.data[index];
-          setTimeout(setclass, index * 500, item);
-        }
-
-       setTimeout(clearclass, res.data.length * 1000);
-
-      });
-    ElMessage.success("数据提交成功");
-  }
+	emit('close', state.jsplumbData);
 };
 
 const openRunDialog = () => {
-  state.dataFormVisible = true;
-  state.content = "";
+	state.dataFormVisible = true;
+	state.content = state.content || '{\n  \n}';
 };
 
-// 顶部工具栏-全屏
+const onToolSubmit = () => {
+	openRunDialog();
+};
+
 const onToolFullscreen = () => {
-  stores.setCurrenFullscreen(true);
+	stores.setCurrenFullscreen(true);
 };
-watch(() => props.ruleId, async () => {
 
-  if (props.ruleId && props.ruleId !== "") {
+const onToolClick = (fnName: string) => {
+	switch (fnName) {
+		case 'submit':
+			onToolSubmit();
+			break;
+		case 'fullscreen':
+			onToolFullscreen();
+			break;
+		case 'return':
+			onReturnToList();
+			break;
+	}
+};
 
-    await initRightNodeList();
-    initJsPlumb();
-    setClientWidth();
-  }
+const setHighlightBatch = (item: any) => {
+	for (const nodeInfo of item.nodes) {
+		const currentNode = state.jsplumbData.nodeList.find((node) => node.nodeId === nodeInfo.bpmnid);
+		if (currentNode) {
+			state.activities = [
+				...state.activities,
+				{
+					timestamp: nodeInfo.addDate,
+					content: nodeInfo.operationDesc,
+					data: nodeInfo.data,
+				},
+			];
+			currentNode.nodeclass = 'workflow-right-highlight';
+		}
+	}
+};
 
-})
-// 页面加载时
+const clearHighlightClass = () => {
+	for (const node of state.jsplumbData.nodeList) {
+		node.nodeclass = 'workflow-right-clone';
+	}
+};
+
+const submitData = async () => {
+	state.dataFormVisible = false;
+
+	let formData: any;
+	try {
+		formData = JSON.parse(state.content);
+	}
+	catch {
+		ElMessage.warning('请输入合法的 JSON 测试数据');
+		return;
+	}
+
+	clearPlaybackTimers();
+	clearHighlightClass();
+	state.activities = [];
+
+	const response = await ruleApi().active({
+		form: formData,
+		extradata: { ruleflowid: state.flowid },
+	});
+
+	for (let index = 0; index < response.data.length; index += 1) {
+		const timer = window.setTimeout(() => {
+			setHighlightBatch(response.data[index]);
+		}, index * 500);
+		playbackTimers.push(timer);
+	}
+
+	const clearTimer = window.setTimeout(() => {
+		clearHighlightClass();
+	}, response.data.length * 1000);
+	playbackTimers.push(clearTimer);
+
+	ElMessage.success('测试数据已提交，正在回放执行轨迹');
+};
+
+const initData = async () => {
+	if (!props.ruleId) return;
+
+	state.flowid = props.ruleId;
+	state.activities = [];
+	clearPlaybackTimers();
+	state.jsPlumb?.reset?.();
+	await initRightNodeList();
+	initJsPlumb();
+	setClientWidth();
+};
+
+watch(
+	() => props.ruleId,
+	async () => {
+		await initData();
+	}
+);
+
 onMounted(async () => {
-  if (props.ruleId && props.ruleId !== "") {
-      await initRightNodeList();
-    initJsPlumb();
-    setClientWidth();
-  }
-  window.addEventListener("resize", setClientWidth);
+	await initData();
+	window.addEventListener('resize', setClientWidth);
 });
-// 页面卸载时
+
 onUnmounted(() => {
-  window.removeEventListener("resize", setClientWidth);
+	window.removeEventListener('resize', setClientWidth);
+	clearPlaybackTimers();
+	state.jsPlumb?.reset?.();
 });
 </script>
 
-<style scoped lang="scss">
-  
+<style lang="scss" scoped>
+.rule-simulator {
+	display: flex;
+	flex-direction: column;
+	gap: 18px;
+}
 
-.workflow-container {
-  position: relative;
-    
-    .workflow-bottom {
-        padding-top:5px;
-        min-height:286px;
-        background-color:#f7fbff;
-        height: 100%;
-        border-right: 1px solid var(--el-border-color-light, #ebeef5);
-          :v-deep(.el-timeline-item__node) {
-        background-color: #9dbdfd !important;
-        left:0px;
-    }
-    :v-deep(.el-timeline-item__tail)   {
-        border-left: 2px solid #e3ebf9 !important;
-        left: 5px;
-    }
-    :v-deep(.el-timeline-item__wrapper){
-        padding-right:15px;
-    }
-  
-    }
+.simulator-workspace {
+	padding: 20px 22px;
+	border-radius: 28px;
+	border: 1px solid rgba(226, 232, 240, 0.92);
+	background: linear-gradient(180deg, rgba(248, 251, 255, 0.96), rgba(255, 255, 255, 0.98));
+	box-shadow: 0 18px 42px rgba(15, 23, 42, 0.05);
+}
 
-  .workflow {
-    display: flex;
-    height: 100%;
-    width: 100%;
-    flex-direction: column;
+.simulator-toolbar {
+	padding: 4px 0 16px;
+}
 
-    .workflow-content {
-      display: flex;
-      height: calc(100% - 35px);
+.simulator-layout {
+	display: grid;
+	grid-template-columns: minmax(0, 1.7fr) 360px;
+	gap: 18px;
+}
 
-      .workflow-right {
-        flex: 1;
-        position: relative;
-        overflow: hidden;
-        height: 100%;
-        background-image: linear-gradient(90deg,
-            rgb(156 214 255 / 15%) 10%,
-            rgba(0, 0, 0, 0) 10%),
-          linear-gradient(rgb(156 214 255 / 15%) 10%, rgba(0, 0, 0, 0) 10%);
-        background-size: 10px 10px;
+.simulator-panel {
+	padding: 18px;
+	border-radius: 24px;
+	border: 1px solid rgba(226, 232, 240, 0.92);
+	background:
+		radial-gradient(circle at top right, rgba(59, 130, 246, 0.08), transparent 32%),
+		linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(248, 250, 252, 0.96));
+	box-shadow: 0 18px 42px rgba(15, 23, 42, 0.04);
+	min-width: 0;
+}
 
-        .workflow-right-clone {
-          position: absolute;
+.simulator-panel__head {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 12px;
+	margin-bottom: 14px;
 
-          .workflow-right-box {
-            height: 50px;
-            align-items: center;
-            color: black;
-            padding: 0 10px;
-            border-radius: 3px;
-            cursor: move;
-            transition: all 0.1s ease;
-            min-width: 94.5px;
-            background: var(--el-color-white);
-            border: 1px solid var(--el-border-color-light, #ebeef5);
+	span {
+		display: block;
+		color: #123b6d;
+		font-size: 18px;
+		font-weight: 700;
+		letter-spacing: -0.03em;
+	}
 
-            .workflow-left-item-icon {
-              display: flex;
-              align-items: center;
-              height: 50px;
-            }
+	small {
+		display: block;
+		margin-top: 4px;
+		color: #64748b;
+		font-size: 12px;
+		line-height: 1.6;
+	}
+}
 
-            &:hover {
-              outline: 2px dashed var(--el-color-primary);
-              background: var(--el-color-primary-light-9);
-              //transition: all 0.3s ease;
-              color: var(--el-color-primary);
+.workflow-stage {
+	position: relative;
+	min-height: 720px;
+	border-radius: 22px;
+	border: 1px solid rgba(226, 232, 240, 0.92);
+	background: rgba(255, 255, 255, 0.76);
+	overflow: hidden;
+}
 
-              i {
-                cursor: Crosshair;
-              }
-            }
-          }
+.workflow-right {
+	position: relative;
+	height: 720px;
+	overflow: hidden;
+	background:
+		linear-gradient(90deg, rgba(191, 219, 254, 0.28) 1px, transparent 1px),
+		linear-gradient(rgba(191, 219, 254, 0.28) 1px, transparent 1px),
+		linear-gradient(180deg, rgba(248, 251, 255, 0.96), rgba(240, 247, 255, 0.92));
+	background-size: 24px 24px, 24px 24px, cover;
+}
 
-          .workflow-right-active {
-            //border: 1px dashed var(--el-color-primary);
-            outline: 2px solid var(--el-color-primary);
-            background: var(--el-color-primary-light-9);
-            color: var(--el-color-primary);
-          }
-        }
+.workflow-right-clone,
+.workflow-right-highlight {
+	position: absolute;
+}
 
-        .workflow-right-highlight {
-          position: absolute;
+.workflow-right-box {
+	min-width: 148px;
+	padding: 10px;
+	border-radius: 18px;
+	border: 1px solid rgba(191, 219, 254, 0.88);
+	background: rgba(255, 255, 255, 0.95);
+	box-shadow: 0 12px 28px rgba(15, 23, 42, 0.08);
+	cursor: pointer;
+}
 
-          .workflow-right-box {
-            height: 50px;
-            align-items: center;
-            color: var(--el-color-white);
-            padding: 0 10px;
-            border-radius: 3px;
-            cursor: move;
-            transition: all 0.3s ease;
-            min-width: 94.5px;
-            background: #755eea;
-            border: 1px solid var(--el-border-color-light, #c95eea);
+.workflow-right-box__inner {
+	display: flex;
+	align-items: center;
+	gap: 12px;
+	min-height: 52px;
+}
 
-            .workflow-left-item-icon {
-              display: flex;
-              align-items: center;
-              height: 50px;
-            }
+.workflow-right-box__icon {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 44px;
+	height: 44px;
+	border-radius: 14px;
+	color: #123b6d;
+	flex-shrink: 0;
+}
 
-            &:hover {
-              border: 1px dashed var(--el-color-primary);
-              background: var(--el-color-primary-light-9);
-              transition: all 0.3s ease;
-              color: var(--el-color-primary);
+.workflow-right-box__copy {
+	display: flex;
+	flex-direction: column;
+	gap: 4px;
+	min-width: 0;
 
-              i {
-                cursor: Crosshair;
-              }
-            }
-          }
+	strong {
+		color: #0f172a;
+		font-size: 14px;
+		overflow: hidden;
+		text-overflow: ellipsis;
+		white-space: nowrap;
+	}
 
-          .workflow-right-active {
-            border: 1px dashed var(--el-color-primary);
-            background: var(--el-color-primary-light-9);
-            color: var(--el-color-primary);
-          }
-        }
+	span {
+		color: #64748b;
+		font-size: 12px;
+		text-transform: uppercase;
+	}
+}
 
-        :deep(.jtk-overlay):not(.aLabel) {
-          padding: 4px 10px;
-          border: 1px solid var(--el-border-color-light, #ebeef5) !important;
-          color: var(--el-text-color-secondary) !important;
-          background: var(--el-color-white) !important;
-          border-radius: 3px;
-          font-size: 10px;
-        }
+.workflow-right-active {
+	border-color: rgba(37, 99, 235, 0.98);
+	background: linear-gradient(180deg, rgba(239, 246, 255, 0.96), rgba(219, 234, 254, 0.8));
+	box-shadow: 0 18px 36px rgba(37, 99, 235, 0.18);
+}
 
-        :deep(.jtk-overlay.workflow-right-empty-label) {
-          display: none;
-        }
-      }
-    }
-  }
+.workflow-right-highlight .workflow-right-box {
+	border-color: rgba(14, 165, 233, 0.92);
+	background: linear-gradient(180deg, rgba(224, 242, 254, 0.96), rgba(191, 219, 254, 0.88));
+}
 
-  .workflow-mask {
-    position: absolute;
-    top: 0;
-    right: 0;
-    bottom: 0;
-    left: 0;
+:deep(.jtk-overlay):not(.aLabel) {
+	padding: 6px 10px;
+	border: 1px solid rgba(191, 219, 254, 0.72) !important;
+	color: #475569 !important;
+	background: rgba(255, 255, 255, 0.95) !important;
+	border-radius: 999px;
+	font-size: 11px;
+	box-shadow: 0 10px 20px rgba(15, 23, 42, 0.08);
+}
 
-    &::after {
-      content: "手机版不支持 jsPlumb 操作";
-      position: absolute;
-      top: 0;
-      right: 0;
-      bottom: 0;
-      left: 0;
-      z-index: 1;
-      background: rgba(255, 255, 255, 0.9);
-      color: #666666;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-  }
+:deep(.jtk-overlay.workflow-right-empty-label) {
+	display: none;
+}
+
+.timeline-tabs {
+	min-height: 720px;
+}
+
+.timeline-panel {
+	max-height: 650px;
+	padding-right: 8px;
+	overflow: auto;
+}
+
+.timeline-card {
+	border-radius: 18px;
+	box-shadow: none;
+
+	h4 {
+		margin: 0 0 8px;
+		color: #123b6d;
+		font-size: 14px;
+	}
+
+	p {
+		margin: 0;
+		color: #64748b;
+		font-size: 12px;
+		line-height: 1.75;
+		white-space: pre-wrap;
+		word-break: break-word;
+	}
+}
+
+.workflow-mask {
+	position: absolute;
+	inset: 0;
+	z-index: 2;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	background: rgba(255, 255, 255, 0.86);
+	backdrop-filter: blur(4px);
+}
+
+.workflow-mask__content {
+	max-width: 320px;
+	padding: 18px 20px;
+	border-radius: 20px;
+	border: 1px solid rgba(191, 219, 254, 0.88);
+	background: rgba(255, 255, 255, 0.94);
+	color: #475569;
+	font-size: 14px;
+	line-height: 1.8;
+	text-align: center;
 }
 
 .workflow-icon-drag {
-  position: relative;
-
-  &:after {
-    content: " ";
-    width: 32px;
-    height: 32px;
-    left: 0;
-    top: 0;
-    z-index: 1000;
-    position: absolute;
-    cursor: default;
-    background: transparent;
-  }
+	flex-shrink: 0;
 }
 
-.jtk-connector.active {
-  z-index: 9999;
-
-  path {
-    stroke: #150042;
-    stroke-width: 1.5;
-    animation: ring;
-    animation-duration: 3s;
-    animation-timing-function: linear;
-    animation-iteration-count: infinite;
-    stroke-dasharray: 5;
-  }
+.simulator-dialog :deep(.el-dialog) {
+	border-radius: 24px;
 }
 
-@keyframes ring {
-  from {
-    stroke-dashoffset: 50;
-  }
+.simulator-dialog__body {
+	border-radius: 20px;
+	overflow: hidden;
+}
 
-  to {
-    stroke-dashoffset: 0;
-  }
+@media (max-width: 1080px) {
+	.simulator-layout {
+		grid-template-columns: 1fr;
+	}
+
+	.workflow-stage,
+	.workflow-right {
+		min-height: 560px;
+		height: 560px;
+	}
+
+	.timeline-tabs {
+		min-height: auto;
+	}
+
+	.timeline-panel {
+		max-height: 360px;
+	}
+}
+
+@media (max-width: 767px) {
+	.simulator-workspace {
+		padding: 18px;
+		border-radius: 22px;
+	}
+
+	.simulator-panel {
+		padding: 16px;
+		border-radius: 20px;
+	}
 }
 </style>
