@@ -1,42 +1,45 @@
 <template>
-	<div class="layout-navbars-breadcrumb-index">
-		<div class="layout-navbars-breadcrumb-index__left">
-			<Logo v-if="setIsShowLogo" alwaysExpanded disableToggle class="layout-navbars-breadcrumb-index__logo" />
-			<div class="layout-navbars-breadcrumb-index__divider"></div>
-			<Breadcrumb />
+	<div class="layout-shell-topbar">
+		<div class="layout-shell-topbar__brand">
+			<Logo v-if="setIsShowLogo" alwaysExpanded disableToggle class="layout-shell-topbar__logo" />
+			<button v-if="!isLayoutTransverse" type="button" class="layout-shell-topbar__toggle" @click="onToggleCollapse">
+				<SvgIcon :name="themeConfig.isCollapse ? 'ele-Expand' : 'ele-Fold'" :size="16" />
+			</button>
+			<div class="layout-shell-topbar__context">
+				<span class="layout-shell-topbar__label">IoT Platform Console</span>
+				<strong class="layout-shell-topbar__title">{{ currentSection }}</strong>
+			</div>
 		</div>
-		<Horizontal v-if="isLayoutTransverse" :menuList="menuList" />
+		<Horizontal v-if="isLayoutTransverse" :menuList="menuList" class="layout-shell-topbar__nav" />
 		<User />
 	</div>
 </template>
 
 <script lang="ts">
-import { computed, reactive, toRefs, onMounted, onUnmounted, getCurrentInstance, defineComponent } from 'vue';
+import { computed, defineComponent, onMounted, onUnmounted, reactive, toRefs } from 'vue';
 import { useRoute } from 'vue-router';
+import { useI18n } from 'vue-i18n';
 import { storeToRefs } from 'pinia';
+import { Local } from '/@/utils/storage';
+import mittBus from '/@/utils/mitt';
 import { useRoutesList } from '/@/stores/routesList';
 import { useThemeConfig } from '/@/stores/themeConfig';
-import Breadcrumb from '/@/layout/navBars/breadcrumb/breadcrumb.vue';
 import User from '/@/layout/navBars/breadcrumb/user.vue';
 import Logo from '/@/layout/logo/index.vue';
 import Horizontal from '/@/layout/navMenu/horizontal.vue';
 
-interface IndexState {
-	menuList: object[];
-}
-
 export default defineComponent({
 	name: 'layoutBreadcrumbIndex',
-	components: { Breadcrumb, User, Logo, Horizontal },
+	components: { User, Logo, Horizontal },
 	setup() {
-		const { proxy } = <any>getCurrentInstance();
 		const stores = useRoutesList();
 		const storesThemeConfig = useThemeConfig();
 		const { themeConfig } = storeToRefs(storesThemeConfig);
 		const { routesList } = storeToRefs(stores);
 		const route = useRoute();
-		const state = reactive<IndexState>({
-			menuList: [],
+		const { t } = useI18n();
+		const state = reactive({
+			menuList: [] as any[],
 		});
 
 		const setIsShowLogo = computed(() => {
@@ -49,9 +52,25 @@ export default defineComponent({
 			return layout === 'transverse' || (layout === 'classic' && isClassicSplitMenu);
 		});
 
-		const filterRoutesFun = (arr: Array<string>) => {
+		const currentSection = computed(() => {
+			const tagsViewName = route.meta.tagsViewName as string | undefined;
+			if (tagsViewName) return tagsViewName;
+
+			const title = route.meta.title as string | undefined;
+			if (!title) return 'Workspace';
+
+			return title.startsWith('message.') ? t(title) : title;
+		});
+
+		const onToggleCollapse = () => {
+			themeConfig.value.isCollapse = !themeConfig.value.isCollapse;
+			Local.remove('themeConfig');
+			Local.set('themeConfig', themeConfig.value);
+		};
+
+		const filterRoutesFun = (arr: any[]) => {
 			return arr
-				.filter((item: any) => !item.meta.isHide)
+				.filter((item: any) => !item.meta?.isHide)
 				.map((item: any) => {
 					item = Object.assign({}, item);
 					if (item.children) item.children = filterRoutesFun(item.children);
@@ -59,23 +78,24 @@ export default defineComponent({
 				});
 		};
 
-		const delClassicChildren = (arr: Array<object>) => {
-			arr.map((v: any) => {
-				if (v.children) delete v.children;
+		const delClassicChildren = (arr: any[]) => {
+			arr.forEach((item: any) => {
+				if (item.children) delete item.children;
 			});
 			return arr;
 		};
 
 		const setSendClassicChildren = (path: string) => {
 			const currentPathSplit = path.split('/');
-			const currentData: any = {};
-			filterRoutesFun(routesList.value).map((v: any, k: number) => {
-				if (v.path === `/${currentPathSplit[1]}`) {
-					v.k = k;
-					currentData.item = [{ ...v }];
-					currentData.children = v.children ? v.children : [{ ...v }];
+			const currentData: any = { children: [] };
+
+			filterRoutesFun(routesList.value).forEach((item: any) => {
+				if (item.path === `/${currentPathSplit[1]}`) {
+					currentData.item = { ...item };
+					currentData.children = item.children ? item.children : [{ ...item }];
 				}
 			});
+
 			return currentData;
 		};
 
@@ -83,27 +103,31 @@ export default defineComponent({
 			const { layout, isClassicSplitMenu } = themeConfig.value;
 			if (layout === 'classic' && isClassicSplitMenu) {
 				state.menuList = delClassicChildren(filterRoutesFun(routesList.value));
-				const resData = setSendClassicChildren(route.path);
-				proxy.mittBus.emit('setSendClassicChildren', resData);
-			} else {
-				state.menuList = filterRoutesFun(routesList.value);
+				mittBus.emit('setSendClassicChildren', setSendClassicChildren(route.path));
+				return;
 			}
+			state.menuList = filterRoutesFun(routesList.value);
+		};
+
+		const onRefreshRoutes = () => {
+			setFilterRoutes();
 		};
 
 		onMounted(() => {
 			setFilterRoutes();
-			proxy.mittBus.on('getBreadcrumbIndexSetFilterRoutes', () => {
-				setFilterRoutes();
-			});
+			mittBus.on('getBreadcrumbIndexSetFilterRoutes', onRefreshRoutes);
 		});
 
 		onUnmounted(() => {
-			proxy.mittBus.off('getBreadcrumbIndexSetFilterRoutes', () => {});
+			mittBus.off('getBreadcrumbIndexSetFilterRoutes', onRefreshRoutes);
 		});
 
 		return {
+			themeConfig,
 			setIsShowLogo,
 			isLayoutTransverse,
+			currentSection,
+			onToggleCollapse,
 			...toRefs(state),
 		};
 	},
@@ -111,44 +135,90 @@ export default defineComponent({
 </script>
 
 <style scoped lang="scss">
-.layout-navbars-breadcrumb-index {
-	height: 72px;
+.layout-shell-topbar {
+	height: 64px;
 	display: flex;
 	align-items: center;
-	gap: 16px;
-	padding: 0 24px;
-	background: rgba(255, 255, 255, 0.95);
-	border-bottom: 1px solid rgba(224, 232, 242, 0.9);
-	box-shadow: 0 10px 30px rgba(15, 23, 42, 0.04);
+	gap: 20px;
+	padding: 0 22px 0 18px;
+	background: #ffffff;
+	border-bottom: 1px solid #e5e6eb;
 }
 
-.layout-navbars-breadcrumb-index__left {
+.layout-shell-topbar__brand {
+	display: flex;
+	align-items: center;
+	gap: 14px;
+	min-width: 0;
+	flex-shrink: 0;
+}
+
+.layout-shell-topbar__logo {
+	flex-shrink: 0;
+}
+
+.layout-shell-topbar__toggle {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 34px;
+	height: 34px;
+	border: 1px solid #e5e6eb;
+	border-radius: 10px;
+	background: #ffffff;
+	color: #4e5969;
+	cursor: pointer;
+	transition:
+		border-color 0.2s ease,
+		color 0.2s ease,
+		background-color 0.2s ease;
+
+	&:hover {
+		border-color: #bedaff;
+		background: #f7fbff;
+		color: #165dff;
+	}
+}
+
+.layout-shell-topbar__context {
+	display: flex;
+	flex-direction: column;
+	min-width: 0;
+}
+
+.layout-shell-topbar__label {
+	color: #86909c;
+	font-size: 11px;
+	font-weight: 600;
+	letter-spacing: 0.08em;
+	text-transform: uppercase;
+	white-space: nowrap;
+}
+
+.layout-shell-topbar__title {
+	color: #1d2129;
+	font-size: 15px;
+	font-weight: 600;
+	line-height: 1.2;
+	white-space: nowrap;
+}
+
+.layout-shell-topbar__nav {
 	flex: 1;
 	min-width: 0;
-	display: flex;
-	align-items: center;
-	gap: 18px;
 }
 
-.layout-navbars-breadcrumb-index__logo {
-	flex-shrink: 0;
-}
-
-.layout-navbars-breadcrumb-index__divider {
-	width: 1px;
-	height: 34px;
-	background: linear-gradient(180deg, rgba(191, 219, 254, 0), rgba(191, 219, 254, 0.9), rgba(191, 219, 254, 0));
-	flex-shrink: 0;
+@media (max-width: 1100px) {
+	.layout-shell-topbar__context {
+		display: none;
+	}
 }
 
 @media (max-width: 767px) {
-	.layout-navbars-breadcrumb-index {
-		height: 68px;
-		padding: 0 14px;
-	}
-
-	.layout-navbars-breadcrumb-index__divider {
-		display: none;
+	.layout-shell-topbar {
+		height: 60px;
+		padding: 0 12px;
+		gap: 12px;
 	}
 }
 </style>

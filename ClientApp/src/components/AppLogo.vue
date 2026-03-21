@@ -1,9 +1,8 @@
 <template>
   <div class="app-logo" :class="{ 'app-logo--icon-only': hideText, 'app-logo--text-only': hideIcon }">
     <div v-if="!hideIcon" class="app-logo__mark" aria-hidden="true">
-      <span class="app-logo__hash">#</span>
-      <span class="app-logo__spark app-logo__spark--top"></span>
-      <span class="app-logo__spark app-logo__spark--bottom"></span>
+      <span class="app-logo__shape app-logo__shape--primary"></span>
+      <span class="app-logo__shape app-logo__shape--secondary"></span>
     </div>
     <div v-if="!hideText" class="app-logo__wordmark">
       <span class="app-logo__prefix">{{ titleParts.prefix }}</span>
@@ -49,11 +48,11 @@ const titleParts = computed(() => {
 
 <style lang="scss" scoped>
 .app-logo {
-  --app-logo-text: #123b6d;
-  --app-logo-subtext: #2563eb;
+  --app-logo-text: #1d2129;
+  --app-logo-subtext: #4e5969;
   display: inline-flex;
   align-items: center;
-  gap: 14px;
+  gap: 12px;
   min-width: 0;
   user-select: none;
 }
@@ -64,69 +63,50 @@ const titleParts = computed(() => {
 
 .app-logo__mark {
   position: relative;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 38px;
-  height: 38px;
-  border-radius: 11px;
-  background: linear-gradient(180deg, #1d4ed8 0%, #2563eb 52%, #0ea5e9 100%);
-  box-shadow:
-    0 12px 22px rgba(37, 99, 235, 0.24),
-    inset 0 1px 0 rgba(255, 255, 255, 0.3);
+  width: 30px;
+  height: 22px;
   flex-shrink: 0;
 }
 
-.app-logo__hash {
-  position: relative;
-  z-index: 2;
-  color: #ffffff;
-  font-size: 25px;
-  font-weight: 800;
-  line-height: 1;
-  transform: translateY(-1px);
-}
-
-.app-logo__spark {
+.app-logo__shape {
   position: absolute;
-  right: 6px;
-  width: 4px;
-  height: 4px;
-  border-radius: 999px;
-  background: rgba(255, 255, 255, 0.92);
-  box-shadow: 0 0 0 5px rgba(255, 255, 255, 0.08);
+  display: block;
+  width: 17px;
+  height: 17px;
+  border-radius: 6px;
+  transform: rotate(45deg);
+  box-shadow: 0 8px 18px rgba(22, 93, 255, 0.12);
 }
 
-.app-logo__spark--top {
-  top: 8px;
+.app-logo__shape--primary {
+  top: 0;
+  left: 0;
+  background: linear-gradient(135deg, #00b2ff 0%, #36cfc9 100%);
 }
 
-.app-logo__spark--bottom {
-  bottom: 8px;
+.app-logo__shape--secondary {
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(135deg, #165dff 0%, #4080ff 100%);
 }
 
 .app-logo__wordmark {
   display: inline-flex;
   align-items: baseline;
-  gap: 6px;
+  gap: 4px;
   min-width: 0;
   color: var(--app-logo-text);
-  font-family: 'Segoe UI', 'Helvetica Neue', 'Microsoft YaHei', sans-serif;
-  font-size: 27px;
-  font-weight: 800;
-  letter-spacing: -0.05em;
-  line-height: 0.95;
+  font-family: 'Segoe UI Variable', 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+  font-size: 28px;
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: -0.03em;
   white-space: nowrap;
-}
-
-.app-logo__prefix,
-.app-logo__suffix {
-  display: inline-block;
 }
 
 .app-logo__suffix {
   color: var(--app-logo-subtext);
-  letter-spacing: -0.07em;
+  font-weight: 600;
 }
 
 @media (max-width: 767px) {
@@ -135,13 +115,14 @@ const titleParts = computed(() => {
   }
 
   .app-logo__mark {
-    width: 34px;
-    height: 34px;
-    border-radius: 10px;
+    width: 28px;
+    height: 20px;
   }
 
-  .app-logo__hash {
-    font-size: 22px;
+  .app-logo__shape {
+    width: 15px;
+    height: 15px;
+    border-radius: 5px;
   }
 
   .app-logo__wordmark {

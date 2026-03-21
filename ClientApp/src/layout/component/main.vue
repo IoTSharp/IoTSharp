@@ -1,17 +1,11 @@
 <template>
 	<el-main class="layout-main iotsharp-main">
-		<el-scrollbar
-			ref="layoutScrollbarRef"
-			class="iotsharp-main__scrollbar"
-			:class="{
-				'layout-scrollbar':
-					(!isClassicOrTransverse && !currentRouteMeta.isLink && !currentRouteMeta.isIframe) ||
-					(!isClassicOrTransverse && currentRouteMeta.isLink && !currentRouteMeta.isIframe),
-			}"
-		>
-			<!-- Keep immersive routes edge-to-edge while standard pages inherit the new shell spacing. -->
-			<div class="iotsharp-main__content" :class="{ 'iotsharp-main__content--immersive': currentRouteMeta.isLink && currentRouteMeta.isIframe }">
-				<LayoutParentView />
+		<el-scrollbar ref="layoutScrollbarRef" class="iotsharp-main__scrollbar" :class="{ 'layout-scrollbar': !isImmersiveRoute }">
+			<div class="iotsharp-main__body" :class="{ 'iotsharp-main__body--immersive': isImmersiveRoute }">
+				<Breadcrumb v-if="!isImmersiveRoute" class="iotsharp-main__breadcrumb" />
+				<div class="iotsharp-main__content">
+					<LayoutParentView />
+				</div>
 			</div>
 			<Footer v-if="themeConfig.isFooter" />
 		</el-scrollbar>
@@ -19,81 +13,62 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, toRefs, reactive, getCurrentInstance, watch, onMounted, computed } from 'vue';
+import { computed, defineComponent, getCurrentInstance, onMounted, reactive, toRefs, watch } from 'vue';
 import { useRoute } from 'vue-router';
 import { storeToRefs } from 'pinia';
 import { useThemeConfig } from '/@/stores/themeConfig';
 import { NextLoading } from '/@/utils/loading';
+import Breadcrumb from '/@/layout/navBars/breadcrumb/breadcrumb.vue';
 import LayoutParentView from '/@/layout/routerView/parent.vue';
 import Footer from '/@/layout/footer/index.vue';
 
-// 定义接口来定义对象的类型
-interface MainState {
-	headerHeight: string | number;
-	currentRouteMeta: any;
-}
-
 export default defineComponent({
 	name: 'layoutMain',
-	components: { LayoutParentView, Footer },
+	components: { Breadcrumb, LayoutParentView, Footer },
 	setup() {
 		const { proxy } = <any>getCurrentInstance();
 		const storesThemeConfig = useThemeConfig();
 		const { themeConfig } = storeToRefs(storesThemeConfig);
 		const route = useRoute();
-		const state = reactive<MainState>({
-			headerHeight: '',
-			currentRouteMeta: {},
+		const state = reactive({
+			currentRouteMeta: {} as any,
 		});
-		// 判断布局
-		const isClassicOrTransverse = computed(() => {
-			const { layout } = themeConfig.value;
-			return layout === 'classic' || layout === 'transverse';
+
+		const isImmersiveRoute = computed(() => {
+			return !!(state.currentRouteMeta.isLink && state.currentRouteMeta.isIframe);
 		});
-		// 设置 main 的高度
-		const initHeaderHeight = () => {
-			const bool = state.currentRouteMeta.isLink && state.currentRouteMeta.isIframe;
-			let { isTagsview } = themeConfig.value;
-			if (isTagsview) return (state.headerHeight = bool ? `86px` : `115px`);
-			else return (state.headerHeight = `80px`);
-		};
-		// 初始化获取当前路由 meta，用于设置 iframes padding
+
 		const initGetMeta = () => {
 			state.currentRouteMeta = route.meta;
 		};
-		// 页面加载前
+
 		onMounted(async () => {
-			await initGetMeta();
-			initHeaderHeight();
+			initGetMeta();
 			NextLoading.done();
 		});
-		// 监听路由变化
+
 		watch(
 			() => route.path,
 			() => {
 				state.currentRouteMeta = route.meta;
-				const bool = state.currentRouteMeta.isLink && state.currentRouteMeta.isIframe;
-				state.headerHeight = bool ? `86px` : `115px`;
 				if (proxy.$refs.layoutScrollbarRef?.wrapRef) proxy.$refs.layoutScrollbarRef.wrapRef.scrollTop = 0;
-				proxy.$refs.layoutScrollbarRef.update();
+				proxy.$refs.layoutScrollbarRef?.update();
 			}
 		);
-		// 监听 themeConfig 配置文件的变化，更新菜单 el-scrollbar 的高度
+
 		watch(
 			themeConfig,
-			(val) => {
-				state.currentRouteMeta = route.meta;
-				const bool = state.currentRouteMeta.isLink && state.currentRouteMeta.isIframe;
-				state.headerHeight = val.isTagsview ? (bool ? `86px` : `115px`) : '51px';
+			() => {
 				proxy.$refs?.layoutScrollbarRef?.update();
 			},
 			{
 				deep: true,
 			}
 		);
+
 		return {
 			themeConfig,
-			isClassicOrTransverse,
+			isImmersiveRoute,
 			...toRefs(state),
 		};
 	},
@@ -104,7 +79,7 @@ export default defineComponent({
 .iotsharp-main {
 	min-width: 0;
 	min-height: 0;
-	padding: 0 0 18px;
+	padding: 0;
 	background: transparent;
 }
 
@@ -113,21 +88,28 @@ export default defineComponent({
 	min-height: 0;
 }
 
-.iotsharp-main__content {
+.iotsharp-main__body {
 	min-width: 0;
-	padding: 18px 24px 28px;
-	border-radius: 0;
-	background:
-		linear-gradient(180deg, rgba(255, 255, 255, 0.3), rgba(255, 255, 255, 0));
+	min-height: 100%;
+	padding: 18px 20px 28px;
+	background: transparent;
 }
 
-.iotsharp-main__content--immersive {
+.iotsharp-main__body--immersive {
 	padding: 0;
 }
 
+.iotsharp-main__breadcrumb {
+	margin-bottom: 14px;
+}
+
+.iotsharp-main__content {
+	min-width: 0;
+}
+
 @media (max-width: 767px) {
-	.iotsharp-main__content {
-		padding: 10px 12px 20px;
+	.iotsharp-main__body {
+		padding: 12px 12px 20px;
 	}
 }
 </style>

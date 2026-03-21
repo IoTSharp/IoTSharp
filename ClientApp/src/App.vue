@@ -90,7 +90,7 @@ onMounted(() => {
 		// 获取缓存中的布局配置
 		if (Local.get('themeConfig')) {
 			storesThemeConfig.setThemeConfig({ themeConfig: Local.get('themeConfig') });
-			document.documentElement.style.cssText = Local.get('themeConfigStyle');
+			Local.set('themeConfig', themeConfig.value);
 		}
 		// 获取缓存中的全屏配置
 		if (Session.get('isTagsViewCurrenFull')) {

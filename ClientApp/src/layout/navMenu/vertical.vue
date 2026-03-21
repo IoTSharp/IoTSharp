@@ -111,47 +111,68 @@ export default defineComponent({
 <style lang="scss">
 .z-vertical-menu {
   width: 100%;
-  padding-top: 2px;
+  padding-top: 0;
+  border: none;
 
   .z-menu-icon {
     margin-right: 12px;
-    font-size: 18px;
+    font-size: 16px;
     flex-shrink: 0;
-    color: #8aa0b7;
+    color: #86909c;
+  }
+
+  :deep(.el-menu) {
+    border: none;
+    background: transparent;
   }
 
   :deep(.el-menu-item),
   :deep(.el-sub-menu__title) {
-    height: 48px;
-    margin-bottom: 8px;
-    border-radius: 15px;
-    color: #50657d;
-    font-weight: 600;
+    height: 44px;
+    margin: 2px 0;
+    border-radius: 10px;
+    color: #4e5969;
+    font-size: 14px;
+    font-weight: 500;
   }
 
   :deep(.el-menu-item:hover),
   :deep(.el-sub-menu__title:hover) {
-    background: #f4f8ff;
-    color: #1d4ed8;
+    background: #f7f8fa;
+    color: #1d2129;
   }
 
   :deep(.el-menu-item.is-active) {
-    background: linear-gradient(135deg, rgba(37, 99, 235, 0.12), rgba(14, 165, 233, 0.08));
-    color: #1d4ed8;
-    font-weight: 700;
-    box-shadow: inset 0 0 0 1px rgba(96, 165, 250, 0.2);
+    background: #e8f3ff;
+    color: #165dff;
+    font-weight: 600;
+    box-shadow: none;
   }
 
   :deep(.el-sub-menu.is-active > .el-sub-menu__title) {
-    color: #1d4ed8;
-    font-weight: 700;
+    color: #1d2129;
+    font-weight: 600;
   }
 
   :deep(.el-menu-item.is-active .z-menu-icon),
   :deep(.el-sub-menu.is-active > .el-sub-menu__title .z-menu-icon),
   :deep(.el-menu-item:hover .z-menu-icon),
   :deep(.el-sub-menu__title:hover .z-menu-icon) {
-    color: #1d4ed8;
+    color: #165dff;
+  }
+
+  :deep(.el-sub-menu .el-menu) {
+    background: transparent;
+  }
+
+  :deep(.el-sub-menu .el-menu-item) {
+    min-width: auto;
+    margin: 2px 0 2px 12px;
+    padding-left: 42px !important;
+  }
+
+  :deep(.el-sub-menu__icon-arrow) {
+    color: #94a3b8;
   }
 
   &.el-menu--collapse {

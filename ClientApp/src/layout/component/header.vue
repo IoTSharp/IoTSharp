@@ -19,12 +19,13 @@ export default defineComponent({
 		const storesThemeConfig = useThemeConfig();
 		const { themeConfig } = storeToRefs(storesThemeConfig);
 		const { isTagsViewCurrenFull } = storeToRefs(storesTagsViewRoutes);
-		// 设置 header 的高度
+
 		const setHeaderHeight = computed(() => {
-			let { isTagsview, layout } = themeConfig.value;
-			if (isTagsview && layout !== 'classic') return '108px';
-			else return '72px';
+			const { isTagsview, layout } = themeConfig.value;
+			if (isTagsview && layout !== 'classic') return '104px';
+			return '64px';
 		});
+
 		return {
 			setHeaderHeight,
 			isTagsViewCurrenFull,
@@ -35,13 +36,7 @@ export default defineComponent({
 
 <style scoped lang="scss">
 .iotsharp-header {
-	padding: 0 18px 0 0;
+	padding: 0;
 	background: transparent;
-}
-
-@media (max-width: 767px) {
-	.iotsharp-header {
-		padding: 0 10px 0 0;
-	}
 }
 </style>

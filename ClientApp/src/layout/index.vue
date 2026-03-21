@@ -5,7 +5,7 @@
 <script lang="ts">
 import { onBeforeMount, onUnmounted, getCurrentInstance, defineComponent, defineAsyncComponent } from 'vue';
 import { storeToRefs } from 'pinia';
-import { useThemeConfig } from '/@/stores/themeConfig';
+import { useThemeConfig, LOCKED_CONSOLE_LAYOUT } from '/@/stores/themeConfig';
 import { Local } from '/@/utils/storage';
 
 export default defineComponent({
@@ -22,20 +22,14 @@ export default defineComponent({
 		const { themeConfig } = storeToRefs(storesThemeConfig);
 		// 窗口大小改变时(适配移动端)
 		const onLayoutResize = () => {
-			if (!Local.get('oldLayout')) Local.set('oldLayout', themeConfig.value.layout);
 			const clientWidth = document.body.clientWidth;
-			if (clientWidth < 1000) {
-				themeConfig.value.isCollapse = false;
-				proxy.mittBus.emit('layoutMobileResize', {
-					layout: 'defaults',
-					clientWidth,
-				});
-			} else {
-				proxy.mittBus.emit('layoutMobileResize', {
-					layout: Local.get('oldLayout') ? Local.get('oldLayout') : themeConfig.value.layout,
-					clientWidth,
-				});
-			}
+			Local.set('oldLayout', LOCKED_CONSOLE_LAYOUT);
+			themeConfig.value.layout = LOCKED_CONSOLE_LAYOUT;
+			if (clientWidth < 1000) themeConfig.value.isCollapse = false;
+			proxy.mittBus.emit('layoutMobileResize', {
+				layout: LOCKED_CONSOLE_LAYOUT,
+				clientWidth,
+			});
 		};
 		// 页面加载前
 		onBeforeMount(() => {

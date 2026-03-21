@@ -10,11 +10,11 @@
 }
 
 :root {
-	--el-color-primary-rgb: 73,69, 255;
+	--el-color-primary-rgb: 22, 93, 255;
 	--next-color-white: #ffffff;
-	--next-bg-main-color: #f8f8f8;
-	--next-bg-color: #f5f5ff;
-	--next-border-color-light: #f1f2f3;
+	--next-bg-main-color: #f2f3f5;
+	--next-bg-color: #f7f8fa;
+	--next-border-color-light: #e5e6eb;
 	--next-color-primary-lighter: #ecf5ff;
 	--next-color-success-lighter: #f0f9eb;
 	--next-color-warning-lighter: #fdf6ec;
@@ -70,7 +70,7 @@ body,
 		padding: 0 !important;
 		overflow: hidden;
 		width: 100%;
-		background-color: var(--next-bg-main-color);
+		background-color: transparent;
 	}
 	.el-scrollbar {
 		width: 100%;
@@ -128,10 +128,10 @@ body,
 	}
 	.layout-scrollbar {
 		@extend .el-scrollbar;
-		padding: 15px;
+		padding: 0;
 	}
 	.layout-mian-height-50 {
-		height: calc(100vh - 50px);
+		height: calc(100vh - 64px);
 	}
 	.layout-columns-warp {
 		flex: 1;

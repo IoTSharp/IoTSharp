@@ -1,6 +1,5 @@
 <template>
 	<div class="iotsharp-shell">
-		<div class="iotsharp-shell__mesh"></div>
 		<el-container class="layout-container iotsharp-shell__container" direction="vertical">
 			<Header class="iotsharp-shell__header" />
 			<el-container class="iotsharp-shell__body">
@@ -28,30 +27,14 @@ export default defineComponent({
 
 <style scoped lang="scss">
 .iotsharp-shell {
-	position: relative;
 	min-height: 100%;
-	background:
-		radial-gradient(circle at top left, rgba(96, 165, 250, 0.14), transparent 24%),
-		radial-gradient(circle at bottom right, rgba(125, 211, 252, 0.2), transparent 28%),
-		linear-gradient(180deg, #f7fbff 0%, #eef6ff 100%);
-}
-
-.iotsharp-shell__mesh {
-	position: absolute;
-	inset: 0;
-	background-image:
-		linear-gradient(rgba(148, 163, 184, 0.05) 1px, transparent 1px),
-		linear-gradient(90deg, rgba(148, 163, 184, 0.05) 1px, transparent 1px);
-	background-size: 42px 42px;
-	opacity: 0.55;
-	pointer-events: none;
+	background: #f2f3f5;
 }
 
 .iotsharp-shell__container {
-	position: relative;
-	z-index: 1;
 	height: 100vh;
 	min-height: 100vh;
+	background: #f2f3f5;
 }
 
 .iotsharp-shell__header {
@@ -61,18 +44,20 @@ export default defineComponent({
 .iotsharp-shell__body {
 	flex: 1 1 auto;
 	min-height: 0;
+	background: #f2f3f5;
 }
 
 .iotsharp-shell__workspace {
 	flex: 1 1 auto;
 	min-width: 0;
 	min-height: 0;
-	padding: 0 18px 18px 0;
+	padding: 0 16px 16px;
+	background: #f2f3f5;
 }
 
 @media (max-width: 767px) {
 	.iotsharp-shell__workspace {
-		padding: 0 10px 10px 0;
+		padding: 0 10px 10px;
 	}
 }
 </style>

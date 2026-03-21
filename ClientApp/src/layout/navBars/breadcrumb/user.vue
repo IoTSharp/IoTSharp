@@ -261,42 +261,44 @@ export default defineComponent({
 	display: flex;
 	align-items: center;
 	justify-content: flex-end;
-	gap: 8px;
+	gap: 10px;
 }
 
 .layout-navbars-breadcrumb-user__icon {
-	width: 38px;
-	height: 38px;
+	width: 34px;
+	height: 34px;
 	display: inline-flex;
 	align-items: center;
 	justify-content: center;
-	border-radius: 12px;
-	border: 1px solid transparent;
-	background: #f7fbff;
-	color: #5d728a;
+	border-radius: 50%;
+	border: 1px solid #e5e6eb;
+	background: #ffffff;
+	color: #4e5969;
 	cursor: pointer;
 	transition:
 		background 0.2s ease,
 		border-color 0.2s ease,
-		color 0.2s ease;
+		color 0.2s ease,
+		box-shadow 0.2s ease;
 
 	&:hover {
-		background: #eef5ff;
-		border-color: #d9e7ff;
-		color: #2563eb;
+		background: #f7fbff;
+		border-color: #bedaff;
+		color: #165dff;
+		box-shadow: 0 6px 16px rgba(22, 93, 255, 0.08);
 	}
 }
 
 .layout-navbars-breadcrumb-user__link {
-	height: 40px;
+	height: 38px;
 	display: inline-flex;
 	align-items: center;
 	gap: 8px;
-	padding: 0 12px 0 6px;
+	padding: 0 10px 0 6px;
 	border-radius: 999px;
-	border: 1px solid rgba(223, 231, 241, 0.96);
-	background: #f9fbff;
-	color: #3d5269;
+	border: 1px solid #e5e6eb;
+	background: #ffffff;
+	color: #1d2129;
 	font-size: 13px;
 	font-weight: 600;
 	white-space: nowrap;
@@ -319,13 +321,13 @@ export default defineComponent({
 }
 
 :deep(.el-badge) {
-	height: 38px;
+	height: 34px;
 	display: inline-flex;
 	align-items: center;
 }
 
 :deep(.el-badge__content.is-fixed) {
-	top: 8px;
+	top: 7px;
 }
 
 @media (max-width: 767px) {

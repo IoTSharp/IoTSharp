@@ -162,20 +162,20 @@ export default defineComponent({
 	display: flex;
 	flex-direction: column;
 	height: 100%;
-	padding: 12px 0 0;
+	padding: 12px 10px 10px;
 	background: #ffffff;
-	border-right: 1px solid rgba(223, 231, 241, 0.92);
-	box-shadow: 16px 0 40px rgba(15, 23, 42, 0.03);
+	border-right: 1px solid #e5e6eb;
+	box-shadow: none;
 }
 
 .layout-aside__brand {
 	display: flex;
 	align-items: center;
 	justify-content: flex-start;
-	height: 78px;
-	padding: 0 14px;
-	border-bottom: 1px solid rgba(236, 242, 248, 0.96);
-	background: linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(250, 251, 255, 0.98));
+	height: 60px;
+	padding: 0 12px 10px;
+	border-bottom: 1px solid #f2f3f5;
+	background: #ffffff;
 }
 
 .layout-aside__brand-logo {
@@ -185,7 +185,7 @@ export default defineComponent({
 .layout-aside__scroll {
 	flex: 1 1 auto;
 	min-height: 0;
-	padding: 10px 10px 20px;
+	padding: 6px 4px 12px;
 	background: #ffffff;
 }
 </style>
