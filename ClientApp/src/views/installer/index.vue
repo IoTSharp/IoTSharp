@@ -91,7 +91,7 @@
 <script setup lang="ts">
 import { computed, reactive, ref, type Ref, onMounted } from 'vue';
 import { RouterLink, useRouter } from 'vue-router';
-import formCreate, { type Api } from '@form-create/element-ui';
+import formCreate, { type Api } from '/@/utils/formCreate';
 import { ElButton as Button, ElMessage } from 'element-plus';
 import { storeToRefs } from 'pinia';
 import { initSysAdmin } from '/@/api/installer';

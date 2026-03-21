@@ -1,9 +1,11 @@
 <template>
 	<el-config-provider :size="getGlobalComponentSize" :locale="getGlobalI18n">
 		<router-view v-show="setLockScreen" />
-		<LockScreen v-if="themeConfig.isLockScreen" />
-		<Setings ref="setingsRef" v-show="setLockScreen" />
-		<CloseFull v-if="!themeConfig.isLockScreen" />
+		<template v-if="showConsoleChrome">
+			<LockScreen v-if="themeConfig.isLockScreen" />
+			<Setings ref="setingsRef" v-show="setLockScreen" />
+			<CloseFull v-if="!themeConfig.isLockScreen" />
+		</template>
 	
 	</el-config-provider>
 </template>
@@ -13,6 +15,7 @@ import { defineAsyncComponent, computed, ref, onBeforeMount, onMounted, onUnmoun
 import { useRoute } from 'vue-router';
 import { useI18n } from 'vue-i18n';
 import { storeToRefs } from 'pinia';
+import { routeRequiresConsoleFeatures } from '/@/bootstrap/routeFeatures';
 import { useTagsViewRoutes } from '/@/stores/tagsViewRoutes';
 import { useThemeConfig } from '/@/stores/themeConfig';
 import other from '/@/utils/other';
@@ -36,6 +39,7 @@ const stores = useTagsViewRoutes();
 const storesThemeConfig = useThemeConfig();
 const { themeConfig } = storeToRefs(storesThemeConfig);
 const storesAppInfo = useAppInfo();
+const showConsoleChrome = computed(() => routeRequiresConsoleFeatures(route));
 // 设置锁屏时组件显示隐藏
 const setLockScreen = computed(() => {
 	// 防止锁屏后，刷新出现不相关界面
@@ -85,7 +89,7 @@ onMounted(() => {
 	nextTick(() => {
 		// 监听布局配'置弹窗点击打开
 		mittBus.on('openSetingsDrawer', () => {
-			setingsRef.value.openDrawer();
+			setingsRef.value?.openDrawer?.();
 		});
 		// 获取缓存中的布局配置
 		if (Local.get('themeConfig')) {

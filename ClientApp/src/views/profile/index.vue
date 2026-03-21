@@ -31,7 +31,7 @@
 import {rule} from './profile_form_rules.ts'
 import {passwordFormRules} from './password_form_rules.ts'
 import {option} from './profile_form_option.ts'
-import formCreate, {Api} from "@form-create/element-ui";
+import formCreate, {Api} from "/@/utils/formCreate";
 import {useLoginApi} from "/@/api/login";
 import {ElMessage} from "element-plus";
 import {Ref} from "vue";

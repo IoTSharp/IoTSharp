@@ -129,6 +129,8 @@ export default defineConfig(({ mode, command }: ConfigEnv) => {
 					assetFileNames: 'assets/[ext]/[name]-[hash].[ext]',
 					manualChunks(id) {
 						const normalizedId = id.replace(/\\/g, '/');
+						if (normalizedId.includes('vite/preload-helper')) return 'vite-preload';
+						if (normalizedId.includes('commonjsHelpers.js')) return 'rollup-helpers';
 						if (normalizedId.includes('/node_modules/')) {
 							// Monaco is loaded through dynamic imports and splits more safely when Rollup
 							// controls its internal graph instead of hard manual chunk boundaries.

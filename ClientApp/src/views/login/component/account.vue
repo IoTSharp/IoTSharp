@@ -40,7 +40,7 @@
 						@keyup.enter="onSignIn"
 					>
 						<template #prefix>
-							<el-icon class="el-input__icon"><ele-User /></el-icon>
+							<el-icon class="el-input__icon"><User /></el-icon>
 						</template>
 					</el-input>
 				</el-form-item>
@@ -55,7 +55,7 @@
 						@keyup.enter="onSignIn"
 					>
 						<template #prefix>
-							<el-icon class="el-input__icon"><ele-Unlock /></el-icon>
+							<el-icon class="el-input__icon"><Unlock /></el-icon>
 						</template>
 						<template #suffix>
 							<i
@@ -134,6 +134,7 @@
 import Cookies from 'js-cookie';
 import { computed, reactive, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
+import { Unlock, User } from '@element-plus/icons-vue';
 import { ElMessage } from 'element-plus';
 import { storeToRefs } from 'pinia';
 import { useI18n } from 'vue-i18n';

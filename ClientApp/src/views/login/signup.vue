@@ -45,7 +45,7 @@
 import { ref, type Ref } from 'vue';
 import { useRouter, RouterLink } from 'vue-router';
 import { ElMessage } from 'element-plus';
-import formCreate, { Api } from '@form-create/element-ui';
+import formCreate, { type Api } from '/@/utils/formCreate';
 import { signup } from '/@/api/account';
 import AuthShowcase from '/@/views/login/component/AuthShowcase.vue';
 import { signUpRule } from './signup_form_rules';
