@@ -2,34 +2,30 @@
 	<div class="signup-page">
 		<div class="signup-page__glow"></div>
 		<div class="signup-shell">
-			<section class="signup-showcase">
-				<header class="signup-showcase__header">
-					<RouterLink class="signup-showcase__brand" to="/">
-						<AppLogo />
-					</RouterLink>
-					<RouterLink class="signup-showcase__back" to="/login">已有账号？去登录</RouterLink>
-				</header>
-
-				<div class="signup-showcase__body">
-					<div class="signup-showcase__eyebrow">Create Workspace</div>
-					<h1>创建你的 IoTSharp 工作空间</h1>
-					<p>注册完成后即可获得租户、管理员账号与默认工作区，用于管理设备接入、业务规则和平台运营。</p>
-				</div>
-
-				<div class="signup-showcase__cards">
-					<article v-for="item in showcaseCards" :key="item.title" class="signup-info-card">
-						<div class="signup-info-card__title">{{ item.title }}</div>
-						<strong>{{ item.value }}</strong>
-						<p>{{ item.description }}</p>
-					</article>
-				</div>
-			</section>
+			<AuthShowcase
+				eyebrow="Create Workspace"
+				title="创建你的 IoTSharp 工作空间"
+				description="注册完成后即可获得租户、管理员账号与默认工作区，用于管理设备接入、业务规则和平台运营。"
+				link-to="/login"
+				link-label="已有账号？去登录"
+				:primary-card="showcasePrimaryCard"
+				:metrics="showcaseMetrics"
+				:tags="showcaseTags"
+			/>
 
 			<section class="signup-panel">
 				<div class="signup-panel__header">
 					<div class="signup-panel__eyebrow">Sign Up</div>
 					<h2>注册账号</h2>
-					<p>填写管理员、租户和联系信息。界面和登录页统一为同一套蓝白风格，方便作为正式首页和认证入口使用。</p>
+					<p>填写管理员、租户和联系信息。注册成功后会自动跳转到登录页，进入新的控制台工作台。</p>
+				</div>
+
+				<div class="signup-panel__steps">
+					<div v-for="item in setupSteps" :key="item.label" class="signup-step">
+						<span>{{ item.label }}</span>
+						<strong>{{ item.title }}</strong>
+						<small>{{ item.description }}</small>
+					</div>
 				</div>
 
 				<div class="signup-panel__form">
@@ -50,8 +46,8 @@ import { ref, type Ref } from 'vue';
 import { useRouter, RouterLink } from 'vue-router';
 import { ElMessage } from 'element-plus';
 import formCreate, { Api } from '@form-create/element-ui';
-import AppLogo from '/@/components/AppLogo.vue';
 import { signup } from '/@/api/account';
+import AuthShowcase from '/@/views/login/component/AuthShowcase.vue';
 import { signUpRule } from './signup_form_rules';
 import { option } from './signup_form_option';
 
@@ -61,22 +57,40 @@ const options = ref(option);
 const fApi: Ref<Api | null> = ref(null);
 const FormCreate = formCreate.$form();
 
-const showcaseCards = [
+const showcasePrimaryCard = {
+	label: 'Workspace Setup',
+	value: 'Tenant + Admin',
+	title: '一次注册完成基础工作区初始化',
+	description: '创建租户、管理员与默认工作区，为后续设备接入和规则配置准备好基础环境。',
+};
+
+const showcaseMetrics = [
 	{
-		title: '统一接入',
+		label: '接入方式',
 		value: 'MQTT / HTTP',
-		description: '连接设备、网关与第三方系统。',
+		description: '后续可继续接入设备、网关和第三方系统。',
+		tone: 'accent' as const,
 	},
 	{
-		title: '多租户',
+		label: '租户模型',
 		value: 'Workspace',
-		description: '一个注册流程直接创建租户环境。',
+		description: '通过注册流程直接创建独立的管理空间。',
+		tone: 'primary' as const,
 	},
 	{
-		title: '控制台',
+		label: '控制台',
 		value: 'Blue UI',
-		description: '登录后进入新的运营控制台布局。',
+		description: '注册完成后进入统一的蓝白控制台体验。',
+		tone: 'success' as const,
 	},
+];
+
+const showcaseTags = ['租户初始化', '管理员账号', '控制台工作台', '设备运营'];
+
+const setupSteps = [
+	{ label: '01', title: '填写租户信息', description: '先确定管理员和租户基础资料，方便后续隔离管理。' },
+	{ label: '02', title: '设置登录密码', description: '注册时完成密码配置，成功后即可直接去登录页验证。' },
+	{ label: '03', title: '进入控制台', description: '登录后先查看工作台首页，再继续设备接入和规则编排。' },
 ];
 
 const validatePassCheck = (rule: any, value: any, callback: any) => {
@@ -171,134 +185,78 @@ function onSubmit(data: any) {
 	overflow: hidden;
 }
 
-.signup-showcase,
 .signup-panel {
-	padding: 36px 40px;
-}
-
-.signup-showcase {
 	display: flex;
 	flex-direction: column;
-	justify-content: space-between;
-	gap: 28px;
-	background:
-		radial-gradient(circle at top right, rgba(96, 165, 250, 0.22), transparent 26%),
-		linear-gradient(160deg, #0f3463 0%, #13457a 46%, #155a93 100%);
-	color: #eff6ff;
-
-	:deep(.app-logo) {
-		--app-logo-text: #ffffff;
-		--app-logo-subtext: #bfdbfe;
-	}
+	justify-content: center;
+	gap: 24px;
+	padding: 36px 40px;
+	background: rgba(255, 255, 255, 0.95);
 }
 
-.signup-showcase__header {
-	display: flex;
-	align-items: center;
-	justify-content: space-between;
-	gap: 14px;
-}
-
-.signup-showcase__brand,
-.signup-showcase__back {
-	text-decoration: none;
-}
-
-.signup-showcase__back {
-	color: rgba(239, 246, 255, 0.9);
-	font-size: 13px;
-	font-weight: 600;
-}
-
-.signup-showcase__eyebrow,
 .signup-panel__eyebrow {
 	margin-bottom: 12px;
+	color: #2563eb;
 	font-size: 12px;
 	font-weight: 700;
 	letter-spacing: 0.18em;
 	text-transform: uppercase;
 }
 
-.signup-showcase__eyebrow {
-	color: #93c5fd;
+.signup-panel__header h2 {
+	margin: 0 0 12px;
+	color: #123b6d;
+	font-size: 32px;
+	letter-spacing: -0.04em;
 }
 
-.signup-showcase__body {
-	max-width: 620px;
-
-	h1 {
-		margin: 0 0 18px;
-		font-size: clamp(38px, 5vw, 58px);
-		line-height: 1;
-		letter-spacing: -0.05em;
-	}
-
-	p {
-		margin: 0;
-		color: rgba(226, 232, 240, 0.86);
-		font-size: 16px;
-		line-height: 1.9;
-	}
+.signup-panel__header p {
+	margin: 0;
+	color: #64748b;
+	font-size: 14px;
+	line-height: 1.85;
 }
 
-.signup-showcase__cards {
+.signup-panel__steps {
 	display: grid;
 	grid-template-columns: repeat(3, minmax(0, 1fr));
-	gap: 16px;
+	gap: 12px;
 }
 
-.signup-info-card {
-	padding: 18px;
-	border-radius: 22px;
-	background: rgba(255, 255, 255, 0.08);
-	border: 1px solid rgba(255, 255, 255, 0.08);
-
-	strong {
-		display: block;
-		margin-top: 12px;
-		font-size: 26px;
-		letter-spacing: -0.04em;
-	}
-
-	p {
-		margin: 10px 0 0;
-		color: rgba(226, 232, 240, 0.78);
-		font-size: 13px;
-		line-height: 1.7;
-	}
+.signup-step {
+	padding: 14px 16px;
+	border-radius: 18px;
+	border: 1px solid rgba(226, 232, 240, 0.9);
+	background: linear-gradient(180deg, rgba(248, 251, 255, 0.96), rgba(255, 255, 255, 0.98));
 }
 
-.signup-info-card__title {
-	color: rgba(191, 219, 254, 0.88);
-	font-size: 13px;
-}
-
-.signup-panel {
-	display: flex;
-	flex-direction: column;
+.signup-step span {
+	display: inline-flex;
+	align-items: center;
 	justify-content: center;
-	gap: 24px;
-	background: rgba(255, 255, 255, 0.95);
-}
-
-.signup-panel__header {
-	h2 {
-		margin: 0 0 12px;
-		color: #123b6d;
-		font-size: 32px;
-		letter-spacing: -0.04em;
-	}
-
-	p {
-		margin: 0;
-		color: #64748b;
-		font-size: 14px;
-		line-height: 1.85;
-	}
-}
-
-.signup-panel__eyebrow {
+	width: 30px;
+	height: 30px;
+	border-radius: 999px;
+	background: rgba(37, 99, 235, 0.08);
 	color: #2563eb;
+	font-size: 12px;
+	font-weight: 700;
+}
+
+.signup-step strong {
+	display: block;
+	margin-top: 12px;
+	color: #123b6d;
+	font-size: 15px;
+	font-weight: 700;
+}
+
+.signup-step small {
+	display: block;
+	margin-top: 6px;
+	color: #7c8da1;
+	font-size: 12px;
+	line-height: 1.6;
 }
 
 .signup-panel__form {
@@ -317,12 +275,12 @@ function onSubmit(data: any) {
 	border-top: 1px solid rgba(226, 232, 240, 0.9);
 	color: #64748b;
 	font-size: 12px;
+}
 
-	a {
-		color: #2563eb;
-		text-decoration: none;
-		font-weight: 600;
-	}
+.signup-panel__footer a {
+	color: #2563eb;
+	text-decoration: none;
+	font-weight: 600;
 }
 
 :deep(.el-form-item) {
@@ -361,17 +319,15 @@ function onSubmit(data: any) {
 		border-radius: 0;
 	}
 
-	.signup-showcase,
 	.signup-panel {
 		padding: 24px;
 	}
 
-	.signup-showcase__cards {
+	.signup-panel__steps {
 		grid-template-columns: 1fr;
 	}
 
-	.signup-panel__footer,
-	.signup-showcase__header {
+	.signup-panel__footer {
 		flex-direction: column;
 		align-items: flex-start;
 	}

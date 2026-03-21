@@ -1,62 +1,75 @@
 <template>
 	<div class="installer-page">
-		<div class="installer-page__mesh"></div>
+		<div class="installer-page__glow"></div>
 		<div class="installer-shell">
-			<section class="installer-showcase">
-				<div class="installer-showcase__brand">
-					<AppLogo />
-					<span class="installer-showcase__badge">IoT Platform Installer</span>
-				</div>
-				<div class="installer-showcase__content">
-					<p class="installer-showcase__eyebrow">Guided Installation</p>
-					<h1>安装 {{ pageTitle }}</h1>
-					<p class="installer-showcase__desc">
-						用统一的安装向导完成管理员账号初始化、平台入口配置和首轮访问准备，让 IoTSharp 控制台与登录体验保持同一套界面语言。
-					</p>
-				</div>
-				<div class="installer-showcase__grid">
-					<article v-for="item in installerCards" :key="item.title" class="showcase-card">
-						<div class="showcase-card__label">{{ item.title }}</div>
-						<div class="showcase-card__value">{{ item.value }}</div>
-						<p>{{ item.description }}</p>
-					</article>
-				</div>
-				<div class="installer-showcase__footer">
-					<div class="showcase-pill">
-						<span class="showcase-pill__dot"></span>
-						安装完成后可直接进入 IoTSharp 控制台
-					</div>
-					<div class="showcase-pill">
-						<span class="showcase-pill__dot"></span>
-						默认预填管理员账号，减少首次部署配置成本
-					</div>
-				</div>
-			</section>
+			<AuthShowcase
+				eyebrow="Initialize Workspace"
+				:title="showcaseTitle"
+				:description="showcaseDescription"
+				link-to="/"
+				link-label="返回首页"
+				:primary-card="showcasePrimaryCard"
+				:metrics="showcaseMetrics"
+				:tags="showcaseTags"
+			/>
 
 			<section class="installer-panel">
 				<div class="installer-panel__header">
 					<div class="installer-panel__eyebrow">Installer</div>
-					<h2>{{ storesAppInfo.appInfo.installed ? '平台已安装' : '安装向导' }}</h2>
+					<h2>{{ isInstalled ? '系统已完成初始化' : '安装向导' }}</h2>
 					<p>
-						{{ storesAppInfo.appInfo.installed
-							? '当前实例已经完成初始化。你可以直接跳转到登录界面继续访问平台。'
-							: '填写管理员账号、邮箱和密码，完成 IoTSharp 首次安装。' }}
+						{{
+							isInstalled
+								? '当前实例已经完成首次初始化，你可以直接进入登录页面继续使用新的控制台工作台。'
+								: '填写管理员账号、邮箱与密码，完成 IoTSharp 的首次初始化，让登录入口、控制台与设备管理流程保持一致。'
+						}}
 					</p>
 				</div>
 
-				<div v-if="storesAppInfo.appInfo.installed" class="installer-status">
-					<div class="installer-status__title">IoTSharp 已完成安装</div>
-					<p>系统版本 {{ storesAppInfo.appInfo.version }} 已就绪，现在可以直接进入登录页。</p>
-					<Button type="primary" class="installer-status__action" @click="router.replace({ name: 'login' })">
-						前往登录
-					</Button>
+				<div class="installer-panel__steps">
+					<article v-for="item in setupSteps" :key="item.label" class="installer-step">
+						<span>{{ item.label }}</span>
+						<strong>{{ item.title }}</strong>
+						<small>{{ item.description }}</small>
+					</article>
+				</div>
+
+				<div v-if="isInstalled" class="installer-status">
+					<div class="installer-status__head">
+						<div>
+							<div class="installer-status__title">IoTSharp 已完成安装</div>
+							<p>基础配置、管理员入口与控制台访问路径已经就绪，现在可以直接进入登录页。</p>
+						</div>
+						<span class="installer-status__badge">Ready</span>
+					</div>
+
+					<div class="installer-status__grid">
+						<div class="installer-status__item">
+							<span>当前版本</span>
+							<strong>{{ versionText }}</strong>
+						</div>
+						<div class="installer-status__item">
+							<span>下一步</span>
+							<strong>登录控制台</strong>
+						</div>
+					</div>
+
+					<div class="installer-status__actions">
+						<Button type="primary" class="installer-status__action" @click="router.replace({ name: 'login' })">
+							前往登录
+						</Button>
+						<RouterLink class="installer-status__link" to="/">返回首页</RouterLink>
+					</div>
 				</div>
 
 				<div v-else class="installer-form-card">
 					<div class="installer-form-card__tip">
 						<div class="installer-form-card__tip-title">首次部署</div>
-						<div class="installer-form-card__tip-text">安装完成后将使用这里配置的管理员账号登录控制台。</div>
+						<div class="installer-form-card__tip-text">
+							安装完成后，使用这里配置的管理员账号登录控制台；如果你已经注册过租户，可继续沿用同一套蓝白工作台体验。
+						</div>
 					</div>
+
 					<FormCreate
 						v-model:api="fApi"
 						v-model="value"
@@ -67,7 +80,7 @@
 				</div>
 
 				<div class="installer-panel__footer">
-					<div>版本 {{ storesAppInfo.appInfo.version || '-' }}</div>
+					<div>版本 {{ versionText }}</div>
 					<div>{{ currentYear }} {{ pageTitle }}</div>
 				</div>
 			</section>
@@ -76,16 +89,16 @@
 </template>
 
 <script setup lang="ts">
-import { computed, reactive, ref, Ref, onMounted } from 'vue';
-import formCreate, { Api } from '@form-create/element-ui';
+import { computed, reactive, ref, type Ref, onMounted } from 'vue';
+import { RouterLink, useRouter } from 'vue-router';
+import formCreate, { type Api } from '@form-create/element-ui';
 import { ElButton as Button, ElMessage } from 'element-plus';
 import { storeToRefs } from 'pinia';
-import { useRouter } from 'vue-router';
-import AppLogo from '/@/components/AppLogo.vue';
 import { initSysAdmin } from '/@/api/installer';
 import { useAppInfo } from '/@/stores/appInfo';
 import { useThemeConfig } from '/@/stores/themeConfig';
 import { NextLoading } from '/@/utils/loading';
+import AuthShowcase from '/@/views/login/component/AuthShowcase.vue';
 import { installerFormRule } from './installer_form_rules';
 import installerFormOption from './installer_form_option.json';
 
@@ -101,27 +114,58 @@ const options = reactive(installerFormOption);
 const pageTitle = computed(() => themeConfig.value.globalTitle || 'IoTSharp');
 const currentYear = new Date().getFullYear();
 
-const installerCards = computed(() => [
+const isInstalled = computed(() => Boolean(storesAppInfo.appInfo.installed));
+const versionText = computed(() => storesAppInfo.appInfo.version || 'Latest');
+const showcaseTitle = computed(() =>
+	isInstalled.value ? `${pageTitle.value} 已完成初始化` : `完成 ${pageTitle.value} 首次初始化`
+);
+const showcaseDescription = computed(() =>
+	isInstalled.value
+		? '初始化已经完成，平台入口、管理员账号与控制台访问路径都已就绪。你可以从这里直接返回登录页，进入新的工作台布局。'
+		: '把首次安装流程放进统一的未登录体验里，先完成管理员初始化，再进入登录入口和控制台，保持产品入口、认证与后台风格一致。'
+);
+
+const showcasePrimaryCard = computed(() => ({
+	label: 'Bootstrap',
+	value: isInstalled.value ? 'Ready' : '1 Form',
+	title: isInstalled.value ? '当前实例已经可以直接进入登录流程' : '一次初始化完成管理员入口与平台基础配置',
+	description: isInstalled.value
+		? '系统已经写入基础配置，可直接登录查看新的控制台工作台、设备接入与平台概览。'
+		: '填写管理员信息后，系统会完成首次部署所需的基础数据初始化，减少第一次进入后台前的额外配置。',
+}));
+
+const showcaseMetrics = computed(() => [
 	{
-		title: '管理员入口',
-		value: '1 Step',
-		description: '一次表单提交即可完成管理员账号初始化。',
+		label: '初始化状态',
+		value: isInstalled.value ? 'Completed' : 'Pending',
+		description: isInstalled.value ? '当前实例已完成首次部署，可直接进入登录页。' : '安装完成后会自动转入控制台登录入口。',
+		tone: 'primary' as const,
 	},
 	{
-		title: '访问准备',
-		value: 'Ready',
-		description: '安装后立即可切换到登录界面进入控制台。',
+		label: '管理员入口',
+		value: 'Admin',
+		description: '首次安装创建的管理员账号，将用于后续登录控制台与系统配置。',
+		tone: 'accent' as const,
 	},
 	{
-		title: '平台版本',
-		value: storesAppInfo.appInfo.version || 'Latest',
-		description: '当前实例版本信息会在安装页中同步展示。',
+		label: '当前版本',
+		value: versionText.value,
+		description: '安装页会同步显示当前实例版本，便于核对部署状态。',
+		tone: 'success' as const,
 	},
 ]);
 
+const showcaseTags = ['首次初始化', '管理员入口', '统一认证体验', '控制台工作台'];
+
+const setupSteps = [
+	{ label: '01', title: '配置管理员账号', description: '设置用于登录控制台的管理员邮箱、账号与密码。' },
+	{ label: '02', title: '完成系统初始化', description: '提交后自动写入基础配置，准备好平台入口与工作台。' },
+	{ label: '03', title: '进入控制台', description: '安装完成后直接跳转登录页，继续进入新的后台布局。' },
+];
+
 const rules = ref(JSON.parse(JSON.stringify(installerFormRule)));
 
-const validatePassCheck = (rule: any, fieldValue: any, callback: any) => {
+const validatePassCheck = (rule: unknown, fieldValue: string, callback: (error?: Error) => void) => {
 	if (fieldValue === '') {
 		callback(new Error('请再次输入密码'));
 	} else if (fieldValue !== fApi.value?.form.password) {
@@ -137,9 +181,9 @@ rules.value[3].validate?.push({
 	validator: validatePassCheck,
 });
 
-const onSubmit = async (data: any) => {
+const onSubmit = async (data: unknown) => {
 	try {
-		fApi.value?.validate(async (valid) => {
+		fApi.value?.validate(async (valid: boolean) => {
 			if (!valid) {
 				ElMessage.error('请正确填写安装信息');
 				return;
@@ -165,30 +209,32 @@ onMounted(() => {
 
 <style scoped lang="scss">
 .installer-page {
-	--installer-panel-bg: rgba(255, 255, 255, 0.92);
-	--installer-border: rgba(148, 163, 184, 0.18);
-	width: 100%;
-	height: 100%;
 	position: relative;
 	display: flex;
 	align-items: center;
 	justify-content: center;
+	min-height: 100vh;
 	padding: 24px;
 	background:
-		radial-gradient(circle at top left, rgba(14, 165, 233, 0.16), transparent 28%),
-		radial-gradient(circle at bottom right, rgba(59, 130, 246, 0.18), transparent 28%),
-		linear-gradient(135deg, #f4f8ff 0%, #eef6fb 42%, #f8fbff 100%);
+		radial-gradient(circle at top left, rgba(96, 165, 250, 0.16), transparent 28%),
+		radial-gradient(circle at bottom right, rgba(14, 165, 233, 0.18), transparent 28%),
+		linear-gradient(180deg, #f3f8ff 0%, #eef6ff 46%, #fbfdff 100%);
 	overflow: hidden;
+
+	:deep(.app-logo) {
+		--app-logo-text: #ffffff;
+		--app-logo-subtext: rgba(191, 219, 254, 0.9);
+	}
 }
 
-.installer-page__mesh {
+.installer-page__glow {
 	position: absolute;
 	inset: 0;
-	background-image:
+	background:
 		linear-gradient(rgba(148, 163, 184, 0.08) 1px, transparent 1px),
 		linear-gradient(90deg, rgba(148, 163, 184, 0.08) 1px, transparent 1px);
 	background-size: 48px 48px;
-	mask-image: radial-gradient(circle at center, #000 35%, transparent 88%);
+	mask-image: radial-gradient(circle at center, #000 42%, transparent 88%);
 	pointer-events: none;
 }
 
@@ -196,142 +242,15 @@ onMounted(() => {
 	position: relative;
 	z-index: 1;
 	display: grid;
-	grid-template-columns: 1.2fr minmax(380px, 460px);
-	width: min(1220px, 100%);
-	min-height: min(760px, calc(100vh - 48px));
-	border-radius: 32px;
-	border: 1px solid rgba(255, 255, 255, 0.54);
-	background: rgba(255, 255, 255, 0.36);
-	box-shadow: 0 30px 70px rgba(15, 23, 42, 0.14);
+	grid-template-columns: 1.08fr minmax(420px, 500px);
+	width: min(1260px, 100%);
+	min-height: min(800px, calc(100vh - 48px));
+	border-radius: 34px;
+	border: 1px solid rgba(255, 255, 255, 0.72);
+	background: rgba(255, 255, 255, 0.42);
+	box-shadow: 0 30px 80px rgba(15, 23, 42, 0.12);
 	backdrop-filter: blur(20px);
 	overflow: hidden;
-}
-
-.installer-showcase,
-.installer-panel {
-	padding: 40px;
-}
-
-.installer-showcase {
-	position: relative;
-	display: flex;
-	flex-direction: column;
-	justify-content: space-between;
-	gap: 28px;
-	background:
-		radial-gradient(circle at top right, rgba(16, 185, 129, 0.16), transparent 24%),
-		linear-gradient(155deg, #0f172a 0%, #10243a 48%, #0f3b53 100%);
-	color: #f8fafc;
-
-	&::after {
-		position: absolute;
-		right: -80px;
-		top: -60px;
-		width: 240px;
-		height: 240px;
-		content: '';
-		border-radius: 50%;
-		background: radial-gradient(circle, rgba(59, 130, 246, 0.3), transparent 68%);
-	}
-}
-
-.installer-showcase__brand,
-.installer-showcase__footer {
-	position: relative;
-	z-index: 1;
-	display: flex;
-	align-items: center;
-	flex-wrap: wrap;
-	gap: 14px;
-}
-
-.installer-showcase__badge,
-.showcase-pill {
-	display: inline-flex;
-	align-items: center;
-	gap: 8px;
-	padding: 8px 12px;
-	border-radius: 999px;
-	border: 1px solid rgba(255, 255, 255, 0.12);
-	background: rgba(255, 255, 255, 0.08);
-	color: rgba(248, 250, 252, 0.92);
-	font-size: 12px;
-	font-weight: 600;
-}
-
-.installer-showcase__content {
-	position: relative;
-	z-index: 1;
-	max-width: 640px;
-}
-
-.installer-showcase__eyebrow,
-.installer-panel__eyebrow {
-	margin-bottom: 12px;
-	font-size: 12px;
-	font-weight: 700;
-	letter-spacing: 0.18em;
-	text-transform: uppercase;
-}
-
-.installer-showcase__eyebrow {
-	color: rgba(125, 211, 252, 0.9);
-}
-
-.installer-showcase h1 {
-	margin: 0 0 18px;
-	font-size: clamp(36px, 5vw, 54px);
-	line-height: 1.02;
-	letter-spacing: -0.05em;
-}
-
-.installer-showcase__desc {
-	max-width: 620px;
-	color: rgba(226, 232, 240, 0.88);
-	font-size: 16px;
-	line-height: 1.9;
-}
-
-.installer-showcase__grid {
-	position: relative;
-	z-index: 1;
-	display: grid;
-	grid-template-columns: repeat(3, minmax(0, 1fr));
-	gap: 16px;
-}
-
-.showcase-card {
-	padding: 20px;
-	border-radius: 24px;
-	border: 1px solid rgba(255, 255, 255, 0.08);
-	background: rgba(255, 255, 255, 0.08);
-	box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08);
-
-	p {
-		margin: 10px 0 0;
-		color: rgba(226, 232, 240, 0.78);
-		font-size: 13px;
-		line-height: 1.7;
-	}
-}
-
-.showcase-card__label {
-	color: rgba(191, 219, 254, 0.84);
-	font-size: 13px;
-}
-
-.showcase-card__value {
-	margin-top: 12px;
-	font-size: 26px;
-	font-weight: 700;
-	letter-spacing: -0.04em;
-}
-
-.showcase-pill__dot {
-	width: 8px;
-	height: 8px;
-	border-radius: 50%;
-	background: #34d399;
 }
 
 .installer-panel {
@@ -339,48 +258,94 @@ onMounted(() => {
 	flex-direction: column;
 	justify-content: center;
 	gap: 24px;
-	background: var(--installer-panel-bg);
-}
-
-.installer-panel__header {
-	h2 {
-		margin: 0 0 12px;
-		color: #0f172a;
-		font-size: 32px;
-		letter-spacing: -0.04em;
-	}
-
-	p {
-		color: #64748b;
-		font-size: 14px;
-		line-height: 1.8;
-	}
+	padding: 36px 40px;
+	background: rgba(255, 255, 255, 0.95);
 }
 
 .installer-panel__eyebrow {
-	color: #0f766e;
+	margin-bottom: 12px;
+	color: #2563eb;
+	font-size: 12px;
+	font-weight: 700;
+	letter-spacing: 0.18em;
+	text-transform: uppercase;
+}
+
+.installer-panel__header h2 {
+	margin: 0 0 12px;
+	color: #123b6d;
+	font-size: 32px;
+	letter-spacing: -0.04em;
+}
+
+.installer-panel__header p {
+	margin: 0;
+	color: #64748b;
+	font-size: 14px;
+	line-height: 1.85;
+}
+
+.installer-panel__steps {
+	display: grid;
+	grid-template-columns: repeat(3, minmax(0, 1fr));
+	gap: 12px;
+}
+
+.installer-step {
+	padding: 14px 16px;
+	border-radius: 18px;
+	border: 1px solid rgba(226, 232, 240, 0.9);
+	background: linear-gradient(180deg, rgba(248, 251, 255, 0.96), rgba(255, 255, 255, 0.98));
+}
+
+.installer-step span {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 30px;
+	height: 30px;
+	border-radius: 999px;
+	background: rgba(37, 99, 235, 0.08);
+	color: #2563eb;
+	font-size: 12px;
+	font-weight: 700;
+}
+
+.installer-step strong {
+	display: block;
+	margin-top: 12px;
+	color: #123b6d;
+	font-size: 15px;
+	font-weight: 700;
+}
+
+.installer-step small {
+	display: block;
+	margin-top: 6px;
+	color: #7c8da1;
+	font-size: 12px;
+	line-height: 1.6;
 }
 
 .installer-form-card,
 .installer-status {
 	padding: 22px;
-	border-radius: 24px;
-	border: 1px solid rgba(148, 163, 184, 0.18);
-	background: rgba(255, 255, 255, 0.74);
-	box-shadow: 0 18px 40px rgba(15, 23, 42, 0.08);
+	border-radius: 26px;
+	border: 1px solid rgba(226, 232, 240, 0.9);
+	background: linear-gradient(180deg, rgba(248, 251, 255, 0.94), rgba(255, 255, 255, 0.98));
 }
 
 .installer-form-card__tip {
-	margin-bottom: 18px;
+	margin-bottom: 20px;
 	padding: 16px 18px;
 	border-radius: 20px;
-	border: 1px solid rgba(14, 165, 233, 0.16);
-	background: linear-gradient(135deg, rgba(14, 165, 233, 0.08), rgba(16, 185, 129, 0.08));
+	border: 1px solid rgba(37, 99, 235, 0.12);
+	background: linear-gradient(135deg, rgba(37, 99, 235, 0.08), rgba(14, 165, 233, 0.08));
 }
 
 .installer-form-card__tip-title,
 .installer-status__title {
-	color: #0f172a;
+	color: #123b6d;
 	font-size: 15px;
 	font-weight: 700;
 }
@@ -390,26 +355,91 @@ onMounted(() => {
 	margin-top: 6px;
 	color: #64748b;
 	font-size: 13px;
-	line-height: 1.8;
+	line-height: 1.75;
 }
 
-.installer-status__action {
-	width: 100%;
-	height: 48px;
-	margin-top: 18px;
-	border-radius: 14px;
-	letter-spacing: 0.08em;
-	font-weight: 600;
-	box-shadow: 0 16px 30px rgba(14, 116, 144, 0.16);
-}
-
+.installer-status__head,
+.installer-status__actions,
 .installer-panel__footer {
 	display: flex;
 	align-items: center;
 	justify-content: space-between;
 	gap: 16px;
+}
+
+.installer-status__badge {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	height: 34px;
+	padding: 0 14px;
+	border-radius: 999px;
+	background: rgba(22, 163, 74, 0.08);
+	color: #15803d;
+	font-size: 12px;
+	font-weight: 700;
+	white-space: nowrap;
+}
+
+.installer-status__grid {
+	display: grid;
+	grid-template-columns: repeat(2, minmax(0, 1fr));
+	gap: 12px;
+	margin-top: 18px;
+}
+
+.installer-status__item {
+	padding: 16px;
+	border-radius: 18px;
+	border: 1px solid rgba(226, 232, 240, 0.9);
+	background: rgba(255, 255, 255, 0.9);
+}
+
+.installer-status__item span {
+	display: block;
+	color: #64748b;
+	font-size: 12px;
+}
+
+.installer-status__item strong {
+	display: block;
+	margin-top: 10px;
+	color: #123b6d;
+	font-size: 18px;
+	font-weight: 700;
+}
+
+.installer-status__actions {
+	margin-top: 18px;
+	align-items: stretch;
+}
+
+.installer-status__action {
+	flex: 1;
+	height: 48px;
+	border-radius: 14px;
+	letter-spacing: 0.08em;
+	font-weight: 600;
+	box-shadow: 0 18px 32px rgba(37, 99, 235, 0.18);
+}
+
+.installer-status__link {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	min-width: 112px;
+	padding: 0 16px;
+	border-radius: 14px;
+	border: 1px solid rgba(191, 219, 254, 0.9);
+	color: #2563eb;
+	text-decoration: none;
+	font-size: 14px;
+	font-weight: 600;
+}
+
+.installer-panel__footer {
 	padding-top: 18px;
-	border-top: 1px solid var(--installer-border);
+	border-top: 1px solid rgba(226, 232, 240, 0.9);
 	color: #64748b;
 	font-size: 12px;
 }
@@ -436,17 +466,13 @@ onMounted(() => {
 	border-radius: 14px;
 	letter-spacing: 0.08em;
 	font-weight: 600;
-	box-shadow: 0 16px 30px rgba(14, 116, 144, 0.16);
+	box-shadow: 0 18px 32px rgba(37, 99, 235, 0.18);
 }
 
 @media (max-width: 1080px) {
 	.installer-shell {
 		grid-template-columns: 1fr;
-		max-width: 620px;
-	}
-
-	.installer-showcase {
-		padding-bottom: 28px;
+		max-width: 720px;
 	}
 }
 
@@ -460,18 +486,25 @@ onMounted(() => {
 		border-radius: 0;
 	}
 
-	.installer-showcase,
 	.installer-panel {
 		padding: 24px;
 	}
 
-	.installer-showcase__grid {
-		grid-template-columns: repeat(1, minmax(0, 1fr));
+	.installer-panel__steps,
+	.installer-status__grid {
+		grid-template-columns: 1fr;
 	}
 
+	.installer-status__head,
+	.installer-status__actions,
 	.installer-panel__footer {
 		flex-direction: column;
 		align-items: flex-start;
+	}
+
+	.installer-status__action,
+	.installer-status__link {
+		width: 100%;
 	}
 }
 </style>

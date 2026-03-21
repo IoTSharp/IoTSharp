@@ -46,6 +46,21 @@
 						<span class="status-pill" :class="`is-${workspaceHeadline.tone}`">{{ workspaceHeadline.tag }}</span>
 					</div>
 					<p class="side-desc">{{ workspaceHeadline.description }}</p>
+					<div class="focus-summary" :class="`focus-summary--${focusPrimaryAction.tone}`">
+						<div class="focus-summary__head">
+							<span class="focus-summary__label">{{ focusPrimaryAction.label }}</span>
+							<span class="focus-summary__value">{{ focusPrimaryAction.value }}</span>
+						</div>
+						<strong>{{ focusPrimaryAction.title }}</strong>
+						<small>{{ focusPrimaryAction.description }}</small>
+					</div>
+					<div class="focus-strip">
+						<div v-for="item in focusSignals" :key="item.label" class="focus-item" :class="`focus-item--${item.tone}`">
+							<span>{{ item.label }}</span>
+							<strong>{{ item.value }}</strong>
+							<small>{{ item.hint }}</small>
+						</div>
+					</div>
 					<div class="notice-list">
 						<div v-for="item in operationalNotices" :key="item.label" class="notice-item">
 							<div class="notice-item__value">{{ item.value }}</div>
@@ -58,14 +73,28 @@
 				</div>
 
 				<div class="card side-card">
-					<div class="eyebrow">Quick Actions</div>
+					<div class="side-card__head">
+						<div>
+							<div class="eyebrow">Quick Actions</div>
+							<h3>常用入口</h3>
+							<p>把刷新、文档和高频业务页集中到这里，进入控制台后可以直接继续处理事务。</p>
+						</div>
+						<span class="side-kicker">{{ quickActions.length }} 个入口</span>
+					</div>
 					<div class="quick-grid">
-						<button v-for="action in quickActions" :key="action.key" type="button" class="quick-item" @click="onQuickAction(action)">
-							<span class="quick-item__icon">
-								<el-icon><component :is="action.icon" /></el-icon>
-							</span>
+						<button v-for="action in quickActions" :key="action.key" type="button" class="quick-item" :style="getQuickActionStyle(action)" @click="onQuickAction(action)">
+							<div class="quick-item__top">
+								<span class="quick-item__icon">
+									<el-icon><component :is="action.icon" /></el-icon>
+								</span>
+								<span class="quick-item__badge">{{ action.badge }}</span>
+							</div>
 							<strong>{{ action.label }}</strong>
 							<small>{{ action.description }}</small>
+							<span class="quick-item__meta">
+								{{ action.meta }}
+								<el-icon><ArrowRight /></el-icon>
+							</span>
 						</button>
 					</div>
 				</div>
@@ -100,6 +129,13 @@
 					</div>
 				</div>
 				<div ref="messageChartRef" class="chart chart-xl"></div>
+				<div class="trend-briefs">
+					<div v-for="item in trendHighlights" :key="item.label" class="trend-brief">
+						<span>{{ item.label }}</span>
+						<strong>{{ item.value }}</strong>
+						<small>{{ item.hint }}</small>
+					</div>
+				</div>
 			</article>
 
 			<article class="card panel panel-status">
@@ -108,6 +144,18 @@
 						<div class="eyebrow">Platform Pulse</div>
 						<h3>运行状态</h3>
 						<p>将连接、健康、告警和消息成功率汇总成一组快速判断指标。</p>
+					</div>
+				</div>
+				<div class="status-score">
+					<div class="status-score__body">
+						<div class="status-score__eyebrow">Platform Score</div>
+						<h4>{{ systemScoreCard.title }}</h4>
+						<p>{{ systemScoreCard.description }}</p>
+						<span class="status-pill" :class="`is-${systemScoreCard.tone}`">{{ systemScoreCard.tag }}</span>
+					</div>
+					<div class="status-score__ring">
+						<strong>{{ systemScoreCard.score }}</strong>
+						<small>分</small>
 					</div>
 				</div>
 				<div class="status-list">
@@ -163,6 +211,13 @@
 						</span>
 					</div>
 				</div>
+				<div class="health-overview">
+					<div v-for="item in healthSummaryItems" :key="item.label" class="health-overview__item" :class="`health-overview__item--${item.tone}`">
+						<span>{{ item.label }}</span>
+						<strong>{{ item.value }}</strong>
+						<small>{{ item.hint }}</small>
+					</div>
+				</div>
 				<div v-if="healthEntries.length" class="health-list">
 					<div v-for="item in healthEntries" :key="item.name" class="health-item">
 						<div class="health-main">
@@ -190,21 +245,37 @@
 					</div>
 				</div>
 				<div ref="resourceChartRef" class="chart"></div>
+				<div class="resource-list">
+					<div v-for="item in resourceHighlights" :key="item.label" class="resource-item">
+						<div class="resource-item__main">
+							<span class="resource-item__dot" :style="{ background: item.color }"></span>
+							<div>
+								<strong>{{ item.label }}</strong>
+								<small>{{ item.hint }}</small>
+							</div>
+						</div>
+						<span class="resource-item__value">{{ item.value }}</span>
+					</div>
+				</div>
 			</article>
 
 			<article class="card panel panel-snapshot">
 				<div class="panel-head">
 					<div>
 						<div class="eyebrow">Operations Snapshot</div>
-						<h3>运营观察</h3>
-						<p>把当前最值得关注的运营变化压缩成一组简明提示，方便日常巡检。</p>
+						<h3>运营建议</h3>
+						<p>把当前最需要处理的动作列成短清单，便于巡检后直接推进处置。</p>
 					</div>
+					<span class="summary-tag">今日待办 {{ actionRecommendations.length }}</span>
 				</div>
-				<div class="snapshot-list">
-					<div v-for="item in snapshotItems" :key="item.label" class="snapshot-item" :class="`is-${item.tone}`">
-						<span>{{ item.label }}</span>
-						<strong>{{ item.value }}</strong>
-						<p>{{ item.hint }}</p>
+				<div class="recommendation-list">
+					<div v-for="item in actionRecommendations" :key="item.title" class="recommendation-item" :class="`tone-${item.tone}`">
+						<div class="recommendation-item__head">
+							<span class="recommendation-item__label">{{ item.label }}</span>
+							<span class="recommendation-item__value">{{ item.value }}</span>
+						</div>
+						<strong>{{ item.title }}</strong>
+						<p>{{ item.description }}</p>
 					</div>
 				</div>
 			</article>
@@ -221,7 +292,7 @@ import { useI18n } from 'vue-i18n';
 import { storeToRefs } from 'pinia';
 import { ElMessage } from 'element-plus';
 import type { EChartsOption } from 'echarts';
-import { Bell, Connection, DataAnalysis, Monitor, Promotion, Reading, RefreshRight } from '@element-plus/icons-vue';
+import { ArrowRight, Bell, Connection, DataAnalysis, Monitor, Promotion, Reading, RefreshRight } from '@element-plus/icons-vue';
 import HomeCardItem from '/@/views/dashboard/HomeCardItem.vue';
 import { homeCardItemsConfig, type HomeCardMetricKey } from '/@/views/dashboard/homeCardItems';
 import { useThemeConfig } from '/@/stores/themeConfig';
@@ -265,12 +336,23 @@ interface QuickAction {
 	key: string;
 	label: string;
 	description: string;
+	badge: string;
+	meta: string;
 	icon: any;
 	type: 'refresh' | 'external' | 'route';
 	href?: string;
 	path?: string;
 }
 
+interface RecommendationItem {
+	label: string;
+	value: string;
+	title: string;
+	description: string;
+	tone: StatusTone;
+}
+
+type StatusTone = 'success' | 'warning' | 'danger';
 type ChartKey = 'message' | 'online' | 'resource';
 
 const messageChartRef = ref<HTMLDivElement>();
@@ -311,11 +393,46 @@ const offlineDevices = computed(() => Math.max(kanban.value.deviceCount - kanban
 const onlineRate = computed(() => ratio(kanban.value.onlineDeviceCount, kanban.value.deviceCount));
 const alarmRate = computed(() => ratio(kanban.value.alarmsCount, kanban.value.deviceCount));
 const healthyChecksCount = computed(() => healthEntries.value.filter((item) => item.status === 'Healthy').length);
+const unhealthyChecksCount = computed(() => Math.max(healthEntries.value.length - healthyChecksCount.value, 0));
 const healthRate = computed(() => ratio(healthyChecksCount.value, healthEntries.value.length));
 const hasUnhealthyChecks = computed(() => healthEntries.value.some((item) => item.status !== 'Healthy'));
 const messageTotal24h = computed(() => sumValues(messageMetrics.value.publishSuccessed) + sumValues(messageMetrics.value.publishFailed) + sumValues(messageMetrics.value.subscribeSuccessed) + sumValues(messageMetrics.value.subscribeFailed));
 const messageFailureTotal = computed(() => messageMetrics.value.publishedFailed + messageMetrics.value.receivedFailed);
+const messageFailureRate = computed(() => ratio(messageFailureTotal.value, messageMetrics.value.publishedSucceeded + messageMetrics.value.receivedSucceeded + messageFailureTotal.value));
 const messageSuccessRate = computed(() => ratio(messageMetrics.value.publishedSucceeded + messageMetrics.value.receivedSucceeded, messageMetrics.value.publishedSucceeded + messageMetrics.value.receivedSucceeded + messageFailureTotal.value));
+const lastUpdatedClockText = computed(() => (lastUpdated.value ? dayjs(lastUpdated.value).format('HH:mm:ss') : '--'));
+const actionQueueCount = computed(() => {
+	const count =
+		Number(unhealthyChecksCount.value > 0) +
+		Number(offlineDevices.value > 0) +
+		Number(messageFailureTotal.value > 0) +
+		Number(kanban.value.alarmsCount > 0);
+	return count || 1;
+});
+const hourlyTraffic = computed(() =>
+	messageMetrics.value.dayHour.map((hour, index) => ({
+		hour,
+		total:
+			(messageMetrics.value.publishSuccessed[index] || 0) +
+			(messageMetrics.value.publishFailed[index] || 0) +
+			(messageMetrics.value.subscribeSuccessed[index] || 0) +
+			(messageMetrics.value.subscribeFailed[index] || 0),
+	}))
+);
+const peakTraffic = computed(() =>
+	hourlyTraffic.value.reduce(
+		(peak, current) => (current.total > peak.total ? current : peak),
+		{ hour: '--', total: 0 }
+	)
+);
+const platformScore = computed(() => {
+	const score =
+		onlineRate.value * 0.32 +
+		healthRate.value * 0.3 +
+		messageSuccessRate.value * 0.23 +
+		Math.max(0, 100 - Math.min(alarmRate.value, 100)) * 0.15;
+	return Math.round(score);
+});
 
 const heroStats = computed(() => [
 	{ label: '设备在线率', value: percentText(onlineRate.value), hint: `在线 ${formatCount(kanban.value.onlineDeviceCount)} / 总数 ${formatCount(kanban.value.deviceCount)}` },
@@ -336,6 +453,12 @@ const operationalNotices = computed(() => [
 	{ label: '消息节点', value: formatCount(messageMetrics.value.servers), hint: `订阅客户端 ${formatCount(messageMetrics.value.subscribers)}` },
 	{ label: '规则规模', value: formatCount(kanban.value.rulesCount), hint: `产品模型 ${formatCount(kanban.value.produceCount)} 个` },
 ]);
+
+const systemScoreCard = computed(() => {
+	if (platformScore.value >= 90) return { score: platformScore.value, title: '平台运行稳定', description: '连接质量、消息链路和健康检查保持在较高水位，当前可以把重点放到容量与业务扩展。', tag: '稳定', tone: 'success' as const };
+	if (platformScore.value >= 75) return { score: platformScore.value, title: '平台总体可控', description: '基础服务运行正常，但仍有局部风险需要持续观察，建议优先处理当前预警项。', tag: '关注中', tone: 'warning' as const };
+	return { score: platformScore.value, title: '平台需要干预', description: '核心指标出现明显波动，建议把健康项、离线设备和失败消息作为本轮巡检的优先级。', tag: '待处理', tone: 'danger' as const };
+});
 
 const summaryCards = computed(() => {
 	const values: Record<HomeCardMetricKey, number> = {
@@ -377,18 +500,103 @@ const systemOverviewItems = computed(() => [
 	{ label: '事件总量', value: formatCount(kanban.value.eventCount), hint: '近 24 小时平台事件' },
 ]);
 
-const snapshotItems = computed(() => [
-	{ label: '在线覆盖', value: percentText(onlineRate.value), hint: offlineDevices.value > 0 ? `仍有 ${formatCount(offlineDevices.value)} 台设备离线` : '当前设备全部在线', tone: offlineDevices.value > 0 ? 'warning' : 'success' },
-	{ label: '告警范围', value: formatCount(kanban.value.alarmsCount), hint: kanban.value.alarmsCount > 0 ? '建议优先追踪高频告警源' : '当前没有告警压力', tone: kanban.value.alarmsCount > 0 ? 'warning' : 'success' },
-	{ label: '健康风险', value: `${healthEntries.value.length - healthyChecksCount.value}`, hint: hasUnhealthyChecks.value ? '存在待处理健康项' : '健康检查全部通过', tone: hasUnhealthyChecks.value ? 'danger' : 'success' },
-	{ label: '消息失败', value: formatCount(messageFailureTotal.value), hint: messageFailureTotal.value > 0 ? '需要关注失败波峰' : '消息处理稳定', tone: messageFailureTotal.value > 0 ? 'warning' : 'success' },
+const resourceHighlights = computed(() => [
+	{ label: '设备规模', value: formatCount(kanban.value.deviceCount), hint: '当前纳管终端总量', color: '#165dff' },
+	{ label: '在线终端', value: formatCount(kanban.value.onlineDeviceCount), hint: '处于活跃连接的设备', color: '#00b42a' },
+	{ label: '产品模型', value: formatCount(kanban.value.produceCount), hint: '设备模板与模型沉淀', color: '#0fc6c2' },
+	{ label: '规则总数', value: formatCount(kanban.value.rulesCount), hint: '联动与自动化编排能力', color: '#722ed1' },
+	{ label: '系统用户', value: formatCount(kanban.value.userCount), hint: '协同管理的成员规模', color: '#3491fa' },
+	{ label: '告警设备', value: formatCount(kanban.value.alarmsCount), hint: '当前需要重点跟进的范围', color: '#ff7d00' },
+]);
+
+const trendHighlights = computed(() => [
+	{ label: '波峰时段', value: peakTraffic.value.hour, hint: peakTraffic.value.total > 0 ? `峰值 ${formatCount(peakTraffic.value.total)} 条消息` : '等待流量数据同步' },
+	{ label: '失败占比', value: percentText(messageFailureRate.value), hint: messageFailureTotal.value > 0 ? `近 24 小时失败 ${formatCount(messageFailureTotal.value)} 条` : '当前没有失败消息' },
+	{
+		label: '节点负载',
+		value: messageMetrics.value.servers ? `${averageText(messageTotal24h.value, messageMetrics.value.servers)} 条` : '--',
+		hint: messageMetrics.value.servers ? `${formatCount(messageMetrics.value.servers)} 个节点 / ${formatCount(messageMetrics.value.subscribers)} 个订阅端` : '暂无消息节点数据',
+	},
+]);
+
+const healthSummaryItems = computed(() => [
+	{ label: '通过项', value: formatCount(healthyChecksCount.value), hint: `共 ${healthEntries.value.length || 0} 项健康检查`, tone: 'success' as StatusTone },
+	{ label: '待处理', value: formatCount(unhealthyChecksCount.value), hint: hasUnhealthyChecks.value ? '建议优先排查依赖与基础服务' : '当前没有待处理健康项', tone: hasUnhealthyChecks.value ? ('warning' as StatusTone) : ('success' as StatusTone) },
+	{ label: '最近巡检', value: lastUpdatedClockText.value, hint: lastUpdated.value ? dayjs(lastUpdated.value).format('YYYY-MM-DD') : '等待同步', tone: 'success' as StatusTone },
+]);
+
+const actionRecommendations = computed<RecommendationItem[]>(() => {
+	const items: RecommendationItem[] = [];
+	if (hasUnhealthyChecks.value) {
+		items.push({
+			label: 'P1',
+			value: `${unhealthyChecksCount.value} 项`,
+			title: '处理健康检查异常',
+			description: '优先检查失败依赖和基础服务，让平台先恢复到稳定状态。',
+			tone: 'danger',
+		});
+	}
+	if (offlineDevices.value > 0) {
+		items.push({
+			label: 'P2',
+			value: `${formatCount(offlineDevices.value)} 台`,
+			title: '跟进离线设备恢复',
+			description: '建议先排查最近掉线和集中掉线的设备，尽快拉回在线覆盖率。',
+			tone: 'warning',
+		});
+	}
+	if (messageFailureTotal.value > 0) {
+		items.push({
+			label: 'P2',
+			value: `${formatCount(messageFailureTotal.value)} 条`,
+			title: '排查失败消息波峰',
+			description: '结合消息总线趋势，重点检查失败消息出现最密集的时间段。',
+			tone: 'warning',
+		});
+	}
+	if (items.length < 3 && kanban.value.alarmsCount > 0) {
+		items.push({
+			label: 'P3',
+			value: `${formatCount(kanban.value.alarmsCount)} 台`,
+			title: '压降高频告警设备',
+			description: '先收敛重复触发的告警源，降低值班噪音和排障干扰。',
+			tone: 'warning',
+		});
+	}
+	if (items.length < 3) {
+		items.push({
+			label: 'Routine',
+			value: percentText(onlineRate.value),
+			title: '复核平台容量与增长',
+			description: '当前基础面可控，建议把产品模型、规则和设备增长放到本轮复盘里。',
+			tone: 'success',
+		});
+	}
+	if (items.length < 3) {
+		items.push({
+			label: 'Daily',
+			value: lastUpdatedText.value,
+			title: '同步今日巡检结论',
+			description: '记录这次面板刷新后的结论，方便团队接力处理后续动作。',
+			tone: 'success',
+		});
+	}
+	return items.slice(0, 3);
+});
+
+const focusPrimaryAction = computed<RecommendationItem>(() => actionRecommendations.value[0] ?? { label: 'Daily', value: '--', title: '继续例行巡检', description: '当前没有需要升级处理的问题，可以继续复核容量、增长和业务趋势。', tone: 'success' });
+
+const focusSignals = computed(() => [
+	{ label: '平台评分', value: `${systemScoreCard.value.score} 分`, hint: systemScoreCard.value.tag, tone: systemScoreCard.value.tone },
+	{ label: '待办事项', value: `${actionQueueCount.value} 项`, hint: focusPrimaryAction.value.title, tone: actionQueueCount.value > 1 ? ('warning' as StatusTone) : ('success' as StatusTone) },
+	{ label: '波峰时段', value: peakTraffic.value.hour, hint: peakTraffic.value.total > 0 ? `峰值 ${formatCount(peakTraffic.value.total)} 条` : '等待流量数据', tone: messageFailureTotal.value > 0 ? ('warning' as StatusTone) : ('success' as StatusTone) },
 ]);
 
 const quickIcons = [Monitor, Connection, DataAnalysis, Bell];
 const quickActions = computed<QuickAction[]>(() => [
-	{ key: 'refresh', label: '刷新数据', description: '重新拉取首页接口', icon: RefreshRight, type: 'refresh' },
-	{ key: 'docs', label: '文档中心', description: '查看部署与接入说明', icon: Reading, type: 'external', href: 'http://docs.iotsharp.net/' },
-	{ key: 'github', label: '项目仓库', description: '访问 GitHub 源码', icon: Promotion, type: 'external', href: 'https://github.com/IoTSharp' },
+	{ key: 'refresh', label: '刷新数据', description: '重新拉取首页接口', badge: '同步', meta: '立即获取最新状态', icon: RefreshRight, type: 'refresh' },
+	{ key: 'docs', label: '文档中心', description: '查看部署与接入说明', badge: '文档', meta: '部署与接入指南', icon: Reading, type: 'external', href: 'http://docs.iotsharp.net/' },
+	{ key: 'github', label: '项目仓库', description: '访问 GitHub 源码', badge: '开源', meta: '查看项目源码', icon: Promotion, type: 'external', href: 'https://github.com/IoTSharp' },
 	...flattenVisibleRoutes(routesList.value)
 		.filter((item) => item.path && item.path !== '/dashboard')
 		.slice(0, 3)
@@ -396,6 +604,8 @@ const quickActions = computed<QuickAction[]>(() => [
 			key: `route-${item.path}`,
 			label: normalizeRouteTitle(item.meta?.title),
 			description: '进入常用业务页面',
+			badge: '业务',
+			meta: '控制台直达',
 			icon: quickIcons[index % quickIcons.length],
 			type: 'route' as const,
 			path: item.path,
@@ -414,6 +624,20 @@ function onQuickAction(action: QuickAction) {
 	if (action.type === 'refresh') return refreshDashboard();
 	if (action.type === 'external' && action.href) return window.open(action.href, '_blank');
 	if (action.type === 'route' && action.path) router.push(action.path);
+}
+
+function getQuickActionStyle(action: QuickAction) {
+	const colorMap: Record<QuickAction['type'], string> = {
+		refresh: '#165dff',
+		external: '#0fc6c2',
+		route: '#ff7d00',
+	};
+	const color = colorMap[action.type];
+	return {
+		'--quick-accent': color,
+		'--quick-accent-soft': `${color}14`,
+		'--quick-accent-border': `${color}32`,
+	};
 }
 
 function openDocs() {
@@ -706,8 +930,7 @@ watch(
 
 .hero-stat,
 .mini-card,
-.breakdown-item,
-.snapshot-item {
+.breakdown-item {
 	padding: 16px;
 	border-radius: 18px;
 	border: 1px solid rgba(229, 230, 235, 0.92);
@@ -715,16 +938,14 @@ watch(
 }
 
 .hero-stat span,
-.mini-card span,
-.snapshot-item span {
+.mini-card span {
 	display: block;
 	color: #4e5969;
 	font-size: 13px;
 }
 
 .hero-stat strong,
-.mini-card strong,
-.snapshot-item strong {
+.mini-card strong {
 	display: block;
 	margin-top: 10px;
 	color: #1d2129;
@@ -737,8 +958,7 @@ watch(
 }
 
 .hero-stat small,
-.mini-card small,
-.snapshot-item p {
+.mini-card small {
 	display: block;
 	margin-top: 6px;
 	color: #86909c;
@@ -751,6 +971,149 @@ watch(
 .status-list {
 	display: grid;
 	gap: 16px;
+}
+
+.side-card__head {
+	display: flex;
+	align-items: flex-start;
+	justify-content: space-between;
+	gap: 16px;
+}
+
+.side-card__head h3 {
+	margin: 0 0 8px;
+	color: #1d2129;
+	font-size: 22px;
+	letter-spacing: -0.03em;
+}
+
+.side-card__head p {
+	margin: 0;
+	color: #4e5969;
+	font-size: 13px;
+	line-height: 1.7;
+}
+
+.side-kicker {
+	display: inline-flex;
+	align-items: center;
+	height: 32px;
+	padding: 0 12px;
+	border-radius: 999px;
+	border: 1px solid rgba(229, 230, 235, 0.96);
+	background: rgba(255, 255, 255, 0.9);
+	color: #4e5969;
+	font-size: 12px;
+	font-weight: 600;
+	white-space: nowrap;
+}
+
+.side-card > * + * {
+	margin-top: 16px;
+}
+
+.focus-summary {
+	padding: 16px 18px;
+	border-radius: 20px;
+	border: 1px solid rgba(229, 230, 235, 0.96);
+}
+
+.focus-summary--success {
+	background: linear-gradient(180deg, rgba(240, 255, 244, 0.76), #ffffff);
+}
+
+.focus-summary--warning {
+	background: linear-gradient(180deg, rgba(255, 247, 232, 0.86), #ffffff);
+}
+
+.focus-summary--danger {
+	background: linear-gradient(180deg, rgba(255, 236, 232, 0.88), #ffffff);
+}
+
+.focus-summary__head {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 12px;
+	margin-bottom: 12px;
+}
+
+.focus-summary__label,
+.focus-summary__value {
+	display: inline-flex;
+	align-items: center;
+	min-height: 28px;
+	padding: 0 10px;
+	border-radius: 999px;
+	background: rgba(255, 255, 255, 0.9);
+	border: 1px solid rgba(229, 230, 235, 0.96);
+	color: #4e5969;
+	font-size: 12px;
+	font-weight: 700;
+	white-space: nowrap;
+}
+
+.focus-summary strong {
+	display: block;
+	color: #1d2129;
+	font-size: 16px;
+	font-weight: 700;
+}
+
+.focus-summary small {
+	display: block;
+	margin-top: 6px;
+	color: #6b7785;
+	font-size: 12px;
+	line-height: 1.65;
+}
+
+.focus-strip {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
+	gap: 12px;
+}
+
+.focus-item {
+	padding: 14px;
+	border-radius: 18px;
+	border: 1px solid rgba(229, 230, 235, 0.92);
+	background: #fff;
+}
+
+.focus-item span {
+	display: block;
+	color: #4e5969;
+	font-size: 12px;
+}
+
+.focus-item strong {
+	display: block;
+	margin-top: 10px;
+	color: #1d2129;
+	font-size: 20px;
+	font-weight: 700;
+	letter-spacing: -0.04em;
+}
+
+.focus-item small {
+	display: block;
+	margin-top: 6px;
+	color: #86909c;
+	font-size: 12px;
+	line-height: 1.6;
+}
+
+.focus-item--success {
+	background: linear-gradient(180deg, rgba(240, 255, 244, 0.52), #ffffff);
+}
+
+.focus-item--warning {
+	background: linear-gradient(180deg, rgba(255, 247, 232, 0.58), #ffffff);
+}
+
+.focus-item--danger {
+	background: linear-gradient(180deg, rgba(255, 236, 232, 0.58), #ffffff);
 }
 
 .status-pill {
@@ -824,8 +1187,6 @@ watch(
 
 .quick-grid,
 .mini-grid,
-.snapshot-list,
-.status-grid,
 .breakdown-list {
 	display: grid;
 	grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -833,10 +1194,17 @@ watch(
 }
 
 .quick-item {
+	--quick-accent: #165dff;
+	--quick-accent-soft: rgba(22, 93, 255, 0.08);
+	--quick-accent-border: rgba(22, 93, 255, 0.22);
 	flex-direction: column;
 	align-items: flex-start;
+	min-height: 160px;
 	text-align: left;
 	cursor: pointer;
+	background:
+		radial-gradient(circle at top right, var(--quick-accent-soft), transparent 42%),
+		linear-gradient(180deg, #ffffff 0%, #fbfdff 100%);
 	transition:
 		transform 0.2s ease,
 		border-color 0.2s ease,
@@ -845,8 +1213,16 @@ watch(
 
 .quick-item:hover {
 	transform: translateY(-2px);
-	border-color: rgba(22, 93, 255, 0.26);
-	box-shadow: 0 12px 24px rgba(22, 93, 255, 0.08);
+	border-color: var(--quick-accent-border);
+	box-shadow: 0 12px 24px rgba(15, 23, 42, 0.08);
+}
+
+.quick-item__top {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	width: 100%;
+	gap: 12px;
 }
 
 .quick-item__icon {
@@ -856,9 +1232,32 @@ watch(
 	width: 40px;
 	height: 40px;
 	border-radius: 14px;
-	background: rgba(22, 93, 255, 0.1);
-	color: #165dff;
+	background: var(--quick-accent-soft);
+	color: var(--quick-accent);
 	font-size: 18px;
+}
+
+.quick-item__badge {
+	display: inline-flex;
+	align-items: center;
+	height: 28px;
+	padding: 0 10px;
+	border-radius: 999px;
+	background: rgba(255, 255, 255, 0.92);
+	border: 1px solid rgba(229, 230, 235, 0.96);
+	color: #4e5969;
+	font-size: 12px;
+	font-weight: 600;
+}
+
+.quick-item__meta {
+	display: inline-flex;
+	align-items: center;
+	gap: 6px;
+	margin-top: auto;
+	color: var(--quick-accent);
+	font-size: 12px;
+	font-weight: 600;
 }
 
 .summary-row {
@@ -962,6 +1361,130 @@ watch(
 	min-height: 340px;
 }
 
+.trend-briefs,
+.health-overview {
+	display: grid;
+	grid-template-columns: repeat(3, minmax(0, 1fr));
+	gap: 12px;
+}
+
+.trend-brief,
+.health-overview__item {
+	padding: 14px 16px;
+	border-radius: 18px;
+	border: 1px solid rgba(229, 230, 235, 0.92);
+	background: linear-gradient(180deg, #fbfdff 0%, #ffffff 100%);
+}
+
+.trend-brief span,
+.health-overview__item span {
+	display: block;
+	color: #4e5969;
+	font-size: 13px;
+}
+
+.trend-brief strong,
+.health-overview__item strong {
+	display: block;
+	margin-top: 10px;
+	color: #1d2129;
+	font-size: 22px;
+	font-weight: 700;
+	letter-spacing: -0.04em;
+}
+
+.trend-brief small,
+.health-overview__item small {
+	display: block;
+	margin-top: 6px;
+	color: #86909c;
+	font-size: 12px;
+	line-height: 1.6;
+}
+
+.health-overview__item--success {
+	background: linear-gradient(180deg, rgba(240, 255, 244, 0.5), #ffffff);
+}
+
+.health-overview__item--warning {
+	background: linear-gradient(180deg, rgba(255, 247, 232, 0.56), #ffffff);
+}
+
+.health-overview__item--danger {
+	background: linear-gradient(180deg, rgba(255, 236, 232, 0.56), #ffffff);
+}
+
+.status-score {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 18px;
+	padding: 18px;
+	border-radius: 22px;
+	border: 1px solid rgba(229, 230, 235, 0.96);
+	background:
+		radial-gradient(circle at top right, rgba(22, 93, 255, 0.08), transparent 36%),
+		linear-gradient(180deg, #fbfdff 0%, #ffffff 100%);
+}
+
+.status-score__body {
+	display: flex;
+	flex: 1;
+	flex-direction: column;
+	gap: 10px;
+	min-width: 0;
+}
+
+.status-score__eyebrow {
+	color: #86909c;
+	font-size: 12px;
+	font-weight: 700;
+	letter-spacing: 0.16em;
+	text-transform: uppercase;
+}
+
+.status-score__body h4 {
+	margin: 0;
+	color: #1d2129;
+	font-size: 22px;
+	letter-spacing: -0.03em;
+}
+
+.status-score__body p {
+	margin: 0;
+	color: #4e5969;
+	font-size: 13px;
+	line-height: 1.7;
+}
+
+.status-score__ring {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	width: 108px;
+	height: 108px;
+	border-radius: 50%;
+	border: 8px solid rgba(22, 93, 255, 0.12);
+	background: #fff;
+	box-shadow: inset 0 0 0 1px rgba(229, 230, 235, 0.96);
+	flex-shrink: 0;
+}
+
+.status-score__ring strong {
+	color: #165dff;
+	font-size: 36px;
+	font-weight: 700;
+	line-height: 1;
+	letter-spacing: -0.04em;
+}
+
+.status-score__ring small {
+	margin-top: 4px;
+	color: #86909c;
+	font-size: 12px;
+}
+
 .status-item {
 	display: flex;
 	flex-direction: column;
@@ -985,6 +1508,70 @@ watch(
 
 .mini-card {
 	background: #f9fbff;
+}
+
+.resource-list,
+.recommendation-list {
+	display: grid;
+	gap: 12px;
+}
+
+.resource-list {
+	grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.resource-item,
+.recommendation-item {
+	padding: 14px 16px;
+	border-radius: 18px;
+	border: 1px solid rgba(229, 230, 235, 0.92);
+	background: #fff;
+}
+
+.resource-item {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 12px;
+}
+
+.resource-item__main {
+	display: flex;
+	align-items: center;
+	gap: 12px;
+	min-width: 0;
+}
+
+.resource-item__dot {
+	width: 10px;
+	height: 10px;
+	border-radius: 50%;
+	flex-shrink: 0;
+}
+
+.resource-item strong,
+.recommendation-item strong {
+	display: block;
+	color: #1d2129;
+	font-size: 14px;
+	font-weight: 600;
+}
+
+.resource-item small,
+.recommendation-item p {
+	display: block;
+	margin-top: 4px;
+	color: #86909c;
+	font-size: 12px;
+	line-height: 1.6;
+}
+
+.resource-item__value {
+	color: #1d2129;
+	font-size: 18px;
+	font-weight: 700;
+	letter-spacing: -0.04em;
+	white-space: nowrap;
 }
 
 .breakdown-item {
@@ -1074,16 +1661,54 @@ watch(
 	color: #cb2634;
 }
 
-.snapshot-item.is-success {
-	background: linear-gradient(180deg, rgba(240, 255, 244, 0.7), #fff);
+.recommendation-item__head {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 12px;
+	margin-bottom: 12px;
 }
 
-.snapshot-item.is-warning {
-	background: linear-gradient(180deg, rgba(255, 247, 232, 0.8), #fff);
+.recommendation-item__label,
+.recommendation-item__value {
+	display: inline-flex;
+	align-items: center;
+	min-height: 28px;
+	padding: 0 10px;
+	border-radius: 999px;
+	font-size: 12px;
+	font-weight: 700;
+	white-space: nowrap;
 }
 
-.snapshot-item.is-danger {
-	background: linear-gradient(180deg, rgba(255, 236, 232, 0.82), #fff);
+.tone-success {
+	background: linear-gradient(180deg, rgba(240, 255, 244, 0.72), #fff);
+}
+
+.tone-success .recommendation-item__label,
+.tone-success .recommendation-item__value {
+	background: rgba(0, 180, 42, 0.12);
+	color: #009a29;
+}
+
+.tone-warning {
+	background: linear-gradient(180deg, rgba(255, 247, 232, 0.82), #fff);
+}
+
+.tone-warning .recommendation-item__label,
+.tone-warning .recommendation-item__value {
+	background: rgba(255, 125, 0, 0.12);
+	color: #d25f00;
+}
+
+.tone-danger {
+	background: linear-gradient(180deg, rgba(255, 236, 232, 0.84), #fff);
+}
+
+.tone-danger .recommendation-item__label,
+.tone-danger .recommendation-item__value {
+	background: rgba(245, 63, 63, 0.12);
+	color: #cb2634;
 }
 
 @media (max-width: 1440px) {
@@ -1109,6 +1734,11 @@ watch(
 	.panel-snapshot {
 		grid-column: span 6;
 	}
+
+	.trend-briefs,
+	.health-overview {
+		grid-template-columns: repeat(2, minmax(0, 1fr));
+	}
 }
 
 @media (max-width: 1180px) {
@@ -1128,6 +1758,10 @@ watch(
 	.health-list {
 		grid-template-columns: 1fr;
 	}
+
+	.resource-list {
+		grid-template-columns: 1fr;
+	}
 }
 
 @media (max-width: 767px) {
@@ -1144,9 +1778,15 @@ watch(
 	.hero-head,
 	.panel-head,
 	.side-top,
+	.focus-summary__head,
+	.side-card__head,
 	.summary-head,
 	.notice-item,
-	.health-item {
+	.health-item,
+	.status-score,
+	.resource-item,
+	.recommendation-item__head,
+	.quick-item__top {
 		flex-direction: column;
 	}
 
@@ -1158,13 +1798,20 @@ watch(
 	.hero-stats,
 	.quick-grid,
 	.mini-grid,
-	.snapshot-list,
+	.trend-briefs,
+	.health-overview,
+	.resource-list,
 	.breakdown-list {
 		grid-template-columns: 1fr;
 	}
 
 	.health-meta {
 		align-items: flex-start;
+	}
+
+	.status-score__ring {
+		width: 92px;
+		height: 92px;
 	}
 
 	.chart-xl {

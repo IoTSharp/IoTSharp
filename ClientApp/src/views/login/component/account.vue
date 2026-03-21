@@ -1,60 +1,85 @@
 <template>
 	<div class="account-login">
 		<div class="account-login__tip">
-			<div class="account-login__tip-title">管理员入口</div>
-			<div class="account-login__tip-text">默认管理员账号已预填。输入初始化后的密码并完成滑块拼图验证后，即可进入控制台。</div>
+			<div class="account-login__tip-head">
+				<div>
+					<div class="account-login__tip-title">管理员入口</div>
+					<div class="account-login__tip-text">
+						默认管理员账号已预填。输入初始化后的密码并完成滑块拼图验证后，即可进入控制台首页。
+					</div>
+				</div>
+				<div class="account-login__tip-badge">Secure Access</div>
+			</div>
+
+			<div class="account-login__tip-grid">
+				<div class="account-login__tip-item">
+					<span>预设账号</span>
+					<strong>{{ ruleForm.userName }}</strong>
+				</div>
+				<div class="account-login__tip-item">
+					<span>验证方式</span>
+					<strong>滑块拼图</strong>
+				</div>
+				<div class="account-login__tip-item">
+					<span>进入后</span>
+					<strong>控制台工作台</strong>
+				</div>
+			</div>
 		</div>
 
-		<el-form class="account-login__form" size="large" @submit.prevent="onSignIn">
-			<el-form-item class="account-login__field account-login__field--1">
-				<div class="account-login__label">用户名</div>
-				<el-input
-					v-model="ruleForm.userName"
-					type="text"
-					placeholder="请输入用户名"
-					clearable
-					autocomplete="username"
-					@keyup.enter="onSignIn"
-				>
-					<template #prefix>
-						<el-icon class="el-input__icon"><ele-User /></el-icon>
-					</template>
-				</el-input>
-			</el-form-item>
+		<div class="account-login__form-card">
+			<el-form class="account-login__form" size="large" @submit.prevent="onSignIn">
+				<el-form-item class="account-login__field account-login__field--1">
+					<div class="account-login__label">用户名</div>
+					<el-input
+						v-model="ruleForm.userName"
+						type="text"
+						placeholder="请输入用户名"
+						clearable
+						autocomplete="username"
+						@keyup.enter="onSignIn"
+					>
+						<template #prefix>
+							<el-icon class="el-input__icon"><ele-User /></el-icon>
+						</template>
+					</el-input>
+				</el-form-item>
 
-			<el-form-item class="account-login__field account-login__field--2">
-				<div class="account-login__label">密码</div>
-				<el-input
-					v-model="ruleForm.password"
-					:type="isShowPassword ? 'text' : 'password'"
-					placeholder="请输入密码"
-					autocomplete="current-password"
-					@keyup.enter="onSignIn"
-				>
-					<template #prefix>
-						<el-icon class="el-input__icon"><ele-Unlock /></el-icon>
-					</template>
-					<template #suffix>
-						<i
-							class="iconfont el-input__icon account-login__password-toggle"
-							:class="isShowPassword ? 'icon-yincangmima' : 'icon-xianshimima'"
-							@click="isShowPassword = !isShowPassword"
-						></i>
-					</template>
-				</el-input>
-			</el-form-item>
+				<el-form-item class="account-login__field account-login__field--2">
+					<div class="account-login__label">密码</div>
+					<el-input
+						v-model="ruleForm.password"
+						:type="isShowPassword ? 'text' : 'password'"
+						placeholder="请输入密码"
+						autocomplete="current-password"
+						@keyup.enter="onSignIn"
+					>
+						<template #prefix>
+							<el-icon class="el-input__icon"><ele-Unlock /></el-icon>
+						</template>
+						<template #suffix>
+							<i
+								class="iconfont el-input__icon account-login__password-toggle"
+								:class="isShowPassword ? 'icon-yincangmima' : 'icon-xianshimima'"
+								@click="isShowPassword = !isShowPassword"
+							></i>
+						</template>
+					</el-input>
+					<div class="account-login__helper">请使用初始化时设置的管理员密码。</div>
+				</el-form-item>
 
-			<el-form-item class="account-login__field account-login__field--3">
-				<div class="account-login__actions">
-					<div class="account-login__meta">
-						<div>登录前需要完成一次滑块拼图验证，验证通过后会自动提交登录。</div>
-						<div class="account-login__meta-user">预设账号：{{ ruleForm.userName }}</div>
+				<el-form-item class="account-login__field account-login__field--3">
+					<div class="account-login__actions">
+						<div class="account-login__meta">
+							<div>登录前需要先完成一次安全校验，验证通过后系统会自动提交登录。</div>
+							<div class="account-login__meta-user">管理员账号已就绪</div>
+						</div>
+						<el-button type="primary" class="account-login__submit" native-type="submit" :loading="loading.signIn">
+							登录控制台
+						</el-button>
 					</div>
-					<el-button type="primary" class="account-login__submit" native-type="submit" :loading="loading.signIn">
-						登录控制台
-					</el-button>
-				</div>
-			</el-form-item>
+				</el-form-item>
+			</el-form>
 
 			<div class="account-login__signup">
 				<span>还没有账号？</span>
@@ -62,7 +87,7 @@
 					<el-link type="primary" underline="never">立即注册</el-link>
 				</router-link>
 			</div>
-		</el-form>
+		</div>
 
 		<el-dialog
 			v-model="dialogVisible"
@@ -112,14 +137,14 @@ import { useRoute, useRouter } from 'vue-router';
 import { ElMessage } from 'element-plus';
 import { storeToRefs } from 'pinia';
 import { useI18n } from 'vue-i18n';
-import { useThemeConfig } from '/@/stores/themeConfig';
-import { initFrontEndControlRoutes } from '/@/router/frontEnd';
-import { initBackEndControlRoutes } from '/@/router/backEnd';
-import { Session } from '/@/utils/storage';
-import { formatAxis } from '/@/utils/formatTime';
-import { NextLoading } from '/@/utils/loading';
 import { useCaptchaApi } from '/@/api/captcha';
 import { useLoginApi } from '/@/api/login';
+import { initBackEndControlRoutes } from '/@/router/backEnd';
+import { initFrontEndControlRoutes } from '/@/router/frontEnd';
+import { useThemeConfig } from '/@/stores/themeConfig';
+import { formatAxis } from '/@/utils/formatTime';
+import { NextLoading } from '/@/utils/loading';
+import { Session } from '/@/utils/storage';
 
 const CAPTCHA_SUCCESS_CODE = 10000;
 const LOGIN_ERROR_CODE = 10001;
@@ -204,7 +229,9 @@ const resetCaptchaState = () => {
 };
 
 const updateCaptchaReady = () => {
-	captcha.ready = Boolean(captcha.bigImage && captcha.smallImage && captcha.imageWidth && captcha.imageHeight && captcha.pieceWidth && captcha.pieceHeight);
+	captcha.ready = Boolean(
+		captcha.bigImage && captcha.smallImage && captcha.imageWidth && captcha.imageHeight && captcha.pieceWidth && captcha.pieceHeight
+	);
 };
 
 const refreshCaptcha = async () => {
@@ -336,7 +363,7 @@ const signInSuccess = () => {
 	if (redirect) {
 		router.push({
 			path: redirect,
-			query: params ? JSON.parse(params) : '',
+			query: params ? JSON.parse(params) : undefined,
 		});
 	} else {
 		router.push('/dashboard');
@@ -354,11 +381,28 @@ const signInSuccess = () => {
 	gap: 22px;
 }
 
+.account-login__tip,
+.account-login__form-card {
+	padding: 18px 20px;
+	border-radius: 24px;
+	border: 1px solid rgba(226, 232, 240, 0.9);
+	background: linear-gradient(180deg, rgba(248, 251, 255, 0.94), rgba(255, 255, 255, 0.98));
+}
+
 .account-login__tip {
-	padding: 16px 18px;
-	border-radius: 22px;
-	border: 1px solid rgba(37, 99, 235, 0.12);
-	background: linear-gradient(135deg, rgba(37, 99, 235, 0.08), rgba(14, 165, 233, 0.08));
+	background:
+		radial-gradient(circle at top right, rgba(96, 165, 250, 0.12), transparent 34%),
+		linear-gradient(135deg, rgba(37, 99, 235, 0.06), rgba(14, 165, 233, 0.08));
+}
+
+.account-login__tip-head,
+.account-login__meta,
+.account-login__signup,
+.captcha-shell__footer {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 12px;
 }
 
 .account-login__tip-title {
@@ -372,6 +416,49 @@ const signInSuccess = () => {
 	color: #5f7289;
 	font-size: 13px;
 	line-height: 1.7;
+}
+
+.account-login__tip-badge {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	height: 32px;
+	padding: 0 12px;
+	border-radius: 999px;
+	border: 1px solid rgba(37, 99, 235, 0.12);
+	background: rgba(255, 255, 255, 0.66);
+	color: #2563eb;
+	font-size: 12px;
+	font-weight: 700;
+	white-space: nowrap;
+}
+
+.account-login__tip-grid {
+	display: grid;
+	grid-template-columns: repeat(3, minmax(0, 1fr));
+	gap: 12px;
+	margin-top: 16px;
+}
+
+.account-login__tip-item {
+	padding: 14px 16px;
+	border-radius: 18px;
+	border: 1px solid rgba(255, 255, 255, 0.72);
+	background: rgba(255, 255, 255, 0.78);
+}
+
+.account-login__tip-item span {
+	display: block;
+	color: #64748b;
+	font-size: 12px;
+}
+
+.account-login__tip-item strong {
+	display: block;
+	margin-top: 10px;
+	color: #123b6d;
+	font-size: 15px;
+	font-weight: 700;
 }
 
 .account-login__form {
@@ -391,6 +478,13 @@ const signInSuccess = () => {
 	font-weight: 600;
 }
 
+.account-login__helper {
+	margin-top: 8px;
+	color: #7c8da1;
+	font-size: 12px;
+	line-height: 1.6;
+}
+
 .account-login__actions {
 	display: flex;
 	flex-direction: column;
@@ -399,20 +493,17 @@ const signInSuccess = () => {
 }
 
 .account-login__meta {
-	display: flex;
-	align-items: center;
-	justify-content: space-between;
-	gap: 12px;
+	flex-wrap: wrap;
 	color: #68819d;
 	font-size: 12px;
-	flex-wrap: wrap;
 }
 
 .account-login__meta-user {
 	padding: 6px 10px;
 	border-radius: 999px;
-	background: rgba(15, 23, 42, 0.05);
-	color: #475569;
+	background: rgba(37, 99, 235, 0.08);
+	color: #2563eb;
+	font-weight: 600;
 }
 
 .account-login__submit {
@@ -425,11 +516,9 @@ const signInSuccess = () => {
 }
 
 .account-login__signup {
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	gap: 6px;
-	margin-top: 4px;
+	margin-top: 2px;
+	padding-top: 16px;
+	border-top: 1px solid rgba(226, 232, 240, 0.9);
 	color: #68819d;
 	font-size: 13px;
 }
@@ -510,30 +599,31 @@ const signInSuccess = () => {
 }
 
 .captcha-shell__footer {
-	display: flex;
-	align-items: center;
-	justify-content: space-between;
-	gap: 12px;
 	margin-top: 8px;
 	color: #64748b;
 	font-size: 12px;
 }
 
-@for $i from 1 through 3 {
-	.account-login__field--#{$i} {
-		opacity: 0;
-		animation-name: error-num;
-		animation-duration: 0.5s;
-		animation-fill-mode: forwards;
-		animation-delay: calc($i / 10) + s;
-	}
+:deep(.el-input__wrapper) {
+	min-height: 48px;
+	border-radius: 14px;
+}
+
+:deep(.account-login__verify-dialog .el-dialog) {
+	border-radius: 24px;
 }
 
 @media (max-width: 767px) {
+	.account-login__tip-head,
 	.account-login__meta,
+	.account-login__signup,
 	.captcha-shell__footer {
 		flex-direction: column;
 		align-items: flex-start;
+	}
+
+	.account-login__tip-grid {
+		grid-template-columns: 1fr;
 	}
 }
 </style>

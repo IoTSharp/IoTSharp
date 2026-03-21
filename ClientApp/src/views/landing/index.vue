@@ -10,6 +10,7 @@
 				<a href="#features">核心能力</a>
 				<a href="#scenarios">应用场景</a>
 				<a href="#console">控制台</a>
+				<a href="#start">开始使用</a>
 			</nav>
 
 			<div class="landing-header__actions">
@@ -170,6 +171,27 @@
 					</div>
 				</div>
 			</section>
+
+			<section class="landing-section landing-section--start" id="start">
+				<div class="landing-section__header">
+					<div>
+						<div class="landing-section__eyebrow">Get Started</div>
+						<h2>把首页、认证和初始化流程连成一条清晰路径。</h2>
+					</div>
+					<p>从了解平台，到创建账号、初始化系统，再到进入控制台，未登录态现在也保持同一套视觉秩序。</p>
+				</div>
+
+				<div class="landing-start-grid">
+					<RouterLink v-for="item in getStartedCards" :key="item.title" class="landing-start-card" :to="item.to">
+						<div class="landing-start-card__head">
+							<span class="landing-start-card__badge">{{ item.step }}</span>
+							<span class="landing-start-card__link">{{ item.linkText }}</span>
+						</div>
+						<h3>{{ item.title }}</h3>
+						<p>{{ item.description }}</p>
+					</RouterLink>
+				</div>
+			</section>
 		</main>
 	</div>
 </template>
@@ -196,6 +218,12 @@ const consoleCards = [
 	{ label: '在线率', value: '89%', caption: '设备连接稳定性持续监控' },
 	{ label: '告警数', value: '12', caption: '需要优先处理的告警设备' },
 	{ label: '平均响应', value: '126ms', caption: '核心接口与服务访问延迟' },
+];
+
+const getStartedCards = [
+	{ step: 'Step 01', title: '创建账号', description: '先注册管理员和工作区，准备好租户基础环境。', to: '/signup', linkText: '去注册' },
+	{ step: 'Step 02', title: '初始化系统', description: '如果是全新部署，可先完成系统初始化，再回到认证入口登录。', to: '/installer', linkText: '去初始化' },
+	{ step: 'Step 03', title: '登录控制台', description: '使用管理员入口进入新的工作台首页，查看重点事项、评分和趋势。', to: '/login', linkText: '去登录' },
 ];
 </script>
 
@@ -667,6 +695,79 @@ const consoleCards = [
 	font-size: 13px;
 }
 
+.landing-start-grid {
+	display: grid;
+	grid-template-columns: repeat(3, minmax(0, 1fr));
+	gap: 18px;
+}
+
+.landing-start-card {
+	display: flex;
+	flex-direction: column;
+	gap: 14px;
+	padding: 24px;
+	border-radius: 28px;
+	border: 1px solid rgba(191, 219, 254, 0.58);
+	background:
+		radial-gradient(circle at top right, rgba(191, 219, 254, 0.22), transparent 34%),
+		rgba(255, 255, 255, 0.9);
+	box-shadow: 0 24px 48px rgba(148, 163, 184, 0.12);
+	color: inherit;
+	text-decoration: none;
+	transition:
+		transform 0.2s ease,
+		box-shadow 0.2s ease,
+		border-color 0.2s ease;
+}
+
+.landing-start-card:hover {
+	transform: translateY(-3px);
+	border-color: rgba(37, 99, 235, 0.28);
+	box-shadow: 0 28px 54px rgba(37, 99, 235, 0.12);
+}
+
+.landing-start-card__head {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 12px;
+}
+
+.landing-start-card__badge,
+.landing-start-card__link {
+	display: inline-flex;
+	align-items: center;
+	min-height: 30px;
+	padding: 0 12px;
+	border-radius: 999px;
+	font-size: 12px;
+	font-weight: 700;
+	white-space: nowrap;
+}
+
+.landing-start-card__badge {
+	background: rgba(37, 99, 235, 0.08);
+	color: #2563eb;
+}
+
+.landing-start-card__link {
+	background: rgba(255, 255, 255, 0.96);
+	border: 1px solid rgba(191, 219, 254, 0.62);
+	color: #123b6d;
+}
+
+.landing-start-card h3 {
+	margin: 0;
+	font-size: 24px;
+	letter-spacing: -0.04em;
+}
+
+.landing-start-card p {
+	margin: 0;
+	color: #64748b;
+	line-height: 1.8;
+}
+
 @media (max-width: 1100px) {
 	.landing-header {
 		flex-wrap: wrap;
@@ -682,6 +783,10 @@ const consoleCards = [
 	}
 
 	.landing-scenarios {
+		grid-template-columns: 1fr;
+	}
+
+	.landing-start-grid {
 		grid-template-columns: 1fr;
 	}
 
@@ -706,6 +811,7 @@ const consoleCards = [
 
 	.landing-hero__metrics,
 	.landing-grid,
+	.landing-start-grid,
 	.landing-console-preview__cards,
 	.landing-console-card__body {
 		grid-template-columns: 1fr;
