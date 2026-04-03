@@ -1,0 +1,298 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "IoTSharp: Development",
+      "type": "coreclr",
+      "request": "launch",
+      "preLaunchTask": "build IoTSharp",
+      "program": "${workspaceFolder}/IoTSharp/bin/Debug/net10.0/IoTSharp.dll",
+      "args": [],
+      "cwd": "${workspaceFolder}/IoTSharp",
+      "stopAtEntry": false,
+      "console": "internalConsole",
+      "serverReadyAction": {
+        "action": "openExternally",
+        "pattern": "\\bNow listening on:\\s+(https?://\\S+)"
+      },
+      "env": {
+        "ASPNETCORE_ENVIRONMENT": "Development",
+        "ASPNETCORE_HOSTINGSTARTUPASSEMBLIES": "Microsoft.AspNetCore.SpaProxy",
+        "ASPNETCORE_URLS": "http://localhost:5000"
+      }
+    },
+    {
+      "name": "IoTSharp: Development API",
+      "type": "coreclr",
+      "request": "launch",
+      "preLaunchTask": "build IoTSharp",
+      "program": "${workspaceFolder}/IoTSharp/bin/Debug/net10.0/IoTSharp.dll",
+      "args": [],
+      "cwd": "${workspaceFolder}/IoTSharp",
+      "stopAtEntry": false,
+      "console": "internalConsole",
+      "env": {
+        "ASPNETCORE_ENVIRONMENT": "Development",
+        "ASPNETCORE_HOSTINGSTARTUPASSEMBLIES": "Microsoft.AspNetCore.SpaProxy",
+        "ASPNETCORE_URLS": "http://localhost:5000"
+      }
+    },
+    {
+      "name": "ClientApp: Vite Dev Server",
+      "type": "node-terminal",
+      "request": "launch",
+      "command": "npm run dev",
+      "cwd": "${workspaceFolder}/ClientApp"
+    },
+    {
+      "name": "IoTSharp: MySql",
+      "type": "coreclr",
+      "request": "launch",
+      "preLaunchTask": "build IoTSharp",
+      "program": "${workspaceFolder}/IoTSharp/bin/Debug/net10.0/IoTSharp.dll",
+      "args": [],
+      "cwd": "${workspaceFolder}/IoTSharp",
+      "stopAtEntry": false,
+      "console": "internalConsole",
+      "serverReadyAction": {
+        "action": "openExternally",
+        "pattern": "\\bNow listening on:\\s+(https?://\\S+)"
+      },
+      "env": {
+        "ASPNETCORE_ENVIRONMENT": "MySql",
+        "ASPNETCORE_HOSTINGSTARTUPASSEMBLIES": "Microsoft.AspNetCore.SpaProxy",
+        "ASPNETCORE_URLS": "http://localhost:5000"
+      }
+    },
+    {
+      "name": "IoTSharp: Oracle",
+      "type": "coreclr",
+      "request": "launch",
+      "preLaunchTask": "build IoTSharp",
+      "program": "${workspaceFolder}/IoTSharp/bin/Debug/net10.0/IoTSharp.dll",
+      "args": [],
+      "cwd": "${workspaceFolder}/IoTSharp",
+      "stopAtEntry": false,
+      "console": "internalConsole",
+      "serverReadyAction": {
+        "action": "openExternally",
+        "pattern": "\\bNow listening on:\\s+(https?://\\S+)"
+      },
+      "env": {
+        "ASPNETCORE_ENVIRONMENT": "Oracle",
+        "ASPNETCORE_HOSTINGSTARTUPASSEMBLIES": "Microsoft.AspNetCore.SpaProxy",
+        "ASPNETCORE_URLS": "http://localhost:5000"
+      }
+    },
+    {
+      "name": "IoTSharp: PostgreSql",
+      "type": "coreclr",
+      "request": "launch",
+      "preLaunchTask": "build IoTSharp",
+      "program": "${workspaceFolder}/IoTSharp/bin/Debug/net10.0/IoTSharp.dll",
+      "args": [],
+      "cwd": "${workspaceFolder}/IoTSharp",
+      "stopAtEntry": false,
+      "console": "internalConsole",
+      "serverReadyAction": {
+        "action": "openExternally",
+        "pattern": "\\bNow listening on:\\s+(https?://\\S+)"
+      },
+      "env": {
+        "ASPNETCORE_ENVIRONMENT": "PostgreSql",
+        "ASPNETCORE_HOSTINGSTARTUPASSEMBLIES": "Microsoft.AspNetCore.SpaProxy",
+        "IOTSHARP_ACME": "true",
+        "ASPNETCORE_URLS": "http://localhost:5000;https://localhost:5001"
+      }
+    },
+    {
+      "name": "IoTSharp: Production",
+      "type": "coreclr",
+      "request": "launch",
+      "preLaunchTask": "build IoTSharp",
+      "program": "${workspaceFolder}/IoTSharp/bin/Debug/net10.0/IoTSharp.dll",
+      "args": [],
+      "cwd": "${workspaceFolder}/IoTSharp",
+      "stopAtEntry": false,
+      "console": "internalConsole",
+      "serverReadyAction": {
+        "action": "openExternally",
+        "pattern": "\\bNow listening on:\\s+(https?://\\S+)"
+      },
+      "env": {
+        "ASPNETCORE_ENVIRONMENT": "Production",
+        "ASPNETCORE_URLS": "http://localhost:5000"
+      }
+    },
+    {
+      "name": "IoTSharp: TimescaleDB",
+      "type": "coreclr",
+      "request": "launch",
+      "preLaunchTask": "build IoTSharp",
+      "program": "${workspaceFolder}/IoTSharp/bin/Debug/net10.0/IoTSharp.dll",
+      "args": [],
+      "cwd": "${workspaceFolder}/IoTSharp",
+      "stopAtEntry": false,
+      "console": "internalConsole",
+      "serverReadyAction": {
+        "action": "openExternally",
+        "pattern": "\\bNow listening on:\\s+(https?://\\S+)"
+      },
+      "env": {
+        "ASPNETCORE_ENVIRONMENT": "TimescaleDB",
+        "ASPNETCORE_HOSTINGSTARTUPASSEMBLIES": "Microsoft.AspNetCore.SpaProxy",
+        "ASPNETCORE_URLS": "http://localhost:5000"
+      }
+    },
+    {
+      "name": "IoTSharp: Sqlite",
+      "type": "coreclr",
+      "request": "launch",
+      "preLaunchTask": "build IoTSharp",
+      "program": "${workspaceFolder}/IoTSharp/bin/Debug/net10.0/IoTSharp.dll",
+      "args": [],
+      "cwd": "${workspaceFolder}/IoTSharp",
+      "stopAtEntry": false,
+      "console": "internalConsole",
+      "serverReadyAction": {
+        "action": "openExternally",
+        "pattern": "\\bNow listening on:\\s+(https?://\\S+)"
+      },
+      "env": {
+        "ASPNETCORE_ENVIRONMENT": "Sqlite",
+        "ASPNETCORE_HOSTINGSTARTUPASSEMBLIES": "Microsoft.AspNetCore.SpaProxy",
+        "ASPNETCORE_URLS": "http://localhost:5000"
+      }
+    },
+    {
+      "name": "IoTSharp: Cassandra",
+      "type": "coreclr",
+      "request": "launch",
+      "preLaunchTask": "build IoTSharp",
+      "program": "${workspaceFolder}/IoTSharp/bin/Debug/net10.0/IoTSharp.dll",
+      "args": [],
+      "cwd": "${workspaceFolder}/IoTSharp",
+      "stopAtEntry": false,
+      "console": "internalConsole",
+      "serverReadyAction": {
+        "action": "openExternally",
+        "pattern": "\\bNow listening on:\\s+(https?://\\S+)"
+      },
+      "env": {
+        "ASPNETCORE_ENVIRONMENT": "Cassandra",
+        "ASPNETCORE_HOSTINGSTARTUPASSEMBLIES": "Microsoft.AspNetCore.SpaProxy",
+        "ASPNETCORE_URLS": "http://localhost:5000"
+      }
+    },
+    {
+      "name": "IoTSharp: ClickHouse",
+      "type": "coreclr",
+      "request": "launch",
+      "preLaunchTask": "build IoTSharp",
+      "program": "${workspaceFolder}/IoTSharp/bin/Debug/net10.0/IoTSharp.dll",
+      "args": [],
+      "cwd": "${workspaceFolder}/IoTSharp",
+      "stopAtEntry": false,
+      "console": "internalConsole",
+      "serverReadyAction": {
+        "action": "openExternally",
+        "pattern": "\\bNow listening on:\\s+(https?://\\S+)"
+      },
+      "env": {
+        "ASPNETCORE_ENVIRONMENT": "ClickHouse",
+        "ASPNETCORE_HOSTINGSTARTUPASSEMBLIES": "Microsoft.AspNetCore.SpaProxy",
+        "ASPNETCORE_URLS": "http://localhost:5000"
+      }
+    },
+    {
+      "name": "IoTSharp: InMemory",
+      "type": "coreclr",
+      "request": "launch",
+      "preLaunchTask": "build IoTSharp",
+      "program": "${workspaceFolder}/IoTSharp/bin/Debug/net10.0/IoTSharp.dll",
+      "args": [],
+      "cwd": "${workspaceFolder}/IoTSharp",
+      "stopAtEntry": false,
+      "console": "internalConsole",
+      "serverReadyAction": {
+        "action": "openExternally",
+        "pattern": "\\bNow listening on:\\s+(https?://\\S+)"
+      },
+      "env": {
+        "ASPNETCORE_ENVIRONMENT": "InMemory",
+        "ASPNETCORE_HOSTINGSTARTUPASSEMBLIES": "Microsoft.AspNetCore.SpaProxy",
+        "ASPNETCORE_URLS": "http://localhost:5000"
+      }
+    },
+    {
+      "name": "IoTSharp: SQLServer",
+      "type": "coreclr",
+      "request": "launch",
+      "preLaunchTask": "build IoTSharp",
+      "program": "${workspaceFolder}/IoTSharp/bin/Debug/net10.0/IoTSharp.dll",
+      "args": [],
+      "cwd": "${workspaceFolder}/IoTSharp",
+      "stopAtEntry": false,
+      "console": "internalConsole",
+      "serverReadyAction": {
+        "action": "openExternally",
+        "pattern": "\\bNow listening on:\\s+(https?://\\S+)"
+      },
+      "env": {
+        "ASPNETCORE_ENVIRONMENT": "SQLServer",
+        "ASPNETCORE_HOSTINGSTARTUPASSEMBLIES": "Microsoft.AspNetCore.SpaProxy",
+        "ASPNETCORE_URLS": "http://localhost:5000"
+      }
+    },
+    {
+      "name": "IoTSharp: Taos",
+      "type": "coreclr",
+      "request": "launch",
+      "preLaunchTask": "build IoTSharp",
+      "program": "${workspaceFolder}/IoTSharp/bin/Debug/net10.0/IoTSharp.dll",
+      "args": [],
+      "cwd": "${workspaceFolder}/IoTSharp",
+      "stopAtEntry": false,
+      "console": "internalConsole",
+      "serverReadyAction": {
+        "action": "openExternally",
+        "pattern": "\\bNow listening on:\\s+(https?://\\S+)"
+      },
+      "env": {
+        "ASPNETCORE_ENVIRONMENT": "Taos",
+        "ASPNETCORE_HOSTINGSTARTUPASSEMBLIES": "Microsoft.AspNetCore.SpaProxy",
+        "ASPNETCORE_URLS": "http://localhost:5000"
+      }
+    },
+    {
+      "name": "IoTSharp: InfluxDB",
+      "type": "coreclr",
+      "request": "launch",
+      "preLaunchTask": "build IoTSharp",
+      "program": "${workspaceFolder}/IoTSharp/bin/Debug/net10.0/IoTSharp.dll",
+      "args": [],
+      "cwd": "${workspaceFolder}/IoTSharp",
+      "stopAtEntry": false,
+      "console": "internalConsole",
+      "serverReadyAction": {
+        "action": "openExternally",
+        "pattern": "\\bNow listening on:\\s+(https?://\\S+)"
+      },
+      "env": {
+        "ASPNETCORE_ENVIRONMENT": "InfluxDB",
+        "ASPNETCORE_HOSTINGSTARTUPASSEMBLIES": "Microsoft.AspNetCore.SpaProxy",
+        "ASPNETCORE_URLS": "http://localhost:5000"
+      }
+    }
+  ],
+  "compounds": [
+    {
+      "name": "IoTSharp: Full Stack (Development)",
+      "configurations": [
+        "ClientApp: Vite Dev Server",
+        "IoTSharp: Development API"
+      ],
+      "stopAll": true
+    }
+  ]
+}
