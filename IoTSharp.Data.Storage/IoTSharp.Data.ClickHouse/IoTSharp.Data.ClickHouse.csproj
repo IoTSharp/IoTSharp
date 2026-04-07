@@ -12,9 +12,9 @@
 	<ItemGroup>
 	 
  
-		<PackageReference Include="AspNetCore.HealthChecks.UI.Core" Version="9.0.0" />
+		<PackageReference Include="DotNetDiag.HealthChecks.UI.Core" Version="10.0.3" />
 		<PackageReference Include="EntityFrameworkCore.ClickHouse" Version="3.0.3" />
-		<PackageReference Include="IoTSharp.HealthChecks.ClickHouse" Version="10.0.1" />
+		<PackageReference Include="DotNetDiag.HealthChecks.ClickHouse" Version="10.0.4" />
  
 	</ItemGroup>
   <ItemGroup>

@@ -5,8 +5,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="AspNetCore.HealthChecks.SqlServer" Version="9.0.0" />
-    <PackageReference Include="AspNetCore.HealthChecks.UI.SqlServer.Storage" Version="9.0.0" />
+    <PackageReference Include="DotNetDiag.HealthChecks.SqlServer" Version="10.0.4" />
+    <PackageReference Include="DotNetDiag.HealthChecks.UI.SqlServer.Storage" Version="10.0.3" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="10.0.*" />
   </ItemGroup>
 

@@ -6,10 +6,10 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 	<ItemGroup>
-		<PackageReference Include="AspNetCore.HealthChecks.NpgSql" Version="9.0.0" />
+		<PackageReference Include="DotNetDiag.HealthChecks.NpgSql" Version="10.0.4" />
 		<PackageReference Include="EasyCaching.Core" Version="1.9.2" />
-		<PackageReference Include="AspNetCore.HealthChecks.Kafka" Version="9.0.0" />
-		<PackageReference Include="AspNetCore.HealthChecks.Rabbitmq" Version="9.0.0" />
+		<PackageReference Include="DotNetDiag.HealthChecks.Kafka" Version="10.0.4" />
+		<PackageReference Include="DotNetDiag.HealthChecks.Rabbitmq" Version="10.0.4" />
 		<PackageReference Include="Shashlik.EventBus" Version="2.3.1" />
 		<PackageReference Include="Shashlik.EventBus.Kafka" Version="2.3.1" />
 		<PackageReference Include="Shashlik.EventBus.MemoryQueue" Version="2.3.1" />

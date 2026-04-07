@@ -47,9 +47,9 @@
 	</PropertyGroup>
 	<ItemGroup>
 
-		<PackageReference Include="AspNetCore.HealthChecks.System" Version="9.0.0" />
-		<PackageReference Include="AspNetCore.HealthChecks.UI" Version="9.0.0" />
-		<PackageReference Include="AspNetCore.HealthChecks.UI.Client" Version="9.0.0" />
+		<PackageReference Include="DotNetDiag.HealthChecks.System" Version="10.0.4" />
+		<PackageReference Include="DotNetDiag.HealthChecks.UI" Version="10.0.3" />
+		<PackageReference Include="DotNetDiag.HealthChecks.UI.Client" Version="10.0.3" />
 		<PackageReference Include="AutoMapper" Version="16.1.1" />
 		<PackageReference Include="EasyCaching.InMemory" Version="1.9.2" />
 		<PackageReference Include="EasyCaching.LiteDB" Version="1.9.2" />
