@@ -5,9 +5,9 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="AspNetCore.HealthChecks.MySql" Version="9.0.0" />
-    <PackageReference Include="AspNetCore.HealthChecks.UI.Core" Version="9.0.0" />
-    <PackageReference Include="AspNetCore.HealthChecks.UI.MySql.Storage" Version="9.0.0" />
+    <PackageReference Include="DotNetDiag.HealthChecks.MySql" Version="10.0.4" />
+    <PackageReference Include="DotNetDiag.HealthChecks.UI.Core" Version="10.0.3" />
+    <PackageReference Include="DotNetDiag.HealthChecks.UI.MySql.Storage" Version="10.0.3" />
     <PackageReference Include="Microsoft.Extensions.Diagnostics.HealthChecks" Version="10.0.*" />
     <PackageReference Include="Microting.EntityFrameworkCore.MySql" Version="10.0.5" />
   </ItemGroup>

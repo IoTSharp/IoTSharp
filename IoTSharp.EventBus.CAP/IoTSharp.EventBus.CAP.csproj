@@ -6,7 +6,7 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 	<ItemGroup>
-		<PackageReference Include="AspNetCore.HealthChecks.NpgSql" Version="9.0.0" />
+		<PackageReference Include="DotNetDiag.HealthChecks.NpgSql" Version="10.0.4" />
 		<PackageReference Include="CAP.Extensions" Version="1.0.37" />
 		<PackageReference Include="DotNetCore.CAP.Dashboard" Version="10.0.*" />
 		<PackageReference Include="DotNetCore.CAP.InMemoryStorage" Version="10.0.*" />
@@ -22,10 +22,10 @@
 		<PackageReference Include="DotNetCore.CAP.RedisStreams" Version="10.0.*" />
 		<PackageReference Include="DotNetCore.CAP.Pulsar" Version="10.0.*" />
 		<PackageReference Include="EasyCaching.Core" Version="1.9.2" />
-		<PackageReference Include="AspNetCore.HealthChecks.Kafka" Version="9.0.0" />
-		<PackageReference Include="AspNetCore.HealthChecks.MongoDb" Version="9.0.0" />
-		<PackageReference Include="AspNetCore.HealthChecks.Rabbitmq" Version="9.0.0" />
-		<PackageReference Include="AspNetCore.HealthChecks.Redis" Version="9.0.0" />
+		<PackageReference Include="DotNetDiag.HealthChecks.Kafka" Version="10.0.4" />
+		<PackageReference Include="DotNetDiag.HealthChecks.MongoDb" Version="10.0.4" />
+		<PackageReference Include="DotNetDiag.HealthChecks.Rabbitmq" Version="10.0.4" />
+		<PackageReference Include="DotNetDiag.HealthChecks.Redis" Version="10.0.4" />
 		<PackageReference Include="MaiKeBing.CAP.ZeroMQ" Version="1.0.37" />
 		<PackageReference Include="MaiKeBing.CAP.LiteDB" Version="1.0.37" />
 		<PackageReference Include="MaiKeBing.HostedService.ZeroMQ" Version="1.0.37" />
