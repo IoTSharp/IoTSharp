@@ -161,7 +161,8 @@
       "env": {
         "ASPNETCORE_ENVIRONMENT": "Sqlite",
         "ASPNETCORE_HOSTINGSTARTUPASSEMBLIES": "Microsoft.AspNetCore.SpaProxy",
-        "ASPNETCORE_URLS": "http://localhost:5000"
+        "ASPNETCORE_URLS": "http://localhost:5000",
+        "Logging__EventLog__LogLevel__Default": "None"
       }
     },
     {

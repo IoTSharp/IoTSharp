@@ -27,7 +27,7 @@ export const defaultThemeConfig: ThemeConfigState['themeConfig'] = {
 	isShowLogo: true,
 	isShowLogoChange: false,
 	isBreadcrumb: true,
-	isTagsview: false,
+	isTagsview: true,
 	isBreadcrumbIcon: false,
 	isTagsviewIcon: false,
 	isCacheTagsView: false,

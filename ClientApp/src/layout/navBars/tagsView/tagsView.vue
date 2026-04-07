@@ -1,5 +1,8 @@
 <template>
-	<div class="layout-navbars-tagsview" :class="{ 'layout-navbars-tagsview-shadow': getThemeConfig.layout === 'classic' }">
+	<div
+		class="layout-navbars-tagsview"
+		:class="[variantClass, { 'layout-navbars-tagsview-shadow': getThemeConfig.layout === 'classic' && variant === 'shell' }]"
+	>
 		<el-scrollbar ref="scrollbarRef" @wheel.prevent="onHandleScroll">
 			<ul class="layout-navbars-tagsview-ul" :class="setTagsStyle" ref="tagsUlRef">
 				<li
@@ -105,7 +108,13 @@ interface CurrentContextmenu {
 export default defineComponent({
 	name: 'layoutTagsView',
 	components: { Contextmenu },
-	setup() {
+	props: {
+		variant: {
+			type: String,
+			default: 'shell',
+		},
+	},
+	setup(props) {
 		const { proxy } = <any>getCurrentInstance();
 		const tagsRefs = ref<any[]>([]);
 		const scrollbarRef = ref();
@@ -131,6 +140,9 @@ export default defineComponent({
 		// 动态设置 tagsView 风格样式
 		const setTagsStyle = computed(() => {
 			return themeConfig.value.tagsStyle;
+		});
+		const variantClass = computed(() => {
+			return `layout-navbars-tagsview--${props.variant}`;
 		});
 		// 获取布局配置信息
 		const getThemeConfig = computed(() => {
@@ -591,6 +603,7 @@ export default defineComponent({
 			onHandleScroll,
 			getThemeConfig,
 			setTagsStyle,
+			variantClass,
 			setTagsViewNameI18n,
 			refreshCurrentTagsView,
 			closeCurrentTagsView,
@@ -733,6 +746,29 @@ export default defineComponent({
 		}
 	}
 }
+
+.layout-navbars-tagsview--page {
+	border-top: 1px solid rgba(227, 234, 244, 0.96);
+	border-radius: 20px;
+	box-shadow: 0 14px 32px rgba(15, 23, 42, 0.04);
+
+	.layout-navbars-tagsview-ul {
+		height: 48px;
+		padding: 0 16px;
+	}
+
+	.layout-navbars-tagsview-ul-li {
+		height: 32px;
+		line-height: 32px;
+		margin-right: 10px;
+		border-radius: 12px;
+	}
+
+	.layout-navbars-tagsview-ul .is-active {
+		box-shadow: none;
+	}
+}
+
 .layout-navbars-tagsview-shadow {
 	box-shadow: 0 18px 38px rgba(15, 23, 42, 0.04);
 }

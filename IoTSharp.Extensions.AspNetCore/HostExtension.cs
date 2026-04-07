@@ -16,18 +16,26 @@ namespace Microsoft.Extensions.Hosting
 {
     public static class HostExtension
     {
+        public static bool ShouldUseWindowsService()
+        {
+            if (Environment.CommandLine.Contains("--usebasedirectory", StringComparison.OrdinalIgnoreCase))
+            {
+                return true;
+            }
+
+            if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            {
+                return false;
+            }
+
+            using var process = GetParent(Process.GetCurrentProcess());
+            return process != null && process.ProcessName.Equals("services", StringComparison.OrdinalIgnoreCase);
+        }
+
         public static IHostBuilder ConfigureWindowsServices(this IHostBuilder hostBuilder)
         {
-            bool IsWindowsService = false;
             Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
-            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-            {
-                using (var process = GetParent(Process.GetCurrentProcess()))
-                {
-                    IsWindowsService = process != null && process.ProcessName == "services";
-                }
-            }
-            if (Environment.CommandLine.Contains("--usebasedirectory") || (RuntimeInformation.IsOSPlatform(OSPlatform.Windows) && IsWindowsService))
+            if (ShouldUseWindowsService())
             {
                 hostBuilder.UseContentRoot(AppContext.BaseDirectory);
                 System.IO.Directory.SetCurrentDirectory(AppContext.BaseDirectory);
@@ -57,16 +65,8 @@ namespace Microsoft.Extensions.Hosting
 
         public static IWebHostBuilder UseContentRootAsEnv(this IWebHostBuilder hostBuilder)
         {
-            bool IsWindowsService = false;
             Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
-            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-            {
-                using (var process = GetParent(Process.GetCurrentProcess()))
-                {
-                    IsWindowsService = process != null && process.ProcessName == "services";
-                }
-            }
-            if (Environment.CommandLine.Contains("--usebasedirectory") || (RuntimeInformation.IsOSPlatform(OSPlatform.Windows) && IsWindowsService))
+            if (ShouldUseWindowsService())
             {
                 hostBuilder.UseContentRoot(AppContext.BaseDirectory);
             }
