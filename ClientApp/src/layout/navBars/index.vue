@@ -21,7 +21,7 @@ export default defineComponent({
 		// 是否显示 tagsView
 		const setShowTagsView = computed(() => {
 			let { layout, isTagsview } = themeConfig.value;
-			return layout !== 'classic' && isTagsview;
+			return !['classic', 'defaults'].includes(layout) && isTagsview;
 		});
 		return {
 			setShowTagsView,

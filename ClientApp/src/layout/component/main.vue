@@ -2,7 +2,8 @@
 	<el-main class="layout-main iotsharp-main">
 		<el-scrollbar ref="layoutScrollbarRef" class="iotsharp-main__scrollbar" :class="{ 'layout-scrollbar': !isImmersiveRoute }">
 			<div class="iotsharp-main__body" :class="{ 'iotsharp-main__body--immersive': isImmersiveRoute }">
-				<Breadcrumb v-if="!isImmersiveRoute" class="iotsharp-main__breadcrumb" />
+				<TagsView v-if="showPageTabs && !isImmersiveRoute" variant="page" class="iotsharp-main__tabs" />
+				<Breadcrumb v-else-if="!isImmersiveRoute" class="iotsharp-main__breadcrumb" />
 				<div class="iotsharp-main__content">
 					<LayoutParentView />
 				</div>
@@ -19,12 +20,13 @@ import { storeToRefs } from 'pinia';
 import { useThemeConfig } from '/@/stores/themeConfig';
 import { NextLoading } from '/@/utils/loading';
 import Breadcrumb from '/@/layout/navBars/breadcrumb/breadcrumb.vue';
+import TagsView from '/@/layout/navBars/tagsView/tagsView.vue';
 import LayoutParentView from '/@/layout/routerView/parent.vue';
 import Footer from '/@/layout/footer/index.vue';
 
 export default defineComponent({
 	name: 'layoutMain',
-	components: { Breadcrumb, LayoutParentView, Footer },
+	components: { Breadcrumb, TagsView, LayoutParentView, Footer },
 	setup() {
 		const { proxy } = <any>getCurrentInstance();
 		const storesThemeConfig = useThemeConfig();
@@ -36,6 +38,10 @@ export default defineComponent({
 
 		const isImmersiveRoute = computed(() => {
 			return !!(state.currentRouteMeta.isLink && state.currentRouteMeta.isIframe);
+		});
+
+		const showPageTabs = computed(() => {
+			return themeConfig.value.layout === 'defaults' && themeConfig.value.isTagsview;
 		});
 
 		const initGetMeta = () => {
@@ -69,6 +75,7 @@ export default defineComponent({
 		return {
 			themeConfig,
 			isImmersiveRoute,
+			showPageTabs,
 			...toRefs(state),
 		};
 	},
@@ -99,6 +106,7 @@ export default defineComponent({
 	padding: 0;
 }
 
+.iotsharp-main__tabs,
 .iotsharp-main__breadcrumb {
 	margin-bottom: 14px;
 }

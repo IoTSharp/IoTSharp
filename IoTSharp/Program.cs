@@ -12,6 +12,8 @@ using Microsoft.AspNetCore.Server.Kestrel.Https;
 using LettuceEncrypt;
 using LettuceEncrypt.Dns.Ali;
 using Figgle.Fonts;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.EventLog;
 
 namespace IoTSharp
 {
@@ -27,6 +29,16 @@ namespace IoTSharp
 
         public static IHostBuilder CreateHostBuilder(string[] args) =>
             Host.CreateDefaultBuilder(args)
+                .ConfigureLogging(logging =>
+                {
+                    // Keep EventLog available for real Windows Service hosting, but
+                    // avoid local debug startup failures when the current user cannot
+                    // write to the Windows Event Log source.
+                    if (!HostExtension.ShouldUseWindowsService())
+                    {
+                        logging.AddFilter<EventLogLoggerProvider>(level => false);
+                    }
+                })
                 .UseContentRoot(AppContext.BaseDirectory)
                 .ConfigureAppConfiguration((hostingContext, configuration) =>
                 {

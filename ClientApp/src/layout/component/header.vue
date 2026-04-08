@@ -22,7 +22,7 @@ export default defineComponent({
 
 		const setHeaderHeight = computed(() => {
 			const { isTagsview, layout } = themeConfig.value;
-			if (isTagsview && layout !== 'classic') return '104px';
+			if (isTagsview && !['classic', 'defaults'].includes(layout)) return '104px';
 			return '64px';
 		});
 

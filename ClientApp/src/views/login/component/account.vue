@@ -12,7 +12,7 @@
 			</div>
 
 			<div class="account-login__tip-grid">
-				<div class="account-login__tip-item">
+				<div class="account-login__tip-item account-login__tip-item--account">
 					<span>预设账号</span>
 					<strong>{{ ruleForm.userName }}</strong>
 				</div>
@@ -27,10 +27,13 @@
 			</div>
 		</div>
 
-		<div class="account-login__form-card">
+				<div class="account-login__form-card">
 			<el-form class="account-login__form" size="large" @submit.prevent="onSignIn">
 				<el-form-item class="account-login__field account-login__field--1">
-					<div class="account-login__label">用户名</div>
+					<div class="account-login__label-row">
+						<div class="account-login__label">用户名和密码</div>
+						<div class="account-login__label-note">默认管理员入口，可直接修改</div>
+					</div>
 					<el-input
 						v-model="ruleForm.userName"
 						type="text"
@@ -45,8 +48,12 @@
 					</el-input>
 				</el-form-item>
 
-				<el-form-item class="account-login__field account-login__field--2">
+				<div class="account-login__label-row account-login__label-row--between">
 					<div class="account-login__label">密码</div>
+					<div class="account-login__label-note">输入初始化时设置的登录密码</div>
+				</div>
+
+				<el-form-item class="account-login__field account-login__field--2">
 					<el-input
 						v-model="ruleForm.password"
 						:type="isShowPassword ? 'text' : 'password'"
@@ -65,14 +72,15 @@
 							></i>
 						</template>
 					</el-input>
-					<div class="account-login__helper">请使用初始化时设置的管理员密码。</div>
 				</el-form-item>
 
 				<el-form-item class="account-login__field account-login__field--3">
 					<div class="account-login__actions">
 						<div class="account-login__meta">
-							<div>登录前需要先完成一次安全校验，验证通过后系统会自动提交登录。</div>
-							<div class="account-login__meta-user">管理员账号已就绪</div>
+							<div class="account-login__meta-copy">
+								<div class="account-login__meta-title">校验通过后自动提交登录</div>
+								<div class="account-login__meta-text">登录前需要先完成一次安全校验，验证通过后系统会自动提交登录。</div>
+							</div>
 						</div>
 						<el-button type="primary" class="account-login__submit" native-type="submit" :loading="loading.signIn">
 							登录控制台
@@ -397,7 +405,6 @@ const signInSuccess = () => {
 }
 
 .account-login__tip-head,
-.account-login__meta,
 .account-login__signup,
 .captcha-shell__footer {
 	display: flex;
@@ -436,16 +443,28 @@ const signInSuccess = () => {
 
 .account-login__tip-grid {
 	display: grid;
-	grid-template-columns: repeat(3, minmax(0, 1fr));
+	grid-template-columns: repeat(2, minmax(0, 1fr));
 	gap: 12px;
 	margin-top: 16px;
 }
 
 .account-login__tip-item {
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+	min-width: 0;
 	padding: 14px 16px;
 	border-radius: 18px;
 	border: 1px solid rgba(255, 255, 255, 0.72);
 	background: rgba(255, 255, 255, 0.78);
+}
+
+.account-login__tip-item--account {
+	grid-column: 1 / -1;
+	padding: 16px 18px;
+	border-color: rgba(191, 219, 254, 0.82);
+	background: linear-gradient(135deg, rgba(255, 255, 255, 0.96), rgba(239, 246, 255, 0.94));
+	box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.78);
 }
 
 .account-login__tip-item span {
@@ -456,63 +475,117 @@ const signInSuccess = () => {
 
 .account-login__tip-item strong {
 	display: block;
-	margin-top: 10px;
+	margin-top: 0;
 	color: #123b6d;
 	font-size: 15px;
 	font-weight: 700;
+	line-height: 1.45;
+}
+
+.account-login__tip-item--account strong {
+	font-size: 14px;
+	letter-spacing: -0.01em;
+	overflow-wrap: anywhere;
+	word-break: break-word;
 }
 
 .account-login__form {
 	display: flex;
 	flex-direction: column;
-	gap: 2px;
+	gap: 4px;
 }
 
 .account-login__field {
-	margin-bottom: 12px;
+	margin-bottom: 10px;
+}
+
+.account-login__field--1 {
+	margin-bottom: 0;
+}
+
+.account-login__label-row {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 8px;
+	margin-bottom: 8px;
+}
+
+.account-login__label-row--between {
+	margin: 0 0 8px;
+	padding: 0 2px;
 }
 
 .account-login__label {
-	margin-bottom: 10px;
-	color: #325377;
-	font-size: 13px;
-	font-weight: 600;
+	display: inline-flex;
+	align-items: center;
+	min-height: 22px;
+	color: #23486f;
+	font-size: 12px;
+	font-weight: 700;
+	letter-spacing: 0.06em;
+	line-height: 1.2;
 }
 
-.account-login__helper {
-	margin-top: 8px;
-	color: #7c8da1;
-	font-size: 12px;
-	line-height: 1.6;
+.account-login__label-note {
+	display: inline-flex;
+	align-items: center;
+	min-height: 18px;
+	padding: 0;
+	border: 0;
+	background: transparent;
+	color: #8a9ab0;
+	font-size: 11px;
+	font-weight: 600;
+	line-height: 1.4;
+	text-align: right;
+	white-space: nowrap;
 }
 
 .account-login__actions {
 	display: flex;
 	flex-direction: column;
-	gap: 16px;
+	gap: 12px;
 	width: 100%;
 }
 
 .account-login__meta {
-	flex-wrap: wrap;
-	color: #68819d;
-	font-size: 12px;
+	display: grid;
+	grid-template-columns: 1fr;
+	gap: 4px;
+	padding: 14px 16px;
+	border-radius: 16px;
+	border: 1px solid rgba(226, 232, 240, 0.9);
+	background: linear-gradient(180deg, rgba(248, 251, 255, 0.96), rgba(255, 255, 255, 0.98));
+	box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.72);
 }
 
-.account-login__meta-user {
-	padding: 6px 10px;
-	border-radius: 999px;
-	background: rgba(37, 99, 235, 0.08);
-	color: #2563eb;
-	font-weight: 600;
+.account-login__meta-copy {
+	display: flex;
+	flex-direction: column;
+	gap: 5px;
+	min-width: 0;
+}
+
+.account-login__meta-title {
+	color: #163c66;
+	font-size: 13px;
+	font-weight: 700;
+	line-height: 1.4;
+}
+
+.account-login__meta-text {
+	color: #6d8098;
+	font-size: 12px;
+	line-height: 1.65;
 }
 
 .account-login__submit {
 	width: 100%;
 	height: 50px;
 	border-radius: 15px;
-	letter-spacing: 0.08em;
-	font-weight: 600;
+	letter-spacing: 0.02em;
+	font-weight: 700;
 	box-shadow: 0 18px 32px rgba(37, 99, 235, 0.2);
 }
 
@@ -610,17 +683,35 @@ const signInSuccess = () => {
 	border-radius: 14px;
 }
 
+:deep(.el-input__inner::placeholder) {
+	color: #9aaabc;
+	letter-spacing: 0.01em;
+}
+
 :deep(.account-login__verify-dialog .el-dialog) {
 	border-radius: 24px;
 }
 
 @media (max-width: 767px) {
+	.account-login__label-row,
 	.account-login__tip-head,
-	.account-login__meta,
 	.account-login__signup,
 	.captcha-shell__footer {
 		flex-direction: column;
 		align-items: flex-start;
+	}
+
+	.account-login__meta {
+		gap: 10px;
+	}
+
+	.account-login__label-note {
+		text-align: left;
+		white-space: normal;
+	}
+
+	.account-login__label-row--between {
+		padding: 0;
 	}
 
 	.account-login__tip-grid {

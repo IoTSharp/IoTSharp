@@ -98,16 +98,18 @@ onMounted(() => {
 <style scoped lang="scss">
 .auth-page {
 	position: relative;
-	display: flex;
-	align-items: center;
-	justify-content: center;
+	height: 100vh;
 	min-height: 100vh;
 	padding: 24px;
 	background:
 		radial-gradient(circle at top left, rgba(14, 165, 233, 0.18), transparent 26%),
 		radial-gradient(circle at bottom right, rgba(59, 130, 246, 0.18), transparent 28%),
 		linear-gradient(180deg, #f3f8ff 0%, #edf6ff 44%, #f9fcff 100%);
-	overflow: hidden;
+	overflow-x: hidden;
+	overflow-y: auto;
+	overscroll-behavior-y: contain;
+	scrollbar-gutter: stable;
+	-webkit-overflow-scrolling: touch;
 }
 
 .auth-page__aurora {
@@ -127,6 +129,7 @@ onMounted(() => {
 	display: grid;
 	grid-template-columns: 1.15fr minmax(400px, 480px);
 	width: min(1240px, 100%);
+	margin: 0 auto;
 	min-height: min(780px, calc(100vh - 48px));
 	border-radius: 34px;
 	border: 1px solid rgba(255, 255, 255, 0.72);

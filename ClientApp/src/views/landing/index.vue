@@ -229,7 +229,13 @@ const getStartedCards = [
 
 <style scoped lang="scss">
 .landing-page {
+	height: 100vh;
 	min-height: 100vh;
+	overflow-x: hidden;
+	overflow-y: auto;
+	overscroll-behavior-y: contain;
+	scrollbar-gutter: stable;
+	-webkit-overflow-scrolling: touch;
 	background:
 		radial-gradient(circle at top, rgba(191, 219, 254, 0.5), transparent 26%),
 		linear-gradient(180deg, #f6fbff 0%, #ffffff 38%, #f7fbff 100%);
@@ -315,10 +321,10 @@ const getStartedCards = [
 
 .landing-hero h1 {
 	margin: 0;
-	max-width: 740px;
-	font-size: clamp(44px, 6vw, 72px);
-	line-height: 1.02;
-	letter-spacing: -0.06em;
+	max-width: 700px;
+	font-size: clamp(48px, 5.4vw, 68px);
+	line-height: 1.04;
+	letter-spacing: -0.055em;
 }
 
 .landing-hero p {
@@ -399,11 +405,20 @@ const getStartedCards = [
 
 .landing-hero__visual {
 	position: relative;
-	min-height: 580px;
+	display: grid;
+	grid-template-columns: minmax(190px, 220px) minmax(0, 1fr);
+	grid-template-areas:
+		'secondary primary'
+		'console console';
+	align-items: start;
+	gap: 26px 26px;
+	min-height: 0;
+	padding: 18px 6px 0 10px;
 }
 
 .landing-floating {
-	position: absolute;
+	position: relative;
+	width: 100%;
 	padding: 22px 24px;
 
 	label {
@@ -427,24 +442,27 @@ const getStartedCards = [
 }
 
 .landing-floating--primary {
-	top: 18px;
-	right: 18px;
-	width: 260px;
+	grid-area: primary;
+	justify-self: end;
+	align-self: start;
+	width: min(100%, 260px);
 	background: linear-gradient(135deg, rgba(29, 78, 216, 0.08), rgba(96, 165, 250, 0.12));
 }
 
 .landing-floating--secondary {
-	left: 0;
-	top: 176px;
-	width: 240px;
+	grid-area: secondary;
+	align-self: end;
+	width: min(100%, 232px);
+	margin-top: 92px;
 	background: linear-gradient(135deg, rgba(14, 165, 233, 0.08), rgba(59, 130, 246, 0.12));
 }
 
 .landing-console-card {
-	position: absolute;
-	right: 0;
-	bottom: 0;
-	width: min(100%, 540px);
+	grid-area: console;
+	position: relative;
+	justify-self: end;
+	width: min(100%, 510px);
+	margin-top: 6px;
 	padding: 18px;
 	background: linear-gradient(180deg, rgba(255, 255, 255, 0.96), rgba(239, 248, 255, 0.96));
 }
@@ -538,9 +556,9 @@ const getStartedCards = [
 
 .landing-section__header h2 {
 	margin: 0;
-	max-width: 820px;
-	font-size: clamp(30px, 4vw, 46px);
-	line-height: 1.08;
+	max-width: 780px;
+	font-size: clamp(32px, 3.7vw, 44px);
+	line-height: 1.1;
 	letter-spacing: -0.05em;
 }
 
@@ -791,7 +809,21 @@ const getStartedCards = [
 	}
 
 	.landing-hero__visual {
-		min-height: 640px;
+		grid-template-columns: 1fr;
+		grid-template-areas:
+			'primary'
+			'secondary'
+			'console';
+		gap: 18px;
+		padding: 0;
+	}
+
+	.landing-floating--primary,
+	.landing-floating--secondary,
+	.landing-console-card {
+		width: 100%;
+		margin-top: 0;
+		justify-self: stretch;
 	}
 }
 
@@ -809,6 +841,16 @@ const getStartedCards = [
 		padding-top: 18px;
 	}
 
+	.landing-hero h1 {
+		font-size: clamp(34px, 10vw, 48px);
+		line-height: 1.06;
+	}
+
+	.landing-section__header h2 {
+		font-size: clamp(28px, 8vw, 36px);
+		line-height: 1.12;
+	}
+
 	.landing-hero__metrics,
 	.landing-grid,
 	.landing-start-grid,
@@ -822,17 +864,6 @@ const getStartedCards = [
 	.landing-header__actions {
 		flex-direction: column;
 		align-items: flex-start;
-	}
-
-	.landing-hero__visual {
-		min-height: 780px;
-	}
-
-	.landing-floating--primary,
-	.landing-floating--secondary,
-	.landing-console-card {
-		position: static;
-		width: 100%;
 	}
 
 	.landing-hero__actions {
