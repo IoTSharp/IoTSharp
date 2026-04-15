@@ -2,15 +2,14 @@ using IoTSharp.Interpreter;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Text.Json;
+using Xunit;
 
 namespace IoTSharp.Test
 {
-    [TestClass]
     public class ScriptEngineTest
     {
-        [TestMethod]
+        [Fact]
         public void JavaScriptEngine_CanTransformInput()
         {
             using var loggerFactory = CreateLoggerFactory();
@@ -30,7 +29,7 @@ namespace IoTSharp.Test
             AssertHealthOutput(output);
         }
 
-        [TestMethod]
+        [Fact]
         public void PythonEngine_CanTransformInput()
         {
             using var loggerFactory = CreateLoggerFactory();
@@ -49,7 +48,7 @@ namespace IoTSharp.Test
             AssertHealthOutput(output);
         }
 
-        [TestMethod]
+        [Fact]
         public void LuaEngine_CanTransformInput()
         {
             using var loggerFactory = CreateLoggerFactory();
@@ -69,17 +68,17 @@ namespace IoTSharp.Test
             AssertHealthOutput(output);
         }
 
-        [TestMethod]
+        [Fact]
         public void CEngine_CanEvaluateExpression()
         {
             using var loggerFactory = CreateLoggerFactory();
             var engine = new CScriptEngine(loggerFactory.CreateLogger<CScriptEngine>(), CreateOptions());
 
             var output = engine.Do("2 + 3", "{}");
-            Assert.AreEqual(5, JsonSerializer.Deserialize<int>(output));
+            Assert.Equal(5, JsonSerializer.Deserialize<int>(output));
         }
 
-        [TestMethod]
+        [Fact]
         public void SqlEngine_CanQueryJsonPayload()
         {
             using var loggerFactory = CreateLoggerFactory();
@@ -90,9 +89,10 @@ namespace IoTSharp.Test
             var output = engine.Do(sql, input);
 
             using var document = JsonDocument.Parse(output);
-            Assert.AreEqual("female", document.RootElement[0].GetProperty("sex").GetString());
+            Assert.Equal("female", document.RootElement[0].GetProperty("sex").GetString());
         }
-        [TestMethod]
+
+        [Fact]
         public void SqlEngine_CanQueryJsonPayload2()
         {
             using var loggerFactory = CreateLoggerFactory();
@@ -103,9 +103,10 @@ namespace IoTSharp.Test
             var output = engine.Do(sql, input);
 
             using var document = JsonDocument.Parse(output);
-            Assert.AreEqual("female", document.RootElement[0].GetProperty("sex").GetString());
+            Assert.Equal("female", document.RootElement[0].GetProperty("sex").GetString());
         }
-        [TestMethod]
+
+        [Fact]
         public void SqlEngine_CanSelectDeepFieldsAndComputedValues()
         {
             using var loggerFactory = CreateLoggerFactory();
@@ -122,10 +123,10 @@ namespace IoTSharp.Test
             var output = engine.Do(sql, input);
 
             using var document = JsonDocument.Parse(output);
-            Assert.AreEqual(12, document.RootElement[0].GetProperty("total").GetInt32());
+            Assert.Equal(12, document.RootElement[0].GetProperty("total").GetInt32());
         }
 
-        [TestMethod]
+        [Fact]
         public void SqlEngine_CanSortByUnselectedFieldsWithMultipleColumns()
         {
             using var loggerFactory = CreateLoggerFactory();
@@ -143,10 +144,10 @@ namespace IoTSharp.Test
             var output = engine.Do(sql, input);
 
             using var document = JsonDocument.Parse(output);
-            Assert.AreEqual("alice", document.RootElement[0].GetProperty("username").GetString());
+            Assert.Equal("alice", document.RootElement[0].GetProperty("username").GetString());
         }
 
-        [TestMethod]
+        [Fact]
         public void SqlEngine_CanUpdateRowsUsingOrderByAndLimit()
         {
             using var loggerFactory = CreateLoggerFactory();
@@ -164,10 +165,10 @@ namespace IoTSharp.Test
             var output = engine.Do(sql, input);
 
             using var document = JsonDocument.Parse(output);
-            Assert.AreEqual("done", document.RootElement[2].GetProperty("status").GetString());
+            Assert.Equal("done", document.RootElement[2].GetProperty("status").GetString());
         }
 
-        [TestMethod]
+        [Fact]
         public void SqlEngine_CanDeleteRowsUsingOrderByAndLimit()
         {
             using var loggerFactory = CreateLoggerFactory();
@@ -185,10 +186,10 @@ namespace IoTSharp.Test
             var output = engine.Do(sql, input);
 
             using var document = JsonDocument.Parse(output);
-            Assert.AreEqual("alice", document.RootElement[0].GetProperty("username").GetString());
+            Assert.Equal("alice", document.RootElement[0].GetProperty("username").GetString());
         }
 
-        [TestMethod]
+        [Fact]
         public void SqlEngine_CanUseInjectedMethods()
         {
             using var loggerFactory = CreateLoggerFactory();
@@ -206,10 +207,10 @@ namespace IoTSharp.Test
             var output = engine.Do(sql, input);
 
             using var document = JsonDocument.Parse(output);
-            Assert.AreEqual("alice", document.RootElement[0].GetProperty("normalized").GetString());
+            Assert.Equal("alice", document.RootElement[0].GetProperty("normalized").GetString());
         }
 
-        [TestMethod]
+        [Fact]
         public void SqlEngine_CanInsertRows()
         {
             using var loggerFactory = CreateLoggerFactory();
@@ -220,10 +221,10 @@ namespace IoTSharp.Test
             var output = engine.Do(sql, input);
 
             using var document = JsonDocument.Parse(output);
-            Assert.AreEqual("Alice", document.RootElement[0].GetProperty("profile").GetProperty("name").GetString());
+            Assert.Equal("Alice", document.RootElement[0].GetProperty("profile").GetProperty("name").GetString());
         }
 
-        [TestMethod]
+        [Fact]
         public void CSharpEngine_CanReuseCompiledScript()
         {
             using var loggerFactory = CreateLoggerFactory();
@@ -249,7 +250,7 @@ namespace IoTSharp.Test
             }
         }
 
-        [TestMethod]
+        [Fact]
         public void BasicEngine_ReturnsInputPayload()
         {
             using var loggerFactory = CreateLoggerFactory();
@@ -259,8 +260,8 @@ namespace IoTSharp.Test
             var output = engine.Do("ignored", input);
 
             using var document = JsonDocument.Parse(output);
-            Assert.AreEqual("device-001", document.RootElement.GetProperty("device").GetString());
-            Assert.IsTrue(document.RootElement.GetProperty("enabled").GetBoolean());
+            Assert.Equal("device-001", document.RootElement.GetProperty("device").GetString());
+            Assert.True(document.RootElement.GetProperty("enabled").GetBoolean());
         }
 
         private static IOptions<EngineSetting> CreateOptions()
@@ -272,8 +273,8 @@ namespace IoTSharp.Test
         private static void AssertHealthOutput(string output)
         {
             using var document = JsonDocument.Parse(output);
-            Assert.IsTrue(document.RootElement.GetProperty("fever").GetBoolean());
-            Assert.IsTrue(document.RootElement.GetProperty("fat").GetBoolean());
+            Assert.True(document.RootElement.GetProperty("fever").GetBoolean());
+            Assert.True(document.RootElement.GetProperty("fat").GetBoolean());
         }
     }
 }

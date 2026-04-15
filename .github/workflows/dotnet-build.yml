@@ -26,10 +26,6 @@ jobs:
         run: dotnet restore ./IoTSharp.Test/IoTSharp.Test.csproj
       - name: Test IoTSharp
         run: dotnet test ./IoTSharp.Test/IoTSharp.Test.csproj --configuration Release --no-restore --verbosity normal
-      - name: Restore IoTSharp.Interpreter tests
-        run: dotnet restore ./IoTSharp.Interpreter.Test/IoTSharp.Interpreter.Test.csproj
-      - name: Test IoTSharp.Interpreter
-        run: dotnet test ./IoTSharp.Interpreter.Test/IoTSharp.Interpreter.Test.csproj --configuration Release --no-restore --verbosity normal
 
 
       

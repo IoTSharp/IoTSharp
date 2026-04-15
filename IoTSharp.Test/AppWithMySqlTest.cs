@@ -1,52 +1,44 @@
-﻿using Alba;
-using DotNet.Testcontainers.Containers;
+﻿#nullable enable
+
 using IoTSharp.Contracts;
-using IoTSharp.Controllers;
-using IoTSharp.Dtos;
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Http.HttpResults;
-using Microsoft.AspNetCore.TestHost;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net.Http;
-using System.Net.Http.Json;
-using System.Text;
-using System.Text.Json;
-using System.Threading;
 using System.Threading.Tasks;
 using Testcontainers.MySql;
+using Xunit;
+using Xunit.Abstractions;
 
 namespace IoTSharp.Test
 {
-    [TestClass]
-    public class AppWithMySqlTest : AppInstance
+    public sealed class AppWithMySqlTest : AppInstance
     {
-      
-        [ClassInitialize]
-        public static void TextFixtureSetup(TestContext context) => FixtureSetup(context);
+        private MySqlContainer? _dbContainer;
 
-
-        MySqlContainer _db_container;
-
-        [TestInitialize()]
-        public async Task TestServerInitialize()
+        public AppWithMySqlTest(ITestOutputHelper output)
+            : base(output)
         {
-            _ct = _context.CancellationTokenSource.Token;
-            _db_container = new MySqlBuilder().Build();
-            await _db_container.StartAsync(_ct);
-            await AppInitialize(_db_container.GetConnectionString(), _db_container.GetConnectionString(), DataBaseType.MySql);
         }
-        [TestCleanup]
-        public async Task Cleanup()
+
+        protected override async Task InitializeAppAsync()
         {
-            await  AppCleanup();
-            await _db_container.DisposeAsync();
+            _dbContainer = new MySqlBuilder().Build();
+            await _dbContainer.StartAsync(TestCancellationToken);
+            await InitializeApplicationAsync(_dbContainer.GetConnectionString(), _dbContainer.GetConnectionString(), DataBaseType.MySql);
         }
+
+        protected override async Task DisposeTestResourcesAsync()
+        {
+            if (_dbContainer is not null)
+            {
+                await _dbContainer.DisposeAsync();
+            }
+        }
+
+        [Fact]
+        public Task AppIsInstalled() => AssertAppIsInstalledAsync();
+
+        [Fact]
+        public Task AppAccountLogin() => AssertAppAccountLoginAsync();
+
+        [Fact]
+        public Task AppDevicesCreate() => AssertAppDevicesCreateAsync();
     }
 }

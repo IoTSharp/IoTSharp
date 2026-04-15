@@ -1,47 +1,60 @@
-﻿using Alba;
-using DotNet.Testcontainers.Containers;
+﻿#nullable enable
+
 using IoTSharp.Contracts;
-using IoTSharp.Controllers;
-using IoTSharp.Dtos;
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Http.HttpResults;
-using Microsoft.AspNetCore.TestHost;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net.Http;
-using System.Net.Http.Json;
-using System.Text;
-using System.Text.Json;
-using System.Threading;
+using System.IO;
 using System.Threading.Tasks;
+using Xunit;
+using Xunit.Abstractions;
 
 namespace IoTSharp.Test
 {
-    [TestClass]
-    public class AppWithSqliteTest : AppInstance
+    public sealed class AppWithSqliteTest : AppInstance
     {
-      
-        [ClassInitialize]
-        public static void TextFixtureSetup(TestContext context) => FixtureSetup(context);
+        private string? _dataDirectory;
 
-
-
-        [TestInitialize()]
-        public async Task TestServerInitialize()
+        public AppWithSqliteTest(ITestOutputHelper output)
+            : base(output)
         {
-            _ct = _context.CancellationTokenSource.Token;
-            await AppInitialize("Data Source=.data/IoTSharp.db", "Data Source=.data/TelemetryStorage.db", DataBaseType.Sqlite);
         }
-        [TestCleanup]
-        public async Task Cleanup()
+
+        protected override async Task InitializeAppAsync()
         {
-            await  AppCleanup();
+            _dataDirectory = Path.Combine(Path.GetTempPath(), "IoTSharp.Test", Guid.NewGuid().ToString("N"));
+            Directory.CreateDirectory(_dataDirectory);
+
+            await InitializeApplicationAsync(
+                $"Data Source={Path.Combine(_dataDirectory, "IoTSharp.db")}",
+                $"Data Source={Path.Combine(_dataDirectory, "TelemetryStorage.db")}",
+                DataBaseType.Sqlite);
         }
+
+        protected override Task DisposeTestResourcesAsync()
+        {
+            if (_dataDirectory is not null && Directory.Exists(_dataDirectory))
+            {
+                try
+                {
+                    Directory.Delete(_dataDirectory, recursive: true);
+                }
+                catch (IOException)
+                {
+                }
+                catch (UnauthorizedAccessException)
+                {
+                }
+            }
+
+            return Task.CompletedTask;
+        }
+
+        [Fact]
+        public Task AppIsInstalled() => AssertAppIsInstalledAsync();
+
+        [Fact]
+        public Task AppAccountLogin() => AssertAppAccountLoginAsync();
+
+        [Fact]
+        public Task AppDevicesCreate() => AssertAppDevicesCreateAsync();
     }
 }
