@@ -14,7 +14,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Collections;
-using IdentityModel.OidcClient;
 using System.Buffers;
 
 namespace IoTSharp.Services.MQTTControllers

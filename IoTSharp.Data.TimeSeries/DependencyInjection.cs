@@ -2,8 +2,6 @@
 using IoTSharp.Data.Shardings;
 using IoTSharp.Storage;
 using Microsoft.Extensions.DependencyInjection;
-using ShardingCore.TableExists.Abstractions;
-using ShardingCore.TableExists;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,10 +11,8 @@ using ShardingCore;
 using IoTSharp.Data.Shardings.Routes;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.ObjectPool;
-using ShardingCore.Core.ShardingConfigurations;
 using IoTSharp.Data.Taos;
 using InfluxDB.Client;
-using PinusDB.Data;
 
 namespace IoTSharp.Data.TimeSeries
 {
@@ -98,16 +94,7 @@ namespace IoTSharp.Data.TimeSeries
                     break;
 
                 case TelemetryStorage.PinusDB:
-                    services.AddSingleton<IStorage, PinusDBStorage>();
-                    services.AddObjectPool(() =>
-                    {
-                        var cnt = new PinusConnection(_connectionString);
-                        cnt.Open();
-                        return cnt;
-                    });
-                    healthChecks.AddPinusDB(_connectionString, name: _hc_telemetryStorage);
-                    break;
-
+                    throw new NotSupportedException("PinusDB is not supported yet");
                 case TelemetryStorage.TimescaleDB:
                     services.AddSingleton<IStorage, TimescaleDBStorage>();
                     break;

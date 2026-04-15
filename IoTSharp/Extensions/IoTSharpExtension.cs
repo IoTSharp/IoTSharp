@@ -9,7 +9,6 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -35,7 +34,6 @@ using IoTSharp.Extensions.X509;
 using IoTSharp.Storage;
 using ShardingCore;
 using Microsoft.Extensions.Options;
-using Shashlik.EventBus.Utils;
 
 namespace IoTSharp
 {

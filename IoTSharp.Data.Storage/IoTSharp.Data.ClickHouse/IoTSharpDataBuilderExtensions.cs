@@ -1,10 +1,11 @@
-﻿using System;
+﻿using ClickHouse.Driver.ADO;
 using ClickHouse.EntityFrameworkCore.Extensions;
-using HealthChecks.Clickhouse.DependencyInjection;
 using IoTSharp.Data;
 using IoTSharp.Data.ClickHouse;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
+using System;
+using System.Net.Http;
 
 namespace Microsoft.Extensions.DependencyInjection
 {
@@ -20,7 +21,13 @@ namespace Microsoft.Extensions.DependencyInjection
                 builder.ConfigureWarnings(w => w.Ignore(RelationalEventId.PendingModelChangesWarning));
                 builder.UseInternalServiceProvider(services.BuildServiceProvider());
             }, poolSize);
-            checksBuilder.AddClickHouseHealthCheck(connectionString, name: "IoTSharp.Data.ClickHouse");
+            services.AddHttpClient("ClickHouseClient");
+            checksBuilder.AddClickHouse( sp => {
+                var httpClientFactory = sp.GetRequiredService<IHttpClientFactory>();
+                return new ClickHouseConnection(connectionString, httpClientFactory, "ClickHouseClient");
+            });
+
+             
         }
     }
 }

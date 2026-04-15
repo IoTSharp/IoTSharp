@@ -10,7 +10,6 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using Microsoft.Identity.Client.Extensions.Msal;
 using MongoDB.Driver.Core.Servers;
 using System;
 using System.Threading.Tasks;

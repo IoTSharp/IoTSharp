@@ -6,7 +6,6 @@ using IoTSharp.Data.Extensions;
 using IoTSharp.Data.TimeSeries;
 using IoTSharp.EventBus;
 using IoTSharp.EventBus.CAP;
-using IoTSharp.EventBus.Shashlik;
 using IoTSharp.FlowRuleEngine;
 using IoTSharp.Gateways;
 using IoTSharp.Interpreter;
@@ -230,13 +229,10 @@ namespace IoTSharp
                 switch (settings.EventBus)
                 {
                     case EventBusFramework.Shashlik:
-                        opt.UserShashlik();
-                        break;
+                        throw new NotSupportedException(" EventBusFramework.Shashlik is not supported yet");
                     case EventBusFramework.CAP:
-                        opt.UserCAP();
-                        break;
                     default:
-                        opt.UserShashlik();
+                        opt.UserCAP();
                         break;
                 }
             });
