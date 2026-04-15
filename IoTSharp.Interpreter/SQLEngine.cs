@@ -450,14 +450,27 @@ namespace IoTSharp.Interpreter
 
         private static object? ConvertNodeToValue(JsonNode? node)
         {
-            return node switch
+            if (node is null)
             {
-                null => null,
-                JsonValue jsonValue when jsonValue.TryGetValue<bool>(out var booleanValue) => booleanValue,
-                JsonValue jsonValue when jsonValue.TryGetValue<long>(out var int64Value) => int64Value,
-                JsonValue jsonValue when jsonValue.TryGetValue<decimal>(out var decimalValue) => decimalValue,
-                JsonValue jsonValue when jsonValue.TryGetValue<double>(out var doubleValue) => doubleValue,
-                JsonValue jsonValue when jsonValue.TryGetValue<string>(out var stringValue) => stringValue,
+                return null;
+            }
+
+            if (node is not JsonValue)
+            {
+                return node.DeepClone();
+            }
+
+            using var document = JsonDocument.Parse(node.ToJsonString());
+            return document.RootElement.ValueKind switch
+            {
+                JsonValueKind.String => document.RootElement.GetString(),
+                JsonValueKind.Number when document.RootElement.TryGetInt64(out var int64Value) => int64Value,
+                JsonValueKind.Number when document.RootElement.TryGetDecimal(out var decimalValue) => decimalValue,
+                JsonValueKind.Number => document.RootElement.GetDouble(),
+                JsonValueKind.True => true,
+                JsonValueKind.False => false,
+                JsonValueKind.Null => null,
+                JsonValueKind.Undefined => null,
                 _ => node.DeepClone()
             };
         }

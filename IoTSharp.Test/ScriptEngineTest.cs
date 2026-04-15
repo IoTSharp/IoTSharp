@@ -92,7 +92,19 @@ namespace IoTSharp.Test
             using var document = JsonDocument.Parse(output);
             Assert.AreEqual("female", document.RootElement[0].GetProperty("sex").GetString());
         }
+        [TestMethod]
+        public void SqlEngine_CanQueryJsonPayload2()
+        {
+            using var loggerFactory = CreateLoggerFactory();
+            using var engine = new SQLEngine(loggerFactory.CreateLogger<SQLEngine>(), CreateOptions());
 
+            var sql = "select sex from input where username=\"alice\"";
+            var input = "[{\"username\":\"bob\",\"sex\":\"male\"},{\"username\":\"alice\",\"sex\":\"female\"}]";
+            var output = engine.Do(sql, input);
+
+            using var document = JsonDocument.Parse(output);
+            Assert.AreEqual("female", document.RootElement[0].GetProperty("sex").GetString());
+        }
         [TestMethod]
         public void SqlEngine_CanSelectDeepFieldsAndComputedValues()
         {
