@@ -18,10 +18,6 @@ jobs:
         uses: actions/setup-dotnet@v5
         with:
           dotnet-version: 10.0.x
-      # Build the main application and its referenced projects only.
-      # We intentionally avoid solution-wide build/test here because the solution
-      # now contains the Windows WiX installer project, which is not part of the
-      # Linux CI validation path for normal repository pushes.
       - name: Restore IoTSharp
         run: dotnet restore ./IoTSharp/IoTSharp.csproj
       - name: Build IoTSharp
