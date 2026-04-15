@@ -14,14 +14,27 @@ namespace IoTSharp.Data.JsonDB
     /// <summary>
     /// ADO.NET connection to a JSON-backed in-memory database.
     /// Supports SQL SELECT, INSERT, UPDATE, and DELETE over JSON arrays and objects.
+    /// When the connection is backed by a JSON file and <see cref="AutoSave"/> is <c>true</c>
+    /// (the default), mutating commands (INSERT, UPDATE, DELETE) automatically persist
+    /// changes back to the source file after each execution.
     /// </summary>
     public sealed class JsonDbConnection : DbConnection
     {
         private ConnectionState _state = ConnectionState.Closed;
         private string _connectionString = string.Empty;
         private JsonNode? _root;
+        private string? _filePath; // non-null when the connection is backed by a file
         private readonly Dictionary<string, Func<IReadOnlyList<object?>, object?>> _methods =
             new(StringComparer.OrdinalIgnoreCase);
+
+        /// <summary>
+        /// When <c>true</c> (the default) and the connection is backed by a JSON file,
+        /// INSERT / UPDATE / DELETE commands automatically write the updated JSON back to
+        /// the source file after each execution.  Set to <c>false</c> to opt out of
+        /// automatic persistence and use <see cref="SaveToFile"/> explicitly instead.
+        /// Has no effect when the connection is not file-backed.
+        /// </summary>
+        public bool AutoSave { get; set; } = true;
 
         // ─── Constructors ───────────────────────────────────────────────────────────
 
@@ -141,6 +154,59 @@ namespace IoTSharp.Data.JsonDB
             return _root!.ToJsonString();
         }
 
+        /// <summary>
+        /// Returns <c>true</c> when this connection was opened from a JSON file.
+        /// </summary>
+        public bool IsFileBacked => _filePath is not null;
+
+        /// <summary>
+        /// Writes the current in-memory JSON state back to the source file.
+        /// Throws <see cref="InvalidOperationException"/> if the connection is not file-backed.
+        /// </summary>
+        /// <remarks>
+        /// This is called automatically after each mutating command when <see cref="AutoSave"/>
+        /// is <c>true</c>. You can also call it manually when <see cref="AutoSave"/> is disabled.
+        /// The file is written as UTF-8 with indentation for readability.
+        /// </remarks>
+        public void SaveToFile()
+        {
+            EnsureOpen();
+            if (_filePath is null)
+            {
+                throw new InvalidOperationException(
+                    "SaveToFile is only supported for file-backed connections. " +
+                    "Use GetCurrentJson() to retrieve the updated JSON string.");
+            }
+
+            var json = _root!.ToJsonString(new JsonSerializerOptions { WriteIndented = true });
+            // Write to a temp file first, then replace atomically to reduce the risk of
+            // data loss if the process is interrupted mid-write.
+            var tmpPath = _filePath + ".tmp";
+            try
+            {
+                File.WriteAllText(tmpPath, json, System.Text.Encoding.UTF8);
+                File.Move(tmpPath, _filePath, overwrite: true);
+            }
+            catch
+            {
+                // Best-effort cleanup of the temp file on failure.
+                try { if (File.Exists(tmpPath)) File.Delete(tmpPath); } catch { /* ignore */ }
+                throw;
+            }
+        }
+
+        /// <summary>
+        /// Called internally by <see cref="JsonDbCommand"/> after every mutating statement.
+        /// Persists changes to the source file when <see cref="AutoSave"/> is enabled.
+        /// </summary>
+        internal void NotifyMutation()
+        {
+            if (AutoSave && _filePath is not null)
+            {
+                SaveToFile();
+            }
+        }
+
         // ─── Internal helpers ────────────────────────────────────────────────────────
 
         internal JsonNode Root
@@ -176,6 +242,7 @@ namespace IoTSharp.Data.JsonDB
             if (kvp.TryGetValue("data source", out var filePath) || kvp.TryGetValue("datasource", out filePath))
             {
                 var content = File.ReadAllText(filePath!);
+                _filePath = filePath;
                 return JsonNode.Parse(content) ?? throw new InvalidOperationException($"File '{filePath}' produced a null JSON root.");
             }
 

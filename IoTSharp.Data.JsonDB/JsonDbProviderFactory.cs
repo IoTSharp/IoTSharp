@@ -27,7 +27,9 @@ namespace IoTSharp.Data.JsonDB
         public override DbConnectionStringBuilder CreateConnectionStringBuilder()
             => new JsonDbConnectionStringBuilder();
 
-        public override bool CanCreateDataAdapter => false;
+        public override DbDataAdapter CreateDataAdapter() => new JsonDbDataAdapter();
+
+        public override bool CanCreateDataAdapter => true;
         public override bool CanCreateCommandBuilder => false;
     }
 }

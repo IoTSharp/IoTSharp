@@ -13,6 +13,8 @@ with a full ADO.NET interface.
 - Parameterized queries (`@paramName`)
 - Three data sources: JSON file, JSON string, `System.Text.Json.Nodes.JsonNode`
 - `DbProviderFactory` with invariant name `IoTSharp.Data.JsonDB`
+- **Auto-save**: file-backed connections automatically persist INSERT/UPDATE/DELETE back to the source file
+- `DataTable` and `DbDataAdapter` support
 
 ## Quick Start
 
@@ -81,8 +83,60 @@ using var cmd = conn.CreateCommand();
 cmd.CommandText = "UPDATE input SET status = \"done\" WHERE id = 1";
 var affected = cmd.ExecuteNonQuery(); // 1
 
-// Retrieve modified JSON
+// Retrieve modified JSON (for in-memory connections)
 var updatedJson = conn.GetCurrentJson();
+```
+
+### Auto-save to JSON file
+
+When a connection is backed by a JSON file, INSERT / UPDATE / DELETE commands
+automatically persist changes back to the source file after each execution:
+
+```csharp
+using var conn = new JsonDbConnection("Data Source=data.json");
+conn.Open();
+// AutoSave is true by default
+
+using var cmd = conn.CreateCommand();
+cmd.CommandText = "UPDATE input SET status = \"done\" WHERE id = 1";
+cmd.ExecuteNonQuery();
+// data.json is automatically updated
+
+// Opt out of auto-save
+conn.AutoSave = false;
+cmd.ExecuteNonQuery();
+// data.json is NOT updated until you call:
+conn.SaveToFile();
+
+// Check if the connection is file-backed
+bool isFileBacked = conn.IsFileBacked; // true
+```
+
+### DataTable and DbDataAdapter
+
+```csharp
+// Using DbDataAdapter
+using var conn = JsonDbConnection.FromJson(json);
+conn.Open();
+var adapter = new JsonDbDataAdapter("SELECT * FROM input", conn);
+var table = new DataTable();
+adapter.Fill(table);
+// table now contains all rows
+
+// Fill a DataSet
+var ds = new DataSet();
+adapter.Fill(ds);
+// ds.Tables["Table"] contains the results
+
+// Using DataTable.Load with the reader
+using var reader = cmd.ExecuteReader();
+var dt = new DataTable();
+dt.Load(reader);
+
+// Using the static helper for direct reader → DataTable filling
+using var reader2 = cmd.ExecuteReader();
+var dt2 = new DataTable();
+JsonDbDataAdapter.FillFromReader(dt2, reader2);
 ```
 
 ### Registering custom functions
@@ -114,13 +168,25 @@ conn.Open();
 
 | Key | Description |
 |-----|-------------|
-| `Data Source=<path>` | Path to a JSON file (read/write operations update in-memory state only) |
+| `Data Source=<path>` | Path to a JSON file. Mutations auto-save back to the file when `AutoSave=true`. |
 | `Json=<json>` | Inline JSON string (suitable for small payloads) |
 
 For large JSON objects or `JsonNode` instances, use the factory methods directly:
 - `JsonDbConnection.FromJson(string json)`
 - `JsonDbConnection.FromFile(string path)`
 - `JsonDbConnection.FromNode(JsonNode node)`
+
+## Auto-Save Behaviour
+
+| Data source | `AutoSave = true` (default) | `AutoSave = false` |
+|---|---|---|
+| JSON file (`Data Source=`) | Writes back after each INSERT/UPDATE/DELETE | No auto-write; call `SaveToFile()` manually |
+| JSON string / `FromJson` | No file to write to | No file to write to |
+| `JsonNode` / `FromNode` | No file to write to | No file to write to |
+
+- For non-file-backed connections, `SaveToFile()` throws `InvalidOperationException`.
+- `GetCurrentJson()` always returns the current in-memory state regardless of persistence mode.
+- File writes use a temp-file-then-rename pattern to reduce the risk of data loss.
 
 ## SQL Dialect Reference
 
@@ -148,9 +214,8 @@ ORDER BY field ASC LIMIT 1
 
 ## Notes
 
-- JsonDB is an **in-memory** engine. File-backed connections load the JSON once on `Open()`;
-  write operations (INSERT/UPDATE/DELETE) modify the in-memory root only.
-  Call `conn.GetCurrentJson()` to retrieve the modified data.
 - Transactions exist for ADO.NET compatibility; `Commit()` is a no-op and `Rollback()` throws.
   Deep-clone your `JsonNode` before opening a connection if you need rollback capability.
 - Parameter values of type `string` are safely quoted; numbers and booleans are inlined as literals.
+- `DataTable.Load(reader)` and `DbDataAdapter.Fill(table)` are both supported; columns are
+  auto-created from the first result row.

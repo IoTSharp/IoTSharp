@@ -541,5 +541,251 @@ namespace IoTSharp.Data.JsonDB.Tests
             using var doc = JsonDocument.Parse(result);
             Assert.AreEqual(1, doc.RootElement[0].GetProperty("id").GetInt32());
         }
+
+        // ─── Auto-save to file ────────────────────────────────────────────────────────
+
+        [TestMethod]
+        public void AutoSave_Insert_WritesBackToFile()
+        {
+            var tmpFile = Path.Combine(Path.GetTempPath(), $"jsondb_autosave_{Guid.NewGuid():N}.json");
+            try
+            {
+                File.WriteAllText(tmpFile, "[]");
+
+                using var conn = JsonDbConnection.FromFile(tmpFile);
+                conn.Open();
+                Assert.IsTrue(conn.IsFileBacked);
+
+                using var cmd = conn.CreateCommand();
+                cmd.CommandText = "INSERT INTO input SET id = 1, name = \"auto\"";
+                cmd.ExecuteNonQuery();
+
+                // Re-read from disk to confirm persistence
+                var onDisk = File.ReadAllText(tmpFile);
+                using var doc = JsonDocument.Parse(onDisk);
+                Assert.AreEqual(1, doc.RootElement.GetArrayLength());
+                Assert.AreEqual("auto", doc.RootElement[0].GetProperty("name").GetString());
+            }
+            finally
+            {
+                if (File.Exists(tmpFile)) File.Delete(tmpFile);
+            }
+        }
+
+        [TestMethod]
+        public void AutoSave_Update_WritesBackToFile()
+        {
+            var tmpFile = Path.Combine(Path.GetTempPath(), $"jsondb_autosave_{Guid.NewGuid():N}.json");
+            try
+            {
+                File.WriteAllText(tmpFile, """[{"id":1,"status":"old"}]""");
+
+                using var conn = JsonDbConnection.FromFile(tmpFile);
+                conn.Open();
+
+                using var cmd = conn.CreateCommand();
+                cmd.CommandText = "UPDATE input SET status = \"new\" WHERE id = 1";
+                cmd.ExecuteNonQuery();
+
+                var onDisk = File.ReadAllText(tmpFile);
+                using var doc = JsonDocument.Parse(onDisk);
+                Assert.AreEqual("new", doc.RootElement[0].GetProperty("status").GetString());
+            }
+            finally
+            {
+                if (File.Exists(tmpFile)) File.Delete(tmpFile);
+            }
+        }
+
+        [TestMethod]
+        public void AutoSave_Delete_WritesBackToFile()
+        {
+            var tmpFile = Path.Combine(Path.GetTempPath(), $"jsondb_autosave_{Guid.NewGuid():N}.json");
+            try
+            {
+                File.WriteAllText(tmpFile, """[{"id":1},{"id":2}]""");
+
+                using var conn = JsonDbConnection.FromFile(tmpFile);
+                conn.Open();
+
+                using var cmd = conn.CreateCommand();
+                cmd.CommandText = "DELETE FROM input WHERE id = 1";
+                cmd.ExecuteNonQuery();
+
+                var onDisk = File.ReadAllText(tmpFile);
+                using var doc = JsonDocument.Parse(onDisk);
+                Assert.AreEqual(1, doc.RootElement.GetArrayLength());
+                Assert.AreEqual(2, doc.RootElement[0].GetProperty("id").GetInt32());
+            }
+            finally
+            {
+                if (File.Exists(tmpFile)) File.Delete(tmpFile);
+            }
+        }
+
+        [TestMethod]
+        public void AutoSave_Disabled_DoesNotWriteToFile()
+        {
+            var tmpFile = Path.Combine(Path.GetTempPath(), $"jsondb_autosave_{Guid.NewGuid():N}.json");
+            try
+            {
+                var originalJson = """[{"id":1,"status":"old"}]""";
+                File.WriteAllText(tmpFile, originalJson);
+
+                using var conn = JsonDbConnection.FromFile(tmpFile);
+                conn.AutoSave = false;
+                conn.Open();
+
+                using var cmd = conn.CreateCommand();
+                cmd.CommandText = "UPDATE input SET status = \"new\" WHERE id = 1";
+                cmd.ExecuteNonQuery();
+
+                // File should be unchanged
+                Assert.AreEqual(originalJson, File.ReadAllText(tmpFile));
+
+                // But in-memory state is updated
+                var inMemory = conn.GetCurrentJson();
+                using var doc = JsonDocument.Parse(inMemory);
+                Assert.AreEqual("new", doc.RootElement[0].GetProperty("status").GetString());
+            }
+            finally
+            {
+                if (File.Exists(tmpFile)) File.Delete(tmpFile);
+            }
+        }
+
+        [TestMethod]
+        public void AutoSave_ManualSaveToFile_Works()
+        {
+            var tmpFile = Path.Combine(Path.GetTempPath(), $"jsondb_autosave_{Guid.NewGuid():N}.json");
+            try
+            {
+                File.WriteAllText(tmpFile, """[{"id":1,"val":10}]""");
+
+                using var conn = JsonDbConnection.FromFile(tmpFile);
+                conn.AutoSave = false;
+                conn.Open();
+
+                using var cmd = conn.CreateCommand();
+                cmd.CommandText = "UPDATE input SET val = 99 WHERE id = 1";
+                cmd.ExecuteNonQuery();
+
+                conn.SaveToFile();
+
+                var onDisk = File.ReadAllText(tmpFile);
+                using var doc = JsonDocument.Parse(onDisk);
+                Assert.AreEqual(99, doc.RootElement[0].GetProperty("val").GetInt32());
+            }
+            finally
+            {
+                if (File.Exists(tmpFile)) File.Delete(tmpFile);
+            }
+        }
+
+        [TestMethod]
+        public void AutoSave_NonFileBacked_DoesNotThrowOnMutation()
+        {
+            // In-memory connections should not try to save to disk
+            using var conn = JsonDbConnection.FromJson("""[{"id":1}]""");
+            conn.Open();
+            Assert.IsFalse(conn.IsFileBacked);
+
+            using var cmd = conn.CreateCommand();
+            cmd.CommandText = "UPDATE input SET id = 2";
+            // Should not throw
+            cmd.ExecuteNonQuery();
+        }
+
+        [TestMethod]
+        public void SaveToFile_ThrowsForNonFileBacked()
+        {
+            using var conn = JsonDbConnection.FromJson("""[{"id":1}]""");
+            conn.Open();
+
+            var threw = false;
+            try { conn.SaveToFile(); }
+            catch (InvalidOperationException) { threw = true; }
+            Assert.IsTrue(threw);
+        }
+
+        // ─── DataTable ────────────────────────────────────────────────────────────────
+
+        [TestMethod]
+        public void DataTable_Load_PopulatesRows()
+        {
+            using var conn = OpenFromJson(SampleUsersJson);
+            using var cmd = conn.CreateCommand();
+            cmd.CommandText = "SELECT username, sex FROM input";
+            using var reader = cmd.ExecuteReader();
+
+            var table = new DataTable();
+            table.Load(reader);
+
+            Assert.AreEqual(3, table.Rows.Count);
+            Assert.AreEqual(2, table.Columns.Count);
+            Assert.AreEqual("bob", table.Rows[0]["username"]);
+            Assert.AreEqual("female", table.Rows[1]["sex"]);
+        }
+
+        [TestMethod]
+        public void DataTable_Load_WithWhere_FiltersRows()
+        {
+            using var conn = OpenFromJson(SampleUsersJson);
+            using var cmd = conn.CreateCommand();
+            cmd.CommandText = "SELECT username FROM input WHERE sex = \"female\"";
+            using var reader = cmd.ExecuteReader();
+
+            var table = new DataTable();
+            table.Load(reader);
+
+            Assert.AreEqual(1, table.Rows.Count);
+            Assert.AreEqual("alice", table.Rows[0]["username"]);
+        }
+
+        // ─── DbDataAdapter ────────────────────────────────────────────────────────────
+
+        [TestMethod]
+        public void DbDataAdapter_Fill_PopulatesDataTable()
+        {
+            using var conn = OpenFromJson(SampleUsersJson);
+            var adapter = new JsonDbDataAdapter("SELECT username, sex FROM input", conn);
+            var table = new DataTable();
+            adapter.Fill(table);
+
+            Assert.AreEqual(3, table.Rows.Count);
+            Assert.AreEqual("bob", table.Rows[0]["username"]);
+        }
+
+        [TestMethod]
+        public void DbDataAdapter_Fill_PopulatesDataSet()
+        {
+            using var conn = OpenFromJson(SampleUsersJson);
+            var adapter = new JsonDbDataAdapter("SELECT username FROM input WHERE sex = \"male\"", conn);
+            var ds = new DataSet();
+            adapter.Fill(ds);
+
+            Assert.AreEqual(1, ds.Tables.Count);
+            Assert.AreEqual(2, ds.Tables[0].Rows.Count); // bob and charlie
+        }
+
+        [TestMethod]
+        public void DbDataAdapter_FillWithSelectCommand_Works()
+        {
+            using var conn = OpenFromJson(SampleUsersJson);
+            using var cmd = new JsonDbCommand("SELECT username FROM input ORDER BY priority DESCNUM LIMIT 1", conn);
+            var adapter = new JsonDbDataAdapter(cmd);
+            var table = new DataTable();
+            adapter.Fill(table);
+
+            Assert.AreEqual(1, table.Rows.Count);
+        }
+
+        [TestMethod]
+        public void ProviderFactory_CreateDataAdapter_Works()
+        {
+            var adapter = JsonDbProviderFactory.Instance.CreateDataAdapter();
+            Assert.IsNotNull(adapter);
+            Assert.IsInstanceOfType(adapter, typeof(JsonDbDataAdapter));
+        }
     }
 }
