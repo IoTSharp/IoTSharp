@@ -4,9 +4,9 @@
     <TargetFramework>net10.0</TargetFramework>
   </PropertyGroup>
 	<ItemGroup>
-		<PackageReference Include="CLanguage" Version="0.21.99" />
-		<PackageReference Include="CS-Script" Version="4.14.3" />
-		<PackageReference Include="Jint" Version="4.6.3" />
+		<PackageReference Include="CLanguage" Version="0.22.225" />
+		<PackageReference Include="CS-Script" Version="4.14.6" />
+		<PackageReference Include="Jint" Version="4.8.0" />
 		<PackageReference Include="Microsoft.Extensions.Caching.Abstractions" Version="10.0.*" />
 		<PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" Version="10.0.*" />
 		<PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="10.0.*" />
@@ -17,17 +17,7 @@
 		<PackageReference Include="Newtonsoft.Json" Version="13.0.*" />
 	</ItemGroup>
 	<ItemGroup>
-	  <Compile Update="Properties\Resources.Designer.cs">
-	    <DesignTime>True</DesignTime>
-	    <AutoGen>True</AutoGen>
-	    <DependentUpon>Resources.resx</DependentUpon>
-	  </Compile>
-	</ItemGroup>
-	<ItemGroup>
-	  <EmbeddedResource Update="Properties\Resources.resx">
-	    <Generator>ResXFileCodeGenerator</Generator>
-	    <LastGenOutput>Resources.Designer.cs</LastGenOutput>
-	  </EmbeddedResource>
+	  <Folder Include="Properties\" />
 	</ItemGroup>
 
 </Project>
