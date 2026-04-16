@@ -43,7 +43,7 @@ jobs:
         run: dotnet restore IoTSharp.sln
 
       - name: Verify formatting
-        run: dotnet format IoTSharp.sln --verify-no-changes --no-restore
+        run: dotnet format IoTSharp.sln --verify-no-changes --severity error --no-restore
 
       - name: Pack publishable projects
         shell: bash

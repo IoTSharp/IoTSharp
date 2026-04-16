@@ -13,7 +13,7 @@ namespace IoTSharp.Data
 
         [Key]
         public Guid Id { get; set; }
-        public IdentityUser IdentityUser  { get; set; }
+        public IdentityUser IdentityUser { get; set; }
         public virtual Tenant Tenant { get; set; }
         public virtual Customer Customer { get; set; }
     }

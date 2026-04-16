@@ -140,8 +140,8 @@ namespace IoTSharp.Controllers.Models
 
                         return "";
                     }
-                   
-              
+
+
                 case 11:
                     if (target.HasValues)
                     {
@@ -166,7 +166,7 @@ namespace IoTSharp.Controllers.Models
                         return "";
                     }
 
-           
+
                 case 14:
 
                     var x = JsonConvert.SerializeObject(target.Value<JArray>());

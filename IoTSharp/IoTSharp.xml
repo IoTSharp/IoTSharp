@@ -19,6 +19,7 @@
             <param name="logger"></param>
             <param name="context"></param>
             <param name="options"></param>
+            <param name="caching"></param>
         </member>
         <member name="M:IoTSharp.Controllers.AccountController.Avatar">
             <summary>

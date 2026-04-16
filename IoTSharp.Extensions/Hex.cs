@@ -2,15 +2,15 @@
 {
     public static class Hex
     {
-        public static byte[] HexToBytes( string str)
+        public static byte[] HexToBytes(string str)
         {
             return HexToBytes(str, 0, 0, 0);
         }
-        public static byte[] HexToBytes( string str, int offset, int step)
+        public static byte[] HexToBytes(string str, int offset, int step)
         {
             return HexToBytes(str, offset, step, 0);
         }
-        public static byte[] HexToBytes( string str, int offset, int step, int tail)
+        public static byte[] HexToBytes(string str, int offset, int step, int tail)
         {
             byte[] b = new byte[(str.Length - offset - tail + step) / (2 + step)];
             byte c1, c2;
@@ -32,11 +32,11 @@
         }
 
 
-        public static string BytesToHex( byte[] data)
+        public static string BytesToHex(byte[] data)
         {
             return BytesToHex(data, "");
         }
-        public static string BytesToHex( byte[] data, string prefix)
+        public static string BytesToHex(byte[] data, string prefix)
         {
             char[] lookup = new char[] { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F' };
             int i = 0, p = prefix.Length, l = data.Length;

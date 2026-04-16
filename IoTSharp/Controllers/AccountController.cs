@@ -49,13 +49,16 @@ namespace IoTSharp.Controllers
         /// <param name="logger"></param>
         /// <param name="context"></param>
         /// <param name="options"></param>
+        /// <param name="caching"></param>
         public AccountController(
             UserManager<IdentityUser> userManager,
             SignInManager<IdentityUser> signInManager,
-            IConfiguration configuration, ILogger<AccountController> logger, ApplicationDbContext context,
+            IConfiguration configuration,
+            ILogger<AccountController> logger,
+            ApplicationDbContext context,
             IOptions<AppSettings> options,
             EasyCaching.Core.IEasyCachingProvider caching
-            )
+        )
         {
             _userManager = userManager;
             _signInManager = signInManager;

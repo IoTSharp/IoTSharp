@@ -86,7 +86,7 @@ namespace IoTSharp.Services.MQTTControllers
             , TimeSpan.FromSeconds(_settings.RuleCachingExpiration));
             if (rules.HasValue)
             {
-                var obj =   Message.Payload.ToArray();
+                var obj = Message.Payload.ToArray();
                 rules.Value.ToList().ForEach(async g =>
                 {
                     _logger.LogInformation($"{ClientId}的数据{Message.Topic}通过规则链{g}进行处理。");

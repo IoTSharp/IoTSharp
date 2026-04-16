@@ -10,7 +10,7 @@ using ShardingCore.VirtualRoutes.Abstractions;
 
 namespace IoTSharp.Data.Shardings.Routes
 {
-    public class TelemetryDataHourRoute:AbstractShardingTimeKeyDateTimeVirtualTableRoute<TelemetryData>
+    public class TelemetryDataHourRoute : AbstractShardingTimeKeyDateTimeVirtualTableRoute<TelemetryData>
     {
         private readonly AppSettings _setting;
 
@@ -33,22 +33,22 @@ namespace IoTSharp.Data.Shardings.Routes
                 case ShardingOperatorEnum.GreaterThanOrEqual:
                     return tail => String.Compare(tail, t, StringComparison.Ordinal) >= 0;
                 case ShardingOperatorEnum.LessThan:
-                {
-                    //处于临界值 o=>o.time < [2021-01-01 01:00:00] 尾巴2021010101不应该被返回
-                    if (shardingKey.Minute==0&&shardingKey.Second==0)
-                        return tail => String.Compare(tail, t, StringComparison.Ordinal) < 0;
-                    return tail => String.Compare(tail, t, StringComparison.Ordinal) <= 0;
-                }
+                    {
+                        //处于临界值 o=>o.time < [2021-01-01 01:00:00] 尾巴2021010101不应该被返回
+                        if (shardingKey.Minute == 0 && shardingKey.Second == 0)
+                            return tail => String.Compare(tail, t, StringComparison.Ordinal) < 0;
+                        return tail => String.Compare(tail, t, StringComparison.Ordinal) <= 0;
+                    }
                 case ShardingOperatorEnum.LessThanOrEqual:
                     return tail => String.Compare(tail, t, StringComparison.Ordinal) <= 0;
                 case ShardingOperatorEnum.Equal: return tail => tail == t;
                 default:
-                {
+                    {
 #if DEBUG
-                    Console.WriteLine($"shardingOperator is not equal scan all table tail");
+                        Console.WriteLine($"shardingOperator is not equal scan all table tail");
 #endif
-                    return tail => true;
-                }
+                        return tail => true;
+                    }
             }
         }
 

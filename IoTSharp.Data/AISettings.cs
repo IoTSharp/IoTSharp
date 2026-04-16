@@ -12,7 +12,7 @@ namespace IoTSharp.Data
         [Key]
         public Guid Id { get; set; } = Guid.NewGuid();
         public string Name { get; set; } = string.Empty;
-        public string MCP_API_KEY { get; set; }=string.Empty;
+        public string MCP_API_KEY { get; set; } = string.Empty;
 
         public UserRole Role { get; set; } = UserRole.Anonymous;
 

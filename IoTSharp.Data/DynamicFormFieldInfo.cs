@@ -7,7 +7,7 @@ namespace IoTSharp.Data
     public class DynamicFormFieldInfo : IJustMy
     {
         [Key]
-        [DatabaseGenerated( DatabaseGeneratedOption.Identity)]
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public long FieldId { get; set; }
 
         public string FieldName { get; set; }

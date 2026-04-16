@@ -393,7 +393,7 @@ namespace IoTSharp.Extensions
         private static BindingFlags _bindingFlags { get; }
            = BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Public | BindingFlags.Static;
 
-      
+
 
         /// <summary>
         /// 判断是否为Null或者空
@@ -416,7 +416,7 @@ namespace IoTSharp.Extensions
         /// </summary>
         /// <param name="obj">需要序列化的对象</param>
         /// <returns></returns>
-        public static string ToJson<T>(this T obj)  where T:class
+        public static string ToJson<T>(this T obj) where T : class
         {
             return JsonConvert.SerializeObject(obj);
         }
@@ -463,7 +463,7 @@ namespace IoTSharp.Extensions
         /// <typeparam name="T">对象类型</typeparam>
         /// <param name="obj">对象</param>
         /// <returns></returns>
-        public static string ToXmlStr<T>(this T obj) where T:class
+        public static string ToXmlStr<T>(this T obj) where T : class
         {
             var jsonStr = obj.ToJson<T>();
             var xmlDoc = JsonConvert.DeserializeXmlNode(jsonStr);
@@ -479,7 +479,7 @@ namespace IoTSharp.Extensions
         /// <param name="obj">对象</param>
         /// <param name="rootNodeName">根节点名(建议设为xml)</param>
         /// <returns></returns>
-        public static string ToXmlStr<T>(this T obj, string rootNodeName) where T:class
+        public static string ToXmlStr<T>(this T obj, string rootNodeName) where T : class
         {
             var jsonStr = obj.ToJson();
             var xmlDoc = JsonConvert.DeserializeXmlNode(jsonStr, rootNodeName);
@@ -505,7 +505,7 @@ namespace IoTSharp.Extensions
         /// <param name="obj">对象</param>
         /// <param name="propertyName">属性名</param>
         /// <returns></returns>
-        public static V GetPropertyValue<T,V>(this T obj, string propertyName) where T:class
+        public static V GetPropertyValue<T, V>(this T obj, string propertyName) where T : class
         {
             return (V)obj.GetType().GetProperty(propertyName, _bindingFlags).GetValue(obj);
         }

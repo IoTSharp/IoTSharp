@@ -18,7 +18,7 @@ namespace IoTSharp.Data.TimeSeries
 {
     public static class DependencyInjection
     {
-        public  static void AddTelemetryStorage(this IServiceCollection services, AppSettings settings, IHealthChecksBuilder healthChecks)
+        public static void AddTelemetryStorage(this IServiceCollection services, AppSettings settings, IHealthChecksBuilder healthChecks)
         {
             string _hc_telemetryStorage = $"{nameof(TelemetryStorage)}-{Enum.GetName(settings.TelemetryStorage)}";
             var _connectionString = settings.ConnectionStrings["TelemetryStorage"];
@@ -83,13 +83,13 @@ namespace IoTSharp.Data.TimeSeries
 
                 case TelemetryStorage.Taos:
                     services.AddSingleton<IStorage, TaosStorage>();
-                    healthChecks.AddTDengine(new TaosConnectionStringBuilder( _connectionString).UseRESTful().ConnectionString, name: _hc_telemetryStorage);
+                    healthChecks.AddTDengine(new TaosConnectionStringBuilder(_connectionString).UseRESTful().ConnectionString, name: _hc_telemetryStorage);
                     break;
                 case TelemetryStorage.InfluxDB:
                     //https://github.com/julian-fh/influxdb-setup
                     services.AddSingleton<IStorage, InfluxDBStorage>();
                     //"TelemetryStorage": "http://localhost:8086/?org=iotsharp&bucket=iotsharp-bucket&token=iotsharp-token"
-                    services.AddObjectPool(()=>new InfluxDBClient( InfluxDBClientOptions.Builder.CreateNew().ConnectionString(_connectionString).Build()));
+                    services.AddObjectPool(() => new InfluxDBClient(InfluxDBClientOptions.Builder.CreateNew().ConnectionString(_connectionString).Build()));
                     healthChecks.AddInfluxDB(_connectionString, name: _hc_telemetryStorage);
                     break;
 

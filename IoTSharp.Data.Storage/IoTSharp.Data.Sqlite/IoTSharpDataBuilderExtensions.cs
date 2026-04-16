@@ -17,7 +17,7 @@ namespace Microsoft.Extensions.DependencyInjection
 {
     public static class IoTSharpDataBuilderExtensions
     {
-      
+
 
         public static void ConfigureSqlite(this IServiceCollection services, string connectionString, int poolSize, IHealthChecksBuilder checksBuilder, HealthChecksUIBuilder healthChecksUI)
         {
@@ -36,7 +36,7 @@ namespace Microsoft.Extensions.DependencyInjection
                 options.ConfigureWarnings(w => w.Ignore(RelationalEventId.PendingModelChangesWarning));
             }, poolSize);
             checksBuilder.AddSqlite(connectionString, name: "IoTSharp.Data.Sqlite");
-            healthChecksUI.AddSqliteStorage($"Data Source={fi.DirectoryName}{Path.DirectorySeparatorChar}health_checks.db",opt => opt.ConfigureWarnings(w => w.Ignore(RelationalEventId.MultipleCollectionIncludeWarning)));
+            healthChecksUI.AddSqliteStorage($"Data Source={fi.DirectoryName}{Path.DirectorySeparatorChar}health_checks.db", opt => opt.ConfigureWarnings(w => w.Ignore(RelationalEventId.MultipleCollectionIncludeWarning)));
 
         }
 
@@ -48,7 +48,7 @@ namespace Microsoft.Extensions.DependencyInjection
             });
             options.UseShardingTransaction((conn, builder) =>
             {
-                builder.UseSqlite(conn,opt => opt.UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery));
+                builder.UseSqlite(conn, opt => opt.UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery));
             });
         }
 

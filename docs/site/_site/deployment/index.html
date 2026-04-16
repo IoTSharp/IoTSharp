@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>部署指南 · IoTSharp Docs</title>
+  <meta name="description" content="IoTSharp 的容器、二进制压缩包与发布资产说明。" />
+  <link rel="stylesheet" href="/assets/site.css" />
+</head>
+<body>
+  <header class="site-header">
+    <div class="container">
+      <a class="brand" href="/">IoTSharp Docs</a>
+      <nav>
+        <a href="/guide/getting-started/">快速开始</a>
+        <a href="/guide/deployment/">部署</a>
+        <a href="/reference/nuget-packages/">NuGet</a>
+        <a href="/reference/release-automation/">CI/CD</a>
+        <a href="https://github.com/IoTSharp/IoTSharp">GitHub</a>
+      </nav>
+    </div>
+  </header>
+  <main class="container content">
+    <h1 id="section">部署指南</h1>
+<h2 id="docker">Docker 镜像</h2>
+<p>Semver tag（例如 <code>v1.0.0</code>）会构建 IoTSharp Docker 镜像，并同时推送到：</p>
+<ul>
+<li><code>ghcr.io/&lt;owner&gt;/iotsharp</code></li>
+<li><code>docker.io/&lt;dockerhub-user&gt;/iotsharp</code></li>
+</ul>
+<p>镜像标签包括：</p>
+<ul>
+<li>完整版本号</li>
+<li><code>major.minor</code></li>
+<li>非预发布版本的 <code>latest</code></li>
+</ul>
+<h2 id="github-release">GitHub Release 二进制资产</h2>
+<p>Release 工作流会为以下运行时生成压缩包并附加到 GitHub Release：</p>
+<ul>
+<li><code>win-x64</code></li>
+<li><code>win-x86</code></li>
+<li><code>linux-x64</code></li>
+<li>现有的 ARM / ARM64 / LoongArch64 / macOS x64 资产仍继续保留</li>
+</ul>
+<h2 id="section-1">主程序发布注意事项</h2>
+<ul>
+<li><code>dotnet publish</code> 使用 Release 配置</li>
+<li>Release 版本号来自 tag 去掉前缀 <code>v</code></li>
+<li>资产文件名使用 <code>IoTSharp-&lt;version&gt;-&lt;rid&gt;</code> 规则</li>
+</ul>
+
+  </main>
+</body>
+</html>

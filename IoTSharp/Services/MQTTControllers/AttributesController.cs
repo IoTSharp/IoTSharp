@@ -181,7 +181,7 @@ namespace IoTSharp.Services.MQTTControllers
                     var _dts = await qf.ToListAsync();
                     foreach (var kv in _dts)
                     {
-                        reps.Add(kv.Key,kv.Value);
+                        reps.Add(kv.Key, kv.Value);
                     }
                     await Server.PublishAsync(ClientId, $"devices/me/attributes/response/{requestid}", reps);
                 }
@@ -192,6 +192,6 @@ namespace IoTSharp.Services.MQTTControllers
             }
         }
 
-       
+
     }
 }

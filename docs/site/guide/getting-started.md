@@ -17,7 +17,7 @@ description: IoTSharp 仓库的本地构建与验证说明。
 ```bash
 cd /home/runner/work/IoTSharp/IoTSharp
 dotnet restore ./IoTSharp.sln
-dotnet format ./IoTSharp.sln --verify-no-changes --no-restore
+dotnet format ./IoTSharp.sln --verify-no-changes --severity error --no-restore
 dotnet build ./IoTSharp/IoTSharp.csproj -c Release --no-restore
 dotnet test ./IoTSharp.Test/IoTSharp.Test.csproj -c Release --no-restore
 dotnet test ./IoTSharp.Data.JsonDB.Tests/IoTSharp.Data.JsonDB.Tests.csproj -c Release --no-restore

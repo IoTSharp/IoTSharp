@@ -79,7 +79,7 @@ namespace Microsoft.Extensions.Hosting
             }
             return hostBuilder;
         }
- 
+
 
         private static Process GetParent(Process child)
         {

@@ -1,4 +1,4 @@
-﻿ 
+﻿
 using EasyCaching.Core;
 using IoTSharp.Contracts;
 using IoTSharp.Data;
@@ -25,6 +25,6 @@ namespace IoTSharp.EventBus.NServiceBus
         {
 
         }
- 
+
     }
 }

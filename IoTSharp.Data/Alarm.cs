@@ -4,9 +4,9 @@ using System.ComponentModel.DataAnnotations;
 
 namespace IoTSharp.Data
 {
-   
 
-    public class Alarm: IJustMy
+
+    public class Alarm : IJustMy
     {
         /// <summary>
         /// 告警ID

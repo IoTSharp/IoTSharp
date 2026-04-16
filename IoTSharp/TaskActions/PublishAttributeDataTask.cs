@@ -24,12 +24,12 @@ namespace IoTSharp.TaskActions
             _queue = queue;
         }
 
-        public override  Task<TaskActionOutput> ExecuteAsync(TaskActionInput param)
+        public override Task<TaskActionOutput> ExecuteAsync(TaskActionInput param)
         {
             var result = new TaskActionOutput() { DynamicOutput = new { code = ApiCode.Success, msg = "OK" } };
             try
             {
-                var msg = new PlayloadData() {  MsgBody = JToken.Parse(param.Input)?.JsonToDictionary(), DataCatalog = DataCatalog.AttributeData, DataSide = DataSide.ClientSide, DeviceId = param.DeviceId };
+                var msg = new PlayloadData() { MsgBody = JToken.Parse(param.Input)?.JsonToDictionary(), DataCatalog = DataCatalog.AttributeData, DataSide = DataSide.ClientSide, DeviceId = param.DeviceId };
                 if (msg.DeviceId != Guid.Empty && msg.MsgBody?.Count > 0)
                 {
                     _queue.PublishAttributeData(msg);
@@ -39,7 +39,7 @@ namespace IoTSharp.TaskActions
             {
                 result.DynamicOutput = new { code = ApiCode.Exception, msg = ex.Message };
             }
-            return  Task.FromResult( result);
+            return Task.FromResult(result);
         }
     }
 }

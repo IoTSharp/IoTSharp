@@ -39,7 +39,7 @@ namespace IoTSharp.TaskActions
             }
         }
 
-        private  TaskActionOutput SendData(TaskActionInput input)
+        private TaskActionOutput SendData(TaskActionInput input)
         {
             try
             {
@@ -56,9 +56,9 @@ namespace IoTSharp.TaskActions
                 alarmdto.CreateDateTime = DateTime.UtcNow;
                 alarmdto.Serverity = (ServerityLevel)config.serverity;
                 alarmdto.AlarmType = config.alarmType;
-                alarmdto.AlarmDetail = config.AlarmDetail ?? JsonConvert.SerializeObject(dd) ;
+                alarmdto.AlarmDetail = config.AlarmDetail ?? JsonConvert.SerializeObject(dd);
                 return new TaskActionOutput() { ExecutionInfo = JsonConvert.SerializeObject(alarmdto), ExecutionStatus = true, DynamicOutput = alarmdto };
-             
+
             }
             catch (Exception ex)
             {

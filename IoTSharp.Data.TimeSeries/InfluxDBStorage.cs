@@ -42,16 +42,16 @@ namespace IoTSharp.Storage
             Uri uri = new Uri(_appSettings.ConnectionStrings["TelemetryStorage"]);
             string leftPart = uri.GetLeftPart(UriPartial.Path);
             NameValueCollection nameValueCollection = HttpUtility.ParseQueryString(uri.Query);
-              _org = nameValueCollection.Get("org");
-              _bucket = nameValueCollection.Get("bucket");
-              _token = nameValueCollection.Get("token");
-            _latest= nameValueCollection.Get("latest");
+            _org = nameValueCollection.Get("org");
+            _bucket = nameValueCollection.Get("bucket");
+            _token = nameValueCollection.Get("token");
+            _latest = nameValueCollection.Get("latest");
             _latest ??= "-72h";
             //string logLevel = nameValueCollection.Get("logLevel");
             //string timeout = nameValueCollection.Get("timeout");
             //string readWriteTimeout = nameValueCollection.Get("readWriteTimeout");
         }
-       
+
 
         public Task<List<TelemetryDataDto>> GetTelemetryLatest(Guid deviceId)
         {
@@ -63,7 +63,7 @@ from(bucket: ""{_bucket}"")
   |> filter(fn: (r) => r[""_measurement""] == ""TelemetryData"")
   |> filter(fn: (r) => r[""DeviceId""] == ""{deviceId}"")
   |> last()");
-           
+
             _taospool.Return(_taos);
             return FluxToDtoAsync(v);
         }
@@ -87,9 +87,9 @@ from(bucket: ""{_bucket}"")
 
         }
 
-         
 
-        private async Task<List<TelemetryDataDto>> FluxToDtoAsync(Task< List<FluxTable>> v)
+
+        private async Task<List<TelemetryDataDto>> FluxToDtoAsync(Task<List<FluxTable>> v)
         {
             List<TelemetryDataDto> dt = new List<TelemetryDataDto>();
             (await v)?.ForEach(ft =>
@@ -113,7 +113,7 @@ from(bucket: ""{_bucket}"")
             });
             return dt;
         }
-       Contracts.DataType InfluxTypeToIoTSharpType(string _itype)
+        Contracts.DataType InfluxTypeToIoTSharpType(string _itype)
         {
             Contracts.DataType data = DataType.String;
             switch (_itype)
@@ -139,7 +139,7 @@ from(bucket: ""{_bucket}"")
             return data;
         }
 
-  
+
         /// <summary>
         /// 加载遥测数据
         /// </summary>
@@ -150,7 +150,7 @@ from(bucket: ""{_bucket}"")
         /// <param name="every">数据堆叠断面时间</param>
         /// <param name="aggregate">聚合方式</param>
         /// <returns></returns>
-        public Task<List<TelemetryDataDto>> LoadTelemetryAsync(Guid deviceId, string keys, DateTime begin, DateTime end,TimeSpan every, Aggregate aggregate)
+        public Task<List<TelemetryDataDto>> LoadTelemetryAsync(Guid deviceId, string keys, DateTime begin, DateTime end, TimeSpan every, Aggregate aggregate)
         {
             InfluxDBClient _taos = _taospool.Get();
             var query = _taos.GetQueryApi();
@@ -169,19 +169,19 @@ from(bucket: ""{_bucket}"")
             if (every > TimeSpan.Zero && aggregate != Aggregate.None)
             {
                 sb.AppendLine($@"|> aggregateWindow(every: {(long)every.TotalMilliseconds}ms, fn: {Enum.GetName(aggregate)?.ToLower()}, createEmpty: false)");
-                sb.AppendLine(@$"|> yield(name: ""{Enum.GetName( aggregate)?.ToLower()}"")");
+                sb.AppendLine(@$"|> yield(name: ""{Enum.GetName(aggregate)?.ToLower()}"")");
             }
             else
             {
                 sb.AppendLine(@$"|> yield()");
             }
-           _logger.LogInformation(sb.ToString());
+            _logger.LogInformation(sb.ToString());
             var v = query.QueryAsync(sb.ToString());
             _taospool.Return(_taos);
             return FluxToDtoAsync(v);
         }
 
-        public async Task<(bool result, List<TelemetryData> telemetries)> StoreTelemetryAsync(PlayloadData msg  )
+        public async Task<(bool result, List<TelemetryData> telemetries)> StoreTelemetryAsync(PlayloadData msg)
         {
             bool result = false;
             List<TelemetryData> telemetries = new List<TelemetryData>(); ;
@@ -200,7 +200,7 @@ from(bucket: ""{_bucket}"")
                             {
                                 case DataType.Boolean:
                                     // point.Field("value_type", "value_boolean");
-                                  if (tdata.Value_Boolean.HasValue)  point = point.Field(tdata.KeyName, tdata.Value_Boolean.Value);
+                                    if (tdata.Value_Boolean.HasValue) point = point.Field(tdata.KeyName, tdata.Value_Boolean.Value);
                                     break;
                                 case DataType.String:
                                     //point.Field("value_string", "value_boolean");
@@ -229,7 +229,7 @@ from(bucket: ""{_bucket}"")
                             }
                             if (point.HasFields())
                             {
-                                point = point.Timestamp(msg.ts.ToUniversalTime() , WritePrecision.Ns);
+                                point = point.Timestamp(msg.ts.ToUniversalTime(), WritePrecision.Ns);
                                 lst.Add(point);
                                 telemetries.Add(tdata);
                             }

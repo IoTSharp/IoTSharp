@@ -38,7 +38,7 @@ namespace IoTSharp.TaskActions
             }
             else
             {
-                return new TaskActionOutput() { ExecutionInfo = $"StatusCode:{response.StatusCode  } StatusDescription:{response.StatusDescription}  {response.ErrorMessage}", ExecutionStatus = false }; ;
+                return new TaskActionOutput() { ExecutionInfo = $"StatusCode:{response.StatusCode} StatusDescription:{response.StatusDescription}  {response.ErrorMessage}", ExecutionStatus = false }; ;
             }
         }
 

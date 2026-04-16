@@ -10,7 +10,7 @@ namespace IoTSharp.Interpreter
 {
     public class ScriptEngineBase
     {
-        internal   CancellationToken _cancellationToken;
+        internal CancellationToken _cancellationToken;
         internal readonly ILogger _logger;
         internal readonly EngineSetting _setting;
 

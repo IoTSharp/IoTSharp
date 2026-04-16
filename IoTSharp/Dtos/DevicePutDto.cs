@@ -9,7 +9,7 @@ namespace IoTSharp.Dtos
 {
     public class DevicePutDto
     {
-        public Guid Id { get; set; } 
+        public Guid Id { get; set; }
         public string Name { get; set; }
         /// <summary>
         /// 设备类型

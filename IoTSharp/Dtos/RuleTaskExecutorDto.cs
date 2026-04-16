@@ -18,7 +18,7 @@ namespace IoTSharp.Dtos
     public class RuleTaskExecutorTestResultDto
     {
 
-     
+
         public dynamic Data { get; set; }
 
     }

@@ -3,7 +3,7 @@ using IoTSharp.Contracts;
 
 namespace IoTSharp.Dtos
 {
-   
+
 
 
 

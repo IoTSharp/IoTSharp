@@ -7,16 +7,16 @@ using System.Threading.Tasks;
 
 namespace IoTSharp.Data
 {
-   public class DeviceGraph
+    public class DeviceGraph
     {
         [Key]
         public Guid GraphId { get; set; }
         public Guid DeviceId { get; set; }
         public string GraphShape { get; set; }
-        public int  GraphWidth { get; set; }
+        public int GraphWidth { get; set; }
         public int GraphHeight { get; set; }
         public int GraphPostionX { get; set; }
-        public int  GraphPostionY { get; set; }
+        public int GraphPostionY { get; set; }
         public string GraphElementId { get; set; }
         public DateTime? CreateDate { get; set; }
         public Guid Creator { get; set; }

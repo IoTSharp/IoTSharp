@@ -239,7 +239,7 @@ namespace IoTSharp.Services.MQTTControllers
             {
                 _logger.LogError(ex, $"调用KepServerEx失败:{ex.Message}");
             }
-   
+
         }
     }
 }

@@ -25,15 +25,15 @@ namespace IoTSharp.EventBus
         public async Task<EventBusMetrics> GetMetrics()
         {
             var _api = _storage.GetMonitoringApi();
-            var ps =await _api.HourlySucceededJobs(MessageType.Publish);
-            var pf =await _api.HourlyFailedJobs(MessageType.Publish);
-            var ss =await _api.HourlySucceededJobs(MessageType.Subscribe);
-            var sf =await _api.HourlyFailedJobs(MessageType.Subscribe);
+            var ps = await _api.HourlySucceededJobs(MessageType.Publish);
+            var pf = await _api.HourlyFailedJobs(MessageType.Publish);
+            var ss = await _api.HourlySucceededJobs(MessageType.Subscribe);
+            var sf = await _api.HourlyFailedJobs(MessageType.Subscribe);
             var dayHour = ps.OrderBy(k => k.Key).Select(k => k.Key.ToString("MM-dd HH:00")).ToList();
             var s = await _api.GetStatisticsAsync();
             var result = new EventBusMetrics(
 dayHour,
-ps.OrderBy(k=>k.Key).Select(k=>k.Value).ToList(),
+ps.OrderBy(k => k.Key).Select(k => k.Value).ToList(),
 pf.OrderBy(k => k.Key).Select(k => k.Value).ToList(),
 ss.OrderBy(k => k.Key).Select(k => k.Value).ToList(),
 sf.OrderBy(k => k.Key).Select(k => k.Value).ToList()
@@ -46,30 +46,30 @@ sf.OrderBy(k => k.Key).Select(k => k.Value).ToList()
                 PublishedFailed = s.PublishedFailed,
                 ReceivedFailed = s.ReceivedFailed
             };
-            return  result;
+            return result;
         }
         public async Task PublishAttributeData(PlayloadData msg)
         {
             await _queue.PublishAsync("iotsharp.services.datastream.attributedata", msg);
         }
 
-        public  async Task PublishTelemetryData( PlayloadData msg)
+        public async Task PublishTelemetryData(PlayloadData msg)
         {
             await _queue.PublishAsync("iotsharp.services.datastream.telemetrydata", msg);
         }
- 
 
-        public  async Task PublishDeviceAlarm( CreateAlarmDto alarmDto)
+
+        public async Task PublishDeviceAlarm(CreateAlarmDto alarmDto)
         {
             await _queue.PublishAsync("iotsharp.services.datastream.alarm", alarmDto);
         }
 
-        public  async Task PublishCreateDevice(Guid  devid)
+        public async Task PublishCreateDevice(Guid devid)
         {
             await _queue.PublishAsync("iotsharp.services.platform.createdevice", devid);
         }
 
-        public  async Task PublishDeleteDevice(Guid devid)
+        public async Task PublishDeleteDevice(Guid devid)
         {
             await _queue.PublishAsync("iotsharp.services.platform.deleteDevice", devid);
         }

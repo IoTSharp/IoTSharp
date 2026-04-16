@@ -27,7 +27,7 @@ namespace IoTSharp.Data
         public string Value_XML { get; set; }
         public byte[] Value_Binary { get; set; }
     }
-    public class DataStorage: IDataStorage
+    public class DataStorage : IDataStorage
     {
         [EnumDataType(typeof(DataCatalog)), Column(Order = 0)]
         public DataCatalog Catalog { get; set; }
@@ -38,7 +38,7 @@ namespace IoTSharp.Data
         [Column(Order = 2)]
         public string KeyName { get; set; }
 
-        [Column(Order = 3 )]
+        [Column(Order = 3)]
         public DateTime DateTime { get; set; }
 
         [Column(Order = 4)]
@@ -52,7 +52,7 @@ namespace IoTSharp.Data
         public bool? Value_Boolean { get; set; }
         public string Value_String { get; set; }
         public long? Value_Long { get; set; }
-   
+
         public DateTime? Value_DateTime { get; set; }
         public double? Value_Double { get; set; }
         public string Value_Json { get; set; }

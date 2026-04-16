@@ -12,7 +12,7 @@ namespace IoTSharp.Data
         [Key]
         public Guid Id { get; set; }
         public string Name { get; set; }
-        public string Description {get;set;}
+        public string Description { get; set; }
         public string AssetType { get; set; }
         public List<AssetRelation> OwnedAssets { get; set; }
         public Customer Customer { get; set; }

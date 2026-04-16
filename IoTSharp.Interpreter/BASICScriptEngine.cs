@@ -11,8 +11,8 @@ namespace IoTSharp.Interpreter
 {
     public class BASICScriptEngine : ScriptEngineBase
     {
-      
-        public BASICScriptEngine(ILogger<BASICScriptEngine> logger  , IOptions<EngineSetting> _opt) : base(logger, _opt.Value, System.Threading.Tasks.Task.Factory.CancellationToken)
+
+        public BASICScriptEngine(ILogger<BASICScriptEngine> logger, IOptions<EngineSetting> _opt) : base(logger, _opt.Value, System.Threading.Tasks.Task.Factory.CancellationToken)
         {
 
         }
@@ -21,7 +21,7 @@ namespace IoTSharp.Interpreter
             var expConverter = new ExpandoObjectConverter();
             dynamic obj = JsonConvert.DeserializeObject<ExpandoObject>(input, expConverter);
             //https://github.com/Timu5/BasicSharp
-           var outputjson=   JsonConvert.SerializeObject(obj);
+            var outputjson = JsonConvert.SerializeObject(obj);
             return outputjson;
         }
     }

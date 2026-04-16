@@ -19,9 +19,9 @@ namespace IoTSharp.Storage
     {
         private readonly AppSettings _appSettings;
         private readonly ILogger _logger;
-        private readonly  Apache.IoTDB.SessionPool   _session;
+        private readonly Apache.IoTDB.SessionPool _session;
         private readonly IoTDBConnection _ioTDB;
-        private string _StorageGroupName=string.Empty;
+        private string _StorageGroupName = string.Empty;
         public IoTDBStorage(ILogger<IoTDBStorage> logger, IOptions<AppSettings> options, IoTDBConnection ioTDB
             )
         {
@@ -29,7 +29,7 @@ namespace IoTSharp.Storage
             _logger = logger;
             _session = ioTDB.SessionPool;
             _ioTDB = ioTDB;
-          
+
         }
         public async Task<bool> CheckTelemetryStorage()
         {
@@ -76,9 +76,9 @@ namespace IoTSharp.Storage
             }
             return _ok;
         }
-      
 
-        private async Task<List<MapItem>> GetIotDbMeasurementPointInfor(string device,string measureKeys="*")
+
+        private async Task<List<MapItem>> GetIotDbMeasurementPointInfor(string device, string measureKeys = "*")
         {
             //show timeseries root.iotsharp.8984003f7016487db7f26528b246198f.**\
             var keylist = measureKeys.Split(';', ',').ToList();
@@ -90,7 +90,7 @@ namespace IoTSharp.Storage
                 var next = query.Next();
                 var values = next.Values;
                 var measurePointName = values?[0]?.ToString()?.Replace(@$"{device}.", "");
-                var  _value = values?[3]  as string ;
+                var _value = values?[3] as string;
                 if (!string.IsNullOrEmpty(measurePointName) && !string.IsNullOrEmpty(_value))
                 {
                     var _v = new MapItem(measurePointName, _value);
@@ -100,7 +100,7 @@ namespace IoTSharp.Storage
             }
             return dt;
         }
-        private dynamic? GetIotSharpValue(object v,string iotDataType)
+        private dynamic? GetIotSharpValue(object v, string iotDataType)
         {
             dynamic? result = null;
             if (v != null && (v.ToString()?.ToUpper()) != "NULL")
@@ -131,7 +131,7 @@ namespace IoTSharp.Storage
             }
             return result;
         }
-        private  DataType GetIoTSharpDataType(string iotDataType)
+        private DataType GetIoTSharpDataType(string iotDataType)
         {
             string _iot_dt_up = iotDataType.ToUpper();
             return _iot_dt_up switch
@@ -149,7 +149,7 @@ namespace IoTSharp.Storage
 
         public async Task<List<TelemetryDataDto>> GetTelemetryLatest(Guid deviceId)
         {
-            return await GetTelemetryLatest(deviceId,"*");
+            return await GetTelemetryLatest(deviceId, "*");
         }
 
 
@@ -165,22 +165,22 @@ namespace IoTSharp.Storage
             switch (aggregate)
             {
                 case Aggregate.Mean:
-                    result= "AVG";
+                    result = "AVG";
                     break;
                 case Aggregate.Last:
-                    result= "LAST_VALUE";
+                    result = "LAST_VALUE";
                     break;
                 case Aggregate.First:
-                    result= "FIRST_VALUE";
+                    result = "FIRST_VALUE";
                     break;
                 case Aggregate.Max:
-                    result= "MAX_VALUE";
+                    result = "MAX_VALUE";
                     break;
                 case Aggregate.Min:
-                    result= "MIN_VALUE";
+                    result = "MIN_VALUE";
                     break;
                 case Aggregate.Sum:
-                    result= "SUM";
+                    result = "SUM";
                     break;
                 case Aggregate.None:
                 default:
@@ -215,7 +215,7 @@ namespace IoTSharp.Storage
                 }
 
                 _logger.LogInformation(sb.ToString());
-                 var query = await _session.ExecuteQueryStatementAsync(sb.ToString());
+                var query = await _session.ExecuteQueryStatementAsync(sb.ToString());
                 while (query.HasNext())
                 {
                     var next = query.Next();
@@ -255,9 +255,9 @@ namespace IoTSharp.Storage
             var selectItemStr = string.Join(",", from m in keys.Split(',') select $"last({m})");
 
             var sql = $"select {selectItemStr} from {device}";
-            
+
             List<TelemetryDataDto> dt = new List<TelemetryDataDto>();
-             var query = await _session.ExecuteQueryStatementAsync(sql);
+            var query = await _session.ExecuteQueryStatementAsync(sql);
 
             while (query.HasNext())
             {
@@ -265,7 +265,7 @@ namespace IoTSharp.Storage
                 var next = query.Next();
                 var values = next.Values;
                 var time = next.GetDateTime();
-                if (values != null && values.Count>=3)
+                if (values != null && values.Count >= 3)
                 {
                     var _iottype = values[2] as string;
                     var _keyname = values[0]?.ToString()?.Replace($"{device}.", "");
@@ -309,7 +309,7 @@ namespace IoTSharp.Storage
                         tdata.FillKVToMe(kp);
                         object? _value = null;
                         bool _hasvalue = true;
-                        TSDataType tsdata= TSDataType.NONE;
+                        TSDataType tsdata = TSDataType.NONE;
                         switch (tdata.Type)
                         {
                             case DataType.Boolean:
@@ -346,7 +346,7 @@ namespace IoTSharp.Storage
                         }
                     }
                 });
-                var record =  new RowRecord(msg.ts, values, memas, dataTypes);
+                var record = new RowRecord(msg.ts, values, memas, dataTypes);
                 var okCount = await _session.InsertRecordAsync(device, record);
                 _logger.LogInformation($"数据入库完成，准备写入{values.Count}条数据，实际写入{okCount}条");
                 result = true;

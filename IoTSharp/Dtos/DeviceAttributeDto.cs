@@ -32,7 +32,7 @@ namespace IoTSharp.Controllers
         public byte[] Value_Binary { get; set; }
 
         public DataCatalog Catalog { get; set; }
-        
+
 
     }
 }

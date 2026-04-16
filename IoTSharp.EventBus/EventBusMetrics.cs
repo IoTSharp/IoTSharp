@@ -54,7 +54,7 @@
         public EventBusMetrics()
         {
             DayHour = new List<string>();
-            PublishSuccessed = new List<int> ();
+            PublishSuccessed = new List<int>();
             PublishFailed = new List<int>();
             SubscribeSuccessed = new List<int>();
             SubscribeFailed = new List<int>();
@@ -67,6 +67,6 @@
             SubscribeSuccessed = subscribeSuccessed;
             SubscribeFailed = subscribeFailed;
         }
-    
+
     }
 }

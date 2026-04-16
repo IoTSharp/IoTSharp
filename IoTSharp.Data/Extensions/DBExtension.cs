@@ -21,17 +21,17 @@ namespace IoTSharp.Data.Extensions
             var _logger = logfac.CreateLogger(MethodBase.GetCurrentMethod().Name);
             using var applicationDb = scope.ServiceProvider.GetService<ApplicationDbContext>();
             try
-			{
+            {
                 if (applicationDb.Database.IsRelational() && applicationDb.Database.GetPendingMigrations().Any())
                 {
                     applicationDb.Database.Migrate();
                 }
             }
-			catch (Exception ex)
-			{
-                _logger.LogError(ex,$"{MethodBase.GetCurrentMethod().Name}{ex.Message}" );
-				throw;
-			}
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"{MethodBase.GetCurrentMethod().Name}{ex.Message}");
+                throw;
+            }
         }
     }
 }

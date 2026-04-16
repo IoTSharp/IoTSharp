@@ -13,11 +13,11 @@ namespace Microsoft.Extensions.DependencyInjection
 {
     public static class IoTSharpDataBuilderExtensions
     {
-      
+
 
         public static void ConfigureOracle(this IServiceCollection services, string connectionString, int poolSize, IHealthChecksBuilder checksBuilder, HealthChecksUIBuilder healthChecksUI)
         {
-            services.AddSingleton<IDataBaseModelBuilderOptions>( c=> new OracleModelBuilderOptions());
+            services.AddSingleton<IDataBaseModelBuilderOptions>(c => new OracleModelBuilderOptions());
             services.AddDbContextPool<ApplicationDbContext>(options =>
             {
                 options.UseOracle(connectionString, s =>
@@ -25,7 +25,7 @@ namespace Microsoft.Extensions.DependencyInjection
                      .MigrationsAssembly("IoTSharp.Data.Oracle"));
                 options.ConfigureWarnings(w => w.Ignore(RelationalEventId.PendingModelChangesWarning));
             }, poolSize);
-            checksBuilder.AddOracle(connectionString,name: "IoTSharp.Data.Oracle");
+            checksBuilder.AddOracle(connectionString, name: "IoTSharp.Data.Oracle");
             healthChecksUI.AddInMemoryStorage(opt => opt.ConfigureWarnings(w => w.Ignore(RelationalEventId.MultipleCollectionIncludeWarning)));
 
         }

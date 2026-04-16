@@ -16,7 +16,7 @@ namespace IoTSharp.Dtos
         public FlowRuleRunType Type { get; set; }
         public string MataData { get; set; }
         public Guid Creator { get; set; }
-   
+
         public string Bizid { get; set; }
         public DateTime CreaterDateTime { get; set; }
         public Guid RuleId { get; set; }

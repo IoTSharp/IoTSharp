@@ -30,7 +30,7 @@ namespace IoTSharp.EasyEFQuery
     }
     public class Query
     {
-        
+
         public string Name { get; set; }
         public Operators Operator { get; set; }
         public object Value { get; set; }
@@ -48,9 +48,9 @@ namespace IoTSharp.EasyEFQuery
         }
         public static QueryCollection Create(string json)
         {
-            return  Newtonsoft.Json.JsonConvert.DeserializeObject<QueryCollection>(json);
+            return Newtonsoft.Json.JsonConvert.DeserializeObject<QueryCollection>(json);
         }
-        public  override string ToString()
+        public override string ToString()
         {
             return Newtonsoft.Json.JsonConvert.SerializeObject(this);
         }
@@ -79,14 +79,14 @@ namespace IoTSharp.EasyEFQuery
     }
     public static class QueryCollectionExtension
     {
-       
-        public static QueryCollection Parse(this  QueryCollection queries, string json)
+
+        public static QueryCollection Parse(this QueryCollection queries, string json)
         {
-            var jo= Newtonsoft.Json.Linq.JObject.Parse(json);
+            var jo = Newtonsoft.Json.Linq.JObject.Parse(json);
             jo.Merge(queries);
             return jo.ToObject<QueryCollection>();
         }
-        public static Expression<Func<T, bool>> AndWith<T>(this Expression<Func<T, bool>> first, QueryCollection queries ) where T : class
+        public static Expression<Func<T, bool>> AndWith<T>(this Expression<Func<T, bool>> first, QueryCollection queries) where T : class
         {
             return first.AndWith(queries.AsExpression<T>(), Expression.AndAlso);
         }

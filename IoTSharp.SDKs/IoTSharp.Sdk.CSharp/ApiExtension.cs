@@ -13,7 +13,7 @@ namespace IoTSharp.Sdk.Http
 
         public static T ToData<T>(this ApiResult _apiResult) => (T)_apiResult.Data;
 
-     
+
         public static string ToDisplayText(this DataStorage storage)
         {
             string _display = "";
@@ -31,7 +31,7 @@ namespace IoTSharp.Sdk.Http
                         _display = storage.Value_Boolean.ToString();
                         break;
                     case DataType.DateTime:
-                     if (storage.Value_DateTime!=DateTime.MinValue)   _display = storage.Value_DateTime?.ToString("yyyy-MM-dd HH:mm:ss");
+                        if (storage.Value_DateTime != DateTime.MinValue) _display = storage.Value_DateTime?.ToString("yyyy-MM-dd HH:mm:ss");
                         break;
                     case DataType.Double:
                         _display = storage.Value_Double.ToString();

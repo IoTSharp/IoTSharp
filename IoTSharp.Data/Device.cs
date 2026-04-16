@@ -22,7 +22,7 @@ namespace IoTSharp.Data
         /// 设备类型
         /// </summary>
         public DeviceType DeviceType { get; set; }
- 
+
 
         /// <summary>
         /// 超时时间 秒数

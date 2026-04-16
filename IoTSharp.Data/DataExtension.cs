@@ -25,7 +25,7 @@ namespace IoTSharp.Data
         public static (bool ok, Device device) GetDeviceByToken(this ApplicationDbContext _context, string access_token)
         {
             var deviceIdentity = from id in _context.DeviceIdentities.Include(di => di.Device) where id.IdentityId == access_token && id.IdentityType == IdentityType.AccessToken select id;
-            var devices = from dev in _context.Device.Include(c=>c.Owner) where deviceIdentity.Any() && dev.Id == deviceIdentity.FirstOrDefault().Device.Id select dev;
+            var devices = from dev in _context.Device.Include(c => c.Owner) where deviceIdentity.Any() && dev.Id == deviceIdentity.FirstOrDefault().Device.Id select dev;
             bool ok = deviceIdentity == null || !devices.Any();
             return (ok, devices.FirstOrDefault());
         }
@@ -68,7 +68,7 @@ namespace IoTSharp.Data
                 {
                     { "", new Exception("参数为空") }
                 };
-                return (0, exceptions) ;
+                return (0, exceptions);
             }
         }
         /// <summary>
@@ -93,7 +93,7 @@ namespace IoTSharp.Data
                     if (kp.Key != null && kp.Value != null)
                     {
                         var devdata = from tx in _context.Set<L>() where tx.DeviceId == deviceId select tx;
-                        var tl = from tx in devdata where tx.KeyName == kp.Key  select tx;
+                        var tl = from tx in devdata where tx.KeyName == kp.Key select tx;
                         if (tl.Any())
                         {
                             var tx = tl.First();

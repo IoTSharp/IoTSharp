@@ -17,8 +17,8 @@ namespace IoTSharp.Dtos
         public DataSide DataSide { get; set; }
 
         public DateTime DateTime { get; set; }
- 
-        public  object Value{ get; set; }
-        public  DataType DataType { get;   set; }
+
+        public object Value { get; set; }
+        public DataType DataType { get; set; }
     }
 }

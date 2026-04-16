@@ -9,7 +9,7 @@ using System.IO;
 
 namespace System.Text.Json
 {
-   
+
     public static class SystemTextJsonRestClientExtensions
     {
         public static async Task<T> GetDataBy<T>(this Uri uri, params object[] objparam)
@@ -30,7 +30,7 @@ namespace System.Text.Json
         {
             return await GetDataBy<T>(uri, action, false);
         }
-        public static async Task<T> GetDataBy<T>(this Uri uri, Action<RestRequest> action, bool checktype )
+        public static async Task<T> GetDataBy<T>(this Uri uri, Action<RestRequest> action, bool checktype)
         {
             var result1 = default(T);
             var client = Create(uri);
@@ -48,7 +48,7 @@ namespace System.Text.Json
                     }
                     else
                     {
-                        result1 =System.Text.Json.JsonSerializer.Deserialize<T>(response.Content);
+                        result1 = System.Text.Json.JsonSerializer.Deserialize<T>(response.Content);
                     }
                 }
                 else
@@ -100,7 +100,7 @@ namespace System.Text.Json
 
         private static RestClient Create(Uri uri)
         {
-            var client = new RestClient(new RestClientOptions(uri) {  Timeout  = TimeSpan.FromSeconds(30), FollowRedirects = false });
+            var client = new RestClient(new RestClientOptions(uri) { Timeout = TimeSpan.FromSeconds(30), FollowRedirects = false });
             client.AddDefaultHeader(KnownHeaders.Accept, "*/*");
             return client;
         }

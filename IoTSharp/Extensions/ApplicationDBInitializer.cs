@@ -53,15 +53,16 @@ namespace IoTSharp.Data
                     {
                         await _role.UpdateNormalizedRoleNameAsync(role);
                     }
-                };
+                }
+                ;
             }
         }
 
-         
+
 
         public async Task SeedDictionary()
         {
-            var controltype = this._context.BaseDictionaryGroups.Add(new BaseDictionaryGroup { DictionaryGroupName = "控件类型",  DictionaryGroupStatus = 1});
+            var controltype = this._context.BaseDictionaryGroups.Add(new BaseDictionaryGroup { DictionaryGroupName = "控件类型", DictionaryGroupStatus = 1 });
             this._context.SaveChanges();
             var datatype = this._context.BaseDictionaryGroups.Add(new BaseDictionaryGroup { DictionaryGroupName = "数据类型", DictionaryGroupStatus = 1 });
             this._context.SaveChanges();
@@ -110,8 +111,8 @@ namespace IoTSharp.Data
 
         public async Task SeedUserAsync(InstallDto model)
         {
-            var tenant = _context.Tenant.FirstOrDefault(t => t.Email == model.TenantEMail && t.Deleted==false);
-            var customer = _context.Customer.FirstOrDefault(t => t.Email == model.CustomerEMail && t.Deleted==false);
+            var tenant = _context.Tenant.FirstOrDefault(t => t.Email == model.TenantEMail && t.Deleted == false);
+            var customer = _context.Customer.FirstOrDefault(t => t.Email == model.CustomerEMail && t.Deleted == false);
             if (tenant == null && customer == null)
             {
                 tenant = new Tenant() { Id = Guid.NewGuid(), Name = model.TenantName, Email = model.TenantEMail };

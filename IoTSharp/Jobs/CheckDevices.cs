@@ -47,12 +47,12 @@ namespace IoTSharp.Jobs
                         var devids = await sf.ToListAsync();
                         foreach (var id in devids)
                         {
-                            var dev = await _dbContext.Device.FirstOrDefaultAsync(d=>d.Id== id);
+                            var dev = await _dbContext.Device.FirstOrDefaultAsync(d => d.Id == id);
                             var ladt = from d in _dbContext.AttributeLatest where d.DeviceId == id && d.DataSide == DataSide.ServerSide && d.KeyName == Constants._LastActivityDateTime select d.Value_DateTime;
                             var __LastActivityDateTime = await ladt.FirstOrDefaultAsync();
-                            if (dev != null && __LastActivityDateTime!=null)
+                            if (dev != null && __LastActivityDateTime != null)
                             {
-                             
+
                                 if (DateTime.UtcNow.Subtract(__LastActivityDateTime.GetValueOrDefault()).TotalSeconds > dev.Timeout)
                                 {
                                     _logger.LogInformation($"设备{dev.Name}({dev.Id})现在置非活跃状态，上次活跃时间为{__LastActivityDateTime},超时时间{dev.Timeout}秒");

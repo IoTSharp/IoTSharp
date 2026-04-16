@@ -8,7 +8,7 @@ namespace IoTSharp.Data
 {
     public class AuditLog
     {
-        public Guid Id  { get; set; } = Guid.NewGuid();
+        public Guid Id { get; set; } = Guid.NewGuid();
         public Tenant Tenant { get; set; }
         public Customer Customer { get; set; }
         public string UserId { get; set; }

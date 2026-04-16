@@ -24,9 +24,9 @@ namespace IoTSharp.Sdk.Http
 
         public static async Task<Session> LoginAsync(this AccountClient client, string username, string password)
         {
-            Session =( await client.LoginAsync(new LoginDto() { UserName = username, Password = password })).Data;
+            Session = (await client.LoginAsync(new LoginDto() { UserName = username, Password = password })).Data;
             var token = Session.Token;
-            HttpClient.DefaultRequestHeaders.Authorization =new System.Net.Http.Headers.AuthenticationHeaderValue ("Bearer",token.Access_token);
+            HttpClient.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token.Access_token);
             ApiResultOfUserInfoDto userInfoDto = await client.MyInfoAsync();
             MyInfo = userInfoDto.Data;
             return Session;

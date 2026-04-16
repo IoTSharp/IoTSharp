@@ -8,13 +8,13 @@ using ShardingCore.VirtualRoutes.Months;
 
 namespace IoTSharp.Data.Shardings.Routes
 {
-    public class TelemetryDataMonthRoute:AbstractSimpleShardingMonthKeyDateTimeVirtualTableRoute<TelemetryData>
+    public class TelemetryDataMonthRoute : AbstractSimpleShardingMonthKeyDateTimeVirtualTableRoute<TelemetryData>
     {
         private readonly AppSettings _setting;
 
         public TelemetryDataMonthRoute(IShardingProvider provider)
         {
-             var options= provider.ApplicationServiceProvider.GetService<IOptions<AppSettings>>();
+            var options = provider.ApplicationServiceProvider.GetService<IOptions<AppSettings>>();
             _setting = options.Value;
         }
         public override void Configure(EntityMetadataTableBuilder<TelemetryData> builder)

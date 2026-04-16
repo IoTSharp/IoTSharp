@@ -57,7 +57,7 @@ namespace IoTSharp.Controllers
         public async Task<ApiResult<PagedData<Tenant>>> GetTenant([FromQuery] QueryDto m)
         {
             var profile = this.GetUserProfile();
-            var querym = _context.Tenant.Where(c=>c.Deleted==false);
+            var querym = _context.Tenant.Where(c => c.Deleted == false);
             var data = await m.Query(querym, c => c.Name);
             return new ApiResult<PagedData<Tenant>>(ApiCode.Success, "OK", data);
         }
@@ -81,7 +81,7 @@ namespace IoTSharp.Controllers
             }
 
             return new ApiResult<Tenant>(ApiCode.Success, "OK", tenant);
-     
+
         }
         /// <summary>
         /// 修改指定的租户信息， 仅限租户管理员
@@ -111,7 +111,7 @@ namespace IoTSharp.Controllers
             }
             catch (DbUpdateConcurrencyException ex)
             {
-                if (!_context.Tenant.Any(c=>c.Id==id && c.Deleted==false))
+                if (!_context.Tenant.Any(c => c.Id == id && c.Deleted == false))
                 {
                     return new ApiResult<Tenant>(ApiCode.CantFindObject, "cant't find this object", tenant);
                 }
@@ -182,7 +182,7 @@ namespace IoTSharp.Controllers
             catch (Exception ex)
             {
                 return new ApiResult<Tenant>(ApiCode.Exception, ex.Message, tenant);
-            
+
             }
         }
 
@@ -209,8 +209,8 @@ namespace IoTSharp.Controllers
                     if (d.AISettings == null)
                     {
                         var dx = new AISettings();
-                        dx.Id= Guid.NewGuid();
-                        dx.Role= UserRole.TenantAdmin;
+                        dx.Id = Guid.NewGuid();
+                        dx.Role = UserRole.TenantAdmin;
                         _context.AISettings.Add(dx);
                         d.AISettings = dx;
                     }

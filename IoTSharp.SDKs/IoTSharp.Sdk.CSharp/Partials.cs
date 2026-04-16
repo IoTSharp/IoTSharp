@@ -39,7 +39,7 @@ namespace IoTSharp.Sdk.Http
             BaseUrl = url;
         }
     }
-    public partial class DevicesClient  
+    public partial class DevicesClient
     {
         partial void UpdateJsonSerializerSettings(Newtonsoft.Json.JsonSerializerSettings settings)
         {
@@ -48,5 +48,5 @@ namespace IoTSharp.Sdk.Http
             //settings.DateFormatHandling = Newtonsoft.Json.DateFormatHandling.IsoDateFormat;
         }
     }
- 
+
 }

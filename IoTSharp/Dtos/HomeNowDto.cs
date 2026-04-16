@@ -3,6 +3,6 @@
     public class HomeNowDto
     {
         public string NowString { get; set; }
- 
+
     }
 }

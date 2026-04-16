@@ -12,7 +12,7 @@ namespace Microsoft.AspNetCore.Identity
         {
             string email = user.Email;
             // Create a new instance of the MD5CryptoServiceProvider object.  
-            var _SHA512 =  SHA512.Create();
+            var _SHA512 = SHA512.Create();
 
             // Convert the input string to a byte array and compute the hash.  
             byte[] data = _SHA512.ComputeHash(Encoding.Default.GetBytes(email));

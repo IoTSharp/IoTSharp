@@ -8,8 +8,8 @@ namespace IoTSharp.Dtos
 {
     public class ProduceAddDto
     {
-  
-        public Guid Id { get; set; } 
+
+        public Guid Id { get; set; }
 
         /// <summary>
         /// 设备名称
@@ -24,7 +24,7 @@ namespace IoTSharp.Dtos
         /// <summary>
         /// 网关类型  根据不通网关来处理相关配置
         /// </summary>
-           [EnumDataType(typeof(GatewayType))]
+        [EnumDataType(typeof(GatewayType))]
         public GatewayType GatewayType { get; set; } = GatewayType.Unknow;
 
         /// <summary>
@@ -57,6 +57,6 @@ namespace IoTSharp.Dtos
         /// 默认设备类型
         /// </summary>
         public DeviceType DefaultDeviceType { get; set; }
-      
+
     }
 }

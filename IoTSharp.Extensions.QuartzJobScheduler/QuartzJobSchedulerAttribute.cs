@@ -53,7 +53,7 @@
                 StartAt = DateTimeOffset.Now.AddMinutes(start_at_minutes).AddSeconds(start_at_seconds);
             }
         }
-        public QuartzJobSchedulerAttribute(double seconds,bool start_at , double start_at_seconds) : this(0, 0, 0, seconds, 0, 0, null, null)
+        public QuartzJobSchedulerAttribute(double seconds, bool start_at, double start_at_seconds) : this(0, 0, 0, seconds, 0, 0, null, null)
         {
             if (start_at)
             {
@@ -65,7 +65,7 @@
         {
             this.Manual = true;
         }
-   
+
 
         public QuartzJobSchedulerAttribute(double days, double hours, double minutes, double seconds, double milliseconds, long ticks, string? _identity, string? _desciption)
         {
@@ -75,8 +75,8 @@
                                              + minutes * TimeSpan.TicksPerMinute
                                              + seconds * TimeSpan.TicksPerSecond
                                              + milliseconds + TimeSpan.TicksPerMillisecond));
-            Identity= _identity;
-            Desciption= _desciption;
+            Identity = _identity;
+            Desciption = _desciption;
         }
         public string? Desciption { get; set; } = null;
         public string? Identity { get; set; } = null;
@@ -85,7 +85,7 @@
         public int RepeatCount { get; set; } = 0;
         public string? TriggerName { get; set; } = null;
         public string? TriggerGroup { get; set; } = null;
-        public string? TriggerDescription { get; set; } =null;
+        public string? TriggerDescription { get; set; } = null;
         public int Priority { get; set; } = 0;
         public bool Manual { get; set; } = false;
         /// <summary>
@@ -96,5 +96,5 @@
     }
 
 
-  
+
 }

@@ -145,7 +145,7 @@ namespace IoTSharp.Controllers
 
         private bool AuthorizedKeyExists(Guid id)
         {
-            return _context.AuthorizedKeys.JustCustomer(User.GetCustomerId()).Any(e => e.Id == id  &&  e.Deleted==false);
+            return _context.AuthorizedKeys.JustCustomer(User.GetCustomerId()).Any(e => e.Id == id && e.Deleted == false);
         }
     }
 }

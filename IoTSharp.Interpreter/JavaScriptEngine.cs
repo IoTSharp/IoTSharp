@@ -10,12 +10,12 @@ using System.Threading.Tasks;
 
 namespace IoTSharp.Interpreter
 {
-    public class JavaScriptEngine:ScriptEngineBase, IDisposable
+    public class JavaScriptEngine : ScriptEngineBase, IDisposable
     {
-        private  Engine _engine;
-        private  JsonParser _parser;
+        private Engine _engine;
+        private JsonParser _parser;
         private bool disposedValue;
-        public JavaScriptEngine(ILogger<JavaScriptEngine> logger, IOptions<EngineSetting> _opt):base(logger,_opt.Value, Task.Factory.CancellationToken)
+        public JavaScriptEngine(ILogger<JavaScriptEngine> logger, IOptions<EngineSetting> _opt) : base(logger, _opt.Value, Task.Factory.CancellationToken)
         {
             var engine = new Engine(options =>
             {
@@ -36,22 +36,22 @@ namespace IoTSharp.Interpreter
         }
 
 
-        public  override string    Do(string _source,string input)
+        public override string Do(string _source, string input)
         {
-           var js = _engine.SetValue("input",_parser.Parse(input)).Evaluate(_source).ToObject();
-            var json= System.Text.Json.JsonSerializer.Serialize(js);
-            _logger.LogDebug($"source:{Environment.NewLine}{ _source}{Environment.NewLine}{Environment.NewLine}input:{Environment.NewLine}{ input}{Environment.NewLine}{Environment.NewLine} ouput:{Environment.NewLine}{ json}{Environment.NewLine}{Environment.NewLine}");
+            var js = _engine.SetValue("input", _parser.Parse(input)).Evaluate(_source).ToObject();
+            var json = System.Text.Json.JsonSerializer.Serialize(js);
+            _logger.LogDebug($"source:{Environment.NewLine}{_source}{Environment.NewLine}{Environment.NewLine}input:{Environment.NewLine}{input}{Environment.NewLine}{Environment.NewLine} ouput:{Environment.NewLine}{json}{Environment.NewLine}{Environment.NewLine}");
             return json;
         }
 
         protected virtual void Dispose(bool disposing)
         {
-           
+
             if (!disposedValue)
             {
                 if (disposing)
                 {
-                    _engine= null;
+                    _engine = null;
                     _parser = null;
                     // TODO: 释放托管状态(托管对象)
                 }

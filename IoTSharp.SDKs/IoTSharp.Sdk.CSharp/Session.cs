@@ -22,7 +22,7 @@ namespace IoTSharp.Sdk.Http
         {
             _result = result;
         }
-        public static implicit operator Session(LoginResult result  )
+        public static implicit operator Session(LoginResult result)
         {
             return new Session(result);
         }
@@ -32,7 +32,7 @@ namespace IoTSharp.Sdk.Http
         }
         public static explicit operator LoginResult(Session result)
         {
-            return (LoginResult) result;
+            return (LoginResult)result;
         }
         public bool Anonymous => (_result?.Roles?.Contains(nameof(UserRole.Anonymous))).GetValueOrDefault();
         public bool CustomerAdmin => (_result?.Roles?.Contains(nameof(UserRole.CustomerAdmin))).GetValueOrDefault();

@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace IoTSharp.Data
 {
-    public class DynamicFormFieldValueInfo :IJustMy
+    public class DynamicFormFieldValueInfo : IJustMy
     {
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]

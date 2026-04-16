@@ -11,7 +11,7 @@ description: IoTSharp semver tag 发布流程说明。
 普通分支与 Pull Request 只执行验证型 CI：
 
 - `dotnet restore`
-- `dotnet format --verify-no-changes`
+- `dotnet format --verify-no-changes --severity error`
 - 主程序构建
 - `IoTSharp.Data.JsonDB` 构建
 - 单元测试

@@ -20,6 +20,6 @@ namespace IoTSharp.Data
 
         public string TaskConfig { get; set; }
 
-    
+
     }
 }

@@ -21,7 +21,7 @@ namespace IoTSharp.Data
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-        
+
             modelBuilder.ApplyConfiguration(new DataStorageConfiguration());
             modelBuilder.Entity<AttributeLatest>().HasDiscriminator<DataCatalog>(nameof(Data.DataStorage.Catalog));
             modelBuilder.Entity<TelemetryLatest>().HasDiscriminator<DataCatalog>(nameof(Data.DataStorage.Catalog));

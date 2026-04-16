@@ -17,7 +17,7 @@ using System.Xml;
 
 namespace IoTSharp.Gateways
 {
-    public class RawDataGateway 
+    public class RawDataGateway
     {
         private const string _map_to_telemety_ = "_map_to_telemetry_";
         private const string _map_to_attribute_ = "_map_to_attribute_";
@@ -52,11 +52,11 @@ namespace IoTSharp.Gateways
             _context = context;
 
         }
- 
+
         public async Task<ApiResult> ExecuteAsync(Device _dev, string format, string body)
         {
-           await _queue.PublishActive(_dev.Id, ActivityStatus.Activity);
-            var result=new ApiResult();
+            await _queue.PublishActive(_dev.Id, ActivityStatus.Activity);
+            var result = new ApiResult();
             string json = body;
             if (format == "xml")
             {
@@ -115,7 +115,7 @@ namespace IoTSharp.Gateways
                                 }
 
                             });
-                            if (errortimes>0)
+                            if (errortimes > 0)
                             {
                                 result = new ApiResult(ApiCode.InValidData, $"can't found device name(times:{errortimes})");
                             }
@@ -138,11 +138,11 @@ namespace IoTSharp.Gateways
                             result = new ApiResult(ApiCode.InValidData, "can't found device name");
                         }
                     }
-                    
+
                 }
                 catch (Exception ex)
                 {
-                    result= new ApiResult(ApiCode.Exception, ex.Message);
+                    result = new ApiResult(ApiCode.Exception, ex.Message);
                 }
             }
             else
@@ -167,7 +167,7 @@ namespace IoTSharp.Gateways
                 {
                     devname = jt.SelectToken(devnamekey.Value_String[1..])?.ToObject<string>();
                 }
-                else if (jc!=null)
+                else if (jc != null)
                 {
                     devname = jc.SelectToken(devnamekey.Value_String)?.ToObject<string>();
                 }

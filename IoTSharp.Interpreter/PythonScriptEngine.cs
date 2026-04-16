@@ -9,12 +9,12 @@ using System.Threading;
 
 namespace IoTSharp.Interpreter
 {
-    public class PythonScriptEngine : ScriptEngineBase,IDisposable
+    public class PythonScriptEngine : ScriptEngineBase, IDisposable
     {
         private ScriptEngine _engine;
         private bool disposedValue;
 
-        public PythonScriptEngine(ILogger<PythonScriptEngine> logger, IOptions< EngineSetting> setting) : base(logger, setting.Value,System.Threading.Tasks.Task.Factory.CancellationToken)
+        public PythonScriptEngine(ILogger<PythonScriptEngine> logger, IOptions<EngineSetting> setting) : base(logger, setting.Value, System.Threading.Tasks.Task.Factory.CancellationToken)
         {
             _engine = IronPython.Hosting.Python.CreateEngine();
         }
@@ -24,9 +24,9 @@ namespace IoTSharp.Interpreter
             dynamic obj = JsonConvert.DeserializeObject<ExpandoObject>(input, expConverter);
             var scope = _engine.CreateScope();
             scope.SetVariable("input", obj);
-            _engine.Execute(_source , scope);
+            _engine.Execute(_source, scope);
             dynamic _output = scope.GetVariable("output");
-           var outputjson=   JsonConvert.SerializeObject(_output);
+            var outputjson = JsonConvert.SerializeObject(_output);
             return outputjson;
         }
 
@@ -39,14 +39,14 @@ namespace IoTSharp.Interpreter
                     _engine = null;
                     // TODO: 释放托管状态(托管对象)
                 }
-                
+
                 // TODO: 释放未托管的资源(未托管的对象)并重写终结器
                 // TODO: 将大型字段设置为 null
                 disposedValue = true;
             }
         }
 
-        
+
 
         public void Dispose()
         {

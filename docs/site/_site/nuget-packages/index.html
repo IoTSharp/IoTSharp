@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>NuGet 包说明 · IoTSharp Docs</title>
+  <meta name="description" content="IoTSharp NuGet 包发布范围、图标、README 与使用说明。" />
+  <link rel="stylesheet" href="/assets/site.css" />
+</head>
+<body>
+  <header class="site-header">
+    <div class="container">
+      <a class="brand" href="/">IoTSharp Docs</a>
+      <nav>
+        <a href="/guide/getting-started/">快速开始</a>
+        <a href="/guide/deployment/">部署</a>
+        <a href="/reference/nuget-packages/">NuGet</a>
+        <a href="/reference/release-automation/">CI/CD</a>
+        <a href="https://github.com/IoTSharp/IoTSharp">GitHub</a>
+      </nav>
+    </div>
+  </header>
+  <main class="container content">
+    <h1 id="nuget">NuGet 包说明</h1>
+<h2 id="section">发布范围</h2>
+<p>当推送 <code>v*.*.*</code> tag 时，发布工作流会打包仓库中启用了 <code>GeneratePackageOnBuild</code> 的项目，并额外包含：</p>
+<ul>
+<li><code>IoTSharp.Data.JsonDB</code></li>
+</ul>
+<p>发布目标：</p>
+<ol>
+<li><code>https://api.nuget.org/v3/index.json</code></li>
+<li><code>https://nuget.pkg.github.com/&lt;owner&gt;/index.json</code></li>
+</ol>
+<h2 id="section-1">包元数据规范</h2>
+<p>所有发布包统一补齐以下信息：</p>
+<ul>
+<li><code>RepositoryUrl</code></li>
+<li><code>PackageProjectUrl</code></li>
+<li><code>RepositoryType</code></li>
+<li><code>PackageReadmeFile</code></li>
+<li>通用 README 内容</li>
+</ul>
+<p><code>IoTSharp.Data.JsonDB</code> 额外补齐了：</p>
+<ul>
+<li>NuGet 图标</li>
+<li>包描述</li>
+<li>使用标签</li>
+<li>独立 README 打包</li>
+</ul>
+<h2 id="section-2">常用包</h2>
+<table>
+<thead>
+<tr>
+<th>包名</th>
+<th>用途</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>IoTSharp</code></td>
+<td>主程序与平台交付包</td>
+</tr>
+<tr>
+<td><code>IoTSharp.Data.JsonDB</code></td>
+<td>对 JSON 执行 SQL 查询的 ADO.NET 提供程序</td>
+</tr>
+<tr>
+<td><code>IoTSharp.Sdk.Http</code></td>
+<td>通过 HTTP 访问 IoTSharp</td>
+</tr>
+<tr>
+<td><code>IoTSharp.Sdk.MQTT</code></td>
+<td>通过 MQTT 对接设备与服务</td>
+</tr>
+<tr>
+<td><code>IoTSharp.Extensions.*</code></td>
+<td>平台扩展组件集合</td>
+</tr>
+</tbody>
+</table>
+
+  </main>
+</body>
+</html>
