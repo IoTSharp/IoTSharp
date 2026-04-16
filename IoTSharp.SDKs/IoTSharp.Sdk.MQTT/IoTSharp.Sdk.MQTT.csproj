@@ -11,11 +11,8 @@
 		<RepositoryUrl>https://github.com/IoTSharp/IoTSharp</RepositoryUrl>
 		<Copyright>Copyright 2018-2022</Copyright>
 		<PackageIcon>200x200.png</PackageIcon>
+		<Description>MQTT client SDK for connecting devices and applications to IoTSharp.</Description>
 		<IsPackable>true</IsPackable>
-		<RestoreAdditionalProjectSources>
-			https://api.nuget.org/v3/index.json;
-			https://www.myget.org/F/mqttnet/api/v3/index.json;
-		</RestoreAdditionalProjectSources>
 	</PropertyGroup>
 
 	<ItemGroup>

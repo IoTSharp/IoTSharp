@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>{% if page.title %}{{ page.title }} · {% endif %}{{ site.title }}</title>
+  <meta name="description" content="{{ page.description | default: site.description }}" />
+  <link rel="stylesheet" href="/assets/site.css" />
+</head>
+<body>
+  <header class="site-header">
+    <div class="container">
+      <a class="brand" href="/">IoTSharp Docs</a>
+      <nav>
+        <a href="/guide/getting-started/">快速开始</a>
+        <a href="/guide/deployment/">部署</a>
+        <a href="/reference/nuget-packages/">NuGet</a>
+        <a href="/reference/release-automation/">CI/CD</a>
+        <a href="https://github.com/IoTSharp/IoTSharp">GitHub</a>
+      </nav>
+    </div>
+  </header>
+  <main class="container content">
+    {{ content }}
+  </main>
+</body>
+</html>

@@ -1,0 +1,12 @@
+<Project>
+  <PropertyGroup Condition="'$(GeneratePackageOnBuild)' == 'true' or '$(MSBuildProjectName)' == 'IoTSharp.Data.JsonDB'">
+    <Authors Condition="'$(Authors)' == ''">IoTSharp Contributors</Authors>
+    <Description Condition="'$(Description)' == ''">Reusable IoTSharp library package for building, extending, and operating IoTSharp solutions.</Description>
+    <PackageProjectUrl Condition="'$(PackageProjectUrl)' == ''">https://github.com/IoTSharp/IoTSharp</PackageProjectUrl>
+    <PackageReadmeFile Condition="'$(PackageReadmeFile)' == ''">README.md</PackageReadmeFile>
+    <PackageTags Condition="'$(PackageTags)' == ''">IoT;IoTSharp</PackageTags>
+    <PublishRepositoryUrl Condition="'$(PublishRepositoryUrl)' == ''">true</PublishRepositoryUrl>
+    <RepositoryType Condition="'$(RepositoryType)' == ''">git</RepositoryType>
+    <RepositoryUrl Condition="'$(RepositoryUrl)' == ''">https://github.com/IoTSharp/IoTSharp</RepositoryUrl>
+  </PropertyGroup>
+</Project>
