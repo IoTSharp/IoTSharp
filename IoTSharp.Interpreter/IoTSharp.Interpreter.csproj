@@ -20,4 +20,8 @@
 	  <Folder Include="Properties\" />
 	</ItemGroup>
 
+	<ItemGroup>
+	  <ProjectReference Include="..\IoTSharp.Data.JsonDB\IoTSharp.Data.JsonDB.csproj" />
+	</ItemGroup>
+
 </Project>
