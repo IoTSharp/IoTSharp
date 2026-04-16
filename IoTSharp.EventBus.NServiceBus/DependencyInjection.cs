@@ -20,7 +20,7 @@ namespace IoTSharp.EventBus.NServiceBus
             return app;
         }
 
-        public static void UseNServiceBus(this EventBusOption  opt)
+        public static void UseNServiceBus(this EventBusOption opt)
         {
             var settings = opt.AppSettings;
             var healthChecks = opt.HealthChecks;
@@ -31,6 +31,6 @@ namespace IoTSharp.EventBus.NServiceBus
             services.AddTransient<IPublisher, NSBusPublisher>();
         }
 
-        
+
     }
 }

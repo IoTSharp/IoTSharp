@@ -8,7 +8,7 @@ using ShardingCore.VirtualRoutes.Days;
 
 namespace IoTSharp.Data.Shardings.Routes
 {
-    public class TelemetryDataDayRoute:AbstractSimpleShardingDayKeyDateTimeVirtualTableRoute<TelemetryData>
+    public class TelemetryDataDayRoute : AbstractSimpleShardingDayKeyDateTimeVirtualTableRoute<TelemetryData>
     {
         private readonly AppSettings _setting;
 
@@ -17,7 +17,7 @@ namespace IoTSharp.Data.Shardings.Routes
             var options = provider.ApplicationServiceProvider.GetService<IOptions<AppSettings>>();
             _setting = options.Value;
         }
-       
+
         public override void Configure(EntityMetadataTableBuilder<TelemetryData> builder)
         {
             builder.ShardingProperty(o => o.DateTime);

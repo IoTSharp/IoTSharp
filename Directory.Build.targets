@@ -1,0 +1,10 @@
+<Project>
+  <ItemGroup Condition="'$(PackageReadmeFile)' == 'README.md' and '$(GeneratePackageOnBuild)' == 'true' and '$(MSBuildProjectName)' != 'IoTSharp.Data.JsonDB'">
+    <None Include="$(MSBuildThisFileDirectory)packaging/nuget/README.md">
+      <Pack>true</Pack>
+      <PackagePath>\</PackagePath>
+      <Link>README.md</Link>
+      <Visible>false</Visible>
+    </None>
+  </ItemGroup>
+</Project>

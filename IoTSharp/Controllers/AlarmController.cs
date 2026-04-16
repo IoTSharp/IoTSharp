@@ -51,13 +51,13 @@ namespace IoTSharp.Controllers
 
                     case OriginatorType.Gateway:
                         originator =
-                            _context.Gateway.FirstOrDefault(d =>( d.Id.ToString() == oname || d.Name == oname) && d.Deleted == false)?.Id ??
+                            _context.Gateway.FirstOrDefault(d => (d.Id.ToString() == oname || d.Name == oname) && d.Deleted == false)?.Id ??
                             Guid.Empty;
                         break;
 
                     case OriginatorType.Asset:
                         originator =
-                            _context.Assets.FirstOrDefault(d => (d.Id.ToString() == oname || d.Name == oname) && d.Deleted==false)?.Id ??
+                            _context.Assets.FirstOrDefault(d => (d.Id.ToString() == oname || d.Name == oname) && d.Deleted == false)?.Id ??
                             Guid.Empty;
                         break;
 
@@ -124,7 +124,7 @@ namespace IoTSharp.Controllers
             }
 
 
-            if (m.OriginatorType >0)
+            if (m.OriginatorType > 0)
             {
                 condition = condition.And(x => x.OriginatorType == (OriginatorType)m.OriginatorType);
 

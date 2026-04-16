@@ -7,7 +7,7 @@ namespace IoTSharp.Dtos
     {
         public Guid DeviceId { get; set; }
         public string KeyName { get; set; }
-        
+
         public DataSide DataSide { get; set; }
     }
 }

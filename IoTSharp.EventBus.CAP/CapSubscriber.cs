@@ -41,7 +41,7 @@ namespace IoTSharp.EventBus.CAP
         }
 
 
-  
+
 
         [CapSubscribe("iotsharp.services.datastream.telemetrydata")]
         public async Task telemetrydata(PlayloadData msg)
@@ -59,7 +59,7 @@ namespace IoTSharp.EventBus.CAP
             await CreateDevice(deviceId);
         }
         [CapSubscribe("iotsharp.services.platform.connect")]
-        public async Task connect( DeviceConnectStatus status)
+        public async Task connect(DeviceConnectStatus status)
         {
             await Connect(status.DeviceId, status.ConnectStatus);
         }

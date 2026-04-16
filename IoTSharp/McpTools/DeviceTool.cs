@@ -14,24 +14,24 @@ using System.ComponentModel;
 using System.Linq;
 namespace IoTSharp.McpTools
 {
-    public record  MCPDeviceDto (string Name,Guid Id,  DeviceType DeviceType);
+    public record MCPDeviceDto(string Name, Guid Id, DeviceType DeviceType);
 
     [McpServerToolType]
     public sealed class DeviceTool
     {
         private readonly ApplicationDbContext _context;
         private readonly ILogger<DeviceTool> _logger;
-    
 
-        public DeviceTool(ApplicationDbContext context, ILogger<DeviceTool> logger , IServiceScopeFactory scopeFactor     )
+
+        public DeviceTool(ApplicationDbContext context, ILogger<DeviceTool> logger, IServiceScopeFactory scopeFactor)
         {
             _context = context;
             _logger = logger;
-     
+
 
         }
         [McpServerTool, Description("Echoes the input back to the client.")]
-        public   string echo(McpServer _server,string message)
+        public string echo(McpServer _server, string message)
         {
             return $"hello, you client name is :{_server.ClientInfo.Name}  version is: {_server.ClientInfo.Version}, you input message is \"{message}\".";
         }
@@ -40,11 +40,11 @@ namespace IoTSharp.McpTools
         /// </summary>
         /// <returns></returns>
         [McpServerTool(Name = "DevicesList"), Description("Get the list of  devices.")]
-        public   List<MCPDeviceDto> DevicesList(McpServer _server)
+        public List<MCPDeviceDto> DevicesList(McpServer _server)
         {
             var query = QueryByApiKey(_server);
             var cf = from c in query select new MCPDeviceDto(c.Name, c.Id, c.DeviceType);
-            var data =  cf.ToList();
+            var data = cf.ToList();
             return data;
         }
 
@@ -113,7 +113,7 @@ namespace IoTSharp.McpTools
             var f = from c in query where c.Name == deviceName select c;
             var devid = f.FirstOrDefault()?.Id;
             var al = from a in _context.AttributeLatest where devid == a.DeviceId select a;// new KeyValuePair<string,object>( a.KeyName,a.ToObject());
-            var result=al.ToDictionary(x => x.KeyName, x => x.ToObject());
+            var result = al.ToDictionary(x => x.KeyName, x => x.ToObject());
             return result;
         }
 
@@ -132,7 +132,7 @@ namespace IoTSharp.McpTools
             var query = QueryByApiKey(_server);
             var f = from c in _context.Device where c.Name == deviceName select c;
             var devid = f.FirstOrDefault()?.Id;
-            var al = from a in _context.AttributeLatest where devid == a.DeviceId   && a.KeyName== attributeName  select a;// new KeyValuePair<string,object>( a.KeyName,a.ToObject());
+            var al = from a in _context.AttributeLatest where devid == a.DeviceId && a.KeyName == attributeName select a;// new KeyValuePair<string,object>( a.KeyName,a.ToObject());
             return al.FirstOrDefault()?.ToObject();
         }
     }

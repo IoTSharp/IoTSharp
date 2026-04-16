@@ -13,14 +13,14 @@ using System.Threading.Tasks;
 
 namespace IoTSharp.Jobs
 {
-    [QuartzJobScheduler(1,0)]
+    [QuartzJobScheduler(1, 0)]
     public class CachingJob : IJob
     {
         private readonly ILogger<CachingJob> _logger;
         private readonly IServiceScopeFactory _scopeFactor;
         private readonly IEasyCachingProvider _caching;
 
-        public CachingJob(ILogger<CachingJob> logger, IServiceScopeFactory scopeFactor ,  IEasyCachingProviderFactory factory, IOptions<AppSettings> options)
+        public CachingJob(ILogger<CachingJob> logger, IServiceScopeFactory scopeFactor, IEasyCachingProviderFactory factory, IOptions<AppSettings> options)
         {
             _logger = logger;
             _scopeFactor = scopeFactor;

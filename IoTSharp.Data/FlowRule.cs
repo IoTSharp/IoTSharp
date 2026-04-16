@@ -9,12 +9,12 @@ using Microsoft.EntityFrameworkCore.Storage;
 
 namespace IoTSharp.Data
 {
-    public class FlowRule:IJustMy
+    public class FlowRule : IJustMy
     {
         [Key] public Guid RuleId { get; set; }
         public RuleType RuleType { get; set; }
-        
-        [Required] 
+
+        [Required]
         public string Name { get; set; }
         public string Describes { get; set; }
         public string Runner { get; set; }

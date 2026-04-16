@@ -32,14 +32,14 @@ namespace IoTSharp
                 options.WithDefaultEndpointPort(broker.Port).WithDefaultEndpoint();
                 if (broker.EnableTls)
                 {
-                    if (broker.CACertificate!=null)
+                    if (broker.CACertificate != null)
                     {
                         broker.CACertificate.LoadCAToRoot();
-                   
+
                     }
                     options.WithEncryptedEndpoint();
                     options.WithEncryptedEndpointPort(broker.TlsPort);
-                    if (broker.BrokerCertificate!=null)
+                    if (broker.BrokerCertificate != null)
                     {
                         options.WithEncryptionCertificate(broker.CACertificate.Export(X509ContentType.Pfx)).WithEncryptionSslProtocol(broker.SslProtocol);
                     }
@@ -83,7 +83,7 @@ namespace IoTSharp
                 options.WithPersistentSessions();
                 options.Build();
             }).AddMqttConnectionHandler()
-                    .AddConnections(); 
+                    .AddConnections();
             services.AddMqttWebSocketServerAdapter();
         }
 
@@ -160,7 +160,7 @@ namespace IoTSharp
         }
         public static async Task PublishAsync<T>(this MqttServer mqtt, string SenderClientId, string topic, T _payload) where T : class
         {
-            await mqtt.PublishAsync(SenderClientId, new MqttApplicationMessage() { Topic = topic, PayloadSegment    = System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(_payload) });
+            await mqtt.PublishAsync(SenderClientId, new MqttApplicationMessage() { Topic = topic, PayloadSegment = System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(_payload) });
         }
         public static async Task PublishAsync(this MqttServer mqtt, string SenderClientId, string topic, string _payload)
         {
@@ -171,11 +171,11 @@ namespace IoTSharp
             await mqtt.PublishAsync(SenderClientId, new MqttApplicationMessage() { Topic = topic, PayloadSegment = _payload });
         }
 
-        public static async Task   PublishAsync ( this MqttServer mqtt, string SenderClientId ,MqttApplicationMessage message)
+        public static async Task PublishAsync(this MqttServer mqtt, string SenderClientId, MqttApplicationMessage message)
         {
             var clients = await mqtt.GetClientsAsync();
-            var client= clients.FirstOrDefault(c => c.Id == SenderClientId);
-             if ( client.Session.TryEnqueueApplicationMessage(message,out InjectMqttApplicationMessageResult ijresult))
+            var client = clients.FirstOrDefault(c => c.Id == SenderClientId);
+            if (client.Session.TryEnqueueApplicationMessage(message, out InjectMqttApplicationMessageResult ijresult))
             {
                 Debug.WriteLine(ijresult.PacketIdentifier);
             }

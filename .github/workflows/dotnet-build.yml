@@ -1,9 +1,12 @@
-name: .NET Core build
+name: CI
 
 on:
+  pull_request:
   push:
-    branches: [ master ]
-    paths: [IoTSharp.*/**,IoTSharp/**]
+    branches:
+      - '**'
+    tags:
+      - 'v*.*.*'
 
 jobs:
   build:
@@ -12,21 +15,19 @@ jobs:
       - uses: actions/checkout@v5
         with:
           fetch-depth: 0
-      - name: InferSharp
-        uses: microsoft/infersharpaction@v0.2
       - name: Setup .NET Core SDK
         uses: actions/setup-dotnet@v5
         with:
           dotnet-version: 10.0.x
-      - name: Restore IoTSharp
-        run: dotnet restore ./IoTSharp/IoTSharp.csproj
+      - name: Restore solution
+        run: dotnet restore ./IoTSharp.sln
+      - name: Verify formatting
+        run: dotnet format ./IoTSharp.sln --verify-no-changes --severity error --no-restore
       - name: Build IoTSharp
         run: dotnet build ./IoTSharp/IoTSharp.csproj --configuration Release --no-restore
-      - name: Restore IoTSharp tests
-        run: dotnet restore ./IoTSharp.Test/IoTSharp.Test.csproj
+      - name: Build IoTSharp.Data.JsonDB
+        run: dotnet build ./IoTSharp.Data.JsonDB/IoTSharp.Data.JsonDB.csproj --configuration Release --no-restore
       - name: Test IoTSharp
         run: dotnet test ./IoTSharp.Test/IoTSharp.Test.csproj --configuration Release --no-restore --verbosity normal
-
-
-      
-      
+      - name: Test IoTSharp.Data.JsonDB
+        run: dotnet test ./IoTSharp.Data.JsonDB.Tests/IoTSharp.Data.JsonDB.Tests.csproj --configuration Release --no-restore --verbosity normal

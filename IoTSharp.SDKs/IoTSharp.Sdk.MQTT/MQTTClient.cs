@@ -13,12 +13,12 @@ namespace IoTSharp.EdgeSdk.MQTT
 {
     public class MQTTClient
     {
- 
+
         public string DeviceId { get; set; } = string.Empty;
- 
+
         public bool IsConnected => (Client?.IsConnected).GetValueOrDefault();
         private IMqttClient Client { get; set; }
-        public delegate void DLogError(string message,Exception exception );
+        public delegate void DLogError(string message, Exception exception);
         public event DLogError LogError;
         public delegate void DLogInformation(string message);
         public event DLogInformation LogInformation;
@@ -26,7 +26,7 @@ namespace IoTSharp.EdgeSdk.MQTT
         public event DLogDebug LogDebug;
 
         public event EventHandler<RpcRequest> OnExcRpc;
-      
+
         public event EventHandler<AttributeResponse> OnReceiveAttributes;
 
         public async Task<bool> ConnectAsync(FileInfo x509_zipfile)
@@ -46,8 +46,9 @@ namespace IoTSharp.EdgeSdk.MQTT
                         }
                     }
                     return unzippedArray;
-                };
-                X509Certificate2 ca ;
+                }
+                ;
+                X509Certificate2 ca;
                 X509Certificate2 client;
                 try
                 {
@@ -59,7 +60,7 @@ namespace IoTSharp.EdgeSdk.MQTT
                 {
                     throw new Exception("从Zip中加载证书文件错误", ex);
                 }
-                if (ca!=null && client!=null)
+                if (ca != null && client != null)
                 {
                     return await ConnectAsync(ca, client);
                 }
@@ -76,16 +77,16 @@ namespace IoTSharp.EdgeSdk.MQTT
 
 
 
-        public async Task<bool> ConnectAsync(X509Certificate2 ca, X509Certificate2 client, Uri uri=null)
+        public async Task<bool> ConnectAsync(X509Certificate2 ca, X509Certificate2 client, Uri uri = null)
         {
             var options = new MqttClientOptionsBuilder()
                 .WithTlsOptions(
-                    new MqttClientTlsOptions ()
+                    new MqttClientTlsOptions()
                     {
                         UseTls = true,
                         SslProtocol = System.Security.Authentication.SslProtocols.Tls12,
-                         AllowUntrustedCertificates = true,
-                          
+                        AllowUntrustedCertificates = true,
+
                         CertificateValidationHandler = (certContext) =>
                         {
                             var chain = certContext.Chain;
@@ -98,13 +99,13 @@ namespace IoTSharp.EdgeSdk.MQTT
                             chain.ChainPolicy.TrustMode = X509ChainTrustMode.CustomRootTrust;
                             var x5092 = new X509Certificate2(certContext.Certificate);
                             return chain.Build(x5092);
-                        }, 
-                         CertificateSelectionHandler = (certContext) =>
-                         {
-                             return client;
-                         }
-                        
-                   
+                        },
+                        CertificateSelectionHandler = (certContext) =>
+                        {
+                            return client;
+                        }
+
+
                     });
             if (uri != null)
             {
@@ -122,14 +123,14 @@ namespace IoTSharp.EdgeSdk.MQTT
                     options.WithTcpServer(host, 8883);
                 }
             }
-       
+
             return await ConnectAsync(options.Build());
         }
-     
- 
+
+
         public Task<bool> ConnectAsync(Uri uri, string accesstoken) => ConnectAsync(uri, accesstoken, null);
 
-       
+
         public async Task<bool> ConnectAsync(Uri uri, string username, string password)
         {
             if (uri == null) throw new ArgumentNullException("url");
@@ -138,25 +139,26 @@ namespace IoTSharp.EdgeSdk.MQTT
                       .WithTcpServer(uri.Host, uri.Port)
                     .WithCredentials(username, password)
                     .Build();
-           return  await  ConnectAsync(clientOptions);
+            return await ConnectAsync(clientOptions);
         }
 
-   
-        public async Task<bool> ConnectAsync(MqttClientOptions clientOptions, System.Threading.CancellationToken cancellationToken=default)
+
+        public async Task<bool> ConnectAsync(MqttClientOptions clientOptions, System.Threading.CancellationToken cancellationToken = default)
         {
             bool initok = false;
             try
             {
                 var factory = new MqttClientFactory();
-                Client = factory.CreateMqttClient( );
-                Client.ApplicationMessageReceivedAsync +=  Client_ApplicationMessageReceived;
-                Client.ConnectedAsync += e => {
+                Client = factory.CreateMqttClient();
+                Client.ApplicationMessageReceivedAsync += Client_ApplicationMessageReceived;
+                Client.ConnectedAsync += e =>
+                {
                     Client.SubscribeAsync($"devices/{DeviceId}/rpc/request/+/+");
                     Client.SubscribeAsync($"devices/{DeviceId}/attributes/update/", MqttQualityOfServiceLevel.ExactlyOnce);
                     LogInformation?.Invoke($"CONNECTED WITH SERVER ");
                     return Task.CompletedTask;
                 };
-         
+
                 try
                 {
                     var result = await Client.ConnectAsync(clientOptions, cancellationToken);
@@ -170,18 +172,18 @@ namespace IoTSharp.EdgeSdk.MQTT
             }
             catch (Exception exception)
             {
-                 LogError?.Invoke("CONNECTING FAILED", exception);
+                LogError?.Invoke("CONNECTING FAILED", exception);
             }
             return initok;
         }
 
-       
 
-    
 
-        private Task Client_ApplicationMessageReceived( MqttApplicationMessageReceivedEventArgs e)
+
+
+        private Task Client_ApplicationMessageReceived(MqttApplicationMessageReceivedEventArgs e)
         {
-           LogDebug?.Invoke($"ApplicationMessageReceived Topic {e.ApplicationMessage.Topic}  QualityOfServiceLevel:{e.ApplicationMessage.QualityOfServiceLevel} Retain:{e.ApplicationMessage.Retain} ");
+            LogDebug?.Invoke($"ApplicationMessageReceived Topic {e.ApplicationMessage.Topic}  QualityOfServiceLevel:{e.ApplicationMessage.QualityOfServiceLevel} Retain:{e.ApplicationMessage.Retain} ");
             try
             {
                 if (e.ApplicationMessage.Topic.StartsWith($"devices/") && e.ApplicationMessage.Topic.Contains("/response/"))
@@ -195,7 +197,7 @@ namespace IoTSharp.EdgeSdk.MQTT
                     var rpcdevicename = tps[1];
                     var rpcrequestid = tps[5];
                     LogInformation?.Invoke($"rpcmethodname={rpcmethodname} ");
-                     LogInformation?.Invoke($"rpcdevicename={rpcdevicename } ");
+                    LogInformation?.Invoke($"rpcdevicename={rpcdevicename} ");
                     LogInformation?.Invoke($"rpcrequestid={rpcrequestid}   ");
                     if (!string.IsNullOrEmpty(rpcmethodname) && !string.IsNullOrEmpty(rpcdevicename) && !string.IsNullOrEmpty(rpcrequestid))
                     {
@@ -222,9 +224,9 @@ namespace IoTSharp.EdgeSdk.MQTT
             var rpcmethodname = tps[2];
             var rpcdevicename = tps[1];
             var rpcrequestid = tps[4];
-             LogInformation?.Invoke($"rpcmethodname={rpcmethodname} ");
-             LogInformation?.Invoke($"rpcdevicename={rpcdevicename } ");
-             LogInformation?.Invoke($"rpcrequestid={rpcrequestid}   ");
+            LogInformation?.Invoke($"rpcmethodname={rpcmethodname} ");
+            LogInformation?.Invoke($"rpcdevicename={rpcdevicename} ");
+            LogInformation?.Invoke($"rpcrequestid={rpcrequestid}   ");
 
             if (!string.IsNullOrEmpty(rpcmethodname) && !string.IsNullOrEmpty(rpcdevicename) && !string.IsNullOrEmpty(rpcrequestid))
             {
@@ -246,7 +248,7 @@ namespace IoTSharp.EdgeSdk.MQTT
 
         public Task UploadAttributeAsync(string _devicename, object obj)
         {
-            return Client.PublishAsync(new MqttApplicationMessageBuilder().WithTopic(  $"devices/{_devicename}/attributes").WithPayload( Newtonsoft.Json.JsonConvert.SerializeObject(obj)).Build());
+            return Client.PublishAsync(new MqttApplicationMessageBuilder().WithTopic($"devices/{_devicename}/attributes").WithPayload(Newtonsoft.Json.JsonConvert.SerializeObject(obj)).Build());
         }
 
         public Task UploadTelemetryDataAsync(object obj) => UploadTelemetryDataAsync("me", obj);
@@ -260,7 +262,7 @@ namespace IoTSharp.EdgeSdk.MQTT
         {
             ///IoTSharp/Clients/RpcClient.cs#L65     var responseTopic = $"/devices/{deviceid}/rpc/response/{methodName}/{rpcid}";
             string topic = $"devices/{rpcResult.DeviceId}/rpc/response/{rpcResult.Method.ToString()}/{rpcResult.ResponseId}";
-            return Client.PublishAsync(new MqttApplicationMessageBuilder().WithTopic( topic).WithPayload( rpcResult.Data.ToString()).WithQualityOfServiceLevel( MqttQualityOfServiceLevel.ExactlyOnce).Build());
+            return Client.PublishAsync(new MqttApplicationMessageBuilder().WithTopic(topic).WithPayload(rpcResult.Data.ToString()).WithQualityOfServiceLevel(MqttQualityOfServiceLevel.ExactlyOnce).Build());
         }
         public Task RequestAttributes(params string[] args) => RequestAttributes("me", args);
 
@@ -291,9 +293,9 @@ namespace IoTSharp.EdgeSdk.MQTT
         public string Id { get; set; }
         public string DeviceName { get; set; }
         public string KeyName { get; set; }
-   
+
         public string Data { get; set; }
     }
-    
+
 }
 

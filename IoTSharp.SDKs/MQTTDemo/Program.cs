@@ -3,7 +3,7 @@ using IoTSharp.EdgeSdk.MQTT;
 
 Console.WriteLine("Hello, World!");
 var client = new MQTTClient();
-await client.ConnectAsync(new FileInfo( Environment.GetCommandLineArgs().Skip(1).First()));
+await client.ConnectAsync(new FileInfo(Environment.GetCommandLineArgs().Skip(1).First()));
 while (true)
 {
     if (client.IsConnected)
@@ -14,7 +14,7 @@ while (true)
     Thread.Sleep(TimeSpan.FromSeconds(5));
     Console.WriteLine("====");
 }
-   
- 
+
+
 
 Console.ReadLine();

@@ -22,12 +22,13 @@ namespace Microsoft.Extensions.DependencyInjection
                 builder.UseInternalServiceProvider(services.BuildServiceProvider());
             }, poolSize);
             services.AddHttpClient("ClickHouseClient");
-            checksBuilder.AddClickHouse( sp => {
+            checksBuilder.AddClickHouse(sp =>
+            {
                 var httpClientFactory = sp.GetRequiredService<IHttpClientFactory>();
                 return new ClickHouseConnection(connectionString, httpClientFactory, "ClickHouseClient");
             });
 
-             
+
         }
     }
 }

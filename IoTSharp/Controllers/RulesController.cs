@@ -739,9 +739,9 @@ namespace IoTSharp.Controllers
                                     bpmnid = item.nodeId,
                                     FlowType = item.nodenamespace,
                                     NodeProcessParams = item.content,
-									NodeProcessScriptType = item.nodetype,
+                                    NodeProcessScriptType = item.nodetype,
 
-									NodeProcessClass = item.mata,
+                                    NodeProcessClass = item.mata,
                                     FlowStatus = 1,
                                     CreateId = CreatorId,
                                     Createor = profile.Id,
@@ -775,7 +775,7 @@ namespace IoTSharp.Controllers
                                     CreateDate = CreateDate,
                                     Customer = rule.Customer,
                                     Tenant = rule.Tenant,
-									FlowClass = item.nodeclass,
+                                    FlowClass = item.nodeclass,
                                     FlowNameSpace = item.nodetype,
                                     FlowIcon = item.icon,
                                     Top = item.top,
@@ -823,7 +823,7 @@ namespace IoTSharp.Controllers
             {
                 return new ApiResult<bool>(ApiCode.Exception, exception.Message, false);
             }
-        
+
         }
 
         [HttpGet]
@@ -845,70 +845,70 @@ namespace IoTSharp.Controllers
                     switch (item.FlowNameSpace)
                     {
                         case "line":
-                        {
-                            m.lines.Add(new LineObject()
                             {
-                                sourceId = item.SourceId,
-                                linename = item.Flowname,
-                                targetId = item.TargetId,
-                                condition = item.Conditionexpression,
-                                linenamespace=item.FlowType,
-                                lineId = item.bpmnid,
-                            });
-                        }
+                                m.lines.Add(new LineObject()
+                                {
+                                    sourceId = item.SourceId,
+                                    linename = item.Flowname,
+                                    targetId = item.TargetId,
+                                    condition = item.Conditionexpression,
+                                    linenamespace = item.FlowType,
+                                    lineId = item.bpmnid,
+                                });
+                            }
                             break;
                         case "basic":
-                        {
-                            m.nodes.Add(new NodeObject()
                             {
+                                m.nodes.Add(new NodeObject()
+                                {
 
-                                nodeId = item.bpmnid,
-                                nodetype = item.FlowNameSpace,
-                                name = item.Flowname,
-                                nodeclass = item.FlowClass,
-                                nodenamespace = item.FlowType,
-                                icon = item.FlowIcon,
-                                top = item.Top,
-                                left = item.Left
-                            });
-                        }
+                                    nodeId = item.bpmnid,
+                                    nodetype = item.FlowNameSpace,
+                                    name = item.Flowname,
+                                    nodeclass = item.FlowClass,
+                                    nodenamespace = item.FlowType,
+                                    icon = item.FlowIcon,
+                                    top = item.Top,
+                                    left = item.Left
+                                });
+                            }
                             break;
                         case "script":
-                        {
-                            m.nodes.Add(new NodeObject()
                             {
+                                m.nodes.Add(new NodeObject()
+                                {
 
-                                nodeId = item.bpmnid,
-                                nodetype = item.FlowNameSpace,
-                                name = item.Flowname,
-                                content = item.NodeProcessScript,
-                                mata = item.NodeProcessScriptType,
-                                nodeclass = item.FlowClass,
-                                nodenamespace = item.FlowType,
-                                icon = item.FlowIcon,
-                                top = item.Top,
-                                left = item.Left
-                            });
-                        }
+                                    nodeId = item.bpmnid,
+                                    nodetype = item.FlowNameSpace,
+                                    name = item.Flowname,
+                                    content = item.NodeProcessScript,
+                                    mata = item.NodeProcessScriptType,
+                                    nodeclass = item.FlowClass,
+                                    nodenamespace = item.FlowType,
+                                    icon = item.FlowIcon,
+                                    top = item.Top,
+                                    left = item.Left
+                                });
+                            }
                             break;
                         case "executor":
-                        {
-                            m.nodes.Add(new NodeObject()
                             {
+                                m.nodes.Add(new NodeObject()
+                                {
 
-                                nodeId = item.bpmnid,
-                                nodetype = item.FlowNameSpace,
-                                name = item.Flowname,
-                                content = item.NodeProcessParams,
-                                mata = item.NodeProcessClass,
-                                nodeclass = item.FlowClass,
-                                nodenamespace = item.FlowType,
-                                icon = item.FlowIcon,
-                                top = item.Top,
-                                left = item.Left
+                                    nodeId = item.bpmnid,
+                                    nodetype = item.FlowNameSpace,
+                                    name = item.Flowname,
+                                    content = item.NodeProcessParams,
+                                    mata = item.NodeProcessClass,
+                                    nodeclass = item.FlowClass,
+                                    nodenamespace = item.FlowType,
+                                    icon = item.FlowIcon,
+                                    top = item.Top,
+                                    left = item.Left
 
-                            });
-                        }
+                                });
+                            }
                             break;
 
 
@@ -1674,7 +1674,7 @@ namespace IoTSharp.Controllers
         public async Task<ApiResult<RuleTaskExecutorTestResultDto>> TestTask(RuleTaskExecutorTestDto m)
         {
             var profile = this.GetUserProfile();
-            var result = await  _flowRuleProcessor.TestScript(m.ruleId, m.flowId, m.Data);
+            var result = await _flowRuleProcessor.TestScript(m.ruleId, m.flowId, m.Data);
             await _context.SaveChangesAsync();
             return new ApiResult<RuleTaskExecutorTestResultDto>(ApiCode.Success, "Ok", new RuleTaskExecutorTestResultDto() { Data = result.Data });
         }
@@ -1695,7 +1695,7 @@ namespace IoTSharp.Controllers
             }
 
             var d = data.ToObject(typeof(ExpandoObject));
-            var result = await  _flowRuleProcessor.TestCondition(m.ruleId, m.flowId, d);
+            var result = await _flowRuleProcessor.TestCondition(m.ruleId, m.flowId, d);
             return new ApiResult<ConditionTestResult>(ApiCode.Success, "Ok", result);
         }
     }

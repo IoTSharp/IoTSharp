@@ -11,7 +11,7 @@ namespace IoTSharp.Controllers.Models
 
         public string RefreshToken { get; set; }
 
-        public   long ExpiresIn { get; set; }
+        public long ExpiresIn { get; set; }
 
         public IdentityUser AppUser { get; set; }
         public IList<string> Roles { get; set; }

@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace IoTSharp.Data
 {
-    public class DeviceGraphToolBox:IJustMy
+    public class DeviceGraphToolBox : IJustMy
     {
         [Key]
         public Guid ToolBoxId { get; set; }

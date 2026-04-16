@@ -6,8 +6,8 @@ namespace IoTSharp.EventBus
     public class DeviceConnectStatus
     {
         public Guid DeviceId { get; set; }
-        public ConnectStatus ConnectStatus { get; set;  }
-         public DeviceConnectStatus()
+        public ConnectStatus ConnectStatus { get; set; }
+        public DeviceConnectStatus()
         {
             DeviceId = Guid.Empty;
         }

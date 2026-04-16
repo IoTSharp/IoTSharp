@@ -255,7 +255,7 @@ namespace System.Data
             {
                 while (await dr.ReadAsync())
                 {
-                    result= dr.MapObject<T>(colMapping);
+                    result = dr.MapObject<T>(colMapping);
                     if (result != null)
                     {
                         break;
@@ -274,7 +274,7 @@ namespace System.Data
             var colMapping = dr.GetSchema<T>();
             if (dr.HasRows)
             {
-                while ( dr.Read())
+                while (dr.Read())
                 {
                     result = dr.MapObject<T>(colMapping);
                     if (result != null)

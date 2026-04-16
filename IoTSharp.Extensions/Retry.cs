@@ -40,7 +40,7 @@ namespace IoTSharp.Extensions
         /// <param name="action"></param>
         /// <param name="efunc"></param>
         /// <returns></returns>
-      [Obsolete("放弃，请调用RetryOnAny(int times, Func<int, T> action, Action<(int current, Exception ex)> efunc)")]
+        [Obsolete("放弃，请调用RetryOnAny(int times, Func<int, T> action, Action<(int current, Exception ex)> efunc)")]
         public static T Invoke<T>(int times, Func<int, T> action, Action<(int current, Exception ex)> efunc)
         {
             return RetryOnAny(times, action, efunc);
@@ -56,7 +56,7 @@ namespace IoTSharp.Extensions
         /// <returns></returns>
         public static T RetryOnException<T, E>(int times, Func<int, T> action, Action<(int current, Exception ex)> efunc) where E : Exception
         {
-            T result=default(T);
+            T result = default(T);
             for (int i = 0; i < times; i++)
             {
                 try
@@ -70,7 +70,7 @@ namespace IoTSharp.Extensions
                 }
             }
             return result;
-         
+
         }
         /// <summary>
         /// 重试指定任务，除非遇到异常<typeparamref name="E"/>就不再重试
@@ -83,7 +83,7 @@ namespace IoTSharp.Extensions
         /// <returns></returns>
         public static T RetryUnlessException<T, E>(int times, Func<int, T> action) where E : Exception
         {
-            T result=default;
+            T result = default;
             for (int i = 0; i < times; i++)
             {
 
@@ -91,9 +91,9 @@ namespace IoTSharp.Extensions
                 {
                     result = action.Invoke(i + 1);
                 }
-                catch (E ex)
+                catch (E)
                 {
-                    throw ex;
+                    throw;
                 }
                 catch (Exception)
                 {
@@ -102,7 +102,7 @@ namespace IoTSharp.Extensions
             }
             return result;
         }
-       
+
         public static T RetryOnAny<T>(int times, Func<int, T> action, Action<(int current, Exception ex)> efunc)
         {
             T result = default;
@@ -110,7 +110,7 @@ namespace IoTSharp.Extensions
             {
                 try
                 {
-                    result= action.Invoke(i + 1);
+                    result = action.Invoke(i + 1);
                 }
                 catch (Exception ex)
                 {
@@ -121,12 +121,12 @@ namespace IoTSharp.Extensions
         }
         public static T RetryOnAny<T>(int times, Func<T> action, Action<(int current, Exception ex)> efunc)
         {
-            T result=default(T);
+            T result = default(T);
             for (int i = 0; i < times; i++)
             {
                 try
                 {
-                    result= action.Invoke();
+                    result = action.Invoke();
                 }
                 catch (Exception ex)
                 {

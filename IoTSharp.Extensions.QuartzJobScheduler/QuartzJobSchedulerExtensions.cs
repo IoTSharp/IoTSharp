@@ -6,8 +6,8 @@ namespace Quartz
     public static class QuartzJobSchedulerExtensions
     {
         public static IServiceCollectionQuartzConfigurator DiscoverJobs(this IServiceCollectionQuartzConfigurator _scheduler) => DiscoverJobs(_scheduler, null);
-    
-        public static IServiceCollectionQuartzConfigurator DiscoverJobs(this IServiceCollectionQuartzConfigurator  _scheduler , List<Assembly>? additional )
+
+        public static IServiceCollectionQuartzConfigurator DiscoverJobs(this IServiceCollectionQuartzConfigurator _scheduler, List<Assembly>? additional)
         {
             List<Type>? _jobs = null;
             var types1 = from t in Assembly.GetEntryAssembly()?.GetTypes() where t.GetTypeInfo().ImplementedInterfaces.Any(tx => tx == typeof(IJob)) && t.GetTypeInfo().IsDefined(typeof(QuartzJobSchedulerAttribute), true) select t;
@@ -43,7 +43,7 @@ namespace Quartz
                             .WithSimpleSchedule(x =>
                             {
                                 x.WithInterval(so.WithInterval);
-                                
+
                                 if (so.RepeatCount > 0)
                                 {
                                     x.WithRepeatCount(so.RepeatCount);
@@ -63,14 +63,14 @@ namespace Quartz
                             opts.StartAt(so.StartAt);
                         }
                         if (so.Priority > 0) opts.WithPriority(so.Priority);
-                        
-                   
+
+
                     });
                 }
             }
             return _scheduler;
         }
-         
+
     }
-  
+
 }

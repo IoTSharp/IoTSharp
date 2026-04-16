@@ -4,6 +4,27 @@
     <TargetFramework>net10.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>disable</ImplicitUsings>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <IsPackable>true</IsPackable>
+    <PackageId>IoTSharp.Data.JsonDB</PackageId>
+    <PackageIcon>iotsharp128.png</PackageIcon>
+    <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
+    <PackageProjectUrl>https://github.com/IoTSharp/IoTSharp/tree/master/IoTSharp.Data.JsonDB</PackageProjectUrl>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <PackageTags>IoTSharp;JSON;SQL;ADO.NET;Database</PackageTags>
+    <Description>Run SQL queries over JSON payloads through an ADO.NET provider for IoTSharp and .NET applications.</Description>
   </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="README.md">
+      <Pack>true</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
+    <None Include="..\docs\static\img\iotsharp128.png">
+      <Pack>true</Pack>
+      <PackagePath>\</PackagePath>
+      <Link>iotsharp128.png</Link>
+    </None>
+  </ItemGroup>
 
 </Project>

@@ -1,0 +1,87 @@
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  color: #1f2937;
+  background: #f8fafc;
+}
+
+.container {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 0 24px;
+}
+
+.site-header {
+  background: #0f172a;
+  color: #fff;
+}
+
+.site-header .container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  min-height: 64px;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.brand,
+.site-header a {
+  color: #fff;
+  text-decoration: none;
+}
+
+.site-header nav {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.content {
+  padding-top: 40px;
+  padding-bottom: 56px;
+}
+
+h1,
+h2,
+h3 {
+  color: #0f172a;
+}
+
+.hero {
+  background: #fff;
+  border-radius: 16px;
+  padding: 32px;
+  box-shadow: 0 12px 40px rgba(15, 23, 42, 0.08);
+}
+
+.grid {
+  display: grid;
+  gap: 16px;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  margin-top: 24px;
+}
+
+.card {
+  background: #fff;
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.06);
+}
+
+code,
+pre {
+  font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+}
+
+pre {
+  overflow-x: auto;
+  background: #0f172a;
+  color: #e2e8f0;
+  padding: 16px;
+  border-radius: 12px;
+}
+
+a {
+  color: #2563eb;
+}

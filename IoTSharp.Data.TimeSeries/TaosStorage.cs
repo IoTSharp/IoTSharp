@@ -237,8 +237,8 @@ namespace IoTSharp.Storage
         {
             if (_taos.State != System.Data.ConnectionState.Open) _taos.Open();
             string sql = $"select last_row(value_type) from telemetrydata where deviceid='{deviceId:N}' and keyname='{key}'";
-            var temp =await _taos.CreateCommand(sql).ExecuteScalarAsync();
-            if(temp==null || !int.TryParse(temp.ToString(),out int type)) return null; 
+            var temp = await _taos.CreateCommand(sql).ExecuteScalarAsync();
+            if (temp == null || !int.TryParse(temp.ToString(), out int type)) return null;
             return (DataType)type;
         }
 

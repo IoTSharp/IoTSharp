@@ -21,21 +21,21 @@ namespace IoTSharp.Interpreter
 {
     public class CSharpScriptEngine : ScriptEngineBase, IDisposable
     {
-         
+
         private bool disposedValue;
         private IMemoryCache _cache;
 
-        public CSharpScriptEngine(ILogger<CSharpScriptEngine> logger, IOptions<EngineSetting> _opt, IMemoryCache cache) :base(logger,_opt.Value, Task.Factory.CancellationToken)
+        public CSharpScriptEngine(ILogger<CSharpScriptEngine> logger, IOptions<EngineSetting> _opt, IMemoryCache cache) : base(logger, _opt.Value, Task.Factory.CancellationToken)
         {
             _cache = cache;
         }
 
-        public  override string    Do(string _source,string input)
+        public override string Do(string _source, string input)
         {
             var runscript = _cache.GetOrCreate(_source, c =>
             {
-                
-                 var  src = _source.Split(Environment.NewLine.ToCharArray(), StringSplitOptions.TrimEntries);
+
+                var src = _source.Split(Environment.NewLine.ToCharArray(), StringSplitOptions.TrimEntries);
                 StringBuilder _using = new StringBuilder();
                 StringBuilder _body = new StringBuilder();
                 src.ToList().ForEach(l =>
@@ -50,8 +50,8 @@ namespace IoTSharp.Interpreter
                    }
 
                });
-               var eva=  CSScript.Evaluator
-                      .CreateDelegate(@$"
+                var eva = CSScript.Evaluator
+                       .CreateDelegate(@$"
                                     {_using}    
                                     dynamic  runscript(dynamic   input)
                                     {{
@@ -61,21 +61,21 @@ namespace IoTSharp.Interpreter
             });
             var expConverter = new ExpandoObjectConverter();
             dynamic obj = JsonConvert.DeserializeObject<ExpandoObject>(input, expConverter);
-            dynamic result =    runscript(obj);
-            var json= System.Text.Json.JsonSerializer.Serialize(result);
-            _logger.LogDebug($"source:{Environment.NewLine}{ _source}{Environment.NewLine}{Environment.NewLine}input:{Environment.NewLine}{ input}{Environment.NewLine}{Environment.NewLine} ouput:{Environment.NewLine}{ json}{Environment.NewLine}{Environment.NewLine}");
-         
+            dynamic result = runscript(obj);
+            var json = System.Text.Json.JsonSerializer.Serialize(result);
+            _logger.LogDebug($"source:{Environment.NewLine}{_source}{Environment.NewLine}{Environment.NewLine}input:{Environment.NewLine}{input}{Environment.NewLine}{Environment.NewLine} ouput:{Environment.NewLine}{json}{Environment.NewLine}{Environment.NewLine}");
+
             return json;
         }
 
         protected virtual void Dispose(bool disposing)
         {
-           
+
             if (!disposedValue)
             {
                 if (disposing)
                 {
-                 
+
                     // TODO: 释放托管状态(托管对象)
                 }
 

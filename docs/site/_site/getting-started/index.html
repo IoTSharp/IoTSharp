@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>快速开始 · IoTSharp Docs</title>
+  <meta name="description" content="IoTSharp 仓库的本地构建与验证说明。" />
+  <link rel="stylesheet" href="/assets/site.css" />
+</head>
+<body>
+  <header class="site-header">
+    <div class="container">
+      <a class="brand" href="/">IoTSharp Docs</a>
+      <nav>
+        <a href="/guide/getting-started/">快速开始</a>
+        <a href="/guide/deployment/">部署</a>
+        <a href="/reference/nuget-packages/">NuGet</a>
+        <a href="/reference/release-automation/">CI/CD</a>
+        <a href="https://github.com/IoTSharp/IoTSharp">GitHub</a>
+      </nav>
+    </div>
+  </header>
+  <main class="container content">
+    <h1 id="section">快速开始</h1>
+<h2 id="section-1">运行前提</h2>
+<ul>
+<li>.NET SDK <code>10.0.x</code></li>
+<li>Node.js 仅在构建前端或主站发布时需要</li>
+<li>Docker 仅在镜像验证或容器部署时需要</li>
+</ul>
+<h2 id="section-2">本地验证命令</h2>
+<pre><code class="language-bash">cd /home/runner/work/IoTSharp/IoTSharp
+dotnet restore ./IoTSharp.sln
+dotnet format ./IoTSharp.sln --verify-no-changes --no-restore
+dotnet build ./IoTSharp/IoTSharp.csproj -c Release --no-restore
+dotnet test ./IoTSharp.Test/IoTSharp.Test.csproj -c Release --no-restore
+dotnet test ./IoTSharp.Data.JsonDB.Tests/IoTSharp.Data.JsonDB.Tests.csproj -c Release --no-restore
+</code></pre>
+<h2 id="section-3">文档站验证</h2>
+<pre><code class="language-bash">cd /home/runner/work/IoTSharp/IoTSharp
+dotnet tool restore
+dotnet jekyllnet build --source ./docs/site --destination ./docs/site/_site
+</code></pre>
+<h2 id="section-4">推荐阅读</h2>
+<ul>
+<li><a href="/guide/deployment/">部署指南</a></li>
+<li><a href="/reference/nuget-packages/">NuGet 包说明</a></li>
+<li><a href="/reference/release-automation/">发布自动化</a></li>
+</ul>
+
+  </main>
+</body>
+</html>

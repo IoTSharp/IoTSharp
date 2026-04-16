@@ -12,7 +12,7 @@ namespace Microsoft.Extensions.DependencyInjection
 {
     public static class IoTSharpDataBuilderExtensions
     {
-        
+
         public static void ConfigureCassandra(this IServiceCollection services, string connectionString, int poolSize, IHealthChecksBuilder checksBuilder, HealthChecksUIBuilder healthChecksUI)
         {
             services.AddEntityFrameworkCassandra();
@@ -24,7 +24,7 @@ namespace Microsoft.Extensions.DependencyInjection
                 builder.UseInternalServiceProvider(services.BuildServiceProvider());
             }
      , poolSize);
-              checksBuilder.AddCassandra(connectionString, name: "IoTSharp.Data.Cassandra");
+            checksBuilder.AddCassandra(connectionString, name: "IoTSharp.Data.Cassandra");
             //   healthChecksUI.AddSqliteStorage("Data Source=health_checks.db");
 
         }

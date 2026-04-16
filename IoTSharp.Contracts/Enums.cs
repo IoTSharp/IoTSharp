@@ -177,7 +177,7 @@ namespace IoTSharp.Contracts
         /// <summary>
         /// 已连接
         /// </summary>
-        Connected =1
+        Connected = 1
     }
     [System.Text.Json.Serialization.JsonConverter(typeof(System.Text.Json.Serialization.JsonStringEnumConverter))]
     [JsonConverter(typeof(StringEnumConverter))]
@@ -241,8 +241,8 @@ namespace IoTSharp.Contracts
     {
         PostgreSql,
         SqlServer,
-        MySql ,
-        Oracle ,
+        MySql,
+        Oracle,
         Sqlite,
         InMemory,
         Cassandra,
@@ -281,7 +281,7 @@ namespace IoTSharp.Contracts
     [JsonConverter(typeof(StringEnumConverter))]
     public enum GatewayType
     {
-        Unknow=0,
+        Unknow = 0,
         Customize,
         Modbus,
         Bacnet,
@@ -311,8 +311,8 @@ namespace IoTSharp.Contracts
     [JsonConverter(typeof(StringEnumConverter))]
     public enum FlowRuleRunType
     {
-        Normal=1,
-        TestPurpose=2
+        Normal = 1,
+        TestPurpose = 2
     }
     /// <summary>
     /// 事件类型
@@ -321,7 +321,7 @@ namespace IoTSharp.Contracts
     [JsonConverter(typeof(StringEnumConverter))]
     public enum EventType
     {
-        None=-1,
+        None = -1,
         /// <summary>
         /// 原始数据
         /// </summary>
@@ -329,15 +329,15 @@ namespace IoTSharp.Contracts
         /// <summary>
         /// 遥测数据对象
         /// </summary>
-        Telemetry =1,
+        Telemetry = 1,
         /// <summary>
         /// 属性数据对象  
         /// </summary>
-        Attribute=2,
+        Attribute = 2,
         /// <summary>
         /// 远程控制
         /// </summary>
-        RPC=3,
+        RPC = 3,
         /// <summary>
         /// 在线
         /// </summary>
@@ -433,7 +433,7 @@ namespace IoTSharp.Contracts
     [JsonConverter(typeof(StringEnumConverter))]
     public enum ServerityLevel
     {
-        NoChange=-1,
+        NoChange = -1,
         /// <summary>
         /// 不确定
         /// </summary>

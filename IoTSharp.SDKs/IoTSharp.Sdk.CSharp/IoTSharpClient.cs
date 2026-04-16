@@ -36,19 +36,19 @@ namespace IoTSharp.Sdk.Http
 
         public T Create<T>() where T : class
         {
-            HttpClient.BaseAddress = new Uri ( BaseURL);
+            HttpClient.BaseAddress = new Uri(BaseURL);
             T t = Activator.CreateInstance(typeof(T), HttpClient) as T;
             typeof(T).GetProperty("BaseUrl").SetValue(t, BaseURL);
             return t;
         }
         AccountClient _act_client;
         private LoginResult _result;
-        public async Task<bool> RegisterAsync(string customer,string username, string password,string phoneNumber)
+        public async Task<bool> RegisterAsync(string customer, string username, string password, string phoneNumber)
         {
             try
             {
                 _act_client = Create<AccountClient>();
-             var    apiresult = await _act_client.RegisterAsync( new RegisterDto() {   Customer= customer, Email= username, Password=password, PhoneNumber= phoneNumber });
+                var apiresult = await _act_client.RegisterAsync(new RegisterDto() { Customer = customer, Email = username, Password = password, PhoneNumber = phoneNumber });
                 _result = apiresult.Data;
                 HttpClient.DefaultRequestHeaders.Add("Authorization", $"Bearer {Token.Access_token}");
                 ApiResultOfUserInfoDto userInfoDto = await _act_client.MyInfoAsync();

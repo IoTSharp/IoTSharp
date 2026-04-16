@@ -16,6 +16,7 @@ namespace IoTSharp.Test
         private PostgreSqlContainer? _dbContainer;
         private InfluxDbContainer? _tsdbContainer;
 
+        [System.Obsolete]
         protected override async Task InitializeAppAsync()
         {
             _dbContainer = new PostgreSqlBuilder().Build();

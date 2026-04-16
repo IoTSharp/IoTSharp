@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace IoTSharp.Data
 {
-    public class AuthorizedKey: IJustMy
+    public class AuthorizedKey : IJustMy
     {
         [Key]
         public Guid Id { get; set; } = Guid.NewGuid();

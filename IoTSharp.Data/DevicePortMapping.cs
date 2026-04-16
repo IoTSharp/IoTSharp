@@ -15,7 +15,7 @@ namespace IoTSharp.Data
         public DateTime? CreateDate { get; set; }
         public Guid Creator { get; set; }
         public int MappingStatus { get; set; }
-        public int  MappingIndex { get; set; }
+        public int MappingIndex { get; set; }
         public Guid SourceDeviceId { get; set; }
         public Guid TargetDeviceId { get; set; }
     }

@@ -46,10 +46,10 @@ namespace IoTSharp
         /// <param name="_context"></param>
         /// <param name="controller"></param>
         /// <param name="ak"></param>
-        public static void JustFill<T>(this ApplicationDbContext _context, ControllerBase controller,   T ak) where T : class, IJustMy
+        public static void JustFill<T>(this ApplicationDbContext _context, ControllerBase controller, T ak) where T : class, IJustMy
         {
             var cid = controller.User.Claims.First(c => c.Type == IoTSharpClaimTypes.Customer);
-            var tid = controller. User.Claims.First(c => c.Type == IoTSharpClaimTypes.Tenant);
+            var tid = controller.User.Claims.First(c => c.Type == IoTSharpClaimTypes.Tenant);
             ak.Tenant = _context.Tenant.Find(new Guid(tid.Value));
             ak.Customer = _context.Customer.Find(new Guid(cid.Value));
         }
@@ -60,8 +60,8 @@ namespace IoTSharp
         /// <param name="ts"></param>
         /// <param name="controller"></param>
         /// <returns></returns>
-        public static IQueryable<T> JustCustomer<T>(this DbSet<T> ts, ControllerBase controller) where T : class, IJustMy 
-            => JustCustomer(ts,controller.User.GetCustomerId());
+        public static IQueryable<T> JustCustomer<T>(this DbSet<T> ts, ControllerBase controller) where T : class, IJustMy
+            => JustCustomer(ts, controller.User.GetCustomerId());
         /// <summary>
         /// 查询指定客户的数据
         /// </summary>
@@ -80,7 +80,7 @@ namespace IoTSharp
         /// <param name="ts"></param>
         /// <param name="controller"></param>
         /// <returns></returns>
-        public static IQueryable<T> JustTenant<T>(this DbSet<T> ts, ControllerBase controller) where T : class, IJustMy 
+        public static IQueryable<T> JustTenant<T>(this DbSet<T> ts, ControllerBase controller) where T : class, IJustMy
             => JustTenant(ts, controller.User.GetTenantId());
         /// <summary>
         /// 查询指定租户的数据
@@ -99,31 +99,31 @@ namespace IoTSharp
         /// <param name="context"></param>
         /// <param name="custId"></param>
         /// <returns></returns>
-        public static Customer GetCustomer(this ApplicationDbContext context, Guid custId) 
-            => context.Customer.Include(c => c.Tenant).FirstOrDefault(c => c.Id  ==  custId);
-      /// <summary>
-      /// 获取指定的租户信息
-      /// </summary>
-      /// <param name="context"></param>
-      /// <param name="tenId"></param>
-      /// <returns></returns>
+        public static Customer GetCustomer(this ApplicationDbContext context, Guid custId)
+            => context.Customer.Include(c => c.Tenant).FirstOrDefault(c => c.Id == custId);
+        /// <summary>
+        /// 获取指定的租户信息
+        /// </summary>
+        /// <param name="context"></param>
+        /// <param name="tenId"></param>
+        /// <returns></returns>
         public static Tenant GetTenant(this ApplicationDbContext context, Guid tenId)
            => context.Tenant.FirstOrDefault(c => c.Id == tenId);
 
-       /// <summary>
-       /// 获取当前用户的邮箱
-       /// </summary>
-       /// <param name="_user"></param>
-       /// <returns></returns>
+        /// <summary>
+        /// 获取当前用户的邮箱
+        /// </summary>
+        /// <param name="_user"></param>
+        /// <returns></returns>
         public static string GetEmail(this ClaimsPrincipal _user) => _user.FindFirstValue(ClaimTypes.Email);
         /// <summary>
         /// 获取当前用户的ID
         /// </summary>
         /// <param name="_user"></param>
         /// <returns></returns>
-        public static Guid  GetUserId(this ClaimsPrincipal _user)
+        public static Guid GetUserId(this ClaimsPrincipal _user)
         {
-            return  Guid.Parse( _user.FindFirstValue(ClaimTypes.NameIdentifier) ?? Guid.Empty.ToString());
+            return Guid.Parse(_user.FindFirstValue(ClaimTypes.NameIdentifier) ?? Guid.Empty.ToString());
         }
         /// <summary>
         /// 获取当前用户的ID
@@ -132,7 +132,7 @@ namespace IoTSharp
         /// <returns></returns>
         public static Guid GetTenantId(this ClaimsPrincipal _user)
         {
-            return  Guid.Parse( _user.FindFirstValue(IoTSharpClaimTypes.Tenant)??Guid.Empty.ToString());
+            return Guid.Parse(_user.FindFirstValue(IoTSharpClaimTypes.Tenant) ?? Guid.Empty.ToString());
         }
         /// <summary>
         /// 获取当前用户的客户ID
@@ -143,10 +143,10 @@ namespace IoTSharp
         {
             return Guid.Parse(_user.FindFirstValue(IoTSharpClaimTypes.Customer) ?? Guid.Empty.ToString());
         }
-        
-      
 
-      
+
+
+
 
         private static string GetFullPathName(string filename)
         {
@@ -176,15 +176,15 @@ namespace IoTSharp
             });
         }
 
-     
 
-        internal static  Settings AddIoTSharpHealthCheckEndpoint(this Settings setup)
+
+        internal static Settings AddIoTSharpHealthCheckEndpoint(this Settings setup)
         {
             var _in_docker = Environment.GetEnvironmentVariable("DOTNET_RUNNING_IN_CONTAINER") == "true";
             if (_in_docker)
             {
-                int port = 0 ;
-                if (!int.TryParse(Environment.GetEnvironmentVariable("ASPNETCORE_HTTP_PORTS"),out port))
+                int port = 0;
+                if (!int.TryParse(Environment.GetEnvironmentVariable("ASPNETCORE_HTTP_PORTS"), out port))
                 {
                     port = 8080;
                 }
@@ -238,12 +238,12 @@ namespace IoTSharp
             configure.OperationProcessors.Add(new AspNetCoreOperationSecurityScopeProcessor("JWT"));
         }
 
-        public static void CreateBrokerTlsCert(this X509Certificate2 CACertificate, string domainname, IPAddress iP, string pubfile, string pivfile,string email)
+        public static void CreateBrokerTlsCert(this X509Certificate2 CACertificate, string domainname, IPAddress iP, string pubfile, string pivfile, string email)
         {
             var build = new SubjectAlternativeNameBuilder();
             build.AddDnsName(domainname);
             build.AddIpAddress(iP);
-            build.AddEmailAddress(email??"mysticboy@live.com");
+            build.AddEmailAddress(email ?? "mysticboy@live.com");
             string name = $"C=CN,CN={domainname},ST=IoTSharp,O={Dns.GetHostName()},OU= CA_{MethodBase.GetCurrentMethod().Module.Assembly.GetName().Name}";
             var broker = CACertificate.CreateTlsClientRSA(name, build);
             broker.SavePem(pubfile, pivfile);
@@ -325,7 +325,7 @@ namespace IoTSharp
         /// <param name="_scopeFactor"></param>
         /// <param name="_logger"></param>
         /// <returns></returns>
-        internal static Device JudgeOrCreateNewDevice(this  Device device ,string devname, IServiceScopeFactory _scopeFactor, ILogger _logger)
+        internal static Device JudgeOrCreateNewDevice(this Device device, string devname, IServiceScopeFactory _scopeFactor, ILogger _logger)
         {
             Device devicedatato = null;
             using (var scope = _scopeFactor.CreateScope())
@@ -336,17 +336,18 @@ namespace IoTSharp
                 {
                     var ch = from g in _dbContext.Gateway.Include(g => g.Tenant).Include(g => g.Customer).Include(c => c.Children) where g.Id == device.Id select g;
                     var gw = ch.FirstOrDefault();
-                    if(gw == null)
+                    if (gw == null)
                     {//未处理null的情况
 
                         devicedatato = _dbContext.Device.Find(device.Id);
-                    }else
+                    }
+                    else
                     {
 
                         var subdev = from cd in gw.Children where cd.Name == devname select cd;
                         if (!subdev.Any())
                         {
-                            devicedatato = new Device() { Id = Guid.NewGuid(), Name = devname, DeviceType = DeviceType.Device, Tenant = gw.Tenant, Customer = gw.Customer, Owner = gw,  Timeout = 300 };
+                            devicedatato = new Device() { Id = Guid.NewGuid(), Name = devname, DeviceType = DeviceType.Device, Tenant = gw.Tenant, Customer = gw.Customer, Owner = gw, Timeout = 300 };
                             gw.Children.Add(devicedatato);
                             _dbContext.AfterCreateDevice(devicedatato);
                             _logger.LogInformation($"网关 {gw.Id}-{gw.Name}在线.添加了子设备{devicedatato.Name}");
@@ -368,7 +369,7 @@ namespace IoTSharp
             return devicedatato;
         }
 
-        internal static void  UseTelemetryStorage(this IApplicationBuilder app)
+        internal static void UseTelemetryStorage(this IApplicationBuilder app)
         {
             try
             {
@@ -384,7 +385,7 @@ namespace IoTSharp
                     _ts_storage.CheckTelemetryStorage();
                 }
             }
-            catch (Exception) 
+            catch (Exception)
             {
                 throw;
             }

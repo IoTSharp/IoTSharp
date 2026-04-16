@@ -8,7 +8,7 @@ using ShardingCore.VirtualRoutes.Years;
 
 namespace IoTSharp.Data.Shardings.Routes
 {
-    public class TelemetryDataYearRoute:AbstractSimpleShardingYearKeyDateTimeVirtualTableRoute<TelemetryData>
+    public class TelemetryDataYearRoute : AbstractSimpleShardingYearKeyDateTimeVirtualTableRoute<TelemetryData>
     {
         private readonly AppSettings _setting;
 

@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 namespace IoTSharp.Data.Configurations
 {
 
- 
+
     public class TelemetryDataConfiguration : IEntityTypeConfiguration<TelemetryData>
     {
         public void Configure(EntityTypeBuilder<TelemetryData> builder)

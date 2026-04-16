@@ -13,20 +13,20 @@ namespace Microsoft.Extensions.DependencyInjection
 {
     public static class IoTSharpDataBuilderExtensions
     {
-      
+
 
         public static void ConfigureSqlServer(this IServiceCollection services, string connectionString, int poolSize, IHealthChecksBuilder checksBuilder, HealthChecksUIBuilder healthChecksUI)
         {
             services.AddEntityFrameworkSqlServer();
-            services.AddSingleton<IDataBaseModelBuilderOptions>( c=> new MsSqlModelBuilderOptions());
+            services.AddSingleton<IDataBaseModelBuilderOptions>(c => new MsSqlModelBuilderOptions());
             services.AddDbContextPool<ApplicationDbContext>(builder =>
             {
-                builder.UseSqlServer(connectionString, s =>  s.MigrationsAssembly("IoTSharp.Data.SqlServer").UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery));
+                builder.UseSqlServer(connectionString, s => s.MigrationsAssembly("IoTSharp.Data.SqlServer").UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery));
                 builder.ConfigureWarnings(w => w.Ignore(RelationalEventId.PendingModelChangesWarning));
                 builder.UseInternalServiceProvider(services.BuildServiceProvider());
             }
      , poolSize);
-            checksBuilder.AddSqlServer(connectionString,name: "IoTSharp.Data.SqlServer");
+            checksBuilder.AddSqlServer(connectionString, name: "IoTSharp.Data.SqlServer");
             healthChecksUI.AddSqlServerStorage(connectionString);
 
         }

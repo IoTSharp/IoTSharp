@@ -12,6 +12,6 @@ namespace IoTSharp.Data
     {
         [System.Text.Json.Serialization.JsonIgnore]
         [Newtonsoft.Json.JsonIgnore]
-        public  Produce Owner { get; set; }
+        public Produce Owner { get; set; }
     }
 }

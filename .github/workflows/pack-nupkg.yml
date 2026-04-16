@@ -3,7 +3,7 @@ name: Publish NuGet Packages
 on:
   push:
     tags:
-      - '*'
+      - 'v*.*.*'
 
 permissions:
   contents: read
@@ -15,13 +15,6 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v5
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '22'
-          cache: npm
-          cache-dependency-path: ClientApp/package-lock.json
 
       - name: Setup .NET SDK
         uses: actions/setup-dotnet@v5
@@ -49,18 +42,40 @@ jobs:
       - name: Restore solution
         run: dotnet restore IoTSharp.sln
 
-      # Only tag pushes can produce publishable NuGet packages.
-      - name: Pack IoTSharp
+      - name: Verify formatting
+        run: dotnet format IoTSharp.sln --verify-no-changes --severity error --no-restore
+
+      - name: Pack publishable projects
         shell: bash
         run: |
-          dotnet pack IoTSharp/IoTSharp.csproj \
-            --configuration Release \
-            --output "${RUNNER_TEMP}/nupkg" \
-            --no-restore \
-            -p:ContinuousIntegrationBuild=true \
-            -p:Version="${PACKAGE_VERSION}" \
-            -p:PackageVersion="${PACKAGE_VERSION}" \
-            -p:InformationalVersion="${PACKAGE_VERSION}"
+          mkdir -p "${RUNNER_TEMP}/nupkg"
+          mapfile -t projects < <(
+            {
+              git grep -l '<GeneratePackageOnBuild>true</GeneratePackageOnBuild>' -- '*.csproj'
+              printf '%s\n' \
+                "IoTSharp.Data.JsonDB/IoTSharp.Data.JsonDB.csproj" \
+                "IoTSharp.SDKs/IoTSharp.Sdk.CSharp/IoTSharp.Sdk.Http.csproj" \
+                "IoTSharp.SDKs/IoTSharp.Sdk.MQTT/IoTSharp.Sdk.MQTT.csproj" \
+                "IoTSharp.Extensions/IoTSharp.Extensions.csproj" \
+                "IoTSharp.Extensions.AspNetCore/IoTSharp.Extensions.AspNetCore.csproj" \
+                "IoTSharp.Extensions.EFCore/IoTSharp.Extensions.EFCore.csproj" \
+                "IoTSharp.Extensions.QuartzJobScheduler/IoTSharp.Extensions.QuartzJobScheduler.csproj" \
+                "IoTSharp.Extensions.X509/IoTSharp.Extensions.X509.csproj"
+            } | sort -u
+          )
+
+          for project in "${projects[@]}"; do
+            dotnet pack "${project}" \
+              --configuration Release \
+              --output "${RUNNER_TEMP}/nupkg" \
+              --no-restore \
+              --include-symbols \
+              --include-source \
+              -p:ContinuousIntegrationBuild=true \
+              -p:Version="${PACKAGE_VERSION}" \
+              -p:PackageVersion="${PACKAGE_VERSION}" \
+              -p:InformationalVersion="${PACKAGE_VERSION}"
+          done
 
       - name: Upload package artifacts
         uses: actions/upload-artifact@v4
@@ -70,23 +85,6 @@ jobs:
             ${{ runner.temp }}/nupkg/*.nupkg
             ${{ runner.temp }}/nupkg/*.snupkg
           if-no-files-found: error
-
-      - name: Publish to GitHub Packages
-        shell: bash
-        env:
-          GITHUB_PACKAGES_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          shopt -s nullglob
-          for pkg in "${RUNNER_TEMP}"/nupkg/*.nupkg; do
-            if [[ "${pkg}" == *.symbols.nupkg ]]; then
-              continue
-            fi
-
-            dotnet nuget push "${pkg}" \
-              --source "https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json" \
-              --api-key "${GITHUB_PACKAGES_TOKEN}" \
-              --skip-duplicate
-          done
 
       - name: Publish to NuGet.org
         shell: bash
@@ -102,5 +100,22 @@ jobs:
             dotnet nuget push "${pkg}" \
               --source "https://api.nuget.org/v3/index.json" \
               --api-key "${NUGET_API_KEY}" \
+              --skip-duplicate
+          done
+
+      - name: Publish to GitHub Packages
+        shell: bash
+        env:
+          GITHUB_PACKAGES_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          shopt -s nullglob
+          for pkg in "${RUNNER_TEMP}"/nupkg/*.nupkg; do
+            if [[ "${pkg}" == *.symbols.nupkg ]]; then
+              continue
+            fi
+
+            dotnet nuget push "${pkg}" \
+              --source "https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json" \
+              --api-key "${GITHUB_PACKAGES_TOKEN}" \
               --skip-duplicate
           done

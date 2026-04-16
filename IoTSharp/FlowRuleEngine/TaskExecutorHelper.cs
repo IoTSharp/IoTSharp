@@ -44,13 +44,14 @@ namespace IoTSharp.FlowRuleEngine
             if (pairs.TryGetValue(name, out var t))
             {
                 obj = CreateInstance(t) as TaskAction;
-                if (obj != null) {
+                if (obj != null)
+                {
                     obj.ServiceProvider = this._sp;
                 }
             }
 
             return obj;
-       
+
         }
         public TaskAction CreateInstanceByTypeName(string typename)
         {
@@ -74,7 +75,7 @@ namespace IoTSharp.FlowRuleEngine
         {
             var cnst = t.GetConstructors();
             TaskAction obj;
-            if (cnst.FirstOrDefault()?.GetParameters().Any()==true)
+            if (cnst.FirstOrDefault()?.GetParameters().Any() == true)
             {
                 obj = _sp.GetRequiredService(t) as TaskAction;
             }
@@ -92,7 +93,7 @@ namespace IoTSharp.FlowRuleEngine
         private void LoadTypesInfo()
         {
             pairs = new Dictionary<string, Type>();
-            Assembly.GetEntryAssembly().GetTypes().Where(c => c.BaseType== typeof(TaskAction)).ToList().ForEach(c =>
+            Assembly.GetEntryAssembly().GetTypes().Where(c => c.BaseType == typeof(TaskAction)).ToList().ForEach(c =>
             {
                 var key = c.GetCustomAttribute<DisplayNameAttribute>()?.DisplayName ?? c.FullName;
                 if (!pairs.ContainsKey(key))

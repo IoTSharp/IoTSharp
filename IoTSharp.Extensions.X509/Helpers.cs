@@ -46,9 +46,9 @@ namespace IoTSharp.Extensions.X509
         }
     }
     #region Helper Classes
-    public   static class PemCertificateHelper
+    public static class PemCertificateHelper
     {
-   
+
 
         #region Properties & Variables
         public static AsymmetricCipherKeyPair userKeyPair = null;
@@ -150,7 +150,7 @@ namespace IoTSharp.Extensions.X509
             }
             catch (Exception ex)
             {
-                throw new Exception ($"The Method \"{nameof(GenerateSelfSignedCertificate)}\" has failed.",ex);
+                throw new Exception($"The Method \"{nameof(GenerateSelfSignedCertificate)}\" has failed.", ex);
             }
         }
 
@@ -167,7 +167,7 @@ namespace IoTSharp.Extensions.X509
             }
             catch (Exception ex)
             {
-                throw new Exception( $"The Method \"{nameof(ExportCertificateToPEM)}\" has failed.",ex);
+                throw new Exception($"The Method \"{nameof(ExportCertificateToPEM)}\" has failed.", ex);
             }
         }
 
@@ -188,19 +188,19 @@ namespace IoTSharp.Extensions.X509
                 throw new Exception($"The Method \"{nameof(ExportKeyToPEM)}\" has failed.", ex);
             }
         }
-        public static X509Certificate2 ReadPemCertificateWithPrivateKey(byte[] certificateBuffer, byte[] privateKeyBuffer,string password=null)
+        public static X509Certificate2 ReadPemCertificateWithPrivateKey(byte[] certificateBuffer, byte[] privateKeyBuffer, string password = null)
         {
             try
             {
-                var x509Cert = new X509Certificate2(certificateBuffer,password);
-                if (privateKeyBuffer!=null)
-                    x509Cert = AddPemPrivateKeyToCertificate(x509Cert, privateKeyBuffer,password);
+                var x509Cert = new X509Certificate2(certificateBuffer, password);
+                if (privateKeyBuffer != null)
+                    x509Cert = AddPemPrivateKeyToCertificate(x509Cert, privateKeyBuffer, password);
                 return x509Cert;
             }
             catch (Exception ex)
             {
-                throw new Exception($"The Method \"{nameof(ReadPemCertificateWithPrivateKey)}\" has failed.",ex);
-       
+                throw new Exception($"The Method \"{nameof(ReadPemCertificateWithPrivateKey)}\" has failed.", ex);
+
             }
         }
         public static X509Certificate2 ReadPemCertificateWithPrivateKey(string certificateFile, string privateKeyFile, string password)
@@ -216,7 +216,7 @@ namespace IoTSharp.Extensions.X509
 
         public static X509Certificate2 AddPemPrivateKey(this X509Certificate2 certificate, byte[] privateKeyBuffer, string password = null)
                     => AddPemPrivateKeyToCertificate(certificate, privateKeyBuffer, password);
-        private static X509Certificate2 _AddPrivateKeyOrReCreateCert(X509Certificate2 certificate, AsymmetricCipherKeyPair keyPair,string password=null)
+        private static X509Certificate2 _AddPrivateKeyOrReCreateCert(X509Certificate2 certificate, AsymmetricCipherKeyPair keyPair, string password = null)
         {
 #if NETCOREAPP || NET472
             var rsaPrivateKey = PemUtils.ToRSA(keyPair.Private as RsaPrivateCrtKeyParameters);
@@ -227,7 +227,7 @@ namespace IoTSharp.Extensions.X509
             return certificate;
         }
 
-        public static X509Certificate2 CopyWithPrivateKey( this X509Certificate2 certificate, AsymmetricCipherKeyPair rsa,string password )
+        public static X509Certificate2 CopyWithPrivateKey(this X509Certificate2 certificate, AsymmetricCipherKeyPair rsa, string password)
         {
             return new X509Certificate2(CreatePfxFile(new X509CertificateParser().ReadCertificate(certificate.RawData), rsa.Private), password, System.Security.Cryptography.X509Certificates.X509KeyStorageFlags.Exportable);
         }
@@ -255,7 +255,7 @@ namespace IoTSharp.Extensions.X509
             var result = Pkcs12Utilities.ConvertToDefiniteLength(pfxBytes);
             return result;
         }
-        public static X509Certificate2 AddPemPrivateKeyToCertificate(X509Certificate2 certificate, byte[] privateKeyBuffer,string password=null)
+        public static X509Certificate2 AddPemPrivateKeyToCertificate(X509Certificate2 certificate, byte[] privateKeyBuffer, string password = null)
         {
             try
             {
@@ -266,33 +266,33 @@ namespace IoTSharp.Extensions.X509
             }
             catch (Exception ex)
             {
-                throw new Exception( $"The Method \"{nameof(AddPemPrivateKeyToCertificate)}\" has failed.",ex);
+                throw new Exception($"The Method \"{nameof(AddPemPrivateKeyToCertificate)}\" has failed.", ex);
             }
         }
         #endregion
     }
 
-  
+
     class QlikClientCertificate
     {
 
-#region Enums
+        #region Enums
         public enum PemStringType
         {
             Certificate,
             RsaPrivateKey
         }
-#endregion
+        #endregion
 
-#region Properties & Variables
+        #region Properties & Variables
         private string PublicCertificate { get; set; }
         private string PrivateKey { get; set; }
         private string Password { get; set; }
         private bool IsSingleFile { get; set; }
         public static string DefaultFolder => @"C:\ProgramData\Qlik\Sense\Repository\Exported Certificates\.Local Certificates";
-#endregion
+        #endregion
 
-#region Constructor
+        #region Constructor
         public QlikClientCertificate(string certKeyFilePath, string password)
         {
             PublicCertificate = File.ReadAllText(certKeyFilePath);
@@ -313,9 +313,9 @@ namespace IoTSharp.Extensions.X509
             IsSingleFile = false;
             Password = password;
         }
-#endregion
+        #endregion
 
-#region Static Helper Functions
+        #region Static Helper Functions
         //This function parses an integer size from the reader using the ASN.1 format
         private static int DecodeIntegerSize(System.IO.BinaryReader rd)
         {
@@ -417,7 +417,7 @@ namespace IoTSharp.Extensions.X509
                 if (byteValue != 0x00)
                     return null;
                 var rsa = new RSACryptoServiceProvider();
- 
+
                 var rsAparams = new RSAParameters()
                 {
                     Modulus = rd.ReadBytes(DecodeIntegerSize(rd)),
@@ -449,9 +449,9 @@ namespace IoTSharp.Extensions.X509
                 rd.Close();
             }
         }
-#endregion
+        #endregion
 
-#region Public Methods
+        #region Public Methods
         public X509Certificate2 GetCertificateFromPEM(string friendlyName = "QlikClient")
         {
             try
@@ -474,16 +474,16 @@ namespace IoTSharp.Extensions.X509
             }
             catch (Exception ex)
             {
-                throw new Exception($"The Method \"{nameof(GetCertificateFromPEM)}\" has failed.",ex);
+                throw new Exception($"The Method \"{nameof(GetCertificateFromPEM)}\" has failed.", ex);
             }
         }
-#endregion
+        #endregion
     }
 
     class RSAParameterTraits
     {
 
-#region Fields
+        #region Fields
         public int size_Mod = -1;
         public int size_Exp = -1;
         public int size_D = -1;
@@ -492,9 +492,9 @@ namespace IoTSharp.Extensions.X509
         public int size_DP = -1;
         public int size_DQ = -1;
         public int size_InvQ = -1;
-#endregion
+        #endregion
 
-#region Public Methods
+        #region Public Methods
         public RSAParameterTraits(int modulusLengthInBits)
         {
             try
@@ -554,10 +554,10 @@ namespace IoTSharp.Extensions.X509
             }
             catch (Exception ex)
             {
-                throw new Exception($"The Method \"{nameof(RSAParameterTraits)}\" has failed.",ex);
+                throw new Exception($"The Method \"{nameof(RSAParameterTraits)}\" has failed.", ex);
             }
         }
-#endregion
+        #endregion
     }
-#endregion
+    #endregion
 }

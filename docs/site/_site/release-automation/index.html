@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>发布自动化 · IoTSharp Docs</title>
+  <meta name="description" content="IoTSharp semver tag 发布流程说明。" />
+  <link rel="stylesheet" href="/assets/site.css" />
+</head>
+<body>
+  <header class="site-header">
+    <div class="container">
+      <a class="brand" href="/">IoTSharp Docs</a>
+      <nav>
+        <a href="/guide/getting-started/">快速开始</a>
+        <a href="/guide/deployment/">部署</a>
+        <a href="/reference/nuget-packages/">NuGet</a>
+        <a href="/reference/release-automation/">CI/CD</a>
+        <a href="https://github.com/IoTSharp/IoTSharp">GitHub</a>
+      </nav>
+    </div>
+  </header>
+  <main class="container content">
+    <h1 id="section">发布自动化</h1>
+<h2 id="section-1">分支行为</h2>
+<p>普通分支与 Pull Request 只执行验证型 CI：</p>
+<ul>
+<li><code>dotnet restore</code></li>
+<li><code>dotnet format --verify-no-changes</code></li>
+<li>主程序构建</li>
+<li><code>IoTSharp.Data.JsonDB</code> 构建</li>
+<li>单元测试</li>
+</ul>
+<h2 id="tag">Tag 行为</h2>
+<p>当推送 <code>v1.0.0</code> 这类 semver tag 时，工作流会执行：</p>
+<ol>
+<li>打包并发布全部 NuGet 包到 NuGet.org</li>
+<li>再发布同一批包到 GitHub Packages</li>
+<li>构建并推送 Docker 镜像到 GHCR 与 Docker Hub</li>
+<li>生成多个 RID 的压缩包并写入 GitHub Release</li>
+</ol>
+<h2 id="secrets">Secrets</h2>
+<p>以下 secrets 需要在仓库中配置：</p>
+<ul>
+<li><code>NUGET_API_KEY</code></li>
+<li><code>DOCKERHUB_USERNAME</code></li>
+<li><code>DOCKERHUB_TOKEN</code></li>
+</ul>
+<p>GitHub Packages 与 GHCR 使用 <code>GITHUB_TOKEN</code>。</p>
+
+  </main>
+</body>
+</html>

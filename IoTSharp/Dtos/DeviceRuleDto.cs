@@ -6,7 +6,7 @@ namespace IoTSharp.Dtos
 {
     public class DeviceRuleDto
     {
-        public Guid Id { get; set; } 
+        public Guid Id { get; set; }
 
         /// <summary>
         /// 设备名称

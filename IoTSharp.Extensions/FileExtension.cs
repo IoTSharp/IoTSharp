@@ -24,7 +24,7 @@ namespace IoTSharp.Extensions
         /// <param name="searchOption"></param>
         /// <param name="limit">数量上限， 如果大于0 ， 则表示只取列出的前<para>limit </para></param>
         /// <returns></returns>
-        public static IEnumerable<string> EnumerateFilesFilter(this DirectoryInfo directory,  string  filesFilter, SearchOption searchOption = SearchOption.TopDirectoryOnly, int limit = -1)
+        public static IEnumerable<string> EnumerateFilesFilter(this DirectoryInfo directory, string filesFilter, SearchOption searchOption = SearchOption.TopDirectoryOnly, int limit = -1)
         {
             if (limit == -1)
             {
@@ -48,8 +48,8 @@ namespace IoTSharp.Extensions
         {
             return new DriveInfo(file.Directory.Root.FullName);
         }
-   
-       
+
+
 
         public static byte[] ReadAllBytes(this FileInfo fi) => File.ReadAllBytes(fi.FullName);
         public static byte[] ReadExactly(this FileInfo fi, int count) => ReadExactly(fi, 0, count);

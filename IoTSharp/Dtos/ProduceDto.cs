@@ -10,13 +10,13 @@ namespace IoTSharp.Dtos
     {
         public Guid Id { get; set; }
 
-    
+
         public string Name { get; set; }
 
-    
+
         public int DefaultTimeout { get; set; } = 300;
 
- 
+
         [EnumDataType(typeof(IdentityType))]
         public IdentityType DefaultIdentityType { get; set; } = IdentityType.AccessToken;
         public string Description { get; set; }

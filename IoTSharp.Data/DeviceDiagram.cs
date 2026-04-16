@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace IoTSharp.Data
 {
-   public class DeviceDiagram: IJustMy
+    public class DeviceDiagram : IJustMy
     {
         [Key]
         public Guid DiagramId { get; set; }
@@ -16,7 +16,7 @@ namespace IoTSharp.Data
         public int DiagramStatus { get; set; }
         public Guid Creator { get; set; }
         public DateTimeOffset? CreateDate { get; set; }
-   
+
         public string DiagramImage { get; set; }
         public bool IsDefault { get; set; }
 

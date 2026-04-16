@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>文档维护 · IoTSharp Docs</title>
+  <meta name="description" content="IoTSharp 文档站的维护方式与本地命令。" />
+  <link rel="stylesheet" href="/assets/site.css" />
+</head>
+<body>
+  <header class="site-header">
+    <div class="container">
+      <a class="brand" href="/">IoTSharp Docs</a>
+      <nav>
+        <a href="/guide/getting-started/">快速开始</a>
+        <a href="/guide/deployment/">部署</a>
+        <a href="/reference/nuget-packages/">NuGet</a>
+        <a href="/reference/release-automation/">CI/CD</a>
+        <a href="https://github.com/IoTSharp/IoTSharp">GitHub</a>
+      </nav>
+    </div>
+  </header>
+  <main class="container content">
+    <h1 id="section">文档维护</h1>
+<h2 id="section-1">目录</h2>
+<p>JekyllNet 站点源目录为 <code>docs/site</code>，建议按以下方式维护：</p>
+<ul>
+<li><code>index.md</code>：站点首页</li>
+<li><code>guide/*</code>：安装、部署、开发</li>
+<li><code>reference/*</code>：NuGet、CI/CD、运维、文档维护</li>
+<li><code>_layouts/*</code>：HTML 布局</li>
+<li><code>assets/*</code>：CSS 与静态资源</li>
+</ul>
+<h2 id="section-2">本地命令</h2>
+<pre><code class="language-bash">cd /home/runner/work/IoTSharp/IoTSharp
+dotnet tool restore
+dotnet jekyllnet build --source ./docs/site --destination ./docs/site/_site
+dotnet jekyllnet serve --source ./docs/site --destination ./docs/site/_site --port 5055
+</code></pre>
+<h2 id="section-3">发布</h2>
+<p><code>docs-deploy.yml</code> 会在 <code>master</code> 分支的文档变更上：</p>
+<ol>
+<li>使用 <code>JekyllNet/action@v2.5</code> 构建站点</li>
+<li>上传 <code>docs/site/_site</code></li>
+<li>部署到 GitHub Pages</li>
+</ol>
+
+  </main>
+</body>
+</html>

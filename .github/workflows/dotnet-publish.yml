@@ -3,7 +3,7 @@ name: Release Binaries
 on:
   push:
     tags:
-      - '*'
+      - 'v*.*.*'
 
 permissions:
   contents: write
@@ -17,6 +17,8 @@ jobs:
       matrix:
         include:
           - rid: win-x64
+            archive_format: zip
+          - rid: win-x86
             archive_format: zip
           - rid: linux-x64
             archive_format: tar.gz

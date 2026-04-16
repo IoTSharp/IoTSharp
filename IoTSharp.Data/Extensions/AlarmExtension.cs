@@ -16,7 +16,7 @@ namespace IoTSharp.Data.Extensions
             OriginatorType originatorType = cad.OriginatorType;
             if (cad.OriginatorType == OriginatorType.Device || cad.OriginatorType == OriginatorType.Gateway || cad.OriginatorType == OriginatorType.Unknow)
             {
-                var dev = _context.Device.Include(d=>d.Tenant).Include(d=>d.Customer).FirstOrDefault(d => d.Id.ToString() == cad.OriginatorName || d.Name == cad.OriginatorName);
+                var dev = _context.Device.Include(d => d.Tenant).Include(d => d.Customer).FirstOrDefault(d => d.Id.ToString() == cad.OriginatorName || d.Name == cad.OriginatorName);
                 if (dev != null)
                 {
                     if (dev.DeviceType == DeviceType.Gateway)
@@ -47,11 +47,11 @@ namespace IoTSharp.Data.Extensions
                         _alarm.Customer = dev.Customer;
                     });
                 }
-                else return new ApiResult<Alarm>(ApiCode.NotFoundDevice, "Originator name  not a device!",null);
+                else return new ApiResult<Alarm>(ApiCode.NotFoundDevice, "Originator name  not a device!", null);
             }
             else if (cad.OriginatorType == OriginatorType.Asset)
             {
-                var ass = _context.Assets.Include(a => a.Tenant).Include(a => a.Customer).FirstOrDefault(d => (d.Id.ToString() == cad.OriginatorName || d.Name == cad.OriginatorName) && d.Deleted==false);
+                var ass = _context.Assets.Include(a => a.Tenant).Include(a => a.Customer).FirstOrDefault(d => (d.Id.ToString() == cad.OriginatorName || d.Name == cad.OriginatorName) && d.Deleted == false);
                 if (ass != null)
                 {
                     originatorType = OriginatorType.Asset;
@@ -64,14 +64,14 @@ namespace IoTSharp.Data.Extensions
                         _alarm.Customer = ass.Customer;
                     });
                 }
-                else return new ApiResult<Alarm>(ApiCode.NotFoundDevice, "Originator name not a asset",null);
+                else return new ApiResult<Alarm>(ApiCode.NotFoundDevice, "Originator name not a asset", null);
             }
-            else return new ApiResult<Alarm>(ApiCode.NotFoundDevice, "Originator name not a asset",null);
+            else return new ApiResult<Alarm>(ApiCode.NotFoundDevice, "Originator name not a asset", null);
         }
 
         public static async Task<ApiResult<Alarm>> OccurredAlarm(this ApplicationDbContext _context, CreateAlarmDto dto, Action<Alarm> action)
         {
-            var result = new ApiResult<Alarm>(ApiCode.InValidData,"",null);
+            var result = new ApiResult<Alarm>(ApiCode.InValidData, "", null);
             try
             {
                 var alarm = new Alarm
@@ -87,14 +87,14 @@ namespace IoTSharp.Data.Extensions
                     StartDateTime = DateTime.UtcNow,
                 };
                 action?.Invoke(alarm);
-                var isone = from a in _context.Alarms where a.OriginatorId == alarm.OriginatorId && a.AlarmType == alarm.AlarmType && (a.AlarmStatus == AlarmStatus.Cleared_UnAck|| a.AlarmStatus == AlarmStatus.Active_UnAck) select a;
+                var isone = from a in _context.Alarms where a.OriginatorId == alarm.OriginatorId && a.AlarmType == alarm.AlarmType && (a.AlarmStatus == AlarmStatus.Cleared_UnAck || a.AlarmStatus == AlarmStatus.Active_UnAck) select a;
                 if (isone.Any())
                 {
                     var old = isone.First();
                     old.AlarmDetail = alarm.AlarmDetail;
-                    if ( old.Serverity != dto.Serverity && dto.Serverity== ServerityLevel.NoChange)
+                    if (old.Serverity != dto.Serverity && dto.Serverity == ServerityLevel.NoChange)
                     {
-                        if (old.Serverity== ServerityLevel.Indeterminate && dto.Serverity!= ServerityLevel.Indeterminate)
+                        if (old.Serverity == ServerityLevel.Indeterminate && dto.Serverity != ServerityLevel.Indeterminate)
                         {
                             old.StartDateTime = DateTime.UtcNow;
                             alarm.Propagate = true;
@@ -114,7 +114,7 @@ namespace IoTSharp.Data.Extensions
                         }
                         old.Serverity = dto.Serverity;
                     }
-                    alarm =old;
+                    alarm = old;
                 }
                 else
                 {
@@ -126,7 +126,7 @@ namespace IoTSharp.Data.Extensions
             }
             catch (Exception ex)
             {
-                result = new ApiResult<Alarm>(ApiCode.Exception, ex.Message,null);
+                result = new ApiResult<Alarm>(ApiCode.Exception, ex.Message, null);
             }
             return result;
         }

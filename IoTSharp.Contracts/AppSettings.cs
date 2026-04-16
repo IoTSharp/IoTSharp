@@ -61,9 +61,9 @@ namespace IoTSharp.Contracts
     }
     public class AppSettings
     {
-        public string JwtKey { get; set; }
-        public string JwtIssuer { get; set; }
-        public string JwtAudience { get; set; }
+        public string? JwtKey { get; set; }
+        public string? JwtIssuer { get; set; }
+        public string? JwtAudience { get; set; }
         public double JwtExpireHours { get; set; }
 
         [DefaultValue(EventBusFramework.CAP)]
@@ -76,7 +76,7 @@ namespace IoTSharp.Contracts
         /// mqtt client settings
         /// </summary>
         public MqttClientSetting MqttClient { get; set; } = new MqttClientSetting() { MqttBroker = "built-in", UserName = Guid.NewGuid().ToString(), Password = Guid.NewGuid().ToString(), Port = 1883 };
-        public Dictionary<string, string> ConnectionStrings { get; set; }
+        public Dictionary<string, string>? ConnectionStrings { get; set; }
 
         public ModBusServerSetting ModBusServer { get; set; } = new ModBusServerSetting();
 
@@ -88,7 +88,7 @@ namespace IoTSharp.Contracts
         public int ConsumerThreadCount { get; set; } = Environment.ProcessorCount;
         public int DbContextPoolSize { get; set; } = 128;
         public CachingUseIn CachingUseIn { get; set; } = CachingUseIn.InMemory;
-        public string CachingUseRedisHosts { get; set; }
+        public string? CachingUseRedisHosts { get; set; }
         //public DiscoveryOptions Discovery { get; set; } = null;
         //public ZMQOption ZMQOption { get; set; } = null;
         public int SucceedMessageExpiredAfter { get; set; } = 3600 * 6;
@@ -135,7 +135,7 @@ namespace IoTSharp.Contracts
 
         }
 
-        public string RootKey { get; set; }
+        public string? RootKey { get; set; }
     }
     public enum ShardingByDateMode
     {
@@ -170,9 +170,9 @@ namespace IoTSharp.Contracts
         /// <summary>
         /// built-in or IP、HostName
         /// </summary>
-        public string MqttBroker { get; set; }
-        public string UserName { get; set; }
-        public string Password { get; set; }
+        public string? MqttBroker { get; set; }
+        public string? UserName { get; set; }
+        public string? Password { get; set; }
         public int Port { get; set; }
     }
 }

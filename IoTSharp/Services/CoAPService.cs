@@ -15,7 +15,7 @@ using System.Threading.Tasks;
 
 namespace IoTSharp.Services
 {
-   
+
     public class CoAPService : IHostedService
     {
         private readonly ILogger _logger;
@@ -39,7 +39,7 @@ namespace IoTSharp.Services
 
         public Task StartAsync(CancellationToken cancellationToken)
         {
-           // server.Start();
+            // server.Start();
             return Task.CompletedTask;
         }
 

@@ -10,6 +10,7 @@ namespace IoTSharp.Test
     {
         private PostgreSqlContainer? _dbContainer;
 
+        [System.Obsolete]
         protected override async Task InitializeAppAsync()
         {
             _dbContainer = new PostgreSqlBuilder().Build();

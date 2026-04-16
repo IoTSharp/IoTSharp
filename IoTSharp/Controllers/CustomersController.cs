@@ -61,16 +61,16 @@ namespace IoTSharp.Controllers
             var profile = this.GetUserProfile();
             if (m.tenantId != Guid.Empty)
             {
-                var querym = _context.Customer.Include(c=>c.Tenant).Where(c => !c.Deleted && c.Tenant.Id==m.tenantId);
+                var querym = _context.Customer.Include(c => c.Tenant).Where(c => !c.Deleted && c.Tenant.Id == m.tenantId);
                 var data = await m.Query(querym, c => c.Name);
                 return new ApiResult<PagedData<Customer>>(ApiCode.Success, "OK", data);
             }
             else
             {
 
-                return new ApiResult<PagedData<Customer>>(ApiCode.NotFoundCustomer, "没有指定客户ID",new PagedData<Customer> ());
+                return new ApiResult<PagedData<Customer>>(ApiCode.NotFoundCustomer, "没有指定客户ID", new PagedData<Customer>());
             }
-           
+
         }
 
         /// <summary>
@@ -82,7 +82,7 @@ namespace IoTSharp.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ApiResult), StatusCodes.Status404NotFound)]
         [ProducesDefaultResponseType]
-        public async Task<ApiResult<AISettingsDto>> SetAISettings([FromRoute] Guid customerId,[FromBody] AISettingsSetDto dto)
+        public async Task<ApiResult<AISettingsDto>> SetAISettings([FromRoute] Guid customerId, [FromBody] AISettingsSetDto dto)
         {
             var profile = this.GetUserProfile();
             if (customerId != Guid.Empty)
@@ -94,7 +94,7 @@ namespace IoTSharp.Controllers
 
                     if (d.AISettings == null)
                     {
-                        var dx= new AISettings();
+                        var dx = new AISettings();
                         dx.Id = Guid.NewGuid();
                         dx.Role = UserRole.CustomerAdmin;
                         _context.AISettings.Add(dx);
@@ -103,8 +103,8 @@ namespace IoTSharp.Controllers
                     d.AISettings.Enable = dto.Enable;
                     d.AISettings.MCP_API_KEY = Guid.NewGuid().ToString();
                     d.AISettings.Name = dto.Name;
-                    int ret= await _context.SaveChangesAsync();
-                    var dtor=new AISettingsDto() { Enable=d.AISettings.Enable,MCP_API_KEY=d.AISettings.MCP_API_KEY,Name=d.AISettings.Name};
+                    int ret = await _context.SaveChangesAsync();
+                    var dtor = new AISettingsDto() { Enable = d.AISettings.Enable, MCP_API_KEY = d.AISettings.MCP_API_KEY, Name = d.AISettings.Name };
                     return new ApiResult<AISettingsDto>(ApiCode.Success, "OK", dtor);
                 }
                 else
@@ -134,13 +134,13 @@ namespace IoTSharp.Controllers
             var profile = this.GetUserProfile();
             if (customerId != Guid.Empty)
             {
-                var querym = _context.Customer.Include(c => c.Tenant).Include(s=>s.AISettings).Where(c => !c.Deleted && c.Tenant.Id == profile.Tenant  &&  c.Id==customerId);
+                var querym = _context.Customer.Include(c => c.Tenant).Include(s => s.AISettings).Where(c => !c.Deleted && c.Tenant.Id == profile.Tenant && c.Id == customerId);
                 if (querym.Any())
                 {
                     var d = await querym.FirstOrDefaultAsync();
-                    var s = d?.AISettings ?? new AISettings() { Name = "None" }; 
+                    var s = d?.AISettings ?? new AISettings() { Name = "None" };
                     var data = new AISettingsDto() { Enable = s.Enable, MCP_API_KEY = s.MCP_API_KEY, Name = s.Name };
-                    return new ApiResult<AISettingsDto>(ApiCode.Success, "OK",  data);
+                    return new ApiResult<AISettingsDto>(ApiCode.Success, "OK", data);
                 }
                 else
                 {
@@ -195,7 +195,7 @@ namespace IoTSharp.Controllers
             {
                 return new ApiResult<Customer>(ApiCode.InValidData, "InValidData", customer);
             }
-            if(customer.TenantId!= Guid.Empty)
+            if (customer.TenantId != Guid.Empty)
             {
                 customer.Tenant = _context.Tenant.Find(customer.TenantId);
             }

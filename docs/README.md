@@ -1,42 +1,41 @@
 # IoTSharp Docs
 
-IoTSharp 帮助手册站点基于 Docusaurus 构建，面向 GitHub Pages 与独立域名发布。
+IoTSharp 文档站现已切换为基于 `JekyllNet` 的 GitHub Pages 流程，站点源目录位于 `docs/site`。
 
 ## 技术基线
 
-- Docusaurus `3.9.2`
-- Node.js `20+`
-- npm `10+`
+- .NET SDK `10.0.x`
+- `JekyllNet` 本地工具 `0.2.5`
+- GitHub Pages + `JekyllNet/action@v2.5`
 
-## 本地运行
-
-```bash
-cd docs
-npm install
-npm run start
-```
-
-默认会启动本地开发站点，可用于实时预览主题和文档变更。
-
-## 生产构建
+## 本地构建
 
 ```bash
-cd docs
-npm run build
+cd /home/runner/work/IoTSharp/IoTSharp
+dotnet tool restore
+dotnet jekyllnet build --source ./docs/site --destination ./docs/site/_site
 ```
 
-## 本地预览构建产物
+## 本地预览
 
 ```bash
-cd docs
-npm run serve
+cd /home/runner/work/IoTSharp/IoTSharp
+dotnet tool restore
+dotnet jekyllnet serve --source ./docs/site --destination ./docs/site/_site --port 5055
 ```
+
+默认预览地址：<http://localhost:5055>
 
 ## GitHub Pages
 
-站点支持通过以下环境变量切换发布地址：
+文档工作流使用 `JekyllNet/action@v2.5` 构建，并通过官方 Pages 工作流上传和部署 `docs/site/_site`。
 
-- `DOCS_SITE_URL`
-- `DOCS_BASE_URL`
+站点默认域名为：
 
-默认面向 `https://iotsharp.net/`，在 GitHub Pages 工作流中可以覆盖为对应的 Pages 地址。
+- <https://iotsharp.net/>
+
+## 文档结构
+
+- `docs/site/index.md`：文档首页
+- `docs/site/guide/*`：安装、部署、开发入门
+- `docs/site/reference/*`：NuGet、CI/CD、发布与文档维护说明

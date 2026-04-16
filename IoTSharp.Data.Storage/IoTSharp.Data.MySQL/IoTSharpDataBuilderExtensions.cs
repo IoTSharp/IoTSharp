@@ -14,10 +14,10 @@ namespace Microsoft.Extensions.DependencyInjection
 {
     public static class IoTSharpDataBuilderExtensions
     {
-        public static void  ConfigureMySql(this IServiceCollection services,   string connectionString,int  poolSize , IHealthChecksBuilder checksBuilder, HealthChecksUIBuilder healthChecksUI)
+        public static void ConfigureMySql(this IServiceCollection services, string connectionString, int poolSize, IHealthChecksBuilder checksBuilder, HealthChecksUIBuilder healthChecksUI)
         {
             services.AddSingleton<IDataBaseModelBuilderOptions>(c => new MySqlModelBuilderOptions());
-            ServerVersion serverVersion=null;
+            ServerVersion serverVersion = null;
             try
             {
                 serverVersion = ServerVersion.AutoDetect(connectionString);
@@ -34,17 +34,17 @@ namespace Microsoft.Extensions.DependencyInjection
                      .MigrationsAssembly("IoTSharp.Data.MySQL"));
                 options.ConfigureWarnings(w => w.Ignore(RelationalEventId.PendingModelChangesWarning));
             }, poolSize);
-   
-           
-            checksBuilder.AddMySql(connectionString, name:"IoTSharp.Data.MySQL");
+
+
+            checksBuilder.AddMySql(connectionString, name: "IoTSharp.Data.MySQL");
             healthChecksUI.AddMySqlStorage(connectionString, opt => opt.ConfigureWarnings(w => w.Ignore(RelationalEventId.MultipleCollectionIncludeWarning)));
-      
+
         }
         public static void UseMySqlToSharding(this ShardingConfigOptions options)
         {
             options.UseShardingQuery((conStr, builder) =>
             {
-                builder.UseMySql(conStr, new MySqlServerVersion(new Version()),opt=> opt.UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery));
+                builder.UseMySql(conStr, new MySqlServerVersion(new Version()), opt => opt.UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery));
             });
             options.UseShardingTransaction((conn, builder) =>
             {

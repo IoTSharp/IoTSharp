@@ -10,7 +10,7 @@ namespace IoTSharp.Interpreter
 {
     public static class ScriptEnginesExtensions
     {
-        public static IServiceCollection AddScriptEngines(this IServiceCollection services, IConfiguration  configuration)
+        public static IServiceCollection AddScriptEngines(this IServiceCollection services, IConfiguration configuration)
         {
             services.AddTransient<JavaScriptEngine>();
             services.AddTransient<PythonScriptEngine>();

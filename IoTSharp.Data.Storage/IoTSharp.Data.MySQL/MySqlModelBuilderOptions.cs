@@ -49,20 +49,20 @@ namespace IoTSharp.Data.MySQL
 
             if (sv.Supports.Json)
             {
-                    modelBuilder.Entity<TelemetryData>()
-                    .Property(b => b.Value_Json)
-                    .HasColumnType("JSON");
-                    modelBuilder.Entity<TelemetryData>()
-                    .Property(b => b.Value_Json)
-                    .HasColumnType("JSON");
+                modelBuilder.Entity<TelemetryData>()
+                .Property(b => b.Value_Json)
+                .HasColumnType("JSON");
+                modelBuilder.Entity<TelemetryData>()
+                .Property(b => b.Value_Json)
+                .HasColumnType("JSON");
 
-                    modelBuilder.Entity<AttributeLatest>()
-                    .Property(b => b.Value_Json)
-                    .HasColumnType("JSON");
+                modelBuilder.Entity<AttributeLatest>()
+                .Property(b => b.Value_Json)
+                .HasColumnType("JSON");
 
-                    modelBuilder.Entity<TelemetryLatest>()
-                    .Property(b => b.Value_Json)
-                    .HasColumnType("JSON");
+                modelBuilder.Entity<TelemetryLatest>()
+                .Property(b => b.Value_Json)
+                .HasColumnType("JSON");
 
                 modelBuilder.Entity<AuditLog>()
                 .Property(b => b.ActionData)

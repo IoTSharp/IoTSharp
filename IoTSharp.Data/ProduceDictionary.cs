@@ -13,7 +13,7 @@ namespace IoTSharp.Data
     {
         [Key]
         public Guid Id { get; set; }
-  
+
         /// <summary>
         /// 字段名称
         /// </summary>
@@ -48,16 +48,16 @@ namespace IoTSharp.Data
         /// 默认值
         /// </summary>
         public string? DefaultValue { get; set; }
-       
+
         /// <summary>
         /// 是否显示
         /// </summary>
         public bool Display { get; set; }
- 
+
         /// <summary>
         /// 位置名称
         /// </summary>
-        public string  Place0 { get; set; }
+        public string Place0 { get; set; }
         /// <summary>
         /// 此位置顺序
         /// </summary>
@@ -75,11 +75,11 @@ namespace IoTSharp.Data
         /// <summary>
         /// 数据类型 
         /// </summary>
-        public DataType   DataType { get; set; }
- 
+        public DataType DataType { get; set; }
+
 
         public string? Tag { get; set; }
- 
+
 
         public Guid? Customer { get; set; }
 

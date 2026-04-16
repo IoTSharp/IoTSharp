@@ -85,21 +85,21 @@ namespace IoTSharp.TaskActions
 
         private class Alarm
         {
-          
+
             public string originatorType { get; set; }
 
-            
+
             public string originatorName { get; set; }
-       
+
             public string alarmType { get; set; }
-       
+
             public string alarmDetail { get; set; }
-    
+
             public string serverity { get; set; }
-      
+
             public string warnDataId { get; set; }
             public DateTime createDateTime { get; set; }
-         
+
         }
 
 

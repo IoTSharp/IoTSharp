@@ -17,7 +17,7 @@ namespace IoTSharp.Dtos
         /// <summary>
         /// 要获取的键值， 如果为空， 则为全部
         /// </summary>
-        public string keys { get; set; }= string.Empty;  
+        public string keys { get; set; } = string.Empty;
         /// <summary>
         /// 开始时间
         /// </summary>
@@ -31,10 +31,10 @@ namespace IoTSharp.Dtos
         /// </summary>
         /// <example>1.03:14:56:166</example>
         /// <remarks>d.hh:mm:ss:FFF</remarks>
-        [Newtonsoft.Json. JsonConverter(typeof(TimespanConverterNewtonsoft))]
+        [Newtonsoft.Json.JsonConverter(typeof(TimespanConverterNewtonsoft))]
         [Newtonsoft.Json.JsonProperty(TypeNameHandling = Newtonsoft.Json.TypeNameHandling.All)]
         [System.Text.Json.Serialization.JsonConverter(typeof(TimeSpanConverter))]
-        public TimeSpan every { get; set; }= TimeSpan.Zero;
+        public TimeSpan every { get; set; } = TimeSpan.Zero;
         /// <summary>
         /// 数据截面计算方式， 
         /// </summary>

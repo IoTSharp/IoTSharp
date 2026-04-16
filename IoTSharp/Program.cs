@@ -62,9 +62,9 @@ namespace IoTSharp
                          {
                              options.ConfigureHttpsDefaults(h =>
                                {
-                                  h.ClientCertificateMode = ClientCertificateMode.RequireCertificate;
-                                  h.UseLettuceEncrypt(appServices);
-                              });
+                                   h.ClientCertificateMode = ClientCertificateMode.RequireCertificate;
+                                   h.UseLettuceEncrypt(appServices);
+                               });
                          }
                      });
 

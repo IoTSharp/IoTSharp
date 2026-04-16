@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace IoTSharp.Data
 {
-  public  class DevicePort
+    public class DevicePort
     {
         [Key]
         public Guid PortId { get; set; }

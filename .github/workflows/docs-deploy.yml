@@ -23,9 +23,6 @@ concurrency:
   cancel-in-progress: true
 
 defaults:
-  run:
-    working-directory: docs
-
 jobs:
   build:
     name: Build Docs Site
@@ -34,29 +31,21 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v5
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 22
-          cache: npm
-          cache-dependency-path: docs/package-lock.json
-
       - name: Configure GitHub Pages
         uses: actions/configure-pages@v5
 
-      - name: Install dependencies
-        run: npm ci
-
       - name: Build documentation site
-        env:
-          DOCS_SITE_URL: ${{ vars.DOCS_SITE_URL || format('https://{0}.github.io', github.repository_owner) }}
-          DOCS_BASE_URL: ${{ vars.DOCS_BASE_URL || format('/{0}/', github.event.repository.name) }}
-        run: npm run build
+        uses: JekyllNet/action@v2.5
+        with:
+          source: ./docs/site
+          destination: ./docs/site/_site
+          verbose: "true"
+          upload-artifact: "false"
 
       - name: Upload GitHub Pages artifact
         uses: actions/upload-pages-artifact@v4
         with:
-          path: docs/build
+          path: docs/site/_site
 
   deploy:
     name: Deploy Docs to GitHub Pages

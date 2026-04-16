@@ -27,7 +27,7 @@ namespace IoTSharp.Dtos
         /// 所有者
         /// </summary>
         public Gateway Owner { get; set; }
- 
+
 
         public IdentityType IdentityType { get; set; }
 
@@ -37,14 +37,14 @@ namespace IoTSharp.Dtos
         /// <summary>
         /// 是否活动
         /// </summary>
-        public bool Active { get;  set; }
+        public bool Active { get; set; }
         /// <summary>
         /// 最后活动
         /// </summary>
-        public DateTime? LastActivityDateTime { get;  set; }
-        public string TenantName { get;   set; }
-        public string CustomerName { get;  set; }
-        public Guid TenantId { get;  set; }
-        public Guid CustomerId { get;  set; }
+        public DateTime? LastActivityDateTime { get; set; }
+        public string TenantName { get; set; }
+        public string CustomerName { get; set; }
+        public Guid TenantId { get; set; }
+        public Guid CustomerId { get; set; }
     }
 }

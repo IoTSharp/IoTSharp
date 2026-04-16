@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace IoTSharp.Data
 {
-    public class Gateway: Device
+    public class Gateway : Device
     {
         [System.Text.Json.Serialization.JsonIgnore]
         [Newtonsoft.Json.JsonIgnore]

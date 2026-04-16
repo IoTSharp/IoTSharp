@@ -28,7 +28,7 @@ namespace IoTSharp.Data
         /// <summary>
         /// 数据类型， 是遥测， 还是属性
         /// </summary>
-        public DataCatalog  DataCatalog { get; set; }
+        public DataCatalog DataCatalog { get; set; }
         /// <summary>
         /// 对应的键名称
         /// </summary>

@@ -11,7 +11,7 @@ namespace IoTSharp.Contracts
         public bool EnableTls { get; set; } = false;
         public SslProtocols SslProtocol { get; set; } = SslProtocols.Tls12;
 
-        X509Certificate2 _CACertificate;
+        X509Certificate2? _CACertificate;
         public X509Certificate2 CACertificate
         {
             get
@@ -29,7 +29,7 @@ namespace IoTSharp.Contracts
             }
         }
 
-        X509Certificate2 _BrokerCertificate;
+        X509Certificate2? _BrokerCertificate;
         public X509Certificate2 BrokerCertificate
         {
             get

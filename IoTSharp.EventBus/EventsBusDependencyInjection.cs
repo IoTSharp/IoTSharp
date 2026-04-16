@@ -15,11 +15,11 @@ namespace IoTSharp.EventBus
     public static class EventsBusDependencyInjection
     {
 
-        public static IApplicationBuilder UseEventBus(this IApplicationBuilder app, Func<EventBusOption, RunRulesEventHander>  action)
+        public static IApplicationBuilder UseEventBus(this IApplicationBuilder app, Func<EventBusOption, RunRulesEventHander> action)
         {
             var provider = app.ApplicationServices;
             var options = provider.GetService<EventBusOption>();
-            var hander=   action.Invoke(options!);
+            var hander = action.Invoke(options!);
             if (options != null)
             {
                 options.RunRules += hander;
@@ -38,10 +38,10 @@ namespace IoTSharp.EventBus
             var _EventBusStore = options.EventBusStore;
             var _EventBusMQ = options.EventBusMQ;
             services.AddSingleton(options);
-          
+
             return services;
         }
 
-   
+
     }
 }

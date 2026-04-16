@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace IoTSharp.Data
 {
-   public class BaseEvent
+    public class BaseEvent
     {
 
         [Key]
@@ -26,7 +26,7 @@ namespace IoTSharp.Data
         public string BizData { get; set; }
 
         public Tenant Tenant { get; set; }
-    
+
         public Customer Customer { get; set; }
 
 

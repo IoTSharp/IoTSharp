@@ -29,7 +29,7 @@ namespace IoTSharp.FlowRuleEngine
         private readonly IServiceProvider _sp;
         private readonly TaskExecutorHelper _helper;
         private readonly int _maximumiteration = 1000;
-  
+
 
         public FlowRuleProcessor(ILogger<FlowRuleProcessor> logger, IServiceScopeFactory scopeFactor, IOptions<AppSettings> options, TaskExecutorHelper helper, IEasyCachingProviderFactory factory)
         {
@@ -60,7 +60,7 @@ namespace IoTSharp.FlowRuleEngine
                     {
                         try
                         {
-                          await RunFlowRules(g, obj, devid, FlowRuleRunType.Normal, null);
+                            await RunFlowRules(g, obj, devid, FlowRuleRunType.Normal, null);
                         }
                         catch (Exception ex)
                         {
@@ -93,7 +93,7 @@ namespace IoTSharp.FlowRuleEngine
         public async Task<List<FlowOperation>> RunFlowRules(Guid ruleid, object data, Guid deviceId, FlowRuleRunType type, string bizId)
         {
             var _allflowoperation = new List<FlowOperation>();
-             var  cacheRule = await GetFlowRule(ruleid);
+            var cacheRule = await GetFlowRule(ruleid);
             if (cacheRule.HasValue)
             {
                 FlowRule rule = cacheRule.Value.rule;
@@ -215,7 +215,7 @@ namespace IoTSharp.FlowRuleEngine
             }, TimeSpan.FromSeconds(_setting.RuleCachingExpiration));
         }
 
-        public async Task Process(List<Flow> _allFlows, List<FlowOperation> _allflowoperation  , Guid operationid, object data, Guid deviceId)
+        public async Task Process(List<Flow> _allFlows, List<FlowOperation> _allflowoperation, Guid operationid, object data, Guid deviceId)
         {
             var peroperation = _allflowoperation.FirstOrDefault(c => c.OperationId == operationid);
             if (peroperation != null)
@@ -307,7 +307,7 @@ namespace IoTSharp.FlowRuleEngine
                                                     {
                                                         taskoperation.NodeStatus = 2;
                                                         string info = JsonConvert.SerializeObject(result.DynamicOutput);
-                                                        _logger.Log(LogLevel.Information, "执行器执行失败："+ result.ExecutionInfo +"\r\n"+ flow.NodeProcessClass + "未能正确处理:" + info);
+                                                        _logger.Log(LogLevel.Information, "执行器执行失败：" + result.ExecutionInfo + "\r\n" + flow.NodeProcessClass + "未能正确处理:" + info);
                                                         return;
                                                     }
                                                 }
@@ -572,7 +572,7 @@ namespace IoTSharp.FlowRuleEngine
                 //根据节点Id获取到当前节点与以后节点的线对象列表（一个节点可以存在很多线对象关联到下一级节点）
                 var flows = _allFlows.Where(c => c.SourceId == flow?.bpmnid).ToList();
                 //没有逻辑的线节点对象
-                emptyflow = flows.Where(c => c.Conditionexpression == string.Empty||  c.Conditionexpression==null).ToList() ?? new List<Flow>();
+                emptyflow = flows.Where(c => c.Conditionexpression == string.Empty || c.Conditionexpression == null).ToList() ?? new List<Flow>();
                 var tasks = new BaseRuleTask()
                 {
                     Name = flow.Flowname,
@@ -618,40 +618,41 @@ namespace IoTSharp.FlowRuleEngine
                             {
                                 _logger.LogWarning($"执行 {flowId}的规则链时遇到data为空。");
                             }
-                        } else 
-                        if (data.GetType() == typeof(JArray))
-                        {
-                            var result = await flowExcutor.Excute(new FlowExcuteEntity()
-                            {
-                                Params = data,
-                                Task = tasks,
-                            });
-                            var next = result.Where(c => c.IsSuccess).ToList();
-                            foreach (var item in next)
-                            {
-                                var nextflow = flows.FirstOrDefault(a => a.bpmnid == item.Rule.SuccessEvent);
-                                emptyflow.Add(nextflow);
-                            }
                         }
                         else
-                        if (data is ExpandoObject)
-                        {
-                            var result = await flowExcutor.Excute(new FlowExcuteEntity()
+                            if (data.GetType() == typeof(JArray))
                             {
-                                Params = data,
-                                Task = tasks,
-                            });
-                            var next = result.Where(c => c.IsSuccess).ToList();
-                            foreach (var item in next)
-                            {
-                                var nextflow = flows.FirstOrDefault(a => a.bpmnid == item.Rule.SuccessEvent);
-                                emptyflow.Add(nextflow);
+                                var result = await flowExcutor.Excute(new FlowExcuteEntity()
+                                {
+                                    Params = data,
+                                    Task = tasks,
+                                });
+                                var next = result.Where(c => c.IsSuccess).ToList();
+                                foreach (var item in next)
+                                {
+                                    var nextflow = flows.FirstOrDefault(a => a.bpmnid == item.Rule.SuccessEvent);
+                                    emptyflow.Add(nextflow);
+                                }
                             }
-                        }
-                        else
-                        {
-                            _logger.LogWarning($"执行 {flowId}的规则链时遇到未预期的数据类型:{data.GetType()}");
-                        }
+                            else
+                                if (data is ExpandoObject)
+                                {
+                                    var result = await flowExcutor.Excute(new FlowExcuteEntity()
+                                    {
+                                        Params = data,
+                                        Task = tasks,
+                                    });
+                                    var next = result.Where(c => c.IsSuccess).ToList();
+                                    foreach (var item in next)
+                                    {
+                                        var nextflow = flows.FirstOrDefault(a => a.bpmnid == item.Rule.SuccessEvent);
+                                        emptyflow.Add(nextflow);
+                                    }
+                                }
+                                else
+                                {
+                                    _logger.LogWarning($"执行 {flowId}的规则链时遇到未预期的数据类型:{data.GetType()}");
+                                }
                     }
                     else
                     {
@@ -681,7 +682,7 @@ namespace IoTSharp.FlowRuleEngine
 
         public async Task<ScriptTestResult> TestScript(Guid ruleid, Guid flowId, string data)
         {
-            var cacheRule =await GetFlowRule(ruleid);
+            var cacheRule = await GetFlowRule(ruleid);
             if (cacheRule.HasValue)
             {
                 var flow = cacheRule.Value._allFlows.FirstOrDefault(c => c.FlowId == flowId);
@@ -791,7 +792,7 @@ namespace IoTSharp.FlowRuleEngine
             var cacheRule = await GetFlowRule(ruleid);
             if (cacheRule.HasValue)
             {
-               var  _allFlows = cacheRule.Value._allFlows;
+                var _allFlows = cacheRule.Value._allFlows;
                 var flow = _allFlows.FirstOrDefault(c => c.FlowId == flowId);
                 var flows = _allFlows.Where(c => c.SourceId == flow.bpmnid).ToList();
                 var emptyflow = flows.Where(c => c.Conditionexpression == string.Empty).ToList() ?? new List<Flow>();

@@ -33,7 +33,7 @@ namespace IoTSharp.Data
         public bool? Value_Boolean { get; set; }
         public string Value_String { get; set; }
         public long? Value_Long { get; set; }
-     
+
         public DateTime? Value_DateTime { get; set; }
         public double? Value_Double { get; set; }
         public string Value_Json { get; set; }

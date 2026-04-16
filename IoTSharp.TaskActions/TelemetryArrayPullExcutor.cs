@@ -46,8 +46,8 @@ namespace IoTSharp.TaskActions
                 request.AddJsonBody(JsonConvert.DeserializeObject<List<TelemetryData>>(input.Input, new JsonSerializerSettings
                 {
                     ContractResolver = new CamelCasePropertyNamesContractResolver()
-                }) ??new object() );
-                 var response = await restclient.ExecutePostAsync(request);
+                }) ?? new object());
+                var response = await restclient.ExecutePostAsync(request);
                 if (response.StatusCode == HttpStatusCode.OK)
                 {
                     var result = JsonConvert.DeserializeObject<MessagePullResult>(response.Content);

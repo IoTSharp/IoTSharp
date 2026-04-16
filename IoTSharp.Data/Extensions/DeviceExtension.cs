@@ -10,14 +10,14 @@ namespace IoTSharp.Data.Extensions
 {
     public static class DeviceExtension
     {
-      
+
         /// <summary>
         /// When creating a device, all the things that need to be done here are done
         /// </summary>
         /// <param name="_context"></param>
         /// <param name="device"></param>
         /// <param name="prodId">归属于产品的设备都需要提前创建，因此这里只有前端API调用的时候传入值， 通过MQTT等创建的不传入值， 通过产品秘钥认证登录的 也会传入此值 。 </param>
-        public static void   AfterCreateDevice(this ApplicationDbContext _context, Device device,Guid? prodId = null)
+        public static void AfterCreateDevice(this ApplicationDbContext _context, Device device, Guid? prodId = null)
         {
             if (device.Customer == null || device.Tenant == null || string.IsNullOrEmpty(device.Name))
             {
@@ -31,19 +31,19 @@ namespace IoTSharp.Data.Extensions
                     IdentityType = IdentityType.AccessToken,
                     IdentityId = Guid.NewGuid().ToString().Replace("-", "")
                 };
-           
+
                 Dictionary<string, object> pairs = new Dictionary<string, object>
                 {
                     { "CreateDateTime", DateTime.UtcNow }
                 };
-                if (prodId != null && prodId != Guid.Empty  )
+                if (prodId != null && prodId != Guid.Empty)
                 {
-                    var prod = _context.Produces.Include(p=>p.DefaultAttributes).FirstOrDefault( p=>p.Id==prodId);
+                    var prod = _context.Produces.Include(p => p.DefaultAttributes).FirstOrDefault(p => p.Id == prodId);
                     if (prod != null)
                     {
                         di.IdentityType = prod.DefaultIdentityType;
                         device.DeviceType = prod.DefaultDeviceType;
-                        device.Timeout=prod.DefaultTimeout;
+                        device.Timeout = prod.DefaultTimeout;
                         prod.Devices ??= [];
                         prod.Devices.Add(device);
                         _context.PreparingData<AttributeLatest>(prod.DefaultAttributes, device.Id);
@@ -53,7 +53,7 @@ namespace IoTSharp.Data.Extensions
                 _context.PreparingData<AttributeLatest>(pairs, device.Id, DataSide.ServerSide);
             }
         }
-        public static void AfterCreateDevice(this ApplicationDbContext _context, Device device,string username,string password)
+        public static void AfterCreateDevice(this ApplicationDbContext _context, Device device, string username, string password)
         {
             if (device.Customer == null || device.Tenant == null || string.IsNullOrEmpty(device.Name))
             {
@@ -67,7 +67,7 @@ namespace IoTSharp.Data.Extensions
                     IdentityType = IdentityType.DevicePassword,
                     IdentityId = username,
                     IdentityValue = password
-                }) ;
+                });
                 Dictionary<string, object> pairs = new Dictionary<string, object>();
                 pairs.Add("CreateDateTime", DateTime.UtcNow);
                 _context.PreparingData<AttributeLatest>(pairs, device.Id, DataSide.ServerSide);
@@ -76,14 +76,14 @@ namespace IoTSharp.Data.Extensions
         public static async Task<DeviceRule[]> GerDeviceRulesList(this ApplicationDbContext _dbContext, Guid devid, EventType mountType)
         {
             DeviceRule[] lst = null;
-            var r = from dr in _dbContext.DeviceRules.Include(d => d.Device).Include(d => d.FlowRule) where dr.Device.Id == devid && dr.FlowRule.MountType == mountType select dr ;
+            var r = from dr in _dbContext.DeviceRules.Include(d => d.Device).Include(d => d.FlowRule) where dr.Device.Id == devid && dr.FlowRule.MountType == mountType select dr;
             if (r.Any())
             {
                 lst = await r.ToArrayAsync();
             }
             return lst;
         }
-        public static async Task<Guid> GerDeviceRpcRulesList(this ApplicationDbContext _dbContext, Guid devid, EventType mountType,string method)
+        public static async Task<Guid> GerDeviceRpcRulesList(this ApplicationDbContext _dbContext, Guid devid, EventType mountType, string method)
         {
             var rules = await GerDeviceRulesList(_dbContext, devid, mountType);
             var g = (rules?.FirstOrDefault(r => r.FlowRule.Name == method)?.FlowRule.RuleId);
@@ -91,10 +91,10 @@ namespace IoTSharp.Data.Extensions
         }
         public static async Task<Guid[]> GerDeviceRulesIdList(this ApplicationDbContext _dbContext, Guid devid, EventType mountType)
         {
-            var rules =await  GerDeviceRulesList(_dbContext, devid, mountType);
+            var rules = await GerDeviceRulesList(_dbContext, devid, mountType);
             return rules?.Select(xc => xc.FlowRule.RuleId).ToArray();
         }
-            
+
 
 
     }

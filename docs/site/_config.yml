@@ -1,0 +1,7 @@
+title: IoTSharp Docs
+description: IoTSharp product, package, deployment, and release documentation.
+lang: zh-CN
+url: https://iotsharp.net
+baseurl: ""
+permalink: pretty
+markdown: kramdown

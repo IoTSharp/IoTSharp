@@ -18,7 +18,7 @@ namespace IoTSharp.EventBus
 
     public class EventBusSubscriber
     {
-       
+
         private readonly ILogger _logger;
         private readonly IServiceScopeFactory _scopeFactor;
         private readonly IStorage _storage;
@@ -58,7 +58,7 @@ namespace IoTSharp.EventBus
                                 _logger.LogError($"{ex.Key} {ex.Value} {Newtonsoft.Json.JsonConvert.SerializeObject(msg.MsgBody[ex.Key])}");
                             });
                             _logger.LogInformation($"更新{device.Name}({device.Id})属性数据结果{result2.ret}");
-                            if (_event!= EventType.None)
+                            if (_event != EventType.None)
                             {
                                 await RunRules(msg.DeviceId, dc.ToDynamic(), _event);
                             }
@@ -76,7 +76,7 @@ namespace IoTSharp.EventBus
             {
                 var dc = msg.ToDictionary();
                 string json = System.Text.Json.JsonSerializer.Serialize(dc);
-                _logger.LogError(ex, "StoreAttributeData:" + ex.Message+ Environment.NewLine+ json+Environment.NewLine);
+                _logger.LogError(ex, "StoreAttributeData:" + ex.Message + Environment.NewLine + json + Environment.NewLine);
             }
         }
 
@@ -162,8 +162,8 @@ namespace IoTSharp.EventBus
             msg.MsgBody.Add(devicestatus == ConnectStatus.Connected ? Constants._LastConnectDateTime : Constants._LastDisconnectDateTime, DateTime.UtcNow);
             await StoreAttributeData(msg, devicestatus == ConnectStatus.Connected ? EventType.Connected : EventType.Disconnected);
         }
-       
- 
+
+
 
     }
 }

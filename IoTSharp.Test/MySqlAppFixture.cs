@@ -10,6 +10,7 @@ namespace IoTSharp.Test
     {
         private MySqlContainer? _dbContainer;
 
+        [System.Obsolete]
         protected override async Task InitializeAppAsync()
         {
             _dbContainer = new MySqlBuilder().Build();

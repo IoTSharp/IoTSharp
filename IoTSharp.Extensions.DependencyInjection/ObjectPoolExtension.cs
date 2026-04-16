@@ -38,7 +38,7 @@ namespace Microsoft.Extensions.ObjectPool
         /// <typeparam name="T"></typeparam>
         /// <param name="services"></param>
         /// <returns></returns>
-        public static IServiceCollection AddObjectPool<T>(this IServiceCollection services) where T : class,new ()
+        public static IServiceCollection AddObjectPool<T>(this IServiceCollection services) where T : class, new()
         {
             return services.AddSingleton(s =>
             {

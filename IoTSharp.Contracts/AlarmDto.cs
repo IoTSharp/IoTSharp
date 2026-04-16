@@ -1,4 +1,4 @@
-﻿ 
+﻿
 using System;
 
 namespace IoTSharp.Contracts
@@ -9,18 +9,18 @@ namespace IoTSharp.Contracts
         /// 起因设备的名称或者GUID
         /// </summary>
         [Newtonsoft.Json.JsonRequired]
-        public string OriginatorName { get; set; }
+        public string? OriginatorName { get; set; }
 
         /// <summary>
         /// 警告类型
         /// </summary>
         [Newtonsoft.Json.JsonRequired]
-        public string AlarmType { get; set; }
+        public string? AlarmType { get; set; }
 
         /// <summary>
         /// 警告细节描述
         /// </summary>
-        public string AlarmDetail { get; set; }
+        public string? AlarmDetail { get; set; }
 
         /// <summary>
         /// 严重程度
@@ -48,12 +48,12 @@ namespace IoTSharp.Contracts
         /// <summary>
         /// 警告类型
         /// </summary>
-        public string AlarmType { get; set; }
+        public string? AlarmType { get; set; }
 
         /// <summary>
         /// 警告细节描述
         /// </summary>
-        public string AlarmDetail { get; set; }
+        public string? AlarmDetail { get; set; }
 
         /// <summary>
         /// 警告创建时间
@@ -100,7 +100,7 @@ namespace IoTSharp.Contracts
         /// </summary>
         public OriginatorType OriginatorType { get; set; }
 
-        public object Originator { get; set; }
+        public object? Originator { get; set; }
     }
 
 
@@ -112,5 +112,5 @@ namespace IoTSharp.Contracts
 
     }
 
-    
+
 }

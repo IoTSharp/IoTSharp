@@ -24,7 +24,7 @@ namespace IoTSharp.Controllers
     {
         private readonly IEasyCachingProvider _caching;
         private readonly IWebHostEnvironment _hostingEnvironment;
-  
+
         public CaptchaController(IWebHostEnvironment hostingEnvironment, IEasyCachingProvider caching)
         {
             _hostingEnvironment = hostingEnvironment;
@@ -67,7 +67,7 @@ namespace IoTSharp.Controllers
         [HttpGet, AllowAnonymous]
         public FileStreamResult Imgs()
         {
-             var orginfile = typeof(CaptchaController).Assembly.GetManifestResourceStream($"IoTSharp.Resources.slide{RandomNumberGenerator.GetInt32(1, 15)}.jpg");
+            var orginfile = typeof(CaptchaController).Assembly.GetManifestResourceStream($"IoTSharp.Resources.slide{RandomNumberGenerator.GetInt32(1, 15)}.jpg");
             return File(orginfile, "image/jpeg");
         }
 
@@ -105,7 +105,7 @@ namespace IoTSharp.Controllers
         private ModelCaptcha CreateImage()
         {
             using var buzzlefile = typeof(CaptchaController).Assembly.GetManifestResourceStream("IoTSharp.Resources.buzzle-template.png");
-            using var orginfile =  typeof(CaptchaController).Assembly.GetManifestResourceStream($"IoTSharp.Resources.slide{RandomNumberGenerator.GetInt32(1, 15)}.jpg");
+            using var orginfile = typeof(CaptchaController).Assembly.GetManifestResourceStream($"IoTSharp.Resources.slide{RandomNumberGenerator.GetInt32(1, 15)}.jpg");
             using var buzzlefilestream = new SKManagedStream(buzzlefile);
             using var orginfilestream = new SKManagedStream(orginfile);
             using var buzzle = SKBitmap.Decode(buzzlefilestream);

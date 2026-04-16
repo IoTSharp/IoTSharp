@@ -10,7 +10,7 @@ namespace IoTSharp.Data.Extensions
 {
     public static class PlayloadExtension
     {
-        public static ExpandoObject ToDynamic( this Dictionary<string, object> dc)
+        public static ExpandoObject ToDynamic(this Dictionary<string, object> dc)
         {
             ExpandoObject obj = new ExpandoObject();
             dc.ToList().ForEach(kv =>
@@ -19,7 +19,7 @@ namespace IoTSharp.Data.Extensions
             });
             return obj;
         }
-        public static ExpandoObject ToDynamic(this List <TelemetryDataDto> array)
+        public static ExpandoObject ToDynamic(this List<TelemetryDataDto> array)
         {
             ExpandoObject exps = new();
             array.ForEach(td =>

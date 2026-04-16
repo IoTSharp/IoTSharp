@@ -9,7 +9,7 @@ namespace IoTSharp.Extensions
     public static class StorageExtensions
     {
 
-        public static bool TryRead<TValue>(this FileInfo file , out TValue value)
+        public static bool TryRead<TValue>(this FileInfo file, out TValue value)
         {
             if (!file.Exists)
             {
@@ -23,13 +23,13 @@ namespace IoTSharp.Extensions
                 value = default(TValue);
                 return true;
             }
-            value =Newtonsoft.Json.JsonConvert.DeserializeObject<TValue>(json);
+            value = Newtonsoft.Json.JsonConvert.DeserializeObject<TValue>(json);
             return true;
         }
 
-        public static bool TryReadText(this FileInfo file,  out string value )
+        public static bool TryReadText(this FileInfo file, out string value)
         {
-              value = File.ReadAllText(file.FullName);
+            value = File.ReadAllText(file.FullName);
             return true;
         }
 
@@ -47,7 +47,7 @@ namespace IoTSharp.Extensions
             return true;
         }
 
-        public static bool TryReadRaw(this FileInfo file,  out byte[] content)
+        public static bool TryReadRaw(this FileInfo file, out byte[] content)
         {
             var filename = file.FullName;
             if (!File.Exists(filename))
@@ -72,7 +72,7 @@ namespace IoTSharp.Extensions
             return true;
         }
 
-        public static void Write(this FileInfo file,  object value)
+        public static void Write(this FileInfo file, object value)
         {
 
             var filename = file.FullName;
@@ -98,7 +98,7 @@ namespace IoTSharp.Extensions
             File.WriteAllText(filename, json);
         }
 
-        public static void WriteRaw(this FileInfo file,  byte[] content)
+        public static void WriteRaw(this FileInfo file, byte[] content)
         {
 
             var filename = file.FullName;
