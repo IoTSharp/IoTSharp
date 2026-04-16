@@ -30,6 +30,14 @@ namespace IoTSharp.Data.JsonDB
         {
             _rows = rows;
             _behavior = behavior;
+            // Pre-populate field names from the first row so that FieldCount is
+            // non-zero before Read() is called. This is required by DataTable.Load
+            // and DbDataAdapter.Fill, both of which inspect FieldCount/GetName before
+            // advancing the cursor.
+            if (rows.Count > 0)
+            {
+                PeekFirstRowSchema(rows[0]);
+            }
         }
 
         // ─── DbDataReader overrides ─────────────────────────────────────────────────
@@ -98,7 +106,15 @@ namespace IoTSharp.Data.JsonDB
         public override Type GetFieldType(int ordinal)
         {
             var value = GetValue(ordinal);
-            return value?.GetType() ?? typeof(object);
+            // Avoid returning typeof(DBNull) (which causes DataTable column type errors).
+            // When values haven't been loaded yet (before the first Read()), or the
+            // actual value is null, report the column as typeof(object).
+            if (value is DBNull || value is null)
+            {
+                return typeof(object);
+            }
+
+            return value.GetType();
         }
 
         public override DataTable? GetSchemaTable() => null;
@@ -150,6 +166,32 @@ namespace IoTSharp.Data.JsonDB
         public override IEnumerator GetEnumerator() => new DbEnumerator(this, closeReader: false);
 
         // ─── Helpers ─────────────────────────────────────────────────────────────────
+
+        /// <summary>
+        /// Initializes <see cref="_fieldNames"/> from the given node without advancing
+        /// the cursor. Called from the constructor so that <see cref="FieldCount"/> and
+        /// <see cref="GetName"/> work correctly before the first <see cref="Read"/> call,
+        /// which is required by <c>DataTable.Load</c> and <c>DbDataAdapter.Fill</c>.
+        /// </summary>
+        private void PeekFirstRowSchema(JsonNode firstNode)
+        {
+            if (firstNode is JsonObject obj)
+            {
+                var names = new List<string>(obj.Count);
+                foreach (var kv in obj)
+                {
+                    names.Add(kv.Key);
+                }
+
+                _fieldNames = names.ToArray();
+                _fieldValues = new object?[_fieldNames.Length]; // placeholder, filled on Read()
+            }
+            else
+            {
+                _fieldNames = new[] { "value" };
+                _fieldValues = new object?[1];
+            }
+        }
 
         private void LoadCurrentRow()
         {

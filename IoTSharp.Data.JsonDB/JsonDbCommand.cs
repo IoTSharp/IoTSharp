@@ -116,6 +116,8 @@ namespace IoTSharp.Data.JsonDB
         /// <summary>
         /// Executes INSERT, UPDATE, or DELETE and returns the number of rows affected.
         /// For SELECT statements this returns -1; use <see cref="ExecuteReader"/> instead.
+        /// When the connection is file-backed and <see cref="JsonDbConnection.AutoSave"/> is
+        /// enabled, changes are automatically persisted to the source file.
         /// </summary>
         public override int ExecuteNonQuery()
         {
@@ -132,6 +134,9 @@ namespace IoTSharp.Data.JsonDB
             var before = conn.Root is JsonArray arr ? arr.Count : -1;
             var result = JsonSqlQueryExecutor.ExecuteStatementOnNode(sql, conn.Root, conn.Methods);
             var after = conn.Root is JsonArray arr2 ? arr2.Count : -1;
+
+            // Auto-save after mutation
+            conn.NotifyMutation();
 
             if (trimmed.StartsWith("delete ", StringComparison.OrdinalIgnoreCase) && before >= 0 && after >= 0)
             {
