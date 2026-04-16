@@ -49,8 +49,20 @@ jobs:
         shell: bash
         run: |
           mkdir -p "${RUNNER_TEMP}/nupkg"
-          mapfile -t projects < <(git grep -l '<GeneratePackageOnBuild>true</GeneratePackageOnBuild>' -- '*.csproj' | sort)
-          projects+=("IoTSharp.Data.JsonDB/IoTSharp.Data.JsonDB.csproj")
+          mapfile -t projects < <(
+            {
+              git grep -l '<GeneratePackageOnBuild>true</GeneratePackageOnBuild>' -- '*.csproj'
+              printf '%s\n' \
+                "IoTSharp.Data.JsonDB/IoTSharp.Data.JsonDB.csproj" \
+                "IoTSharp.SDKs/IoTSharp.Sdk.CSharp/IoTSharp.Sdk.Http.csproj" \
+                "IoTSharp.SDKs/IoTSharp.Sdk.MQTT/IoTSharp.Sdk.MQTT.csproj" \
+                "IoTSharp.Extensions/IoTSharp.Extensions.csproj" \
+                "IoTSharp.Extensions.AspNetCore/IoTSharp.Extensions.AspNetCore.csproj" \
+                "IoTSharp.Extensions.EFCore/IoTSharp.Extensions.EFCore.csproj" \
+                "IoTSharp.Extensions.QuartzJobScheduler/IoTSharp.Extensions.QuartzJobScheduler.csproj" \
+                "IoTSharp.Extensions.X509/IoTSharp.Extensions.X509.csproj"
+            } | sort -u
+          )
 
           for project in "${projects[@]}"; do
             dotnet pack "${project}" \
