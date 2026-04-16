@@ -26,6 +26,7 @@ This project follows a lightweight Keep a Changelog style. Version numbers in th
 ### Fixed
 
 - Stabilized CodeQL configuration by removing fragile autobuild assumptions for the mixed .NET and frontend repository layout.
+- Removed obsolete AppVeyor references from repository documentation.
 - Adjusted data provider configuration so pending EF model changes do not crash startup in SQLite demo/bootstrap scenarios.
 - Improved Docker Desktop extension local build validation behavior for non-Marketplace development flows.
 
