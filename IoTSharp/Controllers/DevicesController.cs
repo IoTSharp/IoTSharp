@@ -681,6 +681,11 @@ namespace IoTSharp.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         public async Task<ApiResult<bool>> PutDevice(Guid id, DevicePutDto device)
         {
+            if (device is null)
+            {
+                return new ApiResult<bool>(ApiCode.InValidData, "device payload is required", false);
+            }
+
             if (id != device.Id)
             {
                 return new ApiResult<bool>(ApiCode.InValidData, "Device's Identity not InValidData", false);
@@ -688,15 +693,17 @@ namespace IoTSharp.Controllers
 
             var cid = User.Claims.First(c => c.Type == IoTSharpClaimTypes.Customer);
             var tid = User.Claims.First(c => c.Type == IoTSharpClaimTypes.Tenant);
-            var dev = _context.Device.Include(d => d.Tenant).Include(d => d.Customer).First(d => d.Id == device.Id);
-            var tenid = dev.Tenant.Id;
-            var cusid = dev.Customer.Id;
+            var dev = _context.Device.Include(d => d.Tenant).Include(d => d.Customer).FirstOrDefault(d => d.Id == device.Id);
 
             if (dev == null)
             {
-                return new ApiResult<bool>(ApiCode.ExceptionDeviceIdentity, "Device's Identity not found", false);
+                return new ApiResult<bool>(ApiCode.NotFoundDevice, "Device's Identity not found", false);
             }
-            else if (dev.Tenant?.Id.ToString() != tid.Value || dev.Customer?.Id.ToString() != cid.Value)
+
+            var tenid = dev.Tenant?.Id;
+            var cusid = dev.Customer?.Id;
+
+            if (dev.Tenant?.Id.ToString() != tid.Value || dev.Customer?.Id.ToString() != cid.Value)
             {
                 return new ApiResult<bool>(ApiCode.DoNotAllow, "Do not allow access to devices from other customers or tenants", false);
             }
@@ -1232,6 +1239,16 @@ namespace IoTSharp.Controllers
         [ProducesDefaultResponseType]
         public async Task<ApiResult<bool>> AddAttribute(string access_token, DeviceAttributeDto attribute)
         {
+            if (attribute is null || attribute.DeviceId == Guid.Empty || string.IsNullOrWhiteSpace(attribute.KeyName))
+            {
+                return new ApiResult<bool>(ApiCode.InValidData, "attribute payload is invalid", false);
+            }
+
+            if (!_context.Device.Any(c => c.Id == attribute.DeviceId))
+            {
+                return new ApiResult<bool>(ApiCode.NotFoundDevice, "device not found", false);
+            }
+
             if (_context.DataStorage.Any(c =>
                 c.DeviceId == attribute.DeviceId && c.KeyName.ToLower() == attribute.KeyName.ToLower()))
             {
@@ -1263,6 +1280,16 @@ namespace IoTSharp.Controllers
         [ProducesDefaultResponseType]
         public async Task<ApiResult<Dic>> EditAttribute(Guid devid, DeviceAttrEditDto attributes)
         {
+            if (devid == Guid.Empty || !_context.Device.Any(c => c.Id == devid))
+            {
+                return new ApiResult<Dic>(ApiCode.NotFoundDevice, "device not found", null);
+            }
+
+            attributes ??= new DeviceAttrEditDto();
+            attributes.anyside ??= new Dictionary<string, object>();
+            attributes.serverside ??= new Dictionary<string, object>();
+            attributes.clientside ??= new Dictionary<string, object>();
+
             var result = await _context.SaveAsync<AttributeLatest>(attributes.anyside, devid, DataSide.AnySide);
             var result1 = await _context.SaveAsync<AttributeLatest>(attributes.serverside, devid, DataSide.ServerSide);
             var result2 = await _context.SaveAsync<AttributeLatest>(attributes.clientside, devid, DataSide.ClientSide);

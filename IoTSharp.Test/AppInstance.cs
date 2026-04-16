@@ -1,18 +1,23 @@
 ﻿#nullable enable
 
 using Alba;
+using EasyCaching.Core;
 using IoTSharp.Contracts;
 using IoTSharp.Data;
 using IoTSharp.Dtos;
+using IoTSharp.Models;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.TestHost;
+using Microsoft.Extensions.DependencyInjection;
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Json;
+using System.Net.Http.Headers;
 using System.Threading;
 using System.Threading.Tasks;
 using Xunit;
-using Xunit.Abstractions;
 
 namespace IoTSharp.Test
 {
@@ -21,16 +26,11 @@ namespace IoTSharp.Test
         private readonly CancellationTokenSource _cancellationTokenSource = new();
         private ApiResult<LoginResult>? _loginResult;
 
-        protected AppInstance(ITestOutputHelper output)
-        {
-            Output = output;
-        }
-
-        protected ITestOutputHelper Output { get; }
-
         protected IAlbaHost? Host { get; private set; }
 
         protected InstallDto? InstallDto { get; private set; }
+
+        public IServiceProvider Services => AssertHost().Services;
 
         protected CancellationToken TestCancellationToken => _cancellationTokenSource.Token;
 
@@ -91,10 +91,11 @@ namespace IoTSharp.Test
             Assert.True(result.Data.Installed);
         }
 
-        protected async Task AssertAppIsInstalledAsync()
+        public HttpClient CreateClient() => AssertHost().GetTestClient();
+
+        public async Task AssertAppIsInstalledAsync()
         {
-            var host = AssertHost();
-            using var client = host.GetTestClient();
+            using var client = CreateClient();
             var result = await client.GetFromJsonAsync<ApiResult<InstanceDto>>("/api/Installer/Instance", TestCancellationToken);
 
             Assert.NotNull(result);
@@ -103,10 +104,9 @@ namespace IoTSharp.Test
             Assert.True(result.Data.Installed);
         }
 
-        protected async Task AssertAppAccountLoginAsync()
+        public async Task AssertAppAccountLoginAsync()
         {
-            var host = AssertHost();
-            using var client = host.GetTestClient();
+            using var client = CreateClient();
             var result = await LoginAsync(client);
 
             Assert.NotNull(result.Data);
@@ -114,21 +114,52 @@ namespace IoTSharp.Test
             Assert.Equal(AssertInstallDto().Email, result.Data.UserName);
         }
 
-        protected async Task AssertAppDevicesCreateAsync()
+        public async Task AssertAppDevicesCreateAsync()
         {
-            var host = AssertHost();
-            using var client = host.GetTestClient();
-            await LoginAsync(client);
+            using var client = CreateClient();
+            var result = await CreateDeviceAsync(client);
+            Assert.NotNull(result.Data);
+            Assert.Equal((int)ApiCode.Success, result.Code);
+        }
 
-            var device = new DevicePostDto { DeviceType = DeviceType.Device, Name = "test", Timeout = 30 };
+        public async Task<ApiResult<Device>> CreateDeviceAsync(HttpClient client, string? deviceName = null)
+        {
+            await AuthorizeClientAsync(client);
+
+            var device = new DevicePostDto
+            {
+                DeviceType = DeviceType.Device,
+                Name = deviceName ?? $"test-{Guid.NewGuid():N}",
+                Timeout = 30
+            };
+
             var response = await client.PostAsJsonAsync("/api/Devices", device, TestCancellationToken);
             response.EnsureSuccessStatusCode();
 
             var result = await response.Content.ReadFromJsonAsync<ApiResult<Device>>(TestCancellationToken);
             Assert.NotNull(result);
             Assert.NotNull(result.Data);
-            Assert.Equal("test", result.Data.Name);
-            Assert.Equal((int)ApiCode.Success, result.Code);
+            return result;
+        }
+
+        public async Task<string> GetAccessTokenAsync()
+        {
+            if (_loginResult?.Data?.Token?.access_token is { Length: > 0 } token)
+            {
+                return token;
+            }
+
+            using var client = CreateClient();
+            var loginResult = await LoginAsync(client);
+            Assert.NotNull(loginResult.Data);
+            Assert.NotNull(loginResult.Data.Token);
+            return loginResult.Data.Token.access_token;
+        }
+
+        public async Task AuthorizeClientAsync(HttpClient client)
+        {
+            var token = await GetAccessTokenAsync();
+            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
         }
 
         protected async Task StopApplicationAsync()
@@ -142,31 +173,54 @@ namespace IoTSharp.Test
             Host = null;
         }
 
-        private async Task<ApiResult<LoginResult>> LoginAsync(HttpClient client)
+        public async Task<ApiResult<LoginResult>> LoginAsync(HttpClient client)
         {
             if (_loginResult is not null)
             {
+                client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", _loginResult.Data!.Token!.access_token);
                 return _loginResult;
             }
 
             var installDto = AssertInstallDto();
-            var dto = new LoginDto { UserName = installDto.Email, Password = installDto.Password };
+            var captcha = SeedCaptcha();
+            var dto = new LoginDto
+            {
+                UserName = installDto.Email,
+                Password = installDto.Password,
+                CaptchaClientId = captcha.ClientId,
+                CaptchaMove = captcha.Move
+            };
+
             var response = await client.PostAsJsonAsync("/api/Account/Login", dto, TestCancellationToken);
             Assert.True(response.IsSuccessStatusCode);
 
             var result = await response.Content.ReadFromJsonAsync<ApiResult<LoginResult>>(TestCancellationToken);
             Assert.NotNull(result);
             Assert.NotNull(result.Data);
-            Assert.True(result.Data.Succeeded);
+            Assert.True(result.Data.Succeeded, result.Msg);
             Assert.Equal(installDto.Email, result.Data.UserName);
             Assert.NotNull(result.Data.Token);
             Assert.False(string.IsNullOrWhiteSpace(result.Data.Token.access_token));
 
-            client.DefaultRequestHeaders.Remove("Authorization");
-            client.DefaultRequestHeaders.Add("Authorization", $"Bearer {result.Data.Token.access_token}");
+            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", result.Data.Token.access_token);
             _loginResult = result;
 
             return result;
+        }
+
+        private (string ClientId, int Move) SeedCaptcha()
+        {
+            using var scope = Services.CreateScope();
+            var caching = scope.ServiceProvider.GetRequiredService<IEasyCachingProvider>();
+            var clientId = Guid.NewGuid().ToString("N");
+            var move = Random.Shared.Next(32, 256);
+            var list = caching.Get<List<ModelCaptchaVertifyItem>>("Captcha").Value ?? new List<ModelCaptchaVertifyItem>();
+
+            list.RemoveAll(item => item.Clientid == clientId);
+            list.Add(new ModelCaptchaVertifyItem { Clientid = clientId, Move = move });
+            caching.Set("Captcha", list, TimeSpan.FromMinutes(20));
+
+            return (clientId, move);
         }
 
         private IAlbaHost AssertHost()

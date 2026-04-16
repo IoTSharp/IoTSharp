@@ -1,44 +1,26 @@
 ﻿#nullable enable
 
-using IoTSharp.Contracts;
 using System.Threading.Tasks;
-using Testcontainers.MySql;
 using Xunit;
-using Xunit.Abstractions;
 
 namespace IoTSharp.Test
 {
-    public sealed class AppWithMySqlTest : AppInstance
+    public sealed class AppWithMySqlTest : IClassFixture<MySqlAppFixture>
     {
-        private MySqlContainer? _dbContainer;
+        private readonly MySqlAppFixture _fixture;
 
-        public AppWithMySqlTest(ITestOutputHelper output)
-            : base(output)
+        public AppWithMySqlTest(MySqlAppFixture fixture)
         {
-        }
-
-        protected override async Task InitializeAppAsync()
-        {
-            _dbContainer = new MySqlBuilder().Build();
-            await _dbContainer.StartAsync(TestCancellationToken);
-            await InitializeApplicationAsync(_dbContainer.GetConnectionString(), _dbContainer.GetConnectionString(), DataBaseType.MySql);
-        }
-
-        protected override async Task DisposeTestResourcesAsync()
-        {
-            if (_dbContainer is not null)
-            {
-                await _dbContainer.DisposeAsync();
-            }
+            _fixture = fixture;
         }
 
         [Fact]
-        public Task AppIsInstalled() => AssertAppIsInstalledAsync();
+        public Task AppIsInstalled() => _fixture.AssertAppIsInstalledAsync();
 
         [Fact]
-        public Task AppAccountLogin() => AssertAppAccountLoginAsync();
+        public Task AppAccountLogin() => _fixture.AssertAppAccountLoginAsync();
 
         [Fact]
-        public Task AppDevicesCreate() => AssertAppDevicesCreateAsync();
+        public Task AppDevicesCreate() => _fixture.AssertAppDevicesCreateAsync();
     }
 }

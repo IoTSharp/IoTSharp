@@ -1,44 +1,26 @@
 ﻿#nullable enable
 
-using IoTSharp.Contracts;
 using System.Threading.Tasks;
-using Testcontainers.PostgreSql;
 using Xunit;
-using Xunit.Abstractions;
 
 namespace IoTSharp.Test
 {
-    public sealed class AppWithPostgreSqlTest : AppInstance
+    public sealed class AppWithPostgreSqlTest : IClassFixture<PostgreSqlAppFixture>
     {
-        private PostgreSqlContainer? _dbContainer;
+        private readonly PostgreSqlAppFixture _fixture;
 
-        public AppWithPostgreSqlTest(ITestOutputHelper output)
-            : base(output)
+        public AppWithPostgreSqlTest(PostgreSqlAppFixture fixture)
         {
-        }
-
-        protected override async Task InitializeAppAsync()
-        {
-            _dbContainer = new PostgreSqlBuilder().Build();
-            await _dbContainer.StartAsync(TestCancellationToken);
-            await InitializeApplicationAsync(_dbContainer.GetConnectionString(), _dbContainer.GetConnectionString(), DataBaseType.PostgreSql);
-        }
-
-        protected override async Task DisposeTestResourcesAsync()
-        {
-            if (_dbContainer is not null)
-            {
-                await _dbContainer.DisposeAsync();
-            }
+            _fixture = fixture;
         }
 
         [Fact]
-        public Task AppIsInstalled() => AssertAppIsInstalledAsync();
+        public Task AppIsInstalled() => _fixture.AssertAppIsInstalledAsync();
 
         [Fact]
-        public Task AppAccountLogin() => AssertAppAccountLoginAsync();
+        public Task AppAccountLogin() => _fixture.AssertAppAccountLoginAsync();
 
         [Fact]
-        public Task AppDevicesCreate() => AssertAppDevicesCreateAsync();
+        public Task AppDevicesCreate() => _fixture.AssertAppDevicesCreateAsync();
     }
 }

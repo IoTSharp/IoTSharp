@@ -132,6 +132,17 @@ namespace IoTSharp.Controllers
         [HttpPost]
         public ApiResult<bool> SaveParams(FormFieldData model)
         {
+            if (model is null || model.propdata is null)
+            {
+                return new ApiResult<bool>(ApiCode.InValidData, "form payload is invalid", false);
+            }
+
+            var form = _context.DynamicFormInfos.FirstOrDefault(c => c.FormId == model.Id);
+            if (form is null)
+            {
+                return new ApiResult<bool>(ApiCode.CantFindObject, "can't find this form", false);
+            }
+
             var fields = _context.DynamicFormFieldInfos.
                 Where(c => c.FormId == model.Id && c.FieldStatus > -1).ToList();
 
@@ -256,7 +267,6 @@ namespace IoTSharp.Controllers
                         .Append("{ get; set;}\n");
                 });
                 builder.Append("}");
-                var form = _context.DynamicFormInfos.FirstOrDefault(c => c.FormId == model.Id);
                 form.ModelClass = builder.ToString();
                 _context.DynamicFormInfos.Update(form);
                 _context.SaveChanges();

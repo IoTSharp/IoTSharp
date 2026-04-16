@@ -73,7 +73,17 @@ namespace IoTSharp.Controllers
         [ProducesResponseType(typeof(FileResult), StatusCodes.Status200OK)]
         public async Task<ActionResult<ApiResult>> Download([FromQuery] string fullpath)
         {
+            if (string.IsNullOrWhiteSpace(fullpath))
+            {
+                return NotFound(new ApiResult(ApiCode.NotFile, "file path is required"));
+            }
+
             var blob = await _blob.GetBlobAsync(fullpath);
+            if (blob is null || !blob.IsFile)
+            {
+                return NotFound(new ApiResult(ApiCode.NotFile, "not file type"));
+            }
+
             if (blob.IsFile)
             {
                 using (var stream = new MemoryStream())
@@ -85,10 +95,8 @@ namespace IoTSharp.Controllers
                     return File(stream, MimeMapping.MimeUtility.GetMimeMapping(blob.Name), blob.Name);
                 }
             }
-            else
-            {
-                return NotFound(new ApiResult(ApiCode.NotFile, "不文件类型"));
-            }
+
+            return NotFound(new ApiResult(ApiCode.NotFile, "not file type"));
         }
 
         [HttpPost()]

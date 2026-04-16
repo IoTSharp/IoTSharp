@@ -764,7 +764,17 @@ namespace IoTSharp.Controllers
         [HttpPut]
         public async Task<ApiResult<bool>> Modify(UserItemDto user)
         {
+            if (user is null || string.IsNullOrWhiteSpace(user.Id))
+            {
+                return new ApiResult<bool>(ApiCode.InValidData, "user id is required", false);
+            }
+
             var idu = await _userManager.FindByIdAsync(user.Id);
+            if (idu is null)
+            {
+                return new ApiResult<bool>(ApiCode.NotFoundUser, "can't find that user", false);
+            }
+
             idu.PhoneNumber = user.PhoneNumber;
             var result = await _userManager.UpdateAsync(idu);
             return new ApiResult<bool>(ApiCode.Success, "Ok", result.Succeeded);
@@ -790,11 +800,21 @@ namespace IoTSharp.Controllers
         [HttpPut]
         public async Task<ApiResult<bool>> ModifyMyPassword(UserPassword password)
         {
+            if (password is null || string.IsNullOrWhiteSpace(password.Pass) || string.IsNullOrWhiteSpace(password.PassNew) || string.IsNullOrWhiteSpace(password.PassNewSecond))
+            {
+                return new ApiResult<bool>(ApiCode.InValidData, "password payload is invalid", false);
+            }
+
             if (password.PassNew.Length > 6)
             {
                 if (password.PassNew == password.PassNewSecond)
                 {
                     var cuser = await _userManager.GetUserAsync(User);
+                    if (cuser is null)
+                    {
+                        return new ApiResult<bool>(ApiCode.NotFoundUser, "can't find current user", false);
+                    }
+
                     var result = await _signInManager.UserManager.ChangePasswordAsync(cuser, password.Pass, password.PassNew);
                     if (result.Succeeded)
                     {

@@ -426,6 +426,17 @@ namespace IoTSharp.Controllers
         [HttpGet]
         public async Task<ApiResult<List<ProduceDataMappingDto>>> GetDataMappings(Guid produceId)
         {
+            if (produceId == Guid.Empty)
+            {
+                return new ApiResult<List<ProduceDataMappingDto>>(ApiCode.NotFoundProduce, "Produce not found", new List<ProduceDataMappingDto>());
+            }
+
+            var produceExists = await _context.Produces.AnyAsync(p => p.Id == produceId && !p.Deleted);
+            if (!produceExists)
+            {
+                return new ApiResult<List<ProduceDataMappingDto>>(ApiCode.NotFoundProduce, "Produce not found", new List<ProduceDataMappingDto>());
+            }
+
             var mappings = await _context.ProduceDataMappings
                 .Include(m => m.Produce)
                 .Where(m => m.Produce.Id == produceId && !m.Deleted)

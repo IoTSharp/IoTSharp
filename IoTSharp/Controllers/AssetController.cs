@@ -57,10 +57,22 @@ namespace IoTSharp.Controllers
         [HttpGet]
         public async Task<ApiResult<PagedData<AssetRelation>>> AssetRelations(Guid assetid)
         {
-            var data =new  PagedData<AssetRelation>();
             var result = await _context.Assets.Include(c => c.OwnedAssets).SingleOrDefaultAsync(c => c.Id == assetid);
-            data.rows = result.OwnedAssets;
-            data.total = result.OwnedAssets.Count;
+            if (result is null)
+            {
+                return new ApiResult<PagedData<AssetRelation>>(ApiCode.CantFindObject, "can't find that asset", new PagedData<AssetRelation>
+                {
+                    rows = new List<AssetRelation>(),
+                    total = 0
+                });
+            }
+
+            var data = new PagedData<AssetRelation>
+            {
+                rows = result.OwnedAssets,
+                total = result.OwnedAssets.Count
+            };
+
             return new ApiResult<PagedData<AssetRelation>>(ApiCode.Success, "OK",  data);
         }
 

@@ -261,6 +261,8 @@ namespace IoTSharp.Interpreter
 
         internal static bool ToBoolean(object? value)
         {
+            value = NormalizeValue(value);
+
             if (value is null)
             {
                 return false;
@@ -286,6 +288,9 @@ namespace IoTSharp.Interpreter
 
         internal static int CompareValues(object? left, object? right, bool numericOnly)
         {
+            left = NormalizeValue(left);
+            right = NormalizeValue(right);
+
             if (TryConvertToDecimal(left, out var leftNumber) && TryConvertToDecimal(right, out var rightNumber))
             {
                 return leftNumber.CompareTo(rightNumber);
@@ -321,6 +326,9 @@ namespace IoTSharp.Interpreter
 
         internal static bool ValuesEqual(object? left, object? right)
         {
+            left = NormalizeValue(left);
+            right = NormalizeValue(right);
+
             if (left is null || right is null)
             {
                 return left is null && right is null;
@@ -341,6 +349,8 @@ namespace IoTSharp.Interpreter
 
         internal static bool TryConvertToDecimal(object? value, out decimal result)
         {
+            value = NormalizeValue(value);
+
             switch (value)
             {
                 case byte byteValue:
@@ -379,6 +389,8 @@ namespace IoTSharp.Interpreter
 
         internal static bool TryConvertToBoolean(object? value, out bool result)
         {
+            value = NormalizeValue(value);
+
             switch (value)
             {
                 case bool booleanValue:
@@ -401,7 +413,7 @@ namespace IoTSharp.Interpreter
                 return null;
             }
 
-            return ConvertNodeToValue(value);
+            return NormalizeValue(value);
         }
 
         internal static bool TryGetPathNode(JsonNode? node, string path, out JsonNode? value)
@@ -450,14 +462,42 @@ namespace IoTSharp.Interpreter
 
         private static object? ConvertNodeToValue(JsonNode? node)
         {
-            if (node is null)
+            return NormalizeValue(node);
+        }
+
+        private static object? NormalizeValue(object? value)
+        {
+            if (value is not JsonNode node)
             {
-                return null;
+                return value;
             }
 
-            if (node is not JsonValue)
+            if (node is JsonValue jsonValue)
             {
-                return node.DeepClone();
+                if (jsonValue.TryGetValue<string>(out var stringValue))
+                {
+                    return stringValue;
+                }
+
+                if (jsonValue.TryGetValue<long>(out var int64Value))
+                {
+                    return int64Value;
+                }
+
+                if (jsonValue.TryGetValue<decimal>(out var decimalValue))
+                {
+                    return decimalValue;
+                }
+
+                if (jsonValue.TryGetValue<double>(out var doubleValue))
+                {
+                    return doubleValue;
+                }
+
+                if (jsonValue.TryGetValue<bool>(out var boolValue))
+                {
+                    return boolValue;
+                }
             }
 
             using var document = JsonDocument.Parse(node.ToJsonString());
@@ -471,6 +511,8 @@ namespace IoTSharp.Interpreter
                 JsonValueKind.False => false,
                 JsonValueKind.Null => null,
                 JsonValueKind.Undefined => null,
+                JsonValueKind.Object => node.DeepClone(),
+                JsonValueKind.Array => node.DeepClone(),
                 _ => node.DeepClone()
             };
         }
