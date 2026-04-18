@@ -3,6 +3,7 @@ using IoTSharp.Data;
 using IoTSharp.Dtos;
 using IoTSharp.EventBus;
 using IoTSharp.Extensions;
+using IoTSharp.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -57,9 +58,12 @@ namespace IoTSharp.Controllers
         [Authorize(Roles = nameof(UserRole.NormalUser))]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesDefaultResponseType]
-        public async Task<ApiResult<List<EdgeNodeDto>>> Get()
+        public async Task<ApiResult<PagedData<EdgeNodeDto>>> Get([FromQuery] EdgeNodeQueryDto query)
         {
             var profile = this.GetUserProfile();
+            query ??= new EdgeNodeQueryDto();
+            query.Limit = query.Limit < 5 ? 5 : query.Limit;
+
             var gateways = await _context.Device
                 .Include(c => c.DeviceIdentity)
                 .Where(c => c.Customer.Id == profile.Customer && c.Tenant.Id == profile.Tenant && !c.Deleted && c.DeviceType == DeviceType.Gateway)
@@ -67,7 +71,15 @@ namespace IoTSharp.Controllers
 
             var attrs = await QueryEdgeAttributes(gateways.Select(c => c.Id));
             var data = gateways.Select(gateway => ToEdgeNodeDto(gateway, attrs.Where(c => c.DeviceId == gateway.Id).ToList())).ToList();
-            return new ApiResult<List<EdgeNodeDto>>(ApiCode.Success, "OK", data);
+            var filtered = ApplyFilters(data, query);
+            var ordered = ApplySorting(filtered, query);
+            var pagedRows = ordered.Skip(query.Offset * query.Limit).Take(query.Limit).ToList();
+
+            return new ApiResult<PagedData<EdgeNodeDto>>(ApiCode.Success, "OK", new PagedData<EdgeNodeDto>
+            {
+                total = ordered.Count,
+                rows = pagedRows
+            });
         }
 
         [HttpGet("{id}")]
@@ -271,6 +283,78 @@ namespace IoTSharp.Controllers
                 Metadata = GetString(attrs, Constants._EdgeMetadata),
                 Metrics = GetString(attrs, Constants._EdgeMetrics)
             };
+        }
+
+        private static List<EdgeNodeDto> ApplyFilters(List<EdgeNodeDto> source, EdgeNodeQueryDto query)
+        {
+            IEnumerable<EdgeNodeDto> result = source;
+
+            if (!string.IsNullOrWhiteSpace(query.Name))
+            {
+                result = result.Where(edge => !string.IsNullOrWhiteSpace(edge.Name) && edge.Name.Contains(query.Name, StringComparison.OrdinalIgnoreCase));
+            }
+
+            if (!string.IsNullOrWhiteSpace(query.RuntimeType))
+            {
+                result = result.Where(edge => string.Equals(edge.RuntimeType, query.RuntimeType, StringComparison.OrdinalIgnoreCase));
+            }
+
+            if (!string.IsNullOrWhiteSpace(query.Status))
+            {
+                result = result.Where(edge => string.Equals(edge.Status, query.Status, StringComparison.OrdinalIgnoreCase));
+            }
+
+            if (query.Healthy.HasValue)
+            {
+                result = result.Where(edge => edge.Healthy == query.Healthy.Value);
+            }
+
+            if (query.Active.HasValue)
+            {
+                result = result.Where(edge => edge.Active == query.Active.Value);
+            }
+
+            if (!string.IsNullOrWhiteSpace(query.Version))
+            {
+                result = result.Where(edge => !string.IsNullOrWhiteSpace(edge.Version) && edge.Version.Contains(query.Version, StringComparison.OrdinalIgnoreCase));
+            }
+
+            if (!string.IsNullOrWhiteSpace(query.Platform))
+            {
+                result = result.Where(edge => !string.IsNullOrWhiteSpace(edge.Platform) && edge.Platform.Contains(query.Platform, StringComparison.OrdinalIgnoreCase));
+            }
+
+            return result.ToList();
+        }
+
+        private static List<EdgeNodeDto> ApplySorting(List<EdgeNodeDto> source, EdgeNodeQueryDto query)
+        {
+            var field = string.IsNullOrWhiteSpace(query.Sorter) ? "LastHeartbeatDateTime" : query.Sorter;
+            var descending = string.Equals(query.Sort, "desc", StringComparison.OrdinalIgnoreCase);
+
+            return field switch
+            {
+                nameof(EdgeNodeDto.Name) => ApplyOrder(source, edge => edge.Name, descending),
+                nameof(EdgeNodeDto.RuntimeType) => ApplyOrder(source, edge => edge.RuntimeType, descending),
+                nameof(EdgeNodeDto.RuntimeName) => ApplyOrder(source, edge => edge.RuntimeName, descending),
+                nameof(EdgeNodeDto.Version) => ApplyOrder(source, edge => edge.Version, descending),
+                nameof(EdgeNodeDto.Status) => ApplyOrder(source, edge => edge.Status, descending),
+                nameof(EdgeNodeDto.Healthy) => ApplyOrder(source, edge => edge.Healthy, descending),
+                nameof(EdgeNodeDto.Active) => ApplyOrder(source, edge => edge.Active, descending),
+                nameof(EdgeNodeDto.Platform) => ApplyOrder(source, edge => edge.Platform, descending),
+                nameof(EdgeNodeDto.HostName) => ApplyOrder(source, edge => edge.HostName, descending),
+                nameof(EdgeNodeDto.IpAddress) => ApplyOrder(source, edge => edge.IpAddress, descending),
+                nameof(EdgeNodeDto.LastActivityDateTime) => ApplyOrder(source, edge => edge.LastActivityDateTime, descending),
+                nameof(EdgeNodeDto.LastHeartbeatDateTime) => ApplyOrder(source, edge => edge.LastHeartbeatDateTime, descending),
+                _ => ApplyOrder(source, edge => edge.LastHeartbeatDateTime, true)
+            };
+        }
+
+        private static List<EdgeNodeDto> ApplyOrder<TKey>(IEnumerable<EdgeNodeDto> source, Func<EdgeNodeDto, TKey> keySelector, bool descending)
+        {
+            return descending
+                ? source.OrderByDescending(keySelector).ThenBy(edge => edge.Name).ToList()
+                : source.OrderBy(keySelector).ThenBy(edge => edge.Name).ToList();
         }
 
         private static string GetString(List<AttributeLatest> attrs, string key) => attrs.FirstOrDefault(c => c.KeyName == key)?.Value_String;

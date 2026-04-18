@@ -1,4 +1,5 @@
-﻿using System;
+﻿using IoTSharp.Controllers.Models;
+using System;
 using System.Collections.Generic;
 
 namespace IoTSharp.Dtos
@@ -66,5 +67,17 @@ namespace IoTSharp.Dtos
         public string Capabilities { get; set; }
         public string Metadata { get; set; }
         public string Metrics { get; set; }
+    }
+
+    public class EdgeNodeQueryDto : QueryDto
+    {
+        public string RuntimeType { get; set; }
+        public string Status { get; set; }
+        public bool? Healthy { get; set; }
+        public bool? Active { get; set; }
+        public string Version { get; set; }
+        public string Platform { get; set; }
+        public string Sorter { get; set; }
+        public string Sort { get; set; }
     }
 }
