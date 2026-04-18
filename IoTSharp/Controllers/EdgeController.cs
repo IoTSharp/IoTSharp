@@ -40,7 +40,9 @@ namespace IoTSharp.Controllers
             Constants._EdgeCapabilities,
             Constants._EdgeMetadata,
             Constants._EdgeMetrics,
-            Constants._EdgeUptimeSeconds
+            Constants._EdgeUptimeSeconds,
+            "_edge.task.receipt.status",
+            "_edge.task.receipt.reportedAt"
         ];
 
         private readonly ApplicationDbContext _context;
@@ -281,7 +283,9 @@ namespace IoTSharp.Controllers
                 LastRegistrationDateTime = GetDateTime(attrs, Constants._EdgeLastRegistrationDateTime),
                 Capabilities = GetString(attrs, Constants._EdgeCapabilities),
                 Metadata = GetString(attrs, Constants._EdgeMetadata),
-                Metrics = GetString(attrs, Constants._EdgeMetrics)
+                Metrics = GetString(attrs, Constants._EdgeMetrics),
+                LastTaskStatus = GetString(attrs, "_edge.task.receipt.status"),
+                LastReceiptDateTime = GetDateTime(attrs, "_edge.task.receipt.reportedAt")
             };
         }
 

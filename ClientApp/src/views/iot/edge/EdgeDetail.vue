@@ -128,7 +128,7 @@
 		<el-dialog v-model="dispatchDialog" title="平台侧任务下发" width="620px">
 			<el-form label-width="130px">
 				<el-form-item label="TaskType">
-					<el-select v-model="dispatchForm.taskType" style="width: 100%">
+					<el-select v-model="dispatchForm.taskType" style="width: 100%" @change="applyTaskTemplate">
 						<el-option v-for="item in taskTypeOptions" :key="item" :label="item" :value="item" />
 					</el-select>
 				</el-form-item>
@@ -138,9 +138,13 @@
 				<el-form-item label="InstanceId">
 					<el-input v-model="dispatchForm.instanceId" />
 				</el-form-item>
+				<el-form-item label="ExpireAt(min)">
+					<el-input-number v-model="dispatchForm.expireInMinutes" :min="1" :max="1440" style="width: 100%" />
+				</el-form-item>
 				<el-form-item label="Parameters(JSON)">
 					<el-input v-model="dispatchForm.parametersText" type="textarea" :rows="6" />
 				</el-form-item>
+				<el-alert title="提交前会校验 runtimeType、instanceId 和 parameters JSON。" type="info" :closable="false" />
 			</el-form>
 			<template #footer>
 				<el-button @click="dispatchDialog = false">取消</el-button>
@@ -164,11 +168,44 @@ const receiptHistory = ref<Record<string, any>[]>([]);
 const dispatchDialog = ref(false);
 const stateMachine = reactive<{ states: string[] }>({ states: [] });
 const taskTypeOptions = ['ConfigPush', 'ConfigPullRequest', 'PackageDownload', 'PackageApply', 'RestartRuntime', 'HealthProbe'];
+const taskTemplates: Record<string, { runtimeType?: string; parametersText: string; expireInMinutes: number }> = {
+	ConfigPush: {
+		runtimeType: 'gateway',
+		parametersText: '{\n  "configVersion": "v1",\n  "mode": "merge",\n  "payload": {}\n}',
+		expireInMinutes: 30,
+	},
+	HealthProbe: {
+		runtimeType: 'gateway',
+		parametersText: '{\n  "reason": "console-dispatch",\n  "timeoutSeconds": 15\n}',
+		expireInMinutes: 10,
+	},
+	ConfigPullRequest: {
+		runtimeType: 'gateway',
+		parametersText: '{\n  "requestedBy": "platform"\n}',
+		expireInMinutes: 15,
+	},
+	PackageDownload: {
+		runtimeType: 'pixiu',
+		parametersText: '{\n  "packageUrl": "https://example.invalid/pkg.zip",\n  "checksum": "sha256:..."\n}',
+		expireInMinutes: 60,
+	},
+	PackageApply: {
+		runtimeType: 'pixiu',
+		parametersText: '{\n  "packageVersion": "1.0.0",\n  "restart": true\n}',
+		expireInMinutes: 60,
+	},
+	RestartRuntime: {
+		runtimeType: 'gateway',
+		parametersText: '{\n  "reason": "config-updated"\n}',
+		expireInMinutes: 10,
+	},
+};
 const dispatchForm = reactive({
 	taskType: 'HealthProbe',
 	runtimeType: '',
 	instanceId: '',
 	parametersText: '{\n  "reason": "console-dispatch"\n}',
+	expireInMinutes: 10,
 });
 
 const edgeName = computed(() => edgeRef.value?.name || 'Edge 详情');
@@ -240,7 +277,19 @@ const normalizeHistoryRecord = (record: Record<string, any>) => {
 const openDispatchDialog = () => {
 	dispatchForm.runtimeType = edgeRef.value?.runtimeType || '';
 	dispatchForm.instanceId = edgeRef.value?.instanceId || '';
+	applyTaskTemplate(dispatchForm.taskType);
 	dispatchDialog.value = true;
+};
+
+const applyTaskTemplate = (taskType: string) => {
+	const template = taskTemplates[taskType];
+	if (!template) {
+		return;
+	}
+
+	dispatchForm.runtimeType = edgeRef.value?.runtimeType || template.runtimeType || '';
+	dispatchForm.parametersText = template.parametersText;
+	dispatchForm.expireInMinutes = template.expireInMinutes;
 };
 
 const submitTask = async () => {
@@ -254,6 +303,16 @@ const submitTask = async () => {
 		parameters = dispatchForm.parametersText ? JSON.parse(dispatchForm.parametersText) : {};
 	} catch {
 		ElMessage.error('Parameters 不是合法 JSON');
+		return;
+	}
+
+	if (!dispatchForm.runtimeType?.trim()) {
+		ElMessage.warning('RuntimeType 不能为空');
+		return;
+	}
+
+	if (!dispatchForm.instanceId?.trim() && !edgeRef.value?.instanceId) {
+		ElMessage.warning('InstanceId 不能为空');
 		return;
 	}
 
@@ -272,6 +331,7 @@ const submitTask = async () => {
 			targetKey,
 		},
 		createdAt: new Date().toISOString(),
+		expireAt: new Date(Date.now() + dispatchForm.expireInMinutes * 60 * 1000).toISOString(),
 		parameters,
 		metadata: {
 			source: 'edge-detail-ui',

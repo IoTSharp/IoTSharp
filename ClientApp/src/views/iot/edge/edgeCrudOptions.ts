@@ -125,6 +125,19 @@ export const createEdgeCrudOptions = function ({ expose }, edgeDetailRef, overvi
 					column: { sortable: 'custom', width: 100 },
 					dict: dict({ data: [{ value: true, label: '活跃' }, { value: false, label: '静默', color: 'warning' }] }),
 				},
+				lastTaskStatus: {
+					title: '最近任务状态',
+					search: { show: false },
+					column: { width: 140 },
+				},
+				lastReceiptDateTime: {
+					title: '最近回执时间',
+					search: { show: false },
+					column: {
+						width: 180,
+						formatter: (context) => (context.value ? dayjs(context.value).format('YYYY-MM-DD HH:mm:ss') : ''),
+					},
+				},
 				lastHeartbeatDateTime: {
 					title: 'LastHeartbeatDateTime',
 					search: { show: false },

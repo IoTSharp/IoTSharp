@@ -67,6 +67,8 @@ namespace IoTSharp.Dtos
         public string Capabilities { get; set; }
         public string Metadata { get; set; }
         public string Metrics { get; set; }
+        public string LastTaskStatus { get; set; }
+        public DateTime? LastReceiptDateTime { get; set; }
     }
 
     public class EdgeNodeQueryDto : QueryDto
