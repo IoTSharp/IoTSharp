@@ -119,7 +119,7 @@ Related repositories:
 
 - English docs entry: <https://iotsharp.net/docs/intro>
 - Chinese README: [README.zh.md](README.zh.md)
-- Roadmap: [roadmap.md](roadmap.md)
+- Roadmap: [ROADMAP.md](ROADMAP.md)
 - Changelog: [CHANGELOG.md](CHANGELOG.md)
 
 ## 🤝 Contributing
