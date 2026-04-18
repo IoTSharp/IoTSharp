@@ -1,0 +1,3 @@
+[submodule "gateways/Pixiu"]
+	path = gateways/Pixiu
+	url = https://github.com/IoTSharp/Pixiu
