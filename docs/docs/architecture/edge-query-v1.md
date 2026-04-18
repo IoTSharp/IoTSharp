@@ -471,12 +471,36 @@ targetKey 规则：
 - POST /api/Edge/{access_token}/Register
 - POST /api/Edge/{access_token}/Heartbeat
 - POST /api/Edge/{access_token}/Capabilities
-- POST /api/Edge/Tasks/Receipt
+- POST /api/EdgeTask/Receipt
+- GET /api/EdgeTask/StateMachine
 
 说明：
 
-- Tasks/Receipt 在第二步作为正式保留接口文档先定义
+- Receipt 在第二步已定义为最小可用接收接口，用于执行端正式对接
+- StateMachine 用于提供平台侧公开的任务状态机定义，减少执行端硬编码漂移
 - 平台下发任务接口可以后续按控制平面演进，不要求与执行端回执接口在同一轮上线
+
+### 当前已落地的最小接口能力
+
+当前代码中已经补充：
+
+- POST /api/EdgeTask/Receipt
+  - 校验 contractVersion
+  - 校验 taskId
+  - 校验 targetKey
+  - 校验 progress 范围
+  - 校验 Running 状态必须带 progress
+- GET /api/EdgeTask/StateMachine
+  - 返回正式状态机枚举列表
+  - 返回允许流转关系
+  - 返回终态列表
+
+当前还未落地：
+
+- Receipt 持久化
+- Receipt 与任务实体关联存储
+- 平台侧任务下发接口
+- 任务执行审计查询页
 
 ### 兼容性规则
 
