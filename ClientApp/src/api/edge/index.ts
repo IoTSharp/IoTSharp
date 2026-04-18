@@ -38,6 +38,25 @@ export interface EdgeTaskListQueryParam extends IListQueryParam {
 	runtimeType?: string;
 }
 
+export interface EdgeTaskTimelineNode {
+	category: string;
+	status: string;
+	message: string;
+	at: string;
+	payload: string;
+}
+
+export interface EdgeTaskTimeline {
+	deviceId: string;
+	deviceName: string;
+	taskId: string;
+	runtimeType: string;
+	instanceId: string;
+	currentStatus: string;
+	lastUpdatedAt: string;
+	events: EdgeTaskTimelineNode[];
+}
+
 export function edgeApi() {
 	return {
 		getEdgeList: (params: EdgeNodeQueryParam) => {

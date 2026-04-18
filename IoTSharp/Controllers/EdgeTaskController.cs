@@ -260,31 +260,43 @@ namespace IoTSharp.Controllers
         [HttpGet("Dispatch/{accessToken}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesDefaultResponseType]
-        public async System.Threading.Tasks.Task<ApiResult<EdgeTaskRequestDto>> PullPendingDispatch(string accessToken)
+        public async System.Threading.Tasks.Task<ApiResult<List<EdgeTaskRequestDto>>> PullPendingDispatch(string accessToken, [FromQuery] int take = 10)
         {
             var gateway = GetGatewayByAccessToken(accessToken);
             if (gateway == null)
             {
-                return new ApiResult<EdgeTaskRequestDto>(ApiCode.NotFoundDevice, "gateway access token not found", null);
+                return new ApiResult<List<EdgeTaskRequestDto>>(ApiCode.NotFoundDevice, "gateway access token not found", null);
             }
 
-            var payload = await _context.AttributeLatest
-                .Where(attr => attr.DeviceId == gateway.Id && attr.KeyName == EdgeTaskRequestLastKey)
-                .Select(attr => attr.Value_String)
-                .FirstOrDefaultAsync();
+            var records = await _context.TelemetryData
+                .Where(item => item.DeviceId == gateway.Id && item.KeyName.StartsWith(EdgeTaskHistoryKeyPrefix) && item.KeyName.EndsWith(".request"))
+                .OrderBy(item => item.DateTime)
+                .Take(Math.Clamp(take, 1, 50))
+                .ToListAsync();
 
-            var status = await _context.AttributeLatest
-                .Where(attr => attr.DeviceId == gateway.Id && attr.KeyName == EdgeTaskDispatchStatusKey)
-                .Select(attr => attr.Value_String)
-                .FirstOrDefaultAsync();
-
-            if (string.IsNullOrWhiteSpace(payload) || !string.Equals(status, EdgeTaskStatus.Pending.ToString(), StringComparison.OrdinalIgnoreCase))
+            var tasks = new List<EdgeTaskRequestDto>();
+            foreach (var record in records)
             {
-                return new ApiResult<EdgeTaskRequestDto>(ApiCode.Success, "OK", null);
+                var payload = record.Value_String;
+                var task = string.IsNullOrWhiteSpace(payload) ? null : JsonSerializer.Deserialize<EdgeTaskRequestDto>(payload);
+                if (task == null)
+                {
+                    continue;
+                }
+
+                var latestReceiptStatus = await _context.TelemetryData
+                    .Where(item => item.DeviceId == gateway.Id && item.KeyName == $"{EdgeTaskHistoryKeyPrefix}{task.TaskId:N}.receipt")
+                    .OrderByDescending(item => item.DateTime)
+                    .Select(item => item.Value_Json)
+                    .FirstOrDefaultAsync();
+
+                if (string.IsNullOrWhiteSpace(latestReceiptStatus) || latestReceiptStatus is nameof(EdgeTaskStatus.Pending) or nameof(EdgeTaskStatus.Sent))
+                {
+                    tasks.Add(task);
+                }
             }
 
-            var task = JsonSerializer.Deserialize<EdgeTaskRequestDto>(payload);
-            return new ApiResult<EdgeTaskRequestDto>(ApiCode.Success, "OK", task);
+            return new ApiResult<List<EdgeTaskRequestDto>>(ApiCode.Success, "OK", tasks);
         }
 
         [AllowAnonymous]
@@ -316,43 +328,89 @@ namespace IoTSharp.Controllers
         [Authorize(Roles = nameof(UserRole.NormalUser))]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesDefaultResponseType]
-        public async System.Threading.Tasks.Task<ApiResult<PagedData<EdgeTaskListItemDto>>> List([FromQuery] EdgeNodeQueryDto query)
+        public async System.Threading.Tasks.Task<ApiResult<PagedData<EdgeTaskTimelineDto>>> List([FromQuery] EdgeNodeQueryDto query)
         {
             var profile = this.GetUserProfile();
             query ??= new EdgeNodeQueryDto();
             query.Limit = query.Limit < 10 ? 10 : query.Limit;
 
-            var deviceIds = await _context.Device
+            var devices = await _context.Device
                 .Include(d => d.Customer)
                 .Include(d => d.Tenant)
                 .Where(d => !d.Deleted && d.DeviceType == DeviceType.Gateway && d.Tenant.Id == profile.Tenant && d.Customer.Id == profile.Customer)
-                .Select(d => d.Id)
                 .ToListAsync();
+
+            var deviceIds = devices.Select(d => d.Id).ToList();
+            var deviceNames = devices.ToDictionary(d => d.Id, d => string.IsNullOrWhiteSpace(d.Name) ? d.Id.ToString() : d.Name);
 
             var records = await _context.TelemetryData
                 .Where(item => deviceIds.Contains(item.DeviceId) && item.KeyName.StartsWith(EdgeTaskHistoryKeyPrefix))
                 .OrderByDescending(item => item.DateTime)
-                .Take(200)
+                .Take(500)
                 .ToListAsync();
 
-            var rows = records.Select(item =>
-            {
-                var payload = DeserializeToDictionary(item.Value_String);
-                return new EdgeTaskListItemDto
+            var rows = records
+                .Select(item =>
                 {
-                    DeviceId = item.DeviceId,
-                    TaskId = TryParseGuid(payload, "taskId"),
-                    Category = item.KeyName.Split('.').LastOrDefault() ?? string.Empty,
-                    RuntimeType = TryGetString(payload, "runtimeType"),
-                    InstanceId = TryGetString(payload, "instanceId"),
-                    Status = TryGetString(payload, "status") ?? item.Value_Json,
-                    Message = TryGetString(payload, "message"),
-                    At = item.DateTime,
-                    Payload = item.Value_String
-                };
-            }).ToList();
+                    var payload = DeserializeToDictionary(item.Value_String);
+                    return new EdgeTaskListItemDto
+                    {
+                        DeviceId = item.DeviceId,
+                        DeviceName = deviceNames.TryGetValue(item.DeviceId, out var deviceName) ? deviceName : item.DeviceId.ToString(),
+                        TaskId = TryParseGuid(payload, "taskId"),
+                        Category = item.KeyName.Split('.').LastOrDefault() ?? string.Empty,
+                        RuntimeType = TryGetString(payload, "runtimeType"),
+                        InstanceId = TryGetString(payload, "instanceId"),
+                        Status = TryGetString(payload, "status") ?? item.Value_Json,
+                        Message = TryGetString(payload, "message"),
+                        At = item.DateTime,
+                        Payload = item.Value_String
+                    };
+                })
+                .Where(item => item.TaskId != Guid.Empty)
+                .GroupBy(item => new { item.DeviceId, item.TaskId })
+                .Select(group =>
+                {
+                    var ordered = group.OrderBy(item => item.At).ToList();
+                    var last = ordered.Last();
+                    return new EdgeTaskTimelineDto
+                    {
+                        DeviceId = last.DeviceId,
+                        DeviceName = last.DeviceName,
+                        TaskId = last.TaskId,
+                        RuntimeType = last.RuntimeType,
+                        InstanceId = last.InstanceId,
+                        CurrentStatus = last.Status,
+                        LastUpdatedAt = last.At,
+                        Events = ordered.Select(item => new EdgeTaskTimelineNodeDto
+                        {
+                            Category = item.Category,
+                            Status = item.Status,
+                            Message = item.Message,
+                            At = item.At,
+                            Payload = item.Payload
+                        }).ToList()
+                    };
+                })
+                .OrderByDescending(item => item.LastUpdatedAt)
+                .ToList();
 
-            return new ApiResult<PagedData<EdgeTaskListItemDto>>(ApiCode.Success, "OK", new PagedData<EdgeTaskListItemDto>
+            if (!string.IsNullOrWhiteSpace(query.Name))
+            {
+                rows = rows.Where(item => item.DeviceName.Contains(query.Name, StringComparison.OrdinalIgnoreCase)).ToList();
+            }
+
+            if (!string.IsNullOrWhiteSpace(query.RuntimeType))
+            {
+                rows = rows.Where(item => string.Equals(item.RuntimeType, query.RuntimeType, StringComparison.OrdinalIgnoreCase)).ToList();
+            }
+
+            if (!string.IsNullOrWhiteSpace(query.Status))
+            {
+                rows = rows.Where(item => string.Equals(item.CurrentStatus, query.Status, StringComparison.OrdinalIgnoreCase)).ToList();
+            }
+
+            return new ApiResult<PagedData<EdgeTaskTimelineDto>>(ApiCode.Success, "OK", new PagedData<EdgeTaskTimelineDto>
             {
                 total = rows.Count,
                 rows = rows.Skip(query.Offset * query.Limit).Take(query.Limit).ToList()
