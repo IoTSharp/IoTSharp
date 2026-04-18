@@ -2,40 +2,29 @@
     <div>
         <el-drawer :title="state.title" v-model="state.isOpen" size="90%" @closed="drawerclose">
             <el-scrollbar>
-
-                <modbuspointlist ref="modbuspointlistRef" @submit="onsubmit"
-                    v-if="state.sender?.node?.bizdata?.devnamespace === 'modbus'" v-model="state.sender">
-
-
-                </modbuspointlist>
-                <opcuapointlist @submit="onsubmit" v-if="state.sender?.node?.bizdata?.devnamespace === 'opcua'"
-                    v-model="state.sender">
-
-
-                </opcuapointlist>
-
-                <connector  @submit="onsubmit" v-if="state.sender?.store?.data?.bizdata?.devnamespace === 'connector'">
-
-
-                </connector>
-
-
-
-
+                <modbusworkspace
+                    v-if="state.sender?.node?.bizdata?.devnamespace === 'modbus'"
+                    v-model="state.sender"
+                    @submit="onsubmit"
+                />
+                <opcuaworkspace
+                    v-else-if="state.sender?.node?.bizdata?.devnamespace === 'opcua'"
+                    v-model="state.sender"
+                    @submit="onsubmit"
+                />
+                <connector @submit="onsubmit" v-else-if="state.sender?.store?.data?.bizdata?.devnamespace === 'connector'" />
             </el-scrollbar>
         </el-drawer>
     </div>
 </template>
 
 <script lang="ts" setup>
-import { reactive, ref, nextTick } from "vue";
+import { reactive } from "vue";
 import { drawerparams } from "../models/drawerparams";
-import modbuspointlist from "./modbus/modbuspointlist.vue";
-import opcuapointlist from "./opcua/opcuapointlist.vue";
+import modbusworkspace from "./modbus/modbus.vue";
+import opcuaworkspace from "./opcua/opcua.vue";
 import connector from "./connector/connector.vue";
 const emit = defineEmits(["close", "submit"]);
-
-const modbuspointlistRef = ref();
 interface DrawerState {
 
     width: string;
@@ -67,20 +56,6 @@ const open = (sender: any, params: drawerparams) => {
 
     state.isOpen = true;
     state.sender = sender;
-    // switch (state.sender.node.bizdata.devnamespace) {
-    //     case 'modbus':
-    //         nextTick(()=>{
-    //             modbuspointlistRef?.value.loaddata()
-    //         })
-
-    //         break;
-    //     case 'opcua':
-    //         break;
-
-
-    // }
-
-
 }
 defineExpose({
     open,
