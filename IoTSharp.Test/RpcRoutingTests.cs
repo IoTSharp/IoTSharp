@@ -52,7 +52,7 @@ namespace IoTSharp.Test
             routeMethod.Invoke(routeTable, [context]);
 
             var handler = handlerProperty.GetValue(context) as MethodInfo;
-            var parameters = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+            var parameters = new Dictionary<string, string>(StringComparer.Ordinal);
             if (parametersProperty.GetValue(context) is IEnumerable entries)
             {
                 foreach (var entry in entries)
