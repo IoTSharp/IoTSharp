@@ -278,4 +278,4 @@ jobs:
           tag_name: ${{ github.ref_name }}
           name: v${{ needs.prepare.outputs.release_version }}
           generate_release_notes: true
-          files: ${{ runner.temp }}/release-assets/*
+          files: ${{ runner.temp }}/release-assets/**/*
