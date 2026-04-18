@@ -1,227 +1,227 @@
-# IoTSharp Roadmap
+# IoTSharp 路线图
 
-This roadmap records the current product direction for evolving IoTSharp from a device platform into a full industrial collection and operations platform.
+这份路线图用于记录 IoTSharp 从设备平台演进为完整工业采集与运营平台的当前产品方向。
 
-## Product Direction
+## 产品方向
 
-IoTSharp will evolve around a three-layer architecture:
+IoTSharp 将围绕三层架构持续演进：
 
-1. **Access and collection layer**
-   - Device access
-   - Gateway and edge connectivity
-   - Collection modeling and protocol templates
-2. **Real-time rule layer**
-   - Telemetry processing
-   - Alarm and action rules
-   - Data transformation and dispatch
-3. **Operations and release layer**
-   - OTA firmware delivery
-   - Collector software package delivery
-   - Configuration versioning and rollout
-   - Batch release, gray rollout, rollback, and result confirmation
+1. **接入与采集层**
+   - 设备接入
+   - 网关与边缘连接
+   - 采集建模与协议模板
+2. **实时规则层**
+   - 遥测处理
+   - 告警与动作规则
+   - 数据转换与分发
+3. **运营与发布层**
+   - OTA 固件下发
+   - 采集器软件包下发
+   - 配置版本管理与发布
+   - 批量发布、灰度发布、回滚与结果确认
 
-## Key Judgement
+## 关键判断
 
-- The current direction is correct, but the platform is still at the stage of having a usable foundation rather than a fully productized industrial platform.
-- Existing access, product, asset, and rule-chain capabilities should be retained and upgraded instead of rewritten.
-- The next stage must make gateways, edge agents, collection configuration, and release management first-class platform capabilities.
+- 当前方向是正确的，但平台目前仍处于“可用基础”阶段，还不是一个完全产品化的工业平台。
+- 现有的接入、产品、资产和规则链能力应当保留并升级，而不是整体重写。
+- 下一阶段必须把网关、边缘代理、采集配置和发布管理提升为平台的一等能力。
 
-## Domain Responsibilities
+## 领域职责
 
-### Product
-Product is the **technical template**.
+### 产品
+产品是**技术模板**。
 
-It should own:
-- device type definitions
-- protocol and collection templates
-- point models
-- default attributes
-- command templates
-- software and firmware compatibility matrix
+应负责：
+- 设备类型定义
+- 协议与采集模板
+- 点位模型
+- 默认属性
+- 命令模板
+- 软件与固件兼容矩阵
 
-### Asset
-Asset is the **business object and topology container**.
+### 资产
+资产是**业务对象与拓扑容器**。
 
-It should own:
-- site
-- workshop
-- line
-- area
-- customer deployment topology
-- business grouping and hierarchy
+应负责：
+- 站点
+- 车间
+- 产线
+- 区域
+- 客户部署拓扑
+- 业务分组与层级结构
 
-### Device
-Device is the **runtime instance**.
+### 设备
+设备是**运行时实例**。
 
-It should own:
-- identity
-- online status
-- telemetry and attributes
-- alarms and commands
-- relation to product, asset, and edge node
+应负责：
+- 标识
+- 在线状态
+- 遥测与属性
+- 告警与命令
+- 与产品、资产、边缘节点的关系
 
-### Edge Node
-Edge node is the **managed collection runtime**.
+### 边缘节点
+边缘节点是**受管的采集运行时**。
 
-It should own:
-- registration
-- heartbeat
-- version
-- capabilities
-- runtime status
-- logs and diagnostics
-- relation to Gateway, PiXiu, and future collection agents
+应负责：
+- 注册
+- 心跳
+- 版本
+- 能力
+- 运行状态
+- 日志与诊断
+- 与 Gateway、PiXiu 及未来采集代理的关系
 
-### Rule Chain
-Rule chain remains the **real-time data processing engine**.
+### 规则链
+规则链仍然是**实时数据处理引擎**。
 
-It should focus on:
-- ingest-time transformation
-- routing
-- enrichment
-- alarm triggering
-- telemetry and attribute publishing
+应聚焦：
+- 入站时转换
+- 路由
+- 富化
+- 告警触发
+- 遥测与属性发布
 
-It should not become the main engine for long-running OTA, approval, rollback, or large batch operations.
+它不应成为长周期 OTA、审批、回滚或大批量运营操作的主引擎。
 
-### Release Center
-Release center is the **operations delivery domain**.
+### 发布中心
+发布中心是**运营交付领域**。
 
-It should own:
-- OTA packages
-- collector software packages
-- configuration templates and versions
-- staged release plans
-- rollout execution records
-- rollback and confirmation workflow
+应负责：
+- OTA 包
+- 采集器软件包
+- 配置模板与版本
+- 分阶段发布计划
+- 发布执行记录
+- 回滚与确认流程
 
-## Planned Capability Areas
+## 规划中的能力区域
 
-### Phase 1 - Edge and collection management foundation
-Priority: highest
+### 第一阶段 - 边缘与采集管理基础
+优先级：最高
 
-Goals:
-- Make gateway and collection clients first-class platform entities
-- Introduce unified edge node registration and heartbeat model
-- Manage C# Gateway, PiXiu client, and future agents through a common platform contract
-- Expose version, capability, health, status, and diagnostics metadata
+目标：
+- [ ] 让网关和采集客户端成为平台中的一等实体
+- [ ] 引入统一的边缘节点注册与心跳模型
+- [ ] 通过统一的平台契约管理 C# Gateway、PiXiu 客户端和未来代理
+- [ ] 暴露版本、能力、健康度、状态和诊断元数据
 
-Expected output:
-- edge node domain model
-- edge registration protocol
-- heartbeat and capability reporting
-- unified management UI entry
-- project boundary agreement for Gateway and PiXiu integration
+预期产出：
+- [ ] 边缘节点领域模型
+- [ ] 边缘注册协议
+- [ ] 心跳与能力上报机制
+- [ ] 统一的管理界面入口
+- [ ] Gateway 与 PiXiu 集成的项目边界约定
 
-### Phase 2 - Collection modeling
-Goals:
-- Upgrade collection configuration from scripts and conventions into standard models
-- Build protocol templates, connection templates, point templates, sample policies, and transform chains
-- Support industrial mapping features such as endian handling, scaling, formulas, units, deadband, and downsampling
-- Connect designer screens with runtime persistence and execution models
+### 第二阶段 - 采集建模
+目标：
+- [ ] 将采集配置从脚本和约定升级为标准模型
+- [ ] 构建协议模板、连接模板、点位模板、示例策略与转换链
+- [ ] 支持大小端、缩放、公式、单位、死区、降采样等工业映射能力
+- [ ] 打通设计器界面与运行时持久化、执行模型
 
-Expected output:
-- collection template model
-- point model and transform model
-- runtime configuration persistence
-- designer-to-runtime integration for Modbus, OPC UA, and gateway scenarios
+预期产出：
+- [ ] 采集模板模型
+- [ ] 点位模型与转换模型
+- [ ] 运行时配置持久化
+- [ ] 面向 Modbus、OPC UA 与网关场景的设计器到运行时集成
 
-### Phase 3 - Operations and release center
-Goals:
-- Add OTA firmware packages, collector software packages, and configuration release management
-- Support staged rollout, gray release, rollback, and result confirmation
-- Separate long-running operational orchestration from the existing rule engine
+### 第三阶段 - 运营与发布中心
+目标：
+- [ ] 增加 OTA 固件包、采集器软件包和配置发布管理
+- [ ] 支持分阶段发布、灰度发布、回滚和结果确认
+- [ ] 将长周期运营编排从现有规则引擎中分离出来
 
-Expected output:
-- release center domain model
-- package and configuration version management
-- rollout task orchestration
-- delivery status and audit trail
+预期产出：
+- [ ] 发布中心领域模型
+- [ ] 包与配置版本管理
+- [ ] 发布任务编排
+- [ ] 交付状态与审计轨迹
 
-### Phase 4 - Real-time rule enhancement
-Goals:
-- Keep the current FlowRule direction for real-time processing
-- Add more standard nodes and industrial transforms to reduce script dependency
-- Improve versioning, observability, simulation, and auditability
-- Optionally integrate RulesEngine or NRules for richer decision logic
+### 第四阶段 - 实时规则增强
+目标：
+- [x] 保持当前 FlowRule 面向实时处理的方向
+- [ ] 增加更多标准节点和工业转换能力，降低脚本依赖
+- [ ] 提升版本化、可观测性、仿真与可审计能力
+- [ ] 视需要集成 RulesEngine 或 NRules 以支持更丰富的决策逻辑
 
-Expected output:
-- richer standard node library
-- lower-code transformation capability
-- stronger rule-chain versioning and observability
+预期产出：
+- [ ] 更丰富的标准节点库
+- [ ] 更低代码化的转换能力
+- [ ] 更强的规则链版本化与可观测性
 
-### Phase 5 - Organization and ecosystem alignment
-Goals:
-- Clarify repository and product boundaries inside the organization
-- Keep IoTSharp as the platform center, not a container for every edge implementation
-- Coordinate release rhythm, API contracts, and ownership between related projects
+### 第五阶段 - 组织与生态协同
+目标：
+- [ ] 明确组织内部的仓库边界和产品边界
+- [x] 保持 IoTSharp 作为平台中心，而不是承载所有边缘实现的容器
+- [ ] 协调相关项目之间的发布节奏、API 契约和职责归属
 
-Expected output:
-- clear ownership map across IoTSharp and related repositories
-- compatibility matrix for platform, Gateway, PiXiu, SDKs, and agents
-- versioned contracts for registration, configuration, telemetry, and release tasks
+预期产出：
+- [ ] IoTSharp 及相关仓库的清晰职责图谱
+- [ ] 平台、Gateway、PiXiu、SDK 与代理的兼容矩阵
+- [ ] 面向注册、配置、遥测和发布任务的版本化契约
 
-## Project Relationship Strategy
+## 项目关系策略
 
 ### IoTSharp
-The platform center.
+平台中心。
 
-Owns:
-- tenant and device platform capabilities
-- products and assets
-- rule chain
-- edge management control plane
-- release center
-- APIs, UI, permissions, audit, and lifecycle management
+负责：
+- [x] 租户与设备平台能力
+- [x] 产品与资产
+- [x] 规则链
+- [ ] 边缘管理控制平面
+- [ ] 发布中心
+- [x] API、UI、权限、审计与生命周期管理
 
 ### Gateway
-The protocol and southbound collection runtime.
+协议与南向采集运行时。
 
-Role:
-- execute collection tasks
-- adapt industrial protocols
-- report runtime status and collection results to IoTSharp
-- receive configuration and software tasks from IoTSharp
+角色：
+- [ ] 执行采集任务
+- [ ] 适配工业协议
+- [ ] 向 IoTSharp 上报运行状态和采集结果
+- [ ] 接收 IoTSharp 下发的配置与软件任务
 
-Rule:
-- Gateway should integrate through stable contracts instead of re-embedding platform logic into the collector itself.
+规则：
+- [x] Gateway 应通过稳定契约集成，而不是把平台逻辑重新嵌入采集器本体。
 
 ### PiXiu
-The lightweight edge and site-side runtime.
+轻量级边缘与现场侧运行时。
 
-Role:
-- act as an edge agent where lightweight deployment or site autonomy is required
-- handle local execution, buffering, diagnostics, and future edge-side coordination
-- synchronize with IoTSharp through unified edge contracts
+角色：
+- [ ] 在需要轻量部署或现场自治时作为边缘代理运行
+- [ ] 处理本地执行、缓冲、诊断和未来边缘侧协同
+- [ ] 通过统一边缘契约与 IoTSharp 同步
 
-Rule:
-- PiXiu should be treated as a managed edge runtime under the same edge management domain as Gateway, while preserving its independent deployment and lifecycle.
+规则：
+- [x] PiXiu 应作为与 Gateway 同一边缘管理域下的受管边缘运行时，同时保留独立部署和生命周期。
 
-### Other organization projects
-Related repositories should be aligned through explicit ownership and contracts.
+### 组织内其他项目
+相关仓库应通过清晰职责和显式契约协同。
 
-Rules:
-- platform concerns stay in IoTSharp
-- protocol runtime concerns stay in Gateway or other collectors
-- lightweight edge runtime concerns stay in PiXiu
-- SDKs and agent projects follow platform contracts and compatibility matrices
-- cross-project changes should be driven by versioned interfaces, not undocumented coupling
+规则：
+- [x] 平台能力留在 IoTSharp
+- [x] 协议运行时能力留在 Gateway 或其他采集器
+- [x] 轻量边缘运行时能力留在 PiXiu
+- [ ] SDK 与代理项目遵循平台契约和兼容矩阵
+- [ ] 跨项目变更应通过版本化接口驱动，而不是依赖未文档化耦合
 
-## Execution Principles
+## 执行原则
 
-- Do not rewrite the existing platform wholesale.
-- Preserve current device access, product mapping, asset hierarchy, and rule-chain investment.
-- Add new domains in layers: edge management, collection modeling, release orchestration.
-- Convert high-frequency script patterns into standard nodes or standard transformers.
-- Use dedicated workflow/orchestration tooling for long-running delivery flows when needed.
+- [x] 不对现有平台做整体重写。
+- [x] 保留当前设备接入、产品映射、资产层级和规则链投入。
+- [ ] 按层次新增领域：边缘管理、采集建模、发布编排。
+- [ ] 将高频脚本模式沉淀为标准节点或标准转换器。
+- [ ] 在需要时为长周期交付流程引入专用工作流或编排工具。
 
-## Immediate Next Step
+## 当前立即下一步
 
-Start with **Phase 1: edge and collection management foundation**.
+从**第一阶段：边缘与采集管理基础**开始。
 
-The first implementation wave should define:
-- edge node domain model
-- Gateway and PiXiu registration contract
-- heartbeat and capability reporting contract
-- runtime status and diagnostics surface
-- compatibility and ownership rules across related repositories
+首轮实施应定义：
+- [ ] 边缘节点领域模型
+- [ ] Gateway 与 PiXiu 注册契约
+- [ ] 心跳与能力上报契约
+- [ ] 运行时状态与诊断展示面
+- [ ] 相关仓库之间的兼容性与职责规则
