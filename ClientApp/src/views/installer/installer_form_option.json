@@ -13,7 +13,7 @@
     "disabled": false,
     "innerText": "开始安装",
     "loading": false,
-    "show": true,
+    "show": false,
     "block": true
   },
   "wrap": {},

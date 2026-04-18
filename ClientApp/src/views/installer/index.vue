@@ -77,6 +77,12 @@
 						:option="options"
 						@submit="onSubmit"
 					></FormCreate>
+
+					<div class="installer-form-card__actions">
+						<Button type="primary" class="installer-form-card__action" :loading="isSubmitting" @click="submitInstall">
+							开始安装
+						</Button>
+					</div>
 				</div>
 
 				<div class="installer-panel__footer">
@@ -111,6 +117,7 @@ const { themeConfig } = storeToRefs(storesThemeConfig);
 const fApi: Ref<Api | null> = ref(null);
 const value = ref({});
 const options = reactive(installerFormOption);
+const isSubmitting = ref(false);
 const pageTitle = computed(() => themeConfig.value.globalTitle || 'IoTSharp');
 const currentYear = new Date().getFullYear();
 
@@ -182,9 +189,15 @@ rules.value[3].validate?.push({
 });
 
 const onSubmit = async (data: unknown) => {
+   if (isSubmitting.value) {
+		return;
+	}
+
 	try {
+        isSubmitting.value = true;
 		fApi.value?.validate(async (valid: boolean) => {
 			if (!valid) {
+               isSubmitting.value = false;
 				ElMessage.error('请正确填写安装信息');
 				return;
 			}
@@ -195,11 +208,18 @@ const onSubmit = async (data: unknown) => {
 				await router.replace({ name: 'login' });
 			} catch (error) {
 				ElMessage.error('安装失败，请稍后重试');
+           } finally {
+				isSubmitting.value = false;
 			}
 		});
 	} catch (error) {
+       isSubmitting.value = false;
 		ElMessage.error('请正确填写安装信息');
 	}
+};
+
+const submitInstall = async () => {
+	await onSubmit(fApi.value?.form ?? value.value);
 };
 
 onMounted(() => {
@@ -211,15 +231,18 @@ onMounted(() => {
 .installer-page {
 	position: relative;
 	display: flex;
-	align-items: center;
+	align-items: flex-start;
 	justify-content: center;
-	min-height: 100vh;
+	width: 100%;
+	height: 100%;
+	min-height: 100%;
 	padding: 24px;
 	background:
 		radial-gradient(circle at top left, rgba(96, 165, 250, 0.16), transparent 28%),
 		radial-gradient(circle at bottom right, rgba(14, 165, 233, 0.18), transparent 28%),
 		linear-gradient(180deg, #f3f8ff 0%, #eef6ff 46%, #fbfdff 100%);
-	overflow: hidden;
+	overflow-x: hidden;
+	overflow-y: auto;
 
 	:deep(.app-logo) {
 		--app-logo-text: #ffffff;
@@ -244,19 +267,19 @@ onMounted(() => {
 	display: grid;
 	grid-template-columns: 1.08fr minmax(420px, 500px);
 	width: min(1260px, 100%);
-	min-height: min(800px, calc(100vh - 48px));
+	min-height: calc(100% - 48px);
 	border-radius: 34px;
 	border: 1px solid rgba(255, 255, 255, 0.72);
 	background: rgba(255, 255, 255, 0.42);
 	box-shadow: 0 30px 80px rgba(15, 23, 42, 0.12);
 	backdrop-filter: blur(20px);
-	overflow: hidden;
+	overflow: visible;
 }
 
 .installer-panel {
 	display: flex;
 	flex-direction: column;
-	justify-content: center;
+    justify-content: flex-start;
 	gap: 24px;
 	padding: 36px 40px;
 	background: rgba(255, 255, 255, 0.95);
@@ -341,6 +364,19 @@ onMounted(() => {
 	border-radius: 20px;
 	border: 1px solid rgba(37, 99, 235, 0.12);
 	background: linear-gradient(135deg, rgba(37, 99, 235, 0.08), rgba(14, 165, 233, 0.08));
+}
+
+.installer-form-card__actions {
+	margin-top: 20px;
+}
+
+.installer-form-card__action {
+	width: 100%;
+	height: 48px;
+	border-radius: 14px;
+	letter-spacing: 0.08em;
+	font-weight: 600;
+	box-shadow: 0 18px 32px rgba(37, 99, 235, 0.18);
 }
 
 .installer-form-card__tip-title,
