@@ -74,6 +74,7 @@ namespace IoTSharp.Dtos
     public class EdgeTaskListItemDto
     {
         public Guid DeviceId { get; set; }
+        public string DeviceName { get; set; }
         public Guid TaskId { get; set; }
         public string Category { get; set; }
         public string RuntimeType { get; set; }
@@ -82,5 +83,26 @@ namespace IoTSharp.Dtos
         public string Message { get; set; }
         public DateTime At { get; set; }
         public string Payload { get; set; }
+    }
+
+    public class EdgeTaskTimelineNodeDto
+    {
+        public string Category { get; set; }
+        public string Status { get; set; }
+        public string Message { get; set; }
+        public DateTime At { get; set; }
+        public string Payload { get; set; }
+    }
+
+    public class EdgeTaskTimelineDto
+    {
+        public Guid DeviceId { get; set; }
+        public string DeviceName { get; set; }
+        public Guid TaskId { get; set; }
+        public string RuntimeType { get; set; }
+        public string InstanceId { get; set; }
+        public string CurrentStatus { get; set; }
+        public DateTime LastUpdatedAt { get; set; }
+        public List<EdgeTaskTimelineNodeDto> Events { get; set; }
     }
 }
