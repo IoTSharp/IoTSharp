@@ -146,18 +146,30 @@ v1/gateway/attributes
   devices/设备名称/rpc/request/方法名称
 ```
 
-设备名称这里如果是直连设备， 则为me， 如果是网关设备， 则是设备名称， 方法名称用于区别调用了何种方法， 这里交由规则链处理。 通过规则链， 你可以调用 内部服务， 也可以调用外部服务等， 发挥你的想象就好。 
+设备名称这里如果是直连设备， 则为 `me`， 如果是网关设备， 则是设备名称。 这个 topic 由 `IoTSharp/Services/MQTTControllers/RpcController.cs` 处理，收到后会按方法名称查找并触发对应规则链。
+
+这里需要特别注意：**上行 RPC 只有 5 段 topic**，最后一段就是方法名称，本身**不带 requestId**。  
+
+方法名称用于区别调用了何种方法， 这里交由规则链处理。 通过规则链， 你可以调用 内部服务， 也可以调用外部服务等， 发挥你的想象就好。 
 
 
 ##  发起下行RPC远程控制
 
 下行RPC是指平台端或者第三方服务调用IoTSharp进行远程控制终端设备的方法。 
 
-通过MQTT发起时， 先订阅response， 然后发布request。 
+通过 MQTT 发起时， 先订阅 response， 然后发布 request。 当前代码入口在 `IoTSharp/Controllers/DevicesController.cs` 的 `POST /api/devices/{access_token}/rpc/{method}`，内部会调用 `IoTSharp/Extensions/RpcClient.cs` 先订阅 response，再发布 request。 
+
+当前代码中，下行 RPC 的 topic 目标有两种：
+
+- 网关设备或直连设备：使用设备 `Id`
+- 网关下挂子设备：使用设备 `Name`
+
 ```
  devices/设备名称/rpc/request/方法名称/请求唯一标识
  devices/设备名称/rpc/response/方法名称/请求唯一标识
 ```
+
+也就是说，**下行 RPC 是 6 段 topic**，最后一段为 requestId。 它和上面的上行 RPC topic 不是同一个路由。 当前仓库中的 MQTT attribute routing 只会匹配完全一致的 topic，因此 `request/{method}` 不会命中 `request/{method}/{requestId}`。
 
 ##  RawData
 

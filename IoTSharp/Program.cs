@@ -8,12 +8,14 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using Figgle;
+using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Microsoft.AspNetCore.Server.Kestrel.Https;
 using LettuceEncrypt;
 using LettuceEncrypt.Dns.Ali;
 using Figgle.Fonts;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.EventLog;
+using System.Net;
 
 namespace IoTSharp
 {
@@ -57,18 +59,95 @@ namespace IoTSharp
 
                     webBuilder.UseKestrel(options =>
                      {
-                         var appServices = options.ApplicationServices;
-                         if (Environment.GetEnvironmentVariable("IOTSHARP_ACME") == "true")
-                         {
-                             options.ConfigureHttpsDefaults(h =>
-                               {
-                                   h.ClientCertificateMode = ClientCertificateMode.RequireCertificate;
-                                   h.UseLettuceEncrypt(appServices);
-                               });
-                         }
-                     });
+                          var appServices = options.ApplicationServices;
+                          if (Environment.GetEnvironmentVariable("IOTSHARP_ACME") == "true")
+                          {
+                             ConfigureAcmeEndpoints(options, appServices);
+                          }
+                      });
+ 
+                 });
 
+        private static void ConfigureAcmeEndpoints(KestrelServerOptions options, IServiceProvider appServices)
+        {
+            var urls = Environment.GetEnvironmentVariable("ASPNETCORE_URLS");
+
+            if (!string.IsNullOrWhiteSpace(urls))
+            {
+                foreach (var url in urls.Split(';', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries))
+                {
+                    if (Uri.TryCreate(url, UriKind.Absolute, out var uri))
+                    {
+                        ConfigureListenEndpoint(options, uri, appServices);
+                    }
+                }
+
+                return;
+            }
+
+            foreach (var port in GetConfiguredPorts("ASPNETCORE_HTTP_PORTS"))
+            {
+                options.ListenAnyIP(port);
+            }
+
+            foreach (var port in GetConfiguredPorts("ASPNETCORE_HTTPS_PORTS"))
+            {
+                options.ListenAnyIP(port, listenOptions =>
+                {
+                    listenOptions.UseHttps(httpsOptions =>
+                    {
+                        httpsOptions.ClientCertificateMode = ClientCertificateMode.RequireCertificate;
+                    });
+                    listenOptions.UseLettuceEncrypt(appServices);
                 });
+            }
+        }
+
+        private static IEnumerable<int> GetConfiguredPorts(string environmentVariableName)
+        {
+            var value = Environment.GetEnvironmentVariable(environmentVariableName);
+
+            if (string.IsNullOrWhiteSpace(value))
+            {
+                return Enumerable.Empty<int>();
+            }
+
+            return value.Split([';', ','], StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+                .Select(segment => int.TryParse(segment, out var port) ? port : (int?)null)
+                .Where(port => port.HasValue)
+                .Select(port => port!.Value);
+        }
+
+        private static void ConfigureListenEndpoint(KestrelServerOptions options, Uri uri, IServiceProvider appServices)
+        {
+            var listen = CreateListenAction(uri, appServices);
+
+            if (string.Equals(uri.Host, "localhost", StringComparison.OrdinalIgnoreCase))
+            {
+                options.ListenLocalhost(uri.Port, listen);
+                return;
+            }
+
+            if (IPAddress.TryParse(uri.Host, out var address))
+            {
+                options.Listen(address, uri.Port, listen);
+                return;
+            }
+
+            options.ListenAnyIP(uri.Port, listen);
+        }
+
+        private static Action<ListenOptions> CreateListenAction(Uri uri, IServiceProvider appServices) =>
+            string.Equals(uri.Scheme, Uri.UriSchemeHttps, StringComparison.OrdinalIgnoreCase)
+                ? listenOptions =>
+                {
+                    listenOptions.UseHttps(httpsOptions =>
+                    {
+                        httpsOptions.ClientCertificateMode = ClientCertificateMode.RequireCertificate;
+                    });
+                    listenOptions.UseLettuceEncrypt(appServices);
+                }
+                : _ => { };
 
         private static void InitializeProcessPaths()
         {
