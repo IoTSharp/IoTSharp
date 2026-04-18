@@ -119,7 +119,7 @@ NuGet 包与生态库包括：
 
 - 英文说明： [README.md](README.md)
 - 文档首页：<https://iotsharp.net/docs/intro>
-- 路线图： [roadmap.md](roadmap.md)
+- 路线图： [ROADMAP.md](ROADMAP.md)
 - 变更记录： [CHANGELOG.md](CHANGELOG.md)
 
 ## 🤝 参与贡献
