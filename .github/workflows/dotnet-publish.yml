@@ -126,7 +126,6 @@ jobs:
             target: CreateRpm
             package_suffix: centos-x64
             package_extension: rpm
-            package_path_property: RpmPath
             package_arch_property: RpmPackageArchitecture
             package_arch_value: x86_64
             artifact_name: release-centos
@@ -134,7 +133,6 @@ jobs:
             target: CreateDeb
             package_suffix: debian-ubuntu-x64
             package_extension: deb
-            package_path_property: DebPath
             package_arch_property: DebPackageArchitecture
             package_arch_value: amd64
             artifact_name: release-debian-ubuntu
@@ -164,14 +162,12 @@ jobs:
           RELEASE_VERSION: ${{ needs.prepare.outputs.release_version }}
           PACKAGE_SUFFIX: ${{ matrix.package_suffix }}
           PACKAGE_EXTENSION: ${{ matrix.package_extension }}
-          PACKAGE_PATH_PROPERTY: ${{ matrix.package_path_property }}
           PACKAGE_ARCH_PROPERTY: ${{ matrix.package_arch_property }}
           PACKAGE_ARCH_VALUE: ${{ matrix.package_arch_value }}
           PACKAGE_TARGET: ${{ matrix.target }}
         run: |
           PACKAGE_DIR="${RUNNER_TEMP}/packages/${{ matrix.name }}"
-          PACKAGE_FILENAME="IoTSharp-${RELEASE_VERSION}-${PACKAGE_SUFFIX}.${PACKAGE_EXTENSION}"
-          PACKAGE_PATH="${PACKAGE_DIR}/${PACKAGE_FILENAME}"
+          PACKAGE_BASENAME="IoTSharp-${RELEASE_VERSION}-${PACKAGE_SUFFIX}"
           mkdir -p "${PACKAGE_DIR}"
           args=(
             msbuild
@@ -184,19 +180,12 @@ jobs:
             "/p:Version=${RELEASE_VERSION}"
             "/p:PackageVersion=${RELEASE_VERSION}"
             "/p:InformationalVersion=${RELEASE_VERSION}"
+            "/p:PackageName=${PACKAGE_BASENAME}"
             "/p:PackageDir=${PACKAGE_DIR}/"
             "/p:${PACKAGE_ARCH_PROPERTY}=${PACKAGE_ARCH_VALUE}"
           )
 
-          if [[ "${PACKAGE_TARGET}" != "CreateDeb" ]]; then
-            args+=("/p:${PACKAGE_PATH_PROPERTY}=${PACKAGE_PATH}")
-          fi
-
           dotnet "${args[@]}"
-
-          if [[ "${PACKAGE_TARGET}" == "CreateDeb" ]]; then
-            mv "${PACKAGE_DIR}/iotsharp.${RELEASE_VERSION}.linux-x64.deb" "${PACKAGE_PATH}"
-          fi
 
       - name: Upload ${{ matrix.name }} artifacts
         uses: actions/upload-artifact@v4
