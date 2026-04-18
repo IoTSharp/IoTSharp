@@ -72,6 +72,21 @@ IoTSharp 将围绕三层架构持续演进：
 - 日志与诊断
 - 与 Gateway、PiXiu 及未来采集代理的关系
 
+能力边界补充：
+- 边缘节点负责**执行采集任务**，但不负责承载平台侧的产品建模、资产管理、权限、审计与发布编排。
+- 边缘节点负责协议连接、轮询调度、本地重试、基础缓存、数据预处理与结果上报。
+- 边缘节点可以执行寄存器解析、字节序调整、数值换算、质量位附加和时间戳补全，但这些规则应来自平台下发的标准任务模型。
+- 边缘节点应声明自身支持的协议、连接方式、数据类型、字节序处理能力、换算能力、批量读优化能力与诊断能力，作为 capability 的一部分。
+- 平台负责保存任务定义、版本、目标属性模型、任务审计与任务下发；边缘节点负责接收、执行、回执与上报。
+
+针对 Modbus 采集的边缘节点责任：
+- 管理 Modbus TCP、Modbus RTU over TCP、串口 RTU 等连接实例。
+- 按从站、功能码、地址段和轮询周期组织批量读取任务，避免平台直接下发零散寄存器指令。
+- 根据任务定义解析 Coil、Discrete Input、Holding Register、Input Register 等不同数据区。
+- 根据数据类型和字节序规则，将 16 位寄存器组合为 bool、int16、uint16、int32、uint32、int64、uint64、float32、float64、string、bitfield 等值。
+- 在本地执行缩放系数、偏移量、表达式换算、枚举映射、位提取和异常值处理后，再上传到平台遥测或属性。
+- 上报采集质量、原始值摘要、错误码、最后采集时间与连接诊断信息，便于平台排障。
+
 ### 规则链
 规则链仍然是**实时数据处理引擎**。
 
@@ -127,6 +142,469 @@ IoTSharp 将围绕三层架构持续演进：
 - [ ] 运行时配置持久化
 - [ ] 面向 Modbus、OPC UA 与网关场景的设计器到运行时集成
 - [ ] FUXA 与 IoTSharp 可视化设计的集成方案与边界定义
+
+其中 Modbus 可视化任务设计应优先细化为以下结构：
+
+1. 任务分层
+- 连接层：定义 TCP/串口、主机、端口、串口参数、超时、重试、并发限制。
+- 设备层：定义从站地址、设备别名、设备模板、轮询分组、启停状态。
+- 采集点层：定义具体读取哪个地址、采用哪个功能码、寄存器长度、数据类型、字节序和上传目标。
+- 转换层：定义缩放、偏移、表达式、枚举映射、位拆分、质量判断与异常值处理。
+- 上报层：定义写入平台的属性名称、属性标题、属性类型、数据分类、上报模式与变化阈值。
+
+2. Modbus 点位模型建议字段
+- pointKey：点位稳定标识，用于版本比较与任务增量下发。
+- pointName：采集项名称，用于设计器展示。
+- slaveId：从站编号。
+- area / functionCode：线圈、离散输入、输入寄存器、保持寄存器。
+- address：起始地址。
+- registerCount：寄存器数量或位长度。
+- rawDataType：原始数据类型，如 bool、int16、uint16、int32、uint32、float32、float64、string、bitfield。
+- byteOrder：字节顺序，如 ABCD、BADC、CDAB、DCBA。
+- wordOrder：字顺序，用于多寄存器组合。
+- bitOrder：位序，面向 coil/bitfield 或寄存器内位提取。
+- stringEncoding：字符串编码，如 ASCII、UTF8、GBK。
+- scale：缩放系数。
+- offset：偏移量。
+- expression：表达式换算，例如 `(x * 0.1) + 5`。
+- readPeriodMs：轮询周期。
+- reportPolicy：全量上报、变化上报、死区上报、周期上报。
+- qualityPolicy：超时、越界、非法值、通讯失败时的质量标记策略。
+- targetType：上传到平台的目标类型，至少区分 telemetry、attribute、alarm-input。
+- targetName：平台中的属性或遥测名称。
+- targetValueType：平台侧值类型，如 boolean、integer、number、string、json。
+- unit：工程单位。
+- description：点位说明、现场备注。
+
+3. Modbus 可视化编辑器交互要求
+- 以“连接配置 + 从站设备 + 点位表格 + 转换配置 + 平台映射”五段式编辑，避免把所有字段堆在单一表格中。
+- 点位表格应允许批量新增连续地址，并自动推导默认寄存器长度与数据类型。
+- 对于 32 位/64 位数值，必须显式提供字节序和字序选择，不能只保留一个模糊的 `dataFormat` 文本字段。
+- 提供常用模板：01/02 布尔量采集、03/04 单寄存器整数、双寄存器浮点、寄存器字符串、bitfield 位拆解。
+- 提供“原始值预览/试读”能力，让用户在设计时看到寄存器原始结果、颠倒后的字节序和最终换算结果。
+- 平台映射区域应直接选择或创建目标属性，明确属性名称、显示名称、值类型、单位和数据分类。
+- 对于一个寄存器拆多个 bit 的场景，编辑器应支持“一源多目标”的位映射配置。
+- 对于多个寄存器组合一个值的场景，编辑器应支持“地址块组合预览”和长度校验。
+
+4. 平台属性映射规则
+- 采集任务中的 targetName 应与平台产品模型或设备模型中的标准属性建立绑定，而不是只保存自由文本。
+- 属性至少区分：遥测、只读属性、可写属性、计算属性四类，避免后续控制与展示语义混乱。
+- 属性类型应标准化为 boolean、int、long、double、decimal、string、enum、json。
+- 当采集值与平台属性类型不一致时，应在设计阶段阻断或提示显式转换。
+- 属性映射应支持单位、精度、小数位和展示分组，方便前端组态与告警复用。
+
+5. 设计器与运行时边界
+- 设计器输出的是标准化任务 JSON/DTO，而不是直接拼接脚本。
+- 运行时只消费标准任务模型，不依赖前端页面私有字段命名。
+- 设计器允许保留协议扩展字段，但核心字段必须可被平台统一校验、版本化和审计。
+- Modbus、OPC UA、未来 BACnet/IEC104 等协议应共享统一的“连接-点位-转换-映射-上报”骨架，只在协议特有字段上分叉。
+
+6. 第一轮落地建议
+- [ ] 先定义 EdgeNode capability 中与采集相关的标准声明，如 supportedProtocols、supportedPointTypes、supportedTransforms、supportedReportPolicies。
+- [ ] 在平台侧先沉淀 ModbusConnection、ModbusDevice、ModbusPoint、ValueTransform、PlatformMapping 五个核心模型。
+- [ ] 将现有前端中的 Modbus mapping 表升级为结构化编辑器，补齐 byteOrder、wordOrder、expression、targetType、targetName、targetValueType 等字段。
+- [ ] 先支持最常见场景：03/04 读寄存器、bool/int16/uint16/int32/uint32/float32/string、缩放/偏移/表达式、遥测/属性两类上报。
+- [ ] 试读与预览优先于复杂编排，先保证“配得清楚、读得正确、映射明确”。
+
+### 第二阶段补充 - C# 领域模型与 DTO 草案
+
+当前判断：
+- 现有仓库中已有 Edge 基础常量和通用遥测 DTO，但尚未形成统一的采集任务领域模型与协议 DTO。
+- 这部分应优先沉淀到平台核心领域与 `IoTSharp.Contracts` 中，作为 IoTSharp、Gateway、PiXiu 和未来代理共享的版本化契约。
+
+1. 建议的领域模型分层
+- `EdgeNode`：受管边缘运行时聚合根，关注注册、版本、能力、状态、诊断和已部署任务版本。
+- `CollectionProfile`：采集模板聚合根，描述某一协议采集方案的设计时模型，可绑定产品或设备类型。
+- `CollectionTask`：下发给边缘运行时的可执行任务聚合根，描述连接、设备、点位、转换、映射和上报策略。
+- `ConnectionDefinition`：协议连接定义，如 Modbus TCP、串口 RTU、OPC UA Endpoint。
+- `CollectionDevice`：协议内的逻辑采集对象，如 Modbus 从站、OPC UA Server/Namespace 分组。
+- `CollectionPoint`：单个采集点定义，描述源地址、源类型、转换规则和平台映射。
+- `ValueTransform`：标准值转换链，描述缩放、偏移、表达式、位拆分、枚举映射、质量修正。
+- `PlatformMapping`：采集点到 IoTSharp 平台属性/遥测/告警输入的映射定义。
+- `TaskDispatchRecord` / `TaskReceiptRecord`：任务下发与回执记录，用于审计、重试和对账。
+
+2. 建议的 C# 领域对象草案
+
+```csharp
+public sealed class EdgeNode
+{
+      public Guid Id { get; init; }
+      public string RuntimeType { get; init; } = default!;
+      public string RuntimeName { get; init; } = default!;
+      public string InstanceId { get; init; } = default!;
+      public string Version { get; init; } = default!;
+      public EdgeCapability Capability { get; init; } = new();
+      public EdgeRuntimeStatus Status { get; init; } = new();
+}
+
+public sealed class CollectionTask
+{
+      public Guid Id { get; init; }
+      public string TaskKey { get; init; } = default!;
+      public string Protocol { get; init; } = default!;
+      public int Version { get; init; }
+      public Guid EdgeNodeId { get; init; }
+      public ConnectionDefinition Connection { get; init; } = default!;
+      public IReadOnlyList<CollectionDevice> Devices { get; init; } = [];
+      public ReportPolicyDefinition ReportPolicy { get; init; } = new();
+}
+
+public sealed class CollectionDevice
+{
+      public string DeviceKey { get; init; } = default!;
+      public string DeviceName { get; init; } = default!;
+      public bool Enabled { get; init; } = true;
+      public string? ExternalKey { get; init; }
+      public IReadOnlyList<CollectionPoint> Points { get; init; } = [];
+      public JsonObject ProtocolOptions { get; init; } = new();
+}
+
+public sealed class CollectionPoint
+{
+      public string PointKey { get; init; } = default!;
+      public string PointName { get; init; } = default!;
+      public string SourceType { get; init; } = default!;
+      public string Address { get; init; } = default!;
+      public string RawValueType { get; init; } = default!;
+      public int Length { get; init; }
+      public PollingPolicyDefinition Polling { get; init; } = new();
+      public IReadOnlyList<ValueTransform> Transforms { get; init; } = [];
+      public PlatformMapping Mapping { get; init; } = new();
+      public JsonObject ProtocolOptions { get; init; } = new();
+}
+
+public sealed class ValueTransform
+{
+      public string TransformType { get; init; } = default!;
+      public int Order { get; init; }
+      public JsonObject Parameters { get; init; } = new();
+}
+
+public sealed class PlatformMapping
+{
+      public string TargetType { get; init; } = default!;
+      public string TargetName { get; init; } = default!;
+      public string ValueType { get; init; } = default!;
+      public string? Unit { get; init; }
+      public string? DisplayName { get; init; }
+      public string? Group { get; init; }
+}
+```
+
+3. 建议的 Contracts DTO 草案
+- `EdgeCapabilityDto`：运行时支持能力声明。
+- `CollectionTaskDto`：平台下发给边缘的统一任务 DTO。
+- `CollectionConnectionDto`：统一连接 DTO，保留 `protocolOptions` 承载协议特有字段。
+- `CollectionDeviceDto`：统一设备 DTO。
+- `CollectionPointDto`：统一点位 DTO。
+- `ValueTransformDto`：转换规则 DTO。
+- `PlatformMappingDto`：平台属性映射 DTO。
+- `TaskPreviewRequestDto` / `TaskPreviewResponseDto`：设计器试读和预览 DTO。
+
+建议的 DTO 风格：
+- DTO 只承载契约，不包含领域行为。
+- 公共字段显式建模，协议特有字段通过 `protocolOptions` 或协议子 DTO 扩展。
+- DTO 使用 extend-only 思路演进，避免频繁破坏 Gateway/PiXiu 兼容性。
+- `IoTSharp.Contracts` 中优先增加 `CollectionTaskDto` 及其子对象，作为 HTTP/API/MQTT 下发的统一负载。
+
+4. 建议的枚举或代码表
+- `CollectionProtocolType`：Modbus、OpcUa、Bacnet、IEC104、MQTT、Custom。
+- `CollectionTargetType`：Telemetry、Attribute、AlarmInput、CommandFeedback。
+- `CollectionValueType`：Boolean、Int32、Int64、Double、Decimal、String、Enum、Json。
+- `TransformType`：Scale、Offset、Expression、EnumMap、BitExtract、WordSwap、ByteSwap、Clamp、DefaultOnError。
+- `ReportTriggerType`：Always、OnChange、Deadband、Interval、QualityChange。
+- `QualityStatusType`：Good、Uncertain、Bad、CommError、InvalidData。
+
+### 第二阶段补充 - 前端 Modbus Designer 字段升级方案
+
+当前前端字段模型：
+
+```ts
+export interface modbusmapping {
+   _id?: string;
+   id?: string;
+   code?: number;
+   dataName?: string;
+   dataType?: string;
+   dataCatalog?: string;
+   funCode?: string;
+   address?: number;
+   length?: number;
+   dataFormat?: string;
+   codePage?: number;
+}
+```
+
+问题判断：
+- 现有模型把“协议源信息”“转换规则”“平台映射”混在一起，无法承载复杂配置。
+- `dataFormat` 语义过于模糊，既可能表示大小端，也可能表示显示格式，不适合作为核心字段。
+- 缺失平台映射、轮询策略、质量策略和预览字段，无法支撑设计器升级。
+
+1. 建议保留字段
+- `_id`：保留，用于前端临时行标识。
+- `id`：保留，但应转为稳定业务标识，例如 `pointKey`。
+- `dataName`：保留，重命名为 `pointName`。
+- `address`：保留，仍作为 Modbus 起始地址。
+- `length`：保留，重命名为 `registerCount`。
+
+2. 建议替换字段
+- `code` 替换为 `slaveId`，明确表示从站编号。
+- `funCode` 替换为 `area` 和 `functionCode`，避免业务层长期只依赖数字码值。
+- `dataType` 替换为 `rawDataType`，明确它表示原始采集类型，而不是平台属性类型。
+- `dataCatalog` 替换为 `targetType`，当前“数据分类”应收敛为平台语义目标，如 telemetry/attribute。
+- `dataFormat` 替换为 `byteOrder`、`wordOrder`、`bitOrder`、`displayFormat` 四类字段，不再复用单字段。
+- `codePage` 替换为 `stringEncoding`，仅在字符串场景生效。
+
+3. 建议新增字段
+- `pointKey`
+- `sourceType`
+- `pollingGroup`
+- `readPeriodMs`
+- `byteOrder`
+- `wordOrder`
+- `bitOffset`
+- `bitLength`
+- `scale`
+- `offset`
+- `expression`
+- `enumMapping`
+- `qualityPolicy`
+- `reportPolicy`
+- `targetName`
+- `targetValueType`
+- `displayName`
+- `unit`
+- `precision`
+- `description`
+- `previewRawValue`
+- `previewTransformedValue`
+
+4. 前端推荐的新模型分拆
+- `ProtocolConnectionModel`：连接信息。
+- `ProtocolDeviceModel`：从站或逻辑设备信息。
+- `CollectionPointModel`：通用点位骨架。
+- `ModbusPointOptionsModel`：Modbus 特有字段，如 slaveId、functionCode、byteOrder。
+- `ValueTransformModel`：转换链配置。
+- `PlatformMappingModel`：平台目标映射。
+
+建议结果：
+- 不再把所有字段都堆进一个 `modbusmapping` 接口。
+- 改为“通用点位骨架 + Modbus 扩展字段”的结构，让 OPC UA 和其他协议复用同一套设计器骨架。
+
+### 第二阶段补充 - 通用协议设计器规划
+
+原则：
+- 边缘设计器必须通用，但不能为了通用而退化成最低公共抽象。
+- 设计器应分为“协议无关骨架层”和“协议特化面板层”。
+- 平台任务模型必须统一；协议特化只体现在连接参数、点位源信息和预览方式上。
+
+1. 通用骨架层
+- 连接配置：连接名称、协议类型、超时、重试、启停、标签。
+- 设备分组：逻辑设备、现场设备、命名空间分组、轮询分组。
+- 点位清单：点位名称、启停、采集周期、转换链、平台映射。
+- 转换配置：缩放、偏移、表达式、枚举、质量策略、死区策略。
+- 平台映射：目标类型、属性名、值类型、单位、显示名、告警输入绑定。
+- 调试与预览：连接测试、试读、原始值、转换后值、上报预览。
+
+2. 协议特化层
+- Modbus：从站、功能码、寄存器地址、寄存器长度、字节序、位拆分、批量地址段优化。
+- OPC UA：Endpoint、SecurityPolicy、Namespace、NodeId、BrowsePath、Subscription、SamplingInterval、Deadband。
+- BACnet：DeviceId、ObjectType、ObjectInstance、PropertyIdentifier、Priority。
+- IEC104：CommonAddress、InformationObjectAddress、TypeId、CauseOfTransmission。
+- MQTT/自定义：Topic、QoS、PayloadPath、JSONPath、Schema、时间戳字段提取。
+
+3. 通用与特化的边界要求
+- 通用层定义“点位要采什么、如何转、上报到哪里”。
+- 特化层定义“这个协议从哪里取值、如何编码、如何批量优化、如何试读”。
+- 所有协议最终都输出统一的 `CollectionTaskDto`。
+- 设计器内部可以有 `ModbusTaskDraft`、`OpcUaTaskDraft` 等特化草稿对象，但提交时必须归一化。
+
+4. 第一轮协议覆盖建议
+- 第一轮先把通用骨架稳定下来。
+- 第一批协议优先支持 Modbus 和 OPC UA。
+- Modbus 优先覆盖批量轮询、地址块、字节序和寄存器组合。
+- OPC UA 优先覆盖 NodeId 浏览、订阅/轮询二选一、采样周期、死区与数据质量。
+- 未来协议接入时，不允许绕过通用映射模型直接写私有脚本任务。
+
+### 第二阶段补充 - Modbus 任务 JSON 示例
+
+```json
+{
+   "taskKey": "modbus-boiler-room-a",
+   "protocol": "Modbus",
+   "version": 3,
+   "edgeNodeId": "1f6df5e0-6af8-4b57-a7a5-8efef17f1001",
+   "connection": {
+      "connectionKey": "modbus-tcp-line-1",
+      "connectionName": "锅炉房 1 号线",
+      "protocol": "Modbus",
+      "transport": "Tcp",
+      "host": "192.168.10.15",
+      "port": 502,
+      "timeoutMs": 2000,
+      "retryCount": 3,
+      "protocolOptions": {
+         "maxBatchRegisters": 64,
+         "maxConcurrentRequests": 1
+      }
+   },
+   "devices": [
+      {
+         "deviceKey": "slave-1",
+         "deviceName": "锅炉控制器 1",
+         "enabled": true,
+         "protocolOptions": {
+            "slaveId": 1
+         },
+         "points": [
+            {
+               "pointKey": "supply-temp",
+               "pointName": "供水温度",
+               "sourceType": "HoldingRegister",
+               "address": "40001",
+               "rawValueType": "UInt16",
+               "length": 1,
+               "polling": {
+                  "readPeriodMs": 5000,
+                  "group": "temperature"
+               },
+               "transforms": [
+                  {
+                     "transformType": "Scale",
+                     "order": 1,
+                     "parameters": {
+                        "factor": 0.1
+                     }
+                  }
+               ],
+               "mapping": {
+                  "targetType": "Telemetry",
+                  "targetName": "supplyTemperature",
+                  "valueType": "Double",
+                  "displayName": "供水温度",
+                  "unit": "°C",
+                  "group": "boiler"
+               },
+               "protocolOptions": {
+                  "slaveId": 1,
+                  "functionCode": 3,
+                  "byteOrder": "AB",
+                  "wordOrder": "AB"
+               }
+            },
+            {
+               "pointKey": "pump-running",
+               "pointName": "循环泵运行",
+               "sourceType": "Coil",
+               "address": "00017",
+               "rawValueType": "Boolean",
+               "length": 1,
+               "polling": {
+                  "readPeriodMs": 2000,
+                  "group": "status"
+               },
+               "transforms": [],
+               "mapping": {
+                  "targetType": "Attribute",
+                  "targetName": "pumpRunning",
+                  "valueType": "Boolean",
+                  "displayName": "循环泵运行状态",
+                  "unit": null,
+                  "group": "pump"
+               },
+               "protocolOptions": {
+                  "slaveId": 1,
+                  "functionCode": 1
+               }
+            },
+            {
+               "pointKey": "energy-total",
+               "pointName": "累计热量",
+               "sourceType": "HoldingRegister",
+               "address": "40021",
+               "rawValueType": "Float32",
+               "length": 2,
+               "polling": {
+                  "readPeriodMs": 10000,
+                  "group": "energy"
+               },
+               "transforms": [
+                  {
+                     "transformType": "WordSwap",
+                     "order": 1,
+                     "parameters": {
+                        "mode": "CDAB"
+                     }
+                  },
+                  {
+                     "transformType": "Expression",
+                     "order": 2,
+                     "parameters": {
+                        "expression": "x * 1000"
+                     }
+                  }
+               ],
+               "mapping": {
+                  "targetType": "Telemetry",
+                  "targetName": "energyTotal",
+                  "valueType": "Double",
+                  "displayName": "累计热量",
+                  "unit": "kJ",
+                  "group": "energy"
+               },
+               "protocolOptions": {
+                  "slaveId": 1,
+                  "functionCode": 3,
+                  "byteOrder": "ABCD",
+                  "wordOrder": "CDAB"
+               }
+            }
+         ]
+      }
+   ],
+   "reportPolicy": {
+      "defaultTrigger": "OnChange",
+      "deadband": 0.1,
+      "includeQuality": true,
+      "includeTimestamp": true
+   }
+}
+```
+
+### 第二阶段补充 - 属性映射示例
+
+```json
+{
+   "mapping": {
+      "targetType": "Telemetry",
+      "targetName": "supplyTemperature",
+      "valueType": "Double",
+      "displayName": "供水温度",
+      "unit": "°C",
+      "group": "boiler"
+   },
+   "productProperty": {
+      "key": "supplyTemperature",
+      "name": "供水温度",
+      "category": "Telemetry",
+      "dataType": "Double",
+      "unit": "°C",
+      "precision": 1
+   },
+   "runtimeReport": {
+      "keyName": "supplyTemperature",
+      "value": 68.4,
+      "valueType": "Double",
+      "quality": "Good",
+      "timestamp": "2026-04-19T10:15:23Z"
+   }
+}
+```
+
+对齐要求：
+- 后端按 `targetName` 和产品属性模型建立绑定关系。
+- 前端设计器在保存前校验 `mapping.valueType` 与 `productProperty.dataType` 是否兼容。
+- Gateway/PiXiu 上报时只关心统一 `runtimeReport` 契约，不感知页面内部编辑字段。
 
 ### 第三阶段 - 运营与发布中心
 目标：
