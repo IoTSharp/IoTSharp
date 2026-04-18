@@ -28,6 +28,7 @@ IoTSharp 将构建生产级 IoT 平台所需的关键能力组合在一起：
 - 通过规则链完成数据转换、通知下发、自动化动作和业务处理。
 - 支持关系型数据库与时序数据库，以适配不同部署和扩展场景。
 - 提供 Docker、Windows 服务、Linux 服务、安装向导与发布包等多种交付方式。
+- 路线图已把 AI 工作台、MCP 工具与智能体辅助运维定义为横切能力，覆盖采集、规则与发布三大场景。
 
 当前主应用基于 `.NET 10`，Web 控制台基于 Vue 3，并已全面统一为 IoTSharp 品牌界面。
 
@@ -92,7 +93,7 @@ IoTSharp 将构建生产级 IoT 平台所需的关键能力组合在一起：
 - [`docs`](docs)：Docusaurus 帮助手册站点。
 - [`docker-desktop-extension`](docker-desktop-extension)：Docker Desktop 扩展体验包。
 - [`IoTSharp.Installer.Windows`](IoTSharp.Installer.Windows)：Windows 安装工程。
-- [`IoTSharp.Agent`](IoTSharp.Agent)：桌面托盘代理项目。
+- `IoTSharp.Agent`：面向未来本地桌面 companion / 语音入口的规划方向，当前仓库中尚无对应目录。
 - [`IoTSharp.SDKs`](IoTSharp.SDKs)：SDK 与面向客户端的相关项目。
 
 ## 🌐 生态与相关项目
