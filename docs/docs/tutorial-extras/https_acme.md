@@ -4,7 +4,7 @@ sidebar_position: 2
 
 # 使用HTTPS证书并自动续期 
 
-环境变量使用 IOTSHARP_ACME 时 ， 程序会自动使用 LettuceEncrypt  在 Let's Encrypt申请证书， 同时可以使用Dns01通过阿里云来验证DNS.
+环境变量使用 IOTSHARP_ACME 时 ， 程序会自动使用 LettuceEncrypt-Archon 在 Let's Encrypt申请证书， 同时继续通过 `LettuceEncrypt.Dns.Ali` 使用 Dns01 完成阿里云 DNS 验证。
  
  appsettings.Production.json中的示例如下：
 
