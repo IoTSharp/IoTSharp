@@ -82,6 +82,7 @@ namespace IoTSharp.Controllers
                         {
                             new() { text = "设备管理", i18n = "", vi18n="iot.devicelist", routename="devicelist", link = "/iot/devices/devicelist" , vpath="/iot/devices/devicelist",},
                             new() { text = "Edge 管理", i18n = "", vi18n="iot.edgelist", routename="edgelist", link = "/iot/devices/edgelist" , vpath="/iot/devices/edgelist",},
+                            new() { text = "Edge 任务", i18n = "", vi18n="iot.edgetasks", routename="edgetasks", link = "/iot/devices/edgetasks" , vpath="/iot/devices/edgetasks",},
                             new() { text = "设备告警", i18n = "", vi18n="iot.alarmlist", routename="alarmlist", link = "/iot/alarms/alarmlist", vpath = "/iot/alarms/alarmlist", },
                             new() { text = "规则链设计", i18n = "", vi18n="iot.flowlist", routename="flowlist", link = "/iot/rules/flowlist", vpath = "/iot/rules/flowlist", },
                             new() { text = "规则链审计", i18n = "", vi18n="iot.flowevents", routename="flowevents", link = "/iot/rules/flowevents", vpath = "/iot/rules/flowevents",  },

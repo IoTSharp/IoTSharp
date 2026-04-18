@@ -106,6 +106,15 @@ export const frontEndRoutes: Array<RouteRecordRaw> = [
 			isHide: true,
 		},
 	},
+	{
+		path: '/iot/devices/edgetasks',
+		name: 'edgetasks',
+		component: () => import('/@/views/iot/edge/edgetasks.vue'),
+		meta: {
+			title: 'Edge任务',
+			isHide: true,
+		},
+	},
 ];
 
 export const notFoundAndNoPower: Array<RouteRecordRaw> = [

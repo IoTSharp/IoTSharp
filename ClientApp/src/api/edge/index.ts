@@ -32,6 +32,12 @@ export interface EdgeTaskRequestPayload {
 	metadata?: Record<string, string>;
 }
 
+export interface EdgeTaskListQueryParam extends IListQueryParam {
+	name?: string;
+	status?: string;
+	runtimeType?: string;
+}
+
 export function edgeApi() {
 	return {
 		getEdgeList: (params: EdgeNodeQueryParam) => {
@@ -70,6 +76,13 @@ export function edgeApi() {
 				url: '/api/EdgeTask/Dispatch',
 				method: 'post',
 				data: payload,
+			});
+		},
+		getTaskList: (params: EdgeTaskListQueryParam) => {
+			return request({
+				url: '/api/EdgeTask/List',
+				method: 'get',
+				params,
 			});
 		},
 	};

@@ -2,6 +2,7 @@ using IoTSharp.Contracts;
 using IoTSharp.Data;
 using IoTSharp.Dtos;
 using IoTSharp.Extensions;
+using IoTSharp.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -28,6 +29,7 @@ namespace IoTSharp.Controllers
         private const string EdgeTaskReceiptStatusKey = "_edge.task.receipt.status";
         private const string EdgeTaskReceiptReportedAtKey = "_edge.task.receipt.reportedAt";
         private const string EdgeTaskHistoryKeyPrefix = "_edge.task.history.";
+        private const string EdgeTaskDispatchStatusKey = "_edge.task.dispatch.status";
         private static readonly IReadOnlyDictionary<EdgeTaskStatus, EdgeTaskStatus[]> AllowedTransitions =
             new Dictionary<EdgeTaskStatus, EdgeTaskStatus[]>
             {
@@ -101,6 +103,10 @@ namespace IoTSharp.Controllers
             };
 
             await _context.SaveAsync<AttributeLatest>(latestAttrs, device.Id, DataSide.ServerSide);
+            await _context.SaveAsync<AttributeLatest>(new Dictionary<string, object>
+            {
+                [EdgeTaskDispatchStatusKey] = EdgeTaskStatus.Pending.ToString()
+            }, device.Id, DataSide.ServerSide);
             await SaveTaskHistoryAsync(device.Id, request.TaskId, "request", request.CreatedAt.ToUniversalTime(), SerializeOrNull(request) ?? "{}", EdgeTaskStatus.Pending.ToString());
 
             _logger.LogInformation(
@@ -169,6 +175,10 @@ namespace IoTSharp.Controllers
             };
 
             await _context.SaveAsync<AttributeLatest>(attrs, deviceId.Value, DataSide.ServerSide);
+            await _context.SaveAsync<AttributeLatest>(new Dictionary<string, object>
+            {
+                [EdgeTaskDispatchStatusKey] = request.Status.ToString()
+            }, deviceId.Value, DataSide.ServerSide);
             await SaveTaskHistoryAsync(deviceId.Value, request.TaskId, "receipt", request.ReportedAt.ToUniversalTime(), SerializeOrNull(request) ?? "{}", request.Status.ToString());
 
             _logger.LogInformation(
@@ -246,6 +256,109 @@ namespace IoTSharp.Controllers
             return new ApiResult<List<object>>(ApiCode.Success, "OK", records.Cast<object>().ToList());
         }
 
+        [AllowAnonymous]
+        [HttpGet("Dispatch/{accessToken}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesDefaultResponseType]
+        public async System.Threading.Tasks.Task<ApiResult<EdgeTaskRequestDto>> PullPendingDispatch(string accessToken)
+        {
+            var gateway = GetGatewayByAccessToken(accessToken);
+            if (gateway == null)
+            {
+                return new ApiResult<EdgeTaskRequestDto>(ApiCode.NotFoundDevice, "gateway access token not found", null);
+            }
+
+            var payload = await _context.AttributeLatest
+                .Where(attr => attr.DeviceId == gateway.Id && attr.KeyName == EdgeTaskRequestLastKey)
+                .Select(attr => attr.Value_String)
+                .FirstOrDefaultAsync();
+
+            var status = await _context.AttributeLatest
+                .Where(attr => attr.DeviceId == gateway.Id && attr.KeyName == EdgeTaskDispatchStatusKey)
+                .Select(attr => attr.Value_String)
+                .FirstOrDefaultAsync();
+
+            if (string.IsNullOrWhiteSpace(payload) || !string.Equals(status, EdgeTaskStatus.Pending.ToString(), StringComparison.OrdinalIgnoreCase))
+            {
+                return new ApiResult<EdgeTaskRequestDto>(ApiCode.Success, "OK", null);
+            }
+
+            var task = JsonSerializer.Deserialize<EdgeTaskRequestDto>(payload);
+            return new ApiResult<EdgeTaskRequestDto>(ApiCode.Success, "OK", task);
+        }
+
+        [AllowAnonymous]
+        [HttpPost("Dispatch/{accessToken}/Accept")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesDefaultResponseType]
+        public async System.Threading.Tasks.Task<ActionResult<ApiResult>> AcceptDispatch(string accessToken, [FromBody] EdgeTaskReceiptDto request)
+        {
+            var gateway = GetGatewayByAccessToken(accessToken);
+            if (gateway == null)
+            {
+                return Ok(new ApiResult(ApiCode.NotFoundDevice, "gateway access token not found"));
+            }
+
+            if (request == null || request.TaskId == Guid.Empty)
+            {
+                return Ok(new ApiResult(ApiCode.InValidData, "taskId is required"));
+            }
+
+            await _context.SaveAsync<AttributeLatest>(new Dictionary<string, object>
+            {
+                [EdgeTaskDispatchStatusKey] = EdgeTaskStatus.Accepted.ToString()
+            }, gateway.Id, DataSide.ServerSide);
+            await SaveTaskHistoryAsync(gateway.Id, request.TaskId, "receipt", request.ReportedAt.ToUniversalTime(), SerializeOrNull(request) ?? "{}", EdgeTaskStatus.Accepted.ToString());
+            return Ok(new ApiResult(ApiCode.Success, "OK"));
+        }
+
+        [HttpGet("List")]
+        [Authorize(Roles = nameof(UserRole.NormalUser))]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesDefaultResponseType]
+        public async System.Threading.Tasks.Task<ApiResult<PagedData<EdgeTaskListItemDto>>> List([FromQuery] EdgeNodeQueryDto query)
+        {
+            var profile = this.GetUserProfile();
+            query ??= new EdgeNodeQueryDto();
+            query.Limit = query.Limit < 10 ? 10 : query.Limit;
+
+            var deviceIds = await _context.Device
+                .Include(d => d.Customer)
+                .Include(d => d.Tenant)
+                .Where(d => !d.Deleted && d.DeviceType == DeviceType.Gateway && d.Tenant.Id == profile.Tenant && d.Customer.Id == profile.Customer)
+                .Select(d => d.Id)
+                .ToListAsync();
+
+            var records = await _context.TelemetryData
+                .Where(item => deviceIds.Contains(item.DeviceId) && item.KeyName.StartsWith(EdgeTaskHistoryKeyPrefix))
+                .OrderByDescending(item => item.DateTime)
+                .Take(200)
+                .ToListAsync();
+
+            var rows = records.Select(item =>
+            {
+                var payload = DeserializeToDictionary(item.Value_String);
+                return new EdgeTaskListItemDto
+                {
+                    DeviceId = item.DeviceId,
+                    TaskId = TryParseGuid(payload, "taskId"),
+                    Category = item.KeyName.Split('.').LastOrDefault() ?? string.Empty,
+                    RuntimeType = TryGetString(payload, "runtimeType"),
+                    InstanceId = TryGetString(payload, "instanceId"),
+                    Status = TryGetString(payload, "status") ?? item.Value_Json,
+                    Message = TryGetString(payload, "message"),
+                    At = item.DateTime,
+                    Payload = item.Value_String
+                };
+            }).ToList();
+
+            return new ApiResult<PagedData<EdgeTaskListItemDto>>(ApiCode.Success, "OK", new PagedData<EdgeTaskListItemDto>
+            {
+                total = rows.Count,
+                rows = rows.Skip(query.Offset * query.Limit).Take(query.Limit).ToList()
+            });
+        }
+
         [HttpGet("StateMachine")]
         [Authorize(Roles = nameof(UserRole.NormalUser))]
         [ProducesResponseType(StatusCodes.Status200OK)]
@@ -303,6 +416,17 @@ namespace IoTSharp.Controllers
             return null;
         }
 
+        private Device GetGatewayByAccessToken(string accessToken)
+        {
+            var (ok, gateway) = _context.GetDeviceByToken(accessToken);
+            if (ok || gateway?.DeviceType != DeviceType.Gateway || gateway.Deleted)
+            {
+                return null;
+            }
+
+            return gateway;
+        }
+
         private async System.Threading.Tasks.Task SaveTaskHistoryAsync(Guid deviceId, Guid taskId, string category, DateTime at, string payload, string status)
         {
             var history = new TelemetryData
@@ -328,6 +452,34 @@ namespace IoTSharp.Controllers
             }
 
             return JsonSerializer.Serialize(value);
+        }
+
+        private static Dictionary<string, object> DeserializeToDictionary(string payload)
+        {
+            if (string.IsNullOrWhiteSpace(payload))
+            {
+                return new Dictionary<string, object>(StringComparer.OrdinalIgnoreCase);
+            }
+
+            return JsonSerializer.Deserialize<Dictionary<string, object>>(payload) ?? new Dictionary<string, object>(StringComparer.OrdinalIgnoreCase);
+        }
+
+        private static string TryGetString(Dictionary<string, object> payload, string key)
+        {
+            if (!payload.TryGetValue(key, out var value) || value == null)
+            {
+                return string.Empty;
+            }
+
+            return value is JsonElement element
+                ? element.ValueKind == JsonValueKind.String ? element.GetString() ?? string.Empty : element.ToString()
+                : value.ToString() ?? string.Empty;
+        }
+
+        private static Guid TryParseGuid(Dictionary<string, object> payload, string key)
+        {
+            var value = TryGetString(payload, key);
+            return Guid.TryParse(value, out var guid) ? guid : Guid.Empty;
         }
     }
 }

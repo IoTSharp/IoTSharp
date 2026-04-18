@@ -70,4 +70,17 @@ namespace IoTSharp.Dtos
         public Dictionary<string, object> Result { get; set; }
         public Dictionary<string, string> Metadata { get; set; }
     }
+
+    public class EdgeTaskListItemDto
+    {
+        public Guid DeviceId { get; set; }
+        public Guid TaskId { get; set; }
+        public string Category { get; set; }
+        public string RuntimeType { get; set; }
+        public string InstanceId { get; set; }
+        public string Status { get; set; }
+        public string Message { get; set; }
+        public DateTime At { get; set; }
+        public string Payload { get; set; }
+    }
 }
