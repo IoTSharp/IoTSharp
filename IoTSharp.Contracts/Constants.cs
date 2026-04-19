@@ -29,5 +29,8 @@ namespace IoTSharp.Contracts
         public const string _EdgeMetadata = "Edge.Metadata";
         public const string _EdgeMetrics = "Edge.Metrics";
         public const string _EdgeUptimeSeconds = "Edge.UptimeSeconds";
+        public const string _EdgeCollectionConfig = "Edge.CollectionConfig";
+        public const string _EdgeCollectionConfigVersion = "Edge.CollectionConfigVersion";
+        public const string _EdgeCollectionConfigUpdatedAt = "Edge.CollectionConfigUpdatedAt";
     }
 }

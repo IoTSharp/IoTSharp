@@ -41,6 +41,8 @@ namespace IoTSharp.Controllers
             Constants._EdgeMetadata,
             Constants._EdgeMetrics,
             Constants._EdgeUptimeSeconds,
+            Constants._EdgeCollectionConfigVersion,
+            Constants._EdgeCollectionConfigUpdatedAt,
             "_edge.task.receipt.status",
             "_edge.task.receipt.reportedAt"
         ];
@@ -235,6 +237,80 @@ namespace IoTSharp.Controllers
             return Ok(new ApiResult(ApiCode.Success, "OK"));
         }
 
+        [HttpGet("{id:guid}/CollectionConfig")]
+        [Authorize(Roles = nameof(UserRole.NormalUser))]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesDefaultResponseType]
+        public async Task<ApiResult<EdgeCollectionConfigurationDto>> GetCollectionConfig(Guid id)
+        {
+            var profile = this.GetUserProfile();
+            var gateway = await GetGatewayForProfileAsync(id, profile.Tenant, profile.Customer);
+            if (gateway == null)
+            {
+                return new ApiResult<EdgeCollectionConfigurationDto>(ApiCode.NotFoundDevice, "Edge node not found", null);
+            }
+
+            return new ApiResult<EdgeCollectionConfigurationDto>(ApiCode.Success, "OK", await ReadCollectionConfigAsync(gateway.Id));
+        }
+
+        [HttpPut("{id:guid}/CollectionConfig")]
+        [Authorize(Roles = nameof(UserRole.NormalUser))]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesDefaultResponseType]
+        public async Task<ActionResult<ApiResult<EdgeCollectionConfigurationDto>>> SaveCollectionConfig(Guid id, [FromBody] EdgeCollectionConfigurationUpdateDto request)
+        {
+            var profile = this.GetUserProfile();
+            var gateway = await GetGatewayForProfileAsync(id, profile.Tenant, profile.Customer);
+            if (gateway == null)
+            {
+                return Ok(new ApiResult<EdgeCollectionConfigurationDto>(ApiCode.NotFoundDevice, "Edge node not found", null));
+            }
+
+            var tasks = request?.Tasks?.ToArray() ?? [];
+            var validationError = ValidateCollectionTasks(tasks);
+            if (!string.IsNullOrWhiteSpace(validationError))
+            {
+                return Ok(new ApiResult<EdgeCollectionConfigurationDto>(ApiCode.InValidData, validationError, null));
+            }
+
+            var version = await GetCurrentCollectionConfigVersionAsync(gateway.Id) + 1;
+            var updatedAt = DateTime.UtcNow;
+            var normalizedTasks = tasks.Select(task => NormalizeCollectionTask(task, gateway.Id, version)).ToArray();
+            var document = new EdgeCollectionConfigurationDto
+            {
+                EdgeNodeId = gateway.Id,
+                Version = version,
+                UpdatedAt = updatedAt,
+                UpdatedBy = string.IsNullOrWhiteSpace(profile.Name) ? profile.Email : profile.Name,
+                Tasks = normalizedTasks
+            };
+
+            await _context.SaveAsync<AttributeLatest>(new Dictionary<string, object>
+            {
+                [Constants._EdgeCollectionConfig] = JsonSerializer.Serialize(document),
+                [Constants._EdgeCollectionConfigVersion] = version,
+                [Constants._EdgeCollectionConfigUpdatedAt] = updatedAt
+            }, gateway.Id, DataSide.ServerSide);
+
+            _logger.LogInformation("Saved collection configuration version {Version} for edge node {GatewayId}", version, gateway.Id);
+            return Ok(new ApiResult<EdgeCollectionConfigurationDto>(ApiCode.Success, "OK", document));
+        }
+
+        [AllowAnonymous]
+        [HttpGet("{access_token}/CollectionConfig")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesDefaultResponseType]
+        public async Task<ActionResult<ApiResult<EdgeCollectionConfigurationDto>>> PullCollectionConfig(string access_token)
+        {
+            var gateway = GetGatewayByAccessToken(access_token);
+            if (gateway == null)
+            {
+                return Ok(new ApiResult<EdgeCollectionConfigurationDto>(ApiCode.NotFoundDevice, $"{access_token} not a gateway's access token", null));
+            }
+
+            return Ok(new ApiResult<EdgeCollectionConfigurationDto>(ApiCode.Success, "OK", await ReadCollectionConfigAsync(gateway.Id)));
+        }
+
         private Device GetGatewayByAccessToken(string accessToken)
         {
             var (ok, gateway) = _context.GetDeviceByToken(accessToken);
@@ -244,6 +320,13 @@ namespace IoTSharp.Controllers
             }
 
             return gateway;
+        }
+
+        private async Task<Device> GetGatewayForProfileAsync(Guid id, Guid tenantId, Guid customerId)
+        {
+            return await _context.Device
+                .Include(c => c.DeviceIdentity)
+                .FirstOrDefaultAsync(c => c.Id == id && c.Customer.Id == customerId && c.Tenant.Id == tenantId && !c.Deleted && c.DeviceType == DeviceType.Gateway);
         }
 
         private async Task<List<AttributeLatest>> QueryEdgeAttributes(IEnumerable<Guid> deviceIds)
@@ -370,6 +453,120 @@ namespace IoTSharp.Controllers
         private static long? GetNullableLong(List<AttributeLatest> attrs, string key) => attrs.FirstOrDefault(c => c.KeyName == key)?.Value_Long;
 
         private static DateTime? GetDateTime(List<AttributeLatest> attrs, string key) => attrs.FirstOrDefault(c => c.KeyName == key)?.Value_DateTime;
+
+        private async Task<EdgeCollectionConfigurationDto> ReadCollectionConfigAsync(Guid gatewayId)
+        {
+            var storedJson = await _context.AttributeLatest
+                .Where(attr => attr.DeviceId == gatewayId && attr.KeyName == Constants._EdgeCollectionConfig)
+                .Select(attr => attr.Value_String)
+                .FirstOrDefaultAsync();
+
+            var storedVersion = await GetCurrentCollectionConfigVersionAsync(gatewayId);
+            var storedUpdatedAt = await _context.AttributeLatest
+                .Where(attr => attr.DeviceId == gatewayId && attr.KeyName == Constants._EdgeCollectionConfigUpdatedAt)
+                .Select(attr => attr.Value_DateTime)
+                .FirstOrDefaultAsync();
+
+            if (string.IsNullOrWhiteSpace(storedJson))
+            {
+                return CreateEmptyCollectionConfig(gatewayId, storedVersion, storedUpdatedAt);
+            }
+
+            try
+            {
+                var document = JsonSerializer.Deserialize<EdgeCollectionConfigurationDto>(storedJson);
+                if (document == null)
+                {
+                    return CreateEmptyCollectionConfig(gatewayId, storedVersion, storedUpdatedAt);
+                }
+
+                return document with
+                {
+                    EdgeNodeId = gatewayId,
+                    Version = document.Version > 0 ? document.Version : storedVersion,
+                    UpdatedAt = document.UpdatedAt != default ? document.UpdatedAt : (storedUpdatedAt ?? DateTime.UtcNow),
+                    Tasks = (document.Tasks ?? []).Select(task => NormalizeCollectionTask(task, gatewayId, document.Version > 0 ? document.Version : storedVersion)).ToArray()
+                };
+            }
+            catch (JsonException exception)
+            {
+                _logger.LogWarning(exception, "Failed to deserialize collection configuration for edge node {GatewayId}", gatewayId);
+                return CreateEmptyCollectionConfig(gatewayId, storedVersion, storedUpdatedAt);
+            }
+        }
+
+        private async Task<int> GetCurrentCollectionConfigVersionAsync(Guid gatewayId)
+        {
+            return (int?)await _context.AttributeLatest
+                .Where(attr => attr.DeviceId == gatewayId && attr.KeyName == Constants._EdgeCollectionConfigVersion)
+                .Select(attr => attr.Value_Long)
+                .FirstOrDefaultAsync() ?? 0;
+        }
+
+        private static EdgeCollectionConfigurationDto CreateEmptyCollectionConfig(Guid gatewayId, int version, DateTime? updatedAt)
+        {
+            return new EdgeCollectionConfigurationDto
+            {
+                EdgeNodeId = gatewayId,
+                Version = version,
+                UpdatedAt = updatedAt ?? DateTime.UtcNow,
+                Tasks = []
+            };
+        }
+
+        private static string ValidateCollectionTasks(IEnumerable<CollectionTaskDto> tasks)
+        {
+            foreach (var task in tasks ?? [])
+            {
+                if (string.IsNullOrWhiteSpace(task.TaskKey))
+                {
+                    return "task.taskKey is required";
+                }
+
+                if (task.Connection == null || string.IsNullOrWhiteSpace(task.Connection.ConnectionName))
+                {
+                    return $"task '{task.TaskKey}' requires connection.connectionName";
+                }
+
+                if (task.Devices == null || task.Devices.Count == 0)
+                {
+                    return $"task '{task.TaskKey}' requires at least one device";
+                }
+
+                foreach (var device in task.Devices)
+                {
+                    if (string.IsNullOrWhiteSpace(device.DeviceKey))
+                    {
+                        return $"task '{task.TaskKey}' requires device.deviceKey";
+                    }
+
+                    foreach (var point in device.Points ?? [])
+                    {
+                        if (string.IsNullOrWhiteSpace(point.PointKey) || string.IsNullOrWhiteSpace(point.PointName))
+                        {
+                            return $"task '{task.TaskKey}' requires point.pointKey and point.pointName";
+                        }
+
+                        if (point.Mapping == null || string.IsNullOrWhiteSpace(point.Mapping.TargetName))
+                        {
+                            return $"task '{task.TaskKey}' requires point.mapping.targetName";
+                        }
+                    }
+                }
+            }
+
+            return string.Empty;
+        }
+
+        private static CollectionTaskDto NormalizeCollectionTask(CollectionTaskDto task, Guid gatewayId, int version)
+        {
+            return task with
+            {
+                Id = task.Id == Guid.Empty ? Guid.NewGuid() : task.Id,
+                Version = task.Version > 0 ? task.Version : version,
+                EdgeNodeId = gatewayId
+            };
+        }
 
         private static string SerializeOrNull<T>(T value)
         {
