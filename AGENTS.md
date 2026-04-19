@@ -20,6 +20,17 @@ All planning and implementation should support that direction.
 4. Upgrade rule-chain usability and observability without turning it into a long-running workflow engine
 5. Align repository boundaries and contracts across organization projects
 
+## AI Workbench Direction
+
+AI is a cross-cutting capability for the three existing layers, not a separate rewrite track.
+
+- Build AI on top of the IoTSharp control plane, permissions, audit, UI, and domain services.
+- Prefer the latest Microsoft Agent Framework for agent orchestration.
+- Prefer Microsoft.Extensions.AI for model/provider abstraction.
+- Keep MCP as the primary tool boundary for exposing IoTSharp capabilities and integrating external tools.
+- Treat Camel.NET integration as capability absorption for multi-model access, tool calling, memory, and multi-agent collaboration.
+- Keep local model runtimes, speech services, and companion/desktop experiences deployable outside the main web host.
+
 ## Domain Boundary Rules
 
 ### IoTSharp
@@ -70,6 +81,7 @@ Deliver:
 - registration and heartbeat flow
 - capability and status reporting
 - unified management surface for Gateway and PiXiu
+- AI-assisted edge diagnostics and operator guidance should plug into this phase through read-only skills first
 
 ### Phase 2: collection modeling
 Deliver:
@@ -78,6 +90,7 @@ Deliver:
 - point templates
 - sample policies and transform chains
 - runtime persistence linked to designer configuration
+- AI should assist with mapping suggestions, protocol configuration hints, and transform generation without bypassing review
 
 ### Phase 3: release center
 Deliver:
@@ -85,12 +98,14 @@ Deliver:
 - collector software package model
 - configuration template and version model
 - rollout, gray release, rollback, and confirmation flow
+- AI should help with release grouping, gray rollout planning, rollback suggestions, and operational Q&A
 
 ### Phase 4: rule-chain enhancement
 Deliver:
 - more standard nodes
 - less script dependency
 - better versioning, simulation, observability, and audit
+- AI should explain rules, generate safe drafts, and support diagnostics without turning rule chains into long-running workflow engines
 
 ## Implementation Constraints
 
@@ -99,6 +114,8 @@ Deliver:
 - Use layered upgrades.
 - Keep real-time processing and long-running operations separated.
 - Prefer explicit domain models over script-only behavior.
+- Expose IoTSharp capabilities to AI through authorized skills and MCP tools, not direct database access.
+- Require tenant isolation, audit trails, and human confirmation for higher-risk AI actions.
 
 ## Immediate Execution Focus
 
@@ -109,3 +126,4 @@ Any first-wave design or code change should help define:
 - how IoTSharp tracks edge runtime state
 - how configuration and release tasks are addressed to an edge runtime
 - how cross-project responsibilities are kept clear inside the organization
+- how AI workbench capabilities can consume these contracts through governed skills instead of hidden coupling

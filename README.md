@@ -28,6 +28,7 @@ IoTSharp brings together the core building blocks needed to run an IoT platform 
 - Rule-chain driven processing for transformation, notification, automation, and business actions.
 - Relational and time-series storage options for different deployment and scaling needs.
 - Multiple delivery modes including Docker, Windows service, Linux service, installer flows, and release artifacts.
+- The roadmap now also treats AI workbench, MCP tools, and agent-assisted operations as a cross-cutting capability for collection, rules, and release workflows.
 
 The current main application targets `.NET 10`, and the web console is maintained as an IoTSharp-branded Vue 3 application.
 
@@ -92,7 +93,7 @@ Key directories in this repository:
 - [`docs`](docs): Docusaurus documentation site.
 - [`docker-desktop-extension`](docker-desktop-extension): Docker Desktop extension experience package.
 - [`IoTSharp.Installer.Windows`](IoTSharp.Installer.Windows): Windows installer project.
-- [`IoTSharp.Agent`](IoTSharp.Agent): desktop tray agent project.
+- `IoTSharp.Agent`: planned companion/tray direction for future local desktop and voice experiences; not currently present as a repository directory.
 - [`IoTSharp.SDKs`](IoTSharp.SDKs): SDK and related client-facing artifacts.
 
 ## 🌐 Ecosystem and Related Projects
