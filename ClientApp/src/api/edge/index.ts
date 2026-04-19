@@ -57,6 +57,13 @@ export interface EdgeTaskTimeline {
 	events: EdgeTaskTimelineNode[];
 }
 
+export interface EdgeNodeCreatePayload {
+	name: string;
+	timeout: number;
+	deviceType: 'Gateway';
+	identityType: 'AccessToken' | 'DevicePassword' | 'X509Certificate';
+}
+
 export function edgeApi() {
 	return {
 		getEdgeList: (params: EdgeNodeQueryParam) => {
@@ -69,6 +76,19 @@ export function edgeApi() {
 		getEdgeDetail: (id: string) => {
 			return request({
 				url: `/api/Edge/${id}`,
+				method: 'get',
+			});
+		},
+		createEdgeNode: (payload: EdgeNodeCreatePayload) => {
+			return request({
+				url: '/api/Devices',
+				method: 'post',
+				data: payload,
+			});
+		},
+		getDeviceIdentity: (id: string) => {
+			return request({
+				url: `/api/Devices/${id}/Identity`,
 				method: 'get',
 			});
 		},

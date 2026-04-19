@@ -9,6 +9,14 @@
 		>
 			<template #actions>
 				<el-button type="primary" @click="refreshEdges">刷新列表</el-button>
+				<el-tooltip
+					:content="canCreateEdge ? '创建 Gateway 身份并作为边缘运行时接入平台' : '当前账号缺少 CustomerAdmin 权限，暂时不能创建设备身份'"
+					placement="bottom"
+				>
+					<span class="edge-list-page__action-wrap">
+						<el-button plain :disabled="!canCreateEdge" @click="openCreateDialog">新增边缘节点</el-button>
+					</span>
+				</el-tooltip>
 			</template>
 
 			<div class="edge-list-page__card">
@@ -39,14 +47,51 @@
 		</ConsolePageShell>
 
 		<EdgeDetail ref="edgeDetailRef" />
+		<EdgeOnboardingDialog ref="onboardingRef" />
+
+		<el-dialog v-model="createDialog" title="新增边缘节点" width="640px" destroy-on-close>
+			<div class="edge-create-dialog">
+				<el-alert
+					title="第一版边缘管理先创建 Gateway 身份；实际 runtimeType 在 Register 阶段由 Gateway 或 PiXiu 自行声明。"
+					type="info"
+					:closable="false"
+					show-icon
+				/>
+
+				<el-form label-width="120px" class="edge-create-dialog__form">
+					<el-form-item label="节点名称" required>
+						<el-input v-model="createForm.name" maxlength="100" placeholder="例如：Hangzhou-Plant-GW-01" />
+					</el-form-item>
+					<el-form-item label="运行时模板">
+						<el-select v-model="createForm.runtimeType" style="width: 100%">
+							<el-option label="Gateway" value="gateway" />
+							<el-option label="PiXiu" value="pixiu" />
+						</el-select>
+					</el-form-item>
+					<el-form-item label="超时(秒)">
+						<el-input-number v-model="createForm.timeout" :min="30" :max="86400" style="width: 100%" />
+					</el-form-item>
+				</el-form>
+			</div>
+
+			<template #footer>
+				<el-button @click="createDialog = false">取消</el-button>
+				<el-button type="primary" :loading="creating" @click="submitCreateEdge">创建并查看接入信息</el-button>
+			</template>
+		</el-dialog>
 	</div>
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, reactive, ref } from 'vue';
+import { computed, nextTick, onMounted, reactive, ref } from 'vue';
+import { storeToRefs } from 'pinia';
 import { useCrud, useExpose } from '@fast-crud/fast-crud';
+import { ElMessage } from 'element-plus';
 import ConsolePageShell from '/@/components/console/ConsolePageShell.vue';
+import { useUserInfo } from '/@/stores/userInfo';
+import { edgeApi } from '/@/api/edge';
 import EdgeDetail from './EdgeDetail.vue';
+import EdgeOnboardingDialog from './EdgeOnboardingDialog.vue';
 import { createEdgeCrudOptions } from './edgeCrudOptions';
 
 const overview = reactive({
@@ -58,13 +103,36 @@ const overview = reactive({
 });
 
 const edgeDetailRef = ref();
+const onboardingRef = ref();
 const crudRef = ref();
 const crudBinding = ref();
+const createDialog = ref(false);
+const creating = ref(false);
+const createForm = reactive({
+	name: '',
+	runtimeType: 'gateway',
+	timeout: 300,
+});
+
+const userInfoStore = useUserInfo();
+const { userInfos } = storeToRefs(userInfoStore);
 const { crudExpose } = useExpose({ crudRef, crudBinding });
-const { crudOptions } = createEdgeCrudOptions({ expose: crudExpose }, edgeDetailRef, overview);
+const { crudOptions } = createEdgeCrudOptions(
+	{
+		expose: crudExpose,
+		openOnboarding(edge) {
+			onboardingRef.value?.openDialog(edge, edge?.runtimeType || 'gateway');
+		},
+	},
+	edgeDetailRef,
+	overview
+);
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars,no-unused-vars
 useCrud({ crudExpose, crudOptions });
+
+const roleBag = computed(() => String(userInfos.value?.roles?.[0] ?? '').toLowerCase());
+const canCreateEdge = computed(() => roleBag.value.includes('customeradmin'));
 
 const edgeBadges = computed(() => [
 	`节点总数 ${overview.total}`,
@@ -83,6 +151,51 @@ const refreshEdges = () => {
 	crudExpose.doRefresh();
 };
 
+const openCreateDialog = () => {
+	createForm.name = '';
+	createForm.runtimeType = 'gateway';
+	createForm.timeout = 300;
+	createDialog.value = true;
+};
+
+const submitCreateEdge = async () => {
+	if (!createForm.name.trim()) {
+		ElMessage.warning('节点名称不能为空');
+		return;
+	}
+
+	creating.value = true;
+	try {
+		const response = await edgeApi().createEdgeNode({
+			name: createForm.name.trim(),
+			timeout: createForm.timeout,
+			deviceType: 'Gateway',
+			identityType: 'AccessToken',
+		});
+
+		const createdEdge = response.data ?? {};
+		createDialog.value = false;
+		ElMessage.success('边缘节点已创建');
+		refreshEdges();
+		await nextTick();
+		onboardingRef.value?.openDialog(
+			{
+				id: createdEdge.id,
+				name: createdEdge.name || createForm.name.trim(),
+				runtimeType: createForm.runtimeType,
+			},
+			createForm.runtimeType
+		);
+	}
+	catch (error: any) {
+		const message = error?.response?.data?.msg || error?.message || '边缘节点创建失败';
+		ElMessage.error(message);
+	}
+	finally {
+		creating.value = false;
+	}
+};
+
 onMounted(() => {
 	refreshEdges();
 });
@@ -93,6 +206,10 @@ onMounted(() => {
 	display: flex;
 	flex-direction: column;
 	gap: 18px;
+}
+
+.edge-list-page__action-wrap {
+	display: inline-flex;
 }
 
 .edge-list-page__card {
@@ -160,6 +277,8 @@ onMounted(() => {
 .edge-list-page__crud {
 	margin-top: 18px;
 	min-height: 520px;
+	position: relative;
+	padding-bottom: 12px;
 }
 
 .edge-list-page__actionbar {
@@ -187,5 +306,65 @@ onMounted(() => {
 .edge-list-page__actionbar-tag.is-success {
 	background: rgba(187, 247, 208, 0.9);
 	color: #15803d;
+}
+
+:deep(.fs-crud) {
+	--el-fill-color-blank: transparent;
+}
+
+:deep(.fs-crud .el-card) {
+	box-shadow: none;
+}
+
+:deep(.fs-crud .el-table) {
+	border-radius: 20px;
+	overflow: hidden;
+}
+
+:deep(.fs-crud .el-table th.el-table__cell) {
+	background: #f8fbff;
+}
+
+:deep(.fs-crud .el-pagination) {
+	margin-top: 18px;
+}
+
+:deep(.fs-crud .fs-crud-table) {
+	min-height: 260px;
+	height: auto;
+}
+
+.edge-create-dialog {
+	display: flex;
+	flex-direction: column;
+	gap: 18px;
+}
+
+.edge-create-dialog__form {
+	margin-top: 6px;
+}
+
+@media (max-width: 767px) {
+	.edge-list-page__card {
+		padding: 18px;
+		border-radius: 22px;
+	}
+
+	.edge-list-page__card-head,
+	.edge-list-page__selection {
+		align-items: flex-start;
+	}
+
+	.edge-list-page__card-head {
+		flex-direction: column;
+	}
+
+	.edge-list-page__selection {
+		width: 100%;
+	}
+
+	.edge-list-page__crud {
+		min-height: auto;
+	}
 }
 </style>

@@ -344,6 +344,7 @@ namespace IoTSharp
                 endpoints.MapDefaultControllerRoute();
                 endpoints.MapRazorPages();
                 endpoints.MapMcp("/mcp/{api_key}");
+                endpoints.MapFallbackToFile("index.html");
             });
 
             app.UseJdenticon(defaultStyle =>

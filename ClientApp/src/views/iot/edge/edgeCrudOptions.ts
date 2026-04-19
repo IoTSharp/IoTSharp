@@ -1,8 +1,8 @@
 import { edgeApi } from '/@/api/edge';
 import dayjs from 'dayjs';
-import { compute, dict } from '@fast-crud/fast-crud';
+import { dict } from '@fast-crud/fast-crud';
 
-export const createEdgeCrudOptions = function ({ expose }, edgeDetailRef, overviewState?) {
+export const createEdgeCrudOptions = function ({ expose, openOnboarding }, edgeDetailRef, overviewState?) {
 	let records: any[] = [];
 	const FsButton = {
 		link: true,
@@ -57,12 +57,22 @@ export const createEdgeCrudOptions = function ({ expose }, edgeDetailRef, overvi
 				border: false,
 			},
 			rowHandle: {
-				width: 90,
+				width: 150,
 				buttons: {
+					onboard: {
+						icon: 'Connection',
+						...FsButton,
+						text: '接入',
+						order: 0,
+						onClick({ row }) {
+							openOnboarding?.(row);
+						},
+					},
 					view: {
 						icon: 'View',
 						...FsButton,
 						text: '详情',
+						order: 1,
 						onClick({ row }) {
 							edgeDetailRef.value.openDialog(row);
 						},
@@ -103,11 +113,13 @@ export const createEdgeCrudOptions = function ({ expose }, edgeDetailRef, overvi
 				},
 				version: {
 					title: 'Version',
+					type: 'text',
 					search: { show: true },
 					column: { sortable: 'custom', width: 120 },
 				},
 				status: {
 					title: 'Status',
+					type: 'text',
 					search: { show: true },
 					column: { sortable: 'custom', width: 120 },
 				},
@@ -168,6 +180,7 @@ export const createEdgeCrudOptions = function ({ expose }, edgeDetailRef, overvi
 				},
 				platform: {
 					title: 'Platform',
+					type: 'text',
 					search: { show: true },
 					column: { width: 140 },
 				},

@@ -269,6 +269,9 @@
 		<ProjectReference Include="..\IoTSharp.Extensions\IoTSharp.Extensions.csproj" />
 		<ProjectReference Include="..\IoTSharp.Interpreter\IoTSharp.Interpreter.csproj" />
 		<ProjectReference Include="..\IoTSharp.TaskActions\IoTSharp.TaskActions.csproj" />
+		<ProjectReference Include="..\ClientApp\ClientApp.esproj">
+			<ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+		</ProjectReference>
 	</ItemGroup>
 	<ItemGroup>
 		<Compile Update="Properties\Resources.Designer.cs">
