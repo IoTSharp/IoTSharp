@@ -107,6 +107,9 @@ namespace IoTSharp.Data.TimeSeries
                     });
                     healthChecks.AddIoTDB(str);
                     break;
+                case TelemetryStorage.SonnetDB:
+                    services.AddSingleton<IStorage, SonnetDBStorage>();
+                    break;
                 case TelemetryStorage.SingleTable:
                 default:
                     services.AddSingleton<IStorage, EFStorage>();

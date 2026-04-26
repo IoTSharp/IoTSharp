@@ -19,7 +19,8 @@ namespace IoTSharp.Contracts
         InfluxDB,
         PinusDB,
         TimescaleDB,
-        IoTDB
+        IoTDB,
+        SonnetDB
     }
     [JsonConverter(typeof(StringEnumConverter))]
     public enum EventBusStore

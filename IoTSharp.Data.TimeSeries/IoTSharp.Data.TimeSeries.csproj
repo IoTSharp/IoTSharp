@@ -14,6 +14,7 @@
 		<PackageReference Include="hyjiacan.pinyin4net" Version="4.1.1" />
 		<PackageReference Include="IoTSharp.HealthChecks.Taos" Version="3.0.21.90" />
 		<PackageReference Include="InfluxDB.Client" Version="5.0.0" />
+		<PackageReference Include="SonnetDB" Version="1.0.0" />
 	</ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\IoTSharp.Contracts\IoTSharp.Contracts.csproj" />
