@@ -13,6 +13,9 @@ namespace IoTSharp.Storage
 {
     public class SonnetDBStorage : IStorage
     {
+        private const string DefaultMeasurement = nameof(TelemetryData);
+        private const string DeviceTagName = "DeviceId";
+
         private static readonly HashSet<string> StorageOptionNames = new(StringComparer.OrdinalIgnoreCase)
         {
             "Measurement",
@@ -22,6 +25,7 @@ namespace IoTSharp.Storage
         };
 
         private readonly string _connectionString;
+        private readonly string _measurement;
         private readonly bool _autoCreate;
         private readonly ILogger _logger;
         private readonly ConcurrentDictionary<string, MeasurementSchemaInfo> _schemas = new(StringComparer.Ordinal);
@@ -36,6 +40,7 @@ namespace IoTSharp.Storage
 
             var storageOptions = ParseStorageOptions(connectionString);
             _connectionString = storageOptions.ConnectionString;
+            _measurement = storageOptions.Measurement;
             _autoCreate = storageOptions.AutoCreate;
         }
 
@@ -44,14 +49,7 @@ namespace IoTSharp.Storage
             try
             {
                 using var connection = OpenConnection();
-                using var command = connection.CreateCommand();
-                command.CommandText = "SHOW MEASUREMENTS";
-                using var reader = command.ExecuteReader();
-                while (reader.Read())
-                {
-                    _ = reader.GetValue(0);
-                }
-
+                TryLoadSchema(connection, _measurement);
                 return Task.FromResult(true);
             }
             catch (Exception ex)
@@ -74,14 +72,13 @@ namespace IoTSharp.Storage
         public Task<List<TelemetryDataDto>> LoadTelemetryAsync(Guid deviceId, string keys, DateTime begin, DateTime end, TimeSpan every, Aggregate aggregate)
         {
             using var connection = OpenConnection();
-            var measurement = GetMeasurementName(deviceId);
-            var columns = ResolveColumns(connection, measurement, SplitKeys(keys));
-            if (columns.Count == 0)
+            var fields = ResolveFields(connection, SplitKeys(keys));
+            if (fields.Count == 0)
             {
                 return Task.FromResult(new List<TelemetryDataDto>());
             }
 
-            var data = QueryTelemetry(connection, measurement, columns, begin, end);
+            var data = QueryTelemetry(connection, deviceId, fields, begin, end);
             return Task.FromResult(AggregateDataHelpers.AggregateData(data, begin, end, every, aggregate));
         }
 
@@ -93,31 +90,24 @@ namespace IoTSharp.Storage
                 return Task.FromResult((true, telemetries));
             }
 
-            var measurement = GetMeasurementName(msg.DeviceId);
             try
             {
                 using var connection = OpenConnection();
-                var schema = EnsureMeasurement(connection, measurement, telemetries);
+                var schema = EnsureMeasurement(connection, telemetries);
                 if (schema == null)
                 {
                     return Task.FromResult((false, telemetries));
                 }
 
-                var writable = ResolveWritableColumns(measurement, schema, telemetries, out var skipped);
+                var writable = ResolveWritableFields(schema, telemetries, out var skipped);
                 if (writable.Count == 0)
                 {
-                    _logger.LogWarning("SonnetDB measurement {Measurement} has no writable telemetry columns for device {DeviceId}.", measurement, msg.DeviceId);
+                    _logger.LogWarning("SonnetDB measurement {Measurement} has no writable telemetry fields for device {DeviceId}.", _measurement, msg.DeviceId);
                     return Task.FromResult((false, telemetries));
                 }
 
-                if (!writable.Any(x => x.Column.Role == ColumnRole.Field))
-                {
-                    _logger.LogWarning("SonnetDB measurement {Measurement} skipped write for device {DeviceId} because INSERT requires at least one FIELD value.", measurement, msg.DeviceId);
-                    return Task.FromResult((false, telemetries));
-                }
-
-                var written = InsertTelemetry(connection, measurement, msg.ts, writable);
-                _logger.LogInformation("SonnetDB telemetry write completed. DeviceId={DeviceId}, Measurement={Measurement}, Count={Count}", msg.DeviceId, measurement, written);
+                var written = InsertTelemetry(connection, msg.ts, msg.DeviceId, writable);
+                _logger.LogInformation("SonnetDB telemetry write completed. DeviceId={DeviceId}, Measurement={Measurement}, Count={Count}", msg.DeviceId, _measurement, written);
                 return Task.FromResult((written == 1 && skipped == 0, telemetries));
             }
             catch (Exception ex)
@@ -130,14 +120,13 @@ namespace IoTSharp.Storage
         private List<TelemetryDataDto> GetTelemetryLatestCore(Guid deviceId, IReadOnlyList<string> keys)
         {
             using var connection = OpenConnection();
-            var measurement = GetMeasurementName(deviceId);
-            var columns = ResolveColumns(connection, measurement, keys);
-            if (columns.Count == 0)
+            var fields = ResolveFields(connection, keys);
+            if (fields.Count == 0)
             {
                 return [];
             }
 
-            var data = QueryTelemetry(connection, measurement, columns, null, null);
+            var data = QueryTelemetry(connection, deviceId, fields, null, null);
             return data
                 .GroupBy(x => x.KeyName, StringComparer.Ordinal)
                 .Select(x => x.OrderByDescending(y => y.DateTime).First())
@@ -151,35 +140,41 @@ namespace IoTSharp.Storage
             return connection;
         }
 
-        private MeasurementSchemaInfo? EnsureMeasurement(SndbConnection connection, string measurement, IReadOnlyList<TelemetryData> telemetries)
+        private MeasurementSchemaInfo? EnsureMeasurement(SndbConnection connection, IReadOnlyList<TelemetryData> telemetries)
         {
-            var schemaLock = _schemaLocks.GetOrAdd(measurement, _ => new object());
+            var schemaLock = _schemaLocks.GetOrAdd(_measurement, _ => new object());
             lock (schemaLock)
             {
-                var schema = TryLoadSchema(connection, measurement);
+                var schema = TryLoadSchema(connection, _measurement);
                 if (schema != null)
                 {
+                    if (!schema.HasDeviceTag)
+                    {
+                        throw new InvalidOperationException($"SonnetDB measurement '{_measurement}' must contain TAG column '{DeviceTagName}'.");
+                    }
+
                     return schema;
                 }
 
                 if (!_autoCreate)
                 {
-                    throw new InvalidOperationException($"SonnetDB measurement '{measurement}' does not exist. Create it before writing telemetry.");
+                    throw new InvalidOperationException($"SonnetDB measurement '{_measurement}' does not exist. Create it before writing telemetry.");
                 }
 
-                var columns = BuildColumnsFromTelemetry(measurement, telemetries);
-                if (!columns.Any(x => x.Role == ColumnRole.Field))
+                var fields = BuildFieldsFromTelemetry(telemetries);
+                if (fields.Count == 0)
                 {
-                    _logger.LogWarning("SonnetDB measurement {Measurement} was not created because the payload has no numeric telemetry FIELD.", measurement);
+                    _logger.LogWarning("SonnetDB measurement {Measurement} was not created because the payload has no writable telemetry fields.", _measurement);
                     return null;
                 }
 
                 using var command = connection.CreateCommand();
-                command.CommandText = BuildCreateMeasurementSql(measurement, columns);
+                command.CommandText = BuildCreateMeasurementSql(_measurement, fields);
                 command.ExecuteNonQuery();
 
-                schema = new MeasurementSchemaInfo(columns);
-                _schemas[measurement] = schema;
+                schema = new MeasurementSchemaInfo(
+                    [new ColumnInfo(DeviceTagName, ColumnRole.Tag, DataType.String), .. fields]);
+                _schemas[_measurement] = schema;
                 return schema;
             }
         }
@@ -233,81 +228,79 @@ namespace IoTSharp.Storage
             return false;
         }
 
-        private List<ColumnInfo> ResolveColumns(SndbConnection connection, string measurement, IReadOnlyList<string> keys)
+        private List<ColumnInfo> ResolveFields(SndbConnection connection, IReadOnlyList<string> keys)
         {
-            var schema = TryLoadSchema(connection, measurement);
+            var schema = TryLoadSchema(connection, _measurement);
             if (schema == null)
             {
                 return [];
             }
 
             var names = keys.Count == 0
-                ? schema.Columns.Keys.OrderBy(x => x, StringComparer.Ordinal)
-                : keys.Where(schema.Columns.ContainsKey);
+                ? schema.Fields.Keys.OrderBy(x => x, StringComparer.Ordinal)
+                : keys.Where(schema.Fields.ContainsKey);
 
             return names
                 .Distinct(StringComparer.Ordinal)
-                .Select(name => schema.Columns[name])
+                .Select(name => schema.Fields[name])
                 .ToList();
         }
 
-        private List<ColumnWrite> ResolveWritableColumns(string measurement, MeasurementSchemaInfo schema, IReadOnlyList<TelemetryData> telemetries, out int skipped)
+        private List<FieldWrite> ResolveWritableFields(MeasurementSchemaInfo schema, IReadOnlyList<TelemetryData> telemetries, out int skipped)
         {
-            var writable = new List<ColumnWrite>();
+            var writable = new List<FieldWrite>();
+            var seen = new HashSet<string>(StringComparer.Ordinal);
             skipped = 0;
 
             foreach (var telemetry in telemetries)
             {
-                if (IsReservedColumnName(telemetry.KeyName) || !schema.Columns.TryGetValue(telemetry.KeyName, out var column))
+                if (IsReservedColumnName(telemetry.KeyName)
+                    || string.Equals(telemetry.KeyName, DeviceTagName, StringComparison.Ordinal)
+                    || !schema.Fields.TryGetValue(telemetry.KeyName, out var field)
+                    || !seen.Add(telemetry.KeyName))
                 {
                     skipped++;
                     continue;
                 }
 
-                if (!TryGetSonnetValue(telemetry, column, out var value))
+                if (!TryGetFieldValue(telemetry, field.DataType, out var value))
                 {
                     skipped++;
-                    _logger.LogWarning("SonnetDB measurement {Measurement} skipped telemetry key {KeyName} because the payload type {PayloadType} does not match schema column role/type.", measurement, telemetry.KeyName, telemetry.Type);
+                    _logger.LogWarning("SonnetDB measurement {Measurement} skipped telemetry key {KeyName} because the payload type {PayloadType} does not match FIELD type {FieldType}.", _measurement, telemetry.KeyName, telemetry.Type, field.DataType);
                     continue;
                 }
 
-                writable.Add(new ColumnWrite(column, value));
+                writable.Add(new FieldWrite(field, value));
             }
 
             if (skipped > 0)
             {
-                _logger.LogWarning("SonnetDB measurement {Measurement} skipped {Count} telemetry columns because they are missing from schema or type-incompatible.", measurement, skipped);
+                _logger.LogWarning("SonnetDB measurement {Measurement} skipped {Count} telemetry fields because they are missing from schema or type-incompatible.", _measurement, skipped);
             }
 
             return writable;
         }
 
-        private List<TelemetryDataDto> QueryTelemetry(SndbConnection connection, string measurement, IReadOnlyList<ColumnInfo> columns, DateTime? begin, DateTime? end)
+        private List<TelemetryDataDto> QueryTelemetry(SndbConnection connection, Guid deviceId, IReadOnlyList<ColumnInfo> fields, DateTime? begin, DateTime? end)
         {
             var data = new List<TelemetryDataDto>();
             using var command = connection.CreateCommand();
 
-            var projection = string.Join(", ", columns.Select(x => QuoteIdentifier(x.Name)));
+            var projection = string.Join(", ", fields.Select(x => QuoteIdentifier(x.Name)));
             var sql = new StringBuilder();
-            sql.Append($"SELECT time, {projection} FROM {QuoteIdentifier(measurement)}");
+            sql.Append($"SELECT time, {projection} FROM {QuoteIdentifier(_measurement)} WHERE {QuoteIdentifier(DeviceTagName)} = @deviceId");
+            command.Parameters.AddWithValue("@deviceId", deviceId.ToString());
 
-            var where = new List<string>();
             if (begin.HasValue)
             {
-                where.Add("time >= @begin");
+                sql.Append(" AND time >= @begin");
                 command.Parameters.AddWithValue("@begin", ToUnixMilliseconds(begin.Value));
             }
 
             if (end.HasValue)
             {
-                where.Add("time < @end");
+                sql.Append(" AND time < @end");
                 command.Parameters.AddWithValue("@end", ToUnixMilliseconds(end.Value));
-            }
-
-            if (where.Count > 0)
-            {
-                sql.Append(" WHERE ");
-                sql.Append(string.Join(" AND ", where));
             }
 
             command.CommandText = sql.ToString();
@@ -315,22 +308,22 @@ namespace IoTSharp.Storage
             while (reader.Read())
             {
                 var time = ReadTime(reader.GetValue(reader.GetOrdinal("time")));
-                foreach (var column in columns)
+                foreach (var field in fields)
                 {
-                    var ordinal = reader.GetOrdinal(column.Name);
+                    var ordinal = reader.GetOrdinal(field.Name);
                     if (reader.IsDBNull(ordinal))
                     {
                         continue;
                     }
 
-                    var value = ReadValue(reader.GetValue(ordinal), column);
+                    var value = ReadValue(reader.GetValue(ordinal), field.DataType);
                     if (value != null)
                     {
                         data.Add(new TelemetryDataDto
                         {
                             DateTime = time,
-                            KeyName = column.Name,
-                            DataType = column.Role == ColumnRole.Tag ? DataType.String : column.DataType,
+                            KeyName = field.Name,
+                            DataType = field.DataType,
                             Value = value
                         });
                     }
@@ -340,29 +333,30 @@ namespace IoTSharp.Storage
             return data;
         }
 
-        private static int InsertTelemetry(SndbConnection connection, string measurement, DateTime timestamp, IReadOnlyList<ColumnWrite> writes)
+        private int InsertTelemetry(SndbConnection connection, DateTime timestamp, Guid deviceId, IReadOnlyList<FieldWrite> writes)
         {
             using var command = connection.CreateCommand();
-            var columns = new List<string> { "time" };
-            var values = new List<string> { "@time" };
+            var columns = new List<string> { "time", QuoteIdentifier(DeviceTagName) };
+            var values = new List<string> { "@time", "@deviceId" };
 
             command.Parameters.AddWithValue("@time", ToUnixMilliseconds(timestamp));
+            command.Parameters.AddWithValue("@deviceId", deviceId.ToString());
 
             for (var i = 0; i < writes.Count; i++)
             {
                 var parameterName = $"@value{i}";
-                columns.Add(QuoteIdentifier(writes[i].Column.Name));
+                columns.Add(QuoteIdentifier(writes[i].Field.Name));
                 values.Add(parameterName);
                 command.Parameters.AddWithValue(parameterName, writes[i].Value);
             }
 
-            command.CommandText = $"INSERT INTO {QuoteIdentifier(measurement)} ({string.Join(", ", columns)}) VALUES ({string.Join(", ", values)})";
+            command.CommandText = $"INSERT INTO {QuoteIdentifier(_measurement)} ({string.Join(", ", columns)}) VALUES ({string.Join(", ", values)})";
             return command.ExecuteNonQuery();
         }
 
-        private List<ColumnInfo> BuildColumnsFromTelemetry(string measurement, IReadOnlyList<TelemetryData> telemetries)
+        private List<ColumnInfo> BuildFieldsFromTelemetry(IReadOnlyList<TelemetryData> telemetries)
         {
-            var columns = new List<ColumnInfo>();
+            var fields = new List<ColumnInfo>();
             var seen = new HashSet<string>(StringComparer.Ordinal);
 
             foreach (var telemetry in telemetries)
@@ -372,9 +366,9 @@ namespace IoTSharp.Storage
                     continue;
                 }
 
-                if (IsReservedColumnName(telemetry.KeyName))
+                if (IsReservedColumnName(telemetry.KeyName) || string.Equals(telemetry.KeyName, DeviceTagName, StringComparison.Ordinal))
                 {
-                    _logger.LogWarning("SonnetDB measurement {Measurement} skipped telemetry key {KeyName} because it conflicts with the reserved time column.", measurement, telemetry.KeyName);
+                    _logger.LogWarning("SonnetDB measurement {Measurement} skipped telemetry key {KeyName} because it conflicts with a reserved column.", _measurement, telemetry.KeyName);
                     continue;
                 }
 
@@ -383,28 +377,22 @@ namespace IoTSharp.Storage
                     continue;
                 }
 
-                columns.Add(IsNumericTelemetry(telemetry.Type)
-                    ? new ColumnInfo(telemetry.KeyName, ColumnRole.Field, ToNumericDataType(telemetry.Type))
-                    : new ColumnInfo(telemetry.KeyName, ColumnRole.Tag, DataType.String));
+                fields.Add(new ColumnInfo(telemetry.KeyName, ColumnRole.Field, ToFieldDataType(telemetry.Type)));
             }
 
-            return columns;
+            return fields;
         }
 
-        private static string BuildCreateMeasurementSql(string measurement, IReadOnlyList<ColumnInfo> columns)
+        private static string BuildCreateMeasurementSql(string measurement, IReadOnlyList<ColumnInfo> fields)
         {
             var sql = new StringBuilder();
-            sql.Append($"CREATE MEASUREMENT {QuoteIdentifier(measurement)} (");
-            for (var i = 0; i < columns.Count; i++)
+            sql.Append($"CREATE MEASUREMENT {QuoteIdentifier(measurement)} ({QuoteIdentifier(DeviceTagName)} TAG");
+            foreach (var field in fields)
             {
-                if (i > 0)
-                {
-                    sql.Append(", ");
-                }
-
-                var column = columns[i];
-                sql.Append(QuoteIdentifier(column.Name));
-                sql.Append(column.Role == ColumnRole.Tag ? " TAG" : $" FIELD {GetSonnetFieldType(column.DataType)}");
+                sql.Append(", ");
+                sql.Append(QuoteIdentifier(field.Name));
+                sql.Append(" FIELD ");
+                sql.Append(GetSonnetFieldType(field.DataType));
             }
 
             sql.Append(')');
@@ -456,49 +444,16 @@ namespace IoTSharp.Storage
             };
         }
 
-        private static bool TryGetSonnetValue(TelemetryData telemetry, ColumnInfo column, out object value)
-        {
-            value = DBNull.Value;
-
-            if (column.Role == ColumnRole.Tag)
-            {
-                if (IsNumericTelemetry(telemetry.Type))
-                {
-                    return false;
-                }
-
-                var tagValue = ToTagValue(telemetry);
-                if (tagValue == null)
-                {
-                    return false;
-                }
-
-                value = tagValue;
-                return true;
-            }
-
-            return TryGetFieldValue(telemetry, column.DataType, out value);
-        }
-
         private static bool TryGetFieldValue(TelemetryData telemetry, DataType dataType, out object value)
         {
             value = DBNull.Value;
             switch (dataType)
             {
-                case DataType.Long when telemetry.Type == DataType.Long && telemetry.Value_Long.HasValue:
-                    value = telemetry.Value_Long.Value;
-                    return true;
-                case DataType.Double when telemetry.Type == DataType.Double && telemetry.Value_Double.HasValue:
-                    value = telemetry.Value_Double.Value;
-                    return true;
-                case DataType.Double when telemetry.Type == DataType.Long && telemetry.Value_Long.HasValue:
-                    value = Convert.ToDouble(telemetry.Value_Long.Value, CultureInfo.InvariantCulture);
-                    return true;
                 case DataType.Boolean when telemetry.Type == DataType.Boolean && telemetry.Value_Boolean.HasValue:
                     value = telemetry.Value_Boolean.Value;
                     return true;
                 case DataType.String:
-                    var text = ToTagValue(telemetry);
+                    var text = ToFieldString(telemetry);
                     if (text == null)
                     {
                         return false;
@@ -506,38 +461,43 @@ namespace IoTSharp.Storage
 
                     value = text;
                     return true;
+                case DataType.Long when telemetry.Type == DataType.Long && telemetry.Value_Long.HasValue:
+                    value = telemetry.Value_Long.Value;
+                    return true;
+                case DataType.Long when telemetry.Type == DataType.DateTime && telemetry.Value_DateTime.HasValue:
+                    value = ToUnixMilliseconds(telemetry.Value_DateTime.Value);
+                    return true;
+                case DataType.Double when telemetry.Type == DataType.Double && telemetry.Value_Double.HasValue:
+                    value = telemetry.Value_Double.Value;
+                    return true;
+                case DataType.Double when telemetry.Type == DataType.Long && telemetry.Value_Long.HasValue:
+                    value = Convert.ToDouble(telemetry.Value_Long.Value, CultureInfo.InvariantCulture);
+                    return true;
                 default:
                     return false;
             }
         }
 
-        private static string? ToTagValue(TelemetryData telemetry)
+        private static string? ToFieldString(TelemetryData telemetry)
         {
             return telemetry.Type switch
             {
-                DataType.Boolean when telemetry.Value_Boolean.HasValue => telemetry.Value_Boolean.Value.ToString().ToLowerInvariant(),
                 DataType.String => telemetry.Value_String,
                 DataType.Json => telemetry.Value_Json,
                 DataType.XML => telemetry.Value_XML,
                 DataType.Binary when telemetry.Value_Binary != null => Convert.ToBase64String(telemetry.Value_Binary),
-                DataType.DateTime when telemetry.Value_DateTime.HasValue => telemetry.Value_DateTime.Value.ToUniversalTime().ToString("O", CultureInfo.InvariantCulture),
                 _ => null
             };
         }
 
-        private static object? ReadValue(object value, ColumnInfo column)
+        private static object? ReadValue(object value, DataType dataType)
         {
             if (value == DBNull.Value)
             {
                 return null;
             }
 
-            if (column.Role == ColumnRole.Tag)
-            {
-                return Convert.ToString(value, CultureInfo.InvariantCulture);
-            }
-
-            return column.DataType switch
+            return dataType switch
             {
                 DataType.Boolean => Convert.ToBoolean(value, CultureInfo.InvariantCulture),
                 DataType.String => Convert.ToString(value, CultureInfo.InvariantCulture),
@@ -567,33 +527,30 @@ namespace IoTSharp.Storage
             return new DateTimeOffset(utc).ToUnixTimeMilliseconds();
         }
 
-        private static string GetMeasurementName(Guid deviceId)
-        {
-            return deviceId.ToString("N");
-        }
-
-        private static bool IsNumericTelemetry(DataType dataType)
-        {
-            return dataType is DataType.Long or DataType.Double;
-        }
-
-        private static DataType ToNumericDataType(DataType dataType)
-        {
-            return dataType == DataType.Long ? DataType.Long : DataType.Double;
-        }
-
         private static bool IsReservedColumnName(string columnName)
         {
             return string.Equals(columnName, "time", StringComparison.OrdinalIgnoreCase);
+        }
+
+        private static DataType ToFieldDataType(DataType dataType)
+        {
+            return dataType switch
+            {
+                DataType.Boolean => DataType.Boolean,
+                DataType.Long or DataType.DateTime => DataType.Long,
+                DataType.Double => DataType.Double,
+                DataType.String or DataType.Json or DataType.XML or DataType.Binary => DataType.String,
+                _ => DataType.String
+            };
         }
 
         private static string GetSonnetFieldType(DataType dataType)
         {
             return dataType switch
             {
+                DataType.Boolean => "BOOL",
                 DataType.Long => "INT",
                 DataType.Double => "FLOAT",
-                DataType.Boolean => "BOOL",
                 DataType.String => "STRING",
                 _ => "STRING"
             };
@@ -640,8 +597,13 @@ namespace IoTSharp.Storage
                 }
             }
 
+            var measurement = GetOption(raw, "Measurement")
+                              ?? GetOption(raw, "MeasurementName")
+                              ?? DefaultMeasurement;
+
             return new SonnetDBStorageOptions(
                 sonnetConnection.ConnectionString,
+                measurement,
                 GetBoolOption(raw, "AutoCreate", true));
         }
 
@@ -669,18 +631,27 @@ namespace IoTSharp.Storage
 
         private sealed record ColumnInfo(string Name, ColumnRole Role, DataType DataType);
 
-        private sealed record ColumnWrite(ColumnInfo Column, object Value);
+        private sealed record FieldWrite(ColumnInfo Field, object Value);
 
         private sealed class MeasurementSchemaInfo
         {
             public MeasurementSchemaInfo(IEnumerable<ColumnInfo> columns)
             {
                 Columns = columns.ToDictionary(x => x.Name, StringComparer.Ordinal);
+                Fields = Columns
+                    .Where(x => x.Value.Role == ColumnRole.Field)
+                    .ToDictionary(x => x.Key, x => x.Value, StringComparer.Ordinal);
+                HasDeviceTag = Columns.TryGetValue(DeviceTagName, out var deviceColumn)
+                               && deviceColumn.Role == ColumnRole.Tag;
             }
 
             public IReadOnlyDictionary<string, ColumnInfo> Columns { get; }
+
+            public IReadOnlyDictionary<string, ColumnInfo> Fields { get; }
+
+            public bool HasDeviceTag { get; }
         }
 
-        private sealed record SonnetDBStorageOptions(string ConnectionString, bool AutoCreate);
+        private sealed record SonnetDBStorageOptions(string ConnectionString, string Measurement, bool AutoCreate);
     }
 }
