@@ -764,6 +764,44 @@ export interface modbusmapping {
 - 前端设计器在保存前校验 `mapping.valueType` 与 `productProperty.dataType` 是否兼容。
 - Gateway/PiXiu 上报时只关心统一 `runtimeReport` 契约，不感知页面内部编辑字段。
 
+---
+
+## SaaS 协作路线图
+
+> 本节描述 IoTSharp（开源主平台）与上层 `IoTSharp.SaaS`（商业叠加层）之间的协作面与稳定性公约。  
+> 状态：✅ 已完成 ｜ 🚧 进行中 ｜ ⏳ 计划中 ｜ ⬜ 未开始 ｜ 🔁 持续维护
+> 顺序：`[串行]` ｜ `[并行]` ｜ `[依赖: X]`
+
+### S0 协作原则
+
+- 本仓库始终保持**开源属性**，不接收任何商业逻辑（多租户、计费、License、Copilot 编排、付费模板）。
+- 所有商业能力位于 `IoTSharp.SaaS` 仓库 `src/IoTSharp.Platform.*` 系列模块，通过本仓库的公开 API / Webhook / 扩展点叠加。
+- 任何破坏性变更需在 SaaS 仓库 issue 中先行公示，至少 6 个月废弃期。
+
+### S1 协作面清单
+
+| 编号 | 状态 | 顺序 | 协作面 | 说明 |
+| --- | --- | --- | --- | --- |
+| S1-1 | ✅ | 🔁 | 设备 / 遥测 / 属性 REST API | SaaS **只读消费**这些 API 取得脚本生成所需的设备/产品元数据；不在 SaaS 侧落库业务数据 |
+| S1-2 | 🚧 | [并行] | OpenTelemetry trace / metrics 输出 | 仅用于 SaaS 端 AI 调用与生成服务的用量计量与审计；不采集业务数据指标 |
+| S1-3 | 🚧 | [并行] | Webhooks / 事件总线 | SaaS 仅订阅与"脚本工件部署/运行结果"相关的元数据事件，用于改进生成质量；新增事件保持向后兼容 |
+| S1-4 | ⏳ | [依赖: S1-1] | SaaS 消费契约（只读） | SaaS 仅消费本仓库的公开 API 取得脚本生成所需的设备/产品/点位元数据；**不实现数据面网关、不参与设备管理与下发链路** |
+| S1-5 | ⏳ | [并行] | Edge / Gateway 元数据引用 | SaaS 在生成脚本时引用 `external/Edge`、`external/Pixiu` 的目标元数据（架构/能力/接口）；**注册、心跳、控制下发由本仓库独家承担**，SaaS 不发起 |
+| S1-6 | ⏳ | [并行] | 规则引擎扩展点 | 本仓库提供扩展点；SaaS 仅生成扩展实现的源码工件，由用户在本仓库侧装载 |
+| S1-7 | ⏳ | [并行] | BASIC 脚本签名格式 | 与 `external/IoTEmBASIC` 对齐签名格式；**脚本下发的传输面由本仓库承担**，SaaS 只产出已签名工件 |
+
+### S2 稳定性公约
+
+- 公开 REST API、事件 schema、OpenTelemetry 属性键属于公开契约。
+- 内部数据库 schema、内部服务接口不属于公开契约，SaaS 不得直接依赖。
+- 与 SaaS 的协作变更通过 PR 描述中的 `[saas-impact]` 标记声明影响面。
+
+### S3 与子模块的接口对齐
+
+- BasicRuntime 接口签名表与 `external/Edge`、`external/Pixiu`、`external/IoTEmBASIC` 共同维护，三方一致。
+- Edge 上报通道 schema 与 `external/Edge`、`external/Pixiu` 对齐。
+- 详见各子模块仓库内的 `ROADMAP.md`。
+
 ### RD-03 ⬜ 第三阶段 - 运营与发布中心
 目标：
 - ⬜ RD-03.1 增加 OTA 固件包、采集器软件包和配置发布管理
