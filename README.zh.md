@@ -112,8 +112,8 @@ NuGet 包与生态库包括：
 相关仓库包括：
 
 - IoTSharp MQTT C SDK
-- IoTSharp Edge paho.mqtt.c
-- IoTSharp Edge nanoFramework
+- IoTEdge paho.mqtt.c
+- IoTEdge nanoFramework
 - IoTSharp RT-Thread package
 
 ## 📚 文档

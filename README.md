@@ -112,8 +112,8 @@ NuGet packages and ecosystem libraries include:
 Related repositories:
 
 - IoTSharp MQTT C SDK
-- IoTSharp Edge paho.mqtt.c
-- IoTSharp Edge nanoFramework
+- IoTEdge paho.mqtt.c
+- IoTEdge nanoFramework
 - IoTSharp RT-Thread package
 
 ## 📚 Documentation
