@@ -775,7 +775,7 @@ export interface modbusmapping {
 ### S0 协作原则
 
 - 本仓库始终保持**开源属性**，不接收任何商业逻辑（多租户、计费、License、Copilot 编排、付费模板）。
-- 所有商业能力位于 `IoTSharp.SaaS` 仓库 `src/IoTSharp.Platform.*` 系列模块，通过本仓库的公开 API / Webhook / 扩展点叠加。
+- 所有商业能力位于 `IoTSharp.SaaS` 仓库 `src/IoTSharp.SaaS.*` 系列模块，通过本仓库的公开 API / Webhook / 扩展点叠加。
 - 任何破坏性变更需在 SaaS 仓库 issue 中先行公示，至少 6 个月废弃期。
 
 ### S1 协作面清单
