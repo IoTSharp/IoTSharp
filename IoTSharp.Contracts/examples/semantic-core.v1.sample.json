@@ -1,0 +1,333 @@
+{
+  "$schema": "../semantic-core.v1.schema.json",
+  "schemaVersion": "1.0",
+  "modelId": "semantic-model-boiler-room-v1",
+  "name": "Boiler room semantic model",
+  "description": "Open Semantic Core v1 draft showing L1 points, L2 assets, protocol bindings, units, quantities, quality metadata, and L3 process graph placeholders.",
+  "assets": [
+    {
+      "assetId": "asset-site-alpha",
+      "name": "site_alpha",
+      "displayName": "Site Alpha",
+      "assetType": "site",
+      "assetPath": [
+        "site-alpha"
+      ],
+      "points": [],
+      "externalReferences": [],
+      "tags": [
+        "demo"
+      ],
+      "metadata": {}
+    },
+    {
+      "assetId": "asset-boiler-room",
+      "name": "boiler_room",
+      "displayName": "Boiler Room",
+      "assetType": "area",
+      "parentAssetId": "asset-site-alpha",
+      "assetPath": [
+        "site-alpha",
+        "boiler-room"
+      ],
+      "points": [],
+      "externalReferences": [],
+      "tags": [
+        "utility"
+      ],
+      "metadata": {}
+    },
+    {
+      "assetId": "asset-boiler-01",
+      "name": "boiler_01",
+      "displayName": "Boiler 01",
+      "assetType": "device",
+      "parentAssetId": "asset-boiler-room",
+      "assetPath": [
+        "site-alpha",
+        "boiler-room",
+        "boiler-01"
+      ],
+      "points": [
+        "boiler.01.supply_temperature",
+        "boiler.01.pump_run_command"
+      ],
+      "externalReferences": [
+        {
+          "referenceType": "iotsharp.asset",
+          "system": "user-iotsharp-instance",
+          "referenceId": "boiler-01",
+          "uri": "https://iotsharp.example.com/assets/boiler-01",
+          "metadata": {}
+        }
+      ],
+      "tags": [
+        "boiler"
+      ],
+      "metadata": {}
+    }
+  ],
+  "semanticPoints": [
+    {
+      "semanticId": "boiler.01.supply_temperature",
+      "name": "supply_temperature",
+      "displayName": "Supply temperature",
+      "description": "Water supply temperature leaving boiler 01.",
+      "assetId": "asset-boiler-01",
+      "quantity": {
+        "quantityKind": "temperature",
+        "name": "Temperature",
+        "dimension": "thermodynamic-temperature",
+        "standard": "ucum",
+        "metadata": {}
+      },
+      "unit": {
+        "code": "Cel",
+        "displayName": "degree Celsius",
+        "symbol": "C",
+        "system": "ucum",
+        "quantityKind": "temperature",
+        "metadata": {}
+      },
+      "dataType": "float",
+      "access": "read",
+      "quality": {
+        "status": "good",
+        "source": "protocol-status",
+        "metadata": {}
+      },
+      "normalRange": {
+        "min": 35,
+        "max": 85,
+        "kind": "normal"
+      },
+      "alarmRange": {
+        "min": 90,
+        "kind": "high",
+        "severity": "major"
+      },
+      "source": {
+        "bindingId": "binding-boiler-01-supply-temp",
+        "role": "primary"
+      },
+      "tags": [
+        "l1",
+        "temperature"
+      ],
+      "metadata": {}
+    },
+    {
+      "semanticId": "boiler.01.pump_run_command",
+      "name": "pump_run_command",
+      "displayName": "Pump run command",
+      "description": "Writable command point for the boiler circulation pump.",
+      "assetId": "asset-boiler-01",
+      "quantity": {
+        "quantityKind": "command",
+        "name": "Command",
+        "metadata": {}
+      },
+      "unit": {
+        "code": "1",
+        "displayName": "dimensionless",
+        "symbol": "1",
+        "system": "ucum",
+        "quantityKind": "command",
+        "metadata": {}
+      },
+      "dataType": "boolean",
+      "access": "command",
+      "quality": {
+        "status": "unknown",
+        "source": "not-provided",
+        "metadata": {}
+      },
+      "source": {
+        "bindingId": "binding-boiler-01-pump-run-command",
+        "role": "primary"
+      },
+      "tags": [
+        "l1",
+        "command"
+      ],
+      "metadata": {
+        "controlPolicyId": "control-policy-pump-run"
+      }
+    }
+  ],
+  "protocolBindings": [
+    {
+      "bindingId": "binding-boiler-01-supply-temp",
+      "protocolKind": "modbusTcp",
+      "endpointRef": "endpoint-main-plc",
+      "address": "holding-register:40001",
+      "sourceDataType": "float",
+      "polling": {
+        "interval": "00:00:01",
+        "timeout": "00:00:03",
+        "subscription": false
+      },
+      "decode": {
+        "byteOrder": "bigEndian",
+        "wordOrder": "bigEndian",
+        "scale": 0.1,
+        "offset": 0,
+        "options": {
+          "registerCount": 2,
+          "unitId": 1
+        }
+      },
+      "quality": {
+        "status": "unknown",
+        "source": "modbus-exception",
+        "metadata": {}
+      },
+      "options": {},
+      "metadata": {}
+    },
+    {
+      "bindingId": "binding-boiler-01-pump-run-command",
+      "protocolKind": "modbusTcp",
+      "endpointRef": "endpoint-main-plc",
+      "address": "coil:00017",
+      "sourceDataType": "boolean",
+      "polling": {
+        "interval": "00:00:01",
+        "timeout": "00:00:03",
+        "subscription": false
+      },
+      "decode": {
+        "options": {
+          "unitId": 1
+        }
+      },
+      "quality": {
+        "status": "unknown",
+        "source": "modbus-exception",
+        "metadata": {}
+      },
+      "options": {},
+      "metadata": {}
+    }
+  ],
+  "quantities": [
+    {
+      "quantityKind": "temperature",
+      "name": "Temperature",
+      "dimension": "thermodynamic-temperature",
+      "standard": "ucum",
+      "metadata": {}
+    },
+    {
+      "quantityKind": "command",
+      "name": "Command",
+      "metadata": {}
+    }
+  ],
+  "units": [
+    {
+      "code": "Cel",
+      "displayName": "degree Celsius",
+      "symbol": "C",
+      "system": "ucum",
+      "quantityKind": "temperature",
+      "metadata": {}
+    },
+    {
+      "code": "1",
+      "displayName": "dimensionless",
+      "symbol": "1",
+      "system": "ucum",
+      "quantityKind": "command",
+      "metadata": {}
+    }
+  ],
+  "processGraph": {
+    "processGraphId": "process-boiler-room",
+    "name": "Boiler room process graph",
+    "description": "L3 draft references only; later A/E tasks will refine validation and behavior.",
+    "nodes": [
+      {
+        "nodeId": "node-boiler-01",
+        "name": "Boiler 01",
+        "nodeType": "boiler",
+        "assetId": "asset-boiler-01",
+        "inputSemanticIds": [
+          "boiler.01.pump_run_command"
+        ],
+        "outputSemanticIds": [
+          "boiler.01.supply_temperature"
+        ],
+        "tags": [
+          "l3-placeholder"
+        ],
+        "metadata": {}
+      }
+    ],
+    "edges": [],
+    "derivedPoints": [],
+    "stateModels": [
+      {
+        "stateModelId": "state-boiler-01",
+        "name": "Boiler state draft",
+        "appliesToAssetId": "asset-boiler-01",
+        "states": [
+          {
+            "stateId": "running",
+            "name": "Running",
+            "condition": "boiler.01.pump_run_command == true",
+            "dependsOnSemanticIds": [
+              "boiler.01.pump_run_command"
+            ]
+          }
+        ],
+        "transitions": [],
+        "metadata": {}
+      }
+    ],
+    "alarms": [
+      {
+        "alarmId": "alarm-boiler-01-supply-temperature-high",
+        "name": "Supply temperature high",
+        "severity": "major",
+        "condition": "boiler.01.supply_temperature > 90",
+        "dependsOnSemanticIds": [
+          "boiler.01.supply_temperature"
+        ],
+        "duration": "00:00:30",
+        "metadata": {}
+      }
+    ],
+    "controlPolicies": [
+      {
+        "controlPolicyId": "control-policy-pump-run",
+        "name": "Pump run command policy",
+        "appliesToSemanticIds": [
+          "boiler.01.pump_run_command"
+        ],
+        "risk": "hazardous",
+        "requiresApproval": true,
+        "aiOperationMode": "recommendOnly",
+        "metadata": {}
+      }
+    ],
+    "metadata": {}
+  },
+  "extensionSlots": [
+    {
+      "layer": "l3",
+      "key": "processGraph.profiles",
+      "description": "Reserved for later process profile metadata.",
+      "metadata": {}
+    },
+    {
+      "layer": "l4",
+      "key": "industryPackage.references",
+      "description": "Reserved for later industry semantic package references. No industry package is implemented in A1.",
+      "metadata": {}
+    }
+  ],
+  "metadata": {
+    "example": "semantic-core-v1"
+  }
+}

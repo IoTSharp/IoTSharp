@@ -1,0 +1,860 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://iotsharp.net/schemas/semantic-core.v1.schema.json",
+  "title": "IoTSharp Semantic Core v1",
+  "description": "Open, protocol-neutral semantic model for assets, semantic points, protocol bindings, units, quantities, quality metadata, and L3 process graph draft references.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "modelId",
+    "name",
+    "assets",
+    "semanticPoints",
+    "protocolBindings"
+  ],
+  "properties": {
+    "$schema": {
+      "type": "string"
+    },
+    "schemaVersion": {
+      "const": "1.0"
+    },
+    "modelId": {
+      "$ref": "#/$defs/nonEmptyString"
+    },
+    "name": {
+      "$ref": "#/$defs/nonEmptyString"
+    },
+    "description": {
+      "type": "string"
+    },
+    "assets": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/asset"
+      }
+    },
+    "semanticPoints": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/semanticPoint"
+      }
+    },
+    "protocolBindings": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/protocolBinding"
+      }
+    },
+    "quantities": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/quantity"
+      },
+      "default": []
+    },
+    "units": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/unit"
+      },
+      "default": []
+    },
+    "processGraph": {
+      "$ref": "#/$defs/processGraph"
+    },
+    "extensionSlots": {
+      "type": "array",
+      "description": "Forward-compatible placeholders for later L3/L4 profiles. They reserve extension namespaces but do not implement industry packages.",
+      "items": {
+        "$ref": "#/$defs/extensionSlot"
+      },
+      "default": []
+    },
+    "metadata": {
+      "$ref": "#/$defs/objectMap"
+    }
+  },
+  "$defs": {
+    "nonEmptyString": {
+      "type": "string",
+      "minLength": 1
+    },
+    "objectMap": {
+      "type": "object",
+      "additionalProperties": true
+    },
+    "stringArray": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "asset": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "assetId",
+        "name",
+        "assetType",
+        "assetPath",
+        "points"
+      ],
+      "properties": {
+        "assetId": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "name": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "displayName": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "assetType": {
+          "$ref": "#/$defs/assetType"
+        },
+        "parentAssetId": {
+          "type": "string"
+        },
+        "assetPath": {
+          "$ref": "#/$defs/stringArray"
+        },
+        "points": {
+          "$ref": "#/$defs/stringArray"
+        },
+        "externalReferences": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/externalReference"
+          },
+          "default": []
+        },
+        "tags": {
+          "$ref": "#/$defs/stringArray"
+        },
+        "metadata": {
+          "$ref": "#/$defs/objectMap"
+        }
+      }
+    },
+    "externalReference": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "referenceType",
+        "referenceId"
+      ],
+      "properties": {
+        "referenceType": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "system": {
+          "type": "string"
+        },
+        "referenceId": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "uri": {
+          "type": "string"
+        },
+        "metadata": {
+          "$ref": "#/$defs/objectMap"
+        }
+      }
+    },
+    "semanticPoint": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "semanticId",
+        "name",
+        "quantity",
+        "unit",
+        "dataType",
+        "access",
+        "quality",
+        "source"
+      ],
+      "properties": {
+        "semanticId": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "name": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "displayName": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "assetId": {
+          "type": "string"
+        },
+        "quantity": {
+          "$ref": "#/$defs/quantity"
+        },
+        "unit": {
+          "$ref": "#/$defs/unit"
+        },
+        "dataType": {
+          "$ref": "#/$defs/dataType"
+        },
+        "access": {
+          "$ref": "#/$defs/access"
+        },
+        "quality": {
+          "$ref": "#/$defs/quality"
+        },
+        "normalRange": {
+          "$ref": "#/$defs/range"
+        },
+        "alarmRange": {
+          "$ref": "#/$defs/range"
+        },
+        "source": {
+          "$ref": "#/$defs/protocolSource"
+        },
+        "tags": {
+          "$ref": "#/$defs/stringArray"
+        },
+        "metadata": {
+          "$ref": "#/$defs/objectMap"
+        }
+      }
+    },
+    "quantity": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "quantityKind"
+      ],
+      "properties": {
+        "quantityKind": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "name": {
+          "type": "string"
+        },
+        "dimension": {
+          "type": "string"
+        },
+        "standard": {
+          "type": "string"
+        },
+        "metadata": {
+          "$ref": "#/$defs/objectMap"
+        }
+      }
+    },
+    "unit": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "code",
+        "system"
+      ],
+      "properties": {
+        "code": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "displayName": {
+          "type": "string"
+        },
+        "symbol": {
+          "type": "string"
+        },
+        "system": {
+          "enum": [
+            "ucum",
+            "opcua",
+            "si",
+            "custom"
+          ]
+        },
+        "quantityKind": {
+          "type": "string"
+        },
+        "metadata": {
+          "$ref": "#/$defs/objectMap"
+        }
+      }
+    },
+    "quality": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "status"
+      ],
+      "properties": {
+        "status": {
+          "enum": [
+            "unknown",
+            "good",
+            "uncertain",
+            "bad"
+          ]
+        },
+        "source": {
+          "type": "string"
+        },
+        "fieldPath": {
+          "type": "string"
+        },
+        "reason": {
+          "type": "string"
+        },
+        "metadata": {
+          "$ref": "#/$defs/objectMap"
+        }
+      }
+    },
+    "range": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "min": {
+          "type": "number"
+        },
+        "max": {
+          "type": "number"
+        },
+        "kind": {
+          "type": "string"
+        },
+        "severity": {
+          "$ref": "#/$defs/alarmSeverity"
+        }
+      }
+    },
+    "protocolSource": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "bindingId"
+      ],
+      "properties": {
+        "bindingId": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "role": {
+          "type": "string"
+        }
+      }
+    },
+    "protocolBinding": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "bindingId",
+        "protocolKind",
+        "address",
+        "sourceDataType"
+      ],
+      "properties": {
+        "bindingId": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "protocolKind": {
+          "$ref": "#/$defs/protocolKind"
+        },
+        "endpointRef": {
+          "type": "string",
+          "description": "Non-secret endpoint reference. Real passwords, tokens, and keys must be injected outside this contract."
+        },
+        "address": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "fieldPath": {
+          "type": "string"
+        },
+        "sourceDataType": {
+          "$ref": "#/$defs/dataType"
+        },
+        "polling": {
+          "$ref": "#/$defs/polling"
+        },
+        "decode": {
+          "$ref": "#/$defs/decode"
+        },
+        "quality": {
+          "$ref": "#/$defs/quality"
+        },
+        "options": {
+          "$ref": "#/$defs/objectMap"
+        },
+        "metadata": {
+          "$ref": "#/$defs/objectMap"
+        }
+      }
+    },
+    "polling": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "interval": {
+          "type": "string"
+        },
+        "timeout": {
+          "type": "string"
+        },
+        "subscription": {
+          "type": "boolean"
+        }
+      }
+    },
+    "decode": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "byteOrder": {
+          "type": "string"
+        },
+        "wordOrder": {
+          "type": "string"
+        },
+        "scale": {
+          "type": "number"
+        },
+        "offset": {
+          "type": "number"
+        },
+        "encoding": {
+          "type": "string"
+        },
+        "options": {
+          "$ref": "#/$defs/objectMap"
+        }
+      }
+    },
+    "processGraph": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "processGraphId",
+        "name",
+        "nodes",
+        "edges"
+      ],
+      "properties": {
+        "processGraphId": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "name": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "description": {
+          "type": "string"
+        },
+        "nodes": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/processNode"
+          }
+        },
+        "edges": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/processEdge"
+          }
+        },
+        "derivedPoints": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/derivedPoint"
+          },
+          "default": []
+        },
+        "stateModels": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/stateModel"
+          },
+          "default": []
+        },
+        "alarms": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/alarm"
+          },
+          "default": []
+        },
+        "controlPolicies": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/controlPolicy"
+          },
+          "default": []
+        },
+        "metadata": {
+          "$ref": "#/$defs/objectMap"
+        }
+      }
+    },
+    "processNode": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "nodeId",
+        "name",
+        "nodeType"
+      ],
+      "properties": {
+        "nodeId": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "name": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "nodeType": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "assetId": {
+          "type": "string"
+        },
+        "inputSemanticIds": {
+          "$ref": "#/$defs/stringArray"
+        },
+        "outputSemanticIds": {
+          "$ref": "#/$defs/stringArray"
+        },
+        "tags": {
+          "$ref": "#/$defs/stringArray"
+        },
+        "metadata": {
+          "$ref": "#/$defs/objectMap"
+        }
+      }
+    },
+    "processEdge": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "edgeId",
+        "fromNodeId",
+        "toNodeId",
+        "relation"
+      ],
+      "properties": {
+        "edgeId": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "fromNodeId": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "toNodeId": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "relation": {
+          "$ref": "#/$defs/processRelation"
+        },
+        "metadata": {
+          "$ref": "#/$defs/objectMap"
+        }
+      }
+    },
+    "derivedPoint": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "semanticId",
+        "name",
+        "expression",
+        "dependsOnSemanticIds",
+        "quantity",
+        "unit"
+      ],
+      "properties": {
+        "semanticId": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "name": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "expression": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "dependsOnSemanticIds": {
+          "$ref": "#/$defs/stringArray"
+        },
+        "quantity": {
+          "$ref": "#/$defs/quantity"
+        },
+        "unit": {
+          "$ref": "#/$defs/unit"
+        },
+        "refreshPolicy": {
+          "type": "string"
+        },
+        "metadata": {
+          "$ref": "#/$defs/objectMap"
+        }
+      }
+    },
+    "stateModel": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "stateModelId",
+        "name",
+        "states"
+      ],
+      "properties": {
+        "stateModelId": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "name": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "appliesToAssetId": {
+          "type": "string"
+        },
+        "appliesToNodeId": {
+          "type": "string"
+        },
+        "states": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/stateDefinition"
+          }
+        },
+        "transitions": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/stateTransition"
+          },
+          "default": []
+        },
+        "metadata": {
+          "$ref": "#/$defs/objectMap"
+        }
+      }
+    },
+    "stateDefinition": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "stateId",
+        "name"
+      ],
+      "properties": {
+        "stateId": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "name": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "condition": {
+          "type": "string"
+        },
+        "dependsOnSemanticIds": {
+          "$ref": "#/$defs/stringArray"
+        }
+      }
+    },
+    "stateTransition": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "fromStateId",
+        "toStateId"
+      ],
+      "properties": {
+        "fromStateId": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "toStateId": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "condition": {
+          "type": "string"
+        }
+      }
+    },
+    "alarm": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "alarmId",
+        "name",
+        "severity",
+        "condition",
+        "dependsOnSemanticIds"
+      ],
+      "properties": {
+        "alarmId": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "name": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "severity": {
+          "$ref": "#/$defs/alarmSeverity"
+        },
+        "condition": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "dependsOnSemanticIds": {
+          "$ref": "#/$defs/stringArray"
+        },
+        "duration": {
+          "type": "string"
+        },
+        "suppressionCondition": {
+          "type": "string"
+        },
+        "recoveryCondition": {
+          "type": "string"
+        },
+        "metadata": {
+          "$ref": "#/$defs/objectMap"
+        }
+      }
+    },
+    "controlPolicy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "controlPolicyId",
+        "name",
+        "appliesToSemanticIds",
+        "risk",
+        "requiresApproval",
+        "aiOperationMode"
+      ],
+      "properties": {
+        "controlPolicyId": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "name": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "appliesToSemanticIds": {
+          "$ref": "#/$defs/stringArray"
+        },
+        "risk": {
+          "enum": [
+            "normal",
+            "hazardous"
+          ]
+        },
+        "requiresApproval": {
+          "type": "boolean"
+        },
+        "aiOperationMode": {
+          "enum": [
+            "recommendOnly",
+            "draftOnly",
+            "allowWithApproval"
+          ]
+        },
+        "metadata": {
+          "$ref": "#/$defs/objectMap"
+        }
+      }
+    },
+    "extensionSlot": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "layer",
+        "key"
+      ],
+      "properties": {
+        "layer": {
+          "enum": [
+            "l1",
+            "l2",
+            "l3",
+            "l4"
+          ]
+        },
+        "key": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "description": {
+          "type": "string"
+        },
+        "metadata": {
+          "$ref": "#/$defs/objectMap"
+        }
+      }
+    },
+    "assetType": {
+      "enum": [
+        "site",
+        "area",
+        "line",
+        "cell",
+        "device",
+        "component",
+        "sensor",
+        "actuator",
+        "custom"
+      ]
+    },
+    "dataType": {
+      "enum": [
+        "boolean",
+        "int",
+        "float",
+        "decimal",
+        "string",
+        "enum",
+        "struct"
+      ]
+    },
+    "access": {
+      "enum": [
+        "read",
+        "write",
+        "readWrite",
+        "command",
+        "config"
+      ]
+    },
+    "protocolKind": {
+      "enum": [
+        "modbusTcp",
+        "modbusRtu",
+        "mqtt",
+        "opcUa",
+        "bacnet",
+        "s7",
+        "iec104",
+        "iec61850",
+        "can",
+        "lorawan",
+        "http",
+        "coap",
+        "ble",
+        "local",
+        "custom"
+      ]
+    },
+    "processRelation": {
+      "enum": [
+        "input",
+        "output",
+        "upstream",
+        "downstream",
+        "bypass",
+        "control",
+        "dependency"
+      ]
+    },
+    "alarmSeverity": {
+      "enum": [
+        "info",
+        "warning",
+        "minor",
+        "major",
+        "critical"
+      ]
+    }
+  }
+}
