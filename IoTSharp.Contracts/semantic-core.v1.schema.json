@@ -399,6 +399,9 @@
         "modbus": {
           "$ref": "#/$defs/modbusBinding"
         },
+        "mqtt": {
+          "$ref": "#/$defs/mqttBinding"
+        },
         "quality": {
           "$ref": "#/$defs/quality"
         },
@@ -507,6 +510,96 @@
         },
         "offset": {
           "type": "number"
+        }
+      }
+    },
+    "mqttBinding": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "MQTT binding metadata for UNS, Sparkplug, or custom MQTT namespaces. This describes topic shape and payload fields only; it does not define a broker or copy live telemetry values.",
+      "required": [
+        "topic",
+        "namespaceStyle",
+        "payloadSchema",
+        "valueField",
+        "retain",
+        "qos"
+      ],
+      "properties": {
+        "topic": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "namespaceStyle": {
+          "$ref": "#/$defs/mqttNamespaceStyle"
+        },
+        "payloadSchema": {
+          "$ref": "#/$defs/mqttPayloadSchema"
+        },
+        "timestampField": {
+          "type": "string"
+        },
+        "qualityField": {
+          "type": "string"
+        },
+        "valueField": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "retain": {
+          "type": "boolean"
+        },
+        "qos": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 2
+        },
+        "sparkplugProfile": {
+          "$ref": "#/$defs/sparkplugProfile"
+        }
+      }
+    },
+    "sparkplugProfile": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "Reserved Sparkplug profile metadata for MQTT bindings.",
+      "required": [
+        "groupId",
+        "edgeNodeId",
+        "deviceId",
+        "metricName"
+      ],
+      "properties": {
+        "groupId": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "edgeNodeId": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "deviceId": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "metricName": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "birth": {
+          "$ref": "#/$defs/sparkplugLifecycleState"
+        },
+        "death": {
+          "$ref": "#/$defs/sparkplugLifecycleState"
+        }
+      }
+    },
+    "sparkplugLifecycleState": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "enabled": {
+          "type": "boolean"
+        },
+        "topic": {
+          "type": "string"
+        },
+        "metricName": {
+          "type": "string"
         }
       }
     },
@@ -933,6 +1026,21 @@
       "enum": [
         "bigEndian",
         "littleEndian"
+      ]
+    },
+    "mqttNamespaceStyle": {
+      "enum": [
+        "uns",
+        "sparkplug",
+        "custom"
+      ]
+    },
+    "mqttPayloadSchema": {
+      "enum": [
+        "json",
+        "raw",
+        "sparkplugB",
+        "custom"
       ]
     },
     "processRelation": {

@@ -1,0 +1,346 @@
+{
+  "$schema": "../semantic-core.v1.schema.json",
+  "schemaVersion": "1.0",
+  "modelId": "semantic-model-mqtt-uns-bindings-v1",
+  "name": "MQTT UNS Binding semantic model",
+  "description": "Open Semantic Core v1 sample mapping semantic asset paths and point IDs to deterministic MQTT UNS topics, with Sparkplug profile metadata reserved.",
+  "assets": [
+    {
+      "assetId": "asset-site-alpha",
+      "name": "site_alpha",
+      "displayName": "Site Alpha",
+      "assetType": "site",
+      "assetPath": [
+        "site-alpha"
+      ],
+      "points": [],
+      "externalReferences": [],
+      "tags": [
+        "uns"
+      ],
+      "metadata": {}
+    },
+    {
+      "assetId": "asset-line-01",
+      "name": "line_01",
+      "displayName": "Line 01",
+      "assetType": "line",
+      "parentAssetId": "asset-site-alpha",
+      "assetPath": [
+        "site-alpha",
+        "line-01"
+      ],
+      "points": [],
+      "externalReferences": [],
+      "tags": [
+        "uns"
+      ],
+      "metadata": {}
+    },
+    {
+      "assetId": "asset-filler-01",
+      "name": "filler_01",
+      "displayName": "Filler 01",
+      "assetType": "device",
+      "parentAssetId": "asset-line-01",
+      "assetPath": [
+        "site-alpha",
+        "line-01",
+        "filler-01"
+      ],
+      "points": [
+        "filler.01.pack_count",
+        "filler.01.product_temperature",
+        "filler.01.machine_state"
+      ],
+      "externalReferences": [],
+      "tags": [
+        "mqtt",
+        "uns"
+      ],
+      "metadata": {}
+    }
+  ],
+  "semanticPoints": [
+    {
+      "semanticId": "filler.01.pack_count",
+      "name": "pack_count",
+      "displayName": "Pack count",
+      "assetId": "asset-filler-01",
+      "quantity": {
+        "quantityKind": "count",
+        "name": "Count",
+        "metadata": {}
+      },
+      "unit": {
+        "code": "1",
+        "displayName": "count",
+        "symbol": "1",
+        "system": "ucum",
+        "quantityKind": "count",
+        "metadata": {}
+      },
+      "dataType": "int",
+      "access": "read",
+      "quality": {
+        "status": "unknown",
+        "source": "payload-field",
+        "fieldPath": "$.quality",
+        "metadata": {}
+      },
+      "source": {
+        "bindingId": "binding-mqtt-uns-pack-count",
+        "role": "primary"
+      },
+      "tags": [
+        "mqtt",
+        "uns"
+      ],
+      "metadata": {}
+    },
+    {
+      "semanticId": "filler.01.product_temperature",
+      "name": "product_temperature",
+      "displayName": "Product temperature",
+      "assetId": "asset-filler-01",
+      "quantity": {
+        "quantityKind": "temperature",
+        "name": "Temperature",
+        "dimension": "thermodynamic-temperature",
+        "standard": "ucum",
+        "metadata": {}
+      },
+      "unit": {
+        "code": "Cel",
+        "displayName": "degree Celsius",
+        "symbol": "C",
+        "system": "ucum",
+        "quantityKind": "temperature",
+        "metadata": {}
+      },
+      "dataType": "float",
+      "access": "read",
+      "quality": {
+        "status": "unknown",
+        "source": "payload-field",
+        "fieldPath": "$.quality",
+        "metadata": {}
+      },
+      "source": {
+        "bindingId": "binding-mqtt-uns-product-temperature",
+        "role": "primary"
+      },
+      "tags": [
+        "mqtt",
+        "uns"
+      ],
+      "metadata": {}
+    },
+    {
+      "semanticId": "filler.01.machine_state",
+      "name": "machine_state",
+      "displayName": "Machine state",
+      "assetId": "asset-filler-01",
+      "quantity": {
+        "quantityKind": "state",
+        "name": "State",
+        "metadata": {}
+      },
+      "unit": {
+        "code": "1",
+        "displayName": "dimensionless",
+        "symbol": "1",
+        "system": "ucum",
+        "quantityKind": "state",
+        "metadata": {}
+      },
+      "dataType": "enum",
+      "access": "read",
+      "quality": {
+        "status": "unknown",
+        "source": "payload-field",
+        "fieldPath": "$.quality",
+        "metadata": {}
+      },
+      "source": {
+        "bindingId": "binding-mqtt-sparkplug-machine-state",
+        "role": "primary"
+      },
+      "tags": [
+        "mqtt",
+        "sparkplug"
+      ],
+      "metadata": {}
+    }
+  ],
+  "protocolBindings": [
+    {
+      "bindingId": "binding-mqtt-uns-pack-count",
+      "protocolKind": "mqtt",
+      "endpointRef": "endpoint-uns-broker",
+      "address": "uns/site-alpha/line-01/filler-01/filler-01-pack-count",
+      "fieldPath": "$.value",
+      "sourceDataType": "int",
+      "polling": {
+        "subscription": true
+      },
+      "mqtt": {
+        "topic": "uns/site-alpha/line-01/filler-01/filler-01-pack-count",
+        "namespaceStyle": "uns",
+        "payloadSchema": "json",
+        "timestampField": "$.timestamp",
+        "qualityField": "$.quality",
+        "valueField": "$.value",
+        "retain": false,
+        "qos": 1
+      },
+      "quality": {
+        "status": "unknown",
+        "source": "payload-field",
+        "fieldPath": "$.quality",
+        "metadata": {}
+      },
+      "options": {},
+      "metadata": {
+        "topicSource": "assetPath+semanticId"
+      }
+    },
+    {
+      "bindingId": "binding-mqtt-uns-product-temperature",
+      "protocolKind": "mqtt",
+      "endpointRef": "endpoint-uns-broker",
+      "address": "uns/site-alpha/line-01/filler-01/filler-01-product-temperature",
+      "fieldPath": "$.value",
+      "sourceDataType": "float",
+      "polling": {
+        "subscription": true
+      },
+      "mqtt": {
+        "topic": "uns/site-alpha/line-01/filler-01/filler-01-product-temperature",
+        "namespaceStyle": "uns",
+        "payloadSchema": "json",
+        "timestampField": "$.timestamp",
+        "qualityField": "$.quality",
+        "valueField": "$.value",
+        "retain": false,
+        "qos": 1
+      },
+      "quality": {
+        "status": "unknown",
+        "source": "payload-field",
+        "fieldPath": "$.quality",
+        "metadata": {}
+      },
+      "options": {},
+      "metadata": {
+        "topicSource": "assetPath+semanticId"
+      }
+    },
+    {
+      "bindingId": "binding-mqtt-sparkplug-machine-state",
+      "protocolKind": "mqtt",
+      "endpointRef": "endpoint-sparkplug-broker",
+      "address": "spBv1.0/site-alpha/DDATA/edge-node-01/filler-01",
+      "fieldPath": "metrics[machine_state].value",
+      "sourceDataType": "enum",
+      "polling": {
+        "subscription": true
+      },
+      "mqtt": {
+        "topic": "spBv1.0/site-alpha/DDATA/edge-node-01/filler-01",
+        "namespaceStyle": "sparkplug",
+        "payloadSchema": "sparkplugB",
+        "qualityField": "metrics[machine_state].properties.quality",
+        "valueField": "metrics[machine_state].value",
+        "retain": false,
+        "qos": 1,
+        "sparkplugProfile": {
+          "groupId": "site-alpha",
+          "edgeNodeId": "edge-node-01",
+          "deviceId": "filler-01",
+          "metricName": "machine_state",
+          "birth": {
+            "enabled": true,
+            "topic": "spBv1.0/site-alpha/DBIRTH/edge-node-01/filler-01",
+            "metricName": "machine_state"
+          },
+          "death": {
+            "enabled": true,
+            "topic": "spBv1.0/site-alpha/DDEATH/edge-node-01/filler-01",
+            "metricName": "machine_state"
+          }
+        }
+      },
+      "quality": {
+        "status": "unknown",
+        "source": "sparkplug-metric",
+        "fieldPath": "metrics[machine_state].properties.quality",
+        "metadata": {}
+      },
+      "options": {},
+      "metadata": {
+        "profile": "sparkplug-reserved"
+      }
+    }
+  ],
+  "quantities": [
+    {
+      "quantityKind": "count",
+      "name": "Count",
+      "metadata": {}
+    },
+    {
+      "quantityKind": "temperature",
+      "name": "Temperature",
+      "dimension": "thermodynamic-temperature",
+      "standard": "ucum",
+      "metadata": {}
+    },
+    {
+      "quantityKind": "state",
+      "name": "State",
+      "metadata": {}
+    }
+  ],
+  "units": [
+    {
+      "code": "1",
+      "displayName": "dimensionless",
+      "symbol": "1",
+      "system": "ucum",
+      "metadata": {}
+    },
+    {
+      "code": "Cel",
+      "displayName": "degree Celsius",
+      "symbol": "C",
+      "system": "ucum",
+      "quantityKind": "temperature",
+      "metadata": {}
+    }
+  ],
+  "processGraph": {
+    "processGraphId": "process-mqtt-uns-demo",
+    "name": "MQTT UNS demo process graph",
+    "nodes": [],
+    "edges": [],
+    "derivedPoints": [],
+    "stateModels": [],
+    "alarms": [],
+    "controlPolicies": [],
+    "metadata": {}
+  },
+  "extensionSlots": [
+    {
+      "layer": "l4",
+      "key": "sparkplug.profile.v1",
+      "description": "Reserved Sparkplug profile metadata; SaaS does not provide a broker or ingest telemetry.",
+      "metadata": {}
+    }
+  ],
+  "metadata": {
+    "example": "mqtt-uns-bindings-v1",
+    "topicRule": "uns/{assetPath...}/{semanticId}",
+    "mqttBoundary": "binding-only-no-broker-no-ingest"
+  }
+}

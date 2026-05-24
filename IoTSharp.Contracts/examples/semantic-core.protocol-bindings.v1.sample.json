@@ -213,11 +213,21 @@
       "bindingId": "binding-line-01-pack-count",
       "protocolKind": "mqtt",
       "endpointRef": "endpoint-uns-broker",
-      "address": "uns/site-alpha/line-01/pack-count",
+      "address": "uns/site-alpha/line-01/line-01-pack-count",
       "fieldPath": "$.value",
       "sourceDataType": "int",
       "polling": {
         "subscription": true
+      },
+      "mqtt": {
+        "topic": "uns/site-alpha/line-01/line-01-pack-count",
+        "namespaceStyle": "uns",
+        "payloadSchema": "json",
+        "timestampField": "$.timestamp",
+        "qualityField": "$.quality",
+        "valueField": "$.value",
+        "retain": false,
+        "qos": 1
       },
       "quality": {
         "status": "unknown",
@@ -225,11 +235,7 @@
         "fieldPath": "$.quality",
         "metadata": {}
       },
-      "options": {
-        "namespaceStyle": "uns",
-        "qos": 1,
-        "retain": false
-      },
+      "options": {},
       "metadata": {}
     },
     {

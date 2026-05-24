@@ -32,6 +32,12 @@ public static class SemanticModelValidator
             .Where(assetId => !string.IsNullOrWhiteSpace(assetId))
             .ToHashSet(StringComparer.Ordinal);
 
+        var assetsById = model.Assets
+            .Where(asset => !string.IsNullOrWhiteSpace(asset.AssetId))
+            .GroupBy(asset => asset.AssetId, StringComparer.Ordinal)
+            .Where(group => group.Count() == 1)
+            .ToDictionary(group => group.Key, group => group.Single(), StringComparer.Ordinal);
+
         var bindingIds = model.ProtocolBindings
             .Select(binding => binding.BindingId)
             .Where(bindingId => !string.IsNullOrWhiteSpace(bindingId))
@@ -67,7 +73,7 @@ public static class SemanticModelValidator
         var pointOwners = new Dictionary<string, string>(StringComparer.Ordinal);
         for (var index = 0; index < model.SemanticPoints.Count; index++)
         {
-            ValidateSemanticPoint(model.SemanticPoints[index], index, assetIds, bindingsById, seenSemanticIds, pointOwners, diagnostics);
+            ValidateSemanticPoint(model.SemanticPoints[index], index, assetIds, assetsById, bindingsById, seenSemanticIds, pointOwners, diagnostics);
         }
 
         ValidateAssetPointOwnership(model.Assets, pointOwners, diagnostics);
@@ -300,6 +306,7 @@ public static class SemanticModelValidator
         }
 
         ValidateModbusBinding(binding, path, diagnostics);
+        ValidateMqttBinding(binding, path, diagnostics);
 
         if (binding.Quality is not null)
         {
@@ -314,6 +321,7 @@ public static class SemanticModelValidator
         SemanticPoint point,
         int index,
         ISet<string> assetIds,
+        IReadOnlyDictionary<string, Asset> assetsById,
         IReadOnlyDictionary<string, ProtocolBinding> bindingsById,
         ISet<string> seenSemanticIds,
         IDictionary<string, string> pointOwners,
@@ -382,6 +390,8 @@ public static class SemanticModelValidator
         else if (bindingsById.TryGetValue(point.Source.BindingId, out var binding))
         {
             ValidateModbusPointAccess(point, binding, $"{path}.access", diagnostics);
+            assetsById.TryGetValue(point.AssetId ?? string.Empty, out var asset);
+            ValidateMqttPointBinding(point, binding, asset, $"{path}.source.bindingId", diagnostics);
         }
 
         if (IsWritable(point.Access) && point.Unit.Code == "1" && string.Equals(point.Quantity.QuantityKind, "temperature", StringComparison.OrdinalIgnoreCase))
@@ -577,6 +587,162 @@ public static class SemanticModelValidator
                 SemanticValidationCodes.ProtocolBindingModbusAccessInvalid,
                 path,
                 $"writable, command, and config semantic points must use a Modbus write function code, not '{modbus.FunctionCode}'."));
+        }
+    }
+
+    private static void ValidateMqttBinding(
+        ProtocolBinding binding,
+        string path,
+        ICollection<SemanticValidationDiagnostic> diagnostics)
+    {
+        if (binding.Mqtt is null)
+        {
+            return;
+        }
+
+        var mqttPath = $"{path}.mqtt";
+        if (binding.ProtocolKind != SemanticProtocolKind.Mqtt)
+        {
+            diagnostics.Add(new SemanticValidationDiagnostic(
+                SemanticValidationSeverity.Error,
+                SemanticValidationCodes.ProtocolBindingMqttKindMismatch,
+                mqttPath,
+                "mqtt binding metadata is only valid for mqtt protocol bindings."));
+        }
+
+        var mqtt = binding.Mqtt;
+        ValidateNonSecretString(mqtt.Topic, $"{mqttPath}.topic", diagnostics);
+        ValidateNonSecretString(mqtt.TimestampField, $"{mqttPath}.timestampField", diagnostics);
+        ValidateNonSecretString(mqtt.QualityField, $"{mqttPath}.qualityField", diagnostics);
+        ValidateNonSecretString(mqtt.ValueField, $"{mqttPath}.valueField", diagnostics);
+
+        if (string.IsNullOrWhiteSpace(mqtt.Topic) || !MqttUnsTopicBuilder.IsValidPublishTopic(mqtt.Topic))
+        {
+            diagnostics.Add(new SemanticValidationDiagnostic(
+                SemanticValidationSeverity.Error,
+                SemanticValidationCodes.ProtocolBindingMqttTopicInvalid,
+                $"{mqttPath}.topic",
+                "MQTT topic must be a non-empty publish topic without wildcards, null characters, or empty hierarchy levels."));
+        }
+        else if (!string.IsNullOrWhiteSpace(binding.Address) && !string.Equals(binding.Address, mqtt.Topic, StringComparison.Ordinal))
+        {
+            diagnostics.Add(new SemanticValidationDiagnostic(
+                SemanticValidationSeverity.Error,
+                SemanticValidationCodes.ProtocolBindingMqttTopicMismatch,
+                $"{path}.address",
+                "ProtocolBinding.address must match mqtt.topic for MQTT bindings."));
+        }
+
+        if (mqtt.NamespaceStyle == MqttNamespaceStyle.Uns && !MqttUnsTopicBuilder.IsValidUnsTopic(mqtt.Topic))
+        {
+            diagnostics.Add(new SemanticValidationDiagnostic(
+                SemanticValidationSeverity.Error,
+                SemanticValidationCodes.ProtocolBindingMqttTopicInvalid,
+                $"{mqttPath}.topic",
+                "UNS MQTT topics must use the generated shape uns/{assetPath...}/{semanticId}."));
+        }
+
+        if (mqtt.Qos is < 0 or > 2)
+        {
+            diagnostics.Add(new SemanticValidationDiagnostic(
+                SemanticValidationSeverity.Error,
+                SemanticValidationCodes.ProtocolBindingMqttQosInvalid,
+                $"{mqttPath}.qos",
+                "MQTT qos must be 0, 1, or 2."));
+        }
+
+        if (string.IsNullOrWhiteSpace(mqtt.ValueField))
+        {
+            diagnostics.Add(new SemanticValidationDiagnostic(
+                SemanticValidationSeverity.Error,
+                SemanticValidationCodes.ProtocolBindingMqttValueFieldRequired,
+                $"{mqttPath}.valueField",
+                "valueField is required so the MQTT payload maps to a SemanticPoint value."));
+        }
+
+        if (mqtt.NamespaceStyle == MqttNamespaceStyle.Sparkplug && mqtt.SparkplugProfile is null)
+        {
+            diagnostics.Add(new SemanticValidationDiagnostic(
+                SemanticValidationSeverity.Error,
+                SemanticValidationCodes.ProtocolBindingMqttSparkplugProfileRequired,
+                $"{mqttPath}.sparkplugProfile",
+                "sparkplugProfile is required when namespaceStyle is sparkplug."));
+        }
+
+        if (mqtt.SparkplugProfile is not null)
+        {
+            ValidateSparkplugProfile(mqtt.SparkplugProfile, $"{mqttPath}.sparkplugProfile", diagnostics);
+        }
+    }
+
+    private static void ValidateMqttPointBinding(
+        SemanticPoint point,
+        ProtocolBinding binding,
+        Asset? asset,
+        string path,
+        ICollection<SemanticValidationDiagnostic> diagnostics)
+    {
+        if (binding.Mqtt is null || binding.Mqtt.NamespaceStyle != MqttNamespaceStyle.Uns || asset is null)
+        {
+            return;
+        }
+
+        try
+        {
+            var expectedTopic = MqttUnsTopicBuilder.GenerateTopic(asset.AssetPath, point.SemanticId);
+            if (!string.Equals(binding.Mqtt.Topic, expectedTopic, StringComparison.Ordinal))
+            {
+                diagnostics.Add(new SemanticValidationDiagnostic(
+                    SemanticValidationSeverity.Error,
+                    SemanticValidationCodes.ProtocolBindingMqttUnsTopicMismatch,
+                    path,
+                    $"UNS MQTT topic must be generated from assetPath and semanticId. Expected '{expectedTopic}'."));
+            }
+        }
+        catch (ArgumentException exception)
+        {
+            diagnostics.Add(new SemanticValidationDiagnostic(
+                SemanticValidationSeverity.Error,
+                SemanticValidationCodes.ProtocolBindingMqttTopicInvalid,
+                path,
+                exception.Message));
+        }
+    }
+
+    private static void ValidateSparkplugProfile(
+        SparkplugProfile profile,
+        string path,
+        ICollection<SemanticValidationDiagnostic> diagnostics)
+    {
+        ValidateRequired(diagnostics, profile.GroupId, $"{path}.groupId", SemanticValidationCodes.ProtocolBindingMqttSparkplugProfileRequired, "sparkplugProfile.groupId is required.");
+        ValidateRequired(diagnostics, profile.EdgeNodeId, $"{path}.edgeNodeId", SemanticValidationCodes.ProtocolBindingMqttSparkplugProfileRequired, "sparkplugProfile.edgeNodeId is required.");
+        ValidateRequired(diagnostics, profile.DeviceId, $"{path}.deviceId", SemanticValidationCodes.ProtocolBindingMqttSparkplugProfileRequired, "sparkplugProfile.deviceId is required.");
+        ValidateRequired(diagnostics, profile.MetricName, $"{path}.metricName", SemanticValidationCodes.ProtocolBindingMqttSparkplugProfileRequired, "sparkplugProfile.metricName is required.");
+
+        ValidateNonSecretString(profile.GroupId, $"{path}.groupId", diagnostics);
+        ValidateNonSecretString(profile.EdgeNodeId, $"{path}.edgeNodeId", diagnostics);
+        ValidateNonSecretString(profile.DeviceId, $"{path}.deviceId", diagnostics);
+        ValidateNonSecretString(profile.MetricName, $"{path}.metricName", diagnostics);
+
+        ValidateSparkplugLifecycleState(profile.Birth, $"{path}.birth", diagnostics);
+        ValidateSparkplugLifecycleState(profile.Death, $"{path}.death", diagnostics);
+    }
+
+    private static void ValidateSparkplugLifecycleState(
+        SparkplugLifecycleState state,
+        string path,
+        ICollection<SemanticValidationDiagnostic> diagnostics)
+    {
+        ValidateNonSecretString(state.Topic, $"{path}.topic", diagnostics);
+        ValidateNonSecretString(state.MetricName, $"{path}.metricName", diagnostics);
+
+        if (!string.IsNullOrWhiteSpace(state.Topic) && !MqttUnsTopicBuilder.IsValidPublishTopic(state.Topic))
+        {
+            diagnostics.Add(new SemanticValidationDiagnostic(
+                SemanticValidationSeverity.Error,
+                SemanticValidationCodes.ProtocolBindingMqttTopicInvalid,
+                $"{path}.topic",
+                "Sparkplug lifecycle topics must be MQTT publish topics without wildcards, null characters, or empty hierarchy levels."));
         }
     }
 
@@ -995,6 +1161,13 @@ public static class SemanticValidationCodes
     public const string ProtocolBindingModbusUnitIdInvalid = "semantic.protocol_binding.modbus.unit_id.invalid";
     public const string ProtocolBindingModbusRegisterCountInvalid = "semantic.protocol_binding.modbus.register_count.invalid";
     public const string ProtocolBindingModbusAccessInvalid = "semantic.protocol_binding.modbus.access.invalid";
+    public const string ProtocolBindingMqttKindMismatch = "semantic.protocol_binding.mqtt.kind_mismatch";
+    public const string ProtocolBindingMqttTopicInvalid = "semantic.protocol_binding.mqtt.topic.invalid";
+    public const string ProtocolBindingMqttTopicMismatch = "semantic.protocol_binding.mqtt.topic.mismatch";
+    public const string ProtocolBindingMqttUnsTopicMismatch = "semantic.protocol_binding.mqtt.uns_topic.mismatch";
+    public const string ProtocolBindingMqttQosInvalid = "semantic.protocol_binding.mqtt.qos.invalid";
+    public const string ProtocolBindingMqttValueFieldRequired = "semantic.protocol_binding.mqtt.value_field.required";
+    public const string ProtocolBindingMqttSparkplugProfileRequired = "semantic.protocol_binding.mqtt.sparkplug_profile.required";
     public const string SemanticPointIdRequired = "semantic.point.semantic_id.required";
     public const string SemanticPointIdDuplicate = "semantic.point.semantic_id.duplicate";
     public const string SemanticPointNameRequired = "semantic.point.name.required";

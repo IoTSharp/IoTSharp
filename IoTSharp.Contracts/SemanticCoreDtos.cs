@@ -1,4 +1,6 @@
 using System.Runtime.Serialization;
+using System.Globalization;
+using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using Newtonsoft.Json.Converters;
@@ -461,6 +463,11 @@ public sealed record ProtocolBinding
     public ModbusBinding? Modbus { get; init; }
 
     /// <summary>
+    /// MQTT topic, payload, UNS namespace, and reserved Sparkplug profile metadata.
+    /// </summary>
+    public MqttBinding? Mqtt { get; init; }
+
+    /// <summary>
     /// Quality metadata provided by the protocol or payload.
     /// </summary>
     public Quality? Quality { get; init; }
@@ -588,6 +595,289 @@ public sealed record ModbusBinding
     /// Applies the standard Modbus v1 numeric transform: raw * scale + offset.
     /// </summary>
     public decimal ApplyScale(decimal rawValue) => rawValue * Scale + Offset;
+}
+
+/// <summary>
+/// MQTT binding metadata for UNS, Sparkplug, or custom MQTT namespaces. This describes topic shape
+/// and payload fields only; it does not define a broker or copy live telemetry values.
+/// </summary>
+public sealed record MqttBinding
+{
+    /// <summary>
+    /// Creates a UNS MQTT binding using the Semantic Core v1 generated topic convention.
+    /// </summary>
+    public static MqttBinding CreateUns(
+        IEnumerable<string> assetPath,
+        string semanticId,
+        string valueField = "$.value",
+        string? timestampField = "$.timestamp",
+        string? qualityField = "$.quality",
+        MqttPayloadSchema payloadSchema = MqttPayloadSchema.Json,
+        bool retain = false,
+        int qos = 0)
+    {
+        var topic = MqttUnsTopicBuilder.GenerateTopic(assetPath, semanticId);
+        return new MqttBinding
+        {
+            Topic = topic,
+            NamespaceStyle = MqttNamespaceStyle.Uns,
+            PayloadSchema = payloadSchema,
+            TimestampField = timestampField,
+            QualityField = qualityField,
+            ValueField = valueField,
+            Retain = retain,
+            Qos = qos
+        };
+    }
+
+    /// <summary>
+    /// MQTT publish or subscribe topic. ProtocolBinding.Address must carry the same value.
+    /// </summary>
+    public string Topic { get; init; } = string.Empty;
+
+    /// <summary>
+    /// MQTT namespace style used by the topic, for example UNS or Sparkplug.
+    /// </summary>
+    public MqttNamespaceStyle NamespaceStyle { get; init; } = MqttNamespaceStyle.Custom;
+
+    /// <summary>
+    /// Payload envelope shape used by this topic.
+    /// </summary>
+    public MqttPayloadSchema PayloadSchema { get; init; } = MqttPayloadSchema.Json;
+
+    /// <summary>
+    /// Optional payload field path that carries the source timestamp.
+    /// </summary>
+    public string? TimestampField { get; init; }
+
+    /// <summary>
+    /// Optional payload field path that carries quality metadata.
+    /// </summary>
+    public string? QualityField { get; init; }
+
+    /// <summary>
+    /// Payload field path that carries the semantic point value.
+    /// </summary>
+    public string ValueField { get; init; } = string.Empty;
+
+    /// <summary>
+    /// MQTT retain flag intended for publishing generated edge output.
+    /// </summary>
+    public bool Retain { get; init; }
+
+    /// <summary>
+    /// MQTT QoS level. Valid values are 0, 1, and 2.
+    /// </summary>
+    public int Qos { get; init; }
+
+    /// <summary>
+    /// Reserved Sparkplug profile metadata for future Sparkplug generation or import.
+    /// </summary>
+    public SparkplugProfile? SparkplugProfile { get; init; }
+}
+
+/// <summary>
+/// Sparkplug profile reservation for MQTT bindings. It names the Sparkplug hierarchy and birth/death
+/// status topics without implementing a broker or Sparkplug runtime in SaaS.
+/// </summary>
+public sealed record SparkplugProfile
+{
+    /// <summary>
+    /// Sparkplug group identifier.
+    /// </summary>
+    public string GroupId { get; init; } = string.Empty;
+
+    /// <summary>
+    /// Sparkplug edge node identifier.
+    /// </summary>
+    public string EdgeNodeId { get; init; } = string.Empty;
+
+    /// <summary>
+    /// Sparkplug device identifier.
+    /// </summary>
+    public string DeviceId { get; init; } = string.Empty;
+
+    /// <summary>
+    /// Sparkplug metric name that maps to the semantic point.
+    /// </summary>
+    public string MetricName { get; init; } = string.Empty;
+
+    /// <summary>
+    /// Reserved Sparkplug birth status metadata.
+    /// </summary>
+    public SparkplugLifecycleState Birth { get; init; } = new();
+
+    /// <summary>
+    /// Reserved Sparkplug death status metadata.
+    /// </summary>
+    public SparkplugLifecycleState Death { get; init; } = new();
+}
+
+/// <summary>
+/// Reserved Sparkplug lifecycle status metadata.
+/// </summary>
+public sealed record SparkplugLifecycleState
+{
+    /// <summary>
+    /// True when this lifecycle message should be modeled by the profile.
+    /// </summary>
+    public bool Enabled { get; init; }
+
+    /// <summary>
+    /// Optional Sparkplug lifecycle topic, such as NBIRTH, DBIRTH, NDEATH, or DDEATH.
+    /// </summary>
+    public string? Topic { get; init; }
+
+    /// <summary>
+    /// Optional lifecycle metric name when it differs from the profile metric name.
+    /// </summary>
+    public string? MetricName { get; init; }
+}
+
+/// <summary>
+/// Deterministic UNS MQTT topic generator used by Semantic Core contracts and edge code generation.
+/// </summary>
+public static class MqttUnsTopicBuilder
+{
+    public const string DefaultRoot = "uns";
+
+    /// <summary>
+    /// Creates a stable UNS topic from an asset path and semantic point identifier.
+    /// </summary>
+    public static string GenerateTopic(IEnumerable<string> assetPath, string semanticId, string root = DefaultRoot)
+    {
+        ArgumentNullException.ThrowIfNull(assetPath);
+
+        if (string.IsNullOrWhiteSpace(semanticId))
+        {
+            throw new ArgumentException("semanticId is required.", nameof(semanticId));
+        }
+
+        var segments = new List<string>
+        {
+            NormalizeTopicSegment(root)
+        };
+
+        foreach (var segment in assetPath)
+        {
+            if (string.IsNullOrWhiteSpace(segment))
+            {
+                throw new ArgumentException("assetPath cannot contain empty segments.", nameof(assetPath));
+            }
+
+            segments.Add(NormalizeTopicSegment(segment));
+        }
+
+        if (segments.Count == 1)
+        {
+            throw new ArgumentException("assetPath must contain at least one segment.", nameof(assetPath));
+        }
+
+        segments.Add(NormalizeTopicSegment(semanticId));
+
+        return string.Join('/', segments);
+    }
+
+    /// <summary>
+    /// Returns true when a topic is a publish-safe MQTT topic without wildcards or empty hierarchy levels.
+    /// </summary>
+    public static bool IsValidPublishTopic(string? topic)
+    {
+        if (string.IsNullOrWhiteSpace(topic) || topic != topic.Trim())
+        {
+            return false;
+        }
+
+        if (Encoding.UTF8.GetByteCount(topic) > 65535)
+        {
+            return false;
+        }
+
+        if (topic.IndexOf('\0') >= 0 || topic.IndexOf('+') >= 0 || topic.IndexOf('#') >= 0)
+        {
+            return false;
+        }
+
+        return topic.Split('/').All(segment => segment.Length > 0);
+    }
+
+    /// <summary>
+    /// Returns true when a topic follows the Semantic Core UNS v1 generated-topic shape.
+    /// </summary>
+    public static bool IsValidUnsTopic(string? topic)
+    {
+        if (!IsValidPublishTopic(topic))
+        {
+            return false;
+        }
+
+        var segments = topic!.Split('/');
+        return segments.Length >= 3
+            && string.Equals(segments[0], DefaultRoot, StringComparison.Ordinal)
+            && segments.All(IsSafeUnsSegment);
+    }
+
+    private static string NormalizeTopicSegment(string value)
+    {
+        var builder = new StringBuilder();
+        var lastWasSeparator = false;
+
+        foreach (var character in value.Normalize(NormalizationForm.FormD))
+        {
+            if (CharUnicodeInfo.GetUnicodeCategory(character) == UnicodeCategory.NonSpacingMark)
+            {
+                continue;
+            }
+
+            var lower = char.ToLowerInvariant(character);
+            if ((lower >= 'a' && lower <= 'z') || (lower >= '0' && lower <= '9'))
+            {
+                builder.Append(lower);
+                lastWasSeparator = false;
+                continue;
+            }
+
+            if (!lastWasSeparator && builder.Length > 0)
+            {
+                builder.Append('-');
+                lastWasSeparator = true;
+            }
+        }
+
+        while (builder.Length > 0 && builder[^1] == '-')
+        {
+            builder.Length--;
+        }
+
+        return builder.Length == 0 ? "x" : builder.ToString();
+    }
+
+    private static bool IsSafeUnsSegment(string segment)
+    {
+        if (string.IsNullOrWhiteSpace(segment))
+        {
+            return false;
+        }
+
+        if (!((segment[0] >= 'a' && segment[0] <= 'z') || (segment[0] >= '0' && segment[0] <= '9')))
+        {
+            return false;
+        }
+
+        foreach (var character in segment)
+        {
+            if ((character >= 'a' && character <= 'z')
+                || (character >= '0' && character <= '9')
+                || character is '.' or '_' or '-')
+            {
+                continue;
+            }
+
+            return false;
+        }
+
+        return true;
+    }
 }
 
 /// <summary>
@@ -1017,6 +1307,44 @@ public enum ModbusWordOrder
     [EnumMember(Value = "littleEndian")]
     [JsonStringEnumMemberName("littleEndian")]
     LittleEndian
+}
+
+[JsonConverter(typeof(JsonStringEnumConverter<MqttNamespaceStyle>))]
+[Newtonsoft.Json.JsonConverter(typeof(StringEnumConverter))]
+public enum MqttNamespaceStyle
+{
+    [EnumMember(Value = "uns")]
+    [JsonStringEnumMemberName("uns")]
+    Uns,
+
+    [EnumMember(Value = "sparkplug")]
+    [JsonStringEnumMemberName("sparkplug")]
+    Sparkplug,
+
+    [EnumMember(Value = "custom")]
+    [JsonStringEnumMemberName("custom")]
+    Custom
+}
+
+[JsonConverter(typeof(JsonStringEnumConverter<MqttPayloadSchema>))]
+[Newtonsoft.Json.JsonConverter(typeof(StringEnumConverter))]
+public enum MqttPayloadSchema
+{
+    [EnumMember(Value = "json")]
+    [JsonStringEnumMemberName("json")]
+    Json,
+
+    [EnumMember(Value = "raw")]
+    [JsonStringEnumMemberName("raw")]
+    Raw,
+
+    [EnumMember(Value = "sparkplugB")]
+    [JsonStringEnumMemberName("sparkplugB")]
+    SparkplugB,
+
+    [EnumMember(Value = "custom")]
+    [JsonStringEnumMemberName("custom")]
+    Custom
 }
 
 [JsonConverter(typeof(JsonStringEnumConverter<SemanticProtocolKind>))]
