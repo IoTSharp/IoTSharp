@@ -1,0 +1,61 @@
+{
+  "$schema": "../../semantic-core.v1.schema.json",
+  "schemaVersion": "1.0",
+  "modelId": "semantic-model-invalid-missing-unit",
+  "name": "Invalid missing unit model",
+  "assets": [
+    {
+      "assetId": "asset-invalid-device",
+      "name": "invalid_device",
+      "assetType": "device",
+      "assetPath": [
+        "site-alpha",
+        "invalid-device"
+      ],
+      "points": [
+        "invalid.temperature"
+      ],
+      "externalReferences": [],
+      "tags": [],
+      "metadata": {}
+    }
+  ],
+  "semanticPoints": [
+    {
+      "semanticId": "invalid.temperature",
+      "name": "temperature",
+      "assetId": "asset-invalid-device",
+      "quantity": {
+        "quantityKind": "temperature",
+        "metadata": {}
+      },
+      "unit": {
+        "system": "ucum",
+        "quantityKind": "temperature",
+        "metadata": {}
+      },
+      "dataType": "float",
+      "access": "read",
+      "quality": {
+        "status": "unknown",
+        "metadata": {}
+      },
+      "source": {
+        "bindingId": "binding-temperature"
+      },
+      "tags": [],
+      "metadata": {}
+    }
+  ],
+  "protocolBindings": [
+    {
+      "bindingId": "binding-temperature",
+      "protocolKind": "modbusTcp",
+      "address": "holding-register:40001",
+      "sourceDataType": "float",
+      "options": {},
+      "metadata": {}
+    }
+  ],
+  "metadata": {}
+}

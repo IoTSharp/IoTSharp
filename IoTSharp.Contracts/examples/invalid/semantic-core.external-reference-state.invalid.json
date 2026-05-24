@@ -1,0 +1,72 @@
+{
+  "$schema": "../../semantic-core.v1.schema.json",
+  "schemaVersion": "1.0",
+  "modelId": "semantic-model-invalid-external-reference-state",
+  "name": "Invalid external reference state model",
+  "assets": [
+    {
+      "assetId": "asset-compressor-01",
+      "name": "compressor_01",
+      "assetType": "device",
+      "assetPath": [
+        "site-alpha",
+        "compressor-01"
+      ],
+      "points": [
+        "compressor.01.discharge_pressure"
+      ],
+      "externalReferences": [
+        {
+          "referenceType": "iotsharp.asset",
+          "system": "user-iotsharp-instance",
+          "referenceId": "compressor-01",
+          "uri": "https://iotsharp.example.com/assets/compressor-01",
+          "metadata": {
+            "onlineStatus": true
+          }
+        }
+      ],
+      "tags": [],
+      "metadata": {}
+    }
+  ],
+  "semanticPoints": [
+    {
+      "semanticId": "compressor.01.discharge_pressure",
+      "name": "discharge_pressure",
+      "assetId": "asset-compressor-01",
+      "quantity": {
+        "quantityKind": "pressure",
+        "metadata": {}
+      },
+      "unit": {
+        "code": "kPa",
+        "system": "ucum",
+        "quantityKind": "pressure",
+        "metadata": {}
+      },
+      "dataType": "float",
+      "access": "read",
+      "quality": {
+        "status": "unknown",
+        "metadata": {}
+      },
+      "source": {
+        "bindingId": "binding-pressure"
+      },
+      "tags": [],
+      "metadata": {}
+    }
+  ],
+  "protocolBindings": [
+    {
+      "bindingId": "binding-pressure",
+      "protocolKind": "modbusTcp",
+      "address": "holding-register:40010",
+      "sourceDataType": "float",
+      "options": {},
+      "metadata": {}
+    }
+  ],
+  "metadata": {}
+}

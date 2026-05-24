@@ -1,0 +1,60 @@
+{
+  "$schema": "../../semantic-core.v1.schema.json",
+  "schemaVersion": "1.0",
+  "modelId": "semantic-model-invalid-orphan-point",
+  "name": "Invalid orphan point model",
+  "assets": [
+    {
+      "assetId": "asset-pump-01",
+      "name": "pump_01",
+      "assetType": "device",
+      "assetPath": [
+        "site-alpha",
+        "pump-01"
+      ],
+      "points": [],
+      "externalReferences": [],
+      "tags": [],
+      "metadata": {}
+    }
+  ],
+  "semanticPoints": [
+    {
+      "semanticId": "pump.01.run_status",
+      "name": "run_status",
+      "assetId": "asset-pump-01",
+      "quantity": {
+        "quantityKind": "state",
+        "metadata": {}
+      },
+      "unit": {
+        "code": "1",
+        "system": "ucum",
+        "quantityKind": "state",
+        "metadata": {}
+      },
+      "dataType": "boolean",
+      "access": "read",
+      "quality": {
+        "status": "unknown",
+        "metadata": {}
+      },
+      "source": {
+        "bindingId": "binding-run-status"
+      },
+      "tags": [],
+      "metadata": {}
+    }
+  ],
+  "protocolBindings": [
+    {
+      "bindingId": "binding-run-status",
+      "protocolKind": "modbusTcp",
+      "address": "coil:00001",
+      "sourceDataType": "boolean",
+      "options": {},
+      "metadata": {}
+    }
+  ],
+  "metadata": {}
+}

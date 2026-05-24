@@ -26,7 +26,7 @@ public static class SemanticCoreJson
             WriteIndented = true
         };
 
-        options.Converters.Add(new JsonStringEnumConverter());
+        options.Converters.Add(new JsonStringEnumConverter(allowIntegerValues: false));
         return options;
     }
 }

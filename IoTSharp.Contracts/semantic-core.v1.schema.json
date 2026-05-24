@@ -37,12 +37,14 @@
     },
     "semanticPoints": {
       "type": "array",
+      "minItems": 1,
       "items": {
         "$ref": "#/$defs/semanticPoint"
       }
     },
     "protocolBindings": {
       "type": "array",
+      "minItems": 1,
       "items": {
         "$ref": "#/$defs/protocolBinding"
       }
@@ -91,6 +93,18 @@
         "type": "string"
       }
     },
+    "assetPathSegment": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^[a-z0-9][a-z0-9._-]*$"
+    },
+    "assetPath": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "$ref": "#/$defs/assetPathSegment"
+      }
+    },
     "asset": {
       "type": "object",
       "additionalProperties": false,
@@ -121,7 +135,7 @@
           "type": "string"
         },
         "assetPath": {
-          "$ref": "#/$defs/stringArray"
+          "$ref": "#/$defs/assetPath"
         },
         "points": {
           "$ref": "#/$defs/stringArray"
@@ -159,7 +173,8 @@
           "$ref": "#/$defs/nonEmptyString"
         },
         "uri": {
-          "type": "string"
+          "type": "string",
+          "pattern": "^https?://"
         },
         "metadata": {
           "$ref": "#/$defs/objectMap"

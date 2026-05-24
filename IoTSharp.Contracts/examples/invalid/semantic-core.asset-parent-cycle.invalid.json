@@ -1,0 +1,78 @@
+{
+  "$schema": "../../semantic-core.v1.schema.json",
+  "schemaVersion": "1.0",
+  "modelId": "semantic-model-invalid-asset-cycle",
+  "name": "Invalid asset cycle model",
+  "assets": [
+    {
+      "assetId": "asset-line-a",
+      "name": "line_a",
+      "assetType": "line",
+      "parentAssetId": "asset-cell-a",
+      "assetPath": [
+        "site-alpha",
+        "line-a"
+      ],
+      "points": [
+        "line.a.temperature"
+      ],
+      "externalReferences": [],
+      "tags": [],
+      "metadata": {}
+    },
+    {
+      "assetId": "asset-cell-a",
+      "name": "cell_a",
+      "assetType": "cell",
+      "parentAssetId": "asset-line-a",
+      "assetPath": [
+        "site-alpha",
+        "line-a",
+        "cell-a"
+      ],
+      "points": [],
+      "externalReferences": [],
+      "tags": [],
+      "metadata": {}
+    }
+  ],
+  "semanticPoints": [
+    {
+      "semanticId": "line.a.temperature",
+      "name": "temperature",
+      "assetId": "asset-line-a",
+      "quantity": {
+        "quantityKind": "temperature",
+        "metadata": {}
+      },
+      "unit": {
+        "code": "Cel",
+        "system": "ucum",
+        "quantityKind": "temperature",
+        "metadata": {}
+      },
+      "dataType": "float",
+      "access": "read",
+      "quality": {
+        "status": "unknown",
+        "metadata": {}
+      },
+      "source": {
+        "bindingId": "binding-temperature"
+      },
+      "tags": [],
+      "metadata": {}
+    }
+  ],
+  "protocolBindings": [
+    {
+      "bindingId": "binding-temperature",
+      "protocolKind": "modbusTcp",
+      "address": "holding-register:40001",
+      "sourceDataType": "float",
+      "options": {},
+      "metadata": {}
+    }
+  ],
+  "metadata": {}
+}

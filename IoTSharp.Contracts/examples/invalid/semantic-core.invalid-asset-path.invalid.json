@@ -1,0 +1,63 @@
+{
+  "$schema": "../../semantic-core.v1.schema.json",
+  "schemaVersion": "1.0",
+  "modelId": "semantic-model-invalid-asset-path",
+  "name": "Invalid asset path model",
+  "assets": [
+    {
+      "assetId": "asset-boiler-01",
+      "name": "boiler_01",
+      "assetType": "device",
+      "assetPath": [
+        "site-alpha",
+        "Boiler Room",
+        "boiler-01"
+      ],
+      "points": [
+        "boiler.01.supply_temperature"
+      ],
+      "externalReferences": [],
+      "tags": [],
+      "metadata": {}
+    }
+  ],
+  "semanticPoints": [
+    {
+      "semanticId": "boiler.01.supply_temperature",
+      "name": "supply_temperature",
+      "assetId": "asset-boiler-01",
+      "quantity": {
+        "quantityKind": "temperature",
+        "metadata": {}
+      },
+      "unit": {
+        "code": "Cel",
+        "system": "ucum",
+        "quantityKind": "temperature",
+        "metadata": {}
+      },
+      "dataType": "float",
+      "access": "read",
+      "quality": {
+        "status": "unknown",
+        "metadata": {}
+      },
+      "source": {
+        "bindingId": "binding-temperature"
+      },
+      "tags": [],
+      "metadata": {}
+    }
+  ],
+  "protocolBindings": [
+    {
+      "bindingId": "binding-temperature",
+      "protocolKind": "modbusTcp",
+      "address": "holding-register:40001",
+      "sourceDataType": "float",
+      "options": {},
+      "metadata": {}
+    }
+  ],
+  "metadata": {}
+}

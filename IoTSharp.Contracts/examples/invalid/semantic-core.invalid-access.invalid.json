@@ -1,0 +1,45 @@
+{
+  "$schema": "../../semantic-core.v1.schema.json",
+  "schemaVersion": "1.0",
+  "modelId": "semantic-model-invalid-access",
+  "name": "Invalid access model",
+  "assets": [],
+  "semanticPoints": [
+    {
+      "semanticId": "invalid.temperature",
+      "name": "temperature",
+      "quantity": {
+        "quantityKind": "temperature",
+        "metadata": {}
+      },
+      "unit": {
+        "code": "Cel",
+        "system": "ucum",
+        "quantityKind": "temperature",
+        "metadata": {}
+      },
+      "dataType": "float",
+      "access": "telemetry",
+      "quality": {
+        "status": "unknown",
+        "metadata": {}
+      },
+      "source": {
+        "bindingId": "binding-temperature"
+      },
+      "tags": [],
+      "metadata": {}
+    }
+  ],
+  "protocolBindings": [
+    {
+      "bindingId": "binding-temperature",
+      "protocolKind": "modbusTcp",
+      "address": "holding-register:40001",
+      "sourceDataType": "float",
+      "options": {},
+      "metadata": {}
+    }
+  ],
+  "metadata": {}
+}
