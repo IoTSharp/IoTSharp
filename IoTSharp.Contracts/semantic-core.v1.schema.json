@@ -364,6 +364,45 @@
     "protocolBinding": {
       "type": "object",
       "additionalProperties": false,
+      "allOf": [
+        {
+          "if": {
+            "required": [
+              "protocolKind"
+            ],
+            "properties": {
+              "protocolKind": {
+                "enum": [
+                  "modbusTcp",
+                  "modbusRtu"
+                ]
+              }
+            }
+          },
+          "then": {
+            "required": [
+              "modbus"
+            ]
+          }
+        },
+        {
+          "if": {
+            "required": [
+              "protocolKind"
+            ],
+            "properties": {
+              "protocolKind": {
+                "const": "opcUa"
+              }
+            }
+          },
+          "then": {
+            "required": [
+              "opcUa"
+            ]
+          }
+        }
+      ],
       "required": [
         "bindingId",
         "protocolKind",

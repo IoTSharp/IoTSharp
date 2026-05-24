@@ -54,6 +54,17 @@
       "protocolKind": "modbusTcp",
       "address": "coil:00001",
       "sourceDataType": "boolean",
+      "modbus": {
+        "functionCode": 1,
+        "registerType": "coil",
+        "address": 0,
+        "unitId": 1,
+        "registerCount": 1,
+        "byteOrder": "bigEndian",
+        "wordOrder": "bigEndian",
+        "scale": 1,
+        "offset": 0
+      },
       "options": {},
       "metadata": {}
     },

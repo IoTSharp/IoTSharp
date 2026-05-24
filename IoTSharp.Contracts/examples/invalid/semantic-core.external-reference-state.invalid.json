@@ -64,6 +64,17 @@
       "protocolKind": "modbusTcp",
       "address": "holding-register:40010",
       "sourceDataType": "float",
+      "modbus": {
+        "functionCode": 3,
+        "registerType": "holding-register",
+        "address": 9,
+        "unitId": 1,
+        "registerCount": 2,
+        "byteOrder": "bigEndian",
+        "wordOrder": "bigEndian",
+        "scale": 1,
+        "offset": 0
+      },
       "options": {},
       "metadata": {}
     }
