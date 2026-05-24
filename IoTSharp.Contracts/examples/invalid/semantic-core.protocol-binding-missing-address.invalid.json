@@ -1,0 +1,62 @@
+{
+  "$schema": "../../semantic-core.v1.schema.json",
+  "schemaVersion": "1.0",
+  "modelId": "semantic-model-invalid-binding-missing-address",
+  "name": "Invalid missing binding address model",
+  "assets": [
+    {
+      "assetId": "asset-tank-01",
+      "name": "tank_01",
+      "assetType": "device",
+      "assetPath": [
+        "site-alpha",
+        "tank-01"
+      ],
+      "points": [
+        "tank.01.level"
+      ],
+      "externalReferences": [],
+      "tags": [],
+      "metadata": {}
+    }
+  ],
+  "semanticPoints": [
+    {
+      "semanticId": "tank.01.level",
+      "name": "level",
+      "assetId": "asset-tank-01",
+      "quantity": {
+        "quantityKind": "level",
+        "metadata": {}
+      },
+      "unit": {
+        "code": "%",
+        "system": "ucum",
+        "quantityKind": "level",
+        "metadata": {}
+      },
+      "dataType": "float",
+      "access": "read",
+      "quality": {
+        "status": "unknown",
+        "metadata": {}
+      },
+      "source": {
+        "bindingId": "binding-tank-level"
+      },
+      "tags": [],
+      "metadata": {}
+    }
+  ],
+  "protocolBindings": [
+    {
+      "bindingId": "binding-tank-level",
+      "protocolKind": "custom",
+      "address": "",
+      "sourceDataType": "float",
+      "options": {},
+      "metadata": {}
+    }
+  ],
+  "metadata": {}
+}

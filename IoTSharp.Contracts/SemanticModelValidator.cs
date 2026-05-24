@@ -37,6 +37,11 @@ public static class SemanticModelValidator
             .Where(bindingId => !string.IsNullOrWhiteSpace(bindingId))
             .ToHashSet(StringComparer.Ordinal);
 
+        var referencedBindingIds = model.SemanticPoints
+            .Select(point => point.Source.BindingId)
+            .Where(bindingId => !string.IsNullOrWhiteSpace(bindingId))
+            .ToHashSet(StringComparer.Ordinal);
+
         var seenAssetIds = new HashSet<string>(StringComparer.Ordinal);
         var seenAssetPaths = new HashSet<string>(StringComparer.Ordinal);
         for (var index = 0; index < model.Assets.Count; index++)
@@ -45,6 +50,12 @@ public static class SemanticModelValidator
         }
 
         ValidateAssetHierarchy(model.Assets, diagnostics);
+
+        var seenBindingIds = new HashSet<string>(StringComparer.Ordinal);
+        for (var index = 0; index < model.ProtocolBindings.Count; index++)
+        {
+            ValidateProtocolBinding(model.ProtocolBindings[index], index, referencedBindingIds, seenBindingIds, diagnostics);
+        }
 
         var seenSemanticIds = new HashSet<string>(StringComparer.Ordinal);
         var pointOwners = new Dictionary<string, string>(StringComparer.Ordinal);
@@ -229,6 +240,68 @@ public static class SemanticModelValidator
         }
     }
 
+    private static void ValidateProtocolBinding(
+        ProtocolBinding binding,
+        int index,
+        ISet<string> referencedBindingIds,
+        ISet<string> seenBindingIds,
+        ICollection<SemanticValidationDiagnostic> diagnostics)
+    {
+        var path = $"$.protocolBindings[{index}]";
+
+        if (string.IsNullOrWhiteSpace(binding.BindingId))
+        {
+            diagnostics.Add(new SemanticValidationDiagnostic(
+                SemanticValidationSeverity.Error,
+                SemanticValidationCodes.ProtocolBindingIdRequired,
+                $"{path}.bindingId",
+                "bindingId is required for every L0 protocol binding."));
+        }
+        else
+        {
+            if (!seenBindingIds.Add(binding.BindingId))
+            {
+                diagnostics.Add(new SemanticValidationDiagnostic(
+                    SemanticValidationSeverity.Error,
+                    SemanticValidationCodes.ProtocolBindingIdDuplicate,
+                    $"{path}.bindingId",
+                    $"bindingId '{binding.BindingId}' is duplicated."));
+            }
+
+            if (!referencedBindingIds.Contains(binding.BindingId))
+            {
+                diagnostics.Add(new SemanticValidationDiagnostic(
+                    SemanticValidationSeverity.Error,
+                    SemanticValidationCodes.ProtocolBindingUnused,
+                    $"{path}.bindingId",
+                    $"bindingId '{binding.BindingId}' must be referenced by at least one semanticPoint.source.bindingId."));
+            }
+        }
+
+        ValidateRequired(diagnostics, binding.Address, $"{path}.address", SemanticValidationCodes.ProtocolBindingAddressRequired, "address is required for every L0 protocol binding.");
+        ValidateNonSecretString(binding.EndpointRef, $"{path}.endpointRef", diagnostics);
+        ValidateNonSecretString(binding.Address, $"{path}.address", diagnostics);
+        ValidateNonSecretString(binding.FieldPath, $"{path}.fieldPath", diagnostics);
+        ValidateNonSecretMap(binding.Options, $"{path}.options", diagnostics);
+        ValidateNonSecretMap(binding.Metadata, $"{path}.metadata", diagnostics);
+
+        if (binding.Decode is not null)
+        {
+            ValidateNonSecretString(binding.Decode.ByteOrder, $"{path}.decode.byteOrder", diagnostics);
+            ValidateNonSecretString(binding.Decode.WordOrder, $"{path}.decode.wordOrder", diagnostics);
+            ValidateNonSecretString(binding.Decode.Encoding, $"{path}.decode.encoding", diagnostics);
+            ValidateNonSecretMap(binding.Decode.Options, $"{path}.decode.options", diagnostics);
+        }
+
+        if (binding.Quality is not null)
+        {
+            ValidateNonSecretString(binding.Quality.Source, $"{path}.quality.source", diagnostics);
+            ValidateNonSecretString(binding.Quality.FieldPath, $"{path}.quality.fieldPath", diagnostics);
+            ValidateNonSecretString(binding.Quality.Reason, $"{path}.quality.reason", diagnostics);
+            ValidateNonSecretMap(binding.Quality.Metadata, $"{path}.quality.metadata", diagnostics);
+        }
+    }
+
     private static void ValidateSemanticPoint(
         SemanticPoint point,
         int index,
@@ -357,6 +430,90 @@ public static class SemanticModelValidator
     private static bool IsWritable(SemanticPointAccess access)
         => access is SemanticPointAccess.Write or SemanticPointAccess.ReadWrite or SemanticPointAccess.Command or SemanticPointAccess.Config;
 
+    private static void ValidateNonSecretString(
+        string? value,
+        string path,
+        ICollection<SemanticValidationDiagnostic> diagnostics)
+    {
+        if (string.IsNullOrWhiteSpace(value))
+        {
+            return;
+        }
+
+        if (ContainsSecretTerm(value) || LooksLikeInlineSecret(value))
+        {
+            diagnostics.Add(new SemanticValidationDiagnostic(
+                SemanticValidationSeverity.Error,
+                SemanticValidationCodes.ProtocolBindingSecretNotAllowed,
+                path,
+                "Protocol bindings must only contain non-secret endpoint references, addresses, field paths, decode settings, and metadata."));
+        }
+    }
+
+    private static void ValidateNonSecretMap(
+        IReadOnlyDictionary<string, System.Text.Json.JsonElement> values,
+        string path,
+        ICollection<SemanticValidationDiagnostic> diagnostics)
+    {
+        foreach (var (key, value) in values)
+        {
+            var childPath = $"{path}.{key}";
+            if (ContainsSecretTerm(key) || ContainsSecretTerm(value.ToString()) || LooksLikeInlineSecret(value.ToString()))
+            {
+                diagnostics.Add(new SemanticValidationDiagnostic(
+                    SemanticValidationSeverity.Error,
+                    SemanticValidationCodes.ProtocolBindingSecretNotAllowed,
+                    childPath,
+                    "Protocol binding extension maps must not contain passwords, tokens, connection strings, authorization headers, or inline credentials."));
+                continue;
+            }
+
+            ValidateNonSecretJsonElement(value, childPath, diagnostics);
+        }
+    }
+
+    private static void ValidateNonSecretJsonElement(
+        System.Text.Json.JsonElement element,
+        string path,
+        ICollection<SemanticValidationDiagnostic> diagnostics)
+    {
+        switch (element.ValueKind)
+        {
+            case System.Text.Json.JsonValueKind.Object:
+                foreach (var property in element.EnumerateObject())
+                {
+                    var childPath = $"{path}.{property.Name}";
+                    if (ContainsSecretTerm(property.Name))
+                    {
+                        diagnostics.Add(new SemanticValidationDiagnostic(
+                            SemanticValidationSeverity.Error,
+                            SemanticValidationCodes.ProtocolBindingSecretNotAllowed,
+                            childPath,
+                            "Protocol binding extension maps must not contain passwords, tokens, connection strings, authorization headers, or inline credentials."));
+                        continue;
+                    }
+
+                    ValidateNonSecretJsonElement(property.Value, childPath, diagnostics);
+                }
+
+                break;
+
+            case System.Text.Json.JsonValueKind.Array:
+                var index = 0;
+                foreach (var item in element.EnumerateArray())
+                {
+                    ValidateNonSecretJsonElement(item, $"{path}[{index}]", diagnostics);
+                    index++;
+                }
+
+                break;
+
+            case System.Text.Json.JsonValueKind.String:
+                ValidateNonSecretString(element.GetString(), path, diagnostics);
+                break;
+        }
+    }
+
     private static bool IsParentPathPrefix(IReadOnlyList<string> parentPath, IReadOnlyList<string> childPath)
     {
         if (parentPath.Count == 0 || childPath.Count <= parentPath.Count)
@@ -441,6 +598,73 @@ public static class SemanticModelValidator
             .Contains(term, StringComparison.OrdinalIgnoreCase));
     }
 
+    private static bool ContainsSecretTerm(string? value)
+    {
+        if (string.IsNullOrWhiteSpace(value))
+        {
+            return false;
+        }
+
+        var normalized = NormalizeIdentifier(value);
+        string[] terms =
+        [
+            "password",
+            "passwd",
+            "pwd",
+            "secret",
+            "token",
+            "accesstoken",
+            "refreshtoken",
+            "apikey",
+            "accesskey",
+            "secretkey",
+            "sharedaccesskey",
+            "connectionstring",
+            "credential",
+            "credentials",
+            "authorization"
+        ];
+
+        return terms.Any(term => normalized.Contains(term, StringComparison.OrdinalIgnoreCase));
+    }
+
+    private static bool LooksLikeInlineSecret(string value)
+    {
+        if (Uri.TryCreate(value, UriKind.Absolute, out var uri) && !string.IsNullOrWhiteSpace(uri.UserInfo))
+        {
+            return true;
+        }
+
+        var normalized = NormalizeIdentifier(value);
+        string[] fragments =
+        [
+            "password=",
+            "pwd=",
+            "token=",
+            "access_token=",
+            "apikey=",
+            "api_key=",
+            "secret=",
+            "sharedaccesskey=",
+            "accountkey=",
+            "authorization=",
+            "bearer ",
+            "basic "
+        ];
+
+        return fragments.Any(fragment => normalized.Contains(NormalizeIdentifier(fragment), StringComparison.OrdinalIgnoreCase))
+            || value.StartsWith("sk-", StringComparison.Ordinal);
+    }
+
+    private static string NormalizeIdentifier(string value)
+    {
+        var characters = value
+            .Where(character => char.IsLetterOrDigit(character) || character is '=' or ' ')
+            .Select(char.ToLowerInvariant);
+
+        return string.Concat(characters);
+    }
+
     private static void ValidateRequired(
         ICollection<SemanticValidationDiagnostic> diagnostics,
         string? value,
@@ -503,6 +727,11 @@ public static class SemanticValidationCodes
     public const string AssetExternalReferenceIdRequired = "semantic.asset.external_reference.id.required";
     public const string AssetExternalReferenceUriInvalid = "semantic.asset.external_reference.uri.invalid";
     public const string AssetExternalReferenceStateNotAllowed = "semantic.asset.external_reference.state.not_allowed";
+    public const string ProtocolBindingIdRequired = "semantic.protocol_binding.id.required";
+    public const string ProtocolBindingIdDuplicate = "semantic.protocol_binding.id.duplicate";
+    public const string ProtocolBindingAddressRequired = "semantic.protocol_binding.address.required";
+    public const string ProtocolBindingUnused = "semantic.protocol_binding.unused";
+    public const string ProtocolBindingSecretNotAllowed = "semantic.protocol_binding.secret.not_allowed";
     public const string SemanticPointIdRequired = "semantic.point.semantic_id.required";
     public const string SemanticPointIdDuplicate = "semantic.point.semantic_id.duplicate";
     public const string SemanticPointNameRequired = "semantic.point.name.required";

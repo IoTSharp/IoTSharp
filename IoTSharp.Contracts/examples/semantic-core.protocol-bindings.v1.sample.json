@@ -1,0 +1,329 @@
+{
+  "$schema": "../semantic-core.v1.schema.json",
+  "schemaVersion": "1.0",
+  "modelId": "semantic-model-protocol-bindings-v1",
+  "name": "Protocol binding semantic model",
+  "description": "Open Semantic Core v1 sample showing Modbus, MQTT, OPC UA, and Custom bindings through the same SemanticPoint source abstraction.",
+  "assets": [
+    {
+      "assetId": "asset-line-01",
+      "name": "line_01",
+      "displayName": "Line 01",
+      "assetType": "line",
+      "assetPath": [
+        "site-alpha",
+        "line-01"
+      ],
+      "points": [
+        "line.01.drive_speed",
+        "line.01.pack_count",
+        "line.01.motor_temperature",
+        "line.01.operator_mode"
+      ],
+      "externalReferences": [],
+      "tags": [
+        "protocol-binding-sample"
+      ],
+      "metadata": {}
+    }
+  ],
+  "semanticPoints": [
+    {
+      "semanticId": "line.01.drive_speed",
+      "name": "drive_speed",
+      "displayName": "Drive speed",
+      "assetId": "asset-line-01",
+      "quantity": {
+        "quantityKind": "speed",
+        "name": "Speed",
+        "metadata": {}
+      },
+      "unit": {
+        "code": "1/min",
+        "displayName": "revolutions per minute",
+        "symbol": "rpm",
+        "system": "ucum",
+        "quantityKind": "speed",
+        "metadata": {}
+      },
+      "dataType": "float",
+      "access": "read",
+      "quality": {
+        "status": "unknown",
+        "source": "protocol-status",
+        "metadata": {}
+      },
+      "source": {
+        "bindingId": "binding-line-01-drive-speed",
+        "role": "primary"
+      },
+      "tags": [
+        "modbus"
+      ],
+      "metadata": {}
+    },
+    {
+      "semanticId": "line.01.pack_count",
+      "name": "pack_count",
+      "displayName": "Pack count",
+      "assetId": "asset-line-01",
+      "quantity": {
+        "quantityKind": "count",
+        "name": "Count",
+        "metadata": {}
+      },
+      "unit": {
+        "code": "1",
+        "displayName": "count",
+        "symbol": "1",
+        "system": "ucum",
+        "quantityKind": "count",
+        "metadata": {}
+      },
+      "dataType": "int",
+      "access": "read",
+      "quality": {
+        "status": "unknown",
+        "source": "payload-field",
+        "fieldPath": "$.quality",
+        "metadata": {}
+      },
+      "source": {
+        "bindingId": "binding-line-01-pack-count",
+        "role": "primary"
+      },
+      "tags": [
+        "mqtt"
+      ],
+      "metadata": {}
+    },
+    {
+      "semanticId": "line.01.motor_temperature",
+      "name": "motor_temperature",
+      "displayName": "Motor temperature",
+      "assetId": "asset-line-01",
+      "quantity": {
+        "quantityKind": "temperature",
+        "name": "Temperature",
+        "dimension": "thermodynamic-temperature",
+        "standard": "ucum",
+        "metadata": {}
+      },
+      "unit": {
+        "code": "Cel",
+        "displayName": "degree Celsius",
+        "symbol": "C",
+        "system": "ucum",
+        "quantityKind": "temperature",
+        "metadata": {}
+      },
+      "dataType": "float",
+      "access": "read",
+      "quality": {
+        "status": "unknown",
+        "source": "opcua-status-code",
+        "metadata": {}
+      },
+      "source": {
+        "bindingId": "binding-line-01-motor-temperature",
+        "role": "primary"
+      },
+      "tags": [
+        "opcua"
+      ],
+      "metadata": {}
+    },
+    {
+      "semanticId": "line.01.operator_mode",
+      "name": "operator_mode",
+      "displayName": "Operator mode",
+      "assetId": "asset-line-01",
+      "quantity": {
+        "quantityKind": "state",
+        "name": "State",
+        "metadata": {}
+      },
+      "unit": {
+        "code": "1",
+        "displayName": "dimensionless",
+        "symbol": "1",
+        "system": "ucum",
+        "quantityKind": "state",
+        "metadata": {}
+      },
+      "dataType": "enum",
+      "access": "read",
+      "quality": {
+        "status": "unknown",
+        "source": "not-provided",
+        "metadata": {}
+      },
+      "source": {
+        "bindingId": "binding-line-01-operator-mode",
+        "role": "primary"
+      },
+      "tags": [
+        "custom"
+      ],
+      "metadata": {}
+    }
+  ],
+  "protocolBindings": [
+    {
+      "bindingId": "binding-line-01-drive-speed",
+      "protocolKind": "modbusTcp",
+      "endpointRef": "endpoint-line-plc",
+      "address": "holding-register:40100",
+      "sourceDataType": "float",
+      "polling": {
+        "interval": "00:00:01",
+        "timeout": "00:00:03",
+        "subscription": false
+      },
+      "decode": {
+        "byteOrder": "bigEndian",
+        "wordOrder": "bigEndian",
+        "scale": 0.1,
+        "offset": 0,
+        "options": {
+          "registerCount": 2,
+          "unitId": 1
+        }
+      },
+      "quality": {
+        "status": "unknown",
+        "source": "modbus-exception",
+        "metadata": {}
+      },
+      "options": {},
+      "metadata": {}
+    },
+    {
+      "bindingId": "binding-line-01-pack-count",
+      "protocolKind": "mqtt",
+      "endpointRef": "endpoint-uns-broker",
+      "address": "uns/site-alpha/line-01/pack-count",
+      "fieldPath": "$.value",
+      "sourceDataType": "int",
+      "polling": {
+        "subscription": true
+      },
+      "quality": {
+        "status": "unknown",
+        "source": "payload-field",
+        "fieldPath": "$.quality",
+        "metadata": {}
+      },
+      "options": {
+        "namespaceStyle": "uns",
+        "qos": 1,
+        "retain": false
+      },
+      "metadata": {}
+    },
+    {
+      "bindingId": "binding-line-01-motor-temperature",
+      "protocolKind": "opcUa",
+      "endpointRef": "endpoint-line-opcua",
+      "address": "ns=2;s=Line01.Motor.Temperature",
+      "fieldPath": "Value",
+      "sourceDataType": "float",
+      "polling": {
+        "interval": "00:00:02",
+        "timeout": "00:00:05",
+        "subscription": false
+      },
+      "quality": {
+        "status": "unknown",
+        "source": "opcua-status-code",
+        "metadata": {}
+      },
+      "options": {
+        "browseName": "MotorTemperature",
+        "objectType": "MotorType"
+      },
+      "metadata": {}
+    },
+    {
+      "bindingId": "binding-line-01-operator-mode",
+      "protocolKind": "custom",
+      "endpointRef": "endpoint-line-custom-adapter",
+      "address": "adapter-field:line01.operator_mode",
+      "fieldPath": "$.mode",
+      "sourceDataType": "enum",
+      "quality": {
+        "status": "unknown",
+        "source": "not-provided",
+        "metadata": {}
+      },
+      "options": {
+        "profile": "vendor-line-adapter-v1"
+      },
+      "metadata": {}
+    }
+  ],
+  "quantities": [
+    {
+      "quantityKind": "speed",
+      "name": "Speed",
+      "metadata": {}
+    },
+    {
+      "quantityKind": "count",
+      "name": "Count",
+      "metadata": {}
+    },
+    {
+      "quantityKind": "temperature",
+      "name": "Temperature",
+      "dimension": "thermodynamic-temperature",
+      "standard": "ucum",
+      "metadata": {}
+    },
+    {
+      "quantityKind": "state",
+      "name": "State",
+      "metadata": {}
+    }
+  ],
+  "units": [
+    {
+      "code": "1/min",
+      "displayName": "revolutions per minute",
+      "symbol": "rpm",
+      "system": "ucum",
+      "quantityKind": "speed",
+      "metadata": {}
+    },
+    {
+      "code": "1",
+      "displayName": "dimensionless",
+      "symbol": "1",
+      "system": "ucum",
+      "metadata": {}
+    },
+    {
+      "code": "Cel",
+      "displayName": "degree Celsius",
+      "symbol": "C",
+      "system": "ucum",
+      "quantityKind": "temperature",
+      "metadata": {}
+    }
+  ],
+  "processGraph": {
+    "processGraphId": "process-line-01",
+    "name": "Line 01 process graph",
+    "nodes": [],
+    "edges": [],
+    "derivedPoints": [],
+    "stateModels": [],
+    "alarms": [],
+    "controlPolicies": [],
+    "metadata": {}
+  },
+  "extensionSlots": [],
+  "metadata": {
+    "example": "protocol-bindings-v1"
+  }
+}

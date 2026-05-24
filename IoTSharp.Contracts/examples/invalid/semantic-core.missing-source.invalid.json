@@ -13,7 +13,8 @@
         "invalid-device"
       ],
       "points": [
-        "invalid.temperature"
+        "invalid.temperature",
+        "invalid.reference_temperature"
       ],
       "externalReferences": [],
       "tags": [],
@@ -42,6 +43,32 @@
         "metadata": {}
       },
       "source": {},
+      "tags": [],
+      "metadata": {}
+    },
+    {
+      "semanticId": "invalid.reference_temperature",
+      "name": "reference_temperature",
+      "assetId": "asset-invalid-device",
+      "quantity": {
+        "quantityKind": "temperature",
+        "metadata": {}
+      },
+      "unit": {
+        "code": "Cel",
+        "system": "ucum",
+        "quantityKind": "temperature",
+        "metadata": {}
+      },
+      "dataType": "float",
+      "access": "read",
+      "quality": {
+        "status": "unknown",
+        "metadata": {}
+      },
+      "source": {
+        "bindingId": "binding-temperature"
+      },
       "tags": [],
       "metadata": {}
     }
