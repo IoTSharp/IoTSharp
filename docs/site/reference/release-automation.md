@@ -2,6 +2,7 @@
 layout: default
 title: 发布自动化
 description: IoTSharp semver tag 发布流程说明。
+permalink: /reference/release-automation/
 ---
 
 # 发布自动化

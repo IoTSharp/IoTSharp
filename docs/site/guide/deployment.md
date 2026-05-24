@@ -2,6 +2,7 @@
 layout: default
 title: 部署指南
 description: IoTSharp 的容器、二进制压缩包与发布资产说明。
+permalink: /guide/deployment/
 ---
 
 # 部署指南

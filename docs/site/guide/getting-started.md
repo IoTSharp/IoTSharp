@@ -2,6 +2,7 @@
 layout: default
 title: 快速开始
 description: IoTSharp 仓库的本地构建与验证说明。
+permalink: /guide/getting-started/
 ---
 
 # 快速开始

@@ -2,6 +2,7 @@
 layout: default
 title: NuGet 包说明
 description: IoTSharp NuGet 包发布范围、图标、README 与使用说明。
+permalink: /reference/nuget-packages/
 ---
 
 # NuGet 包说明

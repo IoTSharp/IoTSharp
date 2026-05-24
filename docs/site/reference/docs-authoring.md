@@ -2,6 +2,7 @@
 layout: default
 title: 文档维护
 description: IoTSharp 文档站的维护方式与本地命令。
+permalink: /reference/docs-authoring/
 ---
 
 # 文档维护

@@ -788,7 +788,7 @@ export interface modbusmapping {
 | S1-4 | ⏳ | [依赖: S1-1] | SaaS 消费契约（只读） | SaaS 仅消费本仓库的公开 API 取得脚本生成所需的设备/产品/点位元数据；**不实现数据面网关、不参与设备管理与下发链路** |
 | S1-5 | ⏳ | [并行] | Edge / Gateway 元数据引用 | SaaS 在生成脚本时引用 `external/IoTEdge`、`external/IoTEdge.Linux` 的目标元数据（架构/能力/接口）；**注册、心跳、控制下发由本仓库独家承担**，SaaS 不发起 |
 | S1-6 | ⏳ | [并行] | 规则引擎扩展点 | 本仓库提供扩展点；SaaS 仅生成扩展实现的源码工件，由用户在本仓库侧装载 |
-| S1-7 | ⏳ | [并行] | BASIC 脚本签名格式 | 与 `external/IoTEdge.Stm32` 对齐签名格式；**脚本下发的传输面由本仓库承担**，SaaS 只产出已签名工件 |
+| S1-7 | ⏳ | [并行] | BASIC 脚本签名格式 | 与 `external/IoTEmbedded` 对齐签名格式；**脚本下发的传输面由本仓库承担**，SaaS 只产出已签名工件 |
 
 ### S2 稳定性公约
 
@@ -798,7 +798,7 @@ export interface modbusmapping {
 
 ### S3 与子模块的接口对齐
 
-- BasicRuntime 接口签名表与 `external/IoTEdge`、`external/IoTEdge.Linux`、`external/IoTEdge.Stm32` 共同维护，三方一致。
+- BasicRuntime 接口签名表与 `external/IoTEdge`、`external/IoTEdge.Linux`、`external/IoTEmbedded` 共同维护，三方一致。
 - Edge 上报通道 schema 与 `external/IoTEdge`、`external/IoTEdge.Linux` 对齐。
 - 详见各子模块仓库内的 `ROADMAP.md`。
 
