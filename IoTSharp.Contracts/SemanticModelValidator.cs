@@ -461,6 +461,15 @@ public static class SemanticModelValidator
     {
         if (binding.Modbus is null)
         {
+            if (binding.ProtocolKind is SemanticProtocolKind.ModbusTcp or SemanticProtocolKind.ModbusRtu)
+            {
+                diagnostics.Add(new SemanticValidationDiagnostic(
+                    SemanticValidationSeverity.Error,
+                    SemanticValidationCodes.ProtocolBindingModbusMetadataRequired,
+                    $"{path}.modbus",
+                    "modbus binding metadata is required for modbusTcp and modbusRtu protocol bindings so functionCode, registerType, address, unitId, registerCount, byteOrder, wordOrder, scale, and offset are preserved."));
+            }
+
             return;
         }
 
@@ -1449,6 +1458,7 @@ public static class SemanticValidationCodes
     public const string ProtocolBindingAddressRequired = "semantic.protocol_binding.address.required";
     public const string ProtocolBindingUnused = "semantic.protocol_binding.unused";
     public const string ProtocolBindingSecretNotAllowed = "semantic.protocol_binding.secret.not_allowed";
+    public const string ProtocolBindingModbusMetadataRequired = "semantic.protocol_binding.modbus.metadata.required";
     public const string ProtocolBindingModbusKindMismatch = "semantic.protocol_binding.modbus.kind_mismatch";
     public const string ProtocolBindingModbusFunctionCodeInvalid = "semantic.protocol_binding.modbus.function_code.invalid";
     public const string ProtocolBindingModbusAddressInvalid = "semantic.protocol_binding.modbus.address.invalid";
