@@ -37,6 +37,12 @@ public static class SemanticModelValidator
             .Where(bindingId => !string.IsNullOrWhiteSpace(bindingId))
             .ToHashSet(StringComparer.Ordinal);
 
+        var bindingsById = model.ProtocolBindings
+            .Where(binding => !string.IsNullOrWhiteSpace(binding.BindingId))
+            .GroupBy(binding => binding.BindingId, StringComparer.Ordinal)
+            .Where(group => group.Count() == 1)
+            .ToDictionary(group => group.Key, group => group.Single(), StringComparer.Ordinal);
+
         var referencedBindingIds = model.SemanticPoints
             .Select(point => point.Source.BindingId)
             .Where(bindingId => !string.IsNullOrWhiteSpace(bindingId))
@@ -61,7 +67,7 @@ public static class SemanticModelValidator
         var pointOwners = new Dictionary<string, string>(StringComparer.Ordinal);
         for (var index = 0; index < model.SemanticPoints.Count; index++)
         {
-            ValidateSemanticPoint(model.SemanticPoints[index], index, assetIds, bindingIds, seenSemanticIds, pointOwners, diagnostics);
+            ValidateSemanticPoint(model.SemanticPoints[index], index, assetIds, bindingsById, seenSemanticIds, pointOwners, diagnostics);
         }
 
         ValidateAssetPointOwnership(model.Assets, pointOwners, diagnostics);
@@ -293,6 +299,8 @@ public static class SemanticModelValidator
             ValidateNonSecretMap(binding.Decode.Options, $"{path}.decode.options", diagnostics);
         }
 
+        ValidateModbusBinding(binding, path, diagnostics);
+
         if (binding.Quality is not null)
         {
             ValidateNonSecretString(binding.Quality.Source, $"{path}.quality.source", diagnostics);
@@ -306,7 +314,7 @@ public static class SemanticModelValidator
         SemanticPoint point,
         int index,
         ISet<string> assetIds,
-        ISet<string> bindingIds,
+        IReadOnlyDictionary<string, ProtocolBinding> bindingsById,
         ISet<string> seenSemanticIds,
         IDictionary<string, string> pointOwners,
         ICollection<SemanticValidationDiagnostic> diagnostics)
@@ -363,13 +371,17 @@ public static class SemanticModelValidator
                 $"{path}.source.bindingId",
                 "source.bindingId is required for every L1 semantic point."));
         }
-        else if (bindingIds.Count > 0 && !bindingIds.Contains(point.Source.BindingId))
+        else if (bindingsById.Count > 0 && !bindingsById.ContainsKey(point.Source.BindingId))
         {
             diagnostics.Add(new SemanticValidationDiagnostic(
                 SemanticValidationSeverity.Error,
                 SemanticValidationCodes.SemanticPointSourceBindingMissing,
                 $"{path}.source.bindingId",
                 $"source binding '{point.Source.BindingId}' does not exist in protocolBindings."));
+        }
+        else if (bindingsById.TryGetValue(point.Source.BindingId, out var binding))
+        {
+            ValidateModbusPointAccess(point, binding, $"{path}.access", diagnostics);
         }
 
         if (IsWritable(point.Access) && point.Unit.Code == "1" && string.Equals(point.Quantity.QuantityKind, "temperature", StringComparison.OrdinalIgnoreCase))
@@ -429,6 +441,250 @@ public static class SemanticModelValidator
 
     private static bool IsWritable(SemanticPointAccess access)
         => access is SemanticPointAccess.Write or SemanticPointAccess.ReadWrite or SemanticPointAccess.Command or SemanticPointAccess.Config;
+
+    private static void ValidateModbusBinding(
+        ProtocolBinding binding,
+        string path,
+        ICollection<SemanticValidationDiagnostic> diagnostics)
+    {
+        if (binding.Modbus is null)
+        {
+            return;
+        }
+
+        var modbusPath = $"{path}.modbus";
+        if (binding.ProtocolKind is not (SemanticProtocolKind.ModbusTcp or SemanticProtocolKind.ModbusRtu))
+        {
+            diagnostics.Add(new SemanticValidationDiagnostic(
+                SemanticValidationSeverity.Error,
+                SemanticValidationCodes.ProtocolBindingModbusKindMismatch,
+                modbusPath,
+                "modbus binding metadata is only valid for modbusTcp or modbusRtu protocol bindings."));
+        }
+
+        var modbus = binding.Modbus;
+        if (!IsFunctionCodeAllowedForRegisterType(modbus.FunctionCode, modbus.RegisterType))
+        {
+            diagnostics.Add(new SemanticValidationDiagnostic(
+                SemanticValidationSeverity.Error,
+                SemanticValidationCodes.ProtocolBindingModbusFunctionCodeInvalid,
+                $"{modbusPath}.functionCode",
+                $"functionCode '{modbus.FunctionCode}' is not valid for registerType '{modbus.RegisterType}'."));
+        }
+
+        if (modbus.Address is < 0 or > 65535)
+        {
+            diagnostics.Add(new SemanticValidationDiagnostic(
+                SemanticValidationSeverity.Error,
+                SemanticValidationCodes.ProtocolBindingModbusAddressInvalid,
+                $"{modbusPath}.address",
+                "Modbus address must be a zero-based value from 0 to 65535."));
+        }
+
+        if (modbus.UnitId is < 0 or > 247)
+        {
+            diagnostics.Add(new SemanticValidationDiagnostic(
+                SemanticValidationSeverity.Error,
+                SemanticValidationCodes.ProtocolBindingModbusUnitIdInvalid,
+                $"{modbusPath}.unitId",
+                "Modbus unitId must be between 0 and 247."));
+        }
+
+        var maxRegisterCount = GetMaxRegisterCount(modbus.RegisterType);
+        if (modbus.RegisterCount < 1 || modbus.RegisterCount > maxRegisterCount)
+        {
+            diagnostics.Add(new SemanticValidationDiagnostic(
+                SemanticValidationSeverity.Error,
+                SemanticValidationCodes.ProtocolBindingModbusRegisterCountInvalid,
+                $"{modbusPath}.registerCount",
+                $"registerCount must be between 1 and {maxRegisterCount} for registerType '{modbus.RegisterType}'."));
+        }
+        else if (IsSingleWriteFunctionCode(modbus.FunctionCode) && modbus.RegisterCount != 1)
+        {
+            diagnostics.Add(new SemanticValidationDiagnostic(
+                SemanticValidationSeverity.Error,
+                SemanticValidationCodes.ProtocolBindingModbusRegisterCountInvalid,
+                $"{modbusPath}.registerCount",
+                $"functionCode '{modbus.FunctionCode}' writes exactly one Modbus address."));
+        }
+
+        if (TryParseModbusAddress(binding.Address, out var addressRegisterType, out var address))
+        {
+            if (addressRegisterType.HasValue && addressRegisterType.Value != modbus.RegisterType)
+            {
+                diagnostics.Add(new SemanticValidationDiagnostic(
+                    SemanticValidationSeverity.Error,
+                    SemanticValidationCodes.ProtocolBindingModbusAddressMismatch,
+                    $"{path}.address",
+                    $"address register type '{addressRegisterType.Value}' does not match modbus.registerType '{modbus.RegisterType}'."));
+            }
+
+            if (address != modbus.Address)
+            {
+                diagnostics.Add(new SemanticValidationDiagnostic(
+                    SemanticValidationSeverity.Error,
+                    SemanticValidationCodes.ProtocolBindingModbusAddressMismatch,
+                    $"{path}.address",
+                    $"address '{binding.Address}' maps to zero-based Modbus address '{address}', not '{modbus.Address}'."));
+            }
+        }
+        else
+        {
+            diagnostics.Add(new SemanticValidationDiagnostic(
+                SemanticValidationSeverity.Error,
+                SemanticValidationCodes.ProtocolBindingModbusAddressInvalid,
+                $"{path}.address",
+                "Modbus address must be a numeric address or an area-prefixed address such as coil:00001, discrete-input:10001, input-register:30001, or holding-register:40001."));
+        }
+    }
+
+    private static void ValidateModbusPointAccess(
+        SemanticPoint point,
+        ProtocolBinding binding,
+        string path,
+        ICollection<SemanticValidationDiagnostic> diagnostics)
+    {
+        if (binding.Modbus is null)
+        {
+            return;
+        }
+
+        var modbus = binding.Modbus;
+        if (IsWritable(point.Access) && !IsWritableRegisterType(modbus.RegisterType))
+        {
+            diagnostics.Add(new SemanticValidationDiagnostic(
+                SemanticValidationSeverity.Error,
+                SemanticValidationCodes.ProtocolBindingModbusAccessInvalid,
+                path,
+                $"registerType '{modbus.RegisterType}' is read-only and cannot back writable, command, or config semantic points."));
+            return;
+        }
+
+        if (point.Access == SemanticPointAccess.Read && !IsReadFunctionCode(modbus.FunctionCode))
+        {
+            diagnostics.Add(new SemanticValidationDiagnostic(
+                SemanticValidationSeverity.Error,
+                SemanticValidationCodes.ProtocolBindingModbusAccessInvalid,
+                path,
+                $"read semantic points must use a Modbus read function code, not '{modbus.FunctionCode}'."));
+        }
+
+        if (point.Access is SemanticPointAccess.Write or SemanticPointAccess.Command or SemanticPointAccess.Config
+            && !IsWriteFunctionCode(modbus.FunctionCode))
+        {
+            diagnostics.Add(new SemanticValidationDiagnostic(
+                SemanticValidationSeverity.Error,
+                SemanticValidationCodes.ProtocolBindingModbusAccessInvalid,
+                path,
+                $"writable, command, and config semantic points must use a Modbus write function code, not '{modbus.FunctionCode}'."));
+        }
+    }
+
+    private static bool IsFunctionCodeAllowedForRegisterType(int functionCode, ModbusRegisterType registerType)
+    {
+        return registerType switch
+        {
+            ModbusRegisterType.Coil => functionCode is 1 or 5 or 15,
+            ModbusRegisterType.DiscreteInput => functionCode == 2,
+            ModbusRegisterType.InputRegister => functionCode == 4,
+            ModbusRegisterType.HoldingRegister => functionCode is 3 or 6 or 16,
+            _ => false
+        };
+    }
+
+    private static bool IsReadFunctionCode(int functionCode)
+        => functionCode is 1 or 2 or 3 or 4;
+
+    private static bool IsWriteFunctionCode(int functionCode)
+        => functionCode is 5 or 6 or 15 or 16;
+
+    private static bool IsSingleWriteFunctionCode(int functionCode)
+        => functionCode is 5 or 6;
+
+    private static bool IsWritableRegisterType(ModbusRegisterType registerType)
+        => registerType is ModbusRegisterType.Coil or ModbusRegisterType.HoldingRegister;
+
+    private static int GetMaxRegisterCount(ModbusRegisterType registerType)
+        => registerType is ModbusRegisterType.Coil or ModbusRegisterType.DiscreteInput ? 2000 : 125;
+
+    private static bool TryParseModbusAddress(string value, out ModbusRegisterType? registerType, out int zeroBasedAddress)
+    {
+        registerType = null;
+        zeroBasedAddress = 0;
+
+        if (string.IsNullOrWhiteSpace(value))
+        {
+            return false;
+        }
+
+        var text = value.Trim();
+        var separatorIndex = text.IndexOf(':', StringComparison.Ordinal);
+        if (separatorIndex >= 0)
+        {
+            if (!TryParseModbusRegisterType(text[..separatorIndex], out var parsedRegisterType))
+            {
+                return false;
+            }
+
+            registerType = parsedRegisterType;
+            text = text[(separatorIndex + 1)..].Trim();
+        }
+
+        if (!int.TryParse(text, out var address) || address < 0)
+        {
+            return false;
+        }
+
+        zeroBasedAddress = registerType.HasValue
+            ? ToZeroBasedAddress(registerType.Value, address)
+            : address;
+
+        return zeroBasedAddress is >= 0 and <= 65535;
+    }
+
+    private static bool TryParseModbusRegisterType(string value, out ModbusRegisterType registerType)
+    {
+        switch (NormalizeIdentifier(value))
+        {
+            case "coil":
+            case "coils":
+                registerType = ModbusRegisterType.Coil;
+                return true;
+            case "discreteinput":
+            case "discreteinputs":
+            case "discrete":
+                registerType = ModbusRegisterType.DiscreteInput;
+                return true;
+            case "inputregister":
+            case "inputregisters":
+                registerType = ModbusRegisterType.InputRegister;
+                return true;
+            case "holdingregister":
+            case "holdingregisters":
+            case "register":
+            case "registers":
+                registerType = ModbusRegisterType.HoldingRegister;
+                return true;
+            default:
+                registerType = default;
+                return false;
+        }
+    }
+
+    private static int ToZeroBasedAddress(ModbusRegisterType registerType, int address)
+    {
+        return registerType switch
+        {
+            ModbusRegisterType.Coil when address is >= 1 and <= 99999 => address - 1,
+            ModbusRegisterType.DiscreteInput when address is >= 10001 and <= 19999 => address - 10001,
+            ModbusRegisterType.DiscreteInput when address is >= 1 and <= 99999 => address - 1,
+            ModbusRegisterType.InputRegister when address is >= 30001 and <= 39999 => address - 30001,
+            ModbusRegisterType.InputRegister when address is >= 1 and <= 99999 => address - 1,
+            ModbusRegisterType.HoldingRegister when address is >= 40001 and <= 49999 => address - 40001,
+            ModbusRegisterType.HoldingRegister when address is >= 1 and <= 99999 => address - 1,
+            _ => address
+        };
+    }
 
     private static void ValidateNonSecretString(
         string? value,
@@ -732,6 +988,13 @@ public static class SemanticValidationCodes
     public const string ProtocolBindingAddressRequired = "semantic.protocol_binding.address.required";
     public const string ProtocolBindingUnused = "semantic.protocol_binding.unused";
     public const string ProtocolBindingSecretNotAllowed = "semantic.protocol_binding.secret.not_allowed";
+    public const string ProtocolBindingModbusKindMismatch = "semantic.protocol_binding.modbus.kind_mismatch";
+    public const string ProtocolBindingModbusFunctionCodeInvalid = "semantic.protocol_binding.modbus.function_code.invalid";
+    public const string ProtocolBindingModbusAddressInvalid = "semantic.protocol_binding.modbus.address.invalid";
+    public const string ProtocolBindingModbusAddressMismatch = "semantic.protocol_binding.modbus.address.mismatch";
+    public const string ProtocolBindingModbusUnitIdInvalid = "semantic.protocol_binding.modbus.unit_id.invalid";
+    public const string ProtocolBindingModbusRegisterCountInvalid = "semantic.protocol_binding.modbus.register_count.invalid";
+    public const string ProtocolBindingModbusAccessInvalid = "semantic.protocol_binding.modbus.access.invalid";
     public const string SemanticPointIdRequired = "semantic.point.semantic_id.required";
     public const string SemanticPointIdDuplicate = "semantic.point.semantic_id.duplicate";
     public const string SemanticPointNameRequired = "semantic.point.name.required";

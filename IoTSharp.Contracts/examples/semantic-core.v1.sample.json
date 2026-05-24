@@ -177,6 +177,17 @@
           "unitId": 1
         }
       },
+      "modbus": {
+        "functionCode": 3,
+        "registerType": "holding-register",
+        "address": 0,
+        "unitId": 1,
+        "registerCount": 2,
+        "byteOrder": "bigEndian",
+        "wordOrder": "bigEndian",
+        "scale": 0.1,
+        "offset": 0
+      },
       "quality": {
         "status": "unknown",
         "source": "modbus-exception",
@@ -200,6 +211,17 @@
         "options": {
           "unitId": 1
         }
+      },
+      "modbus": {
+        "functionCode": 5,
+        "registerType": "coil",
+        "address": 16,
+        "unitId": 1,
+        "registerCount": 1,
+        "byteOrder": "bigEndian",
+        "wordOrder": "bigEndian",
+        "scale": 1,
+        "offset": 0
       },
       "quality": {
         "status": "unknown",

@@ -456,6 +456,11 @@ public sealed record ProtocolBinding
     public ProtocolDecode? Decode { get; init; }
 
     /// <summary>
+    /// Modbus TCP/RTU address and register metadata for Modbus protocol bindings.
+    /// </summary>
+    public ModbusBinding? Modbus { get; init; }
+
+    /// <summary>
     /// Quality metadata provided by the protocol or payload.
     /// </summary>
     public Quality? Quality { get; init; }
@@ -526,6 +531,63 @@ public sealed record ProtocolDecode
     /// Non-secret decoder-specific options.
     /// </summary>
     public Dictionary<string, JsonElement> Options { get; init; } = [];
+}
+
+/// <summary>
+/// Modbus TCP/RTU binding metadata. Address is the zero-based protocol data address; the parent
+/// ProtocolBinding.Address can preserve user-facing PLC notation such as holding-register:40001.
+/// </summary>
+public sealed record ModbusBinding
+{
+    /// <summary>
+    /// Modbus function code, for example 1, 2, 3, 4, 5, 6, 15, or 16.
+    /// </summary>
+    public int FunctionCode { get; init; }
+
+    /// <summary>
+    /// Modbus data area addressed by this binding.
+    /// </summary>
+    public ModbusRegisterType RegisterType { get; init; } = ModbusRegisterType.HoldingRegister;
+
+    /// <summary>
+    /// Zero-based Modbus protocol data address, from 0 to 65535.
+    /// </summary>
+    public int Address { get; init; }
+
+    /// <summary>
+    /// Modbus unit identifier or RTU slave id. Valid values are 0 through 247.
+    /// </summary>
+    public int UnitId { get; init; } = 1;
+
+    /// <summary>
+    /// Number of coils, discrete inputs, or 16-bit registers addressed by this binding.
+    /// </summary>
+    public int RegisterCount { get; init; } = 1;
+
+    /// <summary>
+    /// Byte order inside each 16-bit register.
+    /// </summary>
+    public ModbusByteOrder ByteOrder { get; init; } = ModbusByteOrder.BigEndian;
+
+    /// <summary>
+    /// Word order when multiple 16-bit registers are combined.
+    /// </summary>
+    public ModbusWordOrder WordOrder { get; init; } = ModbusWordOrder.BigEndian;
+
+    /// <summary>
+    /// Multiplicative scale factor applied to the raw value.
+    /// </summary>
+    public decimal Scale { get; init; } = 1m;
+
+    /// <summary>
+    /// Additive offset applied after scaling.
+    /// </summary>
+    public decimal Offset { get; init; }
+
+    /// <summary>
+    /// Applies the standard Modbus v1 numeric transform: raw * scale + offset.
+    /// </summary>
+    public decimal ApplyScale(decimal rawValue) => rawValue * Scale + Offset;
 }
 
 /// <summary>
@@ -908,6 +970,53 @@ public enum QualityStatus
     [EnumMember(Value = "bad")]
     [JsonStringEnumMemberName("bad")]
     Bad
+}
+
+[JsonConverter(typeof(JsonStringEnumConverter<ModbusRegisterType>))]
+[Newtonsoft.Json.JsonConverter(typeof(StringEnumConverter))]
+public enum ModbusRegisterType
+{
+    [EnumMember(Value = "coil")]
+    [JsonStringEnumMemberName("coil")]
+    Coil,
+
+    [EnumMember(Value = "discrete-input")]
+    [JsonStringEnumMemberName("discrete-input")]
+    DiscreteInput,
+
+    [EnumMember(Value = "input-register")]
+    [JsonStringEnumMemberName("input-register")]
+    InputRegister,
+
+    [EnumMember(Value = "holding-register")]
+    [JsonStringEnumMemberName("holding-register")]
+    HoldingRegister
+}
+
+[JsonConverter(typeof(JsonStringEnumConverter<ModbusByteOrder>))]
+[Newtonsoft.Json.JsonConverter(typeof(StringEnumConverter))]
+public enum ModbusByteOrder
+{
+    [EnumMember(Value = "bigEndian")]
+    [JsonStringEnumMemberName("bigEndian")]
+    BigEndian,
+
+    [EnumMember(Value = "littleEndian")]
+    [JsonStringEnumMemberName("littleEndian")]
+    LittleEndian
+}
+
+[JsonConverter(typeof(JsonStringEnumConverter<ModbusWordOrder>))]
+[Newtonsoft.Json.JsonConverter(typeof(StringEnumConverter))]
+public enum ModbusWordOrder
+{
+    [EnumMember(Value = "bigEndian")]
+    [JsonStringEnumMemberName("bigEndian")]
+    BigEndian,
+
+    [EnumMember(Value = "littleEndian")]
+    [JsonStringEnumMemberName("littleEndian")]
+    LittleEndian
 }
 
 [JsonConverter(typeof(JsonStringEnumConverter<SemanticProtocolKind>))]

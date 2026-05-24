@@ -1,0 +1,460 @@
+{
+  "$schema": "../semantic-core.v1.schema.json",
+  "schemaVersion": "1.0",
+  "modelId": "semantic-model-modbus-bindings-v1",
+  "name": "Modbus Binding semantic model",
+  "description": "Open Semantic Core v1 sample mapping a Modbus point table to SemanticPoint entries.",
+  "assets": [
+    {
+      "assetId": "asset-modbus-demo-plc",
+      "name": "modbus_demo_plc",
+      "displayName": "Modbus Demo PLC",
+      "assetType": "device",
+      "assetPath": [
+        "site-alpha",
+        "modbus-demo-plc"
+      ],
+      "points": [
+        "modbus.demo.supply_temperature",
+        "modbus.demo.tank_level",
+        "modbus.demo.emergency_stop",
+        "modbus.demo.pump_run_command"
+      ],
+      "externalReferences": [],
+      "tags": [
+        "modbus",
+        "point-table"
+      ],
+      "metadata": {}
+    }
+  ],
+  "semanticPoints": [
+    {
+      "semanticId": "modbus.demo.supply_temperature",
+      "name": "supply_temperature",
+      "displayName": "Supply temperature",
+      "assetId": "asset-modbus-demo-plc",
+      "quantity": {
+        "quantityKind": "temperature",
+        "name": "Temperature",
+        "dimension": "thermodynamic-temperature",
+        "standard": "ucum",
+        "metadata": {}
+      },
+      "unit": {
+        "code": "Cel",
+        "displayName": "degree Celsius",
+        "symbol": "C",
+        "system": "ucum",
+        "quantityKind": "temperature",
+        "metadata": {}
+      },
+      "dataType": "float",
+      "access": "read",
+      "quality": {
+        "status": "unknown",
+        "source": "modbus-exception",
+        "metadata": {}
+      },
+      "source": {
+        "bindingId": "binding-modbus-row-001",
+        "role": "primary"
+      },
+      "tags": [
+        "holding-register"
+      ],
+      "metadata": {
+        "pointTableRow": "row-001"
+      }
+    },
+    {
+      "semanticId": "modbus.demo.tank_level",
+      "name": "tank_level",
+      "displayName": "Tank level",
+      "assetId": "asset-modbus-demo-plc",
+      "quantity": {
+        "quantityKind": "level",
+        "name": "Level",
+        "metadata": {}
+      },
+      "unit": {
+        "code": "%",
+        "displayName": "percent",
+        "symbol": "%",
+        "system": "custom",
+        "quantityKind": "level",
+        "metadata": {}
+      },
+      "dataType": "float",
+      "access": "read",
+      "quality": {
+        "status": "unknown",
+        "source": "modbus-exception",
+        "metadata": {}
+      },
+      "normalRange": {
+        "min": 0,
+        "max": 100,
+        "kind": "normal"
+      },
+      "source": {
+        "bindingId": "binding-modbus-row-002",
+        "role": "primary"
+      },
+      "tags": [
+        "input-register"
+      ],
+      "metadata": {
+        "pointTableRow": "row-002"
+      }
+    },
+    {
+      "semanticId": "modbus.demo.emergency_stop",
+      "name": "emergency_stop",
+      "displayName": "Emergency stop",
+      "assetId": "asset-modbus-demo-plc",
+      "quantity": {
+        "quantityKind": "safety",
+        "name": "Safety",
+        "metadata": {}
+      },
+      "unit": {
+        "code": "1",
+        "displayName": "dimensionless",
+        "symbol": "1",
+        "system": "ucum",
+        "quantityKind": "safety",
+        "metadata": {}
+      },
+      "dataType": "boolean",
+      "access": "read",
+      "quality": {
+        "status": "unknown",
+        "source": "modbus-exception",
+        "metadata": {}
+      },
+      "source": {
+        "bindingId": "binding-modbus-row-003",
+        "role": "primary"
+      },
+      "tags": [
+        "discrete-input"
+      ],
+      "metadata": {
+        "pointTableRow": "row-003"
+      }
+    },
+    {
+      "semanticId": "modbus.demo.pump_run_command",
+      "name": "pump_run_command",
+      "displayName": "Pump run command",
+      "assetId": "asset-modbus-demo-plc",
+      "quantity": {
+        "quantityKind": "command",
+        "name": "Command",
+        "metadata": {}
+      },
+      "unit": {
+        "code": "1",
+        "displayName": "dimensionless",
+        "symbol": "1",
+        "system": "ucum",
+        "quantityKind": "command",
+        "metadata": {}
+      },
+      "dataType": "boolean",
+      "access": "command",
+      "quality": {
+        "status": "unknown",
+        "source": "not-provided",
+        "metadata": {}
+      },
+      "source": {
+        "bindingId": "binding-modbus-row-004",
+        "role": "primary"
+      },
+      "tags": [
+        "coil",
+        "command"
+      ],
+      "metadata": {
+        "pointTableRow": "row-004"
+      }
+    }
+  ],
+  "protocolBindings": [
+    {
+      "bindingId": "binding-modbus-row-001",
+      "protocolKind": "modbusTcp",
+      "endpointRef": "endpoint-demo-plc",
+      "address": "holding-register:40001",
+      "sourceDataType": "float",
+      "polling": {
+        "interval": "00:00:01",
+        "timeout": "00:00:03",
+        "subscription": false
+      },
+      "decode": {
+        "byteOrder": "bigEndian",
+        "wordOrder": "littleEndian",
+        "scale": 0.1,
+        "offset": 0,
+        "options": {}
+      },
+      "modbus": {
+        "functionCode": 3,
+        "registerType": "holding-register",
+        "address": 0,
+        "unitId": 1,
+        "registerCount": 2,
+        "byteOrder": "bigEndian",
+        "wordOrder": "littleEndian",
+        "scale": 0.1,
+        "offset": 0
+      },
+      "quality": {
+        "status": "unknown",
+        "source": "modbus-exception",
+        "metadata": {}
+      },
+      "options": {},
+      "metadata": {
+        "pointTableRow": "row-001"
+      }
+    },
+    {
+      "bindingId": "binding-modbus-row-002",
+      "protocolKind": "modbusTcp",
+      "endpointRef": "endpoint-demo-plc",
+      "address": "input-register:30011",
+      "sourceDataType": "int",
+      "polling": {
+        "interval": "00:00:01",
+        "timeout": "00:00:03",
+        "subscription": false
+      },
+      "decode": {
+        "byteOrder": "bigEndian",
+        "wordOrder": "bigEndian",
+        "scale": 0.01,
+        "offset": 0,
+        "options": {}
+      },
+      "modbus": {
+        "functionCode": 4,
+        "registerType": "input-register",
+        "address": 10,
+        "unitId": 1,
+        "registerCount": 1,
+        "byteOrder": "bigEndian",
+        "wordOrder": "bigEndian",
+        "scale": 0.01,
+        "offset": 0
+      },
+      "quality": {
+        "status": "unknown",
+        "source": "modbus-exception",
+        "metadata": {}
+      },
+      "options": {},
+      "metadata": {
+        "pointTableRow": "row-002"
+      }
+    },
+    {
+      "bindingId": "binding-modbus-row-003",
+      "protocolKind": "modbusTcp",
+      "endpointRef": "endpoint-demo-plc",
+      "address": "discrete-input:10001",
+      "sourceDataType": "boolean",
+      "polling": {
+        "interval": "00:00:01",
+        "timeout": "00:00:03",
+        "subscription": false
+      },
+      "modbus": {
+        "functionCode": 2,
+        "registerType": "discrete-input",
+        "address": 0,
+        "unitId": 1,
+        "registerCount": 1,
+        "byteOrder": "bigEndian",
+        "wordOrder": "bigEndian",
+        "scale": 1,
+        "offset": 0
+      },
+      "quality": {
+        "status": "unknown",
+        "source": "modbus-exception",
+        "metadata": {}
+      },
+      "options": {},
+      "metadata": {
+        "pointTableRow": "row-003"
+      }
+    },
+    {
+      "bindingId": "binding-modbus-row-004",
+      "protocolKind": "modbusTcp",
+      "endpointRef": "endpoint-demo-plc",
+      "address": "coil:00017",
+      "sourceDataType": "boolean",
+      "polling": {
+        "interval": "00:00:01",
+        "timeout": "00:00:03",
+        "subscription": false
+      },
+      "modbus": {
+        "functionCode": 5,
+        "registerType": "coil",
+        "address": 16,
+        "unitId": 1,
+        "registerCount": 1,
+        "byteOrder": "bigEndian",
+        "wordOrder": "bigEndian",
+        "scale": 1,
+        "offset": 0
+      },
+      "quality": {
+        "status": "unknown",
+        "source": "modbus-exception",
+        "metadata": {}
+      },
+      "options": {},
+      "metadata": {
+        "pointTableRow": "row-004"
+      }
+    }
+  ],
+  "quantities": [
+    {
+      "quantityKind": "temperature",
+      "name": "Temperature",
+      "dimension": "thermodynamic-temperature",
+      "standard": "ucum",
+      "metadata": {}
+    },
+    {
+      "quantityKind": "level",
+      "name": "Level",
+      "metadata": {}
+    },
+    {
+      "quantityKind": "safety",
+      "name": "Safety",
+      "metadata": {}
+    },
+    {
+      "quantityKind": "command",
+      "name": "Command",
+      "metadata": {}
+    }
+  ],
+  "units": [
+    {
+      "code": "Cel",
+      "displayName": "degree Celsius",
+      "symbol": "C",
+      "system": "ucum",
+      "quantityKind": "temperature",
+      "metadata": {}
+    },
+    {
+      "code": "%",
+      "displayName": "percent",
+      "symbol": "%",
+      "system": "custom",
+      "quantityKind": "level",
+      "metadata": {}
+    },
+    {
+      "code": "1",
+      "displayName": "dimensionless",
+      "symbol": "1",
+      "system": "ucum",
+      "metadata": {}
+    }
+  ],
+  "processGraph": {
+    "processGraphId": "process-modbus-demo",
+    "name": "Modbus demo process graph",
+    "nodes": [],
+    "edges": [],
+    "derivedPoints": [],
+    "stateModels": [],
+    "alarms": [],
+    "controlPolicies": [],
+    "metadata": {}
+  },
+  "extensionSlots": [],
+  "metadata": {
+    "example": "modbus-bindings-v1",
+    "pointTableColumns": [
+      "rowId",
+      "semanticId",
+      "registerType",
+      "functionCode",
+      "address",
+      "unitId",
+      "registerCount",
+      "byteOrder",
+      "wordOrder",
+      "scale",
+      "offset"
+    ],
+    "pointTableRows": [
+      {
+        "rowId": "row-001",
+        "semanticId": "modbus.demo.supply_temperature",
+        "registerType": "holding-register",
+        "functionCode": 3,
+        "address": "holding-register:40001",
+        "unitId": 1,
+        "registerCount": 2,
+        "byteOrder": "bigEndian",
+        "wordOrder": "littleEndian",
+        "scale": 0.1,
+        "offset": 0
+      },
+      {
+        "rowId": "row-002",
+        "semanticId": "modbus.demo.tank_level",
+        "registerType": "input-register",
+        "functionCode": 4,
+        "address": "input-register:30011",
+        "unitId": 1,
+        "registerCount": 1,
+        "byteOrder": "bigEndian",
+        "wordOrder": "bigEndian",
+        "scale": 0.01,
+        "offset": 0
+      },
+      {
+        "rowId": "row-003",
+        "semanticId": "modbus.demo.emergency_stop",
+        "registerType": "discrete-input",
+        "functionCode": 2,
+        "address": "discrete-input:10001",
+        "unitId": 1,
+        "registerCount": 1,
+        "byteOrder": "bigEndian",
+        "wordOrder": "bigEndian",
+        "scale": 1,
+        "offset": 0
+      },
+      {
+        "rowId": "row-004",
+        "semanticId": "modbus.demo.pump_run_command",
+        "registerType": "coil",
+        "functionCode": 5,
+        "address": "coil:00017",
+        "unitId": 1,
+        "registerCount": 1,
+        "byteOrder": "bigEndian",
+        "wordOrder": "bigEndian",
+        "scale": 1,
+        "offset": 0
+      }
+    ]
+  }
+}

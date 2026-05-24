@@ -396,6 +396,9 @@
         "decode": {
           "$ref": "#/$defs/decode"
         },
+        "modbus": {
+          "$ref": "#/$defs/modbusBinding"
+        },
         "quality": {
           "$ref": "#/$defs/quality"
         },
@@ -443,6 +446,67 @@
         },
         "options": {
           "$ref": "#/$defs/objectMap"
+        }
+      }
+    },
+    "modbusBinding": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "Modbus TCP/RTU binding metadata. address is the zero-based Modbus protocol data address; ProtocolBinding.address may keep PLC notation such as holding-register:40001.",
+      "required": [
+        "functionCode",
+        "registerType",
+        "address",
+        "unitId",
+        "registerCount",
+        "byteOrder",
+        "wordOrder",
+        "scale",
+        "offset"
+      ],
+      "properties": {
+        "functionCode": {
+          "type": "integer",
+          "enum": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            15,
+            16
+          ]
+        },
+        "registerType": {
+          "$ref": "#/$defs/modbusRegisterType"
+        },
+        "address": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 65535
+        },
+        "unitId": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 247
+        },
+        "registerCount": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 2000
+        },
+        "byteOrder": {
+          "$ref": "#/$defs/modbusByteOrder"
+        },
+        "wordOrder": {
+          "$ref": "#/$defs/modbusWordOrder"
+        },
+        "scale": {
+          "type": "number"
+        },
+        "offset": {
+          "type": "number"
         }
       }
     },
@@ -849,6 +913,26 @@
         "ble",
         "local",
         "custom"
+      ]
+    },
+    "modbusRegisterType": {
+      "enum": [
+        "coil",
+        "discrete-input",
+        "input-register",
+        "holding-register"
+      ]
+    },
+    "modbusByteOrder": {
+      "enum": [
+        "bigEndian",
+        "littleEndian"
+      ]
+    },
+    "modbusWordOrder": {
+      "enum": [
+        "bigEndian",
+        "littleEndian"
       ]
     },
     "processRelation": {
