@@ -402,6 +402,9 @@
         "mqtt": {
           "$ref": "#/$defs/mqttBinding"
         },
+        "opcUa": {
+          "$ref": "#/$defs/opcUaBinding"
+        },
         "quality": {
           "$ref": "#/$defs/quality"
         },
@@ -600,6 +603,207 @@
         },
         "metricName": {
           "type": "string"
+        }
+      }
+    },
+    "opcUaBinding": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "OPC UA binding metadata for Browse or NodeSet imports. ProtocolBinding.address must preserve the canonical NodeId text, while this object keeps structured OPC UA node references.",
+      "required": [
+        "nodeId",
+        "browsePath",
+        "browseName",
+        "dataType",
+        "references"
+      ],
+      "properties": {
+        "nodeId": {
+          "$ref": "#/$defs/opcUaNodeId"
+        },
+        "browsePath": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/opcUaBrowsePathElement"
+          }
+        },
+        "browseName": {
+          "$ref": "#/$defs/opcUaQualifiedName"
+        },
+        "displayName": {
+          "$ref": "#/$defs/opcUaLocalizedText"
+        },
+        "dataType": {
+          "$ref": "#/$defs/opcUaTypeReference"
+        },
+        "engineeringUnits": {
+          "$ref": "#/$defs/opcUaEngineeringUnits"
+        },
+        "references": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/opcUaReference"
+          }
+        },
+        "objectType": {
+          "$ref": "#/$defs/opcUaTypeReference"
+        },
+        "variableType": {
+          "$ref": "#/$defs/opcUaTypeReference"
+        }
+      }
+    },
+    "opcUaNodeId": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "text",
+        "identifier",
+        "identifierType"
+      ],
+      "properties": {
+        "text": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "identifier": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "identifierType": {
+          "$ref": "#/$defs/opcUaNodeIdType"
+        },
+        "namespaceIndex": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "namespaceUri": {
+          "type": "string"
+        }
+      }
+    },
+    "opcUaQualifiedName": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "name"
+      ],
+      "properties": {
+        "name": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "namespaceIndex": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "namespaceUri": {
+          "type": "string"
+        },
+        "text": {
+          "type": "string"
+        }
+      }
+    },
+    "opcUaLocalizedText": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "text"
+      ],
+      "properties": {
+        "text": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "locale": {
+          "type": "string"
+        }
+      }
+    },
+    "opcUaBrowsePathElement": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "browseName",
+        "isInverse",
+        "includeSubtypes"
+      ],
+      "properties": {
+        "browseName": {
+          "$ref": "#/$defs/opcUaQualifiedName"
+        },
+        "referenceType": {
+          "$ref": "#/$defs/opcUaTypeReference"
+        },
+        "isInverse": {
+          "type": "boolean"
+        },
+        "includeSubtypes": {
+          "type": "boolean"
+        }
+      }
+    },
+    "opcUaTypeReference": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "nodeId"
+      ],
+      "properties": {
+        "nodeId": {
+          "$ref": "#/$defs/opcUaNodeId"
+        },
+        "browseName": {
+          "$ref": "#/$defs/opcUaQualifiedName"
+        },
+        "displayName": {
+          "$ref": "#/$defs/opcUaLocalizedText"
+        }
+      }
+    },
+    "opcUaEngineeringUnits": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "namespaceUri": {
+          "type": "string"
+        },
+        "unitId": {
+          "type": "integer"
+        },
+        "displayName": {
+          "$ref": "#/$defs/opcUaLocalizedText"
+        },
+        "description": {
+          "$ref": "#/$defs/opcUaLocalizedText"
+        }
+      }
+    },
+    "opcUaReference": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "referenceType",
+        "targetNodeId",
+        "isForward"
+      ],
+      "properties": {
+        "referenceType": {
+          "$ref": "#/$defs/opcUaTypeReference"
+        },
+        "targetNodeId": {
+          "$ref": "#/$defs/opcUaNodeId"
+        },
+        "targetBrowseName": {
+          "$ref": "#/$defs/opcUaQualifiedName"
+        },
+        "targetDisplayName": {
+          "$ref": "#/$defs/opcUaLocalizedText"
+        },
+        "targetNodeClass": {
+          "$ref": "#/$defs/opcUaNodeClass"
+        },
+        "isForward": {
+          "type": "boolean"
         }
       }
     },
@@ -1041,6 +1245,26 @@
         "raw",
         "sparkplugB",
         "custom"
+      ]
+    },
+    "opcUaNodeIdType": {
+      "enum": [
+        "numeric",
+        "string",
+        "guid",
+        "opaque"
+      ]
+    },
+    "opcUaNodeClass": {
+      "enum": [
+        "object",
+        "variable",
+        "method",
+        "objectType",
+        "variableType",
+        "referenceType",
+        "dataType",
+        "view"
       ]
     },
     "processRelation": {

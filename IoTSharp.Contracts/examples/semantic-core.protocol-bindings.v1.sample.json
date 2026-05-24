@@ -250,6 +250,197 @@
         "timeout": "00:00:05",
         "subscription": false
       },
+      "opcUa": {
+        "nodeId": {
+          "text": "ns=2;s=Line01.Motor.Temperature",
+          "identifier": "Line01.Motor.Temperature",
+          "identifierType": "string",
+          "namespaceIndex": 2,
+          "namespaceUri": "urn:demo:line"
+        },
+        "browsePath": [
+          {
+            "browseName": {
+              "name": "Objects",
+              "namespaceIndex": 0,
+              "namespaceUri": "http://opcfoundation.org/UA/",
+              "text": "0:Objects"
+            },
+            "referenceType": {
+              "nodeId": {
+                "text": "i=35",
+                "identifier": "35",
+                "identifierType": "numeric",
+                "namespaceIndex": 0,
+                "namespaceUri": "http://opcfoundation.org/UA/"
+              },
+              "browseName": {
+                "name": "Organizes",
+                "namespaceIndex": 0,
+                "namespaceUri": "http://opcfoundation.org/UA/",
+                "text": "0:Organizes"
+              }
+            },
+            "isInverse": false,
+            "includeSubtypes": true
+          },
+          {
+            "browseName": {
+              "name": "Line01",
+              "namespaceIndex": 2,
+              "namespaceUri": "urn:demo:line",
+              "text": "2:Line01"
+            },
+            "referenceType": {
+              "nodeId": {
+                "text": "i=35",
+                "identifier": "35",
+                "identifierType": "numeric",
+                "namespaceIndex": 0,
+                "namespaceUri": "http://opcfoundation.org/UA/"
+              },
+              "browseName": {
+                "name": "Organizes",
+                "namespaceIndex": 0,
+                "namespaceUri": "http://opcfoundation.org/UA/",
+                "text": "0:Organizes"
+              }
+            },
+            "isInverse": false,
+            "includeSubtypes": true
+          },
+          {
+            "browseName": {
+              "name": "MotorTemperature",
+              "namespaceIndex": 2,
+              "namespaceUri": "urn:demo:line",
+              "text": "2:MotorTemperature"
+            },
+            "referenceType": {
+              "nodeId": {
+                "text": "i=47",
+                "identifier": "47",
+                "identifierType": "numeric",
+                "namespaceIndex": 0,
+                "namespaceUri": "http://opcfoundation.org/UA/"
+              },
+              "browseName": {
+                "name": "HasComponent",
+                "namespaceIndex": 0,
+                "namespaceUri": "http://opcfoundation.org/UA/",
+                "text": "0:HasComponent"
+              }
+            },
+            "isInverse": false,
+            "includeSubtypes": true
+          }
+        ],
+        "browseName": {
+          "name": "MotorTemperature",
+          "namespaceIndex": 2,
+          "namespaceUri": "urn:demo:line",
+          "text": "2:MotorTemperature"
+        },
+        "displayName": {
+          "text": "Motor temperature",
+          "locale": "en-US"
+        },
+        "dataType": {
+          "nodeId": {
+            "text": "i=10",
+            "identifier": "10",
+            "identifierType": "numeric",
+            "namespaceIndex": 0,
+            "namespaceUri": "http://opcfoundation.org/UA/"
+          },
+          "browseName": {
+            "name": "Float",
+            "namespaceIndex": 0,
+            "namespaceUri": "http://opcfoundation.org/UA/",
+            "text": "0:Float"
+          }
+        },
+        "engineeringUnits": {
+          "namespaceUri": "http://www.opcfoundation.org/UA/units/un/cefact",
+          "unitId": 4408652,
+          "displayName": {
+            "text": "C",
+            "locale": "en-US"
+          },
+          "description": {
+            "text": "degree Celsius",
+            "locale": "en-US"
+          }
+        },
+        "references": [
+          {
+            "referenceType": {
+              "nodeId": {
+                "text": "i=40",
+                "identifier": "40",
+                "identifierType": "numeric",
+                "namespaceIndex": 0,
+                "namespaceUri": "http://opcfoundation.org/UA/"
+              },
+              "browseName": {
+                "name": "HasTypeDefinition",
+                "namespaceIndex": 0,
+                "namespaceUri": "http://opcfoundation.org/UA/",
+                "text": "0:HasTypeDefinition"
+              }
+            },
+            "targetNodeId": {
+              "text": "i=63",
+              "identifier": "63",
+              "identifierType": "numeric",
+              "namespaceIndex": 0,
+              "namespaceUri": "http://opcfoundation.org/UA/"
+            },
+            "targetBrowseName": {
+              "name": "BaseDataVariableType",
+              "namespaceIndex": 0,
+              "namespaceUri": "http://opcfoundation.org/UA/",
+              "text": "0:BaseDataVariableType"
+            },
+            "targetDisplayName": {
+              "text": "BaseDataVariableType",
+              "locale": "en-US"
+            },
+            "targetNodeClass": "variableType",
+            "isForward": true
+          }
+        ],
+        "objectType": {
+          "nodeId": {
+            "text": "ns=2;s=MotorType",
+            "identifier": "MotorType",
+            "identifierType": "string",
+            "namespaceIndex": 2,
+            "namespaceUri": "urn:demo:line"
+          },
+          "browseName": {
+            "name": "MotorType",
+            "namespaceIndex": 2,
+            "namespaceUri": "urn:demo:line",
+            "text": "2:MotorType"
+          }
+        },
+        "variableType": {
+          "nodeId": {
+            "text": "i=63",
+            "identifier": "63",
+            "identifierType": "numeric",
+            "namespaceIndex": 0,
+            "namespaceUri": "http://opcfoundation.org/UA/"
+          },
+          "browseName": {
+            "name": "BaseDataVariableType",
+            "namespaceIndex": 0,
+            "namespaceUri": "http://opcfoundation.org/UA/",
+            "text": "0:BaseDataVariableType"
+          }
+        }
+      },
       "quality": {
         "status": "unknown",
         "source": "opcua-status-code",

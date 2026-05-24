@@ -307,6 +307,7 @@ public static class SemanticModelValidator
 
         ValidateModbusBinding(binding, path, diagnostics);
         ValidateMqttBinding(binding, path, diagnostics);
+        ValidateOpcUaBinding(binding, path, diagnostics);
 
         if (binding.Quality is not null)
         {
@@ -392,6 +393,7 @@ public static class SemanticModelValidator
             ValidateModbusPointAccess(point, binding, $"{path}.access", diagnostics);
             assetsById.TryGetValue(point.AssetId ?? string.Empty, out var asset);
             ValidateMqttPointBinding(point, binding, asset, $"{path}.source.bindingId", diagnostics);
+            ValidateOpcUaPointBinding(point, binding, $"{path}.unit", diagnostics);
         }
 
         if (IsWritable(point.Access) && point.Unit.Code == "1" && string.Equals(point.Quantity.QuantityKind, "temperature", StringComparison.OrdinalIgnoreCase))
@@ -744,6 +746,299 @@ public static class SemanticModelValidator
                 $"{path}.topic",
                 "Sparkplug lifecycle topics must be MQTT publish topics without wildcards, null characters, or empty hierarchy levels."));
         }
+    }
+
+    private static void ValidateOpcUaBinding(
+        ProtocolBinding binding,
+        string path,
+        ICollection<SemanticValidationDiagnostic> diagnostics)
+    {
+        if (binding.OpcUa is null)
+        {
+            if (binding.ProtocolKind == SemanticProtocolKind.OpcUa)
+            {
+                diagnostics.Add(new SemanticValidationDiagnostic(
+                    SemanticValidationSeverity.Error,
+                    SemanticValidationCodes.ProtocolBindingOpcUaMetadataRequired,
+                    $"{path}.opcUa",
+                    "opcUa binding metadata is required for opcUa protocol bindings so NodeId, BrowsePath, type, unit, and reference information are preserved."));
+            }
+
+            return;
+        }
+
+        var opcUaPath = $"{path}.opcUa";
+        if (binding.ProtocolKind != SemanticProtocolKind.OpcUa)
+        {
+            diagnostics.Add(new SemanticValidationDiagnostic(
+                SemanticValidationSeverity.Error,
+                SemanticValidationCodes.ProtocolBindingOpcUaKindMismatch,
+                opcUaPath,
+                "opcUa binding metadata is only valid for opcUa protocol bindings."));
+        }
+
+        var opcUa = binding.OpcUa;
+        ValidateOpcUaNodeId(opcUa.NodeId, $"{opcUaPath}.nodeId", SemanticValidationCodes.ProtocolBindingOpcUaNodeIdRequired, diagnostics);
+        ValidateOpcUaQualifiedName(opcUa.BrowseName, $"{opcUaPath}.browseName", SemanticValidationCodes.ProtocolBindingOpcUaBrowseNameRequired, diagnostics);
+        ValidateOpcUaTypeReference(opcUa.DataType, $"{opcUaPath}.dataType", SemanticValidationCodes.ProtocolBindingOpcUaDataTypeRequired, diagnostics);
+        ValidateNonSecretString(opcUa.DisplayName?.Text, $"{opcUaPath}.displayName.text", diagnostics);
+        ValidateNonSecretString(opcUa.DisplayName?.Locale, $"{opcUaPath}.displayName.locale", diagnostics);
+
+        if (!string.IsNullOrWhiteSpace(binding.Address)
+            && !string.IsNullOrWhiteSpace(opcUa.NodeId.Text)
+            && !string.Equals(binding.Address, opcUa.NodeId.Text, StringComparison.Ordinal))
+        {
+            diagnostics.Add(new SemanticValidationDiagnostic(
+                SemanticValidationSeverity.Error,
+                SemanticValidationCodes.ProtocolBindingOpcUaNodeIdMismatch,
+                $"{path}.address",
+                "ProtocolBinding.address must match opcUa.nodeId.text for OPC UA bindings."));
+        }
+
+        if (opcUa.BrowsePath.Count == 0)
+        {
+            diagnostics.Add(new SemanticValidationDiagnostic(
+                SemanticValidationSeverity.Error,
+                SemanticValidationCodes.ProtocolBindingOpcUaBrowsePathRequired,
+                $"{opcUaPath}.browsePath",
+                "browsePath must preserve the structured OPC UA browse path for imported nodes."));
+        }
+        else
+        {
+            for (var index = 0; index < opcUa.BrowsePath.Count; index++)
+            {
+                var browsePath = $"{opcUaPath}.browsePath[{index}]";
+                var element = opcUa.BrowsePath[index];
+                ValidateOpcUaQualifiedName(element.BrowseName, $"{browsePath}.browseName", SemanticValidationCodes.ProtocolBindingOpcUaBrowsePathRequired, diagnostics);
+
+                if (element.ReferenceType is not null)
+                {
+                    ValidateOpcUaTypeReference(element.ReferenceType, $"{browsePath}.referenceType", SemanticValidationCodes.ProtocolBindingOpcUaReferenceTypeRequired, diagnostics);
+                }
+            }
+        }
+
+        if (opcUa.EngineeringUnits is not null)
+        {
+            ValidateNonSecretString(opcUa.EngineeringUnits.NamespaceUri, $"{opcUaPath}.engineeringUnits.namespaceUri", diagnostics);
+            ValidateNonSecretString(opcUa.EngineeringUnits.DisplayName?.Text, $"{opcUaPath}.engineeringUnits.displayName.text", diagnostics);
+            ValidateNonSecretString(opcUa.EngineeringUnits.DisplayName?.Locale, $"{opcUaPath}.engineeringUnits.displayName.locale", diagnostics);
+            ValidateNonSecretString(opcUa.EngineeringUnits.Description?.Text, $"{opcUaPath}.engineeringUnits.description.text", diagnostics);
+            ValidateNonSecretString(opcUa.EngineeringUnits.Description?.Locale, $"{opcUaPath}.engineeringUnits.description.locale", diagnostics);
+        }
+
+        if (opcUa.References.Count == 0)
+        {
+            diagnostics.Add(new SemanticValidationDiagnostic(
+                SemanticValidationSeverity.Error,
+                SemanticValidationCodes.ProtocolBindingOpcUaReferencesRequired,
+                $"{opcUaPath}.references",
+                "references must preserve the original OPC UA references used during Browse or NodeSet import."));
+        }
+        else
+        {
+            var hasTypeDefinition = false;
+            for (var index = 0; index < opcUa.References.Count; index++)
+            {
+                var referencePath = $"{opcUaPath}.references[{index}]";
+                var reference = opcUa.References[index];
+                ValidateOpcUaTypeReference(reference.ReferenceType, $"{referencePath}.referenceType", SemanticValidationCodes.ProtocolBindingOpcUaReferenceTypeRequired, diagnostics);
+                ValidateOpcUaNodeId(reference.TargetNodeId, $"{referencePath}.targetNodeId", SemanticValidationCodes.ProtocolBindingOpcUaReferenceTargetRequired, diagnostics);
+
+                if (reference.TargetBrowseName is not null)
+                {
+                    ValidateOpcUaQualifiedName(reference.TargetBrowseName, $"{referencePath}.targetBrowseName", SemanticValidationCodes.ProtocolBindingOpcUaReferenceTargetRequired, diagnostics);
+                }
+
+                ValidateNonSecretString(reference.TargetDisplayName?.Text, $"{referencePath}.targetDisplayName.text", diagnostics);
+                ValidateNonSecretString(reference.TargetDisplayName?.Locale, $"{referencePath}.targetDisplayName.locale", diagnostics);
+
+                hasTypeDefinition |= IsOpcUaReferenceNamed(reference.ReferenceType, "HasTypeDefinition");
+            }
+
+            if (!hasTypeDefinition)
+            {
+                diagnostics.Add(new SemanticValidationDiagnostic(
+                    SemanticValidationSeverity.Error,
+                    SemanticValidationCodes.ProtocolBindingOpcUaTypeDefinitionReferenceRequired,
+                    $"{opcUaPath}.references",
+                    "references must include the original HasTypeDefinition reference for OPC UA nodes."));
+            }
+        }
+
+        if (opcUa.ObjectType is not null)
+        {
+            ValidateOpcUaTypeReference(opcUa.ObjectType, $"{opcUaPath}.objectType", SemanticValidationCodes.ProtocolBindingOpcUaObjectTypeRequired, diagnostics);
+        }
+
+        if (opcUa.VariableType is not null)
+        {
+            ValidateOpcUaTypeReference(opcUa.VariableType, $"{opcUaPath}.variableType", SemanticValidationCodes.ProtocolBindingOpcUaVariableTypeRequired, diagnostics);
+        }
+    }
+
+    private static void ValidateOpcUaPointBinding(
+        SemanticPoint point,
+        ProtocolBinding binding,
+        string path,
+        ICollection<SemanticValidationDiagnostic> diagnostics)
+    {
+        if (binding.OpcUa?.EngineeringUnits is null)
+        {
+            return;
+        }
+
+        var unit = binding.OpcUa.EngineeringUnits;
+        if (point.Unit.System == UnitSystem.OpcUa
+            && unit.UnitId is null
+            && string.IsNullOrWhiteSpace(unit.DisplayName?.Text)
+            && string.IsNullOrWhiteSpace(unit.NamespaceUri))
+        {
+            diagnostics.Add(new SemanticValidationDiagnostic(
+                SemanticValidationSeverity.Error,
+                SemanticValidationCodes.ProtocolBindingOpcUaEngineeringUnitsRequired,
+                path,
+                "OPC UA unit mappings must preserve engineeringUnits when SemanticPoint.unit.system is opcua."));
+        }
+    }
+
+    private static void ValidateOpcUaNodeId(
+        OpcUaNodeId nodeId,
+        string path,
+        string code,
+        ICollection<SemanticValidationDiagnostic> diagnostics)
+    {
+        ValidateRequired(diagnostics, nodeId.Text, $"{path}.text", code, "OPC UA NodeId text is required.");
+        ValidateRequired(diagnostics, nodeId.Identifier, $"{path}.identifier", code, "OPC UA NodeId identifier is required.");
+        ValidateNonSecretString(nodeId.Text, $"{path}.text", diagnostics);
+        ValidateNonSecretString(nodeId.Identifier, $"{path}.identifier", diagnostics);
+        ValidateNonSecretString(nodeId.NamespaceUri, $"{path}.namespaceUri", diagnostics);
+
+        if (!string.IsNullOrWhiteSpace(nodeId.Text) && !LooksLikeOpcUaNodeId(nodeId.Text))
+        {
+            diagnostics.Add(new SemanticValidationDiagnostic(
+                SemanticValidationSeverity.Error,
+                SemanticValidationCodes.ProtocolBindingOpcUaNodeIdInvalid,
+                $"{path}.text",
+                "OPC UA NodeId text must use canonical syntax such as ns=2;s=Tag, ns=2;i=1234, ns=2;g={guid}, or ns=2;b={base64}."));
+        }
+    }
+
+    private static void ValidateOpcUaQualifiedName(
+        OpcUaQualifiedName qualifiedName,
+        string path,
+        string code,
+        ICollection<SemanticValidationDiagnostic> diagnostics)
+    {
+        ValidateRequired(diagnostics, qualifiedName.Name, $"{path}.name", code, "OPC UA QualifiedName name is required.");
+        ValidateNonSecretString(qualifiedName.Name, $"{path}.name", diagnostics);
+        ValidateNonSecretString(qualifiedName.NamespaceUri, $"{path}.namespaceUri", diagnostics);
+        ValidateNonSecretString(qualifiedName.Text, $"{path}.text", diagnostics);
+    }
+
+    private static void ValidateOpcUaTypeReference(
+        OpcUaTypeReference reference,
+        string path,
+        string code,
+        ICollection<SemanticValidationDiagnostic> diagnostics)
+    {
+        ValidateOpcUaNodeId(reference.NodeId, $"{path}.nodeId", code, diagnostics);
+
+        if (reference.BrowseName is not null)
+        {
+            ValidateOpcUaQualifiedName(reference.BrowseName, $"{path}.browseName", code, diagnostics);
+        }
+
+        ValidateNonSecretString(reference.DisplayName?.Text, $"{path}.displayName.text", diagnostics);
+        ValidateNonSecretString(reference.DisplayName?.Locale, $"{path}.displayName.locale", diagnostics);
+    }
+
+    private static bool IsOpcUaReferenceNamed(OpcUaTypeReference reference, string name)
+    {
+        return string.Equals(reference.BrowseName?.Name, name, StringComparison.Ordinal)
+            || string.Equals(reference.DisplayName?.Text, name, StringComparison.Ordinal)
+            || string.Equals(reference.NodeId.Text, $"i={GetOpcUaWellKnownReferenceTypeId(name)}", StringComparison.Ordinal)
+            || string.Equals(reference.NodeId.Text, $"ns=0;i={GetOpcUaWellKnownReferenceTypeId(name)}", StringComparison.Ordinal);
+    }
+
+    private static int GetOpcUaWellKnownReferenceTypeId(string name)
+        => name switch
+        {
+            "HasTypeDefinition" => 40,
+            "HasSubtype" => 45,
+            "HasProperty" => 46,
+            "HasComponent" => 47,
+            "Organizes" => 35,
+            _ => -1
+        };
+
+    private static bool LooksLikeOpcUaNodeId(string text)
+    {
+        var value = text.Trim();
+        var identifierStart = value.IndexOf(";i=", StringComparison.Ordinal);
+        if (identifierStart >= 0)
+        {
+            return HasValidOpcUaNamespacePrefix(value[..identifierStart])
+                && int.TryParse(value[(identifierStart + 3)..], out _);
+        }
+
+        identifierStart = value.IndexOf(";s=", StringComparison.Ordinal);
+        if (identifierStart >= 0)
+        {
+            return HasValidOpcUaNamespacePrefix(value[..identifierStart])
+                && value.Length > identifierStart + 3;
+        }
+
+        identifierStart = value.IndexOf(";g=", StringComparison.Ordinal);
+        if (identifierStart >= 0)
+        {
+            return HasValidOpcUaNamespacePrefix(value[..identifierStart])
+                && Guid.TryParse(value[(identifierStart + 3)..], out _);
+        }
+
+        identifierStart = value.IndexOf(";b=", StringComparison.Ordinal);
+        if (identifierStart >= 0)
+        {
+            return HasValidOpcUaNamespacePrefix(value[..identifierStart])
+                && value.Length > identifierStart + 3;
+        }
+
+        if (value.StartsWith("i=", StringComparison.Ordinal))
+        {
+            return int.TryParse(value[2..], out _);
+        }
+
+        if (value.StartsWith("s=", StringComparison.Ordinal))
+        {
+            return value.Length > 2;
+        }
+
+        if (value.StartsWith("g=", StringComparison.Ordinal))
+        {
+            return Guid.TryParse(value[2..], out _);
+        }
+
+        return value.StartsWith("b=", StringComparison.Ordinal) && value.Length > 2;
+    }
+
+    private static bool HasValidOpcUaNamespacePrefix(string prefix)
+    {
+        if (string.IsNullOrWhiteSpace(prefix))
+        {
+            return true;
+        }
+
+        if (prefix.StartsWith("ns=", StringComparison.Ordinal))
+        {
+            return int.TryParse(prefix[3..], out var namespaceIndex) && namespaceIndex >= 0;
+        }
+
+        if (prefix.StartsWith("nsu=", StringComparison.Ordinal))
+        {
+            return Uri.TryCreate(prefix[4..], UriKind.Absolute, out _);
+        }
+
+        return false;
     }
 
     private static bool IsFunctionCodeAllowedForRegisterType(int functionCode, ModbusRegisterType registerType)
@@ -1168,6 +1463,21 @@ public static class SemanticValidationCodes
     public const string ProtocolBindingMqttQosInvalid = "semantic.protocol_binding.mqtt.qos.invalid";
     public const string ProtocolBindingMqttValueFieldRequired = "semantic.protocol_binding.mqtt.value_field.required";
     public const string ProtocolBindingMqttSparkplugProfileRequired = "semantic.protocol_binding.mqtt.sparkplug_profile.required";
+    public const string ProtocolBindingOpcUaMetadataRequired = "semantic.protocol_binding.opcua.metadata.required";
+    public const string ProtocolBindingOpcUaKindMismatch = "semantic.protocol_binding.opcua.kind_mismatch";
+    public const string ProtocolBindingOpcUaNodeIdRequired = "semantic.protocol_binding.opcua.node_id.required";
+    public const string ProtocolBindingOpcUaNodeIdInvalid = "semantic.protocol_binding.opcua.node_id.invalid";
+    public const string ProtocolBindingOpcUaNodeIdMismatch = "semantic.protocol_binding.opcua.node_id.mismatch";
+    public const string ProtocolBindingOpcUaBrowsePathRequired = "semantic.protocol_binding.opcua.browse_path.required";
+    public const string ProtocolBindingOpcUaBrowseNameRequired = "semantic.protocol_binding.opcua.browse_name.required";
+    public const string ProtocolBindingOpcUaDataTypeRequired = "semantic.protocol_binding.opcua.data_type.required";
+    public const string ProtocolBindingOpcUaEngineeringUnitsRequired = "semantic.protocol_binding.opcua.engineering_units.required";
+    public const string ProtocolBindingOpcUaReferencesRequired = "semantic.protocol_binding.opcua.references.required";
+    public const string ProtocolBindingOpcUaReferenceTypeRequired = "semantic.protocol_binding.opcua.reference_type.required";
+    public const string ProtocolBindingOpcUaReferenceTargetRequired = "semantic.protocol_binding.opcua.reference_target.required";
+    public const string ProtocolBindingOpcUaTypeDefinitionReferenceRequired = "semantic.protocol_binding.opcua.type_definition_reference.required";
+    public const string ProtocolBindingOpcUaObjectTypeRequired = "semantic.protocol_binding.opcua.object_type.required";
+    public const string ProtocolBindingOpcUaVariableTypeRequired = "semantic.protocol_binding.opcua.variable_type.required";
     public const string SemanticPointIdRequired = "semantic.point.semantic_id.required";
     public const string SemanticPointIdDuplicate = "semantic.point.semantic_id.duplicate";
     public const string SemanticPointNameRequired = "semantic.point.name.required";

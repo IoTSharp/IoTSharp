@@ -468,6 +468,11 @@ public sealed record ProtocolBinding
     public MqttBinding? Mqtt { get; init; }
 
     /// <summary>
+    /// OPC UA NodeId, browse path, type, engineering unit, and reference metadata.
+    /// </summary>
+    public OpcUaBinding? OpcUa { get; init; }
+
+    /// <summary>
     /// Quality metadata provided by the protocol or payload.
     /// </summary>
     public Quality? Quality { get; init; }
@@ -732,6 +737,242 @@ public sealed record SparkplugLifecycleState
     /// Optional lifecycle metric name when it differs from the profile metric name.
     /// </summary>
     public string? MetricName { get; init; }
+}
+
+/// <summary>
+/// OPC UA binding metadata for Browse or NodeSet imports. The parent ProtocolBinding.Address keeps
+/// the canonical NodeId text, while this object preserves the strong OPC UA node references.
+/// </summary>
+public sealed record OpcUaBinding
+{
+    /// <summary>
+    /// OPC UA NodeId of the source node. ProtocolBinding.Address must match NodeId.Text.
+    /// </summary>
+    public OpcUaNodeId NodeId { get; init; } = new();
+
+    /// <summary>
+    /// Browse path from the imported root to this node. Each element keeps its qualified browse name
+    /// and optional reference traversal metadata instead of collapsing the path to a string.
+    /// </summary>
+    public List<OpcUaBrowsePathElement> BrowsePath { get; init; } = [];
+
+    /// <summary>
+    /// Node BrowseName as an OPC UA QualifiedName.
+    /// </summary>
+    public OpcUaQualifiedName BrowseName { get; init; } = new();
+
+    /// <summary>
+    /// Localized node DisplayName when supplied by Browse or NodeSet.
+    /// </summary>
+    public OpcUaLocalizedText? DisplayName { get; init; }
+
+    /// <summary>
+    /// OPC UA DataType node reference for the variable value.
+    /// </summary>
+    public OpcUaTypeReference DataType { get; init; } = new();
+
+    /// <summary>
+    /// OPC UA EUInformation value from the EngineeringUnits property, when present.
+    /// </summary>
+    public OpcUaEngineeringUnits? EngineeringUnits { get; init; }
+
+    /// <summary>
+    /// Original OPC UA references discovered by Browse or NodeSet. These references provide
+    /// traceability for type definitions, properties, components, and semantic links.
+    /// </summary>
+    public List<OpcUaReference> References { get; init; } = [];
+
+    /// <summary>
+    /// Object type definition for the owning OPC UA object, when known.
+    /// </summary>
+    public OpcUaTypeReference? ObjectType { get; init; }
+
+    /// <summary>
+    /// Variable type definition for this OPC UA variable, when known.
+    /// </summary>
+    public OpcUaTypeReference? VariableType { get; init; }
+}
+
+/// <summary>
+/// OPC UA NodeId with both canonical text and structured namespace information.
+/// </summary>
+public sealed record OpcUaNodeId
+{
+    /// <summary>
+    /// Canonical NodeId text, for example ns=2;s=Line01.Motor.Temperature.
+    /// </summary>
+    public string Text { get; init; } = string.Empty;
+
+    /// <summary>
+    /// Identifier text without the namespace prefix.
+    /// </summary>
+    public string Identifier { get; init; } = string.Empty;
+
+    /// <summary>
+    /// OPC UA identifier type.
+    /// </summary>
+    public OpcUaNodeIdType IdentifierType { get; init; } = OpcUaNodeIdType.String;
+
+    /// <summary>
+    /// Namespace index from the source server or NodeSet, when available.
+    /// </summary>
+    public int? NamespaceIndex { get; init; }
+
+    /// <summary>
+    /// Namespace URI from the namespace table, when available.
+    /// </summary>
+    public string? NamespaceUri { get; init; }
+}
+
+/// <summary>
+/// OPC UA QualifiedName with namespace information.
+/// </summary>
+public sealed record OpcUaQualifiedName
+{
+    /// <summary>
+    /// QualifiedName text without namespace decoration.
+    /// </summary>
+    public string Name { get; init; } = string.Empty;
+
+    /// <summary>
+    /// Namespace index from the source server or NodeSet, when available.
+    /// </summary>
+    public int? NamespaceIndex { get; init; }
+
+    /// <summary>
+    /// Namespace URI from the namespace table, when available.
+    /// </summary>
+    public string? NamespaceUri { get; init; }
+
+    /// <summary>
+    /// Source QualifiedName text, for example 2:MotorTemperature.
+    /// </summary>
+    public string? Text { get; init; }
+}
+
+/// <summary>
+/// OPC UA LocalizedText value.
+/// </summary>
+public sealed record OpcUaLocalizedText
+{
+    /// <summary>
+    /// Localized text.
+    /// </summary>
+    public string Text { get; init; } = string.Empty;
+
+    /// <summary>
+    /// Locale such as en-US or zh-CN, when supplied.
+    /// </summary>
+    public string? Locale { get; init; }
+}
+
+/// <summary>
+/// One structured element in an OPC UA browse path.
+/// </summary>
+public sealed record OpcUaBrowsePathElement
+{
+    /// <summary>
+    /// BrowseName reached by this path element.
+    /// </summary>
+    public OpcUaQualifiedName BrowseName { get; init; } = new();
+
+    /// <summary>
+    /// Reference type used to traverse to this element, when known.
+    /// </summary>
+    public OpcUaTypeReference? ReferenceType { get; init; }
+
+    /// <summary>
+    /// True when the browse step follows an inverse reference.
+    /// </summary>
+    public bool IsInverse { get; init; }
+
+    /// <summary>
+    /// True when subtypes of the reference type are included.
+    /// </summary>
+    public bool IncludeSubtypes { get; init; } = true;
+}
+
+/// <summary>
+/// OPC UA type or reference node pointer.
+/// </summary>
+public sealed record OpcUaTypeReference
+{
+    /// <summary>
+    /// NodeId of the referenced type node.
+    /// </summary>
+    public OpcUaNodeId NodeId { get; init; } = new();
+
+    /// <summary>
+    /// BrowseName of the referenced type node, when known.
+    /// </summary>
+    public OpcUaQualifiedName? BrowseName { get; init; }
+
+    /// <summary>
+    /// DisplayName of the referenced type node, when known.
+    /// </summary>
+    public OpcUaLocalizedText? DisplayName { get; init; }
+}
+
+/// <summary>
+/// OPC UA EUInformation metadata from a variable's EngineeringUnits property.
+/// </summary>
+public sealed record OpcUaEngineeringUnits
+{
+    /// <summary>
+    /// EUInformation namespace URI.
+    /// </summary>
+    public string? NamespaceUri { get; init; }
+
+    /// <summary>
+    /// EUInformation unitId, commonly the UNECE Common Code integer value.
+    /// </summary>
+    public int? UnitId { get; init; }
+
+    /// <summary>
+    /// EUInformation display name.
+    /// </summary>
+    public OpcUaLocalizedText? DisplayName { get; init; }
+
+    /// <summary>
+    /// EUInformation description.
+    /// </summary>
+    public OpcUaLocalizedText? Description { get; init; }
+}
+
+/// <summary>
+/// Original OPC UA reference discovered from Browse results or NodeSet XML.
+/// </summary>
+public sealed record OpcUaReference
+{
+    /// <summary>
+    /// ReferenceType node, such as HasComponent, HasProperty, Organizes, or HasTypeDefinition.
+    /// </summary>
+    public OpcUaTypeReference ReferenceType { get; init; } = new();
+
+    /// <summary>
+    /// Target node of the reference.
+    /// </summary>
+    public OpcUaNodeId TargetNodeId { get; init; } = new();
+
+    /// <summary>
+    /// BrowseName of the target node, when known.
+    /// </summary>
+    public OpcUaQualifiedName? TargetBrowseName { get; init; }
+
+    /// <summary>
+    /// DisplayName of the target node, when known.
+    /// </summary>
+    public OpcUaLocalizedText? TargetDisplayName { get; init; }
+
+    /// <summary>
+    /// NodeClass of the target node, when known.
+    /// </summary>
+    public OpcUaNodeClass? TargetNodeClass { get; init; }
+
+    /// <summary>
+    /// True for forward references and false for inverse references.
+    /// </summary>
+    public bool IsForward { get; init; } = true;
 }
 
 /// <summary>
@@ -1345,6 +1586,64 @@ public enum MqttPayloadSchema
     [EnumMember(Value = "custom")]
     [JsonStringEnumMemberName("custom")]
     Custom
+}
+
+[JsonConverter(typeof(JsonStringEnumConverter<OpcUaNodeIdType>))]
+[Newtonsoft.Json.JsonConverter(typeof(StringEnumConverter))]
+public enum OpcUaNodeIdType
+{
+    [EnumMember(Value = "numeric")]
+    [JsonStringEnumMemberName("numeric")]
+    Numeric,
+
+    [EnumMember(Value = "string")]
+    [JsonStringEnumMemberName("string")]
+    String,
+
+    [EnumMember(Value = "guid")]
+    [JsonStringEnumMemberName("guid")]
+    Guid,
+
+    [EnumMember(Value = "opaque")]
+    [JsonStringEnumMemberName("opaque")]
+    Opaque
+}
+
+[JsonConverter(typeof(JsonStringEnumConverter<OpcUaNodeClass>))]
+[Newtonsoft.Json.JsonConverter(typeof(StringEnumConverter))]
+public enum OpcUaNodeClass
+{
+    [EnumMember(Value = "object")]
+    [JsonStringEnumMemberName("object")]
+    Object,
+
+    [EnumMember(Value = "variable")]
+    [JsonStringEnumMemberName("variable")]
+    Variable,
+
+    [EnumMember(Value = "method")]
+    [JsonStringEnumMemberName("method")]
+    Method,
+
+    [EnumMember(Value = "objectType")]
+    [JsonStringEnumMemberName("objectType")]
+    ObjectType,
+
+    [EnumMember(Value = "variableType")]
+    [JsonStringEnumMemberName("variableType")]
+    VariableType,
+
+    [EnumMember(Value = "referenceType")]
+    [JsonStringEnumMemberName("referenceType")]
+    ReferenceType,
+
+    [EnumMember(Value = "dataType")]
+    [JsonStringEnumMemberName("dataType")]
+    DataType,
+
+    [EnumMember(Value = "view")]
+    [JsonStringEnumMemberName("view")]
+    View
 }
 
 [JsonConverter(typeof(JsonStringEnumConverter<SemanticProtocolKind>))]
