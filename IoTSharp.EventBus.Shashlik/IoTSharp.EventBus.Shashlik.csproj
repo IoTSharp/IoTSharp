@@ -6,18 +6,18 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 	<ItemGroup>
-		<PackageReference Include="DotNetDiag.HealthChecks.NpgSql" Version="10.0.4" />
-		<PackageReference Include="EasyCaching.Core" Version="1.9.2" />
-		<PackageReference Include="DotNetDiag.HealthChecks.Kafka" Version="10.0.4" />
-		<PackageReference Include="DotNetDiag.HealthChecks.Rabbitmq" Version="10.0.4" />
-		<PackageReference Include="Shashlik.EventBus" Version="2.3.1" />
-		<PackageReference Include="Shashlik.EventBus.Kafka" Version="2.3.1" />
-		<PackageReference Include="Shashlik.EventBus.MemoryQueue" Version="2.3.1" />
-		<PackageReference Include="Shashlik.EventBus.MemoryStorage" Version="2.3.1" />
-		<PackageReference Include="Shashlik.EventBus.MySql" Version="2.3.1" />
-		<PackageReference Include="Shashlik.EventBus.PostgreSQL" Version="2.3.1" />
-		<PackageReference Include="Shashlik.EventBus.RabbitMQ" Version="2.3.1" />
-		<PackageReference Include="Shashlik.EventBus.SqlServer" Version="2.3.1" />
+		<PackageReference Include="DotNetDiag.HealthChecks.NpgSql" />
+		<PackageReference Include="EasyCaching.Core" />
+		<PackageReference Include="DotNetDiag.HealthChecks.Kafka" />
+		<PackageReference Include="DotNetDiag.HealthChecks.Rabbitmq" />
+		<PackageReference Include="Shashlik.EventBus" />
+		<PackageReference Include="Shashlik.EventBus.Kafka" />
+		<PackageReference Include="Shashlik.EventBus.MemoryQueue" />
+		<PackageReference Include="Shashlik.EventBus.MemoryStorage" />
+		<PackageReference Include="Shashlik.EventBus.MySql" />
+		<PackageReference Include="Shashlik.EventBus.PostgreSQL" />
+		<PackageReference Include="Shashlik.EventBus.RabbitMQ" />
+		<PackageReference Include="Shashlik.EventBus.SqlServer" />
 	</ItemGroup>
 
 	<ItemGroup>

@@ -4,17 +4,17 @@
     <TargetFramework>net10.0</TargetFramework>
   </PropertyGroup>
 	<ItemGroup>
-		<PackageReference Include="CLanguage" Version="0.22.225" />
-		<PackageReference Include="CS-Script" Version="4.14.6" />
-		<PackageReference Include="Jint" Version="4.8.0" />
-		<PackageReference Include="Microsoft.Extensions.Caching.Abstractions" Version="10.0.*" />
-		<PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" Version="10.0.*" />
-		<PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="10.0.*" />
-		<PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="10.0.*" />
-		<PackageReference Include="IronPython" Version="3.4.2" />
-		<PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="10.0.*" />
-		<PackageReference Include="MoonSharp" Version="2.0.0" />
-		<PackageReference Include="Newtonsoft.Json" Version="13.0.*" />
+		<PackageReference Include="CLanguage" />
+		<PackageReference Include="CS-Script" />
+		<PackageReference Include="Jint" />
+		<PackageReference Include="Microsoft.Extensions.Caching.Abstractions" />
+		<PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" />
+		<PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" />
+		<PackageReference Include="Microsoft.Extensions.Logging.Abstractions" />
+		<PackageReference Include="IronPython" />
+		<PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" />
+		<PackageReference Include="MoonSharp" />
+		<PackageReference Include="Newtonsoft.Json" />
 	</ItemGroup>
 	<ItemGroup>
 	  <Folder Include="Properties\" />

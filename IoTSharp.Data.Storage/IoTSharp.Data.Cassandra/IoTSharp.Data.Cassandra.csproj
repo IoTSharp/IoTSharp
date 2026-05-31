@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
 		<TargetFramework>net10.0</TargetFramework>
@@ -10,9 +10,9 @@
 	  <None Remove="Migrations\**" />
 	</ItemGroup>
 	<ItemGroup>
-		<PackageReference Include="DotNetDiag.HealthChecks.UI.Core" Version="10.0.3" />
-		<PackageReference Include="EFCore.Cassandra" Version="2.0.5" />
-		<PackageReference Include="IoTSharp.HealthChecks.Cassandra" Version="10.0.1" />
+		<PackageReference Include="DotNetDiag.HealthChecks.UI.Core" />
+		<PackageReference Include="EFCore.Cassandra" />
+		<PackageReference Include="IoTSharp.HealthChecks.Cassandra" />
 	</ItemGroup>
 	<ItemGroup>
 		<ProjectReference Include="..\..\IoTSharp.Data\IoTSharp.Data.csproj" />

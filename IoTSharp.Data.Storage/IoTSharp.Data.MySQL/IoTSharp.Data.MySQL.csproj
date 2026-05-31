@@ -5,11 +5,11 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="DotNetDiag.HealthChecks.MySql" Version="10.0.4" />
-    <PackageReference Include="DotNetDiag.HealthChecks.UI.Core" Version="10.0.3" />
-    <PackageReference Include="DotNetDiag.HealthChecks.UI.MySql.Storage" Version="10.0.3" />
-    <PackageReference Include="Microsoft.Extensions.Diagnostics.HealthChecks" Version="10.0.*" />
-    <PackageReference Include="Microting.EntityFrameworkCore.MySql" Version="10.0.5" />
+    <PackageReference Include="DotNetDiag.HealthChecks.MySql" />
+    <PackageReference Include="DotNetDiag.HealthChecks.UI.Core" />
+    <PackageReference Include="DotNetDiag.HealthChecks.UI.MySql.Storage" />
+    <PackageReference Include="Microsoft.Extensions.Diagnostics.HealthChecks" />
+    <PackageReference Include="Microting.EntityFrameworkCore.MySql" />
   </ItemGroup>
 
   <ItemGroup>
