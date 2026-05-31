@@ -18,11 +18,11 @@
 	</ItemGroup>
  
 	<ItemGroup  >
-		<PackageReference Include="Microsoft.EntityFrameworkCore" Version="10.0.*" />
-		<PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="10.0.*" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore.Relational" />
 	</ItemGroup>
 	 	<ItemGroup>
-		<PackageReference Include="Newtonsoft.Json" Version="13.0.*" />
+		<PackageReference Include="Newtonsoft.Json" />
 	</ItemGroup>
 	<ItemGroup>
 	  <ProjectReference Include="..\IoTSharp.Extensions\IoTSharp.Extensions.csproj" />

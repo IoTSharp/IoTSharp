@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>net10.0</TargetFramework>
@@ -10,7 +10,7 @@
     <None Remove="Migrations\**" />
   </ItemGroup>
 	<ItemGroup>
-		<PackageReference Include="DotNetDiag.HealthChecks.UI.InMemory.Storage" Version="10.0.3" />
+		<PackageReference Include="DotNetDiag.HealthChecks.UI.InMemory.Storage" />
 	</ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\IoTSharp.Data\IoTSharp.Data.csproj" />

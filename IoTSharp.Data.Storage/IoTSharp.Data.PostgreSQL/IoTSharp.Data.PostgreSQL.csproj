@@ -5,10 +5,10 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-		<PackageReference Include="DotNetDiag.HealthChecks.NpgSql" Version="10.0.4" />
-		<PackageReference Include="DotNetDiag.HealthChecks.UI.PostgreSQL.Storage" Version="10.0.3" />
-		<PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="10.0.*" />
-		<PackageReference Include="Microsoft.Extensions.Diagnostics.HealthChecks" Version="10.0.*" />
+		<PackageReference Include="DotNetDiag.HealthChecks.NpgSql" />
+		<PackageReference Include="DotNetDiag.HealthChecks.UI.PostgreSQL.Storage" />
+		<PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" />
+		<PackageReference Include="Microsoft.Extensions.Diagnostics.HealthChecks" />
 	</ItemGroup>
 
 	<ItemGroup>

@@ -1,0 +1,85 @@
+<Solution>
+  <Configurations>
+    <Platform Name="Any CPU" />
+    <Platform Name="x64" />
+    <Platform Name="x86" />
+  </Configurations>
+  <Folder Name="/1.Solution Items/">
+    <File Path=".config/dotnet-tools.json" />
+    <File Path=".editorconfig" />
+    <File Path=".github/FUNDING.yml" />
+    <File Path="appveyor.yml" />
+    <File Path="BACKERS.md" />
+    <File Path="buildimage.cmd" />
+    <File Path="buildimageuixe.cmd" />
+    <File Path="LICENSE" />
+    <File Path="README.md" />
+    <File Path="README.zh.md" />
+    <File Path="roadmap.md" />
+    <Properties Name="FolderGlobals">
+      <Property Name="D_5_4GitHub_4IoTSharp_4IoTSharp_4_1config_4dotnet-tools_1json__JsonSchema" Value="https://appsemble.app/api.json" />
+    </Properties>
+  </Folder>
+  <Folder Name="/2.workflows/">
+    <File Path=".github/FUNDING.yml" />
+    <File Path=".github/workflows/codeql.yml" />
+    <File Path=".github/workflows/docs-deploy.yml" />
+    <File Path=".github/workflows/dotnet-build.yml" />
+    <File Path=".github/workflows/dotnet-publish.yml" />
+    <File Path=".github/workflows/nodejsbuild.yml" />
+  </Folder>
+  <Folder Name="/3.SDKs/">
+    <Project Path="IoTSharp.SDKs/IoTSharp.Sdk.CSharp/IoTSharp.Sdk.Http.csproj" />
+    <Project Path="IoTSharp.SDKs/IoTSharp.Sdk.MQTT/IoTSharp.Sdk.MQTT.csproj" />
+    <Project Path="IoTSharp.SDKs/MQTTDemo/MQTTDemo.csproj" />
+  </Folder>
+  <Folder Name="/4.Tools/">
+    <File Path="buildimage.cmd" />
+    <File Path="tools/ef_db_drop.cmd" />
+    <File Path="tools/ef_mg_add.cmd" />
+    <File Path="tools/ef_mg_remove.cmd" />
+    <File Path="tools/setnpm.cmd" />
+    <File Path="tools/upgrade_ef.cmd" />
+  </Folder>
+  <Folder Name="/DataStorage/">
+    <Project Path="IoTSharp.Data.Storage/IoTSharp.Data.Cassandra/IoTSharp.Data.Cassandra.csproj" />
+    <Project Path="IoTSharp.Data.Storage/IoTSharp.Data.ClickHouse/IoTSharp.Data.ClickHouse.csproj" />
+    <Project Path="IoTSharp.Data.Storage/IoTSharp.Data.InMemory/IoTSharp.Data.InMemory.csproj" />
+    <Project Path="IoTSharp.Data.Storage/IoTSharp.Data.MySQL/IoTSharp.Data.MySQL.csproj" />
+    <Project Path="IoTSharp.Data.Storage/IoTSharp.Data.Oracle/IoTSharp.Data.Oracle.csproj" />
+    <Project Path="IoTSharp.Data.Storage/IoTSharp.Data.PostgreSQL/IoTSharp.Data.PostgreSQL.csproj" />
+    <Project Path="IoTSharp.Data.Storage/IoTSharp.Data.Sqlite/IoTSharp.Data.Sqlite.csproj" />
+    <Project Path="IoTSharp.Data.Storage/IoTSharp.Data.SqlServer/IoTSharp.Data.SqlServer.csproj" />
+  </Folder>
+  <Project Path="ClientApp/ClientApp.esproj">
+    <Platform Project="AnyCPU" />
+    <Build />
+    <Deploy />
+  </Project>
+  <Project Path="docker-compose.dcproj">
+    <Platform Project="AnyCPU" />
+    <Build />
+  </Project>
+  <Project Path="IoTSharp.Contracts/IoTSharp.Contracts.csproj" />
+  <Project Path="IoTSharp.Data.JsonDB.Tests/IoTSharp.Data.JsonDB.Tests.csproj" />
+  <Project Path="IoTSharp.Data.JsonDB/IoTSharp.Data.JsonDB.csproj" />
+  <Project Path="IoTSharp.Data.TimeSeries/IoTSharp.Data.TimeSeries.csproj" />
+  <Project Path="IoTSharp.Data/IoTSharp.Data.csproj" />
+  <Project Path="IoTSharp.EventBus.CAP/IoTSharp.EventBus.CAP.csproj" />
+  <Project Path="IoTSharp.EventBus.NServiceBus/IoTSharp.EventBus.NServiceBus.csproj" />
+  <Project Path="IoTSharp.EventBus/IoTSharp.EventBus.csproj" />
+  <Project Path="IoTSharp.Extensions.AspNetCore/IoTSharp.Extensions.AspNetCore.csproj" />
+  <Project Path="IoTSharp.Extensions.BouncyCastle/IoTSharp.Extensions.BouncyCastle.csproj" />
+  <Project Path="IoTSharp.Extensions.DependencyInjection/IoTSharp.Extensions.DependencyInjection.csproj" />
+  <Project Path="IoTSharp.Extensions.EFCore/IoTSharp.Extensions.EFCore.csproj" />
+  <Project Path="IoTSharp.Extensions.QuartzJobScheduler/IoTSharp.Extensions.QuartzJobScheduler.csproj" />
+  <Project Path="IoTSharp.Extensions.RESTful/IoTSharp.Extensions.RESTful.csproj" />
+  <Project Path="IoTSharp.Extensions.X509/IoTSharp.Extensions.X509.csproj" />
+  <Project Path="IoTSharp.Extensions/IoTSharp.Extensions.csproj" />
+  <Project Path="IoTSharp.Interpreter/IoTSharp.Interpreter.csproj" />
+  <Project Path="IoTSharp.TaskActions/IoTSharp.TaskActions.csproj" />
+  <Project Path="IoTSharp.Test/IoTSharp.Test.csproj">
+    <Build Solution="Release|Any CPU" Project="false" />
+  </Project>
+  <Project Path="IoTSharp/IoTSharp.csproj" />
+</Solution>

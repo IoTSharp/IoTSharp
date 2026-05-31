@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
 		<TargetFrameworks>net9.0;net10.0</TargetFrameworks>
@@ -16,8 +16,8 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-		<PackageReference Include="MQTTnet" Version="5.1.0.1559" />
-		<PackageReference Include="Newtonsoft.Json" Version="13.0.*" />
+		<PackageReference Include="MQTTnet" />
+		<PackageReference Include="Newtonsoft.Json" />
 	</ItemGroup>
 
 	<ItemGroup>

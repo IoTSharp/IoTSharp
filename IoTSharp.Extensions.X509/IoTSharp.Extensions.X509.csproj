@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <RootNamespace>IoTSharp.Extensions.X509</RootNamespace>
 	  <TargetFrameworks>net9.0;net10.0</TargetFrameworks>
@@ -32,7 +32,7 @@
   
 
   <ItemGroup>
-    <PackageReference Include="Portable.BouncyCastle" Version="1.9.0" />
+    <PackageReference Include="Portable.BouncyCastle" />
   </ItemGroup>
  
  
