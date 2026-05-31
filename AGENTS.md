@@ -56,20 +56,12 @@ Gateway must integrate with IoTSharp through stable contracts for:
 - configuration pull or push
 - software and task delivery feedback
 
-### PiXiu
-Owns:
-- lightweight edge runtime responsibilities
-- site-side execution, buffering, diagnostics, and future edge autonomy
-- synchronization with the IoTSharp control plane
-
-PiXiu should follow the same edge management contracts as Gateway where possible, while remaining an independent deployable project.
-
 ### Other organization projects
 Rules:
 - do not move unrelated responsibilities into IoTSharp
 - do not couple projects through hidden internal assumptions
 - introduce versioned contracts before introducing cross-repository features
-- maintain compatibility matrices for platform, Gateway, PiXiu, SDKs, and related agents
+- maintain compatibility matrices for platform, Gateway, SDKs, and related agents
 
 ## Planning Rules
 
@@ -80,7 +72,7 @@ Deliver:
 - edge node model
 - registration and heartbeat flow
 - capability and status reporting
-- unified management surface for Gateway and PiXiu
+- unified management surface for Gateway
 - AI-assisted edge diagnostics and operator guidance should plug into this phase through read-only skills first
 
 ### Phase 2: collection modeling
@@ -122,7 +114,7 @@ Deliver:
 The next implementation step starts with edge management.
 
 Any first-wave design or code change should help define:
-- how Gateway and PiXiu register
+- how Gateway registers
 - how IoTSharp tracks edge runtime state
 - how configuration and release tasks are addressed to an edge runtime
 - how cross-project responsibilities are kept clear inside the organization

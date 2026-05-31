@@ -13,7 +13,7 @@ export interface EdgeNodeQueryParam extends IListQueryParam {
 }
 
 export interface EdgeTaskAddressPayload {
-	targetType: 'EdgeNode' | 'GatewayRuntime' | 'PixiuRuntime' | 'DeviceScope';
+	targetType: 'EdgeNode' | 'GatewayRuntime' | 'DeviceScope';
 	deviceId?: string;
 	accessToken?: string;
 	runtimeType?: string;

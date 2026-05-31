@@ -45,7 +45,7 @@
 							</div>
 						</div>
 						<ul class="edge-tip-list">
-							<li>能力声明用于确认 Gateway 或 PiXiu 的协议与任务支持范围。</li>
+							<li>能力声明用于确认 Gateway 的协议与任务支持范围。</li>
 							<li>metadata 保留部署与环境上下文，避免塞入高频或大体量运行数据。</li>
 							<li>metrics 仅做详情展示，不参与第一版筛选与排序。</li>
 						</ul>
@@ -185,12 +185,12 @@ const taskTemplates: Record<string, { runtimeType?: string; parametersText: stri
 		expireInMinutes: 15,
 	},
 	PackageDownload: {
-		runtimeType: 'pixiu',
+		runtimeType: 'gateway',
 		parametersText: '{\n  "packageUrl": "https://example.invalid/pkg.zip",\n  "checksum": "sha256:..."\n}',
 		expireInMinutes: 60,
 	},
 	PackageApply: {
-		runtimeType: 'pixiu',
+		runtimeType: 'gateway',
 		parametersText: '{\n  "packageVersion": "1.0.0",\n  "restart": true\n}',
 		expireInMinutes: 60,
 	},
@@ -324,7 +324,7 @@ const submitTask = async () => {
 		taskId,
 		taskType: dispatchForm.taskType as any,
 		address: {
-			targetType: dispatchForm.runtimeType === 'pixiu' ? 'PixiuRuntime' : 'GatewayRuntime',
+			targetType: 'GatewayRuntime',
 			deviceId: edgeRef.value.id,
 			runtimeType: dispatchForm.runtimeType || edgeRef.value.runtimeType,
 			instanceId: dispatchForm.instanceId || edgeRef.value.instanceId,

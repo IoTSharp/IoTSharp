@@ -39,7 +39,7 @@
 							<div class="edge-onboarding__card-header">
 								<div>
 									<h4>接入凭据</h4>
-									<p>把 AccessToken 提供给 Gateway 或 PiXiu，用它调用 Edge 注册与心跳接口。</p>
+									<p>把 AccessToken 提供给 Gateway，用它调用 Edge 注册与心跳接口。</p>
 								</div>
 								<el-button size="small" plain :disabled="!accessToken" @click="copyValue(accessToken)">复制 Token</el-button>
 							</div>
@@ -129,7 +129,7 @@ const apiBaseUrl = computed(() => {
 });
 const accessToken = computed(() => identityRef.value?.identityId || edgeRef.value?.accessToken || '');
 const runtimeType = computed(() => String(edgeRef.value?.runtimeType || runtimeTypeRef.value || 'gateway').toLowerCase());
-const runtimeTypeLabel = computed(() => (runtimeType.value === 'pixiu' ? 'PiXiu' : 'Gateway'));
+const runtimeTypeLabel = computed(() => 'Gateway');
 const registerUrl = computed(() => `${apiBaseUrl.value}/api/Edge/${accessToken.value || '{accessToken}'}/Register`);
 const capabilitiesUrl = computed(() => `${apiBaseUrl.value}/api/Edge/${accessToken.value || '{accessToken}'}/Capabilities`);
 const heartbeatUrl = computed(() => `${apiBaseUrl.value}/api/Edge/${accessToken.value || '{accessToken}'}/Heartbeat`);
@@ -156,11 +156,11 @@ const registerPayloadText = computed(() =>
 const capabilitiesPayloadText = computed(() =>
 	JSON.stringify(
 		{
-			protocols: runtimeType.value === 'pixiu' ? ['modbus-tcp', 'opcua'] : ['modbus-tcp', 'mqtt'],
+			protocols: ['modbus-tcp', 'mqtt'],
 			features: ['register', 'heartbeat', 'task-receipt'],
 			tasks: ['ConfigPush', 'ConfigPullRequest', 'HealthProbe'],
 			metadata: {
-				buffering: runtimeType.value === 'pixiu',
+				buffering: false,
 				diagnostics: true,
 			},
 		},

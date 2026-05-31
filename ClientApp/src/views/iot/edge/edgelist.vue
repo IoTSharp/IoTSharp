@@ -3,7 +3,7 @@
 		<ConsolePageShell
 			eyebrow="Edge Workspace"
 			title="EdgeNode 管理"
-			description="第一版只覆盖 EdgeNode 管理页、查询筛选与详情展示，用统一工作台承接 Gateway 与 PiXiu 的节点查询视图。"
+			description="第一版只覆盖 EdgeNode 管理页、查询筛选与详情展示，用统一工作台承接 Gateway 的节点查询视图。"
 			:badges="edgeBadges"
 			:metrics="edgeMetrics"
 		>
@@ -52,7 +52,7 @@
 		<el-dialog v-model="createDialog" title="新增边缘节点" width="640px" destroy-on-close>
 			<div class="edge-create-dialog">
 				<el-alert
-					title="第一版边缘管理先创建 Gateway 身份；实际 runtimeType 在 Register 阶段由 Gateway 或 PiXiu 自行声明。"
+					title="第一版边缘管理先创建 Gateway 身份；实际 runtimeType 在 Register 阶段由 Gateway 自行声明。"
 					type="info"
 					:closable="false"
 					show-icon
@@ -65,7 +65,6 @@
 					<el-form-item label="运行时模板">
 						<el-select v-model="createForm.runtimeType" style="width: 100%">
 							<el-option label="Gateway" value="gateway" />
-							<el-option label="PiXiu" value="pixiu" />
 						</el-select>
 					</el-form-item>
 					<el-form-item label="超时(秒)">

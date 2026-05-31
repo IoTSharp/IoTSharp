@@ -7,7 +7,6 @@ namespace IoTSharp.Dtos
     {
         EdgeNode = 0,
         GatewayRuntime = 1,
-        PixiuRuntime = 2,
         DeviceScope = 3
     }
 

@@ -7,7 +7,7 @@
 - EdgeNode 管理页
 - 列表查询、筛选、排序、分页
 - EdgeNode 详情展示
-- Gateway / PiXiu 注册协议正式说明
+- Gateway 注册协议正式说明
 - 配置下发 / 任务寻址模型草案
 - 为执行端对接预留稳定 API 契约与状态机边界
 
@@ -85,7 +85,7 @@
 ### 协议版本
 
 - 当前协议版本号：edge-v1
-- 第一版要求 Gateway 与 PiXiu 都按 edge-v1 执行注册与心跳
+- 第一版要求 Gateway 按 edge-v1 执行注册与心跳
 
 ### 注册请求字段
 
@@ -109,7 +109,6 @@
 第一版建议约束值：
 
 - gateway
-- pixiu
 
 后续新增 runtimeType 只能扩展，不能重定义已有语义。
 
@@ -191,7 +190,6 @@ metadata 用于承载部署上下文，不用于承载高频运行数据。
 
 - edge-node
 - gateway-runtime
-- pixiu-runtime
 - device-scope
 
 ### 寻址键
@@ -250,7 +248,7 @@ metadata 用于承载部署上下文，不用于承载高频运行数据。
 
 ## 第二步稳定契约正式接口文档
 
-本节将前面的草案收敛成正式接口文档，用于 Gateway / PiXiu 执行端后续对接。
+本节将前面的草案收敛成正式接口文档，用于 Gateway 执行端后续对接。
 
 ### 契约版本
 
@@ -351,13 +349,11 @@ targetKey 规则：
 
 - EdgeNode = 0
 - GatewayRuntime = 1
-- PixiuRuntime = 2
 - DeviceScope = 3
 
 约束：
 
 - Gateway 对接使用 GatewayRuntime
-- PiXiu 对接使用 PixiuRuntime
 - DeviceScope 预留给边缘节点下的设备范围型任务
 
 ### 任务状态机枚举
@@ -518,5 +514,5 @@ targetKey 规则：
 - Edge 详情抽屉
 - 菜单入口
 - Edge 查询范围文档
-- Gateway / PiXiu 注册协议说明
+- Gateway 注册协议说明
 - 配置下发 / 任务寻址草案

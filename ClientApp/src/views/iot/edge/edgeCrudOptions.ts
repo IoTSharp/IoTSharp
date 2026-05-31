@@ -104,7 +104,7 @@ export const createEdgeCrudOptions = function ({ expose, openOnboarding }, edgeD
 					type: 'dict-select',
 					search: { show: true },
 					column: { sortable: 'custom', width: 120 },
-					dict: dict({ data: [{ value: 'gateway', label: 'Gateway' }, { value: 'pixiu', label: 'PiXiu' }] }),
+					dict: dict({ data: [{ value: 'gateway', label: 'Gateway' }] }),
 				},
 				runtimeName: {
 					title: 'RuntimeName',

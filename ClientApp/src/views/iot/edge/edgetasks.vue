@@ -3,14 +3,13 @@
 		<ConsolePageShell
 			eyebrow="Edge Task Console"
 			title="Edge 任务闭环"
-			description="统一查看 Dispatch、Receipt 与 History，确认平台任务是否已被 Gateway / PiXiu 消费并完成回执。"
+			description="统一查看 Dispatch、Receipt 与 History，确认平台任务是否已被 Gateway 消费并完成回执。"
 			:badges="badges"
 		>
 			<template #actions>
 				<el-input v-model="filters.name" placeholder="筛选设备名称" clearable class="edge-task-page__filter" />
 				<el-select v-model="filters.runtimeType" placeholder="运行时" clearable class="edge-task-page__filter">
 					<el-option label="Gateway" value="gateway" />
-					<el-option label="Pixiu" value="pixiu-runtime" />
 				</el-select>
 				<el-select v-model="filters.status" placeholder="状态" clearable class="edge-task-page__filter">
 					<el-option label="Pending" value="Pending" />
