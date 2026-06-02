@@ -11,7 +11,7 @@
     <PackageVersion Include="CAP.Extensions" Version="1.0.37" />
     <PackageVersion Include="CLanguage" Version="0.22.225" />
     <PackageVersion Include="coverlet.collector" Version="8.0.1" />
-    <PackageVersion Include="CS-Script" Version="4.14.6" />
+    <PackageVersion Include="CS-Script" Version="4.14.9" />
     <PackageVersion Include="DotNetCore.CAP.AmazonSQS" Version="10.0.1" />
     <PackageVersion Include="DotNetCore.CAP.AzureServiceBus" Version="10.0.1" />
     <PackageVersion Include="DotNetCore.CAP.Dashboard" Version="10.0.1" />
