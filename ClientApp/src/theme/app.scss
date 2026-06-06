@@ -145,6 +145,45 @@ body,
 
 /* element plus 全局样式
 ------------------------------- */
+/* 修复 fast-crud 表格和容器高度问题 */
+.fs-crud-table {
+    height: auto !important;
+    min-height: 200px;
+}
+.fs-container {
+    height: auto !important;
+}
+.fs-container .box {
+    height: auto !important;
+    position: static !important;
+}
+.fs-container .box .inner {
+    position: static !important;
+    top: unset !important;
+    bottom: unset !important;
+    height: auto !important;
+}
+.fs-container .box .inner .header {
+    flex-shrink: 0;
+}
+.fs-container .box .inner .body {
+    flex: unset !important;
+    overflow-y: visible !important;
+    height: auto !important;
+    max-height: none !important;
+}
+.fs-container .box .inner .footer {
+    flex-shrink: 0;
+}
+/* 修复 el-table 在新布局下的高度 */
+.fs-crud-container .el-table__body-wrapper {
+    overflow-y: visible !important;
+}
+.fs-crud-container .el-scrollbar__wrap {
+    overflow: visible !important;
+}
+
+
 .layout-breadcrumb-seting {
 	.el-divider {
 		background-color: rgb(230, 230, 230);
