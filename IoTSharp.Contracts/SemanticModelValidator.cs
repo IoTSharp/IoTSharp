@@ -77,6 +77,7 @@ public static class SemanticModelValidator
         }
 
         ValidateAssetPointOwnership(model.Assets, pointOwners, diagnostics);
+        ValidateProcessGraph(model.ProcessGraph, assetIds, seenSemanticIds, diagnostics);
 
         return diagnostics;
     }
@@ -453,6 +454,346 @@ public static class SemanticModelValidator
 
     private static bool IsWritable(SemanticPointAccess access)
         => access is SemanticPointAccess.Write or SemanticPointAccess.ReadWrite or SemanticPointAccess.Command or SemanticPointAccess.Config;
+
+    private static void ValidateProcessGraph(
+        ProcessGraph? processGraph,
+        ISet<string> assetIds,
+        ISet<string> semanticIds,
+        ICollection<SemanticValidationDiagnostic> diagnostics)
+    {
+        if (processGraph is null)
+        {
+            return;
+        }
+
+        const string path = "$.processGraph";
+        ValidateRequired(diagnostics, processGraph.ProcessGraphId, $"{path}.processGraphId", SemanticValidationCodes.ProcessGraphIdRequired, "processGraphId is required for every L3 process graph.");
+        ValidateRequired(diagnostics, processGraph.Name, $"{path}.name", SemanticValidationCodes.ProcessGraphNameRequired, "name is required for every L3 process graph.");
+
+        var seenNodeIds = new HashSet<string>(StringComparer.Ordinal);
+        var validNodeIds = processGraph.Nodes
+            .Select(node => node.NodeId)
+            .Where(nodeId => !string.IsNullOrWhiteSpace(nodeId))
+            .GroupBy(nodeId => nodeId, StringComparer.Ordinal)
+            .Where(group => group.Count() == 1)
+            .Select(group => group.Key)
+            .ToHashSet(StringComparer.Ordinal);
+
+        for (var nodeIndex = 0; nodeIndex < processGraph.Nodes.Count; nodeIndex++)
+        {
+            ValidateProcessNode(
+                processGraph.Nodes[nodeIndex],
+                nodeIndex,
+                assetIds,
+                semanticIds,
+                seenNodeIds,
+                diagnostics);
+        }
+
+        var connectedNodeIds = new HashSet<string>(StringComparer.Ordinal);
+        var mainFlowAdjacency = validNodeIds.ToDictionary(nodeId => nodeId, _ => new List<string>(), StringComparer.Ordinal);
+        var seenEdgeIds = new HashSet<string>(StringComparer.Ordinal);
+        for (var edgeIndex = 0; edgeIndex < processGraph.Edges.Count; edgeIndex++)
+        {
+            ValidateProcessEdge(
+                processGraph.Edges[edgeIndex],
+                edgeIndex,
+                validNodeIds,
+                seenEdgeIds,
+                connectedNodeIds,
+                mainFlowAdjacency,
+                diagnostics);
+        }
+
+        ValidateProcessGraphConnectivity(processGraph.Nodes, connectedNodeIds, diagnostics);
+        ValidateProcessGraphCycles(mainFlowAdjacency, diagnostics);
+    }
+
+    private static void ValidateProcessNode(
+        ProcessNode node,
+        int nodeIndex,
+        ISet<string> assetIds,
+        ISet<string> semanticIds,
+        ISet<string> seenNodeIds,
+        ICollection<SemanticValidationDiagnostic> diagnostics)
+    {
+        var path = $"$.processGraph.nodes[{nodeIndex}]";
+
+        if (string.IsNullOrWhiteSpace(node.NodeId))
+        {
+            diagnostics.Add(new SemanticValidationDiagnostic(
+                SemanticValidationSeverity.Error,
+                SemanticValidationCodes.ProcessNodeIdRequired,
+                $"{path}.nodeId",
+                "nodeId is required for every L3 process node."));
+        }
+        else if (!seenNodeIds.Add(node.NodeId))
+        {
+            diagnostics.Add(new SemanticValidationDiagnostic(
+                SemanticValidationSeverity.Error,
+                SemanticValidationCodes.ProcessNodeIdDuplicate,
+                $"{path}.nodeId",
+                $"process nodeId '{node.NodeId}' is duplicated."));
+        }
+
+        ValidateRequired(diagnostics, node.Name, $"{path}.name", SemanticValidationCodes.ProcessNodeNameRequired, "name is required for every L3 process node.");
+        ValidateRequired(diagnostics, node.NodeType, $"{path}.nodeType", SemanticValidationCodes.ProcessNodeTypeRequired, "nodeType is required for every L3 process node.");
+
+        if (string.IsNullOrWhiteSpace(node.AssetId))
+        {
+            diagnostics.Add(new SemanticValidationDiagnostic(
+                SemanticValidationSeverity.Error,
+                SemanticValidationCodes.ProcessNodeAssetRequired,
+                $"{path}.assetId",
+                "assetId is required so every L3 process node references an L2 asset."));
+        }
+        else if (!assetIds.Contains(node.AssetId))
+        {
+            diagnostics.Add(new SemanticValidationDiagnostic(
+                SemanticValidationSeverity.Error,
+                SemanticValidationCodes.ProcessNodeAssetMissing,
+                $"{path}.assetId",
+                $"process node assetId '{node.AssetId}' does not exist in assets."));
+        }
+
+        ValidateProcessNodeSemanticReferences(node.InputSemanticIds, $"{path}.inputSemanticIds", "input", semanticIds, diagnostics);
+        ValidateProcessNodeSemanticReferences(node.OutputSemanticIds, $"{path}.outputSemanticIds", "output", semanticIds, diagnostics);
+
+        if (node.InputSemanticIds.Count == 0 && node.OutputSemanticIds.Count == 0)
+        {
+            diagnostics.Add(new SemanticValidationDiagnostic(
+                SemanticValidationSeverity.Error,
+                SemanticValidationCodes.ProcessNodePointReferenceRequired,
+                path,
+                $"process node '{node.NodeId}' must reference at least one inputSemanticIds or outputSemanticIds entry."));
+        }
+    }
+
+    private static void ValidateProcessNodeSemanticReferences(
+        IReadOnlyList<string> semanticReferences,
+        string path,
+        string role,
+        ISet<string> semanticIds,
+        ICollection<SemanticValidationDiagnostic> diagnostics)
+    {
+        var seen = new HashSet<string>(StringComparer.Ordinal);
+        for (var index = 0; index < semanticReferences.Count; index++)
+        {
+            var semanticId = semanticReferences[index];
+            var itemPath = $"{path}[{index}]";
+            if (string.IsNullOrWhiteSpace(semanticId))
+            {
+                diagnostics.Add(new SemanticValidationDiagnostic(
+                    SemanticValidationSeverity.Error,
+                    SemanticValidationCodes.ProcessNodeSemanticPointRequired,
+                    itemPath,
+                    $"process node {role} semantic point reference must not be empty."));
+                continue;
+            }
+
+            if (!seen.Add(semanticId))
+            {
+                diagnostics.Add(new SemanticValidationDiagnostic(
+                    SemanticValidationSeverity.Error,
+                    SemanticValidationCodes.ProcessNodeSemanticPointDuplicate,
+                    itemPath,
+                    $"process node {role} semantic point '{semanticId}' is duplicated."));
+            }
+
+            if (!semanticIds.Contains(semanticId))
+            {
+                diagnostics.Add(new SemanticValidationDiagnostic(
+                    SemanticValidationSeverity.Error,
+                    SemanticValidationCodes.ProcessNodeSemanticPointMissing,
+                    itemPath,
+                    $"process node {role} semantic point '{semanticId}' does not exist in semanticPoints."));
+            }
+        }
+    }
+
+    private static void ValidateProcessEdge(
+        ProcessEdge edge,
+        int edgeIndex,
+        ISet<string> nodeIds,
+        ISet<string> seenEdgeIds,
+        ISet<string> connectedNodeIds,
+        IDictionary<string, List<string>> mainFlowAdjacency,
+        ICollection<SemanticValidationDiagnostic> diagnostics)
+    {
+        var path = $"$.processGraph.edges[{edgeIndex}]";
+
+        if (string.IsNullOrWhiteSpace(edge.EdgeId))
+        {
+            diagnostics.Add(new SemanticValidationDiagnostic(
+                SemanticValidationSeverity.Error,
+                SemanticValidationCodes.ProcessEdgeIdRequired,
+                $"{path}.edgeId",
+                "edgeId is required for every L3 process edge."));
+        }
+        else if (!seenEdgeIds.Add(edge.EdgeId))
+        {
+            diagnostics.Add(new SemanticValidationDiagnostic(
+                SemanticValidationSeverity.Error,
+                SemanticValidationCodes.ProcessEdgeIdDuplicate,
+                $"{path}.edgeId",
+                $"process edgeId '{edge.EdgeId}' is duplicated."));
+        }
+
+        var hasValidFrom = ValidateProcessEdgeNodeReference(edge.FromNodeId, $"{path}.fromNodeId", "fromNodeId", nodeIds, diagnostics);
+        var hasValidTo = ValidateProcessEdgeNodeReference(edge.ToNodeId, $"{path}.toNodeId", "toNodeId", nodeIds, diagnostics);
+
+        if (hasValidFrom && hasValidTo)
+        {
+            if (string.Equals(edge.FromNodeId, edge.ToNodeId, StringComparison.Ordinal))
+            {
+                diagnostics.Add(new SemanticValidationDiagnostic(
+                    SemanticValidationSeverity.Error,
+                    SemanticValidationCodes.ProcessEdgeSelfReference,
+                    path,
+                    $"process edge '{edge.EdgeId}' must not point from a node to itself."));
+            }
+            else
+            {
+                connectedNodeIds.Add(edge.FromNodeId);
+                connectedNodeIds.Add(edge.ToNodeId);
+
+                if (IsMainProcessFlow(edge.Relation))
+                {
+                    mainFlowAdjacency[edge.FromNodeId].Add(edge.ToNodeId);
+                }
+            }
+        }
+
+        if (!Enum.IsDefined(edge.Relation))
+        {
+            diagnostics.Add(new SemanticValidationDiagnostic(
+                SemanticValidationSeverity.Error,
+                SemanticValidationCodes.ProcessEdgeRelationInvalid,
+                $"{path}.relation",
+                $"process edge relation '{edge.Relation}' is not supported."));
+        }
+    }
+
+    private static bool ValidateProcessEdgeNodeReference(
+        string nodeId,
+        string path,
+        string role,
+        ISet<string> nodeIds,
+        ICollection<SemanticValidationDiagnostic> diagnostics)
+    {
+        if (string.IsNullOrWhiteSpace(nodeId))
+        {
+            diagnostics.Add(new SemanticValidationDiagnostic(
+                SemanticValidationSeverity.Error,
+                SemanticValidationCodes.ProcessEdgeNodeRequired,
+                path,
+                $"process edge {role} is required."));
+            return false;
+        }
+
+        if (nodeIds.Contains(nodeId))
+        {
+            return true;
+        }
+
+        diagnostics.Add(new SemanticValidationDiagnostic(
+            SemanticValidationSeverity.Error,
+            SemanticValidationCodes.ProcessEdgeNodeMissing,
+            path,
+            $"process edge {role} '{nodeId}' does not exist in processGraph.nodes."));
+        return false;
+    }
+
+    private static void ValidateProcessGraphConnectivity(
+        IReadOnlyList<ProcessNode> nodes,
+        ISet<string> connectedNodeIds,
+        ICollection<SemanticValidationDiagnostic> diagnostics)
+    {
+        if (nodes.Count <= 1)
+        {
+            return;
+        }
+
+        for (var index = 0; index < nodes.Count; index++)
+        {
+            var node = nodes[index];
+            if (string.IsNullOrWhiteSpace(node.NodeId) || connectedNodeIds.Contains(node.NodeId))
+            {
+                continue;
+            }
+
+            diagnostics.Add(new SemanticValidationDiagnostic(
+                SemanticValidationSeverity.Error,
+                SemanticValidationCodes.ProcessNodeDisconnected,
+                $"$.processGraph.nodes[{index}]",
+                $"process node '{node.NodeId}' is disconnected from the process graph."));
+        }
+    }
+
+    private static void ValidateProcessGraphCycles(
+        IReadOnlyDictionary<string, List<string>> mainFlowAdjacency,
+        ICollection<SemanticValidationDiagnostic> diagnostics)
+    {
+        var states = mainFlowAdjacency.Keys.ToDictionary(nodeId => nodeId, _ => ProcessNodeVisitState.NotVisited, StringComparer.Ordinal);
+        var stack = new Stack<string>();
+
+        foreach (var nodeId in mainFlowAdjacency.Keys)
+        {
+            if (states[nodeId] == ProcessNodeVisitState.NotVisited
+                && VisitProcessNode(nodeId, mainFlowAdjacency, states, stack, diagnostics))
+            {
+                return;
+            }
+        }
+    }
+
+    private static bool VisitProcessNode(
+        string nodeId,
+        IReadOnlyDictionary<string, List<string>> mainFlowAdjacency,
+        IDictionary<string, ProcessNodeVisitState> states,
+        Stack<string> stack,
+        ICollection<SemanticValidationDiagnostic> diagnostics)
+    {
+        states[nodeId] = ProcessNodeVisitState.Visiting;
+        stack.Push(nodeId);
+
+        foreach (var next in mainFlowAdjacency[nodeId])
+        {
+            if (states[next] == ProcessNodeVisitState.NotVisited)
+            {
+                if (VisitProcessNode(next, mainFlowAdjacency, states, stack, diagnostics))
+                {
+                    return true;
+                }
+
+                continue;
+            }
+
+            if (states[next] == ProcessNodeVisitState.Visiting)
+            {
+                diagnostics.Add(new SemanticValidationDiagnostic(
+                    SemanticValidationSeverity.Error,
+                    SemanticValidationCodes.ProcessGraphCycle,
+                    "$.processGraph.edges",
+                    $"process graph contains a main-flow cycle involving node '{next}'."));
+                return true;
+            }
+        }
+
+        stack.Pop();
+        states[nodeId] = ProcessNodeVisitState.Visited;
+        return false;
+    }
+
+    private static bool IsMainProcessFlow(ProcessRelation relation)
+        => relation is ProcessRelation.Input or ProcessRelation.Output or ProcessRelation.Upstream or ProcessRelation.Downstream or ProcessRelation.Dependency;
+
+    private enum ProcessNodeVisitState
+    {
+        NotVisited,
+        Visiting,
+        Visited
+    }
 
     private static void ValidateModbusBinding(
         ProtocolBinding binding,
@@ -1499,4 +1840,24 @@ public static class SemanticValidationCodes
     public const string SemanticPointSourceRequired = "semantic.point.source.required";
     public const string SemanticPointSourceBindingMissing = "semantic.point.source.binding_missing";
     public const string SemanticPointWritablePhysicalQuantity = "semantic.point.writable_physical_quantity";
+    public const string ProcessGraphIdRequired = "semantic.process_graph.id.required";
+    public const string ProcessGraphNameRequired = "semantic.process_graph.name.required";
+    public const string ProcessNodeIdRequired = "semantic.process_graph.node.id.required";
+    public const string ProcessNodeIdDuplicate = "semantic.process_graph.node.id.duplicate";
+    public const string ProcessNodeNameRequired = "semantic.process_graph.node.name.required";
+    public const string ProcessNodeTypeRequired = "semantic.process_graph.node.type.required";
+    public const string ProcessNodeAssetRequired = "semantic.process_graph.node.asset.required";
+    public const string ProcessNodeAssetMissing = "semantic.process_graph.node.asset_missing";
+    public const string ProcessNodePointReferenceRequired = "semantic.process_graph.node.point_reference.required";
+    public const string ProcessNodeSemanticPointRequired = "semantic.process_graph.node.semantic_point.required";
+    public const string ProcessNodeSemanticPointDuplicate = "semantic.process_graph.node.semantic_point.duplicate";
+    public const string ProcessNodeSemanticPointMissing = "semantic.process_graph.node.semantic_point.missing";
+    public const string ProcessNodeDisconnected = "semantic.process_graph.node.disconnected";
+    public const string ProcessEdgeIdRequired = "semantic.process_graph.edge.id.required";
+    public const string ProcessEdgeIdDuplicate = "semantic.process_graph.edge.id.duplicate";
+    public const string ProcessEdgeNodeRequired = "semantic.process_graph.edge.node.required";
+    public const string ProcessEdgeNodeMissing = "semantic.process_graph.edge.node.missing";
+    public const string ProcessEdgeSelfReference = "semantic.process_graph.edge.self_reference";
+    public const string ProcessEdgeRelationInvalid = "semantic.process_graph.edge.relation.invalid";
+    public const string ProcessGraphCycle = "semantic.process_graph.edge.cycle";
 }
