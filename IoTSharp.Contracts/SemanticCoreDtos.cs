@@ -1216,29 +1216,65 @@ public sealed record ProcessEdge
 }
 
 /// <summary>
-/// Draft computed point definition. Full validation is refined in later L3 work.
+/// L3 computed point definition. Expressions reference dependencies through ref("semanticId").
 /// </summary>
 public sealed record DerivedPoint
 {
+    /// <summary>
+    /// Stable semantic identifier for the computed value.
+    /// </summary>
     public string SemanticId { get; init; } = string.Empty;
 
+    /// <summary>
+    /// Code-friendly derived point name.
+    /// </summary>
     public string Name { get; init; } = string.Empty;
 
+    /// <summary>
+    /// Arithmetic expression that must reference semantic IDs with ref("semanticId").
+    /// </summary>
     public string Expression { get; init; } = string.Empty;
 
+    /// <summary>
+    /// Semantic IDs read by the expression. Entries may reference L1 SemanticPoint IDs or other DerivedPoint IDs.
+    /// </summary>
     public List<string> DependsOnSemanticIds { get; init; } = [];
 
+    /// <summary>
+    /// Quantity represented by the computed value.
+    /// </summary>
     public Quantity Quantity { get; init; } = new();
 
+    /// <summary>
+    /// Engineering unit emitted by the expression.
+    /// </summary>
     public Unit Unit { get; init; } = new();
 
+    /// <summary>
+    /// Refresh strategy: onDependencyChange, fixedInterval, or manual.
+    /// </summary>
     public string? RefreshPolicy { get; init; }
+
+    /// <summary>
+    /// Required positive interval when refreshPolicy is fixedInterval.
+    /// </summary>
+    public TimeSpan? RefreshInterval { get; init; }
+
+    /// <summary>
+    /// Optional period after which the computed value is considered stale.
+    /// </summary>
+    public TimeSpan? StaleAfter { get; init; }
+
+    /// <summary>
+    /// Optional lookback window for aggregate-style expressions.
+    /// </summary>
+    public TimeSpan? EvaluationWindow { get; init; }
 
     public Dictionary<string, JsonElement> Metadata { get; init; } = [];
 }
 
 /// <summary>
-/// Draft process or asset state model.
+/// L3 process or asset state model.
 /// </summary>
 public sealed record StateModel
 {
@@ -1249,6 +1285,16 @@ public sealed record StateModel
     public string? AppliesToAssetId { get; init; }
 
     public string? AppliesToNodeId { get; init; }
+
+    /// <summary>
+    /// State used when no other state condition matches.
+    /// </summary>
+    public string? DefaultStateId { get; init; }
+
+    /// <summary>
+    /// True when exactly one state may be active at a time.
+    /// </summary>
+    public bool MutuallyExclusive { get; init; } = true;
 
     public List<StateDefinition> States { get; init; } = [];
 
@@ -1266,9 +1312,13 @@ public sealed record StateDefinition
 
     public string Name { get; init; } = string.Empty;
 
+    public ProcessStateKind StateKind { get; init; } = ProcessStateKind.Unknown;
+
     public string? Condition { get; init; }
 
     public List<string> DependsOnSemanticIds { get; init; } = [];
+
+    public List<string> DependsOnNodeIds { get; init; } = [];
 }
 
 /// <summary>
@@ -1292,11 +1342,20 @@ public sealed record AlarmSemantics
 
     public string Name { get; init; } = string.Empty;
 
-    public AlarmSeverity Severity { get; init; } = AlarmSeverity.Warning;
+    /// <summary>
+    /// Business meaning of the alarm, not just a technical threshold.
+    /// </summary>
+    public string BusinessMeaning { get; init; } = string.Empty;
+
+    public AlarmSeverity Severity { get; init; } = AlarmSeverity.Unknown;
 
     public string Condition { get; init; } = string.Empty;
 
     public List<string> DependsOnSemanticIds { get; init; } = [];
+
+    public List<string> DependsOnNodeIds { get; init; } = [];
+
+    public List<string> DependsOnStateModelIds { get; init; } = [];
 
     public TimeSpan? Duration { get; init; }
 
@@ -1323,6 +1382,16 @@ public sealed record ControlPolicy
     public bool RequiresApproval { get; init; }
 
     public AiOperationMode AiOperationMode { get; init; } = AiOperationMode.RecommendOnly;
+
+    /// <summary>
+    /// Explicit opt-in for AI or automation to execute writes without a human approval step.
+    /// </summary>
+    public bool AllowAutomaticExecution { get; init; }
+
+    /// <summary>
+    /// Optional approval scope such as operator, supervisor, maintenance, or safety.
+    /// </summary>
+    public string? ApprovalScope { get; init; }
 
     public Dictionary<string, JsonElement> Metadata { get; init; } = [];
 }
@@ -1748,6 +1817,10 @@ public enum ProcessRelation
 [Newtonsoft.Json.JsonConverter(typeof(StringEnumConverter))]
 public enum AlarmSeverity
 {
+    [EnumMember(Value = "unknown")]
+    [JsonStringEnumMemberName("unknown")]
+    Unknown = -1,
+
     [EnumMember(Value = "info")]
     [JsonStringEnumMemberName("info")]
     Info,
@@ -1767,6 +1840,47 @@ public enum AlarmSeverity
     [EnumMember(Value = "critical")]
     [JsonStringEnumMemberName("critical")]
     Critical
+}
+
+[JsonConverter(typeof(JsonStringEnumConverter<ProcessStateKind>))]
+[Newtonsoft.Json.JsonConverter(typeof(StringEnumConverter))]
+public enum ProcessStateKind
+{
+    [EnumMember(Value = "unknown")]
+    [JsonStringEnumMemberName("unknown")]
+    Unknown,
+
+    [EnumMember(Value = "running")]
+    [JsonStringEnumMemberName("running")]
+    Running,
+
+    [EnumMember(Value = "standby")]
+    [JsonStringEnumMemberName("standby")]
+    Standby,
+
+    [EnumMember(Value = "fault")]
+    [JsonStringEnumMemberName("fault")]
+    Fault,
+
+    [EnumMember(Value = "maintenance")]
+    [JsonStringEnumMemberName("maintenance")]
+    Maintenance,
+
+    [EnumMember(Value = "manual")]
+    [JsonStringEnumMemberName("manual")]
+    Manual,
+
+    [EnumMember(Value = "automatic")]
+    [JsonStringEnumMemberName("automatic")]
+    Automatic,
+
+    [EnumMember(Value = "stopped")]
+    [JsonStringEnumMemberName("stopped")]
+    Stopped,
+
+    [EnumMember(Value = "custom")]
+    [JsonStringEnumMemberName("custom")]
+    Custom
 }
 
 [JsonConverter(typeof(JsonStringEnumConverter<ControlRisk>))]
@@ -1796,5 +1910,9 @@ public enum AiOperationMode
 
     [EnumMember(Value = "allowWithApproval")]
     [JsonStringEnumMemberName("allowWithApproval")]
-    AllowWithApproval
+    AllowWithApproval,
+
+    [EnumMember(Value = "allowAutomatic")]
+    [JsonStringEnumMemberName("allowAutomatic")]
+    AllowAutomatic
 }

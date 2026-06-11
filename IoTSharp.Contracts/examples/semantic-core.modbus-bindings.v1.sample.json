@@ -178,6 +178,7 @@
         "command"
       ],
       "metadata": {
+        "controlPolicyId": "control-policy-modbus-demo-pump-run",
         "pointTableRow": "row-004"
       }
     }
@@ -383,7 +384,21 @@
     "derivedPoints": [],
     "stateModels": [],
     "alarms": [],
-    "controlPolicies": [],
+    "controlPolicies": [
+      {
+        "controlPolicyId": "control-policy-modbus-demo-pump-run",
+        "name": "Pump run command policy",
+        "appliesToSemanticIds": [
+          "modbus.demo.pump_run_command"
+        ],
+        "risk": "hazardous",
+        "requiresApproval": true,
+        "aiOperationMode": "recommendOnly",
+        "allowAutomaticExecution": false,
+        "approvalScope": "operator",
+        "metadata": {}
+      }
+    ],
     "metadata": {}
   },
   "extensionSlots": [],

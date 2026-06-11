@@ -981,7 +981,8 @@
         "expression",
         "dependsOnSemanticIds",
         "quantity",
-        "unit"
+        "unit",
+        "refreshPolicy"
       ],
       "properties": {
         "semanticId": {
@@ -1003,6 +1004,15 @@
           "$ref": "#/$defs/unit"
         },
         "refreshPolicy": {
+          "$ref": "#/$defs/derivedPointRefreshPolicy"
+        },
+        "refreshInterval": {
+          "type": "string"
+        },
+        "staleAfter": {
+          "type": "string"
+        },
+        "evaluationWindow": {
           "type": "string"
         },
         "metadata": {
@@ -1030,6 +1040,13 @@
         },
         "appliesToNodeId": {
           "type": "string"
+        },
+        "defaultStateId": {
+          "type": "string"
+        },
+        "mutuallyExclusive": {
+          "type": "boolean",
+          "default": true
         },
         "states": {
           "type": "array",
@@ -1063,10 +1080,16 @@
         "name": {
           "$ref": "#/$defs/nonEmptyString"
         },
+        "stateKind": {
+          "$ref": "#/$defs/processStateKind"
+        },
         "condition": {
           "type": "string"
         },
         "dependsOnSemanticIds": {
+          "$ref": "#/$defs/stringArray"
+        },
+        "dependsOnNodeIds": {
           "$ref": "#/$defs/stringArray"
         }
       }
@@ -1096,6 +1119,7 @@
       "required": [
         "alarmId",
         "name",
+        "businessMeaning",
         "severity",
         "condition",
         "dependsOnSemanticIds"
@@ -1107,6 +1131,9 @@
         "name": {
           "$ref": "#/$defs/nonEmptyString"
         },
+        "businessMeaning": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
         "severity": {
           "$ref": "#/$defs/alarmSeverity"
         },
@@ -1114,6 +1141,12 @@
           "$ref": "#/$defs/nonEmptyString"
         },
         "dependsOnSemanticIds": {
+          "$ref": "#/$defs/stringArray"
+        },
+        "dependsOnNodeIds": {
+          "$ref": "#/$defs/stringArray"
+        },
+        "dependsOnStateModelIds": {
           "$ref": "#/$defs/stringArray"
         },
         "duration": {
@@ -1164,8 +1197,16 @@
           "enum": [
             "recommendOnly",
             "draftOnly",
-            "allowWithApproval"
+            "allowWithApproval",
+            "allowAutomatic"
           ]
+        },
+        "allowAutomaticExecution": {
+          "type": "boolean",
+          "default": false
+        },
+        "approvalScope": {
+          "type": "string"
         },
         "metadata": {
           "$ref": "#/$defs/objectMap"
@@ -1317,13 +1358,34 @@
         "dependency"
       ]
     },
+    "derivedPointRefreshPolicy": {
+      "enum": [
+        "onDependencyChange",
+        "fixedInterval",
+        "manual"
+      ]
+    },
     "alarmSeverity": {
       "enum": [
+        "unknown",
         "info",
         "warning",
         "minor",
         "major",
         "critical"
+      ]
+    },
+    "processStateKind": {
+      "enum": [
+        "unknown",
+        "running",
+        "standby",
+        "fault",
+        "maintenance",
+        "manual",
+        "automatic",
+        "stopped",
+        "custom"
       ]
     }
   }

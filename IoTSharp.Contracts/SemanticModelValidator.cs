@@ -71,13 +71,18 @@ public static class SemanticModelValidator
 
         var seenSemanticIds = new HashSet<string>(StringComparer.Ordinal);
         var pointOwners = new Dictionary<string, string>(StringComparer.Ordinal);
+        var semanticPointsById = model.SemanticPoints
+            .Where(point => !string.IsNullOrWhiteSpace(point.SemanticId))
+            .GroupBy(point => point.SemanticId, StringComparer.Ordinal)
+            .Where(group => group.Count() == 1)
+            .ToDictionary(group => group.Key, group => group.Single(), StringComparer.Ordinal);
         for (var index = 0; index < model.SemanticPoints.Count; index++)
         {
             ValidateSemanticPoint(model.SemanticPoints[index], index, assetIds, assetsById, bindingsById, seenSemanticIds, pointOwners, diagnostics);
         }
 
         ValidateAssetPointOwnership(model.Assets, pointOwners, diagnostics);
-        ValidateProcessGraph(model.ProcessGraph, assetIds, seenSemanticIds, diagnostics);
+        ValidateProcessGraph(model.ProcessGraph, assetIds, seenSemanticIds, semanticPointsById, diagnostics);
 
         return diagnostics;
     }
@@ -459,6 +464,7 @@ public static class SemanticModelValidator
         ProcessGraph? processGraph,
         ISet<string> assetIds,
         ISet<string> semanticIds,
+        IReadOnlyDictionary<string, SemanticPoint> semanticPointsById,
         ICollection<SemanticValidationDiagnostic> diagnostics)
     {
         if (processGraph is null)
@@ -507,6 +513,1630 @@ public static class SemanticModelValidator
 
         ValidateProcessGraphConnectivity(processGraph.Nodes, connectedNodeIds, diagnostics);
         ValidateProcessGraphCycles(mainFlowAdjacency, diagnostics);
+        ValidateDerivedPoints(processGraph.DerivedPoints, semanticIds, semanticPointsById, diagnostics);
+
+        var validDerivedIds = processGraph.DerivedPoints
+            .Select(point => point.SemanticId)
+            .Where(semanticId => !string.IsNullOrWhiteSpace(semanticId))
+            .GroupBy(semanticId => semanticId, StringComparer.Ordinal)
+            .Where(group => group.Count() == 1)
+            .Select(group => group.Key)
+            .ToHashSet(StringComparer.Ordinal);
+        var stateModelsById = processGraph.StateModels
+            .Where(model => !string.IsNullOrWhiteSpace(model.StateModelId))
+            .GroupBy(model => model.StateModelId, StringComparer.Ordinal)
+            .Where(group => group.Count() == 1)
+            .ToDictionary(group => group.Key, group => group.Single(), StringComparer.Ordinal);
+
+        ValidateStateModels(processGraph.StateModels, assetIds, validNodeIds, semanticIds, validDerivedIds, diagnostics);
+        ValidateAlarmSemantics(processGraph.Alarms, semanticIds, validDerivedIds, validNodeIds, stateModelsById, diagnostics);
+        ValidateControlPolicies(processGraph.ControlPolicies, semanticPointsById, diagnostics);
+    }
+
+    private static void ValidateControlPolicies(
+        IReadOnlyList<ControlPolicy> controlPolicies,
+        IReadOnlyDictionary<string, SemanticPoint> semanticPointsById,
+        ICollection<SemanticValidationDiagnostic> diagnostics)
+    {
+        var policiesBySemanticId = new Dictionary<string, List<ControlPolicy>>(StringComparer.Ordinal);
+        var seenPolicyIds = new HashSet<string>(StringComparer.Ordinal);
+        for (var index = 0; index < controlPolicies.Count; index++)
+        {
+            ValidateControlPolicy(
+                controlPolicies[index],
+                index,
+                semanticPointsById,
+                seenPolicyIds,
+                policiesBySemanticId,
+                diagnostics);
+        }
+
+        ValidateWritablePointsHaveControlPolicy(semanticPointsById, policiesBySemanticId, diagnostics);
+    }
+
+    private static void ValidateControlPolicy(
+        ControlPolicy policy,
+        int policyIndex,
+        IReadOnlyDictionary<string, SemanticPoint> semanticPointsById,
+        ISet<string> seenPolicyIds,
+        IDictionary<string, List<ControlPolicy>> policiesBySemanticId,
+        ICollection<SemanticValidationDiagnostic> diagnostics)
+    {
+        var path = $"$.processGraph.controlPolicies[{policyIndex}]";
+        if (string.IsNullOrWhiteSpace(policy.ControlPolicyId))
+        {
+            diagnostics.Add(new SemanticValidationDiagnostic(
+                SemanticValidationSeverity.Error,
+                SemanticValidationCodes.ControlPolicyIdRequired,
+                $"{path}.controlPolicyId",
+                "controlPolicyId is required for every L3 control policy."));
+        }
+        else if (!seenPolicyIds.Add(policy.ControlPolicyId))
+        {
+            diagnostics.Add(new SemanticValidationDiagnostic(
+                SemanticValidationSeverity.Error,
+                SemanticValidationCodes.ControlPolicyIdDuplicate,
+                $"{path}.controlPolicyId",
+                $"controlPolicyId '{policy.ControlPolicyId}' is duplicated."));
+        }
+
+        ValidateRequired(diagnostics, policy.Name, $"{path}.name", SemanticValidationCodes.ControlPolicyNameRequired, "name is required for every L3 control policy.");
+
+        if (policy.AppliesToSemanticIds.Count == 0)
+        {
+            diagnostics.Add(new SemanticValidationDiagnostic(
+                SemanticValidationSeverity.Error,
+                SemanticValidationCodes.ControlPolicyTargetRequired,
+                $"{path}.appliesToSemanticIds",
+                "appliesToSemanticIds must contain at least one writable or command semantic point."));
+        }
+
+        if (!Enum.IsDefined(policy.Risk))
+        {
+            diagnostics.Add(new SemanticValidationDiagnostic(
+                SemanticValidationSeverity.Error,
+                SemanticValidationCodes.ControlPolicyRiskInvalid,
+                $"{path}.risk",
+                "risk must be normal or hazardous."));
+        }
+
+        if (!Enum.IsDefined(policy.AiOperationMode))
+        {
+            diagnostics.Add(new SemanticValidationDiagnostic(
+                SemanticValidationSeverity.Error,
+                SemanticValidationCodes.ControlPolicyAiOperationModeInvalid,
+                $"{path}.aiOperationMode",
+                "aiOperationMode must be recommendOnly, draftOnly, allowWithApproval, or allowAutomatic."));
+        }
+
+        var seenTargets = new HashSet<string>(StringComparer.Ordinal);
+        for (var targetIndex = 0; targetIndex < policy.AppliesToSemanticIds.Count; targetIndex++)
+        {
+            var semanticId = policy.AppliesToSemanticIds[targetIndex];
+            var targetPath = $"{path}.appliesToSemanticIds[{targetIndex}]";
+            if (string.IsNullOrWhiteSpace(semanticId))
+            {
+                diagnostics.Add(new SemanticValidationDiagnostic(
+                    SemanticValidationSeverity.Error,
+                    SemanticValidationCodes.ControlPolicyTargetRequired,
+                    targetPath,
+                    "control policy target semanticId must not be empty."));
+                continue;
+            }
+
+            if (!seenTargets.Add(semanticId))
+            {
+                diagnostics.Add(new SemanticValidationDiagnostic(
+                    SemanticValidationSeverity.Error,
+                    SemanticValidationCodes.ControlPolicyTargetDuplicate,
+                    targetPath,
+                    $"control policy target semanticId '{semanticId}' is duplicated."));
+            }
+
+            if (!semanticPointsById.TryGetValue(semanticId, out var point))
+            {
+                diagnostics.Add(new SemanticValidationDiagnostic(
+                    SemanticValidationSeverity.Error,
+                    SemanticValidationCodes.ControlPolicyTargetMissing,
+                    targetPath,
+                    $"control policy target semanticId '{semanticId}' does not exist in semanticPoints."));
+                continue;
+            }
+
+            if (!IsWritable(point.Access))
+            {
+                diagnostics.Add(new SemanticValidationDiagnostic(
+                    SemanticValidationSeverity.Error,
+                    SemanticValidationCodes.ControlPolicyReadPointNotAllowed,
+                    targetPath,
+                    $"control policy '{policy.ControlPolicyId}' targets read-only semanticPoint '{semanticId}'."));
+            }
+
+            if (!policiesBySemanticId.TryGetValue(semanticId, out var policies))
+            {
+                policies = [];
+                policiesBySemanticId[semanticId] = policies;
+            }
+
+            policies.Add(policy);
+        }
+
+        ValidateControlPolicyApprovalAndAiBoundary(policy, path, semanticPointsById, diagnostics);
+    }
+
+    private static void ValidateControlPolicyApprovalAndAiBoundary(
+        ControlPolicy policy,
+        string path,
+        IReadOnlyDictionary<string, SemanticPoint> semanticPointsById,
+        ICollection<SemanticValidationDiagnostic> diagnostics)
+    {
+        var appliesToCommandOrConfig = policy.AppliesToSemanticIds
+            .Select(semanticId => semanticPointsById.TryGetValue(semanticId, out var point) ? point : null)
+            .OfType<SemanticPoint>()
+            .Any(point => point.Access is SemanticPointAccess.Command or SemanticPointAccess.Config);
+        var isHazardous = policy.Risk == ControlRisk.Hazardous;
+
+        if ((isHazardous || appliesToCommandOrConfig) && !policy.RequiresApproval)
+        {
+            diagnostics.Add(new SemanticValidationDiagnostic(
+                SemanticValidationSeverity.Error,
+                SemanticValidationCodes.ControlPolicyApprovalRequired,
+                $"{path}.requiresApproval",
+                "hazardous, command, or config control policies must require human approval."));
+        }
+
+        if (policy.AiOperationMode == AiOperationMode.AllowWithApproval && !policy.RequiresApproval)
+        {
+            diagnostics.Add(new SemanticValidationDiagnostic(
+                SemanticValidationSeverity.Error,
+                SemanticValidationCodes.ControlPolicyApprovalRequired,
+                $"{path}.requiresApproval",
+                "aiOperationMode allowWithApproval requires requiresApproval to be true."));
+        }
+
+        if (policy.AllowAutomaticExecution && policy.AiOperationMode != AiOperationMode.AllowAutomatic)
+        {
+            diagnostics.Add(new SemanticValidationDiagnostic(
+                SemanticValidationSeverity.Error,
+                SemanticValidationCodes.ControlPolicyAutomaticExecutionNotAllowed,
+                $"{path}.allowAutomaticExecution",
+                "allowAutomaticExecution requires aiOperationMode to be allowAutomatic."));
+        }
+
+        if (policy.AiOperationMode == AiOperationMode.AllowAutomatic && !policy.AllowAutomaticExecution)
+        {
+            diagnostics.Add(new SemanticValidationDiagnostic(
+                SemanticValidationSeverity.Error,
+                SemanticValidationCodes.ControlPolicyAutomaticExecutionNotAllowed,
+                $"{path}.aiOperationMode",
+                "AI defaults to recommendations unless allowAutomaticExecution is explicitly true."));
+        }
+
+        if ((isHazardous || appliesToCommandOrConfig) && policy.AiOperationMode == AiOperationMode.AllowAutomatic)
+        {
+            diagnostics.Add(new SemanticValidationDiagnostic(
+                SemanticValidationSeverity.Error,
+                SemanticValidationCodes.ControlPolicyAutomaticExecutionNotAllowed,
+                $"{path}.aiOperationMode",
+                "hazardous, command, or config control policies must not allow automatic AI execution."));
+        }
+    }
+
+    private static void ValidateWritablePointsHaveControlPolicy(
+        IReadOnlyDictionary<string, SemanticPoint> semanticPointsById,
+        IReadOnlyDictionary<string, List<ControlPolicy>> policiesBySemanticId,
+        ICollection<SemanticValidationDiagnostic> diagnostics)
+    {
+        foreach (var point in semanticPointsById.Values.OrderBy(point => point.SemanticId, StringComparer.Ordinal))
+        {
+            if (!IsWritable(point.Access))
+            {
+                continue;
+            }
+
+            var metadataPolicyId = TryGetMetadataString(point.Metadata, "controlPolicyId");
+            var hasPolicyByTarget = policiesBySemanticId.TryGetValue(point.SemanticId, out var policies)
+                && policies.Count > 0;
+            var hasMetadataPolicy = !string.IsNullOrWhiteSpace(metadataPolicyId)
+                && policiesBySemanticId.TryGetValue(point.SemanticId, out var metadataPolicies)
+                && metadataPolicies.Any(policy => string.Equals(policy.ControlPolicyId, metadataPolicyId, StringComparison.Ordinal));
+
+            if (!hasPolicyByTarget || (!string.IsNullOrWhiteSpace(metadataPolicyId) && !hasMetadataPolicy))
+            {
+                diagnostics.Add(new SemanticValidationDiagnostic(
+                    SemanticValidationSeverity.Error,
+                    SemanticValidationCodes.ControlPolicyWritablePointPolicyRequired,
+                    "$.processGraph.controlPolicies",
+                    $"writable semanticPoint '{point.SemanticId}' must be covered by a control policy."));
+            }
+        }
+    }
+
+    private static void ValidateStateModels(
+        IReadOnlyList<StateModel> stateModels,
+        ISet<string> assetIds,
+        ISet<string> nodeIds,
+        ISet<string> semanticIds,
+        ISet<string> derivedIds,
+        ICollection<SemanticValidationDiagnostic> diagnostics)
+    {
+        var seenModelIds = new HashSet<string>(StringComparer.Ordinal);
+        for (var index = 0; index < stateModels.Count; index++)
+        {
+            ValidateStateModel(
+                stateModels[index],
+                index,
+                assetIds,
+                nodeIds,
+                semanticIds,
+                derivedIds,
+                seenModelIds,
+                diagnostics);
+        }
+    }
+
+    private static void ValidateAlarmSemantics(
+        IReadOnlyList<AlarmSemantics> alarms,
+        ISet<string> semanticIds,
+        ISet<string> derivedIds,
+        ISet<string> nodeIds,
+        IReadOnlyDictionary<string, StateModel> stateModelsById,
+        ICollection<SemanticValidationDiagnostic> diagnostics)
+    {
+        var seenAlarmIds = new HashSet<string>(StringComparer.Ordinal);
+        for (var index = 0; index < alarms.Count; index++)
+        {
+            ValidateAlarmSemantics(
+                alarms[index],
+                index,
+                semanticIds,
+                derivedIds,
+                nodeIds,
+                stateModelsById,
+                seenAlarmIds,
+                diagnostics);
+        }
+    }
+
+    private static void ValidateAlarmSemantics(
+        AlarmSemantics alarm,
+        int alarmIndex,
+        ISet<string> semanticIds,
+        ISet<string> derivedIds,
+        ISet<string> nodeIds,
+        IReadOnlyDictionary<string, StateModel> stateModelsById,
+        ISet<string> seenAlarmIds,
+        ICollection<SemanticValidationDiagnostic> diagnostics)
+    {
+        var path = $"$.processGraph.alarms[{alarmIndex}]";
+        if (string.IsNullOrWhiteSpace(alarm.AlarmId))
+        {
+            diagnostics.Add(new SemanticValidationDiagnostic(
+                SemanticValidationSeverity.Error,
+                SemanticValidationCodes.AlarmIdRequired,
+                $"{path}.alarmId",
+                "alarmId is required for every L3 alarm semantics definition."));
+        }
+        else if (!seenAlarmIds.Add(alarm.AlarmId))
+        {
+            diagnostics.Add(new SemanticValidationDiagnostic(
+                SemanticValidationSeverity.Error,
+                SemanticValidationCodes.AlarmIdDuplicate,
+                $"{path}.alarmId",
+                $"alarmId '{alarm.AlarmId}' is duplicated."));
+        }
+
+        ValidateRequired(diagnostics, alarm.Name, $"{path}.name", SemanticValidationCodes.AlarmNameRequired, "name is required for every L3 alarm semantics definition.");
+        ValidateRequired(diagnostics, alarm.BusinessMeaning, $"{path}.businessMeaning", SemanticValidationCodes.AlarmBusinessMeaningRequired, "businessMeaning is required so the alarm has an explicit operational meaning.");
+        ValidateRequired(diagnostics, alarm.Condition, $"{path}.condition", SemanticValidationCodes.AlarmConditionRequired, "condition is required for every L3 alarm semantics definition.");
+
+        if (!Enum.IsDefined(alarm.Severity) || alarm.Severity == AlarmSeverity.Unknown)
+        {
+            diagnostics.Add(new SemanticValidationDiagnostic(
+                SemanticValidationSeverity.Error,
+                SemanticValidationCodes.AlarmSeverityRequired,
+                $"{path}.severity",
+                "severity must be one of info, warning, minor, major, or critical."));
+        }
+
+        if (alarm.Duration.HasValue && alarm.Duration.Value <= TimeSpan.Zero)
+        {
+            diagnostics.Add(new SemanticValidationDiagnostic(
+                SemanticValidationSeverity.Error,
+                SemanticValidationCodes.AlarmDurationInvalid,
+                $"{path}.duration",
+                "duration must be a positive time span when provided."));
+        }
+
+        ValidateAlarmDependencies(alarm, path, semanticIds, derivedIds, nodeIds, stateModelsById, diagnostics);
+        ValidateAlarmConditions(alarm, path, semanticIds, derivedIds, nodeIds, stateModelsById, diagnostics);
+    }
+
+    private static void ValidateAlarmDependencies(
+        AlarmSemantics alarm,
+        string path,
+        ISet<string> semanticIds,
+        ISet<string> derivedIds,
+        ISet<string> nodeIds,
+        IReadOnlyDictionary<string, StateModel> stateModelsById,
+        ICollection<SemanticValidationDiagnostic> diagnostics)
+    {
+        if (alarm.DependsOnSemanticIds.Count == 0)
+        {
+            diagnostics.Add(new SemanticValidationDiagnostic(
+                SemanticValidationSeverity.Error,
+                SemanticValidationCodes.AlarmDependencyRequired,
+                $"{path}.dependsOnSemanticIds",
+                "dependsOnSemanticIds must contain the SemanticPoint or DerivedPoint IDs that give this alarm its business meaning."));
+        }
+
+        ValidateAlarmStringDependencies(
+            alarm.DependsOnSemanticIds,
+            $"{path}.dependsOnSemanticIds",
+            SemanticValidationCodes.AlarmDependencyRequired,
+            SemanticValidationCodes.AlarmDependencyDuplicate,
+            dependencyId => semanticIds.Contains(dependencyId) || derivedIds.Contains(dependencyId),
+            SemanticValidationCodes.AlarmSemanticReferenceMissing,
+            "alarm semantic dependency",
+            "semanticPoints or processGraph.derivedPoints",
+            diagnostics);
+
+        ValidateAlarmStringDependencies(
+            alarm.DependsOnNodeIds,
+            $"{path}.dependsOnNodeIds",
+            SemanticValidationCodes.AlarmDependencyRequired,
+            SemanticValidationCodes.AlarmDependencyDuplicate,
+            nodeIds.Contains,
+            SemanticValidationCodes.AlarmNodeReferenceMissing,
+            "alarm node dependency",
+            "processGraph.nodes",
+            diagnostics);
+
+        ValidateAlarmStringDependencies(
+            alarm.DependsOnStateModelIds,
+            $"{path}.dependsOnStateModelIds",
+            SemanticValidationCodes.AlarmDependencyRequired,
+            SemanticValidationCodes.AlarmDependencyDuplicate,
+            stateModelsById.ContainsKey,
+            SemanticValidationCodes.AlarmStateModelReferenceMissing,
+            "alarm state model dependency",
+            "processGraph.stateModels",
+            diagnostics);
+    }
+
+    private static void ValidateAlarmStringDependencies(
+        IReadOnlyList<string> dependencyIds,
+        string path,
+        string requiredCode,
+        string duplicateCode,
+        Func<string, bool> exists,
+        string missingCode,
+        string dependencyLabel,
+        string targetLabel,
+        ICollection<SemanticValidationDiagnostic> diagnostics)
+    {
+        var seenDependencies = new HashSet<string>(StringComparer.Ordinal);
+        for (var index = 0; index < dependencyIds.Count; index++)
+        {
+            var dependencyId = dependencyIds[index];
+            var dependencyPath = $"{path}[{index}]";
+            if (string.IsNullOrWhiteSpace(dependencyId))
+            {
+                diagnostics.Add(new SemanticValidationDiagnostic(
+                    SemanticValidationSeverity.Error,
+                    requiredCode,
+                    dependencyPath,
+                    $"{dependencyLabel} must not be empty."));
+                continue;
+            }
+
+            if (!seenDependencies.Add(dependencyId))
+            {
+                diagnostics.Add(new SemanticValidationDiagnostic(
+                    SemanticValidationSeverity.Error,
+                    duplicateCode,
+                    dependencyPath,
+                    $"{dependencyLabel} '{dependencyId}' is duplicated."));
+            }
+
+            if (!exists(dependencyId))
+            {
+                diagnostics.Add(new SemanticValidationDiagnostic(
+                    SemanticValidationSeverity.Error,
+                    missingCode,
+                    dependencyPath,
+                    $"{dependencyLabel} '{dependencyId}' does not exist in {targetLabel}."));
+            }
+        }
+    }
+
+    private static void ValidateAlarmConditions(
+        AlarmSemantics alarm,
+        string path,
+        ISet<string> semanticIds,
+        ISet<string> derivedIds,
+        ISet<string> nodeIds,
+        IReadOnlyDictionary<string, StateModel> stateModelsById,
+        ICollection<SemanticValidationDiagnostic> diagnostics)
+    {
+        var referencedSemanticIds = new HashSet<string>(StringComparer.Ordinal);
+        var referencedNodeIds = new HashSet<string>(StringComparer.Ordinal);
+        var referencedStateModelIds = new HashSet<string>(StringComparer.Ordinal);
+
+        if (!string.IsNullOrWhiteSpace(alarm.Condition))
+        {
+            ValidateAlarmCondition(
+                alarm,
+                alarm.Condition,
+                $"{path}.condition",
+                semanticIds,
+                derivedIds,
+                nodeIds,
+                stateModelsById,
+                referencedSemanticIds,
+                referencedNodeIds,
+                referencedStateModelIds,
+                diagnostics);
+        }
+
+        if (!string.IsNullOrWhiteSpace(alarm.SuppressionCondition))
+        {
+            ValidateAlarmCondition(
+                alarm,
+                alarm.SuppressionCondition,
+                $"{path}.suppressionCondition",
+                semanticIds,
+                derivedIds,
+                nodeIds,
+                stateModelsById,
+                referencedSemanticIds,
+                referencedNodeIds,
+                referencedStateModelIds,
+                diagnostics);
+        }
+
+        if (!string.IsNullOrWhiteSpace(alarm.RecoveryCondition))
+        {
+            ValidateAlarmCondition(
+                alarm,
+                alarm.RecoveryCondition,
+                $"{path}.recoveryCondition",
+                semanticIds,
+                derivedIds,
+                nodeIds,
+                stateModelsById,
+                referencedSemanticIds,
+                referencedNodeIds,
+                referencedStateModelIds,
+                diagnostics);
+        }
+
+        ValidateAlarmDependencyAlignment(
+            alarm,
+            path,
+            referencedSemanticIds,
+            referencedNodeIds,
+            referencedStateModelIds,
+            stateModelsById,
+            diagnostics);
+    }
+
+    private static void ValidateAlarmCondition(
+        AlarmSemantics alarm,
+        string conditionText,
+        string path,
+        ISet<string> semanticIds,
+        ISet<string> derivedIds,
+        ISet<string> nodeIds,
+        IReadOnlyDictionary<string, StateModel> stateModelsById,
+        ISet<string> referencedSemanticIds,
+        ISet<string> referencedNodeIds,
+        ISet<string> referencedStateModelIds,
+        ICollection<SemanticValidationDiagnostic> diagnostics)
+    {
+        if (!TryParseAlarmCondition(conditionText, out var condition, out var error))
+        {
+            diagnostics.Add(new SemanticValidationDiagnostic(
+                SemanticValidationSeverity.Error,
+                SemanticValidationCodes.AlarmConditionInvalid,
+                path,
+                $"alarm condition is invalid: {error}"));
+            return;
+        }
+
+        if (condition.ReferencedSemanticIds.Count == 0
+            && condition.ReferencedNodeIds.Count == 0
+            && condition.ReferencedStateModelIds.Count == 0)
+        {
+            diagnostics.Add(new SemanticValidationDiagnostic(
+                SemanticValidationSeverity.Error,
+                SemanticValidationCodes.AlarmConditionReferenceRequired,
+                path,
+                "alarm condition must reference SemanticPoint, DerivedPoint, ProcessNode, or StateModel with ref(\"semanticId\"), node(\"nodeId\"), or state(\"stateModelId\")."));
+        }
+
+        foreach (var semanticId in condition.ReferencedSemanticIds)
+        {
+            referencedSemanticIds.Add(semanticId);
+            if (!semanticIds.Contains(semanticId) && !derivedIds.Contains(semanticId))
+            {
+                diagnostics.Add(new SemanticValidationDiagnostic(
+                    SemanticValidationSeverity.Error,
+                    SemanticValidationCodes.AlarmSemanticReferenceMissing,
+                    path,
+                    $"alarm condition references semanticId '{semanticId}' that does not exist in semanticPoints or processGraph.derivedPoints."));
+            }
+
+            if (!alarm.DependsOnSemanticIds.Contains(semanticId, StringComparer.Ordinal))
+            {
+                diagnostics.Add(new SemanticValidationDiagnostic(
+                    SemanticValidationSeverity.Error,
+                    SemanticValidationCodes.AlarmDependencyMismatch,
+                    path,
+                    $"alarm condition references semanticId '{semanticId}' that is not declared in dependsOnSemanticIds."));
+            }
+        }
+
+        foreach (var nodeId in condition.ReferencedNodeIds)
+        {
+            referencedNodeIds.Add(nodeId);
+            if (!nodeIds.Contains(nodeId))
+            {
+                diagnostics.Add(new SemanticValidationDiagnostic(
+                    SemanticValidationSeverity.Error,
+                    SemanticValidationCodes.AlarmNodeReferenceMissing,
+                    path,
+                    $"alarm condition references nodeId '{nodeId}' that does not exist in processGraph.nodes."));
+            }
+
+            if (!alarm.DependsOnNodeIds.Contains(nodeId, StringComparer.Ordinal))
+            {
+                diagnostics.Add(new SemanticValidationDiagnostic(
+                    SemanticValidationSeverity.Error,
+                    SemanticValidationCodes.AlarmDependencyMismatch,
+                    path,
+                    $"alarm condition references nodeId '{nodeId}' that is not declared in dependsOnNodeIds."));
+            }
+        }
+
+        foreach (var stateModelId in condition.ReferencedStateModelIds)
+        {
+            referencedStateModelIds.Add(stateModelId);
+            if (!stateModelsById.ContainsKey(stateModelId))
+            {
+                diagnostics.Add(new SemanticValidationDiagnostic(
+                    SemanticValidationSeverity.Error,
+                    SemanticValidationCodes.AlarmStateModelReferenceMissing,
+                    path,
+                    $"alarm condition references stateModelId '{stateModelId}' that does not exist in processGraph.stateModels."));
+            }
+
+            if (!alarm.DependsOnStateModelIds.Contains(stateModelId, StringComparer.Ordinal))
+            {
+                diagnostics.Add(new SemanticValidationDiagnostic(
+                    SemanticValidationSeverity.Error,
+                    SemanticValidationCodes.AlarmDependencyMismatch,
+                    path,
+                    $"alarm condition references stateModelId '{stateModelId}' that is not declared in dependsOnStateModelIds."));
+            }
+        }
+    }
+
+    private static void ValidateAlarmDependencyAlignment(
+        AlarmSemantics alarm,
+        string path,
+        ISet<string> referencedSemanticIds,
+        ISet<string> referencedNodeIds,
+        ISet<string> referencedStateModelIds,
+        IReadOnlyDictionary<string, StateModel> stateModelsById,
+        ICollection<SemanticValidationDiagnostic> diagnostics)
+    {
+        var stateModelSemanticDependencies = new HashSet<string>(StringComparer.Ordinal);
+        var stateModelNodeDependencies = new HashSet<string>(StringComparer.Ordinal);
+        foreach (var stateModelId in referencedStateModelIds)
+        {
+            if (stateModelsById.TryGetValue(stateModelId, out var stateModel))
+            {
+                AddStateModelDependencies(stateModel, stateModelSemanticDependencies, stateModelNodeDependencies);
+            }
+        }
+
+        foreach (var semanticId in alarm.DependsOnSemanticIds)
+        {
+            if (!referencedSemanticIds.Contains(semanticId) && !stateModelSemanticDependencies.Contains(semanticId))
+            {
+                diagnostics.Add(new SemanticValidationDiagnostic(
+                    SemanticValidationSeverity.Error,
+                    SemanticValidationCodes.AlarmDependencyMismatch,
+                    $"{path}.dependsOnSemanticIds",
+                    $"dependsOnSemanticIds includes semanticId '{semanticId}' that is not referenced by alarm conditions or referenced state models."));
+            }
+        }
+
+        foreach (var nodeId in alarm.DependsOnNodeIds)
+        {
+            if (!referencedNodeIds.Contains(nodeId) && !stateModelNodeDependencies.Contains(nodeId))
+            {
+                diagnostics.Add(new SemanticValidationDiagnostic(
+                    SemanticValidationSeverity.Error,
+                    SemanticValidationCodes.AlarmDependencyMismatch,
+                    $"{path}.dependsOnNodeIds",
+                    $"dependsOnNodeIds includes nodeId '{nodeId}' that is not referenced by alarm conditions or referenced state models."));
+            }
+        }
+
+        foreach (var stateModelId in alarm.DependsOnStateModelIds)
+        {
+            if (!referencedStateModelIds.Contains(stateModelId))
+            {
+                diagnostics.Add(new SemanticValidationDiagnostic(
+                    SemanticValidationSeverity.Error,
+                    SemanticValidationCodes.AlarmDependencyMismatch,
+                    $"{path}.dependsOnStateModelIds",
+                    $"dependsOnStateModelIds includes stateModelId '{stateModelId}' that is not referenced by alarm conditions."));
+            }
+        }
+    }
+
+    private static void AddStateModelDependencies(
+        StateModel stateModel,
+        ISet<string> semanticDependencies,
+        ISet<string> nodeDependencies)
+    {
+        foreach (var state in stateModel.States)
+        {
+            semanticDependencies.UnionWith(state.DependsOnSemanticIds);
+            nodeDependencies.UnionWith(state.DependsOnNodeIds);
+        }
+
+        foreach (var transition in stateModel.Transitions)
+        {
+            if (string.IsNullOrWhiteSpace(transition.Condition)
+                || !TryParseStateCondition(transition.Condition, out var condition, out _))
+            {
+                continue;
+            }
+
+            semanticDependencies.UnionWith(condition.ReferencedSemanticIds);
+            nodeDependencies.UnionWith(condition.ReferencedNodeIds);
+        }
+    }
+
+    private static void ValidateStateModel(
+        StateModel stateModel,
+        int modelIndex,
+        ISet<string> assetIds,
+        ISet<string> nodeIds,
+        ISet<string> semanticIds,
+        ISet<string> derivedIds,
+        ISet<string> seenModelIds,
+        ICollection<SemanticValidationDiagnostic> diagnostics)
+    {
+        var path = $"$.processGraph.stateModels[{modelIndex}]";
+        if (string.IsNullOrWhiteSpace(stateModel.StateModelId))
+        {
+            diagnostics.Add(new SemanticValidationDiagnostic(
+                SemanticValidationSeverity.Error,
+                SemanticValidationCodes.StateModelIdRequired,
+                $"{path}.stateModelId",
+                "stateModelId is required for every L3 state model."));
+        }
+        else if (!seenModelIds.Add(stateModel.StateModelId))
+        {
+            diagnostics.Add(new SemanticValidationDiagnostic(
+                SemanticValidationSeverity.Error,
+                SemanticValidationCodes.StateModelIdDuplicate,
+                $"{path}.stateModelId",
+                $"stateModelId '{stateModel.StateModelId}' is duplicated."));
+        }
+
+        ValidateRequired(diagnostics, stateModel.Name, $"{path}.name", SemanticValidationCodes.StateModelNameRequired, "name is required for every L3 state model.");
+
+        if (!string.IsNullOrWhiteSpace(stateModel.AppliesToAssetId) && !assetIds.Contains(stateModel.AppliesToAssetId))
+        {
+            diagnostics.Add(new SemanticValidationDiagnostic(
+                SemanticValidationSeverity.Error,
+                SemanticValidationCodes.StateModelAssetMissing,
+                $"{path}.appliesToAssetId",
+                $"state model appliesToAssetId '{stateModel.AppliesToAssetId}' does not exist in assets."));
+        }
+
+        if (!string.IsNullOrWhiteSpace(stateModel.AppliesToNodeId) && !nodeIds.Contains(stateModel.AppliesToNodeId))
+        {
+            diagnostics.Add(new SemanticValidationDiagnostic(
+                SemanticValidationSeverity.Error,
+                SemanticValidationCodes.StateModelNodeMissing,
+                $"{path}.appliesToNodeId",
+                $"state model appliesToNodeId '{stateModel.AppliesToNodeId}' does not exist in processGraph.nodes."));
+        }
+
+        if (stateModel.States.Count == 0)
+        {
+            diagnostics.Add(new SemanticValidationDiagnostic(
+                SemanticValidationSeverity.Error,
+                SemanticValidationCodes.StateModelStateRequired,
+                $"{path}.states",
+                "states must contain at least one state definition."));
+            return;
+        }
+
+        var stateIds = stateModel.States
+            .Select(state => state.StateId)
+            .Where(stateId => !string.IsNullOrWhiteSpace(stateId))
+            .GroupBy(stateId => stateId, StringComparer.Ordinal)
+            .Where(group => group.Count() == 1)
+            .Select(group => group.Key)
+            .ToHashSet(StringComparer.Ordinal);
+
+        ValidateRequired(diagnostics, stateModel.DefaultStateId, $"{path}.defaultStateId", SemanticValidationCodes.StateModelDefaultStateRequired, "defaultStateId is required so unmatched state conditions have a deterministic fallback.");
+        if (!string.IsNullOrWhiteSpace(stateModel.DefaultStateId) && !stateIds.Contains(stateModel.DefaultStateId))
+        {
+            diagnostics.Add(new SemanticValidationDiagnostic(
+                SemanticValidationSeverity.Error,
+                SemanticValidationCodes.StateModelDefaultStateMissing,
+                $"{path}.defaultStateId",
+                $"defaultStateId '{stateModel.DefaultStateId}' does not exist in states[].stateId."));
+        }
+
+        var seenStateIds = new HashSet<string>(StringComparer.Ordinal);
+        var seenStateKinds = new HashSet<ProcessStateKind>();
+        var seenConditions = new HashSet<string>(StringComparer.Ordinal);
+        for (var stateIndex = 0; stateIndex < stateModel.States.Count; stateIndex++)
+        {
+            ValidateStateDefinition(
+                stateModel.States[stateIndex],
+                stateIndex,
+                path,
+                stateModel.DefaultStateId,
+                stateModel.MutuallyExclusive,
+                semanticIds,
+                derivedIds,
+                nodeIds,
+                seenStateIds,
+                seenStateKinds,
+                seenConditions,
+                diagnostics);
+        }
+
+        for (var transitionIndex = 0; transitionIndex < stateModel.Transitions.Count; transitionIndex++)
+        {
+            ValidateStateTransition(
+                stateModel.Transitions[transitionIndex],
+                transitionIndex,
+                path,
+                stateIds,
+                semanticIds,
+                derivedIds,
+                nodeIds,
+                diagnostics);
+        }
+    }
+
+    private static void ValidateStateDefinition(
+        StateDefinition state,
+        int stateIndex,
+        string modelPath,
+        string? defaultStateId,
+        bool mutuallyExclusive,
+        ISet<string> semanticIds,
+        ISet<string> derivedIds,
+        ISet<string> nodeIds,
+        ISet<string> seenStateIds,
+        ISet<ProcessStateKind> seenStateKinds,
+        ISet<string> seenConditions,
+        ICollection<SemanticValidationDiagnostic> diagnostics)
+    {
+        var path = $"{modelPath}.states[{stateIndex}]";
+        if (string.IsNullOrWhiteSpace(state.StateId))
+        {
+            diagnostics.Add(new SemanticValidationDiagnostic(
+                SemanticValidationSeverity.Error,
+                SemanticValidationCodes.StateDefinitionIdRequired,
+                $"{path}.stateId",
+                "stateId is required for every state definition."));
+        }
+        else if (!seenStateIds.Add(state.StateId))
+        {
+            diagnostics.Add(new SemanticValidationDiagnostic(
+                SemanticValidationSeverity.Error,
+                SemanticValidationCodes.StateDefinitionIdDuplicate,
+                $"{path}.stateId",
+                $"stateId '{state.StateId}' is duplicated."));
+        }
+
+        ValidateRequired(diagnostics, state.Name, $"{path}.name", SemanticValidationCodes.StateDefinitionNameRequired, "name is required for every state definition.");
+
+        if (!Enum.IsDefined(state.StateKind) || state.StateKind == ProcessStateKind.Unknown)
+        {
+            diagnostics.Add(new SemanticValidationDiagnostic(
+                SemanticValidationSeverity.Error,
+                SemanticValidationCodes.StateDefinitionKindInvalid,
+                $"{path}.stateKind",
+                "stateKind must be one of running, standby, fault, maintenance, manual, automatic, stopped, or custom."));
+        }
+
+        var isDefaultState = !string.IsNullOrWhiteSpace(defaultStateId)
+            && string.Equals(state.StateId, defaultStateId, StringComparison.Ordinal);
+        if (!isDefaultState && string.IsNullOrWhiteSpace(state.Condition))
+        {
+            diagnostics.Add(new SemanticValidationDiagnostic(
+                SemanticValidationSeverity.Error,
+                SemanticValidationCodes.StateDefinitionConditionRequired,
+                $"{path}.condition",
+                $"non-default state '{state.StateId}' must declare a condition."));
+        }
+
+        if (!string.IsNullOrWhiteSpace(state.Condition))
+        {
+            ValidateStateCondition(state, path, semanticIds, derivedIds, nodeIds, diagnostics);
+        }
+
+        ValidateStateDependencies(state, path, semanticIds, derivedIds, nodeIds, diagnostics);
+
+        if (!mutuallyExclusive)
+        {
+            return;
+        }
+
+        if (state.StateKind is not (ProcessStateKind.Unknown or ProcessStateKind.Custom)
+            && !seenStateKinds.Add(state.StateKind))
+        {
+            diagnostics.Add(new SemanticValidationDiagnostic(
+                SemanticValidationSeverity.Error,
+                SemanticValidationCodes.StateModelMutualExclusionViolation,
+                $"{path}.stateKind",
+                $"mutually exclusive state models must not define stateKind '{state.StateKind}' more than once."));
+        }
+
+        if (!string.IsNullOrWhiteSpace(state.Condition))
+        {
+            var normalizedCondition = NormalizeStateCondition(state.Condition);
+            if (!seenConditions.Add(normalizedCondition))
+            {
+                diagnostics.Add(new SemanticValidationDiagnostic(
+                    SemanticValidationSeverity.Error,
+                    SemanticValidationCodes.StateModelMutualExclusionViolation,
+                    $"{path}.condition",
+                    "mutually exclusive state models must not define duplicate state conditions."));
+            }
+        }
+    }
+
+    private static void ValidateStateCondition(
+        StateDefinition state,
+        string path,
+        ISet<string> semanticIds,
+        ISet<string> derivedIds,
+        ISet<string> nodeIds,
+        ICollection<SemanticValidationDiagnostic> diagnostics)
+    {
+        if (!TryParseStateCondition(state.Condition!, out var condition, out var error))
+        {
+            diagnostics.Add(new SemanticValidationDiagnostic(
+                SemanticValidationSeverity.Error,
+                SemanticValidationCodes.StateDefinitionConditionInvalid,
+                $"{path}.condition",
+                $"state condition is invalid: {error}"));
+            return;
+        }
+
+        if (condition.ReferencedSemanticIds.Count == 0 && condition.ReferencedNodeIds.Count == 0)
+        {
+            diagnostics.Add(new SemanticValidationDiagnostic(
+                SemanticValidationSeverity.Error,
+                SemanticValidationCodes.StateDefinitionConditionReferenceRequired,
+                $"{path}.condition",
+                "state condition must reference SemanticPoint, DerivedPoint, or ProcessNode with ref(\"semanticId\") or node(\"nodeId\")."));
+        }
+
+        foreach (var semanticId in condition.ReferencedSemanticIds)
+        {
+            if (!semanticIds.Contains(semanticId) && !derivedIds.Contains(semanticId))
+            {
+                diagnostics.Add(new SemanticValidationDiagnostic(
+                    SemanticValidationSeverity.Error,
+                    SemanticValidationCodes.StateDefinitionSemanticReferenceMissing,
+                    $"{path}.condition",
+                    $"state condition references semanticId '{semanticId}' that does not exist in semanticPoints or processGraph.derivedPoints."));
+            }
+
+            if (!state.DependsOnSemanticIds.Contains(semanticId, StringComparer.Ordinal))
+            {
+                diagnostics.Add(new SemanticValidationDiagnostic(
+                    SemanticValidationSeverity.Error,
+                    SemanticValidationCodes.StateDefinitionDependencyMismatch,
+                    $"{path}.condition",
+                    $"state condition references semanticId '{semanticId}' that is not declared in dependsOnSemanticIds."));
+            }
+        }
+
+        foreach (var nodeId in condition.ReferencedNodeIds)
+        {
+            if (!nodeIds.Contains(nodeId))
+            {
+                diagnostics.Add(new SemanticValidationDiagnostic(
+                    SemanticValidationSeverity.Error,
+                    SemanticValidationCodes.StateDefinitionNodeReferenceMissing,
+                    $"{path}.condition",
+                    $"state condition references nodeId '{nodeId}' that does not exist in processGraph.nodes."));
+            }
+
+            if (!state.DependsOnNodeIds.Contains(nodeId, StringComparer.Ordinal))
+            {
+                diagnostics.Add(new SemanticValidationDiagnostic(
+                    SemanticValidationSeverity.Error,
+                    SemanticValidationCodes.StateDefinitionDependencyMismatch,
+                    $"{path}.condition",
+                    $"state condition references nodeId '{nodeId}' that is not declared in dependsOnNodeIds."));
+            }
+        }
+
+        foreach (var dependencyId in state.DependsOnSemanticIds)
+        {
+            if (!condition.ReferencedSemanticIds.Contains(dependencyId))
+            {
+                diagnostics.Add(new SemanticValidationDiagnostic(
+                    SemanticValidationSeverity.Error,
+                    SemanticValidationCodes.StateDefinitionDependencyMismatch,
+                    $"{path}.dependsOnSemanticIds",
+                    $"dependsOnSemanticIds includes semanticId '{dependencyId}' that is not referenced by condition."));
+            }
+        }
+
+        foreach (var nodeId in state.DependsOnNodeIds)
+        {
+            if (!condition.ReferencedNodeIds.Contains(nodeId))
+            {
+                diagnostics.Add(new SemanticValidationDiagnostic(
+                    SemanticValidationSeverity.Error,
+                    SemanticValidationCodes.StateDefinitionDependencyMismatch,
+                    $"{path}.dependsOnNodeIds",
+                    $"dependsOnNodeIds includes nodeId '{nodeId}' that is not referenced by condition."));
+            }
+        }
+    }
+
+    private static void ValidateStateDependencies(
+        StateDefinition state,
+        string path,
+        ISet<string> semanticIds,
+        ISet<string> derivedIds,
+        ISet<string> nodeIds,
+        ICollection<SemanticValidationDiagnostic> diagnostics)
+    {
+        var seenSemanticDependencies = new HashSet<string>(StringComparer.Ordinal);
+        for (var index = 0; index < state.DependsOnSemanticIds.Count; index++)
+        {
+            var semanticId = state.DependsOnSemanticIds[index];
+            var dependencyPath = $"{path}.dependsOnSemanticIds[{index}]";
+            if (string.IsNullOrWhiteSpace(semanticId))
+            {
+                diagnostics.Add(new SemanticValidationDiagnostic(
+                    SemanticValidationSeverity.Error,
+                    SemanticValidationCodes.StateDefinitionDependencyRequired,
+                    dependencyPath,
+                    "state semantic dependency must not be empty."));
+                continue;
+            }
+
+            if (!seenSemanticDependencies.Add(semanticId))
+            {
+                diagnostics.Add(new SemanticValidationDiagnostic(
+                    SemanticValidationSeverity.Error,
+                    SemanticValidationCodes.StateDefinitionDependencyDuplicate,
+                    dependencyPath,
+                    $"state semantic dependency '{semanticId}' is duplicated."));
+            }
+
+            if (!semanticIds.Contains(semanticId) && !derivedIds.Contains(semanticId))
+            {
+                diagnostics.Add(new SemanticValidationDiagnostic(
+                    SemanticValidationSeverity.Error,
+                    SemanticValidationCodes.StateDefinitionSemanticReferenceMissing,
+                    dependencyPath,
+                    $"state semantic dependency '{semanticId}' does not exist in semanticPoints or processGraph.derivedPoints."));
+            }
+        }
+
+        var seenNodeDependencies = new HashSet<string>(StringComparer.Ordinal);
+        for (var index = 0; index < state.DependsOnNodeIds.Count; index++)
+        {
+            var nodeId = state.DependsOnNodeIds[index];
+            var dependencyPath = $"{path}.dependsOnNodeIds[{index}]";
+            if (string.IsNullOrWhiteSpace(nodeId))
+            {
+                diagnostics.Add(new SemanticValidationDiagnostic(
+                    SemanticValidationSeverity.Error,
+                    SemanticValidationCodes.StateDefinitionDependencyRequired,
+                    dependencyPath,
+                    "state node dependency must not be empty."));
+                continue;
+            }
+
+            if (!seenNodeDependencies.Add(nodeId))
+            {
+                diagnostics.Add(new SemanticValidationDiagnostic(
+                    SemanticValidationSeverity.Error,
+                    SemanticValidationCodes.StateDefinitionDependencyDuplicate,
+                    dependencyPath,
+                    $"state node dependency '{nodeId}' is duplicated."));
+            }
+
+            if (!nodeIds.Contains(nodeId))
+            {
+                diagnostics.Add(new SemanticValidationDiagnostic(
+                    SemanticValidationSeverity.Error,
+                    SemanticValidationCodes.StateDefinitionNodeReferenceMissing,
+                    dependencyPath,
+                    $"state node dependency '{nodeId}' does not exist in processGraph.nodes."));
+            }
+        }
+    }
+
+    private static void ValidateStateTransition(
+        StateTransition transition,
+        int transitionIndex,
+        string modelPath,
+        ISet<string> stateIds,
+        ISet<string> semanticIds,
+        ISet<string> derivedIds,
+        ISet<string> nodeIds,
+        ICollection<SemanticValidationDiagnostic> diagnostics)
+    {
+        var path = $"{modelPath}.transitions[{transitionIndex}]";
+        ValidateRequired(diagnostics, transition.FromStateId, $"{path}.fromStateId", SemanticValidationCodes.StateTransitionStateRequired, "fromStateId is required for every state transition.");
+        ValidateRequired(diagnostics, transition.ToStateId, $"{path}.toStateId", SemanticValidationCodes.StateTransitionStateRequired, "toStateId is required for every state transition.");
+
+        if (!string.IsNullOrWhiteSpace(transition.FromStateId) && !stateIds.Contains(transition.FromStateId))
+        {
+            diagnostics.Add(new SemanticValidationDiagnostic(
+                SemanticValidationSeverity.Error,
+                SemanticValidationCodes.StateTransitionStateMissing,
+                $"{path}.fromStateId",
+                $"fromStateId '{transition.FromStateId}' does not exist in states[].stateId."));
+        }
+
+        if (!string.IsNullOrWhiteSpace(transition.ToStateId) && !stateIds.Contains(transition.ToStateId))
+        {
+            diagnostics.Add(new SemanticValidationDiagnostic(
+                SemanticValidationSeverity.Error,
+                SemanticValidationCodes.StateTransitionStateMissing,
+                $"{path}.toStateId",
+                $"toStateId '{transition.ToStateId}' does not exist in states[].stateId."));
+        }
+
+        if (string.IsNullOrWhiteSpace(transition.Condition))
+        {
+            return;
+        }
+
+        if (!TryParseStateCondition(transition.Condition, out var condition, out var error))
+        {
+            diagnostics.Add(new SemanticValidationDiagnostic(
+                SemanticValidationSeverity.Error,
+                SemanticValidationCodes.StateDefinitionConditionInvalid,
+                $"{path}.condition",
+                $"state transition condition is invalid: {error}"));
+            return;
+        }
+
+        foreach (var semanticId in condition.ReferencedSemanticIds)
+        {
+            if (!semanticIds.Contains(semanticId) && !derivedIds.Contains(semanticId))
+            {
+                diagnostics.Add(new SemanticValidationDiagnostic(
+                    SemanticValidationSeverity.Error,
+                    SemanticValidationCodes.StateDefinitionSemanticReferenceMissing,
+                    $"{path}.condition",
+                    $"state transition condition references semanticId '{semanticId}' that does not exist in semanticPoints or processGraph.derivedPoints."));
+            }
+        }
+
+        foreach (var nodeId in condition.ReferencedNodeIds)
+        {
+            if (!nodeIds.Contains(nodeId))
+            {
+                diagnostics.Add(new SemanticValidationDiagnostic(
+                    SemanticValidationSeverity.Error,
+                    SemanticValidationCodes.StateDefinitionNodeReferenceMissing,
+                    $"{path}.condition",
+                    $"state transition condition references nodeId '{nodeId}' that does not exist in processGraph.nodes."));
+            }
+        }
+    }
+
+    private static string NormalizeStateCondition(string condition)
+        => string.Concat(condition.Where(character => !char.IsWhiteSpace(character))).ToLowerInvariant();
+
+    private static bool TryParseStateCondition(
+        string condition,
+        out StateConditionParseResult result,
+        out string error)
+    {
+        var parser = new StateConditionParser(condition);
+        return parser.TryParse(out result, out error);
+    }
+
+    private static bool TryParseAlarmCondition(
+        string condition,
+        out StateConditionParseResult result,
+        out string error)
+    {
+        var parser = new StateConditionParser(condition, allowStateReferences: true);
+        return parser.TryParse(out result, out error);
+    }
+
+    private static void ValidateDerivedPoints(
+        IReadOnlyList<DerivedPoint> derivedPoints,
+        ISet<string> semanticIds,
+        IReadOnlyDictionary<string, SemanticPoint> semanticPointsById,
+        ICollection<SemanticValidationDiagnostic> diagnostics)
+    {
+        var seenDerivedIds = new HashSet<string>(StringComparer.Ordinal);
+        var derivedById = derivedPoints
+            .Where(point => !string.IsNullOrWhiteSpace(point.SemanticId))
+            .GroupBy(point => point.SemanticId, StringComparer.Ordinal)
+            .Where(group => group.Count() == 1)
+            .ToDictionary(group => group.Key, group => group.Single(), StringComparer.Ordinal);
+
+        for (var index = 0; index < derivedPoints.Count; index++)
+        {
+            ValidateDerivedPoint(
+                derivedPoints[index],
+                index,
+                semanticIds,
+                semanticPointsById,
+                derivedById,
+                seenDerivedIds,
+                diagnostics);
+        }
+
+        ValidateDerivedPointCycles(derivedPoints, derivedById.Keys.ToHashSet(StringComparer.Ordinal), diagnostics);
+    }
+
+    private static void ValidateDerivedPoint(
+        DerivedPoint point,
+        int index,
+        ISet<string> semanticIds,
+        IReadOnlyDictionary<string, SemanticPoint> semanticPointsById,
+        IReadOnlyDictionary<string, DerivedPoint> derivedById,
+        ISet<string> seenDerivedIds,
+        ICollection<SemanticValidationDiagnostic> diagnostics)
+    {
+        var path = $"$.processGraph.derivedPoints[{index}]";
+
+        if (string.IsNullOrWhiteSpace(point.SemanticId))
+        {
+            diagnostics.Add(new SemanticValidationDiagnostic(
+                SemanticValidationSeverity.Error,
+                SemanticValidationCodes.DerivedPointSemanticIdRequired,
+                $"{path}.semanticId",
+                "semanticId is required for every L3 derived point."));
+        }
+        else
+        {
+            if (semanticIds.Contains(point.SemanticId))
+            {
+                diagnostics.Add(new SemanticValidationDiagnostic(
+                    SemanticValidationSeverity.Error,
+                    SemanticValidationCodes.DerivedPointSemanticIdDuplicate,
+                    $"{path}.semanticId",
+                    $"derivedPoint semanticId '{point.SemanticId}' must not duplicate a semanticPoints[].semanticId."));
+            }
+
+            if (!seenDerivedIds.Add(point.SemanticId))
+            {
+                diagnostics.Add(new SemanticValidationDiagnostic(
+                    SemanticValidationSeverity.Error,
+                    SemanticValidationCodes.DerivedPointSemanticIdDuplicate,
+                    $"{path}.semanticId",
+                    $"derivedPoint semanticId '{point.SemanticId}' is duplicated."));
+            }
+        }
+
+        ValidateRequired(diagnostics, point.Name, $"{path}.name", SemanticValidationCodes.DerivedPointNameRequired, "name is required for every L3 derived point.");
+        ValidateRequired(diagnostics, point.Quantity.QuantityKind, $"{path}.quantity.quantityKind", SemanticValidationCodes.DerivedPointQuantityKindRequired, "quantity.quantityKind is required for every L3 derived point.");
+        ValidateRequired(diagnostics, point.Unit.Code, $"{path}.unit.code", SemanticValidationCodes.DerivedPointUnitRequired, "unit.code is required for every L3 derived point.");
+
+        var dependencyIds = ValidateDerivedPointDependencies(
+            point,
+            path,
+            semanticIds,
+            derivedById,
+            diagnostics);
+
+        ValidateDerivedPointExpression(
+            point,
+            path,
+            dependencyIds,
+            semanticPointsById,
+            derivedById,
+            diagnostics);
+
+        ValidateDerivedPointRefresh(point, path, diagnostics);
+    }
+
+    private static HashSet<string> ValidateDerivedPointDependencies(
+        DerivedPoint point,
+        string path,
+        ISet<string> semanticIds,
+        IReadOnlyDictionary<string, DerivedPoint> derivedById,
+        ICollection<SemanticValidationDiagnostic> diagnostics)
+    {
+        var dependencyIds = new HashSet<string>(StringComparer.Ordinal);
+        if (point.DependsOnSemanticIds.Count == 0)
+        {
+            diagnostics.Add(new SemanticValidationDiagnostic(
+                SemanticValidationSeverity.Error,
+                SemanticValidationCodes.DerivedPointDependencyRequired,
+                $"{path}.dependsOnSemanticIds",
+                "dependsOnSemanticIds must contain at least one semanticId used by the derived expression."));
+            return dependencyIds;
+        }
+
+        for (var dependencyIndex = 0; dependencyIndex < point.DependsOnSemanticIds.Count; dependencyIndex++)
+        {
+            var dependencyId = point.DependsOnSemanticIds[dependencyIndex];
+            var dependencyPath = $"{path}.dependsOnSemanticIds[{dependencyIndex}]";
+            if (string.IsNullOrWhiteSpace(dependencyId))
+            {
+                diagnostics.Add(new SemanticValidationDiagnostic(
+                    SemanticValidationSeverity.Error,
+                    SemanticValidationCodes.DerivedPointDependencyRequired,
+                    dependencyPath,
+                    "derived point dependency semanticId must not be empty."));
+                continue;
+            }
+
+            if (!dependencyIds.Add(dependencyId))
+            {
+                diagnostics.Add(new SemanticValidationDiagnostic(
+                    SemanticValidationSeverity.Error,
+                    SemanticValidationCodes.DerivedPointDependencyDuplicate,
+                    dependencyPath,
+                    $"derived point dependency semanticId '{dependencyId}' is duplicated."));
+            }
+
+            if (string.Equals(dependencyId, point.SemanticId, StringComparison.Ordinal))
+            {
+                diagnostics.Add(new SemanticValidationDiagnostic(
+                    SemanticValidationSeverity.Error,
+                    SemanticValidationCodes.DerivedPointCycle,
+                    dependencyPath,
+                    $"derivedPoint '{point.SemanticId}' must not depend on itself."));
+                continue;
+            }
+
+            if (!semanticIds.Contains(dependencyId) && !derivedById.ContainsKey(dependencyId))
+            {
+                diagnostics.Add(new SemanticValidationDiagnostic(
+                    SemanticValidationSeverity.Error,
+                    SemanticValidationCodes.DerivedPointDependencyMissing,
+                    dependencyPath,
+                    $"derived point dependency semanticId '{dependencyId}' does not exist in semanticPoints or processGraph.derivedPoints."));
+            }
+        }
+
+        return dependencyIds;
+    }
+
+    private static void ValidateDerivedPointExpression(
+        DerivedPoint point,
+        string path,
+        ISet<string> dependencyIds,
+        IReadOnlyDictionary<string, SemanticPoint> semanticPointsById,
+        IReadOnlyDictionary<string, DerivedPoint> derivedById,
+        ICollection<SemanticValidationDiagnostic> diagnostics)
+    {
+        if (string.IsNullOrWhiteSpace(point.Expression))
+        {
+            diagnostics.Add(new SemanticValidationDiagnostic(
+                SemanticValidationSeverity.Error,
+                SemanticValidationCodes.DerivedPointExpressionRequired,
+                $"{path}.expression",
+                "expression is required for every L3 derived point."));
+            return;
+        }
+
+        if (!TryParseDerivedExpression(point.Expression, out var expression, out var error))
+        {
+            diagnostics.Add(new SemanticValidationDiagnostic(
+                SemanticValidationSeverity.Error,
+                SemanticValidationCodes.DerivedPointExpressionInvalid,
+                $"{path}.expression",
+                $"derived point expression is invalid: {error}"));
+            return;
+        }
+
+        if (expression.ReferencedSemanticIds.Count == 0)
+        {
+            diagnostics.Add(new SemanticValidationDiagnostic(
+                SemanticValidationSeverity.Error,
+                SemanticValidationCodes.DerivedPointExpressionSemanticReferenceRequired,
+                $"{path}.expression",
+                "expression must reference semantic IDs with ref(\"semanticId\")."));
+            return;
+        }
+
+        foreach (var referencedSemanticId in expression.ReferencedSemanticIds)
+        {
+            if (!dependencyIds.Contains(referencedSemanticId))
+            {
+                diagnostics.Add(new SemanticValidationDiagnostic(
+                    SemanticValidationSeverity.Error,
+                    SemanticValidationCodes.DerivedPointExpressionDependencyMismatch,
+                    $"{path}.expression",
+                    $"expression references semanticId '{referencedSemanticId}' that is not declared in dependsOnSemanticIds."));
+            }
+        }
+
+        foreach (var dependencyId in dependencyIds)
+        {
+            if (!expression.ReferencedSemanticIds.Contains(dependencyId))
+            {
+                diagnostics.Add(new SemanticValidationDiagnostic(
+                    SemanticValidationSeverity.Error,
+                    SemanticValidationCodes.DerivedPointExpressionDependencyMismatch,
+                    $"{path}.dependsOnSemanticIds",
+                    $"dependsOnSemanticIds includes semanticId '{dependencyId}' that is not referenced by expression."));
+            }
+        }
+
+        ValidateDerivedPointUnitCompatibility(point, path, dependencyIds, semanticPointsById, derivedById, expression, diagnostics);
+    }
+
+    private static void ValidateDerivedPointUnitCompatibility(
+        DerivedPoint point,
+        string path,
+        ISet<string> dependencyIds,
+        IReadOnlyDictionary<string, SemanticPoint> semanticPointsById,
+        IReadOnlyDictionary<string, DerivedPoint> derivedById,
+        DerivedExpressionParseResult expression,
+        ICollection<SemanticValidationDiagnostic> diagnostics)
+    {
+        if (expression.HasDivision && IsDimensionless(point.Unit))
+        {
+            ValidateDimensionlessDerivedPointDependencies(point, path, dependencyIds, semanticPointsById, derivedById, diagnostics);
+            return;
+        }
+
+        foreach (var dependencyId in dependencyIds)
+        {
+            if (!TryGetReferencedUnit(dependencyId, semanticPointsById, derivedById, out var dependencyUnit))
+            {
+                continue;
+            }
+
+            if (!AreUnitsCompatible(point.Unit, dependencyUnit))
+            {
+                diagnostics.Add(new SemanticValidationDiagnostic(
+                    SemanticValidationSeverity.Error,
+                    SemanticValidationCodes.DerivedPointUnitIncompatible,
+                    $"{path}.unit",
+                    $"derivedPoint unit '{point.Unit.Code}' is not compatible with dependency '{dependencyId}' unit '{dependencyUnit.Code}'."));
+            }
+        }
+    }
+
+    private static void ValidateDimensionlessDerivedPointDependencies(
+        DerivedPoint point,
+        string path,
+        ISet<string> dependencyIds,
+        IReadOnlyDictionary<string, SemanticPoint> semanticPointsById,
+        IReadOnlyDictionary<string, DerivedPoint> derivedById,
+        ICollection<SemanticValidationDiagnostic> diagnostics)
+    {
+        Unit? referenceUnit = null;
+        string? referenceId = null;
+
+        foreach (var dependencyId in dependencyIds)
+        {
+            if (!TryGetReferencedUnit(dependencyId, semanticPointsById, derivedById, out var dependencyUnit))
+            {
+                continue;
+            }
+
+            if (referenceUnit is null)
+            {
+                referenceUnit = dependencyUnit;
+                referenceId = dependencyId;
+                continue;
+            }
+
+            if (!AreUnitsCompatible(referenceUnit, dependencyUnit))
+            {
+                diagnostics.Add(new SemanticValidationDiagnostic(
+                    SemanticValidationSeverity.Error,
+                    SemanticValidationCodes.DerivedPointUnitIncompatible,
+                    $"{path}.unit",
+                    $"dimensionless derivedPoint '{point.SemanticId}' divides incompatible dependency units '{referenceId}' ({referenceUnit.Code}) and '{dependencyId}' ({dependencyUnit.Code})."));
+            }
+        }
+
+        if (referenceUnit is not null && dependencyIds.Count == 1 && !IsDimensionless(referenceUnit))
+        {
+            diagnostics.Add(new SemanticValidationDiagnostic(
+                SemanticValidationSeverity.Error,
+                SemanticValidationCodes.DerivedPointUnitIncompatible,
+                $"{path}.unit",
+                $"dimensionless derivedPoint '{point.SemanticId}' must divide compatible units or depend only on dimensionless values."));
+        }
+    }
+
+    private static void ValidateDerivedPointRefresh(
+        DerivedPoint point,
+        string path,
+        ICollection<SemanticValidationDiagnostic> diagnostics)
+    {
+        if (string.IsNullOrWhiteSpace(point.RefreshPolicy))
+        {
+            diagnostics.Add(new SemanticValidationDiagnostic(
+                SemanticValidationSeverity.Error,
+                SemanticValidationCodes.DerivedPointRefreshPolicyRequired,
+                $"{path}.refreshPolicy",
+                "refreshPolicy is required for every L3 derived point."));
+        }
+        else if (!IsSupportedDerivedPointRefreshPolicy(point.RefreshPolicy))
+        {
+            diagnostics.Add(new SemanticValidationDiagnostic(
+                SemanticValidationSeverity.Error,
+                SemanticValidationCodes.DerivedPointRefreshPolicyInvalid,
+                $"{path}.refreshPolicy",
+                "refreshPolicy must be onDependencyChange, fixedInterval, or manual."));
+        }
+
+        if (string.Equals(point.RefreshPolicy, "fixedInterval", StringComparison.Ordinal)
+            && point.RefreshInterval is null)
+        {
+            diagnostics.Add(new SemanticValidationDiagnostic(
+                SemanticValidationSeverity.Error,
+                SemanticValidationCodes.DerivedPointRefreshIntervalRequired,
+                $"{path}.refreshInterval",
+                "refreshInterval is required when refreshPolicy is fixedInterval."));
+        }
+
+        ValidatePositiveDuration(point.RefreshInterval, $"{path}.refreshInterval", diagnostics);
+        ValidatePositiveDuration(point.StaleAfter, $"{path}.staleAfter", diagnostics);
+        ValidatePositiveDuration(point.EvaluationWindow, $"{path}.evaluationWindow", diagnostics);
+    }
+
+    private static void ValidatePositiveDuration(
+        TimeSpan? value,
+        string path,
+        ICollection<SemanticValidationDiagnostic> diagnostics)
+    {
+        if (value.HasValue && value.Value <= TimeSpan.Zero)
+        {
+            diagnostics.Add(new SemanticValidationDiagnostic(
+                SemanticValidationSeverity.Error,
+                SemanticValidationCodes.DerivedPointRefreshIntervalInvalid,
+                path,
+                "derived point refresh durations must be positive when present."));
+        }
+    }
+
+    private static void ValidateDerivedPointCycles(
+        IReadOnlyList<DerivedPoint> derivedPoints,
+        ISet<string> derivedIds,
+        ICollection<SemanticValidationDiagnostic> diagnostics)
+    {
+        var graph = derivedPoints
+            .Where(point => !string.IsNullOrWhiteSpace(point.SemanticId))
+            .GroupBy(point => point.SemanticId, StringComparer.Ordinal)
+            .Where(group => group.Count() == 1)
+            .ToDictionary(
+                group => group.Key,
+                group => group.Single().DependsOnSemanticIds
+                    .Where(derivedIds.Contains)
+                    .Distinct(StringComparer.Ordinal)
+                    .ToList(),
+                StringComparer.Ordinal);
+
+        var states = graph.Keys.ToDictionary(semanticId => semanticId, _ => ProcessNodeVisitState.NotVisited, StringComparer.Ordinal);
+        foreach (var semanticId in graph.Keys)
+        {
+            if (states[semanticId] == ProcessNodeVisitState.NotVisited
+                && VisitDerivedPoint(semanticId, graph, states, diagnostics))
+            {
+                return;
+            }
+        }
+    }
+
+    private static bool VisitDerivedPoint(
+        string semanticId,
+        IReadOnlyDictionary<string, List<string>> graph,
+        IDictionary<string, ProcessNodeVisitState> states,
+        ICollection<SemanticValidationDiagnostic> diagnostics)
+    {
+        states[semanticId] = ProcessNodeVisitState.Visiting;
+
+        foreach (var next in graph[semanticId])
+        {
+            if (!graph.ContainsKey(next))
+            {
+                continue;
+            }
+
+            if (states[next] == ProcessNodeVisitState.NotVisited)
+            {
+                if (VisitDerivedPoint(next, graph, states, diagnostics))
+                {
+                    return true;
+                }
+
+                continue;
+            }
+
+            if (states[next] == ProcessNodeVisitState.Visiting)
+            {
+                diagnostics.Add(new SemanticValidationDiagnostic(
+                    SemanticValidationSeverity.Error,
+                    SemanticValidationCodes.DerivedPointCycle,
+                    "$.processGraph.derivedPoints",
+                    $"derived point calculation graph contains a cycle involving semanticId '{next}'."));
+                return true;
+            }
+        }
+
+        states[semanticId] = ProcessNodeVisitState.Visited;
+        return false;
+    }
+
+    private static bool TryGetReferencedUnit(
+        string semanticId,
+        IReadOnlyDictionary<string, SemanticPoint> semanticPointsById,
+        IReadOnlyDictionary<string, DerivedPoint> derivedById,
+        out Unit unit)
+    {
+        if (semanticPointsById.TryGetValue(semanticId, out var semanticPoint))
+        {
+            unit = semanticPoint.Unit;
+            return true;
+        }
+
+        if (derivedById.TryGetValue(semanticId, out var derivedPoint))
+        {
+            unit = derivedPoint.Unit;
+            return true;
+        }
+
+        unit = new Unit();
+        return false;
+    }
+
+    private static bool AreUnitsCompatible(Unit expected, Unit actual)
+    {
+        if (string.IsNullOrWhiteSpace(expected.Code) || string.IsNullOrWhiteSpace(actual.Code))
+        {
+            return false;
+        }
+
+        if (string.Equals(expected.Code, actual.Code, StringComparison.Ordinal)
+            && expected.System == actual.System)
+        {
+            return true;
+        }
+
+        return IsDimensionless(expected) && IsDimensionless(actual);
+    }
+
+    private static bool IsDimensionless(Unit unit)
+        => string.Equals(unit.Code, "1", StringComparison.Ordinal)
+            || string.Equals(unit.QuantityKind, "dimensionless", StringComparison.OrdinalIgnoreCase)
+            || string.Equals(unit.QuantityKind, "ratio", StringComparison.OrdinalIgnoreCase)
+            || string.Equals(unit.QuantityKind, "efficiency", StringComparison.OrdinalIgnoreCase);
+
+    private static bool IsSupportedDerivedPointRefreshPolicy(string refreshPolicy)
+        => refreshPolicy is "onDependencyChange" or "fixedInterval" or "manual";
+
+    private static bool TryParseDerivedExpression(
+        string expression,
+        out DerivedExpressionParseResult result,
+        out string error)
+    {
+        var parser = new DerivedExpressionParser(expression);
+        return parser.TryParse(out result, out error);
     }
 
     private static void ValidateProcessNode(
@@ -793,6 +2423,680 @@ public static class SemanticModelValidator
         NotVisited,
         Visiting,
         Visited
+    }
+
+    private sealed record DerivedExpressionParseResult(
+        HashSet<string> ReferencedSemanticIds,
+        bool HasDivision);
+
+    private sealed record StateConditionParseResult(
+        HashSet<string> ReferencedSemanticIds,
+        HashSet<string> ReferencedNodeIds,
+        HashSet<string> ReferencedStateModelIds);
+
+    private enum ConditionReferenceKind
+    {
+        Semantic,
+        Node,
+        StateModel
+    }
+
+    private sealed class StateConditionParser
+    {
+        private readonly string _condition;
+        private readonly bool _allowStateReferences;
+        private readonly HashSet<string> _referencedSemanticIds = new(StringComparer.Ordinal);
+        private readonly HashSet<string> _referencedNodeIds = new(StringComparer.Ordinal);
+        private readonly HashSet<string> _referencedStateModelIds = new(StringComparer.Ordinal);
+        private int _position;
+
+        public StateConditionParser(string condition, bool allowStateReferences = false)
+        {
+            _condition = condition;
+            _allowStateReferences = allowStateReferences;
+        }
+
+        public bool TryParse(out StateConditionParseResult result, out string error)
+        {
+            result = new StateConditionParseResult([], [], []);
+            error = string.Empty;
+
+            SkipWhitespace();
+            if (_position >= _condition.Length)
+            {
+                error = "condition must not be empty.";
+                return false;
+            }
+
+            if (!ParseOr(out error))
+            {
+                return false;
+            }
+
+            SkipWhitespace();
+            if (_position != _condition.Length)
+            {
+                error = $"unexpected token '{_condition[_position]}'.";
+                return false;
+            }
+
+            result = new StateConditionParseResult(_referencedSemanticIds, _referencedNodeIds, _referencedStateModelIds);
+            return true;
+        }
+
+        private bool ParseOr(out string error)
+        {
+            if (!ParseAnd(out error))
+            {
+                return false;
+            }
+
+            while (true)
+            {
+                SkipWhitespace();
+                if (!Match("||"))
+                {
+                    return true;
+                }
+
+                if (!ParseAnd(out error))
+                {
+                    return false;
+                }
+            }
+        }
+
+        private bool ParseAnd(out string error)
+        {
+            if (!ParseNot(out error))
+            {
+                return false;
+            }
+
+            while (true)
+            {
+                SkipWhitespace();
+                if (!Match("&&"))
+                {
+                    return true;
+                }
+
+                if (!ParseNot(out error))
+                {
+                    return false;
+                }
+            }
+        }
+
+        private bool ParseNot(out string error)
+        {
+            SkipWhitespace();
+            if (Match("!"))
+            {
+                return ParseNot(out error);
+            }
+
+            return ParseComparison(out error);
+        }
+
+        private bool ParseComparison(out string error)
+        {
+            if (!ParseOperand(out error))
+            {
+                return false;
+            }
+
+            SkipWhitespace();
+            if (Match("==") || Match("!=") || Match(">=") || Match("<=") || Match(">") || Match("<"))
+            {
+                return ParseOperand(out error);
+            }
+
+            return true;
+        }
+
+        private bool ParseOperand(out string error)
+        {
+            SkipWhitespace();
+            if (_position >= _condition.Length)
+            {
+                error = "expected operand.";
+                return false;
+            }
+
+            if (Match("("))
+            {
+                if (!ParseOr(out error))
+                {
+                    return false;
+                }
+
+                SkipWhitespace();
+                if (!Match(")"))
+                {
+                    error = "missing closing parenthesis.";
+                    return false;
+                }
+
+                return true;
+            }
+
+            if (char.IsDigit(Current) || Current == '-' || Current == '.')
+            {
+                return ParseNumber(out error);
+            }
+
+            if (Current == '"')
+            {
+                return ParseStringLiteral(out _, out error);
+            }
+
+            if (IsIdentifierStart(Current))
+            {
+                return ParseIdentifierOrReference(out error);
+            }
+
+            error = $"unexpected token '{Current}'.";
+            return false;
+        }
+
+        private bool ParseIdentifierOrReference(out string error)
+        {
+            var start = _position;
+            while (_position < _condition.Length && IsIdentifierPart(_condition[_position]))
+            {
+                _position++;
+            }
+
+            var identifier = _condition[start.._position];
+            if (identifier is "true" or "false")
+            {
+                error = string.Empty;
+                return true;
+            }
+
+            if (identifier is "ref" or "node" || (_allowStateReferences && identifier == "state"))
+            {
+                var referenceKind = identifier switch
+                {
+                    "ref" => ConditionReferenceKind.Semantic,
+                    "node" => ConditionReferenceKind.Node,
+                    _ => ConditionReferenceKind.StateModel
+                };
+                return ParseReference(referenceKind, out error);
+            }
+
+            error = $"unsupported identifier '{identifier}'. Use ref(\"semanticId\") or node(\"nodeId\") for state references.";
+            return false;
+        }
+
+        private bool ParseReference(ConditionReferenceKind referenceKind, out string error)
+        {
+            SkipWhitespace();
+            if (!Match("("))
+            {
+                error = referenceKind switch
+                {
+                    ConditionReferenceKind.Semantic => "ref must be called as ref(\"semanticId\").",
+                    ConditionReferenceKind.Node => "node must be called as node(\"nodeId\").",
+                    _ => "state must be called as state(\"stateModelId\")."
+                };
+                return false;
+            }
+
+            SkipWhitespace();
+            if (!ParseStringLiteral(out var identifier, out error))
+            {
+                return false;
+            }
+
+            SkipWhitespace();
+            if (!Match(")"))
+            {
+                error = "reference call is missing closing parenthesis.";
+                return false;
+            }
+
+            if (string.IsNullOrWhiteSpace(identifier))
+            {
+                error = "reference identifier must not be empty.";
+                return false;
+            }
+
+            switch (referenceKind)
+            {
+                case ConditionReferenceKind.Semantic:
+                    _referencedSemanticIds.Add(identifier);
+                    break;
+                case ConditionReferenceKind.Node:
+                    _referencedNodeIds.Add(identifier);
+                    break;
+                default:
+                    _referencedStateModelIds.Add(identifier);
+                    break;
+            }
+
+            return true;
+        }
+
+        private bool ParseStringLiteral(out string value, out string error)
+        {
+            value = string.Empty;
+            error = string.Empty;
+
+            if (!Match("\""))
+            {
+                error = "string value must be a double-quoted string literal.";
+                return false;
+            }
+
+            var builder = new System.Text.StringBuilder();
+            while (_position < _condition.Length)
+            {
+                var character = _condition[_position++];
+                if (character == '"')
+                {
+                    value = builder.ToString();
+                    return true;
+                }
+
+                if (character == '\\')
+                {
+                    if (_position >= _condition.Length)
+                    {
+                        error = "unterminated escape sequence in string literal.";
+                        return false;
+                    }
+
+                    var escaped = _condition[_position++];
+                    if (escaped is '"' or '\\')
+                    {
+                        builder.Append(escaped);
+                        continue;
+                    }
+
+                    error = "string literal only supports escaping quote and backslash characters.";
+                    return false;
+                }
+
+                builder.Append(character);
+            }
+
+            error = "unterminated string literal.";
+            return false;
+        }
+
+        private bool ParseNumber(out string error)
+        {
+            var start = _position;
+            if (Current == '-')
+            {
+                _position++;
+            }
+
+            var seenDigit = false;
+            while (_position < _condition.Length && char.IsDigit(_condition[_position]))
+            {
+                seenDigit = true;
+                _position++;
+            }
+
+            if (_position < _condition.Length && _condition[_position] == '.')
+            {
+                _position++;
+                while (_position < _condition.Length && char.IsDigit(_condition[_position]))
+                {
+                    seenDigit = true;
+                    _position++;
+                }
+            }
+
+            if (!seenDigit)
+            {
+                error = "number literal must contain at least one digit.";
+                return false;
+            }
+
+            if (_position < _condition.Length && IsIdentifierStart(_condition[_position]))
+            {
+                error = $"unexpected identifier after number literal '{_condition[start.._position]}'.";
+                return false;
+            }
+
+            error = string.Empty;
+            return true;
+        }
+
+        private char Current => _position < _condition.Length ? _condition[_position] : '\0';
+
+        private bool Match(string expected)
+        {
+            if (!_condition.AsSpan(_position).StartsWith(expected, StringComparison.Ordinal))
+            {
+                return false;
+            }
+
+            _position += expected.Length;
+            return true;
+        }
+
+        private void SkipWhitespace()
+        {
+            while (_position < _condition.Length && char.IsWhiteSpace(_condition[_position]))
+            {
+                _position++;
+            }
+        }
+
+        private static bool IsIdentifierStart(char value)
+            => value is >= 'A' and <= 'Z' or >= 'a' and <= 'z' or '_';
+
+        private static bool IsIdentifierPart(char value)
+            => IsIdentifierStart(value) || value is >= '0' and <= '9';
+    }
+
+    private sealed class DerivedExpressionParser
+    {
+        private readonly string _expression;
+        private readonly HashSet<string> _referencedSemanticIds = new(StringComparer.Ordinal);
+        private int _position;
+        private bool _hasDivision;
+
+        public DerivedExpressionParser(string expression)
+        {
+            _expression = expression;
+        }
+
+        public bool TryParse(out DerivedExpressionParseResult result, out string error)
+        {
+            result = new DerivedExpressionParseResult([], false);
+            error = string.Empty;
+
+            SkipWhitespace();
+            if (_position >= _expression.Length)
+            {
+                error = "expression must not be empty.";
+                return false;
+            }
+
+            if (!ParseExpression(out error))
+            {
+                return false;
+            }
+
+            SkipWhitespace();
+            if (_position != _expression.Length)
+            {
+                error = $"unexpected token '{_expression[_position]}'.";
+                return false;
+            }
+
+            result = new DerivedExpressionParseResult(_referencedSemanticIds, _hasDivision);
+            return true;
+        }
+
+        private bool ParseExpression(out string error)
+        {
+            if (!ParseTerm(out error))
+            {
+                return false;
+            }
+
+            while (true)
+            {
+                SkipWhitespace();
+                if (!Match('+') && !Match('-'))
+                {
+                    return true;
+                }
+
+                if (!ParseTerm(out error))
+                {
+                    return false;
+                }
+            }
+        }
+
+        private bool ParseTerm(out string error)
+        {
+            if (!ParseUnary(out error))
+            {
+                return false;
+            }
+
+            while (true)
+            {
+                SkipWhitespace();
+                if (Match('*'))
+                {
+                    if (!ParseUnary(out error))
+                    {
+                        return false;
+                    }
+
+                    continue;
+                }
+
+                if (Match('/'))
+                {
+                    _hasDivision = true;
+                    if (!ParseUnary(out error))
+                    {
+                        return false;
+                    }
+
+                    continue;
+                }
+
+                return true;
+            }
+        }
+
+        private bool ParseUnary(out string error)
+        {
+            SkipWhitespace();
+            if (Match('+') || Match('-'))
+            {
+                return ParseUnary(out error);
+            }
+
+            return ParsePrimary(out error);
+        }
+
+        private bool ParsePrimary(out string error)
+        {
+            SkipWhitespace();
+            if (_position >= _expression.Length)
+            {
+                error = "expected operand.";
+                return false;
+            }
+
+            if (Match('('))
+            {
+                if (!ParseExpression(out error))
+                {
+                    return false;
+                }
+
+                SkipWhitespace();
+                if (!Match(')'))
+                {
+                    error = "missing closing parenthesis.";
+                    return false;
+                }
+
+                return true;
+            }
+
+            if (IsIdentifierStart(Current))
+            {
+                return ParseReference(out error);
+            }
+
+            if (char.IsDigit(Current) || Current == '.')
+            {
+                return ParseNumber(out error);
+            }
+
+            error = $"unexpected token '{Current}'.";
+            return false;
+        }
+
+        private bool ParseReference(out string error)
+        {
+            var start = _position;
+            while (_position < _expression.Length && IsIdentifierPart(_expression[_position]))
+            {
+                _position++;
+            }
+
+            var identifier = _expression[start.._position];
+            if (!string.Equals(identifier, "ref", StringComparison.Ordinal))
+            {
+                error = $"unsupported identifier '{identifier}'. Use ref(\"semanticId\") for semantic references.";
+                return false;
+            }
+
+            SkipWhitespace();
+            if (!Match('('))
+            {
+                error = "ref must be called as ref(\"semanticId\").";
+                return false;
+            }
+
+            SkipWhitespace();
+            if (!ParseStringLiteral(out var semanticId, out error))
+            {
+                return false;
+            }
+
+            SkipWhitespace();
+            if (!Match(')'))
+            {
+                error = "ref call is missing closing parenthesis.";
+                return false;
+            }
+
+            if (string.IsNullOrWhiteSpace(semanticId))
+            {
+                error = "ref semanticId must not be empty.";
+                return false;
+            }
+
+            _referencedSemanticIds.Add(semanticId);
+            return true;
+        }
+
+        private bool ParseStringLiteral(out string value, out string error)
+        {
+            value = string.Empty;
+            error = string.Empty;
+
+            if (!Match('"'))
+            {
+                error = "ref semanticId must be a double-quoted string literal.";
+                return false;
+            }
+
+            var builder = new System.Text.StringBuilder();
+            while (_position < _expression.Length)
+            {
+                var character = _expression[_position++];
+                if (character == '"')
+                {
+                    value = builder.ToString();
+                    return true;
+                }
+
+                if (character == '\\')
+                {
+                    if (_position >= _expression.Length)
+                    {
+                        error = "unterminated escape sequence in string literal.";
+                        return false;
+                    }
+
+                    var escaped = _expression[_position++];
+                    if (escaped is '"' or '\\')
+                    {
+                        builder.Append(escaped);
+                        continue;
+                    }
+
+                    error = "string literal only supports escaping quote and backslash characters.";
+                    return false;
+                }
+
+                builder.Append(character);
+            }
+
+            error = "unterminated string literal.";
+            return false;
+        }
+
+        private bool ParseNumber(out string error)
+        {
+            var start = _position;
+            var seenDigit = false;
+            while (_position < _expression.Length && char.IsDigit(_expression[_position]))
+            {
+                seenDigit = true;
+                _position++;
+            }
+
+            if (_position < _expression.Length && _expression[_position] == '.')
+            {
+                _position++;
+                while (_position < _expression.Length && char.IsDigit(_expression[_position]))
+                {
+                    seenDigit = true;
+                    _position++;
+                }
+            }
+
+            if (!seenDigit)
+            {
+                error = "number literal must contain at least one digit.";
+                return false;
+            }
+
+            if (_position < _expression.Length && IsIdentifierStart(_expression[_position]))
+            {
+                error = $"unexpected identifier after number literal '{_expression[start.._position]}'.";
+                return false;
+            }
+
+            error = string.Empty;
+            return true;
+        }
+
+        private char Current => _position < _expression.Length ? _expression[_position] : '\0';
+
+        private bool Match(char expected)
+        {
+            if (_position >= _expression.Length || _expression[_position] != expected)
+            {
+                return false;
+            }
+
+            _position++;
+            return true;
+        }
+
+        private void SkipWhitespace()
+        {
+            while (_position < _expression.Length && char.IsWhiteSpace(_expression[_position]))
+            {
+                _position++;
+            }
+        }
+
+        private static bool IsIdentifierStart(char value)
+            => value is >= 'A' and <= 'Z' or >= 'a' and <= 'z' or '_';
+
+        private static bool IsIdentifierPart(char value)
+            => IsIdentifierStart(value) || value is >= '0' and <= '9';
     }
 
     private static void ValidateModbusBinding(
@@ -1621,6 +3925,13 @@ public static class SemanticModelValidator
         return true;
     }
 
+    private static string? TryGetMetadataString(
+        IReadOnlyDictionary<string, System.Text.Json.JsonElement> metadata,
+        string key)
+        => metadata.TryGetValue(key, out var value) && value.ValueKind == System.Text.Json.JsonValueKind.String
+            ? value.GetString()
+            : null;
+
     private static void ValidateExternalReferenceMetadata(
         IReadOnlyDictionary<string, System.Text.Json.JsonElement> metadata,
         string path,
@@ -1860,4 +4171,72 @@ public static class SemanticValidationCodes
     public const string ProcessEdgeSelfReference = "semantic.process_graph.edge.self_reference";
     public const string ProcessEdgeRelationInvalid = "semantic.process_graph.edge.relation.invalid";
     public const string ProcessGraphCycle = "semantic.process_graph.edge.cycle";
+    public const string DerivedPointSemanticIdRequired = "semantic.process_graph.derived_point.semantic_id.required";
+    public const string DerivedPointSemanticIdDuplicate = "semantic.process_graph.derived_point.semantic_id.duplicate";
+    public const string DerivedPointNameRequired = "semantic.process_graph.derived_point.name.required";
+    public const string DerivedPointExpressionRequired = "semantic.process_graph.derived_point.expression.required";
+    public const string DerivedPointExpressionInvalid = "semantic.process_graph.derived_point.expression.invalid";
+    public const string DerivedPointExpressionSemanticReferenceRequired = "semantic.process_graph.derived_point.expression.semantic_reference.required";
+    public const string DerivedPointExpressionDependencyMismatch = "semantic.process_graph.derived_point.expression.dependency_mismatch";
+    public const string DerivedPointDependencyRequired = "semantic.process_graph.derived_point.dependency.required";
+    public const string DerivedPointDependencyDuplicate = "semantic.process_graph.derived_point.dependency.duplicate";
+    public const string DerivedPointDependencyMissing = "semantic.process_graph.derived_point.dependency.missing";
+    public const string DerivedPointQuantityKindRequired = "semantic.process_graph.derived_point.quantity_kind.required";
+    public const string DerivedPointUnitRequired = "semantic.process_graph.derived_point.unit.required";
+    public const string DerivedPointUnitIncompatible = "semantic.process_graph.derived_point.unit.incompatible";
+    public const string DerivedPointRefreshPolicyRequired = "semantic.process_graph.derived_point.refresh_policy.required";
+    public const string DerivedPointRefreshPolicyInvalid = "semantic.process_graph.derived_point.refresh_policy.invalid";
+    public const string DerivedPointRefreshIntervalRequired = "semantic.process_graph.derived_point.refresh_interval.required";
+    public const string DerivedPointRefreshIntervalInvalid = "semantic.process_graph.derived_point.refresh_interval.invalid";
+    public const string DerivedPointCycle = "semantic.process_graph.derived_point.cycle";
+    public const string StateModelIdRequired = "semantic.process_graph.state_model.id.required";
+    public const string StateModelIdDuplicate = "semantic.process_graph.state_model.id.duplicate";
+    public const string StateModelNameRequired = "semantic.process_graph.state_model.name.required";
+    public const string StateModelAssetMissing = "semantic.process_graph.state_model.asset.missing";
+    public const string StateModelNodeMissing = "semantic.process_graph.state_model.node.missing";
+    public const string StateModelStateRequired = "semantic.process_graph.state_model.state.required";
+    public const string StateModelDefaultStateRequired = "semantic.process_graph.state_model.default_state.required";
+    public const string StateModelDefaultStateMissing = "semantic.process_graph.state_model.default_state.missing";
+    public const string StateModelMutualExclusionViolation = "semantic.process_graph.state_model.mutual_exclusion.violation";
+    public const string StateDefinitionIdRequired = "semantic.process_graph.state_model.state.id.required";
+    public const string StateDefinitionIdDuplicate = "semantic.process_graph.state_model.state.id.duplicate";
+    public const string StateDefinitionNameRequired = "semantic.process_graph.state_model.state.name.required";
+    public const string StateDefinitionKindInvalid = "semantic.process_graph.state_model.state.kind.invalid";
+    public const string StateDefinitionConditionRequired = "semantic.process_graph.state_model.state.condition.required";
+    public const string StateDefinitionConditionInvalid = "semantic.process_graph.state_model.state.condition.invalid";
+    public const string StateDefinitionConditionReferenceRequired = "semantic.process_graph.state_model.state.condition.reference.required";
+    public const string StateDefinitionSemanticReferenceMissing = "semantic.process_graph.state_model.state.semantic_reference.missing";
+    public const string StateDefinitionNodeReferenceMissing = "semantic.process_graph.state_model.state.node_reference.missing";
+    public const string StateDefinitionDependencyRequired = "semantic.process_graph.state_model.state.dependency.required";
+    public const string StateDefinitionDependencyDuplicate = "semantic.process_graph.state_model.state.dependency.duplicate";
+    public const string StateDefinitionDependencyMismatch = "semantic.process_graph.state_model.state.dependency.mismatch";
+    public const string StateTransitionStateRequired = "semantic.process_graph.state_model.transition.state.required";
+    public const string StateTransitionStateMissing = "semantic.process_graph.state_model.transition.state.missing";
+    public const string AlarmIdRequired = "semantic.process_graph.alarm.id.required";
+    public const string AlarmIdDuplicate = "semantic.process_graph.alarm.id.duplicate";
+    public const string AlarmNameRequired = "semantic.process_graph.alarm.name.required";
+    public const string AlarmBusinessMeaningRequired = "semantic.process_graph.alarm.business_meaning.required";
+    public const string AlarmSeverityRequired = "semantic.process_graph.alarm.severity.required";
+    public const string AlarmConditionRequired = "semantic.process_graph.alarm.condition.required";
+    public const string AlarmConditionInvalid = "semantic.process_graph.alarm.condition.invalid";
+    public const string AlarmConditionReferenceRequired = "semantic.process_graph.alarm.condition.reference.required";
+    public const string AlarmDurationInvalid = "semantic.process_graph.alarm.duration.invalid";
+    public const string AlarmDependencyRequired = "semantic.process_graph.alarm.dependency.required";
+    public const string AlarmDependencyDuplicate = "semantic.process_graph.alarm.dependency.duplicate";
+    public const string AlarmDependencyMismatch = "semantic.process_graph.alarm.dependency.mismatch";
+    public const string AlarmSemanticReferenceMissing = "semantic.process_graph.alarm.semantic_reference.missing";
+    public const string AlarmNodeReferenceMissing = "semantic.process_graph.alarm.node_reference.missing";
+    public const string AlarmStateModelReferenceMissing = "semantic.process_graph.alarm.state_model_reference.missing";
+    public const string ControlPolicyIdRequired = "semantic.process_graph.control_policy.id.required";
+    public const string ControlPolicyIdDuplicate = "semantic.process_graph.control_policy.id.duplicate";
+    public const string ControlPolicyNameRequired = "semantic.process_graph.control_policy.name.required";
+    public const string ControlPolicyTargetRequired = "semantic.process_graph.control_policy.target.required";
+    public const string ControlPolicyTargetDuplicate = "semantic.process_graph.control_policy.target.duplicate";
+    public const string ControlPolicyTargetMissing = "semantic.process_graph.control_policy.target.missing";
+    public const string ControlPolicyReadPointNotAllowed = "semantic.process_graph.control_policy.read_point.not_allowed";
+    public const string ControlPolicyWritablePointPolicyRequired = "semantic.process_graph.control_policy.writable_point.policy.required";
+    public const string ControlPolicyRiskInvalid = "semantic.process_graph.control_policy.risk.invalid";
+    public const string ControlPolicyApprovalRequired = "semantic.process_graph.control_policy.approval.required";
+    public const string ControlPolicyAiOperationModeInvalid = "semantic.process_graph.control_policy.ai_operation_mode.invalid";
+    public const string ControlPolicyAutomaticExecutionNotAllowed = "semantic.process_graph.control_policy.automatic_execution.not_allowed";
 }

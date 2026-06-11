@@ -50,6 +50,7 @@
       ],
       "points": [
         "boiler.01.supply_temperature",
+        "boiler.01.return_temperature",
         "boiler.01.pump_run_command"
       ],
       "externalReferences": [
@@ -108,6 +109,49 @@
       },
       "source": {
         "bindingId": "binding-boiler-01-supply-temp",
+        "role": "primary"
+      },
+      "tags": [
+        "l1",
+        "temperature"
+      ],
+      "metadata": {}
+    },
+    {
+      "semanticId": "boiler.01.return_temperature",
+      "name": "return_temperature",
+      "displayName": "Return temperature",
+      "description": "Water return temperature entering boiler 01.",
+      "assetId": "asset-boiler-01",
+      "quantity": {
+        "quantityKind": "temperature",
+        "name": "Temperature",
+        "dimension": "thermodynamic-temperature",
+        "standard": "ucum",
+        "metadata": {}
+      },
+      "unit": {
+        "code": "Cel",
+        "displayName": "degree Celsius",
+        "symbol": "C",
+        "system": "ucum",
+        "quantityKind": "temperature",
+        "metadata": {}
+      },
+      "dataType": "float",
+      "access": "read",
+      "quality": {
+        "status": "good",
+        "source": "protocol-status",
+        "metadata": {}
+      },
+      "normalRange": {
+        "min": 30,
+        "max": 75,
+        "kind": "normal"
+      },
+      "source": {
+        "bindingId": "binding-boiler-01-return-temp",
         "role": "primary"
       },
       "tags": [
@@ -181,6 +225,46 @@
         "functionCode": 3,
         "registerType": "holding-register",
         "address": 0,
+        "unitId": 1,
+        "registerCount": 2,
+        "byteOrder": "bigEndian",
+        "wordOrder": "bigEndian",
+        "scale": 0.1,
+        "offset": 0
+      },
+      "quality": {
+        "status": "unknown",
+        "source": "modbus-exception",
+        "metadata": {}
+      },
+      "options": {},
+      "metadata": {}
+    },
+    {
+      "bindingId": "binding-boiler-01-return-temp",
+      "protocolKind": "modbusTcp",
+      "endpointRef": "endpoint-main-plc",
+      "address": "holding-register:40003",
+      "sourceDataType": "float",
+      "polling": {
+        "interval": "00:00:01",
+        "timeout": "00:00:03",
+        "subscription": false
+      },
+      "decode": {
+        "byteOrder": "bigEndian",
+        "wordOrder": "bigEndian",
+        "scale": 0.1,
+        "offset": 0,
+        "options": {
+          "registerCount": 2,
+          "unitId": 1
+        }
+      },
+      "modbus": {
+        "functionCode": 3,
+        "registerType": "holding-register",
+        "address": 2,
         "unitId": 1,
         "registerCount": 2,
         "byteOrder": "bigEndian",
@@ -278,7 +362,8 @@
           "boiler.01.pump_run_command"
         ],
         "outputSemanticIds": [
-          "boiler.01.supply_temperature"
+          "boiler.01.supply_temperature",
+          "boiler.01.return_temperature"
         ],
         "tags": [
           "l3-placeholder"
@@ -287,23 +372,115 @@
       }
     ],
     "edges": [],
-    "derivedPoints": [],
+    "derivedPoints": [
+      {
+        "semanticId": "boiler.01.supply_delta_temperature",
+        "name": "supply_delta_temperature",
+        "expression": "ref(\"boiler.01.supply_temperature\") - ref(\"boiler.01.return_temperature\")",
+        "dependsOnSemanticIds": [
+          "boiler.01.supply_temperature",
+          "boiler.01.return_temperature"
+        ],
+        "quantity": {
+          "quantityKind": "temperature",
+          "name": "Temperature delta",
+          "dimension": "thermodynamic-temperature",
+          "standard": "ucum",
+          "metadata": {}
+        },
+        "unit": {
+          "code": "Cel",
+          "displayName": "degree Celsius",
+          "symbol": "C",
+          "system": "ucum",
+          "quantityKind": "temperature",
+          "metadata": {}
+        },
+        "refreshPolicy": "onDependencyChange",
+        "staleAfter": "00:00:10",
+        "metadata": {}
+      }
+    ],
     "stateModels": [
       {
         "stateModelId": "state-boiler-01",
-        "name": "Boiler state draft",
+        "name": "Boiler operation state",
         "appliesToAssetId": "asset-boiler-01",
+        "appliesToNodeId": "node-boiler-01",
+        "defaultStateId": "standby",
+        "mutuallyExclusive": true,
         "states": [
           {
             "stateId": "running",
             "name": "Running",
-            "condition": "boiler.01.pump_run_command == true",
+            "stateKind": "running",
+            "condition": "ref(\"boiler.01.pump_run_command\") == true && ref(\"boiler.01.supply_delta_temperature\") > 5",
             "dependsOnSemanticIds": [
-              "boiler.01.pump_run_command"
+              "boiler.01.pump_run_command",
+              "boiler.01.supply_delta_temperature"
+            ],
+            "dependsOnNodeIds": []
+          },
+          {
+            "stateId": "standby",
+            "name": "Standby",
+            "stateKind": "standby",
+            "dependsOnSemanticIds": [],
+            "dependsOnNodeIds": []
+          },
+          {
+            "stateId": "fault",
+            "name": "Fault",
+            "stateKind": "fault",
+            "condition": "ref(\"boiler.01.supply_temperature\") > 95",
+            "dependsOnSemanticIds": [
+              "boiler.01.supply_temperature"
+            ],
+            "dependsOnNodeIds": []
+          },
+          {
+            "stateId": "maintenance",
+            "name": "Maintenance",
+            "stateKind": "maintenance",
+            "condition": "node(\"node-boiler-01\") == \"maintenance\"",
+            "dependsOnSemanticIds": [],
+            "dependsOnNodeIds": [
+              "node-boiler-01"
+            ]
+          },
+          {
+            "stateId": "manual",
+            "name": "Manual",
+            "stateKind": "manual",
+            "condition": "node(\"node-boiler-01\") == \"manual\"",
+            "dependsOnSemanticIds": [],
+            "dependsOnNodeIds": [
+              "node-boiler-01"
+            ]
+          },
+          {
+            "stateId": "automatic",
+            "name": "Automatic",
+            "stateKind": "automatic",
+            "condition": "node(\"node-boiler-01\") == \"automatic\"",
+            "dependsOnSemanticIds": [],
+            "dependsOnNodeIds": [
+              "node-boiler-01"
             ]
           }
         ],
-        "transitions": [],
+        "transitions": [
+          {
+            "fromStateId": "standby",
+            "toStateId": "running",
+            "condition": "ref(\"boiler.01.pump_run_command\") == true"
+          },
+          {
+            "fromStateId": "running",
+            "toStateId": "fault",
+            "condition": "ref(\"boiler.01.supply_temperature\") > 95"
+          }
+        ],
         "metadata": {}
       }
     ],
@@ -311,12 +488,36 @@
       {
         "alarmId": "alarm-boiler-01-supply-temperature-high",
         "name": "Supply temperature high",
+        "businessMeaning": "Supply water may overheat the downstream loop and should trigger operator intervention.",
         "severity": "major",
-        "condition": "boiler.01.supply_temperature > 90",
+        "condition": "ref(\"boiler.01.supply_temperature\") > 90",
         "dependsOnSemanticIds": [
           "boiler.01.supply_temperature"
         ],
+        "dependsOnNodeIds": [],
+        "dependsOnStateModelIds": [
+          "state-boiler-01"
+        ],
         "duration": "00:00:30",
+        "suppressionCondition": "state(\"state-boiler-01\") == \"maintenance\"",
+        "recoveryCondition": "ref(\"boiler.01.supply_temperature\") <= 85",
+        "metadata": {}
+      },
+      {
+        "alarmId": "alarm-boiler-01-fault-state",
+        "name": "Boiler fault state active",
+        "businessMeaning": "The boiler state model indicates a fault and the unit should not be treated as available capacity.",
+        "severity": "critical",
+        "condition": "state(\"state-boiler-01\") == \"fault\"",
+        "dependsOnSemanticIds": [
+          "boiler.01.supply_temperature"
+        ],
+        "dependsOnNodeIds": [],
+        "dependsOnStateModelIds": [
+          "state-boiler-01"
+        ],
+        "duration": "00:00:05",
+        "recoveryCondition": "state(\"state-boiler-01\") != \"fault\"",
         "metadata": {}
       }
     ],
@@ -330,6 +531,8 @@
         "risk": "hazardous",
         "requiresApproval": true,
         "aiOperationMode": "recommendOnly",
+        "allowAutomaticExecution": false,
+        "approvalScope": "operator",
         "metadata": {}
       }
     ],
