@@ -28,6 +28,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using SonnetDB.Caching;
 using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
 using ModelContextProtocol.Server;
@@ -211,12 +212,26 @@ namespace IoTSharp
                         options.UseLiteDB(cfg => cfg.DBConfig = new EasyCaching.LiteDB.LiteDBDBOptions() { }, name: _hc_Caching);
                         break;
 
+                    case CachingUseIn.SonnetDB:
+                        break;
+
                     case CachingUseIn.InMemory:
                     default:
                         options.UseInMemory(_hc_Caching);
                         break;
                 }
             });
+            if (settings.CachingUseIn == CachingUseIn.SonnetDB)
+            {
+                services.AddSonnetDbEasyCaching(_hc_Caching, options =>
+                {
+                    options.ConnectionString = !string.IsNullOrWhiteSpace(settings.CachingUseSonnetDBConnectionString)
+                        ? settings.CachingUseSonnetDBConnectionString
+                        : Configuration.GetConnectionString("TelemetryStorage") ?? string.Empty;
+                    options.Keyspace = settings.CachingUseSonnetDBKeyspace;
+                    options.Namespace = settings.CachingUseSonnetDBNamespace;
+                });
+            }
             services.AddTelemetryStorage(settings, healthChecks);
             var zmq = Configuration.GetSection(nameof(ZMQOption)).Get<ZMQOption>();
             if (zmq != null)

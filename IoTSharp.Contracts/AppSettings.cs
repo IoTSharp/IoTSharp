@@ -51,7 +51,8 @@ namespace IoTSharp.Contracts
         InMemory,
         Redis,
         LiteDB,
-        SQlite
+        SQlite,
+        SonnetDB
     }
 
     [JsonConverter(typeof(StringEnumConverter))]
@@ -90,6 +91,9 @@ namespace IoTSharp.Contracts
         public int DbContextPoolSize { get; set; } = 128;
         public CachingUseIn CachingUseIn { get; set; } = CachingUseIn.InMemory;
         public string? CachingUseRedisHosts { get; set; }
+        public string? CachingUseSonnetDBConnectionString { get; set; }
+        public string CachingUseSonnetDBKeyspace { get; set; } = "cache";
+        public string CachingUseSonnetDBNamespace { get; set; } = "iotsharp";
         //public DiscoveryOptions Discovery { get; set; } = null;
         //public ZMQOption ZMQOption { get; set; } = null;
         public int SucceedMessageExpiredAfter { get; set; } = 3600 * 6;
