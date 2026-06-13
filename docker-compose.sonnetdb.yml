@@ -1,0 +1,63 @@
+services:
+  sonnetdb:
+    image: ${SONNETDB_IMAGE:-iotsharp/sonnetdb:latest}
+    restart: unless-stopped
+    environment:
+      TZ: ${TZ:-Asia/Shanghai}
+      SONNETDB_SonnetDBServer__DataRoot: /data
+      SONNETDB_SonnetDBServer__AutoLoadExistingDatabases: "true"
+      SONNETDB_SonnetDBServer__AllowAnonymousProbes: "true"
+      SONNETDB_SonnetDBServer__Tokens__iotsharp_sonnetdb_dev_token_change_me: admin
+    ports:
+      - "${SONNETDB_PORT:-5080}:5080"
+    volumes:
+      - sonnetdb_data:/data
+    networks:
+      - iotsharp-network
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://127.0.0.1:5080/healthz >/dev/null || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 20s
+
+  iotsharp:
+    image: ${IOTSHARP_IMAGE:-maikebing/iotsharp:latest}
+    restart: unless-stopped
+    environment:
+      TZ: ${TZ:-Asia/Shanghai}
+      ASPNETCORE_ENVIRONMENT: SonnetDB
+      ASPNETCORE_URLS: http://+:8080
+      ConnectionStrings__IoTSharp: Data Source=sonnetdb+http://sonnetdb:5080/iotsharp;Token=iotsharp_sonnetdb_dev_token_change_me;Timeout=30
+      ConnectionStrings__TelemetryStorage: Data Source=sonnetdb+http://sonnetdb:5080/telemetry;Token=iotsharp_sonnetdb_dev_token_change_me;Timeout=30;Measurement=TelemetryData;AutoCreate=true
+      CachingUseSonnetDBConnectionString: Data Source=sonnetdb+http://sonnetdb:5080/cache;Token=iotsharp_sonnetdb_dev_token_change_me;Timeout=30
+      ConnectionStrings__BlobStorage: sonnetdb://blob?bucket=iotsharp-blob-storage&connectionString=Data%20Source%3Dsonnetdb%2Bhttp%3A%2F%2Fsonnetdb%3A5080%2Fobjects%3BToken%3Diotsharp_sonnetdb_dev_token_change_me%3BTimeout%3D30
+    depends_on:
+      sonnetdb:
+        condition: service_healthy
+    ports:
+      - "${IOTSHARP_PORT:-2927}:8080"
+      - "${IOTSHARP_MQTT_PORT:-1883}:1883"
+      - "${IOTSHARP_MQTTS_PORT:-8883}:8883"
+      - "${IOTSHARP_COAP_PORT:-5683}:5683"
+      - "${IOTSHARP_COAPS_PORT:-5684}:5684"
+      - "${IOTSHARP_MODBUS_PORT:-502}:502"
+    volumes:
+      - ./appsettings.SonnetDB.json:/app/appsettings.SonnetDB.json:ro
+      - iotsharp_security:/app/security
+    networks:
+      - iotsharp-network
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://127.0.0.1:8080/healthz >/dev/null || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 8
+      start_period: 60s
+
+networks:
+  iotsharp-network:
+    driver: bridge
+
+volumes:
+  sonnetdb_data:
+  iotsharp_security:

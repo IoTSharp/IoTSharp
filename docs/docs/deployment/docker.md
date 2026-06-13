@@ -28,6 +28,23 @@ Docker 是 IoTSharp 最推荐的部署方式。
 4. 启动 IoTSharp 容器和依赖组件。
 5. 首次访问时完成 Installer 初始化。
 
+## SonnetDB Profile
+
+如果希望关系库、时序库、缓存和对象桶都使用 SonnetDB，可以使用独立 Compose 文件：
+
+```bash
+docker compose -f docker-compose.sonnetdb.yml up -d
+```
+
+该入口设置 `ASPNETCORE_ENVIRONMENT=SonnetDB`，挂载 `appsettings.SonnetDB.json`，并通过环境变量把四类后端指向 `sonnetdb` 服务：
+
+- `ConnectionStrings__IoTSharp`
+- `ConnectionStrings__TelemetryStorage`
+- `CachingUseSonnetDBConnectionString`
+- `ConnectionStrings__BlobStorage`
+
+默认 `docker-compose.yml` 仍保留 PostgreSQL / TimescaleDB 路线。需要并行验证或回滚时，停止 SonnetDB Profile，按原 `docker-compose.yml` 和原环境配置启动即可。
+
 ## 需要重点关注的配置
 
 - 数据库连接字符串

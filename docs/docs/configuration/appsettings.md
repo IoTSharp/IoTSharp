@@ -15,6 +15,7 @@ IoTSharp 通过 `ASPNETCORE_ENVIRONMENT` 选择不同环境配置文件。
 - `appsettings.MySql.json`
 - `appsettings.SQLServer.json`
 - `appsettings.InfluxDB.json`
+- `appsettings.SonnetDB.json`
 
 ## 关键配置项
 
@@ -33,6 +34,24 @@ IoTSharp 通过 `ASPNETCORE_ENVIRONMENT` 选择不同环境配置文件。
   }
 }
 ```
+
+例如 SonnetDB Profile：
+
+```json
+{
+  "DataBase": "SonnetDB",
+  "TelemetryStorage": "SonnetDB",
+  "CachingUseIn": "SonnetDB",
+  "ConnectionStrings": {
+    "IoTSharp": "Data Source=.data/sonnetdb/iotsharp",
+    "TelemetryStorage": "Data Source=.data/sonnetdb/telemetry;Measurement=TelemetryData;AutoCreate=true",
+    "BlobStorage": "sonnetdb://blob?bucket=iotsharp-blob-storage&connectionString=Data%20Source%3D.data%2Fsonnetdb%2Fobjects"
+  },
+  "CachingUseSonnetDBConnectionString": "Data Source=.data/sonnetdb/cache"
+}
+```
+
+SonnetDB Profile 会同时把关系库、时序库、缓存和对象桶切到 SonnetDB。生产部署可以通过环境变量覆盖为远端 SonnetDB 服务连接串；默认 PostgreSQL、Redis、S3 或磁盘对象存储 Profile 不受影响，回滚时切回原环境名和原 Compose 文件即可。
 
 ### 遥测存储
 
