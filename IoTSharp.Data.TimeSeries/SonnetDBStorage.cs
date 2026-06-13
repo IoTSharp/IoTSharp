@@ -18,13 +18,18 @@ namespace IoTSharp.Storage
     public class SonnetDBStorage : IStorage
     {
         private const string DefaultMeasurement = nameof(TelemetryData);
+        private const int DefaultSchemaCacheLimit = 4096;
+        private const int SchemaLockStripeCount = 64;
 
         private static readonly HashSet<string> StorageOptionNames = new(StringComparer.OrdinalIgnoreCase)
         {
             "Measurement",
             "MeasurementName",
             "MeasurementPrefix",
-            "AutoCreate"
+            "AutoCreate",
+            "SchemaCacheLimit",
+            "SchemaCacheSize",
+            "MaxSchemaCacheSize"
         };
 
         private readonly string _connectionString;
@@ -32,9 +37,12 @@ namespace IoTSharp.Storage
         private readonly SndbProviderMode _providerMode;
         private readonly string _measurementPrefix;
         private readonly bool _autoCreate;
+        private readonly int _schemaCacheLimit;
         private readonly ILogger _logger;
-        private readonly ConcurrentDictionary<string, MeasurementSchemaInfo> _schemas = new(StringComparer.Ordinal);
-        private readonly ConcurrentDictionary<string, object> _schemaLocks = new(StringComparer.Ordinal);
+        private readonly ConcurrentDictionary<string, CachedMeasurementSchema> _schemas = new(StringComparer.Ordinal);
+        private readonly object[] _schemaLocks = CreateSchemaLocks();
+        private readonly ConcurrentQueue<CachedSchemaEntry> _schemaCacheEntries = new();
+        private long _schemaCacheVersion;
 
         public SonnetDBStorage(ILogger<SonnetDBStorage> logger, IOptions<AppSettings> options)
         {
@@ -49,6 +57,7 @@ namespace IoTSharp.Storage
             _providerMode = storageOptions.ProviderMode;
             _measurementPrefix = storageOptions.MeasurementPrefix;
             _autoCreate = storageOptions.AutoCreate;
+            _schemaCacheLimit = storageOptions.SchemaCacheLimit;
         }
 
         public Task<bool> CheckTelemetryStorage()
@@ -179,14 +188,18 @@ namespace IoTSharp.Storage
                         continue;
                     }
 
-                    var fields = writable
-                        .Select(static x => x.Field)
-                        .OrderBy(static x => x.Name, StringComparer.Ordinal)
+                    var orderedWrites = writable
+                        .OrderBy(static x => x.Field.Name, StringComparer.Ordinal)
                         .ToArray();
-                    var values = fields
-                        .Select(field => writable.Single(x => string.Equals(x.Field.Name, field.Name, StringComparison.Ordinal)).Value)
-                        .ToArray();
-                    var key = new BatchWriteKey(measurement, string.Join('\u001f', fields.Select(static x => x.Name)));
+                    var fields = new ColumnInfo[orderedWrites.Length];
+                    var values = new object[orderedWrites.Length];
+                    for (var i = 0; i < orderedWrites.Length; i++)
+                    {
+                        fields[i] = orderedWrites[i].Field;
+                        values[i] = orderedWrites[i].Value;
+                    }
+
+                    var key = new BatchWriteKey(measurement, BuildFieldSignature(fields));
                     if (!batches.TryGetValue(key, out var group))
                     {
                         group = new BatchWriteGroup(measurement, fields);
@@ -312,10 +325,10 @@ namespace IoTSharp.Storage
 
         private MeasurementSchemaInfo? EnsureMeasurement(SndbConnection connection, string measurement, IReadOnlyList<TelemetryData> telemetries)
         {
-            var schemaLock = _schemaLocks.GetOrAdd(measurement, _ => new object());
+            var schemaLock = GetSchemaLock(measurement);
             lock (schemaLock)
             {
-                if (_schemas.TryGetValue(measurement, out var cached))
+                if (TryGetCachedSchema(measurement, out var cached))
                 {
                     return cached;
                 }
@@ -343,14 +356,14 @@ namespace IoTSharp.Storage
                 command.ExecuteNonQuery();
 
                 var schema = new MeasurementSchemaInfo(fields);
-                _schemas[measurement] = schema;
+                CacheSchema(measurement, schema);
                 return schema;
             }
         }
 
         private MeasurementSchemaInfo? TryLoadSchema(SndbConnection connection, string measurement)
         {
-            if (_schemas.TryGetValue(measurement, out var cached))
+            if (TryGetCachedSchema(measurement, out var cached))
             {
                 return cached;
             }
@@ -389,7 +402,7 @@ namespace IoTSharp.Storage
             }
 
             var schema = new MeasurementSchemaInfo(columns);
-            _schemas[measurement] = schema;
+            CacheSchema(measurement, schema);
             return schema;
         }
 
@@ -466,6 +479,61 @@ namespace IoTSharp.Storage
         {
             _schemas.TryRemove(measurement, out _);
             _ = TryLoadSchema(connection, measurement);
+        }
+
+        private bool TryGetCachedSchema(string measurement, out MeasurementSchemaInfo schema)
+        {
+            if (_schemas.TryGetValue(measurement, out var cached))
+            {
+                schema = cached.Schema;
+                return true;
+            }
+
+            schema = null!;
+            return false;
+        }
+
+        private void CacheSchema(string measurement, MeasurementSchemaInfo schema)
+        {
+            if (_schemaCacheLimit <= 0)
+            {
+                return;
+            }
+
+            var version = Interlocked.Increment(ref _schemaCacheVersion);
+            var cached = new CachedMeasurementSchema(schema, version);
+            _schemas[measurement] = cached;
+            _schemaCacheEntries.Enqueue(new CachedSchemaEntry(measurement, version));
+            TrimSchemaCache();
+        }
+
+        private void TrimSchemaCache()
+        {
+            while (_schemas.Count > _schemaCacheLimit && _schemaCacheEntries.TryDequeue(out var entry))
+            {
+                if (_schemas.TryGetValue(entry.Measurement, out var cached)
+                    && cached.Version == entry.Version)
+                {
+                    _schemas.TryRemove(new KeyValuePair<string, CachedMeasurementSchema>(entry.Measurement, cached));
+                }
+            }
+        }
+
+        private static object[] CreateSchemaLocks()
+        {
+            var locks = new object[SchemaLockStripeCount];
+            for (var i = 0; i < locks.Length; i++)
+            {
+                locks[i] = new object();
+            }
+
+            return locks;
+        }
+
+        private object GetSchemaLock(string measurement)
+        {
+            var hash = (uint)StringComparer.Ordinal.GetHashCode(measurement);
+            return _schemaLocks[hash % (uint)_schemaLocks.Length];
         }
 
         private List<TelemetryDataDto> QueryTelemetry(SndbConnection connection, string measurement, IReadOnlyList<ColumnInfo> fields, DateTime? begin, DateTime? end)
@@ -710,6 +778,24 @@ namespace IoTSharp.Storage
 
             command.CommandText = $"INSERT INTO {QuoteIdentifier(measurement)} ({string.Join(", ", columns)}) VALUES {string.Join(", ", valuesSql)}";
             return command.ExecuteNonQuery();
+        }
+
+        private static string BuildFieldSignature(IReadOnlyList<ColumnInfo> fields)
+        {
+            if (fields.Count == 0)
+            {
+                return string.Empty;
+            }
+
+            var signature = new StringBuilder(fields.Count * 16);
+            signature.Append(fields[0].Name);
+            for (var i = 1; i < fields.Count; i++)
+            {
+                signature.Append('\u001f');
+                signature.Append(fields[i].Name);
+            }
+
+            return signature.ToString();
         }
 
         private List<ColumnInfo> BuildFieldsFromTelemetry(string measurement, IReadOnlyList<TelemetryData> telemetries)
@@ -975,7 +1061,11 @@ namespace IoTSharp.Storage
                 sonnetConnection.DataSource,
                 sonnetConnection.ResolveMode(),
                 measurementPrefix.Trim(),
-                GetBoolOption(raw, "AutoCreate", true));
+                GetBoolOption(raw, "AutoCreate", true),
+                GetIntOption(raw, "SchemaCacheLimit")
+                ?? GetIntOption(raw, "SchemaCacheSize")
+                ?? GetIntOption(raw, "MaxSchemaCacheSize")
+                ?? DefaultSchemaCacheLimit);
         }
 
         private void EnsureEmbeddedOperation(string operation)
@@ -1298,6 +1388,14 @@ namespace IoTSharp.Storage
             return bool.TryParse(value, out var result) ? result : defaultValue;
         }
 
+        private static int? GetIntOption(DbConnectionStringBuilder builder, string key)
+        {
+            var value = GetOption(builder, key);
+            return int.TryParse(value, NumberStyles.Integer, CultureInfo.InvariantCulture, out var result)
+                ? Math.Max(0, result)
+                : null;
+        }
+
         private static string QuoteIdentifier(string identifier)
         {
             return "\"" + identifier.Replace("\"", "\"\"") + "\"";
@@ -1312,6 +1410,10 @@ namespace IoTSharp.Storage
         private sealed record ColumnInfo(string Name, ColumnRole Role, DataType DataType);
 
         private sealed record FieldWrite(ColumnInfo Field, object Value);
+
+        private sealed record CachedMeasurementSchema(MeasurementSchemaInfo Schema, long Version);
+
+        private readonly record struct CachedSchemaEntry(string Measurement, long Version);
 
         private sealed class MeasurementSchemaInfo
         {
@@ -1333,7 +1435,8 @@ namespace IoTSharp.Storage
             string DataSource,
             SndbProviderMode ProviderMode,
             string MeasurementPrefix,
-            bool AutoCreate);
+            bool AutoCreate,
+            int SchemaCacheLimit);
 
         private sealed record BatchWriteKey(string Measurement, string FieldSignature);
 

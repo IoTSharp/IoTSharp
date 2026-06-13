@@ -148,6 +148,26 @@ public sealed class SonnetDBStorageTests : IDisposable
     }
 
     [Fact]
+    public async Task StoreTelemetryAsync_WhenSchemaCacheLimitIsExceeded_ReloadsEvictedMeasurementSchema()
+    {
+        var deviceA = Guid.NewGuid();
+        var deviceB = Guid.NewGuid();
+        var deviceC = Guid.NewGuid();
+        var storage = CreateStorage("TelemetryData", _root, schemaCacheLimit: 2);
+        var begin = new DateTime(2026, 6, 12, 1, 0, 0, DateTimeKind.Utc);
+
+        await storage.StoreTelemetryAsync(CreatePayload(deviceA, begin, new Dictionary<string, object> { ["temperature"] = 20.0 }));
+        await storage.StoreTelemetryAsync(CreatePayload(deviceB, begin, new Dictionary<string, object> { ["humidity"] = 61L }));
+        await storage.StoreTelemetryAsync(CreatePayload(deviceC, begin, new Dictionary<string, object> { ["voltage"] = 12.5 }));
+        var result = await storage.StoreTelemetryAsync(CreatePayload(deviceA, begin.AddMinutes(1), new Dictionary<string, object> { ["temperature"] = 21.0 }));
+
+        var latest = await storage.GetTelemetryLatest(deviceA, "temperature");
+
+        Assert.True(result.result);
+        Assert.Equal(21.0, Assert.Single(latest).Value);
+    }
+
+    [Fact]
     public async Task GetTelemetryLatest_WhenFieldsAreSparse_ReturnsLatestValuePerField()
     {
         var deviceId = Guid.NewGuid();
@@ -216,13 +236,19 @@ public sealed class SonnetDBStorageTests : IDisposable
     private SonnetDBStorage CreateStorage(string measurementPrefix)
         => CreateStorage(measurementPrefix, _root);
 
-    private static SonnetDBStorage CreateStorage(string measurementPrefix, string root)
+    private static SonnetDBStorage CreateStorage(string measurementPrefix, string root, int? schemaCacheLimit = null)
     {
+        var telemetryStorage = $"Data Source={root};Measurement={measurementPrefix};AutoCreate=true";
+        if (schemaCacheLimit.HasValue)
+        {
+            telemetryStorage += $";SchemaCacheLimit={schemaCacheLimit.Value}";
+        }
+
         var settings = new AppSettings
         {
             ConnectionStrings = new Dictionary<string, string>
             {
-                ["TelemetryStorage"] = $"Data Source={root};Measurement={measurementPrefix};AutoCreate=true"
+                ["TelemetryStorage"] = telemetryStorage
             }
         };
 
