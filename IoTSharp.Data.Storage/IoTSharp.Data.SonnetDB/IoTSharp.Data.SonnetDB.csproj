@@ -7,6 +7,10 @@
   <ItemGroup>
     <PackageReference Include="DotNetDiag.HealthChecks.UI.InMemory.Storage" />
     <PackageReference Include="Microsoft.Extensions.Diagnostics.HealthChecks" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
     <PackageReference Include="ShardingCore" />
     <PackageReference Include="Storage.Net" />
     <PackageReference Include="SonnetDB" Condition="!Exists('..\..\..\SonnetDB\src\SonnetDB.Data\SonnetDB.Data.csproj')" />
