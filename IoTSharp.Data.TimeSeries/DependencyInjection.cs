@@ -13,6 +13,8 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.ObjectPool;
 using IoTSharp.Data.Taos;
 using InfluxDB.Client;
+using IoTSharp.Data.SonnetDB;
+using ShardingCore.TableExists.Abstractions;
 
 namespace IoTSharp.Data.TimeSeries
 {
@@ -71,6 +73,9 @@ namespace IoTSharp.Data.TimeSeries
                             case DataBaseType.Sqlite:
                                 o.UseSQLiteToSharding();
                                 break;
+                            case DataBaseType.SonnetDB:
+                                o.UseSonnetDBToSharding();
+                                break;
                             case DataBaseType.PostgreSql:
                             default:
                                 o.UseNpgsqlToSharding();
@@ -78,6 +83,10 @@ namespace IoTSharp.Data.TimeSeries
                         }
                     });
                     _sharding.AddShardingCore();
+                    if (settings.DataBase == DataBaseType.SonnetDB)
+                    {
+                        services.AddSingleton<ITableEnsureManager, SonnetDbTableEnsureManager>();
+                    }
                     services.AddSingleton<IStorage, ShardingStorage>();
                     break;
 
