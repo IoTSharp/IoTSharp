@@ -14,8 +14,11 @@
 		<PackageReference Include="hyjiacan.pinyin4net" />
 		<PackageReference Include="IoTSharp.HealthChecks.Taos" />
 		<PackageReference Include="InfluxDB.Client" />
-		<PackageReference Include="SonnetDB" />
+		<PackageReference Include="SonnetDB" Condition="!Exists('..\..\SonnetDB\src\SonnetDB.Data\SonnetDB.Data.csproj')" />
 	</ItemGroup>
+  <ItemGroup Condition="Exists('..\..\SonnetDB\src\SonnetDB.Data\SonnetDB.Data.csproj')">
+    <ProjectReference Include="..\..\SonnetDB\src\SonnetDB.Data\SonnetDB.Data.csproj" />
+  </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\IoTSharp.Contracts\IoTSharp.Contracts.csproj" />
     <ProjectReference Include="..\IoTSharp.Data.Storage\IoTSharp.Data.MySQL\IoTSharp.Data.MySQL.csproj" />
