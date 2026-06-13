@@ -140,6 +140,7 @@
     <PackageVersion Include="SkiaSharp" Version="3.119.2" />
     <PackageVersion Include="SkiaSharp.NativeAssets.Linux.NoDependencies" Version="3.119.2" />
     <PackageVersion Include="SonnetDB" Version="1.0.0" />
+    <PackageVersion Include="SonnetDB.EntityFrameworkCore" Version="1.0.0" />
     <PackageVersion Include="Storage.Net" Version="9.3.0" />
     <PackageVersion Include="System.Private.ServiceModel" Version="4.10.3" />
     <PackageVersion Include="System.Resources.Extensions" Version="10.0.8" />

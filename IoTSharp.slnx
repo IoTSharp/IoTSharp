@@ -48,6 +48,7 @@
     <Project Path="IoTSharp.Data.Storage/IoTSharp.Data.MySQL/IoTSharp.Data.MySQL.csproj" />
     <Project Path="IoTSharp.Data.Storage/IoTSharp.Data.Oracle/IoTSharp.Data.Oracle.csproj" />
     <Project Path="IoTSharp.Data.Storage/IoTSharp.Data.PostgreSQL/IoTSharp.Data.PostgreSQL.csproj" />
+    <Project Path="IoTSharp.Data.Storage/IoTSharp.Data.SonnetDB/IoTSharp.Data.SonnetDB.csproj" />
     <Project Path="IoTSharp.Data.Storage/IoTSharp.Data.Sqlite/IoTSharp.Data.Sqlite.csproj" />
     <Project Path="IoTSharp.Data.Storage/IoTSharp.Data.SqlServer/IoTSharp.Data.SqlServer.csproj" />
   </Folder>

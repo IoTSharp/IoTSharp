@@ -1,0 +1,21 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="DotNetDiag.HealthChecks.UI.InMemory.Storage" />
+    <PackageReference Include="Microsoft.Extensions.Diagnostics.HealthChecks" />
+    <PackageReference Include="SonnetDB.EntityFrameworkCore" Condition="!Exists('..\..\..\SonnetDB\src\SonnetDB.EntityFrameworkCore\SonnetDB.EntityFrameworkCore.csproj')" />
+  </ItemGroup>
+
+  <ItemGroup Condition="Exists('..\..\..\SonnetDB\src\SonnetDB.EntityFrameworkCore\SonnetDB.EntityFrameworkCore.csproj')">
+    <ProjectReference Include="..\..\..\SonnetDB\src\SonnetDB.EntityFrameworkCore\SonnetDB.EntityFrameworkCore.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\IoTSharp.Data\IoTSharp.Data.csproj" />
+  </ItemGroup>
+
+</Project>

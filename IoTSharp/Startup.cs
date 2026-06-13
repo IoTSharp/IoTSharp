@@ -111,6 +111,9 @@ namespace IoTSharp
                     services.ConfigureClickHouse(Configuration.GetConnectionString("IoTSharp"), settings.DbContextPoolSize, healthChecks, healthChecksUI);
                     settings.TelemetryStorage = TelemetryStorage.SingleTable;
                     break;
+                case DataBaseType.SonnetDB:
+                    services.ConfigureSonnetDB(Configuration.GetConnectionString("IoTSharp"), settings.DbContextPoolSize, healthChecks, healthChecksUI);
+                    break;
                 case DataBaseType.PostgreSql:
                 default:
                     services.ConfigureNpgsql(Configuration.GetConnectionString("IoTSharp"), settings.DbContextPoolSize, healthChecks, healthChecksUI);
