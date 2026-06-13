@@ -8,11 +8,17 @@
     <PackageReference Include="DotNetDiag.HealthChecks.UI.InMemory.Storage" />
     <PackageReference Include="Microsoft.Extensions.Diagnostics.HealthChecks" />
     <PackageReference Include="ShardingCore" />
+    <PackageReference Include="Storage.Net" />
+    <PackageReference Include="SonnetDB" Condition="!Exists('..\..\..\SonnetDB\src\SonnetDB.Data\SonnetDB.Data.csproj')" />
     <PackageReference Include="SonnetDB.EntityFrameworkCore" Condition="!Exists('..\..\..\SonnetDB\src\SonnetDB.EntityFrameworkCore\SonnetDB.EntityFrameworkCore.csproj')" />
   </ItemGroup>
 
   <ItemGroup Condition="Exists('..\..\..\SonnetDB\src\SonnetDB.EntityFrameworkCore\SonnetDB.EntityFrameworkCore.csproj')">
     <ProjectReference Include="..\..\..\SonnetDB\src\SonnetDB.EntityFrameworkCore\SonnetDB.EntityFrameworkCore.csproj" />
+  </ItemGroup>
+
+  <ItemGroup Condition="Exists('..\..\..\SonnetDB\src\SonnetDB.Data\SonnetDB.Data.csproj')">
+    <ProjectReference Include="..\..\..\SonnetDB\src\SonnetDB.Data\SonnetDB.Data.csproj" />
   </ItemGroup>
 
   <ItemGroup>

@@ -3,6 +3,7 @@ using HealthChecks.UI.Client;
 using IoTSharp.Contracts;
 using IoTSharp.Data;
 using IoTSharp.Data.Extensions;
+using IoTSharp.Data.SonnetDB;
 using IoTSharp.Data.TimeSeries;
 using IoTSharp.EventBus;
 using IoTSharp.EventBus.CAP;
@@ -255,7 +256,18 @@ namespace IoTSharp
                 }
             });
             services.AddHostedService<CoAPService>();
-            services.AddTransient(_ => StorageFactory.Blobs.FromConnectionString(Configuration.GetConnectionString("BlobStorage") ?? $"disk://path={Environment.GetFolderPath(Environment.SpecialFolder.UserProfile, Environment.SpecialFolderOption.Create)}/IoTSharp/"));
+            services.AddTransient(_ =>
+            {
+                var blobStorage = Configuration.GetConnectionString("BlobStorage");
+                if (!string.IsNullOrWhiteSpace(blobStorage)
+                    && blobStorage.StartsWith("sonnetdb://", StringComparison.OrdinalIgnoreCase))
+                {
+                    var parsed = ParseSonnetDbBlobStorage(blobStorage);
+                    return new SonnetDbBlobStorage(parsed.ConnectionString, parsed.Bucket);
+                }
+
+                return StorageFactory.Blobs.FromConnectionString(blobStorage ?? $"disk://path={Environment.GetFolderPath(Environment.SpecialFolder.UserProfile, Environment.SpecialFolderOption.Create)}/IoTSharp/");
+            });
 
             services.AddControllers().AddNewtonsoftJson(options =>
             {
@@ -387,6 +399,23 @@ namespace IoTSharp
             {
                 ContentTypeProvider = provider,
             });
+        }
+
+        private static (string ConnectionString, string Bucket) ParseSonnetDbBlobStorage(string value)
+        {
+            var uri = new Uri(value, UriKind.Absolute);
+            var query = Microsoft.AspNetCore.WebUtilities.QueryHelpers.ParseQuery(uri.Query);
+            if (!query.TryGetValue("connectionString", out var connectionString)
+                || string.IsNullOrWhiteSpace(connectionString))
+            {
+                throw new InvalidOperationException("SonnetDB BlobStorage requires a connectionString query value.");
+            }
+
+            var bucket = query.TryGetValue("bucket", out var bucketValue) && !string.IsNullOrWhiteSpace(bucketValue)
+                ? bucketValue.ToString()
+                : "iotsharp-blob-storage";
+
+            return (connectionString.ToString(), bucket);
         }
     }
 }
