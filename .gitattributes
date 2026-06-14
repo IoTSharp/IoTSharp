@@ -3,6 +3,16 @@
 ###############################################################################
 * text=auto
 
+Dockerfile text eol=lf
+**/Dockerfile text eol=lf
+.gitattributes text eol=lf
+*.cs text eol=lf
+*.csproj text eol=lf
+*.props text eol=lf
+*.targets text eol=lf
+*.yml text eol=lf
+*.yaml text eol=lf
+
 ###############################################################################
 # Set default behavior for command prompt diff.
 #

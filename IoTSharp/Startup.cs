@@ -1,4 +1,4 @@
-﻿using EasyCaching.Core.Configurations;
+using EasyCaching.Core.Configurations;
 using HealthChecks.UI.Client;
 using IoTSharp.Contracts;
 using IoTSharp.Data;
@@ -270,7 +270,12 @@ namespace IoTSharp
                     return new SonnetDbBlobStorage(parsed.ConnectionString, parsed.Bucket);
                 }
 
-                return StorageFactory.Blobs.FromConnectionString(blobStorage ?? $"disk://path={Environment.GetFolderPath(Environment.SpecialFolder.UserProfile, Environment.SpecialFolderOption.Create)}/IoTSharp/");
+                if (string.IsNullOrWhiteSpace(blobStorage))
+                {
+                    blobStorage = $"disk://path={Environment.GetFolderPath(Environment.SpecialFolder.UserProfile, Environment.SpecialFolderOption.Create)}/IoTSharp/";
+                }
+
+                return StorageFactory.Blobs.FromConnectionString(blobStorage);
             });
 
             services.AddControllers().AddNewtonsoftJson(options =>

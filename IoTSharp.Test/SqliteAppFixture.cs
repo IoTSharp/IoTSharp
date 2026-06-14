@@ -19,7 +19,8 @@ namespace IoTSharp.Test
             await InitializeApplicationAsync(
                 $"Data Source={Path.Combine(_dataDirectory, "IoTSharp.db")}",
                 $"Data Source={Path.Combine(_dataDirectory, "TelemetryStorage.db")}",
-                DataBaseType.Sqlite);
+                DataBaseType.Sqlite,
+                blobStorage: $"disk://path={Path.Combine(_dataDirectory, "BlobStorage")}");
         }
 
         protected override Task DisposeTestResourcesAsync()

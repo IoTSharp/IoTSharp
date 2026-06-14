@@ -1,17 +1,14 @@
 services:
-  iotsharp:
-    image: maikebing/iotsharp
-    environment:
-      - ASPNETCORE_ENVIRONMENT=Development
-      - ASPNETCORE_URLS=http://+:80
-      - ASPNETCORE_HOSTINGSTARTUPASSEMBLIES=Microsoft.AspNetCore.SpaProxy
-    ports:
-      - "2927:80"
-    volumes:
-      - ${APPDATA}/Microsoft/UserSecrets:/root/.microsoft/usersecrets:ro
-      - ./appsettings.Development.json:/app/appsettings.Development.json
-
+  pg_iotsharp:
     build:
-      context: .
-      dockerfile: IoTSharp/Dockerfile
-  
+      context: ..
+      dockerfile: IoTSharp/IoTSharp/Dockerfile
+      args:
+        SOURCE_ROOT: IoTSharp
+
+  sonnetdb_iotsharp:
+    build:
+      context: ..
+      dockerfile: IoTSharp/IoTSharp/Dockerfile
+      args:
+        SOURCE_ROOT: IoTSharp

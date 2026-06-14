@@ -1,4 +1,4 @@
-﻿#nullable enable
+#nullable enable
 
 using Alba;
 using EasyCaching.Core;
@@ -53,13 +53,13 @@ namespace IoTSharp.Test
 
         protected virtual Task DisposeTestResourcesAsync() => Task.CompletedTask;
 
-        protected async Task InitializeApplicationAsync(string dbMain, string dbTelemetry, DataBaseType dbType) =>
-            await InitializeApplicationAsync(dbMain, dbTelemetry, dbType, TelemetryStorage.Sharding, EventBusStore.InMemory);
+        protected async Task InitializeApplicationAsync(string dbMain, string dbTelemetry, DataBaseType dbType, string? blobStorage = null) =>
+            await InitializeApplicationAsync(dbMain, dbTelemetry, dbType, TelemetryStorage.Sharding, EventBusStore.InMemory, blobStorage);
 
-        protected async Task InitializeApplicationAsync(string dbMain, string dbTelemetry, DataBaseType dbType, TelemetryStorage telemetry) =>
-            await InitializeApplicationAsync(dbMain, dbTelemetry, dbType, telemetry, EventBusStore.InMemory);
+        protected async Task InitializeApplicationAsync(string dbMain, string dbTelemetry, DataBaseType dbType, TelemetryStorage telemetry, string? blobStorage = null) =>
+            await InitializeApplicationAsync(dbMain, dbTelemetry, dbType, telemetry, EventBusStore.InMemory, blobStorage);
 
-        protected async Task InitializeApplicationAsync(string dbMain, string dbTelemetry, DataBaseType dbType, TelemetryStorage telemetry, EventBusStore eventBus)
+        protected async Task InitializeApplicationAsync(string dbMain, string dbTelemetry, DataBaseType dbType, TelemetryStorage telemetry, EventBusStore eventBus, string? blobStorage = null)
         {
             var profile = new IoTSharpTestProfile
             {
@@ -69,7 +69,8 @@ namespace IoTSharp.Test
                 EventBusStore = eventBus,
                 MainConnectionString = dbMain,
                 TelemetryConnectionString = dbTelemetry,
-                EventBusStoreConnectionString = eventBus == EventBusStore.InMemory ? string.Empty : dbMain
+                EventBusStoreConnectionString = eventBus == EventBusStore.InMemory ? string.Empty : dbMain,
+                BlobStorageConnectionString = blobStorage
             };
 
             await InitializeApplicationAsync(profile);
