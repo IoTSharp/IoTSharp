@@ -15,6 +15,8 @@ using IoTSharp.Data.Taos;
 using InfluxDB.Client;
 using IoTSharp.Data.SonnetDB;
 using ShardingCore.TableExists.Abstractions;
+using System.Collections.Specialized;
+using System.Web;
 
 namespace IoTSharp.Data.TimeSeries
 {
@@ -98,7 +100,7 @@ namespace IoTSharp.Data.TimeSeries
                     //https://github.com/julian-fh/influxdb-setup
                     services.AddSingleton<IStorage, InfluxDBStorage>();
                     //"TelemetryStorage": "http://localhost:8086/?org=iotsharp&bucket=iotsharp-bucket&token=iotsharp-token"
-                    services.AddObjectPool(() => new InfluxDBClient(InfluxDBClientOptions.Builder.CreateNew().ConnectionString(_connectionString).Build()));
+                    services.AddObjectPool(() => new InfluxDBClient(CreateInfluxDbClientOptions(_connectionString)));
                     healthChecks.AddInfluxDB(_connectionString, name: _hc_telemetryStorage);
                     break;
 
@@ -124,6 +126,34 @@ namespace IoTSharp.Data.TimeSeries
                     services.AddSingleton<IStorage, EFStorage>();
                     break;
             }
+        }
+
+        private static InfluxDBClientOptions CreateInfluxDbClientOptions(string connectionString)
+        {
+            Uri uri = new Uri(connectionString);
+            NameValueCollection query = HttpUtility.ParseQueryString(uri.Query);
+            var builder = InfluxDBClientOptions.Builder.CreateNew()
+                .Url(uri.GetLeftPart(UriPartial.Authority));
+
+            string? token = query.Get("token");
+            if (!string.IsNullOrWhiteSpace(token))
+            {
+                builder.AuthenticateToken(token);
+            }
+
+            string? org = query.Get("org");
+            if (!string.IsNullOrWhiteSpace(org))
+            {
+                builder.Org(org);
+            }
+
+            string? bucket = query.Get("bucket");
+            if (!string.IsNullOrWhiteSpace(bucket))
+            {
+                builder.Bucket(bucket);
+            }
+
+            return builder.Build();
         }
     }
 }

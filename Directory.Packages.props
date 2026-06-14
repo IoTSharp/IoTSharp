@@ -123,7 +123,7 @@
     <PackageVersion Include="Portable.BouncyCastle" Version="1.9.0" />
     <PackageVersion Include="PrettyLogging.Console" Version="1.0.3" />
     <PackageVersion Include="Quartz.AspNetCore" Version="3.16.1" />
-    <PackageVersion Include="RestSharp" Version="114.0.0" />
+    <PackageVersion Include="RestSharp" Version="112.1.0" />
     <PackageVersion Include="Rin" Version="2.6.0" />
     <PackageVersion Include="Rin.Mvc" Version="2.6.0" />
     <PackageVersion Include="RulesEngine" Version="6.0.0" />

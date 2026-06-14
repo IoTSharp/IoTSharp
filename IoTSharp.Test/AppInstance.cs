@@ -8,6 +8,7 @@ using IoTSharp.Dtos;
 using IoTSharp.Models;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.TestHost;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
@@ -31,6 +32,8 @@ namespace IoTSharp.Test
         protected InstallDto? InstallDto { get; private set; }
 
         public IServiceProvider Services => AssertHost().Services;
+
+        public IoTSharpTestProfile? Profile { get; private set; }
 
         protected CancellationToken TestCancellationToken => _cancellationTokenSource.Token;
 
@@ -58,16 +61,30 @@ namespace IoTSharp.Test
 
         protected async Task InitializeApplicationAsync(string dbMain, string dbTelemetry, DataBaseType dbType, TelemetryStorage telemetry, EventBusStore eventBus)
         {
+            var profile = new IoTSharpTestProfile
+            {
+                Name = $"{dbType}-{telemetry}-{eventBus}",
+                DataBase = dbType,
+                TelemetryStorage = telemetry,
+                EventBusStore = eventBus,
+                MainConnectionString = dbMain,
+                TelemetryConnectionString = dbTelemetry,
+                EventBusStoreConnectionString = eventBus == EventBusStore.InMemory ? string.Empty : dbMain
+            };
+
+            await InitializeApplicationAsync(profile);
+        }
+
+        protected async Task InitializeApplicationAsync(IoTSharpTestProfile profile)
+        {
+            Profile = profile;
             Host = await AlbaHost.For<IoTSharp.Program>(builder =>
             {
                 builder.UseEnvironment("Test");
-                builder.UseSetting("DataBase", Enum.GetName(dbType));
-                builder.UseSetting("EventBusStore", Enum.GetName(eventBus));
-                builder.UseSetting("EventBusMQ", Enum.GetName(EventBusMQ.InMemory));
-                builder.UseSetting("TelemetryStorage", Enum.GetName(telemetry));
-                builder.UseSetting("EventBus", Enum.GetName(EventBusFramework.CAP));
-                builder.UseSetting("ConnectionStrings:IoTSharp", dbMain);
-                builder.UseSetting("ConnectionStrings:TelemetryStorage", dbTelemetry);
+                builder.ConfigureAppConfiguration((_, configuration) =>
+                {
+                    configuration.AddInMemoryCollection(profile.ToHostSettings());
+                });
             });
 
             using var client = Host.GetTestClient();
@@ -87,6 +104,7 @@ namespace IoTSharp.Test
 
             var result = await response.Content.ReadFromJsonAsync<ApiResult<InstanceDto>>(TestCancellationToken);
             Assert.NotNull(result);
+            Assert.True(result.Code == (int)ApiCode.Success || result.Code == (int)ApiCode.AlreadyExists, result.Msg);
             Assert.NotNull(result.Data);
             Assert.True(result.Data.Installed);
         }
@@ -122,13 +140,13 @@ namespace IoTSharp.Test
             Assert.Equal((int)ApiCode.Success, result.Code);
         }
 
-        public async Task<ApiResult<Device>> CreateDeviceAsync(HttpClient client, string? deviceName = null)
+        public async Task<ApiResult<Device>> CreateDeviceAsync(HttpClient client, string? deviceName = null, DeviceType deviceType = DeviceType.Device)
         {
             await AuthorizeClientAsync(client);
 
             var device = new DevicePostDto
             {
-                DeviceType = DeviceType.Device,
+                DeviceType = deviceType,
                 Name = deviceName ?? $"test-{Guid.NewGuid():N}",
                 Timeout = 30
             };
@@ -140,6 +158,25 @@ namespace IoTSharp.Test
             Assert.NotNull(result);
             Assert.NotNull(result.Data);
             return result;
+        }
+
+        public async Task<ApiResult<DeviceDetailDto>> GetDeviceDetailAsync(HttpClient client, Guid deviceId)
+        {
+            await AuthorizeClientAsync(client);
+            var result = await client.GetFromJsonAsync<ApiResult<DeviceDetailDto>>($"/api/Devices/{deviceId}", TestCancellationToken);
+
+            Assert.NotNull(result);
+            Assert.NotNull(result.Data);
+            Assert.Equal((int)ApiCode.Success, result.Code);
+            return result;
+        }
+
+        public async Task<string> GetDeviceAccessTokenAsync(HttpClient client, Guid deviceId)
+        {
+            var result = await GetDeviceDetailAsync(client, deviceId);
+
+            Assert.False(string.IsNullOrWhiteSpace(result.Data!.IdentityId));
+            return result.Data.IdentityId;
         }
 
         public async Task<string> GetAccessTokenAsync()

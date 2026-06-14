@@ -314,7 +314,7 @@ namespace IoTSharp.Controllers
         private Device GetGatewayByAccessToken(string accessToken)
         {
             var (ok, gateway) = _context.GetDeviceByToken(accessToken);
-            if (ok || gateway?.DeviceType != DeviceType.Gateway || gateway.Deleted)
+            if (ok || gateway == null || gateway.DeviceType != DeviceType.Gateway || gateway.Deleted)
             {
                 return null;
             }

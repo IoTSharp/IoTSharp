@@ -7,6 +7,7 @@ using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Text.Json;
 using System.Threading.Tasks;
 using Xunit;
@@ -55,7 +56,9 @@ namespace IoTSharp.Test
         private static string NormalizeRoute(RoutePattern pattern)
         {
             var rawText = pattern.RawText ?? string.Empty;
-            return rawText.Replace("{*", "{");
+            return RouteConstraintRegex().Replace(rawText.Replace("{*", "{"), "{$1}");
         }
+
+        private static Regex RouteConstraintRegex() => new(@"\{([^}:]+):[^}]+\}", RegexOptions.Compiled);
     }
 }
