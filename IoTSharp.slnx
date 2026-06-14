@@ -62,8 +62,8 @@
     <Build />
   </Project>
   <Project Path="IoTSharp.Contracts/IoTSharp.Contracts.csproj" />
-  <Project Path="IoTSharp.Data.JsonDB.Tests/IoTSharp.Data.JsonDB.Tests.csproj" />
-  <Project Path="IoTSharp.Data.JsonDB/IoTSharp.Data.JsonDB.csproj" />
+  <Project Path="IoTSharp.Data.JsonDB/src/IoTSharp.Data.JsonDB/IoTSharp.Data.JsonDB.csproj" />
+  <Project Path="IoTSharp.Data.JsonDB/tests/IoTSharp.Data.JsonDB.Tests/IoTSharp.Data.JsonDB.Tests.csproj" />
   <Project Path="IoTSharp.Data.TimeSeries/IoTSharp.Data.TimeSeries.csproj" />
   <Project Path="IoTSharp.Data/IoTSharp.Data.csproj" />
   <Project Path="IoTSharp.EventBus.CAP/IoTSharp.EventBus.CAP.csproj" />

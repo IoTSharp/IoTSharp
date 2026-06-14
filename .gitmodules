@@ -1,0 +1,4 @@
+[submodule "IoTSharp.Data.JsonDB"]
+	path = IoTSharp.Data.JsonDB
+	url = https://github.com/IoTSharp/Data.JsonDB.git
+	branch = main

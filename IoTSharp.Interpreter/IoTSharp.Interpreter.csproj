@@ -21,7 +21,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
-	  <ProjectReference Include="..\IoTSharp.Data.JsonDB\IoTSharp.Data.JsonDB.csproj" />
+	  <ProjectReference Include="..\IoTSharp.Data.JsonDB\src\IoTSharp.Data.JsonDB\IoTSharp.Data.JsonDB.csproj" />
 	</ItemGroup>
 
 </Project>

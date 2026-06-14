@@ -21,7 +21,7 @@ dotnet restore ./IoTSharp.sln
 dotnet format ./IoTSharp.sln --verify-no-changes --severity error --no-restore
 dotnet build ./IoTSharp/IoTSharp.csproj -c Release --no-restore
 dotnet test ./IoTSharp.Test/IoTSharp.Test.csproj -c Release --no-restore
-dotnet test ./IoTSharp.Data.JsonDB.Tests/IoTSharp.Data.JsonDB.Tests.csproj -c Release --no-restore
+dotnet test ./IoTSharp.Data.JsonDB/tests/IoTSharp.Data.JsonDB.Tests/IoTSharp.Data.JsonDB.Tests.csproj -c Release --no-restore
 ```
 
 ## 文档站验证
