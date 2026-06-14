@@ -68,6 +68,7 @@
   <Project Path="IoTSharp.Data/IoTSharp.Data.csproj" />
   <Project Path="IoTSharp.EventBus.CAP/IoTSharp.EventBus.CAP.csproj" />
   <Project Path="IoTSharp.EventBus.NServiceBus/IoTSharp.EventBus.NServiceBus.csproj" />
+  <Project Path="IoTSharp.EventBus.SonnetMQ/IoTSharp.EventBus.SonnetMQ.csproj" />
   <Project Path="IoTSharp.EventBus/IoTSharp.EventBus.csproj" />
   <Project Path="IoTSharp.Extensions.AspNetCore/IoTSharp.Extensions.AspNetCore.csproj" />
   <Project Path="IoTSharp.Extensions.BouncyCastle/IoTSharp.Extensions.BouncyCastle.csproj" />

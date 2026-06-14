@@ -7,6 +7,7 @@ using IoTSharp.Data.SonnetDB;
 using IoTSharp.Data.TimeSeries;
 using IoTSharp.EventBus;
 using IoTSharp.EventBus.CAP;
+using IoTSharp.EventBus.SonnetMQ;
 using IoTSharp.FlowRuleEngine;
 using IoTSharp.Gateways;
 using IoTSharp.Interpreter;
@@ -249,6 +250,9 @@ namespace IoTSharp
                 {
                     case EventBusFramework.Shashlik:
                         throw new NotSupportedException(" EventBusFramework.Shashlik is not supported yet");
+                    case EventBusFramework.SonnetMQ:
+                        opt.UseSonnetMQ();
+                        break;
                     case EventBusFramework.CAP:
                     default:
                         opt.UserCAP();

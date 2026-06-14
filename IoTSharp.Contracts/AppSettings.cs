@@ -43,7 +43,8 @@ namespace IoTSharp.Contracts
         Pulsar,
         RedisStreams,
         AmazonSQS,
-        AzureServiceBus
+        AzureServiceBus,
+        SonnetMQ
     }
     [JsonConverter(typeof(StringEnumConverter))]
     public enum CachingUseIn
@@ -60,6 +61,7 @@ namespace IoTSharp.Contracts
     {
         CAP,
         Shashlik,
+        SonnetMQ,
     }
     public class AppSettings
     {
