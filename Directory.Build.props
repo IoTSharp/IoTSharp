@@ -1,4 +1,9 @@
 <Project>
+  <PropertyGroup>
+    <NoWarn>$(NoWarn);NU1608</NoWarn>
+    <RestoreNoWarn>$(RestoreNoWarn);NU1608</RestoreNoWarn>
+  </PropertyGroup>
+
   <PropertyGroup Condition="'$(GeneratePackageOnBuild)' == 'true' or '$(MSBuildProjectName)' == 'IoTSharp.Data.JsonDB'">
     <Authors Condition="'$(Authors)' == ''">IoTSharp Contributors</Authors>
     <Description Condition="'$(Description)' == ''">Reusable IoTSharp library package for building, extending, and operating IoTSharp solutions.</Description>

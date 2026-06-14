@@ -12,7 +12,7 @@ namespace IoTSharp.Contracts
         public SslProtocols SslProtocol { get; set; } = SslProtocols.Tls12;
 
         X509Certificate2? _CACertificate;
-        public X509Certificate2 CACertificate
+        public X509Certificate2? CACertificate
         {
             get
             {
@@ -30,7 +30,7 @@ namespace IoTSharp.Contracts
         }
 
         X509Certificate2? _BrokerCertificate;
-        public X509Certificate2 BrokerCertificate
+        public X509Certificate2? BrokerCertificate
         {
             get
             {

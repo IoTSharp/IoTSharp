@@ -42,7 +42,7 @@
 		<GenerateDocumentationFile>True</GenerateDocumentationFile>
 		<GenerateSerializationAssemblies>Off</GenerateSerializationAssemblies>
 		<DocumentationFile>IoTSharp.xml</DocumentationFile>
-		<NoWarn>1701;1702;1591</NoWarn>
+		<NoWarn>$(NoWarn);1701;1702;1591</NoWarn>
 		<EnforceCodeStyleInBuild>True</EnforceCodeStyleInBuild>
 		<Configurations>Debug;Release;</Configurations>
 	</PropertyGroup>

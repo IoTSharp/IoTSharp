@@ -7,6 +7,8 @@ using System.Threading.Tasks;
 using RestSharp;
 using System.IO;
 
+#nullable enable
+
 namespace System.Text.Json
 {
 

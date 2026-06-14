@@ -7,6 +7,8 @@ using System.Text;
 using System.Threading.Tasks;
 using DataType = IoTSharp.Contracts.DataType;
 
+#nullable enable
+
 namespace IoTSharp.Data
 {
     public class ProduceDictionary
@@ -17,24 +19,24 @@ namespace IoTSharp.Data
         /// <summary>
         /// 字段名称
         /// </summary>
-        public string KeyName { get; set; }
+        public string KeyName { get; set; } = string.Empty;
 
         /// <summary>
         /// 字段显示名称
         /// </summary>
-        public string DisplayName { get; set; }
+        public string DisplayName { get; set; } = string.Empty;
 
 
 
         /// <summary>
         /// 单位
         /// </summary>
-        public string Unit { get; set; }
+        public string Unit { get; set; } = string.Empty;
 
         /// <summary>
         /// 单位转换表达式
         /// </summary>
-        public string UnitExpression { get; set; }
+        public string UnitExpression { get; set; } = string.Empty;
 
         /// <summary>
         /// 
@@ -57,21 +59,21 @@ namespace IoTSharp.Data
         /// <summary>
         /// 位置名称
         /// </summary>
-        public string Place0 { get; set; }
+        public string Place0 { get; set; } = string.Empty;
         /// <summary>
         /// 此位置顺序
         /// </summary>
-        public string PlaceOrder0 { get; set; }
-        public string Place1 { get; set; }
-        public string PlaceOrder1 { get; set; }
-        public string Place2 { get; set; }
-        public string PlaceOrder2 { get; set; }
-        public string Place3 { get; set; }
-        public string PlaceOrder3 { get; set; }
-        public string Place4 { get; set; }
-        public string PlaceOrder4 { get; set; }
-        public string Place5 { get; set; }
-        public string PlaceOrder5 { get; set; }
+        public string PlaceOrder0 { get; set; } = string.Empty;
+        public string Place1 { get; set; } = string.Empty;
+        public string PlaceOrder1 { get; set; } = string.Empty;
+        public string Place2 { get; set; } = string.Empty;
+        public string PlaceOrder2 { get; set; } = string.Empty;
+        public string Place3 { get; set; } = string.Empty;
+        public string PlaceOrder3 { get; set; } = string.Empty;
+        public string Place4 { get; set; } = string.Empty;
+        public string PlaceOrder4 { get; set; } = string.Empty;
+        public string Place5 { get; set; } = string.Empty;
+        public string PlaceOrder5 { get; set; } = string.Empty;
         /// <summary>
         /// 数据类型 
         /// </summary>

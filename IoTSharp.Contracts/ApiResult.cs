@@ -25,7 +25,6 @@ namespace IoTSharp.Contracts
     {
         public ApiResult()
         {
-            Data = default;
         }
         public ApiResult(T data)
         {
@@ -37,6 +36,6 @@ namespace IoTSharp.Contracts
             Data = data;
         }
 
-        public T Data { set; get; }
+        public T? Data { set; get; }
     }
 }

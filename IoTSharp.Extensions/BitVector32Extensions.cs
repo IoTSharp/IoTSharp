@@ -4,6 +4,8 @@ using System.Collections.Specialized;
 using System.Linq;
 using System.Reflection;
 
+#nullable enable
+
 namespace IoTSharp.Extensions
 {
     [System.AttributeUsage(AttributeTargets.Property | AttributeTargets.Field, Inherited = false, AllowMultiple = true)]
