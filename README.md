@@ -46,79 +46,10 @@ The recommended documentation entry points are:
 For frontend development, the current local dev server default is:
 
 - Frontend: `http://localhost:27915`
-
-### 🤖 Use OpenClaw for AI-assisted SQLite setup
-
-If you want OpenClaw to guide you through creating a local SQLite-based IoTSharp instance, start with:
-
-- <https://iotsharp.net/docs/operations/openclaw-sqlite-runbook>
-- Prompt template: [`tools/prompts/openclaw-sqlite-instance.txt`](tools/prompts/openclaw-sqlite-instance.txt)
-
-The runbook defines the SQLite bootstrap flow, installer initialization path, Docker Desktop Extension fallback route, and the safe rule for switching databases later through `appsettings.{Environment}.Installer.json`.
-
-## 🧩 Supported Components
-
-| Area | Summary |
-| --- | --- |
-| Connectivity | Device, gateway, and protocol integration for industrial access scenarios |
-| Platform domain | Telemetry, attributes, alarms, products, assets, tenants, and users |
-| Data foundation | Relational storage, time-series storage, and installer-driven configuration templates |
-| Integration pipeline | Rule chains, scripting, notifications, event delivery, and automation actions |
-| Delivery modes | Docker, services, installer flows, and Docker Desktop Extension experiences |
-
-For the detailed database matrix, time-series options, message middleware support, and configuration examples, see the docs:
-
-- <https://iotsharp.net/docs/overview/product-overview>
-- <https://iotsharp.net/docs/configuration/appsettings>
-- <https://iotsharp.net/docs/integrations/protocols>
-
-## 📦 Deployment Options
-
-- Docker: <https://iotsharp.net/docs/deployment/docker>
-- Docker Desktop extension: <https://iotsharp.net/docs/deployment/docker-desktop-extension>
-- Windows service: <https://iotsharp.net/docs/deployment/windows-service>
-- Linux service: <https://iotsharp.net/docs/deployment/linux-service>
-- Application configuration: <https://iotsharp.net/docs/configuration/appsettings>
-
-Online demo:
-
-- <https://host.iotsharp.net>
-
-## 🗂️ Repository Structure
-
-Key directories in this repository:
-
-- [`IoTSharp`](IoTSharp): main ASP.NET Core application.
-- [`ClientApp`](ClientApp): Vue 3 frontend console.
-- [`docs`](docs): Docusaurus documentation site.
-- [`docker-desktop-extension`](docker-desktop-extension): Docker Desktop extension experience package.
-- [`IoTSharp.Installer.Windows`](IoTSharp.Installer.Windows): Windows installer project.
-- `IoTSharp.Agent`: planned companion/tray direction for future local desktop and voice experiences; not currently present as a repository directory.
-- [`IoTSharp.SDKs`](IoTSharp.SDKs): SDK and related client-facing artifacts.
-
-## 🌐 Ecosystem and Related Projects
-
-NuGet packages and ecosystem libraries include:
-
-- `IoTSharp.Sdk.Http`
-- `IoTSharp.Sdk.MQTT`
-- `IoTSharp.Extensions`
-- `IoTSharp.Extensions.AspNetCore`
-- `IoTSharp.Extensions.EFCore`
-- `IoTSharp.Extensions.QuartzJobScheduler`
-- `IoTSharp.HealthChecks.*`
-- `IoTSharp.X509Extensions`
-
-Related repositories:
-
-- IoTSharp MQTT C SDK
-- IoTEdge paho.mqtt.c
-- IoTEdge nanoFramework
-- IoTSharp RT-Thread package
+ 
 
 ## 📚 Documentation
 
-- English docs entry: <https://iotsharp.net/docs/intro>
 - Chinese README: [README.zh.md](README.zh.md)
 - Roadmap: [ROADMAP.md](ROADMAP.md)
 - Changelog: [CHANGELOG.md](CHANGELOG.md)
@@ -139,6 +70,9 @@ If you need help using or deploying IoTSharp, community channels are available i
 - GitHub: <https://github.com/IoTSharp/IoTSharp>
 - Gitee: <https://gitee.com/IoTSharp/IoTSharp>
 - Official site: <https://iotsharp.net>
+
+![微信群](docs/static/img/qyqun.jpg)
+
 
 ## ❤️ Donation
 
