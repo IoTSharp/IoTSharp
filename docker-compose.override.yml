@@ -1,14 +1,19 @@
 services:
+  sonnetdb:
+    build:
+      context: SonnetDB
+      dockerfile: src/SonnetDB/Dockerfile
+
   pg_iotsharp:
     build:
-      context: ..
-      dockerfile: IoTSharp/IoTSharp/Dockerfile
+      context: .
+      dockerfile: IoTSharp/Dockerfile
       args:
-        SOURCE_ROOT: IoTSharp
+        SOURCE_ROOT: .
 
   sonnetdb_iotsharp:
     build:
-      context: ..
-      dockerfile: IoTSharp/IoTSharp/Dockerfile
+      context: .
+      dockerfile: IoTSharp/Dockerfile
       args:
-        SOURCE_ROOT: IoTSharp
+        SOURCE_ROOT: .

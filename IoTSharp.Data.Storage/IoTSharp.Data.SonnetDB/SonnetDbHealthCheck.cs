@@ -7,6 +7,7 @@ namespace IoTSharp.Data.SonnetDB
 {
     public sealed class SonnetDbHealthCheck : IHealthCheck
     {
+        private static readonly TimeSpan HealthCheckTimeout = TimeSpan.FromSeconds(2);
         private readonly ApplicationDbContext _context;
 
         public SonnetDbHealthCheck(ApplicationDbContext context)
@@ -20,7 +21,9 @@ namespace IoTSharp.Data.SonnetDB
         {
             try
             {
-                var canConnect = await _context.Database.CanConnectAsync(cancellationToken);
+                using var timeout = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
+                timeout.CancelAfter(HealthCheckTimeout);
+                var canConnect = await _context.Database.CanConnectAsync(timeout.Token);
                 return canConnect
                     ? HealthCheckResult.Healthy("SonnetDB relational storage is reachable.")
                     : HealthCheckResult.Unhealthy("SonnetDB relational storage is not reachable.");

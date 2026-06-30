@@ -3,11 +3,22 @@ import request from '/@/utils/request';
 interface QueryParam extends IListQueryParam {
     offset: number;
     limit: number;
-    name: string;
+    name?: string;
 }
 export function getProduceList(query: QueryParam) {
-    // ?offset=0&limit=20&pi=0&ps=20&name=&sorter=&status=null
-    return request.get('/api/produces/list?pi=0&ps=20&status=null&offset=' + query.offset + '&limit=' + query.limit + '&sorter=&name=' + query.name)
+    return request({
+        url: '/api/produces/list',
+        method: 'get',
+        params: {
+            pi: 0,
+            ps: 20,
+            status: null,
+            offset: query.offset,
+            limit: query.limit,
+            sorter: '',
+            name: query.name ?? '',
+        },
+    })
 }
 export function getProduce(id: string) {
     return request.get('/api/produces/get?id=' + id)

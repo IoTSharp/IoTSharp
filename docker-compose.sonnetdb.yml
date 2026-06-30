@@ -1,6 +1,6 @@
 services:
   sonnetdb:
-    image: ${SONNETDB_IMAGE:-iotsharp/sonnetdb:latest}
+    image: ${SONNETDB_IMAGE:-registry.uixe.net/iotsharp/sonnetdb:latest}
     restart: unless-stopped
     environment:
       TZ: ${TZ:-Asia/Shanghai}
@@ -22,7 +22,7 @@ services:
       start_period: 20s
 
   iotsharp:
-    image: ${IOTSHARP_IMAGE:-maikebing/iotsharp:latest}
+    image: ${IOTSHARP_IMAGE:-registry.uixe.net/iotsharp/iotsharp:latest}
     restart: unless-stopped
     environment:
       TZ: ${TZ:-Asia/Shanghai}

@@ -33,14 +33,26 @@ public sealed class SonnetMqEventBusWorker : BackgroundService
     {
         while (!stoppingToken.IsCancellationRequested)
         {
-            bool processed = false;
-            foreach (var subscription in SonnetMqEventBusTopics.Subscriptions)
+            try
             {
-                processed |= await PullAndDispatchAsync(subscription, stoppingToken);
-            }
+                bool processed = false;
+                foreach (var subscription in SonnetMqEventBusTopics.Subscriptions)
+                {
+                    processed |= await PullAndDispatchAsync(subscription, stoppingToken);
+                }
 
-            if (!processed)
-                await Task.Delay(Math.Max(1, _options.IdleDelayMilliseconds), stoppingToken);
+                if (!processed)
+                    await Task.Delay(Math.Max(1, _options.IdleDelayMilliseconds), stoppingToken);
+            }
+            catch (OperationCanceledException) when (stoppingToken.IsCancellationRequested)
+            {
+                break;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "SonnetMQ event worker failed. It will retry after a short delay.");
+                await Task.Delay(1000, stoppingToken);
+            }
         }
     }
 

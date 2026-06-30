@@ -1198,6 +1198,11 @@
             描述
             </summary>
         </member>
+        <member name="P:IoTSharp.Dtos.ProduceAddDto.ProduceToken">
+            <summary>
+            产品认证 Key，用于产品级接入认证。
+            </summary>
+        </member>
         <member name="P:IoTSharp.Dtos.ProduceAddDto.DefaultDeviceType">
             <summary>
             默认设备类型

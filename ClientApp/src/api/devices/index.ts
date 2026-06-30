@@ -14,18 +14,18 @@ import request from '/@/utils/request';
 export function deviceApi() {
 	return {
 		devcieList: (params: QueryParam) => {
-			var url = '/api/Devices/Customers?offset=' + params.offset + '&limit=' + params.limit + '&sorter=&customerId=' + params.customerId + '&sort=';
-			if (params.name) {
-				url += '&name=' + params.name;
-			}
-			if (params.onlyActive) {
-				url += '&onlyActive=' + params.onlyActive;
-			}
-
 			return request({
-				url: url,
+				url: '/api/Devices/Customers',
 				method: 'get',
-				data: params,
+				params: {
+					offset: params.offset,
+					limit: params.limit,
+					sorter: '',
+					customerId: params.customerId,
+					sort: '',
+					name: params.name ?? '',
+					onlyActive: params.onlyActive ?? false,
+				},
 			});
 
 			// return request({

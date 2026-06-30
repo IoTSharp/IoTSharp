@@ -11,7 +11,7 @@
 			:metrics="metrics"
 		>
 			<template #actions>
-				<el-button type="primary" @click="getData">刷新列表</el-button>
+				<el-button type="primary" :loading="state.tableData.loading" @click="refreshList">刷新列表</el-button>
 				<el-button type="success" @click="creatprod">新增产品</el-button>
 			</template>
 
@@ -259,7 +259,12 @@ const onHandleCurrentChange = (val: number) => {
 	getData();
 };
 
+const refreshList = () => {
+	getData();
+};
+
 const getData = async () => {
+	if (state.tableData.loading) return;
 	state.tableData.loading = true;
 
 	try {
@@ -268,9 +273,14 @@ const getData = async () => {
 			limit: state.tableData.param.pageSize,
 			name: query.name,
 		});
-		state.tableData.rows = res.data.rows;
-		state.tableData.total = res.data.total;
+		const pageData = res?.data ?? {};
+		state.tableData.rows = Array.isArray(pageData.rows) ? pageData.rows : [];
+		state.tableData.total = Number(pageData.total ?? 0);
 		lastRefresh.value = new Date().toLocaleTimeString('zh-CN', { hour12: false });
+	} catch (error) {
+		state.tableData.rows = [];
+		state.tableData.total = 0;
+		ElMessage.error('刷新产品列表失败，请稍后重试');
 	} finally {
 		state.tableData.loading = false;
 	}

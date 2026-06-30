@@ -36,11 +36,16 @@ namespace IoTSharp.Data
         /// </summary>
         public static (bool ok, Produce produce) GetProduceByToken(this ApplicationDbContext _context, string produce_token)
         {
+            if (string.IsNullOrEmpty(produce_token))
+            {
+                return (true, null);
+            }
+
             var produce = _context.Produces
                 .Include(p => p.Customer)
                 .Include(p => p.Tenant)
                 .Include(p => p.Devices)
-                .FirstOrDefault(p => p.ProduceToken == produce_token && p.Deleted == false);
+                .FirstOrDefault(p => p.ProduceToken == produce_token && p.ProduceToken != null && p.Deleted == false);
             bool ok = produce == null;
             return (ok, produce);
         }

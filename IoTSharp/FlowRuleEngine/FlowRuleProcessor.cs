@@ -54,7 +54,7 @@ namespace IoTSharp.FlowRuleEngine
                         return await _dbContext.GerDeviceRulesIdList(devid, mountType);
                     }
                 }, TimeSpan.FromSeconds(_setting.RuleCachingExpiration));
-                if (rules.HasValue)
+                if (rules.HasValue && rules.Value != null)
                 {
                     rules.Value.ToList().ForEach(async g =>
                     {

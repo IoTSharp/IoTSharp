@@ -10,4 +10,5 @@ export interface produceaddoreditdto {
     gatewayConfiguration?: string;
     defaultDeviceType?: string;
     defaultIdentityType?: string;
+    produceToken?: string;
 }

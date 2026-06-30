@@ -102,6 +102,21 @@
 										<el-input-number v-model="state.dataForm.defaultTimeout" :min="1" :max="86400" controls-position="right" />
 									</el-form-item>
 								</el-col>
+								<el-col :span="24">
+									<el-form-item label="产品认证 Key" prop="produceToken">
+										<el-input
+											v-model="state.dataForm.produceToken"
+											placeholder="留空则由系统自动生成；可填入旧 AuthorizedKey"
+											clearable
+										>
+											<template #append>
+												<el-button @click="generateProduceToken">
+													<el-icon><Refresh /></el-icon>
+												</el-button>
+											</template>
+										</el-input>
+									</el-form-item>
+								</el-col>
 							</el-row>
 						</article>
 
@@ -153,6 +168,7 @@
 <script lang="ts" setup>
 import { computed, nextTick, reactive, ref, watch } from 'vue';
 import { ElMessage, type FormInstance, type FormRules } from 'element-plus';
+import { Refresh } from '@element-plus/icons-vue';
 import { NIL as NIL_UUID } from 'uuid';
 import type { produceaddoreditdto } from '/@/dtos/produceaddoreditdto';
 import { getProduce, saveProduce, updateProduce } from '/@/api/produce';
@@ -202,6 +218,7 @@ const createDefaultForm = (): produceaddoreditdto => ({
 	gatewayConfigurationJson: '',
 	gatewayConfiguration: '',
 	defaultIdentityType: 'AccessToken',
+	produceToken: '',
 });
 
 const rules = reactive<FormRules>({
@@ -275,6 +292,12 @@ const metrics = computed(() => [
 		hint: '作为设备通信和控制的默认超时基线。',
 		tone: 'warning' as const,
 	},
+	{
+		label: '产品 Key',
+		value: state.dataForm.produceToken ? '已配置' : '自动生成',
+		hint: '车道软件等产品级接入会使用这里的认证 Key。',
+		tone: 'primary' as const,
+	},
 ]);
 
 watch(
@@ -306,6 +329,7 @@ const fillGatewayConfigurationFields = (rawProduce: any) => {
 	form.gatewayType = rawProduce.gatewayType || 'Unknow';
 	form.defaultDeviceType = rawProduce.defaultDeviceType;
 	form.defaultIdentityType = rawProduce.defaultIdentityType;
+	form.produceToken = rawProduce.produceToken;
 
 	if (form.gatewayType === 'Customize') {
 		form.gatewayConfigurationJson = rawProduce.gatewayConfiguration;
@@ -344,6 +368,8 @@ const oneditorchange = () => {
 };
 
 const applyGatewayConfiguration = () => {
+	state.dataForm.produceToken = state.dataForm.produceToken?.trim() ?? '';
+
 	if (showCustomGatewayConfig.value) {
 		state.dataForm.gatewayConfiguration = state.dataForm.gatewayConfigurationJson?.trim() ?? '';
 		return;
@@ -369,6 +395,12 @@ const validateGatewayConfiguration = () => {
 	}
 
 	return true;
+};
+
+const generateProduceToken = () => {
+	const bytes = new Uint8Array(16);
+	window.crypto.getRandomValues(bytes);
+	state.dataForm.produceToken = Array.from(bytes, (byte) => byte.toString(16).padStart(2, '0')).join('');
 };
 
 const onSubmit = async (formEl: FormInstance | undefined) => {

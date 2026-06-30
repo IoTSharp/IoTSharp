@@ -54,6 +54,10 @@ namespace IoTSharp.Dtos
         /// </summary>
         public string Description { get; set; }
         /// <summary>
+        /// 产品认证 Key，用于产品级接入认证。
+        /// </summary>
+        public string ProduceToken { get; set; }
+        /// <summary>
         /// 默认设备类型
         /// </summary>
         public DeviceType DefaultDeviceType { get; set; }

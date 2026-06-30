@@ -101,6 +101,7 @@ namespace IoTSharp.Controllers
                     DefaultIdentityType = result.DefaultIdentityType,
                     DefaultTimeout = result.DefaultTimeout,
                     Description = result.Description,
+                    ProduceToken = result.ProduceToken,
                     GatewayConfiguration = result.GatewayConfiguration,
                     GatewayType = result.GatewayType,
                     Name = result.Name
@@ -169,7 +170,15 @@ namespace IoTSharp.Controllers
                 produce.Icon = dto.Icon;
                 produce.Deleted = false;
                 produce.GatewayType = dto.GatewayType;
-                produce.ProduceToken = Guid.NewGuid().ToString().Replace("-", "");
+                produce.ProduceToken = NormalizeProduceToken(dto.ProduceToken);
+                if (string.IsNullOrEmpty(produce.ProduceToken))
+                {
+                    produce.ProduceToken = NewProduceToken();
+                }
+                if (await ProduceTokenExists(produce.ProduceToken))
+                {
+                    return new ApiResult<bool>(ApiCode.InValidData, "Produce token already exists", false);
+                }
                 _context.Produces.Add(produce);
                 await _context.SaveChangesAsync();
                 return new ApiResult<bool>(ApiCode.Success, "OK", true);
@@ -202,6 +211,15 @@ namespace IoTSharp.Controllers
                     produce.GatewayConfiguration = dto.GatewayConfiguration;
                     produce.Name = dto.Name;
                     produce.Icon = dto.Icon;
+                    var produceToken = NormalizeProduceToken(dto.ProduceToken);
+                    if (!string.IsNullOrEmpty(produceToken))
+                    {
+                        if (await ProduceTokenExists(produceToken, produce.Id))
+                        {
+                            return new ApiResult<bool>(ApiCode.InValidData, "Produce token already exists", false);
+                        }
+                        produce.ProduceToken = produceToken;
+                    }
                     _context.Produces.Update(produce);
                     await _context.SaveChangesAsync();
 
@@ -665,6 +683,24 @@ namespace IoTSharp.Controllers
             {
                 return Ok(new ApiResult(ApiCode.Exception, ex.Message));
             }
+        }
+
+        private static string NormalizeProduceToken(string produceToken)
+        {
+            return produceToken?.Trim();
+        }
+
+        private static string NewProduceToken()
+        {
+            return Guid.NewGuid().ToString().Replace("-", "");
+        }
+
+        private Task<bool> ProduceTokenExists(string produceToken, Guid? exceptProduceId = null)
+        {
+            return _context.Produces.AnyAsync(p =>
+                p.ProduceToken == produceToken &&
+                p.Deleted == false &&
+                (!exceptProduceId.HasValue || p.Id != exceptProduceId.Value));
         }
     }
 }

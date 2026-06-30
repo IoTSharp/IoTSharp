@@ -62,18 +62,17 @@ COPY ["${SOURCE_ROOT}/IoTSharp.Data.JsonDB/Directory.Build.props", "IoTSharp.Dat
 COPY ["${SOURCE_ROOT}/IoTSharp.Data.JsonDB/Directory.Packages.props", "IoTSharp.Data.JsonDB/"]
 COPY ["${SOURCE_ROOT}/IoTSharp.Data.JsonDB/src/IoTSharp.Data.JsonDB/IoTSharp.Data.JsonDB.csproj", "IoTSharp.Data.JsonDB/src/IoTSharp.Data.JsonDB/"]
 COPY ["${SOURCE_ROOT}/ClientApp/ClientApp.esproj", "ClientApp/"]
-COPY ["SonnetDB/", "/src/SonnetDB/"]
+COPY ["${SOURCE_ROOT}/SonnetDB/", "SonnetDB/"]
 
 ARG BUILD_CONFIGURATION=Release
 
 RUN dotnet restore "IoTSharp/IoTSharp.csproj"
 COPY ["${SOURCE_ROOT}/", "."]
-COPY ["SonnetDB/", "/src/SonnetDB/"]
-WORKDIR "/src/IoTSharp"
-RUN dotnet build "./IoTSharp.csproj" --no-restore   -c $BUILD_CONFIGURATION -o /app/build
+WORKDIR /src/IoTSharp
+RUN dotnet build "IoTSharp/IoTSharp.csproj" --no-restore   -c $BUILD_CONFIGURATION -o /app/build
 
 FROM build AS publish
-RUN dotnet publish "./IoTSharp.csproj" --no-restore   -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false
+RUN dotnet publish "IoTSharp/IoTSharp.csproj" --no-restore   -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false
 
 FROM base AS final
 USER app

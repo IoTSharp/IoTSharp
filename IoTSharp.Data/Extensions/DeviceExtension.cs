@@ -73,6 +73,36 @@ namespace IoTSharp.Data.Extensions
                 _context.PreparingData<AttributeLatest>(pairs, device.Id, DataSide.ServerSide);
             }
         }
+        public static void AfterCreateDevice(this ApplicationDbContext _context, Device device, Guid prodId, string username, string password)
+        {
+            if (device.Customer == null || device.Tenant == null || string.IsNullOrEmpty(device.Name))
+            {
+                throw new Exception($"Customer({device.Customer?.Id}) or  Tenant({device.Tenant?.Id}) or  Name({device.Name}) is null or empty!");
+            }
+            else
+            {
+                var prod = _context.Produces.Include(p => p.DefaultAttributes).FirstOrDefault(p => p.Id == prodId);
+                if (prod != null)
+                {
+                    device.DeviceType = prod.DefaultDeviceType;
+                    device.Timeout = prod.DefaultTimeout;
+                    prod.Devices ??= [];
+                    prod.Devices.Add(device);
+                    _context.PreparingData<AttributeLatest>(prod.DefaultAttributes ?? new List<ProduceData>(), device.Id);
+                }
+
+                _context.DeviceIdentities.Add(new DeviceIdentity()
+                {
+                    Device = device,
+                    IdentityType = IdentityType.DevicePassword,
+                    IdentityId = username,
+                    IdentityValue = password
+                });
+                Dictionary<string, object> pairs = new Dictionary<string, object>();
+                pairs.Add("CreateDateTime", DateTime.UtcNow);
+                _context.PreparingData<AttributeLatest>(pairs, device.Id, DataSide.ServerSide);
+            }
+        }
         public static async Task<DeviceRule[]> GerDeviceRulesList(this ApplicationDbContext _dbContext, Guid devid, EventType mountType)
         {
             DeviceRule[] lst = null;
