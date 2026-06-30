@@ -30,11 +30,13 @@ public sealed class SonnetDBProfileTests
         Assert.Equal(TelemetryStorage.SonnetDB, settings.TelemetryStorage);
         Assert.Equal(CachingUseIn.SonnetDB, settings.CachingUseIn);
         Assert.Equal(EventBusStore.InMemory, settings.EventBusStore);
-        Assert.Equal(EventBusMQ.InMemory, settings.EventBusMQ);
+        Assert.Equal(EventBusMQ.SonnetMQ, settings.EventBusMQ);
+        Assert.Equal(EventBusFramework.SonnetMQ, settings.EventBus);
 
         Assert.NotNull(settings.ConnectionStrings);
         Assert.StartsWith("Data Source=", settings.ConnectionStrings!["IoTSharp"], StringComparison.Ordinal);
         Assert.Contains("TelemetryData", settings.ConnectionStrings["TelemetryStorage"], StringComparison.Ordinal);
+        Assert.StartsWith("Data Source=sonnetdb+http://", settings.ConnectionStrings["EventBusMQ"], StringComparison.Ordinal);
         Assert.StartsWith("sonnetdb://", settings.ConnectionStrings["BlobStorage"], StringComparison.OrdinalIgnoreCase);
         Assert.StartsWith("Data Source=", settings.CachingUseSonnetDBConnectionString, StringComparison.Ordinal);
         Assert.DoesNotContain("Password=", File.ReadAllText(profilePath), StringComparison.OrdinalIgnoreCase);
@@ -47,7 +49,8 @@ public sealed class SonnetDBProfileTests
         var defaultCompose = File.ReadAllText(Path.Combine(root, "docker-compose.yml"));
         var sonnetComposePath = Path.Combine(root, "docker-compose.sonnetdb.yml");
 
-        Assert.Contains("pgsql:", defaultCompose, StringComparison.Ordinal);
+        Assert.Contains("pg_iotsharp_db:", defaultCompose, StringComparison.Ordinal);
+        Assert.Contains("DataBase: PostgreSql", defaultCompose, StringComparison.Ordinal);
         Assert.Contains("appsettings.Development.json", defaultCompose, StringComparison.Ordinal);
         Assert.True(File.Exists(sonnetComposePath), "docker-compose.sonnetdb.yml must provide the rollback-friendly SonnetDB profile instead of changing the default stack.");
 
@@ -58,6 +61,9 @@ public sealed class SonnetDBProfileTests
         Assert.Contains("ConnectionStrings__IoTSharp: Data Source=sonnetdb+http://sonnetdb:5080/iotsharp", sonnetCompose, StringComparison.Ordinal);
         Assert.Contains("ConnectionStrings__TelemetryStorage: Data Source=sonnetdb+http://sonnetdb:5080/telemetry", sonnetCompose, StringComparison.Ordinal);
         Assert.Contains("CachingUseSonnetDBConnectionString: Data Source=sonnetdb+http://sonnetdb:5080/cache", sonnetCompose, StringComparison.Ordinal);
+        Assert.Contains("ConnectionStrings__EventBusMQ: Data Source=sonnetdb+http://sonnetdb:5080/events", sonnetCompose, StringComparison.Ordinal);
+        Assert.Contains("EventBus: SonnetMQ", sonnetCompose, StringComparison.Ordinal);
+        Assert.Contains("EventBusMQ: SonnetMQ", sonnetCompose, StringComparison.Ordinal);
         Assert.Contains("ConnectionStrings__BlobStorage: sonnetdb://blob", sonnetCompose, StringComparison.Ordinal);
         Assert.Contains("appsettings.SonnetDB.json:/app/appsettings.SonnetDB.json:ro", sonnetCompose, StringComparison.Ordinal);
     }

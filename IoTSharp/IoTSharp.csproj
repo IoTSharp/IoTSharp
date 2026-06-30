@@ -45,6 +45,7 @@
 		<NoWarn>$(NoWarn);1701;1702;1591</NoWarn>
 		<EnforceCodeStyleInBuild>True</EnforceCodeStyleInBuild>
 		<Configurations>Debug;Release;</Configurations>
+		<CompressionEnabled>false</CompressionEnabled>
 	</PropertyGroup>
 	<ItemGroup>
 		<InternalsVisibleTo Include="IoTSharp.Test" />
@@ -118,13 +119,13 @@
 		<Message Importance="high" Text="Restoring dependencies using 'npm'. This may take several minutes..." />
 		<Exec WorkingDirectory="$(SpaRoot)" Command="npm install" />
 	</Target>
-	<Target Name="PublishRunWebpack" AfterTargets="ComputeFilesToPublish" Condition="'$(Configuration)' == 'Release'">
+	<Target Name="PublishRunWebpack" BeforeTargets="ComputeStaticWebAssets" Condition="'$(Configuration)' == 'Release'">
 		<!-- As part of publishing, ensure the JS resources are freshly built in production mode -->
 		<Exec WorkingDirectory="$(SpaRoot)" Command="npm install" />
 		<Exec WorkingDirectory="$(SpaRoot)" Command="npm run build" />
 		<!-- Include the newly-built files in the publish output -->
 		<ItemGroup>
-			<DistFiles Include="$(SpaRoot)dist\**; $(SpaRoot)dist-server\**" />
+			<DistFiles Include="$(SpaRoot)dist\**; $(SpaRoot)dist-server\**" Exclude="$(SpaRoot)dist\**\*.gz;$(SpaRoot)dist\**\*.br;$(SpaRoot)dist-server\**\*.gz;$(SpaRoot)dist-server\**\*.br" />
 			<ResolvedFileToPublish Include="@(DistFiles->'%(FullPath)')" Exclude="@(ResolvedFileToPublish)">
 				<RelativePath>wwwroot\%(RecursiveDir)%(FileName)%(Extension)</RelativePath>
 				<CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
@@ -264,7 +265,7 @@
 		<ProjectReference Include="..\IoTSharp.EventBus.CAP\IoTSharp.EventBus.CAP.csproj" />
 		<ProjectReference Include="..\IoTSharp.EventBus.SonnetMQ\IoTSharp.EventBus.SonnetMQ.csproj" />
 		<ProjectReference Include="..\IoTSharp.EventBus\IoTSharp.EventBus.csproj" />
-		<ProjectReference Include="..\..\SonnetDB\extensions\SonnetDB.Caching\SonnetDB.Caching.csproj" />
+		<ProjectReference Include="..\SonnetDB\extensions\SonnetDB.Caching\SonnetDB.Caching.csproj" />
 		<ProjectReference Include="..\IoTSharp.Extensions.AspNetCore\IoTSharp.Extensions.AspNetCore.csproj" />
 		<ProjectReference Include="..\IoTSharp.Extensions.EFCore\IoTSharp.Extensions.EFCore.csproj" />
 		<ProjectReference Include="..\IoTSharp.Extensions.QuartzJobScheduler\IoTSharp.Extensions.QuartzJobScheduler.csproj" />

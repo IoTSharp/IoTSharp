@@ -173,7 +173,8 @@ namespace IoTSharp.Services
                         {
                             _thumbprint = e.ClientCertificate?.Thumbprint;
                         }
-                        _logger.LogInformation($"ClientId={obj.ClientId},Endpoint={obj.RemoteEndPoint.ToString()},Username={obj.UserName}，Password={obj.Password}");
+                        _logger.LogInformation(
+                            $"ClientId={obj.ClientId},Endpoint={obj.RemoteEndPoint.ToString()},Username={obj.UserName},PasswordProvided={!string.IsNullOrEmpty(obj.Password)}");
                         var mcr = _dbContextcv.DeviceIdentities.Include(d => d.Device).FirstOrDefault(mc =>
                                               (mc.IdentityType == IdentityType.AccessToken && mc.IdentityId == obj.UserName) ||
                                              (mc.IdentityType == IdentityType.X509Certificate && mc.IdentityId == _thumbprint) ||

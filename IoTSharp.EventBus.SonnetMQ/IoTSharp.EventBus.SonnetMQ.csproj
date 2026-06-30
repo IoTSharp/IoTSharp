@@ -12,7 +12,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\SonnetDB\src\SonnetMQ\SonnetMQ.csproj" />
+    <ProjectReference Include="..\SonnetDB\src\SonnetDB.Data\SonnetDB.Data.csproj" />
     <ProjectReference Include="..\IoTSharp.Contracts\IoTSharp.Contracts.csproj" />
     <ProjectReference Include="..\IoTSharp.Data.TimeSeries\IoTSharp.Data.TimeSeries.csproj" />
     <ProjectReference Include="..\IoTSharp.Data\IoTSharp.Data.csproj" />

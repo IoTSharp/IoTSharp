@@ -2,7 +2,7 @@ using System.Text;
 using IoTSharp.Contracts;
 using IoTSharp.Data;
 using Newtonsoft.Json;
-using SonnetMQ;
+using SonnetDB.Data.Mq;
 
 namespace IoTSharp.EventBus.SonnetMQ;
 
@@ -13,25 +13,25 @@ public sealed class SonnetMqPublisher : IPublisher
         ["content-type"] = "application/json"
     };
 
-    private readonly SonnetMqStore _store;
+    private readonly SndbMqClient _client;
 
-    public SonnetMqPublisher(SonnetMqStore store)
+    public SonnetMqPublisher(SndbMqClient client)
     {
-        _store = store;
+        _client = client;
     }
 
-    public Task<EventBusMetrics> GetMetrics()
+    public async Task<EventBusMetrics> GetMetrics()
     {
         var metrics = new EventBusMetrics();
         foreach (var subscription in SonnetMqEventBusTopics.Subscriptions)
         {
-            var stats = _store.GetStats(subscription.Topic);
+            var stats = await _client.GetStatsAsync(subscription.Topic);
             metrics.PublishedSucceeded += (int)Math.Min(int.MaxValue, stats.MessageCount);
             metrics.ReceivedSucceeded += (int)Math.Min(int.MaxValue, stats.ConsumerOffsets.Values.DefaultIfEmpty(0).Max());
             metrics.Subscribers += stats.ConsumerOffsets.Count;
         }
 
-        return Task.FromResult(metrics);
+        return metrics;
     }
 
     public Task PublishCreateDevice(Guid devid)
@@ -58,7 +58,6 @@ public sealed class SonnetMqPublisher : IPublisher
     private Task PublishAsync<T>(string topic, T message)
     {
         byte[] payload = Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(message));
-        _store.Publish(topic, payload, new SonnetMqPublishOptions { Headers = JsonHeaders });
-        return Task.CompletedTask;
+        return _client.PublishAsync(topic, payload, JsonHeaders);
     }
 }

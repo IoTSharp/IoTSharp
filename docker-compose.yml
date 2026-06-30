@@ -93,7 +93,7 @@ services:
       ConnectionStrings__TelemetryStorage: Data Source=sonnetdb+http://sonnetdb:5080/telemetry;Token=iotsharp_sonnetdb_dev_token_change_me;Timeout=30;Measurement=TelemetryData;AutoCreate=true
       CachingUseSonnetDBConnectionString: Data Source=sonnetdb+http://sonnetdb:5080/cache;Token=iotsharp_sonnetdb_dev_token_change_me;Timeout=30
       ConnectionStrings__BlobStorage: sonnetdb://blob?bucket=iotsharp-blob-storage&connectionString=Data%20Source%3Dsonnetdb%2Bhttp%3A%2F%2Fsonnetdb%3A5080%2Fobjects%3BToken%3Diotsharp_sonnetdb_dev_token_change_me%3BTimeout%3D30
-      ConnectionStrings__EventBusMQ: /data/sonnetmq
+      ConnectionStrings__EventBusMQ: Data Source=sonnetdb+http://sonnetdb:5080/events;Token=iotsharp_sonnetdb_dev_token_change_me;Timeout=30
       DataBase: SonnetDB
       TelemetryStorage: SonnetDB
       CachingUseIn: SonnetDB
@@ -113,7 +113,6 @@ services:
     volumes:
       - ./appsettings.SonnetDB.json:/app/appsettings.SonnetDB.json:ro
       - sonnetdb_iotsharp_security:/app/security
-      - sonnetdb_iotsharp_mq:/data/sonnetmq
     networks:
       - iotsharp-network
     healthcheck:
@@ -132,4 +131,3 @@ volumes:
   pg_iotsharp_security:
   sonnetdb_data:
   sonnetdb_iotsharp_security:
-  sonnetdb_iotsharp_mq:
