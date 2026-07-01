@@ -807,16 +807,26 @@ namespace IoTSharp.Controllers
             }
             _context.Device.Add(devvalue);
             _context.AfterCreateDevice(devvalue, device.ProductId);
-            await _context.SaveChangesAsync();
-            var identity = _context.DeviceIdentities.FirstOrDefault(c => c.Device.Id == devvalue.Id);
-            if (identity != null)
+            if (devvalue.DeviceIdentity != null)
             {
-                identity.IdentityType = device.IdentityType;
-                _context.DeviceIdentities.Update(identity);
-                await _context.SaveChangesAsync();
+                devvalue.DeviceIdentity.IdentityType = device.IdentityType;
             }
-            await _queue.PublishCreateDevice(devvalue.Id);
-            return new ApiResult<Device>(ApiCode.Success, "Ok", await FoundAsync(devvalue.Id));
+            await _context.SaveChangesAsync();
+            var deviceId = devvalue.Id;
+            _ = Task.Run(async () =>
+            {
+                try
+                {
+                    using var scope = _scopeFactor.CreateScope();
+                    var publisher = scope.ServiceProvider.GetRequiredService<IPublisher>();
+                    await publisher.PublishCreateDevice(deviceId);
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "Publish create device event failed. DeviceId={DeviceId}", deviceId);
+                }
+            });
+            return new ApiResult<Device>(ApiCode.Success, "Ok", await FoundAsync(deviceId));
         }
 
         /// <summary>

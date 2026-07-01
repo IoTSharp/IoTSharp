@@ -31,6 +31,7 @@ namespace IoTSharp.Data.Extensions
                     IdentityType = IdentityType.AccessToken,
                     IdentityId = Guid.NewGuid().ToString().Replace("-", "")
                 };
+                device.DeviceIdentity = di;
 
                 Dictionary<string, object> pairs = new Dictionary<string, object>
                 {
@@ -46,11 +47,11 @@ namespace IoTSharp.Data.Extensions
                         device.Timeout = prod.DefaultTimeout;
                         prod.Devices ??= [];
                         prod.Devices.Add(device);
-                        _context.PreparingData<AttributeLatest>(prod.DefaultAttributes, device.Id);
+                        _context.PrepareNewAttributeLatest(prod.DefaultAttributes, device.Id);
                     }
                 }
                 _context.DeviceIdentities.Add(di);
-                _context.PreparingData<AttributeLatest>(pairs, device.Id, DataSide.ServerSide);
+                _context.PrepareNewAttributeLatest(pairs, device.Id, DataSide.ServerSide);
             }
         }
         public static void AfterCreateDevice(this ApplicationDbContext _context, Device device, string username, string password)
@@ -61,16 +62,18 @@ namespace IoTSharp.Data.Extensions
             }
             else
             {
-                _context.DeviceIdentities.Add(new DeviceIdentity()
+                var identity = new DeviceIdentity
                 {
                     Device = device,
                     IdentityType = IdentityType.DevicePassword,
                     IdentityId = username,
                     IdentityValue = password
-                });
+                };
+                device.DeviceIdentity = identity;
+                _context.DeviceIdentities.Add(identity);
                 Dictionary<string, object> pairs = new Dictionary<string, object>();
                 pairs.Add("CreateDateTime", DateTime.UtcNow);
-                _context.PreparingData<AttributeLatest>(pairs, device.Id, DataSide.ServerSide);
+                _context.PrepareNewAttributeLatest(pairs, device.Id, DataSide.ServerSide);
             }
         }
         public static void AfterCreateDevice(this ApplicationDbContext _context, Device device, Guid prodId, string username, string password)
@@ -88,21 +91,67 @@ namespace IoTSharp.Data.Extensions
                     device.Timeout = prod.DefaultTimeout;
                     prod.Devices ??= [];
                     prod.Devices.Add(device);
-                    _context.PreparingData<AttributeLatest>(prod.DefaultAttributes ?? new List<ProduceData>(), device.Id);
+                    _context.PrepareNewAttributeLatest(prod.DefaultAttributes ?? new List<ProduceData>(), device.Id);
                 }
 
-                _context.DeviceIdentities.Add(new DeviceIdentity()
+                var identity = new DeviceIdentity
                 {
                     Device = device,
                     IdentityType = IdentityType.DevicePassword,
                     IdentityId = username,
                     IdentityValue = password
-                });
+                };
+                device.DeviceIdentity = identity;
+                _context.DeviceIdentities.Add(identity);
                 Dictionary<string, object> pairs = new Dictionary<string, object>();
                 pairs.Add("CreateDateTime", DateTime.UtcNow);
-                _context.PreparingData<AttributeLatest>(pairs, device.Id, DataSide.ServerSide);
+                _context.PrepareNewAttributeLatest(pairs, device.Id, DataSide.ServerSide);
             }
         }
+
+        private static void PrepareNewAttributeLatest(this ApplicationDbContext context, IEnumerable<ProduceData> attributes, Guid deviceId)
+        {
+            if (attributes == null)
+            {
+                return;
+            }
+
+            var now = DateTime.UtcNow;
+            var rows = attributes
+                .Where(attribute => !string.IsNullOrWhiteSpace(attribute.KeyName))
+                .Select(attribute => new AttributeLatest
+                {
+                    Catalog = DataCatalog.AttributeLatest,
+                    DateTime = now,
+                    DeviceId = deviceId,
+                    KeyName = attribute.KeyName
+                });
+            context.AttributeLatest.AddRange(rows);
+        }
+
+        private static void PrepareNewAttributeLatest(this ApplicationDbContext context, Dictionary<string, object> data, Guid deviceId, DataSide dataSide)
+        {
+            if (data == null)
+            {
+                return;
+            }
+
+            var now = DateTime.UtcNow;
+            foreach (var item in data.Where(item => item.Key != null && item.Value != null))
+            {
+                var row = new AttributeLatest
+                {
+                    Catalog = DataCatalog.AttributeLatest,
+                    DateTime = now,
+                    DeviceId = deviceId,
+                    KeyName = item.Key,
+                    DataSide = dataSide
+                };
+                row.FillKVToMe(item);
+                context.AttributeLatest.Add(row);
+            }
+        }
+
         public static async Task<DeviceRule[]> GerDeviceRulesList(this ApplicationDbContext _dbContext, Guid devid, EventType mountType)
         {
             DeviceRule[] lst = null;
