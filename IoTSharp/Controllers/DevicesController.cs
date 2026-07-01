@@ -754,20 +754,6 @@ namespace IoTSharp.Controllers
             var dev = await PostDevice(dto);
             if (dev.Code == (int)ApiCode.Success)
             {
-                MapperConfiguration mapperConfiguration = new MapperConfiguration(options => { options.CreateMap<ProduceData, AttributeLatest>(); }, _loggerFactory);
-                IMapper mapper = mapperConfiguration.CreateMapper();
-
-                var atts = produce.DefaultAttributes.Select(c =>
-                {
-                    AttributeLatest atx = mapper.Map<ProduceData, AttributeLatest>(c);
-                    atx.Catalog = DataCatalog.AttributeLatest;
-                    atx.DeviceId = dev.Data.Id;
-                    atx.DataSide = DataSide.ServerSide;
-                    atx.DateTime = DateTime.UtcNow;
-                    return atx;
-                });
-                _context.AttributeLatest.AddRange(atts);
-                await _context.SaveChangesAsync();
                 return new ApiResult<Device>(ApiCode.Success, "Ok", dev.Data);
             }
             else

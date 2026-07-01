@@ -31,6 +31,7 @@
   <ItemGroup>
     <ProjectReference Include="..\IoTSharp\IoTSharp.csproj" />
     <ProjectReference Include="..\IoTSharp.Interpreter\IoTSharp.Interpreter.csproj" />
+    <ProjectReference Include="..\SonnetDB\src\SonnetDB\SonnetDB.csproj" ReferenceOutputAssembly="false" PrivateAssets="all" />
   </ItemGroup>
 
 </Project>

@@ -3,9 +3,11 @@ using IoTSharp.Data;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using SonnetDB.Data;
+using SonnetDB.Data.Remote;
 using System.Buffers.Binary;
 using System.Collections.Concurrent;
 using System.Data.Common;
+using System.Net;
 using System.Globalization;
 using System.Security.Cryptography;
 using System.Text.Json;
@@ -391,6 +393,10 @@ namespace IoTSharp.Storage
             }
             catch (InvalidOperationException ex) when (ex.Message.Contains("不存在", StringComparison.OrdinalIgnoreCase)
                                                        || ex.Message.Contains("does not exist", StringComparison.OrdinalIgnoreCase))
+            {
+                return null;
+            }
+            catch (SndbServerException ex) when (IsMissingMeasurement(ex))
             {
                 return null;
             }
@@ -1396,6 +1402,14 @@ namespace IoTSharp.Storage
             var value = GetOption(builder, key);
             return bool.TryParse(value, out var result) ? result : defaultValue;
         }
+
+        private static bool IsMissingMeasurement(SndbServerException ex)
+            => ex.StatusCode == HttpStatusCode.BadRequest
+                && string.Equals(ex.Error, "sql_error", StringComparison.Ordinal)
+                && (ex.Message.Contains("measurement", StringComparison.OrdinalIgnoreCase)
+                    || ex.Message.Contains("MEASUREMENT", StringComparison.OrdinalIgnoreCase))
+                && (ex.Message.Contains("不存在", StringComparison.OrdinalIgnoreCase)
+                    || ex.Message.Contains("does not exist", StringComparison.OrdinalIgnoreCase));
 
         private static int? GetIntOption(DbConnectionStringBuilder builder, string key)
         {
