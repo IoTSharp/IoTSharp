@@ -21,7 +21,7 @@
             <param name="options"></param>
             <param name="caching"></param>
         </member>
-        <member name="M:IoTSharp.Controllers.AccountController.Avatar">
+        <member name="M:IoTSharp.Controllers.AccountController.Avatar(System.String)">
             <summary>
             获取当前用户的头像， 基于邮箱生成
             </summary>

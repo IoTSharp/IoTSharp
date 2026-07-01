@@ -65,11 +65,9 @@
 							<el-icon class="el-input__icon"><Unlock /></el-icon>
 						</template>
 						<template #suffix>
-							<i
-								class="iconfont el-input__icon account-login__password-toggle"
-								:class="isShowPassword ? 'icon-yincangmima' : 'icon-xianshimima'"
-								@click="isShowPassword = !isShowPassword"
-							></i>
+							<el-icon class="el-input__icon account-login__password-toggle" @click="isShowPassword = !isShowPassword">
+								<component :is="isShowPassword ? Hide : View" />
+							</el-icon>
 						</template>
 					</el-input>
 				</el-form-item>
@@ -142,7 +140,7 @@
 import Cookies from 'js-cookie';
 import { computed, reactive, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
-import { Unlock, User } from '@element-plus/icons-vue';
+import { Hide, Unlock, User, View } from '@element-plus/icons-vue';
 import { ElMessage } from 'element-plus';
 import { storeToRefs } from 'pinia';
 import { useI18n } from 'vue-i18n';

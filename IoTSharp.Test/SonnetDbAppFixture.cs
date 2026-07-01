@@ -19,11 +19,13 @@ public sealed class SonnetDbAppFixture : AppInstance
     private const ushort SonnetDbPort = 5080;
     private const string AdminToken = "iotsharp_sonnetdb_test_token_change_me";
 
+    private IFutureDockerImage? _sonnetDbImage;
     private IContainer? _sonnetDb;
 
     protected override async Task InitializeAppAsync()
     {
-        _sonnetDb = CreateSonnetDbContainer();
+        var image = await CreateSonnetDbImageAsync();
+        _sonnetDb = CreateSonnetDbContainer(image);
 
         await _sonnetDb.StartAsync(TestCancellationToken);
 
@@ -59,19 +61,40 @@ public sealed class SonnetDbAppFixture : AppInstance
         {
             await _sonnetDb.DisposeAsync();
         }
+
+        if (_sonnetDbImage is not null)
+        {
+            await _sonnetDbImage.DisposeAsync();
+        }
     }
 
-    private static IContainer CreateSonnetDbContainer()
+    private async Task<IImage> CreateSonnetDbImageAsync()
     {
         var image = Environment.GetEnvironmentVariable("SONNETDB_TEST_IMAGE");
-        var builder = string.IsNullOrWhiteSpace(image)
-            ? new ContainerBuilder("mcr.microsoft.com/dotnet/aspnet:10.0")
-                .WithBindMount(GetLocalSonnetDbOutputDirectory(), "/app", AccessMode.ReadOnly)
-                .WithWorkingDirectory("/app")
-                .WithCommand("dotnet", "SonnetDB.dll")
-            : new ContainerBuilder(image);
+        if (!string.IsNullOrWhiteSpace(image))
+        {
+            return new DockerImage(image);
+        }
 
-        return builder
+        var sonnetDbRoot = GetSonnetDbRepositoryRoot();
+        _sonnetDbImage = new ImageFromDockerfileBuilder()
+            .WithContextDirectory(sonnetDbRoot)
+            .WithDockerfileDirectory(Path.Combine(sonnetDbRoot, "src", "SonnetDB"))
+            .WithDockerfile("Dockerfile")
+            .WithName(new DockerImage("iotsharp/sonnetdb-test", Guid.NewGuid().ToString("N"), string.Empty))
+            .WithImageBuildPolicy(PullPolicy.Always)
+            .WithDeleteIfExists(true)
+            .WithCleanUp(true)
+            .Build();
+
+        await _sonnetDbImage.CreateAsync(TestCancellationToken);
+
+        return _sonnetDbImage;
+    }
+
+    private static IContainer CreateSonnetDbContainer(IImage image)
+    {
+        return new ContainerBuilder(image)
             .WithImagePullPolicy(PullPolicy.Missing)
             .WithPortBinding(SonnetDbPort, true)
             .WithEnvironment("TZ", "Asia/Shanghai")
@@ -86,35 +109,19 @@ public sealed class SonnetDbAppFixture : AppInstance
             .Build();
     }
 
-    private static string GetLocalSonnetDbOutputDirectory()
+    private static string GetSonnetDbRepositoryRoot()
     {
-        var testOutput = AppContext.BaseDirectory;
-        if (File.Exists(Path.Combine(testOutput, "SonnetDB.dll")))
+        for (var directory = new DirectoryInfo(AppContext.BaseDirectory); directory is not null; directory = directory.Parent)
         {
-            return testOutput;
-        }
-
-        for (var directory = new DirectoryInfo(testOutput); directory is not null; directory = directory.Parent)
-        {
-            foreach (var configuration in new[] { "Debug", "Release" })
+            var candidate = Path.Combine(directory.FullName, "SonnetDB");
+            if (File.Exists(Path.Combine(candidate, "src", "SonnetDB", "Dockerfile")))
             {
-                var candidate = Path.Combine(
-                    directory.FullName,
-                    "SonnetDB",
-                    "src",
-                    "SonnetDB",
-                    "bin",
-                    configuration,
-                    "net10.0");
-                if (File.Exists(Path.Combine(candidate, "SonnetDB.dll")))
-                {
-                    return candidate;
-                }
+                return candidate;
             }
         }
 
         throw new DirectoryNotFoundException(
-            "Cannot find local SonnetDB server build output. Build SonnetDB/src/SonnetDB/SonnetDB.csproj first, or set SONNETDB_TEST_IMAGE.");
+            "Cannot find SonnetDB/src/SonnetDB/Dockerfile. Run tests from the IoTSharp repository checkout, or set SONNETDB_TEST_IMAGE.");
     }
 
     private static string BuildConnectionString(string baseUrl, string database)

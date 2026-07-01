@@ -29,8 +29,8 @@ export default defineComponent({
 		},
 	},
 	setup(props) {
-		// 在线链接、本地引入地址前缀
-		const linesString = ['https', 'http', '/src', '/assets', import.meta.env.VITE_PUBLIC_PATH];
+		// 内网部署禁止把图标名解析成远程图片地址，只允许本地资源前缀。
+		const linesString = ['/src', '/assets', import.meta.env.VITE_PUBLIC_PATH].filter(Boolean);
 
 		// 获取 icon 图标名称
 		const getIconName = computed(() => {

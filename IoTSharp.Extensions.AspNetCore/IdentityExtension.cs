@@ -6,8 +6,7 @@ namespace Microsoft.AspNetCore.Identity
     public static class IdentityExtension
     {
 
-        /// Hashes an email with MD5.  Suitable for use with Gravatar profile
-        /// image urls
+        /// Builds a local identicon URL from the user's email hash.
         public static string Gravatar(this IdentityUser user)
         {
             string email = user.Email;
@@ -27,7 +26,7 @@ namespace Microsoft.AspNetCore.Identity
             {
                 sBuilder.Append(data[i].ToString("x2"));
             }
-            return string.Format("https://www.gravatar.com/avatar/{0}", sBuilder.ToString()); ;  // Return the hexadecimal string. 
+            return $"/api/Account/Avatar?seed={sBuilder}";
         }
     }
 }

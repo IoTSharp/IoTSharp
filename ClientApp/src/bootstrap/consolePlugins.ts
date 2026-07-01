@@ -11,6 +11,6 @@ export const installConsolePlugins = (app: App) => {
 
 	installConsoleUi(app);
 	app.use(ui);
-	app.use(FastCrud);
+	app.use(FastCrud, { logger: { off: { tableColumns: false } } });
 	consolePluginsInstalled = true;
 };

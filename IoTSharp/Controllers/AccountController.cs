@@ -74,12 +74,16 @@ namespace IoTSharp.Controllers
         /// </summary>
         /// <returns></returns>
         [HttpGet, AllowAnonymous]
-        public async Task<IActionResult> Avatar()
+        public async Task<IActionResult> Avatar([FromQuery] string seed = null)
         {
             IdenticonResult result = IdenticonResult.FromValue("IoTSharp", 64);
             try
             {
-                if (_signInManager.IsSignedIn(this.User))
+                if (!string.IsNullOrWhiteSpace(seed))
+                {
+                    result = IdenticonResult.FromValue($"iotsharp_{seed}", 64);
+                }
+                else if (_signInManager.IsSignedIn(this.User))
                 {
                     var user = await _userManager.GetUserAsync(User);
                     result = IdenticonResult.FromValue($"iotsharp_{user?.Email}_{user?.Id}", 64);
