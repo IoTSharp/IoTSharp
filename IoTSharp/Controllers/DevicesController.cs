@@ -826,7 +826,7 @@ namespace IoTSharp.Controllers
                     _logger.LogError(ex, "Publish create device event failed. DeviceId={DeviceId}", deviceId);
                 }
             });
-            return new ApiResult<Device>(ApiCode.Success, "Ok", await FoundAsync(deviceId));
+            return new ApiResult<Device>(ApiCode.Success, "Ok", devvalue);
         }
 
         /// <summary>
