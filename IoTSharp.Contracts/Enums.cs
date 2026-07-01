@@ -253,9 +253,10 @@ namespace IoTSharp.Contracts
     [JsonConverter(typeof(StringEnumConverter))]
     public enum IdentityType
     {
-        AccessToken,
-        DevicePassword,
-        X509Certificate
+        AccessToken = 0,
+        DevicePassword = 1,
+        X509Certificate = 2,
+        ProduceToken = 3
     }
     [System.Text.Json.Serialization.JsonConverter(typeof(System.Text.Json.Serialization.JsonStringEnumConverter))]
     [JsonConverter(typeof(StringEnumConverter))]

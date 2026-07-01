@@ -28,6 +28,7 @@ namespace IoTSharp.Data
             modelBuilder.Entity<ProduceData>().HasDiscriminator<DataCatalog>(nameof(Data.DataStorage.Catalog));
 
             modelBuilder.Entity<Device>().HasOne(c => c.DeviceIdentity).WithOne(c => c.Device).HasForeignKey<DeviceIdentity>(c => c.DeviceId);
+            modelBuilder.Entity<Device>().HasOne(c => c.Produce).WithMany(c => c.Devices).HasForeignKey("ProduceId");
             modelBuilder.Entity<Device>().HasDiscriminator<DeviceType>(nameof(Data.Device.DeviceType)).HasValue<Gateway>(DeviceType.Gateway).HasValue<Device>(DeviceType.Device);
             modelBuilder.Entity<Gateway>().HasDiscriminator<DeviceType>(nameof(Data.Device.DeviceType));
             ;

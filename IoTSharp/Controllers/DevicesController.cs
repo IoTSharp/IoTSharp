@@ -122,7 +122,12 @@ namespace IoTSharp.Controllers
             try
             {
 
-                var query = from c in _context.Device.Include(c => c.DeviceIdentity) where c.Customer.Id == m.customerId && !c.Deleted && c.Tenant.Id == profile.Tenant select c;
+                var query = from c in _context.Device
+                        .Include(c => c.DeviceIdentity)
+                        .Include(c => c.Tenant)
+                        .Include(c => c.Customer)
+                             where c.Customer.Id == m.customerId && !c.Deleted && c.Tenant.Id == profile.Tenant
+                             select c;
                 if (m.OnlyActive)
                 {
                     var al = from a in _context.AttributeLatest where a.KeyName == Constants._Active && a.Value_Boolean == true select a.DeviceId;
@@ -140,21 +145,12 @@ namespace IoTSharp.Controllers
                         query = from x in query where x.Name.Contains(m.Name) select x;
                     }
                 }
-                var lst = await query.Skip((m.Offset) * m.Limit).Take(m.Limit).Select(x => new DeviceDetailDto()
-                {
-                    Id = x.Id,
-                    Name = x.Name,
-                    IdentityId = x.DeviceIdentity.IdentityId,
-                    IdentityValue = x.DeviceIdentity.IdentityType == IdentityType.X509Certificate ? "" : x.DeviceIdentity.IdentityValue,
-                    DeviceType = x.DeviceType,
-                    Owner = x.Owner,
-                    TenantId = x.Tenant.Id,
-                    TenantName = x.Tenant.Name,
-                    CustomerId = x.Customer.Id,
-                    CustomerName = x.Customer.Name,
-                    Timeout = x.Timeout,
-                    IdentityType = x.DeviceIdentity.IdentityType
-                }).ToListAsync();
+                var devices = await query
+                    .Skip((m.Offset) * m.Limit)
+                    .Take(m.Limit)
+                    .ToListAsync();
+                await EnsureDeviceIdentitiesAsync(devices);
+                var lst = devices.Select(ToDeviceDetailDto).ToList();
                 await QueryActivityInfo(lst);
                 return new ApiResult<PagedData<DeviceDetailDto>>(ApiCode.Success, "OK", new PagedData<DeviceDetailDto>
                 {
@@ -210,6 +206,74 @@ namespace IoTSharp.Controllers
             });
         }
 
+        private static DeviceDetailDto ToDeviceDetailDto(Device x)
+        {
+            return new DeviceDetailDto()
+            {
+                Id = x.Id,
+                Name = x.Name,
+                IdentityId = x.DeviceIdentity?.IdentityId,
+                IdentityValue = x.DeviceIdentity?.IdentityType == IdentityType.X509Certificate ? "" : x.DeviceIdentity?.IdentityValue,
+                DeviceType = x.DeviceType,
+                Owner = x.Owner,
+                TenantId = x.Tenant.Id,
+                TenantName = x.Tenant.Name,
+                CustomerId = x.Customer.Id,
+                CustomerName = x.Customer.Name,
+                Timeout = x.Timeout,
+                IdentityType = x.DeviceIdentity?.IdentityType ?? IdentityType.AccessToken
+            };
+        }
+
+        private async Task<Produce> FindDeviceProduceAsync(Guid deviceId)
+        {
+            return await _context.Device
+                .Where(d => d.Id == deviceId && d.Produce != null && d.Produce.Deleted == false)
+                .Select(d => d.Produce)
+                .FirstOrDefaultAsync();
+        }
+
+        private async Task EnsureDeviceIdentityAsync(Device device, IdentityType? identityType = null, Produce produce = null)
+        {
+            produce ??= await FindDeviceProduceAsync(device.Id);
+            var targetIdentityType = identityType
+                ?? (produce == null ? null : (IdentityType?)DeviceExtension.ResolveProductDefaultIdentityType(produce))
+                ?? device.DeviceIdentity?.IdentityType
+                ?? IdentityType.AccessToken;
+            if (targetIdentityType == IdentityType.ProduceToken && produce == null)
+            {
+                throw new InvalidOperationException("Product token authentication requires the device to belong to a product.");
+            }
+
+            _context.EnsureDeviceIdentity(device, targetIdentityType, produce);
+            await _context.SaveChangesAsync();
+        }
+
+        private async Task EnsureDeviceIdentitiesAsync(IList<Device> devices)
+        {
+            var missingDevices = devices.Where(d => d.DeviceIdentity == null).ToList();
+            if (missingDevices.Count == 0)
+            {
+                return;
+            }
+
+            var deviceIds = missingDevices.Select(d => d.Id).ToList();
+            var devicesWithProduce = await _context.Device
+                .Include(d => d.Produce)
+                .Where(d => deviceIds.Contains(d.Id))
+                .ToDictionaryAsync(d => d.Id);
+
+            foreach (var device in missingDevices)
+            {
+                var produce = devicesWithProduce.TryGetValue(device.Id, out var loaded)
+                    ? loaded.Produce
+                    : null;
+                _context.EnsureDeviceIdentity(device, DeviceExtension.ResolveProductDefaultIdentityType(produce), produce);
+            }
+
+            await _context.SaveChangesAsync();
+        }
+
         /// <summary>
         /// 获取指定设备的认证方式信息
         /// </summary>
@@ -222,7 +286,18 @@ namespace IoTSharp.Controllers
         [ProducesDefaultResponseType]
         public async Task<ApiResult<DeviceIdentity>> GetIdentity(Guid deviceId)
         {
-            var did = await _context.DeviceIdentities.FirstOrDefaultAsync(c => c.Device.Id == deviceId);
+            var dev = await FoundAsync(deviceId);
+            if (dev == null)
+            {
+                return new ApiResult<DeviceIdentity>(ApiCode.CantFindObject, "CantFindObject", null);
+            }
+
+            if (dev.DeviceIdentity == null)
+            {
+                await EnsureDeviceIdentityAsync(dev);
+            }
+
+            var did = dev.DeviceIdentity;
             if (did == null)
             {
                 return new ApiResult<DeviceIdentity>(ApiCode.CantFindObject, "CantFindObject", null);
@@ -256,11 +331,12 @@ namespace IoTSharp.Controllers
             }
             else
             {
-                var did = await _context.DeviceIdentities.Include(d => d.Device).FirstOrDefaultAsync(c => c.Device.Id == deviceId);
                 var cust = from c in _context.Device.Include(d => d.Customer).Include(d => d.Tenant) where c.Id == deviceId select c;
                 var dev = cust.FirstOrDefault();
-                if (did != null && dev != null)
+                if (dev != null)
                 {
+                    await EnsureDeviceIdentityAsync(dev);
+                    var did = dev.DeviceIdentity;
 
                     if (Uri.TryCreate(_setting.MqttBroker.DomainName, UriKind.Absolute, out Uri _uri))
                     {
@@ -388,7 +464,7 @@ namespace IoTSharp.Controllers
             Device dev = await FoundAsync(deviceId);
             if (dev == null)
             {
-                return new ApiResult<List<AttributeDataDto>>(ApiCode.CantFindObject, "Device's Identity not found", null);
+                return new ApiResult<List<AttributeDataDto>>(ApiCode.NotFoundDevice, "Device not found", null);
             }
             else
             {
@@ -403,10 +479,6 @@ namespace IoTSharp.Controllers
                                 DeviceId = t.DeviceId,
                                 Value = t.ToObject()
                             };
-                if (!devid.Any())
-                {
-                    return new ApiResult<List<AttributeDataDto>>(ApiCode.CantFindObject, "Device's Identity not found", null);
-                }
                 return new ApiResult<List<AttributeDataDto>>(ApiCode.Success, "Ok", await devid.ToListAsync());
             }
         }
@@ -645,12 +717,17 @@ namespace IoTSharp.Controllers
             }
             else
             {
+                if (x.DeviceIdentity == null)
+                {
+                    await EnsureDeviceIdentityAsync(x);
+                }
+
                 var device = new DeviceDetailDto()
                 {
                     Id = x.Id,
                     Name = x.Name,
-                    IdentityId = x.DeviceIdentity.IdentityId,
-                    IdentityValue = x.DeviceIdentity.IdentityType == IdentityType.X509Certificate ? "" : x.DeviceIdentity.IdentityValue,
+                    IdentityId = x.DeviceIdentity?.IdentityId,
+                    IdentityValue = x.DeviceIdentity?.IdentityType == IdentityType.X509Certificate ? "" : x.DeviceIdentity?.IdentityValue,
                     TenantName = x.Tenant.Name,
                     CustomerName = x.Customer.Name,
                     TenantId = x.Tenant.Id,
@@ -658,7 +735,7 @@ namespace IoTSharp.Controllers
                     DeviceType = x.DeviceType,
                     Owner = x.Owner,
                     Timeout = x.Timeout,
-                    IdentityType = x.DeviceIdentity.IdentityType
+                    IdentityType = x.DeviceIdentity?.IdentityType ?? IdentityType.AccessToken
                 };
                 await QueryActivityInfo(device);
                 return new ApiResult<DeviceDetailDto>(ApiCode.Success, "Ok", device);
@@ -693,7 +770,11 @@ namespace IoTSharp.Controllers
 
             var cid = User.Claims.First(c => c.Type == IoTSharpClaimTypes.Customer);
             var tid = User.Claims.First(c => c.Type == IoTSharpClaimTypes.Tenant);
-            var dev = _context.Device.Include(d => d.Tenant).Include(d => d.Customer).FirstOrDefault(d => d.Id == device.Id);
+            var dev = _context.Device
+                .Include(d => d.Tenant)
+                .Include(d => d.Customer)
+                .Include(d => d.DeviceIdentity)
+                .FirstOrDefault(d => d.Id == device.Id);
 
             if (dev == null)
             {
@@ -712,13 +793,14 @@ namespace IoTSharp.Controllers
             dev.DeviceType = device.DeviceType;
             try
             {
-                await _context.SaveChangesAsync();
-                var identity = _context.DeviceIdentities.FirstOrDefault(c => c.Device.Id == dev.Id);
-                if (identity != null)
+                var produce = await FindDeviceProduceAsync(dev.Id);
+                if (device.IdentityType == IdentityType.ProduceToken && produce == null)
                 {
-                    identity.IdentityType = device.IdentityType;
-                    _context.DeviceIdentities.Update(identity); await _context.SaveChangesAsync();
+                    return new ApiResult<bool>(ApiCode.InValidData, "Product token authentication requires the device to belong to a product", false);
                 }
+
+                _context.EnsureDeviceIdentity(dev, device.IdentityType, produce);
+                await _context.SaveChangesAsync();
                 return new ApiResult<bool>(ApiCode.Success, "Ok", true);
             }
             catch (DbUpdateConcurrencyException)
@@ -750,7 +832,7 @@ namespace IoTSharp.Controllers
             {
                 return new ApiResult<Device>(ApiCode.NotFoundProduce, "Not found Produce", null);
             }
-            var dto = new DevicePostDto() { ProductId = id, Name = device.Name, DeviceType = produce.DefaultDeviceType, IdentityType = produce.DefaultIdentityType, Timeout = produce.DefaultTimeout };
+            var dto = new DevicePostDto() { ProductId = id, Name = device.Name, DeviceType = produce.DefaultDeviceType, IdentityType = DeviceExtension.ResolveProductDefaultIdentityType(produce), Timeout = produce.DefaultTimeout };
             var dev = await PostDevice(dto);
             if (dev.Code == (int)ApiCode.Success)
             {
@@ -791,12 +873,24 @@ namespace IoTSharp.Controllers
             {
                 return new ApiResult<Device>(ApiCode.NotFoundTenantOrCustomer, "Not found Tenant or Customer", null);
             }
+            Produce produce = null;
+            if (device.ProductId.HasValue && device.ProductId.Value != Guid.Empty)
+            {
+                produce = await _context.Produces.FirstOrDefaultAsync(p => p.Id == device.ProductId.Value && p.Deleted == false);
+                if (produce == null)
+                {
+                    return new ApiResult<Device>(ApiCode.NotFoundProduce, "Not found Produce", null);
+                }
+                devvalue.Produce = produce;
+            }
+            else if (device.IdentityType == IdentityType.ProduceToken)
+            {
+                return new ApiResult<Device>(ApiCode.InValidData, "Product token authentication requires a product", null);
+            }
+
             _context.Device.Add(devvalue);
             _context.AfterCreateDevice(devvalue, device.ProductId);
-            if (devvalue.DeviceIdentity != null)
-            {
-                devvalue.DeviceIdentity.IdentityType = device.IdentityType;
-            }
+            _context.EnsureDeviceIdentity(devvalue, device.IdentityType, produce);
             await _context.SaveChangesAsync();
             var deviceId = devvalue.Id;
             _ = Task.Run(async () =>

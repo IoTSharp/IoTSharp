@@ -25,24 +25,17 @@ namespace IoTSharp.Data.Extensions
             }
             else
             {
-                var di = new DeviceIdentity()
-                {
-                    Device = device,
-                    IdentityType = IdentityType.AccessToken,
-                    IdentityId = Guid.NewGuid().ToString().Replace("-", "")
-                };
-                device.DeviceIdentity = di;
-
                 Dictionary<string, object> pairs = new Dictionary<string, object>
                 {
                     { "CreateDateTime", DateTime.UtcNow }
                 };
+                Produce prod = null;
                 if (prodId != null && prodId != Guid.Empty)
                 {
-                    var prod = _context.Produces.Include(p => p.DefaultAttributes).FirstOrDefault(p => p.Id == prodId);
+                    prod = _context.Produces.Include(p => p.DefaultAttributes).FirstOrDefault(p => p.Id == prodId);
                     if (prod != null)
                     {
-                        di.IdentityType = prod.DefaultIdentityType;
+                        device.Produce = prod;
                         device.DeviceType = prod.DefaultDeviceType;
                         device.Timeout = prod.DefaultTimeout;
                         prod.Devices ??= [];
@@ -50,7 +43,7 @@ namespace IoTSharp.Data.Extensions
                         _context.PrepareNewAttributeLatest(prod.DefaultAttributes, device.Id);
                     }
                 }
-                _context.DeviceIdentities.Add(di);
+                _context.EnsureDeviceIdentity(device, ResolveProductDefaultIdentityType(prod), prod);
                 _context.PrepareNewAttributeLatest(pairs, device.Id, DataSide.ServerSide);
             }
         }
@@ -87,6 +80,7 @@ namespace IoTSharp.Data.Extensions
                 var prod = _context.Produces.Include(p => p.DefaultAttributes).FirstOrDefault(p => p.Id == prodId);
                 if (prod != null)
                 {
+                    device.Produce = prod;
                     device.DeviceType = prod.DefaultDeviceType;
                     device.Timeout = prod.DefaultTimeout;
                     prod.Devices ??= [];
@@ -107,6 +101,96 @@ namespace IoTSharp.Data.Extensions
                 pairs.Add("CreateDateTime", DateTime.UtcNow);
                 _context.PrepareNewAttributeLatest(pairs, device.Id, DataSide.ServerSide);
             }
+        }
+
+        public static DeviceIdentity EnsureDeviceIdentity(this ApplicationDbContext _context, Device device, IdentityType identityType, Produce produce = null)
+        {
+            if (device == null)
+            {
+                throw new ArgumentNullException(nameof(device));
+            }
+
+            var identity = device.DeviceIdentity ?? _context.DeviceIdentities.FirstOrDefault(c => c.DeviceId == device.Id);
+            if (identity == null)
+            {
+                identity = new DeviceIdentity
+                {
+                    Device = device,
+                    DeviceId = device.Id
+                };
+                device.DeviceIdentity = identity;
+                _context.DeviceIdentities.Add(identity);
+            }
+
+            var previousIdentityType = identity.IdentityType;
+            identity.IdentityType = identityType;
+            switch (identityType)
+            {
+                case IdentityType.ProduceToken:
+                    produce ??= device.Produce;
+                    if (produce == null)
+                    {
+                        produce = _context.Device
+                            .Where(d => d.Id == device.Id && d.Produce != null && d.Produce.Deleted == false)
+                            .Select(d => d.Produce)
+                            .FirstOrDefault();
+                    }
+
+                    if (string.IsNullOrWhiteSpace(device.Name))
+                    {
+                        throw new Exception("Device name is required for product token authentication.");
+                    }
+
+                    if (produce == null || string.IsNullOrWhiteSpace(produce.ProduceToken))
+                    {
+                        throw new Exception("Product token is required for product token authentication.");
+                    }
+
+                    identity.IdentityId = device.Name;
+                    identity.IdentityValue = produce.ProduceToken;
+                    break;
+                case IdentityType.DevicePassword:
+                    if (string.IsNullOrWhiteSpace(device.Name))
+                    {
+                        throw new Exception("Device name is required for device password authentication.");
+                    }
+
+                    identity.IdentityId = device.Name;
+                    if (string.IsNullOrWhiteSpace(identity.IdentityValue))
+                    {
+                        identity.IdentityValue = Guid.NewGuid().ToString().Replace("-", "");
+                    }
+                    break;
+                case IdentityType.X509Certificate:
+                    if (string.IsNullOrWhiteSpace(identity.IdentityId) || previousIdentityType != IdentityType.X509Certificate)
+                    {
+                        identity.IdentityId = device.Id.ToString("N");
+                    }
+                    break;
+                case IdentityType.AccessToken:
+                default:
+                    if (previousIdentityType != IdentityType.AccessToken || string.IsNullOrWhiteSpace(identity.IdentityId))
+                    {
+                        identity.IdentityId = Guid.NewGuid().ToString().Replace("-", "");
+                    }
+                    identity.IdentityValue = null;
+                    break;
+            }
+
+            device.DeviceIdentity = identity;
+            return identity;
+        }
+
+        public static IdentityType ResolveProductDefaultIdentityType(Produce produce)
+        {
+            if (produce == null)
+            {
+                return IdentityType.AccessToken;
+            }
+
+            return produce.DefaultIdentityType == IdentityType.DevicePassword
+                ? IdentityType.ProduceToken
+                : produce.DefaultIdentityType;
         }
 
         private static void PrepareNewAttributeLatest(this ApplicationDbContext context, IEnumerable<ProduceData> attributes, Guid deviceId)

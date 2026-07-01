@@ -81,7 +81,7 @@ namespace IoTSharp.Controllers
                 {
                     var produceId = row.Id;
                     row.Devices = await _context.Device
-                        .Where(d => !d.Deleted && EF.Property<Guid?>(d, "ProduceId") == produceId)
+                        .Where(d => !d.Deleted && d.Produce.Id == produceId)
                         .ToListAsync();
                 }
             }
@@ -248,6 +248,7 @@ namespace IoTSharp.Controllers
                         }
                         produce.ProduceToken = produceToken;
                     }
+                    await SyncProduceDeviceIdentitiesAsync(produce);
                     _context.Produces.Update(produce);
                     await _context.SaveChangesAsync();
 
@@ -730,6 +731,18 @@ namespace IoTSharp.Controllers
                 p.Deleted == false &&
                 (!exceptProduceId.HasValue || p.Id != exceptProduceId.Value));
         }
+
+        private async Task SyncProduceDeviceIdentitiesAsync(Produce produce)
+        {
+            var devices = await _context.Device
+                .Include(d => d.DeviceIdentity)
+                .Where(d => !d.Deleted && d.Produce.Id == produce.Id)
+                .ToListAsync();
+
+            foreach (var device in devices)
+            {
+                _context.EnsureDeviceIdentity(device, DeviceExtension.ResolveProductDefaultIdentityType(produce), produce);
+            }
+        }
     }
 }
-

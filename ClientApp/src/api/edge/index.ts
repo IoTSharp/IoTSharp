@@ -61,7 +61,7 @@ export interface EdgeNodeCreatePayload {
 	name: string;
 	timeout: number;
 	deviceType: 'Gateway';
-	identityType: 'AccessToken' | 'DevicePassword' | 'X509Certificate';
+	identityType: 'AccessToken' | 'DevicePassword' | 'ProduceToken' | 'X509Certificate';
 }
 
 export function edgeApi() {

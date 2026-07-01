@@ -47,6 +47,10 @@ namespace IoTSharp.Data
 
         public Guid? DeviceModelId { get; set; }
 
+        [System.Text.Json.Serialization.JsonIgnore]
+        [Newtonsoft.Json.JsonIgnore]
+        public Produce Produce { get; set; }
+
         public DeviceIdentity DeviceIdentity { get; set; }
 
         public bool Deleted { get; set; }

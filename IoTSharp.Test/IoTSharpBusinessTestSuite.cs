@@ -69,6 +69,45 @@ public abstract class IoTSharpBusinessTestSuite<TFixture>
     }
 
     [Fact]
+    public async Task Devices_CreatedFromProductKeyHaveManageableIdentity()
+    {
+        using var client = Fixture.CreateClient();
+        await Fixture.AuthorizeClientAsync(client);
+
+        var produceName = $"product-key-{Guid.NewGuid():N}";
+        var produceToken = $"pk-{Guid.NewGuid():N}";
+        var saveProduce = await client.PostAsJsonAsync("/api/Produces/Save", new ProduceAddDto
+        {
+            Name = produceName,
+            Description = "product key identity test",
+            ProduceToken = produceToken,
+            DefaultDeviceType = DeviceType.Device,
+            DefaultIdentityType = IdentityType.ProduceToken,
+            DefaultTimeout = 30,
+            GatewayConfiguration = string.Empty
+        });
+        var saved = await ReadApiResultAsync<bool>(saveProduce);
+        Assert.Equal((int)ApiCode.Success, saved.Code);
+
+        var listed = await GetApiResultAsync<PagedData<ProduceDto>>(client,
+            $"/api/Produces/List?offset=0&limit=10&name={Uri.EscapeDataString(produceName)}");
+        var produce = Assert.Single(listed.Data!.rows, p => p.Name == produceName);
+
+        var deviceName = $"product-device-{Guid.NewGuid():N}";
+        var created = await client.PostAsJsonAsync($"/api/Devices/produce/{produce.Id}", new DevicePostProduceDto
+        {
+            Name = deviceName
+        });
+        var createdDevice = await ReadApiResultAsync<Device>(created);
+        Assert.Equal((int)ApiCode.Success, createdDevice.Code);
+
+        var detail = await Fixture.GetDeviceDetailAsync(client, createdDevice.Data!.Id);
+        Assert.Equal(IdentityType.ProduceToken, detail.Data!.IdentityType);
+        Assert.Equal(deviceName, detail.Data.IdentityId);
+        Assert.Equal(produceToken, detail.Data.IdentityValue);
+    }
+
+    [Fact]
     public async Task Telemetry_HttpIngestStoresLatestAndHistory()
     {
         using var client = Fixture.CreateClient();

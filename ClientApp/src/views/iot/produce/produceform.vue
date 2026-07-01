@@ -194,6 +194,7 @@ const gatewayTypeOptions = [
 const identityTypeOptions = [
 	{ value: 'AccessToken', label: 'AccessToken' },
 	{ value: 'DevicePassword', label: '设备密码' },
+	{ value: 'ProduceToken', label: '产品认证 Key' },
 	{ value: 'X509Certificate', label: 'X509 证书' },
 ];
 
