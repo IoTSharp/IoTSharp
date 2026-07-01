@@ -237,8 +237,17 @@ namespace IoTSharp.Storage
                     0,
                     totalTelemetryValues,
                     Math.Max(skippedTelemetryValues, totalTelemetryValues),
-                    false));
+                false));
             }
+        }
+
+        async Task<TelemetryBatchStoreResult> IStorage.StoreTelemetryBatchAsync(IReadOnlyCollection<PlayloadData> messages)
+        {
+            var report = await StoreTelemetryBatchAsync((IEnumerable<PlayloadData>)messages);
+            var telemetries = messages
+                .SelectMany(ToTelemetryData)
+                .ToList();
+            return new TelemetryBatchStoreResult(report.IsComplete, telemetries, report.MessageCount);
         }
 
         public SonnetDbTelemetryBackupReport CreateBackup(string destinationDirectory, bool overwrite = false, bool includeFullTextIndexes = false)

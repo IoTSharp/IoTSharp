@@ -10,6 +10,7 @@ namespace IoTSharp.EventBus
         public Task StoreAttributeData(PlayloadData msg);
         public Task OccurredAlarm(CreateAlarmDto alarmDto);
         public Task StoreTelemetryData(PlayloadData msg);
+        public Task StoreTelemetryDataBatch(IReadOnlyCollection<PlayloadData> messages);
         public Task DeleteDevice(Guid deviceId);
         public Task CreateDevice(Guid deviceId);
         public Task Connect(Guid devid, ConnectStatus devicestatus);

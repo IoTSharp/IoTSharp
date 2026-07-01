@@ -11,18 +11,18 @@ using System.Threading.Tasks;
 
 namespace IoTSharp.Storage
 {
-    public class TimescaleDBStorage : IStorage
+    public class TimescaleDBStorage : EFStorage
     {
 
         private readonly IServiceScopeFactory _scopeFactor;
         private readonly Microsoft.Extensions.Logging.ILogger _logger;
         public TimescaleDBStorage(ILogger<TimescaleDBStorage> logger, IServiceScopeFactory scopeFactor
-           , IOptions<AppSettings> options)
+           , IOptions<AppSettings> options) : base(logger, scopeFactor, options)
         {
             _scopeFactor = scopeFactor;
             _logger = logger;
         }
-        public Task<bool> CheckTelemetryStorage()
+        public override Task<bool> CheckTelemetryStorage()
         {
             using var scope = _scopeFactor.CreateScope();
             using var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
@@ -39,7 +39,7 @@ namespace IoTSharp.Storage
             return Task.FromResult(false);
         }
 
-        public async Task<List<TelemetryDataDto>> LoadTelemetryAsync(Guid deviceId, string keys, DateTime begin, DateTime end, TimeSpan every, Aggregate aggregate)
+        public override async Task<List<TelemetryDataDto>> LoadTelemetryAsync(Guid deviceId, string keys, DateTime begin, DateTime end, TimeSpan every, Aggregate aggregate)
         {
             var results = new List<TelemetryDataDto>();
             var keyList = keys.Split(',');
@@ -52,7 +52,7 @@ namespace IoTSharp.Storage
             return results;
         }
 
-        public async Task<List<TelemetryDataDto>> GetTelemetryLatest(Guid deviceId)
+        public override async Task<List<TelemetryDataDto>> GetTelemetryLatest(Guid deviceId)
         {
             using var scope = _scopeFactor.CreateScope();
             using var context = scope.ServiceProvider.GetService<ApplicationDbContext>();
@@ -63,7 +63,7 @@ namespace IoTSharp.Storage
             return temp;
         }
 
-        public Task<List<TelemetryDataDto>> GetTelemetryLatest(Guid deviceId, string keys)
+        public override Task<List<TelemetryDataDto>> GetTelemetryLatest(Guid deviceId, string keys)
         {
             using var scope = _scopeFactor.CreateScope();
             using var context = scope.ServiceProvider.GetService<ApplicationDbContext>();
@@ -75,7 +75,7 @@ namespace IoTSharp.Storage
             return temp;
         }
 
-        public async Task<(bool result, List<TelemetryData> telemetries)> StoreTelemetryAsync(PlayloadData msg)
+        public override async Task<(bool result, List<TelemetryData> telemetries)> StoreTelemetryAsync(PlayloadData msg)
         {
             bool result = false;
             List<TelemetryData> telemetries = new List<TelemetryData>();
@@ -89,18 +89,20 @@ namespace IoTSharp.Storage
                         {
                             if (kp.Value != null)
                             {
-                                var tdata = new TelemetryData() { DateTime = msg.ts, DeviceId = msg.DeviceId, KeyName = kp.Key };
+                                var tdata = new TelemetryData() { DateTime = msg.ts, DeviceId = msg.DeviceId, KeyName = kp.Key, DataSide = msg.DataSide };
                                 tdata.FillKVToMe(kp);
                                 _dbContext.Set<TelemetryData>().Add(tdata);
                                 telemetries.Add(tdata);
                             }
                         });
-                        var result1 = await _dbContext.SaveAsync<TelemetryLatest>(msg.MsgBody, msg.DeviceId, msg.DataSide);
-                        result1.exceptions?.ToList().ForEach(ex =>
+                        var exceptions = _dbContext.PreparingData<TelemetryLatest>(msg.MsgBody, msg.DeviceId, msg.DataSide);
+                        var ret = await _dbContext.SaveChangesAsync();
+                        exceptions?.ToList().ForEach(ex =>
                         {
                             _logger.LogError($"{ex.Key} {ex.Value} {Newtonsoft.Json.JsonConvert.SerializeObject(msg.MsgBody[ex.Key])}");
                         });
-                        _logger.LogInformation($"新增({msg.DeviceId})遥测数据更新最新信息{result1.ret}");
+                        _logger.LogInformation($"新增({msg.DeviceId})遥测数据更新最新信息{ret}");
+                        result = ret > 0;
                     }
                 }
             }

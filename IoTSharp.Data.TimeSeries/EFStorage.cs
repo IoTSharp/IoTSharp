@@ -33,7 +33,7 @@ namespace IoTSharp.Storage
             return Task.FromResult(true);
         }
 
-        public Task<List<TelemetryDataDto>> GetTelemetryLatest(Guid deviceId)
+        public virtual Task<List<TelemetryDataDto>> GetTelemetryLatest(Guid deviceId)
         {
             using var scope = _scopeFactor.CreateScope();
             using var context = scope.ServiceProvider.GetService<ApplicationDbContext>();
@@ -43,7 +43,7 @@ namespace IoTSharp.Storage
             return devid.AsNoTracking().ToListAsync();
         }
 
-        public Task<List<TelemetryDataDto>> GetTelemetryLatest(Guid deviceId, string keys)
+        public virtual Task<List<TelemetryDataDto>> GetTelemetryLatest(Guid deviceId, string keys)
         {
             using var scope = _scopeFactor.CreateScope();
             using var context = scope.ServiceProvider.GetService<ApplicationDbContext>();
@@ -54,7 +54,7 @@ namespace IoTSharp.Storage
             return devid.AsNoTracking().ToListAsync();
         }
 
-        public async Task<List<TelemetryDataDto>> LoadTelemetryAsync(Guid deviceId, string keys, DateTime begin, DateTime end, TimeSpan every, Aggregate aggregate)
+        public virtual async Task<List<TelemetryDataDto>> LoadTelemetryAsync(Guid deviceId, string keys, DateTime begin, DateTime end, TimeSpan every, Aggregate aggregate)
         {
             using var scope = _scopeFactor.CreateScope();
             using var context = scope.ServiceProvider.GetService<ApplicationDbContext>();
@@ -89,18 +89,20 @@ namespace IoTSharp.Storage
                         {
                             if (kp.Value != null)
                             {
-                                var tdata = new TelemetryData() { DateTime = msg.ts, DeviceId = msg.DeviceId, KeyName = kp.Key };
+                                var tdata = new TelemetryData() { DateTime = msg.ts, DeviceId = msg.DeviceId, KeyName = kp.Key, DataSide = msg.DataSide };
                                 tdata.FillKVToMe(kp);
                                 _dbContext.Set<TelemetryData>().Add(tdata);
                                 telemetries.Add(tdata);
                             }
                         });
-                        var result1 = await _dbContext.SaveAsync<TelemetryLatest>(msg.MsgBody, msg.DeviceId, msg.DataSide);
-                        result1.exceptions?.ToList().ForEach(ex =>
+                        var exceptions = _dbContext.PreparingData<TelemetryLatest>(msg.MsgBody, msg.DeviceId, msg.DataSide);
+                        var ret = await _dbContext.SaveChangesAsync();
+                        exceptions?.ToList().ForEach(ex =>
                         {
                             _logger.LogError($"{ex.Key} {ex.Value} {Newtonsoft.Json.JsonConvert.SerializeObject(msg.MsgBody[ex.Key])}");
                         });
-                        _logger.LogInformation($"新增({msg.DeviceId})遥测数据更新最新信息{result1.ret}");
+                        _logger.LogInformation($"新增({msg.DeviceId})遥测数据更新最新信息{ret}");
+                        result = ret > 0;
                     }
                 }
             }
@@ -109,6 +111,60 @@ namespace IoTSharp.Storage
                 _logger.LogError(ex, $"{msg.DeviceId}数据处理失败{ex.Message} {ex.InnerException?.Message} ");
             }
             return (result, telemetries);
+        }
+
+        public virtual async Task<TelemetryBatchStoreResult> StoreTelemetryBatchAsync(IReadOnlyCollection<PlayloadData> messages)
+        {
+            var telemetries = new List<TelemetryData>();
+            if (messages.Count == 0)
+            {
+                return new TelemetryBatchStoreResult(true, telemetries, 0);
+            }
+
+            try
+            {
+                using var scope = _scopeFactor.CreateScope();
+                using var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+                var latestValues = new Dictionary<(Guid DeviceId, string KeyName), (object Value, DataSide DataSide)>();
+                foreach (var msg in messages)
+                {
+                    foreach (var kp in msg.MsgBody)
+                    {
+                        if (kp.Value == null)
+                        {
+                            continue;
+                        }
+
+                        var tdata = new TelemetryData() { DateTime = msg.ts, DeviceId = msg.DeviceId, KeyName = kp.Key, DataSide = msg.DataSide };
+                        tdata.FillKVToMe(kp);
+                        dbContext.Set<TelemetryData>().Add(tdata);
+                        telemetries.Add(tdata);
+                        latestValues[(msg.DeviceId, kp.Key)] = (kp.Value, msg.DataSide);
+                    }
+                }
+
+                foreach (var deviceGroup in latestValues.GroupBy(x => x.Key.DeviceId))
+                {
+                    foreach (var sideGroup in deviceGroup.GroupBy(x => x.Value.DataSide))
+                    {
+                        var latest = sideGroup.ToDictionary(x => x.Key.KeyName, x => x.Value.Value);
+                        var exceptions = dbContext.PreparingData<TelemetryLatest>(latest, deviceGroup.Key, sideGroup.Key);
+                        exceptions?.ToList().ForEach(ex =>
+                        {
+                            _logger.LogError($"{ex.Key} {ex.Value} {Newtonsoft.Json.JsonConvert.SerializeObject(latest[ex.Key])}");
+                        });
+                    }
+                }
+
+                var ret = await dbContext.SaveChangesAsync();
+                _logger.LogInformation($"批量新增遥测数据完成, 消息{messages.Count}条, 数据{telemetries.Count}条, 更新{ret}条");
+                return new TelemetryBatchStoreResult(ret > 0 || telemetries.Count == 0, telemetries, messages.Count);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"批量遥测数据处理失败{ex.Message} {ex.InnerException?.Message} ");
+                return new TelemetryBatchStoreResult(false, telemetries, messages.Count);
+            }
         }
 
 

@@ -95,7 +95,7 @@ namespace IoTSharp.EventBus
                     using (var _dbContext = _scope.ServiceProvider.GetRequiredService<ApplicationDbContext>())
                     {
                         var alm = await _dbContext.OccurredAlarm(alarmDto);
-                        if (alm.Code == (int)ApiCode.Success)
+                        if (alm.Code == (int)ApiCode.Success && alm.Data != null)
                         {
                             alarmDto.warnDataId = alm.Data.Id;
                             alarmDto.CreateDateTime = alm.Data.AckDateTime;
@@ -128,6 +128,35 @@ namespace IoTSharp.EventBus
             ExpandoObject exps = array.ToDynamic();
             await RunRules(msg.DeviceId, (dynamic)exps, EventType.Telemetry);
             await RunRules(msg.DeviceId, array, EventType.TelemetryArray);
+        }
+
+        public async Task StoreTelemetryDataBatch(IReadOnlyCollection<PlayloadData> messages)
+        {
+            if (messages.Count == 0)
+            {
+                return;
+            }
+
+            var storeResult = await _storage.StoreTelemetryBatchAsync(messages);
+            if (!storeResult.Result)
+            {
+                throw new InvalidOperationException($"Telemetry batch storage failed. MessageCount={storeResult.MessageCount}");
+            }
+
+            foreach (var msg in messages)
+            {
+                var result = msg.ToDictionary()
+                    .Select(kp =>
+                    {
+                        var telemetry = new TelemetryData { DateTime = msg.ts, DeviceId = msg.DeviceId, KeyName = kp.Key, DataSide = msg.DataSide };
+                        telemetry.FillKVToMe(kp);
+                        return telemetry;
+                    });
+                var array = result.Select(t => new TelemetryDataDto() { DateTime = t.DateTime, DataType = t.Type, KeyName = t.KeyName, Value = t.ToObject() }).ToList();
+                ExpandoObject exps = array.ToDynamic();
+                await RunRules(msg.DeviceId, (dynamic)exps, EventType.Telemetry);
+                await RunRules(msg.DeviceId, array, EventType.TelemetryArray);
+            }
         }
 
         public async Task DeleteDevice(Guid deviceId)

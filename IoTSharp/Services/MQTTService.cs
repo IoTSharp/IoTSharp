@@ -189,11 +189,11 @@ namespace IoTSharp.Services
                     var produces = await dbContext.Produces
                         .AsNoTracking()
                         .Where(p => !p.Deleted && p.ProduceToken != null)
-                        .Select(p => new { p.Id, p.ProduceToken })
+                        .Select(p => new { p.Id, p.ProduceToken, p.DefaultIdentityType })
                         .ToListAsync();
 
                     var produceTokenById = produces
-                        .Where(p => !string.IsNullOrEmpty(p.ProduceToken))
+                        .Where(p => !string.IsNullOrEmpty(p.ProduceToken) && p.DefaultIdentityType == IdentityType.DevicePassword)
                         .ToDictionary(p => p.Id, p => p.ProduceToken);
 
                     if (produceTokenById.Count > 0)
@@ -521,7 +521,8 @@ namespace IoTSharp.Services
                             if (ak != null)
                             {
                                 Device createdDevice = null;
-                                if (!ak.Devices.Any(d => d.Name == obj.UserName && d.Deleted == false))
+                                var existingDevice = ak.Devices.FirstOrDefault(d => d.Name == obj.UserName && d.Deleted == false);
+                                if (existingDevice == null)
                                 {
                                     createdDevice = new Device() { Name = obj.UserName, DeviceType = ak.DefaultDeviceType, Timeout = ak.DefaultTimeout };
                                     createdDevice.Tenant = ak.Tenant;
@@ -531,7 +532,7 @@ namespace IoTSharp.Services
                                     _dbContextcv.SaveChanges();
                                 }
 
-                                var mcp = ak.Devices.FirstOrDefault(d => d.Name == obj.UserName && d.Deleted == false) ?? createdDevice;
+                                var mcp = existingDevice ?? createdDevice;
                                 if (mcp != null)
                                 {
                                     _mqttAuthIndex[BuildProduceMqttAuthIndexKey(obj.UserName, obj.Password)] = CloneMqttSessionDevice(mcp);

@@ -66,6 +66,9 @@ public sealed class SonnetMqEventBusWorker : BackgroundService
         if (messages.Count == 0)
             return false;
 
+        if (subscription.Kind == SonnetMqEventKinds.TelemetryData)
+            return await DispatchTelemetryBatchAsync(subscription, messages, cancellationToken);
+
         foreach (var message in messages)
         {
             cancellationToken.ThrowIfCancellationRequested();
@@ -85,6 +88,43 @@ public sealed class SonnetMqEventBusWorker : BackgroundService
                     message.Offset);
                 return true;
             }
+        }
+
+        return true;
+    }
+
+    private async Task<bool> DispatchTelemetryBatchAsync(
+        SonnetMqSubscription subscription,
+        IReadOnlyList<SndbMqMessage> messages,
+        CancellationToken cancellationToken)
+    {
+        try
+        {
+            using var scope = _scopeFactory.CreateScope();
+            var subscriber = scope.ServiceProvider.GetRequiredService<ISubscriber>();
+            var payloads = messages
+                .Select(ReadJson<PlayloadData>)
+                .ToArray();
+
+            await subscriber.StoreTelemetryDataBatch(payloads);
+
+            foreach (var message in messages)
+            {
+                cancellationToken.ThrowIfCancellationRequested();
+                await _client.AckAsync(subscription.Topic, _options.ConsumerGroup, message.Offset, cancellationToken);
+            }
+        }
+        catch (Exception ex)
+        {
+            var firstOffset = messages.Count > 0 ? messages[0].Offset : -1;
+            var lastOffset = messages.Count > 0 ? messages[^1].Offset : -1;
+            _logger.LogError(
+                ex,
+                "SonnetMQ telemetry batch dispatch failed. topic={Topic}, firstOffset={FirstOffset}, lastOffset={LastOffset}, count={Count}",
+                subscription.Topic,
+                firstOffset,
+                lastOffset,
+                messages.Count);
         }
 
         return true;
