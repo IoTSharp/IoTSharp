@@ -5,7 +5,7 @@
 
   <ItemGroup>
     <PackageVersion Include="Alba" Version="8.4.1" />
-    <PackageVersion Include="Apache.IoTDB.Data" Version="2.0.2" />
+    <PackageVersion Include="Apache.IoTDB.Data" Version="2.0.8" />
     <PackageVersion Include="AutoMapper" Version="16.1.1" />
     <PackageVersion Include="BouncyCastle.Cryptography" Version="2.6.2" />
     <PackageVersion Include="CAP.Extensions" Version="1.0.37" />
