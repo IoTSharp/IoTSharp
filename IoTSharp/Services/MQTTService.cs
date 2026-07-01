@@ -32,14 +32,18 @@ namespace IoTSharp.Services
         private readonly FlowRuleProcessor _flowRuleProcessor;
         private readonly IMemoryCache _mqttAuthCache;
         private readonly ConcurrentDictionary<string, Device> _mqttAuthIndex = new(StringComparer.Ordinal);
+        private readonly ConcurrentDictionary<string, byte> _mqttProduceTokenIndex = new(StringComparer.Ordinal);
         private readonly Channel<DeviceConnectStatus> _connectStatusQueue;
+        private DateTime _connectStatusPublishPausedUntil = DateTime.MinValue;
         private readonly MqttClientSetting _mcsetting;
         private readonly AppSettings _settings;
         private static readonly TimeSpan MqttAuthCacheExpiration = TimeSpan.FromMinutes(5);
         private static readonly TimeSpan MqttAuthFailureCacheExpiration = TimeSpan.FromSeconds(30);
         private static readonly TimeSpan MqttAuthDatabaseWaitTimeout = TimeSpan.FromSeconds(10);
+        private static readonly TimeSpan MqttAuthDatabaseBusyTimeout = TimeSpan.FromMilliseconds(250);
         private static readonly TimeSpan MqttAuthIndexRefreshInterval = TimeSpan.FromMinutes(5);
         private static readonly TimeSpan MqttConnectStatusDedupeExpiration = TimeSpan.FromMinutes(2);
+        private static readonly TimeSpan MqttConnectStatusPublishFailureBackoff = TimeSpan.FromSeconds(30);
         private static readonly SemaphoreSlim MqttAuthDatabaseGate = new(4, 4);
         private static readonly SemaphoreSlim MqttAuthIndexRefreshGate = new(1, 1);
         private volatile bool _mqttAuthIndexLoaded;
@@ -112,6 +116,12 @@ namespace IoTSharp.Services
             return $"mqtt_produce_auth_index:{hash}";
         }
 
+        private static string BuildProduceTokenIndexKey(string produceToken)
+        {
+            var hash = Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(produceToken)));
+            return $"mqtt_produce_token:{hash}";
+        }
+
         private static IEnumerable<string> BuildMqttAuthIndexKeys(string userName, string password, string thumbprint)
         {
             if (!string.IsNullOrEmpty(userName))
@@ -153,21 +163,21 @@ namespace IoTSharp.Services
             _mqttAuthIndex[BuildMqttAuthIndexKey(identity.IdentityType, identity.IdentityId, identityValue)] = CloneMqttSessionDevice(identity.Device);
         }
 
-        private async Task RefreshMqttAuthIndexAsync(bool waitForCurrentRefresh = false)
+        private async Task<bool> RefreshMqttAuthIndexAsync(bool waitForCurrentRefresh = false)
         {
             var acquired = waitForCurrentRefresh
                 ? await MqttAuthIndexRefreshGate.WaitAsync(MqttAuthDatabaseWaitTimeout)
                 : await MqttAuthIndexRefreshGate.WaitAsync(0);
             if (!acquired)
             {
-                return;
+                return false;
             }
 
             try
             {
                 if (_mqttAuthIndexLoaded && DateTime.UtcNow - _mqttAuthIndexLoadedAt < MqttAuthIndexRefreshInterval)
                 {
-                    return;
+                    return true;
                 }
 
                 using var scope = _scopeFactor.CreateScope();
@@ -195,6 +205,12 @@ namespace IoTSharp.Services
                     var produceTokenById = produces
                         .Where(p => !string.IsNullOrEmpty(p.ProduceToken) && p.DefaultIdentityType == IdentityType.DevicePassword)
                         .ToDictionary(p => p.Id, p => p.ProduceToken);
+
+                    var nextProduceTokenIndex = new ConcurrentDictionary<string, byte>(StringComparer.Ordinal);
+                    foreach (var produceToken in produceTokenById.Values)
+                    {
+                        nextProduceTokenIndex[BuildProduceTokenIndexKey(produceToken)] = 0;
+                    }
 
                     if (produceTokenById.Count > 0)
                     {
@@ -231,6 +247,12 @@ namespace IoTSharp.Services
                             }
                         }
                     }
+
+                    _mqttProduceTokenIndex.Clear();
+                    foreach (var item in nextProduceTokenIndex)
+                    {
+                        _mqttProduceTokenIndex[item.Key] = item.Value;
+                    }
                 }
                 catch (Exception ex)
                 {
@@ -246,10 +268,12 @@ namespace IoTSharp.Services
                 _mqttAuthIndexLoaded = true;
                 _mqttAuthIndexLoadedAt = DateTime.UtcNow;
                 _logger.LogInformation("MQTT auth index refreshed. Count={Count}", _mqttAuthIndex.Count);
+                return true;
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "MQTT auth index refresh failed.");
+                return false;
             }
             finally
             {
@@ -257,14 +281,14 @@ namespace IoTSharp.Services
             }
         }
 
-        private async Task EnsureMqttAuthIndexLoadedAsync()
+        private async Task<bool> EnsureMqttAuthIndexLoadedAsync()
         {
             if (_mqttAuthIndexLoaded && DateTime.UtcNow - _mqttAuthIndexLoadedAt < MqttAuthIndexRefreshInterval)
             {
-                return;
+                return true;
             }
 
-            await RefreshMqttAuthIndexAsync(waitForCurrentRefresh: true);
+            return await RefreshMqttAuthIndexAsync(waitForCurrentRefresh: true);
         }
 
         private bool TryAcceptFromMqttAuthIndex(ValidatingConnectionEventArgs e, string userName, string password, string thumbprint)
@@ -279,6 +303,12 @@ namespace IoTSharp.Services
             }
 
             return false;
+        }
+
+        private bool IsKnownProduceToken(string password)
+        {
+            return !string.IsNullOrEmpty(password)
+                && _mqttProduceTokenIndex.ContainsKey(BuildProduceTokenIndexKey(password));
         }
 
         private void CacheSuccessfulAuth(string key, Device device)
@@ -297,6 +327,11 @@ namespace IoTSharp.Services
 
         private void QueueConnectStatus(Guid deviceId, ConnectStatus status)
         {
+            if (_connectStatusPublishPausedUntil > DateTime.UtcNow)
+            {
+                return;
+            }
+
             var dedupeKey = BuildMqttConnectStatusCacheKey(deviceId, status);
             if (_mqttAuthCache.TryGetValue(dedupeKey, out _))
             {
@@ -320,8 +355,9 @@ namespace IoTSharp.Services
                 }
                 catch (Exception ex)
                 {
-                    _logger.LogError(ex, "Failed to publish MQTT connect status. DeviceId={DeviceId}, Status={Status}", status.DeviceId, status.ConnectStatus);
-                    await Task.Delay(1000);
+                    _connectStatusPublishPausedUntil = DateTime.UtcNow.Add(MqttConnectStatusPublishFailureBackoff);
+                    _logger.LogWarning(ex, "Failed to publish MQTT connect status. Publishing is paused briefly. DeviceId={DeviceId}, Status={Status}", status.DeviceId, status.ConnectStatus);
+                    await Task.Delay(MqttConnectStatusPublishFailureBackoff);
                 }
             }
         }
@@ -476,13 +512,29 @@ namespace IoTSharp.Services
                     }
                 }
 
-                await EnsureMqttAuthIndexLoadedAsync();
+                var authIndexReady = await EnsureMqttAuthIndexLoadedAsync();
                 if (TryAcceptFromMqttAuthIndex(e, obj.UserName, obj.Password, _thumbprint))
                 {
                     return;
                 }
 
-                if (!await MqttAuthDatabaseGate.WaitAsync(MqttAuthDatabaseWaitTimeout))
+                if (!authIndexReady)
+                {
+                    e.ReasonCode = MQTTnet.Protocol.MqttConnectReasonCode.ServerUnavailable;
+                    e.ReasonString = "MQTT authentication index is loading. Please retry later.";
+                    _logger.LogDebug("MQTT authentication index is not ready. ClientId={ClientId}, Endpoint={Endpoint}", obj.ClientId, obj.RemoteEndPoint.ToString());
+                    return;
+                }
+
+                if (!IsKnownProduceToken(obj.Password))
+                {
+                    CacheFailedAuth(authCacheKey);
+                    e.ReasonCode = MQTTnet.Protocol.MqttConnectReasonCode.BadUserNameOrPassword;
+                    _logger.LogDebug("MQTT authentication rejected by loaded index. ClientId={ClientId}, Endpoint={Endpoint}", obj.ClientId, obj.RemoteEndPoint.ToString());
+                    return;
+                }
+
+                if (!await MqttAuthDatabaseGate.WaitAsync(MqttAuthDatabaseBusyTimeout))
                 {
                     e.ReasonCode = MQTTnet.Protocol.MqttConnectReasonCode.ServerUnavailable;
                     e.ReasonString = "MQTT authentication is busy. Please retry later.";

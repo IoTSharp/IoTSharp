@@ -328,6 +328,7 @@ namespace IoTSharp
         internal static Device JudgeOrCreateNewDevice(this Device device, string devname, IServiceScopeFactory _scopeFactor, ILogger _logger)
         {
             Device devicedatato = null;
+            var changed = false;
             using (var scope = _scopeFactor.CreateScope())
             using (var _dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>())
             {
@@ -350,21 +351,25 @@ namespace IoTSharp
                             devicedatato = new Device() { Id = Guid.NewGuid(), Name = devname, DeviceType = DeviceType.Device, Tenant = gw.Tenant, Customer = gw.Customer, Owner = gw, Timeout = 300 };
                             gw.Children.Add(devicedatato);
                             _dbContext.AfterCreateDevice(devicedatato);
+                            changed = true;
                             _logger.LogInformation($"网关 {gw.Id}-{gw.Name}在线.添加了子设备{devicedatato.Name}");
                         }
                         else
                         {
                             devicedatato = subdev.FirstOrDefault();
-                            _logger.LogInformation($"网关子设备 {devicedatato.Id}-{devicedatato.Name}在线.");
+                            _logger.LogDebug($"网关子设备 {devicedatato.Id}-{devicedatato.Name}在线.");
                         }
                     }
                 }
                 else
                 {
-                    devicedatato = _dbContext.Device.Find(device.Id);
-                    _logger.LogInformation($"独立设备 {devicedatato.Id}-{devicedatato.Name}在线.");
+                    devicedatato = device;
+                    _logger.LogDebug($"独立设备 {devicedatato.Id}-{devicedatato.Name}在线.");
                 }
-                _dbContext.SaveChanges();
+                if (changed)
+                {
+                    _dbContext.SaveChanges();
+                }
             }
             return devicedatato;
         }

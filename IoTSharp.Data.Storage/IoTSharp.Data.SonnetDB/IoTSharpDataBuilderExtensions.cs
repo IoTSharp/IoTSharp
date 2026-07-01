@@ -31,7 +31,9 @@ namespace Microsoft.Extensions.DependencyInjection
                 options.ConfigureWarnings(w => w.Ignore(RelationalEventId.PendingModelChangesWarning));
             }, poolSize);
 
-            checksBuilder.AddCheck<SonnetDbHealthCheck>("IoTSharp.Data.SonnetDB");
+            checksBuilder.AddCheck<SonnetDbHealthCheck>(
+                "IoTSharp.Data.SonnetDB",
+                tags: new[] { "ready" });
             healthChecksUI.AddInMemoryStorage(opt => opt.ConfigureWarnings(w => w.Ignore(RelationalEventId.MultipleCollectionIncludeWarning)));
         }
 

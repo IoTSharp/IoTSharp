@@ -9,13 +9,16 @@ using Microsoft.Extensions.Options;
 using Quartz;
 using System;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace IoTSharp.Jobs
 {
     [QuartzJobScheduler(1, 0)]
+    [DisallowConcurrentExecution]
     public class CachingJob : IJob
     {
+        private static readonly SemaphoreSlim ExecutionGate = new(1, 1);
         private readonly ILogger<CachingJob> _logger;
         private readonly IServiceScopeFactory _scopeFactor;
         private readonly IEasyCachingProvider _caching;
@@ -30,22 +33,45 @@ namespace IoTSharp.Jobs
         }
         public async Task Execute(IJobExecutionContext context)
         {
-            using (var scope = _scopeFactor.CreateScope())
-            using (var _db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>())
+            if (!await ExecutionGate.WaitAsync(0, context.CancellationToken).ConfigureAwait(false))
             {
-                try
-                {
-                    var tdds = await _db.Tenant.Select(t => t.Id).ToListAsync();
-                    tdds.ForEach(t =>
-                    {
-                        _caching.GetKanBanCache(t, _db);
-                    });
-                }
-                catch (Exception ex)
-                {
+                _logger.LogDebug("Skipping dashboard cache refresh because the previous run is still active.");
+                return;
+            }
 
-                    _logger.LogError(ex, "处理看板缓存时遇到问题。");
+            try
+            {
+                using (var scope = _scopeFactor.CreateScope())
+                using (var _db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>())
+                {
+                    var tdds = await _db.Tenant.AsNoTracking().Select(t => t.Id).ToListAsync(context.CancellationToken).ConfigureAwait(false);
+                    foreach (var t in tdds)
+                    {
+                        try
+                        {
+                            await _caching.GetKanBanCacheAsync(t, _db, context.CancellationToken, _logger).ConfigureAwait(false);
+                        }
+                        catch (OperationCanceledException) when (context.CancellationToken.IsCancellationRequested)
+                        {
+                            throw;
+                        }
+                        catch (Exception ex)
+                        {
+                            _logger.LogWarning(ex, "处理租户看板缓存时遇到问题。TenantId={TenantId}", t);
+                        }
+                    }
                 }
+            }
+            catch (OperationCanceledException) when (context.CancellationToken.IsCancellationRequested)
+            {
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "处理看板缓存时遇到问题。");
+            }
+            finally
+            {
+                ExecutionGate.Release();
             }
         }
     }

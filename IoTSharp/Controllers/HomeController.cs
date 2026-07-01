@@ -8,6 +8,7 @@ using IoTSharp.Contracts;
 using EasyCaching.Core;
 using Microsoft.Extensions.Options;
 using IoTSharp.Extensions;
+using System.Threading.Tasks;
 
 namespace IoTSharp.Controllers
 {
@@ -27,10 +28,10 @@ namespace IoTSharp.Controllers
             _setting = options.Value;
         }
         [HttpGet]
-        public ApiResult<HomeKanbanDto> KanBan()
+        public async Task<ApiResult<HomeKanbanDto>> KanBan()
         {
             var profile = this.GetUserProfile();
-            var data = _caching.GetKanBanCache(profile.Tenant, _context);
+            var data = await _caching.GetKanBanCacheAsync(profile.Tenant, _context, HttpContext.RequestAborted);
             return new ApiResult<HomeKanbanDto>(ApiCode.Success, "OK", data);
         }
         [AllowAnonymous]

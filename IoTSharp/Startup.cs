@@ -63,6 +63,10 @@ namespace IoTSharp
         {
             System.Text.Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
             var settings = Configuration.Get<AppSettings>();
+            services.Configure<HostOptions>(options =>
+            {
+                options.BackgroundServiceExceptionBehavior = BackgroundServiceExceptionBehavior.Ignore;
+            });
             services.Configure((Action<AppSettings>)(setting =>
             {
                 var option = setting.MqttBroker;
@@ -348,6 +352,15 @@ namespace IoTSharp
                 app.UseHsts();
             }
 
+            app.Map("/healthz", healthz =>
+            {
+                healthz.Run(async context =>
+                {
+                    context.Response.ContentType = "application/json";
+                    await context.Response.WriteAsync("{\"status\":\"Healthy\",\"totalDuration\":\"00:00:00\",\"entries\":{}}");
+                });
+            });
+
             app.CheckApplicationDBMigrations();
             //添加定时任务创建表
 
@@ -374,9 +387,9 @@ namespace IoTSharp
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapMqtt("/mqtt");
-                endpoints.MapHealthChecks("/healthz", new HealthCheckOptions()
+                endpoints.MapHealthChecks("/readyz", new HealthCheckOptions()
                 {
-                    Predicate = _ => true,
+                    Predicate = check => check.Tags.Contains("ready"),
                     ResponseWriter = UIResponseWriter.WriteHealthCheckUIResponse
                 });
                 endpoints.MapHealthChecksUI();
