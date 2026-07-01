@@ -50,19 +50,47 @@ namespace IoTSharp.Controllers
         public async Task<ApiResult<PagedData<ProduceDto>>> List([FromQuery] QueryDto m)
         {
             var profile = this.GetUserProfile();
-            Expression<Func<Produce, bool>> condition = x =>
-                x.Customer.Id == profile.Customer && x.Tenant.Id == profile.Tenant && x.Deleted == false;
-            var querym = _context.Produces.Include(c => c.Devices.Where(c => c.Deleted == false));
-            var data = await m.Query(querym, condition, c => c.Name, c => new ProduceDto
+            m.Limit = m.Limit < 5 ? 5 : m.Limit;
+            var query = _context.Produces
+                .Where(x => x.Customer.Id == profile.Customer && x.Tenant.Id == profile.Tenant && !x.Deleted);
+            if (!string.IsNullOrEmpty(m.Name))
             {
-                Id = c.Id,
-                DefaultIdentityType = c.DefaultIdentityType,
-                DefaultTimeout = c.DefaultTimeout,
-                Description = c.Description,
-                Name = c.Name,
-                Devices = c.Devices,
-                DefaultDeviceType = c.DefaultDeviceType
-            });
+                query = query.Where(x => x.Name.StartsWith(m.Name) || x.Name.Contains(m.Name) || x.Name.EndsWith(m.Name));
+            }
+
+            var total = await query.CountAsync();
+            var rows = await query
+                .OrderBy(x => x.Name)
+                .Skip(m.Offset * m.Limit)
+                .Take(m.Limit)
+                .Select(c => new ProduceDto
+                {
+                    Id = c.Id,
+                    DefaultIdentityType = c.DefaultIdentityType,
+                    DefaultTimeout = c.DefaultTimeout,
+                    Description = c.Description,
+                    Name = c.Name,
+                    DefaultDeviceType = c.DefaultDeviceType,
+                    Devices = new List<Device>()
+                })
+                .ToListAsync();
+
+            if (rows.Count > 0)
+            {
+                foreach (var row in rows)
+                {
+                    var produceId = row.Id;
+                    row.Devices = await _context.Device
+                        .Where(d => !d.Deleted && EF.Property<Guid?>(d, "ProduceId") == produceId)
+                        .ToListAsync();
+                }
+            }
+
+            var data = new PagedData<ProduceDto>
+            {
+                total = total,
+                rows = rows
+            };
             return new ApiResult<PagedData<ProduceDto>>(ApiCode.Success, "OK", data);
         }
 
