@@ -126,6 +126,8 @@ namespace IoTSharp.Controllers
                         .Include(c => c.DeviceIdentity)
                         .Include(c => c.Tenant)
                         .Include(c => c.Customer)
+                        .Include(c => c.Owner)
+                        .Include(c => c.Produce)
                              where c.Customer.Id == m.customerId && !c.Deleted && c.Tenant.Id == profile.Tenant
                              select c;
                 if (m.OnlyActive)
@@ -216,6 +218,8 @@ namespace IoTSharp.Controllers
                 IdentityValue = x.DeviceIdentity?.IdentityType == IdentityType.X509Certificate ? "" : x.DeviceIdentity?.IdentityValue,
                 DeviceType = x.DeviceType,
                 Owner = x.Owner,
+                OwnerName = x.Owner?.Name ?? x.Produce?.Name,
+                OwnerType = x.Owner != null ? nameof(DeviceType.Gateway) : x.Produce != null ? "Product" : null,
                 TenantId = x.Tenant.Id,
                 TenantName = x.Tenant.Name,
                 CustomerId = x.Customer.Id,
@@ -543,12 +547,24 @@ namespace IoTSharp.Controllers
             if (User.IsInRole(nameof(UserRole.TenantAdmin)))
             {
                 var tid = Guid.Parse(User.Claims.First(c => c.Type == IoTSharpClaimTypes.Tenant).Value);
-                dev = await _context.Device.Include(d => d.Tenant).Include(d => d.Customer).Include(d => d.DeviceIdentity).FirstOrDefaultAsync(d => d.Id == deviceId && d.Tenant.Id == tid && !d.Deleted);
+                dev = await _context.Device
+                    .Include(d => d.Tenant)
+                    .Include(d => d.Customer)
+                    .Include(d => d.DeviceIdentity)
+                    .Include(d => d.Owner)
+                    .Include(d => d.Produce)
+                    .FirstOrDefaultAsync(d => d.Id == deviceId && d.Tenant.Id == tid && !d.Deleted);
             }
             else if (User.IsInRole(nameof(UserRole.NormalUser)))
             {
                 var cid = Guid.Parse(User.Claims.First(c => c.Type == IoTSharpClaimTypes.Customer).Value);
-                dev = await _context.Device.Include(d => d.Customer).Include(d => d.Customer).Include(d => d.DeviceIdentity).FirstOrDefaultAsync(d => d.Id == deviceId && d.Customer.Id == cid && !d.Deleted);
+                dev = await _context.Device
+                    .Include(d => d.Tenant)
+                    .Include(d => d.Customer)
+                    .Include(d => d.DeviceIdentity)
+                    .Include(d => d.Owner)
+                    .Include(d => d.Produce)
+                    .FirstOrDefaultAsync(d => d.Id == deviceId && d.Customer.Id == cid && !d.Deleted);
             }
             return dev;
         }
@@ -722,21 +738,7 @@ namespace IoTSharp.Controllers
                     await EnsureDeviceIdentityAsync(x);
                 }
 
-                var device = new DeviceDetailDto()
-                {
-                    Id = x.Id,
-                    Name = x.Name,
-                    IdentityId = x.DeviceIdentity?.IdentityId,
-                    IdentityValue = x.DeviceIdentity?.IdentityType == IdentityType.X509Certificate ? "" : x.DeviceIdentity?.IdentityValue,
-                    TenantName = x.Tenant.Name,
-                    CustomerName = x.Customer.Name,
-                    TenantId = x.Tenant.Id,
-                    CustomerId = x.Customer.Id,
-                    DeviceType = x.DeviceType,
-                    Owner = x.Owner,
-                    Timeout = x.Timeout,
-                    IdentityType = x.DeviceIdentity?.IdentityType ?? IdentityType.AccessToken
-                };
+                var device = ToDeviceDetailDto(x);
                 await QueryActivityInfo(device);
                 return new ApiResult<DeviceDetailDto>(ApiCode.Success, "Ok", device);
             }

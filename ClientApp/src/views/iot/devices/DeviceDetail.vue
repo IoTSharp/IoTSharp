@@ -68,7 +68,7 @@
 										<AdvancedKeyValue
 											:obj="deviceRef"
 											:config="columns"
-											:hide-key-list="['owner', 'identityValue', 'tenantName', 'customerName', 'tenantId', 'customerId']"
+											:hide-key-list="['owner', 'ownerName', 'ownerType', 'identityValue', 'tenantName', 'customerName', 'tenantId', 'customerId']"
 											:label-width="160"
 										>
 											<template #footer v-if="canDownloadCert">
@@ -267,9 +267,15 @@ const summaryCards = computed(() => [
 const quickInfoItems = computed(() => [
 	{ label: '租户', value: deviceRef.value?.tenantName || '--' },
 	{ label: '客户', value: deviceRef.value?.customerName || '--' },
-	{ label: '拥有者', value: deviceRef.value?.owner || '--' },
+	{ label: '拥有者', value: deviceRef.value?.ownerName || formatOwner(deviceRef.value?.owner) || '--' },
 	{ label: '超时设置', value: deviceRef.value?.timeout ? `${deviceRef.value.timeout}` : '--' },
 ]);
+
+const formatOwner = (owner: any) => {
+	if (!owner) return '';
+	if (typeof owner === 'string') return owner;
+	return owner.name || owner.Name || '';
+};
 
 const openDialog = (device: any) => {
 	drawer.value = true;

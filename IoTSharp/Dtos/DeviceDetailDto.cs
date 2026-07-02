@@ -28,6 +28,16 @@ namespace IoTSharp.Dtos
         /// </summary>
         public Gateway Owner { get; set; }
 
+        /// <summary>
+        /// 拥有者显示名称。网关子设备显示网关名称，产品认证设备显示产品名称。
+        /// </summary>
+        public string OwnerName { get; set; }
+
+        /// <summary>
+        /// 拥有者类型。
+        /// </summary>
+        public string OwnerType { get; set; }
+
 
         public IdentityType IdentityType { get; set; }
 

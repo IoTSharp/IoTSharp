@@ -1057,6 +1057,16 @@
             所有者
             </summary>
         </member>
+        <member name="P:IoTSharp.Dtos.DeviceDetailDto.OwnerName">
+            <summary>
+            拥有者显示名称。网关子设备显示网关名称，产品认证设备显示产品名称。
+            </summary>
+        </member>
+        <member name="P:IoTSharp.Dtos.DeviceDetailDto.OwnerType">
+            <summary>
+            拥有者类型。
+            </summary>
+        </member>
         <member name="P:IoTSharp.Dtos.DeviceDetailDto.Active">
             <summary>
             是否活动

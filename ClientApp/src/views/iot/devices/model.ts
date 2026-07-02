@@ -10,6 +10,8 @@ export interface TableDataRow {
     lastActivityDateTime?: string;
     name?: string;
     owner?: string;
+    ownerName?: string;
+    ownerType?: string;
     tenantId?: string;
     tenantName?: string;
     timeout?: number;
