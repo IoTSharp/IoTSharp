@@ -76,7 +76,7 @@ services:
     networks:
       - iotsharp-network
     healthcheck:
-      test: ["CMD-SHELL", "wget -qO- http://127.0.0.1:5080/healthz >/dev/null || exit 1"]
+      test: ["CMD-SHELL", "curl -fsS http://127.0.0.1:5080/healthz >/dev/null || exit 1"]
       interval: 10s
       timeout: 5s
       retries: 12

@@ -227,7 +227,7 @@ namespace IoTSharp.Storage
                     writtenRows,
                     totalTelemetryValues,
                     skippedTelemetryValues,
-                    skippedTelemetryValues == 0));
+                    true));
             }
             catch (Exception ex)
             {
@@ -470,6 +470,11 @@ namespace IoTSharp.Storage
                     field = new ColumnInfo(telemetry.KeyName, ColumnRole.Field, ToFieldDataType(telemetry.Type));
                     schemaChanged = true;
                 }
+                else if (CanPromoteLongFieldToDouble(field, telemetry))
+                {
+                    field = field with { DataType = DataType.Double };
+                    schemaChanged = true;
+                }
 
                 if (!TryGetFieldValue(telemetry, field.DataType, out var value))
                 {
@@ -487,6 +492,13 @@ namespace IoTSharp.Storage
             }
 
             return writable;
+        }
+
+        private static bool CanPromoteLongFieldToDouble(ColumnInfo field, TelemetryData telemetry)
+        {
+            return field.DataType == DataType.Long
+                && telemetry.Type == DataType.Double
+                && telemetry.Value_Double.HasValue;
         }
 
         private void RefreshSchema(SndbConnection connection, string measurement)

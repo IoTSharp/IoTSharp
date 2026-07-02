@@ -148,6 +148,47 @@ public sealed class SonnetDBStorageTests : IDisposable
     }
 
     [Fact]
+    public async Task StoreTelemetryBatchAsync_WhenLongFieldReceivesDouble_PromotesFieldWithoutFailingBatch()
+    {
+        var deviceId = Guid.NewGuid();
+        var storage = CreateStorage("TelemetryData");
+        var begin = new DateTime(2026, 6, 12, 1, 0, 0, DateTimeKind.Utc);
+
+        var seed = await storage.StoreTelemetryAsync(CreatePayload(deviceId, begin, new Dictionary<string, object>
+        {
+            ["temperature"] = 20.0,
+            ["file_msgqueue_size"] = 10L
+        }));
+
+        var report = await storage.StoreTelemetryBatchAsync(new[]
+        {
+            CreatePayload(deviceId, begin.AddMinutes(1), new Dictionary<string, object>
+            {
+                ["temperature"] = 21.0,
+                ["file_msgqueue_size"] = 10.5
+            })
+        });
+        var result = await ((IStorage)storage).StoreTelemetryBatchAsync(new[]
+        {
+            CreatePayload(deviceId, begin.AddMinutes(2), new Dictionary<string, object>
+            {
+                ["temperature"] = 22.0,
+                ["file_msgqueue_size"] = 11.5
+            })
+        });
+        var latest = await storage.GetTelemetryLatest(deviceId, "temperature,file_msgqueue_size");
+
+        Assert.True(seed.result);
+        Assert.True(report.IsComplete);
+        Assert.Equal(1, report.WrittenRows);
+        Assert.Equal(2, report.TelemetryValueCount);
+        Assert.Equal(0, report.SkippedTelemetryValueCount);
+        Assert.True(result.Result);
+        Assert.Contains(latest, x => x.KeyName == "temperature" && Equals(22.0, x.Value));
+        Assert.Contains(latest, x => x.KeyName == "file_msgqueue_size" && Equals(11.5, x.Value));
+    }
+
+    [Fact]
     public async Task StoreTelemetryAsync_WhenSchemaCacheLimitIsExceeded_ReloadsEvictedMeasurementSchema()
     {
         var deviceA = Guid.NewGuid();
