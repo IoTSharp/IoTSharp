@@ -875,6 +875,7 @@ export interface modbusmapping {
 - ⬜ RD-10.16 SonnetDB 外部能力依赖清单：分层文件布局、compaction manifest、增量索引、正则 SQL 函数、对象生命周期/配额等属于 SonnetDB 通用数据库能力；IoTSharp 只记录版本要求、兼容矩阵和验收门槛。
 - 🚧 RD-10.17 SonnetMQ EventBus 路径：`EventBus=SonnetMQ`、`EventBusMQ=SonnetMQ`、`IoTSharp.EventBus.SonnetMQ` 已有入口；后续补发布/消费/ack/replay、topic lag、失败重试、指标、配置说明和回滚到 CAP/InMemory 的验证。
 - ⬜ RD-10.18 IoTSharp + SonnetDB 联合边缘样例：设备接入、SonnetDB 本地存储、Studio 查看、Copilot 诊断、备份恢复和私有化部署说明归 IoTSharp 维护；SonnetDB 仓库只提供通用数据库、Studio 和 Agent 能力。
+- ⬜ RD-10.19 设备域批量删除与重建验收：针对“清空设备数据后让设备重新连接、重新上报”的运维场景，IoTSharp 侧需要验证 SonnetDB 的逻辑删除、后台清理/收缩和整表清空原语。前台操作应快速返回并保证查询可见性，物理空间回收交给 SonnetDB 在机器空闲时渐进执行；必须暴露待清理数据量、清理进度、节流原因和失败告警。
 
 迁入任务拆分：
 
@@ -889,6 +890,7 @@ export interface modbusmapping {
 | RD-10.M19-121 | ⬜ | 长稳、压测和故障恢复报告 | 覆盖 EF Core CRUD、遥测批量写入、缓存 TTL、对象 multipart、备份恢复、断电恢复和升级回滚。 |
 | RD-10.M19-125 | ⬜ | 大量 measurement / 物理分表长稳 | 验证百万级 series、万级 measurement、海量小 segment、随机重启、后台 flush/compaction/retention 并发和恢复时间。 |
 | RD-10.M19-126 | ⬜ | SQL 模式匹配验收 | 需要 SonnetDB 提供 `LIKE`/正则相关能力后，IoTSharp 再验证查询翻译、超时、模式长度和 scan filter 边界。 |
+| RD-10.M19-126.1 | ⬜ | 设备域批量删除与后台收缩验收 | 验证 `Device`、`DeviceIdentities`、`DataStorage` latest、告警和设备关联数据的大批量清理不会阻塞前台请求；删除采用逻辑标记后由 SonnetDB 根据资源空闲度后台清理和收缩。 |
 | RD-10.SMQ-01 | 🚧 | SonnetMQ EventBus Profile | 验证 IoTSharp 事件主题、publish/pull/ack、offset 恢复、失败重试、指标和切回 CAP/InMemory。 |
 | RD-10.M27-188 | ⬜ | IoTSharp + SonnetDB 联合边缘样例 | 样例由 IoTSharp 维护，覆盖边缘接入、SonnetDB 存储、诊断、备份恢复和私有化部署。 |
 
@@ -904,6 +906,7 @@ RD-10.M19-109（兼容矩阵）
   -> RD-10.M19-121（长稳 / 压测 / 报告）
   -> RD-10.M19-125（大量 measurement 长稳）
   -> RD-10.M19-126（SQL 模式匹配验收）
+  -> RD-10.M19-126.1（设备域批量删除 / 后台收缩验收）
 ```
 
 验收原则：
@@ -911,6 +914,7 @@ RD-10.M19-109（兼容矩阵）
 - 不把 SonnetDB 普通 KV keyspace 直接冒充 Redis；必须通过 IoTSharp 缓存路径验证 TTL、过期清理、并发语义和 provider 行为。
 - 不把对象桶能力直接等同外部 S3；IoTSharp 以 `IBlobStorage` 行为、迁移一致性和回滚能力作为验收边界。
 - 不把 IoTSharp 每设备 measurement 默认改为共享 measurement + `deviceId` TAG；SonnetDB 优化应优先兼容现有物理分表/多 measurement 模式。
+- 设备清空、租户迁移、设备重建这类大范围删除不能依赖慢 SQL 逐行删除；IoTSharp 只发起受审计的领域操作，数据库侧用逻辑删除和后台清理/收缩保证前台可用性与最终空间回收。
 - 向量搜索、全文搜索和 AI 检索只能作为 IoTSharp 后续增强能力，接入前必须经过权限、租户隔离、审计和索引生命周期评审。
 
 ## 项目关系策略
