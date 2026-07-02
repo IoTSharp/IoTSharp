@@ -8,7 +8,11 @@ using IoTSharp.Contracts;
 using IoTSharp.Data;
 using IoTSharp.Dtos;
 using IoTSharp.Models;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 using Xunit;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace IoTSharp.Test
 {
@@ -73,6 +77,62 @@ namespace IoTSharp.Test
             var detail = await GetApiResultAsync<ProduceAddDto>(client, $"/api/Produces/Get?id={produce.Id}");
             Assert.Equal(DeviceType.Device, detail.Data!.DefaultDeviceType);
             Assert.Equal(45, detail.Data.DefaultTimeout);
+        }
+
+        [Fact]
+        public async Task AttributeLatest_SaveAsync_UpdatesExistingKeysAndAddsNewKeys()
+        {
+            using var client = _fixture.CreateClient();
+            var device = await _fixture.CreateDeviceAsync(client);
+            var deviceId = device.Data!.Id;
+            var firstActivity = new DateTime(2026, 7, 2, 1, 0, 0, DateTimeKind.Utc);
+            var lastConnect = new DateTime(2026, 7, 2, 1, 5, 0, DateTimeKind.Utc);
+            var expectedKeys = new[] { Constants._Active, Constants._LastActivityDateTime, Constants._LastConnectDateTime };
+
+            using (var scope = _fixture.Services.CreateScope())
+            {
+                var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+                var result = await dbContext.SaveAsync<AttributeLatest>(new Dictionary<string, object>
+                {
+                    [Constants._Active] = true,
+                    [Constants._LastActivityDateTime] = firstActivity
+                }, deviceId, DataSide.ServerSide);
+
+                Assert.Empty(result.exceptions);
+            }
+
+            using (var scope = _fixture.Services.CreateScope())
+            {
+                var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+                var result = await dbContext.SaveAsync<AttributeLatest>(new Dictionary<string, object>
+                {
+                    [Constants._Active] = false,
+                    [Constants._LastConnectDateTime] = lastConnect
+                }, deviceId, DataSide.ServerSide);
+
+                Assert.Empty(result.exceptions);
+            }
+
+            using (var scope = _fixture.Services.CreateScope())
+            {
+                var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+                var rows = await dbContext.AttributeLatest
+                    .Where(x => x.DeviceId == deviceId && expectedKeys.Contains(x.KeyName))
+                    .AsNoTracking()
+                    .ToListAsync();
+
+                Assert.Equal(3, rows.Count);
+                var active = Assert.Single(rows, x => x.KeyName == Constants._Active);
+                Assert.Equal(DataCatalog.AttributeLatest, active.Catalog);
+                Assert.Equal(DataSide.ServerSide, active.DataSide);
+                Assert.False(active.Value_Boolean);
+
+                var activity = Assert.Single(rows, x => x.KeyName == Constants._LastActivityDateTime);
+                Assert.Equal(firstActivity, activity.Value_DateTime);
+
+                var connect = Assert.Single(rows, x => x.KeyName == Constants._LastConnectDateTime);
+                Assert.Equal(lastConnect, connect.Value_DateTime);
+            }
         }
 
         private static async Task<ApiResult<T>> GetApiResultAsync<T>(HttpClient client, string requestUri)

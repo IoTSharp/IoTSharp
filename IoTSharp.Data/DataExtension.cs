@@ -88,20 +88,27 @@ namespace IoTSharp.Data
         public static Dic PreparingData<L>(this ApplicationDbContext _context, Dictionary<string, object> data, Guid deviceId, DataSide dataSide)
             where L : DataStorage, new()
         {
-
             Dic exceptions = new Dic();
+            var keyNames = data
+                .Where(kp => kp.Key != null && kp.Value != null)
+                .Select(kp => kp.Key)
+                .Distinct()
+                .ToList();
+            var deviceData = keyNames.Count == 0
+                ? new Dictionary<string, L>()
+                : _context.Set<L>()
+                    .Where(tx => tx.DeviceId == deviceId && keyNames.Contains(tx.KeyName))
+                    .ToDictionary(tx => tx.KeyName);
+            var catalog = GetCatalog<L>();
 
-            data.ToList().ForEach(kp =>
+            foreach (var kp in data)
             {
                 try
                 {
                     if (kp.Key != null && kp.Value != null)
                     {
-                        var devdata = from tx in _context.Set<L>() where tx.DeviceId == deviceId select tx;
-                        var tl = from tx in devdata where tx.KeyName == kp.Key select tx;
-                        if (tl.Any())
+                        if (deviceData.TryGetValue(kp.Key, out var tx))
                         {
-                            var tx = tl.First();
                             tx.FillKVToMe(kp);
                             // TODO:jy 待重新设计主键
                             tx.DateTime = DateTime.UtcNow;
@@ -110,11 +117,10 @@ namespace IoTSharp.Data
                         else
                         {
                             var t2 = new L() { DateTime = DateTime.UtcNow, DeviceId = deviceId, KeyName = kp.Key, DataSide = dataSide };
-                            t2.Catalog = (typeof(L) == typeof(AttributeLatest) ? DataCatalog.AttributeLatest
-                                                       : ((typeof(L) == typeof(TelemetryLatest) ? DataCatalog.TelemetryLatest
-                                                       : 0)));
+                            t2.Catalog = catalog;
                             _context.Set<L>().Add(t2);
                             t2.FillKVToMe(kp);
+                            deviceData.Add(kp.Key, t2);
                         }
                     }
                     else
@@ -126,7 +132,7 @@ namespace IoTSharp.Data
                 {
                     exceptions.Add(kp.Key, ex);
                 }
-            });
+            }
             return exceptions;
         }
 
@@ -134,25 +140,33 @@ namespace IoTSharp.Data
          where L : DataStorage, new()
         {
             Dic exceptions = new Dic();
-            attributes.ToList().ForEach(kp =>
+            var keyNames = attributes
+                .Where(kp => kp.KeyName != null)
+                .Select(kp => kp.KeyName)
+                .Distinct()
+                .ToList();
+            var deviceData = keyNames.Count == 0
+                ? new Dictionary<string, L>()
+                : _context.Set<L>()
+                    .Where(tx => tx.DeviceId == deviceId && keyNames.Contains(tx.KeyName))
+                    .ToDictionary(tx => tx.KeyName);
+            var catalog = GetCatalog<L>();
+
+            foreach (var kp in attributes)
             {
                 try
                 {
-                    var devdata = from tx in _context.Set<L>() where tx.DeviceId == deviceId select tx;
-                    var tl = from tx in devdata where tx.KeyName == kp.KeyName select tx;
-                    if (tl.Any())
+                    if (deviceData.TryGetValue(kp.KeyName, out var tx))
                     {
-                        var tx = tl.First();
                         tx.DateTime = DateTime.UtcNow;
                         _context.Set<L>().Update(tx).State = EntityState.Modified;
                     }
                     else
                     {
                         var t2 = new L() { DateTime = DateTime.UtcNow, DeviceId = deviceId, KeyName = kp.KeyName };
-                        t2.Catalog = (typeof(L) == typeof(AttributeLatest) ? DataCatalog.AttributeLatest
-                                                   : ((typeof(L) == typeof(TelemetryLatest) ? DataCatalog.TelemetryLatest
-                                                   : 0)));
+                        t2.Catalog = catalog;
                         _context.Set<L>().Add(t2);
+                        deviceData.Add(kp.KeyName, t2);
                     }
 
                 }
@@ -160,8 +174,15 @@ namespace IoTSharp.Data
                 {
                     exceptions.Add(kp.KeyName, ex);
                 }
-            });
+            }
             return exceptions;
+        }
+
+        private static DataCatalog GetCatalog<L>() where L : DataStorage, new()
+        {
+            return typeof(L) == typeof(AttributeLatest) ? DataCatalog.AttributeLatest
+                : typeof(L) == typeof(TelemetryLatest) ? DataCatalog.TelemetryLatest
+                : DataCatalog.None;
         }
 
         public static object JPropertyToObject(this JProperty property)
