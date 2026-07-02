@@ -1,6 +1,7 @@
 // 定义接口来定义对象的类型
 export interface TableDataRow {
     active?: boolean;
+    connected?: boolean;
     customerId?: string;
     deviceType?: string;
     id?: string;
@@ -8,6 +9,8 @@ export interface TableDataRow {
     identityType?: string;
     identityValue?: string;
     lastActivityDateTime?: string;
+    lastConnectDateTime?: string;
+    lastDisconnectDateTime?: string;
     name?: string;
     owner?: string;
     ownerName?: string;

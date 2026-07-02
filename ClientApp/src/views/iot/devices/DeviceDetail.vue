@@ -18,7 +18,7 @@
 						<div class="device-detail__hero-meta">
 							<div class="status-pill" :class="`status-pill--${statusClass}`">
 								<el-icon>
-									<CircleCheckFilled v-if="deviceRef?.active" />
+									<CircleCheckFilled v-if="deviceRef?.connected" />
 									<CircleCloseFilled v-else />
 								</el-icon>
 								{{ statusText }}
@@ -32,8 +32,8 @@
 								<strong>{{ identityTypeText }}</strong>
 							</div>
 							<div class="hero-meta-item">
-								<span>最近活动</span>
-								<strong>{{ lastActivityText }}</strong>
+								<span>最后上线</span>
+								<strong>{{ lastOnlineText }}</strong>
 							</div>
 						</div>
 					</div>
@@ -62,7 +62,7 @@
 										<div class="detail-card__header">
 											<div>
 												<h3>设备基础信息</h3>
-												<p>展示设备类型、认证方式、最近活动时间以及平台内标识信息。</p>
+												<p>展示设备类型、认证方式、最后上线时间以及平台内标识信息。</p>
 											</div>
 										</div>
 										<AdvancedKeyValue
@@ -228,8 +228,8 @@ const columns = deviceDetailBaseInfoColumns;
 
 const deviceName = computed(() => deviceRef.value?.name || '设备详情');
 const canDownloadCert = computed(() => deviceRef.value?.identityType === 'X509Certificate');
-const statusClass = computed(() => (deviceRef.value?.active ? 'online' : 'offline'));
-const statusText = computed(() => (deviceRef.value?.active ? '活动中' : '静默'));
+const statusClass = computed(() => (deviceRef.value?.connected ? 'online' : 'offline'));
+const statusText = computed(() => (deviceRef.value?.connected ? '在线' : '离线'));
 const deviceTypeText = computed(() => {
 	if (deviceRef.value?.deviceType === 'Gateway') return '网关';
 	if (deviceRef.value?.deviceType === 'Device') return '设备';
@@ -240,8 +240,8 @@ const identityTypeText = computed(() => {
 	if (deviceRef.value?.identityType === 'X509Certificate') return 'X509 Certificate';
 	return deviceRef.value?.identityType || '--';
 });
-const lastActivityText = computed(() => {
-	const value = deviceRef.value?.lastActivityDateTime;
+const lastOnlineText = computed(() => {
+	const value = deviceRef.value?.lastConnectDateTime;
 	if (!value) return '暂无记录';
 	return dayjs(value).format('YYYY-MM-DD HH:mm:ss');
 });
@@ -253,9 +253,9 @@ const summaryCards = computed(() => [
 		hint: '平台内唯一标识',
 	},
 	{
-		label: '连接状态',
+		label: '在线状态',
 		value: statusText.value,
-		hint: `最近活动：${lastActivityText.value}`,
+		hint: `最后上线：${lastOnlineText.value}`,
 	},
 	{
 		label: '认证方式',

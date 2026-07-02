@@ -25,7 +25,7 @@ export const createDeviceCrudOptions = function ({ expose }, customerId, deviceD
 		const params = reactive({
 			offset: query.page.currentPage - 1,
 			limit: query.page.pageSize,
-			onlyActive: query.form.active ?? false,
+			onlyConnected: query.form.connected ?? false,
 			customerId,
 			name: query.form.name ?? '',
 		});
@@ -33,11 +33,11 @@ export const createDeviceCrudOptions = function ({ expose }, customerId, deviceD
 		const res = await deviceApi().devcieList(params);
 		records = res.data.rows;
 		if (overviewState) {
-			const activeCount = records.filter((item: TableDataRow) => item.active).length;
+			const onlineCount = records.filter((item: TableDataRow) => item.connected).length;
 			overviewState.total = res.data.total ?? 0;
 			overviewState.pageCount = records.length;
-			overviewState.activeCount = activeCount;
-			overviewState.inactiveCount = records.length - activeCount;
+			overviewState.onlineCount = onlineCount;
+			overviewState.offlineCount = records.length - onlineCount;
 			overviewState.lastRefresh = dayjs().format('HH:mm:ss');
 		}
 		return {
@@ -176,14 +176,14 @@ export const createDeviceCrudOptions = function ({ expose }, customerId, deviceD
 					column: { width: '80px' },
 				},
 
-				active: {
-					title: '活动状态',
+				connected: {
+					title: '在线状态',
 					type: 'dict-switch',
 					search: { show: true },
 					dict: dict({
 						data: [
-							{ value: true, label: '活动' },
-							{ value: false, label: '静默', color: 'danger' },
+							{ value: true, label: '在线' },
+							{ value: false, label: '离线', color: 'danger' },
 						],
 					}),
 					column: { width: '80px' },
@@ -200,10 +200,33 @@ export const createDeviceCrudOptions = function ({ expose }, customerId, deviceD
 						component: customSwitchComponent,
 					},
 				},
-				lastActivityDateTime: {
-					title: '最后活动时间',
+				active: {
+					title: '在线状态',
+					type: 'dict-switch',
+					search: { show: false },
+					dict: dict({
+						data: [
+							{ value: true, label: '在线' },
+							{ value: false, label: '离线', color: 'danger' },
+						],
+					}),
+					column: { width: '80px', show: false },
+					viewForm: {
+						show: false,
+						component: customSwitchComponent,
+					},
+					addForm: {
+						show: false,
+						component: customSwitchComponent,
+					},
+					editForm: {
+						show: false,
+						component: customSwitchComponent,
+					},
+				},
+				lastConnectDateTime: {
+					title: '最后上线时间',
 					type: 'datetime',
-
 					column: {
 						formatter: (context) => {
 							if(context.value){
@@ -211,7 +234,6 @@ export const createDeviceCrudOptions = function ({ expose }, customerId, deviceD
 							}else{
 								return '';
 							}
-				
 						},
 						show: false,
 					},

@@ -1069,12 +1069,27 @@
         </member>
         <member name="P:IoTSharp.Dtos.DeviceDetailDto.Active">
             <summary>
-            是否活动
+            旧版活跃标记。仅保留兼容，不作为控制台在线状态展示。
             </summary>
         </member>
         <member name="P:IoTSharp.Dtos.DeviceDetailDto.LastActivityDateTime">
             <summary>
-            最后活动
+            旧版最后活跃时间。仅保留兼容，不作为控制台在线状态展示。
+            </summary>
+        </member>
+        <member name="P:IoTSharp.Dtos.DeviceDetailDto.Connected">
+            <summary>
+            是否在线
+            </summary>
+        </member>
+        <member name="P:IoTSharp.Dtos.DeviceDetailDto.LastConnectDateTime">
+            <summary>
+            最后上线时间
+            </summary>
+        </member>
+        <member name="P:IoTSharp.Dtos.DeviceDetailDto.LastDisconnectDateTime">
+            <summary>
+            最后离线时间
             </summary>
         </member>
         <member name="P:IoTSharp.Dtos.DevicePutDto.DeviceType">

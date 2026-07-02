@@ -45,13 +45,25 @@ namespace IoTSharp.Dtos
         public string IdentityValue { get; set; }
         public string IdentityId { get; set; }
         /// <summary>
-        /// 是否活动
+        /// 旧版活跃标记。仅保留兼容，不作为控制台在线状态展示。
         /// </summary>
         public bool Active { get; set; }
         /// <summary>
-        /// 最后活动
+        /// 旧版最后活跃时间。仅保留兼容，不作为控制台在线状态展示。
         /// </summary>
         public DateTime? LastActivityDateTime { get; set; }
+        /// <summary>
+        /// 是否在线
+        /// </summary>
+        public bool Connected { get; set; }
+        /// <summary>
+        /// 最后上线时间
+        /// </summary>
+        public DateTime? LastConnectDateTime { get; set; }
+        /// <summary>
+        /// 最后离线时间
+        /// </summary>
+        public DateTime? LastDisconnectDateTime { get; set; }
         public string TenantName { get; set; }
         public string CustomerName { get; set; }
         public Guid TenantId { get; set; }

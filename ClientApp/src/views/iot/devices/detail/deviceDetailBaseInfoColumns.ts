@@ -15,18 +15,22 @@ export const deviceDetailBaseInfoColumns = {
 			],
 		}),
 	},
-	active: {
-		title: '活动状态',
+	connected: {
+		title: '在线状态',
 		type: 'dict-switch',
 		dict: dict({
 			data: [
-				{ value: true, label: '活动中' },
-				{ value: false, label: '静默', color: 'danger' },
+				{ value: true, label: '在线' },
+				{ value: false, label: '离线', color: 'danger' },
 			],
 		}),
 	},
-	lastActivityDateTime: {
-		title: '最后活动时间',
+	lastConnectDateTime: {
+		title: '最后上线时间',
+		type: 'text',
+	},
+	lastDisconnectDateTime: {
+		title: '最后离线时间',
 		type: 'text',
 	},
 	identityType: {

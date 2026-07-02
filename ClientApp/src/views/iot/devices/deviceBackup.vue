@@ -10,7 +10,7 @@
         >
         </el-input>
         <el-switch
-            v-model="query.onlyActive"
+            v-model="query.onlyConnected"
             size="large"
             active-text="仅显示在线"
             inactive-text="全部"
@@ -48,18 +48,24 @@
         ></el-table-column>
 
         <el-table-column
-            prop="active"
+            prop="connected"
             label="在线状态"
             show-overflow-tooltip
-        ></el-table-column>
+        >
+          <template #default="scope">
+            <el-tag :type="scope.row.connected ? 'success' : 'danger'">
+              {{ scope.row.connected ? '在线' : '离线' }}
+            </el-tag>
+          </template>
+        </el-table-column>
         <el-table-column
-            prop="lastActivityDateTime"
-            label="最后活动时间"
+            prop="lastConnectDateTime"
+            label="最后上线时间"
             show-overflow-tooltip
         ></el-table-column>
 
         <el-table-column
-            prop="active"
+            prop="identityType"
             label="认证方式"
             show-overflow-tooltip
         ></el-table-column>
@@ -128,7 +134,7 @@ const state = reactive<TableDataState>({
 const query = reactive({
   offset: state.tableData.param.pageNum - 1,
   limit: state.tableData.param.pageSize,
-  onlyActive: false,
+  onlyConnected: false,
   customerId: userInfos.customer.id,
   name: "",
 });

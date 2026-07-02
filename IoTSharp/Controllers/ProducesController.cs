@@ -233,6 +233,7 @@ namespace IoTSharp.Controllers
                 if (produce != null)
                 {
                     produce.DefaultIdentityType = dto.DefaultIdentityType;
+                    produce.DefaultDeviceType = dto.DefaultDeviceType;
                     produce.DefaultTimeout = dto.DefaultTimeout;
                     produce.Description = dto.Description;
                     produce.GatewayType = dto.GatewayType;

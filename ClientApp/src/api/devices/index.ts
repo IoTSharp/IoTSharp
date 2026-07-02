@@ -25,6 +25,7 @@ export function deviceApi() {
 					sort: '',
 					name: params.name ?? '',
 					onlyActive: params.onlyActive ?? false,
+					onlyConnected: params.onlyConnected ?? false,
 				},
 			});
 
@@ -167,6 +168,7 @@ export function deviceApi() {
 
 interface QueryParam extends IListQueryParam {
 	onlyActive?: boolean;
+	onlyConnected?: boolean;
 	customerId?: string;
 	name?: string;
 }

@@ -30,7 +30,7 @@
 						<template #actionbar-right>
 							<div class="device-list-page__actionbar">
 								<span class="device-list-page__actionbar-tag">当前页 {{ deviceOverview.pageCount }} 台</span>
-								<span class="device-list-page__actionbar-tag is-primary">在线 {{ deviceOverview.activeCount }} 台</span>
+								<span class="device-list-page__actionbar-tag is-primary">在线 {{ deviceOverview.onlineCount }} 台</span>
 							</div>
 						</template>
 					</fs-crud>
@@ -63,8 +63,8 @@ const { userInfos } = storeToRefs(stores);
 const deviceOverview = reactive({
 	total: 0,
 	pageCount: 0,
-	activeCount: 0,
-	inactiveCount: 0,
+	onlineCount: 0,
+	offlineCount: 0,
 	lastRefresh: '',
 });
 
@@ -107,14 +107,14 @@ const deviceMetrics = computed(() => [
 	},
 	{
 		label: '当前页在线',
-		value: deviceOverview.activeCount,
-		hint: '本页处于活动状态的设备数量。',
+		value: deviceOverview.onlineCount,
+		hint: '本页在线设备数量。',
 		tone: 'success' as const,
 	},
 	{
-		label: '当前页静默',
-		value: deviceOverview.inactiveCount,
-		hint: '本页尚未激活或暂时离线的设备。',
+		label: '当前页离线',
+		value: deviceOverview.offlineCount,
+		hint: '本页离线设备数量。',
 		tone: 'warning' as const,
 	},
 	{

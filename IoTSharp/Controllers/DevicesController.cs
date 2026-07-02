@@ -135,6 +135,11 @@ namespace IoTSharp.Controllers
                     var al = from a in _context.AttributeLatest where a.KeyName == Constants._Active && a.Value_Boolean == true select a.DeviceId;
                     query = from x in query where al.Contains(x.Id) select x;
                 }
+                if (m.OnlyConnected)
+                {
+                    var cl = from a in _context.AttributeLatest where a.KeyName == Constants._Connected && a.Value_Boolean == true select a.DeviceId;
+                    query = from x in query where cl.Contains(x.Id) select x;
+                }
                 if (!string.IsNullOrEmpty(m.Name))
                 {
                     if (System.Text.RegularExpressions.Regex.IsMatch(m.Name, @"(?im)^[{(]?[0-9A-F]{8}[-]?(?:[0-9A-F]{4}[-]?){3}[0-9A-F]{12}[)}]?$"))
@@ -169,7 +174,14 @@ namespace IoTSharp.Controllers
         private async Task QueryActivityInfo(DeviceDetailDto dev)
         {
             var id = dev.Id;
-            var al = from a in _context.AttributeLatest where id == a.DeviceId && (a.KeyName == Constants._Active || a.KeyName == Constants._LastActivityDateTime) select a;
+            var al = from a in _context.AttributeLatest
+                     where id == a.DeviceId
+                         && (a.KeyName == Constants._Active
+                             || a.KeyName == Constants._LastActivityDateTime
+                             || a.KeyName == Constants._Connected
+                             || a.KeyName == Constants._LastConnectDateTime
+                             || a.KeyName == Constants._LastDisconnectDateTime)
+                     select a;
             var alx = await al.ToListAsync();
             if (alx != null)
             {
@@ -183,13 +195,32 @@ namespace IoTSharp.Controllers
                     {
                         dev.LastActivityDateTime = a.Value_DateTime;
                     }
+                    else if (a.KeyName == Constants._Connected)
+                    {
+                        dev.Connected = (bool)a.Value_Boolean;
+                    }
+                    else if (a.KeyName == Constants._LastConnectDateTime)
+                    {
+                        dev.LastConnectDateTime = a.Value_DateTime;
+                    }
+                    else if (a.KeyName == Constants._LastDisconnectDateTime)
+                    {
+                        dev.LastDisconnectDateTime = a.Value_DateTime;
+                    }
                 });
             }
         }
         private async Task QueryActivityInfo(List<DeviceDetailDto> lst)
         {
             var devlst = lst.Select(c => c.Id).ToList();
-            var al = from a in _context.AttributeLatest where devlst.Contains(a.DeviceId) && (a.KeyName == Constants._Active || a.KeyName == Constants._LastActivityDateTime) select a;
+            var al = from a in _context.AttributeLatest
+                     where devlst.Contains(a.DeviceId)
+                         && (a.KeyName == Constants._Active
+                             || a.KeyName == Constants._LastActivityDateTime
+                             || a.KeyName == Constants._Connected
+                             || a.KeyName == Constants._LastConnectDateTime
+                             || a.KeyName == Constants._LastDisconnectDateTime)
+                     select a;
             var allist = await al.ToListAsync();
             allist.ForEach(a =>
             {
@@ -203,6 +234,18 @@ namespace IoTSharp.Controllers
                     else if (a.KeyName == Constants._LastActivityDateTime)
                     {
                         dev.LastActivityDateTime = a.Value_DateTime;
+                    }
+                    else if (a.KeyName == Constants._Connected)
+                    {
+                        dev.Connected = (bool)a.Value_Boolean;
+                    }
+                    else if (a.KeyName == Constants._LastConnectDateTime)
+                    {
+                        dev.LastConnectDateTime = a.Value_DateTime;
+                    }
+                    else if (a.KeyName == Constants._LastDisconnectDateTime)
+                    {
+                        dev.LastDisconnectDateTime = a.Value_DateTime;
                     }
                 }
             });

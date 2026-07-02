@@ -49,6 +49,8 @@ namespace IoTSharp.Controllers.Models
 
         public bool OnlyActive { get; set; }
 
+        public bool OnlyConnected { get; set; }
+
     }
 
     public class RulePageParam : QueryDto
