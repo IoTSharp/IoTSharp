@@ -84,4 +84,5 @@
     <Build Solution="Release|Any CPU" Project="false" />
   </Project>
   <Project Path="IoTSharp/IoTSharp.csproj" />
+  <Project Path="SonnetDB/src/Testcontainers.SonnetDB/Testcontainers.SonnetDB.csproj" />
 </Solution>

@@ -70,7 +70,9 @@
 		<PackageReference Include="IoTSharp.CoAP.NET" />
 		<PackageReference Include="Jdenticon-net" />
 		<PackageReference Include="Jdenticon.AspNetCore" />
-		<PackageReference Include="LettuceEncrypt" ExcludeAssets="all" PrivateAssets="all" />
+		<PackageReference Include="LettuceEncrypt" ExcludeAssets="all" PrivateAssets="all">
+		  <IncludeAssets>none</IncludeAssets>
+		</PackageReference>
 		<PackageReference Include="LettuceEncrypt-Archon" />
 		<PackageReference Include="LettuceEncrypt.Dns.Ali" />
 		<PackageReference Include="LiteDB" />
