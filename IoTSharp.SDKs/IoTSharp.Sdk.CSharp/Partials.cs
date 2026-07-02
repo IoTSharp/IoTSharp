@@ -39,7 +39,7 @@ namespace IoTSharp.Sdk.Http
     }
     public partial class DevicesClient
     {
-        static partial void UpdateJsonSerializerOptions(System.Text.Json.JsonSerializerOptions settings)
+        static partial void UpdateJsonSerializerSettings(System.Text.Json.JsonSerializerOptions settings)
         {
         }
     }

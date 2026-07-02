@@ -144,7 +144,6 @@ namespace IoTSharp.Controllers
                 DeviceModelCommand dmc = new DeviceModelCommand
                 {
                     CommandTitle = m.CommandTitle,
-                    CommandI18N = m.CommandI18N,
                     CommandType = m.CommandType,
                     CommandParams = m.CommandParams,
                     CommandName = m.CommandName,
@@ -170,7 +169,6 @@ namespace IoTSharp.Controllers
             if (dmc != null)
             {
                 dmc.CommandTitle = m.CommandTitle;
-                dmc.CommandI18N = m.CommandI18N;
                 dmc.CommandType = m.CommandType;
                 dmc.CommandParams = m.CommandParams;
                 dmc.CommandName = m.CommandName;

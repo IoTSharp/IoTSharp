@@ -106,7 +106,7 @@
 									<el-form-item label="产品认证 Key" prop="produceToken">
 										<el-input
 											v-model="state.dataForm.produceToken"
-											placeholder="留空则由系统自动生成；可填入旧 AuthorizedKey"
+											placeholder="留空则由系统自动生成；也可填入既有产品认证 Key"
 											clearable
 										>
 											<template #append>

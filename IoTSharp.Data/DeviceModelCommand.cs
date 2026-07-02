@@ -9,7 +9,6 @@ namespace IoTSharp.Data
         public Guid CommandId { get; set; }
 
         public string CommandTitle { get; set; }
-        public string CommandI18N { get; set; }
 
         public int CommandType { get; set; }
 

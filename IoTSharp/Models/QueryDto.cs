@@ -1,6 +1,4 @@
 ﻿using System;
-using IoTSharp.Data;
-
 namespace IoTSharp.Controllers.Models
 {
     public class QueryDto
@@ -75,10 +73,6 @@ namespace IoTSharp.Controllers.Models
         public int DictionaryGroupId { get; set; }
     }
 
-    public class I18NParam : QueryDto
-    {
-        public string KeyName { get; set; }
-    }
     /// <summary>
     /// 租户的客户查询
     /// </summary>

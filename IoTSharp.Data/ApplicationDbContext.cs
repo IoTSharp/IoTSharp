@@ -58,9 +58,6 @@ namespace IoTSharp.Data
         public DbSet<DynamicFormFieldInfo> DynamicFormFieldInfos { get; set; }
         public DbSet<DynamicFormFieldValueInfo> DynamicFormFieldValueInfos { get; set; }
         public DbSet<DynamicFormInfo> DynamicFormInfos { get; set; }
-        public DbSet<BaseI18N> BaseI18Ns { get; set; }
-        public DbSet<AuthorizedKey> AuthorizedKeys { get; set; }
-
         public DbSet<BaseEvent> BaseEvents { get; set; }
         public DbSet<FlowRule> FlowRules { get; set; }
         public DbSet<Flow> Flows { get; set; }
