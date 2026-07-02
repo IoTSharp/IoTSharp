@@ -76,6 +76,7 @@
 		<PackageReference Include="LettuceEncrypt-Archon" />
 		<PackageReference Include="LettuceEncrypt.Dns.Ali" />
 		<PackageReference Include="LiteDB" />
+		<PackageReference Include="Microsoft.AspNetCore.OpenApi" />
 		<PackageReference Include="Microsoft.AspNetCore.SpaProxy" />
 		<PackageReference Include="Microsoft.CodeAnalysis.Common" />
 		<PackageReference Include="Microsoft.CodeAnalysis.CSharp" />
@@ -88,15 +89,14 @@
 		<PackageReference Include="MQTTnet" />
 		<PackageReference Include="MQTTnet.AspNetCore" />
 		<PackageReference Include="MQTTnet.AspNetCore.Routing" />
-		<PackageReference Include="NSwag.AspNetCore" />
 		<PackageReference Include="PrettyLogging.Console" />
 		<PackageReference Include="Packaging.Targets" PrivateAssets="all" />
 		<PackageReference Include="Rin" />
 		<PackageReference Include="Rin.Mvc" />
-		<PackageReference Include="RulesEngine" />
 		<PackageReference Include="SkiaSharp" />
 		<PackageReference Include="SkiaSharp.NativeAssets.Linux.NoDependencies" />
 		<PackageReference Include="Storage.Net" />
+		<PackageReference Include="System.Linq.Dynamic.Core" />
 		<PackageReference Include="System.Resources.Extensions" />
 		<PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" />
 		<PackageReference Include="Microsoft.Extensions.Hosting.WindowsServices" />
@@ -250,7 +250,6 @@
 
 	<ItemGroup>
 		<ProjectReference Include="..\IoTSharp.Contracts\IoTSharp.Contracts.csproj" />
-		<ProjectReference Include="..\IoTSharp.Data.Storage\IoTSharp.Data.Cassandra\IoTSharp.Data.Cassandra.csproj" />
 		<ProjectReference Include="..\IoTSharp.Data.Storage\IoTSharp.Data.ClickHouse\IoTSharp.Data.ClickHouse.csproj" />
 		<ProjectReference Include="..\IoTSharp.Data.Storage\IoTSharp.Data.InMemory\IoTSharp.Data.InMemory.csproj" />
 		<ProjectReference Include="..\IoTSharp.Data.Storage\IoTSharp.Data.MySQL\IoTSharp.Data.MySQL.csproj" />

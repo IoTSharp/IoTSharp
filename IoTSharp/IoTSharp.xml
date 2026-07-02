@@ -1515,12 +1515,6 @@
             <param name="_user"></param>
             <returns></returns>
         </member>
-        <member name="M:IoTSharp.IoTSharpExtension.AddJWTSecurity(NSwag.Generation.AspNetCore.AspNetCoreOpenApiDocumentGeneratorSettings)">
-            <summary>
-            
-            </summary>
-            <param name="configure"></param>
-        </member>
         <member name="M:IoTSharp.IoTSharpExtension.JudgeOrCreateNewDevice(IoTSharp.Data.Device,System.String,Microsoft.Extensions.DependencyInjection.IServiceScopeFactory,Microsoft.Extensions.Logging.ILogger)">
             <summary>
             创建网关的子设备。 
@@ -1551,12 +1545,99 @@
             <param name="data">进入到当前节点的数据传参</param>
             <returns></returns>
         </member>
+        <member name="P:IoTSharp.FlowRuleEngine.BaseRuleFlow.Rule">
+            <summary>
+            将连线上的条件表达式转换为运行时可执行的规则描述。
+            </summary>
+        </member>
+        <member name="T:IoTSharp.FlowRuleEngine.FlowConditionRule">
+            <summary>
+            描述流程连线上的条件规则，供轻量规则执行器判断是否命中。
+            </summary>
+        </member>
+        <member name="P:IoTSharp.FlowRuleEngine.FlowConditionRule.RuleName">
+            <summary>
+            规则名称，通常使用连线或节点标识。
+            </summary>
+        </member>
+        <member name="P:IoTSharp.FlowRuleEngine.FlowConditionRule.Expression">
+            <summary>
+            需要执行的布尔表达式。
+            </summary>
+        </member>
+        <member name="P:IoTSharp.FlowRuleEngine.FlowConditionRule.SuccessEvent">
+            <summary>
+            规则命中后返回的事件标识。
+            </summary>
+        </member>
+        <member name="T:IoTSharp.FlowRuleEngine.RuleResultTree">
+            <summary>
+            表示单条条件规则的执行结果。
+            </summary>
+        </member>
+        <member name="P:IoTSharp.FlowRuleEngine.RuleResultTree.Rule">
+            <summary>
+            本次执行的规则。
+            </summary>
+        </member>
+        <member name="P:IoTSharp.FlowRuleEngine.RuleResultTree.IsSuccess">
+            <summary>
+            表达式是否执行成功并返回 true。
+            </summary>
+        </member>
+        <member name="P:IoTSharp.FlowRuleEngine.RuleResultTree.ExceptionMessage">
+            <summary>
+            表达式执行失败时的错误信息。
+            </summary>
+        </member>
         <member name="M:IoTSharp.FlowRuleEngine.SimpleFlowExcutor.Excute(IoTSharp.FlowRuleEngine.FlowExcuteEntity)">
             <summary>
-            调用规则引擎处理线上的逻辑，判断是否为True，用来判断是否继续进行下一步节点
+            执行当前任务的所有外连线条件，并返回每条规则的命中结果。
             </summary>
-            <param name="Input"></param>
-            <returns></returns>
+            <param name="Input">包含当前任务、外连线和输入参数的流程执行上下文。</param>
+            <returns>每条外连线条件的执行结果。</returns>
+        </member>
+        <member name="M:IoTSharp.FlowRuleEngine.SimpleFlowExcutor.CreateExpressionEngine">
+            <summary>
+            创建受限的表达式执行引擎，避免规则表达式长期运行或占用过多内存。
+            </summary>
+            <returns>配置了资源限制的 Jint 引擎。</returns>
+        </member>
+        <member name="M:IoTSharp.FlowRuleEngine.SimpleFlowExcutor.EvaluateRule(Jint.Engine,IoTSharp.FlowRuleEngine.FlowConditionRule)">
+            <summary>
+            执行单条条件表达式，并把异常转换为失败结果。
+            </summary>
+            <param name="engine">已绑定输入变量的表达式引擎。</param>
+            <param name="rule">需要执行的规则。</param>
+            <returns>规则执行结果。</returns>
+        </member>
+        <member name="M:IoTSharp.FlowRuleEngine.SimpleFlowExcutor.BindInput(Jint.Engine,System.Object)">
+            <summary>
+            将输入参数绑定为 input 变量，并把一层属性展开为同名变量以兼容旧表达式。
+            </summary>
+            <param name="engine">需要绑定变量的表达式引擎。</param>
+            <param name="input">流程输入参数。</param>
+        </member>
+        <member name="M:IoTSharp.FlowRuleEngine.SimpleFlowExcutor.ReadProperties(System.Object)">
+            <summary>
+            读取字典、ExpandoObject 或普通对象上的公开属性。
+            </summary>
+            <param name="value">需要读取的对象。</param>
+            <returns>对象的一层键值集合。</returns>
+        </member>
+        <member name="M:IoTSharp.FlowRuleEngine.SimpleFlowExcutor.NormalizeValue(System.Object)">
+            <summary>
+            将 System.Text.Json 产生的 JsonElement 转为普通 CLR 值。
+            </summary>
+            <param name="value">需要归一化的输入值。</param>
+            <returns>可直接绑定到表达式引擎的值。</returns>
+        </member>
+        <member name="M:IoTSharp.FlowRuleEngine.SimpleFlowExcutor.ToBoolean(Jint.Native.JsValue)">
+            <summary>
+            将表达式返回值转换为布尔结果，兼容布尔、字符串和数字返回值。
+            </summary>
+            <param name="value">表达式求值结果。</param>
+            <returns>表示规则是否命中的布尔值。</returns>
         </member>
         <member name="P:IoTSharp.Gateways.OPCUATag.TagName">
             <summary>
@@ -1790,6 +1871,50 @@
             <summary>
             兼容thingsboard协议
             </summary>
+        </member>
+        <member name="M:Microsoft.AspNetCore.OpenApi.Generated.DocumentationCommentIdHelper.CreateDocumentationId(System.Type)">
+            <summary>
+            Generates a documentation comment ID for a type.
+            Example: T:Namespace.Outer+Inner`1 becomes T:Namespace.Outer.Inner`1
+            </summary>
+        </member>
+        <member name="M:Microsoft.AspNetCore.OpenApi.Generated.DocumentationCommentIdHelper.CreateDocumentationId(System.Reflection.PropertyInfo)">
+            <summary>
+            Generates a documentation comment ID for a property.
+            Example: P:Namespace.ContainingType.PropertyName or for an indexer P:Namespace.ContainingType.Item(System.Int32)
+            </summary>
+        </member>
+        <member name="M:Microsoft.AspNetCore.OpenApi.Generated.DocumentationCommentIdHelper.CreateDocumentationId(System.Type,System.String)">
+            <summary>
+            Generates a documentation comment ID for a property given its container type and property name.
+            Example: P:Namespace.ContainingType.PropertyName
+            </summary>
+        </member>
+        <member name="M:Microsoft.AspNetCore.OpenApi.Generated.DocumentationCommentIdHelper.CreateDocumentationId(System.Reflection.MethodInfo)">
+            <summary>
+            Generates a documentation comment ID for a method (or constructor).
+            For example:
+              M:Namespace.ContainingType.MethodName(ParamType1,ParamType2)~ReturnType
+              M:Namespace.ContainingType.#ctor(ParamType)
+            </summary>
+        </member>
+        <member name="M:Microsoft.AspNetCore.OpenApi.Generated.DocumentationCommentIdHelper.GetTypeDocId(System.Type,System.Boolean,System.Boolean)">
+            <summary>
+            Generates a documentation ID string for a type.
+            This method handles nested types (replacing '+' with '.'),
+            generic types, arrays, pointers, by-ref types, and generic parameters.
+            The <paramref name="includeGenericArguments"/> flag controls whether
+            constructed generic type arguments are emitted, while <paramref name="omitGenericArity"/>
+            controls whether the generic arity marker (e.g. "`1") is appended.
+            </summary>
+        </member>
+        <member name="M:Microsoft.AspNetCore.OpenApi.Generated.DocumentationCommentIdHelper.NormalizeDocId(System.String)">
+            <summary>
+            Normalizes a documentation comment ID to match the compiler-style format.
+            Strips the return type suffix for ordinary methods but retains it for conversion operators.
+            </summary>
+            <param name="docId">The documentation comment ID to normalize.</param>
+            <returns>The normalized documentation comment ID.</returns>
         </member>
     </members>
 </doc>

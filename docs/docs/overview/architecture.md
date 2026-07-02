@@ -27,7 +27,6 @@ IoTSharp 当前由几个关键层组成。
 - Oracle
 - SQL Server
 - Sqlite
-- Cassandra
 - ClickHouse
 - InMemory
 

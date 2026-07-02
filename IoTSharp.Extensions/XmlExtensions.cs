@@ -11,6 +11,12 @@ namespace IoTSharp.Extensions
     public static class XmlExtensions
     {
 
+        /// <summary>
+        /// 将内存流中的 XML 转换为普通 CLR 对象形式的 JSON 结构。
+        /// </summary>
+        /// <param name="xml">包含 XML 内容的内存流。</param>
+        /// <param name="obj">转换后的对象；失败时为 null。</param>
+        /// <returns>转换成功返回 true，否则返回 false。</returns>
         public static bool XML2Json(System.IO.MemoryStream xml, out object obj)
         {
             bool ok = false;
@@ -30,6 +36,12 @@ namespace IoTSharp.Extensions
             return ok;
         }
 
+        /// <summary>
+        /// 将 XML 文件转换为普通 CLR 对象形式的 JSON 结构。
+        /// </summary>
+        /// <param name="xml">XML 文件信息。</param>
+        /// <param name="obj">转换后的对象；失败时为 null。</param>
+        /// <returns>转换成功返回 true，否则返回 false。</returns>
         public static bool XML2Json(FileInfo xml, out object obj)
         {
             bool ok = false;
@@ -48,6 +60,12 @@ namespace IoTSharp.Extensions
             return ok;
         }
 
+        /// <summary>
+        /// 将 XML 字符串转换为普通 CLR 对象形式的 JSON 结构。
+        /// </summary>
+        /// <param name="xml">XML 字符串；包含非法字符时会先过滤。</param>
+        /// <param name="obj">转换后的对象；失败时为 null。</param>
+        /// <returns>转换成功返回 true，否则返回 false。</returns>
         public static bool XML2Json(string xml, out object obj)
         {
             bool ok = false;
@@ -70,12 +88,22 @@ namespace IoTSharp.Extensions
             return ok;
         }
 
+        /// <summary>
+        /// 过滤 XML 规范不允许的字符。
+        /// </summary>
+        /// <param name="text">需要清理的文本。</param>
+        /// <returns>只包含合法 XML 字符的文本。</returns>
         private static string RemoveInvalidXmlChars(string text)
         {
             var validXmlChars = text.Where(ch => XmlConvert.IsXmlChar(ch)).ToArray();
             return new string(validXmlChars);
         }
 
+        /// <summary>
+        /// 判断字符串是否只包含 XML 规范允许的字符。
+        /// </summary>
+        /// <param name="text">需要检查的文本。</param>
+        /// <returns>全部字符合法返回 true，否则返回 false。</returns>
         private static bool IsValidXmlString(string text)
         {
             try
@@ -88,6 +116,13 @@ namespace IoTSharp.Extensions
                 return false;
             }
         }
+
+        /// <summary>
+        /// 将 diffgram 形式的 XElement 列表转换为指定实体列表。
+        /// </summary>
+        /// <typeparam name="T">目标实体类型。</typeparam>
+        /// <param name="_Nodes">包含 diffgram 节点的 XElement 列表。</param>
+        /// <returns>转换后的实体列表；无法解析的节点会被忽略。</returns>
         public static List<T> ToList<T>(this List<System.Xml.Linq.XElement> _Nodes)
         {
             if (_Nodes == null)
@@ -119,6 +154,11 @@ namespace IoTSharp.Extensions
             return ts;
         }
 
+        /// <summary>
+        /// 将 XElement 的属性和子元素转换为 JsonObject，供后续类型反序列化使用。
+        /// </summary>
+        /// <param name="element">需要转换的 XML 元素。</param>
+        /// <returns>表示该元素内容的 JsonObject。</returns>
         private static JsonObject ConvertElementToJsonObject(System.Xml.Linq.XElement element)
         {
             var result = new JsonObject();
@@ -153,6 +193,11 @@ namespace IoTSharp.Extensions
             return result;
         }
 
+        /// <summary>
+        /// 根据 XElement 是否包含子节点或属性，转换为对象节点或字符串节点。
+        /// </summary>
+        /// <param name="element">需要转换的 XML 元素。</param>
+        /// <returns>转换后的 JsonNode。</returns>
         private static JsonNode ConvertElementValue(System.Xml.Linq.XElement element)
         {
             return element.HasElements || element.HasAttributes

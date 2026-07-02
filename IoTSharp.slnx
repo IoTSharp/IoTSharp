@@ -43,7 +43,6 @@
     <File Path="tools/upgrade_ef.cmd" />
   </Folder>
   <Folder Name="/DataStorage/">
-    <Project Path="IoTSharp.Data.Storage/IoTSharp.Data.Cassandra/IoTSharp.Data.Cassandra.csproj" />
     <Project Path="IoTSharp.Data.Storage/IoTSharp.Data.ClickHouse/IoTSharp.Data.ClickHouse.csproj" />
     <Project Path="IoTSharp.Data.Storage/IoTSharp.Data.InMemory/IoTSharp.Data.InMemory.csproj" />
     <Project Path="IoTSharp.Data.Storage/IoTSharp.Data.MySQL/IoTSharp.Data.MySQL.csproj" />

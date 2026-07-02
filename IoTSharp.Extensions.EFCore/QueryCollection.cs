@@ -42,16 +42,31 @@ namespace IoTSharp.EasyEFQuery
 
     public class QueryCollection : Collection<Query>
     {
+        /// <summary>
+        /// 创建空查询条件集合。
+        /// </summary>
+        /// <returns>新的查询条件集合。</returns>
         public static QueryCollection Create()
         {
             return new QueryCollection();
         }
+
+        /// <summary>
+        /// 从 JSON 字符串创建查询条件集合，并归一化动态值类型。
+        /// </summary>
+        /// <param name="json">查询条件 JSON 字符串。</param>
+        /// <returns>解析后的查询条件集合；空输入返回空集合。</returns>
         public static QueryCollection Create(string json)
         {
             var queries = JsonObjectSerializer.Deserialize<QueryCollection>(json) ?? new QueryCollection();
             queries.NormalizeJsonValues();
             return queries;
         }
+
+        /// <summary>
+        /// 将查询条件集合序列化为 JSON 字符串。
+        /// </summary>
+        /// <returns>当前查询条件集合的 JSON 表示。</returns>
         public override string ToString()
         {
             return JsonObjectSerializer.Serialize(this);
@@ -79,8 +94,16 @@ namespace IoTSharp.EasyEFQuery
             return base.Visit(node);
         }
     }
+
+    /// <summary>
+    /// 将 System.Text.Json 反序列化出的 JsonElement 动态值转换为表达式构造可直接使用的 CLR 值。
+    /// </summary>
     internal static class QueryCollectionJsonValueNormalizer
     {
+        /// <summary>
+        /// 归一化查询集合中 Value、ValueMin、ValueMax 的动态值类型。
+        /// </summary>
+        /// <param name="queries">需要归一化的查询条件集合。</param>
         public static void NormalizeJsonValues(this QueryCollection queries)
         {
             foreach (var query in queries)
@@ -91,6 +114,11 @@ namespace IoTSharp.EasyEFQuery
             }
         }
 
+        /// <summary>
+        /// 将单个 JsonElement 值转换为对应 CLR 值，其他类型保持原样。
+        /// </summary>
+        /// <param name="value">需要归一化的值。</param>
+        /// <returns>归一化后的值。</returns>
         private static object NormalizeJsonValue(object value)
         {
             return value is JsonElement element ? element.ToClrObject() : value;
@@ -100,6 +128,12 @@ namespace IoTSharp.EasyEFQuery
     public static class QueryCollectionExtension
     {
 
+        /// <summary>
+        /// 将 JSON 中的查询条件追加到现有集合。
+        /// </summary>
+        /// <param name="queries">要追加到的查询条件集合。</param>
+        /// <param name="json">查询条件 JSON 字符串。</param>
+        /// <returns>追加后的查询条件集合。</returns>
         public static QueryCollection Parse(this QueryCollection queries, string json)
         {
             foreach (var query in QueryCollection.Create(json))

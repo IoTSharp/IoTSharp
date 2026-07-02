@@ -15,9 +15,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using MQTTnet.Diagnostics;
-using NSwag;
-using NSwag.Generation.AspNetCore;
-using NSwag.Generation.Processors.Security;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -157,27 +154,6 @@ namespace IoTSharp
             return fi.FullName;
         }
 
-        internal static void UseSwagger(this IApplicationBuilder app)
-        {
-            app.UseOpenApi(config => config.PostProcess = (document, request) =>
-            {
-                if (request.Headers.ContainsKey("X-External-Host"))
-                {
-                    // Change document server settings to public
-                    document.Host = request.Headers["X-External-Host"].First();
-                    document.BasePath = request.Headers["X-External-Path"].First();
-                }
-            });
-            app.UseSwaggerUi(config => config.TransformToExternalPath = (internalUiRoute, request) =>
-            {
-                // The header X-External-Path is set in the nginx.conf file
-                var externalPath = request.Headers.ContainsKey("X-External-Path") ? request.Headers["X-External-Path"].First() : "";
-                return externalPath + internalUiRoute;
-            });
-        }
-
-
-
         internal static Settings AddIoTSharpHealthCheckEndpoint(this Settings setup)
         {
             var _in_docker = Environment.GetEnvironmentVariable("DOTNET_RUNNING_IN_CONTAINER") == "true";
@@ -221,23 +197,6 @@ namespace IoTSharp
             }
             return setup;
         }
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="configure"></param>
-        internal static void AddJWTSecurity(this AspNetCoreOpenApiDocumentGeneratorSettings configure)
-        {
-            configure.AddSecurity("JWT", Enumerable.Empty<string>(), new OpenApiSecurityScheme
-            {
-                Type = OpenApiSecuritySchemeType.ApiKey,
-                Name = "Authorization",
-                In = OpenApiSecurityApiKeyLocation.Header,
-                Description = "Type into the textbox: Bearer {your JWT token}."
-            });
-
-            configure.OperationProcessors.Add(new AspNetCoreOperationSecurityScopeProcessor("JWT"));
-        }
-
         public static void CreateBrokerTlsCert(this X509Certificate2 CACertificate, string domainname, IPAddress iP, string pubfile, string pivfile, string email)
         {
             var build = new SubjectAlternativeNameBuilder();

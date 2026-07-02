@@ -49,7 +49,6 @@
     <PackageVersion Include="EasyCaching.InMemory" Version="1.9.2" />
     <PackageVersion Include="EasyCaching.LiteDB" Version="1.9.2" />
     <PackageVersion Include="EasyCaching.Redis" Version="1.9.2" />
-    <PackageVersion Include="EFCore.Cassandra" Version="2.0.5" />
     <PackageVersion Include="EntityFrameworkCore.ClickHouse" Version="3.0.3" />
     <PackageVersion Include="Figgle" Version="0.6.6" />
     <PackageVersion Include="Figgle.Fonts" Version="0.6.6" />
@@ -57,7 +56,6 @@
     <PackageVersion Include="InfluxDB.Client" Version="5.0.0" />
     <PackageVersion Include="IoTSharp.CoAP.NET" Version="2.0.8" />
     <PackageVersion Include="IoTSharp.Data.Taos" Version="3.0.21.90" />
-    <PackageVersion Include="IoTSharp.HealthChecks.Cassandra" Version="10.0.1" />
     <PackageVersion Include="IoTSharp.HealthChecks.IoTDB" Version="10.0.1" />
     <PackageVersion Include="IoTSharp.HealthChecks.Taos" Version="3.0.21.90" />
     <PackageVersion Include="IronPython" Version="3.4.2" />
@@ -76,6 +74,7 @@
     <PackageVersion Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="10.0.8" />
     <PackageVersion Include="Microsoft.AspNetCore.Identity.UI" Version="10.0.8" />
     <PackageVersion Include="Microsoft.AspNetCore.Mvc.Testing" Version="10.0.9" />
+    <PackageVersion Include="Microsoft.AspNetCore.OpenApi" Version="10.0.8" />
     <PackageVersion Include="Microsoft.AspNetCore.SpaProxy" Version="10.0.8" />
     <PackageVersion Include="Microsoft.CodeAnalysis.Common" Version="4.14.0" />
     <PackageVersion Include="Microsoft.CodeAnalysis.CSharp" Version="4.14.0" />
@@ -116,7 +115,6 @@
     <PackageVersion Include="MXLogger" Version="2.1.0" />
     <PackageVersion Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="10.0.2" />
     <PackageVersion Include="NServiceBus" Version="10.1.0" />
-    <PackageVersion Include="NSwag.AspNetCore" Version="14.6.3" />
     <PackageVersion Include="Oracle.EntityFrameworkCore" Version="10.23.26100" />
     <PackageVersion Include="Packaging.Targets" Version="0.1.232" />
     <PackageVersion Include="Portable.BouncyCastle" Version="1.9.0" />
@@ -125,7 +123,6 @@
     <PackageVersion Include="RestSharp" Version="112.1.0" />
     <PackageVersion Include="Rin" Version="2.6.0" />
     <PackageVersion Include="Rin.Mvc" Version="2.6.0" />
-    <PackageVersion Include="RulesEngine" Version="6.0.0" />
     <PackageVersion Include="Savorboard.CAP.InMemoryMessageQueue" Version="10.0.0" />
     <PackageVersion Include="ShardingCore" Version="7.9.1.24" />
     <PackageVersion Include="Shashlik.EventBus" Version="2.3.1" />
@@ -139,6 +136,7 @@
     <PackageVersion Include="SkiaSharp" Version="3.119.2" />
     <PackageVersion Include="SkiaSharp.NativeAssets.Linux.NoDependencies" Version="3.119.2" />
     <PackageVersion Include="Storage.Net" Version="9.3.0" />
+    <PackageVersion Include="System.Linq.Dynamic.Core" Version="1.6.1" />
     <PackageVersion Include="System.Private.ServiceModel" Version="4.10.3" />
     <PackageVersion Include="System.Resources.Extensions" Version="10.0.8" />
     <PackageVersion Include="System.ServiceModel.Primitives" Version="10.0.652802" />

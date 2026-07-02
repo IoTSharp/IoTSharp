@@ -7,7 +7,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using ModelContextProtocol.Protocol;
 using ModelContextProtocol.Server;
-using NJsonSchema.Annotations;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -104,7 +103,6 @@ namespace IoTSharp.McpTools
         /// <param name="_server"></param>
         /// <returns></returns>
         [McpServerTool, Description("Get  device attributes.")]
-        [CanBeNull]
         public Dictionary<string, object> GetDeviceAttributes(
             [Description("name of device")] string deviceName
             , McpServer _server)

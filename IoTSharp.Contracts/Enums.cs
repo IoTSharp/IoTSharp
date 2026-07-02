@@ -235,7 +235,6 @@ namespace IoTSharp.Contracts
         Oracle,
         Sqlite,
         InMemory,
-        Cassandra,
         ClickHouse,
         SonnetDB
     }

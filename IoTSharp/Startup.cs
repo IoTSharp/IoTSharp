@@ -34,6 +34,7 @@ using SonnetDB.Caching;
 using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
 using ModelContextProtocol.Server;
+using Microsoft.OpenApi;
 using MQTTnet.AspNetCore;
 using Quartz;
 using Quartz.AspNetCore;
@@ -109,10 +110,6 @@ namespace IoTSharp
                     services.ConfigureInMemory(settings.DbContextPoolSize, healthChecksUI);
                     settings.TelemetryStorage = TelemetryStorage.SingleTable;
                     break;
-                case DataBaseType.Cassandra:
-                    services.ConfigureCassandra(Configuration.GetConnectionString("IoTSharp"), settings.DbContextPoolSize, healthChecks, healthChecksUI);
-                    settings.TelemetryStorage = TelemetryStorage.SingleTable;
-                    break;
                 case DataBaseType.ClickHouse:
                     services.ConfigureClickHouse(Configuration.GetConnectionString("IoTSharp"), settings.DbContextPoolSize, healthChecks, healthChecksUI);
                     settings.TelemetryStorage = TelemetryStorage.SingleTable;
@@ -167,14 +164,34 @@ namespace IoTSharp
                 }
             );
             services.AddRin();
-            services.AddOpenApiDocument(configure =>
+            services.AddOpenApi("v1", options =>
             {
                 Assembly assembly = typeof(Startup).GetTypeInfo().Assembly;
                 var description = (AssemblyDescriptionAttribute)Attribute.GetCustomAttribute(assembly, typeof(AssemblyDescriptionAttribute));
-                configure.Title = typeof(Startup).GetTypeInfo().Assembly.GetName().Name;
-                configure.Version = typeof(Startup).GetTypeInfo().Assembly.GetName().Version.ToString();
-                configure.Description = description?.Description;
-                configure.AddJWTSecurity();
+                options.AddDocumentTransformer((document, context, cancellationToken) =>
+                {
+                    document.Info.Title = assembly.GetName().Name;
+                    document.Info.Version = assembly.GetName().Version.ToString();
+                    document.Info.Description = description?.Description;
+                    document.Components ??= new OpenApiComponents();
+                    document.Components.SecuritySchemes["JWT"] = new OpenApiSecurityScheme
+                    {
+                        Type = SecuritySchemeType.ApiKey,
+                        Name = "Authorization",
+                        In = ParameterLocation.Header,
+                        Description = "Type into the textbox: Bearer {your JWT token}."
+                    };
+                    return Task.CompletedTask;
+                });
+                options.AddOperationTransformer((operation, context, cancellationToken) =>
+                {
+                    operation.Security ??= new List<OpenApiSecurityRequirement>();
+                    operation.Security.Add(new OpenApiSecurityRequirement
+                    {
+                        [new OpenApiSecuritySchemeReference("JWT", context.Document)] = []
+                    });
+                    return Task.CompletedTask;
+                });
             });
 
             services.AddTransient<ApplicationDBInitializer>();
@@ -374,9 +391,7 @@ namespace IoTSharp
             app.UseStaticFiles();
             app.UseResponseCompression();
             app.UseIotSharpMqttServer();
-            app.UseSwaggerUi();
             app.UseHealthChecksUI();
-            app.UseOpenApi();
             app.UseEventBus(opt =>
             {
                 var frp = app.ApplicationServices.GetService<FlowRuleProcessor>();
@@ -392,6 +407,7 @@ namespace IoTSharp
                     ResponseWriter = UIResponseWriter.WriteHealthCheckUIResponse
                 });
                 endpoints.MapHealthChecksUI();
+                endpoints.MapOpenApi("/swagger/{documentName}/swagger.json");
                 endpoints.MapDefaultControllerRoute();
                 endpoints.MapRazorPages();
                 endpoints.MapMcp("/mcp/{api_key}");

@@ -16,9 +16,9 @@ const panelBadges = ['HTTP', 'MQTT', 'CoAP', 'Multi-Tenant', 'Asset'];
 
 const panelHighlights = [
   {
-    value: '7+',
+    value: '7',
     label: '数据库模板',
-    detail: 'Sqlite、PostgreSql、MySql、SQLServer、Oracle、ClickHouse、Cassandra',
+    detail: 'Sqlite、PostgreSql、MySql、SQLServer、Oracle、ClickHouse、SonnetDB',
   },
   {
     value: '3',

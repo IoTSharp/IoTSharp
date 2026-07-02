@@ -30,7 +30,6 @@ sidebar_position: 5
   4. Oracle
   5. Sqlite
   6. InMemory
-  7. Cassandra
 
  # 支持的时序数据库及其配置项
  配置项名称是 TelemetryStorage 

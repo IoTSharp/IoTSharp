@@ -855,7 +855,7 @@ export interface modbusmapping {
 > 本节承接原 SonnetDB 仓库中“Milestone 19 - IoTSharp 生态数据底座选项”的 IoTSharp 专属规划。以后 IoTSharp 如何消费 SonnetDB、如何灰度切换、如何验证和回滚，归 IoTSharp 路线图维护；SonnetDB 仓库只维护数据库自身的通用能力和兼容边界。
 
 目标：
-- 🚧 RD-10.1 把 SonnetDB 作为 IoTSharp 的显式可选数据底座，而不是替换现有 PostgreSQL/MySQL/SQLServer/SQLite/Oracle/Cassandra/ClickHouse、InfluxDB/TimescaleDB/Taos/IoTDB、Redis/LiteDB/InMemory、BlobStorage/S3 路线。
+- 🚧 RD-10.1 把 SonnetDB 作为 IoTSharp 的显式可选数据底座，而不是替换现有 PostgreSQL/MySQL/SQLServer/SQLite/Oracle/ClickHouse、InfluxDB/TimescaleDB/Taos/IoTDB、Redis/LiteDB/InMemory、BlobStorage/S3 路线。
 - ✅ RD-10.2 将 `TelemetryStorage=SonnetDB` 从功能适配推进到生产化适配，覆盖写入、最新值、历史查询、聚合、健康检查、备份恢复和故障回放；定向测试 `SonnetDBStorageTests` 已通过。
 - 🚧 RD-10.3 在保持现有每设备 measurement 路线的前提下，已补批量写入和可配置 schema cache 容量控制；后续补连接复用和大量物理分表容量边界。
 - 🚧 RD-10.4 已将 latest 查询和时间桶聚合尽量下推到 SonnetDB SQL / ADO.NET 服务端路径，避免先拉全量原始点再在 IoTSharp 进程内聚合；后续补跨库回归基准。

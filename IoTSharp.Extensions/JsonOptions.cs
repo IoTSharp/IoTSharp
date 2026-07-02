@@ -4,7 +4,7 @@ using System.Text.Json.Serialization;
 namespace IoTSharp.Extensions
 {
     /// <summary>
-    /// 提供 IoTSharp JSON 工具统一使用的 System.Text.Json 配置。
+    /// 提供 JSON 工具统一使用的 System.Text.Json 配置。
     /// </summary>
     public static class JsonOptions
     {
