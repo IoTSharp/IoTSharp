@@ -1,10 +1,10 @@
-﻿using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
+using IoTSharp.Extensions;
 using RestSharp;
 using System;
 using System.ComponentModel;
 using System.Linq;
 using System.Net;
+using System.Text.Json.Nodes;
 using System.Threading.Tasks;
 
 namespace IoTSharp.TaskActions
@@ -28,124 +28,56 @@ namespace IoTSharp.TaskActions
         {
             try
             {
-                if (input.Input.Contains("ValueKind"))
+                var unwrapSerializedJsonElement = input.Input.Contains("ValueKind");
+                var values = JsonNodeParser.ParseObject(input.Input);
+                var config = JsonObjectSerializer.Deserialize<ModelExecutorConfig>(input.ExecutorConfig);
+                var dd = values.Select(c => new ParamObject
                 {
-                    JObject o = JsonConvert.DeserializeObject(input.Input) as JObject;
-                    var config = JsonConvert.DeserializeObject<ModelExecutorConfig>(input.ExecutorConfig);
-                    var dd = o.Properties().Select(c => new ParamObject { keyName = c.Name.ToLower(), value = JPropertyToObject(c.Value.First as JProperty) }).ToList();
-                    var restclient = new RestClient(config.BaseUrl);
-                    restclient.AddDefaultHeader(KnownHeaders.Accept, "*/*");
-                    var request = new RestRequest(config.Url + (input.DeviceId == Guid.Empty ? "" : "/" + input.DeviceId));
-                    request.AddHeader("X-Access-Token",
-                        config.Token);
-                    request.RequestFormat = DataFormat.Json;
-                    request.AddHeader("cache-control", "no-cache");
-                    request.AddHeader("Content-Type", "application/json");
-                    request.AddJsonBody(dd);
-                    var response = await restclient.ExecutePostAsync(request);
-                    if (response.StatusCode == HttpStatusCode.OK)
+                    keyName = c.Key.ToLower(),
+                    value = ToParamValue(c.Value, unwrapSerializedJsonElement)
+                }).ToList();
+                var restclient = new RestClient(config.BaseUrl);
+                restclient.AddDefaultHeader(KnownHeaders.Accept, "*/*");
+                var request = new RestRequest(config.Url + (input.DeviceId == Guid.Empty ? "" : "/" + input.DeviceId));
+                request.AddHeader("X-Access-Token",
+                    config.Token);
+                request.RequestFormat = DataFormat.Json;
+                request.AddHeader("cache-control", "no-cache");
+                request.AddHeader("Content-Type", "application/json");
+                request.AddJsonBody(dd);
+
+                var response = await restclient.ExecutePostAsync(request);
+                if (response.StatusCode == HttpStatusCode.OK)
+                {
+                    var result = JsonObjectSerializer.Deserialize<MessagePullResult>(response.Content);
+                    if (result is { success: true })
                     {
-                        var result = JsonConvert.DeserializeObject<MessagePullResult>(response.Content);
-                        if (result is { success: true })
-                        {
-                            return new TaskActionOutput() { ExecutionInfo = response.Content, ExecutionStatus = result.success, DynamicOutput = input.DynamicInput }; ;
-                        }
-                        else
-                        {
-                            return new TaskActionOutput() { ExecutionInfo = response.Content, ExecutionStatus = false }; ;
-                        }
+                        return new TaskActionOutput() { ExecutionInfo = response.Content, ExecutionStatus = result.success, DynamicOutput = input.DynamicInput };
                     }
                     else
                     {
-                        return new TaskActionOutput() { ExecutionInfo = response.ErrorMessage, ExecutionStatus = false }; ;
+                        return new TaskActionOutput() { ExecutionInfo = response.Content, ExecutionStatus = false };
                     }
                 }
                 else
                 {
-                    JObject o = JsonConvert.DeserializeObject(input.Input) as JObject;
-                    var config = JsonConvert.DeserializeObject<ModelExecutorConfig>(input.ExecutorConfig);
-                    var dd = o.Properties().Select(c => new ParamObject { keyName = c.Name.ToLower(), value = JPropertyToObject(c) }).ToList();
-                    var restclient = new RestClient(config.BaseUrl);
-                    restclient.AddDefaultHeader(KnownHeaders.Accept, "*/*");
-                    var request = new RestRequest(config.Url + (input.DeviceId == Guid.Empty ? "" : "/" + input.DeviceId));
-                    request.AddHeader("X-Access-Token",
-                        config.Token);
-                    request.RequestFormat = DataFormat.Json;
-                    request.AddHeader("cache-control", "no-cache");
-                    request.AddHeader("Content-Type", "application/json");
-                    request.AddJsonBody(dd);
-
-                    var response = await restclient.ExecutePostAsync(request);
-                    if (response.StatusCode == HttpStatusCode.OK)
-                    {
-                        var result = JsonConvert.DeserializeObject<MessagePullResult>(response.Content);
-                        if (result is { success: true })
-                        {
-                            return new TaskActionOutput() { ExecutionInfo = response.Content, ExecutionStatus = result.success, DynamicOutput = input.DynamicInput }; ;
-                        }
-                        else
-                        {
-                            return new TaskActionOutput() { ExecutionInfo = response.Content, ExecutionStatus = false }; ;
-                        }
-                    }
-                    else
-                    {
-                        return new TaskActionOutput() { ExecutionInfo = $"StatusCode:{response.StatusCode} StatusDescription:{response.StatusDescription}  {response.ErrorMessage}", ExecutionStatus = false }; ;
-                    }
+                    return new TaskActionOutput() { ExecutionInfo = $"StatusCode:{response.StatusCode} StatusDescription:{response.StatusDescription}  {response.ErrorMessage}", ExecutionStatus = false };
                 }
             }
             catch (Exception ex)
             {
-                return new TaskActionOutput() { ExecutionInfo = ex.Message, ExecutionStatus = false }; ;
+                return new TaskActionOutput() { ExecutionInfo = ex.Message, ExecutionStatus = false };
             }
         }
 
-        public static object JPropertyToObject(JProperty property)
+        private static object ToParamValue(JsonNode value, bool unwrapSerializedJsonElement)
         {
-            object obj = null;
-            switch (property.Value.Type)
+            if (unwrapSerializedJsonElement && value is JsonObject obj && obj.Count > 0)
             {
-                case JTokenType.Integer:
-                    obj = property.Value.ToObject<int>();
-                    break;
-
-                case JTokenType.Float:
-                    obj = property.Value.ToObject<float>();
-                    break;
-
-                case JTokenType.String:
-                    obj = property.Value.ToObject<string>();
-                    break;
-
-                case JTokenType.Boolean:
-                    obj = property.Value.ToObject<bool>();
-                    break;
-
-                case JTokenType.Date:
-                    obj = property.Value.ToObject<DateTime>();
-                    break;
-
-                case JTokenType.Bytes:
-                    obj = property.Value.ToObject<byte[]>();
-                    break;
-
-                case JTokenType.Guid:
-                    obj = property.Value.ToObject<Guid>();
-                    break;
-
-                case JTokenType.Uri:
-                    obj = property.Value.ToObject<Uri>();
-                    break;
-
-                case JTokenType.TimeSpan:
-                    obj = property.Value.ToObject<TimeSpan>();
-                    break;
-
-                default:
-                    obj = property.Value;
-                    break;
+                return obj.First().Value.ToClrObject();
             }
-            return obj;
+
+            return value.ToClrObject();
         }
 
         private class MessagePullResult

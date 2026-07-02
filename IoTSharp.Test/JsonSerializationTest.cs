@@ -1,24 +1,21 @@
-﻿using IoTSharp.Extensions;
-using Newtonsoft.Json.Linq;
+using IoTSharp.Extensions;
 using System.Collections.Generic;
-using System.Linq;
-using IoTSharp.Data;
 using IoTSharp.Contracts;
 using IoTSharp.Dtos;
 using System.Text.Json;
+using System.Text.Json.Nodes;
 using System;
 using Xunit;
 
 namespace IoTSharp.Test
 {
-    public class JsonConverTest
+    public class JsonSerializationTest
     {
         [Fact]
         public void TestJsonObject()
         {
-            var jojb = JToken.Parse("{\"aaa\":\"bbb\"}");
-            Dictionary<string, object> keyValues = new Dictionary<string, object>();
-            jojb.Children().ToList().ForEach(a => keyValues.Add(((JProperty)a).Name, ((JProperty)a).JPropertyToObject()));
+            var jojb = JsonNodeParser.ParseNode("{\"aaa\":\"bbb\"}");
+            Dictionary<string, object> keyValues = jojb.ToDictionary();
             Assert.Equal("bbb", keyValues["aaa"].ToString());
         }
 
@@ -31,7 +28,7 @@ namespace IoTSharp.Test
             sss.Add("eee", "fff");
             sss.Add("ggg", "hhh");
             sss.Add("iii", "kkk");
-            Assert.NotNull(Newtonsoft.Json.JsonConvert.SerializeObject(sss));
+            Assert.NotNull(JsonObjectSerializer.Serialize(sss));
         }
 
         [Fact]

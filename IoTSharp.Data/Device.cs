@@ -1,4 +1,4 @@
-﻿using IoTSharp.Contracts;
+using IoTSharp.Contracts;
 using System;
 
 namespace IoTSharp.Data
@@ -38,7 +38,6 @@ namespace IoTSharp.Data
         /// 租户
         /// </summary>
         [System.Text.Json.Serialization.JsonIgnore]
-        [Newtonsoft.Json.JsonIgnore]
         public Guid? TenantId { get; set; }
 
         public Tenant Tenant { get; set; }
@@ -47,7 +46,6 @@ namespace IoTSharp.Data
         /// 客户
         /// </summary>
         [System.Text.Json.Serialization.JsonIgnore]
-        [Newtonsoft.Json.JsonIgnore]
         public Guid? CustomerId { get; set; }
 
         public Customer Customer { get; set; }
@@ -56,7 +54,6 @@ namespace IoTSharp.Data
         public Guid? DeviceModelId { get; set; }
 
         [System.Text.Json.Serialization.JsonIgnore]
-        [Newtonsoft.Json.JsonIgnore]
         public Produce Produce { get; set; }
 
         public DeviceIdentity DeviceIdentity { get; set; }

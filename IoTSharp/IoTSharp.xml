@@ -1360,11 +1360,6 @@
             数据截面计算方式， 
             </summary>
         </member>
-        <member name="F:IoTSharp.Dtos.TimespanConverterNewtonsoft.TimeSpanFormatString">
-            <summary>
-            Format: Days.Hours:Minutes:Seconds:Milliseconds
-            </summary>
-        </member>
         <member name="M:IoTSharp.Extensions.QueryExtensions.Query``1(IoTSharp.Controllers.Models.QueryDto,System.Linq.IQueryable{``0},System.Threading.CancellationToken)">
             <summary>
             分页查询

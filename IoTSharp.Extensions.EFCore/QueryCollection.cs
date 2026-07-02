@@ -1,4 +1,6 @@
-﻿using Newtonsoft.Json;
+using IoTSharp.Extensions;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using System;
 using System.Collections.ObjectModel;
 using System.Linq.Expressions;
@@ -6,8 +8,7 @@ using System.Reflection;
 
 namespace IoTSharp.EasyEFQuery
 {
-    [System.Text.Json.Serialization.JsonConverter(typeof(System.Text.Json.Serialization.JsonStringEnumConverter))]
-    [Newtonsoft.Json.JsonConverter(typeof(Newtonsoft.Json.Converters.StringEnumConverter))]
+    [JsonConverter(typeof(JsonStringEnumConverter))]
     public enum Operators
     {
         None = 0,
@@ -21,8 +22,7 @@ namespace IoTSharp.EasyEFQuery
         EndWidth = 8,
         Range = 9
     }
-    [System.Text.Json.Serialization.JsonConverter(typeof(System.Text.Json.Serialization.JsonStringEnumConverter))]
-    [Newtonsoft.Json.JsonConverter(typeof(Newtonsoft.Json.Converters.StringEnumConverter))]
+    [JsonConverter(typeof(JsonStringEnumConverter))]
     public enum Condition
     {
         OrElse = 1,
@@ -34,9 +34,9 @@ namespace IoTSharp.EasyEFQuery
         public string Name { get; set; }
         public Operators Operator { get; set; }
         public object Value { get; set; }
-        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
         public object ValueMin { get; set; }
-        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
         public object ValueMax { get; set; }
     }
 
@@ -48,11 +48,13 @@ namespace IoTSharp.EasyEFQuery
         }
         public static QueryCollection Create(string json)
         {
-            return Newtonsoft.Json.JsonConvert.DeserializeObject<QueryCollection>(json);
+            var queries = JsonObjectSerializer.Deserialize<QueryCollection>(json) ?? new QueryCollection();
+            queries.NormalizeJsonValues();
+            return queries;
         }
         public override string ToString()
         {
-            return Newtonsoft.Json.JsonConvert.SerializeObject(this);
+            return JsonObjectSerializer.Serialize(this);
         }
 
     }
@@ -77,14 +79,35 @@ namespace IoTSharp.EasyEFQuery
             return base.Visit(node);
         }
     }
+    internal static class QueryCollectionJsonValueNormalizer
+    {
+        public static void NormalizeJsonValues(this QueryCollection queries)
+        {
+            foreach (var query in queries)
+            {
+                query.Value = NormalizeJsonValue(query.Value);
+                query.ValueMin = NormalizeJsonValue(query.ValueMin);
+                query.ValueMax = NormalizeJsonValue(query.ValueMax);
+            }
+        }
+
+        private static object NormalizeJsonValue(object value)
+        {
+            return value is JsonElement element ? element.ToClrObject() : value;
+        }
+    }
+
     public static class QueryCollectionExtension
     {
 
         public static QueryCollection Parse(this QueryCollection queries, string json)
         {
-            var jo = Newtonsoft.Json.Linq.JObject.Parse(json);
-            jo.Merge(queries);
-            return jo.ToObject<QueryCollection>();
+            foreach (var query in QueryCollection.Create(json))
+            {
+                queries.Add(query);
+            }
+
+            return queries;
         }
         public static Expression<Func<T, bool>> AndWith<T>(this Expression<Func<T, bool>> first, QueryCollection queries) where T : class
         {

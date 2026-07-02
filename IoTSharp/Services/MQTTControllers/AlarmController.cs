@@ -52,7 +52,7 @@ namespace IoTSharp.Services.MQTTControllers
         [MqttRoute()]
         public Task UpdateStatus()
         {
-            var dto = Newtonsoft.Json.JsonConvert.DeserializeObject<CreateAlarmDto>(Message.ConvertPayloadToString());
+            var dto = JsonObjectSerializer.Deserialize<CreateAlarmDto>(Message.ConvertPayloadToString());
             dto.OriginatorName = device.Name;
             _queue.PublishDeviceAlarm(dto);
             return Ok();

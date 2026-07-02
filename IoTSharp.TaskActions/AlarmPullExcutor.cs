@@ -1,12 +1,11 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Net;
 using System.Text;
 using System.Threading.Tasks;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Serialization;
+using IoTSharp.Extensions;
 using RestSharp;
 
 namespace IoTSharp.TaskActions
@@ -30,7 +29,7 @@ namespace IoTSharp.TaskActions
         {
             try
             {
-                var config = JsonConvert.DeserializeObject<AlarmPullExcutor.ModelExecutorConfig>(input.ExecutorConfig);
+                var config = JsonObjectSerializer.Deserialize<AlarmPullExcutor.ModelExecutorConfig>(input.ExecutorConfig);
                 var restclient = new RestClient(config.BaseUrl);
                 restclient.AddDefaultHeader(KnownHeaders.Accept, "*/*");
                 var request =
@@ -41,16 +40,13 @@ namespace IoTSharp.TaskActions
                 request.AddHeader("cache-control", "no-cache");
                 request.AddHeader("Content-Type", "application/json");
 
-                var alarm = JsonConvert.DeserializeObject<Alarm>(input.Input, new JsonSerializerSettings
-                {
-                    ContractResolver = new CamelCasePropertyNamesContractResolver()
-                }) ?? new object();
+                var alarm = JsonObjectSerializer.Deserialize<Alarm>(input.Input) ?? new object();
 
                 request.AddJsonBody(alarm);
                 var response = await restclient.ExecutePostAsync(request);
                 if (response.StatusCode == HttpStatusCode.OK)
                 {
-                    var result = JsonConvert.DeserializeObject<AlarmPullExcutor.MessagePullResult>(response.Content);
+                    var result = JsonObjectSerializer.Deserialize<AlarmPullExcutor.MessagePullResult>(response.Content);
                     if (result is { success: true })
                     {
                         return new TaskActionOutput()

@@ -35,7 +35,6 @@ using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
 using ModelContextProtocol.Server;
 using MQTTnet.AspNetCore;
-using Newtonsoft.Json.Serialization;
 using Quartz;
 using Quartz.AspNetCore;
 using Storage.Net;
@@ -194,7 +193,11 @@ namespace IoTSharp
                 options.WaitForJobsToComplete = true;
             });
             services.AddResponseCompression();
-            services.AddControllers();
+            services.AddControllers().AddJsonOptions(options =>
+            {
+                options.JsonSerializerOptions.PropertyNameCaseInsensitive = true;
+                options.JsonSerializerOptions.NumberHandling = System.Text.Json.Serialization.JsonNumberHandling.AllowReadingFromString;
+            });
 
             services.AddMemoryCache();
             string _hc_Caching = $"{nameof(CachingUseIn)}-{Enum.GetName(settings.CachingUseIn)}";
@@ -282,10 +285,6 @@ namespace IoTSharp
                 return StorageFactory.Blobs.FromConnectionString(blobStorage);
             });
 
-            services.AddControllers().AddNewtonsoftJson(options =>
-            {
-                options.SerializerSettings.ContractResolver = new CamelCasePropertyNamesContractResolver();
-            });
             services.AddRazorPages();
 
             services.AddScriptEngines(Configuration.GetSection("EngineSetting"));
@@ -338,7 +337,7 @@ namespace IoTSharp
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
 
-            if (env.IsDevelopment() || !env.IsEnvironment("Production"))
+            if ((env.IsDevelopment() || !env.IsEnvironment("Production")) && !env.IsEnvironment("Test"))
             {
                 app.UseRin();
                 app.UseRinMvcSupport();

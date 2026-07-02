@@ -1,12 +1,11 @@
-﻿using Newtonsoft.Json;
+using IoTSharp.Extensions;
 using RestSharp;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Net;
+using System.Text.Json.Serialization;
 using System.Threading.Tasks;
-using Newtonsoft.Json.Linq;
-using Newtonsoft.Json.Serialization;
 
 namespace IoTSharp.TaskActions
 {
@@ -33,7 +32,7 @@ namespace IoTSharp.TaskActions
         {
             try
             {
-                var config = JsonConvert.DeserializeObject<ModelExecutorConfig>(input.ExecutorConfig);
+                var config = JsonObjectSerializer.Deserialize<ModelExecutorConfig>(input.ExecutorConfig);
                 var restclient = new RestClient(config.BaseUrl);
                 restclient.AddDefaultHeader(KnownHeaders.Accept, "*/*");
                 var request =
@@ -43,14 +42,11 @@ namespace IoTSharp.TaskActions
                 request.RequestFormat = DataFormat.Json;
                 request.AddHeader("cache-control", "no-cache");
                 request.AddHeader("Content-Type", "application/json");
-                request.AddJsonBody(JsonConvert.DeserializeObject<List<TelemetryData>>(input.Input, new JsonSerializerSettings
-                {
-                    ContractResolver = new CamelCasePropertyNamesContractResolver()
-                }) ?? new object());
+                request.AddJsonBody(JsonObjectSerializer.Deserialize<List<TelemetryData>>(input.Input) ?? new object());
                 var response = await restclient.ExecutePostAsync(request);
                 if (response.StatusCode == HttpStatusCode.OK)
                 {
-                    var result = JsonConvert.DeserializeObject<MessagePullResult>(response.Content);
+                    var result = JsonObjectSerializer.Deserialize<MessagePullResult>(response.Content);
                     if (result is { success: true })
                     {
                         return new TaskActionOutput()
@@ -88,13 +84,13 @@ namespace IoTSharp.TaskActions
 
         public class TelemetryData
         {
-            [JsonProperty("keyName")]
+            [JsonPropertyName("keyName")]
             public string keyName { get; set; }
-            [JsonProperty("dateTime")]
+            [JsonPropertyName("dateTime")]
             public DateTime dateTime { get; set; }
-            [JsonProperty("dataType")]
+            [JsonPropertyName("dataType")]
             public Contracts.DataType dataType { get; set; }
-            [JsonProperty("value")]
+            [JsonPropertyName("value")]
             public object value { get; set; }
 
         }

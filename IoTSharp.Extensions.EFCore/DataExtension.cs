@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json.Linq;
+using IoTSharp.Extensions;
+using System.Text.Json.Nodes;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -57,14 +58,14 @@ namespace System.Data
         /// </summary>
         /// <param name="dt"></param>
         /// <returns></returns>
-        public static JArray ToJson(this DataTable dt)
+        public static JsonArray ToJson(this DataTable dt)
         {
-            JArray jArray = new JArray();
+            JsonArray jArray = new JsonArray();
             try
             {
                 for (int il = 0; il < dt.Rows.Count; il++)
                 {
-                    JObject jObject = new JObject();
+                    JsonObject jObject = new JsonObject();
                     for (int i = 0; i < dt.Columns.Count; i++)
                     {
                         try
@@ -73,7 +74,7 @@ namespace System.Data
                             if (dt.Rows[il].ItemArray[i] != DBNull.Value)
                             {
                                 object obj = Convert.ChangeType(dt.Rows[il].ItemArray[i], dt.Columns[i].DataType);
-                                jObject.Add(strKey, JToken.FromObject(obj));
+                                jObject.Add(strKey, JsonObjectSerializer.SerializeToNode(obj));
                             }
                         }
                         catch (Exception)

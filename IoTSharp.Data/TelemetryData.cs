@@ -1,4 +1,4 @@
-﻿using IoTSharp.Contracts;
+using IoTSharp.Contracts;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -14,7 +14,7 @@ namespace IoTSharp.Data
     {
 
         [System.Text.Json.Serialization.JsonIgnore]
-        [Newtonsoft.Json.JsonIgnore, Column(Order = 1)]
+        [Column(Order = 1)]
         public Guid DeviceId { get; set; }
 
         [Column(Order = 2)]

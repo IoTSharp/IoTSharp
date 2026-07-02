@@ -1,11 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
+using System;
 using System.ComponentModel;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
+using IoTSharp.Extensions;
 
 namespace IoTSharp.TaskActions
 {
@@ -14,30 +10,29 @@ namespace IoTSharp.TaskActions
     {
         public override Task<TaskActionOutput> ExecuteAsync(TaskActionInput _input)
         {
-            JObject o = JsonConvert.DeserializeObject(_input.Input) as JObject;
-            var config = JsonConvert.DeserializeObject<ModelExecutorConfig>(_input.ExecutorConfig);
+            var data = JsonNodeParser.ParseObject(_input.Input);
+            var config = JsonObjectSerializer.Deserialize<ModelExecutorConfig>(_input.ExecutorConfig);
 
-            if (o.SelectToken(config.PointX) != null && o.SelectToken(config.PointY) != null)
+            var pointX = data.SelectByPath(config.PointX);
+            var pointY = data.SelectByPath(config.PointY);
+            if (pointX != null && pointY != null)
             {
                 var point = new Point();
-                point.X = o.SelectToken(config.PointX).Value<double>();
-                point.Y = o.SelectToken(config.PointY).Value<double>();
-                if (PointInFeaces(point, config.Ranger))
-                {
-                    o.Add("iswithinrange", true);
-                    return Task.FromResult(new TaskActionOutput() { ExecutionInfo = o.ToString(), ExecutionStatus = true, DynamicOutput = o }); ;
-                }
-                else
-                {
-                    o.Add("iswithinrange", false);
-                    return Task.FromResult(new TaskActionOutput() { ExecutionInfo = o.ToString(), ExecutionStatus = true, DynamicOutput = o }); ;
-                }
+                point.X = pointX.GetDoubleValue();
+                point.Y = pointY.GetDoubleValue();
+                data["iswithinrange"] = PointInFeaces(point, config.Ranger);
             }
             else
             {
-                o.Add("iswithinrange", true);
-                return Task.FromResult(new TaskActionOutput() { ExecutionInfo = o.ToString(), ExecutionStatus = true, DynamicOutput = o }); ;
+                data["iswithinrange"] = true;
             }
+
+            return Task.FromResult(new TaskActionOutput()
+            {
+                ExecutionInfo = data.ToJsonString(JsonOptions.Default),
+                ExecutionStatus = true,
+                DynamicOutput = data.ToClrObject()
+            });
         }
 
         public static bool PointInFeaces(Point pnt, Point[] pntlist)
@@ -52,12 +47,10 @@ namespace IoTSharp.TaskActions
                 j = (i == pntlist.Length - 1) ? 0 : j + 1;
                 if ((pntlist[i].Y != pntlist[j].Y) && (((pnt.Y >= pntlist[i].Y) && (pnt.Y < pntlist[j].Y)) || ((pnt.Y >= pntlist[j].Y) && (pnt.Y < pntlist[i].Y))) && (pnt.X < (pntlist[j].X - pntlist[i].X) * (pnt.Y - pntlist[i].Y) / (pntlist[j].Y - pntlist[i].Y) + pntlist[i].X)) cnt++;
             }
-            return (cnt % 2 > 0) ? true : false;
+            return cnt % 2 > 0;
         }
         private class ModelExecutorConfig
         {
-
-
             public string PointX { get; set; }
 
             public string PointY { get; set; }
@@ -70,6 +63,5 @@ namespace IoTSharp.TaskActions
             public double X { get; set; }
             public double Y { get; set; }
         }
-
     }
 }

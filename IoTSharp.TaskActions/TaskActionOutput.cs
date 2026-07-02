@@ -1,5 +1,4 @@
-﻿using Newtonsoft.Json;
-using Newtonsoft.Json.Converters;
+using IoTSharp.Extensions;
 using System;
 using System.Dynamic;
 
@@ -9,7 +8,6 @@ namespace IoTSharp.TaskActions
     {
         private string _value;
         private dynamic _DynamicOutput;
-        private readonly ExpandoObjectConverter expConverter = new();
         public Guid DeviceId { get; set; }
         public bool ExecutionStatus { get; set; }
         public string ExecutionInfo { get; set; }
@@ -23,7 +21,7 @@ namespace IoTSharp.TaskActions
             set
             {
                 _DynamicOutput = value;
-                _value = JsonConvert.SerializeObject(_DynamicOutput, expConverter);
+                _value = JsonObjectSerializer.Serialize(_DynamicOutput);
             }
         }
 
@@ -36,7 +34,7 @@ namespace IoTSharp.TaskActions
             set
             {
                 _value = value;
-                _DynamicOutput = JsonConvert.DeserializeObject<ExpandoObject>(_value, expConverter);
+                _DynamicOutput = JsonObjectSerializer.DeserializeExpando(_value);
             }
         }
     }

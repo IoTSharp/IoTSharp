@@ -108,7 +108,7 @@ v1/gateway/attributes
             plst.Add(new Playload() { DeviceStatus = DeviceStatus.Bad, Ticks = DateTime.Now.Ticks, Values = values });
             pairs.Add("subdevice1",plst);
             pairs.Add("subdevice2", plst);
-         var str=    Newtonsoft.Json.JsonConvert.SerializeObject(pairs);
+         var str=    System.Text.Json.JsonSerializer.Serialize(pairs);
             Console.WriteLine(str); 
 ```
 

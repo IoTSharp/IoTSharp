@@ -1,8 +1,7 @@
-﻿using Microsoft.Extensions.Logging;
+using IoTSharp.Extensions;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.Scripting.Hosting;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Converters;
 using System;
 using System.Dynamic;
 using System.Threading;
@@ -18,10 +17,9 @@ namespace IoTSharp.Interpreter
         }
         public override string Do(string _source, string input)
         {
-            var expConverter = new ExpandoObjectConverter();
-            dynamic obj = JsonConvert.DeserializeObject<ExpandoObject>(input, expConverter);
+            dynamic obj = JsonObjectSerializer.DeserializeExpando(input);
             //https://github.com/Timu5/BasicSharp
-            var outputjson = JsonConvert.SerializeObject(obj);
+            var outputjson = JsonObjectSerializer.Serialize(obj);
             return outputjson;
         }
     }

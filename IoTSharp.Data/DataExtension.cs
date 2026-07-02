@@ -1,12 +1,11 @@
-﻿using IoTSharp.Contracts;
+using IoTSharp.Contracts;
 using IoTSharp.Data;
 using IoTSharp.Extensions;
 using Microsoft.EntityFrameworkCore;
-using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text.Json;
+using System.Text.Json.Nodes;
 using System.Threading.Tasks;
 using Dic = System.Collections.Generic.Dictionary<string, System.Exception>;
 
@@ -185,81 +184,9 @@ namespace IoTSharp.Data
                 : DataCatalog.None;
         }
 
-        public static object JPropertyToObject(this JProperty property)
+        public static object JsonNodeToObject(this JsonNode node)
         {
-            object obj = null;
-            switch (property.Value.Type)
-            {
-                case JTokenType.Integer:
-                    obj = property.Value.ToObject<long>();
-                    break;
-                case JTokenType.Float:
-                    obj = property.Value.ToObject<float>();
-                    break;
-                case JTokenType.String:
-                    obj = property.Value.ToObject<string>();
-                    break;
-                case JTokenType.Boolean:
-                    obj = property.Value.ToObject<bool>();
-                    break;
-                case JTokenType.Date:
-                    obj = property.Value.ToObject<DateTime>();
-                    break;
-                case JTokenType.Bytes:
-                    obj = property.Value.ToObject<byte[]>();
-                    break;
-                case JTokenType.Guid:
-                    obj = property.Value.ToObject<Guid>();
-                    break;
-                case JTokenType.Uri:
-                    obj = property.Value.ToObject<Uri>();
-                    break;
-                case JTokenType.TimeSpan:
-                    obj = property.Value.ToObject<TimeSpan>();
-                    break;
-                default:
-                    obj = property.Value.ToString();
-                    break;
-            }
-            return obj;
-        }
-        public static object JValueToObject(this JValue value)
-        {
-            object obj = null;
-            switch (value.Type)
-            {
-                case JTokenType.Integer:
-                    obj = value.ToObject<int>();
-                    break;
-                case JTokenType.Float:
-                    obj = value.ToObject<float>();
-                    break;
-                case JTokenType.String:
-                    obj = value.ToObject<string>();
-                    break;
-                case JTokenType.Boolean:
-                    obj = value.ToObject<bool>();
-                    break;
-                case JTokenType.Date:
-                    obj = value.ToObject<DateTime>();
-                    break;
-                case JTokenType.Bytes:
-                    obj = value.ToObject<byte[]>();
-                    break;
-                case JTokenType.Guid:
-                    obj = value.ToObject<Guid>();
-                    break;
-                case JTokenType.Uri:
-                    obj = value.ToObject<Uri>();
-                    break;
-                case JTokenType.TimeSpan:
-                    obj = value.ToObject<TimeSpan>();
-                    break;
-                default:
-                    obj = value.Value;
-                    break;
-            }
-            return obj;
+            return node.ToClrObject();
         }
         public static void FillKVToMe<T>(this T tdata, KeyValuePair<string, object> kp) where T : IDataStorage
         {
@@ -351,52 +278,10 @@ namespace IoTSharp.Data
                     else
                     {
                         tdata.Type = DataType.Json;
-                        tdata.Value_Json = Newtonsoft.Json.JsonConvert.SerializeObject(kp.Value);
+                        tdata.Value_Json = JsonObjectSerializer.Serialize(kp.Value);
                     }
                     break;
             }
-        }
-        public static object ToObject(this JsonElement kvx)
-        {
-            object obj = null;
-            switch (kvx.ValueKind)
-            {
-                case System.Text.Json.JsonValueKind.Undefined:
-                case System.Text.Json.JsonValueKind.Object:
-                case System.Text.Json.JsonValueKind.Array:
-                    obj = kvx.ToString();
-                    break;
-                case System.Text.Json.JsonValueKind.String:
-                    obj = kvx.GetString();
-                    break;
-                case System.Text.Json.JsonValueKind.Number:
-                    obj = kvx.GetDouble();
-                    break;
-                case System.Text.Json.JsonValueKind.True:
-                case System.Text.Json.JsonValueKind.False:
-                    obj = kvx.GetBoolean();
-                    break;
-                case System.Text.Json.JsonValueKind.Null:
-                    obj = null;
-                    break;
-                default:
-                    break;
-            }
-            return obj;
-        }
-
-        public static Dictionary<string, object> JsonToDictionary(this JToken jojb)
-        {
-            Dictionary<string, object> keyValues = new Dictionary<string, object>();
-            if (jojb.Type != JTokenType.Array)
-            {
-                jojb.Children().ToList().ForEach(a => keyValues.Add(((JProperty)a).Name, ((JProperty)a).JPropertyToObject()));
-            }
-            else
-            {
-                jojb.Children().ToList().ForEach(jt => jt.Children().ToList().ForEach(a => keyValues.Add(((JProperty)a).Name, ((JProperty)a).JPropertyToObject())));
-            }
-            return keyValues;
         }
         public static string ToFieldName(this DataType _datatype)
         {

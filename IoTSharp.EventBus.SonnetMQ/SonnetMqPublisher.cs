@@ -1,7 +1,7 @@
 using System.Text;
 using IoTSharp.Contracts;
 using IoTSharp.Data;
-using Newtonsoft.Json;
+using IoTSharp.Extensions;
 using SonnetDB.Data.Mq;
 
 namespace IoTSharp.EventBus.SonnetMQ;
@@ -67,7 +67,7 @@ public sealed class SonnetMqPublisher : IPublisher
 
     private Task PublishAsync<T>(string topic, T message)
     {
-        byte[] payload = Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(message));
+        byte[] payload = Encoding.UTF8.GetBytes(JsonObjectSerializer.Serialize(message));
         return _client.PublishAsync(topic, payload, JsonHeaders);
     }
 }

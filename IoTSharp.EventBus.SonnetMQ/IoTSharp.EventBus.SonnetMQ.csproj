@@ -8,7 +8,6 @@
 
   <ItemGroup>
     <PackageReference Include="EasyCaching.Core" />
-    <PackageReference Include="Newtonsoft.Json" />
   </ItemGroup>
 
   <ItemGroup>
@@ -17,6 +16,7 @@
     <ProjectReference Include="..\IoTSharp.Data.TimeSeries\IoTSharp.Data.TimeSeries.csproj" />
     <ProjectReference Include="..\IoTSharp.Data\IoTSharp.Data.csproj" />
     <ProjectReference Include="..\IoTSharp.EventBus\IoTSharp.EventBus.csproj" />
+    <ProjectReference Include="..\IoTSharp.Extensions\IoTSharp.Extensions.csproj" />
   </ItemGroup>
 
 </Project>

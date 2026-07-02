@@ -1,7 +1,4 @@
-﻿
-using Newtonsoft.Json;
-using Newtonsoft.Json.Converters;
-using Newtonsoft.Json.Linq;
+
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -10,7 +7,6 @@ using System.Threading.Tasks;
 
 namespace IoTSharp.Contracts
 {
-    [JsonConverter(typeof(StringEnumConverter))]
     public enum TelemetryStorage
     {
         SingleTable,
@@ -22,7 +18,6 @@ namespace IoTSharp.Contracts
         IoTDB,
         SonnetDB
     }
-    [JsonConverter(typeof(StringEnumConverter))]
     public enum EventBusStore
     {
         PostgreSql,
@@ -32,7 +27,6 @@ namespace IoTSharp.Contracts
         MySql,
         SqlServer
     }
-    [JsonConverter(typeof(StringEnumConverter))]
     public enum EventBusMQ
     {
         RabbitMQ,
@@ -46,7 +40,6 @@ namespace IoTSharp.Contracts
         AzureServiceBus,
         SonnetMQ
     }
-    [JsonConverter(typeof(StringEnumConverter))]
     public enum CachingUseIn
     {
         InMemory,
@@ -55,8 +48,6 @@ namespace IoTSharp.Contracts
         SQlite,
         SonnetDB
     }
-
-    [JsonConverter(typeof(StringEnumConverter))]
     public enum EventBusFramework
     {
         CAP,

@@ -1,10 +1,10 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.Json.Nodes;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
+using IoTSharp.Extensions;
 
 namespace IoTSharp.Controllers.Models
 {
@@ -38,7 +38,7 @@ namespace IoTSharp.Controllers.Models
     public class DynamicProp
     {
 
-        public static object GetValue(int type, JToken target)
+        public static object GetValue(int type, JsonNode target)
         {
 
             switch (type)
@@ -47,7 +47,7 @@ namespace IoTSharp.Controllers.Models
 
                     {
                         int v;
-                        if (int.TryParse(target.Value<string>(), out v))
+                        if (int.TryParse(target.GetStringValue(), out v))
                         {
                             return v;
                         }
@@ -57,7 +57,7 @@ namespace IoTSharp.Controllers.Models
 
                     {
                         double v;
-                        if (double.TryParse(target.Value<string>(), out v))
+                        if (double.TryParse(target.GetStringValue(), out v))
                         {
                             return v;
                         }
@@ -68,7 +68,7 @@ namespace IoTSharp.Controllers.Models
                 case 3:
                     {
                         decimal v;
-                        if (decimal.TryParse(target.Value<string>(), out v))
+                        if (decimal.TryParse(target.GetStringValue(), out v))
                         {
                             return v;
                         }
@@ -76,11 +76,11 @@ namespace IoTSharp.Controllers.Models
                         return "";
                     }
                 case 4:
-                    return target.Value<string>();
+                    return target.GetStringValue();
                 case 5:
                     {
                         DateTime v;
-                        if (DateTime.TryParse(target.Value<string>(), out v))
+                        if (DateTime.TryParse(target.GetStringValue(), out v))
                         {
                             return v;
                         }
@@ -91,24 +91,23 @@ namespace IoTSharp.Controllers.Models
                 case 6:
 
 
-                    if (target.HasValues)
+                    if (target is JsonArray intArray && intArray.Count > 0)
                     {
-
-                        return JsonConvert.SerializeObject(target.Value<JArray>().ToArray().Select(c => c.Value<int>()));
+                        return JsonObjectSerializer.Serialize(intArray.Select(c => c.ToObject<int>()));
                     }
                     return "";
 
 
                 case 7:
 
-                    if (target.HasValues)
+                    if (target is JsonArray stringArray && stringArray.Count > 0)
                     {
-                        return JsonConvert.SerializeObject(target.Value<JArray>().ToArray().Select(c => c.Value<string>()));
+                        return JsonObjectSerializer.Serialize(stringArray.Select(c => c.ToObject<string>()));
                     }
                     break;
                 case 8:
                     {
-                        var vl = target.Value<string>();
+                        var vl = target.GetStringValue();
 
                         if (!string.IsNullOrEmpty(vl))
                         {
@@ -124,10 +123,10 @@ namespace IoTSharp.Controllers.Models
 
 
                 case 9:
-                    return target.Value<float>();
+                    return target.ToObject<float>();
                 case 10:
                     {
-                        var vl = target.Value<string>();
+                        var vl = target.GetStringValue();
 
                         if (!string.IsNullOrEmpty(vl))
                         {
@@ -143,17 +142,16 @@ namespace IoTSharp.Controllers.Models
 
 
                 case 11:
-                    if (target.HasValues)
+                    if (target is JsonArray dateTimeArray && dateTimeArray.Count > 0)
                     {
-                        return JsonConvert.SerializeObject(target.Value<JArray>().ToArray()
-                            .Select(c => c.Value<DateTime>()));
+                        return JsonObjectSerializer.Serialize(dateTimeArray.Select(c => c.ToObject<DateTime>()));
                     }
                     break;
                 case 12:
 
 
                     {
-                        var vl = target.Value<string>();
+                        var vl = target.GetStringValue();
 
                         if (!string.IsNullOrEmpty(vl))
                         {
@@ -169,14 +167,14 @@ namespace IoTSharp.Controllers.Models
 
                 case 14:
 
-                    var x = JsonConvert.SerializeObject(target.Value<JArray>());
+                    var x = JsonObjectSerializer.Serialize(target as JsonArray ?? new JsonArray());
 
-                    return JsonConvert.SerializeObject(x);
+                    return JsonObjectSerializer.Serialize(x);
                 case 15:
                     {
                         DateTimeOffset v;
 
-                        if (DateTimeOffset.TryParse(target.Value<string>(), out v))
+                        if (DateTimeOffset.TryParse(target.GetStringValue(), out v))
                         {
                             return v;
                         }

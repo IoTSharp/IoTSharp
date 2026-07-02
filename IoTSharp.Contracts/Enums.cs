@@ -1,5 +1,3 @@
-﻿using Newtonsoft.Json;
-using Newtonsoft.Json.Converters;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -146,7 +144,6 @@ namespace IoTSharp.Contracts
         NotAuthorized = 10032,
     }
     [System.Text.Json.Serialization.JsonConverter(typeof(System.Text.Json.Serialization.JsonStringEnumConverter))]
-    [JsonConverter(typeof(StringEnumConverter))]
     public enum LockOpt
     {
         /// <summary>
@@ -167,7 +164,6 @@ namespace IoTSharp.Contracts
     }
 
     [System.Text.Json.Serialization.JsonConverter(typeof(System.Text.Json.Serialization.JsonStringEnumConverter))]
-    [JsonConverter(typeof(StringEnumConverter))]
     public enum ConnectStatus
     {
         /// <summary>
@@ -180,7 +176,6 @@ namespace IoTSharp.Contracts
         Connected = 1
     }
     [System.Text.Json.Serialization.JsonConverter(typeof(System.Text.Json.Serialization.JsonStringEnumConverter))]
-    [JsonConverter(typeof(StringEnumConverter))]
     public enum ActivityStatus
     {
         /// <summary>
@@ -194,7 +189,6 @@ namespace IoTSharp.Contracts
     }
 
     [System.Text.Json.Serialization.JsonConverter(typeof(System.Text.Json.Serialization.JsonStringEnumConverter))]
-    [JsonConverter(typeof(StringEnumConverter))]
     public enum DataCatalog
     {
         None,
@@ -205,7 +199,6 @@ namespace IoTSharp.Contracts
         ProduceData
     }
     [System.Text.Json.Serialization.JsonConverter(typeof(System.Text.Json.Serialization.JsonStringEnumConverter))]
-    [JsonConverter(typeof(StringEnumConverter))]
     public enum DataSide
     {
         AnySide,
@@ -213,7 +206,6 @@ namespace IoTSharp.Contracts
         ClientSide,
     }
     [System.Text.Json.Serialization.JsonConverter(typeof(System.Text.Json.Serialization.JsonStringEnumConverter))]
-    [JsonConverter(typeof(StringEnumConverter))]
     public enum UserRole
     {
         Anonymous,
@@ -223,7 +215,6 @@ namespace IoTSharp.Contracts
         SystemAdmin,
     }
     [System.Text.Json.Serialization.JsonConverter(typeof(System.Text.Json.Serialization.JsonStringEnumConverter))]
-    [JsonConverter(typeof(StringEnumConverter))]
     public enum DataType
     {
         Boolean,
@@ -236,7 +227,6 @@ namespace IoTSharp.Contracts
         DateTime
     }
     [System.Text.Json.Serialization.JsonConverter(typeof(System.Text.Json.Serialization.JsonStringEnumConverter))]
-    [JsonConverter(typeof(StringEnumConverter))]
     public enum DataBaseType
     {
         PostgreSql,
@@ -250,7 +240,6 @@ namespace IoTSharp.Contracts
         SonnetDB
     }
     [System.Text.Json.Serialization.JsonConverter(typeof(System.Text.Json.Serialization.JsonStringEnumConverter))]
-    [JsonConverter(typeof(StringEnumConverter))]
     public enum IdentityType
     {
         AccessToken = 0,
@@ -259,7 +248,6 @@ namespace IoTSharp.Contracts
         ProduceToken = 3
     }
     [System.Text.Json.Serialization.JsonConverter(typeof(System.Text.Json.Serialization.JsonStringEnumConverter))]
-    [JsonConverter(typeof(StringEnumConverter))]
     public enum ObjectType
     {
         Unknow,
@@ -272,7 +260,6 @@ namespace IoTSharp.Contracts
 
     }
     [System.Text.Json.Serialization.JsonConverter(typeof(System.Text.Json.Serialization.JsonStringEnumConverter))]
-    [JsonConverter(typeof(StringEnumConverter))]
     public enum DeviceType
     {
         Device = 0,
@@ -280,7 +267,6 @@ namespace IoTSharp.Contracts
     }
 
     [System.Text.Json.Serialization.JsonConverter(typeof(System.Text.Json.Serialization.JsonStringEnumConverter))]
-    [JsonConverter(typeof(StringEnumConverter))]
     public enum GatewayType
     {
         Unknow = 0,
@@ -292,7 +278,6 @@ namespace IoTSharp.Contracts
     }
 
     [System.Text.Json.Serialization.JsonConverter(typeof(System.Text.Json.Serialization.JsonStringEnumConverter))]
-    [JsonConverter(typeof(StringEnumConverter))]
     public enum CoApRes
     {
         Attributes,
@@ -300,7 +285,6 @@ namespace IoTSharp.Contracts
         Alarm
     }
     [System.Text.Json.Serialization.JsonConverter(typeof(System.Text.Json.Serialization.JsonStringEnumConverter))]
-    [JsonConverter(typeof(StringEnumConverter))]
     public enum RuleType
     {
         RuleNode,
@@ -310,7 +294,6 @@ namespace IoTSharp.Contracts
     /// 原来的事件 ， 现在改为 流程规则运行类型。 
     /// </summary>
     [System.Text.Json.Serialization.JsonConverter(typeof(System.Text.Json.Serialization.JsonStringEnumConverter))]
-    [JsonConverter(typeof(StringEnumConverter))]
     public enum FlowRuleRunType
     {
         Normal = 1,
@@ -320,7 +303,6 @@ namespace IoTSharp.Contracts
     /// 事件类型
     /// </summary>
     [System.Text.Json.Serialization.JsonConverter(typeof(System.Text.Json.Serialization.JsonStringEnumConverter))]
-    [JsonConverter(typeof(StringEnumConverter))]
     public enum EventType
     {
         None = -1,
@@ -371,7 +353,6 @@ namespace IoTSharp.Contracts
     /// 聚合数据
     /// </summary>
     [System.Text.Json.Serialization.JsonConverter(typeof(System.Text.Json.Serialization.JsonStringEnumConverter))]
-    [JsonConverter(typeof(StringEnumConverter))]
     public enum Aggregate
     {
         /// <summary>
@@ -411,7 +392,6 @@ namespace IoTSharp.Contracts
     /// 告警状态
     /// </summary>
     [System.Text.Json.Serialization.JsonConverter(typeof(System.Text.Json.Serialization.JsonStringEnumConverter))]
-    [JsonConverter(typeof(StringEnumConverter))]
     public enum AlarmStatus
     {
         /// <summary>
@@ -432,7 +412,6 @@ namespace IoTSharp.Contracts
         Cleared_Act
     }
     [System.Text.Json.Serialization.JsonConverter(typeof(System.Text.Json.Serialization.JsonStringEnumConverter))]
-    [JsonConverter(typeof(StringEnumConverter))]
     public enum ServerityLevel
     {
         NoChange = -1,
@@ -458,7 +437,6 @@ namespace IoTSharp.Contracts
         Critical
     }
     [System.Text.Json.Serialization.JsonConverter(typeof(System.Text.Json.Serialization.JsonStringEnumConverter))]
-    [JsonConverter(typeof(StringEnumConverter))]
     public enum OriginatorType
     {
         /// <summary>

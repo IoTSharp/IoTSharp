@@ -109,6 +109,15 @@ Deliver:
 - Expose IoTSharp capabilities to AI through authorized skills and MCP tools, not direct database access.
 - Require tenant isolation, audit trails, and human confirmation for higher-risk AI actions.
 
+## Code Documentation Rules
+
+- IoTSharp 代码注释优先使用中文；只有外部协议、标准术语、API 名称或引用资料需要保留英文时才使用英文。
+- 新增或修改方法时，尽量补充 XML 文档注释，尤其是 public、internal、扩展方法和跨模块调用的方法。
+- 方法注释要说明功能目的、关键参数、返回值，以及不容易从签名看出的副作用或兼容行为。
+- 注释要简洁、语义清楚；不要重复方法名，也不要解释显而易见的赋值或语法。
+- 只有在控制流、转换规则、兼容逻辑或领域决策不直观时，才添加简短行内注释。
+- 不要添加只是复述代码的噪音注释。
+
 ## Immediate Execution Focus
 
 The next implementation step starts with edge management.

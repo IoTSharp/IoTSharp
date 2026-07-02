@@ -18,7 +18,6 @@
     <PackageReference Include="Microsoft.EntityFrameworkCore.Proxies" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" />
     <PackageReference Include="Microsoft.Extensions.Diagnostics.HealthChecks" />
-    <PackageReference Include="Newtonsoft.Json" />
     <PackageReference Include="ShardingCore" />
 	
   </ItemGroup>

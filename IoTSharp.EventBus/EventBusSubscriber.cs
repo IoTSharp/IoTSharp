@@ -1,4 +1,4 @@
-﻿using EasyCaching.Core;
+using EasyCaching.Core;
 using IoTSharp.Contracts;
 using IoTSharp.Data;
 using IoTSharp.Data.Extensions;
@@ -55,7 +55,7 @@ namespace IoTSharp.EventBus
                             var result2 = await _dbContext.SaveAsync<AttributeLatest>(dc, device.Id, msg.DataSide);
                             result2.exceptions?.ToList().ForEach(ex =>
                             {
-                                _logger.LogError($"{ex.Key} {ex.Value} {Newtonsoft.Json.JsonConvert.SerializeObject(msg.MsgBody[ex.Key])}");
+                                _logger.LogError($"{ex.Key} {ex.Value} {JsonObjectSerializer.Serialize(msg.MsgBody[ex.Key])}");
                             });
                             _logger.LogInformation($"更新{device.Name}({device.Id})属性数据结果{result2.ret}");
                             if (_event != EventType.None)
@@ -69,13 +69,13 @@ namespace IoTSharp.EventBus
             catch (DbUpdateException due)
             {
                 var dc = msg.ToDictionary();
-                string json = System.Text.Json.JsonSerializer.Serialize(dc);
+                string json = JsonObjectSerializer.Serialize(dc);
                 _logger.LogError(due, "StoreAttributeData DbUpdateException:" + due.InnerException?.Message + Environment.NewLine + json + Environment.NewLine);
             }
             catch (Exception ex)
             {
                 var dc = msg.ToDictionary();
-                string json = System.Text.Json.JsonSerializer.Serialize(dc);
+                string json = JsonObjectSerializer.Serialize(dc);
                 _logger.LogError(ex, "StoreAttributeData:" + ex.Message + Environment.NewLine + json + Environment.NewLine);
             }
         }
@@ -83,7 +83,13 @@ namespace IoTSharp.EventBus
 
         public async Task RunRules(Guid deviceId, object obj, EventType attribute)
         {
-            await _eventBusOption.RunRules(deviceId, obj, attribute);
+            var runRules = _eventBusOption.RunRules;
+            if (runRules == null)
+            {
+                return;
+            }
+
+            await runRules(deviceId, obj, attribute);
         }
 
         public async Task OccurredAlarm(CreateAlarmDto alarmDto)

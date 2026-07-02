@@ -3,7 +3,6 @@ using IoTSharp.Contracts;
 using IoTSharp.Data;
 using IoTSharp.Extensions;
 using IoTSharp.TaskActions;
-using Newtonsoft.Json;
 using System;
 using System.ComponentModel;
 using System.Threading.Tasks;
@@ -26,7 +25,7 @@ namespace IoTSharp.TaskActions
             var result = new TaskActionOutput() { DynamicOutput = param.DynamicInput, ExecutionStatus = true, ExecutionInfo = "" };
             try
             {
-                var dto = JsonConvert.DeserializeObject<CreateAlarmDto>(param.Input);
+                var dto = JsonObjectSerializer.Deserialize<CreateAlarmDto>(param.Input);
                 _queue.PublishDeviceAlarm(dto);
             }
             catch (Exception ex)

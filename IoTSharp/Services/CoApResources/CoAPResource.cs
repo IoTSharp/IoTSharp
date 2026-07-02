@@ -6,7 +6,6 @@ using IoTSharp.Data;
 using IoTSharp.Extensions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
-using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -69,7 +68,7 @@ namespace IoTSharp.Services.CoApResources
                         {
                             case MediaType.ApplicationJson:
                             case MediaType.TextPlain:
-                                keyValues = JToken.Parse(exchange.Request.PayloadString)?.JsonToDictionary();
+                                keyValues = JsonNodeParser.ParseNode(exchange.Request.PayloadString)?.ToDictionary();
                                 break;
 
                             case MediaType.TextXml:
@@ -125,7 +124,7 @@ namespace IoTSharp.Services.CoApResources
                                     break;
 
                                 case CoApRes.Alarm:
-                                    var dto = Newtonsoft.Json.JsonConvert.DeserializeObject<CreateAlarmDto>(exchange.Request.PayloadString);
+                                    var dto = JsonObjectSerializer.Deserialize<CreateAlarmDto>(exchange.Request.PayloadString);
                                     await _eventBus.PublishDeviceAlarm(dto);
                                     break;
 

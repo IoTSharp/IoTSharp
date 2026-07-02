@@ -1,6 +1,4 @@
-﻿
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
+
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -14,6 +12,7 @@ using System.Runtime.Serialization;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Security.Cryptography;
 using System.Text;
+using System.Text.Json.Nodes;
 using System.Text.RegularExpressions;
 using System.Xml;
 
@@ -418,7 +417,7 @@ namespace IoTSharp.Extensions
         /// <returns></returns>
         public static string ToJson<T>(this T obj) where T : class
         {
-            return JsonConvert.SerializeObject(obj);
+            return JsonObjectSerializer.Serialize(obj);
         }
 
         /// <summary>
@@ -466,7 +465,7 @@ namespace IoTSharp.Extensions
         public static string ToXmlStr<T>(this T obj) where T : class
         {
             var jsonStr = obj.ToJson<T>();
-            var xmlDoc = JsonConvert.DeserializeXmlNode(jsonStr);
+            var xmlDoc = XmlJsonConverter.DeserializeXmlNode(jsonStr);
             string xmlDocStr = xmlDoc.InnerXml;
 
             return xmlDocStr;
@@ -482,7 +481,7 @@ namespace IoTSharp.Extensions
         public static string ToXmlStr<T>(this T obj, string rootNodeName) where T : class
         {
             var jsonStr = obj.ToJson();
-            var xmlDoc = JsonConvert.DeserializeXmlNode(jsonStr, rootNodeName);
+            var xmlDoc = XmlJsonConverter.DeserializeXmlNode(jsonStr, rootNodeName);
             string xmlDocStr = xmlDoc.InnerXml;
 
             return xmlDocStr;
@@ -705,7 +704,7 @@ namespace IoTSharp.Extensions
         /// <returns></returns>
         public static T ToObject<T>(this string jsonStr)
         {
-            return JsonConvert.DeserializeObject<T>(jsonStr);
+            return JsonObjectSerializer.Deserialize<T>(jsonStr);
         }
 
         /// <summary>
@@ -728,7 +727,7 @@ namespace IoTSharp.Extensions
         /// <returns></returns>
         public static object ToObject(this string jsonStr, Type type)
         {
-            return JsonConvert.DeserializeObject(jsonStr, type);
+            return JsonObjectSerializer.Deserialize(jsonStr, type);
         }
 
         /// <summary>
@@ -741,23 +740,23 @@ namespace IoTSharp.Extensions
         {
             XmlDocument doc = new XmlDocument();
             doc.LoadXml(xmlStr);
-            string jsonJsonStr = JsonConvert.SerializeXmlNode(doc);
+            string jsonJsonStr = XmlJsonConverter.SerializeXmlNode(doc);
 
-            return JsonConvert.DeserializeObject<T>(jsonJsonStr);
+            return JsonObjectSerializer.Deserialize<T>(jsonJsonStr);
         }
 
         /// <summary>
-        /// 将XML字符串反序列化为对象
+        /// 将XML字符串转为JsonObject
         /// </summary>
         /// <param name="xmlStr">XML字符串</param>
         /// <returns></returns>
-        public static JObject XmlStrToJObject(this string xmlStr)
+        public static JsonObject XmlStrToJsonObject(this string xmlStr)
         {
             XmlDocument doc = new XmlDocument();
             doc.LoadXml(xmlStr);
-            string jsonJsonStr = JsonConvert.SerializeXmlNode(doc);
+            string jsonJsonStr = XmlJsonConverter.SerializeXmlNode(doc);
 
-            return JsonConvert.DeserializeObject<JObject>(jsonJsonStr);
+            return JsonNodeParser.ParseObject(jsonJsonStr);
         }
 
         /// <summary>
@@ -768,7 +767,7 @@ namespace IoTSharp.Extensions
         /// <returns></returns>
         public static List<T> ToList<T>(this string jsonStr)
         {
-            return string.IsNullOrEmpty(jsonStr) ? null : JsonConvert.DeserializeObject<List<T>>(jsonStr);
+            return string.IsNullOrEmpty(jsonStr) ? null : JsonObjectSerializer.Deserialize<List<T>>(jsonStr);
         }
 
         /// <summary>
@@ -778,27 +777,27 @@ namespace IoTSharp.Extensions
         /// <returns></returns>
         public static DataTable ToDataTable(this string jsonStr)
         {
-            return jsonStr == null ? null : JsonConvert.DeserializeObject<DataTable>(jsonStr);
+            return jsonStr == null ? null : JsonObjectSerializer.DeserializeDataTable(jsonStr);
         }
 
         /// <summary>
-        /// 将Json字符串转为JObject
+        /// 将Json字符串转为JsonObject
         /// </summary>
         /// <param name="jsonStr">Json字符串</param>
         /// <returns></returns>
-        public static JObject ToJObject(this string jsonStr)
+        public static JsonObject ToJsonObject(this string jsonStr)
         {
-            return jsonStr == null ? JObject.Parse("{}") : JObject.Parse(jsonStr.Replace("&nbsp;", ""));
+            return jsonStr == null ? new JsonObject() : JsonNodeParser.ParseObject(jsonStr.Replace("&nbsp;", ""));
         }
 
         /// <summary>
-        /// 将Json字符串转为JArray
+        /// 将Json字符串转为JsonArray
         /// </summary>
         /// <param name="jsonStr">Json字符串</param>
         /// <returns></returns>
-        public static JArray ToJArray(this string jsonStr)
+        public static JsonArray ToJsonArray(this string jsonStr)
         {
-            return jsonStr == null ? JArray.Parse("[]") : JArray.Parse(jsonStr.Replace("&nbsp;", ""));
+            return jsonStr == null ? new JsonArray() : JsonNodeParser.ParseArray(jsonStr.Replace("&nbsp;", ""));
         }
 
         /// <summary>

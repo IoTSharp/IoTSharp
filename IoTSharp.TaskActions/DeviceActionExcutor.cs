@@ -1,4 +1,4 @@
-﻿using Newtonsoft.Json;
+using IoTSharp.Extensions;
 using RestSharp;
 using System;
 using System.ComponentModel;
@@ -12,7 +12,7 @@ namespace IoTSharp.TaskActions
     {
         public override async Task<TaskActionOutput> ExecuteAsync(TaskActionInput input)
         {
-            var config = JsonConvert.DeserializeObject<ModelExecutorConfig>(input.ExecutorConfig);
+            var config = JsonObjectSerializer.Deserialize<ModelExecutorConfig>(input.ExecutorConfig);
             string contentType = "application/json";
             var restclient = new RestClient(config.BaseUrl);
             restclient.AddDefaultHeader(KnownHeaders.Accept, "*/*");
@@ -26,7 +26,7 @@ namespace IoTSharp.TaskActions
             var response = await restclient.ExecutePostAsync(request);
             if (response.StatusCode == HttpStatusCode.OK)
             {
-                var result = JsonConvert.DeserializeObject<DeviceActionResult>(response.Content);
+                var result = JsonObjectSerializer.Deserialize<DeviceActionResult>(response.Content);
                 if (result is { success: true })
                 {
                     return new TaskActionOutput() { ExecutionInfo = response.Content, ExecutionStatus = result.success, DynamicOutput = input.DynamicInput }; ;

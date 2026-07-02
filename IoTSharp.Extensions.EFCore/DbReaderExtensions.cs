@@ -1,5 +1,4 @@
 ﻿using IoTSharp.Extensions;
-using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -7,20 +6,21 @@ using System.Data.Common;
 using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
+using System.Text.Json.Nodes;
 using System.Threading.Tasks;
 
 namespace System.Data
 {
     public static class DbReaderExtensions
     {
-        public static JArray ToJson(this IDataReader dataReader)
+        public static JsonArray ToJson(this IDataReader dataReader)
         {
-            JArray jArray = new JArray();
+            JsonArray jArray = new JsonArray();
             try
             {
                 while (dataReader.Read())
                 {
-                    JObject jObject = new JObject();
+                    JsonObject jObject = new JsonObject();
                     for (int i = 0; i < dataReader.FieldCount; i++)
                     {
                         try
@@ -29,7 +29,7 @@ namespace System.Data
                             if (dataReader[i] != DBNull.Value)
                             {
                                 object obj = Convert.ChangeType(dataReader[i], dataReader.GetFieldType(i));
-                                jObject.Add(strKey, JToken.FromObject(obj));
+                                jObject.Add(strKey, JsonObjectSerializer.SerializeToNode(obj));
                             }
                         }
                         catch (Exception)

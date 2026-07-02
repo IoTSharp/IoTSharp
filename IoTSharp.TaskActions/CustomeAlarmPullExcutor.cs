@@ -1,31 +1,23 @@
-﻿using System;
+using System;
 using System.ComponentModel;
 using System.Linq;
-using System.Net;
 using System.Threading.Tasks;
 using IoTSharp.EventBus;
 using IoTSharp.Contracts;
 using IoTSharp.Data;
 using IoTSharp.Extensions;
-using IoTSharp.TaskActions;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
-using RestSharp;
 
 namespace IoTSharp.TaskActions
 {
-
     [DisplayName("用于自定义的告警推送的执行器")]
     public class CustomeAlarmPullExcutor : TaskAction
     {
-
         private readonly IPublisher _queue;
         private readonly ApplicationDbContext _context;
         public CustomeAlarmPullExcutor(ApplicationDbContext context, IPublisher queue)
         {
             this._context = context; _queue = queue;
         }
-
 
         public override Task<TaskActionOutput> ExecuteAsync(TaskActionInput input)
         {
@@ -43,9 +35,9 @@ namespace IoTSharp.TaskActions
         {
             try
             {
-                JObject o = JsonConvert.DeserializeObject(input.Input) as JObject;
-                var config = JsonConvert.DeserializeObject<CustomeAlarmPullExcutor.ModelExecutorConfig>(input.ExecutorConfig);
-                var dd = o.Properties().Select(c => new MessagePullExecutor.ParamObject { keyName = c.Name.ToLower(), value = JPropertyToObject(c) }).ToList();
+                var values = JsonNodeParser.ParseObject(input.Input);
+                var config = JsonObjectSerializer.Deserialize<CustomeAlarmPullExcutor.ModelExecutorConfig>(input.ExecutorConfig);
+                var dd = values.Select(c => new MessagePullExecutor.ParamObject { keyName = c.Key.ToLower(), value = c.Value.ToClrObject() }).ToList();
                 if (input.DeviceId == Guid.Empty)
                 {
                     input.DeviceId = config.DeviceId;
@@ -56,9 +48,8 @@ namespace IoTSharp.TaskActions
                 alarmdto.CreateDateTime = DateTime.UtcNow;
                 alarmdto.Serverity = (ServerityLevel)config.serverity;
                 alarmdto.AlarmType = config.alarmType;
-                alarmdto.AlarmDetail = config.AlarmDetail ?? JsonConvert.SerializeObject(dd);
-                return new TaskActionOutput() { ExecutionInfo = JsonConvert.SerializeObject(alarmdto), ExecutionStatus = true, DynamicOutput = alarmdto };
-
+                alarmdto.AlarmDetail = config.AlarmDetail ?? JsonObjectSerializer.Serialize(dd);
+                return new TaskActionOutput() { ExecutionInfo = JsonObjectSerializer.Serialize(alarmdto), ExecutionStatus = true, DynamicOutput = alarmdto };
             }
             catch (Exception ex)
             {
@@ -66,59 +57,9 @@ namespace IoTSharp.TaskActions
             }
         }
 
-        public static object JPropertyToObject(JProperty property)
-        {
-            object obj = null;
-            switch (property.Value.Type)
-            {
-                case JTokenType.Integer:
-                    obj = property.Value.ToObject<int>();
-                    break;
-
-                case JTokenType.Float:
-                    obj = property.Value.ToObject<float>();
-                    break;
-
-                case JTokenType.String:
-                    obj = property.Value.ToObject<string>();
-                    break;
-
-                case JTokenType.Boolean:
-                    obj = property.Value.ToObject<bool>();
-                    break;
-
-                case JTokenType.Date:
-                    obj = property.Value.ToObject<DateTime>();
-                    break;
-
-                case JTokenType.Bytes:
-                    obj = property.Value.ToObject<byte[]>();
-                    break;
-
-                case JTokenType.Guid:
-                    obj = property.Value.ToObject<Guid>();
-                    break;
-
-                case JTokenType.Uri:
-                    obj = property.Value.ToObject<Uri>();
-                    break;
-
-                case JTokenType.TimeSpan:
-                    obj = property.Value.ToObject<TimeSpan>();
-                    break;
-
-                default:
-                    obj = property.Value;
-                    break;
-            }
-            return obj;
-        }
-
         private class Alarm
         {
-
             public string originatorType { get; set; }
-
 
             public string originatorName { get; set; }
 
@@ -130,10 +71,7 @@ namespace IoTSharp.TaskActions
 
             public string warnDataId { get; set; }
             public DateTime createDateTime { get; set; }
-
         }
-
-
 
         private class ModelExecutorConfig
         {
@@ -149,12 +87,8 @@ namespace IoTSharp.TaskActions
             public string originatorName { get; set; }
             public string alarmType { get; set; }
 
-
             public Guid DeviceId { get; set; }
         }
-
-
-
 
         private class MessagePullResult
         {

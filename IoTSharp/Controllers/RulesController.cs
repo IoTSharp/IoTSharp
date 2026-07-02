@@ -11,14 +11,14 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.CodeAnalysis;
 using Microsoft.EntityFrameworkCore;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Dynamic;
 using System.Linq;
 using System.Linq.Dynamic.Core;
 using System.Linq.Expressions;
+using System.Text.Json;
+using System.Text.Json.Nodes;
 using System.Threading.Tasks;
 using ShardingCore.Extensions;
 using InfluxDB.Client.Api.Domain;
@@ -379,7 +379,7 @@ namespace IoTSharp.Controllers
             Activity activity;
             try
             {
-                activity = JsonConvert.DeserializeObject<Activity>(m.Biz);
+                activity = JsonObjectSerializer.Deserialize<Activity>(m.Biz);
             }
             catch (JsonException ex)
             {
@@ -513,7 +513,7 @@ namespace IoTSharp.Controllers
                     CreateDate = CreateDate,
                     Customer = rule.Customer,
                     Tenant = rule.Tenant,
-                    Flowdesc = JsonConvert.SerializeObject(c.BizObject.profile ?? new object())
+                    Flowdesc = JsonObjectSerializer.Serialize(c.BizObject.profile ?? new object())
                 });
 
                 _context.Flows.AddRange(fw);
@@ -1420,24 +1420,22 @@ namespace IoTSharp.Controllers
         }
 
         [HttpPost]
-        public async Task<ApiResult<dynamic>> Active([FromBody] JObject form)
+        public async Task<ApiResult<dynamic>> Active([FromBody] JsonObject form)
         {
-            if (form is null || !form.HasValues)
+            if (form is null || form.Count == 0)
             {
                 return new ApiResult<dynamic>(ApiCode.InValidData, "workflow payload is invalid", null);
             }
 
             var profile = this.GetUserProfile();
-            var formEntry = form.First;
-            var formdata = formEntry?.First;
-            var extradata = formEntry?.Next;
-            var ruleToken = extradata?.First?.First?.First?.Value<JToken>();
-            if (formdata is null || ruleToken is null || !Guid.TryParse(ruleToken.Value<string>(), out var ruleid))
+            form.TryGetPropertyValue("form", out var formdata);
+            var ruleToken = form.SelectByPath("extradata.ruleflowid")?.GetStringValue();
+            if (formdata is null || string.IsNullOrWhiteSpace(ruleToken) || !Guid.TryParse(ruleToken, out var ruleid))
             {
                 return new ApiResult<dynamic>(ApiCode.InValidData, "workflow payload is invalid", null);
             }
 
-            var d = formdata.Value<JToken>()?.ToObject<object>();
+            var d = formdata.ToClrObject();
             if (d is null)
             {
                 return new ApiResult<dynamic>(ApiCode.InValidData, "workflow payload is invalid", null);
@@ -1688,14 +1686,13 @@ namespace IoTSharp.Controllers
             }
 
             var profile = this.GetUserProfile();
-            var data = JsonConvert.DeserializeObject(m.Data) as JObject;
-            if (data is null)
+            var data = JsonObjectSerializer.DeserializeExpando(m.Data);
+            if (!data.Any())
             {
                 return new ApiResult<ConditionTestResult>(ApiCode.InValidData, "rule condition payload is invalid", null);
             }
 
-            var d = data.ToObject(typeof(ExpandoObject));
-            var result = await _flowRuleProcessor.TestCondition(m.ruleId, m.flowId, d);
+            var result = await _flowRuleProcessor.TestCondition(m.ruleId, m.flowId, data);
             return new ApiResult<ConditionTestResult>(ApiCode.Success, "Ok", result);
         }
     }

@@ -3,7 +3,6 @@ using System.Globalization;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
-using Newtonsoft.Json.Converters;
 
 namespace IoTSharp.Contracts.Semantic;
 
@@ -1411,7 +1410,6 @@ public sealed record SemanticExtensionSlot
 }
 
 [JsonConverter(typeof(JsonStringEnumConverter<SemanticLayer>))]
-[Newtonsoft.Json.JsonConverter(typeof(StringEnumConverter))]
 public enum SemanticLayer
 {
     [EnumMember(Value = "l1")]
@@ -1432,7 +1430,6 @@ public enum SemanticLayer
 }
 
 [JsonConverter(typeof(JsonStringEnumConverter<SemanticAssetType>))]
-[Newtonsoft.Json.JsonConverter(typeof(StringEnumConverter))]
 public enum SemanticAssetType
 {
     [EnumMember(Value = "site")]
@@ -1473,7 +1470,6 @@ public enum SemanticAssetType
 }
 
 [JsonConverter(typeof(JsonStringEnumConverter<SemanticDataType>))]
-[Newtonsoft.Json.JsonConverter(typeof(StringEnumConverter))]
 public enum SemanticDataType
 {
     [EnumMember(Value = "boolean")]
@@ -1506,7 +1502,6 @@ public enum SemanticDataType
 }
 
 [JsonConverter(typeof(JsonStringEnumConverter<SemanticPointAccess>))]
-[Newtonsoft.Json.JsonConverter(typeof(StringEnumConverter))]
 public enum SemanticPointAccess
 {
     [EnumMember(Value = "read")]
@@ -1531,7 +1526,6 @@ public enum SemanticPointAccess
 }
 
 [JsonConverter(typeof(JsonStringEnumConverter<UnitSystem>))]
-[Newtonsoft.Json.JsonConverter(typeof(StringEnumConverter))]
 public enum UnitSystem
 {
     [EnumMember(Value = "ucum")]
@@ -1552,7 +1546,6 @@ public enum UnitSystem
 }
 
 [JsonConverter(typeof(JsonStringEnumConverter<QualityStatus>))]
-[Newtonsoft.Json.JsonConverter(typeof(StringEnumConverter))]
 public enum QualityStatus
 {
     [EnumMember(Value = "unknown")]
@@ -1573,7 +1566,6 @@ public enum QualityStatus
 }
 
 [JsonConverter(typeof(JsonStringEnumConverter<ModbusRegisterType>))]
-[Newtonsoft.Json.JsonConverter(typeof(StringEnumConverter))]
 public enum ModbusRegisterType
 {
     [EnumMember(Value = "coil")]
@@ -1594,7 +1586,6 @@ public enum ModbusRegisterType
 }
 
 [JsonConverter(typeof(JsonStringEnumConverter<ModbusByteOrder>))]
-[Newtonsoft.Json.JsonConverter(typeof(StringEnumConverter))]
 public enum ModbusByteOrder
 {
     [EnumMember(Value = "bigEndian")]
@@ -1607,7 +1598,6 @@ public enum ModbusByteOrder
 }
 
 [JsonConverter(typeof(JsonStringEnumConverter<ModbusWordOrder>))]
-[Newtonsoft.Json.JsonConverter(typeof(StringEnumConverter))]
 public enum ModbusWordOrder
 {
     [EnumMember(Value = "bigEndian")]
@@ -1620,7 +1610,6 @@ public enum ModbusWordOrder
 }
 
 [JsonConverter(typeof(JsonStringEnumConverter<MqttNamespaceStyle>))]
-[Newtonsoft.Json.JsonConverter(typeof(StringEnumConverter))]
 public enum MqttNamespaceStyle
 {
     [EnumMember(Value = "uns")]
@@ -1637,7 +1626,6 @@ public enum MqttNamespaceStyle
 }
 
 [JsonConverter(typeof(JsonStringEnumConverter<MqttPayloadSchema>))]
-[Newtonsoft.Json.JsonConverter(typeof(StringEnumConverter))]
 public enum MqttPayloadSchema
 {
     [EnumMember(Value = "json")]
@@ -1658,7 +1646,6 @@ public enum MqttPayloadSchema
 }
 
 [JsonConverter(typeof(JsonStringEnumConverter<OpcUaNodeIdType>))]
-[Newtonsoft.Json.JsonConverter(typeof(StringEnumConverter))]
 public enum OpcUaNodeIdType
 {
     [EnumMember(Value = "numeric")]
@@ -1679,7 +1666,6 @@ public enum OpcUaNodeIdType
 }
 
 [JsonConverter(typeof(JsonStringEnumConverter<OpcUaNodeClass>))]
-[Newtonsoft.Json.JsonConverter(typeof(StringEnumConverter))]
 public enum OpcUaNodeClass
 {
     [EnumMember(Value = "object")]
@@ -1716,7 +1702,6 @@ public enum OpcUaNodeClass
 }
 
 [JsonConverter(typeof(JsonStringEnumConverter<SemanticProtocolKind>))]
-[Newtonsoft.Json.JsonConverter(typeof(StringEnumConverter))]
 public enum SemanticProtocolKind
 {
     [EnumMember(Value = "modbusTcp")]
@@ -1781,7 +1766,6 @@ public enum SemanticProtocolKind
 }
 
 [JsonConverter(typeof(JsonStringEnumConverter<ProcessRelation>))]
-[Newtonsoft.Json.JsonConverter(typeof(StringEnumConverter))]
 public enum ProcessRelation
 {
     [EnumMember(Value = "input")]
@@ -1814,7 +1798,6 @@ public enum ProcessRelation
 }
 
 [JsonConverter(typeof(JsonStringEnumConverter<AlarmSeverity>))]
-[Newtonsoft.Json.JsonConverter(typeof(StringEnumConverter))]
 public enum AlarmSeverity
 {
     [EnumMember(Value = "unknown")]
@@ -1843,7 +1826,6 @@ public enum AlarmSeverity
 }
 
 [JsonConverter(typeof(JsonStringEnumConverter<ProcessStateKind>))]
-[Newtonsoft.Json.JsonConverter(typeof(StringEnumConverter))]
 public enum ProcessStateKind
 {
     [EnumMember(Value = "unknown")]
@@ -1884,7 +1866,6 @@ public enum ProcessStateKind
 }
 
 [JsonConverter(typeof(JsonStringEnumConverter<ControlRisk>))]
-[Newtonsoft.Json.JsonConverter(typeof(StringEnumConverter))]
 public enum ControlRisk
 {
     [EnumMember(Value = "normal")]
@@ -1897,7 +1878,6 @@ public enum ControlRisk
 }
 
 [JsonConverter(typeof(JsonStringEnumConverter<AiOperationMode>))]
-[Newtonsoft.Json.JsonConverter(typeof(StringEnumConverter))]
 public enum AiOperationMode
 {
     [EnumMember(Value = "recommendOnly")]

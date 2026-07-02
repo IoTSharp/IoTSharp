@@ -6,13 +6,14 @@ using System.Linq;
 using System.Threading.Tasks;
 using RestSharp;
 using System.IO;
+using IoTSharp.Extensions;
 
 #nullable enable
 
-namespace Newtonsoft.Json
+namespace IoTSharp.Extensions.RESTful
 {
 
-    public static class NewtonsoftRestClientExtensions
+    public static class JsonRestClientExtensions
     {
         public static async Task<T> GetDataBy<T>(this Uri uri, params object[] objparam)
         {
@@ -43,19 +44,19 @@ namespace Newtonsoft.Json
             {
                 if (checktype)
                 {
-                    var ret = Newtonsoft.Json.JsonConvert.DeserializeObject(response.Content);
+                    var ret = JsonObjectSerializer.DeserializeUntyped(response.Content);
                     if (ret?.GetType() == typeof(string))
                     {
-                        result1 = Newtonsoft.Json.JsonConvert.DeserializeObject<T>((string)ret);
+                        result1 = JsonObjectSerializer.Deserialize<T>((string)ret);
                     }
                     else
                     {
-                        result1 = Newtonsoft.Json.JsonConvert.DeserializeObject<T>(response.Content);
+                        result1 = JsonObjectSerializer.Deserialize<T>(response.Content);
                     }
                 }
                 else
                 {
-                    result1 = Newtonsoft.Json.JsonConvert.DeserializeObject<T>(response.Content);
+                    result1 = JsonObjectSerializer.Deserialize<T>(response.Content);
                 }
             }
             return result1;
@@ -95,17 +96,16 @@ namespace Newtonsoft.Json
             var request = new RestRequest();
             action?.Invoke(request);
             var response = await client.PostAsync(request);
-            result = Newtonsoft.Json.JsonConvert.DeserializeObject<R>(response.Content);
+            result = JsonObjectSerializer.Deserialize<R>(response.Content);
             return result;
         }
 
 
         private static RestClient Create(Uri uri)
         {
-            var client = new RestClient(new RestClientOptions(uri) { Timeout = TimeSpan.FromMinutes(1), FollowRedirects = false });
+            var client = new RestClient(new RestClientOptions(uri) { Timeout = TimeSpan.FromSeconds(30), FollowRedirects = false });
             client.AddDefaultHeader(KnownHeaders.Accept, "*/*");
             return client;
         }
     }
 }
-

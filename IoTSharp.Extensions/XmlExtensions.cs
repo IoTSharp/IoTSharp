@@ -1,11 +1,9 @@
-﻿
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
+
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
+using System.Text.Json.Nodes;
 using System.Xml;
 
 namespace IoTSharp.Extensions
@@ -22,8 +20,8 @@ namespace IoTSharp.Extensions
                 XmlDocument doc = new XmlDocument();
                 xml.Seek(0, System.IO.SeekOrigin.Begin);
                 doc.Load(xml);
-                string jsonText = JsonConvert.SerializeXmlNode(doc.DocumentElement);
-                obj = JsonConvert.DeserializeObject(jsonText);
+                string jsonText = XmlJsonConverter.SerializeXmlNode(doc.DocumentElement);
+                obj = JsonObjectSerializer.DeserializeUntyped(jsonText);
                 ok = true;
             }
             catch (Exception)
@@ -40,8 +38,8 @@ namespace IoTSharp.Extensions
             {
                 XmlDocument doc = new XmlDocument();
                 doc.Load(xml.FullName);
-                string jsonText = JsonConvert.SerializeXmlNode(doc.DocumentElement);
-                obj = JsonConvert.DeserializeObject(jsonText);
+                string jsonText = XmlJsonConverter.SerializeXmlNode(doc.DocumentElement);
+                obj = JsonObjectSerializer.DeserializeUntyped(jsonText);
                 ok = true;
             }
             catch (Exception)
@@ -62,8 +60,8 @@ namespace IoTSharp.Extensions
                 }
                 XmlDocument doc = new XmlDocument();
                 doc.LoadXml(xml);
-                string jsonText = JsonConvert.SerializeXmlNode(doc.DocumentElement);
-                obj = JsonConvert.DeserializeObject(jsonText);
+                string jsonText = XmlJsonConverter.SerializeXmlNode(doc.DocumentElement);
+                obj = JsonObjectSerializer.DeserializeUntyped(jsonText);
                 ok = true;
             }
             catch (Exception)
@@ -102,7 +100,15 @@ namespace IoTSharp.Extensions
                 var ems = from ex in _Nodes where ex.Name.LocalName == "diffgram" select ex;
                 ems.ToList().ForEach(em =>
                 {
-                    var emls = from exx in em.Elements().FirstOrDefault(xe => xe.Name.LocalName == typeof(T).Name).Elements() select JObject.FromObject(exx).GetValue("Table").ToObject<T>();
+                    var parent = em.Elements().FirstOrDefault(xe => xe.Name.LocalName == typeof(T).Name);
+                    if (parent == null)
+                    {
+                        return;
+                    }
+
+                    var emls = from exx in parent.Elements()
+                               let json = ConvertElementToJsonObject(exx)
+                               select json.ToObject<T>();
                     ts.AddRange(emls.ToArray());
                 });
             }
@@ -111,6 +117,47 @@ namespace IoTSharp.Extensions
 
             }
             return ts;
+        }
+
+        private static JsonObject ConvertElementToJsonObject(System.Xml.Linq.XElement element)
+        {
+            var result = new JsonObject();
+            foreach (var attribute in element.Attributes())
+            {
+                result[attribute.Name.LocalName] = attribute.Value;
+            }
+
+            var childGroups = element.Elements().GroupBy(child => child.Name.LocalName);
+            foreach (var group in childGroups)
+            {
+                if (group.Count() == 1)
+                {
+                    result[group.Key] = ConvertElementValue(group.First());
+                    continue;
+                }
+
+                var array = new JsonArray();
+                foreach (var child in group)
+                {
+                    array.Add(ConvertElementValue(child));
+                }
+
+                result[group.Key] = array;
+            }
+
+            if (!element.HasElements && !string.IsNullOrWhiteSpace(element.Value))
+            {
+                result[element.Name.LocalName] = element.Value;
+            }
+
+            return result;
+        }
+
+        private static JsonNode ConvertElementValue(System.Xml.Linq.XElement element)
+        {
+            return element.HasElements || element.HasAttributes
+                ? ConvertElementToJsonObject(element)
+                : JsonValue.Create(element.Value);
         }
     }
 }

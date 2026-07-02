@@ -58,7 +58,7 @@ namespace IoTSharp.Services.MQTTControllers
         public async Task telemetry()
         {
             var _dev = GetSessionItem<Device>();
-            var lst = Newtonsoft.Json.JsonConvert.DeserializeObject<Dictionary<string, List<GatewayPlayload>>>(Message.ConvertPayloadToString());
+            var lst = JsonObjectSerializer.Deserialize<Dictionary<string, List<GatewayPlayload>>>(Message.ConvertPayloadToString());
             _logger.LogInformation($"{ClientId}的数据{Message.Topic}是网关数据， 解析到{lst?.Count}个设备");
             await _queue.PublishActive(_dev.Id, ActivityStatus.Activity);
 
@@ -81,7 +81,7 @@ namespace IoTSharp.Services.MQTTControllers
         public async Task Attributes()
         {
             var _dev = GetSessionItem<Device>();
-            var lst = Newtonsoft.Json.JsonConvert.DeserializeObject<Dictionary<string, List<GatewayPlayload>>>(Message.ConvertPayloadToString());
+            var lst = JsonObjectSerializer.Deserialize<Dictionary<string, List<GatewayPlayload>>>(Message.ConvertPayloadToString());
             _logger.LogInformation($"{ClientId}的数据{Message.Topic}是网关数据， 解析到{lst?.Count}个设备");
             await _queue.PublishActive(_dev.Id, ActivityStatus.Activity);
             lst?.Keys.ToList().ForEach(async dev =>
@@ -135,7 +135,7 @@ namespace IoTSharp.Services.MQTTControllers
         public async Task on_connect()
         {
             var _dev = GetSessionItem<Device>();
-            var ds = Newtonsoft.Json.JsonConvert.DeserializeObject<GatewayDeviceStatus>(Message.ConvertPayloadToString());
+            var ds = JsonObjectSerializer.Deserialize<GatewayDeviceStatus>(Message.ConvertPayloadToString());
             await _queue.PublishActive(_dev.Id, ActivityStatus.Activity);
             if (ds != null)
             {
@@ -160,7 +160,7 @@ namespace IoTSharp.Services.MQTTControllers
         public async Task Disconnect()
         {
             var _dev = GetSessionItem<Device>();
-            var ds = Newtonsoft.Json.JsonConvert.DeserializeObject<GatewayDeviceStatus>(Message.ConvertPayloadToString());
+            var ds = JsonObjectSerializer.Deserialize<GatewayDeviceStatus>(Message.ConvertPayloadToString());
             await _queue.PublishActive(_dev.Id, ActivityStatus.Activity);
             if (ds != null)
             {

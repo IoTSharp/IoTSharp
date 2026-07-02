@@ -423,7 +423,7 @@ namespace IoTSharp.Controllers
                                 PrivateKey = x509Key,
                                 PublicKey = x509CRT
                             };
-                            did.IdentityValue = Newtonsoft.Json.JsonConvert.SerializeObject(pem);
+                            did.IdentityValue = JsonObjectSerializer.Serialize(pem);
                             await _context.SaveChangesAsync();
                             return new ApiResult<DeviceIdentity>(ApiCode.Success, "OK", new DeviceIdentity() { Id = did.Id, IdentityType = did.IdentityType, IdentityId = did.IdentityId });
                         }
@@ -464,20 +464,20 @@ namespace IoTSharp.Controllers
                 }
                 else
                 {
-                    var tsl = Newtonsoft.Json.JsonConvert.DeserializeAnonymousType(dt.IdentityValue, new
-                    {
-                        PrivateKey = "",
-                        PublicKey = ""
-                    });
-                    if (tsl == null || string.IsNullOrEmpty(tsl.PrivateKey) || string.IsNullOrEmpty(tsl.PublicKey))
+                    var tsl = JsonObjectSerializer.Deserialize<Dictionary<string, string>>(dt.IdentityValue);
+                    if (tsl == null
+                        || !tsl.TryGetValue("PrivateKey", out var privateKey)
+                        || !tsl.TryGetValue("PublicKey", out var publicKey)
+                        || string.IsNullOrEmpty(privateKey)
+                        || string.IsNullOrEmpty(publicKey))
                     {
                         return Ok(new ApiResult(ApiCode.NotFoundDevice, "秘钥格式未能解析。可能是版本不通。 "));
                     }
                     else
                     {
                         string fileNameZip = $"client_{dt.Device.Id.ToString().Replace("-", "")}.zip";
-                        byte[] fileBytes = System.Text.Encoding.UTF8.GetBytes(tsl.PublicKey);
-                        byte[] fileBytes1 = System.Text.Encoding.UTF8.GetBytes(tsl.PrivateKey);
+                        byte[] fileBytes = System.Text.Encoding.UTF8.GetBytes(publicKey);
+                        byte[] fileBytes1 = System.Text.Encoding.UTF8.GetBytes(privateKey);
                         byte[] compressedBytes;
                         using (var outStream = new MemoryStream())
                         {
@@ -1141,7 +1141,7 @@ namespace IoTSharp.Controllers
                     var rpcClient = new RpcClient(_mqtt, _logger);
                     var _timeout = TimeSpan.FromSeconds(timeout);
                     var qos = MqttQualityOfServiceLevel.AtMostOnce;
-                    var payload = Newtonsoft.Json.JsonConvert.SerializeObject(args);
+                    var payload = JsonObjectSerializer.Serialize(args);
                     await rpcClient.ConnectAsync();
                     byte[] response = null;
                     //如果是网关的子设备， 因为客户端无法知道Id，因此发至名称
@@ -1369,7 +1369,7 @@ namespace IoTSharp.Controllers
                 {
                     XmlDocument doc = new XmlDocument();
                     doc.LoadXml(body);
-                    json = Newtonsoft.Json.JsonConvert.SerializeXmlNode(doc);
+                    json = XmlJsonConverter.SerializeXmlNode(doc);
                 }
                 var rules = await _caching.GetAsync($"ruleid_{_dev.Id}_raw", async () =>
                 {
@@ -1385,7 +1385,7 @@ namespace IoTSharp.Controllers
                         {
                             _logger.LogInformation($"{_dev.Id}的数据通过规则链{g}进行处理。");
 
-                            var result = await _flowRuleProcessor.RunFlowRules(g, Newtonsoft.Json.JsonConvert.DeserializeObject(body), _dev.Id, FlowRuleRunType.Normal, null);
+                            var result = await _flowRuleProcessor.RunFlowRules(g, JsonObjectSerializer.DeserializeUntyped(json), _dev.Id, FlowRuleRunType.Normal, null);
 
                             //     _context.SaveFlowResult(_dev.Id,g, result);
 

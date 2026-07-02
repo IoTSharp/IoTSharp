@@ -1,4 +1,4 @@
-﻿using IoTSharp.Contracts;
+using IoTSharp.Contracts;
 using IoTSharp.Data;
 using System;
 using System.Collections.Generic;
@@ -31,8 +31,6 @@ namespace IoTSharp.Dtos
         /// </summary>
         /// <example>1.03:14:56:166</example>
         /// <remarks>d.hh:mm:ss:FFF</remarks>
-        [Newtonsoft.Json.JsonConverter(typeof(TimespanConverterNewtonsoft))]
-        [Newtonsoft.Json.JsonProperty(TypeNameHandling = Newtonsoft.Json.TypeNameHandling.All)]
         [System.Text.Json.Serialization.JsonConverter(typeof(TimeSpanConverter))]
         public TimeSpan every { get; set; } = TimeSpan.Zero;
         /// <summary>

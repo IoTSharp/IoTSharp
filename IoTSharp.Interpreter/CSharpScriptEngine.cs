@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Logging;
+using IoTSharp.Extensions;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Threading;
@@ -6,13 +7,10 @@ using IoTSharp.Interpreter;
 using Microsoft.Extensions.Options;
 using System.Threading.Tasks;
 using CSScriptLib;
-using Newtonsoft.Json;
 
 using System.Linq;
 using System.Reflection;
 using IronPython.Runtime;
-using Newtonsoft.Json.Converters;
-using Newtonsoft.Json.Linq;
 using System.Dynamic;
 using Microsoft.Extensions.Caching.Memory;
 using System.Text;
@@ -59,10 +57,9 @@ namespace IoTSharp.Interpreter
                                     }}");
                 return eva;
             });
-            var expConverter = new ExpandoObjectConverter();
-            dynamic obj = JsonConvert.DeserializeObject<ExpandoObject>(input, expConverter);
+            dynamic obj = JsonObjectSerializer.DeserializeExpando(input);
             dynamic result = runscript(obj);
-            var json = System.Text.Json.JsonSerializer.Serialize(result);
+            var json = JsonObjectSerializer.Serialize(result);
             _logger.LogDebug($"source:{Environment.NewLine}{_source}{Environment.NewLine}{Environment.NewLine}input:{Environment.NewLine}{input}{Environment.NewLine}{Environment.NewLine} ouput:{Environment.NewLine}{json}{Environment.NewLine}{Environment.NewLine}");
 
             return json;

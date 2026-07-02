@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -23,7 +23,7 @@ namespace IoTSharp.Extensions
                 value = default(TValue);
                 return true;
             }
-            value = Newtonsoft.Json.JsonConvert.DeserializeObject<TValue>(json);
+            value = JsonObjectSerializer.Deserialize<TValue>(json);
             return true;
         }
 
@@ -94,7 +94,7 @@ namespace IoTSharp.Extensions
                 return;
             }
 
-            var json = Newtonsoft.Json.JsonConvert.SerializeObject(value);
+            var json = JsonObjectSerializer.Serialize(value);
             File.WriteAllText(filename, json);
         }
 

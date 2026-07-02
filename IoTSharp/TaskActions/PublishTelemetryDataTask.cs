@@ -3,12 +3,8 @@ using IoTSharp.Contracts;
 using IoTSharp.Data;
 using IoTSharp.Extensions;
 using IoTSharp.TaskActions;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 using System;
-using System.Collections.Generic;
 using System.ComponentModel;
-using System.Linq;
 using System.Threading.Tasks;
 
 namespace IoTSharp.TaskActions
@@ -29,7 +25,7 @@ namespace IoTSharp.TaskActions
             var result = new TaskActionOutput() { DynamicOutput = new { code = ApiCode.Success, msg = "OK" } };
             try
             {
-                var msg = new PlayloadData() { MsgBody = JToken.Parse(param.Input)?.JsonToDictionary(), DataCatalog = DataCatalog.TelemetryData, DataSide = DataSide.ClientSide, DeviceId = param.DeviceId };
+                var msg = new PlayloadData() { MsgBody = JsonNodeParser.ParseNode(param.Input)?.ToDictionary(), DataCatalog = DataCatalog.TelemetryData, DataSide = DataSide.ClientSide, DeviceId = param.DeviceId };
                 if (msg.DeviceId != Guid.Empty && msg.MsgBody?.Count > 0)
                 {
                     _queue.PublishTelemetryData(msg);

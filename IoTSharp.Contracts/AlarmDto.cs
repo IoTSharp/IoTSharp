@@ -1,4 +1,4 @@
-﻿
+
 using System;
 
 namespace IoTSharp.Contracts
@@ -8,13 +8,13 @@ namespace IoTSharp.Contracts
         /// <summary>
         /// 起因设备的名称或者GUID
         /// </summary>
-        [Newtonsoft.Json.JsonRequired]
+        [System.ComponentModel.DataAnnotations.Required]
         public string? OriginatorName { get; set; }
 
         /// <summary>
         /// 警告类型
         /// </summary>
-        [Newtonsoft.Json.JsonRequired]
+        [System.ComponentModel.DataAnnotations.Required]
         public string? AlarmType { get; set; }
 
         /// <summary>

@@ -1,5 +1,3 @@
-﻿using Newtonsoft.Json.Linq;
-
 namespace IoTSharp.Sdk.Http
 {
 
@@ -41,11 +39,8 @@ namespace IoTSharp.Sdk.Http
     }
     public partial class DevicesClient
     {
-        partial void UpdateJsonSerializerSettings(Newtonsoft.Json.JsonSerializerSettings settings)
+        static partial void UpdateJsonSerializerOptions(System.Text.Json.JsonSerializerOptions settings)
         {
-            //settings.DateTimeZoneHandling = Newtonsoft.Json.DateTimeZoneHandling.Utc;
-            //settings.DateParseHandling = Newtonsoft.Json.DateParseHandling.DateTime;
-            //settings.DateFormatHandling = Newtonsoft.Json.DateFormatHandling.IsoDateFormat;
         }
     }
 

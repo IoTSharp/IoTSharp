@@ -1,4 +1,4 @@
-﻿using IoTSharp.Contracts;
+using IoTSharp.Contracts;
 using System;
 using System.ComponentModel.DataAnnotations;
 
@@ -73,14 +73,12 @@ namespace IoTSharp.Data
         /// 租户
         /// </summary>
         [System.Text.Json.Serialization.JsonIgnore]
-        [Newtonsoft.Json.JsonIgnore]
         public Tenant Tenant { get; set; }
 
         /// <summary>
         /// 客户
         /// </summary>
         [System.Text.Json.Serialization.JsonIgnore]
-        [Newtonsoft.Json.JsonIgnore]
         public Customer Customer { get; set; }
     }
 }

@@ -99,7 +99,7 @@ namespace IoTSharp.Gateways
                 var device = _dev.JudgeOrCreateNewDevice(dev, _scopeFactor, _logger);
                 await _queue.PublishActive(device.Id, ActivityStatus.Activity);
                 _logger.LogInformation($"{_dev.Name}的网关数据正在处理设备{dev}， 设备ID为{_dev?.Id}");
-                var plst = from d in kp.Tags where d.CanUse && d.DeviceName == dev select new KeyValuePair<string, object>(d.TelemetryName, d.TagValue.ToObject());
+                var plst = from d in kp.Tags where d.CanUse && d.DeviceName == dev select new KeyValuePair<string, object>(d.TelemetryName, d.TagValue.ToClrObject());
 
                 if (plst.Any())
                 {
@@ -114,7 +114,7 @@ namespace IoTSharp.Gateways
                 }
                 _logger.LogInformation($"{_dev.Name}的网关数据处理完成，设备{dev}ID为{device?.Id}共计{plst.Count()}条");
             }
-            var _sys = from d in kp.Tags where d.CanUse && d.IsSystem select new KeyValuePair<string, object>(d.TelemetryName, d.TagValue.ToObject());
+            var _sys = from d in kp.Tags where d.CanUse && d.IsSystem select new KeyValuePair<string, object>(d.TelemetryName, d.TagValue.ToClrObject());
             if (_sys.Any())
             {
                 await _queue.PublishTelemetryData(new PlayloadData()

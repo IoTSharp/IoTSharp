@@ -11,7 +11,7 @@ using System.Security.Cryptography.X509Certificates;
 using MQTTnet;
 using MQTTnet.AspNetCore.Routing;
 using IoTSharp.Data;
-using Newtonsoft.Json.Linq;
+using IoTSharp.Extensions;
 using IoTSharp.Contracts;
 using System.Net.Security;
 using System.Diagnostics;
@@ -107,7 +107,7 @@ namespace IoTSharp
 
         public static Dictionary<string, object> ConvertPayloadToDictionary(this MqttApplicationMessage msg)
         {
-            return JToken.Parse(msg.ConvertPayloadToString() ?? "{}")?.JsonToDictionary();
+            return JsonNodeParser.ParseNode(msg.ConvertPayloadToString() ?? "{}")?.ToDictionary();
         }
 
         public static List<T> ConvertPayloadToList<T>(this MqttApplicationMessage msg)
@@ -137,7 +137,7 @@ namespace IoTSharp
                     break;
 
                 case DataType.Json:
-                    kv = new(item.KeyName, Newtonsoft.Json.Linq.JToken.Parse(item.Value_Json));
+                    kv = new(item.KeyName, JsonObjectSerializer.DeserializeUntyped(item.Value_Json));
                     break;
 
                 case DataType.XML:

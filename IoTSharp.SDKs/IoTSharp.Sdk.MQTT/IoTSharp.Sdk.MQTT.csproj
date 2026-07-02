@@ -17,7 +17,6 @@
 
 	<ItemGroup>
 		<PackageReference Include="MQTTnet" />
-		<PackageReference Include="Newtonsoft.Json" />
 	</ItemGroup>
 
 	<ItemGroup>

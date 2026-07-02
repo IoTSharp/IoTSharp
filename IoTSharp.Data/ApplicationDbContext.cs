@@ -33,7 +33,6 @@ namespace IoTSharp.Data
             modelBuilder.Entity<Device>().HasIndex(nameof(IoTSharp.Data.Device.TenantId), nameof(IoTSharp.Data.Device.Deleted));
             modelBuilder.Entity<Device>().HasDiscriminator<DeviceType>(nameof(Data.Device.DeviceType)).HasValue<Gateway>(DeviceType.Gateway).HasValue<Device>(DeviceType.Device);
             modelBuilder.Entity<Gateway>().HasDiscriminator<DeviceType>(nameof(Data.Device.DeviceType));
-            ;
 
             var builder_options = this.GetService<IDataBaseModelBuilderOptions>();
             builder_options.Infrastructure = this;

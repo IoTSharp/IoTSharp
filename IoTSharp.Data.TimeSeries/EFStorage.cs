@@ -1,5 +1,6 @@
-﻿using IoTSharp.Contracts;
+using IoTSharp.Contracts;
 using IoTSharp.Data;
+using IoTSharp.Extensions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -99,7 +100,7 @@ namespace IoTSharp.Storage
                         var ret = await _dbContext.SaveChangesAsync();
                         exceptions?.ToList().ForEach(ex =>
                         {
-                            _logger.LogError($"{ex.Key} {ex.Value} {Newtonsoft.Json.JsonConvert.SerializeObject(msg.MsgBody[ex.Key])}");
+                            _logger.LogError($"{ex.Key} {ex.Value} {JsonObjectSerializer.Serialize(msg.MsgBody[ex.Key])}");
                         });
                         _logger.LogInformation($"新增({msg.DeviceId})遥测数据更新最新信息{ret}");
                         result = ret > 0;
@@ -151,7 +152,7 @@ namespace IoTSharp.Storage
                         var exceptions = dbContext.PreparingData<TelemetryLatest>(latest, deviceGroup.Key, sideGroup.Key);
                         exceptions?.ToList().ForEach(ex =>
                         {
-                            _logger.LogError($"{ex.Key} {ex.Value} {Newtonsoft.Json.JsonConvert.SerializeObject(latest[ex.Key])}");
+                            _logger.LogError($"{ex.Key} {ex.Value} {JsonObjectSerializer.Serialize(latest[ex.Key])}");
                         });
                     }
                 }

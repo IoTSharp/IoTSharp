@@ -2,11 +2,11 @@ using System.Text;
 using System.Collections.Concurrent;
 using IoTSharp.Contracts;
 using IoTSharp.Data;
+using IoTSharp.Extensions;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using Newtonsoft.Json;
 using SonnetDB.Data.Mq;
 
 namespace IoTSharp.EventBus.SonnetMQ;
@@ -199,7 +199,7 @@ public sealed class SonnetMqEventBusWorker : BackgroundService
             Truncate(exception.ToString(), Math.Max(256, _options.DeadLetterStackTraceMaxChars)),
             Convert.ToBase64String(message.Payload));
 
-        byte[] payload = Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(deadLetter));
+        byte[] payload = Encoding.UTF8.GetBytes(JsonObjectSerializer.Serialize(deadLetter));
         await _client.PublishAsync(deadLetterTopic, payload, new Dictionary<string, string>(StringComparer.Ordinal)
         {
             ["content-type"] = "application/json",
@@ -241,7 +241,7 @@ public sealed class SonnetMqEventBusWorker : BackgroundService
     private static T ReadJson<T>(SndbMqMessage message)
     {
         string json = Encoding.UTF8.GetString(message.Payload);
-        return JsonConvert.DeserializeObject<T>(json)
+        return JsonObjectSerializer.Deserialize<T>(json)
             ?? throw new InvalidDataException($"SonnetMQ payload cannot be deserialized as {typeof(T).Name}.");
     }
 

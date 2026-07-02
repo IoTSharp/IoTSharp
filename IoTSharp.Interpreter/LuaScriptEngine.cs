@@ -1,11 +1,11 @@
+using IoTSharp.Extensions;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using MoonSharp.Interpreter;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 using System;
 using System.Globalization;
 using System.Linq;
+using System.Text.Json.Nodes;
 
 namespace IoTSharp.Interpreter
 {
@@ -20,7 +20,7 @@ namespace IoTSharp.Interpreter
         public override string Do(string _source, string input)
         {
             var script = new Script(CoreModules.Preset_Default);
-            script.Globals["input"] = ToDynValue(script, string.IsNullOrWhiteSpace(input) ? JValue.CreateNull() : JToken.Parse(input));
+            script.Globals["input"] = ToDynValue(script, JsonNodeParser.ParseNode(input));
 
             var result = script.DoString(_source);
             if (result.Type is DataType.Nil or DataType.Void)
@@ -32,7 +32,7 @@ namespace IoTSharp.Interpreter
                 }
             }
 
-            var outputjson = ToJsonToken(result).ToString(Formatting.None);
+            var outputjson = ToJsonNode(result)?.ToJsonString(JsonOptions.Default) ?? "null";
             _logger.LogDebug("source:{NewLine}{Source}{NewLine}{NewLine}input:{NewLine}{Input}{NewLine}{NewLine}output:{NewLine}{Output}{NewLine}{NewLine}",
                 Environment.NewLine,
                 _source,
@@ -42,34 +42,32 @@ namespace IoTSharp.Interpreter
             return outputjson;
         }
 
-        private static DynValue ToDynValue(Script script, JToken token)
+        private static DynValue ToDynValue(Script script, JsonNode token)
         {
-            return token.Type switch
+            return token switch
             {
-                JTokenType.Object => DynValue.NewTable(ToTable(script, (JObject)token)),
-                JTokenType.Array => DynValue.NewTable(ToArrayTable(script, (JArray)token)),
-                JTokenType.Integer => DynValue.NewNumber(token.Value<double>()),
-                JTokenType.Float => DynValue.NewNumber(token.Value<double>()),
-                JTokenType.Boolean => DynValue.NewBoolean(token.Value<bool>()),
-                JTokenType.String => DynValue.NewString(token.Value<string>() ?? string.Empty),
-                JTokenType.Null => DynValue.Nil,
-                JTokenType.Undefined => DynValue.Nil,
-                _ => DynValue.NewString(token.ToString(Formatting.None))
+                null => DynValue.Nil,
+                JsonObject obj => DynValue.NewTable(ToTable(script, obj)),
+                JsonArray array => DynValue.NewTable(ToArrayTable(script, array)),
+                JsonValue value when value.TryGetValue<bool>(out var boolValue) => DynValue.NewBoolean(boolValue),
+                JsonValue value when value.TryGetValue<double>(out var numberValue) => DynValue.NewNumber(numberValue),
+                JsonValue value when value.TryGetValue<string>(out var textValue) => DynValue.NewString(textValue ?? string.Empty),
+                _ => DynValue.NewString(token.ToJsonString(JsonOptions.Default))
             };
         }
 
-        private static Table ToTable(Script script, JObject value)
+        private static Table ToTable(Script script, JsonObject value)
         {
             var table = new Table(script);
-            foreach (var property in value.Properties())
+            foreach (var property in value)
             {
-                table[property.Name] = ToDynValue(script, property.Value);
+                table[property.Key] = ToDynValue(script, property.Value);
             }
 
             return table;
         }
 
-        private static Table ToArrayTable(Script script, JArray value)
+        private static Table ToArrayTable(Script script, JsonArray value)
         {
             var table = new Table(script);
             var index = 1;
@@ -81,27 +79,27 @@ namespace IoTSharp.Interpreter
             return table;
         }
 
-        private static JToken ToJsonToken(DynValue value)
+        private static JsonNode ToJsonNode(DynValue value)
         {
             return value.Type switch
             {
-                DataType.Void => JValue.CreateNull(),
-                DataType.Nil => JValue.CreateNull(),
-                DataType.Boolean => new JValue(value.Boolean),
-                DataType.Number => new JValue(value.Number),
-                DataType.String => new JValue(value.String),
-                DataType.Table => ToJsonToken(value.Table),
-                DataType.Tuple => new JArray(value.Tuple.Select(ToJsonToken)),
-                _ => value.ToObject() is { } obj ? JToken.FromObject(obj) : JValue.CreateNull()
+                DataType.Void => null,
+                DataType.Nil => null,
+                DataType.Boolean => JsonValue.Create(value.Boolean),
+                DataType.Number => JsonValue.Create(value.Number),
+                DataType.String => JsonValue.Create(value.String),
+                DataType.Table => ToJsonNode(value.Table),
+                DataType.Tuple => CreateArray(value.Tuple.Select(ToJsonNode)),
+                _ => value.ToObject() is { } obj ? JsonObjectSerializer.SerializeToNode(obj) : null
             };
         }
 
-        private static JToken ToJsonToken(Table table)
+        private static JsonNode ToJsonNode(Table table)
         {
             var pairs = table.Pairs.ToList();
             if (pairs.Count == 0)
             {
-                return new JObject();
+                return new JsonObject();
             }
 
             if (TryConvertToArray(pairs, out var array))
@@ -109,18 +107,18 @@ namespace IoTSharp.Interpreter
                 return array;
             }
 
-            var obj = new JObject();
+            var obj = new JsonObject();
             foreach (var pair in pairs)
             {
-                obj[GetKeyName(pair.Key)] = ToJsonToken(pair.Value);
+                obj[GetKeyName(pair.Key)] = ToJsonNode(pair.Value);
             }
 
             return obj;
         }
 
-        private static bool TryConvertToArray(System.Collections.Generic.IReadOnlyCollection<TablePair> pairs, out JArray array)
+        private static bool TryConvertToArray(System.Collections.Generic.IReadOnlyCollection<TablePair> pairs, out JsonArray array)
         {
-            array = new JArray();
+            array = new JsonArray();
             var indexedValues = pairs
                 .Select(pair => (Success: TryGetArrayIndex(pair.Key, out var index), Index: index, pair.Value))
                 .ToList();
@@ -138,10 +136,21 @@ namespace IoTSharp.Interpreter
                     return false;
                 }
 
-                array.Add(ToJsonToken(ordered[expected - 1].Value));
+                array.Add(ToJsonNode(ordered[expected - 1].Value));
             }
 
             return true;
+        }
+
+        private static JsonArray CreateArray(System.Collections.Generic.IEnumerable<JsonNode> values)
+        {
+            var array = new JsonArray();
+            foreach (var value in values)
+            {
+                array.Add(value);
+            }
+
+            return array;
         }
 
         private static bool TryGetArrayIndex(DynValue key, out int index)

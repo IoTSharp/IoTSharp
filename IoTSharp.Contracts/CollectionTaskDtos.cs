@@ -1,11 +1,9 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
-using Newtonsoft.Json.Converters;
 
 namespace IoTSharp.Contracts;
 
 [JsonConverter(typeof(JsonStringEnumConverter))]
-[Newtonsoft.Json.JsonConverter(typeof(StringEnumConverter))]
 public enum CollectionProtocolType
 {
     Unknown = 0,
@@ -18,7 +16,6 @@ public enum CollectionProtocolType
 }
 
 [JsonConverter(typeof(JsonStringEnumConverter))]
-[Newtonsoft.Json.JsonConverter(typeof(StringEnumConverter))]
 public enum CollectionTargetType
 {
     Telemetry = 1,
@@ -28,7 +25,6 @@ public enum CollectionTargetType
 }
 
 [JsonConverter(typeof(JsonStringEnumConverter))]
-[Newtonsoft.Json.JsonConverter(typeof(StringEnumConverter))]
 public enum CollectionValueType
 {
     Boolean = 1,
@@ -42,7 +38,6 @@ public enum CollectionValueType
 }
 
 [JsonConverter(typeof(JsonStringEnumConverter))]
-[Newtonsoft.Json.JsonConverter(typeof(StringEnumConverter))]
 public enum CollectionTransformType
 {
     Scale = 1,
@@ -57,7 +52,6 @@ public enum CollectionTransformType
 }
 
 [JsonConverter(typeof(JsonStringEnumConverter))]
-[Newtonsoft.Json.JsonConverter(typeof(StringEnumConverter))]
 public enum ReportTriggerType
 {
     Always = 1,
@@ -68,7 +62,6 @@ public enum ReportTriggerType
 }
 
 [JsonConverter(typeof(JsonStringEnumConverter))]
-[Newtonsoft.Json.JsonConverter(typeof(StringEnumConverter))]
 public enum QualityStatusType
 {
     Good = 1,

@@ -8,10 +8,10 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.Json.Nodes;
 using System.Threading.Tasks;
 using System.Xml;
 
@@ -62,7 +62,7 @@ namespace IoTSharp.Gateways
             {
                 XmlDocument doc = new XmlDocument();
                 doc.LoadXml(body);
-                json = Newtonsoft.Json.JsonConvert.SerializeXmlNode(doc);
+                json = XmlJsonConverter.SerializeXmlNode(doc);
             }
             var atts_cach = await _caching.GetAsync($"_map_{_dev.Id}", async () =>
             {
@@ -74,14 +74,14 @@ namespace IoTSharp.Gateways
             {
                 try
                 {
-                    var jroot = JToken.Parse(json);
-                    JToken jt = null;
+                    var jroot = JsonNodeParser.ParseNode(json);
+                    JsonNode jt = null;
                     var atts = atts_cach.Value;
                     var pathx = atts.FirstOrDefault(al => al.KeyName == _map_to_jsontext_in_json)?.Value_String;
                     if (pathx != null)
                     {
                         _logger.LogWarning($"数据在{pathx}中以文本格式存放，在这里选中并转换为json格式");
-                        jt = JToken.Parse(jroot.SelectToken(pathx).ToObject<string>());
+                        jt = JsonNodeParser.ParseNode(jroot.SelectByPath(pathx).GetStringValue());
                     }
                     else
                     {
@@ -93,7 +93,7 @@ namespace IoTSharp.Gateways
                     if (!string.IsNullOrEmpty(data_in_array))
                     {
                         var subdevname = atts.FirstOrDefault(al => al.KeyName == _map_to_subdevname)?.Value_String;
-                        var jary = jt.SelectToken(data_in_array) as JArray;
+                        var jary = jt.SelectByPath(data_in_array) as JsonArray;
                         if (jary == null)
                         {
                             _logger.LogWarning($"指定了数据在{data_in_array}中，但它为空或者不是数组。");
@@ -102,7 +102,7 @@ namespace IoTSharp.Gateways
                         else
                         {
                             int errortimes = 0;
-                            jary.Children().ForEach(jo =>
+                            foreach (var jo in jary)
                             {
                                 string _devname = buid_dev_name(atts, jt, jo);
                                 if (!string.IsNullOrEmpty(_devname))
@@ -114,7 +114,7 @@ namespace IoTSharp.Gateways
                                     errortimes++;
                                 }
 
-                            });
+                            }
                             if (errortimes > 0)
                             {
                                 result = new ApiResult(ApiCode.InValidData, $"can't found device name(times:{errortimes})");
@@ -153,7 +153,7 @@ namespace IoTSharp.Gateways
             return result;
         }
 
-        private string buid_dev_name(AttributeLatest[] atts, JToken jt, JToken jc)
+        private string buid_dev_name(AttributeLatest[] atts, JsonNode jt, JsonNode jc)
         {
             string _result = string.Empty;
             var devnamekey = atts.FirstOrDefault(g => g.KeyName == _map_to_devname);
@@ -165,17 +165,17 @@ namespace IoTSharp.Gateways
                 var devname = string.Empty;
                 if (devnamekey.Value_String.StartsWith('@'))
                 {
-                    devname = jt.SelectToken(devnamekey.Value_String[1..])?.ToObject<string>();
+                    devname = jt.SelectByPath(devnamekey.Value_String[1..])?.GetStringValue();
                 }
                 else if (jc != null)
                 {
-                    devname = jc.SelectToken(devnamekey.Value_String)?.ToObject<string>();
+                    devname = jc.SelectByPath(devnamekey.Value_String)?.GetStringValue();
                 }
                 else
                 {
-                    devname = jt.SelectToken(devnamekey.Value_String)?.ToObject<string>();
+                    devname = jt.SelectByPath(devnamekey.Value_String)?.GetStringValue();
                 }
-                var subdevname = (subdevnamekey != null && (jc != null)) ? (jc.SelectToken(subdevnamekey.Value_String) as JValue)?.ToObject<string>() : string.Empty;
+                var subdevname = (subdevnamekey != null && (jc != null)) ? jc.SelectByPath(subdevnamekey.Value_String)?.GetStringValue() : string.Empty;
                 if (!string.IsNullOrEmpty(devnameformatkey))
                 {
                     _result = devnameformatkey;
@@ -190,7 +190,7 @@ namespace IoTSharp.Gateways
             return _result;
         }
 
-        private async void push_one_device_data_with_json(JToken jt, JToken jroot, Device _dev, string _devname, AttributeLatest[] atts, string ts_field, string ts_format)
+        private async void push_one_device_data_with_json(JsonNode jt, JsonNode jroot, Device _dev, string _devname, AttributeLatest[] atts, string ts_field, string ts_format)
         {
             var device = _dev.JudgeOrCreateNewDevice(_devname, _scopeFactor, _logger);
             var pairs_att = new Dictionary<string, object>();
@@ -199,16 +199,16 @@ namespace IoTSharp.Gateways
 
             atts?.ToList().ForEach(g =>
             {
-                JValue jv = null;
+                JsonNode jv = null;
                 if (g.Value_String.StartsWith("@"))//如果是@开头， 则从父节点取
                 {
-                    jv = jroot.SelectToken(g.Value_String.Substring(1)) as JValue;
+                    jv = jroot.SelectByPath(g.Value_String.Substring(1));
                 }
                 else
                 {
-                    jv = jt.SelectToken(g.Value_String) as JValue;
+                    jv = jt.SelectByPath(g.Value_String);
                 }
-                var value = (jv)?.JValueToObject();
+                var value = jv?.ToClrObject();
                 if (value != null && g.KeyName?.Length > 0)
                 {
                     if (!string.IsNullOrEmpty(ts_field))

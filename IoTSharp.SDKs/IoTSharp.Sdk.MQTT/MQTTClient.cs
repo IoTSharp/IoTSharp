@@ -1,4 +1,4 @@
-﻿using IoTSharp.Extensions.X509;
+using IoTSharp.Extensions.X509;
 using MQTTnet;
 using MQTTnet.Protocol;
 using System;
@@ -248,14 +248,14 @@ namespace IoTSharp.EdgeSdk.MQTT
 
         public Task UploadAttributeAsync(string _devicename, object obj)
         {
-            return Client.PublishAsync(new MqttApplicationMessageBuilder().WithTopic($"devices/{_devicename}/attributes").WithPayload(Newtonsoft.Json.JsonConvert.SerializeObject(obj)).Build());
+            return Client.PublishAsync(new MqttApplicationMessageBuilder().WithTopic($"devices/{_devicename}/attributes").WithPayload(System.Text.Json.JsonSerializer.Serialize(obj)).Build());
         }
 
         public Task UploadTelemetryDataAsync(object obj) => UploadTelemetryDataAsync("me", obj);
 
         public Task UploadTelemetryDataAsync(string _devicename, object obj)
         {
-            return Client.PublishAsync(new MqttApplicationMessageBuilder().WithTopic($"devices/{_devicename}/telemetry").WithPayload(Newtonsoft.Json.JsonConvert.SerializeObject(obj)).Build());
+            return Client.PublishAsync(new MqttApplicationMessageBuilder().WithTopic($"devices/{_devicename}/telemetry").WithPayload(System.Text.Json.JsonSerializer.Serialize(obj)).Build());
         }
 
         public Task ResponseExecommand(RpcResponse rpcResult)
@@ -271,7 +271,7 @@ namespace IoTSharp.EdgeSdk.MQTT
             string id = Guid.NewGuid().ToString();
             string topic = $"devices/{_device}/attributes/request/{id}";
             Client.SubscribeAsync($"devices/{_device}/attributes/response/{id}", MqttQualityOfServiceLevel.ExactlyOnce);
-            return Client.PublishStringAsync(topic, Newtonsoft.Json.JsonConvert.SerializeObject(args), MqttQualityOfServiceLevel.ExactlyOnce);
+            return Client.PublishStringAsync(topic, System.Text.Json.JsonSerializer.Serialize(args), MqttQualityOfServiceLevel.ExactlyOnce);
         }
     }
     public class RpcRequest

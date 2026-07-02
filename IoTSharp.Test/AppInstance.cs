@@ -1,21 +1,23 @@
 #nullable enable
 
-using Alba;
 using EasyCaching.Core;
 using IoTSharp.Contracts;
 using IoTSharp.Data;
 using IoTSharp.Dtos;
 using IoTSharp.Models;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.TestHost;
+using Microsoft.AspNetCore.Hosting.Server;
+using Microsoft.AspNetCore.Hosting.Server.Features;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Json;
 using System.Net.Http.Headers;
+using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using Xunit;
@@ -26,8 +28,8 @@ namespace IoTSharp.Test
     {
         private readonly CancellationTokenSource _cancellationTokenSource = new();
         private ApiResult<LoginResult>? _loginResult;
-
-        protected IAlbaHost? Host { get; private set; }
+        private IHost? _host;
+        private Uri? _baseAddress;
 
         protected InstallDto? InstallDto { get; private set; }
 
@@ -79,16 +81,23 @@ namespace IoTSharp.Test
         protected async Task InitializeApplicationAsync(IoTSharpTestProfile profile)
         {
             Profile = profile;
-            Host = await AlbaHost.For<IoTSharp.Program>(builder =>
-            {
-                builder.UseEnvironment("Test");
-                builder.ConfigureAppConfiguration((_, configuration) =>
+            _host = IoTSharp.Program.CreateHostBuilder(Array.Empty<string>())
+                .ConfigureWebHost(builder =>
                 {
-                    configuration.AddInMemoryCollection(profile.ToHostSettings());
-                });
-            });
+                    builder.UseEnvironment("Test");
+                    builder.UseUrls("http://127.0.0.1:0");
+                    builder.ConfigureAppConfiguration((_, configuration) =>
+                    {
+                        configuration.AddInMemoryCollection(
+                            profile.ToHostSettings().Select(static item => new KeyValuePair<string, string?>(item.Key, item.Value)));
+                    });
+                })
+                .Build();
 
-            using var client = Host.GetTestClient();
+            await _host.StartAsync(TestCancellationToken);
+            _baseAddress = ResolveBaseAddress(_host);
+
+            using var client = CreateClient();
             InstallDto = new InstallDto
             {
                 CustomerEMail = "customer@iotsharp.net",
@@ -101,16 +110,17 @@ namespace IoTSharp.Test
             };
 
             var response = await client.PostAsJsonAsync("/api/Installer/Install", InstallDto, TestCancellationToken);
-            Assert.True(response.IsSuccessStatusCode);
+            var responseContent = await response.Content.ReadAsStringAsync(TestCancellationToken);
+            Assert.True(response.IsSuccessStatusCode, $"{(int)response.StatusCode} {response.ReasonPhrase}: {responseContent}");
 
-            var result = await response.Content.ReadFromJsonAsync<ApiResult<InstanceDto>>(TestCancellationToken);
+            var result = JsonSerializer.Deserialize<ApiResult<InstanceDto>>(responseContent, new JsonSerializerOptions(JsonSerializerDefaults.Web));
             Assert.NotNull(result);
             Assert.True(result.Code == (int)ApiCode.Success || result.Code == (int)ApiCode.AlreadyExists, result.Msg);
             Assert.NotNull(result.Data);
             Assert.True(result.Data.Installed);
         }
 
-        public HttpClient CreateClient() => AssertHost().GetTestClient();
+        public HttpClient CreateClient() => new() { BaseAddress = AssertBaseAddress() };
 
         public async Task AssertAppIsInstalledAsync()
         {
@@ -202,13 +212,15 @@ namespace IoTSharp.Test
 
         protected async Task StopApplicationAsync()
         {
-            if (Host is null)
+            if (_host is null)
             {
                 return;
             }
 
-            await Host.StopAsync(TestCancellationToken);
-            Host = null;
+            await _host.StopAsync(TestCancellationToken);
+            _host.Dispose();
+            _host = null;
+            _baseAddress = null;
         }
 
         public async Task<ApiResult<LoginResult>> LoginAsync(HttpClient client)
@@ -261,16 +273,41 @@ namespace IoTSharp.Test
             return (clientId, move);
         }
 
-        private IAlbaHost AssertHost()
+        private IHost AssertHost()
         {
-            Assert.NotNull(Host);
-            return Host!;
+            Assert.NotNull(_host);
+            return _host!;
+        }
+
+        private Uri AssertBaseAddress()
+        {
+            Assert.NotNull(_baseAddress);
+            return _baseAddress!;
         }
 
         private InstallDto AssertInstallDto()
         {
             Assert.NotNull(InstallDto);
             return InstallDto!;
+        }
+
+        private static Uri ResolveBaseAddress(IHost host)
+        {
+            var server = host.Services.GetRequiredService<IServer>();
+            var addresses = server.Features.Get<IServerAddressesFeature>()?.Addresses;
+            var address = addresses?.FirstOrDefault();
+
+            if (string.IsNullOrWhiteSpace(address))
+            {
+                throw new InvalidOperationException("The test host did not publish a server address.");
+            }
+
+            if (address.Contains("[::]", StringComparison.Ordinal))
+            {
+                address = address.Replace("[::]", "127.0.0.1", StringComparison.Ordinal);
+            }
+
+            return new Uri(address);
         }
     }
 }

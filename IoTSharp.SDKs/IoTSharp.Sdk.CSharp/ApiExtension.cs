@@ -1,5 +1,6 @@
-﻿using System;
+using System;
 using System.Linq;
+using System.Text.Json;
 using System.Threading.Tasks;
 
 namespace IoTSharp.Sdk.Http
@@ -8,7 +9,10 @@ namespace IoTSharp.Sdk.Http
     {
         public static ApiResult ToResult(this SwaggerException swaggerException)
         {
-            return Newtonsoft.Json.JsonConvert.DeserializeObject<ApiResult>(swaggerException.Response);
+            return JsonSerializer.Deserialize<ApiResult>(swaggerException.Response, new JsonSerializerOptions(JsonSerializerDefaults.Web)
+            {
+                PropertyNameCaseInsensitive = true
+            });
         }
 
         public static T ToData<T>(this ApiResult _apiResult) => (T)_apiResult.Data;
