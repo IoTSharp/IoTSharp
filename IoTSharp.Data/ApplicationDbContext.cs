@@ -29,8 +29,8 @@ namespace IoTSharp.Data
 
             modelBuilder.Entity<Device>().HasOne(c => c.DeviceIdentity).WithOne(c => c.Device).HasForeignKey<DeviceIdentity>(c => c.DeviceId);
             modelBuilder.Entity<Device>().HasOne(c => c.Produce).WithMany(c => c.Devices).HasForeignKey("ProduceId");
-            modelBuilder.Entity<Device>().HasIndex("CustomerId", "TenantId", nameof(IoTSharp.Data.Device.Deleted));
-            modelBuilder.Entity<Device>().HasIndex("TenantId", nameof(IoTSharp.Data.Device.Deleted));
+            modelBuilder.Entity<Device>().HasIndex(nameof(IoTSharp.Data.Device.CustomerId), nameof(IoTSharp.Data.Device.TenantId), nameof(IoTSharp.Data.Device.Deleted));
+            modelBuilder.Entity<Device>().HasIndex(nameof(IoTSharp.Data.Device.TenantId), nameof(IoTSharp.Data.Device.Deleted));
             modelBuilder.Entity<Device>().HasDiscriminator<DeviceType>(nameof(Data.Device.DeviceType)).HasValue<Gateway>(DeviceType.Gateway).HasValue<Device>(DeviceType.Device);
             modelBuilder.Entity<Gateway>().HasDiscriminator<DeviceType>(nameof(Data.Device.DeviceType));
             ;

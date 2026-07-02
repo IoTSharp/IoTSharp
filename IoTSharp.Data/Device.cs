@@ -37,11 +37,19 @@ namespace IoTSharp.Data
         /// <summary>
         /// 租户
         /// </summary>
+        [System.Text.Json.Serialization.JsonIgnore]
+        [Newtonsoft.Json.JsonIgnore]
+        public Guid? TenantId { get; set; }
+
         public Tenant Tenant { get; set; }
 
         /// <summary>
         /// 客户
         /// </summary>
+        [System.Text.Json.Serialization.JsonIgnore]
+        [Newtonsoft.Json.JsonIgnore]
+        public Guid? CustomerId { get; set; }
+
         public Customer Customer { get; set; }
 
 

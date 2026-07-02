@@ -123,8 +123,8 @@ namespace IoTSharp.Controllers
             {
 
                 var query = from c in _context.Device
-                             where EF.Property<Guid?>(c, "CustomerId") == m.customerId
-                                 && EF.Property<Guid?>(c, "TenantId") == profile.Tenant
+                             where c.CustomerId == m.customerId
+                                 && c.TenantId == profile.Tenant
                                  && !c.Deleted
                              select c;
                 if (m.OnlyActive)
@@ -611,7 +611,7 @@ namespace IoTSharp.Controllers
                 return await _context.Device
                     .AsNoTracking()
                     .AnyAsync(d => d.Id == deviceId
-                        && EF.Property<Guid?>(d, "TenantId") == tid
+                        && d.TenantId == tid
                         && !d.Deleted);
             }
 
@@ -621,7 +621,7 @@ namespace IoTSharp.Controllers
                 return await _context.Device
                     .AsNoTracking()
                     .AnyAsync(d => d.Id == deviceId
-                        && EF.Property<Guid?>(d, "CustomerId") == cid
+                        && d.CustomerId == cid
                         && !d.Deleted);
             }
 
@@ -640,7 +640,7 @@ namespace IoTSharp.Controllers
                     .Include(d => d.DeviceIdentity)
                     .Include(d => d.Owner)
                     .Include(d => d.Produce)
-                    .FirstOrDefaultAsync(d => d.Id == deviceId && EF.Property<Guid?>(d, "TenantId") == tid && !d.Deleted);
+                    .FirstOrDefaultAsync(d => d.Id == deviceId && d.TenantId == tid && !d.Deleted);
             }
             else if (User.IsInRole(nameof(UserRole.NormalUser)))
             {
@@ -651,7 +651,7 @@ namespace IoTSharp.Controllers
                     .Include(d => d.DeviceIdentity)
                     .Include(d => d.Owner)
                     .Include(d => d.Produce)
-                    .FirstOrDefaultAsync(d => d.Id == deviceId && EF.Property<Guid?>(d, "CustomerId") == cid && !d.Deleted);
+                    .FirstOrDefaultAsync(d => d.Id == deviceId && d.CustomerId == cid && !d.Deleted);
             }
             return dev;
         }
