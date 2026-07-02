@@ -115,6 +115,7 @@
     <PackageVersion Include="MXLogger" Version="2.1.0" />
     <PackageVersion Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="10.0.2" />
     <PackageVersion Include="NServiceBus" Version="10.1.0" />
+    <PackageVersion Include="NSwag.AspNetCore" Version="14.6.3" />
     <PackageVersion Include="Oracle.EntityFrameworkCore" Version="10.23.26100" />
     <PackageVersion Include="Packaging.Targets" Version="0.1.232" />
     <PackageVersion Include="Portable.BouncyCastle" Version="1.9.0" />
@@ -123,6 +124,7 @@
     <PackageVersion Include="RestSharp" Version="112.1.0" />
     <PackageVersion Include="Rin" Version="2.6.0" />
     <PackageVersion Include="Rin.Mvc" Version="2.6.0" />
+    <PackageVersion Include="RulesEngine" Version="6.0.0" />
     <PackageVersion Include="Savorboard.CAP.InMemoryMessageQueue" Version="10.0.0" />
     <PackageVersion Include="ShardingCore" Version="7.9.1.24" />
     <PackageVersion Include="Shashlik.EventBus" Version="2.3.1" />

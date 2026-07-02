@@ -39,9 +39,7 @@
 		<AssemblyVersion>3.5.0.0</AssemblyVersion>
 		<FileVersion>3.5.0.0</FileVersion>
 		<PackageIcon>96x96.png</PackageIcon>
-		<GenerateDocumentationFile>True</GenerateDocumentationFile>
 		<GenerateSerializationAssemblies>Off</GenerateSerializationAssemblies>
-		<DocumentationFile>IoTSharp.xml</DocumentationFile>
 		<NoWarn>$(NoWarn);1701;1702;1591</NoWarn>
 		<EnforceCodeStyleInBuild>True</EnforceCodeStyleInBuild>
 		<Configurations>Debug;Release;</Configurations>
@@ -89,10 +87,12 @@
 		<PackageReference Include="MQTTnet" />
 		<PackageReference Include="MQTTnet.AspNetCore" />
 		<PackageReference Include="MQTTnet.AspNetCore.Routing" />
+		<PackageReference Include="NSwag.AspNetCore" />
 		<PackageReference Include="PrettyLogging.Console" />
 		<PackageReference Include="Packaging.Targets" PrivateAssets="all" />
 		<PackageReference Include="Rin" />
 		<PackageReference Include="Rin.Mvc" />
+		<PackageReference Include="RulesEngine" />
 		<PackageReference Include="SkiaSharp" />
 		<PackageReference Include="SkiaSharp.NativeAssets.Linux.NoDependencies" />
 		<PackageReference Include="Storage.Net" />
@@ -136,9 +136,6 @@
 
 
 	<ItemGroup>
-		<Content Include="IoTSharp.xml">
-			<CopyToOutputDirectory>Never</CopyToOutputDirectory>
-		</Content>
 		<Content Include="iotsharp.service" CopyToPublishDirectory="PreserveNewest">
 			<LinuxPath>/etc/systemd/system/iotsharp.service</LinuxPath>
 		</Content>
@@ -172,7 +169,6 @@
 		<None Remove="IoTSharp.db" />
 		<None Remove="IoTSharp.db-shm" />
 		<None Remove="IoTSharp.db-wal" />
-		<None Remove="IoTSharp.xml" />
 		<None Remove="Resources\buzzle-template.png" />
 		<None Remove="Resources\slide1.jpg" />
 		<None Remove="Resources\slide10.jpg" />

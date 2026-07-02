@@ -109,6 +109,16 @@ Deliver:
 - Expose IoTSharp capabilities to AI through authorized skills and MCP tools, not direct database access.
 - Require tenant isolation, audit trails, and human confirmation for higher-risk AI actions.
 
+## Dependency and Component Removal Rules
+
+- 清理某个依赖时，目标首先是 IoTSharp 自有项目中的直接引用：显式 `PackageReference`、`using`、类型/方法调用、序列化配置、生成代码配置和自有扩展方法。
+- 第三方包的传递依赖不能自动等同于 IoTSharp 直接依赖；不能仅因为第三方内部使用某个库，就删除 IoTSharp 的数据库 provider、协议适配、规则链能力、API 文档/UI、SDK 生成、网关接入或运维发布能力。
+- 如果必须替换一个第三方组件，应先证明替代方案覆盖原有入口、配置项、公开契约、运行时行为和回滚路径；无法完全覆盖时，要保留兼容层或明确列出兼容差异。
+- 删除组件前必须单独说明影响面：用户可见能力、配置名称、数据库/迁移、API/SDK、文档、测试、部署脚本和跨项目契约；没有明确批准或废弃证据时，不做大范围删除。
+- 依赖清理应尽量采用分层替换、适配器、功能开关或可选包隔离；不要把“去掉某个库”扩大成动摇平台根能力的重构。
+- `NSwag.AspNetCore`、`RulesEngine`、`Jint` 是当前保留的基础组件；没有明确批准和等价替代验证时，不得删除、替换或弱化相关能力。
+- 安全、许可证或供应链风险确需移除传递依赖时，应拆成独立变更，给出风险说明、迁移方案和验证清单，避免和无关功能调整混在一次提交中。
+
 ## Code Documentation Rules
 
 - IoTSharp 代码注释优先使用中文；只有外部协议、标准术语、API 名称或引用资料需要保留英文时才使用英文。
