@@ -30,6 +30,10 @@
         /// 接受数量
         /// </summary>
         public int ReceivedFailed { get; set; }
+        /// <summary>
+        /// 当前待消费消息数量
+        /// </summary>
+        public int PendingMessages { get; set; }
 
         /// <summary>
         ///时间 列表 

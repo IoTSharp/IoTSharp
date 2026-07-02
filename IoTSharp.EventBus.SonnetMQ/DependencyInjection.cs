@@ -18,6 +18,7 @@ public static class DependencyInjection
             options.PullBatchSize = Math.Max(1, settings.ConsumerThreadCount) * 64;
         });
 
+        services.AddSingleton<SonnetMqActiveEventCoalescer>();
         services.AddSingleton(provider =>
         {
             var options = provider.GetRequiredService<Microsoft.Extensions.Options.IOptions<SonnetMqEventBusOptions>>().Value;

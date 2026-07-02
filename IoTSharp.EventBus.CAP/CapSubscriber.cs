@@ -67,7 +67,7 @@ namespace IoTSharp.EventBus.CAP
         [CapSubscribe("iotsharp.services.platform.active")]
         public async Task active(DeviceActivityStatus status)
         {
-            await base.Active(status.DeviceId, status.Activity);
+            await base.Active(status.DeviceId, status.Activity, status.EventTimeUtc);
         }
     }
 }

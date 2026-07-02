@@ -126,7 +126,7 @@ namespace IoTSharp.EventBus.Shashlik
         {
             var data = @event.Data;
             if (data != null)
-                await _subscriber.Active(data.DeviceId, data.Activity);
+                await _subscriber.Active(data.DeviceId, data.Activity, data.EventTimeUtc);
         }
     }
 }

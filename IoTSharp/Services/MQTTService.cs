@@ -33,6 +33,7 @@ namespace IoTSharp.Services
         private readonly IMemoryCache _mqttAuthCache;
         private readonly ConcurrentDictionary<string, Device> _mqttAuthIndex = new(StringComparer.Ordinal);
         private readonly ConcurrentDictionary<string, byte> _mqttProduceTokenIndex = new(StringComparer.Ordinal);
+        private readonly ConcurrentDictionary<Guid, MqttConnectState> _connectStates = new();
         private readonly Channel<DeviceConnectStatus> _connectStatusQueue;
         private DateTime _connectStatusPublishPausedUntil = DateTime.MinValue;
         private readonly MqttClientSetting _mcsetting;
@@ -42,7 +43,7 @@ namespace IoTSharp.Services
         private static readonly TimeSpan MqttAuthDatabaseWaitTimeout = TimeSpan.FromSeconds(10);
         private static readonly TimeSpan MqttAuthDatabaseBusyTimeout = TimeSpan.FromMilliseconds(250);
         private static readonly TimeSpan MqttAuthIndexRefreshInterval = TimeSpan.FromMinutes(5);
-        private static readonly TimeSpan MqttConnectStatusDedupeExpiration = TimeSpan.FromMinutes(2);
+        private static readonly TimeSpan MqttDisconnectGracePeriod = TimeSpan.FromSeconds(20);
         private static readonly TimeSpan MqttConnectStatusPublishFailureBackoff = TimeSpan.FromSeconds(30);
         private static readonly SemaphoreSlim MqttAuthDatabaseGate = new(4, 4);
         private static readonly SemaphoreSlim MqttAuthIndexRefreshGate = new(1, 1);
@@ -133,16 +134,20 @@ namespace IoTSharp.Services
             }
         }
 
-        private static string BuildMqttConnectStatusCacheKey(Guid deviceId, ConnectStatus status)
-        {
-            return $"mqtt_connect_status:{deviceId:N}:{status}";
-        }
-
         private sealed class MqttAuthCacheEntry
         {
             public bool Succeeded { get; init; }
 
             public Device Device { get; init; }
+        }
+
+        private sealed class MqttConnectState
+        {
+            public ConnectStatus? PublishedStatus { get; set; }
+
+            public bool DisconnectPending { get; set; }
+
+            public long Version { get; set; }
         }
 
         private void AddDeviceIdentityToMqttAuthIndex(DeviceIdentity identity)
@@ -330,16 +335,91 @@ namespace IoTSharp.Services
                 return;
             }
 
-            var dedupeKey = BuildMqttConnectStatusCacheKey(deviceId, status);
-            if (_mqttAuthCache.TryGetValue(dedupeKey, out _))
+            var state = _connectStates.GetOrAdd(deviceId, static _ => new MqttConnectState());
+            DeviceConnectStatus immediateStatus = null;
+            long disconnectVersion = 0;
+
+            lock (state)
             {
+                state.Version++;
+
+                if (status == ConnectStatus.Connected)
+                {
+                    state.DisconnectPending = false;
+                    if (state.PublishedStatus == ConnectStatus.Connected)
+                    {
+                        return;
+                    }
+
+                    state.PublishedStatus = ConnectStatus.Connected;
+                    immediateStatus = new DeviceConnectStatus(deviceId, ConnectStatus.Connected);
+                }
+                else
+                {
+                    if (state.PublishedStatus != ConnectStatus.Connected)
+                    {
+                        state.DisconnectPending = false;
+                        return;
+                    }
+
+                    state.DisconnectPending = true;
+                    disconnectVersion = state.Version;
+                }
+            }
+
+            if (immediateStatus != null)
+            {
+                TryWriteConnectStatus(immediateStatus);
                 return;
             }
 
-            _mqttAuthCache.Set(dedupeKey, true, MqttConnectStatusDedupeExpiration);
-            if (!_connectStatusQueue.Writer.TryWrite(new DeviceConnectStatus(deviceId, status)))
+            _ = Task.Run(() => QueueDisconnectAfterGraceAsync(deviceId, disconnectVersion));
+        }
+
+        private async Task QueueDisconnectAfterGraceAsync(Guid deviceId, long version)
+        {
+            try
             {
-                _logger.LogWarning("MQTT connect status queue is full. DeviceId={DeviceId}, Status={Status}", deviceId, status);
+                await Task.Delay(MqttDisconnectGracePeriod);
+
+                if (_connectStatusPublishPausedUntil > DateTime.UtcNow)
+                {
+                    return;
+                }
+
+                if (!_connectStates.TryGetValue(deviceId, out var state))
+                {
+                    return;
+                }
+
+                DeviceConnectStatus status;
+                lock (state)
+                {
+                    if (!state.DisconnectPending
+                        || state.Version != version
+                        || state.PublishedStatus != ConnectStatus.Connected)
+                    {
+                        return;
+                    }
+
+                    state.DisconnectPending = false;
+                    state.PublishedStatus = ConnectStatus.Disconnected;
+                    status = new DeviceConnectStatus(deviceId, ConnectStatus.Disconnected);
+                }
+
+                TryWriteConnectStatus(status);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogWarning(ex, "MQTT disconnect grace processing failed. DeviceId={DeviceId}", deviceId);
+            }
+        }
+
+        private void TryWriteConnectStatus(DeviceConnectStatus status)
+        {
+            if (!_connectStatusQueue.Writer.TryWrite(status))
+            {
+                _logger.LogWarning("MQTT connect status queue is full. DeviceId={DeviceId}, Status={Status}", status.DeviceId, status.ConnectStatus);
             }
         }
 

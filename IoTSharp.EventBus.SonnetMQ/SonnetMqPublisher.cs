@@ -14,10 +14,12 @@ public sealed class SonnetMqPublisher : IPublisher
     };
 
     private readonly SndbMqClient _client;
+    private readonly SonnetMqActiveEventCoalescer _activeCoalescer;
 
-    public SonnetMqPublisher(SndbMqClient client)
+    public SonnetMqPublisher(SndbMqClient client, SonnetMqActiveEventCoalescer activeCoalescer)
     {
         _client = client;
+        _activeCoalescer = activeCoalescer;
     }
 
     public async Task<EventBusMetrics> GetMetrics()
@@ -26,8 +28,10 @@ public sealed class SonnetMqPublisher : IPublisher
         foreach (var subscription in SonnetMqEventBusTopics.Subscriptions)
         {
             var stats = await _client.GetStatsAsync(subscription.Topic);
-            metrics.PublishedSucceeded += (int)Math.Min(int.MaxValue, stats.MessageCount);
-            metrics.ReceivedSucceeded += (int)Math.Min(int.MaxValue, stats.ConsumerOffsets.Values.DefaultIfEmpty(0).Max());
+            long received = stats.ConsumerOffsets.Values.DefaultIfEmpty(0).Max();
+            metrics.PublishedSucceeded += (int)Math.Min(int.MaxValue, stats.NextOffset);
+            metrics.ReceivedSucceeded += (int)Math.Min(int.MaxValue, received);
+            metrics.PendingMessages += (int)Math.Min(int.MaxValue, Math.Max(0, stats.NextOffset - received));
             metrics.Subscribers += stats.ConsumerOffsets.Count;
         }
 
@@ -49,8 +53,14 @@ public sealed class SonnetMqPublisher : IPublisher
     public Task PublishConnect(Guid devid, ConnectStatus devicestatus)
         => PublishAsync(SonnetMqEventBusTopics.Connect, new DeviceConnectStatus(devid, devicestatus));
 
-    public Task PublishActive(Guid devid, ActivityStatus activity)
-        => PublishAsync(SonnetMqEventBusTopics.Active, new DeviceActivityStatus(devid, activity));
+    public async Task PublishActive(Guid devid, ActivityStatus activity)
+    {
+        var status = await _activeCoalescer.RecordAsync(devid, activity);
+        if (status is not null)
+        {
+            await PublishAsync(SonnetMqEventBusTopics.Active, status);
+        }
+    }
 
     public Task PublishDeviceAlarm(CreateAlarmDto alarmDto)
         => PublishAsync(SonnetMqEventBusTopics.Alarm, alarmDto);

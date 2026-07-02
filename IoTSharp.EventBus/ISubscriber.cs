@@ -14,6 +14,6 @@ namespace IoTSharp.EventBus
         public Task DeleteDevice(Guid deviceId);
         public Task CreateDevice(Guid deviceId);
         public Task Connect(Guid devid, ConnectStatus devicestatus);
-        public Task Active(Guid devid, ActivityStatus activity);
+        public Task Active(Guid devid, ActivityStatus activity, DateTime? eventTimeUtc = null);
     }
 }
