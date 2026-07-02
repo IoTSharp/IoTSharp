@@ -123,28 +123,32 @@ namespace IoTSharp.Controllers
             {
 
                 var query = from c in _context.Device
-                        .Include(c => c.DeviceIdentity)
-                        .Include(c => c.Tenant)
-                        .Include(c => c.Customer)
-                        .Include(c => c.Owner)
-                        .Include(c => c.Produce)
-                             where c.Customer.Id == m.customerId && !c.Deleted && c.Tenant.Id == profile.Tenant
+                             where EF.Property<Guid?>(c, "CustomerId") == m.customerId
+                                 && EF.Property<Guid?>(c, "TenantId") == profile.Tenant
+                                 && !c.Deleted
                              select c;
                 if (m.OnlyActive)
                 {
-                    var al = from a in _context.AttributeLatest where a.KeyName == Constants._Active && a.Value_Boolean == true select a.DeviceId;
+                    var al = from a in _context.AttributeLatest
+                             where a.Catalog == DataCatalog.AttributeLatest
+                                 && a.KeyName == Constants._Active
+                                 && a.Value_Boolean == true
+                             select a.DeviceId;
                     query = from x in query where al.Contains(x.Id) select x;
                 }
                 if (m.OnlyConnected)
                 {
-                    var cl = from a in _context.AttributeLatest where a.KeyName == Constants._Connected && a.Value_Boolean == true select a.DeviceId;
+                    var cl = from a in _context.AttributeLatest
+                             where a.Catalog == DataCatalog.AttributeLatest
+                                 && a.KeyName == Constants._Connected
+                                 && a.Value_Boolean == true
+                             select a.DeviceId;
                     query = from x in query where cl.Contains(x.Id) select x;
                 }
                 if (!string.IsNullOrEmpty(m.Name))
                 {
-                    if (System.Text.RegularExpressions.Regex.IsMatch(m.Name, @"(?im)^[{(]?[0-9A-F]{8}[-]?(?:[0-9A-F]{4}[-]?){3}[0-9A-F]{12}[)}]?$"))
+                    if (Guid.TryParse(m.Name, out var id))
                     {
-                        var id = Guid.Parse(m.Name);
                         query = from x in query where x.Id == id select x;
                     }
                     else
@@ -152,7 +156,13 @@ namespace IoTSharp.Controllers
                         query = from x in query where x.Name.Contains(m.Name) select x;
                     }
                 }
+                var total = await query.CountAsync();
                 var devices = await query
+                    .Include(c => c.DeviceIdentity)
+                    .Include(c => c.Tenant)
+                    .Include(c => c.Customer)
+                    .Include(c => c.Owner)
+                    .Include(c => c.Produce)
                     .Skip((m.Offset) * m.Limit)
                     .Take(m.Limit)
                     .ToListAsync();
@@ -161,7 +171,7 @@ namespace IoTSharp.Controllers
                 await QueryActivityInfo(lst);
                 return new ApiResult<PagedData<DeviceDetailDto>>(ApiCode.Success, "OK", new PagedData<DeviceDetailDto>
                 {
-                    total = await query.CountAsync(),
+                    total = total,
                     rows = lst
                 });
             }
@@ -175,7 +185,9 @@ namespace IoTSharp.Controllers
         {
             var id = dev.Id;
             var al = from a in _context.AttributeLatest
+                     .AsNoTracking()
                      where id == a.DeviceId
+                         && a.Catalog == DataCatalog.AttributeLatest
                          && (a.KeyName == Constants._Active
                              || a.KeyName == Constants._LastActivityDateTime
                              || a.KeyName == Constants._Connected
@@ -212,20 +224,27 @@ namespace IoTSharp.Controllers
         }
         private async Task QueryActivityInfo(List<DeviceDetailDto> lst)
         {
+            if (lst.Count == 0)
+            {
+                return;
+            }
+
             var devlst = lst.Select(c => c.Id).ToList();
             var al = from a in _context.AttributeLatest
+                     .AsNoTracking()
                      where devlst.Contains(a.DeviceId)
+                         && a.Catalog == DataCatalog.AttributeLatest
                          && (a.KeyName == Constants._Active
                              || a.KeyName == Constants._LastActivityDateTime
                              || a.KeyName == Constants._Connected
                              || a.KeyName == Constants._LastConnectDateTime
                              || a.KeyName == Constants._LastDisconnectDateTime)
-                     select a;
+                      select a;
             var allist = await al.ToListAsync();
+            var devicesById = lst.ToDictionary(d => d.Id);
             allist.ForEach(a =>
             {
-                var dev = lst.FirstOrDefault(d => d.Id == a.DeviceId);
-                if (dev != null)
+                if (devicesById.TryGetValue(a.DeviceId, out var dev))
                 {
                     if (a.KeyName == Constants._Active)
                     {
@@ -508,15 +527,16 @@ namespace IoTSharp.Controllers
         [ProducesDefaultResponseType]
         public async Task<ApiResult<List<AttributeDataDto>>> GetAttributeLatest(Guid deviceId)
         {
-            Device dev = await FoundAsync(deviceId);
-            if (dev == null)
+            if (!await CanAccessDeviceAsync(deviceId))
             {
                 return new ApiResult<List<AttributeDataDto>>(ApiCode.NotFoundDevice, "Device not found", null);
             }
             else
             {
                 var devid = from t in _context.AttributeLatest
-                            where t.DeviceId == deviceId
+                            .AsNoTracking()
+                            where t.Catalog == DataCatalog.AttributeLatest
+                                && t.DeviceId == deviceId
                             select new AttributeDataDto()
                             {
                                 DataSide = t.DataSide,
@@ -568,21 +588,45 @@ namespace IoTSharp.Controllers
         [ProducesDefaultResponseType]
         public async Task<ApiResult<List<AttributeDataDto>>> GetAttributeLatest(Guid deviceId, string keys)
         {
-            Device dev = await FoundAsync(deviceId);
-            if (dev == null)
+            if (!await CanAccessDeviceAsync(deviceId))
             {
                 return new ApiResult<List<AttributeDataDto>>(ApiCode.NotFoundDevice, "Device's  not found", null);
             }
             else
             {
                 string[] keyarys = keys.Split(',', ' ', ';');
-                var kv = from t in _context.AttributeLatest where t.DeviceId == deviceId && keyarys.Contains(t.KeyName) select new AttributeDataDto() { DataSide = t.DataSide, DateTime = t.DateTime, KeyName = t.KeyName, DataType = t.Type, Value = t.ToObject() };
+                var kv = from t in _context.AttributeLatest.AsNoTracking() where t.Catalog == DataCatalog.AttributeLatest && t.DeviceId == deviceId && keyarys.Contains(t.KeyName) select new AttributeDataDto() { DataSide = t.DataSide, DateTime = t.DateTime, KeyName = t.KeyName, DataType = t.Type, Value = t.ToObject() };
 
                 return new ApiResult<List<AttributeDataDto>>(ApiCode.Success, "Ok", await kv.ToListAsync());
             }
         }
 
 
+
+        private async Task<bool> CanAccessDeviceAsync(Guid deviceId)
+        {
+            if (User.IsInRole(nameof(UserRole.TenantAdmin)))
+            {
+                var tid = Guid.Parse(User.Claims.First(c => c.Type == IoTSharpClaimTypes.Tenant).Value);
+                return await _context.Device
+                    .AsNoTracking()
+                    .AnyAsync(d => d.Id == deviceId
+                        && EF.Property<Guid?>(d, "TenantId") == tid
+                        && !d.Deleted);
+            }
+
+            if (User.IsInRole(nameof(UserRole.NormalUser)))
+            {
+                var cid = Guid.Parse(User.Claims.First(c => c.Type == IoTSharpClaimTypes.Customer).Value);
+                return await _context.Device
+                    .AsNoTracking()
+                    .AnyAsync(d => d.Id == deviceId
+                        && EF.Property<Guid?>(d, "CustomerId") == cid
+                        && !d.Deleted);
+            }
+
+            return false;
+        }
 
         private async Task<Device> FoundAsync(Guid deviceId)
         {
@@ -596,7 +640,7 @@ namespace IoTSharp.Controllers
                     .Include(d => d.DeviceIdentity)
                     .Include(d => d.Owner)
                     .Include(d => d.Produce)
-                    .FirstOrDefaultAsync(d => d.Id == deviceId && d.Tenant.Id == tid && !d.Deleted);
+                    .FirstOrDefaultAsync(d => d.Id == deviceId && EF.Property<Guid?>(d, "TenantId") == tid && !d.Deleted);
             }
             else if (User.IsInRole(nameof(UserRole.NormalUser)))
             {
@@ -607,7 +651,7 @@ namespace IoTSharp.Controllers
                     .Include(d => d.DeviceIdentity)
                     .Include(d => d.Owner)
                     .Include(d => d.Produce)
-                    .FirstOrDefaultAsync(d => d.Id == deviceId && d.Customer.Id == cid && !d.Deleted);
+                    .FirstOrDefaultAsync(d => d.Id == deviceId && EF.Property<Guid?>(d, "CustomerId") == cid && !d.Deleted);
             }
             return dev;
         }
@@ -628,8 +672,7 @@ namespace IoTSharp.Controllers
         [ProducesDefaultResponseType]
         public async Task<ApiResult<List<TelemetryDataDto>>> GetTelemetryLatest(Guid deviceId)
         {
-            Device dev = await FoundAsync(deviceId);
-            if (dev == null)
+            if (!await CanAccessDeviceAsync(deviceId))
             {
                 return new ApiResult<List<TelemetryDataDto>>(ApiCode.ExceptionDeviceIdentity, "Device's Identity not found", null);
             }
@@ -660,8 +703,7 @@ namespace IoTSharp.Controllers
         [ProducesDefaultResponseType]
         public async Task<ApiResult<List<TelemetryDataDto>>> GetTelemetryLatest(Guid deviceId, string keys)
         {
-            Device dev = await FoundAsync(deviceId);
-            if (dev == null)
+            if (!await CanAccessDeviceAsync(deviceId))
             {
                 return new ApiResult<List<TelemetryDataDto>>(ApiCode.ExceptionDeviceIdentity, "Device's Identity not found", null);
             }

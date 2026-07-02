@@ -608,6 +608,8 @@ namespace IoTSharp.Migrations
 
                     b.HasIndex("Catalog", "DeviceId");
 
+                    b.HasIndex("Catalog", "KeyName", "DeviceId");
+
                     b.ToTable("DataStorage");
 
                     b.HasDiscriminator<int>("Catalog").HasValue(0);
@@ -657,11 +659,15 @@ namespace IoTSharp.Migrations
 
                     b.HasIndex("CustomerId");
 
+                    b.HasIndex("CustomerId", "TenantId", "Deleted");
+
                     b.HasIndex("OwnerId");
 
                     b.HasIndex("ProduceId");
 
                     b.HasIndex("TenantId");
+
+                    b.HasIndex("TenantId", "Deleted");
 
                     b.ToTable("Device");
 

@@ -618,7 +618,7 @@ namespace IoTSharp.Storage
         private TelemetryDataDto? QueryLatestTelemetry(SndbConnection connection, string measurement, ColumnInfo field)
         {
             using var command = connection.CreateCommand();
-            command.CommandText = $"SELECT time, {QuoteIdentifier(field.Name)} FROM {QuoteIdentifier(measurement)} ORDER BY time DESC";
+            command.CommandText = $"SELECT time, {QuoteIdentifier(field.Name)} FROM {QuoteIdentifier(measurement)} ORDER BY time DESC LIMIT 1";
             using var reader = command.ExecuteReader();
             while (reader.Read())
             {
