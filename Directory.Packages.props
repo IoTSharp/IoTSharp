@@ -26,7 +26,7 @@
     <PackageVersion Include="DotNetCore.CAP.RedisStreams" Version="10.0.1" />
     <PackageVersion Include="DotNetCore.CAP.SqlServer" Version="10.0.1" />
     <PackageVersion Include="DotNetDiag.HealthChecks.ClickHouse" Version="10.0.4" />
-    <PackageVersion Include="DotNetDiag.HealthChecks.InfluxDB" Version="10.0.4" />
+    <PackageVersion Include="DotNetDiag.HealthChecks.InfluxDB" Version="10.0.8" />
     <PackageVersion Include="DotNetDiag.HealthChecks.Kafka" Version="10.0.4" />
     <PackageVersion Include="DotNetDiag.HealthChecks.MongoDb" Version="10.0.4" />
     <PackageVersion Include="DotNetDiag.HealthChecks.MySql" Version="10.0.4" />
