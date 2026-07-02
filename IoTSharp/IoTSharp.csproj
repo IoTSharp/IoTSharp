@@ -58,6 +58,7 @@
 		<BuildServerSideRenderer>false</BuildServerSideRenderer>
 	</PropertyGroup>
 	<ItemGroup>
+		<PackageReference Include="coverlet.collector" />
 
 		<PackageReference Include="DotNetDiag.HealthChecks.System" />
 		<PackageReference Include="DotNetDiag.HealthChecks.UI" />
