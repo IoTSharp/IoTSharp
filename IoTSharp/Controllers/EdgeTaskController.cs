@@ -167,6 +167,17 @@ namespace IoTSharp.Controllers
                 return Ok(new ApiResult<EdgeTaskReceiptDto>(ApiCode.InValidData, "Unable to resolve target device for receipt", null));
             }
 
+            var currentStatus = await GetLatestTaskStatusAsync(deviceId.Value, request.TaskId);
+            if (currentStatus == null)
+            {
+                return Ok(new ApiResult<EdgeTaskReceiptDto>(ApiCode.InValidData, "Task request not found for receipt", null));
+            }
+
+            if (!IsTransitionAllowed(currentStatus.Value, request.Status))
+            {
+                return Ok(new ApiResult<EdgeTaskReceiptDto>(ApiCode.InValidData, $"Invalid edge task transition: {currentStatus.Value} -> {request.Status}", null));
+            }
+
             var attrs = new Dictionary<string, object>
             {
                 [EdgeTaskReceiptLastKey] = SerializeOrNull(request) ?? "{}",
@@ -293,6 +304,11 @@ namespace IoTSharp.Controllers
                 if (string.IsNullOrWhiteSpace(latestReceiptStatus) || latestReceiptStatus is nameof(EdgeTaskStatus.Pending) or nameof(EdgeTaskStatus.Sent))
                 {
                     tasks.Add(task);
+                    var currentStatus = await GetLatestTaskStatusAsync(gateway.Id, task.TaskId);
+                    if (currentStatus == EdgeTaskStatus.Pending)
+                    {
+                        await SaveTaskStatusAsync(gateway.Id, task.TaskId, "dispatch", DateTime.UtcNow, payload, EdgeTaskStatus.Sent);
+                    }
                 }
             }
 
@@ -315,6 +331,29 @@ namespace IoTSharp.Controllers
             {
                 return Ok(new ApiResult(ApiCode.InValidData, "taskId is required"));
             }
+
+            if (!string.IsNullOrWhiteSpace(request.ContractVersion) &&
+                !string.Equals(request.ContractVersion, TaskContractVersion, StringComparison.OrdinalIgnoreCase))
+            {
+                return Ok(new ApiResult(ApiCode.InValidData, $"Unsupported contractVersion: {request.ContractVersion}"));
+            }
+
+            var currentStatus = await GetLatestTaskStatusAsync(gateway.Id, request.TaskId);
+            if (currentStatus == null)
+            {
+                return Ok(new ApiResult(ApiCode.InValidData, "Task request not found for acceptance"));
+            }
+
+            if (!IsTransitionAllowed(currentStatus.Value, EdgeTaskStatus.Accepted))
+            {
+                return Ok(new ApiResult(ApiCode.InValidData, $"Invalid edge task transition: {currentStatus.Value} -> {EdgeTaskStatus.Accepted}"));
+            }
+
+            request.ContractVersion = string.IsNullOrWhiteSpace(request.ContractVersion) ? TaskContractVersion : request.ContractVersion;
+            request.TargetKey = string.IsNullOrWhiteSpace(request.TargetKey) ? gateway.Id.ToString() : request.TargetKey;
+            request.TargetType = EdgeTaskTargetType.EdgeNode;
+            request.Status = EdgeTaskStatus.Accepted;
+            request.ReportedAt = request.ReportedAt == default ? DateTime.UtcNow : request.ReportedAt;
 
             await _context.SaveAsync<AttributeLatest>(new Dictionary<string, object>
             {
@@ -472,6 +511,57 @@ namespace IoTSharp.Controllers
             }
 
             return null;
+        }
+
+        /// <summary>
+        /// 读取指定边缘任务最近一次状态，作为运行时回执的状态机入口。
+        /// </summary>
+        /// <param name="deviceId">承载 EdgeNode 的 Gateway 设备 ID。</param>
+        /// <param name="taskId">边缘任务 ID。</param>
+        /// <returns>最近一次状态；未找到任务历史时返回空。</returns>
+        private async System.Threading.Tasks.Task<EdgeTaskStatus?> GetLatestTaskStatusAsync(Guid deviceId, Guid taskId)
+        {
+            var status = await _context.TelemetryData
+                .Where(item => item.DeviceId == deviceId && item.KeyName.StartsWith($"{EdgeTaskHistoryKeyPrefix}{taskId:N}."))
+                .OrderByDescending(item => item.DateTime)
+                .Select(item => item.Value_Json)
+                .FirstOrDefaultAsync();
+
+            return Enum.TryParse<EdgeTaskStatus>(status, true, out var parsed) ? parsed : null;
+        }
+
+        /// <summary>
+        /// 判断边缘任务状态是否符合合同定义的单向流转；重复上报同一状态视为幂等。
+        /// </summary>
+        /// <param name="current">当前已记录状态。</param>
+        /// <param name="next">运行时准备上报的新状态。</param>
+        /// <returns>允许流转时为 true。</returns>
+        private static bool IsTransitionAllowed(EdgeTaskStatus current, EdgeTaskStatus next)
+        {
+            if (current == next)
+            {
+                return true;
+            }
+
+            return AllowedTransitions.TryGetValue(current, out var allowed) && allowed.Contains(next);
+        }
+
+        /// <summary>
+        /// 写入任务状态历史，并同步设备级最近分发状态，供管理端列表和运行时拉取使用。
+        /// </summary>
+        /// <param name="deviceId">承载 EdgeNode 的 Gateway 设备 ID。</param>
+        /// <param name="taskId">边缘任务 ID。</param>
+        /// <param name="category">历史事件类别。</param>
+        /// <param name="at">事件时间。</param>
+        /// <param name="payload">事件负载 JSON。</param>
+        /// <param name="status">状态值。</param>
+        private async System.Threading.Tasks.Task SaveTaskStatusAsync(Guid deviceId, Guid taskId, string category, DateTime at, string payload, EdgeTaskStatus status)
+        {
+            await _context.SaveAsync<AttributeLatest>(new Dictionary<string, object>
+            {
+                [EdgeTaskDispatchStatusKey] = status.ToString()
+            }, deviceId, DataSide.ServerSide);
+            await SaveTaskHistoryAsync(deviceId, taskId, category, at, payload, status.ToString());
         }
 
         private Device GetGatewayByAccessToken(string accessToken)

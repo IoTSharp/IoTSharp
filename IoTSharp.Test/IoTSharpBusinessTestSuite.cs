@@ -194,6 +194,86 @@ public abstract class IoTSharpBusinessTestSuite<TFixture>
         Assert.Equal(deviceId, pulled.Data!.EdgeNodeId);
     }
 
+    [Fact]
+    public async Task EdgeTask_CanDispatchPullAcceptAndRejectInvalidTransition()
+    {
+        using var client = Fixture.CreateClient();
+        var created = await Fixture.CreateDeviceAsync(client, $"edge-task-{Guid.NewGuid():N}", DeviceType.Gateway);
+        var deviceId = created.Data!.Id;
+        var token = await Fixture.GetDeviceAccessTokenAsync(client, deviceId);
+        var taskId = Guid.NewGuid();
+
+        await Fixture.AuthorizeClientAsync(client);
+        var dispatch = await client.PostAsJsonAsync("/api/EdgeTask/Dispatch", new EdgeTaskRequestDto
+        {
+            ContractVersion = "edge-task-v1",
+            TaskId = taskId,
+            TaskType = EdgeTaskType.HealthProbe,
+            CreatedAt = DateTime.UtcNow,
+            Address = new EdgeTaskAddressDto
+            {
+                TargetType = EdgeTaskTargetType.EdgeNode,
+                DeviceId = deviceId,
+                RuntimeType = "gateway",
+                TargetKey = deviceId.ToString()
+            },
+            Parameters = new Dictionary<string, object> { ["probe"] = "ping" },
+            Metadata = new Dictionary<string, string> { ["source"] = "test" }
+        });
+        var dispatchResult = await ReadApiResultAsync<EdgeTaskRequestDto>(dispatch);
+        Assert.Equal((int)ApiCode.Success, dispatchResult.Code);
+
+        var pulled = await GetApiResultAsync<List<EdgeTaskRequestDto>>(client, $"/api/EdgeTask/Dispatch/{token}");
+        Assert.Equal((int)ApiCode.Success, pulled.Code);
+        Assert.Contains(pulled.Data!, task => task.TaskId == taskId);
+
+        var accepted = await client.PostAsJsonAsync($"/api/EdgeTask/Dispatch/{token}/Accept", new EdgeTaskReceiptDto
+        {
+            ContractVersion = "edge-task-v1",
+            TaskId = taskId,
+            TargetType = EdgeTaskTargetType.EdgeNode,
+            TargetKey = deviceId.ToString(),
+            RuntimeType = "gateway",
+            Status = EdgeTaskStatus.Accepted,
+            ReportedAt = DateTime.UtcNow
+        });
+        var acceptedResult = await ReadApiResultAsync<object>(accepted);
+        Assert.Equal((int)ApiCode.Success, acceptedResult.Code);
+
+        var running = await client.PostAsJsonAsync("/api/EdgeTask/Receipt", new EdgeTaskReceiptDto
+        {
+            ContractVersion = "edge-task-v1",
+            TaskId = taskId,
+            TargetType = EdgeTaskTargetType.EdgeNode,
+            TargetKey = deviceId.ToString(),
+            RuntimeType = "gateway",
+            Status = EdgeTaskStatus.Running,
+            Progress = 25,
+            ReportedAt = DateTime.UtcNow
+        });
+        var runningResult = await ReadApiResultAsync<EdgeTaskReceiptDto>(running);
+        Assert.Equal((int)ApiCode.Success, runningResult.Code);
+
+        var invalid = await client.PostAsJsonAsync("/api/EdgeTask/Receipt", new EdgeTaskReceiptDto
+        {
+            ContractVersion = "edge-task-v1",
+            TaskId = taskId,
+            TargetType = EdgeTaskTargetType.EdgeNode,
+            TargetKey = deviceId.ToString(),
+            RuntimeType = "gateway",
+            Status = EdgeTaskStatus.Accepted,
+            ReportedAt = DateTime.UtcNow
+        });
+        var invalidResult = await ReadApiResultAsync<EdgeTaskReceiptDto>(invalid);
+        Assert.Equal((int)ApiCode.InValidData, invalidResult.Code);
+        Assert.Contains("Invalid edge task transition", invalidResult.Msg);
+
+        var latest = await GetApiResultAsync<EdgeTaskReceiptDto>(client, $"/api/EdgeTask/Receipt/{deviceId}");
+        Assert.Equal((int)ApiCode.Success, latest.Code);
+        Assert.NotNull(latest.Data);
+        Assert.Equal(EdgeTaskStatus.Running, latest.Data!.Status);
+    }
+
     private static async Task<List<TelemetryDataDto>> WaitForTelemetryLatestAsync(HttpClient client, Guid deviceId, string keys)
     {
         ApiResult<List<TelemetryDataDto>>? result = null;
