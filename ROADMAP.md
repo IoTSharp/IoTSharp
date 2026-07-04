@@ -1,154 +1,274 @@
-# IoTSharp 最终路线图
+# IoTSharp 执行路线图
 
-本文档是 IoTSharp 当前阶段的执行版路线图。它不再记录所有可能方向，而是明确下一轮应该做什么、哪些已经完成、哪些后做、哪些概念需要删除或合并。
+本文档是 IoTSharp 当前阶段开始执行的路线图。它用于跟踪顺序、里程碑和完成情况，不再记录所有可能方向。
 
-## 最终判断
+本路线图同时对齐产品矩阵各层的接口承诺：平台层事项在本仓库实现；边缘层、设备层与 AI 底座事项在对应仓库实现，但契约、验收和推进顺序以本路线图为准。
 
-IoTSharp 的目标不是继续做一个单纯设备平台，而是演进为三层协同的工业采集与运营平台：
+## 状态标签
+
+- `✅️` 已完成：已经具备可用基础，不再作为下一步主任务。
+- `🚧` 进行中：当前正在推进或下一批立即开始。
+- `⬜` 待开始：已确定要做，但排在当前进行中任务之后。
+- `🕒` 后续池：保留方向，但不进入当前里程碑。
+- `🗑️` 删除或停止扩展：旧概念、重复能力或不再作为核心领域。
+- `⏸️` 暂缓：需要等待前置任务完成后再决定。
+
+## 最终方向
+
+IoTSharp 从单纯设备平台演进为三层协同的工业采集与运营平台：
 
 1. 接入与采集层：Product、Device、Asset、Gateway、EdgeNode、Collection Template。
 2. 实时规则层：Telemetry、Attribute、Event、Alarm、RuleChain、短动作分发。
 3. 运营与发布层：配置版本、软件包、OTA、灰度发布、回滚、任务确认。
 
-AI 是横切能力，不是第四条主线。AI 必须构建在 IoTSharp 控制平面、权限、审计、租户隔离、领域服务和 MCP 工具边界之上。
+AI 是横切能力，不是第四条主线。AI 必须通过 IoTSharp 控制平面、权限、审计、租户隔离、领域服务和 MCP 工具边界使用平台能力。
 
-## 已完成的基线
+## 产品矩阵与仓库分工
 
-以下内容视为已有平台基线，不再放入下一步任务清单：
+IoTSharp 是覆盖「平台 - 边缘 - 设备」三层加一个 AI 底座的开源产品矩阵，云边一体、全栈自研：
 
-- 设备接入、Device、Gateway、Telemetry、Attribute、Alarm、Tenant、Customer、权限和基础审计。
-- Product 工作台第一版：列表、创建、属性、字典、数据映射和创建设备入口。
-- Asset 基础模型和资产页面。
-- FlowRule 规则链基础、规则绑定、模拟和事件记录基础。
-- EdgeNode 第一版：模型、迁移、注册、心跳、能力上报、列表、详情、接入信息、任务分发、回执和历史。
-- CollectionTask 草稿：DTO、草稿生成、基础校验和预览接口。
-- MCP 和 AISettings 最小基础。
-- SonnetDB 作为可选时序存储的基础接入。
-
-这些内容后续可以增强，但不能继续写成“从零开始建设”。
-
-## 近期主线
-
-近期只保留一条主线：先完成领域概念清理，再把 Edge 与采集闭环做实。
-
-| 阶段 | 状态 | 目标 | 交付 |
+| 层级 | 仓库 | 职责 | 与平台的契约 |
 | --- | --- | --- | --- |
-| P0 | 立即做 | 领域概念清理 | Product 正式替代 Produce；DeviceModel、旧设备图、旧场景等重复概念完成删除、合并或废弃标记。 |
-| P1 | 立即做 | EdgeNode 正式模型 | EdgeTask、EdgeTaskReceipt、EdgeCapability、EdgeRuntimeStatus、EdgeCollectionAssignment 等正式表和 API。 |
-| P2 | 接着做 | Product 下的采集模板 | CollectionTemplate、ConnectionTemplate、PointTemplate、TransformTemplate、SamplingPolicy、MappingPolicy。 |
-| P3 | 接着做 | 配置发布到 Edge/Gateway | 从 Product 采集模板生成运行时配置，发布到 EdgeNode 或 Gateway，并形成任务闭环。 |
-| P4 | 后续做 | Release Center | OTA、采集器软件包、配置版本、灰度、回滚、确认和审计。 |
-| P5 | 后续做 | RuleChain 增强 | 标准节点、版本化、仿真、观测、审计；不承担长周期发布和运维编排。 |
+| 平台层 | [IoTSharp](https://github.com/IoTSharp/IoTSharp)（本仓库） | 控制面：设备接入、遥测、规则链、多租户、EdgeNode 管理、配置与发布运营 | 契约的定义方和单一事实来源 |
+| 边缘层 | [IoTEdge](https://github.com/IoTSharp/IoTEdge) | 边缘网关运行时：单宿主程序 + 本地管理界面，Modbus/OPC UA/PLC 采集驱动、脚本转换、断网自治 | EdgeNode 契约第一执行端：注册、心跳、能力上报、采集配置拉取、任务回执 |
+| 设备层 | [IoTEmbedded](https://github.com/IoTSharp/IoTEmbedded) | 嵌入式设备运行时：MCU/RTOS 固件级运行时，BASIC 脚本引擎、Modbus RTU、MQTT 接入，脚本双槽存储与失败回滚 | 设备侧 MQTT 协议族；设备脚本/固件发布的执行端 |
+| AI 底座 | [Tomur](https://github.com/IoTSharp/Tomur) | 离线/内网本地模型运行时：llama.cpp/whisper.cpp/stable-diffusion.cpp/OCR 多模态推理，GGUF 模型资产管理，OpenAI/Ollama/Anthropic 三套兼容 API，Native AOT 单文件 | 平台 AI 能力的离线 Provider：AISettings 指向 Tomur 兼容端点即可在无外网环境运行 AI；AI 仍经平台权限、审计与 MCP 边界 |
 
-## 当前立即执行项
+跨仓原则：
 
-### 1. Product 正式化
+- 平台侧契约（EdgeNode 注册/心跳/能力、CollectionConfig、EdgeTask）以 `IoTSharp.Contracts` 为单一事实来源并版本化，边缘与设备仓库作为契约消费者。
+- 边缘与设备运行时不依赖 IoTSharp 内部数据库结构作为跨项目契约。
+- AI 横切能力对接 Tomur 时只依赖其 OpenAI 兼容 API，不依赖 Tomur 内部实现；在线（云端模型）与离线（Tomur）通过 Provider 配置切换，平台侧代码不感知差异。
+- 三层可独立使用，组合时形成端到端的「云端定义、边缘执行、断网自治、结果回传」闭环。
+- 涉及边缘层、设备层与 AI 底座的事项在本路线图登记编号并跟踪验收，代码在各自仓库落地。
 
-直接采用 Product 作为正式领域名。`Produce` 是旧概念，应从新代码、新 DTO、新 UI、新文档和新 API 中移除。
+差异化定位（不针对具体厂商，仅指导取舍）：全栈零外部依赖交付是本矩阵独有优势——平台可用 SonnetDB 单依赖部署，边缘网关可直连 SonnetDB，AI 可由 Tomur 离线承载，形成「云边同底座 + 内网全功能」。该叙事由并行轨道 T 承载。
 
-执行要求：
+## 里程碑
 
-- `ProducesController`、Produce DTO、前端 `produce` 目录和接口逐步改为 Product 命名。
-- 数据迁移可以按实际成本选择一次改表或过渡视图，但领域语言不再保留 Produce。
-- `ProduceToken` 改为 `ProductToken`。
-- Product 只负责模板：能力、点位、属性、命令、协议、采集模板、默认规则、告警模板、凭据策略和兼容矩阵。
-- Product 不负责设备在线状态、遥测最新值、告警实例、命令执行记录和业务层级。
+| 里程碑 | 状态 | 目标 | 完成标准 |
+| --- | --- | --- | --- |
+| M0 | `✅️` | 确认最终路线图 | 明确 Product、Device、Asset、Gateway、EdgeNode、Collection Template、RuleChain 和 Release Center 边界。 |
+| M1 | `🚧` | 领域概念清理 | Product 替代 Produce；DeviceModel、旧设备图、旧 Scene 完成删除、合并或废弃标记。 |
+| M2 | `⬜` | EdgeNode 正式模型 + 跨仓契约固化 | EdgeRuntimeStatus、EdgeCapability、EdgeTask、EdgeTaskReceipt、EdgeCollectionAssignment 落地；edge-node/collection-config/edge-task 契约进入 `IoTSharp.Contracts` 并版本化；semantic-core 收敛决策完成。 |
+| M3 | `⬜` | Collection Template 产品化 | Product 下可维护协议、连接、点位、转换、采样和映射模板；模板生成的运行时配置可被 IoTEdge 直接消费执行。 |
+| M4 | `⬜` | 配置与最小软件包发布闭环 | 采集配置和最小软件包可发布到 EdgeNode/Gateway，形成下发、接收、执行、回执和历史；边缘侧数据断网缓存与续传落地。 |
+| M5 | `⬜` | Release Center 第一版 | OTA（含设备脚本/固件）、采集器软件包、配置版本、灰度、回滚、确认和审计具备基础闭环。 |
+| M6 | `🕒` | RuleChain 增强 | 标准节点、版本化、仿真、观测和审计增强，但不承担长周期发布；AI 节点与 MCP 扩写在此评估。 |
+| T | `🚧` | SonnetDB 单依赖交付叙事（并行轨道） | README/文档首推单依赖体验路径；容量与可靠性基准报告；云边同底座参考部署。 |
+| E | `⬜` | 附属运行时硬化（并行轨道） | IoTEdge 与 IoTEmbedded 达产：发布纪律、测试、资源占用、协议插件化、远程诊断、硬件矩阵。 |
+| A | `⬜` | 离线 AI 底座（并行轨道） | Tomur 从孵化走向可依赖：发布纪律与测试；平台 AI Provider 抽象打通在线/离线切换；内网全功能参考部署。 |
 
-### 2. 删除或合并重复旧概念
+## 执行顺序
 
-以下概念不再作为核心路线继续扩展：
+### 已完成基线
 
-- `DeviceModel`：与 Product 能力模板重叠，合并到 Product 的命令/能力定义。
-- 旧 `DeviceGraph`、`DeviceDiagram`、`DeviceGraphToolBox`：如果只是历史设计器数据，标记废弃；新拓扑进入 Asset、Collection 或 Edge 设计器。
-- `Scene`：如果只是规则链或资产视图包装，不作为核心领域；合并到 RuleChain 视图或 Asset View。
-- Product/Produce 上的旧 Gateway 配置字段：迁移到 CollectionTemplate。
-- 把 Device 当业务层级、发布范围或模板容器的用法：停止扩展。
+这些能力已经存在，只作为后续改造基础，不再写成“从零开始”。
 
-### 3. EdgeNode 正式化
+| 顺序 | 状态 | 事项 | 说明 |
+| --- | --- | --- | --- |
+| #000 | `✅️` | 平台基础 | Device、Gateway、Telemetry、Attribute、Alarm、Tenant、Customer、权限和基础审计已具备。 |
+| #001 | `✅️` | Product 工作台第一版 | 列表、创建、属性、字典、数据映射和创建设备入口已具备。 |
+| #002 | `✅️` | Asset 基础 | Asset 模型和资产页面已具备。 |
+| #003 | `✅️` | FlowRule 基础 | 规则链、规则绑定、模拟和事件记录已有基础。 |
+| #004 | `✅️` | EdgeNode 第一版 | 模型、迁移、注册、心跳、能力上报、列表、详情、接入信息、任务分发、回执和历史已具备。 |
+| #005 | `✅️` | CollectionTask 草稿 | DTO、草稿生成、基础校验和预览接口已具备。 |
+| #006 | `✅️` | AI 最小基础 | MCP 和 AISettings 已具备。 |
+| #007 | `✅️` | SonnetDB 可选接入 | 关系库、遥测、缓存、EventBus 和 Blob 均可走 SonnetDB，单依赖部署 profile 已具备。 |
+| #008 | `✅️` | IoTEdge 对接基线 | 边缘网关已打通注册、心跳、能力上报、CollectionConfig 拉取（版本化落本地缓存）、EdgeTask 拉取/接受/回执（edge-task-v1）；Modbus、OPC UA 及主流 PLC 驱动为真实实现；本地离线配置自治已落地。 |
+| #009 | `✅️` | IoTEmbedded 基线 | 固件级运行时已在 STM32 双板落地；BASIC 脚本引擎、Modbus RTU Master、MQTT 设备协议（注册/心跳/命令响应）具备；EEPROM 双槽脚本 + CRC + 签名 + 启动失败回滚已成型。 |
+| #00A | `✅️` | Tomur 孵化基线 | 本地模型运行时已具雏形：llama.cpp/whisper.cpp/stable-diffusion.cpp/OCR 多后端推理、GGUF 模型资产管理、OpenAI/Ollama/Anthropic 三套兼容 API、Native AOT 单文件发布已验证。当前为孵化期：无测试、无正式 Release、未与平台集成。 |
 
-现有 Edge 功能已经打通第一版，但状态和任务仍大量依赖 AttributeLatest 的 `_edge.*` 键。下一步必须沉淀正式模型。
+### M1 - 领域概念清理
 
-必须新增或明确：
+当前开始执行 M1。目标是先把概念和命名收干净，再扩展 Edge 和采集能力。
 
-- EdgeRuntimeStatus：注册、心跳、版本、实例、主机、健康、指标。
-- EdgeCapability：协议、点位类型、转换能力、任务能力和版本兼容。
-- EdgeTask：平台下发的配置、诊断、软件、固件、重启等任务。
-- EdgeTaskReceipt：Accepted、Running、Succeeded、Failed、TimedOut、Cancelled 等回执。
-- EdgeCollectionAssignment：哪个采集配置发布到了哪个 EdgeNode 或 Gateway。
+范围控制：命名迁移按 `AGENTS.md` 既定策略执行——存量 `Produce` API 冻结为兼容实现细节，只保证新增 API、DTO、UI 和文档统一使用 Product，不做存量全量重命名。
 
-AttributeLatest 可以继续展示最近状态，但不再作为任务闭环的主存储。
+| 顺序 | 状态 | 事项 | 交付 |
+| --- | --- | --- | --- |
+| #010 | `🚧` | Product 正式替代 Produce | 新代码、新 DTO、新 UI、新文档和新 API 不再新增 Produce 命名。 |
+| #011 | `⬜` | Product 命名迁移清单 | 列出 `Produce`、`ProduceToken`、`ProducesController`、前端 `produce` 目录、DTO、API 和文档引用。 |
+| #012 | `⬜` | Product API 命名迁移 | 新增或替换 Product 命名 API；旧 Produce 入口不再作为新能力入口扩展。 |
+| #013 | `⬜` | 前端 Product 工作台迁移 | 前端 `produce` 目录和 API 模块迁移为 `product`。 |
+| #014 | `⬜` | ProductToken 替代 ProduceToken | 统一注册 Token 命名，清理 UI、DTO、文档和接口字段。 |
+| #015 | `⬜` | DeviceModel 合并 | 将 `DeviceModel` 的命令和能力含义合并到 Product。 |
+| #016 | `⬜` | 旧设备图处理 | 梳理 `DeviceGraph`、`DeviceDiagram`、`DeviceGraphToolBox`，决定删除、迁移或废弃标记。 |
+| #017 | `⬜` | Scene 概念处理 | 如果 Scene 只是规则链或资产视图包装，合并到 RuleChain View 或 Asset View。 |
+| #018 | `⬜` | Gateway 旧配置迁移方案 | Product/Produce 上的旧 Gateway 配置字段迁移到 Collection Template。 |
 
-### 4. Collection Template 产品化
+### M2 - EdgeNode 正式模型与跨仓契约固化
 
-CollectionTaskDto 当前只能算任务草稿，不是完整采集建模。下一步要把采集配置变成 Product 下的一等模板。
+M2 的目标是把现有 Edge 第一版能力从属性键和临时 DTO 沉淀为正式模型，并把云边契约固化为可版本化的单一事实来源。IoTEdge 已作为真实消费者打通全部端点（#008），契约固化必须以它为第一验证对象，避免纸面契约。
 
-必须新增：
+| 顺序 | 状态 | 事项 | 层级 | 交付 |
+| --- | --- | --- | --- | --- |
+| #020 | `⬜` | EdgeRuntimeStatus | 平台 | 注册、心跳、版本、实例、主机、健康、指标模型。 |
+| #021 | `⬜` | EdgeCapability | 平台 | 协议、点位类型、转换能力、任务能力和版本兼容模型。 |
+| #022 | `⬜` | EdgeTask | 平台 | 平台下发配置、诊断、软件、固件、重启等任务模型。 |
+| #023 | `⬜` | EdgeTaskReceipt | 平台 | Accepted、Running、Succeeded、Failed、TimedOut、Cancelled 等回执模型。 |
+| #024 | `⬜` | EdgeCollectionAssignment | 平台 | 记录哪个采集配置发布到了哪个 EdgeNode 或 Gateway。 |
+| #025 | `⬜` | Edge API 改造 | 平台 | 查询状态、能力、任务、回执和历史时使用正式模型；任务状态流转不再以 AttributeLatest/TelemetryData 作为主存储。 |
+| #026 | `⬜` | Edge 前端改造 | 平台 | Edge 详情页展示正式状态、能力、任务历史和配置分配。 |
+| #027 | `⬜` | 跨仓契约固化 | 平台 | `edge-node-v1`、`collection-config-v1`、`edge-task-v1` 契约（JSON Schema + DTO）进入 `IoTSharp.Contracts` 并版本化发布；IoTEdge 切换为契约包消费者；双方路线图互相引用。 |
+| #028 | `⬜` | IoTEdge 任务回执转正 | 边缘 | 将参考实现级的任务回执组件升级为正式常驻 Worker，遵循 #027 契约，覆盖 Accepted/Running/Succeeded/Failed/TimedOut 全状态回执。 |
+| #029 | `⬜` | semantic-core 收敛决策（M3 前置门） | 平台 | 决策 `IoTSharp.Contracts/semantic-core.v1.schema.json`（含 Modbus/OPC UA/MQTT 绑定）与 M3 模板持久化模型、IoTEdge 本地采集模型三者的统一方案：以 semantic-core 为基础或明确废弃并记录原因。M3 开工前必须完成，避免三套点位模型并存。 |
 
-- CollectionTemplate：采集模板集合。
-- ProtocolTemplate：协议类型和协议参数。
-- ConnectionTemplate：连接地址、端口、串口、认证和超时。
-- PointTemplate：点位地址、数据类型、长度、读写属性。
-- TransformTemplate：缩放、偏移、表达式、枚举、位解析、字节序等转换链。
-- SamplingPolicy：周期、变化上报、死区、质量变化和聚合提示。
-- MappingPolicy：映射到 Telemetry、Attribute、AlarmInput 或 CommandFeedback。
+### M3 - Collection Template 产品化
 
-模板属于 Product 或模板库；运行时任务下发给 EdgeNode、Gateway 或选定 Device。
+M3 的目标是把采集配置从草稿 DTO 升级为 Product 下的一等模板。#030 依赖 #029 决策结论。
 
-### 5. Gateway 与 EdgeNode 边界
+| 顺序 | 状态 | 事项 | 层级 | 交付 |
+| --- | --- | --- | --- | --- |
+| #030 | `⬜` | CollectionTemplate | 平台 | Product 下的采集模板集合（模型基础按 #029 决策）。 |
+| #031 | `⬜` | ProtocolTemplate | 平台 | 协议类型和协议参数。 |
+| #032 | `⬜` | ConnectionTemplate | 平台 | 地址、端口、串口、认证、超时和重试。 |
+| #033 | `⬜` | PointTemplate | 平台 | 点位地址、数据类型、长度、读写属性。 |
+| #034 | `⬜` | TransformTemplate | 平台 | 缩放、偏移、表达式、枚举、位解析和字节序转换链。 |
+| #035 | `⬜` | SamplingPolicy | 平台 | 周期、变化上报、死区、质量变化和聚合提示。 |
+| #036 | `⬜` | MappingPolicy | 平台 | 映射到 Telemetry、Attribute、AlarmInput 或 CommandFeedback。 |
+| #037 | `⬜` | 模板校验和预览 | 平台 | 保留现有预览能力，改为基于正式模板。 |
+| #038 | `⬜` | 边缘执行链路对齐 | 边缘 | IoTEdge 消费模板生成的运行时配置并按其执行采集与上传；M3 的验收标准是「IoTEdge 能执行」，而非仅平台侧模型齐备。 |
 
-Gateway 是南向协议和子设备接入运行时。EdgeNode 是受管边缘运行时。
+### M4 - 配置与最小软件包发布闭环
 
-Gateway 负责：
+M4 的目标是从 Product 采集模板生成配置版本，发布到 EdgeNode 或 Gateway，并把最小软件包发布和边缘数据可靠性一并闭环。任务通道复用 M2 的 EdgeTask，不另建机制。
 
-- 协议适配。
-- 子设备发现、创建和状态上报。
-- 子设备遥测、属性、事件和告警上传。
-- 采集任务执行和错误上报。
+| 顺序 | 状态 | 事项 | 层级 | 交付 |
+| --- | --- | --- | --- | --- |
+| #040 | `⬜` | Collection Configuration Version | 平台 | 采集配置版本模型。 |
+| #041 | `⬜` | 配置发布任务 | 平台 | 从模板生成运行时配置并创建发布任务。 |
+| #042 | `⬜` | Edge/Gateway 拉取或接收配置 | 平台 | 支持执行端获取目标配置。 |
+| #043 | `⬜` | 配置执行回执 | 平台 | 接收 Accepted、Running、Succeeded、Failed 等结果。 |
+| #044 | `⬜` | 当前版本和目标版本展示 | 平台 | 展示当前版本、目标版本、差异和最近发布结果。 |
+| #045 | `⬜` | 失败重试和审计 | 平台 | 发布结果可查询、可审计、可失败重试。 |
+| #046 | `⬜` | 最小软件包发布 | 平台 | ReleasePackage 最小模型（包上传、校验和、版本、目标运行时），新增 EdgeTask 软件更新任务类型与回执；不含灰度、批次和审批（留 M5）。 |
+| #047 | `⬜` | IoTEdge 软件更新执行器 | 边缘 | 接收 #046 任务：下载、校验、切换、失败回滚、全程回执。 |
+| #048 | `⬜` | 边缘数据断网缓存与续传 | 边缘 | 平台不可达时本地缓存采集数据，恢复后批量续传（对应 IoTEdge 自有路线 A6）；M4 数据可靠性闭环的验收项。 |
 
-EdgeNode 负责：
+### M5 - Release Center 第一版
 
-- 注册、心跳、版本、实例身份和健康状态。
-- 能力上报和运行诊断。
-- 接收配置、软件、固件和诊断任务。
-- 报告任务接收、执行、完成、失败、超时和回滚结果。
+M5 排在 Edge 和采集闭环之后。它不进入 RuleChain。#050 在 #046 最小模型上兼容扩展，不重建。
 
-两者可以部署在同一进程，但平台模型必须分清。
+| 顺序 | 状态 | 事项 | 层级 | 交付 |
+| --- | --- | --- | --- | --- |
+| #050 | `⬜` | ReleasePackage | 平台 | OTA、采集器软件包、配置包模型（扩展 #046）。 |
+| #051 | `⬜` | ReleasePlan | 平台 | 发布范围、批次、灰度策略和确认策略。 |
+| #052 | `⬜` | ReleaseTask | 平台 | 面向 EdgeNode、Gateway、Device 或范围集合的发布任务。 |
+| #053 | `⬜` | ReleaseReceipt | 平台 | 接收、执行、完成、失败、超时和回滚结果。 |
+| #054 | `⬜` | 回滚和暂停继续 | 平台 | 支持暂停、继续、回滚和人工确认。 |
+| #055 | `⬜` | 发布审计 | 平台 | 每次发布有状态、结果、操作人和审计记录。 |
+| #056 | `⬜` | 设备脚本 OTA | 设备 | 面向 IoTEmbedded 的脚本包发布：复用其双槽存储、CRC、签名和启动失败回滚基建，走设备 MQTT 通道下发与回执。 |
+| #057 | `⬜` | 设备固件 OTA | 设备 | 固件包发布与升级回执；依赖设备侧 bootloader 支持，范围在 M5 内单独评估。 |
+
+### M6 - RuleChain 增强
+
+M6 后做，目标是增强实时规则，而不是把规则链改成工作流引擎。AI 相关事项作为横切能力在此评估，仍走平台权限、审计和 MCP 边界。
+
+| 顺序 | 状态 | 事项 | 交付 |
+| --- | --- | --- | --- |
+| #060 | `🕒` | 标准节点库 | 减少脚本依赖。 |
+| #061 | `🕒` | 规则版本 | 支持版本化、复制和回滚规则定义。 |
+| #062 | `🕒` | 仿真增强 | 保存仿真输入、输出和诊断记录。 |
+| #063 | `🕒` | 观测和审计 | 规则运行路径、耗时、错误和动作审计。 |
+| #064 | `🕒` | 规则链 AI 节点 | LLM 调用节点：提示词模板、结构化输出，复用 #090 的 Provider 抽象（在线/离线均可），全程审计。 |
+| #065 | `🕒` | MCP 工具扩写 | 从只读设备查询扩展到受权限与审计约束的写操作。 |
+| #066 | `🕒` | 派生计算评估 | 遥测派生字段/计算属性的可行性与形态评估。 |
+
+### 并行轨道 T - SonnetDB 单依赖交付叙事
+
+低成本、以文档和 CI 为主，不占用主线开发资源，可与任何里程碑并行。目标是把「全栈零外部依赖、云边同底座」确立为对外首要卖点。
+
+| 顺序 | 状态 | 事项 | 交付 |
+| --- | --- | --- | --- |
+| #070 | `⬜` | 单依赖体验路径首推 | README 和文档把 SonnetDB profile（`docker-compose.sonnetdb.yml` 或单文件二进制）定为 5 分钟快速体验的默认入口。 |
+| #071 | `⬜` | 容量与可靠性基准报告 | 依托 SonnetDB 可观测性指标，给出遥测写入吞吐、存储容量和恢复能力的基准数据与文档。 |
+| #072 | `⬜` | 云边同底座参考部署 | IoTEdge 直连 SonnetDB 的参考架构与部署文档，展示平台与边缘共用同一数据底座。 |
+
+### 并行轨道 E - 附属运行时硬化（IoTEdge / IoTEmbedded）
+
+IoTEdge 与 IoTEmbedded 是本项目的附属产品，其改进事项在本路线图统一登记和跟踪，代码在各自仓库落地。目标是把两个运行时从「骨架已立」推进到「可交付达产」。与主线的交叉项（#028、#038、#047、#048、#056、#057）仍按里程碑节奏走，本轨道承载不阻塞主线的工程化硬化项。
+
+| 顺序 | 状态 | 事项 | 仓库 | 交付 |
+| --- | --- | --- | --- | --- |
+| #080 | `⬜` | IoTEdge 发布纪律 | IoTEdge | 版本号策略、Release/tag、变更记录；恢复持续提交节奏；与平台契约版本的兼容矩阵。 |
+| #081 | `⬜` | IoTEdge 测试基线 | IoTEdge | 驱动层（Modbus/OPC UA）与平台对接 Worker 的自动化测试覆盖；契约回归用例对齐 `IoTSharp.Contracts`。 |
+| #082 | `⬜` | IoTEdge 轻量化交付 | IoTEdge | Native AOT/裁剪评估，单文件发布，linux-arm64 目标（主流边缘盒子架构）；资源占用基线报告。 |
+| #083 | `⬜` | IoTEdge 协议驱动插件化 | IoTEdge | 驱动以插件形式装载，新协议不改宿主；插件清单与能力上报（EdgeCapability）联动。 |
+| #084 | `⬜` | IoTEdge 远程诊断 | IoTEdge | 日志摘要上报、远程诊断任务（复用 EdgeTask 诊断类型）、本地故障自检。 |
+| #085 | `⬜` | IoTEmbedded 板卡与网络矩阵 | IoTEmbedded | 扩展支持的 MCU 板卡与网络模组清单；低资源 Linux Profile 评估。 |
+| #086 | `⬜` | IoTEmbedded 设备协议对齐 | IoTEmbedded | 设备侧 MQTT 协议（注册/心跳/命令/升级响应）与平台 Device 契约对齐并文档化，作为第三方固件接入的参考实现。 |
+| #087 | `⬜` | IoTEmbedded 发布纪律 | IoTEmbedded | 版本化、Release、板卡适配指南与烧录文档。 |
+
+### 并行轨道 A - 离线 AI 底座（Tomur）
+
+Tomur 是矩阵的 AI 底座：离线或内网环境下，平台的 AI 横切能力由它承载。当前处于孵化期（无测试、无正式发布、未与平台集成），本轨道目标是把它推进到「平台可依赖的离线 AI Provider」。原则不变：AI 只能通过平台权限、审计、租户隔离和 MCP 边界使用平台能力，Tomur 只是模型算力的提供方，不是旁路。
+
+| 顺序 | 状态 | 事项 | 仓库 | 交付 |
+| --- | --- | --- | --- | --- |
+| #090 | `⬜` | 平台 AI Provider 抽象 | 平台 | AISettings 扩展为 Provider 配置（在线云端模型 / 离线 Tomur 端点可切换）；平台侧统一走 OpenAI 兼容客户端，不感知 Provider 差异；连接测试与健康检查。 |
+| #091 | `⬜` | Tomur 发布纪律 | Tomur | License、版本号、Release/tag、变更记录；smoke 记录转为可重复的自动化测试基线。 |
+| #092 | `⬜` | Tomur 测试基线 | Tomur | 推理 API（chat/embeddings）、模型资产管理、服务生命周期的自动化测试；三套兼容 API 的契约回归。 |
+| #093 | `⬜` | 内网全功能参考部署 | 平台 | 「IoTSharp + SonnetDB + Tomur」无外网参考部署文档与 compose/安装脚本：平台 AI 功能（MCP、后续规则链 AI 节点）全部指向本地 Tomur 端点验证通过。 |
+| #094 | `⬜` | Tomur 边缘就位评估 | Tomur | linux-arm64 发布目标；小内存 GGUF 模型档位推荐（边缘盒子级硬件）；与 IoTEdge 同机部署的资源占用评估。 |
+| #095 | `⏸️` | 边缘 AI 场景试点 | IoTEdge | 在边缘侧调用本地 Tomur 做数据摘要/异常描述等试点场景；依赖 #094 完成后再决定范围。 |
+
+## 层级分工总览
+
+| 里程碑/轨道 | 平台层（本仓库） | 边缘层（IoTEdge） | 设备层（IoTEmbedded） | AI 底座（Tomur） |
+| --- | --- | --- | --- | --- |
+| M1 | #010~#018 | — | — | — |
+| M2 | #020~#027、#029 | #028 回执转正 | — | — |
+| M3 | #030~#037 | #038 执行链路对齐 | — | — |
+| M4 | #040~#046 | #047 软件更新执行器、#048 断网续传 | — | — |
+| M5 | #050~#055 | 灰度/回滚执行端配合 | #056 脚本 OTA、#057 固件 OTA | — |
+| M6 | #060~#066 | — | — | #064 经 #090 消费离线推理 |
+| T | #070、#071 | #072 同底座示例 | — | — |
+| E | — | #080~#084 | #085~#087 | — |
+| A | #090、#093 | #095 边缘 AI 试点 | — | #091、#092、#094 |
+
+## 删除和停止扩展
+
+| 顺序 | 状态 | 事项 | 处理 |
+| --- | --- | --- | --- |
+| #900 | `🗑️` | Produce 作为新领域名 | 停止扩展；统一改为 Product。 |
+| #901 | `🗑️` | DeviceModel 作为独立核心概念 | 合并到 Product 的能力、命令和配置定义。 |
+| #902 | `🗑️` | 旧 DeviceGraph/DeviceDiagram 作为核心拓扑 | 不再扩展；新拓扑进入 Asset、Collection 或 Edge 设计器。 |
+| #903 | `🗑️` | Scene 作为独立核心领域 | 若只是规则链或资产视图包装，则合并。 |
+| #904 | `🗑️` | Product/Produce 上的 Gateway 旧配置 | 迁移到 Collection Template。 |
+| #905 | `🗑️` | Device 作为业务层级或发布范围替代品 | 停止扩展。 |
+| #906 | `🗑️` | EdgeTask 状态以 AttributeLatest/TelemetryData 为主存储 | 临时方案，M2 #025 完成后停止使用。 |
 
 ## 后续池
 
-以下内容保留方向，但不进入近期主线：
-
-- Release Center 完整产品化：OTA、采集器软件包、配置版本、灰度、回滚和确认。
-- AI Workbench：模型接入、技能目录、MCP 扩展、上下文会话、成本和审计。
-- 本地语音、桌面 companion、本地模型协同、多智能体协作和记忆系统。
-- 平台高可用、多服务器、灾备、备份恢复演练。
-- SonnetDB 全面生产化路线和跨存储兼容矩阵。
-- 前端实时遥测订阅增强。
-
-这些内容不能和 P0-P3 混在一次改造里。
+| 顺序 | 状态 | 事项 | 说明 |
+| --- | --- | --- | --- |
+| #800 | `🕒` | AI Workbench | 模型接入、技能目录、MCP 扩展、上下文会话、成本和审计；离线算力由轨道 A 的 Tomur 承载。 |
+| #801 | `🕒` | 本地语音和桌面 companion | 保持独立运行时，不耦合进主 Web 应用；语音能力（ASR/TTS）复用 Tomur 多模态后端。 |
+| #802 | `🕒` | 多智能体协作和记忆系统 | 等核心领域模型稳定后再设计。 |
+| #803 | `🕒` | 平台高可用和灾备 | 等 Edge、采集、发布模型稳定后再推进。 |
+| #804 | `🕒` | SonnetDB 引擎生产化 | 引擎侧能力推进按 SonnetDB 自有路线图执行；平台侧叙事走并行轨道 T。 |
+| #805 | `🕒` | 前端实时遥测订阅增强 | 后续单独进入体验优化。 |
 
 ## 明确不做
 
 - 不做全量重写。
 - 不把 RuleChain 改造成长周期工作流引擎。
-- 不让 AI 直接访问数据库或绕过权限审计。
+- 不让 AI 直接访问数据库或绕过权限审计；Tomur 只是模型算力 Provider，不是权限旁路。
 - 不把 Device 当 Product 模板、Asset 树或 Release Scope 的替代品。
 - 不把 Gateway 或 EdgeNode 契约藏在 IoTSharp 内部数据库假设里。
+- 不在本仓库直接实现边缘采集驱动、设备固件逻辑和模型推理，它们分属 IoTEdge、IoTEmbedded 与 Tomur。
+- 不把 Tomur 做成多租户推理服务器；平台多租户隔离在平台侧完成。
 - 不因为清理依赖而删除 NSwag.AspNetCore、RulesEngine、Jint 等当前保留基础组件。
 
-## 验收标准
+## 当前执行窗口
 
-近期路线完成时，应满足：
+当前执行 M1（#010~#018），直到完成或明确废弃；并行轨道 T（#070~#072）为文档层面工作，可随时穿插。
 
-- 新文档、新菜单、新 DTO、新 API 使用 Product，不再新增 Produce 命名。
-- Product、Device、Asset、Gateway、EdgeNode 和 Collection Template 边界清楚。
-- Edge 注册、心跳、能力、任务、回执和历史有正式模型承载。
-- 平台能知道某个采集模板发布到了哪个 EdgeNode 或 Gateway。
-- Device 页面只展示实例状态、凭据、遥测、属性、告警、命令和关系。
-- Product 页面只负责能力模板、采集模板、点位、命令、默认规则和兼容矩阵。
-- Release、OTA、配置发布和回滚不进入 RuleChain。
-- AI 只通过授权领域服务和 MCP 工具使用 IoTSharp 能力。
+M1 完成后进入 M2。M2 必须包含 #027 契约固化与 #029 semantic-core 收敛决策，二者未完成前不启动 M3 的 #030。M2 未完成前，不启动 M4 和 M5 的正式实现。
 
-## 文档关系
+并行轨道 E（附属运行时硬化）与 A（离线 AI 底座）按带宽穿插推进，不阻塞主线；但存在两个硬依赖：#047/#048 是 M4 验收项，#090（AI Provider 抽象）是 M6 #064/#065 与 #093 内网部署的前置。
+
+涉及 IoTEdge（#028、#038、#047、#048、#072、#080~#084、#095）、IoTEmbedded（#056、#057、#085~#087）和 Tomur（#091、#092、#094）的事项在各自仓库实现，验收标准和契约版本以本路线图与 `IoTSharp.Contracts` 为准。
 
 详细领域定义和分步改造见：`docs/docs/architecture/domain-model-realignment.md`。

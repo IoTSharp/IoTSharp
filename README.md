@@ -32,6 +32,19 @@ IoTSharp brings together the core building blocks needed to run an IoT platform 
 
 The current main application targets `.NET 10`, and the web console is maintained as an IoTSharp-branded Vue 3 application.
 
+## 🧱 Product Matrix (Cloud-Edge-Device)
+
+IoTSharp is not a single platform application but an open-source product matrix covering three layers plus an AI foundation:
+
+| Layer | Project | Description |
+| --- | --- | --- |
+| Platform | [IoTSharp](https://github.com/IoTSharp/IoTSharp) (this repo) | Control plane for device access, telemetry, rule chains, multi-tenancy, EdgeNode management, and release operations |
+| Edge | [IoTEdge](https://github.com/IoTSharp/IoTEdge) | Edge gateway runtime: single-host executable with a local management UI, built-in Modbus, OPC UA, and mainstream PLC collection drivers plus script-based transformation; integrates with the platform for registration, heartbeat, capability reporting, collection-config rollout, and task receipts |
+| Device | [IoTEmbedded](https://github.com/IoTSharp/IoTEmbedded) | Embedded device runtime for MCU/RTOS targets: firmware-level runtime with a built-in BASIC script engine, Modbus RTU, and MQTT access, supporting dual-slot script storage with failure rollback |
+| AI foundation | [Tomur](https://github.com/IoTSharp/Tomur) | Local model runtime: hosts the platform's AI capabilities in offline/intranet environments, with GGUF LLM, speech, image, and OCR multimodal inference behind OpenAI-compatible APIs, deployable as a single file |
+
+All layers are open source and independently usable, and together they form an end-to-end industrial collection and operations solution; in offline or intranet scenarios, combining SonnetDB and Tomur enables a fully functional deployment with zero external dependencies.
+
 ## 🧭 Quick Start
 
 ### 🖥️ Run IoTSharp locally

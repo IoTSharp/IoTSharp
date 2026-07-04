@@ -32,6 +32,19 @@ IoTSharp 将构建生产级 IoT 平台所需的关键能力组合在一起：
 
 当前主应用基于 `.NET 10`，Web 控制台基于 Vue 3，并已全面统一为 IoTSharp 品牌界面。
 
+## 🧱 产品矩阵（云边一体）
+
+IoTSharp 不只是单个平台应用，而是一套覆盖「平台 - 边缘 - 设备」三层加一个 AI 底座的开源产品矩阵：
+
+| 层级 | 项目 | 说明 |
+| --- | --- | --- |
+| 平台层 | [IoTSharp](https://github.com/IoTSharp/IoTSharp)（本仓库） | 设备接入、遥测、规则链、多租户、EdgeNode 管理与发布运营的平台控制面 |
+| 边缘层 | [IoTEdge](https://github.com/IoTSharp/IoTEdge) | 边缘网关运行时：单宿主程序 + 本地管理界面，内置 Modbus、OPC UA 及主流 PLC 采集驱动与脚本转换，对接平台的注册、心跳、能力上报、采集配置下发与任务回执 |
+| 设备层 | [IoTEmbedded](https://github.com/IoTSharp/IoTEmbedded) | 嵌入式设备运行时：面向 MCU/RTOS 的固件级运行时，内置 BASIC 脚本引擎、Modbus RTU 与 MQTT 接入，支持脚本双槽存储与失败回滚 |
+| AI 底座 | [Tomur](https://github.com/IoTSharp/Tomur) | 本地模型运行时：离线/内网环境下承载平台 AI 能力，支持 GGUF 大模型、语音、图像与 OCR 多模态推理，提供 OpenAI 兼容 API，单文件部署 |
+
+各层均为开源自研，可独立使用，也可以组合为端到端的工业采集与运营方案；离线或内网场景下配合 SonnetDB 与 Tomur 可实现零外部依赖的全功能部署。
+
 ## 🧭 快速开始
 
 ### 🖥️ 本地运行 IoTSharp
@@ -111,6 +124,8 @@ NuGet 包与生态库包括：
 
 相关仓库包括：
 
+- [IoTEdge](https://github.com/IoTSharp/IoTEdge)：边缘网关运行时
+- [IoTEmbedded](https://github.com/IoTSharp/IoTEmbedded)：嵌入式设备运行时
 - IoTSharp MQTT C SDK
 - IoTEdge paho.mqtt.c
 - IoTEdge nanoFramework
