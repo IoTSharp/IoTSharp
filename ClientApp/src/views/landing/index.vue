@@ -5,189 +5,51 @@
 				<AppLogo />
 			</RouterLink>
 
-			<nav class="landing-header__nav">
-				<a href="#platform">平台能力</a>
-				<a href="#features">核心能力</a>
-				<a href="#scenarios">应用场景</a>
-				<a href="#console">控制台</a>
-				<a href="#start">开始使用</a>
-			</nav>
-
 			<div class="landing-header__actions">
-				<RouterLink class="landing-header__login" to="/login">登录</RouterLink>
-				<RouterLink class="landing-header__signup" to="/signup">注册</RouterLink>
+				<RouterLink class="landing-header__link" to="/installer">初始化</RouterLink>
+				<RouterLink class="landing-header__button landing-header__button--plain" to="/signup">注册</RouterLink>
+				<RouterLink class="landing-header__button" to="/login">登录</RouterLink>
 			</div>
 		</header>
 
 		<main class="landing-main">
-			<section class="landing-hero" id="platform">
-				<div class="landing-hero__content">
-					<div class="landing-hero__eyebrow">Open Source IoT Platform</div>
-					<h1>让设备接入、规则编排和运营控制台回到一个清晰统一的入口。</h1>
-					<p>
-						首页参考了 .NET 官网的蓝白科技感，右上角保留清晰的登录和注册按钮。未登录时先看到产品价值，登录后再进入轻量化的控制台工作区。
-					</p>
+			<section class="landing-entry">
+				<div class="landing-entry__main">
+					<div class="landing-entry__eyebrow">IoTSharp 控制台</div>
+					<h1>{{ pageTitle }}</h1>
+					<p>选择入口继续操作。未初始化的实例请先完成安装向导。</p>
 
-					<div class="landing-hero__actions">
-						<RouterLink class="landing-hero__primary" to="/login">立即登录</RouterLink>
-						<RouterLink class="landing-hero__secondary" to="/signup">创建账号</RouterLink>
-					</div>
-
-					<div class="landing-hero__metrics">
-						<div class="landing-metric">
-							<strong>MQTT / HTTP</strong>
-							<span>统一设备接入能力</span>
-						</div>
-						<div class="landing-metric">
-							<strong>Rule Engine</strong>
-							<span>事件与自动化编排</span>
-						</div>
-						<div class="landing-metric">
-							<strong>Dashboard</strong>
-							<span>平台状态与告警总览</span>
-						</div>
+					<div class="landing-entry__actions">
+						<RouterLink class="landing-entry__primary" to="/login">登录控制台</RouterLink>
+						<RouterLink class="landing-entry__secondary" to="/installer">系统初始化</RouterLink>
 					</div>
 				</div>
 
-				<div class="landing-hero__visual">
-					<div class="landing-floating landing-floating--primary">
-						<label>平台健康</label>
-						<strong>99.97%</strong>
-						<p>核心服务、设备连接与规则执行一屏查看。</p>
+				<aside class="landing-status" aria-label="实例状态">
+					<div class="landing-status__head">
+						<span>实例状态</span>
+						<strong :class="{ 'is-ready': isInstalled }">{{ statusText }}</strong>
 					</div>
 
-					<div class="landing-floating landing-floating--secondary">
-						<label>实时消息</label>
-						<strong>25.8k</strong>
-						<p>24 小时设备遥测与事件吞吐。</p>
-					</div>
-
-					<div class="landing-console-card">
-						<div class="landing-console-card__top">
-							<span></span>
-							<span></span>
-							<span></span>
-						</div>
-
-						<div class="landing-console-card__body">
-							<div class="landing-console-card__left">
-								<div class="landing-console-card__title">控制台预览</div>
-								<div class="landing-console-bars">
-									<span style="height: 42%"></span>
-									<span style="height: 78%"></span>
-									<span style="height: 60%"></span>
-									<span style="height: 92%"></span>
-									<span style="height: 68%"></span>
-								</div>
-							</div>
-
-							<div class="landing-console-card__right">
-								<div class="landing-console-ring">
-									<div class="landing-console-ring__inner">89%</div>
-								</div>
-								<div class="landing-console-card__hint">设备在线率</div>
-							</div>
+					<div class="landing-status__grid">
+						<div v-for="item in statusItems" :key="item.label" class="landing-status__item">
+							<span>{{ item.label }}</span>
+							<strong>{{ item.value }}</strong>
 						</div>
 					</div>
-				</div>
+				</aside>
 			</section>
 
-			<section class="landing-section" id="features">
-				<div class="landing-section__header">
-					<div>
-						<div class="landing-section__eyebrow">Core Capabilities</div>
-						<h2>把 IoTSharp 首页从“直接进后台”重构为真正的产品入口。</h2>
-					</div>
-					<p>这一版首页更偏产品官网，用来承接介绍、注册和登录，而不是把未登录用户直接扔进系统布局。</p>
+			<section class="landing-workbench">
+				<div class="landing-workbench__header">
+					<h2>常用入口</h2>
+					<p>这里保留进入系统前最常用的操作，不展示额外宣传内容。</p>
 				</div>
 
-				<div class="landing-grid">
-					<article v-for="item in featureCards" :key="item.title" class="landing-feature">
-						<div class="landing-feature__icon">{{ item.icon }}</div>
-						<h3>{{ item.title }}</h3>
-						<p>{{ item.description }}</p>
-					</article>
-				</div>
-			</section>
-
-			<section class="landing-section landing-section--scenarios" id="scenarios">
-				<div class="landing-section__header">
-					<div>
-						<div class="landing-section__eyebrow">Scenario Fit</div>
-						<h2>适合设备平台、行业项目交付和多租户运维协作。</h2>
-					</div>
-				</div>
-
-				<div class="landing-scenarios">
-					<article v-for="item in scenarioCards" :key="item.title" class="landing-scenario">
-						<h3>{{ item.title }}</h3>
-						<p>{{ item.description }}</p>
-					</article>
-				</div>
-			</section>
-
-			<section class="landing-section landing-section--console" id="console">
-				<div class="landing-section__header">
-					<div>
-						<div class="landing-section__eyebrow">Console Experience</div>
-						<h2>登录后进入新的控制台布局，顶部品牌区从最左开始，仪表盘更贴近现代 SaaS 后台。</h2>
-					</div>
-					<RouterLink class="landing-section__cta" to="/login">进入控制台</RouterLink>
-				</div>
-
-				<div class="landing-console-preview">
-					<aside class="landing-console-preview__sidebar">
-						<div class="landing-console-preview__brand">
-							<AppLogo />
-						</div>
-						<div class="landing-console-preview__menu">
-							<span class="is-active">仪表盘</span>
-							<span>设备接入</span>
-							<span>规则链</span>
-							<span>消息中心</span>
-							<span>系统设置</span>
-						</div>
-					</aside>
-
-					<div class="landing-console-preview__content">
-						<div class="landing-console-preview__topbar">
-							<div>
-								<h3>控制台概览</h3>
-								<p>白色侧栏、浅色顶部和更通透的卡片布局。</p>
-							</div>
-							<div class="landing-console-preview__chips">
-								<span>在线设备 1,276</span>
-								<span>告警 12</span>
-							</div>
-						</div>
-
-						<div class="landing-console-preview__cards">
-							<div v-for="item in consoleCards" :key="item.label" class="preview-kpi">
-								<label>{{ item.label }}</label>
-								<strong>{{ item.value }}</strong>
-								<p>{{ item.caption }}</p>
-							</div>
-						</div>
-					</div>
-				</div>
-			</section>
-
-			<section class="landing-section landing-section--start" id="start">
-				<div class="landing-section__header">
-					<div>
-						<div class="landing-section__eyebrow">Get Started</div>
-						<h2>把首页、认证和初始化流程连成一条清晰路径。</h2>
-					</div>
-					<p>从了解平台，到创建账号、初始化系统，再到进入控制台，未登录态现在也保持同一套视觉秩序。</p>
-				</div>
-
-				<div class="landing-start-grid">
-					<RouterLink v-for="item in getStartedCards" :key="item.title" class="landing-start-card" :to="item.to">
-						<div class="landing-start-card__head">
-							<span class="landing-start-card__badge">{{ item.step }}</span>
-							<span class="landing-start-card__link">{{ item.linkText }}</span>
-						</div>
-						<h3>{{ item.title }}</h3>
+				<div class="landing-workbench__grid">
+					<RouterLink v-for="item in actionCards" :key="item.title" class="landing-action" :to="item.to">
+						<span>{{ item.label }}</span>
+						<strong>{{ item.title }}</strong>
 						<p>{{ item.description }}</p>
 					</RouterLink>
 				</div>
@@ -197,684 +59,344 @@
 </template>
 
 <script setup lang="ts">
+import { computed } from 'vue';
 import { RouterLink } from 'vue-router';
+import { storeToRefs } from 'pinia';
 import AppLogo from '/@/components/AppLogo.vue';
+import { useAppInfo } from '/@/stores/appInfo';
+import { useThemeConfig } from '/@/stores/themeConfig';
 
-const featureCards = [
-	{ icon: '01', title: '设备接入', description: '统一管理终端、网关、产品模型和协议接入方式。' },
-	{ icon: '02', title: '遥测与属性', description: '实时采集、时序数据存储和可视化状态展示集中处理。' },
-	{ icon: '03', title: '规则自动化', description: '事件触发、规则链与动作执行在同一套界面中编排。' },
-	{ icon: '04', title: '运维控制台', description: '重做登录后工作台，让运营和实施都能更快上手。' },
-];
+const storesAppInfo = useAppInfo();
+const storesThemeConfig = useThemeConfig();
+const { themeConfig } = storeToRefs(storesThemeConfig);
 
-const scenarioCards = [
-	{ title: '行业解决方案', description: '适合作为智慧园区、能源、制造或城市物联网项目的统一平台底座。' },
-	{ title: '项目交付后台', description: '从首页承接介绍与注册，再进入控制台进行设备、租户和规则管理。' },
-	{ title: '多租户运营', description: '租户、管理员与运营视角可以共享同一套控制台体系和视觉秩序。' },
-];
+const pageTitle = computed(() => themeConfig.value.globalTitle || 'IoTSharp');
+const isInstalled = computed(() => Boolean(storesAppInfo.appInfo.installed));
+const statusText = computed(() => (isInstalled.value ? '已初始化' : '待初始化'));
+const versionText = computed(() => storesAppInfo.appInfo.version || '--');
 
-const consoleCards = [
-	{ label: '消息吞吐', value: '25,872', caption: '今日事件总量与实时链路状态' },
-	{ label: '在线率', value: '89%', caption: '设备连接稳定性持续监控' },
-	{ label: '告警数', value: '12', caption: '需要优先处理的告警设备' },
-	{ label: '平均响应', value: '126ms', caption: '核心接口与服务访问延迟' },
-];
+const statusItems = computed(() => [
+	{ label: '版本', value: versionText.value },
+	{ label: '认证入口', value: '账号登录' },
+	{ label: '初始化', value: statusText.value },
+]);
 
-const getStartedCards = [
-	{ step: 'Step 01', title: '创建账号', description: '先注册管理员和工作区，准备好租户基础环境。', to: '/signup', linkText: '去注册' },
-	{ step: 'Step 02', title: '初始化系统', description: '如果是全新部署，可先完成系统初始化，再回到认证入口登录。', to: '/installer', linkText: '去初始化' },
-	{ step: 'Step 03', title: '登录控制台', description: '使用管理员入口进入新的工作台首页，查看重点事项、评分和趋势。', to: '/login', linkText: '去登录' },
+const actionCards = [
+	{
+		label: '01',
+		title: '登录',
+		description: '使用已有账号进入控制台。',
+		to: '/login',
+	},
+	{
+		label: '02',
+		title: '注册',
+		description: '创建租户和管理员账号。',
+		to: '/signup',
+	},
+	{
+		label: '03',
+		title: '初始化',
+		description: '首次部署时创建系统管理员。',
+		to: '/installer',
+	},
 ];
 </script>
 
 <style scoped lang="scss">
 .landing-page {
-	height: 100vh;
 	min-height: 100vh;
-	overflow-x: hidden;
-	overflow-y: auto;
-	overscroll-behavior-y: contain;
-	scrollbar-gutter: stable;
-	-webkit-overflow-scrolling: touch;
 	background:
-		radial-gradient(circle at top, rgba(191, 219, 254, 0.5), transparent 26%),
-		linear-gradient(180deg, #f6fbff 0%, #ffffff 38%, #f7fbff 100%);
-	color: #0f172a;
+		linear-gradient(rgba(148, 163, 184, 0.08) 1px, transparent 1px),
+		linear-gradient(90deg, rgba(148, 163, 184, 0.08) 1px, transparent 1px),
+		linear-gradient(180deg, #f6f9fc 0%, #eef4f8 100%);
+	background-size: 44px 44px, 44px 44px, auto;
+	color: #172033;
 }
 
 .landing-header {
 	position: sticky;
 	top: 0;
-	z-index: 20;
+	z-index: 10;
 	display: flex;
 	align-items: center;
 	justify-content: space-between;
 	gap: 20px;
 	padding: 18px 32px;
-	background: rgba(255, 255, 255, 0.88);
-	backdrop-filter: blur(20px);
-	border-bottom: 1px solid rgba(191, 219, 254, 0.42);
+	border-bottom: 1px solid rgba(203, 213, 225, 0.72);
+	background: rgba(255, 255, 255, 0.9);
+	backdrop-filter: blur(16px);
 }
 
-.landing-header__brand {
-	display: inline-flex;
-	align-items: center;
+.landing-header__brand,
+.landing-header__link,
+.landing-header__button,
+.landing-entry__primary,
+.landing-entry__secondary,
+.landing-action {
 	text-decoration: none;
 }
 
-.landing-header__nav,
-.landing-header__actions {
+.landing-header__actions,
+.landing-entry__actions {
 	display: flex;
 	align-items: center;
-	gap: 18px;
+	gap: 12px;
 }
 
-.landing-header__nav a,
-.landing-header__login {
-	color: #325377;
-	text-decoration: none;
+.landing-header__link {
+	color: #475569;
 	font-size: 14px;
 	font-weight: 600;
 }
 
-.landing-header__signup {
+.landing-header__button,
+.landing-entry__primary,
+.landing-entry__secondary {
 	display: inline-flex;
 	align-items: center;
 	justify-content: center;
-	height: 42px;
+	height: 40px;
 	padding: 0 18px;
-	border-radius: 999px;
-	background: linear-gradient(135deg, #1d4ed8 0%, #2563eb 54%, #0ea5e9 100%);
-	color: #fff;
-	text-decoration: none;
+	border-radius: 8px;
 	font-size: 14px;
 	font-weight: 700;
-	box-shadow: 0 14px 30px rgba(37, 99, 235, 0.22);
+}
+
+.landing-header__button,
+.landing-entry__primary {
+	background: #165dff;
+	color: #fff;
+	box-shadow: 0 12px 24px rgba(22, 93, 255, 0.16);
+}
+
+.landing-header__button--plain,
+.landing-entry__secondary {
+	border: 1px solid rgba(148, 163, 184, 0.5);
+	background: #fff;
+	color: #1e3a5f;
+	box-shadow: none;
 }
 
 .landing-main {
-	width: min(1320px, calc(100% - 48px));
+	width: min(1120px, calc(100% - 48px));
 	margin: 0 auto;
-	padding: 36px 0 72px;
+	padding: 64px 0;
 }
 
-.landing-hero {
+.landing-entry {
 	display: grid;
-	grid-template-columns: 1.08fr 0.92fr;
-	gap: 32px;
-	padding: 28px 0 52px;
+	grid-template-columns: minmax(0, 1.2fr) minmax(320px, 0.8fr);
+	gap: 24px;
+	align-items: stretch;
 }
 
-.landing-hero__content {
-	padding-top: 36px;
+.landing-entry__main,
+.landing-status,
+.landing-workbench {
+	border: 1px solid rgba(203, 213, 225, 0.82);
+	border-radius: 12px;
+	background: rgba(255, 255, 255, 0.94);
+	box-shadow: 0 18px 40px rgba(15, 23, 42, 0.07);
 }
 
-.landing-hero__eyebrow,
-.landing-section__eyebrow {
+.landing-entry__main {
+	padding: 40px;
+}
+
+.landing-entry__eyebrow {
 	margin-bottom: 14px;
-	color: #2563eb;
-	font-size: 12px;
+	color: #165dff;
+	font-size: 13px;
 	font-weight: 700;
-	letter-spacing: 0.18em;
-	text-transform: uppercase;
 }
 
-.landing-hero h1 {
+.landing-entry h1 {
 	margin: 0;
-	max-width: 700px;
-	font-size: clamp(48px, 5.4vw, 68px);
-	line-height: 1.04;
-	letter-spacing: -0.055em;
+	font-size: clamp(36px, 5vw, 56px);
+	line-height: 1.08;
+	letter-spacing: 0;
 }
 
-.landing-hero p {
-	max-width: 660px;
-	margin: 20px 0 0;
-	color: #52667d;
-	font-size: 18px;
-	line-height: 1.85;
+.landing-entry p {
+	max-width: 560px;
+	margin: 18px 0 0;
+	color: #64748b;
+	font-size: 16px;
+	line-height: 1.8;
 }
 
-.landing-hero__actions {
-	display: flex;
-	align-items: center;
-	gap: 14px;
+.landing-entry__actions {
 	margin-top: 28px;
 }
 
-.landing-hero__primary,
-.landing-hero__secondary,
-.landing-section__cta {
-	display: inline-flex;
-	align-items: center;
-	justify-content: center;
-	height: 48px;
-	padding: 0 22px;
-	border-radius: 999px;
-	text-decoration: none;
-	font-weight: 700;
+.landing-status {
+	padding: 28px;
 }
 
-.landing-hero__primary,
-.landing-section__cta {
-	background: linear-gradient(135deg, #1d4ed8 0%, #2563eb 54%, #0ea5e9 100%);
-	color: #fff;
-	box-shadow: 0 16px 32px rgba(37, 99, 235, 0.2);
-}
-
-.landing-hero__secondary {
-	border: 1px solid rgba(148, 163, 184, 0.28);
-	background: rgba(255, 255, 255, 0.92);
-	color: #123b6d;
-}
-
-.landing-hero__metrics {
-	display: grid;
-	grid-template-columns: repeat(3, minmax(0, 1fr));
-	gap: 16px;
-	margin-top: 34px;
-}
-
-.landing-metric,
-.landing-feature,
-.landing-floating,
-.preview-kpi,
-.landing-console-card,
-.landing-scenario {
-	border-radius: 28px;
-	border: 1px solid rgba(191, 219, 254, 0.58);
-	background: rgba(255, 255, 255, 0.88);
-	box-shadow: 0 24px 48px rgba(148, 163, 184, 0.12);
-}
-
-.landing-metric {
-	padding: 20px 22px;
-}
-
-.landing-metric strong {
-	display: block;
-	font-size: 18px;
-}
-
-.landing-metric span {
-	display: block;
-	margin-top: 8px;
-	color: #64748b;
-	font-size: 13px;
-}
-
-.landing-hero__visual {
-	position: relative;
-	display: grid;
-	grid-template-columns: minmax(190px, 220px) minmax(0, 1fr);
-	grid-template-areas:
-		'secondary primary'
-		'console console';
-	align-items: start;
-	gap: 26px 26px;
-	min-height: 0;
-	padding: 18px 6px 0 10px;
-}
-
-.landing-floating {
-	position: relative;
-	width: 100%;
-	padding: 22px 24px;
-
-	label {
-		color: #64748b;
-		font-size: 13px;
-	}
-
-	strong {
-		display: block;
-		margin-top: 10px;
-		font-size: 36px;
-		font-weight: 800;
-		letter-spacing: -0.05em;
-	}
-
-	p {
-		margin-top: 8px;
-		font-size: 13px;
-		color: #52667d;
-	}
-}
-
-.landing-floating--primary {
-	grid-area: primary;
-	justify-self: end;
-	align-self: start;
-	width: min(100%, 260px);
-	background: linear-gradient(135deg, rgba(29, 78, 216, 0.08), rgba(96, 165, 250, 0.12));
-}
-
-.landing-floating--secondary {
-	grid-area: secondary;
-	align-self: end;
-	width: min(100%, 232px);
-	margin-top: 92px;
-	background: linear-gradient(135deg, rgba(14, 165, 233, 0.08), rgba(59, 130, 246, 0.12));
-}
-
-.landing-console-card {
-	grid-area: console;
-	position: relative;
-	justify-self: end;
-	width: min(100%, 510px);
-	margin-top: 6px;
-	padding: 18px;
-	background: linear-gradient(180deg, rgba(255, 255, 255, 0.96), rgba(239, 248, 255, 0.96));
-}
-
-.landing-console-card__top {
-	display: flex;
-	align-items: center;
-	gap: 8px;
-	padding-bottom: 16px;
-
-	span {
-		width: 10px;
-		height: 10px;
-		border-radius: 50%;
-		background: #bfdbfe;
-	}
-}
-
-.landing-console-card__body {
-	display: grid;
-	grid-template-columns: 1.1fr 0.9fr;
-	gap: 16px;
-}
-
-.landing-console-card__left,
-.landing-console-card__right {
-	padding: 22px;
-	border-radius: 24px;
-	background: rgba(255, 255, 255, 0.92);
-	border: 1px solid rgba(219, 234, 254, 0.9);
-}
-
-.landing-console-card__title,
-.landing-console-card__hint {
-	color: #334155;
-	font-size: 14px;
-	font-weight: 700;
-}
-
-.landing-console-bars {
-	display: flex;
-	align-items: flex-end;
-	gap: 10px;
-	height: 168px;
-	margin-top: 20px;
-
-	span {
-		flex: 1;
-		border-radius: 999px 999px 16px 16px;
-		background: linear-gradient(180deg, #60a5fa, #2563eb);
-	}
-}
-
-.landing-console-ring {
-	display: grid;
-	place-items: center;
-	width: 172px;
-	height: 172px;
-	margin: 0 auto;
-	border-radius: 50%;
-	background: conic-gradient(#2563eb 0 89%, rgba(191, 219, 254, 0.4) 89% 100%);
-}
-
-.landing-console-ring__inner {
-	display: grid;
-	place-items: center;
-	width: 112px;
-	height: 112px;
-	border-radius: 50%;
-	background: #fff;
-	font-size: 24px;
-	font-weight: 800;
-}
-
-.landing-console-card__hint {
-	margin-top: 18px;
-	text-align: center;
-}
-
-.landing-section {
-	padding: 56px 0 0;
-}
-
-.landing-section__header {
-	display: flex;
-	align-items: end;
-	justify-content: space-between;
-	gap: 20px;
-	margin-bottom: 24px;
-}
-
-.landing-section__header h2 {
-	margin: 0;
-	max-width: 780px;
-	font-size: clamp(32px, 3.7vw, 44px);
-	line-height: 1.1;
-	letter-spacing: -0.05em;
-}
-
-.landing-section__header p {
-	max-width: 420px;
-	color: #64748b;
-	line-height: 1.8;
-}
-
-.landing-grid,
-.landing-scenarios {
-	display: grid;
-	grid-template-columns: repeat(4, minmax(0, 1fr));
-	gap: 18px;
-}
-
-.landing-scenarios {
-	grid-template-columns: repeat(3, minmax(0, 1fr));
-}
-
-.landing-feature,
-.landing-scenario {
-	padding: 24px;
-}
-
-.landing-feature__icon {
-	display: inline-flex;
-	align-items: center;
-	justify-content: center;
-	width: 42px;
-	height: 42px;
-	border-radius: 14px;
-	background: linear-gradient(135deg, rgba(37, 99, 235, 0.12), rgba(14, 165, 233, 0.14));
-	color: #2563eb;
-	font-size: 14px;
-	font-weight: 800;
-}
-
-.landing-feature h3,
-.landing-scenario h3 {
-	margin: 16px 0 10px;
-	font-size: 20px;
-}
-
-.landing-feature p,
-.landing-scenario p {
-	margin: 0;
-	color: #64748b;
-	line-height: 1.8;
-}
-
-.landing-console-preview {
-	display: grid;
-	grid-template-columns: 260px 1fr;
-	border-radius: 34px;
-	border: 1px solid rgba(191, 219, 254, 0.6);
-	background: rgba(255, 255, 255, 0.9);
-	box-shadow: 0 24px 54px rgba(15, 23, 42, 0.08);
-	overflow: hidden;
-}
-
-.landing-console-preview__sidebar {
-	padding: 24px 18px;
-	background: linear-gradient(180deg, #ffffff, #f7fbff);
-	border-right: 1px solid rgba(226, 232, 240, 0.82);
-}
-
-.landing-console-preview__brand {
-	padding-bottom: 20px;
-}
-
-.landing-console-preview__menu {
-	display: flex;
-	flex-direction: column;
-	gap: 10px;
-
-	span {
-		padding: 14px 16px;
-		border-radius: 18px;
-		color: #475569;
-		font-weight: 600;
-	}
-
-	.is-active {
-		background: linear-gradient(135deg, rgba(14, 165, 233, 0.12), rgba(37, 99, 235, 0.08));
-		color: #0369a1;
-	}
-}
-
-.landing-console-preview__content {
-	padding: 24px;
-	background: linear-gradient(180deg, #eff8ff 0%, #ffffff 44%);
-}
-
-.landing-console-preview__topbar {
-	display: flex;
-	align-items: center;
-	justify-content: space-between;
-	gap: 20px;
-	padding-bottom: 22px;
-
-	h3 {
-		margin: 0;
-		font-size: 24px;
-	}
-
-	p {
-		margin: 6px 0 0;
-		color: #64748b;
-	}
-}
-
-.landing-console-preview__chips {
-	display: flex;
-	gap: 10px;
-
-	span {
-		padding: 10px 14px;
-		border-radius: 999px;
-		background: rgba(255, 255, 255, 0.96);
-		border: 1px solid rgba(191, 219, 254, 0.6);
-		font-size: 13px;
-		font-weight: 700;
-	}
-}
-
-.landing-console-preview__cards {
-	display: grid;
-	grid-template-columns: repeat(2, minmax(0, 1fr));
-	gap: 16px;
-}
-
-.preview-kpi {
-	padding: 20px 22px;
-}
-
-.preview-kpi label {
-	color: #64748b;
-	font-size: 13px;
-}
-
-.preview-kpi strong {
-	display: block;
-	margin-top: 10px;
-	font-size: 32px;
-	letter-spacing: -0.05em;
-}
-
-.preview-kpi p {
-	margin: 8px 0 0;
-	color: #64748b;
-	font-size: 13px;
-}
-
-.landing-start-grid {
-	display: grid;
-	grid-template-columns: repeat(3, minmax(0, 1fr));
-	gap: 18px;
-}
-
-.landing-start-card {
-	display: flex;
-	flex-direction: column;
-	gap: 14px;
-	padding: 24px;
-	border-radius: 28px;
-	border: 1px solid rgba(191, 219, 254, 0.58);
-	background:
-		radial-gradient(circle at top right, rgba(191, 219, 254, 0.22), transparent 34%),
-		rgba(255, 255, 255, 0.9);
-	box-shadow: 0 24px 48px rgba(148, 163, 184, 0.12);
-	color: inherit;
-	text-decoration: none;
-	transition:
-		transform 0.2s ease,
-		box-shadow 0.2s ease,
-		border-color 0.2s ease;
-}
-
-.landing-start-card:hover {
-	transform: translateY(-3px);
-	border-color: rgba(37, 99, 235, 0.28);
-	box-shadow: 0 28px 54px rgba(37, 99, 235, 0.12);
-}
-
-.landing-start-card__head {
+.landing-status__head {
 	display: flex;
 	align-items: center;
 	justify-content: space-between;
 	gap: 12px;
+	padding-bottom: 18px;
+	border-bottom: 1px solid rgba(226, 232, 240, 0.9);
 }
 
-.landing-start-card__badge,
-.landing-start-card__link {
+.landing-status__head span,
+.landing-status__item span {
+	color: #64748b;
+	font-size: 13px;
+}
+
+.landing-status__head strong {
 	display: inline-flex;
 	align-items: center;
 	min-height: 30px;
 	padding: 0 12px;
 	border-radius: 999px;
-	font-size: 12px;
-	font-weight: 700;
-	white-space: nowrap;
+	background: rgba(245, 158, 11, 0.12);
+	color: #b45309;
+	font-size: 13px;
 }
 
-.landing-start-card__badge {
-	background: rgba(37, 99, 235, 0.08);
-	color: #2563eb;
+.landing-status__head strong.is-ready {
+	background: rgba(22, 163, 74, 0.1);
+	color: #15803d;
 }
 
-.landing-start-card__link {
-	background: rgba(255, 255, 255, 0.96);
-	border: 1px solid rgba(191, 219, 254, 0.62);
-	color: #123b6d;
+.landing-status__grid {
+	display: grid;
+	gap: 12px;
+	margin-top: 18px;
 }
 
-.landing-start-card h3 {
+.landing-status__item {
+	padding: 16px;
+	border: 1px solid rgba(226, 232, 240, 0.9);
+	border-radius: 10px;
+	background: #f8fafc;
+}
+
+.landing-status__item strong {
+	display: block;
+	margin-top: 8px;
+	color: #172033;
+	font-size: 18px;
+}
+
+.landing-workbench {
+	margin-top: 24px;
+	padding: 28px;
+}
+
+.landing-workbench__header {
+	display: flex;
+	align-items: flex-end;
+	justify-content: space-between;
+	gap: 18px;
+	margin-bottom: 18px;
+}
+
+.landing-workbench h2 {
 	margin: 0;
 	font-size: 24px;
-	letter-spacing: -0.04em;
+	letter-spacing: 0;
 }
 
-.landing-start-card p {
+.landing-workbench__header p {
+	max-width: 420px;
 	margin: 0;
 	color: #64748b;
-	line-height: 1.8;
+	line-height: 1.7;
 }
 
-@media (max-width: 1100px) {
-	.landing-header {
-		flex-wrap: wrap;
-	}
+.landing-workbench__grid {
+	display: grid;
+	grid-template-columns: repeat(3, minmax(0, 1fr));
+	gap: 14px;
+}
 
-	.landing-hero,
-	.landing-console-preview {
+.landing-action {
+	display: block;
+	padding: 20px;
+	border: 1px solid rgba(226, 232, 240, 0.94);
+	border-radius: 10px;
+	background: #fff;
+	color: inherit;
+	transition:
+		border-color 0.18s ease,
+		box-shadow 0.18s ease,
+		transform 0.18s ease;
+}
+
+.landing-action:hover {
+	border-color: rgba(22, 93, 255, 0.36);
+	box-shadow: 0 14px 30px rgba(15, 23, 42, 0.08);
+	transform: translateY(-2px);
+}
+
+.landing-action span {
+	color: #165dff;
+	font-size: 13px;
+	font-weight: 800;
+}
+
+.landing-action strong {
+	display: block;
+	margin-top: 14px;
+	font-size: 20px;
+}
+
+.landing-action p {
+	margin: 8px 0 0;
+	color: #64748b;
+	line-height: 1.7;
+}
+
+@media (max-width: 900px) {
+	.landing-entry,
+	.landing-workbench__grid {
 		grid-template-columns: 1fr;
 	}
 
-	.landing-grid {
-		grid-template-columns: repeat(2, minmax(0, 1fr));
+	.landing-workbench__header {
+		display: block;
 	}
 
-	.landing-scenarios {
-		grid-template-columns: 1fr;
-	}
-
-	.landing-start-grid {
-		grid-template-columns: 1fr;
-	}
-
-	.landing-hero__visual {
-		grid-template-columns: 1fr;
-		grid-template-areas:
-			'primary'
-			'secondary'
-			'console';
-		gap: 18px;
-		padding: 0;
-	}
-
-	.landing-floating--primary,
-	.landing-floating--secondary,
-	.landing-console-card {
-		width: 100%;
-		margin-top: 0;
-		justify-self: stretch;
+	.landing-workbench__header p {
+		margin-top: 10px;
 	}
 }
 
-@media (max-width: 767px) {
+@media (max-width: 640px) {
 	.landing-header {
+		align-items: flex-start;
+		flex-direction: column;
 		padding: 16px 18px;
 	}
 
-	.landing-header__nav {
-		display: none;
+	.landing-header__actions,
+	.landing-entry__actions {
+		width: 100%;
+		flex-wrap: wrap;
+	}
+
+	.landing-header__button,
+	.landing-entry__primary,
+	.landing-entry__secondary {
+		flex: 1;
 	}
 
 	.landing-main {
 		width: min(100%, calc(100% - 28px));
-		padding-top: 18px;
+		padding: 28px 0;
 	}
 
-	.landing-hero h1 {
-		font-size: clamp(34px, 10vw, 48px);
-		line-height: 1.06;
-	}
-
-	.landing-section__header h2 {
-		font-size: clamp(28px, 8vw, 36px);
-		line-height: 1.12;
-	}
-
-	.landing-hero__metrics,
-	.landing-grid,
-	.landing-start-grid,
-	.landing-console-preview__cards,
-	.landing-console-card__body {
-		grid-template-columns: 1fr;
-	}
-
-	.landing-section__header,
-	.landing-console-preview__topbar,
-	.landing-header__actions {
-		flex-direction: column;
-		align-items: flex-start;
-	}
-
-	.landing-hero__actions {
-		flex-direction: column;
-		align-items: stretch;
-	}
-
-	.landing-hero__primary,
-	.landing-hero__secondary,
-	.landing-section__cta {
-		width: 100%;
+	.landing-entry__main,
+	.landing-status,
+	.landing-workbench {
+		padding: 22px;
 	}
 }
 </style>

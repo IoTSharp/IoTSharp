@@ -3,11 +3,11 @@
 		<div class="auth-page__aurora"></div>
 		<div class="auth-shell">
 			<AuthShowcase
-				eyebrow="IoTSharp Console"
+				eyebrow="控制台入口"
 				:title="pageTitle"
 				:description="showcaseDescription"
 				link-to="/"
-				link-label="返回首页"
+				link-label="返回入口"
 				:primary-card="showcasePrimaryCard"
 				:metrics="showcaseMetrics"
 				:tags="showcaseTags"
@@ -15,9 +15,9 @@
 
 			<section class="auth-panel">
 				<div class="auth-panel__header">
-					<div class="auth-panel__eyebrow">Secure Sign In</div>
+					<div class="auth-panel__eyebrow">Sign In</div>
 					<h2>登录到 {{ pageTitle }}</h2>
-					<p>使用管理员账号进入控制台。登录后会直接进入新的工作台布局，先看结论，再看指标和建议。</p>
+					<p>输入账号和密码，完成验证码后进入控制台。</p>
 				</div>
 
 				<div class="auth-panel__highlights">
@@ -52,42 +52,42 @@ const { themeConfig } = storeToRefs(storesThemeConfig);
 
 const pageTitle = computed(() => themeConfig.value.globalTitle || 'IoTSharp');
 const currentYear = new Date().getFullYear();
-const showcaseDescription = '统一管理设备接入、消息总线、规则引擎和平台健康。未登录时先看清入口和能力，登录后再进入新的控制台工作区。';
+const showcaseDescription = '用于管理员、租户和运维人员进入 IoTSharp 控制台。';
 
 const showcasePrimaryCard = {
-	label: 'Console Access',
-	value: 'Admin',
-	title: '用管理员入口进入工作台',
-	description: '完成密码输入和滑块拼图校验后，系统会自动跳转到新的控制台首页。',
+	label: '当前入口',
+	value: '控制台',
+	title: '账号登录',
+	description: '认证成功后按账号权限进入对应工作区。',
 };
 
 const showcaseMetrics = [
 	{
-		label: '平台入口',
-		value: 'Dashboard',
-		description: '登录后先查看平台评分、重点事项和实时状态。',
+		label: '账号类型',
+		value: '管理员',
+		description: '支持管理员和授权用户登录。',
 		tone: 'primary' as const,
 	},
 	{
-		label: '接入能力',
-		value: 'MQTT / HTTP',
-		description: '设备、网关与第三方系统接入统一管理。',
+		label: '校验方式',
+		value: '验证码',
+		description: '提交前需要完成一次交互校验。',
 		tone: 'accent' as const,
 	},
 	{
-		label: '运维方式',
-		value: 'Rules + Health',
-		description: '规则编排、消息链路和平台健康一起监控。',
+		label: '登录结果',
+		value: '按权限进入',
+		description: '菜单和数据范围由当前账号权限决定。',
 		tone: 'success' as const,
 	},
 ];
 
-const showcaseTags = ['设备接入', '规则编排', '消息链路', '可观测运维'];
+const showcaseTags = ['认证', '权限', '审计', '工作区'];
 
 const panelHighlights = [
-	{ label: '登录方式', value: '管理员账号', hint: '默认用户名已预填，方便初始化后直接进入。' },
-	{ label: '安全校验', value: '滑块拼图', hint: '登录前完成一次拼图验证，防止批量撞库。' },
-	{ label: '进入后', value: '工作台首页', hint: '先看重点事项，再看平台评分与趋势面板。' },
+	{ label: '登录方式', value: '账号密码', hint: '使用已分配的控制台账号。' },
+	{ label: '安全校验', value: '滑块拼图', hint: '提交前完成验证码校验。' },
+	{ label: '进入后', value: '控制台', hint: '按权限加载菜单和数据。' },
 ];
 
 onMounted(() => {

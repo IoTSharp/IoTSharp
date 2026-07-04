@@ -3,11 +3,11 @@
 		<div class="installer-page__glow"></div>
 		<div class="installer-shell">
 			<AuthShowcase
-				eyebrow="Initialize Workspace"
+				eyebrow="系统初始化"
 				:title="showcaseTitle"
 				:description="showcaseDescription"
 				link-to="/"
-				link-label="返回首页"
+				link-label="返回入口"
 				:primary-card="showcasePrimaryCard"
 				:metrics="showcaseMetrics"
 				:tags="showcaseTags"
@@ -20,8 +20,8 @@
 					<p>
 						{{
 							isInstalled
-								? '当前实例已经完成首次初始化，你可以直接进入登录页面继续使用新的控制台工作台。'
-								: '填写管理员账号、邮箱与密码，完成 IoTSharp 的首次初始化，让登录入口、控制台与设备管理流程保持一致。'
+								? '当前实例已经完成首次初始化，可以直接进入登录页。'
+								: '填写管理员账号、邮箱与密码，完成 IoTSharp 的首次初始化。'
 						}}
 					</p>
 				</div>
@@ -38,7 +38,7 @@
 					<div class="installer-status__head">
 						<div>
 							<div class="installer-status__title">IoTSharp 已完成安装</div>
-							<p>基础配置、管理员入口与控制台访问路径已经就绪，现在可以直接进入登录页。</p>
+							<p>基础配置和管理员账号已经就绪。</p>
 						</div>
 						<span class="installer-status__badge">Ready</span>
 					</div>
@@ -66,7 +66,7 @@
 					<div class="installer-form-card__tip">
 						<div class="installer-form-card__tip-title">首次部署</div>
 						<div class="installer-form-card__tip-text">
-							安装完成后，使用这里配置的管理员账号登录控制台；如果你已经注册过租户，可继续沿用同一套蓝白工作台体验。
+							安装完成后，使用这里配置的管理员账号登录控制台。
 						</div>
 					</div>
 
@@ -124,50 +124,50 @@ const currentYear = new Date().getFullYear();
 const isInstalled = computed(() => Boolean(storesAppInfo.appInfo.installed));
 const versionText = computed(() => storesAppInfo.appInfo.version || 'Latest');
 const showcaseTitle = computed(() =>
-	isInstalled.value ? `${pageTitle.value} 已完成初始化` : `完成 ${pageTitle.value} 首次初始化`
+	isInstalled.value ? `${pageTitle.value} 已完成初始化` : `初始化 ${pageTitle.value}`
 );
 const showcaseDescription = computed(() =>
 	isInstalled.value
-		? '初始化已经完成，平台入口、管理员账号与控制台访问路径都已就绪。你可以从这里直接返回登录页，进入新的工作台布局。'
-		: '把首次安装流程放进统一的未登录体验里，先完成管理员初始化，再进入登录入口和控制台，保持产品入口、认证与后台风格一致。'
+		? '基础配置已经写入，可以返回登录页继续操作。'
+		: '首次运行前需要创建系统管理员并写入基础配置。'
 );
 
 const showcasePrimaryCard = computed(() => ({
-	label: 'Bootstrap',
-	value: isInstalled.value ? 'Ready' : '1 Form',
-	title: isInstalled.value ? '当前实例已经可以直接进入登录流程' : '一次初始化完成管理员入口与平台基础配置',
+	label: '初始化状态',
+	value: isInstalled.value ? 'Ready' : 'Pending',
+	title: isInstalled.value ? '当前实例可登录' : '创建系统管理员',
 	description: isInstalled.value
-		? '系统已经写入基础配置，可直接登录查看新的控制台工作台、设备接入与平台概览。'
-		: '填写管理员信息后，系统会完成首次部署所需的基础数据初始化，减少第一次进入后台前的额外配置。',
+		? '系统已经写入基础配置，可直接进入登录页。'
+		: '填写管理员信息后，系统会完成首次部署所需的基础数据初始化。',
 }));
 
 const showcaseMetrics = computed(() => [
 	{
 		label: '初始化状态',
 		value: isInstalled.value ? 'Completed' : 'Pending',
-		description: isInstalled.value ? '当前实例已完成首次部署，可直接进入登录页。' : '安装完成后会自动转入控制台登录入口。',
+		description: isInstalled.value ? '当前实例已完成首次部署。' : '安装完成后会自动转入登录页。',
 		tone: 'primary' as const,
 	},
 	{
 		label: '管理员入口',
 		value: 'Admin',
-		description: '首次安装创建的管理员账号，将用于后续登录控制台与系统配置。',
+		description: '首次安装创建的账号用于后续系统配置。',
 		tone: 'accent' as const,
 	},
 	{
 		label: '当前版本',
 		value: versionText.value,
-		description: '安装页会同步显示当前实例版本，便于核对部署状态。',
+		description: '用于核对当前部署状态。',
 		tone: 'success' as const,
 	},
 ]);
 
-const showcaseTags = ['首次初始化', '管理员入口', '统一认证体验', '控制台工作台'];
+const showcaseTags = ['首次初始化', '管理员', '版本', '登录'];
 
 const setupSteps = [
 	{ label: '01', title: '配置管理员账号', description: '设置用于登录控制台的管理员邮箱、账号与密码。' },
-	{ label: '02', title: '完成系统初始化', description: '提交后自动写入基础配置，准备好平台入口与工作台。' },
-	{ label: '03', title: '进入控制台', description: '安装完成后直接跳转登录页，继续进入新的后台布局。' },
+	{ label: '02', title: '完成系统初始化', description: '提交后写入首次运行所需的基础配置。' },
+	{ label: '03', title: '进入登录页', description: '安装完成后使用管理员账号登录。' },
 ];
 
 const rules = ref(JSON.parse(JSON.stringify(installerFormRule)));

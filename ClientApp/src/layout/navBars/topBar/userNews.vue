@@ -26,13 +26,13 @@ import { reactive } from 'vue';
 const state = reactive({
 	newsList: [
 		{
-			label: '关于品牌更新的通知',
-			value: '控制台中的模板品牌文案已统一替换为 IoTSharp，当前界面展示与产品名称保持一致。',
+			label: '登录入口已调整',
+			value: '未登录页面已简化为登录、注册和初始化入口。',
 			time: '2026-03-20',
 		},
 		{
-			label: '关于平台能力的通知',
-			value: 'IoTSharp 提供设备接入、遥测处理、规则引擎和平台健康检查等一体化能力。',
+			label: '控制台提示',
+			value: '请根据账号权限进入对应菜单处理设备、规则和系统配置。',
 			time: '2026-03-20',
 		},
 	],

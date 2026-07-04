@@ -3,9 +3,9 @@
 		<div class="signup-page__glow"></div>
 		<div class="signup-shell">
 			<AuthShowcase
-				eyebrow="Create Workspace"
-				title="创建你的 IoTSharp 工作空间"
-				description="注册完成后即可获得租户、管理员账号与默认工作区，用于管理设备接入、业务规则和平台运营。"
+				eyebrow="账号注册"
+				title="创建 IoTSharp 账号"
+				description="填写租户和管理员信息，注册完成后返回登录页。"
 				link-to="/login"
 				link-label="已有账号？去登录"
 				:primary-card="showcasePrimaryCard"
@@ -15,9 +15,9 @@
 
 			<section class="signup-panel">
 				<div class="signup-panel__header">
-					<div class="signup-panel__eyebrow">Sign Up</div>
+					<div class="signup-panel__eyebrow">Register</div>
 					<h2>注册账号</h2>
-					<p>填写管理员、租户和联系信息。注册成功后会自动跳转到登录页，进入新的控制台工作台。</p>
+					<p>填写必要信息后提交。注册成功会自动跳转到登录页。</p>
 				</div>
 
 				<div class="signup-panel__steps">
@@ -58,39 +58,39 @@ const fApi: Ref<Api | null> = ref(null);
 const FormCreate = formCreate.$form();
 
 const showcasePrimaryCard = {
-	label: 'Workspace Setup',
-	value: 'Tenant + Admin',
-	title: '一次注册完成基础工作区初始化',
-	description: '创建租户、管理员与默认工作区，为后续设备接入和规则配置准备好基础环境。',
+	label: '注册内容',
+	value: '租户 + 管理员',
+	title: '创建管理空间',
+	description: '系统会保存租户资料，并创建对应的管理员账号。',
 };
 
 const showcaseMetrics = [
 	{
-		label: '接入方式',
-		value: 'MQTT / HTTP',
-		description: '后续可继续接入设备、网关和第三方系统。',
+		label: '需要填写',
+		value: '4 组信息',
+		description: '账号、密码、租户和联系方式。',
 		tone: 'accent' as const,
 	},
 	{
-		label: '租户模型',
-		value: 'Workspace',
-		description: '通过注册流程直接创建独立的管理空间。',
+		label: '隔离范围',
+		value: '租户',
+		description: '数据和权限按租户边界管理。',
 		tone: 'primary' as const,
 	},
 	{
-		label: '控制台',
-		value: 'Blue UI',
-		description: '注册完成后进入统一的蓝白控制台体验。',
+		label: '下一步',
+		value: '登录',
+		description: '注册成功后使用管理员账号登录。',
 		tone: 'success' as const,
 	},
 ];
 
-const showcaseTags = ['租户初始化', '管理员账号', '控制台工作台', '设备运营'];
+const showcaseTags = ['租户', '管理员', '联系信息', '密码'];
 
 const setupSteps = [
-	{ label: '01', title: '填写租户信息', description: '先确定管理员和租户基础资料，方便后续隔离管理。' },
-	{ label: '02', title: '设置登录密码', description: '注册时完成密码配置，成功后即可直接去登录页验证。' },
-	{ label: '03', title: '进入控制台', description: '登录后先查看工作台首页，再继续设备接入和规则编排。' },
+	{ label: '01', title: '填写资料', description: '录入管理员、租户和邮箱信息。' },
+	{ label: '02', title: '设置密码', description: '确认两次密码输入一致。' },
+	{ label: '03', title: '返回登录', description: '注册成功后使用新账号登录。' },
 ];
 
 const validatePassCheck = (rule: any, value: any, callback: any) => {

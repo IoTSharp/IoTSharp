@@ -73,11 +73,13 @@ defineProps<{
 	display: flex;
 	flex-direction: column;
 	justify-content: space-between;
-	gap: 28px;
-	padding: 36px 40px;
+	gap: 22px;
+	padding: 32px 36px;
 	background:
-		radial-gradient(circle at top right, rgba(96, 165, 250, 0.22), transparent 26%),
-		linear-gradient(160deg, #0f3463 0%, #13457a 46%, #155a93 100%);
+		linear-gradient(rgba(191, 219, 254, 0.08) 1px, transparent 1px),
+		linear-gradient(90deg, rgba(191, 219, 254, 0.08) 1px, transparent 1px),
+		linear-gradient(160deg, #0f2f56 0%, #123f68 52%, #164c76 100%);
+	background-size: 44px 44px, 44px 44px, auto;
 	color: #eff6ff;
 
 	:deep(.app-logo) {
@@ -121,24 +123,24 @@ defineProps<{
 }
 
 .auth-showcase__body h1 {
-	margin: 0 0 18px;
-	font-size: clamp(38px, 5vw, 56px);
-	line-height: 1;
-	letter-spacing: -0.05em;
+	margin: 0 0 14px;
+	font-size: clamp(30px, 3.8vw, 42px);
+	line-height: 1.12;
+	letter-spacing: 0;
 }
 
 .auth-showcase__body p {
 	margin: 0;
 	color: rgba(226, 232, 240, 0.88);
-	font-size: 16px;
-	line-height: 1.9;
+	font-size: 14px;
+	line-height: 1.8;
 }
 
 .auth-showcase__focus {
-	padding: 20px 22px;
-	border-radius: 28px;
+	padding: 18px 20px;
+	border-radius: 18px;
 	border: 1px solid rgba(255, 255, 255, 0.12);
-	background: rgba(255, 255, 255, 0.08);
+	background: rgba(255, 255, 255, 0.07);
 	box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08);
 }
 
@@ -159,9 +161,9 @@ defineProps<{
 .auth-showcase__focus strong {
 	display: block;
 	margin-top: 14px;
-	font-size: 24px;
+	font-size: 20px;
 	font-weight: 800;
-	letter-spacing: -0.05em;
+	letter-spacing: 0;
 }
 
 .auth-showcase__focus p {
@@ -178,8 +180,8 @@ defineProps<{
 }
 
 .auth-stat-card {
-	padding: 18px;
-	border-radius: 22px;
+	padding: 16px;
+	border-radius: 16px;
 	border: 1px solid rgba(255, 255, 255, 0.08);
 	background: rgba(255, 255, 255, 0.08);
 }
@@ -190,10 +192,10 @@ defineProps<{
 }
 
 .auth-stat-card__value {
-	margin-top: 12px;
-	font-size: 26px;
+	margin-top: 10px;
+	font-size: 20px;
 	font-weight: 700;
-	letter-spacing: -0.04em;
+	letter-spacing: 0;
 }
 
 .auth-stat-card p {
