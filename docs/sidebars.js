@@ -11,6 +11,11 @@ const sidebars = {
     },
     {
       type: 'category',
+      label: '架构设计',
+      items: ['architecture/domain-model-realignment', 'architecture/edge-query-v1'],
+    },
+    {
+      type: 'category',
       label: '快速开始',
       items: [
         'getting-started/installation-options',

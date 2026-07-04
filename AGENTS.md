@@ -14,11 +14,26 @@ All planning and implementation should support that direction.
 
 ## Current Priority Order
 
-1. Build the edge and collection management foundation
-2. Standardize collection modeling
-3. Introduce release center for OTA, software updates, and configuration rollout
-4. Upgrade rule-chain usability and observability without turning it into a long-running workflow engine
-5. Align repository boundaries and contracts across organization projects
+1. Complete domain concept realignment before broad feature expansion
+2. Build the edge and collection management foundation
+3. Standardize collection modeling
+4. Introduce release center for OTA, software updates, and configuration rollout
+5. Upgrade rule-chain usability and observability without turning it into a long-running workflow engine
+6. Align repository boundaries and contracts across organization projects
+
+## Current Concept Realignment
+
+The next wave of work must first make the domain language consistent.
+
+- Product is the capability template.
+- Device is the runtime instance.
+- Asset is the managed business object.
+- Gateway is the southbound protocol and child-device access runtime.
+- EdgeNode is the managed edge runtime responsible for registration, heartbeat, capability reporting, task receipt and diagnostics.
+- Collection templates define protocol, connection, point, transform, mapping and sampling behavior.
+- Release tasks, configuration rollout, OTA and long-running operations must not be hidden inside the real-time rule-chain model.
+
+Existing `Produce` code and API surfaces are compatibility implementation details. New documentation, UI text, DTOs and contracts should use Product language unless preserving an existing public API.
 
 ## AI Workbench Direction
 
@@ -63,9 +78,98 @@ Rules:
 - introduce versioned contracts before introducing cross-repository features
 - maintain compatibility matrices for platform, Gateway, SDKs, and related agents
 
+## Core Domain Concept Definitions
+
+IoTSharp uses Product, Device, Asset, Gateway, EdgeNode and Collection Template as separate core concepts. Contributors and automation must preserve these boundaries when designing models, APIs, UI, rules, release flows, and AI workbench capabilities.
+
+### Product
+
+Product defines the type and capability model for a class of devices or collection objects.
+
+It should be used for:
+- protocol and connection templates
+- telemetry, attribute, command, event, and configuration definitions
+- point templates, transform hints, and sample policies
+- default credential policy, default rule chain, alarm templates, software and firmware compatibility
+- model-level defaults shared by many device instances
+
+Product should not represent a physical installation, business site, production line, runtime connection, device state, telemetry latest value, alarm instance, command execution record, or individual runtime instance.
+
+### Device
+
+Device represents a real access instance connected to IoTSharp or reported through Gateway.
+
+It should be used for:
+- identity, credentials, and access lifecycle
+- connectivity, heartbeat, runtime status, and telemetry
+- attributes, commands, events, and real-time rule inputs
+- binding to a Product for capability interpretation
+- binding to an Asset when the device serves a business object
+- binding to a Gateway or EdgeNode when the device is collected through a managed runtime
+
+Device should not be used as a broad business hierarchy, site tree, or release scope substitute when the real target is an Asset or EdgeNode.
+
+### Asset
+
+Asset represents a managed business object in the user's operational world.
+
+It should be used for:
+- sites, parks, buildings, floors, rooms, workshops, production lines, stations, facilities, equipment systems, and other field objects
+- business ownership, spatial hierarchy, operational responsibility, alarm context, dashboard context, and permission scope
+- linking one or more Devices to the business object they observe or control
+- addressing configuration, release, diagnosis, and operational views by business scope when appropriate
+
+Asset is not a synonym for Device, Product, or DeviceGroup. Asset also does not mean static project resources such as images, fonts, CSS, or bundled frontend files; those resources should use names such as `static`, `public`, `media`, `wwwroot`, or framework-specific asset folders outside the domain model.
+
+### Gateway
+
+Gateway is a special Device that owns southbound protocol access and child-device reporting.
+
+It should be used for:
+- protocol adapter execution
+- child device discovery, creation and connectivity reporting
+- uploading child-device telemetry, attributes, events and alarms
+- receiving collection configuration, software tasks and diagnostics tasks
+- reporting runtime capability, task receipt, task result and errors
+
+Gateway should not store platform-side Product templates, bypass tenant permission checks, or depend on hidden IoTSharp database assumptions.
+
+### EdgeNode
+
+EdgeNode is a managed edge runtime instance.
+
+It should be used for:
+- registration, heartbeat, version, instance identity and health state
+- capability reporting and runtime diagnostics
+- receiving configuration, software, firmware and diagnostic tasks
+- reporting task receipt, execution, completion, failure, timeout and rollback result
+
+Gateway and EdgeNode may be deployed together, but Gateway describes protocol and child-device access while EdgeNode describes managed runtime lifecycle and task closure.
+
+### Collection Template
+
+Collection Template is the platform-side definition of collection behavior.
+
+It should be used for:
+- protocol templates
+- connection templates
+- point templates
+- transform chains
+- sampling policies
+- mapping policies to telemetry, attributes, alarms or command feedback
+
+Collection Template should belong to Product or a reusable template library, while runtime task delivery should target EdgeNode, Gateway or selected Devices.
+
 ## Planning Rules
 
 When adding or reviewing work, prioritize the following outcomes:
+
+### Phase 0: domain concept realignment
+Deliver:
+- Product, Device, Asset, Gateway, EdgeNode and Collection Template boundaries
+- Product language for new UI, DTOs and docs while preserving old `Produce` compatibility
+- Device workspace focused on runtime state, credentials, telemetry, commands, alarms and relations
+- Product workspace focused on capability templates, point definitions, credential policy and default behavior
 
 ### Phase 1: edge foundation
 Deliver:
@@ -104,6 +208,9 @@ Deliver:
 - Do not propose a full rewrite.
 - Preserve existing access, product, asset, and FlowRule investments.
 - Use layered upgrades.
+- Do not mix Product template responsibilities into Device runtime code.
+- Do not use Device as a business hierarchy, release scope substitute, or asset tree.
+- Do not hide Gateway or EdgeNode contracts behind internal database assumptions.
 - Keep real-time processing and long-running operations separated.
 - Prefer explicit domain models over script-only behavior.
 - Expose IoTSharp capabilities to AI through authorized skills and MCP tools, not direct database access.
