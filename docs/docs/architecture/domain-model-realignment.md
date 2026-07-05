@@ -216,7 +216,7 @@ Tomur 在这个体系里的角色是模型算力 Provider：
 ### 合并
 
 - `DeviceModel` 合并到 Product 的能力、命令和配置定义。
-- Product 上的旧 Gateway 配置合并到 Collection Template。
+- Product 上的旧 Gateway 配置合并到 Collection Template；迁移映射、干跑、人工确认和关闭旧入口的顺序见 [Gateway 旧配置迁移方案](./gateway-legacy-configuration-migration.md)。
 - Scene 与 Asset View 的业务可视化定位重叠，不再作为独立核心领域；后续三维、组态或业务视图能力统一进入 Asset View 建设。
 
 ### 废弃
@@ -296,6 +296,7 @@ Edge 页面围绕运行时闭环组织：
 - DeviceModel 命令能力合并到 Product，活动 API 使用 ProductCommand。
 - 旧 DeviceGraph/DeviceDiagram 处理方案已确定为直接删除；Scene 已收口到后续 Asset View 建设。
 - Product、Device、Asset、Gateway、EdgeNode、Collection Template 页面职责说明。
+- Gateway 旧配置迁移方案：旧 `GatewayType`/`GatewayConfiguration` 字段不再作为新增采集配置主入口，后续按 Collection Template 干跑、确认、写入和发布闭环迁移。
 
 验收：
 
@@ -429,5 +430,6 @@ Edge 页面围绕运行时闭环组织：
 2. 将前端产品工作台从 `Product` 目录迁移到 `product`（#013）。
 3. 新增 Product API 命名，替换旧 Produce API 命名（#012）。
 4. 梳理 `DeviceModel`、`DeviceGraph`、`DeviceDiagram` 和 Scene 的引用，决定合并或废弃（#015~#017 已完成）。
-5. M2 预研：EdgeTask、EdgeTaskReceipt、EdgeCapability、EdgeRuntimeStatus 和 EdgeCollectionAssignment 设计（#020~#024），以及 `edge-node-v1`/`collection-config-v1`/`edge-task-v1` 契约草案（#027）。
-6. M3 前置：semantic-core 收敛决策材料准备（#029）——盘点 `semantic-core.v1.schema.json`、CollectionTask 草稿 DTO 与 IoTEdge 本地采集模型的差异。
+5. 完成 Gateway 旧配置迁移方案（#018）：旧 Product Gateway 配置先做盘点和干跑，正式模板落地归 #030，配置发布闭环归 #040 之后。
+6. M2 预研：EdgeTask、EdgeTaskReceipt、EdgeCapability、EdgeRuntimeStatus 和 EdgeCollectionAssignment 设计（#020~#024），以及 `edge-node-v1`/`collection-config-v1`/`edge-task-v1` 契约草案（#027）。
+7. M3 前置：semantic-core 收敛决策材料准备（#029）——盘点 `semantic-core.v1.schema.json`、CollectionTask 草稿 DTO 与 IoTEdge 本地采集模型的差异。

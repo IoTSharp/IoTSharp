@@ -12,7 +12,11 @@ const sidebars = {
     {
       type: 'category',
       label: '架构设计',
-      items: ['architecture/domain-model-realignment', 'architecture/edge-query-v1'],
+      items: [
+        'architecture/domain-model-realignment',
+        'architecture/gateway-legacy-configuration-migration',
+        'architecture/edge-query-v1',
+      ],
     },
     {
       type: 'category',

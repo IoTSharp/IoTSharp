@@ -91,7 +91,7 @@
 
 注册接口：
 
-- POST /api/Edge/{access_token}/Register
+- `POST /api/Edge/{access_token}/Register`
 
 字段说明：
 
@@ -135,7 +135,7 @@
 
 ### 心跳超时
 
-- 心跳接口：POST /api/Edge/{access_token}/Heartbeat
+- 心跳接口：`POST /api/Edge/{access_token}/Heartbeat`
 - 心跳超时沿用设备 Timeout 配置
 - 若最近活动超过 Timeout，运行时可被视为非活跃
 - 第一版只做查询展示，不在 EdgeNode 页面内引入复杂状态推导器
@@ -144,7 +144,7 @@
 
 Capabilities 接口：
 
-- POST /api/Edge/{access_token}/Capabilities
+- `POST /api/Edge/{access_token}/Capabilities`
 
 第一版标准结构：
 
@@ -464,9 +464,9 @@ targetKey 规则：
 
 第一版正式接口边界建议如下：
 
-- POST /api/Edge/{access_token}/Register
-- POST /api/Edge/{access_token}/Heartbeat
-- POST /api/Edge/{access_token}/Capabilities
+- `POST /api/Edge/{access_token}/Register`
+- `POST /api/Edge/{access_token}/Heartbeat`
+- `POST /api/Edge/{access_token}/Capabilities`
 - POST /api/EdgeTask/Receipt
 - GET /api/EdgeTask/StateMachine
 
