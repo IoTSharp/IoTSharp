@@ -110,8 +110,8 @@ M2 的目标是把现有 Edge 第一版能力从属性键和临时 DTO 沉淀为
 | #023 | `✅️` | EdgeTaskReceipt | 平台 | 已新增正式 `EdgeTaskReceipt` 历史模型和 `EdgeTaskReceipts` 迁移；Receipt/Accept 写入正式回执表并同步 EdgeTask 当前态。 |
 | #024 | `✅️` | EdgeCollectionAssignment | 平台 | 已新增正式 `EdgeCollectionAssignment` 模型、`EdgeCollectionAssignments` 迁移和 `EdgeCollectionAssignmentDto`；保存 CollectionConfig 时生成 Active 分配，旧版本转 Superseded，执行端拉取时记录 `lastPulledAt`，并提供 `/api/Edge/CollectionAssignments` 与 `/api/Edge/{id}/CollectionAssignments` 查询。 |
 | #025 | `✅️` | Edge API 改造 | 平台 | 状态和能力查询从 EdgeNode 正式模型生成；任务、回执和历史查询使用 `EdgeTask`/`EdgeTaskReceipt`；任务状态流转不再写入或回退到 AttributeLatest/TelemetryData 主存储。 |
-| #026 | `⬜` | Edge 前端改造 | 平台 | Edge 详情页展示正式状态、能力、任务历史和配置分配。 |
-| #027 | `⬜` | 跨仓契约固化 | 平台 | `edge-node-v1`、`collection-config-v1`、`edge-task-v1` 契约（JSON Schema + DTO）进入 `IoTSharp.Contracts` 并版本化发布；IoTEdge 切换为契约包消费者；双方路线图互相引用。 |
+| #026 | `✅️` | Edge 前端改造 | 平台 | Edge 详情页已优先消费正式运行态、能力、任务历史和配置分配查询模型，并保留旧扁平字段兜底。 |
+| #027 | `✅️` | 跨仓契约固化 | 平台 | `edge-node-v1`、`collection-config-v1`、`edge-task-v1` 的 DTO、JSON Schema、样例和包元数据已进入 `IoTSharp.Contracts`；IoTSharp 侧移除 Edge 合同影子 DTO，IoTEdge 消费切换在边缘仓按该契约包验收。 |
 | #028 | `⬜` | IoTEdge 任务回执转正 | 边缘 | 将参考实现级的任务回执组件升级为正式常驻 Worker，遵循 #027 契约，覆盖 Accepted/Running/Succeeded/Failed/TimedOut 全状态回执。 |
 | #029 | `⬜` | semantic-core 收敛决策（M3 前置门） | 平台 | 决策 `IoTSharp.Contracts/semantic-core.v1.schema.json`（含 Modbus/OPC UA/MQTT 绑定）与 M3 模板持久化模型、IoTEdge 本地采集模型三者的统一方案：以 semantic-core 为基础或明确废弃并记录原因。M3 开工前必须完成，避免三套点位模型并存。 |
 
@@ -264,9 +264,9 @@ Tomur 是矩阵的 AI 底座：离线或内网环境下，平台的 AI 横切能
 
 ## 当前执行窗口
 
-M1（#010~#018）已完成，下一步进入 M2 的 EdgeNode 正式模型与跨仓契约固化；并行轨道 T（#070~#072）为文档层面工作，可随时穿插。
+M1（#010~#018）已完成，M2 的 EdgeNode 正式模型、API/前端主路径和平台侧跨仓契约固化已完成到 #027；下一步推进 #028 IoTEdge 任务回执转正与 #029 semantic-core 收敛决策。并行轨道 T（#070~#072）为文档层面工作，可随时穿插。
 
-M2 必须包含 #027 契约固化与 #029 semantic-core 收敛决策，二者未完成前不启动 M3 的 #030。M2 未完成前，不启动 M4 和 M5 的正式实现。
+M2 剩余门槛是 #028 IoTEdge 回执常驻 Worker 和 #029 semantic-core 收敛决策；#029 未完成前不启动 M3 的 #030。M2 未完成前，不启动 M4 和 M5 的正式实现。
 
 并行轨道 E（附属运行时硬化）与 A（离线 AI 底座）按带宽穿插推进，不阻塞主线；但存在两个硬依赖：#047/#048 是 M4 验收项，#090（AI Provider 抽象）是 M6 #064/#065 与 #093 内网部署的前置。
 

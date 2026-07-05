@@ -1,0 +1,548 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://iotsharp.net/schemas/collection-config.v1.schema.json",
+  "title": "IoTSharp Collection Config v1 Contract",
+  "description": "Versioned runtime collection configuration and assignment snapshot contract for EdgeNode and Gateway runtimes.",
+  "oneOf": [
+    {
+      "$ref": "#/$defs/edgeCollectionConfiguration"
+    },
+    {
+      "$ref": "#/$defs/edgeCollectionAssignment"
+    }
+  ],
+  "$defs": {
+    "uuid": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "dateTime": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "objectMap": {
+      "type": "object",
+      "additionalProperties": true
+    },
+    "collectionProtocolType": {
+      "enum": [
+        "Unknown",
+        "Modbus",
+        "OpcUa",
+        "Bacnet",
+        "IEC104",
+        "Mqtt",
+        "Custom"
+      ]
+    },
+    "collectionTargetType": {
+      "enum": [
+        "Telemetry",
+        "Attribute",
+        "AlarmInput",
+        "CommandFeedback"
+      ]
+    },
+    "collectionValueType": {
+      "enum": [
+        "Boolean",
+        "Int32",
+        "Int64",
+        "Double",
+        "Decimal",
+        "String",
+        "Enum",
+        "Json"
+      ]
+    },
+    "collectionTransformType": {
+      "enum": [
+        "Scale",
+        "Offset",
+        "Expression",
+        "EnumMap",
+        "BitExtract",
+        "WordSwap",
+        "ByteSwap",
+        "Clamp",
+        "DefaultOnError"
+      ]
+    },
+    "reportTriggerType": {
+      "enum": [
+        "Always",
+        "OnChange",
+        "Deadband",
+        "Interval",
+        "QualityChange"
+      ]
+    },
+    "edgeTaskTargetType": {
+      "enum": [
+        "EdgeNode",
+        "GatewayRuntime",
+        "DeviceScope"
+      ]
+    },
+    "edgeCollectionAssignmentStatus": {
+      "enum": [
+        "Pending",
+        "Active",
+        "Superseded",
+        "Revoked"
+      ]
+    },
+    "edgeCollectionConfiguration": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "contractVersion",
+        "edgeNodeId",
+        "version",
+        "updatedAt",
+        "updatedBy",
+        "tasks"
+      ],
+      "properties": {
+        "$schema": {
+          "type": "string"
+        },
+        "contractVersion": {
+          "const": "collection-config-v1"
+        },
+        "edgeNodeId": {
+          "$ref": "#/$defs/uuid"
+        },
+        "version": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "updatedAt": {
+          "$ref": "#/$defs/dateTime"
+        },
+        "updatedBy": {
+          "type": "string"
+        },
+        "tasks": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/collectionTask"
+          },
+          "default": []
+        }
+      }
+    },
+    "collectionTask": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "taskKey",
+        "protocol",
+        "version",
+        "edgeNodeId",
+        "connection",
+        "devices",
+        "reportPolicy"
+      ],
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/uuid"
+        },
+        "taskKey": {
+          "type": "string",
+          "minLength": 1
+        },
+        "protocol": {
+          "$ref": "#/$defs/collectionProtocolType"
+        },
+        "version": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "edgeNodeId": {
+          "$ref": "#/$defs/uuid"
+        },
+        "connection": {
+          "$ref": "#/$defs/collectionConnection"
+        },
+        "devices": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/collectionDevice"
+          },
+          "default": []
+        },
+        "reportPolicy": {
+          "$ref": "#/$defs/reportPolicy"
+        }
+      }
+    },
+    "collectionConnection": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "connectionKey",
+        "connectionName",
+        "protocol",
+        "transport",
+        "timeoutMs",
+        "retryCount"
+      ],
+      "properties": {
+        "connectionKey": {
+          "type": "string"
+        },
+        "connectionName": {
+          "type": "string",
+          "minLength": 1
+        },
+        "protocol": {
+          "$ref": "#/$defs/collectionProtocolType"
+        },
+        "transport": {
+          "type": "string"
+        },
+        "host": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "port": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "minimum": 0,
+          "maximum": 65535
+        },
+        "serialPort": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "timeoutMs": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "retryCount": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "protocolOptions": {
+          "$ref": "#/$defs/objectMap"
+        }
+      }
+    },
+    "collectionDevice": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "deviceKey",
+        "deviceName",
+        "enabled",
+        "points"
+      ],
+      "properties": {
+        "deviceKey": {
+          "type": "string",
+          "minLength": 1
+        },
+        "deviceName": {
+          "type": "string"
+        },
+        "enabled": {
+          "type": "boolean"
+        },
+        "externalKey": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "protocolOptions": {
+          "$ref": "#/$defs/objectMap"
+        },
+        "points": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/collectionPoint"
+          },
+          "default": []
+        }
+      }
+    },
+    "collectionPoint": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "pointKey",
+        "pointName",
+        "sourceType",
+        "address",
+        "rawValueType",
+        "length",
+        "polling",
+        "transforms",
+        "mapping"
+      ],
+      "properties": {
+        "pointKey": {
+          "type": "string",
+          "minLength": 1
+        },
+        "pointName": {
+          "type": "string",
+          "minLength": 1
+        },
+        "sourceType": {
+          "type": "string"
+        },
+        "address": {
+          "type": "string"
+        },
+        "rawValueType": {
+          "type": "string"
+        },
+        "length": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "polling": {
+          "$ref": "#/$defs/pollingPolicy"
+        },
+        "transforms": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/valueTransform"
+          },
+          "default": []
+        },
+        "mapping": {
+          "$ref": "#/$defs/platformMapping"
+        },
+        "protocolOptions": {
+          "$ref": "#/$defs/objectMap"
+        }
+      }
+    },
+    "pollingPolicy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "readPeriodMs"
+      ],
+      "properties": {
+        "readPeriodMs": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "group": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      }
+    },
+    "valueTransform": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "transformType",
+        "order"
+      ],
+      "properties": {
+        "transformType": {
+          "$ref": "#/$defs/collectionTransformType"
+        },
+        "order": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "parameters": {
+          "$ref": "#/$defs/objectMap"
+        }
+      }
+    },
+    "platformMapping": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "targetType",
+        "targetName",
+        "valueType"
+      ],
+      "properties": {
+        "targetType": {
+          "$ref": "#/$defs/collectionTargetType"
+        },
+        "targetName": {
+          "type": "string",
+          "minLength": 1
+        },
+        "valueType": {
+          "$ref": "#/$defs/collectionValueType"
+        },
+        "displayName": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "unit": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "group": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      }
+    },
+    "reportPolicy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "defaultTrigger",
+        "includeQuality",
+        "includeTimestamp"
+      ],
+      "properties": {
+        "defaultTrigger": {
+          "$ref": "#/$defs/reportTriggerType"
+        },
+        "deadband": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "includeQuality": {
+          "type": "boolean"
+        },
+        "includeTimestamp": {
+          "type": "boolean"
+        }
+      }
+    },
+    "edgeCollectionAssignment": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "contractVersion",
+        "id",
+        "targetType",
+        "gatewayId",
+        "targetKey",
+        "runtimeType",
+        "configurationVersion",
+        "configurationHash",
+        "taskCount",
+        "status",
+        "assignedAt"
+      ],
+      "properties": {
+        "contractVersion": {
+          "const": "collection-config-v1"
+        },
+        "id": {
+          "$ref": "#/$defs/uuid"
+        },
+        "targetType": {
+          "$ref": "#/$defs/edgeTaskTargetType"
+        },
+        "gatewayId": {
+          "$ref": "#/$defs/uuid"
+        },
+        "edgeNodeId": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/uuid"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "targetKey": {
+          "type": "string",
+          "minLength": 1
+        },
+        "runtimeType": {
+          "type": "string"
+        },
+        "instanceId": {
+          "type": "string"
+        },
+        "configurationVersion": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "configurationHash": {
+          "type": "string"
+        },
+        "taskCount": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "status": {
+          "$ref": "#/$defs/edgeCollectionAssignmentStatus"
+        },
+        "sourceType": {
+          "type": "string"
+        },
+        "sourceId": {
+          "type": "string"
+        },
+        "sourceVersion": {
+          "type": "string"
+        },
+        "assignedAt": {
+          "$ref": "#/$defs/dateTime"
+        },
+        "lastPulledAt": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/dateTime"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "revokedAt": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/dateTime"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "createdAt": {
+          "$ref": "#/$defs/dateTime"
+        },
+        "updatedAt": {
+          "$ref": "#/$defs/dateTime"
+        },
+        "createdBy": {
+          "type": "string"
+        },
+        "updatedBy": {
+          "type": "string"
+        },
+        "metadata": {
+          "$ref": "#/$defs/objectMap"
+        }
+      }
+    }
+  }
+}

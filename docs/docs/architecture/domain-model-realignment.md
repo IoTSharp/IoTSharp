@@ -190,11 +190,11 @@ Tomur 在这个体系里的角色是模型算力 Provider：
 
 跨仓协同依赖三个版本化契约，全部以 `IoTSharp.Contracts` 为单一事实来源（#027）：
 
-| 契约 | 内容 | 消费方 |
-| --- | --- | --- |
-| `edge-node-v1` | 注册、心跳、能力上报 | IoTEdge |
-| `collection-config-v1` | 采集运行时配置（点位、连接、采样、映射） | IoTEdge |
-| `edge-task-v1` | 任务下发、接受、回执状态机 | IoTEdge |
+| 契约 | JSON Schema | 内容 | 消费方 |
+| --- | --- | --- | --- |
+| `edge-node-v1` | `IoTSharp.Contracts/edge-node.v1.schema.json` | 注册、心跳、能力上报、运行态快照和 EdgeNode 平台快照 | IoTEdge |
+| `collection-config-v1` | `IoTSharp.Contracts/collection-config.v1.schema.json` | 采集运行时配置（点位、连接、采样、映射）和分配快照 | IoTEdge |
+| `edge-task-v1` | `IoTSharp.Contracts/edge-task.v1.schema.json` | 任务下发、接受、回执状态机 | IoTEdge |
 
 规则：
 
@@ -316,7 +316,7 @@ Edge 页面围绕运行时闭环组织：
 
 - EdgeRuntimeStatus、EdgeCapability、EdgeTask、EdgeTaskReceipt、EdgeCollectionAssignment。
 - Edge 管理 API 和前端详情页改造。
-- `edge-node-v1`、`collection-config-v1`、`edge-task-v1` 版本化契约（#027）。
+- `edge-node-v1`、`collection-config-v1`、`edge-task-v1` 版本化契约（#027，DTO、Schema 与样例由 `IoTSharp.Contracts` 发布）。
 - IoTEdge 任务回执转正（#028）。
 - semantic-core 收敛决策记录（#029）。
 
@@ -432,5 +432,5 @@ Edge 页面围绕运行时闭环组织：
 3. 新增 Product API 命名，替换旧 Produce API 命名（#012）。
 4. 梳理 `DeviceModel`、`DeviceGraph`、`DeviceDiagram` 和 Scene 的引用，决定合并或废弃（#015~#017 已完成）。
 5. 完成 Gateway 旧配置迁移方案（#018）：旧 Product Gateway 配置先做盘点和干跑，正式模板落地归 #030，配置发布闭环归 #040 之后。
-6. M2 预研：EdgeTask、EdgeTaskReceipt、EdgeCapability、EdgeRuntimeStatus 和 EdgeCollectionAssignment 设计（#020~#024），以及 `edge-node-v1`/`collection-config-v1`/`edge-task-v1` 契约草案（#027）。
+6. M2 契约固化：EdgeTask、EdgeTaskReceipt、EdgeCapability、EdgeRuntimeStatus 和 EdgeCollectionAssignment 已沉淀为正式模型（#020~#024），`edge-node-v1`/`collection-config-v1`/`edge-task-v1` 已进入 `IoTSharp.Contracts` 的 DTO、JSON Schema 和样例发布物（#027）。
 7. M3 前置：semantic-core 收敛决策材料准备（#029）——盘点 `semantic-core.v1.schema.json`、CollectionTask 草稿 DTO 与 IoTEdge 本地采集模型的差异。

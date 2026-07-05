@@ -4,9 +4,22 @@
     <TargetFramework>net10.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <IsPackable>true</IsPackable>
+    <PackageId>IoTSharp.Contracts</PackageId>
+    <Version>3.5.0</Version>
+    <AssemblyVersion>3.5.0.0</AssemblyVersion>
+    <FileVersion>3.5.0.0</FileVersion>
+    <Description>Versioned IoTSharp contracts for platform, edge, collection, task, and semantic integrations.</Description>
+    <PackageTags>IoT;IoTSharp;Contracts;Edge;Gateway</PackageTags>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
   </PropertyGroup>
 
   <ItemGroup>
+    <None Update="README.md" Pack="true" PackagePath="docs\" />
+    <None Update="*.schema.json" CopyToOutputDirectory="PreserveNewest" Pack="true" PackagePath="schemas\" />
+    <None Update="examples\**\*.json" CopyToOutputDirectory="PreserveNewest" Pack="true" PackagePath="\" />
+    <None Update="docs\**\*.md" Pack="true" PackagePath="\" />
   </ItemGroup>
 
 </Project>

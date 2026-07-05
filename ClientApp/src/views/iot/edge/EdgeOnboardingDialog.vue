@@ -175,7 +175,7 @@ const capabilitiesPayloadText = computed(() =>
 			compatibleContracts: [
 				{ contractName: 'edge-runtime', contractVersion: 'edge-v1' },
 				{ contractName: 'edge-capability', contractVersion: 'edge-capability-v1' },
-				{ contractName: 'collection-config', contractVersion: 'edge-collection-v1' },
+				{ contractName: 'collection-config', contractVersion: 'collection-config-v1' },
 				{ contractName: 'edge-task', contractVersion: 'edge-task-v1' },
 			],
 			metadata: {

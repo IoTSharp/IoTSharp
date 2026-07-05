@@ -1,0 +1,709 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://iotsharp.net/schemas/edge-node.v1.schema.json",
+  "title": "IoTSharp Edge Node v1 Contracts",
+  "description": "Versioned EdgeNode contracts for platform snapshots, registration, heartbeat, runtime status, and capability reports.",
+  "oneOf": [
+    {
+      "$ref": "#/$defs/edgeNode"
+    },
+    {
+      "$ref": "#/$defs/edgeRegistration"
+    },
+    {
+      "$ref": "#/$defs/edgeRegistrationResult"
+    },
+    {
+      "$ref": "#/$defs/edgeHeartbeat"
+    },
+    {
+      "$ref": "#/$defs/edgeCapabilityReport"
+    },
+    {
+      "$ref": "#/$defs/edgeRuntimeStatus"
+    },
+    {
+      "$ref": "#/$defs/edgeCapability"
+    }
+  ],
+  "$defs": {
+    "uuid": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "dateTime": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "stringMap": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "string"
+      }
+    },
+    "objectMap": {
+      "type": "object",
+      "additionalProperties": true
+    },
+    "stringArray": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "default": []
+    },
+    "collectionProtocolType": {
+      "enum": [
+        "Unknown",
+        "Modbus",
+        "OpcUa",
+        "Bacnet",
+        "IEC104",
+        "Mqtt",
+        "Custom"
+      ]
+    },
+    "collectionTransformType": {
+      "enum": [
+        "Scale",
+        "Offset",
+        "Expression",
+        "EnumMap",
+        "BitExtract",
+        "WordSwap",
+        "ByteSwap",
+        "Clamp",
+        "DefaultOnError"
+      ]
+    },
+    "reportTriggerType": {
+      "enum": [
+        "Always",
+        "OnChange",
+        "Deadband",
+        "Interval",
+        "QualityChange"
+      ]
+    },
+    "edgeTaskCapability": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "taskType",
+        "contractVersion",
+        "supportsProgress",
+        "supportsCancellation"
+      ],
+      "properties": {
+        "taskType": {
+          "type": "string",
+          "minLength": 1
+        },
+        "contractVersion": {
+          "const": "edge-task-v1"
+        },
+        "supportsProgress": {
+          "type": "boolean"
+        },
+        "supportsCancellation": {
+          "type": "boolean"
+        },
+        "metadata": {
+          "$ref": "#/$defs/objectMap"
+        }
+      }
+    },
+    "edgeContractCompatibility": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "contractName",
+        "contractVersion"
+      ],
+      "properties": {
+        "contractName": {
+          "type": "string",
+          "minLength": 1
+        },
+        "contractVersion": {
+          "type": "string",
+          "minLength": 1
+        },
+        "minPlatformVersion": {
+          "type": "string"
+        },
+        "maxPlatformVersion": {
+          "type": "string"
+        },
+        "deprecated": {
+          "type": "boolean"
+        },
+        "metadata": {
+          "$ref": "#/$defs/objectMap"
+        }
+      }
+    },
+    "edgeRegistration": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "contractVersion",
+        "runtimeType",
+        "instanceId"
+      ],
+      "properties": {
+        "$schema": {
+          "type": "string"
+        },
+        "contractVersion": {
+          "enum": [
+            "edge-v1",
+            "edge-node-v1"
+          ]
+        },
+        "runtimeType": {
+          "type": "string",
+          "minLength": 1
+        },
+        "runtimeName": {
+          "type": "string"
+        },
+        "version": {
+          "type": "string"
+        },
+        "instanceId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "platform": {
+          "type": "string"
+        },
+        "hostName": {
+          "type": "string"
+        },
+        "ipAddress": {
+          "type": "string"
+        },
+        "metadata": {
+          "$ref": "#/$defs/stringMap"
+        }
+      }
+    },
+    "edgeRegistrationResult": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "contractVersion",
+        "deviceId",
+        "edgeNodeId",
+        "gatewayId",
+        "name",
+        "accessToken",
+        "timeout",
+        "registeredAt"
+      ],
+      "properties": {
+        "contractVersion": {
+          "enum": [
+            "edge-v1",
+            "edge-node-v1"
+          ]
+        },
+        "deviceId": {
+          "$ref": "#/$defs/uuid"
+        },
+        "edgeNodeId": {
+          "$ref": "#/$defs/uuid"
+        },
+        "gatewayId": {
+          "$ref": "#/$defs/uuid"
+        },
+        "name": {
+          "type": "string"
+        },
+        "accessToken": {
+          "type": "string"
+        },
+        "timeout": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "registeredAt": {
+          "$ref": "#/$defs/dateTime"
+        }
+      }
+    },
+    "edgeHeartbeat": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "contractVersion",
+        "status"
+      ],
+      "properties": {
+        "$schema": {
+          "type": "string"
+        },
+        "contractVersion": {
+          "enum": [
+            "edge-v1",
+            "edge-node-v1"
+          ]
+        },
+        "timestamp": {
+          "$ref": "#/$defs/dateTime"
+        },
+        "status": {
+          "type": "string",
+          "minLength": 1
+        },
+        "healthy": {
+          "type": [
+            "boolean",
+            "null"
+          ]
+        },
+        "uptimeSeconds": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "minimum": 0
+        },
+        "ipAddress": {
+          "type": "string"
+        },
+        "runtimeType": {
+          "type": "string"
+        },
+        "instanceId": {
+          "type": "string"
+        },
+        "metrics": {
+          "$ref": "#/$defs/objectMap"
+        }
+      }
+    },
+    "edgeCapabilityReport": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "contractVersion",
+        "protocols"
+      ],
+      "properties": {
+        "$schema": {
+          "type": "string"
+        },
+        "contractVersion": {
+          "const": "edge-capability-v1"
+        },
+        "reportedAt": {
+          "$ref": "#/$defs/dateTime"
+        },
+        "protocols": {
+          "$ref": "#/$defs/stringArray"
+        },
+        "supportedProtocols": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/collectionProtocolType"
+          },
+          "default": []
+        },
+        "supportedPointTypes": {
+          "$ref": "#/$defs/stringArray"
+        },
+        "supportedTransforms": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/collectionTransformType"
+          },
+          "default": []
+        },
+        "supportedReportTriggers": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/reportTriggerType"
+          },
+          "default": []
+        },
+        "features": {
+          "$ref": "#/$defs/stringArray"
+        },
+        "tasks": {
+          "$ref": "#/$defs/stringArray"
+        },
+        "taskCapabilities": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/edgeTaskCapability"
+          },
+          "default": []
+        },
+        "compatibleContracts": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/edgeContractCompatibility"
+          },
+          "default": []
+        },
+        "metadata": {
+          "$ref": "#/$defs/objectMap"
+        }
+      }
+    },
+    "edgeRuntimeStatus": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "contractVersion",
+        "edgeNodeId",
+        "gatewayId",
+        "active",
+        "runtimeType",
+        "status"
+      ],
+      "properties": {
+        "contractVersion": {
+          "const": "edge-runtime-status-v1"
+        },
+        "edgeNodeId": {
+          "$ref": "#/$defs/uuid"
+        },
+        "gatewayId": {
+          "$ref": "#/$defs/uuid"
+        },
+        "active": {
+          "type": "boolean"
+        },
+        "lastActivityDateTime": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/dateTime"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "runtimeType": {
+          "type": "string"
+        },
+        "runtimeName": {
+          "type": "string"
+        },
+        "version": {
+          "type": "string"
+        },
+        "instanceId": {
+          "type": "string"
+        },
+        "platform": {
+          "type": "string"
+        },
+        "hostName": {
+          "type": "string"
+        },
+        "ipAddress": {
+          "type": "string"
+        },
+        "status": {
+          "type": "string"
+        },
+        "healthy": {
+          "type": [
+            "boolean",
+            "null"
+          ]
+        },
+        "uptimeSeconds": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "minimum": 0
+        },
+        "lastHeartbeatDateTime": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/dateTime"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "lastRegistrationDateTime": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/dateTime"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "updatedAt": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/dateTime"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "metadata": {
+          "$ref": "#/$defs/objectMap"
+        },
+        "metrics": {
+          "$ref": "#/$defs/objectMap"
+        }
+      }
+    },
+    "edgeCapability": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "contractVersion",
+        "edgeNodeId",
+        "gatewayId",
+        "runtimeType",
+        "protocols"
+      ],
+      "properties": {
+        "$schema": {
+          "type": "string"
+        },
+        "contractVersion": {
+          "const": "edge-capability-v1"
+        },
+        "edgeNodeId": {
+          "$ref": "#/$defs/uuid"
+        },
+        "gatewayId": {
+          "$ref": "#/$defs/uuid"
+        },
+        "runtimeType": {
+          "type": "string"
+        },
+        "runtimeName": {
+          "type": "string"
+        },
+        "version": {
+          "type": "string"
+        },
+        "instanceId": {
+          "type": "string"
+        },
+        "reportedAt": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/dateTime"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "updatedAt": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/dateTime"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "protocols": {
+          "$ref": "#/$defs/stringArray"
+        },
+        "supportedProtocols": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/collectionProtocolType"
+          },
+          "default": []
+        },
+        "supportedPointTypes": {
+          "$ref": "#/$defs/stringArray"
+        },
+        "supportedTransforms": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/collectionTransformType"
+          },
+          "default": []
+        },
+        "supportedReportTriggers": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/reportTriggerType"
+          },
+          "default": []
+        },
+        "features": {
+          "$ref": "#/$defs/stringArray"
+        },
+        "tasks": {
+          "$ref": "#/$defs/stringArray"
+        },
+        "taskCapabilities": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/edgeTaskCapability"
+          },
+          "default": []
+        },
+        "compatibleContracts": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/edgeContractCompatibility"
+          },
+          "default": []
+        },
+        "metadata": {
+          "$ref": "#/$defs/objectMap"
+        }
+      }
+    },
+    "edgeNode": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "contractVersion",
+        "id",
+        "gatewayId",
+        "name",
+        "timeout",
+        "active",
+        "runtimeStatus",
+        "capability"
+      ],
+      "properties": {
+        "$schema": {
+          "type": "string"
+        },
+        "contractVersion": {
+          "const": "edge-node-v1"
+        },
+        "id": {
+          "$ref": "#/$defs/uuid"
+        },
+        "gatewayId": {
+          "$ref": "#/$defs/uuid"
+        },
+        "name": {
+          "type": "string"
+        },
+        "accessToken": {
+          "type": "string"
+        },
+        "timeout": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "active": {
+          "type": "boolean"
+        },
+        "lastActivityDateTime": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/dateTime"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "runtimeType": {
+          "type": "string"
+        },
+        "runtimeName": {
+          "type": "string"
+        },
+        "version": {
+          "type": "string"
+        },
+        "instanceId": {
+          "type": "string"
+        },
+        "platform": {
+          "type": "string"
+        },
+        "hostName": {
+          "type": "string"
+        },
+        "ipAddress": {
+          "type": "string"
+        },
+        "status": {
+          "type": "string"
+        },
+        "healthy": {
+          "type": [
+            "boolean",
+            "null"
+          ]
+        },
+        "uptimeSeconds": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "minimum": 0
+        },
+        "lastHeartbeatDateTime": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/dateTime"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "lastRegistrationDateTime": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/dateTime"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "capabilities": {
+          "type": "string"
+        },
+        "capability": {
+          "$ref": "#/$defs/edgeCapability"
+        },
+        "metadata": {
+          "type": "string"
+        },
+        "metrics": {
+          "type": "string"
+        },
+        "lastTaskStatus": {
+          "type": "string"
+        },
+        "lastReceiptDateTime": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/dateTime"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "runtimeStatus": {
+          "$ref": "#/$defs/edgeRuntimeStatus"
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,80 @@
+{
+  "$schema": "../collection-config.v1.schema.json",
+  "contractVersion": "collection-config-v1",
+  "edgeNodeId": "22222222-2222-2222-2222-222222222222",
+  "version": 3,
+  "updatedAt": "2026-07-05T08:10:00Z",
+  "updatedBy": "operator@example.com",
+  "tasks": [
+    {
+      "id": "33333333-3333-3333-3333-333333333333",
+      "taskKey": "boiler-modbus",
+      "protocol": "Modbus",
+      "version": 3,
+      "edgeNodeId": "22222222-2222-2222-2222-222222222222",
+      "connection": {
+        "connectionKey": "main-plc",
+        "connectionName": "Main PLC",
+        "protocol": "Modbus",
+        "transport": "tcp",
+        "host": "192.168.10.20",
+        "port": 502,
+        "serialPort": null,
+        "timeoutMs": 3000,
+        "retryCount": 3,
+        "protocolOptions": {
+          "unitId": 1
+        }
+      },
+      "devices": [
+        {
+          "deviceKey": "boiler-01",
+          "deviceName": "Boiler 01",
+          "enabled": true,
+          "externalKey": "plc-boiler-01",
+          "protocolOptions": {},
+          "points": [
+            {
+              "pointKey": "supply-temperature",
+              "pointName": "Supply temperature",
+              "sourceType": "holding-register",
+              "address": "40001",
+              "rawValueType": "Int16",
+              "length": 1,
+              "polling": {
+                "readPeriodMs": 1000,
+                "group": "fast"
+              },
+              "transforms": [
+                {
+                  "transformType": "Scale",
+                  "order": 0,
+                  "parameters": {
+                    "factor": 0.1
+                  }
+                }
+              ],
+              "mapping": {
+                "targetType": "Telemetry",
+                "targetName": "supplyTemperature",
+                "valueType": "Double",
+                "displayName": "Supply temperature",
+                "unit": "Cel",
+                "group": "boiler"
+              },
+              "protocolOptions": {
+                "functionCode": 3
+              }
+            }
+          ]
+        }
+      ],
+      "reportPolicy": {
+        "defaultTrigger": "OnChange",
+        "deadband": 0.2,
+        "includeQuality": true,
+        "includeTimestamp": true
+      }
+    }
+  ]
+}

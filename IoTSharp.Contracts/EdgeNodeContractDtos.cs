@@ -31,7 +31,13 @@ namespace IoTSharp.Contracts
         /// <summary>
         /// 采集运行时配置拉取合同版本。
         /// </summary>
-        public const string CollectionConfigV1 = "edge-collection-v1";
+        public const string CollectionConfigV1 = "collection-config-v1";
+
+        /// <summary>
+        /// M2 #027 固化前曾使用的采集配置合同版本，仅用于识别历史载荷。
+        /// </summary>
+        [Obsolete("请使用 CollectionConfigV1。该值只用于兼容 M2 #027 之前的历史载荷。")]
+        public const string LegacyEdgeCollectionV1 = "edge-collection-v1";
 
         /// <summary>
         /// Edge 任务请求与回执合同版本。

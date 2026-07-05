@@ -1,0 +1,24 @@
+{
+  "$schema": "../edge-task.v1.schema.json",
+  "contractVersion": "edge-task-v1",
+  "taskId": "11111111-1111-1111-1111-111111111111",
+  "taskType": "ConfigPullRequest",
+  "address": {
+    "targetType": "GatewayRuntime",
+    "deviceId": "22222222-2222-2222-2222-222222222222",
+    "accessToken": "",
+    "runtimeType": "gateway",
+    "instanceId": "plant-a-gateway-01",
+    "targetKey": "22222222-2222-2222-2222-222222222222:gateway:plant-a-gateway-01"
+  },
+  "createdAt": "2026-07-05T08:12:00Z",
+  "expireAt": "2026-07-05T08:22:00Z",
+  "parameters": {
+    "configurationVersion": 3,
+    "configurationHash": "B90F05603F3343B2A0FAF1E1D3D48C85"
+  },
+  "metadata": {
+    "source": "edge-console",
+    "operator": "operator@example.com"
+  }
+}

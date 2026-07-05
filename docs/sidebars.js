@@ -16,6 +16,7 @@ const sidebars = {
         'architecture/domain-model-realignment',
         'architecture/gateway-legacy-configuration-migration',
         'architecture/edge-query-v1',
+        'architecture/edge-contracts-v1',
       ],
     },
     {

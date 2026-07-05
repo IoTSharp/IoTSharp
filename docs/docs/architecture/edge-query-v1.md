@@ -189,7 +189,7 @@
 
 ### 契约版本
 
-- 当前配置分配快照版本：`edge-collection-v1`
+- 当前配置分配快照版本：`collection-config-v1`
 - DTO 名称：`EdgeCollectionAssignmentDto`
 - 所属包：`IoTSharp.Contracts`
 
@@ -351,7 +351,7 @@ Capabilities 接口：
   "compatibleContracts": [
     { "contractName": "edge-runtime", "contractVersion": "edge-v1" },
     { "contractName": "edge-capability", "contractVersion": "edge-capability-v1" },
-    { "contractName": "collection-config", "contractVersion": "edge-collection-v1" },
+    { "contractName": "collection-config", "contractVersion": "collection-config-v1" },
     { "contractName": "edge-task", "contractVersion": "edge-task-v1" }
   ]
 }

@@ -2,6 +2,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Text.Json;
 using IoTSharp.Contracts;
 using Xunit;
@@ -24,7 +25,35 @@ public sealed class EdgeContractSerializationTests
         Assert.Equal(EdgeNodeContractVersions.EdgeNodeV1, new EdgeNodeDto().ContractVersion);
         Assert.Equal(EdgeNodeContractVersions.EdgeRuntimeStatusV1, new EdgeRuntimeStatusDto().ContractVersion);
         Assert.Equal(EdgeNodeContractVersions.EdgeCapabilityV1, new EdgeCapabilityDto().ContractVersion);
+        Assert.Equal("collection-config-v1", EdgeNodeContractVersions.CollectionConfigV1);
+        Assert.Equal(EdgeNodeContractVersions.CollectionConfigV1, new EdgeCollectionConfigurationDto().ContractVersion);
         Assert.Equal(EdgeNodeContractVersions.CollectionConfigV1, new EdgeCollectionAssignmentDto().ContractVersion);
+    }
+
+    [Fact]
+    public void EdgeContractSchemas_ExistAndAreParseable()
+    {
+        var contractsPath = Path.Combine(FindRepositoryRoot(), "IoTSharp.Contracts");
+        var files = new[]
+        {
+            "edge-node.v1.schema.json",
+            "collection-config.v1.schema.json",
+            "edge-task.v1.schema.json",
+            Path.Combine("examples", "edge-node.v1.sample.json"),
+            Path.Combine("examples", "collection-config.v1.sample.json"),
+            Path.Combine("examples", "edge-task.v1.sample.json")
+        };
+
+        foreach (var file in files)
+        {
+            var path = Path.Combine(contractsPath, file);
+            Assert.True(File.Exists(path), $"Missing contract artifact: {file}");
+            using var document = JsonDocument.Parse(File.ReadAllText(path));
+            Assert.Equal(JsonValueKind.Object, document.RootElement.ValueKind);
+        }
+
+        var collectionSample = File.ReadAllText(Path.Combine(contractsPath, "examples", "collection-config.v1.sample.json"));
+        Assert.Contains("\"contractVersion\": \"collection-config-v1\"", collectionSample);
     }
 
     [Fact]
@@ -213,7 +242,7 @@ public sealed class EdgeContractSerializationTests
         var json = JsonSerializer.Serialize(dto, new JsonSerializerOptions(JsonSerializerDefaults.Web));
         var roundtrip = JsonSerializer.Deserialize<EdgeCollectionAssignmentDto>(json, new JsonSerializerOptions(JsonSerializerDefaults.Web));
 
-        Assert.Contains("\"contractVersion\":\"edge-collection-v1\"", json);
+        Assert.Contains("\"contractVersion\":\"collection-config-v1\"", json);
         Assert.Contains("\"targetType\":\"EdgeNode\"", json);
         Assert.Contains("\"status\":\"Active\"", json);
         Assert.NotNull(roundtrip);
@@ -247,5 +276,22 @@ public sealed class EdgeContractSerializationTests
         Assert.True(EdgeTaskStateMachine.IsTransitionAllowed(EdgeTaskStatus.Pending, EdgeTaskStatus.Sent));
         Assert.True(EdgeTaskStateMachine.IsTransitionAllowed(EdgeTaskStatus.Running, EdgeTaskStatus.Succeeded));
         Assert.False(EdgeTaskStateMachine.IsTransitionAllowed(EdgeTaskStatus.Succeeded, EdgeTaskStatus.Running));
+    }
+
+    private static string FindRepositoryRoot()
+    {
+        var directory = new DirectoryInfo(AppContext.BaseDirectory);
+        while (directory != null)
+        {
+            var contractsProject = Path.Combine(directory.FullName, "IoTSharp.Contracts", "IoTSharp.Contracts.csproj");
+            if (File.Exists(contractsProject))
+            {
+                return directory.FullName;
+            }
+
+            directory = directory.Parent;
+        }
+
+        throw new DirectoryNotFoundException("Cannot locate IoTSharp repository root from test output path.");
     }
 }

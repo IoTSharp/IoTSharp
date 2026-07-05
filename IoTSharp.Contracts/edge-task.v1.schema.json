@@ -1,0 +1,359 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://iotsharp.net/schemas/edge-task.v1.schema.json",
+  "title": "IoTSharp Edge Task v1 Contract",
+  "description": "Versioned EdgeTask request, state snapshot, receipt, and state machine contract.",
+  "oneOf": [
+    {
+      "$ref": "#/$defs/edgeTaskRequest"
+    },
+    {
+      "$ref": "#/$defs/edgeTask"
+    },
+    {
+      "$ref": "#/$defs/edgeTaskReceipt"
+    },
+    {
+      "$ref": "#/$defs/edgeTaskStateMachine"
+    }
+  ],
+  "$defs": {
+    "uuid": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "dateTime": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "objectMap": {
+      "type": "object",
+      "additionalProperties": true
+    },
+    "stringMap": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "string"
+      }
+    },
+    "edgeTaskTargetType": {
+      "enum": [
+        "EdgeNode",
+        "GatewayRuntime",
+        "DeviceScope"
+      ]
+    },
+    "edgeTaskType": {
+      "enum": [
+        "ConfigPush",
+        "ConfigPullRequest",
+        "PackageDownload",
+        "PackageApply",
+        "RestartRuntime",
+        "HealthProbe"
+      ]
+    },
+    "edgeTaskStatus": {
+      "enum": [
+        "Pending",
+        "Sent",
+        "Accepted",
+        "Running",
+        "Succeeded",
+        "Failed",
+        "TimedOut",
+        "Cancelled"
+      ]
+    },
+    "edgeTaskAddress": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "targetType",
+        "targetKey"
+      ],
+      "properties": {
+        "targetType": {
+          "$ref": "#/$defs/edgeTaskTargetType"
+        },
+        "deviceId": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/uuid"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "accessToken": {
+          "type": "string"
+        },
+        "runtimeType": {
+          "type": "string"
+        },
+        "instanceId": {
+          "type": "string"
+        },
+        "targetKey": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "edgeTaskRequest": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "contractVersion",
+        "taskId",
+        "taskType",
+        "address",
+        "createdAt"
+      ],
+      "properties": {
+        "$schema": {
+          "type": "string"
+        },
+        "contractVersion": {
+          "const": "edge-task-v1"
+        },
+        "taskId": {
+          "$ref": "#/$defs/uuid"
+        },
+        "taskType": {
+          "$ref": "#/$defs/edgeTaskType"
+        },
+        "address": {
+          "$ref": "#/$defs/edgeTaskAddress"
+        },
+        "createdAt": {
+          "$ref": "#/$defs/dateTime"
+        },
+        "expireAt": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/dateTime"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "parameters": {
+          "$ref": "#/$defs/objectMap"
+        },
+        "metadata": {
+          "$ref": "#/$defs/stringMap"
+        }
+      }
+    },
+    "edgeTask": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "contractVersion",
+        "taskId",
+        "taskType",
+        "address",
+        "status",
+        "createdAt"
+      ],
+      "properties": {
+        "$schema": {
+          "type": "string"
+        },
+        "contractVersion": {
+          "const": "edge-task-v1"
+        },
+        "taskId": {
+          "$ref": "#/$defs/uuid"
+        },
+        "taskType": {
+          "$ref": "#/$defs/edgeTaskType"
+        },
+        "address": {
+          "$ref": "#/$defs/edgeTaskAddress"
+        },
+        "status": {
+          "$ref": "#/$defs/edgeTaskStatus"
+        },
+        "message": {
+          "type": "string"
+        },
+        "progress": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "minimum": 0,
+          "maximum": 100
+        },
+        "createdAt": {
+          "$ref": "#/$defs/dateTime"
+        },
+        "expireAt": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/dateTime"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "sentAt": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/dateTime"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "acceptedAt": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/dateTime"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "startedAt": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/dateTime"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "completedAt": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/dateTime"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "lastReceiptAt": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/dateTime"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "parameters": {
+          "$ref": "#/$defs/objectMap"
+        },
+        "metadata": {
+          "$ref": "#/$defs/stringMap"
+        }
+      }
+    },
+    "edgeTaskReceipt": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "contractVersion",
+        "taskId",
+        "targetType",
+        "targetKey",
+        "status",
+        "reportedAt"
+      ],
+      "properties": {
+        "$schema": {
+          "type": "string"
+        },
+        "contractVersion": {
+          "const": "edge-task-v1"
+        },
+        "taskId": {
+          "$ref": "#/$defs/uuid"
+        },
+        "targetType": {
+          "$ref": "#/$defs/edgeTaskTargetType"
+        },
+        "targetKey": {
+          "type": "string",
+          "minLength": 1
+        },
+        "runtimeType": {
+          "type": "string"
+        },
+        "instanceId": {
+          "type": "string"
+        },
+        "status": {
+          "$ref": "#/$defs/edgeTaskStatus"
+        },
+        "message": {
+          "type": "string"
+        },
+        "reportedAt": {
+          "$ref": "#/$defs/dateTime"
+        },
+        "progress": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "minimum": 0,
+          "maximum": 100
+        },
+        "result": {
+          "$ref": "#/$defs/objectMap"
+        },
+        "metadata": {
+          "$ref": "#/$defs/stringMap"
+        }
+      }
+    },
+    "edgeTaskStateMachine": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "contractVersion",
+        "states",
+        "transitions",
+        "terminalStates"
+      ],
+      "properties": {
+        "contractVersion": {
+          "const": "edge-task-v1"
+        },
+        "states": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/edgeTaskStatus"
+          }
+        },
+        "transitions": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "array",
+            "items": {
+              "$ref": "#/$defs/edgeTaskStatus"
+            }
+          }
+        },
+        "terminalStates": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/edgeTaskStatus"
+          }
+        }
+      }
+    }
+  }
+}

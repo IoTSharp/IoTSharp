@@ -1,0 +1,136 @@
+{
+  "$schema": "../edge-node.v1.schema.json",
+  "contractVersion": "edge-node-v1",
+  "id": "22222222-2222-2222-2222-222222222222",
+  "gatewayId": "22222222-2222-2222-2222-222222222222",
+  "name": "plant-a-gateway",
+  "accessToken": "example-access-token",
+  "timeout": 60,
+  "active": true,
+  "lastActivityDateTime": "2026-07-05T08:00:00Z",
+  "runtimeType": "gateway",
+  "runtimeName": "plant-a-gateway-runtime",
+  "version": "1.0.0",
+  "instanceId": "plant-a-gateway-01",
+  "platform": "linux/amd64",
+  "hostName": "edge-host-01",
+  "ipAddress": "192.168.1.10",
+  "status": "Running",
+  "healthy": true,
+  "uptimeSeconds": 3600,
+  "lastHeartbeatDateTime": "2026-07-05T08:00:00Z",
+  "lastRegistrationDateTime": "2026-07-05T07:00:00Z",
+  "capabilities": "{}",
+  "metadata": "{}",
+  "metrics": "{}",
+  "lastTaskStatus": "Succeeded",
+  "lastReceiptDateTime": "2026-07-05T07:50:00Z",
+  "runtimeStatus": {
+    "contractVersion": "edge-runtime-status-v1",
+    "edgeNodeId": "22222222-2222-2222-2222-222222222222",
+    "gatewayId": "22222222-2222-2222-2222-222222222222",
+    "active": true,
+    "lastActivityDateTime": "2026-07-05T08:00:00Z",
+    "runtimeType": "gateway",
+    "runtimeName": "plant-a-gateway-runtime",
+    "version": "1.0.0",
+    "instanceId": "plant-a-gateway-01",
+    "platform": "linux/amd64",
+    "hostName": "edge-host-01",
+    "ipAddress": "192.168.1.10",
+    "status": "Running",
+    "healthy": true,
+    "uptimeSeconds": 3600,
+    "lastHeartbeatDateTime": "2026-07-05T08:00:00Z",
+    "lastRegistrationDateTime": "2026-07-05T07:00:00Z",
+    "updatedAt": "2026-07-05T08:00:00Z",
+    "metadata": {
+      "siteCode": "plant-a"
+    },
+    "metrics": {
+      "cpu": 0.25,
+      "memoryMb": 256,
+      "queueDepth": 0
+    }
+  },
+  "capability": {
+    "contractVersion": "edge-capability-v1",
+    "edgeNodeId": "22222222-2222-2222-2222-222222222222",
+    "gatewayId": "22222222-2222-2222-2222-222222222222",
+    "runtimeType": "gateway",
+    "runtimeName": "plant-a-gateway-runtime",
+    "version": "1.0.0",
+    "instanceId": "plant-a-gateway-01",
+    "reportedAt": "2026-07-05T07:30:00Z",
+    "updatedAt": "2026-07-05T07:30:05Z",
+    "protocols": [
+      "modbus-tcp",
+      "mqtt"
+    ],
+    "supportedProtocols": [
+      "Modbus",
+      "Mqtt"
+    ],
+    "supportedPointTypes": [
+      "holding-register",
+      "coil",
+      "mqtt-topic"
+    ],
+    "supportedTransforms": [
+      "Scale",
+      "Offset"
+    ],
+    "supportedReportTriggers": [
+      "OnChange",
+      "Interval"
+    ],
+    "features": [
+      "register",
+      "heartbeat",
+      "collection-config",
+      "task-receipt"
+    ],
+    "tasks": [
+      "ConfigPullRequest",
+      "HealthProbe"
+    ],
+    "taskCapabilities": [
+      {
+        "taskType": "HealthProbe",
+        "contractVersion": "edge-task-v1",
+        "supportsProgress": false,
+        "supportsCancellation": false,
+        "metadata": {}
+      }
+    ],
+    "compatibleContracts": [
+      {
+        "contractName": "edge-node",
+        "contractVersion": "edge-node-v1",
+        "minPlatformVersion": "3.5.0",
+        "maxPlatformVersion": "",
+        "deprecated": false,
+        "metadata": {}
+      },
+      {
+        "contractName": "collection-config",
+        "contractVersion": "collection-config-v1",
+        "minPlatformVersion": "3.5.0",
+        "maxPlatformVersion": "",
+        "deprecated": false,
+        "metadata": {}
+      },
+      {
+        "contractName": "edge-task",
+        "contractVersion": "edge-task-v1",
+        "minPlatformVersion": "3.5.0",
+        "maxPlatformVersion": "",
+        "deprecated": false,
+        "metadata": {}
+      }
+    ],
+    "metadata": {
+      "driverBundle": "industrial-default"
+    }
+  }
+}
