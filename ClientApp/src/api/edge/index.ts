@@ -10,6 +10,7 @@ export interface EdgeNodeQueryParam extends IListQueryParam {
 	version?: string;
 	platform?: string;
 	sorter?: string;
+	sort?: string;
 }
 
 export interface EdgeRuntimeStatus {
@@ -158,6 +159,35 @@ export interface EdgeTaskTimeline {
 	currentStatus: string;
 	lastUpdatedAt: string;
 	events: EdgeTaskTimelineNode[];
+}
+
+export interface EdgeTaskReceipt {
+	contractVersion: string;
+	taskId: string;
+	targetType: 'EdgeNode' | 'GatewayRuntime' | 'DeviceScope';
+	targetKey: string;
+	runtimeType: string;
+	instanceId: string;
+	status: string;
+	message: string;
+	reportedAt: string;
+	progress?: number | null;
+	result?: Record<string, unknown>;
+	metadata?: Record<string, string>;
+}
+
+export interface EdgeTaskHistoryRecord {
+	key: string;
+	at: string;
+	payload: string;
+	status: string;
+}
+
+export interface EdgeTaskStateMachine {
+	contractVersion: string;
+	states: string[];
+	transitions: Record<string, string[]>;
+	terminalStates: string[];
 }
 
 export interface EdgeNodeCreatePayload {

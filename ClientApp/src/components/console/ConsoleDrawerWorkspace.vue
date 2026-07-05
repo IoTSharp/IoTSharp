@@ -43,7 +43,7 @@ interface ConsoleMetric {
 	label: string;
 	value: string | number;
 	hint: string;
-	tone?: 'primary' | 'accent' | 'success' | 'warning';
+	tone?: 'primary' | 'accent' | 'success' | 'warning' | 'danger';
 }
 
 withDefaults(
@@ -205,6 +205,10 @@ withDefaults(
 
 .tone-warning {
 	background: linear-gradient(180deg, rgba(249, 115, 22, 0.08), rgba(255, 255, 255, 0.9));
+}
+
+.tone-danger {
+	background: linear-gradient(180deg, rgba(239, 68, 68, 0.08), rgba(255, 255, 255, 0.9));
 }
 
 .console-drawer-workspace__body {
