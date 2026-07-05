@@ -54,7 +54,7 @@
 						<div class="product-page__name-cell">
 							<strong>{{ scope.row.name }}</strong>
 							<el-tag v-if="scope.row.defaultDeviceType === 'Gateway'">网关模型</el-tag>
-							<el-tag v-else-if="scope.row.defaultDeviceType === 'Device'" type="warning">设备模型</el-tag>
+							<el-tag v-else-if="scope.row.defaultDeviceType === 'Device'" type="warning">设备模板</el-tag>
 						</div>
 					</template>
 				</el-table-column>
@@ -234,7 +234,7 @@ const metrics = computed(() => {
 			tone: 'accent' as const,
 		},
 		{
-			label: '设备模型',
+			label: '设备模板',
 			value: deviceCount,
 			hint: '当前页默认设备类型为设备的产品数量。',
 			tone: 'success' as const,

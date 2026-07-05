@@ -91,8 +91,7 @@ namespace IoTSharp.Services
                 Name = device.Name,
                 DeviceType = device.DeviceType,
                 Timeout = device.Timeout,
-                Deleted = device.Deleted,
-                DeviceModelId = device.DeviceModelId
+                Deleted = device.Deleted
             };
         }
 
@@ -227,7 +226,6 @@ namespace IoTSharp.Services
                                 d.DeviceType,
                                 d.Timeout,
                                 d.Deleted,
-                                d.DeviceModelId,
                                 ProductId = d.Product == null ? null : (Guid?)d.Product.Id
                             })
                             .ToListAsync();
@@ -244,8 +242,7 @@ namespace IoTSharp.Services
                                     Name = device.Name,
                                     DeviceType = device.DeviceType,
                                     Timeout = device.Timeout,
-                                    Deleted = device.Deleted,
-                                    DeviceModelId = device.DeviceModelId
+                                    Deleted = device.Deleted
                                 };
                             }
                         }

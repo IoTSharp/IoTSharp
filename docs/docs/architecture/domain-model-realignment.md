@@ -291,7 +291,7 @@ Edge 页面围绕运行时闭环组织：
 交付：
 
 - Produce 命名迁移清单。
-- DeviceModel 合并方案。
+- DeviceModel 命令能力合并到 Product，活动 API 使用 ProductCommand。
 - 旧 DeviceGraph/DeviceDiagram/Scene 处理方案。
 - Product、Device、Asset、Gateway、EdgeNode、Collection Template 页面职责说明。
 

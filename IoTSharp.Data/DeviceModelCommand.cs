@@ -3,6 +3,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace IoTSharp.Data
 {
+    [Obsolete("DeviceModelCommand 已合并到 ProductCommand，保留该类型仅用于历史数据库结构。")]
     public class DeviceModelCommand
     {
         [Key]

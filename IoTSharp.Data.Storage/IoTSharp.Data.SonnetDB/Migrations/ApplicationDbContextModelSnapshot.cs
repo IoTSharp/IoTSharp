@@ -1466,6 +1466,46 @@ namespace IoTSharp.Data.SonnetDB.Migrations
                     b.ToTable("Products");
                 });
 
+            modelBuilder.Entity("IoTSharp.Data.ProductCommand", b =>
+                {
+                    b.Property<Guid>("CommandId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("STRING");
+
+                    b.Property<string>("CommandName")
+                        .HasColumnType("STRING");
+
+                    b.Property<string>("CommandParams")
+                        .HasColumnType("STRING");
+
+                    b.Property<int>("CommandStatus")
+                        .HasColumnType("INT");
+
+                    b.Property<string>("CommandTemplate")
+                        .HasColumnType("STRING");
+
+                    b.Property<string>("CommandTitle")
+                        .HasColumnType("STRING");
+
+                    b.Property<int>("CommandType")
+                        .HasColumnType("INT");
+
+                    b.Property<DateTime>("CreateDateTime")
+                        .HasColumnType("DATETIME");
+
+                    b.Property<Guid>("Creator")
+                        .HasColumnType("STRING");
+
+                    b.Property<Guid>("ProductId")
+                        .HasColumnType("STRING");
+
+                    b.HasKey("CommandId");
+
+                    b.HasIndex("ProductId", "CommandStatus");
+
+                    b.ToTable("ProductCommands");
+                });
+
             modelBuilder.Entity("IoTSharp.Data.ProductDataMapping", b =>
                 {
                     b.Property<Guid>("Id")
@@ -2479,6 +2519,17 @@ namespace IoTSharp.Data.SonnetDB.Migrations
                     b.Navigation("Tenant");
                 });
 
+            modelBuilder.Entity("IoTSharp.Data.ProductCommand", b =>
+                {
+                    b.HasOne("IoTSharp.Data.Product", "Product")
+                        .WithMany("Commands")
+                        .HasForeignKey("ProductId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Product");
+                });
+
             modelBuilder.Entity("IoTSharp.Data.ProductDataMapping", b =>
                 {
                     b.HasOne("IoTSharp.Data.Product", "Product")
@@ -2661,6 +2712,8 @@ namespace IoTSharp.Data.SonnetDB.Migrations
 
             modelBuilder.Entity("IoTSharp.Data.Product", b =>
                 {
+                    b.Navigation("Commands");
+
                     b.Navigation("DefaultAttributes");
 
                     b.Navigation("Devices");

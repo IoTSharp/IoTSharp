@@ -291,6 +291,234 @@ namespace IoTSharp.Controllers
 
 
         /// <summary>
+        /// 获取产品命令定义。
+        /// </summary>
+        /// <param name="ProductId">产品ID。</param>
+        /// <returns></returns>
+        [Authorize(Roles = nameof(UserRole.NormalUser))]
+        [HttpGet]
+        public async Task<ApiResult<List<ProductCommandDto>>> GetProductCommands(Guid ProductId)
+        {
+            if (ProductId == Guid.Empty)
+            {
+                return new ApiResult<List<ProductCommandDto>>(ApiCode.NotFoundProduct, "Product not found", new List<ProductCommandDto>());
+            }
+
+            var product = await FindCurrentProductAsync(ProductId);
+            if (product == null)
+            {
+                return new ApiResult<List<ProductCommandDto>>(ApiCode.NotFoundProduct, "Product not found", new List<ProductCommandDto>());
+            }
+
+            var commands = await ListProductCommandsAsync(ProductId);
+            return new ApiResult<List<ProductCommandDto>>(ApiCode.Success, "Ok", commands);
+        }
+
+        /// <summary>
+        /// 根据设备所属 Product 获取命令定义。
+        /// </summary>
+        /// <param name="id">设备ID。</param>
+        /// <returns></returns>
+        [Authorize(Roles = nameof(UserRole.NormalUser))]
+        [HttpGet]
+        public async Task<ApiResult<List<ProductCommandDto>>> GetProductCommandsByDevice(Guid id)
+        {
+            var profile = this.GetUserProfile();
+            var productId = await _context.Device
+                .Where(d => d.Id == id
+                    && !d.Deleted
+                    && d.TenantId == profile.Tenant
+                    && d.CustomerId == profile.Customer
+                    && d.Product != null
+                    && !d.Product.Deleted)
+                .Select(d => d.Product.Id)
+                .FirstOrDefaultAsync();
+
+            if (productId == Guid.Empty)
+            {
+                return new ApiResult<List<ProductCommandDto>>(ApiCode.NotFoundDevice, "Device or product not found", new List<ProductCommandDto>());
+            }
+
+            var commands = await ListProductCommandsAsync(productId);
+            return new ApiResult<List<ProductCommandDto>>(ApiCode.Success, "Ok", commands);
+        }
+
+        /// <summary>
+        /// 获取单个产品命令定义。
+        /// </summary>
+        /// <param name="id">命令定义ID。</param>
+        /// <returns></returns>
+        [Authorize(Roles = nameof(UserRole.NormalUser))]
+        [HttpGet]
+        public async Task<ApiResult<ProductCommandDto>> GetProductCommand(Guid id)
+        {
+            var command = await _context.ProductCommands.SingleOrDefaultAsync(c => c.CommandId == id && c.CommandStatus > -1);
+            if (command == null)
+            {
+                return new ApiResult<ProductCommandDto>(ApiCode.CantFindObject, "Command not found", null);
+            }
+
+            var product = await FindCurrentProductAsync(command.ProductId);
+            if (product == null)
+            {
+                return new ApiResult<ProductCommandDto>(ApiCode.NotFoundProduct, "Product not found", null);
+            }
+
+            return new ApiResult<ProductCommandDto>(ApiCode.Success, "Ok", ToProductCommandDto(command));
+        }
+
+        /// <summary>
+        /// 新增产品命令定义。
+        /// </summary>
+        /// <param name="dto">产品命令定义。</param>
+        /// <returns></returns>
+        [Authorize(Roles = nameof(UserRole.CustomerAdmin))]
+        [HttpPost]
+        public async Task<ApiResult<bool>> SaveProductCommand([FromBody] ProductCommandDto dto)
+        {
+            if (dto == null || dto.ProductId == Guid.Empty)
+            {
+                return new ApiResult<bool>(ApiCode.InValidData, "Product command payload is invalid", false);
+            }
+
+            var product = await FindCurrentProductAsync(dto.ProductId);
+            if (product == null)
+            {
+                return new ApiResult<bool>(ApiCode.NotFoundProduct, "Product not found", false);
+            }
+
+            var profile = this.GetUserProfile();
+            var command = new ProductCommand
+            {
+                CommandId = dto.CommandId == Guid.Empty ? Guid.NewGuid() : dto.CommandId,
+                CommandTitle = dto.CommandTitle,
+                CommandType = dto.CommandType,
+                CommandParams = dto.CommandParams,
+                CommandName = dto.CommandName,
+                CommandTemplate = dto.CommandTemplate,
+                ProductId = dto.ProductId,
+                CreateDateTime = DateTime.UtcNow,
+                Creator = profile.Id,
+                CommandStatus = 0
+            };
+
+            _context.ProductCommands.Add(command);
+            await _context.SaveChangesAsync();
+            return new ApiResult<bool>(ApiCode.Success, "Ok", true);
+        }
+
+        /// <summary>
+        /// 修改产品命令定义。
+        /// </summary>
+        /// <param name="dto">产品命令定义。</param>
+        /// <returns></returns>
+        [Authorize(Roles = nameof(UserRole.CustomerAdmin))]
+        [HttpPost]
+        public async Task<ApiResult<bool>> UpdateProductCommand([FromBody] ProductCommandDto dto)
+        {
+            if (dto == null || dto.CommandId == Guid.Empty || dto.ProductId == Guid.Empty)
+            {
+                return new ApiResult<bool>(ApiCode.InValidData, "Product command payload is invalid", false);
+            }
+
+            var product = await FindCurrentProductAsync(dto.ProductId);
+            if (product == null)
+            {
+                return new ApiResult<bool>(ApiCode.NotFoundProduct, "Product not found", false);
+            }
+
+            var command = await _context.ProductCommands
+                .SingleOrDefaultAsync(c => c.CommandId == dto.CommandId
+                    && c.ProductId == dto.ProductId
+                    && c.CommandStatus > -1);
+            if (command == null)
+            {
+                return new ApiResult<bool>(ApiCode.CantFindObject, "Command not found", false);
+            }
+
+            command.CommandTitle = dto.CommandTitle;
+            command.CommandType = dto.CommandType;
+            command.CommandParams = dto.CommandParams;
+            command.CommandName = dto.CommandName;
+            command.CommandTemplate = dto.CommandTemplate;
+            _context.ProductCommands.Update(command);
+            await _context.SaveChangesAsync();
+            return new ApiResult<bool>(ApiCode.Success, "Ok", true);
+        }
+
+        /// <summary>
+        /// 删除产品命令定义。
+        /// </summary>
+        /// <param name="id">命令定义ID。</param>
+        /// <returns></returns>
+        [Authorize(Roles = nameof(UserRole.CustomerAdmin))]
+        [HttpGet]
+        public async Task<ApiResult<bool>> DeleteProductCommand(Guid id)
+        {
+            var command = await _context.ProductCommands.SingleOrDefaultAsync(c => c.CommandId == id && c.CommandStatus > -1);
+            if (command == null)
+            {
+                return new ApiResult<bool>(ApiCode.CantFindObject, "Command not found", false);
+            }
+
+            var product = await FindCurrentProductAsync(command.ProductId);
+            if (product == null)
+            {
+                return new ApiResult<bool>(ApiCode.NotFoundProduct, "Product not found", false);
+            }
+
+            command.CommandStatus = -1;
+            _context.ProductCommands.Update(command);
+            await _context.SaveChangesAsync();
+            return new ApiResult<bool>(ApiCode.Success, "Ok", true);
+        }
+
+        /// <summary>
+        /// 查询产品命令定义。
+        /// </summary>
+        /// <param name="ProductId">产品ID。</param>
+        /// <returns></returns>
+        private async Task<List<ProductCommandDto>> ListProductCommandsAsync(Guid ProductId)
+        {
+            var commands = await _context.ProductCommands
+                .Where(c => c.ProductId == ProductId && c.CommandStatus > -1)
+                .OrderBy(c => c.CommandName)
+                .ToListAsync();
+            return commands.Select(ToProductCommandDto).ToList();
+        }
+
+        /// <summary>
+        /// 查询当前用户作用域内的产品。
+        /// </summary>
+        /// <param name="ProductId">产品ID。</param>
+        /// <returns></returns>
+        private Task<Product> FindCurrentProductAsync(Guid ProductId)
+        {
+            var profile = this.GetUserProfile();
+            return _context.Products
+                .Include(p => p.Tenant)
+                .Include(p => p.Customer)
+                .SingleOrDefaultAsync(p => p.Id == ProductId
+                    && !p.Deleted
+                    && p.Tenant.Id == profile.Tenant
+                    && p.Customer.Id == profile.Customer);
+        }
+
+        private static ProductCommandDto ToProductCommandDto(ProductCommand command)
+        {
+            return new ProductCommandDto
+            {
+                CommandId = command.CommandId,
+                ProductId = command.ProductId,
+                CommandTitle = command.CommandTitle,
+                CommandType = command.CommandType,
+                CommandParams = command.CommandParams,
+                CommandName = command.CommandName,
+                CommandTemplate = command.CommandTemplate
+            };
+        }
+
+        /// <summary>
         /// 修改属性
         /// </summary>
         /// <param name="dto"></param>
@@ -583,8 +811,8 @@ namespace IoTSharp.Controllers
                     var devicePayload = grp.ToDictionary(
                         m => m.DeviceKeyName,
                         m => telemetrys[m.ProductKeyName]);
-                    _queue.PublishActive(grp.Key, ActivityStatus.Activity);
-                    _queue.PublishTelemetryData(new PlayloadData
+                    await _queue.PublishActive(grp.Key, ActivityStatus.Activity);
+                    await _queue.PublishTelemetryData(new PlayloadData
                     {
                         DeviceId = grp.Key,
                         MsgBody = devicePayload,
@@ -698,8 +926,8 @@ namespace IoTSharp.Controllers
                     var devicePayload = grp.ToDictionary(
                         m => m.DeviceKeyName,
                         m => attributes[m.ProductKeyName]);
-                    _queue.PublishActive(grp.Key, ActivityStatus.Activity);
-                    _queue.PublishAttributeData(new PlayloadData
+                    await _queue.PublishActive(grp.Key, ActivityStatus.Activity);
+                    await _queue.PublishAttributeData(new PlayloadData
                     {
                         DeviceId = grp.Key,
                         MsgBody = devicePayload,

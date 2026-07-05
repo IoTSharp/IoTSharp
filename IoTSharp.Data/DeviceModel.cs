@@ -4,6 +4,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace IoTSharp.Data
 {
+    [Obsolete("DeviceModel 已合并到 Product，保留该类型仅用于历史数据库结构。")]
     public class DeviceModel
     {
         [Key]

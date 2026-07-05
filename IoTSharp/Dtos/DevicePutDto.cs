@@ -16,7 +16,6 @@ namespace IoTSharp.Dtos
         /// </summary>
         public DeviceType DeviceType { get; set; }
         public int Timeout { get; set; }
-        public Guid? DeviceModelId { get; set; }
         public IdentityType IdentityType { get; set; }
     }
 }

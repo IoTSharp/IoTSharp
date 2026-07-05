@@ -495,7 +495,7 @@ const systemOverviewItems = computed(() => [
 	{ label: '消息节点', value: formatCount(messageMetrics.value.servers), hint: '消息服务器实例数' },
 	{ label: '订阅客户端', value: formatCount(messageMetrics.value.subscribers), hint: '当前订阅终端规模' },
 	{ label: '规则总数', value: formatCount(kanban.value.rulesCount), hint: '自动化流程与联动' },
-	{ label: '产品模型', value: formatCount(kanban.value.ProductCount), hint: '设备模型与模板' },
+	{ label: '产品模型', value: formatCount(kanban.value.ProductCount), hint: '产品能力模板' },
 	{ label: '系统用户', value: formatCount(kanban.value.userCount), hint: '协同管理成员数' },
 	{ label: '事件总量', value: formatCount(kanban.value.eventCount), hint: '近 24 小时平台事件' },
 ]);

@@ -70,6 +70,12 @@ namespace IoTSharp.Data
         /// 产品字典
         /// </summary>
         public List<ProductDictionary> Dictionaries { get; set; }
+
+        /// <summary>
+        /// 产品命令定义。
+        /// </summary>
+        public List<ProductCommand> Commands { get; set; }
+
         public string ProductToken { get; set; }
 
         public bool Deleted { get; set; }

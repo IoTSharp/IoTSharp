@@ -51,6 +51,11 @@ namespace IoTSharp.Data
         public Customer Customer { get; set; }
 
 
+        /// <summary>
+        /// 历史设备模型ID。活动 API 不再使用，命令和能力定义由 Product 承载。
+        /// </summary>
+        [Obsolete("DeviceModel 已合并到 Product，活动代码不应继续使用该字段。")]
+        [System.Text.Json.Serialization.JsonIgnore]
         public Guid? DeviceModelId { get; set; }
 
         [System.Text.Json.Serialization.JsonIgnore]

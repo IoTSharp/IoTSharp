@@ -30,6 +30,8 @@ namespace IoTSharp.Data
 
             modelBuilder.Entity<Device>().HasOne(c => c.DeviceIdentity).WithOne(c => c.Device).HasForeignKey<DeviceIdentity>(c => c.DeviceId);
             modelBuilder.Entity<Device>().HasOne(c => c.Product).WithMany(c => c.Devices).HasForeignKey("ProductId");
+            modelBuilder.Entity<ProductCommand>().HasOne(c => c.Product).WithMany(c => c.Commands).HasForeignKey(c => c.ProductId);
+            modelBuilder.Entity<ProductCommand>().HasIndex(c => new { c.ProductId, c.CommandStatus });
             modelBuilder.Entity<Device>().HasIndex(nameof(IoTSharp.Data.Device.CustomerId), nameof(IoTSharp.Data.Device.TenantId), nameof(IoTSharp.Data.Device.Deleted));
             modelBuilder.Entity<Device>().HasIndex(nameof(IoTSharp.Data.Device.TenantId), nameof(IoTSharp.Data.Device.Deleted));
             modelBuilder.Entity<Device>().HasDiscriminator<DeviceType>(nameof(Data.Device.DeviceType)).HasValue<Gateway>(DeviceType.Gateway).HasValue<Device>(DeviceType.Device);
@@ -80,7 +82,10 @@ namespace IoTSharp.Data
         public DbSet<DevicePort> DevicePorts { get; set; }
         public DbSet<DevicePortMapping> DevicePortMappings { get; set; }
 
+        [Obsolete("DeviceModel 已合并到 Product，保留该 DbSet 仅用于历史数据库结构。")]
         public DbSet<DeviceModel> DeviceModels { get; set; }
+
+        [Obsolete("DeviceModelCommand 已合并到 ProductCommand，保留该 DbSet 仅用于历史数据库结构。")]
         public DbSet<DeviceModelCommand> DeviceModelCommands { get; set; }
 
         public DbSet<RefreshToken> RefreshTokens { get; set; }
@@ -95,6 +100,8 @@ namespace IoTSharp.Data
         public DbSet<ProductDictionary> ProductDictionaries { get; set; }
 
         public DbSet<ProductDataMapping> ProductDataMappings { get; set; }
+
+        public DbSet<ProductCommand> ProductCommands { get; set; }
 
         public DbSet<AISettings> AISettings { get; set; }
     }
