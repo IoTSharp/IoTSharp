@@ -108,7 +108,7 @@ M2 的目标是把现有 Edge 第一版能力从属性键和临时 DTO 沉淀为
 | #021 | `✅️` | EdgeCapability | 平台 | 已新增 `edge-capability-v1`、`EdgeCapabilityDto`、EdgeNode 内嵌 capability 和 `/api/Edge/{id}/Capability` 只读接口，覆盖协议、点位类型、转换能力、任务能力和合同版本兼容模型。 |
 | #022 | `✅️` | EdgeTask | 平台 | 已新增正式 `EdgeTask` 主模型、`EdgeTasks` 迁移和 `EdgeTaskDto` 状态快照；Dispatch/Pull/Accept/Receipt 以正式表为主存储，并保留 AttributeLatest/TelemetryData 兼容副本。 |
 | #023 | `✅️` | EdgeTaskReceipt | 平台 | 已新增正式 `EdgeTaskReceipt` 历史模型和 `EdgeTaskReceipts` 迁移；Receipt/Accept 写入正式回执表并同步 EdgeTask 当前态、AttributeLatest 和 TelemetryData 兼容副本。 |
-| #024 | `⬜` | EdgeCollectionAssignment | 平台 | 记录哪个采集配置发布到了哪个 EdgeNode 或 Gateway。 |
+| #024 | `✅️` | EdgeCollectionAssignment | 平台 | 已新增正式 `EdgeCollectionAssignment` 模型、`EdgeCollectionAssignments` 迁移和 `EdgeCollectionAssignmentDto`；保存 CollectionConfig 时生成 Active 分配，旧版本转 Superseded，执行端拉取时记录 `lastPulledAt`，并提供 `/api/Edge/CollectionAssignments` 与 `/api/Edge/{id}/CollectionAssignments` 查询。 |
 | #025 | `⬜` | Edge API 改造 | 平台 | 查询状态、能力、任务、回执和历史时使用正式模型；任务状态流转不再以 AttributeLatest/TelemetryData 作为主存储。 |
 | #026 | `⬜` | Edge 前端改造 | 平台 | Edge 详情页展示正式状态、能力、任务历史和配置分配。 |
 | #027 | `⬜` | 跨仓契约固化 | 平台 | `edge-node-v1`、`collection-config-v1`、`edge-task-v1` 契约（JSON Schema + DTO）进入 `IoTSharp.Contracts` 并版本化发布；IoTEdge 切换为契约包消费者；双方路线图互相引用。 |

@@ -100,6 +100,47 @@ export interface EdgeTaskListQueryParam extends IListQueryParam {
 	runtimeType?: string;
 }
 
+export type EdgeCollectionAssignmentStatus = 'Pending' | 'Active' | 'Superseded' | 'Revoked';
+
+export interface EdgeCollectionAssignment {
+	contractVersion: string;
+	id: string;
+	targetType: 'EdgeNode' | 'GatewayRuntime' | 'DeviceScope';
+	gatewayId: string;
+	edgeNodeId?: string;
+	targetKey: string;
+	runtimeType: string;
+	instanceId: string;
+	configurationVersion: number;
+	configurationHash: string;
+	taskCount: number;
+	status: EdgeCollectionAssignmentStatus;
+	sourceType: string;
+	sourceId: string;
+	sourceVersion: string;
+	assignedAt: string;
+	lastPulledAt?: string;
+	revokedAt?: string;
+	createdAt: string;
+	updatedAt: string;
+	createdBy: string;
+	updatedBy: string;
+	metadata: Record<string, unknown>;
+}
+
+export interface EdgeCollectionAssignmentQueryParam extends IListQueryParam {
+	gatewayId?: string;
+	edgeNodeId?: string;
+	targetType?: string;
+	status?: EdgeCollectionAssignmentStatus;
+	configurationVersion?: number;
+	runtimeType?: string;
+	targetKey?: string;
+	sourceType?: string;
+	sorter?: string;
+	sort?: string;
+}
+
 export interface EdgeTaskTimelineNode {
 	category: string;
 	status: string;
@@ -151,6 +192,13 @@ export function edgeApi() {
 			return request({
 				url: `/api/Edge/${id}/Capability`,
 				method: 'get',
+			});
+		},
+		getCollectionAssignments: (id: string, params?: EdgeCollectionAssignmentQueryParam) => {
+			return request({
+				url: `/api/Edge/${id}/CollectionAssignments`,
+				method: 'get',
+				params,
 			});
 		},
 		createEdgeNode: (payload: EdgeNodeCreatePayload) => {

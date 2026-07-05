@@ -102,6 +102,30 @@
 					</article>
 				</section>
 
+				<section class="edge-assignment-section">
+					<article class="edge-card">
+						<div class="edge-card__header">
+							<div>
+								<h3>采集配置分配</h3>
+								<p>展示 CollectionConfig 版本与 Edge 运行时目标之间的当前分配和历史分配。</p>
+							</div>
+						</div>
+						<el-table :data="collectionAssignments" stripe>
+							<el-table-column prop="configurationVersion" label="Version" min-width="100" />
+							<el-table-column prop="status" label="Status" min-width="120" />
+							<el-table-column prop="runtimeType" label="RuntimeType" min-width="130" />
+							<el-table-column prop="targetKey" label="TargetKey" min-width="260" show-overflow-tooltip />
+							<el-table-column prop="taskCount" label="Tasks" min-width="90" />
+							<el-table-column prop="assignedAt" label="AssignedAt" min-width="170">
+								<template #default="scope">{{ formatDateTime(scope.row.assignedAt) }}</template>
+							</el-table-column>
+							<el-table-column prop="lastPulledAt" label="LastPulledAt" min-width="170">
+								<template #default="scope">{{ formatDateTime(scope.row.lastPulledAt) }}</template>
+							</el-table-column>
+						</el-table>
+					</article>
+				</section>
+
 				<section class="edge-history-section">
 					<article class="edge-card">
 						<div class="edge-card__header">
@@ -165,6 +189,7 @@ const drawer = ref(false);
 const edgeRef = ref<Record<string, any>>({});
 const latestReceipt = ref<Record<string, any> | null>(null);
 const receiptHistory = ref<Record<string, any>[]>([]);
+const collectionAssignments = ref<Record<string, any>[]>([]);
 const dispatchDialog = ref(false);
 const stateMachine = reactive<{ states: string[] }>({ states: [] });
 const taskTypeOptions = ['ConfigPush', 'ConfigPullRequest', 'PackageDownload', 'PackageApply', 'RestartRuntime', 'HealthProbe'];
@@ -216,7 +241,7 @@ const metrics = computed(() => [
 	{ label: 'Healthy', value: formatBoolean(edgeRef.value?.healthy), hint: '最近健康状态', tone: 'accent' as const },
 	{ label: 'Active', value: formatBoolean(edgeRef.value?.active), hint: '最近活跃状态', tone: 'warning' as const },
 	{ label: 'Receipt', value: latestReceipt.value?.status || '暂无', hint: '最近任务回执状态。', tone: 'primary' as const },
-	{ label: 'History', value: receiptHistory.value.length, hint: '当前页面缓存的回执历史条数。', tone: 'success' as const },
+	{ label: 'Config', value: collectionAssignments.value[0]?.configurationVersion ?? '暂无', hint: '当前采集配置版本。', tone: 'success' as const },
 ]);
 
 const formatDateTime = (value?: string) => (value ? dayjs(value).format('YYYY-MM-DD HH:mm:ss') : '--');
@@ -238,17 +263,19 @@ const reload = async () => {
 		return;
 	}
 
-	const [detailRes, receiptRes, historyRes, stateMachineRes] = await Promise.all([
+	const [detailRes, receiptRes, historyRes, stateMachineRes, assignmentRes] = await Promise.all([
 		edgeApi().getEdgeDetail(edgeRef.value.id),
 		edgeApi().getLatestReceipt(edgeRef.value.id),
 		edgeApi().getReceiptHistory(edgeRef.value.id),
 		edgeApi().getStateMachine(),
+		edgeApi().getCollectionAssignments(edgeRef.value.id, { offset: 0, limit: 20, sorter: 'ConfigurationVersion', sort: 'desc' }),
 	]);
 
 	edgeRef.value = detailRes.data ?? {};
 	latestReceipt.value = receiptRes.data ?? null;
 	receiptHistory.value = (historyRes.data ?? []).map(normalizeHistoryRecord);
 	stateMachine.states = stateMachineRes.data?.states ?? [];
+	collectionAssignments.value = assignmentRes.data?.rows ?? [];
 };
 
 const normalizeHistoryRecord = (record: Record<string, any>) => {
@@ -358,6 +385,7 @@ defineExpose({
 .edge-detail__overview,
 .edge-json-panels,
 .edge-receipt-section,
+.edge-assignment-section,
 .edge-history-section {
 	display: grid;
 	gap: 18px;
@@ -378,6 +406,10 @@ defineExpose({
 }
 
 .edge-history-section {
+	margin-top: 18px;
+}
+
+.edge-assignment-section {
 	margin-top: 18px;
 }
 

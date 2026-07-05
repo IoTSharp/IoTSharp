@@ -183,6 +183,70 @@
 - `metadata` 只保存非敏感能力上下文，不保存密钥、日志或高频指标。
 - EdgeNode 列表和详情短期保留既有 `capabilities` JSON 字符串；新增消费者应优先读取 `capability` 或只读接口。
 
+## EdgeCollectionAssignment 正式模型（#024）
+
+`EdgeCollectionAssignment` 是平台侧采集配置分配快照，用于记录某个 `collection-config-v1` 配置版本当前分配给哪个 EdgeNode、Gateway runtime 或设备范围。它不替代 M3 的 Collection Template，也不承载执行端回执、长周期发布状态或规则链执行状态。
+
+### 契约版本
+
+- 当前配置分配快照版本：`edge-collection-v1`
+- DTO 名称：`EdgeCollectionAssignmentDto`
+- 所属包：`IoTSharp.Contracts`
+
+### 只读接口
+
+- `GET /api/Edge/CollectionAssignments`
+- `GET /api/Edge/{id}/CollectionAssignments`
+
+`id` 使用平台侧 EdgeNode ID；当前第一版与承载接入凭证的 Gateway 设备 ID 保持一致。接口只允许已授权的普通用户读取，仍受租户和客户边界限制。
+
+### 字段范围
+
+- id
+- contractVersion
+- targetType
+- gatewayId
+- edgeNodeId
+- targetKey
+- runtimeType
+- instanceId
+- configurationVersion
+- configurationHash
+- taskCount
+- status
+- sourceType
+- sourceId
+- sourceVersion
+- assignedAt
+- lastPulledAt
+- revokedAt
+- createdAt
+- updatedAt
+- createdBy
+- updatedBy
+- metadata
+
+### 状态枚举
+
+- Pending = 0
+- Active = 1
+- Superseded = 2
+- Revoked = 3
+
+### 写入规则
+
+- `PUT /api/Edge/{id}/CollectionConfig` 保存新配置版本时，同步创建一条 Active assignment。
+- 同一 Gateway 旧的 Active assignment 会转为 Superseded。
+- `GET /api/Edge/{access_token}/CollectionConfig` 被执行端拉取时，平台更新当前 Active assignment 的 `lastPulledAt`。
+- `configurationHash` 根据规范化后的配置 JSON 计算，用于平台和执行端核对配置一致性。
+
+### 边界约束
+
+- assignment 只保存版本、目标、哈希、任务数量和状态，不保存完整采集配置大对象。
+- 完整运行时配置仍由 `EdgeCollectionConfigurationDto` 通过 `collection-config-v1` 拉取。
+- M3 的 Product Collection Template 落地前，`sourceType` 使用 `InlineCollectionConfig`，`sourceId` 可以为空。
+- 执行成功、失败、超时和回滚结果归 EdgeTask/EdgeTaskReceipt 或后续 ReleaseTask，不写入 assignment。
+
 ### 查询返回结构
 
 统一返回现有前端分页表格格式：
@@ -629,6 +693,11 @@ targetKey 规则：
   - EdgeNode 列表和详情内嵌 capability
   - POST /api/Edge/{access_token}/Capabilities 兼容旧结构并归一化为 edge-capability-v1
   - GET /api/Edge/{id}/Capability 提供正式只读能力快照
+- EdgeCollectionAssignmentDto
+  - 记录采集配置版本到 EdgeNode/Gateway 运行时的目标分配
+  - PUT /api/Edge/{id}/CollectionConfig 保存配置时生成 Active assignment
+  - GET /api/Edge/{id}/CollectionAssignments 提供节点内分配历史
+  - GET /api/Edge/CollectionAssignments 提供租户边界内分配查询
 - POST /api/EdgeTask/Receipt
   - 校验 contractVersion
   - 校验 taskId
@@ -642,10 +711,8 @@ targetKey 规则：
 
 当前还未落地：
 
-- Receipt 持久化
-- Receipt 与任务实体关联存储
-- 平台侧任务下发接口
 - 任务执行审计查询页
+- M3 Collection Template 与 assignment 的正式来源关联
 
 ### 兼容性规则
 

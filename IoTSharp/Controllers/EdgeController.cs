@@ -11,8 +11,11 @@ using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Cryptography;
+using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
+using EdgeCollectionAssignmentQueryDto = IoTSharp.Dtos.EdgeCollectionAssignmentQueryDto;
 using EdgeNodeQueryDto = IoTSharp.Dtos.EdgeNodeQueryDto;
 
 namespace IoTSharp.Controllers
@@ -155,6 +158,41 @@ namespace IoTSharp.Controllers
             var node = await EnsureEdgeNodeAsync(gateway);
             var attrs = await QueryEdgeAttributes([gateway.Id]);
             return new ApiResult<EdgeCapabilityDto>(ApiCode.Success, "OK", ToEdgeCapabilityDto(node, attrs));
+        }
+
+        [HttpGet("CollectionAssignments")]
+        [Authorize(Roles = nameof(UserRole.NormalUser))]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesDefaultResponseType]
+        public async Task<ApiResult<PagedData<EdgeCollectionAssignmentDto>>> GetCollectionAssignments([FromQuery] EdgeCollectionAssignmentQueryDto query)
+        {
+            var profile = this.GetUserProfile();
+            return new ApiResult<PagedData<EdgeCollectionAssignmentDto>>(
+                ApiCode.Success,
+                "OK",
+                await QueryCollectionAssignmentsAsync(query, profile.Tenant, profile.Customer));
+        }
+
+        [HttpGet("{id:guid}/CollectionAssignments")]
+        [Authorize(Roles = nameof(UserRole.NormalUser))]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesDefaultResponseType]
+        public async Task<ApiResult<PagedData<EdgeCollectionAssignmentDto>>> GetCollectionAssignments(Guid id, [FromQuery] EdgeCollectionAssignmentQueryDto query)
+        {
+            var profile = this.GetUserProfile();
+            var gateway = await GetGatewayForProfileAsync(id, profile.Tenant, profile.Customer);
+            if (gateway == null)
+            {
+                return new ApiResult<PagedData<EdgeCollectionAssignmentDto>>(ApiCode.NotFoundDevice, "Edge node not found", null);
+            }
+
+            query ??= new EdgeCollectionAssignmentQueryDto();
+            query.GatewayId = gateway.Id;
+
+            return new ApiResult<PagedData<EdgeCollectionAssignmentDto>>(
+                ApiCode.Success,
+                "OK",
+                await QueryCollectionAssignmentsAsync(query, profile.Tenant, profile.Customer));
         }
 
         [AllowAnonymous]
@@ -383,19 +421,23 @@ namespace IoTSharp.Controllers
 
             var version = await GetCurrentCollectionConfigVersionAsync(gateway.Id) + 1;
             var updatedAt = DateTime.UtcNow;
+            var updatedBy = string.IsNullOrWhiteSpace(profile.Name) ? profile.Email : profile.Name;
             var normalizedTasks = tasks.Select(task => NormalizeCollectionTask(task, gateway.Id, version)).ToArray();
             var document = new EdgeCollectionConfigurationDto
             {
                 EdgeNodeId = gateway.Id,
                 Version = version,
                 UpdatedAt = updatedAt,
-                UpdatedBy = string.IsNullOrWhiteSpace(profile.Name) ? profile.Email : profile.Name,
+                UpdatedBy = updatedBy,
                 Tasks = normalizedTasks
             };
+            var payload = JsonSerializer.Serialize(document);
+            var node = await EnsureEdgeNodeAsync(gateway);
+            await PrepareCollectionAssignmentAsync(gateway, node, document, payload, updatedBy, updatedAt);
 
             await _context.SaveAsync<AttributeLatest>(new Dictionary<string, object>
             {
-                [Constants._EdgeCollectionConfig] = JsonSerializer.Serialize(document),
+                [Constants._EdgeCollectionConfig] = payload,
                 [Constants._EdgeCollectionConfigVersion] = version,
                 [Constants._EdgeCollectionConfigUpdatedAt] = updatedAt
             }, gateway.Id, DataSide.ServerSide);
@@ -416,7 +458,9 @@ namespace IoTSharp.Controllers
                 return Ok(new ApiResult<EdgeCollectionConfigurationDto>(ApiCode.NotFoundDevice, $"{access_token} not a gateway's access token", null));
             }
 
-            return Ok(new ApiResult<EdgeCollectionConfigurationDto>(ApiCode.Success, "OK", await ReadCollectionConfigAsync(gateway.Id)));
+            var document = await ReadCollectionConfigAsync(gateway.Id);
+            await MarkCollectionAssignmentPulledAsync(gateway.Id, document.Version);
+            return Ok(new ApiResult<EdgeCollectionConfigurationDto>(ApiCode.Success, "OK", document));
         }
 
         private async Task<Device> GetGatewayByAccessTokenAsync(string accessToken)
@@ -437,6 +481,250 @@ namespace IoTSharp.Controllers
             return await _context.Device
                 .Include(c => c.DeviceIdentity)
                 .FirstOrDefaultAsync(c => c.Id == id && c.Customer.Id == customerId && c.Tenant.Id == tenantId && !c.Deleted && c.DeviceType == DeviceType.Gateway);
+        }
+
+        /// <summary>
+        /// 按当前登录用户边界查询采集配置分配记录。
+        /// </summary>
+        /// <param name="query">分页和筛选条件。</param>
+        /// <param name="tenantId">当前租户 ID。</param>
+        /// <param name="customerId">当前客户 ID。</param>
+        /// <returns>分页后的配置分配快照。</returns>
+        private async Task<PagedData<EdgeCollectionAssignmentDto>> QueryCollectionAssignmentsAsync(
+            EdgeCollectionAssignmentQueryDto query,
+            Guid tenantId,
+            Guid customerId)
+        {
+            query ??= new EdgeCollectionAssignmentQueryDto();
+            query.Limit = Math.Clamp(query.Limit < 1 ? 10 : query.Limit, 1, 100);
+
+            var assignments = _context.EdgeCollectionAssignments
+                .Include(c => c.Gateway)
+                .Where(c => c.CustomerId == customerId && c.TenantId == tenantId && !c.Deleted && !c.Gateway.Deleted);
+
+            if (query.GatewayId.HasValue && query.GatewayId.Value != Guid.Empty)
+            {
+                assignments = assignments.Where(c => c.GatewayId == query.GatewayId.Value);
+            }
+
+            if (query.EdgeNodeId.HasValue && query.EdgeNodeId.Value != Guid.Empty)
+            {
+                assignments = assignments.Where(c => c.EdgeNodeId == query.EdgeNodeId.Value);
+            }
+
+            if (!string.IsNullOrWhiteSpace(query.TargetType) && Enum.TryParse<EdgeTaskTargetType>(query.TargetType, true, out var targetType))
+            {
+                assignments = assignments.Where(c => c.TargetType == targetType);
+            }
+
+            if (query.Status.HasValue)
+            {
+                assignments = assignments.Where(c => c.Status == query.Status.Value);
+            }
+
+            if (query.ConfigurationVersion.HasValue)
+            {
+                assignments = assignments.Where(c => c.ConfigurationVersion == query.ConfigurationVersion.Value);
+            }
+
+            if (!string.IsNullOrWhiteSpace(query.RuntimeType))
+            {
+                assignments = assignments.Where(c => c.RuntimeType == query.RuntimeType);
+            }
+
+            if (!string.IsNullOrWhiteSpace(query.TargetKey))
+            {
+                assignments = assignments.Where(c => c.TargetKey.Contains(query.TargetKey));
+            }
+
+            if (!string.IsNullOrWhiteSpace(query.SourceType))
+            {
+                assignments = assignments.Where(c => c.SourceType == query.SourceType);
+            }
+
+            if (!string.IsNullOrWhiteSpace(query.Name))
+            {
+                assignments = assignments.Where(c => c.Gateway.Name.Contains(query.Name) || c.TargetKey.Contains(query.Name));
+            }
+
+            var total = await assignments.CountAsync();
+            var rows = await ApplyCollectionAssignmentSorting(assignments, query)
+                .Skip(query.Offset * query.Limit)
+                .Take(query.Limit)
+                .ToListAsync();
+
+            return new PagedData<EdgeCollectionAssignmentDto>
+            {
+                total = total,
+                rows = rows.Select(ToEdgeCollectionAssignmentDto).ToList()
+            };
+        }
+
+        /// <summary>
+        /// 准备采集配置分配记录，与 AttributeLatest 中的配置文档在同一次保存中提交。
+        /// </summary>
+        /// <param name="gateway">承载配置拉取通道的 Gateway 设备。</param>
+        /// <param name="node">平台侧 EdgeNode。</param>
+        /// <param name="document">待分配的采集配置文档。</param>
+        /// <param name="payload">规范化后的采集配置 JSON。</param>
+        /// <param name="updatedBy">操作者显示名或账号标识。</param>
+        /// <param name="now">本次分配的 UTC 时间。</param>
+        /// <returns>已加入上下文但尚未保存的分配记录。</returns>
+        private async Task<EdgeCollectionAssignment> PrepareCollectionAssignmentAsync(
+            Device gateway,
+            EdgeNode node,
+            EdgeCollectionConfigurationDto document,
+            string payload,
+            string updatedBy,
+            DateTime now)
+        {
+            var activeAssignments = await _context.EdgeCollectionAssignments
+                .Where(c => c.GatewayId == gateway.Id && !c.Deleted && c.Status == EdgeCollectionAssignmentStatus.Active)
+                .ToListAsync();
+
+            foreach (var assignment in activeAssignments)
+            {
+                assignment.Status = EdgeCollectionAssignmentStatus.Superseded;
+                assignment.UpdatedAt = now;
+                assignment.UpdatedBy = updatedBy;
+            }
+
+            var runtimeType = Coalesce(node?.RuntimeType, EdgeRuntimeTypes.Gateway);
+            var instanceId = node?.InstanceId ?? string.Empty;
+            var newAssignment = new EdgeCollectionAssignment
+            {
+                Id = Guid.NewGuid(),
+                ContractVersion = EdgeNodeContractVersions.CollectionConfigV1,
+                TargetType = ResolveCollectionAssignmentTargetType(runtimeType),
+                GatewayId = gateway.Id,
+                EdgeNodeId = node?.Id ?? gateway.Id,
+                TargetKey = BuildEdgeTargetKey(gateway.Id, runtimeType, instanceId),
+                RuntimeType = runtimeType,
+                InstanceId = instanceId,
+                ConfigurationVersion = document.Version,
+                ConfigurationHash = ComputeSha256(payload),
+                TaskCount = document.Tasks?.Count ?? 0,
+                Status = EdgeCollectionAssignmentStatus.Active,
+                SourceType = "InlineCollectionConfig",
+                SourceId = string.Empty,
+                SourceVersion = document.Version.ToString(),
+                Metadata = "{}",
+                AssignedAt = now,
+                CreatedAt = now,
+                UpdatedAt = now,
+                CreatedBy = updatedBy,
+                UpdatedBy = updatedBy,
+                TenantId = gateway.TenantId ?? gateway.Tenant?.Id,
+                CustomerId = gateway.CustomerId ?? gateway.Customer?.Id,
+                Gateway = gateway
+            };
+
+            _context.EdgeCollectionAssignments.Add(newAssignment);
+            return newAssignment;
+        }
+
+        /// <summary>
+        /// 记录执行端最近一次拉取当前采集配置的时间。
+        /// </summary>
+        /// <param name="gatewayId">承载配置拉取通道的 Gateway 设备 ID。</param>
+        /// <param name="configurationVersion">被拉取的配置版本。</param>
+        private async Task MarkCollectionAssignmentPulledAsync(Guid gatewayId, int configurationVersion)
+        {
+            if (configurationVersion <= 0)
+            {
+                return;
+            }
+
+            var assignment = await _context.EdgeCollectionAssignments
+                .Where(c => c.GatewayId == gatewayId
+                    && c.ConfigurationVersion == configurationVersion
+                    && !c.Deleted
+                    && c.Status == EdgeCollectionAssignmentStatus.Active)
+                .OrderByDescending(c => c.AssignedAt)
+                .FirstOrDefaultAsync();
+
+            if (assignment == null)
+            {
+                return;
+            }
+
+            assignment.LastPulledAt = DateTime.UtcNow;
+            assignment.UpdatedAt = assignment.LastPulledAt.Value;
+            await _context.SaveChangesAsync();
+        }
+
+        private static IQueryable<EdgeCollectionAssignment> ApplyCollectionAssignmentSorting(
+            IQueryable<EdgeCollectionAssignment> source,
+            EdgeCollectionAssignmentQueryDto query)
+        {
+            var descending = string.Equals(query?.Sort, "desc", StringComparison.OrdinalIgnoreCase);
+
+            return query?.Sorter switch
+            {
+                nameof(EdgeCollectionAssignmentDto.ConfigurationVersion) => descending
+                    ? source.OrderByDescending(c => c.ConfigurationVersion).ThenByDescending(c => c.AssignedAt)
+                    : source.OrderBy(c => c.ConfigurationVersion).ThenBy(c => c.AssignedAt),
+                nameof(EdgeCollectionAssignmentDto.Status) => descending
+                    ? source.OrderByDescending(c => c.Status).ThenByDescending(c => c.AssignedAt)
+                    : source.OrderBy(c => c.Status).ThenBy(c => c.AssignedAt),
+                nameof(EdgeCollectionAssignmentDto.RuntimeType) => descending
+                    ? source.OrderByDescending(c => c.RuntimeType).ThenByDescending(c => c.AssignedAt)
+                    : source.OrderBy(c => c.RuntimeType).ThenBy(c => c.AssignedAt),
+                nameof(EdgeCollectionAssignmentDto.LastPulledAt) => descending
+                    ? source.OrderByDescending(c => c.LastPulledAt).ThenByDescending(c => c.AssignedAt)
+                    : source.OrderBy(c => c.LastPulledAt).ThenBy(c => c.AssignedAt),
+                _ => source.OrderByDescending(c => c.AssignedAt)
+            };
+        }
+
+        private static EdgeCollectionAssignmentDto ToEdgeCollectionAssignmentDto(EdgeCollectionAssignment assignment)
+        {
+            return new EdgeCollectionAssignmentDto
+            {
+                ContractVersion = Coalesce(assignment.ContractVersion, EdgeNodeContractVersions.CollectionConfigV1),
+                Id = assignment.Id,
+                TargetType = assignment.TargetType,
+                GatewayId = assignment.GatewayId,
+                EdgeNodeId = assignment.EdgeNodeId,
+                TargetKey = assignment.TargetKey ?? string.Empty,
+                RuntimeType = assignment.RuntimeType ?? string.Empty,
+                InstanceId = assignment.InstanceId ?? string.Empty,
+                ConfigurationVersion = assignment.ConfigurationVersion,
+                ConfigurationHash = assignment.ConfigurationHash ?? string.Empty,
+                TaskCount = assignment.TaskCount,
+                Status = assignment.Status,
+                SourceType = assignment.SourceType ?? string.Empty,
+                SourceId = assignment.SourceId ?? string.Empty,
+                SourceVersion = assignment.SourceVersion ?? string.Empty,
+                AssignedAt = assignment.AssignedAt,
+                LastPulledAt = assignment.LastPulledAt,
+                RevokedAt = assignment.RevokedAt,
+                CreatedAt = assignment.CreatedAt,
+                UpdatedAt = assignment.UpdatedAt,
+                CreatedBy = assignment.CreatedBy ?? string.Empty,
+                UpdatedBy = assignment.UpdatedBy ?? string.Empty,
+                Metadata = DeserializeObjectMap(assignment.Metadata)
+            };
+        }
+
+        private static string BuildEdgeTargetKey(Guid gatewayId, string runtimeType, string instanceId)
+        {
+            var normalizedRuntimeType = string.IsNullOrWhiteSpace(runtimeType) ? EdgeRuntimeTypes.Gateway : runtimeType.Trim();
+            return string.IsNullOrWhiteSpace(instanceId)
+                ? $"{gatewayId}:{normalizedRuntimeType}"
+                : $"{gatewayId}:{normalizedRuntimeType}:{instanceId.Trim()}";
+        }
+
+        private static EdgeTaskTargetType ResolveCollectionAssignmentTargetType(string runtimeType)
+        {
+            return string.Equals(runtimeType, EdgeRuntimeTypes.Gateway, StringComparison.OrdinalIgnoreCase)
+                ? EdgeTaskTargetType.GatewayRuntime
+                : EdgeTaskTargetType.EdgeNode;
+        }
+
+        private static string ComputeSha256(string payload)
+        {
+            return Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(payload ?? string.Empty)));
         }
 
         private async Task<List<AttributeLatest>> QueryEdgeAttributes(IEnumerable<Guid> deviceIds)

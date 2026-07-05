@@ -19,10 +19,12 @@ public sealed class EdgeContractSerializationTests
         Assert.Equal(typeof(EdgeRegistrationDto).Assembly, typeof(EdgeTaskReceiptDto).Assembly);
         Assert.Equal(typeof(EdgeRegistrationDto).Assembly, typeof(EdgeRuntimeStatusDto).Assembly);
         Assert.Equal(typeof(EdgeRegistrationDto).Assembly, typeof(EdgeCapabilityDto).Assembly);
+        Assert.Equal(typeof(EdgeRegistrationDto).Assembly, typeof(EdgeCollectionAssignmentDto).Assembly);
         Assert.Equal(EdgeNodeContractVersions.EdgeRuntimeV1, new EdgeRegistrationDto().ContractVersion);
         Assert.Equal(EdgeNodeContractVersions.EdgeNodeV1, new EdgeNodeDto().ContractVersion);
         Assert.Equal(EdgeNodeContractVersions.EdgeRuntimeStatusV1, new EdgeRuntimeStatusDto().ContractVersion);
         Assert.Equal(EdgeNodeContractVersions.EdgeCapabilityV1, new EdgeCapabilityDto().ContractVersion);
+        Assert.Equal(EdgeNodeContractVersions.CollectionConfigV1, new EdgeCollectionAssignmentDto().ContractVersion);
     }
 
     [Fact]
@@ -185,6 +187,39 @@ public sealed class EdgeContractSerializationTests
         Assert.Equal("gateway-a-01", roundtrip.InstanceId);
         Assert.True(roundtrip.Result.ContainsKey("step"));
         Assert.Equal("edge-task", roundtrip.Metadata["worker"]);
+    }
+
+    [Fact]
+    public void EdgeCollectionAssignmentDto_SerializesTargetAndStatusAsStableStrings()
+    {
+        var dto = new EdgeCollectionAssignmentDto
+        {
+            Id = Guid.Parse("33333333-3333-3333-3333-333333333333"),
+            TargetType = EdgeTaskTargetType.EdgeNode,
+            GatewayId = Guid.Parse("22222222-2222-2222-2222-222222222222"),
+            EdgeNodeId = Guid.Parse("22222222-2222-2222-2222-222222222222"),
+            TargetKey = "22222222-2222-2222-2222-222222222222:gateway",
+            RuntimeType = EdgeRuntimeTypes.Gateway,
+            ConfigurationVersion = 3,
+            ConfigurationHash = "B90F05603F3343B2A0FAF1E1D3D48C85",
+            TaskCount = 2,
+            Status = EdgeCollectionAssignmentStatus.Active,
+            SourceType = "InlineCollectionConfig",
+            SourceVersion = "3",
+            AssignedAt = DateTime.Parse("2026-07-05T00:02:00Z").ToUniversalTime(),
+            Metadata = new Dictionary<string, object> { ["source"] = "unit-test" }
+        };
+
+        var json = JsonSerializer.Serialize(dto, new JsonSerializerOptions(JsonSerializerDefaults.Web));
+        var roundtrip = JsonSerializer.Deserialize<EdgeCollectionAssignmentDto>(json, new JsonSerializerOptions(JsonSerializerDefaults.Web));
+
+        Assert.Contains("\"contractVersion\":\"edge-collection-v1\"", json);
+        Assert.Contains("\"targetType\":\"EdgeNode\"", json);
+        Assert.Contains("\"status\":\"Active\"", json);
+        Assert.NotNull(roundtrip);
+        Assert.Equal(EdgeCollectionAssignmentStatus.Active, roundtrip!.Status);
+        Assert.Equal(EdgeTaskTargetType.EdgeNode, roundtrip.TargetType);
+        Assert.True(roundtrip.Metadata.ContainsKey("source"));
     }
 
     [Fact]

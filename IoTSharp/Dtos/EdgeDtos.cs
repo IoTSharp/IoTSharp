@@ -1,4 +1,5 @@
 ﻿using IoTSharp.Controllers.Models;
+using IoTSharp.Contracts;
 using System;
 using System.Collections.Generic;
 
@@ -79,6 +80,20 @@ namespace IoTSharp.Dtos
         public bool? Active { get; set; }
         public string Version { get; set; }
         public string Platform { get; set; }
+        public string Sorter { get; set; }
+        public string Sort { get; set; }
+    }
+
+    public class EdgeCollectionAssignmentQueryDto : QueryDto
+    {
+        public Guid? GatewayId { get; set; }
+        public Guid? EdgeNodeId { get; set; }
+        public string TargetType { get; set; }
+        public EdgeCollectionAssignmentStatus? Status { get; set; }
+        public int? ConfigurationVersion { get; set; }
+        public string RuntimeType { get; set; }
+        public string TargetKey { get; set; }
+        public string SourceType { get; set; }
         public string Sorter { get; set; }
         public string Sort { get; set; }
     }
