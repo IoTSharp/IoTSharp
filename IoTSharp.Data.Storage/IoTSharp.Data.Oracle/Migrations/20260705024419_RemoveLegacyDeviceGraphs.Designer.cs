@@ -3,41 +3,45 @@ using System;
 using IoTSharp.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
+using Oracle.EntityFrameworkCore.Metadata;
 
 #nullable disable
 
-namespace IoTSharp.Data.Sqlite.Migrations
+namespace IoTSharp.Data.Oracle.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260705024419_RemoveLegacyDeviceGraphs")]
+    partial class RemoveLegacyDeviceGraphs
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .UseCollation("NOCASE")
-                .HasAnnotation("ProductVersion", "10.0.9");
+                .HasAnnotation("ProductVersion", "10.0.9")
+                .HasAnnotation("Relational:MaxIdentifierLength", 30);
+
+            OracleModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
             modelBuilder.Entity("IoTSharp.Data.AISettings", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("TEXT");
+                        .HasColumnType("RAW(16)");
 
                     b.Property<bool>("Enable")
-                        .HasColumnType("INTEGER");
+                        .HasColumnType("BOOLEAN");
 
                     b.Property<string>("MCP_API_KEY")
-                        .HasColumnType("TEXT")
-                        .UseCollation("NOCASE");
+                        .HasColumnType("NVARCHAR2(2000)");
 
                     b.Property<string>("Name")
-                        .HasColumnType("TEXT")
-                        .UseCollation("NOCASE");
+                        .HasColumnType("NVARCHAR2(2000)");
 
                     b.Property<int>("Role")
-                        .HasColumnType("INTEGER");
+                        .HasColumnType("NUMBER(10)");
 
                     b.HasKey("Id");
 
@@ -48,48 +52,46 @@ namespace IoTSharp.Data.Sqlite.Migrations
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("TEXT");
+                        .HasColumnType("RAW(16)");
 
                     b.Property<DateTime>("AckDateTime")
-                        .HasColumnType("TEXT");
+                        .HasColumnType("TIMESTAMP(7)");
 
                     b.Property<string>("AlarmDetail")
-                        .HasColumnType("TEXT")
-                        .UseCollation("NOCASE");
+                        .HasColumnType("NVARCHAR2(2000)");
 
                     b.Property<int>("AlarmStatus")
-                        .HasColumnType("INTEGER");
+                        .HasColumnType("NUMBER(10)");
 
                     b.Property<string>("AlarmType")
-                        .HasColumnType("TEXT")
-                        .UseCollation("NOCASE");
+                        .HasColumnType("NVARCHAR2(2000)");
 
                     b.Property<DateTime>("ClearDateTime")
-                        .HasColumnType("TEXT");
+                        .HasColumnType("TIMESTAMP(7)");
 
                     b.Property<Guid?>("CustomerId")
-                        .HasColumnType("TEXT");
+                        .HasColumnType("RAW(16)");
 
                     b.Property<DateTime>("EndDateTime")
-                        .HasColumnType("TEXT");
+                        .HasColumnType("TIMESTAMP(7)");
 
                     b.Property<Guid>("OriginatorId")
-                        .HasColumnType("TEXT");
+                        .HasColumnType("RAW(16)");
 
                     b.Property<int>("OriginatorType")
-                        .HasColumnType("INTEGER");
+                        .HasColumnType("NUMBER(10)");
 
                     b.Property<bool>("Propagate")
-                        .HasColumnType("INTEGER");
+                        .HasColumnType("BOOLEAN");
 
                     b.Property<int>("Serverity")
-                        .HasColumnType("INTEGER");
+                        .HasColumnType("NUMBER(10)");
 
                     b.Property<DateTime>("StartDateTime")
-                        .HasColumnType("TEXT");
+                        .HasColumnType("TIMESTAMP(7)");
 
                     b.Property<Guid?>("TenantId")
-                        .HasColumnType("TEXT");
+                        .HasColumnType("RAW(16)");
 
                     b.HasKey("Id");
 
@@ -104,28 +106,25 @@ namespace IoTSharp.Data.Sqlite.Migrations
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("TEXT");
+                        .HasColumnType("RAW(16)");
 
                     b.Property<string>("AssetType")
-                        .HasColumnType("TEXT")
-                        .UseCollation("NOCASE");
+                        .HasColumnType("NVARCHAR2(2000)");
 
                     b.Property<Guid?>("CustomerId")
-                        .HasColumnType("TEXT");
+                        .HasColumnType("RAW(16)");
 
                     b.Property<bool>("Deleted")
-                        .HasColumnType("INTEGER");
+                        .HasColumnType("BOOLEAN");
 
                     b.Property<string>("Description")
-                        .HasColumnType("TEXT")
-                        .UseCollation("NOCASE");
+                        .HasColumnType("NVARCHAR2(2000)");
 
                     b.Property<string>("Name")
-                        .HasColumnType("TEXT")
-                        .UseCollation("NOCASE");
+                        .HasColumnType("NVARCHAR2(2000)");
 
                     b.Property<Guid?>("TenantId")
-                        .HasColumnType("TEXT");
+                        .HasColumnType("RAW(16)");
 
                     b.HasKey("Id");
 
@@ -140,28 +139,25 @@ namespace IoTSharp.Data.Sqlite.Migrations
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("TEXT");
+                        .HasColumnType("RAW(16)");
 
                     b.Property<Guid?>("AssetId")
-                        .HasColumnType("TEXT");
+                        .HasColumnType("RAW(16)");
 
                     b.Property<int>("DataCatalog")
-                        .HasColumnType("INTEGER");
+                        .HasColumnType("NUMBER(10)");
 
                     b.Property<string>("Description")
-                        .HasColumnType("TEXT")
-                        .UseCollation("NOCASE");
+                        .HasColumnType("NVARCHAR2(2000)");
 
                     b.Property<Guid>("DeviceId")
-                        .HasColumnType("TEXT");
+                        .HasColumnType("RAW(16)");
 
                     b.Property<string>("KeyName")
-                        .HasColumnType("TEXT")
-                        .UseCollation("NOCASE");
+                        .HasColumnType("NVARCHAR2(2000)");
 
                     b.Property<string>("Name")
-                        .HasColumnType("TEXT")
-                        .UseCollation("NOCASE");
+                        .HasColumnType("NVARCHAR2(2000)");
 
                     b.HasKey("Id");
 
@@ -174,46 +170,40 @@ namespace IoTSharp.Data.Sqlite.Migrations
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("TEXT");
+                        .HasColumnType("RAW(16)");
 
                     b.Property<string>("ActionData")
-                        .HasColumnType("TEXT")
-                        .UseCollation("NOCASE");
+                        .HasColumnType("NVARCHAR2(2000)");
 
                     b.Property<string>("ActionName")
-                        .HasColumnType("TEXT")
-                        .UseCollation("NOCASE");
+                        .HasColumnType("NVARCHAR2(2000)");
 
                     b.Property<string>("ActionResult")
-                        .HasColumnType("TEXT")
-                        .UseCollation("NOCASE");
+                        .HasColumnType("NVARCHAR2(2000)");
 
                     b.Property<DateTime>("ActiveDateTime")
-                        .HasColumnType("TEXT");
+                        .HasColumnType("TIMESTAMP(7)");
 
                     b.Property<Guid?>("CustomerId")
-                        .HasColumnType("TEXT");
+                        .HasColumnType("RAW(16)");
 
                     b.Property<Guid>("ObjectID")
-                        .HasColumnType("TEXT");
+                        .HasColumnType("RAW(16)");
 
                     b.Property<string>("ObjectName")
-                        .HasColumnType("TEXT")
-                        .UseCollation("NOCASE");
+                        .HasColumnType("NVARCHAR2(2000)");
 
                     b.Property<int>("ObjectType")
-                        .HasColumnType("INTEGER");
+                        .HasColumnType("NUMBER(10)");
 
                     b.Property<Guid?>("TenantId")
-                        .HasColumnType("TEXT");
+                        .HasColumnType("RAW(16)");
 
                     b.Property<string>("UserId")
-                        .HasColumnType("TEXT")
-                        .UseCollation("NOCASE");
+                        .HasColumnType("NVARCHAR2(2000)");
 
                     b.Property<string>("UserName")
-                        .HasColumnType("TEXT")
-                        .UseCollation("NOCASE");
+                        .HasColumnType("NVARCHAR2(2000)");
 
                     b.HasKey("Id");
 
@@ -228,52 +218,45 @@ namespace IoTSharp.Data.Sqlite.Migrations
                 {
                     b.Property<long>("DictionaryId")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("INTEGER");
+                        .HasColumnType("NUMBER(19)");
+
+                    OraclePropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("DictionaryId"));
 
                     b.Property<string>("Dictionary18NKeyName")
-                        .HasColumnType("TEXT")
-                        .UseCollation("NOCASE");
+                        .HasColumnType("NVARCHAR2(2000)");
 
                     b.Property<string>("DictionaryColor")
-                        .HasColumnType("TEXT")
-                        .UseCollation("NOCASE");
+                        .HasColumnType("NVARCHAR2(2000)");
 
                     b.Property<string>("DictionaryDesc")
-                        .HasColumnType("TEXT")
-                        .UseCollation("NOCASE");
+                        .HasColumnType("NVARCHAR2(2000)");
 
                     b.Property<long?>("DictionaryGroupId")
-                        .HasColumnType("INTEGER");
+                        .HasColumnType("NUMBER(19)");
 
                     b.Property<string>("DictionaryIcon")
-                        .HasColumnType("TEXT")
-                        .UseCollation("NOCASE");
+                        .HasColumnType("NVARCHAR2(2000)");
 
                     b.Property<string>("DictionaryName")
-                        .HasColumnType("TEXT")
-                        .UseCollation("NOCASE");
+                        .HasColumnType("NVARCHAR2(2000)");
 
                     b.Property<string>("DictionaryPattern")
-                        .HasColumnType("TEXT")
-                        .UseCollation("NOCASE");
+                        .HasColumnType("NVARCHAR2(2000)");
 
                     b.Property<int?>("DictionaryStatus")
-                        .HasColumnType("INTEGER");
+                        .HasColumnType("NUMBER(10)");
 
                     b.Property<string>("DictionaryTag")
-                        .HasColumnType("TEXT")
-                        .UseCollation("NOCASE");
+                        .HasColumnType("NVARCHAR2(2000)");
 
                     b.Property<string>("DictionaryValue")
-                        .HasColumnType("TEXT")
-                        .UseCollation("NOCASE");
+                        .HasColumnType("NVARCHAR2(2000)");
 
                     b.Property<int?>("DictionaryValueType")
-                        .HasColumnType("INTEGER");
+                        .HasColumnType("NUMBER(10)");
 
                     b.Property<string>("DictionaryValueTypeName")
-                        .HasColumnType("TEXT")
-                        .UseCollation("NOCASE");
+                        .HasColumnType("NVARCHAR2(2000)");
 
                     b.HasKey("DictionaryId");
 
@@ -284,33 +267,30 @@ namespace IoTSharp.Data.Sqlite.Migrations
                 {
                     b.Property<long>("DictionaryGroupId")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("INTEGER");
+                        .HasColumnType("NUMBER(19)");
+
+                    OraclePropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("DictionaryGroupId"));
 
                     b.Property<string>("DictionaryGroup18NKeyName")
-                        .HasColumnType("TEXT")
-                        .UseCollation("NOCASE");
+                        .HasColumnType("NVARCHAR2(2000)");
 
                     b.Property<string>("DictionaryGroupDesc")
-                        .HasColumnType("TEXT")
-                        .UseCollation("NOCASE");
+                        .HasColumnType("NVARCHAR2(2000)");
 
                     b.Property<string>("DictionaryGroupKey")
-                        .HasColumnType("TEXT")
-                        .UseCollation("NOCASE");
+                        .HasColumnType("NVARCHAR2(2000)");
 
                     b.Property<string>("DictionaryGroupName")
-                        .HasColumnType("TEXT")
-                        .UseCollation("NOCASE");
+                        .HasColumnType("NVARCHAR2(2000)");
 
                     b.Property<int?>("DictionaryGroupStatus")
-                        .HasColumnType("INTEGER");
+                        .HasColumnType("NUMBER(10)");
 
                     b.Property<int?>("DictionaryGroupValueType")
-                        .HasColumnType("INTEGER");
+                        .HasColumnType("NUMBER(10)");
 
                     b.Property<string>("DictionaryGroupValueTypeName")
-                        .HasColumnType("TEXT")
-                        .UseCollation("NOCASE");
+                        .HasColumnType("NVARCHAR2(2000)");
 
                     b.HasKey("DictionaryGroupId");
 
@@ -321,48 +301,43 @@ namespace IoTSharp.Data.Sqlite.Migrations
                 {
                     b.Property<Guid>("EventId")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("TEXT");
+                        .HasColumnType("RAW(16)");
 
                     b.Property<string>("BizData")
-                        .HasColumnType("TEXT")
-                        .UseCollation("NOCASE");
+                        .HasColumnType("NVARCHAR2(2000)");
 
                     b.Property<string>("Bizid")
-                        .HasColumnType("TEXT")
-                        .UseCollation("NOCASE");
+                        .HasColumnType("NVARCHAR2(2000)");
 
                     b.Property<DateTime>("CreaterDateTime")
-                        .HasColumnType("TEXT");
+                        .HasColumnType("TIMESTAMP(7)");
 
                     b.Property<Guid>("Creator")
-                        .HasColumnType("TEXT");
+                        .HasColumnType("RAW(16)");
 
                     b.Property<Guid?>("CustomerId")
-                        .HasColumnType("TEXT");
+                        .HasColumnType("RAW(16)");
 
                     b.Property<string>("EventDesc")
-                        .HasColumnType("TEXT")
-                        .UseCollation("NOCASE");
+                        .HasColumnType("NVARCHAR2(2000)");
 
                     b.Property<string>("EventName")
-                        .HasColumnType("TEXT")
-                        .UseCollation("NOCASE");
+                        .HasColumnType("NVARCHAR2(2000)");
 
                     b.Property<int>("EventStaus")
-                        .HasColumnType("INTEGER");
+                        .HasColumnType("NUMBER(10)");
 
                     b.Property<Guid?>("FlowRuleRuleId")
-                        .HasColumnType("TEXT");
+                        .HasColumnType("RAW(16)");
 
                     b.Property<string>("MataData")
-                        .HasColumnType("TEXT")
-                        .UseCollation("NOCASE");
+                        .HasColumnType("NVARCHAR2(2000)");
 
                     b.Property<Guid?>("TenantId")
-                        .HasColumnType("TEXT");
+                        .HasColumnType("RAW(16)");
 
                     b.Property<int>("Type")
-                        .HasColumnType("INTEGER");
+                        .HasColumnType("NUMBER(10)");
 
                     b.HasKey("EventId");
 
@@ -379,51 +354,43 @@ namespace IoTSharp.Data.Sqlite.Migrations
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("TEXT");
+                        .HasColumnType("RAW(16)");
 
                     b.Property<Guid?>("AISettingsId")
-                        .HasColumnType("TEXT");
+                        .HasColumnType("RAW(16)");
 
                     b.Property<string>("Address")
-                        .HasColumnType("TEXT")
-                        .UseCollation("NOCASE");
+                        .HasColumnType("NVARCHAR2(2000)");
 
                     b.Property<string>("City")
-                        .HasColumnType("TEXT")
-                        .UseCollation("NOCASE");
+                        .HasColumnType("NVARCHAR2(2000)");
 
                     b.Property<string>("Country")
-                        .HasColumnType("TEXT")
-                        .UseCollation("NOCASE");
+                        .HasColumnType("NVARCHAR2(2000)");
 
                     b.Property<bool>("Deleted")
-                        .HasColumnType("INTEGER");
+                        .HasColumnType("BOOLEAN");
 
                     b.Property<string>("Email")
-                        .HasColumnType("TEXT")
-                        .UseCollation("NOCASE");
+                        .HasColumnType("NVARCHAR2(2000)");
 
                     b.Property<string>("Name")
-                        .HasColumnType("TEXT")
-                        .UseCollation("NOCASE");
+                        .HasColumnType("NVARCHAR2(2000)");
 
                     b.Property<string>("Phone")
-                        .HasColumnType("TEXT")
-                        .UseCollation("NOCASE");
+                        .HasColumnType("NVARCHAR2(2000)");
 
                     b.Property<string>("Province")
-                        .HasColumnType("TEXT")
-                        .UseCollation("NOCASE");
+                        .HasColumnType("NVARCHAR2(2000)");
 
                     b.Property<string>("Street")
-                        .HasColumnType("TEXT")
-                        .UseCollation("NOCASE");
+                        .HasColumnType("NVARCHAR2(2000)");
 
                     b.Property<Guid?>("TenantId")
-                        .HasColumnType("TEXT");
+                        .HasColumnType("RAW(16)");
 
                     b.Property<int>("ZipCode")
-                        .HasColumnType("INTEGER");
+                        .HasColumnType("NUMBER(10)");
 
                     b.HasKey("Id");
 
@@ -437,56 +404,52 @@ namespace IoTSharp.Data.Sqlite.Migrations
             modelBuilder.Entity("IoTSharp.Data.DataStorage", b =>
                 {
                     b.Property<int>("Catalog")
-                        .HasColumnType("INTEGER")
+                        .HasColumnType("NUMBER(10)")
                         .HasColumnOrder(0);
 
                     b.Property<Guid>("DeviceId")
-                        .HasColumnType("TEXT")
+                        .HasColumnType("RAW(16)")
                         .HasColumnOrder(1);
 
                     b.Property<string>("KeyName")
-                        .HasColumnType("TEXT")
-                        .HasColumnOrder(2)
-                        .UseCollation("NOCASE");
+                        .HasColumnType("NVARCHAR2(450)")
+                        .HasColumnOrder(2);
 
                     b.Property<int>("DataSide")
-                        .HasColumnType("INTEGER")
+                        .HasColumnType("NUMBER(10)")
                         .HasColumnOrder(4);
 
                     b.Property<DateTime>("DateTime")
-                        .HasColumnType("TEXT")
+                        .HasColumnType("TIMESTAMP(7)")
                         .HasColumnOrder(3);
 
                     b.Property<int>("Type")
-                        .HasColumnType("INTEGER")
+                        .HasColumnType("NUMBER(10)")
                         .HasColumnOrder(5);
 
                     b.Property<byte[]>("Value_Binary")
-                        .HasColumnType("BLOB");
+                        .HasColumnType("RAW(2000)");
 
                     b.Property<bool?>("Value_Boolean")
-                        .HasColumnType("INTEGER");
+                        .HasColumnType("BOOLEAN");
 
                     b.Property<DateTime?>("Value_DateTime")
-                        .HasColumnType("TEXT");
+                        .HasColumnType("TIMESTAMP(7)");
 
                     b.Property<double?>("Value_Double")
-                        .HasColumnType("REAL");
+                        .HasColumnType("BINARY_DOUBLE");
 
                     b.Property<string>("Value_Json")
-                        .HasColumnType("TEXT")
-                        .UseCollation("NOCASE");
+                        .HasColumnType("NVARCHAR2(2000)");
 
                     b.Property<long?>("Value_Long")
-                        .HasColumnType("INTEGER");
+                        .HasColumnType("NUMBER(19)");
 
                     b.Property<string>("Value_String")
-                        .HasColumnType("TEXT")
-                        .UseCollation("NOCASE");
+                        .HasColumnType("NVARCHAR2(2000)");
 
                     b.Property<string>("Value_XML")
-                        .HasColumnType("TEXT")
-                        .UseCollation("NOCASE");
+                        .HasColumnType("NVARCHAR2(2000)");
 
                     b.HasKey("Catalog", "DeviceId", "KeyName");
 
@@ -507,35 +470,34 @@ namespace IoTSharp.Data.Sqlite.Migrations
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("TEXT");
+                        .HasColumnType("RAW(16)");
 
                     b.Property<Guid?>("CustomerId")
-                        .HasColumnType("TEXT");
+                        .HasColumnType("RAW(16)");
 
                     b.Property<bool>("Deleted")
-                        .HasColumnType("INTEGER");
+                        .HasColumnType("BOOLEAN");
 
                     b.Property<Guid?>("DeviceModelId")
-                        .HasColumnType("TEXT");
+                        .HasColumnType("RAW(16)");
 
                     b.Property<int>("DeviceType")
-                        .HasColumnType("INTEGER");
+                        .HasColumnType("NUMBER(10)");
 
                     b.Property<string>("Name")
-                        .HasColumnType("TEXT")
-                        .UseCollation("NOCASE");
+                        .HasColumnType("NVARCHAR2(2000)");
 
                     b.Property<Guid?>("OwnerId")
-                        .HasColumnType("TEXT");
+                        .HasColumnType("RAW(16)");
 
                     b.Property<Guid?>("ProductId")
-                        .HasColumnType("TEXT");
+                        .HasColumnType("RAW(16)");
 
                     b.Property<Guid?>("TenantId")
-                        .HasColumnType("TEXT");
+                        .HasColumnType("RAW(16)");
 
                     b.Property<int>("Timeout")
-                        .HasColumnType("INTEGER");
+                        .HasColumnType("NUMBER(10)");
 
                     b.HasKey("Id");
 
@@ -558,22 +520,20 @@ namespace IoTSharp.Data.Sqlite.Migrations
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("TEXT");
+                        .HasColumnType("RAW(16)");
 
                     b.Property<Guid>("DeviceId")
-                        .HasColumnType("TEXT");
+                        .HasColumnType("RAW(16)");
 
                     b.Property<string>("IdentityId")
                         .IsRequired()
-                        .HasColumnType("TEXT")
-                        .UseCollation("NOCASE");
+                        .HasColumnType("NVARCHAR2(2000)");
 
                     b.Property<int>("IdentityType")
-                        .HasColumnType("INTEGER");
+                        .HasColumnType("NUMBER(10)");
 
                     b.Property<string>("IdentityValue")
-                        .HasColumnType("TEXT")
-                        .UseCollation("NOCASE");
+                        .HasColumnType("NVARCHAR2(2000)");
 
                     b.HasKey("Id");
 
@@ -587,24 +547,22 @@ namespace IoTSharp.Data.Sqlite.Migrations
                 {
                     b.Property<Guid>("DeviceModelId")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("TEXT");
+                        .HasColumnType("RAW(16)");
 
                     b.Property<DateTime>("CreateDateTime")
-                        .HasColumnType("TEXT");
+                        .HasColumnType("TIMESTAMP(7)");
 
                     b.Property<Guid>("Creator")
-                        .HasColumnType("TEXT");
+                        .HasColumnType("RAW(16)");
 
                     b.Property<string>("ModelDesc")
-                        .HasColumnType("TEXT")
-                        .UseCollation("NOCASE");
+                        .HasColumnType("NVARCHAR2(2000)");
 
                     b.Property<string>("ModelName")
-                        .HasColumnType("TEXT")
-                        .UseCollation("NOCASE");
+                        .HasColumnType("NVARCHAR2(2000)");
 
                     b.Property<int>("ModelStatus")
-                        .HasColumnType("INTEGER");
+                        .HasColumnType("NUMBER(10)");
 
                     b.HasKey("DeviceModelId");
 
@@ -615,38 +573,34 @@ namespace IoTSharp.Data.Sqlite.Migrations
                 {
                     b.Property<Guid>("CommandId")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("TEXT");
+                        .HasColumnType("RAW(16)");
 
                     b.Property<string>("CommandName")
-                        .HasColumnType("TEXT")
-                        .UseCollation("NOCASE");
+                        .HasColumnType("NVARCHAR2(2000)");
 
                     b.Property<string>("CommandParams")
-                        .HasColumnType("TEXT")
-                        .UseCollation("NOCASE");
+                        .HasColumnType("NVARCHAR2(2000)");
 
                     b.Property<int>("CommandStatus")
-                        .HasColumnType("INTEGER");
+                        .HasColumnType("NUMBER(10)");
 
                     b.Property<string>("CommandTemplate")
-                        .HasColumnType("TEXT")
-                        .UseCollation("NOCASE");
+                        .HasColumnType("NVARCHAR2(2000)");
 
                     b.Property<string>("CommandTitle")
-                        .HasColumnType("TEXT")
-                        .UseCollation("NOCASE");
+                        .HasColumnType("NVARCHAR2(2000)");
 
                     b.Property<int>("CommandType")
-                        .HasColumnType("INTEGER");
+                        .HasColumnType("NUMBER(10)");
 
                     b.Property<DateTime>("CreateDateTime")
-                        .HasColumnType("TEXT");
+                        .HasColumnType("TIMESTAMP(7)");
 
                     b.Property<Guid>("Creator")
-                        .HasColumnType("TEXT");
+                        .HasColumnType("RAW(16)");
 
                     b.Property<Guid>("DeviceModelId")
-                        .HasColumnType("TEXT");
+                        .HasColumnType("RAW(16)");
 
                     b.HasKey("CommandId");
 
@@ -659,41 +613,37 @@ namespace IoTSharp.Data.Sqlite.Migrations
                 {
                     b.Property<Guid>("PortId")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("TEXT");
+                        .HasColumnType("RAW(16)");
 
                     b.Property<DateTime?>("CreateDate")
-                        .HasColumnType("TEXT");
+                        .HasColumnType("TIMESTAMP(7)");
 
                     b.Property<long>("Creator")
-                        .HasColumnType("INTEGER");
+                        .HasColumnType("NUMBER(19)");
 
                     b.Property<Guid>("DeviceId")
-                        .HasColumnType("TEXT");
+                        .HasColumnType("RAW(16)");
 
                     b.Property<string>("PortDesc")
-                        .HasColumnType("TEXT")
-                        .UseCollation("NOCASE");
+                        .HasColumnType("NVARCHAR2(2000)");
 
                     b.Property<string>("PortElementId")
-                        .HasColumnType("TEXT")
-                        .UseCollation("NOCASE");
+                        .HasColumnType("NVARCHAR2(2000)");
 
                     b.Property<string>("PortName")
-                        .HasColumnType("TEXT")
-                        .UseCollation("NOCASE");
+                        .HasColumnType("NVARCHAR2(2000)");
 
                     b.Property<int>("PortPhyType")
-                        .HasColumnType("INTEGER");
+                        .HasColumnType("NUMBER(10)");
 
                     b.Property<string>("PortPic")
-                        .HasColumnType("TEXT")
-                        .UseCollation("NOCASE");
+                        .HasColumnType("NVARCHAR2(2000)");
 
                     b.Property<int>("PortStatus")
-                        .HasColumnType("INTEGER");
+                        .HasColumnType("NUMBER(10)");
 
                     b.Property<int>("PortType")
-                        .HasColumnType("INTEGER");
+                        .HasColumnType("NUMBER(10)");
 
                     b.HasKey("PortId");
 
@@ -704,41 +654,37 @@ namespace IoTSharp.Data.Sqlite.Migrations
                 {
                     b.Property<Guid>("MappingId")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("TEXT");
+                        .HasColumnType("RAW(16)");
 
                     b.Property<DateTime?>("CreateDate")
-                        .HasColumnType("TEXT");
+                        .HasColumnType("TIMESTAMP(7)");
 
                     b.Property<Guid>("Creator")
-                        .HasColumnType("TEXT");
+                        .HasColumnType("RAW(16)");
 
                     b.Property<int>("MappingIndex")
-                        .HasColumnType("INTEGER");
+                        .HasColumnType("NUMBER(10)");
 
                     b.Property<int>("MappingStatus")
-                        .HasColumnType("INTEGER");
+                        .HasColumnType("NUMBER(10)");
 
                     b.Property<Guid>("SourceDeviceId")
-                        .HasColumnType("TEXT");
+                        .HasColumnType("RAW(16)");
 
                     b.Property<string>("SourceElementId")
-                        .HasColumnType("TEXT")
-                        .UseCollation("NOCASE");
+                        .HasColumnType("NVARCHAR2(2000)");
 
                     b.Property<string>("SourceId")
-                        .HasColumnType("TEXT")
-                        .UseCollation("NOCASE");
+                        .HasColumnType("NVARCHAR2(2000)");
 
                     b.Property<string>("TargeId")
-                        .HasColumnType("TEXT")
-                        .UseCollation("NOCASE");
+                        .HasColumnType("NVARCHAR2(2000)");
 
                     b.Property<Guid>("TargetDeviceId")
-                        .HasColumnType("TEXT");
+                        .HasColumnType("RAW(16)");
 
                     b.Property<string>("TargetElementId")
-                        .HasColumnType("TEXT")
-                        .UseCollation("NOCASE");
+                        .HasColumnType("NVARCHAR2(2000)");
 
                     b.HasKey("MappingId");
 
@@ -749,22 +695,22 @@ namespace IoTSharp.Data.Sqlite.Migrations
                 {
                     b.Property<Guid>("DeviceRuleId")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("TEXT");
+                        .HasColumnType("RAW(16)");
 
                     b.Property<DateTime>("ConfigDateTime")
-                        .HasColumnType("TEXT");
+                        .HasColumnType("TIMESTAMP(7)");
 
                     b.Property<Guid>("ConfigUser")
-                        .HasColumnType("TEXT");
+                        .HasColumnType("RAW(16)");
 
                     b.Property<Guid?>("DeviceId")
-                        .HasColumnType("TEXT");
+                        .HasColumnType("RAW(16)");
 
                     b.Property<int>("EnableTrace")
-                        .HasColumnType("INTEGER");
+                        .HasColumnType("NUMBER(10)");
 
                     b.Property<Guid?>("FlowRuleRuleId")
-                        .HasColumnType("TEXT");
+                        .HasColumnType("RAW(16)");
 
                     b.HasKey("DeviceRuleId");
 
@@ -779,87 +725,78 @@ namespace IoTSharp.Data.Sqlite.Migrations
                 {
                     b.Property<long>("FieldId")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("INTEGER");
+                        .HasColumnType("NUMBER(19)");
+
+                    OraclePropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("FieldId"));
 
                     b.Property<Guid>("Creator")
-                        .HasColumnType("TEXT");
+                        .HasColumnType("RAW(16)");
 
                     b.Property<Guid?>("CustomerId")
-                        .HasColumnType("TEXT");
+                        .HasColumnType("RAW(16)");
 
                     b.Property<string>("FieldCode")
-                        .HasColumnType("TEXT")
-                        .UseCollation("NOCASE");
+                        .HasColumnType("NVARCHAR2(2000)");
 
                     b.Property<DateTime?>("FieldCreateDate")
-                        .HasColumnType("TEXT");
+                        .HasColumnType("TIMESTAMP(7)");
 
                     b.Property<DateTime?>("FieldEditDate")
-                        .HasColumnType("TEXT");
+                        .HasColumnType("TIMESTAMP(7)");
 
                     b.Property<string>("FieldI18nKey")
-                        .HasColumnType("TEXT")
-                        .UseCollation("NOCASE");
+                        .HasColumnType("NVARCHAR2(2000)");
 
                     b.Property<int>("FieldMaxLength")
-                        .HasColumnType("INTEGER");
+                        .HasColumnType("NUMBER(10)");
 
                     b.Property<string>("FieldName")
-                        .HasColumnType("TEXT")
-                        .UseCollation("NOCASE");
+                        .HasColumnType("NVARCHAR2(2000)");
 
                     b.Property<string>("FieldPattern")
-                        .HasColumnType("TEXT")
-                        .UseCollation("NOCASE");
+                        .HasColumnType("NVARCHAR2(2000)");
 
                     b.Property<string>("FieldPocoTypeName")
-                        .HasColumnType("TEXT")
-                        .UseCollation("NOCASE");
+                        .HasColumnType("NVARCHAR2(2000)");
 
                     b.Property<int>("FieldStatus")
-                        .HasColumnType("INTEGER");
+                        .HasColumnType("NUMBER(10)");
 
                     b.Property<long>("FieldUIElement")
-                        .HasColumnType("INTEGER");
+                        .HasColumnType("NUMBER(19)");
 
                     b.Property<string>("FieldUIElementSchema")
-                        .HasColumnType("TEXT")
-                        .UseCollation("NOCASE");
+                        .HasColumnType("NVARCHAR2(2000)");
 
                     b.Property<string>("FieldUnit")
-                        .HasColumnType("TEXT")
-                        .UseCollation("NOCASE");
+                        .HasColumnType("NVARCHAR2(2000)");
 
                     b.Property<string>("FieldValue")
-                        .HasColumnType("TEXT")
-                        .UseCollation("NOCASE");
+                        .HasColumnType("NVARCHAR2(2000)");
 
                     b.Property<string>("FieldValueDataSource")
-                        .HasColumnType("TEXT")
-                        .UseCollation("NOCASE");
+                        .HasColumnType("NVARCHAR2(2000)");
 
                     b.Property<string>("FieldValueLocalDataSource")
-                        .HasColumnType("TEXT")
-                        .UseCollation("NOCASE");
+                        .HasColumnType("NVARCHAR2(2000)");
 
                     b.Property<int>("FieldValueType")
-                        .HasColumnType("INTEGER");
+                        .HasColumnType("NUMBER(10)");
 
                     b.Property<string>("FieldValueTypeName")
-                        .HasColumnType("TEXT")
-                        .UseCollation("NOCASE");
+                        .HasColumnType("NVARCHAR2(2000)");
 
                     b.Property<long>("FormId")
-                        .HasColumnType("INTEGER");
+                        .HasColumnType("NUMBER(19)");
 
                     b.Property<bool>("IsEnabled")
-                        .HasColumnType("INTEGER");
+                        .HasColumnType("BOOLEAN");
 
                     b.Property<bool>("IsRequired")
-                        .HasColumnType("INTEGER");
+                        .HasColumnType("BOOLEAN");
 
                     b.Property<Guid?>("TenantId")
-                        .HasColumnType("TEXT");
+                        .HasColumnType("RAW(16)");
 
                     b.HasKey("FieldId");
 
@@ -874,53 +811,52 @@ namespace IoTSharp.Data.Sqlite.Migrations
                 {
                     b.Property<long>("FieldValueId")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("INTEGER");
+                        .HasColumnType("NUMBER(19)");
+
+                    OraclePropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("FieldValueId"));
 
                     b.Property<long>("BizId")
-                        .HasColumnType("INTEGER");
+                        .HasColumnType("NUMBER(19)");
 
                     b.Property<Guid>("Creator")
-                        .HasColumnType("TEXT");
+                        .HasColumnType("RAW(16)");
 
                     b.Property<Guid?>("CustomerId")
-                        .HasColumnType("TEXT");
+                        .HasColumnType("RAW(16)");
 
                     b.Property<string>("FieldCode")
-                        .HasColumnType("TEXT")
-                        .UseCollation("NOCASE");
+                        .HasColumnType("NVARCHAR2(2000)");
 
                     b.Property<DateTime?>("FieldCreateDate")
-                        .HasColumnType("TEXT");
+                        .HasColumnType("TIMESTAMP(7)");
 
                     b.Property<long>("FieldId")
-                        .HasColumnType("INTEGER");
+                        .HasColumnType("NUMBER(19)");
 
                     b.Property<string>("FieldName")
-                        .HasColumnType("TEXT")
-                        .UseCollation("NOCASE");
+                        .HasColumnType("NVARCHAR2(2000)");
 
                     b.Property<string>("FieldUnit")
-                        .HasColumnType("TEXT")
-                        .UseCollation("NOCASE");
+                        .HasColumnType("NVARCHAR2(2000)");
 
                     b.Property<string>("FieldValue")
-                        .HasColumnType("TEXT")
-                        .UseCollation("NOCASE");
+                        .HasColumnType("NVARCHAR2(2000)");
 
                     b.Property<long>("FieldValueType")
-                        .HasColumnType("INTEGER");
+                        .HasColumnType("NUMBER(19)");
 
                     b.Property<long>("FromId")
-                        .HasColumnType("INTEGER");
+                        .HasColumnType("NUMBER(19)");
 
                     b.Property<Guid?>("TenantId")
-                        .HasColumnType("TEXT");
+                        .HasColumnType("RAW(16)");
 
                     b.HasKey("FieldValueId");
 
                     b.HasIndex("CustomerId");
 
-                    b.HasIndex("TenantId");
+                    b.HasIndex("TenantId")
+                        .HasDatabaseName("IX_DynamicFormFieldValueInfo~1");
 
                     b.ToTable("DynamicFormFieldValueInfos");
                 });
@@ -929,55 +865,51 @@ namespace IoTSharp.Data.Sqlite.Migrations
                 {
                     b.Property<long>("FormId")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("INTEGER");
+                        .HasColumnType("NUMBER(19)");
+
+                    OraclePropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("FormId"));
 
                     b.Property<long>("BizId")
-                        .HasColumnType("INTEGER");
+                        .HasColumnType("NUMBER(19)");
 
                     b.Property<Guid>("Creator")
-                        .HasColumnType("TEXT");
+                        .HasColumnType("RAW(16)");
 
                     b.Property<Guid?>("CustomerId")
-                        .HasColumnType("TEXT");
+                        .HasColumnType("RAW(16)");
 
                     b.Property<long>("FormCreator")
-                        .HasColumnType("INTEGER");
+                        .HasColumnType("NUMBER(19)");
 
                     b.Property<string>("FormDesc")
-                        .HasColumnType("TEXT")
-                        .UseCollation("NOCASE");
+                        .HasColumnType("NVARCHAR2(2000)");
 
                     b.Property<string>("FormLayout")
-                        .HasColumnType("TEXT")
-                        .UseCollation("NOCASE");
+                        .HasColumnType("NVARCHAR2(2000)");
 
                     b.Property<string>("FormName")
-                        .HasColumnType("TEXT")
-                        .UseCollation("NOCASE");
+                        .HasColumnType("NVARCHAR2(2000)");
 
                     b.Property<string>("FormSchame")
-                        .HasColumnType("TEXT")
-                        .UseCollation("NOCASE");
+                        .HasColumnType("NVARCHAR2(2000)");
 
                     b.Property<int>("FormStatus")
-                        .HasColumnType("INTEGER");
+                        .HasColumnType("NUMBER(10)");
 
                     b.Property<DateTime?>("FromCreateDate")
-                        .HasColumnType("TEXT");
+                        .HasColumnType("TIMESTAMP(7)");
 
                     b.Property<bool>("IsCompact")
-                        .HasColumnType("INTEGER");
+                        .HasColumnType("BOOLEAN");
 
                     b.Property<string>("ModelClass")
-                        .HasColumnType("TEXT")
-                        .UseCollation("NOCASE");
+                        .HasColumnType("NVARCHAR2(2000)");
 
                     b.Property<Guid?>("TenantId")
-                        .HasColumnType("TEXT");
+                        .HasColumnType("RAW(16)");
 
                     b.Property<string>("Url")
-                        .HasColumnType("TEXT")
-                        .UseCollation("NOCASE");
+                        .HasColumnType("NVARCHAR2(2000)");
 
                     b.HasKey("FormId");
 
@@ -992,85 +924,73 @@ namespace IoTSharp.Data.Sqlite.Migrations
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("TEXT");
+                        .HasColumnType("RAW(16)");
 
                     b.Property<string>("Capabilities")
-                        .HasColumnType("TEXT")
-                        .UseCollation("NOCASE");
+                        .HasColumnType("NVARCHAR2(2000)");
 
                     b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("TEXT");
+                        .HasColumnType("TIMESTAMP(7)");
 
                     b.Property<Guid?>("CustomerId")
-                        .HasColumnType("TEXT");
+                        .HasColumnType("RAW(16)");
 
                     b.Property<bool>("Deleted")
-                        .HasColumnType("INTEGER");
+                        .HasColumnType("BOOLEAN");
 
                     b.Property<Guid>("GatewayId")
-                        .HasColumnType("TEXT");
+                        .HasColumnType("RAW(16)");
 
                     b.Property<bool?>("Healthy")
-                        .HasColumnType("INTEGER");
+                        .HasColumnType("BOOLEAN");
 
                     b.Property<string>("HostName")
-                        .HasColumnType("TEXT")
-                        .UseCollation("NOCASE");
+                        .HasColumnType("NVARCHAR2(2000)");
 
                     b.Property<string>("InstanceId")
-                        .HasColumnType("TEXT")
-                        .UseCollation("NOCASE");
+                        .HasColumnType("NVARCHAR2(450)");
 
                     b.Property<string>("IpAddress")
-                        .HasColumnType("TEXT")
-                        .UseCollation("NOCASE");
+                        .HasColumnType("NVARCHAR2(2000)");
 
                     b.Property<DateTime?>("LastHeartbeatDateTime")
-                        .HasColumnType("TEXT");
+                        .HasColumnType("TIMESTAMP(7)");
 
                     b.Property<DateTime?>("LastRegistrationDateTime")
-                        .HasColumnType("TEXT");
+                        .HasColumnType("TIMESTAMP(7)");
 
                     b.Property<string>("Metadata")
-                        .HasColumnType("TEXT")
-                        .UseCollation("NOCASE");
+                        .HasColumnType("NVARCHAR2(2000)");
 
                     b.Property<string>("Metrics")
-                        .HasColumnType("TEXT")
-                        .UseCollation("NOCASE");
+                        .HasColumnType("NVARCHAR2(2000)");
 
                     b.Property<string>("Name")
-                        .HasColumnType("TEXT")
-                        .UseCollation("NOCASE");
+                        .HasColumnType("NVARCHAR2(2000)");
 
                     b.Property<string>("Platform")
-                        .HasColumnType("TEXT")
-                        .UseCollation("NOCASE");
+                        .HasColumnType("NVARCHAR2(2000)");
 
                     b.Property<string>("RuntimeName")
-                        .HasColumnType("TEXT")
-                        .UseCollation("NOCASE");
+                        .HasColumnType("NVARCHAR2(2000)");
 
                     b.Property<string>("RuntimeType")
-                        .HasColumnType("TEXT")
-                        .UseCollation("NOCASE");
+                        .HasColumnType("NVARCHAR2(450)");
 
                     b.Property<string>("Status")
-                        .HasColumnType("TEXT")
-                        .UseCollation("NOCASE");
+                        .HasColumnType("NVARCHAR2(450)");
 
                     b.Property<Guid?>("TenantId")
-                        .HasColumnType("TEXT");
+                        .HasColumnType("RAW(16)");
 
                     b.Property<DateTime>("UpdatedAt")
-                        .HasColumnType("TEXT");
+                        .HasColumnType("TIMESTAMP(7)");
 
                     b.Property<long?>("UptimeSeconds")
-                        .HasColumnType("INTEGER");
+                        .HasColumnType("NUMBER(19)");
 
                     b.Property<string>("Version")
-                        .HasColumnType("TEXT")
-                        .UseCollation("NOCASE");
+                        .HasColumnType("NVARCHAR2(2000)");
 
                     b.HasKey("Id");
 
@@ -1092,132 +1012,109 @@ namespace IoTSharp.Data.Sqlite.Migrations
                 {
                     b.Property<Guid>("FlowId")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("TEXT");
+                        .HasColumnType("RAW(16)");
 
                     b.Property<string>("Conditionexpression")
-                        .HasColumnType("TEXT")
-                        .UseCollation("NOCASE");
+                        .HasColumnType("NVARCHAR2(2000)");
 
                     b.Property<DateTime>("CreateDate")
-                        .HasColumnType("TEXT");
+                        .HasColumnType("TIMESTAMP(7)");
 
                     b.Property<Guid>("CreateId")
-                        .HasColumnType("TEXT");
+                        .HasColumnType("RAW(16)");
 
                     b.Property<Guid>("Createor")
-                        .HasColumnType("TEXT");
+                        .HasColumnType("RAW(16)");
 
                     b.Property<Guid?>("CustomerId")
-                        .HasColumnType("TEXT");
+                        .HasColumnType("RAW(16)");
 
                     b.Property<Guid?>("ExecutorId")
-                        .HasColumnType("TEXT");
+                        .HasColumnType("RAW(16)");
 
                     b.Property<string>("FlowClass")
-                        .HasColumnType("TEXT")
-                        .UseCollation("NOCASE");
+                        .HasColumnType("NVARCHAR2(2000)");
 
                     b.Property<string>("FlowIcon")
-                        .HasColumnType("TEXT")
-                        .UseCollation("NOCASE");
+                        .HasColumnType("NVARCHAR2(2000)");
 
                     b.Property<string>("FlowNameSpace")
-                        .HasColumnType("TEXT")
-                        .UseCollation("NOCASE");
+                        .HasColumnType("NVARCHAR2(2000)");
 
                     b.Property<Guid?>("FlowRuleRuleId")
-                        .HasColumnType("TEXT");
+                        .HasColumnType("RAW(16)");
 
                     b.Property<string>("FlowShapeType")
-                        .HasColumnType("TEXT")
-                        .UseCollation("NOCASE");
+                        .HasColumnType("NVARCHAR2(2000)");
 
                     b.Property<int>("FlowStatus")
-                        .HasColumnType("INTEGER");
+                        .HasColumnType("NUMBER(10)");
 
                     b.Property<string>("FlowTag")
-                        .HasColumnType("TEXT")
-                        .UseCollation("NOCASE");
+                        .HasColumnType("NVARCHAR2(2000)");
 
                     b.Property<string>("FlowType")
-                        .HasColumnType("TEXT")
-                        .UseCollation("NOCASE");
+                        .HasColumnType("NVARCHAR2(2000)");
 
                     b.Property<string>("Flowdesc")
-                        .HasColumnType("TEXT")
-                        .UseCollation("NOCASE");
+                        .HasColumnType("NVARCHAR2(2000)");
 
                     b.Property<string>("Flowname")
-                        .HasColumnType("TEXT")
-                        .UseCollation("NOCASE");
+                        .HasColumnType("NVARCHAR2(2000)");
 
                     b.Property<string>("Incoming")
-                        .HasColumnType("TEXT")
-                        .UseCollation("NOCASE");
+                        .HasColumnType("NVARCHAR2(2000)");
 
                     b.Property<string>("Left")
-                        .HasColumnType("TEXT")
-                        .UseCollation("NOCASE");
+                        .HasColumnType("NVARCHAR2(2000)");
 
                     b.Property<string>("NodeProcessClass")
-                        .HasColumnType("TEXT")
-                        .UseCollation("NOCASE");
+                        .HasColumnType("NVARCHAR2(2000)");
 
                     b.Property<string>("NodeProcessMethod")
-                        .HasColumnType("TEXT")
-                        .UseCollation("NOCASE");
+                        .HasColumnType("NVARCHAR2(2000)");
 
                     b.Property<string>("NodeProcessParams")
-                        .HasColumnType("TEXT")
-                        .UseCollation("NOCASE");
+                        .HasColumnType("NVARCHAR2(2000)");
 
                     b.Property<string>("NodeProcessScript")
-                        .HasColumnType("TEXT")
-                        .UseCollation("NOCASE");
+                        .HasColumnType("NVARCHAR2(2000)");
 
                     b.Property<string>("NodeProcessScriptType")
-                        .HasColumnType("TEXT")
-                        .UseCollation("NOCASE");
+                        .HasColumnType("NVARCHAR2(2000)");
 
                     b.Property<string>("NodeProcessType")
-                        .HasColumnType("TEXT")
-                        .UseCollation("NOCASE");
+                        .HasColumnType("NVARCHAR2(2000)");
 
                     b.Property<string>("ObjectId")
-                        .HasColumnType("TEXT")
-                        .UseCollation("NOCASE");
+                        .HasColumnType("NVARCHAR2(2000)");
 
                     b.Property<string>("Outgoing")
-                        .HasColumnType("TEXT")
-                        .UseCollation("NOCASE");
+                        .HasColumnType("NVARCHAR2(2000)");
 
                     b.Property<string>("SourceId")
-                        .HasColumnType("TEXT")
-                        .UseCollation("NOCASE");
+                        .HasColumnType("NVARCHAR2(2000)");
 
                     b.Property<string>("TargetId")
-                        .HasColumnType("TEXT")
-                        .UseCollation("NOCASE");
+                        .HasColumnType("NVARCHAR2(2000)");
 
                     b.Property<Guid?>("TenantId")
-                        .HasColumnType("TEXT");
+                        .HasColumnType("RAW(16)");
 
                     b.Property<int>("TestStatus")
-                        .HasColumnType("INTEGER");
+                        .HasColumnType("NUMBER(10)");
 
                     b.Property<Guid>("Tester")
-                        .HasColumnType("TEXT");
+                        .HasColumnType("RAW(16)");
 
                     b.Property<DateTime>("TesterDateTime")
-                        .HasColumnType("TEXT");
+                        .HasColumnType("TIMESTAMP(7)");
 
                     b.Property<string>("Top")
-                        .HasColumnType("TEXT")
-                        .UseCollation("NOCASE");
+                        .HasColumnType("NVARCHAR2(2000)");
 
                     b.Property<string>("bpmnid")
-                        .HasColumnType("TEXT")
-                        .UseCollation("NOCASE");
+                        .HasColumnType("NVARCHAR2(2000)");
 
                     b.HasKey("FlowId");
 
@@ -1236,45 +1133,40 @@ namespace IoTSharp.Data.Sqlite.Migrations
                 {
                     b.Property<Guid>("OperationId")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("TEXT");
+                        .HasColumnType("RAW(16)");
 
                     b.Property<DateTime?>("AddDate")
-                        .HasColumnType("TEXT");
+                        .HasColumnType("TIMESTAMP(7)");
 
                     b.Property<Guid?>("BaseEventEventId")
-                        .HasColumnType("TEXT");
+                        .HasColumnType("RAW(16)");
 
                     b.Property<string>("BizId")
-                        .HasColumnType("TEXT")
-                        .UseCollation("NOCASE");
+                        .HasColumnType("NVARCHAR2(2000)");
 
                     b.Property<string>("Data")
-                        .HasColumnType("TEXT")
-                        .UseCollation("NOCASE");
+                        .HasColumnType("NVARCHAR2(2000)");
 
                     b.Property<Guid?>("FlowId")
-                        .HasColumnType("TEXT");
+                        .HasColumnType("RAW(16)");
 
                     b.Property<Guid?>("FlowRuleRuleId")
-                        .HasColumnType("TEXT");
+                        .HasColumnType("RAW(16)");
 
                     b.Property<int>("NodeStatus")
-                        .HasColumnType("INTEGER");
+                        .HasColumnType("NUMBER(10)");
 
                     b.Property<string>("OperationDesc")
-                        .HasColumnType("TEXT")
-                        .UseCollation("NOCASE");
+                        .HasColumnType("NVARCHAR2(2000)");
 
                     b.Property<int>("Step")
-                        .HasColumnType("INTEGER");
+                        .HasColumnType("NUMBER(10)");
 
                     b.Property<string>("Tag")
-                        .HasColumnType("TEXT")
-                        .UseCollation("NOCASE");
+                        .HasColumnType("NVARCHAR2(2000)");
 
                     b.Property<string>("bpmnid")
-                        .HasColumnType("TEXT")
-                        .UseCollation("NOCASE");
+                        .HasColumnType("NVARCHAR2(2000)");
 
                     b.HasKey("OperationId");
 
@@ -1291,66 +1183,59 @@ namespace IoTSharp.Data.Sqlite.Migrations
                 {
                     b.Property<Guid>("RuleId")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("TEXT");
+                        .HasColumnType("RAW(16)");
 
                     b.Property<DateTime?>("CreatTime")
-                        .HasColumnType("TEXT");
+                        .HasColumnType("TIMESTAMP(7)");
 
                     b.Property<Guid>("CreateId")
-                        .HasColumnType("TEXT");
+                        .HasColumnType("RAW(16)");
 
                     b.Property<string>("Creator")
-                        .HasColumnType("TEXT")
-                        .UseCollation("NOCASE");
+                        .HasColumnType("NVARCHAR2(2000)");
 
                     b.Property<Guid?>("CustomerId")
-                        .HasColumnType("TEXT");
+                        .HasColumnType("RAW(16)");
 
                     b.Property<string>("DefinitionsXml")
-                        .HasColumnType("TEXT")
-                        .UseCollation("NOCASE");
+                        .HasColumnType("NVARCHAR2(2000)");
 
                     b.Property<string>("Describes")
-                        .HasColumnType("TEXT")
-                        .UseCollation("NOCASE");
+                        .HasColumnType("NVARCHAR2(2000)");
 
                     b.Property<string>("ExecutableCode")
-                        .HasColumnType("TEXT")
-                        .UseCollation("NOCASE");
+                        .HasColumnType("NVARCHAR2(2000)");
 
                     b.Property<int>("MountType")
-                        .HasColumnType("INTEGER");
+                        .HasColumnType("NUMBER(10)");
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasColumnType("TEXT")
-                        .UseCollation("NOCASE");
+                        .HasColumnType("NVARCHAR2(2000)");
 
                     b.Property<Guid>("ParentRuleId")
-                        .HasColumnType("TEXT");
+                        .HasColumnType("RAW(16)");
 
                     b.Property<string>("RuleDesc")
-                        .HasColumnType("TEXT")
-                        .UseCollation("NOCASE");
+                        .HasColumnType("NVARCHAR2(2000)");
 
                     b.Property<int?>("RuleStatus")
-                        .HasColumnType("INTEGER");
+                        .HasColumnType("NUMBER(10)");
 
                     b.Property<int>("RuleType")
-                        .HasColumnType("INTEGER");
+                        .HasColumnType("NUMBER(10)");
 
                     b.Property<string>("Runner")
-                        .HasColumnType("TEXT")
-                        .UseCollation("NOCASE");
+                        .HasColumnType("NVARCHAR2(2000)");
 
                     b.Property<double>("SubVersion")
-                        .HasColumnType("REAL");
+                        .HasColumnType("BINARY_DOUBLE");
 
                     b.Property<Guid?>("TenantId")
-                        .HasColumnType("TEXT");
+                        .HasColumnType("RAW(16)");
 
                     b.Property<double>("Version")
-                        .HasColumnType("REAL");
+                        .HasColumnType("BINARY_DOUBLE");
 
                     b.HasKey("RuleId");
 
@@ -1365,48 +1250,43 @@ namespace IoTSharp.Data.Sqlite.Migrations
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("TEXT");
+                        .HasColumnType("RAW(16)");
 
                     b.Property<Guid?>("CustomerId")
-                        .HasColumnType("TEXT");
+                        .HasColumnType("RAW(16)");
 
                     b.Property<int>("DefaultDeviceType")
-                        .HasColumnType("INTEGER");
+                        .HasColumnType("NUMBER(10)");
 
                     b.Property<int>("DefaultIdentityType")
-                        .HasColumnType("INTEGER");
+                        .HasColumnType("NUMBER(10)");
 
                     b.Property<int>("DefaultTimeout")
-                        .HasColumnType("INTEGER");
+                        .HasColumnType("NUMBER(10)");
 
                     b.Property<bool>("Deleted")
-                        .HasColumnType("INTEGER");
+                        .HasColumnType("BOOLEAN");
 
                     b.Property<string>("Description")
-                        .HasColumnType("TEXT")
-                        .UseCollation("NOCASE");
+                        .HasColumnType("NVARCHAR2(2000)");
 
                     b.Property<string>("GatewayConfiguration")
-                        .HasColumnType("TEXT")
-                        .UseCollation("NOCASE");
+                        .HasColumnType("NVARCHAR2(2000)");
 
                     b.Property<int>("GatewayType")
-                        .HasColumnType("INTEGER");
+                        .HasColumnType("NUMBER(10)");
 
                     b.Property<string>("Icon")
-                        .HasColumnType("TEXT")
-                        .UseCollation("NOCASE");
+                        .HasColumnType("NVARCHAR2(2000)");
 
                     b.Property<string>("Name")
-                        .HasColumnType("TEXT")
-                        .UseCollation("NOCASE");
+                        .HasColumnType("NVARCHAR2(2000)");
 
                     b.Property<string>("ProductToken")
-                        .HasColumnType("TEXT")
-                        .UseCollation("NOCASE");
+                        .HasColumnType("NVARCHAR2(2000)");
 
                     b.Property<Guid?>("TenantId")
-                        .HasColumnType("TEXT");
+                        .HasColumnType("RAW(16)");
 
                     b.HasKey("Id");
 
@@ -1421,38 +1301,34 @@ namespace IoTSharp.Data.Sqlite.Migrations
                 {
                     b.Property<Guid>("CommandId")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("TEXT");
+                        .HasColumnType("RAW(16)");
 
                     b.Property<string>("CommandName")
-                        .HasColumnType("TEXT")
-                        .UseCollation("NOCASE");
+                        .HasColumnType("NVARCHAR2(2000)");
 
                     b.Property<string>("CommandParams")
-                        .HasColumnType("TEXT")
-                        .UseCollation("NOCASE");
+                        .HasColumnType("NVARCHAR2(2000)");
 
                     b.Property<int>("CommandStatus")
-                        .HasColumnType("INTEGER");
+                        .HasColumnType("NUMBER(10)");
 
                     b.Property<string>("CommandTemplate")
-                        .HasColumnType("TEXT")
-                        .UseCollation("NOCASE");
+                        .HasColumnType("NVARCHAR2(2000)");
 
                     b.Property<string>("CommandTitle")
-                        .HasColumnType("TEXT")
-                        .UseCollation("NOCASE");
+                        .HasColumnType("NVARCHAR2(2000)");
 
                     b.Property<int>("CommandType")
-                        .HasColumnType("INTEGER");
+                        .HasColumnType("NUMBER(10)");
 
                     b.Property<DateTime>("CreateDateTime")
-                        .HasColumnType("TEXT");
+                        .HasColumnType("TIMESTAMP(7)");
 
                     b.Property<Guid>("Creator")
-                        .HasColumnType("TEXT");
+                        .HasColumnType("RAW(16)");
 
                     b.Property<Guid>("ProductId")
-                        .HasColumnType("TEXT");
+                        .HasColumnType("RAW(16)");
 
                     b.HasKey("CommandId");
 
@@ -1465,31 +1341,28 @@ namespace IoTSharp.Data.Sqlite.Migrations
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("TEXT");
+                        .HasColumnType("RAW(16)");
 
                     b.Property<int>("DataCatalog")
-                        .HasColumnType("INTEGER");
+                        .HasColumnType("NUMBER(10)");
 
                     b.Property<bool>("Deleted")
-                        .HasColumnType("INTEGER");
+                        .HasColumnType("BOOLEAN");
 
                     b.Property<string>("Description")
-                        .HasColumnType("TEXT")
-                        .UseCollation("NOCASE");
+                        .HasColumnType("NVARCHAR2(2000)");
 
                     b.Property<Guid>("DeviceId")
-                        .HasColumnType("TEXT");
+                        .HasColumnType("RAW(16)");
 
                     b.Property<string>("DeviceKeyName")
-                        .HasColumnType("TEXT")
-                        .UseCollation("NOCASE");
+                        .HasColumnType("NVARCHAR2(2000)");
 
                     b.Property<Guid?>("ProductId")
-                        .HasColumnType("TEXT");
+                        .HasColumnType("RAW(16)");
 
                     b.Property<string>("ProductKeyName")
-                        .HasColumnType("TEXT")
-                        .UseCollation("NOCASE");
+                        .HasColumnType("NVARCHAR2(2000)");
 
                     b.HasKey("Id");
 
@@ -1502,117 +1375,98 @@ namespace IoTSharp.Data.Sqlite.Migrations
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("TEXT");
+                        .HasColumnType("RAW(16)");
 
                     b.Property<Guid?>("Customer")
-                        .HasColumnType("TEXT");
+                        .HasColumnType("RAW(16)");
 
                     b.Property<int>("DataType")
-                        .HasColumnType("INTEGER");
+                        .HasColumnType("NUMBER(10)");
 
                     b.Property<string>("DefaultValue")
-                        .HasColumnType("TEXT")
-                        .UseCollation("NOCASE");
+                        .HasColumnType("NVARCHAR2(2000)");
 
                     b.Property<bool>("Deleted")
-                        .HasColumnType("INTEGER");
+                        .HasColumnType("BOOLEAN");
 
                     b.Property<bool>("Display")
-                        .HasColumnType("INTEGER");
+                        .HasColumnType("BOOLEAN");
 
                     b.Property<string>("DisplayName")
                         .IsRequired()
-                        .HasColumnType("TEXT")
-                        .UseCollation("NOCASE");
+                        .HasColumnType("NVARCHAR2(2000)");
 
                     b.Property<string>("KeyDesc")
-                        .HasColumnType("TEXT")
-                        .UseCollation("NOCASE");
+                        .HasColumnType("NVARCHAR2(2000)");
 
                     b.Property<string>("KeyName")
                         .IsRequired()
-                        .HasColumnType("TEXT")
-                        .UseCollation("NOCASE");
+                        .HasColumnType("NVARCHAR2(2000)");
 
                     b.Property<string>("Place0")
                         .IsRequired()
-                        .HasColumnType("TEXT")
-                        .UseCollation("NOCASE");
+                        .HasColumnType("NVARCHAR2(2000)");
 
                     b.Property<string>("Place1")
                         .IsRequired()
-                        .HasColumnType("TEXT")
-                        .UseCollation("NOCASE");
+                        .HasColumnType("NVARCHAR2(2000)");
 
                     b.Property<string>("Place2")
                         .IsRequired()
-                        .HasColumnType("TEXT")
-                        .UseCollation("NOCASE");
+                        .HasColumnType("NVARCHAR2(2000)");
 
                     b.Property<string>("Place3")
                         .IsRequired()
-                        .HasColumnType("TEXT")
-                        .UseCollation("NOCASE");
+                        .HasColumnType("NVARCHAR2(2000)");
 
                     b.Property<string>("Place4")
                         .IsRequired()
-                        .HasColumnType("TEXT")
-                        .UseCollation("NOCASE");
+                        .HasColumnType("NVARCHAR2(2000)");
 
                     b.Property<string>("Place5")
                         .IsRequired()
-                        .HasColumnType("TEXT")
-                        .UseCollation("NOCASE");
+                        .HasColumnType("NVARCHAR2(2000)");
 
                     b.Property<string>("PlaceOrder0")
                         .IsRequired()
-                        .HasColumnType("TEXT")
-                        .UseCollation("NOCASE");
+                        .HasColumnType("NVARCHAR2(2000)");
 
                     b.Property<string>("PlaceOrder1")
                         .IsRequired()
-                        .HasColumnType("TEXT")
-                        .UseCollation("NOCASE");
+                        .HasColumnType("NVARCHAR2(2000)");
 
                     b.Property<string>("PlaceOrder2")
                         .IsRequired()
-                        .HasColumnType("TEXT")
-                        .UseCollation("NOCASE");
+                        .HasColumnType("NVARCHAR2(2000)");
 
                     b.Property<string>("PlaceOrder3")
                         .IsRequired()
-                        .HasColumnType("TEXT")
-                        .UseCollation("NOCASE");
+                        .HasColumnType("NVARCHAR2(2000)");
 
                     b.Property<string>("PlaceOrder4")
                         .IsRequired()
-                        .HasColumnType("TEXT")
-                        .UseCollation("NOCASE");
+                        .HasColumnType("NVARCHAR2(2000)");
 
                     b.Property<string>("PlaceOrder5")
                         .IsRequired()
-                        .HasColumnType("TEXT")
-                        .UseCollation("NOCASE");
+                        .HasColumnType("NVARCHAR2(2000)");
 
                     b.Property<Guid?>("ProductId")
-                        .HasColumnType("TEXT");
+                        .HasColumnType("RAW(16)");
 
                     b.Property<string>("Tag")
-                        .HasColumnType("TEXT")
-                        .UseCollation("NOCASE");
+                        .HasColumnType("NVARCHAR2(2000)");
 
                     b.Property<string>("Unit")
                         .IsRequired()
-                        .HasColumnType("TEXT")
-                        .UseCollation("NOCASE");
+                        .HasColumnType("NVARCHAR2(2000)");
 
                     b.Property<bool>("UnitConvert")
-                        .HasColumnType("INTEGER");
+                        .HasColumnType("BOOLEAN");
 
                     b.Property<string>("UnitExpression")
                         .IsRequired()
-                        .HasColumnType("TEXT")
-                        .UseCollation("NOCASE");
+                        .HasColumnType("NVARCHAR2(2000)");
 
                     b.HasKey("Id");
 
@@ -1625,31 +1479,28 @@ namespace IoTSharp.Data.Sqlite.Migrations
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("TEXT");
+                        .HasColumnType("RAW(16)");
 
                     b.Property<DateTime>("AddedDate")
-                        .HasColumnType("TEXT");
+                        .HasColumnType("TIMESTAMP(7)");
 
                     b.Property<DateTime>("ExpiryDate")
-                        .HasColumnType("TEXT");
+                        .HasColumnType("TIMESTAMP(7)");
 
                     b.Property<bool>("IsRevorked")
-                        .HasColumnType("INTEGER");
+                        .HasColumnType("BOOLEAN");
 
                     b.Property<bool>("IsUsed")
-                        .HasColumnType("INTEGER");
+                        .HasColumnType("BOOLEAN");
 
                     b.Property<string>("JwtId")
-                        .HasColumnType("TEXT")
-                        .UseCollation("NOCASE");
+                        .HasColumnType("NVARCHAR2(2000)");
 
                     b.Property<string>("Token")
-                        .HasColumnType("TEXT")
-                        .UseCollation("NOCASE");
+                        .HasColumnType("NVARCHAR2(2000)");
 
                     b.Property<string>("UserId")
-                        .HasColumnType("TEXT")
-                        .UseCollation("NOCASE");
+                        .HasColumnType("NVARCHAR2(450)");
 
                     b.HasKey("Id");
 
@@ -1662,17 +1513,16 @@ namespace IoTSharp.Data.Sqlite.Migrations
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("TEXT");
+                        .HasColumnType("RAW(16)");
 
                     b.Property<Guid?>("CustomerId")
-                        .HasColumnType("TEXT");
+                        .HasColumnType("RAW(16)");
 
                     b.Property<string>("IdentityUserId")
-                        .HasColumnType("TEXT")
-                        .UseCollation("NOCASE");
+                        .HasColumnType("NVARCHAR2(450)");
 
                     b.Property<Guid?>("TenantId")
-                        .HasColumnType("TEXT");
+                        .HasColumnType("RAW(16)");
 
                     b.HasKey("Id");
 
@@ -1689,59 +1539,52 @@ namespace IoTSharp.Data.Sqlite.Migrations
                 {
                     b.Property<Guid>("ExecutorId")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("TEXT");
+                        .HasColumnType("RAW(16)");
 
                     b.Property<DateTime>("AddDateTime")
-                        .HasColumnType("TEXT");
+                        .HasColumnType("TIMESTAMP(7)");
 
                     b.Property<Guid>("Creator")
-                        .HasColumnType("TEXT");
+                        .HasColumnType("RAW(16)");
 
                     b.Property<Guid?>("CustomerId")
-                        .HasColumnType("TEXT");
+                        .HasColumnType("RAW(16)");
 
                     b.Property<string>("DefaultConfig")
-                        .HasColumnType("TEXT")
-                        .UseCollation("NOCASE");
+                        .HasColumnType("NVARCHAR2(2000)");
 
                     b.Property<string>("ExecutorDesc")
-                        .HasColumnType("TEXT")
-                        .UseCollation("NOCASE");
+                        .HasColumnType("NVARCHAR2(2000)");
 
                     b.Property<string>("ExecutorName")
-                        .HasColumnType("TEXT")
-                        .UseCollation("NOCASE");
+                        .HasColumnType("NVARCHAR2(2000)");
 
                     b.Property<int>("ExecutorStatus")
-                        .HasColumnType("INTEGER");
+                        .HasColumnType("NUMBER(10)");
 
                     b.Property<string>("MataData")
-                        .HasColumnType("TEXT")
-                        .UseCollation("NOCASE");
+                        .HasColumnType("NVARCHAR2(2000)");
 
                     b.Property<string>("Path")
-                        .HasColumnType("TEXT")
-                        .UseCollation("NOCASE");
+                        .HasColumnType("NVARCHAR2(2000)");
 
                     b.Property<string>("Tag")
-                        .HasColumnType("TEXT")
-                        .UseCollation("NOCASE");
+                        .HasColumnType("NVARCHAR2(2000)");
 
                     b.Property<Guid?>("TenantId")
-                        .HasColumnType("TEXT");
+                        .HasColumnType("RAW(16)");
 
                     b.Property<int>("TestStatus")
-                        .HasColumnType("INTEGER");
+                        .HasColumnType("NUMBER(10)");
 
                     b.Property<Guid>("Tester")
-                        .HasColumnType("TEXT");
+                        .HasColumnType("RAW(16)");
 
                     b.Property<DateTime>("TesterDateTime")
-                        .HasColumnType("TEXT");
+                        .HasColumnType("TIMESTAMP(7)");
 
                     b.Property<string>("TypeName")
-                        .HasColumnType("TEXT")
-                        .UseCollation("NOCASE");
+                        .HasColumnType("NVARCHAR2(2000)");
 
                     b.HasKey("ExecutorId");
 
@@ -1756,45 +1599,40 @@ namespace IoTSharp.Data.Sqlite.Migrations
                 {
                     b.Property<Guid>("EventId")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("TEXT");
+                        .HasColumnType("RAW(16)");
 
                     b.Property<DateTime>("CreateDateTime")
-                        .HasColumnType("TEXT");
+                        .HasColumnType("TIMESTAMP(7)");
 
                     b.Property<Guid>("Creator")
-                        .HasColumnType("TEXT");
+                        .HasColumnType("RAW(16)");
 
                     b.Property<Guid?>("CustomerId")
-                        .HasColumnType("TEXT");
+                        .HasColumnType("RAW(16)");
 
                     b.Property<string>("EventDesc")
-                        .HasColumnType("TEXT")
-                        .UseCollation("NOCASE");
+                        .HasColumnType("NVARCHAR2(2000)");
 
                     b.Property<string>("EventName")
-                        .HasColumnType("TEXT")
-                        .UseCollation("NOCASE");
+                        .HasColumnType("NVARCHAR2(2000)");
 
                     b.Property<string>("EventNameSpace")
-                        .HasColumnType("TEXT")
-                        .UseCollation("NOCASE");
+                        .HasColumnType("NVARCHAR2(2000)");
 
                     b.Property<string>("EventParam")
-                        .HasColumnType("TEXT")
-                        .UseCollation("NOCASE");
+                        .HasColumnType("NVARCHAR2(2000)");
 
                     b.Property<int>("EventStatus")
-                        .HasColumnType("INTEGER");
+                        .HasColumnType("NUMBER(10)");
 
                     b.Property<string>("EventTag")
-                        .HasColumnType("TEXT")
-                        .UseCollation("NOCASE");
+                        .HasColumnType("NVARCHAR2(2000)");
 
                     b.Property<Guid?>("TenantId")
-                        .HasColumnType("TEXT");
+                        .HasColumnType("RAW(16)");
 
                     b.Property<int>("Type")
-                        .HasColumnType("INTEGER");
+                        .HasColumnType("NUMBER(10)");
 
                     b.HasKey("EventId");
 
@@ -1809,23 +1647,22 @@ namespace IoTSharp.Data.Sqlite.Migrations
                 {
                     b.Property<Guid>("BindId")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("TEXT");
+                        .HasColumnType("RAW(16)");
 
                     b.Property<Guid>("EventId")
-                        .HasColumnType("TEXT");
+                        .HasColumnType("RAW(16)");
 
                     b.Property<Guid?>("RuleTaskExecutorExecutorId")
-                        .HasColumnType("TEXT");
+                        .HasColumnType("RAW(16)");
 
                     b.Property<int>("Status")
-                        .HasColumnType("INTEGER");
+                        .HasColumnType("NUMBER(10)");
 
                     b.Property<Guid?>("SubscriptionEventId")
-                        .HasColumnType("TEXT");
+                        .HasColumnType("RAW(16)");
 
                     b.Property<string>("TaskConfig")
-                        .HasColumnType("TEXT")
-                        .UseCollation("NOCASE");
+                        .HasColumnType("NVARCHAR2(2000)");
 
                     b.HasKey("BindId");
 
@@ -1839,52 +1676,48 @@ namespace IoTSharp.Data.Sqlite.Migrations
             modelBuilder.Entity("IoTSharp.Data.TelemetryData", b =>
                 {
                     b.Property<Guid>("DeviceId")
-                        .HasColumnType("TEXT")
+                        .HasColumnType("RAW(16)")
                         .HasColumnOrder(1);
 
                     b.Property<string>("KeyName")
-                        .HasColumnType("TEXT")
-                        .HasColumnOrder(2)
-                        .UseCollation("NOCASE");
+                        .HasColumnType("NVARCHAR2(450)")
+                        .HasColumnOrder(2);
 
                     b.Property<DateTime>("DateTime")
-                        .HasColumnType("TEXT")
+                        .HasColumnType("TIMESTAMP(7)")
                         .HasColumnOrder(3);
 
                     b.Property<int>("DataSide")
-                        .HasColumnType("INTEGER")
+                        .HasColumnType("NUMBER(10)")
                         .HasColumnOrder(4);
 
                     b.Property<int>("Type")
-                        .HasColumnType("INTEGER")
+                        .HasColumnType("NUMBER(10)")
                         .HasColumnOrder(5);
 
                     b.Property<byte[]>("Value_Binary")
-                        .HasColumnType("BLOB");
+                        .HasColumnType("RAW(2000)");
 
                     b.Property<bool?>("Value_Boolean")
-                        .HasColumnType("INTEGER");
+                        .HasColumnType("BOOLEAN");
 
                     b.Property<DateTime?>("Value_DateTime")
-                        .HasColumnType("TEXT");
+                        .HasColumnType("TIMESTAMP(7)");
 
                     b.Property<double?>("Value_Double")
-                        .HasColumnType("REAL");
+                        .HasColumnType("BINARY_DOUBLE");
 
                     b.Property<string>("Value_Json")
-                        .HasColumnType("TEXT")
-                        .UseCollation("NOCASE");
+                        .HasColumnType("NVARCHAR2(2000)");
 
                     b.Property<long?>("Value_Long")
-                        .HasColumnType("INTEGER");
+                        .HasColumnType("NUMBER(19)");
 
                     b.Property<string>("Value_String")
-                        .HasColumnType("TEXT")
-                        .UseCollation("NOCASE");
+                        .HasColumnType("NVARCHAR2(2000)");
 
                     b.Property<string>("Value_XML")
-                        .HasColumnType("TEXT")
-                        .UseCollation("NOCASE");
+                        .HasColumnType("NVARCHAR2(2000)");
 
                     b.HasKey("DeviceId", "KeyName", "DateTime");
 
@@ -1901,48 +1734,40 @@ namespace IoTSharp.Data.Sqlite.Migrations
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("TEXT");
+                        .HasColumnType("RAW(16)");
 
                     b.Property<Guid?>("AISettingsId")
-                        .HasColumnType("TEXT");
+                        .HasColumnType("RAW(16)");
 
                     b.Property<string>("Address")
-                        .HasColumnType("TEXT")
-                        .UseCollation("NOCASE");
+                        .HasColumnType("NVARCHAR2(2000)");
 
                     b.Property<string>("City")
-                        .HasColumnType("TEXT")
-                        .UseCollation("NOCASE");
+                        .HasColumnType("NVARCHAR2(2000)");
 
                     b.Property<string>("Country")
-                        .HasColumnType("TEXT")
-                        .UseCollation("NOCASE");
+                        .HasColumnType("NVARCHAR2(2000)");
 
                     b.Property<bool>("Deleted")
-                        .HasColumnType("INTEGER");
+                        .HasColumnType("BOOLEAN");
 
                     b.Property<string>("Email")
-                        .HasColumnType("TEXT")
-                        .UseCollation("NOCASE");
+                        .HasColumnType("NVARCHAR2(2000)");
 
                     b.Property<string>("Name")
-                        .HasColumnType("TEXT")
-                        .UseCollation("NOCASE");
+                        .HasColumnType("NVARCHAR2(2000)");
 
                     b.Property<string>("Phone")
-                        .HasColumnType("TEXT")
-                        .UseCollation("NOCASE");
+                        .HasColumnType("NVARCHAR2(2000)");
 
                     b.Property<string>("Province")
-                        .HasColumnType("TEXT")
-                        .UseCollation("NOCASE");
+                        .HasColumnType("NVARCHAR2(2000)");
 
                     b.Property<string>("Street")
-                        .HasColumnType("TEXT")
-                        .UseCollation("NOCASE");
+                        .HasColumnType("NVARCHAR2(2000)");
 
                     b.Property<int>("ZipCode")
-                        .HasColumnType("INTEGER");
+                        .HasColumnType("NUMBER(10)");
 
                     b.HasKey("Id");
 
@@ -1954,29 +1779,26 @@ namespace IoTSharp.Data.Sqlite.Migrations
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
                 {
                     b.Property<string>("Id")
-                        .HasColumnType("TEXT")
-                        .UseCollation("NOCASE");
+                        .HasColumnType("NVARCHAR2(450)");
 
                     b.Property<string>("ConcurrencyStamp")
                         .IsConcurrencyToken()
-                        .HasColumnType("TEXT")
-                        .UseCollation("NOCASE");
+                        .HasColumnType("NVARCHAR2(2000)");
 
                     b.Property<string>("Name")
                         .HasMaxLength(256)
-                        .HasColumnType("TEXT")
-                        .UseCollation("NOCASE");
+                        .HasColumnType("NVARCHAR2(256)");
 
                     b.Property<string>("NormalizedName")
                         .HasMaxLength(256)
-                        .HasColumnType("TEXT")
-                        .UseCollation("NOCASE");
+                        .HasColumnType("NVARCHAR2(256)");
 
                     b.HasKey("Id");
 
                     b.HasIndex("NormalizedName")
                         .IsUnique()
-                        .HasDatabaseName("RoleNameIndex");
+                        .HasDatabaseName("RoleNameIndex")
+                        .HasFilter("\"NormalizedName\" IS NOT NULL");
 
                     b.ToTable("AspNetRoles", (string)null);
                 });
@@ -1985,20 +1807,19 @@ namespace IoTSharp.Data.Sqlite.Migrations
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("INTEGER");
+                        .HasColumnType("NUMBER(10)");
+
+                    OraclePropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<string>("ClaimType")
-                        .HasColumnType("TEXT")
-                        .UseCollation("NOCASE");
+                        .HasColumnType("NVARCHAR2(2000)");
 
                     b.Property<string>("ClaimValue")
-                        .HasColumnType("TEXT")
-                        .UseCollation("NOCASE");
+                        .HasColumnType("NVARCHAR2(2000)");
 
                     b.Property<string>("RoleId")
                         .IsRequired()
-                        .HasColumnType("TEXT")
-                        .UseCollation("NOCASE");
+                        .HasColumnType("NVARCHAR2(450)");
 
                     b.HasKey("Id");
 
@@ -2010,63 +1831,54 @@ namespace IoTSharp.Data.Sqlite.Migrations
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUser", b =>
                 {
                     b.Property<string>("Id")
-                        .HasColumnType("TEXT")
-                        .UseCollation("NOCASE");
+                        .HasColumnType("NVARCHAR2(450)");
 
                     b.Property<int>("AccessFailedCount")
-                        .HasColumnType("INTEGER");
+                        .HasColumnType("NUMBER(10)");
 
                     b.Property<string>("ConcurrencyStamp")
                         .IsConcurrencyToken()
-                        .HasColumnType("TEXT")
-                        .UseCollation("NOCASE");
+                        .HasColumnType("NVARCHAR2(2000)");
 
                     b.Property<string>("Email")
                         .HasMaxLength(256)
-                        .HasColumnType("TEXT")
-                        .UseCollation("NOCASE");
+                        .HasColumnType("NVARCHAR2(256)");
 
                     b.Property<bool>("EmailConfirmed")
-                        .HasColumnType("INTEGER");
+                        .HasColumnType("BOOLEAN");
 
                     b.Property<bool>("LockoutEnabled")
-                        .HasColumnType("INTEGER");
+                        .HasColumnType("BOOLEAN");
 
                     b.Property<DateTimeOffset?>("LockoutEnd")
-                        .HasColumnType("TEXT");
+                        .HasColumnType("TIMESTAMP(7) WITH TIME ZONE");
 
                     b.Property<string>("NormalizedEmail")
                         .HasMaxLength(256)
-                        .HasColumnType("TEXT")
-                        .UseCollation("NOCASE");
+                        .HasColumnType("NVARCHAR2(256)");
 
                     b.Property<string>("NormalizedUserName")
                         .HasMaxLength(256)
-                        .HasColumnType("TEXT")
-                        .UseCollation("NOCASE");
+                        .HasColumnType("NVARCHAR2(256)");
 
                     b.Property<string>("PasswordHash")
-                        .HasColumnType("TEXT")
-                        .UseCollation("NOCASE");
+                        .HasColumnType("NVARCHAR2(2000)");
 
                     b.Property<string>("PhoneNumber")
-                        .HasColumnType("TEXT")
-                        .UseCollation("NOCASE");
+                        .HasColumnType("NVARCHAR2(2000)");
 
                     b.Property<bool>("PhoneNumberConfirmed")
-                        .HasColumnType("INTEGER");
+                        .HasColumnType("BOOLEAN");
 
                     b.Property<string>("SecurityStamp")
-                        .HasColumnType("TEXT")
-                        .UseCollation("NOCASE");
+                        .HasColumnType("NVARCHAR2(2000)");
 
                     b.Property<bool>("TwoFactorEnabled")
-                        .HasColumnType("INTEGER");
+                        .HasColumnType("BOOLEAN");
 
                     b.Property<string>("UserName")
                         .HasMaxLength(256)
-                        .HasColumnType("TEXT")
-                        .UseCollation("NOCASE");
+                        .HasColumnType("NVARCHAR2(256)");
 
                     b.HasKey("Id");
 
@@ -2075,7 +1887,8 @@ namespace IoTSharp.Data.Sqlite.Migrations
 
                     b.HasIndex("NormalizedUserName")
                         .IsUnique()
-                        .HasDatabaseName("UserNameIndex");
+                        .HasDatabaseName("UserNameIndex")
+                        .HasFilter("\"NormalizedUserName\" IS NOT NULL");
 
                     b.ToTable("AspNetUsers", (string)null);
                 });
@@ -2084,20 +1897,19 @@ namespace IoTSharp.Data.Sqlite.Migrations
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("INTEGER");
+                        .HasColumnType("NUMBER(10)");
+
+                    OraclePropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<string>("ClaimType")
-                        .HasColumnType("TEXT")
-                        .UseCollation("NOCASE");
+                        .HasColumnType("NVARCHAR2(2000)");
 
                     b.Property<string>("ClaimValue")
-                        .HasColumnType("TEXT")
-                        .UseCollation("NOCASE");
+                        .HasColumnType("NVARCHAR2(2000)");
 
                     b.Property<string>("UserId")
                         .IsRequired()
-                        .HasColumnType("TEXT")
-                        .UseCollation("NOCASE");
+                        .HasColumnType("NVARCHAR2(450)");
 
                     b.HasKey("Id");
 
@@ -2109,21 +1921,17 @@ namespace IoTSharp.Data.Sqlite.Migrations
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<string>", b =>
                 {
                     b.Property<string>("LoginProvider")
-                        .HasColumnType("TEXT")
-                        .UseCollation("NOCASE");
+                        .HasColumnType("NVARCHAR2(450)");
 
                     b.Property<string>("ProviderKey")
-                        .HasColumnType("TEXT")
-                        .UseCollation("NOCASE");
+                        .HasColumnType("NVARCHAR2(450)");
 
                     b.Property<string>("ProviderDisplayName")
-                        .HasColumnType("TEXT")
-                        .UseCollation("NOCASE");
+                        .HasColumnType("NVARCHAR2(2000)");
 
                     b.Property<string>("UserId")
                         .IsRequired()
-                        .HasColumnType("TEXT")
-                        .UseCollation("NOCASE");
+                        .HasColumnType("NVARCHAR2(450)");
 
                     b.HasKey("LoginProvider", "ProviderKey");
 
@@ -2135,12 +1943,10 @@ namespace IoTSharp.Data.Sqlite.Migrations
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserRole<string>", b =>
                 {
                     b.Property<string>("UserId")
-                        .HasColumnType("TEXT")
-                        .UseCollation("NOCASE");
+                        .HasColumnType("NVARCHAR2(450)");
 
                     b.Property<string>("RoleId")
-                        .HasColumnType("TEXT")
-                        .UseCollation("NOCASE");
+                        .HasColumnType("NVARCHAR2(450)");
 
                     b.HasKey("UserId", "RoleId");
 
@@ -2152,20 +1958,16 @@ namespace IoTSharp.Data.Sqlite.Migrations
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<string>", b =>
                 {
                     b.Property<string>("UserId")
-                        .HasColumnType("TEXT")
-                        .UseCollation("NOCASE");
+                        .HasColumnType("NVARCHAR2(450)");
 
                     b.Property<string>("LoginProvider")
-                        .HasColumnType("TEXT")
-                        .UseCollation("NOCASE");
+                        .HasColumnType("NVARCHAR2(450)");
 
                     b.Property<string>("Name")
-                        .HasColumnType("TEXT")
-                        .UseCollation("NOCASE");
+                        .HasColumnType("NVARCHAR2(450)");
 
                     b.Property<string>("Value")
-                        .HasColumnType("TEXT")
-                        .UseCollation("NOCASE");
+                        .HasColumnType("NVARCHAR2(2000)");
 
                     b.HasKey("UserId", "LoginProvider", "Name");
 
@@ -2184,7 +1986,7 @@ namespace IoTSharp.Data.Sqlite.Migrations
                     b.HasBaseType("IoTSharp.Data.DataStorage");
 
                     b.Property<Guid?>("OwnerId")
-                        .HasColumnType("TEXT");
+                        .HasColumnType("RAW(16)");
 
                     b.HasIndex("OwnerId");
 
@@ -2380,7 +2182,8 @@ namespace IoTSharp.Data.Sqlite.Migrations
 
                     b.HasOne("IoTSharp.Data.Tenant", "Tenant")
                         .WithMany()
-                        .HasForeignKey("TenantId");
+                        .HasForeignKey("TenantId")
+                        .HasConstraintName("FK_DynamicFormFieldValueInfo~1");
 
                     b.Navigation("Customer");
 

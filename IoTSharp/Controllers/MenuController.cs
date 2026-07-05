@@ -87,7 +87,6 @@ namespace IoTSharp.Controllers
                             new() { text = "规则链设计", i18n = "", vi18n="iot.flowlist", routename="flowlist", link = "/iot/rules/flowlist", vpath = "/iot/rules/flowlist", },
                             new() { text = "规则链审计", i18n = "", vi18n="iot.flowevents", routename="flowevents", link = "/iot/rules/flowevents", vpath = "/iot/rules/flowevents",  },
                             new() { text = "场景", i18n = "", vi18n="iot.scene", routename="scene", link = "/iot/scene/scenedetail", vpath = "/iot/scene/scenedetail",  },
-                          //  new() { text = "网关配置器", i18n = "", vi18n="iot.devicegraph", routename="devicegraph", link = "/iot/devices/devicegraph", vpath="/iot/devices/devicegraph", },
                         }
                 });
                 _user_menu.Add(new()

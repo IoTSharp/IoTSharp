@@ -221,7 +221,7 @@ Tomur 在这个体系里的角色是模型算力 Provider：
 
 ### 废弃
 
-- 旧 `DeviceGraph`、`DeviceDiagram`、`DeviceGraphToolBox` 如果只是历史设计器数据，标记废弃。
+- 旧 `DeviceGraph`、`DeviceDiagram`、`DeviceGraphToolBox` 已确认为历史设计器数据：无活动 API/前端引用，实体、DbSet 和当前模型已删除；新迁移删除历史表。新拓扑进入 Asset、Collection Template 或 Edge 设计器。
 - 把 Device 当业务层级、模板容器或发布范围的用法停止扩展。
 - EdgeTask 状态以 AttributeLatest/TelemetryData 作为主存储是临时方案，M2 #025 完成后停止使用（#906）。
 
@@ -292,7 +292,7 @@ Edge 页面围绕运行时闭环组织：
 
 - Produce 命名迁移清单。
 - DeviceModel 命令能力合并到 Product，活动 API 使用 ProductCommand。
-- 旧 DeviceGraph/DeviceDiagram/Scene 处理方案。
+- 旧 DeviceGraph/DeviceDiagram 处理方案已确定为直接删除；Scene 处理方案。
 - Product、Device、Asset、Gateway、EdgeNode、Collection Template 页面职责说明。
 
 验收：
@@ -426,6 +426,6 @@ Edge 页面围绕运行时闭环组织：
 1. 制定 Produce 命名迁移清单（#011）。
 2. 将前端产品工作台从 `Product` 目录迁移到 `product`（#013）。
 3. 新增 Product API 命名，替换旧 Produce API 命名（#012）。
-4. 梳理 `DeviceModel`、`DeviceGraph`、`DeviceDiagram` 和 Scene 的引用，决定合并或废弃（#015~#017）。
+4. 梳理 `DeviceModel`、`DeviceGraph`、`DeviceDiagram` 和 Scene 的引用，决定合并或废弃（#015~#017；#015、#016 已完成）。
 5. M2 预研：EdgeTask、EdgeTaskReceipt、EdgeCapability、EdgeRuntimeStatus 和 EdgeCollectionAssignment 设计（#020~#024），以及 `edge-node-v1`/`collection-config-v1`/`edge-task-v1` 契约草案（#027）。
 6. M3 前置：semantic-core 收敛决策材料准备（#029）——盘点 `semantic-core.v1.schema.json`、CollectionTask 草稿 DTO 与 IoTEdge 本地采集模型的差异。
