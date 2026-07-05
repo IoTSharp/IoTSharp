@@ -17,6 +17,7 @@ const sidebars = {
         'architecture/gateway-legacy-configuration-migration',
         'architecture/edge-query-v1',
         'architecture/edge-contracts-v1',
+        'architecture/semantic-core-convergence',
       ],
     },
     {

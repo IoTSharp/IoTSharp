@@ -149,7 +149,7 @@ Collection Template 是平台侧保存的采集行为定义。
 
 Collection Template 属于 Product 或模板库。运行时任务由平台生成并发布到 EdgeNode、Gateway 或选定 Device。
 
-模板的持久化模型基础须先经过 semantic-core 收敛决策（#029）：`IoTSharp.Contracts` 中已有 `semantic-core.v1.schema.json` 及 Modbus/OPC UA/MQTT 协议绑定，IoTEdge 侧也有本地采集配置模型。三者必须收敛为一套点位与协议描述，要么以 semantic-core 为基础建模，要么明确废弃并记录原因。该决策是 M3 开工（#030）的前置门。
+模板的持久化模型基础已经通过 semantic-core 收敛决策（#029）：M3 采用 `IoTSharp.Contracts/semantic-core.v1.schema.json` 作为点位语义和协议绑定基础，并让 Collection Template、`collection-config-v1` 和 IoTEdge 本地模型分层消费。细节见 [Semantic Core 收敛决策](./semantic-core-convergence.md)。
 
 ### RuleChain
 
@@ -195,6 +195,7 @@ Tomur 在这个体系里的角色是模型算力 Provider：
 | `edge-node-v1` | `IoTSharp.Contracts/edge-node.v1.schema.json` | 注册、心跳、能力上报、运行态快照和 EdgeNode 平台快照 | IoTEdge |
 | `collection-config-v1` | `IoTSharp.Contracts/collection-config.v1.schema.json` | 采集运行时配置（点位、连接、采样、映射）和分配快照 | IoTEdge |
 | `edge-task-v1` | `IoTSharp.Contracts/edge-task.v1.schema.json` | 任务下发、接受、回执状态机 | IoTEdge |
+| `semantic-core-v1` | `IoTSharp.Contracts/semantic-core.v1.schema.json` | 点位语义、单位、质量来源和 Modbus/OPC UA/MQTT 协议绑定 | 平台、IoTEdge、SDK、AI 工具 |
 
 规则：
 
@@ -318,7 +319,7 @@ Edge 页面围绕运行时闭环组织：
 - Edge 管理 API 和前端详情页改造。
 - `edge-node-v1`、`collection-config-v1`、`edge-task-v1` 版本化契约（#027，DTO、Schema 与样例由 `IoTSharp.Contracts` 发布）。
 - IoTEdge 任务回执转正（#028）。
-- semantic-core 收敛决策记录（#029）。
+- semantic-core 收敛决策记录（#029）：采用 `semantic-core-v1` 作为 M3 模型基础。
 
 验收：
 
@@ -433,4 +434,4 @@ Edge 页面围绕运行时闭环组织：
 4. 梳理 `DeviceModel`、`DeviceGraph`、`DeviceDiagram` 和 Scene 的引用，决定合并或废弃（#015~#017 已完成）。
 5. 完成 Gateway 旧配置迁移方案（#018）：旧 Product Gateway 配置先做盘点和干跑，正式模板落地归 #030，配置发布闭环归 #040 之后。
 6. M2 契约固化：EdgeTask、EdgeTaskReceipt、EdgeCapability、EdgeRuntimeStatus 和 EdgeCollectionAssignment 已沉淀为正式模型（#020~#024），`edge-node-v1`/`collection-config-v1`/`edge-task-v1` 已进入 `IoTSharp.Contracts` 的 DTO、JSON Schema 和样例发布物（#027）。
-7. M3 前置：semantic-core 收敛决策材料准备（#029）——盘点 `semantic-core.v1.schema.json`、CollectionTask 草稿 DTO 与 IoTEdge 本地采集模型的差异。
+7. M3 前置：semantic-core 收敛决策已完成（#029），采用 `semantic-core-v1` 作为 Collection Template 的点位语义和协议绑定基础；下一步进入 #030。
