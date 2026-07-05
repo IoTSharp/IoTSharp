@@ -1,3 +1,5 @@
+import type { EdgeCapability, EdgeRuntimeStatus } from '/@/api/edge';
+
 export interface EdgeTableDataRow {
 	id?: string;
 	name?: string;
@@ -15,4 +17,6 @@ export interface EdgeTableDataRow {
 	capabilities?: string;
 	metadata?: string;
 	metrics?: string;
+	runtimeStatus?: EdgeRuntimeStatus;
+	capability?: EdgeCapability;
 }

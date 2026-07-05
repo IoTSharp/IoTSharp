@@ -47,6 +47,8 @@ namespace IoTSharp.Controllers
             "_edge.task.receipt.reportedAt"
         ];
 
+        private static readonly JsonSerializerOptions WebJsonOptions = new(JsonSerializerDefaults.Web);
+
         private readonly ApplicationDbContext _context;
         private readonly IPublisher _queue;
         private readonly ILogger _logger;
@@ -117,6 +119,42 @@ namespace IoTSharp.Controllers
             var node = await EnsureEdgeNodeAsync(gateway);
             var attrs = await QueryEdgeAttributes([gateway.Id]);
             return new ApiResult<EdgeNodeDto>(ApiCode.Success, "OK", ToEdgeNodeDto(node, attrs));
+        }
+
+        [HttpGet("{id:guid}/RuntimeStatus")]
+        [Authorize(Roles = nameof(UserRole.NormalUser))]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesDefaultResponseType]
+        public async Task<ApiResult<EdgeRuntimeStatusDto>> GetRuntimeStatus(Guid id)
+        {
+            var profile = this.GetUserProfile();
+            var gateway = await GetGatewayForProfileAsync(id, profile.Tenant, profile.Customer);
+            if (gateway == null)
+            {
+                return new ApiResult<EdgeRuntimeStatusDto>(ApiCode.NotFoundDevice, "Edge node not found", null);
+            }
+
+            var node = await EnsureEdgeNodeAsync(gateway);
+            var attrs = await QueryEdgeAttributes([gateway.Id]);
+            return new ApiResult<EdgeRuntimeStatusDto>(ApiCode.Success, "OK", ToEdgeRuntimeStatusDto(node, attrs));
+        }
+
+        [HttpGet("{id:guid}/Capability")]
+        [Authorize(Roles = nameof(UserRole.NormalUser))]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesDefaultResponseType]
+        public async Task<ApiResult<EdgeCapabilityDto>> GetCapability(Guid id)
+        {
+            var profile = this.GetUserProfile();
+            var gateway = await GetGatewayForProfileAsync(id, profile.Tenant, profile.Customer);
+            if (gateway == null)
+            {
+                return new ApiResult<EdgeCapabilityDto>(ApiCode.NotFoundDevice, "Edge node not found", null);
+            }
+
+            var node = await EnsureEdgeNodeAsync(gateway);
+            var attrs = await QueryEdgeAttributes([gateway.Id]);
+            return new ApiResult<EdgeCapabilityDto>(ApiCode.Success, "OK", ToEdgeCapabilityDto(node, attrs));
         }
 
         [AllowAnonymous]
@@ -278,19 +316,16 @@ namespace IoTSharp.Controllers
                 return Ok(new ApiResult(ApiCode.NotFoundDevice, $"{access_token} not a gateway's access token"));
             }
 
-            if (request != null && !IsSupportedEdgeRuntimeContract(request.ContractVersion))
+            if (request != null && !IsSupportedEdgeCapabilityContract(request.ContractVersion))
             {
                 return Ok(new ApiResult(ApiCode.InValidData, $"Unsupported contractVersion: {request.ContractVersion}"));
             }
 
+            var now = DateTime.UtcNow;
             var node = await EnsureEdgeNodeAsync(gateway);
-            node.Capabilities = SerializeOrNull(new
-            {
-                Protocols = request?.Protocols ?? [],
-                Features = request?.Features ?? [],
-                Tasks = request?.Tasks ?? []
-            }) ?? "{}";
-            node.UpdatedAt = DateTime.UtcNow;
+            var capability = CreateEdgeCapabilityDto(node, request, now);
+            node.Capabilities = SerializeOrNull(capability) ?? "{}";
+            node.UpdatedAt = now;
 
             var attrs = new Dictionary<string, object>
             {
@@ -497,6 +532,12 @@ namespace IoTSharp.Controllers
         private EdgeNodeDto ToEdgeNodeDto(EdgeNode node, List<AttributeLatest> attrs)
         {
             var gateway = node.Gateway;
+            var runtimeStatus = ToEdgeRuntimeStatusDto(node, attrs);
+            var capability = ToEdgeCapabilityDto(node, attrs);
+            var capabilities = Coalesce(node.Capabilities, GetString(attrs, Constants._EdgeCapabilities));
+            var metadata = Coalesce(node.Metadata, GetString(attrs, Constants._EdgeMetadata));
+            var metrics = Coalesce(node.Metrics, GetString(attrs, Constants._EdgeMetrics));
+
             return new EdgeNodeDto
             {
                 Id = node.Id,
@@ -504,6 +545,45 @@ namespace IoTSharp.Controllers
                 Name = string.IsNullOrWhiteSpace(node.Name) ? gateway.Name : node.Name,
                 AccessToken = gateway.DeviceIdentity?.IdentityId,
                 Timeout = gateway.Timeout,
+                Active = runtimeStatus.Active,
+                LastActivityDateTime = runtimeStatus.LastActivityDateTime,
+                RuntimeType = runtimeStatus.RuntimeType,
+                RuntimeName = runtimeStatus.RuntimeName,
+                Version = runtimeStatus.Version,
+                InstanceId = runtimeStatus.InstanceId,
+                Platform = runtimeStatus.Platform,
+                HostName = runtimeStatus.HostName,
+                IpAddress = runtimeStatus.IpAddress,
+                Status = runtimeStatus.Status,
+                Healthy = runtimeStatus.Healthy,
+                UptimeSeconds = runtimeStatus.UptimeSeconds,
+                LastHeartbeatDateTime = runtimeStatus.LastHeartbeatDateTime,
+                LastRegistrationDateTime = runtimeStatus.LastRegistrationDateTime,
+                Capabilities = capabilities,
+                Capability = capability,
+                Metadata = metadata,
+                Metrics = metrics,
+                LastTaskStatus = GetString(attrs, "_edge.task.receipt.status"),
+                LastReceiptDateTime = GetDateTime(attrs, "_edge.task.receipt.reportedAt"),
+                RuntimeStatus = runtimeStatus
+            };
+        }
+
+        /// <summary>
+        /// 统一构造 Edge 运行时状态快照，避免列表、详情和只读状态接口出现字段漂移。
+        /// </summary>
+        /// <param name="node">EdgeNode 持久化实体。</param>
+        /// <param name="attrs">兼容旧属性键中的状态字段。</param>
+        /// <returns>面向控制台、执行端诊断和 MCP 技能的状态快照。</returns>
+        private EdgeRuntimeStatusDto ToEdgeRuntimeStatusDto(EdgeNode node, List<AttributeLatest> attrs)
+        {
+            var metadata = Coalesce(node.Metadata, GetString(attrs, Constants._EdgeMetadata));
+            var metrics = Coalesce(node.Metrics, GetString(attrs, Constants._EdgeMetrics));
+
+            return new EdgeRuntimeStatusDto
+            {
+                EdgeNodeId = node.Id,
+                GatewayId = node.GatewayId,
                 Active = GetBoolean(attrs, Constants._Active),
                 LastActivityDateTime = GetDateTime(attrs, Constants._LastActivityDateTime),
                 RuntimeType = Coalesce(node.RuntimeType, GetString(attrs, Constants._EdgeRuntimeType)),
@@ -518,12 +598,275 @@ namespace IoTSharp.Controllers
                 UptimeSeconds = node.UptimeSeconds ?? GetNullableLong(attrs, Constants._EdgeUptimeSeconds),
                 LastHeartbeatDateTime = node.LastHeartbeatDateTime ?? GetDateTime(attrs, Constants._EdgeLastHeartbeatDateTime),
                 LastRegistrationDateTime = node.LastRegistrationDateTime ?? GetDateTime(attrs, Constants._EdgeLastRegistrationDateTime),
-                Capabilities = Coalesce(node.Capabilities, GetString(attrs, Constants._EdgeCapabilities)),
-                Metadata = Coalesce(node.Metadata, GetString(attrs, Constants._EdgeMetadata)),
-                Metrics = Coalesce(node.Metrics, GetString(attrs, Constants._EdgeMetrics)),
-                LastTaskStatus = GetString(attrs, "_edge.task.receipt.status"),
-                LastReceiptDateTime = GetDateTime(attrs, "_edge.task.receipt.reportedAt")
+                UpdatedAt = node.UpdatedAt,
+                Metadata = DeserializeObjectMap(metadata),
+                Metrics = DeserializeObjectMap(metrics)
             };
+        }
+
+        /// <summary>
+        /// 根据能力上报生成正式 EdgeCapability 快照，保留旧执行端 protocols/features/tasks 字段并补齐结构化能力。
+        /// </summary>
+        /// <param name="node">EdgeNode 持久化实体。</param>
+        /// <param name="request">执行端能力上报载荷。</param>
+        /// <param name="receivedAt">平台收到上报的 UTC 时间。</param>
+        /// <returns>已补齐节点身份和兼容性声明的能力快照。</returns>
+        private static EdgeCapabilityDto CreateEdgeCapabilityDto(EdgeNode node, EdgeCapabilityReportDto request, DateTime receivedAt)
+        {
+            var protocols = NormalizeStringList(request?.Protocols);
+            var supportedProtocols = NormalizeProtocolTypes(request?.SupportedProtocols, protocols);
+            var supportedPointTypes = NormalizeStringList(request?.SupportedPointTypes);
+            var supportedTransforms = NormalizeEnumList(request?.SupportedTransforms);
+            var supportedReportTriggers = NormalizeEnumList(request?.SupportedReportTriggers);
+            var features = NormalizeStringList(request?.Features);
+            var tasks = NormalizeStringList(request?.Tasks);
+            var taskCapabilities = NormalizeTaskCapabilities(request?.TaskCapabilities, tasks);
+            tasks = NormalizeStringList(tasks.Concat(taskCapabilities.Select(capability => capability.TaskType)));
+            var compatibleContracts = NormalizeCompatibleContracts(request?.CompatibleContracts);
+
+            if (compatibleContracts.Count == 0)
+            {
+                compatibleContracts = BuildDefaultCompatibleContracts(
+                    protocols.Count > 0 || supportedProtocols.Count > 0 || supportedPointTypes.Count > 0 || supportedTransforms.Count > 0 || supportedReportTriggers.Count > 0,
+                    tasks.Count > 0 || taskCapabilities.Count > 0);
+            }
+
+            return new EdgeCapabilityDto
+            {
+                EdgeNodeId = node.Id,
+                GatewayId = node.GatewayId,
+                RuntimeType = node.RuntimeType ?? string.Empty,
+                RuntimeName = node.RuntimeName ?? string.Empty,
+                Version = node.Version ?? string.Empty,
+                InstanceId = node.InstanceId ?? string.Empty,
+                ReportedAt = request?.ReportedAt?.ToUniversalTime() ?? receivedAt,
+                UpdatedAt = receivedAt,
+                Protocols = protocols,
+                SupportedProtocols = supportedProtocols,
+                SupportedPointTypes = supportedPointTypes,
+                SupportedTransforms = supportedTransforms,
+                SupportedReportTriggers = supportedReportTriggers,
+                Features = features,
+                Tasks = tasks,
+                TaskCapabilities = taskCapabilities,
+                CompatibleContracts = compatibleContracts,
+                Metadata = request?.Metadata ?? []
+            };
+        }
+
+        /// <summary>
+        /// 从正式能力快照或历史 capabilities JSON 恢复 EdgeCapability，供列表、详情和只读接口复用。
+        /// </summary>
+        /// <param name="node">EdgeNode 持久化实体。</param>
+        /// <param name="attrs">兼容旧属性键中的能力字段。</param>
+        /// <returns>归一化后的 EdgeCapability 快照。</returns>
+        private static EdgeCapabilityDto ToEdgeCapabilityDto(EdgeNode node, List<AttributeLatest> attrs)
+        {
+            var raw = Coalesce(node.Capabilities, GetString(attrs, Constants._EdgeCapabilities));
+            var capability = DeserializeEdgeCapabilityDto(raw) ?? new EdgeCapabilityDto();
+            var protocols = NormalizeStringList(capability.Protocols);
+            var supportedProtocols = NormalizeProtocolTypes(capability.SupportedProtocols, protocols);
+            var supportedPointTypes = NormalizeStringList(capability.SupportedPointTypes);
+            var supportedTransforms = NormalizeEnumList(capability.SupportedTransforms);
+            var supportedReportTriggers = NormalizeEnumList(capability.SupportedReportTriggers);
+            var features = NormalizeStringList(capability.Features);
+            var tasks = NormalizeStringList(capability.Tasks);
+            var taskCapabilities = NormalizeTaskCapabilities(capability.TaskCapabilities, tasks);
+            tasks = NormalizeStringList(tasks.Concat(taskCapabilities.Select(taskCapability => taskCapability.TaskType)));
+            var compatibleContracts = NormalizeCompatibleContracts(capability.CompatibleContracts);
+
+            if (compatibleContracts.Count == 0)
+            {
+                compatibleContracts = BuildDefaultCompatibleContracts(
+                    protocols.Count > 0 || supportedProtocols.Count > 0 || supportedPointTypes.Count > 0 || supportedTransforms.Count > 0 || supportedReportTriggers.Count > 0,
+                    tasks.Count > 0 || taskCapabilities.Count > 0);
+            }
+
+            var metadata = capability.Metadata is { Count: > 0 }
+                ? capability.Metadata
+                : DeserializeObjectMap(Coalesce(node.Metadata, GetString(attrs, Constants._EdgeMetadata)));
+
+            return capability with
+            {
+                ContractVersion = Coalesce(capability.ContractVersion, EdgeNodeContractVersions.EdgeCapabilityV1),
+                EdgeNodeId = node.Id,
+                GatewayId = node.GatewayId,
+                RuntimeType = Coalesce(capability.RuntimeType, Coalesce(node.RuntimeType, GetString(attrs, Constants._EdgeRuntimeType))),
+                RuntimeName = Coalesce(capability.RuntimeName, Coalesce(node.RuntimeName, GetString(attrs, Constants._EdgeRuntimeName))),
+                Version = Coalesce(capability.Version, Coalesce(node.Version, GetString(attrs, Constants._EdgeVersion))),
+                InstanceId = Coalesce(capability.InstanceId, Coalesce(node.InstanceId, GetString(attrs, Constants._EdgeInstanceId))),
+                UpdatedAt = capability.UpdatedAt ?? node.UpdatedAt,
+                Protocols = protocols,
+                SupportedProtocols = supportedProtocols,
+                SupportedPointTypes = supportedPointTypes,
+                SupportedTransforms = supportedTransforms,
+                SupportedReportTriggers = supportedReportTriggers,
+                Features = features,
+                Tasks = tasks,
+                TaskCapabilities = taskCapabilities,
+                CompatibleContracts = compatibleContracts,
+                Metadata = metadata
+            };
+        }
+
+        private static EdgeCapabilityDto DeserializeEdgeCapabilityDto(string json)
+        {
+            if (string.IsNullOrWhiteSpace(json))
+            {
+                return null;
+            }
+
+            try
+            {
+                return JsonSerializer.Deserialize<EdgeCapabilityDto>(json, WebJsonOptions);
+            }
+            catch (JsonException)
+            {
+                return null;
+            }
+        }
+
+        private static IReadOnlyList<string> NormalizeStringList(IEnumerable<string> values)
+        {
+            return (values ?? [])
+                .Where(value => !string.IsNullOrWhiteSpace(value))
+                .Select(value => value.Trim())
+                .Distinct(StringComparer.OrdinalIgnoreCase)
+                .ToArray();
+        }
+
+        private static IReadOnlyList<TEnum> NormalizeEnumList<TEnum>(IEnumerable<TEnum> values)
+            where TEnum : struct, Enum
+        {
+            return (values ?? []).Distinct().ToArray();
+        }
+
+        private static IReadOnlyList<CollectionProtocolType> NormalizeProtocolTypes(IEnumerable<CollectionProtocolType> reportedProtocols, IEnumerable<string> protocolIds)
+        {
+            var protocols = new List<CollectionProtocolType>();
+            foreach (var protocol in reportedProtocols ?? [])
+            {
+                if (protocol != CollectionProtocolType.Unknown && !protocols.Contains(protocol))
+                {
+                    protocols.Add(protocol);
+                }
+            }
+
+            foreach (var protocolId in protocolIds ?? [])
+            {
+                var protocol = ParseProtocolType(protocolId);
+                if (protocol != CollectionProtocolType.Unknown && !protocols.Contains(protocol))
+                {
+                    protocols.Add(protocol);
+                }
+            }
+
+            return protocols;
+        }
+
+        private static CollectionProtocolType ParseProtocolType(string protocol)
+        {
+            if (string.IsNullOrWhiteSpace(protocol))
+            {
+                return CollectionProtocolType.Unknown;
+            }
+
+            var normalized = protocol.Replace("-", string.Empty, StringComparison.Ordinal)
+                .Replace("_", string.Empty, StringComparison.Ordinal)
+                .Replace(".", string.Empty, StringComparison.Ordinal);
+
+            return normalized.ToLowerInvariant() switch
+            {
+                "modbus" or "modbustcp" or "modbusrtu" => CollectionProtocolType.Modbus,
+                "opcua" or "opc" => CollectionProtocolType.OpcUa,
+                "bacnet" => CollectionProtocolType.Bacnet,
+                "iec104" => CollectionProtocolType.IEC104,
+                "mqtt" => CollectionProtocolType.Mqtt,
+                _ => Enum.TryParse<CollectionProtocolType>(protocol, true, out var parsed) ? parsed : CollectionProtocolType.Unknown
+            };
+        }
+
+        private static IReadOnlyList<EdgeTaskCapabilityDto> NormalizeTaskCapabilities(IEnumerable<EdgeTaskCapabilityDto> reportedCapabilities, IEnumerable<string> taskNames)
+        {
+            var result = new List<EdgeTaskCapabilityDto>();
+            foreach (var capability in reportedCapabilities ?? [])
+            {
+                if (capability == null || string.IsNullOrWhiteSpace(capability.TaskType))
+                {
+                    continue;
+                }
+
+                result.Add(capability with
+                {
+                    TaskType = capability.TaskType.Trim(),
+                    ContractVersion = Coalesce(capability.ContractVersion, EdgeNodeContractVersions.EdgeTaskV1),
+                    Metadata = capability.Metadata ?? []
+                });
+            }
+
+            foreach (var taskName in NormalizeStringList(taskNames))
+            {
+                if (result.Any(capability => string.Equals(capability.TaskType, taskName, StringComparison.OrdinalIgnoreCase)))
+                {
+                    continue;
+                }
+
+                result.Add(new EdgeTaskCapabilityDto
+                {
+                    TaskType = taskName,
+                    ContractVersion = EdgeNodeContractVersions.EdgeTaskV1,
+                    SupportsProgress = !string.Equals(taskName, nameof(EdgeTaskType.RestartRuntime), StringComparison.OrdinalIgnoreCase)
+                });
+            }
+
+            return result
+                .GroupBy(capability => capability.TaskType, StringComparer.OrdinalIgnoreCase)
+                .Select(group => group.First())
+                .ToArray();
+        }
+
+        private static IReadOnlyList<EdgeContractCompatibilityDto> NormalizeCompatibleContracts(IEnumerable<EdgeContractCompatibilityDto> compatibleContracts)
+        {
+            return (compatibleContracts ?? [])
+                .Where(item => item != null && !string.IsNullOrWhiteSpace(item.ContractName) && !string.IsNullOrWhiteSpace(item.ContractVersion))
+                .Select(item => item with
+                {
+                    ContractName = item.ContractName.Trim(),
+                    ContractVersion = item.ContractVersion.Trim(),
+                    Metadata = item.Metadata ?? []
+                })
+                .GroupBy(item => $"{item.ContractName}:{item.ContractVersion}", StringComparer.OrdinalIgnoreCase)
+                .Select(group => group.First())
+                .ToArray();
+        }
+
+        private static IReadOnlyList<EdgeContractCompatibilityDto> BuildDefaultCompatibleContracts(bool includeCollectionConfig, bool includeEdgeTask)
+        {
+            var contracts = new List<EdgeContractCompatibilityDto>
+            {
+                new() { ContractName = "edge-runtime", ContractVersion = EdgeNodeContractVersions.EdgeRuntimeV1 },
+                new() { ContractName = "edge-capability", ContractVersion = EdgeNodeContractVersions.EdgeCapabilityV1 }
+            };
+
+            if (includeCollectionConfig)
+            {
+                contracts.Add(new EdgeContractCompatibilityDto
+                {
+                    ContractName = "collection-config",
+                    ContractVersion = EdgeNodeContractVersions.CollectionConfigV1
+                });
+            }
+
+            if (includeEdgeTask)
+            {
+                contracts.Add(new EdgeContractCompatibilityDto
+                {
+                    ContractName = "edge-task",
+                    ContractVersion = EdgeNodeContractVersions.EdgeTaskV1
+                });
+            }
+
+            return contracts;
         }
 
         private static List<EdgeNodeDto> ApplyFilters(List<EdgeNodeDto> source, EdgeNodeQueryDto query)
@@ -609,6 +952,23 @@ namespace IoTSharp.Controllers
         private static long? GetNullableLong(List<AttributeLatest> attrs, string key) => attrs.FirstOrDefault(c => c.KeyName == key)?.Value_Long;
 
         private static DateTime? GetDateTime(List<AttributeLatest> attrs, string key) => attrs.FirstOrDefault(c => c.KeyName == key)?.Value_DateTime;
+
+        private static Dictionary<string, object> DeserializeObjectMap(string json)
+        {
+            if (string.IsNullOrWhiteSpace(json))
+            {
+                return [];
+            }
+
+            try
+            {
+                return JsonSerializer.Deserialize<Dictionary<string, object>>(json) ?? [];
+            }
+            catch (JsonException)
+            {
+                return [];
+            }
+        }
 
         private async Task<EdgeCollectionConfigurationDto> ReadCollectionConfigAsync(Guid gatewayId)
         {
@@ -742,6 +1102,19 @@ namespace IoTSharp.Controllers
         private static bool IsSupportedEdgeRuntimeContract(string contractVersion)
         {
             return string.IsNullOrWhiteSpace(contractVersion)
+                || string.Equals(contractVersion, EdgeNodeContractVersions.EdgeRuntimeV1, StringComparison.OrdinalIgnoreCase)
+                || string.Equals(contractVersion, EdgeNodeContractVersions.EdgeNodeV1, StringComparison.OrdinalIgnoreCase);
+        }
+
+        /// <summary>
+        /// 判断执行端上报的 Edge 能力合同版本是否受当前平台支持。
+        /// </summary>
+        /// <param name="contractVersion">执行端上报的能力合同版本。</param>
+        /// <returns>支持正式能力合同或兼容旧运行时合同版本时返回 true。</returns>
+        private static bool IsSupportedEdgeCapabilityContract(string contractVersion)
+        {
+            return string.IsNullOrWhiteSpace(contractVersion)
+                || string.Equals(contractVersion, EdgeNodeContractVersions.EdgeCapabilityV1, StringComparison.OrdinalIgnoreCase)
                 || string.Equals(contractVersion, EdgeNodeContractVersions.EdgeRuntimeV1, StringComparison.OrdinalIgnoreCase)
                 || string.Equals(contractVersion, EdgeNodeContractVersions.EdgeNodeV1, StringComparison.OrdinalIgnoreCase);
         }

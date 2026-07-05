@@ -12,6 +12,68 @@ export interface EdgeNodeQueryParam extends IListQueryParam {
 	sorter?: string;
 }
 
+export interface EdgeRuntimeStatus {
+	contractVersion: string;
+	edgeNodeId: string;
+	gatewayId: string;
+	active: boolean;
+	lastActivityDateTime?: string;
+	runtimeType: string;
+	runtimeName: string;
+	version: string;
+	instanceId: string;
+	platform: string;
+	hostName: string;
+	ipAddress: string;
+	status: string;
+	healthy?: boolean | null;
+	uptimeSeconds?: number | null;
+	lastHeartbeatDateTime?: string;
+	lastRegistrationDateTime?: string;
+	updatedAt?: string;
+	metadata: Record<string, unknown>;
+	metrics: Record<string, unknown>;
+}
+
+export interface EdgeTaskCapability {
+	taskType: string;
+	contractVersion: string;
+	supportsProgress: boolean;
+	supportsCancellation: boolean;
+	metadata: Record<string, unknown>;
+}
+
+export interface EdgeContractCompatibility {
+	contractName: string;
+	contractVersion: string;
+	minPlatformVersion: string;
+	maxPlatformVersion: string;
+	deprecated: boolean;
+	metadata: Record<string, unknown>;
+}
+
+export interface EdgeCapability {
+	contractVersion: string;
+	edgeNodeId: string;
+	gatewayId: string;
+	runtimeType: string;
+	runtimeName: string;
+	version: string;
+	instanceId: string;
+	reportedAt?: string;
+	updatedAt?: string;
+	protocols: string[];
+	supportedProtocols: string[];
+	supportedPointTypes: string[];
+	supportedTransforms: string[];
+	supportedReportTriggers: string[];
+	features: string[];
+	tasks: string[];
+	taskCapabilities: EdgeTaskCapability[];
+	compatibleContracts: EdgeContractCompatibility[];
+	metadata: Record<string, unknown>;
+}
+
 export interface EdgeTaskAddressPayload {
 	targetType: 'EdgeNode' | 'GatewayRuntime' | 'DeviceScope';
 	deviceId?: string;
@@ -76,6 +138,18 @@ export function edgeApi() {
 		getEdgeDetail: (id: string) => {
 			return request({
 				url: `/api/Edge/${id}`,
+				method: 'get',
+			});
+		},
+		getRuntimeStatus: (id: string) => {
+			return request({
+				url: `/api/Edge/${id}/RuntimeStatus`,
+				method: 'get',
+			});
+		},
+		getCapability: (id: string) => {
+			return request({
+				url: `/api/Edge/${id}/Capability`,
 				method: 'get',
 			});
 		},

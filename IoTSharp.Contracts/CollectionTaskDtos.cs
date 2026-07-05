@@ -71,16 +71,172 @@ public enum QualityStatusType
     InvalidData = 5,
 }
 
+/// <summary>
+/// Edge 任务能力声明，用于表达执行端对任务类型、任务合同和回执行为的支持范围。
+/// </summary>
+public sealed record EdgeTaskCapabilityDto
+{
+    /// <summary>
+    /// 支持的任务类型名称，推荐使用 EdgeTaskType 枚举名称。
+    /// </summary>
+    public string TaskType { get; init; } = string.Empty;
+
+    /// <summary>
+    /// 该任务能力遵循的任务合同版本。
+    /// </summary>
+    public string ContractVersion { get; init; } = EdgeNodeContractVersions.EdgeTaskV1;
+
+    /// <summary>
+    /// 执行端是否会在运行过程中回执进度。
+    /// </summary>
+    public bool SupportsProgress { get; init; } = true;
+
+    /// <summary>
+    /// 执行端是否支持取消该任务。
+    /// </summary>
+    public bool SupportsCancellation { get; init; }
+
+    /// <summary>
+    /// 非敏感任务能力扩展信息。
+    /// </summary>
+    public Dictionary<string, object> Metadata { get; init; } = [];
+}
+
+/// <summary>
+/// Edge 执行端与平台合同的兼容声明。
+/// </summary>
+public sealed record EdgeContractCompatibilityDto
+{
+    /// <summary>
+    /// 合同名称，例如 edge-runtime、edge-capability、collection-config 或 edge-task。
+    /// </summary>
+    public string ContractName { get; init; } = string.Empty;
+
+    /// <summary>
+    /// 支持的合同版本。
+    /// </summary>
+    public string ContractVersion { get; init; } = string.Empty;
+
+    /// <summary>
+    /// 兼容的最低平台版本，未知时留空。
+    /// </summary>
+    public string MinPlatformVersion { get; init; } = string.Empty;
+
+    /// <summary>
+    /// 兼容的最高平台版本，未知或不限制时留空。
+    /// </summary>
+    public string MaxPlatformVersion { get; init; } = string.Empty;
+
+    /// <summary>
+    /// 该兼容项是否已废弃。
+    /// </summary>
+    public bool Deprecated { get; init; }
+
+    /// <summary>
+    /// 非敏感兼容性扩展信息。
+    /// </summary>
+    public Dictionary<string, object> Metadata { get; init; } = [];
+}
+
+/// <summary>
+/// Edge 能力快照，描述协议、点位类型、转换、任务和合同兼容范围。
+/// </summary>
 public sealed record EdgeCapabilityDto
 {
+    /// <summary>
+    /// 能力快照合同版本。
+    /// </summary>
+    public string ContractVersion { get; init; } = EdgeNodeContractVersions.EdgeCapabilityV1;
+
+    /// <summary>
+    /// 平台侧 EdgeNode ID。
+    /// </summary>
+    public Guid EdgeNodeId { get; init; }
+
+    /// <summary>
+    /// 承载接入凭证的 Gateway 设备 ID。
+    /// </summary>
+    public Guid GatewayId { get; init; }
+
+    /// <summary>
+    /// 运行时类型，例如 gateway 或 collector。
+    /// </summary>
     public string RuntimeType { get; init; } = string.Empty;
+
+    /// <summary>
+    /// 运行时实例名称。
+    /// </summary>
     public string RuntimeName { get; init; } = string.Empty;
+
+    /// <summary>
+    /// 运行时软件版本。
+    /// </summary>
     public string Version { get; init; } = string.Empty;
+
+    /// <summary>
+    /// 运行时实例标识。
+    /// </summary>
+    public string InstanceId { get; init; } = string.Empty;
+
+    /// <summary>
+    /// 执行端生成能力快照的 UTC 时间。
+    /// </summary>
+    public DateTime? ReportedAt { get; init; }
+
+    /// <summary>
+    /// 平台最后持久化能力快照的 UTC 时间。
+    /// </summary>
+    public DateTime? UpdatedAt { get; init; }
+
+    /// <summary>
+    /// 执行端上报的原始协议标识，用于保留自定义协议族名称。
+    /// </summary>
+    public IReadOnlyList<string> Protocols { get; init; } = [];
+
+    /// <summary>
+    /// 归一化后的协议枚举能力，用于与采集模板进行静态匹配。
+    /// </summary>
     public IReadOnlyList<CollectionProtocolType> SupportedProtocols { get; init; } = [];
+
+    /// <summary>
+    /// 支持的点位源类型，例如 coil、holding-register、opcua-node。
+    /// </summary>
     public IReadOnlyList<string> SupportedPointTypes { get; init; } = [];
+
+    /// <summary>
+    /// 支持的值转换能力。
+    /// </summary>
     public IReadOnlyList<CollectionTransformType> SupportedTransforms { get; init; } = [];
+
+    /// <summary>
+    /// 支持的上报触发能力。
+    /// </summary>
     public IReadOnlyList<ReportTriggerType> SupportedReportTriggers { get; init; } = [];
-    public JsonElement? Metadata { get; init; }
+
+    /// <summary>
+    /// 支持的平台能力标识。
+    /// </summary>
+    public IReadOnlyList<string> Features { get; init; } = [];
+
+    /// <summary>
+    /// 支持接收的任务能力标识，保留字符串形式以兼容未来任务类型。
+    /// </summary>
+    public IReadOnlyList<string> Tasks { get; init; } = [];
+
+    /// <summary>
+    /// 任务能力结构化声明。
+    /// </summary>
+    public IReadOnlyList<EdgeTaskCapabilityDto> TaskCapabilities { get; init; } = [];
+
+    /// <summary>
+    /// 执行端可兼容的合同版本。
+    /// </summary>
+    public IReadOnlyList<EdgeContractCompatibilityDto> CompatibleContracts { get; init; } = [];
+
+    /// <summary>
+    /// 非敏感能力扩展元数据。
+    /// </summary>
+    public Dictionary<string, object> Metadata { get; init; } = [];
 }
 
 public sealed record CollectionTaskDto

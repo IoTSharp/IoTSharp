@@ -1,6 +1,7 @@
 #nullable enable
 
 using System;
+using System.Collections.Generic;
 using System.Text.Json;
 using IoTSharp.Contracts;
 using Xunit;
@@ -14,8 +15,91 @@ public sealed class EdgeContractSerializationTests
     {
         Assert.Equal("IoTSharp.Contracts", typeof(EdgeRegistrationDto).Namespace);
         Assert.Equal(typeof(EdgeRegistrationDto).Assembly, typeof(EdgeTaskRequestDto).Assembly);
+        Assert.Equal(typeof(EdgeRegistrationDto).Assembly, typeof(EdgeRuntimeStatusDto).Assembly);
+        Assert.Equal(typeof(EdgeRegistrationDto).Assembly, typeof(EdgeCapabilityDto).Assembly);
         Assert.Equal(EdgeNodeContractVersions.EdgeRuntimeV1, new EdgeRegistrationDto().ContractVersion);
         Assert.Equal(EdgeNodeContractVersions.EdgeNodeV1, new EdgeNodeDto().ContractVersion);
+        Assert.Equal(EdgeNodeContractVersions.EdgeRuntimeStatusV1, new EdgeRuntimeStatusDto().ContractVersion);
+        Assert.Equal(EdgeNodeContractVersions.EdgeCapabilityV1, new EdgeCapabilityDto().ContractVersion);
+    }
+
+    [Fact]
+    public void EdgeRuntimeStatusDto_SerializesStructuredMetrics()
+    {
+        var dto = new EdgeRuntimeStatusDto
+        {
+            EdgeNodeId = Guid.Parse("22222222-2222-2222-2222-222222222222"),
+            GatewayId = Guid.Parse("22222222-2222-2222-2222-222222222222"),
+            RuntimeType = EdgeRuntimeTypes.Gateway,
+            RuntimeName = "gateway-a",
+            Version = "1.0.0",
+            InstanceId = "gateway-a-01",
+            HostName = "host-a",
+            Status = EdgeNodeStatusNames.Running,
+            Healthy = true,
+            UptimeSeconds = 123,
+            Metadata = new Dictionary<string, object> { ["site"] = "plant-a" },
+            Metrics = new Dictionary<string, object> { ["cpu"] = 0.25, ["memoryMb"] = 128 }
+        };
+
+        var json = JsonSerializer.Serialize(dto, new JsonSerializerOptions(JsonSerializerDefaults.Web));
+        var roundtrip = JsonSerializer.Deserialize<EdgeRuntimeStatusDto>(json, new JsonSerializerOptions(JsonSerializerDefaults.Web));
+
+        Assert.Contains("\"contractVersion\":\"edge-runtime-status-v1\"", json);
+        Assert.NotNull(roundtrip);
+        Assert.Equal(EdgeNodeStatusNames.Running, roundtrip!.Status);
+        Assert.True(roundtrip.Healthy);
+        Assert.True(roundtrip.Metadata.ContainsKey("site"));
+        Assert.True(roundtrip.Metrics.ContainsKey("cpu"));
+    }
+
+    [Fact]
+    public void EdgeCapabilityDto_SerializesStructuredTasksAndCompatibility()
+    {
+        var dto = new EdgeCapabilityDto
+        {
+            EdgeNodeId = Guid.Parse("22222222-2222-2222-2222-222222222222"),
+            GatewayId = Guid.Parse("22222222-2222-2222-2222-222222222222"),
+            RuntimeType = EdgeRuntimeTypes.Gateway,
+            RuntimeName = "gateway-a",
+            Version = "1.0.0",
+            InstanceId = "gateway-a-01",
+            Protocols = ["modbus-tcp"],
+            SupportedProtocols = [CollectionProtocolType.Modbus],
+            SupportedPointTypes = ["holding-register"],
+            SupportedTransforms = [CollectionTransformType.Scale, CollectionTransformType.Offset],
+            SupportedReportTriggers = [ReportTriggerType.OnChange],
+            Features = ["collection"],
+            Tasks = [nameof(EdgeTaskType.HealthProbe)],
+            TaskCapabilities =
+            [
+                new EdgeTaskCapabilityDto
+                {
+                    TaskType = nameof(EdgeTaskType.HealthProbe),
+                    ContractVersion = EdgeNodeContractVersions.EdgeTaskV1,
+                    SupportsProgress = false
+                }
+            ],
+            CompatibleContracts =
+            [
+                new EdgeContractCompatibilityDto
+                {
+                    ContractName = "edge-task",
+                    ContractVersion = EdgeNodeContractVersions.EdgeTaskV1
+                }
+            ],
+            Metadata = new Dictionary<string, object> { ["driver"] = "test" }
+        };
+
+        var json = JsonSerializer.Serialize(dto, new JsonSerializerOptions(JsonSerializerDefaults.Web));
+        var roundtrip = JsonSerializer.Deserialize<EdgeCapabilityDto>(json, new JsonSerializerOptions(JsonSerializerDefaults.Web));
+
+        Assert.Contains("\"contractVersion\":\"edge-capability-v1\"", json);
+        Assert.Contains("\"supportedTransforms\":[\"Scale\",\"Offset\"]", json);
+        Assert.NotNull(roundtrip);
+        Assert.Contains(CollectionProtocolType.Modbus, roundtrip!.SupportedProtocols);
+        Assert.Contains(roundtrip.TaskCapabilities, task => task.TaskType == nameof(EdgeTaskType.HealthProbe));
+        Assert.Contains(roundtrip.CompatibleContracts, contract => contract.ContractVersion == EdgeNodeContractVersions.EdgeTaskV1);
     }
 
     [Fact]

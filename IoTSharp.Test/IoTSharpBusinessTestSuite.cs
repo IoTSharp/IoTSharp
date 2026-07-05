@@ -12,12 +12,15 @@ using IoTSharp.Data;
 using IoTSharp.Dtos;
 using IoTSharp.Models;
 using Xunit;
+using EdgeCapabilityDto = IoTSharp.Contracts.EdgeCapabilityDto;
 using EdgeCapabilityReportDto = IoTSharp.Contracts.EdgeCapabilityReportDto;
 using EdgeHeartbeatDto = IoTSharp.Contracts.EdgeHeartbeatDto;
 using EdgeNodeDto = IoTSharp.Contracts.EdgeNodeDto;
 using EdgeRegistrationDto = IoTSharp.Contracts.EdgeRegistrationDto;
 using EdgeRegistrationResultDto = IoTSharp.Contracts.EdgeRegistrationResultDto;
+using EdgeRuntimeStatusDto = IoTSharp.Contracts.EdgeRuntimeStatusDto;
 using EdgeTaskAddressDto = IoTSharp.Contracts.EdgeTaskAddressDto;
+using EdgeTaskCapabilityDto = IoTSharp.Contracts.EdgeTaskCapabilityDto;
 using EdgeTaskReceiptDto = IoTSharp.Contracts.EdgeTaskReceiptDto;
 using EdgeTaskRequestDto = IoTSharp.Contracts.EdgeTaskRequestDto;
 using EdgeTaskStatus = IoTSharp.Contracts.EdgeTaskStatus;
@@ -171,6 +174,8 @@ public abstract class IoTSharpBusinessTestSuite<TFixture>
         Assert.NotNull(registerResult);
         Assert.Equal((int)ApiCode.Success, registerResult!.Code);
         Assert.Equal(deviceId, registerResult.Data!.DeviceId);
+        Assert.Equal(deviceId, registerResult.Data.EdgeNodeId);
+        Assert.Equal(deviceId, registerResult.Data.GatewayId);
 
         var heartbeat = await client.PostAsJsonAsync($"/api/Edge/{token}/Heartbeat", new EdgeHeartbeatDto
         {
@@ -184,9 +189,31 @@ public abstract class IoTSharpBusinessTestSuite<TFixture>
 
         var capabilities = await client.PostAsJsonAsync($"/api/Edge/{token}/Capabilities", new EdgeCapabilityReportDto
         {
+            ContractVersion = EdgeNodeContractVersions.EdgeCapabilityV1,
             Protocols = ["modbus"],
+            SupportedProtocols = [CollectionProtocolType.Modbus],
+            SupportedPointTypes = ["holding-register"],
+            SupportedTransforms = [CollectionTransformType.Scale],
+            SupportedReportTriggers = [ReportTriggerType.OnChange],
             Features = ["collection"],
-            Tasks = ["poll"],
+            Tasks = [nameof(EdgeTaskType.HealthProbe)],
+            TaskCapabilities =
+            [
+                new EdgeTaskCapabilityDto
+                {
+                    TaskType = nameof(EdgeTaskType.HealthProbe),
+                    ContractVersion = EdgeNodeContractVersions.EdgeTaskV1,
+                    SupportsProgress = false
+                }
+            ],
+            CompatibleContracts =
+            [
+                new EdgeContractCompatibilityDto
+                {
+                    ContractName = "edge-task",
+                    ContractVersion = EdgeNodeContractVersions.EdgeTaskV1
+                }
+            ],
             Metadata = new Dictionary<string, object> { ["driver"] = "test" }
         });
         await ReadApiResultAsync<object>(capabilities);
@@ -196,7 +223,39 @@ public abstract class IoTSharpBusinessTestSuite<TFixture>
         Assert.NotNull(listed);
         Assert.Equal((int)ApiCode.Success, listed!.Code);
         Assert.NotNull(listed.Data);
-        Assert.Contains(listed.Data!.rows, x => x.Id == deviceId && x.Status == "Running" && x.Healthy == true);
+        var edgeRow = Assert.Single(listed.Data!.rows, x => x.Id == deviceId);
+        Assert.Equal("Running", edgeRow.Status);
+        Assert.True(edgeRow.Healthy);
+        Assert.Equal("Running", edgeRow.RuntimeStatus.Status);
+        Assert.True(edgeRow.RuntimeStatus.Healthy);
+        Assert.Equal(EdgeNodeContractVersions.EdgeCapabilityV1, edgeRow.Capability.ContractVersion);
+        Assert.Contains("modbus", edgeRow.Capability.Protocols);
+        Assert.Contains(CollectionProtocolType.Modbus, edgeRow.Capability.SupportedProtocols);
+        Assert.Contains("holding-register", edgeRow.Capability.SupportedPointTypes);
+        Assert.Contains(CollectionTransformType.Scale, edgeRow.Capability.SupportedTransforms);
+        Assert.Contains(edgeRow.Capability.TaskCapabilities, task => task.TaskType == nameof(EdgeTaskType.HealthProbe));
+
+        var runtimeStatus = await GetApiResultAsync<EdgeRuntimeStatusDto>(client, $"/api/Edge/{deviceId}/RuntimeStatus");
+        Assert.NotNull(runtimeStatus);
+        Assert.Equal((int)ApiCode.Success, runtimeStatus!.Code);
+        Assert.NotNull(runtimeStatus.Data);
+        Assert.Equal(deviceId, runtimeStatus.Data!.EdgeNodeId);
+        Assert.Equal(deviceId, runtimeStatus.Data.GatewayId);
+        Assert.Equal("Running", runtimeStatus.Data.Status);
+        Assert.Equal("127.0.0.2", runtimeStatus.Data.IpAddress);
+        Assert.True(runtimeStatus.Data.Healthy);
+        Assert.Equal(123, runtimeStatus.Data.UptimeSeconds);
+        Assert.True(runtimeStatus.Data.Metrics.ContainsKey("cpu"));
+
+        var capability = await GetApiResultAsync<EdgeCapabilityDto>(client, $"/api/Edge/{deviceId}/Capability");
+        Assert.NotNull(capability);
+        Assert.Equal((int)ApiCode.Success, capability!.Code);
+        Assert.NotNull(capability.Data);
+        Assert.Equal(deviceId, capability.Data!.EdgeNodeId);
+        Assert.Equal(deviceId, capability.Data.GatewayId);
+        Assert.Equal(EdgeNodeContractVersions.EdgeCapabilityV1, capability.Data.ContractVersion);
+        Assert.Contains("collection", capability.Data.Features);
+        Assert.Contains(capability.Data.CompatibleContracts, contract => contract.ContractVersion == EdgeNodeContractVersions.EdgeTaskV1);
 
         var pulled = await GetApiResultAsync<EdgeCollectionConfigurationDto>(client, $"/api/Edge/{deviceId}/CollectionConfig");
         Assert.NotNull(pulled);

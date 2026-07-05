@@ -65,6 +65,124 @@
 
 - LastHeartbeatDateTime desc
 
+## EdgeRuntimeStatus 正式模型（#020）
+
+`EdgeRuntimeStatus` 是 EdgeNode 的运行态快照模型，用于承载注册、心跳、版本、实例、主机、健康和低频指标。它不替代 EdgeCapability、EdgeTask 或 ReleaseTask，也不承载采集模板和长周期发布状态。
+
+### 契约版本
+
+- 当前状态快照版本：`edge-runtime-status-v1`
+- DTO 名称：`EdgeRuntimeStatusDto`
+- 所属包：`IoTSharp.Contracts`
+
+### 只读接口
+
+- `GET /api/Edge/{id}/RuntimeStatus`
+
+`id` 使用平台侧 EdgeNode ID；当前第一版与承载接入凭证的 Gateway 设备 ID 保持一致。接口只允许已授权的普通用户读取，仍受租户和客户边界限制。
+
+### 字段范围
+
+- edgeNodeId
+- gatewayId
+- active
+- lastActivityDateTime
+- runtimeType
+- runtimeName
+- version
+- instanceId
+- platform
+- hostName
+- ipAddress
+- status
+- healthy
+- uptimeSeconds
+- lastHeartbeatDateTime
+- lastRegistrationDateTime
+- updatedAt
+- metadata
+- metrics
+
+### 边界约束
+
+- `metadata` 只保存非敏感部署上下文，不保存密钥和大体积日志。
+- `metrics` 只保存心跳携带的低频运行指标，不作为时序指标聚合入口。
+- 能力声明进入 #021 `EdgeCapability`，不塞入运行状态模型。
+- 配置、软件、诊断和 OTA 等长周期执行结果进入 EdgeTask/ReleaseTask，不藏在运行状态模型里。
+- EdgeNode 列表和详情短期保留既有扁平字段；新增消费者应优先读取 `runtimeStatus`。
+
+## EdgeCapability 正式模型（#021）
+
+`EdgeCapability` 是 EdgeNode 的能力快照模型，用于承载执行端支持的协议、点位类型、转换、上报触发、任务能力和合同版本兼容范围。它不保存运行健康状态，不承载采集模板实例，也不表达任务执行历史。
+
+### 契约版本
+
+- 当前能力快照版本：`edge-capability-v1`
+- DTO 名称：`EdgeCapabilityDto`
+- 所属包：`IoTSharp.Contracts`
+
+### 上报与只读接口
+
+- `POST /api/Edge/{access_token}/Capabilities`
+- `GET /api/Edge/{id}/Capability`
+
+`POST` 兼容旧执行端继续使用 `edge-v1` 或省略 `contractVersion`，平台会归一化为 `edge-capability-v1` 快照。`GET` 使用平台侧 EdgeNode ID；当前第一版与承载接入凭证的 Gateway 设备 ID 保持一致。
+
+### 字段范围
+
+- edgeNodeId
+- gatewayId
+- runtimeType
+- runtimeName
+- version
+- instanceId
+- reportedAt
+- updatedAt
+- protocols
+- supportedProtocols
+- supportedPointTypes
+- supportedTransforms
+- supportedReportTriggers
+- features
+- tasks
+- taskCapabilities
+- compatibleContracts
+- metadata
+
+### 任务能力
+
+`taskCapabilities` 用于描述执行端对任务类型的结构化支持：
+
+- taskType
+- contractVersion
+- supportsProgress
+- supportsCancellation
+- metadata
+
+`tasks` 保留字符串数组形式，便于旧执行端和未来任务类型先以能力标识透传；正式执行语义仍以 EdgeTask 合同和状态机为准。
+
+### 版本兼容
+
+`compatibleContracts` 用于声明执行端兼容的云边合同：
+
+- contractName，例如 `edge-runtime`、`edge-capability`、`collection-config`、`edge-task`
+- contractVersion
+- minPlatformVersion
+- maxPlatformVersion
+- deprecated
+- metadata
+
+平台在旧执行端未显式上报时会自动补齐当前已知合同版本，但该默认值只表示平台侧归一化能力，不替代执行端真实兼容矩阵。
+
+### 边界约束
+
+- `protocols` 保留执行端原始协议标识，`supportedProtocols` 用于与采集模板做静态匹配。
+- `supportedPointTypes` 描述点位源类型，不替代 Product 的点位模板定义。
+- `supportedTransforms` 和 `supportedReportTriggers` 描述执行端可执行能力，不保存具体采集任务配置。
+- `taskCapabilities` 只声明可接收的任务类型和回执行为，不保存任务状态和执行结果。
+- `metadata` 只保存非敏感能力上下文，不保存密钥、日志或高频指标。
+- EdgeNode 列表和详情短期保留既有 `capabilities` JSON 字符串；新增消费者应优先读取 `capability` 或只读接口。
+
 ### 查询返回结构
 
 统一返回现有前端分页表格格式：
@@ -146,13 +264,32 @@ Capabilities 接口：
 
 - `POST /api/Edge/{access_token}/Capabilities`
 
-第一版标准结构：
+第一版兼容结构：
 
 ```json
 {
+  "contractVersion": "edge-capability-v1",
   "protocols": ["modbus-tcp", "opcua"],
+  "supportedProtocols": ["Modbus", "OpcUa"],
+  "supportedPointTypes": ["coil", "holding-register", "opcua-node"],
+  "supportedTransforms": ["Scale", "Offset", "Expression"],
+  "supportedReportTriggers": ["OnChange", "Interval"],
   "features": ["heartbeat", "telemetry", "config-pull"],
-  "tasks": ["config-apply", "package-download"]
+  "tasks": ["ConfigPush", "HealthProbe"],
+  "taskCapabilities": [
+    {
+      "taskType": "HealthProbe",
+      "contractVersion": "edge-task-v1",
+      "supportsProgress": false,
+      "supportsCancellation": false
+    }
+  ],
+  "compatibleContracts": [
+    { "contractName": "edge-runtime", "contractVersion": "edge-v1" },
+    { "contractName": "edge-capability", "contractVersion": "edge-capability-v1" },
+    { "contractName": "collection-config", "contractVersion": "edge-collection-v1" },
+    { "contractName": "edge-task", "contractVersion": "edge-task-v1" }
+  ]
 }
 ```
 
@@ -161,6 +298,9 @@ Capabilities 接口：
 - protocols 表示支持的协议接入能力
 - features 表示通用平台能力
 - tasks 表示可接收的任务类型
+- supportedPointTypes、supportedTransforms 和 supportedReportTriggers 用于 Collection Template 与执行端能力匹配
+- taskCapabilities 表示任务合同、进度和取消能力，不表示任务执行结果
+- compatibleContracts 表示执行端兼容合同，不替代跨仓兼容矩阵文档
 - 第一版不在 capabilities 中直接承载复杂嵌套状态机定义
 
 ### metadata 边界
@@ -480,6 +620,15 @@ targetKey 规则：
 
 当前代码中已经补充：
 
+- EdgeRuntimeStatusDto
+  - 收敛注册、心跳、版本、实例、主机、健康和低频指标字段
+  - EdgeNode 列表和详情内嵌 runtimeStatus
+  - GET /api/Edge/{id}/RuntimeStatus 提供正式只读状态快照
+- EdgeCapabilityDto
+  - 收敛协议、点位类型、转换、上报触发、任务能力和合同版本兼容字段
+  - EdgeNode 列表和详情内嵌 capability
+  - POST /api/Edge/{access_token}/Capabilities 兼容旧结构并归一化为 edge-capability-v1
+  - GET /api/Edge/{id}/Capability 提供正式只读能力快照
 - POST /api/EdgeTask/Receipt
   - 校验 contractVersion
   - 校验 taskId

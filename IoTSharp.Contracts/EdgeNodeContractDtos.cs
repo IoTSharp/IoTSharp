@@ -14,6 +14,16 @@ namespace IoTSharp.Contracts
         public const string EdgeNodeV1 = "edge-node-v1";
 
         /// <summary>
+        /// Edge 运行时状态快照合同版本。
+        /// </summary>
+        public const string EdgeRuntimeStatusV1 = "edge-runtime-status-v1";
+
+        /// <summary>
+        /// Edge 能力快照合同版本。
+        /// </summary>
+        public const string EdgeCapabilityV1 = "edge-capability-v1";
+
+        /// <summary>
         /// 运行时注册、心跳和能力上报的现有 wire 版本。
         /// </summary>
         public const string EdgeRuntimeV1 = "edge-v1";
@@ -235,14 +245,39 @@ namespace IoTSharp.Contracts
     public class EdgeCapabilityReportDto
     {
         /// <summary>
-        /// 合同版本。旧执行端未传该字段时按 edge-v1 处理。
+        /// 合同版本。旧执行端未传该字段或继续传 edge-v1 时仍按兼容能力上报处理。
         /// </summary>
-        public string ContractVersion { get; set; } = EdgeNodeContractVersions.EdgeRuntimeV1;
+        public string ContractVersion { get; set; } = EdgeNodeContractVersions.EdgeCapabilityV1;
+
+        /// <summary>
+        /// 执行端生成能力快照的 UTC 时间。未传时平台使用接收时间。
+        /// </summary>
+        public DateTime? ReportedAt { get; set; }
 
         /// <summary>
         /// 支持的南向协议或协议族。
         /// </summary>
         public string[] Protocols { get; set; } = [];
+
+        /// <summary>
+        /// 归一化后的协议枚举能力，用于与采集模板进行静态匹配。
+        /// </summary>
+        public CollectionProtocolType[] SupportedProtocols { get; set; } = [];
+
+        /// <summary>
+        /// 支持的点位源类型，例如 coil、holding-register、opcua-node。
+        /// </summary>
+        public string[] SupportedPointTypes { get; set; } = [];
+
+        /// <summary>
+        /// 支持的值转换能力。
+        /// </summary>
+        public CollectionTransformType[] SupportedTransforms { get; set; } = [];
+
+        /// <summary>
+        /// 支持的上报触发能力。
+        /// </summary>
+        public ReportTriggerType[] SupportedReportTriggers { get; set; } = [];
 
         /// <summary>
         /// 支持的平台能力标识。
@@ -255,9 +290,125 @@ namespace IoTSharp.Contracts
         public string[] Tasks { get; set; } = [];
 
         /// <summary>
+        /// 任务能力的结构化声明，补充进度、取消和任务合同版本等约束。
+        /// </summary>
+        public EdgeTaskCapabilityDto[] TaskCapabilities { get; set; } = [];
+
+        /// <summary>
+        /// 执行端声明可兼容的云边合同版本。
+        /// </summary>
+        public EdgeContractCompatibilityDto[] CompatibleContracts { get; set; } = [];
+
+        /// <summary>
         /// 非敏感能力扩展元数据。
         /// </summary>
         public Dictionary<string, object> Metadata { get; set; } = [];
+    }
+
+    /// <summary>
+    /// Edge 运行时状态快照，收敛注册、心跳、实例、主机、健康和指标等运行态字段。
+    /// </summary>
+    public class EdgeRuntimeStatusDto
+    {
+        /// <summary>
+        /// 状态快照合同版本。
+        /// </summary>
+        public string ContractVersion { get; set; } = EdgeNodeContractVersions.EdgeRuntimeStatusV1;
+
+        /// <summary>
+        /// 平台侧 EdgeNode ID。
+        /// </summary>
+        public Guid EdgeNodeId { get; set; }
+
+        /// <summary>
+        /// 承载接入凭证的 Gateway 设备 ID。
+        /// </summary>
+        public Guid GatewayId { get; set; }
+
+        /// <summary>
+        /// Gateway 设备活动状态，由平台接入状态推导。
+        /// </summary>
+        public bool Active { get; set; }
+
+        /// <summary>
+        /// 最近一次平台记录到的活动时间。
+        /// </summary>
+        public DateTime? LastActivityDateTime { get; set; }
+
+        /// <summary>
+        /// 运行时类型，例如 gateway 或 collector。
+        /// </summary>
+        public string RuntimeType { get; set; } = string.Empty;
+
+        /// <summary>
+        /// 运行时实例名称。
+        /// </summary>
+        public string RuntimeName { get; set; } = string.Empty;
+
+        /// <summary>
+        /// 运行时软件版本。
+        /// </summary>
+        public string Version { get; set; } = string.Empty;
+
+        /// <summary>
+        /// 运行时实例标识。
+        /// </summary>
+        public string InstanceId { get; set; } = string.Empty;
+
+        /// <summary>
+        /// 运行平台描述。
+        /// </summary>
+        public string Platform { get; set; } = string.Empty;
+
+        /// <summary>
+        /// 宿主机名。
+        /// </summary>
+        public string HostName { get; set; } = string.Empty;
+
+        /// <summary>
+        /// 最近上报的 IP 地址。
+        /// </summary>
+        public string IpAddress { get; set; } = string.Empty;
+
+        /// <summary>
+        /// 运行状态，例如 Registered、Running、Degraded 或 Failed。
+        /// </summary>
+        public string Status { get; set; } = string.Empty;
+
+        /// <summary>
+        /// 最近一次健康状态，未上报时为空。
+        /// </summary>
+        public bool? Healthy { get; set; }
+
+        /// <summary>
+        /// 最近一次上报的运行时长，单位秒。
+        /// </summary>
+        public long? UptimeSeconds { get; set; }
+
+        /// <summary>
+        /// 最近一次心跳时间。
+        /// </summary>
+        public DateTime? LastHeartbeatDateTime { get; set; }
+
+        /// <summary>
+        /// 最近一次注册时间。
+        /// </summary>
+        public DateTime? LastRegistrationDateTime { get; set; }
+
+        /// <summary>
+        /// 最近一次状态持久化更新时间。
+        /// </summary>
+        public DateTime? UpdatedAt { get; set; }
+
+        /// <summary>
+        /// 注册或能力上报携带的非敏感部署元数据。
+        /// </summary>
+        public Dictionary<string, object> Metadata { get; set; } = [];
+
+        /// <summary>
+        /// 最近一次心跳携带的低频运行指标。
+        /// </summary>
+        public Dictionary<string, object> Metrics { get; set; } = [];
     }
 
     /// <summary>
@@ -371,6 +522,11 @@ namespace IoTSharp.Contracts
         public string Capabilities { get; set; } = string.Empty;
 
         /// <summary>
+        /// 正式能力快照。扁平 Capabilities 字符串保留用于兼容既有控制台和执行端。
+        /// </summary>
+        public EdgeCapabilityDto Capability { get; set; } = new();
+
+        /// <summary>
         /// 注册或能力上报携带的元数据 JSON。
         /// </summary>
         public string Metadata { get; set; } = string.Empty;
@@ -389,5 +545,10 @@ namespace IoTSharp.Contracts
         /// 最近任务回执上报时间。
         /// </summary>
         public DateTime? LastReceiptDateTime { get; set; }
+
+        /// <summary>
+        /// 正式运行时状态快照。扁平字段保留用于兼容既有控制台和执行端。
+        /// </summary>
+        public EdgeRuntimeStatusDto RuntimeStatus { get; set; } = new();
     }
 }

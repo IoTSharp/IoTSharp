@@ -156,9 +156,28 @@ const registerPayloadText = computed(() =>
 const capabilitiesPayloadText = computed(() =>
 	JSON.stringify(
 		{
+			contractVersion: 'edge-capability-v1',
 			protocols: ['modbus-tcp', 'mqtt'],
+			supportedProtocols: ['Modbus', 'Mqtt'],
+			supportedPointTypes: ['coil', 'holding-register', 'mqtt-topic'],
+			supportedTransforms: ['Scale', 'Offset', 'Expression'],
+			supportedReportTriggers: ['OnChange', 'Interval'],
 			features: ['register', 'heartbeat', 'task-receipt'],
 			tasks: ['ConfigPush', 'ConfigPullRequest', 'HealthProbe'],
+			taskCapabilities: [
+				{
+					taskType: 'HealthProbe',
+					contractVersion: 'edge-task-v1',
+					supportsProgress: false,
+					supportsCancellation: false,
+				},
+			],
+			compatibleContracts: [
+				{ contractName: 'edge-runtime', contractVersion: 'edge-v1' },
+				{ contractName: 'edge-capability', contractVersion: 'edge-capability-v1' },
+				{ contractName: 'collection-config', contractVersion: 'edge-collection-v1' },
+				{ contractName: 'edge-task', contractVersion: 'edge-task-v1' },
+			],
 			metadata: {
 				buffering: false,
 				diagnostics: true,
