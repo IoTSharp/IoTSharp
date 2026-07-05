@@ -16,6 +16,7 @@ public sealed class EdgeContractSerializationTests
         Assert.Equal("IoTSharp.Contracts", typeof(EdgeRegistrationDto).Namespace);
         Assert.Equal(typeof(EdgeRegistrationDto).Assembly, typeof(EdgeTaskRequestDto).Assembly);
         Assert.Equal(typeof(EdgeRegistrationDto).Assembly, typeof(EdgeTaskDto).Assembly);
+        Assert.Equal(typeof(EdgeRegistrationDto).Assembly, typeof(EdgeTaskReceiptDto).Assembly);
         Assert.Equal(typeof(EdgeRegistrationDto).Assembly, typeof(EdgeRuntimeStatusDto).Assembly);
         Assert.Equal(typeof(EdgeRegistrationDto).Assembly, typeof(EdgeCapabilityDto).Assembly);
         Assert.Equal(EdgeNodeContractVersions.EdgeRuntimeV1, new EdgeRegistrationDto().ContractVersion);
@@ -152,6 +153,38 @@ public sealed class EdgeContractSerializationTests
         Assert.Contains("\"taskType\":\"HealthProbe\"", json);
         Assert.Contains("\"status\":\"Running\"", json);
         Assert.Contains("\"targetType\":\"EdgeNode\"", json);
+    }
+
+    [Fact]
+    public void EdgeTaskReceiptDto_SerializesStatusAndResultAsStableContract()
+    {
+        var dto = new EdgeTaskReceiptDto
+        {
+            TaskId = Guid.Parse("11111111-1111-1111-1111-111111111111"),
+            TargetType = EdgeTaskTargetType.EdgeNode,
+            TargetKey = "22222222-2222-2222-2222-222222222222:gateway",
+            RuntimeType = EdgeRuntimeTypes.Gateway,
+            InstanceId = "gateway-a-01",
+            Status = EdgeTaskStatus.Running,
+            Progress = 50,
+            Message = "running health probe",
+            ReportedAt = DateTime.Parse("2026-07-05T00:01:00Z").ToUniversalTime(),
+            Result = new Dictionary<string, object> { ["step"] = "probe" },
+            Metadata = new Dictionary<string, string> { ["worker"] = "edge-task" }
+        };
+
+        var json = JsonSerializer.Serialize(dto, new JsonSerializerOptions(JsonSerializerDefaults.Web));
+        var roundtrip = JsonSerializer.Deserialize<EdgeTaskReceiptDto>(json, new JsonSerializerOptions(JsonSerializerDefaults.Web));
+
+        Assert.Contains("\"contractVersion\":\"edge-task-v1\"", json);
+        Assert.Contains("\"targetType\":\"EdgeNode\"", json);
+        Assert.Contains("\"status\":\"Running\"", json);
+        Assert.Contains("\"progress\":50", json);
+        Assert.NotNull(roundtrip);
+        Assert.Equal(EdgeTaskStatus.Running, roundtrip!.Status);
+        Assert.Equal("gateway-a-01", roundtrip.InstanceId);
+        Assert.True(roundtrip.Result.ContainsKey("step"));
+        Assert.Equal("edge-task", roundtrip.Metadata["worker"]);
     }
 
     [Fact]

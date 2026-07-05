@@ -1101,21 +1101,110 @@ namespace IoTSharp.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("CustomerId");
-
                     b.HasIndex("EdgeNodeId");
 
                     b.HasIndex("ExpireAt");
 
                     b.HasIndex("TenantId");
 
-                    b.HasIndex("GatewayId", "Status", "CreatedAt");
-
                     b.HasIndex("TargetKey", "Status");
 
                     b.HasIndex("CustomerId", "TenantId", "Deleted");
 
+                    b.HasIndex("GatewayId", "Status", "CreatedAt");
+
                     b.ToTable("EdgeTasks");
+                });
+
+            modelBuilder.Entity("IoTSharp.Data.EdgeTaskReceipt", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("ContractVersion")
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)");
+
+                    b.Property<Guid?>("CustomerId")
+                        .HasColumnType("uuid");
+
+                    b.Property<bool>("Deleted")
+                        .HasColumnType("boolean");
+
+                    b.Property<Guid?>("EdgeNodeId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("GatewayId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("InstanceId")
+                        .HasMaxLength(128)
+                        .HasColumnType("character varying(128)");
+
+                    b.Property<string>("Message")
+                        .HasMaxLength(1024)
+                        .HasColumnType("character varying(1024)");
+
+                    b.Property<string>("Metadata")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Payload")
+                        .HasColumnType("text");
+
+                    b.Property<int?>("Progress")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime>("ReceivedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTime>("ReportedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Result")
+                        .HasColumnType("text");
+
+                    b.Property<string>("RuntimeType")
+                        .HasMaxLength(128)
+                        .HasColumnType("character varying(128)");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)");
+
+                    b.Property<string>("TargetKey")
+                        .HasMaxLength(450)
+                        .HasColumnType("character varying(450)");
+
+                    b.Property<string>("TargetType")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)");
+
+                    b.Property<Guid>("TaskId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid?>("TenantId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("EdgeNodeId");
+
+                    b.HasIndex("TenantId");
+
+                    b.HasIndex("GatewayId", "ReportedAt");
+
+                    b.HasIndex("TargetKey", "Status");
+
+                    b.HasIndex("TaskId", "ReportedAt");
+
+                    b.HasIndex("CustomerId", "TenantId", "Deleted");
+
+                    b.HasIndex("GatewayId", "Status", "ReportedAt");
+
+                    b.ToTable("EdgeTaskReceipts");
                 });
 
             modelBuilder.Entity("IoTSharp.Data.Flow", b =>
@@ -2358,6 +2447,37 @@ namespace IoTSharp.Migrations
                     b.Navigation("Tenant");
                 });
 
+            modelBuilder.Entity("IoTSharp.Data.EdgeTaskReceipt", b =>
+                {
+                    b.HasOne("IoTSharp.Data.Customer", "Customer")
+                        .WithMany()
+                        .HasForeignKey("CustomerId");
+
+                    b.HasOne("IoTSharp.Data.Device", "Gateway")
+                        .WithMany()
+                        .HasForeignKey("GatewayId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("IoTSharp.Data.EdgeTask", "Task")
+                        .WithMany("Receipts")
+                        .HasForeignKey("TaskId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("IoTSharp.Data.Tenant", "Tenant")
+                        .WithMany()
+                        .HasForeignKey("TenantId");
+
+                    b.Navigation("Customer");
+
+                    b.Navigation("Gateway");
+
+                    b.Navigation("Task");
+
+                    b.Navigation("Tenant");
+                });
+
             modelBuilder.Entity("IoTSharp.Data.Flow", b =>
                 {
                     b.HasOne("IoTSharp.Data.Customer", "Customer")
@@ -2625,6 +2745,11 @@ namespace IoTSharp.Migrations
             modelBuilder.Entity("IoTSharp.Data.DeviceModel", b =>
                 {
                     b.Navigation("DeviceModelCommands");
+                });
+
+            modelBuilder.Entity("IoTSharp.Data.EdgeTask", b =>
+                {
+                    b.Navigation("Receipts");
                 });
 
             modelBuilder.Entity("IoTSharp.Data.Product", b =>

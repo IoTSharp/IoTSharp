@@ -1,5 +1,6 @@
 using IoTSharp.Contracts;
 using System;
+using System.Collections.Generic;
 
 namespace IoTSharp.Data
 {
@@ -157,5 +158,10 @@ namespace IoTSharp.Data
         /// 承载任务通道的 Gateway 设备。
         /// </summary>
         public Device Gateway { get; set; }
+
+        /// <summary>
+        /// 执行端上报的正式回执历史。
+        /// </summary>
+        public ICollection<EdgeTaskReceipt> Receipts { get; set; } = [];
     }
 }
