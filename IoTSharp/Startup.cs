@@ -388,10 +388,10 @@ namespace IoTSharp
                     ResponseWriter = UIResponseWriter.WriteHealthCheckUIResponse
                 });
                 endpoints.MapHealthChecksUI();
+                endpoints.MapControllers();
                 endpoints.MapDefaultControllerRoute();
                 endpoints.MapRazorPages();
                 endpoints.MapMcp("/mcp/{api_key}");
-                endpoints.MapFallbackToFile("index.html");
             });
 
             app.UseJdenticon(defaultStyle =>
@@ -407,15 +407,51 @@ namespace IoTSharp
             });
             app.UseTelemetryStorage();
 
-
-
             var provider = new FileExtensionContentTypeProvider();
             provider.Mappings[".fbx"] = "application/octet-stream";
             provider.Mappings[".glb"] = "application/octet-stream";
+            app.Use(async (context, next) =>
+            {
+                if (ShouldServeSpaFallback(context.Request))
+                {
+                    context.Request.Path = "/index.html";
+                }
+
+                await next();
+            });
             app.UseStaticFiles(new StaticFileOptions
             {
                 ContentTypeProvider = provider,
             });
+        }
+
+        /// <summary>
+        /// 判断请求是否应回退到 SPA 入口页；平台 API、管理端点和静态资源不参与前端路由回退。
+        /// </summary>
+        /// <param name="request">当前 HTTP 请求。</param>
+        /// <returns>需要返回前端入口页时为 true。</returns>
+        private static bool ShouldServeSpaFallback(HttpRequest request)
+        {
+            if (!HttpMethods.IsGet(request.Method) && !HttpMethods.IsHead(request.Method))
+            {
+                return false;
+            }
+
+            var path = request.Path;
+            var pathValue = path.Value ?? string.Empty;
+            if (Path.HasExtension(pathValue))
+            {
+                return false;
+            }
+
+            return !path.StartsWithSegments("/api", StringComparison.OrdinalIgnoreCase)
+                   && !path.StartsWithSegments("/cap", StringComparison.OrdinalIgnoreCase)
+                   && !path.StartsWithSegments("/healthz", StringComparison.OrdinalIgnoreCase)
+                   && !path.StartsWithSegments("/readyz", StringComparison.OrdinalIgnoreCase)
+                   && !path.StartsWithSegments("/mcp", StringComparison.OrdinalIgnoreCase)
+                   && !path.StartsWithSegments("/mqtt", StringComparison.OrdinalIgnoreCase)
+                   && !path.StartsWithSegments("/swagger", StringComparison.OrdinalIgnoreCase)
+                   && !path.StartsWithSegments("/healthchecks-ui", StringComparison.OrdinalIgnoreCase);
         }
 
         private static (string ConnectionString, string Bucket) ParseSonnetDbBlobStorage(string value)

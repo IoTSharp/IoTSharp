@@ -1,6 +1,5 @@
 using IoTSharp.Contracts;
 using IoTSharp.Data;
-using IoTSharp.Dtos;
 using IoTSharp.EventBus;
 using IoTSharp.Extensions;
 using IoTSharp.Models;
@@ -14,6 +13,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
+using EdgeNodeQueryDto = IoTSharp.Dtos.EdgeNodeQueryDto;
 
 namespace IoTSharp.Controllers
 {
@@ -130,6 +130,11 @@ namespace IoTSharp.Controllers
                 return Ok(new ApiResult<EdgeRegistrationResultDto>(ApiCode.InValidData, "Registration payload is required", null));
             }
 
+            if (!IsSupportedEdgeRuntimeContract(request.ContractVersion))
+            {
+                return Ok(new ApiResult<EdgeRegistrationResultDto>(ApiCode.InValidData, $"Unsupported contractVersion: {request.ContractVersion}", null));
+            }
+
             var gateway = await GetGatewayByAccessTokenAsync(access_token);
             if (gateway == null)
             {
@@ -146,7 +151,7 @@ namespace IoTSharp.Controllers
             node.Platform = request.Platform ?? string.Empty;
             node.HostName = request.HostName ?? string.Empty;
             node.IpAddress = request.IpAddress ?? string.Empty;
-            node.Status = "Registered";
+            node.Status = EdgeNodeStatusNames.Registered;
             node.LastRegistrationDateTime = now;
             node.UpdatedAt = now;
 
@@ -179,9 +184,11 @@ namespace IoTSharp.Controllers
             return Ok(new ApiResult<EdgeRegistrationResultDto>(ApiCode.Success, "OK", new EdgeRegistrationResultDto
             {
                 DeviceId = gateway.Id,
+                EdgeNodeId = node.Id,
+                GatewayId = gateway.Id,
                 Name = gateway.Name,
                 AccessToken = access_token,
-                ContractVersion = "edge-v1",
+                ContractVersion = EdgeNodeContractVersions.EdgeRuntimeV1,
                 Timeout = gateway.Timeout,
                 RegisteredAt = now
             }));
@@ -199,10 +206,15 @@ namespace IoTSharp.Controllers
                 return Ok(new ApiResult(ApiCode.NotFoundDevice, $"{access_token} not a gateway's access token"));
             }
 
+            if (request != null && !IsSupportedEdgeRuntimeContract(request.ContractVersion))
+            {
+                return Ok(new ApiResult(ApiCode.InValidData, $"Unsupported contractVersion: {request.ContractVersion}"));
+            }
+
             var heartbeatAt = request?.Timestamp?.ToUniversalTime() ?? DateTime.UtcNow;
             var node = await EnsureEdgeNodeAsync(gateway);
             node.LastHeartbeatDateTime = heartbeatAt;
-            node.Status = string.IsNullOrWhiteSpace(request?.Status) ? "Running" : request.Status;
+            node.Status = string.IsNullOrWhiteSpace(request?.Status) ? EdgeNodeStatusNames.Running : request.Status;
             node.UpdatedAt = DateTime.UtcNow;
 
             var attrs = new Dictionary<string, object>
@@ -215,6 +227,18 @@ namespace IoTSharp.Controllers
             {
                 node.IpAddress = request.IpAddress;
                 attrs[Constants._EdgeIpAddress] = request.IpAddress;
+            }
+
+            if (!string.IsNullOrWhiteSpace(request?.RuntimeType))
+            {
+                node.RuntimeType = request.RuntimeType;
+                attrs[Constants._EdgeRuntimeType] = request.RuntimeType;
+            }
+
+            if (!string.IsNullOrWhiteSpace(request?.InstanceId))
+            {
+                node.InstanceId = request.InstanceId;
+                attrs[Constants._EdgeInstanceId] = request.InstanceId;
             }
 
             if (request?.Healthy != null)
@@ -252,6 +276,11 @@ namespace IoTSharp.Controllers
             if (gateway == null)
             {
                 return Ok(new ApiResult(ApiCode.NotFoundDevice, $"{access_token} not a gateway's access token"));
+            }
+
+            if (request != null && !IsSupportedEdgeRuntimeContract(request.ContractVersion))
+            {
+                return Ok(new ApiResult(ApiCode.InValidData, $"Unsupported contractVersion: {request.ContractVersion}"));
             }
 
             var node = await EnsureEdgeNodeAsync(gateway);
@@ -449,9 +478,9 @@ namespace IoTSharp.Controllers
                 GatewayId = gateway.Id,
                 Gateway = gateway,
                 Name = gateway.Name,
-                RuntimeType = "gateway",
+                RuntimeType = EdgeRuntimeTypes.Gateway,
                 RuntimeName = gateway.Name,
-                Status = "Pending",
+                Status = EdgeNodeStatusNames.Pending,
                 Tenant = gateway.Tenant,
                 TenantId = gateway.TenantId ?? gateway.Tenant?.Id,
                 Customer = gateway.Customer,
@@ -471,6 +500,7 @@ namespace IoTSharp.Controllers
             return new EdgeNodeDto
             {
                 Id = node.Id,
+                GatewayId = node.GatewayId,
                 Name = string.IsNullOrWhiteSpace(node.Name) ? gateway.Name : node.Name,
                 AccessToken = gateway.DeviceIdentity?.IdentityId,
                 Timeout = gateway.Timeout,
@@ -702,6 +732,18 @@ namespace IoTSharp.Controllers
             }
 
             return JsonSerializer.Serialize(value);
+        }
+
+        /// <summary>
+        /// 判断执行端上报的 Edge 运行时合同版本是否受当前平台支持。
+        /// </summary>
+        /// <param name="contractVersion">执行端上报的合同版本。</param>
+        /// <returns>支持或兼容旧执行端时返回 true。</returns>
+        private static bool IsSupportedEdgeRuntimeContract(string contractVersion)
+        {
+            return string.IsNullOrWhiteSpace(contractVersion)
+                || string.Equals(contractVersion, EdgeNodeContractVersions.EdgeRuntimeV1, StringComparison.OrdinalIgnoreCase)
+                || string.Equals(contractVersion, EdgeNodeContractVersions.EdgeNodeV1, StringComparison.OrdinalIgnoreCase);
         }
     }
 }

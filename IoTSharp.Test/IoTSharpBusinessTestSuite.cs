@@ -12,6 +12,17 @@ using IoTSharp.Data;
 using IoTSharp.Dtos;
 using IoTSharp.Models;
 using Xunit;
+using EdgeCapabilityReportDto = IoTSharp.Contracts.EdgeCapabilityReportDto;
+using EdgeHeartbeatDto = IoTSharp.Contracts.EdgeHeartbeatDto;
+using EdgeNodeDto = IoTSharp.Contracts.EdgeNodeDto;
+using EdgeRegistrationDto = IoTSharp.Contracts.EdgeRegistrationDto;
+using EdgeRegistrationResultDto = IoTSharp.Contracts.EdgeRegistrationResultDto;
+using EdgeTaskAddressDto = IoTSharp.Contracts.EdgeTaskAddressDto;
+using EdgeTaskReceiptDto = IoTSharp.Contracts.EdgeTaskReceiptDto;
+using EdgeTaskRequestDto = IoTSharp.Contracts.EdgeTaskRequestDto;
+using EdgeTaskStatus = IoTSharp.Contracts.EdgeTaskStatus;
+using EdgeTaskTargetType = IoTSharp.Contracts.EdgeTaskTargetType;
+using EdgeTaskType = IoTSharp.Contracts.EdgeTaskType;
 
 namespace IoTSharp.Test;
 
@@ -304,7 +315,9 @@ public abstract class IoTSharpBusinessTestSuite<TFixture>
     private static async Task<ApiResult<T>> ReadApiResultAsync<T>(HttpResponseMessage response)
     {
         var body = await response.Content.ReadAsStringAsync();
-        Assert.True(response.IsSuccessStatusCode, $"{(int)response.StatusCode} {response.ReasonPhrase}: {body}");
+        var headers = string.Join("; ", response.Headers.Select(header => $"{header.Key}={string.Join(",", header.Value)}"));
+        var contentHeaders = string.Join("; ", response.Content.Headers.Select(header => $"{header.Key}={string.Join(",", header.Value)}"));
+        Assert.True(response.IsSuccessStatusCode, $"{response.RequestMessage?.Method} {response.RequestMessage?.RequestUri} => {(int)response.StatusCode} {response.ReasonPhrase}; Headers=[{headers}]; ContentHeaders=[{contentHeaders}]: {body}");
 
         var result = await response.Content.ReadFromJsonAsync<ApiResult<T>>();
         Assert.NotNull(result);
@@ -322,4 +335,5 @@ public abstract class IoTSharpBusinessTestSuite<TFixture>
 
         return Convert.ToDouble(value);
     }
+
 }

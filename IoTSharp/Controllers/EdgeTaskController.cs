@@ -1,6 +1,5 @@
 using IoTSharp.Contracts;
 using IoTSharp.Data;
-using IoTSharp.Dtos;
 using IoTSharp.Extensions;
 using IoTSharp.Models;
 using Microsoft.AspNetCore.Authorization;
@@ -12,6 +11,10 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json;
+using EdgeNodeQueryDto = IoTSharp.Dtos.EdgeNodeQueryDto;
+using EdgeTaskListItemDto = IoTSharp.Dtos.EdgeTaskListItemDto;
+using EdgeTaskTimelineDto = IoTSharp.Dtos.EdgeTaskTimelineDto;
+using EdgeTaskTimelineNodeDto = IoTSharp.Dtos.EdgeTaskTimelineNodeDto;
 
 
 namespace IoTSharp.Controllers
@@ -21,7 +24,7 @@ namespace IoTSharp.Controllers
     [ApiController]
     public class EdgeTaskController : ControllerBase
     {
-        private const string TaskContractVersion = "edge-task-v1";
+        private const string TaskContractVersion = EdgeNodeContractVersions.EdgeTaskV1;
         private const string EdgeTaskRequestLastKey = "_edge.task.request.last";
         private const string EdgeTaskRequestStatusKey = "_edge.task.request.status";
         private const string EdgeTaskRequestCreatedAtKey = "_edge.task.request.createdAt";
@@ -30,18 +33,7 @@ namespace IoTSharp.Controllers
         private const string EdgeTaskReceiptReportedAtKey = "_edge.task.receipt.reportedAt";
         private const string EdgeTaskHistoryKeyPrefix = "_edge.task.history.";
         private const string EdgeTaskDispatchStatusKey = "_edge.task.dispatch.status";
-        private static readonly IReadOnlyDictionary<EdgeTaskStatus, EdgeTaskStatus[]> AllowedTransitions =
-            new Dictionary<EdgeTaskStatus, EdgeTaskStatus[]>
-            {
-                [EdgeTaskStatus.Pending] = [EdgeTaskStatus.Sent],
-                [EdgeTaskStatus.Sent] = [EdgeTaskStatus.Accepted, EdgeTaskStatus.TimedOut],
-                [EdgeTaskStatus.Accepted] = [EdgeTaskStatus.Running, EdgeTaskStatus.Cancelled],
-                [EdgeTaskStatus.Running] = [EdgeTaskStatus.Succeeded, EdgeTaskStatus.Failed, EdgeTaskStatus.TimedOut, EdgeTaskStatus.Cancelled],
-                [EdgeTaskStatus.Succeeded] = [],
-                [EdgeTaskStatus.Failed] = [],
-                [EdgeTaskStatus.TimedOut] = [],
-                [EdgeTaskStatus.Cancelled] = []
-            };
+        private static readonly IReadOnlyDictionary<EdgeTaskStatus, EdgeTaskStatus[]> AllowedTransitions = EdgeTaskStateMachine.AllowedTransitions;
 
         private readonly ApplicationDbContext _context;
         private readonly ILogger<EdgeTaskController> _logger;
@@ -260,7 +252,7 @@ namespace IoTSharp.Controllers
                     key = item.KeyName,
                     at = item.DateTime,
                     payload = item.Value_String,
-                    status = item.Value_Json
+                    status = NormalizeStoredStatus(item.Value_Json)
                 })
                 .ToListAsync();
 
@@ -307,7 +299,7 @@ namespace IoTSharp.Controllers
                     .Where(item => item.DeviceId == gateway.Id && item.KeyName == $"{EdgeTaskHistoryKeyPrefix}{task.TaskId:N}.receipt")
                     .OrderByDescending(item => item.DateTime)
                     .FirstOrDefaultAsync();
-                var latestReceiptStatus = latestReceipt?.Value_Json;
+                var latestReceiptStatus = NormalizeStoredStatus(latestReceipt?.Value_Json);
 
                 if (string.IsNullOrWhiteSpace(latestReceiptStatus) || latestReceiptStatus is nameof(EdgeTaskStatus.Pending) or nameof(EdgeTaskStatus.Sent))
                 {
@@ -408,7 +400,7 @@ namespace IoTSharp.Controllers
                         Category = item.KeyName.Split('.').LastOrDefault() ?? string.Empty,
                         RuntimeType = TryGetString(payload, "runtimeType"),
                         InstanceId = TryGetString(payload, "instanceId"),
-                        Status = TryGetString(payload, "status") ?? item.Value_Json,
+                        Status = GetTaskListStatus(payload, item.Value_Json),
                         Message = TryGetString(payload, "message"),
                         At = item.DateTime,
                         Payload = item.Value_String
@@ -479,13 +471,7 @@ namespace IoTSharp.Controllers
                 contractVersion = TaskContractVersion,
                 states = Enum.GetNames(typeof(EdgeTaskStatus)),
                 transitions = data,
-                terminalStates = new[]
-                {
-                    EdgeTaskStatus.Succeeded.ToString(),
-                    EdgeTaskStatus.Failed.ToString(),
-                    EdgeTaskStatus.TimedOut.ToString(),
-                    EdgeTaskStatus.Cancelled.ToString()
-                }
+                terminalStates = EdgeTaskStateMachine.TerminalStates.Select(status => status.ToString()).ToArray()
             });
         }
 
@@ -539,6 +525,7 @@ namespace IoTSharp.Controllers
                 .Select(item => item.Value_Json)
                 .FirstOrDefault();
 
+            status = NormalizeStoredStatus(status);
             return Enum.TryParse<EdgeTaskStatus>(status, true, out var parsed) ? parsed : null;
         }
 
@@ -555,7 +542,7 @@ namespace IoTSharp.Controllers
                 return true;
             }
 
-            return AllowedTransitions.TryGetValue(current, out var allowed) && allowed.Contains(next);
+            return EdgeTaskStateMachine.IsTransitionAllowed(current, next);
         }
 
         /// <summary>
@@ -597,7 +584,7 @@ namespace IoTSharp.Controllers
                 DataSide = DataSide.ServerSide,
                 Type = Contracts.DataType.String,
                 Value_String = payload,
-                Value_Json = status
+                Value_Json = SerializeStatusForJsonColumn(status)
             };
 
             _context.TelemetryData.Add(history);
@@ -634,6 +621,55 @@ namespace IoTSharp.Controllers
             return value is JsonElement element
                 ? element.ValueKind == JsonValueKind.String ? element.GetString() ?? string.Empty : element.ToString()
                 : value.ToString() ?? string.Empty;
+        }
+
+        /// <summary>
+        /// 获取任务列表展示状态，优先使用负载中的状态字段，否则回退到历史记录状态列。
+        /// </summary>
+        /// <param name="payload">任务历史负载。</param>
+        /// <param name="storedStatus">任务历史状态列。</param>
+        /// <returns>可展示的状态名称。</returns>
+        private static string GetTaskListStatus(Dictionary<string, object> payload, string storedStatus)
+        {
+            var payloadStatus = TryGetString(payload, "status");
+            return string.IsNullOrWhiteSpace(payloadStatus) ? NormalizeStoredStatus(storedStatus) : payloadStatus;
+        }
+
+        /// <summary>
+        /// 将任务状态写成合法 JSON 字符串，避免 PostgreSQL JSON 列拒绝裸字符串。
+        /// </summary>
+        /// <param name="status">任务状态文本。</param>
+        /// <returns>可写入 JSON 列的字符串。</returns>
+        private static string SerializeStatusForJsonColumn(string status)
+        {
+            return JsonSerializer.Serialize(status ?? string.Empty);
+        }
+
+        /// <summary>
+        /// 读取任务历史状态，兼容早期保存的裸状态值和当前保存的 JSON 字符串值。
+        /// </summary>
+        /// <param name="storedStatus">数据库中的状态字段。</param>
+        /// <returns>规范化后的状态名称。</returns>
+        private static string NormalizeStoredStatus(string storedStatus)
+        {
+            if (string.IsNullOrWhiteSpace(storedStatus))
+            {
+                return string.Empty;
+            }
+
+            if (storedStatus.Length >= 2 && storedStatus[0] == '"' && storedStatus[^1] == '"')
+            {
+                try
+                {
+                    return JsonSerializer.Deserialize<string>(storedStatus) ?? string.Empty;
+                }
+                catch (JsonException)
+                {
+                    return storedStatus;
+                }
+            }
+
+            return storedStatus;
         }
 
         private static Guid TryParseGuid(Dictionary<string, object> payload, string key)
