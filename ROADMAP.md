@@ -106,7 +106,7 @@ M2 的目标是把现有 Edge 第一版能力从属性键和临时 DTO 沉淀为
 | --- | --- | --- | --- | --- |
 | #020 | `✅️` | EdgeRuntimeStatus | 平台 | 已新增 `edge-runtime-status-v1`、`EdgeRuntimeStatusDto`、EdgeNode 内嵌 runtimeStatus 和 `/api/Edge/{id}/RuntimeStatus` 只读接口，覆盖注册、心跳、版本、实例、主机、健康和低频指标模型。 |
 | #021 | `✅️` | EdgeCapability | 平台 | 已新增 `edge-capability-v1`、`EdgeCapabilityDto`、EdgeNode 内嵌 capability 和 `/api/Edge/{id}/Capability` 只读接口，覆盖协议、点位类型、转换能力、任务能力和合同版本兼容模型。 |
-| #022 | `🚧` | EdgeTask | 平台 | 平台下发配置、诊断、软件、固件、重启等任务模型；现有 `edge-task-v1` 临时通道已补充 Dispatch/Pull/Accept 状态推进和回归测试，正式模型待落地。 |
+| #022 | `✅️` | EdgeTask | 平台 | 已新增正式 `EdgeTask` 主模型、`EdgeTasks` 迁移和 `EdgeTaskDto` 状态快照；Dispatch/Pull/Accept/Receipt 以正式表为主存储，并保留 AttributeLatest/TelemetryData 兼容副本。 |
 | #023 | `🚧` | EdgeTaskReceipt | 平台 | Accepted、Running、Succeeded、Failed、TimedOut、Cancelled 等回执模型；现有回执入口已校验单向状态流转并拒绝非法回退，正式模型待落地。 |
 | #024 | `⬜` | EdgeCollectionAssignment | 平台 | 记录哪个采集配置发布到了哪个 EdgeNode 或 Gateway。 |
 | #025 | `⬜` | Edge API 改造 | 平台 | 查询状态、能力、任务、回执和历史时使用正式模型；任务状态流转不再以 AttributeLatest/TelemetryData 作为主存储。 |

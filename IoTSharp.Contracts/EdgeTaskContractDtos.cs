@@ -243,6 +243,92 @@ namespace IoTSharp.Contracts
     }
 
     /// <summary>
+    /// 平台侧 Edge 任务状态快照，用于管理端查询和跨仓验收。
+    /// </summary>
+    public class EdgeTaskDto
+    {
+        /// <summary>
+        /// 合同版本。
+        /// </summary>
+        public string ContractVersion { get; set; } = EdgeNodeContractVersions.EdgeTaskV1;
+
+        /// <summary>
+        /// 全局任务标识。
+        /// </summary>
+        public Guid TaskId { get; set; }
+
+        /// <summary>
+        /// 任务类型。
+        /// </summary>
+        public EdgeTaskType TaskType { get; set; }
+
+        /// <summary>
+        /// 目标寻址信息。
+        /// </summary>
+        public EdgeTaskAddressDto Address { get; set; } = new();
+
+        /// <summary>
+        /// 当前任务状态。
+        /// </summary>
+        public EdgeTaskStatus Status { get; set; }
+
+        /// <summary>
+        /// 最近一次状态说明。
+        /// </summary>
+        public string Message { get; set; } = string.Empty;
+
+        /// <summary>
+        /// 最近一次进度，范围 0-100。
+        /// </summary>
+        public int? Progress { get; set; }
+
+        /// <summary>
+        /// 任务创建时间。
+        /// </summary>
+        public DateTime CreatedAt { get; set; }
+
+        /// <summary>
+        /// 任务过期时间。
+        /// </summary>
+        public DateTime? ExpireAt { get; set; }
+
+        /// <summary>
+        /// 任务首次进入可拉取通道的时间。
+        /// </summary>
+        public DateTime? SentAt { get; set; }
+
+        /// <summary>
+        /// 执行端确认受理时间。
+        /// </summary>
+        public DateTime? AcceptedAt { get; set; }
+
+        /// <summary>
+        /// 执行端开始执行时间。
+        /// </summary>
+        public DateTime? StartedAt { get; set; }
+
+        /// <summary>
+        /// 任务进入终态的时间。
+        /// </summary>
+        public DateTime? CompletedAt { get; set; }
+
+        /// <summary>
+        /// 最近一次回执时间。
+        /// </summary>
+        public DateTime? LastReceiptAt { get; set; }
+
+        /// <summary>
+        /// 任务参数。
+        /// </summary>
+        public Dictionary<string, object> Parameters { get; set; } = [];
+
+        /// <summary>
+        /// 非敏感任务元数据。
+        /// </summary>
+        public Dictionary<string, string> Metadata { get; set; } = [];
+    }
+
+    /// <summary>
     /// Edge 运行时上报的任务回执。
     /// </summary>
     public class EdgeTaskReceiptDto

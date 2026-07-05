@@ -11,6 +11,8 @@ using IoTSharp.Contracts;
 using IoTSharp.Data;
 using IoTSharp.Dtos;
 using IoTSharp.Models;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 using EdgeCapabilityDto = IoTSharp.Contracts.EdgeCapabilityDto;
 using EdgeCapabilityReportDto = IoTSharp.Contracts.EdgeCapabilityReportDto;
@@ -293,9 +295,26 @@ public abstract class IoTSharpBusinessTestSuite<TFixture>
         var dispatchResult = await ReadApiResultAsync<EdgeTaskRequestDto>(dispatch);
         Assert.Equal((int)ApiCode.Success, dispatchResult.Code);
 
+        using (var scope = Fixture.Services.CreateScope())
+        {
+            var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+            var storedTask = await dbContext.EdgeTasks.AsNoTracking().SingleAsync(task => task.Id == taskId);
+            Assert.Equal(deviceId, storedTask.GatewayId);
+            Assert.Equal(EdgeTaskStatus.Pending, storedTask.Status);
+            Assert.Equal(EdgeTaskType.HealthProbe, storedTask.TaskType);
+        }
+
         var pulled = await GetApiResultAsync<List<EdgeTaskRequestDto>>(client, $"/api/EdgeTask/Dispatch/{token}");
         Assert.Equal((int)ApiCode.Success, pulled.Code);
         Assert.Contains(pulled.Data!, task => task.TaskId == taskId);
+
+        using (var scope = Fixture.Services.CreateScope())
+        {
+            var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+            var storedTask = await dbContext.EdgeTasks.AsNoTracking().SingleAsync(task => task.Id == taskId);
+            Assert.Equal(EdgeTaskStatus.Sent, storedTask.Status);
+            Assert.NotNull(storedTask.SentAt);
+        }
 
         var accepted = await client.PostAsJsonAsync($"/api/EdgeTask/Dispatch/{token}/Accept", new EdgeTaskReceiptDto
         {
@@ -323,6 +342,17 @@ public abstract class IoTSharpBusinessTestSuite<TFixture>
         });
         var runningResult = await ReadApiResultAsync<EdgeTaskReceiptDto>(running);
         Assert.Equal((int)ApiCode.Success, runningResult.Code);
+
+        using (var scope = Fixture.Services.CreateScope())
+        {
+            var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+            var storedTask = await dbContext.EdgeTasks.AsNoTracking().SingleAsync(task => task.Id == taskId);
+            Assert.Equal(EdgeTaskStatus.Running, storedTask.Status);
+            Assert.Equal(25, storedTask.Progress);
+            Assert.NotNull(storedTask.AcceptedAt);
+            Assert.NotNull(storedTask.StartedAt);
+            Assert.NotNull(storedTask.LastReceiptAt);
+        }
 
         var invalid = await client.PostAsJsonAsync("/api/EdgeTask/Receipt", new EdgeTaskReceiptDto
         {

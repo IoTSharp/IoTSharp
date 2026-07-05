@@ -135,6 +135,105 @@ namespace IoTSharp.Test
             }
         }
 
+        [Fact]
+        public async Task EdgeTask_FormalModelPersistsDispatchAndReceiptState()
+        {
+            using var client = _fixture.CreateClient();
+            var created = await _fixture.CreateDeviceAsync(client, $"sqlite-edge-task-{Guid.NewGuid():N}", DeviceType.Gateway);
+            var deviceId = created.Data!.Id;
+            var token = await _fixture.GetDeviceAccessTokenAsync(client, deviceId);
+            var taskId = Guid.NewGuid();
+
+            await _fixture.AuthorizeClientAsync(client);
+            var dispatch = await client.PostAsJsonAsync("/api/EdgeTask/Dispatch", new IoTSharp.Contracts.EdgeTaskRequestDto
+            {
+                ContractVersion = EdgeNodeContractVersions.EdgeTaskV1,
+                TaskId = taskId,
+                TaskType = IoTSharp.Contracts.EdgeTaskType.HealthProbe,
+                CreatedAt = DateTime.UtcNow,
+                Address = new IoTSharp.Contracts.EdgeTaskAddressDto
+                {
+                    TargetType = IoTSharp.Contracts.EdgeTaskTargetType.EdgeNode,
+                    DeviceId = deviceId,
+                    RuntimeType = EdgeRuntimeTypes.Gateway,
+                    TargetKey = deviceId.ToString()
+                },
+                Parameters = new Dictionary<string, object> { ["probe"] = "ping" },
+                Metadata = new Dictionary<string, string> { ["source"] = "sqlite-test" }
+            });
+            var dispatchResult = await ReadApiResultAsync<IoTSharp.Contracts.EdgeTaskRequestDto>(dispatch);
+            Assert.Equal((int)ApiCode.Success, dispatchResult.Code);
+
+            await AssertStoredEdgeTaskAsync(taskId, IoTSharp.Contracts.EdgeTaskStatus.Pending, deviceId, progress: null);
+
+            var pulled = await GetApiResultAsync<List<IoTSharp.Contracts.EdgeTaskRequestDto>>(client, $"/api/EdgeTask/Dispatch/{token}");
+            Assert.Equal((int)ApiCode.Success, pulled.Code);
+            Assert.Contains(pulled.Data!, task => task.TaskId == taskId);
+
+            await AssertStoredEdgeTaskAsync(taskId, IoTSharp.Contracts.EdgeTaskStatus.Sent, deviceId, progress: null);
+
+            var accepted = await client.PostAsJsonAsync($"/api/EdgeTask/Dispatch/{token}/Accept", new IoTSharp.Contracts.EdgeTaskReceiptDto
+            {
+                ContractVersion = EdgeNodeContractVersions.EdgeTaskV1,
+                TaskId = taskId,
+                TargetType = IoTSharp.Contracts.EdgeTaskTargetType.EdgeNode,
+                TargetKey = deviceId.ToString(),
+                RuntimeType = EdgeRuntimeTypes.Gateway,
+                Status = IoTSharp.Contracts.EdgeTaskStatus.Accepted,
+                ReportedAt = DateTime.UtcNow
+            });
+            var acceptedResult = await ReadApiResultAsync<object>(accepted);
+            Assert.Equal((int)ApiCode.Success, acceptedResult.Code);
+
+            var running = await client.PostAsJsonAsync("/api/EdgeTask/Receipt", new IoTSharp.Contracts.EdgeTaskReceiptDto
+            {
+                ContractVersion = EdgeNodeContractVersions.EdgeTaskV1,
+                TaskId = taskId,
+                TargetType = IoTSharp.Contracts.EdgeTaskTargetType.EdgeNode,
+                TargetKey = deviceId.ToString(),
+                RuntimeType = EdgeRuntimeTypes.Gateway,
+                Status = IoTSharp.Contracts.EdgeTaskStatus.Running,
+                Progress = 25,
+                ReportedAt = DateTime.UtcNow
+            });
+            var runningResult = await ReadApiResultAsync<IoTSharp.Contracts.EdgeTaskReceiptDto>(running);
+            Assert.Equal((int)ApiCode.Success, runningResult.Code);
+
+            await AssertStoredEdgeTaskAsync(taskId, IoTSharp.Contracts.EdgeTaskStatus.Running, deviceId, progress: 25);
+
+            var duplicateDispatch = await client.PostAsJsonAsync("/api/EdgeTask/Dispatch", new IoTSharp.Contracts.EdgeTaskRequestDto
+            {
+                ContractVersion = EdgeNodeContractVersions.EdgeTaskV1,
+                TaskId = taskId,
+                TaskType = IoTSharp.Contracts.EdgeTaskType.HealthProbe,
+                CreatedAt = DateTime.UtcNow,
+                Address = new IoTSharp.Contracts.EdgeTaskAddressDto
+                {
+                    TargetType = IoTSharp.Contracts.EdgeTaskTargetType.EdgeNode,
+                    DeviceId = deviceId,
+                    RuntimeType = EdgeRuntimeTypes.Gateway,
+                    TargetKey = deviceId.ToString()
+                },
+                Parameters = new Dictionary<string, object> { ["probe"] = "retry" },
+                Metadata = new Dictionary<string, string> { ["source"] = "sqlite-test" }
+            });
+            var duplicateDispatchResult = await ReadApiResultAsync<IoTSharp.Contracts.EdgeTaskRequestDto>(duplicateDispatch);
+            Assert.Equal((int)ApiCode.Success, duplicateDispatchResult.Code);
+
+            await AssertStoredEdgeTaskAsync(taskId, IoTSharp.Contracts.EdgeTaskStatus.Running, deviceId, progress: 25);
+        }
+
+        private async Task AssertStoredEdgeTaskAsync(Guid taskId, IoTSharp.Contracts.EdgeTaskStatus status, Guid gatewayId, int? progress)
+        {
+            using var scope = _fixture.Services.CreateScope();
+            var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+            var storedTask = await dbContext.EdgeTasks.AsNoTracking().SingleAsync(task => task.Id == taskId);
+
+            Assert.Equal(gatewayId, storedTask.GatewayId);
+            Assert.Equal(status, storedTask.Status);
+            Assert.Equal(progress, storedTask.Progress);
+        }
+
         private static async Task<ApiResult<T>> GetApiResultAsync<T>(HttpClient client, string requestUri)
         {
             var response = await client.GetAsync(requestUri);

@@ -1004,6 +1004,120 @@ namespace IoTSharp.Migrations
                     b.ToTable("EdgeNodes");
                 });
 
+            modelBuilder.Entity("IoTSharp.Data.EdgeTask", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime?>("AcceptedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTime?>("CompletedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("ContractVersion")
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid?>("CustomerId")
+                        .HasColumnType("uuid");
+
+                    b.Property<bool>("Deleted")
+                        .HasColumnType("boolean");
+
+                    b.Property<Guid?>("EdgeNodeId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime?>("ExpireAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("GatewayId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("InstanceId")
+                        .HasMaxLength(128)
+                        .HasColumnType("character varying(128)");
+
+                    b.Property<DateTime?>("LastReceiptAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("LastReceiptPayload")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Message")
+                        .HasMaxLength(1024)
+                        .HasColumnType("character varying(1024)");
+
+                    b.Property<string>("Metadata")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Parameters")
+                        .HasColumnType("text");
+
+                    b.Property<int?>("Progress")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("RequestPayload")
+                        .HasColumnType("text");
+
+                    b.Property<string>("RuntimeType")
+                        .HasMaxLength(128)
+                        .HasColumnType("character varying(128)");
+
+                    b.Property<DateTime?>("SentAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTime?>("StartedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)");
+
+                    b.Property<string>("TargetKey")
+                        .HasMaxLength(450)
+                        .HasColumnType("character varying(450)");
+
+                    b.Property<string>("TargetType")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)");
+
+                    b.Property<string>("TaskType")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)");
+
+                    b.Property<Guid?>("TenantId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CustomerId");
+
+                    b.HasIndex("EdgeNodeId");
+
+                    b.HasIndex("ExpireAt");
+
+                    b.HasIndex("TenantId");
+
+                    b.HasIndex("GatewayId", "Status", "CreatedAt");
+
+                    b.HasIndex("TargetKey", "Status");
+
+                    b.HasIndex("CustomerId", "TenantId", "Deleted");
+
+                    b.ToTable("EdgeTasks");
+                });
+
             modelBuilder.Entity("IoTSharp.Data.Flow", b =>
                 {
                     b.Property<Guid>("FlowId")
@@ -2207,6 +2321,29 @@ namespace IoTSharp.Migrations
                     b.HasOne("IoTSharp.Data.Device", "Gateway")
                         .WithOne()
                         .HasForeignKey("IoTSharp.Data.EdgeNode", "GatewayId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("IoTSharp.Data.Tenant", "Tenant")
+                        .WithMany()
+                        .HasForeignKey("TenantId");
+
+                    b.Navigation("Customer");
+
+                    b.Navigation("Gateway");
+
+                    b.Navigation("Tenant");
+                });
+
+            modelBuilder.Entity("IoTSharp.Data.EdgeTask", b =>
+                {
+                    b.HasOne("IoTSharp.Data.Customer", "Customer")
+                        .WithMany()
+                        .HasForeignKey("CustomerId");
+
+                    b.HasOne("IoTSharp.Data.Device", "Gateway")
+                        .WithMany()
+                        .HasForeignKey("GatewayId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 

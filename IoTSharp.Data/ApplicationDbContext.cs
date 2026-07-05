@@ -24,6 +24,7 @@ namespace IoTSharp.Data
 
             modelBuilder.ApplyConfiguration(new DataStorageConfiguration());
             modelBuilder.ApplyConfiguration(new EdgeNodeConfiguration());
+            modelBuilder.ApplyConfiguration(new EdgeTaskConfiguration());
             modelBuilder.Entity<AttributeLatest>().HasDiscriminator<DataCatalog>(nameof(Data.DataStorage.Catalog));
             modelBuilder.Entity<TelemetryLatest>().HasDiscriminator<DataCatalog>(nameof(Data.DataStorage.Catalog));
             modelBuilder.Entity<ProductData>().HasDiscriminator<DataCatalog>(nameof(Data.DataStorage.Catalog));
@@ -50,6 +51,7 @@ namespace IoTSharp.Data
         public DbSet<Device> Device { get; set; }
         public DbSet<Gateway> Gateway { get; set; }
         public DbSet<EdgeNode> EdgeNodes { get; set; }
+        public DbSet<EdgeTask> EdgeTasks { get; set; }
         public DbSet<TelemetryData> TelemetryData { get; set; }
         public DbSet<AttributeLatest> AttributeLatest { get; set; }
         public DbSet<DataStorage> DataStorage { get; set; }

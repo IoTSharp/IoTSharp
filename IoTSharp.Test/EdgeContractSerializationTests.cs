@@ -15,6 +15,7 @@ public sealed class EdgeContractSerializationTests
     {
         Assert.Equal("IoTSharp.Contracts", typeof(EdgeRegistrationDto).Namespace);
         Assert.Equal(typeof(EdgeRegistrationDto).Assembly, typeof(EdgeTaskRequestDto).Assembly);
+        Assert.Equal(typeof(EdgeRegistrationDto).Assembly, typeof(EdgeTaskDto).Assembly);
         Assert.Equal(typeof(EdgeRegistrationDto).Assembly, typeof(EdgeRuntimeStatusDto).Assembly);
         Assert.Equal(typeof(EdgeRegistrationDto).Assembly, typeof(EdgeCapabilityDto).Assembly);
         Assert.Equal(EdgeNodeContractVersions.EdgeRuntimeV1, new EdgeRegistrationDto().ContractVersion);
@@ -123,6 +124,33 @@ public sealed class EdgeContractSerializationTests
 
         Assert.Contains("\"contractVersion\":\"edge-task-v1\"", json);
         Assert.Contains("\"taskType\":\"HealthProbe\"", json);
+        Assert.Contains("\"targetType\":\"EdgeNode\"", json);
+    }
+
+    [Fact]
+    public void EdgeTaskStateDto_SerializesCurrentStatusAsStableString()
+    {
+        var dto = new EdgeTaskDto
+        {
+            TaskId = Guid.Parse("11111111-1111-1111-1111-111111111111"),
+            TaskType = EdgeTaskType.HealthProbe,
+            Status = EdgeTaskStatus.Running,
+            Progress = 25,
+            CreatedAt = DateTime.Parse("2026-07-05T00:00:00Z").ToUniversalTime(),
+            Address = new EdgeTaskAddressDto
+            {
+                TargetType = EdgeTaskTargetType.EdgeNode,
+                DeviceId = Guid.Parse("22222222-2222-2222-2222-222222222222"),
+                RuntimeType = EdgeRuntimeTypes.Gateway,
+                TargetKey = "22222222-2222-2222-2222-222222222222:gateway"
+            }
+        };
+
+        var json = JsonSerializer.Serialize(dto, new JsonSerializerOptions(JsonSerializerDefaults.Web));
+
+        Assert.Contains("\"contractVersion\":\"edge-task-v1\"", json);
+        Assert.Contains("\"taskType\":\"HealthProbe\"", json);
+        Assert.Contains("\"status\":\"Running\"", json);
         Assert.Contains("\"targetType\":\"EdgeNode\"", json);
     }
 

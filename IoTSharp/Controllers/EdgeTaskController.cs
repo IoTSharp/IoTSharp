@@ -34,6 +34,7 @@ namespace IoTSharp.Controllers
         private const string EdgeTaskHistoryKeyPrefix = "_edge.task.history.";
         private const string EdgeTaskDispatchStatusKey = "_edge.task.dispatch.status";
         private static readonly IReadOnlyDictionary<EdgeTaskStatus, EdgeTaskStatus[]> AllowedTransitions = EdgeTaskStateMachine.AllowedTransitions;
+        private static readonly JsonSerializerOptions ContractJsonOptions = new(JsonSerializerDefaults.Web) { PropertyNameCaseInsensitive = true };
 
         private readonly ApplicationDbContext _context;
         private readonly ILogger<EdgeTaskController> _logger;
@@ -87,9 +88,30 @@ namespace IoTSharp.Controllers
                 return Ok(new ApiResult<EdgeTaskRequestDto>(ApiCode.NotFoundDevice, "Edge device not found", null));
             }
 
+            var now = DateTime.UtcNow;
+            request.ContractVersion = TaskContractVersion;
+            request.CreatedAt = request.CreatedAt == default ? now : request.CreatedAt.ToUniversalTime();
+            request.Address.DeviceId = device.Id;
+
+            var requestPayload = SerializeOrNull(request) ?? "{}";
+            var formalTask = await _context.EdgeTasks.FirstOrDefaultAsync(task => task.Id == request.TaskId && !task.Deleted);
+            if (formalTask != null && formalTask.GatewayId != device.Id)
+            {
+                return Ok(new ApiResult<EdgeTaskRequestDto>(ApiCode.InValidData, "taskId already exists for another edge target", null));
+            }
+
+            if (formalTask != null)
+            {
+                return Ok(new ApiResult<EdgeTaskRequestDto>(ApiCode.Success, "OK", ToEdgeTaskRequestDto(formalTask)));
+            }
+
+            formalTask = await CreateFormalEdgeTaskAsync(request, device, requestPayload);
+            _context.EdgeTasks.Add(formalTask);
+            await _context.SaveChangesAsync();
+
             var latestAttrs = new Dictionary<string, object>
             {
-                [EdgeTaskRequestLastKey] = SerializeOrNull(request) ?? "{}",
+                [EdgeTaskRequestLastKey] = requestPayload,
                 [EdgeTaskRequestStatusKey] = EdgeTaskStatus.Pending.ToString(),
                 [EdgeTaskRequestCreatedAtKey] = request.CreatedAt.ToUniversalTime()
             };
@@ -99,7 +121,7 @@ namespace IoTSharp.Controllers
             {
                 [EdgeTaskDispatchStatusKey] = EdgeTaskStatus.Pending.ToString()
             }, device.Id, DataSide.ServerSide);
-            await SaveTaskHistoryAsync(device.Id, request.TaskId, "request", request.CreatedAt.ToUniversalTime(), SerializeOrNull(request) ?? "{}", EdgeTaskStatus.Pending.ToString());
+            await SaveTaskHistoryAsync(device.Id, request.TaskId, "request", request.CreatedAt.ToUniversalTime(), requestPayload, EdgeTaskStatus.Pending.ToString());
 
             _logger.LogInformation(
                 "Dispatched edge task {TaskId} to {TargetKey}, type {TaskType}, runtime {RuntimeType}, instance {InstanceId}",
@@ -159,7 +181,8 @@ namespace IoTSharp.Controllers
                 return Ok(new ApiResult<EdgeTaskReceiptDto>(ApiCode.InValidData, "Unable to resolve target device for receipt", null));
             }
 
-            var currentStatus = await GetLatestTaskStatusAsync(deviceId.Value, request.TaskId);
+            var formalTask = await GetFormalEdgeTaskAsync(deviceId.Value, request.TaskId);
+            var currentStatus = formalTask?.Status ?? await GetLatestTaskStatusAsync(deviceId.Value, request.TaskId);
             if (currentStatus == null)
             {
                 return Ok(new ApiResult<EdgeTaskReceiptDto>(ApiCode.InValidData, "Task request not found for receipt", null));
@@ -170,9 +193,17 @@ namespace IoTSharp.Controllers
                 return Ok(new ApiResult<EdgeTaskReceiptDto>(ApiCode.InValidData, $"Invalid edge task transition: {currentStatus.Value} -> {request.Status}", null));
             }
 
+            request.ReportedAt = request.ReportedAt == default ? DateTime.UtcNow : request.ReportedAt.ToUniversalTime();
+            if (formalTask != null)
+            {
+                ApplyFormalReceipt(formalTask, request);
+                await _context.SaveChangesAsync();
+            }
+
+            var receiptPayload = SerializeOrNull(request) ?? "{}";
             var attrs = new Dictionary<string, object>
             {
-                [EdgeTaskReceiptLastKey] = SerializeOrNull(request) ?? "{}",
+                [EdgeTaskReceiptLastKey] = receiptPayload,
                 [EdgeTaskReceiptStatusKey] = request.Status.ToString(),
                 [EdgeTaskReceiptReportedAtKey] = request.ReportedAt.ToUniversalTime()
             };
@@ -182,7 +213,7 @@ namespace IoTSharp.Controllers
             {
                 [EdgeTaskDispatchStatusKey] = request.Status.ToString()
             }, deviceId.Value, DataSide.ServerSide);
-            await SaveTaskHistoryAsync(deviceId.Value, request.TaskId, "receipt", request.ReportedAt.ToUniversalTime(), SerializeOrNull(request) ?? "{}", request.Status.ToString());
+            await SaveTaskHistoryAsync(deviceId.Value, request.TaskId, "receipt", request.ReportedAt.ToUniversalTime(), receiptPayload, request.Status.ToString());
 
             _logger.LogInformation(
                 "Received edge task receipt {TaskId} for {TargetKey}, runtime {RuntimeType}, instance {InstanceId}, status {Status}",
@@ -212,17 +243,26 @@ namespace IoTSharp.Controllers
                 return new ApiResult<EdgeTaskReceiptDto>(ApiCode.NotFoundDevice, "Edge device not found", null);
             }
 
-            var receiptValue = await _context.AttributeLatest
+            var receiptValue = await _context.EdgeTasks
+                .Where(task => task.GatewayId == deviceId && !task.Deleted && task.LastReceiptPayload != null && task.LastReceiptPayload != string.Empty)
+                .OrderByDescending(task => task.LastReceiptAt ?? task.UpdatedAt)
+                .Select(task => task.LastReceiptPayload)
+                .FirstOrDefaultAsync();
+
+            if (string.IsNullOrWhiteSpace(receiptValue))
+            {
+                receiptValue = await _context.AttributeLatest
                 .Where(attr => attr.DeviceId == deviceId && attr.KeyName == EdgeTaskReceiptLastKey)
                 .Select(attr => attr.Value_String)
                 .FirstOrDefaultAsync();
+            }
 
             if (string.IsNullOrWhiteSpace(receiptValue))
             {
                 return new ApiResult<EdgeTaskReceiptDto>(ApiCode.Success, "OK", null);
             }
 
-            var receipt = JsonSerializer.Deserialize<EdgeTaskReceiptDto>(receiptValue);
+            var receipt = JsonSerializer.Deserialize<EdgeTaskReceiptDto>(receiptValue, ContractJsonOptions);
             return new ApiResult<EdgeTaskReceiptDto>(ApiCode.Success, "OK", receipt);
         }
 
@@ -272,6 +312,33 @@ namespace IoTSharp.Controllers
             }
 
             var takeCount = Math.Clamp(take, 1, 50);
+            var now = DateTime.UtcNow;
+            var formalTasks = await _context.EdgeTasks
+                .Where(task => task.GatewayId == gateway.Id
+                    && !task.Deleted
+                    && (task.ExpireAt == null || task.ExpireAt > now)
+                    && (task.Status == EdgeTaskStatus.Pending || task.Status == EdgeTaskStatus.Sent))
+                .OrderBy(task => task.CreatedAt)
+                .Take(takeCount)
+                .ToListAsync();
+
+            if (formalTasks.Count > 0)
+            {
+                var formalResults = new List<EdgeTaskRequestDto>();
+                foreach (var formalTask in formalTasks)
+                {
+                    formalResults.Add(ToEdgeTaskRequestDto(formalTask));
+                    if (formalTask.Status == EdgeTaskStatus.Pending)
+                    {
+                        ApplyFormalStatus(formalTask, EdgeTaskStatus.Sent, now, null, null, null);
+                        await SaveTaskHistoryAsync(gateway.Id, formalTask.Id, "dispatch", now, formalTask.RequestPayload ?? "{}", EdgeTaskStatus.Sent.ToString());
+                    }
+                }
+
+                await _context.SaveChangesAsync();
+                return new ApiResult<List<EdgeTaskRequestDto>>(ApiCode.Success, "OK", formalResults);
+            }
+
             var recentTaskHistory = await _context.TelemetryData
                 .Where(item => item.DeviceId == gateway.Id)
                 .OrderByDescending(item => item.DateTime)
@@ -289,7 +356,7 @@ namespace IoTSharp.Controllers
             foreach (var record in records)
             {
                 var payload = record.Value_String;
-                var task = string.IsNullOrWhiteSpace(payload) ? null : JsonSerializer.Deserialize<EdgeTaskRequestDto>(payload);
+                var task = string.IsNullOrWhiteSpace(payload) ? null : JsonSerializer.Deserialize<EdgeTaskRequestDto>(payload, ContractJsonOptions);
                 if (task == null)
                 {
                     continue;
@@ -338,7 +405,8 @@ namespace IoTSharp.Controllers
                 return Ok(new ApiResult(ApiCode.InValidData, $"Unsupported contractVersion: {request.ContractVersion}"));
             }
 
-            var currentStatus = await GetLatestTaskStatusAsync(gateway.Id, request.TaskId);
+            var formalTask = await GetFormalEdgeTaskAsync(gateway.Id, request.TaskId);
+            var currentStatus = formalTask?.Status ?? await GetLatestTaskStatusAsync(gateway.Id, request.TaskId);
             if (currentStatus == null)
             {
                 return Ok(new ApiResult(ApiCode.InValidData, "Task request not found for acceptance"));
@@ -354,12 +422,20 @@ namespace IoTSharp.Controllers
             request.TargetType = EdgeTaskTargetType.EdgeNode;
             request.Status = EdgeTaskStatus.Accepted;
             request.ReportedAt = request.ReportedAt == default ? DateTime.UtcNow : request.ReportedAt;
+            request.ReportedAt = request.ReportedAt.ToUniversalTime();
+
+            var receiptPayload = SerializeOrNull(request) ?? "{}";
+            if (formalTask != null)
+            {
+                ApplyFormalReceipt(formalTask, request);
+                await _context.SaveChangesAsync();
+            }
 
             await _context.SaveAsync<AttributeLatest>(new Dictionary<string, object>
             {
                 [EdgeTaskDispatchStatusKey] = EdgeTaskStatus.Accepted.ToString()
             }, gateway.Id, DataSide.ServerSide);
-            await SaveTaskHistoryAsync(gateway.Id, request.TaskId, "receipt", request.ReportedAt.ToUniversalTime(), SerializeOrNull(request) ?? "{}", EdgeTaskStatus.Accepted.ToString());
+            await SaveTaskHistoryAsync(gateway.Id, request.TaskId, "receipt", request.ReportedAt.ToUniversalTime(), receiptPayload, EdgeTaskStatus.Accepted.ToString());
             return Ok(new ApiResult(ApiCode.Success, "OK"));
         }
 
@@ -382,57 +458,74 @@ namespace IoTSharp.Controllers
             var deviceIds = devices.Select(d => d.Id).ToList();
             var deviceNames = devices.ToDictionary(d => d.Id, d => string.IsNullOrWhiteSpace(d.Name) ? d.Id.ToString() : d.Name);
 
-            var records = await _context.TelemetryData
-                .Where(item => deviceIds.Contains(item.DeviceId) && item.KeyName.StartsWith(EdgeTaskHistoryKeyPrefix))
-                .OrderByDescending(item => item.DateTime)
+            var formalTasks = await _context.EdgeTasks
+                .Where(task => deviceIds.Contains(task.GatewayId) && !task.Deleted)
+                .OrderByDescending(task => task.UpdatedAt)
                 .Take(500)
                 .ToListAsync();
 
-            var rows = records
-                .Select(item =>
-                {
-                    var payload = DeserializeToDictionary(item.Value_String);
-                    return new EdgeTaskListItemDto
+            List<EdgeTaskTimelineDto> rows;
+            if (formalTasks.Count > 0)
+            {
+                rows = formalTasks
+                    .Select(task => ToEdgeTaskTimelineDto(task, deviceNames))
+                    .OrderByDescending(item => item.LastUpdatedAt)
+                    .ToList();
+            }
+            else
+            {
+                var records = await _context.TelemetryData
+                    .Where(item => deviceIds.Contains(item.DeviceId) && item.KeyName.StartsWith(EdgeTaskHistoryKeyPrefix))
+                    .OrderByDescending(item => item.DateTime)
+                    .Take(500)
+                    .ToListAsync();
+
+                rows = records
+                    .Select(item =>
                     {
-                        DeviceId = item.DeviceId,
-                        DeviceName = deviceNames.TryGetValue(item.DeviceId, out var deviceName) ? deviceName : item.DeviceId.ToString(),
-                        TaskId = TryParseGuid(payload, "taskId"),
-                        Category = item.KeyName.Split('.').LastOrDefault() ?? string.Empty,
-                        RuntimeType = TryGetString(payload, "runtimeType"),
-                        InstanceId = TryGetString(payload, "instanceId"),
-                        Status = GetTaskListStatus(payload, item.Value_Json),
-                        Message = TryGetString(payload, "message"),
-                        At = item.DateTime,
-                        Payload = item.Value_String
-                    };
-                })
-                .Where(item => item.TaskId != Guid.Empty)
-                .GroupBy(item => new { item.DeviceId, item.TaskId })
-                .Select(group =>
-                {
-                    var ordered = group.OrderBy(item => item.At).ToList();
-                    var last = ordered.Last();
-                    return new EdgeTaskTimelineDto
-                    {
-                        DeviceId = last.DeviceId,
-                        DeviceName = last.DeviceName,
-                        TaskId = last.TaskId,
-                        RuntimeType = last.RuntimeType,
-                        InstanceId = last.InstanceId,
-                        CurrentStatus = last.Status,
-                        LastUpdatedAt = last.At,
-                        Events = ordered.Select(item => new EdgeTaskTimelineNodeDto
+                        var payload = DeserializeToDictionary(item.Value_String);
+                        return new EdgeTaskListItemDto
                         {
-                            Category = item.Category,
-                            Status = item.Status,
-                            Message = item.Message,
-                            At = item.At,
-                            Payload = item.Payload
-                        }).ToList()
-                    };
-                })
-                .OrderByDescending(item => item.LastUpdatedAt)
-                .ToList();
+                            DeviceId = item.DeviceId,
+                            DeviceName = deviceNames.TryGetValue(item.DeviceId, out var deviceName) ? deviceName : item.DeviceId.ToString(),
+                            TaskId = TryParseGuid(payload, "taskId"),
+                            Category = item.KeyName.Split('.').LastOrDefault() ?? string.Empty,
+                            RuntimeType = TryGetString(payload, "runtimeType"),
+                            InstanceId = TryGetString(payload, "instanceId"),
+                            Status = GetTaskListStatus(payload, item.Value_Json),
+                            Message = TryGetString(payload, "message"),
+                            At = item.DateTime,
+                            Payload = item.Value_String
+                        };
+                    })
+                    .Where(item => item.TaskId != Guid.Empty)
+                    .GroupBy(item => new { item.DeviceId, item.TaskId })
+                    .Select(group =>
+                    {
+                        var ordered = group.OrderBy(item => item.At).ToList();
+                        var last = ordered.Last();
+                        return new EdgeTaskTimelineDto
+                        {
+                            DeviceId = last.DeviceId,
+                            DeviceName = last.DeviceName,
+                            TaskId = last.TaskId,
+                            RuntimeType = last.RuntimeType,
+                            InstanceId = last.InstanceId,
+                            CurrentStatus = last.Status,
+                            LastUpdatedAt = last.At,
+                            Events = ordered.Select(item => new EdgeTaskTimelineNodeDto
+                            {
+                                Category = item.Category,
+                                Status = item.Status,
+                                Message = item.Message,
+                                At = item.At,
+                                Payload = item.Payload
+                            }).ToList()
+                        };
+                    })
+                    .OrderByDescending(item => item.LastUpdatedAt)
+                    .ToList();
+            }
 
             if (!string.IsNullOrWhiteSpace(query.Name))
             {
@@ -475,6 +568,209 @@ namespace IoTSharp.Controllers
             });
         }
 
+        /// <summary>
+        /// 根据下发请求创建正式 EdgeTask 主模型。
+        /// </summary>
+        /// <param name="request">平台下发的任务请求。</param>
+        /// <param name="gateway">承载任务通道的 Gateway 设备。</param>
+        /// <param name="requestPayload">规范化后的请求 JSON。</param>
+        /// <returns>已初始化但尚未保存的 EdgeTask。</returns>
+        private async System.Threading.Tasks.Task<EdgeTask> CreateFormalEdgeTaskAsync(EdgeTaskRequestDto request, Device gateway, string requestPayload)
+        {
+            var edgeNodeId = await _context.EdgeNodes
+                .Where(node => node.GatewayId == gateway.Id && !node.Deleted)
+                .Select(node => (Guid?)node.Id)
+                .FirstOrDefaultAsync();
+
+            return new EdgeTask
+            {
+                Id = request.TaskId,
+                ContractVersion = request.ContractVersion,
+                TaskType = request.TaskType,
+                TargetType = request.Address.TargetType,
+                GatewayId = gateway.Id,
+                Gateway = gateway,
+                EdgeNodeId = edgeNodeId,
+                TargetKey = request.Address.TargetKey ?? gateway.Id.ToString(),
+                RuntimeType = request.Address.RuntimeType ?? string.Empty,
+                InstanceId = request.Address.InstanceId ?? string.Empty,
+                Status = EdgeTaskStatus.Pending,
+                Parameters = SerializeOrNull(request.Parameters) ?? "{}",
+                Metadata = SerializeOrNull(request.Metadata) ?? "{}",
+                RequestPayload = requestPayload,
+                CreatedAt = request.CreatedAt.ToUniversalTime(),
+                ExpireAt = request.ExpireAt?.ToUniversalTime(),
+                UpdatedAt = DateTime.UtcNow,
+                TenantId = gateway.TenantId ?? gateway.Tenant?.Id,
+                Tenant = gateway.Tenant,
+                CustomerId = gateway.CustomerId ?? gateway.Customer?.Id,
+                Customer = gateway.Customer
+            };
+        }
+
+        /// <summary>
+        /// 读取指定 Gateway 通道上的正式 EdgeTask。
+        /// </summary>
+        /// <param name="gatewayId">承载任务通道的 Gateway 设备 ID。</param>
+        /// <param name="taskId">任务 ID。</param>
+        /// <returns>找到时返回正式任务实体。</returns>
+        private async System.Threading.Tasks.Task<EdgeTask> GetFormalEdgeTaskAsync(Guid gatewayId, Guid taskId)
+        {
+            return await _context.EdgeTasks
+                .FirstOrDefaultAsync(task => task.GatewayId == gatewayId && task.Id == taskId && !task.Deleted);
+        }
+
+        /// <summary>
+        /// 将正式任务模型还原为执行端拉取使用的任务请求 DTO。
+        /// </summary>
+        /// <param name="task">正式任务模型。</param>
+        /// <returns>任务请求 DTO。</returns>
+        private static EdgeTaskRequestDto ToEdgeTaskRequestDto(EdgeTask task)
+        {
+            var storedRequest = DeserializeEdgeTaskRequest(task.RequestPayload);
+            if (storedRequest != null)
+            {
+                return storedRequest;
+            }
+
+            return new EdgeTaskRequestDto
+            {
+                ContractVersion = task.ContractVersion,
+                TaskId = task.Id,
+                TaskType = task.TaskType,
+                CreatedAt = task.CreatedAt,
+                ExpireAt = task.ExpireAt,
+                Address = new EdgeTaskAddressDto
+                {
+                    TargetType = task.TargetType,
+                    DeviceId = task.GatewayId,
+                    RuntimeType = task.RuntimeType ?? string.Empty,
+                    InstanceId = task.InstanceId ?? string.Empty,
+                    TargetKey = task.TargetKey ?? task.GatewayId.ToString()
+                },
+                Parameters = DeserializeObjectDictionary(task.Parameters),
+                Metadata = DeserializeStringDictionary(task.Metadata)
+            };
+        }
+
+        /// <summary>
+        /// 将正式任务模型转换为管理端现有 timeline 形状。
+        /// </summary>
+        /// <param name="task">正式任务模型。</param>
+        /// <param name="deviceNames">Gateway 设备名索引。</param>
+        /// <returns>任务时间线 DTO。</returns>
+        private static EdgeTaskTimelineDto ToEdgeTaskTimelineDto(EdgeTask task, IReadOnlyDictionary<Guid, string> deviceNames)
+        {
+            var events = new List<EdgeTaskTimelineNodeDto>
+            {
+                new()
+                {
+                    Category = "request",
+                    Status = EdgeTaskStatus.Pending.ToString(),
+                    Message = string.Empty,
+                    At = task.CreatedAt,
+                    Payload = task.RequestPayload ?? "{}"
+                }
+            };
+
+            if (task.SentAt != null)
+            {
+                events.Add(new EdgeTaskTimelineNodeDto
+                {
+                    Category = "dispatch",
+                    Status = EdgeTaskStatus.Sent.ToString(),
+                    Message = string.Empty,
+                    At = task.SentAt.Value,
+                    Payload = task.RequestPayload ?? "{}"
+                });
+            }
+
+            if (task.LastReceiptAt != null)
+            {
+                events.Add(new EdgeTaskTimelineNodeDto
+                {
+                    Category = "receipt",
+                    Status = task.Status.ToString(),
+                    Message = task.Message ?? string.Empty,
+                    At = task.LastReceiptAt.Value,
+                    Payload = task.LastReceiptPayload ?? "{}"
+                });
+            }
+
+            return new EdgeTaskTimelineDto
+            {
+                DeviceId = task.GatewayId,
+                DeviceName = deviceNames.TryGetValue(task.GatewayId, out var deviceName) ? deviceName : task.GatewayId.ToString(),
+                TaskId = task.Id,
+                RuntimeType = task.RuntimeType ?? string.Empty,
+                InstanceId = task.InstanceId ?? string.Empty,
+                CurrentStatus = task.Status.ToString(),
+                LastUpdatedAt = task.UpdatedAt,
+                Events = events.OrderBy(item => item.At).ToList()
+            };
+        }
+
+        /// <summary>
+        /// 将执行端回执合并到正式 EdgeTask 当前态。
+        /// </summary>
+        /// <param name="task">正式任务模型。</param>
+        /// <param name="receipt">执行端回执。</param>
+        private static void ApplyFormalReceipt(EdgeTask task, EdgeTaskReceiptDto receipt)
+        {
+            ApplyFormalStatus(task, receipt.Status, receipt.ReportedAt.ToUniversalTime(), receipt.Message, receipt.Progress, SerializeOrNull(receipt) ?? "{}");
+        }
+
+        /// <summary>
+        /// 更新正式任务状态和关键时间点。
+        /// </summary>
+        /// <param name="task">正式任务模型。</param>
+        /// <param name="status">新状态。</param>
+        /// <param name="at">状态时间。</param>
+        /// <param name="message">状态说明。</param>
+        /// <param name="progress">进度。</param>
+        /// <param name="receiptPayload">最近回执 JSON。</param>
+        private static void ApplyFormalStatus(EdgeTask task, EdgeTaskStatus status, DateTime at, string message, int? progress, string receiptPayload)
+        {
+            var utc = at == default ? DateTime.UtcNow : at.ToUniversalTime();
+            task.Status = status;
+            task.UpdatedAt = utc;
+
+            if (message != null)
+            {
+                task.Message = message;
+            }
+
+            if (progress != null)
+            {
+                task.Progress = progress;
+            }
+
+            if (!string.IsNullOrWhiteSpace(receiptPayload))
+            {
+                task.LastReceiptPayload = receiptPayload;
+                task.LastReceiptAt = utc;
+            }
+
+            switch (status)
+            {
+                case EdgeTaskStatus.Sent:
+                    task.SentAt ??= utc;
+                    break;
+                case EdgeTaskStatus.Accepted:
+                    task.AcceptedAt ??= utc;
+                    break;
+                case EdgeTaskStatus.Running:
+                    task.StartedAt ??= utc;
+                    break;
+                case EdgeTaskStatus.Succeeded:
+                case EdgeTaskStatus.Failed:
+                case EdgeTaskStatus.TimedOut:
+                case EdgeTaskStatus.Cancelled:
+                    task.CompletedAt ??= utc;
+                    break;
+            }
+        }
+
         private async System.Threading.Tasks.Task<Guid?> ResolveDeviceIdAsync(string targetKey, string instanceId, Guid? deviceId)
         {
             if (deviceId.HasValue && deviceId.Value != Guid.Empty)
@@ -515,6 +811,15 @@ namespace IoTSharp.Controllers
         /// <returns>最近一次状态；未找到任务历史时返回空。</returns>
         private async System.Threading.Tasks.Task<EdgeTaskStatus?> GetLatestTaskStatusAsync(Guid deviceId, Guid taskId)
         {
+            var formalStatus = await _context.EdgeTasks
+                .Where(task => task.GatewayId == deviceId && task.Id == taskId && !task.Deleted)
+                .Select(task => (EdgeTaskStatus?)task.Status)
+                .FirstOrDefaultAsync();
+            if (formalStatus != null)
+            {
+                return formalStatus;
+            }
+
             var keyPrefix = $"{EdgeTaskHistoryKeyPrefix}{taskId:N}.";
             var status = (await _context.TelemetryData
                 .Where(item => item.DeviceId == deviceId)
@@ -601,6 +906,57 @@ namespace IoTSharp.Controllers
             return JsonSerializer.Serialize(value);
         }
 
+        private static EdgeTaskRequestDto DeserializeEdgeTaskRequest(string payload)
+        {
+            if (string.IsNullOrWhiteSpace(payload))
+            {
+                return null;
+            }
+
+            try
+            {
+                return JsonSerializer.Deserialize<EdgeTaskRequestDto>(payload, ContractJsonOptions);
+            }
+            catch (JsonException)
+            {
+                return null;
+            }
+        }
+
+        private static Dictionary<string, object> DeserializeObjectDictionary(string payload)
+        {
+            if (string.IsNullOrWhiteSpace(payload))
+            {
+                return new Dictionary<string, object>(StringComparer.OrdinalIgnoreCase);
+            }
+
+            try
+            {
+                return JsonSerializer.Deserialize<Dictionary<string, object>>(payload, ContractJsonOptions) ?? new Dictionary<string, object>(StringComparer.OrdinalIgnoreCase);
+            }
+            catch (JsonException)
+            {
+                return new Dictionary<string, object>(StringComparer.OrdinalIgnoreCase);
+            }
+        }
+
+        private static Dictionary<string, string> DeserializeStringDictionary(string payload)
+        {
+            if (string.IsNullOrWhiteSpace(payload))
+            {
+                return new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+            }
+
+            try
+            {
+                return JsonSerializer.Deserialize<Dictionary<string, string>>(payload, ContractJsonOptions) ?? new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+            }
+            catch (JsonException)
+            {
+                return new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+            }
+        }
+
         private static Dictionary<string, object> DeserializeToDictionary(string payload)
         {
             if (string.IsNullOrWhiteSpace(payload))
@@ -608,7 +964,7 @@ namespace IoTSharp.Controllers
                 return new Dictionary<string, object>(StringComparer.OrdinalIgnoreCase);
             }
 
-            return JsonSerializer.Deserialize<Dictionary<string, object>>(payload) ?? new Dictionary<string, object>(StringComparer.OrdinalIgnoreCase);
+            return JsonSerializer.Deserialize<Dictionary<string, object>>(payload, ContractJsonOptions) ?? new Dictionary<string, object>(StringComparer.OrdinalIgnoreCase);
         }
 
         private static string TryGetString(Dictionary<string, object> payload, string key)
@@ -661,7 +1017,7 @@ namespace IoTSharp.Controllers
             {
                 try
                 {
-                    return JsonSerializer.Deserialize<string>(storedStatus) ?? string.Empty;
+                    return JsonSerializer.Deserialize<string>(storedStatus, ContractJsonOptions) ?? string.Empty;
                 }
                 catch (JsonException)
                 {

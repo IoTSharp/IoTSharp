@@ -1004,6 +1004,120 @@ namespace IoTSharp.Data.MySql.Migrations
                     b.ToTable("EdgeNodes");
                 });
 
+            modelBuilder.Entity("IoTSharp.Data.EdgeTask", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("char(36)");
+
+                    b.Property<DateTime?>("AcceptedAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<DateTime?>("CompletedAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<string>("ContractVersion")
+                        .HasMaxLength(64)
+                        .HasColumnType("varchar(64)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<Guid?>("CustomerId")
+                        .HasColumnType("char(36)");
+
+                    b.Property<bool>("Deleted")
+                        .HasColumnType("tinyint(1)");
+
+                    b.Property<Guid?>("EdgeNodeId")
+                        .HasColumnType("char(36)");
+
+                    b.Property<DateTime?>("ExpireAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<Guid>("GatewayId")
+                        .HasColumnType("char(36)");
+
+                    b.Property<string>("InstanceId")
+                        .HasMaxLength(128)
+                        .HasColumnType("varchar(128)");
+
+                    b.Property<DateTime?>("LastReceiptAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<string>("LastReceiptPayload")
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("Message")
+                        .HasMaxLength(1024)
+                        .HasColumnType("varchar(1024)");
+
+                    b.Property<string>("Metadata")
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("Parameters")
+                        .HasColumnType("longtext");
+
+                    b.Property<int?>("Progress")
+                        .HasColumnType("int");
+
+                    b.Property<string>("RequestPayload")
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("RuntimeType")
+                        .HasMaxLength(128)
+                        .HasColumnType("varchar(128)");
+
+                    b.Property<DateTime?>("SentAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<DateTime?>("StartedAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("varchar(64)");
+
+                    b.Property<string>("TargetKey")
+                        .HasMaxLength(450)
+                        .HasColumnType("varchar(450)");
+
+                    b.Property<string>("TargetType")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("varchar(64)");
+
+                    b.Property<string>("TaskType")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("varchar(64)");
+
+                    b.Property<Guid?>("TenantId")
+                        .HasColumnType("char(36)");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CustomerId");
+
+                    b.HasIndex("EdgeNodeId");
+
+                    b.HasIndex("ExpireAt");
+
+                    b.HasIndex("TenantId");
+
+                    b.HasIndex("GatewayId", "Status", "CreatedAt");
+
+                    b.HasIndex("TargetKey", "Status");
+
+                    b.HasIndex("CustomerId", "TenantId", "Deleted");
+
+                    b.ToTable("EdgeTasks");
+                });
+
             modelBuilder.Entity("IoTSharp.Data.Flow", b =>
                 {
                     b.Property<Guid>("FlowId")
@@ -2207,6 +2321,29 @@ namespace IoTSharp.Data.MySql.Migrations
                     b.HasOne("IoTSharp.Data.Device", "Gateway")
                         .WithOne()
                         .HasForeignKey("IoTSharp.Data.EdgeNode", "GatewayId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("IoTSharp.Data.Tenant", "Tenant")
+                        .WithMany()
+                        .HasForeignKey("TenantId");
+
+                    b.Navigation("Customer");
+
+                    b.Navigation("Gateway");
+
+                    b.Navigation("Tenant");
+                });
+
+            modelBuilder.Entity("IoTSharp.Data.EdgeTask", b =>
+                {
+                    b.HasOne("IoTSharp.Data.Customer", "Customer")
+                        .WithMany()
+                        .HasForeignKey("CustomerId");
+
+                    b.HasOne("IoTSharp.Data.Device", "Gateway")
+                        .WithMany()
+                        .HasForeignKey("GatewayId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 

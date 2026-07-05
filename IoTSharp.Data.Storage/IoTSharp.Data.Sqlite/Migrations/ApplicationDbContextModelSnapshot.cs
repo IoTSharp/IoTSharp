@@ -1088,6 +1088,132 @@ namespace IoTSharp.Data.Sqlite.Migrations
                     b.ToTable("EdgeNodes");
                 });
 
+            modelBuilder.Entity("IoTSharp.Data.EdgeTask", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime?>("AcceptedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime?>("CompletedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("ContractVersion")
+                        .HasMaxLength(64)
+                        .HasColumnType("TEXT")
+                        .UseCollation("NOCASE");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid?>("CustomerId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<bool>("Deleted")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<Guid?>("EdgeNodeId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime?>("ExpireAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid>("GatewayId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("InstanceId")
+                        .HasMaxLength(128)
+                        .HasColumnType("TEXT")
+                        .UseCollation("NOCASE");
+
+                    b.Property<DateTime?>("LastReceiptAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("LastReceiptPayload")
+                        .HasColumnType("TEXT")
+                        .UseCollation("NOCASE");
+
+                    b.Property<string>("Message")
+                        .HasMaxLength(1024)
+                        .HasColumnType("TEXT")
+                        .UseCollation("NOCASE");
+
+                    b.Property<string>("Metadata")
+                        .HasColumnType("TEXT")
+                        .UseCollation("NOCASE");
+
+                    b.Property<string>("Parameters")
+                        .HasColumnType("TEXT")
+                        .UseCollation("NOCASE");
+
+                    b.Property<int?>("Progress")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("RequestPayload")
+                        .HasColumnType("TEXT")
+                        .UseCollation("NOCASE");
+
+                    b.Property<string>("RuntimeType")
+                        .HasMaxLength(128)
+                        .HasColumnType("TEXT")
+                        .UseCollation("NOCASE");
+
+                    b.Property<DateTime?>("SentAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime?>("StartedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("TEXT")
+                        .UseCollation("NOCASE");
+
+                    b.Property<string>("TargetKey")
+                        .HasMaxLength(450)
+                        .HasColumnType("TEXT")
+                        .UseCollation("NOCASE");
+
+                    b.Property<string>("TargetType")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("TEXT")
+                        .UseCollation("NOCASE");
+
+                    b.Property<string>("TaskType")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("TEXT")
+                        .UseCollation("NOCASE");
+
+                    b.Property<Guid?>("TenantId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CustomerId");
+
+                    b.HasIndex("EdgeNodeId");
+
+                    b.HasIndex("ExpireAt");
+
+                    b.HasIndex("TenantId");
+
+                    b.HasIndex("GatewayId", "Status", "CreatedAt");
+
+                    b.HasIndex("TargetKey", "Status");
+
+                    b.HasIndex("CustomerId", "TenantId", "Deleted");
+
+                    b.ToTable("EdgeTasks");
+                });
+
             modelBuilder.Entity("IoTSharp.Data.Flow", b =>
                 {
                     b.Property<Guid>("FlowId")
@@ -2411,6 +2537,29 @@ namespace IoTSharp.Data.Sqlite.Migrations
                     b.HasOne("IoTSharp.Data.Device", "Gateway")
                         .WithOne()
                         .HasForeignKey("IoTSharp.Data.EdgeNode", "GatewayId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("IoTSharp.Data.Tenant", "Tenant")
+                        .WithMany()
+                        .HasForeignKey("TenantId");
+
+                    b.Navigation("Customer");
+
+                    b.Navigation("Gateway");
+
+                    b.Navigation("Tenant");
+                });
+
+            modelBuilder.Entity("IoTSharp.Data.EdgeTask", b =>
+                {
+                    b.HasOne("IoTSharp.Data.Customer", "Customer")
+                        .WithMany()
+                        .HasForeignKey("CustomerId");
+
+                    b.HasOne("IoTSharp.Data.Device", "Gateway")
+                        .WithMany()
+                        .HasForeignKey("GatewayId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
