@@ -224,7 +224,7 @@ Tomur 在这个体系里的角色是模型算力 Provider：
 - 旧 `DeviceGraph`、`DeviceDiagram`、`DeviceGraphToolBox` 已确认为历史设计器数据：无活动 API/前端引用，实体、DbSet 和当前模型已删除；新迁移删除历史表。新拓扑进入 Asset、Collection Template 或 Edge 设计器。
 - 旧 Scene 作为独立入口停止扩展，独立前端页面已移除；与业务对象视图相关的能力后续归入 Asset View。
 - 把 Device 当业务层级、模板容器或发布范围的用法停止扩展。
-- EdgeTask 状态以 AttributeLatest/TelemetryData 作为主存储是临时方案，M2 #025 完成后停止使用（#906）。
+- EdgeTask 状态以 AttributeLatest/TelemetryData 作为主存储的临时方案已随 M2 #025 停止作为 API 查询和状态流转主路径（#906）。
 
 ## UI 信息架构
 
@@ -324,7 +324,7 @@ Edge 页面围绕运行时闭环组织：
 
 - 平台可查询 EdgeNode 当前状态、能力和最近任务。
 - 平台可查询采集配置版本到 EdgeNode/Gateway 运行时的当前分配和历史分配（#024）。
-- 任务状态流转不依赖 AttributeLatest 作为主存储。
+- 任务状态流转不依赖 AttributeLatest 或 TelemetryData 作为主存储。
 - Edge 任务历史可按任务、节点和时间查询。
 - IoTEdge 以契约包消费者身份通过全链路回归。
 

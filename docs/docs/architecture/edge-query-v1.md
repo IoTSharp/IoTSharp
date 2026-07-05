@@ -698,6 +698,12 @@ targetKey 规则：
   - PUT /api/Edge/{id}/CollectionConfig 保存配置时生成 Active assignment
   - GET /api/Edge/{id}/CollectionAssignments 提供节点内分配历史
   - GET /api/Edge/CollectionAssignments 提供租户边界内分配查询
+- EdgeTask / EdgeTaskReceipt 正式查询主路径（#025）
+  - EdgeNode 列表和详情中的最近任务状态来自 `EdgeTasks`
+  - GET /api/EdgeTask/Receipt/{deviceId} 从 `EdgeTaskReceipts` 或 `EdgeTasks.LastReceiptPayload` 返回最近回执
+  - GET /api/EdgeTask/History/{deviceId} 从 `EdgeTasks` 和 `EdgeTaskReceipts` 组合任务历史
+  - GET /api/EdgeTask/List 从正式任务和回执模型生成 timeline
+  - Dispatch/Pull/Accept/Receipt 的状态流转不再写入或回退到 AttributeLatest/TelemetryData 主存储
 - POST /api/EdgeTask/Receipt
   - 校验 contractVersion
   - 校验 taskId

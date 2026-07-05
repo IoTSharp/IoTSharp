@@ -28,26 +28,7 @@ namespace IoTSharp.Controllers
         private static readonly string[] EdgeKeys =
         [
             Constants._Active,
-            Constants._LastActivityDateTime,
-            Constants._EdgeRuntimeType,
-            Constants._EdgeRuntimeName,
-            Constants._EdgeVersion,
-            Constants._EdgeInstanceId,
-            Constants._EdgePlatform,
-            Constants._EdgeHostName,
-            Constants._EdgeIpAddress,
-            Constants._EdgeStatus,
-            Constants._EdgeHealthy,
-            Constants._EdgeLastHeartbeatDateTime,
-            Constants._EdgeLastRegistrationDateTime,
-            Constants._EdgeCapabilities,
-            Constants._EdgeMetadata,
-            Constants._EdgeMetrics,
-            Constants._EdgeUptimeSeconds,
-            Constants._EdgeCollectionConfigVersion,
-            Constants._EdgeCollectionConfigUpdatedAt,
-            "_edge.task.receipt.status",
-            "_edge.task.receipt.reportedAt"
+            Constants._LastActivityDateTime
         ];
 
         private static readonly JsonSerializerOptions WebJsonOptions = new(JsonSerializerDefaults.Web);
@@ -89,7 +70,12 @@ namespace IoTSharp.Controllers
                 .ToListAsync();
 
             var attrs = await QueryEdgeAttributes(gateways.Select(c => c.Id));
-            var data = nodes.Select(node => ToEdgeNodeDto(node, attrs.Where(c => c.DeviceId == node.GatewayId).ToList())).ToList();
+            var taskSummaries = await QueryEdgeTaskSummariesAsync(nodes.Select(c => c.GatewayId));
+            var data = nodes.Select(node =>
+            {
+                taskSummaries.TryGetValue(node.GatewayId, out var taskSummary);
+                return ToEdgeNodeDto(node, attrs.Where(c => c.DeviceId == node.GatewayId).ToList(), taskSummary);
+            }).ToList();
             var filtered = ApplyFilters(data, query);
             var ordered = ApplySorting(filtered, query);
             var pagedRows = ordered.Skip(query.Offset * query.Limit).Take(query.Limit).ToList();
@@ -121,7 +107,9 @@ namespace IoTSharp.Controllers
 
             var node = await EnsureEdgeNodeAsync(gateway);
             var attrs = await QueryEdgeAttributes([gateway.Id]);
-            return new ApiResult<EdgeNodeDto>(ApiCode.Success, "OK", ToEdgeNodeDto(node, attrs));
+            var taskSummaries = await QueryEdgeTaskSummariesAsync([gateway.Id]);
+            taskSummaries.TryGetValue(gateway.Id, out var taskSummary);
+            return new ApiResult<EdgeNodeDto>(ApiCode.Success, "OK", ToEdgeNodeDto(node, attrs, taskSummary));
         }
 
         [HttpGet("{id:guid}/RuntimeStatus")]
@@ -156,8 +144,7 @@ namespace IoTSharp.Controllers
             }
 
             var node = await EnsureEdgeNodeAsync(gateway);
-            var attrs = await QueryEdgeAttributes([gateway.Id]);
-            return new ApiResult<EdgeCapabilityDto>(ApiCode.Success, "OK", ToEdgeCapabilityDto(node, attrs));
+            return new ApiResult<EdgeCapabilityDto>(ApiCode.Success, "OK", ToEdgeCapabilityDto(node));
         }
 
         [HttpGet("CollectionAssignments")]
@@ -741,6 +728,46 @@ namespace IoTSharp.Controllers
         }
 
         /// <summary>
+        /// 按 Gateway 汇总最近 EdgeTask 状态，供 Edge 列表展示最近任务进度。
+        /// </summary>
+        /// <param name="gatewayIds">承载 EdgeNode 的 Gateway 设备 ID 集合。</param>
+        /// <returns>按 Gateway ID 索引的最近任务状态摘要。</returns>
+        private async Task<Dictionary<Guid, EdgeTaskSummary>> QueryEdgeTaskSummariesAsync(IEnumerable<Guid> gatewayIds)
+        {
+            var ids = gatewayIds?.Distinct().ToList() ?? [];
+            if (ids.Count == 0)
+            {
+                return [];
+            }
+
+            var tasks = await _context.EdgeTasks
+                .Where(task => ids.Contains(task.GatewayId) && !task.Deleted)
+                .OrderByDescending(task => task.UpdatedAt)
+                .Select(task => new
+                {
+                    task.GatewayId,
+                    task.Status,
+                    task.UpdatedAt,
+                    task.LastReceiptAt
+                })
+                .ToListAsync();
+
+            return tasks
+                .GroupBy(task => task.GatewayId)
+                .ToDictionary(
+                    group => group.Key,
+                    group =>
+                    {
+                        var latest = group.OrderByDescending(task => task.UpdatedAt).First();
+                        return new EdgeTaskSummary
+                        {
+                            Status = latest.Status.ToString(),
+                            LastReceiptAt = latest.LastReceiptAt
+                        };
+                    });
+        }
+
+        /// <summary>
         /// 为历史 Gateway 补齐 EdgeNode 管理模型，避免升级后已有 Gateway 从 Edge 列表中消失。
         /// </summary>
         /// <param name="gateways">当前租户和客户可见的 Gateway 设备。</param>
@@ -817,14 +844,14 @@ namespace IoTSharp.Controllers
             return node;
         }
 
-        private EdgeNodeDto ToEdgeNodeDto(EdgeNode node, List<AttributeLatest> attrs)
+        private EdgeNodeDto ToEdgeNodeDto(EdgeNode node, List<AttributeLatest> attrs, EdgeTaskSummary taskSummary)
         {
             var gateway = node.Gateway;
             var runtimeStatus = ToEdgeRuntimeStatusDto(node, attrs);
-            var capability = ToEdgeCapabilityDto(node, attrs);
-            var capabilities = Coalesce(node.Capabilities, GetString(attrs, Constants._EdgeCapabilities));
-            var metadata = Coalesce(node.Metadata, GetString(attrs, Constants._EdgeMetadata));
-            var metrics = Coalesce(node.Metrics, GetString(attrs, Constants._EdgeMetrics));
+            var capability = ToEdgeCapabilityDto(node);
+            var capabilities = node.Capabilities ?? string.Empty;
+            var metadata = node.Metadata ?? string.Empty;
+            var metrics = node.Metrics ?? string.Empty;
 
             return new EdgeNodeDto
             {
@@ -851,8 +878,8 @@ namespace IoTSharp.Controllers
                 Capability = capability,
                 Metadata = metadata,
                 Metrics = metrics,
-                LastTaskStatus = GetString(attrs, "_edge.task.receipt.status"),
-                LastReceiptDateTime = GetDateTime(attrs, "_edge.task.receipt.reportedAt"),
+                LastTaskStatus = taskSummary?.Status ?? string.Empty,
+                LastReceiptDateTime = taskSummary?.LastReceiptAt,
                 RuntimeStatus = runtimeStatus
             };
         }
@@ -865,8 +892,8 @@ namespace IoTSharp.Controllers
         /// <returns>面向控制台、执行端诊断和 MCP 技能的状态快照。</returns>
         private EdgeRuntimeStatusDto ToEdgeRuntimeStatusDto(EdgeNode node, List<AttributeLatest> attrs)
         {
-            var metadata = Coalesce(node.Metadata, GetString(attrs, Constants._EdgeMetadata));
-            var metrics = Coalesce(node.Metrics, GetString(attrs, Constants._EdgeMetrics));
+            var metadata = node.Metadata ?? string.Empty;
+            var metrics = node.Metrics ?? string.Empty;
 
             return new EdgeRuntimeStatusDto
             {
@@ -874,18 +901,18 @@ namespace IoTSharp.Controllers
                 GatewayId = node.GatewayId,
                 Active = GetBoolean(attrs, Constants._Active),
                 LastActivityDateTime = GetDateTime(attrs, Constants._LastActivityDateTime),
-                RuntimeType = Coalesce(node.RuntimeType, GetString(attrs, Constants._EdgeRuntimeType)),
-                RuntimeName = Coalesce(node.RuntimeName, GetString(attrs, Constants._EdgeRuntimeName)),
-                Version = Coalesce(node.Version, GetString(attrs, Constants._EdgeVersion)),
-                InstanceId = Coalesce(node.InstanceId, GetString(attrs, Constants._EdgeInstanceId)),
-                Platform = Coalesce(node.Platform, GetString(attrs, Constants._EdgePlatform)),
-                HostName = Coalesce(node.HostName, GetString(attrs, Constants._EdgeHostName)),
-                IpAddress = Coalesce(node.IpAddress, GetString(attrs, Constants._EdgeIpAddress)),
-                Status = Coalesce(node.Status, GetString(attrs, Constants._EdgeStatus)),
-                Healthy = node.Healthy ?? GetNullableBoolean(attrs, Constants._EdgeHealthy),
-                UptimeSeconds = node.UptimeSeconds ?? GetNullableLong(attrs, Constants._EdgeUptimeSeconds),
-                LastHeartbeatDateTime = node.LastHeartbeatDateTime ?? GetDateTime(attrs, Constants._EdgeLastHeartbeatDateTime),
-                LastRegistrationDateTime = node.LastRegistrationDateTime ?? GetDateTime(attrs, Constants._EdgeLastRegistrationDateTime),
+                RuntimeType = node.RuntimeType ?? string.Empty,
+                RuntimeName = node.RuntimeName ?? string.Empty,
+                Version = node.Version ?? string.Empty,
+                InstanceId = node.InstanceId ?? string.Empty,
+                Platform = node.Platform ?? string.Empty,
+                HostName = node.HostName ?? string.Empty,
+                IpAddress = node.IpAddress ?? string.Empty,
+                Status = node.Status ?? string.Empty,
+                Healthy = node.Healthy,
+                UptimeSeconds = node.UptimeSeconds,
+                LastHeartbeatDateTime = node.LastHeartbeatDateTime,
+                LastRegistrationDateTime = node.LastRegistrationDateTime,
                 UpdatedAt = node.UpdatedAt,
                 Metadata = DeserializeObjectMap(metadata),
                 Metrics = DeserializeObjectMap(metrics)
@@ -946,11 +973,10 @@ namespace IoTSharp.Controllers
         /// 从正式能力快照或历史 capabilities JSON 恢复 EdgeCapability，供列表、详情和只读接口复用。
         /// </summary>
         /// <param name="node">EdgeNode 持久化实体。</param>
-        /// <param name="attrs">兼容旧属性键中的能力字段。</param>
         /// <returns>归一化后的 EdgeCapability 快照。</returns>
-        private static EdgeCapabilityDto ToEdgeCapabilityDto(EdgeNode node, List<AttributeLatest> attrs)
+        private static EdgeCapabilityDto ToEdgeCapabilityDto(EdgeNode node)
         {
-            var raw = Coalesce(node.Capabilities, GetString(attrs, Constants._EdgeCapabilities));
+            var raw = node.Capabilities ?? string.Empty;
             var capability = DeserializeEdgeCapabilityDto(raw) ?? new EdgeCapabilityDto();
             var protocols = NormalizeStringList(capability.Protocols);
             var supportedProtocols = NormalizeProtocolTypes(capability.SupportedProtocols, protocols);
@@ -972,17 +998,17 @@ namespace IoTSharp.Controllers
 
             var metadata = capability.Metadata is { Count: > 0 }
                 ? capability.Metadata
-                : DeserializeObjectMap(Coalesce(node.Metadata, GetString(attrs, Constants._EdgeMetadata)));
+                : DeserializeObjectMap(node.Metadata ?? string.Empty);
 
             return capability with
             {
                 ContractVersion = Coalesce(capability.ContractVersion, EdgeNodeContractVersions.EdgeCapabilityV1),
                 EdgeNodeId = node.Id,
                 GatewayId = node.GatewayId,
-                RuntimeType = Coalesce(capability.RuntimeType, Coalesce(node.RuntimeType, GetString(attrs, Constants._EdgeRuntimeType))),
-                RuntimeName = Coalesce(capability.RuntimeName, Coalesce(node.RuntimeName, GetString(attrs, Constants._EdgeRuntimeName))),
-                Version = Coalesce(capability.Version, Coalesce(node.Version, GetString(attrs, Constants._EdgeVersion))),
-                InstanceId = Coalesce(capability.InstanceId, Coalesce(node.InstanceId, GetString(attrs, Constants._EdgeInstanceId))),
+                RuntimeType = Coalesce(capability.RuntimeType, node.RuntimeType ?? string.Empty),
+                RuntimeName = Coalesce(capability.RuntimeName, node.RuntimeName ?? string.Empty),
+                Version = Coalesce(capability.Version, node.Version ?? string.Empty),
+                InstanceId = Coalesce(capability.InstanceId, node.InstanceId ?? string.Empty),
                 UpdatedAt = capability.UpdatedAt ?? node.UpdatedAt,
                 Protocols = protocols,
                 SupportedProtocols = supportedProtocols,
@@ -1229,15 +1255,9 @@ namespace IoTSharp.Controllers
                 : source.OrderBy(keySelector).ThenBy(edge => edge.Name).ToList();
         }
 
-        private static string GetString(List<AttributeLatest> attrs, string key) => attrs.FirstOrDefault(c => c.KeyName == key)?.Value_String;
-
         private static string Coalesce(string primary, string fallback) => string.IsNullOrWhiteSpace(primary) ? fallback : primary;
 
         private static bool GetBoolean(List<AttributeLatest> attrs, string key) => attrs.FirstOrDefault(c => c.KeyName == key)?.Value_Boolean ?? false;
-
-        private static bool? GetNullableBoolean(List<AttributeLatest> attrs, string key) => attrs.FirstOrDefault(c => c.KeyName == key)?.Value_Boolean;
-
-        private static long? GetNullableLong(List<AttributeLatest> attrs, string key) => attrs.FirstOrDefault(c => c.KeyName == key)?.Value_Long;
 
         private static DateTime? GetDateTime(List<AttributeLatest> attrs, string key) => attrs.FirstOrDefault(c => c.KeyName == key)?.Value_DateTime;
 
@@ -1380,6 +1400,22 @@ namespace IoTSharp.Controllers
             }
 
             return JsonSerializer.Serialize(value);
+        }
+
+        /// <summary>
+        /// Edge 列表所需的最近任务摘要，来源于正式 EdgeTask 模型。
+        /// </summary>
+        private sealed class EdgeTaskSummary
+        {
+            /// <summary>
+            /// 最近任务状态。
+            /// </summary>
+            public string Status { get; set; }
+
+            /// <summary>
+            /// 最近一次正式回执上报时间。
+            /// </summary>
+            public DateTime? LastReceiptAt { get; set; }
         }
 
         /// <summary>

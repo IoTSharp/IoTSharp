@@ -106,10 +106,10 @@ M2 的目标是把现有 Edge 第一版能力从属性键和临时 DTO 沉淀为
 | --- | --- | --- | --- | --- |
 | #020 | `✅️` | EdgeRuntimeStatus | 平台 | 已新增 `edge-runtime-status-v1`、`EdgeRuntimeStatusDto`、EdgeNode 内嵌 runtimeStatus 和 `/api/Edge/{id}/RuntimeStatus` 只读接口，覆盖注册、心跳、版本、实例、主机、健康和低频指标模型。 |
 | #021 | `✅️` | EdgeCapability | 平台 | 已新增 `edge-capability-v1`、`EdgeCapabilityDto`、EdgeNode 内嵌 capability 和 `/api/Edge/{id}/Capability` 只读接口，覆盖协议、点位类型、转换能力、任务能力和合同版本兼容模型。 |
-| #022 | `✅️` | EdgeTask | 平台 | 已新增正式 `EdgeTask` 主模型、`EdgeTasks` 迁移和 `EdgeTaskDto` 状态快照；Dispatch/Pull/Accept/Receipt 以正式表为主存储，并保留 AttributeLatest/TelemetryData 兼容副本。 |
-| #023 | `✅️` | EdgeTaskReceipt | 平台 | 已新增正式 `EdgeTaskReceipt` 历史模型和 `EdgeTaskReceipts` 迁移；Receipt/Accept 写入正式回执表并同步 EdgeTask 当前态、AttributeLatest 和 TelemetryData 兼容副本。 |
+| #022 | `✅️` | EdgeTask | 平台 | 已新增正式 `EdgeTask` 主模型、`EdgeTasks` 迁移和 `EdgeTaskDto` 状态快照；Dispatch/Pull/Accept/Receipt 以正式表承载任务当前态。 |
+| #023 | `✅️` | EdgeTaskReceipt | 平台 | 已新增正式 `EdgeTaskReceipt` 历史模型和 `EdgeTaskReceipts` 迁移；Receipt/Accept 写入正式回执表并同步 EdgeTask 当前态。 |
 | #024 | `✅️` | EdgeCollectionAssignment | 平台 | 已新增正式 `EdgeCollectionAssignment` 模型、`EdgeCollectionAssignments` 迁移和 `EdgeCollectionAssignmentDto`；保存 CollectionConfig 时生成 Active 分配，旧版本转 Superseded，执行端拉取时记录 `lastPulledAt`，并提供 `/api/Edge/CollectionAssignments` 与 `/api/Edge/{id}/CollectionAssignments` 查询。 |
-| #025 | `⬜` | Edge API 改造 | 平台 | 查询状态、能力、任务、回执和历史时使用正式模型；任务状态流转不再以 AttributeLatest/TelemetryData 作为主存储。 |
+| #025 | `✅️` | Edge API 改造 | 平台 | 状态和能力查询从 EdgeNode 正式模型生成；任务、回执和历史查询使用 `EdgeTask`/`EdgeTaskReceipt`；任务状态流转不再写入或回退到 AttributeLatest/TelemetryData 主存储。 |
 | #026 | `⬜` | Edge 前端改造 | 平台 | Edge 详情页展示正式状态、能力、任务历史和配置分配。 |
 | #027 | `⬜` | 跨仓契约固化 | 平台 | `edge-node-v1`、`collection-config-v1`、`edge-task-v1` 契约（JSON Schema + DTO）进入 `IoTSharp.Contracts` 并版本化发布；IoTEdge 切换为契约包消费者；双方路线图互相引用。 |
 | #028 | `⬜` | IoTEdge 任务回执转正 | 边缘 | 将参考实现级的任务回执组件升级为正式常驻 Worker，遵循 #027 契约，覆盖 Accepted/Running/Succeeded/Failed/TimedOut 全状态回执。 |
@@ -238,7 +238,7 @@ Tomur 是矩阵的 AI 底座：离线或内网环境下，平台的 AI 横切能
 | #903 | `🗑️` | Scene 作为独立核心领域 | 已收口到 Asset View 后续建设，不再维护独立 Scene 领域、菜单或页面。 |
 | #904 | `🗑️` | Product 上的 Gateway 旧配置 | 按 #018 方案迁移到 Collection Template，正式落表和发布闭环分别归 #030 与 #040 之后推进。 |
 | #905 | `🗑️` | Device 作为业务层级或发布范围替代品 | 停止扩展。 |
-| #906 | `🗑️` | EdgeTask 状态以 AttributeLatest/TelemetryData 为主存储 | 临时方案，M2 #025 完成后停止使用。 |
+| #906 | `🗑️` | EdgeTask 状态以 AttributeLatest/TelemetryData 为主存储 | 已随 M2 #025 停止作为 API 查询和状态流转主路径。 |
 
 ## 后续池
 
