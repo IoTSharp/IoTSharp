@@ -8,6 +8,10 @@
 		<PackageReference Include="DotNetDiag.HealthChecks.NpgSql" />
 		<PackageReference Include="DotNetDiag.HealthChecks.UI.PostgreSQL.Storage" />
 		<PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore.Design">
+		  <PrivateAssets>all</PrivateAssets>
+		  <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+		</PackageReference>
 		<PackageReference Include="Microsoft.Extensions.Diagnostics.HealthChecks" />
 	</ItemGroup>
 

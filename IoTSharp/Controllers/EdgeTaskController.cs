@@ -279,11 +279,19 @@ namespace IoTSharp.Controllers
                 return new ApiResult<List<EdgeTaskRequestDto>>(ApiCode.NotFoundDevice, "gateway access token not found", null);
             }
 
-            var records = await _context.TelemetryData
-                .Where(item => item.DeviceId == gateway.Id && item.KeyName.StartsWith(EdgeTaskHistoryKeyPrefix) && item.KeyName.EndsWith(".request"))
-                .OrderBy(item => item.DateTime)
-                .Take(Math.Clamp(take, 1, 50))
+            var takeCount = Math.Clamp(take, 1, 50);
+            var recentTaskHistory = await _context.TelemetryData
+                .Where(item => item.DeviceId == gateway.Id)
+                .OrderByDescending(item => item.DateTime)
+                .Take(500)
                 .ToListAsync();
+
+            var records = recentTaskHistory
+                .Where(item => item.KeyName.StartsWith(EdgeTaskHistoryKeyPrefix, StringComparison.Ordinal)
+                    && item.KeyName.EndsWith(".request", StringComparison.Ordinal))
+                .OrderBy(item => item.DateTime)
+                .Take(takeCount)
+                .ToList();
 
             var tasks = new List<EdgeTaskRequestDto>();
             foreach (var record in records)
@@ -295,11 +303,11 @@ namespace IoTSharp.Controllers
                     continue;
                 }
 
-                var latestReceiptStatus = await _context.TelemetryData
+                var latestReceipt = await _context.TelemetryData
                     .Where(item => item.DeviceId == gateway.Id && item.KeyName == $"{EdgeTaskHistoryKeyPrefix}{task.TaskId:N}.receipt")
                     .OrderByDescending(item => item.DateTime)
-                    .Select(item => item.Value_Json)
                     .FirstOrDefaultAsync();
+                var latestReceiptStatus = latestReceipt?.Value_Json;
 
                 if (string.IsNullOrWhiteSpace(latestReceiptStatus) || latestReceiptStatus is nameof(EdgeTaskStatus.Pending) or nameof(EdgeTaskStatus.Sent))
                 {
@@ -521,11 +529,15 @@ namespace IoTSharp.Controllers
         /// <returns>最近一次状态；未找到任务历史时返回空。</returns>
         private async System.Threading.Tasks.Task<EdgeTaskStatus?> GetLatestTaskStatusAsync(Guid deviceId, Guid taskId)
         {
-            var status = await _context.TelemetryData
-                .Where(item => item.DeviceId == deviceId && item.KeyName.StartsWith($"{EdgeTaskHistoryKeyPrefix}{taskId:N}."))
+            var keyPrefix = $"{EdgeTaskHistoryKeyPrefix}{taskId:N}.";
+            var status = (await _context.TelemetryData
+                .Where(item => item.DeviceId == deviceId)
                 .OrderByDescending(item => item.DateTime)
+                .Take(500)
+                .ToListAsync())
+                .Where(item => item.KeyName.StartsWith(keyPrefix, StringComparison.Ordinal))
                 .Select(item => item.Value_Json)
-                .FirstOrDefaultAsync();
+                .FirstOrDefault();
 
             return Enum.TryParse<EdgeTaskStatus>(status, true, out var parsed) ? parsed : null;
         }

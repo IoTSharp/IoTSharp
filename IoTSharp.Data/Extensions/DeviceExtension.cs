@@ -1,4 +1,4 @@
-﻿using IoTSharp.Contracts;
+using IoTSharp.Contracts;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -29,13 +29,13 @@ namespace IoTSharp.Data.Extensions
                 {
                     { "CreateDateTime", DateTime.UtcNow }
                 };
-                Produce prod = null;
+                Product prod = null;
                 if (prodId != null && prodId != Guid.Empty)
                 {
-                    prod = _context.Produces.Include(p => p.DefaultAttributes).FirstOrDefault(p => p.Id == prodId);
+                    prod = _context.Products.Include(p => p.DefaultAttributes).FirstOrDefault(p => p.Id == prodId);
                     if (prod != null)
                     {
-                        device.Produce = prod;
+                        device.Product = prod;
                         device.DeviceType = prod.DefaultDeviceType;
                         device.Timeout = prod.DefaultTimeout;
                         prod.Devices ??= [];
@@ -77,15 +77,15 @@ namespace IoTSharp.Data.Extensions
             }
             else
             {
-                var prod = _context.Produces.Include(p => p.DefaultAttributes).FirstOrDefault(p => p.Id == prodId);
+                var prod = _context.Products.Include(p => p.DefaultAttributes).FirstOrDefault(p => p.Id == prodId);
                 if (prod != null)
                 {
-                    device.Produce = prod;
+                    device.Product = prod;
                     device.DeviceType = prod.DefaultDeviceType;
                     device.Timeout = prod.DefaultTimeout;
                     prod.Devices ??= [];
                     prod.Devices.Add(device);
-                    _context.PrepareNewAttributeLatest(prod.DefaultAttributes ?? new List<ProduceData>(), device.Id);
+                    _context.PrepareNewAttributeLatest(prod.DefaultAttributes ?? new List<ProductData>(), device.Id);
                 }
 
                 var identity = new DeviceIdentity
@@ -103,7 +103,7 @@ namespace IoTSharp.Data.Extensions
             }
         }
 
-        public static DeviceIdentity EnsureDeviceIdentity(this ApplicationDbContext _context, Device device, IdentityType identityType, Produce produce = null)
+        public static DeviceIdentity EnsureDeviceIdentity(this ApplicationDbContext _context, Device device, IdentityType identityType, Product product = null)
         {
             if (device == null)
             {
@@ -126,13 +126,13 @@ namespace IoTSharp.Data.Extensions
             identity.IdentityType = identityType;
             switch (identityType)
             {
-                case IdentityType.ProduceToken:
-                    produce ??= device.Produce;
-                    if (produce == null)
+                case IdentityType.ProductToken:
+                    product ??= device.Product;
+                    if (product == null)
                     {
-                        produce = _context.Device
-                            .Where(d => d.Id == device.Id && d.Produce != null && d.Produce.Deleted == false)
-                            .Select(d => d.Produce)
+                        product = _context.Device
+                            .Where(d => d.Id == device.Id && d.Product != null && d.Product.Deleted == false)
+                            .Select(d => d.Product)
                             .FirstOrDefault();
                     }
 
@@ -141,13 +141,13 @@ namespace IoTSharp.Data.Extensions
                         throw new Exception("Device name is required for product token authentication.");
                     }
 
-                    if (produce == null || string.IsNullOrWhiteSpace(produce.ProduceToken))
+                    if (product == null || string.IsNullOrWhiteSpace(product.ProductToken))
                     {
                         throw new Exception("Product token is required for product token authentication.");
                     }
 
                     identity.IdentityId = device.Name;
-                    identity.IdentityValue = produce.ProduceToken;
+                    identity.IdentityValue = product.ProductToken;
                     break;
                 case IdentityType.DevicePassword:
                     if (string.IsNullOrWhiteSpace(device.Name))
@@ -181,19 +181,19 @@ namespace IoTSharp.Data.Extensions
             return identity;
         }
 
-        public static IdentityType ResolveProductDefaultIdentityType(Produce produce)
+        public static IdentityType ResolveProductDefaultIdentityType(Product product)
         {
-            if (produce == null)
+            if (product == null)
             {
                 return IdentityType.AccessToken;
             }
 
-            return produce.DefaultIdentityType == IdentityType.DevicePassword
-                ? IdentityType.ProduceToken
-                : produce.DefaultIdentityType;
+            return product.DefaultIdentityType == IdentityType.DevicePassword
+                ? IdentityType.ProductToken
+                : product.DefaultIdentityType;
         }
 
-        private static void PrepareNewAttributeLatest(this ApplicationDbContext context, IEnumerable<ProduceData> attributes, Guid deviceId)
+        private static void PrepareNewAttributeLatest(this ApplicationDbContext context, IEnumerable<ProductData> attributes, Guid deviceId)
         {
             if (attributes == null)
             {

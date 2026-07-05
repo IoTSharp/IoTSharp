@@ -76,7 +76,7 @@ import { reactive, ref } from "vue";
 import { v4 as uuidv4, NIL as NIL_UUID } from "uuid";
 import { ElMessage } from "element-plus";
 
-import { editProduceDictionary, getProduceDictionary } from "/@/api/produce";
+import { editProductDictionary, getProductDictionary } from "/@/api/product";
 import { datacatalogs, datatypes, funcodes } from "../../models/constants";
 import { opcuamapping } from "../../models/opcuamapping";
 interface TableHeader {

@@ -8,9 +8,9 @@ using System.Threading.Tasks;
 namespace IoTSharp.Data
 {
 
-    public class ProduceData : DataStorage
+    public class ProductData : DataStorage
     {
         [System.Text.Json.Serialization.JsonIgnore]
-        public Produce Owner { get; set; }
+        public Product Owner { get; set; }
     }
 }

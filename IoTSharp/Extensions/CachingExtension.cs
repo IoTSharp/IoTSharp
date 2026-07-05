@@ -1,4 +1,4 @@
-﻿using EasyCaching.Core;
+using EasyCaching.Core;
 using IoTSharp.Contracts;
 using IoTSharp.Data;
 using IoTSharp.Dtos;
@@ -34,7 +34,7 @@ namespace IoTSharp.Extensions
                 var tuc = from t in _context.UserClaims where t.ClaimType == IoTSharpClaimTypes.Tenant && t.ClaimValue == tenantValue select t;
                 var uq = from u in _context.Users where tuc.Any(c => c.UserId == u.Id) select u;
                 m.UserCount = uq.Count();
-                m.ProduceCount = _context.Produces.Count(c => c.Tenant.Id == tid && !c.Deleted);
+                m.ProductCount = _context.Products.Count(c => c.Tenant.Id == tid && !c.Deleted);
                 m.RulesCount = _context.FlowRules.Count(c => c.Tenant.Id == tid && c.RuleStatus > -1);
                 return m;
             }, KanbanCacheDuration);
@@ -106,15 +106,15 @@ namespace IoTSharp.Extensions
             m.UserCount = userResult.Value;
             allSucceeded &= userResult.Success;
 
-            var produceResult = await ExecuteKanbanQueryAsync(
-                "ProduceCount",
-                token => _context.Produces.CountAsync(c => c.Tenant.Id == tid && !c.Deleted, token),
-                fallback.ProduceCount,
+            var productResult = await ExecuteKanbanQueryAsync(
+                "ProductCount",
+                token => _context.Products.CountAsync(c => c.Tenant.Id == tid && !c.Deleted, token),
+                fallback.ProductCount,
                 tid,
                 cancellationToken,
                 logger).ConfigureAwait(false);
-            m.ProduceCount = produceResult.Value;
-            allSucceeded &= produceResult.Success;
+            m.ProductCount = productResult.Value;
+            allSucceeded &= productResult.Success;
 
             var rulesResult = await ExecuteKanbanQueryAsync(
                 "RulesCount",

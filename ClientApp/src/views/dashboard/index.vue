@@ -307,7 +307,7 @@ interface KanbanData {
 	deviceCount: number;
 	alarmsCount: number;
 	userCount: number;
-	produceCount: number;
+	ProductCount: number;
 	rulesCount: number;
 }
 
@@ -371,7 +371,7 @@ const { routesList } = storeToRefs(storesRoutesList);
 const loading = ref(false);
 const lastUpdated = ref<Date | null>(null);
 const healthEntries = ref<HealthEntry[]>([]);
-const kanban = ref<KanbanData>({ eventCount: 0, onlineDeviceCount: 0, attributesDataCount: 0, deviceCount: 0, alarmsCount: 0, userCount: 0, produceCount: 0, rulesCount: 0 });
+const kanban = ref<KanbanData>({ eventCount: 0, onlineDeviceCount: 0, attributesDataCount: 0, deviceCount: 0, alarmsCount: 0, userCount: 0, ProductCount: 0, rulesCount: 0 });
 const messageMetrics = ref<MessageMetrics>({
 	servers: 0,
 	subscribers: 0,
@@ -451,7 +451,7 @@ const operationalNotices = computed(() => [
 	{ label: '离线设备', value: formatCount(offlineDevices.value), hint: offlineDevices.value > 0 ? '建议优先核查最近掉线设备' : '当前没有离线设备需要处理' },
 	{ label: '失败消息', value: formatCount(messageFailureTotal.value), hint: messageFailureTotal.value > 0 ? '需要检查失败波峰时段' : '最近消息处理稳定' },
 	{ label: '消息节点', value: formatCount(messageMetrics.value.servers), hint: `订阅客户端 ${formatCount(messageMetrics.value.subscribers)}` },
-	{ label: '规则规模', value: formatCount(kanban.value.rulesCount), hint: `产品模型 ${formatCount(kanban.value.produceCount)} 个` },
+	{ label: '规则规模', value: formatCount(kanban.value.rulesCount), hint: `产品模型 ${formatCount(kanban.value.ProductCount)} 个` },
 ]);
 
 const systemScoreCard = computed(() => {
@@ -468,7 +468,7 @@ const summaryCards = computed(() => {
 		eventCount: kanban.value.eventCount,
 		alarmsCount: kanban.value.alarmsCount,
 		userCount: kanban.value.userCount,
-		produceCount: kanban.value.produceCount,
+		ProductCount: kanban.value.ProductCount,
 		rulesCount: kanban.value.rulesCount,
 	};
 	const hints: Record<HomeCardMetricKey, string> = {
@@ -478,8 +478,8 @@ const summaryCards = computed(() => {
 		eventCount: `规则规模 ${formatCount(kanban.value.rulesCount)}`,
 		alarmsCount: `告警覆盖率 ${percentText(alarmRate.value)}`,
 		userCount: `人均管理 ${averageText(kanban.value.deviceCount, kanban.value.userCount)} 台`,
-		produceCount: `覆盖设备 ${averageText(kanban.value.deviceCount, kanban.value.produceCount)} 台`,
-		rulesCount: `每产品规则 ${averageText(kanban.value.rulesCount, kanban.value.produceCount)}`,
+		ProductCount: `覆盖设备 ${averageText(kanban.value.deviceCount, kanban.value.ProductCount)} 台`,
+		rulesCount: `每产品规则 ${averageText(kanban.value.rulesCount, kanban.value.ProductCount)}`,
 	};
 	return homeCardItemsConfig.slice(0, 4).map((item) => ({ ...item, value: formatCount(values[item.key]), hint: hints[item.key] }));
 });
@@ -495,7 +495,7 @@ const systemOverviewItems = computed(() => [
 	{ label: '消息节点', value: formatCount(messageMetrics.value.servers), hint: '消息服务器实例数' },
 	{ label: '订阅客户端', value: formatCount(messageMetrics.value.subscribers), hint: '当前订阅终端规模' },
 	{ label: '规则总数', value: formatCount(kanban.value.rulesCount), hint: '自动化流程与联动' },
-	{ label: '产品模型', value: formatCount(kanban.value.produceCount), hint: '设备模型与模板' },
+	{ label: '产品模型', value: formatCount(kanban.value.ProductCount), hint: '设备模型与模板' },
 	{ label: '系统用户', value: formatCount(kanban.value.userCount), hint: '协同管理成员数' },
 	{ label: '事件总量', value: formatCount(kanban.value.eventCount), hint: '近 24 小时平台事件' },
 ]);
@@ -503,7 +503,7 @@ const systemOverviewItems = computed(() => [
 const resourceHighlights = computed(() => [
 	{ label: '设备规模', value: formatCount(kanban.value.deviceCount), hint: '当前纳管终端总量', color: '#165dff' },
 	{ label: '在线终端', value: formatCount(kanban.value.onlineDeviceCount), hint: '处于活跃连接的设备', color: '#00b42a' },
-	{ label: '产品模型', value: formatCount(kanban.value.produceCount), hint: '设备模板与模型沉淀', color: '#0fc6c2' },
+	{ label: '产品模型', value: formatCount(kanban.value.ProductCount), hint: '设备模板与模型沉淀', color: '#0fc6c2' },
 	{ label: '规则总数', value: formatCount(kanban.value.rulesCount), hint: '联动与自动化编排能力', color: '#722ed1' },
 	{ label: '系统用户', value: formatCount(kanban.value.userCount), hint: '协同管理的成员规模', color: '#3491fa' },
 	{ label: '告警设备', value: formatCount(kanban.value.alarmsCount), hint: '当前需要重点跟进的范围', color: '#ff7d00' },
@@ -733,7 +733,7 @@ function renderCharts() {
 			data: [
 				{ value: kanban.value.deviceCount, itemStyle: { color: '#165dff' } },
 				{ value: kanban.value.onlineDeviceCount, itemStyle: { color: '#00b42a' } },
-				{ value: kanban.value.produceCount, itemStyle: { color: '#0fc6c2' } },
+				{ value: kanban.value.ProductCount, itemStyle: { color: '#0fc6c2' } },
 				{ value: kanban.value.rulesCount, itemStyle: { color: '#722ed1' } },
 				{ value: kanban.value.userCount, itemStyle: { color: '#3491fa' } },
 				{ value: kanban.value.alarmsCount, itemStyle: { color: '#ff7d00' } },

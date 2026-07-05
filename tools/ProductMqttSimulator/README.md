@@ -16,7 +16,7 @@ dotnet run --project tools/ProductMqttSimulator -- `
 
 ```powershell
 dotnet run --project tools/ProductMqttSimulator -- `
-  --produce-token "<product-token>" `
+  --product-token "<product-token>" `
   --device-name sim-device-001 `
   --mqtt-host 10.165.83.194 `
   --mqtt-port 1883

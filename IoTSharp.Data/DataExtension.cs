@@ -30,23 +30,23 @@ namespace IoTSharp.Data
         }
 
         /// <summary>
-        /// Find a product (Produce) by its ProduceToken, including its Customer, Tenant and Devices.
-        /// Returns (ok=true, null) when not found; (ok=false, produce) when found.
+        /// Find a product (Product) by its ProductToken, including its Customer, Tenant and Devices.
+        /// Returns (ok=true, null) when not found; (ok=false, Product) when found.
         /// </summary>
-        public static (bool ok, Produce produce) GetProduceByToken(this ApplicationDbContext _context, string produce_token)
+        public static (bool ok, Product Product) GetProductByToken(this ApplicationDbContext _context, string product_token)
         {
-            if (string.IsNullOrEmpty(produce_token))
+            if (string.IsNullOrEmpty(product_token))
             {
                 return (true, null);
             }
 
-            var produce = _context.Produces
+            var Product = _context.Products
                 .Include(p => p.Customer)
                 .Include(p => p.Tenant)
                 .Include(p => p.Devices)
-                .FirstOrDefault(p => p.ProduceToken == produce_token && p.ProduceToken != null && p.Deleted == false);
-            bool ok = produce == null;
-            return (ok, produce);
+                .FirstOrDefault(p => p.ProductToken == product_token && p.ProductToken != null && p.Deleted == false);
+            bool ok = Product == null;
+            return (ok, Product);
         }
         /// <summary>
         /// Save Data to Device's and <typeparamref name="L"/>
@@ -135,7 +135,7 @@ namespace IoTSharp.Data
             return exceptions;
         }
 
-        public static Dic PreparingData<L>(this ApplicationDbContext _context, List<ProduceData> attributes, Guid deviceId)
+        public static Dic PreparingData<L>(this ApplicationDbContext _context, List<ProductData> attributes, Guid deviceId)
          where L : DataStorage, new()
         {
             Dic exceptions = new Dic();

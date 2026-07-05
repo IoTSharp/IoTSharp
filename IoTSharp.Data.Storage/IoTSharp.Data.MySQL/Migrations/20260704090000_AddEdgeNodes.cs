@@ -17,17 +17,17 @@ namespace IoTSharp.Data.MySQL.Migrations
                 name: "EdgeNodes",
                 columns: table => new
                 {
-                    Id = table.Column<Guid>(nullable: false),
-                    GatewayId = table.Column<Guid>(nullable: false),
+                    Id = table.Column<Guid>(type: "char(36)", nullable: false, collation: "ascii_general_ci"),
+                    GatewayId = table.Column<Guid>(type: "char(36)", nullable: false, collation: "ascii_general_ci"),
                     Name = table.Column<string>(nullable: true),
-                    RuntimeType = table.Column<string>(nullable: true),
+                    RuntimeType = table.Column<string>(type: "varchar(255)", nullable: true),
                     RuntimeName = table.Column<string>(nullable: true),
                     Version = table.Column<string>(nullable: true),
-                    InstanceId = table.Column<string>(nullable: true),
+                    InstanceId = table.Column<string>(type: "varchar(255)", nullable: true),
                     Platform = table.Column<string>(nullable: true),
                     HostName = table.Column<string>(nullable: true),
                     IpAddress = table.Column<string>(nullable: true),
-                    Status = table.Column<string>(nullable: true),
+                    Status = table.Column<string>(type: "varchar(255)", nullable: true),
                     Healthy = table.Column<bool>(nullable: true),
                     UptimeSeconds = table.Column<long>(nullable: true),
                     LastRegistrationDateTime = table.Column<DateTime>(nullable: true),
@@ -38,8 +38,8 @@ namespace IoTSharp.Data.MySQL.Migrations
                     Deleted = table.Column<bool>(nullable: false),
                     CreatedAt = table.Column<DateTime>(nullable: false),
                     UpdatedAt = table.Column<DateTime>(nullable: false),
-                    TenantId = table.Column<Guid>(nullable: true),
-                    CustomerId = table.Column<Guid>(nullable: true)
+                    TenantId = table.Column<Guid>(type: "char(36)", nullable: true, collation: "ascii_general_ci"),
+                    CustomerId = table.Column<Guid>(type: "char(36)", nullable: true, collation: "ascii_general_ci")
                 },
                 constraints: table =>
                 {

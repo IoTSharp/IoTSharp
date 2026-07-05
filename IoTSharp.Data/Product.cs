@@ -1,4 +1,4 @@
-﻿using IoTSharp.Contracts;
+using IoTSharp.Contracts;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace IoTSharp.Data
 {
-    public class Produce
+    public class Product
     {
         [Key]
         public Guid Id { get; set; } = Guid.NewGuid();
@@ -57,7 +57,7 @@ namespace IoTSharp.Data
         /// <summary>
         /// 默认属性
         /// </summary>
-        public List<ProduceData> DefaultAttributes { get; set; }
+        public List<ProductData> DefaultAttributes { get; set; }
         /// <summary>
         /// 所属设备
         /// </summary>
@@ -69,8 +69,8 @@ namespace IoTSharp.Data
         /// <summary>
         /// 产品字典
         /// </summary>
-        public List<ProduceDictionary> Dictionaries { get; set; }
-        public string ProduceToken { get; set; }
+        public List<ProductDictionary> Dictionaries { get; set; }
+        public string ProductToken { get; set; }
 
         public bool Deleted { get; set; }
 

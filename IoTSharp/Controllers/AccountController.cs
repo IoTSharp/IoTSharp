@@ -1,4 +1,4 @@
-﻿using IoTSharp.Contracts;
+using IoTSharp.Contracts;
 using IoTSharp.Controllers.Models;
 using IoTSharp.Data;
 using IoTSharp.Dtos;

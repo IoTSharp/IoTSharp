@@ -84,7 +84,7 @@ export default defineComponent({
     const state = reactive<deviceform>({
       drawer: false,
       dialogtitle: '',
-      identityTypes: ['AccessToken','DevicePassword','ProduceToken','X509Certificate'],
+      identityTypes: ['AccessToken','DevicePassword','ProductToken','X509Certificate'],
       deviceTypes: ['Device','Gateway'],
       dataForm: {
         id: '0000000-0000-0000-0000-000000000000',

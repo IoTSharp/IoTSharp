@@ -35,38 +35,38 @@ namespace IoTSharp.Test
         public Task AppDevicesCreate() => _fixture.AssertAppDevicesCreateAsync();
 
         [Fact]
-        public async Task Produces_UpdatePersistsDefaultDeviceType()
+        public async Task products_UpdatePersistsDefaultDeviceType()
         {
             using var client = _fixture.CreateClient();
             await _fixture.AuthorizeClientAsync(client);
 
-            var produceName = $"product-type-{Guid.NewGuid():N}";
-            var produceToken = $"pt-{Guid.NewGuid():N}";
-            var saveProduce = await client.PostAsJsonAsync("/api/Produces/Save", new ProduceAddDto
+            var productName = $"product-type-{Guid.NewGuid():N}";
+            var ProductToken = $"pt-{Guid.NewGuid():N}";
+            var saveProduct = await client.PostAsJsonAsync("/api/Products/Save", new ProductAddDto
             {
-                Name = produceName,
+                Name = productName,
                 Description = "product default type update test",
-                ProduceToken = produceToken,
+                ProductToken = ProductToken,
                 DefaultDeviceType = DeviceType.Gateway,
-                DefaultIdentityType = IdentityType.ProduceToken,
+                DefaultIdentityType = IdentityType.ProductToken,
                 DefaultTimeout = 30,
                 GatewayConfiguration = string.Empty
             });
-            var saved = await ReadApiResultAsync<bool>(saveProduce);
+            var saved = await ReadApiResultAsync<bool>(saveProduct);
             Assert.Equal((int)ApiCode.Success, saved.Code);
 
-            var listed = await GetApiResultAsync<PagedData<ProduceDto>>(client,
-                $"/api/Produces/List?offset=0&limit=10&name={Uri.EscapeDataString(produceName)}");
-            var produce = Assert.Single(listed.Data!.rows, p => p.Name == produceName);
+            var listed = await GetApiResultAsync<PagedData<ProductDto>>(client,
+                $"/api/Products/List?offset=0&limit=10&name={Uri.EscapeDataString(productName)}");
+            var product = Assert.Single(listed.Data!.rows, p => p.Name == productName);
 
-            var update = await client.PutAsJsonAsync("/api/Produces/Update", new ProduceAddDto
+            var update = await client.PutAsJsonAsync("/api/Products/Update", new ProductAddDto
             {
-                Id = produce.Id,
-                Name = produceName,
+                Id = product.Id,
+                Name = productName,
                 Description = "product default type update test",
-                ProduceToken = produceToken,
+                ProductToken = ProductToken,
                 DefaultDeviceType = DeviceType.Device,
-                DefaultIdentityType = IdentityType.ProduceToken,
+                DefaultIdentityType = IdentityType.ProductToken,
                 DefaultTimeout = 45,
                 GatewayConfiguration = string.Empty
             });
@@ -74,7 +74,7 @@ namespace IoTSharp.Test
             Assert.Equal((int)ApiCode.Success, updated.Code);
             Assert.True(updated.Data);
 
-            var detail = await GetApiResultAsync<ProduceAddDto>(client, $"/api/Produces/Get?id={produce.Id}");
+            var detail = await GetApiResultAsync<ProductAddDto>(client, $"/api/Products/Get?id={product.Id}");
             Assert.Equal(DeviceType.Device, detail.Data!.DefaultDeviceType);
             Assert.Equal(45, detail.Data.DefaultTimeout);
         }

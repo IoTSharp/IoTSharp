@@ -56,7 +56,7 @@ Product 不负责：
 - 命令执行记录。
 - 站点、产线、车间等业务层级。
 
-旧 `Produce` 概念应改为 Product。`ProduceToken` 改为 `ProductToken`。
+旧 `Produce` 概念已直接迁移为 Product。`ProduceToken` 已改为 `ProductToken`。
 
 ### Device
 
@@ -206,17 +206,17 @@ Tomur 在这个体系里的角色是模型算力 Provider：
 
 ### 直接改名或迁移
 
-- `Produce` 改为 Product。
-- `ProduceToken` 改为 `ProductToken`。
-- 前端 `produce` 目录和 API 模块改为 `product`。
+- `Product` 改为 Product。
+- `ProductToken` 改为 `ProductToken`。
+- 前端 `Product` 目录和 API 模块改为 `product`。
 - 文档、菜单、按钮、DTO 和新 API 统一使用 Product。
 
-范围控制：存量 `Produce` API 冻结为兼容实现细节，只保证新增面统一使用 Product，不做存量全量重命名（详见 ROADMAP M1 说明）。
+范围控制：存量 `Product` API 冻结为兼容实现细节，只保证新增面统一使用 Product，不做存量全量重命名（详见 ROADMAP M1 说明）。
 
 ### 合并
 
 - `DeviceModel` 合并到 Product 的能力、命令和配置定义。
-- Product/Produce 上的旧 Gateway 配置合并到 Collection Template。
+- Product 上的旧 Gateway 配置合并到 Collection Template。
 - Scene 如果只是规则链或资产视图包装，合并到 RuleChain View 或 Asset View。
 
 ### 废弃
@@ -284,13 +284,13 @@ Edge 页面围绕运行时闭环组织：
 
 目标：
 
-- Product 正式替代 Produce（新增面）。
+- Product 正式替代旧 Produce。
 - 删除、合并或废弃重复旧概念。
 - 统一菜单、DTO、文档和接口命名。
 
 交付：
 
-- Product 命名迁移清单。
+- Produce 命名迁移清单。
 - DeviceModel 合并方案。
 - 旧 DeviceGraph/DeviceDiagram/Scene 处理方案。
 - Product、Device、Asset、Gateway、EdgeNode、Collection Template 页面职责说明。
@@ -423,9 +423,9 @@ Edge 页面围绕运行时闭环组织：
 
 ## 当前第一批任务
 
-1. 制定 Product 命名迁移清单（#011）。
-2. 将前端产品工作台从 `produce` 目录迁移到 `product`（#013）。
-3. 新增 Product API 命名，替换 Produce API 命名（#012）。
+1. 制定 Produce 命名迁移清单（#011）。
+2. 将前端产品工作台从 `Product` 目录迁移到 `product`（#013）。
+3. 新增 Product API 命名，替换旧 Produce API 命名（#012）。
 4. 梳理 `DeviceModel`、`DeviceGraph`、`DeviceDiagram` 和 Scene 的引用，决定合并或废弃（#015~#017）。
 5. M2 预研：EdgeTask、EdgeTaskReceipt、EdgeCapability、EdgeRuntimeStatus 和 EdgeCollectionAssignment 设计（#020~#024），以及 `edge-node-v1`/`collection-config-v1`/`edge-task-v1` 契约草案（#027）。
 6. M3 前置：semantic-core 收敛决策材料准备（#029）——盘点 `semantic-core.v1.schema.json`、CollectionTask 草稿 DTO 与 IoTEdge 本地采集模型的差异。

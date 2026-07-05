@@ -54,7 +54,7 @@ namespace IoTSharp.Data
         public Guid? DeviceModelId { get; set; }
 
         [System.Text.Json.Serialization.JsonIgnore]
-        public Produce Produce { get; set; }
+        public Product Product { get; set; }
 
         public DeviceIdentity DeviceIdentity { get; set; }
 

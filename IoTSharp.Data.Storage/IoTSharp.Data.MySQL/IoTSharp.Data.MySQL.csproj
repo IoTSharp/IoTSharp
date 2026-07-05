@@ -9,6 +9,10 @@
     <PackageReference Include="DotNetDiag.HealthChecks.MySql" />
     <PackageReference Include="DotNetDiag.HealthChecks.UI.Core" />
     <PackageReference Include="DotNetDiag.HealthChecks.UI.MySql.Storage" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
     <PackageReference Include="Microsoft.Extensions.Diagnostics.HealthChecks" />
     <PackageReference Include="Microting.EntityFrameworkCore.MySql" />
   </ItemGroup>

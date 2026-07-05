@@ -8513,14 +8513,14 @@ namespace IoTSharp.Sdk.Http
         }
 
         /// <exception cref="SwaggerException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<ApiResultOfDevice> PostDeviceAsync(System.Guid id, DevicePostProduceDto device)
+        public virtual System.Threading.Tasks.Task<ApiResultOfDevice> PostDeviceAsync(System.Guid id, DevicePostProductDto device)
         {
             return PostDeviceAsync(id, device, System.Threading.CancellationToken.None);
         }
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <exception cref="SwaggerException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<ApiResultOfDevice> PostDeviceAsync(System.Guid id, DevicePostProduceDto device, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task<ApiResultOfDevice> PostDeviceAsync(System.Guid id, DevicePostProductDto device, System.Threading.CancellationToken cancellationToken)
         {
             if (id == null)
                 throw new System.ArgumentNullException("id");
@@ -8543,8 +8543,8 @@ namespace IoTSharp.Sdk.Http
 
                     var urlBuilder_ = new System.Text.StringBuilder();
                     if (!string.IsNullOrEmpty(_baseUrl)) urlBuilder_.Append(_baseUrl);
-                    // Operation Path: "api/Devices/produce/{id}"
-                    urlBuilder_.Append("api/Devices/produce/");
+                    // Operation Path: "api/Devices/product/{id}"
+                    urlBuilder_.Append("api/Devices/product/");
                     urlBuilder_.Append(System.Uri.EscapeDataString(ConvertToString(id, System.Globalization.CultureInfo.InvariantCulture)));
 
                     PrepareRequest(client_, request_, urlBuilder_);
@@ -16141,7 +16141,7 @@ namespace IoTSharp.Sdk.Http
     }
 
     [System.CodeDom.Compiler.GeneratedCode("NSwag", "14.6.3.0 (NJsonSchema v11.5.2.0 (Newtonsoft.Json v13.0.0.0))")]
-    public partial class ProducesClient
+    public partial class ProductsClient
     {
         #pragma warning disable 8618
         private string _baseUrl;
@@ -16152,7 +16152,7 @@ namespace IoTSharp.Sdk.Http
         private System.Text.Json.JsonSerializerOptions _instanceSettings;
 
     #pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
-        public ProducesClient(System.Net.Http.HttpClient httpClient)
+        public ProductsClient(System.Net.Http.HttpClient httpClient)
     #pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
         {
             BaseUrl = "http://localhost:5055";
@@ -16189,14 +16189,14 @@ namespace IoTSharp.Sdk.Http
         partial void ProcessResponse(System.Net.Http.HttpClient client, System.Net.Http.HttpResponseMessage response);
 
         /// <exception cref="SwaggerException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<ApiResultOfPagedDataOfProduceDto> ListAsync(int? offset, int? limit, string name)
+        public virtual System.Threading.Tasks.Task<ApiResultOfPagedDataOfProductDto> ListAsync(int? offset, int? limit, string name)
         {
             return ListAsync(offset, limit, name, System.Threading.CancellationToken.None);
         }
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <exception cref="SwaggerException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<ApiResultOfPagedDataOfProduceDto> ListAsync(int? offset, int? limit, string name, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task<ApiResultOfPagedDataOfProductDto> ListAsync(int? offset, int? limit, string name, System.Threading.CancellationToken cancellationToken)
         {
             var client_ = _httpClient;
             var disposeClient_ = false;
@@ -16209,8 +16209,8 @@ namespace IoTSharp.Sdk.Http
 
                     var urlBuilder_ = new System.Text.StringBuilder();
                     if (!string.IsNullOrEmpty(_baseUrl)) urlBuilder_.Append(_baseUrl);
-                    // Operation Path: "api/Produces/List"
-                    urlBuilder_.Append("api/Produces/List");
+                    // Operation Path: "api/Products/List"
+                    urlBuilder_.Append("api/Products/List");
                     urlBuilder_.Append('?');
                     if (offset != null)
                     {
@@ -16251,7 +16251,7 @@ namespace IoTSharp.Sdk.Http
                         var status_ = (int)response_.StatusCode;
                         if (status_ == 200)
                         {
-                            var objectResponse_ = await ReadObjectResponseAsync<ApiResultOfPagedDataOfProduceDto>(response_, headers_, cancellationToken).ConfigureAwait(false);
+                            var objectResponse_ = await ReadObjectResponseAsync<ApiResultOfPagedDataOfProductDto>(response_, headers_, cancellationToken).ConfigureAwait(false);
                             if (objectResponse_.Object == null)
                             {
                                 throw new SwaggerException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
@@ -16279,14 +16279,14 @@ namespace IoTSharp.Sdk.Http
         }
 
         /// <exception cref="SwaggerException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<ApiResultOfListOfProduceData> ProduceDatasAsync(System.Guid? produceid)
+        public virtual System.Threading.Tasks.Task<ApiResultOfListOfProductData> ProductDatasAsync(System.Guid? productid)
         {
-            return ProduceDatasAsync(produceid, System.Threading.CancellationToken.None);
+            return ProductDatasAsync(productid, System.Threading.CancellationToken.None);
         }
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <exception cref="SwaggerException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<ApiResultOfListOfProduceData> ProduceDatasAsync(System.Guid? produceid, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task<ApiResultOfListOfProductData> ProductDatasAsync(System.Guid? productid, System.Threading.CancellationToken cancellationToken)
         {
             var client_ = _httpClient;
             var disposeClient_ = false;
@@ -16299,12 +16299,12 @@ namespace IoTSharp.Sdk.Http
 
                     var urlBuilder_ = new System.Text.StringBuilder();
                     if (!string.IsNullOrEmpty(_baseUrl)) urlBuilder_.Append(_baseUrl);
-                    // Operation Path: "api/Produces/ProduceDatas"
-                    urlBuilder_.Append("api/Produces/ProduceDatas");
+                    // Operation Path: "api/Products/ProductDatas"
+                    urlBuilder_.Append("api/Products/ProductDatas");
                     urlBuilder_.Append('?');
-                    if (produceid != null)
+                    if (productid != null)
                     {
-                        urlBuilder_.Append(System.Uri.EscapeDataString("produceid")).Append('=').Append(System.Uri.EscapeDataString(ConvertToString(produceid, System.Globalization.CultureInfo.InvariantCulture))).Append('&');
+                        urlBuilder_.Append(System.Uri.EscapeDataString("productid")).Append('=').Append(System.Uri.EscapeDataString(ConvertToString(productid, System.Globalization.CultureInfo.InvariantCulture))).Append('&');
                     }
                     urlBuilder_.Length--;
 
@@ -16333,7 +16333,7 @@ namespace IoTSharp.Sdk.Http
                         var status_ = (int)response_.StatusCode;
                         if (status_ == 200)
                         {
-                            var objectResponse_ = await ReadObjectResponseAsync<ApiResultOfListOfProduceData>(response_, headers_, cancellationToken).ConfigureAwait(false);
+                            var objectResponse_ = await ReadObjectResponseAsync<ApiResultOfListOfProductData>(response_, headers_, cancellationToken).ConfigureAwait(false);
                             if (objectResponse_.Object == null)
                             {
                                 throw new SwaggerException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
@@ -16361,14 +16361,14 @@ namespace IoTSharp.Sdk.Http
         }
 
         /// <exception cref="SwaggerException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<ApiResultOfProduceAddDto> GetAsync(System.Guid? id)
+        public virtual System.Threading.Tasks.Task<ApiResultOfProductAddDto> GetAsync(System.Guid? id)
         {
             return GetAsync(id, System.Threading.CancellationToken.None);
         }
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <exception cref="SwaggerException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<ApiResultOfProduceAddDto> GetAsync(System.Guid? id, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task<ApiResultOfProductAddDto> GetAsync(System.Guid? id, System.Threading.CancellationToken cancellationToken)
         {
             var client_ = _httpClient;
             var disposeClient_ = false;
@@ -16381,8 +16381,8 @@ namespace IoTSharp.Sdk.Http
 
                     var urlBuilder_ = new System.Text.StringBuilder();
                     if (!string.IsNullOrEmpty(_baseUrl)) urlBuilder_.Append(_baseUrl);
-                    // Operation Path: "api/Produces/Get"
-                    urlBuilder_.Append("api/Produces/Get");
+                    // Operation Path: "api/Products/Get"
+                    urlBuilder_.Append("api/Products/Get");
                     urlBuilder_.Append('?');
                     if (id != null)
                     {
@@ -16415,7 +16415,7 @@ namespace IoTSharp.Sdk.Http
                         var status_ = (int)response_.StatusCode;
                         if (status_ == 200)
                         {
-                            var objectResponse_ = await ReadObjectResponseAsync<ApiResultOfProduceAddDto>(response_, headers_, cancellationToken).ConfigureAwait(false);
+                            var objectResponse_ = await ReadObjectResponseAsync<ApiResultOfProductAddDto>(response_, headers_, cancellationToken).ConfigureAwait(false);
                             if (objectResponse_.Object == null)
                             {
                                 throw new SwaggerException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
@@ -16443,14 +16443,14 @@ namespace IoTSharp.Sdk.Http
         }
 
         /// <exception cref="SwaggerException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<ApiResultOfBoolean> DeleteAsync(System.Guid? produceid)
+        public virtual System.Threading.Tasks.Task<ApiResultOfBoolean> DeleteAsync(System.Guid? productid)
         {
-            return DeleteAsync(produceid, System.Threading.CancellationToken.None);
+            return DeleteAsync(productid, System.Threading.CancellationToken.None);
         }
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <exception cref="SwaggerException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<ApiResultOfBoolean> DeleteAsync(System.Guid? produceid, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task<ApiResultOfBoolean> DeleteAsync(System.Guid? productid, System.Threading.CancellationToken cancellationToken)
         {
             var client_ = _httpClient;
             var disposeClient_ = false;
@@ -16463,12 +16463,12 @@ namespace IoTSharp.Sdk.Http
 
                     var urlBuilder_ = new System.Text.StringBuilder();
                     if (!string.IsNullOrEmpty(_baseUrl)) urlBuilder_.Append(_baseUrl);
-                    // Operation Path: "api/Produces/Delete"
-                    urlBuilder_.Append("api/Produces/Delete");
+                    // Operation Path: "api/Products/Delete"
+                    urlBuilder_.Append("api/Products/Delete");
                     urlBuilder_.Append('?');
-                    if (produceid != null)
+                    if (productid != null)
                     {
-                        urlBuilder_.Append(System.Uri.EscapeDataString("produceid")).Append('=').Append(System.Uri.EscapeDataString(ConvertToString(produceid, System.Globalization.CultureInfo.InvariantCulture))).Append('&');
+                        urlBuilder_.Append(System.Uri.EscapeDataString("productid")).Append('=').Append(System.Uri.EscapeDataString(ConvertToString(productid, System.Globalization.CultureInfo.InvariantCulture))).Append('&');
                     }
                     urlBuilder_.Length--;
 
@@ -16525,14 +16525,14 @@ namespace IoTSharp.Sdk.Http
         }
 
         /// <exception cref="SwaggerException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<ApiResultOfBoolean> SaveAsync(ProduceAddDto dto)
+        public virtual System.Threading.Tasks.Task<ApiResultOfBoolean> SaveAsync(ProductAddDto dto)
         {
             return SaveAsync(dto, System.Threading.CancellationToken.None);
         }
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <exception cref="SwaggerException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<ApiResultOfBoolean> SaveAsync(ProduceAddDto dto, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task<ApiResultOfBoolean> SaveAsync(ProductAddDto dto, System.Threading.CancellationToken cancellationToken)
         {
             if (dto == null)
                 throw new System.ArgumentNullException("dto");
@@ -16552,8 +16552,8 @@ namespace IoTSharp.Sdk.Http
 
                     var urlBuilder_ = new System.Text.StringBuilder();
                     if (!string.IsNullOrEmpty(_baseUrl)) urlBuilder_.Append(_baseUrl);
-                    // Operation Path: "api/Produces/Save"
-                    urlBuilder_.Append("api/Produces/Save");
+                    // Operation Path: "api/Products/Save"
+                    urlBuilder_.Append("api/Products/Save");
 
                     PrepareRequest(client_, request_, urlBuilder_);
 
@@ -16608,14 +16608,14 @@ namespace IoTSharp.Sdk.Http
         }
 
         /// <exception cref="SwaggerException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<ApiResultOfBoolean> UpdateAsync(ProduceAddDto dto)
+        public virtual System.Threading.Tasks.Task<ApiResultOfBoolean> UpdateAsync(ProductAddDto dto)
         {
             return UpdateAsync(dto, System.Threading.CancellationToken.None);
         }
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <exception cref="SwaggerException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<ApiResultOfBoolean> UpdateAsync(ProduceAddDto dto, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task<ApiResultOfBoolean> UpdateAsync(ProductAddDto dto, System.Threading.CancellationToken cancellationToken)
         {
             if (dto == null)
                 throw new System.ArgumentNullException("dto");
@@ -16635,8 +16635,8 @@ namespace IoTSharp.Sdk.Http
 
                     var urlBuilder_ = new System.Text.StringBuilder();
                     if (!string.IsNullOrEmpty(_baseUrl)) urlBuilder_.Append(_baseUrl);
-                    // Operation Path: "api/Produces/Update"
-                    urlBuilder_.Append("api/Produces/Update");
+                    // Operation Path: "api/Products/Update"
+                    urlBuilder_.Append("api/Products/Update");
 
                     PrepareRequest(client_, request_, urlBuilder_);
 
@@ -16691,14 +16691,14 @@ namespace IoTSharp.Sdk.Http
         }
 
         /// <exception cref="SwaggerException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<ApiResultOfListOfProduceDataItemDto> GetProduceDataAsync(System.Guid? produceId)
+        public virtual System.Threading.Tasks.Task<ApiResultOfListOfProductDataItemDto> GetProductDataAsync(System.Guid? productId)
         {
-            return GetProduceDataAsync(produceId, System.Threading.CancellationToken.None);
+            return GetProductDataAsync(productId, System.Threading.CancellationToken.None);
         }
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <exception cref="SwaggerException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<ApiResultOfListOfProduceDataItemDto> GetProduceDataAsync(System.Guid? produceId, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task<ApiResultOfListOfProductDataItemDto> GetProductDataAsync(System.Guid? productId, System.Threading.CancellationToken cancellationToken)
         {
             var client_ = _httpClient;
             var disposeClient_ = false;
@@ -16711,12 +16711,12 @@ namespace IoTSharp.Sdk.Http
 
                     var urlBuilder_ = new System.Text.StringBuilder();
                     if (!string.IsNullOrEmpty(_baseUrl)) urlBuilder_.Append(_baseUrl);
-                    // Operation Path: "api/Produces/GetProduceData"
-                    urlBuilder_.Append("api/Produces/GetProduceData");
+                    // Operation Path: "api/Products/GetProductData"
+                    urlBuilder_.Append("api/Products/GetProductData");
                     urlBuilder_.Append('?');
-                    if (produceId != null)
+                    if (productId != null)
                     {
-                        urlBuilder_.Append(System.Uri.EscapeDataString("produceId")).Append('=').Append(System.Uri.EscapeDataString(ConvertToString(produceId, System.Globalization.CultureInfo.InvariantCulture))).Append('&');
+                        urlBuilder_.Append(System.Uri.EscapeDataString("productId")).Append('=').Append(System.Uri.EscapeDataString(ConvertToString(productId, System.Globalization.CultureInfo.InvariantCulture))).Append('&');
                     }
                     urlBuilder_.Length--;
 
@@ -16745,7 +16745,7 @@ namespace IoTSharp.Sdk.Http
                         var status_ = (int)response_.StatusCode;
                         if (status_ == 200)
                         {
-                            var objectResponse_ = await ReadObjectResponseAsync<ApiResultOfListOfProduceDataItemDto>(response_, headers_, cancellationToken).ConfigureAwait(false);
+                            var objectResponse_ = await ReadObjectResponseAsync<ApiResultOfListOfProductDataItemDto>(response_, headers_, cancellationToken).ConfigureAwait(false);
                             if (objectResponse_.Object == null)
                             {
                                 throw new SwaggerException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
@@ -16773,14 +16773,14 @@ namespace IoTSharp.Sdk.Http
         }
 
         /// <exception cref="SwaggerException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<ApiResultOfBoolean> EditProduceDataAsync(ProduceDataEditDto dto)
+        public virtual System.Threading.Tasks.Task<ApiResultOfBoolean> EditProductDataAsync(ProductDataEditDto dto)
         {
-            return EditProduceDataAsync(dto, System.Threading.CancellationToken.None);
+            return EditProductDataAsync(dto, System.Threading.CancellationToken.None);
         }
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <exception cref="SwaggerException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<ApiResultOfBoolean> EditProduceDataAsync(ProduceDataEditDto dto, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task<ApiResultOfBoolean> EditProductDataAsync(ProductDataEditDto dto, System.Threading.CancellationToken cancellationToken)
         {
             if (dto == null)
                 throw new System.ArgumentNullException("dto");
@@ -16800,8 +16800,8 @@ namespace IoTSharp.Sdk.Http
 
                     var urlBuilder_ = new System.Text.StringBuilder();
                     if (!string.IsNullOrEmpty(_baseUrl)) urlBuilder_.Append(_baseUrl);
-                    // Operation Path: "api/Produces/EditProduceData"
-                    urlBuilder_.Append("api/Produces/EditProduceData");
+                    // Operation Path: "api/Products/EditProductData"
+                    urlBuilder_.Append("api/Products/EditProductData");
 
                     PrepareRequest(client_, request_, urlBuilder_);
 
@@ -16856,14 +16856,14 @@ namespace IoTSharp.Sdk.Http
         }
 
         /// <exception cref="SwaggerException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<ApiResultOfListOfProduceDictionary> GetProduceDictionaryAsync(System.Guid? produceId)
+        public virtual System.Threading.Tasks.Task<ApiResultOfListOfProductDictionary> GetProductDictionaryAsync(System.Guid? productId)
         {
-            return GetProduceDictionaryAsync(produceId, System.Threading.CancellationToken.None);
+            return GetProductDictionaryAsync(productId, System.Threading.CancellationToken.None);
         }
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <exception cref="SwaggerException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<ApiResultOfListOfProduceDictionary> GetProduceDictionaryAsync(System.Guid? produceId, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task<ApiResultOfListOfProductDictionary> GetProductDictionaryAsync(System.Guid? productId, System.Threading.CancellationToken cancellationToken)
         {
             var client_ = _httpClient;
             var disposeClient_ = false;
@@ -16876,12 +16876,12 @@ namespace IoTSharp.Sdk.Http
 
                     var urlBuilder_ = new System.Text.StringBuilder();
                     if (!string.IsNullOrEmpty(_baseUrl)) urlBuilder_.Append(_baseUrl);
-                    // Operation Path: "api/Produces/GetProduceDictionary"
-                    urlBuilder_.Append("api/Produces/GetProduceDictionary");
+                    // Operation Path: "api/Products/GetProductDictionary"
+                    urlBuilder_.Append("api/Products/GetProductDictionary");
                     urlBuilder_.Append('?');
-                    if (produceId != null)
+                    if (productId != null)
                     {
-                        urlBuilder_.Append(System.Uri.EscapeDataString("produceId")).Append('=').Append(System.Uri.EscapeDataString(ConvertToString(produceId, System.Globalization.CultureInfo.InvariantCulture))).Append('&');
+                        urlBuilder_.Append(System.Uri.EscapeDataString("productId")).Append('=').Append(System.Uri.EscapeDataString(ConvertToString(productId, System.Globalization.CultureInfo.InvariantCulture))).Append('&');
                     }
                     urlBuilder_.Length--;
 
@@ -16910,7 +16910,7 @@ namespace IoTSharp.Sdk.Http
                         var status_ = (int)response_.StatusCode;
                         if (status_ == 200)
                         {
-                            var objectResponse_ = await ReadObjectResponseAsync<ApiResultOfListOfProduceDictionary>(response_, headers_, cancellationToken).ConfigureAwait(false);
+                            var objectResponse_ = await ReadObjectResponseAsync<ApiResultOfListOfProductDictionary>(response_, headers_, cancellationToken).ConfigureAwait(false);
                             if (objectResponse_.Object == null)
                             {
                                 throw new SwaggerException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
@@ -16938,14 +16938,14 @@ namespace IoTSharp.Sdk.Http
         }
 
         /// <exception cref="SwaggerException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<ApiResultOfBoolean> EditProduceDictionaryAsync(ProduceDictionaryEditDto dto)
+        public virtual System.Threading.Tasks.Task<ApiResultOfBoolean> EditProductDictionaryAsync(ProductDictionaryEditDto dto)
         {
-            return EditProduceDictionaryAsync(dto, System.Threading.CancellationToken.None);
+            return EditProductDictionaryAsync(dto, System.Threading.CancellationToken.None);
         }
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <exception cref="SwaggerException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<ApiResultOfBoolean> EditProduceDictionaryAsync(ProduceDictionaryEditDto dto, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task<ApiResultOfBoolean> EditProductDictionaryAsync(ProductDictionaryEditDto dto, System.Threading.CancellationToken cancellationToken)
         {
             if (dto == null)
                 throw new System.ArgumentNullException("dto");
@@ -16965,8 +16965,8 @@ namespace IoTSharp.Sdk.Http
 
                     var urlBuilder_ = new System.Text.StringBuilder();
                     if (!string.IsNullOrEmpty(_baseUrl)) urlBuilder_.Append(_baseUrl);
-                    // Operation Path: "api/Produces/EditProduceDictionary"
-                    urlBuilder_.Append("api/Produces/EditProduceDictionary");
+                    // Operation Path: "api/Products/EditProductDictionary"
+                    urlBuilder_.Append("api/Products/EditProductDictionary");
 
                     PrepareRequest(client_, request_, urlBuilder_);
 
@@ -17021,14 +17021,14 @@ namespace IoTSharp.Sdk.Http
         }
 
         /// <exception cref="SwaggerException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<ApiResultOfListOfProduceDataMappingDto> GetDataMappingsAsync(System.Guid? produceId)
+        public virtual System.Threading.Tasks.Task<ApiResultOfListOfProductDataMappingDto> GetDataMappingsAsync(System.Guid? productId)
         {
-            return GetDataMappingsAsync(produceId, System.Threading.CancellationToken.None);
+            return GetDataMappingsAsync(productId, System.Threading.CancellationToken.None);
         }
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <exception cref="SwaggerException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<ApiResultOfListOfProduceDataMappingDto> GetDataMappingsAsync(System.Guid? produceId, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task<ApiResultOfListOfProductDataMappingDto> GetDataMappingsAsync(System.Guid? productId, System.Threading.CancellationToken cancellationToken)
         {
             var client_ = _httpClient;
             var disposeClient_ = false;
@@ -17041,12 +17041,12 @@ namespace IoTSharp.Sdk.Http
 
                     var urlBuilder_ = new System.Text.StringBuilder();
                     if (!string.IsNullOrEmpty(_baseUrl)) urlBuilder_.Append(_baseUrl);
-                    // Operation Path: "api/Produces/GetDataMappings"
-                    urlBuilder_.Append("api/Produces/GetDataMappings");
+                    // Operation Path: "api/Products/GetDataMappings"
+                    urlBuilder_.Append("api/Products/GetDataMappings");
                     urlBuilder_.Append('?');
-                    if (produceId != null)
+                    if (productId != null)
                     {
-                        urlBuilder_.Append(System.Uri.EscapeDataString("produceId")).Append('=').Append(System.Uri.EscapeDataString(ConvertToString(produceId, System.Globalization.CultureInfo.InvariantCulture))).Append('&');
+                        urlBuilder_.Append(System.Uri.EscapeDataString("productId")).Append('=').Append(System.Uri.EscapeDataString(ConvertToString(productId, System.Globalization.CultureInfo.InvariantCulture))).Append('&');
                     }
                     urlBuilder_.Length--;
 
@@ -17075,7 +17075,7 @@ namespace IoTSharp.Sdk.Http
                         var status_ = (int)response_.StatusCode;
                         if (status_ == 200)
                         {
-                            var objectResponse_ = await ReadObjectResponseAsync<ApiResultOfListOfProduceDataMappingDto>(response_, headers_, cancellationToken).ConfigureAwait(false);
+                            var objectResponse_ = await ReadObjectResponseAsync<ApiResultOfListOfProductDataMappingDto>(response_, headers_, cancellationToken).ConfigureAwait(false);
                             if (objectResponse_.Object == null)
                             {
                                 throw new SwaggerException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
@@ -17103,14 +17103,14 @@ namespace IoTSharp.Sdk.Http
         }
 
         /// <exception cref="SwaggerException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<ApiResultOfBoolean> SaveDataMappingsAsync(SaveProduceDataMappingsDto dto)
+        public virtual System.Threading.Tasks.Task<ApiResultOfBoolean> SaveDataMappingsAsync(SaveProductDataMappingsDto dto)
         {
             return SaveDataMappingsAsync(dto, System.Threading.CancellationToken.None);
         }
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <exception cref="SwaggerException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<ApiResultOfBoolean> SaveDataMappingsAsync(SaveProduceDataMappingsDto dto, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task<ApiResultOfBoolean> SaveDataMappingsAsync(SaveProductDataMappingsDto dto, System.Threading.CancellationToken cancellationToken)
         {
             if (dto == null)
                 throw new System.ArgumentNullException("dto");
@@ -17130,8 +17130,8 @@ namespace IoTSharp.Sdk.Http
 
                     var urlBuilder_ = new System.Text.StringBuilder();
                     if (!string.IsNullOrEmpty(_baseUrl)) urlBuilder_.Append(_baseUrl);
-                    // Operation Path: "api/Produces/SaveDataMappings"
-                    urlBuilder_.Append("api/Produces/SaveDataMappings");
+                    // Operation Path: "api/Products/SaveDataMappings"
+                    urlBuilder_.Append("api/Products/SaveDataMappings");
 
                     PrepareRequest(client_, request_, urlBuilder_);
 
@@ -17186,17 +17186,17 @@ namespace IoTSharp.Sdk.Http
         }
 
         /// <exception cref="SwaggerException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<ApiResult> ProduceTelemetryAsync(string produce_token, System.Collections.Generic.IDictionary<string, object> telemetrys)
+        public virtual System.Threading.Tasks.Task<ApiResult> ProductTelemetryAsync(string product_token, System.Collections.Generic.IDictionary<string, object> telemetrys)
         {
-            return ProduceTelemetryAsync(produce_token, telemetrys, System.Threading.CancellationToken.None);
+            return ProductTelemetryAsync(product_token, telemetrys, System.Threading.CancellationToken.None);
         }
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <exception cref="SwaggerException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<ApiResult> ProduceTelemetryAsync(string produce_token, System.Collections.Generic.IDictionary<string, object> telemetrys, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task<ApiResult> ProductTelemetryAsync(string product_token, System.Collections.Generic.IDictionary<string, object> telemetrys, System.Threading.CancellationToken cancellationToken)
         {
-            if (produce_token == null)
-                throw new System.ArgumentNullException("produce_token");
+            if (product_token == null)
+                throw new System.ArgumentNullException("product_token");
 
             if (telemetrys == null)
                 throw new System.ArgumentNullException("telemetrys");
@@ -17216,9 +17216,9 @@ namespace IoTSharp.Sdk.Http
 
                     var urlBuilder_ = new System.Text.StringBuilder();
                     if (!string.IsNullOrEmpty(_baseUrl)) urlBuilder_.Append(_baseUrl);
-                    // Operation Path: "api/Produces/{produce_token}/Telemetry"
-                    urlBuilder_.Append("api/Produces/");
-                    urlBuilder_.Append(System.Uri.EscapeDataString(ConvertToString(produce_token, System.Globalization.CultureInfo.InvariantCulture)));
+                    // Operation Path: "api/Products/{product_token}/Telemetry"
+                    urlBuilder_.Append("api/Products/");
+                    urlBuilder_.Append(System.Uri.EscapeDataString(ConvertToString(product_token, System.Globalization.CultureInfo.InvariantCulture)));
                     urlBuilder_.Append("/Telemetry");
 
                     PrepareRequest(client_, request_, urlBuilder_);
@@ -17288,17 +17288,17 @@ namespace IoTSharp.Sdk.Http
         }
 
         /// <exception cref="SwaggerException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<ApiResult> ProduceAttributesAsync(string produce_token, DataSide dataSide, string keys)
+        public virtual System.Threading.Tasks.Task<ApiResult> ProductAttributesAsync(string product_token, DataSide dataSide, string keys)
         {
-            return ProduceAttributesAsync(produce_token, dataSide, keys, System.Threading.CancellationToken.None);
+            return ProductAttributesAsync(product_token, dataSide, keys, System.Threading.CancellationToken.None);
         }
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <exception cref="SwaggerException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<ApiResult> ProduceAttributesAsync(string produce_token, DataSide dataSide, string keys, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task<ApiResult> ProductAttributesAsync(string product_token, DataSide dataSide, string keys, System.Threading.CancellationToken cancellationToken)
         {
-            if (produce_token == null)
-                throw new System.ArgumentNullException("produce_token");
+            if (product_token == null)
+                throw new System.ArgumentNullException("product_token");
 
             if (dataSide == null)
                 throw new System.ArgumentNullException("dataSide");
@@ -17314,9 +17314,9 @@ namespace IoTSharp.Sdk.Http
 
                     var urlBuilder_ = new System.Text.StringBuilder();
                     if (!string.IsNullOrEmpty(_baseUrl)) urlBuilder_.Append(_baseUrl);
-                    // Operation Path: "api/Produces/{produce_token}/Attributes/{dataSide}"
-                    urlBuilder_.Append("api/Produces/");
-                    urlBuilder_.Append(System.Uri.EscapeDataString(ConvertToString(produce_token, System.Globalization.CultureInfo.InvariantCulture)));
+                    // Operation Path: "api/Products/{product_token}/Attributes/{dataSide}"
+                    urlBuilder_.Append("api/Products/");
+                    urlBuilder_.Append(System.Uri.EscapeDataString(ConvertToString(product_token, System.Globalization.CultureInfo.InvariantCulture)));
                     urlBuilder_.Append("/Attributes/");
                     urlBuilder_.Append(System.Uri.EscapeDataString(ConvertToString(dataSide, System.Globalization.CultureInfo.InvariantCulture)));
                     urlBuilder_.Append('?');
@@ -17393,17 +17393,17 @@ namespace IoTSharp.Sdk.Http
         }
 
         /// <exception cref="SwaggerException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<ApiResult> ProduceAttributesUploadAsync(string produce_token, System.Collections.Generic.IDictionary<string, object> attributes)
+        public virtual System.Threading.Tasks.Task<ApiResult> ProductAttributesUploadAsync(string product_token, System.Collections.Generic.IDictionary<string, object> attributes)
         {
-            return ProduceAttributesUploadAsync(produce_token, attributes, System.Threading.CancellationToken.None);
+            return ProductAttributesUploadAsync(product_token, attributes, System.Threading.CancellationToken.None);
         }
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <exception cref="SwaggerException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<ApiResult> ProduceAttributesUploadAsync(string produce_token, System.Collections.Generic.IDictionary<string, object> attributes, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task<ApiResult> ProductAttributesUploadAsync(string product_token, System.Collections.Generic.IDictionary<string, object> attributes, System.Threading.CancellationToken cancellationToken)
         {
-            if (produce_token == null)
-                throw new System.ArgumentNullException("produce_token");
+            if (product_token == null)
+                throw new System.ArgumentNullException("product_token");
 
             if (attributes == null)
                 throw new System.ArgumentNullException("attributes");
@@ -17423,9 +17423,9 @@ namespace IoTSharp.Sdk.Http
 
                     var urlBuilder_ = new System.Text.StringBuilder();
                     if (!string.IsNullOrEmpty(_baseUrl)) urlBuilder_.Append(_baseUrl);
-                    // Operation Path: "api/Produces/{produce_token}/Attributes"
-                    urlBuilder_.Append("api/Produces/");
-                    urlBuilder_.Append(System.Uri.EscapeDataString(ConvertToString(produce_token, System.Globalization.CultureInfo.InvariantCulture)));
+                    // Operation Path: "api/Products/{product_token}/Attributes"
+                    urlBuilder_.Append("api/Products/");
+                    urlBuilder_.Append(System.Uri.EscapeDataString(ConvertToString(product_token, System.Globalization.CultureInfo.InvariantCulture)));
                     urlBuilder_.Append("/Attributes");
 
                     PrepareRequest(client_, request_, urlBuilder_);
@@ -21629,7 +21629,7 @@ namespace IoTSharp.Sdk.Http
 
         InValidData = 10016,
 
-        NotFoundProduce = 10017,
+        NotFoundProduct = 10017,
 
         NotFile = 10018,
 
@@ -23076,8 +23076,8 @@ namespace IoTSharp.Sdk.Http
         [System.Runtime.Serialization.EnumMember(Value = @"TelemetryLatest")]
         TelemetryLatest = 4,
 
-        [System.Runtime.Serialization.EnumMember(Value = @"ProduceData")]
-        ProduceData = 5,
+        [System.Runtime.Serialization.EnumMember(Value = @"ProductData")]
+        ProductData = 5,
 
     }
 
@@ -23243,8 +23243,8 @@ namespace IoTSharp.Sdk.Http
         [System.Runtime.Serialization.EnumMember(Value = @"X509Certificate")]
         X509Certificate = 2,
 
-        [System.Runtime.Serialization.EnumMember(Value = @"ProduceToken")]
-        ProduceToken = 3,
+        [System.Runtime.Serialization.EnumMember(Value = @"ProductToken")]
+        ProductToken = 3,
 
     }
 
@@ -25592,7 +25592,7 @@ namespace IoTSharp.Sdk.Http
     }
 
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.6.3.0 (NJsonSchema v11.5.2.0 (Newtonsoft.Json v13.0.0.0))")]
-    public partial class DevicePostProduceDto
+    public partial class DevicePostProductDto
     {
 
         [System.Text.Json.Serialization.JsonPropertyName("name")]
@@ -25606,12 +25606,12 @@ namespace IoTSharp.Sdk.Http
             return System.Text.Json.JsonSerializer.Serialize(this, options);
 
         }
-        public static DevicePostProduceDto FromJson(string data)
+        public static DevicePostProductDto FromJson(string data)
         {
 
             var options = new System.Text.Json.JsonSerializerOptions();
 
-            return System.Text.Json.JsonSerializer.Deserialize<DevicePostProduceDto>(data, options);
+            return System.Text.Json.JsonSerializer.Deserialize<DevicePostProductDto>(data, options);
 
         }
     }
@@ -27804,8 +27804,8 @@ namespace IoTSharp.Sdk.Http
         [System.Text.Json.Serialization.JsonPropertyName("userCount")]
         public int UserCount { get; set; }
 
-        [System.Text.Json.Serialization.JsonPropertyName("produceCount")]
-        public int ProduceCount { get; set; }
+        [System.Text.Json.Serialization.JsonPropertyName("productCount")]
+        public int ProductCount { get; set; }
 
         [System.Text.Json.Serialization.JsonPropertyName("rulesCount")]
         public int RulesCount { get; set; }
@@ -28030,11 +28030,11 @@ namespace IoTSharp.Sdk.Http
     }
 
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.6.3.0 (NJsonSchema v11.5.2.0 (Newtonsoft.Json v13.0.0.0))")]
-    public partial class ApiResultOfPagedDataOfProduceDto : ApiResult
+    public partial class ApiResultOfPagedDataOfProductDto : ApiResult
     {
 
         [System.Text.Json.Serialization.JsonPropertyName("data")]
-        public PagedDataOfProduceDto Data { get; set; }
+        public PagedDataOfProductDto Data { get; set; }
 
         public string ToJson()
         {
@@ -28044,25 +28044,25 @@ namespace IoTSharp.Sdk.Http
             return System.Text.Json.JsonSerializer.Serialize(this, options);
 
         }
-        public static ApiResultOfPagedDataOfProduceDto FromJson(string data)
+        public static ApiResultOfPagedDataOfProductDto FromJson(string data)
         {
 
             var options = new System.Text.Json.JsonSerializerOptions();
 
-            return System.Text.Json.JsonSerializer.Deserialize<ApiResultOfPagedDataOfProduceDto>(data, options);
+            return System.Text.Json.JsonSerializer.Deserialize<ApiResultOfPagedDataOfProductDto>(data, options);
 
         }
     }
 
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.6.3.0 (NJsonSchema v11.5.2.0 (Newtonsoft.Json v13.0.0.0))")]
-    public partial class PagedDataOfProduceDto
+    public partial class PagedDataOfProductDto
     {
 
         [System.Text.Json.Serialization.JsonPropertyName("total")]
         public long Total { get; set; }
 
         [System.Text.Json.Serialization.JsonPropertyName("rows")]
-        public System.Collections.Generic.ICollection<ProduceDto> Rows { get; set; }
+        public System.Collections.Generic.ICollection<ProductDto> Rows { get; set; }
 
         public string ToJson()
         {
@@ -28072,18 +28072,18 @@ namespace IoTSharp.Sdk.Http
             return System.Text.Json.JsonSerializer.Serialize(this, options);
 
         }
-        public static PagedDataOfProduceDto FromJson(string data)
+        public static PagedDataOfProductDto FromJson(string data)
         {
 
             var options = new System.Text.Json.JsonSerializerOptions();
 
-            return System.Text.Json.JsonSerializer.Deserialize<PagedDataOfProduceDto>(data, options);
+            return System.Text.Json.JsonSerializer.Deserialize<PagedDataOfProductDto>(data, options);
 
         }
     }
 
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.6.3.0 (NJsonSchema v11.5.2.0 (Newtonsoft.Json v13.0.0.0))")]
-    public partial class ProduceDto
+    public partial class ProductDto
     {
 
         [System.Text.Json.Serialization.JsonPropertyName("id")]
@@ -28117,22 +28117,22 @@ namespace IoTSharp.Sdk.Http
             return System.Text.Json.JsonSerializer.Serialize(this, options);
 
         }
-        public static ProduceDto FromJson(string data)
+        public static ProductDto FromJson(string data)
         {
 
             var options = new System.Text.Json.JsonSerializerOptions();
 
-            return System.Text.Json.JsonSerializer.Deserialize<ProduceDto>(data, options);
+            return System.Text.Json.JsonSerializer.Deserialize<ProductDto>(data, options);
 
         }
     }
 
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.6.3.0 (NJsonSchema v11.5.2.0 (Newtonsoft.Json v13.0.0.0))")]
-    public partial class ApiResultOfListOfProduceData : ApiResult
+    public partial class ApiResultOfListOfProductData : ApiResult
     {
 
         [System.Text.Json.Serialization.JsonPropertyName("data")]
-        public System.Collections.Generic.ICollection<ProduceData> Data { get; set; }
+        public System.Collections.Generic.ICollection<ProductData> Data { get; set; }
 
         public string ToJson()
         {
@@ -28142,18 +28142,18 @@ namespace IoTSharp.Sdk.Http
             return System.Text.Json.JsonSerializer.Serialize(this, options);
 
         }
-        public static ApiResultOfListOfProduceData FromJson(string data)
+        public static ApiResultOfListOfProductData FromJson(string data)
         {
 
             var options = new System.Text.Json.JsonSerializerOptions();
 
-            return System.Text.Json.JsonSerializer.Deserialize<ApiResultOfListOfProduceData>(data, options);
+            return System.Text.Json.JsonSerializer.Deserialize<ApiResultOfListOfProductData>(data, options);
 
         }
     }
 
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.6.3.0 (NJsonSchema v11.5.2.0 (Newtonsoft.Json v13.0.0.0))")]
-    public partial class ProduceData : DataStorage
+    public partial class ProductData : DataStorage
     {
 
         public string ToJson()
@@ -28164,22 +28164,22 @@ namespace IoTSharp.Sdk.Http
             return System.Text.Json.JsonSerializer.Serialize(this, options);
 
         }
-        public static ProduceData FromJson(string data)
+        public static ProductData FromJson(string data)
         {
 
             var options = new System.Text.Json.JsonSerializerOptions();
 
-            return System.Text.Json.JsonSerializer.Deserialize<ProduceData>(data, options);
+            return System.Text.Json.JsonSerializer.Deserialize<ProductData>(data, options);
 
         }
     }
 
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.6.3.0 (NJsonSchema v11.5.2.0 (Newtonsoft.Json v13.0.0.0))")]
-    public partial class ApiResultOfProduceAddDto : ApiResult
+    public partial class ApiResultOfProductAddDto : ApiResult
     {
 
         [System.Text.Json.Serialization.JsonPropertyName("data")]
-        public ProduceAddDto Data { get; set; }
+        public ProductAddDto Data { get; set; }
 
         public string ToJson()
         {
@@ -28189,18 +28189,18 @@ namespace IoTSharp.Sdk.Http
             return System.Text.Json.JsonSerializer.Serialize(this, options);
 
         }
-        public static ApiResultOfProduceAddDto FromJson(string data)
+        public static ApiResultOfProductAddDto FromJson(string data)
         {
 
             var options = new System.Text.Json.JsonSerializerOptions();
 
-            return System.Text.Json.JsonSerializer.Deserialize<ApiResultOfProduceAddDto>(data, options);
+            return System.Text.Json.JsonSerializer.Deserialize<ApiResultOfProductAddDto>(data, options);
 
         }
     }
 
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.6.3.0 (NJsonSchema v11.5.2.0 (Newtonsoft.Json v13.0.0.0))")]
-    public partial class ProduceAddDto
+    public partial class ProductAddDto
     {
 
         [System.Text.Json.Serialization.JsonPropertyName("id")]
@@ -28235,8 +28235,8 @@ namespace IoTSharp.Sdk.Http
         [System.Text.Json.Serialization.JsonPropertyName("description")]
         public string Description { get; set; }
 
-        [System.Text.Json.Serialization.JsonPropertyName("produceToken")]
-        public string ProduceToken { get; set; }
+        [System.Text.Json.Serialization.JsonPropertyName("productToken")]
+        public string ProductToken { get; set; }
 
         [System.Text.Json.Serialization.JsonPropertyName("defaultDeviceType")]
         [System.Text.Json.Serialization.JsonConverter(typeof(System.Text.Json.Serialization.JsonStringEnumConverter<DeviceType>))]
@@ -28250,12 +28250,12 @@ namespace IoTSharp.Sdk.Http
             return System.Text.Json.JsonSerializer.Serialize(this, options);
 
         }
-        public static ProduceAddDto FromJson(string data)
+        public static ProductAddDto FromJson(string data)
         {
 
             var options = new System.Text.Json.JsonSerializerOptions();
 
-            return System.Text.Json.JsonSerializer.Deserialize<ProduceAddDto>(data, options);
+            return System.Text.Json.JsonSerializer.Deserialize<ProductAddDto>(data, options);
 
         }
     }
@@ -28285,11 +28285,11 @@ namespace IoTSharp.Sdk.Http
     }
 
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.6.3.0 (NJsonSchema v11.5.2.0 (Newtonsoft.Json v13.0.0.0))")]
-    public partial class ApiResultOfListOfProduceDataItemDto : ApiResult
+    public partial class ApiResultOfListOfProductDataItemDto : ApiResult
     {
 
         [System.Text.Json.Serialization.JsonPropertyName("data")]
-        public System.Collections.Generic.ICollection<ProduceDataItemDto> Data { get; set; }
+        public System.Collections.Generic.ICollection<ProductDataItemDto> Data { get; set; }
 
         public string ToJson()
         {
@@ -28299,18 +28299,18 @@ namespace IoTSharp.Sdk.Http
             return System.Text.Json.JsonSerializer.Serialize(this, options);
 
         }
-        public static ApiResultOfListOfProduceDataItemDto FromJson(string data)
+        public static ApiResultOfListOfProductDataItemDto FromJson(string data)
         {
 
             var options = new System.Text.Json.JsonSerializerOptions();
 
-            return System.Text.Json.JsonSerializer.Deserialize<ApiResultOfListOfProduceDataItemDto>(data, options);
+            return System.Text.Json.JsonSerializer.Deserialize<ApiResultOfListOfProductDataItemDto>(data, options);
 
         }
     }
 
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.6.3.0 (NJsonSchema v11.5.2.0 (Newtonsoft.Json v13.0.0.0))")]
-    public partial class ProduceDataItemDto
+    public partial class ProductDataItemDto
     {
 
         [System.Text.Json.Serialization.JsonPropertyName("keyName")]
@@ -28332,25 +28332,25 @@ namespace IoTSharp.Sdk.Http
             return System.Text.Json.JsonSerializer.Serialize(this, options);
 
         }
-        public static ProduceDataItemDto FromJson(string data)
+        public static ProductDataItemDto FromJson(string data)
         {
 
             var options = new System.Text.Json.JsonSerializerOptions();
 
-            return System.Text.Json.JsonSerializer.Deserialize<ProduceDataItemDto>(data, options);
+            return System.Text.Json.JsonSerializer.Deserialize<ProductDataItemDto>(data, options);
 
         }
     }
 
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.6.3.0 (NJsonSchema v11.5.2.0 (Newtonsoft.Json v13.0.0.0))")]
-    public partial class ProduceDataEditDto
+    public partial class ProductDataEditDto
     {
 
-        [System.Text.Json.Serialization.JsonPropertyName("produceId")]
-        public System.Guid ProduceId { get; set; }
+        [System.Text.Json.Serialization.JsonPropertyName("productId")]
+        public System.Guid ProductId { get; set; }
 
-        [System.Text.Json.Serialization.JsonPropertyName("produceData")]
-        public System.Collections.Generic.ICollection<ProduceDataItemDto> ProduceData { get; set; }
+        [System.Text.Json.Serialization.JsonPropertyName("productData")]
+        public System.Collections.Generic.ICollection<ProductDataItemDto> ProductData { get; set; }
 
         public string ToJson()
         {
@@ -28360,22 +28360,22 @@ namespace IoTSharp.Sdk.Http
             return System.Text.Json.JsonSerializer.Serialize(this, options);
 
         }
-        public static ProduceDataEditDto FromJson(string data)
+        public static ProductDataEditDto FromJson(string data)
         {
 
             var options = new System.Text.Json.JsonSerializerOptions();
 
-            return System.Text.Json.JsonSerializer.Deserialize<ProduceDataEditDto>(data, options);
+            return System.Text.Json.JsonSerializer.Deserialize<ProductDataEditDto>(data, options);
 
         }
     }
 
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.6.3.0 (NJsonSchema v11.5.2.0 (Newtonsoft.Json v13.0.0.0))")]
-    public partial class ApiResultOfListOfProduceDictionary : ApiResult
+    public partial class ApiResultOfListOfProductDictionary : ApiResult
     {
 
         [System.Text.Json.Serialization.JsonPropertyName("data")]
-        public System.Collections.Generic.ICollection<ProduceDictionary> Data { get; set; }
+        public System.Collections.Generic.ICollection<ProductDictionary> Data { get; set; }
 
         public string ToJson()
         {
@@ -28385,18 +28385,18 @@ namespace IoTSharp.Sdk.Http
             return System.Text.Json.JsonSerializer.Serialize(this, options);
 
         }
-        public static ApiResultOfListOfProduceDictionary FromJson(string data)
+        public static ApiResultOfListOfProductDictionary FromJson(string data)
         {
 
             var options = new System.Text.Json.JsonSerializerOptions();
 
-            return System.Text.Json.JsonSerializer.Deserialize<ApiResultOfListOfProduceDictionary>(data, options);
+            return System.Text.Json.JsonSerializer.Deserialize<ApiResultOfListOfProductDictionary>(data, options);
 
         }
     }
 
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.6.3.0 (NJsonSchema v11.5.2.0 (Newtonsoft.Json v13.0.0.0))")]
-    public partial class ProduceDictionary
+    public partial class ProductDictionary
     {
 
         [System.Text.Json.Serialization.JsonPropertyName("id")]
@@ -28483,25 +28483,25 @@ namespace IoTSharp.Sdk.Http
             return System.Text.Json.JsonSerializer.Serialize(this, options);
 
         }
-        public static ProduceDictionary FromJson(string data)
+        public static ProductDictionary FromJson(string data)
         {
 
             var options = new System.Text.Json.JsonSerializerOptions();
 
-            return System.Text.Json.JsonSerializer.Deserialize<ProduceDictionary>(data, options);
+            return System.Text.Json.JsonSerializer.Deserialize<ProductDictionary>(data, options);
 
         }
     }
 
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.6.3.0 (NJsonSchema v11.5.2.0 (Newtonsoft.Json v13.0.0.0))")]
-    public partial class ProduceDictionaryEditDto
+    public partial class ProductDictionaryEditDto
     {
 
-        [System.Text.Json.Serialization.JsonPropertyName("produceId")]
-        public System.Guid ProduceId { get; set; }
+        [System.Text.Json.Serialization.JsonPropertyName("productId")]
+        public System.Guid ProductId { get; set; }
 
-        [System.Text.Json.Serialization.JsonPropertyName("produceDictionaryData")]
-        public System.Collections.Generic.ICollection<ProduceDictionaryItemDto> ProduceDictionaryData { get; set; }
+        [System.Text.Json.Serialization.JsonPropertyName("productDictionaryData")]
+        public System.Collections.Generic.ICollection<ProductDictionaryItemDto> ProductDictionaryData { get; set; }
 
         public string ToJson()
         {
@@ -28511,18 +28511,18 @@ namespace IoTSharp.Sdk.Http
             return System.Text.Json.JsonSerializer.Serialize(this, options);
 
         }
-        public static ProduceDictionaryEditDto FromJson(string data)
+        public static ProductDictionaryEditDto FromJson(string data)
         {
 
             var options = new System.Text.Json.JsonSerializerOptions();
 
-            return System.Text.Json.JsonSerializer.Deserialize<ProduceDictionaryEditDto>(data, options);
+            return System.Text.Json.JsonSerializer.Deserialize<ProductDictionaryEditDto>(data, options);
 
         }
     }
 
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.6.3.0 (NJsonSchema v11.5.2.0 (Newtonsoft.Json v13.0.0.0))")]
-    public partial class ProduceDictionaryItemDto
+    public partial class ProductDictionaryItemDto
     {
 
         [System.Text.Json.Serialization.JsonPropertyName("id")]
@@ -28603,22 +28603,22 @@ namespace IoTSharp.Sdk.Http
             return System.Text.Json.JsonSerializer.Serialize(this, options);
 
         }
-        public static ProduceDictionaryItemDto FromJson(string data)
+        public static ProductDictionaryItemDto FromJson(string data)
         {
 
             var options = new System.Text.Json.JsonSerializerOptions();
 
-            return System.Text.Json.JsonSerializer.Deserialize<ProduceDictionaryItemDto>(data, options);
+            return System.Text.Json.JsonSerializer.Deserialize<ProductDictionaryItemDto>(data, options);
 
         }
     }
 
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.6.3.0 (NJsonSchema v11.5.2.0 (Newtonsoft.Json v13.0.0.0))")]
-    public partial class ApiResultOfListOfProduceDataMappingDto : ApiResult
+    public partial class ApiResultOfListOfProductDataMappingDto : ApiResult
     {
 
         [System.Text.Json.Serialization.JsonPropertyName("data")]
-        public System.Collections.Generic.ICollection<ProduceDataMappingDto> Data { get; set; }
+        public System.Collections.Generic.ICollection<ProductDataMappingDto> Data { get; set; }
 
         public string ToJson()
         {
@@ -28628,25 +28628,25 @@ namespace IoTSharp.Sdk.Http
             return System.Text.Json.JsonSerializer.Serialize(this, options);
 
         }
-        public static ApiResultOfListOfProduceDataMappingDto FromJson(string data)
+        public static ApiResultOfListOfProductDataMappingDto FromJson(string data)
         {
 
             var options = new System.Text.Json.JsonSerializerOptions();
 
-            return System.Text.Json.JsonSerializer.Deserialize<ApiResultOfListOfProduceDataMappingDto>(data, options);
+            return System.Text.Json.JsonSerializer.Deserialize<ApiResultOfListOfProductDataMappingDto>(data, options);
 
         }
     }
 
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.6.3.0 (NJsonSchema v11.5.2.0 (Newtonsoft.Json v13.0.0.0))")]
-    public partial class ProduceDataMappingDto
+    public partial class ProductDataMappingDto
     {
 
         [System.Text.Json.Serialization.JsonPropertyName("id")]
         public System.Guid Id { get; set; }
 
-        [System.Text.Json.Serialization.JsonPropertyName("produceKeyName")]
-        public string ProduceKeyName { get; set; }
+        [System.Text.Json.Serialization.JsonPropertyName("productKeyName")]
+        public string ProductKeyName { get; set; }
 
         [System.Text.Json.Serialization.JsonPropertyName("dataCatalog")]
         [System.Text.Json.Serialization.JsonConverter(typeof(System.Text.Json.Serialization.JsonStringEnumConverter<DataCatalog>))]
@@ -28669,25 +28669,25 @@ namespace IoTSharp.Sdk.Http
             return System.Text.Json.JsonSerializer.Serialize(this, options);
 
         }
-        public static ProduceDataMappingDto FromJson(string data)
+        public static ProductDataMappingDto FromJson(string data)
         {
 
             var options = new System.Text.Json.JsonSerializerOptions();
 
-            return System.Text.Json.JsonSerializer.Deserialize<ProduceDataMappingDto>(data, options);
+            return System.Text.Json.JsonSerializer.Deserialize<ProductDataMappingDto>(data, options);
 
         }
     }
 
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.6.3.0 (NJsonSchema v11.5.2.0 (Newtonsoft.Json v13.0.0.0))")]
-    public partial class SaveProduceDataMappingsDto
+    public partial class SaveProductDataMappingsDto
     {
 
-        [System.Text.Json.Serialization.JsonPropertyName("produceId")]
-        public System.Guid ProduceId { get; set; }
+        [System.Text.Json.Serialization.JsonPropertyName("productId")]
+        public System.Guid ProductId { get; set; }
 
         [System.Text.Json.Serialization.JsonPropertyName("mappings")]
-        public System.Collections.Generic.ICollection<ProduceDataMappingDto> Mappings { get; set; }
+        public System.Collections.Generic.ICollection<ProductDataMappingDto> Mappings { get; set; }
 
         public string ToJson()
         {
@@ -28697,12 +28697,12 @@ namespace IoTSharp.Sdk.Http
             return System.Text.Json.JsonSerializer.Serialize(this, options);
 
         }
-        public static SaveProduceDataMappingsDto FromJson(string data)
+        public static SaveProductDataMappingsDto FromJson(string data)
         {
 
             var options = new System.Text.Json.JsonSerializerOptions();
 
-            return System.Text.Json.JsonSerializer.Deserialize<SaveProduceDataMappingsDto>(data, options);
+            return System.Text.Json.JsonSerializer.Deserialize<SaveProductDataMappingsDto>(data, options);
 
         }
     }

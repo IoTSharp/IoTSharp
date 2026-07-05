@@ -11,6 +11,8 @@ using Microsoft.AspNetCore.Hosting.Server.Features;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging.Abstractions;
+using Quartz.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -80,6 +82,8 @@ namespace IoTSharp.Test
 
         protected async Task InitializeApplicationAsync(IoTSharpTestProfile profile)
         {
+            // Quartz 的日志提供者是进程级静态状态；集成测试会顺序启动多个宿主，需避免复用已释放的宿主 LoggerFactory。
+            LogContext.SetCurrentLogProvider(NullLoggerFactory.Instance);
             Profile = profile;
             _host = IoTSharp.Program.CreateHostBuilder(Array.Empty<string>())
                 .ConfigureWebHost(builder =>

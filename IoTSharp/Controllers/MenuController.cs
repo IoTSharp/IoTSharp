@@ -1,4 +1,4 @@
-﻿using IoTSharp.Contracts;
+using IoTSharp.Contracts;
 using IoTSharp.Data;
 using IoTSharp.Dtos;
 using IoTSharp.Extensions;
@@ -94,13 +94,13 @@ namespace IoTSharp.Controllers
                 {
                     text = "产品管理",
                     i18n = "",
-                    vi18n = "iot.producemnt",
-                    routename = "producemnt",
+                    vi18n = "iot.productmnt",
+                    routename = "productmnt",
                     icon = "medicinebox",
-                    vpath = "/iot/produce",
+                    vpath = "/iot/product",
                     children = new MenuItem[]
                         {
-                            new() { text = "产品列表", i18n = "", vi18n="iot.producelist", routename="producelist", link = "/iot/produce/producelist", vpath="/iot/produce/producelist", }
+                            new() { text = "产品列表", i18n = "", vi18n="iot.productlist", routename="productlist", link = "/iot/product/productlist", vpath="/iot/product/productlist", }
                         }
                 });
                 _user_menu.Add(new()

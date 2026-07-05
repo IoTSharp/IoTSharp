@@ -3,7 +3,7 @@
 		<el-drawer
 			v-model="state.drawer"
 			size="96%"
-			class="produce-mapping-drawer"
+			class="Product-mapping-drawer"
 			append-to-body
 			destroy-on-close
 		>
@@ -20,7 +20,7 @@
 					<el-button type="primary" :icon="Check" :loading="saving" @click="save">保存映射</el-button>
 				</template>
 
-				<section class="produce-mapping-layout">
+				<section class="Product-mapping-layout">
 					<article class="editor-card editor-card--main">
 						<div class="editor-card__header">
 							<div>
@@ -32,9 +32,9 @@
 						<el-table :data="state.mappings" class="editor-table" empty-text="暂无映射，点击新增映射开始配置。">
 							<el-table-column label="产品字段" min-width="220">
 								<template #default="{ row }">
-									<el-select v-model="row.produceKeyName" placeholder="选择产品字段" clearable filterable>
+									<el-select v-model="row.productKeyName" placeholder="选择产品字段" clearable filterable>
 										<el-option
-											v-for="key in state.produceKeys"
+											v-for="key in state.productKeys"
 											:key="key.keyName"
 											:label="key.keyName"
 											:value="key.keyName"
@@ -118,7 +118,7 @@
 						</el-table>
 					</article>
 
-					<aside class="produce-mapping-side">
+					<aside class="Product-mapping-side">
 						<article class="editor-card">
 							<div class="editor-card__header">
 								<div>
@@ -160,21 +160,21 @@ import { ElMessage } from 'element-plus';
 import { Check, Plus } from '@element-plus/icons-vue';
 import { NIL as NIL_UUID, v4 as uuidv4 } from 'uuid';
 import {
-	type ProduceDataMappingDto,
-	getProduceData,
-	getProduceDataMappings,
-	saveProduceDataMappings,
-} from '/@/api/produce';
+	type ProductDataMappingDto,
+	getProductData,
+	getProductDataMappings,
+	saveProductDataMappings,
+} from '/@/api/product';
 import { deviceApi } from '/@/api/devices';
 import ConsoleDrawerWorkspace from '/@/components/console/ConsoleDrawerWorkspace.vue';
 
 const deviceApis = deviceApi();
 
-interface MappingRow extends ProduceDataMappingDto {
+interface MappingRow extends ProductDataMappingDto {
 	_rowId: string;
 }
 
-interface ProduceKey {
+interface ProductKey {
 	keyName: string;
 	dataSide: string;
 	type: string;
@@ -188,8 +188,8 @@ interface DeviceInfo {
 interface MappingState {
 	drawer: boolean;
 	dialogTitle: string;
-	produceId: string;
-	produceKeys: ProduceKey[];
+	productId: string;
+	productKeys: ProductKey[];
 	devices: DeviceInfo[];
 	deviceKeysCache: Record<string, { telemetry: string[]; attribute: string[] }>;
 	mappings: MappingRow[];
@@ -206,8 +206,8 @@ const saving = ref(false);
 const state = reactive<MappingState>({
 	drawer: false,
 	dialogTitle: '产品数据映射',
-	produceId: NIL_UUID,
-	produceKeys: [],
+	productId: NIL_UUID,
+	productKeys: [],
 	devices: [],
 	deviceKeysCache: {},
 	mappings: [],
@@ -215,7 +215,7 @@ const state = reactive<MappingState>({
 
 const badges = computed(() => [
 	'字段路由',
-	`${state.produceKeys.length} 个抽象字段`,
+	`${state.productKeys.length} 个抽象字段`,
 	`${state.devices.length} 台候选设备`,
 ]);
 
@@ -234,7 +234,7 @@ const metrics = computed(() => [
 	},
 	{
 		label: '抽象字段',
-		value: state.produceKeys.length,
+		value: state.productKeys.length,
 		hint: '来自产品模型的可映射抽象字段数量。',
 		tone: 'success' as const,
 	},
@@ -250,33 +250,33 @@ const summaryItems = computed(() => [
 	{ label: '遥测映射', value: state.mappings.filter((item) => item.dataCatalog === 'TelemetryData').length },
 	{ label: '属性映射', value: state.mappings.filter((item) => item.dataCatalog === 'AttributeData').length },
 	{ label: '已绑定设备', value: state.mappings.filter((item) => item.deviceId).length },
-	{ label: '待补全映射', value: state.mappings.filter((item) => !item.produceKeyName || !item.deviceId || !item.deviceKeyName).length },
+	{ label: '待补全映射', value: state.mappings.filter((item) => !item.productKeyName || !item.deviceId || !item.deviceKeyName).length },
 ]);
 
-const openDialog = async (produceId: string, devices: DeviceInfo[]) => {
-	state.produceId = produceId;
+const openDialog = async (productId: string, devices: DeviceInfo[]) => {
+	state.productId = productId;
 	state.devices = devices ?? [];
 	state.deviceKeysCache = {};
 	state.mappings = [];
 
 	try {
-		const produceResponse = await getProduceData(produceId);
-		state.produceKeys = (produceResponse.data ?? []).map((item: any) => ({
+		const productResponse = await getProductData(productId);
+		state.productKeys = (productResponse.data ?? []).map((item: any) => ({
 			keyName: item.keyName,
 			dataSide: item.dataSide,
 			type: item.type,
 		}));
 	}
 	catch {
-		state.produceKeys = [];
+		state.productKeys = [];
 	}
 
 	try {
-		const mappingResponse = await getProduceDataMappings(produceId);
-		state.mappings = (mappingResponse.data ?? []).map((item: ProduceDataMappingDto) => ({
+		const mappingResponse = await getProductDataMappings(productId);
+		state.mappings = (mappingResponse.data ?? []).map((item: ProductDataMappingDto) => ({
 			_rowId: uuidv4(),
 			id: item.id,
-			produceKeyName: item.produceKeyName,
+			productKeyName: item.productKeyName,
 			dataCatalog: item.dataCatalog,
 			deviceId: item.deviceId,
 			deviceKeyName: item.deviceKeyName,
@@ -303,7 +303,7 @@ const addRow = () => {
 	state.mappings.push({
 		_rowId: uuidv4(),
 		id: NIL_UUID,
-		produceKeyName: '',
+		productKeyName: '',
 		dataCatalog: 'TelemetryData',
 		deviceId: '',
 		deviceKeyName: '',
@@ -356,7 +356,7 @@ const getDeviceKeys = (deviceId: string, catalog: string) => {
 };
 
 const validateMappings = () => {
-	const invalidRow = state.mappings.find((item) => !item.produceKeyName || !item.dataCatalog || !item.deviceId || !item.deviceKeyName);
+	const invalidRow = state.mappings.find((item) => !item.productKeyName || !item.dataCatalog || !item.deviceId || !item.deviceKeyName);
 	if (invalidRow) {
 		ElMessage.warning('请补全产品字段、数据类别、关联设备和设备字段');
 		return false;
@@ -370,10 +370,10 @@ const save = async () => {
 	saving.value = true;
 
 	const payload = {
-		produceId: state.produceId,
+		productId: state.productId,
 		mappings: state.mappings.map((item) => ({
 			id: item.id,
-			produceKeyName: item.produceKeyName,
+			productKeyName: item.productKeyName,
 			dataCatalog: item.dataCatalog,
 			deviceId: item.deviceId,
 			deviceKeyName: item.deviceKeyName,
@@ -382,7 +382,7 @@ const save = async () => {
 	};
 
 	try {
-		const result = await saveProduceDataMappings(payload as any);
+		const result = await saveProductDataMappings(payload as any);
 		if (result.code === 10000) {
 			ElMessage.success('映射保存成功');
 			state.drawer = false;
@@ -407,23 +407,23 @@ defineExpose({
 </script>
 
 <style lang="scss" scoped>
-:deep(.produce-mapping-drawer .el-drawer__header) {
+:deep(.Product-mapping-drawer .el-drawer__header) {
 	margin-bottom: 0;
 	padding-bottom: 0;
 }
 
-:deep(.produce-mapping-drawer .el-drawer__body) {
+:deep(.Product-mapping-drawer .el-drawer__body) {
 	padding: 18px;
 	background: linear-gradient(180deg, #f8fbff 0%, #f3f7fc 100%);
 }
 
-.produce-mapping-layout {
+.Product-mapping-layout {
 	display: grid;
 	grid-template-columns: minmax(0, 1.85fr) 320px;
 	gap: 18px;
 }
 
-.produce-mapping-side {
+.Product-mapping-side {
 	display: flex;
 	flex-direction: column;
 	gap: 18px;
@@ -514,17 +514,17 @@ defineExpose({
 }
 
 @media (max-width: 1080px) {
-	.produce-mapping-layout {
+	.Product-mapping-layout {
 		grid-template-columns: 1fr;
 	}
 }
 
 @media (max-width: 767px) {
-	:deep(.produce-mapping-drawer) {
+	:deep(.Product-mapping-drawer) {
 		width: 100% !important;
 	}
 
-	:deep(.produce-mapping-drawer .el-drawer__body) {
+	:deep(.Product-mapping-drawer .el-drawer__body) {
 		padding: 12px;
 	}
 

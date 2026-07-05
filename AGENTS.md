@@ -33,7 +33,7 @@ The next wave of work must first make the domain language consistent.
 - Collection templates define protocol, connection, point, transform, mapping and sampling behavior.
 - Release tasks, configuration rollout, OTA and long-running operations must not be hidden inside the real-time rule-chain model.
 
-Existing `Produce` code and API surfaces are compatibility implementation details. New documentation, UI text, DTOs and contracts should use Product language unless preserving an existing public API.
+Old `Produce` code and API surfaces are no longer compatibility targets. Current documentation, UI text, DTOs, contracts and active API surfaces should use Product language; historical EF migrations may still mention Produce only as database history.
 
 ## AI Workbench Direction
 
@@ -167,7 +167,7 @@ When adding or reviewing work, prioritize the following outcomes:
 ### Phase 0: domain concept realignment
 Deliver:
 - Product, Device, Asset, Gateway, EdgeNode and Collection Template boundaries
-- Product language for new UI, DTOs and docs while preserving old `Produce` compatibility
+- Product language for UI, DTOs and docs without preserving old `Produce` compatibility
 - Device workspace focused on runtime state, credentials, telemetry, commands, alarms and relations
 - Product workspace focused on capability templates, point definitions, credential policy and default behavior
 

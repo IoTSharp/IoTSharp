@@ -1,4 +1,4 @@
-﻿using IoTSharp.Contracts;
+using IoTSharp.Contracts;
 using IoTSharp.Data;
 using System;
 using System.Collections.Generic;
@@ -18,7 +18,7 @@ namespace IoTSharp.Dtos
 
         public Guid? ProductId { get; set; }
     }
-    public class DevicePostProduceDto
+    public class DevicePostProductDto
     {
         public string Name { get; set; }
     }

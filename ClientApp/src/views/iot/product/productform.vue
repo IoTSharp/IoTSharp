@@ -3,7 +3,7 @@
 		<el-drawer
 			v-model="state.drawer"
 			:size="'82%'"
-			class="produce-form-drawer"
+			class="Product-form-drawer"
 			append-to-body
 			destroy-on-close
 		>
@@ -19,8 +19,8 @@
 					<el-button type="primary" :loading="submitting" @click="onSubmit(dataFormRef)">保存产品</el-button>
 				</template>
 
-				<el-form ref="dataFormRef" :model="state.dataForm" :rules="rules" label-position="top" class="produce-form">
-					<section class="produce-form__grid">
+				<el-form ref="dataFormRef" :model="state.dataForm" :rules="rules" label-position="top" class="Product-form">
+					<section class="Product-form__grid">
 						<article class="form-card">
 							<div class="form-card__header">
 								<div>
@@ -103,14 +103,14 @@
 									</el-form-item>
 								</el-col>
 								<el-col :span="24">
-									<el-form-item label="产品认证 Key" prop="produceToken">
+									<el-form-item label="产品认证 Key" prop="productToken">
 										<el-input
-											v-model="state.dataForm.produceToken"
+											v-model="state.dataForm.productToken"
 											placeholder="留空则由系统自动生成；也可填入既有产品认证 Key"
 											clearable
 										>
 											<template #append>
-												<el-button @click="generateProduceToken">
+												<el-button @click="generateProductToken">
 													<el-icon><Refresh /></el-icon>
 												</el-button>
 											</template>
@@ -170,16 +170,16 @@ import { computed, nextTick, reactive, ref, watch } from 'vue';
 import { ElMessage, type FormInstance, type FormRules } from 'element-plus';
 import { Refresh } from '@element-plus/icons-vue';
 import { NIL as NIL_UUID } from 'uuid';
-import type { produceaddoreditdto } from '/@/dtos/produceaddoreditdto';
-import { getProduce, saveProduce, updateProduce } from '/@/api/produce';
+import type { productaddoreditdto } from '/@/dtos/productaddoreditdto';
+import { getProduct, saveProduct, updateProduct } from '/@/api/product';
 import ConsoleDrawerWorkspace from '/@/components/console/ConsoleDrawerWorkspace.vue';
 import monaco from '/@/components/monaco/monaco.vue';
 import IconSelector from '/@/components/iconSelector/index.vue';
 
-interface ProduceFormState {
+interface ProductFormState {
 	drawer: boolean;
 	dialogtitle: string;
-	dataForm: produceaddoreditdto;
+	dataForm: productaddoreditdto;
 }
 
 const gatewayTypeOptions = [
@@ -194,7 +194,7 @@ const gatewayTypeOptions = [
 const identityTypeOptions = [
 	{ value: 'AccessToken', label: 'AccessToken' },
 	{ value: 'DevicePassword', label: '设备密码' },
-	{ value: 'ProduceToken', label: '产品认证 Key' },
+	{ value: 'ProductToken', label: '产品认证 Key' },
 	{ value: 'X509Certificate', label: 'X509 证书' },
 ];
 
@@ -207,7 +207,7 @@ const emit = defineEmits(['close', 'submit']);
 const dataFormRef = ref<FormInstance>();
 const submitting = ref(false);
 
-const createDefaultForm = (): produceaddoreditdto => ({
+const createDefaultForm = (): productaddoreditdto => ({
 	id: NIL_UUID,
 	name: '',
 	icon: '',
@@ -219,7 +219,7 @@ const createDefaultForm = (): produceaddoreditdto => ({
 	gatewayConfigurationJson: '',
 	gatewayConfiguration: '',
 	defaultIdentityType: 'AccessToken',
-	produceToken: '',
+	productToken: '',
 });
 
 const rules = reactive<FormRules>({
@@ -233,7 +233,7 @@ const rules = reactive<FormRules>({
 	defaultTimeout: [{ required: true, message: '请输入默认超时', trigger: 'change' }],
 });
 
-const state = reactive<ProduceFormState>({
+const state = reactive<ProductFormState>({
 	drawer: false,
 	dialogtitle: '',
 	dataForm: createDefaultForm(),
@@ -295,7 +295,7 @@ const metrics = computed(() => [
 	},
 	{
 		label: '产品 Key',
-		value: state.dataForm.produceToken ? '已配置' : '自动生成',
+		value: state.dataForm.productToken ? '已配置' : '自动生成',
 		hint: '车道软件等产品级接入会使用这里的认证 Key。',
 		tone: 'primary' as const,
 	},
@@ -320,32 +320,32 @@ const resetFormState = () => {
 	state.dataForm = createDefaultForm();
 };
 
-const fillGatewayConfigurationFields = (rawProduce: any) => {
+const fillGatewayConfigurationFields = (rawProduct: any) => {
 	const form = createDefaultForm();
-	form.id = rawProduce.id;
-	form.name = rawProduce.name;
-	form.icon = rawProduce.icon;
-	form.defaultTimeout = rawProduce.defaultTimeout;
-	form.description = rawProduce.description;
-	form.gatewayType = rawProduce.gatewayType || 'Unknow';
-	form.defaultDeviceType = rawProduce.defaultDeviceType;
-	form.defaultIdentityType = rawProduce.defaultIdentityType;
-	form.produceToken = rawProduce.produceToken;
+	form.id = rawProduct.id;
+	form.name = rawProduct.name;
+	form.icon = rawProduct.icon;
+	form.defaultTimeout = rawProduct.defaultTimeout;
+	form.description = rawProduct.description;
+	form.gatewayType = rawProduct.gatewayType || 'Unknow';
+	form.defaultDeviceType = rawProduct.defaultDeviceType;
+	form.defaultIdentityType = rawProduct.defaultIdentityType;
+	form.productToken = rawProduct.productToken;
 
 	if (form.gatewayType === 'Customize') {
-		form.gatewayConfigurationJson = rawProduce.gatewayConfiguration;
+		form.gatewayConfigurationJson = rawProduct.gatewayConfiguration;
 	}
 	else if (form.gatewayType !== 'Unknow') {
-		form.gatewayConfigurationName = rawProduce.gatewayConfiguration;
+		form.gatewayConfigurationName = rawProduct.gatewayConfiguration;
 	}
 
 	state.dataForm = form;
 };
 
-const openDialog = async (produceid: string) => {
+const openDialog = async (ProductId: string) => {
 	state.drawer = true;
 
-	if (produceid === NIL_UUID) {
+	if (ProductId === NIL_UUID) {
 		resetFormState();
 		state.dialogtitle = '新建产品';
 		await nextTick();
@@ -354,7 +354,7 @@ const openDialog = async (produceid: string) => {
 	}
 
 	state.dialogtitle = '编辑产品';
-	const res = await getProduce(produceid);
+	const res = await getProduct(ProductId);
 	fillGatewayConfigurationFields(res.data);
 	await nextTick();
 	dataFormRef.value?.clearValidate();
@@ -369,7 +369,7 @@ const oneditorchange = () => {
 };
 
 const applyGatewayConfiguration = () => {
-	state.dataForm.produceToken = state.dataForm.produceToken?.trim() ?? '';
+	state.dataForm.productToken = state.dataForm.productToken?.trim() ?? '';
 
 	if (showCustomGatewayConfig.value) {
 		state.dataForm.gatewayConfiguration = state.dataForm.gatewayConfigurationJson?.trim() ?? '';
@@ -398,10 +398,10 @@ const validateGatewayConfiguration = () => {
 	return true;
 };
 
-const generateProduceToken = () => {
+const generateProductToken = () => {
 	const bytes = new Uint8Array(16);
 	window.crypto.getRandomValues(bytes);
-	state.dataForm.produceToken = Array.from(bytes, (byte) => byte.toString(16).padStart(2, '0')).join('');
+	state.dataForm.productToken = Array.from(bytes, (byte) => byte.toString(16).padStart(2, '0')).join('');
 };
 
 const onSubmit = async (formEl: FormInstance | undefined) => {
@@ -415,7 +415,7 @@ const onSubmit = async (formEl: FormInstance | undefined) => {
 
 		try {
 			if (state.dataForm.id === NIL_UUID) {
-				const result = await saveProduce(state.dataForm);
+				const result = await saveProduct(state.dataForm);
 				if (result.code === 10000) {
 					ElMessage.success('产品创建成功');
 					emit('close', state.dataForm);
@@ -426,7 +426,7 @@ const onSubmit = async (formEl: FormInstance | undefined) => {
 				}
 			}
 			else {
-				const result = await updateProduce(state.dataForm);
+				const result = await updateProduct(state.dataForm);
 				if (result.code === 10000) {
 					ElMessage.success('产品更新成功');
 					emit('close', state.dataForm);
@@ -449,17 +449,17 @@ defineExpose({
 </script>
 
 <style lang="scss" scoped>
-:deep(.produce-form-drawer .el-drawer__header) {
+:deep(.Product-form-drawer .el-drawer__header) {
 	margin-bottom: 0;
 	padding-bottom: 0;
 }
 
-:deep(.produce-form-drawer .el-drawer__body) {
+:deep(.Product-form-drawer .el-drawer__body) {
 	padding: 18px;
 	background: linear-gradient(180deg, #f8fbff 0%, #f3f7fc 100%);
 }
 
-.produce-form__grid {
+.Product-form__grid {
 	display: grid;
 	grid-template-columns: repeat(2, minmax(0, 1fr));
 	gap: 18px;
@@ -540,22 +540,22 @@ defineExpose({
 	line-height: 1.8;
 }
 
-.produce-form :deep(.el-form-item) {
+.Product-form :deep(.el-form-item) {
 	margin-bottom: 18px;
 }
 
-.produce-form :deep(.el-input__wrapper),
-.produce-form :deep(.el-textarea__inner),
-.produce-form :deep(.el-select__wrapper) {
+.Product-form :deep(.el-input__wrapper),
+.Product-form :deep(.el-textarea__inner),
+.Product-form :deep(.el-select__wrapper) {
 	border-radius: 16px;
 }
 
-.produce-form :deep(.el-input-number) {
+.Product-form :deep(.el-input-number) {
 	width: 100%;
 }
 
 @media (max-width: 1080px) {
-	.produce-form__grid {
+	.Product-form__grid {
 		grid-template-columns: 1fr;
 	}
 
@@ -565,11 +565,11 @@ defineExpose({
 }
 
 @media (max-width: 767px) {
-	:deep(.produce-form-drawer) {
+	:deep(.Product-form-drawer) {
 		width: 100% !important;
 	}
 
-	:deep(.produce-form-drawer .el-drawer__body) {
+	:deep(.Product-form-drawer .el-drawer__body) {
 		padding: 12px;
 	}
 

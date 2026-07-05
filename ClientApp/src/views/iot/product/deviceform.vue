@@ -3,7 +3,7 @@
 		<el-drawer
 			v-model="state.drawer"
 			size="68%"
-			class="produce-device-drawer"
+			class="Product-device-drawer"
 			append-to-body
 			destroy-on-close
 		>
@@ -19,7 +19,7 @@
 					<el-button type="primary" :loading="submitting" @click="onSubmit(dataFormRef)">创建设备</el-button>
 				</template>
 
-				<section class="produce-device-layout">
+				<section class="Product-device-layout">
 					<article class="form-card form-card--main">
 						<div class="form-card__header">
 							<div>
@@ -57,18 +57,18 @@
 <script lang="ts" setup>
 import { computed, nextTick, reactive, ref } from 'vue';
 import { ElMessage, type FormInstance, type FormRules } from 'element-plus';
-import { createDevice } from '/@/api/produce';
+import { createDevice } from '/@/api/product';
 import ConsoleDrawerWorkspace from '/@/components/console/ConsoleDrawerWorkspace.vue';
 
 interface DeviceForm {
 	name: string;
 }
 
-interface ProduceDeviceState {
+interface ProductDeviceState {
 	drawer: boolean;
 	dialogtitle: string;
 	dataForm: DeviceForm;
-	produceid: string;
+	ProductId: string;
 }
 
 const emit = defineEmits(['close', 'submit']);
@@ -82,18 +82,18 @@ const rules = reactive<FormRules>({
 	],
 });
 
-const state = reactive<ProduceDeviceState>({
+const state = reactive<ProductDeviceState>({
 	drawer: false,
 	dialogtitle: '创建设备',
 	dataForm: {
 		name: '',
 	},
-	produceid: '',
+	ProductId: '',
 });
 
-const shortProduceId = computed(() => {
-	if (!state.produceid) return '--';
-	return `${state.produceid.slice(0, 12)}...`;
+const shortProductId = computed(() => {
+	if (!state.ProductId) return '--';
+	return `${state.ProductId.slice(0, 12)}...`;
 });
 
 const badges = computed(() => [
@@ -104,7 +104,7 @@ const badges = computed(() => [
 const metrics = computed(() => [
 	{
 		label: '来源产品',
-		value: shortProduceId.value,
+		value: shortProductId.value,
 		hint: '设备将基于这个产品模型创建。',
 		tone: 'primary' as const,
 	},
@@ -128,8 +128,8 @@ const metrics = computed(() => [
 	},
 ]);
 
-const openDialog = async (produceid: string) => {
-	state.produceid = produceid;
+const openDialog = async (ProductId: string) => {
+	state.ProductId = ProductId;
 	state.dataForm = { name: '' };
 	state.drawer = true;
 	await nextTick();
@@ -149,7 +149,7 @@ const onSubmit = async (formEl: FormInstance | undefined) => {
 
 		submitting.value = true;
 		try {
-			const result = await createDevice(state.produceid, state.dataForm);
+			const result = await createDevice(state.ProductId, state.dataForm);
 			if (result.code === 10000) {
 				ElMessage.success('设备创建成功');
 				state.drawer = false;
@@ -172,17 +172,17 @@ defineExpose({
 </script>
 
 <style lang="scss" scoped>
-:deep(.produce-device-drawer .el-drawer__header) {
+:deep(.Product-device-drawer .el-drawer__header) {
 	margin-bottom: 0;
 	padding-bottom: 0;
 }
 
-:deep(.produce-device-drawer .el-drawer__body) {
+:deep(.Product-device-drawer .el-drawer__body) {
 	padding: 18px;
 	background: linear-gradient(180deg, #f8fbff 0%, #f3f7fc 100%);
 }
 
-.produce-device-layout {
+.Product-device-layout {
 	display: grid;
 	grid-template-columns: minmax(0, 1.4fr) 320px;
 	gap: 18px;
@@ -229,17 +229,17 @@ defineExpose({
 }
 
 @media (max-width: 1080px) {
-	.produce-device-layout {
+	.Product-device-layout {
 		grid-template-columns: 1fr;
 	}
 }
 
 @media (max-width: 767px) {
-	:deep(.produce-device-drawer) {
+	:deep(.Product-device-drawer) {
 		width: 100% !important;
 	}
 
-	:deep(.produce-device-drawer .el-drawer__body) {
+	:deep(.Product-device-drawer .el-drawer__body) {
 		padding: 12px;
 	}
 

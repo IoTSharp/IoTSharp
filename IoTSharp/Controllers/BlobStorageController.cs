@@ -1,4 +1,4 @@
-﻿using EasyCaching.Core;
+using EasyCaching.Core;
 using IoTSharp.Contracts;
 using IoTSharp.Data;
 using IoTSharp.EventBus;

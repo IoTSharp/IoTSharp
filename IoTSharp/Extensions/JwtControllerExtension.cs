@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
@@ -34,9 +34,9 @@ namespace IoTSharp.Extensions
         {
             return $"/{@this.User.GetTenantId()}/{@this.User.GetCustomerId()}/";
         }
-        public static string GetStorageRoot(this ControllerBase @this, Produce produce)
+        public static string GetStorageRoot(this ControllerBase @this, Product Product)
         {
-            return $"/{@this.User.GetTenantId()}/{@this.User.GetCustomerId()}/{produce.Id}";
+            return $"/{@this.User.GetTenantId()}/{@this.User.GetCustomerId()}/{Product.Id}";
         }
         public static string GetStorageRoot(this ControllerBase @this, Device device)
         {

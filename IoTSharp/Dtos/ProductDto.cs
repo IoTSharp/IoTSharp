@@ -1,4 +1,4 @@
-﻿using IoTSharp.Data;
+using IoTSharp.Data;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System;
@@ -6,7 +6,7 @@ using IoTSharp.Contracts;
 
 namespace IoTSharp.Dtos
 {
-    public class ProduceDto
+    public class ProductDto
     {
         public Guid Id { get; set; }
 

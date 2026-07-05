@@ -87,7 +87,7 @@ namespace IoTSharp.Contracts
         /// <summary>
         /// 没有找到产品
         /// </summary>
-        NotFoundProduce = 10017,
+        NotFoundProduct = 10017,
         /// <summary>
         /// 没有文件
         /// </summary>
@@ -196,7 +196,7 @@ namespace IoTSharp.Contracts
         AttributeLatest,
         TelemetryData,
         TelemetryLatest,
-        ProduceData
+        ProductData
     }
     [System.Text.Json.Serialization.JsonConverter(typeof(System.Text.Json.Serialization.JsonStringEnumConverter))]
     public enum DataSide
@@ -244,7 +244,7 @@ namespace IoTSharp.Contracts
         AccessToken = 0,
         DevicePassword = 1,
         X509Certificate = 2,
-        ProduceToken = 3
+        ProductToken = 3
     }
     [System.Text.Json.Serialization.JsonConverter(typeof(System.Text.Json.Serialization.JsonStringEnumConverter))]
     public enum ObjectType

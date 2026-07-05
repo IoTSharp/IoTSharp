@@ -1,4 +1,4 @@
-﻿using IoTSharp.EventBus;
+using IoTSharp.EventBus;
 using IoTSharp.Contracts;
 using IoTSharp.Data;
 using IoTSharp.Data.Extensions;
@@ -32,7 +32,7 @@ namespace IoTSharp.Services
         private readonly FlowRuleProcessor _flowRuleProcessor;
         private readonly IMemoryCache _mqttAuthCache;
         private readonly ConcurrentDictionary<string, Device> _mqttAuthIndex = new(StringComparer.Ordinal);
-        private readonly ConcurrentDictionary<string, byte> _mqttProduceTokenIndex = new(StringComparer.Ordinal);
+        private readonly ConcurrentDictionary<string, byte> _mqttProductTokenIndex = new(StringComparer.Ordinal);
         private readonly ConcurrentDictionary<Guid, MqttConnectState> _connectStates = new();
         private readonly Channel<DeviceConnectStatus> _connectStatusQueue;
         private DateTime _connectStatusPublishPausedUntil = DateTime.MinValue;
@@ -110,10 +110,10 @@ namespace IoTSharp.Services
             return $"mqtt_auth_index:{hash}";
         }
 
-        private static string BuildProduceTokenIndexKey(string produceToken)
+        private static string BuildProductTokenIndexKey(string ProductToken)
         {
-            var hash = Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(produceToken)));
-            return $"mqtt_produce_token:{hash}";
+            var hash = Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(ProductToken)));
+            return $"mqtt_product_token:{hash}";
         }
 
         private static IEnumerable<string> BuildMqttAuthIndexKeys(string userName, string password, string thumbprint)
@@ -124,7 +124,7 @@ namespace IoTSharp.Services
                 if (!string.IsNullOrEmpty(password))
                 {
                     yield return BuildMqttAuthIndexKey(IdentityType.DevicePassword, userName, password);
-                    yield return BuildMqttAuthIndexKey(IdentityType.ProduceToken, userName, password);
+                    yield return BuildMqttAuthIndexKey(IdentityType.ProductToken, userName, password);
                 }
             }
 
@@ -157,7 +157,7 @@ namespace IoTSharp.Services
                 return;
             }
 
-            var identityValue = identity.IdentityType == IdentityType.DevicePassword || identity.IdentityType == IdentityType.ProduceToken
+            var identityValue = identity.IdentityType == IdentityType.DevicePassword || identity.IdentityType == IdentityType.ProductToken
                 ? identity.IdentityValue
                 : string.Empty;
             _mqttAuthIndex[BuildMqttAuthIndexKey(identity.IdentityType, identity.IdentityId, identityValue)] = CloneMqttSessionDevice(identity.Device);
@@ -190,7 +190,7 @@ namespace IoTSharp.Services
                 var nextIndex = new ConcurrentDictionary<string, Device>(StringComparer.Ordinal);
                 foreach (var identity in identities)
                 {
-                    var identityValue = identity.IdentityType == IdentityType.DevicePassword || identity.IdentityType == IdentityType.ProduceToken
+                    var identityValue = identity.IdentityType == IdentityType.DevicePassword || identity.IdentityType == IdentityType.ProductToken
                         ? identity.IdentityValue
                         : string.Empty;
                     nextIndex[BuildMqttAuthIndexKey(identity.IdentityType, identity.IdentityId, identityValue)] = CloneMqttSessionDevice(identity.Device);
@@ -198,24 +198,24 @@ namespace IoTSharp.Services
 
                 try
                 {
-                    var produces = await dbContext.Produces
+                    var Products = await dbContext.Products
                         .AsNoTracking()
-                        .Where(p => !p.Deleted && p.ProduceToken != null)
-                        .Select(p => new { p.Id, p.ProduceToken, p.DefaultIdentityType })
+                        .Where(p => !p.Deleted && p.ProductToken != null)
+                        .Select(p => new { p.Id, p.ProductToken, p.DefaultIdentityType })
                         .ToListAsync();
 
-                    var produceTokenById = produces
-                        .Where(p => !string.IsNullOrEmpty(p.ProduceToken)
-                            && (p.DefaultIdentityType == IdentityType.ProduceToken || p.DefaultIdentityType == IdentityType.DevicePassword))
-                        .ToDictionary(p => p.Id, p => p.ProduceToken);
+                    var ProductTokenById = Products
+                        .Where(p => !string.IsNullOrEmpty(p.ProductToken)
+                            && (p.DefaultIdentityType == IdentityType.ProductToken || p.DefaultIdentityType == IdentityType.DevicePassword))
+                        .ToDictionary(p => p.Id, p => p.ProductToken);
 
-                    var nextProduceTokenIndex = new ConcurrentDictionary<string, byte>(StringComparer.Ordinal);
-                    foreach (var produceToken in produceTokenById.Values)
+                    var nextProductTokenIndex = new ConcurrentDictionary<string, byte>(StringComparer.Ordinal);
+                    foreach (var ProductToken in ProductTokenById.Values)
                     {
-                        nextProduceTokenIndex[BuildProduceTokenIndexKey(produceToken)] = 0;
+                        nextProductTokenIndex[BuildProductTokenIndexKey(ProductToken)] = 0;
                     }
 
-                    if (produceTokenById.Count > 0)
+                    if (ProductTokenById.Count > 0)
                     {
                         var devices = await dbContext.Device
                             .AsNoTracking()
@@ -228,7 +228,7 @@ namespace IoTSharp.Services
                                 d.Timeout,
                                 d.Deleted,
                                 d.DeviceModelId,
-                                ProductId = d.Produce == null ? null : (Guid?)d.Produce.Id
+                                ProductId = d.Product == null ? null : (Guid?)d.Product.Id
                             })
                             .ToListAsync();
 
@@ -236,9 +236,9 @@ namespace IoTSharp.Services
                         {
                             if (device.ProductId.HasValue
                                 && !string.IsNullOrEmpty(device.Name)
-                                && produceTokenById.TryGetValue(device.ProductId.Value, out var produceToken))
+                                && ProductTokenById.TryGetValue(device.ProductId.Value, out var ProductToken))
                             {
-                                nextIndex[BuildMqttAuthIndexKey(IdentityType.ProduceToken, device.Name, produceToken)] = new Device
+                                nextIndex[BuildMqttAuthIndexKey(IdentityType.ProductToken, device.Name, ProductToken)] = new Device
                                 {
                                     Id = device.Id,
                                     Name = device.Name,
@@ -251,15 +251,15 @@ namespace IoTSharp.Services
                         }
                     }
 
-                    _mqttProduceTokenIndex.Clear();
-                    foreach (var item in nextProduceTokenIndex)
+                    _mqttProductTokenIndex.Clear();
+                    foreach (var item in nextProductTokenIndex)
                     {
-                        _mqttProduceTokenIndex[item.Key] = item.Value;
+                        _mqttProductTokenIndex[item.Key] = item.Value;
                     }
                 }
                 catch (Exception ex)
                 {
-                    _logger.LogWarning(ex, "MQTT produce auth index refresh skipped.");
+                    _logger.LogWarning(ex, "MQTT Product auth index refresh skipped.");
                 }
 
                 _mqttAuthIndex.Clear();
@@ -308,10 +308,10 @@ namespace IoTSharp.Services
             return false;
         }
 
-        private bool IsKnownProduceToken(string password)
+        private bool IsKnownProductToken(string password)
         {
             return !string.IsNullOrEmpty(password)
-                && _mqttProduceTokenIndex.ContainsKey(BuildProduceTokenIndexKey(password));
+                && _mqttProductTokenIndex.ContainsKey(BuildProductTokenIndexKey(password));
         }
 
         private void CacheSuccessfulAuth(string key, Device device)
@@ -604,7 +604,7 @@ namespace IoTSharp.Services
                     return;
                 }
 
-                if (!IsKnownProduceToken(obj.Password))
+                if (!IsKnownProductToken(obj.Password))
                 {
                     CacheFailedAuth(authCacheKey);
                     e.ReasonCode = MQTTnet.Protocol.MqttConnectReasonCode.BadUserNameOrPassword;
@@ -628,7 +628,7 @@ namespace IoTSharp.Services
                         var mcr = _dbContextcv.DeviceIdentities.Include(d => d.Device).FirstOrDefault(mc =>
                                              (mc.IdentityType == IdentityType.AccessToken && mc.IdentityId == obj.UserName) ||
                                              (mc.IdentityType == IdentityType.X509Certificate && mc.IdentityId == _thumbprint) ||
-                                             ((mc.IdentityType == IdentityType.DevicePassword || mc.IdentityType == IdentityType.ProduceToken) && mc.IdentityId == obj.UserName && mc.IdentityValue == obj.Password)
+                                             ((mc.IdentityType == IdentityType.DevicePassword || mc.IdentityType == IdentityType.ProductToken) && mc.IdentityId == obj.UserName && mc.IdentityValue == obj.Password)
                                              );
                         if (mcr != null)
                         {
@@ -646,7 +646,7 @@ namespace IoTSharp.Services
                         else
                         {
                             var ak = !string.IsNullOrEmpty(obj.Password)
-                                ? _dbContextcv.Produces.Include(ak => ak.Customer).Include(ak => ak.Tenant).Include(ak => ak.Devices).FirstOrDefault(ak => ak.ProduceToken == obj.Password && ak.ProduceToken != null && ak.Deleted == false)
+                                ? _dbContextcv.Products.Include(ak => ak.Customer).Include(ak => ak.Tenant).Include(ak => ak.Devices).FirstOrDefault(ak => ak.ProductToken == obj.Password && ak.ProductToken != null && ak.Deleted == false)
                                 : null;
                             if (ak != null)
                             {
@@ -659,22 +659,22 @@ namespace IoTSharp.Services
                                     createdDevice.Customer = ak.Customer;
                                     _dbContextcv.Device.Add(createdDevice);
                                     _dbContextcv.AfterCreateDevice(createdDevice, ak.Id);
-                                    _dbContextcv.EnsureDeviceIdentity(createdDevice, IdentityType.ProduceToken, ak);
+                                    _dbContextcv.EnsureDeviceIdentity(createdDevice, IdentityType.ProductToken, ak);
                                     _dbContextcv.SaveChanges();
                                 }
 
                                 var mcp = existingDevice ?? createdDevice;
                                 if (mcp != null)
                                 {
-                                    _mqttAuthIndex[BuildMqttAuthIndexKey(IdentityType.ProduceToken, obj.UserName, obj.Password)] = CloneMqttSessionDevice(mcp);
+                                    _mqttAuthIndex[BuildMqttAuthIndexKey(IdentityType.ProductToken, obj.UserName, obj.Password)] = CloneMqttSessionDevice(mcp);
                                     AcceptConnection(e, mcp, obj.UserName, obj.RemoteEndPoint.ToString());
-                                    _logger.LogDebug("Produce device accepted. ProduceName={ProduceName}, DeviceName={DeviceName}, DeviceId={DeviceId}, ClientName={ClientName}, Endpoint={Endpoint}", ak.Name, mcp.Name, mcp.Id, obj.UserName, obj.RemoteEndPoint.ToString());
+                                    _logger.LogDebug("Product device accepted. ProductName={ProductName}, DeviceName={DeviceName}, DeviceId={DeviceId}, ClientName={ClientName}, Endpoint={Endpoint}", ak.Name, mcp.Name, mcp.Id, obj.UserName, obj.RemoteEndPoint.ToString());
                                 }
                                 else
                                 {
                                     CacheFailedAuth(authCacheKey);
                                     e.ReasonCode = MQTTnet.Protocol.MqttConnectReasonCode.BadUserNameOrPassword;
-                                    _logger.LogInformation($"Bad device name or ProduceToken {obj.UserName},connection {obj.RemoteEndPoint.ToString()} refused");
+                                    _logger.LogInformation($"Bad device name or ProductToken {obj.UserName},connection {obj.RemoteEndPoint.ToString()} refused");
                                 }
                             }
                             else

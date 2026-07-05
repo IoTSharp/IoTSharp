@@ -3,7 +3,7 @@
 		<el-drawer
 			v-model="state.drawer"
 			size="96%"
-			class="produce-dict-drawer"
+			class="Product-dict-drawer"
 			append-to-body
 			destroy-on-close
 		>
@@ -20,7 +20,7 @@
 					<el-button type="primary" :icon="Check" :loading="saving" @click="save">保存字典</el-button>
 				</template>
 
-				<section class="produce-dict-layout">
+				<section class="Product-dict-layout">
 					<article class="editor-card editor-card--main">
 						<div class="editor-card__header">
 							<div>
@@ -111,7 +111,7 @@
 						</el-table>
 					</article>
 
-					<aside class="produce-dict-side">
+					<aside class="Product-dict-side">
 						<article class="editor-card">
 							<div class="editor-card__header">
 								<div>
@@ -152,10 +152,10 @@ import { computed, reactive, ref } from 'vue';
 import { ElMessage } from 'element-plus';
 import { Check, Plus } from '@element-plus/icons-vue';
 import { NIL as NIL_UUID, v4 as uuidv4 } from 'uuid';
-import { editProduceDictionary, getProduceDictionary } from '/@/api/produce';
+import { editProductDictionary, getProductDictionary } from '/@/api/product';
 import ConsoleDrawerWorkspace from '/@/components/console/ConsoleDrawerWorkspace.vue';
 
-interface ProduceDictionaryRow {
+interface ProductDictionaryRow {
 	_rowId: string;
 	id: string;
 	keyName: string;
@@ -171,11 +171,11 @@ interface ProduceDictionaryRow {
 	dataType: string;
 }
 
-interface ProduceDictionaryState {
-	produceid: string;
+interface ProductDictionaryState {
+	productId: string;
 	drawer: boolean;
 	dialogtitle: string;
-	rows: ProduceDictionaryRow[];
+	rows: ProductDictionaryRow[];
 }
 
 const dataTypeOptions = [
@@ -192,8 +192,8 @@ const dataTypeOptions = [
 const emit = defineEmits(['close', 'submit']);
 const saving = ref(false);
 
-const state = reactive<ProduceDictionaryState>({
-	produceid: '',
+const state = reactive<ProductDictionaryState>({
+	productId: '',
 	drawer: false,
 	dialogtitle: '产品字典',
 	rows: [],
@@ -239,12 +239,12 @@ const summaryItems = computed(() => [
 	{ label: '待补充词条', value: state.rows.filter((item) => !item.keyName.trim() || !item.tag.trim()).length },
 ]);
 
-const openDialog = async (produceid: string) => {
-	state.produceid = produceid;
+const openDialog = async (productId: string) => {
+	state.productId = productId;
 	state.rows = [];
 
 	try {
-		const response = await getProduceDictionary(produceid);
+		const response = await getProductDictionary(productId);
 		state.rows = (response.data ?? []).map((item: any) => ({
 			_rowId: uuidv4(),
 			id: item.id ?? NIL_UUID,
@@ -290,7 +290,7 @@ const onAddRow = () => {
 	});
 };
 
-const deleterow = (row: ProduceDictionaryRow) => {
+const deleterow = (row: ProductDictionaryRow) => {
 	state.rows = state.rows.filter((item) => item._rowId !== row._rowId);
 };
 
@@ -309,9 +309,9 @@ const save = async () => {
 	saving.value = true;
 
 	try {
-		const result = await editProduceDictionary({
-			produceId: state.produceid,
-			produceDictionaryData: state.rows.map((item) => ({
+		const result = await editProductDictionary({
+			productId: state.productId,
+			productDictionaryData: state.rows.map((item) => ({
 				id: item.id,
 				keyName: item.keyName.trim(),
 				displayName: item.displayName.trim(),
@@ -348,23 +348,23 @@ defineExpose({
 </script>
 
 <style lang="scss" scoped>
-:deep(.produce-dict-drawer .el-drawer__header) {
+:deep(.Product-dict-drawer .el-drawer__header) {
 	margin-bottom: 0;
 	padding-bottom: 0;
 }
 
-:deep(.produce-dict-drawer .el-drawer__body) {
+:deep(.Product-dict-drawer .el-drawer__body) {
 	padding: 18px;
 	background: linear-gradient(180deg, #f8fbff 0%, #f3f7fc 100%);
 }
 
-.produce-dict-layout {
+.Product-dict-layout {
 	display: grid;
 	grid-template-columns: minmax(0, 1.85fr) 320px;
 	gap: 18px;
 }
 
-.produce-dict-side {
+.Product-dict-side {
 	display: flex;
 	flex-direction: column;
 	gap: 18px;
@@ -448,17 +448,17 @@ defineExpose({
 }
 
 @media (max-width: 1080px) {
-	.produce-dict-layout {
+	.Product-dict-layout {
 		grid-template-columns: 1fr;
 	}
 }
 
 @media (max-width: 767px) {
-	:deep(.produce-dict-drawer) {
+	:deep(.Product-dict-drawer) {
 		width: 100% !important;
 	}
 
-	:deep(.produce-dict-drawer .el-drawer__body) {
+	:deep(.Product-dict-drawer .el-drawer__body) {
 		padding: 12px;
 	}
 

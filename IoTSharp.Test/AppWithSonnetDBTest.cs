@@ -34,12 +34,12 @@ public sealed class AppWithSonnetDBTest
         using var client = Fixture.CreateClient();
         await Fixture.AuthorizeClientAsync(client);
 
-        var produced = await CreateProduceAsync(client);
-        var produceId = produced.Id;
-        var produceToken = produced.ProduceToken;
+        var product = await CreateProductAsync(client);
+        var productId = product.Id;
+        var productToken = product.ProductToken;
 
         var device = (await Fixture.CreateDeviceAsync(client, $"sonnet-device-{Guid.NewGuid():N}")).Data!;
-        var productDevice = await CreateDeviceFromProduceAsync(client, produceId);
+        var productDevice = await CreateDeviceFromProductAsync(client, productId);
         var token = await Fixture.GetDeviceAccessTokenAsync(client, device.Id);
 
         await AssertDeviceListContainsAsync(client, device, offset: 0);
@@ -49,21 +49,21 @@ public sealed class AppWithSonnetDBTest
         await UploadAttributesAndAssertLatestAsync(client, device.Id, token);
         await AddEditAndRemoveServerAttributeAsync(client, device.Id, token);
         await RunRuleChainSmokeAsync(client, device.Id, token);
-        await AssertProduceMappingRoutesDataAsync(client, produceId, produceToken, productDevice.Id);
+        await AssertProductMappingRoutesDataAsync(client, productId, productToken, productDevice.Id);
 
         await DeleteDeviceAsync(client, device.Id);
         await DeleteDeviceAsync(client, productDevice.Id);
-        await DeleteProduceAsync(client, produceId);
+        await DeleteProductAsync(client, productId);
     }
 
-    private static async Task<ProduceAddDto> CreateProduceAsync(HttpClient client)
+    private static async Task<ProductAddDto> CreateProductAsync(HttpClient client)
     {
-        var produceToken = "prod-" + Guid.NewGuid().ToString("N");
-        var save = await client.PostAsJsonAsync("/api/Produces/Save", new ProduceAddDto
+        var productToken = "prod-" + Guid.NewGuid().ToString("N");
+        var save = await client.PostAsJsonAsync("/api/Products/Save", new ProductAddDto
         {
-            Name = "sonnet-produce-" + Guid.NewGuid().ToString("N"),
+            Name = "sonnet-product-" + Guid.NewGuid().ToString("N"),
             Description = "SonnetDB e2e product",
-            ProduceToken = produceToken,
+            ProductToken = productToken,
             DefaultDeviceType = DeviceType.Device,
             DefaultIdentityType = IdentityType.AccessToken,
             DefaultTimeout = 45,
@@ -71,27 +71,27 @@ public sealed class AppWithSonnetDBTest
         });
         await AssertApiSuccessAsync<bool>(save);
 
-        var list = await GetApiResultAsync<PagedData<ProduceDto>>(client, "/api/Produces/List?offset=0&limit=10&name=sonnet-produce");
+        var list = await GetApiResultAsync<PagedData<ProductDto>>(client, "/api/Products/List?offset=0&limit=10&name=sonnet-product");
         Assert.NotNull(list.Data);
-        var row = Assert.Single(list.Data!.rows.Where(item => item.Name.StartsWith("sonnet-produce-", StringComparison.Ordinal)));
+        var row = Assert.Single(list.Data!.rows.Where(item => item.Name.StartsWith("sonnet-product-", StringComparison.Ordinal)));
 
-        var defaults = await client.PostAsJsonAsync("/api/Produces/EditProduceData", new ProduceDataEditDto
+        var defaults = await client.PostAsJsonAsync("/api/Products/EditProductData", new ProductDataEditDto
         {
-            produceId = row.Id,
-            ProduceData =
+            ProductId = row.Id,
+            ProductData =
             [
-                new ProduceDataItemDto { KeyName = "defaultMode", DataSide = DataSide.ServerSide, Type = DataType.String },
-                new ProduceDataItemDto { KeyName = "productAttr", DataSide = DataSide.ClientSide, Type = DataType.String },
-                new ProduceDataItemDto { KeyName = "productTemperature", DataSide = DataSide.ClientSide, Type = DataType.Double }
+                new ProductDataItemDto { KeyName = "defaultMode", DataSide = DataSide.ServerSide, Type = DataType.String },
+                new ProductDataItemDto { KeyName = "productAttr", DataSide = DataSide.ClientSide, Type = DataType.String },
+                new ProductDataItemDto { KeyName = "productTemperature", DataSide = DataSide.ClientSide, Type = DataType.Double }
             ]
         });
         await AssertApiSuccessAsync<bool>(defaults);
 
-        return new ProduceAddDto
+        return new ProductAddDto
         {
             Id = row.Id,
             Name = row.Name,
-            ProduceToken = produceToken,
+            ProductToken = productToken,
             DefaultDeviceType = row.DefaultDeviceType,
             DefaultIdentityType = row.DefaultIdentityType,
             DefaultTimeout = row.DefaultTimeout,
@@ -99,9 +99,9 @@ public sealed class AppWithSonnetDBTest
         };
     }
 
-    private static async Task<Device> CreateDeviceFromProduceAsync(HttpClient client, Guid produceId)
+    private static async Task<Device> CreateDeviceFromProductAsync(HttpClient client, Guid productId)
     {
-        var response = await client.PostAsJsonAsync($"/api/Devices/produce/{produceId}", new DevicePostProduceDto
+        var response = await client.PostAsJsonAsync($"/api/Devices/product/{productId}", new DevicePostProductDto
         {
             Name = "sonnet-product-device-" + Guid.NewGuid().ToString("N")
         });
@@ -245,24 +245,24 @@ public sealed class AppWithSonnetDBTest
         Assert.Contains(events.Data!.rows, item => item.RuleId == ruleId);
     }
 
-    private static async Task AssertProduceMappingRoutesDataAsync(HttpClient client, Guid produceId, string produceToken, Guid deviceId)
+    private static async Task AssertProductMappingRoutesDataAsync(HttpClient client, Guid productId, string productToken, Guid deviceId)
     {
-        var saveMapping = await client.PostAsJsonAsync("/api/Produces/SaveDataMappings", new SaveProduceDataMappingsDto
+        var saveMapping = await client.PostAsJsonAsync("/api/Products/SaveDataMappings", new SaveProductDataMappingsDto
         {
-            ProduceId = produceId,
+            ProductId = productId,
             Mappings =
             [
-                new ProduceDataMappingDto
+                new ProductDataMappingDto
                 {
-                    ProduceKeyName = "productTemperature",
+                    ProductKeyName = "productTemperature",
                     DataCatalog = DataCatalog.TelemetryData,
                     DeviceId = deviceId,
                     DeviceKeyName = "mappedTemperature",
                     Description = "telemetry mapping"
                 },
-                new ProduceDataMappingDto
+                new ProductDataMappingDto
                 {
-                    ProduceKeyName = "productAttr",
+                    ProductKeyName = "productAttr",
                     DataCatalog = DataCatalog.AttributeData,
                     DeviceId = deviceId,
                     DeviceKeyName = "mappedAttr",
@@ -272,7 +272,7 @@ public sealed class AppWithSonnetDBTest
         });
         await AssertApiSuccessAsync<bool>(saveMapping);
 
-        var telemetry = await client.PostAsJsonAsync($"/api/Produces/{produceToken}/Telemetry", new Dictionary<string, object>
+        var telemetry = await client.PostAsJsonAsync($"/api/Products/{productToken}/Telemetry", new Dictionary<string, object>
         {
             ["productTemperature"] = 31.25
         });
@@ -283,25 +283,25 @@ public sealed class AppWithSonnetDBTest
             result => result.Data?.Any(item => item.KeyName == "mappedTemperature" && Math.Abs(ToDouble(item.Value) - 31.25) < 0.001) == true,
             "product telemetry mapping");
 
-        var attr = await client.PostAsJsonAsync($"/api/Produces/{produceToken}/Attributes", new Dictionary<string, object>
+        var attr = await client.PostAsJsonAsync($"/api/Products/{productToken}/Attributes", new Dictionary<string, object>
         {
             ["productAttr"] = "mapped-ok"
         });
         await AssertApiSuccessAsync<object>(attr);
 
-        var produceAttrs = await WaitForAsync(
-            () => GetApiResultAsync<JsonElement>(client, $"/api/Produces/{produceToken}/Attributes/{DataSide.ClientSide}?keys=productAttr"),
+        var productAttrs = await WaitForAsync(
+            () => GetApiResultAsync<JsonElement>(client, $"/api/Products/{productToken}/Attributes/{DataSide.ClientSide}?keys=productAttr"),
             result => ApiSucceeded(result)
                 && result.Data.ValueKind == JsonValueKind.Array
                 && result.Data.EnumerateArray().Any(item =>
-                    item.TryGetProperty("produceKeyName", out var produceKeyName)
-                    && produceKeyName.GetString() == "productAttr"
+                    item.TryGetProperty("productKeyName", out var productKeyName)
+                    && productKeyName.GetString() == "productAttr"
                     && item.TryGetProperty("deviceKeyName", out var deviceKeyName)
                     && deviceKeyName.GetString() == "mappedAttr"
                     && item.TryGetProperty("value", out var value)
                     && value.GetString() == "mapped-ok"),
             "product attribute mapping");
-        Assert.Equal((int)ApiCode.Success, produceAttrs.Code);
+        Assert.Equal((int)ApiCode.Success, productAttrs.Code);
     }
 
     private static async Task DeleteDeviceAsync(HttpClient client, Guid deviceId)
@@ -310,9 +310,9 @@ public sealed class AppWithSonnetDBTest
         await AssertApiSuccessAsync<bool>(response);
     }
 
-    private static async Task DeleteProduceAsync(HttpClient client, Guid produceId)
+    private static async Task DeleteProductAsync(HttpClient client, Guid productId)
     {
-        var response = await client.GetAsync($"/api/Produces/Delete?produceid={produceId}");
+        var response = await client.GetAsync($"/api/Products/Delete?productId={productId}");
         await AssertApiSuccessAsync<bool>(response);
     }
 

@@ -5,11 +5,11 @@ using System.ComponentModel.DataAnnotations;
 namespace IoTSharp.Data
 {
     /// <summary>
-    /// Maps a product (Produce) abstract key to a real device's key.
+    /// Maps a product (Product) abstract key to a real device's key.
     /// This allows virtual aggregation: reading/writing product-level data is transparently
     /// routed through the mapped device keys.
     /// </summary>
-    public class ProduceDataMapping
+    public class ProductDataMapping
     {
         [Key]
         public Guid Id { get; set; } = Guid.NewGuid();
@@ -17,12 +17,12 @@ namespace IoTSharp.Data
         /// <summary>
         /// The product this mapping belongs to.
         /// </summary>
-        public Produce Produce { get; set; }
+        public Product Product { get; set; }
 
         /// <summary>
-        /// The product's abstract key name (references ProduceData.KeyName).
+        /// The product's abstract key name (references ProductData.KeyName).
         /// </summary>
-        public string ProduceKeyName { get; set; }
+        public string ProductKeyName { get; set; }
 
         /// <summary>
         /// Whether this mapping is for telemetry data or attribute data.

@@ -1,4 +1,4 @@
-export interface produceaddoreditdto {
+export interface productaddoreditdto {
     id?: string;
     name?: string;
     icon?: string;
@@ -10,5 +10,5 @@ export interface produceaddoreditdto {
     gatewayConfiguration?: string;
     defaultDeviceType?: string;
     defaultIdentityType?: string;
-    produceToken?: string;
+    productToken?: string;
 }

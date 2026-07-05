@@ -8,6 +8,10 @@
 		<PackageReference Include="DotNetDiag.HealthChecks.UI.SQLite.Storage" />
 		<PackageReference Include="DotNetDiag.HealthChecks.UI.Core" />
 		<PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore.Design">
+		  <PrivateAssets>all</PrivateAssets>
+		  <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+		</PackageReference>
 		<PackageReference Include="Microsoft.Extensions.Diagnostics.HealthChecks" />
 	</ItemGroup>
   <ItemGroup>

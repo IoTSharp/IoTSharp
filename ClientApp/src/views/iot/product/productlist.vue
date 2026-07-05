@@ -1,5 +1,5 @@
 <template>
-	<div class="produce-page">
+	<div class="product-page">
 		<ConsoleCrudWorkspace
 			eyebrow="Product Workspace"
 			title="产品与模型管理"
@@ -12,18 +12,18 @@
 		>
 			<template #actions>
 				<el-button type="primary" :loading="state.tableData.loading" @click="refreshList">刷新列表</el-button>
-				<el-button type="success" @click="creatprod">新增产品</el-button>
+				<el-button type="success" @click="createProduct">新增产品</el-button>
 			</template>
 
 			<template #aside>
-				<div class="produce-page__scope">
+				<div class="product-page__scope">
 					<span>产品工作区</span>
 					<strong>{{ state.tableData.total }}</strong>
 					<small>建模、映射与设备创建入口都已收拢到这里</small>
 				</div>
 			</template>
 
-			<div class="produce-page__filters">
+			<div class="product-page__filters">
 				<el-input v-model="query.name" placeholder="请输入产品名称" clearable @keyup.enter="handleSearch" />
 				<el-button type="primary" @click="handleSearch">
 					<el-icon><ele-Search /></el-icon>
@@ -32,10 +32,10 @@
 				<el-button @click="resetFilters">重置</el-button>
 			</div>
 
-			<el-table :data="state.tableData.rows" row-key="id" v-loading="state.tableData.loading" class="produce-page__table">
+			<el-table :data="state.tableData.rows" row-key="id" v-loading="state.tableData.loading" class="product-page__table">
 				<el-table-column type="expand">
 					<template #default="props">
-						<el-table :data="props.row.devices" class="produce-page__subtable">
+						<el-table :data="props.row.devices" class="product-page__subtable">
 							<el-table-column label="设备名称" prop="name" />
 							<el-table-column label="设备类型" prop="deviceType">
 								<template #default="scope">
@@ -51,7 +51,7 @@
 
 				<el-table-column prop="name" label="产品名称" min-width="220" show-overflow-tooltip>
 					<template #default="scope">
-						<div class="produce-page__name-cell">
+						<div class="product-page__name-cell">
 							<strong>{{ scope.row.name }}</strong>
 							<el-tag v-if="scope.row.defaultDeviceType === 'Gateway'">网关模型</el-tag>
 							<el-tag v-else-if="scope.row.defaultDeviceType === 'Device'" type="warning">设备模型</el-tag>
@@ -72,12 +72,12 @@
 
 				<el-table-column label="操作" show-overflow-tooltip width="320">
 					<template #default="scope">
-						<el-button size="small" text type="primary" @click.prevent="editprod(scope.row)">
+						<el-button size="small" text type="primary" @click.prevent="editProduct(scope.row)">
 							<el-icon><Edit /></el-icon>
 							修改
 						</el-button>
 
-						<el-button size="small" text type="primary" @click.prevent="deleteprod(scope.row)">
+						<el-button size="small" text type="primary" @click.prevent="deleteProductRow(scope.row)">
 							<el-icon><Delete /></el-icon>
 							删除
 						</el-button>
@@ -123,7 +123,7 @@
 			<el-pagination
 				@size-change="onHandleSizeChange"
 				@current-change="onHandleCurrentChange"
-				class="produce-page__pagination"
+				class="product-page__pagination"
 				:pager-count="5"
 				:page-sizes="[10, 20, 30]"
 				v-model:current-page="state.tableData.param.pageNum"
@@ -134,10 +134,10 @@
 			/>
 		</ConsoleCrudWorkspace>
 
-		<produceform ref="produceformRef" @close="close" @submit="submit" />
-		<producedatadictionaryform ref="producedatadictionaryformRef" @submit="submit" @close="close" />
-		<producepropform ref="producepropformRef" @close="close" @submit="submit" />
-		<producedatamappingdesigner ref="producedatamappingdesignerRef" @close="close" @submit="submit" />
+		<productform ref="productformRef" @close="close" @submit="submit" />
+		<ProductDataDictionaryForm ref="productDataDictionaryFormRef" @submit="submit" @close="close" />
+		<productpropform ref="productpropformRef" @close="close" @submit="submit" />
+		<ProductDataMappingDesigner ref="productDataMappingDesignerRef" @close="close" @submit="submit" />
 		<deviceform ref="deviceformRef" @close="close" @submit="submit"></deviceform>
 	</div>
 </template>
@@ -148,12 +148,12 @@ import { ElMessage, ElMessageBox } from 'element-plus';
 import { useRouter } from 'vue-router';
 import { NIL as NIL_UUID } from 'uuid';
 import ConsoleCrudWorkspace from '/@/components/console/ConsoleCrudWorkspace.vue';
-import produceform from './produceform.vue';
+import productform from './productform.vue';
 import deviceform from './deviceform.vue';
-import producepropform from './producepropform.vue';
-import producedatadictionaryform from './producedatadictionaryform.vue';
-import producedatamappingdesigner from './producedatamappingdesigner.vue';
-import { deleteProduce, getProduceList } from '/@/api/produce';
+import productpropform from './productpropform.vue';
+import ProductDataDictionaryForm from './productdatadictionaryform.vue';
+import ProductDataMappingDesigner from './productdatamappingdesigner.vue';
+import { deleteProduct, getProductList } from '/@/api/product';
 
 interface TableDataRow {
 	id?: string;
@@ -184,11 +184,11 @@ interface TableDataState {
 	};
 }
 
-const produceformRef = ref();
+const productformRef = ref();
 const deviceformRef = ref();
-const producedatadictionaryformRef = ref();
-const producepropformRef = ref();
-const producedatamappingdesignerRef = ref();
+const productDataDictionaryFormRef = ref();
+const productpropformRef = ref();
+const productDataMappingDesignerRef = ref();
 const router = useRouter();
 
 const state = reactive<TableDataState>({
@@ -268,7 +268,7 @@ const getData = async () => {
 	state.tableData.loading = true;
 
 	try {
-		const res = await getProduceList({
+		const res = await getProductList({
 			offset: state.tableData.param.pageNum - 1,
 			limit: state.tableData.param.pageSize,
 			name: query.name,
@@ -329,20 +329,20 @@ const dropdownCommand = (row: any, command: string) => {
 	}
 };
 
-const creatprod = () => {
-	produceformRef.value.openDialog(NIL_UUID);
+const createProduct = () => {
+	productformRef.value.openDialog(NIL_UUID);
 };
 
-const editprod = (row: TableDataRow) => {
-	produceformRef.value.openDialog(row.id);
+const editProduct = (row: TableDataRow) => {
+	productformRef.value.openDialog(row.id);
 };
 
 const editprop = (row: TableDataRow) => {
-	producepropformRef.value.openDialog(row.id);
+	productpropformRef.value.openDialog(row.id);
 };
 
 const editdict = (row: TableDataRow) => {
-	producedatadictionaryformRef.value.openDialog(row.id);
+	productDataDictionaryFormRef.value.openDialog(row.id);
 };
 
 const creatdevice = (row: TableDataRow) => {
@@ -356,17 +356,17 @@ const navtodevice = () => {
 };
 
 const editMapping = (row: any) => {
-	producedatamappingdesignerRef.value.openDialog(row.id, row.devices ?? []);
+	productDataMappingDesignerRef.value.openDialog(row.id, row.devices ?? []);
 };
 
-const deleteprod = async (row: TableDataRow) => {
+const deleteProductRow = async (row: TableDataRow) => {
 	ElMessageBox.confirm('确定删除该产品？', '警告', {
 		confirmButtonText: '确定',
 		cancelButtonText: '取消',
 		type: 'warning',
 	})
 		.then(async () => {
-			const result = await deleteProduce(row.id ?? '');
+			const result = await deleteProduct(row.id ?? '');
 			if (result.code === 10000) {
 				ElMessage.success('删除成功');
 				getData();
@@ -379,13 +379,13 @@ const deleteprod = async (row: TableDataRow) => {
 </script>
 
 <style lang="scss" scoped>
-.produce-page {
+.product-page {
 	display: flex;
 	flex-direction: column;
 	gap: 18px;
 }
 
-.produce-page__scope {
+.product-page__scope {
 	display: flex;
 	flex-direction: column;
 	align-items: flex-end;
@@ -396,19 +396,19 @@ const deleteprod = async (row: TableDataRow) => {
 	background: rgba(255, 255, 255, 0.78);
 }
 
-.produce-page__scope span {
+.product-page__scope span {
 	color: #64748b;
 	font-size: 12px;
 }
 
-.produce-page__scope strong {
+.product-page__scope strong {
 	margin-top: 8px;
 	color: #123b6d;
 	font-size: 30px;
 	line-height: 1;
 }
 
-.produce-page__scope small {
+.product-page__scope small {
 	margin-top: 8px;
 	color: #7c8da1;
 	font-size: 12px;
@@ -416,7 +416,7 @@ const deleteprod = async (row: TableDataRow) => {
 	text-align: right;
 }
 
-.produce-page__filters {
+.product-page__filters {
 	display: flex;
 	align-items: center;
 	flex-wrap: wrap;
@@ -424,58 +424,58 @@ const deleteprod = async (row: TableDataRow) => {
 	margin-bottom: 18px;
 }
 
-.produce-page__filters .el-input {
+.product-page__filters .el-input {
 	max-width: 320px;
 }
 
-.produce-page__name-cell {
+.product-page__name-cell {
 	display: flex;
 	align-items: center;
 	gap: 10px;
 }
 
-.produce-page__name-cell strong {
+.product-page__name-cell strong {
 	color: #123b6d;
 	font-weight: 700;
 }
 
-.produce-page__subtable {
+.product-page__subtable {
 	--el-fill-color-light: #f8fbff;
 }
 
-.produce-page__pagination {
+.product-page__pagination {
 	margin-top: 18px;
 }
 
-:deep(.produce-page__table) {
+:deep(.product-page__table) {
 	border-radius: 20px;
 	overflow: hidden;
 }
 
-:deep(.produce-page__table th.el-table__cell) {
+:deep(.product-page__table th.el-table__cell) {
 	background: #f8fbff;
 }
 
 @media (max-width: 767px) {
-	.produce-page__scope {
+	.product-page__scope {
 		width: 100%;
 		align-items: flex-start;
 	}
 
-	.produce-page__scope small {
+	.product-page__scope small {
 		text-align: left;
 	}
 
-	.produce-page__filters {
+	.product-page__filters {
 		flex-direction: column;
 		align-items: stretch;
 	}
 
-	.produce-page__filters .el-input {
+	.product-page__filters .el-input {
 		max-width: none;
 	}
 
-	.produce-page__name-cell {
+	.product-page__name-cell {
 		flex-direction: column;
 		align-items: flex-start;
 	}

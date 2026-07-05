@@ -13,7 +13,7 @@ export type HomeCardMetricKey =
 	| 'eventCount'
 	| 'alarmsCount'
 	| 'userCount'
-	| 'produceCount'
+	| 'ProductCount'
 	| 'rulesCount';
 
 export interface HomeCardItemConfig {
@@ -75,7 +75,7 @@ export const homeCardItemsConfig: HomeCardItemConfig[] = [
 		iconBackgroundColor: 'linear-gradient(135deg, #0f766e 0%, #14b8a6 100%)',
 	},
 	{
-		key: 'produceCount',
+		key: 'ProductCount',
 		label: '产品模型',
 		description: '平台产品与模板规模',
 		icon: productIcon,

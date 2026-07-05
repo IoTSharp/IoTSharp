@@ -5,15 +5,15 @@ using System.Collections.Generic;
 namespace IoTSharp.Dtos
 {
     /// <summary>
-    /// DTO for a single produce-device data mapping entry.
+    /// DTO for a single Product-device data mapping entry.
     /// </summary>
-    public class ProduceDataMappingDto
+    public class ProductDataMappingDto
     {
         public Guid Id { get; set; }
         /// <summary>
-        /// The product's abstract key name (from ProduceData.KeyName).
+        /// The product's abstract key name (from ProductData.KeyName).
         /// </summary>
-        public string ProduceKeyName { get; set; }
+        public string ProductKeyName { get; set; }
         /// <summary>
         /// Whether this is a telemetry or attribute mapping.
         /// </summary>
@@ -35,9 +35,9 @@ namespace IoTSharp.Dtos
     /// <summary>
     /// Request body for saving (bulk-replace) the mappings for a product.
     /// </summary>
-    public class SaveProduceDataMappingsDto
+    public class SaveProductDataMappingsDto
     {
-        public Guid ProduceId { get; set; }
-        public List<ProduceDataMappingDto> Mappings { get; set; }
+        public Guid ProductId { get; set; }
+        public List<ProductDataMappingDto> Mappings { get; set; }
     }
 }

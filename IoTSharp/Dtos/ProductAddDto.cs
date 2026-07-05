@@ -1,4 +1,4 @@
-﻿using IoTSharp.Contracts;
+using IoTSharp.Contracts;
 using IoTSharp.Data;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -6,7 +6,7 @@ using System;
 
 namespace IoTSharp.Dtos
 {
-    public class ProduceAddDto
+    public class ProductAddDto
     {
 
         public Guid Id { get; set; }
@@ -56,7 +56,7 @@ namespace IoTSharp.Dtos
         /// <summary>
         /// 产品认证 Key，用于产品级接入认证。
         /// </summary>
-        public string ProduceToken { get; set; }
+        public string ProductToken { get; set; }
         /// <summary>
         /// 默认设备类型
         /// </summary>

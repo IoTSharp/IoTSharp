@@ -1,4 +1,4 @@
-﻿using IoTSharp.Contracts;
+using IoTSharp.Contracts;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -11,7 +11,7 @@ using DataType = IoTSharp.Contracts.DataType;
 
 namespace IoTSharp.Data
 {
-    public class ProduceDictionary
+    public class ProductDictionary
     {
         [Key]
         public Guid Id { get; set; }

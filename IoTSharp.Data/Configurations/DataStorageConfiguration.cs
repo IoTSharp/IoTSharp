@@ -1,4 +1,4 @@
-﻿using IoTSharp.Contracts;
+using IoTSharp.Contracts;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using System;
@@ -22,7 +22,7 @@ namespace IoTSharp.Data.Configurations
                .HasValue<DataStorage>(DataCatalog.None)
                .HasValue<AttributeLatest>(DataCatalog.AttributeLatest)
                .HasValue<TelemetryLatest>(DataCatalog.TelemetryLatest)
-               .HasValue<ProduceData>(DataCatalog.ProduceData);
+               .HasValue<ProductData>(DataCatalog.ProductData);
         }
     }
 }

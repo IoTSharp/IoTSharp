@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using System;
@@ -26,10 +26,10 @@ namespace IoTSharp.Data
             modelBuilder.ApplyConfiguration(new EdgeNodeConfiguration());
             modelBuilder.Entity<AttributeLatest>().HasDiscriminator<DataCatalog>(nameof(Data.DataStorage.Catalog));
             modelBuilder.Entity<TelemetryLatest>().HasDiscriminator<DataCatalog>(nameof(Data.DataStorage.Catalog));
-            modelBuilder.Entity<ProduceData>().HasDiscriminator<DataCatalog>(nameof(Data.DataStorage.Catalog));
+            modelBuilder.Entity<ProductData>().HasDiscriminator<DataCatalog>(nameof(Data.DataStorage.Catalog));
 
             modelBuilder.Entity<Device>().HasOne(c => c.DeviceIdentity).WithOne(c => c.Device).HasForeignKey<DeviceIdentity>(c => c.DeviceId);
-            modelBuilder.Entity<Device>().HasOne(c => c.Produce).WithMany(c => c.Devices).HasForeignKey("ProduceId");
+            modelBuilder.Entity<Device>().HasOne(c => c.Product).WithMany(c => c.Devices).HasForeignKey("ProductId");
             modelBuilder.Entity<Device>().HasIndex(nameof(IoTSharp.Data.Device.CustomerId), nameof(IoTSharp.Data.Device.TenantId), nameof(IoTSharp.Data.Device.Deleted));
             modelBuilder.Entity<Device>().HasIndex(nameof(IoTSharp.Data.Device.TenantId), nameof(IoTSharp.Data.Device.Deleted));
             modelBuilder.Entity<Device>().HasDiscriminator<DeviceType>(nameof(Data.Device.DeviceType)).HasValue<Gateway>(DeviceType.Gateway).HasValue<Device>(DeviceType.Device);
@@ -88,13 +88,13 @@ namespace IoTSharp.Data
         public DbSet<Alarm> Alarms { get; set; }
         public DbSet<Asset> Assets { get; set; }
         public DbSet<AssetRelation> AssetRelations { get; set; }
-        public DbSet<Produce> Produces { get; set; }
+        public DbSet<Product> Products { get; set; }
 
-        public DbSet<ProduceData> ProduceDatas { get; set; }
+        public DbSet<ProductData> ProductDatas { get; set; }
 
-        public DbSet<ProduceDictionary> ProduceDictionaries { get; set; }
+        public DbSet<ProductDictionary> ProductDictionaries { get; set; }
 
-        public DbSet<ProduceDataMapping> ProduceDataMappings { get; set; }
+        public DbSet<ProductDataMapping> ProductDataMappings { get; set; }
 
         public DbSet<AISettings> AISettings { get; set; }
     }

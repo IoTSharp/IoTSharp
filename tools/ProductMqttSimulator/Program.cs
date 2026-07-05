@@ -33,9 +33,9 @@ var deviceName = options.DeviceName ?? $"mqtt-sim-device-{Guid.NewGuid():N}";
 var topicDeviceName = options.TopicDeviceName ?? "me";
 var telemetryKey = options.TelemetryKey ?? "sim_temperature";
 var telemetryValue = options.TelemetryValue ?? Math.Round(20 + Random.Shared.NextDouble() * 10, 2);
-var produceToken = options.ProduceToken;
-var createdProduct = string.IsNullOrWhiteSpace(produceToken);
-Guid? produceId = null;
+var productToken = options.ProductToken;
+var createdProduct = string.IsNullOrWhiteSpace(productToken);
+Guid? productId = null;
 
 Console.WriteLine("IoTSharp Product MQTT Simulator");
 Console.WriteLine($"API:  {http.BaseAddress}");
@@ -46,11 +46,11 @@ Console.WriteLine($"TelemetryTopic: devices/{topicDeviceName}/telemetry");
 if (createdProduct)
 {
     RequireBearer(options);
-    produceToken = "prod-" + Guid.NewGuid().ToString("N");
-    produceId = await CreateProductAsync(http, productName, produceToken, cancellationToken);
+    productToken = "prod-" + Guid.NewGuid().ToString("N");
+    productId = await CreateProductAsync(http, productName, productToken, cancellationToken);
     Console.WriteLine($"Created product: {productName}");
-    Console.WriteLine($"ProductId:      {produceId}");
-    Console.WriteLine($"ProduceToken:   {produceToken}");
+    Console.WriteLine($"ProductId:      {productId}");
+    Console.WriteLine($"ProductToken:   {productToken}");
 }
 else
 {
@@ -62,7 +62,7 @@ await PublishTelemetryByMqttAsync(
     options.MqttPort,
     deviceName,
     topicDeviceName,
-    produceToken!,
+    productToken!,
     telemetryKey,
     telemetryValue,
     options.UseTls,
@@ -73,7 +73,7 @@ Console.WriteLine($"Published telemetry: {telemetryKey}={telemetryValue.ToString
 if (!string.IsNullOrWhiteSpace(options.BearerToken)
     && (createdProduct || !string.IsNullOrWhiteSpace(options.ProductName)))
 {
-    var deviceId = await WaitForProductDeviceAsync(http, productName, produceToken!, deviceName, cancellationToken);
+    var deviceId = await WaitForProductDeviceAsync(http, productName, productToken!, deviceName, cancellationToken);
     Console.WriteLine($"Registered device:  {deviceId}");
 
     await WaitForLatestTelemetryAsync(http, deviceId, telemetryKey, telemetryValue, cancellationToken);
@@ -86,45 +86,45 @@ else
 
 return 0;
 
-static async Task<Guid> CreateProductAsync(HttpClient http, string productName, string produceToken, CancellationToken cancellationToken)
+static async Task<Guid> CreateProductAsync(HttpClient http, string productName, string productToken, CancellationToken cancellationToken)
 {
-    var response = await http.PostAsJsonAsync("/api/Produces/Save", new
+    var response = await http.PostAsJsonAsync("/api/Products/Save", new
     {
         name = productName,
         description = "Product MQTT simulator",
-        produceToken,
+        productToken,
         defaultDeviceType = "Device",
-        defaultIdentityType = "ProduceToken",
+        defaultIdentityType = "ProductToken",
         defaultTimeout = 45,
         gatewayConfiguration = string.Empty,
         gatewayType = "Unknow"
     }, AppJsonContext.JsonOptions, cancellationToken);
     await EnsureApiSuccessAsync<ApiResultBool>(response, cancellationToken);
 
-    var product = await WaitForProductAsync(http, productName, produceToken, cancellationToken);
+    var product = await WaitForProductAsync(http, productName, productToken, cancellationToken);
     return product.Id;
 }
 
-static async Task<ProductRow> WaitForProductAsync(HttpClient http, string productName, string produceToken, CancellationToken cancellationToken)
+static async Task<ProductRow> WaitForProductAsync(HttpClient http, string productName, string productToken, CancellationToken cancellationToken)
 {
     ApiResult<PagedData<ProductRow>>? last = null;
     for (var attempt = 0; attempt < 40; attempt++)
     {
         last = await GetApiResultAsync<PagedData<ProductRow>>(
             http,
-            $"/api/Produces/List?offset=0&limit=10&name={Uri.EscapeDataString(productName)}",
+            $"/api/Products/List?offset=0&limit=10&name={Uri.EscapeDataString(productName)}",
             cancellationToken);
 
         var product = last.Data?.Rows.FirstOrDefault(row =>
             string.Equals(row.Name, productName, StringComparison.Ordinal)
-            || string.Equals(row.ProduceToken, produceToken, StringComparison.Ordinal));
+            || string.Equals(row.ProductToken, productToken, StringComparison.Ordinal));
         if (product is not null)
         {
-            if (string.IsNullOrWhiteSpace(product.ProduceToken))
+            if (string.IsNullOrWhiteSpace(product.ProductToken))
             {
                 var detail = await GetApiResultAsync<ProductRow>(
                     http,
-                    $"/api/Produces/Get?id={product.Id}",
+                    $"/api/Products/Get?id={product.Id}",
                     cancellationToken);
                 return detail.Data ?? product;
             }
@@ -138,19 +138,19 @@ static async Task<ProductRow> WaitForProductAsync(HttpClient http, string produc
     throw new InvalidOperationException($"Timed out waiting for product. Last API code={last?.Code}, msg={last?.Msg}");
 }
 
-static async Task<Guid> WaitForProductDeviceAsync(HttpClient http, string productName, string produceToken, string deviceName, CancellationToken cancellationToken)
+static async Task<Guid> WaitForProductDeviceAsync(HttpClient http, string productName, string productToken, string deviceName, CancellationToken cancellationToken)
 {
     ApiResult<PagedData<ProductRow>>? last = null;
     for (var attempt = 0; attempt < 60; attempt++)
     {
         last = await GetApiResultAsync<PagedData<ProductRow>>(
             http,
-            $"/api/Produces/List?offset=0&limit=10&name={Uri.EscapeDataString(productName)}",
+            $"/api/Products/List?offset=0&limit=10&name={Uri.EscapeDataString(productName)}",
             cancellationToken);
 
         var product = last.Data?.Rows.FirstOrDefault(row =>
             string.Equals(row.Name, productName, StringComparison.Ordinal)
-            || string.Equals(row.ProduceToken, produceToken, StringComparison.Ordinal));
+            || string.Equals(row.ProductToken, productToken, StringComparison.Ordinal));
         var device = product?.Devices.FirstOrDefault(row => string.Equals(row.Name, deviceName, StringComparison.Ordinal));
         if (device is not null)
         {
@@ -193,7 +193,7 @@ static async Task PublishTelemetryByMqttAsync(
     int port,
     string deviceName,
     string topicDeviceName,
-    string produceToken,
+    string productToken,
     string telemetryKey,
     double telemetryValue,
     bool useTls,
@@ -205,7 +205,7 @@ static async Task PublishTelemetryByMqttAsync(
     var builder = new MqttClientOptionsBuilder()
         .WithClientId("mqtt-sim-" + Guid.NewGuid().ToString("N"))
         .WithTcpServer(host, port)
-        .WithCredentials(deviceName, produceToken)
+        .WithCredentials(deviceName, productToken)
         .WithCleanSession();
 
     if (useTls)
@@ -293,7 +293,7 @@ static void RequireBearer(SimulatorOptions options)
 {
     if (string.IsNullOrWhiteSpace(options.BearerToken))
     {
-        throw new InvalidOperationException("Creating a product requires --bearer. Or pass --produce-token to use an existing product.");
+        throw new InvalidOperationException("Creating a product requires --bearer. Or pass --product-token to use an existing product.");
     }
 }
 
@@ -303,7 +303,7 @@ sealed record SimulatorOptions(
     int MqttPort,
     bool UseTls,
     string? BearerToken,
-    string? ProduceToken,
+    string? ProductToken,
     string? ProductName,
     string? DeviceName,
     string? TopicDeviceName,
@@ -351,7 +351,7 @@ sealed record SimulatorOptions(
             MqttPort = int.Parse(Get(values, "mqtt-port") ?? defaults.MqttPort.ToString(CultureInfo.InvariantCulture), CultureInfo.InvariantCulture),
             UseTls = values.ContainsKey("tls"),
             BearerToken = Get(values, "bearer"),
-            ProduceToken = Get(values, "produce-token"),
+            ProductToken = Get(values, "product-token"),
             ProductName = Get(values, "product-name"),
             DeviceName = Get(values, "device-name"),
             TopicDeviceName = Get(values, "topic-device-name"),
@@ -370,7 +370,7 @@ sealed record SimulatorOptions(
         Options:
           --api-base <url>          IoTSharp HTTP base URL. Default: http://localhost:2927
           --bearer <jwt>            Management API bearer token. Required when creating a product.
-          --produce-token <token>   Existing product token. If omitted, a product is created through HTTP.
+          --product-token <token>   Existing product token. If omitted, a product is created through HTTP.
           --product-name <name>     Product name. Default: generated.
           --device-name <name>      MQTT username and simulated device name. Default: generated.
           --topic-device-name <name> MQTT topic device segment. Default: me
@@ -437,7 +437,7 @@ sealed record ProductRow
 {
     public Guid Id { get; init; }
     public string? Name { get; init; }
-    public string? ProduceToken { get; init; }
+    public string? ProductToken { get; init; }
     public List<DeviceRow> Devices { get; init; } = [];
 }
 

@@ -74,27 +74,27 @@ public abstract class IoTSharpBusinessTestSuite<TFixture>
         using var client = Fixture.CreateClient();
         await Fixture.AuthorizeClientAsync(client);
 
-        var produceName = $"product-key-{Guid.NewGuid():N}";
-        var produceToken = $"pk-{Guid.NewGuid():N}";
-        var saveProduce = await client.PostAsJsonAsync("/api/Produces/Save", new ProduceAddDto
+        var productName = $"product-key-{Guid.NewGuid():N}";
+        var ProductToken = $"pk-{Guid.NewGuid():N}";
+        var saveProduct = await client.PostAsJsonAsync("/api/Products/Save", new ProductAddDto
         {
-            Name = produceName,
+            Name = productName,
             Description = "product key identity test",
-            ProduceToken = produceToken,
+            ProductToken = ProductToken,
             DefaultDeviceType = DeviceType.Device,
-            DefaultIdentityType = IdentityType.ProduceToken,
+            DefaultIdentityType = IdentityType.ProductToken,
             DefaultTimeout = 30,
             GatewayConfiguration = string.Empty
         });
-        var saved = await ReadApiResultAsync<bool>(saveProduce);
+        var saved = await ReadApiResultAsync<bool>(saveProduct);
         Assert.Equal((int)ApiCode.Success, saved.Code);
 
-        var listed = await GetApiResultAsync<PagedData<ProduceDto>>(client,
-            $"/api/Produces/List?offset=0&limit=10&name={Uri.EscapeDataString(produceName)}");
-        var produce = Assert.Single(listed.Data!.rows, p => p.Name == produceName);
+        var listed = await GetApiResultAsync<PagedData<ProductDto>>(client,
+            $"/api/Products/List?offset=0&limit=10&name={Uri.EscapeDataString(productName)}");
+        var product = Assert.Single(listed.Data!.rows, p => p.Name == productName);
 
         var deviceName = $"product-device-{Guid.NewGuid():N}";
-        var created = await client.PostAsJsonAsync($"/api/Devices/produce/{produce.Id}", new DevicePostProduceDto
+        var created = await client.PostAsJsonAsync($"/api/Devices/product/{product.Id}", new DevicePostProductDto
         {
             Name = deviceName
         });
@@ -102,9 +102,9 @@ public abstract class IoTSharpBusinessTestSuite<TFixture>
         Assert.Equal((int)ApiCode.Success, createdDevice.Code);
 
         var detail = await Fixture.GetDeviceDetailAsync(client, createdDevice.Data!.Id);
-        Assert.Equal(IdentityType.ProduceToken, detail.Data!.IdentityType);
+        Assert.Equal(IdentityType.ProductToken, detail.Data!.IdentityType);
         Assert.Equal(deviceName, detail.Data.IdentityId);
-        Assert.Equal(produceToken, detail.Data.IdentityValue);
+        Assert.Equal(ProductToken, detail.Data.IdentityValue);
     }
 
     [Fact]

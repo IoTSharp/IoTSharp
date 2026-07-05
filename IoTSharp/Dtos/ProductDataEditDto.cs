@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using IoTSharp.Contracts;
 
 namespace IoTSharp.Dtos
@@ -6,15 +6,15 @@ namespace IoTSharp.Dtos
 
 
 
-    public class ProduceDataEditDto
+    public class ProductDataEditDto
     {
-        public Guid produceId { get; set; }
-        public ProduceDataItemDto[] ProduceData { get; set; }
+        public Guid ProductId { get; set; }
+        public ProductDataItemDto[] ProductData { get; set; }
     }
 
 
 
-    public class ProduceDataItemDto
+    public class ProductDataItemDto
     {
         public string KeyName { get; set; }
         public DataSide DataSide { get; set; }

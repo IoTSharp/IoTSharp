@@ -7,6 +7,10 @@
   <ItemGroup>
     <PackageReference Include="DotNetDiag.HealthChecks.SqlServer" />
     <PackageReference Include="DotNetDiag.HealthChecks.UI.SqlServer.Storage" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
     <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" />
   </ItemGroup>
 

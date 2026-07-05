@@ -24,7 +24,7 @@ namespace IoTSharp.Data
         /// <summary>
         /// When <see cref="IdentityType"/> Is <see cref="IdentityType.AccessToken"/> ,this is a Token.
         /// When <see cref="IdentityType"/> Is <see cref="IdentityType.DevicePassword"/> ,this is a device name.
-        /// When <see cref="IdentityType"/> Is <see cref="IdentityType.ProduceToken"/> ,this is a device name.
+        /// When <see cref="IdentityType"/> Is <see cref="IdentityType.ProductToken"/> ,this is a device name.
         /// When <see cref="IdentityType"/> Is <see cref="IdentityType.X509Certificate"/> ,this is X509 Certificate' Fingerprint.
         /// </summary>
         [Required]
@@ -33,7 +33,7 @@ namespace IoTSharp.Data
         /// <summary>
         /// When <see cref="IdentityType"/> Is <see cref="IdentityType.AccessToken"/> ,this is null.
         /// When <see cref="IdentityType"/> Is <see cref="IdentityType.DevicePassword"/> ,this is a password.
-        /// When <see cref="IdentityType"/> Is <see cref="IdentityType.ProduceToken"/> ,this is product ProduceToken.
+        /// When <see cref="IdentityType"/> Is <see cref="IdentityType.ProductToken"/> ,this is product ProductToken.
         /// When <see cref="IdentityType"/> Is <see cref="IdentityType.X509Certificate"/> ,this is X509 Certificate' PEM.
         /// </summary>
         public string IdentityValue { get; set; }
