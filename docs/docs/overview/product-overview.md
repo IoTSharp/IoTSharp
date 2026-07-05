@@ -38,4 +38,4 @@ IoTSharp 的菜单受角色影响：
 - `SystemAdmin`：可见证书管理、租户列表。
 - `TenantAdmin`：可见客户列表。
 - `CustomerAdmin`：可见用户列表。
-- `NormalUser`：可见设备、告警、规则链、场景、产品、资产等日常业务菜单。
+- `NormalUser`：可见设备、告警、规则链、产品、资产等日常业务菜单。

@@ -16,11 +16,11 @@ const featureGroups = [
   },
   {
     eyebrow: '规则与自动化',
-    title: '规则链、场景联动与业务动作是平台的重要中枢',
+    title: '规则链与业务动作是平台的重要中枢',
     description:
-      'IoTSharp 不只是采集数据，还通过规则链、脚本执行和场景联动把设备数据转成通知、自动化动作和业务流程，这部分是平台价值的核心之一。',
+      'IoTSharp 不只是采集数据，还通过规则链和脚本执行把设备数据转成通知、自动化动作和业务处理；业务可视化能力后续归入 Asset View。',
     links: [
-      { label: '规则链与场景', to: '/docs/user-guide/rules-and-scenarios' },
+      { label: '规则链', to: '/docs/user-guide/rules-and-scenarios' },
       { label: '协议与接入', to: '/docs/integrations/protocols' },
       { label: 'Web API', to: '/docs/integrations/web-api' },
     ],

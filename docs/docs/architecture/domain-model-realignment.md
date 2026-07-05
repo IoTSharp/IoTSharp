@@ -217,11 +217,12 @@ Tomur 在这个体系里的角色是模型算力 Provider：
 
 - `DeviceModel` 合并到 Product 的能力、命令和配置定义。
 - Product 上的旧 Gateway 配置合并到 Collection Template。
-- Scene 如果只是规则链或资产视图包装，合并到 RuleChain View 或 Asset View。
+- Scene 与 Asset View 的业务可视化定位重叠，不再作为独立核心领域；后续三维、组态或业务视图能力统一进入 Asset View 建设。
 
 ### 废弃
 
 - 旧 `DeviceGraph`、`DeviceDiagram`、`DeviceGraphToolBox` 已确认为历史设计器数据：无活动 API/前端引用，实体、DbSet 和当前模型已删除；新迁移删除历史表。新拓扑进入 Asset、Collection Template 或 Edge 设计器。
+- 旧 Scene 作为独立入口停止扩展，独立前端页面已移除；与业务对象视图相关的能力后续归入 Asset View。
 - 把 Device 当业务层级、模板容器或发布范围的用法停止扩展。
 - EdgeTask 状态以 AttributeLatest/TelemetryData 作为主存储是临时方案，M2 #025 完成后停止使用（#906）。
 
@@ -258,6 +259,7 @@ Device 页面围绕实例运维组织：
 Asset 页面围绕业务对象组织：
 
 - 资产树和空间层级。
+- Asset View：承载后续三维、组态、业务视图和旧 Scene 可视化能力。
 - 关联设备。
 - 业务看板。
 - 告警影响面。
@@ -292,7 +294,7 @@ Edge 页面围绕运行时闭环组织：
 
 - Produce 命名迁移清单。
 - DeviceModel 命令能力合并到 Product，活动 API 使用 ProductCommand。
-- 旧 DeviceGraph/DeviceDiagram 处理方案已确定为直接删除；Scene 处理方案。
+- 旧 DeviceGraph/DeviceDiagram 处理方案已确定为直接删除；Scene 已收口到后续 Asset View 建设。
 - Product、Device、Asset、Gateway、EdgeNode、Collection Template 页面职责说明。
 
 验收：
@@ -426,6 +428,6 @@ Edge 页面围绕运行时闭环组织：
 1. 制定 Produce 命名迁移清单（#011）。
 2. 将前端产品工作台从 `Product` 目录迁移到 `product`（#013）。
 3. 新增 Product API 命名，替换旧 Produce API 命名（#012）。
-4. 梳理 `DeviceModel`、`DeviceGraph`、`DeviceDiagram` 和 Scene 的引用，决定合并或废弃（#015~#017；#015、#016 已完成）。
+4. 梳理 `DeviceModel`、`DeviceGraph`、`DeviceDiagram` 和 Scene 的引用，决定合并或废弃（#015~#017 已完成）。
 5. M2 预研：EdgeTask、EdgeTaskReceipt、EdgeCapability、EdgeRuntimeStatus 和 EdgeCollectionAssignment 设计（#020~#024），以及 `edge-node-v1`/`collection-config-v1`/`edge-task-v1` 契约草案（#027）。
 6. M3 前置：semantic-core 收敛决策材料准备（#029）——盘点 `semantic-core.v1.schema.json`、CollectionTask 草稿 DTO 与 IoTEdge 本地采集模型的差异。

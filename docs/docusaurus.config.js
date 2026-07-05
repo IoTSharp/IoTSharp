@@ -124,7 +124,7 @@ const config = {
           title: '平台能力',
           items: [
             { label: '设备与网关', to: '/docs/user-guide/devices-and-gateways' },
-            { label: '规则链与场景', to: '/docs/user-guide/rules-and-scenarios' },
+            { label: '规则链', to: '/docs/user-guide/rules-and-scenarios' },
             { label: 'OpenClaw 运行手册', to: '/docs/operations/openclaw-sqlite-runbook' },
           ],
         },
