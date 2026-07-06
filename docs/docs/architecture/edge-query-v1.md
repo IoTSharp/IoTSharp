@@ -219,6 +219,14 @@
 - sourceVersion
 - assignedAt
 - lastPulledAt
+- lastExecutionTaskId
+- lastExecutionStatus
+- lastExecutionMessage
+- lastExecutionProgress
+- lastExecutionAt
+- appliedConfigurationVersion
+- appliedConfigurationHash
+- appliedAt
 - revokedAt
 - createdAt
 - updatedAt
@@ -245,7 +253,7 @@
 - assignment 只保存版本、目标、哈希、任务数量和状态，不保存完整采集配置大对象。
 - 完整运行时配置正文由 `CollectionConfigurationVersion` 保存为平台侧版本快照；执行端仍通过 `EdgeCollectionConfigurationDto` 和 `collection-config-v1` 拉取当前配置。
 - M3 的 Product Collection Template 落地前，`sourceType` 使用 `InlineCollectionConfig`，`sourceId` 可以为空。
-- 执行成功、失败、超时和回滚结果归 EdgeTask/EdgeTaskReceipt 或后续 ReleaseTask，不写入 assignment。
+- assignment 只保存最近一次配置执行态和已应用版本快照；完整执行历史仍归 EdgeTask/EdgeTaskReceipt，后续软件、OTA 和回滚仍归 ReleaseTask/ReleaseReceipt。
 
 ## CollectionConfigurationVersion 正式模型（#040）
 
@@ -324,6 +332,30 @@
 - 先通过 `/api/EdgeTask/Dispatch/{accessToken}` 拉取 `ConfigPullRequest`。
 - 对任务参数中的 `configurationVersionId`、`configurationVersion` 和 `configurationHash` 与 `/CollectionConfig/Pull` 返回值做一致性校验。
 - 配置落本地缓存并准备应用后，通过 EdgeTask 回执通道上报 Accepted/Running/Succeeded/Failed；具体回执闭环归 #043。
+
+## 配置执行回执（#043）
+
+配置执行回执复用 `edge-task-v1` 的 `/api/EdgeTask/Dispatch/{accessToken}/Accept` 和 `/api/EdgeTask/Receipt`，不新增长周期发布模型。平台只对 `ConfigPullRequest` 任务做配置版本核对和 assignment 回写。
+
+回执校验规则：
+
+- 任务参数必须包含 `configurationVersion` 和 `configurationHash`；包含 `configurationVersionId` 时一并核对。
+- 执行端在 `result` 或 `metadata` 中上报的 `configurationVersionId`、`configurationVersion`、`configurationHash` 只要与任务参数冲突，平台返回 `InValidData`。
+- `Succeeded` 回执必须在 `result.configurationVersion` 和 `result.configurationHash` 中明确上报已应用版本；只放在 `metadata` 中不视为成功凭据。
+- 状态流转仍遵循 `EdgeTaskStateMachine`，终态不可回退。
+
+assignment 回写字段：
+
+- `lastExecutionTaskId`
+- `lastExecutionStatus`
+- `lastExecutionMessage`
+- `lastExecutionProgress`
+- `lastExecutionAt`
+- `appliedConfigurationVersion`
+- `appliedConfigurationHash`
+- `appliedAt`
+
+`Accepted`、`Running`、`Failed`、`TimedOut`、`Cancelled` 只更新最近执行态；`Succeeded` 额外更新已应用版本、哈希和应用时间。完整回执流水仍写入 `EdgeTaskReceipt`，管理端可用 assignment 做列表态展示，用任务历史做追溯。
 
 ### 查询返回结构
 

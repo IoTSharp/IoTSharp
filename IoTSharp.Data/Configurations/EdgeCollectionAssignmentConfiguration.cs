@@ -24,6 +24,9 @@ namespace IoTSharp.Data.Configurations
             builder.Property(c => c.InstanceId).HasMaxLength(128);
             builder.Property(c => c.ConfigurationHash).HasMaxLength(128);
             builder.Property(c => c.Status).HasConversion<string>().HasMaxLength(64);
+            builder.Property(c => c.LastExecutionStatus).HasConversion<string>().HasMaxLength(64);
+            builder.Property(c => c.LastExecutionMessage).HasMaxLength(1024);
+            builder.Property(c => c.AppliedConfigurationHash).HasMaxLength(128);
             builder.Property(c => c.SourceType).HasMaxLength(128);
             builder.Property(c => c.SourceId).HasMaxLength(128);
             builder.Property(c => c.SourceVersion).HasMaxLength(64);
@@ -38,6 +41,10 @@ namespace IoTSharp.Data.Configurations
             builder.HasIndex(c => new { c.CustomerId, c.TenantId, c.Deleted });
             builder.HasIndex(c => c.EdgeNodeId);
             builder.HasIndex(c => c.ConfigurationHash);
+            builder.HasIndex(c => c.LastExecutionTaskId)
+                .HasDatabaseName("IX_EdgeColAssign_LastExecTask");
+            builder.HasIndex(c => new { c.GatewayId, c.AppliedConfigurationVersion })
+                .HasDatabaseName("IX_EdgeColAssign_GwAppliedVer");
             builder.HasIndex(c => c.AssignedAt);
 
             builder.HasOne(c => c.Gateway)

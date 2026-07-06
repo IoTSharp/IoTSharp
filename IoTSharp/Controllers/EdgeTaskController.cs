@@ -25,6 +25,10 @@ namespace IoTSharp.Controllers
     {
         private const string TaskContractVersion = EdgeNodeContractVersions.EdgeTaskV1;
         private const string EdgeTaskHistoryKeyPrefix = "_edge.task.history.";
+        private const string ConfigurationVersionIdKey = "configurationVersionId";
+        private const string ConfigurationVersionKey = "configurationVersion";
+        private const string ConfigurationHashKey = "configurationHash";
+        private const string AssignmentUpdatedBy = "edge-task-receipt";
         private static readonly IReadOnlyDictionary<EdgeTaskStatus, EdgeTaskStatus[]> AllowedTransitions = EdgeTaskStateMachine.AllowedTransitions;
         private static readonly JsonSerializerOptions ContractJsonOptions = new(JsonSerializerDefaults.Web) { PropertyNameCaseInsensitive = true };
 
@@ -174,6 +178,12 @@ namespace IoTSharp.Controllers
             request.TargetType = formalTask.TargetType;
             request.RuntimeType = string.IsNullOrWhiteSpace(request.RuntimeType) ? formalTask.RuntimeType ?? string.Empty : request.RuntimeType;
             request.InstanceId = string.IsNullOrWhiteSpace(request.InstanceId) ? formalTask.InstanceId ?? string.Empty : request.InstanceId;
+
+            var collectionReceiptError = await ApplyCollectionConfigurationReceiptAsync(formalTask, request);
+            if (!string.IsNullOrWhiteSpace(collectionReceiptError))
+            {
+                return Ok(new ApiResult<EdgeTaskReceiptDto>(ApiCode.InValidData, collectionReceiptError, null));
+            }
 
             var receiptPayload = SerializeOrNull(request) ?? "{}";
             ApplyFormalReceipt(formalTask, request);
@@ -388,6 +398,12 @@ namespace IoTSharp.Controllers
             request.Status = EdgeTaskStatus.Accepted;
             request.ReportedAt = request.ReportedAt == default ? DateTime.UtcNow : request.ReportedAt;
             request.ReportedAt = request.ReportedAt.ToUniversalTime();
+
+            var collectionReceiptError = await ApplyCollectionConfigurationReceiptAsync(formalTask, request);
+            if (!string.IsNullOrWhiteSpace(collectionReceiptError))
+            {
+                return Ok(new ApiResult(ApiCode.InValidData, collectionReceiptError));
+            }
 
             var receiptPayload = SerializeOrNull(request) ?? "{}";
             ApplyFormalReceipt(formalTask, request);
@@ -764,6 +780,142 @@ namespace IoTSharp.Controllers
             }
         }
 
+        /// <summary>
+        /// 处理采集配置任务的执行回执，核对配置版本和哈希后反写目标分配的执行态。
+        /// </summary>
+        /// <param name="task">正式 EdgeTask 任务。</param>
+        /// <param name="receipt">执行端回执。</param>
+        /// <returns>校验失败时返回错误消息；成功或非配置任务返回空字符串。</returns>
+        private async System.Threading.Tasks.Task<string> ApplyCollectionConfigurationReceiptAsync(EdgeTask task, EdgeTaskReceiptDto receipt)
+        {
+            if (task.TaskType != EdgeTaskType.ConfigPullRequest)
+            {
+                return string.Empty;
+            }
+
+            var parameters = DeserializeObjectDictionary(task.Parameters);
+            var expectedVersionId = TryGetGuid(parameters, ConfigurationVersionIdKey);
+            var expectedVersion = TryGetInt(parameters, ConfigurationVersionKey);
+            var expectedHash = TryGetString(parameters, ConfigurationHashKey);
+
+            if (expectedVersion is not > 0 || string.IsNullOrWhiteSpace(expectedHash))
+            {
+                return "ConfigPullRequest task parameters require configurationVersion and configurationHash";
+            }
+
+            var resultVersionId = TryGetGuid(receipt.Result, ConfigurationVersionIdKey);
+            var metadataVersionId = TryGetGuid(receipt.Metadata, ConfigurationVersionIdKey);
+            var resultVersion = TryGetInt(receipt.Result, ConfigurationVersionKey);
+            var metadataVersion = TryGetInt(receipt.Metadata, ConfigurationVersionKey);
+            var resultHash = TryGetString(receipt.Result, ConfigurationHashKey);
+            var metadataHash = TryGetString(receipt.Metadata, ConfigurationHashKey);
+
+            if ((resultVersionId.HasValue && expectedVersionId.HasValue && resultVersionId.Value != expectedVersionId.Value) ||
+                (metadataVersionId.HasValue && expectedVersionId.HasValue && metadataVersionId.Value != expectedVersionId.Value))
+            {
+                return "configurationVersionId does not match task parameters";
+            }
+
+            if ((resultVersion.HasValue && resultVersion.Value != expectedVersion.Value) ||
+                (metadataVersion.HasValue && metadataVersion.Value != expectedVersion.Value))
+            {
+                return "configurationVersion does not match task parameters";
+            }
+
+            if ((!string.IsNullOrWhiteSpace(resultHash) && !string.Equals(resultHash, expectedHash, StringComparison.OrdinalIgnoreCase)) ||
+                (!string.IsNullOrWhiteSpace(metadataHash) && !string.Equals(metadataHash, expectedHash, StringComparison.OrdinalIgnoreCase)))
+            {
+                return "configurationHash does not match task parameters";
+            }
+
+            if (receipt.Status == EdgeTaskStatus.Succeeded &&
+                (resultVersion is not > 0 || string.IsNullOrWhiteSpace(resultHash)))
+            {
+                return "Succeeded configuration receipt requires result.configurationVersion and result.configurationHash";
+            }
+
+            var assignment = await FindCollectionAssignmentForTaskAsync(task.GatewayId, expectedVersionId, expectedVersion.Value, expectedHash);
+            if (assignment == null)
+            {
+                return "Collection configuration assignment not found for task receipt";
+            }
+
+            ApplyCollectionAssignmentReceipt(assignment, task, receipt, expectedVersion.Value, expectedHash);
+            return string.Empty;
+        }
+
+        /// <summary>
+        /// 按任务参数定位本次配置发布对应的分配记录。
+        /// </summary>
+        /// <param name="gatewayId">承载任务通道的 Gateway 设备 ID。</param>
+        /// <param name="configurationVersionId">配置版本快照 ID。</param>
+        /// <param name="configurationVersion">配置版本号。</param>
+        /// <param name="configurationHash">配置哈希。</param>
+        /// <returns>匹配的配置分配；找不到时返回 null。</returns>
+        private async System.Threading.Tasks.Task<EdgeCollectionAssignment> FindCollectionAssignmentForTaskAsync(
+            Guid gatewayId,
+            Guid? configurationVersionId,
+            int configurationVersion,
+            string configurationHash)
+        {
+            if (configurationVersionId.HasValue)
+            {
+                var byVersionId = await _context.EdgeCollectionAssignments
+                    .Where(assignment => assignment.GatewayId == gatewayId
+                        && assignment.CollectionConfigurationVersionId == configurationVersionId.Value
+                        && !assignment.Deleted)
+                    .OrderByDescending(assignment => assignment.Status == EdgeCollectionAssignmentStatus.Active)
+                    .ThenByDescending(assignment => assignment.AssignedAt)
+                    .FirstOrDefaultAsync();
+
+                if (byVersionId != null)
+                {
+                    return byVersionId;
+                }
+            }
+
+            return await _context.EdgeCollectionAssignments
+                .Where(assignment => assignment.GatewayId == gatewayId
+                    && assignment.ConfigurationVersion == configurationVersion
+                    && assignment.ConfigurationHash == configurationHash
+                    && !assignment.Deleted)
+                .OrderByDescending(assignment => assignment.Status == EdgeCollectionAssignmentStatus.Active)
+                .ThenByDescending(assignment => assignment.AssignedAt)
+                .FirstOrDefaultAsync();
+        }
+
+        /// <summary>
+        /// 将配置执行回执合并到分配记录，成功态同时更新已应用版本。
+        /// </summary>
+        /// <param name="assignment">配置分配记录。</param>
+        /// <param name="task">对应的正式任务。</param>
+        /// <param name="receipt">执行端回执。</param>
+        /// <param name="configurationVersion">已核对的配置版本。</param>
+        /// <param name="configurationHash">已核对的配置哈希。</param>
+        private static void ApplyCollectionAssignmentReceipt(
+            EdgeCollectionAssignment assignment,
+            EdgeTask task,
+            EdgeTaskReceiptDto receipt,
+            int configurationVersion,
+            string configurationHash)
+        {
+            var reportedAt = receipt.ReportedAt == default ? DateTime.UtcNow : receipt.ReportedAt.ToUniversalTime();
+            assignment.LastExecutionTaskId = task.Id;
+            assignment.LastExecutionStatus = receipt.Status;
+            assignment.LastExecutionMessage = receipt.Message ?? string.Empty;
+            assignment.LastExecutionProgress = receipt.Progress;
+            assignment.LastExecutionAt = reportedAt;
+            assignment.UpdatedAt = reportedAt;
+            assignment.UpdatedBy = AssignmentUpdatedBy;
+
+            if (receipt.Status == EdgeTaskStatus.Succeeded)
+            {
+                assignment.AppliedConfigurationVersion = configurationVersion;
+                assignment.AppliedConfigurationHash = configurationHash;
+                assignment.AppliedAt = reportedAt;
+            }
+        }
+
         private async System.Threading.Tasks.Task<Guid?> ResolveDeviceIdAsync(string targetKey, string instanceId, Guid? deviceId)
         {
             if (deviceId.HasValue && deviceId.Value != Guid.Empty)
@@ -882,6 +1034,165 @@ namespace IoTSharp.Controllers
             {
                 return new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
             }
+        }
+
+        /// <summary>
+        /// 从对象字典中读取字符串值，按键名忽略大小写。
+        /// </summary>
+        /// <param name="values">待读取的对象字典。</param>
+        /// <param name="key">键名。</param>
+        /// <returns>找到时返回字符串值。</returns>
+        private static string TryGetString(IReadOnlyDictionary<string, object> values, string key)
+        {
+            if (!TryGetDictionaryValue(values, key, out var value) || value == null)
+            {
+                return null;
+            }
+
+            return value switch
+            {
+                string text => text,
+                Guid id => id.ToString("D"),
+                JsonElement { ValueKind: JsonValueKind.String } element => element.GetString(),
+                JsonElement { ValueKind: JsonValueKind.Number } element => element.GetRawText(),
+                JsonElement { ValueKind: JsonValueKind.True } => bool.TrueString,
+                JsonElement { ValueKind: JsonValueKind.False } => bool.FalseString,
+                _ => Convert.ToString(value)
+            };
+        }
+
+        /// <summary>
+        /// 从字符串字典中读取字符串值，按键名忽略大小写。
+        /// </summary>
+        /// <param name="values">待读取的字符串字典。</param>
+        /// <param name="key">键名。</param>
+        /// <returns>找到时返回字符串值。</returns>
+        private static string TryGetString(IReadOnlyDictionary<string, string> values, string key)
+        {
+            return TryGetDictionaryValue(values, key, out var value) ? value : null;
+        }
+
+        /// <summary>
+        /// 从对象字典中读取 Guid 值，按键名忽略大小写。
+        /// </summary>
+        /// <param name="values">待读取的对象字典。</param>
+        /// <param name="key">键名。</param>
+        /// <returns>找到并解析成功时返回 Guid。</returns>
+        private static Guid? TryGetGuid(IReadOnlyDictionary<string, object> values, string key)
+        {
+            if (!TryGetDictionaryValue(values, key, out var value) || value == null)
+            {
+                return null;
+            }
+
+            if (value is Guid id)
+            {
+                return id;
+            }
+
+            if (value is JsonElement element)
+            {
+                return element.ValueKind == JsonValueKind.String && Guid.TryParse(element.GetString(), out var parsed)
+                    ? parsed
+                    : null;
+            }
+
+            return Guid.TryParse(Convert.ToString(value), out var result) ? result : null;
+        }
+
+        /// <summary>
+        /// 从字符串字典中读取 Guid 值，按键名忽略大小写。
+        /// </summary>
+        /// <param name="values">待读取的字符串字典。</param>
+        /// <param name="key">键名。</param>
+        /// <returns>找到并解析成功时返回 Guid。</returns>
+        private static Guid? TryGetGuid(IReadOnlyDictionary<string, string> values, string key)
+        {
+            return TryGetDictionaryValue(values, key, out var value) && Guid.TryParse(value, out var result)
+                ? result
+                : null;
+        }
+
+        /// <summary>
+        /// 从对象字典中读取整数值，按键名忽略大小写。
+        /// </summary>
+        /// <param name="values">待读取的对象字典。</param>
+        /// <param name="key">键名。</param>
+        /// <returns>找到并解析成功时返回整数。</returns>
+        private static int? TryGetInt(IReadOnlyDictionary<string, object> values, string key)
+        {
+            if (!TryGetDictionaryValue(values, key, out var value) || value == null)
+            {
+                return null;
+            }
+
+            if (value is int number)
+            {
+                return number;
+            }
+
+            if (value is long longNumber)
+            {
+                return longNumber is <= int.MaxValue and >= int.MinValue ? (int)longNumber : null;
+            }
+
+            if (value is JsonElement element)
+            {
+                return element.ValueKind switch
+                {
+                    JsonValueKind.Number when element.TryGetInt32(out var parsed) => parsed,
+                    JsonValueKind.String when int.TryParse(element.GetString(), out var parsed) => parsed,
+                    _ => null
+                };
+            }
+
+            return int.TryParse(Convert.ToString(value), out var result) ? result : null;
+        }
+
+        /// <summary>
+        /// 从字符串字典中读取整数值，按键名忽略大小写。
+        /// </summary>
+        /// <param name="values">待读取的字符串字典。</param>
+        /// <param name="key">键名。</param>
+        /// <returns>找到并解析成功时返回整数。</returns>
+        private static int? TryGetInt(IReadOnlyDictionary<string, string> values, string key)
+        {
+            return TryGetDictionaryValue(values, key, out var value) && int.TryParse(value, out var result)
+                ? result
+                : null;
+        }
+
+        /// <summary>
+        /// 按键名忽略大小写读取字典值。
+        /// </summary>
+        /// <typeparam name="T">字典值类型。</typeparam>
+        /// <param name="values">待读取的字典。</param>
+        /// <param name="key">键名。</param>
+        /// <param name="value">找到的值。</param>
+        /// <returns>找到时返回 true。</returns>
+        private static bool TryGetDictionaryValue<T>(IReadOnlyDictionary<string, T> values, string key, out T value)
+        {
+            value = default;
+            if (values == null || string.IsNullOrWhiteSpace(key))
+            {
+                return false;
+            }
+
+            if (values.TryGetValue(key, out value))
+            {
+                return true;
+            }
+
+            foreach (var pair in values)
+            {
+                if (string.Equals(pair.Key, key, StringComparison.OrdinalIgnoreCase))
+                {
+                    value = pair.Value;
+                    return true;
+                }
+            }
+
+            return false;
         }
 
         private sealed class EdgeTaskHistoryRecord

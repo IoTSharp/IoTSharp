@@ -16,6 +16,7 @@ This project follows a lightweight Keep a Changelog style. Version numbers in th
 - `collection-config-v1` now carries Product Collection Template source metadata so edge runtimes can trace generated collection configurations back to Product templates.
 - Platform-side collection configuration version snapshots with `CollectionConfigVersions`, version query APIs, and active assignment linkage for M4 #040.
 - Edge/Gateway target collection configuration pull result with assignment, version ID, configuration hash, and `LastPulledAt` tracking for M4 #042.
+- Configuration execution receipts for M4 #043 now validate reported version/hash and update assignment execution/applied state.
 
 ### Changed
 

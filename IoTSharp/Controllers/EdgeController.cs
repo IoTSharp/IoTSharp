@@ -893,6 +893,15 @@ namespace IoTSharp.Controllers
                 nameof(EdgeCollectionAssignmentDto.LastPulledAt) => descending
                     ? source.OrderByDescending(c => c.LastPulledAt).ThenByDescending(c => c.AssignedAt)
                     : source.OrderBy(c => c.LastPulledAt).ThenBy(c => c.AssignedAt),
+                nameof(EdgeCollectionAssignmentDto.LastExecutionStatus) => descending
+                    ? source.OrderByDescending(c => c.LastExecutionStatus).ThenByDescending(c => c.LastExecutionAt)
+                    : source.OrderBy(c => c.LastExecutionStatus).ThenBy(c => c.LastExecutionAt),
+                nameof(EdgeCollectionAssignmentDto.LastExecutionAt) => descending
+                    ? source.OrderByDescending(c => c.LastExecutionAt).ThenByDescending(c => c.AssignedAt)
+                    : source.OrderBy(c => c.LastExecutionAt).ThenBy(c => c.AssignedAt),
+                nameof(EdgeCollectionAssignmentDto.AppliedConfigurationVersion) => descending
+                    ? source.OrderByDescending(c => c.AppliedConfigurationVersion).ThenByDescending(c => c.AppliedAt)
+                    : source.OrderBy(c => c.AppliedConfigurationVersion).ThenBy(c => c.AppliedAt),
                 _ => source.OrderByDescending(c => c.AssignedAt)
             };
         }
@@ -943,6 +952,14 @@ namespace IoTSharp.Controllers
                 SourceVersion = assignment.SourceVersion ?? string.Empty,
                 AssignedAt = assignment.AssignedAt,
                 LastPulledAt = assignment.LastPulledAt,
+                LastExecutionTaskId = assignment.LastExecutionTaskId,
+                LastExecutionStatus = assignment.LastExecutionStatus,
+                LastExecutionMessage = assignment.LastExecutionMessage ?? string.Empty,
+                LastExecutionProgress = assignment.LastExecutionProgress,
+                LastExecutionAt = assignment.LastExecutionAt,
+                AppliedConfigurationVersion = assignment.AppliedConfigurationVersion,
+                AppliedConfigurationHash = assignment.AppliedConfigurationHash ?? string.Empty,
+                AppliedAt = assignment.AppliedAt,
                 RevokedAt = assignment.RevokedAt,
                 CreatedAt = assignment.CreatedAt,
                 UpdatedAt = assignment.UpdatedAt,

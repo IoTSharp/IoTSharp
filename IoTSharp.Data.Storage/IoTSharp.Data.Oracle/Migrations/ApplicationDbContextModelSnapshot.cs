@@ -1429,6 +1429,15 @@ namespace IoTSharp.Data.Oracle.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("RAW(16)");
 
+                    b.Property<DateTime?>("AppliedAt")
+                        .HasColumnType("TIMESTAMP(7)");
+
+                    b.Property<string>("AppliedConfigurationHash")
+                        .HasMaxLength(128)
+                        .HasColumnType("NVARCHAR2(128)");
+
+                    b.Property<int?>("AppliedConfigurationVersion")
+                        .HasColumnType("NUMBER(10)");
                     b.Property<DateTime>("AssignedAt")
                         .HasColumnType("TIMESTAMP(7)");
 
@@ -1470,6 +1479,22 @@ namespace IoTSharp.Data.Oracle.Migrations
                         .HasMaxLength(128)
                         .HasColumnType("NVARCHAR2(128)");
 
+                    b.Property<DateTime?>("LastExecutionAt")
+                        .HasColumnType("TIMESTAMP(7)");
+
+                    b.Property<string>("LastExecutionMessage")
+                        .HasMaxLength(1024)
+                        .HasColumnType("NVARCHAR2(1024)");
+
+                    b.Property<int?>("LastExecutionProgress")
+                        .HasColumnType("NUMBER(10)");
+
+                    b.Property<string>("LastExecutionStatus")
+                        .HasMaxLength(64)
+                        .HasColumnType("NVARCHAR2(64)");
+
+                    b.Property<Guid?>("LastExecutionTaskId")
+                        .HasColumnType("RAW(16)");
                     b.Property<DateTime?>("LastPulledAt")
                         .HasColumnType("TIMESTAMP(7)");
 
@@ -1535,8 +1560,14 @@ namespace IoTSharp.Data.Oracle.Migrations
                     b.HasIndex("EdgeNodeId")
                         .HasDatabaseName("IX_EdgeCollectionAssignments~2");
 
+                    b.HasIndex("LastExecutionTaskId")
+                        .HasDatabaseName("IX_EdgeColAssign_LastExecTask");
+
                     b.HasIndex("TenantId")
                         .HasDatabaseName("IX_EdgeCollectionAssignments~3");
+
+                    b.HasIndex("GatewayId", "AppliedConfigurationVersion")
+                        .HasDatabaseName("IX_EdgeColAssign_GwAppliedVer");
 
                     b.HasIndex("GatewayId", "ConfigurationVersion")
                         .HasDatabaseName("IX_EdgeCollectionAssignments~4");

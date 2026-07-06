@@ -95,6 +95,18 @@
         "Revoked"
       ]
     },
+    "edgeTaskStatus": {
+      "enum": [
+        "Pending",
+        "Sent",
+        "Accepted",
+        "Running",
+        "Succeeded",
+        "Failed",
+        "TimedOut",
+        "Cancelled"
+      ]
+    },
     "edgeCollectionConfiguration": {
       "type": "object",
       "additionalProperties": false,
@@ -533,6 +545,16 @@
         "id": {
           "$ref": "#/$defs/uuid"
         },
+        "collectionConfigurationVersionId": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/uuid"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
         "targetType": {
           "$ref": "#/$defs/edgeTaskTargetType"
         },
@@ -586,6 +608,75 @@
           "$ref": "#/$defs/dateTime"
         },
         "lastPulledAt": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/dateTime"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "lastExecutionTaskId": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/uuid"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "lastExecutionStatus": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/edgeTaskStatus"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "lastExecutionMessage": {
+          "type": "string"
+        },
+        "lastExecutionProgress": {
+          "anyOf": [
+            {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 100
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "lastExecutionAt": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/dateTime"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "appliedConfigurationVersion": {
+          "anyOf": [
+            {
+              "type": "integer",
+              "minimum": 0
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "appliedConfigurationHash": {
+          "type": "string"
+        },
+        "appliedAt": {
           "anyOf": [
             {
               "$ref": "#/$defs/dateTime"

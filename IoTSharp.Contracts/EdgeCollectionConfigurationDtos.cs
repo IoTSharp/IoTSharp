@@ -320,6 +320,46 @@ namespace IoTSharp.Contracts
         public DateTime? LastPulledAt { get; init; }
 
         /// <summary>
+        /// 最近一次执行该配置分配的 EdgeTask ID。
+        /// </summary>
+        public Guid? LastExecutionTaskId { get; init; }
+
+        /// <summary>
+        /// 最近一次配置执行回执状态。
+        /// </summary>
+        public EdgeTaskStatus? LastExecutionStatus { get; init; }
+
+        /// <summary>
+        /// 最近一次配置执行回执消息。
+        /// </summary>
+        public string LastExecutionMessage { get; init; } = string.Empty;
+
+        /// <summary>
+        /// 最近一次配置执行进度，范围 0-100。
+        /// </summary>
+        public int? LastExecutionProgress { get; init; }
+
+        /// <summary>
+        /// 最近一次配置执行回执时间。
+        /// </summary>
+        public DateTime? LastExecutionAt { get; init; }
+
+        /// <summary>
+        /// 执行端已成功应用的配置版本号。
+        /// </summary>
+        public int? AppliedConfigurationVersion { get; init; }
+
+        /// <summary>
+        /// 执行端已成功应用的配置哈希。
+        /// </summary>
+        public string AppliedConfigurationHash { get; init; } = string.Empty;
+
+        /// <summary>
+        /// 执行端成功应用配置的 UTC 时间。
+        /// </summary>
+        public DateTime? AppliedAt { get; init; }
+
+        /// <summary>
         /// 分配被撤销的 UTC 时间。
         /// </summary>
         public DateTime? RevokedAt { get; init; }

@@ -1424,6 +1424,15 @@ namespace IoTSharp.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
+                    b.Property<DateTime?>("AppliedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("AppliedConfigurationHash")
+                        .HasMaxLength(128)
+                        .HasColumnType("character varying(128)");
+
+                    b.Property<int?>("AppliedConfigurationVersion")
+                        .HasColumnType("integer");
                     b.Property<DateTime>("AssignedAt")
                         .HasColumnType("timestamp with time zone");
 
@@ -1465,6 +1474,22 @@ namespace IoTSharp.Migrations
                         .HasMaxLength(128)
                         .HasColumnType("character varying(128)");
 
+                    b.Property<DateTime?>("LastExecutionAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("LastExecutionMessage")
+                        .HasMaxLength(1024)
+                        .HasColumnType("character varying(1024)");
+
+                    b.Property<int?>("LastExecutionProgress")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("LastExecutionStatus")
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)");
+
+                    b.Property<Guid?>("LastExecutionTaskId")
+                        .HasColumnType("uuid");
                     b.Property<DateTime?>("LastPulledAt")
                         .HasColumnType("timestamp with time zone");
 
@@ -1528,7 +1553,13 @@ namespace IoTSharp.Migrations
 
                     b.HasIndex("EdgeNodeId");
 
+                    b.HasIndex("LastExecutionTaskId")
+                        .HasDatabaseName("IX_EdgeColAssign_LastExecTask");
+
                     b.HasIndex("TenantId");
+
+                    b.HasIndex("GatewayId", "AppliedConfigurationVersion")
+                        .HasDatabaseName("IX_EdgeColAssign_GwAppliedVer");
 
                     b.HasIndex("GatewayId", "ConfigurationVersion");
 

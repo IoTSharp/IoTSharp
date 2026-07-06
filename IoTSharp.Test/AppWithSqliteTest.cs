@@ -438,10 +438,96 @@ namespace IoTSharp.Test
             Assert.Equal(publishResult.Data.ConfigurationVersion.ConfigurationHash, targetConfig.Data.Assignment.ConfigurationHash);
             Assert.Equal("sqlite-publish-modbus:main-plc", Assert.Single(targetConfig.Data.Configuration.Tasks).TaskKey);
 
+            var accepted = await client.PostAsJsonAsync($"/api/EdgeTask/Dispatch/{token}/Accept", new EdgeTaskReceiptDto
+            {
+                ContractVersion = EdgeNodeContractVersions.EdgeTaskV1,
+                TaskId = publishResult.Data.Task.TaskId,
+                ReportedAt = DateTime.UtcNow
+            });
+            var acceptedResult = await ReadApiResultAsync<object>(accepted);
+            Assert.Equal((int)ApiCode.Success, acceptedResult.Code);
+
+            var wrongRunning = await client.PostAsJsonAsync("/api/EdgeTask/Receipt", new EdgeTaskReceiptDto
+            {
+                ContractVersion = EdgeNodeContractVersions.EdgeTaskV1,
+                TaskId = publishResult.Data.Task.TaskId,
+                TargetType = publishResult.Data.Task.Address.TargetType,
+                TargetKey = publishResult.Data.Task.Address.TargetKey,
+                RuntimeType = EdgeRuntimeTypes.Gateway,
+                Status = EdgeTaskStatus.Running,
+                Progress = 10,
+                ReportedAt = DateTime.UtcNow,
+                Result = new Dictionary<string, object>
+                {
+                    ["configurationVersion"] = publishResult.Data.ConfigurationVersion.Version,
+                    ["configurationHash"] = "WRONG-HASH"
+                }
+            });
+            var wrongRunningResult = await ReadApiResultAsync<EdgeTaskReceiptDto>(wrongRunning);
+            Assert.Equal((int)ApiCode.InValidData, wrongRunningResult.Code);
+
+            var running = await client.PostAsJsonAsync("/api/EdgeTask/Receipt", new EdgeTaskReceiptDto
+            {
+                ContractVersion = EdgeNodeContractVersions.EdgeTaskV1,
+                TaskId = publishResult.Data.Task.TaskId,
+                TargetType = publishResult.Data.Task.Address.TargetType,
+                TargetKey = publishResult.Data.Task.Address.TargetKey,
+                RuntimeType = EdgeRuntimeTypes.Gateway,
+                Status = EdgeTaskStatus.Running,
+                Progress = 50,
+                ReportedAt = DateTime.UtcNow,
+                Result = new Dictionary<string, object>
+                {
+                    ["configurationVersion"] = publishResult.Data.ConfigurationVersion.Version,
+                    ["configurationHash"] = publishResult.Data.ConfigurationVersion.ConfigurationHash
+                }
+            });
+            var runningResult = await ReadApiResultAsync<EdgeTaskReceiptDto>(running);
+            Assert.Equal((int)ApiCode.Success, runningResult.Code);
+
+            var metadataOnlySucceeded = await client.PostAsJsonAsync("/api/EdgeTask/Receipt", new EdgeTaskReceiptDto
+            {
+                ContractVersion = EdgeNodeContractVersions.EdgeTaskV1,
+                TaskId = publishResult.Data.Task.TaskId,
+                TargetType = publishResult.Data.Task.Address.TargetType,
+                TargetKey = publishResult.Data.Task.Address.TargetKey,
+                RuntimeType = EdgeRuntimeTypes.Gateway,
+                Status = EdgeTaskStatus.Succeeded,
+                Progress = 100,
+                ReportedAt = DateTime.UtcNow,
+                Metadata = new Dictionary<string, string>
+                {
+                    ["configurationVersion"] = publishResult.Data.ConfigurationVersion.Version.ToString(),
+                    ["configurationHash"] = publishResult.Data.ConfigurationVersion.ConfigurationHash
+                }
+            });
+            var metadataOnlySucceededResult = await ReadApiResultAsync<EdgeTaskReceiptDto>(metadataOnlySucceeded);
+            Assert.Equal((int)ApiCode.InValidData, metadataOnlySucceededResult.Code);
+
+            var succeeded = await client.PostAsJsonAsync("/api/EdgeTask/Receipt", new EdgeTaskReceiptDto
+            {
+                ContractVersion = EdgeNodeContractVersions.EdgeTaskV1,
+                TaskId = publishResult.Data.Task.TaskId,
+                TargetType = publishResult.Data.Task.Address.TargetType,
+                TargetKey = publishResult.Data.Task.Address.TargetKey,
+                RuntimeType = EdgeRuntimeTypes.Gateway,
+                Status = EdgeTaskStatus.Succeeded,
+                Progress = 100,
+                ReportedAt = DateTime.UtcNow,
+                Result = new Dictionary<string, object>
+                {
+                    ["configurationVersionId"] = publishResult.Data.ConfigurationVersion.Id,
+                    ["configurationVersion"] = publishResult.Data.ConfigurationVersion.Version,
+                    ["configurationHash"] = publishResult.Data.ConfigurationVersion.ConfigurationHash
+                }
+            });
+            var succeededResult = await ReadApiResultAsync<EdgeTaskReceiptDto>(succeeded);
+            Assert.Equal((int)ApiCode.Success, succeededResult.Code);
+
             using var scope = _fixture.Services.CreateScope();
             var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
             var storedTask = await dbContext.EdgeTasks.AsNoTracking().SingleAsync(task => task.Id == publishResult.Data.Task.TaskId);
-            Assert.Equal(EdgeTaskStatus.Sent, storedTask.Status);
+            Assert.Equal(EdgeTaskStatus.Succeeded, storedTask.Status);
             Assert.Equal(EdgeTaskType.ConfigPullRequest, storedTask.TaskType);
             using var parameters = JsonDocument.Parse(storedTask.Parameters);
             Assert.Equal(publishResult.Data.ConfigurationVersion.Version, parameters.RootElement.GetProperty("configurationVersion").GetInt32());
@@ -449,6 +535,12 @@ namespace IoTSharp.Test
 
             var storedAssignment = await dbContext.EdgeCollectionAssignments.AsNoTracking().SingleAsync(assignment => assignment.Id == publishResult.Data.Assignment.Id);
             Assert.NotNull(storedAssignment.LastPulledAt);
+            Assert.Equal(publishResult.Data.Task.TaskId, storedAssignment.LastExecutionTaskId);
+            Assert.Equal(EdgeTaskStatus.Succeeded, storedAssignment.LastExecutionStatus);
+            Assert.Equal(100, storedAssignment.LastExecutionProgress);
+            Assert.Equal(publishResult.Data.ConfigurationVersion.Version, storedAssignment.AppliedConfigurationVersion);
+            Assert.Equal(publishResult.Data.ConfigurationVersion.ConfigurationHash, storedAssignment.AppliedConfigurationHash);
+            Assert.NotNull(storedAssignment.AppliedAt);
         }
 
         private async Task AssertStoredEdgeTaskAsync(Guid taskId, IoTSharp.Contracts.EdgeTaskStatus status, Guid gatewayId, int? progress)

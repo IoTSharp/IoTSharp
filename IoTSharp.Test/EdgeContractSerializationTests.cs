@@ -423,6 +423,14 @@ public sealed class EdgeContractSerializationTests
             SourceType = "InlineCollectionConfig",
             SourceVersion = "3",
             AssignedAt = DateTime.Parse("2026-07-05T00:02:00Z").ToUniversalTime(),
+            LastExecutionTaskId = Guid.Parse("44444444-4444-4444-4444-444444444444"),
+            LastExecutionStatus = EdgeTaskStatus.Succeeded,
+            LastExecutionMessage = "applied",
+            LastExecutionProgress = 100,
+            LastExecutionAt = DateTime.Parse("2026-07-05T00:03:00Z").ToUniversalTime(),
+            AppliedConfigurationVersion = 3,
+            AppliedConfigurationHash = "B90F05603F3343B2A0FAF1E1D3D48C85",
+            AppliedAt = DateTime.Parse("2026-07-05T00:04:00Z").ToUniversalTime(),
             Metadata = new Dictionary<string, object> { ["source"] = "unit-test" }
         };
 
@@ -432,9 +440,13 @@ public sealed class EdgeContractSerializationTests
         Assert.Contains("\"contractVersion\":\"collection-config-v1\"", json);
         Assert.Contains("\"targetType\":\"EdgeNode\"", json);
         Assert.Contains("\"status\":\"Active\"", json);
+        Assert.Contains("\"lastExecutionStatus\":\"Succeeded\"", json);
+        Assert.Contains("\"appliedConfigurationVersion\":3", json);
         Assert.NotNull(roundtrip);
         Assert.Equal(EdgeCollectionAssignmentStatus.Active, roundtrip!.Status);
         Assert.Equal(EdgeTaskTargetType.EdgeNode, roundtrip.TargetType);
+        Assert.Equal(EdgeTaskStatus.Succeeded, roundtrip.LastExecutionStatus);
+        Assert.Equal(3, roundtrip.AppliedConfigurationVersion);
         Assert.True(roundtrip.Metadata.ContainsKey("source"));
     }
 

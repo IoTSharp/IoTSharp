@@ -1409,6 +1409,15 @@ namespace IoTSharp.Data.SonnetDB.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("STRING");
 
+                    b.Property<DateTime?>("AppliedAt")
+                        .HasColumnType("DATETIME");
+
+                    b.Property<string>("AppliedConfigurationHash")
+                        .HasMaxLength(128)
+                        .HasColumnType("STRING");
+
+                    b.Property<int?>("AppliedConfigurationVersion")
+                        .HasColumnType("INT");
                     b.Property<DateTime>("AssignedAt")
                         .HasColumnType("DATETIME");
 
@@ -1450,6 +1459,22 @@ namespace IoTSharp.Data.SonnetDB.Migrations
                         .HasMaxLength(128)
                         .HasColumnType("STRING");
 
+                    b.Property<DateTime?>("LastExecutionAt")
+                        .HasColumnType("DATETIME");
+
+                    b.Property<string>("LastExecutionMessage")
+                        .HasMaxLength(1024)
+                        .HasColumnType("STRING");
+
+                    b.Property<int?>("LastExecutionProgress")
+                        .HasColumnType("INT");
+
+                    b.Property<string>("LastExecutionStatus")
+                        .HasMaxLength(64)
+                        .HasColumnType("STRING");
+
+                    b.Property<Guid?>("LastExecutionTaskId")
+                        .HasColumnType("STRING");
                     b.Property<DateTime?>("LastPulledAt")
                         .HasColumnType("DATETIME");
 
@@ -1513,7 +1538,13 @@ namespace IoTSharp.Data.SonnetDB.Migrations
 
                     b.HasIndex("EdgeNodeId");
 
+                    b.HasIndex("LastExecutionTaskId")
+                        .HasDatabaseName("IX_EdgeColAssign_LastExecTask");
+
                     b.HasIndex("TenantId");
+
+                    b.HasIndex("GatewayId", "AppliedConfigurationVersion")
+                        .HasDatabaseName("IX_EdgeColAssign_GwAppliedVer");
 
                     b.HasIndex("GatewayId", "ConfigurationVersion");
 

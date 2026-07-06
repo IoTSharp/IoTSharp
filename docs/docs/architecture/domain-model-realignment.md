@@ -395,18 +395,32 @@ Edge 页面围绕运行时闭环组织：
 目标：
 
 - 保留 FlowRule 的实时处理定位。
-- 增强标准节点、版本、模拟、观测和审计。
+- 把规则链运行时的命名、消息、关系、节点、版本、模拟、观测和审计产品化。
+- 统一 RuleChain 领域语言；旧 `FlowRule`、`Flow`、`NodeProcess*`、`Mata/MataData`、`Excutor` 等命名只作为兼容层或迁移来源，不再扩展为新的公开概念。
+- 形成面向 Product、Device、Asset、Gateway、EdgeNode 和 Collection Template 上下文的实时规则图，而不是复制通用 Node-RED 或把规则链改造成长周期工作流引擎。
 - 评估 AI 节点、MCP 写扩展和派生计算。
 
 交付：
 
-- 标准节点库、规则版本、仿真输入输出记录、运行观测和错误定位。
+- 命名治理：新 API、DTO、UI、文档和节点库统一使用 RuleChain、RuleNode、RuleRelation、RuleCondition、RuleMessage、RuleNodeManifest、RuleExecution、RuleStepTrace、RuleBinding 和 metadata 等标准名称。
+- `RuleMessage v1`：统一 payload、metadata、originator、tenant、product、asset、gateway、edgeNode、messageType、traceId 和 messageId，并兼容现有 FlowRule 动态输入。
+- `RuleRelation v1`：保留连线表达式，同时支持 Success、Failure、True、False、Matched、Unmatched、Timeout、Error 和 Custom 等关系。
+- 节点 manifest：描述节点类型、分类、显示名、输入输出、配置 JSON Schema、权限需求、超时、重试、副作用和帮助文档。
+- 标准节点库：第一批覆盖过滤/路由、转换、上下文富化、发布/动作、外部集成、观测调试和停止节点，减少脚本依赖。
+- 规则版本：支持草稿、发布版本、复制、回滚和不可变发布快照，规则绑定指向明确版本。
+- 仿真与观测：保存输入、输出、命中 relation、节点耗时、运行路径、错误堆栈、动作副作用和 traceId。
+- 运行器增强评估：最大深度、最大耗时、取消、失败关系、超时关系、内部 work queue、背压、指标和错误定位。
 - 规则链 AI 节点（#064，经 #090 Provider 抽象）。
 
 验收：
 
 - RuleChain 仍只处理实时链路。
 - 长周期发布、审批、灰度和回滚不进入规则链。
+- 新增公开模型、接口、页面和文档不再引入 `FlowRule`、`Flow`、`Mata`、`Excutor` 等旧命名；旧名只作为数据库历史、兼容适配或迁移代码存在。
+- 标准名称能清楚区分规则链定义、规则链版本、节点实例、节点库定义、连接关系、条件表达式、运行消息、执行记录和单步轨迹。
+- 标准节点能覆盖常见清洗、路由、富化、告警、发布和外部动作场景，脚本节点作为高级扩展而不是默认依赖。
+- 每次规则执行可以按 traceId 回看路径、输入输出、耗时、错误和副作用。
+- 生产流量使用发布版本，编辑草稿不会影响已绑定的生产规则。
 - AI 节点调用全程走权限和审计。
 
 ### 并行轨道
