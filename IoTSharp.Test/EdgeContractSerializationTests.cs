@@ -27,6 +27,7 @@ public sealed class EdgeContractSerializationTests
         Assert.Equal(EdgeNodeContractVersions.EdgeCapabilityV1, new EdgeCapabilityDto().ContractVersion);
         Assert.Equal("collection-config-v1", EdgeNodeContractVersions.CollectionConfigV1);
         Assert.Equal(EdgeNodeContractVersions.CollectionConfigV1, new EdgeCollectionConfigurationDto().ContractVersion);
+        Assert.Equal(EdgeNodeContractVersions.CollectionConfigV1, new CollectionConfigurationVersionDto().ContractVersion);
         Assert.Equal(EdgeNodeContractVersions.CollectionConfigV1, new EdgeCollectionAssignmentDto().ContractVersion);
     }
 
@@ -164,6 +165,47 @@ public sealed class EdgeContractSerializationTests
         Assert.Equal("ProductCollectionTemplate", roundtrip!.SourceType);
         Assert.Equal("11111111-1111-1111-1111-111111111111", roundtrip.SourceId);
         Assert.True(roundtrip.SourceMetadata.ContainsKey("templateKey"));
+    }
+
+    [Fact]
+    public void CollectionConfigurationVersionDto_SerializesSnapshotAndConfiguration()
+    {
+        var versionId = Guid.Parse("33333333-3333-3333-3333-333333333333");
+        var gatewayId = Guid.Parse("22222222-2222-2222-2222-222222222222");
+        var dto = new CollectionConfigurationVersionDto
+        {
+            Id = versionId,
+            GatewayId = gatewayId,
+            EdgeNodeId = gatewayId,
+            Version = 4,
+            ConfigurationHash = "B90F05603F3343B2A0FAF1E1D3D48C85",
+            TaskCount = 1,
+            SourceType = "ProductCollectionTemplate",
+            SourceId = "11111111-1111-1111-1111-111111111111",
+            SourceVersion = "7",
+            SourceMetadata = new Dictionary<string, object> { ["templateKey"] = "boiler-modbus-template" },
+            CreatedAt = DateTime.Parse("2026-07-06T00:00:00Z").ToUniversalTime(),
+            UpdatedAt = DateTime.Parse("2026-07-06T00:01:00Z").ToUniversalTime(),
+            CreatedBy = "operator@example.com",
+            UpdatedBy = "operator@example.com",
+            Configuration = new EdgeCollectionConfigurationDto
+            {
+                EdgeNodeId = gatewayId,
+                Version = 4,
+                SourceType = "ProductCollectionTemplate",
+                SourceId = "11111111-1111-1111-1111-111111111111"
+            }
+        };
+
+        var json = JsonSerializer.Serialize(dto, new JsonSerializerOptions(JsonSerializerDefaults.Web));
+        var roundtrip = JsonSerializer.Deserialize<CollectionConfigurationVersionDto>(json, new JsonSerializerOptions(JsonSerializerDefaults.Web));
+
+        Assert.Contains("\"contractVersion\":\"collection-config-v1\"", json);
+        Assert.Contains("\"configurationHash\":\"B90F05603F3343B2A0FAF1E1D3D48C85\"", json);
+        Assert.Contains("\"configuration\":", json);
+        Assert.NotNull(roundtrip);
+        Assert.Equal(versionId, roundtrip!.Id);
+        Assert.Equal("ProductCollectionTemplate", roundtrip.Configuration!.SourceType);
     }
 
     [Fact]

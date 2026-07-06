@@ -223,6 +223,101 @@ namespace IoTSharp.Test
             await AssertStoredEdgeTaskAsync(taskId, IoTSharp.Contracts.EdgeTaskStatus.Running, deviceId, progress: 25);
         }
 
+        [Fact]
+        public async Task CollectionConfigVersion_PersistsSnapshotAndAssignment()
+        {
+            using var client = _fixture.CreateClient();
+            var created = await _fixture.CreateDeviceAsync(client, $"sqlite-edge-config-{Guid.NewGuid():N}", DeviceType.Gateway);
+            var deviceId = created.Data!.Id;
+            var templateId = Guid.NewGuid();
+
+            await _fixture.AuthorizeClientAsync(client);
+            var saveConfig = await client.PutAsJsonAsync($"/api/Edge/{deviceId}/CollectionConfig", new EdgeCollectionConfigurationUpdateDto
+            {
+                SourceType = "ProductCollectionTemplate",
+                SourceId = templateId.ToString("D"),
+                SourceVersion = "3",
+                SourceMetadata = new Dictionary<string, object>
+                {
+                    ["templateKey"] = "sqlite-modbus-template"
+                },
+                Tasks =
+                [
+                    new CollectionTaskDto
+                    {
+                        TaskKey = "sqlite-modbus",
+                        Protocol = CollectionProtocolType.Modbus,
+                        Connection = new CollectionConnectionDto
+                        {
+                            ConnectionKey = "sqlite-plc",
+                            ConnectionName = "SQLite PLC",
+                            Protocol = CollectionProtocolType.Modbus,
+                            Transport = "tcp",
+                            Host = "127.0.0.1",
+                            Port = 1502
+                        },
+                        Devices =
+                        [
+                            new CollectionDeviceDto
+                            {
+                                DeviceKey = "sqlite-device-01",
+                                DeviceName = "SQLite Device 01",
+                                Points =
+                                [
+                                    new CollectionPointDto
+                                    {
+                                        PointKey = "temperature",
+                                        PointName = "Temperature",
+                                        SourceType = "holding-register",
+                                        Address = "40001",
+                                        RawValueType = "Int16",
+                                        Length = 1,
+                                        Polling = new PollingPolicyDto { ReadPeriodMs = 1000 },
+                                        Mapping = new PlatformMappingDto
+                                        {
+                                            TargetType = CollectionTargetType.Telemetry,
+                                            TargetName = "temperature",
+                                            ValueType = CollectionValueType.Double
+                                        }
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                ]
+            });
+            var savedConfig = await ReadApiResultAsync<EdgeCollectionConfigurationDto>(saveConfig);
+            Assert.Equal((int)ApiCode.Success, savedConfig.Code);
+
+            var versions = await GetApiResultAsync<PagedData<CollectionConfigurationVersionDto>>(client, $"/api/Edge/{deviceId}/CollectionConfigVersions?limit=10");
+            Assert.Equal((int)ApiCode.Success, versions.Code);
+            var versionRow = Assert.Single(versions.Data!.rows);
+            Assert.Equal(savedConfig.Data!.Version, versionRow.Version);
+            Assert.Equal("ProductCollectionTemplate", versionRow.SourceType);
+            Assert.Equal(templateId.ToString("D"), versionRow.SourceId);
+            Assert.False(string.IsNullOrWhiteSpace(versionRow.ConfigurationHash));
+            Assert.Null(versionRow.Configuration);
+
+            var versionDetail = await GetApiResultAsync<CollectionConfigurationVersionDto>(client, $"/api/Edge/{deviceId}/CollectionConfigVersions/{versionRow.Version}");
+            Assert.Equal((int)ApiCode.Success, versionDetail.Code);
+            Assert.NotNull(versionDetail.Data!.Configuration);
+            Assert.Equal(deviceId, versionDetail.Data.Configuration!.EdgeNodeId);
+            Assert.Equal("sqlite-modbus", Assert.Single(versionDetail.Data.Configuration.Tasks).TaskKey);
+
+            var assignments = await GetApiResultAsync<PagedData<EdgeCollectionAssignmentDto>>(client, $"/api/Edge/{deviceId}/CollectionAssignments?limit=10");
+            Assert.Equal((int)ApiCode.Success, assignments.Code);
+            var activeAssignment = Assert.Single(assignments.Data!.rows, item => item.Status == EdgeCollectionAssignmentStatus.Active);
+            Assert.Equal(versionRow.Id, activeAssignment.CollectionConfigurationVersionId);
+            Assert.Equal(versionRow.ConfigurationHash, activeAssignment.ConfigurationHash);
+
+            using var scope = _fixture.Services.CreateScope();
+            var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+            var storedVersion = await dbContext.CollectionConfigurationVersions.AsNoTracking().SingleAsync(item => item.Id == versionRow.Id);
+            Assert.Equal(deviceId, storedVersion.GatewayId);
+            Assert.Equal(savedConfig.Data.Version, storedVersion.Version);
+            Assert.Equal(versionRow.ConfigurationHash, storedVersion.ConfigurationHash);
+        }
+
         private async Task AssertStoredEdgeTaskAsync(Guid taskId, IoTSharp.Contracts.EdgeTaskStatus status, Guid gatewayId, int? progress)
         {
             using var scope = _fixture.Services.CreateScope();

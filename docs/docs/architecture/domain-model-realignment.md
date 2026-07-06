@@ -358,7 +358,7 @@ Edge 页面围绕运行时闭环组织：
 
 交付：
 
-- Collection Configuration Version。
+- Collection Configuration Version：平台侧保存 `collection-config-v1` 正文、哈希、来源和版本号，assignment 只引用版本快照并记录目标分配。
 - Edge/Gateway 配置发布 API、发布任务和回执。
 - 配置当前版本、目标版本和差异展示。
 - 最小软件包发布（#046）与 IoTEdge 软件更新执行器（#047）。

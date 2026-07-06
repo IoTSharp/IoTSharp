@@ -15,6 +15,7 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
+using CollectionConfigurationVersionQueryDto = IoTSharp.Dtos.CollectionConfigurationVersionQueryDto;
 using EdgeCollectionAssignmentQueryDto = IoTSharp.Dtos.EdgeCollectionAssignmentQueryDto;
 using EdgeNodeQueryDto = IoTSharp.Dtos.EdgeNodeQueryDto;
 
@@ -180,6 +181,71 @@ namespace IoTSharp.Controllers
                 ApiCode.Success,
                 "OK",
                 await QueryCollectionAssignmentsAsync(query, profile.Tenant, profile.Customer));
+        }
+
+        [HttpGet("CollectionConfigVersions")]
+        [Authorize(Roles = nameof(UserRole.NormalUser))]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesDefaultResponseType]
+        public async Task<ApiResult<PagedData<CollectionConfigurationVersionDto>>> GetCollectionConfigVersions([FromQuery] CollectionConfigurationVersionQueryDto query)
+        {
+            var profile = this.GetUserProfile();
+            return new ApiResult<PagedData<CollectionConfigurationVersionDto>>(
+                ApiCode.Success,
+                "OK",
+                await QueryCollectionConfigurationVersionsAsync(query, profile.Tenant, profile.Customer));
+        }
+
+        [HttpGet("{id:guid}/CollectionConfigVersions")]
+        [Authorize(Roles = nameof(UserRole.NormalUser))]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesDefaultResponseType]
+        public async Task<ApiResult<PagedData<CollectionConfigurationVersionDto>>> GetCollectionConfigVersions(Guid id, [FromQuery] CollectionConfigurationVersionQueryDto query)
+        {
+            var profile = this.GetUserProfile();
+            var gateway = await GetGatewayForProfileAsync(id, profile.Tenant, profile.Customer);
+            if (gateway == null)
+            {
+                return new ApiResult<PagedData<CollectionConfigurationVersionDto>>(ApiCode.NotFoundDevice, "Edge node not found", null);
+            }
+
+            query ??= new CollectionConfigurationVersionQueryDto();
+            query.GatewayId = gateway.Id;
+
+            return new ApiResult<PagedData<CollectionConfigurationVersionDto>>(
+                ApiCode.Success,
+                "OK",
+                await QueryCollectionConfigurationVersionsAsync(query, profile.Tenant, profile.Customer));
+        }
+
+        [HttpGet("{id:guid}/CollectionConfigVersions/{version:int}")]
+        [Authorize(Roles = nameof(UserRole.NormalUser))]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesDefaultResponseType]
+        public async Task<ApiResult<CollectionConfigurationVersionDto>> GetCollectionConfigVersion(Guid id, int version)
+        {
+            var profile = this.GetUserProfile();
+            var gateway = await GetGatewayForProfileAsync(id, profile.Tenant, profile.Customer);
+            if (gateway == null)
+            {
+                return new ApiResult<CollectionConfigurationVersionDto>(ApiCode.NotFoundDevice, "Edge node not found", null);
+            }
+
+            var item = await _context.CollectionConfigurationVersions
+                .Include(c => c.Gateway)
+                .Where(c => c.GatewayId == gateway.Id
+                    && c.Version == version
+                    && c.CustomerId == profile.Customer
+                    && c.TenantId == profile.Tenant
+                    && !c.Deleted)
+                .FirstOrDefaultAsync();
+
+            if (item == null)
+            {
+                return new ApiResult<CollectionConfigurationVersionDto>(ApiCode.CantFindObject, "Collection configuration version not found", null);
+            }
+
+            return new ApiResult<CollectionConfigurationVersionDto>(ApiCode.Success, "OK", ToCollectionConfigurationVersionDto(item, includeConfiguration: true));
         }
 
         [AllowAnonymous]
@@ -426,10 +492,12 @@ namespace IoTSharp.Controllers
                 SourceMetadata = sourceMetadata,
                 Tasks = normalizedTasks
             };
-            var payload = JsonSerializer.Serialize(document);
+            var payload = JsonSerializer.Serialize(document, WebJsonOptions);
             var node = await EnsureEdgeNodeAsync(gateway);
             var sourceMetadataJson = SerializeOrNull(sourceMetadata) ?? "{}";
-            await PrepareCollectionAssignmentAsync(gateway, node, document, payload, updatedBy, updatedAt, sourceType, sourceId, sourceVersion, sourceMetadataJson);
+            var configurationVersion = CreateCollectionConfigurationVersion(gateway, node, document, payload, updatedBy, updatedAt, sourceType, sourceId, sourceVersion, sourceMetadataJson);
+            _context.CollectionConfigurationVersions.Add(configurationVersion);
+            await PrepareCollectionAssignmentAsync(gateway, node, document, payload, configurationVersion, updatedBy, updatedAt, sourceType, sourceId, sourceVersion, sourceMetadataJson);
 
             await _context.SaveAsync<AttributeLatest>(new Dictionary<string, object>
             {
@@ -557,12 +625,85 @@ namespace IoTSharp.Controllers
         }
 
         /// <summary>
-        /// 准备采集配置分配记录，与 AttributeLatest 中的配置文档在同一次保存中提交。
+        /// 按当前登录用户边界查询采集配置版本快照。
+        /// </summary>
+        /// <param name="query">分页和筛选条件。</param>
+        /// <param name="tenantId">当前租户 ID。</param>
+        /// <param name="customerId">当前客户 ID。</param>
+        /// <returns>分页后的配置版本快照。</returns>
+        private async Task<PagedData<CollectionConfigurationVersionDto>> QueryCollectionConfigurationVersionsAsync(
+            CollectionConfigurationVersionQueryDto query,
+            Guid tenantId,
+            Guid customerId)
+        {
+            query ??= new CollectionConfigurationVersionQueryDto();
+            query.Limit = Math.Clamp(query.Limit < 1 ? 10 : query.Limit, 1, 100);
+
+            var versions = _context.CollectionConfigurationVersions
+                .Include(c => c.Gateway)
+                .Where(c => c.CustomerId == customerId && c.TenantId == tenantId && !c.Deleted && !c.Gateway.Deleted);
+
+            if (query.GatewayId.HasValue && query.GatewayId.Value != Guid.Empty)
+            {
+                versions = versions.Where(c => c.GatewayId == query.GatewayId.Value);
+            }
+
+            if (query.EdgeNodeId.HasValue && query.EdgeNodeId.Value != Guid.Empty)
+            {
+                versions = versions.Where(c => c.EdgeNodeId == query.EdgeNodeId.Value);
+            }
+
+            if (query.Version.HasValue)
+            {
+                versions = versions.Where(c => c.Version == query.Version.Value);
+            }
+
+            if (!string.IsNullOrWhiteSpace(query.ConfigurationHash))
+            {
+                versions = versions.Where(c => c.ConfigurationHash == query.ConfigurationHash);
+            }
+
+            if (!string.IsNullOrWhiteSpace(query.SourceType))
+            {
+                versions = versions.Where(c => c.SourceType == query.SourceType);
+            }
+
+            if (!string.IsNullOrWhiteSpace(query.SourceId))
+            {
+                versions = versions.Where(c => c.SourceId == query.SourceId);
+            }
+
+            if (!string.IsNullOrWhiteSpace(query.SourceVersion))
+            {
+                versions = versions.Where(c => c.SourceVersion == query.SourceVersion);
+            }
+
+            if (!string.IsNullOrWhiteSpace(query.Name))
+            {
+                versions = versions.Where(c => c.Gateway.Name.Contains(query.Name) || c.SourceId.Contains(query.Name));
+            }
+
+            var total = await versions.CountAsync();
+            var rows = await ApplyCollectionConfigurationVersionSorting(versions, query)
+                .Skip(query.Offset * query.Limit)
+                .Take(query.Limit)
+                .ToListAsync();
+
+            return new PagedData<CollectionConfigurationVersionDto>
+            {
+                total = total,
+                rows = rows.Select(item => ToCollectionConfigurationVersionDto(item, query.IncludeConfiguration)).ToList()
+            };
+        }
+
+        /// <summary>
+        /// 准备采集配置分配记录，与配置版本快照和 AttributeLatest 兼容视图在同一次保存中提交。
         /// </summary>
         /// <param name="gateway">承载配置拉取通道的 Gateway 设备。</param>
         /// <param name="node">平台侧 EdgeNode。</param>
         /// <param name="document">待分配的采集配置文档。</param>
         /// <param name="payload">规范化后的采集配置 JSON。</param>
+        /// <param name="configurationVersion">平台侧配置版本快照。</param>
         /// <param name="updatedBy">操作者显示名或账号标识。</param>
         /// <param name="now">本次分配的 UTC 时间。</param>
         /// <returns>已加入上下文但尚未保存的分配记录。</returns>
@@ -571,6 +712,7 @@ namespace IoTSharp.Controllers
             EdgeNode node,
             EdgeCollectionConfigurationDto document,
             string payload,
+            CollectionConfigurationVersion configurationVersion,
             string updatedBy,
             DateTime now,
             string sourceType,
@@ -594,6 +736,7 @@ namespace IoTSharp.Controllers
             var newAssignment = new EdgeCollectionAssignment
             {
                 Id = Guid.NewGuid(),
+                CollectionConfigurationVersionId = configurationVersion?.Id,
                 ContractVersion = EdgeNodeContractVersions.CollectionConfigV1,
                 TargetType = ResolveCollectionAssignmentTargetType(runtimeType),
                 GatewayId = gateway.Id,
@@ -602,8 +745,8 @@ namespace IoTSharp.Controllers
                 RuntimeType = runtimeType,
                 InstanceId = instanceId,
                 ConfigurationVersion = document.Version,
-                ConfigurationHash = ComputeSha256(payload),
-                TaskCount = document.Tasks?.Count ?? 0,
+                ConfigurationHash = configurationVersion?.ConfigurationHash ?? ComputeSha256(payload),
+                TaskCount = configurationVersion?.TaskCount ?? document.Tasks?.Count ?? 0,
                 Status = EdgeCollectionAssignmentStatus.Active,
                 SourceType = string.IsNullOrWhiteSpace(sourceType) ? "InlineCollectionConfig" : sourceType,
                 SourceId = sourceId ?? string.Empty,
@@ -621,6 +764,56 @@ namespace IoTSharp.Controllers
 
             _context.EdgeCollectionAssignments.Add(newAssignment);
             return newAssignment;
+        }
+
+        /// <summary>
+        /// 构建平台侧采集配置版本快照。
+        /// </summary>
+        /// <param name="gateway">承载配置拉取通道的 Gateway 设备。</param>
+        /// <param name="node">平台侧 EdgeNode。</param>
+        /// <param name="document">配置正文。</param>
+        /// <param name="payload">规范化后的配置 JSON。</param>
+        /// <param name="updatedBy">操作者显示名或账号标识。</param>
+        /// <param name="now">本次生成的 UTC 时间。</param>
+        /// <param name="sourceType">配置来源类型。</param>
+        /// <param name="sourceId">配置来源标识。</param>
+        /// <param name="sourceVersion">配置来源版本。</param>
+        /// <param name="sourceMetadata">非敏感来源扩展信息 JSON。</param>
+        /// <returns>已构建但尚未加入上下文的配置版本快照。</returns>
+        private static CollectionConfigurationVersion CreateCollectionConfigurationVersion(
+            Device gateway,
+            EdgeNode node,
+            EdgeCollectionConfigurationDto document,
+            string payload,
+            string updatedBy,
+            DateTime now,
+            string sourceType,
+            string sourceId,
+            string sourceVersion,
+            string sourceMetadata)
+        {
+            return new CollectionConfigurationVersion
+            {
+                Id = Guid.NewGuid(),
+                ContractVersion = EdgeNodeContractVersions.CollectionConfigV1,
+                GatewayId = gateway.Id,
+                EdgeNodeId = node?.Id ?? gateway.Id,
+                Version = document.Version,
+                ConfigurationHash = ComputeSha256(payload),
+                TaskCount = document.Tasks?.Count ?? 0,
+                SourceType = string.IsNullOrWhiteSpace(sourceType) ? "InlineCollectionConfig" : sourceType,
+                SourceId = sourceId ?? string.Empty,
+                SourceVersion = string.IsNullOrWhiteSpace(sourceVersion) ? document.Version.ToString() : sourceVersion,
+                SourceMetadata = string.IsNullOrWhiteSpace(sourceMetadata) ? "{}" : sourceMetadata,
+                Payload = payload,
+                CreatedAt = now,
+                UpdatedAt = now,
+                CreatedBy = updatedBy,
+                UpdatedBy = updatedBy,
+                TenantId = gateway.TenantId ?? gateway.Tenant?.Id,
+                CustomerId = gateway.CustomerId ?? gateway.Customer?.Id,
+                Gateway = gateway
+            };
         }
 
         /// <summary>
@@ -677,12 +870,37 @@ namespace IoTSharp.Controllers
             };
         }
 
+        private static IQueryable<CollectionConfigurationVersion> ApplyCollectionConfigurationVersionSorting(
+            IQueryable<CollectionConfigurationVersion> source,
+            CollectionConfigurationVersionQueryDto query)
+        {
+            var descending = string.Equals(query?.Sort, "desc", StringComparison.OrdinalIgnoreCase);
+
+            return query?.Sorter switch
+            {
+                nameof(CollectionConfigurationVersionDto.Version) => descending
+                    ? source.OrderByDescending(c => c.Version).ThenByDescending(c => c.CreatedAt)
+                    : source.OrderBy(c => c.Version).ThenBy(c => c.CreatedAt),
+                nameof(CollectionConfigurationVersionDto.TaskCount) => descending
+                    ? source.OrderByDescending(c => c.TaskCount).ThenByDescending(c => c.CreatedAt)
+                    : source.OrderBy(c => c.TaskCount).ThenBy(c => c.CreatedAt),
+                nameof(CollectionConfigurationVersionDto.SourceType) => descending
+                    ? source.OrderByDescending(c => c.SourceType).ThenByDescending(c => c.CreatedAt)
+                    : source.OrderBy(c => c.SourceType).ThenBy(c => c.CreatedAt),
+                nameof(CollectionConfigurationVersionDto.UpdatedAt) => descending
+                    ? source.OrderByDescending(c => c.UpdatedAt).ThenByDescending(c => c.Version)
+                    : source.OrderBy(c => c.UpdatedAt).ThenBy(c => c.Version),
+                _ => source.OrderByDescending(c => c.CreatedAt).ThenByDescending(c => c.Version)
+            };
+        }
+
         private static EdgeCollectionAssignmentDto ToEdgeCollectionAssignmentDto(EdgeCollectionAssignment assignment)
         {
             return new EdgeCollectionAssignmentDto
             {
                 ContractVersion = Coalesce(assignment.ContractVersion, EdgeNodeContractVersions.CollectionConfigV1),
                 Id = assignment.Id,
+                CollectionConfigurationVersionId = assignment.CollectionConfigurationVersionId,
                 TargetType = assignment.TargetType,
                 GatewayId = assignment.GatewayId,
                 EdgeNodeId = assignment.EdgeNodeId,
@@ -704,6 +922,31 @@ namespace IoTSharp.Controllers
                 CreatedBy = assignment.CreatedBy ?? string.Empty,
                 UpdatedBy = assignment.UpdatedBy ?? string.Empty,
                 Metadata = DeserializeObjectMap(assignment.Metadata)
+            };
+        }
+
+        private static CollectionConfigurationVersionDto ToCollectionConfigurationVersionDto(
+            CollectionConfigurationVersion item,
+            bool includeConfiguration)
+        {
+            return new CollectionConfigurationVersionDto
+            {
+                ContractVersion = Coalesce(item.ContractVersion, EdgeNodeContractVersions.CollectionConfigV1),
+                Id = item.Id,
+                GatewayId = item.GatewayId,
+                EdgeNodeId = item.EdgeNodeId,
+                Version = item.Version,
+                ConfigurationHash = item.ConfigurationHash ?? string.Empty,
+                TaskCount = item.TaskCount,
+                SourceType = item.SourceType ?? string.Empty,
+                SourceId = item.SourceId ?? string.Empty,
+                SourceVersion = item.SourceVersion ?? string.Empty,
+                SourceMetadata = DeserializeObjectMap(item.SourceMetadata),
+                CreatedAt = item.CreatedAt,
+                UpdatedAt = item.UpdatedAt,
+                CreatedBy = item.CreatedBy ?? string.Empty,
+                UpdatedBy = item.UpdatedBy ?? string.Empty,
+                Configuration = includeConfiguration ? DeserializeCollectionConfiguration(item.Payload) : null
             };
         }
 
@@ -1291,8 +1534,46 @@ namespace IoTSharp.Controllers
             }
         }
 
+        private static EdgeCollectionConfigurationDto DeserializeCollectionConfiguration(string payload)
+        {
+            if (string.IsNullOrWhiteSpace(payload))
+            {
+                return null;
+            }
+
+            try
+            {
+                return JsonSerializer.Deserialize<EdgeCollectionConfigurationDto>(payload, WebJsonOptions);
+            }
+            catch (JsonException)
+            {
+                return null;
+            }
+        }
+
         private async Task<EdgeCollectionConfigurationDto> ReadCollectionConfigAsync(Guid gatewayId)
         {
+            var storedVersionRecord = await ReadLatestCollectionConfigurationVersionAsync(gatewayId);
+            if (storedVersionRecord != null)
+            {
+                var storedDocument = DeserializeCollectionConfiguration(storedVersionRecord.Payload);
+                if (storedDocument != null)
+                {
+                    return NormalizeCollectionDocument(
+                        storedDocument,
+                        gatewayId,
+                        storedVersionRecord.Version,
+                        storedVersionRecord.UpdatedAt,
+                        storedVersionRecord.UpdatedBy,
+                        storedVersionRecord.SourceType,
+                        storedVersionRecord.SourceId,
+                        storedVersionRecord.SourceVersion,
+                        storedVersionRecord.SourceMetadata);
+                }
+
+                _logger.LogWarning("Failed to deserialize collection configuration version {VersionId} for edge node {GatewayId}", storedVersionRecord.Id, gatewayId);
+            }
+
             var storedJson = await _context.AttributeLatest
                 .Where(attr => attr.DeviceId == gatewayId && attr.KeyName == Constants._EdgeCollectionConfig)
                 .Select(attr => attr.Value_String)
@@ -1311,7 +1592,7 @@ namespace IoTSharp.Controllers
 
             try
             {
-                var document = JsonSerializer.Deserialize<EdgeCollectionConfigurationDto>(storedJson);
+                var document = JsonSerializer.Deserialize<EdgeCollectionConfigurationDto>(storedJson, WebJsonOptions);
                 if (document == null)
                 {
                     return CreateEmptyCollectionConfig(gatewayId, storedVersion, storedUpdatedAt);
@@ -1319,25 +1600,76 @@ namespace IoTSharp.Controllers
 
                 var version = document.Version > 0 ? document.Version : storedVersion;
                 var assignment = await ReadActiveCollectionAssignmentAsync(gatewayId, version);
-                return document with
-                {
-                    EdgeNodeId = gatewayId,
-                    Version = version,
-                    UpdatedAt = document.UpdatedAt != default ? document.UpdatedAt : (storedUpdatedAt ?? DateTime.UtcNow),
-                    SourceType = Coalesce(document.SourceType, assignment?.SourceType ?? string.Empty),
-                    SourceId = Coalesce(document.SourceId, assignment?.SourceId ?? string.Empty),
-                    SourceVersion = Coalesce(document.SourceVersion, assignment?.SourceVersion ?? string.Empty),
-                    SourceMetadata = document.SourceMetadata?.Count > 0
-                        ? document.SourceMetadata
-                        : DeserializeObjectMap(assignment?.Metadata),
-                    Tasks = (document.Tasks ?? []).Select(task => NormalizeCollectionTask(task, gatewayId, version)).ToArray()
-                };
+                return NormalizeCollectionDocument(
+                    document,
+                    gatewayId,
+                    version,
+                    storedUpdatedAt ?? DateTime.UtcNow,
+                    document.UpdatedBy,
+                    assignment?.SourceType,
+                    assignment?.SourceId,
+                    assignment?.SourceVersion,
+                    assignment?.Metadata);
             }
             catch (JsonException exception)
             {
                 _logger.LogWarning(exception, "Failed to deserialize collection configuration for edge node {GatewayId}", gatewayId);
                 return CreateEmptyCollectionConfig(gatewayId, storedVersion, storedUpdatedAt);
             }
+        }
+
+        /// <summary>
+        /// 读取 Gateway 当前最新的采集配置版本快照。
+        /// </summary>
+        /// <param name="gatewayId">承载配置拉取通道的 Gateway 设备 ID。</param>
+        /// <returns>最新配置版本；不存在时返回 null。</returns>
+        private Task<CollectionConfigurationVersion> ReadLatestCollectionConfigurationVersionAsync(Guid gatewayId)
+        {
+            return _context.CollectionConfigurationVersions
+                .Where(c => c.GatewayId == gatewayId && !c.Deleted)
+                .OrderByDescending(c => c.Version)
+                .ThenByDescending(c => c.CreatedAt)
+                .FirstOrDefaultAsync();
+        }
+
+        /// <summary>
+        /// 归一化存储中的 collection-config-v1 文档，补齐来源、版本和任务目标信息。
+        /// </summary>
+        /// <param name="document">存储中的配置正文。</param>
+        /// <param name="gatewayId">承载配置拉取通道的 Gateway 设备 ID。</param>
+        /// <param name="version">配置版本。</param>
+        /// <param name="updatedAt">更新时间。</param>
+        /// <param name="updatedBy">更新人。</param>
+        /// <param name="sourceType">来源类型。</param>
+        /// <param name="sourceId">来源标识。</param>
+        /// <param name="sourceVersion">来源版本。</param>
+        /// <param name="sourceMetadata">来源扩展信息 JSON。</param>
+        /// <returns>可返回给平台 UI 或执行端的配置正文。</returns>
+        private static EdgeCollectionConfigurationDto NormalizeCollectionDocument(
+            EdgeCollectionConfigurationDto document,
+            Guid gatewayId,
+            int version,
+            DateTime updatedAt,
+            string updatedBy,
+            string sourceType,
+            string sourceId,
+            string sourceVersion,
+            string sourceMetadata)
+        {
+            return document with
+            {
+                EdgeNodeId = gatewayId,
+                Version = version,
+                UpdatedAt = document.UpdatedAt != default ? document.UpdatedAt : updatedAt,
+                UpdatedBy = Coalesce(document.UpdatedBy, updatedBy ?? string.Empty),
+                SourceType = Coalesce(document.SourceType, sourceType ?? string.Empty),
+                SourceId = Coalesce(document.SourceId, sourceId ?? string.Empty),
+                SourceVersion = Coalesce(document.SourceVersion, sourceVersion ?? string.Empty),
+                SourceMetadata = document.SourceMetadata?.Count > 0
+                    ? document.SourceMetadata
+                    : DeserializeObjectMap(sourceMetadata),
+                Tasks = (document.Tasks ?? []).Select(task => NormalizeCollectionTask(task, gatewayId, version)).ToArray()
+            };
         }
 
         /// <summary>
@@ -1364,6 +1696,16 @@ namespace IoTSharp.Controllers
 
         private async Task<int> GetCurrentCollectionConfigVersionAsync(Guid gatewayId)
         {
+            var storedVersion = await _context.CollectionConfigurationVersions
+                .Where(c => c.GatewayId == gatewayId && !c.Deleted)
+                .Select(c => (int?)c.Version)
+                .MaxAsync() ?? 0;
+
+            if (storedVersion > 0)
+            {
+                return storedVersion;
+            }
+
             return (int?)await _context.AttributeLatest
                 .Where(attr => attr.DeviceId == gatewayId && attr.KeyName == Constants._EdgeCollectionConfigVersion)
                 .Select(attr => attr.Value_Long)

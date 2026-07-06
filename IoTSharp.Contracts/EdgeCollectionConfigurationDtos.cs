@@ -88,6 +88,92 @@ namespace IoTSharp.Contracts
     }
 
     /// <summary>
+    /// 平台侧采集配置版本快照，用于把 collection-config-v1 正文从目标分配关系中独立出来。
+    /// </summary>
+    public sealed record CollectionConfigurationVersionDto
+    {
+        /// <summary>
+        /// 配置正文合同版本。
+        /// </summary>
+        public string ContractVersion { get; init; } = EdgeNodeContractVersions.CollectionConfigV1;
+
+        /// <summary>
+        /// 平台侧配置版本记录 ID。
+        /// </summary>
+        public Guid Id { get; init; }
+
+        /// <summary>
+        /// 承载配置拉取通道的 Gateway 设备 ID。
+        /// </summary>
+        public Guid GatewayId { get; init; }
+
+        /// <summary>
+        /// 平台侧 EdgeNode ID。
+        /// </summary>
+        public Guid? EdgeNodeId { get; init; }
+
+        /// <summary>
+        /// Gateway 维度递增的配置版本号。
+        /// </summary>
+        public int Version { get; init; }
+
+        /// <summary>
+        /// 配置文档哈希，用于发布、拉取和回执核对。
+        /// </summary>
+        public string ConfigurationHash { get; init; } = string.Empty;
+
+        /// <summary>
+        /// 配置中包含的采集任务数量。
+        /// </summary>
+        public int TaskCount { get; init; }
+
+        /// <summary>
+        /// 配置来源类型，例如 InlineCollectionConfig、ProductCollectionTemplate。
+        /// </summary>
+        public string SourceType { get; init; } = string.Empty;
+
+        /// <summary>
+        /// 配置来源标识。由 Product Collection Template 生成时为模板 ID。
+        /// </summary>
+        public string SourceId { get; init; } = string.Empty;
+
+        /// <summary>
+        /// 配置来源版本。由 Product Collection Template 生成时为模板版本。
+        /// </summary>
+        public string SourceVersion { get; init; } = string.Empty;
+
+        /// <summary>
+        /// 非敏感来源扩展信息。
+        /// </summary>
+        public Dictionary<string, object> SourceMetadata { get; init; } = [];
+
+        /// <summary>
+        /// 创建时间。
+        /// </summary>
+        public DateTime CreatedAt { get; init; }
+
+        /// <summary>
+        /// 更新时间。
+        /// </summary>
+        public DateTime UpdatedAt { get; init; }
+
+        /// <summary>
+        /// 创建人显示名或账号标识。
+        /// </summary>
+        public string CreatedBy { get; init; } = string.Empty;
+
+        /// <summary>
+        /// 最近更新人显示名或账号标识。
+        /// </summary>
+        public string UpdatedBy { get; init; } = string.Empty;
+
+        /// <summary>
+        /// 完整 collection-config-v1 正文。列表接口可为空，详情接口返回。
+        /// </summary>
+        public EdgeCollectionConfigurationDto? Configuration { get; init; }
+    }
+
+    /// <summary>
     /// Edge 采集配置分配快照，用于回答某个配置版本当前被分配到哪个运行时目标。
     /// </summary>
     public sealed record EdgeCollectionAssignmentDto
@@ -101,6 +187,11 @@ namespace IoTSharp.Contracts
         /// 分配记录 ID。
         /// </summary>
         public Guid Id { get; init; }
+
+        /// <summary>
+        /// 平台侧采集配置版本记录 ID。
+        /// </summary>
+        public Guid? CollectionConfigurationVersionId { get; init; }
 
         /// <summary>
         /// 分配目标类型。

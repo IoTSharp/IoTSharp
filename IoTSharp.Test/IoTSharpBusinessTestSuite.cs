@@ -342,10 +342,30 @@ public abstract class IoTSharpBusinessTestSuite<TFixture>
         Assert.Equal(templateId.ToString("D"), pulled.Data.SourceId);
         Assert.Equal("7", pulled.Data.SourceVersion);
 
+        var versions = await GetApiResultAsync<PagedData<CollectionConfigurationVersionDto>>(client, $"/api/Edge/{deviceId}/CollectionConfigVersions?limit=10");
+        Assert.NotNull(versions);
+        Assert.Equal((int)ApiCode.Success, versions!.Code);
+        var versionRow = Assert.Single(versions.Data!.rows);
+        Assert.Equal(savedConfig.Data.Version, versionRow.Version);
+        Assert.Equal("ProductCollectionTemplate", versionRow.SourceType);
+        Assert.Equal(templateId.ToString("D"), versionRow.SourceId);
+        Assert.Equal(1, versionRow.TaskCount);
+        Assert.False(string.IsNullOrWhiteSpace(versionRow.ConfigurationHash));
+
+        var versionDetail = await GetApiResultAsync<CollectionConfigurationVersionDto>(client, $"/api/Edge/{deviceId}/CollectionConfigVersions/{versionRow.Version}");
+        Assert.NotNull(versionDetail);
+        Assert.Equal((int)ApiCode.Success, versionDetail!.Code);
+        Assert.NotNull(versionDetail.Data!.Configuration);
+        Assert.Equal(deviceId, versionDetail.Data.Configuration!.EdgeNodeId);
+        Assert.Equal("ProductCollectionTemplate", versionDetail.Data.Configuration.SourceType);
+        Assert.Equal(templateId.ToString("D"), versionDetail.Data.Configuration.SourceId);
+
         var assignments = await GetApiResultAsync<PagedData<EdgeCollectionAssignmentDto>>(client, $"/api/Edge/{deviceId}/CollectionAssignments?limit=10");
         Assert.NotNull(assignments);
         Assert.Equal((int)ApiCode.Success, assignments!.Code);
         var activeAssignment = Assert.Single(assignments.Data!.rows, item => item.Status == EdgeCollectionAssignmentStatus.Active);
+        Assert.Equal(versionRow.Id, activeAssignment.CollectionConfigurationVersionId);
+        Assert.Equal(versionRow.ConfigurationHash, activeAssignment.ConfigurationHash);
         Assert.Equal("ProductCollectionTemplate", activeAssignment.SourceType);
         Assert.Equal(templateId.ToString("D"), activeAssignment.SourceId);
     }

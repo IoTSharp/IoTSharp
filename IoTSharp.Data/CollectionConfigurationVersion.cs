@@ -1,32 +1,25 @@
 using IoTSharp.Contracts;
 using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 
 namespace IoTSharp.Data
 {
     /// <summary>
-    /// Edge 采集配置分配记录，承载配置版本到 EdgeNode、Gateway 或设备范围的目标关系。
+    /// 采集配置版本快照，保存平台生成的 collection-config-v1 正文和来源信息。
     /// </summary>
-    public class EdgeCollectionAssignment : IJustMy
+    public class CollectionConfigurationVersion : IJustMy
     {
         /// <summary>
-        /// 分配记录 ID。
+        /// 配置版本记录 ID。
         /// </summary>
+        [Key]
         public Guid Id { get; set; } = Guid.NewGuid();
 
         /// <summary>
-        /// 平台侧采集配置版本记录 ID。历史分配可能为空。
-        /// </summary>
-        public Guid? CollectionConfigurationVersionId { get; set; }
-
-        /// <summary>
-        /// 采集配置合同版本。
+        /// 配置正文合同版本。
         /// </summary>
         public string ContractVersion { get; set; } = EdgeNodeContractVersions.CollectionConfigV1;
-
-        /// <summary>
-        /// 分配目标类型。
-        /// </summary>
-        public EdgeTaskTargetType TargetType { get; set; } = EdgeTaskTargetType.EdgeNode;
 
         /// <summary>
         /// 承载配置拉取通道的 Gateway 设备 ID。
@@ -39,27 +32,12 @@ namespace IoTSharp.Data
         public Guid? EdgeNodeId { get; set; }
 
         /// <summary>
-        /// 标准寻址键，推荐格式为 deviceId:runtimeType 或 deviceId:runtimeType:instanceId。
+        /// Gateway 维度递增的配置版本号。
         /// </summary>
-        public string TargetKey { get; set; }
+        public int Version { get; set; }
 
         /// <summary>
-        /// 运行时类型。
-        /// </summary>
-        public string RuntimeType { get; set; }
-
-        /// <summary>
-        /// 运行时实例标识。
-        /// </summary>
-        public string InstanceId { get; set; }
-
-        /// <summary>
-        /// 分配的采集配置版本号。
-        /// </summary>
-        public int ConfigurationVersion { get; set; }
-
-        /// <summary>
-        /// 配置文档哈希，用于执行端和平台核对是否为同一份配置。
+        /// 配置文档哈希，用于发布、拉取和回执核对。
         /// </summary>
         public string ConfigurationHash { get; set; }
 
@@ -69,52 +47,37 @@ namespace IoTSharp.Data
         public int TaskCount { get; set; }
 
         /// <summary>
-        /// 当前分配状态。
-        /// </summary>
-        public EdgeCollectionAssignmentStatus Status { get; set; } = EdgeCollectionAssignmentStatus.Active;
-
-        /// <summary>
         /// 配置来源类型，例如 InlineCollectionConfig、ProductCollectionTemplate。
         /// </summary>
         public string SourceType { get; set; }
 
         /// <summary>
-        /// 配置来源标识。M3 模板实体落地前可以为空。
+        /// 配置来源标识。由 Product Collection Template 生成时为模板 ID。
         /// </summary>
         public string SourceId { get; set; }
 
         /// <summary>
-        /// 配置来源版本。M3 模板实体落地前默认使用配置版本号。
+        /// 配置来源版本。由 Product Collection Template 生成时为模板版本。
         /// </summary>
         public string SourceVersion { get; set; }
 
         /// <summary>
-        /// 非敏感分配扩展信息 JSON。
+        /// 非敏感来源扩展信息 JSON。
         /// </summary>
-        public string Metadata { get; set; }
+        public string SourceMetadata { get; set; }
 
         /// <summary>
-        /// 平台创建分配的 UTC 时间。
+        /// 完整 collection-config-v1 配置正文 JSON。
         /// </summary>
-        public DateTime AssignedAt { get; set; } = DateTime.UtcNow;
+        public string Payload { get; set; }
 
         /// <summary>
-        /// 执行端最近一次拉取该配置的 UTC 时间。
-        /// </summary>
-        public DateTime? LastPulledAt { get; set; }
-
-        /// <summary>
-        /// 分配被撤销的 UTC 时间。
-        /// </summary>
-        public DateTime? RevokedAt { get; set; }
-
-        /// <summary>
-        /// 记录创建时间。
+        /// 创建时间。
         /// </summary>
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
         /// <summary>
-        /// 记录更新时间。
+        /// 更新时间。
         /// </summary>
         public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
 
@@ -129,7 +92,7 @@ namespace IoTSharp.Data
         public string UpdatedBy { get; set; }
 
         /// <summary>
-        /// 是否删除。配置分配历史默认保留，不做物理删除。
+        /// 是否删除。配置版本历史默认保留，不做物理删除。
         /// </summary>
         public bool Deleted { get; set; }
 
@@ -159,8 +122,8 @@ namespace IoTSharp.Data
         public Device Gateway { get; set; }
 
         /// <summary>
-        /// 分配引用的采集配置版本快照。
+        /// 引用该配置版本的目标分配记录。
         /// </summary>
-        public CollectionConfigurationVersion CollectionConfigurationVersion { get; set; }
+        public ICollection<EdgeCollectionAssignment> Assignments { get; set; } = [];
     }
 }

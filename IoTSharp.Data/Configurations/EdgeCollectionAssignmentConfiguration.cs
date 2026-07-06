@@ -16,6 +16,7 @@ namespace IoTSharp.Data.Configurations
         {
             builder.HasKey(c => c.Id);
 
+            builder.Property(c => c.CollectionConfigurationVersionId).HasColumnName("CollectionConfigVersionId");
             builder.Property(c => c.ContractVersion).HasMaxLength(64);
             builder.Property(c => c.TargetType).HasConversion<string>().HasMaxLength(64);
             builder.Property(c => c.TargetKey).HasMaxLength(450);
@@ -31,6 +32,8 @@ namespace IoTSharp.Data.Configurations
 
             builder.HasIndex(c => new { c.GatewayId, c.Status, c.ConfigurationVersion });
             builder.HasIndex(c => new { c.GatewayId, c.ConfigurationVersion });
+            builder.HasIndex(c => c.CollectionConfigurationVersionId)
+                .HasDatabaseName("IX_EdgeColAssign_CfgVer");
             builder.HasIndex(c => new { c.TargetKey, c.Status });
             builder.HasIndex(c => new { c.CustomerId, c.TenantId, c.Deleted });
             builder.HasIndex(c => c.EdgeNodeId);
@@ -41,6 +44,12 @@ namespace IoTSharp.Data.Configurations
                 .WithMany()
                 .HasForeignKey(c => c.GatewayId)
                 .OnDelete(DeleteBehavior.Restrict);
+
+            builder.HasOne(c => c.CollectionConfigurationVersion)
+                .WithMany(c => c.Assignments)
+                .HasForeignKey(c => c.CollectionConfigurationVersionId)
+                .HasConstraintName("FK_EdgeColAssign_CfgVer")
+                .OnDelete(DeleteBehavior.SetNull);
 
             builder.HasOne(c => c.Tenant).WithMany().HasForeignKey(c => c.TenantId);
             builder.HasOne(c => c.Customer).WithMany().HasForeignKey(c => c.CustomerId);

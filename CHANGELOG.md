@@ -14,6 +14,7 @@ This project follows a lightweight Keep a Changelog style. Version numbers in th
 - Windows installer work for database-aware setup flow and service registration foundations.
 - `IoTSharp.Agent` project for tray-style desktop integration work.
 - `collection-config-v1` now carries Product Collection Template source metadata so edge runtimes can trace generated collection configurations back to Product templates.
+- Platform-side collection configuration version snapshots with `CollectionConfigVersions`, version query APIs, and active assignment linkage for M4 #040.
 
 ### Changed
 

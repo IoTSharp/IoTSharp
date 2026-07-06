@@ -26,6 +26,7 @@ namespace IoTSharp.Data
             modelBuilder.ApplyConfiguration(new EdgeNodeConfiguration());
             modelBuilder.ApplyConfiguration(new EdgeTaskConfiguration());
             modelBuilder.ApplyConfiguration(new EdgeTaskReceiptConfiguration());
+            modelBuilder.ApplyConfiguration(new CollectionConfigurationVersionConfiguration());
             modelBuilder.ApplyConfiguration(new EdgeCollectionAssignmentConfiguration());
             modelBuilder.ApplyConfiguration(new CollectionTemplateConfiguration());
             modelBuilder.ApplyConfiguration(new CollectionProtocolTemplateConfiguration());
@@ -34,6 +35,7 @@ namespace IoTSharp.Data
             modelBuilder.ApplyConfiguration(new CollectionTransformTemplateConfiguration());
             modelBuilder.ApplyConfiguration(new CollectionSamplingPolicyConfiguration());
             modelBuilder.ApplyConfiguration(new CollectionMappingPolicyConfiguration());
+            ConfigureProviderSpecificCollectionConfigurationVersion(modelBuilder);
             modelBuilder.Entity<AttributeLatest>().HasDiscriminator<DataCatalog>(nameof(Data.DataStorage.Catalog));
             modelBuilder.Entity<TelemetryLatest>().HasDiscriminator<DataCatalog>(nameof(Data.DataStorage.Catalog));
             modelBuilder.Entity<ProductData>().HasDiscriminator<DataCatalog>(nameof(Data.DataStorage.Catalog));
@@ -54,6 +56,21 @@ namespace IoTSharp.Data
             base.OnModelCreating(modelBuilder);
         }
 
+        /// <summary>
+        /// 补充采集配置版本在特定数据库 provider 上的字段映射差异。
+        /// </summary>
+        /// <param name="modelBuilder">EF 模型构建器。</param>
+        private void ConfigureProviderSpecificCollectionConfigurationVersion(ModelBuilder modelBuilder)
+        {
+            if (Database.ProviderName?.Contains("Oracle", StringComparison.OrdinalIgnoreCase) != true)
+            {
+                return;
+            }
+
+            modelBuilder.Entity<CollectionConfigurationVersion>().Property(c => c.Payload).HasColumnType("NCLOB");
+            modelBuilder.Entity<CollectionConfigurationVersion>().Property(c => c.SourceMetadata).HasColumnType("NCLOB");
+        }
+
         public DbSet<Tenant> Tenant { get; set; }
         public DbSet<Customer> Customer { get; set; }
         public DbSet<Relationship> Relationship { get; set; }
@@ -62,6 +79,7 @@ namespace IoTSharp.Data
         public DbSet<EdgeNode> EdgeNodes { get; set; }
         public DbSet<EdgeTask> EdgeTasks { get; set; }
         public DbSet<EdgeTaskReceipt> EdgeTaskReceipts { get; set; }
+        public DbSet<CollectionConfigurationVersion> CollectionConfigurationVersions { get; set; }
         public DbSet<EdgeCollectionAssignment> EdgeCollectionAssignments { get; set; }
         public DbSet<CollectionTemplate> CollectionTemplates { get; set; }
         public DbSet<CollectionProtocolTemplate> CollectionProtocolTemplates { get; set; }

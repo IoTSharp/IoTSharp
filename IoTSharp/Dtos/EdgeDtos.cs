@@ -105,4 +105,60 @@ namespace IoTSharp.Dtos
         /// </summary>
         public string Sort { get; set; }
     }
+
+    /// <summary>
+    /// 采集配置版本查询条件。
+    /// </summary>
+    public class CollectionConfigurationVersionQueryDto : QueryDto
+    {
+        /// <summary>
+        /// Gateway 设备 ID。
+        /// </summary>
+        public Guid? GatewayId { get; set; }
+
+        /// <summary>
+        /// 平台侧 EdgeNode ID。
+        /// </summary>
+        public Guid? EdgeNodeId { get; set; }
+
+        /// <summary>
+        /// 采集配置版本号。
+        /// </summary>
+        public int? Version { get; set; }
+
+        /// <summary>
+        /// 配置文档哈希。
+        /// </summary>
+        public string ConfigurationHash { get; set; }
+
+        /// <summary>
+        /// 配置来源类型。
+        /// </summary>
+        public string SourceType { get; set; }
+
+        /// <summary>
+        /// 配置来源标识。
+        /// </summary>
+        public string SourceId { get; set; }
+
+        /// <summary>
+        /// 配置来源版本。
+        /// </summary>
+        public string SourceVersion { get; set; }
+
+        /// <summary>
+        /// 是否在列表结果中包含完整配置正文。
+        /// </summary>
+        public bool IncludeConfiguration { get; set; }
+
+        /// <summary>
+        /// 排序字段。
+        /// </summary>
+        public string Sorter { get; set; }
+
+        /// <summary>
+        /// 排序方向，支持 asc 或 desc。
+        /// </summary>
+        public string Sort { get; set; }
+    }
 }

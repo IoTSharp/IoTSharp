@@ -243,9 +243,47 @@
 ### 边界约束
 
 - assignment 只保存版本、目标、哈希、任务数量和状态，不保存完整采集配置大对象。
-- 完整运行时配置仍由 `EdgeCollectionConfigurationDto` 通过 `collection-config-v1` 拉取。
+- 完整运行时配置正文由 `CollectionConfigurationVersion` 保存为平台侧版本快照；执行端仍通过 `EdgeCollectionConfigurationDto` 和 `collection-config-v1` 拉取当前配置。
 - M3 的 Product Collection Template 落地前，`sourceType` 使用 `InlineCollectionConfig`，`sourceId` 可以为空。
 - 执行成功、失败、超时和回滚结果归 EdgeTask/EdgeTaskReceipt 或后续 ReleaseTask，不写入 assignment。
+
+## CollectionConfigurationVersion 正式模型（#040）
+
+`CollectionConfigurationVersion` 是平台侧采集配置版本快照。它保存规范化后的 `collection-config-v1` 正文、Gateway 维度递增版本号、配置哈希、任务数量和 Product Collection Template 来源信息。该模型不替代 Product 侧 Collection Template，也不承担发布任务执行状态；目标分配仍由 `EdgeCollectionAssignment` 表示，执行回执归 EdgeTask/EdgeTaskReceipt 或后续 ReleaseTask。
+
+### 关键字段
+
+- id
+- contractVersion
+- gatewayId
+- edgeNodeId
+- version
+- configurationHash
+- taskCount
+- sourceType
+- sourceId
+- sourceVersion
+- sourceMetadata
+- payload
+- createdAt
+- updatedAt
+- createdBy
+- updatedBy
+- tenantId
+- customerId
+
+### 查询接口
+
+- `GET /api/Edge/CollectionConfigVersions`：按租户/客户边界查询配置版本，可按 gateway、edgeNode、版本、哈希和来源过滤。
+- `GET /api/Edge/{id}/CollectionConfigVersions`：查询某个 Gateway/EdgeNode 的配置版本历史。
+- `GET /api/Edge/{id}/CollectionConfigVersions/{version}`：读取指定版本详情，并返回完整 `collection-config-v1` 正文。
+
+### 写入规则
+
+- `PUT /api/Edge/{id}/CollectionConfig` 会先生成 `CollectionConfigurationVersion`，再创建引用该快照的 Active assignment。
+- 版本号仍按 Gateway 维度递增；旧 AttributeLatest 中的配置视图仅作为兼容读取路径。
+- `configurationHash` 以规范化后的配置正文计算，assignment 和版本快照使用同一个哈希，便于发布和执行端核对。
+- SQLite 迁移只落版本引用列和索引，不对已有 assignment 表追加外键约束；其他关系型 provider 创建外键。
 
 ### 查询返回结构
 
@@ -695,9 +733,15 @@ targetKey 规则：
   - GET /api/Edge/{id}/Capability 提供正式只读能力快照
 - EdgeCollectionAssignmentDto
   - 记录采集配置版本到 EdgeNode/Gateway 运行时的目标分配
+  - 返回 `collectionConfigurationVersionId`，用于关联平台侧配置版本快照
   - PUT /api/Edge/{id}/CollectionConfig 保存配置时生成 Active assignment
   - GET /api/Edge/{id}/CollectionAssignments 提供节点内分配历史
   - GET /api/Edge/CollectionAssignments 提供租户边界内分配查询
+- CollectionConfigurationVersionDto
+  - 返回平台侧配置版本快照、哈希、来源和任务数量
+  - GET /api/Edge/{id}/CollectionConfigVersions 提供节点内版本历史
+  - GET /api/Edge/{id}/CollectionConfigVersions/{version} 提供指定版本正文
+  - GET /api/Edge/CollectionConfigVersions 提供租户边界内版本查询
 - EdgeTask / EdgeTaskReceipt 正式查询主路径（#025）
   - EdgeNode 列表和详情中的最近任务状态来自 `EdgeTasks`
   - GET /api/EdgeTask/Receipt/{deviceId} 从 `EdgeTaskReceipts` 或 `EdgeTasks.LastReceiptPayload` 返回最近回执
