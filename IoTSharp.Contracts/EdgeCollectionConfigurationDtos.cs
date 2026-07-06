@@ -62,6 +62,57 @@ namespace IoTSharp.Contracts
         public IReadOnlyList<CollectionTaskDto> Tasks { get; init; } = [];
     }
 
+    /// <summary>
+    /// Edge/Gateway 执行端拉取当前目标采集配置后的结果。
+    /// </summary>
+    public sealed record EdgeCollectionConfigurationPullResultDto
+    {
+        /// <summary>
+        /// 配置正文合同版本。
+        /// </summary>
+        public string ContractVersion { get; init; } = EdgeNodeContractVersions.CollectionConfigV1;
+
+        /// <summary>
+        /// 承载接入凭证和配置拉取通道的 Gateway 设备 ID。
+        /// </summary>
+        public Guid GatewayId { get; init; }
+
+        /// <summary>
+        /// 平台侧 EdgeNode ID。
+        /// </summary>
+        public Guid? EdgeNodeId { get; init; }
+
+        /// <summary>
+        /// 平台侧采集配置版本记录 ID。
+        /// </summary>
+        public Guid? ConfigurationVersionId { get; init; }
+
+        /// <summary>
+        /// Gateway 维度递增的配置版本号。
+        /// </summary>
+        public int ConfigurationVersion { get; init; }
+
+        /// <summary>
+        /// 配置文档哈希，用于执行端与发布任务参数核对。
+        /// </summary>
+        public string ConfigurationHash { get; init; } = string.Empty;
+
+        /// <summary>
+        /// 平台处理本次拉取的 UTC 时间。
+        /// </summary>
+        public DateTime PulledAt { get; init; }
+
+        /// <summary>
+        /// 当前目标分配快照；没有正式分配记录时为空以兼容旧配置。
+        /// </summary>
+        public EdgeCollectionAssignmentDto? Assignment { get; init; }
+
+        /// <summary>
+        /// 执行端需要缓存和应用的 collection-config-v1 正文。
+        /// </summary>
+        public EdgeCollectionConfigurationDto Configuration { get; init; } = new();
+    }
+
     public sealed record EdgeCollectionConfigurationUpdateDto
     {
         public IReadOnlyList<CollectionTaskDto> Tasks { get; init; } = [];

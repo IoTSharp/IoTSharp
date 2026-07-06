@@ -305,7 +305,25 @@
 - `edgeNodeId`
 - `gatewayId`
 
-该端点不引入 M5 的 `ReleaseTask`、灰度批次或审批编排；配置执行结果继续由 EdgeTask/EdgeTaskReceipt 回执链路承载。执行端仍以 `GET /api/Edge/{access_token}/CollectionConfig` 获取当前目标配置，平台用任务参数中的版本号和哈希核对执行端回执。
+该端点不引入 M5 的 `ReleaseTask`、灰度批次或审批编排；配置执行结果继续由 EdgeTask/EdgeTaskReceipt 回执链路承载。平台用任务参数中的版本号和哈希核对执行端回执。
+
+## Edge/Gateway 配置拉取（#042）
+
+`GET /api/Edge/{access_token}/CollectionConfig/Pull` 是执行端获取当前目标配置的正式入口。它按接入令牌定位 Gateway，再以 Active `EdgeCollectionAssignment` 为优先来源读取目标 `CollectionConfigurationVersion`，返回：
+
+- `configurationVersionId`
+- `configurationVersion`
+- `configurationHash`
+- `assignment`
+- `configuration`
+
+拉取成功后平台会更新当前 Active assignment 的 `lastPulledAt`，用于管理端展示执行端是否已经读取目标配置。旧 `GET /api/Edge/{access_token}/CollectionConfig` 保留为兼容接口，只返回 `collection-config-v1` 正文，也会记录 `lastPulledAt`。
+
+执行端处理建议：
+
+- 先通过 `/api/EdgeTask/Dispatch/{accessToken}` 拉取 `ConfigPullRequest`。
+- 对任务参数中的 `configurationVersionId`、`configurationVersion` 和 `configurationHash` 与 `/CollectionConfig/Pull` 返回值做一致性校验。
+- 配置落本地缓存并准备应用后，通过 EdgeTask 回执通道上报 Accepted/Running/Succeeded/Failed；具体回执闭环归 #043。
 
 ### 查询返回结构
 

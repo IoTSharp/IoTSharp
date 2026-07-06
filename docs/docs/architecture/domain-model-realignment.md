@@ -359,7 +359,8 @@ Edge 页面围绕运行时闭环组织：
 交付：
 
 - Collection Configuration Version：平台侧保存 `collection-config-v1` 正文、哈希、来源和版本号，assignment 只引用版本快照并记录目标分配。
-- Edge/Gateway 配置发布 API、发布任务和回执。
+- Edge/Gateway 配置发布 API：从 Active Product Collection Template 生成配置版本、Active assignment 和 `ConfigPullRequest` EdgeTask；回执闭环继续归 M4 后续任务。
+- Edge/Gateway 配置拉取：执行端通过 `GET /api/Edge/{access_token}/CollectionConfig/Pull` 获取当前目标配置、Active assignment、版本 ID 和哈希，并更新 `lastPulledAt`。
 - 配置当前版本、目标版本和差异展示。
 - 最小软件包发布（#046）与 IoTEdge 软件更新执行器（#047）。
 - 边缘数据断网缓存与续传（#048）。

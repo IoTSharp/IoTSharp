@@ -9,6 +9,9 @@
     },
     {
       "$ref": "#/$defs/edgeCollectionAssignment"
+    },
+    {
+      "$ref": "#/$defs/edgeCollectionConfigurationPullResult"
     }
   ],
   "$defs": {
@@ -141,6 +144,69 @@
             "$ref": "#/$defs/collectionTask"
           },
           "default": []
+        }
+      }
+    },
+    "edgeCollectionConfigurationPullResult": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "contractVersion",
+        "gatewayId",
+        "configurationVersion",
+        "configurationHash",
+        "pulledAt",
+        "configuration"
+      ],
+      "properties": {
+        "contractVersion": {
+          "const": "collection-config-v1"
+        },
+        "gatewayId": {
+          "$ref": "#/$defs/uuid"
+        },
+        "edgeNodeId": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/uuid"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "configurationVersionId": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/uuid"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "configurationVersion": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "configurationHash": {
+          "type": "string"
+        },
+        "pulledAt": {
+          "$ref": "#/$defs/dateTime"
+        },
+        "assignment": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/edgeCollectionAssignment"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "configuration": {
+          "$ref": "#/$defs/edgeCollectionConfiguration"
         }
       }
     },

@@ -522,9 +522,24 @@ namespace IoTSharp.Controllers
                 return Ok(new ApiResult<EdgeCollectionConfigurationDto>(ApiCode.NotFoundDevice, $"{access_token} not a gateway's access token", null));
             }
 
-            var document = await ReadCollectionConfigAsync(gateway.Id);
-            await MarkCollectionAssignmentPulledAsync(gateway.Id, document.Version);
-            return Ok(new ApiResult<EdgeCollectionConfigurationDto>(ApiCode.Success, "OK", document));
+            var pullResult = await PullCollectionConfigForGatewayAsync(gateway.Id);
+            return Ok(new ApiResult<EdgeCollectionConfigurationDto>(ApiCode.Success, "OK", pullResult.Configuration));
+        }
+
+        [AllowAnonymous]
+        [HttpGet("{access_token}/CollectionConfig/Pull")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesDefaultResponseType]
+        public async Task<ActionResult<ApiResult<EdgeCollectionConfigurationPullResultDto>>> PullTargetCollectionConfig(string access_token)
+        {
+            var gateway = await GetGatewayByAccessTokenAsync(access_token);
+            if (gateway == null)
+            {
+                return Ok(new ApiResult<EdgeCollectionConfigurationPullResultDto>(ApiCode.NotFoundDevice, $"{access_token} not a gateway's access token", null));
+            }
+
+            var pullResult = await PullCollectionConfigForGatewayAsync(gateway.Id);
+            return Ok(new ApiResult<EdgeCollectionConfigurationPullResultDto>(ApiCode.Success, "OK", pullResult));
         }
 
         private async Task<Device> GetGatewayByAccessTokenAsync(string accessToken)
@@ -545,6 +560,48 @@ namespace IoTSharp.Controllers
             return await _context.Device
                 .Include(c => c.DeviceIdentity)
                 .FirstOrDefaultAsync(c => c.Id == id && c.Customer.Id == customerId && c.Tenant.Id == tenantId && !c.Deleted && c.DeviceType == DeviceType.Gateway);
+        }
+
+        /// <summary>
+        /// 为执行端读取当前目标采集配置，并返回可核验的版本、哈希和分配快照。
+        /// </summary>
+        /// <param name="gatewayId">承载配置拉取通道的 Gateway 设备 ID。</param>
+        /// <returns>执行端拉取结果。</returns>
+        private async Task<EdgeCollectionConfigurationPullResultDto> PullCollectionConfigForGatewayAsync(Guid gatewayId)
+        {
+            var pulledAt = DateTime.UtcNow;
+            var document = await ReadCollectionConfigAsync(gatewayId);
+            var assignment = await ReadActiveCollectionAssignmentAsync(gatewayId, document.Version);
+            var versionRecord = assignment?.CollectionConfigurationVersionId is { } versionId
+                ? await ReadCollectionConfigurationVersionAsync(versionId)
+                : null;
+
+            versionRecord ??= await ReadCollectionConfigurationVersionAsync(gatewayId, document.Version);
+
+            if (assignment != null)
+            {
+                assignment.LastPulledAt = pulledAt;
+                assignment.UpdatedAt = pulledAt;
+                await _context.SaveChangesAsync();
+            }
+
+            var configurationHash = assignment?.ConfigurationHash ?? versionRecord?.ConfigurationHash ?? string.Empty;
+            if (string.IsNullOrWhiteSpace(configurationHash) && document.Version > 0)
+            {
+                configurationHash = ComputeSha256(JsonSerializer.Serialize(document, WebJsonOptions));
+            }
+
+            return new EdgeCollectionConfigurationPullResultDto
+            {
+                GatewayId = gatewayId,
+                EdgeNodeId = versionRecord?.EdgeNodeId ?? assignment?.EdgeNodeId ?? document.EdgeNodeId,
+                ConfigurationVersionId = assignment?.CollectionConfigurationVersionId ?? versionRecord?.Id,
+                ConfigurationVersion = document.Version,
+                ConfigurationHash = configurationHash,
+                PulledAt = pulledAt,
+                Assignment = assignment == null ? null : ToEdgeCollectionAssignmentDto(assignment),
+                Configuration = document
+            };
         }
 
         /// <summary>
@@ -814,36 +871,6 @@ namespace IoTSharp.Controllers
                 CustomerId = gateway.CustomerId ?? gateway.Customer?.Id,
                 Gateway = gateway
             };
-        }
-
-        /// <summary>
-        /// 记录执行端最近一次拉取当前采集配置的时间。
-        /// </summary>
-        /// <param name="gatewayId">承载配置拉取通道的 Gateway 设备 ID。</param>
-        /// <param name="configurationVersion">被拉取的配置版本。</param>
-        private async Task MarkCollectionAssignmentPulledAsync(Guid gatewayId, int configurationVersion)
-        {
-            if (configurationVersion <= 0)
-            {
-                return;
-            }
-
-            var assignment = await _context.EdgeCollectionAssignments
-                .Where(c => c.GatewayId == gatewayId
-                    && c.ConfigurationVersion == configurationVersion
-                    && !c.Deleted
-                    && c.Status == EdgeCollectionAssignmentStatus.Active)
-                .OrderByDescending(c => c.AssignedAt)
-                .FirstOrDefaultAsync();
-
-            if (assignment == null)
-            {
-                return;
-            }
-
-            assignment.LastPulledAt = DateTime.UtcNow;
-            assignment.UpdatedAt = assignment.LastPulledAt.Value;
-            await _context.SaveChangesAsync();
         }
 
         private static IQueryable<EdgeCollectionAssignment> ApplyCollectionAssignmentSorting(
@@ -1553,7 +1580,7 @@ namespace IoTSharp.Controllers
 
         private async Task<EdgeCollectionConfigurationDto> ReadCollectionConfigAsync(Guid gatewayId)
         {
-            var storedVersionRecord = await ReadLatestCollectionConfigurationVersionAsync(gatewayId);
+            var storedVersionRecord = await ReadCurrentCollectionConfigurationVersionAsync(gatewayId);
             if (storedVersionRecord != null)
             {
                 var storedDocument = DeserializeCollectionConfiguration(storedVersionRecord.Payload);
@@ -1633,6 +1660,66 @@ namespace IoTSharp.Controllers
         }
 
         /// <summary>
+        /// 读取 Gateway 当前目标采集配置版本快照，优先采用 Active 分配指向的版本。
+        /// </summary>
+        /// <param name="gatewayId">承载配置拉取通道的 Gateway 设备 ID。</param>
+        /// <returns>当前目标配置版本；不存在时返回 null。</returns>
+        private async Task<CollectionConfigurationVersion> ReadCurrentCollectionConfigurationVersionAsync(Guid gatewayId)
+        {
+            var assignment = await ReadCurrentCollectionAssignmentAsync(gatewayId);
+            if (assignment?.CollectionConfigurationVersionId is { } versionId)
+            {
+                var assignedVersion = await ReadCollectionConfigurationVersionAsync(versionId);
+                if (assignedVersion != null)
+                {
+                    return assignedVersion;
+                }
+            }
+
+            if (assignment?.ConfigurationVersion > 0)
+            {
+                var assignedVersion = await ReadCollectionConfigurationVersionAsync(gatewayId, assignment.ConfigurationVersion);
+                if (assignedVersion != null)
+                {
+                    return assignedVersion;
+                }
+            }
+
+            return await ReadLatestCollectionConfigurationVersionAsync(gatewayId);
+        }
+
+        /// <summary>
+        /// 按配置版本记录 ID 读取采集配置版本快照。
+        /// </summary>
+        /// <param name="versionId">配置版本记录 ID。</param>
+        /// <returns>配置版本快照；不存在时返回 null。</returns>
+        private Task<CollectionConfigurationVersion> ReadCollectionConfigurationVersionAsync(Guid versionId)
+        {
+            return _context.CollectionConfigurationVersions
+                .Where(c => c.Id == versionId && !c.Deleted)
+                .FirstOrDefaultAsync();
+        }
+
+        /// <summary>
+        /// 按 Gateway 和版本号读取采集配置版本快照。
+        /// </summary>
+        /// <param name="gatewayId">承载配置拉取通道的 Gateway 设备 ID。</param>
+        /// <param name="configurationVersion">配置版本号。</param>
+        /// <returns>配置版本快照；不存在时返回 null。</returns>
+        private Task<CollectionConfigurationVersion> ReadCollectionConfigurationVersionAsync(Guid gatewayId, int configurationVersion)
+        {
+            if (configurationVersion <= 0)
+            {
+                return Task.FromResult<CollectionConfigurationVersion>(null);
+            }
+
+            return _context.CollectionConfigurationVersions
+                .Where(c => c.GatewayId == gatewayId && c.Version == configurationVersion && !c.Deleted)
+                .OrderByDescending(c => c.CreatedAt)
+                .FirstOrDefaultAsync();
+        }
+
+        /// <summary>
         /// 归一化存储中的 collection-config-v1 文档，补齐来源、版本和任务目标信息。
         /// </summary>
         /// <param name="document">存储中的配置正文。</param>
@@ -1670,6 +1757,21 @@ namespace IoTSharp.Controllers
                     : DeserializeObjectMap(sourceMetadata),
                 Tasks = (document.Tasks ?? []).Select(task => NormalizeCollectionTask(task, gatewayId, version)).ToArray()
             };
+        }
+
+        /// <summary>
+        /// 读取当前生效配置分配，用于给旧版配置文档补回来源信息。
+        /// </summary>
+        /// <param name="gatewayId">承载配置拉取通道的 Gateway 设备 ID。</param>
+        /// <returns>当前生效分配；不存在时返回 null。</returns>
+        private Task<EdgeCollectionAssignment> ReadCurrentCollectionAssignmentAsync(Guid gatewayId)
+        {
+            return _context.EdgeCollectionAssignments
+                .Where(c => c.GatewayId == gatewayId
+                    && !c.Deleted
+                    && c.Status == EdgeCollectionAssignmentStatus.Active)
+                .OrderByDescending(c => c.AssignedAt)
+                .FirstOrDefaultAsync();
         }
 
         /// <summary>

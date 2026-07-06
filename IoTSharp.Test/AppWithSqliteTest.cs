@@ -426,6 +426,18 @@ namespace IoTSharp.Test
             Assert.Equal(publishResult.Data.ConfigurationVersion.Version, pulledConfig.Data!.Version);
             Assert.Equal("sqlite-publish-modbus:main-plc", Assert.Single(pulledConfig.Data.Tasks).TaskKey);
 
+            var targetConfig = await GetApiResultAsync<EdgeCollectionConfigurationPullResultDto>(client, $"/api/Edge/{token}/CollectionConfig/Pull");
+            Assert.Equal((int)ApiCode.Success, targetConfig.Code);
+            Assert.NotNull(targetConfig.Data);
+            Assert.Equal(deviceId, targetConfig.Data!.GatewayId);
+            Assert.Equal(publishResult.Data.ConfigurationVersion.Id, targetConfig.Data.ConfigurationVersionId);
+            Assert.Equal(publishResult.Data.ConfigurationVersion.Version, targetConfig.Data.ConfigurationVersion);
+            Assert.Equal(publishResult.Data.ConfigurationVersion.ConfigurationHash, targetConfig.Data.ConfigurationHash);
+            Assert.NotNull(targetConfig.Data.Assignment);
+            Assert.Equal(publishResult.Data.Assignment.Id, targetConfig.Data.Assignment!.Id);
+            Assert.Equal(publishResult.Data.ConfigurationVersion.ConfigurationHash, targetConfig.Data.Assignment.ConfigurationHash);
+            Assert.Equal("sqlite-publish-modbus:main-plc", Assert.Single(targetConfig.Data.Configuration.Tasks).TaskKey);
+
             using var scope = _fixture.Services.CreateScope();
             var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
             var storedTask = await dbContext.EdgeTasks.AsNoTracking().SingleAsync(task => task.Id == publishResult.Data.Task.TaskId);
@@ -434,6 +446,9 @@ namespace IoTSharp.Test
             using var parameters = JsonDocument.Parse(storedTask.Parameters);
             Assert.Equal(publishResult.Data.ConfigurationVersion.Version, parameters.RootElement.GetProperty("configurationVersion").GetInt32());
             Assert.Equal(publishResult.Data.ConfigurationVersion.ConfigurationHash, parameters.RootElement.GetProperty("configurationHash").GetString());
+
+            var storedAssignment = await dbContext.EdgeCollectionAssignments.AsNoTracking().SingleAsync(assignment => assignment.Id == publishResult.Data.Assignment.Id);
+            Assert.NotNull(storedAssignment.LastPulledAt);
         }
 
         private async Task AssertStoredEdgeTaskAsync(Guid taskId, IoTSharp.Contracts.EdgeTaskStatus status, Guid gatewayId, int? progress)
