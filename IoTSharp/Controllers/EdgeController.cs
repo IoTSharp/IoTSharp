@@ -420,7 +420,11 @@ namespace IoTSharp.Controllers
             };
             var payload = JsonSerializer.Serialize(document);
             var node = await EnsureEdgeNodeAsync(gateway);
-            await PrepareCollectionAssignmentAsync(gateway, node, document, payload, updatedBy, updatedAt);
+            var sourceType = string.IsNullOrWhiteSpace(request?.SourceType) ? "InlineCollectionConfig" : request.SourceType.Trim();
+            var sourceId = request?.SourceId?.Trim() ?? string.Empty;
+            var sourceVersion = string.IsNullOrWhiteSpace(request?.SourceVersion) ? version.ToString() : request.SourceVersion.Trim();
+            var sourceMetadata = SerializeOrNull(request?.SourceMetadata) ?? "{}";
+            await PrepareCollectionAssignmentAsync(gateway, node, document, payload, updatedBy, updatedAt, sourceType, sourceId, sourceVersion, sourceMetadata);
 
             await _context.SaveAsync<AttributeLatest>(new Dictionary<string, object>
             {
@@ -563,7 +567,11 @@ namespace IoTSharp.Controllers
             EdgeCollectionConfigurationDto document,
             string payload,
             string updatedBy,
-            DateTime now)
+            DateTime now,
+            string sourceType,
+            string sourceId,
+            string sourceVersion,
+            string sourceMetadata)
         {
             var activeAssignments = await _context.EdgeCollectionAssignments
                 .Where(c => c.GatewayId == gateway.Id && !c.Deleted && c.Status == EdgeCollectionAssignmentStatus.Active)
@@ -592,10 +600,10 @@ namespace IoTSharp.Controllers
                 ConfigurationHash = ComputeSha256(payload),
                 TaskCount = document.Tasks?.Count ?? 0,
                 Status = EdgeCollectionAssignmentStatus.Active,
-                SourceType = "InlineCollectionConfig",
-                SourceId = string.Empty,
-                SourceVersion = document.Version.ToString(),
-                Metadata = "{}",
+                SourceType = string.IsNullOrWhiteSpace(sourceType) ? "InlineCollectionConfig" : sourceType,
+                SourceId = sourceId ?? string.Empty,
+                SourceVersion = string.IsNullOrWhiteSpace(sourceVersion) ? document.Version.ToString() : sourceVersion,
+                Metadata = string.IsNullOrWhiteSpace(sourceMetadata) ? "{}" : sourceMetadata,
                 AssignedAt = now,
                 CreatedAt = now,
                 UpdatedAt = now,

@@ -27,6 +27,13 @@ namespace IoTSharp.Data
             modelBuilder.ApplyConfiguration(new EdgeTaskConfiguration());
             modelBuilder.ApplyConfiguration(new EdgeTaskReceiptConfiguration());
             modelBuilder.ApplyConfiguration(new EdgeCollectionAssignmentConfiguration());
+            modelBuilder.ApplyConfiguration(new CollectionTemplateConfiguration());
+            modelBuilder.ApplyConfiguration(new CollectionProtocolTemplateConfiguration());
+            modelBuilder.ApplyConfiguration(new CollectionConnectionTemplateConfiguration());
+            modelBuilder.ApplyConfiguration(new CollectionPointTemplateConfiguration());
+            modelBuilder.ApplyConfiguration(new CollectionTransformTemplateConfiguration());
+            modelBuilder.ApplyConfiguration(new CollectionSamplingPolicyConfiguration());
+            modelBuilder.ApplyConfiguration(new CollectionMappingPolicyConfiguration());
             modelBuilder.Entity<AttributeLatest>().HasDiscriminator<DataCatalog>(nameof(Data.DataStorage.Catalog));
             modelBuilder.Entity<TelemetryLatest>().HasDiscriminator<DataCatalog>(nameof(Data.DataStorage.Catalog));
             modelBuilder.Entity<ProductData>().HasDiscriminator<DataCatalog>(nameof(Data.DataStorage.Catalog));
@@ -56,6 +63,13 @@ namespace IoTSharp.Data
         public DbSet<EdgeTask> EdgeTasks { get; set; }
         public DbSet<EdgeTaskReceipt> EdgeTaskReceipts { get; set; }
         public DbSet<EdgeCollectionAssignment> EdgeCollectionAssignments { get; set; }
+        public DbSet<CollectionTemplate> CollectionTemplates { get; set; }
+        public DbSet<CollectionProtocolTemplate> CollectionProtocolTemplates { get; set; }
+        public DbSet<CollectionConnectionTemplate> CollectionConnectionTemplates { get; set; }
+        public DbSet<CollectionPointTemplate> CollectionPointTemplates { get; set; }
+        public DbSet<CollectionTransformTemplate> CollectionTransformTemplates { get; set; }
+        public DbSet<CollectionSamplingPolicy> CollectionSamplingPolicies { get; set; }
+        public DbSet<CollectionMappingPolicy> CollectionMappingPolicies { get; set; }
         public DbSet<TelemetryData> TelemetryData { get; set; }
         public DbSet<AttributeLatest> AttributeLatest { get; set; }
         public DbSet<DataStorage> DataStorage { get; set; }

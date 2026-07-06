@@ -76,6 +76,11 @@ namespace IoTSharp.Data
         /// </summary>
         public List<ProductCommand> Commands { get; set; }
 
+        /// <summary>
+        /// 产品采集模板集合。
+        /// </summary>
+        public List<CollectionTemplate> CollectionTemplates { get; set; }
+
         public string ProductToken { get; set; }
 
         public bool Deleted { get; set; }

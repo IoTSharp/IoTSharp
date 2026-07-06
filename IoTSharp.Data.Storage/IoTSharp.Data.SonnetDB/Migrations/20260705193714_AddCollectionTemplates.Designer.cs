@@ -3,42 +3,40 @@ using System;
 using IoTSharp.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
 
-namespace IoTSharp.Data.SqlServer.Migrations
+namespace IoTSharp.Data.SonnetDB.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260705193714_AddCollectionTemplates")]
+    partial class AddCollectionTemplates
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
-            modelBuilder
-                .HasAnnotation("ProductVersion", "10.0.9")
-                .HasAnnotation("Relational:MaxIdentifierLength", 128);
-
-            SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
+            modelBuilder.HasAnnotation("ProductVersion", "10.0.9");
 
             modelBuilder.Entity("IoTSharp.Data.AISettings", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("STRING");
 
                     b.Property<bool>("Enable")
-                        .HasColumnType("bit");
+                        .HasColumnType("BOOL");
 
                     b.Property<string>("MCP_API_KEY")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("STRING");
 
                     b.Property<string>("Name")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("STRING");
 
                     b.Property<int>("Role")
-                        .HasColumnType("int");
+                        .HasColumnType("INT");
 
                     b.HasKey("Id");
 
@@ -49,46 +47,46 @@ namespace IoTSharp.Data.SqlServer.Migrations
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("STRING");
 
                     b.Property<DateTime>("AckDateTime")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("DATETIME");
 
                     b.Property<string>("AlarmDetail")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("STRING");
 
                     b.Property<int>("AlarmStatus")
-                        .HasColumnType("int");
+                        .HasColumnType("INT");
 
                     b.Property<string>("AlarmType")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("STRING");
 
                     b.Property<DateTime>("ClearDateTime")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("DATETIME");
 
                     b.Property<Guid?>("CustomerId")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("STRING");
 
                     b.Property<DateTime>("EndDateTime")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("DATETIME");
 
                     b.Property<Guid>("OriginatorId")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("STRING");
 
                     b.Property<int>("OriginatorType")
-                        .HasColumnType("int");
+                        .HasColumnType("INT");
 
                     b.Property<bool>("Propagate")
-                        .HasColumnType("bit");
+                        .HasColumnType("BOOL");
 
                     b.Property<int>("Serverity")
-                        .HasColumnType("int");
+                        .HasColumnType("INT");
 
                     b.Property<DateTime>("StartDateTime")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("DATETIME");
 
                     b.Property<Guid?>("TenantId")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("STRING");
 
                     b.HasKey("Id");
 
@@ -103,25 +101,25 @@ namespace IoTSharp.Data.SqlServer.Migrations
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("STRING");
 
                     b.Property<string>("AssetType")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("STRING");
 
                     b.Property<Guid?>("CustomerId")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("STRING");
 
                     b.Property<bool>("Deleted")
-                        .HasColumnType("bit");
+                        .HasColumnType("BOOL");
 
                     b.Property<string>("Description")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("STRING");
 
                     b.Property<string>("Name")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("STRING");
 
                     b.Property<Guid?>("TenantId")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("STRING");
 
                     b.HasKey("Id");
 
@@ -136,25 +134,25 @@ namespace IoTSharp.Data.SqlServer.Migrations
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("STRING");
 
                     b.Property<Guid?>("AssetId")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("STRING");
 
                     b.Property<int>("DataCatalog")
-                        .HasColumnType("int");
+                        .HasColumnType("INT");
 
                     b.Property<string>("Description")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("STRING");
 
                     b.Property<Guid>("DeviceId")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("STRING");
 
                     b.Property<string>("KeyName")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("STRING");
 
                     b.Property<string>("Name")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("STRING");
 
                     b.HasKey("Id");
 
@@ -167,40 +165,40 @@ namespace IoTSharp.Data.SqlServer.Migrations
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("STRING");
 
                     b.Property<string>("ActionData")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("STRING");
 
                     b.Property<string>("ActionName")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("STRING");
 
                     b.Property<string>("ActionResult")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("STRING");
 
                     b.Property<DateTime>("ActiveDateTime")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("DATETIME");
 
                     b.Property<Guid?>("CustomerId")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("STRING");
 
                     b.Property<Guid>("ObjectID")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("STRING");
 
                     b.Property<string>("ObjectName")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("STRING");
 
                     b.Property<int>("ObjectType")
-                        .HasColumnType("int");
+                        .HasColumnType("INT");
 
                     b.Property<Guid?>("TenantId")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("STRING");
 
                     b.Property<string>("UserId")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("STRING");
 
                     b.Property<string>("UserName")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("STRING");
 
                     b.HasKey("Id");
 
@@ -215,45 +213,43 @@ namespace IoTSharp.Data.SqlServer.Migrations
                 {
                     b.Property<long>("DictionaryId")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("DictionaryId"));
+                        .HasColumnType("INT");
 
                     b.Property<string>("Dictionary18NKeyName")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("STRING");
 
                     b.Property<string>("DictionaryColor")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("STRING");
 
                     b.Property<string>("DictionaryDesc")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("STRING");
 
                     b.Property<long?>("DictionaryGroupId")
-                        .HasColumnType("bigint");
+                        .HasColumnType("INT");
 
                     b.Property<string>("DictionaryIcon")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("STRING");
 
                     b.Property<string>("DictionaryName")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("STRING");
 
                     b.Property<string>("DictionaryPattern")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("STRING");
 
                     b.Property<int?>("DictionaryStatus")
-                        .HasColumnType("int");
+                        .HasColumnType("INT");
 
                     b.Property<string>("DictionaryTag")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("STRING");
 
                     b.Property<string>("DictionaryValue")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("STRING");
 
                     b.Property<int?>("DictionaryValueType")
-                        .HasColumnType("int");
+                        .HasColumnType("INT");
 
                     b.Property<string>("DictionaryValueTypeName")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("STRING");
 
                     b.HasKey("DictionaryId");
 
@@ -264,30 +260,28 @@ namespace IoTSharp.Data.SqlServer.Migrations
                 {
                     b.Property<long>("DictionaryGroupId")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("DictionaryGroupId"));
+                        .HasColumnType("INT");
 
                     b.Property<string>("DictionaryGroup18NKeyName")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("STRING");
 
                     b.Property<string>("DictionaryGroupDesc")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("STRING");
 
                     b.Property<string>("DictionaryGroupKey")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("STRING");
 
                     b.Property<string>("DictionaryGroupName")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("STRING");
 
                     b.Property<int?>("DictionaryGroupStatus")
-                        .HasColumnType("int");
+                        .HasColumnType("INT");
 
                     b.Property<int?>("DictionaryGroupValueType")
-                        .HasColumnType("int");
+                        .HasColumnType("INT");
 
                     b.Property<string>("DictionaryGroupValueTypeName")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("STRING");
 
                     b.HasKey("DictionaryGroupId");
 
@@ -298,43 +292,43 @@ namespace IoTSharp.Data.SqlServer.Migrations
                 {
                     b.Property<Guid>("EventId")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("STRING");
 
                     b.Property<string>("BizData")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("STRING");
 
                     b.Property<string>("Bizid")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("STRING");
 
                     b.Property<DateTime>("CreaterDateTime")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("DATETIME");
 
                     b.Property<Guid>("Creator")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("STRING");
 
                     b.Property<Guid?>("CustomerId")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("STRING");
 
                     b.Property<string>("EventDesc")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("STRING");
 
                     b.Property<string>("EventName")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("STRING");
 
                     b.Property<int>("EventStaus")
-                        .HasColumnType("int");
+                        .HasColumnType("INT");
 
                     b.Property<Guid?>("FlowRuleRuleId")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("STRING");
 
                     b.Property<string>("MataData")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("STRING");
 
                     b.Property<Guid?>("TenantId")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("STRING");
 
                     b.Property<int>("Type")
-                        .HasColumnType("int");
+                        .HasColumnType("INT");
 
                     b.HasKey("EventId");
 
@@ -351,53 +345,53 @@ namespace IoTSharp.Data.SqlServer.Migrations
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("STRING");
 
                     b.Property<string>("AuthType")
                         .HasMaxLength(128)
-                        .HasColumnType("nvarchar(128)");
+                        .HasColumnType("STRING");
 
                     b.Property<Guid>("CollectionTemplateId")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("STRING");
 
                     b.Property<string>("ConnectionKey")
                         .HasMaxLength(128)
-                        .HasColumnType("nvarchar(128)");
+                        .HasColumnType("STRING");
 
                     b.Property<string>("ConnectionName")
                         .HasMaxLength(256)
-                        .HasColumnType("nvarchar(256)");
+                        .HasColumnType("STRING");
 
                     b.Property<string>("EndpointRef")
                         .HasMaxLength(256)
-                        .HasColumnType("nvarchar(256)");
+                        .HasColumnType("STRING");
 
                     b.Property<string>("Host")
                         .HasMaxLength(256)
-                        .HasColumnType("nvarchar(256)");
+                        .HasColumnType("STRING");
 
                     b.Property<string>("Metadata")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("STRING");
 
                     b.Property<int?>("Port")
-                        .HasColumnType("int");
+                        .HasColumnType("INT");
 
                     b.Property<string>("ProtocolOptions")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("STRING");
 
                     b.Property<int>("RetryCount")
-                        .HasColumnType("int");
+                        .HasColumnType("INT");
 
                     b.Property<string>("SerialPort")
                         .HasMaxLength(128)
-                        .HasColumnType("nvarchar(128)");
+                        .HasColumnType("STRING");
 
                     b.Property<int>("TimeoutMs")
-                        .HasColumnType("int");
+                        .HasColumnType("INT");
 
                     b.Property<string>("Transport")
                         .HasMaxLength(64)
-                        .HasColumnType("nvarchar(64)");
+                        .HasColumnType("STRING");
 
                     b.HasKey("Id");
 
@@ -410,36 +404,36 @@ namespace IoTSharp.Data.SqlServer.Migrations
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("STRING");
 
                     b.Property<string>("DisplayName")
                         .HasMaxLength(256)
-                        .HasColumnType("nvarchar(256)");
+                        .HasColumnType("STRING");
 
                     b.Property<string>("Group")
                         .HasMaxLength(128)
-                        .HasColumnType("nvarchar(128)");
+                        .HasColumnType("STRING");
 
                     b.Property<Guid>("PointTemplateId")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("STRING");
 
                     b.Property<string>("TargetName")
                         .HasMaxLength(256)
-                        .HasColumnType("nvarchar(256)");
+                        .HasColumnType("STRING");
 
                     b.Property<string>("TargetType")
                         .IsRequired()
                         .HasMaxLength(64)
-                        .HasColumnType("nvarchar(64)");
+                        .HasColumnType("STRING");
 
                     b.Property<string>("Unit")
                         .HasMaxLength(64)
-                        .HasColumnType("nvarchar(64)");
+                        .HasColumnType("STRING");
 
                     b.Property<string>("ValueType")
                         .IsRequired()
                         .HasMaxLength(64)
-                        .HasColumnType("nvarchar(64)");
+                        .HasColumnType("STRING");
 
                     b.HasKey("Id");
 
@@ -453,83 +447,83 @@ namespace IoTSharp.Data.SqlServer.Migrations
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("STRING");
 
                     b.Property<string>("Access")
                         .IsRequired()
                         .HasMaxLength(64)
-                        .HasColumnType("nvarchar(64)");
+                        .HasColumnType("STRING");
 
                     b.Property<string>("Address")
                         .HasMaxLength(512)
-                        .HasColumnType("nvarchar(512)");
+                        .HasColumnType("STRING");
 
                     b.Property<string>("BindingId")
                         .HasMaxLength(128)
-                        .HasColumnType("nvarchar(128)");
+                        .HasColumnType("STRING");
 
                     b.Property<Guid>("CollectionTemplateId")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("STRING");
 
                     b.Property<string>("ConnectionKey")
                         .HasMaxLength(128)
-                        .HasColumnType("nvarchar(128)");
+                        .HasColumnType("STRING");
 
                     b.Property<string>("DisplayName")
                         .HasMaxLength(256)
-                        .HasColumnType("nvarchar(256)");
+                        .HasColumnType("STRING");
 
                     b.Property<bool>("Enabled")
-                        .HasColumnType("bit");
+                        .HasColumnType("BOOL");
 
                     b.Property<string>("FieldPath")
                         .HasMaxLength(512)
-                        .HasColumnType("nvarchar(512)");
+                        .HasColumnType("STRING");
 
                     b.Property<int>("Length")
-                        .HasColumnType("int");
+                        .HasColumnType("INT");
 
                     b.Property<string>("Metadata")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("STRING");
 
                     b.Property<string>("Name")
                         .HasMaxLength(256)
-                        .HasColumnType("nvarchar(256)");
+                        .HasColumnType("STRING");
 
                     b.Property<string>("PointKey")
                         .HasMaxLength(128)
-                        .HasColumnType("nvarchar(128)");
+                        .HasColumnType("STRING");
 
                     b.Property<string>("ProtocolOptions")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("STRING");
 
                     b.Property<string>("QualityPolicy")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("STRING");
 
                     b.Property<string>("Quantity")
                         .HasMaxLength(128)
-                        .HasColumnType("nvarchar(128)");
+                        .HasColumnType("STRING");
 
                     b.Property<string>("RawValueType")
                         .HasMaxLength(64)
-                        .HasColumnType("nvarchar(64)");
+                        .HasColumnType("STRING");
 
                     b.Property<string>("SemanticId")
                         .HasMaxLength(128)
-                        .HasColumnType("nvarchar(128)");
+                        .HasColumnType("STRING");
 
                     b.Property<string>("SourceType")
                         .HasMaxLength(128)
-                        .HasColumnType("nvarchar(128)");
+                        .HasColumnType("STRING");
 
                     b.Property<string>("Unit")
                         .HasMaxLength(64)
-                        .HasColumnType("nvarchar(64)");
+                        .HasColumnType("STRING");
 
                     b.Property<string>("ValueType")
                         .IsRequired()
                         .HasMaxLength(64)
-                        .HasColumnType("nvarchar(64)");
+                        .HasColumnType("STRING");
 
                     b.HasKey("Id");
 
@@ -548,25 +542,25 @@ namespace IoTSharp.Data.SqlServer.Migrations
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("STRING");
 
                     b.Property<Guid>("CollectionTemplateId")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("STRING");
 
                     b.Property<string>("Metadata")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("STRING");
 
                     b.Property<string>("Parameters")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("STRING");
 
                     b.Property<string>("Protocol")
                         .IsRequired()
                         .HasMaxLength(64)
-                        .HasColumnType("nvarchar(64)");
+                        .HasColumnType("STRING");
 
                     b.Property<string>("ProtocolKind")
                         .HasMaxLength(128)
-                        .HasColumnType("nvarchar(128)");
+                        .HasColumnType("STRING");
 
                     b.HasKey("Id");
 
@@ -580,38 +574,38 @@ namespace IoTSharp.Data.SqlServer.Migrations
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("STRING");
 
                     b.Property<string>("AggregateHint")
                         .HasMaxLength(128)
-                        .HasColumnType("nvarchar(128)");
+                        .HasColumnType("STRING");
 
                     b.Property<double?>("Deadband")
-                        .HasColumnType("float");
+                        .HasColumnType("FLOAT");
 
                     b.Property<string>("Group")
                         .HasMaxLength(128)
-                        .HasColumnType("nvarchar(128)");
+                        .HasColumnType("STRING");
 
                     b.Property<Guid>("PointTemplateId")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("STRING");
 
                     b.Property<int>("ReadPeriodMs")
-                        .HasColumnType("int");
+                        .HasColumnType("INT");
 
                     b.Property<bool>("ReportOnQualityChange")
-                        .HasColumnType("bit");
+                        .HasColumnType("BOOL");
 
                     b.Property<bool>("Subscription")
-                        .HasColumnType("bit");
+                        .HasColumnType("BOOL");
 
                     b.Property<int?>("TimeoutMs")
-                        .HasColumnType("int");
+                        .HasColumnType("INT");
 
                     b.Property<string>("Trigger")
                         .IsRequired()
                         .HasMaxLength(64)
-                        .HasColumnType("nvarchar(64)");
+                        .HasColumnType("STRING");
 
                     b.HasKey("Id");
 
@@ -625,65 +619,65 @@ namespace IoTSharp.Data.SqlServer.Migrations
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("STRING");
 
                     b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("DATETIME");
 
                     b.Property<string>("CreatedBy")
                         .HasMaxLength(256)
-                        .HasColumnType("nvarchar(256)");
+                        .HasColumnType("STRING");
 
                     b.Property<Guid?>("CustomerId")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("STRING");
 
                     b.Property<bool>("Deleted")
-                        .HasColumnType("bit");
+                        .HasColumnType("BOOL");
 
                     b.Property<string>("Description")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("STRING");
 
                     b.Property<bool>("Enabled")
-                        .HasColumnType("bit");
+                        .HasColumnType("BOOL");
 
                     b.Property<string>("Metadata")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("STRING");
 
                     b.Property<string>("Name")
                         .HasMaxLength(256)
-                        .HasColumnType("nvarchar(256)");
+                        .HasColumnType("STRING");
 
                     b.Property<Guid>("ProductId")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("STRING");
 
                     b.Property<string>("ReportPolicy")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("STRING");
 
                     b.Property<string>("SemanticModelId")
                         .HasMaxLength(128)
-                        .HasColumnType("nvarchar(128)");
+                        .HasColumnType("STRING");
 
                     b.Property<string>("Status")
                         .IsRequired()
                         .HasMaxLength(64)
-                        .HasColumnType("nvarchar(64)");
+                        .HasColumnType("STRING");
 
                     b.Property<string>("TemplateKey")
                         .HasMaxLength(128)
-                        .HasColumnType("nvarchar(128)");
+                        .HasColumnType("STRING");
 
                     b.Property<Guid?>("TenantId")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("STRING");
 
                     b.Property<DateTime>("UpdatedAt")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("DATETIME");
 
                     b.Property<string>("UpdatedBy")
                         .HasMaxLength(256)
-                        .HasColumnType("nvarchar(256)");
+                        .HasColumnType("STRING");
 
                     b.Property<int>("Version")
-                        .HasColumnType("int");
+                        .HasColumnType("INT");
 
                     b.HasKey("Id");
 
@@ -704,21 +698,21 @@ namespace IoTSharp.Data.SqlServer.Migrations
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("STRING");
 
                     b.Property<int>("Order")
-                        .HasColumnType("int");
+                        .HasColumnType("INT");
 
                     b.Property<string>("Parameters")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("STRING");
 
                     b.Property<Guid>("PointTemplateId")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("STRING");
 
                     b.Property<string>("TransformType")
                         .IsRequired()
                         .HasMaxLength(64)
-                        .HasColumnType("nvarchar(64)");
+                        .HasColumnType("STRING");
 
                     b.HasKey("Id");
 
@@ -731,43 +725,43 @@ namespace IoTSharp.Data.SqlServer.Migrations
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("STRING");
 
                     b.Property<Guid?>("AISettingsId")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("STRING");
 
                     b.Property<string>("Address")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("STRING");
 
                     b.Property<string>("City")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("STRING");
 
                     b.Property<string>("Country")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("STRING");
 
                     b.Property<bool>("Deleted")
-                        .HasColumnType("bit");
+                        .HasColumnType("BOOL");
 
                     b.Property<string>("Email")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("STRING");
 
                     b.Property<string>("Name")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("STRING");
 
                     b.Property<string>("Phone")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("STRING");
 
                     b.Property<string>("Province")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("STRING");
 
                     b.Property<string>("Street")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("STRING");
 
                     b.Property<Guid?>("TenantId")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("STRING");
 
                     b.Property<int>("ZipCode")
-                        .HasColumnType("int");
+                        .HasColumnType("INT");
 
                     b.HasKey("Id");
 
@@ -781,52 +775,52 @@ namespace IoTSharp.Data.SqlServer.Migrations
             modelBuilder.Entity("IoTSharp.Data.DataStorage", b =>
                 {
                     b.Property<int>("Catalog")
-                        .HasColumnType("int")
+                        .HasColumnType("INT")
                         .HasColumnOrder(0);
 
                     b.Property<Guid>("DeviceId")
-                        .HasColumnType("uniqueidentifier")
+                        .HasColumnType("STRING")
                         .HasColumnOrder(1);
 
                     b.Property<string>("KeyName")
-                        .HasColumnType("nvarchar(450)")
+                        .HasColumnType("STRING")
                         .HasColumnOrder(2);
 
                     b.Property<int>("DataSide")
-                        .HasColumnType("int")
+                        .HasColumnType("INT")
                         .HasColumnOrder(4);
 
                     b.Property<DateTime>("DateTime")
-                        .HasColumnType("datetime2")
+                        .HasColumnType("DATETIME")
                         .HasColumnOrder(3);
 
                     b.Property<int>("Type")
-                        .HasColumnType("int")
+                        .HasColumnType("INT")
                         .HasColumnOrder(5);
 
                     b.Property<byte[]>("Value_Binary")
-                        .HasColumnType("varbinary(max)");
+                        .HasColumnType("BLOB");
 
                     b.Property<bool?>("Value_Boolean")
-                        .HasColumnType("bit");
+                        .HasColumnType("BOOL");
 
                     b.Property<DateTime?>("Value_DateTime")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("DATETIME");
 
                     b.Property<double?>("Value_Double")
-                        .HasColumnType("float");
+                        .HasColumnType("FLOAT");
 
                     b.Property<string>("Value_Json")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("STRING");
 
                     b.Property<long?>("Value_Long")
-                        .HasColumnType("bigint");
+                        .HasColumnType("INT");
 
                     b.Property<string>("Value_String")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("STRING");
 
                     b.Property<string>("Value_XML")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("STRING");
 
                     b.HasKey("Catalog", "DeviceId", "KeyName");
 
@@ -847,34 +841,34 @@ namespace IoTSharp.Data.SqlServer.Migrations
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("STRING");
 
                     b.Property<Guid?>("CustomerId")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("STRING");
 
                     b.Property<bool>("Deleted")
-                        .HasColumnType("bit");
+                        .HasColumnType("BOOL");
 
                     b.Property<Guid?>("DeviceModelId")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("STRING");
 
                     b.Property<int>("DeviceType")
-                        .HasColumnType("int");
+                        .HasColumnType("INT");
 
                     b.Property<string>("Name")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("STRING");
 
                     b.Property<Guid?>("OwnerId")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("STRING");
 
                     b.Property<Guid?>("ProductId")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("STRING");
 
                     b.Property<Guid?>("TenantId")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("STRING");
 
                     b.Property<int>("Timeout")
-                        .HasColumnType("int");
+                        .HasColumnType("INT");
 
                     b.HasKey("Id");
 
@@ -897,20 +891,20 @@ namespace IoTSharp.Data.SqlServer.Migrations
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("STRING");
 
                     b.Property<Guid>("DeviceId")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("STRING");
 
                     b.Property<string>("IdentityId")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("STRING");
 
                     b.Property<int>("IdentityType")
-                        .HasColumnType("int");
+                        .HasColumnType("INT");
 
                     b.Property<string>("IdentityValue")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("STRING");
 
                     b.HasKey("Id");
 
@@ -924,22 +918,22 @@ namespace IoTSharp.Data.SqlServer.Migrations
                 {
                     b.Property<Guid>("DeviceModelId")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("STRING");
 
                     b.Property<DateTime>("CreateDateTime")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("DATETIME");
 
                     b.Property<Guid>("Creator")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("STRING");
 
                     b.Property<string>("ModelDesc")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("STRING");
 
                     b.Property<string>("ModelName")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("STRING");
 
                     b.Property<int>("ModelStatus")
-                        .HasColumnType("int");
+                        .HasColumnType("INT");
 
                     b.HasKey("DeviceModelId");
 
@@ -950,34 +944,34 @@ namespace IoTSharp.Data.SqlServer.Migrations
                 {
                     b.Property<Guid>("CommandId")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("STRING");
 
                     b.Property<string>("CommandName")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("STRING");
 
                     b.Property<string>("CommandParams")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("STRING");
 
                     b.Property<int>("CommandStatus")
-                        .HasColumnType("int");
+                        .HasColumnType("INT");
 
                     b.Property<string>("CommandTemplate")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("STRING");
 
                     b.Property<string>("CommandTitle")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("STRING");
 
                     b.Property<int>("CommandType")
-                        .HasColumnType("int");
+                        .HasColumnType("INT");
 
                     b.Property<DateTime>("CreateDateTime")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("DATETIME");
 
                     b.Property<Guid>("Creator")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("STRING");
 
                     b.Property<Guid>("DeviceModelId")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("STRING");
 
                     b.HasKey("CommandId");
 
@@ -990,37 +984,37 @@ namespace IoTSharp.Data.SqlServer.Migrations
                 {
                     b.Property<Guid>("PortId")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("STRING");
 
                     b.Property<DateTime?>("CreateDate")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("DATETIME");
 
                     b.Property<long>("Creator")
-                        .HasColumnType("bigint");
+                        .HasColumnType("INT");
 
                     b.Property<Guid>("DeviceId")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("STRING");
 
                     b.Property<string>("PortDesc")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("STRING");
 
                     b.Property<string>("PortElementId")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("STRING");
 
                     b.Property<string>("PortName")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("STRING");
 
                     b.Property<int>("PortPhyType")
-                        .HasColumnType("int");
+                        .HasColumnType("INT");
 
                     b.Property<string>("PortPic")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("STRING");
 
                     b.Property<int>("PortStatus")
-                        .HasColumnType("int");
+                        .HasColumnType("INT");
 
                     b.Property<int>("PortType")
-                        .HasColumnType("int");
+                        .HasColumnType("INT");
 
                     b.HasKey("PortId");
 
@@ -1031,37 +1025,37 @@ namespace IoTSharp.Data.SqlServer.Migrations
                 {
                     b.Property<Guid>("MappingId")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("STRING");
 
                     b.Property<DateTime?>("CreateDate")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("DATETIME");
 
                     b.Property<Guid>("Creator")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("STRING");
 
                     b.Property<int>("MappingIndex")
-                        .HasColumnType("int");
+                        .HasColumnType("INT");
 
                     b.Property<int>("MappingStatus")
-                        .HasColumnType("int");
+                        .HasColumnType("INT");
 
                     b.Property<Guid>("SourceDeviceId")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("STRING");
 
                     b.Property<string>("SourceElementId")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("STRING");
 
                     b.Property<string>("SourceId")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("STRING");
 
                     b.Property<string>("TargeId")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("STRING");
 
                     b.Property<Guid>("TargetDeviceId")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("STRING");
 
                     b.Property<string>("TargetElementId")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("STRING");
 
                     b.HasKey("MappingId");
 
@@ -1072,22 +1066,22 @@ namespace IoTSharp.Data.SqlServer.Migrations
                 {
                     b.Property<Guid>("DeviceRuleId")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("STRING");
 
                     b.Property<DateTime>("ConfigDateTime")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("DATETIME");
 
                     b.Property<Guid>("ConfigUser")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("STRING");
 
                     b.Property<Guid?>("DeviceId")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("STRING");
 
                     b.Property<int>("EnableTrace")
-                        .HasColumnType("int");
+                        .HasColumnType("INT");
 
                     b.Property<Guid?>("FlowRuleRuleId")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("STRING");
 
                     b.HasKey("DeviceRuleId");
 
@@ -1102,78 +1096,76 @@ namespace IoTSharp.Data.SqlServer.Migrations
                 {
                     b.Property<long>("FieldId")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("FieldId"));
+                        .HasColumnType("INT");
 
                     b.Property<Guid>("Creator")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("STRING");
 
                     b.Property<Guid?>("CustomerId")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("STRING");
 
                     b.Property<string>("FieldCode")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("STRING");
 
                     b.Property<DateTime?>("FieldCreateDate")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("DATETIME");
 
                     b.Property<DateTime?>("FieldEditDate")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("DATETIME");
 
                     b.Property<string>("FieldI18nKey")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("STRING");
 
                     b.Property<int>("FieldMaxLength")
-                        .HasColumnType("int");
+                        .HasColumnType("INT");
 
                     b.Property<string>("FieldName")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("STRING");
 
                     b.Property<string>("FieldPattern")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("STRING");
 
                     b.Property<string>("FieldPocoTypeName")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("STRING");
 
                     b.Property<int>("FieldStatus")
-                        .HasColumnType("int");
+                        .HasColumnType("INT");
 
                     b.Property<long>("FieldUIElement")
-                        .HasColumnType("bigint");
+                        .HasColumnType("INT");
 
                     b.Property<string>("FieldUIElementSchema")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("STRING");
 
                     b.Property<string>("FieldUnit")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("STRING");
 
                     b.Property<string>("FieldValue")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("STRING");
 
                     b.Property<string>("FieldValueDataSource")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("STRING");
 
                     b.Property<string>("FieldValueLocalDataSource")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("STRING");
 
                     b.Property<int>("FieldValueType")
-                        .HasColumnType("int");
+                        .HasColumnType("INT");
 
                     b.Property<string>("FieldValueTypeName")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("STRING");
 
                     b.Property<long>("FormId")
-                        .HasColumnType("bigint");
+                        .HasColumnType("INT");
 
                     b.Property<bool>("IsEnabled")
-                        .HasColumnType("bit");
+                        .HasColumnType("BOOL");
 
                     b.Property<bool>("IsRequired")
-                        .HasColumnType("bit");
+                        .HasColumnType("BOOL");
 
                     b.Property<Guid?>("TenantId")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("STRING");
 
                     b.HasKey("FieldId");
 
@@ -1188,45 +1180,43 @@ namespace IoTSharp.Data.SqlServer.Migrations
                 {
                     b.Property<long>("FieldValueId")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("FieldValueId"));
+                        .HasColumnType("INT");
 
                     b.Property<long>("BizId")
-                        .HasColumnType("bigint");
+                        .HasColumnType("INT");
 
                     b.Property<Guid>("Creator")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("STRING");
 
                     b.Property<Guid?>("CustomerId")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("STRING");
 
                     b.Property<string>("FieldCode")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("STRING");
 
                     b.Property<DateTime?>("FieldCreateDate")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("DATETIME");
 
                     b.Property<long>("FieldId")
-                        .HasColumnType("bigint");
+                        .HasColumnType("INT");
 
                     b.Property<string>("FieldName")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("STRING");
 
                     b.Property<string>("FieldUnit")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("STRING");
 
                     b.Property<string>("FieldValue")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("STRING");
 
                     b.Property<long>("FieldValueType")
-                        .HasColumnType("bigint");
+                        .HasColumnType("INT");
 
                     b.Property<long>("FromId")
-                        .HasColumnType("bigint");
+                        .HasColumnType("INT");
 
                     b.Property<Guid?>("TenantId")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("STRING");
 
                     b.HasKey("FieldValueId");
 
@@ -1241,51 +1231,49 @@ namespace IoTSharp.Data.SqlServer.Migrations
                 {
                     b.Property<long>("FormId")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("FormId"));
+                        .HasColumnType("INT");
 
                     b.Property<long>("BizId")
-                        .HasColumnType("bigint");
+                        .HasColumnType("INT");
 
                     b.Property<Guid>("Creator")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("STRING");
 
                     b.Property<Guid?>("CustomerId")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("STRING");
 
                     b.Property<long>("FormCreator")
-                        .HasColumnType("bigint");
+                        .HasColumnType("INT");
 
                     b.Property<string>("FormDesc")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("STRING");
 
                     b.Property<string>("FormLayout")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("STRING");
 
                     b.Property<string>("FormName")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("STRING");
 
                     b.Property<string>("FormSchame")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("STRING");
 
                     b.Property<int>("FormStatus")
-                        .HasColumnType("int");
+                        .HasColumnType("INT");
 
                     b.Property<DateTime?>("FromCreateDate")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("DATETIME");
 
                     b.Property<bool>("IsCompact")
-                        .HasColumnType("bit");
+                        .HasColumnType("BOOL");
 
                     b.Property<string>("ModelClass")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("STRING");
 
                     b.Property<Guid?>("TenantId")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("STRING");
 
                     b.Property<string>("Url")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("STRING");
 
                     b.HasKey("FormId");
 
@@ -1300,96 +1288,96 @@ namespace IoTSharp.Data.SqlServer.Migrations
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("STRING");
 
                     b.Property<DateTime>("AssignedAt")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("DATETIME");
 
                     b.Property<string>("ConfigurationHash")
                         .HasMaxLength(128)
-                        .HasColumnType("nvarchar(128)");
+                        .HasColumnType("STRING");
 
                     b.Property<int>("ConfigurationVersion")
-                        .HasColumnType("int");
+                        .HasColumnType("INT");
 
                     b.Property<string>("ContractVersion")
                         .HasMaxLength(64)
-                        .HasColumnType("nvarchar(64)");
+                        .HasColumnType("STRING");
 
                     b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("DATETIME");
 
                     b.Property<string>("CreatedBy")
                         .HasMaxLength(256)
-                        .HasColumnType("nvarchar(256)");
+                        .HasColumnType("STRING");
 
                     b.Property<Guid?>("CustomerId")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("STRING");
 
                     b.Property<bool>("Deleted")
-                        .HasColumnType("bit");
+                        .HasColumnType("BOOL");
 
                     b.Property<Guid?>("EdgeNodeId")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("STRING");
 
                     b.Property<Guid>("GatewayId")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("STRING");
 
                     b.Property<string>("InstanceId")
                         .HasMaxLength(128)
-                        .HasColumnType("nvarchar(128)");
+                        .HasColumnType("STRING");
 
                     b.Property<DateTime?>("LastPulledAt")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("DATETIME");
 
                     b.Property<string>("Metadata")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("STRING");
 
                     b.Property<DateTime?>("RevokedAt")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("DATETIME");
 
                     b.Property<string>("RuntimeType")
                         .HasMaxLength(128)
-                        .HasColumnType("nvarchar(128)");
+                        .HasColumnType("STRING");
 
                     b.Property<string>("SourceId")
                         .HasMaxLength(128)
-                        .HasColumnType("nvarchar(128)");
+                        .HasColumnType("STRING");
 
                     b.Property<string>("SourceType")
                         .HasMaxLength(128)
-                        .HasColumnType("nvarchar(128)");
+                        .HasColumnType("STRING");
 
                     b.Property<string>("SourceVersion")
                         .HasMaxLength(64)
-                        .HasColumnType("nvarchar(64)");
+                        .HasColumnType("STRING");
 
                     b.Property<string>("Status")
                         .IsRequired()
                         .HasMaxLength(64)
-                        .HasColumnType("nvarchar(64)");
+                        .HasColumnType("STRING");
 
                     b.Property<string>("TargetKey")
                         .HasMaxLength(450)
-                        .HasColumnType("nvarchar(450)");
+                        .HasColumnType("STRING");
 
                     b.Property<string>("TargetType")
                         .IsRequired()
                         .HasMaxLength(64)
-                        .HasColumnType("nvarchar(64)");
+                        .HasColumnType("STRING");
 
                     b.Property<int>("TaskCount")
-                        .HasColumnType("int");
+                        .HasColumnType("INT");
 
                     b.Property<Guid?>("TenantId")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("STRING");
 
                     b.Property<DateTime>("UpdatedAt")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("DATETIME");
 
                     b.Property<string>("UpdatedBy")
                         .HasMaxLength(256)
-                        .HasColumnType("nvarchar(256)");
+                        .HasColumnType("STRING");
 
                     b.HasKey("Id");
 
@@ -1416,73 +1404,73 @@ namespace IoTSharp.Data.SqlServer.Migrations
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("STRING");
 
                     b.Property<string>("Capabilities")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("STRING");
 
                     b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("DATETIME");
 
                     b.Property<Guid?>("CustomerId")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("STRING");
 
                     b.Property<bool>("Deleted")
-                        .HasColumnType("bit");
+                        .HasColumnType("BOOL");
 
                     b.Property<Guid>("GatewayId")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("STRING");
 
                     b.Property<bool?>("Healthy")
-                        .HasColumnType("bit");
+                        .HasColumnType("BOOL");
 
                     b.Property<string>("HostName")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("STRING");
 
                     b.Property<string>("InstanceId")
-                        .HasColumnType("nvarchar(450)");
+                        .HasColumnType("STRING");
 
                     b.Property<string>("IpAddress")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("STRING");
 
                     b.Property<DateTime?>("LastHeartbeatDateTime")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("DATETIME");
 
                     b.Property<DateTime?>("LastRegistrationDateTime")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("DATETIME");
 
                     b.Property<string>("Metadata")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("STRING");
 
                     b.Property<string>("Metrics")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("STRING");
 
                     b.Property<string>("Name")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("STRING");
 
                     b.Property<string>("Platform")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("STRING");
 
                     b.Property<string>("RuntimeName")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("STRING");
 
                     b.Property<string>("RuntimeType")
-                        .HasColumnType("nvarchar(450)");
+                        .HasColumnType("STRING");
 
                     b.Property<string>("Status")
-                        .HasColumnType("nvarchar(450)");
+                        .HasColumnType("STRING");
 
                     b.Property<Guid?>("TenantId")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("STRING");
 
                     b.Property<DateTime>("UpdatedAt")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("DATETIME");
 
                     b.Property<long?>("UptimeSeconds")
-                        .HasColumnType("bigint");
+                        .HasColumnType("INT");
 
                     b.Property<string>("Version")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("STRING");
 
                     b.HasKey("Id");
 
@@ -1504,96 +1492,96 @@ namespace IoTSharp.Data.SqlServer.Migrations
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("STRING");
 
                     b.Property<DateTime?>("AcceptedAt")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("DATETIME");
 
                     b.Property<DateTime?>("CompletedAt")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("DATETIME");
 
                     b.Property<string>("ContractVersion")
                         .HasMaxLength(64)
-                        .HasColumnType("nvarchar(64)");
+                        .HasColumnType("STRING");
 
                     b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("DATETIME");
 
                     b.Property<Guid?>("CustomerId")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("STRING");
 
                     b.Property<bool>("Deleted")
-                        .HasColumnType("bit");
+                        .HasColumnType("BOOL");
 
                     b.Property<Guid?>("EdgeNodeId")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("STRING");
 
                     b.Property<DateTime?>("ExpireAt")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("DATETIME");
 
                     b.Property<Guid>("GatewayId")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("STRING");
 
                     b.Property<string>("InstanceId")
                         .HasMaxLength(128)
-                        .HasColumnType("nvarchar(128)");
+                        .HasColumnType("STRING");
 
                     b.Property<DateTime?>("LastReceiptAt")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("DATETIME");
 
                     b.Property<string>("LastReceiptPayload")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("STRING");
 
                     b.Property<string>("Message")
                         .HasMaxLength(1024)
-                        .HasColumnType("nvarchar(1024)");
+                        .HasColumnType("STRING");
 
                     b.Property<string>("Metadata")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("STRING");
 
                     b.Property<string>("Parameters")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("STRING");
 
                     b.Property<int?>("Progress")
-                        .HasColumnType("int");
+                        .HasColumnType("INT");
 
                     b.Property<string>("RequestPayload")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("STRING");
 
                     b.Property<string>("RuntimeType")
                         .HasMaxLength(128)
-                        .HasColumnType("nvarchar(128)");
+                        .HasColumnType("STRING");
 
                     b.Property<DateTime?>("SentAt")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("DATETIME");
 
                     b.Property<DateTime?>("StartedAt")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("DATETIME");
 
                     b.Property<string>("Status")
                         .IsRequired()
                         .HasMaxLength(64)
-                        .HasColumnType("nvarchar(64)");
+                        .HasColumnType("STRING");
 
                     b.Property<string>("TargetKey")
                         .HasMaxLength(450)
-                        .HasColumnType("nvarchar(450)");
+                        .HasColumnType("STRING");
 
                     b.Property<string>("TargetType")
                         .IsRequired()
                         .HasMaxLength(64)
-                        .HasColumnType("nvarchar(64)");
+                        .HasColumnType("STRING");
 
                     b.Property<string>("TaskType")
                         .IsRequired()
                         .HasMaxLength(64)
-                        .HasColumnType("nvarchar(64)");
+                        .HasColumnType("STRING");
 
                     b.Property<Guid?>("TenantId")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("STRING");
 
                     b.Property<DateTime>("UpdatedAt")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("DATETIME");
 
                     b.HasKey("Id");
 
@@ -1616,73 +1604,73 @@ namespace IoTSharp.Data.SqlServer.Migrations
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("STRING");
 
                     b.Property<string>("ContractVersion")
                         .HasMaxLength(64)
-                        .HasColumnType("nvarchar(64)");
+                        .HasColumnType("STRING");
 
                     b.Property<Guid?>("CustomerId")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("STRING");
 
                     b.Property<bool>("Deleted")
-                        .HasColumnType("bit");
+                        .HasColumnType("BOOL");
 
                     b.Property<Guid?>("EdgeNodeId")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("STRING");
 
                     b.Property<Guid>("GatewayId")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("STRING");
 
                     b.Property<string>("InstanceId")
                         .HasMaxLength(128)
-                        .HasColumnType("nvarchar(128)");
+                        .HasColumnType("STRING");
 
                     b.Property<string>("Message")
                         .HasMaxLength(1024)
-                        .HasColumnType("nvarchar(1024)");
+                        .HasColumnType("STRING");
 
                     b.Property<string>("Metadata")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("STRING");
 
                     b.Property<string>("Payload")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("STRING");
 
                     b.Property<int?>("Progress")
-                        .HasColumnType("int");
+                        .HasColumnType("INT");
 
                     b.Property<DateTime>("ReceivedAt")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("DATETIME");
 
                     b.Property<DateTime>("ReportedAt")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("DATETIME");
 
                     b.Property<string>("Result")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("STRING");
 
                     b.Property<string>("RuntimeType")
                         .HasMaxLength(128)
-                        .HasColumnType("nvarchar(128)");
+                        .HasColumnType("STRING");
 
                     b.Property<string>("Status")
                         .IsRequired()
                         .HasMaxLength(64)
-                        .HasColumnType("nvarchar(64)");
+                        .HasColumnType("STRING");
 
                     b.Property<string>("TargetKey")
                         .HasMaxLength(450)
-                        .HasColumnType("nvarchar(450)");
+                        .HasColumnType("STRING");
 
                     b.Property<string>("TargetType")
                         .IsRequired()
                         .HasMaxLength(64)
-                        .HasColumnType("nvarchar(64)");
+                        .HasColumnType("STRING");
 
                     b.Property<Guid>("TaskId")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("STRING");
 
                     b.Property<Guid?>("TenantId")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("STRING");
 
                     b.HasKey("Id");
 
@@ -1707,109 +1695,109 @@ namespace IoTSharp.Data.SqlServer.Migrations
                 {
                     b.Property<Guid>("FlowId")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("STRING");
 
                     b.Property<string>("Conditionexpression")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("STRING");
 
                     b.Property<DateTime>("CreateDate")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("DATETIME");
 
                     b.Property<Guid>("CreateId")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("STRING");
 
                     b.Property<Guid>("Createor")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("STRING");
 
                     b.Property<Guid?>("CustomerId")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("STRING");
 
                     b.Property<Guid?>("ExecutorId")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("STRING");
 
                     b.Property<string>("FlowClass")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("STRING");
 
                     b.Property<string>("FlowIcon")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("STRING");
 
                     b.Property<string>("FlowNameSpace")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("STRING");
 
                     b.Property<Guid?>("FlowRuleRuleId")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("STRING");
 
                     b.Property<string>("FlowShapeType")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("STRING");
 
                     b.Property<int>("FlowStatus")
-                        .HasColumnType("int");
+                        .HasColumnType("INT");
 
                     b.Property<string>("FlowTag")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("STRING");
 
                     b.Property<string>("FlowType")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("STRING");
 
                     b.Property<string>("Flowdesc")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("STRING");
 
                     b.Property<string>("Flowname")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("STRING");
 
                     b.Property<string>("Incoming")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("STRING");
 
                     b.Property<string>("Left")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("STRING");
 
                     b.Property<string>("NodeProcessClass")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("STRING");
 
                     b.Property<string>("NodeProcessMethod")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("STRING");
 
                     b.Property<string>("NodeProcessParams")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("STRING");
 
                     b.Property<string>("NodeProcessScript")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("STRING");
 
                     b.Property<string>("NodeProcessScriptType")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("STRING");
 
                     b.Property<string>("NodeProcessType")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("STRING");
 
                     b.Property<string>("ObjectId")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("STRING");
 
                     b.Property<string>("Outgoing")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("STRING");
 
                     b.Property<string>("SourceId")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("STRING");
 
                     b.Property<string>("TargetId")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("STRING");
 
                     b.Property<Guid?>("TenantId")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("STRING");
 
                     b.Property<int>("TestStatus")
-                        .HasColumnType("int");
+                        .HasColumnType("INT");
 
                     b.Property<Guid>("Tester")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("STRING");
 
                     b.Property<DateTime>("TesterDateTime")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("DATETIME");
 
                     b.Property<string>("Top")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("STRING");
 
                     b.Property<string>("bpmnid")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("STRING");
 
                     b.HasKey("FlowId");
 
@@ -1828,40 +1816,40 @@ namespace IoTSharp.Data.SqlServer.Migrations
                 {
                     b.Property<Guid>("OperationId")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("STRING");
 
                     b.Property<DateTime?>("AddDate")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("DATETIME");
 
                     b.Property<Guid?>("BaseEventEventId")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("STRING");
 
                     b.Property<string>("BizId")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("STRING");
 
                     b.Property<string>("Data")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("STRING");
 
                     b.Property<Guid?>("FlowId")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("STRING");
 
                     b.Property<Guid?>("FlowRuleRuleId")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("STRING");
 
                     b.Property<int>("NodeStatus")
-                        .HasColumnType("int");
+                        .HasColumnType("INT");
 
                     b.Property<string>("OperationDesc")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("STRING");
 
                     b.Property<int>("Step")
-                        .HasColumnType("int");
+                        .HasColumnType("INT");
 
                     b.Property<string>("Tag")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("STRING");
 
                     b.Property<string>("bpmnid")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("STRING");
 
                     b.HasKey("OperationId");
 
@@ -1878,59 +1866,59 @@ namespace IoTSharp.Data.SqlServer.Migrations
                 {
                     b.Property<Guid>("RuleId")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("STRING");
 
                     b.Property<DateTime?>("CreatTime")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("DATETIME");
 
                     b.Property<Guid>("CreateId")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("STRING");
 
                     b.Property<string>("Creator")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("STRING");
 
                     b.Property<Guid?>("CustomerId")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("STRING");
 
                     b.Property<string>("DefinitionsXml")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("STRING");
 
                     b.Property<string>("Describes")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("STRING");
 
                     b.Property<string>("ExecutableCode")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("STRING");
 
                     b.Property<int>("MountType")
-                        .HasColumnType("int");
+                        .HasColumnType("INT");
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("STRING");
 
                     b.Property<Guid>("ParentRuleId")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("STRING");
 
                     b.Property<string>("RuleDesc")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("STRING");
 
                     b.Property<int?>("RuleStatus")
-                        .HasColumnType("int");
+                        .HasColumnType("INT");
 
                     b.Property<int>("RuleType")
-                        .HasColumnType("int");
+                        .HasColumnType("INT");
 
                     b.Property<string>("Runner")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("STRING");
 
                     b.Property<double>("SubVersion")
-                        .HasColumnType("float");
+                        .HasColumnType("FLOAT");
 
                     b.Property<Guid?>("TenantId")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("STRING");
 
                     b.Property<double>("Version")
-                        .HasColumnType("float");
+                        .HasColumnType("FLOAT");
 
                     b.HasKey("RuleId");
 
@@ -1945,43 +1933,43 @@ namespace IoTSharp.Data.SqlServer.Migrations
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("STRING");
 
                     b.Property<Guid?>("CustomerId")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("STRING");
 
                     b.Property<int>("DefaultDeviceType")
-                        .HasColumnType("int");
+                        .HasColumnType("INT");
 
                     b.Property<int>("DefaultIdentityType")
-                        .HasColumnType("int");
+                        .HasColumnType("INT");
 
                     b.Property<int>("DefaultTimeout")
-                        .HasColumnType("int");
+                        .HasColumnType("INT");
 
                     b.Property<bool>("Deleted")
-                        .HasColumnType("bit");
+                        .HasColumnType("BOOL");
 
                     b.Property<string>("Description")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("STRING");
 
                     b.Property<string>("GatewayConfiguration")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("STRING");
 
                     b.Property<int>("GatewayType")
-                        .HasColumnType("int");
+                        .HasColumnType("INT");
 
                     b.Property<string>("Icon")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("STRING");
 
                     b.Property<string>("Name")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("STRING");
 
                     b.Property<string>("ProductToken")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("STRING");
 
                     b.Property<Guid?>("TenantId")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("STRING");
 
                     b.HasKey("Id");
 
@@ -1996,34 +1984,34 @@ namespace IoTSharp.Data.SqlServer.Migrations
                 {
                     b.Property<Guid>("CommandId")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("STRING");
 
                     b.Property<string>("CommandName")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("STRING");
 
                     b.Property<string>("CommandParams")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("STRING");
 
                     b.Property<int>("CommandStatus")
-                        .HasColumnType("int");
+                        .HasColumnType("INT");
 
                     b.Property<string>("CommandTemplate")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("STRING");
 
                     b.Property<string>("CommandTitle")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("STRING");
 
                     b.Property<int>("CommandType")
-                        .HasColumnType("int");
+                        .HasColumnType("INT");
 
                     b.Property<DateTime>("CreateDateTime")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("DATETIME");
 
                     b.Property<Guid>("Creator")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("STRING");
 
                     b.Property<Guid>("ProductId")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("STRING");
 
                     b.HasKey("CommandId");
 
@@ -2036,28 +2024,28 @@ namespace IoTSharp.Data.SqlServer.Migrations
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("STRING");
 
                     b.Property<int>("DataCatalog")
-                        .HasColumnType("int");
+                        .HasColumnType("INT");
 
                     b.Property<bool>("Deleted")
-                        .HasColumnType("bit");
+                        .HasColumnType("BOOL");
 
                     b.Property<string>("Description")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("STRING");
 
                     b.Property<Guid>("DeviceId")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("STRING");
 
                     b.Property<string>("DeviceKeyName")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("STRING");
 
                     b.Property<Guid?>("ProductId")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("STRING");
 
                     b.Property<string>("ProductKeyName")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("STRING");
 
                     b.HasKey("Id");
 
@@ -2070,98 +2058,98 @@ namespace IoTSharp.Data.SqlServer.Migrations
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("STRING");
 
                     b.Property<Guid?>("Customer")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("STRING");
 
                     b.Property<int>("DataType")
-                        .HasColumnType("int");
+                        .HasColumnType("INT");
 
                     b.Property<string>("DefaultValue")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("STRING");
 
                     b.Property<bool>("Deleted")
-                        .HasColumnType("bit");
+                        .HasColumnType("BOOL");
 
                     b.Property<bool>("Display")
-                        .HasColumnType("bit");
+                        .HasColumnType("BOOL");
 
                     b.Property<string>("DisplayName")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("STRING");
 
                     b.Property<string>("KeyDesc")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("STRING");
 
                     b.Property<string>("KeyName")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("STRING");
 
                     b.Property<string>("Place0")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("STRING");
 
                     b.Property<string>("Place1")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("STRING");
 
                     b.Property<string>("Place2")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("STRING");
 
                     b.Property<string>("Place3")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("STRING");
 
                     b.Property<string>("Place4")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("STRING");
 
                     b.Property<string>("Place5")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("STRING");
 
                     b.Property<string>("PlaceOrder0")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("STRING");
 
                     b.Property<string>("PlaceOrder1")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("STRING");
 
                     b.Property<string>("PlaceOrder2")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("STRING");
 
                     b.Property<string>("PlaceOrder3")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("STRING");
 
                     b.Property<string>("PlaceOrder4")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("STRING");
 
                     b.Property<string>("PlaceOrder5")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("STRING");
 
                     b.Property<Guid?>("ProductId")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("STRING");
 
                     b.Property<string>("Tag")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("STRING");
 
                     b.Property<string>("Unit")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("STRING");
 
                     b.Property<bool>("UnitConvert")
-                        .HasColumnType("bit");
+                        .HasColumnType("BOOL");
 
                     b.Property<string>("UnitExpression")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("STRING");
 
                     b.HasKey("Id");
 
@@ -2174,28 +2162,28 @@ namespace IoTSharp.Data.SqlServer.Migrations
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("STRING");
 
                     b.Property<DateTime>("AddedDate")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("DATETIME");
 
                     b.Property<DateTime>("ExpiryDate")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("DATETIME");
 
                     b.Property<bool>("IsRevorked")
-                        .HasColumnType("bit");
+                        .HasColumnType("BOOL");
 
                     b.Property<bool>("IsUsed")
-                        .HasColumnType("bit");
+                        .HasColumnType("BOOL");
 
                     b.Property<string>("JwtId")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("STRING");
 
                     b.Property<string>("Token")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("STRING");
 
                     b.Property<string>("UserId")
-                        .HasColumnType("nvarchar(450)");
+                        .HasColumnType("STRING");
 
                     b.HasKey("Id");
 
@@ -2208,16 +2196,16 @@ namespace IoTSharp.Data.SqlServer.Migrations
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("STRING");
 
                     b.Property<Guid?>("CustomerId")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("STRING");
 
                     b.Property<string>("IdentityUserId")
-                        .HasColumnType("nvarchar(450)");
+                        .HasColumnType("STRING");
 
                     b.Property<Guid?>("TenantId")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("STRING");
 
                     b.HasKey("Id");
 
@@ -2234,52 +2222,52 @@ namespace IoTSharp.Data.SqlServer.Migrations
                 {
                     b.Property<Guid>("ExecutorId")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("STRING");
 
                     b.Property<DateTime>("AddDateTime")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("DATETIME");
 
                     b.Property<Guid>("Creator")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("STRING");
 
                     b.Property<Guid?>("CustomerId")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("STRING");
 
                     b.Property<string>("DefaultConfig")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("STRING");
 
                     b.Property<string>("ExecutorDesc")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("STRING");
 
                     b.Property<string>("ExecutorName")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("STRING");
 
                     b.Property<int>("ExecutorStatus")
-                        .HasColumnType("int");
+                        .HasColumnType("INT");
 
                     b.Property<string>("MataData")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("STRING");
 
                     b.Property<string>("Path")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("STRING");
 
                     b.Property<string>("Tag")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("STRING");
 
                     b.Property<Guid?>("TenantId")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("STRING");
 
                     b.Property<int>("TestStatus")
-                        .HasColumnType("int");
+                        .HasColumnType("INT");
 
                     b.Property<Guid>("Tester")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("STRING");
 
                     b.Property<DateTime>("TesterDateTime")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("DATETIME");
 
                     b.Property<string>("TypeName")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("STRING");
 
                     b.HasKey("ExecutorId");
 
@@ -2294,40 +2282,40 @@ namespace IoTSharp.Data.SqlServer.Migrations
                 {
                     b.Property<Guid>("EventId")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("STRING");
 
                     b.Property<DateTime>("CreateDateTime")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("DATETIME");
 
                     b.Property<Guid>("Creator")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("STRING");
 
                     b.Property<Guid?>("CustomerId")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("STRING");
 
                     b.Property<string>("EventDesc")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("STRING");
 
                     b.Property<string>("EventName")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("STRING");
 
                     b.Property<string>("EventNameSpace")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("STRING");
 
                     b.Property<string>("EventParam")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("STRING");
 
                     b.Property<int>("EventStatus")
-                        .HasColumnType("int");
+                        .HasColumnType("INT");
 
                     b.Property<string>("EventTag")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("STRING");
 
                     b.Property<Guid?>("TenantId")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("STRING");
 
                     b.Property<int>("Type")
-                        .HasColumnType("int");
+                        .HasColumnType("INT");
 
                     b.HasKey("EventId");
 
@@ -2342,22 +2330,22 @@ namespace IoTSharp.Data.SqlServer.Migrations
                 {
                     b.Property<Guid>("BindId")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("STRING");
 
                     b.Property<Guid>("EventId")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("STRING");
 
                     b.Property<Guid?>("RuleTaskExecutorExecutorId")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("STRING");
 
                     b.Property<int>("Status")
-                        .HasColumnType("int");
+                        .HasColumnType("INT");
 
                     b.Property<Guid?>("SubscriptionEventId")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("STRING");
 
                     b.Property<string>("TaskConfig")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("STRING");
 
                     b.HasKey("BindId");
 
@@ -2371,48 +2359,48 @@ namespace IoTSharp.Data.SqlServer.Migrations
             modelBuilder.Entity("IoTSharp.Data.TelemetryData", b =>
                 {
                     b.Property<Guid>("DeviceId")
-                        .HasColumnType("uniqueidentifier")
+                        .HasColumnType("STRING")
                         .HasColumnOrder(1);
 
                     b.Property<string>("KeyName")
-                        .HasColumnType("nvarchar(450)")
+                        .HasColumnType("STRING")
                         .HasColumnOrder(2);
 
                     b.Property<DateTime>("DateTime")
-                        .HasColumnType("datetime2")
+                        .HasColumnType("DATETIME")
                         .HasColumnOrder(3);
 
                     b.Property<int>("DataSide")
-                        .HasColumnType("int")
+                        .HasColumnType("INT")
                         .HasColumnOrder(4);
 
                     b.Property<int>("Type")
-                        .HasColumnType("int")
+                        .HasColumnType("INT")
                         .HasColumnOrder(5);
 
                     b.Property<byte[]>("Value_Binary")
-                        .HasColumnType("varbinary(max)");
+                        .HasColumnType("BLOB");
 
                     b.Property<bool?>("Value_Boolean")
-                        .HasColumnType("bit");
+                        .HasColumnType("BOOL");
 
                     b.Property<DateTime?>("Value_DateTime")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("DATETIME");
 
                     b.Property<double?>("Value_Double")
-                        .HasColumnType("float");
+                        .HasColumnType("FLOAT");
 
                     b.Property<string>("Value_Json")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("STRING");
 
                     b.Property<long?>("Value_Long")
-                        .HasColumnType("bigint");
+                        .HasColumnType("INT");
 
                     b.Property<string>("Value_String")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("STRING");
 
                     b.Property<string>("Value_XML")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("STRING");
 
                     b.HasKey("DeviceId", "KeyName", "DateTime");
 
@@ -2429,40 +2417,40 @@ namespace IoTSharp.Data.SqlServer.Migrations
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("STRING");
 
                     b.Property<Guid?>("AISettingsId")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("STRING");
 
                     b.Property<string>("Address")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("STRING");
 
                     b.Property<string>("City")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("STRING");
 
                     b.Property<string>("Country")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("STRING");
 
                     b.Property<bool>("Deleted")
-                        .HasColumnType("bit");
+                        .HasColumnType("BOOL");
 
                     b.Property<string>("Email")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("STRING");
 
                     b.Property<string>("Name")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("STRING");
 
                     b.Property<string>("Phone")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("STRING");
 
                     b.Property<string>("Province")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("STRING");
 
                     b.Property<string>("Street")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("STRING");
 
                     b.Property<int>("ZipCode")
-                        .HasColumnType("int");
+                        .HasColumnType("INT");
 
                     b.HasKey("Id");
 
@@ -2474,26 +2462,25 @@ namespace IoTSharp.Data.SqlServer.Migrations
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
                 {
                     b.Property<string>("Id")
-                        .HasColumnType("nvarchar(450)");
+                        .HasColumnType("STRING");
 
                     b.Property<string>("ConcurrencyStamp")
                         .IsConcurrencyToken()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("STRING");
 
                     b.Property<string>("Name")
                         .HasMaxLength(256)
-                        .HasColumnType("nvarchar(256)");
+                        .HasColumnType("STRING");
 
                     b.Property<string>("NormalizedName")
                         .HasMaxLength(256)
-                        .HasColumnType("nvarchar(256)");
+                        .HasColumnType("STRING");
 
                     b.HasKey("Id");
 
                     b.HasIndex("NormalizedName")
                         .IsUnique()
-                        .HasDatabaseName("RoleNameIndex")
-                        .HasFilter("[NormalizedName] IS NOT NULL");
+                        .HasDatabaseName("RoleNameIndex");
 
                     b.ToTable("AspNetRoles", (string)null);
                 });
@@ -2502,19 +2489,17 @@ namespace IoTSharp.Data.SqlServer.Migrations
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                        .HasColumnType("INT");
 
                     b.Property<string>("ClaimType")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("STRING");
 
                     b.Property<string>("ClaimValue")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("STRING");
 
                     b.Property<string>("RoleId")
                         .IsRequired()
-                        .HasColumnType("nvarchar(450)");
+                        .HasColumnType("STRING");
 
                     b.HasKey("Id");
 
@@ -2526,54 +2511,54 @@ namespace IoTSharp.Data.SqlServer.Migrations
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUser", b =>
                 {
                     b.Property<string>("Id")
-                        .HasColumnType("nvarchar(450)");
+                        .HasColumnType("STRING");
 
                     b.Property<int>("AccessFailedCount")
-                        .HasColumnType("int");
+                        .HasColumnType("INT");
 
                     b.Property<string>("ConcurrencyStamp")
                         .IsConcurrencyToken()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("STRING");
 
                     b.Property<string>("Email")
                         .HasMaxLength(256)
-                        .HasColumnType("nvarchar(256)");
+                        .HasColumnType("STRING");
 
                     b.Property<bool>("EmailConfirmed")
-                        .HasColumnType("bit");
+                        .HasColumnType("BOOL");
 
                     b.Property<bool>("LockoutEnabled")
-                        .HasColumnType("bit");
+                        .HasColumnType("BOOL");
 
                     b.Property<DateTimeOffset?>("LockoutEnd")
-                        .HasColumnType("datetimeoffset");
+                        .HasColumnType("DATETIME");
 
                     b.Property<string>("NormalizedEmail")
                         .HasMaxLength(256)
-                        .HasColumnType("nvarchar(256)");
+                        .HasColumnType("STRING");
 
                     b.Property<string>("NormalizedUserName")
                         .HasMaxLength(256)
-                        .HasColumnType("nvarchar(256)");
+                        .HasColumnType("STRING");
 
                     b.Property<string>("PasswordHash")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("STRING");
 
                     b.Property<string>("PhoneNumber")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("STRING");
 
                     b.Property<bool>("PhoneNumberConfirmed")
-                        .HasColumnType("bit");
+                        .HasColumnType("BOOL");
 
                     b.Property<string>("SecurityStamp")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("STRING");
 
                     b.Property<bool>("TwoFactorEnabled")
-                        .HasColumnType("bit");
+                        .HasColumnType("BOOL");
 
                     b.Property<string>("UserName")
                         .HasMaxLength(256)
-                        .HasColumnType("nvarchar(256)");
+                        .HasColumnType("STRING");
 
                     b.HasKey("Id");
 
@@ -2582,8 +2567,7 @@ namespace IoTSharp.Data.SqlServer.Migrations
 
                     b.HasIndex("NormalizedUserName")
                         .IsUnique()
-                        .HasDatabaseName("UserNameIndex")
-                        .HasFilter("[NormalizedUserName] IS NOT NULL");
+                        .HasDatabaseName("UserNameIndex");
 
                     b.ToTable("AspNetUsers", (string)null);
                 });
@@ -2592,19 +2576,17 @@ namespace IoTSharp.Data.SqlServer.Migrations
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                        .HasColumnType("INT");
 
                     b.Property<string>("ClaimType")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("STRING");
 
                     b.Property<string>("ClaimValue")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("STRING");
 
                     b.Property<string>("UserId")
                         .IsRequired()
-                        .HasColumnType("nvarchar(450)");
+                        .HasColumnType("STRING");
 
                     b.HasKey("Id");
 
@@ -2616,17 +2598,17 @@ namespace IoTSharp.Data.SqlServer.Migrations
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<string>", b =>
                 {
                     b.Property<string>("LoginProvider")
-                        .HasColumnType("nvarchar(450)");
+                        .HasColumnType("STRING");
 
                     b.Property<string>("ProviderKey")
-                        .HasColumnType("nvarchar(450)");
+                        .HasColumnType("STRING");
 
                     b.Property<string>("ProviderDisplayName")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("STRING");
 
                     b.Property<string>("UserId")
                         .IsRequired()
-                        .HasColumnType("nvarchar(450)");
+                        .HasColumnType("STRING");
 
                     b.HasKey("LoginProvider", "ProviderKey");
 
@@ -2638,10 +2620,10 @@ namespace IoTSharp.Data.SqlServer.Migrations
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserRole<string>", b =>
                 {
                     b.Property<string>("UserId")
-                        .HasColumnType("nvarchar(450)");
+                        .HasColumnType("STRING");
 
                     b.Property<string>("RoleId")
-                        .HasColumnType("nvarchar(450)");
+                        .HasColumnType("STRING");
 
                     b.HasKey("UserId", "RoleId");
 
@@ -2653,16 +2635,16 @@ namespace IoTSharp.Data.SqlServer.Migrations
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<string>", b =>
                 {
                     b.Property<string>("UserId")
-                        .HasColumnType("nvarchar(450)");
+                        .HasColumnType("STRING");
 
                     b.Property<string>("LoginProvider")
-                        .HasColumnType("nvarchar(450)");
+                        .HasColumnType("STRING");
 
                     b.Property<string>("Name")
-                        .HasColumnType("nvarchar(450)");
+                        .HasColumnType("STRING");
 
                     b.Property<string>("Value")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("STRING");
 
                     b.HasKey("UserId", "LoginProvider", "Name");
 
@@ -2681,7 +2663,7 @@ namespace IoTSharp.Data.SqlServer.Migrations
                     b.HasBaseType("IoTSharp.Data.DataStorage");
 
                     b.Property<Guid?>("OwnerId")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("STRING");
 
                     b.HasIndex("OwnerId");
 

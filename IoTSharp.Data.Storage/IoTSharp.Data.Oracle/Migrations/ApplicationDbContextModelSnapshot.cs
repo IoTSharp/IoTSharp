@@ -347,6 +347,390 @@ namespace IoTSharp.Data.Oracle.Migrations
                     b.ToTable("BaseEvents");
                 });
 
+            modelBuilder.Entity("IoTSharp.Data.CollectionConnectionTemplate", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("RAW(16)");
+
+                    b.Property<string>("AuthType")
+                        .HasMaxLength(128)
+                        .HasColumnType("NVARCHAR2(128)");
+
+                    b.Property<Guid>("CollectionTemplateId")
+                        .HasColumnType("RAW(16)");
+
+                    b.Property<string>("ConnectionKey")
+                        .HasMaxLength(128)
+                        .HasColumnType("NVARCHAR2(128)");
+
+                    b.Property<string>("ConnectionName")
+                        .HasMaxLength(256)
+                        .HasColumnType("NVARCHAR2(256)");
+
+                    b.Property<string>("EndpointRef")
+                        .HasMaxLength(256)
+                        .HasColumnType("NVARCHAR2(256)");
+
+                    b.Property<string>("Host")
+                        .HasMaxLength(256)
+                        .HasColumnType("NVARCHAR2(256)");
+
+                    b.Property<string>("Metadata")
+                        .HasColumnType("NVARCHAR2(2000)");
+
+                    b.Property<int?>("Port")
+                        .HasColumnType("NUMBER(10)");
+
+                    b.Property<string>("ProtocolOptions")
+                        .HasColumnType("NVARCHAR2(2000)");
+
+                    b.Property<int>("RetryCount")
+                        .HasColumnType("NUMBER(10)");
+
+                    b.Property<string>("SerialPort")
+                        .HasMaxLength(128)
+                        .HasColumnType("NVARCHAR2(128)");
+
+                    b.Property<int>("TimeoutMs")
+                        .HasColumnType("NUMBER(10)");
+
+                    b.Property<string>("Transport")
+                        .HasMaxLength(64)
+                        .HasColumnType("NVARCHAR2(64)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CollectionTemplateId", "ConnectionKey");
+
+                    b.ToTable("CollectionConnectionTemplates");
+                });
+
+            modelBuilder.Entity("IoTSharp.Data.CollectionMappingPolicy", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("RAW(16)");
+
+                    b.Property<string>("DisplayName")
+                        .HasMaxLength(256)
+                        .HasColumnType("NVARCHAR2(256)");
+
+                    b.Property<string>("Group")
+                        .HasMaxLength(128)
+                        .HasColumnType("NVARCHAR2(128)");
+
+                    b.Property<Guid>("PointTemplateId")
+                        .HasColumnType("RAW(16)");
+
+                    b.Property<string>("TargetName")
+                        .HasMaxLength(256)
+                        .HasColumnType("NVARCHAR2(256)");
+
+                    b.Property<string>("TargetType")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("NVARCHAR2(64)");
+
+                    b.Property<string>("Unit")
+                        .HasMaxLength(64)
+                        .HasColumnType("NVARCHAR2(64)");
+
+                    b.Property<string>("ValueType")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("NVARCHAR2(64)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("PointTemplateId")
+                        .IsUnique();
+
+                    b.ToTable("CollectionMappingPolicies");
+                });
+
+            modelBuilder.Entity("IoTSharp.Data.CollectionPointTemplate", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("RAW(16)");
+
+                    b.Property<string>("Access")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("NVARCHAR2(64)");
+
+                    b.Property<string>("Address")
+                        .HasMaxLength(512)
+                        .HasColumnType("NVARCHAR2(512)");
+
+                    b.Property<string>("BindingId")
+                        .HasMaxLength(128)
+                        .HasColumnType("NVARCHAR2(128)");
+
+                    b.Property<Guid>("CollectionTemplateId")
+                        .HasColumnType("RAW(16)");
+
+                    b.Property<string>("ConnectionKey")
+                        .HasMaxLength(128)
+                        .HasColumnType("NVARCHAR2(128)");
+
+                    b.Property<string>("DisplayName")
+                        .HasMaxLength(256)
+                        .HasColumnType("NVARCHAR2(256)");
+
+                    b.Property<bool>("Enabled")
+                        .HasColumnType("BOOLEAN");
+
+                    b.Property<string>("FieldPath")
+                        .HasMaxLength(512)
+                        .HasColumnType("NVARCHAR2(512)");
+
+                    b.Property<int>("Length")
+                        .HasColumnType("NUMBER(10)");
+
+                    b.Property<string>("Metadata")
+                        .HasColumnType("NVARCHAR2(2000)");
+
+                    b.Property<string>("Name")
+                        .HasMaxLength(256)
+                        .HasColumnType("NVARCHAR2(256)");
+
+                    b.Property<string>("PointKey")
+                        .HasMaxLength(128)
+                        .HasColumnType("NVARCHAR2(128)");
+
+                    b.Property<string>("ProtocolOptions")
+                        .HasColumnType("NVARCHAR2(2000)");
+
+                    b.Property<string>("QualityPolicy")
+                        .HasColumnType("NVARCHAR2(2000)");
+
+                    b.Property<string>("Quantity")
+                        .HasMaxLength(128)
+                        .HasColumnType("NVARCHAR2(128)");
+
+                    b.Property<string>("RawValueType")
+                        .HasMaxLength(64)
+                        .HasColumnType("NVARCHAR2(64)");
+
+                    b.Property<string>("SemanticId")
+                        .HasMaxLength(128)
+                        .HasColumnType("NVARCHAR2(128)");
+
+                    b.Property<string>("SourceType")
+                        .HasMaxLength(128)
+                        .HasColumnType("NVARCHAR2(128)");
+
+                    b.Property<string>("Unit")
+                        .HasMaxLength(64)
+                        .HasColumnType("NVARCHAR2(64)");
+
+                    b.Property<string>("ValueType")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("NVARCHAR2(64)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ConnectionKey");
+
+                    b.HasIndex("CollectionTemplateId", "BindingId")
+                        .HasDatabaseName("IX_CollectionPointTemplates_~1");
+
+                    b.HasIndex("CollectionTemplateId", "PointKey")
+                        .HasDatabaseName("IX_CollectionPointTemplates_~2");
+
+                    b.HasIndex("CollectionTemplateId", "SemanticId")
+                        .HasDatabaseName("IX_CollectionPointTemplates_~3");
+
+                    b.ToTable("CollectionPointTemplates");
+                });
+
+            modelBuilder.Entity("IoTSharp.Data.CollectionProtocolTemplate", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("RAW(16)");
+
+                    b.Property<Guid>("CollectionTemplateId")
+                        .HasColumnType("RAW(16)");
+
+                    b.Property<string>("Metadata")
+                        .HasColumnType("NVARCHAR2(2000)");
+
+                    b.Property<string>("Parameters")
+                        .HasColumnType("NVARCHAR2(2000)");
+
+                    b.Property<string>("Protocol")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("NVARCHAR2(64)");
+
+                    b.Property<string>("ProtocolKind")
+                        .HasMaxLength(128)
+                        .HasColumnType("NVARCHAR2(128)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CollectionTemplateId")
+                        .IsUnique();
+
+                    b.ToTable("CollectionProtocolTemplates");
+                });
+
+            modelBuilder.Entity("IoTSharp.Data.CollectionSamplingPolicy", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("RAW(16)");
+
+                    b.Property<string>("AggregateHint")
+                        .HasMaxLength(128)
+                        .HasColumnType("NVARCHAR2(128)");
+
+                    b.Property<double?>("Deadband")
+                        .HasColumnType("BINARY_DOUBLE");
+
+                    b.Property<string>("Group")
+                        .HasMaxLength(128)
+                        .HasColumnType("NVARCHAR2(128)");
+
+                    b.Property<Guid>("PointTemplateId")
+                        .HasColumnType("RAW(16)");
+
+                    b.Property<int>("ReadPeriodMs")
+                        .HasColumnType("NUMBER(10)");
+
+                    b.Property<bool>("ReportOnQualityChange")
+                        .HasColumnType("BOOLEAN");
+
+                    b.Property<bool>("Subscription")
+                        .HasColumnType("BOOLEAN");
+
+                    b.Property<int?>("TimeoutMs")
+                        .HasColumnType("NUMBER(10)");
+
+                    b.Property<string>("Trigger")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("NVARCHAR2(64)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("PointTemplateId")
+                        .IsUnique();
+
+                    b.ToTable("CollectionSamplingPolicies");
+                });
+
+            modelBuilder.Entity("IoTSharp.Data.CollectionTemplate", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("RAW(16)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("TIMESTAMP(7)");
+
+                    b.Property<string>("CreatedBy")
+                        .HasMaxLength(256)
+                        .HasColumnType("NVARCHAR2(256)");
+
+                    b.Property<Guid?>("CustomerId")
+                        .HasColumnType("RAW(16)");
+
+                    b.Property<bool>("Deleted")
+                        .HasColumnType("BOOLEAN");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("NVARCHAR2(2000)");
+
+                    b.Property<bool>("Enabled")
+                        .HasColumnType("BOOLEAN");
+
+                    b.Property<string>("Metadata")
+                        .HasColumnType("NVARCHAR2(2000)");
+
+                    b.Property<string>("Name")
+                        .HasMaxLength(256)
+                        .HasColumnType("NVARCHAR2(256)");
+
+                    b.Property<Guid>("ProductId")
+                        .HasColumnType("RAW(16)");
+
+                    b.Property<string>("ReportPolicy")
+                        .HasColumnType("NVARCHAR2(2000)");
+
+                    b.Property<string>("SemanticModelId")
+                        .HasMaxLength(128)
+                        .HasColumnType("NVARCHAR2(128)");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("NVARCHAR2(64)");
+
+                    b.Property<string>("TemplateKey")
+                        .HasMaxLength(128)
+                        .HasColumnType("NVARCHAR2(128)");
+
+                    b.Property<Guid?>("TenantId")
+                        .HasColumnType("RAW(16)");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("TIMESTAMP(7)");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasMaxLength(256)
+                        .HasColumnType("NVARCHAR2(256)");
+
+                    b.Property<int>("Version")
+                        .HasColumnType("NUMBER(10)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("SemanticModelId");
+
+                    b.HasIndex("TenantId");
+
+                    b.HasIndex("ProductId", "Status");
+
+                    b.HasIndex("CustomerId", "TenantId", "Deleted");
+
+                    b.HasIndex("ProductId", "TemplateKey", "Deleted")
+                        .HasDatabaseName("IX_CollectionTemplates_Produ~1");
+
+                    b.ToTable("CollectionTemplates");
+                });
+
+            modelBuilder.Entity("IoTSharp.Data.CollectionTransformTemplate", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("RAW(16)");
+
+                    b.Property<int>("Order")
+                        .HasColumnType("NUMBER(10)");
+
+                    b.Property<string>("Parameters")
+                        .HasColumnType("NVARCHAR2(2000)");
+
+                    b.Property<Guid>("PointTemplateId")
+                        .HasColumnType("RAW(16)");
+
+                    b.Property<string>("TransformType")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("NVARCHAR2(64)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("PointTemplateId", "Order");
+
+                    b.ToTable("CollectionTransformTemplates");
+                });
+
             modelBuilder.Entity("IoTSharp.Data.Customer", b =>
                 {
                     b.Property<Guid>("Id")
@@ -915,6 +1299,129 @@ namespace IoTSharp.Data.Oracle.Migrations
                     b.HasIndex("TenantId");
 
                     b.ToTable("DynamicFormInfos");
+                });
+
+            modelBuilder.Entity("IoTSharp.Data.EdgeCollectionAssignment", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("RAW(16)");
+
+                    b.Property<DateTime>("AssignedAt")
+                        .HasColumnType("TIMESTAMP(7)");
+
+                    b.Property<string>("ConfigurationHash")
+                        .HasMaxLength(128)
+                        .HasColumnType("NVARCHAR2(128)");
+
+                    b.Property<int>("ConfigurationVersion")
+                        .HasColumnType("NUMBER(10)");
+
+                    b.Property<string>("ContractVersion")
+                        .HasMaxLength(64)
+                        .HasColumnType("NVARCHAR2(64)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("TIMESTAMP(7)");
+
+                    b.Property<string>("CreatedBy")
+                        .HasMaxLength(256)
+                        .HasColumnType("NVARCHAR2(256)");
+
+                    b.Property<Guid?>("CustomerId")
+                        .HasColumnType("RAW(16)");
+
+                    b.Property<bool>("Deleted")
+                        .HasColumnType("BOOLEAN");
+
+                    b.Property<Guid?>("EdgeNodeId")
+                        .HasColumnType("RAW(16)");
+
+                    b.Property<Guid>("GatewayId")
+                        .HasColumnType("RAW(16)");
+
+                    b.Property<string>("InstanceId")
+                        .HasMaxLength(128)
+                        .HasColumnType("NVARCHAR2(128)");
+
+                    b.Property<DateTime?>("LastPulledAt")
+                        .HasColumnType("TIMESTAMP(7)");
+
+                    b.Property<string>("Metadata")
+                        .HasColumnType("NVARCHAR2(2000)");
+
+                    b.Property<DateTime?>("RevokedAt")
+                        .HasColumnType("TIMESTAMP(7)");
+
+                    b.Property<string>("RuntimeType")
+                        .HasMaxLength(128)
+                        .HasColumnType("NVARCHAR2(128)");
+
+                    b.Property<string>("SourceId")
+                        .HasMaxLength(128)
+                        .HasColumnType("NVARCHAR2(128)");
+
+                    b.Property<string>("SourceType")
+                        .HasMaxLength(128)
+                        .HasColumnType("NVARCHAR2(128)");
+
+                    b.Property<string>("SourceVersion")
+                        .HasMaxLength(64)
+                        .HasColumnType("NVARCHAR2(64)");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("NVARCHAR2(64)");
+
+                    b.Property<string>("TargetKey")
+                        .HasMaxLength(450)
+                        .HasColumnType("NVARCHAR2(450)");
+
+                    b.Property<string>("TargetType")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("NVARCHAR2(64)");
+
+                    b.Property<int>("TaskCount")
+                        .HasColumnType("NUMBER(10)");
+
+                    b.Property<Guid?>("TenantId")
+                        .HasColumnType("RAW(16)");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("TIMESTAMP(7)");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasMaxLength(256)
+                        .HasColumnType("NVARCHAR2(256)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AssignedAt");
+
+                    b.HasIndex("ConfigurationHash")
+                        .HasDatabaseName("IX_EdgeCollectionAssignments~1");
+
+                    b.HasIndex("EdgeNodeId")
+                        .HasDatabaseName("IX_EdgeCollectionAssignments~2");
+
+                    b.HasIndex("TenantId")
+                        .HasDatabaseName("IX_EdgeCollectionAssignments~3");
+
+                    b.HasIndex("GatewayId", "ConfigurationVersion")
+                        .HasDatabaseName("IX_EdgeCollectionAssignments~4");
+
+                    b.HasIndex("TargetKey", "Status")
+                        .HasDatabaseName("IX_EdgeCollectionAssignments~5");
+
+                    b.HasIndex("CustomerId", "TenantId", "Deleted")
+                        .HasDatabaseName("IX_EdgeCollectionAssignments~6");
+
+                    b.HasIndex("GatewayId", "Status", "ConfigurationVersion")
+                        .HasDatabaseName("IX_EdgeCollectionAssignments~7");
+
+                    b.ToTable("EdgeCollectionAssignments");
                 });
 
             modelBuilder.Entity("IoTSharp.Data.EdgeNode", b =>
@@ -2281,6 +2788,95 @@ namespace IoTSharp.Data.Oracle.Migrations
                     b.Navigation("Tenant");
                 });
 
+            modelBuilder.Entity("IoTSharp.Data.CollectionConnectionTemplate", b =>
+                {
+                    b.HasOne("IoTSharp.Data.CollectionTemplate", "CollectionTemplate")
+                        .WithMany("Connections")
+                        .HasForeignKey("CollectionTemplateId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("CollectionTemplate");
+                });
+
+            modelBuilder.Entity("IoTSharp.Data.CollectionMappingPolicy", b =>
+                {
+                    b.HasOne("IoTSharp.Data.CollectionPointTemplate", "PointTemplate")
+                        .WithOne("Mapping")
+                        .HasForeignKey("IoTSharp.Data.CollectionMappingPolicy", "PointTemplateId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("PointTemplate");
+                });
+
+            modelBuilder.Entity("IoTSharp.Data.CollectionPointTemplate", b =>
+                {
+                    b.HasOne("IoTSharp.Data.CollectionTemplate", "CollectionTemplate")
+                        .WithMany("Points")
+                        .HasForeignKey("CollectionTemplateId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("CollectionTemplate");
+                });
+
+            modelBuilder.Entity("IoTSharp.Data.CollectionProtocolTemplate", b =>
+                {
+                    b.HasOne("IoTSharp.Data.CollectionTemplate", "CollectionTemplate")
+                        .WithOne("Protocol")
+                        .HasForeignKey("IoTSharp.Data.CollectionProtocolTemplate", "CollectionTemplateId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("CollectionTemplate");
+                });
+
+            modelBuilder.Entity("IoTSharp.Data.CollectionSamplingPolicy", b =>
+                {
+                    b.HasOne("IoTSharp.Data.CollectionPointTemplate", "PointTemplate")
+                        .WithOne("SamplingPolicy")
+                        .HasForeignKey("IoTSharp.Data.CollectionSamplingPolicy", "PointTemplateId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("PointTemplate");
+                });
+
+            modelBuilder.Entity("IoTSharp.Data.CollectionTemplate", b =>
+                {
+                    b.HasOne("IoTSharp.Data.Customer", "Customer")
+                        .WithMany()
+                        .HasForeignKey("CustomerId");
+
+                    b.HasOne("IoTSharp.Data.Product", "Product")
+                        .WithMany("CollectionTemplates")
+                        .HasForeignKey("ProductId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("IoTSharp.Data.Tenant", "Tenant")
+                        .WithMany()
+                        .HasForeignKey("TenantId");
+
+                    b.Navigation("Customer");
+
+                    b.Navigation("Product");
+
+                    b.Navigation("Tenant");
+                });
+
+            modelBuilder.Entity("IoTSharp.Data.CollectionTransformTemplate", b =>
+                {
+                    b.HasOne("IoTSharp.Data.CollectionPointTemplate", "PointTemplate")
+                        .WithMany("Transforms")
+                        .HasForeignKey("PointTemplateId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("PointTemplate");
+                });
+
             modelBuilder.Entity("IoTSharp.Data.Customer", b =>
                 {
                     b.HasOne("IoTSharp.Data.AISettings", "AISettings")
@@ -2402,6 +2998,31 @@ namespace IoTSharp.Data.Oracle.Migrations
                         .HasForeignKey("TenantId");
 
                     b.Navigation("Customer");
+
+                    b.Navigation("Tenant");
+                });
+
+            modelBuilder.Entity("IoTSharp.Data.EdgeCollectionAssignment", b =>
+                {
+                    b.HasOne("IoTSharp.Data.Customer", "Customer")
+                        .WithMany()
+                        .HasForeignKey("CustomerId");
+
+                    b.HasOne("IoTSharp.Data.Device", "Gateway")
+                        .WithMany()
+                        .HasForeignKey("GatewayId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("FK_EdgeCollectionAssignments~1");
+
+                    b.HasOne("IoTSharp.Data.Tenant", "Tenant")
+                        .WithMany()
+                        .HasForeignKey("TenantId")
+                        .HasConstraintName("FK_EdgeCollectionAssignments~2");
+
+                    b.Navigation("Customer");
+
+                    b.Navigation("Gateway");
 
                     b.Navigation("Tenant");
                 });
@@ -2737,6 +3358,24 @@ namespace IoTSharp.Data.Oracle.Migrations
                     b.Navigation("OwnedAssets");
                 });
 
+            modelBuilder.Entity("IoTSharp.Data.CollectionPointTemplate", b =>
+                {
+                    b.Navigation("Mapping");
+
+                    b.Navigation("SamplingPolicy");
+
+                    b.Navigation("Transforms");
+                });
+
+            modelBuilder.Entity("IoTSharp.Data.CollectionTemplate", b =>
+                {
+                    b.Navigation("Connections");
+
+                    b.Navigation("Points");
+
+                    b.Navigation("Protocol");
+                });
+
             modelBuilder.Entity("IoTSharp.Data.Customer", b =>
                 {
                     b.Navigation("Devices");
@@ -2759,6 +3398,8 @@ namespace IoTSharp.Data.Oracle.Migrations
 
             modelBuilder.Entity("IoTSharp.Data.Product", b =>
                 {
+                    b.Navigation("CollectionTemplates");
+
                     b.Navigation("Commands");
 
                     b.Navigation("DefaultAttributes");
