@@ -222,8 +222,10 @@ namespace IoTSharp.Controllers
             }
 
             var receiptPayload = SerializeOrNull(request) ?? "{}";
+            var receivedAt = DateTime.UtcNow;
             ApplyFormalReceipt(formalTask, request);
-            _context.EdgeTaskReceipts.Add(CreateFormalEdgeTaskReceipt(formalTask, request, receiptPayload, DateTime.UtcNow));
+            _context.EdgeTaskReceipts.Add(CreateFormalEdgeTaskReceipt(formalTask, request, receiptPayload, receivedAt));
+            await ApplyReleaseTaskReceiptAsync(formalTask, request, receiptPayload, receivedAt);
             if (IsTerminalStatus(request.Status))
             {
                 AddRuntimeEdgeTaskAudit(
@@ -421,6 +423,12 @@ namespace IoTSharp.Controllers
                             now,
                             "配置发布任务已被执行端拉取",
                             null);
+                        await ApplyReleaseTaskStatusAsync(
+                            formalTask,
+                            EdgeTaskStatus.Sent,
+                            now,
+                            "发布任务已被执行端拉取",
+                            null);
                     }
                 }
 
@@ -480,8 +488,10 @@ namespace IoTSharp.Controllers
             }
 
             var receiptPayload = SerializeOrNull(request) ?? "{}";
+            var receivedAt = DateTime.UtcNow;
             ApplyFormalReceipt(formalTask, request);
-            _context.EdgeTaskReceipts.Add(CreateFormalEdgeTaskReceipt(formalTask, request, receiptPayload, DateTime.UtcNow));
+            _context.EdgeTaskReceipts.Add(CreateFormalEdgeTaskReceipt(formalTask, request, receiptPayload, receivedAt));
+            await ApplyReleaseTaskReceiptAsync(formalTask, request, receiptPayload, receivedAt);
             await _context.SaveChangesAsync();
             return Ok(new ApiResult(ApiCode.Success, "OK"));
         }
@@ -1453,6 +1463,212 @@ namespace IoTSharp.Controllers
                 assignment.AppliedAt = reportedAt;
             }
         }
+
+        /// <summary>
+        /// 将 EdgeTask 状态同步到绑定的 ReleaseTask，用于执行端拉取任务等非回执事件。
+        /// </summary>
+        /// <param name="task">正式 EdgeTask 任务。</param>
+        /// <param name="status">EdgeTask 状态。</param>
+        /// <param name="updatedAt">状态更新时间。</param>
+        /// <param name="message">状态说明。</param>
+        /// <param name="progress">执行进度。</param>
+        private async System.Threading.Tasks.Task ApplyReleaseTaskStatusAsync(
+            EdgeTask task,
+            EdgeTaskStatus status,
+            DateTime updatedAt,
+            string message,
+            int? progress)
+        {
+            var releaseTask = await _context.ReleaseTasks
+                .FirstOrDefaultAsync(item => item.EdgeTaskId == task.Id && !item.Deleted);
+            if (releaseTask == null)
+            {
+                return;
+            }
+
+            ApplyReleaseTaskStatus(releaseTask, status, updatedAt, message, progress);
+            await RefreshReleasePlanSummaryAsync(releaseTask.PlanId, updatedAt);
+        }
+
+        /// <summary>
+        /// 将 EdgeTask 正式回执投影为 ReleaseReceipt，并同步 ReleaseTask/ReleasePlan 当前态。
+        /// </summary>
+        /// <param name="task">正式 EdgeTask 任务。</param>
+        /// <param name="receipt">执行端回执。</param>
+        /// <param name="receiptPayload">原始回执 JSON。</param>
+        /// <param name="receivedAt">平台接收时间。</param>
+        private async System.Threading.Tasks.Task ApplyReleaseTaskReceiptAsync(
+            EdgeTask task,
+            EdgeTaskReceiptDto receipt,
+            string receiptPayload,
+            DateTime receivedAt)
+        {
+            var releaseTask = await _context.ReleaseTasks
+                .FirstOrDefaultAsync(item => item.EdgeTaskId == task.Id && !item.Deleted);
+            if (releaseTask == null)
+            {
+                return;
+            }
+
+            ApplyReleaseTaskStatus(releaseTask, receipt.Status, receipt.ReportedAt, receipt.Message, receipt.Progress);
+            _context.ReleaseReceipts.Add(new ReleaseReceipt
+            {
+                Id = Guid.NewGuid(),
+                PlanId = releaseTask.PlanId,
+                ReleaseTaskId = releaseTask.Id,
+                EdgeTaskId = task.Id,
+                TargetType = releaseTask.TargetType,
+                TargetId = releaseTask.TargetId,
+                GatewayId = releaseTask.GatewayId,
+                EdgeNodeId = releaseTask.EdgeNodeId,
+                TargetKey = releaseTask.TargetKey ?? task.TargetKey ?? string.Empty,
+                RuntimeType = releaseTask.RuntimeType ?? task.RuntimeType ?? string.Empty,
+                InstanceId = releaseTask.InstanceId ?? task.InstanceId ?? string.Empty,
+                Status = MapReleaseTaskStatus(receipt.Status, releaseTask.IsRollback),
+                Message = receipt.Message ?? string.Empty,
+                Progress = receipt.Progress,
+                Result = SerializeOrNull(receipt.Result) ?? "{}",
+                Metadata = SerializeOrNull(receipt.Metadata) ?? "{}",
+                Payload = receiptPayload ?? "{}",
+                ReportedAt = receipt.ReportedAt == default ? receivedAt : receipt.ReportedAt.ToUniversalTime(),
+                ReceivedAt = receivedAt,
+                TenantId = task.TenantId,
+                CustomerId = task.CustomerId
+            });
+
+            await RefreshReleasePlanSummaryAsync(releaseTask.PlanId, receivedAt);
+        }
+
+        /// <summary>
+        /// 应用单个发布任务状态，保留回滚任务的特殊成功/失败语义。
+        /// </summary>
+        /// <param name="releaseTask">发布任务。</param>
+        /// <param name="status">EdgeTask 状态。</param>
+        /// <param name="updatedAt">状态更新时间。</param>
+        /// <param name="message">状态说明。</param>
+        /// <param name="progress">执行进度。</param>
+        private static void ApplyReleaseTaskStatus(
+            ReleaseTask releaseTask,
+            EdgeTaskStatus status,
+            DateTime updatedAt,
+            string message,
+            int? progress)
+        {
+            var normalizedAt = updatedAt == default ? DateTime.UtcNow : updatedAt.ToUniversalTime();
+            var releaseStatus = MapReleaseTaskStatus(status, releaseTask.IsRollback);
+            releaseTask.Status = releaseStatus;
+            releaseTask.Message = message ?? string.Empty;
+            releaseTask.Progress = progress;
+            releaseTask.UpdatedAt = normalizedAt;
+
+            if (status != EdgeTaskStatus.Sent)
+            {
+                releaseTask.LastReceiptAt = normalizedAt;
+            }
+
+            if (IsTerminalReleaseTaskStatus(releaseStatus))
+            {
+                releaseTask.CompletedAt = normalizedAt;
+            }
+        }
+
+        /// <summary>
+        /// 根据发布任务集合刷新发布计划的聚合状态。
+        /// </summary>
+        /// <param name="planId">发布计划 ID。</param>
+        /// <param name="updatedAt">更新时间。</param>
+        private async System.Threading.Tasks.Task RefreshReleasePlanSummaryAsync(Guid planId, DateTime updatedAt)
+        {
+            var plan = await _context.ReleasePlans.FirstOrDefaultAsync(item => item.Id == planId && !item.Deleted);
+            if (plan == null)
+            {
+                return;
+            }
+
+            var tasks = await _context.ReleaseTasks
+                .Where(item => item.PlanId == planId && !item.Deleted)
+                .ToListAsync();
+            var normalizedAt = updatedAt == default ? DateTime.UtcNow : updatedAt.ToUniversalTime();
+
+            plan.TotalTaskCount = tasks.Count;
+            plan.PendingTaskCount = tasks.Count(item => item.Status == ReleaseTaskStatus.Pending);
+            plan.RunningTaskCount = tasks.Count(IsActiveReleaseTaskStatus);
+            plan.SucceededTaskCount = tasks.Count(item => item.Status is ReleaseTaskStatus.Succeeded or ReleaseTaskStatus.RolledBack);
+            plan.FailedTaskCount = tasks.Count(IsFailedReleaseTaskStatus);
+            plan.CurrentBatchNo = tasks.Count == 0 ? plan.CurrentBatchNo : Math.Max(plan.CurrentBatchNo, tasks.Max(item => item.BatchNo));
+            plan.UpdatedAt = normalizedAt;
+            plan.UpdatedBy = "edge-task-receipt";
+
+            var rollbackTasks = tasks.Where(item => item.IsRollback).ToList();
+            if (plan.Status == ReleasePlanStatus.RollingBack || rollbackTasks.Count > 0)
+            {
+                if (rollbackTasks.Count > 0 && rollbackTasks.All(item => IsTerminalReleaseTaskStatus(item.Status)))
+                {
+                    plan.Status = rollbackTasks.Any(IsFailedReleaseTaskStatus)
+                        ? ReleasePlanStatus.RollbackFailed
+                        : ReleasePlanStatus.RolledBack;
+                    plan.CompletedAt = normalizedAt;
+                }
+                else
+                {
+                    plan.Status = ReleasePlanStatus.RollingBack;
+                }
+
+                return;
+            }
+
+            var activeOrDispatched = tasks.Any(item => IsActiveReleaseTaskStatus(item) || item is { Status: ReleaseTaskStatus.Pending, EdgeTaskId: not null });
+            var pendingWithoutEdgeTask = tasks.Any(item => item.Status == ReleaseTaskStatus.Pending && item.EdgeTaskId == null);
+            var failed = tasks.Any(IsFailedReleaseTaskStatus);
+            var succeeded = tasks.Any(item => item.Status == ReleaseTaskStatus.Succeeded);
+
+            if (tasks.Count > 0 && tasks.All(item => item.Status == ReleaseTaskStatus.Succeeded))
+            {
+                plan.Status = ReleasePlanStatus.Succeeded;
+                plan.CompletedAt = normalizedAt;
+            }
+            else if (activeOrDispatched)
+            {
+                plan.Status = plan.Status == ReleasePlanStatus.Paused ? ReleasePlanStatus.Paused : ReleasePlanStatus.Running;
+            }
+            else if (failed && !pendingWithoutEdgeTask)
+            {
+                plan.Status = succeeded ? ReleasePlanStatus.PartiallySucceeded : ReleasePlanStatus.Failed;
+                plan.CompletedAt = normalizedAt;
+            }
+            else if (pendingWithoutEdgeTask && plan.Status != ReleasePlanStatus.Paused)
+            {
+                plan.Status = plan.StartedAt == null ? ReleasePlanStatus.Draft : ReleasePlanStatus.WaitingConfirmation;
+            }
+        }
+
+        private static ReleaseTaskStatus MapReleaseTaskStatus(EdgeTaskStatus status, bool isRollback)
+        {
+            return status switch
+            {
+                EdgeTaskStatus.Pending => ReleaseTaskStatus.Pending,
+                EdgeTaskStatus.Sent => ReleaseTaskStatus.Sent,
+                EdgeTaskStatus.Accepted => ReleaseTaskStatus.Accepted,
+                EdgeTaskStatus.Running => ReleaseTaskStatus.Running,
+                EdgeTaskStatus.Succeeded => isRollback ? ReleaseTaskStatus.RolledBack : ReleaseTaskStatus.Succeeded,
+                EdgeTaskStatus.Failed => isRollback ? ReleaseTaskStatus.RollbackFailed : ReleaseTaskStatus.Failed,
+                EdgeTaskStatus.TimedOut => ReleaseTaskStatus.TimedOut,
+                EdgeTaskStatus.Cancelled => ReleaseTaskStatus.Cancelled,
+                _ => ReleaseTaskStatus.Failed
+            };
+        }
+
+        private static bool IsActiveReleaseTaskStatus(ReleaseTask task)
+            => task.Status is ReleaseTaskStatus.Sent or ReleaseTaskStatus.Accepted or ReleaseTaskStatus.Running;
+
+        private static bool IsFailedReleaseTaskStatus(ReleaseTask task)
+            => IsFailedReleaseTaskStatus(task.Status);
+
+        private static bool IsFailedReleaseTaskStatus(ReleaseTaskStatus status)
+            => status is ReleaseTaskStatus.Failed or ReleaseTaskStatus.TimedOut or ReleaseTaskStatus.Cancelled or ReleaseTaskStatus.RollbackFailed;
+
+        private static bool IsTerminalReleaseTaskStatus(ReleaseTaskStatus status)
+            => status is ReleaseTaskStatus.Succeeded or ReleaseTaskStatus.Failed or ReleaseTaskStatus.TimedOut or ReleaseTaskStatus.Cancelled or ReleaseTaskStatus.RolledBack or ReleaseTaskStatus.RollbackFailed;
 
         /// <summary>
         /// 处理软件更新任务的执行回执，核对包 ID、版本和 SHA256，避免执行端误报其他包的成功结果。

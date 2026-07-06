@@ -396,6 +396,189 @@ namespace IoTSharp.Test
         }
 
         [Fact]
+        public async Task ReleaseCenter_CreatePlanDispatchesGatewaySoftwareTaskAndTracksReceipts()
+        {
+            using var client = _fixture.CreateClient();
+            var created = await _fixture.CreateDeviceAsync(client, $"sqlite-release-center-{Guid.NewGuid():N}", DeviceType.Gateway);
+            var deviceId = created.Data!.Id;
+            var token = await _fixture.GetDeviceAccessTokenAsync(client, deviceId);
+            await _fixture.AuthorizeClientAsync(client);
+
+            var packageKey = $"iotedge-gateway-{Guid.NewGuid():N}";
+            var packageVersion = $"1.5.0-{Guid.NewGuid():N}";
+            var packageBytes = Encoding.UTF8.GetBytes($"release-center-package-{packageKey}");
+            var expectedSha256 = Convert.ToHexString(SHA256.HashData(packageBytes));
+            using var form = new MultipartFormDataContent();
+            form.Add(new StringContent(nameof(ReleasePackageType.CollectorSoftware)), "PackageType");
+            form.Add(new StringContent(packageKey), "PackageKey");
+            form.Add(new StringContent("IoTEdge Gateway Runtime"), "Name");
+            form.Add(new StringContent(packageVersion), "Version");
+            form.Add(new StringContent(EdgeRuntimeTypes.Gateway), "TargetRuntimeType");
+            form.Add(new StringContent(">=1.4.0"), "TargetRuntimeVersion");
+            form.Add(new StringContent("""{"channel":"release-center-test"}"""), "Metadata");
+            var fileContent = new ByteArrayContent(packageBytes);
+            fileContent.Headers.ContentType = new MediaTypeHeaderValue("application/zip");
+            form.Add(fileContent, "File", $"{packageKey}.zip");
+
+            var upload = await client.PostAsync("/api/ReleasePackages/Upload", form);
+            var uploadResult = await ReadApiResultAsync<ReleasePackageDto>(upload);
+            Assert.Equal((int)ApiCode.Success, uploadResult.Code);
+            Assert.NotNull(uploadResult.Data);
+            Assert.Equal(ReleasePackageType.CollectorSoftware, uploadResult.Data!.PackageType);
+            Assert.Equal(expectedSha256, uploadResult.Data.Sha256);
+
+            var create = await client.PostAsJsonAsync("/api/ReleaseCenter/Plans", new ReleasePlanCreateRequestDto
+            {
+                Name = $"sqlite-release-center-{Guid.NewGuid():N}",
+                Description = "Release Center SQLite end-to-end test",
+                PlanType = ReleasePlanType.SoftwareUpdate,
+                PackageId = uploadResult.Data.Id,
+                ConfirmationPolicy = ReleaseConfirmationPolicy.None,
+                AutoStart = true,
+                Strategy = new ReleaseRolloutStrategyDto
+                {
+                    BatchSize = 0,
+                    ContinueOnFailure = false
+                },
+                Targets =
+                [
+                    new ReleaseTargetDto
+                    {
+                        TargetType = ReleaseTargetType.Gateway,
+                        TargetId = deviceId,
+                        RuntimeType = EdgeRuntimeTypes.Gateway,
+                        InstanceId = "sqlite-release-center-gateway",
+                        Metadata = new Dictionary<string, string>
+                        {
+                            ["scope"] = "sqlite"
+                        }
+                    }
+                ],
+                Metadata = new Dictionary<string, string>
+                {
+                    ["source"] = "sqlite-test"
+                }
+            });
+            var createResult = await ReadApiResultAsync<ReleasePlanOperationResultDto>(create);
+            Assert.Equal((int)ApiCode.Success, createResult.Code);
+            Assert.NotNull(createResult.Data);
+            Assert.Equal(ReleasePlanStatus.Running, createResult.Data!.Plan.Status);
+            Assert.Equal(1, createResult.Data.Plan.TotalTaskCount);
+            Assert.Equal(1, createResult.Data.Plan.PendingTaskCount);
+            var createdTask = Assert.Single(createResult.Data.Plan.Tasks);
+            Assert.Equal(ReleaseTaskStatus.Pending, createdTask.Status);
+            Assert.Equal(deviceId, createdTask.GatewayId.GetValueOrDefault());
+            Assert.True(createdTask.EdgeTaskId.HasValue);
+            var edgeTask = Assert.Single(createResult.Data.EdgeTasks);
+            Assert.Equal(EdgeTaskType.SoftwareUpdate, edgeTask.TaskType);
+            Assert.Equal(createdTask.EdgeTaskId.GetValueOrDefault(), edgeTask.TaskId);
+            Assert.Equal(uploadResult.Data.Id.ToString("D"), GetParameterString(edgeTask.Parameters, "packageId"));
+            Assert.Equal(createResult.Data.Plan.Id.ToString("D"), GetParameterString(edgeTask.Parameters, "releasePlanId"));
+            Assert.Equal(createdTask.Id.ToString("D"), GetParameterString(edgeTask.Parameters, "releaseTaskId"));
+
+            var pulledTasks = await GetApiResultAsync<List<EdgeTaskRequestDto>>(client, $"/api/EdgeTask/Dispatch/{token}");
+            Assert.Equal((int)ApiCode.Success, pulledTasks.Code);
+            var pulledTask = Assert.Single(pulledTasks.Data!, task => task.TaskId == edgeTask.TaskId);
+            Assert.Equal(EdgeTaskType.SoftwareUpdate, pulledTask.TaskType);
+
+            var sentPlan = await GetApiResultAsync<ReleasePlanDto>(client, $"/api/ReleaseCenter/Plans/{createResult.Data.Plan.Id}");
+            Assert.Equal((int)ApiCode.Success, sentPlan.Code);
+            var sentReleaseTask = Assert.Single(sentPlan.Data!.Tasks);
+            Assert.Equal(ReleaseTaskStatus.Sent, sentReleaseTask.Status);
+            Assert.Equal(ReleasePlanStatus.Running, sentPlan.Data.Status);
+
+            var accepted = await client.PostAsJsonAsync($"/api/EdgeTask/Dispatch/{token}/Accept", new EdgeTaskReceiptDto
+            {
+                ContractVersion = EdgeNodeContractVersions.EdgeTaskV1,
+                TaskId = edgeTask.TaskId,
+                ReportedAt = DateTime.UtcNow
+            });
+            var acceptedResult = await ReadApiResultAsync<object>(accepted);
+            Assert.Equal((int)ApiCode.Success, acceptedResult.Code);
+
+            var running = await client.PostAsJsonAsync("/api/EdgeTask/Receipt", new EdgeTaskReceiptDto
+            {
+                ContractVersion = EdgeNodeContractVersions.EdgeTaskV1,
+                TaskId = edgeTask.TaskId,
+                TargetType = pulledTask.Address.TargetType,
+                TargetKey = pulledTask.Address.TargetKey,
+                RuntimeType = EdgeRuntimeTypes.Gateway,
+                InstanceId = "sqlite-release-center-gateway",
+                Status = EdgeTaskStatus.Running,
+                Progress = 40,
+                Message = "installing",
+                ReportedAt = DateTime.UtcNow,
+                Result = new Dictionary<string, object>
+                {
+                    ["packageId"] = uploadResult.Data.Id,
+                    ["packageVersion"] = uploadResult.Data.Version,
+                    ["sha256"] = uploadResult.Data.Sha256
+                }
+            });
+            var runningResult = await ReadApiResultAsync<EdgeTaskReceiptDto>(running);
+            Assert.Equal((int)ApiCode.Success, runningResult.Code);
+
+            var runningPlan = await GetApiResultAsync<ReleasePlanDto>(client, $"/api/ReleaseCenter/Plans/{createResult.Data.Plan.Id}");
+            Assert.Equal((int)ApiCode.Success, runningPlan.Code);
+            var runningReleaseTask = Assert.Single(runningPlan.Data!.Tasks);
+            Assert.Equal(ReleaseTaskStatus.Running, runningReleaseTask.Status);
+            Assert.Equal(40, runningReleaseTask.Progress);
+
+            var succeeded = await client.PostAsJsonAsync("/api/EdgeTask/Receipt", new EdgeTaskReceiptDto
+            {
+                ContractVersion = EdgeNodeContractVersions.EdgeTaskV1,
+                TaskId = edgeTask.TaskId,
+                TargetType = pulledTask.Address.TargetType,
+                TargetKey = pulledTask.Address.TargetKey,
+                RuntimeType = EdgeRuntimeTypes.Gateway,
+                InstanceId = "sqlite-release-center-gateway",
+                Status = EdgeTaskStatus.Succeeded,
+                Progress = 100,
+                Message = "installed",
+                ReportedAt = DateTime.UtcNow,
+                Result = new Dictionary<string, object>
+                {
+                    ["packageId"] = uploadResult.Data.Id,
+                    ["packageVersion"] = uploadResult.Data.Version,
+                    ["sha256"] = uploadResult.Data.Sha256
+                }
+            });
+            var succeededResult = await ReadApiResultAsync<EdgeTaskReceiptDto>(succeeded);
+            Assert.Equal((int)ApiCode.Success, succeededResult.Code);
+
+            var completedPlan = await GetApiResultAsync<ReleasePlanDto>(client, $"/api/ReleaseCenter/Plans/{createResult.Data.Plan.Id}");
+            Assert.Equal((int)ApiCode.Success, completedPlan.Code);
+            Assert.Equal(ReleasePlanStatus.Succeeded, completedPlan.Data!.Status);
+            Assert.Equal(1, completedPlan.Data.SucceededTaskCount);
+            Assert.Equal(0, completedPlan.Data.PendingTaskCount);
+            Assert.Equal(0, completedPlan.Data.RunningTaskCount);
+            var completedReleaseTask = Assert.Single(completedPlan.Data.Tasks);
+            Assert.Equal(ReleaseTaskStatus.Succeeded, completedReleaseTask.Status);
+            Assert.Equal(100, completedReleaseTask.Progress);
+            Assert.NotNull(completedReleaseTask.CompletedAt);
+            Assert.NotNull(completedPlan.Data.CompletedAt);
+
+            var receipts = await GetApiResultAsync<List<ReleaseReceiptDto>>(client, $"/api/ReleaseCenter/Plans/{completedPlan.Data.Id}/Receipts");
+            Assert.Equal((int)ApiCode.Success, receipts.Code);
+            Assert.Contains(receipts.Data!, receipt => receipt.Status == ReleaseTaskStatus.Accepted);
+            Assert.Contains(receipts.Data!, receipt => receipt.Status == ReleaseTaskStatus.Running && receipt.Progress == 40);
+            Assert.Contains(receipts.Data!, receipt => receipt.Status == ReleaseTaskStatus.Succeeded && receipt.Progress == 100);
+
+            using var scope = _fixture.Services.CreateScope();
+            var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+            var storedPlan = await dbContext.ReleasePlans.AsNoTracking().SingleAsync(plan => plan.Id == completedPlan.Data.Id);
+            Assert.Equal(ReleasePlanStatus.Succeeded, storedPlan.Status);
+            var storedReleaseTask = await dbContext.ReleaseTasks.AsNoTracking().SingleAsync(task => task.Id == completedReleaseTask.Id);
+            Assert.Equal(ReleaseTaskStatus.Succeeded, storedReleaseTask.Status);
+            Assert.Equal(edgeTask.TaskId, storedReleaseTask.EdgeTaskId.GetValueOrDefault());
+            Assert.Equal(3, await dbContext.ReleaseReceipts.AsNoTracking().CountAsync(receipt => receipt.PlanId == completedPlan.Data.Id));
+            Assert.True(await dbContext.AuditLog.AsNoTracking().AnyAsync(log =>
+                log.ObjectID == completedPlan.Data.Id &&
+                log.ObjectType == ObjectType.ReleasePlan &&
+                log.ActionName == "ReleasePlanCreate"));
+        }
+
+        [Fact]
         public async Task CollectionConfigVersion_PersistsSnapshotAndAssignment()
         {
             using var client = _fixture.CreateClient();

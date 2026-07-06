@@ -13,7 +13,27 @@ namespace IoTSharp.Contracts
         /// <summary>
         /// 面向 EdgeNode 或 Gateway 运行时的软件更新包。
         /// </summary>
-        Software = 0
+        Software = 0,
+
+        /// <summary>
+        /// 面向采集器运行时的软件包。
+        /// </summary>
+        CollectorSoftware = 1,
+
+        /// <summary>
+        /// 平台生成或上传的配置包。
+        /// </summary>
+        Configuration = 2,
+
+        /// <summary>
+        /// 面向嵌入式设备的脚本 OTA 包。
+        /// </summary>
+        DeviceScript = 3,
+
+        /// <summary>
+        /// 面向设备或运行时的固件 OTA 包。
+        /// </summary>
+        Firmware = 4
     }
 
     /// <summary>

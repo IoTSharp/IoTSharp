@@ -35,7 +35,11 @@
     },
     "releasePackageType": {
       "enum": [
-        "Software"
+        "Software",
+        "CollectorSoftware",
+        "Configuration",
+        "DeviceScript",
+        "Firmware"
       ]
     }
   },

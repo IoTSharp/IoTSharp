@@ -396,7 +396,7 @@ assignment 回写字段：
 
 ## 最小软件包发布（#046）
 
-`ReleasePackage` 是 M4 的最小软件包模型，只描述软件包元数据、版本、目标运行时、BlobStorage 路径、下载令牌和 SHA256 校验和。它不承载灰度批次、审批、回滚策略或长期编排；这些能力留给 M5 Release Center。
+`ReleasePackage` 是 M4 的最小软件包模型，只描述软件包元数据、版本、目标运行时、BlobStorage 路径、下载令牌和 SHA256 校验和。M5 第一版在其上兼容追加包类型，用 Release Center 承载灰度批次、审批、回滚策略和长期编排。
 
 新增平台 API：
 
@@ -406,6 +406,17 @@ assignment 回写字段：
 - `POST /api/ReleasePackages/{id}/Publish`：生成 `SoftwareUpdate` EdgeTask，任务参数携带 `release-package-v1`、包 ID、版本、目标运行时、文件大小、SHA256 和下载 URL。
 
 软件更新回执仍走 `edge-task-v1` 的 `/api/EdgeTask/Receipt`。平台对 `SoftwareUpdate` 任务校验回执中的 `packageId`、`packageVersion` 和 `sha256`；`Succeeded` 回执必须在 `result` 中包含这三项，避免执行端误把其他包作为成功结果上报。
+
+## Release Center 第一版（#050~#055）
+
+Release Center 不进入 RuleChain，也不替代 EdgeTask 执行通道。第一版新增平台侧 `ReleasePlan`、`ReleaseTask` 和 `ReleaseReceipt`：
+
+- `POST /api/ReleaseCenter/Plans`：创建发布计划，支持 `SoftwareUpdate`、批次大小、确认策略、自动开始和 Gateway/EdgeNode 目标。
+- `GET /api/ReleaseCenter/Plans`、`GET /api/ReleaseCenter/Plans/{id}`：查询计划列表和任务状态。
+- `POST /api/ReleaseCenter/Plans/{id}/Start|Confirm|Pause|Resume|Rollback`：执行开始、人工确认、暂停、继续和回滚。
+- `GET /api/ReleaseCenter/Plans/{id}/Receipts`：查询计划下的发布回执历史。
+
+Gateway/EdgeNode 运行时软件发布会生成 `SoftwareUpdate` EdgeTask，任务参数携带 `releasePlanId`、`releaseTaskId`、批次号、是否回滚以及 `release-package-v1` 包信息。执行端拉取、接受和上报 EdgeTask 后，平台同步 ReleaseTask 当前态，并将 Accepted、Running、Succeeded、Failed、TimedOut 等回执投影为 ReleaseReceipt。Device、AssetScope 和 DeviceScope 目标保留给设备脚本/固件 OTA 与范围发布后续实现。
 
 ### 查询返回结构
 

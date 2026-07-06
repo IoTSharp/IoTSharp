@@ -257,7 +257,10 @@ namespace IoTSharp.Contracts
         MQTTBroker,
         MQTTClient,
         EdgeTask,
-        ReleasePackage
+        ReleasePackage,
+        ReleasePlan,
+        ReleaseTask,
+        ReleaseReceipt
 
     }
     [System.Text.Json.Serialization.JsonConverter(typeof(System.Text.Json.Serialization.JsonStringEnumConverter))]

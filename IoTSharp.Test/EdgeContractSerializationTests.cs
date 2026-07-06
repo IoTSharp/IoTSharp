@@ -32,6 +32,7 @@ public sealed class EdgeContractSerializationTests
         Assert.Equal(EdgeNodeContractVersions.CollectionConfigV1, new EdgeCollectionAssignmentDto().ContractVersion);
         Assert.Equal("release-package-v1", EdgeNodeContractVersions.ReleasePackageV1);
         Assert.Equal(EdgeNodeContractVersions.ReleasePackageV1, new ReleasePackageDto().ContractVersion);
+        Assert.Equal(typeof(EdgeRegistrationDto).Assembly, typeof(ReleasePlanDto).Assembly);
     }
 
     [Fact]
@@ -422,6 +423,102 @@ public sealed class EdgeContractSerializationTests
         Assert.Contains("\"releasePackageContractVersion\":\"release-package-v1\"", json);
         Assert.Contains("\"packageId\":\"33333333-3333-3333-3333-333333333333\"", json);
         Assert.Contains("\"sha256\":\"6D37795021E544D998C3A77A825EA542D52094C9AB63F6D0D42C79FE2E176FF8\"", json);
+    }
+
+    [Fact]
+    public void ReleaseCenterDtos_SerializeStablePlanTaskAndReceiptContracts()
+    {
+        var planId = Guid.Parse("11111111-1111-1111-1111-111111111111");
+        var releaseTaskId = Guid.Parse("22222222-2222-2222-2222-222222222222");
+        var edgeTaskId = Guid.Parse("33333333-3333-3333-3333-333333333333");
+        var packageId = Guid.Parse("44444444-4444-4444-4444-444444444444");
+        var gatewayId = Guid.Parse("55555555-5555-5555-5555-555555555555");
+        var result = new ReleasePlanOperationResultDto
+        {
+            Plan = new ReleasePlanDto
+            {
+                Id = planId,
+                Name = "Gateway runtime rollout",
+                PlanType = ReleasePlanType.SoftwareUpdate,
+                Status = ReleasePlanStatus.Running,
+                PackageId = packageId,
+                ConfirmationPolicy = ReleaseConfirmationPolicy.ManualBetweenBatches,
+                BatchSize = 1,
+                TotalTaskCount = 1,
+                RunningTaskCount = 1,
+                CurrentBatchNo = 1,
+                Tasks =
+                [
+                    new ReleaseTaskDto
+                    {
+                        Id = releaseTaskId,
+                        PlanId = planId,
+                        PackageId = packageId,
+                        TargetType = ReleaseTargetType.Gateway,
+                        TargetId = gatewayId,
+                        GatewayId = gatewayId,
+                        TargetKey = $"{gatewayId}:gateway:gateway-a-01",
+                        RuntimeType = EdgeRuntimeTypes.Gateway,
+                        InstanceId = "gateway-a-01",
+                        BatchNo = 1,
+                        Status = ReleaseTaskStatus.Sent,
+                        EdgeTaskId = edgeTaskId
+                    }
+                ]
+            },
+            EdgeTasks =
+            [
+                new EdgeTaskRequestDto
+                {
+                    TaskId = edgeTaskId,
+                    TaskType = EdgeTaskType.SoftwareUpdate,
+                    CreatedAt = DateTime.Parse("2026-07-06T08:15:00Z").ToUniversalTime(),
+                    Address = new EdgeTaskAddressDto
+                    {
+                        TargetType = EdgeTaskTargetType.GatewayRuntime,
+                        DeviceId = gatewayId,
+                        RuntimeType = EdgeRuntimeTypes.Gateway,
+                        InstanceId = "gateway-a-01",
+                        TargetKey = $"{gatewayId}:gateway:gateway-a-01"
+                    },
+                    Parameters = new Dictionary<string, object>
+                    {
+                        ["releasePlanId"] = planId,
+                        ["releaseTaskId"] = releaseTaskId,
+                        ["packageId"] = packageId
+                    }
+                }
+            ]
+        };
+        var receipt = new ReleaseReceiptDto
+        {
+            PlanId = planId,
+            ReleaseTaskId = releaseTaskId,
+            EdgeTaskId = edgeTaskId,
+            Status = ReleaseTaskStatus.Succeeded,
+            Progress = 100,
+            Result = new Dictionary<string, object>
+            {
+                ["packageId"] = packageId,
+                ["sha256"] = "6D37795021E544D998C3A77A825EA542D52094C9AB63F6D0D42C79FE2E176FF8"
+            }
+        };
+
+        var json = JsonSerializer.Serialize(result, new JsonSerializerOptions(JsonSerializerDefaults.Web));
+        var receiptJson = JsonSerializer.Serialize(receipt, new JsonSerializerOptions(JsonSerializerDefaults.Web));
+        var roundtrip = JsonSerializer.Deserialize<ReleasePlanOperationResultDto>(json, new JsonSerializerOptions(JsonSerializerDefaults.Web));
+
+        Assert.Contains("\"planType\":\"SoftwareUpdate\"", json);
+        Assert.Contains("\"status\":\"Running\"", json);
+        Assert.Contains("\"confirmationPolicy\":\"ManualBetweenBatches\"", json);
+        Assert.Contains("\"targetType\":\"Gateway\"", json);
+        Assert.Contains("\"taskType\":\"SoftwareUpdate\"", json);
+        Assert.Contains("\"status\":\"Succeeded\"", receiptJson);
+        Assert.NotNull(roundtrip);
+        Assert.Equal(ReleasePlanStatus.Running, roundtrip!.Plan.Status);
+        Assert.Equal(ReleaseTaskStatus.Sent, roundtrip.Plan.Tasks[0].Status);
+        Assert.Equal(ReleaseTargetType.Gateway, roundtrip.Plan.Tasks[0].TargetType);
+        Assert.Equal(EdgeTaskType.SoftwareUpdate, roundtrip.EdgeTasks[0].TaskType);
     }
 
     [Fact]

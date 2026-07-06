@@ -21,6 +21,7 @@ This project follows a lightweight Keep a Changelog style. Version numbers in th
 - EdgeTask failure retry and audit support for M4 #045, including `POST /api/EdgeTask/{taskId}/Retry`, `GET /api/EdgeTask/{taskId}/Audit`, terminal receipt audit logs, and task timeline audit events.
 - Minimal software package publication for M4 #046 with `ReleasePackage`, multi-provider `ReleasePackages` migrations, upload/download APIs, `SoftwareUpdate` EdgeTask dispatch, checksum-bound receipts, and `release-package-v1` contract artifacts.
 - IoTEdge-side M4 #047/#048 execution support is now aligned with platform contracts: `SoftwareUpdate` tasks download, verify, stage, switch and receipt package results, while upload channels can buffer failed collection uploads locally and replay them after connectivity recovers.
+- Release Center platform first version for M5 #050-#055 with `ReleasePlan`, `ReleaseTask`, `ReleaseReceipt`, multi-provider migrations, `/api/ReleaseCenter/Plans` APIs, Gateway/EdgeNode runtime software rollout, gray batches, confirmation, pause/resume, rollback tasks, receipt projection, and audit logging.
 
 ### Changed
 
@@ -31,6 +32,7 @@ This project follows a lightweight Keep a Changelog style. Version numbers in th
 - Changed the frontend local development default port to `27915`.
 - Improved GitHub Pages workflow and upgraded Docusaurus to the current 3.x line used in the repository.
 - Closed the M3 Collection Template milestone after IoTEdge execution-chain validation for template-generated runtime configurations.
+- Closed the M4 platform milestone in the roadmap and moved M5 into active execution with Device script and firmware OTA remaining as follow-up execution-end work.
 
 ### Fixed
 

@@ -144,11 +144,6 @@ namespace IoTSharp.Controllers
                 return Ok(new ApiResult<ReleasePackageDto>(ApiCode.NotFile, "Release package file is required", null));
             }
 
-            if (request.PackageType != ReleasePackageType.Software)
-            {
-                return Ok(new ApiResult<ReleasePackageDto>(ApiCode.InValidData, "Only Software release packages are supported in #046", null));
-            }
-
             var packageKey = NormalizeRequired(request.PackageKey);
             var packageName = NormalizeRequired(request.Name);
             var version = NormalizeRequired(request.Version);
@@ -271,6 +266,14 @@ namespace IoTSharp.Controllers
             if (package == null)
             {
                 return Ok(new ApiResult<ReleasePackagePublishResultDto>(ApiCode.CantFindObject, "Release package not found", null));
+            }
+
+            if (!IsRuntimeSoftwarePackage(package.PackageType))
+            {
+                return Ok(new ApiResult<ReleasePackagePublishResultDto>(
+                    ApiCode.InValidData,
+                    "Direct publish only supports Software or CollectorSoftware packages; use Release Center for other package types",
+                    null));
             }
 
             request ??= new ReleasePackagePublishRequestDto();
@@ -623,6 +626,9 @@ namespace IoTSharp.Controllers
                 packageRuntimeType == "*" ||
                 string.Equals(packageRuntimeType, runtimeType, StringComparison.OrdinalIgnoreCase);
         }
+
+        private static bool IsRuntimeSoftwarePackage(ReleasePackageType packageType)
+            => packageType is ReleasePackageType.Software or ReleasePackageType.CollectorSoftware;
 
         private static string NormalizeMetadataJson(string metadata)
         {

@@ -31,7 +31,7 @@ namespace IoTSharp.Controllers.Models
     public class ReleasePackageUploadRequestDto
     {
         /// <summary>
-        /// 包类型；#046 仅支持 Software。
+        /// 包类型；M5 起可保存采集器软件包、配置包、设备脚本和固件包元数据。
         /// </summary>
         public ReleasePackageType PackageType { get; set; } = ReleasePackageType.Software;
 

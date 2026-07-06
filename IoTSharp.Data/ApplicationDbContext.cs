@@ -27,6 +27,9 @@ namespace IoTSharp.Data
             modelBuilder.ApplyConfiguration(new EdgeTaskConfiguration());
             modelBuilder.ApplyConfiguration(new EdgeTaskReceiptConfiguration());
             modelBuilder.ApplyConfiguration(new ReleasePackageConfiguration());
+            modelBuilder.ApplyConfiguration(new ReleasePlanConfiguration());
+            modelBuilder.ApplyConfiguration(new ReleaseTaskConfiguration());
+            modelBuilder.ApplyConfiguration(new ReleaseReceiptConfiguration());
             modelBuilder.ApplyConfiguration(new CollectionConfigurationVersionConfiguration());
             modelBuilder.ApplyConfiguration(new EdgeCollectionAssignmentConfiguration());
             modelBuilder.ApplyConfiguration(new CollectionTemplateConfiguration());
@@ -36,7 +39,7 @@ namespace IoTSharp.Data
             modelBuilder.ApplyConfiguration(new CollectionTransformTemplateConfiguration());
             modelBuilder.ApplyConfiguration(new CollectionSamplingPolicyConfiguration());
             modelBuilder.ApplyConfiguration(new CollectionMappingPolicyConfiguration());
-            ConfigureProviderSpecificCollectionConfigurationVersion(modelBuilder);
+            ConfigureProviderSpecificMappings(modelBuilder);
             modelBuilder.Entity<AttributeLatest>().HasDiscriminator<DataCatalog>(nameof(Data.DataStorage.Catalog));
             modelBuilder.Entity<TelemetryLatest>().HasDiscriminator<DataCatalog>(nameof(Data.DataStorage.Catalog));
             modelBuilder.Entity<ProductData>().HasDiscriminator<DataCatalog>(nameof(Data.DataStorage.Catalog));
@@ -61,7 +64,7 @@ namespace IoTSharp.Data
         /// 补充采集配置版本在特定数据库 provider 上的字段映射差异。
         /// </summary>
         /// <param name="modelBuilder">EF 模型构建器。</param>
-        private void ConfigureProviderSpecificCollectionConfigurationVersion(ModelBuilder modelBuilder)
+        private void ConfigureProviderSpecificMappings(ModelBuilder modelBuilder)
         {
             if (Database.ProviderName?.Contains("Oracle", StringComparison.OrdinalIgnoreCase) != true)
             {
@@ -70,6 +73,11 @@ namespace IoTSharp.Data
 
             modelBuilder.Entity<CollectionConfigurationVersion>().Property(c => c.Payload).HasColumnType("NCLOB");
             modelBuilder.Entity<CollectionConfigurationVersion>().Property(c => c.SourceMetadata).HasColumnType("NCLOB");
+            modelBuilder.Entity<ReleasePlan>().Property(c => c.Metadata).HasColumnType("NCLOB");
+            modelBuilder.Entity<ReleaseTask>().Property(c => c.Metadata).HasColumnType("NCLOB");
+            modelBuilder.Entity<ReleaseReceipt>().Property(c => c.Result).HasColumnType("NCLOB");
+            modelBuilder.Entity<ReleaseReceipt>().Property(c => c.Metadata).HasColumnType("NCLOB");
+            modelBuilder.Entity<ReleaseReceipt>().Property(c => c.Payload).HasColumnType("NCLOB");
         }
 
         public DbSet<Tenant> Tenant { get; set; }
@@ -81,6 +89,9 @@ namespace IoTSharp.Data
         public DbSet<EdgeTask> EdgeTasks { get; set; }
         public DbSet<EdgeTaskReceipt> EdgeTaskReceipts { get; set; }
         public DbSet<ReleasePackage> ReleasePackages { get; set; }
+        public DbSet<ReleasePlan> ReleasePlans { get; set; }
+        public DbSet<ReleaseTask> ReleaseTasks { get; set; }
+        public DbSet<ReleaseReceipt> ReleaseReceipts { get; set; }
         public DbSet<CollectionConfigurationVersion> CollectionConfigurationVersions { get; set; }
         public DbSet<EdgeCollectionAssignment> EdgeCollectionAssignments { get; set; }
         public DbSet<CollectionTemplate> CollectionTemplates { get; set; }
