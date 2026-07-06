@@ -760,6 +760,191 @@ namespace IoTSharp.Test
         }
 
         [Fact]
+        public async Task ReleaseCenter_DeviceScopeDeviceScriptOta_UsesGatewayChannelAndRequiresScriptCrc()
+        {
+            using var client = _fixture.CreateClient();
+            var gateway = await _fixture.CreateDeviceAsync(client, $"sqlite-script-gateway-{Guid.NewGuid():N}", DeviceType.Gateway);
+            var child = await _fixture.CreateDeviceAsync(client, $"sqlite-script-child-{Guid.NewGuid():N}", DeviceType.Device);
+            var gatewayId = gateway.Data!.Id;
+            var childId = child.Data!.Id;
+            var gatewayToken = await _fixture.GetDeviceAccessTokenAsync(client, gatewayId);
+
+            using (var scope = _fixture.Services.CreateScope())
+            {
+                var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+                var storedGateway = await dbContext.Device.OfType<Gateway>().SingleAsync(device => device.Id == gatewayId);
+                var storedChild = await dbContext.Device.SingleAsync(device => device.Id == childId);
+                storedChild.Owner = storedGateway;
+                await dbContext.SaveChangesAsync();
+            }
+
+            await _fixture.AuthorizeClientAsync(client);
+
+            var packageKey = $"iotembedded-scope-script-{Guid.NewGuid():N}";
+            var packageVersion = $"2026.7.6-{Guid.NewGuid():N}";
+            var scriptBytes = Encoding.UTF8.GetBytes($"20 PRINT \"{packageKey}\"");
+            var expectedSha256 = Convert.ToHexString(SHA256.HashData(scriptBytes));
+            const string expectedCrc32 = "B2C3D4E5";
+            using var form = new MultipartFormDataContent();
+            form.Add(new StringContent(nameof(ReleasePackageType.DeviceScript)), "PackageType");
+            form.Add(new StringContent(packageKey), "PackageKey");
+            form.Add(new StringContent("IoTEmbedded scoped script"), "Name");
+            form.Add(new StringContent(packageVersion), "Version");
+            form.Add(new StringContent("iotembedded"), "TargetRuntimeType");
+            form.Add(new StringContent(">=0.8.0"), "TargetRuntimeVersion");
+            form.Add(new StringContent($$"""{"scriptCrc32":"{{expectedCrc32}}","scriptSlot":"inactive","scriptLanguage":"basic"}"""), "Metadata");
+            var fileContent = new ByteArrayContent(scriptBytes);
+            fileContent.Headers.ContentType = new MediaTypeHeaderValue("text/plain");
+            form.Add(fileContent, "File", $"{packageKey}.bas");
+
+            var upload = await client.PostAsync("/api/ReleasePackages/Upload", form);
+            var uploadResult = await ReadApiResultAsync<ReleasePackageDto>(upload);
+            Assert.Equal((int)ApiCode.Success, uploadResult.Code);
+            Assert.NotNull(uploadResult.Data);
+            Assert.Equal(expectedSha256, uploadResult.Data!.Sha256);
+
+            var create = await client.PostAsJsonAsync("/api/ReleaseCenter/Plans", new ReleasePlanCreateRequestDto
+            {
+                Name = $"sqlite-device-scope-script-ota-{Guid.NewGuid():N}",
+                Description = "Release Center DeviceScope device script OTA gateway channel test",
+                PlanType = ReleasePlanType.DeviceScriptOta,
+                PackageId = uploadResult.Data.Id,
+                ConfirmationPolicy = ReleaseConfirmationPolicy.None,
+                AutoStart = true,
+                Strategy = new ReleaseRolloutStrategyDto
+                {
+                    BatchSize = 1,
+                    ContinueOnFailure = false
+                },
+                Targets =
+                [
+                    new ReleaseTargetDto
+                    {
+                        TargetType = ReleaseTargetType.DeviceScope,
+                        RuntimeType = "iotembedded",
+                        InstanceId = "stm32-gateway-child-01",
+                        Metadata = new Dictionary<string, string>
+                        {
+                            ["deviceIds"] = childId.ToString("D"),
+                            ["scope"] = "device-scope"
+                        }
+                    }
+                ]
+            });
+            var createResult = await ReadApiResultAsync<ReleasePlanOperationResultDto>(create);
+            Assert.Equal((int)ApiCode.Success, createResult.Code);
+            Assert.NotNull(createResult.Data);
+            var releaseTask = Assert.Single(createResult.Data!.Plan.Tasks);
+            Assert.Equal(ReleaseTargetType.Device, releaseTask.TargetType);
+            Assert.Equal(childId, releaseTask.TargetId);
+            Assert.Equal(gatewayId, releaseTask.GatewayId);
+            Assert.Equal(gatewayId, releaseTask.EdgeNodeId);
+            Assert.Equal("DeviceScope", releaseTask.Metadata["sourceTargetType"]);
+            Assert.Equal(childId.ToString("D"), releaseTask.Metadata["targetDeviceId"]);
+
+            var edgeTask = Assert.Single(createResult.Data.EdgeTasks);
+            Assert.Equal(EdgeTaskType.DeviceScriptOta, edgeTask.TaskType);
+            Assert.Equal(EdgeTaskTargetType.Device, edgeTask.Address.TargetType);
+            Assert.Equal(gatewayId, edgeTask.Address.DeviceId);
+            Assert.Contains($":device:{childId:D}:iotembedded", edgeTask.Address.TargetKey);
+            Assert.Equal(gatewayId.ToString("D"), GetParameterString(edgeTask.Parameters, "deliveryChannelDeviceId"));
+            Assert.Equal(childId.ToString("D"), GetParameterString(edgeTask.Parameters, "targetDeviceId"));
+            Assert.Equal(expectedCrc32, GetParameterString(edgeTask.Parameters, "scriptCrc32"));
+
+            var pulledTasks = await GetApiResultAsync<List<EdgeTaskRequestDto>>(client, $"/api/EdgeTask/Dispatch/{gatewayToken}");
+            Assert.Equal((int)ApiCode.Success, pulledTasks.Code);
+            var pulledTask = Assert.Single(pulledTasks.Data!, task => task.TaskId == edgeTask.TaskId);
+            Assert.Equal(gatewayId, pulledTask.Address.DeviceId);
+
+            var accepted = await client.PostAsJsonAsync($"/api/EdgeTask/Dispatch/{gatewayToken}/Accept", new EdgeTaskReceiptDto
+            {
+                ContractVersion = EdgeNodeContractVersions.EdgeTaskV1,
+                TaskId = edgeTask.TaskId,
+                ReportedAt = DateTime.UtcNow
+            });
+            var acceptedResult = await ReadApiResultAsync<object>(accepted);
+            Assert.Equal((int)ApiCode.Success, acceptedResult.Code);
+
+            var running = await client.PostAsJsonAsync("/api/EdgeTask/Receipt", new EdgeTaskReceiptDto
+            {
+                ContractVersion = EdgeNodeContractVersions.EdgeTaskV1,
+                TaskId = edgeTask.TaskId,
+                TargetType = pulledTask.Address.TargetType,
+                TargetKey = pulledTask.Address.TargetKey,
+                RuntimeType = "iotembedded",
+                InstanceId = "stm32-gateway-child-01",
+                Status = EdgeTaskStatus.Running,
+                Progress = 60,
+                Message = "script staging through gateway",
+                ReportedAt = DateTime.UtcNow
+            });
+            var runningResult = await ReadApiResultAsync<EdgeTaskReceiptDto>(running);
+            Assert.Equal((int)ApiCode.Success, runningResult.Code);
+
+            var missingCrc = await client.PostAsJsonAsync("/api/EdgeTask/Receipt", new EdgeTaskReceiptDto
+            {
+                ContractVersion = EdgeNodeContractVersions.EdgeTaskV1,
+                TaskId = edgeTask.TaskId,
+                TargetType = pulledTask.Address.TargetType,
+                TargetKey = pulledTask.Address.TargetKey,
+                RuntimeType = "iotembedded",
+                InstanceId = "stm32-gateway-child-01",
+                Status = EdgeTaskStatus.Succeeded,
+                Progress = 100,
+                Message = "script switched without crc",
+                ReportedAt = DateTime.UtcNow,
+                Result = new Dictionary<string, object>
+                {
+                    ["packageId"] = uploadResult.Data.Id,
+                    ["packageVersion"] = uploadResult.Data.Version,
+                    ["sha256"] = uploadResult.Data.Sha256,
+                    ["targetDeviceId"] = childId
+                }
+            });
+            var missingCrcResult = await ReadApiResultAsync<EdgeTaskReceiptDto>(missingCrc);
+            Assert.Equal((int)ApiCode.InValidData, missingCrcResult.Code);
+            Assert.Contains("scriptCrc32", missingCrcResult.Msg);
+
+            var succeeded = await client.PostAsJsonAsync("/api/EdgeTask/Receipt", new EdgeTaskReceiptDto
+            {
+                ContractVersion = EdgeNodeContractVersions.EdgeTaskV1,
+                TaskId = edgeTask.TaskId,
+                TargetType = pulledTask.Address.TargetType,
+                TargetKey = pulledTask.Address.TargetKey,
+                RuntimeType = "iotembedded",
+                InstanceId = "stm32-gateway-child-01",
+                Status = EdgeTaskStatus.Succeeded,
+                Progress = 100,
+                Message = "script switched with crc",
+                ReportedAt = DateTime.UtcNow,
+                Result = new Dictionary<string, object>
+                {
+                    ["packageId"] = uploadResult.Data.Id,
+                    ["packageVersion"] = uploadResult.Data.Version,
+                    ["sha256"] = uploadResult.Data.Sha256,
+                    ["targetDeviceId"] = childId,
+                    ["scriptCrc32"] = expectedCrc32
+                }
+            });
+            var succeededResult = await ReadApiResultAsync<EdgeTaskReceiptDto>(succeeded);
+            Assert.Equal((int)ApiCode.Success, succeededResult.Code);
+
+            var completedPlan = await GetApiResultAsync<ReleasePlanDto>(client, $"/api/ReleaseCenter/Plans/{createResult.Data.Plan.Id}");
+            Assert.Equal((int)ApiCode.Success, completedPlan.Code);
+            Assert.Equal(ReleasePlanStatus.Succeeded, completedPlan.Data!.Status);
+            var completedTask = Assert.Single(completedPlan.Data.Tasks);
+            Assert.Equal(ReleaseTaskStatus.Succeeded, completedTask.Status);
+            Assert.Equal(100, completedTask.Progress);
+
+            using var verifyScope = _fixture.Services.CreateScope();
+            var verifyDbContext = verifyScope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+            var storedEdgeTask = await verifyDbContext.EdgeTasks.AsNoTracking().SingleAsync(task => task.Id == edgeTask.TaskId);
+            Assert.Equal(gatewayId, storedEdgeTask.GatewayId);
+            Assert.Equal(EdgeTaskStatus.Succeeded, storedEdgeTask.Status);
+            Assert.Equal(3, await verifyDbContext.ReleaseReceipts.AsNoTracking().CountAsync(receipt => receipt.PlanId == completedPlan.Data.Id));
+        }
+
+        [Fact]
         public async Task CollectionConfigVersion_PersistsSnapshotAndAssignment()
         {
             using var client = _fixture.CreateClient();

@@ -1768,6 +1768,14 @@ namespace IoTSharp.Controllers
                 return $"Succeeded {task.TaskType} receipt requires result.deviceId or result.targetDeviceId";
             }
 
+            if (receipt.Status == EdgeTaskStatus.Succeeded &&
+                task.TaskType == EdgeTaskType.DeviceScriptOta &&
+                !string.IsNullOrWhiteSpace(expectedScriptCrc32) &&
+                string.IsNullOrWhiteSpace(resultScriptCrc32))
+            {
+                return $"Succeeded {task.TaskType} receipt requires result.scriptCrc32";
+            }
+
             return string.Empty;
         }
 
